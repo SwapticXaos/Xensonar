@@ -1,0 +1,58 @@
+import type { MaterialProfile, SchwarmMaterial } from "./types";
+
+export const MATERIAL_PROFILES: Record<SchwarmMaterial, MaterialProfile> = {
+  glass: {
+    resonanceQ: 16,
+    resonanceSpread: 1.45,
+    shimmerDrive: 1.55,
+    brightness: 1.18,
+    feedback: 0.34,
+    stereoSpread: 0.92,
+    undercurrent: 0.24,
+  },
+  metal: {
+    resonanceQ: 12,
+    resonanceSpread: 1.7,
+    shimmerDrive: 1.85,
+    brightness: 1.08,
+    feedback: 0.42,
+    stereoSpread: 0.84,
+    undercurrent: 0.28,
+  },
+  resin: {
+    resonanceQ: 10,
+    resonanceSpread: 1.18,
+    shimmerDrive: 1.06,
+    brightness: 0.92,
+    feedback: 0.3,
+    stereoSpread: 0.68,
+    undercurrent: 0.44,
+  },
+  fungus: {
+    resonanceQ: 8,
+    resonanceSpread: 1.24,
+    shimmerDrive: 0.92,
+    brightness: 0.88,
+    feedback: 0.38,
+    stereoSpread: 0.78,
+    undercurrent: 0.6,
+  },
+  dust: {
+    resonanceQ: 6,
+    resonanceSpread: 1.1,
+    shimmerDrive: 0.74,
+    brightness: 0.78,
+    feedback: 0.22,
+    stereoSpread: 0.56,
+    undercurrent: 0.18,
+  },
+  plasma: {
+    resonanceQ: 14,
+    resonanceSpread: 1.86,
+    shimmerDrive: 2.15,
+    brightness: 1.32,
+    feedback: 0.48,
+    stereoSpread: 1.0,
+    undercurrent: 0.38,
+  },
+};
