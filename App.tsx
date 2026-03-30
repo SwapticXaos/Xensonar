@@ -9738,7 +9738,7 @@ const ensureMyzelPostFxRouter = (ctx: AudioContext) => {
                       <select value={nParamsUI.materialLoopId} onChange={(e) => updateNParams({ materialLoopId: e.target.value })} className="w-full bg-neutral-950 border border-neutral-700 p-1 text-sm text-neutral-300">
                         {exportedLoopMaterials.length === 0 && <option value="">Kein exportierter Loop in dieser Sitzung</option>}
                         {exportedLoopMaterials.map((entry) => (
-                          <option key={entry.id} value={entry.id}>{entry.name} · {entry.bars}T · {Math.round(entry.bpm ?? ((entry.tempo16 ?? 432) / 4))} BPM · {entry.renderMode}</option>
+                          <option key={entry.id} value={entry.id}>{entry.name} · {entry.bars}T · Forge-BPM ignoriert · {entry.renderMode}</option>
                         ))}
                       </select>
                     </div>
@@ -9758,7 +9758,7 @@ const ensureMyzelPostFxRouter = (ctx: AudioContext) => {
                     <div className="text-[11px] leading-relaxed text-neutral-500">III.2-Loops werden hier als Ganzes auf die aktuelle Taktlaenge gebracht. Maßgeblich sind die exportierten Takte; odd bars wie 3 oder 5 bleiben gueltig. Falls sich ein Import halbiert oder verdoppelt anfuehlt, kannst du hier direkt auf Double Time oder Half Time umstellen.</div>
                     {selectedLoopMaterial && (
                       <div className="text-[11px] text-neutral-500 border border-neutral-800 bg-neutral-950/40 px-2 py-2 space-y-1">
-                        <div>Aktiv: <span className="text-neutral-300">{selectedLoopMaterial.name}</span> · {selectedLoopMaterial.bars} exportierte Takte · {Math.round(selectedLoopMaterial.bpm ?? ((selectedLoopMaterial.tempo16 ?? 432) / 4))} BPM</div>
+                        <div>Aktiv: <span className="text-neutral-300">{selectedLoopMaterial.name}</span> · {selectedLoopMaterial.bars} exportierte Takte · Forge-BPM wird nicht für das Playback verwendet</div>
                         <div>Interpretation in Xensonar: <span className="text-cyan-300">{nParamsUI.materialLoopTimeMode === 'normal' ? 'Normal' : nParamsUI.materialLoopTimeMode === 'double' ? 'Double Time' : 'Half Time'}</span> · wirksam {formatMaterialLoopBars(getEffectiveMaterialLoopBars(selectedLoopMaterial, nParamsUI.materialLoopTimeMode))} Takte bei {Math.round(nParamsUI.quantizeBpm || 108)} BPM</div>
                         <div>Importpfad: <span className="text-emerald-300">{selectedLoopMaterial.renderMode?.includes('source-direct') ? 'Direktquelle / unbearbeiteter Loop' : 'Forge-Render / Übersetzung'}</span></div>
                         <div>Bevorzugte Myzel-Gruppe: <span className="text-fuchsia-300">{effectiveLoopMyzelGroup ? (MYZEL_POST_FX_GROUPS.find((entry) => entry.id === effectiveLoopMyzelGroup)?.label ?? effectiveLoopMyzelGroup) : '—'}</span></div>

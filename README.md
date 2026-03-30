@@ -11,3 +11,12 @@ This pack contains the files that Codex previously reported as missing or worth 
 Generated helper files:
 - README.md
 - .gitignore
+
+## Direct-Test Workflow
+
+Für Frontend-Patches wird zusätzlich zur Codeänderung immer ein direkt testbares Single-File-HTML bereitgestellt:
+
+- `Xensonar_direct_test_latest.html` (Snapshot aus `dist/index.html`)
+
+Damit kann der aktuelle Stand ohne Build-Schritt direkt gegengeprüft werden.
+

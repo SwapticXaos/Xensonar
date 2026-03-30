@@ -11,8 +11,10 @@ function slugify(value: string) {
 }
 
 function coerceBpm(meta: ExportedMaterialMeta) {
-  if (Number.isFinite(meta.bpm) && meta.bpm > 0) return meta.bpm;
-  if (Number.isFinite(meta.tempo16) && (meta.tempo16 ?? 0) > 0) return Math.max(1, (meta.tempo16 as number) / 4);
+  // Forge-BPM wird bewusst nicht als treibende Transportgröße in den Room-V-Handoff übernommen.
+  // Für die Materialspur zählt hier primär die exportierte Taktzahl (bars); Xensonar nutzt sein eigenes Tempo.
+  // Wir halten das Feld aus Schema-Gründen weiterhin stabil auf dem Xensonar-Default.
+  void meta;
   return 108;
 }
 
