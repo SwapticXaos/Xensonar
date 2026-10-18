@@ -1,0 +1,345 @@
+[
+  {
+    "file": "src/nodal/05_installation_bridge.js",
+    "baselineSha256": "ae733c855212ba118607fc1e26bc3b896057cdd1cbfe3ad69b2c80f3747454a1",
+    "seams": [
+      {
+        "position": 0,
+        "before": "",
+        "after": "// Preview-only renderer. Instruments remain synthetic descriptors in the library and\n// Melodic Loop; PCM is ephemeral and never written to the instrument store.\nfunction nodalPreviewWorkerEntry(kernelFactory) {\n  const renderer = kernelFactory();\n  self.onmessage = ({data}) => {\n    try {\n      const rendered = renderer.render(data.plan, data.options, data.sampleRate);\n      self.postMessage({type: 'rendered', pcm: rendered.pcm}, [rendered.pcm.buffer]);\n    } catch (error) { self.postMessage({type: 'error', message: String(error?.message ?? error)}); }\n  };\n}\n"
+      },
+      {
+        "position": 1044,
+        "before": "",
+        "after": "\n    let previewSource = null, previewRelease = null, previewWorker = null, abortPreviewRender = null;\n    function stopPreview() {\n      generation++;\n      const abort = abortPreviewRender; abortPreviewRender = null;\n      if (abort) abort(new Error('Nodal preview cancelled'));\n      if (previewWorker) { previewWorker.terminate(); previewWorker = null; }\n      if (previewSource) { try { previewSource.onended = null; previewSource.stop(); } catch {} try { previewSource.disconnect(); } catch {} previewSource = null; }\n      const release = previewRelease; previewRelease = null; if (release) release();\n    }\n    function renderPreview(plan, note, sampleRate, revision) {\n      if (typeof Worker !== 'function' || typeof URL?.createObjectURL !== 'function' || typeof Blob !== 'function')\n        return Promise.resolve(dsp.render(plan, note, sampleRate).pcm);\n      return new Promise((resolve, reject) => {\n        let url = null, worker = null, settled = false;\n        const watchdogMs = Math.max(5000, Math.min(90000, Math.ceil((note.durationSec + plan.articulation.releaseSec) * 3000 + 1500)));\n        const watchdog = setTimeout(() => finish(new Error('Nodal preview worker did not respond')), watchdogMs);\n        const finish = (error, pcm) => {\n          if (settled) return; settled = true; clearTimeout(watchdog);\n          if (abortPreviewRender === cancel) abortPreviewRender = null;\n          if (previewWorker === worker) previewWorker = null;\n          if (worker) worker.terminate(); if (url) URL.revokeObjectURL(url);\n          if (error) reject(error); else resolve(pcm);\n        };\n        const cancel = error => finish(error);\n        abortPreviewRender = cancel;\n        try {\n          const code = '(' + nodalPreviewWorkerEntry.toString() + ')(' + createNodalSynthesisKernel.toString() + ');';\n          url = URL.createObjectURL(new Blob([code], {type:'text/javascript'}));\n          worker = new Worker(url); previewWorker = worker;\n          worker.onmessage = ({data}) => data.type === 'rendered' ? finish(null, data.pcm) : finish(new Error(data.message ?? 'Nodal preview render failed'));\n          worker.onerror = event => { event.preventDefault?.(); finish(new Error('Nodal preview rendering worker failed')); };\n          worker.postMessage({plan, options: note, sampleRate});\n        } catch (error) { finish(error); }\n      });\n    }\n    async function preview(instrument, note = {}) {\n      // Unlike the realtime loop transport, manual audition may be prepared offline:\n      // worklet registration and admission cannot silently turn a click into silence.\n      stopPreview(); const revision = generation;\n      const audio = config.audio;\n      if (!audio || typeof audio.ensureReady !== 'function') throw new Error('Nodal audio adapter unavailable');\n      await audio.ensureReady();\n      if (revision !== generation) throw new Error('Nodal preview cancelled');\n      const context = audio.getContext();\n      if (!context || context.state !== 'running') throw new Error('Audio context not running for Nodal preview');\n      const plan = model.compile(instrument);\n      if (plan.silent) throw new Error('Nodal instrument has no active organs');\n      if (plan.cost > 8) throw new Error('Nodal instrument exceeds live preview budget');\n      const frequency = note.frequency ?? instrument.referenceHz;\n      if (!Number.isFinite(frequency) || frequency < 5 || frequency > 12000) throw new Error('Invalid preview frequency');\n      const sampleRate = context.sampleRate;\n      const renderOptions = {frequency, velocity: note.velocity ?? .8, gain: note.gain ?? .7,\n        durationSec: note.durationSec ?? instrument.articulation.durationSec, seed: note.seed ?? instrument.seed};\n      let pcm;\n      try { pcm = await renderPreview(plan, renderOptions, sampleRate, revision); }\n      catch (error) {\n        if (revision !== generation) throw error;\n        // Worker/CSP failures must never make the manual audition permanently silent.\n        // This is a preview-only fallback; real-time Melodic synthesis is unchanged.\n        pcm = dsp.render(plan, renderOptions, sampleRate).pcm;\n      }\n      if (revision !== generation) throw new Error('Nodal preview cancelled');\n      const peak = pcm.reduce((max, x) => Math.max(max, Math.abs(x)), 0);\n      if (!Number.isFinite(peak) || peak < .0001) throw new Error('Nodal preview rendered silence');\n      const ticket = audio.acquire(plan.cost);\n      if (!ticket) throw new Error('Nodal preview rejected by the shared audio voice budget');\n      let owned = true;\n      const release = () => { if (!owned) return; owned = false; ticket.release(); };\n      previewRelease = release;\n      try {\n        const buffer = context.createBuffer(1, pcm.length, sampleRate);\n        buffer.copyToChannel(pcm, 0);\n        const source = context.createBufferSource();\n        source.buffer = buffer;\n        source.onended = () => { if (previewSource === source) previewSource = null; try { source.disconnect(); } catch {} release(); if (previewRelease === release) previewRelease = null; };\n        source.connect(audio.getOutput(context)); // one established master output owner\n        previewSource = source;\n        source.start(context.currentTime + .02);\n        return Object.freeze({started: Promise.resolve(), noteOff: () => { try { source.stop(); } catch {} },\n          offlinePreview: true, peak, sampleRate});\n      } catch (error) { release(); if (previewRelease === release) previewRelease = null; throw error; }\n    }\n"
+      },
+      {
+        "position": 11636,
+        "before": "",
+        "after": "preview, "
+      },
+      {
+        "position": 12048,
+        "before": "",
+        "after": "{ stopPreview(); "
+      },
+      {
+        "position": 12079,
+        "before": "",
+        "after": "; }"
+      },
+      {
+        "position": 12107,
+        "before": "g",
+        "after": "stopPr"
+      },
+      {
+        "position": 12114,
+        "before": "n",
+        "after": "vi"
+      },
+      {
+        "position": 12117,
+        "before": "ration++",
+        "after": "w()"
+      }
+    ]
+  },
+  {
+    "file": "src/nodal/07_sound_designer.js",
+    "baselineSha256": "d7abb05f9918242869d3efd355ddaf763a02be84826c9e9788f7729068b9a840",
+    "seams": [
+      {
+        "position": 5138,
+        "before": "await",
+        "after": "//"
+      },
+      {
+        "position": 5141,
+        "before": "back",
+        "after": "Th"
+      },
+      {
+        "position": 5144,
+        "before": "",
+        "after": " sou"
+      },
+      {
+        "position": 5150,
+        "before": ".pr",
+        "after": " d"
+      },
+      {
+        "position": 5153,
+        "before": "pareAud",
+        "after": "s"
+      },
+      {
+        "position": 5155,
+        "before": "o(snapshot); if (turn !== ",
+        "after": ""
+      },
+      {
+        "position": 5156,
+        "before": "e",
+        "after": ""
+      },
+      {
+        "position": 5159,
+        "before": "ation.c",
+        "after": " "
+      },
+      {
+        "position": 5161,
+        "before": "rrent) return;\n      // Preview i",
+        "after": ""
+      },
+      {
+        "position": 5162,
+        "before": " an immediate human action, but the processor receiv",
+        "after": ""
+      },
+      {
+        "position": 5167,
+        "before": "",
+        "after": "s own deterministic, ephemeral PCM"
+      },
+      {
+        "position": 5203,
+        "before": "synchr",
+        "after": "uditi"
+      },
+      {
+        "position": 5210,
+        "before": "ously",
+        "after": ""
+      },
+      {
+        "position": 5221,
+        "before": "Sc",
+        "after": "T"
+      },
+      {
+        "position": 5224,
+        "before": "",
+        "after": " save"
+      },
+      {
+        "position": 5230,
+        "before": "",
+        "after": " instr"
+      },
+      {
+        "position": 5237,
+        "before": "l",
+        "after": "m"
+      },
+      {
+        "position": 5239,
+        "before": "",
+        "after": "nt"
+      },
+      {
+        "position": 5243,
+        "before": "",
+        "after": "nd"
+      },
+      {
+        "position": 5246,
+        "before": "s",
+        "after": "Melod"
+      },
+      {
+        "position": 5252,
+        "before": "ngle",
+        "after": "c"
+      },
+      {
+        "position": 5258,
+        "before": "",
+        "after": "s"
+      },
+      {
+        "position": 5260,
+        "before": "",
+        "after": "rem"
+      },
+      {
+        "position": 5264,
+        "before": "",
+        "after": "in direct synt"
+      },
+      {
+        "position": 5280,
+        "before": "ad, wi",
+        "after": ""
+      },
+      {
+        "position": 5281,
+        "before": "h expl",
+        "after": ""
+      },
+      {
+        "position": 5283,
+        "before": "",
+        "after": " rec"
+      },
+      {
+        "position": 5288,
+        "before": "t acknowl",
+        "after": "p"
+      },
+      {
+        "position": 5290,
+        "before": "dgement, never a catch-up queue",
+        "after": "s"
+      },
+      {
+        "position": 5314,
+        "before": "",
+        "after": "await "
+      },
+      {
+        "position": 5328,
+        "before": "not",
+        "after": "pr"
+      },
+      {
+        "position": 5331,
+        "before": "On",
+        "after": "view"
+      },
+      {
+        "position": 5400,
+        "before": ", confirmStart: true",
+        "after": ""
+      },
+      {
+        "position": 5401,
+        "before": ", undefined",
+        "after": ""
+      },
+      {
+        "position": 5439,
+        "before": "p",
+        "after": "'Noda"
+      },
+      {
+        "position": 5445,
+        "before": "an.cost > 8 ? 'Dieser Körper ist für die Live",
+        "after": ""
+      },
+      {
+        "position": 5455,
+        "before": "zu",
+        "after": "konnte"
+      },
+      {
+        "position": 5462,
+        "before": "groß. Orga",
+        "after": "kei"
+      },
+      {
+        "position": 5467,
+        "before": " reduziere",
+        "after": ""
+      },
+      {
+        "position": 5468,
+        "before": " oder Fold/Drive lösen.' : 'Vorhören nicht gestartet:",
+        "after": ""
+      },
+      {
+        "position": 5474,
+        "before": "-Kontext, Voice-B",
+        "after": "a"
+      },
+      {
+        "position": 5476,
+        "before": "d",
+        "after": "s"
+      },
+      {
+        "position": 5478,
+        "before": "et oder Audio-Priorität prüfen.');\n      if (!h",
+        "after": ""
+      },
+      {
+        "position": 5480,
+        "before": "dle.",
+        "after": "g "
+      },
+      {
+        "position": 5487,
+        "before": "ed) throw new Error('Vorhören ohne Startbestätigung – Audio-Runtime aktualisier",
+        "after": ""
+      },
+      {
+        "position": 5649,
+        "before": "Wo",
+        "after": "Synthese ge"
+      },
+      {
+        "position": 5661,
+        "before": "kl",
+        "after": ""
+      },
+      {
+        "position": 5662,
+        "before": "",
+        "after": "nder"
+      },
+      {
+        "position": 5668,
+        "before": "b",
+        "after": "· Audio g"
+      },
+      {
+        "position": 5680,
+        "before": "ä",
+        "after": "ar"
+      },
+      {
+        "position": 5683,
+        "before": "ig",
+        "after": "e"
+      }
+    ]
+  },
+  {
+    "file": "src/app/forge/01_room_shell.js",
+    "baselineSha256": "457dd828fe2ad0764c1b92093cd44007f4b98cb941f3f149b40a58c96719d5d4",
+    "seams": [
+      {
+        "position": 42148,
+        "before": "kc(",
+        "after": ""
+      },
+      {
+        "position": 42151,
+        "before": ",",
+        "after": ".state==="
+      },
+      {
+        "position": 42161,
+        "before": "pa",
+        "after": ""
+      },
+      {
+        "position": 42162,
+        "before": "t",
+        "after": "unn"
+      },
+      {
+        "position": 42166,
+        "before": "cle",
+        "after": "ng"
+      },
+      {
+        "position": 42169,
+        "before": ")",
+        "after": ""
+      }
+    ]
+  }
+]

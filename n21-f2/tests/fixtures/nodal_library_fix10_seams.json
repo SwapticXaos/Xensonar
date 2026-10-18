@@ -1,0 +1,88 @@
+[
+  {
+    "file": "src/nodal/03_library.js",
+    "baselineSha256": "484be0ff04bd2ccf4da5ba0e96384292e528ca9aa5917f1d1e8e586010d0279c",
+    "seams": [
+      {
+        "position": 2497,
+        "before": "",
+        "after": "// Renaming is a metadata change: preserve the sound identity/revision and any existing musical references.\n  function rename(id, expectedRevision, label) {\n    const name = typeof label === 'string' ? label.trim() : '';\n    if (!name || name.length > 100) throw new Error('Instrumentname muss 1 bis 100 Zeichen enthalten.');\n    const entries = list(), index = entries.findIndex(e => e.id === id);\n    if (index < 0) throw new Error('Instrument wurde nicht gefunden.');\n    if (entries[index].revision !== expectedRevision) throw new Error('Nodal revision conflict');\n    const old = entries[index];\n    if (old.instrument.name === name) return old;\n    const updated = {id: old.id, revision: old.revision, instrument: model.normalize({...old.instrument, name})};\n    entries[index] = updated;\n    write(entries);\n    return updated;\n  }\n  "
+      },
+      {
+        "position": 4491,
+        "before": "",
+        "after": "name, re"
+      }
+    ]
+  },
+  {
+    "file": "src/nodal/06_melodic_bridge.js",
+    "baselineSha256": "dcf6702adbbe0cbade987605cf0cc56b98a85e1a41ec2992801451b501a816bc",
+    "seams": [
+      {
+        "position": 1815,
+        "before": "InstrumentMenu(composer) {\n  const choices = new Map();\n  try { for (const e of __XenNodalLibrary.list()) choices.set('nodal:' + e.id + '@' + e.revision, e.instrument); } catch {}\n  for (const [id, instrument] of Object.entries(composer?.nodalInstruments ?? {})) choices.set(id, instrument);\n  return choices.size ? [{id: 'nodal', label: 'Nodal · Synthetische Instrumente', options: Array.from(choices, ([id, instrument]) => ({id, label: instrument.name, hint: 'Direkte Synthese', baseHz: instrument.referenceHz, originLabel: 'Nodal'}))}] : []",
+        "after": "LibraryEntryLabel(entry, entries) {\n  const name = entry.instrument.name;\n  const same = entries.filter(e => e.instrument.name === name);\n  const index = same.findIndex(e => e.id === entry.id) + 1;\n  return name + ' · ' + entry.instrument.nodes.length + ' Knoten' + (same.length > 1 ? ' · ' + index + '/' + same.length : '');\n}\nfunction nodalInstrumentMenu(composer) {\n  // Library sound sources and currently referenced project snapshots are different entities.\n  // Deleting a library entry must never silence an existing composition.\n  const choices = new Map(), entries = (() => { try { return __XenNodalLibrary.list(); } catch { return []; } })();\n  const referenced = new Set();\n  for (const track of composer?.tracks ?? []) {\n    if (track.instrumentPreset?.startsWith('nodal:')) referenced.add(track.instrumentPreset);\n    for (const note of composer?.notes ?? []) if (note.trackId === track.id) {\n      const id = note.instrumentPresetOverride || track.instrumentPreset;\n      if (id?.startsWith('nodal:')) referenced.add(id);\n    }\n  }\n  for (const entry of entries) choices.set('nodal:' + entry.id + '@' + entry.revision, {instrument: entry.instrument, kind: 'library', entry});\n  for (const [id, instrument] of Object.entries(composer?.nodalInstruments ?? {})) if (referenced.has(id)) {\n    const stored = choices.get(id);\n    // The project owns its snapshot; the library may only contribute a changed display name.\n    choices.set(id, {...stored, instrument: stored?.instrument ?? instrument, kind: stored ? 'library' : 'project'});\n  }\n  if (!choices.size) return [];\n  const values = Array.from(choices, ([id, data]) => ({id, ...data}));\n  const counts = new Map();\n  for (const value of values) counts.set(value.instrument.name, (counts.get(value.instrument.name) ?? 0) + 1);\n  const seen = new Map();\n  return [{id: 'nodal', label: 'Nodal · Synthetische Instrumente', options: values.map(value => {\n    const {id, instrument, kind} = value;\n    const index = (seen.get(instrument.name) ?? 0) + 1;\n    seen.set(instrument.name, index);\n    return {id, label: instrument.name + ' · ' + instrument.nodes.length + ' Knoten' +\n      (counts.get(instrument.name) > 1 ? ' · ' + index + '/' + counts.get(instrument.name) : '') +\n      (kind === 'project' ? ' · im Projekt' : ''), hint: 'Direkte Synthese', baseHz: instrument.referenceHz, originLabel: 'Nodal'};\n  })}];\n}\n/* Compact library management is available where the musician actually chooses instruments.\n   Edits change only library metadata, never note geometry, PCM or synthesizer revision. */\nfunction NodalLibraryManager({composer, onMutateLoopComposer}) {\n  const h = P.createElement;\n  const [open, setOpen] = P.useState(false);\n  const [entries, setEntries] = P.useState(() => { try { return __XenNodalLibrary.list(); } catch { return []; } });\n  const [drafts, setDrafts] = P.useState({});\n  const [message, setMessage] = P.useState('');\n  function refresh() {\n    const items = __XenNodalLibrary.list();\n    setEntries(items);\n    setDrafts(Object.fromEntries(items.map(e => [e.id, e.instrument.name])));\n  }\n  function notify() { window.dispatchEvent(new Event('xensonar:nodal-library-changed')); }\n  function renameEntry(entry) {\n    try {\n      const oldName = entry.instrument.name;\n      const next = __XenNodalLibrary.rename(entry.id, entry.revision, drafts[entry.id]);\n      const preset = 'nodal:' + entry.id + '@' + entry.revision;\n      if (composer?.nodalInstruments?.[preset] && oldName !== next.instrument.name) {\n        onMutateLoopComposer(c => {\n          if (c.nodalInstruments?.[preset]) c.nodalInstruments[preset] = {...c.nodalInstruments[preset], name: next.instrument.name};\n          for (const track of c.tracks) if (track.instrumentPreset === preset && track.label === oldName) track.label = next.instrument.name;\n        });\n      }\n      refresh(); notify(); setMessage('Umbenannt: ' + next.instrument.name + ' · Klang und Noten unverändert.');\n    } catch (error) { setMessage('Umbenennen: ' + error.message); }\n  }\n  function removeEntry(entry) {\n    if (!window.confirm('„' + entry.instrument.name + '“ aus der Nodal-Bibliothek entfernen? Bereits verwendete Noten und Projektkopien bleiben erhalten.')) return;\n    try {\n      __XenNodalLibrary.remove(entry.id, entry.revision);\n      refresh(); notify(); setMessage('Aus der Bibliothek entfernt. Vorhandene Kompositionen bleiben erhalten.');\n    } catch (error) { setMessage('Entfernen: ' + error.message); }\n  }\n  return h('section', {className: 'nd-library-manager', 'aria-label': 'Nodal-Instrumentenbibliothek'},\n    h('button', {type: 'button', 'aria-expanded': open, onClick: () => {\n      if (!open) try { refresh(); } catch (error) { setMessage(error.message); }\n      setOpen(!open);\n    }}, 'Nodal-Klänge verwalten (' + entries.length + ')' + (open ? ' ▴' : ' ▾')),\n    open ? h('div', {className: 'nd-library-manager-content'},\n      h('div', {className: 'nd-library-manager-help'}, 'Gespeicherte Nodal-Instrumente: Namen ändern oder Einträge entfernen. Senden aus Sounddesign legt auch einen Bibliothekseintrag an. Den Klang selbst bearbeitest du im Nodal-Sounddesign.'),\n      entries.length ? entries.map(entry => h('div', {key: entry.id, className: 'nd-library-manager-row'},\n        h('label', {className: 'nd-library-manager-name'},\n          h('span', null, nodalLibraryEntryLabel(entry, entries)),\n          h('input', {'aria-label': 'Name für ' + nodalLibraryEntryLabel(entry, entries), value: drafts[entry.id] ?? entry.instrument.name, maxLength: 100,\n            onChange: e => setDrafts(v => ({...v, [entry.id]: e.target.value}))})),\n        h('button', {type: 'button', disabled: (drafts[entry.id] ?? entry.instrument.name).trim() === entry.instrument.name,\n          onClick: () => renameEntry(entry)}, 'Umbenennen'),\n        h('button', {type: 'button', onClick: () => removeEntry(entry), 'aria-label': nodalLibraryEntryLabel(entry, entries) + ' entfernen'}, 'Entfernen')\n      )) : h('div', {className: 'nd-library-manager-help'}, 'Noch keine Nodal-Klänge gespeichert.'),\n      h('div', {className: 'nd-library-manager-help'}, 'Entfernte Instrumente bleiben in bestehenden Melodic-Kompositionen spielbar. Solche Kopien tragen „im Projekt“.'),\n      message ? h('div', {className: 'nd-library-manager-message', role: 'status'}, message) : null\n    ) : null)"
+      }
+    ]
+  },
+  {
+    "file": "src/nodal/07_sound_designer.js",
+    "baselineSha256": "f0789d89eea2b47a4814adfa1fa536d413a6d4d9119c5193b71f7670d20cdca1",
+    "seams": [
+      {
+        "position": 10753,
+        "before": "",
+        "after": "' · auch in Nodal-Bibliothek gespeichert' + "
+      },
+      {
+        "position": 24021,
+        "before": "ent",
+        "after": "nodalLibra"
+      },
+      {
+        "position": 24033,
+        "before": ".instrument.name",
+        "after": "EntryLabel(entry, saved)"
+      }
+    ]
+  },
+  {
+    "file": "src/forge_and_melodic/06_note_editor_and_material_tools.js",
+    "baselineSha256": "60d297641cbcf895677e5816b8a38c38a4b3f880c5075d7788177865d8acfd2a",
+    "seams": [
+      {
+        "position": 67128,
+        "before": "",
+        "after": "(NodalLibraryManager,{composer:d,onMutateLoopComposer:p}),u.jsx"
+      }
+    ]
+  },
+  {
+    "file": "src/forge_and_melodic/09_canonical_forge_room.js",
+    "baselineSha256": "1c89b95c4e32d25ad7b079fe0280d6a52446680f548988f56f631729660772b2",
+    "seams": [
+      {
+        "position": 212,
+        "before": "",
+        "after": ");const[__mlNodalLibraryRevision,__mlSetNodalLibraryRevision]=P.useState(0);P.useEffect(()=>{const listener=()=>__mlSetNodalLibraryRevision(v=>v+1);window.addEventListener(\"xensonar:nodal-library-changed\",listener);return()=>window.removeEventListener(\"xensonar:nodal-library-changed\",listener)},[]"
+      },
+      {
+        "position": 5801,
+        "before": "",
+        "after": ",__mlNodalLibraryRevision"
+      }
+    ]
+  },
+  {
+    "file": "styles/20_nodal_sound_designer.css",
+    "baselineSha256": "4eb6b34d3ba7151995841c884ecee6c2b3a2dfe2e90e5cedb7663d5160e167c7",
+    "seams": [
+      {
+        "position": 11081,
+        "before": "",
+        "after": "\n/* Melodic Loop: Nodal library management adjacent to the instrument choices. */\n.nd-library-manager{border:1px solid #355159;border-radius:8px;background:#102027;color:#d9e8e7;padding:8px 10px;margin:9px 0;font-size:11px}\n.nd-library-manager>button{background:#23443f;color:#c3e9df;border:1px solid #527c72;border-radius:5px;padding:6px 10px;cursor:pointer}\n.nd-library-manager-content{padding-top:8px}.nd-library-manager-help{font-size:11px;color:#a9bbbf;margin:5px 0 8px}\n.nd-library-manager-row{display:flex;gap:8px;align-items:end;flex-wrap:wrap;padding:6px 0;border-bottom:1px solid #30444b}\n.nd-library-manager-name{display:block;flex:1;min-width:180px}.nd-library-manager-name>span{display:block;color:#9bb5b8;font-size:10px;padding-bottom:3px}\n.nd-library-manager-name input{box-sizing:border-box;width:100%;background:#0c1a20;color:#eef7f2;border:1px solid #486269;border-radius:5px;padding:7px;min-height:32px}\n.nd-library-manager-row>button{border:1px solid #527c72;background:#1c3c40;color:#dfebe6;border-radius:5px;padding:7px 10px;min-height:32px;cursor:pointer}\n.nd-library-manager-row>button:disabled{opacity:.4;cursor:default}.nd-library-manager-row>button:last-child{border-color:#7f5353;color:#f1c9c4}\n.nd-library-manager-message{color:#bcead9;margin:7px 0}\n"
+      }
+    ]
+  }
+]

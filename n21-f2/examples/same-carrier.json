@@ -1,0 +1,40 @@
+{
+  "version": 1,
+  "tuning": "13 equal divisions per octave",
+  "baseHz": 196,
+  "durationSec": 6,
+  "notes": [
+    {
+      "start": 0.1,
+      "duration": 0.6,
+      "step": 0
+    },
+    {
+      "start": 0.85,
+      "duration": 0.35,
+      "step": 3
+    },
+    {
+      "start": 1.4,
+      "duration": 0.7,
+      "step": 7,
+      "gliss": -2
+    },
+    {
+      "start": 2.35,
+      "duration": 0.4,
+      "step": 9
+    },
+    {
+      "start": 3,
+      "duration": 1.2,
+      "step": 0,
+      "gliss": 5
+    },
+    {
+      "start": 4.5,
+      "duration": 0.8,
+      "step": 4
+    }
+  ]
+}

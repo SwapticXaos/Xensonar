@@ -1,0 +1,23 @@
+'use strict';
+const fs=require('node:fs'),assert=require('node:assert/strict');
+const create=new Function(fs.readFileSync('src/instruments/07_pitch_preparation.js','utf8')+';return createInstrumentPitchPreparation;')();
+const flush=()=>new Promise(r=>setImmediate(r));
+(async()=>{
+ const requests=[],installed=[],pruned=[],timers=[];let finish;
+ const q=create({capacity:48,batchSize:16,prepare:batch=>{requests.push(batch);return new Promise(r=>finish=r);},install:(packet,batch)=>installed.push({packet,batch}),prune:xs=>pruned.push(xs),schedule:fn=>{timers.push(fn);return fn;},cancel:fn=>{const i=timers.indexOf(fn);if(i>=0)timers.splice(i,1);}});
+ const grid=Array.from({length:48},(_,i)=>100+i);
+ assert(q.update(grid));assert.equal(requests.length,1);assert.equal(requests[0].length,16);
+ finish({engine:'nodal',opaque:'a'});await flush();assert.equal(installed.length,1);assert.equal(requests.length,1,'subsequent batches must yield');
+ timers.shift()();finish({engine:'nodal',opaque:'b'});await flush();timers.shift()();finish({engine:'nodal',opaque:'c'});await flush();
+ assert.equal(q.snapshot().missing,0);assert.equal(q.snapshot().resident,48);
+ assert(q.update(grid));assert.equal(requests.length,3,'identical grid is free');
+ const moved=grid.slice();moved[23]=300;
+ q.update(moved);assert.deepEqual(pruned.at(-1),[123]);assert.deepEqual(requests.at(-1),[300],'a move computes only the new frequency');
+ finish({opaque:'moved'});await flush();assert.equal(q.snapshot().missing,0,'full-capacity replacement cannot evict another wanted entry');
+ q.update([777]);const staleFinish=finish;q.update([888]);staleFinish({opaque:'stale'});await flush();assert.equal(installed.at(-1).packet.opaque,'moved');
+ timers.shift()();finish({engine:'entrophon',opaque:'adapter-owned data'});await flush();assert.equal(installed.at(-1).packet.engine,'entrophon','generic control accepts opaque engine-owned payloads');
+ assert.equal(q.snapshot().stale,1);q.update([999]);q.dispose();finish({opaque:'after-dispose'});await flush();assert.equal(installed.at(-1).packet.engine,'entrophon');assert.equal(timers.length,0);
+ let calls=0;const fail=create({prepare:async()=>{calls++;throw Error('worker unavailable');},install:()=>{throw Error('must not install');},pauseMs:0});
+ fail.update([220]);await flush();assert.equal(fail.snapshot().phase,'failed');fail.update([220]);await flush();assert.equal(calls,1,'a failed revision cannot busy-retry');fail.dispose();
+ console.log('PASS N2 shared preparation: 16-item pacing, exact delta, full-cache replacement, last revision wins, opaque adapters, failure and disposal');
+})().catch(e=>{console.error(e);process.exitCode=1});

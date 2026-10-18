@@ -1,0 +1,14 @@
+'use strict';
+const fs=require('fs'),path=require('path'),assert=require('assert/strict');
+const root=path.resolve(__dirname,'..'),manifest=require('../source-manifest.json');
+const source=manifest.files.map(f=>fs.readFileSync(path.join(root,f),'utf8')).join('\n');
+assert(!source.includes('__ForgeHearingSpectrum'),'F4.3.4 manager must be removed from the shipping code');
+assert(!manifest.files.includes('src/forge/fractalia/15_hearing_spectrum.js'),'old patch must not be bundled');
+assert(!source.includes('__FractaliaSpectralView'),'no renderer-owned Fractalia analysis remains');
+assert(!source.includes('__F35610Overlay'),'no special donor visualization owner remains');
+const donor=fs.readFileSync(path.join(root,'src/forge/module_bundle/19_donorMaterialDiagnostics.js'),'utf8');
+assert(!donor.includes('measureDonorOutputMantle'),'material metadata must not launch a second PCM measurement');
+assert(!donor.includes('.subscribe('),'material metadata must not own permanent store subscriptions');
+const view=fs.readFileSync(path.join(root,'src/forge/editor/06_pcm_spectrum_view.js'),'utf8');
+assert(!/RenderCurrent|renderCarrier|renderPCM|AudioContext|__FractaliaMaterialRuntime|setInterval/.test(view),'view cannot initiate synthesis or use the live audio runtime');
+console.log('PASS F434 removed; uniform view cannot call synthesis or the live audio engine');

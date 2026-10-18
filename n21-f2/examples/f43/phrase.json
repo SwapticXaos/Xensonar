@@ -1,0 +1,63 @@
+{
+  "sampleRate": 24000,
+  "durationSec": 6,
+  "events": [
+    {
+      "id": "staccato",
+      "startSec": 0.1,
+      "endSec": 0.32,
+      "pitch": [
+        220
+      ],
+      "gain": [
+        0.6,
+        0.6
+      ]
+    },
+    {
+      "id": "xenharmonic",
+      "startSec": 0.45,
+      "endSec": 0.8,
+      "pitch": [
+        245.4447419075396
+      ],
+      "gain": [
+        0.6,
+        0.6
+      ]
+    },
+    {
+      "id": "gliss",
+      "startSec": 1,
+      "endSec": 5.4,
+      "pitch": [
+        197,
+        260,
+        217,
+        330
+      ],
+      "gain": [
+        0.6,
+        0.6,
+        0,
+        0,
+        0.6,
+        0.6,
+        0.6
+      ]
+    },
+    {
+      "id": "upper",
+      "startSec": 4.5,
+      "endSec": 5.65,
+      "pitch": [
+        417.31,
+        430.21
+      ],
+      "gain": [
+        0.3,
+        0.3
+      ]
+    }
+  ]
+}

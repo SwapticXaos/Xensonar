@@ -1,0 +1,6 @@
+'use strict';
+const fs=require('node:fs'),crypto=require('node:crypto'),assert=require('node:assert/strict');
+const allowed=new Set(['src/runtime/instrument/09_monitoring_and_manual_patterns.js','src/audio/01_voice_and_rfl_ownership.js','src/audio/entrophon/02_worklet_and_voice_backend.js','src/rhythm/02_bass_and_rack.js','src/rhythm/03_live_drum_bodies.js','src/rhythm/04_workspace_and_transport.js','src/runtime/instrument/08_library_and_tuning_editor.js','src/runtime/instrument/10_entrophon_and_voice_control.js','src/app/forge/01_room_shell.js','src/nodal/04_audio_runtime.js','src/nodal/12_surface_runtime.js','src/mix/01_pan.js']);
+const parent=JSON.parse(fs.readFileSync('docs/p4c2-n6-parent-hashes.json','utf8'));let count=0;for(const [file,hash] of Object.entries(parent)){const current=crypto.createHash('sha256').update(fs.readFileSync(file)).digest('hex');if(allowed.has(file))assert.notEqual(current,hash,file);else{assert.equal(current,hash,'Unexpected change '+file);count++}}
+const manifest=JSON.parse(fs.readFileSync('source-manifest.json','utf8'));assert.deepEqual(manifest.files.filter(f=>!parent[f]),['src/mix/02_performance_catalog.js']);
+console.log('PASS N6 preservation:',count,'unchanged production files; twelve reviewed adapters/UI modules plus catalog and CSS. DSP kernel, WASM, pointer, clocks and drum backend byte-identical to N5');

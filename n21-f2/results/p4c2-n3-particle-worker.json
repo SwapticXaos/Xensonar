@@ -1,0 +1,12 @@
+{
+  "roots": 64,
+  "ratios": 5,
+  "particleFrequencies": 320,
+  "programs": 1,
+  "preparedOnsets": 5,
+  "pitchTrigonometryOnPreparedOnsets": 0,
+  "ratioEditNewFrequencies": 64,
+  "nonzeroWavePcm": true,
+  "nonzeroParticlePcm": true,
+  "mainThreadCoefficientJobs": 0
+}

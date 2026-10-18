@@ -1,0 +1,8 @@
+{
+  "genericFor": "Nodal and Entrophon adapters",
+  "resident": 64,
+  "imminentFirst": true,
+  "keepsInflightBatch": true,
+  "extraRevision": 0,
+  "stale": 0
+}

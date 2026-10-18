@@ -1,0 +1,6 @@
+
+.xen-main-drum-grid-timing{display:grid;grid-template-columns:var(--xen-drum-label-width,74px) minmax(0,1fr);column-gap:2px;align-items:center;min-height:32px}
+.xen-main-drum-marker-track{position:relative;height:32px;touch-action:none;background:linear-gradient(180deg,rgba(35,55,66,.25),rgba(19,40,52,.1));border-bottom:1px solid rgba(100,116,139,.5)}
+.xen-main-drum-marker{position:absolute;top:11px;transform:translateX(-50%);color:#67e8f9;line-height:1;font-size:14px;cursor:ew-resize;touch-action:none;user-select:none;width:17px;height:19px;background:transparent;border:none;z-index:2;padding:0}
+.xen-main-drum-marker:hover,.xen-main-drum-marker:focus-visible{color:#fde68a;outline:1px dotted #fde68a}
+.xen-main-drum-bar-label{position:absolute;top:0;font-size:10px;color:#fcd34d;pointer-events:none;white-space:nowrap}

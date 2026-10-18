@@ -1,0 +1,80 @@
+[
+  {
+    "file": "src/nodal/04_audio_runtime.js",
+    "baselineSha256": "33b43c86c01c377278938c1efed61db471d97aa6c35be7de19a14a50b7eb31ec",
+    "seams": [
+      {
+        "position": 1031,
+        "before": "              this.port.postMessage({type: 'rejected', id: data.id}); return;\n",
+        "after": "              const reason = !plan ? 'plan missing' : slot < 0 || this.cost + plan.cost > 8 ? 'voice capacity' : !Number.isFinite(start) ? 'invalid start' : start < now - Math.round(rate * .008) ? 'late' : 'too far ahead';\n              this.port.postMessage({type: 'rejected', id: data.id, reason}); return;\n"
+      },
+      {
+        "position": 4184,
+        "before": "    const plans = new Map(), pending = new Map(), active = new Map(), preparedReferences = new WeakMap(); let sequence = 0, disposed = false, activeCost = 0;\n",
+        "after": "    const plans = new Map(), pending = new Map(), active = new Map(), preparedReferences = new WeakMap(), pendingStarts = new Map(); let sequence = 0, disposed = false, activeCost = 0;\n    function confirmStart(id, error) {\n      const entry = pendingStarts.get(id); if (!entry) return;\n      pendingStarts.delete(id); clearTimeout(entry.timer);\n      if (error) entry.reject(error); else entry.resolve();\n    }\n"
+      },
+      {
+        "position": 4836,
+        "before": "",
+        "after": "      for (const id of Array.from(pendingStarts.keys())) confirmStart(id, new Error('Nodal processor unavailable'));\n"
+      },
+      {
+        "position": 5390,
+        "before": "",
+        "after": "      else if (data.type === 'started') confirmStart(data.id);\n"
+      },
+      {
+        "position": 5546,
+        "before": "",
+        "after": "        confirmStart(data.id, new Error('Nodal-Vorhören: ' + (data.message ?? data.reason ?? 'Worklet rejected note')));\n"
+      },
+      {
+        "position": 5693,
+        "before": "        const entry = pending.get(data.id); if (entry) { clearTimeout(entry.timer); pending.delete(data.id); plans.delete(entry.key); entry.reject(new Error(data.message ?? 'Nodal plan rejected')); }\n",
+        "after": "        const entry = pending.get(data.id); if (entry) { clearTimeout(entry.timer); pending.delete(data.id); plans.delete(entry.key); entry.reject(new Error(data.message ?? data.reason ?? 'Nodal plan rejected')); }\n"
+      },
+      {
+        "position": 8253,
+        "before": "",
+        "after": "      let started = null;\n      if (options.confirmStart === true) {\n        started = new Promise((resolve, reject) => {\n          const timer = setTimeout(() => confirmStart(id, new Error('Nodal-Vorhören: keine Startbestätigung vom Worklet')), 1200);\n          pendingStarts.set(id, {timer, resolve, reject});\n        });\n        // Other callers may release the note before awaiting acknowledgement.\n        started.catch(() => {});\n      }\n"
+      },
+      {
+        "position": 9128,
+        "before": "      catch (error) { release(id); throw error; }\n      return Object.freeze({id, noteOff: () => { if (active.has(id)) node.port.postMessage({type: 'release', id}); },\n",
+        "after": "      catch (error) { confirmStart(id, error); release(id); throw error; }\n      return Object.freeze({id, started, noteOff: () => { if (active.has(id)) node.port.postMessage({type: 'release', id}); },\n"
+      }
+    ]
+  },
+  {
+    "file": "src/nodal/05_installation_bridge.js",
+    "baselineSha256": "e40c388f5fe1f02b24bdf5115695d94726bf79c2ba8c9755f90acfd55201c4c6",
+    "seams": [
+      {
+        "position": 3574,
+        "before": "      return player.noteOn(instrument ?? preparedInstrument, note, startSec ?? playerContext.currentTime);\n",
+        "after": "      // Preview events are not sequencer events: give the Worklet one render quantum\n      // and message-delivery headroom. Nothing is queued or replayed after a miss.\n      return player.noteOn(instrument ?? preparedInstrument, note, startSec ?? (playerContext.currentTime + .06));\n"
+      }
+    ]
+  },
+  {
+    "file": "src/nodal/07_sound_designer.js",
+    "baselineSha256": "c785c1a0e35b23177f81e848f054fce5d7067177109f2ff43f6b1d2c83f8b4ff",
+    "seams": [
+      {
+        "position": 3594,
+        "before": "    backend.replace(initial.instrument); document.body.dataset.nodalSounddesign = 'true';\n",
+        "after": "    document.body.dataset.nodalSounddesign = 'true';\n"
+      },
+      {
+        "position": 4555,
+        "before": "    backend.replace(normalized); current.current = normalized; setInstrument(normalized); setExported(null);\n",
+        "after": "    current.current = normalized; setInstrument(normalized); setExported(null);\n"
+      },
+      {
+        "position": 5217,
+        "before": "      const handle = backend.noteOn(snapshot, {frequency: snapshot.referenceHz * ratio, velocity: .8});\n      if (!handle) throw new Error(plan.cost > 8 ? 'Dieser Körper ist für die Live-Vorschau zu groß. Organe reduzieren oder Fold/Drive lösen.' : 'Audio ausgelastet. Bitte erneut anspielen.');\n      setPhase('playing'); playStarted.current = performance.now(); setMessage('Direkte Synthese · ' + (snapshot.referenceHz * ratio).toFixed(1) + ' Hz');\n",
+        "after": "      // Preview is an immediate human action, but the processor receives it asynchronously.\n      // Schedule a single note ahead, with explicit acknowledgement, never a catch-up queue.\n      const handle = backend.noteOn(snapshot, {frequency: snapshot.referenceHz * ratio, velocity: .8, confirmStart: true}, undefined);\n      if (!handle) throw new Error(plan.cost > 8 ? 'Dieser Körper ist für die Live-Vorschau zu groß. Organe reduzieren oder Fold/Drive lösen.' : 'Vorhören nicht gestartet: Audio-Kontext, Voice-Budget oder Audio-Priorität prüfen.');\n      if (!handle.started) throw new Error('Vorhören ohne Startbestätigung – Audio-Runtime aktualisieren.');\n      await handle.started;\n      if (turn !== generation.current) return;\n      setPhase('playing'); playStarted.current = performance.now(); setMessage('Worklet bestätigt · ' + (snapshot.referenceHz * ratio).toFixed(1) + ' Hz');\n"
+      }
+    ]
+  }
+]

@@ -1,0 +1,49 @@
+.emilia-b{display:flex;flex-direction:column;gap:10px;min-width:0;padding:10px;border:1px solid #255752;border-radius:12px;background:linear-gradient(150deg,#0b1821,#122227);color:#d9eae8;font-size:12px}
+.emilia-b-heading{display:flex;justify-content:space-between;align-items:start;gap:9px;color:#83e4d8}
+.emilia-b-heading strong{font-size:13px;letter-spacing:.065em}
+.emilia-b-heading small{display:block;margin-top:3px;font-size:10px;color:#a9bec3;letter-spacing:.015em}
+.emilia-b-heading>span{white-space:nowrap;color:#7ea49f;font-size:11px}
+.emilia-b-caption{margin:0;color:#b0c4c6;line-height:1.45}
+.emilia-b-field{display:block;touch-action:none;width:min(100%,340px);height:auto;aspect-ratio:1;border:1px solid #377e7b;border-radius:9px;align-self:center;overflow:hidden;box-shadow:0 0 20px #1ab8a41c;user-select:none}
+.emilia-b-node{cursor:grab;outline:none}.emilia-b-node:active{cursor:grabbing}.emilia-b-node:focus-visible circle:nth-of-type(2){stroke:#fff;stroke-width:7}
+.emilia-b-actions{display:flex;align-items:center;gap:6px;flex-wrap:wrap}.emilia-b button,.emilia-b select,.emilia-b input{border-radius:5px;color:#d2eeeb;background:#132b35;border:1px solid #32605f;padding:5px 8px;min-height:29px}
+.emilia-b button:hover:not(:disabled){background:#24484d}.emilia-b button:disabled,.emilia-b select:disabled{opacity:.4;cursor:default}
+.emilia-b-actions>label{display:flex;align-items:center;gap:5px;font-size:11px}
+.emilia-b button.is-playing{border-color:#4be2b3;background:#125345;color:#d5ffef}
+.emilia-b-node-list{display:grid;grid-template-columns:repeat(auto-fit,minmax(145px,1fr));gap:5px;max-height:170px;overflow-y:auto}
+.emilia-b-list-entry{display:flex;align-items:center;gap:5px;padding:3px 5px;background:#10232a;border-radius:5px;border:1px solid #2a5051;min-width:0}
+.emilia-b-list-entry.selected{border-color:#57b9ab}.emilia-b-list-entry>span{font-size:10px;color:#92b3b1;margin-left:auto}
+.emilia-b-list-entry .emilia-b-pick{flex:1;min-width:0;text-align:left;font-size:11px;background:transparent;border:0;padding:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.emilia-b-list-entry>button:last-child{min-width:24px;min-height:24px;padding:1px}
+.emilia-b-inspector{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px;padding:9px;border-radius:8px;border:1px solid #284446;background:#091c24}
+.emilia-b-inspector>span{grid-column:1/-1;color:#8fd7c9;font-weight:600}
+.emilia-b-inspector label{display:flex;flex-direction:column;gap:3px;color:#94b5b5;min-width:0}.emilia-b-inspector select,.emilia-b-inspector input{width:100%;min-width:0}
+.emilia-b-inspector input[type=range]{padding:0;min-height:26px;accent-color:#61d8bd}
+.emilia-b-status{margin:0;color:#82d7bf;line-height:1.45;font-size:11px;min-height:18px}
+
+/* B1 layout retained; richer shading from later Emilia, controls at B1 scale. */
+
+.emilia-b{background:linear-gradient(145deg,#07262e,#190c31);border:1px solid #45b2a75c;gap:11px;padding:13px}
+.emilia-b-field{width:min(100%,395px);max-width:395px;box-shadow:0 0 23px #41d9ce25, inset 0 0 26px #091a2c}
+.emilia-b-heading strong{font-size:16px;color:#a3fff1}
+.emilia-b-actions button,.emilia-b-actions select{min-height:39px;font-size:13px;padding:7px 13px}
+.emilia-b-list-entry{min-height:37px;border-color:#365e64;background:linear-gradient(90deg,#112731,#0d1e2c)}
+.emilia-b-list-entry .emilia-b-pick{min-height:32px;font-size:12px}
+.emilia-b-list-entry>button:last-child{min-width:34px;min-height:32px;font-size:18px;line-height:1}
+.emilia-b-node-list{max-height:none;overflow:visible;grid-template-columns:repeat(auto-fit,minmax(164px,1fr))}
+.emilia-b-actions button:last-child{margin-left:auto;background:#2b514b;border-color:#70dacc;font-weight:650}
+.emilia-b-status{min-height:32px}
+@media(max-width:640px){.emilia-b-field{width:min(100%,355px)}.emilia-b-actions button:last-child{margin-left:0}}
+
+/* F4.3.12: compositor wave basin is HTML, never remounted with SVG nodes. */
+.emilia-b-field-frame{position:relative;align-self:center;width:min(100%,395px);aspect-ratio:1;isolation:isolate}
+.emilia-b-field-frame>.emilia-b-field{width:100%;height:100%;max-width:none;display:block}
+.emilia-b-ripple-overlay{position:absolute;inset:1px;overflow:hidden;border-radius:8px;pointer-events:none;z-index:2;contain:paint;isolation:isolate;transform:translateZ(0)}
+/* Hauptraum parity: 168px max radius / 580px field height = 28.9655% relative radius.
+   At 2.5px per 60Hz frame, expansion lasts 168/(2.5*60)=1.12s.
+   Scale evenly (linear), not a fast initial blast. Use a % diameter for responsive Emilia fields. */
+.emilia-b-ripple-wave{position:absolute;display:block;box-sizing:border-box;width:57.931%;height:auto;aspect-ratio:1/1;border:1px solid #84ffdc;border-radius:50%;opacity:0;pointer-events:none;transform-origin:center center;will-change:transform,opacity;animation:emilia-b-ripple-flow 1.12s linear both}
+@keyframes emilia-b-ripple-flow{0%{transform:translate3d(-50%,-50%,0) scale(.02);opacity:.83}100%{transform:translate3d(-50%,-50%,0) scale(1);opacity:0}}
+@media (max-width:640px){.emilia-b-field-frame{width:min(100%,355px)}}
+@media (prefers-reduced-motion:reduce){.emilia-b-ripple-wave{animation-duration:.01ms}}
+.emilia-b-ghost{opacity:.5;filter:drop-shadow(0 0 6px #60a9aa)}

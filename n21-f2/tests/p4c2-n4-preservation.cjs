@@ -1,0 +1,8 @@
+'use strict';
+const fs=require('node:fs'),crypto=require('node:crypto'),assert=require('node:assert/strict'),parent=require('./fixtures/p4c2_n3_baseline/parent_hashes.json'),manifest=require('../source-manifest.json');
+const expected=new Set(['src/nodal/02_synthesis_kernel.js','template/head.html']),changed=[];
+for(const [file,sha] of Object.entries(parent.files)){const current=crypto.createHash('sha256').update(fs.readFileSync(file)).digest('hex');if(current!==sha){assert(expected.has(file),'Unexpected production change: '+file);changed.push(file);}}
+assert.deepEqual(changed.sort(),[...expected].sort());assert.deepEqual(manifest.files,parent.manifestFiles,'source module ordering unchanged');
+function outsideOpenVoice(file){const s=fs.readFileSync(file,'utf8'),a=s.indexOf('function createOpenNodalVoice('),b=s.indexOf('  const TWO_PI',a);assert(a>=0&&b>a);return s.slice(0,a)+'<V2 voice>'+s.slice(b);}
+assert.equal(outsideOpenVoice('src/nodal/02_synthesis_kernel.js'),outsideOpenVoice('tests/fixtures/p4c2_n3_baseline/02_synthesis_kernel.js'),'V1, Emilia, other kernels and shared pitch protocol must be byte-identical');
+const report={parentHtmlSha256:parent.sha256,changed,unchangedProductionFiles:Object.keys(parent.files).length-changed.length,onlyV2VoiceBodyChanged:true,sharedPitchProtocolUnchanged:true,v1AndEmiliaUnchanged:true,entrophonC11WasmAndPreparationUnchanged:true,hostAdmissionRoutingAndTimersUnchanged:true,sourceOrderAndCssUnchanged:true};fs.writeFileSync('results/p4c2-n4-preservation.json',JSON.stringify(report,null,2)+'\n');console.log('PASS N4 preservation',report);

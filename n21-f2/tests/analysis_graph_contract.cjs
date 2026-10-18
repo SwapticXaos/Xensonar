@@ -1,0 +1,21 @@
+const vm=require('node:vm'),assert=require('node:assert/strict'),path=require('node:path');
+const {parse}=require('./extract.cjs');
+const file=process.argv[2]||path.resolve(__dirname,'..',JSON.parse(require('node:fs').readFileSync(path.resolve(__dirname,'../source-manifest.json'))).entry),{map}=parse(file);
+let visits=0;const pcm=new Float32Array(16),shared={};Object.defineProperty(shared,'samples',{enumerable:true,get(){visits++;return pcm}});
+const graph={primary:shared,second:shared,third:shared};
+const ctx=vm.createContext({console,ArrayBuffer,Float32Array,Map,Set,WeakSet,DOMException,__F353SourceIdentity:{key:s=>s.id},__f353PrepareDonorBase:async s=>s.cycle?Object.assign({samples:pcm},{self:null}):graph});
+for(const name of ['__f353AnalysisSize','__createF353AnalysisCache','__F353AnalysisCache'])if(map.has(name))vm.runInContext(map.get(name),ctx);
+const cache=vm.runInContext('__F353AnalysisCache',ctx);
+(async()=>{
+ await cache.prepare({id:'aliases'},()=>false);
+ if(!process.argv.includes('--cycle-only'))assert.equal(visits,1,'Shared readonly analysis node must be traversed once');
+ assert.equal(cache.diagnostics().bytes,pcm.byteLength,'Shared PCM backing buffer counted once');
+ ctx.__f353PrepareDonorBase=async()=>{const value={samples:pcm};value.self=value;return value};
+ const result=await cache.prepare({id:'cycle'},()=>false);assert.equal(result.self,result);
+ assert.equal(cache.diagnostics().bytes,pcm.byteLength*2,'Two independently owned cache entries retain their accounting');
+ ctx.__f353PrepareDonorBase=async()=>{let value={samples:pcm};for(let i=0;i<20000;i++)value={child:value};return value};
+ await cache.prepare({id:'deep'},()=>false);
+ assert.equal(cache.diagnostics().bytes,pcm.byteLength*3,'Deep graph counted without recursive stack overflow');
+ const report={status:'PASS',aliasObjectVisits:visits,cycleHandled:true,deepGraphLevels:20000,bufferBytesPerEntry:pcm.byteLength};
+ require('node:fs').writeFileSync(path.resolve(__dirname,'../results/analysis_graph_contract.json'),JSON.stringify(report,null,2)+'\n');console.log(JSON.stringify(report));
+})().catch(e=>{console.error(e);process.exitCode=1});

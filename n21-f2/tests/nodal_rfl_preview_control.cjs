@@ -1,0 +1,26 @@
+'use strict';
+const fs=require('node:fs'),path=require('node:path'),vm=require('node:vm'),assert=require('node:assert/strict');
+const src=fs.readFileSync(path.join(__dirname,'..','src/audio/01_voice_and_rfl_ownership.js'),'utf8');
+const start=src.indexOf('function bge('),end=src.indexOf('function yge(',start);
+assert.ok(start>=0&&end>start);
+const events=[],updates=[],statuses=[];
+const loop={id:'rfl-1',name:'Nodal Komposition'};
+const hooks={useState:initial=>[initial,v=>statuses.push(v)],useRef:v=>({current:v}),useCallback:fn=>fn,useEffect:()=>{}};
+let control;
+let initialized=false;
+const context={P:hooks,K0e:()=>({exportedLoopMaterials:[],recentLoopHotkeyEntries:[],effectiveLoopMyzelGroup:null}),cge:()=>({selectedRootFollowLoop:loop,rootFollowLoopEntries:[loop],recentRootFollowHotkeyEntries:[]}),
+ dge:props=>{control=props.controller;return{}},Ys:event=>events.push(event),V0e:()=>null,Bfe:()=>120,Dfe:()=>'',Hw:()=>1,pV:()=>0};
+vm.runInNewContext(src.slice(start,end)+';this.bge=bge;',context);
+const nParamsUI={rootFollowLoopActive:false,resonanceHotkeyMode:'normal',drumActive:false,drumPattern:'custom',drumVolume:.12};
+const options={nParamsUI,updateNParams:v=>updates.push(v),validGroups:[],hotkeyLabels:[],hotkeyCount:4,setMyzelPostFxGroup:()=>{},getCurrentMaterialLoopId:()=>'',getCurrentMaterialLoopActive:()=>false,clampIndex:x=>x,ensurePreviewAudioReady:()=>{initialized=true;return Promise.resolve({state:'running'})}};
+context.bge(options);
+assert.equal(initialized,false);
+control.toggleRootFollowPreview();
+assert.equal(initialized,true,'Preview must activate the owner synchronously in the user gesture');
+assert.ok(updates.some(v=>v.rootFollowLoopActive===true));
+assert.ok(!updates.some(v=>Object.hasOwn(v,'drumActive')),'No fallback beat allowed');
+assert.ok(statuses.includes(true));
+control.stopRootFollowPreview();
+assert.equal(updates.at(-1).rootFollowLoopActive,false,'Preview stop restores original RFL active state');
+assert.ok(!updates.some(v=>Object.hasOwn(v,'drumPattern')),'Do not change existing beats');
+console.log('PASS RFL preview: Power off / Beat off, audio owner starts and old configuration restored');

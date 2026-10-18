@@ -1,0 +1,79 @@
+/* N20 · navigation tiles share the exact 78×77px blue-square visual language
+   of the existing Add Instrument (+ 🎻) control. CSS only; no audio path changes. */
+.n20-forge-nav-tile{
+  position:relative;display:block;width:78px;height:77px;min-width:78px;min-height:77px;
+  padding:0;border:1px solid #4569aa;border-radius:6px;overflow:hidden;
+  background:#152e60;color:#edf3ff;box-shadow:inset 0 0 0 1px #112041;
+  cursor:pointer;align-self:start;justify-self:start;
+}
+.n20-forge-nav-tile:hover{background:#1d3972}
+.n20-forge-nav-tile:focus-visible{outline:2px solid #a4c5ff;outline-offset:2px}
+.n20-forge-nav-arrow{
+  position:absolute;top:6px;left:12px;font-size:25px;font-weight:750;line-height:1;z-index:4;
+}
+.n20-forge-nav-icon{
+  position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
+  display:grid;place-items:center;width:38px;height:38px;
+  font-size:33px;line-height:1;z-index:3;pointer-events:none;
+  text-shadow:0 1px 2px rgba(0,0,0,.8);
+}
+.n20-drum-header-grid{grid-template-columns:78px minmax(0,1.6fr) minmax(0,1fr) minmax(70px,.6fr) minmax(90px,.75fr) minmax(105px,.9fr);align-items:start}
+.n20-drum-pattern-and-reset{display:flex;flex-direction:column;min-width:0;gap:5px}
+.n20-drum-pattern-and-reset>label{min-width:0}
+.n20-drum-pattern-and-reset>label select{width:100%;min-width:0}
+.n20-drum-reset{font-size:11px;line-height:1.2;min-height:26px;align-self:flex-start}
+/* Keep every original melodic control, but redistribute the freed width out
+   of the first three comparatively overlong selects. */
+.melodic-compact-control-grid{grid-template-columns:78px minmax(0,1fr);align-items:start}
+.melodic-compact-control-grid>.n20-forge-nav-tile{grid-column:1;grid-row:1}
+.melodic-compact-control-grid>label:nth-child(2){grid-column:2;grid-row:1;min-width:0}
+.melodic-compact-control-grid>label:nth-child(3),
+.melodic-compact-control-grid>div:nth-child(4),
+.melodic-compact-control-grid>.melodic-sample-controls,
+.melodic-compact-control-grid>.melodic-project-inline,
+.melodic-compact-control-grid>.melodic-import-sounds-stack{grid-column:1/-1;grid-row:auto;min-width:0}
+@media(min-width:768px) and (max-width:1199px){
+  .melodic-compact-control-grid{grid-template-columns:78px repeat(3,minmax(0,1fr))}
+  .melodic-compact-control-grid>.n20-forge-nav-tile{grid-column:1;grid-row:1}
+  .melodic-compact-control-grid>label:nth-child(2){grid-column:2;grid-row:1}
+  .melodic-compact-control-grid>label:nth-child(3){grid-column:3;grid-row:1}
+  .melodic-compact-control-grid>div:nth-child(4){grid-column:4;grid-row:1}
+  .melodic-compact-control-grid>.melodic-sample-controls{grid-column:2;grid-row:2}
+  .melodic-compact-control-grid>.melodic-project-inline{grid-column:3;grid-row:2}
+  .melodic-compact-control-grid>.melodic-import-sounds-stack{grid-column:4;grid-row:2}
+}
+@media(min-width:1200px){
+  .melodic-compact-control-grid{grid-template-columns:78px minmax(0,.83fr) minmax(0,.83fr) minmax(0,.83fr) minmax(0,1.55fr) minmax(0,1.90fr) minmax(0,1.55fr)}
+  .melodic-compact-control-grid>.n20-forge-nav-tile{grid-column:1;grid-row:1}
+  .melodic-compact-control-grid>label:nth-child(2){grid-column:2;grid-row:1}
+  .melodic-compact-control-grid>label:nth-child(3){grid-column:3;grid-row:1}
+  .melodic-compact-control-grid>div:nth-child(4){grid-column:4;grid-row:1}
+  .melodic-compact-control-grid>.melodic-sample-controls{grid-column:5;grid-row:1}
+  .melodic-compact-control-grid>.melodic-project-inline{grid-column:6;grid-row:1}
+  .melodic-compact-control-grid>.melodic-import-sounds-stack{grid-column:7;grid-row:1}
+}
+@media(min-width:768px) and (max-width:1199px){
+  .n20-drum-header-grid{grid-template-columns:78px minmax(0,1fr) minmax(0,1fr)}
+  .n20-drum-header-grid>.n20-forge-nav-tile{grid-column:1;grid-row:1 / span 2}
+  .n20-drum-header-grid>.n20-drum-pattern-and-reset{grid-column:2;grid-row:1 / span 2}
+  .n20-drum-header-grid>label:nth-child(3){grid-column:3;grid-row:1}
+  .n20-drum-header-grid>label:nth-child(4){grid-column:3;grid-row:2}
+  .n20-drum-header-grid>label:nth-child(5){grid-column:2;grid-row:3}
+  .n20-drum-header-grid>div:nth-child(6){grid-column:3;grid-row:3}
+}
+@media(max-width:767px){
+  .n20-drum-header-grid{grid-template-columns:78px minmax(0,1fr)}
+  .n20-drum-header-grid>.n20-forge-nav-tile{grid-column:1;grid-row:1}
+  .n20-drum-header-grid>.n20-drum-pattern-and-reset{grid-column:2;grid-row:1}
+  .n20-drum-header-grid>label:nth-child(n+3),
+  .n20-drum-header-grid>div:nth-child(n+3){grid-column:1/-1}
+}
+
+/* Near 1280px, shift spare project width toward Import Sounds and prevent
+   the tonal base heading from wrapping in the shortened control column. */
+@media (min-width:1200px) and (max-width:1440px){
+  .melodic-compact-control-grid{
+    grid-template-columns:78px minmax(0,.90fr) minmax(0,.95fr) minmax(0,.82fr) minmax(0,1.42fr) minmax(0,1.65fr) minmax(0,1.86fr);
+  }
+  .melodic-compact-control-grid>label:nth-child(3)>span{letter-spacing:.13em;font-size:10px;white-space:nowrap}
+}

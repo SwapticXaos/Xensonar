@@ -1,0 +1,28 @@
+
+/* F3-48 UI Workflow Integrity – only dialog sizing and the existing donor-library UI. */
+.f341-backdrop{padding:8px}
+.f341-dialog{width:min(1480px,100%);max-height:calc(100dvh - 16px)}
+.f348-library{padding:9px 11px 8px;margin:0 0 10px}
+.f348-library .f347-library-heading{gap:8px;align-items:baseline}
+.f348-library .f347-library-heading h3{margin:0;font-size:12px}
+.f348-library .f347-library-heading p{margin:2px 0;font-size:10px}
+.f348-library .f347-library-tools{margin:6px 0;gap:6px;align-items:center}
+.f348-library .f347-library-tools input{padding:5px 8px;min-width:130px!important}
+.f348-library .f347-library-tools input:first-child{flex:2 1 240px}
+.f348-library .f347-library-tools input:nth-child(2){flex:1 1 210px}
+.f348-library .f347-library-tools button{padding:5px 9px}
+.f348-library .f347-library-items{grid-template-columns:repeat(auto-fill,minmax(min(100%,285px),1fr));gap:5px}
+.f348-library-item{display:grid;grid-template-columns:minmax(0,1fr) 26px minmax(70px,auto);align-items:center;gap:5px;min-height:39px;padding:5px 7px}
+.f348-library-item>div{min-width:0}
+.f348-library-item strong{font-size:11px;line-height:1.25;white-space:nowrap;text-overflow:ellipsis;overflow:hidden;overflow-wrap:normal}
+.f348-library-item small{font-size:10px;line-height:1.25;white-space:nowrap;text-overflow:ellipsis;overflow:hidden;overflow-wrap:normal;margin-top:2px}
+.f348-library-item button{min-height:27px;padding:3px 5px;font-size:10px;white-space:nowrap}
+.f348-library-item button:nth-last-child(2){padding:2px;min-width:26px;font-size:13px}
+.f348-library-pages{display:flex;align-items:center;justify-content:flex-end;gap:6px;margin-top:5px;font-size:10px}
+.f348-library-pages>span{margin-right:5px;color:#96bdb5}
+.f348-library-pages button{padding:3px 7px;font-size:10px}
+.f348-library-help{margin:6px 0 0;color:#91aaa8;font-size:10px}
+.f348-library-help summary{cursor:pointer;display:list-item;width:max-content;max-width:100%}
+.f348-library-help p{font-size:10px;margin:2px 0}
+@media(max-width:780px){.f341-dialog{padding:12px}.f348-library-item{grid-template-columns:minmax(0,1fr) 26px 75px}.f348-library .f347-library-items{grid-template-columns:repeat(auto-fill,minmax(min(100%,260px),1fr))}}
+@media(max-width:440px){.f348-library-item{display:grid;grid-template-columns:minmax(0,1fr) 26px 75px}.f348-library .f347-library-tools input{flex-basis:100%;width:100%;min-width:0!important}}

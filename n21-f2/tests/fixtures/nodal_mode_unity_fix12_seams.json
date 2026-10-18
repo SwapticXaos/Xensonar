@@ -1,0 +1,145 @@
+[
+  {
+    "file": "src/nodal/07_sound_designer.js",
+    "baselineSha256": "03637fddd56d8c67b37005810c4ba6b6eb1236dd49ac285d8e6d04184e905e72",
+    "seams": [
+      {
+        "position": 11296,
+        "before": "section",
+        "after": "div"
+      },
+      {
+        "position": 11318,
+        "before": "room', 'data",
+        "after": "designer"
+      },
+      {
+        "position": 11327,
+        "before": "nodal",
+        "after": "body', 'data"
+      },
+      {
+        "position": 11340,
+        "before": "",
+        "after": "nodal-"
+      },
+      {
+        "position": 11362,
+        "before": ",\n    h('header', {className: 'nd-heading'}, h('div', null, h('div', {className: 'nd-eyebrow'}, 'III / NODAL · SOUND DESIGN'), h('h2', null, editTarget ? 'Edit Nodal Instrument' : 'Nodal Sound Design'), h('p', null, editTarget ? 'Changes apply to all notes using this instrument.' : 'Position nodes, adjust the sound, and preview.')),\n      h('nav', {className: 'nd-modes', 'aria-label': 'Nodal mode'}, editTarget ? h('button', {onClick: backToMelodic}, '← Back to Melodic Loop') : null, h('button', {className: 'is-active', 'aria-pressed': true}, 'Sound Design'), h('button', {onClick: () => onModeChange('installation')}, 'Installation'), h('button', {onClick: () => onModeChange('enhancer')}, 'Enhancer')))",
+        "after": ""
+      },
+      {
+        "position": 23200,
+        "before": "Gespeicherten Klangkörper entfernen",
+        "after": "Remove saved instrument"
+      },
+      {
+        "position": 23979,
+        "before": "",
+        "after": " to Melodic Loop"
+      },
+      {
+        "position": 24401,
+        "before": "",
+        "after": ")));\n}\n// Room III is one workspace with three modes, not a floating Sound Design modal.\nfunction NodalRoomHeader({mode, onModeChange}) {\n  const h = P.createElement;\n  const labels = {\n    sounddesign: ['Sound Design', 'Nodes · Envelopes · Instruments'],\n    installation: ['Installation', 'Resident nodes · Ball · Sound field'],\n    enhancer: ['Enhancer', 'Processing · Routing · Mix']\n  };\n  const current = labels[mode] || labels.installation;\n  return h('header', {className: 'nd-heading nd-shared-heading'},\n    h('div', {className: 'nd-heading-copy'},\n      h('div', {className: 'nd-eyebrow'}, 'ROOM III / NODAL INSTALLATION'),\n      h('h2', null, current[0]), h('p', null, current[1])),\n    h('nav', {className: 'nd-modes', 'aria-label': 'Nodal modes'},\n      ...[['sounddesign', 'Sound Design'], ['installation', 'Installation'], ['enhancer', 'Enhancer']]\n        .map(([id, label]) => h('button', {\n          key: id, type: 'button', className: mode === id ? 'is-active' : '',\n          'aria-pressed': mode === id, onClick: () => { if (mode !== id) onModeChange(id); }\n        }, label)"
+      },
+      {
+        "position": 25526,
+        "before": " return props.mode === 'sounddesign'",
+        "after": "\n  return P.createElement('section', {className: 'nd-room nd-room-shell', 'data-nodal-mode': props.mode},\n    P.createElement(NodalRoomHeader, {mode: props.mode, onModeChange: props.onModeChange}),\n    props.mode === 'sounddesign'\n     "
+      },
+      {
+        "position": 25807,
+        "before": "",
+        "after": "\n     "
+      },
+      {
+        "position": 25832,
+        "before": "",
+        "after": "'div', {className: 'nd-legacy-body nd-legacy-' + props.mode}, P.createElement("
+      },
+      {
+        "position": 25927,
+        "before": "",
+        "after": "))"
+      },
+      {
+        "position": 25930,
+        "before": " ",
+        "after": "\n"
+      }
+    ]
+  },
+  {
+    "file": "src/runtime/instrument/08_library_and_tuning_editor.js",
+    "baselineSha256": "18c4413caec348dbb53af8bf7b910d987fa867c68bccbeb4b857edf5360b624f",
+    "seams": [
+      {
+        "position": 3883,
+        "before": "",
+        "after": "nd-legacy-root "
+      },
+      {
+        "position": 3961,
+        "before": "",
+        "after": "nd-legacy-card "
+      },
+      {
+        "position": 4051,
+        "before": "",
+        "after": "nd-legacy-meta "
+      },
+      {
+        "position": 4155,
+        "before": "",
+        "after": "nd-legacy-old-title "
+      },
+      {
+        "position": 4509,
+        "before": "",
+        "after": "nd-legacy-info "
+      },
+      {
+        "position": 4965,
+        "before": "",
+        "after": "nd-legacy-tools "
+      },
+      {
+        "position": 5082,
+        "before": "",
+        "after": "nd-legacy-tab-duplicates "
+      },
+      {
+        "position": 6437,
+        "before": "",
+        "after": "nd-legacy-stage "
+      },
+      {
+        "position": 11129,
+        "before": "coe:",
+        "after": ""
+      },
+      {
+        "position": 11131,
+        "before": "tart by listening here: root below, ball above, Resident Nodes as fixed audible intervals.",
+        "after": "et up effect routing, processing, and the output mix.\":\"Place resident nodes and configure ball interactions. Use"
+      },
+      {
+        "position": 11247,
+        "before": "nar waves and ball response can now be routed separately so the installation gradually becomes an instrument",
+        "after": "und Design to create instruments"
+      }
+    ]
+  },
+  {
+    "file": "styles/20_nodal_sound_designer.css",
+    "baselineSha256": "3df41d0deeb0d4460dd56b3621aba1e8094f44f5e2697dd55fdc1ec55b2099de",
+    "seams": [
+      {
+        "position": 13100,
+        "before": "",
+        "after": "\n\n/* Room III: shared navigation and turquoise workspace across all three modes.\n   Retain the existing editor, installation canvas and enhancer machinery. */\n.nd-room-shell {padding-bottom:16px}\n.nd-room-shell > .nd-shared-heading {margin-bottom:14px;padding-bottom:12px;border-bottom:1px solid var(--nd-line)}\n.nd-room-shell .nd-heading-copy {min-width:0}\n.nd-room-shell .nd-heading-copy h2 {font-family:ui-sans-serif,system-ui,sans-serif;font-size:23px;font-weight:600;letter-spacing:-.02em;color:#e4f5f1}\n.nd-room-shell .nd-heading-copy p {font-size:11px;color:#aac6c4;margin-top:4px}\n.nd-room-shell .nd-modes {flex-wrap:wrap;align-items:center;justify-content:flex-end}\n.nd-room-shell .nd-modes button {border:1px solid #36545a;background:#12272e;color:#b7cfcf;min-height:34px;padding:6px 12px;white-space:nowrap}\n.nd-room-shell .nd-modes .is-active {background:#28514e;border-color:#83d5c9;color:#e5fff8}\n.nd-room-shell .nd-designer-body {min-width:0}\n.nd-room-shell .nd-designer-body .nd-toolbar {border-top:0;padding-top:0}\n/* Legacy Installation and Enhancer get the same chrome; no second heading or tab row. */\n.nd-legacy-body .nd-legacy-root {max-width:none;margin:0;min-width:0}\n.nd-legacy-card {background:transparent!important;border:0!important;padding:0!important}\n.nd-legacy-old-title {display:none!important}\n.nd-legacy-tab-duplicates {display:none!important}\n.nd-legacy-meta {display:grid!important;grid-template-columns:minmax(0,1fr) auto;gap:8px 14px;align-items:center;padding:0 0 11px!important;margin:0;border-color:#31474d!important}\n.nd-legacy-info {display:flex!important;flex-wrap:wrap;align-items:center;gap:9px;min-width:0;background:#102b31!important;border:1px solid #3a6869!important;color:#bde6dd!important;border-radius:8px!important;padding:7px 10px!important}\n.nd-legacy-info > div {margin:0!important;font-size:11px!important}\n.nd-legacy-info > div:nth-child(2) {font-size:15px!important;font-weight:600!important;color:#def6ec!important}\n.nd-legacy-info > div:nth-child(3) {font-size:10px!important;color:#94bdb9!important}\n.nd-legacy-tools {display:flex!important;flex-wrap:wrap;gap:6px!important;align-items:center;justify-content:flex-end}\n.nd-legacy-tools > button {min-height:34px!important;padding:5px 11px!important;border:1px solid #36545a!important;background:#152d34!important;color:#cbe0df!important;border-radius:7px!important;font-size:11px!important;letter-spacing:0!important}\n.nd-legacy-tools > button:hover {background:#24454b!important;border-color:#78d9d0!important}\n.nd-legacy-meta > div:last-child {grid-column:1/-1;margin:0!important;gap:8px!important}\n.nd-legacy-meta > div:last-child > div:first-child {color:#a7e0d4!important}\n.nd-legacy-body > .nd-legacy-root .nd-legacy-stage {border:1px solid #344e55!important;border-radius:12px;background:#0b1920!important;overflow:hidden}\n.nd-legacy-body .border-neutral-800 {border-color:#30444b!important}\n.nd-legacy-body .bg-neutral-950 {background-color:#0c1c23!important}\n.nd-legacy-body .bg-black {background-color:#101e26!important}\n.nd-legacy-body .text-fuchsia-300,.nd-legacy-body .text-fuchsia-100 {color:#92dace!important}\n.nd-legacy-body .border-fuchsia-400 {border-color:#77cfbe!important}\n.nd-legacy-body .bg-fuchsia-950\\/30 {background:#173b3b!important}\n.nd-legacy-body input[type=\"range\"] {accent-color:#80cbbf}\n.nd-legacy-body .nd-legacy-card > div:last-child {margin-top:12px!important}\n.nd-legacy-body .nd-legacy-stage canvas {border-radius:12px}\n@media(max-width:820px) {\n  .nd-room-shell > .nd-shared-heading {flex-direction:column;align-items:stretch}\n  .nd-room-shell .nd-modes {justify-content:flex-start;gap:5px}\n  .nd-room-shell .nd-heading-copy h2 {font-size:21px}\n  .nd-legacy-meta {grid-template-columns:minmax(0,1fr)}\n  .nd-legacy-tools {justify-content:flex-start}\n  .nd-legacy-info > div:nth-child(3) {display:none}\n}\n/* The legacy effects still have their own signal semantics, not a separate visual theme. */\n.nd-legacy-body [class*=\"bg-fuchsia-\"],\n.nd-legacy-body [class*=\"bg-violet-\"] {background-color:#173b3b!important}\n.nd-legacy-body [class*=\"border-fuchsia-\"],\n.nd-legacy-body [class*=\"border-violet-\"] {border-color:#5d998f!important}\n.nd-legacy-body [class*=\"text-fuchsia-\"],\n.nd-legacy-body [class*=\"text-violet-\"] {color:#bdece1!important}\n.nd-legacy-body button:focus-visible,\n.nd-legacy-body select:focus-visible {outline:2px solid #9ae4d8;outline-offset:2px}\n"
+      }
+    ]
+  }
+]

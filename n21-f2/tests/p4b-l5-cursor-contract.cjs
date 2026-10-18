@@ -1,0 +1,21 @@
+'use strict';
+const fs=require('fs'),vm=require('vm'),assert=require('node:assert/strict');
+const path=require('path');
+const root=path.resolve(__dirname,'..');
+const code=fs.readFileSync(path.join(root,'src/rhythm/02_bass_and_rack.js'),'utf8');
+const start=code.indexOf('function due(e)'),end=code.indexOf('function mue(e)',start);
+assert(start>=0&&end>start);
+const windowListeners={};
+const win={addEventListener(type,fn){(windowListeners[type]??=[]).push(fn)},fire(type){for(const f of windowListeners[type]??[])f();windowListeners[type]=[]}};
+const j4=(e,w,h)=>{const r=e.currentTarget.getBoundingClientRect();return{x:(e.clientX-r.left)*w/r.width,y:(e.clientY-r.top)*h/r.height}};
+let pointerFrame=null;const flushPointer=()=>{const f=pointerFrame;pointerFrame=null;f?.();};
+const context={requestAnimationFrame:f=>(pointerFrame=f,1),cancelAnimationFrame:()=>{pointerFrame=null;},j4,window:win,document:{activeElement:{blur(){}}},__f447TogglePower:()=>Promise.resolve(),hr:()=>{}};
+vm.createContext(context);vm.runInContext(fs.readFileSync(path.join(root,'src/runtime/instrument/13_pointer_motion.js'),'utf8'),context);vm.runInContext(code.slice(start,end)+';this.makeStage=due;',context);
+const event=(x,y)=>({clientX:x,clientY:y,button:0,currentTarget:{getBoundingClientRect:()=>({left:0,top:0,width:1000,height:600})},preventDefault(){}});
+function fixture(){let commits=0,offsets=0,notes=0;const focus={x:100,y:240},ball={cursorX:100,cursorY:240};const ref=v=>({current:v});const stage={nexusActive:true,gameWidth:1000,gameHeight:600,setPlayfieldCursorInside(){},audioCtx:null,nexusParamsRef:ref({manualGridStepOffsets:Array(12).fill(0),echoOn:false}),updateNParams(){},updateFocusCursor(x,y){focus.x=x;focus.y=y},activeGridDragStepRef:ref(null),activeGridDragStartYRef:ref(null),activeGridDragBaseOffsetRef:ref(null),activeGridDragMovedRef:ref(false),getVisibleGridLines:()=>[{freq:440,stepIndex:3}],yFromFreq:()=>240,setManualGridStepOffset(){offsets++},toggleManualGridStepMute(){},commitResonanceCursorY(y){ball.cursorY=y;commits++},nexusRefs:ref(ball),ensureAudioReady:()=>Promise.resolve(),spawnNexusRipple(){notes++}};return{stage,handlers:context.makeStage(stage),focus,ball,stats:()=>({commits,offsets,notes})};}
+const a=fixture();a.handlers.onCanvasMouseMove(event(200,240));a.handlers.onCanvasMouseMove(event(200,252));assert.equal(a.focus.y,252);flushPointer();assert.equal(a.ball.cursorY,252);
+const b=fixture();b.handlers.onCanvasMouseDown(event(25,240));assert.equal(b.stage.activeGridDragStepRef.current,3);b.handlers.onCanvasMouseMove(event(300,260));flushPointer();assert.equal(b.focus.x,300);assert.equal(b.ball.cursorX,300);assert.equal(b.focus.y,260);assert.equal(b.ball.cursorY,260);assert.equal(b.stats().offsets,1);
+b.handlers.onCanvasMouseMove(event(350,280));flushPointer();assert.equal(b.ball.cursorX,350);assert.equal(b.ball.cursorY,280);win.fire('mouseup');assert.equal(b.stage.activeGridDragStepRef.current,null);assert.equal(b.stage.activeGridDragStartYRef.current,null);
+const c=fixture();c.handlers.onCanvasMouseDown(event(60,240));c.handlers.onCanvasMouseMove(event(220,280));flushPointer();assert.equal(c.ball.cursorX,220);assert.equal(c.ball.cursorY,280);assert.equal(c.stats().offsets,0);
+const w=code.slice(code.indexOf('function Oce('),code.indexOf('function Oce(')+2500);assert(w.includes('onMouseMove:g=>{const stage=n.current'), 'parent pointer forwarding missing');assert(w.includes('onMouseLeave:()=>f?.()'),'parent leave forwarding missing');assert(!w.includes('onContextMenu:l,onMouseMove:c'),'canvas-only mouse-move event path still present');
+console.log('PASS P4B-L5: free focus and ball navigation over grid line, special drag and outside-release, overlay input forwarding; no audio-path changes');

@@ -1,0 +1,17 @@
+'use strict';
+const fs=require('node:fs'),assert=require('node:assert/strict'),path=require('node:path');
+const base=process.env.P3C_BASE||process.cwd();const s=fs.readFileSync(path.join(base,'src/audio/entrophon/02_worklet_and_voice_backend.js'),'utf8');
+const a=s.indexOf('function Rwe('),b=s.indexOf('function b9(',a);assert(a>=0&&b>a);
+const fx=new Function('aw',s.slice(a,b)+';return {prepare:__XenP3CPrepareParticleFX,matches:__XenP3CParticleFXMatches};')(e=>!!e);
+let ctx={state:'running'},created=0;let objects={};const keys=['collectiveMemoryParticles','psychedelicSpiralParticles','transientDriveParticles','schwarmdeuterParticles','myzelPostFxParticles'];
+const fns=['ensureCollectiveMemoryFx','ensurePsychedelicSpiralDevice','ensureTransientDriveDevice','ensureSchwarmdeuterDevice','ensureMyzelPostFxRouter'];
+const fxEnv={ctx};for(let i=0;i<keys.length;i++)fxEnv[fns[i]]=()=>{created++;objects[keys[i]]??={name:keys[i]}};
+const snap=()=>({...objects});
+assert(fx.prepare(fxEnv,snap));assert.equal(created,5,'the whole particle FX graph is primed on control');
+assert(fx.matches(ctx,snap()),'first attack sees same prepared inputs');
+assert(fx.prepare(fxEnv,snap));assert.equal(created,5,'a rerender does not warm FX again');
+objects.collectiveMemoryParticles={newNode:true};assert(!fx.matches(ctx,snap()),'newly replaced FX device invalidates stale graph');
+assert(fx.prepare(fxEnv,snap));assert.equal(created,10,'control refresh after route change');assert(fx.matches(ctx,snap()));
+const shell=fs.readFileSync(path.join(base,'src/app/forge/01_room_shell.js'),'utf8');assert(shell.includes("__XenP3CPrepareParticleFX({ctx")&&shell.includes("et.particlePreset.startsWith('nodal:')"),'Nodal selection primes FX in the UI control lifecycle');
+assert(s.includes('if(!ready)Rwe({ctx:e.ctx,...e.fx})'),'dynamic particle FX changes retain a fallback');
+console.log('PASS P3C Nodal particle FX warmed at selection, no repeat on hot path, dynamically invalidated devices retain compatibility');

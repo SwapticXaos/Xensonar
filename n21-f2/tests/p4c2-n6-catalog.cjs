@@ -1,0 +1,12 @@
+'use strict';
+const assert=require('node:assert/strict'),fs=require('node:fs'),vm=require('node:vm');
+const memory=new Map(),events={},ctx=vm.createContext({window:{addEventListener:(k,f)=>events[k]=f},localStorage:{getItem:k=>memory.get(k),setItem:(k,v)=>memory.set(k,v)},Set,Map,Object,Number,Math});
+vm.runInContext(fs.readFileSync('src/mix/02_performance_catalog.js','utf8')+';this.api=__XenPerformanceCatalog',ctx);const api=ctx.api;
+for(let i=0;i<9;i++)api.remember('wave','c'+i);api.remember('wave','c7');api.remember('particle','p');
+assert.deepEqual(Array.from(api.snapshot().wave),['c7','c8','c6','c5','c4','c3','c2']);assert.deepEqual(Array.from(api.snapshot().particle),['p']);
+const cached=api.snapshot();api.remember('wave','c7');assert.equal(api.snapshot(),cached);
+const groups=api.groups([{value:'sample:s',label:'Z'},{value:'nodal:n',label:'B'},{value:'classic',label:'A'},{value:'entrophon:e',label:'C'},{value:'nodal:n',label:'duplicate'}],true,['gone','nodal:n','sample:s']);
+assert.deepEqual(Array.from(groups,g=>g.label),['Latest','Classic','Nodal','Entrophon','Samples']);assert.equal(groups[0].entries.length,2);assert.equal(groups[2].entries.length,1);
+assert.equal(api.canPan('wave','tape_halo'),false);assert.equal(api.canPan('particle','dust_chime'),true);assert.equal(api.canPan('particle','entrophon:x'),false);assert.equal(api.canPan('keyboard','nodal:x'),true);
+memory.set(api.key,JSON.stringify({wave:['same','same',null,{},'ok'],particle:'broken',keyboard:['k']}));events.storage({key:api.key});assert.deepEqual(Array.from(api.snapshot().wave),['same','ok']);assert.equal(api.snapshot().particle.length,0);
+console.log('PASS N6 catalog: bounded independent MRU, stable snapshots, corruption, dedup, deleted sources and explicit pan capabilities');

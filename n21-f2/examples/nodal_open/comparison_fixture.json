@@ -1,0 +1,95 @@
+{
+  "sampleRate": 48000,
+  "referenceHz": 220,
+  "notes": [
+    {
+      "at": 0,
+      "ratio": 1,
+      "durationSec": 0.28,
+      "velocity": 0.8
+    },
+    {
+      "at": 0.52,
+      "ratio": 1.1666666666666667,
+      "durationSec": 0.12,
+      "velocity": 0.55
+    },
+    {
+      "at": 0.86,
+      "ratio": 1.375,
+      "durationSec": 0.58,
+      "velocity": 0.75,
+      "pitchCurve": [
+        0,
+        0.18,
+        0.4,
+        0.1,
+        0
+      ]
+    },
+    {
+      "at": 1.65,
+      "ratio": 1.625,
+      "durationSec": 0.22,
+      "velocity": 0.6
+    },
+    {
+      "at": 2.15,
+      "ratio": 1,
+      "durationSec": 0.45,
+      "velocity": 0.85
+    }
+  ],
+  "segments": [
+    {
+      "instrument": "prism",
+      "startSec": 0,
+      "endSec": 4.5,
+      "normalizationGain": 1.2614820873340995,
+      "rawRms": 0.0277451422825716,
+      "rawPeak": 0.1467246264219284
+    },
+    {
+      "instrument": "ember",
+      "startSec": 4.5,
+      "endSec": 9,
+      "normalizationGain": 1.264714042171884,
+      "rawRms": 0.027674240051841884,
+      "rawPeak": 0.12222552299499512
+    },
+    {
+      "instrument": "hollow",
+      "startSec": 9,
+      "endSec": 13.5,
+      "normalizationGain": 2.653932715810597,
+      "rawRms": 0.0131879756376227,
+      "rawPeak": 0.04279900714755058
+    },
+    {
+      "instrument": "filament",
+      "startSec": 13.5,
+      "endSec": 18,
+      "normalizationGain": 1.1655191080190053,
+      "rawRms": 0.030029537704867285,
+      "rawPeak": 0.21620415151119232
+    },
+    {
+      "instrument": "reed",
+      "startSec": 18,
+      "endSec": 22.5,
+      "normalizationGain": 3.4210734045200777,
+      "rawRms": 0.010230707108989948,
+      "rawPeak": 0.06357820332050323
+    },
+    {
+      "instrument": "obsidian",
+      "startSec": 22.5,
+      "endSec": 27,
+      "normalizationGain": 2.0900751713488464,
+      "rawRms": 0.016745809184179953,
+      "rawPeak": 0.10018962621688843
+    }
+  ],
+  "wavSha256": "39b445a34fdf5531ca7793465523867733dd8bbb24f95a551817dfc18f12369a",
+  "note": "One constant gain per complete segment for level-controlled comparison; no dynamic normalization."
+}

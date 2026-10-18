@@ -1,0 +1,13 @@
+
+.xen-drum-rack,.xen-bass-sound{margin-top:12px;padding:12px;border:1px solid #51416b;border-radius:8px;background:#17111f;color:#ddd}
+.xen-rhythm-title{font-size:11px;letter-spacing:.12em;color:#e9b3ed;margin-bottom:10px}
+.xen-drum-rack-controls{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.xen-rhythm-control{display:flex;flex-direction:column;gap:5px;min-width:0;margin-bottom:8px;font-size:11px;color:#cbb9d4}
+.xen-rhythm-control input{width:100%;accent-color:#cd7edb;cursor:pointer}.xen-rhythm-control select{width:100%;padding:5px;border:1px solid #555;background:#16101c;color:#eee}
+.xen-rack-actions{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin-top:10px}.xen-rack-actions span{min-width:75px;font-size:10px;color:#bca8c9}
+.xen-rack-actions button,.xen-bass-sound button{padding:5px 8px;border:1px solid #655071;border-radius:4px;font-size:11px;background:#25192d}.xen-rack-actions button:hover,.xen-bass-sound button:hover{background:#3c254b}.xen-rack-actions button:disabled{opacity:.4}
+.xen-rhythm-note{font-size:10px;color:#ad9ab6}
+.xen-main-drum-editor,.xen-drum-rack{flex-shrink:0}
+@media(max-width:1120px){.xen-main-drum-columns>div{overflow-y:visible!important;min-height:max-content!important;height:max-content!important}}
+@media(max-width:1023px){.xen-bass-manager-columns{display:flex!important;flex-direction:column;overflow-y:auto!important}.xen-bass-manager-columns>div{flex-shrink:0;overflow-y:visible!important}.xen-bass-manager-modal{max-height:calc(100vh - 2rem)}}
+@media(max-width:760px){.xen-drum-rack-controls{grid-template-columns:repeat(2,minmax(0,1fr))}}

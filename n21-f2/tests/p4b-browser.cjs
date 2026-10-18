@@ -1,0 +1,20 @@
+'use strict';
+const fs=require('node:fs'),path=require('node:path'),http=require('node:http'),assert=require('node:assert/strict'),{chromium}=require('playwright');
+const root=path.resolve(__dirname,'..'),file=require('../source-manifest.json').entry;
+const expose='\nwindow.__entTest={library:__XenEntrophonLibrary,capture:captureEntrophonInstrument,resolve:resolveEntrophonInstrument,find:entrophonFindInstrument,composerClone:$n,options:entrophonInstrumentMenu,fields:entrophonComposerSourceFields,render:renderEntrophonSound,session:EQ,defaults:Oqe,selection:$w,edit:entrophonEditSavedSound};\n';
+const html=fs.readFileSync(path.join(root,file),'utf8').replace('</script>',expose+'</script>'),report={errors:[],checks:[]};
+(async()=>{const server=http.createServer((q,r)=>{r.setHeader('Content-Type','text/html');r.end(html)});await new Promise(r=>server.listen(0,'127.0.0.1',r));let browser;
+try{browser=await chromium.launch({...(process.env.XENSONAR_CHROMIUM_PATH?{executablePath:process.env.XENSONAR_CHROMIUM_PATH}:{}),headless:true,args:['--no-sandbox','--disable-dev-shm-usage','--autoplay-policy=no-user-gesture-required']});const page=await browser.newPage({viewport:{width:1500,height:1100}});page.on('pageerror',e=>report.errors.push(String(e)));
+await page.goto('http://127.0.0.1:'+server.address().port,{waitUntil:'domcontentloaded'});await page.waitForFunction(()=>window.__entTest&&document.body.innerText.length>300);
+report.initial=await page.evaluate(()=>({text:document.body.innerText.slice(0,1800),buttons:[...document.querySelectorAll('button')].map(b=>b.textContent).filter(s=>/Melodic|Forge|Entrophon|Sound|Power|POWER|Manage/.test(s)).slice(0,60)}));
+console.log(JSON.stringify(report.initial));
+assert.equal(report.errors.length,0,report.errors.join('\n'));report.checks.push('full app mounts without page errors');
+const save=page.getByRole('button',{name:'Save Sound',exact:true});
+if(await save.count()){
+ const input=page.getByRole('textbox',{name:'Entrophon sound name',exact:true}).first();await input.fill('Purple Browser One');await save.first().click();await page.waitForFunction(()=>window.__entTest.library.list().length===1);
+ await input.fill('Purple Browser Two');await save.first().click();await page.waitForFunction(()=>window.__entTest.library.list().length===2);report.checks.push('actual Save Sound creates two named entries');
+}else throw Error('Save Sound UI is not present');
+const selection=await page.evaluate(()=>{const e=window.__entTest.library.list()[0],id='entrophon:'+e.id+'@'+e.revision;return{id,selection:window.__entTest.selection(id),menus:[...document.querySelectorAll('select')].filter(s=>[...s.options].some(o=>o.value===id)).map(s=>s.outerHTML.slice(0,200))};});assert(selection.selection.entrophonDefinition);assert(selection.menus.length>=3,JSON.stringify(selection));report.checks.push('saved sounds available in live menus with actual Entrophon selection');
+report.finalButtons=await page.getByRole('button').allTextContents();console.log('BUTTONS',report.finalButtons.filter(t=>/Melodic|Logic|Forge|Sound|Manage/.test(t)));
+fs.mkdirSync(path.join(root,'results'),{recursive:true});fs.writeFileSync(path.join(root,'results/p4b-browser.json'),JSON.stringify(report,null,2));console.log('PASS',report.checks);
+}finally{await browser?.close();await new Promise(r=>server.close(r));}})().catch(e=>{console.error(e);console.error('ERRORS',report.errors);process.exitCode=1});

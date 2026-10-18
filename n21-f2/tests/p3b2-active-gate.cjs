@@ -1,0 +1,13 @@
+'use strict';
+const fs=require('node:fs'),assert=require('node:assert/strict'),vm=require('node:vm');
+const src=fs.readFileSync('src/01_app_runtime.js','utf8');
+const guard=src.slice(src.indexOf('function __entCanPrepare('),src.indexOf('const __entConfigCache'));
+const ctx={},host={canSubmit:true,writer:{availableRecords:18},building:4,reservations:{usedVoices:2,voiceLimit:8,usedUnits:3,unitLimit:20}};
+let waveActive=false,route={owned:true,ready:false,host};
+const check=new Function('Hd','rg',guard+';return __entCanPrepare;')(()=>waveActive,new Map([[ctx,route]]));
+assert.equal(check(ctx,false,false),true,'Legacy must bypass Entrophon pre-gate');
+assert.equal(check(ctx,false,true),false,'explicit Keyboard Entrophon must not bypass unready Worklet');
+route.ready=true;assert.equal(check(ctx,false,true),true);
+host.reservations.usedVoices=8;assert.equal(check(ctx,false,true),false,'explicit Keyboard Entrophon must respect physical voice capacity');
+host.reservations.usedVoices=2;waveActive=true;assert.equal(check(ctx,false,false),true,'Wave Entrophon remains protected');
+console.log('PASS explicit keyboard admission uses same readiness/voice-limit gate; Classic unchanged');

@@ -1,0 +1,892 @@
+{
+  "manifest": {
+    "version": "F3_56_55_CLEAN5_MYZEL_G",
+    "entry": "Xensonar_F3_56_55_CLEAN5_MYZEL_G.html",
+    "files": [
+      "src/nodal/01_instrument_model.js",
+      "src/nodal/02_synthesis_kernel.js",
+      "src/nodal/03_library.js",
+      "src/nodal/04_audio_runtime.js",
+      "src/nodal/05_installation_bridge.js",
+      "src/nodal/06_melodic_bridge.js",
+      "src/nodal/08_melodic_live_transport.js",
+      "src/nodal/09_melodic_session.js",
+      "src/nodal/10_library_manager.js",
+      "src/nodal/07_sound_designer.js",
+      "src/forge/dsp/04_donor_field.js",
+      "src/01_app_runtime.js",
+      "src/forge/workbench/01_preset_catalog.js",
+      "src/forge/workbench/02_recipe_normalization.js",
+      "src/forge/workbench/03_material_selection.js",
+      "src/forge/workbench/04_sound_bridge.js",
+      "src/forge/workbench/05_state_store.js",
+      "src/forge/01_workbench_state.js",
+      "src/forge/dsp/01_material_tools.js",
+      "src/forge/dsp/02_gestalt_tools.js",
+      "src/forge/dsp/03_pcm_worker.js",
+      "src/forge/original/01_articulation.js",
+      "src/forge/original/02_material.js",
+      "src/forge/original/03_gestalt_material.js",
+      "src/forge/original/04_gestalt.js",
+      "src/forge/original/05_dual_donor.js",
+      "src/forge/original/06_cecilia.js",
+      "src/forge/revised/01_material.js",
+      "src/forge/revised/02_gestalt.js",
+      "src/forge/module_bundle/00_open.js",
+      "src/forge/module_bundle/01_entry.js",
+      "src/forge/module_bundle/02_projectionCarrierPlan.js",
+      "src/forge/module_bundle/03_carrierDonorV2Types.js",
+      "src/forge/module_bundle/04_carrierSupportField.js",
+      "src/forge/module_bundle/05_carrierContinuity.js",
+      "src/forge/module_bundle/06_donorHybridModel.js",
+      "src/forge/module_bundle/07_donorBodyModel.js",
+      "src/forge/module_bundle/08_realSpectrum.js",
+      "src/forge/module_bundle/09_donorPitch.js",
+      "src/forge/module_bundle/10_donorSpectralEvidence.js",
+      "src/forge/module_bundle/11_donorSourceWindows.js",
+      "src/forge/module_bundle/12_renderDonorHybrid.js",
+      "src/forge/module_bundle/13_donorMaterialPlan.js",
+      "src/forge/module_bundle/14_granularCadence.js",
+      "src/forge/module_bundle/15_renderContinuousDonor.js",
+      "src/forge/module_bundle/16_complexSpectrum.js",
+      "src/forge/module_bundle/17_renderCarrierSupport.js",
+      "src/forge/module_bundle/18_donorSpectralFilm.js",
+      "src/forge/module_bundle/19_donorMaterialDiagnostics.js",
+      "src/forge/module_bundle/20_donorOutputMantle.js",
+      "src/forge/module_bundle/21_experimentStatePersistence.js",
+      "src/forge/module_bundle/22_materialIntakePersistence.js",
+      "src/forge/module_bundle/99_close.js",
+      "src/storage/01_donor_library.js",
+      "src/storage/02_donor_packages.js",
+      "src/storage/03_forge_packages.js",
+      "src/storage/04_sample_donor_bridge.js",
+      "src/vendor/01_react_dom.js",
+      "src/runtime/01_instrument_state.js",
+      "src/runtime/instrument/01_voice_gradients_and_effects.js",
+      "src/runtime/instrument/02_observation_and_sample_storage.js",
+      "src/runtime/instrument/03_selection_and_recording_tools.js",
+      "src/runtime/instrument/04_performance_and_output_profiles.js",
+      "src/runtime/instrument/05_timing_and_admission.js",
+      "src/runtime/instrument/06_rooms_and_lifecycle.js",
+      "src/runtime/instrument/07_interpreters_and_installation.js",
+      "src/runtime/instrument/08_library_and_tuning_editor.js",
+      "src/runtime/instrument/09_monitoring_and_manual_patterns.js",
+      "src/runtime/instrument/10_entrophon_and_voice_control.js",
+      "src/runtime/instrument/11_recording_and_granular_controls.js",
+      "src/runtime/instrument/12_rhythm_and_bass_editor.js",
+      "src/rhythm/01_compact_drum_grid.js",
+      "src/audio/09_myzel_g_dsp.js",
+      "src/audio/08_myzel_g_live.js",
+      "src/rhythm/02_bass_and_rack.js",
+      "src/audio/01_voice_and_rfl_ownership.js",
+      "src/audio/02_rfl_worklet.js",
+      "src/audio/03_recorder.js",
+      "src/audio/04_wave_worklet.js",
+      "src/audio/05_live_voice_runtime.js",
+      "src/audio/entrophon/01_wasm_asset.js",
+      "src/audio/entrophon/02_worklet_and_voice_backend.js",
+      "src/audio/entrophon/03_native_bridge.js",
+      "src/audio/07_governor_and_drums.js",
+      "src/rhythm/03_live_drum_bodies.js",
+      "src/rhythm/04_workspace_and_transport.js",
+      "src/rhythm/05_canonical_selection.js",
+      "src/app/forge/01_room_shell.js",
+      "src/app/forge/02_boot_and_workspace_tools.js",
+      "src/app/forge/03_spectral_grid_and_archives.js",
+      "src/app/forge/04_profiles_and_body_models.js",
+      "src/app/forge/05_forge_state_and_analysis.js",
+      "src/app/forge/06_donor_audio_and_audition.js",
+      "src/app/forge/07_preview_cache_and_controls.js",
+      "src/forge/editor/01_display_and_canvas.js",
+      "src/forge/editor/02_tools_and_audio_inputs.js",
+      "src/forge/editor/03_synthetic_sound_engines.js",
+      "src/forge/editor/04_signal_atoms_and_bodies.js",
+      "src/forge/editor/05_machine_and_carrier_projection.js",
+      "src/forge/editor/06_output_routing.js",
+      "src/forge/editor/07_composition_and_preview_ui.js",
+      "src/forge/ui/02_donor_routing_and_hearing.js",
+      "src/forge/ui/03_method_selection.js",
+      "src/forge_and_melodic/01_donor_selection_and_edits.js",
+      "src/forge_and_melodic/02_forge_keyboard_and_history.js",
+      "src/forge_and_melodic/03_timeline_and_transport_ui.js",
+      "src/forge_and_melodic/04_render_cache_and_stems.js",
+      "src/forge_and_melodic/05_preview_and_sample_intake.js",
+      "src/forge_and_melodic/06_note_editor_and_material_tools.js",
+      "src/forge_and_melodic/07_tuning_and_logic_view.js",
+      "src/forge_and_melodic/08_editor_actions.js",
+      "src/forge_and_melodic/09_canonical_forge_room.js",
+      "src/forge_and_melodic/10_audition_and_persistence.js",
+      "src/forge_and_melodic/11_analysis_canvas_and_controls.js",
+      "src/forge/hybrid/01_recipe.js",
+      "src/forge/hybrid/02_session_store.js",
+      "src/forge/analysis/01_analysis_size.js",
+      "src/forge/analysis/02_analysis_cache.js",
+      "src/04_forge_render.js",
+      "src/forge/hybrid/03_render_pipeline.js",
+      "src/forge/hybrid/04_cecilia_dsp_and_worker.js",
+      "src/forge/hybrid/05_capture_tools.js",
+      "src/forge/hybrid/06_job_capture.js",
+      "src/forge/hybrid/07_render_adapters.js",
+      "src/forge/hybrid/08_playback_controller.js",
+      "src/forge/hybrid/09_runtime.js",
+      "src/forge/ui/04_cecilia_controls.js",
+      "src/forge/analysis/03_source_identity_and_cache.js",
+      "src/forge/ui/05_workbench_controls.js",
+      "src/forge/dual/01_dsp_and_worker.js",
+      "src/forge/dual/02_session_store.js",
+      "src/forge/dual/03_audio_files.js",
+      "src/forge/dual/04_session_codec.js",
+      "src/forge/dual/05_library_bridge.js",
+      "src/forge/dual/06_output_controls.js",
+      "src/05_dual_donor.js",
+      "src/06_workbench_dialog.js"
+    ],
+    "sha256": "f1b8c625a712a3b10c95a8dfc0bcb5f432fffe69dc370b575cfebad400105eb4",
+    "bytes": 4838053,
+    "sourceOrder": "Concatenate in listed order. Explicit factories own Workbench, hybrid session, render capture, adapters, playback and analysis cache. Remaining registry fragments share one inline module; DSP factories stay independently serializable for workers.",
+    "status": "Ball-free Nodal instrument backend; unchanged UI; coupled modal DSP, direct worklet, library and installation bridge",
+    "baseVersion": "F3.56.55-CLEAN5-NODAL_BACKEND1",
+    "styles": [
+      {
+        "file": "styles/00_base_utilities.css",
+        "tag": "<style rel=\"stylesheet\" crossorigin>",
+        "after": "\n  "
+      },
+      {
+        "file": "styles/01_near_feedback.css",
+        "tag": "<style id=\"f39-near-feedback-style\">",
+        "after": ""
+      },
+      {
+        "file": "styles/02_wave_amp.css",
+        "tag": "<style>",
+        "after": "\n"
+      },
+      {
+        "file": "styles/03_forge_mobile_sidebar.css",
+        "tag": "<style id=\"forge-sidebar-mobile-f315\">",
+        "after": ""
+      },
+      {
+        "file": "styles/04_workbench_base.css",
+        "tag": "<style id=\"f341-donor-workbench-style\">",
+        "after": "\n\n"
+      },
+      {
+        "file": "styles/05_workbench_controls.css",
+        "tag": "<style id=\"f347-workbench-style\">",
+        "after": "\n"
+      },
+      {
+        "file": "styles/06_donor_library.css",
+        "tag": "<style id=\"f348-library-layout\">",
+        "after": "\n"
+      },
+      {
+        "file": "styles/07_donor_library_dock.css",
+        "tag": "<style id=\"f349-library-side-dock\">",
+        "after": "\n"
+      },
+      {
+        "file": "styles/08_workbench_workflow.css",
+        "tag": "<style id=\"f350-workflow\">",
+        "after": "\n"
+      },
+      {
+        "file": "styles/09_combination_rack.css",
+        "tag": "<style id=\"f351-combination-rack\">",
+        "after": "\n"
+      },
+      {
+        "file": "styles/10_hybrid_workflow.css",
+        "tag": "<style id=\"f352-hybrid-workflow\">",
+        "after": "\n"
+      },
+      {
+        "file": "styles/11_carrier_controls.css",
+        "tag": "<style id=\"f3564-carrier-ui\">",
+        "after": ""
+      },
+      {
+        "file": "styles/12_drum_rack.css",
+        "tag": "<style id=\"xen-f35618-drum-rack-layout\">",
+        "after": ""
+      },
+      {
+        "file": "styles/13_drum_timing.css",
+        "tag": "<style id=\"xen-f35619-drum-timing\">",
+        "after": ""
+      },
+      {
+        "file": "styles/14_drum_responsive.css",
+        "tag": "<style id=\"xen-f35620-drum-layout\">",
+        "after": ""
+      },
+      {
+        "file": "styles/15_drum_playhead.css",
+        "tag": "<style id=\"xen-f35621-drum-karaoke\">",
+        "after": ""
+      },
+      {
+        "file": "styles/16_dual_donor_assembly.css",
+        "tag": "<style id=\"f35634-dual-donor-assembly-ui\">",
+        "after": "\n"
+      },
+      {
+        "file": "styles/17_dual_donor_output.css",
+        "tag": "<style>",
+        "after": "\n"
+      },
+      {
+        "file": "styles/18_forge_status.css",
+        "tag": "<style>",
+        "after": ""
+      },
+      {
+        "file": "styles/19_bass_manager_fix.css",
+        "tag": "<style id=\"xen-f355-fix1-bass\">",
+        "after": "\n"
+      },
+      {
+        "file": "styles/20_nodal_sound_designer.css",
+        "tag": "<style id=\"nodal-sound-designer-style\">",
+        "after": "\n"
+      }
+    ],
+    "baselineSha256": "db629ca4919537047c50b458cc3c420271920acf54099befb1e56113e8e120f7"
+  },
+  "files": [
+    {
+      "file": "src/nodal/01_instrument_model.js",
+      "sha256": "44c75a02bfb1603d2bfcf6258e73a1f4c693397cad14d653a0b6589cac96ae1b"
+    },
+    {
+      "file": "src/nodal/02_synthesis_kernel.js",
+      "sha256": "c022c06e5356d9c7dafd45ed9ecee81509530a18eaa119651a93f7a8ef195f92"
+    },
+    {
+      "file": "src/nodal/03_library.js",
+      "sha256": "2bf1d55d745fabe2f56c1de72ee3eba0a1d195d9d4c78bed7e786c3c0e84d411"
+    },
+    {
+      "file": "src/nodal/04_audio_runtime.js",
+      "sha256": "12c5199785452e5c1f47bc1d6b642bd0a00e891ffb7351b39af1f475165e2985"
+    },
+    {
+      "file": "src/nodal/05_installation_bridge.js",
+      "sha256": "23dcdeae781d3006f1cf6aa17483ff4bf995890653b81100c281b6d344d529b7"
+    },
+    {
+      "file": "src/nodal/06_melodic_bridge.js",
+      "sha256": "f1e7dc2e72759c6a1838f27dfd30d4880f282140076f7db06d3966aa581c2d50"
+    },
+    {
+      "file": "src/nodal/08_melodic_live_transport.js",
+      "sha256": "bae897436c47181254d94baf9019ad035d6f38ce3fe9180ad3cb8fe4e3fb1dc4"
+    },
+    {
+      "file": "src/nodal/09_melodic_session.js",
+      "sha256": "9a543d0b85992a33ef405f0f8c89706a1ac41e3ec57948c8c61266f80f6bb8e9"
+    },
+    {
+      "file": "src/nodal/10_library_manager.js",
+      "sha256": "912a1633aab9bf286cd78f5e8d01cb5be968ade87df4b824145ad83f9d87c351"
+    },
+    {
+      "file": "src/nodal/07_sound_designer.js",
+      "sha256": "7332ff5e46deb6d6f0f6f7dedab181d0412f9a48b5c9a0e7a051967fb7f21b80"
+    },
+    {
+      "file": "src/forge/dsp/04_donor_field.js",
+      "sha256": "e3d8ce96ad7d4f707c1b00c6823e467ec88320b3b815bb8dae00a8fd711cc988"
+    },
+    {
+      "file": "src/01_app_runtime.js",
+      "sha256": "444019f5c84d41fbf8cf2dcf739bdde9ff6adf2278782ef9b56bf2a4a161be3a"
+    },
+    {
+      "file": "src/forge/workbench/01_preset_catalog.js",
+      "sha256": "92e52667eb406632636c5733505ad7e93a56864f5c3bc61ef645491ba7e04f94"
+    },
+    {
+      "file": "src/forge/workbench/02_recipe_normalization.js",
+      "sha256": "1f2c230ca91f0c63da5451ed5432befda85ea6ddbac77d08019631600fdb6cbb"
+    },
+    {
+      "file": "src/forge/workbench/03_material_selection.js",
+      "sha256": "022186707460174a20afccb9cb4521eba7e1a12c93d0bd69182e57a5436f973e"
+    },
+    {
+      "file": "src/forge/workbench/04_sound_bridge.js",
+      "sha256": "fc81e389da33f9cc674c8c9399f6af8be8d4f848d3dc202c016080510ed25996"
+    },
+    {
+      "file": "src/forge/workbench/05_state_store.js",
+      "sha256": "5b33017599a1e20cca132be0873758bd758e3333697d15100adca1a653f40ba3"
+    },
+    {
+      "file": "src/forge/01_workbench_state.js",
+      "sha256": "fe8a21ff6eebd4c850f961d4169ee941a7f512ddbf9547c7c930d658eb2db173"
+    },
+    {
+      "file": "src/forge/dsp/01_material_tools.js",
+      "sha256": "fce85295306d26d21647c4d8304c428698f9838d54d5f05f1d78e38f3c4fd1f8"
+    },
+    {
+      "file": "src/forge/dsp/02_gestalt_tools.js",
+      "sha256": "6baed4dc850b772d620036b9df1f93ed30aa324064d7e15eb0f91f6b1bfe5e80"
+    },
+    {
+      "file": "src/forge/dsp/03_pcm_worker.js",
+      "sha256": "b47a5a711f4ada212c8cb2663503afe28834043d59c7cada3a84bc5fb88c4c5a"
+    },
+    {
+      "file": "src/forge/original/01_articulation.js",
+      "sha256": "aa974100b110d2ea5f7f751a25339d89017cd905017df0f3078dc5172b2033c3"
+    },
+    {
+      "file": "src/forge/original/02_material.js",
+      "sha256": "eca3a573ead36cca0a1c0f73f602c7064dce262aa4e4a1871c22223e9b19544f"
+    },
+    {
+      "file": "src/forge/original/03_gestalt_material.js",
+      "sha256": "268788b25eb1aa8b35d978ba9bf15bf542aba8660c9e78aa253bd6cf6ede4b67"
+    },
+    {
+      "file": "src/forge/original/04_gestalt.js",
+      "sha256": "e322d3c9ff50dab2d038a6ee290d8586d890850ba0b789a4241ca3328adf943c"
+    },
+    {
+      "file": "src/forge/original/05_dual_donor.js",
+      "sha256": "3176730ba9d52fa46d271727b05563d46f049b3d91ebba64d0e7ae67c95d120b"
+    },
+    {
+      "file": "src/forge/original/06_cecilia.js",
+      "sha256": "1793157528b6a687ef4d811d1b27212aa0ca26c824855fb7c890a9125d059fca"
+    },
+    {
+      "file": "src/forge/revised/01_material.js",
+      "sha256": "ce19da2168d99b10df9487c41e46a0804e16c823289ad60eb8e89ad12c5427ef"
+    },
+    {
+      "file": "src/forge/revised/02_gestalt.js",
+      "sha256": "288c8a614423abd9ed1adc4e90b5177c81a3c6bec0b03d760a157c77cb64da89"
+    },
+    {
+      "file": "src/forge/module_bundle/00_open.js",
+      "sha256": "dd52fb8c8c042a332d538ec1730bab9c1056d8f5e7b534e1332662a8968221a8"
+    },
+    {
+      "file": "src/forge/module_bundle/01_entry.js",
+      "sha256": "e04a64a0d512d84b116d5cba67b20991947a86e2c825fe290d340956e6872539"
+    },
+    {
+      "file": "src/forge/module_bundle/02_projectionCarrierPlan.js",
+      "sha256": "99eb34a9a90f278e72d078920fd0c49a7c35c32b6c5bdd2d2a23f50e20cafa62"
+    },
+    {
+      "file": "src/forge/module_bundle/03_carrierDonorV2Types.js",
+      "sha256": "f1fd8dc51c24ac409e5ac48a195c2f341682f50044162f2feb8599c85f439418"
+    },
+    {
+      "file": "src/forge/module_bundle/04_carrierSupportField.js",
+      "sha256": "cd270f8fa10c256dbd68aaa41c3d1c7108d34058f93c8a37392e51e603f732ae"
+    },
+    {
+      "file": "src/forge/module_bundle/05_carrierContinuity.js",
+      "sha256": "4c6131cb4d0b490423ecfc512353f2ca42f26705fae07c9b8affa5de8f03de2b"
+    },
+    {
+      "file": "src/forge/module_bundle/06_donorHybridModel.js",
+      "sha256": "c96ff9e2df5f50c701282ea5b1d6d823bc3bbd1d553929dee4b642bd60dbcdaf"
+    },
+    {
+      "file": "src/forge/module_bundle/07_donorBodyModel.js",
+      "sha256": "7f8253d133d0413c6d8fbaa06f4836f6ad6061bb0f9aa3fe4efe7cb899d38442"
+    },
+    {
+      "file": "src/forge/module_bundle/08_realSpectrum.js",
+      "sha256": "71800f20741beab81b4454c4752ac508f245f28d3a787056040c182c2f904264"
+    },
+    {
+      "file": "src/forge/module_bundle/09_donorPitch.js",
+      "sha256": "5ae67accce5e161f73ae4361df26a1f48ffb3234dc1289c1b4f1c03479a8ba4b"
+    },
+    {
+      "file": "src/forge/module_bundle/10_donorSpectralEvidence.js",
+      "sha256": "15d023d7173900f1b34cd603e512c70b2ed9bc1f0e073d0b3379eb538fbdb17b"
+    },
+    {
+      "file": "src/forge/module_bundle/11_donorSourceWindows.js",
+      "sha256": "d2b9407c05976d3496b14debe59c46f700d5e5a6751965faab9822129e1d036d"
+    },
+    {
+      "file": "src/forge/module_bundle/12_renderDonorHybrid.js",
+      "sha256": "c55706488d78dbaf104688cfd6723818344a6d6055086d7206b6886368ba1888"
+    },
+    {
+      "file": "src/forge/module_bundle/13_donorMaterialPlan.js",
+      "sha256": "083129b78a98954c3247a5625a3ece131222e5933c58936bf608606018ae9028"
+    },
+    {
+      "file": "src/forge/module_bundle/14_granularCadence.js",
+      "sha256": "2d24fa0fe85ad71855e9ffb253aab30ad2b895220e8c543541e95e24be0f27a9"
+    },
+    {
+      "file": "src/forge/module_bundle/15_renderContinuousDonor.js",
+      "sha256": "173ed7794dfc9a31a0e1b0d6c693dcc370c932e4f56519b3fe863e70fea18195"
+    },
+    {
+      "file": "src/forge/module_bundle/16_complexSpectrum.js",
+      "sha256": "066ed017c3e0ad073ce86b61b26bc20f460220ab9f2c4c756f5b08eb2e5f5bc5"
+    },
+    {
+      "file": "src/forge/module_bundle/17_renderCarrierSupport.js",
+      "sha256": "6f41e89cd95dc72fdd69675067e693f094a882d0695faf5590d0c630e2ac59d5"
+    },
+    {
+      "file": "src/forge/module_bundle/18_donorSpectralFilm.js",
+      "sha256": "a297214391cf55bd4ae51b611b65d02ed552553786a1f68c8e07e11f4cb6dd15"
+    },
+    {
+      "file": "src/forge/module_bundle/19_donorMaterialDiagnostics.js",
+      "sha256": "40b879a90442262309250722f2f0580837e5f7711b57665deb9f18e37c1d1906"
+    },
+    {
+      "file": "src/forge/module_bundle/20_donorOutputMantle.js",
+      "sha256": "76307be1b9e2dc3ecb7edf15f1538378c93014e58b37f87ada4acd9ce0a76e54"
+    },
+    {
+      "file": "src/forge/module_bundle/21_experimentStatePersistence.js",
+      "sha256": "ba330b8b52f103f4a26c02bb64669ec307db0a6cff71e2bdac82aa5ded112a47"
+    },
+    {
+      "file": "src/forge/module_bundle/22_materialIntakePersistence.js",
+      "sha256": "6cafec657997e9e520d6e4b541e7277c4614791a26db1bf04843db8f9f3f3e3f"
+    },
+    {
+      "file": "src/forge/module_bundle/99_close.js",
+      "sha256": "59c528363096f35351430920a4e283a1e3dd1a7ec88447e4e4c42d5e60497881"
+    },
+    {
+      "file": "src/storage/01_donor_library.js",
+      "sha256": "80df7cebb66e3f7f8677178c776e0fc802873f5cce64cc0538d4c16f0700c729"
+    },
+    {
+      "file": "src/storage/02_donor_packages.js",
+      "sha256": "2b2204611a763ab8a28e3c56217a074988dda2c82da0fc36d3e37573a9963524"
+    },
+    {
+      "file": "src/storage/03_forge_packages.js",
+      "sha256": "96fb969b6785cb2fa67677b693593862da8e0e2c9eef7c6ac1fec7ea9b0cc3d5"
+    },
+    {
+      "file": "src/storage/04_sample_donor_bridge.js",
+      "sha256": "d0d81ada2e31af2dff0ec97c2289261b513b7db26dbbfd23141e0c69930ddc4c"
+    },
+    {
+      "file": "src/vendor/01_react_dom.js",
+      "sha256": "53fd4c16cb0532b5c8d7d4ea36851fcbfd7003db535361217a39fb0bd8bae7c9"
+    },
+    {
+      "file": "src/runtime/01_instrument_state.js",
+      "sha256": "77e0b7f9b15507960c8f46d1a589de386bd4032f518aa2513760d8bdfaa01bc5"
+    },
+    {
+      "file": "src/runtime/instrument/01_voice_gradients_and_effects.js",
+      "sha256": "27527656d9a47f18b37156f618394278f5fd26cfb57559b0435068787464b230"
+    },
+    {
+      "file": "src/runtime/instrument/02_observation_and_sample_storage.js",
+      "sha256": "2ccdc26300fdbdbc7c41df180cebe9a5fa119103a35d998db5c0479e7b796f75"
+    },
+    {
+      "file": "src/runtime/instrument/03_selection_and_recording_tools.js",
+      "sha256": "44bfb9c4ed2369c64dd79d4a940f05a2a6ee4efad7222901f9a12fda0eba7140"
+    },
+    {
+      "file": "src/runtime/instrument/04_performance_and_output_profiles.js",
+      "sha256": "affb63a4a57436c6f3a1cccc05fea8f94f7205fd2103be6328e1b924f53f3986"
+    },
+    {
+      "file": "src/runtime/instrument/05_timing_and_admission.js",
+      "sha256": "ec5c99b80e7cb8aba4c36873403d8a26a81285a82d27c1c0ed8081eea349ccc7"
+    },
+    {
+      "file": "src/runtime/instrument/06_rooms_and_lifecycle.js",
+      "sha256": "74dc9230f2656d8eadebe960ab8eaeeb56f18059a50d805a283847eeead94027"
+    },
+    {
+      "file": "src/runtime/instrument/07_interpreters_and_installation.js",
+      "sha256": "f83901a67779f8ef75e283d54caa91e7e68192e4db217df898d03428a31f75dc"
+    },
+    {
+      "file": "src/runtime/instrument/08_library_and_tuning_editor.js",
+      "sha256": "84095f0452fb7c7a8ddda4f3670f503231cc813b0dad2f57db82708a9b019c1b"
+    },
+    {
+      "file": "src/runtime/instrument/09_monitoring_and_manual_patterns.js",
+      "sha256": "60c90d81cc2b0e1e3ca78add9967a292f39c3a361bfb93cccc21cd3c85db0341"
+    },
+    {
+      "file": "src/runtime/instrument/10_entrophon_and_voice_control.js",
+      "sha256": "e819ccd5597f6a3857a2808c57e86c5ca7dceb2ff275344199db334a2436119f"
+    },
+    {
+      "file": "src/runtime/instrument/11_recording_and_granular_controls.js",
+      "sha256": "55c5654afd76dab45c478b7f9960568229daebd511b3b6e1a5dc286b7dd2f4d0"
+    },
+    {
+      "file": "src/runtime/instrument/12_rhythm_and_bass_editor.js",
+      "sha256": "460cd6b41a11ee45e177b851a56ccb09e1836a0e3e9f0dd70e5886c95c063873"
+    },
+    {
+      "file": "src/rhythm/01_compact_drum_grid.js",
+      "sha256": "1746daae5e93bb5fd46dcf6d3008c8371d51b9e16b7b5120a51cf3c766ea86cd"
+    },
+    {
+      "file": "src/audio/09_myzel_g_dsp.js",
+      "sha256": "53ec50c997f2f490bcc062d0b3d4768083587f0e6874233c655bf3bd00077148"
+    },
+    {
+      "file": "src/audio/08_myzel_g_live.js",
+      "sha256": "2b2618f289b05bd3147d7d85cad853d78e6f09e136b294a2ec64cc241597c593"
+    },
+    {
+      "file": "src/rhythm/02_bass_and_rack.js",
+      "sha256": "7ed0bf473a2d4fe7c5e5de3b75b9f2a2c4c9a02476687506e12dbcf0975a53cf"
+    },
+    {
+      "file": "src/audio/01_voice_and_rfl_ownership.js",
+      "sha256": "30290ae645bdf758edfff129da6d833604992b103536df11383ac86bb610b1f2"
+    },
+    {
+      "file": "src/audio/02_rfl_worklet.js",
+      "sha256": "ca8d3d0ea09553871597596de0bfd9f0bd734fc4d849ad19e2e8eb79b7b21789"
+    },
+    {
+      "file": "src/audio/03_recorder.js",
+      "sha256": "5a88c6316a0bba69e65a6af846944961fa724314b6d9ee58c71f88938e990cc2"
+    },
+    {
+      "file": "src/audio/04_wave_worklet.js",
+      "sha256": "37b659f26344720b8e2ef0091ca44fb87ca799b35041c1820ab41e3aff2a40b2"
+    },
+    {
+      "file": "src/audio/05_live_voice_runtime.js",
+      "sha256": "89e30900ce78b256a9e658f66db6d28013bc87d69179ae58c33d2026522acb7a"
+    },
+    {
+      "file": "src/audio/entrophon/01_wasm_asset.js",
+      "sha256": "20c35f2c533c4e774589e34b9ceba23e8ff9a994aedcb694a68c51fce62006f6"
+    },
+    {
+      "file": "src/audio/entrophon/02_worklet_and_voice_backend.js",
+      "sha256": "9e84b54aed03fe13a1daf5e212eb668edfc1a9fa74edd61ee4da45d59c804624"
+    },
+    {
+      "file": "src/audio/entrophon/03_native_bridge.js",
+      "sha256": "6860d0435d262e0352cb80c19ca02d29036e9df5bfe77cd29500c58128a5c6f5"
+    },
+    {
+      "file": "src/audio/07_governor_and_drums.js",
+      "sha256": "7f6316e7f89839ee2080402ea3db3748037124f15a6eb8cb33b264a9333365ef"
+    },
+    {
+      "file": "src/rhythm/03_live_drum_bodies.js",
+      "sha256": "2e0a2439007f88053a7d00d5053aa28e2797f1f1ae796fc4428be12f8d745da4"
+    },
+    {
+      "file": "src/rhythm/04_workspace_and_transport.js",
+      "sha256": "4199c30f43844d3649d1e8ccbd2ca65bea82324ca759eee3ccf393c4d06b9980"
+    },
+    {
+      "file": "src/rhythm/05_canonical_selection.js",
+      "sha256": "109716a9566e0073f16fc69915c04b5d104df294bd4388517d72520c53a4ea74"
+    },
+    {
+      "file": "src/app/forge/01_room_shell.js",
+      "sha256": "2c998d93ef54bbbb16e6c07e973340ffa9e1ff31949599c2ca92efa0b77bf7c7"
+    },
+    {
+      "file": "src/app/forge/02_boot_and_workspace_tools.js",
+      "sha256": "8002c504d37820879e60897c3a5124294b9ab212f0a0b38eec0373d3ef0131a9"
+    },
+    {
+      "file": "src/app/forge/03_spectral_grid_and_archives.js",
+      "sha256": "f6d1480e33d653394daa77804a7b45c652adb225e44e1c14f44a099d419dbe12"
+    },
+    {
+      "file": "src/app/forge/04_profiles_and_body_models.js",
+      "sha256": "9537dc4805ab58595a80dad36ac78b4f0100c57107eb82f317c8c63a4df78e6c"
+    },
+    {
+      "file": "src/app/forge/05_forge_state_and_analysis.js",
+      "sha256": "16cbe1d8a5fa09c2c3ad9f24c7b1690bb2017fa44cd41601544cd6856cbedc6f"
+    },
+    {
+      "file": "src/app/forge/06_donor_audio_and_audition.js",
+      "sha256": "a2c47252f68252778eb94dacf646e19f8f3072c478a03651c09a0cd918354cbf"
+    },
+    {
+      "file": "src/app/forge/07_preview_cache_and_controls.js",
+      "sha256": "3f2a8efb5679d24675388ac6a64bf3b733606b49daff58410c6e709de915d7fd"
+    },
+    {
+      "file": "src/forge/editor/01_display_and_canvas.js",
+      "sha256": "c8b9ca634da83671e79bd5814eb3ae991dc6ca6af71cd2254aa55e4e86ee90f5"
+    },
+    {
+      "file": "src/forge/editor/02_tools_and_audio_inputs.js",
+      "sha256": "1518f0931bdbaa955ef238e1802257e441fdfef7ac71e14d284966f5ee48688d"
+    },
+    {
+      "file": "src/forge/editor/03_synthetic_sound_engines.js",
+      "sha256": "617a36be632dbaa7f09109d3071eb9d87d573ddd34cd10988c37df724312a497"
+    },
+    {
+      "file": "src/forge/editor/04_signal_atoms_and_bodies.js",
+      "sha256": "b58714b8c5e72c33241fa2a09ebbe125da72f9ca025399f98bc254604dfc5fc3"
+    },
+    {
+      "file": "src/forge/editor/05_machine_and_carrier_projection.js",
+      "sha256": "cb6c459f1d50e668960c6e9578fc5036b85956829cbe87d87e552ff117b73f0c"
+    },
+    {
+      "file": "src/forge/editor/06_output_routing.js",
+      "sha256": "5a46c11187a826432be2d023a3d0c73c9d63c505120a235f1beda1a03df6484b"
+    },
+    {
+      "file": "src/forge/editor/07_composition_and_preview_ui.js",
+      "sha256": "6d0af4347b1394db07d074815aca0ef8adb21ac4adacc3cdc35b0841b892771a"
+    },
+    {
+      "file": "src/forge/ui/02_donor_routing_and_hearing.js",
+      "sha256": "1f7687531fef9e9197f66306bf4702102124535c089a10afb95806e3fc0526dd"
+    },
+    {
+      "file": "src/forge/ui/03_method_selection.js",
+      "sha256": "cdf3320ba84739143065396d63d69c4145955d59ef510d0bc278b91c3b473817"
+    },
+    {
+      "file": "src/forge_and_melodic/01_donor_selection_and_edits.js",
+      "sha256": "eb4414e106d77a6b532ba4f1b3561bfcce0db699d53a5345e1e1893b8e714da8"
+    },
+    {
+      "file": "src/forge_and_melodic/02_forge_keyboard_and_history.js",
+      "sha256": "895ded841cbd6aef6119a098581b6b5baf74ff71e21ed7edaa750d306a728604"
+    },
+    {
+      "file": "src/forge_and_melodic/03_timeline_and_transport_ui.js",
+      "sha256": "feca54d457be0520cdaf3de717a95f35d15c7e87c189a4579ac04db908bbdd74"
+    },
+    {
+      "file": "src/forge_and_melodic/04_render_cache_and_stems.js",
+      "sha256": "a1325af229d598873a54b1c4431fd2d0d39a44d482824b47148fbc803687fccc"
+    },
+    {
+      "file": "src/forge_and_melodic/05_preview_and_sample_intake.js",
+      "sha256": "0ce1730e055659192d21a889aac60c28894d260c93995d343f4417c56ebde3cb"
+    },
+    {
+      "file": "src/forge_and_melodic/06_note_editor_and_material_tools.js",
+      "sha256": "f0808474a1b2c00cb7aeaabd0bc5a1ff4499519db349a740c53ec4060a8c7aa0"
+    },
+    {
+      "file": "src/forge_and_melodic/07_tuning_and_logic_view.js",
+      "sha256": "93c693f880c135434626d5c6c6f7af3788e95ff2e6b14dc5ba7f01de894838a4"
+    },
+    {
+      "file": "src/forge_and_melodic/08_editor_actions.js",
+      "sha256": "c1dd556077929639254defab7aa41a6db2b1df8c8bb57754a960fde226d57f52"
+    },
+    {
+      "file": "src/forge_and_melodic/09_canonical_forge_room.js",
+      "sha256": "5b7f305514b71018108124a625d22ed590ee5eae6c090d3def80554396177130"
+    },
+    {
+      "file": "src/forge_and_melodic/10_audition_and_persistence.js",
+      "sha256": "d2c36d2d612a994243273723862c6b876202d1b3efb19b58315c277855aa2c07"
+    },
+    {
+      "file": "src/forge_and_melodic/11_analysis_canvas_and_controls.js",
+      "sha256": "76bb5107cfa5dc16d86cfad05e5206b69b5e7d81de5b5f6bf813291a17a4b6d1"
+    },
+    {
+      "file": "src/forge/hybrid/01_recipe.js",
+      "sha256": "8f9971f9a3eb3f105fb875819fa91771be2213b25d30b035bdb39d6043a99c24"
+    },
+    {
+      "file": "src/forge/hybrid/02_session_store.js",
+      "sha256": "fb7b4cf3a23311dce3ede0a6a6dee42d17fe7df1d6486f3ffdd5a4a8656ffd20"
+    },
+    {
+      "file": "src/forge/analysis/01_analysis_size.js",
+      "sha256": "56f1b22b8f823a1851fa38a145058c2ea34a422b36bf1e1f94b304ded2821585"
+    },
+    {
+      "file": "src/forge/analysis/02_analysis_cache.js",
+      "sha256": "bf5f30e0551fa7951452dbf28343c562aa4896922014f60d2b3802c280a80715"
+    },
+    {
+      "file": "src/04_forge_render.js",
+      "sha256": "78bf6edcdd3a1499003c9d9f52e5eab1d132d99d04394974b93d140b9b06fb7a"
+    },
+    {
+      "file": "src/forge/hybrid/03_render_pipeline.js",
+      "sha256": "a5856b58f8137bfdda38d7c9cd0ff94c20a608f7e2585379236177031c3e6534"
+    },
+    {
+      "file": "src/forge/hybrid/04_cecilia_dsp_and_worker.js",
+      "sha256": "f801c81f5c657b400a49a65db7fed559074d6503cd00591dc0159018b37b19ba"
+    },
+    {
+      "file": "src/forge/hybrid/05_capture_tools.js",
+      "sha256": "25ab13b8cf8118ea3bdeac88588becde0a5be3817a469ab684a769fb71c8c37e"
+    },
+    {
+      "file": "src/forge/hybrid/06_job_capture.js",
+      "sha256": "f76fefcb393dd1610d993fd0c4a04c8356309dfb1b7d11ed03980b38a49444cd"
+    },
+    {
+      "file": "src/forge/hybrid/07_render_adapters.js",
+      "sha256": "8755b217732677487dc20647b46a0580ea218460e5f85ef986ff660bec422606"
+    },
+    {
+      "file": "src/forge/hybrid/08_playback_controller.js",
+      "sha256": "3bc628e7583b72cce0fd6415f9c3c70f5f6f98522f359f57756081cf6b13a8da"
+    },
+    {
+      "file": "src/forge/hybrid/09_runtime.js",
+      "sha256": "ccf1b03b97dabbdab3096e7da8aa9d49006f2e1453b268c5bd718571bec4ebaa"
+    },
+    {
+      "file": "src/forge/ui/04_cecilia_controls.js",
+      "sha256": "d089993e88f33bd911bcc6e5ba68418af6927c6d1892e816a08f6dbafdf4dc49"
+    },
+    {
+      "file": "src/forge/analysis/03_source_identity_and_cache.js",
+      "sha256": "c1536bd80ffdaf69c9602ca7c6994dc83d43250b63548bda9f96a1bea1006366"
+    },
+    {
+      "file": "src/forge/ui/05_workbench_controls.js",
+      "sha256": "23c2997e088de1b8a3c50408d2f71326776eedc301b376e49264b054b2d2bc2c"
+    },
+    {
+      "file": "src/forge/dual/01_dsp_and_worker.js",
+      "sha256": "757f740b04fb9b8e8771f51e64d4907516831680465089af56f25e96b5352b4c"
+    },
+    {
+      "file": "src/forge/dual/02_session_store.js",
+      "sha256": "92a88bd5fcdb0623222409c2f4ab16df1771c5087a0dc379452f2df8de76483d"
+    },
+    {
+      "file": "src/forge/dual/03_audio_files.js",
+      "sha256": "e920dd32c8ab5855d9b5db87bb71c49cfaa8829e3901d99ee696c580acc19d8e"
+    },
+    {
+      "file": "src/forge/dual/04_session_codec.js",
+      "sha256": "4e2bb913898ea3a07fec3ca1ee991d916574188de37e44c5d63ec33ce7f5e498"
+    },
+    {
+      "file": "src/forge/dual/05_library_bridge.js",
+      "sha256": "19bbebb6233870a251812e15c6dc5ca477de5dc2008a985e75d20ad1381a94b1"
+    },
+    {
+      "file": "src/forge/dual/06_output_controls.js",
+      "sha256": "784d0b2b7e204a9589a0be6a2b5b409a8ed92cbff299c7a121dc5328eeb0eca8"
+    },
+    {
+      "file": "src/05_dual_donor.js",
+      "sha256": "659145d9551b0e26e67eca9781c79f8702c70306f150e26da7b72f224f1dd1f6"
+    },
+    {
+      "file": "src/06_workbench_dialog.js",
+      "sha256": "e4279f4e60d719fe2ad02b7bcf1294e5b04da923d4a3eb10ee2586bb8d76f11e"
+    },
+    {
+      "file": "styles/00_base_utilities.css",
+      "sha256": "e09b40882f0e784107aac80ee8294e4c3363e7d596820c91469833da46d67081"
+    },
+    {
+      "file": "styles/01_near_feedback.css",
+      "sha256": "a3ae120030efbac40a14ace2802e9f0924e6ac8c2af862b6c3901b51cec13efb"
+    },
+    {
+      "file": "styles/02_wave_amp.css",
+      "sha256": "f000fd3a9f89337f9e255de1734700837f35681a72be59fb309a3d42deaf1634"
+    },
+    {
+      "file": "styles/03_forge_mobile_sidebar.css",
+      "sha256": "ab91854df198c49cfea31757b193717865f3d26e5d68e370a7392eb9b8a31535"
+    },
+    {
+      "file": "styles/04_workbench_base.css",
+      "sha256": "36d7ec5234da0071f61f31beebd31fb16072aa99f8a4da4ab97ae1af87645b42"
+    },
+    {
+      "file": "styles/05_workbench_controls.css",
+      "sha256": "63bf3ddd8c66aaf9fc3e13b0dfab533ae352fae0efdfdf44351731da9fc335ab"
+    },
+    {
+      "file": "styles/06_donor_library.css",
+      "sha256": "d8285928265fd25f970e370a50145db6237fb204b7932fe792b06101a1becf72"
+    },
+    {
+      "file": "styles/07_donor_library_dock.css",
+      "sha256": "a9015ab49de1889c6a1f14e5dd6b5a0c13f261618eed9009c67d1c2a0ba02a34"
+    },
+    {
+      "file": "styles/08_workbench_workflow.css",
+      "sha256": "31ba7c163fe9d563956753fcb10134f10d1cf7d759548ad75c78708a1b1ce7a6"
+    },
+    {
+      "file": "styles/09_combination_rack.css",
+      "sha256": "53b6cc5fb8da5c397e7eb4eca8ac4e7bf4baf129b3356267c7d9d7e7c07282f3"
+    },
+    {
+      "file": "styles/10_hybrid_workflow.css",
+      "sha256": "9c6c8ca5b10d43316c1799171b8617726ced37aef205a0da180c9f3ca7d3d533"
+    },
+    {
+      "file": "styles/11_carrier_controls.css",
+      "sha256": "5b2d1e3c67bce5a18a72f7928f480180a1fc34051fe0f23a082803ea544a69af"
+    },
+    {
+      "file": "styles/12_drum_rack.css",
+      "sha256": "2d919686bbc365ffc0b5f6a58b24e1408dd12780a8c2776cef2b0d4d90cea178"
+    },
+    {
+      "file": "styles/13_drum_timing.css",
+      "sha256": "97f5a79dbc339b77cf3ddf43db7efd0ed938e3a52226435aeb03415e4986cf03"
+    },
+    {
+      "file": "styles/14_drum_responsive.css",
+      "sha256": "cf0a6c4070a6b119eb10e7bc1e100be910799511393ff5316d052b0fb4fb2e08"
+    },
+    {
+      "file": "styles/15_drum_playhead.css",
+      "sha256": "172b73e65d2510e479403395b09e468e33f830708046209bb966174ad092e847"
+    },
+    {
+      "file": "styles/16_dual_donor_assembly.css",
+      "sha256": "5f1c9c86811f0ad65cd26e933a7958b6e77b7ea11fec0a0e0b387d309e259018"
+    },
+    {
+      "file": "styles/17_dual_donor_output.css",
+      "sha256": "5302b08f95cb9826b25ac2bc477a2c4cbac7e401cf3e884fbf6274cb43a20f68"
+    },
+    {
+      "file": "styles/18_forge_status.css",
+      "sha256": "325841dc85670fe707b0aaef263064582ebf539384808579a655f09b2b0b5fb6"
+    },
+    {
+      "file": "styles/19_bass_manager_fix.css",
+      "sha256": "a5bfe03c03a3d66c6e7712ee05263406b0b99e619ad7645baf3c007991b60058"
+    },
+    {
+      "file": "styles/20_nodal_sound_designer.css",
+      "sha256": "6d1cec1689116876e5424952177e63551ac6de08c59773f283dd3a8cb0486584"
+    }
+  ]
+}

@@ -1,0 +1,59 @@
+{
+  "rows": [
+    {
+      "rate": 48000,
+      "nodes": 3,
+      "n19FullVoices": 8,
+      "n20FullVoices": 9,
+      "comparedChannelValues": 141824,
+      "energy": 337.44366181489175,
+      "allPhysicalTicketsReturned": true
+    },
+    {
+      "rate": 48000,
+      "nodes": 7,
+      "n19FullVoices": 4,
+      "n20FullVoices": 5,
+      "comparedChannelValues": 141824,
+      "energy": 292.4750285419672,
+      "allPhysicalTicketsReturned": true
+    },
+    {
+      "rate": 48000,
+      "nodes": 12,
+      "n19FullVoices": 2,
+      "n20FullVoices": 3,
+      "comparedChannelValues": 141824,
+      "energy": 213.29642809580534,
+      "allPhysicalTicketsReturned": true
+    },
+    {
+      "rate": 96000,
+      "nodes": 3,
+      "n19FullVoices": 4,
+      "n20FullVoices": 4,
+      "comparedChannelValues": 258048,
+      "energy": 546.8851951984547,
+      "allPhysicalTicketsReturned": true
+    },
+    {
+      "rate": 96000,
+      "nodes": 7,
+      "n19FullVoices": 2,
+      "n20FullVoices": 2,
+      "comparedChannelValues": 258048,
+      "energy": 277.8107157537095,
+      "allPhysicalTicketsReturned": true
+    },
+    {
+      "rate": 96000,
+      "nodes": 12,
+      "n19FullVoices": 1,
+      "n20FullVoices": 1,
+      "comparedChannelValues": 258048,
+      "energy": 178.18056087345155,
+      "allPhysicalTicketsReturned": true
+    }
+  ],
+  "scope": "Production DSP/ports bridged; exact PCM, real rendered starts and global/shared ticket cleanup; not hardware audio"
+}

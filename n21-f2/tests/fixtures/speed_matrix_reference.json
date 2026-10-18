@@ -1,0 +1,50 @@
+{
+  "material-flow-original": {
+    "n": 19200,
+    "hash": "e8270495",
+    "peak": 0.3692232370376587,
+    "frames": 139
+  },
+  "material-flow": {
+    "n": 19200,
+    "hash": "e8270495",
+    "peak": 0.3692232370376587,
+    "frames": 139
+  },
+  "gestalt-imprint-original": {
+    "n": 19200,
+    "hash": "9b66e778",
+    "peak": 0.2599114775657654,
+    "frames": null
+  },
+  "gestalt-imprint": {
+    "n": 19200,
+    "hash": "742a7207",
+    "peak": 0.25772061944007874,
+    "frames": null
+  },
+  "film": {
+    "n": 19200,
+    "hash": "6382c38f",
+    "peak": 0.2668714225292206,
+    "frames": null
+  },
+  "gestalt-motion": {
+    "n": 19200,
+    "hash": "ae786189",
+    "peak": 0.3246460556983948,
+    "frames": null
+  },
+  "air": {
+    "n": 19200,
+    "hash": "887bf9ef",
+    "peak": 0.05562273785471916,
+    "frames": null
+  },
+  "signature-pilot": {
+    "n": 19200,
+    "hash": "c6e3b00a",
+    "peak": 0.2710718512535095,
+    "frames": null
+  }
+}

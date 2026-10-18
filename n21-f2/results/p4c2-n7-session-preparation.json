@@ -1,0 +1,41 @@
+{
+  "rows": [
+    {
+      "rate": 8000,
+      "voices": 12,
+      "sharedLawBytes": 1536,
+      "onsetFramesWithoutExp": 160,
+      "renderTypedArrayAllocations": 0
+    },
+    {
+      "rate": 44100,
+      "voices": 12,
+      "sharedLawBytes": 8472,
+      "onsetFramesWithoutExp": 882,
+      "renderTypedArrayAllocations": 0
+    },
+    {
+      "rate": 48000,
+      "voices": 12,
+      "sharedLawBytes": 9216,
+      "onsetFramesWithoutExp": 960,
+      "renderTypedArrayAllocations": 0
+    },
+    {
+      "rate": 96000,
+      "voices": 12,
+      "sharedLawBytes": 18432,
+      "onsetFramesWithoutExp": 1920,
+      "renderTypedArrayAllocations": 0
+    },
+    {
+      "rate": 192000,
+      "voices": 12,
+      "sharedLawBytes": 36864,
+      "onsetFramesWithoutExp": 3840,
+      "renderTypedArrayAllocations": 0
+    }
+  ],
+  "channelValues": 186288,
+  "result": "shared exact-rate laws, no constructor exp after Worker install, no render typed-array allocation"
+}

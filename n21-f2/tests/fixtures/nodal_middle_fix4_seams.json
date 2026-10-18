@@ -1,0 +1,43 @@
+[
+  {
+    "file": "src/forge_and_melodic/03_timeline_and_transport_ui.js",
+    "baselineSha256": "e46e5288787c28425f28a029e97dc0634ad3f1c3efcee2d872c93be6b2b5c761",
+    "seams": [
+      {
+        "position": 25718,
+        "before": "e?.toolSettings.eraseMode",
+        "after": "e?.toolSettings?.eraseMode"
+      },
+      {
+        "position": 26615,
+        "before": "t?.toolSettings.brushSize",
+        "after": "t?.toolSettings?.brushSize"
+      },
+      {
+        "position": 26666,
+        "before": "t?.toolSettings.intensity",
+        "after": "t?.toolSettings?.intensity"
+      },
+      {
+        "position": 26716,
+        "before": "t?.toolSettings.hardness",
+        "after": "t?.toolSettings?.hardness"
+      },
+      {
+        "position": 26765,
+        "before": "t?.toolSettings.eraseMode",
+        "after": "t?.toolSettings?.eraseMode"
+      },
+      {
+        "position": 26816,
+        "before": "t?.toolSettings.morphMode",
+        "after": "t?.toolSettings?.morphMode"
+      },
+      {
+        "position": 28323,
+        "before": "t?.materialExport.name",
+        "after": "t?.materialExport?.name"
+      }
+    ]
+  }
+]

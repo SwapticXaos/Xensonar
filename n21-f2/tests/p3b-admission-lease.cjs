@@ -1,0 +1,17 @@
+'use strict';
+const fs=require('node:fs'),assert=require('node:assert/strict');
+const source=fs.readFileSync('src/nodal/04_audio_runtime.js','utf8');
+assert(source.includes('function createNodalAdmissionGate('),'P3B requires one explicit host admission operation');
+const a=source.indexOf('function createNodalAdmissionGate('),b=source.indexOf('function createNodalLiveRuntime(',a);
+const create=new Function(source.slice(a,b)+';return createNodalAdmissionGate;')();
+let acquires=0,releases=0,allowed=true;
+const gate=create({maxVoices:32,maxCost:16,acquire:(cost,lane)=>{assert.equal(lane,'particle');acquires++;return allowed?{release(){releases++;}}:null;}});
+assert.equal(gate.tryAcquire(32,0,1,'particle'),null);assert.equal(gate.reason,'dsp-budget');assert.equal(acquires,0);
+assert.equal(gate.tryAcquire(0,15,3,'particle'),null);assert.equal(acquires,0,'DSP rejection precedes physical ticket work');
+for(const cost of [0,-1,NaN,Infinity])assert.equal(gate.tryAcquire(0,0,cost,'particle'),null);
+allowed=false;assert.equal(gate.tryAcquire(0,0,1,'particle'),null);assert.equal(gate.reason,'global-ticket');assert.equal(acquires,1);
+allowed=true;const lease=gate.tryAcquire(0,0,3,'particle');assert(lease);assert.equal(acquires,2);assert.equal(gate.reason,null);
+lease.release();lease.release();assert.equal(releases,1,'physical lease is idempotent');
+assert(gate.tryAcquire(5,7.5,3,'particle'),'real tails count at their current unchanged DSP cost');
+assert.equal(gate.tryAcquire(10,15,3,'particle'),null,'tails are never stolen to admit a new particle');
+console.log('PASS one Nodal host admission, DSP-before-ticket, exact fixed caps, global rejection and idempotent physical lease');

@@ -1,0 +1,15 @@
+'use strict';const assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path'),crypto=require('node:crypto');
+const root=path.join(__dirname,'..'),parent=path.join(root,'../XenSonar_NODAL_CONSOLIDATED_FIX13');
+const a=JSON.parse(fs.readFileSync(path.join(root,'source-manifest.json'))),b=JSON.parse(fs.readFileSync(path.join(parent,'source-manifest.json')));
+assert.equal(a.styles.length,b.styles.length);assert.deepEqual(a.styles,b.styles,'original UI/CSS is byte-untouched');
+const added=a.files.filter(x=>!b.files.includes(x));assert.deepEqual(added,['src/audio/09_myzel_g_dsp.js','src/audio/08_myzel_g_live.js']);
+const changed=b.files.filter(f=>crypto.createHash('sha256').update(fs.readFileSync(path.join(root,f))).digest('hex')!==crypto.createHash('sha256').update(fs.readFileSync(path.join(parent,f))).digest('hex'));
+assert.deepEqual(changed,['src/rhythm/02_bass_and_rack.js','src/audio/entrophon/02_worklet_and_voice_backend.js']);
+assert(fs.readFileSync(path.join(root,'src/audio/entrophon/02_worklet_and_voice_backend.js'),'utf8').includes('myzelNearestIsCustomResident:!!_?.isCustomResident'));
+const rhythm=fs.readFileSync(path.join(root,'src/rhythm/02_bass_and_rack.js'),'utf8');
+assert(rhythm.includes('Ppe=(e,t,n)=>myzelGCreate(e,t,n)'));
+assert(rhythm.includes('Epe=(e,t,n)=>myzelGUpdate(e,t,n)'));
+assert(!a.files.includes('src/audio/09_myzel_field_dsp.js'),'Fix14 postprocessing is not grafted wholesale');
+const html=fs.readFileSync(path.join(root,a.entry));assert(html.includes('xensonar-myzel-g'));
+assert(html.includes('function myzelGUpdate'));
+console.log('PASS Fix13 provenance and original styles preserved; precisely two original integration modules changed; compiled G found');

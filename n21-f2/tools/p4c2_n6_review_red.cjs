@@ -1,0 +1,7 @@
+const fs=require('node:fs'),{spawnSync}=require('node:child_process');
+const target='tests/p4c2-n6-input-routing.cjs';const rows=[];
+for(const scenario of ['enter','resident']){
+const hook=`const fs=require('node:fs'),old=fs.readFileSync;fs.readFileSync=function(path,...args){let s=old.call(this,path,...args);if(typeof s!=='string')return s;if(${JSON.stringify(scenario)}==='enter'&&String(path).endsWith('01_room_shell.js'))s=s.replace('Lt?.keyboardGestureSource===\"keyboard-direct\"||Lt?.keyboardGestureSource===\"keyboard-glissando\"||Lt?.waveStarterGestureLoopLane===\"klaviatur\"','!!Lt?.keyboardGestureSource');if(${JSON.stringify(scenario)}==='resident'&&String(path).endsWith('02_worklet_and_voice_backend.js')){s=s.replace('g===\"resident\"?e.ensureFinalMixBus(ctx):','').replace('&&x?.placementSource!==\"resident\"','')}return s};require('./'+${JSON.stringify(target)});`;
+const r=spawnSync(process.execPath,['-e',hook],{encoding:'utf8'});rows.push({scenario,status:r.status,assertion:r.stderr.slice(0,1800)});if(r.status===0)throw Error('Historical failure did not reproduce: '+scenario)
+}
+const green=spawnSync(process.execPath,[target],{encoding:'utf8'});rows.push({scenario:'fixed',status:green.status,output:green.stdout+green.stderr});fs.writeFileSync('results/p4c2-n6-review-red-green.json',JSON.stringify(rows,null,2)+'\n');if(green.status!==0)process.exitCode=1;else console.log('PASS review findings reproduced RED independently; production fixes GREEN');

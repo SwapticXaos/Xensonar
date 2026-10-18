@@ -1,0 +1,28 @@
+{
+  "from_n21": {
+    "src/01_app_runtime.js": "885a9004f6fba5d79809c80546c782f458a94f26c344632879bfb178f9b83f69",
+    "src/audio/05_live_voice_runtime.js": "a5f7a02cb4f332ea38d52d395fa27f786c8909af633497178d370b40f75e21e1",
+    "src/audio/entrophon/01_wasm_asset.js": "292826664b9374a860f06a5e0d3041b0adeed22638e1266bdbd3d4386c59d658",
+    "src/audio/entrophon/02_worklet_and_voice_backend.js": "f7d0f83be5ea05ef52eeb7f94a250869356ad98e8cb39cbae36e150398d102d0",
+    "src/mix/03_quick_menu.js": "587c3b8fdf5c1d756341d5006685508bb3045b787ffefe2551ea45800a0ece3d",
+    "src/nodal/04_audio_runtime.js": "e65b2ebda0abaddc1e9441e491e640c445e08dd61bd580577647adb79b052da0",
+    "src/nodal/05_installation_bridge.js": "bc1707700358eb1ddfb3cbb59f7845854a4153c778b083fdec365f5e30a2872e",
+    "src/nodal/08_melodic_live_transport.js": "c7fadedada1752577434560fc09d76a21f714f854180ad5bfa069b764aef6ad2",
+    "src/nodal/12_surface_runtime.js": "d97630da10efc49d3b9702e640921103bd759a9e0466c2cbf940e7fbcfee9f7b",
+    "src/instruments/06_source_preparation.js": "e616e6ccc1cac12c96f00bdeb03b961bc5630f64755b3c7e4d292591fdb0f351",
+    "src/instruments/07_pitch_preparation.js": "0606c67311b76324523b74bdbc50159af24cc94791dba20ae7477fb6a4c1272b",
+    "src/rhythm/04_workspace_and_transport.js": "3ce55ef93d8e39d17cc7a54cec8506a51cb03376e98075354d6afb34db1f5e2b",
+    "src/runtime/instrument/10_entrophon_and_voice_control.js": "111a56435e4fb3ebdecccc984b9aa0b02959f1983819917e2f8e3d8bffa21286",
+    "styles/24_quick_menu.css": "db17b68f2e2c7d5c7a2bc097c04163f21adc950f58a07e1d979c9ea05554a8f6"
+  },
+  "from_n20f2": {
+    "src/forge/editor/07_composition_and_preview_ui.js": "32d6c486a1aeccd7a90f79605d6c641289a95a0746de6344d8d82bcb634b7a4a",
+    "src/forge_and_melodic/03_timeline_and_transport_ui.js": "0b9ee1a0ce86658aaef8e659845209672b179e5c89bec04ab89268f1f0985acd",
+    "src/forge_and_melodic/05_preview_and_sample_intake.js": "92c6a5c02bce0c0a008610b318fab53f25ab9d74c86b38856a142fa75ae7fde6",
+    "src/forge_and_melodic/06_note_editor_and_material_tools.js": "dc34ac2b29cf4fe52a0f5004f3eb7cabb7ce51a9971c7060092868b4f837e6d6",
+    "src/forge_and_melodic/10_audition_and_persistence.js": "2f868ef3a6a93c79cd64a4dfc40af00d3b45f50b86d2eaa4f369af6d1d67daf4",
+    "styles/08_forge_workflow.css": "4193e0c5187baf3b88d5f16755c1e3b05e04ee8d0c0eb64a889562efd3ed67d9",
+    "styles/25_n20_forge_navigation.css": "90fbaafbd463a0eee3f3152aa702b8ed773e1172751466376dd82af20c80590d"
+  },
+  "common_ancestor": "XenSonar_F448_S1_P4C2_N20_Shared_Live_Audio_Full_Project.zip"
+}

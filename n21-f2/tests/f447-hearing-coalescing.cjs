@@ -1,0 +1,10 @@
+'use strict';
+const fs=require('fs'),vm=require('vm'),assert=require('assert/strict');
+const file=fs.readFileSync('src/forge_and_melodic/10_audition_and_persistence.js','utf8');
+let renders=0,finish;const ctx={DOMException,__f333Epoch:0,__f333HearingCache:new Map(),IB:()=>({durationSec:1,previewPitchRatio:1}),TR:()=>({}),Ti:JSON.stringify,ER:()=>'',xt:{getContext:()=>({sampleRate:8000})},xK:()=>null,__Emilia:{snapshot:()=>({}),semanticKey:()=> 'same',renderCarrier:async()=>{renders++;await new Promise(r=>finish=r);return {length:8000,numberOfChannels:1}}}};
+vm.createContext(ctx);vm.runInContext(file.slice(file.indexOf('const __f433HearingBudgetBytes'),file.indexOf('function __f333Stop'))+file.slice(file.indexOf('async function __f333RenderHearing('),file.indexOf('// F3.56.5:'))+';globalThis.hear=__f333RenderHearing',ctx);
+vm.runInContext('var __f447ForgeVisible=true;'+fs.readFileSync('src/forge/fractalia/13_spectral_view.js','utf8').slice(fs.readFileSync('src/forge/fractalia/13_spectral_view.js','utf8').indexOf('function __f447DeactivateForgeView(')),ctx);ctx.__FractaliaSpectralView={suspend(){},resume(){}};ctx.__ForgeHearingSpectrum={suspend(){}};ctx.__Emilia.stopPreview=()=>{};ctx.Vt={stop(){}};ctx.xt.stop=()=>{};ctx.xt.invalidateBuffer=()=>{};vm.runInContext(file.slice(file.indexOf('function __f333Stop('),file.indexOf('function __f333Idle(')),ctx);
+const request={machineId:'emilia-nodal-carrier',snapshot:{}};
+(async()=>{const first=ctx.hear(request),second=ctx.hear(request);assert.equal(renders,1,'spectrum and play must share the same in-flight render');finish();assert.strictEqual((await first).buffer,(await second).buffer);
+ ctx.__f333HearingCache.clear();const stale=ctx.hear(request).catch(e=>e.name);vm.runInContext('__f447SetForgeVisible(false)',ctx);finish();assert.equal(await stale,'AbortError');assert.equal(ctx.__f333HearingCache.size,0,'cancelled render must not enter hearing cache');
+ const retry=ctx.hear(request);finish();await retry;assert.equal(ctx.__f333HearingCache.size,1);console.log('PASS hearing coalescing, obsolete-result cache veto, retry after cancellation');})().catch(e=>{console.error(e);process.exitCode=1});

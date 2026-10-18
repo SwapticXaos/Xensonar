@@ -1,0 +1,14 @@
+'use strict';
+const fs=require('node:fs'),assert=require('node:assert/strict');
+const src=fs.readFileSync('src/nodal/04_audio_runtime.js','utf8');let Processor;
+new Function(src.slice(0,src.indexOf('function createNodalLiveRuntime'))+';return nodalWorkletProcessorFactory')()(()=>({}),(_,C)=>Processor=C,class{constructor(){this.port={postMessage(){}}}},48000,()=>0);
+const p=new Processor();const voice=(l,r)=>({process(a,b,o=0,n=128,add=false){for(let i=o;i<o+n;i++){if(add){a[i]+=l;b[i]+=r}else{a[i]=l;b[i]=r}}}});
+const record=(lane,index,l,r)=>{const s={voice:voice(l,r),mixLane:lane,agentIndex:index};p.place(s,true);return s};
+const l=new Float32Array(128),r=new Float32Array(128),a=record('particle',0,.2,.3),b=record('particle',1,.4,.1),k=record('keyboard',null,.6,.2);
+p.placementState={'particle:0':-1,'particle:1':1,keyboard:0};p.place(a,true);p.place(b,true);p.place(k,true);
+p.renderPlaced(a,l,r);assert(Math.abs(l[127]-.5)<1e-6);assert(Math.abs(r[127])<1e-6);
+p.renderPlaced(b,l,r);assert(Math.abs(l[127])<1e-6);assert(Math.abs(r[127]-.5)<1e-6);
+p.renderPlaced(k,l,r);assert(Math.abs(l[127]-.6)<1e-6);assert(Math.abs(r[127]-.2)<1e-6);
+p.placementState={'particle:0':1};p.place(a,false);p.renderPlaced(a,l,r);assert(l[0]>.49);assert(r[0]<.01);assert(Math.abs(l[127])<1e-6);assert(Math.abs(r[127]-.5)<1e-6);
+const scratch=p.panL;p.renderPlaced(a,l,r);assert.equal(p.panL,scratch,'processor reuses scratch');
+console.log('PASS N6 stereo PCM: opposing simultaneous particles, separate keyboard, exact centre, 128-frame smooth changes, one scratch pair');

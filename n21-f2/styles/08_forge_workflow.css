@@ -1,0 +1,149 @@
+/* F3.3: Stable synthesis controls; transport is independent from project management. */
+.f31-play-rack{padding:8px 10px;background:#111827;border-top:1px solid #374151;min-width:0}
+.f31-transport-main{display:flex;align-items:center;flex-wrap:wrap;gap:8px 12px;min-width:0}
+.f31-trim-import{display:grid;grid-template-columns:minmax(155px,190px) minmax(150px,190px);align-items:stretch;gap:10px;min-width:0}
+.f31-trim-import .f3564-transport-trim{width:100%;max-width:none;min-width:0;margin:0}
+.f31-import-bars{display:grid;grid-template-rows:1fr 1fr;gap:3px;min-width:0}
+.f31-import-bars>button{height:27px;justify-self:start;padding:0 10px;color:#cffafe;background:#164e63;border:1px solid #22d3ee;font-weight:700;box-shadow:0 0 0 1px #155e7580}
+.f31-import-bars>button:hover{background:#0e7490;border-color:#67e8f9}
+.f31-import-bars input{max-width:44px}
+.f31-transport-bottom{display:grid;grid-template-columns:minmax(0,1fr) minmax(236px,292px);gap:14px;align-items:end;margin-top:0;min-width:0}
+.f33-rack-destinations{display:flex;align-items:flex-end;flex-wrap:wrap;gap:7px 9px;min-width:0;padding-bottom:3px}
+.f33-rack-project-corner{display:flex;min-width:0;flex-direction:column;gap:3px;justify-self:end;width:100%;max-width:292px}
+.f33-project-save{min-width:0;display:grid;grid-template-columns:minmax(0,1fr) auto;grid-template-rows:auto 12px;gap:2px 5px}
+.f33-project-name-label{display:flex;align-items:center;min-width:0;gap:5px;color:#a3a3a3;font-size:10px}
+.f33-project-name-text{white-space:nowrap;flex-shrink:0}
+.f33-project-name-input{flex:1;min-width:30px;width:100%;height:26px;border:1px solid #52525b;border-radius:4px;background:#09090b;color:#fafafa;padding:3px 5px;font-size:11px}
+.f33-project-save-button{height:26px;min-width:44px;padding:0 7px;border-radius:4px;border:1px solid #0e7490;background:#083344;color:#a5f3fc;font-weight:600;font-size:11px}
+.f33-project-save-button:hover{background:#155e75}.f33-project-save-button:disabled{opacity:.5}
+.f33-project-save-feedback{grid-column:1/-1;min-height:12px;height:12px;line-height:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:10px}
+.f33-figure-projects{width:100%;min-height:36px;justify-content:flex-start}
+.f33-figure-projects [aria-hidden="true"]{font-size:24px}
+.f33-synth-lab-header{display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:start;column-gap:8px;padding:2px 2px 0;min-width:0}
+.f33-synth-lab-header h2{align-self:center;white-space:nowrap}
+.f33-synth-lab-header [data-forge-hearing-picker]{min-width:0;height:33px;padding:4px 7px}
+.f33-synth-lab-header>button{height:31px;align-self:start}
+@media(max-width:1050px){.f31-transport-bottom{grid-template-columns:minmax(0,1fr)}.f33-rack-project-corner{justify-self:end;max-width:292px}}
+@media(max-width:800px){.f31-trim-import{grid-template-columns:minmax(135px,1fr) minmax(145px,1fr);max-width:100%;width:100%}.f31-transport-bottom{grid-template-columns:minmax(0,1fr)}.f33-rack-project-corner{width:min(100%,292px);max-width:none}.f33-synth-lab-header{column-gap:5px}}
+@media(max-width:400px){.f33-synth-lab-header{grid-template-columns:auto minmax(0,1fr) auto;gap:4px}.f33-synth-lab-header h2{font-size:10px}.f33-synth-lab-header>button{padding:2px 5px;font-size:10px}.f33-project-name-text{font-size:9px}}
+
+/* F3.4: no redundant status row; no duplicate project row. */
+.f34-transport-and-status{position:relative;align-self:stretch;min-height:64px;flex:0 0 auto;z-index:1}
+.f34-transport-status{position:absolute;top:40px;left:0;width:168px;max-height:22px;overflow:hidden;line-height:11px;font-size:9px;color:#67e8f9;pointer-events:none;overflow-wrap:break-word}
+.f34-project-save-on-main{width:246px;max-width:100%;min-width:220px;margin-left:auto;align-self:flex-start;min-height:35px}
+.f34-project-save-on-main .f33-project-save{grid-template-rows:26px 12px}
+.f34-project-save-on-main .f33-project-save-feedback{line-height:12px}
+.f31-transport-bottom{grid-template-columns:minmax(0,1fr) minmax(220px,246px);gap:12px;margin-top:2px}
+.f33-rack-project-corner{max-width:246px}
+.f33-project-save-button{background:#083344}
+/* Reserve actual reading space for Synth Lab, cap the picker at Spectral Synthesis length. */
+.f33-synth-lab-header{grid-template-columns:minmax(0,1fr) minmax(148px,176px) auto;align-items:center;column-gap:6px}
+.f33-synth-lab-header h2{font-size:13px;font-weight:800;letter-spacing:.02em;color:#f5d0fe}
+.f33-synth-lab-header [data-forge-hearing-picker]{width:100%;max-width:176px;height:32px}
+/* Compact library grows upward from the rainbow button without affecting rack flow. */
+.f34-library-anchor{position:relative;width:100%;min-width:0}
+.f34-library-popover{position:absolute;z-index:120;bottom:calc(100% + 6px);right:0;width:min(430px,calc(100vw - 32px));max-height:min(360px,66vh);display:flex;flex-direction:column;gap:8px;border:1px solid #a21caf;border-radius:8px;padding:10px;background:#0c0e18;box-shadow:0 10px 35px #000c,0 0 0 1px #701a7560;color:#e5e7eb;font-size:11px}
+.f34-library-head{display:flex;justify-content:space-between;align-items:center;color:#f5d0fe;font-size:12px;padding:0 2px}
+.f34-library-head button{font-size:17px;border:1px solid #701a75;border-radius:4px;padding:0 7px;color:#e9d5ff}
+.f34-library-grid{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(0,1fr);gap:10px;min-height:0;flex:1;overflow:hidden}
+.f34-library-list{max-height:280px;min-height:90px;overflow-y:auto;overscroll-behavior:contain;display:flex;flex-direction:column;gap:4px;padding:1px 3px 1px 0}
+.f34-library-entry{flex:0 0 auto;min-height:28px;padding:6px 8px;border:1px solid #374151;border-radius:4px;background:#111827;color:#e5e7eb;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;text-align:left}
+.f34-library-entry:hover{border-color:#a78bfa;background:#24203d}
+.f34-library-entry.selected{border-color:#22d3ee;background:#143143;color:#e0faff}
+.f34-library-preview{min-width:0;display:flex;flex-direction:column;gap:7px;border-left:1px solid #283045;padding-left:9px;justify-content:flex-start}
+.f34-library-preview-title{font-size:10px;color:#67e8f9;letter-spacing:.04em}
+.f34-library-mini-view{width:100%;border:1px solid #164e63;border-radius:4px;overflow:hidden;background:#020617;min-height:32px}
+.f34-library-mini-view canvas{display:block;width:100%;height:auto;aspect-ratio:40/7}
+.f34-library-mini-empty{display:flex;align-items:center;justify-content:center;min-height:32px;padding:4px;color:#64748b;font-size:9px}
+.f34-library-current-name{font-size:10px;color:#cbd5e1;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+.f34-library-load{border:1px solid #0891b2;border-radius:4px;background:#164e63;color:#cffafe;font-weight:700;padding:6px 8px;min-height:27px}
+.f34-library-load:hover{background:#155e75}.f34-library-load:disabled{opacity:.45}
+.f34-library-empty{font-size:10px;color:#94a3b8;padding:10px;border:1px dashed #475569;border-radius:5px}
+.f34-library-error{font-size:10px;color:#fda4af;max-height:36px;overflow:hidden}
+@media(max-width:1100px){.f34-project-save-on-main{margin-left:0}.f31-transport-main{gap:8px}.f34-library-popover{right:0}}
+@media(max-width:480px){.f34-project-save-on-main{min-width:190px;width:220px}.f33-synth-lab-header{grid-template-columns:minmax(0,1fr) minmax(118px,154px) auto;gap:3px}.f33-synth-lab-header h2{font-size:11px}.f34-library-popover{width:min(390px,calc(100vw - 24px))}.f34-library-grid{grid-template-columns:minmax(0,1fr) minmax(0,.8fr);gap:6px}}
+
+/* F3.5 · Layout contract, established from two real user screenshots. */
+.f31-play-rack .f31-transport-main{
+ position:relative;display:grid;grid-template-columns:88px minmax(218px,max-content) minmax(135px,max-content) minmax(305px,380px) minmax(220px,1fr);
+ align-items:start;gap:8px;min-height:70px;overflow:visible;
+}
+.f31-play-rack .f34-transport-and-status{position:static;min-height:34px;align-self:start;z-index:auto;min-width:0}
+.f31-play-rack .f34-transport-and-status>div:first-child{display:flex;align-items:center;gap:6px;white-space:nowrap;}
+.f31-play-rack .f34-transport-status{position:absolute;left:0;top:51px;width:auto;max-width:min(560px,65%);max-height:14px;
+ overflow:hidden;white-space:nowrap;text-overflow:ellipsis;overflow-wrap:normal;line-height:12px;font-size:10px;
+ color:#67e8f9;pointer-events:none;z-index:1}
+.f31-play-rack .f31-transport-main>div:nth-child(2){flex-wrap:nowrap;white-space:nowrap;align-self:start;margin-top:2px}
+.f31-play-rack .f31-transport-main>div:nth-child(3){align-self:start;margin-top:2px;white-space:nowrap;gap:5px}
+.f31-play-rack .f31-trim-import{grid-template-columns:minmax(140px,190px) minmax(150px,190px);gap:8px;align-self:start}
+.f31-play-rack .f34-project-save-on-main{grid-column:5;margin:0;min-width:0;width:100%;max-width:100%;align-self:start;justify-self:stretch}
+.f31-play-rack .f34-project-save-on-main .f33-project-save{grid-template-rows:26px 12px;margin-top:0}
+.f31-play-rack .f31-transport-bottom{grid-template-columns:minmax(0,1fr) 246px;gap:10px;align-items:end;margin-top:0}
+.f31-play-rack .f33-rack-destinations{align-items:center;gap:7px 9px;padding-bottom:3px}
+.f31-play-rack .f35-rack-hearing-picker{display:flex;align-items:center;min-width:0;width:188px;flex:0 0 188px}
+.f31-play-rack .f35-rack-hearing-picker select{width:100%;max-width:none!important;height:36px;padding:5px 8px;color:#faf5ff;cursor:pointer}
+.f31-play-rack .f33-rack-project-corner{max-width:246px}
+@media(max-width:1220px) and (min-width:1001px){
+ .f31-play-rack .f31-transport-main{grid-template-columns:84px minmax(195px,max-content) minmax(121px,max-content) minmax(300px,350px) minmax(190px,1fr);gap:6px}
+ .f31-play-rack .f31-trim-import{grid-template-columns:minmax(135px,177px) minmax(146px,163px);gap:6px}
+ .f31-play-rack .f33-project-name-label{gap:3px;font-size:9px}
+}
+@media(max-width:1000px){
+ .f31-play-rack .f31-transport-main{display:flex;flex-wrap:wrap;gap:10px;min-height:72px;padding-bottom:18px}
+ .f31-play-rack .f34-transport-status{left:0;bottom:0;top:auto;max-width:100%}
+ .f31-play-rack .f34-project-save-on-main{min-width:220px;width:min(246px,100%);margin-left:auto}
+ .f31-play-rack .f31-transport-bottom{grid-template-columns:minmax(0,1fr) 246px}
+}
+@media(max-width:760px){
+ .f31-play-rack .f31-transport-bottom{grid-template-columns:minmax(0,1fr)}
+ .f31-play-rack .f33-rack-project-corner{justify-self:end;width:246px}
+ .f31-play-rack .f35-rack-hearing-picker{width:100%;flex:0 0 188px}
+}
+
+/* F3.6: the fifth cell is now really inside the top-level grid. No phantom row. */
+.f31-play-rack .f31-transport-main{grid-template-columns:88px max-content max-content minmax(305px,380px) minmax(205px,1fr);column-gap:8px;row-gap:0;min-height:67px}
+.f31-play-rack .f34-project-save-on-main{grid-column:5;grid-row:1;width:246px;max-width:100%;min-width:0;margin:0;align-self:start;justify-self:end}
+.f31-play-rack .f34-transport-status{top:39px;left:0;right:auto;width:min(500px,55%);height:13px;line-height:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;pointer-events:none}
+.f31-play-rack .f33-project-name-input{min-width:0}
+@media(max-width:1220px) and (min-width:1001px){
+ .f31-play-rack .f31-transport-main{grid-template-columns:84px max-content max-content minmax(294px,350px) minmax(193px,1fr);column-gap:6px}
+}
+@media(max-width:1000px){
+ .f31-play-rack .f31-transport-main{display:flex;flex-wrap:wrap;min-height:72px;row-gap:7px}
+ .f31-play-rack .f34-project-save-on-main{width:246px;flex:0 0 246px;min-width:200px;align-self:start;margin-left:auto}
+ .f31-play-rack .f34-transport-status{top:auto;bottom:0;left:0;right:auto;width:min(500px,80%);max-width:80%}
+}
+
+/* F3.7: presentable compact library; visible preview, date and guarded deletion. */
+.f34-library-popover{width:min(620px,calc(100vw - 32px));max-height:min(430px,75vh);gap:9px}
+.f34-library-grid{grid-template-columns:minmax(190px,1fr) minmax(215px,1.15fr);gap:12px}
+.f34-library-list{max-height:340px;min-height:145px}
+.f34-library-entry{white-space:normal;display:flex;flex-direction:column;gap:3px;min-height:43px;padding:6px 9px}
+.f37-library-entry-name{font-size:11px;font-weight:650;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;max-width:100%}
+.f37-library-entry-modified{font-size:9px;font-weight:400;color:#9ca3af;white-space:nowrap}
+.f34-library-preview{gap:8px;padding-left:11px}
+.f34-library-current-name{font-size:12px;color:#e5e7eb;font-weight:650}
+.f34-library-mini-view{height:90px;min-height:90px;max-height:90px}
+.f34-library-mini-view canvas{height:88px;width:100%;aspect-ratio:auto;image-rendering:auto}
+.f34-library-mini-empty{height:88px;font-size:11px}
+.f37-library-modified{font-size:10px;color:#94a3b8}
+.f37-library-actions{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:7px}
+.f37-library-delete{border:1px solid #be123c;background:#2a101c;color:#fecdd3;border-radius:4px;padding:6px 10px;min-height:27px;font-size:11px}
+.f37-library-delete:hover{background:#4c112b}.f37-library-delete:disabled{opacity:.45}
+@media(max-width:480px){.f34-library-popover{width:min(430px,calc(100vw - 24px))}.f34-library-grid{grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:6px}.f34-library-preview{padding-left:6px}.f34-library-mini-view,.f34-library-mini-view canvas,.f34-library-mini-empty{height:65px;min-height:65px}}
+
+/* N20 Forge rack polish: mirror Play's 34px height without enlarging Project Name.
+   The feedback keeps its own row; the Save caption stays vertically centered. */
+.f31-play-rack .f34-project-save-on-main .f33-project-save{
+ grid-template-rows:26px 8px 12px;row-gap:0;
+}
+.f31-play-rack .f34-project-save-on-main .f33-project-name-label{grid-column:1;grid-row:1}
+.f31-play-rack .f34-project-save-on-main .f33-project-save-button{
+ grid-column:2;grid-row:1 / 3;
+ /* Play is exactly 42 × 34 CSS pixels, including its 1px border. */
+ width:42px;min-width:42px;max-width:42px;
+ height:34px;min-height:34px;max-height:34px;
+ box-sizing:border-box;padding:0;border-radius:4px;
+ display:flex;align-items:center;justify-content:center;
+}
+.f31-play-rack .f34-project-save-on-main .f33-project-save-feedback{grid-row:3;grid-column:1 / -1}

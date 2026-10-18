@@ -1,0 +1,21 @@
+const fs=require('node:fs'),path=require('node:path'),crypto=require('node:crypto'),assert=require('node:assert/strict'),ts=require('typescript');
+const {restoreBaseline}=require('./nodal_preservation.cjs');
+const root=path.resolve(__dirname,'..'),manifest=JSON.parse(fs.readFileSync(path.join(root,'source-manifest.json'))),fixture=JSON.parse(fs.readFileSync(path.join(__dirname,'fixtures/clean5_protected_sources.json')));
+const hash=data=>crypto.createHash('sha256').update(data).digest('hex');
+for(const x of [...fixture.sources,...fixture.styles])assert.equal(hash(restoreBaseline(x.file,fs.readFileSync(path.join(root,x.file)))),x.sha256,'Protected latest-baseline source changed: '+x.file);
+const partitions=JSON.parse(fs.readFileSync(path.join(root,'source-partitions.json'))).groups;
+const forge=partitions.find(g=>g.original==='src/04_forge_render.js');assert(forge);
+assert.deepEqual(manifest.files.slice(manifest.files.indexOf(forge.files[0]),manifest.files.indexOf(forge.files[0])+forge.files.length),forge.files,'Forge source ordering changed');
+const sf=ts.createSourceFile('forge.js',forge.files.map(f=>fs.readFileSync(path.join(root,f),'utf8')).join(''),ts.ScriptTarget.Latest,true,ts.ScriptKind.JS);assert.equal(sf.parseDiagnostics.length,0);
+const name=n=>n.name?.text||n.declarationList?.declarations.map(d=>d.name.text).join(',')||'';
+const factories=['__createF352JobCapture','__createF352RenderAdapters','__createF352PlaybackRuntime'];
+const unchanged=sf.statements.filter(n=>!['__F352Runtime',...factories].includes(name(n)));
+assert.deepEqual(unchanged.map(n=>hash(n.getText(sf))),fixture.forgeStatements.map(x=>x.sha256),'Existing Forge DSP, pipeline, codec, UI or initialization statement changed');
+const methods=new Map();for(const factory of factories){const n=sf.statements.find(n=>name(n)===factory);assert(n?.body,factory);for(const child of n.body.statements)if(ts.isFunctionDeclaration(child))methods.set(child.name.text,child.getText(sf));}
+for(const x of fixture.runtimeMethods)assert.equal(hash(methods.get(x.name)),x.sha256,'Runtime method changed beyond explicit dependency seam: '+x.name);
+const adapterFactory=sf.statements.find(n=>name(n)==='__createF352RenderAdapters'),adapterReturn=adapterFactory.body.statements.find(ts.isReturnStatement);
+assert.equal(hash(adapterReturn.expression.getText(sf)),fixture.renderAdaptersSha256,'DSP adapter bodies changed');
+const combined=manifest.files.map(f=>fs.readFileSync(path.join(root,f),'utf8')).join('');assert.equal(ts.createSourceFile('app.js',combined,ts.ScriptTarget.Latest,true,ts.ScriptKind.JS).parseDiagnostics.length,0);
+assert.equal(new Set(manifest.files).size,manifest.files.length);
+const report={status:'PASS',reference:fixture.reference,protectedCompleteSources:fixture.sources.length,protectedStyles:fixture.styles.length,protectedForgeStatements:fixture.forgeStatements.length,protectedRuntimeMethods:fixture.runtimeMethods.length,adapterBodiesIdentical:true,forgeSourceParts:forge.files.length,sourceUnits:manifest.files.length,parseErrors:0};
+fs.writeFileSync(path.join(root,'results/clean5_preservation.json'),JSON.stringify(report,null,2)+'\n');console.log(JSON.stringify(report));

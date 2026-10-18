@@ -1,0 +1,512 @@
+[
+  {
+    "file": "src/forge_and_melodic/05_preview_and_sample_intake.js",
+    "baselineSha256": "ae3933ca9ecae88c316db3c630b4b7deccef6e21bee11654137569f2384dea45",
+    "seams": [
+      {
+        "position": 1825,
+        "before": "",
+        "after": "if(e.destination===\"spectral\"){await __mlSendRenderedAudioToSpectral(e);return}"
+      },
+      {
+        "position": 4068,
+        "before": "",
+        "after": ",audioHandoff=(destination=\"canonical\")=>X9e({destination,onRequestModeChange:e.onRequestModeChange,loopComposer:e.loopComposer,materialExport:e.materialExport,stopAllForge2Preview:t,setPendingImageImport:e.setPendingImageImport,setRawSourceAsset:e.setRawSourceAsset,setSelectionStartSec:e.setSelectionStartSec,setSelectionDurationSec:e.setSelectionDurationSec,setMaterialExport:e.setMaterialExport,setLastAutoCorrect:e.setLastAutoCorrect,setSourceView:e.setSourceView,setSecondaryView:e.setSecondaryView,setViewBlend:e.setViewBlend,applySelection:e.applySelection,setActiveWorkspace:e.setActiveWorkspace,setSourcePreviewMode:e.setSourcePreviewMode,setBusy:e.setBusy,setStatus:e.setStatus})"
+      },
+      {
+        "position": 6362,
+        "before": "X9e",
+        "after": "audioHandoff(\"spectral\")\n  :$9e"
+      },
+      {
+        "position": 6455,
+        "before": "stopAllForge2Preview:t,setPendingImageImport:e.setPendingImageImport,setRawSourceAsset:e.setRawSourceAsset,setSelectionStartSec:e.setSelectionStartSec,setSelectionDurationSec:e.setSelectionDurationSec,setMaterialExport:e.setMaterialExport,setLastAutoCorrect:e.setLastAutoCorrect,setSourceView:e.setSourceView,setSecondaryView:e.setSecondaryView,setViewBlend:e.setViewBlend,applySelection:e.applySelection,setActiveWorkspace:e.setActiveWorkspace",
+        "after": "onRequestModeChange:e.onRequestModeChange,setBusy:e.setBusy"
+      },
+      {
+        "position": 6536,
+        "before": ",setSourcePreviewMode:e.setSourcePreviewMode})\n  :$9e({loopComposer:e.loopComposer,materialExport:e.materialExport,onRequestModeChange:e.onRequestModeChange,setBusy:e.setBusy,setStatus:e.setStatus",
+        "after": ""
+      },
+      {
+        "position": 6572,
+        "before": "async()=>X9e({loopComposer:e.loopComposer,materialExport:e.materialExport,stopAllForge2Preview:t,setPendingImageImport:e.setPendingImageImport,setRawSourceAsset:e.setRawSourceAsset,setSelectionStartSec:e.setSelectionStartSec,setSelectionDurationSec:e.setSelectionDurationSec,setMaterialExport:e.setMaterialExport,setLastAutoCorrect:e.setLastAutoCorrect,setSourceView:e.setSourceView,setSecondaryView:e.setSecondaryView,setViewBlend:e.setViewBlend,applySelection:e.applySelection,setActiveWorkspace:e.setActiveWorkspace,setSourcePreviewMode:e.setSourcePreviewMode,setBusy:e.setBusy,setStatus:e.setStatus})",
+        "after": "audioHandoff"
+      }
+    ]
+  },
+  {
+    "file": "src/forge_and_melodic/07_tuning_and_logic_view.js",
+    "baselineSha256": "61fbafff7394235064f1d079fc25ec32f39ca4df5717b71855d7c344e6e9212f",
+    "seams": [
+      {
+        "position": 5537,
+        "before": "",
+        "after": "("
+      },
+      {
+        "position": 5561,
+        "before": "",
+        "after": "||__mlLocalPhase===\"failed\")"
+      },
+      {
+        "position": 5670,
+        "before": "",
+        "after": "("
+      },
+      {
+        "position": 5694,
+        "before": "",
+        "after": "||__mlLocalPhase===\"failed\")"
+      },
+      {
+        "position": 5843,
+        "before": "",
+        "after": "("
+      },
+      {
+        "position": 5867,
+        "before": "",
+        "after": "||__mlLocalPhase===\"failed\")"
+      },
+      {
+        "position": 6265,
+        "before": "",
+        "after": "("
+      },
+      {
+        "position": 6289,
+        "before": "",
+        "after": "||__mlLocalPhase===\"failed\")"
+      }
+    ]
+  },
+  {
+    "file": "src/forge_and_melodic/10_audition_and_persistence.js",
+    "baselineSha256": "97b9ac8ef69351a7a3c581309c4109778343e61ee79414e6ab653f9902f15b1f",
+    "seams": [
+      {
+        "position": 22387,
+        "before": "",
+        "after": "const pending=DM.get('legacy');"
+      },
+      {
+        "position": 22425,
+        "before": "DM.get('legacy')",
+        "after": "pending"
+      },
+      {
+        "position": 22469,
+        "before": "",
+        "after": "-v1'||pending?.audioPrepared?.version==='melodic-audio"
+      },
+      {
+        "position": 23679,
+        "before": "",
+        "after": "\n    if(transfer.audioPrepared)return __mlReceiveRenderedAudio(transfer);"
+      },
+      {
+        "position": 28201,
+        "before": "",
+        "after": "\n// Rendered Nodal audio follows the same workspace-ready transaction as score\n// transfers. This prevents the Spectral workspace's mount/restore from clearing it.\nasync function __mlSendRenderedAudioToSpectral(request) {\n  const rendered = await VR(request);\n  const raw = await Cg(new File([rendered.blob], rendered.fileName, {type: rendered.blob.type || 'audio/wav'}));\n  const source = sg(raw, {startSec: 0});\n  const target = pe.getState().spectralData, grid = new ph(target.width, target.height);\n  await PB(source, grid, {readMode: 'hybrid'}, progress => request.setStatus('Preparing Spectral Forge audio ' + Math.round(progress * 65) + '%'));\n  const asset = await av(source, progress => request.setStatus('Preparing Spectral Forge audio ' + Math.round(65 + progress * 35) + '%'));\n  request.stopAllForge2Preview('Transferring rendered composition to Spectral Forge…');\n  QLe({target: 'legacy', origin: 'melodic-loop', name: request.materialExport.name,\n    bars: rendered.bars, beatsPerBar: rendered.beatsPerBar, bpm: rendered.bpm,\n    guideSegments: rendered.guideSegments, guideMarkers: rendered.guideMarkers,\n    audioPrepared: {version: 'melodic-audio-v1', asset, data: grid.cloneData(), width: grid.width, height: grid.height}});\n  request.onRequestModeChange?.('experimental');\n  request.setStatus('Rendered composition prepared for Spectral Forge.');\n}\nfunction __mlReceiveRenderedAudio(transfer) {\n  const state = pe.getState(), prepared = transfer.audioPrepared, target = state.spectralData;\n  if (transfer.origin !== 'melodic-loop' || prepared.version !== 'melodic-audio-v1' ||\n      prepared.width !== target.width || prepared.height !== target.height ||\n      !(prepared.data instanceof Float32Array) || prepared.data.length !== target.width * target.height * 2 || !prepared.asset)\n    throw new Error('Invalid prepared Melodic audio transfer. Please send again.');\n  const materialExport = IDe(state.materialExport, {name: transfer.name, role: 'loop', bars: transfer.bars,\n    beatsPerBar: transfer.beatsPerBar, bpm: transfer.bpm, guideSegments: transfer.guideSegments, guideMarkers: transfer.guideMarkers});\n  state.pushUndo(); __f333Stop(); ys().clear(); xt.invalidateBuffer();\n  target.restoreData(prepared.data); delete target.melodicCarrier;\n  state.setSourceAsset(prepared.asset, 'forge3_main');\n  pe.setState(current => ({...__f333Idle(), melodicCarrier: null, lastCommitDomain: 'audio',\n    materialExport, stampData: null, stampPhase: 'idle', stampSelStart: null, lineStart: null,\n    renderVersion: current.renderVersion + 1, audioBufferDirty: true}));\n  if (DM.get('legacy') === transfer) DM.delete('legacy');\n  __f333PersistNow();\n  __f334Notice('Rendered composition received · ' + transfer.name);\n  return true;\n}\n"
+      }
+    ]
+  },
+  {
+    "file": "src/nodal/01_instrument_model.js",
+    "baselineSha256": "fcd9734508df231e3c59717a094fb2a68da2b237a1d85158251632f209a2f793",
+    "seams": [
+      {
+        "position": 313,
+        "before": "",
+        "after": "// Only this model's validated, deeply frozen values may use the fast path.\n  // Foreign frozen objects and mutable import payloads must still be checked.\n  const normalizedValues = new WeakSet(), keys = new WeakMap(), plans = new WeakMap();\n  "
+      },
+      {
+        "position": 1060,
+        "before": "",
+        "after": "\n    if (input && normalizedValues.has(input)) return input;"
+      },
+      {
+        "position": 3254,
+        "before": "return",
+        "after": "const result ="
+      },
+      {
+        "position": 4004,
+        "before": "",
+        "after": ";\n    normalizedValues.add(result); return result"
+      },
+      {
+        "position": 6470,
+        "before": "",
+        "after": "instrument = normalize(instrument);\n    if (keys.has(instrument)) return keys.get(instrument);\n    "
+      },
+      {
+        "position": 6606,
+        "before": "normalize(",
+        "after": ""
+      },
+      {
+        "position": 6616,
+        "before": ")",
+        "after": ""
+      },
+      {
+        "position": 6683,
+        "before": "",
+        "after": "const key = JSON.stringify(body); keys.set(instrument, key); "
+      },
+      {
+        "position": 6751,
+        "before": "JSON.stringify(body)",
+        "after": "key"
+      },
+      {
+        "position": 8263,
+        "before": ",",
+        "after": ";\n    const resolver = typeof resolveNodalArticulationFields === 'function' ? resolveNodalArticulationFields : null;\n    const cached = plans.get(instrument);\n    if (cached && cached.resolver === resolver) return cached.plan;\n    const"
+      },
+      {
+        "position": 11236,
+        "before": "return",
+        "after": "const plan ="
+      },
+      {
+        "position": 11789,
+        "before": "",
+        "after": ";\n    plans.set(instrument, {resolver, plan}); return plan"
+      }
+    ]
+  },
+  {
+    "file": "src/nodal/03_library.js",
+    "baselineSha256": "49e8c773774e6525f85f0bbe7ce5868043a5bb0c2873a64de17442234d1d3222",
+    "seams": [
+      {
+        "position": 188,
+        "before": "",
+        "after": ";\n  let cachedText = null, cachedEntries = []"
+      },
+      {
+        "position": 1020,
+        "before": " ",
+        "after": "\n    "
+      },
+      {
+        "position": 1036,
+        "before": "return",
+        "after": "{ cachedText = null; cachedEntries ="
+      },
+      {
+        "position": 1076,
+        "before": "",
+        "after": " return []; }"
+      },
+      {
+        "position": 1178,
+        "before": "",
+        "after": "if (text !== cachedText) {\n      const entries = validate(JSON.parse(text));\n      cachedText = text; cachedEntries = entries;\n    }\n    // The immutable instruments may be shared; entry wrappers remain caller-owned.\n    "
+      },
+      {
+        "position": 1406,
+        "before": "validate(JSON.parse(text",
+        "after": "cachedEntries.map(entry => ({...entry}"
+      },
+      {
+        "position": 1562,
+        "before": "",
+        "after": "\n    const validated ="
+      },
+      {
+        "position": 1601,
+        "before": "",
+        "after": "), text = JSON.stringify(payload);\n    if (text.length > 5000000) throw new Error('Nodal library exceeds size limit'"
+      },
+      {
+        "position": 1919,
+        "before": "JSON.stringify(payload",
+        "after": "text);\n    cachedText = text; cachedEntries = validated;\n    if (typeof window !== 'undefined' && typeof Event === 'function') window.dispatchEvent(new Event('xensonar:nodal-library-changed'"
+      },
+      {
+        "position": 2945,
+        "before": "",
+        "after": "if (old && model.serialize(old.instrument) === model.serialize(normalized)) return old;\n    "
+      }
+    ]
+  },
+  {
+    "file": "src/nodal/04_audio_runtime.js",
+    "baselineSha256": "a408bcea8de464ba534062c7b7d75419ecd1a6341dab3b47c3f19bda607b0796",
+    "seams": [
+      {
+        "position": 3741,
+        "before": "A directly opened standalone HTML has",
+        "after": "Share the established file:/HTTP loader instead of maintaining"
+      },
+      {
+        "position": 3806,
+        "before": "file:// origin. Several browsers\n      // refuse blob: Worklet modules there; the existing XenSonar master Worklet\n      // already uses a data: module first for the same reason",
+        "after": "copy"
+      },
+      {
+        "position": 3825,
+        "before": "(async () => {\n        const isFile = typeof location !== 'undefined' && location.protocol === 'file:';\n        const failures = [];\n        const methods = isFile ? ['data', 'blob'] : ['blob', 'data'];\n        for (const method of methods) {\n          try {\n            if (method === 'data') {\n              await ",
+        "after": "jF("
+      },
+      {
+        "position": 3835,
+        "before": ".audioWorklet.addModule('data:application/javascript;charset=utf-8,' + encodeURIComponent(",
+        "after": ", "
+      },
+      {
+        "position": 3843,
+        "before": "));\n            } else {\n              if (typeof Blob === 'undefined' || typeof URL === 'undefined' || typeof URL.createObjectURL !== 'function') throw new Error('Blob module URLs unavailable');\n              const url = URL.createObjectURL(new Blob([source], {type: 'text/javascript'}));\n              try { await context.audioWorklet.addModule(url); }\n              finally { URL.revokeObjectURL(url); }\n            }\n            return;\n          } catch (error) { failures.push(method + ': ' + (error?.message ?? String(error))); }\n        }\n        throw new Error('Failed to load ",
+        "after": ", '"
+      },
+      {
+        "position": 3852,
+        "before": "audio worklet (' + failures.join(' | ') + ')');\n      })(",
+        "after": "instrument'"
+      }
+    ]
+  },
+  {
+    "file": "src/nodal/06_melodic_bridge.js",
+    "baselineSha256": "2179084c91faddc04b162b93dbfd9109d8409adf26654ec17342a16abb201dae",
+    "seams": [
+      {
+        "position": 4191,
+        "before": "/* Library previews use the already-owned ",
+        "after": "function nodalLoadMelodicSources(request, sources) {\n  for (const track of request.composer.tracks) {\n    const presets = [track.instrumentPreset, ...request.composer.notes.filter(n => n.trackId === track.id).map(n => yW(track, n))];\n    for (const preset of presets) if (typeof preset === 'string' && preset.startsWith('nodal:') && !sources.has(preset)) {\n      const instrument = nodalFindInstrument(preset, request.composer);\n      if (!instrument) throw new Error('"
+      },
+      {
+        "position": 4666,
+        "before": "audio adapter; they never select a\n   Melodic track, write a source snapshot or launch a second AudioContext. */\nasync function nodalPreviewLibraryEntry(entry) {\n  const backend = __XenNodalInstallation.current;\n  if (!backend?.preview) throw new Error('Nodal audio owner is unavailable.');\n  const ",
+        "after": ""
+      },
+      {
+        "position": 4677,
+        "before": "=",
+        "after": "missing: ' + preset);\n      sources.set(preset, {kind: 'nodal', instrument, plan:"
+      },
+      {
+        "position": 4775,
+        "before": "normalize(entry.",
+        "after": "compile("
+      },
+      {
+        "position": 4794,
+        "before": ";\n  const handle = await backend.preview(instrument, {",
+        "after": "});"
+      },
+      {
+        "position": 4802,
+        "before": "frequency: instrument.referenceHz, velocity: .8,\n    durationSec: Math.min(2, instrument.articulation.durationSec)\n  });\n  await handle.started;",
+        "after": "}\n  }"
+      },
+      {
+        "position": 4817,
+        "before": "handle",
+        "after": "sources"
+      },
+      {
+        "position": 4837,
+        "before": "nodalEditLibraryEntry(entry, eventTarget = window) {\n  // The library identity belongs to the editor; it is NOT a selected-note edit.\n  const detail = {instrument: __XenNodalModel.normalize(entry.instrument),",
+        "after": "nodalHasMelodicNotes(request) {\n  if (request.drumPreviewOnly) return false;\n  return request.composer.notes.some(note => {"
+      },
+      {
+        "position": 4965,
+        "before": "libraryEntry: {",
+        "after": "const track = request.composer.tracks.find(t => t."
+      },
+      {
+        "position": 5017,
+        "before": ": entry",
+        "after": " === note.trackId);\n    return track && (request.noteId ? note"
+      },
+      {
+        "position": 5082,
+        "before": ", revision: entry.revision}};\n  eventTarget.dispatchEvent(new CustomEvent('xensonar:",
+        "after": " === request.noteId : request.trackIds.includes(track.id)) && yW(track, note)?.startsWith('"
+      },
+      {
+        "position": 5178,
+        "before": "-open-designer', {detail}));\n  return detail",
+        "after": ":');\n  })"
+      },
+      {
+        "position": 5194,
+        "before": "Compact library management is available where",
+        "after": "The composition owns all enabled audible Nodal notes, independent of"
+      },
+      {
+        "position": 5267,
+        "before": "musician actually chooses instruments.\n   Edits change only library metadata, never note geometry, PCM or synthesizer revision",
+        "after": "currently selected note"
+      },
+      {
+        "position": 5304,
+        "before": "NodalLibraryManager({composer, onMutateLoopComposer}) {\n  const h = P.createElement;\n  const [open, setOpen] = P.useState(",
+        "after": "__mlContainsNodalTracks(composer) {\n  if (!composer?.tracks || !composer?.notes) return "
+      },
+      {
+        "position": 5397,
+        "before": ");\n  const [entries, setEntries] = P.useState(()",
+        "after": ";\n  const enabled = new Map(composer.tracks.filter(track"
+      },
+      {
+        "position": 5457,
+        "before": "{ try { return __XenNodalLibrary.list(); } catch { return []; } });\n  const [drafts, setDrafts] = P.useState({});\n  const [message, setMessage] = P.useState('');\n  const [previewId, setPreviewId] = P.useState(null);\n  const previewSeq = P.useRef(0), activePreview = P.useRef(null), previewTimer = P.useRef(null);\n  function stopLibraryPreview() {\n    previewSeq.current++;\n    if (previewTimer.current",
+        "after": "track.enabled"
+      },
+      {
+        "position": 5475,
+        "before": "null) clearTimeout(previewTimer.current);\n    previewTimer.current = null;\n    if (activePreview.current) __XenNodalInstallation.current?.stopPreview?.();\n    activePreview.current = null;\n    setPreviewId(null);\n  }\n  P.useEffect(()",
+        "after": "false).map(track"
+      },
+      {
+        "position": 5494,
+        "before": " () => {\n    previewSeq.current++;\n    if (previewTimer.current !== null) clearTimeout(previewTimer.current);\n    if (activePreview.current) __XenNodalInstallation.current?.stopPreview?.();\n  }, []);\n  async function previewEntry(entry) {\n    if (activePreview.current === entry.id) { stopLibraryPreview(); setMessage('Preview stopped.'); return; }\n    stopLibraryPreview();\n    const seq = previewSeq.current;\n    activePreview.current = entry.id;\n    setPreviewId(entry.id);\n    setMessage('Preparing preview: ' + entry.instrument.name);\n    try {\n      const handle = await nodalPreviewLibraryEntry(entry);\n      if (seq !== previewSeq.current) { handle.noteOff?.(); return; }\n      setMessage('Previewing: ' + entry.instrument.name);\n      const lengthMs = (Math.min(2, entry.instrument.articulation.durationSec) + entry.instrument.articulation.releaseSec + .2) * 1000;\n      previewTimer.current = setTimeout(() => {\n        if (seq !== previewSeq.current) return;\n        activePreview.current = null; setPreviewId(null); previewTimer.current = null;\n      }, lengthMs);\n    } catch (error) {\n      if (seq === previewSeq.current) { activePreview.current = null; setPreviewId(null); setMessage('Preview: ' + error.message); }\n    }\n  }\n  function editEntry(entry) {\n    stopLibraryPreview();\n    nodalEditLibraryEntry(entry);\n  }\n  function refresh() {\n    const items = __XenNodalLibrary.list();\n    setEntries(items);\n    setDrafts(Object.fromEntries(items.map(e => [e.id, e.instrument.name])));\n  }\n  function notify() { window.dispatchEvent(new Event('xensonar:nodal-library-changed')); }\n  function renameEntry(entry) {\n    try {\n      const oldName = entry.instrument.name;\n      const next = __XenNodalLibrary.rename(entry.id, entry.revision, drafts[entry.id]);\n      const preset = 'nodal:' + entry.id + '@' + entry.revision;\n      if (composer?.nodalInstruments?.[preset] && oldName !== next.instrument.name) {\n        onMutateLoopComposer(c => {\n          if (c.nodalInstruments?.[preset]) c.nodalInstruments[preset] = {...c.nodalInstruments[preset], name: next.instrument.name};\n          for (const track of c.tracks) if (track.instrumentPreset === preset && track.label === oldName) track.label = next.instrument.name;\n        });\n      }\n      refresh(); notify(); setMessage('Renamed: ' + next.instrument.name + ' · sound and notes unchanged.');\n    } catch (error) { setMessage('Rename: ' + error.message); }\n  }\n  function removeEntry(entry) {\n    if (!window.confirm('Remove “' + entry.instrument.name + '” from Nodal Library? Notes and instrument copies in existing projects will remain available.')) return;\n    try {\n      __XenNodalLibrary.remove(entry.id, entry.revision);\n      refresh(); notify(); setMessage('Removed from library. Existing compositions remain available.');\n    } catch (error) { setMessage('Remove: ' + error.message); }\n  }\n  return h('section', {className: 'nd-library-manager', 'aria-label': 'Nodal instrument library'},\n    h('span', {className: 'nd-library-manager-label'}, 'Nodal Sounds'),\n    h('button', {type: 'button', 'aria-expanded': open, onClick: () => {\n      if (!open) try { refresh(); } catch (error) { setMessage(error.message); }\n      if (open) stopLibraryPreview();\n      setOpen(!open);\n    }}, 'Manage (' + entries.length + ')' + (open ? ' ▴' : ' ▾')),\n    open ? h('div', {className: 'nd-library-manager-content'},\n      h('div', {className: 'nd-library-manager-help'}, 'Preview, edit, rename or remove saved instruments. Editing opens the selected instrument in Sound Design.'),\n      entries.length ? entries.map(entry => h('div', {key: entry.id, className: 'nd-library-manager-row'},\n        h('label', {className: 'nd-library-manager-name'},\n          h('span', null, nodalLibraryEntryLabel(entry, entries)),\n          h('input', {'aria-label': 'Name for ' + nodalLibraryEntryLabel(entry, entries), value: drafts[entry.id] ?? entry.instrument.name, maxLength: 100,\n            onChange: e => setDrafts(v => ({...v, [entry.id]: e.target.value}))})),\n        h('button', {type: 'button', onClick: () => previewEntry(entry),\n          'aria-label': (previewId === entry.id ? 'Stop preview for ' : 'Preview ') + nodalLibraryEntryLabel(entry, entries)},\n          previewId === entry.id ? 'Stop' : 'Preview'),\n        h('button', {type: 'button', onClick: () => editEntry(entry),\n          'aria-label': 'Edit ' + nodalLibraryEntryLabel(entry, entries)}, 'Edit'),\n        h('button', {type: 'button', disabled: (drafts[entry.id] ?? entry.instrument.name).trim() === entry.instrument.name,\n          onClick: () => renameEntry(entry)}, 'Rename'),\n        h('button', {type: 'button', onClick: () => {stopLibraryPreview();removeEntry(entry);}, 'aria-label': nodalLibraryEntryLabel(entry, entries) + ' remove'}, 'Remove')\n      )) : h('div', {className: 'nd-library-manager-help'}, 'No saved Nodal instruments.'),\n      h('div', {className: 'nd-library-manager-help'}, 'Instruments removed from the library remain playable in existing Melodic projects and are labeled “in project”.'),\n      message ? h('div', {className: 'nd-library-manager-message', role: 'status'}, message) : null\n    ) : null);\n}\nfunction nodalLoadMelodicSources(request, sources) {\n  for (const track of request.composer.tracks) {\n    const presets =",
+        "after": ""
+      },
+      {
+        "position": 5502,
+        "before": "instrumentPreset, ...request.",
+        "after": "id, track]));\n  return "
+      },
+      {
+        "position": 5540,
+        "before": "filter(n",
+        "after": "some(note"
+      },
+      {
+        "position": 5553,
+        "before": "n.trackId ===",
+        "after": "{\n    const"
+      },
+      {
+        "position": 5570,
+        "before": ".id).map(n => yW(track, n))];\n    for (const preset of presets) if (typeof preset === 'string' && preset.startsWith('nodal:') && !sources.has(preset)) {\n      const instrument = nodalFindInstrument(preset, request.composer);\n      if (!instrument) throw new Error('Nodal instrument missing: ' + preset);\n      sources.set(preset, {kind: 'nodal', instrument, plan: __XenNodalModel.compile(instrument)});\n    }\n  }\n  return sources;\n}\nfunction nodalHasMelodicNotes(request) {\n  if (request.drumPreviewOnly) return false;\n  return request.composer.notes.some(note => {\n    const track = request.composer.tracks.find(t => t.id === ",
+        "after": " = enabled.get("
+      },
+      {
+        "position": 5611,
+        "before": "",
+        "after": "!!"
+      },
+      {
+        "position": 5618,
+        "before": " && (request.noteId ? note.id === request.noteId : request.trackIds.includes(track.id))",
+        "after": ""
+      },
+      {
+        "position": 5672,
+        "before": "The composition owns all enabled audible",
+        "after": "No direct"
+      },
+      {
+        "position": 5688,
+        "before": "notes, independent of the currently selected note",
+        "after": "event player exists in Root Follow yet. A composed WAV must\n   be registered as material audio, never interpreted as an unsupported legacy synth pattern"
+      },
+      {
+        "position": 5854,
+        "before": "",
+        "after": "__mlNodalRflConfig(composer) {\n  return "
+      },
+      {
+        "position": 5928,
+        "before": "{\n  if (!composer?.tracks || !composer?.notes) ",
+        "after": "? {\n    sourceKind: 'material', renderMode: 'flowing', anchorGridStep: null,\n    synthPattern: null, synthPatch: null, formantWindowPlan: null\n  } : L9e({loopComposer: composer});\n}\nfunction nodalMelodicNoteTiming(composer, note, source, stepSec) {\n  const durationSec = Math.max(.04, Math.min(30, F$(composer, note) * stepSec));\n  "
+      },
+      {
+        "position": 6267,
+        "before": "false;\n  const enabled = new Map(composer.tracks.filter(",
+        "after": "{durationSec,\n    attackSec: Number.isFinite(note.edgeFadeInMs) ? Math.max(.001, Math.min(2, note.edgeFadeInMs / 1000)) : Math.min(2, Math.max(source.instrument.articulation.attackSec, d9e(note) * stepSec)),\n    releaseSec: Number.isFinite(note.edgeFadeOutMs) ? Math.max(.001, Math.min(3, note.edgeFadeOutMs / 1000)) : Math.min(3, Math.max(source.instrument.articulation.releaseSec, T$(note) * stepSec))};\n}\nfunction nodalMelodicNoteOptions(composer, note, "
+      },
+      {
+        "position": 6729,
+        "before": " => track.enabled !== false).map(track => [track.id, track]));\n  return composer.notes.some(note => {\n    const track = enabled.get(note.trackId);\n    return !!track",
+        "after": ", source, stepSec) {\n  const curves = note.localField == null"
+      },
+      {
+        "position": 6794,
+        "before": "yW(track, note)?.startsWith('nodal:');\n  });\n}\n/* No direct Nodal event player exists in Root Follow yet. A composed WAV must\n   be registered as material audio, never interpreted as an unsupported legacy synth pattern. */\nfunction __mlNodalRflConfig(composer) {\n  return __mlContainsNodalTracks(composer) ? {",
+        "after": "source.plan?.articulation"
+      },
+      {
+        "position": 6824,
+        "before": "sourceKind: 'material', renderMode: 'flowing', anchorGridStep:",
+        "after": "? {volumeCurve: source.plan.articulation.volumeCurve, pitchCurve: source.plan.articulation.pitchCurve}\n    : resolveNodalArticulationFields(source.instrument.articulation, note.localField ??"
+      },
+      {
+        "position": 7019,
+        "before": ",\n    synthPattern: null, synthPatch: null, formantWindowPlan: null\n  } : L9e({loopComposer: composer});\n}\nfunction nodalMelodicNoteOptions(composer, note, track, source, stepSec) {\n  const durationSec = Math.max(.04, Math.min(30, F$(composer, note) * stepSec)",
+        "after": ""
+      },
+      {
+        "position": 7239,
+        "before": " durationSec,",
+        "after": ""
+      },
+      {
+        "position": 7244,
+        "before": "attackSec: Number.isFinite(note.edgeFadeInMs) ? Math.max(.001, Math.min(2, note.edgeFadeInMs / 1000)) : Math.min(2, Math.max(",
+        "after": "...nodalMelodicNoteTiming(composer, note, "
+      },
+      {
+        "position": 7292,
+        "before": ".instrument.articulation.attackSec, d9e(note) *",
+        "after": ","
+      },
+      {
+        "position": 7302,
+        "before": "),\n    releaseSec: Number.isFinite(note.edgeFadeOutMs) ? Math.max(.001, Math.min(3, note.edgeFadeOutMs / 1000)) : Math.min(3, Math.max(source.instrument.articulation.releaseSec, T$(note) * stepSec)),\n    ...resolveNodalArticulationFields(source.instrument.articulation, note.localField ?? null)",
+        "after": ", ...curves"
+      },
+      {
+        "position": 7896,
+        "before": "nodalMelodicNoteOptions(composer, note, track",
+        "after": "nodalMelodicNoteTiming(composer, note"
+      },
+      {
+        "position": 8785,
+        "before": "async function nodalPlayMelodic(request) {\n  let token = null;\n  const fail = error => {\n    if (token !== null && !uP(token)) return;\n    hS();\n    const message = 'Melodic Loop: ' + String(error?.message ?? error);\n    request.onPhase?.('failed'); request.onPlaybackError?.(message);\n    request.onPlayhead?.(null); request.onComposerPlayhead?.(null);\n    if (typeof window !== 'undefined') window.dispatchEvent(new CustomEvent('xensonar:melodic-error', {detail: message}));\n  };\n  try {\n    return await nodalStartMelodic({...request, onToken: value => { token = value; request.onToken?.(value); }, onPlaybackError: fail});\n  } catch (error) { fail(error); throw error; }\n}\nasync function nodalStartMelodic(request) {\n  hS(); const token = g9e(); request.onToken?.(token); request.onPhase?.('preparing'); __mlSetPhase('preparing');\n  const bridge = __XenNodalInstallation.current; if (!bridge) throw new Error('Nodal audio owner unavailable');\n  // The live voice admission belongs to the main audio runtime. Use its context\n  // and output as well: a second preview AudioContext can stay suspended under\n  // browser autoplay policy while the main runtime rejects its voices.\n  const ctx = await bridge.ensureAudio();\n  if (!ctx || ctx.state !== 'running') throw new Error('Shared Nodal audio context is not running');\n  if (!uP(token)) return false;\n  const sources = await SW(request, ctx); if (!uP(token)) return false;\n  const composer = request.composer, steps = iD(composer), duration = lD(request), stepSec = duration / steps;\n  if (__mlSoloTrackId !== null && !composer.tracks.every(track => track.enabled === (track.id === __mlSoloTrackId))) __mlSoloTrackId = null;\n  const selected = request.noteId ? composer.notes.filter(n => n.id === request.noteId) : composer.notes.filter(n => request.trackIds.includes(n.trackId));\n  const master = ctx.createGain(); master.gain.value = .82; master.__f49PreviewMaster = true; master.connect(bridge.getOutput(ctx)); Mx(master);\n  const gains = new Map(), players = new Map(), stems = new Map(), events = [];\n  let timer = null, stopped = false, cycle = 0, cursor = 0, startTime = ctx.currentTime + .12, loopOffset = 0;\n  const stop = () => { if (stopped) return; stopped = true; if (timer !== null) clearTimeout(timer); for (const player of players.values()) player.stop(); };\n  const dispose = () => { stop(); for (const player of players.values()) player.dispose(); };\n  Mx({stop, disconnect: dispose});\n  try {\n    for (const track of composer.tracks) {\n      const gain = ctx.createGain(); gain.gain.value = __mlSoloTrackId !== null ? Number(track.id === __mlSoloTrackId) : Number(track.enabled); gain.connect(master); gains.set(track.id, gain); Mx(gain);\n      const nodalNotes = selected.filter(n => n.trackId === track.id && yW(track, n)?.startsWith('nodal:'));\n      if (nodalNotes.length) {\n        const plans = new Set(nodalNotes.map(n => sources.get(yW(track, n)).plan.key));\n        if (plans.size > 16) throw new Error('Maximum of 16 different Nodal instruments per live track');\n        if (nodalNotes.some(n => sources.get(yW(track, n)).plan.cost > 8)) throw new Error('Nodal instrument exceeds the live voice budget. Reduce node complexity or export as audio.');\n        const pan = ctx.createStereoPanner(); pan.channelCount = 1; pan.channelCountMode = 'explicit'; pan.pan.value = Math.max(-1, Math.min(1, track.pan ?? 0)); pan.connect(gain); Mx(pan);\n        const player = await __XenNodalLive.createPlayer(ctx, pan, {acquire: cost => bridge.acquireVoice(cost), onError: error => request.onPlaybackError?.(error)});\n        if (!uP(token)) { player.dispose(); dispose(); return false; }\n        players.set(track.id, player);\n        for (const note of nodalNotes) {\n          const source = sources.get(yW(track, note)); await player.prepare(source.instrument);\n          events.push({at: Ax(composer, note) * stepSec, note, track, source, player});\n        }\n      }\n      const legacy = selected.filter(n => n.trackId === track.id && !yW(track, n)?.startsWith('nodal:'));\n      if (legacy.length) {\n        if (request.loop) {\n          const legacyRequest = {...request, composer: {...composer, notes: composer.notes.filter(n => !yW(composer.tracks.find(t => t.id === n.trackId), n)?.startsWith('nodal:'))}};\n          stems.set(track.id, await __mlGetStem(legacyRequest, track.id));\n        }\n      }\n    }\n    if (request.loop && c9e(request) && !request.noteId) stems.set('__drums__', await __mlGetStem(request, '__drums__'));\n    if (!uP(token)) { dispose(); return false; }\n    if (stems.has('__drums__')) { const gain = ctx.createGain(); gain.gain.value = request.drumMonitorEnabled === true || __mlDrumsAudible ? 1 : 0; const rack = __f48GetDrumRack(ctx, master); gain.connect(rack.input); gains.set('__drums__', gain); Mx(gain); Mx({disconnect: () => rack.dispose()}); }\n    const noteOrigin = request.noteId && selected[0] ? Ax(composer, selected[0]) * stepSec : 0;\n    events.forEach(event => event.at -= noteOrigin); events.sort((a, b) => a.at - b.at || a.note.id.localeCompare(b.note.id));\n    startTime = ctx.currentTime + .12;\n    const tailsEnd = events.reduce((end, event) => { const note = nodalMelodicNoteOptions(composer, event.note, event.track, event.source, stepSec); return Math.max(end, event.at + note.durationSec + note.releaseSec + .01); }, 0);\n    const total = Math.max(tailsEnd, request.noteId && selected[0] ? F$(composer, selected[0]) * stepSec + .2 : E$(request));\n    const session = {token, ctx, master, stemBuffers: stems, stemGains: gains, stemSources: [],\n      totalDurationSec: request.loop ? duration : total, totalSteps: steps, stepDurationSec: stepSec, startTime, loopOffsetSec: 0,\n      liveEnabledIds: new Set(composer.tracks.filter(t => t.enabled).map(t => t.id)), drumRenderRequest: JSON.parse(JSON.stringify(request)),\n      drumMonitorExplicit: request.drumMonitorEnabled === true,\n      playheadCallback: request.onComposerPlayhead ?? request.onPlayhead, globalPlayheadCallback: request.onGlobalPlayheadRatio,\n      nodalTransport: {stop, seek(unit) {\n        for (const player of players.values()) player.stop();\n        for (const source of session.stemSources) { try { source.stop(); source.disconnect(); } catch {} }\n        loopOffset = ((unit % steps + steps) % steps) * stepSec; session.loopOffsetSec = loopOffset;\n        startTime = ctx.currentTime + .025; session.startTime = startTime; cycle = 0; cursor = events.findIndex(e => e.at >= loopOffset); if (cursor < 0) cursor = events.length;\n        if (stems.size) __mlLaunchStemSources(session, loopOffset, startTime); return true;\n      }}};\n    y9e(session);\n    if (request.loop && stems.size) __mlLaunchStemSources(session, 0, startTime);\n    if (!request.loop) for (const note of selected) {\n      const track = composer.tracks.find(t => t.id === note.trackId); if (!track?.enabled || yW(track, note)?.startsWith('nodal:')) continue;\n      N$(ctx, master, composer, note, track, startTime - noteOrigin, stepSec, sources, Mx);\n    }\n    if (!request.loop && !request.noteId) _$(ctx, master, request, startTime, cD(request));\n    const firstStarts = [];\n    let initialAttempts = 0, initialAccepted = 0;\n    function tick() {\n      if (stopped || !uP(token)) return;\n      const now = ctx.currentTime, horizon = now + .12;\n      if (request.loop) {\n        const presentCycle = Math.max(0, Math.floor((now - startTime + loopOffset) / duration));\n        if (presentCycle > cycle) { cycle = presentCycle; cursor = 0; }\n      }\n      // Only future notes are scheduled. A delayed tick drops missed attacks instead of replaying them.\n      let visited = 0;\n      while (events.length && visited++ < 512) {\n        if (cursor >= events.length) { if (!request.loop) break; cursor = 0; cycle++; }\n        const event = events[cursor], at = startTime - loopOffset + cycle * duration + event.at;\n        if (at > horizon) break; cursor++;\n        const step = composer.pitchSteps[uD(composer, event.note)];\n        if (at < now - .008 || (__mlSoloTrackId !== null ? event.track.id !== __mlSoloTrackId : !session.liveEnabledIds.has(event.track.id)) || step?.muted) continue;\n        const voice = event.player.noteOn(event.source.instrument,\n          {...nodalMelodicNoteOptions(composer, event.note, event.track, event.source, stepSec), confirmStart: true}, at);\n        if (timer === null) { initialAttempts++; if (voice) initialAccepted++; }\n        // The one-note audition must never report Play when its only voice was\n        // refused. Multi-track real-time playback keeps the established drop policy.\n        if (!voice && request.noteId) throw new Error('Could not start Nodal note: audio context or voice budget blocked playback.');\n        if (voice?.started) {\n          if (timer === null) firstStarts.push(voice.started);\n          voice.started.catch(error => {\n            if (stopped || !uP(token)) return;\n            // A late secondary attack or temporary capacity rejection is dropped,\n            // never queued. Structural DSP/processor failures stop the transport.\n            if (!request.noteId && ['late', 'voice capacity'].includes(error.reason)) return;\n            request.onPlaybackError?.(error);\n          });\n        }\n      }\n      const elapsed = Math.max(0, now - startTime), position = request.loop ? (loopOffset + elapsed) % duration : Math.min(total, elapsed);\n      session.playheadCallback?.(position / stepSec + (request.noteId ? noteOrigin / stepSec : 0)); session.globalPlayheadCallback?.(position / duration);\n      if (!request.loop && elapsed >= total + .15) { request.onEnded?.(); hS(); return; }\n      timer = setTimeout(() => { try { tick(); } catch (error) { request.onPlaybackError?.(error); } }, 25);\n    }\n    tick();\n    if (initialAttempts && !initialAccepted && !stems.size && selected.every(note => yW(composer.tracks.find(t => t.id === note.trackId), note)?.startsWith('nodal:'))) throw new Error('No Nodal voice available: audio budget exhausted. Stop other voices and try again.');\n    await Promise.all(firstStarts);\n    if (stopped || !uP(token)) return false;\n    request.onPhase?.('playing'); __mlSetPhase('playing'); return true;\n  } catch (error) { dispose(); throw error; }\n}\n/* Editing a Melodic instrument keeps the original notes/tracks intact. A new\n   immutable source snapshot is substituted for every reference to the edited\n   instrument; the unrelated instruments and their notes are untouched. */\nfunction nodalUpdateMelodicInstrument(instrument, target) {\n  if (!target || !target.noteId || !target.trackId || !target.sourcePreset) throw new Error('No Melodic note block selected for updating.');\n  const state = EQ();\n  if (!state?.loopComposer) throw new Error('Melodic session is unavailable.');\n  const composer = $n(state.loopComposer);\n  const track = composer.tracks.find(t => t.id === target.trackId);\n  const note = composer.notes.find(n => n.id === target.noteId && n.trackId === target.trackId);\n  if (!track || !note || yW(track, note) !== target.sourcePreset) throw new Error('The original note block has changed. Reopen it from Melodic Loop.');\n  const prior = nodalFindInstrument(target.sourcePreset, composer);\n  if (!prior) throw new Error('The original Nodal instrument is no longer available.');\n  // Persist the edited recipe as an immutable source revision, never as PCM.\n  const normalized = __XenNodalModel.normalize(instrument);\n  const entry = __XenNodalLibrary.save(normalized);\n  const preset = 'nodal:' + entry.id + '@' + entry.revision;\n  composer.nodalInstruments = {...composer.nodalInstruments, [preset]: entry.instrument};\n  for (const lane of composer.tracks) {\n    if (lane.instrumentPreset === target.sourcePreset) {\n      lane.instrumentPreset = preset;\n      if (lane.label === prior.name) lane.label = entry.instrument.name;\n    }\n  }\n  for (const block of composer.notes) if (block.instrumentPresetOverride === target.sourcePreset) block.instrumentPresetOverride = preset;\n  // Keep only snapshots still referenced by any track or note. Otherwise repeated\n  // revisions of the same sound would eventually exhaust the embedded source cap.\n  const usedPresets = new Set(composer.tracks.map(lane => lane.instrumentPreset));\n  for (const block of composer.notes) if (block.instrumentPresetOverride) usedPresets.add(block.instrumentPresetOverride);\n  for (const key of Object.keys(composer.nodalInstruments)) if (!usedPresets.has(key)) delete composer.nodalInstruments[key];\n  // Keep the original note focused. Never add a reference note or another lane.\n  composer.selectedTrackId = target.trackId; composer.selectedNoteId = target.noteId;\n  OLe({...state, loopComposer: composer, activeWorkspace: 'microtonal-logic', logicView: 'melodic', status: 'Instrument updated: ' + entry.instrument.name});\n  window.dispatchEvent(new CustomEvent('xensonar:nodal-melodic-changed', {detail: composer}));\n  return {updated: true, entry, preset, trackId: target.trackId, noteId: target.noteId};\n}\nlet __NodalTransferSequence = 0;\nfunction nodalSendToMelodic(instrument, withReference = true) {\n  const entry = __XenNodalLibrary.save(instrument), preset = 'nodal:' + entry.id + '@' + entry.revision;\n  const state = EQ() ?? Oqe({initialSession: null, externalLogicView: 'melodic'}), composer = $n(state.loopComposer), trackId = 'nodal-track-' + Date.now().toString(36) + '-' + (++__NodalTransferSequence).toString(36);\n  composer.nodalInstruments = {...composer.nodalInstruments, [preset]: entry.instrument};\n  const track = uR({id: trackId, label: entry.instrument.name, color: '#72ddd0', volume: .85, instrumentRole: 'texture', instrumentPreset: preset, patternPresetId: null, pan: 0, enabled: true}, composer.tracks.length);\n  composer.tracks.push(track); composer.selectedTrackId = trackId; composer.activeTrackIds = Array.from(new Set([...composer.activeTrackIds, trackId]));\n  if (withReference) {\n    const index = composer.pitchSteps.findIndex(step => Math.abs((step.ratio ?? 0) - 1) < 1e-8), channelIndex = Math.max(0, index);\n    const stepSec = lD({composer, bpm: state.materialExport.bpm}) / iD(composer);\n    const note = pr(composer, {id: trackId + '-note', trackId, channelIndex, lineId: composer.pitchLines[channelIndex]?.id,\n      startUnit: 0, durationUnits: Math.max(1, Math.min(iD(composer), entry.instrument.articulation.durationSec / stepSec)), velocity: .8, fadeInUnits: 0, fadeOutUnits: 0});\n    composer.notes.push(note); composer.selectedNoteId = note.id;\n  }\n  OLe({...state, loopComposer: composer, activeWorkspace: 'microtonal-logic', logicView: 'melodic', status: entry.instrument.name + ' · Nodal instrument in Melodic Loop'});\n  window.dispatchEvent(new CustomEvent('xensonar:nodal-melodic-changed', {detail: composer}));\n  return {entry, preset, trackId};\n}\nlet __NodalSessionWrite = null;\nfunction nodalPersistComposerSession(session) {\n  if (typeof localStorage === 'undefined' || !session?.loopComposer) return;\n  if (__NodalSessionWrite) clearTimeout(__NodalSessionWrite);\n  if (!Object.keys(session.loopComposer.nodalInstruments ?? {}).length) { localStorage.removeItem('xensonar.nodal.melodic-session.v1'); return; }\n  const payload = {schemaVersion: 1, loopComposer: $n(session.loopComposer), materialExport: session.materialExport,\n    loopPatternVariants: session.loopPatternVariants, loopPatternLinks: session.loopPatternLinks, logicView: session.logicView};\n  __NodalSessionWrite = setTimeout(() => { __NodalSessionWrite = null; try { localStorage.setItem('xensonar.nodal.melodic-session.v1', JSON.stringify(payload)); } catch (error) { console.error('[nodal][session-save]', error); } }, 160);\n}\nfunction nodalRestoreComposerSession() {\n  if (typeof localStorage === 'undefined') return null;\n  try {\n    const text = localStorage.getItem('xensonar.nodal.melodic-session.v1'); if (!text || text.length > 1500000) return null;\n    const payload = JSON.parse(text); if (payload.schemaVersion !== 1 || !payload.loopComposer?.tracks?.length) return null;\n    return {...payload, loopComposer: $n(payload.loopComposer)};\n  } catch { return null; }\n}\nfunction useNodalNavigation(react, callbacks) {\n  const latest = react.useRef(callbacks); latest.current = callbacks;\n  react.useEffect(() => {\n    const melodic = () => latest.current.openMelodic(), designer = event => latest.current.openDesigner(event.detail);\n    window.addEventListener('xensonar:nodal-open-melodic', melodic); window.addEventListener('xensonar:nodal-open-designer', designer);\n    return () => { window.removeEventListener('xensonar:nodal-open-melodic', melodic); window.removeEventListener('xensonar:nodal-open-designer', designer); };\n  }, []);\n}\nfunction NodalInstrumentEditButton({composer}) {\n  const note = composer.notes.find(n => n.id === composer.selectedNoteId), track = composer.tracks.find(t => t.id === (note?.trackId ?? composer.selectedTrackId));\n  const instrument = track ? nodalFindInstrument(yW(track, note), composer) : null;\n  return instrument && note ? P.createElement('button', {type: 'button', className: 'rounded border border-emerald-700/70 bg-emerald-950/20 px-2 py-1 text-[11px] text-emerald-100',\n    title: 'Edit this note block’s Nodal instrument. The note block and melody remain unchanged.',\n    onClick: () => window.dispatchEvent(new CustomEvent('xensonar:nodal-open-designer', {detail: {\n      instrument, target: {noteId: note.id, trackId: track.id, sourcePreset: yW(track, note)}\n    }}))}, 'Edit Nodal Instrument ↗') : null;\n}\n",
+        "after": ""
+      }
+    ]
+  },
+  {
+    "file": "src/nodal/08_melodic_live_transport.js",
+    "baselineSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "seams": [
+      {
+        "position": 0,
+        "before": "",
+        "after": "async function nodalPlayMelodic(request) {\n  let token = null;\n  const fail = error => {\n    if (token !== null && !uP(token)) return;\n    hS();\n    const message = 'Melodic Loop: ' + String(error?.message ?? error);\n    request.onPhase?.('failed'); request.onPlaybackError?.(message);\n    request.onPlayhead?.(null); request.onComposerPlayhead?.(null);\n    if (typeof window !== 'undefined') window.dispatchEvent(new CustomEvent('xensonar:melodic-error', {detail: message}));\n  };\n  try {\n    return await nodalStartMelodic({...request, onToken: value => { token = value; request.onToken?.(value); }, onPlaybackError: fail});\n  } catch (error) { fail(error); throw error; }\n}\nasync function nodalStartMelodic(request) {\n  hS(); const token = g9e(); request.onToken?.(token); request.onPhase?.('preparing'); __mlSetPhase('preparing');\n  const bridge = __XenNodalInstallation.current; if (!bridge) throw new Error('Nodal audio owner unavailable');\n  // The live voice admission belongs to the main audio runtime. Use its context\n  // and output as well: a second preview AudioContext can stay suspended under\n  // browser autoplay policy while the main runtime rejects its voices.\n  const ctx = await bridge.ensureAudio();\n  if (!ctx || ctx.state !== 'running') throw new Error('Shared Nodal audio context is not running');\n  if (!uP(token)) return false;\n  const sources = await SW(request, ctx); if (!uP(token)) return false;\n  const composer = request.composer, steps = iD(composer), duration = lD(request), stepSec = duration / steps;\n  if (__mlSoloTrackId !== null && !composer.tracks.every(track => track.enabled === (track.id === __mlSoloTrackId))) __mlSoloTrackId = null;\n  const selected = request.noteId ? composer.notes.filter(n => n.id === request.noteId) : composer.notes.filter(n => request.trackIds.includes(n.trackId));\n  const master = ctx.createGain(); master.gain.value = .82; master.__f49PreviewMaster = true; master.connect(bridge.getOutput(ctx)); Mx(master);\n  const gains = new Map(), players = new Map(), stems = new Map(), events = [];\n  let timer = null, stopped = false, cycle = 0, cursor = 0, startTime = ctx.currentTime + .12, loopOffset = 0;\n  const stop = () => { if (stopped) return; stopped = true; if (timer !== null) clearTimeout(timer); for (const player of players.values()) player.stop(); };\n  const dispose = () => { stop(); for (const player of players.values()) player.dispose(); };\n  Mx({stop, disconnect: dispose});\n  try {\n    for (const track of composer.tracks) {\n      const gain = ctx.createGain(); gain.gain.value = __mlSoloTrackId !== null ? Number(track.id === __mlSoloTrackId) : Number(track.enabled); gain.connect(master); gains.set(track.id, gain); Mx(gain);\n      const nodalNotes = selected.filter(n => n.trackId === track.id && yW(track, n)?.startsWith('nodal:'));\n      if (nodalNotes.length) {\n        const plans = new Set(nodalNotes.map(n => sources.get(yW(track, n)).plan.key));\n        if (plans.size > 16) throw new Error('Maximum of 16 different Nodal instruments per live track');\n        if (nodalNotes.some(n => sources.get(yW(track, n)).plan.cost > 8)) throw new Error('Nodal instrument exceeds the live voice budget. Reduce node complexity or export as audio.');\n        const pan = ctx.createStereoPanner(); pan.channelCount = 1; pan.channelCountMode = 'explicit'; pan.pan.value = Math.max(-1, Math.min(1, track.pan ?? 0)); pan.connect(gain); Mx(pan);\n        const player = await __XenNodalLive.createPlayer(ctx, pan, {acquire: cost => bridge.acquireVoice(cost), onError: error => request.onPlaybackError?.(error)});\n        if (!uP(token)) { player.dispose(); dispose(); return false; }\n        players.set(track.id, player);\n        for (const note of nodalNotes) {\n          const source = sources.get(yW(track, note)); await player.prepare(source.instrument);\n          events.push({at: Ax(composer, note) * stepSec, note, track, source, player});\n        }\n      }\n      const legacy = selected.filter(n => n.trackId === track.id && !yW(track, n)?.startsWith('nodal:'));\n      if (legacy.length) {\n        if (request.loop) {\n          const legacyRequest = {...request, composer: {...composer, notes: composer.notes.filter(n => !yW(composer.tracks.find(t => t.id === n.trackId), n)?.startsWith('nodal:'))}};\n          stems.set(track.id, await __mlGetStem(legacyRequest, track.id));\n        }\n      }\n    }\n    if (request.loop && c9e(request) && !request.noteId) stems.set('__drums__', await __mlGetStem(request, '__drums__'));\n    if (!uP(token)) { dispose(); return false; }\n    if (stems.has('__drums__')) { const gain = ctx.createGain(); gain.gain.value = request.drumMonitorEnabled === true || __mlDrumsAudible ? 1 : 0; const rack = __f48GetDrumRack(ctx, master); gain.connect(rack.input); gains.set('__drums__', gain); Mx(gain); Mx({disconnect: () => rack.dispose()}); }\n    const noteOrigin = request.noteId && selected[0] ? Ax(composer, selected[0]) * stepSec : 0;\n    events.forEach(event => event.at -= noteOrigin); events.sort((a, b) => a.at - b.at || a.note.id.localeCompare(b.note.id));\n    startTime = ctx.currentTime + .12;\n    const tailsEnd = events.reduce((end, event) => { const note = nodalMelodicNoteOptions(composer, event.note, event.track, event.source, stepSec); return Math.max(end, event.at + note.durationSec + note.releaseSec + .01); }, 0);\n    const total = Math.max(tailsEnd, request.noteId && selected[0] ? F$(composer, selected[0]) * stepSec + .2 : E$(request));\n    const session = {token, ctx, master, stemBuffers: stems, stemGains: gains, stemSources: [],\n      totalDurationSec: request.loop ? duration : total, totalSteps: steps, stepDurationSec: stepSec, startTime, loopOffsetSec: 0,\n      liveEnabledIds: new Set(composer.tracks.filter(t => t.enabled).map(t => t.id)), drumRenderRequest: JSON.parse(JSON.stringify(request)),\n      drumMonitorExplicit: request.drumMonitorEnabled === true,\n      playheadCallback: request.onComposerPlayhead ?? request.onPlayhead, globalPlayheadCallback: request.onGlobalPlayheadRatio,\n      nodalTransport: {stop, seek(unit) {\n        for (const player of players.values()) player.stop();\n        for (const source of session.stemSources) { try { source.stop(); source.disconnect(); } catch {} }\n        loopOffset = ((unit % steps + steps) % steps) * stepSec; session.loopOffsetSec = loopOffset;\n        startTime = ctx.currentTime + .025; session.startTime = startTime; cycle = 0; cursor = events.findIndex(e => e.at >= loopOffset); if (cursor < 0) cursor = events.length;\n        if (stems.size) __mlLaunchStemSources(session, loopOffset, startTime); return true;\n      }}};\n    y9e(session);\n    if (request.loop && stems.size) __mlLaunchStemSources(session, 0, startTime);\n    if (!request.loop) for (const note of selected) {\n      const track = composer.tracks.find(t => t.id === note.trackId); if (!track?.enabled || yW(track, note)?.startsWith('nodal:')) continue;\n      N$(ctx, master, composer, note, track, startTime - noteOrigin, stepSec, sources, Mx);\n    }\n    if (!request.loop && !request.noteId) _$(ctx, master, request, startTime, cD(request));\n    const firstStarts = [];\n    let initialAttempts = 0, initialAccepted = 0;\n    function tick() {\n      if (stopped || !uP(token)) return;\n      const now = ctx.currentTime, horizon = now + .12;\n      if (request.loop) {\n        const presentCycle = Math.max(0, Math.floor((now - startTime + loopOffset) / duration));\n        if (presentCycle > cycle) { cycle = presentCycle; cursor = 0; }\n      }\n      // Only future notes are scheduled. A delayed tick drops missed attacks instead of replaying them.\n      let visited = 0;\n      while (events.length && visited++ < 512) {\n        if (cursor >= events.length) { if (!request.loop) break; cursor = 0; cycle++; }\n        const event = events[cursor], at = startTime - loopOffset + cycle * duration + event.at;\n        if (at > horizon) break; cursor++;\n        const step = composer.pitchSteps[uD(composer, event.note)];\n        if (at < now - .008 || (__mlSoloTrackId !== null ? event.track.id !== __mlSoloTrackId : !session.liveEnabledIds.has(event.track.id)) || step?.muted) continue;\n        const voice = event.player.noteOn(event.source.instrument,\n          {...nodalMelodicNoteOptions(composer, event.note, event.track, event.source, stepSec), confirmStart: true}, at);\n        if (timer === null) { initialAttempts++; if (voice) initialAccepted++; }\n        // The one-note audition must never report Play when its only voice was\n        // refused. Multi-track real-time playback keeps the established drop policy.\n        if (!voice && request.noteId) throw new Error('Could not start Nodal note: audio context or voice budget blocked playback.');\n        if (voice?.started) {\n          if (timer === null) firstStarts.push(voice.started);\n          voice.started.catch(error => {\n            if (stopped || !uP(token)) return;\n            // A late secondary attack or temporary capacity rejection is dropped,\n            // never queued. Structural DSP/processor failures stop the transport.\n            if (!request.noteId && ['late', 'voice capacity'].includes(error.reason)) return;\n            request.onPlaybackError?.(error);\n          });\n        }\n      }\n      const elapsed = Math.max(0, now - startTime), position = request.loop ? (loopOffset + elapsed) % duration : Math.min(total, elapsed);\n      session.playheadCallback?.(position / stepSec + (request.noteId ? noteOrigin / stepSec : 0)); session.globalPlayheadCallback?.(position / duration);\n      if (!request.loop && elapsed >= total + .15) { request.onEnded?.(); hS(); return; }\n      timer = setTimeout(() => { try { tick(); } catch (error) { request.onPlaybackError?.(error); } }, 25);\n    }\n    tick();\n    if (initialAttempts && !initialAccepted && !stems.size && selected.every(note => yW(composer.tracks.find(t => t.id === note.trackId), note)?.startsWith('nodal:'))) throw new Error('No Nodal voice available: audio budget exhausted. Stop other voices and try again.');\n    await Promise.all(firstStarts);\n    if (stopped || !uP(token)) return false;\n    request.onPhase?.('playing'); __mlSetPhase('playing'); return true;\n  } catch (error) { dispose(); throw error; }\n}\n"
+      }
+    ]
+  },
+  {
+    "file": "src/nodal/09_melodic_session.js",
+    "baselineSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "seams": [
+      {
+        "position": 0,
+        "before": "",
+        "after": "/* Editing a Melodic instrument keeps the original notes/tracks intact. A new\n   immutable source snapshot is substituted for every reference to the edited\n   instrument; the unrelated instruments and their notes are untouched. */\nfunction nodalUpdateMelodicInstrument(instrument, target) {\n  if (!target || !target.noteId || !target.trackId || !target.sourcePreset) throw new Error('No Melodic note block selected for updating.');\n  const state = EQ();\n  if (!state?.loopComposer) throw new Error('Melodic session is unavailable.');\n  const composer = $n(state.loopComposer);\n  const track = composer.tracks.find(t => t.id === target.trackId);\n  const note = composer.notes.find(n => n.id === target.noteId && n.trackId === target.trackId);\n  if (!track || !note || yW(track, note) !== target.sourcePreset) throw new Error('The original note block has changed. Reopen it from Melodic Loop.');\n  const prior = nodalFindInstrument(target.sourcePreset, composer);\n  if (!prior) throw new Error('The original Nodal instrument is no longer available.');\n  // Persist the edited recipe as an immutable source revision, never as PCM.\n  const normalized = __XenNodalModel.normalize(instrument);\n  const entry = __XenNodalLibrary.save(normalized);\n  const preset = 'nodal:' + entry.id + '@' + entry.revision;\n  composer.nodalInstruments = {...composer.nodalInstruments, [preset]: entry.instrument};\n  for (const lane of composer.tracks) {\n    if (lane.instrumentPreset === target.sourcePreset) {\n      lane.instrumentPreset = preset;\n      if (lane.label === prior.name) lane.label = entry.instrument.name;\n    }\n  }\n  for (const block of composer.notes) if (block.instrumentPresetOverride === target.sourcePreset) block.instrumentPresetOverride = preset;\n  // Keep only snapshots still referenced by any track or note. Otherwise repeated\n  // revisions of the same sound would eventually exhaust the embedded source cap.\n  const usedPresets = new Set(composer.tracks.map(lane => lane.instrumentPreset));\n  for (const block of composer.notes) if (block.instrumentPresetOverride) usedPresets.add(block.instrumentPresetOverride);\n  for (const key of Object.keys(composer.nodalInstruments)) if (!usedPresets.has(key)) delete composer.nodalInstruments[key];\n  // Keep the original note focused. Never add a reference note or another lane.\n  composer.selectedTrackId = target.trackId; composer.selectedNoteId = target.noteId;\n  OLe({...state, loopComposer: composer, activeWorkspace: 'microtonal-logic', logicView: 'melodic', status: 'Instrument updated: ' + entry.instrument.name});\n  window.dispatchEvent(new CustomEvent('xensonar:nodal-melodic-changed', {detail: composer}));\n  return {updated: true, entry, preset, trackId: target.trackId, noteId: target.noteId};\n}\nlet __NodalTransferSequence = 0;\nfunction nodalSendToMelodic(instrument, withReference = true) {\n  const entry = __XenNodalLibrary.save(instrument), preset = 'nodal:' + entry.id + '@' + entry.revision;\n  const state = EQ() ?? Oqe({initialSession: null, externalLogicView: 'melodic'}), composer = $n(state.loopComposer), trackId = 'nodal-track-' + Date.now().toString(36) + '-' + (++__NodalTransferSequence).toString(36);\n  composer.nodalInstruments = {...composer.nodalInstruments, [preset]: entry.instrument};\n  const track = uR({id: trackId, label: entry.instrument.name, color: '#72ddd0', volume: .85, instrumentRole: 'texture', instrumentPreset: preset, patternPresetId: null, pan: 0, enabled: true}, composer.tracks.length);\n  composer.tracks.push(track); composer.selectedTrackId = trackId; composer.activeTrackIds = Array.from(new Set([...composer.activeTrackIds, trackId]));\n  if (withReference) {\n    const index = composer.pitchSteps.findIndex(step => Math.abs((step.ratio ?? 0) - 1) < 1e-8), channelIndex = Math.max(0, index);\n    const stepSec = lD({composer, bpm: state.materialExport.bpm}) / iD(composer);\n    const note = pr(composer, {id: trackId + '-note', trackId, channelIndex, lineId: composer.pitchLines[channelIndex]?.id,\n      startUnit: 0, durationUnits: Math.max(1, Math.min(iD(composer), entry.instrument.articulation.durationSec / stepSec)), velocity: .8, fadeInUnits: 0, fadeOutUnits: 0});\n    composer.notes.push(note); composer.selectedNoteId = note.id;\n  }\n  OLe({...state, loopComposer: composer, activeWorkspace: 'microtonal-logic', logicView: 'melodic', status: entry.instrument.name + ' · Nodal instrument in Melodic Loop'});\n  window.dispatchEvent(new CustomEvent('xensonar:nodal-melodic-changed', {detail: composer}));\n  return {entry, preset, trackId};\n}\nlet __NodalSessionWrite = null;\nfunction nodalPersistComposerSession(session) {\n  if (typeof localStorage === 'undefined' || !session?.loopComposer) return;\n  if (__NodalSessionWrite) clearTimeout(__NodalSessionWrite);\n  if (!Object.keys(session.loopComposer.nodalInstruments ?? {}).length) { localStorage.removeItem('xensonar.nodal.melodic-session.v1'); return; }\n  const payload = {schemaVersion: 1, loopComposer: $n(session.loopComposer), materialExport: session.materialExport,\n    loopPatternVariants: session.loopPatternVariants, loopPatternLinks: session.loopPatternLinks, logicView: session.logicView};\n  __NodalSessionWrite = setTimeout(() => { __NodalSessionWrite = null; try { localStorage.setItem('xensonar.nodal.melodic-session.v1', JSON.stringify(payload)); } catch (error) { console.error('[nodal][session-save]', error); } }, 160);\n}\nfunction nodalRestoreComposerSession() {\n  if (typeof localStorage === 'undefined') return null;\n  try {\n    const text = localStorage.getItem('xensonar.nodal.melodic-session.v1'); if (!text || text.length > 1500000) return null;\n    const payload = JSON.parse(text); if (payload.schemaVersion !== 1 || !payload.loopComposer?.tracks?.length) return null;\n    return {...payload, loopComposer: $n(payload.loopComposer)};\n  } catch { return null; }\n}\nfunction useNodalNavigation(react, callbacks) {\n  const latest = react.useRef(callbacks); latest.current = callbacks;\n  react.useEffect(() => {\n    const melodic = () => latest.current.openMelodic(), designer = event => latest.current.openDesigner(event.detail);\n    window.addEventListener('xensonar:nodal-open-melodic', melodic); window.addEventListener('xensonar:nodal-open-designer', designer);\n    return () => { window.removeEventListener('xensonar:nodal-open-melodic', melodic); window.removeEventListener('xensonar:nodal-open-designer', designer); };\n  }, []);\n}\nfunction NodalInstrumentEditButton({composer}) {\n  const note = composer.notes.find(n => n.id === composer.selectedNoteId), track = composer.tracks.find(t => t.id === (note?.trackId ?? composer.selectedTrackId));\n  const instrument = track ? nodalFindInstrument(yW(track, note), composer) : null;\n  return instrument && note ? P.createElement('button', {type: 'button', className: 'rounded border border-emerald-700/70 bg-emerald-950/20 px-2 py-1 text-[11px] text-emerald-100',\n    title: 'Edit this note block’s Nodal instrument. The note block and melody remain unchanged.',\n    onClick: () => window.dispatchEvent(new CustomEvent('xensonar:nodal-open-designer', {detail: {\n      instrument, target: {noteId: note.id, trackId: track.id, sourcePreset: yW(track, note)}\n    }}))}, 'Edit Nodal Instrument ↗') : null;\n}\n"
+      }
+    ]
+  },
+  {
+    "file": "src/nodal/10_library_manager.js",
+    "baselineSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "seams": [
+      {
+        "position": 0,
+        "before": "",
+        "after": "/* Library previews use the already-owned Nodal audio adapter; they never select a\n   Melodic track, write a source snapshot or launch a second AudioContext. */\nasync function nodalPreviewLibraryEntry(entry) {\n  const backend = __XenNodalInstallation.current;\n  if (!backend?.preview) throw new Error('Nodal audio owner is unavailable.');\n  const instrument = __XenNodalModel.normalize(entry.instrument);\n  const handle = await backend.preview(instrument, {\n    frequency: instrument.referenceHz, velocity: .8,\n    durationSec: Math.min(2, instrument.articulation.durationSec)\n  });\n  await handle.started;\n  return handle;\n}\nfunction nodalEditLibraryEntry(entry, eventTarget = window) {\n  // The library identity belongs to the editor; it is NOT a selected-note edit.\n  const detail = {instrument: __XenNodalModel.normalize(entry.instrument),\n    libraryEntry: {id: entry.id, revision: entry.revision}};\n  eventTarget.dispatchEvent(new CustomEvent('xensonar:nodal-open-designer', {detail}));\n  return detail;\n}\n/* Compact library management is available where the musician actually chooses instruments.\n   Edits change only library metadata, never note geometry, PCM or synthesizer revision. */\nfunction NodalLibraryManager({composer, onMutateLoopComposer}) {\n  const h = P.createElement;\n  const [open, setOpen] = P.useState(false);\n  const [entries, setEntries] = P.useState(() => { try { return __XenNodalLibrary.list(); } catch { return []; } });\n  const [drafts, setDrafts] = P.useState({});\n  const [message, setMessage] = P.useState('');\n  const [previewId, setPreviewId] = P.useState(null);\n  const previewSeq = P.useRef(0), activePreview = P.useRef(null), previewTimer = P.useRef(null);\n  function stopLibraryPreview() {\n    previewSeq.current++;\n    if (previewTimer.current !== null) clearTimeout(previewTimer.current);\n    previewTimer.current = null;\n    if (activePreview.current) __XenNodalInstallation.current?.stopPreview?.();\n    activePreview.current = null;\n    setPreviewId(null);\n  }\n  P.useEffect(() => () => {\n    previewSeq.current++;\n    if (previewTimer.current !== null) clearTimeout(previewTimer.current);\n    if (activePreview.current) __XenNodalInstallation.current?.stopPreview?.();\n  }, []);\n  async function previewEntry(entry) {\n    if (activePreview.current === entry.id) { stopLibraryPreview(); setMessage('Preview stopped.'); return; }\n    stopLibraryPreview();\n    const seq = previewSeq.current;\n    activePreview.current = entry.id;\n    setPreviewId(entry.id);\n    setMessage('Preparing preview: ' + entry.instrument.name);\n    try {\n      const handle = await nodalPreviewLibraryEntry(entry);\n      if (seq !== previewSeq.current) { handle.noteOff?.(); return; }\n      setMessage('Previewing: ' + entry.instrument.name);\n      const lengthMs = (Math.min(2, entry.instrument.articulation.durationSec) + entry.instrument.articulation.releaseSec + .2) * 1000;\n      previewTimer.current = setTimeout(() => {\n        if (seq !== previewSeq.current) return;\n        activePreview.current = null; setPreviewId(null); previewTimer.current = null;\n      }, lengthMs);\n    } catch (error) {\n      if (seq === previewSeq.current) { activePreview.current = null; setPreviewId(null); setMessage('Preview: ' + error.message); }\n    }\n  }\n  function editEntry(entry) {\n    stopLibraryPreview();\n    nodalEditLibraryEntry(entry);\n  }\n  function refresh() {\n    const items = __XenNodalLibrary.list();\n    setEntries(items);\n    setDrafts(Object.fromEntries(items.map(e => [e.id, e.instrument.name])));\n  }\n  P.useEffect(() => {\n    const changed = () => { try { refresh(); } catch (error) { setMessage(error.message); } };\n    window.addEventListener('xensonar:nodal-library-changed', changed);\n    return () => window.removeEventListener('xensonar:nodal-library-changed', changed);\n  }, []);\n  function renameEntry(entry) {\n    try {\n      const oldName = entry.instrument.name;\n      const next = __XenNodalLibrary.rename(entry.id, entry.revision, drafts[entry.id]);\n      const preset = 'nodal:' + entry.id + '@' + entry.revision;\n      if (composer?.nodalInstruments?.[preset] && oldName !== next.instrument.name) {\n        onMutateLoopComposer(c => {\n          if (c.nodalInstruments?.[preset]) c.nodalInstruments[preset] = {...c.nodalInstruments[preset], name: next.instrument.name};\n          for (const track of c.tracks) if (track.instrumentPreset === preset && track.label === oldName) track.label = next.instrument.name;\n        });\n      }\n      setMessage('Renamed: ' + next.instrument.name + ' · sound and notes unchanged.');\n    } catch (error) { setMessage('Rename: ' + error.message); }\n  }\n  function removeEntry(entry) {\n    if (!window.confirm('Remove “' + entry.instrument.name + '” from Nodal Library? Notes and instrument copies in existing projects will remain available.')) return;\n    try {\n      __XenNodalLibrary.remove(entry.id, entry.revision);\n      setMessage('Removed from library. Existing compositions remain available.');\n    } catch (error) { setMessage('Remove: ' + error.message); }\n  }\n  return h('section', {className: 'nd-library-manager', 'aria-label': 'Nodal instrument library'},\n    h('span', {className: 'nd-library-manager-label'}, 'Nodal Sounds'),\n    h('button', {type: 'button', 'aria-expanded': open, onClick: () => {\n      if (!open) try { refresh(); } catch (error) { setMessage(error.message); }\n      if (open) stopLibraryPreview();\n      setOpen(!open);\n    }}, 'Manage (' + entries.length + ')' + (open ? ' ▴' : ' ▾')),\n    open ? h('div', {className: 'nd-library-manager-content'},\n      h('div', {className: 'nd-library-manager-help'}, 'Preview, edit, rename or remove saved instruments. Editing opens the selected instrument in Sound Design.'),\n      entries.length ? entries.map(entry => h('div', {key: entry.id, className: 'nd-library-manager-row'},\n        h('label', {className: 'nd-library-manager-name'},\n          h('span', null, nodalLibraryEntryLabel(entry, entries)),\n          h('input', {'aria-label': 'Name for ' + nodalLibraryEntryLabel(entry, entries), value: drafts[entry.id] ?? entry.instrument.name, maxLength: 100,\n            onChange: e => setDrafts(v => ({...v, [entry.id]: e.target.value}))})),\n        h('button', {type: 'button', onClick: () => previewEntry(entry),\n          'aria-label': (previewId === entry.id ? 'Stop preview for ' : 'Preview ') + nodalLibraryEntryLabel(entry, entries)},\n          previewId === entry.id ? 'Stop' : 'Preview'),\n        h('button', {type: 'button', onClick: () => editEntry(entry),\n          'aria-label': 'Edit ' + nodalLibraryEntryLabel(entry, entries)}, 'Edit'),\n        h('button', {type: 'button', disabled: (drafts[entry.id] ?? entry.instrument.name).trim() === entry.instrument.name,\n          onClick: () => renameEntry(entry)}, 'Rename'),\n        h('button', {type: 'button', onClick: () => {stopLibraryPreview();removeEntry(entry);}, 'aria-label': nodalLibraryEntryLabel(entry, entries) + ' remove'}, 'Remove')\n      )) : h('div', {className: 'nd-library-manager-help'}, 'No saved Nodal instruments.'),\n      h('div', {className: 'nd-library-manager-help'}, 'Instruments removed from the library remain playable in existing Melodic projects and are labeled “in project”.'),\n      message ? h('div', {className: 'nd-library-manager-message', role: 'status'}, message) : null\n    ) : null);\n}\n"
+      }
+    ]
+  }
+]

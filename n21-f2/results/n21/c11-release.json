@@ -1,0 +1,69 @@
+{
+  "pcm": [
+    {
+      "rate": 44100,
+      "kind": "ent",
+      "unchangedBlocks": 190,
+      "channels": 18
+    },
+    {
+      "rate": 44100,
+      "kind": "wave",
+      "unchangedBlocks": 190,
+      "channels": 18
+    },
+    {
+      "rate": 44100,
+      "kind": "plain",
+      "unchangedBlocks": 190,
+      "channels": 18
+    },
+    {
+      "rate": 48000,
+      "kind": "ent",
+      "unchangedBlocks": 190,
+      "channels": 18
+    },
+    {
+      "rate": 48000,
+      "kind": "wave",
+      "unchangedBlocks": 190,
+      "channels": 18
+    },
+    {
+      "rate": 48000,
+      "kind": "plain",
+      "unchangedBlocks": 190,
+      "channels": 18
+    },
+    {
+      "rate": 96000,
+      "kind": "ent",
+      "unchangedBlocks": 190,
+      "channels": 18
+    },
+    {
+      "rate": 96000,
+      "kind": "wave",
+      "unchangedBlocks": 190,
+      "channels": 18
+    },
+    {
+      "rate": 96000,
+      "kind": "plain",
+      "unchangedBlocks": 190,
+      "channels": 18
+    }
+  ],
+  "releaseRates": [
+    44100,
+    48000,
+    96000
+  ],
+  "releaseKinds": [
+    "Entrophon finite/held",
+    "Wave finite/held"
+  ],
+  "protectedConcurrentVoice": true,
+  "manualCoreDeclick": true
+}

@@ -1,0 +1,318 @@
+[
+  {
+    "file": "src/nodal/03_library.js",
+    "baselineSha256": "f96bb630319381e84fa868809c8cc3a9e7e82f18062d0d8cb51449794a5e9045",
+    "seams": [
+      {
+        "position": 1602,
+        "before": "",
+        "after": "if (!options.id && !options.asVariant) {\n      const serialized = model.serialize(normalized);\n      const existing = entries.find(entry => model.serialize(entry.instrument) === serialized);\n      if (existing) return existing;\n    }\n    "
+      },
+      {
+        "position": 2506,
+        "before": "",
+        "after": "remove(id, expectedRevision) {\n    const entries = list(), entry = entries.find(e => e.id === id);\n    if (!entry) return false;\n    if (entry.revision !== expectedRevision) throw new Error('Nodal revision conflict');\n    write(entries.filter(e => e.id !== id)); return true;\n  }\n  function "
+      },
+      {
+        "position": 3648,
+        "before": "",
+        "after": "remove, "
+      }
+    ]
+  },
+  {
+    "file": "src/nodal/06_melodic_bridge.js",
+    "baselineSha256": "850632ad6526e66ccf202cec8721fefe3b1b3f9140966e25156032ec41b3e5c6",
+    "seams": [
+      {
+        "position": 5759,
+        "before": "",
+        "after": "let token = null;\n  const fail = error => {\n    if (token !== null && !uP(token)) return;\n    hS();\n    const message = 'Melodic Loop: ' + String(error?.message ?? error);\n    request.onPhase?.('failed'); request.onPlaybackError?.(message);\n    request.onPlayhead?.(null); request.onComposerPlayhead?.(null);\n    if (typeof window !== 'undefined') window.dispatchEvent(new CustomEvent('xensonar:melodic-error', {detail: message}));\n  };\n  try {\n    return await nodalStartMelodic({...request, onToken: value => { token = value; request.onToken?.(value); }, onPlaybackError: fail});\n  } catch (error) { fail(error); throw error; }\n}\nasync function nodalStartMelodic(request) {\n  "
+      },
+      {
+        "position": 7865,
+        "before": "04",
+        "after": "12"
+      },
+      {
+        "position": 9248,
+        "before": "",
+        "after": "), onError: error => request.onPlaybackError?.(error"
+      },
+      {
+        "position": 10830,
+        "before": "04",
+        "after": "12"
+      },
+      {
+        "position": 12836,
+        "before": "request.onPhase?.('playing'); __mlSetPhase('playing')",
+        "after": "const firstStarts = [];\n    let initialAttempts = 0, initialAccepted = 0"
+      },
+      {
+        "position": 14050,
+        "before": "Boolean(request.noteId)",
+        "after": "true"
+      },
+      {
+        "position": 14061,
+        "before": "",
+        "after": "\n        if (timer === null) { initialAttempts++; if (voice) initialAccepted++; }"
+      },
+      {
+        "position": 14466,
+        "before": "voice.started.catch(error => ",
+        "after": ""
+      },
+      {
+        "position": 14482,
+        "before": "",
+        "after": "timer === null) firstStarts.push(voice.started);\n          voice.started.catch(error => {\n            if ("
+      },
+      {
+        "position": 14618,
+        "before": "",
+        "after": "\n            // A late secondary attack or temporary capacity rejection is dropped,\n            // never queued. Structural DSP/processor failures stop the transport.\n            if (!request.noteId && ['late', 'voice capacity'].includes(error.reason)) return;\n            request.onPlaybackError?.(error);"
+      },
+      {
+        "position": 14935,
+        "before": "stop();",
+        "after": "});\n        }\n      }\n      const elapsed = Math.max(0, now - startTime), position ="
+      },
+      {
+        "position": 15028,
+        "before": "onPhase?.('failed'); __mlSetPhase('idle');\n          ",
+        "after": "loop ? (loopOffset + elapsed) % duration : Math.min(total, elapsed);\n      session.playheadCallback?.(position / stepSec + ("
+      },
+      {
+        "position": 15160,
+        "before": "",
+        "after": "noteId ? noteOrigin / stepSec : 0)); session.globalPlayheadCallback?.(position / duration);\n      if (!request.loop && elapsed >= total + .15) { request.onEnded?.(); hS(); return; }\n      timer = setTimeout(() => { try { tick(); } catch (error) { request."
+      },
+      {
+        "position": 15433,
+        "before": "'",
+        "after": "error); } }, 25);\n    }\n    tick();\n    if (initialAttempts && !initialAccepted && !stems.size && selected.every(note => yW(composer.tracks.find(t => t.id === note.trackId), note)?.startsWith('nodal:'))) throw new Error('Keine "
+      },
+      {
+        "position": 15666,
+        "before": "Worklet hat die Note abgelehnt: ' + String",
+        "after": "Stimme freigegeben: Audiobudget belegt. Andere Stimmen stoppen und erneut starten.');\n    await Promise.all(firstStarts);\n    if (stopped || !uP(token)) return false;\n    request.onPhase?.('playing'); __mlSetPhase('playing'); return true;\n  } catch "
+      },
+      {
+        "position": 15921,
+        "before": "?.message ??",
+        "after": ") { dispose(); throw"
+      },
+      {
+        "position": 15947,
+        "before": "));\n        });\n      }\n      const elapsed = Math.max(",
+        "after": "; }\n}\nlet __NodalTransferSequence = "
+      },
+      {
+        "position": 15984,
+        "before": ", now - startTime), position = request.loop ? (loopOffset + elapsed) % duration : Math.min(total, elapsed);\n      session.playheadCallback?.(position / stepSec + (request.noteId ? noteOrigin / stepSec : 0)); session.globalPlayheadCallback?.(position / duration);\n      if (!request.loop && elapsed >= total + .15) { request.onEnded?.(); hS(); return; }\n      timer = setTimeout(tick, 25);\n    }\n    tick(); return true;\n  } catch (error) { dispose(); if (uP(token)) hS(); request.onPhase?.('failed'); throw error; }\n}",
+        "after": ";"
+      },
+      {
+        "position": 16323,
+        "before": "",
+        "after": " + '-' + (++__NodalTransferSequence).toString(36)"
+      },
+      {
+        "position": 17108,
+        "before": "'nodal",
+        "after": "trackId + '"
+      },
+      {
+        "position": 17124,
+        "before": "-' + Date.now().toString(36)",
+        "after": "'"
+      }
+    ]
+  },
+  {
+    "file": "src/nodal/04_audio_runtime.js",
+    "baselineSha256": "8014909339f4e6dece357dd408df4aebe59f3a3d4c603587b703dd916630eab8",
+    "seams": [
+      {
+        "position": 5143,
+        "before": "disposed = true; failAll(); node.disconnect(",
+        "after": "dispose(); admission.onError?.(new Error('Nodal-Audioprozessor ausgefallen. Bitte Wiedergabe neu starten.')"
+      },
+      {
+        "position": 5617,
+        "before": "confirmStart(data.id,",
+        "after": "const error ="
+      },
+      {
+        "position": 5647,
+        "before": "-Vorhören",
+        "after": ""
+      },
+      {
+        "position": 5710,
+        "before": "",
+        "after": ";\n        error.reason = data.reason; confirmStart(data.id, error);\n        if (data.type === 'error' && !pending.has(data.id)) admission.onError?.(error"
+      },
+      {
+        "position": 8615,
+        "before": "",
+        "after": "{ "
+      },
+      {
+        "position": 8650,
+        "before": "-Vorhören",
+        "after": ""
+      },
+      {
+        "position": 8689,
+        "before": "",
+        "after": "; dispose(); }"
+      }
+    ]
+  },
+  {
+    "file": "src/nodal/07_sound_designer.js",
+    "baselineSha256": "476e4366371eabcad072307f059b68439597b81ac8709f6795d3ab7afe8ca689",
+    "seams": [
+      {
+        "position": 3111,
+        "before": "",
+        "after": ", libraryIdentity = P.useRef(null);\n  const [libraryChoice, setLibraryChoice] = P.useState('')"
+      },
+      {
+        "position": 8025,
+        "before": "",
+        "after": "asVariant = false"
+      },
+      {
+        "position": 8055,
+        "before": " ",
+        "after": "\n      "
+      },
+      {
+        "position": 8068,
+        "before": "",
+        "after": "identity = libraryIdentity.current;\n      const options = asVariant ? {asVariant: true} : identity ? {id: identity.id, expectedRevision: identity.revision} : {};\n      const "
+      },
+      {
+        "position": 8283,
+        "before": "",
+        "after": ", options);\n      libraryIdentity.current = entry; setLibraryChoice(entry.id"
+      },
+      {
+        "position": 8397,
+        "before": " ",
+        "after": "\n      "
+      },
+      {
+        "position": 8455,
+        "before": "); }",
+        "after": " + ' · Version ' + entry.revision);"
+      },
+      {
+        "position": 8495,
+        "before": "",
+        "after": "}\n    catch (error) { setMessage(error.message); }\n  }\n  function removeSaved() {\n    const entry = libraryIdentity.current; if (!entry) return;\n    try {\n      __XenNodalLibrary.remove(entry.id, entry.revision);\n      libraryIdentity.current = null; setLibraryChoice(''); setSaved(__XenNodalLibrary.list());\n      setMessage('Bibliothekseintrag entfernt. Entwurf und Melodic-Kopien bleiben erhalten.');\n    } "
+      },
+      {
+        "position": 9643,
+        "before": "",
+        "after": "libraryIdentity.current = null; setLibraryChoice(''); "
+      },
+      {
+        "position": 13023,
+        "before": "",
+        "after": "(instrument.coupling > 0 ? "
+      },
+      {
+        "position": 13081,
+        "before": "",
+        "after": " : 'Kopplung aus')"
+      },
+      {
+        "position": 15326,
+        "before": "",
+        "after": "opacity: instrument.coupling > 0 ? 1 : .18, "
+      },
+      {
+        "position": 16106,
+        "before": "",
+        "after": ", opacity: instrument.coupling > 0 ? 1 : .18"
+      },
+      {
+        "position": 19881,
+        "before": "Ansprache",
+        "after": "Anregungsanteil"
+      },
+      {
+        "position": 19996,
+        "before": "Abnahme",
+        "after": "Abgriff"
+      },
+      {
+        "position": 21986,
+        "before": "",
+        "after": "libraryIdentity.current = null; setLibraryChoice(''); "
+      },
+      {
+        "position": 22178,
+        "before": "",
+        "after": "libraryIdentity.current = null; setLibraryChoice(''); "
+      },
+      {
+        "position": 22505,
+        "before": "''",
+        "after": "libraryChoice"
+      },
+      {
+        "position": 22613,
+        "before": "",
+        "after": " libraryIdentity.current = entry; setLibraryChoice(entry.id);"
+      },
+      {
+        "position": 23023,
+        "before": "",
+        "after": "removeSaved, disabled: !libraryChoice, 'aria-label': 'Gespeicherten Klangkörper entfernen'}, 'Entfernen'), h('button', {onClick: "
+      },
+      {
+        "position": 23712,
+        "before": "",
+        "after": "() => "
+      },
+      {
+        "position": 23722,
+        "before": "",
+        "after": "(false)"
+      },
+      {
+        "position": 23754,
+        "before": "",
+        "after": "'), h('button', {onClick: () => save(true)}, 'Als Variante"
+      }
+    ]
+  },
+  {
+    "file": "src/forge_and_melodic/09_canonical_forge_room.js",
+    "baselineSha256": "c22c29ec5254fbbbcb5ff805959183839681eae2991fbf68aca7797533859ea5",
+    "seams": [
+      {
+        "position": 1233,
+        "before": "",
+        "after": ");P.useEffect(()=>{const failed=event=>Q(String(event.detail));window.addEventListener(\"xensonar:melodic-error\",failed);return()=>window.removeEventListener(\"xensonar:melodic-error\",failed)},[]"
+      }
+    ]
+  },
+  {
+    "file": "styles/20_nodal_sound_designer.css",
+    "baselineSha256": "402e270b42c06621ef28670ecd1c8dac1e6e6a6d5a61e99e4529c5cd5e751e8a",
+    "seams": [
+      {
+        "position": 10614,
+        "before": "\n",
+        "after": "\n\n/* Keep actions in the normal page flow; no extra editor scroll container. */\n.nd-status>span {white-space:normal;overflow:visible;overflow-wrap:anywhere}\n@media(min-width:821px) and (max-width:1199px) and (max-height:920px) {\n  .nd-stage {height:250px}\n  .nd-shared-field-compact canvas {height:130px!important}\n  .nd-room {padding-top:12px}\n  .nd-heading {margin-bottom:8px}\n  .nd-toolbar {margin-bottom:8px;padding:8px 0}\n  .nd-footer {gap:8px;flex-wrap:wrap}\n}\n"
+      }
+    ]
+  }
+]

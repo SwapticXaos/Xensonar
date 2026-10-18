@@ -1,0 +1,13 @@
+[
+  {
+    "file": "src/nodal/04_audio_runtime.js",
+    "baselineSha256": "4fd4be93d6d1d5d98502c721077d7c07b81a9d6652fbe4ee03b04fef6b4fdc2e",
+    "seams": [
+      {
+        "position": 3732,
+        "before": "      const url = URL.createObjectURL(new Blob([source], {type: 'text/javascript'}));\n      load = context.audioWorklet.addModule(url).finally(() => URL.revokeObjectURL(url));\n      modules.set(context, load); load.catch(() => modules.delete(context));\n",
+        "after": "      // A directly opened standalone HTML has a file:// origin. Several browsers\n      // refuse blob: Worklet modules there; the existing XenSonar master Worklet\n      // already uses a data: module first for the same reason.\n      load = (async () => {\n        const isFile = typeof location !== 'undefined' && location.protocol === 'file:';\n        const failures = [];\n        const methods = isFile ? ['data', 'blob'] : ['blob', 'data'];\n        for (const method of methods) {\n          try {\n            if (method === 'data') {\n              await context.audioWorklet.addModule('data:application/javascript;charset=utf-8,' + encodeURIComponent(source));\n            } else {\n              if (typeof Blob === 'undefined' || typeof URL === 'undefined' || typeof URL.createObjectURL !== 'function') throw new Error('Blob module URLs unavailable');\n              const url = URL.createObjectURL(new Blob([source], {type: 'text/javascript'}));\n              try { await context.audioWorklet.addModule(url); }\n              finally { URL.revokeObjectURL(url); }\n            }\n            return;\n          } catch (error) { failures.push(method + ': ' + (error?.message ?? String(error))); }\n        }\n        throw new Error('Nodal-Worklet konnte nicht geladen werden (' + failures.join(' | ') + ')');\n      })();\n      modules.set(context, load); load.catch(() => modules.delete(context));\n"
+      }
+    ]
+  }
+]

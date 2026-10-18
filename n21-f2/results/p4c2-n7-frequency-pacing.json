@@ -1,0 +1,9 @@
+{
+  "frequencies": 24,
+  "batchSize": 8,
+  "pauseMs": 12,
+  "inflightKeptOnReorder": true,
+  "staleDropped": true,
+  "initialPitchKnown": true,
+  "disposalClean": true
+}

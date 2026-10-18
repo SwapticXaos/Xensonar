@@ -1,0 +1,8 @@
+/* FIX1: give the bass note editor the available viewport, without horizontal clipping. */
+.xen-bass-manager-modal { max-width: min(96rem, calc(100vw - 2rem)); }
+.xen-bass-manager-modal [data-bass-body-canvas] { height: 16rem; }
+@media (min-width: 1024px) {
+ .xen-bass-manager-modal .xen-bass-manager-columns {
+  grid-template-columns: minmax(11rem,.60fr) minmax(32rem,1.70fr) minmax(14rem,.72fr);
+ }
+}

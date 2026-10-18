@@ -1,0 +1,25 @@
+'use strict';
+const fs=require('fs'),vm=require('vm'),assert=require('node:assert/strict'),create=require('../src/forge/fractalia/05_relational_core.js');
+const ctx={setTimeout,DOMException};vm.createContext(ctx);for(const f of ['src/forge/dsp/01_material_tools.js','src/forge/fractalia/09_material_atlas.js','src/forge/fractalia/10_material_render.js','src/forge/fractalia/13_spectral_view.js'])vm.runInContext(fs.readFileSync(f,'utf8'),ctx);
+vm.runInContext('globalThis.engine=createFractaliaMaterialEngine();globalThis.render=renderFractaliaMaterialJob;globalThis.measure=measureFractaliaSpectrum;globalThis.pixels=fractaliaSpectrumPixels;',ctx);
+const core=create(),sr=16000,donor={mode:'tile',reading:'material-relations',revision:3,amount:1,warp:1,exchange:.7,recombine:1,layers:2,axis:'energy',pitchReference:'measured',evolutionSec:3};
+const grid={width:48,height:256,getColumn(x){const a=new Float32Array(256);for(let y=0;y<a.length;y++)a[y]=[120-Math.max(0,x-10)*1.6,120+Math.max(0,x-10)*1.4,56+7*Math.sin(x*.2),205-8*Math.cos(x*.18)].reduce((s,c)=>s+.6*Math.exp(-.5*((y-c)/1.4)**2),0);const energy=a.reduce((s,v)=>s+v*v,0);return Float32Array.from(a,v=>v*Math.sqrt(3/energy))}};
+(async()=>{
+ const recipe=core.settings({version:4,compilerRevision:4,donor,params:{motion:1}}),compiled=await core.compile({grid,instrument:recipe});assert.equal(compiled.compilerRevision,4);assert.equal(compiled.states,undefined);
+ assert.throws(()=>core.settings({...recipe,compilerRevision:3}));
+ const source=Float32Array.from({length:sr},(_,i)=>[220,440,660,881,1139,1618,2200,3420].reduce((s,f,j)=>s+.10/(1+j*.3)*Math.sin(2*Math.PI*f*i/sr),0)),model={samples:source,sampleRate:sr,sourceIndex:{windows:[{id:0,startSample:0,endSample:source.length-1}]}};
+ const atlas=await ctx.engine.analyze(model),mapping=ctx.engine.prepare(compiled.material,compiled.relations,atlas,donor),events=[{id:'held',startSec:.05,endSec:1.5,pitch:[220],gain:[.55,.55]}],job={model,mapping,recipe,sampleRate:sr,durationSec:1.7,events};
+ const dry=await ctx.render({...job,diagnostics:{bypass:true}}),deformed=await ctx.render({...job,diagnostics:{disableRecombination:true}}),hybrid=await ctx.render(job),oneLevel=await ctx.render({...job,recipe:{...recipe,donor:{...donor,layers:1}}});
+ assert.equal(deformed.report.recombinedFrames,0);assert(hybrid.report.recombinedFrames>0);assert(hybrid.left.every(Number.isFinite));assert.equal(hybrid.report.events[0].phaseStarts,1);
+ const rms=a=>Math.sqrt(a.reduce((s,v)=>s+v*v,0)/a.length),distance=(a,b)=>{const gain=rms(a)/rms(b);return Math.sqrt(a.reduce((s,v,i)=>s+(v-b[i]*gain)**2,0)/a.reduce((s,v)=>s+v*v,0))};
+ assert(distance(hybrid.left,deformed.left)>.2);assert(distance(hybrid.left,oneLevel.left)>.1);
+ const short=await ctx.render({...job,events:[{id:'staccato',startSec:.05,endSec:.25,pitch:[220],gain:[.55,.55]}]});assert.equal(short.report.events[0].phaseStarts,1,'fast source traversal must not repeatedly restart the synthesis phases');
+ const measured=await ctx.measure({samples:hybrid.left,sampleRate:sr}),reference=await ctx.measure({samples:dry.left,sampleRate:sr}),outputPixels=ctx.pixels(measured,reference,'output'),changes=ctx.pixels(measured,reference,'changes');
+ assert.equal(measured.source,'rendered-float32-pcm');assert(measured.values.some(v=>v>.01));assert.equal(measured.width,reference.width);assert.equal(outputPixels.maximum,Math.max(measured.maximum,reference.maximum));
+ let brighter=0,dimmer=0;for(let i=0;i<changes.data.length;i+=4)if(changes.data[i+3]>20){if(changes.data[i+1]===111)brighter++;if(changes.data[i+1]===174)dimmer++}assert(brighter>0&&dimmer>0);
+ const same=ctx.pixels(reference,reference,'changes');assert(same.data.every((v,i)=>i%4!==3||v===0));
+ const silence=await ctx.measure({samples:new Float32Array(sr),sampleRate:sr});assert.equal(silence.maximum,0);assert(silence.values.every(v=>v===0));
+ const tone=Float32Array.from({length:sr},(_,i)=>.3*Math.sin(2*Math.PI*220*i/sr)),single=await ctx.engine.analyze({...model,samples:tone}),singleJob={...job,model:{...model,samples:tone},mapping:ctx.engine.prepare(compiled.material,compiled.relations,single,donor)},sine=await ctx.render(singleJob);assert.equal(sine.report.recombinedFrames,0);
+ fs.writeFileSync('results/f43-spectrum-and-recombination.json',JSON.stringify({rendererRevision:hybrid.report.revision,recombinedFrames:hybrid.report.recombinedFrames,matchedDifferenceFromWarpOnly:distance(hybrid.left,deformed.left),matchedDifferenceLevels:distance(hybrid.left,oneLevel.left),spectrum:{width:measured.width,height:measured.height,source:measured.source,positivePixels:brighter,negativePixels:dimmer},sparseRecombinedFrames:sine.report.recombinedFrames},null,2));
+ console.log('PASS material splitting, independent phase transport, two structure levels, PCM spectrum, signed comparison, common scale, silence and sparse source');
+})().catch(e=>{console.error(e);process.exitCode=1});

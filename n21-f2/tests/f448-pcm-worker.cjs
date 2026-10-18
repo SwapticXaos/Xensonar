@@ -1,0 +1,48 @@
+'use strict';
+const assert=require('assert/strict'),fs=require('fs'),path=require('path'),{Worker}=require('worker_threads');
+const file=path.resolve(__dirname,'../src/forge/editor/06_pcm_spectrum_view.js');
+assert(fs.existsSync(file),'new passive view has not been implemented');
+const {forgePCMMeasurementWorker,observeForgePreviewPCM}=require(file);
+(async()=>{
+ const buffer={untouched:true},original=Promise.resolve(true),events=[];
+ const engine={playBufferInternal(...args){assert.equal(this,engine);assert.equal(args[0],buffer);return original;}};
+ const native=engine.playBufferInternal,release=observeForgePreviewPCM(engine,(...args)=>events.push(args));
+ assert.equal(engine.playBufferInternal(buffer,1,0,null,null,{playbackRate:2}),original,'observation cannot delay or replace playback promise');
+ await original;await Promise.resolve();assert.equal(events.length,1);assert.equal(events[0][0],buffer);
+ release();assert.equal(engine.playBufferInternal,native);
+ const rejected=Promise.reject(new Error('audio failure'));engine.playBufferInternal=()=>rejected;
+ const stop=observeForgePreviewPCM(engine,()=>assert.fail('failed playback must not publish'));
+ await assert.rejects(engine.playBufferInternal(buffer),/audio failure/);stop();
+ let finish;engine.playBufferInternal=()=>new Promise(resolve=>{finish=resolve});
+ const dispose=observeForgePreviewPCM(engine,()=>assert.fail('late audio must not reach a closed view'));
+ const pending=engine.playBufferInternal(buffer);dispose();finish(true);await pending;
+ const sr=48000,length=sr,pcm=Float32Array.from({length},(_,i)=>.2*Math.sin(2*Math.PI*440*i/sr)+.07*Math.sin(2*Math.PI*1320*i/sr));
+ const unchanged=pcm.slice();
+ const worker=new Worker(`const {parentPort}=require('worker_threads');global.self={postMessage:(m,t)=>parentPort.postMessage(m,t)};(${forgePCMMeasurementWorker.toString()})();parentPort.on('message',data=>self.onmessage({data}));`,{eval:true});
+ try{
+  const result=new Promise((resolve,reject)=>{worker.once('message',resolve);worker.once('error',reject)});
+  worker.postMessage({type:'begin',length,sampleRate:sr,channels:1,rate:1});
+  worker.postMessage({type:'chunk',channel:0,offset:0,samples:pcm});worker.postMessage({type:'finish'});
+  const image=await result;assert.equal(image.type,'image');assert.equal(image.height,256);assert.equal(image.durationSec,1);
+  const alpha=hz=>{const y=Math.floor(Math.log(20000/hz)/Math.log(1000)*image.height);return Math.max(...Array.from({length:5},(_,j)=>image.pixels[((y+j-2)*image.width+Math.floor(image.width/2))*4+3]));};
+  assert(alpha(440)>180,'fundamental is visible');assert(alpha(1320)>130,'third partial is visible');assert(alpha(3000)<30,'no invented harmonic at 3 kHz');
+  assert.deepEqual(pcm,unchanged,'measurement cannot modify the input audio');
+  assert.equal(image.pixels[1],225);assert.equal(image.pixels[2],203);
+  const quietResult=new Promise((resolve,reject)=>{worker.once('message',resolve);worker.once('error',reject)});
+  worker.postMessage({type:'begin',length,sampleRate:sr,channels:1,rate:1});
+  worker.postMessage({type:'chunk',channel:0,offset:0,samples:pcm.map(v=>v*.001)});worker.postMessage({type:'finish'});
+  const quiet=await quietResult;
+  assert(Math.max(...Array.from({length:quiet.width*quiet.height},(_,i)=>quiet.pixels[i*4+3]))>200,'the same spectrum remains readable for quiet listening methods without changing audio gain');
+  const silentResult=new Promise(resolve=>worker.once('message',resolve));
+  worker.postMessage({type:'begin',length:sr,sampleRate:sr,channels:1,rate:1});worker.postMessage({type:'finish'});
+  const silent=await silentResult;assert(silent.pixels.every((value,i)=>i%4!==3||value===0),'silence cannot invent a normalized spectrum');
+  const stereoResult=new Promise(resolve=>worker.once('message',resolve));
+  const tone=Float32Array.from({length:sr},(_,i)=>.2*Math.sin(2*Math.PI*440*i/sr));
+  worker.postMessage({type:'begin',length:sr,sampleRate:sr,channels:2,rate:2});
+  worker.postMessage({type:'chunk',channel:0,offset:0,samples:tone});worker.postMessage({type:'chunk',channel:1,offset:0,samples:tone.map(v=>-v)});worker.postMessage({type:'finish'});
+  const stereo=await stereoResult;assert.equal(stereo.durationSec,.5);
+  const row=Math.floor(Math.log(20000/880)/Math.log(1000)*256),center=Math.floor(stereo.width/2);
+  assert(Math.max(...[-2,-1,0,1,2].map(d=>stereo.pixels[((row+d)*stereo.width+center)*4+3]))>200,'playback transposition and opposite stereo phase remain visible');
+ }finally{await worker.terminate()}
+ console.log('PASS transparent preview observation, failure/disposal isolation, real Worker FFT and cyan harmonics');
+})().catch(e=>{console.error(e);process.exitCode=1});

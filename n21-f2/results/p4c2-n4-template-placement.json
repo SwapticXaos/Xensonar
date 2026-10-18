@@ -1,0 +1,197 @@
+{
+  "cases": 9,
+  "channelSamples": 108544,
+  "scope": "actual V2 state construction after controller/Worker template installation; no sample-path approximations",
+  "legacyN3TemplateCompatible": true,
+  "rows": [
+    {
+      "nodes": 3,
+      "rate": 44100,
+      "poolStates": 8,
+      "before": {
+        "exp": 8,
+        "log": 48,
+        "pow": 8,
+        "sqrt": 8,
+        "sin": 0,
+        "cos": 0
+      },
+      "after": {
+        "exp": 0,
+        "log": 0,
+        "pow": 0,
+        "sqrt": 0,
+        "sin": 0,
+        "cos": 0
+      }
+    },
+    {
+      "nodes": 3,
+      "rate": 48000,
+      "poolStates": 8,
+      "before": {
+        "exp": 8,
+        "log": 48,
+        "pow": 8,
+        "sqrt": 8,
+        "sin": 0,
+        "cos": 0
+      },
+      "after": {
+        "exp": 0,
+        "log": 0,
+        "pow": 0,
+        "sqrt": 0,
+        "sin": 0,
+        "cos": 0
+      }
+    },
+    {
+      "nodes": 3,
+      "rate": 96000,
+      "poolStates": 4,
+      "before": {
+        "exp": 4,
+        "log": 24,
+        "pow": 4,
+        "sqrt": 4,
+        "sin": 0,
+        "cos": 0
+      },
+      "after": {
+        "exp": 0,
+        "log": 0,
+        "pow": 0,
+        "sqrt": 0,
+        "sin": 0,
+        "cos": 0
+      }
+    },
+    {
+      "nodes": 7,
+      "rate": 44100,
+      "poolStates": 4,
+      "before": {
+        "exp": 4,
+        "log": 56,
+        "pow": 4,
+        "sqrt": 4,
+        "sin": 0,
+        "cos": 0
+      },
+      "after": {
+        "exp": 0,
+        "log": 0,
+        "pow": 0,
+        "sqrt": 0,
+        "sin": 0,
+        "cos": 0
+      }
+    },
+    {
+      "nodes": 7,
+      "rate": 48000,
+      "poolStates": 4,
+      "before": {
+        "exp": 4,
+        "log": 56,
+        "pow": 4,
+        "sqrt": 4,
+        "sin": 0,
+        "cos": 0
+      },
+      "after": {
+        "exp": 0,
+        "log": 0,
+        "pow": 0,
+        "sqrt": 0,
+        "sin": 0,
+        "cos": 0
+      }
+    },
+    {
+      "nodes": 7,
+      "rate": 96000,
+      "poolStates": 2,
+      "before": {
+        "exp": 2,
+        "log": 28,
+        "pow": 2,
+        "sqrt": 2,
+        "sin": 0,
+        "cos": 0
+      },
+      "after": {
+        "exp": 0,
+        "log": 0,
+        "pow": 0,
+        "sqrt": 0,
+        "sin": 0,
+        "cos": 0
+      }
+    },
+    {
+      "nodes": 12,
+      "rate": 44100,
+      "poolStates": 2,
+      "before": {
+        "exp": 2,
+        "log": 48,
+        "pow": 2,
+        "sqrt": 2,
+        "sin": 0,
+        "cos": 0
+      },
+      "after": {
+        "exp": 0,
+        "log": 0,
+        "pow": 0,
+        "sqrt": 0,
+        "sin": 0,
+        "cos": 0
+      }
+    },
+    {
+      "nodes": 12,
+      "rate": 48000,
+      "poolStates": 2,
+      "before": {
+        "exp": 2,
+        "log": 48,
+        "pow": 2,
+        "sqrt": 2,
+        "sin": 0,
+        "cos": 0
+      },
+      "after": {
+        "exp": 0,
+        "log": 0,
+        "pow": 0,
+        "sqrt": 0,
+        "sin": 0,
+        "cos": 0
+      }
+    },
+    {
+      "nodes": 12,
+      "rate": 96000,
+      "poolStates": 1,
+      "before": {
+        "exp": 1,
+        "log": 24,
+        "pow": 1,
+        "sqrt": 1,
+        "sin": 0,
+        "cos": 0
+      },
+      "after": {
+        "exp": 0,
+        "log": 0,
+        "pow": 0,
+        "sqrt": 0,
+        "sin": 0,
+        "cos": 0
+      }
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "unchangedCursorFrames": 100,
+  "oneStepEdit": {
+    "waveEvaluations": 4,
+    "particleEvaluations": 2
+  },
+  "oneRatioEdit": {
+    "roots": 3,
+    "particleEvaluations": 3
+  },
+  "removedStepEvaluations": 0
+}

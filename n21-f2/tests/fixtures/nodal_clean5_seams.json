@@ -1,0 +1,85 @@
+[
+  {
+    "file": "src/audio/01_voice_and_rfl_ownership.js",
+    "baselineSha256": "b9065c7d3e7b2e97c65795832e59576cfd6ba0a3caa2f807e66f5c012e7c5b3a",
+    "seams": [
+      {
+        "position": 16307,
+        "after": ",nodalAudio:nodalAudio",
+        "before": ""
+      },
+      {
+        "position": 16683,
+        "after": "const nodalBackend=useNodalInstallationBackend(P,s,{width:mu,height:tc,referenceHz:t,name:b,room:nodalAudio?.room,audio:nodalAudio});",
+        "before": ""
+      },
+      {
+        "position": 16837,
+        "after": "({...",
+        "before": ""
+      },
+      {
+        "position": 17511,
+        "after": "}),nodalInstrumentBackend:nodalBackend",
+        "before": ""
+      },
+      {
+        "position": 17590,
+        "after": ",nodalBackend",
+        "before": ""
+      }
+    ]
+  },
+  {
+    "file": "src/app/forge/01_room_shell.js",
+    "baselineSha256": "db0a80c406a0d49e04cbd689326b5c1fd6e89f56bf2312da0d8b03ffd53bce0c",
+    "seams": [
+      {
+        "position": 41756,
+        "after": ",nodalAudio:{room:e,ensureReady:Bs,getContext:()=>Lr.current??i,getOutput:Hh,acquire:cost=>acquireNodalPreviewAdmission({context:Lr.current??i,runtime:hl.current,allowStart:ctx=>kc(ctx,\"particle\"),activeTones:eo},cost)}",
+        "before": ""
+      }
+    ]
+  },
+  {
+    "file": "src/rhythm/02_bass_and_rack.js",
+    "baselineSha256": "67f0fbd4ec8b7d7a2ca9ad5b33e809ec76fd6990763e1f3ed09537390f6fb67c",
+    "seams": [
+      {
+        "position": 114701,
+        "after": ",...nodalPersistedNodeFields(t)",
+        "before": ""
+      },
+      {
+        "position": 115666,
+        "after": ",...nodalPersistedNodeFields(o)",
+        "before": ""
+      },
+      {
+        "position": 115711,
+        "after": "...nodalPersistedInstrument(e),",
+        "before": ""
+      },
+      {
+        "position": 116808,
+        "after": ",...nodalPersistedNodeFields(t)",
+        "before": ""
+      },
+      {
+        "position": 117773,
+        "after": ",...nodalPersistedNodeFields(t)",
+        "before": ""
+      },
+      {
+        "position": 119420,
+        "after": "__XenNodalInstallation.checkpoint(e.topologyRefs,t);",
+        "before": ""
+      },
+      {
+        "position": 119677,
+        "after": "n),__XenNodalInstallation.restore(e.topologyRefs,",
+        "before": ""
+      }
+    ]
+  }
+]

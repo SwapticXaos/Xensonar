@@ -1,0 +1,24 @@
+'use strict';
+const assert=require('node:assert/strict'),fs=require('node:fs'),vm=require('node:vm');
+const boot=fs.readFileSync('src/app/forge/02_boot_and_workspace_tools.js','utf8');
+const start=boot.indexOf('function removeLastMelodicInstrument(');
+const end=boot.indexOf('function Xa(',start);
+assert(start>0&&end>start,'L4 reversible-slot helper located');
+const ctx={MELODIC_INSTRUMENT_LIMIT:8,melodicInstrumentTracks:c=>c.tracks.filter(t=>!t.imported),Vp:Array.from({length:4},(_,i)=>({id:`i${i+1}`})),MELODIC_EXTRA_TRACKS:Array.from({length:4},(_,i)=>({id:`i${i+5}`}))};
+vm.createContext(ctx);vm.runInContext(boot.slice(start,end)+';this.remove=removeLastMelodicInstrument;this.add=addMelodicInstrument;',ctx);
+const composer={tracks:ctx.Vp.map(x=>({...x})),notes:[],activeTrackIds:ctx.Vp.map(x=>x.id),selectedTrackId:'i1',selectedNoteId:null};
+assert.equal(ctx.remove(composer),null,'cannot remove a base lane');
+for(let n=5;n<=8;n++){assert.equal(ctx.add(composer).id,`i${n}`);assert.equal(composer.tracks.length,n)}
+assert.equal(ctx.add(composer),null,'cannot exceed max eight');
+composer.notes.push({id:'saved-note',trackId:'i8',data:'local'}, {id:'base-note',trackId:'i2',data:'preserve'});composer.selectedTrackId='i8';composer.selectedNoteId='saved-note';
+assert.equal(ctx.remove(composer).id,'i8');assert.equal(composer.notes.length,1);assert.equal(composer.notes[0].id,'base-note');
+assert.equal(composer.selectedTrackId,'i1');assert.equal(composer.selectedNoteId,null);
+for(let n=7;n>=5;n--)assert.equal(ctx.remove(composer).id,`i${n}`);
+assert.equal(composer.tracks.length,4);assert.equal(composer.activeTrackIds.length,4);
+assert.equal(composer.notes.length,1);assert.equal(ctx.remove(composer),null);
+const u=fs.readFileSync('src/forge_and_melodic/06_note_editor_and_material_tools.js','utf8');
+assert(u.includes('if(count&&!window.confirm('),'populated additional tracks must require confirmation in UI');
+const room=fs.readFileSync('src/app/forge/01_room_shell.js','utf8');
+assert(room.includes('(e==="RESONANCE"&&__f356ShowRuntimeDiagnosis())'),'runtime settings mounted only in actual Main Room');
+assert(!room.includes('(e==="MAIN"&&__f356ShowRuntimeDiagnosis())'));
+console.log('PASS L4 optional instrument lifecycle 4↔8, notes and base lanes preserved, destructive confirmation and real room guard');

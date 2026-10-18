@@ -1,0 +1,1 @@
+@media(max-width:1023px){[data-forge-sidebar-grid="true"][data-forge-sidebar-collapsed="true"]{grid-template-columns:minmax(0,1fr)!important;position:relative}[data-forge-sidebar-grid="true"][data-forge-sidebar-collapsed="true"]>aside{position:absolute;top:0;right:0;z-index:12;width:44px;box-sizing:border-box}}

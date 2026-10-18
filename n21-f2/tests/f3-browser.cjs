@@ -1,0 +1,91 @@
+'use strict';
+const fs=require('node:fs'),path=require('node:path'),http=require('node:http'),assert=require('node:assert/strict');
+const {chromium}=require('playwright'),root=path.resolve(__dirname,'..'),manifest=require('../source-manifest.json');
+const injection='window.__f2={api:__Fractalia,emilia:__Emilia,store:pe,engine:xt,cache:__f333HearingCache,persistence:__f333Persistence,pan:__XenPan,lane:__LanePan,shared:__mlSharedDrumMachine,Grid:ph,loadImage:XK,importImage:JK,rack:__f48GetDrumRack,patchRack:__f48PatchRack,getRack:()=>__f48RackParams,stamps:Wb};';
+const html=fs.readFileSync(path.join(root,manifest.entry),'utf8').replace('</script>',injection+'</script>');
+const checks=[],errors=[],timings={};const pass=x=>(checks.push(x),console.log('PASS',x));
+(async()=>{
+ const server=http.createServer((q,r)=>{r.setHeader('Content-Type','text/html; charset=utf-8');r.end(html)});await new Promise(r=>server.listen(0,'127.0.0.1',r));
+ const executablePath=process.env.XENSONAR_CHROMIUM;
+ const browser=await chromium.launch({headless:true,executablePath:executablePath||undefined,args:[...JSON.parse(process.env.XENSONAR_CHROMIUM_ARGS||'[]'),'--no-sandbox','--autoplay-policy=no-user-gesture-required']});
+ try{
+  const page=await browser.newPage({viewport:{width:1500,height:1060},acceptDownloads:true});page.setDefaultTimeout(12000);page.on('pageerror',e=>errors.push(e.message));await page.goto('http://127.0.0.1:'+server.address().port,{waitUntil:'load'});
+  const enter=async mode=>{await page.getByRole('button',{name:'II. MATERIAL FORGE',exact:true}).click();await page.getByRole('button',{name:'SpectralForge'}).click();await page.locator('select').filter({has:page.locator('option[value=fractalia]')}).first().selectOption(mode)};
+  await enter('fractalia');await page.locator('[data-fractalia-lab=f3]').waitFor();pass('Built application opens the F3 instrument editor without runtime errors');
+  await page.evaluate(()=>{const s=__f2.store.getState(),g=s.spectralData;g.clear();g.melodicCarrier=null;for(const x of [3,g.width-4])for(const y of [3,g.height-4]){for(let dx=-2;dx<=2;dx++)for(let dy=-2;dy<=2;dy++)g.set(x+dx,y+dy,.9)}s.triggerRender();s.setViewPort({...s.viewPort,zoomX:2,offsetX:g.width*.25})});
+  const nav=page.locator('[data-forge-navigator] canvas');await nav.scrollIntoViewIfNeeded();await page.waitForFunction(()=>document.querySelector('[data-forge-navigator] canvas')?.__fullOverview);
+  const image=await nav.evaluate(c=>{const cache=c.__fullOverview;return {width:c.width,display:c.getBoundingClientRect().width,height:c.height,points:[[.002,.02],[.998,.02],[.002,.98],[.998,.98]].map(([x,y])=>{let max=0;for(let j=Math.max(0,Math.floor(y*c.height)-2);j<=Math.min(c.height-1,Math.floor(y*c.height)+2);j++)for(let i=Math.max(0,Math.floor(x*c.width)-3);i<=Math.min(c.width-1,Math.floor(x*c.width)+3);i++){const pos=(j*c.width+i)*4;max=Math.max(max,cache.pixels.data[pos],cache.pixels.data[pos+1],cache.pixels.data[pos+2])}return max})}});
+  assert(Math.abs(image.width-image.display)<=3);assert(image.points.every(v=>v>100));pass('Navigator retains all four drawing corners while the main view is zoomed');
+  // Real UI drawing, then a complete save/transfer/import cycle.
+  await page.evaluate(()=>{const s=__f2.store.getState();s.spectralData.clear();s.setViewPort({...s.viewPort,offsetX:0,zoomX:document.querySelector('[data-forge-carrier-canvas]').width/s.spectralData.width});s.triggerRender()});
+  const canvas=page.locator('[data-forge-carrier-canvas]');await canvas.scrollIntoViewIfNeeded();const box=await canvas.boundingBox();await page.mouse.move(box.x+box.width*.08,box.y+box.height*.62);await page.mouse.down();await page.mouse.move(box.x+box.width*.92,box.y+box.height*.43,{steps:30});await page.mouse.up();
+  const panel=page.locator('[data-fractalia-lab=f3]');await panel.getByLabel('Fractalia instrument name').fill('My portable contour');const downloads=[];page.on('download',d=>downloads.push(d.suggestedFilename()));
+  await panel.getByRole('button',{name:'Save Drawing as New Instrument',exact:true}).click();await page.waitForFunction(()=>__f2.api.snapshot().material&&__f2.api.libraryEntries().length===1);assert.equal(downloads.length,0);const originalMaterial=await page.evaluate(()=>JSON.stringify(__f2.api.snapshot().material));pass('Save Instrument stores an internal reusable instrument without starting a download');
+  await page.evaluate(()=>{const s=__f2.store.getState(),g=s.spectralData;g.clear();for(let x=g.width*.2|0;x<(g.width*.8|0);x++)for(let y=g.height*.68|0;y<(g.height*.69|0)+1;y++)g.set(x,y,.6);s.triggerRender()});
+  const before=await page.evaluate(()=>({data:Array.from(__f2.store.getState().spectralData.data),material:JSON.stringify(__f2.api.snapshot().material)}));assert.equal(before.material,originalMaterial);
+  const started=Date.now();await page.locator('[data-xensonar-spectralforge-render-fill-button]').click();await page.waitForFunction(()=>__f2.engine.currentSource?.buffer,{timeout:60000});timings.mainPlayReadyMs=Date.now()-started;
+  const played=await page.evaluate(()=>{const buffer=__f2.engine.currentSource.buffer,a=buffer.getChannelData(0);return {frames:a.length,finite:a.every(Number.isFinite),audible:a.some(v=>Math.abs(v)>.001),seconds:buffer.duration}});assert(played.finite&&played.audible);pass('Main Play renders the new melody with the retained native instrument');
+  await page.evaluate(()=>__f2.engine.stop());
+  const wavPromise=page.waitForEvent('download');await page.locator('button').filter({hasText:'⬇ WAV'}).last().click();const wavDownload=await wavPromise;const wavBytes=fs.readFileSync(await wavDownload.path());assert.equal(wavBytes.toString('ascii',0,4),'RIFF');assert(wavBytes.length>1000);pass('The same listening branch exports a complete WAV through the real Output button');
+  const promise=page.waitForEvent('download');await panel.getByRole('button',{name:'Export Instrument',exact:true}).click();const download=await promise;const file=await download.path(),portable=JSON.parse(fs.readFileSync(file,'utf8'));assert.equal(portable.schema,'xensonar.fractalia-instrument');assert(portable.recipe.material);pass('Export Instrument writes a portable native recipe');
+  await panel.locator('input[type=file]').setInputFiles({name:'portable.json',mimeType:'application/json',buffer:Buffer.from(JSON.stringify(portable))});await page.waitForFunction(()=>__f2.api.snapshot().name==='My portable contour');assert.deepEqual(await page.evaluate(()=>Array.from(__f2.store.getState().spectralData.data)),before.data);pass('Instrument import retains the destination drawing byte for byte');
+  // A second drawing must create a genuinely separate stored material.
+  await panel.getByLabel('Fractalia instrument name').fill('Second drawing');
+  await panel.getByRole('button',{name:'Save Drawing as New Instrument',exact:true}).click();
+  await page.waitForFunction(()=>__f2.api.libraryEntries().length===2);
+  const transfer=await page.evaluate(async()=>{const f=__f2,s=f.store.getState(),entries=f.api.libraryEntries(),destination=Array.from(s.spectralData.data),duration=s.materialExport.bars*4*60/s.materialExport.bpm;
+   f.api.loadInstrument(entries[1].id);const a=f.api.snapshot(),aa=await f.api.atlasFor({grid:s.spectralData,durationSec:duration});
+   f.api.loadInstrument(entries[0].id);const b=f.api.snapshot(),bb=await f.api.atlasFor({grid:s.spectralData,durationSec:duration});
+   return {a:JSON.stringify(a.material),b:JSON.stringify(b.material),ratiosA:aa.modes.map(m=>m.ratio),ratiosB:bb.modes.map(m=>m.ratio),retained:destination.every((v,i)=>v===s.spectralData.data[i])}});
+  assert.notEqual(transfer.a,transfer.b);assert(transfer.retained);pass('Save A, draw B, save B stores both original templates; loading either preserves the melody');
+  await panel.getByLabel('Fractalia instrument name').fill('Second revised');
+  const savedTemplate=await page.evaluate(()=>JSON.stringify(__f2.api.snapshot().material));
+  await panel.getByRole('button',{name:'Save Instrument Changes',exact:true}).click();
+  await page.waitForFunction(()=>__f2.api.snapshot().name==='Second revised');
+  assert.equal(await page.evaluate(()=>JSON.stringify(__f2.api.snapshot().material)),savedTemplate);
+  assert.equal(await page.evaluate(()=>__f2.api.libraryEntries().length),2);pass('Save Instrument Changes updates the active entry without recapturing or duplicating it');
+  await page.evaluate(()=>{__f2.api.loadInstrument(__f2.api.libraryEntries()[1].id)});
+  const invalid={schema:'xensonar.fractalia-instrument',version:3};
+  const preInvalid=await page.evaluate(()=>JSON.stringify(__f2.api.snapshot()));
+  await panel.locator('input[type=file]').setInputFiles({name:'empty.json',mimeType:'application/json',buffer:Buffer.from(JSON.stringify(invalid))});
+  await page.waitForFunction(()=>document.querySelector('[data-fractalia-lab=f3] [role=status]').textContent.includes('no saved instrument material'));
+  assert.equal(await page.evaluate(()=>JSON.stringify(__f2.api.snapshot())),preInvalid);pass('An incomplete import reports failure and retains the active instrument');
+  const rollback=await page.evaluate(async()=>{const api=__f2.api,old=Storage.prototype.setItem,before=localStorage.getItem('xensonar.fractalia.instruments.v4'),snapshot=JSON.stringify(api.snapshot());let failed=false;
+   Storage.prototype.setItem=function(k,v){if(k==='xensonar.fractalia.f4')throw new DOMException('Full','QuotaExceededError');return old.call(this,k,v)};
+   try{await api.saveActiveInstrument({name:'Must fail'})}catch{failed=true}finally{Storage.prototype.setItem=old}
+   return {failed,libraryRetained:localStorage.getItem('xensonar.fractalia.instruments.v4')===before,snapshotRetained:JSON.stringify(api.snapshot())===snapshot}});
+  assert(rollback.failed&&rollback.libraryRetained&&rollback.snapshotRetained);pass('A failed browser-storage commit retains the library and active instrument');
+  const beforeRename=await page.evaluate(async()=>{const f=__f2,s=f.store.getState(),a=await f.api.atlasFor({grid:s.spectralData,durationSec:1}),key=f.api.semanticKey(f.api.snapshot());await f.api.saveActiveInstrument({name:'Renamed only'});const b=await f.api.atlasFor({grid:s.spectralData,durationSec:1});return {same:a===b,keySame:key===f.api.semanticKey(f.api.snapshot())}});assert(beforeRename.same&&beforeRename.keySame);pass('Renaming preserves the acoustic identity and compiled instrument cache');
+  // Return to the first template for the persistence assertions below.
+  await page.evaluate(()=>__f2.api.loadInstrument(__f2.api.libraryEntries()[1].id));
+  // Both legacy and modern stamps share the visible library.
+  const library=page.locator('[data-stamp-library]');await library.getByRole('button',{name:/Stamp Library/}).click();assert.equal(await library.locator('[data-stamp-preset]').count(),56);await library.locator('[data-stamp-preset]').first().click();assert(await page.evaluate(()=>__f2.store.getState().stampData?.data.length>0));
+  await library.getByRole('button',{name:'Save Current Stamp Again',exact:true}).click();await page.waitForFunction(()=>document.querySelector('[data-stamp-library]').textContent.includes('1 Custom'));pass('All 56 presets are visible, directly loadable, and can become custom stamps');
+  // The actual image decoder and importer: wide, faint and transparent art.
+  const imported=await page.evaluate(async()=>{const f=__f2,c=document.createElement('canvas');c.width=1600;c.height=400;const d=c.getContext('2d');d.clearRect(0,0,1600,400);d.strokeStyle='#aaa';d.lineWidth=8;d.beginPath();d.moveTo(2,200);d.lineTo(1598,200);d.stroke();d.fillStyle='#000';d.fillRect(2,20,14,14);d.fillRect(1584,366,14,14);
+   const blob=await new Promise(r=>c.toBlob(r)),img=await f.loadImage(new File([blob],'faint-art.png',{type:'image/png'})),grid=new f.Grid(512,128);grid.melodicCarrier={old:true};await f.importImage(img,grid,{fitMode:'containLeft',shiftX:0,shiftY:0,contrast:.22,readMode:'legacy'});
+   let left=0,right=0;for(let y=0;y<grid.height;y++)for(let x=0;x<12;x++){left+=grid.get(x,y);right+=grid.get(grid.width-1-x,y)}
+   return {sum:grid.data.reduce((a,b)=>a+b,0),left,right,melodicCarrier:grid.melodicCarrier,width:img.naturalWidth,height:img.naturalHeight}});assert(imported.sum>0&&imported.left>0&&imported.right>0);assert.equal(imported.melodicCarrier,null);pass('Wide transparent and faint images import fully and discard stale score metadata');
+  // Emilia must also accept non-harmonic / high image contours.
+  const emilia=await page.evaluate(async()=>{const f=__f2,g=new f.Grid(256,128);for(let x=12;x<244;x++)for(let y=0;y<3;y++)g.set(x,y,.6);let t=performance.now();const buffer=await f.emilia.renderCarrier({grid:g,durationSec:.35});const a=buffer.getChannelData(0);return {frames:a.length,finite:a.every(Number.isFinite),audible:a.some(v=>Math.abs(v)>.0001),ms:performance.now()-t}});assert(emilia.finite&&emilia.audible);timings.emiliaHighImageMs=emilia.ms;pass('Emilia renders an image above the former pitch refusal boundary');
+  // Mixer routing is verified with real OfflineAudioContext stereo output.
+  const pan=await page.evaluate(async()=>{const f=__f2,results=[];for(const kind of ['material','rootFollow','bass'])for(const target of [-1,1]){f.pan.set(kind,target);const ctx=new OfflineAudioContext(2,4800,48000),source=ctx.createOscillator();source.frequency.value=220;source.connect(f.pan.route(ctx,kind,ctx.destination));source.start();const buffer=await ctx.startRendering();const energy=[0,1].map(ch=>buffer.getChannelData(ch).reduce((sum,x)=>sum+x*x,0));results.push({kind,target,energy})}return results});for(const p of pan){assert(p.energy[p.target<0?0:1]>100);assert(p.energy[p.target<0?1:0]<1e-8)}pass('Material, Root Follow and Bass pans route audio to the chosen stereo side');
+  // Save / reload native instrument and exact carrier state.
+  await page.evaluate(async()=>{await __f2.persistence.saveNow()});await page.reload({waitUntil:'load'});await page.waitForFunction(()=>__f2.persistence.status().restoreComplete);await enter('fractalia');assert.equal(await page.evaluate(()=>JSON.stringify(__f2.api.snapshot().material)),originalMaterial);assert.equal(await page.evaluate(()=>__f2.api.libraryEntries().length),2);pass('Instrument library and the pinned timbre survive full reload');
+  const firstId=await page.evaluate(()=>__f2.api.libraryEntries()[1].id);
+  await page.evaluate(async()=>{const f=__f2,s=f.store.getState();await f.api.saveInstrument({grid:s.spectralData,durationSec:s.materialExport.bars*4*60/s.materialExport.bpm,name:'Second portable contour'})});
+  await page.evaluate(async firstId=>{__f2.api.loadInstrument(firstId);await __f2.persistence.saveNow()},firstId);await page.reload({waitUntil:'load'});await page.waitForFunction(()=>__f2.persistence.status().restoreComplete);await enter('fractalia');assert.equal(await page.evaluate(()=>__f2.api.libraryEntries().length),3);pass('Saving again after reload retains the earlier library entry');
+  await page.getByRole('button',{name:'I. XENSONAR MAIN ROOM',exact:true}).click();
+  
+  await page.locator('button').filter({hasText:'🥁'}).first().click();await page.locator('[data-hotkey-scope=drum-pattern-manager]').waitFor();const header=page.locator('[data-mixer-header=drum]');assert(await header.isVisible());const controls=await header.locator('input').all();assert.equal(controls.length,2);assert.equal(await controls[0].getAttribute('aria-label'),'Drum Pan');pass('Drum Pan is immediately left of Drum Volume in the top row');
+  for(const lane of ['kick','snare','hatClosed','hatOpen','clap','perc','sample1','sample2','sample3']){
+   const label={kick:'Kick',snare:'Snare',hatClosed:'Hi-hat',hatOpen:'Open hat',clap:'Clap',perc:'Percussion',sample1:'Sample A',sample2:'Sample B',sample3:'Sample C'}[lane];
+   const button=page.locator('.xen-main-drum-grid-row').locator('button').filter({hasText:label}).first();await button.click({button:'right'});const popup=page.locator('[data-drum-lane-pan='+lane+']');await popup.waitFor();await popup.locator('input').evaluate(el=>{el.value='.42';el.dispatchEvent(new Event('input',{bubbles:true}))});assert.equal(await page.evaluate(lane=>__f2.lane.get(lane),lane),.42);await page.keyboard.press('Escape');
+  }pass('All nine drum/sample lane labels open an effective individual pan slider');
+  await page.getByRole('button',{name:'Close Window',exact:true}).click();
+  for(const [glyph,kind] of [['📀','material'],['🎼','rootFollow'],['🎸','bass']]){await page.locator('button').filter({hasText:glyph}).first().click();const h=page.locator('[data-mixer-header='+kind+']');await h.waitFor();assert(await h.isVisible());assert.equal(await h.locator('input').count(),2);await page.getByRole('button',{name:'Close Window',exact:true}).click()}
+  pass('Material Track, Root Follow and Bass managers share the same Pan / Volume header');
+  assert.deepEqual(errors,[]);pass('No uncaught application errors');
+  fs.mkdirSync(path.join(root,'results'),{recursive:true});fs.writeFileSync(path.join(root,'results/f3-browser.json'),JSON.stringify({checks,timings,navigator:image,played,imageImport:imported,errors,perceptualAcceptance:'Not judged by these checks; user listening required.'},null,2));
+ }finally{await browser.close();server.close()}
+})().catch(e=>{console.error(e.stack);process.exitCode=1});

@@ -1,0 +1,13 @@
+'use strict';
+const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/strict');
+const source=fs.readFileSync('src/forge_and_melodic/04_render_cache_and_stems.js','utf8');
+const ctx=vm.createContext({__mlSampleEpoch:0,E$:()=>2});
+vm.runInContext(source.slice(0,source.indexOf('let cP='))+';this.descriptor=__mlStemDescriptor;',ctx);
+const composer={bars:2,tracks:[{id:'a',instrumentPreset:'entrophon:a@1',enabled:true},{id:'b',instrumentPreset:'entrophon:b@1',enabled:true}],notes:[{id:'na',trackId:'a',durationUnits:1},{id:'nb',trackId:'b',durationUnits:2}],activeTrackIds:['a','b'],entrophonInstruments:{'entrophon:a@1':{name:'a',config:{waveform:'sine'}},'entrophon:b@1':{name:'b',config:{waveform:'sawtooth'}}}};
+const request={composer,bpm:120,trackIds:['a','b']},first=ctx.descriptor(request,'a');
+composer.notes[1].durationUnits=7;composer.tracks[1].volume=.2;composer.entrophonInstruments['entrophon:b@1'].config.waveform='square';
+assert.equal(ctx.descriptor(request,'a').key,first.key,'unrelated notes/mixer/recipe must not invalidate this stem');
+assert.equal(first.request.composer.tracks.length,2,'render request preserves full geometry/context');
+composer.notes[0].durationUnits=2;assert.notEqual(ctx.descriptor(request,'a').key,first.key,'own note invalidates');composer.notes[0].durationUnits=1;
+composer.entrophonInstruments['entrophon:a@1'].config.waveform='triangle';assert.notEqual(ctx.descriptor(request,'a').key,first.key,'own timbre invalidates');
+console.log('PASS P4B stem cache: unrelated instrument edits retain cached stem; own note/timbre invalidate; rendering context intact');

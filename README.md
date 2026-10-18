@@ -1,4 +1,24 @@
-# Xensonar 3.1.6 – missing-root-and-core-files pack
+# XenSonar N21–F2 · Granular Sample Hold
+
+Die aktuelle, vom Nutzer gelieferte N21–F2-Quellbasis und der Granular-Hold-Patch
+liegen in [`n21-f2/`](n21-f2/). Der ältere React-/Vite-Stand im Repository-Root
+bleibt als historischer Stand erhalten und ist nicht die Basis dieses Patches.
+
+```sh
+cd n21-f2
+npm ci
+npm run build
+npm run verify:build
+npm run test:granular
+npm run test:merge
+XEN_CHROMIUM_PATH=/usr/bin/chromium npm run test:granular:browser
+```
+
+Direkt testbare Datei: `Xensonar_direct_test_latest.html`.
+Quellen, Patch und Prüfbericht: `artifacts/`.
+Details: [`n21-f2/docs/granular-hold-report.md`](n21-f2/docs/granular-hold-report.md).
+
+## Historischer Repository-Stand: Xensonar 3.1.6
 
 This pack contains the files that Codex previously reported as missing or worth checking in a partial repository snapshot:
 

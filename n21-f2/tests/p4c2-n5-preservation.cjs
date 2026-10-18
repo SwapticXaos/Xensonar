@@ -1,0 +1,6 @@
+'use strict';
+const fs=require('node:fs'),crypto=require('node:crypto'),assert=require('node:assert/strict');
+const old=JSON.parse(fs.readFileSync('results/p4c2-n5-parent-hashes.json','utf8')),allowed=new Set(['src/rhythm/02_bass_and_rack.js','src/rhythm/04_workspace_and_transport.js','src/app/forge/01_room_shell.js','src/rhythm/03_live_drum_bodies.js','src/nodal/12_surface_runtime.js','src/nodal/04_audio_runtime.js']);let unchanged=0;
+for(const [file,hash] of Object.entries(old)){const now=crypto.createHash('sha256').update(fs.readFileSync(file)).digest('hex');if(allowed.has(file))assert.notEqual(now,hash,'Expected reviewed change missing: '+file);else{assert.equal(now,hash,'Unreviewed production change: '+file);unchanged++;}}
+const manifest=JSON.parse(fs.readFileSync('source-manifest.json','utf8'));const newFiles=manifest.files.filter(f=>!old[f]);assert.deepEqual(newFiles,['src/runtime/instrument/13_pointer_motion.js']);assert(manifest.files.indexOf(newFiles[0])<manifest.files.indexOf('src/rhythm/02_bass_and_rack.js'));
+console.log('PASS N5 preservation:',unchanged,'production source files byte-identical, only six reviewed existing files and one input helper changed; DSP/Entrophon/rhythm preserved');

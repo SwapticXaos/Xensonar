@@ -1,0 +1,32 @@
+'use strict';
+const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/strict');
+const source=fs.readFileSync('src/rhythm/02_bass_and_rack.js','utf8');
+const helpers='src/runtime/instrument/13_pointer_motion.js',frames=new Map();let seq=0;
+const context={WeakMap,requestAnimationFrame:fn=>{frames.set(++seq,fn);return seq},cancelAnimationFrame:id=>frames.delete(id),window:{addEventListener(){}},document:{activeElement:{blur(){}}},j4:e=>({x:e.clientX,y:e.clientY}),hr(){},__f447TogglePower:()=>Promise.resolve()};
+vm.createContext(context);if(fs.existsSync(helpers))vm.runInContext(fs.readFileSync(helpers,'utf8'),context);
+vm.runInContext(source.slice(source.indexOf('function due('),source.indexOf('function mue('))+';this.make=due;',context);
+const event=(x,y)=>({clientX:x,clientY:y,button:0,preventDefault(){}}),flush=()=>{const work=[...frames.values()];frames.clear();for(const f of work)f()};
+function fixture(){const raw={x:0,y:0},ball={current:{cursorX:0,cursorY:0}},calls=[],notes=[];let ready=0;
+ const stage={nexusActive:true,nexusRefs:ball,nexusParamsRef:{current:{}},gameWidth:1100,gameHeight:580,audioCtx:{state:'running'},setPlayfieldCursorInside(){},updateFocusCursor(x,y){raw.x=x;raw.y=y},commitResonanceCursorY(y){calls.push(y);return ball.current.cursorY=Math.round(y/10)*10},activeGridDragStepRef:{current:null},activeGridDragStartYRef:{current:null},getVisibleGridLines:()=>[],ensureAudioReady(){ready++;return Promise.resolve()},spawnNexusRipple(_,snap){notes.push({...snap})}};
+ return {stage,raw,ball,calls,notes,ready:()=>ready,handler:context.make(stage)};
+}
+const a=fixture();for(let i=0;i<500;i++)a.handler.onCanvasMouseMove(event(80+i*.7,100+i*.017));
+assert.equal(a.raw.y,100+499*.017,'Free cross must track raw subpixel input synchronously');
+assert.equal(a.calls.length,0,'Motion follow-up must wait for one display callback, not run 500 times');assert.equal(frames.size,1);
+flush();assert.deepEqual(a.calls,[100+499*.017]);assert.equal(a.ball.current.cursorX,80+499*.7);
+a.handler.onCanvasMouseMove(event(20,100));a.handler.onCanvasMouseDown(event(300,241));
+assert.deepEqual(a.notes,[{x:300,y:240}],'Warm click must start synchronously using its own pitch snapshot');
+assert.equal(a.ready(),0,'Running click must not wait for an audio-ready promise');
+assert.equal(frames.size,0,'Pending older motion must not overwrite a newer click');
+a.handler.onCanvasMouseDown(event(310,249));a.handler.onCanvasMouseDown(event(300,241));
+assert.deepEqual(a.notes.map(x=>x.y),[240,250,240],'Adjacent quick A-B-A clicks are distinct attacks');
+assert.equal(a.raw.y,241,'No ball quantization may write back to the raw cross');
+a.handler.onCanvasMouseMove(event(700,333.37));const newHandler=context.make({...a.stage});newHandler.onCanvasMouseMove(event(800,334.57));assert.equal(frames.size,1,'Rerenders share one current motion owner');flush();assert.equal(a.calls.at(-1),334.57);
+newHandler.onCanvasMouseMove(event(900,400));newHandler.onCanvasMouseLeave();assert.equal(frames.size,0);assert.equal(a.calls.at(-1),400,'Leave flushes the last actual input once');
+const b=fixture();b.handler.onCanvasMouseMove(event(100,110));b.stage.nexusRefs.current={cursorX:42,cursorY:43};flush();assert.equal(b.calls.length,0,'An old state cannot commit after the runtime state was replaced');
+// Keyboard/Enter wave launch must flush current input before taking its snapshot.
+const shell=fs.readFileSync('src/app/forge/01_room_shell.js','utf8'),start=shell.indexOf('qm=(ct=!0,_t)=>')+3,end=shell.indexOf(',$g=',start);
+const capture=new Function('__flushResonancePointerMotion','xn','Gr','Tt','UJ','Me','Qa','_g','zo','return '+shell.slice(start,end))((ref)=>context.__flushResonancePointerMotion(ref),a.stage.nexusRefs,true,{current:{}},100,()=>{},()=>{},()=>{},()=>{});
+a.handler.onCanvasMouseMove(event(1000,411));const atEnter=capture();assert.equal(atEnter.refs.cursorY,410,'Enter/directed waves cannot use an older pre-frame ball position');assert.equal(frames.size,0);
+a.handler.onCanvasMouseMove(event(1001,500));context.__cancelResonancePointerMotion(a.stage.nexusRefs);flush();assert.equal(a.calls.at(-1),411,'A direct keyboard commit cancels queued older pointer work');
+console.log('PASS N5 raw cursor, 500:1 motion work, synchronous adjacent clicks, no stale rollback, rerender/leave/state replacement');

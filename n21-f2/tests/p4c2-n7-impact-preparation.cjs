@@ -1,0 +1,33 @@
+'use strict';
+const fs=require('node:fs'),assert=require('node:assert/strict'),read=f=>fs.readFileSync(f,'utf8');
+const source=read('src/nodal/12_surface_runtime.js').replace('const __XenNodalSurfaces=createNodalSurfaceRuntime({library:__XenNodalLibrary,live:__XenNodalLive,model:__XenNodalModel});','');
+const {rank,create}=new Function(source+';return {rank:nodalImpactPreparationOrder,create:createNodalSurfaceRuntime};')();
+const wave={x:0,y:0,radius:0,maxRadius:400,life:1,direction:'right',hitAgents:[]};
+const agents=[{x:250,y:0,vx:0,vy:0,ratio:1,lastHit:-1000},{x:30,y:0,vx:0,vy:0,ratio:1.1,lastHit:-1000},{x:45,y:0,vx:-2,vy:0,ratio:1.2,lastHit:-1000},{x:20,y:0,vx:0,vy:0,ratio:1.3,lastHit:Infinity}];
+const prediction={state:{ripples:[wave],sectorPulses:[]},params:{agentEnabled:[true,true,true,false]},frameNowMs:1000};
+const before=JSON.stringify({agents,prediction});
+assert.deepEqual(rank(agents,prediction,6,()=>0).map(x=>x.ratio),[1.1,1.2,1,1.3]);
+assert.equal(JSON.stringify({agents,prediction}),before,'forecast cannot mutate particles, wave radii, last-hit fields or collision lists');
+const sectorAgents=[{x:-30,y:0,ratio:1,lastHit:999},{x:70,y:0,ratio:2,lastHit:999},{x:20,y:0,ratio:3,lastHit:999}];
+const sector={state:{ripples:[],sectorPulses:[{...wave,hitAgents:[2]}]},frameNowMs:1000,params:{}};
+assert.deepEqual(rank(sectorAgents,sector,6,()=>0).map(x=>x.ratio),[2,1,3],'sector rejects back/previously hit particles and has no circular-wave cooldown');
+const field={state:{ripples:[{...wave,radius:100}],sectorPulses:[]},frameNowMs:1000,params:{}};
+assert.deepEqual(rank([{x:10,y:0,ratio:1},{x:120,y:0,ratio:2}],field,6,()=>0).map(x=>x.ratio),[2,1],'particles behind an expanding front cannot steal priority');
+const calls=[],ctx={state:'running',currentTime:0},instrument={};let notes=0,tickets=0,resolutions=0,warm=false;
+const player={prepare:async()=>{},pin(){},unpin(){},route(){},dispose(){},snapshot:()=>({disposed:false}),hasPreparedFrequencies:()=>warm,prepareFrequencies:(_,frequencies)=>{calls.push(frequencies);return true;},noteOn(){notes++;}};
+const runtime=create({library:{list:()=>[{id:'A',revision:1,instrument}]},live:{createPlayer:async()=>player},model:{}});
+runtime.configure({getContext:()=>ctx,ensureReady:async()=>ctx,getOutput:()=>({}),acquire:()=>{tickets++;return null;},resolveParticleFrequency:(root,ratio)=>{resolutions++;return root*ratio;}});
+(async()=>{
+ await runtime.select('particle','nodal:A@1');runtime.warmParticleField(agents,200,ctx,prediction,6,()=>0);
+ assert.deepEqual(calls[0],[220.00000000000003,240,200,260]);
+ for(let i=0;i<100;i++)runtime.warmParticleField(agents,200,ctx,prediction,6,()=>0);
+ assert.equal(calls.length,1,'120 ms priority refresh is bounded');
+ const originalResolutions=resolutions;ctx.currentTime=.13;agents[0].x=15;runtime.warmParticleField(agents,200,ctx,prediction,6,()=>0);
+ assert.equal(calls.length,2);assert.equal(calls[1][0],200,'a changed approach reprioritizes a pending stable root');assert.equal(resolutions,originalResolutions,'priority does not recompute unchanged root/ratio Hz');
+ // A new wave may reprioritize immediately, without waiting for 120 ms.
+ prediction.state.ripples.push({...wave,x:240});runtime.warmParticleField(agents,200,ctx,prediction,6,()=>0);assert.equal(calls.length,3);
+ warm=true;ctx.currentTime=1;runtime.warmParticleField(agents,200,ctx,prediction,6,()=>0);assert.equal(calls.length,3,'fully warm family needs no further priority/geometry work');
+ assert.equal(notes,0);assert.equal(tickets,0,'predicted collisions cannot reserve audio budget');runtime.dispose();
+ fs.writeFileSync('results/p4c2-n7-impact-preparation.json',JSON.stringify({readOnlyGeometry:true,circularVelocityPrediction:true,sectorAndPastHitFiltering:true,stableHintFrames:100,notesFromPrediction:notes,ticketsFromPrediction:tickets},null,2)+'\n');
+ console.log('PASS N7 impact forecast: read-only ring/velocity/sector ranking, exact root ratios, no notes/tickets and no repeated jobs on stable pitch');
+})().catch(e=>{runtime.dispose();console.error(e);process.exitCode=1});

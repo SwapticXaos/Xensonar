@@ -1,0 +1,7 @@
+{
+  "sampleRates": 5,
+  "simultaneousTimbres": 6,
+  "channelSampleValues": 576800,
+  "stateComparisons": 5400,
+  "result": "bit-identical to N6 under interleaved mode-major rendering, shared RNG streams and arbitrary blocks"
+}

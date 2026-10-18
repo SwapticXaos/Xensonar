@@ -1,0 +1,12 @@
+const vm=require('vm'),assert=require('node:assert/strict'),fs=require('fs'),{parse}=require('./extract.cjs');
+const file=process.argv[2],p=parse(file);assert.equal(p.sf.parseDiagnostics.length,0);
+const env={Math,Number};vm.createContext(env);vm.runInContext(p.map.get('eIe')+';globalThis.resolve=eIe',env);
+let clip={id:'same-id',generatorMeta:{rootBinding:'bar-frozen'},events:[{startStep:1,ratioFromRoot:1}]};
+const base={bassClipId:clip.id,currentPlaybackCache:{id:clip.id,clip},currentBarRoot:{clipId:clip.id,barIndex:7,rootHz:55},barIndex:7,rootHz:66,readBassClipById:()=>clip};
+assert.equal(env.resolve(base).clipRootHz,55);
+clip={...clip,events:[{startStep:3,ratioFromRoot:1.5}]};const changed=env.resolve(base);
+assert.equal(changed.clip,clip,'moving a note under the same clip ID must invalidate playback data');
+assert.equal(changed.clipRootHz,55,'live edit must preserve the bar root');
+assert(changed.playbackCacheWriteRequired);
+clip=null;assert.equal(env.resolve(base).clip,null,'removal must not keep stale audio data');
+console.log('PASS same-ID edit, held bar root and removal');

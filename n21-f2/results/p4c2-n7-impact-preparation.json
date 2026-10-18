@@ -1,0 +1,8 @@
+{
+  "readOnlyGeometry": true,
+  "circularVelocityPrediction": true,
+  "sectorAndPastHitFiltering": true,
+  "stableHintFrames": 100,
+  "notesFromPrediction": 0,
+  "ticketsFromPrediction": 0
+}

@@ -1,0 +1,3 @@
+
+@media(max-width:1120px){.xen-main-drum-modal .xen-main-drum-columns{grid-template-columns:minmax(0,1fr)!important;overflow-y:auto;}}
+.xen-main-drum-modal .xen-main-drum-columns>.min-w-0{min-width:0;}

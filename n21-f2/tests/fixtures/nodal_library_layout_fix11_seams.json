@@ -1,0 +1,90 @@
+[
+  {
+    "file": "src/forge_and_melodic/06_note_editor_and_material_tools.js",
+    "baselineSha256": "0955851ca0903ef6fe53b36f7fb827d884a793626c5999527ce97902806d7b7b",
+    "seams": [
+      {
+        "position": 67128,
+        "before": "(NodalLibraryManager,{composer:d,onMutateLoopComposer:p}),u.jsx",
+        "after": ""
+      },
+      {
+        "position": 69736,
+        "before": "",
+        "after": ",u.jsx(NodalLibraryManager,{composer:d,onMutateLoopComposer:p})"
+      }
+    ]
+  },
+  {
+    "file": "src/nodal/06_melodic_bridge.js",
+    "baselineSha256": "8fb1af1005887e97261106bd4c0d60410ef0658d1e5d5e4da8389e0a910048d7",
+    "seams": [
+      {
+        "position": 6397,
+        "before": "",
+        "after": "span', {className: 'nd-library-manager-label'}, 'Nodal-Klänge'),\n    h('"
+      },
+      {
+        "position": 6647,
+        "before": "Nodal-Klänge v",
+        "after": "V"
+      }
+    ]
+  },
+  {
+    "file": "styles/20_nodal_sound_designer.css",
+    "baselineSha256": "0b264ece5b7efc30d278c62ea2c0c5829ebbdf2b6a4befbe2fbfcbca8e807347",
+    "seams": [
+      {
+        "position": 11099,
+        "before": "Nodal library management adjacent to the instrument choices",
+        "after": "compact eighth cell in the existing instrument grid"
+      },
+      {
+        "position": 11175,
+        "before": "border:1px solid ",
+        "after": "position:relative;min-width:0;margin:0;padding:0;border:0;background:transparent;color:"
+      },
+      {
+        "position": 11263,
+        "before": "",
+        "after": "d9e8e7;font-size:11px;align-self:start}\n.nd-library-manager-label{display:block;color:#9ca"
+      },
+      {
+        "position": 11354,
+        "before": "55159;border-radius:",
+        "after": "af;font-size:10px;text-transform:uppercase;letter-spacing:.13em;margin:0 0 6px;white-space:nowrap}\n.nd-library-manager>button{box-sizing:border-box;width:100%;min-height:3"
+      },
+      {
+        "position": 11529,
+        "before": "background:#102027;color:#d9e8e7;padding:8px 10px;margin:9px 0;font-size:11px}\n.nd-library-manager>button{",
+        "after": "padding:6px 4px;"
+      },
+      {
+        "position": 11621,
+        "before": "padding:",
+        "after": "cursor:pointer;font-size:11px;white-space:nowrap}\n.nd-library-manager>button:hover{background:#2d5550}\n.nd-library-manager>button:focus-visible{outline:2px solid #a5ddd2;outline-offset:2px}\n.nd-library-manager-content{position:absolute;right:0;top:calc(100% + 7px);z-index:80;box-sizing:border-box;width:min(440px,calc(100vw - 28px));max-height:min(72vh,"
+      },
+      {
+        "position": 11976,
+        "before": "px 10px;cursor:pointer}\n.nd-librar",
+        "after": "10px);overflow-"
+      },
+      {
+        "position": 11992,
+        "before": "-manager-content{padding-top:",
+        "after": ":auto;background:#102027;color:#d9e"
+      },
+      {
+        "position": 12028,
+        "before": "px}",
+        "after": "e7;border:1px solid #527c72;border-radius:8px;padding:12px;box-shadow:0 12px 36px #000a}\n"
+      },
+      {
+        "position": 12992,
+        "before": "",
+        "after": "@media(max-width:767px){.nd-library-manager-content{left:auto;right:0;width:min(440px,calc(100vw - 28px))}}\n"
+      }
+    ]
+  }
+]

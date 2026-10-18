@@ -1,0 +1,7 @@
+{
+  "src/runtime/instrument/05_timing_and_admission.js": "634775962733166523acfbba25ecf0c133701bae618976119f2453fed5df9239",
+  "src/runtime/instrument/10_entrophon_and_voice_control.js": "0a8c45b4781304947c4fc9693b278cf682be240235e3e7e1c8237326248d6bad",
+  "src/audio/05_sample_granular_hold.js": "175794655292cc35a8beeae08fa800adf0b5d2a91fb631c3663e46a0d7b5d768",
+  "src/audio/05_live_voice_runtime.js": "fee5ddaa36333d0afab30f9f3f48ebdff720ca9caeb022bd20867672a6c09103",
+  "src/app/forge/01_room_shell.js": "820785c080f205fd8598cad1a5076a23ce6591247b05b862df1431815f83c026"
+}

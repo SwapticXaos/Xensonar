@@ -1,0 +1,4 @@
+const fs=require('fs'),path=require('path'),ts=require('typescript');
+function parse(file){const html=fs.readFileSync(file,'utf8'),tag='<script type="module" crossorigin>',a=html.indexOf(tag)+tag.length,b=html.lastIndexOf('</script>');if(a<tag.length||b<a)throw Error('Missing application script');const code=html.slice(a,b),sf=ts.createSourceFile('app.js',code,ts.ScriptTarget.Latest,true,ts.ScriptKind.JS),map=new Map();for(const n of sf.statements){if(n.name?.text)map.set(n.name.text,n.getText(sf));if(ts.isVariableStatement(n))for(const d of n.declarationList.declarations)map.set(d.name.text,'var '+d.getText(sf)+';');}return{html,code,sf,map,a,b};}
+module.exports={parse};
+if(require.main===module){const d=parse(process.argv[2]);for(const n of process.argv.slice(3))console.log(d.map.get(n)||'MISSING '+n);}

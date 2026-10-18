@@ -1,0 +1,20 @@
+{
+  "cases": 108,
+  "channelSampleValues": 9702873,
+  "irregularBlocks": 84028,
+  "snapshotComparisons": 3936,
+  "baseline": "P4C2-N3",
+  "checks": [
+    "full release and natural tails",
+    "early release before attack",
+    "automatic gate",
+    "gliss after release",
+    "custom seed/pitch/volume curves",
+    "zero gain/velocity",
+    "3/7/12-node and single impulse",
+    "body 0/1, natural 0/1, width/register/follow",
+    "prepared templates and reset after completed tail",
+    "mono/alias/stereo, accumulate/overwrite, arbitrary offsets and frame sizes"
+  ],
+  "result": "bit-identical Float32 output and exact snapshots"
+}

@@ -1,0 +1,59 @@
+.xen-source-heading{display:flex;justify-content:space-between;align-items:center;gap:6px}.xen-source-octave{display:inline-flex;align-items:center;gap:4px;font-size:10px;color:#a5b4c8}.xen-source-octave button{width:22px;height:22px;border:1px solid #334155;border-radius:5px;color:#e2e8f0;background:#0b1220}.xen-source-octave button:hover{border-color:#67e8f9;background:#12303a}.xen-source-octave button:disabled{opacity:.3}.xen-source-octave output{min-width:18px;text-align:center;font-variant-numeric:tabular-nums}
+.xen-quick-dock{position:fixed;left:12px;bottom:72px;width:210px;min-height:0;max-height:none;overflow:visible;z-index:40;padding:8px;border:0;border-radius:7px;background:transparent;color:#b4c9bf;pointer-events:auto;isolation:isolate}.xen-quick-dock:has(.xen-quick-tile):not(.is-migrated){background:transparent}.xen-quick-signal{position:absolute;inset:0;background:#19d26b;pointer-events:none;z-index:2;border-radius:inherit;animation:xenQuickPulse 1.15s ease-out 2 forwards}.xen-quick-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));align-items:start;gap:4px}.xen-quick-column{display:flex;flex-direction:column;gap:5px;min-width:0}.xen-quick-tile{display:flex;align-items:center;justify-content:center;white-space:nowrap;min-width:0;width:100%;padding:0;font-variant-numeric:tabular-nums}.xen-quick-tile{min-height:34px;border:1px solid #294632;border-radius:5px;background:#0c2414;color:#e2eee7;font-size:11px;transition:background .15s}.xen-quick-tile:hover{background:#144326;border-color:#6ee7b7}.xen-quick-tile:focus-visible{outline:2px solid #6ee7b7;outline-offset:2px}.xen-quick-rfl{background:white;border-radius:50%;color:black}.xen-quick-badge{margin-left:6px;font-size:12px}.xen-quick-confirm{display:flex;flex-wrap:wrap;gap:6px;padding-top:8px;font-size:11px}.xen-quick-confirm span{width:100%}.xen-quick-confirm button{border:1px solid #54645c;border-radius:5px;padding:4px 6px}.xen-quick-confirm button:first-of-type{color:#fda4af;border-color:#9f3452}
+@keyframes xenQuickPulse{0%{opacity:0}30%{opacity:.6}100%{opacity:0}}
+[data-xen-header-menu]{outline:none}
+@media(prefers-reduced-motion:reduce){.xen-quick-signal{animation-duration:.3s}}
+@media(max-width:900px){.xen-quick-dock{width:158px;max-height:22vh;left:6px;bottom:62px}}
+
+/* N12: separate, permanently discoverable drop zone and bounded five-column display. */
+.xen-quick-dock{padding:0}
+.xen-quick-dock.is-ready{outline:1px solid #197642;outline-offset:-2px}
+.xen-quick-collection{position:absolute;left:0;bottom:0;width:100%;padding:8px;border-radius:7px;background:#07130b;overflow:visible;overscroll-behavior:auto;max-height:none;}
+.xen-quick-collection:has(.xen-quick-grid:not(:has(.xen-quick-tile))):not(:has(.xen-quick-confirm)){background:transparent}
+.xen-quick-collection.is-migrated{position:fixed;left:auto;top:156px;bottom:auto;box-sizing:border-box;z-index:41;max-height:none;border:1px solid #17402a}
+.xen-quick-dock.is-migrated{background:rgba(7,19,11,.28)}
+.xen-quick-grid{grid-template-columns:repeat(5,minmax(0,1fr));gap:4px}
+.xen-quick-tile{font-size:10px}
+@media(max-width:900px){.xen-quick-collection{max-height:100%}}
+
+/* N17: tooltip is informational, not an input layer; no hitbox can mask a library. */
+.xen-quick-hover-info{position:fixed;display:none;pointer-events:none;z-index:185;
+ max-width:min(290px,calc(100vw - 16px));width:max-content;white-space:normal;
+ padding:7px 10px;font-size:12px;line-height:1.4;color:#d9f6e5;
+ background:#0b291b;border:1px solid #19d26b;border-radius:6px;
+ box-shadow:0 6px 18px #000a}
+
+/* N18: Pointer export escapes a modal without relying on native browser drag image.
+   Ghost is strictly visual; it never intercepts clicks, pointer or drop events. */
+.xen-quick-pointer-ghost{position:fixed;z-index:220;pointer-events:none;
+ max-width:260px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+ padding:7px 11px;border-radius:7px;border:1px solid #20d678;
+ background:#102a1e;color:#e8fff1;font-size:12px;line-height:19px;
+ box-shadow:0 6px 18px #0009;opacity:.88}
+.xen-quick-pointer-ghost.is-over{border-color:#92ffc5;background:#17462e;opacity:1}
+.xen-quick-pointer-dragging,.xen-quick-pointer-dragging *{user-select:none!important}
+.xen-quick-dock.xen-quick-pointer-over{outline:2px solid #60ffa3;outline-offset:-2px;
+ background:rgba(18,109,53,.25)}
+
+/* N19: one visible ghost, with library operation or quick-access feedback. */
+.xen-quick-pointer-dragging [data-xen-sort-preview]{display:none}
+.xen-quick-pointer-ghost{max-width:min(480px,calc(100vw - 8px))}
+.xen-quick-pointer-ghost.is-sorting{border-color:#d879ed;background:#2d1535}
+[data-xen-quick-kind][data-xen-quick-id]{cursor:grab;touch-action:none}
+.xen-quick-pointer-dragging,.xen-quick-pointer-dragging *{cursor:grabbing!important}
+.xen-quick-pointer-over .xen-quick-collection:not(.is-migrated){outline:2px solid #60ffa3;outline-offset:-2px;background:#10351d}
+/* Intrinsic wrapping keeps the header menus clear of the status indicators. */
+[data-xen-status-row]{flex-wrap:wrap;overflow:visible;row-gap:6px}
+[data-xen-status-menus]{flex-shrink:0;max-width:100%;display:flex;align-items:center;flex-wrap:wrap;gap:4px}
+[data-xen-status-menus]>.mx-1{margin-left:0;margin-right:0}
+
+/* N21: one fixed landing rectangle below Keyboard Pan. Stored entries may
+   relocate; the landing feedback never follows them and never scrolls. */
+.xen-quick-dock{bottom:72px;max-height:none;overflow:visible}
+.xen-quick-collection{overflow:visible;max-height:none;overscroll-behavior:auto}
+.xen-quick-collection.is-migrated{max-height:none}
+.xen-quick-collection.is-document{position:absolute;top:156px;bottom:auto}
+[data-xen-quick-page-list] [aria-label="Place a marker in the recording"]{position:absolute!important;bottom:auto!important;height:120px}
+.xen-quick-dock>.xen-quick-signal{position:absolute;inset:0;z-index:2;pointer-events:none}
+.xen-quick-dock.is-migrated{background:transparent}
+@media(max-width:900px){.xen-quick-dock,.xen-quick-collection{max-height:none}}

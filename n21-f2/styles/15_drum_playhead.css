@@ -1,0 +1,4 @@
+
+.xen-main-drum-marker-track .xen-drum-start-marker{cursor:default;pointer-events:none;color:#67e8f9}
+.xen-main-drum-marker-track .xen-drum-marker-playing,
+.xen-main-drum-marker-track .xen-drum-start-marker.xen-drum-marker-playing{color:#4ade80;text-shadow:0 0 8px rgba(74,222,128,.75);filter:brightness(1.2)}

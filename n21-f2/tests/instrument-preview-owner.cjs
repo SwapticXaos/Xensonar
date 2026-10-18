@@ -1,0 +1,22 @@
+'use strict';
+const fs=require('node:fs'),assert=require('node:assert/strict');
+const source=fs.readFileSync('src/rhythm/04_workspace_and_transport.js','utf8');
+const preview=source.slice(source.indexOf('const bEe=new WeakMap'),source.indexOf('function AEe('));
+let picks=[],started=[];const surfaces={async preview(...args){picks.push(args);return {id:'preview'}}};
+const compile=new Function('__XenNodalSurfaces','$w','BT','bw',preview+';return {SEe,vEe}');
+const methods=compile(surfaces,id=>({kind:id==='sample:x'?'sample':'preset',sampleId:'x'}),id=>({kind:'preset'}),async()=>true);
+const ctx={state:'running'};
+const waveRef={current:{enabled:false,preset:'legacy:a',volume:.1}};
+const paramsRef={current:{particlePreset:'legacy:p',particleVolume:.18,waveOvertonesEnabled:true}};
+const overtoneRef={current:['arp-current']};let classicOptions;
+(async()=>{
+ await methods.SEe({initAudio:async()=>ctx,selectionId:'nodal:A@1',waveSoundRuntimeRef:waveRef,waveOvertoneArpQueueRef:overtoneRef,nexusParamsRef:paramsRef,playWaveStartSound:()=>{throw new Error('wrong path')}});
+ assert.equal(picks[0][0],'wave');assert.equal(picks[0][1],'nodal:A@1');
+ assert.equal(waveRef.current.preset,'legacy:a');assert.equal(waveRef.current.enabled,false);assert.deepEqual(overtoneRef.current,['arp-current']);
+ await methods.SEe({initAudio:async()=>ctx,selectionId:'legacy:b',waveSoundRuntimeRef:waveRef,waveOvertoneArpQueueRef:overtoneRef,nexusParamsRef:paramsRef,playWaveStartSound:(hz,sector,opts)=>{classicOptions=opts}});
+ assert.deepEqual(classicOptions,{waveStarterPresetOverride:'legacy:b',waveStarterPreview:true});
+ assert.equal(waveRef.current.preset,'legacy:a');assert.equal(waveRef.current.enabled,false);assert.equal(paramsRef.current.waveOvertonesEnabled,true);
+ await methods.vEe({initAudio:async()=>ctx,selectionId:'nodal:B@1',nexusParamsRef:paramsRef,playNexusAgentTone:()=>{throw Error('wrong path')}});
+ assert.equal(picks[1][0],'particle');assert.equal(picks[1][1],'nodal:B@1');assert.equal(paramsRef.current.particlePreset,'legacy:p');
+ console.log('PASS P1 Nodal + Classic previews never mutate wave/particle live source, enabled flag or overtone queues');
+})().catch(e=>{console.error(e);process.exitCode=1});

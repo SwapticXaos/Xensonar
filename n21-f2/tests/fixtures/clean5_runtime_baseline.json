@@ -1,0 +1,665 @@
+{
+  "captures": [
+    {
+      "key": "[\"forge-f3.55\",\"A\",null,null,\"[0,0.2,0.4,0]\",\"12edo\",null,1,120,4,\"{\\\"params\\\":{\\\"materialPilot\\\":true,\\\"gestaltPilot\\\":false,\\\"variantRevision\\\":\\\"revised\\\",\\\"carrierTranspose\\\":0}}\",{\"amount\":0},null]",
+      "donorKey": "[\"[\\\"[0,0.2,0.4,0]\\\",null,2,48000]\",\"A\",\"{\\\"params\\\":{\\\"materialPilot\\\":true,\\\"gestaltPilot\\\":false,\\\"variantRevision\\\":\\\"revised\\\",\\\"carrierTranspose\\\":0}}\",0]",
+      "syntheticKey": "[\"[\\\"[0,0.2,0.4,0]\\\",null,2,48000]\",{\"kind\":\"vocal\",\"color\":0.4},0,null]",
+      "support": {
+        "plan": {
+          "bands": [
+            {
+              "gainCurve": [
+                0,
+                0.20000000298023224,
+                0.4000000059604645,
+                0
+              ],
+              "centerRatioCurve": [
+                1,
+                1
+              ]
+            }
+          ]
+        },
+        "length": 96000
+      },
+      "model": {
+        "sampleRate": 8000,
+        "samples": [
+          0.10000000149011612,
+          0.20000000298023224
+        ],
+        "atlas": {
+          "nodes": [
+            {
+              "center": 0
+            }
+          ]
+        },
+        "sourceIndex": {
+          "position": 0
+        }
+      },
+      "config": {
+        "params": {
+          "materialPilot": true,
+          "gestaltPilot": false,
+          "variantRevision": "revised",
+          "carrierTranspose": 0
+        }
+      },
+      "cecilia": {
+        "kind": "vocal",
+        "color": 0.4
+      },
+      "recipe": {
+        "enabled": false,
+        "amount": 0,
+        "mode": "parallel",
+        "variantRevision": "revised"
+      },
+      "sampleRate": 48000,
+      "durationSec": 2,
+      "manifest": {
+        "schema": "xensonar-forge-result-v1",
+        "audioOrigin": "SOURCE_ONLY",
+        "carrierKey": "[\"[0,0.2,0.4,0]\",null,2,48000]",
+        "donorKey": "[\"[\\\"[0,0.2,0.4,0]\\\",null,2,48000]\",\"A\",\"{\\\"params\\\":{\\\"materialPilot\\\":true,\\\"gestaltPilot\\\":false,\\\"variantRevision\\\":\\\"revised\\\",\\\"carrierTranspose\\\":0}}\",0]",
+        "syntheticKey": "[\"[\\\"[0,0.2,0.4,0]\\\",null,2,48000]\",{\"kind\":\"vocal\",\"color\":0.4},0,null]",
+        "sourceRevision": 2,
+        "sourceName": "test.wav",
+        "sourceSelection": [
+          0,
+          1
+        ],
+        "bars": 1,
+        "bpm": 120,
+        "beatsPerBar": 4,
+        "config": {
+          "params": {
+            "materialPilot": true,
+            "gestaltPilot": false,
+            "variantRevision": "revised",
+            "carrierTranspose": 0
+          }
+        },
+        "cecilia": {
+          "kind": "vocal",
+          "color": 0.4
+        },
+        "recipe": {
+          "enabled": false,
+          "amount": 0,
+          "mode": "parallel",
+          "variantRevision": "revised"
+        }
+      }
+    },
+    {
+      "key": "[\"forge-f3.55\",\"A\",null,null,\"[0,0.2,0.4,0]\",\"12edo\",null,1,120,4,\"{\\\"params\\\":{\\\"materialPilot\\\":true,\\\"gestaltPilot\\\":false,\\\"variantRevision\\\":\\\"revised\\\",\\\"carrierTranspose\\\":0,\\\"position\\\":0.7}}\",{\"enabled\":true,\"amount\":0.6,\"mode\":\"state\",\"variantRevision\":\"revised\"},{\"kind\":\"vocal\",\"color\":0.4}]",
+      "donorKey": "[\"[\\\"[0,0.2,0.4,0]\\\",null,2,48000]\",\"A\",\"{\\\"params\\\":{\\\"materialPilot\\\":true,\\\"gestaltPilot\\\":false,\\\"variantRevision\\\":\\\"revised\\\",\\\"carrierTranspose\\\":0,\\\"position\\\":0.7}}\",0]",
+      "syntheticKey": "[\"[\\\"[0,0.2,0.4,0]\\\",null,2,48000]\",{\"kind\":\"vocal\",\"color\":0.4},0,[\"[\\\"[\\\\\\\"[0,0.2,0.4,0]\\\\\\\",null,2,48000]\\\",\\\"A\\\",\\\"{\\\\\\\"params\\\\\\\":{\\\\\\\"materialPilot\\\\\\\":true,\\\\\\\"gestaltPilot\\\\\\\":false,\\\\\\\"variantRevision\\\\\\\":\\\\\\\"revised\\\\\\\",\\\\\\\"carrierTranspose\\\\\\\":0,\\\\\\\"position\\\\\\\":0.7}}\\\",0]\",null]]",
+      "support": {
+        "plan": {
+          "bands": [
+            {
+              "gainCurve": [
+                0,
+                0.20000000298023224,
+                0.4000000059604645,
+                0
+              ],
+              "centerRatioCurve": [
+                1,
+                1
+              ]
+            }
+          ]
+        },
+        "length": 96000
+      },
+      "model": {
+        "sampleRate": 8000,
+        "samples": [
+          0.10000000149011612,
+          0.20000000298023224
+        ],
+        "atlas": {
+          "nodes": [
+            {
+              "center": 0
+            }
+          ]
+        },
+        "sourceIndex": {
+          "position": 0.7
+        }
+      },
+      "config": {
+        "params": {
+          "materialPilot": true,
+          "gestaltPilot": false,
+          "variantRevision": "revised",
+          "carrierTranspose": 0,
+          "position": 0.7
+        }
+      },
+      "cecilia": {
+        "kind": "vocal",
+        "color": 0.4
+      },
+      "recipe": {
+        "enabled": true,
+        "amount": 0.6,
+        "mode": "state",
+        "variantRevision": "revised"
+      },
+      "sampleRate": 48000,
+      "durationSec": 2,
+      "manifest": {
+        "schema": "xensonar-forge-result-v1",
+        "audioOrigin": "SOURCE_PLUS_SYNTH",
+        "carrierKey": "[\"[0,0.2,0.4,0]\",null,2,48000]",
+        "donorKey": "[\"[\\\"[0,0.2,0.4,0]\\\",null,2,48000]\",\"A\",\"{\\\"params\\\":{\\\"materialPilot\\\":true,\\\"gestaltPilot\\\":false,\\\"variantRevision\\\":\\\"revised\\\",\\\"carrierTranspose\\\":0,\\\"position\\\":0.7}}\",0]",
+        "syntheticKey": "[\"[\\\"[0,0.2,0.4,0]\\\",null,2,48000]\",{\"kind\":\"vocal\",\"color\":0.4},0,[\"[\\\"[\\\\\\\"[0,0.2,0.4,0]\\\\\\\",null,2,48000]\\\",\\\"A\\\",\\\"{\\\\\\\"params\\\\\\\":{\\\\\\\"materialPilot\\\\\\\":true,\\\\\\\"gestaltPilot\\\\\\\":false,\\\\\\\"variantRevision\\\\\\\":\\\\\\\"revised\\\\\\\",\\\\\\\"carrierTranspose\\\\\\\":0,\\\\\\\"position\\\\\\\":0.7}}\\\",0]\",null]]",
+        "sourceRevision": 2,
+        "sourceName": "test.wav",
+        "sourceSelection": [
+          0,
+          1
+        ],
+        "bars": 1,
+        "bpm": 120,
+        "beatsPerBar": 4,
+        "config": {
+          "params": {
+            "materialPilot": true,
+            "gestaltPilot": false,
+            "variantRevision": "revised",
+            "carrierTranspose": 0,
+            "position": 0.7
+          }
+        },
+        "cecilia": {
+          "kind": "vocal",
+          "color": 0.4
+        },
+        "recipe": {
+          "enabled": true,
+          "amount": 0.6,
+          "mode": "state",
+          "variantRevision": "revised"
+        }
+      }
+    },
+    {
+      "key": "[\"forge-f3.55\",\"A\",null,null,\"[0,0.5,0.3,0]\",\"12edo\",null,1,120,4,\"{\\\"params\\\":{\\\"materialPilot\\\":true,\\\"gestaltPilot\\\":false,\\\"variantRevision\\\":\\\"revised\\\",\\\"carrierTranspose\\\":0,\\\"position\\\":0.7}}\",{\"enabled\":true,\"amount\":0.6,\"mode\":\"state\",\"variantRevision\":\"revised\"},{\"kind\":\"vocal\",\"color\":0.4}]",
+      "donorKey": "[\"[\\\"[0,0.5,0.3,0]\\\",null,2,48000]\",\"A\",\"{\\\"params\\\":{\\\"materialPilot\\\":true,\\\"gestaltPilot\\\":false,\\\"variantRevision\\\":\\\"revised\\\",\\\"carrierTranspose\\\":0,\\\"position\\\":0.7}}\",0]",
+      "syntheticKey": "[\"[\\\"[0,0.5,0.3,0]\\\",null,2,48000]\",{\"kind\":\"vocal\",\"color\":0.4},0,[\"[\\\"[\\\\\\\"[0,0.5,0.3,0]\\\\\\\",null,2,48000]\\\",\\\"A\\\",\\\"{\\\\\\\"params\\\\\\\":{\\\\\\\"materialPilot\\\\\\\":true,\\\\\\\"gestaltPilot\\\\\\\":false,\\\\\\\"variantRevision\\\\\\\":\\\\\\\"revised\\\\\\\",\\\\\\\"carrierTranspose\\\\\\\":0,\\\\\\\"position\\\\\\\":0.7}}\\\",0]\",null]]",
+      "support": {
+        "plan": {
+          "bands": [
+            {
+              "gainCurve": [
+                0,
+                0.5,
+                0.30000001192092896,
+                0
+              ],
+              "centerRatioCurve": [
+                1,
+                1
+              ]
+            }
+          ]
+        },
+        "length": 96000
+      },
+      "model": {
+        "sampleRate": 8000,
+        "samples": [
+          0.10000000149011612,
+          0.20000000298023224
+        ],
+        "atlas": {
+          "nodes": [
+            {
+              "center": 0
+            }
+          ]
+        },
+        "sourceIndex": {
+          "position": 0.7
+        }
+      },
+      "config": {
+        "params": {
+          "materialPilot": true,
+          "gestaltPilot": false,
+          "variantRevision": "revised",
+          "carrierTranspose": 0,
+          "position": 0.7
+        }
+      },
+      "cecilia": {
+        "kind": "vocal",
+        "color": 0.4
+      },
+      "recipe": {
+        "enabled": true,
+        "amount": 0.6,
+        "mode": "state",
+        "variantRevision": "revised"
+      },
+      "sampleRate": 48000,
+      "durationSec": 2,
+      "manifest": {
+        "schema": "xensonar-forge-result-v1",
+        "audioOrigin": "SOURCE_PLUS_SYNTH",
+        "carrierKey": "[\"[0,0.5,0.3,0]\",null,2,48000]",
+        "donorKey": "[\"[\\\"[0,0.5,0.3,0]\\\",null,2,48000]\",\"A\",\"{\\\"params\\\":{\\\"materialPilot\\\":true,\\\"gestaltPilot\\\":false,\\\"variantRevision\\\":\\\"revised\\\",\\\"carrierTranspose\\\":0,\\\"position\\\":0.7}}\",0]",
+        "syntheticKey": "[\"[\\\"[0,0.5,0.3,0]\\\",null,2,48000]\",{\"kind\":\"vocal\",\"color\":0.4},0,[\"[\\\"[\\\\\\\"[0,0.5,0.3,0]\\\\\\\",null,2,48000]\\\",\\\"A\\\",\\\"{\\\\\\\"params\\\\\\\":{\\\\\\\"materialPilot\\\\\\\":true,\\\\\\\"gestaltPilot\\\\\\\":false,\\\\\\\"variantRevision\\\\\\\":\\\\\\\"revised\\\\\\\",\\\\\\\"carrierTranspose\\\\\\\":0,\\\\\\\"position\\\\\\\":0.7}}\\\",0]\",null]]",
+        "sourceRevision": 2,
+        "sourceName": "test.wav",
+        "sourceSelection": [
+          0,
+          1
+        ],
+        "bars": 1,
+        "bpm": 120,
+        "beatsPerBar": 4,
+        "config": {
+          "params": {
+            "materialPilot": true,
+            "gestaltPilot": false,
+            "variantRevision": "revised",
+            "carrierTranspose": 0,
+            "position": 0.7
+          }
+        },
+        "cecilia": {
+          "kind": "vocal",
+          "color": 0.4
+        },
+        "recipe": {
+          "enabled": true,
+          "amount": 0.6,
+          "mode": "state",
+          "variantRevision": "revised"
+        }
+      }
+    }
+  ],
+  "errors": [
+    [
+      "source",
+      "Error",
+      "Please extract and activate Donor Sustain from a donor selection."
+    ],
+    [
+      "mode",
+      "Error",
+      "Please choose a compatible donor listening mode (Sound Material or Donor Sustain)."
+    ],
+    [
+      "empty",
+      "Error",
+      "The carrier figure is empty."
+    ],
+    [
+      "adapter-mode",
+      "Error",
+      "Choose an active donor listening mode before rendering."
+    ],
+    [
+      "play-failure",
+      "Error",
+      "planned render failure"
+    ],
+    [
+      "stale",
+      "AbortError",
+      "The sound recipe changed during rendering."
+    ]
+  ],
+  "adapterResults": [
+    {
+      "pcm": [
+        0.20000000298023224,
+        0.30000001192092896
+      ],
+      "material": {
+        "runs": [],
+        "projected": true
+      }
+    },
+    {
+      "pcm": [
+        0.20000000298023224,
+        0.30000001192092896
+      ],
+      "material": {
+        "runs": [],
+        "projected": true
+      }
+    },
+    {
+      "pcm": [
+        0.20000000298023224,
+        0.30000001192092896
+      ],
+      "material": {
+        "runs": []
+      }
+    },
+    {
+      "pcm": [
+        0.20000000298023224,
+        0.30000001192092896
+      ],
+      "material": {
+        "runs": []
+      }
+    },
+    {
+      "route": "synthetic-original"
+    },
+    {
+      "route": "combine-original"
+    },
+    {
+      "route": "synthetic-revised"
+    },
+    {
+      "route": "combine-revised"
+    },
+    {
+      "channels": 1,
+      "length": 2,
+      "sampleRate": 8000
+    },
+    {
+      "route": "spectrum"
+    }
+  ],
+  "played": true,
+  "signatureCalls": 17,
+  "planCalls": 3,
+  "diagnostics": {
+    "tag": "pipeline",
+    "worker": {
+      "ready": true
+    }
+  },
+  "log": [
+    [
+      "pipeline-created"
+    ],
+    [
+      "donor-worker",
+      "material-original"
+    ],
+    [
+      "project-states"
+    ],
+    [
+      "donor-worker",
+      "material-revised"
+    ],
+    [
+      "project-states"
+    ],
+    [
+      "donor-worker",
+      "gestalt-original"
+    ],
+    [
+      "donor-worker",
+      "gestalt-revised"
+    ],
+    [
+      "cecilia-worker",
+      "synthetic"
+    ],
+    [
+      "cecilia-worker",
+      "combine"
+    ],
+    [
+      "cecilia-worker",
+      "synthetic"
+    ],
+    [
+      "cecilia-worker",
+      "combine"
+    ],
+    [
+      "copy",
+      [
+        0.10000000149011612,
+        0.20000000298023224
+      ]
+    ],
+    [
+      "cecilia-worker",
+      "spectrum"
+    ],
+    [
+      "render",
+      "[\"forge-f3.55\",\"A\",null,null,\"[0,0.5,0.3,0]\",\"12edo\",null,1,120,4,\"{\\\"params\\\":{\\\"materialPilot\\\":true,\\\"gestaltPilot\\\":false,\\\"variantRevision\\\":\\\"revised\\\",\\\"carrierTranspose\\\":0,\\\"position\\\":0.7}}\",{\"enabled\":true,\"amount\":0.6,\"mode\":\"state\",\"variantRevision\":\"revised\"},{\"kind\":\"vocal\",\"color\":0.4}]"
+    ],
+    [
+      "invalidate"
+    ],
+    [
+      "worker-cancel"
+    ],
+    [
+      "audio-stop"
+    ],
+    [
+      "donor-stop"
+    ],
+    [
+      "begin"
+    ],
+    [
+      "stop-handler"
+    ],
+    [
+      "render",
+      "[\"forge-f3.55\",\"A\",null,null,\"[0,0.5,0.3,0]\",\"12edo\",null,1,120,4,\"{\\\"params\\\":{\\\"materialPilot\\\":true,\\\"gestaltPilot\\\":false,\\\"variantRevision\\\":\\\"revised\\\",\\\"carrierTranspose\\\":0,\\\"position\\\":0.7}}\",{\"enabled\":true,\"amount\":0.6,\"mode\":\"state\",\"variantRevision\":\"revised\"},{\"kind\":\"vocal\",\"color\":0.4}]"
+    ],
+    [
+      "progress",
+      7,
+      0.6
+    ],
+    [
+      "prepared",
+      7,
+      2,
+      "[\"forge-f3.55\",\"A\",null,null,\"[0,0.5,0.3,0]\",\"12edo\",null,1,120,4,\"{\\\"params\\\":{\\\"materialPilot\\\":true,\\\"gestaltPilot\\\":false,\\\"variantRevision\\\":\\\"revised\\\",\\\"carrierTranspose\\\":0,\\\"position\\\":0.7}}\",{\"enabled\":true,\"amount\":0.6,\"mode\":\"state\",\"variantRevision\":\"revised\"},{\"kind\":\"vocal\",\"color\":0.4}]",
+      false
+    ],
+    [
+      "play-buffer",
+      {
+        "tag": "buffer"
+      },
+      2,
+      0.25,
+      {
+        "playbackRate": 1,
+        "loopPreview": true,
+        "lifecycleMode": "forge-f352-hybrid",
+        "beatGuide": {
+          "bars": 1,
+          "bpm": 120,
+          "beatsPerBar": 4,
+          "loopPreview": true,
+          "loopDurationSec": 2
+        }
+      }
+    ],
+    [
+      "position",
+      0.4
+    ],
+    [
+      "finish",
+      7
+    ],
+    [
+      "end"
+    ],
+    [
+      "gain",
+      {
+        "tag": "buffer"
+      }
+    ],
+    [
+      "playing",
+      7
+    ],
+    [
+      "pipeline-unsubscribe"
+    ],
+    [
+      "audio-stop"
+    ],
+    [
+      "invalidate"
+    ],
+    [
+      "invalidate"
+    ],
+    [
+      "worker-cancel"
+    ],
+    [
+      "audio-stop"
+    ],
+    [
+      "donor-stop"
+    ],
+    [
+      "begin"
+    ],
+    [
+      "stop-handler"
+    ],
+    [
+      "render",
+      "[\"forge-f3.55\",\"A\",null,null,\"[0,0.5,0.3,0]\",\"12edo\",null,1,120,4,\"{\\\"params\\\":{\\\"materialPilot\\\":true,\\\"gestaltPilot\\\":false,\\\"variantRevision\\\":\\\"revised\\\",\\\"carrierTranspose\\\":0,\\\"position\\\":0.7}}\",{\"enabled\":true,\"amount\":0.6,\"mode\":\"state\",\"variantRevision\":\"revised\"},{\"kind\":\"vocal\",\"color\":0.4}]"
+    ],
+    [
+      "progress",
+      7,
+      0.6
+    ],
+    [
+      "fail",
+      7,
+      "Error",
+      "planned render failure"
+    ],
+    [
+      "pipeline-unsubscribe"
+    ],
+    [
+      "invalidate"
+    ],
+    [
+      "worker-cancel"
+    ],
+    [
+      "audio-stop"
+    ],
+    [
+      "donor-stop"
+    ],
+    [
+      "begin"
+    ],
+    [
+      "stop-handler"
+    ],
+    [
+      "render",
+      "[\"forge-f3.55\",\"A\",null,null,\"[0,0.5,0.3,0]\",\"12edo\",null,1,120,4,\"{\\\"params\\\":{\\\"materialPilot\\\":true,\\\"gestaltPilot\\\":false,\\\"variantRevision\\\":\\\"revised\\\",\\\"carrierTranspose\\\":0,\\\"position\\\":0.7}}\",{\"enabled\":true,\"amount\":0.6,\"mode\":\"state\",\"variantRevision\":\"revised\"},{\"kind\":\"vocal\",\"color\":0.4}]"
+    ],
+    [
+      "progress",
+      7,
+      0.6
+    ],
+    [
+      "invalidate"
+    ],
+    [
+      "worker-cancel"
+    ],
+    [
+      "audio-stop"
+    ],
+    [
+      "donor-stop"
+    ],
+    [
+      "pipeline-unsubscribe"
+    ],
+    [
+      "render",
+      "[\"forge-f3.55\",\"A\",null,null,\"[0,0.5,0.3,0]\",\"12edo\",null,1,120,4,\"{\\\"params\\\":{\\\"materialPilot\\\":true,\\\"gestaltPilot\\\":false,\\\"variantRevision\\\":\\\"revised\\\",\\\"carrierTranspose\\\":0,\\\"position\\\":0.7}}\",{\"enabled\":true,\"amount\":0.6,\"mode\":\"state\",\"variantRevision\":\"revised\"},{\"kind\":\"vocal\",\"color\":0.4}]"
+    ],
+    [
+      "subscribe",
+      "state"
+    ],
+    [
+      "subscribe",
+      "donor"
+    ],
+    [
+      "subscribe",
+      "workbench"
+    ],
+    [
+      "subscribe",
+      "session"
+    ],
+    [
+      "subscribe",
+      "tuning"
+    ],
+    [
+      "invalidate"
+    ],
+    [
+      "worker-cancel"
+    ],
+    [
+      "audio-stop"
+    ],
+    [
+      "invalidate"
+    ],
+    [
+      "worker-cancel"
+    ],
+    [
+      "audio-stop"
+    ],
+    [
+      "invalidate"
+    ],
+    [
+      "worker-cancel"
+    ],
+    [
+      "audio-stop"
+    ]
+  ]
+}

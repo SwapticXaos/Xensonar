@@ -1,0 +1,519 @@
+[
+  {
+    "file": "src/nodal/01_instrument_model.js",
+    "baselineSha256": "bb4402bff20282b0864230f05df3fbcb154dc61cbbe42e1ab9f117959594b095",
+    "seams": [
+      {
+        "position": 3574,
+        "before": "",
+        "after": ",\n        volumeEnvelope: field(articulation.volumeEnvelope), pitchEnvelope: field(articulation.pitchEnvelope)"
+      },
+      {
+        "position": 3691,
+        "before": "",
+        "after": ");\n  }\n  function field(value) {\n    if (value == null) return null;\n    const text = JSON.stringify(value);\n    if (text.length > 60000 || !Array.isArray(value.deformation?.curve) || value.deformation.curve.length > 512 || !value.deformation.curve.every(Number.isFinite)) fail('Invalid instrument envelope');\n    return JSON.parse(text"
+      },
+      {
+        "position": 10142,
+        "before": "",
+        "after": "const contours = typeof resolveNodalArticulationFields === 'function' ? resolveNodalArticulationFields(instrument.articulation) : {volumeCurve: null, pitchCurve: null};\n    if (typeof resolveNodalArticulationFields !== 'function' && (instrument.articulation.volumeEnvelope || instrument.articulation.pitchEnvelope)) fail('Shared envelope resolver unavailable');\n    "
+      },
+      {
+        "position": 10746,
+        "before": "",
+        "after": "{..."
+      },
+      {
+        "position": 10773,
+        "before": "",
+        "after": ", ...contours}"
+      },
+      {
+        "position": 11211,
+        "before": "100000",
+        "after": "250000"
+      }
+    ]
+  },
+  {
+    "file": "src/nodal/02_synthesis_kernel.js",
+    "baselineSha256": "46e62abe864e864aaaabb1e62eedf39fb4dad4ad77d550e205a8f888d76ca5f4",
+    "seams": [
+      {
+        "position": 1341,
+        "before": "",
+        "after": "for ("
+      },
+      {
+        "position": 1352,
+        "before": "n = plan.nodes.length, size = n *",
+        "after": "key of ['attackSec', 'releaseSec']) if (options[key] != null && (!Number.isFinite(options[key]) || options[key] < 0 || options[key] >"
+      },
+      {
+        "position": 1487,
+        "before": ", oversampling = plan.nonlinearNodes.length ? 2 : 1, sr = sampleRate * oversampling",
+        "after": ")) throw new Error('Invalid note fade')"
+      },
+      {
+        "position": 1538,
+        "before": "real = new Float64Array(",
+        "after": "n = plan.nodes.length, "
+      },
+      {
+        "position": 1565,
+        "before": "), imag = new Float64Array(size), deltas = new Float64Array(",
+        "after": " = "
+      },
+      {
+        "position": 1569,
+        "before": "), sources = new Float64Array(n)",
+        "after": " * 3, oversampling = plan.nonlinearNodes.length ? 2 : 1, sr = sampleRate * oversampling"
+      },
+      {
+        "position": 1668,
+        "before": "cos",
+        "after": "real"
+      },
+      {
+        "position": 1699,
+        "before": "sin",
+        "after": "imag"
+      },
+      {
+        "position": 1730,
+        "before": "mask",
+        "after": "deltas"
+      },
+      {
+        "position": 1756,
+        "before": "size), damping",
+        "after": "n), sources"
+      },
+      {
+        "position": 1787,
+        "before": "size",
+        "after": "n"
+      },
+      {
+        "position": 1801,
+        "before": "phase",
+        "after": "cos"
+      },
+      {
+        "position": 1824,
+        "before": "n), noise",
+        "after": "size), sin"
+      },
+      {
+        "position": 1841,
+        "before": "Uint32Array(n), noiseLow",
+        "after": "Float64Array(size), mask"
+      },
+      {
+        "position": 1885,
+        "before": "n), phaseCos",
+        "after": "size), damping"
+      },
+      {
+        "position": 1919,
+        "before": "n), phaseSin = new Float64Array(n",
+        "after": "size"
+      },
+      {
+        "position": 1936,
+        "before": "",
+        "after": "phase = new Float64Array(n), noise = new Uint32Array(n), noiseLow = new Float64Array(n), phaseCos = new Float64Array(n), phaseSin = new Float64Array(n);\n    const "
+      },
+      {
+        "position": 2590,
+        "before": "",
+        "after": "clamp(options.attackSec ?? "
+      },
+      {
+        "position": 2644,
+        "before": "",
+        "after": ", .001, 2)"
+      },
+      {
+        "position": 2673,
+        "before": "",
+        "after": "volumeCurve = options.volumeCurve ?? plan.articulation.volumeCurve, pitchCurve = options.pitchCurve ?? plan.articulation.pitchCurve;\n    for (const curve of [volumeCurve, pitchCurve]) if (curve && (!Array.isArray(curve) || curve.length > 512 || !curve.every(Number.isFinite))) throw new Error('Invalid note contour');\n    const "
+      },
+      {
+        "position": 3034,
+        "before": "",
+        "after": "clamp(options.releaseSec ?? "
+      },
+      {
+        "position": 3090,
+        "before": "",
+        "after": ", .001, 3)"
+      },
+      {
+        "position": 3758,
+        "before": "",
+        "after": "const pitchedRoot = root * Math.pow(2, curveAt(pitchCurve, Math.min(1, age / Math.max(1, gateFrames)), 0) / 12);\n      "
+      },
+      {
+        "position": 3981,
+        "before": "root",
+        "after": "pitchedRoot"
+      },
+      {
+        "position": 4248,
+        "before": "root",
+        "after": "pitchedRoot"
+      },
+      {
+        "position": 4382,
+        "before": "",
+        "after": "function curveAt(curve, position, fallback) {\n      if (!curve?.length) return fallback;\n      const point = clamp(position, 0, 1) * (curve.length - 1), index = Math.floor(point), next = Math.min(index + 1, curve.length - 1);\n      return curve[index] + (curve[next] - curve[index]) * (point - index);\n    }\n    "
+      },
+      {
+        "position": 5131,
+        "before": "",
+        "after": "(pitchCurve || "
+      },
+      {
+        "position": 5181,
+        "before": "",
+        "after": ")"
+      },
+      {
+        "position": 5193,
+        "before": "",
+        "after": "if (Math.abs(targetRoot - root) > 1e-8) "
+      },
+      {
+        "position": 7928,
+        "before": "",
+        "after": "curveAt(volumeCurve, Math.min(1, age / Math.max(1, gateFrames)), 1) * "
+      },
+      {
+        "position": 9397,
+        "before": "",
+        "after": "clamp(options.releaseSec ?? "
+      },
+      {
+        "position": 9453,
+        "before": "",
+        "after": ", .001, 3)"
+      }
+    ]
+  },
+  {
+    "file": "src/nodal/04_audio_runtime.js",
+    "baselineSha256": "a3f04273d61666947a5a19321e1433b897b46596c64e7172cce5c608d46383fb",
+    "seams": [
+      {
+        "position": 7573,
+        "before": "",
+        "after": "options.gain ?? "
+      },
+      {
+        "position": 7740,
+        "before": "",
+        "after": ",\n        volumeCurve: options.volumeCurve, pitchCurve: options.pitchCurve, attackSec: options.attackSec, releaseSec: options.releaseSec"
+      }
+    ]
+  },
+  {
+    "file": "src/nodal/05_installation_bridge.js",
+    "baselineSha256": "01d0bfea44df7e67ea6bbe66d1bfac76b9f2780ff12cc3d9093b57667749b8a0",
+    "seams": [
+      {
+        "position": 1532,
+        "before": "",
+        "after": ", referenceHz: next.referenceHz ?? config.referenceHz, name: next.name ?? config.name"
+      },
+      {
+        "position": 3999,
+        "before": "",
+        "after": ", referenceHz: normalized.referenceHz, name: normalized.name"
+      },
+      {
+        "position": 4459,
+        "before": "",
+        "after": "replace(instrument) {\n      const normalized = model.normalize(instrument), extent = Math.max(config.width, config.height), old = ref.current.nodes;\n      ref.current.nodes = normalized.nodes.map(n => ({...old.find(o => String(o.residentId ?? o.id) === n.id),\n        residentId: n.id, label: n.label, x: config.width / 2 + (n.x - .5) * extent, y: config.height / 2 + (n.y - .5) * extent,\n        freq: normalized.referenceHz * n.ratio * Math.pow(2, n.cents / 1200), ratio: n.ratio, tuningCents: 0, energy: 0,\n        isCustomResident: true, residentMuted: n.muted}));\n      restore(normalized); return capture();\n    }\n    function "
+      },
+      {
+        "position": 5365,
+        "before": "",
+        "after": ", replace,\n      ensureAudio: async () => { await config.audio.ensureReady(); return config.audio.getContext(); },\n      acquireVoice: cost => config.audio?.acquire(cost) ?? null"
+      }
+    ]
+  },
+  {
+    "file": "src/runtime/instrument/08_library_and_tuning_editor.js",
+    "baselineSha256": "07ca7b7f502443e24b1397cd205593775756ea777e055588926016a7b7ac253c",
+    "seams": [
+      {
+        "position": 1618,
+        "before": "koe",
+        "after": "koeLegacy"
+      },
+      {
+        "position": 5023,
+        "before": "",
+        "after": "[\"sounddesign\",\"Sounddesign\"],"
+      },
+      {
+        "position": 26155,
+        "before": "",
+        "after": "\"data-xensonar-performance-strip\":true,"
+      }
+    ]
+  },
+  {
+    "file": "src/rhythm/02_bass_and_rack.js",
+    "baselineSha256": "1045255f2a7032cf6ae6093bd58397db7897f87dca20b784c33fd0618b4da139",
+    "seams": [
+      {
+        "position": 41156,
+        "before": "e.setRoom(\"TOPOLOGY\"",
+        "after": "window.dispatchEvent(new CustomEvent(\"xensonar:nodal-open-designer\")"
+      }
+    ]
+  },
+  {
+    "file": "src/audio/01_voice_and_rfl_ownership.js",
+    "baselineSha256": "fa5ba14a58529d5975e2661e55f3300beb9699cbafa6d2edc3c8e3c86a01e19b",
+    "seams": [
+      {
+        "position": 23044,
+        "before": "",
+        "after": "if(a===\"sounddesign\"){e.topologyLoopErrorRef.current=null,e.setMyzelTopologyMode(a),e.setMyzelEnabled(!1),e.setMyzelPostFxEnabled(!1),e.setSystemState(\"Nodal Sounddesign\");return}"
+      }
+    ]
+  },
+  {
+    "file": "src/audio/03_recorder.js",
+    "baselineSha256": "b51a79599fd1dbad2f03c90a67a5969fe5aacd254a4bbadf3ab41135e390a73b",
+    "seams": [
+      {
+        "position": 32228,
+        "before": "",
+        "after": ",nodalComposer=null"
+      },
+      {
+        "position": 32523,
+        "before": "",
+        "after": ").concat(nodalInstrumentMenu(nodalComposer)"
+      },
+      {
+        "position": 37973,
+        "before": "",
+        "after": "nodalLoadMelodicSources(e,"
+      },
+      {
+        "position": 38023,
+        "before": "",
+        "after": ")"
+      },
+      {
+        "position": 46440,
+        "before": "",
+        "after": ";if(typeof e===\"string\"&&e.startsWith(\"nodal:\"))throw new Error(\"Nodal instrument source missing: \"+e)"
+      }
+    ]
+  },
+  {
+    "file": "src/app/forge/01_room_shell.js",
+    "baselineSha256": "eb63bcdb98b6feaeeb12ed1ca55c52f9ddd85d64c223f9706fce4fd3f4aaca27",
+    "seams": [
+      {
+        "position": 23687,
+        "before": "",
+        "after": "}),nodalNavigation=useNodalNavigation(P,{openMelodic:()=>{CT(\"canonical\"),lH(\"host\"),t(\"L3LAB\")},openDesigner:instrument=>{__NodalPendingDesign=instrument??null,qg.setMyzelModeAndPower(\"sounddesign\"),t(\"TOPOLOGY\")}"
+      }
+    ]
+  },
+  {
+    "file": "src/app/forge/02_boot_and_workspace_tools.js",
+    "baselineSha256": "e93d2111a0cff852b5284f08da805367820db562ae270f0470dd054097eecf9e",
+    "seams": [
+      {
+        "position": 27206,
+        "before": "",
+        "after": ",...nodalComposerSourceFields(e)"
+      }
+    ]
+  },
+  {
+    "file": "src/app/forge/03_spectral_grid_and_archives.js",
+    "baselineSha256": "00cc2da2323d8f3ddf10fd32dd743d9a089b5660400dba5be1b38f3fa88ce0e4",
+    "seams": [
+      {
+        "position": 51441,
+        "before": "",
+        "after": "??(PQ=nodalRestoreComposerSession())"
+      },
+      {
+        "position": 51497,
+        "before": "",
+        "after": ";nodalPersistComposerSession(e)"
+      }
+    ]
+  },
+  {
+    "file": "src/forge_and_melodic/03_timeline_and_transport_ui.js",
+    "baselineSha256": "d85110a7fb6f594844e78432efbd7a8684f27b7ff5742423a4e2c43342110079",
+    "seams": [
+      {
+        "position": 6406,
+        "before": "",
+        "after": "window.addEventListener(\"xensonar:nodal-open-melodic\",f);\n "
+      },
+      {
+        "position": 6605,
+        "before": "",
+        "after": ");window.removeEventListener(\"xensonar:nodal-open-melodic\",f"
+      }
+    ]
+  },
+  {
+    "file": "src/forge_and_melodic/04_render_cache_and_stems.js",
+    "baselineSha256": "9dc691c7e7261157f3ad4d1193fe9ba2fa32e7eebae56eec305e6031b6633b44",
+    "seams": [
+      {
+        "position": 1460,
+        "before": "",
+        "after": "nodalHasMelodicNotes(e) || "
+      },
+      {
+        "position": 14509,
+        "before": "",
+        "after": "if(t.nodalTransport)return t.nodalTransport.seek(e);"
+      },
+      {
+        "position": 15271,
+        "before": "",
+        "after": "iv?.nodalTransport?.stop();"
+      },
+      {
+        "position": 20638,
+        "before": "",
+        "after": "const nodalSource=s.get(yW(a,r));if(nodalSource?.kind===\"nodal\"){nodalScheduleOffline(e,t,n,r,a,o,i,nodalSource,l);return}"
+      },
+      {
+        "position": 32754,
+        "before": "",
+        "after": ",t?.drumOnly?0:nodalRenderTailSeconds(e)"
+      },
+      {
+        "position": 34346,
+        "before": "",
+        "after": "if(nodalHasMelodicNotes(e))return nodalPlayMelodic(e);"
+      }
+    ]
+  },
+  {
+    "file": "src/forge_and_melodic/05_preview_and_sample_intake.js",
+    "baselineSha256": "5fa9672fb1ef56bf9d8d75177c1827605ef57377973754dc7110454dd072d547",
+    "seams": [
+      {
+        "position": 44767,
+        "before": "",
+        "after": ",compact:compact=false"
+      },
+      {
+        "position": 45250,
+        "before": "",
+        "after": "]);const compactDrawRef=P.useRef(null);compactDrawRef.current={field:I,brushPreview:c===\"morph\"&&R?{ratio:R.ratio,value:R.value,radiusPx:p,mode:\"warp\",pointerDown:v?.kind===\"brush\"}:null};P.useEffect(()=>{if(!compact||!s.current)return;const canvas=s.current,draw=()=>{const rect=canvas.getBoundingClientRect();if(rect.width<1||rect.height<1)return;canvas.width=Math.round(rect.width);canvas.height=Math.round(rect.height);pee({canvas,...compactDrawRef.current})};const observer=new ResizeObserver(draw);observer.observe(canvas);draw();return()=>observer.disconnect()},[compact"
+      },
+      {
+        "position": 46619,
+        "before": "",
+        "after": "+(compact?\" nd-shared-field-compact\":\"\")"
+      },
+      {
+        "position": 50563,
+        "before": "",
+        "after": "compact?640:"
+      },
+      {
+        "position": 50585,
+        "before": "",
+        "after": ":compact?220"
+      },
+      {
+        "position": 54435,
+        "before": "",
+        "after": "+(compact?\" nd-field-status\":\"\")"
+      }
+    ]
+  },
+  {
+    "file": "src/forge_and_melodic/06_note_editor_and_material_tools.js",
+    "baselineSha256": "97ae260fd1c92ad89e319ff7df9400527ae99c1dda2a171b80579404c16b1f09",
+    "seams": [
+      {
+        "position": 281,
+        "before": "",
+        "after": "isNodal=!!t&&!!nodalFindInstrument(yW(e.tracks.find(track=>track.id===t.trackId),t),e),"
+      },
+      {
+        "position": 370,
+        "before": "",
+        "after": "isNodal?\"Nodal-Block\":"
+      },
+      {
+        "position": 1087,
+        "before": "",
+        "after": ",u.jsx(NodalInstrumentEditButton,{composer:e})"
+      },
+      {
+        "position": 3982,
+        "before": "",
+        "after": "&&!isNodal"
+      }
+    ]
+  },
+  {
+    "file": "src/forge_and_melodic/08_editor_actions.js",
+    "baselineSha256": "a7c3fba1057e533acbdb675f9116edbea7401a987bce851f799665b41f0f5d4c",
+    "seams": [
+      {
+        "position": 47577,
+        "before": "",
+        "after": "P.useEffect(()=>{const receive=event=>n($n(event.detail));window.addEventListener(\"xensonar:nodal-melodic-changed\",receive);return()=>window.removeEventListener(\"xensonar:nodal-melodic-changed\",receive)},[]);"
+      },
+      {
+        "position": 48701,
+        "before": "",
+        "after": ",openNodal=()=>{n(\"microtonal-logic\"),t(\"melodic\")}"
+      },
+      {
+        "position": 48790,
+        "before": "()=>",
+        "after": ""
+      },
+      {
+        "position": 48797,
+        "before": "",
+        "after": "addEventListener(\"xensonar:nodal-open-melodic\",openNodal),()=>{window."
+      },
+      {
+        "position": 48892,
+        "before": "",
+        "after": ";window.removeEventListener(\"xensonar:nodal-open-melodic\",openNodal)}"
+      }
+    ]
+  },
+  {
+    "file": "src/forge_and_melodic/09_canonical_forge_room.js",
+    "baselineSha256": "cc4de57bfe9bf4b173ab170c1905a093a23d0fc8010df308b59223046641a13e",
+    "seams": [
+      {
+        "position": 5299,
+        "before": "",
+        "after": ",Ke"
+      },
+      {
+        "position": 5307,
+        "before": "",
+        "after": ",Ke"
+      }
+    ]
+  }
+]

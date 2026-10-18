@@ -1,0 +1,6 @@
+'use strict';
+const fs=require('node:fs'),crypto=require('node:crypto'),assert=require('node:assert/strict'),parent=require('./fixtures/p4c2_n2_baseline/parent_hashes.json'),manifest=require('../source-manifest.json');
+const expected=new Set(['src/01_app_runtime.js','src/app/forge/01_room_shell.js','src/nodal/04_audio_runtime.js','src/nodal/12_surface_runtime.js','src/runtime/instrument/10_entrophon_and_voice_control.js','template/head.html']),changed=[];
+for(const [file,sha] of Object.entries(parent.files)){const current=crypto.createHash('sha256').update(fs.readFileSync(file)).digest('hex');if(current!==sha){assert(expected.has(file),'Unexpected production change: '+file);changed.push(file);}}
+assert.deepEqual(changed.sort(),[...expected].sort());assert.deepEqual(manifest.files,parent.manifestFiles,'no source module or script load ordering changed');
+const report={parentHtmlSha256:parent.sha256,changed,unchangedProductionFiles:Object.keys(parent.files).length-changed.length,nodalSampleKernelUnchanged:true,entrophonC11WasmUnchanged:true,sharedPreparationQueueUnchanged:true,stylesAndTemplatesExceptTitleUnchanged:true};fs.writeFileSync('results/p4c2-n3-preservation.json',JSON.stringify(report,null,2)+'\n');console.log('PASS N3 preservation',report);

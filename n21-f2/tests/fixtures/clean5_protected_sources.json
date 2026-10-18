@@ -1,0 +1,885 @@
+{
+  "reference": "F3.56.55-CLEAN4-SPEED3-NESTED-HOLD-FIX3-DRUM-SAMPLE-RELOAD-FIX",
+  "referenceHtmlSha256": "5760c2486483945b806cb73ca558ab7804826469e5db24e260923f7c5f07b5df",
+  "sources": [
+    {
+      "file": "src/forge/dsp/04_donor_field.js",
+      "bytes": 8728,
+      "sha256": "e3d8ce96ad7d4f707c1b00c6823e467ec88320b3b815bb8dae00a8fd711cc988"
+    },
+    {
+      "file": "src/01_app_runtime.js",
+      "bytes": 59312,
+      "sha256": "444019f5c84d41fbf8cf2dcf739bdde9ff6adf2278782ef9b56bf2a4a161be3a"
+    },
+    {
+      "file": "src/forge/workbench/01_preset_catalog.js",
+      "bytes": 14340,
+      "sha256": "92e52667eb406632636c5733505ad7e93a56864f5c3bc61ef645491ba7e04f94"
+    },
+    {
+      "file": "src/forge/workbench/02_recipe_normalization.js",
+      "bytes": 5187,
+      "sha256": "1f2c230ca91f0c63da5451ed5432befda85ea6ddbac77d08019631600fdb6cbb"
+    },
+    {
+      "file": "src/forge/workbench/03_material_selection.js",
+      "bytes": 11613,
+      "sha256": "022186707460174a20afccb9cb4521eba7e1a12c93d0bd69182e57a5436f973e"
+    },
+    {
+      "file": "src/forge/workbench/04_sound_bridge.js",
+      "bytes": 919,
+      "sha256": "fc81e389da33f9cc674c8c9399f6af8be8d4f848d3dc202c016080510ed25996"
+    },
+    {
+      "file": "src/forge/workbench/05_state_store.js",
+      "bytes": 12284,
+      "sha256": "5b33017599a1e20cca132be0873758bd758e3333697d15100adca1a653f40ba3"
+    },
+    {
+      "file": "src/forge/01_workbench_state.js",
+      "bytes": 594,
+      "sha256": "fe8a21ff6eebd4c850f961d4169ee941a7f512ddbf9547c7c930d658eb2db173"
+    },
+    {
+      "file": "src/forge/dsp/01_material_tools.js",
+      "bytes": 9552,
+      "sha256": "fce85295306d26d21647c4d8304c428698f9838d54d5f05f1d78e38f3c4fd1f8"
+    },
+    {
+      "file": "src/forge/dsp/02_gestalt_tools.js",
+      "bytes": 7205,
+      "sha256": "6baed4dc850b772d620036b9df1f93ed30aa324064d7e15eb0f91f6b1bfe5e80"
+    },
+    {
+      "file": "src/forge/dsp/03_pcm_worker.js",
+      "bytes": 1189,
+      "sha256": "b47a5a711f4ada212c8cb2663503afe28834043d59c7cada3a84bc5fb88c4c5a"
+    },
+    {
+      "file": "src/forge/original/01_articulation.js",
+      "bytes": 5191,
+      "sha256": "aa974100b110d2ea5f7f751a25339d89017cd905017df0f3078dc5172b2033c3"
+    },
+    {
+      "file": "src/forge/original/02_material.js",
+      "bytes": 13508,
+      "sha256": "eca3a573ead36cca0a1c0f73f602c7064dce262aa4e4a1871c22223e9b19544f"
+    },
+    {
+      "file": "src/forge/original/03_gestalt_material.js",
+      "bytes": 9336,
+      "sha256": "268788b25eb1aa8b35d978ba9bf15bf542aba8660c9e78aa253bd6cf6ede4b67"
+    },
+    {
+      "file": "src/forge/original/04_gestalt.js",
+      "bytes": 21473,
+      "sha256": "e322d3c9ff50dab2d038a6ee290d8586d890850ba0b789a4241ca3328adf943c"
+    },
+    {
+      "file": "src/forge/original/05_dual_donor.js",
+      "bytes": 12891,
+      "sha256": "3176730ba9d52fa46d271727b05563d46f049b3d91ebba64d0e7ae67c95d120b"
+    },
+    {
+      "file": "src/forge/original/06_cecilia.js",
+      "bytes": 8232,
+      "sha256": "1793157528b6a687ef4d811d1b27212aa0ca26c824855fb7c890a9125d059fca"
+    },
+    {
+      "file": "src/forge/revised/01_material.js",
+      "bytes": 9588,
+      "sha256": "ce19da2168d99b10df9487c41e46a0804e16c823289ad60eb8e89ad12c5427ef"
+    },
+    {
+      "file": "src/forge/revised/02_gestalt.js",
+      "bytes": 25998,
+      "sha256": "288c8a614423abd9ed1adc4e90b5177c81a3c6bec0b03d760a157c77cb64da89"
+    },
+    {
+      "file": "src/forge/module_bundle/00_open.js",
+      "bytes": 38,
+      "sha256": "dd52fb8c8c042a332d538ec1730bab9c1056d8f5e7b534e1332662a8968221a8"
+    },
+    {
+      "file": "src/forge/module_bundle/01_entry.js",
+      "bytes": 5669,
+      "sha256": "e04a64a0d512d84b116d5cba67b20991947a86e2c825fe290d340956e6872539"
+    },
+    {
+      "file": "src/forge/module_bundle/02_projectionCarrierPlan.js",
+      "bytes": 6806,
+      "sha256": "99eb34a9a90f278e72d078920fd0c49a7c35c32b6c5bdd2d2a23f50e20cafa62"
+    },
+    {
+      "file": "src/forge/module_bundle/03_carrierDonorV2Types.js",
+      "bytes": 192,
+      "sha256": "f1fd8dc51c24ac409e5ac48a195c2f341682f50044162f2feb8599c85f439418"
+    },
+    {
+      "file": "src/forge/module_bundle/04_carrierSupportField.js",
+      "bytes": 3566,
+      "sha256": "cd270f8fa10c256dbd68aaa41c3d1c7108d34058f93c8a37392e51e603f732ae"
+    },
+    {
+      "file": "src/forge/module_bundle/05_carrierContinuity.js",
+      "bytes": 6868,
+      "sha256": "4c6131cb4d0b490423ecfc512353f2ca42f26705fae07c9b8affa5de8f03de2b"
+    },
+    {
+      "file": "src/forge/module_bundle/06_donorHybridModel.js",
+      "bytes": 8936,
+      "sha256": "c96ff9e2df5f50c701282ea5b1d6d823bc3bbd1d553929dee4b642bd60dbcdaf"
+    },
+    {
+      "file": "src/forge/module_bundle/07_donorBodyModel.js",
+      "bytes": 14989,
+      "sha256": "7f8253d133d0413c6d8fbaa06f4836f6ad6061bb0f9aa3fe4efe7cb899d38442"
+    },
+    {
+      "file": "src/forge/module_bundle/08_realSpectrum.js",
+      "bytes": 1604,
+      "sha256": "71800f20741beab81b4454c4752ac508f245f28d3a787056040c182c2f904264"
+    },
+    {
+      "file": "src/forge/module_bundle/09_donorPitch.js",
+      "bytes": 1619,
+      "sha256": "5ae67accce5e161f73ae4361df26a1f48ffb3234dc1289c1b4f1c03479a8ba4b"
+    },
+    {
+      "file": "src/forge/module_bundle/10_donorSpectralEvidence.js",
+      "bytes": 3746,
+      "sha256": "15d023d7173900f1b34cd603e512c70b2ed9bc1f0e073d0b3379eb538fbdb17b"
+    },
+    {
+      "file": "src/forge/module_bundle/11_donorSourceWindows.js",
+      "bytes": 5549,
+      "sha256": "d2b9407c05976d3496b14debe59c46f700d5e5a6751965faab9822129e1d036d"
+    },
+    {
+      "file": "src/forge/module_bundle/12_renderDonorHybrid.js",
+      "bytes": 19238,
+      "sha256": "c55706488d78dbaf104688cfd6723818344a6d6055086d7206b6886368ba1888"
+    },
+    {
+      "file": "src/forge/module_bundle/13_donorMaterialPlan.js",
+      "bytes": 3137,
+      "sha256": "083129b78a98954c3247a5625a3ece131222e5933c58936bf608606018ae9028"
+    },
+    {
+      "file": "src/forge/module_bundle/14_granularCadence.js",
+      "bytes": 2241,
+      "sha256": "2d24fa0fe85ad71855e9ffb253aab30ad2b895220e8c543541e95e24be0f27a9"
+    },
+    {
+      "file": "src/forge/module_bundle/15_renderContinuousDonor.js",
+      "bytes": 15172,
+      "sha256": "173ed7794dfc9a31a0e1b0d6c693dcc370c932e4f56519b3fe863e70fea18195"
+    },
+    {
+      "file": "src/forge/module_bundle/16_complexSpectrum.js",
+      "bytes": 2012,
+      "sha256": "066ed017c3e0ad073ce86b61b26bc20f460220ab9f2c4c756f5b08eb2e5f5bc5"
+    },
+    {
+      "file": "src/forge/module_bundle/17_renderCarrierSupport.js",
+      "bytes": 14937,
+      "sha256": "6f41e89cd95dc72fdd69675067e693f094a882d0695faf5590d0c630e2ac59d5"
+    },
+    {
+      "file": "src/forge/module_bundle/18_donorSpectralFilm.js",
+      "bytes": 8766,
+      "sha256": "a297214391cf55bd4ae51b611b65d02ed552553786a1f68c8e07e11f4cb6dd15"
+    },
+    {
+      "file": "src/forge/module_bundle/19_donorMaterialDiagnostics.js",
+      "bytes": 11476,
+      "sha256": "40b879a90442262309250722f2f0580837e5f7711b57665deb9f18e37c1d1906"
+    },
+    {
+      "file": "src/forge/module_bundle/20_donorOutputMantle.js",
+      "bytes": 1580,
+      "sha256": "76307be1b9e2dc3ecb7edf15f1538378c93014e58b37f87ada4acd9ce0a76e54"
+    },
+    {
+      "file": "src/forge/module_bundle/21_experimentStatePersistence.js",
+      "bytes": 13703,
+      "sha256": "ba330b8b52f103f4a26c02bb64669ec307db0a6cff71e2bdac82aa5ded112a47"
+    },
+    {
+      "file": "src/forge/module_bundle/22_materialIntakePersistence.js",
+      "bytes": 8029,
+      "sha256": "6cafec657997e9e520d6e4b541e7277c4614791a26db1bf04843db8f9f3f3e3f"
+    },
+    {
+      "file": "src/forge/module_bundle/99_close.js",
+      "bytes": 676,
+      "sha256": "59c528363096f35351430920a4e283a1e3dd1a7ec88447e4e4c42d5e60497881"
+    },
+    {
+      "file": "src/storage/01_donor_library.js",
+      "bytes": 17056,
+      "sha256": "80df7cebb66e3f7f8677178c776e0fc802873f5cce64cc0538d4c16f0700c729"
+    },
+    {
+      "file": "src/storage/02_donor_packages.js",
+      "bytes": 9477,
+      "sha256": "2b2204611a763ab8a28e3c56217a074988dda2c82da0fc36d3e37573a9963524"
+    },
+    {
+      "file": "src/storage/03_forge_packages.js",
+      "bytes": 2951,
+      "sha256": "96fb969b6785cb2fa67677b693593862da8e0e2c9eef7c6ac1fec7ea9b0cc3d5"
+    },
+    {
+      "file": "src/storage/04_sample_donor_bridge.js",
+      "bytes": 7823,
+      "sha256": "d0d81ada2e31af2dff0ec97c2289261b513b7db26dbbfd23141e0c69930ddc4c"
+    },
+    {
+      "file": "src/vendor/01_react_dom.js",
+      "bytes": 194714,
+      "sha256": "53fd4c16cb0532b5c8d7d4ea36851fcbfd7003db535361217a39fb0bd8bae7c9"
+    },
+    {
+      "file": "src/runtime/01_instrument_state.js",
+      "bytes": 66214,
+      "sha256": "77e0b7f9b15507960c8f46d1a589de386bd4032f518aa2513760d8bdfaa01bc5"
+    },
+    {
+      "file": "src/runtime/instrument/01_voice_gradients_and_effects.js",
+      "bytes": 33578,
+      "sha256": "27527656d9a47f18b37156f618394278f5fd26cfb57559b0435068787464b230"
+    },
+    {
+      "file": "src/runtime/instrument/02_observation_and_sample_storage.js",
+      "bytes": 32121,
+      "sha256": "2ccdc26300fdbdbc7c41df180cebe9a5fa119103a35d998db5c0479e7b796f75"
+    },
+    {
+      "file": "src/runtime/instrument/03_selection_and_recording_tools.js",
+      "bytes": 27467,
+      "sha256": "44bfb9c4ed2369c64dd79d4a940f05a2a6ee4efad7222901f9a12fda0eba7140"
+    },
+    {
+      "file": "src/runtime/instrument/04_performance_and_output_profiles.js",
+      "bytes": 37428,
+      "sha256": "affb63a4a57436c6f3a1cccc05fea8f94f7205fd2103be6328e1b924f53f3986"
+    },
+    {
+      "file": "src/runtime/instrument/05_timing_and_admission.js",
+      "bytes": 92813,
+      "sha256": "ec5c99b80e7cb8aba4c36873403d8a26a81285a82d27c1c0ed8081eea349ccc7"
+    },
+    {
+      "file": "src/runtime/instrument/06_rooms_and_lifecycle.js",
+      "bytes": 40812,
+      "sha256": "74dc9230f2656d8eadebe960ab8eaeeb56f18059a50d805a283847eeead94027"
+    },
+    {
+      "file": "src/runtime/instrument/07_interpreters_and_installation.js",
+      "bytes": 44611,
+      "sha256": "f83901a67779f8ef75e283d54caa91e7e68192e4db217df898d03428a31f75dc"
+    },
+    {
+      "file": "src/runtime/instrument/08_library_and_tuning_editor.js",
+      "bytes": 68439,
+      "sha256": "07ca7b7f502443e24b1397cd205593775756ea777e055588926016a7b7ac253c"
+    },
+    {
+      "file": "src/runtime/instrument/09_monitoring_and_manual_patterns.js",
+      "bytes": 67704,
+      "sha256": "60c90d81cc2b0e1e3ca78add9967a292f39c3a361bfb93cccc21cd3c85db0341"
+    },
+    {
+      "file": "src/runtime/instrument/10_entrophon_and_voice_control.js",
+      "bytes": 56638,
+      "sha256": "e819ccd5597f6a3857a2808c57e86c5ca7dceb2ff275344199db334a2436119f"
+    },
+    {
+      "file": "src/runtime/instrument/11_recording_and_granular_controls.js",
+      "bytes": 46880,
+      "sha256": "55c5654afd76dab45c478b7f9960568229daebd511b3b6e1a5dc286b7dd2f4d0"
+    },
+    {
+      "file": "src/runtime/instrument/12_rhythm_and_bass_editor.js",
+      "bytes": 77098,
+      "sha256": "460cd6b41a11ee45e177b851a56ccb09e1836a0e3e9f0dd70e5886c95c063873"
+    },
+    {
+      "file": "src/rhythm/01_compact_drum_grid.js",
+      "bytes": 44687,
+      "sha256": "1746daae5e93bb5fd46dcf6d3008c8371d51b9e16b7b5120a51cf3c766ea86cd"
+    },
+    {
+      "file": "src/rhythm/02_bass_and_rack.js",
+      "bytes": 193977,
+      "sha256": "67f0fbd4ec8b7d7a2ca9ad5b33e809ec76fd6990763e1f3ed09537390f6fb67c"
+    },
+    {
+      "file": "src/audio/01_voice_and_rfl_ownership.js",
+      "bytes": 166547,
+      "sha256": "b9065c7d3e7b2e97c65795832e59576cfd6ba0a3caa2f807e66f5c012e7c5b3a"
+    },
+    {
+      "file": "src/audio/02_rfl_worklet.js",
+      "bytes": 102284,
+      "sha256": "ca8d3d0ea09553871597596de0bfd9f0bd734fc4d849ad19e2e8eb79b7b21789"
+    },
+    {
+      "file": "src/audio/03_recorder.js",
+      "bytes": 138912,
+      "sha256": "b51a79599fd1dbad2f03c90a67a5969fe5aacd254a4bbadf3ab41135e390a73b"
+    },
+    {
+      "file": "src/audio/04_wave_worklet.js",
+      "bytes": 86145,
+      "sha256": "37b659f26344720b8e2ef0091ca44fb87ca799b35041c1820ab41e3aff2a40b2"
+    },
+    {
+      "file": "src/audio/05_live_voice_runtime.js",
+      "bytes": 154424,
+      "sha256": "89e30900ce78b256a9e658f66db6d28013bc87d69179ae58c33d2026522acb7a"
+    },
+    {
+      "file": "src/audio/entrophon/01_wasm_asset.js",
+      "bytes": 84377,
+      "sha256": "20c35f2c533c4e774589e34b9ceba23e8ff9a994aedcb694a68c51fce62006f6"
+    },
+    {
+      "file": "src/audio/entrophon/02_worklet_and_voice_backend.js",
+      "bytes": 146276,
+      "sha256": "b118ac2f9c1522c34a0a0998d7552b53504089b209aa90936a52b1e1ae27ae32"
+    },
+    {
+      "file": "src/audio/entrophon/03_native_bridge.js",
+      "bytes": 10572,
+      "sha256": "6860d0435d262e0352cb80c19ca02d29036e9df5bfe77cd29500c58128a5c6f5"
+    },
+    {
+      "file": "src/audio/07_governor_and_drums.js",
+      "bytes": 93556,
+      "sha256": "7f6316e7f89839ee2080402ea3db3748037124f15a6eb8cb33b264a9333365ef"
+    },
+    {
+      "file": "src/rhythm/03_live_drum_bodies.js",
+      "bytes": 46843,
+      "sha256": "2e0a2439007f88053a7d00d5053aa28e2797f1f1ae796fc4428be12f8d745da4"
+    },
+    {
+      "file": "src/rhythm/04_workspace_and_transport.js",
+      "bytes": 158374,
+      "sha256": "4199c30f43844d3649d1e8ccbd2ca65bea82324ca759eee3ccf393c4d06b9980"
+    },
+    {
+      "file": "src/rhythm/05_canonical_selection.js",
+      "bytes": 6352,
+      "sha256": "109716a9566e0073f16fc69915c04b5d104df294bd4388517d72520c53a4ea74"
+    },
+    {
+      "file": "src/app/forge/01_room_shell.js",
+      "bytes": 52413,
+      "sha256": "db0a80c406a0d49e04cbd689326b5c1fd6e89f56bf2312da0d8b03ffd53bce0c"
+    },
+    {
+      "file": "src/app/forge/02_boot_and_workspace_tools.js",
+      "bytes": 73662,
+      "sha256": "e93d2111a0cff852b5284f08da805367820db562ae270f0470dd054097eecf9e"
+    },
+    {
+      "file": "src/app/forge/03_spectral_grid_and_archives.js",
+      "bytes": 69705,
+      "sha256": "00cc2da2323d8f3ddf10fd32dd743d9a089b5660400dba5be1b38f3fa88ce0e4"
+    },
+    {
+      "file": "src/app/forge/04_profiles_and_body_models.js",
+      "bytes": 78711,
+      "sha256": "9537dc4805ab58595a80dad36ac78b4f0100c57107eb82f317c8c63a4df78e6c"
+    },
+    {
+      "file": "src/app/forge/05_forge_state_and_analysis.js",
+      "bytes": 37183,
+      "sha256": "16cbe1d8a5fa09c2c3ad9f24c7b1690bb2017fa44cd41601544cd6856cbedc6f"
+    },
+    {
+      "file": "src/app/forge/06_donor_audio_and_audition.js",
+      "bytes": 45287,
+      "sha256": "a2c47252f68252778eb94dacf646e19f8f3072c478a03651c09a0cd918354cbf"
+    },
+    {
+      "file": "src/app/forge/07_preview_cache_and_controls.js",
+      "bytes": 59134,
+      "sha256": "3f2a8efb5679d24675388ac6a64bf3b733606b49daff58410c6e709de915d7fd"
+    },
+    {
+      "file": "src/forge/editor/01_display_and_canvas.js",
+      "bytes": 47754,
+      "sha256": "c8b9ca634da83671e79bd5814eb3ae991dc6ca6af71cd2254aa55e4e86ee90f5"
+    },
+    {
+      "file": "src/forge/editor/02_tools_and_audio_inputs.js",
+      "bytes": 50587,
+      "sha256": "1518f0931bdbaa955ef238e1802257e441fdfef7ac71e14d284966f5ee48688d"
+    },
+    {
+      "file": "src/forge/editor/03_synthetic_sound_engines.js",
+      "bytes": 32751,
+      "sha256": "617a36be632dbaa7f09109d3071eb9d87d573ddd34cd10988c37df724312a497"
+    },
+    {
+      "file": "src/forge/editor/04_signal_atoms_and_bodies.js",
+      "bytes": 30620,
+      "sha256": "b58714b8c5e72c33241fa2a09ebbe125da72f9ca025399f98bc254604dfc5fc3"
+    },
+    {
+      "file": "src/forge/editor/05_machine_and_carrier_projection.js",
+      "bytes": 68630,
+      "sha256": "cb6c459f1d50e668960c6e9578fc5036b85956829cbe87d87e552ff117b73f0c"
+    },
+    {
+      "file": "src/forge/editor/06_output_routing.js",
+      "bytes": 32233,
+      "sha256": "5a46c11187a826432be2d023a3d0c73c9d63c505120a235f1beda1a03df6484b"
+    },
+    {
+      "file": "src/forge/editor/07_composition_and_preview_ui.js",
+      "bytes": 92956,
+      "sha256": "6d0af4347b1394db07d074815aca0ef8adb21ac4adacc3cdc35b0841b892771a"
+    },
+    {
+      "file": "src/forge/ui/02_donor_routing_and_hearing.js",
+      "bytes": 190730,
+      "sha256": "1f7687531fef9e9197f66306bf4702102124535c089a10afb95806e3fc0526dd"
+    },
+    {
+      "file": "src/forge/ui/03_method_selection.js",
+      "bytes": 1404,
+      "sha256": "cdf3320ba84739143065396d63d69c4145955d59ef510d0bc278b91c3b473817"
+    },
+    {
+      "file": "src/forge_and_melodic/01_donor_selection_and_edits.js",
+      "bytes": 53184,
+      "sha256": "eb4414e106d77a6b532ba4f1b3561bfcce0db699d53a5345e1e1893b8e714da8"
+    },
+    {
+      "file": "src/forge_and_melodic/02_forge_keyboard_and_history.js",
+      "bytes": 25394,
+      "sha256": "895ded841cbd6aef6119a098581b6b5baf74ff71e21ed7edaa750d306a728604"
+    },
+    {
+      "file": "src/forge_and_melodic/03_timeline_and_transport_ui.js",
+      "bytes": 57391,
+      "sha256": "d85110a7fb6f594844e78432efbd7a8684f27b7ff5742423a4e2c43342110079"
+    },
+    {
+      "file": "src/forge_and_melodic/04_render_cache_and_stems.js",
+      "bytes": 51019,
+      "sha256": "9dc691c7e7261157f3ad4d1193fe9ba2fa32e7eebae56eec305e6031b6633b44"
+    },
+    {
+      "file": "src/forge_and_melodic/05_preview_and_sample_intake.js",
+      "bytes": 65848,
+      "sha256": "5fa9672fb1ef56bf9d8d75177c1827605ef57377973754dc7110454dd072d547"
+    },
+    {
+      "file": "src/forge_and_melodic/06_note_editor_and_material_tools.js",
+      "bytes": 69509,
+      "sha256": "97ae260fd1c92ad89e319ff7df9400527ae99c1dda2a171b80579404c16b1f09"
+    },
+    {
+      "file": "src/forge_and_melodic/07_tuning_and_logic_view.js",
+      "bytes": 49632,
+      "sha256": "08d00f3ea40159cc5dfc45392905f472c57d8b42cd14c542d20d0a3352b9e840"
+    },
+    {
+      "file": "src/forge_and_melodic/08_editor_actions.js",
+      "bytes": 84387,
+      "sha256": "a7c3fba1057e533acbdb675f9116edbea7401a987bce851f799665b41f0f5d4c"
+    },
+    {
+      "file": "src/forge_and_melodic/09_canonical_forge_room.js",
+      "bytes": 25798,
+      "sha256": "cc4de57bfe9bf4b173ab170c1905a093a23d0fc8010df308b59223046641a13e"
+    },
+    {
+      "file": "src/forge_and_melodic/10_audition_and_persistence.js",
+      "bytes": 28056,
+      "sha256": "97b9ac8ef69351a7a3c581309c4109778343e61ee79414e6ab653f9902f15b1f"
+    },
+    {
+      "file": "src/forge_and_melodic/11_analysis_canvas_and_controls.js",
+      "bytes": 19690,
+      "sha256": "76bb5107cfa5dc16d86cfad05e5206b69b5e7d81de5b5f6bf813291a17a4b6d1"
+    },
+    {
+      "file": "src/forge/hybrid/01_recipe.js",
+      "bytes": 2220,
+      "sha256": "8f9971f9a3eb3f105fb875819fa91771be2213b25d30b035bdb39d6043a99c24"
+    },
+    {
+      "file": "src/forge/hybrid/02_session_store.js",
+      "bytes": 2070,
+      "sha256": "fb7b4cf3a23311dce3ede0a6a6dee42d17fe7df1d6486f3ffdd5a4a8656ffd20"
+    },
+    {
+      "file": "src/forge/analysis/01_analysis_size.js",
+      "bytes": 720,
+      "sha256": "56f1b22b8f823a1851fa38a145058c2ea34a422b36bf1e1f94b304ded2821585"
+    },
+    {
+      "file": "src/forge/analysis/02_analysis_cache.js",
+      "bytes": 1626,
+      "sha256": "bf5f30e0551fa7951452dbf28343c562aa4896922014f60d2b3802c280a80715"
+    },
+    {
+      "file": "src/05_dual_donor.js",
+      "bytes": 59967,
+      "sha256": "659145d9551b0e26e67eca9781c79f8702c70306f150e26da7b72f224f1dd1f6"
+    },
+    {
+      "file": "src/06_workbench_dialog.js",
+      "bytes": 22071,
+      "sha256": "e4279f4e60d719fe2ad02b7bcf1294e5b04da923d4a3eb10ee2586bb8d76f11e"
+    }
+  ],
+  "styles": [
+    {
+      "file": "styles/00_base_utilities.css",
+      "bytes": 188918,
+      "sha256": "e09b40882f0e784107aac80ee8294e4c3363e7d596820c91469833da46d67081"
+    },
+    {
+      "file": "styles/01_near_feedback.css",
+      "bytes": 507,
+      "sha256": "a3ae120030efbac40a14ace2802e9f0924e6ac8c2af862b6c3901b51cec13efb"
+    },
+    {
+      "file": "styles/02_wave_amp.css",
+      "bytes": 113,
+      "sha256": "f000fd3a9f89337f9e255de1734700837f35681a72be59fb309a3d42deaf1634"
+    },
+    {
+      "file": "styles/03_forge_mobile_sidebar.css",
+      "bytes": 312,
+      "sha256": "ab91854df198c49cfea31757b193717865f3d26e5d68e370a7392eb9b8a31535"
+    },
+    {
+      "file": "styles/04_workbench_base.css",
+      "bytes": 6533,
+      "sha256": "36d7ec5234da0071f61f31beebd31fb16072aa99f8a4da4ab97ae1af87645b42"
+    },
+    {
+      "file": "styles/05_workbench_controls.css",
+      "bytes": 4529,
+      "sha256": "63bf3ddd8c66aaf9fc3e13b0dfab533ae352fae0efdfdf44351731da9fc335ab"
+    },
+    {
+      "file": "styles/06_donor_library.css",
+      "bytes": 2411,
+      "sha256": "d8285928265fd25f970e370a50145db6237fb204b7932fe792b06101a1becf72"
+    },
+    {
+      "file": "styles/07_donor_library_dock.css",
+      "bytes": 2235,
+      "sha256": "a9015ab49de1889c6a1f14e5dd6b5a0c13f261618eed9009c67d1c2a0ba02a34"
+    },
+    {
+      "file": "styles/08_workbench_workflow.css",
+      "bytes": 3843,
+      "sha256": "31ba7c163fe9d563956753fcb10134f10d1cf7d759548ad75c78708a1b1ce7a6"
+    },
+    {
+      "file": "styles/09_combination_rack.css",
+      "bytes": 5258,
+      "sha256": "53b6cc5fb8da5c397e7eb4eca8ac4e7bf4baf129b3356267c7d9d7e7c07282f3"
+    },
+    {
+      "file": "styles/10_hybrid_workflow.css",
+      "bytes": 1371,
+      "sha256": "9c6c8ca5b10d43316c1799171b8617726ced37aef205a0da180c9f3ca7d3d533"
+    },
+    {
+      "file": "styles/11_carrier_controls.css",
+      "bytes": 1448,
+      "sha256": "5b2d1e3c67bce5a18a72f7928f480180a1fc34051fe0f23a082803ea544a69af"
+    },
+    {
+      "file": "styles/12_drum_rack.css",
+      "bytes": 919,
+      "sha256": "2d919686bbc365ffc0b5f6a58b24e1408dd12780a8c2776cef2b0d4d90cea178"
+    },
+    {
+      "file": "styles/13_drum_timing.css",
+      "bytes": 829,
+      "sha256": "97f5a79dbc339b77cf3ddf43db7efd0ed938e3a52226435aeb03415e4986cf03"
+    },
+    {
+      "file": "styles/14_drum_responsive.css",
+      "bytes": 202,
+      "sha256": "cf0a6c4070a6b119eb10e7bc1e100be910799511393ff5316d052b0fb4fb2e08"
+    },
+    {
+      "file": "styles/15_drum_playhead.css",
+      "bytes": 310,
+      "sha256": "172b73e65d2510e479403395b09e468e33f830708046209bb966174ad092e847"
+    },
+    {
+      "file": "styles/16_dual_donor_assembly.css",
+      "bytes": 14560,
+      "sha256": "5f1c9c86811f0ad65cd26e933a7958b6e77b7ea11fec0a0e0b387d309e259018"
+    },
+    {
+      "file": "styles/17_dual_donor_output.css",
+      "bytes": 4709,
+      "sha256": "5302b08f95cb9826b25ac2bc477a2c4cbac7e401cf3e884fbf6274cb43a20f68"
+    },
+    {
+      "file": "styles/18_forge_status.css",
+      "bytes": 1629,
+      "sha256": "325841dc85670fe707b0aaef263064582ebf539384808579a655f09b2b0b5fb6"
+    },
+    {
+      "file": "styles/19_bass_manager_fix.css",
+      "bytes": 403,
+      "sha256": "a5bfe03c03a3d66c6e7712ee05263406b0b99e619ad7645baf3c007991b60058"
+    }
+  ],
+  "forgeStatements": [
+    {
+      "name": "__F352Session",
+      "sha256": "88dae84c2d180f48fdf9e7087d54bfe56da7a438af09da5006998e47d8896cc2"
+    },
+    {
+      "name": "__F351Combination",
+      "sha256": "b6de2ffb57c24af08bcbc7a1f13e05390517084a6f4f5bf77dad26f19fd86494"
+    },
+    {
+      "name": "__f352CreatePipeline",
+      "sha256": "1a197e5379b28ef668468b804a94cb46939d68f542c6857f67fe5f7e3e9772bc"
+    },
+    {
+      "name": "__f347CeciliaDSPFactory",
+      "sha256": "7a7e0a1ec0163edde26a67ddaf88c176d098290261e0a3c7cefd717f26fbacd5"
+    },
+    {
+      "name": "__F352DSP",
+      "sha256": "4e934ba209f99ea439071a209bb561e56080da523d57d61e8d971db6861b1a22"
+    },
+    {
+      "name": "__f352RenderCecilia",
+      "sha256": "cf32a027f44fdd4e45cf460876f054092879ee369ae58dea4953e62ad43cda90"
+    },
+    {
+      "name": "__F352Worker",
+      "sha256": "ba6b6ad236a985613dd79cd00433f0b831cb93b3e341b7e29d40a945ab5b90b9"
+    },
+    {
+      "name": "__f352Clone",
+      "sha256": "7b81d0f57fcbcc55228ed17a6cf10ad3bc5310040aafcd7d367757c5c938396d"
+    },
+    {
+      "name": "__f352Freeze",
+      "sha256": "ece3abfe39a4aca916063dfd8d2479bf22e71579fdcaa3ca6725f71c0d8c9ffb"
+    },
+    {
+      "name": "__f356ProjectCeciliaStates",
+      "sha256": "0908e376a778fbe65d439fac1147515a69368bdb18116b01d3edaf996c86e4e3"
+    },
+    {
+      "name": "__F352Runtime.subscribe(__F35610Overlay.refresh);",
+      "sha256": "22c8f8ee39c7fe59273a1bd5afc498d099bf06cd6e4347fd40ade2dbba990400"
+    },
+    {
+      "name": "__F351CombinationRack",
+      "sha256": "939733edf2191930e81178c4efd7fbd581218c528ac58ec1ce06951f9a0060d1"
+    },
+    {
+      "name": "__F352CeciliaControls",
+      "sha256": "f5c553186aa8f1d9ed0cab3913208d4f0c2614919670a7407d898144b9a7cd10"
+    },
+    {
+      "name": "__F352ResultPanel",
+      "sha256": "9c915b8ba9b471b8a6feb7b1305225fc991b75da08447f1842abd621bafd42e4"
+    },
+    {
+      "name": "__F352LegacyPanel",
+      "sha256": "bd5a6ab39eaeb790f6cbda4dfdbe9840a1e9517917201cdb0078450287fdacd3"
+    },
+    {
+      "name": "__F353SourceIdentity",
+      "sha256": "3dcc5b218e2d7b0b08ca92c0dba0fbc446cf492de955d57fbad08b7a2a119ff1"
+    },
+    {
+      "name": "__F353AnalysisCache",
+      "sha256": "0f9d38b78560a00dc801f597496334ad7c8fa699fa5f22f01491295778f340ea"
+    },
+    {
+      "name": "kE",
+      "sha256": "7225b00313a03f1bd04e5badd86e29a501b24e23cb51b089f997b580e1f48f4b"
+    },
+    {
+      "name": "__F353RecipePanel",
+      "sha256": "9b83e79a08110812ecc6a794d30b15a84a9318659062f7730965c00aae2aad75"
+    },
+    {
+      "name": "__F3564CarrierMiniature",
+      "sha256": "2889f16a88ed7cee7c0f82c015f2aca99ce9cca104f40ad8a8bb354e45d2e660"
+    },
+    {
+      "name": "__F356GestaltPanel",
+      "sha256": "cb15bed7ff52ec2acbaba2280f3cc5e842c7479d74026b260c67300665a8ca55"
+    },
+    {
+      "name": "__F356MaterialPanel",
+      "sha256": "924f15c78c13f95cc3015623a3aadb913e7204725e588a9f11f91f0de9e63813"
+    },
+    {
+      "name": "__F341UseMaterialPlan",
+      "sha256": "896b2791eebd18a2938bcdb4443d9e672068310c2873fe89e502db4975291943"
+    },
+    {
+      "name": "__F341UseWorkshopVisuals",
+      "sha256": "4cd6c801498cf897e35ee2c1d3d63cb38923969b840db964929172ce9a1170bb"
+    },
+    {
+      "name": "__f35623WorkbenchCanvasInteractions",
+      "sha256": "471223bf5e5b4bdf20eea224c45337b41e54066a53f01825e5c66c29df7a0c36"
+    },
+    {
+      "name": "__f35623WorkbenchKeyboard",
+      "sha256": "dbd36126a807ff2e7271e12af8ce59b59a5c64a0e4becbccbc0c31090f0db78e"
+    },
+    {
+      "name": "__f35623WorkbenchAnalysisView",
+      "sha256": "e26662cf02b453c0e2804a62d79e560ef4676c7eaaf800f601d2de07dc0503e6"
+    },
+    {
+      "name": "__f35624WorkbenchActivity",
+      "sha256": "f7fadd3a8f9595fd9a9678330ce8d8a35982fecc64b3ab96734f451a8c56852d"
+    },
+    {
+      "name": "__f35631WorkbenchExpertControls",
+      "sha256": "ec58d30c30cb7cc957e5a015d082b725a994a14c41215c963c55f8d25a74095c"
+    },
+    {
+      "name": "__f35631WorkbenchABCompare",
+      "sha256": "8bba663498c674a93ba2d8567317e785c3721a7e112fc65f08f6a2c9f01625a6"
+    },
+    {
+      "name": "__f35631WorkbenchPresetSave",
+      "sha256": "620336441d9239ba97661b088d970daef7170bdbe92dab8d0f758babdc3d5c07"
+    },
+    {
+      "name": "__f35631WorkbenchControlDescriptors",
+      "sha256": "858e40304b73d055bb6fd263b1551d6f44f49e06ae18400411806a19e5cceca5"
+    },
+    {
+      "name": "__f35636DualDSPFactory",
+      "sha256": "168e8319ff8b5f69eff713839d88e751fe93e7599aa947239a85574718b98525"
+    },
+    {
+      "name": "__F35636DualDSPOriginal",
+      "sha256": "9368bd59b90f043c0e91504f062d373389d53fb6acf0f115afe1f902e6215d97"
+    },
+    {
+      "name": "__F35636DualDSPUpdated",
+      "sha256": "785ed27c82269e88b20264d18372a0a2e1d341a5ef96685f1d94a8e426d1b8e2"
+    },
+    {
+      "name": "__F35636DualDSP",
+      "sha256": "f41a34081b9711ab646b9005615ee0849f7364830e643993f2491364cdb80dc4"
+    },
+    {
+      "name": "__F35636DualWorker",
+      "sha256": "8ed6c2643d2c05bd65bc23a02e6e9869d49161ecc2f0d9dfa717192ac2224ae4"
+    },
+    {
+      "name": "__F35636DualStore",
+      "sha256": "a2f5e78178e5dac811bd5a9081a69dcb40baeaecf2073afa72db7b2d07ee0c69"
+    },
+    {
+      "name": "__f35636Asset",
+      "sha256": "1ceb0905ee803193d5d9b38a0597814fc99d109332805ac5c4a905cc813acc5b"
+    },
+    {
+      "name": "__f35636Wav",
+      "sha256": "e1ce69a90ec00825d5905fec156ba649315a82ebb30c6239dcd977f63e91056e"
+    },
+    {
+      "name": "__f35636Download",
+      "sha256": "6dd229acb2da0652841fb3830082fff2399e9534196160b1bd6de570016a749f"
+    },
+    {
+      "name": "__f35636PortableRevision",
+      "sha256": "c2ffe2f0b6fea8b9a1d5b977c2a59edeccce3e3fbee6b6bfbdee016fc1712efb"
+    },
+    {
+      "name": "__f35636RevisionMatches",
+      "sha256": "ad2460cdaf5a6210410fcdd7016349a1b9148d29224223f526d9c69556dcba8f"
+    },
+    {
+      "name": "__f35636SessionFile",
+      "sha256": "07ab74b168225808f33f5af574b0fe10a6606839d5fd5c0b87c435184ec2ca17"
+    },
+    {
+      "name": "__f35636ReadSession",
+      "sha256": "6bcf549b98cf2070afb2839050610d45147b3b5b1ce680b97a28bc442f1880d2"
+    },
+    {
+      "name": "__F35638DonorBridge",
+      "sha256": "336bc7eaa2c27f22c5e2c2517d9ee3fd6e78e61f29fe59ad79a3e8cba0cce3f7"
+    },
+    {
+      "name": "__F35636Output",
+      "sha256": "a995782c17add312476016464d32e3d9902bd2d2ef18ac09422616132ac9896c"
+    },
+    {
+      "name": "__F35634Key",
+      "sha256": "1f28bcf21a397f89c107291451f22e1bbb1507b6def6fc3eac06c8fcb62c1e99"
+    },
+    {
+      "name": "__F35634LegacyKey",
+      "sha256": "c7fb42901c3c3cd9d0276a0380b3c432e6e9945c00e92d1f396c30d094f43a6d"
+    }
+  ],
+  "runtimeMethods": [
+    {
+      "name": "carrierSignature",
+      "sha256": "72cb36cd93d689427d134486ef1bc606e5e07aab29f03b0921b93939159a8daf"
+    },
+    {
+      "name": "effectiveRecipe",
+      "sha256": "73db77c1efd2763a4dc9f15efc7d254170d5aff1fdc13c2b5b31cb93810662c1"
+    },
+    {
+      "name": "identity",
+      "sha256": "8bb155ffccf891a0aed7e387600c09193883332604e68b1d76c3252cf969ad1d"
+    },
+    {
+      "name": "capture",
+      "sha256": "dcdb905349c7fcb8d2e1ff1992156590817ce3ec95cea84e5d3af1f8e2e8e243"
+    },
+    {
+      "name": "render",
+      "sha256": "a65fad1360520a3b6f9f07d7fbe4245ec43122a6e0e4dc5ecb9e5dc6ef26daab"
+    },
+    {
+      "name": "stop",
+      "sha256": "8bed1d9943b658c79d13b43d79e4fa3e03c1c88208204a8e1988e934cc87b836"
+    },
+    {
+      "name": "play",
+      "sha256": "6732c4806488573d93656d85e9c7d72de43493805c353b647222da1ac892498d"
+    },
+    {
+      "name": "current",
+      "sha256": "e5922da66ddc3f7b0193c9e22e62cf53c645e4970bfd6ca50b84a55d192d24c8"
+    },
+    {
+      "name": "attach",
+      "sha256": "fc22675a7d22e7377f08cfc5ea5c381969effcd4397305653d23e99e8e9f657a"
+    }
+  ],
+  "renderAdaptersSha256": "a9932563b71a8a28e66ad8817f13b7bb219fb32b3ab2adcd51869feed79ccae7"
+}

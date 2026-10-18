@@ -1,0 +1,37 @@
+"patch-entry.ts":function(module,exports,require){
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.resolveMaterialIntakeSelection = exports.materialIntakePersistenceStatus = exports.flushMaterialIntakePersistence = exports.saveMaterialIntakeState = exports.getPreloadedMaterialIntakeState = exports.preloadAllMaterialIntakeStates = exports.experimentStatePersistenceStatus = exports.attachExperimentStatePersistence = exports.diagnosticsSnapshot = exports.capturePreparedDonorOutput = exports.captureDonorMaterialPlan = exports.bindRenderProgressKey = exports.attachDonorDiagnostics = exports.renderDonorHybrid = exports.hybridLevelAt = exports.hybridPitchAt = exports.prepareDonorHybrid = exports.buildCarrierSupportPlan = exports.buildProjectionCarrierPlan = void 0;
+var projectionCarrierPlan_1 = require("./module-source/src/features/l3lab/spectralForge/donorV2/projectionCarrierPlan");
+Object.defineProperty(exports, "buildProjectionCarrierPlan", { enumerable: true, get: function () { return projectionCarrierPlan_1.buildProjectionCarrierPlan; } });
+var carrierSupportField_1 = require("./module-source/src/features/l3lab/spectralForge/donorV2/carrierSupportField");
+Object.defineProperty(exports, "buildCarrierSupportPlan", { enumerable: true, get: function () { return carrierSupportField_1.buildCarrierSupportPlan; } });
+var donorHybridModel_1 = require("./module-source/src/features/l3lab/spectralForge/donorHybrid/donorHybridModel");
+const workbenchFilm=require("./module-source/src/features/l3lab/spectralForge/donorHybrid/donorSpectralFilm");
+const workbenchPlan=require("./module-source/src/features/l3lab/spectralForge/donorHybrid/donorMaterialPlan");
+exports.spectralFilmGeometry=workbenchFilm.spectralFilmGeometry;
+exports.spectralFilmSize=workbenchFilm.spectralFilmSize;
+exports.planDonorMaterial=workbenchPlan.planDonorMaterial;
+Object.defineProperty(exports, "prepareDonorHybrid", { enumerable: true, get: function () { return donorHybridModel_1.prepareDonorHybrid; } });
+Object.defineProperty(exports, "hybridPitchAt", { enumerable: true, get: function () { return donorHybridModel_1.hybridPitchAt; } });
+Object.defineProperty(exports, "hybridLevelAt", { enumerable: true, get: function () { return donorHybridModel_1.hybridLevelAt; } });
+var renderDonorHybrid_1 = require("./module-source/src/features/l3lab/spectralForge/donorHybrid/renderDonorHybrid");
+Object.defineProperty(exports, "renderDonorHybrid", { enumerable: true, get: function () { return renderDonorHybrid_1.renderDonorHybrid; } });
+var donorMaterialDiagnostics_1 = require("./module-source/src/features/l3lab/spectralForge/donorHybrid/donorMaterialDiagnostics");
+Object.defineProperty(exports, "attachDonorDiagnostics", { enumerable: true, get: function () { return donorMaterialDiagnostics_1.attachDonorDiagnostics; } });
+Object.defineProperty(exports, "bindRenderProgressKey", { enumerable: true, get: function () { return donorMaterialDiagnostics_1.bindRenderProgressKey; } });
+Object.defineProperty(exports, "captureDonorMaterialPlan", { enumerable: true, get: function () { return donorMaterialDiagnostics_1.captureDonorMaterialPlan; } });
+Object.defineProperty(exports, "capturePreparedDonorOutput", { enumerable: true, get: function () { return donorMaterialDiagnostics_1.capturePreparedDonorOutput; } });
+Object.defineProperty(exports, "diagnosticsSnapshot", { enumerable: true, get: function () { return donorMaterialDiagnostics_1.diagnosticsSnapshot; } });
+var experimentStatePersistence_1 = require("./module-source/src/features/l3lab/spectralForge/experimentStatePersistence");
+Object.defineProperty(exports,"createExperimentStatePersistenceController",{get:()=>experimentStatePersistence_1.createExperimentStatePersistenceController});
+Object.defineProperty(exports, "attachExperimentStatePersistence", { enumerable: true, get: function () { return experimentStatePersistence_1.attachExperimentStatePersistence; } });
+Object.defineProperty(exports, "experimentStatePersistenceStatus", { enumerable: true, get: function () { return experimentStatePersistence_1.experimentStatePersistenceStatus; } });
+var materialIntakePersistence_1 = require("./module-source/src/features/l3lab/spectralForge/materialIntakePersistence");
+Object.defineProperty(exports, "preloadAllMaterialIntakeStates", { enumerable: true, get: function () { return materialIntakePersistence_1.preloadAllMaterialIntakeStates; } });
+Object.defineProperty(exports, "getPreloadedMaterialIntakeState", { enumerable: true, get: function () { return materialIntakePersistence_1.getPreloadedMaterialIntakeState; } });
+Object.defineProperty(exports, "saveMaterialIntakeState", { enumerable: true, get: function () { return materialIntakePersistence_1.saveMaterialIntakeState; } });
+Object.defineProperty(exports, "flushMaterialIntakePersistence", { enumerable: true, get: function () { return materialIntakePersistence_1.flushMaterialIntakePersistence; } });
+Object.defineProperty(exports, "materialIntakePersistenceStatus", { enumerable: true, get: function () { return materialIntakePersistence_1.materialIntakePersistenceStatus; } });
+Object.defineProperty(exports, "resolveMaterialIntakeSelection", { enumerable: true, get: function () { return materialIntakePersistence_1.resolveMaterialIntakeSelection; } });
+},
