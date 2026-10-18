@@ -1,0 +1,9 @@
+AssertionError [ERR_ASSERTION]: Play must not reset automatic progress (24%): 4,5,7,8,9,10,12,13,15,17,19,20,22,24,25,4
+    at /workspace/Xensonar/n21-f2/tests/forge-progress-browser.cjs:18:108 {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: false,
+  expected: true,
+  operator: '==',
+  diff: 'simple'
+}

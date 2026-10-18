@@ -1,0 +1,14 @@
+
+> xensonar-p4c2-n21-f2-merged@4.4.8-p4c2-n21-f2 test:forge-progress
+> node tests/forge-progress-jobs.cjs && node tests/forge-progress-pcm.cjs && node tests/forge_play_ready_save_regression.cjs && node tests/forge_save_play_symmetry.cjs && node build.cjs --verify
+
+PASS joined/hidden render progress, shared PCM, monotonic bounds, instant cache, cancellation and retry
+PASS 18 Polytrace sync/cooperative PCM + metadata comparisons, Emilia exact stereo, cooperative cancellation
+PASS Spectral Forge ready-from-cache / stale / source / Save geometry
+PASS Forge rack Play/Save exact 42×34px geometry, unchanged Project Name and centered Save
+PASS reproducible standalone HTML 5f343843a918fe432196253de8d57ce7274b3a3805959f00e67831c0f96df7f1 5513344
+npm notice
+npm notice New major version of npm available! 11.9.0 -> 12.2.0
+npm notice Changelog: https://github.com/npm/cli/releases/tag/v12.2.0
+npm notice To update run: npm install -g npm@12.2.0
+npm notice

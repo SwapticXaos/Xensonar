@@ -189,7 +189,7 @@ async function __f333RenderHearing(request) {
   // Prepare it before constructing the exact PCM cache key, not after a cache lookup.
   if(request.machineId==='fractalia-self-carrier'&&(request.snapshot.fractaliaInstrument??__Fractalia.snapshot()).donor)
     await __f3562EnsureDonor();
-  const context=IB(request),grid=TR(request.snapshot),duration=context.durationSec;
+  const context=IB(request),duration=context.durationSec;
   // Preview and export share this exact full-cycle buffer. Loop changes playback, not the render.
   context.previewDurationSec=duration;
   context.loopPreview=true;
@@ -197,8 +197,32 @@ async function __f333RenderHearing(request) {
   const hit=__f333HearingCache.get(key);
   if(hit){__f433RememberHearing(key,hit);request.onRenderProgress?.(1);return {buffer:hit,cacheKey:key,cacheHit:true,context};}
   const epoch=typeof __f333Epoch==='number'?__f333Epoch:0,existing=__f447HearingJobs.get(key);
-  if(existing?.epoch===epoch){const result=await existing.promise;request.onRenderProgress?.(1);return {...result,context};}
-  const promise=(async()=>{
+  // Play, automatic preview and export may join the same PCM calculation.
+  // Subscribe each consumer, replay completed work, and detach when it settles.
+  const listener=request.onRenderProgress;
+  const listen=async job=>{
+    try{
+      if(listener){job.listeners.add(listener);listener(job.progress);}
+      return {...await job.promise,context};
+    }
+    finally{if(listener)job.listeners.delete(listener);}
+  };
+  if(existing?.epoch===epoch)return listen(existing);
+  const job={epoch,progress:0,listeners:new Set(),promise:null};
+  const report=value=>{
+    if(epoch!==(typeof __f333Epoch==='number'?__f333Epoch:0)||!Number.isFinite(value))return;
+    const next=Math.max(job.progress,Math.min(1,Math.max(0,value)));
+    if(next===job.progress)return;
+    job.progress=next;
+    for(const listener of job.listeners)listener(next);
+  };
+  request={...request,onRenderProgress:report};
+  // Install before synthesis starts, including synchronous initial callbacks.
+  __f447HearingJobs.set(key,job);
+  job.promise=Promise.resolve().then(async()=>{
+  if(epoch!==(typeof __f333Epoch==='number'?__f333Epoch:0))throw new DOMException('Hearing render superseded','AbortError');
+  // Reconstruct the raster only for a cache miss that owns the render.
+  const grid=TR(request.snapshot);
   let buffer;
   const branch=xK(String(request.machineId));
   if(request.machineId==='fractalia-self-carrier') {
@@ -209,7 +233,7 @@ async function __f333RenderHearing(request) {
   } else if(branch) {
     const carrier=DR({request,context,spectralData:grid}).rootFollowBuild;
     if(!carrier.summary.eligible) throw new Error(carrier.summary.reason||"The figure is empty.");
-    const rendered=await vK({request,context,spectralData:grid,baseHz:AK(carrier.summary.baseHz*context.previewPitchRatio),...branch});
+    const rendered=await vK({request,context,spectralData:grid,baseHz:AK(carrier.summary.baseHz*context.previewPitchRatio),...branch,check:()=>{if(epoch!==(typeof __f333Epoch==='number'?__f333Epoch:0))throw new DOMException('Hearing render superseded','AbortError')}});
     buffer=rendered.buffer;
   } else if(request.machineId==='raw-darkpsy-oscillator') {
     const epoch=__f333Epoch;
@@ -221,11 +245,11 @@ async function __f333RenderHearing(request) {
     buffer=(request.machineId==='spektral-synthese-body'?await DB(args):await BR(args)).buffer;
   } else throw new Error("This listening mode is unavailable for the active figure.");
   if(epoch!==(typeof __f333Epoch==='number'?__f333Epoch:0))throw new DOMException('Hearing render superseded','AbortError');
+  report(1);
   __f433RememberHearing(key,buffer);
   return {buffer,cacheKey:key,cacheHit:false,context};
-  })();
-  const job={epoch,promise};__f447HearingJobs.set(key,job);
-  try{return await promise}finally{if(__f447HearingJobs.get(key)===job)__f447HearingJobs.delete(key)}
+  });
+  try{return await listen(job)}finally{if(__f447HearingJobs.get(key)===job)__f447HearingJobs.delete(key)}
 }
 
 // F3.56.5: one carrier pitch offset shared across listener and renderers.

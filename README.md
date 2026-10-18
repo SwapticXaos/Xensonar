@@ -1,6 +1,6 @@
-# XenSonar N21–F2 · Live Audio Stability
+# XenSonar N21–F2 · Forge Loading Progress
 
-Die aktuelle, vom Nutzer gelieferte N21–F2-Quellbasis mit Granular-Hold und Live-Stabilitäts-Patch
+Die aktuelle, vom Nutzer gelieferte N21–F2-Quellbasis mit Granular-Hold, Live-Stabilitäts-Patch und korrigierter Forge-Fortschrittsanzeige
 liegen in [`n21-f2/`](n21-f2/). Der ältere React-/Vite-Stand im Repository-Root
 bleibt als historischer Stand erhalten und ist nicht die Basis dieses Patches.
 
@@ -9,6 +9,8 @@ cd n21-f2
 npm ci
 npm run build
 npm run verify:build
+npm run test:forge-progress
+XEN_CHROMIUM_PATH=/usr/bin/chromium npm run test:forge-progress:browser
 npm run test:live-stability
 npm run test:granular
 npm run test:merge
@@ -17,7 +19,7 @@ XEN_CHROMIUM_PATH=/usr/bin/chromium npm run test:granular:browser
 
 Direkt testbare Datei: `Xensonar_direct_test_latest.html`.
 Quellen, Patch und Prüfbericht: `artifacts/`.
-Details: [`n21-f2/docs/live-stability-report.md`](n21-f2/docs/live-stability-report.md).
+Details: [`n21-f2/docs/forge-progress-report.md`](n21-f2/docs/forge-progress-report.md).
 
 ## Historischer Repository-Stand: Xensonar 3.1.6
 

@@ -1,0 +1,8 @@
+{
+  "src/forge/editor/03_synthetic_sound_engines.js": "cc8b0438388b8135aaa34e702855ae417f9b3430dfbea79f9b4f6eb0bd79bfc3",
+  "src/forge/editor/05_machine_and_carrier_projection.js": "39bcd601fe4574e8009d6cbccd7f7a05348601d211f8d18e91b130e174da817e",
+  "src/forge/editor/07_composition_and_preview_ui.js": "30f281207070b81e2c1fc6433f0739117b47b17d0cd810fdb5f624ebb333febc",
+  "src/forge/editor/09_workflow_controls.js": "bc71df0ada8f0e15591fcaeeb5d0fa62d0f4d12ca3487382ef19c49eb678d117",
+  "src/forge_and_melodic/10_audition_and_persistence.js": "d27cfda432864769c47ac8c9342da6b43d6e095bcdbb289006ceeebbfa736914",
+  "src/forge/dsp/04_polytrace_render.js": "3ebfc857620db1b4a98bdf91bb916ca3045e4bf6a8e6b79369f15f57ed09467d"
+}

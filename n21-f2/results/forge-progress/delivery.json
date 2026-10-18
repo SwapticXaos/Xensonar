@@ -1,0 +1,11 @@
+{
+  "base": "be1fc5300f4e56556d5e0bd2976cc239f0566246",
+  "patchApply": true,
+  "patchRebuildByteIdentical": true,
+  "sourceZipCleanNpmCi": true,
+  "sourceZipBuildVerify": true,
+  "sourceZipPreservation": true,
+  "sourceZipProgressJobs": true,
+  "sourceZipSourceIndexFreshness": true,
+  "htmlSha256": "3d29de7704f2a9632c9a1cbf917a8d0b0382e07a6252b7142dee8d163c31726c"
+}

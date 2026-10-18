@@ -1,0 +1,162 @@
+{
+  "checks": [
+    {
+      "name": "Emilia: Play joins automatic render",
+      "samples": [
+        {
+          "t": 2613.5,
+          "p": null,
+          "busy": "false",
+          "title": "Listening mode is rendered automatically"
+        },
+        {
+          "t": 2915.7000000000116,
+          "p": 4,
+          "busy": "false",
+          "title": "Preparing preview · 4%"
+        },
+        {
+          "t": 3676.9000000000233,
+          "p": 5,
+          "busy": "false",
+          "title": "Preparing preview · 5%"
+        },
+        {
+          "t": 3712.2000000000116,
+          "p": 7,
+          "busy": "false",
+          "title": "Preparing preview · 7%"
+        },
+        {
+          "t": 3986.100000000035,
+          "p": 8,
+          "busy": "false",
+          "title": "Preparing preview · 8%"
+        },
+        {
+          "t": 4010.600000000035,
+          "p": 9,
+          "busy": "false",
+          "title": "Preparing preview · 9%"
+        },
+        {
+          "t": 4041.4000000000233,
+          "p": 10,
+          "busy": "false",
+          "title": "Preparing preview · 10%"
+        },
+        {
+          "t": 4073.9000000000233,
+          "p": 12,
+          "busy": "false",
+          "title": "Preparing preview · 12%"
+        },
+        {
+          "t": 4102.900000000023,
+          "p": 13,
+          "busy": "false",
+          "title": "Preparing preview · 13%"
+        },
+        {
+          "t": 4141.100000000035,
+          "p": 15,
+          "busy": "false",
+          "title": "Preparing preview · 15%"
+        },
+        {
+          "t": 4178.700000000012,
+          "p": 17,
+          "busy": "false",
+          "title": "Preparing preview · 17%"
+        },
+        {
+          "t": 4213.799999999988,
+          "p": 19,
+          "busy": "false",
+          "title": "Preparing preview · 19%"
+        },
+        {
+          "t": 4246.5,
+          "p": 20,
+          "busy": "false",
+          "title": "Preparing preview · 20%"
+        },
+        {
+          "t": 4278.100000000035,
+          "p": 22,
+          "busy": "false",
+          "title": "Preparing preview · 22%"
+        },
+        {
+          "t": 4313.100000000035,
+          "p": 24,
+          "busy": "false",
+          "title": "Preparing preview · 24%"
+        },
+        {
+          "t": 4352.200000000012,
+          "p": 25,
+          "busy": "false",
+          "title": "Preparing preview · 25%"
+        },
+        {
+          "t": 4427,
+          "p": 4,
+          "busy": "true",
+          "title": "Cancel rendering"
+        },
+        {
+          "t": 5961.299999999988,
+          "p": null,
+          "busy": "true",
+          "title": "Cancel rendering"
+        },
+        {
+          "t": 5980.5,
+          "p": null,
+          "busy": "false",
+          "title": "Pause Preview"
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "options": [
+    {
+      "value": "pure-dieter",
+      "label": "Pure Dieter"
+    },
+    {
+      "value": "harmonic-xplore",
+      "label": "HarmonicXplorE"
+    },
+    {
+      "value": "spektral-synthese",
+      "label": "Spectral Synthesis"
+    },
+    {
+      "value": "antonia",
+      "label": "Antonia"
+    },
+    {
+      "value": "bert",
+      "label": "Bert"
+    },
+    {
+      "value": "cecilia",
+      "label": "Cecilia"
+    },
+    {
+      "value": "donor",
+      "label": "Donor"
+    },
+    {
+      "value": "emilia",
+      "label": "Emilia"
+    },
+    {
+      "value": "fractalia",
+      "label": "Fractalia"
+    }
+  ]
+}

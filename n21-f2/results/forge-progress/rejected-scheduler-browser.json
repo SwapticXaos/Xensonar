@@ -1,0 +1,2447 @@
+{
+  "checks": [
+    {
+      "name": "Emilia: Play joins automatic render",
+      "samples": [
+        {
+          "t": 2998.1999999999534,
+          "p": null,
+          "busy": "false",
+          "title": "Listening mode is rendered automatically"
+        },
+        {
+          "t": 3139.79999999993,
+          "p": 4,
+          "busy": "true",
+          "title": "Preparing preview · 4%"
+        },
+        {
+          "t": 3947.29999999993,
+          "p": 5,
+          "busy": "true",
+          "title": "Preparing preview · 5%"
+        },
+        {
+          "t": 3981.0999999999767,
+          "p": 7,
+          "busy": "true",
+          "title": "Preparing preview · 7%"
+        },
+        {
+          "t": 4199.29999999993,
+          "p": 8,
+          "busy": "true",
+          "title": "Preparing preview · 8%"
+        },
+        {
+          "t": 4228.29999999993,
+          "p": 9,
+          "busy": "true",
+          "title": "Preparing preview · 9%"
+        },
+        {
+          "t": 4258.79999999993,
+          "p": 11,
+          "busy": "true",
+          "title": "Preparing preview · 11%"
+        },
+        {
+          "t": 4286.199999999953,
+          "p": 12,
+          "busy": "true",
+          "title": "Preparing preview · 12%"
+        },
+        {
+          "t": 4312.599999999977,
+          "p": 13,
+          "busy": "true",
+          "title": "Preparing preview · 13%"
+        },
+        {
+          "t": 4347,
+          "p": 15,
+          "busy": "true",
+          "title": "Preparing preview · 15%"
+        },
+        {
+          "t": 4377.5,
+          "p": 17,
+          "busy": "true",
+          "title": "Preparing preview · 17%"
+        },
+        {
+          "t": 4414.29999999993,
+          "p": 19,
+          "busy": "true",
+          "title": "Preparing preview · 19%"
+        },
+        {
+          "t": 4443.900000000023,
+          "p": 20,
+          "busy": "true",
+          "title": "Preparing preview · 20%"
+        },
+        {
+          "t": 4474,
+          "p": 21,
+          "busy": "true",
+          "title": "Preparing preview · 21%"
+        },
+        {
+          "t": 4501.900000000023,
+          "p": 23,
+          "busy": "true",
+          "title": "Preparing preview · 23%"
+        },
+        {
+          "t": 4528.599999999977,
+          "p": 24,
+          "busy": "true",
+          "title": "Preparing preview · 24%"
+        },
+        {
+          "t": 4599.79999999993,
+          "p": 26,
+          "busy": "true",
+          "title": "Preparing preview · 26%"
+        },
+        {
+          "t": 4635.199999999953,
+          "p": 27,
+          "busy": "true",
+          "title": "Preparing preview · 27%"
+        },
+        {
+          "t": 4670.400000000023,
+          "p": 28,
+          "busy": "true",
+          "title": "Preparing preview · 28%"
+        },
+        {
+          "t": 4711.599999999977,
+          "p": 30,
+          "busy": "true",
+          "title": "Preparing preview · 30%"
+        },
+        {
+          "t": 4749.099999999977,
+          "p": 31,
+          "busy": "true",
+          "title": "Preparing preview · 31%"
+        },
+        {
+          "t": 4788.29999999993,
+          "p": 33,
+          "busy": "true",
+          "title": "Preparing preview · 33%"
+        },
+        {
+          "t": 4813.29999999993,
+          "p": 34,
+          "busy": "true",
+          "title": "Preparing preview · 34%"
+        },
+        {
+          "t": 4851.400000000023,
+          "p": 36,
+          "busy": "true",
+          "title": "Preparing preview · 36%"
+        },
+        {
+          "t": 4883.199999999953,
+          "p": 38,
+          "busy": "true",
+          "title": "Preparing preview · 38%"
+        },
+        {
+          "t": 4923.29999999993,
+          "p": 39,
+          "busy": "true",
+          "title": "Preparing preview · 39%"
+        },
+        {
+          "t": 4954.199999999953,
+          "p": 41,
+          "busy": "true",
+          "title": "Preparing preview · 41%"
+        },
+        {
+          "t": 4986.199999999953,
+          "p": 43,
+          "busy": "true",
+          "title": "Preparing preview · 43%"
+        },
+        {
+          "t": 5019.900000000023,
+          "p": 44,
+          "busy": "true",
+          "title": "Preparing preview · 44%"
+        },
+        {
+          "t": 5056.400000000023,
+          "p": 46,
+          "busy": "true",
+          "title": "Preparing preview · 46% · click to cancel"
+        },
+        {
+          "t": 5158.900000000023,
+          "p": 48,
+          "busy": "true",
+          "title": "Preparing preview · 48% · click to cancel"
+        },
+        {
+          "t": 5189.099999999977,
+          "p": 50,
+          "busy": "true",
+          "title": "Preparing preview · 50% · click to cancel"
+        },
+        {
+          "t": 5228.400000000023,
+          "p": 51,
+          "busy": "true",
+          "title": "Preparing preview · 51% · click to cancel"
+        },
+        {
+          "t": 5261.29999999993,
+          "p": 53,
+          "busy": "true",
+          "title": "Preparing preview · 53% · click to cancel"
+        },
+        {
+          "t": 5290.79999999993,
+          "p": 55,
+          "busy": "true",
+          "title": "Preparing preview · 55% · click to cancel"
+        },
+        {
+          "t": 5332.900000000023,
+          "p": 56,
+          "busy": "true",
+          "title": "Preparing preview · 56% · click to cancel"
+        },
+        {
+          "t": 5370.5,
+          "p": 57,
+          "busy": "true",
+          "title": "Preparing preview · 57% · click to cancel"
+        },
+        {
+          "t": 5399.400000000023,
+          "p": 59,
+          "busy": "true",
+          "title": "Preparing preview · 59% · click to cancel"
+        },
+        {
+          "t": 5429.29999999993,
+          "p": 60,
+          "busy": "true",
+          "title": "Preparing preview · 60% · click to cancel"
+        },
+        {
+          "t": 5468.900000000023,
+          "p": 61,
+          "busy": "true",
+          "title": "Preparing preview · 61% · click to cancel"
+        },
+        {
+          "t": 5502.099999999977,
+          "p": 63,
+          "busy": "true",
+          "title": "Preparing preview · 63% · click to cancel"
+        },
+        {
+          "t": 5528.900000000023,
+          "p": 64,
+          "busy": "true",
+          "title": "Preparing preview · 64% · click to cancel"
+        },
+        {
+          "t": 5558,
+          "p": 65,
+          "busy": "true",
+          "title": "Preparing preview · 65% · click to cancel"
+        },
+        {
+          "t": 5589.5,
+          "p": 67,
+          "busy": "true",
+          "title": "Preparing preview · 67% · click to cancel"
+        },
+        {
+          "t": 5621.699999999953,
+          "p": 68,
+          "busy": "true",
+          "title": "Preparing preview · 68% · click to cancel"
+        },
+        {
+          "t": 5649.699999999953,
+          "p": 69,
+          "busy": "true",
+          "title": "Preparing preview · 69% · click to cancel"
+        },
+        {
+          "t": 5680.099999999977,
+          "p": 71,
+          "busy": "true",
+          "title": "Preparing preview · 71% · click to cancel"
+        },
+        {
+          "t": 5712.099999999977,
+          "p": 73,
+          "busy": "true",
+          "title": "Preparing preview · 73% · click to cancel"
+        },
+        {
+          "t": 5746,
+          "p": 74,
+          "busy": "true",
+          "title": "Preparing preview · 74% · click to cancel"
+        },
+        {
+          "t": 5779.900000000023,
+          "p": 76,
+          "busy": "true",
+          "title": "Preparing preview · 76% · click to cancel"
+        },
+        {
+          "t": 5813.29999999993,
+          "p": 78,
+          "busy": "true",
+          "title": "Preparing preview · 78% · click to cancel"
+        },
+        {
+          "t": 5852.199999999953,
+          "p": 80,
+          "busy": "true",
+          "title": "Preparing preview · 80% · click to cancel"
+        },
+        {
+          "t": 5882.599999999977,
+          "p": 81,
+          "busy": "true",
+          "title": "Preparing preview · 81% · click to cancel"
+        },
+        {
+          "t": 5913.599999999977,
+          "p": 83,
+          "busy": "true",
+          "title": "Preparing preview · 83% · click to cancel"
+        },
+        {
+          "t": 5945.29999999993,
+          "p": 85,
+          "busy": "true",
+          "title": "Preparing preview · 85% · click to cancel"
+        },
+        {
+          "t": 5984.599999999977,
+          "p": 86,
+          "busy": "true",
+          "title": "Preparing preview · 86% · click to cancel"
+        },
+        {
+          "t": 6015.29999999993,
+          "p": 88,
+          "busy": "true",
+          "title": "Preparing preview · 88% · click to cancel"
+        },
+        {
+          "t": 6042.79999999993,
+          "p": 89,
+          "busy": "true",
+          "title": "Preparing preview · 89% · click to cancel"
+        },
+        {
+          "t": 6071.900000000023,
+          "p": 91,
+          "busy": "true",
+          "title": "Preparing preview · 91% · click to cancel"
+        },
+        {
+          "t": 6118.599999999977,
+          "p": 93,
+          "busy": "true",
+          "title": "Preparing preview · 93% · click to cancel"
+        },
+        {
+          "t": 6149.099999999977,
+          "p": 95,
+          "busy": "true",
+          "title": "Preparing preview · 95% · click to cancel"
+        },
+        {
+          "t": 6182.900000000023,
+          "p": 96,
+          "busy": "true",
+          "title": "Preparing preview · 96% · click to cancel"
+        },
+        {
+          "t": 6215.400000000023,
+          "p": 98,
+          "busy": "true",
+          "title": "Preparing preview · 98% · click to cancel"
+        },
+        {
+          "t": 6250.400000000023,
+          "p": 99,
+          "busy": "true",
+          "title": "Preparing preview · 99% · click to cancel"
+        },
+        {
+          "t": 6313.900000000023,
+          "p": null,
+          "busy": "true",
+          "title": "Cancel rendering"
+        },
+        {
+          "t": 6337.900000000023,
+          "p": null,
+          "busy": "false",
+          "title": "Pause Preview"
+        }
+      ]
+    },
+    {
+      "name": "Emilia: exact cached PCM starts without new render",
+      "samples": [
+        {
+          "t": 6536.5,
+          "p": null,
+          "busy": "true",
+          "title": "Cancel rendering"
+        },
+        {
+          "t": 6542,
+          "p": null,
+          "busy": "false",
+          "title": "Pause Preview"
+        }
+      ]
+    },
+    {
+      "name": "emilia: cold Play",
+      "samples": [
+        {
+          "t": 6898.699999999953,
+          "p": null,
+          "busy": "false",
+          "title": "Listening mode is rendered automatically"
+        },
+        {
+          "t": 6921.29999999993,
+          "p": 4,
+          "busy": "true",
+          "title": "Preparing preview · 4% · click to cancel"
+        },
+        {
+          "t": 7196.5,
+          "p": 6,
+          "busy": "true",
+          "title": "Preparing preview · 6% · click to cancel"
+        },
+        {
+          "t": 7229.199999999953,
+          "p": 7,
+          "busy": "true",
+          "title": "Preparing preview · 7% · click to cancel"
+        },
+        {
+          "t": 7235.199999999953,
+          "p": 7,
+          "busy": "true",
+          "title": "Preparing preview · 7% · click to cancel"
+        },
+        {
+          "t": 7267.599999999977,
+          "p": 9,
+          "busy": "true",
+          "title": "Preparing preview · 9% · click to cancel"
+        },
+        {
+          "t": 7306,
+          "p": 10,
+          "busy": "true",
+          "title": "Preparing preview · 10% · click to cancel"
+        },
+        {
+          "t": 7340.199999999953,
+          "p": 12,
+          "busy": "true",
+          "title": "Preparing preview · 12% · click to cancel"
+        },
+        {
+          "t": 7371.099999999977,
+          "p": 14,
+          "busy": "true",
+          "title": "Preparing preview · 14% · click to cancel"
+        },
+        {
+          "t": 7403.099999999977,
+          "p": 16,
+          "busy": "true",
+          "title": "Preparing preview · 16% · click to cancel"
+        },
+        {
+          "t": 7432,
+          "p": 17,
+          "busy": "true",
+          "title": "Preparing preview · 17% · click to cancel"
+        },
+        {
+          "t": 7458.400000000023,
+          "p": 19,
+          "busy": "true",
+          "title": "Preparing preview · 19% · click to cancel"
+        },
+        {
+          "t": 7489.900000000023,
+          "p": 21,
+          "busy": "true",
+          "title": "Preparing preview · 21% · click to cancel"
+        },
+        {
+          "t": 7520.5,
+          "p": 23,
+          "busy": "true",
+          "title": "Preparing preview · 23% · click to cancel"
+        },
+        {
+          "t": 7554.099999999977,
+          "p": 24,
+          "busy": "true",
+          "title": "Preparing preview · 24% · click to cancel"
+        },
+        {
+          "t": 7588.29999999993,
+          "p": 26,
+          "busy": "true",
+          "title": "Preparing preview · 26% · click to cancel"
+        },
+        {
+          "t": 7614.79999999993,
+          "p": 27,
+          "busy": "true",
+          "title": "Preparing preview · 27% · click to cancel"
+        },
+        {
+          "t": 7644.900000000023,
+          "p": 29,
+          "busy": "true",
+          "title": "Preparing preview · 29% · click to cancel"
+        },
+        {
+          "t": 7672.099999999977,
+          "p": 30,
+          "busy": "true",
+          "title": "Preparing preview · 30% · click to cancel"
+        },
+        {
+          "t": 7710.29999999993,
+          "p": 31,
+          "busy": "true",
+          "title": "Preparing preview · 31% · click to cancel"
+        },
+        {
+          "t": 7752,
+          "p": 33,
+          "busy": "true",
+          "title": "Preparing preview · 33% · click to cancel"
+        },
+        {
+          "t": 7792.29999999993,
+          "p": 34,
+          "busy": "true",
+          "title": "Preparing preview · 34% · click to cancel"
+        },
+        {
+          "t": 7859.699999999953,
+          "p": 36,
+          "busy": "true",
+          "title": "Preparing preview · 36% · click to cancel"
+        },
+        {
+          "t": 7893.29999999993,
+          "p": 37,
+          "busy": "true",
+          "title": "Preparing preview · 37% · click to cancel"
+        },
+        {
+          "t": 8011.599999999977,
+          "p": 38,
+          "busy": "true",
+          "title": "Preparing preview · 38% · click to cancel"
+        },
+        {
+          "t": 8207.400000000023,
+          "p": 40,
+          "busy": "true",
+          "title": "Preparing preview · 40% · click to cancel"
+        },
+        {
+          "t": 8239.199999999953,
+          "p": 42,
+          "busy": "true",
+          "title": "Preparing preview · 42% · click to cancel"
+        },
+        {
+          "t": 8286.199999999953,
+          "p": 44,
+          "busy": "true",
+          "title": "Preparing preview · 44% · click to cancel"
+        },
+        {
+          "t": 8316,
+          "p": 45,
+          "busy": "true",
+          "title": "Preparing preview · 45% · click to cancel"
+        },
+        {
+          "t": 8350.599999999977,
+          "p": 46,
+          "busy": "true",
+          "title": "Preparing preview · 46% · click to cancel"
+        },
+        {
+          "t": 8526.199999999953,
+          "p": 48,
+          "busy": "true",
+          "title": "Preparing preview · 48% · click to cancel"
+        },
+        {
+          "t": 8575.79999999993,
+          "p": 49,
+          "busy": "true",
+          "title": "Preparing preview · 49% · click to cancel"
+        },
+        {
+          "t": 8608,
+          "p": 51,
+          "busy": "true",
+          "title": "Preparing preview · 51% · click to cancel"
+        },
+        {
+          "t": 8649.29999999993,
+          "p": 52,
+          "busy": "true",
+          "title": "Preparing preview · 52% · click to cancel"
+        },
+        {
+          "t": 8679.699999999953,
+          "p": 53,
+          "busy": "true",
+          "title": "Preparing preview · 53% · click to cancel"
+        },
+        {
+          "t": 8713.199999999953,
+          "p": 55,
+          "busy": "true",
+          "title": "Preparing preview · 55% · click to cancel"
+        },
+        {
+          "t": 8740.099999999977,
+          "p": 56,
+          "busy": "true",
+          "title": "Preparing preview · 56% · click to cancel"
+        },
+        {
+          "t": 8769.599999999977,
+          "p": 57,
+          "busy": "true",
+          "title": "Preparing preview · 57% · click to cancel"
+        },
+        {
+          "t": 8798.599999999977,
+          "p": 59,
+          "busy": "true",
+          "title": "Preparing preview · 59% · click to cancel"
+        },
+        {
+          "t": 8828.400000000023,
+          "p": 61,
+          "busy": "true",
+          "title": "Preparing preview · 61% · click to cancel"
+        },
+        {
+          "t": 8856.699999999953,
+          "p": 62,
+          "busy": "true",
+          "title": "Preparing preview · 62% · click to cancel"
+        },
+        {
+          "t": 8885.79999999993,
+          "p": 63,
+          "busy": "true",
+          "title": "Preparing preview · 63% · click to cancel"
+        },
+        {
+          "t": 8923.699999999953,
+          "p": 65,
+          "busy": "true",
+          "title": "Preparing preview · 65% · click to cancel"
+        },
+        {
+          "t": 8956.400000000023,
+          "p": 67,
+          "busy": "true",
+          "title": "Preparing preview · 67% · click to cancel"
+        },
+        {
+          "t": 8988.5,
+          "p": 68,
+          "busy": "true",
+          "title": "Preparing preview · 68% · click to cancel"
+        },
+        {
+          "t": 9017.900000000023,
+          "p": 70,
+          "busy": "true",
+          "title": "Preparing preview · 70% · click to cancel"
+        },
+        {
+          "t": 9050.900000000023,
+          "p": 72,
+          "busy": "true",
+          "title": "Preparing preview · 72% · click to cancel"
+        },
+        {
+          "t": 9084.400000000023,
+          "p": 74,
+          "busy": "true",
+          "title": "Preparing preview · 74% · click to cancel"
+        },
+        {
+          "t": 9123.599999999977,
+          "p": 75,
+          "busy": "true",
+          "title": "Preparing preview · 75% · click to cancel"
+        },
+        {
+          "t": 9155.29999999993,
+          "p": 77,
+          "busy": "true",
+          "title": "Preparing preview · 77% · click to cancel"
+        },
+        {
+          "t": 9192.79999999993,
+          "p": 79,
+          "busy": "true",
+          "title": "Preparing preview · 79% · click to cancel"
+        },
+        {
+          "t": 9223.79999999993,
+          "p": 81,
+          "busy": "true",
+          "title": "Preparing preview · 81% · click to cancel"
+        },
+        {
+          "t": 9255.699999999953,
+          "p": 82,
+          "busy": "true",
+          "title": "Preparing preview · 82% · click to cancel"
+        },
+        {
+          "t": 9285.099999999977,
+          "p": 84,
+          "busy": "true",
+          "title": "Preparing preview · 84% · click to cancel"
+        },
+        {
+          "t": 9322.79999999993,
+          "p": 86,
+          "busy": "true",
+          "title": "Preparing preview · 86% · click to cancel"
+        },
+        {
+          "t": 9352.900000000023,
+          "p": 88,
+          "busy": "true",
+          "title": "Preparing preview · 88% · click to cancel"
+        },
+        {
+          "t": 9381.29999999993,
+          "p": 89,
+          "busy": "true",
+          "title": "Preparing preview · 89% · click to cancel"
+        },
+        {
+          "t": 9406.099999999977,
+          "p": 90,
+          "busy": "true",
+          "title": "Preparing preview · 90% · click to cancel"
+        },
+        {
+          "t": 9436.699999999953,
+          "p": 91,
+          "busy": "true",
+          "title": "Preparing preview · 91% · click to cancel"
+        },
+        {
+          "t": 9466.29999999993,
+          "p": 93,
+          "busy": "true",
+          "title": "Preparing preview · 93% · click to cancel"
+        },
+        {
+          "t": 9498,
+          "p": 95,
+          "busy": "true",
+          "title": "Preparing preview · 95% · click to cancel"
+        },
+        {
+          "t": 9524.199999999953,
+          "p": 96,
+          "busy": "true",
+          "title": "Preparing preview · 96% · click to cancel"
+        },
+        {
+          "t": 9552.599999999977,
+          "p": 97,
+          "busy": "true",
+          "title": "Preparing preview · 97% · click to cancel"
+        },
+        {
+          "t": 9585,
+          "p": 99,
+          "busy": "true",
+          "title": "Preparing preview · 99% · click to cancel"
+        },
+        {
+          "t": 9645.400000000023,
+          "p": null,
+          "busy": "true",
+          "title": "Cancel rendering"
+        },
+        {
+          "t": 9650.199999999953,
+          "p": null,
+          "busy": "false",
+          "title": "Pause Preview"
+        }
+      ]
+    },
+    {
+      "name": "pure-dieter: cold Play",
+      "samples": [
+        {
+          "t": 10034.5,
+          "p": 4,
+          "busy": "true",
+          "title": "Preparing preview · 4% · click to cancel"
+        },
+        {
+          "t": 10123.900000000023,
+          "p": 5,
+          "busy": "true",
+          "title": "Preparing preview · 5% · click to cancel"
+        },
+        {
+          "t": 10126,
+          "p": 6,
+          "busy": "true",
+          "title": "Preparing preview · 6% · click to cancel"
+        },
+        {
+          "t": 10127.79999999993,
+          "p": 8,
+          "busy": "true",
+          "title": "Preparing preview · 8% · click to cancel"
+        },
+        {
+          "t": 10129.5,
+          "p": 9,
+          "busy": "true",
+          "title": "Preparing preview · 9% · click to cancel"
+        },
+        {
+          "t": 10130.099999999977,
+          "p": 10,
+          "busy": "true",
+          "title": "Preparing preview · 10% · click to cancel"
+        },
+        {
+          "t": 10131.599999999977,
+          "p": 12,
+          "busy": "true",
+          "title": "Preparing preview · 12% · click to cancel"
+        },
+        {
+          "t": 10132.199999999953,
+          "p": 13,
+          "busy": "true",
+          "title": "Preparing preview · 13% · click to cancel"
+        },
+        {
+          "t": 10139.5,
+          "p": 17,
+          "busy": "true",
+          "title": "Preparing preview · 17% · click to cancel"
+        },
+        {
+          "t": 10140.5,
+          "p": 19,
+          "busy": "true",
+          "title": "Preparing preview · 19% · click to cancel"
+        },
+        {
+          "t": 10141.199999999953,
+          "p": 20,
+          "busy": "true",
+          "title": "Preparing preview · 20% · click to cancel"
+        },
+        {
+          "t": 10142.099999999977,
+          "p": 21,
+          "busy": "true",
+          "title": "Preparing preview · 21% · click to cancel"
+        },
+        {
+          "t": 10143.400000000023,
+          "p": 23,
+          "busy": "true",
+          "title": "Preparing preview · 23% · click to cancel"
+        },
+        {
+          "t": 10144.29999999993,
+          "p": 24,
+          "busy": "true",
+          "title": "Preparing preview · 24% · click to cancel"
+        },
+        {
+          "t": 10145.29999999993,
+          "p": 25,
+          "busy": "true",
+          "title": "Preparing preview · 25% · click to cancel"
+        },
+        {
+          "t": 10146,
+          "p": 27,
+          "busy": "true",
+          "title": "Preparing preview · 27% · click to cancel"
+        },
+        {
+          "t": 10146.599999999977,
+          "p": 28,
+          "busy": "true",
+          "title": "Preparing preview · 28% · click to cancel"
+        },
+        {
+          "t": 10147.5,
+          "p": 30,
+          "busy": "true",
+          "title": "Preparing preview · 30% · click to cancel"
+        },
+        {
+          "t": 10148.400000000023,
+          "p": 31,
+          "busy": "true",
+          "title": "Preparing preview · 31% · click to cancel"
+        },
+        {
+          "t": 10150.199999999953,
+          "p": 32,
+          "busy": "true",
+          "title": "Preparing preview · 32% · click to cancel"
+        },
+        {
+          "t": 10151.29999999993,
+          "p": 34,
+          "busy": "true",
+          "title": "Preparing preview · 34% · click to cancel"
+        },
+        {
+          "t": 10152.5,
+          "p": 35,
+          "busy": "true",
+          "title": "Preparing preview · 35% · click to cancel"
+        },
+        {
+          "t": 10153.400000000023,
+          "p": 36,
+          "busy": "true",
+          "title": "Preparing preview · 36% · click to cancel"
+        },
+        {
+          "t": 10154.79999999993,
+          "p": 38,
+          "busy": "true",
+          "title": "Preparing preview · 38% · click to cancel"
+        },
+        {
+          "t": 10155.900000000023,
+          "p": 39,
+          "busy": "true",
+          "title": "Preparing preview · 39% · click to cancel"
+        },
+        {
+          "t": 10163.29999999993,
+          "p": 46,
+          "busy": "true",
+          "title": "Preparing preview · 46% · click to cancel"
+        },
+        {
+          "t": 10163.79999999993,
+          "p": 47,
+          "busy": "true",
+          "title": "Preparing preview · 47% · click to cancel"
+        },
+        {
+          "t": 10164.900000000023,
+          "p": 49,
+          "busy": "true",
+          "title": "Preparing preview · 49% · click to cancel"
+        },
+        {
+          "t": 10171.599999999977,
+          "p": 54,
+          "busy": "true",
+          "title": "Preparing preview · 54% · click to cancel"
+        },
+        {
+          "t": 10172.099999999977,
+          "p": 56,
+          "busy": "true",
+          "title": "Preparing preview · 56% · click to cancel"
+        },
+        {
+          "t": 10173.099999999977,
+          "p": 57,
+          "busy": "true",
+          "title": "Preparing preview · 57% · click to cancel"
+        },
+        {
+          "t": 10173.900000000023,
+          "p": 58,
+          "busy": "true",
+          "title": "Preparing preview · 58% · click to cancel"
+        },
+        {
+          "t": 10175,
+          "p": 60,
+          "busy": "true",
+          "title": "Preparing preview · 60% · click to cancel"
+        },
+        {
+          "t": 10175.699999999953,
+          "p": 61,
+          "busy": "true",
+          "title": "Preparing preview · 61% · click to cancel"
+        },
+        {
+          "t": 10177.79999999993,
+          "p": 63,
+          "busy": "true",
+          "title": "Preparing preview · 63% · click to cancel"
+        },
+        {
+          "t": 10179.29999999993,
+          "p": 64,
+          "busy": "true",
+          "title": "Preparing preview · 64% · click to cancel"
+        },
+        {
+          "t": 10179.699999999953,
+          "p": 65,
+          "busy": "true",
+          "title": "Preparing preview · 65% · click to cancel"
+        },
+        {
+          "t": 10180.900000000023,
+          "p": 67,
+          "busy": "true",
+          "title": "Preparing preview · 67% · click to cancel"
+        },
+        {
+          "t": 10181.5,
+          "p": 68,
+          "busy": "true",
+          "title": "Preparing preview · 68% · click to cancel"
+        },
+        {
+          "t": 10183.5,
+          "p": 69,
+          "busy": "true",
+          "title": "Preparing preview · 69% · click to cancel"
+        },
+        {
+          "t": 10193,
+          "p": 72,
+          "busy": "true",
+          "title": "Preparing preview · 72% · click to cancel"
+        },
+        {
+          "t": 10198.29999999993,
+          "p": 87,
+          "busy": "true",
+          "title": "Preparing preview · 87% · click to cancel"
+        },
+        {
+          "t": 10199.5,
+          "p": 90,
+          "busy": "true",
+          "title": "Preparing preview · 90% · click to cancel"
+        },
+        {
+          "t": 10210.29999999993,
+          "p": 92,
+          "busy": "true",
+          "title": "Preparing preview · 92% · click to cancel"
+        },
+        {
+          "t": 10213.900000000023,
+          "p": 98,
+          "busy": "true",
+          "title": "Preparing preview · 98% · click to cancel"
+        },
+        {
+          "t": 10256.79999999993,
+          "p": null,
+          "busy": "true",
+          "title": "Cancel rendering"
+        },
+        {
+          "t": 10268.099999999977,
+          "p": null,
+          "busy": "false",
+          "title": "Pause Preview"
+        }
+      ]
+    },
+    {
+      "name": "fractalia: cold Play",
+      "samples": [
+        {
+          "t": 10752.400000000023,
+          "p": 4,
+          "busy": "true",
+          "title": "Preparing preview · 4% · click to cancel"
+        },
+        {
+          "t": 11565.79999999993,
+          "p": 5,
+          "busy": "true",
+          "title": "Preparing preview · 5% · click to cancel"
+        },
+        {
+          "t": 11576,
+          "p": 6,
+          "busy": "true",
+          "title": "Preparing preview · 6% · click to cancel"
+        },
+        {
+          "t": 11589.699999999953,
+          "p": 8,
+          "busy": "true",
+          "title": "Preparing preview · 8% · click to cancel"
+        },
+        {
+          "t": 11596.199999999953,
+          "p": 9,
+          "busy": "true",
+          "title": "Preparing preview · 9% · click to cancel"
+        },
+        {
+          "t": 11611.79999999993,
+          "p": 10,
+          "busy": "true",
+          "title": "Preparing preview · 10% · click to cancel"
+        },
+        {
+          "t": 11631.199999999953,
+          "p": 11,
+          "busy": "true",
+          "title": "Preparing preview · 11% · click to cancel"
+        },
+        {
+          "t": 11677.699999999953,
+          "p": 12,
+          "busy": "true",
+          "title": "Preparing preview · 12% · click to cancel"
+        },
+        {
+          "t": 11769.5,
+          "p": 14,
+          "busy": "true",
+          "title": "Preparing preview · 14% · click to cancel"
+        },
+        {
+          "t": 11801.699999999953,
+          "p": 16,
+          "busy": "true",
+          "title": "Preparing preview · 16% · click to cancel"
+        },
+        {
+          "t": 11821.900000000023,
+          "p": 25,
+          "busy": "true",
+          "title": "Preparing preview · 25% · click to cancel"
+        },
+        {
+          "t": 12054.900000000023,
+          "p": 33,
+          "busy": "true",
+          "title": "Preparing preview · 33% · click to cancel"
+        },
+        {
+          "t": 12079.599999999977,
+          "p": 45,
+          "busy": "true",
+          "title": "Preparing preview · 45% · click to cancel"
+        },
+        {
+          "t": 12099.5,
+          "p": 57,
+          "busy": "true",
+          "title": "Preparing preview · 57% · click to cancel"
+        },
+        {
+          "t": 12113.599999999977,
+          "p": 67,
+          "busy": "true",
+          "title": "Preparing preview · 67% · click to cancel"
+        },
+        {
+          "t": 12144,
+          "p": 78,
+          "busy": "true",
+          "title": "Preparing preview · 78% · click to cancel"
+        },
+        {
+          "t": 12198.400000000023,
+          "p": null,
+          "busy": "true",
+          "title": "Cancel rendering"
+        },
+        {
+          "t": 12203.599999999977,
+          "p": null,
+          "busy": "false",
+          "title": "Pause Preview"
+        }
+      ]
+    },
+    {
+      "name": "harmonic-xplore: cold Play",
+      "samples": [
+        {
+          "t": 12734.199999999953,
+          "p": 4,
+          "busy": "true",
+          "title": "Preparing preview · 4% · click to cancel"
+        },
+        {
+          "t": 12906.29999999993,
+          "p": 5,
+          "busy": "true",
+          "title": "Preparing preview · 5% · click to cancel"
+        },
+        {
+          "t": 12934.5,
+          "p": 6,
+          "busy": "true",
+          "title": "Preparing preview · 6% · click to cancel"
+        },
+        {
+          "t": 12959.699999999953,
+          "p": 7,
+          "busy": "true",
+          "title": "Preparing preview · 7% · click to cancel"
+        },
+        {
+          "t": 12973.699999999953,
+          "p": 8,
+          "busy": "true",
+          "title": "Preparing preview · 8% · click to cancel"
+        },
+        {
+          "t": 12999.900000000023,
+          "p": 9,
+          "busy": "true",
+          "title": "Preparing preview · 9% · click to cancel"
+        },
+        {
+          "t": 13026,
+          "p": 10,
+          "busy": "true",
+          "title": "Preparing preview · 10% · click to cancel"
+        },
+        {
+          "t": 13045.199999999953,
+          "p": 11,
+          "busy": "true",
+          "title": "Preparing preview · 11% · click to cancel"
+        },
+        {
+          "t": 13057.5,
+          "p": 12,
+          "busy": "true",
+          "title": "Preparing preview · 12% · click to cancel"
+        },
+        {
+          "t": 13076.099999999977,
+          "p": 13,
+          "busy": "true",
+          "title": "Preparing preview · 13% · click to cancel"
+        },
+        {
+          "t": 13093.699999999953,
+          "p": 14,
+          "busy": "true",
+          "title": "Preparing preview · 14% · click to cancel"
+        },
+        {
+          "t": 13108.29999999993,
+          "p": 15,
+          "busy": "true",
+          "title": "Preparing preview · 15% · click to cancel"
+        },
+        {
+          "t": 13131.5,
+          "p": 16,
+          "busy": "true",
+          "title": "Preparing preview · 16% · click to cancel"
+        },
+        {
+          "t": 13155.699999999953,
+          "p": 17,
+          "busy": "true",
+          "title": "Preparing preview · 17% · click to cancel"
+        },
+        {
+          "t": 13176.199999999953,
+          "p": 18,
+          "busy": "true",
+          "title": "Preparing preview · 18% · click to cancel"
+        },
+        {
+          "t": 13193.199999999953,
+          "p": 19,
+          "busy": "true",
+          "title": "Preparing preview · 19% · click to cancel"
+        },
+        {
+          "t": 13214.900000000023,
+          "p": 20,
+          "busy": "true",
+          "title": "Preparing preview · 20% · click to cancel"
+        },
+        {
+          "t": 13251.400000000023,
+          "p": 21,
+          "busy": "true",
+          "title": "Preparing preview · 21% · click to cancel"
+        },
+        {
+          "t": 13309.29999999993,
+          "p": 22,
+          "busy": "true",
+          "title": "Preparing preview · 22% · click to cancel"
+        },
+        {
+          "t": 13315.199999999953,
+          "p": 23,
+          "busy": "true",
+          "title": "Preparing preview · 23% · click to cancel"
+        },
+        {
+          "t": 13339.699999999953,
+          "p": 24,
+          "busy": "true",
+          "title": "Preparing preview · 24% · click to cancel"
+        },
+        {
+          "t": 13357.099999999977,
+          "p": 25,
+          "busy": "true",
+          "title": "Preparing preview · 25% · click to cancel"
+        },
+        {
+          "t": 13365.699999999953,
+          "p": 26,
+          "busy": "true",
+          "title": "Preparing preview · 26% · click to cancel"
+        },
+        {
+          "t": 13393.900000000023,
+          "p": 27,
+          "busy": "true",
+          "title": "Preparing preview · 27% · click to cancel"
+        },
+        {
+          "t": 13411.900000000023,
+          "p": 28,
+          "busy": "true",
+          "title": "Preparing preview · 28% · click to cancel"
+        },
+        {
+          "t": 13436.5,
+          "p": 29,
+          "busy": "true",
+          "title": "Preparing preview · 29% · click to cancel"
+        },
+        {
+          "t": 13444.699999999953,
+          "p": 30,
+          "busy": "true",
+          "title": "Preparing preview · 30% · click to cancel"
+        },
+        {
+          "t": 13462.400000000023,
+          "p": 31,
+          "busy": "true",
+          "title": "Preparing preview · 31% · click to cancel"
+        },
+        {
+          "t": 13498.199999999953,
+          "p": 32,
+          "busy": "true",
+          "title": "Preparing preview · 32% · click to cancel"
+        },
+        {
+          "t": 13505.900000000023,
+          "p": 33,
+          "busy": "true",
+          "title": "Preparing preview · 33% · click to cancel"
+        },
+        {
+          "t": 13549.099999999977,
+          "p": 34,
+          "busy": "true",
+          "title": "Preparing preview · 34% · click to cancel"
+        },
+        {
+          "t": 13566,
+          "p": 35,
+          "busy": "true",
+          "title": "Preparing preview · 35% · click to cancel"
+        },
+        {
+          "t": 13764.5,
+          "p": 36,
+          "busy": "true",
+          "title": "Preparing preview · 36% · click to cancel"
+        },
+        {
+          "t": 13777.599999999977,
+          "p": 37,
+          "busy": "true",
+          "title": "Preparing preview · 37% · click to cancel"
+        },
+        {
+          "t": 13804.599999999977,
+          "p": 38,
+          "busy": "true",
+          "title": "Preparing preview · 38% · click to cancel"
+        },
+        {
+          "t": 14061.29999999993,
+          "p": 39,
+          "busy": "true",
+          "title": "Preparing preview · 39% · click to cancel"
+        },
+        {
+          "t": 14091.099999999977,
+          "p": 40,
+          "busy": "true",
+          "title": "Preparing preview · 40% · click to cancel"
+        },
+        {
+          "t": 14107.900000000023,
+          "p": 41,
+          "busy": "true",
+          "title": "Preparing preview · 41% · click to cancel"
+        },
+        {
+          "t": 14141.099999999977,
+          "p": 42,
+          "busy": "true",
+          "title": "Preparing preview · 42% · click to cancel"
+        },
+        {
+          "t": 14165.900000000023,
+          "p": 43,
+          "busy": "true",
+          "title": "Preparing preview · 43% · click to cancel"
+        },
+        {
+          "t": 14181,
+          "p": 44,
+          "busy": "true",
+          "title": "Preparing preview · 44% · click to cancel"
+        },
+        {
+          "t": 14351.79999999993,
+          "p": 45,
+          "busy": "true",
+          "title": "Preparing preview · 45% · click to cancel"
+        },
+        {
+          "t": 14378.900000000023,
+          "p": 46,
+          "busy": "true",
+          "title": "Preparing preview · 46% · click to cancel"
+        },
+        {
+          "t": 14399.5,
+          "p": 47,
+          "busy": "true",
+          "title": "Preparing preview · 47% · click to cancel"
+        },
+        {
+          "t": 14415.199999999953,
+          "p": 48,
+          "busy": "true",
+          "title": "Preparing preview · 48% · click to cancel"
+        },
+        {
+          "t": 14452.5,
+          "p": 49,
+          "busy": "true",
+          "title": "Preparing preview · 49% · click to cancel"
+        },
+        {
+          "t": 14480.400000000023,
+          "p": 50,
+          "busy": "true",
+          "title": "Preparing preview · 50% · click to cancel"
+        },
+        {
+          "t": 14491.900000000023,
+          "p": 51,
+          "busy": "true",
+          "title": "Preparing preview · 51% · click to cancel"
+        },
+        {
+          "t": 14519.599999999977,
+          "p": 52,
+          "busy": "true",
+          "title": "Preparing preview · 52% · click to cancel"
+        },
+        {
+          "t": 14544.099999999977,
+          "p": 53,
+          "busy": "true",
+          "title": "Preparing preview · 53% · click to cancel"
+        },
+        {
+          "t": 14567.599999999977,
+          "p": 54,
+          "busy": "true",
+          "title": "Preparing preview · 54% · click to cancel"
+        },
+        {
+          "t": 14579.5,
+          "p": 55,
+          "busy": "true",
+          "title": "Preparing preview · 55% · click to cancel"
+        },
+        {
+          "t": 14608.699999999953,
+          "p": 56,
+          "busy": "true",
+          "title": "Preparing preview · 56% · click to cancel"
+        },
+        {
+          "t": 14629.79999999993,
+          "p": 57,
+          "busy": "true",
+          "title": "Preparing preview · 57% · click to cancel"
+        },
+        {
+          "t": 14661.199999999953,
+          "p": 58,
+          "busy": "true",
+          "title": "Preparing preview · 58% · click to cancel"
+        },
+        {
+          "t": 14674.79999999993,
+          "p": 59,
+          "busy": "true",
+          "title": "Preparing preview · 59% · click to cancel"
+        },
+        {
+          "t": 14696.599999999977,
+          "p": 60,
+          "busy": "true",
+          "title": "Preparing preview · 60% · click to cancel"
+        },
+        {
+          "t": 14747.400000000023,
+          "p": 61,
+          "busy": "true",
+          "title": "Preparing preview · 61% · click to cancel"
+        },
+        {
+          "t": 14758.400000000023,
+          "p": 62,
+          "busy": "true",
+          "title": "Preparing preview · 62% · click to cancel"
+        },
+        {
+          "t": 14851.79999999993,
+          "p": 63,
+          "busy": "true",
+          "title": "Preparing preview · 63% · click to cancel"
+        },
+        {
+          "t": 15001.099999999977,
+          "p": 64,
+          "busy": "true",
+          "title": "Preparing preview · 64% · click to cancel"
+        },
+        {
+          "t": 15104.5,
+          "p": 65,
+          "busy": "true",
+          "title": "Preparing preview · 65% · click to cancel"
+        },
+        {
+          "t": 15204.099999999977,
+          "p": 66,
+          "busy": "true",
+          "title": "Preparing preview · 66% · click to cancel"
+        },
+        {
+          "t": 15245.099999999977,
+          "p": 67,
+          "busy": "true",
+          "title": "Preparing preview · 67% · click to cancel"
+        },
+        {
+          "t": 15263.5,
+          "p": 68,
+          "busy": "true",
+          "title": "Preparing preview · 68% · click to cancel"
+        },
+        {
+          "t": 15293.5,
+          "p": 69,
+          "busy": "true",
+          "title": "Preparing preview · 69% · click to cancel"
+        },
+        {
+          "t": 15310.400000000023,
+          "p": 70,
+          "busy": "true",
+          "title": "Preparing preview · 70% · click to cancel"
+        },
+        {
+          "t": 15339.199999999953,
+          "p": 71,
+          "busy": "true",
+          "title": "Preparing preview · 71% · click to cancel"
+        },
+        {
+          "t": 15359.79999999993,
+          "p": 72,
+          "busy": "true",
+          "title": "Preparing preview · 72% · click to cancel"
+        },
+        {
+          "t": 15373.099999999977,
+          "p": 73,
+          "busy": "true",
+          "title": "Preparing preview · 73% · click to cancel"
+        },
+        {
+          "t": 15393.5,
+          "p": 74,
+          "busy": "true",
+          "title": "Preparing preview · 74% · click to cancel"
+        },
+        {
+          "t": 15430.199999999953,
+          "p": 75,
+          "busy": "true",
+          "title": "Preparing preview · 75% · click to cancel"
+        },
+        {
+          "t": 15457.900000000023,
+          "p": 76,
+          "busy": "true",
+          "title": "Preparing preview · 76% · click to cancel"
+        },
+        {
+          "t": 15464,
+          "p": 77,
+          "busy": "true",
+          "title": "Preparing preview · 77% · click to cancel"
+        },
+        {
+          "t": 15492.900000000023,
+          "p": 78,
+          "busy": "true",
+          "title": "Preparing preview · 78% · click to cancel"
+        },
+        {
+          "t": 15514.5,
+          "p": 79,
+          "busy": "true",
+          "title": "Preparing preview · 79% · click to cancel"
+        },
+        {
+          "t": 15531.599999999977,
+          "p": 80,
+          "busy": "true",
+          "title": "Preparing preview · 80% · click to cancel"
+        },
+        {
+          "t": 15561.900000000023,
+          "p": 81,
+          "busy": "true",
+          "title": "Preparing preview · 81% · click to cancel"
+        },
+        {
+          "t": 15591.5,
+          "p": 82,
+          "busy": "true",
+          "title": "Preparing preview · 82% · click to cancel"
+        },
+        {
+          "t": 15612,
+          "p": 83,
+          "busy": "true",
+          "title": "Preparing preview · 83% · click to cancel"
+        },
+        {
+          "t": 15631.199999999953,
+          "p": 84,
+          "busy": "true",
+          "title": "Preparing preview · 84% · click to cancel"
+        },
+        {
+          "t": 15666.599999999977,
+          "p": 85,
+          "busy": "true",
+          "title": "Preparing preview · 85% · click to cancel"
+        },
+        {
+          "t": 15682.900000000023,
+          "p": 86,
+          "busy": "true",
+          "title": "Preparing preview · 86% · click to cancel"
+        },
+        {
+          "t": 15706.400000000023,
+          "p": 87,
+          "busy": "true",
+          "title": "Preparing preview · 87% · click to cancel"
+        },
+        {
+          "t": 15714.699999999953,
+          "p": 88,
+          "busy": "true",
+          "title": "Preparing preview · 88% · click to cancel"
+        },
+        {
+          "t": 15742.400000000023,
+          "p": 89,
+          "busy": "true",
+          "title": "Preparing preview · 89% · click to cancel"
+        },
+        {
+          "t": 15759.599999999977,
+          "p": 90,
+          "busy": "true",
+          "title": "Preparing preview · 90% · click to cancel"
+        },
+        {
+          "t": 15773.199999999953,
+          "p": 91,
+          "busy": "true",
+          "title": "Preparing preview · 91% · click to cancel"
+        },
+        {
+          "t": 15793.900000000023,
+          "p": 92,
+          "busy": "true",
+          "title": "Preparing preview · 92% · click to cancel"
+        },
+        {
+          "t": 15841,
+          "p": 93,
+          "busy": "true",
+          "title": "Preparing preview · 93% · click to cancel"
+        },
+        {
+          "t": 15906.5,
+          "p": 94,
+          "busy": "true",
+          "title": "Preparing preview · 94% · click to cancel"
+        },
+        {
+          "t": 15918.5,
+          "p": 95,
+          "busy": "true",
+          "title": "Preparing preview · 95% · click to cancel"
+        },
+        {
+          "t": 15960.900000000023,
+          "p": 96,
+          "busy": "true",
+          "title": "Preparing preview · 96% · click to cancel"
+        },
+        {
+          "t": 16044,
+          "p": 97,
+          "busy": "true",
+          "title": "Preparing preview · 97% · click to cancel"
+        },
+        {
+          "t": 16266,
+          "p": null,
+          "busy": "true",
+          "title": "Cancel rendering"
+        },
+        {
+          "t": 16276.099999999977,
+          "p": null,
+          "busy": "false",
+          "title": "Pause Preview"
+        }
+      ]
+    },
+    {
+      "name": "spektral-synthese: cold Play",
+      "samples": [
+        {
+          "t": 16714.599999999977,
+          "p": 4,
+          "busy": "true",
+          "title": "Preparing preview · 4% · click to cancel"
+        },
+        {
+          "t": 17013.699999999953,
+          "p": 5,
+          "busy": "true",
+          "title": "Preparing preview · 5% · click to cancel"
+        },
+        {
+          "t": 17056.199999999953,
+          "p": 6,
+          "busy": "true",
+          "title": "Preparing preview · 6% · click to cancel"
+        },
+        {
+          "t": 17094.400000000023,
+          "p": 7,
+          "busy": "true",
+          "title": "Preparing preview · 7% · click to cancel"
+        },
+        {
+          "t": 17108.099999999977,
+          "p": 8,
+          "busy": "true",
+          "title": "Preparing preview · 8% · click to cancel"
+        },
+        {
+          "t": 17145.099999999977,
+          "p": 9,
+          "busy": "true",
+          "title": "Preparing preview · 9% · click to cancel"
+        },
+        {
+          "t": 17318,
+          "p": 10,
+          "busy": "true",
+          "title": "Preparing preview · 10% · click to cancel"
+        },
+        {
+          "t": 17342.400000000023,
+          "p": 11,
+          "busy": "true",
+          "title": "Preparing preview · 11% · click to cancel"
+        },
+        {
+          "t": 17357.199999999953,
+          "p": 12,
+          "busy": "true",
+          "title": "Preparing preview · 12% · click to cancel"
+        },
+        {
+          "t": 17376.599999999977,
+          "p": 13,
+          "busy": "true",
+          "title": "Preparing preview · 13% · click to cancel"
+        },
+        {
+          "t": 17404.900000000023,
+          "p": 14,
+          "busy": "true",
+          "title": "Preparing preview · 14% · click to cancel"
+        },
+        {
+          "t": 17413.29999999993,
+          "p": 15,
+          "busy": "true",
+          "title": "Preparing preview · 15% · click to cancel"
+        },
+        {
+          "t": 17440.699999999953,
+          "p": 16,
+          "busy": "true",
+          "title": "Preparing preview · 16% · click to cancel"
+        },
+        {
+          "t": 17458.400000000023,
+          "p": 17,
+          "busy": "true",
+          "title": "Preparing preview · 17% · click to cancel"
+        },
+        {
+          "t": 17479.199999999953,
+          "p": 18,
+          "busy": "true",
+          "title": "Preparing preview · 18% · click to cancel"
+        },
+        {
+          "t": 17493.699999999953,
+          "p": 19,
+          "busy": "true",
+          "title": "Preparing preview · 19% · click to cancel"
+        },
+        {
+          "t": 17516.699999999953,
+          "p": 20,
+          "busy": "true",
+          "title": "Preparing preview · 20% · click to cancel"
+        },
+        {
+          "t": 17547.599999999977,
+          "p": 21,
+          "busy": "true",
+          "title": "Preparing preview · 21% · click to cancel"
+        },
+        {
+          "t": 17566,
+          "p": 22,
+          "busy": "true",
+          "title": "Preparing preview · 22% · click to cancel"
+        },
+        {
+          "t": 17575.400000000023,
+          "p": 23,
+          "busy": "true",
+          "title": "Preparing preview · 23% · click to cancel"
+        },
+        {
+          "t": 17626.199999999953,
+          "p": 24,
+          "busy": "true",
+          "title": "Preparing preview · 24% · click to cancel"
+        },
+        {
+          "t": 17654.099999999977,
+          "p": 25,
+          "busy": "true",
+          "title": "Preparing preview · 25% · click to cancel"
+        },
+        {
+          "t": 17668.29999999993,
+          "p": 26,
+          "busy": "true",
+          "title": "Preparing preview · 26% · click to cancel"
+        },
+        {
+          "t": 17770.099999999977,
+          "p": 27,
+          "busy": "true",
+          "title": "Preparing preview · 27% · click to cancel"
+        },
+        {
+          "t": 17943.199999999953,
+          "p": 28,
+          "busy": "true",
+          "title": "Preparing preview · 28% · click to cancel"
+        },
+        {
+          "t": 17985.400000000023,
+          "p": 29,
+          "busy": "true",
+          "title": "Preparing preview · 29% · click to cancel"
+        },
+        {
+          "t": 18032.79999999993,
+          "p": 30,
+          "busy": "true",
+          "title": "Preparing preview · 30% · click to cancel"
+        },
+        {
+          "t": 18089.5,
+          "p": 31,
+          "busy": "true",
+          "title": "Preparing preview · 31% · click to cancel"
+        },
+        {
+          "t": 18280.400000000023,
+          "p": 32,
+          "busy": "true",
+          "title": "Preparing preview · 32% · click to cancel"
+        },
+        {
+          "t": 18302.900000000023,
+          "p": 33,
+          "busy": "true",
+          "title": "Preparing preview · 33% · click to cancel"
+        },
+        {
+          "t": 18337.900000000023,
+          "p": 34,
+          "busy": "true",
+          "title": "Preparing preview · 34% · click to cancel"
+        },
+        {
+          "t": 18363.400000000023,
+          "p": 35,
+          "busy": "true",
+          "title": "Preparing preview · 35% · click to cancel"
+        },
+        {
+          "t": 18390.199999999953,
+          "p": 36,
+          "busy": "true",
+          "title": "Preparing preview · 36% · click to cancel"
+        },
+        {
+          "t": 18401.900000000023,
+          "p": 37,
+          "busy": "true",
+          "title": "Preparing preview · 37% · click to cancel"
+        },
+        {
+          "t": 18427.29999999993,
+          "p": 38,
+          "busy": "true",
+          "title": "Preparing preview · 38% · click to cancel"
+        },
+        {
+          "t": 18447.099999999977,
+          "p": 39,
+          "busy": "true",
+          "title": "Preparing preview · 39% · click to cancel"
+        },
+        {
+          "t": 18472,
+          "p": 40,
+          "busy": "true",
+          "title": "Preparing preview · 40% · click to cancel"
+        },
+        {
+          "t": 18479.099999999977,
+          "p": 41,
+          "busy": "true",
+          "title": "Preparing preview · 41% · click to cancel"
+        },
+        {
+          "t": 18508.599999999977,
+          "p": 42,
+          "busy": "true",
+          "title": "Preparing preview · 42% · click to cancel"
+        },
+        {
+          "t": 18553.900000000023,
+          "p": 43,
+          "busy": "true",
+          "title": "Preparing preview · 43% · click to cancel"
+        },
+        {
+          "t": 18589.900000000023,
+          "p": 44,
+          "busy": "true",
+          "title": "Preparing preview · 44% · click to cancel"
+        },
+        {
+          "t": 18646.5,
+          "p": 45,
+          "busy": "true",
+          "title": "Preparing preview · 45% · click to cancel"
+        },
+        {
+          "t": 18709,
+          "p": 46,
+          "busy": "true",
+          "title": "Preparing preview · 46% · click to cancel"
+        },
+        {
+          "t": 18736.099999999977,
+          "p": 47,
+          "busy": "true",
+          "title": "Preparing preview · 47% · click to cancel"
+        },
+        {
+          "t": 18744.199999999953,
+          "p": 48,
+          "busy": "true",
+          "title": "Preparing preview · 48% · click to cancel"
+        },
+        {
+          "t": 18765.199999999953,
+          "p": 49,
+          "busy": "true",
+          "title": "Preparing preview · 49% · click to cancel"
+        },
+        {
+          "t": 18789.5,
+          "p": 50,
+          "busy": "true",
+          "title": "Preparing preview · 50% · click to cancel"
+        },
+        {
+          "t": 18818.699999999953,
+          "p": 51,
+          "busy": "true",
+          "title": "Preparing preview · 51% · click to cancel"
+        },
+        {
+          "t": 18867.199999999953,
+          "p": 52,
+          "busy": "true",
+          "title": "Preparing preview · 52% · click to cancel"
+        },
+        {
+          "t": 18891.199999999953,
+          "p": 53,
+          "busy": "true",
+          "title": "Preparing preview · 53% · click to cancel"
+        },
+        {
+          "t": 18912.599999999977,
+          "p": 54,
+          "busy": "true",
+          "title": "Preparing preview · 54% · click to cancel"
+        },
+        {
+          "t": 18928.199999999953,
+          "p": 55,
+          "busy": "true",
+          "title": "Preparing preview · 55% · click to cancel"
+        },
+        {
+          "t": 18955.699999999953,
+          "p": 56,
+          "busy": "true",
+          "title": "Preparing preview · 56% · click to cancel"
+        },
+        {
+          "t": 18998.79999999993,
+          "p": 57,
+          "busy": "true",
+          "title": "Preparing preview · 57% · click to cancel"
+        },
+        {
+          "t": 19089.5,
+          "p": 58,
+          "busy": "true",
+          "title": "Preparing preview · 58% · click to cancel"
+        },
+        {
+          "t": 19133.699999999953,
+          "p": 59,
+          "busy": "true",
+          "title": "Preparing preview · 59% · click to cancel"
+        },
+        {
+          "t": 19165.599999999977,
+          "p": 60,
+          "busy": "true",
+          "title": "Preparing preview · 60% · click to cancel"
+        },
+        {
+          "t": 19204.29999999993,
+          "p": 61,
+          "busy": "true",
+          "title": "Preparing preview · 61% · click to cancel"
+        },
+        {
+          "t": 19217.79999999993,
+          "p": 62,
+          "busy": "true",
+          "title": "Preparing preview · 62% · click to cancel"
+        },
+        {
+          "t": 19254.699999999953,
+          "p": 63,
+          "busy": "true",
+          "title": "Preparing preview · 63% · click to cancel"
+        },
+        {
+          "t": 19276,
+          "p": 64,
+          "busy": "true",
+          "title": "Preparing preview · 64% · click to cancel"
+        },
+        {
+          "t": 19299.5,
+          "p": 65,
+          "busy": "true",
+          "title": "Preparing preview · 65% · click to cancel"
+        },
+        {
+          "t": 19317.79999999993,
+          "p": 66,
+          "busy": "true",
+          "title": "Preparing preview · 66% · click to cancel"
+        },
+        {
+          "t": 19343.099999999977,
+          "p": 67,
+          "busy": "true",
+          "title": "Preparing preview · 67% · click to cancel"
+        },
+        {
+          "t": 19365.599999999977,
+          "p": 68,
+          "busy": "true",
+          "title": "Preparing preview · 68% · click to cancel"
+        },
+        {
+          "t": 19394,
+          "p": 69,
+          "busy": "true",
+          "title": "Preparing preview · 69% · click to cancel"
+        },
+        {
+          "t": 19403.199999999953,
+          "p": 70,
+          "busy": "true",
+          "title": "Preparing preview · 70% · click to cancel"
+        },
+        {
+          "t": 19443.699999999953,
+          "p": 71,
+          "busy": "true",
+          "title": "Preparing preview · 71% · click to cancel"
+        },
+        {
+          "t": 19480,
+          "p": 72,
+          "busy": "true",
+          "title": "Preparing preview · 72% · click to cancel"
+        },
+        {
+          "t": 19491.29999999993,
+          "p": 73,
+          "busy": "true",
+          "title": "Preparing preview · 73% · click to cancel"
+        },
+        {
+          "t": 19510.699999999953,
+          "p": 74,
+          "busy": "true",
+          "title": "Preparing preview · 74% · click to cancel"
+        },
+        {
+          "t": 19536,
+          "p": 75,
+          "busy": "true",
+          "title": "Preparing preview · 75% · click to cancel"
+        },
+        {
+          "t": 19580.29999999993,
+          "p": 76,
+          "busy": "true",
+          "title": "Preparing preview · 76% · click to cancel"
+        },
+        {
+          "t": 19592.79999999993,
+          "p": 77,
+          "busy": "true",
+          "title": "Preparing preview · 77% · click to cancel"
+        },
+        {
+          "t": 19616.099999999977,
+          "p": 78,
+          "busy": "true",
+          "title": "Preparing preview · 78% · click to cancel"
+        },
+        {
+          "t": 19647.400000000023,
+          "p": 79,
+          "busy": "true",
+          "title": "Preparing preview · 79% · click to cancel"
+        },
+        {
+          "t": 19667.900000000023,
+          "p": 80,
+          "busy": "true",
+          "title": "Preparing preview · 80% · click to cancel"
+        },
+        {
+          "t": 19695.79999999993,
+          "p": 81,
+          "busy": "true",
+          "title": "Preparing preview · 81% · click to cancel"
+        },
+        {
+          "t": 19739.599999999977,
+          "p": 82,
+          "busy": "true",
+          "title": "Preparing preview · 82% · click to cancel"
+        },
+        {
+          "t": 19772.099999999977,
+          "p": 83,
+          "busy": "true",
+          "title": "Preparing preview · 83% · click to cancel"
+        },
+        {
+          "t": 19786.29999999993,
+          "p": 84,
+          "busy": "true",
+          "title": "Preparing preview · 84% · click to cancel"
+        },
+        {
+          "t": 19815.79999999993,
+          "p": 85,
+          "busy": "true",
+          "title": "Preparing preview · 85% · click to cancel"
+        },
+        {
+          "t": 19871,
+          "p": 86,
+          "busy": "true",
+          "title": "Preparing preview · 86% · click to cancel"
+        },
+        {
+          "t": 19892.699999999953,
+          "p": 87,
+          "busy": "true",
+          "title": "Preparing preview · 87% · click to cancel"
+        },
+        {
+          "t": 19905.400000000023,
+          "p": 88,
+          "busy": "true",
+          "title": "Preparing preview · 88% · click to cancel"
+        },
+        {
+          "t": 19940.29999999993,
+          "p": 89,
+          "busy": "true",
+          "title": "Preparing preview · 89% · click to cancel"
+        },
+        {
+          "t": 19966,
+          "p": 90,
+          "busy": "true",
+          "title": "Preparing preview · 90% · click to cancel"
+        },
+        {
+          "t": 19978.79999999993,
+          "p": 91,
+          "busy": "true",
+          "title": "Preparing preview · 91% · click to cancel"
+        },
+        {
+          "t": 20022.29999999993,
+          "p": 92,
+          "busy": "true",
+          "title": "Preparing preview · 92% · click to cancel"
+        },
+        {
+          "t": 20058,
+          "p": 93,
+          "busy": "true",
+          "title": "Preparing preview · 93% · click to cancel"
+        },
+        {
+          "t": 20090.29999999993,
+          "p": 94,
+          "busy": "true",
+          "title": "Preparing preview · 94% · click to cancel"
+        },
+        {
+          "t": 20105,
+          "p": 95,
+          "busy": "true",
+          "title": "Preparing preview · 95% · click to cancel"
+        },
+        {
+          "t": 20140.900000000023,
+          "p": 96,
+          "busy": "true",
+          "title": "Preparing preview · 96% · click to cancel"
+        },
+        {
+          "t": 20174.699999999953,
+          "p": 97,
+          "busy": "true",
+          "title": "Preparing preview · 97% · click to cancel"
+        },
+        {
+          "t": 20400.099999999977,
+          "p": null,
+          "busy": "true",
+          "title": "Cancel rendering"
+        },
+        {
+          "t": 20408.29999999993,
+          "p": null,
+          "busy": "false",
+          "title": "Pause Preview"
+        }
+      ]
+    },
+    {
+      "name": "antonia: cold Play",
+      "samples": [
+        {
+          "t": 20755.79999999993,
+          "p": 4,
+          "busy": "true",
+          "title": "Preparing preview · 4% · click to cancel"
+        },
+        {
+          "t": 21625.29999999993,
+          "p": null,
+          "busy": "true",
+          "title": "Cancel rendering"
+        },
+        {
+          "t": 21633.400000000023,
+          "p": null,
+          "busy": "false",
+          "title": "Pause Preview"
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "options": [
+    {
+      "value": "pure-dieter",
+      "label": "Pure Dieter"
+    },
+    {
+      "value": "harmonic-xplore",
+      "label": "HarmonicXplorE"
+    },
+    {
+      "value": "spektral-synthese",
+      "label": "Spectral Synthesis"
+    },
+    {
+      "value": "antonia",
+      "label": "Antonia"
+    },
+    {
+      "value": "bert",
+      "label": "Bert"
+    },
+    {
+      "value": "cecilia",
+      "label": "Cecilia"
+    },
+    {
+      "value": "donor",
+      "label": "Donor"
+    },
+    {
+      "value": "emilia",
+      "label": "Emilia"
+    },
+    {
+      "value": "fractalia",
+      "label": "Fractalia"
+    }
+  ]
+}

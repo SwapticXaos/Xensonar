@@ -99,7 +99,7 @@ function R6e(e) {
                 title: e.playButtonView.title,
                 children: [ e.renderFillActive && u.jsx("span", {
                     "aria-hidden": "true",
-                    className: "pointer-events-none absolute inset-x-0 bottom-0 z-0 bg-emerald-500/90 transition-[height] duration-75 ease-linear",
+                    className: "pointer-events-none absolute inset-x-0 bottom-0 z-0 bg-emerald-500/90",
                     style: {
                         height: `${e.renderFillPercent}%`
                     }
@@ -534,12 +534,21 @@ const C6e = P.forwardRef(function({variant: t = "legacy", forge3AudioMode: n = "
         const ticket={};__f31PlayRef.current=ticket;const epoch = __f333Epoch;
         Y(true);
         Q("Preparing listening mode …");
-        te.current = .02;
+        const warming = Re();
+        te.current = warming.kind === 'prewarming' && warming.requestKey === St.current.token ? Math.max(.02, warming.progress) : .02;
+        Z(te.current);
         try {
+            // Let the initial busy/fill state paint before cold synchronous setup.
+            // A finished PCM cache needs no extra frame or simulated loading.
+            if (!__f333CachedPreviewReady(pe.getState())) {
+                await new Promise(resolve => window.requestAnimationFrame(() => window.setTimeout(resolve, 0)));
+                if (epoch !== __f333Epoch || __f31PlayRef.current !== ticket) return;
+            }
             const played = await __f333PlayCurrent(pe.getState(), {
                 audioMode: n,
                 fromPosition: pe.getState().playheadPosition,
                 onProgress: p => {
+                    if (epoch !== __f333Epoch || __f31PlayRef.current !== ticket) return;
                     te.current = p;
                     Z(p);
                 },
@@ -563,7 +572,7 @@ const C6e = P.forwardRef(function({variant: t = "legacy", forge3AudioMode: n = "
         } finally {
             if(__f31PlayRef.current===ticket){__f31PlayRef.current=null;Y(false);Z(0);}
         }
-    }, [ c, n, d, b, f ]), ve = P.useCallback(() => {
+    }, [ c, n, d, b, f, Re ]), ve = P.useCallback(() => {
         __f333Stop();
         __f31PlayRef.current=null;Y(false);Z(0);Q('');const Fe = ge.current;
         Fe && (Ce.markPlayEnded(Fe), ge.current = null), d(!1), f(0), b(!1);

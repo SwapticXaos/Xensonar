@@ -121,7 +121,10 @@
     "test:granular:browser": "node tests/granular-hold-browser.cjs && node tests/granular-hold-hotkey-browser.cjs",
     "test:live-stability": "node tests/live-rfl-boundaries.cjs && node tests/live-rfl-fallback.cjs && node tests/live-rfl-lifecycle.cjs && node tests/live-rfl-preparation.cjs",
     "test:live-stability:browser": "node tests/live-rfl-browser.cjs && node tests/live-rfl-native-browser.cjs && node tests/live-rfl-realtime.cjs",
-    "bench:live-stability": "node tests/live-rfl-performance.cjs"
+    "bench:live-stability": "node tests/live-rfl-performance.cjs",
+    "test:forge-progress": "node tests/forge-progress-preservation.cjs && node tests/forge-progress-jobs.cjs && node tests/forge-progress-pcm.cjs && node tests/forge_play_ready_save_regression.cjs && node tests/forge_save_play_symmetry.cjs && node build.cjs --verify",
+    "test:forge-progress:browser": "node tests/forge-progress-browser.cjs",
+    "bench:forge-progress": "node tests/forge-progress-performance.cjs"
   },
   "devDependencies": {
     "playwright": "1.56.1",

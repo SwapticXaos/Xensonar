@@ -1,0 +1,167 @@
+/* One PCM algorithm for synchronous callers and cooperative Forge loading.
+   The generator retains voice state across chunks; it never restarts a window. */
+function* __forgePolytraceFrames(e) {
+    const t = e.spectralData, exactCarrier = __f333ReadCarrier(t), n = Math.max(8e3, Math.round(e.sampleRate ?? k3e)), r = Math.max(.005, e.durationSec), a = Math.max(1, Math.ceil(r * n)), o = C3e(e), i = o === "fm", s = o === "vocal", l = xR(o, e.readerSettings), c = e.readerSettings?.[o], d = c?.maxVoices !== void 0 ? l.maxVoices : Math.max(4, Math.min(20, Math.round(e.maxVoices ?? (i ? 12 : s ? 16 : 14)))), p = wi(e.baseHz, 16, 2e4), f = wi(e.gain ?? P3e, 0, 1), b = new Float32Array(a), g = e.descriptor ?? LB(t), y = FE({
+        spectralData: t,
+        durationSec: r,
+        sampleRate: n,
+        baseHz: p,
+        gain: f,
+        maxVoices: d,
+        timbre: o,
+        readerSettings: e.readerSettings
+    }, g);
+    if (!g.hasMaterial || t.width < 1 || t.height < 1) return {
+        buffer: i_(b, n),
+        audioIdentityKey: y,
+        activeColumnRatio: 0,
+        maxSimultaneousPeaks: 0,
+        peak: 0
+    };
+    const x = FE({
+        spectralData: t,
+        durationSec: r,
+        sampleRate: n,
+        baseHz: p,
+        gain: f,
+        maxVoices: e.maxVoices ?? (i ? 12 : s ? 16 : 14),
+        timbre: o
+    }, g), A = s ? M3e(l, n, d) : null, M = new Float64Array(d * 4), v = new Float64Array(d).fill(Math.log2(p)), w = new Float64Array(d).fill(Math.log2(p)), R = new Float64Array(d), k = new Float64Array(d), I = new Float64Array(d), E = new Float64Array(d).fill(.5), F = new Uint8Array(d), L = new Uint8Array(d * 2);
+    for (let ee = 0; ee < M.length; ee += 1) M[ee] = (o_(x, ee, 31) + 1) * Math.PI;
+    const B = [ 1, 2, 3, 5 ], O = [ 1, .18, .085, .045 ], T = Math.PI * 2, _ = wi(g.density * .45 + g.registerSpan * .26 + g.edgeDensity * .29, 0, 1), G = Uf(c?.attackMs !== void 0 || s ? l.attackMs : 4.8 + (1 - g.edgeDensity) * 3.4, n), j = Uf(c?.releaseMs !== void 0 ? l.releaseMs : 26 + g.horizontality * 18, n), N = Uf(l.releaseMs, n), W = Uf(Math.min(l.releaseMs, 36), n), V = Uf(c?.glideMs !== void 0 || s ? l.glideMs : 5.6 + g.grainTexture * 4.8, n), U = Uf(22, n * Math.max(1, t.width) / Math.max(1, a));
+    const __fSpeed2Seed = new Float64Array(d * B.length);
+    for (let voice = 0; voice < d; voice++) for (let partial = 1; partial < B.length; partial++) __fSpeed2Seed[voice * B.length + partial] = o_(x, voice, partial);
+    let H = -1, q = 0, K = 0, Y = 0, J = 0, Z = 0, te = !1, X = 0, Q = 0, oe = 0, ue = 0, fe = 0;
+    for (let ee = 0; ee < a; ee += 1) {
+        // Pause between completed chunks; oscillator state and arithmetic stay intact.
+        if ((ee & 2047) === 0) yield ee / a;
+        const ie = ee / Math.max(1, a - 1), de = Math.min(t.width - 1, Math.floor(ie * t.width));
+        if (de !== H) {
+            H = de;
+            const le = E3e({
+                spectralData: t,
+                x: de,
+                baseHz: p,
+                detailBoost: _,
+                maxVoices: d,
+                exactCarrier: exactCarrier
+            });
+            J = le.energy, Z = le.activeBinRatio, le.peaks.length > 0 && (K += 1), Y = Math.max(Y, le.peaks.length),
+            F.fill(0), L.fill(0);
+            for (let ce = 0; ce < d; ce += 1) k[ce] > .002 && (w[ce] = v[ce] + R[ce]);
+            const Ae = .54 - _ * .18;
+            for (let ce = 0; ce < Math.min(d, le.peaks.length); ce += 1) {
+                let ge = -1, Ce = -1, Re = 1 / 0;
+                for (let se = 0; se < d; se += 1) if (!(F[se] || k[se] <= .002)) for (let xe = 0; xe < le.peaks.length; xe += 1) {
+                    if (L[xe]) continue;
+                    const Be = Math.abs((w[se] ?? v[se]) - le.peaks[xe].logHz);
+                    Be < Re && (Re = Be, ge = se, Ce = xe);
+                }
+                if (ge !== -1 && Ce !== -1 && Re < Ae) {
+                    const se = le.peaks[Ce];
+                    F[ge] = 1, L[Ce] = 1, R[ge] = (se.logHz - v[ge]) * .3, w[ge] = se.logHz, I[ge] = Math.pow(se.energy, 1.15) * (.78 + _ * .22),
+                    E[ge] += (se.grain - E[ge]) * U;
+                }
+            }
+            for (let ce = 0; ce < le.peaks.length; ce += 1) {
+                if (L[ce]) continue;
+                let ge = -1, Ce = 1 / 0;
+                for (let se = 0; se < d; se += 1) {
+                    if (F[se]) continue;
+                    const xe = Math.max(k[se], I[se]);
+                    xe < Ce && (Ce = xe, ge = se);
+                }
+                if (ge === -1) continue;
+                const Re = le.peaks[ce];
+                F[ge] = 1, L[ce] = 1, w[ge] = Re.logHz, k[ge] < .03 && (v[ge] = Re.logHz), R[ge] = 0,
+                I[ge] = Math.pow(Re.energy, 1.15) * (.78 + _ * .22), E[ge] = Re.grain;
+            }
+            te = exactCarrier && le.peaks.length > 0 || J > t.height * .012 || Z > .018;
+            for (let ce = 0; ce < d; ce += 1) F[ce] || (I[ce] = te ? I[ce] * (s ? .74 : .58) : 0);
+            oe = wi(J / Math.max(1, t.height * .18), 0, 1), ue = wi(g.contrast * .26 + g.entropy * .32 + Z * .22 + g.edgeDensity * .2, 0, 1),
+            fe = 1 / Math.sqrt(Math.max(1, d * (.35 + oe * .65)));
+        }
+        if (s && (Q = te ? 0 : Q + 1, Q > n * .004)) {
+            k.fill(0), b[ee] = 0;
+            continue;
+        }
+        let he = 0, re = 0;
+        for (let le = 0; le < d; le += 1) {
+            const Ae = I[le] > k[le] ? G : s ? te ? N : W : j;
+            if (k[le] += (I[le] - k[le]) * Ae, k[le] <= 8e-4) continue;
+            re += 1, v[le] += (w[le] - v[le]) * V;
+            const ce = wi(E[le], 0, 1), ge = Math.pow(2, v[le]), Ce = k[le] * fe;
+            if (A) {
+                he += A(le, ge, ee / n) * Ce;
+                continue;
+            }
+            for (let Re = 0; Re < B.length; Re += 1) {
+                const se = le * B.length + Re, xe = Re === 0 ? 0 : __fSpeed2Seed[se] * (1 - ce) * (3.5 + ue * 7), Be = wi(ge * B[Re] * Math.pow(2, xe / 1200), 10, n * .45);
+                M[se] += T * Be / n, M[se] > T && (M[se] -= T * Math.floor(M[se] / T));
+                const Ie = M[se], Qe = Math.sin(Ie), Ne = Math.tanh(Qe * (1 + ue * .82 + (1 - ce) * .38)), Ue = Ie / T * 2 - 1, Ye = Math.tanh((Ue * .68 + Qe * .42) * (1.05 + ue * 1.15) * l.acidColor), Ve = i ? Math.sin(Ie + (.4 + ue) * l.fmDepth * Qe) : Qe * (.72 - ue * .06) + Ne * (.1 + ue * .13) + Ye * (.13 + ue * .14), dt = (i ? Re ? .08 / Re : 1 : O[Re]) * (Re === 0 ? 1 : .68 + oe * .18 + ue * .08);
+                he += Ve * Ce * dt;
+            }
+        }
+        if (re === 0) X *= .35, b[ee] = 0; else {
+            if (s) {
+                const ge = Math.tanh(he * f * l.outputGain) * (Q ? Math.max(0, 1 - Q / (n * .004)) : 1);
+                b[ee] = ge, q = Math.max(q, Math.abs(ge));
+                continue;
+            }
+            const le = wi(.05 + oe * .045 + ue * .055, .035, .17);
+            X += (he - X) * le;
+            const Ae = X + (he - X) * (.16 + g.edgeDensity * .18), ce = Math.tanh(Ae * f * l.outputGain * (.98 + g.registerSpan * .14));
+            b[ee] = ce, q = Math.max(q, Math.abs(ce));
+        }
+    }
+    const ne = Math.max(1, Math.round(n * .004));
+    for (let ee = 0; ee < Math.min(ne, a); ee += 1) {
+        const ie = ee / ne;
+        b[ee] *= ie, b[a - 1 - ee] *= ie;
+    }
+    return {
+        buffer: i_(b, n),
+        audioIdentityKey: y,
+        activeColumnRatio: _n(K / Math.max(1, t.width)),
+        maxSimultaneousPeaks: Y,
+        peak: _n(q)
+    };
+}
+
+// Retain the original synchronous renderer contract for offline consumers.
+function tK(args) {
+    const frames = __forgePolytraceFrames(args);
+    let step;
+    do { step = frames.next(); } while (!step.done);
+    return step.value;
+}
+
+async function __forgePolytraceCooperative(args, {onProgress, check = () => {}} = {}) {
+    const frames = __forgePolytraceFrames(args);
+    let lastYield = performance.now(), channel = null;
+    const yieldToUI = () => new Promise(resolve => {
+        if (typeof MessageChannel === 'function') {
+            channel ??= new MessageChannel();
+            channel.port1.onmessage = () => resolve();
+            channel.port2.postMessage(null);
+        } else setTimeout(resolve, 0);
+    });
+    try {
+        for (;;) {
+            check();
+            const step = frames.next();
+            if (step.done) { check(); onProgress?.(1); return step.value; }
+            if (performance.now() - lastYield >= 12) {
+                onProgress?.(step.value);
+                // A normal message task lets React commit progress first and
+                // avoids the nested timeout clamp. Keep the older-host fallback.
+                await yieldToUI();
+                lastYield = performance.now();
+            }
+        }
+    } finally {
+        frames.return();
+        channel?.port1.close();
+        channel?.port2.close();
+    }
+}

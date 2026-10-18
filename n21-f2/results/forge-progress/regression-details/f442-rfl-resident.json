@@ -1,0 +1,51 @@
+{
+  "checks": [
+    "actual default resident Base and Fragment processors accept real PCM/map, render both channels, retune, and release"
+  ],
+  "routes": [
+    {
+      "mode": "base",
+      "sourceChannels": 1,
+      "renderedSec": 5,
+      "renderWallMs": 1464.0375330000002,
+      "peak": 0.9334388375282288,
+      "stereoDelta": 0,
+      "faults": 0,
+      "released": true
+    },
+    {
+      "mode": "fragment",
+      "sourceChannels": 1,
+      "renderedSec": 5,
+      "renderWallMs": 1781.8954400000002,
+      "peak": 1.3758435249328613,
+      "stereoDelta": 0,
+      "faults": 0,
+      "released": true
+    },
+    {
+      "mode": "base",
+      "sourceChannels": 2,
+      "renderedSec": 5,
+      "renderWallMs": 1860.0086860000001,
+      "peak": 0.9334388375282288,
+      "stereoDelta": 1.055550992488861,
+      "faults": 0,
+      "released": true
+    },
+    {
+      "mode": "fragment",
+      "sourceChannels": 2,
+      "renderedSec": 5,
+      "renderWallMs": 2381.6118799999986,
+      "peak": 1.382558822631836,
+      "stereoDelta": 1.559562087059021,
+      "faults": 0,
+      "released": true
+    }
+  ],
+  "limitations": [
+    "Worklet class executed in a VM; AudioContext scheduling, browser mixing and device xruns require browser/target hardware.",
+    "Modes intentionally differ in source slicing; timings do not rank musical quality."
+  ]
+}

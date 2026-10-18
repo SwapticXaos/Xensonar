@@ -1,0 +1,306 @@
+{
+  "checks": [
+    {
+      "name": "pure-dieter: cold Play",
+      "samples": [
+        {
+          "t": 3937.199999999255,
+          "p": 4,
+          "busy": "true",
+          "title": "Preparing preview · 4% · click to cancel"
+        },
+        {
+          "t": 4128.899999999441,
+          "p": 5,
+          "busy": "true",
+          "title": "Preparing preview · 5% · click to cancel"
+        },
+        {
+          "t": 4130.299999999814,
+          "p": 6,
+          "busy": "true",
+          "title": "Preparing preview · 6% · click to cancel"
+        },
+        {
+          "t": 4133.5,
+          "p": 8,
+          "busy": "true",
+          "title": "Preparing preview · 8% · click to cancel"
+        },
+        {
+          "t": 4138.5,
+          "p": 9,
+          "busy": "true",
+          "title": "Preparing preview · 9% · click to cancel"
+        },
+        {
+          "t": 4146.199999999255,
+          "p": 19,
+          "busy": "true",
+          "title": "Preparing preview · 19% · click to cancel"
+        },
+        {
+          "t": 4147.799999999814,
+          "p": 24,
+          "busy": "true",
+          "title": "Preparing preview · 24% · click to cancel"
+        },
+        {
+          "t": 4148.5999999996275,
+          "p": 27,
+          "busy": "true",
+          "title": "Preparing preview · 27% · click to cancel"
+        },
+        {
+          "t": 4149.899999999441,
+          "p": 28,
+          "busy": "true",
+          "title": "Preparing preview · 28% · click to cancel"
+        },
+        {
+          "t": 4150.899999999441,
+          "p": 32,
+          "busy": "true",
+          "title": "Preparing preview · 32% · click to cancel"
+        },
+        {
+          "t": 4152.0999999996275,
+          "p": 34,
+          "busy": "true",
+          "title": "Preparing preview · 34% · click to cancel"
+        },
+        {
+          "t": 4153.0999999996275,
+          "p": 38,
+          "busy": "true",
+          "title": "Preparing preview · 38% · click to cancel"
+        },
+        {
+          "t": 4153.899999999441,
+          "p": 41,
+          "busy": "true",
+          "title": "Preparing preview · 41% · click to cancel"
+        },
+        {
+          "t": 4155.0999999996275,
+          "p": 42,
+          "busy": "true",
+          "title": "Preparing preview · 42% · click to cancel"
+        },
+        {
+          "t": 4160.299999999814,
+          "p": 45,
+          "busy": "true",
+          "title": "Preparing preview · 45% · click to cancel"
+        },
+        {
+          "t": 4161.0999999996275,
+          "p": 64,
+          "busy": "true",
+          "title": "Preparing preview · 64% · click to cancel"
+        },
+        {
+          "t": 4161.799999999814,
+          "p": 68,
+          "busy": "true",
+          "title": "Preparing preview · 68% · click to cancel"
+        },
+        {
+          "t": 4162.299999999814,
+          "p": 71,
+          "busy": "true",
+          "title": "Preparing preview · 71% · click to cancel"
+        },
+        {
+          "t": 4163,
+          "p": 74,
+          "busy": "true",
+          "title": "Preparing preview · 74% · click to cancel"
+        },
+        {
+          "t": 4163.399999999441,
+          "p": 76,
+          "busy": "true",
+          "title": "Preparing preview · 76% · click to cancel"
+        },
+        {
+          "t": 4164,
+          "p": 78,
+          "busy": "true",
+          "title": "Preparing preview · 78% · click to cancel"
+        },
+        {
+          "t": 4164.299999999814,
+          "p": 80,
+          "busy": "true",
+          "title": "Preparing preview · 80% · click to cancel"
+        },
+        {
+          "t": 4164.799999999814,
+          "p": 83,
+          "busy": "true",
+          "title": "Preparing preview · 83% · click to cancel"
+        },
+        {
+          "t": 4165.199999999255,
+          "p": 86,
+          "busy": "true",
+          "title": "Preparing preview · 86% · click to cancel"
+        },
+        {
+          "t": 4165.5999999996275,
+          "p": 89,
+          "busy": "true",
+          "title": "Preparing preview · 89% · click to cancel"
+        },
+        {
+          "t": 4166.299999999814,
+          "p": 90,
+          "busy": "true",
+          "title": "Preparing preview · 90% · click to cancel"
+        },
+        {
+          "t": 4169.199999999255,
+          "p": 92,
+          "busy": "true",
+          "title": "Preparing preview · 92% · click to cancel"
+        },
+        {
+          "t": 4170,
+          "p": 93,
+          "busy": "true",
+          "title": "Preparing preview · 93% · click to cancel"
+        },
+        {
+          "t": 4170.5999999996275,
+          "p": 95,
+          "busy": "true",
+          "title": "Preparing preview · 95% · click to cancel"
+        },
+        {
+          "t": 4177.199999999255,
+          "p": 98,
+          "busy": "true",
+          "title": "Preparing preview · 98% · click to cancel"
+        },
+        {
+          "t": 4218.799999999814,
+          "p": null,
+          "busy": "true",
+          "title": "Cancel rendering"
+        },
+        {
+          "t": 4237.5999999996275,
+          "p": null,
+          "busy": "false",
+          "title": "Pause Preview"
+        }
+      ],
+      "paintFrames": [
+        {
+          "t": 3942.5999999996275,
+          "height": 1.265625,
+          "p": 4,
+          "inline": "4%",
+          "top": 487.078125,
+          "visible": "visible"
+        },
+        {
+          "t": 4093.399999999441,
+          "height": 1.265625,
+          "p": 4,
+          "inline": "4%",
+          "top": 487.078125,
+          "visible": "visible"
+        },
+        {
+          "t": 4101.299999999814,
+          "height": 1.265625,
+          "p": 4,
+          "inline": "4%",
+          "top": 487.078125,
+          "visible": "visible"
+        },
+        {
+          "t": 4105.899999999441,
+          "height": 1.265625,
+          "p": 4,
+          "inline": "4%",
+          "top": 487.078125,
+          "visible": "visible"
+        },
+        {
+          "t": 4125.0999999996275,
+          "height": 1.265625,
+          "p": 4,
+          "inline": "4%",
+          "top": 487.078125,
+          "visible": "visible"
+        },
+        {
+          "t": 4140.199999999255,
+          "height": 1.265625,
+          "p": 9,
+          "inline": "9%",
+          "top": 487.078125,
+          "visible": "visible"
+        },
+        {
+          "t": 4157.0999999996275,
+          "height": 1.265625,
+          "p": 42,
+          "inline": "42%",
+          "top": 487.078125,
+          "visible": "visible"
+        },
+        {
+          "t": 4173.5999999996275,
+          "height": 1.265625,
+          "p": 95,
+          "inline": "95%",
+          "top": 487.078125,
+          "visible": "visible"
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "options": [
+    {
+      "value": "pure-dieter",
+      "label": "Pure Dieter"
+    },
+    {
+      "value": "harmonic-xplore",
+      "label": "HarmonicXplorE"
+    },
+    {
+      "value": "spektral-synthese",
+      "label": "Spectral Synthesis"
+    },
+    {
+      "value": "antonia",
+      "label": "Antonia"
+    },
+    {
+      "value": "bert",
+      "label": "Bert"
+    },
+    {
+      "value": "cecilia",
+      "label": "Cecilia"
+    },
+    {
+      "value": "donor",
+      "label": "Donor"
+    },
+    {
+      "value": "emilia",
+      "label": "Emilia"
+    },
+    {
+      "value": "fractalia",
+      "label": "Fractalia"
+    }
+  ]
+}
