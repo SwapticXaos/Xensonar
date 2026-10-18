@@ -1,8 +1,9 @@
 {
-  "version": "XenSonar N21–F2 · Forge Loading Progress",
-  "entry": "Xensonar_N21_F2_Forge_Progress_Test.html",
+  "version": "XenSonar N21–F2 · Live Controls and Mono/Stereo",
+  "entry": "Xensonar_N21_F2_Live_Controls_Test.html",
   "files": [
     "src/mix/03_quick_menu.js",
+    "src/mix/04_melodic_spatial.js",
     "src/instruments/00_diagnostics.js",
     "src/mix/01_pan.js",
     "src/mix/02_performance_catalog.js",
@@ -122,6 +123,7 @@
     "src/audio/08_myzel_g_live.js",
     "src/runtime/instrument/13_pointer_motion.js",
     "src/rhythm/02_bass_and_rack.js",
+    "src/audio/drone/01_colour.js",
     "src/audio/01_voice_and_rfl_ownership.js",
     "src/audio/00_rfl_settings_cache.js",
     "src/audio/02_rfl_worklet.js",
@@ -197,8 +199,8 @@
     "src/05_dual_donor.js",
     "src/06_workbench_dialog.js"
   ],
-  "sha256": "3d29de7704f2a9632c9a1cbf917a8d0b0382e07a6252b7142dee8d163c31726c",
-  "bytes": 5513256,
+  "sha256": "cfff8263c2d39c083ba1b7ea5bf24eb7e4cc6208a25085385dd6b1ed64229d30",
+  "bytes": 5522665,
   "sourceOrder": "Concatenate in listed order. Explicit factories own Workbench, hybrid session, render capture, adapters, playback and analysis cache. Remaining registry fragments share one inline module; DSP factories stay independently serializable for workers.",
   "status": "F4.3.13 mainline plus F4.4.0 Nodal coupled-modal-v2, anchored at F4.3.5",
   "baseVersion": "F4.3.5 (three-way)",
@@ -331,6 +333,11 @@
     {
       "file": "styles/25_n20_forge_navigation.css",
       "tag": "<style id=\"xen-n20-forge-navigation\">",
+      "after": "\n"
+    },
+    {
+      "file": "styles/26_live_controls.css",
+      "tag": "<style id=\"xen-live-controls\">",
       "after": "\n"
     }
   ],

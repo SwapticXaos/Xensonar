@@ -1,0 +1,592 @@
+{
+  "rows": [
+    {
+      "id": "warm_pad",
+      "timbre": 0,
+      "level": 0,
+      "identical": true
+    },
+    {
+      "id": "warm_pad",
+      "timbre": 0,
+      "level": 0.15,
+      "identical": true
+    },
+    {
+      "id": "warm_pad",
+      "timbre": 0.35,
+      "level": 0,
+      "identical": true
+    },
+    {
+      "id": "warm_pad",
+      "timbre": 0.35,
+      "level": 0.15,
+      "identical": true
+    },
+    {
+      "id": "warm_pad",
+      "timbre": 1,
+      "level": 0,
+      "identical": true
+    },
+    {
+      "id": "warm_pad",
+      "timbre": 1,
+      "level": 0.15,
+      "identical": true
+    },
+    {
+      "id": "string_swell",
+      "timbre": 0,
+      "level": 0,
+      "identical": true
+    },
+    {
+      "id": "string_swell",
+      "timbre": 0,
+      "level": 0.15,
+      "identical": true
+    },
+    {
+      "id": "string_swell",
+      "timbre": 0.35,
+      "level": 0,
+      "identical": true
+    },
+    {
+      "id": "string_swell",
+      "timbre": 0.35,
+      "level": 0.15,
+      "identical": true
+    },
+    {
+      "id": "string_swell",
+      "timbre": 1,
+      "level": 0,
+      "identical": true
+    },
+    {
+      "id": "string_swell",
+      "timbre": 1,
+      "level": 0.15,
+      "identical": true
+    },
+    {
+      "id": "dark_sub",
+      "timbre": 0,
+      "level": 0,
+      "identical": true
+    },
+    {
+      "id": "dark_sub",
+      "timbre": 0,
+      "level": 0.15,
+      "identical": true
+    },
+    {
+      "id": "dark_sub",
+      "timbre": 0.35,
+      "level": 0,
+      "identical": true
+    },
+    {
+      "id": "dark_sub",
+      "timbre": 0.35,
+      "level": 0.15,
+      "identical": true
+    },
+    {
+      "id": "dark_sub",
+      "timbre": 1,
+      "level": 0,
+      "identical": true
+    },
+    {
+      "id": "dark_sub",
+      "timbre": 1,
+      "level": 0.15,
+      "identical": true
+    },
+    {
+      "id": "metallic",
+      "timbre": 0,
+      "level": 0,
+      "identical": true
+    },
+    {
+      "id": "metallic",
+      "timbre": 0,
+      "level": 0.15,
+      "identical": true
+    },
+    {
+      "id": "metallic",
+      "timbre": 0.35,
+      "level": 0,
+      "identical": true
+    },
+    {
+      "id": "metallic",
+      "timbre": 0.35,
+      "level": 0.15,
+      "identical": true
+    },
+    {
+      "id": "metallic",
+      "timbre": 1,
+      "level": 0,
+      "identical": true
+    },
+    {
+      "id": "metallic",
+      "timbre": 1,
+      "level": 0.15,
+      "identical": true
+    },
+    {
+      "id": "vocal_choir",
+      "timbre": 0,
+      "level": 0,
+      "identical": true
+    },
+    {
+      "id": "vocal_choir",
+      "timbre": 0,
+      "level": 0.15,
+      "identical": true
+    },
+    {
+      "id": "vocal_choir",
+      "timbre": 0.35,
+      "level": 0,
+      "identical": true
+    },
+    {
+      "id": "vocal_choir",
+      "timbre": 0.35,
+      "level": 0.15,
+      "identical": true
+    },
+    {
+      "id": "vocal_choir",
+      "timbre": 1,
+      "level": 0,
+      "identical": true
+    },
+    {
+      "id": "vocal_choir",
+      "timbre": 1,
+      "level": 0.15,
+      "identical": true
+    },
+    {
+      "id": "ethereal_halo",
+      "timbre": 0,
+      "level": 0,
+      "identical": true
+    },
+    {
+      "id": "ethereal_halo",
+      "timbre": 0,
+      "level": 0.15,
+      "identical": true
+    },
+    {
+      "id": "ethereal_halo",
+      "timbre": 0.35,
+      "level": 0,
+      "identical": true
+    },
+    {
+      "id": "ethereal_halo",
+      "timbre": 0.35,
+      "level": 0.15,
+      "identical": true
+    },
+    {
+      "id": "ethereal_halo",
+      "timbre": 1,
+      "level": 0,
+      "identical": true
+    },
+    {
+      "id": "ethereal_halo",
+      "timbre": 1,
+      "level": 0.15,
+      "identical": true
+    },
+    {
+      "id": "reed_drone",
+      "timbre": 0,
+      "level": 0,
+      "identical": true
+    },
+    {
+      "id": "reed_drone",
+      "timbre": 0,
+      "level": 0.15,
+      "identical": true
+    },
+    {
+      "id": "reed_drone",
+      "timbre": 0.35,
+      "level": 0,
+      "identical": true
+    },
+    {
+      "id": "reed_drone",
+      "timbre": 0.35,
+      "level": 0.15,
+      "identical": true
+    },
+    {
+      "id": "reed_drone",
+      "timbre": 1,
+      "level": 0,
+      "identical": true
+    },
+    {
+      "id": "reed_drone",
+      "timbre": 1,
+      "level": 0.15,
+      "identical": true
+    },
+    {
+      "id": "pulse_matrix",
+      "timbre": 0,
+      "level": 0,
+      "identical": true
+    },
+    {
+      "id": "pulse_matrix",
+      "timbre": 0,
+      "level": 0.15,
+      "identical": true
+    },
+    {
+      "id": "pulse_matrix",
+      "timbre": 0.35,
+      "level": 0,
+      "identical": true
+    },
+    {
+      "id": "pulse_matrix",
+      "timbre": 0.35,
+      "level": 0.15,
+      "identical": true
+    },
+    {
+      "id": "pulse_matrix",
+      "timbre": 1,
+      "level": 0,
+      "identical": true
+    },
+    {
+      "id": "pulse_matrix",
+      "timbre": 1,
+      "level": 0.15,
+      "identical": true
+    },
+    {
+      "id": "fjord_tape",
+      "timbre": 0,
+      "level": 0,
+      "identical": true
+    },
+    {
+      "id": "fjord_tape",
+      "timbre": 0,
+      "level": 0.15,
+      "identical": true
+    },
+    {
+      "id": "fjord_tape",
+      "timbre": 0.35,
+      "level": 0,
+      "identical": true
+    },
+    {
+      "id": "fjord_tape",
+      "timbre": 0.35,
+      "level": 0.15,
+      "identical": true
+    },
+    {
+      "id": "fjord_tape",
+      "timbre": 1,
+      "level": 0,
+      "identical": true
+    },
+    {
+      "id": "fjord_tape",
+      "timbre": 1,
+      "level": 0.15,
+      "identical": true
+    },
+    {
+      "id": "resonant_fifths",
+      "timbre": 0,
+      "level": 0,
+      "identical": true
+    },
+    {
+      "id": "resonant_fifths",
+      "timbre": 0,
+      "level": 0.15,
+      "identical": true
+    },
+    {
+      "id": "resonant_fifths",
+      "timbre": 0.35,
+      "level": 0,
+      "identical": true
+    },
+    {
+      "id": "resonant_fifths",
+      "timbre": 0.35,
+      "level": 0.15,
+      "identical": true
+    },
+    {
+      "id": "resonant_fifths",
+      "timbre": 1,
+      "level": 0,
+      "identical": true
+    },
+    {
+      "id": "resonant_fifths",
+      "timbre": 1,
+      "level": 0.15,
+      "identical": true
+    },
+    {
+      "id": "cello",
+      "timbre": 0,
+      "level": 0,
+      "identical": true
+    },
+    {
+      "id": "cello",
+      "timbre": 0,
+      "level": 0.15,
+      "identical": true
+    },
+    {
+      "id": "cello",
+      "timbre": 0.35,
+      "level": 0,
+      "identical": true
+    },
+    {
+      "id": "cello",
+      "timbre": 0.35,
+      "level": 0.15,
+      "identical": true
+    },
+    {
+      "id": "cello",
+      "timbre": 1,
+      "level": 0,
+      "identical": true
+    },
+    {
+      "id": "cello",
+      "timbre": 1,
+      "level": 0.15,
+      "identical": true
+    },
+    {
+      "id": "saxophon",
+      "timbre": 0,
+      "level": 0,
+      "identical": true
+    },
+    {
+      "id": "saxophon",
+      "timbre": 0,
+      "level": 0.15,
+      "identical": true
+    },
+    {
+      "id": "saxophon",
+      "timbre": 0.35,
+      "level": 0,
+      "identical": true
+    },
+    {
+      "id": "saxophon",
+      "timbre": 0.35,
+      "level": 0.15,
+      "identical": true
+    },
+    {
+      "id": "saxophon",
+      "timbre": 1,
+      "level": 0,
+      "identical": true
+    },
+    {
+      "id": "saxophon",
+      "timbre": 1,
+      "level": 0.15,
+      "identical": true
+    },
+    {
+      "id": "glass_pipe",
+      "timbre": 0,
+      "level": 0,
+      "identical": true
+    },
+    {
+      "id": "glass_pipe",
+      "timbre": 0,
+      "level": 0.15,
+      "identical": true
+    },
+    {
+      "id": "glass_pipe",
+      "timbre": 0.35,
+      "level": 0,
+      "identical": true
+    },
+    {
+      "id": "glass_pipe",
+      "timbre": 0.35,
+      "level": 0.15,
+      "identical": true
+    },
+    {
+      "id": "glass_pipe",
+      "timbre": 1,
+      "level": 0,
+      "identical": true
+    },
+    {
+      "id": "glass_pipe",
+      "timbre": 1,
+      "level": 0.15,
+      "identical": true
+    },
+    {
+      "id": "membrane_bloom",
+      "timbre": 0,
+      "level": 0,
+      "identical": true
+    },
+    {
+      "id": "membrane_bloom",
+      "timbre": 0,
+      "level": 0.15,
+      "identical": true
+    },
+    {
+      "id": "membrane_bloom",
+      "timbre": 0.35,
+      "level": 0,
+      "identical": true
+    },
+    {
+      "id": "membrane_bloom",
+      "timbre": 0.35,
+      "level": 0.15,
+      "identical": true
+    },
+    {
+      "id": "membrane_bloom",
+      "timbre": 1,
+      "level": 0,
+      "identical": true
+    },
+    {
+      "id": "membrane_bloom",
+      "timbre": 1,
+      "level": 0.15,
+      "identical": true
+    },
+    {
+      "id": "bronze_reed",
+      "timbre": 0,
+      "level": 0,
+      "identical": true
+    },
+    {
+      "id": "bronze_reed",
+      "timbre": 0,
+      "level": 0.15,
+      "identical": true
+    },
+    {
+      "id": "bronze_reed",
+      "timbre": 0.35,
+      "level": 0,
+      "identical": true
+    },
+    {
+      "id": "bronze_reed",
+      "timbre": 0.35,
+      "level": 0.15,
+      "identical": true
+    },
+    {
+      "id": "bronze_reed",
+      "timbre": 1,
+      "level": 0,
+      "identical": true
+    },
+    {
+      "id": "bronze_reed",
+      "timbre": 1,
+      "level": 0.15,
+      "identical": true
+    },
+    {
+      "id": "dust_bow",
+      "timbre": 0,
+      "level": 0,
+      "identical": true
+    },
+    {
+      "id": "dust_bow",
+      "timbre": 0,
+      "level": 0.15,
+      "identical": true
+    },
+    {
+      "id": "dust_bow",
+      "timbre": 0.35,
+      "level": 0,
+      "identical": true
+    },
+    {
+      "id": "dust_bow",
+      "timbre": 0.35,
+      "level": 0.15,
+      "identical": true
+    },
+    {
+      "id": "dust_bow",
+      "timbre": 1,
+      "level": 0,
+      "identical": true
+    },
+    {
+      "id": "dust_bow",
+      "timbre": 1,
+      "level": 0.15,
+      "identical": true
+    }
+  ],
+  "newPreset": {
+    "cutoffs": [
+      644.0999830080945,
+      3388.8123525606197
+    ],
+    "colourCache": {
+      "created": 33,
+      "repeatSkipped": true,
+      "applied": 101
+    }
+  },
+  "status": "PASS"
+}

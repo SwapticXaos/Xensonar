@@ -35,10 +35,10 @@ function entrophonInstrumentMenu(composer){
 }
 function entrophonScheduleMelodic(ctx,destination,composer,note,track,start,stepSec,source,register){
   const item=source.noteBuffers.get(note.id);if(!item)throw new Error('Entrophon note not prepared: '+note.id);
-  const player=ctx.createBufferSource(),pan=ctx.createStereoPanner(),gain=ctx.createGain();
-  player.buffer=item.buffer??item;pan.pan.value=Math.max(-1,Math.min(1,track.pan??0));gain.gain.value=Math.max(0,Math.min(1,track.volume??.8));
-  player.connect(pan);pan.connect(gain);gain.connect(destination);player.start(start+Ax(composer,note)*stepSec);
-  register?.(player);register?.(pan);register?.(gain);
+  const player=ctx.createBufferSource(),pan=ctx.__mlMonoRender?null:ctx.createStereoPanner(),gain=ctx.createGain();
+  player.buffer=item.buffer??item;if(pan)pan.pan.value=Math.max(-1,Math.min(1,track.pan??0));gain.gain.value=Math.max(0,Math.min(1,track.volume??.8));
+  if(pan){player.connect(pan);pan.connect(gain);}else player.connect(gain);gain.connect(destination);player.start(start+Ax(composer,note)*stepSec);
+  register?.(player);if(pan)register?.(pan);register?.(gain);
 }
 function entrophonEditSavedSound(entry){
   const instrument=normalizeEntrophonInstrument(entry.instrument);

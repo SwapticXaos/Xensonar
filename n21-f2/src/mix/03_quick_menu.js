@@ -40,7 +40,7 @@ const __XenLoopHotkeys=Object.freeze(['A','S','D','F','G','H','J','K','L']);
 function __XenLoopKey(index){return Number.isInteger(index)&&index>=0&&index<__XenLoopHotkeys.length?' ('+__XenLoopHotkeys[index]+')':'';}
 /* N19: preserve N14/N17 design; pointer gestures and hover share the visible left landing surface. */
 const __XenQuickHelpText='Ziehe den Eintrag ins Schnellmenü für leichteren Zugang.';
-function __QuickDock(){
+function __QuickDock({params={},update=()=>{}}={}){
  const s=P.useSyncExternalStore(__XenQuick.subscribe,__XenQuick.snapshot,__XenQuick.snapshot),[remove,setRemove]=P.useState(null),[message,setMessage]=P.useState('');
  const columns=P.useMemo(()=>{const next={grid:[],material:[],rootFollow:[],drum:[],bass:[]};for(const entry of s.items)next[entry.kind]?.push(entry);return next;},[s.items]);
  // A pulse is an event observed by THIS mounted room, never restored state.
@@ -52,7 +52,7 @@ function __QuickDock(){
  },[s.pulse]);
  const [layout,setLayout]=P.useState({leftTop:156,leftHeight:52,migrated:false,rightWidth:210,rightInset:12,rightHeight:120,documentList:false});
  const occupied=Math.max(0,...Object.values(columns).map(entries=>entries.length));
- const needed=occupied?16+occupied*34+(occupied-1)*5+(remove?70:0)+(message?30:0):52;
+ const needed=occupied?44+occupied*34+(occupied-1)*5+(remove?70:0)+(message?30:0):40;
  P.useLayoutEffect(()=>{
   let frame=0;
   const measure=()=>{
@@ -80,9 +80,9 @@ function __QuickDock(){
   if(pan)observer?.observe(pan);if(panel)observer?.observe(panel);
   return()=>{cancelAnimationFrame(frame);observer?.disconnect();window.removeEventListener('resize',queue);window.removeEventListener('scroll',queue);document.documentElement.style.removeProperty('--xen-quick-marker-top');document.documentElement.removeAttribute('data-xen-quick-page-list')};
  },[occupied,needed]);
- const collection=u.jsxs('div',{hidden:occupied===0&&!remove&&!message,className:'xen-quick-collection'+(layout.migrated?' is-migrated':'')+(layout.documentList?' is-document':''),
+ const collection=u.jsxs('div',{className:'xen-quick-collection'+(layout.migrated?' is-migrated':'')+(layout.documentList?' is-document':''),
   style:layout.migrated?{right:layout.rightInset,width:layout.rightWidth}:undefined,
-  children:[u.jsx('div',{className:'xen-quick-grid',children:Object.entries(columns).map(([kind,entries])=>u.jsx('div',{className:'xen-quick-column','data-xen-quick-column':kind,children:entries.map((entry,index)=>u.jsxs('button',{type:'button',className:'xen-quick-tile',title:entry.name,'aria-label':entry.name,onClick:()=>{setMessage(__XenQuick.activate(entry)?'':entry.name+' ist nicht mehr verfügbar.')},onContextMenu:e=>{e.preventDefault();setRemove(entry)},children:[u.jsx('span',{className:entry.kind==='rootFollow'?'xen-quick-rfl':'',children:__XenQuick.icons[entry.kind]}),' '+(index+1)]},entry.kind+':'+entry.id))},kind))}),
+  children:[u.jsx(__QuickMuteRow,{params,update}),u.jsx('div',{className:'xen-quick-grid',children:Object.entries(columns).map(([kind,entries])=>u.jsx('div',{className:'xen-quick-column','data-xen-quick-column':kind,children:entries.map((entry,index)=>u.jsxs('button',{type:'button',className:'xen-quick-tile',title:entry.name,'aria-label':entry.name,onClick:()=>{setMessage(__XenQuick.activate(entry)?'':entry.name+' ist nicht mehr verfügbar.')},onContextMenu:e=>{e.preventDefault();setRemove(entry)},children:[u.jsx('span',{className:entry.kind==='rootFollow'?'xen-quick-rfl':'',children:__XenQuick.icons[entry.kind]}),' '+(index+1)]},entry.kind+':'+entry.id))},kind))}),
    remove&&u.jsxs('div',{className:'xen-quick-confirm',children:[u.jsx('span',{children:'„'+remove.name+'“ entfernen?'}),u.jsx('button',{type:'button',onClick:()=>{__XenQuick.remove(remove);setRemove(null)},children:'Entfernen'}),u.jsx('button',{type:'button',onClick:()=>setRemove(null),children:'Abbrechen'})]}),message&&u.jsx('small',{role:'status',children:message})]});
  const dock=u.jsxs('section',{className:'xen-quick-dock'+(flash?' is-ready':'')+(layout.migrated?' is-migrated':''),'aria-label':'Schnellmenü','data-xen-quick-hint':__XenQuickHelpText,
   style:{top:layout.leftTop,height:layout.leftHeight,maxHeight:'none'},onPointerDown:e=>e.stopPropagation(),onMouseDown:e=>e.stopPropagation(),onClick:e=>e.stopPropagation(),
@@ -247,3 +247,13 @@ if(typeof document!=='undefined'){
  window.addEventListener('keydown',e=>{if(!__XenQuick.snapshot().active)return;if(e.key==='Escape'){e.preventDefault();e.stopImmediatePropagation();__XenQuick.dismiss();return}if(e.code==='CapsLock'||e.code==='ShiftLeft'){e.stopImmediatePropagation();return}if(!['ArrowLeft','ArrowRight'].includes(e.key)||e.altKey||e.ctrlKey||e.metaKey||e.target?.closest('input,select,textarea,[contenteditable="true"],[role="slider"]'))return;e.preventDefault();e.stopImmediatePropagation();if(!e.repeat)__XenQuick.cycle(e.key==='ArrowRight'?1:-1)},true);
 }
 
+
+// Reuse the live transport switches; selection and saved material stay intact.
+function __QuickMuteRow({params,update}){
+ const lanes={material:['materialLoopActive','Material Track'],rootFollow:['rootFollowLoopActive','Root Follow Loop'],drum:['drumActive','Drums'],bass:['bassActive','Bass']};
+ return u.jsx('div',{className:'xen-quick-mutes','aria-label':'Quick track mute',children:['grid',...Object.keys(lanes)].map(kind=>{
+  if(kind==='grid')return u.jsx('span',{title:'Raster',className:'xen-quick-grid-label',children:__XenQuick.icons.grid},kind);
+  const [field,label]=lanes[kind],muted=!params[field];
+  return u.jsx('button',{type:'button','data-quick-mute':kind,'aria-label':label+' mute','aria-pressed':muted,title:(muted?'Unmute ':'Mute ')+label,className:muted?'is-muted':'',onClick:()=>update({[field]:muted}),children:__XenQuick.icons[kind]},kind);
+ })});
+}

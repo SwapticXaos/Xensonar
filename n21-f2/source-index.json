@@ -62,6 +62,41 @@
       "line": 43
     },
     {
+      "name": "__QuickMuteRow",
+      "file": "src/mix/03_quick_menu.js",
+      "line": 252
+    },
+    {
+      "name": "__mlPan",
+      "file": "src/mix/04_melodic_spatial.js",
+      "line": 3
+    },
+    {
+      "name": "__mlAudibleTracks",
+      "file": "src/mix/04_melodic_spatial.js",
+      "line": 4
+    },
+    {
+      "name": "__mlOutputChannels",
+      "file": "src/mix/04_melodic_spatial.js",
+      "line": 11
+    },
+    {
+      "name": "__mlHasTrackPan",
+      "file": "src/mix/04_melodic_spatial.js",
+      "line": 37
+    },
+    {
+      "name": "__mlSetLiveTrackPan",
+      "file": "src/mix/04_melodic_spatial.js",
+      "line": 40
+    },
+    {
+      "name": "__MelodicTrackPan",
+      "file": "src/mix/04_melodic_spatial.js",
+      "line": 49
+    },
+    {
       "name": "__XenAudioProbe",
       "file": "src/instruments/00_diagnostics.js",
       "line": 4
@@ -10345,6 +10380,16 @@
       "name": "En",
       "file": "src/rhythm/02_bass_and_rack.js",
       "line": 190
+    },
+    {
+      "name": "__xenDroneColourBanks",
+      "file": "src/audio/drone/01_colour.js",
+      "line": 4
+    },
+    {
+      "name": "__xenDroneColour",
+      "file": "src/audio/drone/01_colour.js",
+      "line": 5
     },
     {
       "name": "__wave39MakeBodyProfile",
@@ -30009,97 +30054,97 @@
     {
       "name": "z$",
       "file": "src/forge_and_melodic/04_render_cache_and_stems.js",
-      "line": 345
+      "line": 346
     },
     {
       "name": "j$",
       "file": "src/forge_and_melodic/04_render_cache_and_stems.js",
-      "line": 345
+      "line": 370
     },
     {
       "name": "hh",
       "file": "src/forge_and_melodic/04_render_cache_and_stems.js",
-      "line": 353
+      "line": 378
     },
     {
       "name": "__mlPlayWithPreparation",
       "file": "src/forge_and_melodic/04_render_cache_and_stems.js",
-      "line": 354
+      "line": 379
     },
     {
       "name": "P9e",
       "file": "src/forge_and_melodic/04_render_cache_and_stems.js",
-      "line": 402
+      "line": 427
     },
     {
       "name": "I9e",
       "file": "src/forge_and_melodic/04_render_cache_and_stems.js",
-      "line": 409
+      "line": 434
     },
     {
       "name": "E9e",
       "file": "src/forge_and_melodic/04_render_cache_and_stems.js",
-      "line": 415
+      "line": 440
     },
     {
       "name": "F9e",
       "file": "src/forge_and_melodic/04_render_cache_and_stems.js",
-      "line": 415
+      "line": 440
     },
     {
       "name": "T9e",
       "file": "src/forge_and_melodic/04_render_cache_and_stems.js",
-      "line": 415
+      "line": 440
     },
     {
       "name": "L9e",
       "file": "src/forge_and_melodic/04_render_cache_and_stems.js",
-      "line": 415
+      "line": 440
     },
     {
       "name": "VR",
       "file": "src/forge_and_melodic/04_render_cache_and_stems.js",
-      "line": 415
+      "line": 440
     },
     {
       "name": "B9e",
       "file": "src/forge_and_melodic/04_render_cache_and_stems.js",
-      "line": 415
+      "line": 440
     },
     {
       "name": "D9e",
       "file": "src/forge_and_melodic/04_render_cache_and_stems.js",
-      "line": 415
+      "line": 440
     },
     {
       "name": "N9e",
       "file": "src/forge_and_melodic/04_render_cache_and_stems.js",
-      "line": 419
+      "line": 444
     },
     {
       "name": "Jd",
       "file": "src/forge_and_melodic/04_render_cache_and_stems.js",
-      "line": 419
+      "line": 444
     },
     {
       "name": "O9e",
       "file": "src/forge_and_melodic/04_render_cache_and_stems.js",
-      "line": 419
+      "line": 444
     },
     {
       "name": "_9e",
       "file": "src/forge_and_melodic/04_render_cache_and_stems.js",
-      "line": 419
+      "line": 444
     },
     {
       "name": "z9e",
       "file": "src/forge_and_melodic/04_render_cache_and_stems.js",
-      "line": 419
+      "line": 444
     },
     {
       "name": "j9e",
       "file": "src/forge_and_melodic/04_render_cache_and_stems.js",
-      "line": 419
+      "line": 444
     },
     {
       "name": "G9e",
@@ -30674,107 +30719,107 @@
     {
       "name": "SQe",
       "file": "src/forge_and_melodic/07_tuning_and_logic_view.js",
-      "line": 9
+      "line": 24
     },
     {
       "name": "vQe",
       "file": "src/forge_and_melodic/07_tuning_and_logic_view.js",
-      "line": 9
+      "line": 24
     },
     {
       "name": "AQe",
       "file": "src/forge_and_melodic/07_tuning_and_logic_view.js",
-      "line": 36
+      "line": 51
     },
     {
       "name": "WR",
       "file": "src/forge_and_melodic/07_tuning_and_logic_view.js",
-      "line": 36
+      "line": 51
     },
     {
       "name": "xQe",
       "file": "src/forge_and_melodic/07_tuning_and_logic_view.js",
-      "line": 36
+      "line": 51
     },
     {
       "name": "MQe",
       "file": "src/forge_and_melodic/07_tuning_and_logic_view.js",
-      "line": 36
+      "line": 51
     },
     {
       "name": "wQe",
       "file": "src/forge_and_melodic/07_tuning_and_logic_view.js",
-      "line": 36
+      "line": 51
     },
     {
       "name": "RQe",
       "file": "src/forge_and_melodic/07_tuning_and_logic_view.js",
-      "line": 36
+      "line": 51
     },
     {
       "name": "CQe",
       "file": "src/forge_and_melodic/07_tuning_and_logic_view.js",
-      "line": 36
+      "line": 51
     },
     {
       "name": "kQe",
       "file": "src/forge_and_melodic/07_tuning_and_logic_view.js",
-      "line": 36
+      "line": 51
     },
     {
       "name": "PQe",
       "file": "src/forge_and_melodic/07_tuning_and_logic_view.js",
-      "line": 36
+      "line": 51
     },
     {
       "name": "IQe",
       "file": "src/forge_and_melodic/07_tuning_and_logic_view.js",
-      "line": 36
+      "line": 51
     },
     {
       "name": "EQe",
       "file": "src/forge_and_melodic/07_tuning_and_logic_view.js",
-      "line": 36
+      "line": 51
     },
     {
       "name": "FQe",
       "file": "src/forge_and_melodic/07_tuning_and_logic_view.js",
-      "line": 36
+      "line": 51
     },
     {
       "name": "TQe",
       "file": "src/forge_and_melodic/07_tuning_and_logic_view.js",
-      "line": 36
+      "line": 51
     },
     {
       "name": "LQe",
       "file": "src/forge_and_melodic/07_tuning_and_logic_view.js",
-      "line": 36
+      "line": 51
     },
     {
       "name": "BQe",
       "file": "src/forge_and_melodic/07_tuning_and_logic_view.js",
-      "line": 36
+      "line": 51
     },
     {
       "name": "DQe",
       "file": "src/forge_and_melodic/07_tuning_and_logic_view.js",
-      "line": 36
+      "line": 51
     },
     {
       "name": "NQe",
       "file": "src/forge_and_melodic/07_tuning_and_logic_view.js",
-      "line": 36
+      "line": 51
     },
     {
       "name": "OQe",
       "file": "src/forge_and_melodic/07_tuning_and_logic_view.js",
-      "line": 42
+      "line": 57
     },
     {
       "name": "_Qe",
       "file": "src/forge_and_melodic/07_tuning_and_logic_view.js",
-      "line": 45
+      "line": 60
     },
     {
       "name": "zQe",
@@ -35483,6 +35528,14 @@
     },
     {
       "from": "src/forge_and_melodic/04_render_cache_and_stems.js",
+      "to": "src/mix/04_melodic_spatial.js",
+      "symbols": [
+        "__mlOutputChannels",
+        "__mlPan"
+      ]
+    },
+    {
+      "from": "src/forge_and_melodic/04_render_cache_and_stems.js",
       "to": "src/nodal/06_melodic_bridge.js",
       "symbols": [
         "__mlContainsNodalTracks",
@@ -36039,6 +36092,13 @@
       "to": "src/instruments/05_entrophon_integration.js",
       "symbols": [
         "isSavedEntrophonSound"
+      ]
+    },
+    {
+      "from": "src/forge_and_melodic/07_tuning_and_logic_view.js",
+      "to": "src/mix/04_melodic_spatial.js",
+      "symbols": [
+        "__MelodicTrackPan"
       ]
     },
     {
@@ -39303,6 +39363,42 @@
       ]
     },
     {
+      "from": "src/mix/04_melodic_spatial.js",
+      "to": "src/audio/01_voice_and_rfl_ownership.js",
+      "symbols": [
+        "Z0"
+      ]
+    },
+    {
+      "from": "src/mix/04_melodic_spatial.js",
+      "to": "src/audio/03_rfl_transport_legacy.js",
+      "symbols": [
+        "yW"
+      ]
+    },
+    {
+      "from": "src/mix/04_melodic_spatial.js",
+      "to": "src/forge_and_melodic/03_timeline_and_transport_ui.js",
+      "symbols": [
+        "c9e",
+        "uD"
+      ]
+    },
+    {
+      "from": "src/mix/04_melodic_spatial.js",
+      "to": "src/forge_and_melodic/04_render_cache_and_stems.js",
+      "symbols": [
+        "b9e"
+      ]
+    },
+    {
+      "from": "src/mix/04_melodic_spatial.js",
+      "to": "src/vendor/01_react_dom.js",
+      "symbols": [
+        "u"
+      ]
+    },
+    {
       "from": "src/nodal/01_instrument_model.js",
       "to": "src/nodal/06_melodic_bridge.js",
       "symbols": [
@@ -39434,6 +39530,13 @@
         "entrophonComposerSourceFields",
         "entrophonInstrumentMenu",
         "isSavedEntrophonSound"
+      ]
+    },
+    {
+      "from": "src/nodal/06_melodic_bridge.js",
+      "to": "src/mix/04_melodic_spatial.js",
+      "symbols": [
+        "__mlHasTrackPan"
       ]
     },
     {
@@ -40145,6 +40248,13 @@
         "__drumLegacySynth",
         "r2e",
         "tO"
+      ]
+    },
+    {
+      "from": "src/rhythm/03_live_drum_bodies.js",
+      "to": "src/audio/drone/01_colour.js",
+      "symbols": [
+        "__xenDroneColour"
       ]
     },
     {

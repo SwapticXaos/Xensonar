@@ -95,7 +95,7 @@ function __mlContainsNodalTracks(composer) {
 /* No direct Nodal event player exists in Root Follow yet. A composed WAV must
    be registered as material audio, never interpreted as an unsupported legacy synth pattern. */
 function __mlNodalRflConfig(composer) {
-  return __mlContainsNodalTracks(composer) ? {
+  return (__mlContainsNodalTracks(composer) || __mlHasTrackPan(composer)) ? {
     sourceKind: 'material', renderMode: 'flowing', anchorGridStep: null,
     synthPattern: null, synthPatch: null, formantWindowPlan: null
   } : L9e({loopComposer: composer});
@@ -130,8 +130,12 @@ function nodalRenderTailSeconds(request) {
 function nodalScheduleOffline(ctx, destination, composer, note, track, start, stepSec, source, register) {
   const options = nodalMelodicNoteOptions(composer, note, track, source, stepSec);
   const result = __XenNodalDSP.render(source.plan, options, ctx.sampleRate);
-  const buffer = ctx.createBuffer(result.left ? 2 : 1, result.pcm.length, ctx.sampleRate); buffer.copyToChannel(result.left ?? result.pcm, 0); if(result.right) buffer.copyToChannel(result.right, 1);
-  const player = ctx.createBufferSource(), pan = ctx.createStereoPanner(); player.buffer = buffer;
-  pan.pan.value = Math.max(-1, Math.min(1, track.pan ?? 0)); player.connect(pan); pan.connect(destination);
-  player.start(start + Ax(composer, note) * stepSec); register?.(player); register?.(pan);
+  // Keep intentional instrument width. A width-zero instrument uses the same
+  // mono source in both the cached stem and a panned export, avoiding a second
+  // L/R summation (and a level jump) at the stereo panner.
+  const stereo = !!result.left && source.instrument?.material?.width > 0;
+  const buffer = ctx.createBuffer(stereo ? 2 : 1, result.pcm.length, ctx.sampleRate); buffer.copyToChannel(stereo ? result.left : result.pcm, 0); if(stereo && result.right) buffer.copyToChannel(result.right, 1);
+  const player = ctx.createBufferSource(), pan = ctx.__mlMonoRender ? null : ctx.createStereoPanner(); player.buffer = buffer;
+  if(pan){pan.pan.value = Math.max(-1, Math.min(1, track.pan ?? 0)); player.connect(pan); pan.connect(destination);}else player.connect(destination);
+  player.start(start + Ax(composer, note) * stepSec); register?.(player); if(pan)register?.(pan);
 }

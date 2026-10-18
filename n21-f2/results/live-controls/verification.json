@@ -1,0 +1,29 @@
+{
+  "base": "48fdc63932d5e3c68c7d753e39f03391e937a8ed",
+  "verifiedAtUTC": "2026-10-18T21:29:32.470556+00:00",
+  "entry": "Xensonar_N21_F2_Live_Controls_Test.html",
+  "sha256": "cfff8263c2d39c083ba1b7ea5bf24eb7e4cc6208a25085385dd6b1ed64229d30",
+  "bytes": 5522665,
+  "hostDSPWorkerChecks": 65,
+  "failed": 0,
+  "browser": "system Chromium via Playwright, intercepted HTTPS, native WebAudio and Workers",
+  "browserSuite": "npm run test:live-controls:browser",
+  "regressions": [
+    "test:merge",
+    "test:granular",
+    "test:live-stability",
+    "test:forge-progress",
+    "rw2-source-index",
+    "forge-progress-browser",
+    "p4c2-n21-browser"
+  ],
+  "limitations": [
+    "Opera and Firefox not installed",
+    "No physical listening or hardware-load certification"
+  ],
+  "sourceIndex": {
+    "sourceUnits": 196,
+    "topLevelNames": 6404,
+    "crossUnitDependencyPairs": 1033
+  }
+}

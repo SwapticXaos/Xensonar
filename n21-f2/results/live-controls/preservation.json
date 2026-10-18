@@ -1,0 +1,25 @@
+{
+  "base": "48fdc63932d5e3c68c7d753e39f03391e937a8ed",
+  "unchanged": 209,
+  "changed": [
+    "src/app/forge/02_boot_and_workspace_tools.js",
+    "src/forge_and_melodic/04_render_cache_and_stems.js",
+    "src/forge_and_melodic/07_tuning_and_logic_view.js",
+    "src/instruments/05_entrophon_integration.js",
+    "src/mix/03_quick_menu.js",
+    "src/nodal/06_melodic_bridge.js",
+    "src/nodal/08_melodic_live_transport.js",
+    "src/rhythm/03_live_drum_bodies.js",
+    "src/rhythm/04_workspace_and_transport.js",
+    "src/runtime/01_instrument_state.js",
+    "src/runtime/instrument/04_performance_and_output_profiles.js",
+    "src/runtime/instrument/08_library_and_tuning_editor.js",
+    "src/runtime/instrument/10_entrophon_and_voice_control.js"
+  ],
+  "added": [
+    "src/mix/04_melodic_spatial.js",
+    "styles/26_live_controls.css",
+    "src/audio/drone/01_colour.js"
+  ],
+  "status": "PASS"
+}

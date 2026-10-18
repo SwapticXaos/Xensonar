@@ -1,0 +1,18 @@
+{
+  "src/app/forge/02_boot_and_workspace_tools.js": "1dda8136a1d2cb7f628184fafc1a89b762ec152cd1572c66e03ee847ca236bf7",
+  "src/forge_and_melodic/04_render_cache_and_stems.js": "aec846c15a3efc73833a201f5aef42094a1df7046265f6d4fc559ba71fa8a736",
+  "src/forge_and_melodic/07_tuning_and_logic_view.js": "e70375d88381852e49f91054e069e46d0ad72d0056c9a3dfb6e64308ec5c2527",
+  "src/instruments/05_entrophon_integration.js": "553ad94d383cea739ceb54cda36241636934633c7a232af5658f621d5da9b94b",
+  "src/mix/03_quick_menu.js": "929b2d95ee2e1e5550ac43033ea08d651e78124b027bc4d2d3317f97f7b33efe",
+  "src/nodal/06_melodic_bridge.js": "d54828b66f99faf4b147a11e9fb1247240c0b280d63ff4ccaba561f10f594b80",
+  "src/nodal/08_melodic_live_transport.js": "9ee6f2f295ffd587d6f52ac81a55b7b34c4239cfda8e95ffae5400980d2b9689",
+  "src/rhythm/03_live_drum_bodies.js": "6dc8b863a9863e99eb3a089f4b2b480d40628b9ca37718d8bd6c40e97a8e7463",
+  "src/rhythm/04_workspace_and_transport.js": "727c32e168909c2a38c250edb593cd44c61b223422beb77fec27b168b8b26b77",
+  "src/runtime/01_instrument_state.js": "f4a4d5e903e9a0c179419f797e556d1019e91d70c136fc9953ebaecf9f3bd3fa",
+  "src/runtime/instrument/04_performance_and_output_profiles.js": "5b785620a9f1aa1469d226b5a7bfbf0fb31b2a5783ce0bfa633e4b8ff723189c",
+  "src/runtime/instrument/08_library_and_tuning_editor.js": "7cd32de063e3767fc67bbf6e471f9e5cf0df3feef1737e104cda1af54fb7ec24",
+  "src/runtime/instrument/10_entrophon_and_voice_control.js": "d3c0a0385b08fdf042825279651c7224b5807d2890e5d302420391c23db90486",
+  "src/mix/04_melodic_spatial.js": "a508776aa3202739612f45e53e311ac5e6191ba964d79406a8c5edda7ee81bb6",
+  "styles/26_live_controls.css": "e0cc295f82b2c75ec2c4652f8b6196511ae7b70d86dcb0633872f15a7d2eebe6",
+  "src/audio/drone/01_colour.js": "cccbe1f3694f37a3aa0f221360f03971a30b284383e525da4c15da9e12949022"
+}

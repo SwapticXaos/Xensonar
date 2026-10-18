@@ -1,0 +1,50 @@
+ROOM BUTTONS [ 'III. NODAL INSTALLATION', 'Open Drone Workbench+', 'Drone Mixer' ]
+ROOT STYLE [
+  {
+    tag: 'HTML',
+    overflow: 'auto',
+    height: '6287.08px',
+    scroll: 6287,
+    client: 1000
+  },
+  {
+    tag: 'BODY',
+    overflow: 'visible',
+    height: '6287.08px',
+    scroll: 6287,
+    client: 6287
+  },
+  {
+    tag: 'DIV',
+    overflow: 'visible',
+    height: '6287.08px',
+    scroll: 6287,
+    client: 6287
+  }
+]
+MAIN SCROLL [
+  { tag: 'HTML', cls: '', id: '', height: 1000, scroll: 6287 },
+  {
+    tag: 'DIV',
+    cls: 'max-h-72 overflow-y-auto pr-1 space-y-1',
+    id: '',
+    height: 288,
+    scroll: 559
+  },
+  {
+    tag: 'PRE',
+    cls: 'mt-2 max-h-56 overflow-auto whitespace-pre-wrap text-[10px] leading-relaxed text-neutral-400',
+    id: '',
+    height: 224,
+    scroll: 1170
+  }
+]
+ROOM SCROLL []
+ROOM [
+  {
+    top: 82,
+    parent: 'flex-1 p-6 relative',
+    parentTop: 82,
+    grand: 'min-h-screen bg-neutral-950 text-neutral-300 font-mono flex flex-col'
+  }
+]

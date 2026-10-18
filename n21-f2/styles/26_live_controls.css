@@ -1,0 +1,21 @@
+/* Compact transport gates share the five semantic quick-access columns. */
+.xen-quick-mutes{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:4px;margin-bottom:5px;align-items:center}
+.xen-quick-mutes button,.xen-quick-grid-label{display:flex;align-items:center;justify-content:center;height:24px;min-width:0;padding:0;border-radius:4px;font-size:12px}
+.xen-quick-mutes button{position:relative;border:1px solid #35624a;background:#153b24;color:#d2f5dc;cursor:pointer}
+.xen-quick-mutes button::after{content:'·';position:absolute;right:3px;bottom:0;color:#6ee7b7;font-weight:bold}
+.xen-quick-mutes button.is-muted{border-color:#6b4940;background:#30231f;opacity:.7}
+.xen-quick-mutes button.is-muted::after{content:'×';color:#ffba9d;font-size:10px}
+.xen-quick-mutes button:focus-visible{outline:2px solid #6ee7b7;outline-offset:2px}
+.xen-quick-grid-label{color:#70857a}
+.melodic-track-pan{display:flex;align-items:center;gap:4px;flex:1 1 95px;min-width:90px;font-size:10px;color:#b0bccc}
+.melodic-track-pan input{width:100%;min-width:35px;flex:1;accent-color:#a78bfa;height:20px;cursor:pointer}
+.melodic-track-pan output{font-variant-numeric:tabular-nums;width:25px;text-align:right;flex-shrink:0}
+.melodic-pattern-pan{align-items:center;column-gap:6px!important;row-gap:4px!important}
+/* The document owns vertical scrolling; nested root scrollports create two
+   gutters in Chromium/Opera. Room content and manager lists retain their flow. */
+html{height:auto;min-height:100%;overflow-x:hidden;overflow-y:auto;scrollbar-gutter:stable}
+body{height:auto;min-height:100vh;overflow:visible}
+#root{min-height:100vh}
+.flex-1.p-6.relative:has(>.nd-room-shell){padding-top:0}
+.melodic-pattern-label{font-size:9px;color:#929cab;flex-shrink:0}
+.melodic-pattern-pan .melodic-pattern-choice{padding:3px 6px;min-width:24px}

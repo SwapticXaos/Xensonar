@@ -20,15 +20,11 @@ const params={particlePreset:'classic',keyboardHoldSoundPreset:'clean_pluck'},ou
 const a=shell.indexOf('P.useEffect(()=>{__XenNodalSurfaces.configure')+'P.useEffect(()=>{'.length,b=shell.indexOf('},[i,et.particlePreset,',a);assert(a>0&&b>a);
 const effectEnv={__XenOctaves:{factor:()=>1},__XenNodalSurfaces:surface,Xn:()=>[],Fx:()=>[],uw:()=>[],Zs:x=>x,Tt:{current:params},Qa:()=>220,xn:{current:{cursorY:0}},zhe:()=>({playbackFreq:220}),NT:()=>({playbackFreq:220}),Lr:{current:ctx},i:ctx,Bs:async()=>ctx,Hh:()=>output,hi:()=>output,hl:{current:runtime},et:params,Ou:waveId};
 const selectEffect=new Function(...Object.keys(effectEnv),shell.slice(a,b));
-// Drive the exact JSX Keyboard Sound onChange, not a substitute UI handler.
-const controls=read('src/runtime/instrument/10_entrophon_and_voice_control.js');const u={Fragment:'fragment',jsx:(type,props)=>({type,props}),jsxs:(type,props)=>({type,props})};
-const component=new Function('P','u','Kie','Hd','lse','R4','hse','const __PerformancePan=()=>null,__XenPerformanceCatalog={canPan:()=>false};'+controls.slice(controls.indexOf('function __xenChooseWaveStarterSource('))+';return fse;')({useState:v=>[v,()=>{}],useEffect(){}},u,()=>()=>{},()=>true,()=>{},()=>{},()=>{});
-const props={nParamsUI:params,waveSoundPreset:waveId,updateNParams:patch=>Object.assign(params,patch),activeOvertoneMixer:{}};
-for(const key of ['dronePresets','particlePresets','waveSoundPresets','waveTimbreGradientPresets','waveVolumeGradientPresets','particleGradientPresets','waveOvertoneModes','waveOvertoneArpRates','waveOvertoneArpPatterns','droneJiOvertones','waveOvertoneMixPresets','waveDecayPresets','metaPresets','activeParticleNodes','agentKeys'])props[key]=[];
-props.waveSoundPresets=surface.options([]);
-function flatten(n){return n&&typeof n==='object'?[n,...[n.props?.children].flat(Infinity).flatMap(flatten)]:[];}
-const group=flatten(component(props)).find(n=>n.type==='div'&&flatten(n).some(c=>c.type==='label'&&c.props.children==='Keyboard Sound')&&flatten(n).filter(c=>c.type==='select').length===1);assert(group);
-const menu=flatten(group).find(n=>n.type==='select');assert(flatten(menu).some(n=>n.type==='option'&&n.props.value===keyboardId));menu.props.onChange({target:{value:keyboardId}});
+// Drive the real upper Keyboard menu after removing the duplicated lower UI.
+const {performanceMenus,flatten}=require('./helpers/performance-menus.cjs');
+const menus=performanceMenus();
+const props={nParamsUI:params,waveSoundPreset:waveId,updateNParams:patch=>Object.assign(params,patch),waveSoundPresets:surface.options([])};
+const menu=menus.menu(props,'keyboard');assert(flatten(menu).some(n=>n.type==='option'&&n.props.value===keyboardId));menu.props.onChange({target:{value:keyboardId}});
 const wave=read('src/audio/05_live_voice_runtime.js'),body=wave.slice(wave.indexOf('function Ixe('),wave.indexOf('function Exe('));
 const direct=new Function('__XenNodalSurfaces','$W','AL','xL',body+';return Ixe;')(surface,()=>false,()=>{},()=>({targets:[],prefixes:[]}));
 const options=new Function(wave.slice(wave.indexOf('function Lxe('),wave.indexOf('const Vq'))+';return Lxe;')();

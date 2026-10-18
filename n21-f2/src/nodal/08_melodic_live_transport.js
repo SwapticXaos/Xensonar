@@ -26,7 +26,7 @@ async function nodalStartMelodic(request) {
   if (__mlSoloTrackId !== null && !composer.tracks.every(track => track.enabled === (track.id === __mlSoloTrackId))) __mlSoloTrackId = null;
   const selected = request.noteId ? composer.notes.filter(n => n.id === request.noteId) : composer.notes.filter(n => request.trackIds.includes(n.trackId));
   const master = ctx.createGain(); master.gain.value = .82; master.__f49PreviewMaster = true; master.connect(bridge.getOutput(ctx)); Mx(master);
-  const gains = new Map(), players = new Map(), stems = new Map(), events = [];
+  const gains = new Map(), trackPanners = new Map(), players = new Map(), stems = new Map(), events = [];
   let timer = null, stopped = false, cycle = 0, cursor = 0, startTime = ctx.currentTime + .12, loopOffset = 0;
   const stop = () => { if (stopped) return; stopped = true; if (timer !== null) clearTimeout(timer); for (const player of players.values()) player.stop(); };
   const dispose = () => { stop(); for (const player of players.values()) player.dispose(); };
@@ -39,7 +39,7 @@ async function nodalStartMelodic(request) {
         const plans = new Set(nodalNotes.map(n => sources.get(yW(track, n)).plan.key));
         if (plans.size > 16) throw new Error('Maximum of 16 different Nodal instruments per live track');
         if (nodalNotes.some(n => sources.get(yW(track, n)).plan.cost > 8)) throw new Error('Nodal instrument exceeds the live voice budget. Reduce node complexity or export as audio.');
-        const pan = ctx.createStereoPanner(); pan.channelCount = 1; pan.channelCountMode = 'explicit'; pan.pan.value = Math.max(-1, Math.min(1, track.pan ?? 0)); pan.connect(gain); Mx(pan);
+        const pan = ctx.createStereoPanner(); pan.channelCount = 1; pan.channelCountMode = 'explicit'; pan.pan.value = Math.max(-1, Math.min(1, track.pan ?? 0)); pan.connect(gain); Mx(pan); trackPanners.set(track.id, pan);
         // One physical voice, one global ticket. DSP cost belongs to the same
         // context ledger as live Wave/Keyboard/Particle, across every track.
         const player = await __XenNodalLive.createPlayer(ctx, pan, {acquire: () => bridge.acquireVoice(1), onError: error => request.onPlaybackError?.(error)}, {
@@ -80,7 +80,7 @@ async function nodalStartMelodic(request) {
     startTime = ctx.currentTime + .12;
     const tailsEnd = events.reduce((end, event) => { const note = nodalMelodicNoteOptions(composer, event.note, event.track, event.source, stepSec); return Math.max(end, event.at + note.durationSec + Math.max(note.releaseSec, event.source.plan.tailSec ?? 0) + .01); }, 0);
     const total = Math.max(tailsEnd, request.noteId && selected[0] ? F$(composer, selected[0]) * stepSec + .2 : E$(request));
-    const session = {token, ctx, master, stemBuffers: stems, stemGains: gains, stemSources: [],
+    const session = {token, ctx, master, stemBuffers: stems, stemGains: gains, trackPanners, stemSources: [],
       totalDurationSec: request.loop ? duration : total, totalSteps: steps, stepDurationSec: stepSec, startTime, loopOffsetSec: 0,
       liveEnabledIds: new Set(composer.tracks.filter(t => t.enabled).map(t => t.id)), drumRenderRequest: JSON.parse(JSON.stringify(request)),
       drumMonitorExplicit: request.drumMonitorEnabled === true,
