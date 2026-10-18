@@ -8,6 +8,9 @@ try {
  fs.copyFileSync(path.join(root,'tools/source_index.cjs'),path.join(temp,'tools/source_index.cjs'));
  fs.copyFileSync(path.join(root,'source-manifest.json'),path.join(temp,'source-manifest.json'));
  fs.symlinkSync(path.join(root,'src'),path.join(temp,'src'),'dir');
+ // Resolve the repository's pinned TypeScript from the temporary verification
+ // checkout instead of assuming a globally installed compiler.
+ fs.symlinkSync(path.join(root,'node_modules'),path.join(temp,'node_modules'),'dir');
  const exec=cp.spawnSync(process.execPath,[path.join(temp,'tools/source_index.cjs')],{cwd:temp,env:{...process.env,NODE_PATH:process.env.NODE_PATH||cp.execFileSync('npm',['root','-g'],{encoding:'utf8'}).trim()},encoding:'utf8',timeout:30000});
  assert.equal(exec.status,0,`Source index generator failed: ${exec.stderr||exec.stdout}`);
  const expected=fs.readFileSync(path.join(temp,'source-index.json'),'utf8');

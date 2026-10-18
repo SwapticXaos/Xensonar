@@ -1,0 +1,58 @@
+{
+  "rows": [
+    {
+      "rate": 44100,
+      "mode": "base",
+      "rootMessages": 1550,
+      "maxWindows": 1,
+      "skippedWindows": 115,
+      "peak": 0.5459728837013245,
+      "tailReleased": true
+    },
+    {
+      "rate": 44100,
+      "mode": "fragment",
+      "rootMessages": 1550,
+      "maxWindows": 1,
+      "skippedWindows": 115,
+      "peak": 1.198411226272583,
+      "tailReleased": true
+    },
+    {
+      "rate": 48000,
+      "mode": "base",
+      "rootMessages": 1550,
+      "maxWindows": 1,
+      "skippedWindows": 115,
+      "peak": 0.5459033250808716,
+      "tailReleased": true
+    },
+    {
+      "rate": 48000,
+      "mode": "fragment",
+      "rootMessages": 1550,
+      "maxWindows": 1,
+      "skippedWindows": 115,
+      "peak": 1.1153439283370972,
+      "tailReleased": true
+    },
+    {
+      "rate": 96000,
+      "mode": "base",
+      "rootMessages": 1550,
+      "maxWindows": 1,
+      "skippedWindows": 114,
+      "peak": 0.5697279572486877,
+      "tailReleased": true
+    },
+    {
+      "rate": 96000,
+      "mode": "fragment",
+      "rootMessages": 1550,
+      "maxWindows": 1,
+      "skippedWindows": 114,
+      "peak": 0.9831255674362183,
+      "tailReleased": true
+    }
+  ]
+}

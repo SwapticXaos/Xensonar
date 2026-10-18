@@ -1,0 +1,46 @@
+{
+  "rows": [
+    {
+      "mode": "flowing",
+      "hz": 110,
+      "grains": 39,
+      "outside": 0,
+      "tooShort": 0
+    },
+    {
+      "mode": "flowing",
+      "hz": 220,
+      "grains": 36,
+      "outside": 0,
+      "tooShort": 0
+    },
+    {
+      "mode": "flowing",
+      "hz": 880,
+      "grains": 40,
+      "outside": 0,
+      "tooShort": 0
+    },
+    {
+      "mode": "fragment",
+      "hz": 110,
+      "grains": 52,
+      "outside": 0,
+      "tooShort": 0
+    },
+    {
+      "mode": "fragment",
+      "hz": 220,
+      "grains": 49,
+      "outside": 0,
+      "tooShort": 0
+    },
+    {
+      "mode": "fragment",
+      "hz": 880,
+      "grains": 52,
+      "outside": 0,
+      "tooShort": 0
+    }
+  ]
+}

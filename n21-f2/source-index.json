@@ -4192,6 +4192,16 @@
       "line": 3
     },
     {
+      "name": "fne",
+      "file": "src/audio/rfl/01_resident_worklet.js",
+      "line": 4
+    },
+    {
+      "name": "dne",
+      "file": "src/audio/rfl/02_fragment_preparation.js",
+      "line": 4
+    },
+    {
       "name": "vw",
       "file": "src/runtime/instrument/05_timing_and_admission.js",
       "line": 1
@@ -4332,884 +4342,874 @@
       "line": 1
     },
     {
-      "name": "dne",
+      "name": "mne",
       "file": "src/runtime/instrument/05_timing_and_admission.js",
       "line": 1
     },
     {
-      "name": "mne",
-      "file": "src/runtime/instrument/05_timing_and_admission.js",
-      "line": 2
-    },
-    {
       "name": "GF",
       "file": "src/runtime/instrument/05_timing_and_admission.js",
-      "line": 2
+      "line": 1
     },
     {
       "name": "HF",
       "file": "src/runtime/instrument/05_timing_and_admission.js",
-      "line": 2
+      "line": 1
     },
     {
       "name": "pne",
       "file": "src/runtime/instrument/05_timing_and_admission.js",
-      "line": 2
+      "line": 1
     },
     {
       "name": "TA",
       "file": "src/runtime/instrument/05_timing_and_admission.js",
-      "line": 2
+      "line": 1
     },
     {
       "name": "hne",
       "file": "src/runtime/instrument/05_timing_and_admission.js",
-      "line": 2
-    },
-    {
-      "name": "fne",
-      "file": "src/runtime/instrument/05_timing_and_admission.js",
-      "line": 2
+      "line": 1
     },
     {
       "name": "VF",
       "file": "src/runtime/instrument/05_timing_and_admission.js",
-      "line": 3
+      "line": 1
     },
     {
       "name": "zx",
       "file": "src/runtime/instrument/05_timing_and_admission.js",
-      "line": 3
+      "line": 1
     },
     {
       "name": "gne",
       "file": "src/runtime/instrument/05_timing_and_admission.js",
-      "line": 3
+      "line": 1
     },
     {
       "name": "bne",
       "file": "src/runtime/instrument/05_timing_and_admission.js",
-      "line": 3
+      "line": 1
     },
     {
       "name": "yne",
       "file": "src/runtime/instrument/05_timing_and_admission.js",
-      "line": 3
+      "line": 1
     },
     {
       "name": "Sne",
       "file": "src/runtime/instrument/05_timing_and_admission.js",
-      "line": 3
+      "line": 1
     },
     {
       "name": "vne",
       "file": "src/runtime/instrument/05_timing_and_admission.js",
-      "line": 3
+      "line": 1
     },
     {
       "name": "Ane",
       "file": "src/runtime/instrument/05_timing_and_admission.js",
-      "line": 3
+      "line": 1
     },
     {
       "name": "Xj",
       "file": "src/runtime/instrument/05_timing_and_admission.js",
-      "line": 3
+      "line": 1
     },
     {
       "name": "LA",
       "file": "src/runtime/instrument/05_timing_and_admission.js",
-      "line": 3
+      "line": 1
     },
     {
       "name": "RS",
       "file": "src/runtime/instrument/05_timing_and_admission.js",
-      "line": 3
+      "line": 1
     },
     {
       "name": "Yj",
       "file": "src/runtime/instrument/05_timing_and_admission.js",
-      "line": 3
+      "line": 1
     },
     {
       "name": "xne",
       "file": "src/runtime/instrument/05_timing_and_admission.js",
-      "line": 3
+      "line": 1
     },
     {
       "name": "Jj",
       "file": "src/runtime/instrument/05_timing_and_admission.js",
-      "line": 3
+      "line": 1
     },
     {
       "name": "h2",
       "file": "src/runtime/instrument/05_timing_and_admission.js",
-      "line": 3
+      "line": 1
     },
     {
       "name": "su",
       "file": "src/runtime/instrument/05_timing_and_admission.js",
-      "line": 3
+      "line": 1
     },
     {
       "name": "WP",
       "file": "src/runtime/instrument/05_timing_and_admission.js",
-      "line": 3
+      "line": 1
     },
     {
       "name": "Mne",
       "file": "src/runtime/instrument/05_timing_and_admission.js",
-      "line": 3
+      "line": 1
     },
     {
       "name": "wne",
       "file": "src/runtime/instrument/05_timing_and_admission.js",
-      "line": 3
+      "line": 1
     },
     {
       "name": "Rne",
       "file": "src/runtime/instrument/05_timing_and_admission.js",
-      "line": 3
+      "line": 1
     },
     {
       "name": "Cne",
       "file": "src/runtime/instrument/05_timing_and_admission.js",
-      "line": 3
+      "line": 1
     },
     {
       "name": "o4",
       "file": "src/runtime/instrument/05_timing_and_admission.js",
-      "line": 3
+      "line": 1
     },
     {
       "name": "M0",
       "file": "src/runtime/instrument/05_timing_and_admission.js",
-      "line": 3
+      "line": 1
     },
     {
       "name": "kne",
       "file": "src/runtime/instrument/05_timing_and_admission.js",
-      "line": 3
+      "line": 1
     },
     {
       "name": "WF",
       "file": "src/runtime/instrument/05_timing_and_admission.js",
-      "line": 3
+      "line": 1
     },
     {
       "name": "w0",
       "file": "src/runtime/instrument/05_timing_and_admission.js",
-      "line": 3
+      "line": 1
     },
     {
       "name": "Pne",
       "file": "src/runtime/instrument/05_timing_and_admission.js",
-      "line": 3
+      "line": 1
     },
     {
       "name": "Ine",
       "file": "src/runtime/instrument/05_timing_and_admission.js",
-      "line": 3
+      "line": 1
     },
     {
       "name": "BA",
       "file": "src/runtime/instrument/05_timing_and_admission.js",
-      "line": 3
+      "line": 1
     },
     {
       "name": "Ene",
       "file": "src/runtime/instrument/05_timing_and_admission.js",
-      "line": 3
+      "line": 1
     },
     {
       "name": "qP",
       "file": "src/runtime/instrument/05_timing_and_admission.js",
-      "line": 3
+      "line": 1
     },
     {
       "name": "QP",
       "file": "src/runtime/instrument/05_timing_and_admission.js",
-      "line": 3
+      "line": 1
     },
     {
       "name": "UP",
       "file": "src/runtime/instrument/05_timing_and_admission.js",
-      "line": 3
+      "line": 1
     },
     {
       "name": "KP",
       "file": "src/runtime/instrument/05_timing_and_admission.js",
-      "line": 3
+      "line": 1
     },
     {
       "name": "Zj",
       "file": "src/runtime/instrument/05_timing_and_admission.js",
-      "line": 3
+      "line": 1
     },
     {
       "name": "e6",
       "file": "src/runtime/instrument/05_timing_and_admission.js",
-      "line": 3
+      "line": 1
     },
     {
       "name": "t6",
       "file": "src/runtime/instrument/05_timing_and_admission.js",
-      "line": 3
+      "line": 1
     },
     {
       "name": "n6",
       "file": "src/runtime/instrument/05_timing_and_admission.js",
-      "line": 3
+      "line": 1
     },
     {
       "name": "Fne",
       "file": "src/runtime/instrument/05_timing_and_admission.js",
-      "line": 3
+      "line": 1
     },
     {
       "name": "r6",
       "file": "src/runtime/instrument/05_timing_and_admission.js",
-      "line": 3
+      "line": 1
     },
     {
       "name": "kp",
       "file": "src/runtime/instrument/05_timing_and_admission.js",
-      "line": 3
+      "line": 1
     },
     {
       "name": "Tne",
       "file": "src/runtime/instrument/05_timing_and_admission.js",
-      "line": 3
+      "line": 1
     },
     {
       "name": "Lne",
       "file": "src/runtime/instrument/05_timing_and_admission.js",
-      "line": 3
+      "line": 1
     },
     {
       "name": "a6",
       "file": "src/runtime/instrument/05_timing_and_admission.js",
-      "line": 3
+      "line": 1
     },
     {
       "name": "o6",
       "file": "src/runtime/instrument/05_timing_and_admission.js",
-      "line": 3
+      "line": 1
     },
     {
       "name": "Bne",
       "file": "src/runtime/instrument/05_timing_and_admission.js",
-      "line": 3
+      "line": 1
     },
     {
       "name": "Nne",
       "file": "src/runtime/instrument/05_timing_and_admission.js",
-      "line": 3
+      "line": 1
     },
     {
       "name": "__xenAlignGrainSource",
       "file": "src/runtime/instrument/05_timing_and_admission.js",
-      "line": 5
+      "line": 3
     },
     {
       "name": "Dd",
       "file": "src/runtime/instrument/05_timing_and_admission.js",
-      "line": 34
+      "line": 32
     },
     {
       "name": "$P",
       "file": "src/runtime/instrument/05_timing_and_admission.js",
-      "line": 34
+      "line": 32
     },
     {
       "name": "One",
       "file": "src/runtime/instrument/05_timing_and_admission.js",
-      "line": 34
+      "line": 32
     },
     {
       "name": "i6",
       "file": "src/runtime/instrument/05_timing_and_admission.js",
-      "line": 34
+      "line": 32
     },
     {
       "name": "_ne",
       "file": "src/runtime/instrument/05_timing_and_admission.js",
-      "line": 34
+      "line": 32
     },
     {
       "name": "zne",
       "file": "src/runtime/instrument/05_timing_and_admission.js",
-      "line": 34
+      "line": 32
     },
     {
       "name": "ur",
       "file": "src/runtime/instrument/05_timing_and_admission.js",
-      "line": 34
+      "line": 32
     },
     {
       "name": "s6",
       "file": "src/runtime/instrument/05_timing_and_admission.js",
-      "line": 34
+      "line": 32
     },
     {
       "name": "qF",
       "file": "src/runtime/instrument/05_timing_and_admission.js",
-      "line": 34
+      "line": 32
     },
     {
       "name": "QF",
       "file": "src/runtime/instrument/05_timing_and_admission.js",
-      "line": 34
+      "line": 32
     },
     {
       "name": "jne",
       "file": "src/runtime/instrument/05_timing_and_admission.js",
-      "line": 34
+      "line": 32
     },
     {
       "name": "Gne",
       "file": "src/runtime/instrument/05_timing_and_admission.js",
-      "line": 34
+      "line": 32
     },
     {
       "name": "jx",
       "file": "src/runtime/instrument/05_timing_and_admission.js",
-      "line": 34
+      "line": 32
     },
     {
       "name": "UF",
       "file": "src/runtime/instrument/05_timing_and_admission.js",
-      "line": 34
+      "line": 32
     },
     {
       "name": "i4",
       "file": "src/runtime/instrument/05_timing_and_admission.js",
-      "line": 34
+      "line": 32
     },
     {
       "name": "M1",
       "file": "src/runtime/instrument/05_timing_and_admission.js",
-      "line": 34
+      "line": 32
     },
     {
       "name": "Hne",
       "file": "src/runtime/instrument/05_timing_and_admission.js",
-      "line": 34
+      "line": 32
     },
     {
       "name": "zd",
       "file": "src/runtime/instrument/05_timing_and_admission.js",
-      "line": 34
+      "line": 32
     },
     {
       "name": "Vne",
       "file": "src/runtime/instrument/05_timing_and_admission.js",
-      "line": 34
+      "line": 32
     },
     {
       "name": "Wne",
       "file": "src/runtime/instrument/05_timing_and_admission.js",
-      "line": 34
+      "line": 32
     },
     {
       "name": "KF",
       "file": "src/runtime/instrument/05_timing_and_admission.js",
-      "line": 34
+      "line": 32
     },
     {
       "name": "qne",
       "file": "src/runtime/instrument/05_timing_and_admission.js",
-      "line": 34
+      "line": 32
     },
     {
       "name": "l6",
       "file": "src/runtime/instrument/05_timing_and_admission.js",
-      "line": 34
+      "line": 32
     },
     {
       "name": "XP",
       "file": "src/runtime/instrument/05_timing_and_admission.js",
-      "line": 34
+      "line": 32
     },
     {
       "name": "c6",
       "file": "src/runtime/instrument/05_timing_and_admission.js",
-      "line": 34
+      "line": 32
     },
     {
       "name": "Qne",
       "file": "src/runtime/instrument/05_timing_and_admission.js",
-      "line": 34
+      "line": 32
     },
     {
       "name": "Une",
       "file": "src/runtime/instrument/05_timing_and_admission.js",
-      "line": 34
+      "line": 32
     },
     {
       "name": "u6",
       "file": "src/runtime/instrument/05_timing_and_admission.js",
-      "line": 34
+      "line": 32
     },
     {
       "name": "Kne",
       "file": "src/runtime/instrument/05_timing_and_admission.js",
-      "line": 34
+      "line": 32
     },
     {
       "name": "$F",
       "file": "src/runtime/instrument/05_timing_and_admission.js",
-      "line": 34
+      "line": 32
     },
     {
       "name": "d6",
       "file": "src/runtime/instrument/05_timing_and_admission.js",
-      "line": 34
+      "line": 32
     },
     {
       "name": "m6",
       "file": "src/runtime/instrument/05_timing_and_admission.js",
-      "line": 34
+      "line": 32
     },
     {
       "name": "Aw",
       "file": "src/runtime/instrument/05_timing_and_admission.js",
-      "line": 34
+      "line": 32
     },
     {
       "name": "XF",
       "file": "src/runtime/instrument/05_timing_and_admission.js",
-      "line": 34
+      "line": 32
     },
     {
       "name": "$ne",
       "file": "src/runtime/instrument/05_timing_and_admission.js",
-      "line": 34
+      "line": 32
     },
     {
       "name": "Xne",
       "file": "src/runtime/instrument/05_timing_and_admission.js",
-      "line": 34
+      "line": 32
     },
     {
       "name": "Yne",
       "file": "src/runtime/instrument/05_timing_and_admission.js",
-      "line": 34
+      "line": 32
     },
     {
       "name": "Jne",
       "file": "src/runtime/instrument/05_timing_and_admission.js",
-      "line": 34
+      "line": 32
     },
     {
       "name": "w1",
       "file": "src/runtime/instrument/05_timing_and_admission.js",
-      "line": 34
+      "line": 32
     },
     {
       "name": "s4",
       "file": "src/runtime/instrument/05_timing_and_admission.js",
-      "line": 34
+      "line": 32
     },
     {
       "name": "Zne",
       "file": "src/runtime/instrument/05_timing_and_admission.js",
-      "line": 34
+      "line": 32
     },
     {
       "name": "ere",
       "file": "src/runtime/instrument/05_timing_and_admission.js",
-      "line": 34
+      "line": 32
     },
     {
       "name": "tre",
       "file": "src/runtime/instrument/05_timing_and_admission.js",
-      "line": 34
+      "line": 32
     },
     {
       "name": "nre",
       "file": "src/runtime/instrument/05_timing_and_admission.js",
-      "line": 34
+      "line": 32
     },
     {
       "name": "rre",
       "file": "src/runtime/instrument/05_timing_and_admission.js",
-      "line": 34
+      "line": 32
     },
     {
       "name": "ore",
       "file": "src/runtime/instrument/05_timing_and_admission.js",
-      "line": 34
+      "line": 32
     },
     {
       "name": "ire",
       "file": "src/runtime/instrument/05_timing_and_admission.js",
-      "line": 35
+      "line": 33
     },
     {
       "name": "sre",
       "file": "src/runtime/instrument/05_timing_and_admission.js",
-      "line": 36
+      "line": 34
     },
     {
       "name": "Gx",
       "file": "src/runtime/instrument/05_timing_and_admission.js",
-      "line": 36
+      "line": 34
     },
     {
       "name": "YP",
       "file": "src/runtime/instrument/05_timing_and_admission.js",
-      "line": 36
+      "line": 34
     },
     {
       "name": "YF",
       "file": "src/runtime/instrument/05_timing_and_admission.js",
-      "line": 36
+      "line": 34
     },
     {
       "name": "p6",
       "file": "src/runtime/instrument/05_timing_and_admission.js",
-      "line": 36
+      "line": 34
     },
     {
       "name": "h6",
       "file": "src/runtime/instrument/05_timing_and_admission.js",
-      "line": 36
+      "line": 34
     },
     {
       "name": "f2",
       "file": "src/runtime/instrument/05_timing_and_admission.js",
-      "line": 36
+      "line": 34
     },
     {
       "name": "lre",
       "file": "src/runtime/instrument/05_timing_and_admission.js",
-      "line": 36
+      "line": 34
     },
     {
       "name": "cre",
       "file": "src/runtime/instrument/05_timing_and_admission.js",
-      "line": 36
+      "line": 34
     },
     {
       "name": "DA",
       "file": "src/runtime/instrument/05_timing_and_admission.js",
-      "line": 36
+      "line": 34
     },
     {
       "name": "ure",
       "file": "src/runtime/instrument/05_timing_and_admission.js",
-      "line": 36
+      "line": 34
     },
     {
       "name": "dre",
       "file": "src/runtime/instrument/05_timing_and_admission.js",
-      "line": 36
+      "line": 34
     },
     {
       "name": "Nt",
       "file": "src/runtime/instrument/05_timing_and_admission.js",
-      "line": 36
+      "line": 34
     },
     {
       "name": "mre",
       "file": "src/runtime/instrument/05_timing_and_admission.js",
-      "line": 36
+      "line": 34
     },
     {
       "name": "pre",
       "file": "src/runtime/instrument/05_timing_and_admission.js",
-      "line": 36
+      "line": 34
     },
     {
       "name": "hre",
       "file": "src/runtime/instrument/05_timing_and_admission.js",
-      "line": 36
+      "line": 34
     },
     {
       "name": "gre",
       "file": "src/runtime/instrument/05_timing_and_admission.js",
-      "line": 36
+      "line": 34
     },
     {
       "name": "Mp",
       "file": "src/runtime/instrument/05_timing_and_admission.js",
-      "line": 36
+      "line": 34
     },
     {
       "name": "g2",
       "file": "src/runtime/instrument/05_timing_and_admission.js",
-      "line": 36
+      "line": 34
     },
     {
       "name": "JP",
       "file": "src/runtime/instrument/05_timing_and_admission.js",
-      "line": 36
+      "line": 34
     },
     {
       "name": "NA",
       "file": "src/runtime/instrument/05_timing_and_admission.js",
-      "line": 36
+      "line": 34
     },
     {
       "name": "bre",
       "file": "src/runtime/instrument/05_timing_and_admission.js",
-      "line": 36
+      "line": 34
     },
     {
       "name": "yre",
       "file": "src/runtime/instrument/05_timing_and_admission.js",
-      "line": 36
+      "line": 34
     },
     {
       "name": "Sre",
       "file": "src/runtime/instrument/05_timing_and_admission.js",
-      "line": 36
+      "line": 34
     },
     {
       "name": "vre",
       "file": "src/runtime/instrument/05_timing_and_admission.js",
-      "line": 36
+      "line": 34
     },
     {
       "name": "Are",
       "file": "src/runtime/instrument/05_timing_and_admission.js",
-      "line": 36
+      "line": 34
     },
     {
       "name": "f6",
       "file": "src/runtime/instrument/05_timing_and_admission.js",
-      "line": 36
+      "line": 34
     },
     {
       "name": "g6",
       "file": "src/runtime/instrument/05_timing_and_admission.js",
-      "line": 36
+      "line": 34
     },
     {
       "name": "xre",
       "file": "src/runtime/instrument/05_timing_and_admission.js",
-      "line": 36
+      "line": 34
     },
     {
       "name": "OA",
       "file": "src/runtime/instrument/05_timing_and_admission.js",
-      "line": 36
+      "line": 34
     },
     {
       "name": "b6",
       "file": "src/runtime/instrument/05_timing_and_admission.js",
-      "line": 36
+      "line": 34
     },
     {
       "name": "y6",
       "file": "src/runtime/instrument/05_timing_and_admission.js",
-      "line": 36
+      "line": 34
     },
     {
       "name": "l4",
       "file": "src/runtime/instrument/05_timing_and_admission.js",
-      "line": 36
+      "line": 34
     },
     {
       "name": "S6",
       "file": "src/runtime/instrument/05_timing_and_admission.js",
-      "line": 36
+      "line": 34
     },
     {
       "name": "Mre",
       "file": "src/runtime/instrument/05_timing_and_admission.js",
-      "line": 36
+      "line": 34
     },
     {
       "name": "Hx",
       "file": "src/runtime/instrument/05_timing_and_admission.js",
-      "line": 36
+      "line": 34
     },
     {
       "name": "wre",
       "file": "src/runtime/instrument/05_timing_and_admission.js",
-      "line": 36
+      "line": 34
     },
     {
       "name": "c4",
       "file": "src/runtime/instrument/05_timing_and_admission.js",
-      "line": 36
+      "line": 34
     },
     {
       "name": "Rre",
       "file": "src/runtime/instrument/05_timing_and_admission.js",
-      "line": 36
+      "line": 34
     },
     {
       "name": "Cre",
       "file": "src/runtime/instrument/05_timing_and_admission.js",
-      "line": 36
+      "line": 34
     },
     {
       "name": "ki",
       "file": "src/runtime/instrument/05_timing_and_admission.js",
-      "line": 36
+      "line": 34
     },
     {
       "name": "nc",
       "file": "src/runtime/instrument/05_timing_and_admission.js",
-      "line": 36
+      "line": 34
     },
     {
       "name": "v6",
       "file": "src/runtime/instrument/05_timing_and_admission.js",
-      "line": 36
+      "line": 34
     },
     {
       "name": "bn",
       "file": "src/runtime/instrument/05_timing_and_admission.js",
-      "line": 36
+      "line": 34
     },
     {
       "name": "kre",
       "file": "src/runtime/instrument/05_timing_and_admission.js",
-      "line": 36
+      "line": 34
     },
     {
       "name": "xw",
       "file": "src/runtime/instrument/05_timing_and_admission.js",
-      "line": 36
+      "line": 34
     },
     {
       "name": "Pre",
       "file": "src/runtime/instrument/05_timing_and_admission.js",
-      "line": 36
+      "line": 34
     },
     {
       "name": "_r",
       "file": "src/runtime/instrument/05_timing_and_admission.js",
-      "line": 36
+      "line": 34
     },
     {
       "name": "Si",
       "file": "src/runtime/instrument/05_timing_and_admission.js",
-      "line": 36
+      "line": 34
     },
     {
       "name": "u4",
       "file": "src/runtime/instrument/05_timing_and_admission.js",
-      "line": 36
+      "line": 34
     },
     {
       "name": "Ire",
       "file": "src/runtime/instrument/05_timing_and_admission.js",
-      "line": 36
+      "line": 34
     },
     {
       "name": "Ere",
       "file": "src/runtime/instrument/05_timing_and_admission.js",
-      "line": 36
+      "line": 34
     },
     {
       "name": "Fre",
       "file": "src/runtime/instrument/05_timing_and_admission.js",
-      "line": 36
+      "line": 34
     },
     {
       "name": "Tre",
       "file": "src/runtime/instrument/05_timing_and_admission.js",
-      "line": 38
+      "line": 36
     },
     {
       "name": "Lre",
       "file": "src/runtime/instrument/05_timing_and_admission.js",
-      "line": 38
+      "line": 36
     },
     {
       "name": "Bre",
       "file": "src/runtime/instrument/05_timing_and_admission.js",
-      "line": 38
+      "line": 36
     },
     {
       "name": "Nre",
       "file": "src/runtime/instrument/05_timing_and_admission.js",
-      "line": 53
+      "line": 51
     },
     {
       "name": "Ore",
       "file": "src/runtime/instrument/05_timing_and_admission.js",
-      "line": 53
+      "line": 51
     },
     {
       "name": "_re",
       "file": "src/runtime/instrument/05_timing_and_admission.js",
-      "line": 57
+      "line": 55
     },
     {
       "name": "A6",
       "file": "src/runtime/instrument/05_timing_and_admission.js",
-      "line": 57
+      "line": 55
     },
     {
       "name": "zre",
       "file": "src/runtime/instrument/05_timing_and_admission.js",
-      "line": 57
+      "line": 55
     },
     {
       "name": "jre",
       "file": "src/runtime/instrument/05_timing_and_admission.js",
-      "line": 57
+      "line": 55
     },
     {
       "name": "Gre",
       "file": "src/runtime/instrument/05_timing_and_admission.js",
-      "line": 57
+      "line": 55
     },
     {
       "name": "Hre",
       "file": "src/runtime/instrument/05_timing_and_admission.js",
-      "line": 57
+      "line": 55
     },
     {
       "name": "Vre",
       "file": "src/runtime/instrument/05_timing_and_admission.js",
-      "line": 57
+      "line": 55
     },
     {
       "name": "Wre",
       "file": "src/runtime/instrument/05_timing_and_admission.js",
-      "line": 57
+      "line": 55
     },
     {
       "name": "qre",
       "file": "src/runtime/instrument/05_timing_and_admission.js",
-      "line": 57
+      "line": 55
     },
     {
       "name": "Qre",
       "file": "src/runtime/instrument/05_timing_and_admission.js",
-      "line": 57
+      "line": 55
     },
     {
       "name": "Ure",
       "file": "src/runtime/instrument/05_timing_and_admission.js",
-      "line": 57
+      "line": 55
     },
     {
       "name": "Kre",
       "file": "src/runtime/instrument/05_timing_and_admission.js",
-      "line": 57
+      "line": 55
     },
     {
       "name": "$re",
       "file": "src/runtime/instrument/05_timing_and_admission.js",
-      "line": 57
+      "line": 55
     },
     {
       "name": "Xre",
       "file": "src/runtime/instrument/05_timing_and_admission.js",
-      "line": 57
+      "line": 55
     },
     {
       "name": "Yre",
       "file": "src/runtime/instrument/05_timing_and_admission.js",
-      "line": 57
+      "line": 55
     },
     {
       "name": "x6",
@@ -40823,6 +40823,20 @@
       "to": "src/app/forge/04_profiles_and_body_models.js",
       "symbols": [
         "VLe"
+      ]
+    },
+    {
+      "from": "src/runtime/instrument/05_timing_and_admission.js",
+      "to": "src/audio/rfl/01_resident_worklet.js",
+      "symbols": [
+        "fne"
+      ]
+    },
+    {
+      "from": "src/runtime/instrument/05_timing_and_admission.js",
+      "to": "src/audio/rfl/02_fragment_preparation.js",
+      "symbols": [
+        "dne"
       ]
     },
     {

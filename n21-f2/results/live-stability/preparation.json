@@ -1,0 +1,40 @@
+{
+  "rows": [
+    {
+      "rate": 44100,
+      "channels": 1,
+      "comparedBytes": 38112,
+      "byteIdentical": true
+    },
+    {
+      "rate": 44100,
+      "channels": 2,
+      "comparedBytes": 38112,
+      "byteIdentical": true
+    },
+    {
+      "rate": 48000,
+      "channels": 1,
+      "comparedBytes": 38000,
+      "byteIdentical": true
+    },
+    {
+      "rate": 48000,
+      "channels": 2,
+      "comparedBytes": 38000,
+      "byteIdentical": true
+    },
+    {
+      "rate": 96000,
+      "channels": 1,
+      "comparedBytes": 37440,
+      "byteIdentical": true
+    },
+    {
+      "rate": 96000,
+      "channels": 2,
+      "comparedBytes": 37440,
+      "byteIdentical": true
+    }
+  ]
+}

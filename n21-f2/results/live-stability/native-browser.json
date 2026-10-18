@@ -1,0 +1,41 @@
+{
+  "rows": [
+    {
+      "mode": "flowing",
+      "rate": 44100,
+      "nativeGrains": 448,
+      "excludedTransientPeak": 0
+    },
+    {
+      "mode": "flowing",
+      "rate": 48000,
+      "nativeGrains": 448,
+      "excludedTransientPeak": 0
+    },
+    {
+      "mode": "flowing",
+      "rate": 96000,
+      "nativeGrains": 448,
+      "excludedTransientPeak": 0
+    },
+    {
+      "mode": "fragment",
+      "rate": 44100,
+      "nativeGrains": 559,
+      "excludedTransientPeak": 0
+    },
+    {
+      "mode": "fragment",
+      "rate": 48000,
+      "nativeGrains": 559,
+      "excludedTransientPeak": 0
+    },
+    {
+      "mode": "fragment",
+      "rate": 96000,
+      "nativeGrains": 559,
+      "excludedTransientPeak": 0
+    }
+  ],
+  "errors": []
+}

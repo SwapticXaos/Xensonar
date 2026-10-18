@@ -1,0 +1,88 @@
+{
+  "rows": [
+    {
+      "mode": "base",
+      "rate": 44100,
+      "baseline": {
+        "peak": 4.707675457000732,
+        "jump": 0.49378716945648193,
+        "outside": 3411
+      },
+      "current": {
+        "peak": 0,
+        "jump": 0,
+        "outside": 0
+      }
+    },
+    {
+      "mode": "base",
+      "rate": 48000,
+      "baseline": {
+        "peak": 4.5972795486450195,
+        "jump": 0.4760704040527344,
+        "outside": 3247
+      },
+      "current": {
+        "peak": 0,
+        "jump": 0,
+        "outside": 0
+      }
+    },
+    {
+      "mode": "base",
+      "rate": 96000,
+      "baseline": {
+        "peak": 3.8174490928649902,
+        "jump": 0.4979236125946045,
+        "outside": 6788
+      },
+      "current": {
+        "peak": 0,
+        "jump": 0,
+        "outside": 0
+      }
+    },
+    {
+      "mode": "fragment",
+      "rate": 44100,
+      "baseline": {
+        "peak": 5.658315658569336,
+        "jump": 0.49806690216064453,
+        "outside": 4065
+      },
+      "current": {
+        "peak": 0,
+        "jump": 0,
+        "outside": 0
+      }
+    },
+    {
+      "mode": "fragment",
+      "rate": 48000,
+      "baseline": {
+        "peak": 5.442440986633301,
+        "jump": 0.4964022636413574,
+        "outside": 3827
+      },
+      "current": {
+        "peak": 0,
+        "jump": 0,
+        "outside": 0
+      }
+    },
+    {
+      "mode": "fragment",
+      "rate": 96000,
+      "baseline": {
+        "peak": 4.5473198890686035,
+        "jump": 0.49875640869140625,
+        "outside": 8185
+      },
+      "current": {
+        "peak": 0,
+        "jump": 0,
+        "outside": 0
+      }
+    }
+  ]
+}

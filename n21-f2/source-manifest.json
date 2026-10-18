@@ -1,6 +1,6 @@
 {
-  "version": "XenSonar N21–F2 · Granular Sample Hold",
-  "entry": "Xensonar_N21_F2_Granular_Sample_Hold_Test.html",
+  "version": "XenSonar N21–F2 · Live Audio Stability",
+  "entry": "Xensonar_N21_F2_Live_Stability_Test.html",
   "files": [
     "src/mix/03_quick_menu.js",
     "src/instruments/00_diagnostics.js",
@@ -97,6 +97,8 @@
     "src/runtime/instrument/02_observation_and_sample_storage.js",
     "src/runtime/instrument/03_selection_and_recording_tools.js",
     "src/runtime/instrument/04_performance_and_output_profiles.js",
+    "src/audio/rfl/01_resident_worklet.js",
+    "src/audio/rfl/02_fragment_preparation.js",
     "src/runtime/instrument/05_timing_and_admission.js",
     "src/runtime/instrument/06_rooms_and_lifecycle.js",
     "src/runtime/instrument/07_interpreters_and_installation.js",
@@ -194,8 +196,8 @@
     "src/05_dual_donor.js",
     "src/06_workbench_dialog.js"
   ],
-  "sha256": "2c53f8b3a68a3ba94a3a87c085942f393b77d7ab366f5f1d6155252ea81288e1",
-  "bytes": 5495426,
+  "sha256": "37332089f2aa114b0cc842a4aad6c472327aaebc30cce0b86d23894ad8bdb982",
+  "bytes": 5506979,
   "sourceOrder": "Concatenate in listed order. Explicit factories own Workbench, hybrid session, render capture, adapters, playback and analysis cache. Remaining registry fragments share one inline module; DSP factories stay independently serializable for workers.",
   "status": "F4.3.13 mainline plus F4.4.0 Nodal coupled-modal-v2, anchored at F4.3.5",
   "baseVersion": "F4.3.5 (three-way)",

@@ -1,0 +1,29 @@
+{
+  "rows": [
+    {
+      "key": "'",
+      "held": {
+        "rms": 0.03027313560182352,
+        "active": 1
+      },
+      "released": {
+        "rms": 0,
+        "returned": 1,
+        "tracked": 0
+      }
+    },
+    {
+      "key": "Equal",
+      "held": {
+        "rms": 0.030414402866778,
+        "active": 1
+      },
+      "released": {
+        "rms": 0,
+        "returned": 1,
+        "tracked": 0
+      }
+    }
+  ],
+  "errors": []
+}

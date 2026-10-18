@@ -1,0 +1,3 @@
+PASS Forge exact mirror width=1500 DPR=1 Play=Save 42×34; aligned y=9; symmetric edges=10
+PASS Forge exact mirror width=1150 DPR=1.25 Play=Save 42×34; aligned y=9; symmetric edges=10
+PASS Forge exact mirror width=950 DPR=2 Play=Save 42×34; aligned y=9; symmetric edges=10
