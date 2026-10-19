@@ -1,0 +1,4 @@
+page.waitForFunction: Timeout 20000ms exceeded.
+    at /workspace/Xensonar/n21-f2/tests/microphone-browser.cjs:25:14 {
+  name: 'TimeoutError'
+}

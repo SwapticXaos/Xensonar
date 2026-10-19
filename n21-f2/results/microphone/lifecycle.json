@@ -1,0 +1,14 @@
+{
+  "passed": true,
+  "completedFile": true,
+  "noMonitoring": true,
+  "latePermissionReleased": true,
+  "unmountReleased": true,
+  "denial": true,
+  "encoderFailure": true,
+  "emptyCapture": true,
+  "timeCap": true,
+  "recorderError": true,
+  "secureContextCheck": true,
+  "timersRemaining": 0
+}

@@ -1,6 +1,6 @@
 'use strict';
 
-const fs = require('fs'), assert = require('assert/strict'), crypto = require('crypto'), base = require('../docs/ui-refinement-baseline-hashes.json'), patch = {...require('../docs/ui-refinement-source-anchors.json'),...require('../docs/workflow-integrity-source-anchors.json'),...require('../docs/maintenance-source-anchors.json')};
+const fs = require('fs'), assert = require('assert/strict'), crypto = require('crypto'), base = require('../docs/ui-refinement-baseline-hashes.json'), patch = {...require('../docs/ui-refinement-source-anchors.json'),...require('../docs/workflow-integrity-source-anchors.json'),...require('../docs/maintenance-source-anchors.json'),...require('../docs/microphone-source-anchors.json')};
 
 const sha = file => crypto.createHash('sha256').update(fs.readFileSync(file)).digest('hex');
 

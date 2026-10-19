@@ -1,0 +1,13 @@
+
+> xensonar-p4c2-n21-f2-merged@4.4.8-p4c2-n21-f2 test:microphone
+> node tests/microphone-capture.cjs && node tests/microphone-preservation.cjs && node build.cjs --verify
+
+PASS microphone lifecycle: file handoff, late permission/cancel, unmount, denial, encoder/error/empty data, 60s cap and complete resource cleanup
+PASS microphone boundary: one existing UI module and one capture module; all synthesis/rendering/transport sources unchanged
+PASS reproducible standalone HTML 9e1152600849f0850556114525c36ed2ba0283fee4238daffc6a103158f213a2 5552168
+npm notice
+npm notice New major version of npm available! 11.9.0 -> 12.2.0
+npm notice Changelog: https://github.com/npm/cli/releases/tag/v12.2.0
+npm notice To update run: npm install -g npm@12.2.0
+npm notice
+PASS RW2 source-index freshness, 199 manifest entries, 6439 declarations, 1058 file dependency pairs

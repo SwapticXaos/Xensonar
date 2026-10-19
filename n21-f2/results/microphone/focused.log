@@ -1,0 +1,45 @@
+
+> xensonar-p4c2-n21-f2-merged@4.4.8-p4c2-n21-f2 test:workflow-integrity
+> node tests/workflow-grid-runtime.cjs && node tests/workflow-custom-instruments.cjs && node tests/workflow-hotkeys.cjs && node tests/workflow-preservation.cjs && node build.cjs --verify
+
+PASS global grid: real Wave Starter snap, keyboard restrictions, cached live view, authored restore, no muted timers or stale quantized replay
+PASS custom instruments: original engines, independent field layers, source snapshots, project reload/library deletion, collision-free bodies, quota failure and RFL material routing
+PASS hotkeys: physical layout priority, canonical reorder/limit/unregister, same click activation, one transient pulse timer
+PASS workflow boundary: 206 existing files unchanged; 22 reviewed files including two new administrative modules
+PASS reproducible standalone HTML 9e1152600849f0850556114525c36ed2ba0283fee4238daffc6a103158f213a2 5552168
+npm notice
+npm notice New major version of npm available! 11.9.0 -> 12.2.0
+npm notice Changelog: https://github.com/npm/cli/releases/tag/v12.2.0
+npm notice To update run: npm install -g npm@12.2.0
+npm notice
+
+> xensonar-p4c2-n21-f2-merged@4.4.8-p4c2-n21-f2 test:merge
+> node tests/n21-f2-preservation.cjs && node tests/forge_save_play_symmetry.cjs && node tests/forge_play_ready_save_regression.cjs && node tests/p4c2-n20-navigation.cjs && node tests/p4c2-n21-length-control.cjs && node tests/p4c2-n21-quickdock.cjs && node build.cjs --verify
+
+PASS N21 audio/runtime outside explicit Granular Hold patch unchanged; N20F2 outside explicit Forge progress patch unchanged; exact Play/Save and navigation preserved
+PASS Forge rack Play/Save exact 42×34px geometry, unchanged Project Name and centered Save
+PASS Spectral Forge ready-from-cache / stale / source / Save geometry
+PASS N20 layout, controls, events, persistence and manifest contracts
+PASS N21 finite/held cuts, primary isolation, one gesture, idempotence, German/English apostrophe
+PASS N21 dock: full stable target, seven-item migration, one left pulse, no right pulse, no remount replay or nested height cap
+PASS reproducible standalone HTML 9e1152600849f0850556114525c36ed2ba0283fee4238daffc6a103158f213a2 5552168
+npm notice
+npm notice New major version of npm available! 11.9.0 -> 12.2.0
+npm notice Changelog: https://github.com/npm/cli/releases/tag/v12.2.0
+npm notice To update run: npm install -g npm@12.2.0
+npm notice
+
+> xensonar-p4c2-n21-f2-merged@4.4.8-p4c2-n21-f2 test:forge-progress
+> node tests/forge-progress-preservation.cjs && node tests/forge-progress-jobs.cjs && node tests/forge-progress-pcm.cjs && node tests/forge_play_ready_save_regression.cjs && node tests/forge_save_play_symmetry.cjs && node build.cjs --verify
+
+PASS Forge patch boundary: 183 source/style/template files unchanged outside Forge and Live Controls patch owners
+PASS joined/hidden render progress, shared PCM, monotonic bounds, instant cache, cancellation and retry
+PASS 18 Polytrace sync/cooperative PCM + metadata comparisons, Emilia exact stereo, cooperative cancellation
+PASS Spectral Forge ready-from-cache / stale / source / Save geometry
+PASS Forge rack Play/Save exact 42×34px geometry, unchanged Project Name and centered Save
+PASS reproducible standalone HTML 9e1152600849f0850556114525c36ed2ba0283fee4238daffc6a103158f213a2 5552168
+npm notice
+npm notice New major version of npm available! 11.9.0 -> 12.2.0
+npm notice Changelog: https://github.com/npm/cli/releases/tag/v12.2.0
+npm notice To update run: npm install -g npm@12.2.0
+npm notice

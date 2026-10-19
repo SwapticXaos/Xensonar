@@ -1,0 +1,5709 @@
+{
+  "checks": [
+    {
+      "name": "Emilia: Play joins automatic render",
+      "samples": [
+        {
+          "t": 4108.79999999702,
+          "p": null,
+          "busy": "false",
+          "title": "Listening mode is rendered automatically"
+        },
+        {
+          "t": 4248.70000000298,
+          "p": 4,
+          "busy": "true",
+          "title": "Preparing preview · 4%"
+        },
+        {
+          "t": 5309.5,
+          "p": 6,
+          "busy": "true",
+          "title": "Preparing preview · 6%"
+        },
+        {
+          "t": 5622.20000000298,
+          "p": 8,
+          "busy": "true",
+          "title": "Preparing preview · 8%"
+        },
+        {
+          "t": 5649.600000008941,
+          "p": 9,
+          "busy": "true",
+          "title": "Preparing preview · 9%"
+        },
+        {
+          "t": 5710.600000008941,
+          "p": 10,
+          "busy": "true",
+          "title": "Preparing preview · 10%"
+        },
+        {
+          "t": 5793.4000000059605,
+          "p": 12,
+          "busy": "true",
+          "title": "Preparing preview · 12%"
+        },
+        {
+          "t": 5832,
+          "p": 13,
+          "busy": "true",
+          "title": "Preparing preview · 13%"
+        },
+        {
+          "t": 5862.70000000298,
+          "p": 14,
+          "busy": "true",
+          "title": "Preparing preview · 14%"
+        },
+        {
+          "t": 5898.4000000059605,
+          "p": 15,
+          "busy": "true",
+          "title": "Preparing preview · 15%"
+        },
+        {
+          "t": 5940,
+          "p": 16,
+          "busy": "true",
+          "title": "Preparing preview · 16%"
+        },
+        {
+          "t": 5967.29999999702,
+          "p": 17,
+          "busy": "true",
+          "title": "Preparing preview · 17%"
+        },
+        {
+          "t": 5999,
+          "p": 18,
+          "busy": "true",
+          "title": "Preparing preview · 18%"
+        },
+        {
+          "t": 6040.79999999702,
+          "p": 19,
+          "busy": "true",
+          "title": "Preparing preview · 19%"
+        },
+        {
+          "t": 6092.9000000059605,
+          "p": 20,
+          "busy": "true",
+          "title": "Preparing preview · 20%"
+        },
+        {
+          "t": 6133.4000000059605,
+          "p": 21,
+          "busy": "true",
+          "title": "Preparing preview · 21%"
+        },
+        {
+          "t": 6175.20000000298,
+          "p": 23,
+          "busy": "true",
+          "title": "Preparing preview · 23%"
+        },
+        {
+          "t": 6210.79999999702,
+          "p": 24,
+          "busy": "true",
+          "title": "Preparing preview · 24%"
+        },
+        {
+          "t": 6244.9000000059605,
+          "p": 25,
+          "busy": "true",
+          "title": "Preparing preview · 25%"
+        },
+        {
+          "t": 6255.79999999702,
+          "p": 25,
+          "busy": "true",
+          "title": "Preparing preview · 25% · click to cancel"
+        },
+        {
+          "t": 6426.600000008941,
+          "p": 27,
+          "busy": "true",
+          "title": "Preparing preview · 27% · click to cancel"
+        },
+        {
+          "t": 6470.9000000059605,
+          "p": 28,
+          "busy": "true",
+          "title": "Preparing preview · 28% · click to cancel"
+        },
+        {
+          "t": 6506.4000000059605,
+          "p": 29,
+          "busy": "true",
+          "title": "Preparing preview · 29% · click to cancel"
+        },
+        {
+          "t": 6535.100000008941,
+          "p": 30,
+          "busy": "true",
+          "title": "Preparing preview · 30% · click to cancel"
+        },
+        {
+          "t": 6569.20000000298,
+          "p": 31,
+          "busy": "true",
+          "title": "Preparing preview · 31% · click to cancel"
+        },
+        {
+          "t": 6598,
+          "p": 32,
+          "busy": "true",
+          "title": "Preparing preview · 32% · click to cancel"
+        },
+        {
+          "t": 6633.29999999702,
+          "p": 33,
+          "busy": "true",
+          "title": "Preparing preview · 33% · click to cancel"
+        },
+        {
+          "t": 6677.4000000059605,
+          "p": 34,
+          "busy": "true",
+          "title": "Preparing preview · 34% · click to cancel"
+        },
+        {
+          "t": 6720.79999999702,
+          "p": 35,
+          "busy": "true",
+          "title": "Preparing preview · 35% · click to cancel"
+        },
+        {
+          "t": 6759.9000000059605,
+          "p": 37,
+          "busy": "true",
+          "title": "Preparing preview · 37% · click to cancel"
+        },
+        {
+          "t": 6803.4000000059605,
+          "p": 38,
+          "busy": "true",
+          "title": "Preparing preview · 38% · click to cancel"
+        },
+        {
+          "t": 6847.100000008941,
+          "p": 39,
+          "busy": "true",
+          "title": "Preparing preview · 39% · click to cancel"
+        },
+        {
+          "t": 6880.100000008941,
+          "p": 40,
+          "busy": "true",
+          "title": "Preparing preview · 40% · click to cancel"
+        },
+        {
+          "t": 6915.5,
+          "p": 41,
+          "busy": "true",
+          "title": "Preparing preview · 41% · click to cancel"
+        },
+        {
+          "t": 6960.5,
+          "p": 42,
+          "busy": "true",
+          "title": "Preparing preview · 42% · click to cancel"
+        },
+        {
+          "t": 6998.20000000298,
+          "p": 44,
+          "busy": "true",
+          "title": "Preparing preview · 44% · click to cancel"
+        },
+        {
+          "t": 7030.20000000298,
+          "p": 45,
+          "busy": "true",
+          "title": "Preparing preview · 45% · click to cancel"
+        },
+        {
+          "t": 7060.600000008941,
+          "p": 46,
+          "busy": "true",
+          "title": "Preparing preview · 46% · click to cancel"
+        },
+        {
+          "t": 7094.5,
+          "p": 47,
+          "busy": "true",
+          "title": "Preparing preview · 47% · click to cancel"
+        },
+        {
+          "t": 7128.29999999702,
+          "p": 48,
+          "busy": "true",
+          "title": "Preparing preview · 48% · click to cancel"
+        },
+        {
+          "t": 7172.100000008941,
+          "p": 49,
+          "busy": "true",
+          "title": "Preparing preview · 49% · click to cancel"
+        },
+        {
+          "t": 7205.600000008941,
+          "p": 51,
+          "busy": "true",
+          "title": "Preparing preview · 51% · click to cancel"
+        },
+        {
+          "t": 7267.100000008941,
+          "p": 52,
+          "busy": "true",
+          "title": "Preparing preview · 52% · click to cancel"
+        },
+        {
+          "t": 7296.79999999702,
+          "p": 53,
+          "busy": "true",
+          "title": "Preparing preview · 53% · click to cancel"
+        },
+        {
+          "t": 7328,
+          "p": 54,
+          "busy": "true",
+          "title": "Preparing preview · 54% · click to cancel"
+        },
+        {
+          "t": 7371.5,
+          "p": 55,
+          "busy": "true",
+          "title": "Preparing preview · 55% · click to cancel"
+        },
+        {
+          "t": 7404.100000008941,
+          "p": 56,
+          "busy": "true",
+          "title": "Preparing preview · 56% · click to cancel"
+        },
+        {
+          "t": 7447.79999999702,
+          "p": 57,
+          "busy": "true",
+          "title": "Preparing preview · 57% · click to cancel"
+        },
+        {
+          "t": 7500.79999999702,
+          "p": 58,
+          "busy": "true",
+          "title": "Preparing preview · 58% · click to cancel"
+        },
+        {
+          "t": 7538.29999999702,
+          "p": 60,
+          "busy": "true",
+          "title": "Preparing preview · 60% · click to cancel"
+        },
+        {
+          "t": 7579,
+          "p": 61,
+          "busy": "true",
+          "title": "Preparing preview · 61% · click to cancel"
+        },
+        {
+          "t": 7606,
+          "p": 62,
+          "busy": "true",
+          "title": "Preparing preview · 62% · click to cancel"
+        },
+        {
+          "t": 7642.5,
+          "p": 63,
+          "busy": "true",
+          "title": "Preparing preview · 63% · click to cancel"
+        },
+        {
+          "t": 7679.5,
+          "p": 64,
+          "busy": "true",
+          "title": "Preparing preview · 64% · click to cancel"
+        },
+        {
+          "t": 7719.29999999702,
+          "p": 65,
+          "busy": "true",
+          "title": "Preparing preview · 65% · click to cancel"
+        },
+        {
+          "t": 7757.5,
+          "p": 66,
+          "busy": "true",
+          "title": "Preparing preview · 66% · click to cancel"
+        },
+        {
+          "t": 7785.9000000059605,
+          "p": 67,
+          "busy": "true",
+          "title": "Preparing preview · 67% · click to cancel"
+        },
+        {
+          "t": 7816.70000000298,
+          "p": 68,
+          "busy": "true",
+          "title": "Preparing preview · 68% · click to cancel"
+        },
+        {
+          "t": 7844.20000000298,
+          "p": 70,
+          "busy": "true",
+          "title": "Preparing preview · 70% · click to cancel"
+        },
+        {
+          "t": 7892.100000008941,
+          "p": 71,
+          "busy": "true",
+          "title": "Preparing preview · 71% · click to cancel"
+        },
+        {
+          "t": 7926.20000000298,
+          "p": 73,
+          "busy": "true",
+          "title": "Preparing preview · 73% · click to cancel"
+        },
+        {
+          "t": 7964.9000000059605,
+          "p": 74,
+          "busy": "true",
+          "title": "Preparing preview · 74% · click to cancel"
+        },
+        {
+          "t": 7991.4000000059605,
+          "p": 75,
+          "busy": "true",
+          "title": "Preparing preview · 75% · click to cancel"
+        },
+        {
+          "t": 8027.79999999702,
+          "p": 77,
+          "busy": "true",
+          "title": "Preparing preview · 77% · click to cancel"
+        },
+        {
+          "t": 8059.20000000298,
+          "p": 78,
+          "busy": "true",
+          "title": "Preparing preview · 78% · click to cancel"
+        },
+        {
+          "t": 8094.600000008941,
+          "p": 79,
+          "busy": "true",
+          "title": "Preparing preview · 79% · click to cancel"
+        },
+        {
+          "t": 8126.4000000059605,
+          "p": 80,
+          "busy": "true",
+          "title": "Preparing preview · 80% · click to cancel"
+        },
+        {
+          "t": 8156.100000008941,
+          "p": 81,
+          "busy": "true",
+          "title": "Preparing preview · 81% · click to cancel"
+        },
+        {
+          "t": 8192.10000000894,
+          "p": 82,
+          "busy": "true",
+          "title": "Preparing preview · 82% · click to cancel"
+        },
+        {
+          "t": 8219.60000000894,
+          "p": 84,
+          "busy": "true",
+          "title": "Preparing preview · 84% · click to cancel"
+        },
+        {
+          "t": 8244.10000000894,
+          "p": 85,
+          "busy": "true",
+          "title": "Preparing preview · 85% · click to cancel"
+        },
+        {
+          "t": 8273.5,
+          "p": 86,
+          "busy": "true",
+          "title": "Preparing preview · 86% · click to cancel"
+        },
+        {
+          "t": 8301.70000000298,
+          "p": 87,
+          "busy": "true",
+          "title": "Preparing preview · 87% · click to cancel"
+        },
+        {
+          "t": 8341.90000000596,
+          "p": 89,
+          "busy": "true",
+          "title": "Preparing preview · 89% · click to cancel"
+        },
+        {
+          "t": 8373.40000000596,
+          "p": 90,
+          "busy": "true",
+          "title": "Preparing preview · 90% · click to cancel"
+        },
+        {
+          "t": 8405.20000000298,
+          "p": 91,
+          "busy": "true",
+          "title": "Preparing preview · 91% · click to cancel"
+        },
+        {
+          "t": 8437.10000000894,
+          "p": 92,
+          "busy": "true",
+          "title": "Preparing preview · 92% · click to cancel"
+        },
+        {
+          "t": 8473.20000000298,
+          "p": 94,
+          "busy": "true",
+          "title": "Preparing preview · 94% · click to cancel"
+        },
+        {
+          "t": 8507.5,
+          "p": 95,
+          "busy": "true",
+          "title": "Preparing preview · 95% · click to cancel"
+        },
+        {
+          "t": 8532.70000000298,
+          "p": 96,
+          "busy": "true",
+          "title": "Preparing preview · 96% · click to cancel"
+        },
+        {
+          "t": 8560.90000000596,
+          "p": 98,
+          "busy": "true",
+          "title": "Preparing preview · 98% · click to cancel"
+        },
+        {
+          "t": 8589.90000000596,
+          "p": 99,
+          "busy": "true",
+          "title": "Preparing preview · 99% · click to cancel"
+        },
+        {
+          "t": 8617.79999999702,
+          "p": 100,
+          "busy": "true",
+          "title": "Preparing preview · 100% · click to cancel"
+        },
+        {
+          "t": 8693.40000000596,
+          "p": null,
+          "busy": "true",
+          "title": "Cancel rendering"
+        },
+        {
+          "t": 8732.90000000596,
+          "p": null,
+          "busy": "false",
+          "title": "Pause Preview"
+        }
+      ],
+      "paintFrames": [
+        {
+          "t": 4261.4000000059605,
+          "height": 1.265625,
+          "p": 4
+        },
+        {
+          "t": 5311.9000000059605,
+          "height": 1.90625,
+          "p": 6
+        },
+        {
+          "t": 5643.79999999702,
+          "height": 2.546875,
+          "p": 8
+        },
+        {
+          "t": 5713.9000000059605,
+          "height": 3.1875,
+          "p": 10
+        },
+        {
+          "t": 5800,
+          "height": 3.828125,
+          "p": 12
+        },
+        {
+          "t": 5865.20000000298,
+          "height": 4.46875,
+          "p": 14
+        },
+        {
+          "t": 5960.79999999702,
+          "height": 5.109375,
+          "p": 16
+        },
+        {
+          "t": 6001.29999999702,
+          "height": 5.75,
+          "p": 18
+        },
+        {
+          "t": 6124.5,
+          "height": 6.390625,
+          "p": 20
+        },
+        {
+          "t": 6177.600000008941,
+          "height": 7.359375,
+          "p": 23
+        },
+        {
+          "t": 6246.29999999702,
+          "height": 8,
+          "p": 25
+        },
+        {
+          "t": 6428,
+          "height": 8.625,
+          "p": 27
+        },
+        {
+          "t": 6508.29999999702,
+          "height": 9.265625,
+          "p": 29
+        },
+        {
+          "t": 6570.79999999702,
+          "height": 9.90625,
+          "p": 31
+        },
+        {
+          "t": 6634.20000000298,
+          "height": 10.546875,
+          "p": 33
+        },
+        {
+          "t": 6723.29999999702,
+          "height": 11.1875,
+          "p": 35
+        },
+        {
+          "t": 6762.4000000059605,
+          "height": 11.828125,
+          "p": 37
+        },
+        {
+          "t": 6848.70000000298,
+          "height": 12.46875,
+          "p": 39
+        },
+        {
+          "t": 6918.9000000059605,
+          "height": 13.109375,
+          "p": 41
+        },
+        {
+          "t": 7000.100000008941,
+          "height": 14.078125,
+          "p": 44
+        },
+        {
+          "t": 7062,
+          "height": 14.71875,
+          "p": 46
+        },
+        {
+          "t": 7130.29999999702,
+          "height": 15.359375,
+          "p": 48
+        },
+        {
+          "t": 7210,
+          "height": 16.3125,
+          "p": 51
+        },
+        {
+          "t": 7298.29999999702,
+          "height": 16.953125,
+          "p": 53
+        },
+        {
+          "t": 7372.70000000298,
+          "height": 17.59375,
+          "p": 55
+        },
+        {
+          "t": 7449.100000008941,
+          "height": 18.234375,
+          "p": 57
+        },
+        {
+          "t": 7540.79999999702,
+          "height": 19.1875,
+          "p": 60
+        },
+        {
+          "t": 7607.100000008941,
+          "height": 19.828125,
+          "p": 62
+        },
+        {
+          "t": 7681,
+          "height": 20.46875,
+          "p": 64
+        },
+        {
+          "t": 7758.29999999702,
+          "height": 21.109375,
+          "p": 66
+        },
+        {
+          "t": 7817.600000008941,
+          "height": 21.75,
+          "p": 68
+        },
+        {
+          "t": 7845.9000000059605,
+          "height": 22.390625,
+          "p": 70
+        },
+        {
+          "t": 7927.600000008941,
+          "height": 23.359375,
+          "p": 73
+        },
+        {
+          "t": 7993.20000000298,
+          "height": 24,
+          "p": 75
+        },
+        {
+          "t": 8028.9000000059605,
+          "height": 24.625,
+          "p": 77
+        },
+        {
+          "t": 8097.5,
+          "height": 25.265625,
+          "p": 79
+        },
+        {
+          "t": 8158.20000000298,
+          "height": 25.90625,
+          "p": 81
+        },
+        {
+          "t": 8220.29999999702,
+          "height": 26.875,
+          "p": 84
+        },
+        {
+          "t": 8274.20000000298,
+          "height": 27.515625,
+          "p": 86
+        },
+        {
+          "t": 8343.5,
+          "height": 28.46875,
+          "p": 89
+        },
+        {
+          "t": 8406.20000000298,
+          "height": 29.109375,
+          "p": 91
+        },
+        {
+          "t": 8501.60000000894,
+          "height": 30.078125,
+          "p": 94
+        },
+        {
+          "t": 8535,
+          "height": 30.71875,
+          "p": 96
+        },
+        {
+          "t": 8562.79999999702,
+          "height": 31.359375,
+          "p": 98
+        },
+        {
+          "t": 8618.70000000298,
+          "height": 32,
+          "p": 100
+        }
+      ]
+    },
+    {
+      "name": "Emilia: exact cached PCM starts without new render",
+      "samples": [
+        {
+          "t": 9017.10000000894,
+          "p": null,
+          "busy": "true",
+          "title": "Cancel rendering"
+        },
+        {
+          "t": 9022.79999999702,
+          "p": null,
+          "busy": "false",
+          "title": "Pause Preview"
+        }
+      ],
+      "paintFrames": []
+    },
+    {
+      "name": "emilia: cold Play",
+      "samples": [
+        {
+          "t": 9603.79999999702,
+          "p": null,
+          "busy": "false",
+          "title": "Listening mode is rendered automatically"
+        },
+        {
+          "t": 9634.40000000596,
+          "p": 4,
+          "busy": "true",
+          "title": "Preparing preview · 4% · click to cancel"
+        },
+        {
+          "t": 9644.20000000298,
+          "p": 4,
+          "busy": "true",
+          "title": "Preparing preview · 4% · click to cancel"
+        },
+        {
+          "t": 10080.90000000596,
+          "p": 5,
+          "busy": "true",
+          "title": "Preparing preview · 5% · click to cancel"
+        },
+        {
+          "t": 10121.5,
+          "p": 6,
+          "busy": "true",
+          "title": "Preparing preview · 6% · click to cancel"
+        },
+        {
+          "t": 10150.20000000298,
+          "p": 8,
+          "busy": "true",
+          "title": "Preparing preview · 8% · click to cancel"
+        },
+        {
+          "t": 10219.40000000596,
+          "p": 9,
+          "busy": "true",
+          "title": "Preparing preview · 9% · click to cancel"
+        },
+        {
+          "t": 10264.70000000298,
+          "p": 10,
+          "busy": "true",
+          "title": "Preparing preview · 10% · click to cancel"
+        },
+        {
+          "t": 10299.10000000894,
+          "p": 12,
+          "busy": "true",
+          "title": "Preparing preview · 12% · click to cancel"
+        },
+        {
+          "t": 10346.10000000894,
+          "p": 14,
+          "busy": "true",
+          "title": "Preparing preview · 14% · click to cancel"
+        },
+        {
+          "t": 10381.70000000298,
+          "p": 15,
+          "busy": "true",
+          "title": "Preparing preview · 15% · click to cancel"
+        },
+        {
+          "t": 10412.40000000596,
+          "p": 16,
+          "busy": "true",
+          "title": "Preparing preview · 16% · click to cancel"
+        },
+        {
+          "t": 10446.10000000894,
+          "p": 17,
+          "busy": "true",
+          "title": "Preparing preview · 17% · click to cancel"
+        },
+        {
+          "t": 10484.79999999702,
+          "p": 19,
+          "busy": "true",
+          "title": "Preparing preview · 19% · click to cancel"
+        },
+        {
+          "t": 10594.29999999702,
+          "p": 20,
+          "busy": "true",
+          "title": "Preparing preview · 20% · click to cancel"
+        },
+        {
+          "t": 10620.70000000298,
+          "p": 21,
+          "busy": "true",
+          "title": "Preparing preview · 21% · click to cancel"
+        },
+        {
+          "t": 10729.70000000298,
+          "p": 23,
+          "busy": "true",
+          "title": "Preparing preview · 23% · click to cancel"
+        },
+        {
+          "t": 10997.40000000596,
+          "p": 24,
+          "busy": "true",
+          "title": "Preparing preview · 24% · click to cancel"
+        },
+        {
+          "t": 11029.60000000894,
+          "p": 26,
+          "busy": "true",
+          "title": "Preparing preview · 26% · click to cancel"
+        },
+        {
+          "t": 11063.90000000596,
+          "p": 27,
+          "busy": "true",
+          "title": "Preparing preview · 27% · click to cancel"
+        },
+        {
+          "t": 11094.10000000894,
+          "p": 28,
+          "busy": "true",
+          "title": "Preparing preview · 28% · click to cancel"
+        },
+        {
+          "t": 11130.29999999702,
+          "p": 29,
+          "busy": "true",
+          "title": "Preparing preview · 29% · click to cancel"
+        },
+        {
+          "t": 11337.60000000894,
+          "p": 30,
+          "busy": "true",
+          "title": "Preparing preview · 30% · click to cancel"
+        },
+        {
+          "t": 11366.79999999702,
+          "p": 31,
+          "busy": "true",
+          "title": "Preparing preview · 31% · click to cancel"
+        },
+        {
+          "t": 11397.60000000894,
+          "p": 32,
+          "busy": "true",
+          "title": "Preparing preview · 32% · click to cancel"
+        },
+        {
+          "t": 11444.40000000596,
+          "p": 33,
+          "busy": "true",
+          "title": "Preparing preview · 33% · click to cancel"
+        },
+        {
+          "t": 11488.20000000298,
+          "p": 34,
+          "busy": "true",
+          "title": "Preparing preview · 34% · click to cancel"
+        },
+        {
+          "t": 11525.79999999702,
+          "p": 35,
+          "busy": "true",
+          "title": "Preparing preview · 35% · click to cancel"
+        },
+        {
+          "t": 11561.70000000298,
+          "p": 37,
+          "busy": "true",
+          "title": "Preparing preview · 37% · click to cancel"
+        },
+        {
+          "t": 11609.29999999702,
+          "p": 38,
+          "busy": "true",
+          "title": "Preparing preview · 38% · click to cancel"
+        },
+        {
+          "t": 11691,
+          "p": 39,
+          "busy": "true",
+          "title": "Preparing preview · 39% · click to cancel"
+        },
+        {
+          "t": 11730.10000000894,
+          "p": 41,
+          "busy": "true",
+          "title": "Preparing preview · 41% · click to cancel"
+        },
+        {
+          "t": 11762.70000000298,
+          "p": 42,
+          "busy": "true",
+          "title": "Preparing preview · 42% · click to cancel"
+        },
+        {
+          "t": 11789.79999999702,
+          "p": 43,
+          "busy": "true",
+          "title": "Preparing preview · 43% · click to cancel"
+        },
+        {
+          "t": 11824.10000000894,
+          "p": 44,
+          "busy": "true",
+          "title": "Preparing preview · 44% · click to cancel"
+        },
+        {
+          "t": 11862.90000000596,
+          "p": 45,
+          "busy": "true",
+          "title": "Preparing preview · 45% · click to cancel"
+        },
+        {
+          "t": 11902,
+          "p": 47,
+          "busy": "true",
+          "title": "Preparing preview · 47% · click to cancel"
+        },
+        {
+          "t": 11945.5,
+          "p": 48,
+          "busy": "true",
+          "title": "Preparing preview · 48% · click to cancel"
+        },
+        {
+          "t": 11980.90000000596,
+          "p": 49,
+          "busy": "true",
+          "title": "Preparing preview · 49% · click to cancel"
+        },
+        {
+          "t": 12014.20000000298,
+          "p": 51,
+          "busy": "true",
+          "title": "Preparing preview · 51% · click to cancel"
+        },
+        {
+          "t": 12065.60000000894,
+          "p": 52,
+          "busy": "true",
+          "title": "Preparing preview · 52% · click to cancel"
+        },
+        {
+          "t": 12094.70000000298,
+          "p": 53,
+          "busy": "true",
+          "title": "Preparing preview · 53% · click to cancel"
+        },
+        {
+          "t": 12166.60000000894,
+          "p": 55,
+          "busy": "true",
+          "title": "Preparing preview · 55% · click to cancel"
+        },
+        {
+          "t": 12249.40000000596,
+          "p": 56,
+          "busy": "true",
+          "title": "Preparing preview · 56% · click to cancel"
+        },
+        {
+          "t": 12279.40000000596,
+          "p": 57,
+          "busy": "true",
+          "title": "Preparing preview · 57% · click to cancel"
+        },
+        {
+          "t": 12314.79999999702,
+          "p": 59,
+          "busy": "true",
+          "title": "Preparing preview · 59% · click to cancel"
+        },
+        {
+          "t": 12343.79999999702,
+          "p": 60,
+          "busy": "true",
+          "title": "Preparing preview · 60% · click to cancel"
+        },
+        {
+          "t": 12379.10000000894,
+          "p": 61,
+          "busy": "true",
+          "title": "Preparing preview · 61% · click to cancel"
+        },
+        {
+          "t": 12412.29999999702,
+          "p": 62,
+          "busy": "true",
+          "title": "Preparing preview · 62% · click to cancel"
+        },
+        {
+          "t": 12457,
+          "p": 63,
+          "busy": "true",
+          "title": "Preparing preview · 63% · click to cancel"
+        },
+        {
+          "t": 12488.70000000298,
+          "p": 64,
+          "busy": "true",
+          "title": "Preparing preview · 64% · click to cancel"
+        },
+        {
+          "t": 12526.40000000596,
+          "p": 66,
+          "busy": "true",
+          "title": "Preparing preview · 66% · click to cancel"
+        },
+        {
+          "t": 12557.10000000894,
+          "p": 67,
+          "busy": "true",
+          "title": "Preparing preview · 67% · click to cancel"
+        },
+        {
+          "t": 12587,
+          "p": 68,
+          "busy": "true",
+          "title": "Preparing preview · 68% · click to cancel"
+        },
+        {
+          "t": 12619.20000000298,
+          "p": 69,
+          "busy": "true",
+          "title": "Preparing preview · 69% · click to cancel"
+        },
+        {
+          "t": 12651.90000000596,
+          "p": 70,
+          "busy": "true",
+          "title": "Preparing preview · 70% · click to cancel"
+        },
+        {
+          "t": 12680.79999999702,
+          "p": 71,
+          "busy": "true",
+          "title": "Preparing preview · 71% · click to cancel"
+        },
+        {
+          "t": 12715.29999999702,
+          "p": 72,
+          "busy": "true",
+          "title": "Preparing preview · 72% · click to cancel"
+        },
+        {
+          "t": 12757,
+          "p": 73,
+          "busy": "true",
+          "title": "Preparing preview · 73% · click to cancel"
+        },
+        {
+          "t": 12810.90000000596,
+          "p": 74,
+          "busy": "true",
+          "title": "Preparing preview · 74% · click to cancel"
+        },
+        {
+          "t": 12879.20000000298,
+          "p": 75,
+          "busy": "true",
+          "title": "Preparing preview · 75% · click to cancel"
+        },
+        {
+          "t": 12911.90000000596,
+          "p": 76,
+          "busy": "true",
+          "title": "Preparing preview · 76% · click to cancel"
+        },
+        {
+          "t": 12947.40000000596,
+          "p": 77,
+          "busy": "true",
+          "title": "Preparing preview · 77% · click to cancel"
+        },
+        {
+          "t": 12978.29999999702,
+          "p": 78,
+          "busy": "true",
+          "title": "Preparing preview · 78% · click to cancel"
+        },
+        {
+          "t": 13013,
+          "p": 80,
+          "busy": "true",
+          "title": "Preparing preview · 80% · click to cancel"
+        },
+        {
+          "t": 13041.29999999702,
+          "p": 81,
+          "busy": "true",
+          "title": "Preparing preview · 81% · click to cancel"
+        },
+        {
+          "t": 13084.10000000894,
+          "p": 82,
+          "busy": "true",
+          "title": "Preparing preview · 82% · click to cancel"
+        },
+        {
+          "t": 13120,
+          "p": 84,
+          "busy": "true",
+          "title": "Preparing preview · 84% · click to cancel"
+        },
+        {
+          "t": 13160.5,
+          "p": 85,
+          "busy": "true",
+          "title": "Preparing preview · 85% · click to cancel"
+        },
+        {
+          "t": 13198.70000000298,
+          "p": 86,
+          "busy": "true",
+          "title": "Preparing preview · 86% · click to cancel"
+        },
+        {
+          "t": 13228.20000000298,
+          "p": 88,
+          "busy": "true",
+          "title": "Preparing preview · 88% · click to cancel"
+        },
+        {
+          "t": 13267.10000000894,
+          "p": 89,
+          "busy": "true",
+          "title": "Preparing preview · 89% · click to cancel"
+        },
+        {
+          "t": 13300.79999999702,
+          "p": 90,
+          "busy": "true",
+          "title": "Preparing preview · 90% · click to cancel"
+        },
+        {
+          "t": 13327.90000000596,
+          "p": 91,
+          "busy": "true",
+          "title": "Preparing preview · 91% · click to cancel"
+        },
+        {
+          "t": 13360.29999999702,
+          "p": 92,
+          "busy": "true",
+          "title": "Preparing preview · 92% · click to cancel"
+        },
+        {
+          "t": 13393.70000000298,
+          "p": 93,
+          "busy": "true",
+          "title": "Preparing preview · 93% · click to cancel"
+        },
+        {
+          "t": 13470.5,
+          "p": 94,
+          "busy": "true",
+          "title": "Preparing preview · 94% · click to cancel"
+        },
+        {
+          "t": 13513.29999999702,
+          "p": 95,
+          "busy": "true",
+          "title": "Preparing preview · 95% · click to cancel"
+        },
+        {
+          "t": 13557.90000000596,
+          "p": 96,
+          "busy": "true",
+          "title": "Preparing preview · 96% · click to cancel"
+        },
+        {
+          "t": 13586.60000000894,
+          "p": 98,
+          "busy": "true",
+          "title": "Preparing preview · 98% · click to cancel"
+        },
+        {
+          "t": 13615.90000000596,
+          "p": 99,
+          "busy": "true",
+          "title": "Preparing preview · 99% · click to cancel"
+        },
+        {
+          "t": 13642,
+          "p": 100,
+          "busy": "true",
+          "title": "Preparing preview · 100% · click to cancel"
+        },
+        {
+          "t": 13724,
+          "p": null,
+          "busy": "true",
+          "title": "Cancel rendering"
+        },
+        {
+          "t": 13738.10000000894,
+          "p": null,
+          "busy": "false",
+          "title": "Pause Preview"
+        }
+      ],
+      "paintFrames": [
+        {
+          "t": 9638.29999999702,
+          "height": 1.265625,
+          "p": 4
+        },
+        {
+          "t": 10123.10000000894,
+          "height": 1.90625,
+          "p": 6
+        },
+        {
+          "t": 10152.5,
+          "height": 2.546875,
+          "p": 8
+        },
+        {
+          "t": 10266.90000000596,
+          "height": 3.1875,
+          "p": 10
+        },
+        {
+          "t": 10301,
+          "height": 3.828125,
+          "p": 12
+        },
+        {
+          "t": 10375.90000000596,
+          "height": 4.46875,
+          "p": 14
+        },
+        {
+          "t": 10439.70000000298,
+          "height": 5.109375,
+          "p": 16
+        },
+        {
+          "t": 10486.5,
+          "height": 6.078125,
+          "p": 19
+        },
+        {
+          "t": 10622.29999999702,
+          "height": 6.71875,
+          "p": 21
+        },
+        {
+          "t": 10758.5,
+          "height": 7.359375,
+          "p": 23
+        },
+        {
+          "t": 11032.79999999702,
+          "height": 8.3125,
+          "p": 26
+        },
+        {
+          "t": 11098.10000000894,
+          "height": 8.953125,
+          "p": 28
+        },
+        {
+          "t": 11360.79999999702,
+          "height": 9.59375,
+          "p": 30
+        },
+        {
+          "t": 11399.90000000596,
+          "height": 10.234375,
+          "p": 32
+        },
+        {
+          "t": 11489.70000000298,
+          "height": 10.875,
+          "p": 34
+        },
+        {
+          "t": 11562.70000000298,
+          "height": 11.828125,
+          "p": 37
+        },
+        {
+          "t": 11692.79999999702,
+          "height": 12.46875,
+          "p": 39
+        },
+        {
+          "t": 11755.90000000596,
+          "height": 13.109375,
+          "p": 41
+        },
+        {
+          "t": 11792.10000000894,
+          "height": 13.75,
+          "p": 43
+        },
+        {
+          "t": 11867.60000000894,
+          "height": 14.390625,
+          "p": 45
+        },
+        {
+          "t": 11904.20000000298,
+          "height": 15.03125,
+          "p": 47
+        },
+        {
+          "t": 11982,
+          "height": 15.671875,
+          "p": 49
+        },
+        {
+          "t": 12017.20000000298,
+          "height": 16.3125,
+          "p": 51
+        },
+        {
+          "t": 12096.90000000596,
+          "height": 16.953125,
+          "p": 53
+        },
+        {
+          "t": 12168.20000000298,
+          "height": 17.59375,
+          "p": 55
+        },
+        {
+          "t": 12281.40000000596,
+          "height": 18.234375,
+          "p": 57
+        },
+        {
+          "t": 12317.40000000596,
+          "height": 18.875,
+          "p": 59
+        },
+        {
+          "t": 12380.29999999702,
+          "height": 19.515625,
+          "p": 61
+        },
+        {
+          "t": 12459.20000000298,
+          "height": 20.15625,
+          "p": 63
+        },
+        {
+          "t": 12527.5,
+          "height": 21.109375,
+          "p": 66
+        },
+        {
+          "t": 12587.79999999702,
+          "height": 21.75,
+          "p": 68
+        },
+        {
+          "t": 12674.20000000298,
+          "height": 22.390625,
+          "p": 70
+        },
+        {
+          "t": 12717.5,
+          "height": 23.03125,
+          "p": 72
+        },
+        {
+          "t": 12816.20000000298,
+          "height": 23.671875,
+          "p": 74
+        },
+        {
+          "t": 12943.20000000298,
+          "height": 24.3125,
+          "p": 76
+        },
+        {
+          "t": 13008.40000000596,
+          "height": 24.953125,
+          "p": 78
+        },
+        {
+          "t": 13014.70000000298,
+          "height": 25.59375,
+          "p": 80
+        },
+        {
+          "t": 13086.20000000298,
+          "height": 26.234375,
+          "p": 82
+        },
+        {
+          "t": 13121.79999999702,
+          "height": 26.875,
+          "p": 84
+        },
+        {
+          "t": 13199.79999999702,
+          "height": 27.515625,
+          "p": 86
+        },
+        {
+          "t": 13229.10000000894,
+          "height": 28.15625,
+          "p": 88
+        },
+        {
+          "t": 13302.20000000298,
+          "height": 28.796875,
+          "p": 90
+        },
+        {
+          "t": 13362.20000000298,
+          "height": 29.4375,
+          "p": 92
+        },
+        {
+          "t": 13472.70000000298,
+          "height": 30.078125,
+          "p": 94
+        },
+        {
+          "t": 13558.79999999702,
+          "height": 30.71875,
+          "p": 96
+        },
+        {
+          "t": 13588.5,
+          "height": 31.359375,
+          "p": 98
+        },
+        {
+          "t": 13643.90000000596,
+          "height": 32,
+          "p": 100
+        }
+      ]
+    },
+    {
+      "name": "pure-dieter: cold Play",
+      "samples": [
+        {
+          "t": 14581.90000000596,
+          "p": 4,
+          "busy": "true",
+          "title": "Preparing preview · 4% · click to cancel"
+        },
+        {
+          "t": 14749.60000000894,
+          "p": 6,
+          "busy": "true",
+          "title": "Preparing preview · 6% · click to cancel"
+        },
+        {
+          "t": 14750.70000000298,
+          "p": 8,
+          "busy": "true",
+          "title": "Preparing preview · 8% · click to cancel"
+        },
+        {
+          "t": 14753.10000000894,
+          "p": 9,
+          "busy": "true",
+          "title": "Preparing preview · 9% · click to cancel"
+        },
+        {
+          "t": 14755.29999999702,
+          "p": 10,
+          "busy": "true",
+          "title": "Preparing preview · 10% · click to cancel"
+        },
+        {
+          "t": 14758.10000000894,
+          "p": 12,
+          "busy": "true",
+          "title": "Preparing preview · 12% · click to cancel"
+        },
+        {
+          "t": 14766.90000000596,
+          "p": 17,
+          "busy": "true",
+          "title": "Preparing preview · 17% · click to cancel"
+        },
+        {
+          "t": 14769.79999999702,
+          "p": 19,
+          "busy": "true",
+          "title": "Preparing preview · 19% · click to cancel"
+        },
+        {
+          "t": 14770.79999999702,
+          "p": 20,
+          "busy": "true",
+          "title": "Preparing preview · 20% · click to cancel"
+        },
+        {
+          "t": 14772,
+          "p": 21,
+          "busy": "true",
+          "title": "Preparing preview · 21% · click to cancel"
+        },
+        {
+          "t": 14774.70000000298,
+          "p": 23,
+          "busy": "true",
+          "title": "Preparing preview · 23% · click to cancel"
+        },
+        {
+          "t": 14777.60000000894,
+          "p": 24,
+          "busy": "true",
+          "title": "Preparing preview · 24% · click to cancel"
+        },
+        {
+          "t": 14789.20000000298,
+          "p": 25,
+          "busy": "true",
+          "title": "Preparing preview · 25% · click to cancel"
+        },
+        {
+          "t": 14790.20000000298,
+          "p": 34,
+          "busy": "true",
+          "title": "Preparing preview · 34% · click to cancel"
+        },
+        {
+          "t": 14791.10000000894,
+          "p": 35,
+          "busy": "true",
+          "title": "Preparing preview · 35% · click to cancel"
+        },
+        {
+          "t": 14810.70000000298,
+          "p": 41,
+          "busy": "true",
+          "title": "Preparing preview · 41% · click to cancel"
+        },
+        {
+          "t": 14822.60000000894,
+          "p": 47,
+          "busy": "true",
+          "title": "Preparing preview · 47% · click to cancel"
+        },
+        {
+          "t": 14826.20000000298,
+          "p": 58,
+          "busy": "true",
+          "title": "Preparing preview · 58% · click to cancel"
+        },
+        {
+          "t": 14828.40000000596,
+          "p": 60,
+          "busy": "true",
+          "title": "Preparing preview · 60% · click to cancel"
+        },
+        {
+          "t": 14829.5,
+          "p": 63,
+          "busy": "true",
+          "title": "Preparing preview · 63% · click to cancel"
+        },
+        {
+          "t": 14831.10000000894,
+          "p": 64,
+          "busy": "true",
+          "title": "Preparing preview · 64% · click to cancel"
+        },
+        {
+          "t": 14841.5,
+          "p": 65,
+          "busy": "true",
+          "title": "Preparing preview · 65% · click to cancel"
+        },
+        {
+          "t": 14843.20000000298,
+          "p": 75,
+          "busy": "true",
+          "title": "Preparing preview · 75% · click to cancel"
+        },
+        {
+          "t": 14844.79999999702,
+          "p": 78,
+          "busy": "true",
+          "title": "Preparing preview · 78% · click to cancel"
+        },
+        {
+          "t": 14855.29999999702,
+          "p": 79,
+          "busy": "true",
+          "title": "Preparing preview · 79% · click to cancel"
+        },
+        {
+          "t": 14856.29999999702,
+          "p": 89,
+          "busy": "true",
+          "title": "Preparing preview · 89% · click to cancel"
+        },
+        {
+          "t": 14857,
+          "p": 90,
+          "busy": "true",
+          "title": "Preparing preview · 90% · click to cancel"
+        },
+        {
+          "t": 14868.29999999702,
+          "p": 91,
+          "busy": "true",
+          "title": "Preparing preview · 91% · click to cancel"
+        },
+        {
+          "t": 14873.70000000298,
+          "p": 93,
+          "busy": "true",
+          "title": "Preparing preview · 93% · click to cancel"
+        },
+        {
+          "t": 14890.40000000596,
+          "p": 95,
+          "busy": "true",
+          "title": "Preparing preview · 95% · click to cancel"
+        },
+        {
+          "t": 14902,
+          "p": 97,
+          "busy": "true",
+          "title": "Preparing preview · 97% · click to cancel"
+        },
+        {
+          "t": 14904.20000000298,
+          "p": 98,
+          "busy": "true",
+          "title": "Preparing preview · 98% · click to cancel"
+        },
+        {
+          "t": 14906.5,
+          "p": 100,
+          "busy": "true",
+          "title": "Preparing preview · 100% · click to cancel"
+        },
+        {
+          "t": 14960.5,
+          "p": null,
+          "busy": "true",
+          "title": "Cancel rendering"
+        },
+        {
+          "t": 14974.79999999702,
+          "p": null,
+          "busy": "false",
+          "title": "Pause Preview"
+        }
+      ],
+      "paintFrames": [
+        {
+          "t": 14586.5,
+          "height": 1.265625,
+          "p": 4
+        },
+        {
+          "t": 14760.79999999702,
+          "height": 3.828125,
+          "p": 12
+        },
+        {
+          "t": 14781.79999999702,
+          "height": 7.671875,
+          "p": 24
+        },
+        {
+          "t": 14798.29999999702,
+          "height": 11.1875,
+          "p": 35
+        },
+        {
+          "t": 14814.20000000298,
+          "height": 13.109375,
+          "p": 41
+        },
+        {
+          "t": 14834.20000000298,
+          "height": 20.46875,
+          "p": 64
+        },
+        {
+          "t": 14847.40000000596,
+          "height": 24.953125,
+          "p": 78
+        },
+        {
+          "t": 14861.60000000894,
+          "height": 28.796875,
+          "p": 90
+        },
+        {
+          "t": 14880,
+          "height": 29.75,
+          "p": 93
+        },
+        {
+          "t": 14896.70000000298,
+          "height": 30.390625,
+          "p": 95
+        }
+      ]
+    },
+    {
+      "name": "fractalia: cold Play",
+      "samples": [
+        {
+          "t": 15830.70000000298,
+          "p": null,
+          "busy": "false",
+          "title": "Listening mode is rendered automatically"
+        },
+        {
+          "t": 15859.60000000894,
+          "p": 4,
+          "busy": "true",
+          "title": "Preparing preview · 4% · click to cancel"
+        },
+        {
+          "t": 17524.70000000298,
+          "p": 5,
+          "busy": "true",
+          "title": "Preparing preview · 5% · click to cancel"
+        },
+        {
+          "t": 17548,
+          "p": 6,
+          "busy": "true",
+          "title": "Preparing preview · 6% · click to cancel"
+        },
+        {
+          "t": 17566.40000000596,
+          "p": 8,
+          "busy": "true",
+          "title": "Preparing preview · 8% · click to cancel"
+        },
+        {
+          "t": 17579.10000000894,
+          "p": 9,
+          "busy": "true",
+          "title": "Preparing preview · 9% · click to cancel"
+        },
+        {
+          "t": 17592.79999999702,
+          "p": 10,
+          "busy": "true",
+          "title": "Preparing preview · 10% · click to cancel"
+        },
+        {
+          "t": 17603.90000000596,
+          "p": 11,
+          "busy": "true",
+          "title": "Preparing preview · 11% · click to cancel"
+        },
+        {
+          "t": 17622.29999999702,
+          "p": 12,
+          "busy": "true",
+          "title": "Preparing preview · 12% · click to cancel"
+        },
+        {
+          "t": 17731.29999999702,
+          "p": 13,
+          "busy": "true",
+          "title": "Preparing preview · 13% · click to cancel"
+        },
+        {
+          "t": 17746.79999999702,
+          "p": 15,
+          "busy": "true",
+          "title": "Preparing preview · 15% · click to cancel"
+        },
+        {
+          "t": 17773.29999999702,
+          "p": 17,
+          "busy": "true",
+          "title": "Preparing preview · 17% · click to cancel"
+        },
+        {
+          "t": 17786.70000000298,
+          "p": 26,
+          "busy": "true",
+          "title": "Preparing preview · 26% · click to cancel"
+        },
+        {
+          "t": 17811.60000000894,
+          "p": 35,
+          "busy": "true",
+          "title": "Preparing preview · 35% · click to cancel"
+        },
+        {
+          "t": 17833.10000000894,
+          "p": 42,
+          "busy": "true",
+          "title": "Preparing preview · 42% · click to cancel"
+        },
+        {
+          "t": 17866.79999999702,
+          "p": 51,
+          "busy": "true",
+          "title": "Preparing preview · 51% · click to cancel"
+        },
+        {
+          "t": 17880.40000000596,
+          "p": 64,
+          "busy": "true",
+          "title": "Preparing preview · 64% · click to cancel"
+        },
+        {
+          "t": 17902.70000000298,
+          "p": 80,
+          "busy": "true",
+          "title": "Preparing preview · 80% · click to cancel"
+        },
+        {
+          "t": 17916.40000000596,
+          "p": 94,
+          "busy": "true",
+          "title": "Preparing preview · 94% · click to cancel"
+        },
+        {
+          "t": 17981.40000000596,
+          "p": null,
+          "busy": "true",
+          "title": "Cancel rendering"
+        },
+        {
+          "t": 17995.40000000596,
+          "p": null,
+          "busy": "false",
+          "title": "Pause Preview"
+        }
+      ],
+      "paintFrames": [
+        {
+          "t": 15865.20000000298,
+          "height": 1.265625,
+          "p": 4
+        },
+        {
+          "t": 17549.10000000894,
+          "height": 1.90625,
+          "p": 6
+        },
+        {
+          "t": 17568,
+          "height": 2.546875,
+          "p": 8
+        },
+        {
+          "t": 17594.10000000894,
+          "height": 3.1875,
+          "p": 10
+        },
+        {
+          "t": 17625.79999999702,
+          "height": 3.828125,
+          "p": 12
+        },
+        {
+          "t": 17748.40000000596,
+          "height": 4.796875,
+          "p": 15
+        },
+        {
+          "t": 17787.79999999702,
+          "height": 8.3125,
+          "p": 26
+        },
+        {
+          "t": 17812.5,
+          "height": 11.1875,
+          "p": 35
+        },
+        {
+          "t": 17837.5,
+          "height": 13.4375,
+          "p": 42
+        },
+        {
+          "t": 17881.60000000894,
+          "height": 20.46875,
+          "p": 64
+        },
+        {
+          "t": 17917.60000000894,
+          "height": 30.078125,
+          "p": 94
+        }
+      ]
+    },
+    {
+      "name": "harmonic-xplore: cold Play",
+      "samples": [
+        {
+          "t": 18687.90000000596,
+          "p": null,
+          "busy": "false",
+          "title": "Listening mode is rendered automatically"
+        },
+        {
+          "t": 18710.29999999702,
+          "p": 4,
+          "busy": "true",
+          "title": "Preparing preview · 4% · click to cancel"
+        },
+        {
+          "t": 18930.70000000298,
+          "p": 5,
+          "busy": "true",
+          "title": "Preparing preview · 5% · click to cancel"
+        },
+        {
+          "t": 18998.79999999702,
+          "p": 6,
+          "busy": "true",
+          "title": "Preparing preview · 6% · click to cancel"
+        },
+        {
+          "t": 19031.90000000596,
+          "p": 7,
+          "busy": "true",
+          "title": "Preparing preview · 7% · click to cancel"
+        },
+        {
+          "t": 19044.90000000596,
+          "p": 8,
+          "busy": "true",
+          "title": "Preparing preview · 8% · click to cancel"
+        },
+        {
+          "t": 19073.10000000894,
+          "p": 9,
+          "busy": "true",
+          "title": "Preparing preview · 9% · click to cancel"
+        },
+        {
+          "t": 19098.90000000596,
+          "p": 10,
+          "busy": "true",
+          "title": "Preparing preview · 10% · click to cancel"
+        },
+        {
+          "t": 19117.90000000596,
+          "p": 11,
+          "busy": "true",
+          "title": "Preparing preview · 11% · click to cancel"
+        },
+        {
+          "t": 19132.5,
+          "p": 12,
+          "busy": "true",
+          "title": "Preparing preview · 12% · click to cancel"
+        },
+        {
+          "t": 19150.5,
+          "p": 13,
+          "busy": "true",
+          "title": "Preparing preview · 13% · click to cancel"
+        },
+        {
+          "t": 19174.60000000894,
+          "p": 14,
+          "busy": "true",
+          "title": "Preparing preview · 14% · click to cancel"
+        },
+        {
+          "t": 19185.29999999702,
+          "p": 15,
+          "busy": "true",
+          "title": "Preparing preview · 15% · click to cancel"
+        },
+        {
+          "t": 19202.90000000596,
+          "p": 16,
+          "busy": "true",
+          "title": "Preparing preview · 16% · click to cancel"
+        },
+        {
+          "t": 19259.90000000596,
+          "p": 17,
+          "busy": "true",
+          "title": "Preparing preview · 17% · click to cancel"
+        },
+        {
+          "t": 19294.10000000894,
+          "p": 18,
+          "busy": "true",
+          "title": "Preparing preview · 18% · click to cancel"
+        },
+        {
+          "t": 19308.60000000894,
+          "p": 19,
+          "busy": "true",
+          "title": "Preparing preview · 19% · click to cancel"
+        },
+        {
+          "t": 19358,
+          "p": 20,
+          "busy": "true",
+          "title": "Preparing preview · 20% · click to cancel"
+        },
+        {
+          "t": 19390.10000000894,
+          "p": 21,
+          "busy": "true",
+          "title": "Preparing preview · 21% · click to cancel"
+        },
+        {
+          "t": 19427.40000000596,
+          "p": 22,
+          "busy": "true",
+          "title": "Preparing preview · 22% · click to cancel"
+        },
+        {
+          "t": 19450,
+          "p": 23,
+          "busy": "true",
+          "title": "Preparing preview · 23% · click to cancel"
+        },
+        {
+          "t": 19504.20000000298,
+          "p": 24,
+          "busy": "true",
+          "title": "Preparing preview · 24% · click to cancel"
+        },
+        {
+          "t": 19543.29999999702,
+          "p": 25,
+          "busy": "true",
+          "title": "Preparing preview · 25% · click to cancel"
+        },
+        {
+          "t": 19570.5,
+          "p": 26,
+          "busy": "true",
+          "title": "Preparing preview · 26% · click to cancel"
+        },
+        {
+          "t": 19635,
+          "p": 27,
+          "busy": "true",
+          "title": "Preparing preview · 27% · click to cancel"
+        },
+        {
+          "t": 19656.29999999702,
+          "p": 28,
+          "busy": "true",
+          "title": "Preparing preview · 28% · click to cancel"
+        },
+        {
+          "t": 19758.5,
+          "p": 29,
+          "busy": "true",
+          "title": "Preparing preview · 29% · click to cancel"
+        },
+        {
+          "t": 19789,
+          "p": 30,
+          "busy": "true",
+          "title": "Preparing preview · 30% · click to cancel"
+        },
+        {
+          "t": 20025.20000000298,
+          "p": 31,
+          "busy": "true",
+          "title": "Preparing preview · 31% · click to cancel"
+        },
+        {
+          "t": 20052.60000000894,
+          "p": 32,
+          "busy": "true",
+          "title": "Preparing preview · 32% · click to cancel"
+        },
+        {
+          "t": 20062.60000000894,
+          "p": 33,
+          "busy": "true",
+          "title": "Preparing preview · 33% · click to cancel"
+        },
+        {
+          "t": 20087.29999999702,
+          "p": 34,
+          "busy": "true",
+          "title": "Preparing preview · 34% · click to cancel"
+        },
+        {
+          "t": 20278.70000000298,
+          "p": 35,
+          "busy": "true",
+          "title": "Preparing preview · 35% · click to cancel"
+        },
+        {
+          "t": 20314.40000000596,
+          "p": 36,
+          "busy": "true",
+          "title": "Preparing preview · 36% · click to cancel"
+        },
+        {
+          "t": 20324.70000000298,
+          "p": 37,
+          "busy": "true",
+          "title": "Preparing preview · 37% · click to cancel"
+        },
+        {
+          "t": 20357.60000000894,
+          "p": 38,
+          "busy": "true",
+          "title": "Preparing preview · 38% · click to cancel"
+        },
+        {
+          "t": 20384.70000000298,
+          "p": 39,
+          "busy": "true",
+          "title": "Preparing preview · 39% · click to cancel"
+        },
+        {
+          "t": 20406.60000000894,
+          "p": 40,
+          "busy": "true",
+          "title": "Preparing preview · 40% · click to cancel"
+        },
+        {
+          "t": 20421.29999999702,
+          "p": 41,
+          "busy": "true",
+          "title": "Preparing preview · 41% · click to cancel"
+        },
+        {
+          "t": 20453.70000000298,
+          "p": 42,
+          "busy": "true",
+          "title": "Preparing preview · 42% · click to cancel"
+        },
+        {
+          "t": 20479.90000000596,
+          "p": 43,
+          "busy": "true",
+          "title": "Preparing preview · 43% · click to cancel"
+        },
+        {
+          "t": 20486.10000000894,
+          "p": 44,
+          "busy": "true",
+          "title": "Preparing preview · 44% · click to cancel"
+        },
+        {
+          "t": 20510.70000000298,
+          "p": 45,
+          "busy": "true",
+          "title": "Preparing preview · 45% · click to cancel"
+        },
+        {
+          "t": 20537,
+          "p": 46,
+          "busy": "true",
+          "title": "Preparing preview · 46% · click to cancel"
+        },
+        {
+          "t": 20562.10000000894,
+          "p": 47,
+          "busy": "true",
+          "title": "Preparing preview · 47% · click to cancel"
+        },
+        {
+          "t": 20576.70000000298,
+          "p": 48,
+          "busy": "true",
+          "title": "Preparing preview · 48% · click to cancel"
+        },
+        {
+          "t": 20602,
+          "p": 49,
+          "busy": "true",
+          "title": "Preparing preview · 49% · click to cancel"
+        },
+        {
+          "t": 20623,
+          "p": 50,
+          "busy": "true",
+          "title": "Preparing preview · 50% · click to cancel"
+        },
+        {
+          "t": 20646.60000000894,
+          "p": 51,
+          "busy": "true",
+          "title": "Preparing preview · 51% · click to cancel"
+        },
+        {
+          "t": 20675,
+          "p": 52,
+          "busy": "true",
+          "title": "Preparing preview · 52% · click to cancel"
+        },
+        {
+          "t": 20707.10000000894,
+          "p": 53,
+          "busy": "true",
+          "title": "Preparing preview · 53% · click to cancel"
+        },
+        {
+          "t": 20733.40000000596,
+          "p": 54,
+          "busy": "true",
+          "title": "Preparing preview · 54% · click to cancel"
+        },
+        {
+          "t": 20740.40000000596,
+          "p": 55,
+          "busy": "true",
+          "title": "Preparing preview · 55% · click to cancel"
+        },
+        {
+          "t": 20769.70000000298,
+          "p": 56,
+          "busy": "true",
+          "title": "Preparing preview · 56% · click to cancel"
+        },
+        {
+          "t": 20799.70000000298,
+          "p": 57,
+          "busy": "true",
+          "title": "Preparing preview · 57% · click to cancel"
+        },
+        {
+          "t": 20820.29999999702,
+          "p": 58,
+          "busy": "true",
+          "title": "Preparing preview · 58% · click to cancel"
+        },
+        {
+          "t": 20836.20000000298,
+          "p": 59,
+          "busy": "true",
+          "title": "Preparing preview · 59% · click to cancel"
+        },
+        {
+          "t": 20859.60000000894,
+          "p": 60,
+          "busy": "true",
+          "title": "Preparing preview · 60% · click to cancel"
+        },
+        {
+          "t": 20883.5,
+          "p": 61,
+          "busy": "true",
+          "title": "Preparing preview · 61% · click to cancel"
+        },
+        {
+          "t": 20896.5,
+          "p": 62,
+          "busy": "true",
+          "title": "Preparing preview · 62% · click to cancel"
+        },
+        {
+          "t": 20917.90000000596,
+          "p": 63,
+          "busy": "true",
+          "title": "Preparing preview · 63% · click to cancel"
+        },
+        {
+          "t": 20943.60000000894,
+          "p": 64,
+          "busy": "true",
+          "title": "Preparing preview · 64% · click to cancel"
+        },
+        {
+          "t": 20969.79999999702,
+          "p": 65,
+          "busy": "true",
+          "title": "Preparing preview · 65% · click to cancel"
+        },
+        {
+          "t": 20984.79999999702,
+          "p": 66,
+          "busy": "true",
+          "title": "Preparing preview · 66% · click to cancel"
+        },
+        {
+          "t": 21005.10000000894,
+          "p": 67,
+          "busy": "true",
+          "title": "Preparing preview · 67% · click to cancel"
+        },
+        {
+          "t": 21033.10000000894,
+          "p": 68,
+          "busy": "true",
+          "title": "Preparing preview · 68% · click to cancel"
+        },
+        {
+          "t": 21070.5,
+          "p": 69,
+          "busy": "true",
+          "title": "Preparing preview · 69% · click to cancel"
+        },
+        {
+          "t": 21086,
+          "p": 70,
+          "busy": "true",
+          "title": "Preparing preview · 70% · click to cancel"
+        },
+        {
+          "t": 21107.20000000298,
+          "p": 71,
+          "busy": "true",
+          "title": "Preparing preview · 71% · click to cancel"
+        },
+        {
+          "t": 21133.70000000298,
+          "p": 72,
+          "busy": "true",
+          "title": "Preparing preview · 72% · click to cancel"
+        },
+        {
+          "t": 21139.60000000894,
+          "p": 73,
+          "busy": "true",
+          "title": "Preparing preview · 73% · click to cancel"
+        },
+        {
+          "t": 21167.10000000894,
+          "p": 74,
+          "busy": "true",
+          "title": "Preparing preview · 74% · click to cancel"
+        },
+        {
+          "t": 21184.29999999702,
+          "p": 75,
+          "busy": "true",
+          "title": "Preparing preview · 75% · click to cancel"
+        },
+        {
+          "t": 21211.79999999702,
+          "p": 76,
+          "busy": "true",
+          "title": "Preparing preview · 76% · click to cancel"
+        },
+        {
+          "t": 21227.70000000298,
+          "p": 77,
+          "busy": "true",
+          "title": "Preparing preview · 77% · click to cancel"
+        },
+        {
+          "t": 21249.5,
+          "p": 78,
+          "busy": "true",
+          "title": "Preparing preview · 78% · click to cancel"
+        },
+        {
+          "t": 21283,
+          "p": 79,
+          "busy": "true",
+          "title": "Preparing preview · 79% · click to cancel"
+        },
+        {
+          "t": 21294.60000000894,
+          "p": 80,
+          "busy": "true",
+          "title": "Preparing preview · 80% · click to cancel"
+        },
+        {
+          "t": 21318.70000000298,
+          "p": 81,
+          "busy": "true",
+          "title": "Preparing preview · 81% · click to cancel"
+        },
+        {
+          "t": 21341.60000000894,
+          "p": 82,
+          "busy": "true",
+          "title": "Preparing preview · 82% · click to cancel"
+        },
+        {
+          "t": 21370.70000000298,
+          "p": 83,
+          "busy": "true",
+          "title": "Preparing preview · 83% · click to cancel"
+        },
+        {
+          "t": 21378.29999999702,
+          "p": 84,
+          "busy": "true",
+          "title": "Preparing preview · 84% · click to cancel"
+        },
+        {
+          "t": 21406.40000000596,
+          "p": 85,
+          "busy": "true",
+          "title": "Preparing preview · 85% · click to cancel"
+        },
+        {
+          "t": 21474.79999999702,
+          "p": 86,
+          "busy": "true",
+          "title": "Preparing preview · 86% · click to cancel"
+        },
+        {
+          "t": 21497.5,
+          "p": 87,
+          "busy": "true",
+          "title": "Preparing preview · 87% · click to cancel"
+        },
+        {
+          "t": 21517,
+          "p": 88,
+          "busy": "true",
+          "title": "Preparing preview · 88% · click to cancel"
+        },
+        {
+          "t": 21547.70000000298,
+          "p": 89,
+          "busy": "true",
+          "title": "Preparing preview · 89% · click to cancel"
+        },
+        {
+          "t": 21570.70000000298,
+          "p": 90,
+          "busy": "true",
+          "title": "Preparing preview · 90% · click to cancel"
+        },
+        {
+          "t": 21585.70000000298,
+          "p": 91,
+          "busy": "true",
+          "title": "Preparing preview · 91% · click to cancel"
+        },
+        {
+          "t": 21603,
+          "p": 92,
+          "busy": "true",
+          "title": "Preparing preview · 92% · click to cancel"
+        },
+        {
+          "t": 21628.79999999702,
+          "p": 93,
+          "busy": "true",
+          "title": "Preparing preview · 93% · click to cancel"
+        },
+        {
+          "t": 21655.90000000596,
+          "p": 94,
+          "busy": "true",
+          "title": "Preparing preview · 94% · click to cancel"
+        },
+        {
+          "t": 21671.60000000894,
+          "p": 95,
+          "busy": "true",
+          "title": "Preparing preview · 95% · click to cancel"
+        },
+        {
+          "t": 21696.5,
+          "p": 96,
+          "busy": "true",
+          "title": "Preparing preview · 96% · click to cancel"
+        },
+        {
+          "t": 21772.90000000596,
+          "p": 97,
+          "busy": "true",
+          "title": "Preparing preview · 97% · click to cancel"
+        },
+        {
+          "t": 21957,
+          "p": null,
+          "busy": "true",
+          "title": "Cancel rendering"
+        },
+        {
+          "t": 21984.10000000894,
+          "p": null,
+          "busy": "false",
+          "title": "Pause Preview"
+        }
+      ],
+      "paintFrames": [
+        {
+          "t": 18714.40000000596,
+          "height": 1.265625,
+          "p": 4
+        },
+        {
+          "t": 19011.60000000894,
+          "height": 1.90625,
+          "p": 6
+        },
+        {
+          "t": 19046.70000000298,
+          "height": 2.546875,
+          "p": 8
+        },
+        {
+          "t": 19108.40000000596,
+          "height": 3.1875,
+          "p": 10
+        },
+        {
+          "t": 19142.40000000596,
+          "height": 3.828125,
+          "p": 12
+        },
+        {
+          "t": 19177,
+          "height": 4.46875,
+          "p": 14
+        },
+        {
+          "t": 19213.70000000298,
+          "height": 5.109375,
+          "p": 16
+        },
+        {
+          "t": 19309.70000000298,
+          "height": 6.078125,
+          "p": 19
+        },
+        {
+          "t": 19391.90000000596,
+          "height": 6.71875,
+          "p": 21
+        },
+        {
+          "t": 19453.60000000894,
+          "height": 7.359375,
+          "p": 23
+        },
+        {
+          "t": 19544.70000000298,
+          "height": 8,
+          "p": 25
+        },
+        {
+          "t": 19641.29999999702,
+          "height": 8.625,
+          "p": 27
+        },
+        {
+          "t": 19761.60000000894,
+          "height": 9.265625,
+          "p": 29
+        },
+        {
+          "t": 20035,
+          "height": 9.90625,
+          "p": 31
+        },
+        {
+          "t": 20064.70000000298,
+          "height": 10.546875,
+          "p": 33
+        },
+        {
+          "t": 20280.10000000894,
+          "height": 11.1875,
+          "p": 35
+        },
+        {
+          "t": 20325.90000000596,
+          "height": 11.828125,
+          "p": 37
+        },
+        {
+          "t": 20393.79999999702,
+          "height": 12.46875,
+          "p": 39
+        },
+        {
+          "t": 20436.40000000596,
+          "height": 13.109375,
+          "p": 41
+        },
+        {
+          "t": 20496.10000000894,
+          "height": 14.078125,
+          "p": 44
+        },
+        {
+          "t": 20548,
+          "height": 14.71875,
+          "p": 46
+        },
+        {
+          "t": 20578.29999999702,
+          "height": 15.359375,
+          "p": 48
+        },
+        {
+          "t": 20626.60000000894,
+          "height": 16,
+          "p": 50
+        },
+        {
+          "t": 20688.79999999702,
+          "height": 16.625,
+          "p": 52
+        },
+        {
+          "t": 20741.90000000596,
+          "height": 17.59375,
+          "p": 55
+        },
+        {
+          "t": 20809.29999999702,
+          "height": 18.234375,
+          "p": 57
+        },
+        {
+          "t": 20845.79999999702,
+          "height": 18.875,
+          "p": 59
+        },
+        {
+          "t": 20892.5,
+          "height": 19.515625,
+          "p": 61
+        },
+        {
+          "t": 20930.10000000894,
+          "height": 20.15625,
+          "p": 63
+        },
+        {
+          "t": 20980.10000000894,
+          "height": 20.796875,
+          "p": 65
+        },
+        {
+          "t": 21009.70000000298,
+          "height": 21.4375,
+          "p": 67
+        },
+        {
+          "t": 21080.5,
+          "height": 22.078125,
+          "p": 69
+        },
+        {
+          "t": 21108.90000000596,
+          "height": 22.71875,
+          "p": 71
+        },
+        {
+          "t": 21141.20000000298,
+          "height": 23.359375,
+          "p": 73
+        },
+        {
+          "t": 21196.5,
+          "height": 24,
+          "p": 75
+        },
+        {
+          "t": 21229.29999999702,
+          "height": 24.625,
+          "p": 77
+        },
+        {
+          "t": 21284.29999999702,
+          "height": 25.265625,
+          "p": 79
+        },
+        {
+          "t": 21328.5,
+          "height": 25.90625,
+          "p": 81
+        },
+        {
+          "t": 21379.40000000596,
+          "height": 26.875,
+          "p": 84
+        },
+        {
+          "t": 21484.90000000596,
+          "height": 27.515625,
+          "p": 86
+        },
+        {
+          "t": 21518.60000000894,
+          "height": 28.15625,
+          "p": 88
+        },
+        {
+          "t": 21581.79999999702,
+          "height": 28.796875,
+          "p": 90
+        },
+        {
+          "t": 21616.10000000894,
+          "height": 29.4375,
+          "p": 92
+        },
+        {
+          "t": 21658.60000000894,
+          "height": 30.078125,
+          "p": 94
+        },
+        {
+          "t": 21698.20000000298,
+          "height": 30.71875,
+          "p": 96
+        }
+      ]
+    },
+    {
+      "name": "spektral-synthese: cold Play",
+      "samples": [
+        {
+          "t": 22693.20000000298,
+          "p": 4,
+          "busy": "true",
+          "title": "Preparing preview · 4% · click to cancel"
+        },
+        {
+          "t": 23070.20000000298,
+          "p": 5,
+          "busy": "true",
+          "title": "Preparing preview · 5% · click to cancel"
+        },
+        {
+          "t": 23106,
+          "p": 6,
+          "busy": "true",
+          "title": "Preparing preview · 6% · click to cancel"
+        },
+        {
+          "t": 23175.29999999702,
+          "p": 7,
+          "busy": "true",
+          "title": "Preparing preview · 7% · click to cancel"
+        },
+        {
+          "t": 23184.10000000894,
+          "p": 8,
+          "busy": "true",
+          "title": "Preparing preview · 8% · click to cancel"
+        },
+        {
+          "t": 23208.70000000298,
+          "p": 9,
+          "busy": "true",
+          "title": "Preparing preview · 9% · click to cancel"
+        },
+        {
+          "t": 23244.79999999702,
+          "p": 10,
+          "busy": "true",
+          "title": "Preparing preview · 10% · click to cancel"
+        },
+        {
+          "t": 23274.20000000298,
+          "p": 11,
+          "busy": "true",
+          "title": "Preparing preview · 11% · click to cancel"
+        },
+        {
+          "t": 23289.79999999702,
+          "p": 12,
+          "busy": "true",
+          "title": "Preparing preview · 12% · click to cancel"
+        },
+        {
+          "t": 23311.90000000596,
+          "p": 13,
+          "busy": "true",
+          "title": "Preparing preview · 13% · click to cancel"
+        },
+        {
+          "t": 23344.60000000894,
+          "p": 14,
+          "busy": "true",
+          "title": "Preparing preview · 14% · click to cancel"
+        },
+        {
+          "t": 23356.70000000298,
+          "p": 15,
+          "busy": "true",
+          "title": "Preparing preview · 15% · click to cancel"
+        },
+        {
+          "t": 23385,
+          "p": 16,
+          "busy": "true",
+          "title": "Preparing preview · 16% · click to cancel"
+        },
+        {
+          "t": 23412.70000000298,
+          "p": 17,
+          "busy": "true",
+          "title": "Preparing preview · 17% · click to cancel"
+        },
+        {
+          "t": 23451.79999999702,
+          "p": 18,
+          "busy": "true",
+          "title": "Preparing preview · 18% · click to cancel"
+        },
+        {
+          "t": 23462.60000000894,
+          "p": 19,
+          "busy": "true",
+          "title": "Preparing preview · 19% · click to cancel"
+        },
+        {
+          "t": 23497,
+          "p": 20,
+          "busy": "true",
+          "title": "Preparing preview · 20% · click to cancel"
+        },
+        {
+          "t": 23521,
+          "p": 21,
+          "busy": "true",
+          "title": "Preparing preview · 21% · click to cancel"
+        },
+        {
+          "t": 23590.79999999702,
+          "p": 22,
+          "busy": "true",
+          "title": "Preparing preview · 22% · click to cancel"
+        },
+        {
+          "t": 23604.90000000596,
+          "p": 23,
+          "busy": "true",
+          "title": "Preparing preview · 23% · click to cancel"
+        },
+        {
+          "t": 23645.40000000596,
+          "p": 24,
+          "busy": "true",
+          "title": "Preparing preview · 24% · click to cancel"
+        },
+        {
+          "t": 23992,
+          "p": 25,
+          "busy": "true",
+          "title": "Preparing preview · 25% · click to cancel"
+        },
+        {
+          "t": 24005,
+          "p": 26,
+          "busy": "true",
+          "title": "Preparing preview · 26% · click to cancel"
+        },
+        {
+          "t": 24034.40000000596,
+          "p": 27,
+          "busy": "true",
+          "title": "Preparing preview · 27% · click to cancel"
+        },
+        {
+          "t": 24077.20000000298,
+          "p": 28,
+          "busy": "true",
+          "title": "Preparing preview · 28% · click to cancel"
+        },
+        {
+          "t": 24116,
+          "p": 29,
+          "busy": "true",
+          "title": "Preparing preview · 29% · click to cancel"
+        },
+        {
+          "t": 24407.70000000298,
+          "p": 30,
+          "busy": "true",
+          "title": "Preparing preview · 30% · click to cancel"
+        },
+        {
+          "t": 24464.60000000894,
+          "p": 31,
+          "busy": "true",
+          "title": "Preparing preview · 31% · click to cancel"
+        },
+        {
+          "t": 24531.90000000596,
+          "p": 32,
+          "busy": "true",
+          "title": "Preparing preview · 32% · click to cancel"
+        },
+        {
+          "t": 24572.90000000596,
+          "p": 33,
+          "busy": "true",
+          "title": "Preparing preview · 33% · click to cancel"
+        },
+        {
+          "t": 24651.10000000894,
+          "p": 34,
+          "busy": "true",
+          "title": "Preparing preview · 34% · click to cancel"
+        },
+        {
+          "t": 24731.10000000894,
+          "p": 35,
+          "busy": "true",
+          "title": "Preparing preview · 35% · click to cancel"
+        },
+        {
+          "t": 24773.90000000596,
+          "p": 36,
+          "busy": "true",
+          "title": "Preparing preview · 36% · click to cancel"
+        },
+        {
+          "t": 24799.70000000298,
+          "p": 37,
+          "busy": "true",
+          "title": "Preparing preview · 37% · click to cancel"
+        },
+        {
+          "t": 24848.29999999702,
+          "p": 38,
+          "busy": "true",
+          "title": "Preparing preview · 38% · click to cancel"
+        },
+        {
+          "t": 24889,
+          "p": 39,
+          "busy": "true",
+          "title": "Preparing preview · 39% · click to cancel"
+        },
+        {
+          "t": 24920,
+          "p": 40,
+          "busy": "true",
+          "title": "Preparing preview · 40% · click to cancel"
+        },
+        {
+          "t": 24931,
+          "p": 41,
+          "busy": "true",
+          "title": "Preparing preview · 41% · click to cancel"
+        },
+        {
+          "t": 24990.20000000298,
+          "p": 42,
+          "busy": "true",
+          "title": "Preparing preview · 42% · click to cancel"
+        },
+        {
+          "t": 25050.20000000298,
+          "p": 43,
+          "busy": "true",
+          "title": "Preparing preview · 43% · click to cancel"
+        },
+        {
+          "t": 25087.70000000298,
+          "p": 44,
+          "busy": "true",
+          "title": "Preparing preview · 44% · click to cancel"
+        },
+        {
+          "t": 25170.10000000894,
+          "p": 45,
+          "busy": "true",
+          "title": "Preparing preview · 45% · click to cancel"
+        },
+        {
+          "t": 25267.29999999702,
+          "p": 46,
+          "busy": "true",
+          "title": "Preparing preview · 46% · click to cancel"
+        },
+        {
+          "t": 25300.70000000298,
+          "p": 47,
+          "busy": "true",
+          "title": "Preparing preview · 47% · click to cancel"
+        },
+        {
+          "t": 25315,
+          "p": 48,
+          "busy": "true",
+          "title": "Preparing preview · 48% · click to cancel"
+        },
+        {
+          "t": 25352.90000000596,
+          "p": 49,
+          "busy": "true",
+          "title": "Preparing preview · 49% · click to cancel"
+        },
+        {
+          "t": 25463.5,
+          "p": 50,
+          "busy": "true",
+          "title": "Preparing preview · 50% · click to cancel"
+        },
+        {
+          "t": 25592.70000000298,
+          "p": 51,
+          "busy": "true",
+          "title": "Preparing preview · 51% · click to cancel"
+        },
+        {
+          "t": 25629.10000000894,
+          "p": 52,
+          "busy": "true",
+          "title": "Preparing preview · 52% · click to cancel"
+        },
+        {
+          "t": 25700.29999999702,
+          "p": 53,
+          "busy": "true",
+          "title": "Preparing preview · 53% · click to cancel"
+        },
+        {
+          "t": 25859.10000000894,
+          "p": 54,
+          "busy": "true",
+          "title": "Preparing preview · 54% · click to cancel"
+        },
+        {
+          "t": 25900.10000000894,
+          "p": 55,
+          "busy": "true",
+          "title": "Preparing preview · 55% · click to cancel"
+        },
+        {
+          "t": 25952.70000000298,
+          "p": 56,
+          "busy": "true",
+          "title": "Preparing preview · 56% · click to cancel"
+        },
+        {
+          "t": 25985.20000000298,
+          "p": 57,
+          "busy": "true",
+          "title": "Preparing preview · 57% · click to cancel"
+        },
+        {
+          "t": 26030.70000000298,
+          "p": 58,
+          "busy": "true",
+          "title": "Preparing preview · 58% · click to cancel"
+        },
+        {
+          "t": 26050.20000000298,
+          "p": 59,
+          "busy": "true",
+          "title": "Preparing preview · 59% · click to cancel"
+        },
+        {
+          "t": 26106,
+          "p": 60,
+          "busy": "true",
+          "title": "Preparing preview · 60% · click to cancel"
+        },
+        {
+          "t": 26131.70000000298,
+          "p": 61,
+          "busy": "true",
+          "title": "Preparing preview · 61% · click to cancel"
+        },
+        {
+          "t": 26150.10000000894,
+          "p": 62,
+          "busy": "true",
+          "title": "Preparing preview · 62% · click to cancel"
+        },
+        {
+          "t": 26211.29999999702,
+          "p": 63,
+          "busy": "true",
+          "title": "Preparing preview · 63% · click to cancel"
+        },
+        {
+          "t": 26253.20000000298,
+          "p": 64,
+          "busy": "true",
+          "title": "Preparing preview · 64% · click to cancel"
+        },
+        {
+          "t": 26281.60000000894,
+          "p": 65,
+          "busy": "true",
+          "title": "Preparing preview · 65% · click to cancel"
+        },
+        {
+          "t": 26291.40000000596,
+          "p": 66,
+          "busy": "true",
+          "title": "Preparing preview · 66% · click to cancel"
+        },
+        {
+          "t": 26319.10000000894,
+          "p": 67,
+          "busy": "true",
+          "title": "Preparing preview · 67% · click to cancel"
+        },
+        {
+          "t": 26359,
+          "p": 68,
+          "busy": "true",
+          "title": "Preparing preview · 68% · click to cancel"
+        },
+        {
+          "t": 26387.29999999702,
+          "p": 69,
+          "busy": "true",
+          "title": "Preparing preview · 69% · click to cancel"
+        },
+        {
+          "t": 26404.90000000596,
+          "p": 70,
+          "busy": "true",
+          "title": "Preparing preview · 70% · click to cancel"
+        },
+        {
+          "t": 26435,
+          "p": 71,
+          "busy": "true",
+          "title": "Preparing preview · 71% · click to cancel"
+        },
+        {
+          "t": 26468.20000000298,
+          "p": 72,
+          "busy": "true",
+          "title": "Preparing preview · 72% · click to cancel"
+        },
+        {
+          "t": 26478.20000000298,
+          "p": 73,
+          "busy": "true",
+          "title": "Preparing preview · 73% · click to cancel"
+        },
+        {
+          "t": 26659,
+          "p": 74,
+          "busy": "true",
+          "title": "Preparing preview · 74% · click to cancel"
+        },
+        {
+          "t": 26703.29999999702,
+          "p": 75,
+          "busy": "true",
+          "title": "Preparing preview · 75% · click to cancel"
+        },
+        {
+          "t": 26728.20000000298,
+          "p": 76,
+          "busy": "true",
+          "title": "Preparing preview · 76% · click to cancel"
+        },
+        {
+          "t": 26751,
+          "p": 77,
+          "busy": "true",
+          "title": "Preparing preview · 77% · click to cancel"
+        },
+        {
+          "t": 26777,
+          "p": 78,
+          "busy": "true",
+          "title": "Preparing preview · 78% · click to cancel"
+        },
+        {
+          "t": 26801.10000000894,
+          "p": 79,
+          "busy": "true",
+          "title": "Preparing preview · 79% · click to cancel"
+        },
+        {
+          "t": 26808.70000000298,
+          "p": 80,
+          "busy": "true",
+          "title": "Preparing preview · 80% · click to cancel"
+        },
+        {
+          "t": 26895.60000000894,
+          "p": 81,
+          "busy": "true",
+          "title": "Preparing preview · 81% · click to cancel"
+        },
+        {
+          "t": 27800.20000000298,
+          "p": 82,
+          "busy": "true",
+          "title": "Preparing preview · 82% · click to cancel"
+        },
+        {
+          "t": 27854.90000000596,
+          "p": 83,
+          "busy": "true",
+          "title": "Preparing preview · 83% · click to cancel"
+        },
+        {
+          "t": 27864.29999999702,
+          "p": 84,
+          "busy": "true",
+          "title": "Preparing preview · 84% · click to cancel"
+        },
+        {
+          "t": 27899.10000000894,
+          "p": 85,
+          "busy": "true",
+          "title": "Preparing preview · 85% · click to cancel"
+        },
+        {
+          "t": 27927.40000000596,
+          "p": 86,
+          "busy": "true",
+          "title": "Preparing preview · 86% · click to cancel"
+        },
+        {
+          "t": 27953.90000000596,
+          "p": 87,
+          "busy": "true",
+          "title": "Preparing preview · 87% · click to cancel"
+        },
+        {
+          "t": 27968.10000000894,
+          "p": 88,
+          "busy": "true",
+          "title": "Preparing preview · 88% · click to cancel"
+        },
+        {
+          "t": 28142.60000000894,
+          "p": 89,
+          "busy": "true",
+          "title": "Preparing preview · 89% · click to cancel"
+        },
+        {
+          "t": 28176.29999999702,
+          "p": 90,
+          "busy": "true",
+          "title": "Preparing preview · 90% · click to cancel"
+        },
+        {
+          "t": 28194.60000000894,
+          "p": 91,
+          "busy": "true",
+          "title": "Preparing preview · 91% · click to cancel"
+        },
+        {
+          "t": 28236.60000000894,
+          "p": 92,
+          "busy": "true",
+          "title": "Preparing preview · 92% · click to cancel"
+        },
+        {
+          "t": 28269,
+          "p": 93,
+          "busy": "true",
+          "title": "Preparing preview · 93% · click to cancel"
+        },
+        {
+          "t": 28289.29999999702,
+          "p": 94,
+          "busy": "true",
+          "title": "Preparing preview · 94% · click to cancel"
+        },
+        {
+          "t": 28302.60000000894,
+          "p": 95,
+          "busy": "true",
+          "title": "Preparing preview · 95% · click to cancel"
+        },
+        {
+          "t": 28331.10000000894,
+          "p": 96,
+          "busy": "true",
+          "title": "Preparing preview · 96% · click to cancel"
+        },
+        {
+          "t": 28352.70000000298,
+          "p": 97,
+          "busy": "true",
+          "title": "Preparing preview · 97% · click to cancel"
+        },
+        {
+          "t": 28576.40000000596,
+          "p": null,
+          "busy": "true",
+          "title": "Cancel rendering"
+        },
+        {
+          "t": 28592.29999999702,
+          "p": null,
+          "busy": "false",
+          "title": "Pause Preview"
+        }
+      ],
+      "paintFrames": [
+        {
+          "t": 22697,
+          "height": 1.265625,
+          "p": 4
+        },
+        {
+          "t": 23106.90000000596,
+          "height": 1.90625,
+          "p": 6
+        },
+        {
+          "t": 23185.20000000298,
+          "height": 2.546875,
+          "p": 8
+        },
+        {
+          "t": 23246.70000000298,
+          "height": 3.1875,
+          "p": 10
+        },
+        {
+          "t": 23326.70000000298,
+          "height": 4.15625,
+          "p": 13
+        },
+        {
+          "t": 23358.5,
+          "height": 4.796875,
+          "p": 15
+        },
+        {
+          "t": 23414.40000000596,
+          "height": 5.4375,
+          "p": 17
+        },
+        {
+          "t": 23463.79999999702,
+          "height": 6.078125,
+          "p": 19
+        },
+        {
+          "t": 23525.70000000298,
+          "height": 6.71875,
+          "p": 21
+        },
+        {
+          "t": 23625.90000000596,
+          "height": 7.359375,
+          "p": 23
+        },
+        {
+          "t": 24000.90000000596,
+          "height": 8,
+          "p": 25
+        },
+        {
+          "t": 24045.90000000596,
+          "height": 8.625,
+          "p": 27
+        },
+        {
+          "t": 24393.20000000298,
+          "height": 9.265625,
+          "p": 29
+        },
+        {
+          "t": 24465.60000000894,
+          "height": 9.90625,
+          "p": 31
+        },
+        {
+          "t": 24600,
+          "height": 10.546875,
+          "p": 33
+        },
+        {
+          "t": 24738,
+          "height": 11.1875,
+          "p": 35
+        },
+        {
+          "t": 24803.60000000894,
+          "height": 11.828125,
+          "p": 37
+        },
+        {
+          "t": 24901.20000000298,
+          "height": 12.46875,
+          "p": 39
+        },
+        {
+          "t": 24932.79999999702,
+          "height": 13.109375,
+          "p": 41
+        },
+        {
+          "t": 25054.5,
+          "height": 13.75,
+          "p": 43
+        },
+        {
+          "t": 25218.60000000894,
+          "height": 14.390625,
+          "p": 45
+        },
+        {
+          "t": 25316.20000000298,
+          "height": 15.359375,
+          "p": 48
+        },
+        {
+          "t": 25566.79999999702,
+          "height": 16,
+          "p": 50
+        },
+        {
+          "t": 25639.5,
+          "height": 16.625,
+          "p": 52
+        },
+        {
+          "t": 25865.79999999702,
+          "height": 17.265625,
+          "p": 54
+        },
+        {
+          "t": 26003.40000000596,
+          "height": 18.234375,
+          "p": 57
+        },
+        {
+          "t": 26051.90000000596,
+          "height": 18.875,
+          "p": 59
+        },
+        {
+          "t": 26165.90000000596,
+          "height": 19.828125,
+          "p": 62
+        },
+        {
+          "t": 26264.5,
+          "height": 20.46875,
+          "p": 64
+        },
+        {
+          "t": 26292.90000000596,
+          "height": 21.109375,
+          "p": 66
+        },
+        {
+          "t": 26359.90000000596,
+          "height": 21.75,
+          "p": 68
+        },
+        {
+          "t": 26408.70000000298,
+          "height": 22.390625,
+          "p": 70
+        },
+        {
+          "t": 26480.70000000298,
+          "height": 23.359375,
+          "p": 73
+        },
+        {
+          "t": 26712.70000000298,
+          "height": 24,
+          "p": 75
+        },
+        {
+          "t": 26752.60000000894,
+          "height": 24.625,
+          "p": 77
+        },
+        {
+          "t": 26810.10000000894,
+          "height": 25.59375,
+          "p": 80
+        },
+        {
+          "t": 27828.10000000894,
+          "height": 26.234375,
+          "p": 82
+        },
+        {
+          "t": 27865.70000000298,
+          "height": 26.875,
+          "p": 84
+        },
+        {
+          "t": 27947.60000000894,
+          "height": 27.515625,
+          "p": 86
+        },
+        {
+          "t": 27969.90000000596,
+          "height": 28.15625,
+          "p": 88
+        },
+        {
+          "t": 28177.60000000894,
+          "height": 28.796875,
+          "p": 90
+        },
+        {
+          "t": 28249.5,
+          "height": 29.4375,
+          "p": 92
+        },
+        {
+          "t": 28292.29999999702,
+          "height": 30.078125,
+          "p": 94
+        },
+        {
+          "t": 28332.79999999702,
+          "height": 30.71875,
+          "p": 96
+        }
+      ]
+    },
+    {
+      "name": "antonia: cold Play",
+      "samples": [
+        {
+          "t": 29344.20000000298,
+          "p": 4,
+          "busy": "true",
+          "title": "Preparing preview · 4% · click to cancel"
+        },
+        {
+          "t": 29888.20000000298,
+          "p": 5,
+          "busy": "true",
+          "title": "Preparing preview · 5% · click to cancel"
+        },
+        {
+          "t": 29911.10000000894,
+          "p": 7,
+          "busy": "true",
+          "title": "Preparing preview · 7% · click to cancel"
+        },
+        {
+          "t": 29935.20000000298,
+          "p": 11,
+          "busy": "true",
+          "title": "Preparing preview · 11% · click to cancel"
+        },
+        {
+          "t": 29951,
+          "p": 16,
+          "busy": "true",
+          "title": "Preparing preview · 16% · click to cancel"
+        },
+        {
+          "t": 29979.90000000596,
+          "p": 20,
+          "busy": "true",
+          "title": "Preparing preview · 20% · click to cancel"
+        },
+        {
+          "t": 30005.10000000894,
+          "p": 25,
+          "busy": "true",
+          "title": "Preparing preview · 25% · click to cancel"
+        },
+        {
+          "t": 30027.29999999702,
+          "p": 29,
+          "busy": "true",
+          "title": "Preparing preview · 29% · click to cancel"
+        },
+        {
+          "t": 30048.40000000596,
+          "p": 34,
+          "busy": "true",
+          "title": "Preparing preview · 34% · click to cancel"
+        },
+        {
+          "t": 30068.70000000298,
+          "p": 39,
+          "busy": "true",
+          "title": "Preparing preview · 39% · click to cancel"
+        },
+        {
+          "t": 30092.70000000298,
+          "p": 45,
+          "busy": "true",
+          "title": "Preparing preview · 45% · click to cancel"
+        },
+        {
+          "t": 30112.40000000596,
+          "p": 49,
+          "busy": "true",
+          "title": "Preparing preview · 49% · click to cancel"
+        },
+        {
+          "t": 30138,
+          "p": 53,
+          "busy": "true",
+          "title": "Preparing preview · 53% · click to cancel"
+        },
+        {
+          "t": 30158.5,
+          "p": 59,
+          "busy": "true",
+          "title": "Preparing preview · 59% · click to cancel"
+        },
+        {
+          "t": 30178,
+          "p": 63,
+          "busy": "true",
+          "title": "Preparing preview · 63% · click to cancel"
+        },
+        {
+          "t": 30197.5,
+          "p": 67,
+          "busy": "true",
+          "title": "Preparing preview · 67% · click to cancel"
+        },
+        {
+          "t": 30257.29999999702,
+          "p": 71,
+          "busy": "true",
+          "title": "Preparing preview · 71% · click to cancel"
+        },
+        {
+          "t": 30277.29999999702,
+          "p": 76,
+          "busy": "true",
+          "title": "Preparing preview · 76% · click to cancel"
+        },
+        {
+          "t": 30299.29999999702,
+          "p": 81,
+          "busy": "true",
+          "title": "Preparing preview · 81% · click to cancel"
+        },
+        {
+          "t": 30319.29999999702,
+          "p": 86,
+          "busy": "true",
+          "title": "Preparing preview · 86% · click to cancel"
+        },
+        {
+          "t": 30342.5,
+          "p": 92,
+          "busy": "true",
+          "title": "Preparing preview · 92% · click to cancel"
+        },
+        {
+          "t": 30457.90000000596,
+          "p": 96,
+          "busy": "true",
+          "title": "Preparing preview · 96% · click to cancel"
+        },
+        {
+          "t": 30773.70000000298,
+          "p": null,
+          "busy": "true",
+          "title": "Cancel rendering"
+        },
+        {
+          "t": 30798.20000000298,
+          "p": null,
+          "busy": "false",
+          "title": "Pause Preview"
+        }
+      ],
+      "paintFrames": [
+        {
+          "t": 29349,
+          "height": 1.265625,
+          "p": 4
+        },
+        {
+          "t": 29928,
+          "height": 2.234375,
+          "p": 7
+        },
+        {
+          "t": 29953.79999999702,
+          "height": 5.109375,
+          "p": 16
+        },
+        {
+          "t": 29982.40000000596,
+          "height": 6.390625,
+          "p": 20
+        },
+        {
+          "t": 30007.10000000894,
+          "height": 8,
+          "p": 25
+        },
+        {
+          "t": 30029.5,
+          "height": 9.265625,
+          "p": 29
+        },
+        {
+          "t": 30050.10000000894,
+          "height": 10.875,
+          "p": 34
+        },
+        {
+          "t": 30070.20000000298,
+          "height": 12.46875,
+          "p": 39
+        },
+        {
+          "t": 30094.5,
+          "height": 14.390625,
+          "p": 45
+        },
+        {
+          "t": 30114.5,
+          "height": 15.671875,
+          "p": 49
+        },
+        {
+          "t": 30139.70000000298,
+          "height": 16.953125,
+          "p": 53
+        },
+        {
+          "t": 30159.90000000596,
+          "height": 18.875,
+          "p": 59
+        },
+        {
+          "t": 30179.90000000596,
+          "height": 20.15625,
+          "p": 63
+        },
+        {
+          "t": 30199.10000000894,
+          "height": 21.4375,
+          "p": 67
+        },
+        {
+          "t": 30259.20000000298,
+          "height": 22.71875,
+          "p": 71
+        },
+        {
+          "t": 30279.29999999702,
+          "height": 24.3125,
+          "p": 76
+        },
+        {
+          "t": 30300.90000000596,
+          "height": 25.90625,
+          "p": 81
+        },
+        {
+          "t": 30322.20000000298,
+          "height": 27.515625,
+          "p": 86
+        },
+        {
+          "t": 30431.40000000596,
+          "height": 29.4375,
+          "p": 92
+        },
+        {
+          "t": 30653.10000000894,
+          "height": 30.71875,
+          "p": 96
+        }
+      ]
+    },
+    {
+      "name": "bert: cold Play",
+      "samples": [
+        {
+          "t": 31671.70000000298,
+          "p": 4,
+          "busy": "true",
+          "title": "Preparing preview · 4% · click to cancel"
+        },
+        {
+          "t": 32205.70000000298,
+          "p": 6,
+          "busy": "true",
+          "title": "Preparing preview · 6% · click to cancel"
+        },
+        {
+          "t": 32227.70000000298,
+          "p": 9,
+          "busy": "true",
+          "title": "Preparing preview · 9% · click to cancel"
+        },
+        {
+          "t": 32251.10000000894,
+          "p": 12,
+          "busy": "true",
+          "title": "Preparing preview · 12% · click to cancel"
+        },
+        {
+          "t": 32279.5,
+          "p": 14,
+          "busy": "true",
+          "title": "Preparing preview · 14% · click to cancel"
+        },
+        {
+          "t": 32306.20000000298,
+          "p": 17,
+          "busy": "true",
+          "title": "Preparing preview · 17% · click to cancel"
+        },
+        {
+          "t": 32341.70000000298,
+          "p": 19,
+          "busy": "true",
+          "title": "Preparing preview · 19% · click to cancel"
+        },
+        {
+          "t": 32368.79999999702,
+          "p": 22,
+          "busy": "true",
+          "title": "Preparing preview · 22% · click to cancel"
+        },
+        {
+          "t": 32392,
+          "p": 27,
+          "busy": "true",
+          "title": "Preparing preview · 27% · click to cancel"
+        },
+        {
+          "t": 32419.79999999702,
+          "p": 31,
+          "busy": "true",
+          "title": "Preparing preview · 31% · click to cancel"
+        },
+        {
+          "t": 32446.70000000298,
+          "p": 35,
+          "busy": "true",
+          "title": "Preparing preview · 35% · click to cancel"
+        },
+        {
+          "t": 32468.60000000894,
+          "p": 38,
+          "busy": "true",
+          "title": "Preparing preview · 38% · click to cancel"
+        },
+        {
+          "t": 32502.5,
+          "p": 42,
+          "busy": "true",
+          "title": "Preparing preview · 42% · click to cancel"
+        },
+        {
+          "t": 32522.60000000894,
+          "p": 47,
+          "busy": "true",
+          "title": "Preparing preview · 47% · click to cancel"
+        },
+        {
+          "t": 32543.5,
+          "p": 52,
+          "busy": "true",
+          "title": "Preparing preview · 52% · click to cancel"
+        },
+        {
+          "t": 32596.90000000596,
+          "p": 55,
+          "busy": "true",
+          "title": "Preparing preview · 55% · click to cancel"
+        },
+        {
+          "t": 32624.60000000894,
+          "p": 60,
+          "busy": "true",
+          "title": "Preparing preview · 60% · click to cancel"
+        },
+        {
+          "t": 32646.79999999702,
+          "p": 62,
+          "busy": "true",
+          "title": "Preparing preview · 62% · click to cancel"
+        },
+        {
+          "t": 32666.40000000596,
+          "p": 66,
+          "busy": "true",
+          "title": "Preparing preview · 66% · click to cancel"
+        },
+        {
+          "t": 32773.70000000298,
+          "p": 69,
+          "busy": "true",
+          "title": "Preparing preview · 69% · click to cancel"
+        },
+        {
+          "t": 32980.10000000894,
+          "p": 73,
+          "busy": "true",
+          "title": "Preparing preview · 73% · click to cancel"
+        },
+        {
+          "t": 33009.79999999702,
+          "p": 75,
+          "busy": "true",
+          "title": "Preparing preview · 75% · click to cancel"
+        },
+        {
+          "t": 33034,
+          "p": 79,
+          "busy": "true",
+          "title": "Preparing preview · 79% · click to cancel"
+        },
+        {
+          "t": 33060.20000000298,
+          "p": 83,
+          "busy": "true",
+          "title": "Preparing preview · 83% · click to cancel"
+        },
+        {
+          "t": 33079.10000000894,
+          "p": 86,
+          "busy": "true",
+          "title": "Preparing preview · 86% · click to cancel"
+        },
+        {
+          "t": 33102.5,
+          "p": 91,
+          "busy": "true",
+          "title": "Preparing preview · 91% · click to cancel"
+        },
+        {
+          "t": 33123.90000000596,
+          "p": 95,
+          "busy": "true",
+          "title": "Preparing preview · 95% · click to cancel"
+        },
+        {
+          "t": 33151,
+          "p": 97,
+          "busy": "true",
+          "title": "Preparing preview · 97% · click to cancel"
+        },
+        {
+          "t": 33220.20000000298,
+          "p": null,
+          "busy": "true",
+          "title": "Cancel rendering"
+        },
+        {
+          "t": 33235.70000000298,
+          "p": null,
+          "busy": "false",
+          "title": "Pause Preview"
+        }
+      ],
+      "paintFrames": [
+        {
+          "t": 31678.20000000298,
+          "height": 1.265625,
+          "p": 4
+        },
+        {
+          "t": 32207.29999999702,
+          "height": 1.90625,
+          "p": 6
+        },
+        {
+          "t": 32229.20000000298,
+          "height": 2.875,
+          "p": 9
+        },
+        {
+          "t": 32253.29999999702,
+          "height": 3.828125,
+          "p": 12
+        },
+        {
+          "t": 32281.79999999702,
+          "height": 4.46875,
+          "p": 14
+        },
+        {
+          "t": 32308.20000000298,
+          "height": 5.4375,
+          "p": 17
+        },
+        {
+          "t": 32349.10000000894,
+          "height": 6.078125,
+          "p": 19
+        },
+        {
+          "t": 32371.40000000596,
+          "height": 7.03125,
+          "p": 22
+        },
+        {
+          "t": 32394.10000000894,
+          "height": 8.625,
+          "p": 27
+        },
+        {
+          "t": 32421.79999999702,
+          "height": 9.90625,
+          "p": 31
+        },
+        {
+          "t": 32449.70000000298,
+          "height": 11.1875,
+          "p": 35
+        },
+        {
+          "t": 32476.29999999702,
+          "height": 12.15625,
+          "p": 38
+        },
+        {
+          "t": 32504.5,
+          "height": 13.4375,
+          "p": 42
+        },
+        {
+          "t": 32524.10000000894,
+          "height": 15.03125,
+          "p": 47
+        },
+        {
+          "t": 32576.90000000596,
+          "height": 16.625,
+          "p": 52
+        },
+        {
+          "t": 32600,
+          "height": 17.59375,
+          "p": 55
+        },
+        {
+          "t": 32627.29999999702,
+          "height": 19.1875,
+          "p": 60
+        },
+        {
+          "t": 32648.90000000596,
+          "height": 19.828125,
+          "p": 62
+        },
+        {
+          "t": 32748.60000000894,
+          "height": 21.109375,
+          "p": 66
+        },
+        {
+          "t": 32953.29999999702,
+          "height": 22.078125,
+          "p": 69
+        },
+        {
+          "t": 32984,
+          "height": 23.359375,
+          "p": 73
+        },
+        {
+          "t": 33011.90000000596,
+          "height": 24,
+          "p": 75
+        },
+        {
+          "t": 33036.20000000298,
+          "height": 25.265625,
+          "p": 79
+        },
+        {
+          "t": 33062.10000000894,
+          "height": 26.546875,
+          "p": 83
+        },
+        {
+          "t": 33081.10000000894,
+          "height": 27.515625,
+          "p": 86
+        },
+        {
+          "t": 33104.29999999702,
+          "height": 29.109375,
+          "p": 91
+        },
+        {
+          "t": 33128.90000000596,
+          "height": 30.390625,
+          "p": 95
+        },
+        {
+          "t": 33152.60000000894,
+          "height": 31.03125,
+          "p": 97
+        }
+      ]
+    },
+    {
+      "name": "cecilia: cold Play",
+      "samples": [
+        {
+          "t": 34072.90000000596,
+          "p": 4,
+          "busy": "true",
+          "title": "Preparing preview · 4% · click to cancel"
+        },
+        {
+          "t": 34541.90000000596,
+          "p": 19,
+          "busy": "true",
+          "title": "Preparing preview · 19% · click to cancel"
+        },
+        {
+          "t": 34563.60000000894,
+          "p": 34,
+          "busy": "true",
+          "title": "Preparing preview · 34% · click to cancel"
+        },
+        {
+          "t": 34584.90000000596,
+          "p": 49,
+          "busy": "true",
+          "title": "Preparing preview · 49% · click to cancel"
+        },
+        {
+          "t": 34605.60000000894,
+          "p": 63,
+          "busy": "true",
+          "title": "Preparing preview · 63% · click to cancel"
+        },
+        {
+          "t": 34627.70000000298,
+          "p": 78,
+          "busy": "true",
+          "title": "Preparing preview · 78% · click to cancel"
+        },
+        {
+          "t": 34657.90000000596,
+          "p": 94,
+          "busy": "true",
+          "title": "Preparing preview · 94% · click to cancel"
+        },
+        {
+          "t": 34710.79999999702,
+          "p": null,
+          "busy": "true",
+          "title": "Cancel rendering"
+        },
+        {
+          "t": 34740.90000000596,
+          "p": null,
+          "busy": "false",
+          "title": "Pause Preview"
+        }
+      ],
+      "paintFrames": [
+        {
+          "t": 34076,
+          "height": 1.265625,
+          "p": 4
+        },
+        {
+          "t": 34544.79999999702,
+          "height": 6.078125,
+          "p": 19
+        },
+        {
+          "t": 34566.29999999702,
+          "height": 10.875,
+          "p": 34
+        },
+        {
+          "t": 34586.79999999702,
+          "height": 15.671875,
+          "p": 49
+        },
+        {
+          "t": 34607.90000000596,
+          "height": 20.15625,
+          "p": 63
+        },
+        {
+          "t": 34632,
+          "height": 24.953125,
+          "p": 78
+        },
+        {
+          "t": 34660.40000000596,
+          "height": 30.078125,
+          "p": 94
+        }
+      ]
+    },
+    {
+      "name": "Emilia: cancel and retry",
+      "samples": [
+        {
+          "t": 36589.70000000298,
+          "p": 4,
+          "busy": "true",
+          "title": "Preparing preview · 4% · click to cancel"
+        },
+        {
+          "t": 36928,
+          "p": 6,
+          "busy": "true",
+          "title": "Preparing preview · 6% · click to cancel"
+        },
+        {
+          "t": 36958.20000000298,
+          "p": 7,
+          "busy": "true",
+          "title": "Preparing preview · 7% · click to cancel"
+        },
+        {
+          "t": 36990.60000000894,
+          "p": 8,
+          "busy": "true",
+          "title": "Preparing preview · 8% · click to cancel"
+        },
+        {
+          "t": 37015.60000000894,
+          "p": 9,
+          "busy": "true",
+          "title": "Preparing preview · 9% · click to cancel"
+        },
+        {
+          "t": 37044.70000000298,
+          "p": 10,
+          "busy": "true",
+          "title": "Preparing preview · 10% · click to cancel"
+        },
+        {
+          "t": 37090.60000000894,
+          "p": 12,
+          "busy": "true",
+          "title": "Preparing preview · 12% · click to cancel"
+        },
+        {
+          "t": 37111.60000000894,
+          "p": 13,
+          "busy": "true",
+          "title": "Preparing preview · 13% · click to cancel"
+        },
+        {
+          "t": 37152,
+          "p": 14,
+          "busy": "true",
+          "title": "Preparing preview · 14% · click to cancel"
+        },
+        {
+          "t": 37188.29999999702,
+          "p": 15,
+          "busy": "true",
+          "title": "Preparing preview · 15% · click to cancel"
+        },
+        {
+          "t": 37218.70000000298,
+          "p": 16,
+          "busy": "true",
+          "title": "Preparing preview · 16% · click to cancel"
+        },
+        {
+          "t": 37302.10000000894,
+          "p": 17,
+          "busy": "true",
+          "title": "Preparing preview · 17% · click to cancel"
+        },
+        {
+          "t": 37329.40000000596,
+          "p": 18,
+          "busy": "true",
+          "title": "Preparing preview · 18% · click to cancel"
+        },
+        {
+          "t": 37473.10000000894,
+          "p": 20,
+          "busy": "true",
+          "title": "Preparing preview · 20% · click to cancel"
+        },
+        {
+          "t": 37762.60000000894,
+          "p": 21,
+          "busy": "true",
+          "title": "Preparing preview · 21% · click to cancel"
+        },
+        {
+          "t": 37803.20000000298,
+          "p": 22,
+          "busy": "true",
+          "title": "Preparing preview · 22% · click to cancel"
+        },
+        {
+          "t": 37839,
+          "p": 24,
+          "busy": "true",
+          "title": "Preparing preview · 24% · click to cancel"
+        },
+        {
+          "t": 37866.20000000298,
+          "p": 25,
+          "busy": "true",
+          "title": "Preparing preview · 25% · click to cancel"
+        },
+        {
+          "t": 37932.70000000298,
+          "p": 26,
+          "busy": "true",
+          "title": "Preparing preview · 26% · click to cancel"
+        },
+        {
+          "t": 38183.60000000894,
+          "p": 27,
+          "busy": "true",
+          "title": "Preparing preview · 27% · click to cancel"
+        },
+        {
+          "t": 38248.70000000298,
+          "p": 28,
+          "busy": "true",
+          "title": "Preparing preview · 28% · click to cancel"
+        },
+        {
+          "t": 38278.90000000596,
+          "p": 30,
+          "busy": "true",
+          "title": "Preparing preview · 30% · click to cancel"
+        },
+        {
+          "t": 38311.90000000596,
+          "p": 31,
+          "busy": "true",
+          "title": "Preparing preview · 31% · click to cancel"
+        },
+        {
+          "t": 38380.20000000298,
+          "p": 33,
+          "busy": "true",
+          "title": "Preparing preview · 33% · click to cancel"
+        },
+        {
+          "t": 38408,
+          "p": 34,
+          "busy": "true",
+          "title": "Preparing preview · 34% · click to cancel"
+        },
+        {
+          "t": 38436.70000000298,
+          "p": 35,
+          "busy": "true",
+          "title": "Preparing preview · 35% · click to cancel"
+        },
+        {
+          "t": 38470.10000000894,
+          "p": 37,
+          "busy": "true",
+          "title": "Preparing preview · 37% · click to cancel"
+        },
+        {
+          "t": 38514.40000000596,
+          "p": 38,
+          "busy": "true",
+          "title": "Preparing preview · 38% · click to cancel"
+        },
+        {
+          "t": 38550,
+          "p": 39,
+          "busy": "true",
+          "title": "Preparing preview · 39% · click to cancel"
+        },
+        {
+          "t": 38595.79999999702,
+          "p": 40,
+          "busy": "true",
+          "title": "Preparing preview · 40% · click to cancel"
+        },
+        {
+          "t": 38622.5,
+          "p": 41,
+          "busy": "true",
+          "title": "Preparing preview · 41% · click to cancel"
+        },
+        {
+          "t": 38651.29999999702,
+          "p": 42,
+          "busy": "true",
+          "title": "Preparing preview · 42% · click to cancel"
+        },
+        {
+          "t": 38678.20000000298,
+          "p": 43,
+          "busy": "true",
+          "title": "Preparing preview · 43% · click to cancel"
+        },
+        {
+          "t": 38709,
+          "p": 44,
+          "busy": "true",
+          "title": "Preparing preview · 44% · click to cancel"
+        },
+        {
+          "t": 38751.79999999702,
+          "p": 45,
+          "busy": "true",
+          "title": "Preparing preview · 45% · click to cancel"
+        },
+        {
+          "t": 38783,
+          "p": 46,
+          "busy": "true",
+          "title": "Preparing preview · 46% · click to cancel"
+        },
+        {
+          "t": 38812.10000000894,
+          "p": 48,
+          "busy": "true",
+          "title": "Preparing preview · 48% · click to cancel"
+        },
+        {
+          "t": 38839.20000000298,
+          "p": 49,
+          "busy": "true",
+          "title": "Preparing preview · 49% · click to cancel"
+        },
+        {
+          "t": 38868.40000000596,
+          "p": 50,
+          "busy": "true",
+          "title": "Preparing preview · 50% · click to cancel"
+        },
+        {
+          "t": 38904.20000000298,
+          "p": 52,
+          "busy": "true",
+          "title": "Preparing preview · 52% · click to cancel"
+        },
+        {
+          "t": 38943.79999999702,
+          "p": 53,
+          "busy": "true",
+          "title": "Preparing preview · 53% · click to cancel"
+        },
+        {
+          "t": 38975.90000000596,
+          "p": 54,
+          "busy": "true",
+          "title": "Preparing preview · 54% · click to cancel"
+        },
+        {
+          "t": 39008.70000000298,
+          "p": 55,
+          "busy": "true",
+          "title": "Preparing preview · 55% · click to cancel"
+        },
+        {
+          "t": 39035.79999999702,
+          "p": 56,
+          "busy": "true",
+          "title": "Preparing preview · 56% · click to cancel"
+        },
+        {
+          "t": 39118.79999999702,
+          "p": 57,
+          "busy": "true",
+          "title": "Preparing preview · 57% · click to cancel"
+        },
+        {
+          "t": 39151.90000000596,
+          "p": 59,
+          "busy": "true",
+          "title": "Preparing preview · 59% · click to cancel"
+        },
+        {
+          "t": 39181,
+          "p": 60,
+          "busy": "true",
+          "title": "Preparing preview · 60% · click to cancel"
+        },
+        {
+          "t": 39211.60000000894,
+          "p": 62,
+          "busy": "true",
+          "title": "Preparing preview · 62% · click to cancel"
+        },
+        {
+          "t": 39249.60000000894,
+          "p": 63,
+          "busy": "true",
+          "title": "Preparing preview · 63% · click to cancel"
+        },
+        {
+          "t": 39278.79999999702,
+          "p": 64,
+          "busy": "true",
+          "title": "Preparing preview · 64% · click to cancel"
+        },
+        {
+          "t": 39315.90000000596,
+          "p": 66,
+          "busy": "true",
+          "title": "Preparing preview · 66% · click to cancel"
+        },
+        {
+          "t": 39385.10000000894,
+          "p": 68,
+          "busy": "true",
+          "title": "Preparing preview · 68% · click to cancel"
+        },
+        {
+          "t": 39421.29999999702,
+          "p": 69,
+          "busy": "true",
+          "title": "Preparing preview · 69% · click to cancel"
+        },
+        {
+          "t": 39457.70000000298,
+          "p": 70,
+          "busy": "true",
+          "title": "Preparing preview · 70% · click to cancel"
+        },
+        {
+          "t": 39479.70000000298,
+          "p": 71,
+          "busy": "true",
+          "title": "Preparing preview · 71% · click to cancel"
+        },
+        {
+          "t": 39527.60000000894,
+          "p": 73,
+          "busy": "true",
+          "title": "Preparing preview · 73% · click to cancel"
+        },
+        {
+          "t": 39564.20000000298,
+          "p": 74,
+          "busy": "true",
+          "title": "Preparing preview · 74% · click to cancel"
+        },
+        {
+          "t": 39611.70000000298,
+          "p": 75,
+          "busy": "true",
+          "title": "Preparing preview · 75% · click to cancel"
+        },
+        {
+          "t": 39654.5,
+          "p": 76,
+          "busy": "true",
+          "title": "Preparing preview · 76% · click to cancel"
+        },
+        {
+          "t": 39682.90000000596,
+          "p": 77,
+          "busy": "true",
+          "title": "Preparing preview · 77% · click to cancel"
+        },
+        {
+          "t": 39727.70000000298,
+          "p": 78,
+          "busy": "true",
+          "title": "Preparing preview · 78% · click to cancel"
+        },
+        {
+          "t": 39804.40000000596,
+          "p": 80,
+          "busy": "true",
+          "title": "Preparing preview · 80% · click to cancel"
+        },
+        {
+          "t": 39868.20000000298,
+          "p": 81,
+          "busy": "true",
+          "title": "Preparing preview · 81% · click to cancel"
+        },
+        {
+          "t": 39907.20000000298,
+          "p": 82,
+          "busy": "true",
+          "title": "Preparing preview · 82% · click to cancel"
+        },
+        {
+          "t": 39940.10000000894,
+          "p": 83,
+          "busy": "true",
+          "title": "Preparing preview · 83% · click to cancel"
+        },
+        {
+          "t": 39982.70000000298,
+          "p": 84,
+          "busy": "true",
+          "title": "Preparing preview · 84% · click to cancel"
+        },
+        {
+          "t": 40017.5,
+          "p": 85,
+          "busy": "true",
+          "title": "Preparing preview · 85% · click to cancel"
+        },
+        {
+          "t": 40045.10000000894,
+          "p": 86,
+          "busy": "true",
+          "title": "Preparing preview · 86% · click to cancel"
+        },
+        {
+          "t": 40080.20000000298,
+          "p": 88,
+          "busy": "true",
+          "title": "Preparing preview · 88% · click to cancel"
+        },
+        {
+          "t": 40112.29999999702,
+          "p": 89,
+          "busy": "true",
+          "title": "Preparing preview · 89% · click to cancel"
+        },
+        {
+          "t": 40147.40000000596,
+          "p": 91,
+          "busy": "true",
+          "title": "Preparing preview · 91% · click to cancel"
+        },
+        {
+          "t": 40183,
+          "p": 92,
+          "busy": "true",
+          "title": "Preparing preview · 92% · click to cancel"
+        },
+        {
+          "t": 40210.40000000596,
+          "p": 93,
+          "busy": "true",
+          "title": "Preparing preview · 93% · click to cancel"
+        },
+        {
+          "t": 40251.79999999702,
+          "p": 95,
+          "busy": "true",
+          "title": "Preparing preview · 95% · click to cancel"
+        },
+        {
+          "t": 40283.20000000298,
+          "p": 96,
+          "busy": "true",
+          "title": "Preparing preview · 96% · click to cancel"
+        },
+        {
+          "t": 40316.10000000894,
+          "p": 98,
+          "busy": "true",
+          "title": "Preparing preview · 98% · click to cancel"
+        },
+        {
+          "t": 40342.70000000298,
+          "p": 99,
+          "busy": "true",
+          "title": "Preparing preview · 99% · click to cancel"
+        },
+        {
+          "t": 40406.79999999702,
+          "p": null,
+          "busy": "true",
+          "title": "Cancel rendering"
+        },
+        {
+          "t": 40418.40000000596,
+          "p": null,
+          "busy": "false",
+          "title": "Pause Preview"
+        }
+      ],
+      "paintFrames": [
+        {
+          "t": 36597.20000000298,
+          "height": 1.265625,
+          "p": 4
+        },
+        {
+          "t": 36929.10000000894,
+          "height": 1.90625,
+          "p": 6
+        },
+        {
+          "t": 37016.29999999702,
+          "height": 2.875,
+          "p": 9
+        },
+        {
+          "t": 37113.60000000894,
+          "height": 4.15625,
+          "p": 13
+        },
+        {
+          "t": 37189.5,
+          "height": 4.796875,
+          "p": 15
+        },
+        {
+          "t": 37304.70000000298,
+          "height": 5.4375,
+          "p": 17
+        },
+        {
+          "t": 37479,
+          "height": 6.390625,
+          "p": 20
+        },
+        {
+          "t": 37833.60000000894,
+          "height": 7.03125,
+          "p": 22
+        },
+        {
+          "t": 37861.79999999702,
+          "height": 7.671875,
+          "p": 24
+        },
+        {
+          "t": 37939.79999999702,
+          "height": 8.3125,
+          "p": 26
+        },
+        {
+          "t": 38249.60000000894,
+          "height": 8.953125,
+          "p": 28
+        },
+        {
+          "t": 38281.20000000298,
+          "height": 9.59375,
+          "p": 30
+        },
+        {
+          "t": 38402.10000000894,
+          "height": 10.546875,
+          "p": 33
+        },
+        {
+          "t": 38439,
+          "height": 11.1875,
+          "p": 35
+        },
+        {
+          "t": 38471.60000000894,
+          "height": 11.828125,
+          "p": 37
+        },
+        {
+          "t": 38552.20000000298,
+          "height": 12.46875,
+          "p": 39
+        },
+        {
+          "t": 38652.79999999702,
+          "height": 13.4375,
+          "p": 42
+        },
+        {
+          "t": 38710.40000000596,
+          "height": 14.078125,
+          "p": 44
+        },
+        {
+          "t": 38784.79999999702,
+          "height": 14.71875,
+          "p": 46
+        },
+        {
+          "t": 38813.29999999702,
+          "height": 15.359375,
+          "p": 48
+        },
+        {
+          "t": 38869.5,
+          "height": 16,
+          "p": 50
+        },
+        {
+          "t": 38906,
+          "height": 16.625,
+          "p": 52
+        },
+        {
+          "t": 38977.10000000894,
+          "height": 17.265625,
+          "p": 54
+        },
+        {
+          "t": 39037,
+          "height": 17.90625,
+          "p": 56
+        },
+        {
+          "t": 39153.60000000894,
+          "height": 18.875,
+          "p": 59
+        },
+        {
+          "t": 39214.29999999702,
+          "height": 19.828125,
+          "p": 62
+        },
+        {
+          "t": 39280.29999999702,
+          "height": 20.46875,
+          "p": 64
+        },
+        {
+          "t": 39317.20000000298,
+          "height": 21.109375,
+          "p": 66
+        },
+        {
+          "t": 39386.29999999702,
+          "height": 21.75,
+          "p": 68
+        },
+        {
+          "t": 39481.29999999702,
+          "height": 22.71875,
+          "p": 71
+        },
+        {
+          "t": 39529.10000000894,
+          "height": 23.359375,
+          "p": 73
+        },
+        {
+          "t": 39643.10000000894,
+          "height": 24,
+          "p": 75
+        },
+        {
+          "t": 39712.20000000298,
+          "height": 24.625,
+          "p": 77
+        },
+        {
+          "t": 39806.20000000298,
+          "height": 25.59375,
+          "p": 80
+        },
+        {
+          "t": 39911.29999999702,
+          "height": 26.234375,
+          "p": 82
+        },
+        {
+          "t": 39983.79999999702,
+          "height": 26.875,
+          "p": 84
+        },
+        {
+          "t": 40046.79999999702,
+          "height": 27.515625,
+          "p": 86
+        },
+        {
+          "t": 40081.10000000894,
+          "height": 28.15625,
+          "p": 88
+        },
+        {
+          "t": 40148.40000000596,
+          "height": 29.109375,
+          "p": 91
+        },
+        {
+          "t": 40211.70000000298,
+          "height": 29.75,
+          "p": 93
+        },
+        {
+          "t": 40277.79999999702,
+          "height": 30.390625,
+          "p": 95
+        },
+        {
+          "t": 40337,
+          "height": 31.359375,
+          "p": 98
+        }
+      ]
+    },
+    {
+      "name": "Empty Emilia figure: error clears busy state",
+      "samples": [
+        {
+          "t": 41233.10000000894,
+          "p": 4,
+          "busy": "true",
+          "title": "Preparing preview · 4% · click to cancel"
+        },
+        {
+          "t": 41441.40000000596,
+          "p": null,
+          "busy": "false",
+          "title": "Listening mode is rendered automatically"
+        }
+      ],
+      "paintFrames": [
+        {
+          "t": 41236.29999999702,
+          "height": 1.265625,
+          "p": 4
+        }
+      ]
+    },
+    {
+      "name": "Emilia: recovery after empty-figure error",
+      "samples": [
+        {
+          "t": 41920.79999999702,
+          "p": 4,
+          "busy": "true",
+          "title": "Preparing preview · 4% · click to cancel"
+        },
+        {
+          "t": 42297.29999999702,
+          "p": 5,
+          "busy": "true",
+          "title": "Preparing preview · 5% · click to cancel"
+        },
+        {
+          "t": 42332.5,
+          "p": 7,
+          "busy": "true",
+          "title": "Preparing preview · 7% · click to cancel"
+        },
+        {
+          "t": 42368.29999999702,
+          "p": 8,
+          "busy": "true",
+          "title": "Preparing preview · 8% · click to cancel"
+        },
+        {
+          "t": 42398.20000000298,
+          "p": 9,
+          "busy": "true",
+          "title": "Preparing preview · 9% · click to cancel"
+        },
+        {
+          "t": 42429.5,
+          "p": 10,
+          "busy": "true",
+          "title": "Preparing preview · 10% · click to cancel"
+        },
+        {
+          "t": 42465.10000000894,
+          "p": 12,
+          "busy": "true",
+          "title": "Preparing preview · 12% · click to cancel"
+        },
+        {
+          "t": 42536.5,
+          "p": 13,
+          "busy": "true",
+          "title": "Preparing preview · 13% · click to cancel"
+        },
+        {
+          "t": 42571.79999999702,
+          "p": 15,
+          "busy": "true",
+          "title": "Preparing preview · 15% · click to cancel"
+        },
+        {
+          "t": 42598,
+          "p": 16,
+          "busy": "true",
+          "title": "Preparing preview · 16% · click to cancel"
+        },
+        {
+          "t": 42624.10000000894,
+          "p": 17,
+          "busy": "true",
+          "title": "Preparing preview · 17% · click to cancel"
+        },
+        {
+          "t": 42671,
+          "p": 18,
+          "busy": "true",
+          "title": "Preparing preview · 18% · click to cancel"
+        },
+        {
+          "t": 42704.70000000298,
+          "p": 19,
+          "busy": "true",
+          "title": "Preparing preview · 19% · click to cancel"
+        },
+        {
+          "t": 42732.60000000894,
+          "p": 20,
+          "busy": "true",
+          "title": "Preparing preview · 20% · click to cancel"
+        },
+        {
+          "t": 42774.70000000298,
+          "p": 21,
+          "busy": "true",
+          "title": "Preparing preview · 21% · click to cancel"
+        },
+        {
+          "t": 42859,
+          "p": 23,
+          "busy": "true",
+          "title": "Preparing preview · 23% · click to cancel"
+        },
+        {
+          "t": 42931,
+          "p": 25,
+          "busy": "true",
+          "title": "Preparing preview · 25% · click to cancel"
+        },
+        {
+          "t": 43265.5,
+          "p": 26,
+          "busy": "true",
+          "title": "Preparing preview · 26% · click to cancel"
+        },
+        {
+          "t": 43298.5,
+          "p": 27,
+          "busy": "true",
+          "title": "Preparing preview · 27% · click to cancel"
+        },
+        {
+          "t": 43329.79999999702,
+          "p": 29,
+          "busy": "true",
+          "title": "Preparing preview · 29% · click to cancel"
+        },
+        {
+          "t": 43364.90000000596,
+          "p": 31,
+          "busy": "true",
+          "title": "Preparing preview · 31% · click to cancel"
+        },
+        {
+          "t": 43391.10000000894,
+          "p": 32,
+          "busy": "true",
+          "title": "Preparing preview · 32% · click to cancel"
+        },
+        {
+          "t": 43422.10000000894,
+          "p": 33,
+          "busy": "true",
+          "title": "Preparing preview · 33% · click to cancel"
+        },
+        {
+          "t": 43670.40000000596,
+          "p": 34,
+          "busy": "true",
+          "title": "Preparing preview · 34% · click to cancel"
+        },
+        {
+          "t": 43856.60000000894,
+          "p": 35,
+          "busy": "true",
+          "title": "Preparing preview · 35% · click to cancel"
+        },
+        {
+          "t": 43908.10000000894,
+          "p": 37,
+          "busy": "true",
+          "title": "Preparing preview · 37% · click to cancel"
+        },
+        {
+          "t": 43931.29999999702,
+          "p": 38,
+          "busy": "true",
+          "title": "Preparing preview · 38% · click to cancel"
+        },
+        {
+          "t": 44062.10000000894,
+          "p": 39,
+          "busy": "true",
+          "title": "Preparing preview · 39% · click to cancel"
+        },
+        {
+          "t": 44113.79999999702,
+          "p": 41,
+          "busy": "true",
+          "title": "Preparing preview · 41% · click to cancel"
+        },
+        {
+          "t": 44169.20000000298,
+          "p": 42,
+          "busy": "true",
+          "title": "Preparing preview · 42% · click to cancel"
+        },
+        {
+          "t": 44200.70000000298,
+          "p": 43,
+          "busy": "true",
+          "title": "Preparing preview · 43% · click to cancel"
+        },
+        {
+          "t": 44238.60000000894,
+          "p": 44,
+          "busy": "true",
+          "title": "Preparing preview · 44% · click to cancel"
+        },
+        {
+          "t": 44267.5,
+          "p": 45,
+          "busy": "true",
+          "title": "Preparing preview · 45% · click to cancel"
+        },
+        {
+          "t": 44300.20000000298,
+          "p": 46,
+          "busy": "true",
+          "title": "Preparing preview · 46% · click to cancel"
+        },
+        {
+          "t": 44382,
+          "p": 47,
+          "busy": "true",
+          "title": "Preparing preview · 47% · click to cancel"
+        },
+        {
+          "t": 44407,
+          "p": 48,
+          "busy": "true",
+          "title": "Preparing preview · 48% · click to cancel"
+        },
+        {
+          "t": 44446.29999999702,
+          "p": 49,
+          "busy": "true",
+          "title": "Preparing preview · 49% · click to cancel"
+        },
+        {
+          "t": 44478.60000000894,
+          "p": 50,
+          "busy": "true",
+          "title": "Preparing preview · 50% · click to cancel"
+        },
+        {
+          "t": 44517.10000000894,
+          "p": 51,
+          "busy": "true",
+          "title": "Preparing preview · 51% · click to cancel"
+        },
+        {
+          "t": 44565.79999999702,
+          "p": 52,
+          "busy": "true",
+          "title": "Preparing preview · 52% · click to cancel"
+        },
+        {
+          "t": 44598.29999999702,
+          "p": 54,
+          "busy": "true",
+          "title": "Preparing preview · 54% · click to cancel"
+        },
+        {
+          "t": 44902.20000000298,
+          "p": 55,
+          "busy": "true",
+          "title": "Preparing preview · 55% · click to cancel"
+        },
+        {
+          "t": 44959.5,
+          "p": 56,
+          "busy": "true",
+          "title": "Preparing preview · 56% · click to cancel"
+        },
+        {
+          "t": 45044.20000000298,
+          "p": 57,
+          "busy": "true",
+          "title": "Preparing preview · 57% · click to cancel"
+        },
+        {
+          "t": 45071.60000000894,
+          "p": 59,
+          "busy": "true",
+          "title": "Preparing preview · 59% · click to cancel"
+        },
+        {
+          "t": 45115,
+          "p": 60,
+          "busy": "true",
+          "title": "Preparing preview · 60% · click to cancel"
+        },
+        {
+          "t": 45141.29999999702,
+          "p": 61,
+          "busy": "true",
+          "title": "Preparing preview · 61% · click to cancel"
+        },
+        {
+          "t": 45205.20000000298,
+          "p": 62,
+          "busy": "true",
+          "title": "Preparing preview · 62% · click to cancel"
+        },
+        {
+          "t": 45248.29999999702,
+          "p": 63,
+          "busy": "true",
+          "title": "Preparing preview · 63% · click to cancel"
+        },
+        {
+          "t": 45295.60000000894,
+          "p": 64,
+          "busy": "true",
+          "title": "Preparing preview · 64% · click to cancel"
+        },
+        {
+          "t": 45339.29999999702,
+          "p": 66,
+          "busy": "true",
+          "title": "Preparing preview · 66% · click to cancel"
+        },
+        {
+          "t": 45378.5,
+          "p": 67,
+          "busy": "true",
+          "title": "Preparing preview · 67% · click to cancel"
+        },
+        {
+          "t": 45461.90000000596,
+          "p": 68,
+          "busy": "true",
+          "title": "Preparing preview · 68% · click to cancel"
+        },
+        {
+          "t": 45565.90000000596,
+          "p": 69,
+          "busy": "true",
+          "title": "Preparing preview · 69% · click to cancel"
+        },
+        {
+          "t": 45614.79999999702,
+          "p": 70,
+          "busy": "true",
+          "title": "Preparing preview · 70% · click to cancel"
+        },
+        {
+          "t": 45652.70000000298,
+          "p": 71,
+          "busy": "true",
+          "title": "Preparing preview · 71% · click to cancel"
+        },
+        {
+          "t": 45678.40000000596,
+          "p": 73,
+          "busy": "true",
+          "title": "Preparing preview · 73% · click to cancel"
+        },
+        {
+          "t": 45707.40000000596,
+          "p": 74,
+          "busy": "true",
+          "title": "Preparing preview · 74% · click to cancel"
+        },
+        {
+          "t": 45738.29999999702,
+          "p": 75,
+          "busy": "true",
+          "title": "Preparing preview · 75% · click to cancel"
+        },
+        {
+          "t": 45796.90000000596,
+          "p": 76,
+          "busy": "true",
+          "title": "Preparing preview · 76% · click to cancel"
+        },
+        {
+          "t": 45829.20000000298,
+          "p": 77,
+          "busy": "true",
+          "title": "Preparing preview · 77% · click to cancel"
+        },
+        {
+          "t": 45862.29999999702,
+          "p": 78,
+          "busy": "true",
+          "title": "Preparing preview · 78% · click to cancel"
+        },
+        {
+          "t": 45889.20000000298,
+          "p": 80,
+          "busy": "true",
+          "title": "Preparing preview · 80% · click to cancel"
+        },
+        {
+          "t": 45924.79999999702,
+          "p": 81,
+          "busy": "true",
+          "title": "Preparing preview · 81% · click to cancel"
+        },
+        {
+          "t": 45973.60000000894,
+          "p": 82,
+          "busy": "true",
+          "title": "Preparing preview · 82% · click to cancel"
+        },
+        {
+          "t": 46186.79999999702,
+          "p": 84,
+          "busy": "true",
+          "title": "Preparing preview · 84% · click to cancel"
+        },
+        {
+          "t": 46345.79999999702,
+          "p": 85,
+          "busy": "true",
+          "title": "Preparing preview · 85% · click to cancel"
+        },
+        {
+          "t": 46496.60000000894,
+          "p": 86,
+          "busy": "true",
+          "title": "Preparing preview · 86% · click to cancel"
+        },
+        {
+          "t": 46614.90000000596,
+          "p": 88,
+          "busy": "true",
+          "title": "Preparing preview · 88% · click to cancel"
+        },
+        {
+          "t": 46678.40000000596,
+          "p": 89,
+          "busy": "true",
+          "title": "Preparing preview · 89% · click to cancel"
+        },
+        {
+          "t": 46719.60000000894,
+          "p": 90,
+          "busy": "true",
+          "title": "Preparing preview · 90% · click to cancel"
+        },
+        {
+          "t": 46769,
+          "p": 91,
+          "busy": "true",
+          "title": "Preparing preview · 91% · click to cancel"
+        },
+        {
+          "t": 46830.10000000894,
+          "p": 92,
+          "busy": "true",
+          "title": "Preparing preview · 92% · click to cancel"
+        },
+        {
+          "t": 46877.20000000298,
+          "p": 93,
+          "busy": "true",
+          "title": "Preparing preview · 93% · click to cancel"
+        },
+        {
+          "t": 46919.60000000894,
+          "p": 94,
+          "busy": "true",
+          "title": "Preparing preview · 94% · click to cancel"
+        },
+        {
+          "t": 46945.60000000894,
+          "p": 95,
+          "busy": "true",
+          "title": "Preparing preview · 95% · click to cancel"
+        },
+        {
+          "t": 46983.40000000596,
+          "p": 96,
+          "busy": "true",
+          "title": "Preparing preview · 96% · click to cancel"
+        },
+        {
+          "t": 47195.60000000894,
+          "p": 97,
+          "busy": "true",
+          "title": "Preparing preview · 97% · click to cancel"
+        },
+        {
+          "t": 47234.5,
+          "p": 98,
+          "busy": "true",
+          "title": "Preparing preview · 98% · click to cancel"
+        },
+        {
+          "t": 47280.10000000894,
+          "p": 99,
+          "busy": "true",
+          "title": "Preparing preview · 99% · click to cancel"
+        },
+        {
+          "t": 47356.29999999702,
+          "p": null,
+          "busy": "true",
+          "title": "Cancel rendering"
+        },
+        {
+          "t": 47373.20000000298,
+          "p": null,
+          "busy": "false",
+          "title": "Pause Preview"
+        }
+      ],
+      "paintFrames": [
+        {
+          "t": 41923.5,
+          "height": 1.265625,
+          "p": 4
+        },
+        {
+          "t": 42334.90000000596,
+          "height": 2.234375,
+          "p": 7
+        },
+        {
+          "t": 42399.90000000596,
+          "height": 2.875,
+          "p": 9
+        },
+        {
+          "t": 42467.40000000596,
+          "height": 3.828125,
+          "p": 12
+        },
+        {
+          "t": 42572.90000000596,
+          "height": 4.796875,
+          "p": 15
+        },
+        {
+          "t": 42626.20000000298,
+          "height": 5.4375,
+          "p": 17
+        },
+        {
+          "t": 42727.79999999702,
+          "height": 6.078125,
+          "p": 19
+        },
+        {
+          "t": 42778.10000000894,
+          "height": 6.71875,
+          "p": 21
+        },
+        {
+          "t": 42890,
+          "height": 7.359375,
+          "p": 23
+        },
+        {
+          "t": 42932.10000000894,
+          "height": 8,
+          "p": 25
+        },
+        {
+          "t": 43325.70000000298,
+          "height": 8.625,
+          "p": 27
+        },
+        {
+          "t": 43359.60000000894,
+          "height": 9.265625,
+          "p": 29
+        },
+        {
+          "t": 43366.60000000894,
+          "height": 9.90625,
+          "p": 31
+        },
+        {
+          "t": 43601.60000000894,
+          "height": 10.546875,
+          "p": 33
+        },
+        {
+          "t": 43899.10000000894,
+          "height": 11.1875,
+          "p": 35
+        },
+        {
+          "t": 43934.60000000894,
+          "height": 12.15625,
+          "p": 38
+        },
+        {
+          "t": 44161.20000000298,
+          "height": 13.109375,
+          "p": 41
+        },
+        {
+          "t": 44203.70000000298,
+          "height": 13.75,
+          "p": 43
+        },
+        {
+          "t": 44303.79999999702,
+          "height": 14.71875,
+          "p": 46
+        },
+        {
+          "t": 44409,
+          "height": 15.359375,
+          "p": 48
+        },
+        {
+          "t": 44520.70000000298,
+          "height": 16.3125,
+          "p": 51
+        },
+        {
+          "t": 44750.20000000298,
+          "height": 17.265625,
+          "p": 54
+        },
+        {
+          "t": 44995.10000000894,
+          "height": 17.90625,
+          "p": 56
+        },
+        {
+          "t": 45074.10000000894,
+          "height": 18.875,
+          "p": 59
+        },
+        {
+          "t": 45142.90000000596,
+          "height": 19.515625,
+          "p": 61
+        },
+        {
+          "t": 45250,
+          "height": 20.15625,
+          "p": 63
+        },
+        {
+          "t": 45342.90000000596,
+          "height": 21.109375,
+          "p": 66
+        },
+        {
+          "t": 45547.70000000298,
+          "height": 21.75,
+          "p": 68
+        },
+        {
+          "t": 45647,
+          "height": 22.390625,
+          "p": 70
+        },
+        {
+          "t": 45679.79999999702,
+          "height": 23.359375,
+          "p": 73
+        },
+        {
+          "t": 45775.5,
+          "height": 24,
+          "p": 75
+        },
+        {
+          "t": 45830.79999999702,
+          "height": 24.625,
+          "p": 77
+        },
+        {
+          "t": 45927.70000000298,
+          "height": 25.90625,
+          "p": 81
+        },
+        {
+          "t": 46240.20000000298,
+          "height": 26.875,
+          "p": 84
+        },
+        {
+          "t": 46581.70000000298,
+          "height": 27.515625,
+          "p": 86
+        },
+        {
+          "t": 46616.20000000298,
+          "height": 28.15625,
+          "p": 88
+        },
+        {
+          "t": 46720.70000000298,
+          "height": 28.796875,
+          "p": 90
+        },
+        {
+          "t": 46881.29999999702,
+          "height": 29.75,
+          "p": 93
+        },
+        {
+          "t": 46947,
+          "height": 30.390625,
+          "p": 95
+        },
+        {
+          "t": 47237.10000000894,
+          "height": 31.359375,
+          "p": 98
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "options": [
+    {
+      "value": "pure-dieter",
+      "label": "Pure Dieter"
+    },
+    {
+      "value": "harmonic-xplore",
+      "label": "HarmonicXplorE"
+    },
+    {
+      "value": "spektral-synthese",
+      "label": "Spectral Synthesis"
+    },
+    {
+      "value": "antonia",
+      "label": "Antonia"
+    },
+    {
+      "value": "bert",
+      "label": "Bert"
+    },
+    {
+      "value": "cecilia",
+      "label": "Cecilia"
+    },
+    {
+      "value": "donor",
+      "label": "Donor"
+    },
+    {
+      "value": "emilia",
+      "label": "Emilia"
+    },
+    {
+      "value": "fractalia",
+      "label": "Fractalia"
+    }
+  ]
+}

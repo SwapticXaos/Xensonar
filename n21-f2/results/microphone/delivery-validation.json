@@ -1,0 +1,14 @@
+{
+  "status": "PASS",
+  "html": {
+    "name": "Xensonar_N21_F2_Microphone_Test.html",
+    "bytes": 5552168,
+    "sha256": "9e1152600849f0850556114525c36ed2ba0283fee4238daffc6a103158f213a2"
+  },
+  "sourceZipSHA256": "38994e136c4a91d1758db904f3ed2451bc067e8d7e1affe5c936ab1477619d28",
+  "patchSHA256": "ab73b2d5e0f042ab2c61bda776e3084137aa4bfbfaa536f59d96e321e9d5793c",
+  "patchAppliesAndRebuildsIdentical": true,
+  "sourceZipFreshInstallBuildAndNativeCaptureBrowserPassed": true,
+  "previous35ArtifactsPreserved": true,
+  "cloudStartInstructions": "saved as draft; review/save/publish through environment settings"
+}

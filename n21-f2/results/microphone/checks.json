@@ -1,0 +1,29 @@
+{
+  "status": "PASS",
+  "hostDSPWorkerChecks": 65,
+  "focusedPassed": [
+    "microphone",
+    "workflow-integrity",
+    "merge",
+    "forge-progress"
+  ],
+  "nativeBrowserPassed": [
+    "microphone-capture-and-existing-file-decode",
+    "nonempty-authored-canvas-preserved",
+    "discard",
+    "hidden-room-cleanup",
+    "permission-error-and-real-retry",
+    "1490-and-720-controls",
+    "forge-play-progress"
+  ],
+  "priorResultsRestored": 13,
+  "sourceIndex": {
+    "modules": 199,
+    "declarations": 6439,
+    "dependencyPairs": 1058
+  },
+  "limitations": [
+    "synthetic Chromium test microphone; no physical mic/Opera/Firefox/Safari test"
+  ],
+  "expectedFailure": "room-keepalive-before.log records the pre-fix reproduction, not a final failure"
+}

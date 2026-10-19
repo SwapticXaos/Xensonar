@@ -27537,6 +27537,16 @@
       "line": 2
     },
     {
+      "name": "__createForgeMicCapture",
+      "file": "src/forge/ui/03_microphone_intake.js",
+      "line": 3
+    },
+    {
+      "name": "__ForgeMicrophoneIntake",
+      "file": "src/forge/ui/03_microphone_intake.js",
+      "line": 61
+    },
+    {
       "name": "__createDonorRoutingF317",
       "file": "src/forge/ui/02_donor_routing_and_hearing.js",
       "line": 3
@@ -39148,6 +39158,13 @@
     },
     {
       "from": "src/forge/ui/02_donor_routing_and_hearing.js",
+      "to": "src/forge/ui/03_microphone_intake.js",
+      "symbols": [
+        "__ForgeMicrophoneIntake"
+      ]
+    },
+    {
+      "from": "src/forge/ui/02_donor_routing_and_hearing.js",
       "to": "src/forge/ui/04_cecilia_controls.js",
       "symbols": [
         "__F352ResultPanel"
@@ -39178,6 +39195,14 @@
     },
     {
       "from": "src/forge/ui/02_donor_routing_and_hearing.js",
+      "to": "src/vendor/01_react_dom.js",
+      "symbols": [
+        "P",
+        "u"
+      ]
+    },
+    {
+      "from": "src/forge/ui/03_microphone_intake.js",
       "to": "src/vendor/01_react_dom.js",
       "symbols": [
         "P",

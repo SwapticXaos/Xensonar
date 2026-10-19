@@ -1,4 +1,4 @@
-# XenSonar N21–F2 · messbarer Wartbarkeits-Patch
+# XenSonar N21–F2 · Mikrofon als Donor-Quelle
 
 Die aktuelle, vom Nutzer gelieferte N21–F2-Quellbasis mit Granular-Hold, Live-Stabilitäts-Patch und korrigierter Forge-Fortschrittsanzeige sowie ausgerichteten Mix-Reglern, Raster-Mute, Melodic-Panning und Xenpolar Drone im Hauptinstrument
 liegen in [`n21-f2/`](n21-f2/). Der ältere React-/Vite-Stand im Repository-Root
@@ -10,11 +10,15 @@ Raster-Mute umfasst jetzt auch Wave Starter und Live-Quantisierung. Material-/RF
 
 Der aktuelle Wartbarkeits-Patch reduziert wiederholte Notensuchen, Zeitgrenzenberechnungen und gemeinsame Feldnormalisierung. Vier Verwaltungsfunktionen in drei Dateien ändern sich; Klangerzeuger, Bedienung und Projektformate bleiben erhalten. Messungen und Vergleich mit dem vorherigen Code: [`n21-f2/docs/maintenance-report.md`](n21-f2/docs/maintenance-report.md).
 
+Neu: Im SpectralForge-Bereich **Sound Material · Donor** steht neben **Import Audio** die **Mikrofonaufnahme**. Stop übernimmt die eigene Stimme/Geräusche in den bisherigen Donor-Importweg; Verwerfen erhält die bisherige Quelle. Anleitung: [`n21-f2/README_MICROPHONE.md`](n21-f2/README_MICROPHONE.md).
+
 ```sh
 cd n21-f2
 npm ci
 npm run build
 npm run verify:build
+npm run test:microphone
+XEN_CHROMIUM_PATH=/usr/bin/chromium npm run test:microphone:browser
 npm run test:maintenance
 XEN_CHROMIUM_PATH=/usr/bin/chromium npm run test:maintenance:browser
 npm run test:workflow-integrity
@@ -33,7 +37,7 @@ XEN_CHROMIUM_PATH=/usr/bin/chromium npm run test:granular:browser
 
 Direkt testbare Datei: `Xensonar_direct_test_latest.html`.
 Quellen, Patch und Prüfbericht: `artifacts/`.
-Details: [`n21-f2/docs/maintenance-report.md`](n21-f2/docs/maintenance-report.md).
+Details: [`n21-f2/docs/microphone-report.md`](n21-f2/docs/microphone-report.md).
 
 ## Historischer Repository-Stand: Xensonar 3.1.6
 

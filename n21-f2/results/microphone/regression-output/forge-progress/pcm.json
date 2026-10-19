@@ -1,0 +1,159 @@
+{
+  "rows": [
+    {
+      "timbre": "fm",
+      "rate": 16000,
+      "kind": "painted",
+      "frames": 2880,
+      "exactPCM": true,
+      "callbacks": 2
+    },
+    {
+      "timbre": "fm",
+      "rate": 16000,
+      "kind": "melodic",
+      "frames": 2880,
+      "exactPCM": true,
+      "callbacks": 2
+    },
+    {
+      "timbre": "fm",
+      "rate": 16000,
+      "kind": "silent",
+      "frames": 2880,
+      "exactPCM": true,
+      "callbacks": 1
+    },
+    {
+      "timbre": "fm",
+      "rate": 48000,
+      "kind": "painted",
+      "frames": 8640,
+      "exactPCM": true,
+      "callbacks": 5
+    },
+    {
+      "timbre": "fm",
+      "rate": 48000,
+      "kind": "melodic",
+      "frames": 8640,
+      "exactPCM": true,
+      "callbacks": 4
+    },
+    {
+      "timbre": "fm",
+      "rate": 48000,
+      "kind": "silent",
+      "frames": 8640,
+      "exactPCM": true,
+      "callbacks": 1
+    },
+    {
+      "timbre": "acid",
+      "rate": 16000,
+      "kind": "painted",
+      "frames": 2880,
+      "exactPCM": true,
+      "callbacks": 2
+    },
+    {
+      "timbre": "acid",
+      "rate": 16000,
+      "kind": "melodic",
+      "frames": 2880,
+      "exactPCM": true,
+      "callbacks": 2
+    },
+    {
+      "timbre": "acid",
+      "rate": 16000,
+      "kind": "silent",
+      "frames": 2880,
+      "exactPCM": true,
+      "callbacks": 1
+    },
+    {
+      "timbre": "acid",
+      "rate": 48000,
+      "kind": "painted",
+      "frames": 8640,
+      "exactPCM": true,
+      "callbacks": 5
+    },
+    {
+      "timbre": "acid",
+      "rate": 48000,
+      "kind": "melodic",
+      "frames": 8640,
+      "exactPCM": true,
+      "callbacks": 5
+    },
+    {
+      "timbre": "acid",
+      "rate": 48000,
+      "kind": "silent",
+      "frames": 8640,
+      "exactPCM": true,
+      "callbacks": 1
+    },
+    {
+      "timbre": "vocal",
+      "rate": 16000,
+      "kind": "painted",
+      "frames": 2880,
+      "exactPCM": true,
+      "callbacks": 2
+    },
+    {
+      "timbre": "vocal",
+      "rate": 16000,
+      "kind": "melodic",
+      "frames": 2880,
+      "exactPCM": true,
+      "callbacks": 2
+    },
+    {
+      "timbre": "vocal",
+      "rate": 16000,
+      "kind": "silent",
+      "frames": 2880,
+      "exactPCM": true,
+      "callbacks": 1
+    },
+    {
+      "timbre": "vocal",
+      "rate": 48000,
+      "kind": "painted",
+      "frames": 8640,
+      "exactPCM": true,
+      "callbacks": 5
+    },
+    {
+      "timbre": "vocal",
+      "rate": 48000,
+      "kind": "melodic",
+      "frames": 8640,
+      "exactPCM": true,
+      "callbacks": 5
+    },
+    {
+      "timbre": "vocal",
+      "rate": 48000,
+      "kind": "silent",
+      "frames": 8640,
+      "exactPCM": true,
+      "callbacks": 1
+    },
+    {
+      "engine": "emilia",
+      "rate": 16000,
+      "exactPCM": true
+    },
+    {
+      "engine": "emilia",
+      "rate": 48000,
+      "exactPCM": true
+    }
+  ],
+  "cancellation": true
+}
