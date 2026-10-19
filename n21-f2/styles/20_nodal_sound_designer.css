@@ -663,3 +663,10 @@ body[data-nodal-sounddesign="true"] [data-xensonar-performance-strip] {display:n
   left:13px;
   right:auto;
 }
+
+/* N21-F2 auto audition: preview starts directly beneath the toolbar's top rule. */
+.nd-toolbar .nd-preview-control{align-self:stretch;display:flex;flex-direction:column;align-items:stretch;justify-content:flex-start;gap:4px;min-width:0}
+.nd-toolbar .nd-preview-control .nd-play{width:100%;min-height:32px}
+.nd-toolbar .nd-auto-switch{display:flex;align-items:center;justify-content:center;gap:7px;min-height:20px;color:#b7d6cf;font-size:10px;cursor:pointer;user-select:none}
+.nd-toolbar .nd-auto-switch input[type=checkbox]{margin:0;width:14px;height:14px;min-height:0;padding:0;accent-color:#8bd9bc;cursor:pointer}
+@media(max-width:760px){.nd-open-workshop .nd-toolbar .nd-preview-control{grid-column:3;grid-row:1}}

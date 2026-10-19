@@ -91,12 +91,14 @@ function NodalSoundDesigner({onModeChange}) {
   const [dragView,setDragView] = P.useState(null);
   const [instrument, setInstrument] = P.useState(initial.instrument), [selectedId, setSelectedId] = P.useState(initial.selectedId ?? initial.instrument.nodes[0].id);
   const [tab, setTab] = P.useState(initial.tab), [phase, setPhase] = P.useState('idle'), [progress, setProgress] = P.useState(0);
+  const [autoPreview,setAutoPreview] = P.useState(false); // Per editor opening: opt in explicitly.
   const [message, setMessage] = P.useState('Move nodes, adjust sound settings, or preview.'), [saved, setSaved] = P.useState([]), [ratioDraft, setRatioDraft] = P.useState('1');
   const [soundTab, setSoundTab] = P.useState('material'), [analyser,setAnalyser] = P.useState(null);
   const [withReference, setWithReference] = P.useState(true), [exported, setExported] = P.useState(null);
   const [editTarget, setEditTarget] = P.useState(initial.editTarget ?? null);
   const libraryEdit = initial.libraryEntry && !initial.editTarget;
   const current = P.useRef(instrument), history = P.useRef(null), drag = P.useRef(null), generation = P.useRef(0), timer = P.useRef(null), phaseRef = P.useRef('idle');
+  const autoPreviewEnabled=P.useRef(false),autoPreviewTimer=P.useRef(null);
   const svg = P.useRef(null), playStarted = P.useRef(0);
   const fileInput = P.useRef(null), libraryIdentity = P.useRef(initial.libraryEntry ?? null);
   const nodeFunctionMemory=P.useRef(new Map());
@@ -161,7 +163,7 @@ function NodalSoundDesigner({onModeChange}) {
   P.useEffect(() => {
     document.body.dataset.nodalSounddesign = 'true';
     try { setSaved(__XenNodalLibrary.list()); } catch (error) { setMessage(error.message); }
-    return () => { generation.current++; backend.stop(); if (timer.current) clearInterval(timer.current); delete document.body.dataset.nodalSounddesign; };
+    return () => { generation.current++; if(autoPreviewTimer.current!==null)clearTimeout(autoPreviewTimer.current); backend.stop(); if (timer.current) clearInterval(timer.current); delete document.body.dataset.nodalSounddesign; };
   }, []);
   P.useEffect(() => { setRatioDraft(nodalRatioText(selected)); }, [selected.id, selected.ratio]);
   P.useLayoutEffect(() => { persist(instrument); }, [instrument, selectedId, tab]);
@@ -178,6 +180,10 @@ function NodalSoundDesigner({onModeChange}) {
     if (phaseRef.current !== 'idle') stop();
     current.current = normalized; persist(normalized); setInstrument(normalized); setExported(null);
     if (!normalized.nodes.some(n=>n.id===selectedId)) setSelectedId(normalized.nodes[0].id);
+    // Changes are already committed/persisted. Avoid redundant costly previews
+    // while a slider is being moved; the latest committed snapshot always wins.
+    if(autoPreviewTimer.current!==null)clearTimeout(autoPreviewTimer.current);
+    if(autoPreviewEnabled.current)autoPreviewTimer.current=setTimeout(()=>{autoPreviewTimer.current=null;if(autoPreviewEnabled.current)audition();},180);
   }
   function editNode(patch, record = true) { commit({...current.current, nodes: current.current.nodes.map(n => n.id === selected.id ? {...n, ...patch} : n)}, record); }
   function editArticulation(patch) { commit({...current.current, articulation: {...current.current.articulation, ...patch}}); }
@@ -305,11 +311,13 @@ function NodalSoundDesigner({onModeChange}) {
       if(!e.defaultPrevented&&(e.ctrlKey||e.metaKey)&&!e.altKey&&e.key.toLowerCase()==='z'&&!e.target.matches('input,textarea,[contenteditable=true]')){e.preventDefault();applyHistory(e.shiftKey?'redo':'undo');}
     }},
     h('div',{className:'nd-toolbar'},
-      h('div',{className:'nd-name nd-current-name'},h('span',null,'INSTRUMENT'),h('strong',null,instrument.name)),
+      h('div',{className:'nd-name nd-current-name'},h('span',null,'INSTRUMENT:'),' ',h('strong',null,instrument.name)),
       h('label',null,h('span',null,'EXCITATION'),h('select',{value:instrument.excitation.kind,'aria-label':'Excitation',onChange:e=>commit({...instrument,excitation:{...instrument.excitation,kind:e.target.value}})},...['tone','impulse','breath'].map(k=>h('option',{key:k,value:k},k[0].toUpperCase()+k.slice(1))))),
       h('label',null,h('span',null,'REFERENCE · Hz'),h('input',{type:'number',min:10,max:4000,step:.1,value:instrument.referenceHz,'aria-label':'Reference pitch',onChange:e=>{const v=+e.target.value;if(v>=10&&v<=4000)commit({...instrument,referenceHz:v});}})),
       h('label',null,h('span',null,'DURATION · s'),h('input',{type:'number',min:.1,max:30,step:.1,value:instrument.articulation.durationSec,'aria-label':'Duration',onChange:e=>{const v=+e.target.value;if(v>=.1&&v<=30)editArticulation({durationSec:v});}})),
-      h('button',{className:'nd-play '+(phase!=='idle'?'is-playing':''),'aria-label':phase==='preparing'?'Cancel preparation':phase==='playing'?'Stop preview':'Preview sound',onClick:()=>phase==='idle'?audition():stop()},phase==='idle'?'▶ Preview':phase==='preparing'?'■ Cancel':'■ Stop')),
+      h('div',{className:'nd-preview-control'},
+        h('button',{className:'nd-play '+(phase!=='idle'?'is-playing':''),'aria-label':phase==='preparing'?'Cancel preparation':phase==='playing'?'Stop preview':'Preview sound',onClick:()=>{if(autoPreviewTimer.current!==null){clearTimeout(autoPreviewTimer.current);autoPreviewTimer.current=null;}phase==='idle'?audition():stop();}},phase==='idle'?'▶ Preview':phase==='preparing'?'■ Cancel':'■ Stop'),
+        h('label',{className:'nd-auto-switch'},h('span',null,'Auto:'),h('input',{type:'checkbox','aria-label':'Auto preview',checked:autoPreview,onChange:e=>{const enabled=e.target.checked;autoPreviewEnabled.current=enabled;setAutoPreview(enabled);if(!enabled&&autoPreviewTimer.current!==null){clearTimeout(autoPreviewTimer.current);autoPreviewTimer.current=null;}}})))),
     h('div',{className:'nd-preset-bank'},...__NodalOpenPresets.map(p=>h('button',{key:p.id,onClick:()=>loadPreset(p.id),title:p.hint,'aria-pressed':instrument.name===p.name+' Network'},h('i',{className:'nd-preset-glyph nd-glyph-'+p.id}),h('span',null,p.name),h('small',null,p.hint.split(' · ')[0])))),
     h('div',{className:'nd-layout'},
       h('div',{className:'nd-body-panel'},

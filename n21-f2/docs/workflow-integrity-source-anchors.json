@@ -1,7 +1,7 @@
 {
-  "src/mix/03_quick_menu.js": "eeb576b072ac5cbb774dc7be58342607a057c525d69dbc4d3b8db415c0eb181a",
+  "src/mix/03_quick_menu.js": "0a1fb8bb6ba95443081b6d05269d3b4f94a19ecde64f91dde4bd015f83a6075e",
   "src/nodal/06_melodic_bridge.js": "72920f9d88760fcb395cf6b12abb2223446c8428e6285c0eaf63323dc878579a",
-  "src/nodal/07_sound_designer.js": "7efaf1acd8e9c084bfb9e6bff535a1a997191787f974cd5d5b373fb8bd7ad354",
+  "src/nodal/07_sound_designer.js": "57f532aebe862cffbf89c305b4906f77bae523337211285ad127bfe2a9011e16",
   "src/instruments/04_entrophon_melodic_audio.js": "824e50efe43a23ca8934b9e53bf35cc679cf805c4a621ad796896de3c01ea276",
   "src/audio/01_voice_and_rfl_ownership.js": "76546b19610ba16b0818d7cea72420f8494a782d7cdde2c7301f71a13848015a",
   "src/audio/03_recorder.js": "e3ec9d1ced5298297bcc2c18fe31dbe4c0363b01d0d607809b81821e630ddc03",
@@ -16,7 +16,8 @@
   "src/forge_and_melodic/06_note_editor_and_material_tools.js": "e7bca093062e31c02de8f9a30bd9a017c9da8eebda5ec214e686337afee62ab6",
   "src/forge_and_melodic/07_tuning_and_logic_view.js": "9a42edd27ec28b642b6e9944d9dceff714a30b60ce9cb54715bde4357d09334f",
   "src/mix/04_melodic_spatial.js": "a1eebc1cc3b0a7c559227da60019da3a3068f1fe3183c968c78353faeca9783f",
-  "styles/26_live_controls.css": "46c74b1c8536c79bf4ebeafb307a066f880b070a730f10422cffe92a8d02307b",
+  "styles/26_live_controls.css": "982c47739f3c9cbb0ac7bb689ce58be56490f56a9d57026681055789b326c95e",
   "src/mix/05_grid_runtime.js": "eec8e443ae3c2397a340da3c8335935cfec3e516f89331f8b57f85f30b95b7e6",
-  "src/mix/06_custom_instruments.js": "4e09117f3171d4228a10343d44ce054220af027964b8885829e104d019b41070"
+  "src/mix/06_custom_instruments.js": "4e09117f3171d4228a10343d44ce054220af027964b8885829e104d019b41070",
+  "styles/20_nodal_sound_designer.css": "d13df44f3925ddfcdabbcb4a18d2530897bf23216d6a7b89d9f77e620acf94cd"
 }

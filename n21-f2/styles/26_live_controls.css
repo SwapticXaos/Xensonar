@@ -3,6 +3,7 @@
 .xen-quick-mutes button{display:block;width:100%;height:17px;min-height:17px;min-width:0;padding:0;border:1px solid #35d87a;border-radius:3px;background:#168e48;cursor:pointer}
 .xen-quick-mutes button.is-muted{border-color:#ff6666;background:#c82836}
 .xen-quick-mutes button:focus-visible{outline:2px solid #c3ffe0;outline-offset:2px}
+.xen-quick-mute-icon{display:block;font-size:11px;line-height:15px;text-align:center;pointer-events:none;filter:saturate(.85)}
 /* The same two grid columns own both mix rows, including Solo transitions. */
 .melodic-track-mix{display:grid;grid-template-columns:minmax(0,max-content) minmax(116px,1fr);gap:6px 8px;align-items:center}
 .melodic-track-actions,.melodic-pattern-pan{display:flex;flex-wrap:wrap;align-items:center;gap:4px;min-width:0}
