@@ -1,0 +1,11 @@
+{
+  "src/forge/editor/02_tools_and_audio_inputs.js": "4e3047d37fc19644f4691f1ef9dcfb78726ca8ddd8102a6808f795d18f7e5aab",
+  "src/forge/editor/03_synthetic_sound_engines.js": "0c2adeef0f98c8420d79b967c5d051e4e15b5fabe0a5e1857f77b2f20a36b814",
+  "src/app/forge/04_profiles_and_body_models.js": "5f2d75079ab16437508c5519dd3a7d8dba30fcbcaf7374d9eb4ba67e9902fd5c",
+  "src/app/forge/05_forge_state_and_analysis.js": "7edcae1c2dcdc27552ff3b8604fc2545348bdd47c28c87274fa4ec607c09813e",
+  "src/forge_and_melodic/01_donor_selection_and_edits.js": "de5fcb972681731c22657190c0adce3b12228916c5e2043b7d1a2b1dfe21811b",
+  "src/forge_and_melodic/10_audition_and_persistence.js": "93dd0af8b8056c147014be78856b4d498dcdc0bbaa9945d5604b597c7f626490",
+  "src/forge/analysis/05_carrier_pitch_space.js": "9e4c33750b532d1ff984d88f002f080f4dc946862677ff02f3f7c786bbc18478",
+  "src/forge/editor/07_composition_and_preview_ui.js": "2780ffe0b4c43d560e4d1f4f11597026d433e4f0158647a10ba160ed98808817",
+  "src/forge/editor/09_workflow_controls.js": "1f05c23baa890fab04b0eae917ac1de551fbc78c62f4dcfd50f10c554de1b4e2"
+}

@@ -47,7 +47,7 @@ function __f449ReleaseForgeDerivedCaches(){
 // Reading it never causes audio rendering or changes the LRU order.
 function __f333HearingCacheKey(request,context){
  const soundSettings=settings=>{const {updatedAt,...sound}=settings??{};return sound};
- return Ti({version:'forge-hearing-f333',spectral:ER(request.snapshot),carrier:request.snapshot.melodicCarrier,
+ return Ti({version:'forge-hearing-f333',carrierDetune:request.snapshot.carrierDetune??0,spectral:ER(request.snapshot),carrier:request.snapshot.melodicCarrier,
     machine:request.machineId,selection:soundSettings(context.auditionSelection),lab:soundSettings(context.synthLab),hx:soundSettings(context.harmonicXplore),
     // The raw renderer is controlled by these *project* fields, not by Synth Lab.
     // Excluding them reused the wrong PCM after switching Additive/IFFT/Granular/Glyph.

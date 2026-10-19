@@ -137,7 +137,7 @@ function ZHe({hearingPanel: __hearingPanel = null, donorSelected: __donorSelecte
             onClick: () => __setLabExpanded(!0),
             className: "mt-2 w-full rounded border border-fuchsia-900/50 px-2 py-1.5 text-left text-[10px] text-fuchsia-200",
             children: "Open controls for selected listening mode ▾"
-        }), u.jsx("div",{"data-forge-synth-snap-footer":true,className:"mt-3 flex items-center gap-2 border-t border-fuchsia-900/40 pt-2",children:u.jsx(__ForgeMiniPlay,{})}) ]
+        }), u.jsx("div",{"data-forge-synth-snap-footer":true,className:"mt-3 flex items-center gap-2 border-t border-fuchsia-900/40 pt-2",children:u.jsxs(P.Fragment,{children:[u.jsx(__ForgeMiniPlay,{}),u.jsx(__ForgeDetuneControl,{})]})}) ]
     });
 }
 function eVe({compact=false}={}){

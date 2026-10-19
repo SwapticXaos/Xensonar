@@ -2,11 +2,11 @@ const MDe=new xDe;function ys(){return MDe}function wDe(e){e.spectralData.clear(
  ...__f333Idle(),
  viewPort:{...e.viewPort,offsetY:0,zoomY:1,autoFitY:true},sourceAssetContext:e.sourceAsset?'forge3_reference':'none',sourcePreviewMode:'forge',
  lastCommitDomain:'none',melodicCarrier:null,stampData:null,stampPhase:'idle',stampSelStart:null,lineStart:null,
- renderVersion:e.renderVersion+1,audioBufferDirty:true};}function RDe(e){return {...wDe(e),sourceAsset:null,sourceAssetContext:'none'};}function CDe(e,t){const clear=reset=>{t().pushUndo();++__f333RestoreBarrier;__f333Stop();e(n=>reset?RDe(n):wDe(n));__f333PersistNow();};return {clearCanvas:()=>clear(false),resetForgeMainPath:()=>clear(true)};}const kDe=30;function Dk(e){return {spectralSnapshot:e.spectralData.cloneData(),bodySnapshot:ys().captureSnapshot(),
+ renderVersion:e.renderVersion+1,audioBufferDirty:true};}function RDe(e){return {...wDe(e),sourceAsset:null,sourceAssetContext:'none'};}function CDe(e,t){const clear=reset=>{t().pushUndo();++__f333RestoreBarrier;__f333Stop();e(n=>reset?RDe(n):wDe(n));__f333PersistNow();};return {clearCanvas:()=>clear(false),resetForgeMainPath:()=>clear(true)};}const kDe=30;function Dk(e){return {carrierDetune:__forgeDetuneAmount(e.spectralData.carrierDetune),spectralSnapshot:e.spectralData.cloneData(),bodySnapshot:ys().captureSnapshot(),
  sourceAsset:e.sourceAsset,sourceAssetContext:e.sourceAssetContext,sourcePreviewMode:e.sourcePreviewMode,
  lastCommitDomain:e.lastCommitDomain,activeMediatedBody:e.activeMediatedBody,melodicCarrier:__f333ReadCarrier(e.spectralData),
  materialExport:{...e.materialExport,guideMarkers:[...e.materialExport.guideMarkers]},
- carrierIntegralSelection:e.carrierIntegralSelection,forge3EditTarget:e.forge3EditTarget};}function LO(e,t){++__f333RestoreBarrier;__f333Stop();t.spectralData.restoreData(e.spectralSnapshot);t.spectralData.melodicCarrier=e.melodicCarrier??null;
+ carrierIntegralSelection:e.carrierIntegralSelection,forge3EditTarget:e.forge3EditTarget};}function LO(e,t){++__f333RestoreBarrier;__f333Stop();t.spectralData.restoreData(e.spectralSnapshot);t.spectralData.melodicCarrier=e.melodicCarrier??null;t.spectralData.carrierDetune=__forgeDetuneAmount(e.carrierDetune);
  ys().restoreSnapshot(e.bodySnapshot);return {...__f333Idle(),sourceAsset:e.sourceAsset,sourceAssetContext:e.sourceAssetContext,
  sourcePreviewMode:e.sourcePreviewMode,lastCommitDomain:e.lastCommitDomain,activeMediatedBody:e.activeMediatedBody,
  melodicCarrier:e.melodicCarrier??null,materialExport:e.materialExport??t.materialExport,

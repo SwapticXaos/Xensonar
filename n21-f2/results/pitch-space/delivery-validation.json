@@ -1,0 +1,15 @@
+{
+  "base": "ff122aace46dac70ccb625bf1e2d3a1d70e66d33",
+  "htmlSHA256": "f6b462c8d7e9ac26cc62f51c363beee55afbbf4f0810f1f96f55236e87227bd3",
+  "htmlBytes": 5573851,
+  "sourceZipBytes": 32768934,
+  "oldArtifactsUnchanged": 50,
+  "patchBuildByteIdentical": true,
+  "freshZipInstallFocusedNativeBrowser": true,
+  "n21Checks": 65,
+  "n21Failed": 0,
+  "nativeEditedCarrierMachines": 8,
+  "realBrushMorph": true,
+  "reversibleNonDestructiveDetune": true,
+  "nonzeroUndoRedo": true
+}

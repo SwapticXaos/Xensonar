@@ -138,7 +138,9 @@
     "test:audio-carrier": "node tests/audio-carrier-analysis.cjs && node tests/audio-carrier-runtime.cjs && node tests/audio-carrier-preservation.cjs && node build.cjs --verify",
     "test:audio-carrier:browser": "node tests/audio-carrier-browser.cjs",
     "test:forge-ready": "node tests/forge-ready-contract.cjs && node tests/forge-progress-jobs.cjs && node tests/forge-ready-preservation.cjs && node build.cjs --verify",
-    "test:forge-ready:browser": "node tests/forge-ready-browser.cjs"
+    "test:forge-ready:browser": "node tests/forge-ready-browser.cjs",
+    "test:pitch-space": "node tests/forge-pitch-space.cjs && node tests/forge-pitch-preservation.cjs && node build.cjs --verify",
+    "test:pitch-space:browser": "node tests/forge-pitch-browser.cjs"
   },
   "devDependencies": {
     "playwright": "1.56.1",

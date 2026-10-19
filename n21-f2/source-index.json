@@ -809,12 +809,12 @@
     {
       "name": "__ForgeTransportRack",
       "file": "src/forge/editor/09_workflow_controls.js",
-      "line": 35
+      "line": 38
     },
     {
       "name": "__PureDieterControls",
       "file": "src/forge/editor/09_workflow_controls.js",
-      "line": 98
+      "line": 101
     },
     {
       "name": "__PureDieter",
@@ -27572,6 +27572,26 @@
       "line": 106
     },
     {
+      "name": "__forgeDetuneAmount",
+      "file": "src/forge/analysis/05_carrier_pitch_space.js",
+      "line": 3
+    },
+    {
+      "name": "__forgePeakRow",
+      "file": "src/forge/analysis/05_carrier_pitch_space.js",
+      "line": 4
+    },
+    {
+      "name": "__forgeDetuneRenderGrid",
+      "file": "src/forge/analysis/05_carrier_pitch_space.js",
+      "line": 9
+    },
+    {
+      "name": "__ForgeDetuneControl",
+      "file": "src/forge/analysis/05_carrier_pitch_space.js",
+      "line": 28
+    },
+    {
       "name": "__AudioToCarrierControls",
       "file": "src/forge/ui/04_audio_to_carrier_controls.js",
       "line": 3
@@ -33528,6 +33548,13 @@
     },
     {
       "from": "src/app/forge/04_profiles_and_body_models.js",
+      "to": "src/forge/analysis/05_carrier_pitch_space.js",
+      "symbols": [
+        "__forgeDetuneAmount"
+      ]
+    },
+    {
+      "from": "src/app/forge/04_profiles_and_body_models.js",
       "to": "src/forge/editor/01_display_and_canvas.js",
       "symbols": [
         "__forgeRestoreViewport"
@@ -33633,6 +33660,13 @@
       "to": "src/forge/01_workbench_state.js",
       "symbols": [
         "__F341Workbench"
+      ]
+    },
+    {
+      "from": "src/app/forge/05_forge_state_and_analysis.js",
+      "to": "src/forge/analysis/05_carrier_pitch_space.js",
+      "symbols": [
+        "__forgeDetuneAmount"
       ]
     },
     {
@@ -35155,6 +35189,13 @@
       "to": "src/forge/01_workbench_state.js",
       "symbols": [
         "__F341Workbench"
+      ]
+    },
+    {
+      "from": "src/forge_and_melodic/01_donor_selection_and_edits.js",
+      "to": "src/forge/analysis/05_carrier_pitch_space.js",
+      "symbols": [
+        "__ForgeDetuneControl"
       ]
     },
     {
@@ -37251,6 +37292,61 @@
       ]
     },
     {
+      "from": "src/forge/analysis/05_carrier_pitch_space.js",
+      "to": "src/app/forge/02_boot_and_workspace_tools.js",
+      "symbols": [
+        "ph"
+      ]
+    },
+    {
+      "from": "src/forge/analysis/05_carrier_pitch_space.js",
+      "to": "src/app/forge/03_spectral_grid_and_archives.js",
+      "symbols": [
+        "Rt",
+        "hs"
+      ]
+    },
+    {
+      "from": "src/forge/analysis/05_carrier_pitch_space.js",
+      "to": "src/app/forge/05_forge_state_and_analysis.js",
+      "symbols": [
+        "pe"
+      ]
+    },
+    {
+      "from": "src/forge/analysis/05_carrier_pitch_space.js",
+      "to": "src/forge_and_melodic/10_audition_and_persistence.js",
+      "symbols": [
+        "__f333MaterializeCarrier",
+        "__f333PersistNow",
+        "__f333ReadCarrier",
+        "__f333Route"
+      ]
+    },
+    {
+      "from": "src/forge/analysis/05_carrier_pitch_space.js",
+      "to": "src/forge/editor/02_tools_and_audio_inputs.js",
+      "symbols": [
+        "JU",
+        "p3e"
+      ]
+    },
+    {
+      "from": "src/forge/analysis/05_carrier_pitch_space.js",
+      "to": "src/forge/editor/09_workflow_controls.js",
+      "symbols": [
+        "__useForgeListeningMode"
+      ]
+    },
+    {
+      "from": "src/forge/analysis/05_carrier_pitch_space.js",
+      "to": "src/vendor/01_react_dom.js",
+      "symbols": [
+        "P",
+        "u"
+      ]
+    },
+    {
       "from": "src/forge/dsp/03_pcm_worker.js",
       "to": "src/forge/lifecycle/01_offline_jobs.js",
       "symbols": [
@@ -37522,6 +37618,13 @@
     },
     {
       "from": "src/forge/editor/02_tools_and_audio_inputs.js",
+      "to": "src/forge/analysis/05_carrier_pitch_space.js",
+      "symbols": [
+        "__forgeDetuneRenderGrid"
+      ]
+    },
+    {
+      "from": "src/forge/editor/02_tools_and_audio_inputs.js",
       "to": "src/vendor/01_react_dom.js",
       "symbols": [
         "P",
@@ -37546,10 +37649,17 @@
     },
     {
       "from": "src/forge/editor/03_synthetic_sound_engines.js",
+      "to": "src/forge/analysis/05_carrier_pitch_space.js",
+      "symbols": [
+        "__forgePeakRow"
+      ]
+    },
+    {
+      "from": "src/forge/editor/03_synthetic_sound_engines.js",
       "to": "src/forge/editor/02_tools_and_audio_inputs.js",
       "symbols": [
         "BR",
-        "p3e"
+        "YU"
       ]
     },
     {

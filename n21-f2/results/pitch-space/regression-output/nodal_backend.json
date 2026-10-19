@@ -1,0 +1,49 @@
+{
+  "checks": [
+    "versioned descriptor round trip, no PCM payload",
+    "invalid versions, ratios, IDs and edges rejected",
+    "canonical plan independent of node enumeration and display metadata",
+    "installation snapshot ignores energy and cursor; fixed metric survives uniform resize",
+    "orthonormal modes and coupling spectrum reflect the actual graph",
+    "repeated notes reproduce identical sample data",
+    "independent voices cannot alter each others random state",
+    "block-size-independent DSP",
+    "coupled pair differs from independent summation at matched amplitude",
+    "removing an edge changes topology without moving any node",
+    "unrelated isolated node cannot renormalize existing contacts",
+    "local Fold differs from the linear body",
+    "material axes change response independently of contact topology",
+    "Root movement preserves voice age and releases cleanly",
+    "muting removes organs and fully muted plan produces silence",
+    "bounded output for dense nonlinear body over low/high registers and sample rates",
+    "library revisions, merge conflicts and quota errors preserve committed data",
+    "installation bridge tracks positions lazily; snapshots stay immutable",
+    "multi-ticket admission is transactional and release is idempotent",
+    "worklet processor gate, completion and stale drop"
+  ],
+  "metrics": {
+    "pair": {
+      "rms": 0.08097873047061215,
+      "peak": 0.1892409771680832
+    },
+    "couplingDifferenceRms": 0.027904842919190754,
+    "foldDifferenceRms": 0.09546488144586879
+  },
+  "benchmark": {
+    "3Nodes": {
+      "renderedSec": 1,
+      "wallMs": 315.9507999999996,
+      "cost": 2
+    },
+    "6Nodes": {
+      "renderedSec": 1,
+      "wallMs": 483.7397409999994,
+      "cost": 6
+    },
+    "12Nodes": {
+      "renderedSec": 1,
+      "wallMs": 893.9629279999999,
+      "cost": 21
+    }
+  }
+}

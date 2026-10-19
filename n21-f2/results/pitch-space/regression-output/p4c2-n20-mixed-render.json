@@ -1,0 +1,15 @@
+{
+  "blocks": 360,
+  "sampleRate": 48000,
+  "nodalFullVoices": 9,
+  "energy": [
+    171.62789219215156,
+    968.0565154287513,
+    4065.2159648162756,
+    4881.441392296821
+  ],
+  "p95HostMixtureMs": 4.785953999999947,
+  "quantumMs": 2.6666666666666665,
+  "primaryPcmExact": true,
+  "scope": "Real C11 direct bass/pulse, Entrophon WASM and RFL resident Base plus nine full Nodal voices; host sequential render fixture, no browser scheduling/device/xrun claim"
+}

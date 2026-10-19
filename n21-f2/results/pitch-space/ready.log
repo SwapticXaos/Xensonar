@@ -1,0 +1,13 @@
+
+> xensonar-p4c2-n21-f2-merged@4.4.8-p4c2-n21-f2 test:forge-ready
+> node tests/forge-ready-contract.cjs && node tests/forge-progress-jobs.cjs && node tests/forge-ready-preservation.cjs && node build.cjs --verify
+
+PASS audio-to-carrier retains last listening machine
+PASS joined/hidden render progress, shared PCM, monotonic bounds, instant cache, cancellation and retry
+PASS four reviewed integration files; all synthesis kernels unchanged
+PASS reproducible standalone HTML f6b462c8d7e9ac26cc62f51c363beee55afbbf4f0810f1f96f55236e87227bd3 5573851
+npm notice
+npm notice New major version of npm available! 11.9.0 -> 12.2.0
+npm notice Changelog: https://github.com/npm/cli/releases/tag/v12.2.0
+npm notice To update run: npm install -g npm@12.2.0
+npm notice

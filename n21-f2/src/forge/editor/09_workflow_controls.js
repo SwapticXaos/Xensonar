@@ -16,21 +16,24 @@ const __ForgeListeningMode=(()=>{
 function __useForgeListeningMode(){const value=P.useSyncExternalStore(__ForgeListeningMode.subscribe,__ForgeListeningMode.value,__ForgeListeningMode.value),error=P.useSyncExternalStore(__ForgeListeningMode.subscribe,__ForgeListeningMode.error,__ForgeListeningMode.error);return{value,error,choose:__ForgeListeningMode.choose,label:value==='donor'?'Donor':LGe.find(x=>x.id===value)?.label||'Pure Dieter'}}
 function __ForgeListeningPicker({label='Listening mode',compact=false}){const choice=__useForgeListeningMode();return P.createElement('select',{'aria-label':label,'data-forge-shared-listening-picker':true,value:choice.value,onChange:e=>choice.choose(e.target.value),className:'min-w-0 w-full rounded border border-fuchsia-700/60 bg-neutral-900 px-2 py-2 text-xs text-neutral-100',style:compact?{maxWidth:210}:undefined},...LGe.filter(x=>!['emilia','fractalia'].includes(x.id)).map(x=>P.createElement('option',{key:x.id,value:x.id},x.label)),P.createElement('option',{value:'donor'},'Donor'),...LGe.filter(x=>['emilia','fractalia'].includes(x.id)).map(x=>P.createElement('option',{key:x.id,value:x.id},x.label)))}
 const __ForgeTransportAccess=(()=>{
- let owner=null,state=Object.freeze({phase:'idle',progress:0,available:false});const listeners=new Set();
+ let owner=null,state=Object.freeze({phase:'idle',progress:0,available:false,ready:false});const listeners=new Set();
  const emit=()=>{for(const fn of listeners)fn()};
  function update(patch){const next={...state,...patch};if(Object.keys(next).every(k=>next[k]===state[k]))return;state=Object.freeze(next);emit()}
  return {subscribe:fn=>(listeners.add(fn),()=>listeners.delete(fn)),snapshot:()=>state,hasOwner:()=>!!owner,
-  attach(handlers){const token={...handlers};owner=token;update({available:true});return()=>{if(owner===token){owner=null;update({available:false,phase:'idle',progress:0})}}},update,
+  attach(handlers){const token={...handlers};owner=token;update({available:true});return()=>{if(owner===token){owner=null;update({available:false,phase:'idle',progress:0,ready:false})}}},update,
   activate(){return owner?.activate?.()},toggle(){return owner?.activate?.()},stop(){return owner?.stop()}};
 })();
 function __ForgeMiniPlay(){
  const state=P.useSyncExternalStore(__ForgeTransportAccess.subscribe,__ForgeTransportAccess.snapshot,__ForgeTransportAccess.snapshot);
  const loading=state.phase==='preparing',playing=state.phase==='playing';
+ const fill=Math.min(99,Math.round(Math.max(0,Number(state.progress)||0)));
  return P.createElement('button',{type:'button','data-forge-synth-snap-play':true,'data-forge-synth-lab-play':true,
-  'aria-label':loading?'Cancel figure rendering':playing?'Pause figure preview':'Play current figure',
+  'aria-label':loading?'Cancel figure rendering':playing?'Pause figure preview':'Play current figure','aria-busy':loading,
+  title:loading?'Preparing current figure · '+fill+' %':playing?'Pause figure preview':state.ready?'Preview ready · starts immediately':'Preview not rendered yet',
   disabled:!state.available,onClick:()=>void __ForgeTransportAccess.activate(),
-  className:'inline-flex h-8 min-w-20 items-center justify-center gap-1 rounded border border-green-400/40 bg-green-600 px-2 text-xs font-semibold text-white hover:bg-green-500 disabled:opacity-40'},
-  loading?'■ Cancel':playing?'⏸ Pause':'▶ Play');
+  className:'relative overflow-hidden inline-flex h-8 min-w-20 items-center justify-center gap-1 rounded border px-2 text-xs font-semibold text-white disabled:opacity-40 '+(loading?'border-neutral-500 bg-neutral-700':playing?'border-red-400 bg-red-600':state.ready?'border-green-400/40 bg-green-600 hover:bg-green-500':'border-neutral-500 bg-neutral-700')},
+  loading&&P.createElement('span',{'aria-hidden':true,className:'pointer-events-none absolute inset-x-0 bottom-0 bg-emerald-500/90',style:{height:fill+'%'}}),
+  P.createElement('span',{className:'relative z-10'},loading?'■ '+fill+' %':playing?'⏸ Pause':'▶ Play'));
 }
 function __ForgeTransportRack(e){
  const h=P.createElement,choice=__useForgeListeningMode(),busy=e.rendering;

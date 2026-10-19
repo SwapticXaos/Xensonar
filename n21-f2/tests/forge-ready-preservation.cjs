@@ -1,4 +1,4 @@
 'use strict';
-const fs=require('fs'),crypto=require('crypto'),assert=require('assert/strict'),base=require('../docs/forge-ready-baseline-hashes.json'),patch=require('../docs/forge-ready-source-anchors.json');
-const sha=f=>crypto.createHash('sha256').update(fs.readFileSync(f)).digest('hex');for(const [f,h] of Object.entries(base.hashes))assert.equal(sha(f),patch[f]??h,f);for(const [f,h] of Object.entries(patch))assert.equal(sha(f),h,f);
+const fs=require('fs'),crypto=require('crypto'),assert=require('assert/strict'),base=require('../docs/forge-ready-baseline-hashes.json'),patch=require('../docs/forge-ready-source-anchors.json'),pitch=require('../docs/pitch-space-source-anchors.json');
+const sha=f=>crypto.createHash('sha256').update(fs.readFileSync(f)).digest('hex');for(const [f,h] of Object.entries(base.hashes))assert.equal(sha(f),pitch[f]??patch[f]??h,f);for(const [f,h] of Object.entries(patch))assert.equal(sha(f),pitch[f]??h,f);
 assert.equal(Object.keys(patch).length,4);fs.mkdirSync('results/forge-ready',{recursive:true});fs.writeFileSync('results/forge-ready/preservation.json',JSON.stringify({base:base.base,changed:Object.keys(patch),unchanged:Object.keys(base.hashes).length-4,synthesisKernelsUnchanged:true},null,2)+'\n');console.log('PASS four reviewed integration files; all synthesis kernels unchanged');

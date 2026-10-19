@@ -637,7 +637,7 @@ const C6e = P.forwardRef(function({variant: t = "legacy", forge3AudioMode: n = "
     // Clear the previous synthesis status when the hearing mode changes: a stale Emilia label is not Donor state.
     P.useEffect(()=>{if(t!=='forge3')return;const clear=()=>Q('');window.addEventListener('xensonar:forge:listening-choice',clear);return()=>window.removeEventListener('xensonar:forge:listening-choice',clear)},[t,Q]);
     P.useEffect(()=>t==='forge3'&&__forgeVisible?__ForgeTransportAccess.attach({play:be,stop:ve,activate:()=>{const busy=K||__donorRoutingState.phase==='applying'||o.phase==='analyzing';return busy?ve():be()}}):undefined,[t,be,ve,K,o.phase,__forgeVisible]);
-    P.useEffect(()=>{if(t==='forge3'&&__forgeVisible)__ForgeTransportAccess.update({phase:K||Ut?'preparing':c||o.phase==='playing'?'playing':'idle',progress:He})},[t,K,Ut,c,o.phase,He,__forgeVisible]);
+    P.useEffect(()=>{if(t==='forge3'&&__forgeVisible)__ForgeTransportAccess.update({phase:K||Ut?'preparing':c||o.phase==='playing'?'playing':'idle',progress:He,ready:fn})},[t,K,Ut,c,o.phase,He,fn,__forgeVisible]);
     return u.jsx(R6e, {
         materialExport:A,
         variant: t,

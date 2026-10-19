@@ -1,4 +1,4 @@
-# XenSonar N21–F2 · Verlässliche Forge-Bereitschaft
+# XenSonar N21–F2 · Fester Hz-Raum und Detune
 
 Die aktuelle, vom Nutzer gelieferte N21–F2-Quellbasis mit Granular-Hold, Live-Stabilitäts-Patch und korrigierter Forge-Fortschrittsanzeige sowie ausgerichteten Mix-Reglern, Raster-Mute, Melodic-Panning und Xenpolar Drone im Hauptinstrument
 liegen in [`n21-f2/`](n21-f2/). Der ältere React-/Vite-Stand im Repository-Root
@@ -16,11 +16,15 @@ Neu: **Transform to Carrier** beim Audio-/Mikrofonimport erzeugt editierbare Gru
 
 Aktuell: Audio to Carrier behält die zuvor gewählte Klangmaschine bei. Vollgrün am Play-Button bedeutet einen passenden fertigen Audiopuffer; Vorbereitung und Play verwenden denselben Renderweg. Details: [`n21-f2/README_FORGE_READY.md`](n21-f2/README_FORGE_READY.md).
 
+Aktuell: Lokale Pinsel-/Morph-Bearbeitung erhält die Hz-Zuordnung und Akkordintervalle. Der bisher ungewollte relative Frequenzraum ist als **Detune** neben dem unteren Synth-Lab-Play ausdrücklich dosierbar. Anleitung: [`n21-f2/README_PITCH_SPACE.md`](n21-f2/README_PITCH_SPACE.md).
+
 ```sh
 cd n21-f2
 npm ci
 npm run build
 npm run verify:build
+npm run test:pitch-space
+npm run test:pitch-space:browser
 npm run test:forge-ready
 npm run test:forge-ready:browser
 npm run test:audio-carrier
