@@ -1,0 +1,16 @@
+
+> xensonar-p4c2-n21-f2-merged@4.4.8-p4c2-n21-f2 test:merge
+> node tests/n21-f2-preservation.cjs && node tests/forge_save_play_symmetry.cjs && node tests/forge_play_ready_save_regression.cjs && node tests/p4c2-n20-navigation.cjs && node tests/p4c2-n21-length-control.cjs && node tests/p4c2-n21-quickdock.cjs && node build.cjs --verify
+
+PASS N21 audio/runtime outside explicit Granular Hold patch unchanged; N20F2 outside explicit Forge progress patch unchanged; exact Play/Save and navigation preserved
+PASS Forge rack Play/Save exact 42×34px geometry, unchanged Project Name and centered Save
+PASS Spectral Forge ready-from-cache / stale / source / Save geometry
+PASS N20 layout, controls, events, persistence and manifest contracts
+PASS N21 finite/held cuts, primary isolation, one gesture, idempotence, German/English apostrophe
+PASS N21 dock: full stable target, seven-item migration, one left pulse, no right pulse, no remount replay or nested height cap
+PASS reproducible standalone HTML 4e04a482d2edbf06464e4b0438135af2112817356e2ce8176180bc218992bced 5569124
+npm notice
+npm notice New major version of npm available! 11.9.0 -> 12.2.0
+npm notice Changelog: https://github.com/npm/cli/releases/tag/v12.2.0
+npm notice To update run: npm install -g npm@12.2.0
+npm notice

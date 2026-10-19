@@ -27547,6 +27547,36 @@
       "line": 61
     },
     {
+      "name": "__forgeObserveIntakeVisibility",
+      "file": "src/forge/ui/03_microphone_intake.js",
+      "line": 81
+    },
+    {
+      "name": "__audioCarrierAnalysisFactory",
+      "file": "src/forge/analysis/04_audio_to_carrier.js",
+      "line": 3
+    },
+    {
+      "name": "__audioCarrierWorkerMain",
+      "file": "src/forge/analysis/04_audio_to_carrier.js",
+      "line": 83
+    },
+    {
+      "name": "__audioCarrierAnalyze",
+      "file": "src/forge/analysis/04_audio_to_carrier.js",
+      "line": 88
+    },
+    {
+      "name": "__audioCarrierDocument",
+      "file": "src/forge/analysis/04_audio_to_carrier.js",
+      "line": 106
+    },
+    {
+      "name": "__AudioToCarrierControls",
+      "file": "src/forge/ui/04_audio_to_carrier_controls.js",
+      "line": 3
+    },
+    {
       "name": "__createDonorRoutingF317",
       "file": "src/forge/ui/02_donor_routing_and_hearing.js",
       "line": 3
@@ -31707,34 +31737,39 @@
       "line": 466
     },
     {
-      "name": "__f334ReceiveCarrier",
+      "name": "__f334CommitCarrier",
       "file": "src/forge_and_melodic/10_audition_and_persistence.js",
       "line": 481
     },
     {
+      "name": "__f334ReceiveCarrier",
+      "file": "src/forge_and_melodic/10_audition_and_persistence.js",
+      "line": 503
+    },
+    {
       "name": "__f340SeekFromNavigator",
       "file": "src/forge_and_melodic/10_audition_and_persistence.js",
-      "line": 522
+      "line": 523
     },
     {
       "name": "__F341Spectrograms",
       "file": "src/forge_and_melodic/10_audition_and_persistence.js",
-      "line": 537
+      "line": 538
     },
     {
       "name": "__f341Spectrogram",
       "file": "src/forge_and_melodic/10_audition_and_persistence.js",
-      "line": 538
+      "line": 539
     },
     {
       "name": "__mlSendRenderedAudioToSpectral",
       "file": "src/forge_and_melodic/10_audition_and_persistence.js",
-      "line": 557
+      "line": 558
     },
     {
       "name": "__mlReceiveRenderedAudio",
       "file": "src/forge_and_melodic/10_audition_and_persistence.js",
-      "line": 572
+      "line": 573
     },
     {
       "name": "__f341Selection",
@@ -36851,6 +36886,7 @@
       "to": "src/app/forge/04_profiles_and_body_models.js",
       "symbols": [
         "DM",
+        "KQ",
         "QLe",
         "Ti"
       ]
@@ -37199,6 +37235,20 @@
       "to": "src/forge/analysis/02_analysis_cache.js",
       "symbols": [
         "__createF353AnalysisCache"
+      ]
+    },
+    {
+      "from": "src/forge/analysis/04_audio_to_carrier.js",
+      "to": "src/app/forge/02_boot_and_workspace_tools.js",
+      "symbols": [
+        "Da"
+      ]
+    },
+    {
+      "from": "src/forge/analysis/04_audio_to_carrier.js",
+      "to": "src/forge/dsp/02_gestalt_tools.js",
+      "symbols": [
+        "__forgeGestaltToolsFactory"
       ]
     },
     {
@@ -39165,6 +39215,13 @@
     },
     {
       "from": "src/forge/ui/02_donor_routing_and_hearing.js",
+      "to": "src/forge/ui/04_audio_to_carrier_controls.js",
+      "symbols": [
+        "__AudioToCarrierControls"
+      ]
+    },
+    {
+      "from": "src/forge/ui/02_donor_routing_and_hearing.js",
       "to": "src/forge/ui/04_cecilia_controls.js",
       "symbols": [
         "__F352ResultPanel"
@@ -39203,6 +39260,44 @@
     },
     {
       "from": "src/forge/ui/03_microphone_intake.js",
+      "to": "src/vendor/01_react_dom.js",
+      "symbols": [
+        "P",
+        "u"
+      ]
+    },
+    {
+      "from": "src/forge/ui/04_audio_to_carrier_controls.js",
+      "to": "src/app/forge/05_forge_state_and_analysis.js",
+      "symbols": [
+        "pe"
+      ]
+    },
+    {
+      "from": "src/forge/ui/04_audio_to_carrier_controls.js",
+      "to": "src/forge_and_melodic/10_audition_and_persistence.js",
+      "symbols": [
+        "__f333PersistNow",
+        "__f334CommitCarrier"
+      ]
+    },
+    {
+      "from": "src/forge/ui/04_audio_to_carrier_controls.js",
+      "to": "src/forge/analysis/04_audio_to_carrier.js",
+      "symbols": [
+        "__audioCarrierAnalyze",
+        "__audioCarrierDocument"
+      ]
+    },
+    {
+      "from": "src/forge/ui/04_audio_to_carrier_controls.js",
+      "to": "src/forge/ui/03_microphone_intake.js",
+      "symbols": [
+        "__forgeObserveIntakeVisibility"
+      ]
+    },
+    {
+      "from": "src/forge/ui/04_audio_to_carrier_controls.js",
       "to": "src/vendor/01_react_dom.js",
       "symbols": [
         "P",

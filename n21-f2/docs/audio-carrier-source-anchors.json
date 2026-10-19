@@ -1,0 +1,7 @@
+{
+  "src/forge/ui/02_donor_routing_and_hearing.js": "a64636740a0cad53040aae6e1829822d0ec2c1ca7a7d794d491e8fc96f2da53e",
+  "src/forge/ui/03_microphone_intake.js": "c864c169488d1e93d1ad7d934dd622fae9123cb89d338264171dbab80cb3444a",
+  "src/forge_and_melodic/10_audition_and_persistence.js": "71a49880d10deb557df5b8655dd8e771753568ad850a73b79b330f429c7227eb",
+  "src/forge/analysis/04_audio_to_carrier.js": "0c5fde26b0d7b0e509479d8883aab3942234c1c9ffcd88f8f14055dad314cc1b",
+  "src/forge/ui/04_audio_to_carrier_controls.js": "cd8c8aca9b626362158ed5907a4344d941b545660499fb0aa8f0ae375178046b"
+}

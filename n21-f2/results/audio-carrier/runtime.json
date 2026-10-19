@@ -1,0 +1,11 @@
+{
+  "nativeThreadWorker": true,
+  "progress": true,
+  "sourcePCMUnchanged": true,
+  "cancellation": true,
+  "invalidRangeRejected": true,
+  "undo": true,
+  "projectRoundtrip": true,
+  "exactDuration": true,
+  "melodicReceiverParity": true
+}

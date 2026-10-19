@@ -1,0 +1,14 @@
+{
+  "base": "0032c0968b113f58030df922a85d3d98af125d82",
+  "htmlSHA256": "4e04a482d2edbf06464e4b0438135af2112817356e2ce8176180bc218992bced",
+  "htmlBytes": 5569124,
+  "sourceZipBytes": 30933895,
+  "oldArtifactsPreserved": 40,
+  "freshZipInstall": true,
+  "freshZipFocusedAndNativeBrowser": true,
+  "patchAppliedToPriorBase": true,
+  "patchBuildByteIdentical": true,
+  "latestAndDeliveryByteIdentical": true,
+  "n21Checks": 65,
+  "n21Failed": 0
+}

@@ -6,7 +6,7 @@ const sha=p=>crypto.createHash('sha256').update(fs.readFileSync(p)).digest('hex'
 const patchFiles=['src/app/forge/01_room_shell.js','src/audio/05_live_voice_runtime.js','src/runtime/instrument/10_entrophon_and_voice_control.js'];
 const patch=JSON.parse(fs.readFileSync('docs/granular-hold-source-anchors.json','utf8'));
 const forge=JSON.parse(fs.readFileSync('docs/forge-progress-source-anchors.json','utf8'));
-const controls={...JSON.parse(fs.readFileSync('docs/live-controls-source-anchors.json','utf8')),...require('../docs/ui-refinement-source-anchors.json'),...require('../docs/workflow-integrity-source-anchors.json'),...require('../docs/maintenance-source-anchors.json'),...require('../docs/microphone-source-anchors.json')};
+const controls={...JSON.parse(fs.readFileSync('docs/live-controls-source-anchors.json','utf8')),...require('../docs/ui-refinement-source-anchors.json'),...require('../docs/workflow-integrity-source-anchors.json'),...require('../docs/maintenance-source-anchors.json'),...require('../docs/microphone-source-anchors.json'),...require('../docs/audio-carrier-source-anchors.json')};
 const live=JSON.parse(fs.readFileSync('docs/live-stability-source-anchors.json','utf8'));
 for(const [file,hash] of Object.entries(contract.from_n21))assert.equal(sha(file),controls[file]??live[file]??(patchFiles.includes(file)?patch[file]:hash),`N21 audio/runtime regression: ${file}`);
 for(const [file,hash] of Object.entries(patch))assert.equal(sha(file),controls[file]??live[file]??hash,`Granular Hold patch regression: ${file}`);

@@ -23555,14 +23555,8 @@ function __ForgeMicrophoneIntake({onFile,disabled=false,onBusyChange}) {
   importRef.current=onFile;
   P.useEffect(()=>{
     const capture=__createForgeMicCapture({onFile:file=>importRef.current(file),onState:setState});owner.current=capture;
-    const leave=()=>capture.cancel();window.addEventListener('pagehide',leave);
-    // Rooms can remain mounted behind aria-hidden/keepalive wrappers. Observe
-    // those owners, not viewport intersection: scrolling must not stop capture.
-    const ancestors=[];for(let node=element.current;node;node=node.parentElement)ancestors.push(node);
-    const hidden=()=>ancestors.some(node=>node.hidden||node.getAttribute('aria-hidden')==='true'||getComputedStyle(node).display==='none'||getComputedStyle(node).visibility==='hidden');
-    const observer=new MutationObserver(()=>{if(hidden())capture.cancel();});
-    for(const node of ancestors)observer.observe(node,{attributes:true,attributeFilter:['class','style','hidden','aria-hidden']});
-    return()=>{owner.current=null;observer.disconnect();window.removeEventListener('pagehide',leave);capture.dispose();};
+    const unwatch=__forgeObserveIntakeVisibility(element.current,()=>capture.cancel());
+    return()=>{owner.current=null;unwatch();capture.dispose();};
   },[]);
   const recording=state.phase==='recording',requesting=state.phase==='requesting',processing=state.phase==='processing',busy=recording||requesting||processing;
   P.useEffect(()=>{onBusyChange?.(busy);},[busy,onBusyChange]);
@@ -23573,6 +23567,175 @@ function __ForgeMicrophoneIntake({onFile,disabled=false,onBusyChange}) {
       children:recording?'■ Stop · '+state.seconds.toFixed(1)+' s':requesting?'Abbrechen':processing?'Importiert …':'● Mikrofon'}),
     recording&&u.jsx('button',{type:'button',onClick:()=>owner.current?.cancel(),className:'rounded border border-neutral-600 px-2 py-1 text-neutral-300',children:'Verwerfen'}),
     u.jsx('span',{role:'status','aria-live':recording?'off':'polite',style:{fontSize:10,color:state.phase==='failed'?'#fca5a5':'#94a3b8',maxWidth:260},children:state.message||'Stimme / Mikrofon · bis 60 s'})
+  ]});
+}
+
+function __forgeObserveIntakeVisibility(element,onHidden){
+  const ancestors=[];for(let node=element;node;node=node.parentElement)ancestors.push(node);
+  const hidden=()=>ancestors.some(node=>node.hidden||node.getAttribute('aria-hidden')==='true'||getComputedStyle(node).display==='none'||getComputedStyle(node).visibility==='hidden');
+  const observer=new MutationObserver(()=>{if(hidden())onHidden();});
+  for(const node of ancestors)observer.observe(node,{attributes:true,attributeFilter:['class','style','hidden','aria-hidden']});
+  window.addEventListener('pagehide',onHidden);
+  return()=>{observer.disconnect();window.removeEventListener('pagehide',onHidden);};
+}
+/* Offline pitch extraction. A worker owns the PCM copy and bounded analysis;
+   synthesis continues to consume the established editable carrier document. */
+function __audioCarrierAnalysisFactory(tools) {
+  const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+  function analyze({samples,sampleRate,options={}},progress=()=>{}) {
+    if(!(samples instanceof Float32Array)||!samples.length||!Number.isFinite(sampleRate)||sampleRate<8000||sampleRate>192000)throw Error('Ungültige Audioquelle.');
+    const duration=samples.length/sampleRate;
+    if(duration<.12||duration>60.01)throw Error('Bitte eine Audio-Maske zwischen 0,12 und 60 Sekunden wählen.');
+    if(["voices","strictness","noiseDb","minimumMs","minHz","maxHz"].some(key=>options[key]!=null&&!Number.isFinite(Number(options[key]))))throw Error("Ungültige Filtereinstellung.");
+    const voices=clamp(Math.round(options.voices??4),1,6),strict=clamp(Number(options.strictness??.5),0,1),gate=Math.pow(10,clamp(Number(options.noiseDb??-46),-80,-15)/20),minimum=clamp(Number(options.minimumMs??90),40,300)/1000;
+    const low=clamp(Number(options.minHz??65),35,200),high=clamp(Number(options.maxHz??1600),400,3000),rate=Math.min(12000,sampleRate),step=sampleRate/rate;
+    const pcm=new Float32Array(Math.ceil(samples.length/step)),kernel=tools.makeSincKernel(step),model={samples},run={sourceStart:0,sourceEnd:samples.length-1};
+    for(let i=0;i<samples.length;i++)if(!Number.isFinite(samples[i]))throw Error('Die Quelle enthält ungültige Audiodaten.');
+    for(let i=0;i<pcm.length;i++){
+      pcm[i]=kernel?tools.resample(model,run,i*step,kernel):samples[Math.min(samples.length-1,Math.round(i*step))];
+      if(i%16384===0)progress(.12*i/pcm.length);
+    }
+    const windowSize=low<55?4096:2048,size=8192,hop=Math.round(rate*.02),half=windowSize>>1;
+    const hann=Float64Array.from({length:windowSize},(_,i)=>.5-.5*Math.cos(2*Math.PI*i/(windowSize-1))),re=new Float64Array(size),im=new Float64Array(size),mag=new Float64Array(size/2),frames=[];
+    const gcd=(a,b)=>b?gcd(b,a%b):a;
+    function detect(center){
+      let mean=0,energy=0,count=0;const radius=Math.round(rate*.02);
+      for(let i=Math.max(0,center-radius);i<Math.min(pcm.length,center+radius);i++){mean+=pcm[i];energy+=pcm[i]*pcm[i];count++;}
+      if(!count||Math.sqrt(Math.max(0,energy/count-(mean/count)**2))<gate)return [];
+      re.fill(0);im.fill(0);mean/=count;
+      for(let i=0;i<windowSize;i++)re[i]=((pcm[center-half+i]??0)-mean)*hann[i];
+      tools.fft(re,im);
+      const lo=Math.max(2,Math.floor(30*size/rate)),hi=Math.min(mag.length-2,Math.ceil(Math.min(5200,rate*.46)*size/rate));
+      const floorSamples=[];let maximum=0;
+      for(let k=lo;k<hi;k++){mag[k]=Math.hypot(re[k],im[k]);maximum=Math.max(maximum,mag[k]);if(k%4===0)floorSamples.push(mag[k]);}
+      floorSamples.sort((a,b)=>a-b);const noise=floorSamples[Math.floor(floorSamples.length*.5)]||0,threshold=Math.max(maximum*.012,noise*(5+strict*11));
+      const peaks=[];
+      for(let k=lo+1;k<hi-1;k++)if(mag[k]>=threshold&&mag[k]>mag[k-1]&&mag[k]>=mag[k+1]){
+        const a=Math.log(mag[k-1]+1e-20),b=Math.log(mag[k]+1e-20),c=Math.log(mag[k+1]+1e-20),delta=clamp(.5*(a-c)/(a-2*b+c||1),-.5,.5);
+        peaks.push({hz:(k+delta)*rate/size,amp:mag[k]/Math.max(1e-20,maximum)});
+      }
+      peaks.sort((a,b)=>b.amp-a.amp);peaks.length=Math.min(peaks.length,96);
+      const candidates=new Map();
+      for(const p of peaks)for(let h=1;h<=8;h++){const hz=p.hz/h;if(hz<low||hz>high)continue;const key=Math.round(1200*Math.log2(hz)/15);if(!candidates.has(key))candidates.set(key,hz);}
+      const residual=peaks.map(p=>p.amp),chosen=[];let first=0;
+      for(let voice=0;voice<voices;voice++){
+        let best=null;
+        for(const hz of candidates.values()){
+          let score=0,divisor=0,fund=0,frequencySum=0,weightSum=0;const matched=[];
+          for(let i=0;i<peaks.length;i++){
+            if(residual[i]<.008)continue;const p=peaks[i],h=Math.round(p.hz/hz);
+            if(h<1||h>16||Math.abs(p.hz-h*hz)>Math.max(2.2,p.hz*.012))continue;
+            const weight=Math.pow(residual[i],.8)/Math.pow(h,.25);score+=weight;divisor=gcd(divisor,h);if(h===1)fund=residual[i];matched.push(i);frequencySum+=(p.hz/h)*weight;weightSum+=weight;
+          }
+          if(!matched.length||(!fund&&(matched.length<3||divisor!==1)))continue;
+          if(!fund)score*=voices===1?.92:.48;
+          if(matched.length===1&&fund<.06+strict*.14)continue;
+          score*=1+.025*Math.min(5,matched.length-1);
+          if(!best||score>best.score)best={hz:frequencySum/weightSum,score,matched};
+        }
+        if(!best||best.score<Math.max(.1,first*(.12+strict*.28)))break;
+        if(!voice)first=best.score;
+        if(chosen.some(p=>Math.abs(1200*Math.log2(p.hz/best.hz))<70))break;
+        chosen.push({hz:best.hz,strength:best.score/Math.max(first,1e-8)});
+        for(let i=0;i<peaks.length;i++){const h=Math.round(peaks[i].hz/best.hz);if(h>=1&&h<=32&&Math.abs(peaks[i].hz-h*best.hz)<Math.max(2.5,peaks[i].hz*.014))residual[i]=0;}
+      }
+      return chosen;
+    }
+    const active=[],finished=[];let serial=0,lastProgress=0;
+    function close(track){if(track.points.length*hop/rate>=minimum){if(finished.length>=4096)throw Error("Zu viele Tonlinien. Bitte eine kürzere Maske oder strengere Filter wählen.");finished.push(track);}}
+    for(let center=Math.floor(hop/2);center<pcm.length;center+=hop){
+      const time=center/rate,pitches=detect(center),used=new Set();
+      for(const track of active)track.matched=false;
+      const pairs=[];for(let t=0;t<active.length;t++)for(let p=0;p<pitches.length;p++){const distance=Math.abs(1200*Math.log2(active[t].points.at(-1).hz/pitches[p].hz));if(distance<85)pairs.push({t,p,distance});}
+      pairs.sort((a,b)=>a.distance-b.distance);
+      for(const pair of pairs){const track=active[pair.t];if(track.matched||used.has(pair.p))continue;track.points.push({time,hz:pitches[pair.p].hz});track.last=time;track.matched=true;used.add(pair.p);}
+      for(let i=active.length-1;i>=0;i--)if(time-active[i].last>.041){close(active[i]);active.splice(i,1);}
+      for(let p=0;p<pitches.length;p++)if(!used.has(p)&&active.length<voices)active.push({id:'audio-note-'+serial++,last:time,matched:true,points:[{time,hz:pitches[p].hz}]});
+      const fraction=.12+.88*center/pcm.length;
+      if(fraction-lastProgress>.02){progress(fraction);lastProgress=fraction;}
+      frames.push(pitches.length);
+    }
+    active.forEach(close);progress(1);
+    return {durationSec:duration,hopSec:hop/rate,notes:finished.sort((a,b)=>a.points[0].time-b.points[0].time).map(track=>({id:track.id,startSec:Math.max(0,track.points[0].time-hop/rate/2),endSec:Math.min(duration,track.points.at(-1).time+hop/rate/2),pitchHz:track.points.map(p=>p.hz)})),frames:frames.length,settings:{voices,strictness:strict,noiseDb:20*Math.log10(gate),minimumMs:minimum*1000,minHz:low,maxHz:high}};
+  }
+  return {analyze};
+}
+function __audioCarrierWorkerMain(){
+  const tools=__forgeGestaltToolsFactory(Math.PI*2,{resamplingPhases:64},(v,a,b)=>Math.max(a,Math.min(b,v)));
+  const analyzer=__audioCarrierAnalysisFactory(tools);
+  onmessage=({data})=>{try{postMessage({result:analyzer.analyze(data,progress=>postMessage({progress}))});}catch(error){postMessage({error:error?.message||String(error)});}};
+}
+function __audioCarrierAnalyze(source,range,options,{signal,onProgress=()=>{}}={}){
+  return new Promise((resolve,reject)=>{
+    if(signal?.aborted){reject(new DOMException('Abgebrochen','AbortError'));return;}
+    const rate=source?.sampleRate,start=Math.round(range?.startSec*rate),end=Math.min(source?.monoSamples?.length??0,Math.round((range?.startSec+range?.durationSec)*rate));
+    if(!Number.isFinite(rate)||!Number.isFinite(start)||!Number.isFinite(end)||start<0||end<=start||range.durationSec<.12||range.durationSec>60){reject(Error('Bitte eine Audio-Maske zwischen 0,12 und 60 Sekunden wählen.'));return;}
+    let worker,url,timer,settled=false;
+    const done=(error,result)=>{if(settled)return;settled=true;clearTimeout(timer);signal?.removeEventListener('abort',abort);worker?.terminate();if(url)URL.revokeObjectURL(url);error?reject(error):resolve(result);};
+    const abort=()=>done(new DOMException('Abgebrochen','AbortError'));
+    try{
+      const code=[__forgeGestaltToolsFactory.toString(),__audioCarrierAnalysisFactory.toString(),'('+__audioCarrierWorkerMain.toString()+')();'].join('\n');
+      url=URL.createObjectURL(new Blob([code],{type:'text/javascript'}));worker=new Worker(url);
+      worker.onmessage=({data})=>{if(data.error)done(Error(data.error));else if(data.result)done(null,data.result);else if(Number.isFinite(data.progress))onProgress(data.progress);};
+      worker.onerror=event=>done(Error(event.message||'Audioanalyse fehlgeschlagen.'));
+      signal?.addEventListener('abort',abort,{once:true});timer=setTimeout(()=>done(Error('Die Analyse dauert zu lange. Bitte eine kürzere Maske wählen.')),120000);
+      const samples=source.monoSamples.slice(start,end);worker.postMessage({samples,sampleRate:rate,options},[samples.buffer]);
+    }catch(error){done(error);}
+  });
+}
+function __audioCarrierDocument(result,material){
+  const duration=result.durationSec,reference=Math.max(40,material.bpm||108),baseBeats=Math.max(1,material.beatsPerBar||4);
+  const beatsPerBar=duration<baseBeats*60/reference?Math.max(1,Math.min(baseBeats,Math.round(duration*reference/60))):baseBeats;
+  const bars=Da(Math.round(duration*reference/(60*beatsPerBar))),durationBeats=bars*beatsPerBar,bpm=durationBeats*60/duration;
+  return {target:'legacy',transferVersion:3,origin:'audio-to-carrier',name:'Audio Carrier',role:'loop',bars,beatsPerBar,bpm,durationSec:duration,guideSegments:4,guideMarkers:[.25,.5,.75],carrier:{version:'melodic-carrier-v1',origin:'audio-to-carrier',durationBeats,tracks:[{id:'audio-carrier',label:'Audio to Carrier',enabled:true}],notes:result.notes.map(note=>({id:note.id,voiceId:note.id,trackId:'audio-carrier',startBeat:note.startSec*bpm/60,durationBeats:(note.endSec-note.startSec)*bpm/60,pitchHz:note.pitchHz,gainCurve:[.65,.65],fadeInBeats:Math.min(.008,(note.endSec-note.startSec)*.1)*bpm/60,fadeOutBeats:Math.min(.008,(note.endSec-note.startSec)*.1)*bpm/60}))}};
+}
+/* This is an explicit canvas replacement, separate from applying a donor's
+   timbre. One worker prepares a neutral carrier; the common commit owns Undo. */
+function __AudioToCarrierControls({source,range,disabled=false,onBusyChange}) {
+  const [status,setStatus]=P.useState({phase:'idle',progress:0,message:''}),[settings,setSettings]=P.useState({voices:4,strictness:.5,noiseDb:-46,minimumMs:90,register:'standard'});
+  const controller=P.useRef(null),generation=P.useRef(0),element=P.useRef(null),input=P.useRef(null);
+  input.current={source,start:range?.startSec,duration:range?.durationSec};
+  const busy=status.phase==='analyzing';
+  const cancel=P.useCallback(()=>{generation.current++;controller.current?.abort();controller.current=null;setStatus(previous=>previous.phase==='analyzing'?{phase:'idle',progress:0,message:'Analyse abgebrochen; Carrier unverändert.'}:previous);},[]);
+  P.useEffect(()=>{onBusyChange?.(busy);},[busy,onBusyChange]);
+  P.useEffect(()=>{cancel();setStatus({phase:"idle",progress:0,message:""});},[source,range?.startSec,range?.durationSec,cancel]);
+  P.useEffect(()=>{if(disabled)cancel();},[disabled,cancel]);
+  P.useEffect(()=>{const unwatch=__forgeObserveIntakeVisibility(element.current,cancel);return()=>{generation.current++;controller.current?.abort();unwatch();};},[cancel]);
+  async function transform(){
+    if(busy||disabled||!source||!range)return;
+    const token=++generation.current,abort=new AbortController();controller.current=abort;
+    const captured={...input.current},version=pe.getState().renderVersion;
+    setStatus({phase:'analyzing',progress:0,message:'Tonhöhen werden im Hintergrund analysiert …'});
+    try{
+      await new Promise(resolve=>requestAnimationFrame(resolve));
+      if(abort.signal.aborted)return;
+      const register=settings.register==='deep'?{minHz:35,maxHz:1200}:settings.register==='high'?{minHz:100,maxHz:3000}:{minHz:65,maxHz:1600};
+      const result=await __audioCarrierAnalyze(source,range,{...settings,...register},{signal:abort.signal,onProgress:progress=>{if(token===generation.current)setStatus({phase:'analyzing',progress,message:'Tonhöhen werden im Hintergrund analysiert …'});}});
+      if(token!==generation.current)return;
+      const current=input.current;
+      if(current.source!==captured.source||current.start!==captured.start||current.duration!==captured.duration||pe.getState().renderVersion!==version)throw Error('Quelle, Maske oder Carrier wurde inzwischen geändert. Bitte erneut starten.');
+      if(!result.notes.length)throw Error('Keine stabilen Töne erkannt. Rauschschwelle/Strenge senken oder eine klarere Audio-Maske wählen.');
+      const transfer=__audioCarrierDocument(result,pe.getState().materialExport);
+      transfer.name=(source.fileName||'Audio').replace(/\.[^.]+$/,'')+' · Carrier';
+      transfer.carrier.extraction={algorithm:'harmonic-pitch-skeleton-v1',settings:result.settings,sourceName:source.fileName||'Audio',startSec:range.startSec,durationSec:result.durationSec};
+      __f334CommitCarrier(transfer,{neutral:true,message:'Audio als neutrale Tonlinien übernommen.'});__f333PersistNow();
+      setStatus({phase:'idle',progress:1,message:result.notes.length+' Tonlinien übernommen · neutraler Carrier · Undo stellt die vorherige Figur wieder her.'});
+      requestAnimationFrame(()=>document.querySelector('#spectralforge-station-draw')?.scrollIntoView({block:'start',behavior:'auto'}));
+    }catch(error){if(token===generation.current&&error?.name!=='AbortError')setStatus({phase:'failed',progress:0,message:error.message||'Audioanalyse fehlgeschlagen.'});}
+    finally{if(token===generation.current)controller.current=null;}
+  }
+  const field=(key,label,min,max,step,display)=>u.jsxs('label',{style:{display:'grid',gap:3,minWidth:140,fontSize:10},children:[label,u.jsx('input',{type:'range',min,max,step,value:settings[key],'aria-label':label,onChange:event=>setSettings(value=>({...value,[key]:Number(event.currentTarget.value)}))}),u.jsx('output',{children:display})]});
+  return u.jsxs('div',{ref:element,'data-audio-to-carrier':status.phase,style:{display:'flex',flexWrap:'wrap',alignItems:'center',gap:6,maxWidth:650},children:[
+    u.jsx('button',{type:'button',disabled:!busy&&(disabled||!source||!range),onClick:busy?cancel:transform,'aria-busy':busy,
+      title:'Audio to Carrier · erkennt Grundtonlinien aus der unteren Raw-Audio-Maske, auch Akkorde. Ersetzt die Carrier-Figur; Undo bleibt verfügbar.',
+      style:{border:'1px solid #9a71c4',borderRadius:5,padding:'6px 9px',background:'#291d3d',color:'#eee2ff',opacity:(!busy&&(disabled||!source||!range))?0.5:1},
+      children:busy?'Abbrechen · '+Math.round(status.progress*100)+' %':'Transform to Carrier'}),
+    u.jsxs('details',{children:[u.jsx('summary',{style:{fontSize:10,cursor:'pointer'},children:'Audio to Carrier · Filter'}),u.jsx('fieldset',{disabled:busy,style:{display:'flex',flexWrap:'wrap',gap:12,padding:8,border:'1px solid #4d3e61',marginTop:5},children:u.jsxs(P.Fragment,{children:[
+      field('voices','Max. gleichzeitige Töne',1,6,1,String(settings.voices)),field('noiseDb','Rauschschwelle',-70,-20,1,settings.noiseDb+' dB'),field('strictness','Erkennungsstrenge',0,1,.05,Math.round(settings.strictness*100)+' %'),field('minimumMs','Mindest-Tonlänge',40,240,10,settings.minimumMs+' ms'),
+      u.jsxs('label',{style:{fontSize:10},children:['Tonbereich',u.jsxs('select',{'aria-label':'Tonbereich',value:settings.register,onChange:event=>setSettings(value=>({...value,register:event.currentTarget.value})),style:{display:'block',background:'#171322',padding:4,border:'1px solid #4d3e61'},children:[u.jsx('option',{value:'standard',children:'Stimme / Gitarre · 65–1600 Hz'}),u.jsx('option',{value:'deep',children:'Tief · 35–1200 Hz'}),u.jsx('option',{value:'high',children:'Hoch · 100–3000 Hz'})]})]}),
+      u.jsx('span',{style:{fontSize:10,maxWidth:240,color:'#aaa1b7'},children:'Mehr Strenge unterdrückt unsichere Töne. Leisere Rauschschwelle für leise Stimmen. Sehr dichte Akkorde und Oktav-Dopplungen können mehrdeutig bleiben.'})
+    ]})})]}),
+    u.jsx('span',{role:'status',style:{fontSize:10,color:status.phase==='failed'?'#fca5a5':'#b6a8c9',maxWidth:320},children:status.message||'Raw Audio → Grundtonlinien · untere Maske · ersetzt Carrier mit Undo'})
   ]});
 }
 
@@ -23659,7 +23822,7 @@ function __f435OnExtractTimbre(){
  __ForgeListeningMode.choose('donor',{prepare:false});
  return 'donor';
 }
-function CGe({sourceAdapters:e,targetAdapter:t,rawTargetAdapter:n,rawRootFollowTargetAdapter:r,rawMelodicPinkLaneTargetAdapter:a,rawMelodicSampleTargetAdapter:o,onMetaPatch:i,exportMeta:s,meter:l,persistenceKey:c,externalLoadFile:d,onExternalLoadConsumed:p,externalLoadOrigin:f=null,entryScrollIntent:b=null,onEntryScrollIntentConsumed:g,loadButtonLabel:y="Load Source",onExtractTimbre:x,onApplyTimbre:A,onDonorInputChange:M,onEmbodyTimbre:v,timbreStatusLabel:w,embodimentStatusLabel:R}){const k=P.useRef(null),I=P.useRef(null),{source:E,selection:F,repairResult:L,hasRepairUndo:B,status:O,busy:T,previewPlaying:_,readMode:G,sourceAdapterId:j,activeSourceAdapter:N,setSourceAdapterId:W,setReadMode:V,loadSourceFromFile:U,setDetailViewport:H,setFineLoopRange:q,clearRepairUndo:K,fitViewportToFineLoop:Y,repairLoop:J,undoRepairLoop:Z,applyRepairCandidate:te,togglePreview:X,scrubPreviewAt:Q,updateActivePreviewRange:ne,commitToTarget:ee,sendRawToAdapter:ie,sendRawToTarget:de,loadLibraryEntry:__loadLibraryEntry}=lGe({sourceAdapters:e,targetAdapter:t,rawTargetAdapter:n,onMetaPatch:i,meter:l,persistenceKey:c,onUseDonorFromLibrary:v}),[oe,ue]=P.useState(()=>fA(E)),[__libraryOpen,__setLibraryOpen]=P.useState(false),[__libraryRevision,__setLibraryRevision]=P.useState(0),[__micBusy,__setMicBusy]=P.useState(false);
+function CGe({sourceAdapters:e,targetAdapter:t,rawTargetAdapter:n,rawRootFollowTargetAdapter:r,rawMelodicPinkLaneTargetAdapter:a,rawMelodicSampleTargetAdapter:o,onMetaPatch:i,exportMeta:s,meter:l,persistenceKey:c,externalLoadFile:d,onExternalLoadConsumed:p,externalLoadOrigin:f=null,entryScrollIntent:b=null,onEntryScrollIntentConsumed:g,loadButtonLabel:y="Load Source",onExtractTimbre:x,onApplyTimbre:A,onDonorInputChange:M,onEmbodyTimbre:v,timbreStatusLabel:w,embodimentStatusLabel:R}){const k=P.useRef(null),I=P.useRef(null),{source:E,selection:F,repairResult:L,hasRepairUndo:B,status:O,busy:T,previewPlaying:_,readMode:G,sourceAdapterId:j,activeSourceAdapter:N,setSourceAdapterId:W,setReadMode:V,loadSourceFromFile:U,setDetailViewport:H,setFineLoopRange:q,clearRepairUndo:K,fitViewportToFineLoop:Y,repairLoop:J,undoRepairLoop:Z,applyRepairCandidate:te,togglePreview:X,scrubPreviewAt:Q,updateActivePreviewRange:ne,commitToTarget:ee,sendRawToAdapter:ie,sendRawToTarget:de,loadLibraryEntry:__loadLibraryEntry}=lGe({sourceAdapters:e,targetAdapter:t,rawTargetAdapter:n,onMetaPatch:i,meter:l,persistenceKey:c,onUseDonorFromLibrary:v}),[oe,ue]=P.useState(()=>fA(E)),[__libraryOpen,__setLibraryOpen]=P.useState(false),[__libraryRevision,__setLibraryRevision]=P.useState(0),[__micBusy,__setMicBusy]=P.useState(false),[__carrierBusy,__setCarrierBusy]=P.useState(false);
  P.useEffect(()=>{if(c!=='spectral-forge3')return;const onApply=event=>{const req=event.detail;if(!req?.id||req.handled)return;req.handled=true;if(__ForgeDonorRoutingF317.activeId()===req.id&&Vt.getSnapshot().model){Vt.selectDonor();pe.getState().setSourcePreviewMode('forge');req.resolve?.();return;}const ticket=__ForgeDonorRoutingF317.begin(req.id);Promise.resolve().then(async()=>{const donor=await __DonorLibraryF36.donorLibrary.load(req.id);if(!__ForgeDonorRoutingF317.current(ticket))throw new DOMException("Donor selection superseded.",'AbortError');await __loadLibraryEntry(donor,true,ticket);}).then(()=>req.resolve?.(),error=>{__ForgeDonorRoutingF317.failed(ticket,error);req.reject?.(error);})};const onPrepared=event=>{const req=event.detail;if(!req?.entry||req.handled)return;req.handled=true;
   Promise.resolve().then(()=>__loadLibraryEntry({...req.entry,__keepPreparedHybrid:true},false))
   .then(()=>req.resolve?.(),error=>req.reject?.(error));};
@@ -23722,7 +23885,7 @@ function CGe({sourceAdapters:e,targetAdapter:t,rawTargetAdapter:n,rawRootFollowT
     if(!previous||__ForgeDonorRoutingF317.getSnapshot().phase==='applying')return;
     if(previous.source===next.source&&previous.start===next.start&&previous.duration===next.duration)return;
     M?.(next.source,next.start,next.duration);
-  },[E?.sourceAsset,F?.fineLoopRange.startSec,F?.fineLoopRange.durationSec,M]);const Ae=RGe({source:E,selection:F,previewPlaying:_,meter:l,setDetailViewport:H,setFineLoopRange:q,clearRepairUndo:K,scrubPreviewAt:Q,updateActivePreviewRange:ne}),{overviewRef:ce,detailRef:ge,playstripRef:Ce,overviewCursor:Re,detailCursor:se,updateOverviewCursor:xe,updateDetailCursor:Be,resetOverviewCursor:Ie,resetDetailCursor:Qe,beginOverviewDrag:Ne,beginDetailDrag:Ue}=Ae,Ye=()=>!E||!F?null:{source:E,selection:F,readMode:G,repairResult:L,exportTitle:fe},Ve=F?.fineLoopRange.durationSec??0,tt=Ve>0&&Ve<=5,dt=async()=>!r||!E||!F?!1:ie(r,{success:"The loop was prepared as a Root Follow loop.",failure:"Sending the Root Follow loop failed."},fe),gt=async()=>!a||!E||!F?!1:ie(a,{success:"Raw Audio was sent directly to Melodic Loop as a pink track.",failure:"Direct Raw Audio import to Melodic Loop failed."},fe),Ge=async()=>!o||!E||!F||!tt?!1:ie(o,{success:"The raw sample was sent to Melodic Loop.",failure:"Sending the raw sample to Melodic Loop failed."},fe),Te=P.useMemo(()=>{if(!F)return{text:"No fine selection yet."};const qe=k6e(F.fineLoopRange,F.detailViewport),mt=Ty(F.fineLoopRange,F.detailViewport);return qe?{text:"The lower mask is fully inside the current view window."}:mt?{text:"The lower mask is preserved and extends partly beyond the current view window."}:{text:"The lower mask is saved but currently lies completely outside the visible detail window."}},[F]),rt=()=>{N?.canImportFile&&k.current?.click()},lt=L?.candidates??[],ut=F?`${F.detailViewport.startSec.toFixed(2)} s → ${pc(F.detailViewport).toFixed(2)}s`:"–",at=F?`${F.fineLoopRange.startSec.toFixed(2)} s → ${pc(F.fineLoopRange).toFixed(2)}s`:"–";return u.jsxs("div",{ref:I,"data-material-intake-gateway":"true","data-cut-upload-entry-target":"true",className:"scroll-mt-3 border-t border-neutral-800 bg-neutral-950/80 p-3 text-xs text-neutral-300",children:[u.jsx("input",{ref:k,type:"file",accept:"audio/*,.wav,.mp3,.ogg,.m4a,.aac,.flac",className:"hidden",onChange:qe=>{const mt=qe.target.files?.[0];mt&&le("load",()=>U(mt)),qe.currentTarget.value=""}}),u.jsxs("div",{className:"mb-3 flex flex-wrap items-start justify-between gap-3",children:[u.jsxs("div",{children:[u.jsx("div",{className:"text-[11px] uppercase tracking-[0.28em] text-cyan-300",children:"Material Intake - Loop Gateway"}),u.jsx("div",{className:"mt-1 max-w-3xl text-[11px] leading-relaxed text-neutral-400",children:"Center = full WAV and visible work area. Bottom = independent loop mask. The upper mask may be moved without deleting the lower selection; only the lower mask is committed."})]}),u.jsxs("div",{className:"flex flex-wrap items-center gap-2",children:[u.jsx("select",{value:j,disabled:__micBusy,onChange:qe=>W(qe.target.value),className:"rounded border border-neutral-700 bg-neutral-950 px-2 py-1 text-xs text-neutral-100",children:e.map(qe=>u.jsx("option",{value:qe.id,children:qe.label},qe.id))}),u.jsx(xi,{tone:"cyan",onClick:rt,disabled:T||__micBusy||!N?.canImportFile,pending:!!he.load,success:!!re.load,className:"py-1.5",children:y}),u.jsx(__ForgeMicrophoneIntake,{disabled:T||!N?.canImportFile,onBusyChange:__setMicBusy,onFile:file=>le("load",()=>U(file))}),u.jsx(xi,{tone:"cyan",type:"button",onClick:()=>__setLibraryOpen(v=>!v),active:__libraryOpen,className:"py-1.5 whitespace-nowrap",children:"Donor Library"}),u.jsxs("select",{value:G,onChange:qe=>V(qe.target.value),className:"rounded border border-neutral-700 bg-neutral-950 px-2 py-1 text-xs text-neutral-100",title:"Defines how the committed loop is projected into the spectral workbench.",children:[u.jsx("option",{value:"legacy",children:"Forge Interpretation: Legacy"}),u.jsx("option",{value:"transient",children:"Forge Interpretation: Transient"}),u.jsx("option",{value:"hybrid",children:"Forge Interpretation: Hybrid"})]})]})]}),__libraryOpen&&u.jsx(__DonorLibraryF36.DonorLibraryPanel,{
+  },[E?.sourceAsset,F?.fineLoopRange.startSec,F?.fineLoopRange.durationSec,M]);const Ae=RGe({source:E,selection:F,previewPlaying:_,meter:l,setDetailViewport:H,setFineLoopRange:q,clearRepairUndo:K,scrubPreviewAt:Q,updateActivePreviewRange:ne}),{overviewRef:ce,detailRef:ge,playstripRef:Ce,overviewCursor:Re,detailCursor:se,updateOverviewCursor:xe,updateDetailCursor:Be,resetOverviewCursor:Ie,resetDetailCursor:Qe,beginOverviewDrag:Ne,beginDetailDrag:Ue}=Ae,Ye=()=>!E||!F?null:{source:E,selection:F,readMode:G,repairResult:L,exportTitle:fe},Ve=F?.fineLoopRange.durationSec??0,tt=Ve>0&&Ve<=5,dt=async()=>!r||!E||!F?!1:ie(r,{success:"The loop was prepared as a Root Follow loop.",failure:"Sending the Root Follow loop failed."},fe),gt=async()=>!a||!E||!F?!1:ie(a,{success:"Raw Audio was sent directly to Melodic Loop as a pink track.",failure:"Direct Raw Audio import to Melodic Loop failed."},fe),Ge=async()=>!o||!E||!F||!tt?!1:ie(o,{success:"The raw sample was sent to Melodic Loop.",failure:"Sending the raw sample to Melodic Loop failed."},fe),Te=P.useMemo(()=>{if(!F)return{text:"No fine selection yet."};const qe=k6e(F.fineLoopRange,F.detailViewport),mt=Ty(F.fineLoopRange,F.detailViewport);return qe?{text:"The lower mask is fully inside the current view window."}:mt?{text:"The lower mask is preserved and extends partly beyond the current view window."}:{text:"The lower mask is saved but currently lies completely outside the visible detail window."}},[F]),rt=()=>{N?.canImportFile&&k.current?.click()},lt=L?.candidates??[],ut=F?`${F.detailViewport.startSec.toFixed(2)} s → ${pc(F.detailViewport).toFixed(2)}s`:"–",at=F?`${F.fineLoopRange.startSec.toFixed(2)} s → ${pc(F.fineLoopRange).toFixed(2)}s`:"–";return u.jsxs("div",{ref:I,"data-material-intake-gateway":"true","data-cut-upload-entry-target":"true",className:"scroll-mt-3 border-t border-neutral-800 bg-neutral-950/80 p-3 text-xs text-neutral-300",children:[u.jsx("input",{ref:k,type:"file",accept:"audio/*,.wav,.mp3,.ogg,.m4a,.aac,.flac",className:"hidden",onChange:qe=>{const mt=qe.target.files?.[0];mt&&le("load",()=>U(mt)),qe.currentTarget.value=""}}),u.jsxs("div",{className:"mb-3 flex flex-wrap items-start justify-between gap-3",children:[u.jsxs("div",{children:[u.jsx("div",{className:"text-[11px] uppercase tracking-[0.28em] text-cyan-300",children:"Material Intake - Loop Gateway"}),u.jsx("div",{className:"mt-1 max-w-3xl text-[11px] leading-relaxed text-neutral-400",children:"Center = full WAV and visible work area. Bottom = independent loop mask. The upper mask may be moved without deleting the lower selection; only the lower mask is committed."})]}),u.jsxs("div",{className:"flex flex-wrap items-center gap-2",children:[u.jsx("select",{value:j,disabled:__micBusy||__carrierBusy,onChange:qe=>W(qe.target.value),className:"rounded border border-neutral-700 bg-neutral-950 px-2 py-1 text-xs text-neutral-100",children:e.map(qe=>u.jsx("option",{value:qe.id,children:qe.label},qe.id))}),u.jsx(xi,{tone:"cyan",onClick:rt,disabled:T||__micBusy||__carrierBusy||!N?.canImportFile,pending:!!he.load,success:!!re.load,className:"py-1.5",children:y}),u.jsx(__ForgeMicrophoneIntake,{disabled:T||__carrierBusy||!N?.canImportFile,onBusyChange:__setMicBusy,onFile:file=>le("load",()=>U(file))}),u.jsx(__AudioToCarrierControls,{source:E?.sourceAsset,range:F?.fineLoopRange,disabled:T||__micBusy,onBusyChange:__setCarrierBusy}),u.jsx(xi,{tone:"cyan",type:"button",onClick:()=>__setLibraryOpen(v=>!v),active:__libraryOpen,className:"py-1.5 whitespace-nowrap",children:"Donor Library"}),u.jsxs("select",{value:G,onChange:qe=>V(qe.target.value),className:"rounded border border-neutral-700 bg-neutral-950 px-2 py-1 text-xs text-neutral-100",title:"Defines how the committed loop is projected into the spectral workbench.",children:[u.jsx("option",{value:"legacy",children:"Forge Interpretation: Legacy"}),u.jsx("option",{value:"transient",children:"Forge Interpretation: Transient"}),u.jsx("option",{value:"hybrid",children:"Forge Interpretation: Hybrid"})]})]})]}),__libraryOpen&&u.jsx(__DonorLibraryF36.DonorLibraryPanel,{
  React:P,jsx:u,source:E,selection:F,readMode:G,sourceAdapterId:j,disabled:T, externalOpen:true,refreshToken:__libraryRevision,onClose:()=>__setLibraryOpen(false),
  onLoad:__loadLibraryEntry,
  onActivate:c==='spectral-forge3'?id=>new Promise((resolve,reject)=>{const req={id,resolve,reject,handled:false};window.dispatchEvent(new CustomEvent('xensonar:forge:apply-library-donor',{detail:req}));if(!req.handled)reject(Error("Material Intake is unavailable."));}):undefined,
@@ -25641,13 +25804,7 @@ function __f334CreateTransfer(composer,material){
     guideSegments:Math.max(1,Math.round(normalized.segmentCount||4)),
     guideMarkers:ni(normalized).filter(marker=>marker.kind==='guide'&&marker.repeatPerBar).map(marker=>marker.beat/beatsPerBar)};
 }
-function __f334ReceiveCarrier(){
-  const transfer=DM.get('legacy');
-  if(!transfer)return false;
-  try{
-    if(transfer.audioPrepared)return __mlReceiveRenderedAudio(transfer);
-    if(transfer.origin!=='melodic-loop'||!transfer.carrier)throw new Error("This transfer contains no Melodic carrier figure. Please send again from Melodic Loop.");
-    const state=pe.getState(),target=state.spectralData,grid=new ph(target.width,target.height);
+function __f334CommitCarrier(transfer,{neutral=false,message="Melodic Loop transferred as carrier figure."}={}){const state=pe.getState(),target=state.spectralData,grid=new ph(target.width,target.height);
     // Validate and prepare everything before touching the current drawing.
     const carrier=__f333MaterializeCarrier(transfer.carrier,grid);
     const materialExport=IDe(state.materialExport,{name:transfer.name,role:'loop',bars:transfer.bars,
@@ -25658,17 +25815,24 @@ function __f334ReceiveCarrier(){
     // Let the mounted drawing surface own vertical fit; keep the request across resizes.
     const viewPort={offsetX:0,offsetY:0,zoomX:bounds?.width>0?bounds.width/target.width:1,
       zoomY:1,autoFitY:true};
-    state.pushUndo();++__f333RestoreBarrier;__f333Stop();ys().clear();
+    state.pushUndo();if(neutral){Vt.selectCarrier();__F35611DonorIntent=false;}++__f333RestoreBarrier;__f333Stop();ys().clear();
     target.restoreData(grid.cloneData());target.melodicCarrier=carrier;
     pe.setState(current=>({...__f333Idle(),melodicCarrier:carrier,lastCommitDomain:'carrier',
       sourceAsset:null,sourceAssetContext:'none',sourcePreviewMode:'forge',forge3EditTarget:'workbench',
       spectralEmbodimentSourceAsset:null,embodimentField:null,embodimentStatus:'missing',
-      embodimentMessage:"Melodic Loop transferred as carrier figure.",
+      embodimentMessage:message,
       stampData:null,stampPhase:'idle',stampSelStart:null,lineStart:null,
       carrierDonorV2:{...current.carrierDonorV2,skeleton:null,summary:null,continuityGraph:null,
         bindingPreview:[],overlayVisible:false,continuityOverlayVisible:false,bindingOverlayVisible:false},
-      carrierIntegralSelection:{...current.carrierIntegralSelection,source:'user'},
-      materialExport,viewPort,showGrainLayer:false,renderVersion:current.renderVersion+1,audioBufferDirty:true}));
+      carrierIntegralSelection:neutral?KQ():{...current.carrierIntegralSelection,source:"user"},
+      materialExport,viewPort,showGrainLayer:false,renderVersion:current.renderVersion+1,audioBufferDirty:true}));return carrier;}
+function __f334ReceiveCarrier(){
+  const transfer=DM.get('legacy');
+  if(!transfer)return false;
+  try{
+    if(transfer.audioPrepared)return __mlReceiveRenderedAudio(transfer);
+    if(transfer.origin!=='melodic-loop'||!transfer.carrier)throw new Error("This transfer contains no Melodic carrier figure. Please send again from Melodic Loop.");
+    const carrier=__f334CommitCarrier(transfer);
     // Acknowledge only the exact successfully committed item.
     if(DM.get('legacy')===transfer)DM.delete('legacy');
     __f333PersistNow();

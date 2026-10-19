@@ -1,0 +1,38 @@
+{
+  "checks": [
+    "Close/wide line spacing survives capture and compilation as actual partial spacing",
+    "Flat contours have zero roughness",
+    "Native export/import restores spectral states and modes exactly",
+    "Empty, malformed and settings-only instrument imports are rejected",
+    "Carrier timing is retained, with a short bounded instrument release inside the figure duration",
+    "Capturing and saving a drawing onto itself preserves its sound exactly",
+    "A second melody uses the same captured material",
+    "An empty carrier remains silent",
+    "All bodies and extreme fold/spacing controls produce finite bounded audio",
+    "Compilation and PCM rendering accept cancellation",
+    "Saved F2 instruments retain bit-identical legacy audio",
+    "Eight-second six-voice render completes with bounded precompiled material",
+    "The full eight-mode instrument also renders six voices within the same bounded architecture"
+  ],
+  "timings": {
+    "twoCompilesMs": 186.772872,
+    "oneSecondMonoMs": 71.952201,
+    "eightSecondsSixVoicesMs": 587.189273,
+    "eightSecondsSixVoicesEightModesMs": 1085.336261
+  },
+  "bodies": {
+    "prism": {
+      "modes": 8,
+      "bytes": 737280
+    },
+    "reed": {
+      "modes": 8,
+      "bytes": 737280
+    },
+    "hollow": {
+      "modes": 8,
+      "bytes": 737280
+    }
+  },
+  "acceptance": "Engineering behavior only. Musical character and usefulness require user listening."
+}

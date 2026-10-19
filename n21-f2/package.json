@@ -134,7 +134,9 @@
     "test:maintenance": "node tests/maintenance-equivalence.cjs && node tests/maintenance-preservation.cjs && node tests/rw2-source-index.cjs && node build.cjs --verify",
     "test:maintenance:browser": "node tests/workflow-native-audio-browser.cjs --baseline-html Xensonar_N21_F2_Workflow_Integrity_Test.html --results-dir results/maintenance && node tests/workflow-ui-browser.cjs",
     "test:microphone": "node tests/microphone-capture.cjs && node tests/microphone-preservation.cjs && node build.cjs --verify",
-    "test:microphone:browser": "node tests/microphone-browser.cjs"
+    "test:microphone:browser": "node tests/microphone-browser.cjs",
+    "test:audio-carrier": "node tests/audio-carrier-analysis.cjs && node tests/audio-carrier-runtime.cjs && node tests/audio-carrier-preservation.cjs && node build.cjs --verify",
+    "test:audio-carrier:browser": "node tests/audio-carrier-browser.cjs"
   },
   "devDependencies": {
     "playwright": "1.56.1",

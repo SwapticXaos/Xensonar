@@ -63,14 +63,8 @@ function __ForgeMicrophoneIntake({onFile,disabled=false,onBusyChange}) {
   importRef.current=onFile;
   P.useEffect(()=>{
     const capture=__createForgeMicCapture({onFile:file=>importRef.current(file),onState:setState});owner.current=capture;
-    const leave=()=>capture.cancel();window.addEventListener('pagehide',leave);
-    // Rooms can remain mounted behind aria-hidden/keepalive wrappers. Observe
-    // those owners, not viewport intersection: scrolling must not stop capture.
-    const ancestors=[];for(let node=element.current;node;node=node.parentElement)ancestors.push(node);
-    const hidden=()=>ancestors.some(node=>node.hidden||node.getAttribute('aria-hidden')==='true'||getComputedStyle(node).display==='none'||getComputedStyle(node).visibility==='hidden');
-    const observer=new MutationObserver(()=>{if(hidden())capture.cancel();});
-    for(const node of ancestors)observer.observe(node,{attributes:true,attributeFilter:['class','style','hidden','aria-hidden']});
-    return()=>{owner.current=null;observer.disconnect();window.removeEventListener('pagehide',leave);capture.dispose();};
+    const unwatch=__forgeObserveIntakeVisibility(element.current,()=>capture.cancel());
+    return()=>{owner.current=null;unwatch();capture.dispose();};
   },[]);
   const recording=state.phase==='recording',requesting=state.phase==='requesting',processing=state.phase==='processing',busy=recording||requesting||processing;
   P.useEffect(()=>{onBusyChange?.(busy);},[busy,onBusyChange]);
@@ -82,4 +76,13 @@ function __ForgeMicrophoneIntake({onFile,disabled=false,onBusyChange}) {
     recording&&u.jsx('button',{type:'button',onClick:()=>owner.current?.cancel(),className:'rounded border border-neutral-600 px-2 py-1 text-neutral-300',children:'Verwerfen'}),
     u.jsx('span',{role:'status','aria-live':recording?'off':'polite',style:{fontSize:10,color:state.phase==='failed'?'#fca5a5':'#94a3b8',maxWidth:260},children:state.message||'Stimme / Mikrofon · bis 60 s'})
   ]});
+}
+
+function __forgeObserveIntakeVisibility(element,onHidden){
+  const ancestors=[];for(let node=element;node;node=node.parentElement)ancestors.push(node);
+  const hidden=()=>ancestors.some(node=>node.hidden||node.getAttribute('aria-hidden')==='true'||getComputedStyle(node).display==='none'||getComputedStyle(node).visibility==='hidden');
+  const observer=new MutationObserver(()=>{if(hidden())onHidden();});
+  for(const node of ancestors)observer.observe(node,{attributes:true,attributeFilter:['class','style','hidden','aria-hidden']});
+  window.addEventListener('pagehide',onHidden);
+  return()=>{observer.disconnect();window.removeEventListener('pagehide',onHidden);};
 }

@@ -1,6 +1,6 @@
 'use strict';
 const fs=require('fs'),assert=require('assert/strict'),crypto=require('crypto'),base=require('../docs/maintenance-baseline-hashes.json'),patch=require('../docs/maintenance-source-anchors.json'),manifest=require('../source-manifest.json');
-const microphone=require('../docs/microphone-source-anchors.json');
+const microphone={...require('../docs/microphone-source-anchors.json'),...require('../docs/audio-carrier-source-anchors.json')};
 const sha=p=>crypto.createHash('sha256').update(fs.readFileSync(p)).digest('hex');
 for(const [file,hash] of Object.entries(base.hashes))assert.equal(sha(file),microphone[file]??patch[file]??hash,'unreviewed source change '+file);
 assert.equal(Object.keys(patch).length,3);assert(manifest.files.every(file=>base.hashes[file]||microphone[file]),'no new runtime dependency/module');

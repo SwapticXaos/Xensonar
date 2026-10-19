@@ -1,0 +1,14 @@
+
+> xensonar-p4c2-n21-f2-merged@4.4.8-p4c2-n21-f2 test:workflow-integrity
+> node tests/workflow-grid-runtime.cjs && node tests/workflow-custom-instruments.cjs && node tests/workflow-hotkeys.cjs && node tests/workflow-preservation.cjs && node build.cjs --verify
+
+PASS global grid: real Wave Starter snap, keyboard restrictions, cached live view, authored restore, no muted timers or stale quantized replay
+PASS custom instruments: original engines, independent field layers, source snapshots, project reload/library deletion, collision-free bodies, quota failure and RFL material routing
+PASS hotkeys: physical layout priority, canonical reorder/limit/unregister, same click activation, one transient pulse timer
+PASS workflow boundary: 205 existing files unchanged; 25 reviewed files including two new administrative modules
+PASS reproducible standalone HTML 4e04a482d2edbf06464e4b0438135af2112817356e2ce8176180bc218992bced 5569124
+npm notice
+npm notice New major version of npm available! 11.9.0 -> 12.2.0
+npm notice Changelog: https://github.com/npm/cli/releases/tag/v12.2.0
+npm notice To update run: npm install -g npm@12.2.0
+npm notice

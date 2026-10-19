@@ -1,0 +1,127 @@
+{
+  "checks": [
+    {
+      "name": "sine",
+      "rate": 24000,
+      "duration": 1,
+      "frequencies": [
+        233.2009867215896
+      ],
+      "elapsedMs": 250
+    },
+    {
+      "name": "dominant upper partials",
+      "rate": 24000,
+      "duration": 1,
+      "frequencies": [
+        220.00012202009265
+      ],
+      "elapsedMs": 193
+    },
+    {
+      "name": "missing fundamental, monophonic",
+      "rate": 24000,
+      "duration": 1,
+      "frequencies": [
+        220.00008972274145
+      ],
+      "elapsedMs": 157
+    },
+    {
+      "name": "three-note plucked guitar chord",
+      "rate": 24000,
+      "duration": 1,
+      "frequencies": [
+        130.8620838888901,
+        164.74273587091687,
+        196.00763200687493
+      ],
+      "elapsedMs": 453
+    },
+    {
+      "name": "low guitar chord",
+      "rate": 24000,
+      "duration": 1,
+      "frequencies": [
+        82.38343659430701,
+        109.99451664642133,
+        146.82058038157328
+      ],
+      "elapsedMs": 268
+    },
+    {
+      "name": "native sample rate 44100",
+      "rate": 44100,
+      "duration": 1,
+      "frequencies": [
+        317.2996627063534
+      ],
+      "elapsedMs": 345
+    },
+    {
+      "name": "native sample rate 48000",
+      "rate": 48000,
+      "duration": 1,
+      "frequencies": [
+        317.2996627063187
+      ],
+      "elapsedMs": 200
+    },
+    {
+      "name": "native sample rate 96000",
+      "rate": 96000,
+      "duration": 1,
+      "frequencies": [
+        317.299662706724
+      ],
+      "elapsedMs": 235
+    },
+    {
+      "name": "silence",
+      "rate": 24000,
+      "duration": 1,
+      "frequencies": [],
+      "elapsedMs": 20
+    },
+    {
+      "name": "broadband noise",
+      "rate": 24000,
+      "duration": 1,
+      "frequencies": [],
+      "elapsedMs": 126
+    },
+    {
+      "name": "quiet tone gated",
+      "rate": 24000,
+      "duration": 1,
+      "frequencies": [],
+      "elapsedMs": 25
+    },
+    {
+      "name": "quiet tone with lower noise gate",
+      "rate": 24000,
+      "duration": 1,
+      "frequencies": [
+        220.0009489698383
+      ],
+      "elapsedMs": 139
+    },
+    {
+      "name": "short transient rejected",
+      "rate": 24000,
+      "duration": 1,
+      "frequencies": [],
+      "elapsedMs": 27
+    },
+    {
+      "name": "continuous vibrato",
+      "rate": 24000,
+      "duration": 1,
+      "frequencies": [
+        219.99546364606044
+      ],
+      "elapsedMs": 150
+    }
+  ],
+  "limits": "Heuristic polyphony: exact octave doublings and dense/noisy mixtures remain ambiguous."
+}

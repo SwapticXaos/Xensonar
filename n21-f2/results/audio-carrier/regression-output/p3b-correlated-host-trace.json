@@ -1,0 +1,1033 @@
+{
+  "scope": "Real production entry/gates/renderer with simulated ports; no physical audio",
+  "enabled": false,
+  "session": 1,
+  "counts": {
+    "ingress|particle|requested": 12,
+    "gate32|particle|admitted": 2,
+    "nodal-surface|particle|bound": 2,
+    "nodal-player|particle|submitted": 2,
+    "gate32|particle|secondary-rate32": 10,
+    "ingress|wave|requested": 10,
+    "gate32|wave|admitted": 8,
+    "direct-input|wave|admitted": 8,
+    "nodal-surface|wave|bound": 8,
+    "nodal-player|wave|submitted": 7,
+    "nodal-player|wave|dsp-budget": 1,
+    "gate32|wave|wave-rate32": 2,
+    "worklet|particle|accepted": 2,
+    "worklet|wave|accepted": 7,
+    "worklet|particle|ended": 2,
+    "worklet|wave|ended": 7
+  },
+  "records": [
+    {
+      "seq": 1,
+      "eventId": "1:1",
+      "stage": "ingress",
+      "lane": "particle",
+      "reason": "requested",
+      "atMs": 353.953197,
+      "eventTimeSec": 1,
+      "details": {
+        "origin": "host"
+      }
+    },
+    {
+      "seq": 2,
+      "eventId": "1:1",
+      "stage": "gate32",
+      "lane": "particle",
+      "reason": "admitted",
+      "atMs": 354.14613,
+      "eventTimeSec": 1
+    },
+    {
+      "seq": 3,
+      "eventId": "1:1",
+      "stage": "nodal-surface",
+      "lane": "particle",
+      "reason": "bound",
+      "atMs": 355.34854,
+      "eventTimeSec": 1.008,
+      "details": {
+        "desired": "nodal:A@1",
+        "active": "nodal:A@1"
+      }
+    },
+    {
+      "seq": 4,
+      "eventId": "1:1",
+      "stage": "nodal-player",
+      "lane": "particle",
+      "reason": "submitted",
+      "atMs": 356.556237,
+      "eventTimeSec": 1.008,
+      "details": {
+        "voiceId": "voice-2",
+        "programId": "plan-1"
+      }
+    },
+    {
+      "seq": 5,
+      "eventId": "1:2",
+      "stage": "ingress",
+      "lane": "particle",
+      "reason": "requested",
+      "atMs": 356.625284,
+      "eventTimeSec": 1,
+      "details": {
+        "origin": "host"
+      }
+    },
+    {
+      "seq": 6,
+      "eventId": "1:2",
+      "stage": "gate32",
+      "lane": "particle",
+      "reason": "admitted",
+      "atMs": 356.639263,
+      "eventTimeSec": 1
+    },
+    {
+      "seq": 7,
+      "eventId": "1:2",
+      "stage": "nodal-surface",
+      "lane": "particle",
+      "reason": "bound",
+      "atMs": 356.715867,
+      "eventTimeSec": 1.008,
+      "details": {
+        "desired": "nodal:A@1",
+        "active": "nodal:A@1"
+      }
+    },
+    {
+      "seq": 8,
+      "eventId": "1:2",
+      "stage": "nodal-player",
+      "lane": "particle",
+      "reason": "submitted",
+      "atMs": 356.805676,
+      "eventTimeSec": 1.008,
+      "details": {
+        "voiceId": "voice-3",
+        "programId": "plan-1"
+      }
+    },
+    {
+      "seq": 9,
+      "eventId": "1:3",
+      "stage": "ingress",
+      "lane": "particle",
+      "reason": "requested",
+      "atMs": 356.82682,
+      "eventTimeSec": 1,
+      "details": {
+        "origin": "host"
+      }
+    },
+    {
+      "seq": 10,
+      "eventId": "1:3",
+      "stage": "gate32",
+      "lane": "particle",
+      "reason": "secondary-rate32",
+      "atMs": 356.893638,
+      "eventTimeSec": 1
+    },
+    {
+      "seq": 11,
+      "eventId": "1:4",
+      "stage": "ingress",
+      "lane": "particle",
+      "reason": "requested",
+      "atMs": 356.915231,
+      "eventTimeSec": 1,
+      "details": {
+        "origin": "host"
+      }
+    },
+    {
+      "seq": 12,
+      "eventId": "1:4",
+      "stage": "gate32",
+      "lane": "particle",
+      "reason": "secondary-rate32",
+      "atMs": 356.922702,
+      "eventTimeSec": 1
+    },
+    {
+      "seq": 13,
+      "eventId": "1:5",
+      "stage": "ingress",
+      "lane": "particle",
+      "reason": "requested",
+      "atMs": 356.926873,
+      "eventTimeSec": 1,
+      "details": {
+        "origin": "host"
+      }
+    },
+    {
+      "seq": 14,
+      "eventId": "1:5",
+      "stage": "gate32",
+      "lane": "particle",
+      "reason": "secondary-rate32",
+      "atMs": 356.929865,
+      "eventTimeSec": 1
+    },
+    {
+      "seq": 15,
+      "eventId": "1:6",
+      "stage": "ingress",
+      "lane": "particle",
+      "reason": "requested",
+      "atMs": 356.93253,
+      "eventTimeSec": 1,
+      "details": {
+        "origin": "host"
+      }
+    },
+    {
+      "seq": 16,
+      "eventId": "1:6",
+      "stage": "gate32",
+      "lane": "particle",
+      "reason": "secondary-rate32",
+      "atMs": 356.934758,
+      "eventTimeSec": 1
+    },
+    {
+      "seq": 17,
+      "eventId": "1:7",
+      "stage": "ingress",
+      "lane": "particle",
+      "reason": "requested",
+      "atMs": 356.937329,
+      "eventTimeSec": 1,
+      "details": {
+        "origin": "host"
+      }
+    },
+    {
+      "seq": 18,
+      "eventId": "1:7",
+      "stage": "gate32",
+      "lane": "particle",
+      "reason": "secondary-rate32",
+      "atMs": 356.940314,
+      "eventTimeSec": 1
+    },
+    {
+      "seq": 19,
+      "eventId": "1:8",
+      "stage": "ingress",
+      "lane": "particle",
+      "reason": "requested",
+      "atMs": 356.943091,
+      "eventTimeSec": 1,
+      "details": {
+        "origin": "host"
+      }
+    },
+    {
+      "seq": 20,
+      "eventId": "1:8",
+      "stage": "gate32",
+      "lane": "particle",
+      "reason": "secondary-rate32",
+      "atMs": 356.94695,
+      "eventTimeSec": 1
+    },
+    {
+      "seq": 21,
+      "eventId": "1:9",
+      "stage": "ingress",
+      "lane": "particle",
+      "reason": "requested",
+      "atMs": 356.95047,
+      "eventTimeSec": 1,
+      "details": {
+        "origin": "host"
+      }
+    },
+    {
+      "seq": 22,
+      "eventId": "1:9",
+      "stage": "gate32",
+      "lane": "particle",
+      "reason": "secondary-rate32",
+      "atMs": 357.145816,
+      "eventTimeSec": 1
+    },
+    {
+      "seq": 23,
+      "eventId": "1:10",
+      "stage": "ingress",
+      "lane": "particle",
+      "reason": "requested",
+      "atMs": 357.15995,
+      "eventTimeSec": 1,
+      "details": {
+        "origin": "host"
+      }
+    },
+    {
+      "seq": 24,
+      "eventId": "1:10",
+      "stage": "gate32",
+      "lane": "particle",
+      "reason": "secondary-rate32",
+      "atMs": 357.170584,
+      "eventTimeSec": 1
+    },
+    {
+      "seq": 25,
+      "eventId": "1:11",
+      "stage": "ingress",
+      "lane": "particle",
+      "reason": "requested",
+      "atMs": 357.17635,
+      "eventTimeSec": 1,
+      "details": {
+        "origin": "host"
+      }
+    },
+    {
+      "seq": 26,
+      "eventId": "1:11",
+      "stage": "gate32",
+      "lane": "particle",
+      "reason": "secondary-rate32",
+      "atMs": 357.18014,
+      "eventTimeSec": 1
+    },
+    {
+      "seq": 27,
+      "eventId": "1:12",
+      "stage": "ingress",
+      "lane": "particle",
+      "reason": "requested",
+      "atMs": 357.182323,
+      "eventTimeSec": 1,
+      "details": {
+        "origin": "host"
+      }
+    },
+    {
+      "seq": 28,
+      "eventId": "1:12",
+      "stage": "gate32",
+      "lane": "particle",
+      "reason": "secondary-rate32",
+      "atMs": 357.184718,
+      "eventTimeSec": 1
+    },
+    {
+      "seq": 29,
+      "eventId": "1:13",
+      "stage": "ingress",
+      "lane": "wave",
+      "reason": "requested",
+      "atMs": 357.276397,
+      "eventTimeSec": 1,
+      "details": {
+        "origin": "host"
+      }
+    },
+    {
+      "seq": 30,
+      "eventId": "1:13",
+      "stage": "gate32",
+      "lane": "wave",
+      "reason": "admitted",
+      "atMs": 357.288061,
+      "eventTimeSec": 1
+    },
+    {
+      "seq": 31,
+      "eventId": "1:13",
+      "stage": "direct-input",
+      "lane": "wave",
+      "reason": "admitted",
+      "atMs": 357.609468
+    },
+    {
+      "seq": 32,
+      "eventId": "1:13",
+      "stage": "nodal-surface",
+      "lane": "wave",
+      "reason": "bound",
+      "atMs": 358.089556,
+      "eventTimeSec": 1.008,
+      "details": {
+        "desired": "nodal:A@1",
+        "active": "nodal:A@1"
+      }
+    },
+    {
+      "seq": 33,
+      "eventId": "1:13",
+      "stage": "nodal-player",
+      "lane": "wave",
+      "reason": "submitted",
+      "atMs": 358.187657,
+      "eventTimeSec": 1.008,
+      "details": {
+        "voiceId": "voice-4",
+        "programId": "plan-1"
+      }
+    },
+    {
+      "seq": 34,
+      "eventId": "1:14",
+      "stage": "ingress",
+      "lane": "wave",
+      "reason": "requested",
+      "atMs": 358.202009,
+      "eventTimeSec": 1,
+      "details": {
+        "origin": "host"
+      }
+    },
+    {
+      "seq": 35,
+      "eventId": "1:14",
+      "stage": "gate32",
+      "lane": "wave",
+      "reason": "admitted",
+      "atMs": 358.207953,
+      "eventTimeSec": 1
+    },
+    {
+      "seq": 36,
+      "eventId": "1:14",
+      "stage": "direct-input",
+      "lane": "wave",
+      "reason": "admitted",
+      "atMs": 358.21603
+    },
+    {
+      "seq": 37,
+      "eventId": "1:14",
+      "stage": "nodal-surface",
+      "lane": "wave",
+      "reason": "bound",
+      "atMs": 358.260373,
+      "eventTimeSec": 1.008,
+      "details": {
+        "desired": "nodal:A@1",
+        "active": "nodal:A@1"
+      }
+    },
+    {
+      "seq": 38,
+      "eventId": "1:14",
+      "stage": "nodal-player",
+      "lane": "wave",
+      "reason": "submitted",
+      "atMs": 358.326951,
+      "eventTimeSec": 1.008,
+      "details": {
+        "voiceId": "voice-5",
+        "programId": "plan-1"
+      }
+    },
+    {
+      "seq": 39,
+      "eventId": "1:15",
+      "stage": "ingress",
+      "lane": "wave",
+      "reason": "requested",
+      "atMs": 358.33561,
+      "eventTimeSec": 1,
+      "details": {
+        "origin": "host"
+      }
+    },
+    {
+      "seq": 40,
+      "eventId": "1:15",
+      "stage": "gate32",
+      "lane": "wave",
+      "reason": "admitted",
+      "atMs": 358.339575,
+      "eventTimeSec": 1
+    },
+    {
+      "seq": 41,
+      "eventId": "1:15",
+      "stage": "direct-input",
+      "lane": "wave",
+      "reason": "admitted",
+      "atMs": 358.345066
+    },
+    {
+      "seq": 42,
+      "eventId": "1:15",
+      "stage": "nodal-surface",
+      "lane": "wave",
+      "reason": "bound",
+      "atMs": 358.383108,
+      "eventTimeSec": 1.008,
+      "details": {
+        "desired": "nodal:A@1",
+        "active": "nodal:A@1"
+      }
+    },
+    {
+      "seq": 43,
+      "eventId": "1:15",
+      "stage": "nodal-player",
+      "lane": "wave",
+      "reason": "submitted",
+      "atMs": 358.447226,
+      "eventTimeSec": 1.008,
+      "details": {
+        "voiceId": "voice-6",
+        "programId": "plan-1"
+      }
+    },
+    {
+      "seq": 44,
+      "eventId": "1:16",
+      "stage": "ingress",
+      "lane": "wave",
+      "reason": "requested",
+      "atMs": 358.454323,
+      "eventTimeSec": 1,
+      "details": {
+        "origin": "host"
+      }
+    },
+    {
+      "seq": 45,
+      "eventId": "1:16",
+      "stage": "gate32",
+      "lane": "wave",
+      "reason": "admitted",
+      "atMs": 358.457698,
+      "eventTimeSec": 1
+    },
+    {
+      "seq": 46,
+      "eventId": "1:16",
+      "stage": "direct-input",
+      "lane": "wave",
+      "reason": "admitted",
+      "atMs": 358.462934
+    },
+    {
+      "seq": 47,
+      "eventId": "1:16",
+      "stage": "nodal-surface",
+      "lane": "wave",
+      "reason": "bound",
+      "atMs": 358.531456,
+      "eventTimeSec": 1.008,
+      "details": {
+        "desired": "nodal:A@1",
+        "active": "nodal:A@1"
+      }
+    },
+    {
+      "seq": 48,
+      "eventId": "1:16",
+      "stage": "nodal-player",
+      "lane": "wave",
+      "reason": "submitted",
+      "atMs": 358.596408,
+      "eventTimeSec": 1.008,
+      "details": {
+        "voiceId": "voice-7",
+        "programId": "plan-1"
+      }
+    },
+    {
+      "seq": 49,
+      "eventId": "1:17",
+      "stage": "ingress",
+      "lane": "wave",
+      "reason": "requested",
+      "atMs": 358.604428,
+      "eventTimeSec": 1,
+      "details": {
+        "origin": "host"
+      }
+    },
+    {
+      "seq": 50,
+      "eventId": "1:17",
+      "stage": "gate32",
+      "lane": "wave",
+      "reason": "admitted",
+      "atMs": 358.607466,
+      "eventTimeSec": 1
+    },
+    {
+      "seq": 51,
+      "eventId": "1:17",
+      "stage": "direct-input",
+      "lane": "wave",
+      "reason": "admitted",
+      "atMs": 358.612496
+    },
+    {
+      "seq": 52,
+      "eventId": "1:17",
+      "stage": "nodal-surface",
+      "lane": "wave",
+      "reason": "bound",
+      "atMs": 358.646363,
+      "eventTimeSec": 1.008,
+      "details": {
+        "desired": "nodal:A@1",
+        "active": "nodal:A@1"
+      }
+    },
+    {
+      "seq": 53,
+      "eventId": "1:17",
+      "stage": "nodal-player",
+      "lane": "wave",
+      "reason": "submitted",
+      "atMs": 358.705841,
+      "eventTimeSec": 1.008,
+      "details": {
+        "voiceId": "voice-8",
+        "programId": "plan-1"
+      }
+    },
+    {
+      "seq": 54,
+      "eventId": "1:18",
+      "stage": "ingress",
+      "lane": "wave",
+      "reason": "requested",
+      "atMs": 358.713075,
+      "eventTimeSec": 1,
+      "details": {
+        "origin": "host"
+      }
+    },
+    {
+      "seq": 55,
+      "eventId": "1:18",
+      "stage": "gate32",
+      "lane": "wave",
+      "reason": "admitted",
+      "atMs": 358.71639,
+      "eventTimeSec": 1
+    },
+    {
+      "seq": 56,
+      "eventId": "1:18",
+      "stage": "direct-input",
+      "lane": "wave",
+      "reason": "admitted",
+      "atMs": 358.721113
+    },
+    {
+      "seq": 57,
+      "eventId": "1:18",
+      "stage": "nodal-surface",
+      "lane": "wave",
+      "reason": "bound",
+      "atMs": 358.850986,
+      "eventTimeSec": 1.008,
+      "details": {
+        "desired": "nodal:A@1",
+        "active": "nodal:A@1"
+      }
+    },
+    {
+      "seq": 58,
+      "eventId": "1:18",
+      "stage": "nodal-player",
+      "lane": "wave",
+      "reason": "submitted",
+      "atMs": 358.911245,
+      "eventTimeSec": 1.008,
+      "details": {
+        "voiceId": "voice-9",
+        "programId": "plan-1"
+      }
+    },
+    {
+      "seq": 59,
+      "eventId": "1:19",
+      "stage": "ingress",
+      "lane": "wave",
+      "reason": "requested",
+      "atMs": 358.930733,
+      "eventTimeSec": 1,
+      "details": {
+        "origin": "host"
+      }
+    },
+    {
+      "seq": 60,
+      "eventId": "1:19",
+      "stage": "gate32",
+      "lane": "wave",
+      "reason": "admitted",
+      "atMs": 358.934156,
+      "eventTimeSec": 1
+    },
+    {
+      "seq": 61,
+      "eventId": "1:19",
+      "stage": "direct-input",
+      "lane": "wave",
+      "reason": "admitted",
+      "atMs": 358.940344
+    },
+    {
+      "seq": 62,
+      "eventId": "1:19",
+      "stage": "nodal-surface",
+      "lane": "wave",
+      "reason": "bound",
+      "atMs": 358.975339,
+      "eventTimeSec": 1.008,
+      "details": {
+        "desired": "nodal:A@1",
+        "active": "nodal:A@1"
+      }
+    },
+    {
+      "seq": 63,
+      "eventId": "1:19",
+      "stage": "nodal-player",
+      "lane": "wave",
+      "reason": "submitted",
+      "atMs": 359.171883,
+      "eventTimeSec": 1.008,
+      "details": {
+        "voiceId": "voice-10",
+        "programId": "plan-1"
+      }
+    },
+    {
+      "seq": 64,
+      "eventId": "1:20",
+      "stage": "ingress",
+      "lane": "wave",
+      "reason": "requested",
+      "atMs": 359.186984,
+      "eventTimeSec": 1,
+      "details": {
+        "origin": "host"
+      }
+    },
+    {
+      "seq": 65,
+      "eventId": "1:20",
+      "stage": "gate32",
+      "lane": "wave",
+      "reason": "admitted",
+      "atMs": 359.190805,
+      "eventTimeSec": 1
+    },
+    {
+      "seq": 66,
+      "eventId": "1:20",
+      "stage": "direct-input",
+      "lane": "wave",
+      "reason": "admitted",
+      "atMs": 359.196959
+    },
+    {
+      "seq": 67,
+      "eventId": "1:20",
+      "stage": "nodal-surface",
+      "lane": "wave",
+      "reason": "bound",
+      "atMs": 359.2805,
+      "eventTimeSec": 1.008,
+      "details": {
+        "desired": "nodal:A@1",
+        "active": "nodal:A@1"
+      }
+    },
+    {
+      "seq": 68,
+      "eventId": "1:20",
+      "stage": "nodal-player",
+      "lane": "wave",
+      "reason": "dsp-budget",
+      "atMs": 359.340714,
+      "eventTimeSec": 1.008
+    },
+    {
+      "seq": 69,
+      "eventId": "1:21",
+      "stage": "ingress",
+      "lane": "wave",
+      "reason": "requested",
+      "atMs": 359.345601,
+      "eventTimeSec": 1,
+      "details": {
+        "origin": "host"
+      }
+    },
+    {
+      "seq": 70,
+      "eventId": "1:21",
+      "stage": "gate32",
+      "lane": "wave",
+      "reason": "wave-rate32",
+      "atMs": 359.351547,
+      "eventTimeSec": 1
+    },
+    {
+      "seq": 71,
+      "eventId": "1:22",
+      "stage": "ingress",
+      "lane": "wave",
+      "reason": "requested",
+      "atMs": 359.354389,
+      "eventTimeSec": 1,
+      "details": {
+        "origin": "host"
+      }
+    },
+    {
+      "seq": 72,
+      "eventId": "1:22",
+      "stage": "gate32",
+      "lane": "wave",
+      "reason": "wave-rate32",
+      "atMs": 359.356722,
+      "eventTimeSec": 1
+    },
+    {
+      "seq": 73,
+      "eventId": "1:1",
+      "stage": "worklet",
+      "lane": "particle",
+      "reason": "accepted",
+      "atMs": 360.291975,
+      "eventTimeSec": 1.008,
+      "details": {
+        "voiceId": "voice-2",
+        "programId": "plan-1"
+      }
+    },
+    {
+      "seq": 74,
+      "eventId": "1:2",
+      "stage": "worklet",
+      "lane": "particle",
+      "reason": "accepted",
+      "atMs": 360.34539,
+      "eventTimeSec": 1.008,
+      "details": {
+        "voiceId": "voice-3",
+        "programId": "plan-1"
+      }
+    },
+    {
+      "seq": 75,
+      "eventId": "1:13",
+      "stage": "worklet",
+      "lane": "wave",
+      "reason": "accepted",
+      "atMs": 360.349991,
+      "eventTimeSec": 1.008,
+      "details": {
+        "voiceId": "voice-4",
+        "programId": "plan-1"
+      }
+    },
+    {
+      "seq": 76,
+      "eventId": "1:14",
+      "stage": "worklet",
+      "lane": "wave",
+      "reason": "accepted",
+      "atMs": 360.352357,
+      "eventTimeSec": 1.008,
+      "details": {
+        "voiceId": "voice-5",
+        "programId": "plan-1"
+      }
+    },
+    {
+      "seq": 77,
+      "eventId": "1:15",
+      "stage": "worklet",
+      "lane": "wave",
+      "reason": "accepted",
+      "atMs": 360.35484,
+      "eventTimeSec": 1.008,
+      "details": {
+        "voiceId": "voice-6",
+        "programId": "plan-1"
+      }
+    },
+    {
+      "seq": 78,
+      "eventId": "1:16",
+      "stage": "worklet",
+      "lane": "wave",
+      "reason": "accepted",
+      "atMs": 360.357583,
+      "eventTimeSec": 1.008,
+      "details": {
+        "voiceId": "voice-7",
+        "programId": "plan-1"
+      }
+    },
+    {
+      "seq": 79,
+      "eventId": "1:17",
+      "stage": "worklet",
+      "lane": "wave",
+      "reason": "accepted",
+      "atMs": 360.359332,
+      "eventTimeSec": 1.008,
+      "details": {
+        "voiceId": "voice-8",
+        "programId": "plan-1"
+      }
+    },
+    {
+      "seq": 80,
+      "eventId": "1:18",
+      "stage": "worklet",
+      "lane": "wave",
+      "reason": "accepted",
+      "atMs": 360.361117,
+      "eventTimeSec": 1.008,
+      "details": {
+        "voiceId": "voice-9",
+        "programId": "plan-1"
+      }
+    },
+    {
+      "seq": 81,
+      "eventId": "1:19",
+      "stage": "worklet",
+      "lane": "wave",
+      "reason": "accepted",
+      "atMs": 360.362623,
+      "eventTimeSec": 1.008,
+      "details": {
+        "voiceId": "voice-10",
+        "programId": "plan-1"
+      }
+    },
+    {
+      "seq": 82,
+      "eventId": "1:1",
+      "stage": "worklet",
+      "lane": "particle",
+      "reason": "ended",
+      "atMs": 1563.343775,
+      "details": {
+        "voiceId": "voice-2",
+        "programId": "plan-1"
+      }
+    },
+    {
+      "seq": 83,
+      "eventId": "1:2",
+      "stage": "worklet",
+      "lane": "particle",
+      "reason": "ended",
+      "atMs": 1563.90533,
+      "details": {
+        "voiceId": "voice-3",
+        "programId": "plan-1"
+      }
+    },
+    {
+      "seq": 84,
+      "eventId": "1:13",
+      "stage": "worklet",
+      "lane": "wave",
+      "reason": "ended",
+      "atMs": 1563.932044,
+      "details": {
+        "voiceId": "voice-4",
+        "programId": "plan-1"
+      }
+    },
+    {
+      "seq": 85,
+      "eventId": "1:14",
+      "stage": "worklet",
+      "lane": "wave",
+      "reason": "ended",
+      "atMs": 1563.940048,
+      "details": {
+        "voiceId": "voice-5",
+        "programId": "plan-1"
+      }
+    },
+    {
+      "seq": 86,
+      "eventId": "1:15",
+      "stage": "worklet",
+      "lane": "wave",
+      "reason": "ended",
+      "atMs": 1563.946993,
+      "details": {
+        "voiceId": "voice-6",
+        "programId": "plan-1"
+      }
+    },
+    {
+      "seq": 87,
+      "eventId": "1:16",
+      "stage": "worklet",
+      "lane": "wave",
+      "reason": "ended",
+      "atMs": 1563.951588,
+      "details": {
+        "voiceId": "voice-7",
+        "programId": "plan-1"
+      }
+    },
+    {
+      "seq": 88,
+      "eventId": "1:17",
+      "stage": "worklet",
+      "lane": "wave",
+      "reason": "ended",
+      "atMs": 1563.963069,
+      "details": {
+        "voiceId": "voice-8",
+        "programId": "plan-1"
+      }
+    },
+    {
+      "seq": 89,
+      "eventId": "1:18",
+      "stage": "worklet",
+      "lane": "wave",
+      "reason": "ended",
+      "atMs": 1563.967283,
+      "details": {
+        "voiceId": "voice-9",
+        "programId": "plan-1"
+      }
+    },
+    {
+      "seq": 90,
+      "eventId": "1:19",
+      "stage": "worklet",
+      "lane": "wave",
+      "reason": "ended",
+      "atMs": 1563.972514,
+      "details": {
+        "voiceId": "voice-10",
+        "programId": "plan-1"
+      }
+    }
+  ],
+  "truncated": 0
+}

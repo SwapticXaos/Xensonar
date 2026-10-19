@@ -1,0 +1,16 @@
+{
+  "errors": [],
+  "checks": [
+    "real Chromium microphone -> native MediaRecorder -> existing File decoder -> donor source; authored canvas preserved; tracks ended",
+    "discard retains prior donor and releases capture",
+    "room change releases active microphone",
+    "permission rejection gives actionable error and allows retry",
+    "native capture can restart after permission error"
+  ],
+  "source": {
+    "name": "Mikrofon_2026-10-19T14-02-20-908Z.webm",
+    "duration": 1.5,
+    "samples": 66150,
+    "peak": 1.0637768507003784
+  }
+}

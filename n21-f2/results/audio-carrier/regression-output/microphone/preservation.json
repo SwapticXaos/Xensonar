@@ -1,0 +1,15 @@
+{
+  "base": "9ab3d04b2d753a6928c6bd30856108b6351bbc4a",
+  "unchanged": 225,
+  "changedExisting": [
+    "src/forge/ui/02_donor_routing_and_hearing.js",
+    "src/forge_and_melodic/10_audition_and_persistence.js"
+  ],
+  "added": [
+    "src/forge/ui/03_microphone_intake.js",
+    "src/forge/analysis/04_audio_to_carrier.js",
+    "src/forge/ui/04_audio_to_carrier_controls.js"
+  ],
+  "audioEnginesUnchanged": true,
+  "reviewedAudioCarrierOverlay": true
+}
