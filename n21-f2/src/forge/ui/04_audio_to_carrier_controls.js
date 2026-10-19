@@ -28,7 +28,7 @@ function __AudioToCarrierControls({source,range,disabled=false,onBusyChange}) {
       transfer.name=(source.fileName||'Audio').replace(/\.[^.]+$/,'')+' · Carrier';
       transfer.carrier.extraction={algorithm:'harmonic-pitch-skeleton-v1',settings:result.settings,sourceName:source.fileName||'Audio',startSec:range.startSec,durationSec:result.durationSec};
       __f334CommitCarrier(transfer,{neutral:true,message:'Audio als neutrale Tonlinien übernommen.'});__f333PersistNow();
-      setStatus({phase:'idle',progress:1,message:result.notes.length+' Tonlinien übernommen · neutraler Carrier · Undo stellt die vorherige Figur wieder her.'});
+      setStatus({phase:'idle',progress:1,message:result.notes.length+' Tonlinien übernommen · Klangmaschine beibehalten · Undo stellt die vorherige Figur wieder her.'});
       requestAnimationFrame(()=>document.querySelector('#spectralforge-station-draw')?.scrollIntoView({block:'start',behavior:'auto'}));
     }catch(error){if(token===generation.current&&error?.name!=='AbortError')setStatus({phase:'failed',progress:0,message:error.message||'Audioanalyse fehlgeschlagen.'});}
     finally{if(token===generation.current)controller.current=null;}

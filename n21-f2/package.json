@@ -136,7 +136,9 @@
     "test:microphone": "node tests/microphone-capture.cjs && node tests/microphone-preservation.cjs && node build.cjs --verify",
     "test:microphone:browser": "node tests/microphone-browser.cjs",
     "test:audio-carrier": "node tests/audio-carrier-analysis.cjs && node tests/audio-carrier-runtime.cjs && node tests/audio-carrier-preservation.cjs && node build.cjs --verify",
-    "test:audio-carrier:browser": "node tests/audio-carrier-browser.cjs"
+    "test:audio-carrier:browser": "node tests/audio-carrier-browser.cjs",
+    "test:forge-ready": "node tests/forge-ready-contract.cjs && node tests/forge-progress-jobs.cjs && node tests/forge-ready-preservation.cjs && node build.cjs --verify",
+    "test:forge-ready:browser": "node tests/forge-ready-browser.cjs"
   },
   "devDependencies": {
     "playwright": "1.56.1",

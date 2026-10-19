@@ -46,8 +46,9 @@ function __f449ReleaseForgeDerivedCaches(){
 // The cache key is shared by the renderer and the readiness indicator.
 // Reading it never causes audio rendering or changes the LRU order.
 function __f333HearingCacheKey(request,context){
+ const soundSettings=settings=>{const {updatedAt,...sound}=settings??{};return sound};
  return Ti({version:'forge-hearing-f333',spectral:ER(request.snapshot),carrier:request.snapshot.melodicCarrier,
-    machine:request.machineId,selection:context.auditionSelection,lab:context.synthLab,hx:context.harmonicXplore,
+    machine:request.machineId,selection:soundSettings(context.auditionSelection),lab:soundSettings(context.synthLab),hx:soundSettings(context.harmonicXplore),
     // The raw renderer is controlled by these *project* fields, not by Synth Lab.
     // Excluding them reused the wrong PCM after switching Additive/IFFT/Granular/Glyph.
     rawSynthesis:request.machineId==='raw-darkpsy-oscillator'?{
@@ -59,6 +60,7 @@ function __f333HearingCacheKey(request,context){
  }
 function __f333CachedPreviewReady(state){
  const route=__f333Route(state);
+ if(route==='hybrid')return !!__F352Runtime.current();
  if(route==='reference')return !!state.sourceAsset?.monoSamples;
  // A loaded Audio Body is already available without an asynchronous Forge render.
  if(route==='body')return !!state.sourceAsset?.monoSamples;
@@ -211,7 +213,7 @@ async function __f333RenderHearing(request) {
   const job={epoch,progress:0,listeners:new Set(),promise:null};
   const report=value=>{
     if(epoch!==(typeof __f333Epoch==='number'?__f333Epoch:0)||!Number.isFinite(value))return;
-    const next=Math.max(job.progress,Math.min(1,Math.max(0,value)));
+    const next=Math.max(job.progress,Math.min(.99,Math.max(0,value)));
     if(next===job.progress)return;
     job.progress=next;
     for(const listener of job.listeners)listener(next);
@@ -245,8 +247,8 @@ async function __f333RenderHearing(request) {
     buffer=(request.machineId==='spektral-synthese-body'?await DB(args):await BR(args)).buffer;
   } else throw new Error("This listening mode is unavailable for the active figure.");
   if(epoch!==(typeof __f333Epoch==='number'?__f333Epoch:0))throw new DOMException('Hearing render superseded','AbortError');
-  report(1);
   __f433RememberHearing(key,buffer);
+  job.progress=1;for(const listener of job.listeners)listener(1);
   return {buffer,cacheKey:key,cacheHit:false,context};
   });
   try{return await listen(job)}finally{if(__f447HearingJobs.get(key)===job)__f447HearingJobs.delete(key)}
@@ -498,7 +500,7 @@ function __f334CommitCarrier(transfer,{neutral=false,message="Melodic Loop trans
       stampData:null,stampPhase:'idle',stampSelStart:null,lineStart:null,
       carrierDonorV2:{...current.carrierDonorV2,skeleton:null,summary:null,continuityGraph:null,
         bindingPreview:[],overlayVisible:false,continuityOverlayVisible:false,bindingOverlayVisible:false},
-      carrierIntegralSelection:neutral?KQ():{...current.carrierIntegralSelection,source:"user"},
+      carrierIntegralSelection:{...current.carrierIntegralSelection,source:"user"},
       materialExport,viewPort,showGrainLayer:false,renderVersion:current.renderVersion+1,audioBufferDirty:true}));return carrier;}
 function __f334ReceiveCarrier(){
   const transfer=DM.get('legacy');

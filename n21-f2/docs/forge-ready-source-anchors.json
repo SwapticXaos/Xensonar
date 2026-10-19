@@ -1,0 +1,6 @@
+{
+  "src/forge/editor/05_machine_and_carrier_projection.js": "08500dcd43fb85bbb8204a7f670e6af4cca5865980ae5338bd0b9165d1a3ec3a",
+  "src/forge/editor/07_composition_and_preview_ui.js": "5896d6708e20289c3ee1fafbfde7dc8bb55d2182e6404ce918a2d4715095041a",
+  "src/forge_and_melodic/10_audition_and_persistence.js": "0e21dde6089a3be835b459bdc8e7c8a432b81b7a1d2a0407804f389b160d6f0c",
+  "src/forge/ui/04_audio_to_carrier_controls.js": "052cd6c1e7164ec31aae6bceeb16c28d91802231ea37adefa39029d7fb0d6e56"
+}

@@ -1,0 +1,55 @@
+{
+  "errors": [],
+  "checks": [
+    "real WAV decoder -> native worker -> three neutral carrier lines; raw source preserved; sparse raster and exact duration",
+    "actual Play button produces finite audible native carrier PCM",
+    "Undo restores prior figure",
+    "silence fails clearly without overwriting drawing",
+    "native worker cancellation retains drawing",
+    "concurrent drawing prevents stale worker commit",
+    "room change cancels analysis"
+  ],
+  "carrier": {
+    "hz": [
+      130.8463130905003,
+      164.73790112521738,
+      195.99822242938262
+    ],
+    "density": 0.023291587829589844,
+    "route": "hearing",
+    "rawIntact": true,
+    "duration": 1.5,
+    "machine": "emilia-nodal-carrier",
+    "sourceCleared": true,
+    "events": [
+      "Abbrechen · 0 %",
+      "Abbrechen · 11 %",
+      "Abbrechen · 13 %",
+      "Abbrechen · 15 %",
+      "Abbrechen · 17 %",
+      "Abbrechen · 24 %",
+      "Abbrechen · 27 %",
+      "Abbrechen · 29 %",
+      "Abbrechen · 31 %",
+      "Abbrechen · 41 %",
+      "Abbrechen · 50 %",
+      "Abbrechen · 57 %",
+      "Abbrechen · 60 %",
+      "Abbrechen · 62 %",
+      "Abbrechen · 64 %",
+      "Abbrechen · 67 %",
+      "Abbrechen · 69 %",
+      "Abbrechen · 74 %",
+      "Abbrechen · 76 %",
+      "Abbrechen · 85 %",
+      "Abbrechen · 99 %",
+      "Transform to Carrier"
+    ]
+  },
+  "render": {
+    "channels": 1,
+    "length": 66150,
+    "peak": 0.3954003155231476,
+    "finite": true
+  }
+}

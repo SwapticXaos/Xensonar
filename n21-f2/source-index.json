@@ -27459,77 +27459,77 @@
     {
       "name": "VE",
       "file": "src/forge/editor/07_composition_and_preview_ui.js",
-      "line": 693
+      "line": 694
     },
     {
       "name": "$B",
       "file": "src/forge/editor/07_composition_and_preview_ui.js",
-      "line": 693
+      "line": 694
     },
     {
       "name": "pc",
       "file": "src/forge/editor/07_composition_and_preview_ui.js",
-      "line": 693
+      "line": 694
     },
     {
       "name": "Ty",
       "file": "src/forge/editor/07_composition_and_preview_ui.js",
-      "line": 693
+      "line": 694
     },
     {
       "name": "k6e",
       "file": "src/forge/editor/07_composition_and_preview_ui.js",
-      "line": 693
+      "line": 694
     },
     {
       "name": "xi",
       "file": "src/forge/editor/07_composition_and_preview_ui.js",
-      "line": 693
+      "line": 694
     },
     {
       "name": "Jk",
       "file": "src/forge/editor/07_composition_and_preview_ui.js",
-      "line": 693
+      "line": 694
     },
     {
       "name": "Yb",
       "file": "src/forge/editor/07_composition_and_preview_ui.js",
-      "line": 693
+      "line": 694
     },
     {
       "name": "r0",
       "file": "src/forge/editor/07_composition_and_preview_ui.js",
-      "line": 693
+      "line": 694
     },
     {
       "name": "P6e",
       "file": "src/forge/editor/07_composition_and_preview_ui.js",
-      "line": 693
+      "line": 694
     },
     {
       "name": "O_",
       "file": "src/forge/editor/07_composition_and_preview_ui.js",
-      "line": 693
+      "line": 694
     },
     {
       "name": "__",
       "file": "src/forge/editor/07_composition_and_preview_ui.js",
-      "line": 693
+      "line": 694
     },
     {
       "name": "I6e",
       "file": "src/forge/editor/07_composition_and_preview_ui.js",
-      "line": 693
+      "line": 694
     },
     {
       "name": "Id",
       "file": "src/forge/editor/07_composition_and_preview_ui.js",
-      "line": 693
+      "line": 694
     },
     {
       "name": "ZK",
       "file": "src/forge/editor/07_composition_and_preview_ui.js",
-      "line": 693
+      "line": 694
     },
     {
       "name": "JHe",
@@ -31524,252 +31524,252 @@
     {
       "name": "__f333CachedPreviewReady",
       "file": "src/forge_and_melodic/10_audition_and_persistence.js",
-      "line": 60
+      "line": 61
     },
     {
       "name": "__f333Stop",
       "file": "src/forge_and_melodic/10_audition_and_persistence.js",
-      "line": 75
+      "line": 77
     },
     {
       "name": "__f333Idle",
       "file": "src/forge_and_melodic/10_audition_and_persistence.js",
-      "line": 83
+      "line": 85
     },
     {
       "name": "__f333WorkingSource",
       "file": "src/forge_and_melodic/10_audition_and_persistence.js",
-      "line": 87
+      "line": 89
     },
     {
       "name": "__f333AttachTransitionGuard",
       "file": "src/forge_and_melodic/10_audition_and_persistence.js",
-      "line": 91
+      "line": 93
     },
     {
       "name": "__f333Signature",
       "file": "src/forge_and_melodic/10_audition_and_persistence.js",
-      "line": 107
+      "line": 109
     },
     {
       "name": "__f333Curve",
       "file": "src/forge_and_melodic/10_audition_and_persistence.js",
-      "line": 113
+      "line": 115
     },
     {
       "name": "__f333BuildCarrier",
       "file": "src/forge_and_melodic/10_audition_and_persistence.js",
-      "line": 118
+      "line": 120
     },
     {
       "name": "__f333CarrierColumn",
       "file": "src/forge_and_melodic/10_audition_and_persistence.js",
-      "line": 141
+      "line": 143
     },
     {
       "name": "__f333MaterializeCarrier",
       "file": "src/forge_and_melodic/10_audition_and_persistence.js",
-      "line": 155
+      "line": 157
     },
     {
       "name": "__f333ReadCarrier",
       "file": "src/forge_and_melodic/10_audition_and_persistence.js",
-      "line": 170
+      "line": 172
     },
     {
       "name": "__f333CarrierSkeleton",
       "file": "src/forge_and_melodic/10_audition_and_persistence.js",
-      "line": 174
+      "line": 176
     },
     {
       "name": "__f333HearingRequest",
       "file": "src/forge_and_melodic/10_audition_and_persistence.js",
-      "line": 180
+      "line": 182
     },
     {
       "name": "__f333RenderHearing",
       "file": "src/forge_and_melodic/10_audition_and_persistence.js",
-      "line": 187
+      "line": 189
     },
     {
       "name": "__f3565PitchSemis",
       "file": "src/forge_and_melodic/10_audition_and_persistence.js",
-      "line": 256
+      "line": 258
     },
     {
       "name": "__f3565PitchRatio",
       "file": "src/forge_and_melodic/10_audition_and_persistence.js",
-      "line": 257
+      "line": 259
     },
     {
       "name": "__f3565PitchGrid",
       "file": "src/forge_and_melodic/10_audition_and_persistence.js",
-      "line": 260
+      "line": 262
     },
     {
       "name": "__f3565PitchSupport",
       "file": "src/forge_and_melodic/10_audition_and_persistence.js",
-      "line": 280
+      "line": 282
     },
     {
       "name": "__F3564Master",
       "file": "src/forge_and_melodic/10_audition_and_persistence.js",
-      "line": 286
+      "line": 288
     },
     {
       "name": "__f3564Live",
       "file": "src/forge_and_melodic/10_audition_and_persistence.js",
-      "line": 301
+      "line": 303
     },
     {
       "name": "__f3564PeakMemo",
       "file": "src/forge_and_melodic/10_audition_and_persistence.js",
-      "line": 302
+      "line": 304
     },
     {
       "name": "__f3564BufferPeak",
       "file": "src/forge_and_melodic/10_audition_and_persistence.js",
-      "line": 303
+      "line": 305
     },
     {
       "name": "__f3564SafeGain",
       "file": "src/forge_and_melodic/10_audition_and_persistence.js",
-      "line": 313
+      "line": 315
     },
     {
       "name": "__f3564ActivateLiveGain",
       "file": "src/forge_and_melodic/10_audition_and_persistence.js",
-      "line": 318
+      "line": 320
     },
     {
       "name": "__f3564UpdateLiveGain",
       "file": "src/forge_and_melodic/10_audition_and_persistence.js",
-      "line": 324
+      "line": 326
     },
     {
       "name": "__f3564ApplyGain",
       "file": "src/forge_and_melodic/10_audition_and_persistence.js",
-      "line": 334
+      "line": 336
     },
     {
       "name": "__f352Enabled",
       "file": "src/forge_and_melodic/10_audition_and_persistence.js",
-      "line": 347
+      "line": 349
     },
     {
       "name": "LU",
       "file": "src/forge_and_melodic/10_audition_and_persistence.js",
-      "line": 348
+      "line": 350
     },
     {
       "name": "KO",
       "file": "src/forge_and_melodic/10_audition_and_persistence.js",
-      "line": 349
+      "line": 351
     },
     {
       "name": "__f333Route",
       "file": "src/forge_and_melodic/10_audition_and_persistence.js",
-      "line": 350
+      "line": 352
     },
     {
       "name": "__f333RenderCurrentRaw",
       "file": "src/forge_and_melodic/10_audition_and_persistence.js",
-      "line": 366
+      "line": 368
     },
     {
       "name": "__f333RenderCurrent",
       "file": "src/forge_and_melodic/10_audition_and_persistence.js",
-      "line": 392
+      "line": 394
     },
     {
       "name": "__f333PlayCurrent",
       "file": "src/forge_and_melodic/10_audition_and_persistence.js",
-      "line": 398
+      "line": 400
     },
     {
       "name": "__f333ExportCurrent",
       "file": "src/forge_and_melodic/10_audition_and_persistence.js",
-      "line": 421
+      "line": 423
     },
     {
       "name": "__f345ExportFlacCurrent",
       "file": "src/forge_and_melodic/10_audition_and_persistence.js",
-      "line": 430
+      "line": 432
     },
     {
       "name": "__f333CurrentLabel",
       "file": "src/forge_and_melodic/10_audition_and_persistence.js",
-      "line": 445
+      "line": 447
     },
     {
       "name": "__f333PersistNow",
       "file": "src/forge_and_melodic/10_audition_and_persistence.js",
-      "line": 451
+      "line": 453
     },
     {
       "name": "__f334TransferEvent",
       "file": "src/forge_and_melodic/10_audition_and_persistence.js",
-      "line": 458
+      "line": 460
     },
     {
       "name": "__f334NoticeEvent",
       "file": "src/forge_and_melodic/10_audition_and_persistence.js",
-      "line": 459
+      "line": 461
     },
     {
       "name": "__f334TransferNotice",
       "file": "src/forge_and_melodic/10_audition_and_persistence.js",
-      "line": 460
+      "line": 462
     },
     {
       "name": "__f334Notice",
       "file": "src/forge_and_melodic/10_audition_and_persistence.js",
-      "line": 461
+      "line": 463
     },
     {
       "name": "__f334HasPendingCarrier",
       "file": "src/forge_and_melodic/10_audition_and_persistence.js",
-      "line": 465
+      "line": 467
     },
     {
       "name": "__f334CreateTransfer",
       "file": "src/forge_and_melodic/10_audition_and_persistence.js",
-      "line": 466
+      "line": 468
     },
     {
       "name": "__f334CommitCarrier",
       "file": "src/forge_and_melodic/10_audition_and_persistence.js",
-      "line": 481
+      "line": 483
     },
     {
       "name": "__f334ReceiveCarrier",
       "file": "src/forge_and_melodic/10_audition_and_persistence.js",
-      "line": 503
+      "line": 505
     },
     {
       "name": "__f340SeekFromNavigator",
       "file": "src/forge_and_melodic/10_audition_and_persistence.js",
-      "line": 523
+      "line": 525
     },
     {
       "name": "__F341Spectrograms",
       "file": "src/forge_and_melodic/10_audition_and_persistence.js",
-      "line": 538
+      "line": 540
     },
     {
       "name": "__f341Spectrogram",
       "file": "src/forge_and_melodic/10_audition_and_persistence.js",
-      "line": 539
+      "line": 541
     },
     {
       "name": "__mlSendRenderedAudioToSpectral",
       "file": "src/forge_and_melodic/10_audition_and_persistence.js",
-      "line": 558
+      "line": 560
     },
     {
       "name": "__mlReceiveRenderedAudio",
       "file": "src/forge_and_melodic/10_audition_and_persistence.js",
-      "line": 573
+      "line": 575
     },
     {
       "name": "__f341Selection",
@@ -36886,7 +36886,6 @@
       "to": "src/app/forge/04_profiles_and_body_models.js",
       "symbols": [
         "DM",
-        "KQ",
         "QLe",
         "Ti"
       ]
@@ -38009,6 +38008,13 @@
       "to": "src/forge/fractalia/14_live_transfer.js",
       "symbols": [
         "__FractaliaLiveTransfer"
+      ]
+    },
+    {
+      "from": "src/forge/editor/07_composition_and_preview_ui.js",
+      "to": "src/forge/hybrid/09_runtime.js",
+      "symbols": [
+        "__F352Runtime"
       ]
     },
     {

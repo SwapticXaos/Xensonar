@@ -1,0 +1,11 @@
+{
+  "base": "a8078b0d1f17ff4ff523c4f91c8a18a27eb7220f",
+  "changed": [
+    "src/forge/editor/05_machine_and_carrier_projection.js",
+    "src/forge/editor/07_composition_and_preview_ui.js",
+    "src/forge_and_melodic/10_audition_and_persistence.js",
+    "src/forge/ui/04_audio_to_carrier_controls.js"
+  ],
+  "unchanged": 226,
+  "synthesisKernelsUnchanged": true
+}

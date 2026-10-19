@@ -1,0 +1,9 @@
+AssertionError [ERR_ASSERTION]: renderer completion cannot display 100% before the cache owns PCM
+    at /workspace/Xensonar/n21-f2/tests/forge-ready-cache.cjs:20:14 {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: false,
+  expected: true,
+  operator: '==',
+  diff: 'simple'
+}

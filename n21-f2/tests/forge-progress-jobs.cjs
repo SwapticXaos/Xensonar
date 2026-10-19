@@ -4,6 +4,7 @@ const source=fs.readFileSync('src/forge_and_melodic/10_audition_and_persistence.
 let finish,progress,renders=0,rasters=0;
 const ctx={DOMException,__f333Epoch:0,__f333HearingCache:new Map(),IB:()=>({durationSec:1,previewPitchRatio:1}),TR:()=>{rasters++;return {}},Ti:JSON.stringify,ER:()=>'',xt:{getContext:()=>({sampleRate:8000})},xK:()=>null,__Emilia:{snapshot:()=>({}),semanticKey:()=> 'same',renderCarrier:async args=>{renders++;progress=args.onProgress;await new Promise(r=>finish=r);return {length:8000,numberOfChannels:1}}}};
 vm.createContext(ctx);vm.runInContext(source.slice(source.indexOf('const __f433HearingBudgetBytes'),source.indexOf('function __f333Stop'))+source.slice(source.indexOf('async function __f333RenderHearing('),source.indexOf('// F3.56.5:'))+';globalThis.hear=__f333RenderHearing',ctx);
+const semantic={snapshot:{},machineId:'emilia-nodal-carrier'};const key=timestamp=>ctx.__f333HearingCacheKey(semantic,{durationSec:1,previewPitchRatio:1,auditionSelection:{machineId:'emilia',updatedAt:timestamp},synthLab:{updatedAt:timestamp},harmonicXplore:{updatedAt:timestamp}});assert.equal(key(1),key(2),'timestamps cannot invalidate identical sound settings');
 const request={machineId:'emilia-nodal-carrier',snapshot:{}};
 (async()=>{
  const owner=[],joined=[];
@@ -17,6 +18,7 @@ const request={machineId:'emilia-nodal-carrier',snapshot:{}};
  assert.equal(owner.at(-1),.85,'the first consumer keeps receiving progress');
  assert.equal(joined.at(-1),.85,'joining Play receives intermediate progress');
  assert(joined.every((p,i)=>Number.isFinite(p)&&p>=0&&p<=1&&(i===0||p>=joined[i-1])),'progress is finite, bounded and monotonic');
+ progress(1);assert(owner.at(-1)<1,'renderer completion cannot display 100% before the cache owns PCM');
  finish();assert.strictEqual((await first).buffer,(await second).buffer);assert.equal(joined.at(-1),1,'completion is reported even when renderer omits final callback');
  const cached=[];await ctx.hear({...request,onRenderProgress:p=>cached.push(p)});assert.deepEqual(cached,[1],'cached audio starts immediately without a fake wait');assert.equal(renders,1);assert.equal(rasters,1,'cache hit skips raster reconstruction');
  ctx.__f333HearingCache.clear();

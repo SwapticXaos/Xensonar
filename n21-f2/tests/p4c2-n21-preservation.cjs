@@ -1,6 +1,6 @@
 'use strict';
 const fs=require('node:fs'),crypto=require('node:crypto'),assert=require('node:assert/strict');
-const controls={...JSON.parse(fs.readFileSync('docs/live-controls-source-anchors.json')),...require('../docs/ui-refinement-source-anchors.json'),...require('../docs/workflow-integrity-source-anchors.json'),...require('../docs/maintenance-source-anchors.json'),...require('../docs/microphone-source-anchors.json'),...require('../docs/audio-carrier-source-anchors.json')};
+const controls={...JSON.parse(fs.readFileSync('docs/live-controls-source-anchors.json')),...require('../docs/ui-refinement-source-anchors.json'),...require('../docs/workflow-integrity-source-anchors.json'),...require('../docs/maintenance-source-anchors.json'),...require('../docs/microphone-source-anchors.json'),...require('../docs/audio-carrier-source-anchors.json'),...require('../docs/forge-ready-source-anchors.json')};
 const base=JSON.parse(fs.readFileSync('docs/p4c2-n21-n20-baseline-hashes.json')),changed=[];
 for(const [file,hash]of Object.entries(base))if(crypto.createHash('sha256').update(fs.readFileSync(file)).digest('hex')!==hash)changed.push(file);
 const expected=['src/mix/03_quick_menu.js','src/nodal/04_audio_runtime.js','src/nodal/12_surface_runtime.js','src/01_app_runtime.js','src/runtime/instrument/10_entrophon_and_voice_control.js','src/audio/05_live_voice_runtime.js','src/audio/entrophon/01_wasm_asset.js','src/audio/entrophon/02_worklet_and_voice_backend.js','src/rhythm/04_workspace_and_transport.js','styles/24_quick_menu.css',

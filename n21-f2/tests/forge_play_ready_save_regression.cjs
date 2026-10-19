@@ -47,7 +47,8 @@ assert.equal(ctx.__f333CachedPreviewReady({...base,route:'reference',sourceAsset
 assert.equal(ctx.__f333CachedPreviewReady({...base,route:'reference',sourceAsset:null}),false,'reference without source is not ready');
 assert.match(hearing,/__f333CacheReadyNotify\(\)/,'cache mutations must notify the button');
 assert.match(transport,/__f333CachedPreviewReady\(pe\.getState\(\)\)/,'transport reads the real audio cache');
-assert.match(transport,/\bfn\s*=\s*o\.selected\s*\?\s*[^;]+\|\|[^;]+/,'donor bridge and cached PCM both determine ready state');
+assert.match(transport,/\bfn\s*=\s*t\s*===\s*"forge3"\s*\?\s*\([^;]+__f333PcmCached\)\s*:\s*un\.readyForImmediatePlay/,'current Forge requires exact cached PCM; legacy retains its session state');
+assert.doesNotMatch(transport,/un\.readyForImmediatePlay\s*\|\|\s*__f333PcmCached/,'a stale local ready flag cannot make the current Forge green');
 assert.match(css,/\.f31-play-rack \.f34-project-save-on-main \.f33-project-save\s*\{[^}]*grid-template-rows:\s*26px\s+8px\s+12px/s,'project name size preserved and save has its own extra vertical space');
 assert.match(css,/\.f31-play-rack \.f34-project-save-on-main \.f33-project-save-button\s*\{[^}]*grid-row:\s*1\s*\/\s*3[^}]*height:\s*34px/s,'Save matches Play 34px height and centers vertically');
 console.log('PASS Spectral Forge ready-from-cache / stale / source / Save geometry');

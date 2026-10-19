@@ -1,5 +1,5 @@
 'use strict';
-const fs=require('fs'),assert=require('assert/strict'),crypto=require('crypto'),base=require('../docs/microphone-baseline-hashes.json'),patch={...require('../docs/microphone-source-anchors.json'),...require('../docs/audio-carrier-source-anchors.json')},m=require('../source-manifest.json');
+const fs=require('fs'),assert=require('assert/strict'),crypto=require('crypto'),base=require('../docs/microphone-baseline-hashes.json'),patch={...require('../docs/microphone-source-anchors.json'),...require('../docs/audio-carrier-source-anchors.json'),...require('../docs/forge-ready-source-anchors.json')},m=require('../source-manifest.json');
 const sha=f=>crypto.createHash('sha256').update(fs.readFileSync(f)).digest('hex');
 for(const [file,hash] of Object.entries(base.hashes))assert.equal(sha(file),patch[file]??hash,file);
 for(const [file,hash] of Object.entries(patch))assert.equal(sha(file),hash,file);
