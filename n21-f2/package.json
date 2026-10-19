@@ -130,7 +130,9 @@
     "test:ui-refinement": "node tests/ui-refinement-preservation.cjs && node tests/ui-refinement-raster.cjs && node tests/nodal-envelope-zero.cjs && node build.cjs --verify",
     "test:ui-refinement:browser": "node tests/ui-refinement-browser.cjs && node tests/ui-refinement-raster-browser.cjs && node tests/nodal-envelope-zero-browser.cjs && node tests/ui-refinement-marker-browser.cjs",
     "test:workflow-integrity": "node tests/workflow-grid-runtime.cjs && node tests/workflow-custom-instruments.cjs && node tests/workflow-hotkeys.cjs && node tests/workflow-preservation.cjs && node build.cjs --verify",
-    "test:workflow-integrity:browser": "node tests/workflow-ui-browser.cjs && node tests/workflow-native-audio-browser.cjs"
+    "test:workflow-integrity:browser": "node tests/workflow-ui-browser.cjs && node tests/workflow-native-audio-browser.cjs",
+    "test:maintenance": "node tests/maintenance-equivalence.cjs && node tests/maintenance-preservation.cjs && node tests/rw2-source-index.cjs && node build.cjs --verify",
+    "test:maintenance:browser": "node tests/workflow-native-audio-browser.cjs --baseline-html Xensonar_N21_F2_Workflow_Integrity_Test.html --results-dir results/maintenance && node tests/workflow-ui-browser.cjs"
   },
   "devDependencies": {
     "playwright": "1.56.1",

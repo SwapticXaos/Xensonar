@@ -1,6 +1,6 @@
 'use strict';
 const fs=require('fs'),crypto=require('crypto'),assert=require('assert/strict'),base=require('../docs/live-controls-baseline-hashes.json'),patch=require('../docs/live-controls-source-anchors.json'),m=require('../source-manifest.json');
-const refinements={...require('../docs/ui-refinement-source-anchors.json'),...require('../docs/workflow-integrity-source-anchors.json')};
+const refinements={...require('../docs/ui-refinement-source-anchors.json'),...require('../docs/workflow-integrity-source-anchors.json'),...require('../docs/maintenance-source-anchors.json')};
 const sha=f=>crypto.createHash('sha256').update(fs.readFileSync(f)).digest('hex');let unchanged=0;
 for(const [f,hash] of Object.entries(base.hashes)){assert.equal(sha(f),refinements[f]??patch[f]??hash,'unexpected change: '+f);if(!patch[f]&&!refinements[f])unchanged++;}
 for(const [f,hash] of Object.entries(patch))assert.equal(sha(f),refinements[f]??hash,'reviewed patch owner: '+f);

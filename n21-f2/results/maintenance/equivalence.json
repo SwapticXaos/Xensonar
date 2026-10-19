@@ -1,0 +1,14 @@
+{
+  "spatialCases": 480,
+  "curveCases": 200,
+  "partialCases": 100,
+  "conservativeStereo": true,
+  "operationCounts": {
+    "spatialBefore": 397872,
+    "spatialAfter": 4192,
+    "curveBefore": 10,
+    "curveAfter": 6,
+    "boundsBefore": 2402,
+    "boundsAfter": 98
+  }
+}

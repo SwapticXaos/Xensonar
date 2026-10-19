@@ -1,0 +1,15 @@
+{
+  "status": "PASS",
+  "html": {
+    "name": "Xensonar_N21_F2_Maintenance_Test.html",
+    "bytes": 5544465,
+    "sha256": "e1db09b24d076ae8aeb07568cc986bb2c2da80f009d3782889aaea089440a6ed"
+  },
+  "sourceZipSHA256": "b54b2c6f0950aa01e43c9dd767d660b413a127a8e9b9c8bcc8b85e4ef7cca36e",
+  "patchSHA256": "10fe9233c160e84535e066d37501cfa0f4f69573dacfeece65dd6a22ce8562de",
+  "patchAppliesToPristinePriorCommit": true,
+  "patchRebuildIdentical": true,
+  "sourceZipFreshInstallBuildUnitAndNativeBrowserPassed": true,
+  "prior30ArtifactsUnchanged": true,
+  "cloudStartInstructions": "saved as draft; review, save and publication remain in environment settings"
+}

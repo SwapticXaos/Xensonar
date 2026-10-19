@@ -1,0 +1,28 @@
+{
+  "status": "PASS",
+  "hostDSPWorkerChecks": 65,
+  "equivalenceComparisons": 780,
+  "sourceFilesChanged": 3,
+  "functionsChanged": 4,
+  "newRuntimeModules": 0,
+  "priorResultFilesRestored": 21,
+  "focusedPassed": [
+    "workflow-integrity",
+    "live-controls",
+    "ui-refinement",
+    "merge",
+    "forge-progress",
+    "granular",
+    "live-stability"
+  ],
+  "browserPassed": [
+    "native-audio-vs-immediate-prior-build",
+    "workflow-ui",
+    "live-controls-spatial",
+    "live-controls-ui",
+    "nodal-envelope-zero"
+  ],
+  "limitations": [
+    "Chromium/WebAudio; no Opera/Firefox or physical hardware listening"
+  ]
+}

@@ -1,5 +1,5 @@
 'use strict';
-const fs=require('fs'),crypto=require('crypto'),assert=require('assert/strict'),base=require('../docs/workflow-integrity-baseline-hashes.json'),patch=require('../docs/workflow-integrity-source-anchors.json'),m=require('../source-manifest.json');
+const fs=require('fs'),crypto=require('crypto'),assert=require('assert/strict'),base=require('../docs/workflow-integrity-baseline-hashes.json'),patch={...require('../docs/workflow-integrity-source-anchors.json'),...require('../docs/maintenance-source-anchors.json')},m=require('../source-manifest.json');
 const sha=f=>crypto.createHash('sha256').update(fs.readFileSync(f)).digest('hex');
 let unchanged=0;
 for(const [file,hash] of Object.entries(base.hashes)){assert.equal(sha(file),patch[file]??hash,file);if(!patch[file])unchanged++;}

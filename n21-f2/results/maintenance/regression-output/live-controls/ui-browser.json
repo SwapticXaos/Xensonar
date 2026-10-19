@@ -1,0 +1,91 @@
+{
+  "checks": [
+    "four transport switches and RFL raster bypass",
+    "single sound selectors, Wave enable and sample-particle mode preserved",
+    "Room 3 closes the verified 24px shell gap",
+    "one real pan per instrument, keyboard access, centre reset, shared composer updated",
+    {
+      "viewport": {
+        "width": 1600,
+        "height": 1000
+      },
+      "card": 363.25,
+      "row": 170.03125,
+      "panTop": 401.40625,
+      "patternTop": 404.40625,
+      "overflow": false
+    },
+    {
+      "viewport": {
+        "width": 1100,
+        "height": 900
+      },
+      "card": 484.5,
+      "row": 170.03125,
+      "panTop": 511.78125,
+      "patternTop": 514.78125,
+      "overflow": false
+    },
+    {
+      "viewport": {
+        "width": 760,
+        "height": 900
+      },
+      "card": 637,
+      "row": 170.03125,
+      "panTop": 966.53125,
+      "patternTop": 969.53125,
+      "overflow": false
+    },
+    "actual Material Track transfers preserve mono/stereo/mono; panned Root Follow uses rendered material"
+  ],
+  "errors": [],
+  "roots": {
+    "html": "auto",
+    "body": "visible",
+    "scroll": "HTML"
+  },
+  "room3": {
+    "top": 82,
+    "parent": 82
+  },
+  "livePan": {
+    "sameOwner": true,
+    "sameClock": true,
+    "sameBuffers": true,
+    "pan": -0.9997313618659973
+  },
+  "rootChannels": 2,
+  "transfers": [
+    {
+      "name": "Spatial centred transfer",
+      "channels": 1,
+      "energies": [
+        6458.237228214278
+      ]
+    },
+    {
+      "name": "Spatial panned transfer",
+      "channels": 2,
+      "energies": [
+        305.6590486259803,
+        6153.025175228209
+      ]
+    },
+    {
+      "name": "Spatial recentred transfer",
+      "channels": 1,
+      "energies": [
+        6458.23723284802
+      ]
+    }
+  ],
+  "rootFollow": {
+    "sourceKind": "material",
+    "renderMode": "flowing",
+    "anchorGridStep": null,
+    "synthPattern": null,
+    "synthPatch": null,
+    "formantWindowPlan": null
+  }
+}

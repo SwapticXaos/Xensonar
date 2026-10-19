@@ -31,11 +31,16 @@ function __mlPartialSpan(previous,next,e,priorBuffer){
  for(const id of changed)for(const note of [oldById.get(id),newById.get(id)])if(note){const span=__mlNoteSpan(note,e.composer,e.bpm);start=Math.min(start,span.start);end=Math.max(end,span.end)}
  if(!Number.isFinite(start))return null;
  // Include all overlapping voices, preserving attacks rather than starting their envelopes mid-note.
+ // Bounds are constant for this request. Prepare them once, preserving the
+ // old/new traversal order and the same overlap-growth/convergence policy.
+ const selectedTracks=new Set(e.trackIds),candidates=[];
+ for(const note of [...oldNotes,...newNotes]){
+  if(e.noteId?note.id!==e.noteId:!selectedTracks.has(note.trackId))continue;
+  candidates.push(__mlNoteSpan(note,e.composer,e.bpm));
+ }
  let updated=true,iterations=0;
  while(updated&&iterations++<256){updated=false;
-  for(const note of [...oldNotes,...newNotes]){
-   if(e.noteId?note.id!==e.noteId:!e.trackIds.includes(note.trackId))continue;
-   const span=__mlNoteSpan(note,e.composer,e.bpm);
+  for(const span of candidates){
    if(span.start<end+.025 && span.end>start-.025){
     const ns=Math.max(0,Math.min(start,span.start)),ne=Math.max(end,span.end);
     if(ns<start-1e-6||ne>end+1e-6)start=ns,end=ne,updated=true;

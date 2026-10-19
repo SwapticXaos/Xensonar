@@ -3,8 +3,15 @@ function resolveNodalArticulationFields(articulation, localField = null, zeroVol
   // Nodal amplitude reaches silence at the lower edge. Other backends can
   // retain the established +/-95% field through the explicit third argument.
   const volumeGain = zeroVolumeFloor ? value => {const x=pn(value);return x<0 ? 1+x : IF(x);} : IF;
-  const volume = [articulation.volumeEnvelope, ...instrumentFields, ...[localField].flat().filter(Boolean)].filter(Boolean).map(f => $p(Zr(f), 'dynamic-fade')).filter(f => f.enabled && !f.bypassed);
-  const pitch = [articulation.pitchEnvelope, ...instrumentFields, ...[localField].flat().filter(Boolean)].filter(Boolean).map(f => $p(Zr(f), 'pitch-elastic')).filter(f => f.enabled && !f.bypassed);
+  // Shared block/instrument fields have one normalized snapshot; each target
+  // still uses its own interpreter, bypass checks and backend gain contract.
+  const volumeEnvelope = articulation.volumeEnvelope ? Zr(articulation.volumeEnvelope) : null;
+  const sharedFields = [...instrumentFields, ...[localField].flat()].filter(Boolean).map(f => Zr(f));
+  const pitchEnvelope = articulation.pitchEnvelope ? Zr(articulation.pitchEnvelope) : null;
+  const active = (envelope, target) => [envelope, ...sharedFields].filter(Boolean)
+    .map(f => $p(f, target)).filter(f => f.enabled && !f.bypassed);
+  const volume = active(volumeEnvelope, 'dynamic-fade');
+  const pitch = active(pitchEnvelope, 'pitch-elastic');
   const count = 128;
   const volumeInputs = volume.map(field => ({field, curve: gc(field, count).resolved}));
   const volumeCurve = volume.length ? Array.from({length: count}, (_, i) => volumeInputs.reduce((gain, source) => gain * volumeGain(u6(source.field, i / (count - 1), source.curve)), 1)) : null;

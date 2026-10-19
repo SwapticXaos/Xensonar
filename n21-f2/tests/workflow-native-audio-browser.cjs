@@ -1,5 +1,7 @@
 'use strict';
 const fs=require('fs'),assert=require('assert/strict'),{chromium}=require('playwright'),{entry}=require('../source-manifest.json');
+const option=(name,fallback)=>{const at=process.argv.indexOf(name);if(at<0)return fallback;if(!process.argv[at+1])throw Error('Missing '+name);return process.argv[at+1];};
+const baselineHTML=option('--baseline-html','Xensonar_N21_F2_UI_Refinement_Test.html'),resultsDir=option('--results-dir','results/workflow-integrity');
 const expose=`window.__workflowAudio={get api(){return{render:z$,normalise:$n,defaults:Vp,makeNote:pr,nodal:nodalOpenStarter,nodalV1:nodalStarter,entrophon:captureEntrophonInstrument,importSample:xee,wav:lg,field:()=>H5(H5(Yf(Dx(),'dynamic-fade'),'left',0),'right',-.6),customSave:typeof __mlSaveCustomInstrument==='function'?__mlSaveCustomInstrument:null,customStorage:typeof __mlCustomStorageKey==='string'?__mlCustomStorageKey:null}}};`;
 async function run(page,html,custom){
   await page.route('https://xensonar.test/**',route=>route.fulfill({contentType:'text/html',body:html.replace('const kEe=CEe("root");',expose+'const kEe=CEe("root");')}));
@@ -35,7 +37,7 @@ async function run(page,html,custom){
  const browser=await chromium.launch({executablePath:process.env.XEN_CHROMIUM_PATH||'/usr/bin/chromium',args:['--no-sandbox','--disable-dev-shm-usage']});const errors=[];
  try{
   const beforePage=await browser.newPage();beforePage.on('pageerror',error=>errors.push(error.message));
-  const before=await run(beforePage,fs.readFileSync('Xensonar_N21_F2_UI_Refinement_Test.html','utf8'),false);await beforePage.close();
+  const before=await run(beforePage,fs.readFileSync(baselineHTML,'utf8'),false);await beforePage.close();
   const page=await browser.newPage();page.on('pageerror',error=>errors.push(error.message));
   const after=await run(page,fs.readFileSync(entry,'utf8'),true);
   const sampleComparisons=[];
@@ -62,7 +64,7 @@ async function run(page,html,custom){
    }
    assert(after[i].ordinary.peak>1e-4);
   }
-  assert.deepEqual(errors,[]);fs.mkdirSync('results/workflow-integrity',{recursive:true});fs.writeFileSync('results/workflow-integrity/native-audio.json',JSON.stringify({before,after,sampleComparisons,errors},null,2)+'\n');
+  assert.deepEqual(errors,[]);fs.mkdirSync(resultsDir,{recursive:true});fs.writeFileSync(require('path').join(resultsDir,'native-audio.json'),JSON.stringify({before,after,sampleComparisons,errors},null,2)+'\n');
   console.log('PASS native PCM: previous/new ordinary outputs and saved/reloaded recipes exact for Legacy, Nodal V1/V2 and real Entrophon WASM; native sample differences below 1e-7 with prior/current repeat controls');
  }catch(error){console.error('Browser errors:',errors);throw error}finally{await browser.close()}
 })().catch(error=>{console.error(error);process.exitCode=1});

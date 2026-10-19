@@ -1,0 +1,116 @@
+
+> xensonar-p4c2-n21-f2-merged@4.4.8-p4c2-n21-f2 test:workflow-integrity
+> node tests/workflow-grid-runtime.cjs && node tests/workflow-custom-instruments.cjs && node tests/workflow-hotkeys.cjs && node tests/workflow-preservation.cjs && node build.cjs --verify
+
+PASS global grid: real Wave Starter snap, keyboard restrictions, cached live view, authored restore, no muted timers or stale quantized replay
+PASS custom instruments: original engines, independent field layers, source snapshots, project reload/library deletion, collision-free bodies, quota failure and RFL material routing
+PASS hotkeys: physical layout priority, canonical reorder/limit/unregister, same click activation, one transient pulse timer
+PASS workflow boundary: 207 existing files unchanged; 20 reviewed files including two new administrative modules
+PASS reproducible standalone HTML e1db09b24d076ae8aeb07568cc986bb2c2da80f009d3782889aaea089440a6ed 5544465
+npm notice
+npm notice New major version of npm available! 11.9.0 -> 12.2.0
+npm notice Changelog: https://github.com/npm/cli/releases/tag/v12.2.0
+npm notice To update run: npm install -g npm@12.2.0
+npm notice
+
+> xensonar-p4c2-n21-f2-merged@4.4.8-p4c2-n21-f2 test:live-controls
+> node tests/live-controls-preservation.cjs && node tests/live-controls-spatial.cjs && node tests/live-controls-drone.cjs && node build.cjs --verify
+
+PASS live controls patch: 190 sources/styles/templates unchanged; granular hold and RFL processor unchanged; authorized Nodal envelope guard reviewed
+PASS mono/stereo policy, muted tracks, original stereo assets and raw-drum downmix without double summing
+PASS 96 legacy drone automation comparisons; new triangle/sine drone, bounded colour cache, slow motion, catalogue and timbre range
+PASS reproducible standalone HTML e1db09b24d076ae8aeb07568cc986bb2c2da80f009d3782889aaea089440a6ed 5544465
+npm notice
+npm notice New major version of npm available! 11.9.0 -> 12.2.0
+npm notice Changelog: https://github.com/npm/cli/releases/tag/v12.2.0
+npm notice To update run: npm install -g npm@12.2.0
+npm notice
+
+> xensonar-p4c2-n21-f2-merged@4.4.8-p4c2-n21-f2 test:ui-refinement
+> node tests/ui-refinement-preservation.cjs && node tests/ui-refinement-raster.cjs && node tests/nodal-envelope-zero.cjs && node build.cjs --verify
+
+PASS UI refinement: 195 source/style/template files unchanged; other synthesis kernels, Drone colour, granular hold and RFL worklet/worker unchanged; reviewed Nodal zero-output guard
+PASS production RFL coordinator: normal/all-muted raster, continuous bypass, policy prepared once, cleanup and authored pattern preserved
+PASS Nodal V1/V2 envelope: exact-zero mapping and PCM tails at 44.1/48/96 kHz; no/positive contours sample-identical; other backend field semantics retained
+PASS reproducible standalone HTML e1db09b24d076ae8aeb07568cc986bb2c2da80f009d3782889aaea089440a6ed 5544465
+npm notice
+npm notice New major version of npm available! 11.9.0 -> 12.2.0
+npm notice Changelog: https://github.com/npm/cli/releases/tag/v12.2.0
+npm notice To update run: npm install -g npm@12.2.0
+npm notice
+
+> xensonar-p4c2-n21-f2-merged@4.4.8-p4c2-n21-f2 test:merge
+> node tests/n21-f2-preservation.cjs && node tests/forge_save_play_symmetry.cjs && node tests/forge_play_ready_save_regression.cjs && node tests/p4c2-n20-navigation.cjs && node tests/p4c2-n21-length-control.cjs && node tests/p4c2-n21-quickdock.cjs && node build.cjs --verify
+
+PASS N21 audio/runtime outside explicit Granular Hold patch unchanged; N20F2 outside explicit Forge progress patch unchanged; exact Play/Save and navigation preserved
+PASS Forge rack Play/Save exact 42×34px geometry, unchanged Project Name and centered Save
+PASS Spectral Forge ready-from-cache / stale / source / Save geometry
+PASS N20 layout, controls, events, persistence and manifest contracts
+PASS N21 finite/held cuts, primary isolation, one gesture, idempotence, German/English apostrophe
+PASS N21 dock: full stable target, seven-item migration, one left pulse, no right pulse, no remount replay or nested height cap
+PASS reproducible standalone HTML e1db09b24d076ae8aeb07568cc986bb2c2da80f009d3782889aaea089440a6ed 5544465
+npm notice
+npm notice New major version of npm available! 11.9.0 -> 12.2.0
+npm notice Changelog: https://github.com/npm/cli/releases/tag/v12.2.0
+npm notice To update run: npm install -g npm@12.2.0
+npm notice
+
+> xensonar-p4c2-n21-f2-merged@4.4.8-p4c2-n21-f2 test:forge-progress
+> node tests/forge-progress-preservation.cjs && node tests/forge-progress-jobs.cjs && node tests/forge-progress-pcm.cjs && node tests/forge_play_ready_save_regression.cjs && node tests/forge_save_play_symmetry.cjs && node build.cjs --verify
+
+PASS Forge patch boundary: 184 source/style/template files unchanged outside Forge and Live Controls patch owners
+PASS joined/hidden render progress, shared PCM, monotonic bounds, instant cache, cancellation and retry
+PASS 18 Polytrace sync/cooperative PCM + metadata comparisons, Emilia exact stereo, cooperative cancellation
+PASS Spectral Forge ready-from-cache / stale / source / Save geometry
+PASS Forge rack Play/Save exact 42×34px geometry, unchanged Project Name and centered Save
+PASS reproducible standalone HTML e1db09b24d076ae8aeb07568cc986bb2c2da80f009d3782889aaea089440a6ed 5544465
+npm notice
+npm notice New major version of npm available! 11.9.0 -> 12.2.0
+npm notice Changelog: https://github.com/npm/cli/releases/tag/v12.2.0
+npm notice To update run: npm install -g npm@12.2.0
+npm notice
+
+> xensonar-p4c2-n21-f2-merged@4.4.8-p4c2-n21-f2 test:granular
+> node tests/granular-hold.cjs && node tests/p4c2-n21-runtime-release.cjs && node tests/p4c2-n21-length-control.cjs && node build.cjs --verify
+
+PASS Granular Hold: continuous deceleration, fixed grain pitch, polyphony, late-grain skip, EOF bounds, gate-before-work, 20ms cut, idempotent lease cleanup
+PASS N21 production Nodal DSP/ports: finite Wave/Keyboard + held-particle cuts, ordinary particle protected, no future phantom onset, idempotent tickets at 48/96 kHz
+PASS N21 sample loading: keyup invalidates pending load, no phantom late start, subsequent notes playable, tracked voice/ticket cleaned once
+PASS N21 finite/held cuts, primary isolation, one gesture, idempotence, German/English apostrophe
+PASS reproducible standalone HTML e1db09b24d076ae8aeb07568cc986bb2c2da80f009d3782889aaea089440a6ed 5544465
+npm notice
+npm notice New major version of npm available! 11.9.0 -> 12.2.0
+npm notice Changelog: https://github.com/npm/cli/releases/tag/v12.2.0
+npm notice To update run: npm install -g npm@12.2.0
+npm notice
+
+> xensonar-p4c2-n21-f2-merged@4.4.8-p4c2-n21-f2 test:live-stability
+> node tests/live-rfl-boundaries.cjs && node tests/live-rfl-fallback.cjs && node tests/live-rfl-lifecycle.cjs && node tests/live-rfl-preparation.cjs
+
+{"mode":"base","rate":44100,"baseline":{"peak":4.707675457000732,"jump":0.49378716945648193,"outside":3411},"current":{"peak":0,"jump":0,"outside":0}}
+{"mode":"base","rate":48000,"baseline":{"peak":4.5972795486450195,"jump":0.4760704040527344,"outside":3247},"current":{"peak":0,"jump":0,"outside":0}}
+{"mode":"base","rate":96000,"baseline":{"peak":3.8174490928649902,"jump":0.4979236125946045,"outside":6788},"current":{"peak":0,"jump":0,"outside":0}}
+{"mode":"fragment","rate":44100,"baseline":{"peak":5.658315658569336,"jump":0.49806690216064453,"outside":4065},"current":{"peak":0,"jump":0,"outside":0}}
+{"mode":"fragment","rate":48000,"baseline":{"peak":5.442440986633301,"jump":0.4964022636413574,"outside":3827},"current":{"peak":0,"jump":0,"outside":0}}
+{"mode":"fragment","rate":96000,"baseline":{"peak":4.5473198890686035,"jump":0.49875640869140625,"outside":8185},"current":{"peak":0,"jump":0,"outside":0}}
+PASS live RFL crop boundaries: both render modes, root changes, 44.1/48/96kHz; excluded transients remain silent
+{"mode":"flowing","hz":110,"grains":39,"outside":0,"tooShort":0}
+{"mode":"flowing","hz":220,"grains":36,"outside":0,"tooShort":0}
+{"mode":"flowing","hz":880,"grains":40,"outside":0,"tooShort":0}
+{"mode":"fragment","hz":110,"grains":52,"outside":0,"tooShort":0}
+{"mode":"fragment","hz":220,"grains":49,"outside":0,"tooShort":0}
+{"mode":"fragment","hz":880,"grains":52,"outside":0,"tooShort":0}
+PASS RFL native fallback crop and fade durations at changing roots
+{"rate":44100,"mode":"base","rootMessages":1550,"maxWindows":1,"skippedWindows":115,"peak":0.5459728837013245,"tailReleased":true}
+{"rate":44100,"mode":"fragment","rootMessages":1550,"maxWindows":1,"skippedWindows":115,"peak":1.198411226272583,"tailReleased":true}
+{"rate":48000,"mode":"base","rootMessages":1550,"maxWindows":1,"skippedWindows":115,"peak":0.5459033250808716,"tailReleased":true}
+{"rate":48000,"mode":"fragment","rootMessages":1550,"maxWindows":1,"skippedWindows":115,"peak":1.1153439283370972,"tailReleased":true}
+{"rate":96000,"mode":"base","rootMessages":1550,"maxWindows":1,"skippedWindows":114,"peak":0.5697279572486877,"tailReleased":true}
+{"rate":96000,"mode":"fragment","rootMessages":1550,"maxWindows":1,"skippedWindows":114,"peak":0.9831255674362183,"tailReleased":true}
+PASS RFL lifecycle: rapid/stale/invalid root updates, sample-rate mismatch, clock gaps, 128/256-frame quanta and complete tail release
+PASS fragment worker extraction: all six cut-map arrays byte-identical in mono/stereo at 44.1/48/96kHz
+npm notice
+npm notice New major version of npm available! 11.9.0 -> 12.2.0
+npm notice Changelog: https://github.com/npm/cli/releases/tag/v12.2.0
+npm notice To update run: npm install -g npm@12.2.0
+npm notice

@@ -1,0 +1,1993 @@
+diff --git a/README_MAINTENANCE.md b/README_MAINTENANCE.md
+new file mode 100644
+index 0000000..b283ffa
+--- /dev/null
++++ b/README_MAINTENANCE.md
+@@ -0,0 +1,21 @@
++# XenSonar N21–F2 · begrenzter Wartbarkeits-Patch
++
++Aktueller Stand: `Xensonar_N21_F2_Maintenance_Test.html`.
++
++Dieser Patch verändert vier Verwaltungsfunktionen in drei bestehenden Modulen:
++
++- Mono-/Stereo-Planung ordnet Noten einmal ihren Spuren zu, statt sie für jede Spur erneut zu durchsuchen.
++- Teilrendern berechnet unveränderte Notengrenzen einmal vor der Überlappungssuche.
++- Gemeinsame Hüllkurvenfelder werden einmal vorbereitet; Volume/Pitch behalten ihre unabhängigen Interpretationen.
++
++Keine neuen Laufzeitmodule, keine UI-/Projektformatänderung. Sämtliche Klangerzeuger, Transportbesitzer und Cache-Schlüssel bleiben erhalten.
++
++```sh
++npm ci
++npm run build
++npm run test:maintenance
++XEN_CHROMIUM_PATH=/usr/bin/chromium npm run test:maintenance:browser
++npm run test:p4c2-n21
++```
++
++Details: `docs/maintenance-report.md`; Messdaten: `results/maintenance/`.
+diff --git a/docs/maintenance-baseline-hashes.json b/docs/maintenance-baseline-hashes.json
+new file mode 100644
+index 0000000..6d298e1
+--- /dev/null
++++ b/docs/maintenance-baseline-hashes.json
+@@ -0,0 +1,232 @@
++{
++  "base": "8b3ceb278c54350d8f5df868f5bf3c6a27654dfb",
++  "hashes": {
++    "src/mix/03_quick_menu.js": "eeb576b072ac5cbb774dc7be58342607a057c525d69dbc4d3b8db415c0eb181a",
++    "src/instruments/00_diagnostics.js": "f7b50b1f5b58b2116989ce23a8721505da99ca60eaaea4b7711d93f95762360e",
++    "src/mix/01_pan.js": "6feed55b4bbe349bec4c1c40dd458afddb8f4f049ef44c7d17586013b46a3e10",
++    "src/mix/02_performance_catalog.js": "6e00727e068e9c57eb569498bc07c27293d54ff0d67e59b9fa45d8e9ab02dd5f",
++    "src/nodal/01_instrument_model.js": "93a1d7ff54e155f2453ea683d738d0aef359c86a0e54b7b4e477870b478bb5bc",
++    "src/nodal/02_synthesis_kernel.js": "4302f389a137ae8ef6785a726172bdeb897e045a249f4f0c5ca0e75379fd7e85",
++    "src/nodal/03_library.js": "d55cc0e856c44176add41a56d66faf445e923994699e850a381e7e494da3d59c",
++    "src/nodal/03_preparation_worker.js": "5d0c90036830cee605310ea8d92f39fe514729cd2d750cacb3b24e6e59805c10",
++    "src/nodal/04_audio_runtime.js": "e65b2ebda0abaddc1e9441e491e640c445e08dd61bd580577647adb79b052da0",
++    "src/nodal/05_installation_bridge.js": "bc1707700358eb1ddfb3cbb59f7845854a4153c778b083fdec365f5e30a2872e",
++    "src/nodal/06_melodic_bridge.js": "72920f9d88760fcb395cf6b12abb2223446c8428e6285c0eaf63323dc878579a",
++    "src/nodal/08_melodic_live_transport.js": "9ee6f2f295ffd587d6f52ac81a55b7b34c4239cfda8e95ffae5400980d2b9689",
++    "src/nodal/09_melodic_session.js": "d61a92708e7dab1ad42a7084b17f3a8f345ea9655fbf788d07b81d3927b215ac",
++    "src/nodal/10_library_manager.js": "4ee7ccc0d5ae907b28115d93eff7c354a54a80bdc06e1026000674aa94637c78",
++    "src/nodal/11_editing_session.js": "3a17df8f6f664f1ce970be95ac2f014b559c1a4ae39f905ab1efda81bb271fc3",
++    "src/nodal/07_sound_designer.js": "7efaf1acd8e9c084bfb9e6bff535a1a997191787f974cd5d5b373fb8bd7ad354",
++    "src/nodal/12_surface_runtime.js": "d97630da10efc49d3b9702e640921103bd759a9e0466c2cbf940e7fbcfee9f7b",
++    "src/forge/emilia/04_source_materials.js": "80a43afc95fd5b2efe6dd30aca015fec10351dda721f7041281e26c146167e2a",
++    "src/forge/emilia/05_hx_reciprocal.js": "e75f5cda56961f762e250ad4b3e57a33d4d3db9551bdb52bf668e1a0bb61e35c",
++    "src/forge/emilia/03_network_color.js": "d3878f9588f5e36015309d76d472e069fa7c81776057e3798bdb923e4bbc1c5f",
++    "src/forge/analysis/04_painted_voices.js": "c0d1e43996d7df24b6eadfef8c685eb9179103ce3318d1f9698c78b552dfe588",
++    "src/forge/emilia/06_preview_worker.js": "89e9b5ea9fa2e68f370b325c79ecc97875f60b11493b47048be1e0ff8ff5135d",
++    "src/forge/emilia/01_nodal_carrier.js": "6d6c588a5215f7cbb22c5e31fec50b4935f08083137480c9d4d3d62e629f7fa6",
++    "src/forge/fractalia/00_legacy_f2.js": "30d9287987f7b7352d5830eac2eeedf4a06fa236eafd61c083350fa96d3af2f7",
++    "src/forge/fractalia/01_core.js": "4185eceb088dfc8b4372000363eb36c9a2f42cd7874d99991551e44134a1bd22",
++    "src/forge/fractalia/02_mantle.js": "c81c5700a0e4becda5fdbecb299a3656596784c803c43b7ac4b589a01ee20934",
++    "src/forge/fractalia/04_relations.js": "cee8d44af6156cd0539b05ac0b63087bebeaa084cf107e79514ece7dcdfe361f",
++    "src/forge/fractalia/06_relational_render.js": "eee78e4310fd25e3fb99811f290928ff425ae605f2a8a2fa18a741aa721c6988",
++    "src/forge/fractalia/05_relational_core.js": "640cec76ab177164437a1a02c6cf137ba0268d8bf46e1efacc0aa0af5a479c7e",
++    "src/forge/fractalia/07_compile_jobs.js": "e0a3a521c74385663596723c4d5ad3af007965d3df5941614440df178311253f",
++    "src/forge/fractalia/08_donor_ecology.js": "7b3150b143a4a2a7151b8e34375b655375007b01c98d988993d28a5b389a513d",
++    "src/forge/fractalia/09_material_atlas.js": "7aefb1c10142644fd12024e91cfb5d88c816be09566cbddab407539ef69393e9",
++    "src/forge/fractalia/10_material_render.js": "106a9afdc6a90bc76236177dfdbb23c64ff1b5ce93322d940acde981c1826550",
++    "src/forge/fractalia/11_material_runtime.js": "a8fb5d09eebe736c82f4200b7c72028732b5472f5ba4470dc2bcf98b770260d0",
++    "src/forge/fractalia/12_material_experiments.js": "b09a3f611a9a6f494b1126cf7f9025fe6247be32a8e639064e29b5ed77a91e36",
++    "src/forge/fractalia/13_spectral_view.js": "c8fd1116fff4951fe0486bde0a7ce084a0d3b18de0b0e8f7b5e73ac77d32848e",
++    "src/forge/fractalia/14_live_transfer.js": "9b00d791a5243f6949fae75ae9cb6ed58361129d28a59d6249cef23e9ed28df1",
++    "src/forge/fractalia/03_instrument.js": "0d8aa02e71b51cced2cde7080aea4fe5d3b7fefd48e0693bb38bf3ea192259c5",
++    "src/forge/editor/09_workflow_controls.js": "bc71df0ada8f0e15591fcaeeb5d0fa62d0f4d12ca3487382ef19c49eb678d117",
++    "src/forge/dsp/08_pure_dieter_worker.js": "7373c1414a568f3ea9d56c33ab9fb52bc95613ba6a9211af16946bc554bb5a64",
++    "src/forge/emilia/02_lab_ui.js": "bdc3ca0f96b2307ce250cf327db6245e33ea01047dde2eca80be4d6c0bec0780",
++    "src/forge/dsp/04_donor_field.js": "e3d8ce96ad7d4f707c1b00c6823e467ec88320b3b815bb8dae00a8fd711cc988",
++    "src/forge/lifecycle/01_offline_jobs.js": "91a7018865c15b60fc56a54af828935097a7cb664d523bc4b7dac4d8d0c536ca",
++    "src/01_app_runtime.js": "885a9004f6fba5d79809c80546c782f458a94f26c344632879bfb178f9b83f69",
++    "src/forge/workbench/01_preset_catalog.js": "92e52667eb406632636c5733505ad7e93a56864f5c3bc61ef645491ba7e04f94",
++    "src/forge/workbench/02_recipe_normalization.js": "1f2c230ca91f0c63da5451ed5432befda85ea6ddbac77d08019631600fdb6cbb",
++    "src/forge/workbench/03_material_selection.js": "022186707460174a20afccb9cb4521eba7e1a12c93d0bd69182e57a5436f973e",
++    "src/forge/workbench/04_sound_bridge.js": "fc81e389da33f9cc674c8c9399f6af8be8d4f848d3dc202c016080510ed25996",
++    "src/forge/workbench/05_state_store.js": "5b33017599a1e20cca132be0873758bd758e3333697d15100adca1a653f40ba3",
++    "src/forge/01_workbench_state.js": "fe8a21ff6eebd4c850f961d4169ee941a7f512ddbf9547c7c930d658eb2db173",
++    "src/forge/dsp/01_material_tools.js": "34273816f3ff5788fa44041ed6a44d14f64232bf13b891a700cb0f16156ba133",
++    "src/forge/dsp/02_gestalt_tools.js": "6baed4dc850b772d620036b9df1f93ed30aa324064d7e15eb0f91f6b1bfe5e80",
++    "src/forge/dsp/03_pcm_worker.js": "b47a5a711f4ada212c8cb2663503afe28834043d59c7cada3a84bc5fb88c4c5a",
++    "src/forge/original/01_articulation.js": "aa974100b110d2ea5f7f751a25339d89017cd905017df0f3078dc5172b2033c3",
++    "src/forge/original/02_material.js": "eca3a573ead36cca0a1c0f73f602c7064dce262aa4e4a1871c22223e9b19544f",
++    "src/forge/original/03_gestalt_material.js": "268788b25eb1aa8b35d978ba9bf15bf542aba8660c9e78aa253bd6cf6ede4b67",
++    "src/forge/original/04_gestalt.js": "e322d3c9ff50dab2d038a6ee290d8586d890850ba0b789a4241ca3328adf943c",
++    "src/forge/original/05_dual_donor.js": "3176730ba9d52fa46d271727b05563d46f049b3d91ebba64d0e7ae67c95d120b",
++    "src/forge/original/06_cecilia.js": "1793157528b6a687ef4d811d1b27212aa0ca26c824855fb7c890a9125d059fca",
++    "src/forge/revised/01_material.js": "039df326f0b67ae6b283d6d86b5e8deccb0aa86a8c5ef7c687d8345a0e52e0b2",
++    "src/forge/revised/02_gestalt.js": "288c8a614423abd9ed1adc4e90b5177c81a3c6bec0b03d760a157c77cb64da89",
++    "src/forge/module_bundle/00_open.js": "dd52fb8c8c042a332d538ec1730bab9c1056d8f5e7b534e1332662a8968221a8",
++    "src/forge/module_bundle/01_entry.js": "7da6f075fd0b724a800e23dd93c852f77ebcece81a41b3c136bd134f9639a998",
++    "src/forge/module_bundle/02_projectionCarrierPlan.js": "99eb34a9a90f278e72d078920fd0c49a7c35c32b6c5bdd2d2a23f50e20cafa62",
++    "src/forge/module_bundle/03_carrierDonorV2Types.js": "f1fd8dc51c24ac409e5ac48a195c2f341682f50044162f2feb8599c85f439418",
++    "src/forge/module_bundle/04_carrierSupportField.js": "cd270f8fa10c256dbd68aaa41c3d1c7108d34058f93c8a37392e51e603f732ae",
++    "src/forge/module_bundle/05_carrierContinuity.js": "4c6131cb4d0b490423ecfc512353f2ca42f26705fae07c9b8affa5de8f03de2b",
++    "src/forge/module_bundle/06_donorHybridModel.js": "c96ff9e2df5f50c701282ea5b1d6d823bc3bbd1d553929dee4b642bd60dbcdaf",
++    "src/forge/module_bundle/07_donorBodyModel.js": "7f8253d133d0413c6d8fbaa06f4836f6ad6061bb0f9aa3fe4efe7cb899d38442",
++    "src/forge/module_bundle/08_realSpectrum.js": "71800f20741beab81b4454c4752ac508f245f28d3a787056040c182c2f904264",
++    "src/forge/module_bundle/09_donorPitch.js": "5ae67accce5e161f73ae4361df26a1f48ffb3234dc1289c1b4f1c03479a8ba4b",
++    "src/forge/module_bundle/10_donorSpectralEvidence.js": "15d023d7173900f1b34cd603e512c70b2ed9bc1f0e073d0b3379eb538fbdb17b",
++    "src/forge/module_bundle/11_donorSourceWindows.js": "d2b9407c05976d3496b14debe59c46f700d5e5a6751965faab9822129e1d036d",
++    "src/forge/module_bundle/12_renderDonorHybrid.js": "c55706488d78dbaf104688cfd6723818344a6d6055086d7206b6886368ba1888",
++    "src/forge/module_bundle/13_donorMaterialPlan.js": "083129b78a98954c3247a5625a3ece131222e5933c58936bf608606018ae9028",
++    "src/forge/module_bundle/14_granularCadence.js": "2d24fa0fe85ad71855e9ffb253aab30ad2b895220e8c543541e95e24be0f27a9",
++    "src/forge/module_bundle/15_renderContinuousDonor.js": "173ed7794dfc9a31a0e1b0d6c693dcc370c932e4f56519b3fe863e70fea18195",
++    "src/forge/module_bundle/16_complexSpectrum.js": "066ed017c3e0ad073ce86b61b26bc20f460220ab9f2c4c756f5b08eb2e5f5bc5",
++    "src/forge/module_bundle/17_renderCarrierSupport.js": "6f41e89cd95dc72fdd69675067e693f094a882d0695faf5590d0c630e2ac59d5",
++    "src/forge/module_bundle/18_donorSpectralFilm.js": "a297214391cf55bd4ae51b611b65d02ed552553786a1f68c8e07e11f4cb6dd15",
++    "src/forge/module_bundle/19_donorMaterialDiagnostics.js": "ebde22ab29918fd65ae2b652559603dab870d76d5185ced7b7df9dd51d3a207b",
++    "src/forge/module_bundle/20_donorOutputMantle.js": "76307be1b9e2dc3ecb7edf15f1538378c93014e58b37f87ada4acd9ce0a76e54",
++    "src/forge/module_bundle/21_experimentStatePersistence.js": "ba330b8b52f103f4a26c02bb64669ec307db0a6cff71e2bdac82aa5ded112a47",
++    "src/forge/module_bundle/22_materialIntakePersistence.js": "6cafec657997e9e520d6e4b541e7277c4614791a26db1bf04843db8f9f3f3e3f",
++    "src/forge/module_bundle/99_close.js": "59c528363096f35351430920a4e283a1e3dd1a7ec88447e4e4c42d5e60497881",
++    "src/storage/01_donor_library.js": "80df7cebb66e3f7f8677178c776e0fc802873f5cce64cc0538d4c16f0700c729",
++    "src/storage/02_donor_packages.js": "2b2204611a763ab8a28e3c56217a074988dda2c82da0fc36d3e37573a9963524",
++    "src/storage/03_forge_packages.js": "96fb969b6785cb2fa67677b693593862da8e0e2c9eef7c6ac1fec7ea9b0cc3d5",
++    "src/storage/04_sample_donor_bridge.js": "d0d81ada2e31af2dff0ec97c2289261b513b7db26dbbfd23141e0c69930ddc4c",
++    "src/vendor/01_react_dom.js": "53fd4c16cb0532b5c8d7d4ea36851fcbfd7003db535361217a39fb0bd8bae7c9",
++    "src/runtime/01_instrument_state.js": "42a788386000a2d629879df6758739dc66b665f254b7d06bce81fdfccca15358",
++    "src/runtime/instrument/01_voice_gradients_and_effects.js": "3294e68bbd3c420ef7b6657d722b51b00bfac1b5b8b3887b17e76fa571efa05a",
++    "src/runtime/instrument/02_observation_and_sample_storage.js": "dcd8df5dcbcee0c370726a305a3b1f9d5927a2275ac41451eae8b435251d0478",
++    "src/runtime/instrument/03_selection_and_recording_tools.js": "64b5f845cae8316ea6a13625698c6115ccb80a5b5c691336391be8c58a97560e",
++    "src/runtime/instrument/04_performance_and_output_profiles.js": "5b785620a9f1aa1469d226b5a7bfbf0fb31b2a5783ce0bfa633e4b8ff723189c",
++    "src/audio/rfl/01_resident_worklet.js": "6d897cdeccf681ea89bdfb2930f15f89e90b7277bfcb367feb771f9908565c9e",
++    "src/audio/rfl/02_fragment_preparation.js": "c47036740e92cd13952416aefb46f9c714b4cf47dc51a7392ade576dcc2e3e63",
++    "src/runtime/instrument/05_timing_and_admission.js": "53b440344b3a641e96df2be12c68b5979636b11c1211b660c1cb05143b65d3fe",
++    "src/runtime/instrument/06_rooms_and_lifecycle.js": "74dc9230f2656d8eadebe960ab8eaeeb56f18059a50d805a283847eeead94027",
++    "src/runtime/instrument/07_interpreters_and_installation.js": "f83901a67779f8ef75e283d54caa91e7e68192e4db217df898d03428a31f75dc",
++    "src/myzel/01_effect_mapping.js": "fd0dac53dff6cf6fc175efd833f292014ad23c5a7e7a1a8aa6fcdea662d8f435",
++    "src/runtime/instrument/08_library_and_tuning_editor.js": "3d8207dcbd339560be5ca8c32b5d0401ca6e958a7b97fc8a7b507078c41820ee",
++    "src/runtime/instrument/09_monitoring_and_manual_patterns.js": "467c145310f0b1d45614a0a6b63d78bc05573a92871e6d05e9d1d5ddaf152c8e",
++    "src/runtime/instrument/10_entrophon_and_voice_control.js": "be3a9da7644034613547e8fd6b890d4b320b062e48004ae94c904440d86bf16c",
++    "src/instruments/01_entrophon_definition.js": "89568e4d8362321ab2e9861133e28a8f46540edc28b4e88d5ef8ea19b2a495c5",
++    "src/instruments/02_entrophon_library.js": "c46b81967b7c272cfb060f582154a8576f81dfd1b26cec248ddab2f60d5033dd",
++    "src/instruments/03_entrophon_library_ui.js": "08d04d10127e7fd4f566edd008dd11b55bc676be2b6eb7f15108a280c3235f92",
++    "src/instruments/04_entrophon_melodic_audio.js": "824e50efe43a23ca8934b9e53bf35cc679cf805c4a621ad796896de3c01ea276",
++    "src/instruments/05_entrophon_integration.js": "553ad94d383cea739ceb54cda36241636934633c7a232af5658f621d5da9b94b",
++    "src/instruments/06_source_preparation.js": "e616e6ccc1cac12c96f00bdeb03b961bc5630f64755b3c7e4d292591fdb0f351",
++    "src/instruments/07_pitch_preparation.js": "0606c67311b76324523b74bdbc50159af24cc94791dba20ae7477fb6a4c1272b",
++    "src/runtime/instrument/11_recording_and_granular_controls.js": "fc2fc66fe1b91bedc8e9de94f1b03ea46de83ea69ae0366d535954d2121226b2",
++    "src/runtime/instrument/12_rhythm_and_bass_editor.js": "16b5c0e28ff88f8f49f95e3517200db3dd692225e828825e490f3c23e72eb618",
++    "src/rhythm/06_lane_pan.js": "f6d4e61fe6aecdcb8fbbf7cb9aa1c4eff4508689a77f57cc77a12c1d8df64c71",
++    "src/rhythm/01_compact_drum_grid.js": "4feb238a5f8120addcb3a66e8d374498252f449265e86df2b57f5ed79379a701",
++    "src/audio/07_myzel_g_geometry.js": "81334333c39314378d08417cff731122371b21d6264c9f588dd9d6e604e250f1",
++    "src/audio/09_myzel_g_dsp.js": "c6d0d4fbbb7df7aca9fd928513e1e72e8bcfd07bf33571454fee9e5cec59ffbd",
++    "src/audio/08_myzel_g_live.js": "7a5395a201f2b562caca67fff17fad7f817fd471e910e48bbff3c8758eab2faa",
++    "src/runtime/instrument/13_pointer_motion.js": "0ddff43024ee3ed3d4e074444cf3c44b3844c511597b2d54448f2e9f165a73d3",
++    "src/rhythm/02_bass_and_rack.js": "279013e1f4424481944aacca59e3b95edb4464c750c956e645be0353fb5820c9",
++    "src/audio/01_voice_and_rfl_ownership.js": "76546b19610ba16b0818d7cea72420f8494a782d7cdde2c7301f71a13848015a",
++    "src/audio/00_rfl_settings_cache.js": "513ab3f4f26b8eb213b086d06f3c840b50d46982474b795268a1c8ea5312459e",
++    "src/audio/02_rfl_worklet.js": "c13e23318f08ed20c2a38908bfd6ea98aece06dccc7f6542f7743e2f5be00e77",
++    "src/audio/03_rfl_transport_legacy.js": "7f75f30b7d81b82d6553d73c927973037ef68d9195cf673c09c0287c68368629",
++    "src/audio/03_flac_encoder.js": "7125ee26eb5e4353c17b5589b854283498b411ed49adcdc4e7486c9e6fb1dfb4",
++    "src/audio/03_recorder_helpers.js": "d63ed4f43bb6f7710159d432c5b5d4d8c8cb79af7d535713902a9c7df29899e0",
++    "src/audio/03_pcm_range.js": "29f2a964869fc57b564cde1f0df2a7a0c0c377901fe7c2b9cce6f5b8205d9d1c",
++    "src/audio/03_recorder.js": "e3ec9d1ced5298297bcc2c18fe31dbe4c0363b01d0d607809b81821e630ddc03",
++    "src/audio/04_wave_worklet.js": "37b659f26344720b8e2ef0091ca44fb87ca799b35041c1820ab41e3aff2a40b2",
++    "src/audio/05_sample_granular_hold.js": "175794655292cc35a8beeae08fa800adf0b5d2a91fb631c3663e46a0d7b5d768",
++    "src/audio/05_live_voice_runtime.js": "69e6f68bbb7549d8206ab50160ebfc161c61faca9a0889ab7f41a9262a366939",
++    "src/audio/entrophon/01_wasm_asset.js": "292826664b9374a860f06a5e0d3041b0adeed22638e1266bdbd3d4386c59d658",
++    "src/audio/entrophon/02_worklet_and_voice_backend.js": "f7d0f83be5ea05ef52eeb7f94a250869356ad98e8cb39cbae36e150398d102d0",
++    "src/audio/entrophon/03_native_bridge.js": "0e6248350506a548742f09e7566c62f713600cde6a84d99aff0e129030bc1e99",
++    "src/audio/07_governor_and_drums.js": "b5bb44b24e06667abe18526232488bb21958ce287bb6edb939d8c4fc53490d87",
++    "src/rhythm/03_live_drum_bodies.js": "834e73261cc3bec29092f2c8a127644e6aa9ea726a7bf4ea01e3066709681b6d",
++    "src/rhythm/04_workspace_and_transport.js": "3230ca4eff37eecddf82dde7d8f80f12f4ec178d1a16b0c14bfc3d44b9d7dd3d",
++    "src/rhythm/05_canonical_selection.js": "70c37d3458aa13b17985b873a2ca17fb3e8f8050a645cd030dd9e6e00164aead",
++    "src/app/forge/01_room_shell.js": "0b53e104ef80a31b7c6e7c6aa8bfe3e9ff5a74dceb1fe8dc29de8039e6004f9f",
++    "src/app/forge/02_boot_and_workspace_tools.js": "1dda8136a1d2cb7f628184fafc1a89b762ec152cd1572c66e03ee847ca236bf7",
++    "src/app/forge/03_spectral_grid_and_archives.js": "f6d1480e33d653394daa77804a7b45c652adb225e44e1c14f44a099d419dbe12",
++    "src/app/forge/04_profiles_and_body_models.js": "106d7abda3f9277cd9b6de4e2bd6928ab8f755712a697dd34c98193b2bd8867a",
++    "src/app/forge/05_forge_state_and_analysis.js": "e237a8897ff6ef64872ad796ea92be7810e7342671fd5f03a4f54240cbc3de8c",
++    "src/app/forge/06_donor_audio_and_audition.js": "a2c47252f68252778eb94dacf646e19f8f3072c478a03651c09a0cd918354cbf",
++    "src/app/forge/07_preview_cache_and_controls.js": "bf180e9adcd25cb323e8cd1e471c65f1c1a141b7136283ffdac899e14f5b60ab",
++    "src/forge/editor/06_pcm_spectrum_view.js": "b7502ef94e2679c37c889e31bf87ad574215c5b5871643ba8a62f7de7df2dc22",
++    "src/forge/editor/07_view_lifecycle.js": "0956e31d83d8e67d4df961ff21b17de83b598908dc7772f719556cbc81ade255",
++    "src/forge/editor/01_display_and_canvas.js": "735ce189f0d6735b8a8dcd117745111e3a1f733fb96d03be9d16f98e126bdffe",
++    "src/forge/editor/02_tools_and_audio_inputs.js": "1518f0931bdbaa955ef238e1802257e441fdfef7ac71e14d284966f5ee48688d",
++    "src/forge/editor/03_synthetic_sound_engines.js": "cc8b0438388b8135aaa34e702855ae417f9b3430dfbea79f9b4f6eb0bd79bfc3",
++    "src/forge/dsp/04_polytrace_render.js": "3ebfc857620db1b4a98bdf91bb916ca3045e4bf6a8e6b79369f15f57ed09467d",
++    "src/forge/editor/04_signal_atoms_and_bodies.js": "b58714b8c5e72c33241fa2a09ebbe125da72f9ca025399f98bc254604dfc5fc3",
++    "src/forge/editor/05_machine_and_carrier_projection.js": "39bcd601fe4574e8009d6cbccd7f7a05348601d211f8d18e91b130e174da817e",
++    "src/forge/editor/06_output_routing.js": "d2c22da5006a55e11c37f667858bd1904cfebaec3aea6454d8d1a680b3352e78",
++    "src/forge/editor/07_composition_and_preview_ui.js": "30f281207070b81e2c1fc6433f0739117b47b17d0cd810fdb5f624ebb333febc",
++    "src/forge/editor/08_stamp_library.js": "3b563c47366a019ff0bc77beaf880d680a5a0f70fc624e6a9532bb26587ef6ae",
++    "src/forge/ui/02_donor_routing_and_hearing.js": "c6923ab0e6a9e00da7537266cb089b162a6b97019f2119328363647b894f89a6",
++    "src/forge/ui/03_method_selection.js": "cdf3320ba84739143065396d63d69c4145955d59ef510d0bc278b91c3b473817",
++    "src/forge_and_melodic/01_donor_selection_and_edits.js": "0cd32a216be527d7df04a14d7c78b855f0e2f93ce693ae7602bc750459cee0b3",
++    "src/forge_and_melodic/02_forge_keyboard_and_history.js": "50c67620ec3ada13fe43d72342cf4e6c1ddcaa01d6fcbf6b59a45366bfa5309f",
++    "src/forge_and_melodic/03_timeline_and_transport_ui.js": "f883180c4653a867b67e319f144aa0ced0e35909e57b8d257f2754f22dc93272",
++    "src/forge_and_melodic/04_render_cache_and_stems.js": "0db4cc92a63abb70730c676466dd01b037e3585a8e6fe1c333f28efa0b547e45",
++    "src/forge_and_melodic/05_preview_and_sample_intake.js": "887519737b8a941be1f3f44e7821409a843e8f0ff9b33ee803ab65e35fc08720",
++    "src/forge_and_melodic/06_note_editor_and_material_tools.js": "e7bca093062e31c02de8f9a30bd9a017c9da8eebda5ec214e686337afee62ab6",
++    "src/forge_and_melodic/07_tuning_and_logic_view.js": "9a42edd27ec28b642b6e9944d9dceff714a30b60ce9cb54715bde4357d09334f",
++    "src/forge_and_melodic/08_editor_actions.js": "19c42ddab54ecbc00c5d5326443e91b1e1aacc4d08d78f71d286ba67921e5c6b",
++    "src/forge_and_melodic/09_canonical_forge_room.js": "0b2d9054ee204b83d0203327a6e6171289dad69cfea1e772a30df97a9d8d60d8",
++    "src/forge_and_melodic/10_audition_and_persistence.js": "d27cfda432864769c47ac8c9342da6b43d6e095bcdbb289006ceeebbfa736914",
++    "src/forge_and_melodic/11_analysis_canvas_and_controls.js": "76bb5107cfa5dc16d86cfad05e5206b69b5e7d81de5b5f6bf813291a17a4b6d1",
++    "src/forge/hybrid/01_recipe.js": "8f9971f9a3eb3f105fb875819fa91771be2213b25d30b035bdb39d6043a99c24",
++    "src/forge/hybrid/02_session_store.js": "fb7b4cf3a23311dce3ede0a6a6dee42d17fe7df1d6486f3ffdd5a4a8656ffd20",
++    "src/forge/analysis/01_analysis_size.js": "56f1b22b8f823a1851fa38a145058c2ea34a422b36bf1e1f94b304ded2821585",
++    "src/forge/analysis/02_analysis_cache.js": "9d2de963ab4e133794d30ed552c78b0e0da5b0b65f464d7c269cf612d4561cd3",
++    "src/04_forge_render.js": "78bf6edcdd3a1499003c9d9f52e5eab1d132d99d04394974b93d140b9b06fb7a",
++    "src/forge/hybrid/03_render_pipeline.js": "f644acc3404e0f0948f19235ec59a8dd2de09fbc69b66b7e6bee3ba25c0205f4",
++    "src/forge/hybrid/04_cecilia_dsp_and_worker.js": "f801c81f5c657b400a49a65db7fed559074d6503cd00591dc0159018b37b19ba",
++    "src/forge/hybrid/05_capture_tools.js": "25ab13b8cf8118ea3bdeac88588becde0a5be3817a469ab684a769fb71c8c37e",
++    "src/forge/hybrid/10_carrier_capture.js": "7d493c3af6d70c70901a301e9f4a001e30e8653ad96547f0e63fadeebfa5f25e",
++    "src/forge/hybrid/06_job_capture.js": "fad0ad7ac5e4d84397eb7c4a955b002958f19dc33d79e8bc864967e766349cda",
++    "src/forge/hybrid/07_render_adapters.js": "8755b217732677487dc20647b46a0580ea218460e5f85ef986ff660bec422606",
++    "src/forge/hybrid/08_playback_controller.js": "616691ad1ebae4a7da355e190549429d376e09d948e44ed70496ad778ec9416d",
++    "src/forge/hybrid/09_runtime.js": "14638b2ce878288a480922e2b4c3a7dde8783adb9f3340245ba75035f34f8a68",
++    "src/forge/ui/04_cecilia_controls.js": "80537bbab856271cb41e3aa4d89489462933bfc6a80de64223cf28ee3359b176",
++    "src/forge/analysis/03_source_identity_and_cache.js": "c1536bd80ffdaf69c9602ca7c6994dc83d43250b63548bda9f96a1bea1006366",
++    "src/forge/lifecycle/02_workbench_activity.js": "dde7c5169b27d50f71c7bf971eee49d85bc8a4a724c833b6cb92e720f81b3026",
++    "src/forge/ui/05_workbench_controls.js": "9e00dd532f8832e866875abf37290c918a5134a1168e8ec14955e04f6067a508",
++    "src/forge/dual/01_dsp_and_worker.js": "757f740b04fb9b8e8771f51e64d4907516831680465089af56f25e96b5352b4c",
++    "src/forge/dual/02_session_store.js": "92a88bd5fcdb0623222409c2f4ab16df1771c5087a0dc379452f2df8de76483d",
++    "src/forge/dual/03_audio_files.js": "e920dd32c8ab5855d9b5db87bb71c49cfaa8829e3901d99ee696c580acc19d8e",
++    "src/forge/dual/04_session_codec.js": "4e2bb913898ea3a07fec3ca1ee991d916574188de37e44c5d63ec33ce7f5e498",
++    "src/forge/dual/05_library_bridge.js": "19bbebb6233870a251812e15c6dc5ca477de5dc2008a985e75d20ad1381a94b1",
++    "src/forge/dual/06_output_controls.js": "ce648197d0eb834bcf0c4f5cf05c9c942d36dd4293fd35b1f58a1ccf8ae3138e",
++    "src/05_dual_donor.js": "cc1241087c1e460a03920e3dfd8c271dc32536df8156a9125e9086937c142b0a",
++    "src/06_workbench_dialog.js": "0153369e5b58d75f66f392655d1eaa899c0a9a3ad0e5b7578f08ccf19f1ebd17",
++    "styles/00_base_utilities.css": "e09b40882f0e784107aac80ee8294e4c3363e7d596820c91469833da46d67081",
++    "styles/01_near_feedback.css": "a3ae120030efbac40a14ace2802e9f0924e6ac8c2af862b6c3901b51cec13efb",
++    "styles/02_wave_amp.css": "f000fd3a9f89337f9e255de1734700837f35681a72be59fb309a3d42deaf1634",
++    "styles/03_forge_mobile_sidebar.css": "ab91854df198c49cfea31757b193717865f3d26e5d68e370a7392eb9b8a31535",
++    "styles/04_workbench_base.css": "36d7ec5234da0071f61f31beebd31fb16072aa99f8a4da4ab97ae1af87645b42",
++    "styles/05_workbench_controls.css": "63bf3ddd8c66aaf9fc3e13b0dfab533ae352fae0efdfdf44351731da9fc335ab",
++    "styles/06_donor_library.css": "d8285928265fd25f970e370a50145db6237fb204b7932fe792b06101a1becf72",
++    "styles/07_donor_library_dock.css": "a9015ab49de1889c6a1f14e5dd6b5a0c13f261618eed9009c67d1c2a0ba02a34",
++    "styles/08_workbench_workflow.css": "31ba7c163fe9d563956753fcb10134f10d1cf7d759548ad75c78708a1b1ce7a6",
++    "styles/09_combination_rack.css": "53b6cc5fb8da5c397e7eb4eca8ac4e7bf4baf129b3356267c7d9d7e7c07282f3",
++    "styles/10_hybrid_workflow.css": "9c6c8ca5b10d43316c1799171b8617726ced37aef205a0da180c9f3ca7d3d533",
++    "styles/11_carrier_controls.css": "5b2d1e3c67bce5a18a72f7928f480180a1fc34051fe0f23a082803ea544a69af",
++    "styles/12_drum_rack.css": "2d919686bbc365ffc0b5f6a58b24e1408dd12780a8c2776cef2b0d4d90cea178",
++    "styles/13_drum_timing.css": "97f5a79dbc339b77cf3ddf43db7efd0ed938e3a52226435aeb03415e4986cf03",
++    "styles/14_drum_responsive.css": "cf0a6c4070a6b119eb10e7bc1e100be910799511393ff5316d052b0fb4fb2e08",
++    "styles/15_drum_playhead.css": "172b73e65d2510e479403395b09e468e33f830708046209bb966174ad092e847",
++    "styles/16_dual_donor_assembly.css": "5f1c9c86811f0ad65cd26e933a7958b6e77b7ea11fec0a0e0b387d309e259018",
++    "styles/17_dual_donor_output.css": "cae09d0b10d06d0f2691a77e6f935f3fbdb6ce3d0f23ac54b6145f6b807ca9ac",
++    "styles/18_forge_status.css": "325841dc85670fe707b0aaef263064582ebf539384808579a655f09b2b0b5fb6",
++    "styles/19_bass_manager_fix.css": "a5bfe03c03a3d66c6e7712ee05263406b0b99e619ad7645baf3c007991b60058",
++    "styles/20_nodal_sound_designer.css": "06a0d232166b9a3a86efa65b67cfa871893e4a870370e4678c27af132c202a2f",
++    "styles/22_emilia3.css": "c2cf67556b33c63165a52dbd2fe42390541736f081c5719980ab3c2053a07faf",
++    "styles/08_forge_workflow.css": "4193e0c5187baf3b88d5f16755c1e3b05e04ee8d0c0eb64a889562efd3ed67d9",
++    "styles/23_performance_palette.css": "80ed8e70b1dd50154a0a954cfadc07a89bf17c0976f07bc2a46b50fdeb459b29",
++    "styles/24_quick_menu.css": "1c114dcf164149155b8c99ab735e1686e253517abecf10b090e0e94cb8b1471b",
++    "styles/25_n20_forge_navigation.css": "90fbaafbd463a0eee3f3152aa702b8ed773e1172751466376dd82af20c80590d",
++    "template/head.html": "917f8a021970a0756e9f4e7a8f52ac97dc8fa2a0af3d8c0ffcffc309d89d0c31",
++    "template/foot.html": "af5c88b6ab4b01a5826bf521d32c1da95c2aea93fd650060a521f22cb24ed085",
++    "src/mix/04_melodic_spatial.js": "a1eebc1cc3b0a7c559227da60019da3a3068f1fe3183c968c78353faeca9783f",
++    "src/audio/drone/01_colour.js": "cccbe1f3694f37a3aa0f221360f03971a30b284383e525da4c15da9e12949022",
++    "styles/26_live_controls.css": "46c74b1c8536c79bf4ebeafb307a066f880b070a730f10422cffe92a8d02307b",
++    "src/mix/05_grid_runtime.js": "eec8e443ae3c2397a340da3c8335935cfec3e516f89331f8b57f85f30b95b7e6",
++    "src/mix/06_custom_instruments.js": "4e09117f3171d4228a10343d44ce054220af027964b8885829e104d019b41070"
++  }
++}
+diff --git a/docs/maintenance-report.md b/docs/maintenance-report.md
+new file mode 100644
+index 0000000..4065b8d
+--- /dev/null
++++ b/docs/maintenance-report.md
+@@ -0,0 +1,67 @@
++# Wartbarkeit und vorbereitende Audioverwaltung
++
++Basis: Commit `8b3ceb278c54350d8f5df868f5bf3c6a27654dfb`.
++Build: `Xensonar_N21_F2_Maintenance_Test.html`, 5.544.465 Bytes.
++SHA256: `e1db09b24d076ae8aeb07568cc986bb2c2da80f009d3782889aaea089440a6ed`.
++
++## Konkreter Nutzen und gewählte Grenze
++
++Die Analyse fand wiederholte Vorbereitungsarbeit, für die keine neue Engine-Architektur erforderlich ist. Der Patch verändert genau vier Verwaltungsfunktionen in drei bestehenden Modulen. Er ergänzt keine Laufzeitmodule, erzeugt keine neue Clock und verändert weder Bedienung noch Projektformat. Die getrennten Klanggeneratoren und ihre Klangvielfalt bleiben erhalten.
++
++1. **Spuren-/Kanalplanung:** `__mlAudibleTracks` besucht die Notenliste einmal und erhält die ursprüngliche Reihenfolge der Tracks im Ergebnis. `__mlOutputChannels` gruppiert die relevanten Noten einmal nach Track-ID, bevor es die unveränderten Stereo-Kriterien in derselben Track-/Notenreihenfolge prüft. Bisher wurde die gesamte Notenliste wiederholt je Track durchsucht. Die bisherige konservative Regel bleibt ausdrücklich erhalten: Auch eine gemutete Stereo-Note kann die Stereobreite ihrer ansonsten hörbaren Spur bewahren. Solo-/Mute-Auswahl, gezielte Einzelnoten, Nodal-Breite, vorbereitete Entrophon-Puffer, intrinsische Sample-Stereokanäle und die Drum-Regeln behalten ihr Verhalten.
++2. **Teilrender-Grenzen:** `__mlPartialSpan` berechnet Zeitgrenzen der Kandidaten einmal pro Request. Die anschließende Überlappungssuche benutzt diese vorbereiteten Grenzen, statt dieselben Zeitkoordinaten in jeder Suchrunde erneut auszurechnen und die alte/neue Notenliste wieder zusammenzusetzen. Reihenfolge, Release-Sicherheitsabstände, 256-Runden-Grenze, Konvergenztoleranz und Rückfall auf vollständiges Rendern bleiben identisch. Die Vorbereitung bleibt lokal für den Aufruf: kein zusätzlicher Cache mit Invalidierungsrisiko.
++3. **Artikulationsfelder:** `resolveNodalArticulationFields` erstellt einen gemeinsamen normalisierten Snapshot der Block-/Instrument-Felder. Volume und Pitch führen danach weiterhin ihre eigenen Interpreter und Bypass-Prüfungen aus. Instrumenteigene Volume-/Pitch-Envelopes bleiben getrennt. Die Nodal-Nullskalierung und die andere bestehende Entrophon-Skalierung bleiben ausdrücklich verschiedene Verträge. Verfasste Felder werden nicht verändert.
++
++Es wurde bewusst kein generisches Synthese-Backend, keine zusätzliche Klassenhierarchie und kein globaler Notenindex eingeführt. Die Verbesserung besteht darin, unveränderte Daten innerhalb eines Requests weniger oft zu durchsuchen bzw. aufzubereiten.
++
++## Vergleich mit dem eingefrorenen vorherigen Code
++
++Das Vorgehen folgt Fable Simplify: Verhalten einfrieren, je einen begrenzten Schritt ändern, gegen unabhängigen vorherigen Code vergleichen und den finalen Diff auf unbeabsichtigte Änderungen prüfen.
++
++Die drei ursprünglichen Quelldateien liegen unverändert unter `tests/fixtures/maintenance-before/`. Ihre Hashes stimmen mit dem vorherigen Commit überein. Die Charakterisierung ruft alte und neue Produktionsfunktionen mit denselben Eingaben auf, statt das erwartete Verhalten aus dem neuen Code nachzubauen.
++
++- 480 Kanalwahl-Vergleiche mit wechselnder Spur-/Notenauswahl, gemuteten Tonstufen, Nodal-/Sample-/Entrophon-Stereoinformationen und Einzelnoten-Auswahl.
++- 200 exakte Kurvenvergleiche mit beiden Gain-Verträgen, mehreren unabhängigen Feldern, Volume-/Pitch-Zielfeldern, Array-Eingaben, Bypass-/Disabled-Feldern und enger Range. Zusätzlich Prüfung auf unveränderte verfasste Eingaben.
++- 100 exakte Teilrender-Grenzenvergleiche einschließlich Notenlöschung und Rückfallbedingungen.
++
++Im größeren Arbeitsbeispiel werden tatsächliche Operationen gezählt:
++
++| Vorbereitungsarbeit | Vorher | Nachher |
++| --- | ---: | ---: |
++| Lesen der Noten-Track-Zuordnung, 96 Tracks / 4096 Noten | 397.872 | 4.192 |
++| Berechnung von Zeitgrenzen in einer Überlappungskette | 2.402 | 98 |
++| Explizite gemeinsame Feldnormalisierung, vier gemeinsame Felder plus zwei eigene Envelopes | 10 | 6 |
++
++Das sind gezählte Arbeitsschritte in den beschriebenen Fällen, keine Behauptung einer pauschal entsprechend höheren Audioleistung. Bei kleinen Projekten fällt der Gewinn geringer aus. Die Synthese selbst wird nicht verändert. Die Kurveninterpreter und ihre interne Validierung laufen weiterhin getrennt.
++
++## Audio und Bedienung
++
++Der native Chromium-/WebAudio-Vergleich verwendet den unmittelbar vorherigen eigenständigen HTML-Build als Referenz. Legacy, Nodal V1/V2 sowie der reale Entrophon-WASM-Pfad liefern exakt identische PCM-Hashes. Gespeicherte/erneut geladene Custom-Instrumente behalten ihre Original-Engines und Kurven. Für Samples erfasst der Test zusätzlich Wiederholungen des alten und neuen Builds, da bereits der alte native Renderpfad minimale Float32-Abweichungen zwischen identischen Wiederholungen zeigt. Die harte Obergrenze beträgt 0,0000001; konkrete Werte stehen in `native-audio.json`. Kanalzahl und Länge stimmen überein, sämtliche PCM-Werte sind endlich.
++
++Der echte Bedienablauf prüft weiterhin Raster-Bypass, tatsächliche Material-/RFL-Hotkeys mit grüner Rückmeldung und Bankwechsel, Nodal-Namen, Custom-Speicherung/-Auswahl und einen gemeinsamen Transport in beiden Ansichten. Bestehende Mono-/Stereo-/Pan-Browserprüfungen sichern auch live verändertes Panning ohne erneutes Rendern ab. Die Nodal-Volume-Hüllkurve erreicht weiterhin exakte Stille.
++
++## Erhaltungsgrenze und Nachvollziehbarkeit
++
++Der Hash-Vertrag umfasst 227 bestehende Quell-/Stil-/Template-Dateien. 224 bleiben unverändert, drei sind explizit freigegebene Verwaltungsdateien. Zusätzlich vergleicht ein AST-gestützter Test innerhalb dieser drei Dateien sämtliche Inhalte außerhalb der vier bearbeiteten Funktionen exakt mit den eingefrorenen Referenzen. Damit bleiben auch die Synthese-, Transport- und Cache-Funktionen in denselben Dateien geschützt. Die Drum-Regeln innerhalb der Kanalwahl wurden beim Diff-Review unverändert belassen.
++
++Historische Baseline-/Ankerdateien bleiben unverändert. Ihre Tests berücksichtigen einen separaten, exakten Maintenance-Hash-Overlay. Der bestehende native Audiovergleich hat lediglich optionale Parameter für Referenz-HTML und Ergebnisverzeichnis erhalten, damit derselbe Test für den alten und neuen Stand wiederverwendet wird.
++
++Die bestehenden 65 Host-/DSP-/Worker-Prüfungen sind vollständig bestanden. Zusätzlich bestanden Workflow-Integrity, Live Controls, UI-Refinement, Merge, Forge-Fortschritt/PCM, Granular-Hold und Live-Stability sowie die genannten Browserprüfungen.
++
++Neue Ergebnisse: `results/maintenance/`. Frische historische Testergebnisse werden dort unter `regression-output/` gesammelt; bereits ausgelieferte Berichte bleiben erhalten. System-Chromium mit echten WebAudio-/Worker-Pfaden ist geprüft; Opera/Firefox und eine subjektive Hardware-Hörabnahme sind hier nicht verfügbar.
++
++```sh
++npm run build
++npm run test:maintenance
++XEN_CHROMIUM_PATH=/usr/bin/chromium npm run test:maintenance:browser
++npm run test:p4c2-n21
++npm run test:workflow-integrity
++npm run test:live-controls
++npm run test:ui-refinement
++npm run test:merge
++npm run test:forge-progress
++npm run test:granular
++npm run test:live-stability
++XEN_CHROMIUM_PATH=/usr/bin/chromium npm run test:live-controls:browser
++XEN_CHROMIUM_PATH=/usr/bin/chromium node tests/nodal-envelope-zero-browser.cjs
++```
+diff --git a/docs/maintenance-source-anchors.json b/docs/maintenance-source-anchors.json
+new file mode 100644
+index 0000000..01e1d0f
+--- /dev/null
++++ b/docs/maintenance-source-anchors.json
+@@ -0,0 +1,5 @@
++{
++  "src/mix/04_melodic_spatial.js": "398f3acabc5f7da84392ec193b6ad838931187d5961e5540993a7cbbec272856",
++  "src/nodal/06_melodic_bridge.js": "55538a3b768c3674bb5f1e70a656367c4e5e2488cb776683f3f4684c18d0be2b",
++  "src/forge_and_melodic/04_render_cache_and_stems.js": "b900938343dfa7239cf996cb604b7644bdd2f16831582537a5856988d7e19cd5"
++}
+diff --git a/package.json b/package.json
+index 1dd98b2..2d63c53 100644
+--- a/package.json
++++ b/package.json
+@@ -130,7 +130,9 @@
+     "test:ui-refinement": "node tests/ui-refinement-preservation.cjs && node tests/ui-refinement-raster.cjs && node tests/nodal-envelope-zero.cjs && node build.cjs --verify",
+     "test:ui-refinement:browser": "node tests/ui-refinement-browser.cjs && node tests/ui-refinement-raster-browser.cjs && node tests/nodal-envelope-zero-browser.cjs && node tests/ui-refinement-marker-browser.cjs",
+     "test:workflow-integrity": "node tests/workflow-grid-runtime.cjs && node tests/workflow-custom-instruments.cjs && node tests/workflow-hotkeys.cjs && node tests/workflow-preservation.cjs && node build.cjs --verify",
+-    "test:workflow-integrity:browser": "node tests/workflow-ui-browser.cjs && node tests/workflow-native-audio-browser.cjs"
++    "test:workflow-integrity:browser": "node tests/workflow-ui-browser.cjs && node tests/workflow-native-audio-browser.cjs",
++    "test:maintenance": "node tests/maintenance-equivalence.cjs && node tests/maintenance-preservation.cjs && node tests/rw2-source-index.cjs && node build.cjs --verify",
++    "test:maintenance:browser": "node tests/workflow-native-audio-browser.cjs --baseline-html Xensonar_N21_F2_Workflow_Integrity_Test.html --results-dir results/maintenance && node tests/workflow-ui-browser.cjs"
+   },
+   "devDependencies": {
+     "playwright": "1.56.1",
+diff --git a/source-index.json b/source-index.json
+index 86f2977..58dce5c 100644
+--- a/source-index.json
++++ b/source-index.json
+@@ -89,37 +89,37 @@
+     {
+       "name": "__mlOutputChannels",
+       "file": "src/mix/04_melodic_spatial.js",
+-      "line": 11
++      "line": 22
+     },
+     {
+       "name": "__mlHasTrackPan",
+       "file": "src/mix/04_melodic_spatial.js",
+-      "line": 37
++      "line": 54
+     },
+     {
+       "name": "__mlSetLiveTrackPan",
+       "file": "src/mix/04_melodic_spatial.js",
+-      "line": 40
++      "line": 57
+     },
+     {
+       "name": "__MelodicTrackMix",
+       "file": "src/mix/04_melodic_spatial.js",
+-      "line": 51
++      "line": 68
+     },
+     {
+       "name": "__MelodicTrackPan",
+       "file": "src/mix/04_melodic_spatial.js",
+-      "line": 65
++      "line": 82
+     },
+     {
+       "name": "__MelodicTrackVolume",
+       "file": "src/mix/04_melodic_spatial.js",
+-      "line": 66
++      "line": 83
+     },
+     {
+       "name": "__MelodicTransportControls",
+       "file": "src/mix/04_melodic_spatial.js",
+-      "line": 69
++      "line": 86
+     },
+     {
+       "name": "__xenEmptyGrid",
+@@ -374,62 +374,62 @@
+     {
+       "name": "nodalComposerSourceFields",
+       "file": "src/nodal/06_melodic_bridge.js",
+-      "line": 14
++      "line": 21
+     },
+     {
+       "name": "nodalFindInstrument",
+       "file": "src/nodal/06_melodic_bridge.js",
+-      "line": 26
++      "line": 33
+     },
+     {
+       "name": "nodalLibraryEntryLabel",
+       "file": "src/nodal/06_melodic_bridge.js",
+-      "line": 33
++      "line": 40
+     },
+     {
+       "name": "nodalInstrumentMenu",
+       "file": "src/nodal/06_melodic_bridge.js",
+-      "line": 39
++      "line": 46
+     },
+     {
+       "name": "nodalLoadMelodicSources",
+       "file": "src/nodal/06_melodic_bridge.js",
+-      "line": 71
++      "line": 78
+     },
+     {
+       "name": "nodalHasMelodicNotes",
+       "file": "src/nodal/06_melodic_bridge.js",
+-      "line": 82
++      "line": 89
+     },
+     {
+       "name": "__mlContainsNodalTracks",
+       "file": "src/nodal/06_melodic_bridge.js",
+-      "line": 90
++      "line": 97
+     },
+     {
+       "name": "__mlNodalRflConfig",
+       "file": "src/nodal/06_melodic_bridge.js",
+-      "line": 100
++      "line": 107
+     },
+     {
+       "name": "nodalMelodicNoteTiming",
+       "file": "src/nodal/06_melodic_bridge.js",
+-      "line": 106
++      "line": 113
+     },
+     {
+       "name": "nodalMelodicNoteOptions",
+       "file": "src/nodal/06_melodic_bridge.js",
+-      "line": 112
++      "line": 119
+     },
+     {
+       "name": "nodalRenderTailSeconds",
+       "file": "src/nodal/06_melodic_bridge.js",
+-      "line": 120
++      "line": 127
+     },
+     {
+       "name": "nodalScheduleOffline",
+       "file": "src/nodal/06_melodic_bridge.js",
+-      "line": 133
++      "line": 140
+     },
+     {
+       "name": "nodalPlayMelodic",
+@@ -29894,422 +29894,422 @@
+     {
+       "name": "__mlSpliceBuffer",
+       "file": "src/forge_and_melodic/04_render_cache_and_stems.js",
+-      "line": 49
++      "line": 54
+     },
+     {
+       "name": "__mlRenderCached",
+       "file": "src/forge_and_melodic/04_render_cache_and_stems.js",
+-      "line": 62
++      "line": 67
+     },
+     {
+       "name": "__mlSoloTrackId",
+       "file": "src/forge_and_melodic/04_render_cache_and_stems.js",
+-      "line": 87
++      "line": 92
+     },
+     {
+       "name": "__mlStemCache",
+       "file": "src/forge_and_melodic/04_render_cache_and_stems.js",
+-      "line": 88
++      "line": 93
+     },
+     {
+       "name": "__mlStemCacheBytes",
+       "file": "src/forge_and_melodic/04_render_cache_and_stems.js",
+-      "line": 89
++      "line": 94
+     },
+     {
+       "name": "__mlStemCacheLimit",
+       "file": "src/forge_and_melodic/04_render_cache_and_stems.js",
+-      "line": 90
++      "line": 95
+     },
+     {
+       "name": "__mlStemDescriptor",
+       "file": "src/forge_and_melodic/04_render_cache_and_stems.js",
+-      "line": 91
++      "line": 96
+     },
+     {
+       "name": "__mlStemInFlight",
+       "file": "src/forge_and_melodic/04_render_cache_and_stems.js",
+-      "line": 114
++      "line": 119
+     },
+     {
+       "name": "__mlDrumRefreshRunning",
+       "file": "src/forge_and_melodic/04_render_cache_and_stems.js",
+-      "line": 115
++      "line": 120
+     },
+     {
+       "name": "__mlDrumRefreshPending",
+       "file": "src/forge_and_melodic/04_render_cache_and_stems.js",
+-      "line": 115
++      "line": 120
+     },
+     {
+       "name": "__mlSnapshotDrumRequest",
+       "file": "src/forge_and_melodic/04_render_cache_and_stems.js",
+-      "line": 116
++      "line": 121
+     },
+     {
+       "name": "__mlGetStem",
+       "file": "src/forge_and_melodic/04_render_cache_and_stems.js",
+-      "line": 123
++      "line": 128
+     },
+     {
+       "name": "__mlDrumsAudible",
+       "file": "src/forge_and_melodic/04_render_cache_and_stems.js",
+-      "line": 152
++      "line": 157
+     },
+     {
+       "name": "__mlDrumSwitchGeneration",
+       "file": "src/forge_and_melodic/04_render_cache_and_stems.js",
+-      "line": 152
++      "line": 157
+     },
+     {
+       "name": "__mlTrackFaderValue",
+       "file": "src/forge_and_melodic/04_render_cache_and_stems.js",
+-      "line": 155
++      "line": 160
+     },
+     {
+       "name": "__mlApplyLiveSolo",
+       "file": "src/forge_and_melodic/04_render_cache_and_stems.js",
+-      "line": 160
++      "line": 165
+     },
+     {
+       "name": "__mlSetLiveTrackVolume",
+       "file": "src/forge_and_melodic/04_render_cache_and_stems.js",
+-      "line": 179
++      "line": 184
+     },
+     {
+       "name": "__mlFadeGain",
+       "file": "src/forge_and_melodic/04_render_cache_and_stems.js",
+-      "line": 188
++      "line": 193
+     },
+     {
+       "name": "__mlToggleDrums",
+       "file": "src/forge_and_melodic/04_render_cache_and_stems.js",
+-      "line": 194
++      "line": 199
+     },
+     {
+       "name": "__mlRefreshLiveDrumStem",
+       "file": "src/forge_and_melodic/04_render_cache_and_stems.js",
+-      "line": 201
++      "line": 206
+     },
+     {
+       "name": "__mlPumpDrumRefresh",
+       "file": "src/forge_and_melodic/04_render_cache_and_stems.js",
+-      "line": 213
++      "line": 218
+     },
+     {
+       "name": "__mlStemPeriodSec",
+       "file": "src/forge_and_melodic/04_render_cache_and_stems.js",
+-      "line": 247
++      "line": 252
+     },
+     {
+       "name": "__mlLaunchStemSources",
+       "file": "src/forge_and_melodic/04_render_cache_and_stems.js",
+-      "line": 251
++      "line": 256
+     },
+     {
+       "name": "cP",
+       "file": "src/forge_and_melodic/04_render_cache_and_stems.js",
+-      "line": 267
++      "line": 272
+     },
+     {
+       "name": "pS",
+       "file": "src/forge_and_melodic/04_render_cache_and_stems.js",
+-      "line": 267
++      "line": 272
+     },
+     {
+       "name": "xx",
+       "file": "src/forge_and_melodic/04_render_cache_and_stems.js",
+-      "line": 267
++      "line": 272
+     },
+     {
+       "name": "JM",
+       "file": "src/forge_and_melodic/04_render_cache_and_stems.js",
+-      "line": 267
++      "line": 272
+     },
+     {
+       "name": "iv",
+       "file": "src/forge_and_melodic/04_render_cache_and_stems.js",
+-      "line": 267
++      "line": 272
+     },
+     {
+       "name": "__mlPhase",
+       "file": "src/forge_and_melodic/04_render_cache_and_stems.js",
+-      "line": 267
++      "line": 272
+     },
+     {
+       "name": "__mlPhaseListeners",
+       "file": "src/forge_and_melodic/04_render_cache_and_stems.js",
+-      "line": 267
++      "line": 272
+     },
+     {
+       "name": "__mlSetPhase",
+       "file": "src/forge_and_melodic/04_render_cache_and_stems.js",
+-      "line": 267
++      "line": 272
+     },
+     {
+       "name": "__mlSubscribe",
+       "file": "src/forge_and_melodic/04_render_cache_and_stems.js",
+-      "line": 267
++      "line": 272
+     },
+     {
+       "name": "p9e",
+       "file": "src/forge_and_melodic/04_render_cache_and_stems.js",
+-      "line": 267
++      "line": 272
+     },
+     {
+       "name": "Mx",
+       "file": "src/forge_and_melodic/04_render_cache_and_stems.js",
+-      "line": 267
++      "line": 272
+     },
+     {
+       "name": "h9e",
+       "file": "src/forge_and_melodic/04_render_cache_and_stems.js",
+-      "line": 267
++      "line": 272
+     },
+     {
+       "name": "f9e",
+       "file": "src/forge_and_melodic/04_render_cache_and_stems.js",
+-      "line": 267
++      "line": 272
+     },
+     {
+       "name": "g9e",
+       "file": "src/forge_and_melodic/04_render_cache_and_stems.js",
+-      "line": 267
++      "line": 272
+     },
+     {
+       "name": "uP",
+       "file": "src/forge_and_melodic/04_render_cache_and_stems.js",
+-      "line": 267
++      "line": 272
+     },
+     {
+       "name": "b9e",
+       "file": "src/forge_and_melodic/04_render_cache_and_stems.js",
+-      "line": 267
++      "line": 272
+     },
+     {
+       "name": "y9e",
+       "file": "src/forge_and_melodic/04_render_cache_and_stems.js",
+-      "line": 267
++      "line": 272
+     },
+     {
+       "name": "yA",
+       "file": "src/forge_and_melodic/04_render_cache_and_stems.js",
+-      "line": 267
++      "line": 272
+     },
+     {
+       "name": "L$",
+       "file": "src/forge_and_melodic/04_render_cache_and_stems.js",
+-      "line": 267
++      "line": 272
+     },
+     {
+       "name": "S9e",
+       "file": "src/forge_and_melodic/04_render_cache_and_stems.js",
+-      "line": 267
++      "line": 272
+     },
+     {
+       "name": "v9e",
+       "file": "src/forge_and_melodic/04_render_cache_and_stems.js",
+-      "line": 267
++      "line": 272
+     },
+     {
+       "name": "hS",
+       "file": "src/forge_and_melodic/04_render_cache_and_stems.js",
+-      "line": 267
++      "line": 272
+     },
+     {
+       "name": "xz",
+       "file": "src/forge_and_melodic/04_render_cache_and_stems.js",
+-      "line": 267
++      "line": 272
+     },
+     {
+       "name": "A9e",
+       "file": "src/forge_and_melodic/04_render_cache_and_stems.js",
+-      "line": 267
++      "line": 272
+     },
+     {
+       "name": "ZM",
+       "file": "src/forge_and_melodic/04_render_cache_and_stems.js",
+-      "line": 267
++      "line": 272
+     },
+     {
+       "name": "ew",
+       "file": "src/forge_and_melodic/04_render_cache_and_stems.js",
+-      "line": 267
++      "line": 272
+     },
+     {
+       "name": "B$",
+       "file": "src/forge_and_melodic/04_render_cache_and_stems.js",
+-      "line": 267
++      "line": 272
+     },
+     {
+       "name": "D$",
+       "file": "src/forge_and_melodic/04_render_cache_and_stems.js",
+-      "line": 267
++      "line": 272
+     },
+     {
+       "name": "x9e",
+       "file": "src/forge_and_melodic/04_render_cache_and_stems.js",
+-      "line": 267
++      "line": 272
+     },
+     {
+       "name": "M9e",
+       "file": "src/forge_and_melodic/04_render_cache_and_stems.js",
+-      "line": 267
++      "line": 272
+     },
+     {
+       "name": "w9e",
+       "file": "src/forge_and_melodic/04_render_cache_and_stems.js",
+-      "line": 267
++      "line": 272
+     },
+     {
+       "name": "R9e",
+       "file": "src/forge_and_melodic/04_render_cache_and_stems.js",
+-      "line": 267
++      "line": 272
+     },
+     {
+       "name": "N$",
+       "file": "src/forge_and_melodic/04_render_cache_and_stems.js",
+-      "line": 267
++      "line": 272
+     },
+     {
+       "name": "C9e",
+       "file": "src/forge_and_melodic/04_render_cache_and_stems.js",
+-      "line": 267
++      "line": 272
+     },
+     {
+       "name": "O$",
+       "file": "src/forge_and_melodic/04_render_cache_and_stems.js",
+-      "line": 267
++      "line": 272
+     },
+     {
+       "name": "_$",
+       "file": "src/forge_and_melodic/04_render_cache_and_stems.js",
+-      "line": 267
++      "line": 272
+     },
+     {
+       "name": "__f52RawDecodedCache",
+       "file": "src/forge_and_melodic/04_render_cache_and_stems.js",
+-      "line": 273
++      "line": 278
+     },
+     {
+       "name": "__f52RawDecodedBytes",
+       "file": "src/forge_and_melodic/04_render_cache_and_stems.js",
+-      "line": 273
++      "line": 278
+     },
+     {
+       "name": "__f52RawDecodedEpoch",
+       "file": "src/forge_and_melodic/04_render_cache_and_stems.js",
+-      "line": 273
++      "line": 278
+     },
+     {
+       "name": "__f52CacheDecoded",
+       "file": "src/forge_and_melodic/04_render_cache_and_stems.js",
+-      "line": 280
++      "line": 285
+     },
+     {
+       "name": "__f52PrepareDrumRaw",
+       "file": "src/forge_and_melodic/04_render_cache_and_stems.js",
+-      "line": 285
++      "line": 290
+     },
+     {
+       "name": "__f52BlendDrumRaw",
+       "file": "src/forge_and_melodic/04_render_cache_and_stems.js",
+-      "line": 290
++      "line": 295
+     },
+     {
+       "name": "z$",
+       "file": "src/forge_and_melodic/04_render_cache_and_stems.js",
+-      "line": 346
++      "line": 351
+     },
+     {
+       "name": "j$",
+       "file": "src/forge_and_melodic/04_render_cache_and_stems.js",
+-      "line": 371
++      "line": 376
+     },
+     {
+       "name": "hh",
+       "file": "src/forge_and_melodic/04_render_cache_and_stems.js",
+-      "line": 379
++      "line": 384
+     },
+     {
+       "name": "__mlPlayWithPreparation",
+       "file": "src/forge_and_melodic/04_render_cache_and_stems.js",
+-      "line": 380
++      "line": 385
+     },
+     {
+       "name": "P9e",
+       "file": "src/forge_and_melodic/04_render_cache_and_stems.js",
+-      "line": 428
++      "line": 433
+     },
+     {
+       "name": "I9e",
+       "file": "src/forge_and_melodic/04_render_cache_and_stems.js",
+-      "line": 435
++      "line": 440
+     },
+     {
+       "name": "E9e",
+       "file": "src/forge_and_melodic/04_render_cache_and_stems.js",
+-      "line": 441
++      "line": 446
+     },
+     {
+       "name": "F9e",
+       "file": "src/forge_and_melodic/04_render_cache_and_stems.js",
+-      "line": 441
++      "line": 446
+     },
+     {
+       "name": "T9e",
+       "file": "src/forge_and_melodic/04_render_cache_and_stems.js",
+-      "line": 441
++      "line": 446
+     },
+     {
+       "name": "L9e",
+       "file": "src/forge_and_melodic/04_render_cache_and_stems.js",
+-      "line": 441
++      "line": 446
+     },
+     {
+       "name": "VR",
+       "file": "src/forge_and_melodic/04_render_cache_and_stems.js",
+-      "line": 441
++      "line": 446
+     },
+     {
+       "name": "B9e",
+       "file": "src/forge_and_melodic/04_render_cache_and_stems.js",
+-      "line": 441
++      "line": 446
+     },
+     {
+       "name": "D9e",
+       "file": "src/forge_and_melodic/04_render_cache_and_stems.js",
+-      "line": 441
++      "line": 446
+     },
+     {
+       "name": "N9e",
+       "file": "src/forge_and_melodic/04_render_cache_and_stems.js",
+-      "line": 445
++      "line": 450
+     },
+     {
+       "name": "Jd",
+       "file": "src/forge_and_melodic/04_render_cache_and_stems.js",
+-      "line": 445
++      "line": 450
+     },
+     {
+       "name": "O9e",
+       "file": "src/forge_and_melodic/04_render_cache_and_stems.js",
+-      "line": 445
++      "line": 450
+     },
+     {
+       "name": "_9e",
+       "file": "src/forge_and_melodic/04_render_cache_and_stems.js",
+-      "line": 445
++      "line": 450
+     },
+     {
+       "name": "z9e",
+       "file": "src/forge_and_melodic/04_render_cache_and_stems.js",
+-      "line": 445
++      "line": 450
+     },
+     {
+       "name": "j9e",
+       "file": "src/forge_and_melodic/04_render_cache_and_stems.js",
+-      "line": 445
++      "line": 450
+     },
+     {
+       "name": "G9e",
+diff --git a/source-manifest.json b/source-manifest.json
+index 7bf8861..519e213 100644
+--- a/source-manifest.json
++++ b/source-manifest.json
+@@ -1,6 +1,6 @@
+ {
+-  "version": "XenSonar N21–F2 · Global Grid and Editor Workflow",
+-  "entry": "Xensonar_N21_F2_Workflow_Integrity_Test.html",
++  "version": "XenSonar N21–F2 · Measured Audio Administration Cleanup",
++  "entry": "Xensonar_N21_F2_Maintenance_Test.html",
+   "files": [
+     "src/mix/03_quick_menu.js",
+     "src/mix/04_melodic_spatial.js",
+@@ -201,8 +201,8 @@
+     "src/05_dual_donor.js",
+     "src/06_workbench_dialog.js"
+   ],
+-  "sha256": "af78fa12bbdeda6e9f79d4856d11929826a94d05c9c2ecbb21eb2bdaff72c24b",
+-  "bytes": 5543157,
++  "sha256": "e1db09b24d076ae8aeb07568cc986bb2c2da80f009d3782889aaea089440a6ed",
++  "bytes": 5544465,
+   "sourceOrder": "Concatenate in listed order. Explicit factories own Workbench, hybrid session, render capture, adapters, playback and analysis cache. Remaining registry fragments share one inline module; DSP factories stay independently serializable for workers.",
+   "status": "F4.3.13 mainline plus F4.4.0 Nodal coupled-modal-v2, anchored at F4.3.5",
+   "baseVersion": "F4.3.5 (three-way)",
+diff --git a/src/forge_and_melodic/04_render_cache_and_stems.js b/src/forge_and_melodic/04_render_cache_and_stems.js
+index 10a8b02..c563e6f 100644
+--- a/src/forge_and_melodic/04_render_cache_and_stems.js
++++ b/src/forge_and_melodic/04_render_cache_and_stems.js
+@@ -31,11 +31,16 @@ function __mlPartialSpan(previous,next,e,priorBuffer){
+  for(const id of changed)for(const note of [oldById.get(id),newById.get(id)])if(note){const span=__mlNoteSpan(note,e.composer,e.bpm);start=Math.min(start,span.start);end=Math.max(end,span.end)}
+  if(!Number.isFinite(start))return null;
+  // Include all overlapping voices, preserving attacks rather than starting their envelopes mid-note.
++ // Bounds are constant for this request. Prepare them once, preserving the
++ // old/new traversal order and the same overlap-growth/convergence policy.
++ const selectedTracks=new Set(e.trackIds),candidates=[];
++ for(const note of [...oldNotes,...newNotes]){
++  if(e.noteId?note.id!==e.noteId:!selectedTracks.has(note.trackId))continue;
++  candidates.push(__mlNoteSpan(note,e.composer,e.bpm));
++ }
+  let updated=true,iterations=0;
+  while(updated&&iterations++<256){updated=false;
+-  for(const note of [...oldNotes,...newNotes]){
+-   if(e.noteId?note.id!==e.noteId:!e.trackIds.includes(note.trackId))continue;
+-   const span=__mlNoteSpan(note,e.composer,e.bpm);
++  for(const span of candidates){
+    if(span.start<end+.025 && span.end>start-.025){
+     const ns=Math.max(0,Math.min(start,span.start)),ne=Math.max(end,span.end);
+     if(ns<start-1e-6||ne>end+1e-6)start=ns,end=ne,updated=true;
+diff --git a/src/mix/04_melodic_spatial.js b/src/mix/04_melodic_spatial.js
+index 911b0f6..557d82b 100644
+--- a/src/mix/04_melodic_spatial.js
++++ b/src/mix/04_melodic_spatial.js
+@@ -4,16 +4,33 @@ function __mlPan(value) { return Number.isFinite(value) ? Math.max(-1, Math.min(
+ function __mlAudibleTracks(request, options = {}) {
+   if (options.drumOnly) return [];
+   const ids = new Set(request.trackIds || []);
+-  return request.composer.tracks.filter(track => track.enabled !== false && request.composer.notes.some(note =>
+-    note.trackId === track.id && (request.noteId ? note.id === request.noteId : ids.has(track.id)) &&
+-    !request.composer.pitchSteps?.[uD(request.composer, note)]?.muted));
++  const candidates = request.composer.tracks.filter(track => track.enabled !== false &&
++    (request.noteId || ids.has(track.id)));
++  const remaining = new Set(candidates.map(track => track.id)), audible = new Set();
++  if (!remaining.size) return [];
++  // Visit the note list once, retaining authored track order in the result.
++  for (const note of request.composer.notes) {
++    const id = note.trackId;
++    if (!remaining.has(id) || request.noteId && note.id !== request.noteId) continue;
++    if (!request.composer.pitchSteps?.[uD(request.composer, note)]?.muted) {
++      audible.add(id); remaining.delete(id);
++      if (!remaining.size) break;
++    }
++  }
++  return candidates.filter(track => audible.has(track.id));
+ }
+ function __mlOutputChannels(request, options = {}, sources = new Map(), rawDrums = new Map()) {
+   const tracks = __mlAudibleTracks(request, options);
+   if (tracks.some(track => __mlPan(track.pan) !== 0)) return 2;
+   // A stereo recording remains a stereo source even with its pan centred.
+-  for (const track of tracks) for (const note of request.composer.notes) {
+-    if (note.trackId !== track.id || request.noteId && note.id !== request.noteId) continue;
++  const notesByTrack = new Map(tracks.map(track => [track.id, []]));
++  for (const note of tracks.length ? request.composer.notes : []) {
++    if (request.noteId && note.id !== request.noteId) continue;
++    notesByTrack.get(note.trackId)?.push(note);
++  }
++  // Keep the existing conservative policy: once a track is audible, even its
++  // muted notes may carry an intentional stereo source. Group, do not prune.
++  for (const track of tracks) for (const note of notesByTrack.get(track.id)) {
+     const source = sources.get(yW(track, note));
+     if ((source?.buffer?.numberOfChannels ?? source?.audioBuffer?.numberOfChannels ?? 1) > 1) return 2;
+     if (source?.kind === 'nodal' && source.instrument?.material?.width > 0) return 2;
+diff --git a/src/nodal/06_melodic_bridge.js b/src/nodal/06_melodic_bridge.js
+index 517baef..a9b8b7f 100644
+--- a/src/nodal/06_melodic_bridge.js
++++ b/src/nodal/06_melodic_bridge.js
+@@ -3,8 +3,15 @@ function resolveNodalArticulationFields(articulation, localField = null, zeroVol
+   // Nodal amplitude reaches silence at the lower edge. Other backends can
+   // retain the established +/-95% field through the explicit third argument.
+   const volumeGain = zeroVolumeFloor ? value => {const x=pn(value);return x<0 ? 1+x : IF(x);} : IF;
+-  const volume = [articulation.volumeEnvelope, ...instrumentFields, ...[localField].flat().filter(Boolean)].filter(Boolean).map(f => $p(Zr(f), 'dynamic-fade')).filter(f => f.enabled && !f.bypassed);
+-  const pitch = [articulation.pitchEnvelope, ...instrumentFields, ...[localField].flat().filter(Boolean)].filter(Boolean).map(f => $p(Zr(f), 'pitch-elastic')).filter(f => f.enabled && !f.bypassed);
++  // Shared block/instrument fields have one normalized snapshot; each target
++  // still uses its own interpreter, bypass checks and backend gain contract.
++  const volumeEnvelope = articulation.volumeEnvelope ? Zr(articulation.volumeEnvelope) : null;
++  const sharedFields = [...instrumentFields, ...[localField].flat()].filter(Boolean).map(f => Zr(f));
++  const pitchEnvelope = articulation.pitchEnvelope ? Zr(articulation.pitchEnvelope) : null;
++  const active = (envelope, target) => [envelope, ...sharedFields].filter(Boolean)
++    .map(f => $p(f, target)).filter(f => f.enabled && !f.bypassed);
++  const volume = active(volumeEnvelope, 'dynamic-fade');
++  const pitch = active(pitchEnvelope, 'pitch-elastic');
+   const count = 128;
+   const volumeInputs = volume.map(field => ({field, curve: gc(field, count).resolved}));
+   const volumeCurve = volume.length ? Array.from({length: count}, (_, i) => volumeInputs.reduce((gain, source) => gain * volumeGain(u6(source.field, i / (count - 1), source.curve)), 1)) : null;
+diff --git a/tests/fixtures/maintenance-before/nodal-bridge.js b/tests/fixtures/maintenance-before/nodal-bridge.js
+new file mode 100644
+index 0000000..517baef
+--- /dev/null
++++ b/tests/fixtures/maintenance-before/nodal-bridge.js
+@@ -0,0 +1,144 @@
++/* Shared field semantics. Uses the same resolvers as the Melodic sample/block editor. */
++function resolveNodalArticulationFields(articulation, localField = null, zeroVolumeFloor = true, instrumentFields = []) {
++  // Nodal amplitude reaches silence at the lower edge. Other backends can
++  // retain the established +/-95% field through the explicit third argument.
++  const volumeGain = zeroVolumeFloor ? value => {const x=pn(value);return x<0 ? 1+x : IF(x);} : IF;
++  const volume = [articulation.volumeEnvelope, ...instrumentFields, ...[localField].flat().filter(Boolean)].filter(Boolean).map(f => $p(Zr(f), 'dynamic-fade')).filter(f => f.enabled && !f.bypassed);
++  const pitch = [articulation.pitchEnvelope, ...instrumentFields, ...[localField].flat().filter(Boolean)].filter(Boolean).map(f => $p(Zr(f), 'pitch-elastic')).filter(f => f.enabled && !f.bypassed);
++  const count = 128;
++  const volumeInputs = volume.map(field => ({field, curve: gc(field, count).resolved}));
++  const volumeCurve = volume.length ? Array.from({length: count}, (_, i) => volumeInputs.reduce((gain, source) => gain * volumeGain(u6(source.field, i / (count - 1), source.curve)), 1)) : null;
++  const pitchCurve = pitch.length ? Array.from(B$(pitch, count)) : null;
++  return {volumeCurve, pitchCurve};
++}
++function nodalComposerSourceFields(composer) {
++  const additional={...entrophonComposerSourceFields(composer),...__mlCustomSourceFields(composer)};
++  if (!composer.nodalInstruments) return additional;
++  const entries = Object.entries(composer.nodalInstruments);
++  if (entries.length > 48) throw new Error('Too many Nodal instrument sources');
++  const bank = Object.create(null);
++  for (const [key, instrument] of entries) {
++    if (!key.startsWith('nodal:') || key.length > 220) throw new Error('Invalid Nodal source ID');
++    bank[key] = __XenNodalModel.normalize(instrument);
++  }
++  return {...additional,nodalInstruments: bank};
++}
++function nodalFindInstrument(preset, composer = null) {
++  if (typeof preset !== 'string' || !preset.startsWith('nodal:')) return null;
++  const embedded = composer?.nodalInstruments?.[preset];
++  if (embedded) return __XenNodalModel.normalize(embedded);
++  try { const entry = __XenNodalLibrary.list().find(e => 'nodal:' + e.id + '@' + e.revision === preset); return entry?.instrument ?? null; }
++  catch { return null; }
++}
++function nodalLibraryEntryLabel(entry, entries) {
++  const name = entry.instrument.name;
++  const same = entries.filter(e => e.instrument.name === name);
++  const index = same.findIndex(e => e.id === entry.id) + 1;
++  return name + ' · ' + entry.instrument.nodes.length + ' nodes' + (same.length > 1 ? ' · ' + index + '/' + same.length : '');
++}
++function nodalInstrumentMenu(composer) {
++  // Library sound sources and currently referenced project snapshots are different entities.
++  // Deleting a library entry must never silence an existing composition.
++  const choices = new Map(), entries = (() => { try { return __XenNodalLibrary.list(); } catch { return []; } })();
++  const referenced = new Set();
++  for (const track of composer?.tracks ?? []) {
++    if (track.instrumentPreset?.startsWith('nodal:')) referenced.add(track.instrumentPreset);
++    for (const note of composer?.notes ?? []) if (note.trackId === track.id) {
++      const id = note.instrumentPresetOverride || track.instrumentPreset;
++      if (id?.startsWith('nodal:')) referenced.add(id);
++    }
++  }
++  for (const entry of entries) choices.set('nodal:' + entry.id + '@' + entry.revision, {instrument: entry.instrument, kind: 'library', entry});
++  for (const [id, instrument] of Object.entries(composer?.nodalInstruments ?? {})) if (referenced.has(id)) {
++    const stored = choices.get(id);
++    // The project owns its snapshot; the library may only contribute a changed display name.
++    choices.set(id, {...stored, instrument: stored?.instrument ?? instrument, kind: stored ? 'library' : 'project'});
++  }
++  if (!choices.size) return entrophonInstrumentMenu(composer).concat(__mlCustomMenu(composer));
++  const values = Array.from(choices, ([id, data]) => ({id, ...data}));
++  const counts = new Map();
++  for (const value of values) counts.set(value.instrument.name, (counts.get(value.instrument.name) ?? 0) + 1);
++  const seen = new Map();
++  return [{id: 'nodal', label: 'Nodal · Synthetic Instruments', options: values.map(value => {
++    const {id, instrument, kind} = value;
++    const index = (seen.get(instrument.name) ?? 0) + 1;
++    seen.set(instrument.name, index);
++    return {id, label: instrument.name + ' · ' + instrument.nodes.length + ' nodes' +
++      (counts.get(instrument.name) > 1 ? ' · ' + index + '/' + counts.get(instrument.name) : '') +
++      (kind === 'project' ? ' · in project' : ''), hint: 'Direct synthesis', baseHz: instrument.referenceHz, originLabel: 'Nodal'};
++  })}].concat(entrophonInstrumentMenu(composer),__mlCustomMenu(composer));
++}
++function nodalLoadMelodicSources(request, sources) {
++  for (const track of request.composer.tracks) {
++    const presets = request.composer.notes.filter(n => n.trackId === track.id).map(n => yW(track, n));
++    for (const preset of presets) if (typeof preset === 'string' && preset.startsWith('nodal:') && !sources.has(preset)) {
++      const instrument = nodalFindInstrument(preset, request.composer);
++      if (!instrument) throw new Error('Nodal instrument missing: ' + preset);
++      sources.set(preset, {kind: 'nodal', instrument, plan: __XenNodalModel.compile(instrument)});
++    }
++  }
++  return sources;
++}
++function nodalHasMelodicNotes(request) {
++  if (request.drumPreviewOnly) return false;
++  return request.composer.notes.some(note => {
++    const track = request.composer.tracks.find(t => t.id === note.trackId);
++    return track && (request.noteId ? note.id === request.noteId : request.trackIds.includes(track.id)) && yW(track, note)?.startsWith('nodal:');
++  });
++}
++/* The composition owns all enabled audible Nodal notes, independent of the currently selected note. */
++function __mlContainsNodalTracks(composer) {
++  if (!composer?.tracks || !composer?.notes) return false;
++  const enabled = new Map(composer.tracks.filter(track => track.enabled !== false).map(track => [track.id, track]));
++  return composer.notes.some(note => {
++    const track = enabled.get(note.trackId);
++    return !!track && (yW(track, note)?.startsWith('nodal:')||isSavedEntrophonSound(yW(track,note))||__mlCustomId(yW(track,note)));
++  });
++}
++/* No direct Nodal event player exists in Root Follow yet. A composed WAV must
++   be registered as material audio, never interpreted as an unsupported legacy synth pattern. */
++function __mlNodalRflConfig(composer) {
++  return (__mlContainsNodalTracks(composer) || __mlHasTrackPan(composer)) ? {
++    sourceKind: 'material', renderMode: 'flowing', anchorGridStep: null,
++    synthPattern: null, synthPatch: null, formantWindowPlan: null
++  } : L9e({loopComposer: composer});
++}
++function nodalMelodicNoteTiming(composer, note, source, stepSec) {
++  const durationSec = Math.max(.04, Math.min(30, F$(composer, note) * stepSec));
++  return {durationSec,
++    attackSec: Number.isFinite(note.edgeFadeInMs) ? Math.max(.001, Math.min(2, note.edgeFadeInMs / 1000)) : Math.min(2, Math.max(source.instrument.articulation.attackSec, d9e(note) * stepSec)),
++    releaseSec: Number.isFinite(note.edgeFadeOutMs) ? Math.max(.001, Math.min(3, note.edgeFadeOutMs / 1000)) : Math.min(3, Math.max(source.instrument.articulation.releaseSec, T$(note) * stepSec))};
++}
++function nodalMelodicNoteOptions(composer, note, track, source, stepSec) {
++  const curves = note.localField == null && !note.instrumentFields?.length && source.plan?.articulation
++    ? {volumeCurve: source.plan.articulation.volumeCurve, pitchCurve: source.plan.articulation.pitchCurve}
++    : resolveNodalArticulationFields(source.instrument.articulation, note.localField ?? null, true, note.instrumentFields ?? []);
++  return {frequency: m9e(composer, note, source), velocity: Math.max(0, Math.min(1, note.velocity ?? .8)),
++    gain: Math.max(0, Math.min(1, track.volume ?? .8)) * .7 * Math.max(1, Math.min(1.2, note.velocity ?? .8)),
++    ...nodalMelodicNoteTiming(composer, note, source, stepSec), ...curves};
++}
++function nodalRenderTailSeconds(request) {
++  const composer = request.composer, stepSec = lD(request) / iD(composer), nominal = E$(request);
++  let end = nominal;
++  for (const note of composer.notes) {
++    if (request.noteId ? note.id !== request.noteId : !request.trackIds.includes(note.trackId)) continue;
++    const track = composer.tracks.find(t => t.id === note.trackId);
++    if (!track?.enabled || composer.pitchSteps[uD(composer, note)]?.muted) continue;
++    const instrument = nodalFindInstrument(yW(track, note), composer); if (!instrument) continue;
++    const options = nodalMelodicNoteTiming(composer, note, {kind: 'nodal', instrument}, stepSec);
++    end = Math.max(end, Ax(composer, note) * stepSec + options.durationSec + Math.max(options.releaseSec, instrument.schemaVersion === 2 ? instrument.material.natural * 1.8 : 0) + .01);
++  }
++  return end - nominal;
++}
++function nodalScheduleOffline(ctx, destination, composer, note, track, start, stepSec, source, register) {
++  const options = nodalMelodicNoteOptions(composer, note, track, source, stepSec);
++  const result = __XenNodalDSP.render(source.plan, options, ctx.sampleRate);
++  // Keep intentional instrument width. A width-zero instrument uses the same
++  // mono source in both the cached stem and a panned export, avoiding a second
++  // L/R summation (and a level jump) at the stereo panner.
++  const stereo = !!result.left && source.instrument?.material?.width > 0;
++  const buffer = ctx.createBuffer(stereo ? 2 : 1, result.pcm.length, ctx.sampleRate); buffer.copyToChannel(stereo ? result.left : result.pcm, 0); if(stereo && result.right) buffer.copyToChannel(result.right, 1);
++  const player = ctx.createBufferSource(), pan = ctx.__mlMonoRender ? null : ctx.createStereoPanner(); player.buffer = buffer;
++  if(pan){pan.pan.value = Math.max(-1, Math.min(1, track.pan ?? 0)); player.connect(pan); pan.connect(destination);}else player.connect(destination);
++  player.start(start + Ax(composer, note) * stepSec); register?.(player); if(pan)register?.(pan);
++}
+diff --git a/tests/fixtures/maintenance-before/render-cache.js b/tests/fixtures/maintenance-before/render-cache.js
+new file mode 100644
+index 0000000..10a8b02
+--- /dev/null
++++ b/tests/fixtures/maintenance-before/render-cache.js
+@@ -0,0 +1,445 @@
++
++function __mlCacheDescriptor(e,t={}){
++ const composer=e.composer;
++ const {zoom,zoomY,scrollX,scrollY,selectedTrackId,selectedNoteId,timeGuideMarkers,segmentCount,...musical}=composer;
++ const {notes,...shared}=musical;
++ const stableNotes=notes.map(note=>JSON.parse(JSON.stringify(note)));
++ const trackIds=[...(e.trackIds||[])].sort();
++ const meta=JSON.stringify({shared,bpm:e.bpm,bars:e.bars,trackIds,sampleEpoch:__mlSampleEpoch,
++  customDrumPattern:e.customDrumPattern,drumPattern:e.drumPattern,drumKit:e.drumKit,
++  drumLaneSettings:e.drumLaneSettings,drumLaneKitOverrides:e.drumLaneKitOverrides,drumLevel:e.drumLevel,
++  noteId:e.noteId??null,sampleRate:t.sampleRate??44100,tailSec:t.tailSec??.18});
++ const noteMap=new Map(stableNotes.filter(note=>e.noteId?note.id===e.noteId:trackIds.includes(note.trackId)).map(note=>[String(note.id),JSON.stringify(note)]));
++ return {meta,noteMap,notes:stableNotes,key:meta+"|"+JSON.stringify([...noteMap].sort(([a],[b])=>a.localeCompare(b)))};
++}
++function __mlNoteSpan(note,composer,bpm){
++ // Must use the same time coordinates as N$: Ax and F$ in units of seconds per step.
++ const secStep=lD({composer,bpm})/iD(composer);
++ const start=Ax(composer,note)*secStep,duration=Math.max(.04,F$(composer,note)*secStep);
++ const release=Math.max(.12,duration*.8)+.12; // conservative tail bound for any supported preset release
++ return {start,end:start+duration+release};
++}
++function __mlPartialSpan(previous,next,e,priorBuffer){
++ if(nodalHasMelodicNotes(e) || (typeof hasEntrophonMelodicNotes==="function"&&hasEntrophonMelodicNotes(e)) || previous.meta!==next.meta || e.noteId || c9e(e) || priorBuffer?.sampleRate!==44100)return null;
++ const changed=new Set();
++ for(const [id,s] of previous.noteMap)if(next.noteMap.get(id)!==s)changed.add(id);
++ for(const [id,s] of next.noteMap)if(previous.noteMap.get(id)!==s)changed.add(id);
++ if(!changed.size)return null;
++ const oldNotes=previous.notes,newNotes=next.notes;
++ const oldById=new Map(oldNotes.map(n=>[String(n.id),n])),newById=new Map(newNotes.map(n=>[String(n.id),n]));
++ let start=Infinity,end=0;
++ for(const id of changed)for(const note of [oldById.get(id),newById.get(id)])if(note){const span=__mlNoteSpan(note,e.composer,e.bpm);start=Math.min(start,span.start);end=Math.max(end,span.end)}
++ if(!Number.isFinite(start))return null;
++ // Include all overlapping voices, preserving attacks rather than starting their envelopes mid-note.
++ let updated=true,iterations=0;
++ while(updated&&iterations++<256){updated=false;
++  for(const note of [...oldNotes,...newNotes]){
++   if(e.noteId?note.id!==e.noteId:!e.trackIds.includes(note.trackId))continue;
++   const span=__mlNoteSpan(note,e.composer,e.bpm);
++   if(span.start<end+.025 && span.end>start-.025){
++    const ns=Math.max(0,Math.min(start,span.start)),ne=Math.max(end,span.end);
++    if(ns<start-1e-6||ne>end+1e-6)start=ns,end=ne,updated=true;
++   }
++  }
++ }
++ const duration=E$(e),lo=Math.max(0,start),hi=Math.min(duration+.02,end+.04);
++ if(hi<=lo||hi-lo>duration*.7)return null;
++ return {startSec:lo,endSec:hi};
++}
++function __mlSpliceBuffer(oldBuffer,fragment,region){
++ const sr=oldBuffer.sampleRate,begin=Math.max(0,Math.round(region.startSec*sr)),end=Math.min(oldBuffer.length,begin+fragment.length);
++ const out=new AudioBuffer({numberOfChannels:oldBuffer.numberOfChannels,length:oldBuffer.length,sampleRate:sr});
++ const fade=Math.min(Math.round(sr*.009),Math.floor((end-begin)/4));
++ for(let ch=0;ch<oldBuffer.numberOfChannels;ch++){
++  const dest=out.getChannelData(ch),old=oldBuffer.getChannelData(ch),patch=fragment.getChannelData(Math.min(ch,fragment.numberOfChannels-1));
++  dest.set(old);for(let i=begin;i<end;i++){
++   const k=i-begin,alpha=Math.min(1,fade>0?k/fade:1,fade>0?(end-1-i)/fade:1);
++   dest[i]=old[i]*(1-alpha)+patch[k]*alpha;
++  }
++ }
++ return out;
++}
++async function __mlRenderCached(e,opts={}){
++ const desc=__mlCacheDescriptor(e,opts),optionsKey=JSON.stringify(opts),old=__mlCacheEntries.find(item=>item.optionsKey===optionsKey)??null;
++ const match=__mlCacheEntries.find(item=>item.descriptor.key===desc.key);
++ if(match)return match.buffer;
++ if(__mlInFlight?.key===desc.key)return __mlInFlight.promise;
++ const region=old?.descriptor?__mlPartialSpan(old.descriptor,desc,e,old.buffer):null;
++ // Without a compatible unchanged background, fall back to the complete offline mix.
++ const work=(async()=>{
++  const partial=region?await z$(e,{...opts,regionSec:region}):null;
++  const buffer=partial?__mlSpliceBuffer(old.buffer,partial,region):await z$(e,opts);
++  if(__mlInFlight?.key===desc.key && buffer.length*buffer.numberOfChannels*4<90*1024*1024){
++    __mlPrepared={descriptor:desc,buffer,optionsKey};
++    __mlCacheEntries=__mlCacheEntries.filter(item=>item.optionsKey!==optionsKey).concat(__mlPrepared).slice(-3);
++    while(__mlCacheEntries.length>1&&__mlCacheEntries.reduce((bytes,item)=>bytes+item.buffer.length*item.buffer.numberOfChannels*4,0)>90*1024*1024)
++      __mlCacheEntries.shift();
++  }
++  return buffer;
++ })();
++ __mlInFlight={key:desc.key,promise:work};
++ try{return await work}finally{if(__mlInFlight?.key===desc.key)__mlInFlight=null}
++}
++
++
++// F3.25: session-local synchronized independent track stems for live solo audition.
++// Does not mutate notes, does not touch Forge / instrument realtime hotpath.
++let __mlSoloTrackId=null;
++const __mlStemCache=new Map();
++let __mlStemCacheBytes=0;
++const __mlStemCacheLimit=112*1024*1024;
++function __mlStemDescriptor(e,trackId){
++ const normalized=trackId==="__drums__"?{...e.composer,notes:[],tracks:[],activeTrackIds:[]}:{...e.composer,tracks:e.composer.tracks.map(t=>({...t,enabled:true,volume:.8,pan:0})),
++  activeTrackIds:e.composer.tracks.map(t=>t.id)};
++ const request={...e,composer:normalized,trackIds:trackId==="__drums__"?[]:[trackId],noteId:null};
++ if(trackId==="__drums__"){
++  // Render precisely the drum source's own cycle, not the larger Melodic timeline.
++  const drumBars=u9e(e);request.bars=drumBars;request.composer={...normalized,bars:drumBars};
++ }
++ const spec={tailSec:.02,excludeDrums:trackId!=="__drums__",drumOnly:trackId==="__drums__"};
++ if(trackId==="__drums__")return {request,spec,key:trackId+"|"+JSON.stringify({
++  duration:E$(request),barDuration:sD(request),sampleRate:44100,tailSec:.02,
++  customDrumPattern:request.customDrumPattern,drumPattern:request.drumPattern,drumKit:request.drumKit,
++  drumSegmentsPerBar:request.drumSegmentsPerBar,drumSegmentMarkers:request.drumSegmentMarkers,
++  drumLevel:request.drumLevel,drumStyle:request.drumStyle,drumLaneKitOverrides:request.drumLaneKitOverrides,drumLaneSettings:request.drumLaneSettings})};
++ // Cache only this stem's musical inputs; editing another instrument keeps it reusable.
++ const ownNotes=request.composer.notes.filter(note=>note.trackId===trackId),ownTrack=request.composer.tracks.find(track=>track.id===trackId);
++ const referenced=new Set([ownTrack?.instrumentPreset,...ownNotes.map(note=>note.instrumentPresetOverride)].filter(Boolean));
++ const localComposer={...request.composer,tracks:ownTrack?[ownTrack]:[],notes:ownNotes,activeTrackIds:[trackId]};
++ for(const bank of ['nodalInstruments','entrophonInstruments'])if(localComposer[bank])localComposer[bank]=Object.fromEntries(Object.entries(localComposer[bank]).filter(([id])=>referenced.has(id)));
++ const descriptor=__mlCacheDescriptor({...request,composer:localComposer},spec);
++ return {request,spec,key:trackId+"|"+E$(request)+"|"+descriptor.key};
++}
++/* One active drum-stem render and one latest request; transport owns its timing snapshot. */
++const __mlStemInFlight=new Map();
++let __mlDrumRefreshRunning=null,__mlDrumRefreshPending=null;
++function __mlSnapshotDrumRequest(e,playing){
++ const clock=playing.drumRenderRequest||e;
++ const result={...clock,composer:{...clock.composer,notes:[],tracks:[],activeTrackIds:[]}};
++ for(const key of ["customDrumPattern","drumPattern","drumKit","drumLaneSettings","drumLaneKitOverrides","drumLevel","drumSegmentsPerBar","drumSegmentMarkers","drumCycleBars"])
++  result[key]=e[key];
++ return JSON.parse(JSON.stringify(result));
++}
++async function __mlGetStem(e,trackId){
++ const {request,spec,key}=__mlStemDescriptor(e,trackId);
++ const found=__mlStemCache.get(key);
++ if(found){__mlStemCache.delete(key);__mlStemCache.set(key,found);return found}
++ const pending=__mlStemInFlight.get(key);
++ if(pending?.preparationSignal?.aborted)__mlStemInFlight.delete(key);
++ else if(pending)return pending;
++ const promise=(async()=>{
++  let buffer;
++  if(trackId!=="__drums__"&&!e.composer.notes.some(note=>note.trackId===trackId))
++   buffer=new AudioBuffer({numberOfChannels:1,sampleRate:44100,length:Math.ceil((E$(e)+.02)*44100)});
++  else{if(trackId==="__drums__")__drumLiveBuildHold++;
++   try{buffer=await z$(request,spec)}finally{if(trackId==="__drums__")__drumLiveBuildHold--}}
++  const bytes=buffer.length*buffer.numberOfChannels*4;
++  if(bytes<=__mlStemCacheLimit){
++   const previous=__mlStemCache.get(key);if(previous)__mlStemCacheBytes-=previous.length*previous.numberOfChannels*4;
++   __mlStemCache.set(key,buffer);__mlStemCacheBytes+=bytes;
++   while(__mlStemCacheBytes>__mlStemCacheLimit&&__mlStemCache.size>1){
++    const first=__mlStemCache.keys().next().value,evicted=__mlStemCache.get(first);
++    __mlStemCache.delete(first);__mlStemCacheBytes-=evicted.length*evicted.numberOfChannels*4;
++   }
++  }
++  return buffer;
++ })();
++ promise.preparationSignal=e.signal;
++ __mlStemInFlight.set(key,promise);
++ try{return await promise}finally{if(__mlStemInFlight.get(key)===promise)__mlStemInFlight.delete(key)}
++}
++
++let __mlDrumsAudible=false,__mlDrumSwitchGeneration=0;
++// Separate instrument faders from immutable PCM stem preparation. When the user
++// moves a slider while playing, only the already-existing WebAudio GainNode ramps.
++function __mlTrackFaderValue(playing,trackId){
++ const raw=playing?.liveTrackVolumes?.get(trackId);
++ const level=Number.isFinite(raw)?raw:.8;
++ return Math.max(0,Math.min(1,level))/.8;
++}
++function __mlApplyLiveSolo(id,enabledIds=null){
++ const playing=b9e();
++ if(!playing?.stemGains)return false;
++ const enabled=enabledIds?new Set(enabledIds):playing.liveEnabledIds;
++ if(enabledIds)playing.liveEnabledIds=enabled;
++ const now=playing.ctx.currentTime;
++ for(const [trackId,gain] of playing.stemGains){
++  const isActive=id!==null?trackId===id:(trackId==="__drums__"?(playing.drumMonitorExplicit||__mlDrumsAudible):enabled.has(trackId));
++  const target=isActive?(trackId==="__drums__"?1:__mlTrackFaderValue(playing,trackId)):0;
++  if(typeof gain.gain.cancelAndHoldAtTime==="function")gain.gain.cancelAndHoldAtTime(now);
++  else{
++   const current=Math.max(0,Math.min(1.25,gain.gain.value));
++   gain.gain.cancelScheduledValues(now);
++   gain.gain.setValueAtTime(current,now);
++  }
++  gain.gain.linearRampToValueAtTime(target,now+.014);
++ }
++ return true;
++}
++function __mlSetLiveTrackVolume(trackId,value){
++ const playing=b9e();
++ if(!playing?.stemGains?.has(trackId))return false;
++ if(!(typeof value==="number"&&Number.isFinite(value)))return false;
++ playing.liveTrackVolumes.set(trackId,Math.max(0,Math.min(1,value)));
++ // Include the current solo state; avoid recalculating any stem buffer.
++ return __mlApplyLiveSolo(__mlSoloTrackId);
++}
++
++function __mlFadeGain(gain,target,now,seconds=.018){
++ if(!gain)return;
++ if(typeof gain.gain.cancelAndHoldAtTime==="function")gain.gain.cancelAndHoldAtTime(now);
++ else{const current=gain.gain.value;gain.gain.cancelScheduledValues(now);gain.gain.setValueAtTime(current,now)}
++ gain.gain.linearRampToValueAtTime(target,now+seconds);
++}
++function __mlToggleDrums(enabled){
++ __mlDrumsAudible=!!enabled;
++ const playing=b9e();if(!playing?.stemGains)return false;
++ __mlFadeGain(playing.stemGains.get("__drums__"),
++  (playing.drumMonitorExplicit||__mlDrumsAudible)&&__mlSoloTrackId===null?1:0,playing.ctx.currentTime);
++ return true;
++}
++function __mlRefreshLiveDrumStem(e){
++ const playing=b9e();if(!playing?.stemGains||!playing.stemBuffers.has("__drums__"))return Promise.resolve(false);
++ const request=__mlSnapshotDrumRequest(e,playing),key=__mlStemDescriptor(request,"__drums__").key;
++ if(__mlDrumRefreshPending?.playing===playing&&__mlDrumRefreshPending.key===key)return __mlDrumRefreshPending.promise;
++ if(__mlDrumRefreshRunning?.playing===playing&&__mlDrumRefreshRunning.key===key&&__mlDrumRefreshRunning.generation===__mlDrumSwitchGeneration)return __mlDrumRefreshRunning.promise;
++ const generation=++__mlDrumSwitchGeneration;
++ if(__mlDrumRefreshPending){__mlDrumRefreshPending.resolve(false);__mlDrumRefreshPending=null}
++ if(key===playing.drumDescriptorKey)return Promise.resolve(true);
++ let resolve,reject;const promise=new Promise((yes,no)=>{resolve=yes;reject=no});
++ __mlDrumRefreshPending={playing,request,key,generation,promise,resolve,reject};
++ __mlPumpDrumRefresh();return promise;
++}
++async function __mlPumpDrumRefresh(){
++ if(__mlDrumRefreshRunning||!__mlDrumRefreshPending)return;
++ const job=__mlDrumRefreshPending;__mlDrumRefreshPending=null;__mlDrumRefreshRunning=job;
++ const {playing,request,key,generation}=job;
++ const current=()=>generation===__mlDrumSwitchGeneration&&b9e()===playing&&uP(playing.token);
++ try{
++  if(!current()){job.resolve(false);return}
++  const buffer=await __mlGetStem(request,"__drums__");
++  if(!current()){job.resolve(false);return}
++  const ctx=playing.ctx,now=ctx.currentTime,start=Math.max(now+.024,playing.drumSwapUntilSec||0);
++  const duration=Math.min(buffer.duration,__mlStemPeriodSec(playing,"__drums__",request));
++  const pos=((playing.loopOffsetSec+start-playing.startTime)%duration+duration)%duration;
++  const nextSource=ctx.createBufferSource(),nextGain=ctx.createGain();
++  nextSource.buffer=buffer;nextSource.loop=true;nextSource.loopStart=0;nextSource.loopEnd=duration;
++  nextSource.connect(nextGain);nextGain.connect(__f48GetDrumRack(ctx,playing.master).input);
++  nextGain.gain.setValueAtTime(0,start);
++  const level=(playing.drumMonitorExplicit||__mlDrumsAudible)&&__mlSoloTrackId===null?1:0;
++  nextGain.gain.linearRampToValueAtTime(level,start+.03);
++  nextSource.start(start,pos);Mx(nextSource);Mx(nextGain);
++  const oldGain=playing.stemGains.get("__drums__"),oldSource=playing.stemSourceById?.get("__drums__");
++  __mlFadeGain(oldGain,0,start,.03);
++  if(oldSource){oldSource.addEventListener("ended",()=>{
++    try{oldSource.disconnect()}catch{}try{oldGain?.disconnect()}catch{}h9e(oldSource);h9e(oldGain);
++    playing.stemSources=playing.stemSources.filter(source=>source!==oldSource)
++   },{once:true});try{oldSource.stop(start+.045)}catch{}}
++  playing.stemSources=playing.stemSources.concat(nextSource);
++  playing.stemSourceById?.set("__drums__",nextSource);
++  playing.stemGains.set("__drums__",nextGain);playing.stemBuffers.set("__drums__",buffer);
++  playing.drumSource=nextSource;playing.drumRenderRequest=request;playing.drumDescriptorKey=key;playing.drumSwapUntilSec=start+.045;
++  job.resolve(true);
++ }catch(error){if(current())job.reject(error);else job.resolve(false)}
++ finally{__mlDrumRefreshRunning=null;__mlPumpDrumRefresh()}
++}
++
++function __mlStemPeriodSec(playing,trackId,drumRequest=playing.drumRenderRequest){
++ if(trackId==="__drums__")return Math.max(.05,cD(drumRequest)||playing.totalDurationSec);
++ return Math.max(.05,playing.melodicDurationSec||playing.totalDurationSec);
++}
++function __mlLaunchStemSources(playing,offset,when){
++ const starts=[];playing.stemSourceById=new Map();
++ for(const [trackId,buffer] of playing.stemBuffers){
++  const source=playing.ctx.createBufferSource();
++  const period=Math.min(buffer.duration,__mlStemPeriodSec(playing,trackId));
++  // The shared audio clock stays put; each source wraps on its OWN musical cycle.
++  const localOffset=((offset%period)+period)%period;
++  source.buffer=buffer;source.loop=true;source.loopStart=0;source.loopEnd=period;
++  source.connect(playing.trackPanners?.get(trackId)??playing.stemGains.get(trackId));
++  source.start(when,localOffset);
++  Mx(source);starts.push(source);playing.stemSourceById.set(trackId,source);
++ }
++ playing.stemSources=starts;playing.drumSource=playing.stemSourceById?.get("__drums__")||null;
++ return starts;
++}
++
++let cP=null,pS=[],xx=null,JM=0,iv=null,__mlPhase="idle";const __mlPhaseListeners=new Set;function __mlSetPhase(e){if(__mlPhase===e)return;__mlPhase=e;__mlPhaseListeners.forEach(t=>t(e))}function __mlSubscribe(e){__mlPhaseListeners.add(e);e(__mlPhase);return()=>__mlPhaseListeners.delete(e)}function p9e(){return cP||(cP=new AudioContext({sampleRate:44100})),cP}function Mx(e){pS.push(e)}function h9e(e){pS=pS.filter(t=>t!==e)}function f9e(){const nodes=pS;pS=[];const master=nodes.find(node=>node.__f49PreviewMaster);__f49FadeAndRelease(master,.012,()=>{for(const node of nodes){try{if(typeof node.stop==='function')node.stop()}catch{}try{node.disconnect()}catch{}}})}function g9e(){return JM+=1,JM}function uP(e){return e===JM}function b9e(){return iv}function y9e(e){iv=e}function yA(e){xx=e}function L$(e,t,n,r){const a=e.createBufferSource();return a.buffer=t.renderedBuffer,a.loop=!0,a.loopStart=0,a.loopEnd=Math.max(.05,t.totalDurationSec),a.connect(t.master),a.start(r,n),Mx(a),a}function S9e(){return iv!==null}function v9e(e){const t=iv;if(!t)return!1;if(t.nodalTransport)return t.nodalTransport.seek(e);const n=Math.max(1,t.totalSteps),r=(e%n+n)%n,a=t.totalDurationSec>0?r/n*t.totalDurationSec:0,o=t.ctx.currentTime,s=o+.012;(t.stemSources??[t.source]).filter(Boolean).forEach(source=>{try{source.stop(o)}catch{}try{source.disconnect()}catch{}h9e(source)});t.master.gain.cancelScheduledValues(o);t.master.gain.setValueAtTime(Math.max(1e-4,t.master.gain.value||.82),o);t.master.gain.linearRampToValueAtTime(1e-4,o+.005);t.master.gain.linearRampToValueAtTime(.82,s+.012);if(t.stemBuffers)__mlLaunchStemSources(t,a,s);else t.source=L$(t.ctx,t,a,s);return t.startTime=s,t.loopOffsetSec=a,t.playheadCallback?.(r),t.globalPlayheadCallback?.(Math.max(0,Math.min(1,a/Math.max(.001,t.totalDurationSec)))),!0}function hS(){if(typeof cancelEntrophonMelodicPreparation==="function")cancelEntrophonMelodicPreparation();iv?.nodalTransport?.stop();JM+=1,iv=null,xx!=null&&typeof cancelAnimationFrame<"u"&&(cancelAnimationFrame(xx),xx=null),f9e(),__mlSetPhase("idle")}function xz(e){return e.currentTime}const A9e={kick:"kick",snare:"snare",hatClosed:"hat_closed",hatOpen:"hat_open",clap:"clap",perc:"perc"};function ZM(e,t,n){return Math.max(t,Math.min(n,e))}function ew(e,t){const n=e.length;if(!n)return 0;const a=ZM(t,0,1)*Math.max(0,n-1),o=Math.floor(a),i=Math.min(n-1,o+1),s=a-o,l=Number(e[o]??0),c=Number(e[i]??l);return l+(c-l)*s}function B$(e,t=96){const n=e.map(a=>({field:a,curve:gc(a,Math.max(32,t)).resolved})),r=new Float32Array(Math.max(32,t));for(let a=0;a<r.length;a+=1){const o=r.length<=1?0:a/Math.max(1,r.length-1);let i=0;n.forEach(({curve:s})=>{i+=vS(ew(s,o))}),r[a]=i}return r}function D$(e){const{param:t,noteStart:n,noteEnd:r,oscStart:a,oscStop:o,baseFrequency:i,semitoneCurve:s}=e,l=Math.max(a+.01,Math.min(r,o)),c=l-a;if(c<=.01||s.length<2){t.setValueAtTime(i,a);return}const d=Math.max(1e-4,r-n),p=ZM((a-n)/d,0,1),f=ZM((l-n)/d,p,1),b=Math.max(24,Math.ceil(c*180)),g=new Float32Array(b);for(let y=0;y<b;y+=1){const x=b<=1?0:y/Math.max(1,b-1),A=p+(f-p)*x,M=ew(s,A);g[y]=Math.max(20,Math.min(12e3,i*Math.pow(2,M/12)))}t.setValueAtTime(g[0]??i,a),t.setValueCurveAtTime(g,a,c),t.setValueAtTime(g[g.length-1]??i,l)}function x9e(e){const t=e.carrierIntegralTimbre;if(!t||t.schemaVersion!=="carrier-integral-timbre-v1"||!Array.isArray(t.oscillators)||t.oscillators.length===0)return null;const n=t.oscillators.map(r=>({type:r.type==="sine"||r.type==="triangle"||r.type==="sawtooth"||r.type==="square"?r.type:"sine",gain:Math.max(0,Math.min(1.2,Number.isFinite(r.gain??NaN)?Number(r.gain):0)),freqMul:Math.max(.125,Math.min(8,Number.isFinite(r.freqMul??NaN)?Number(r.freqMul):1)),detune:Math.max(-1200,Math.min(1200,Number.isFinite(r.detune??NaN)?Number(r.detune):0))})).filter(r=>r.gain>1e-4);return n.length===0?null:{oscillators:n,filterType:t.filterType??"lowpass",filterFrequency:Math.max(80,Math.min(12e3,Number.isFinite(t.filterFrequency??NaN)?Number(t.filterFrequency):1800)),filterQ:Math.max(.05,Math.min(20,Number.isFinite(t.filterQ??NaN)?Number(t.filterQ):.7)),attackScale:Math.max(.002,Math.min(.8,Number.isFinite(t.attackScale??NaN)?Number(t.attackScale):.04)),releaseScale:Math.max(.01,Math.min(1.8,Number.isFinite(t.releaseScale??NaN)?Number(t.releaseScale):.22)),transientGain:Math.max(0,Math.min(1.5,Number.isFinite(t.transientGain??NaN)?Number(t.transientGain):.08)),panSpread:Math.max(0,Math.min(1,Number.isFinite(t.panSpread??NaN)?Number(t.panSpread):.12))}}function M9e(e){const{clipPitchCurve:t,voiceLocalField:n,voiceStart:r,voiceDur:a,noteStart:o,nominalDur:i}=e,s=n?$p(Zr(n),"pitch-elastic"):null,l=s&&s.enabled&&!s.bypassed?B$([s],128):null;if((!t||t.length<2)&&(!l||l.length<2))return null;const c=128,d=new Float32Array(c);for(let p=0;p<c;p+=1){const f=p/Math.max(1,c-1),b=ZM((r-o+a*f)/Math.max(1e-4,i),0,1),g=t&&t.length>1?ew(t,b):0,y=l&&l.length>1?ew(l,f):0;d[p]=g+y}return d}function w9e(e){const{ctx:t,destination:n,note:r,preset:a,baseFrequency:o,noteStart:i,nominalDur:s,fadeOut:l,trackVolume:c,liveSynthPitchCurve:d,registerNode:p}=e,f=r.carrierIntegralField;if(!f||f.schemaVersion!=="carrier-integral-field-v1"||!Array.isArray(f.voices)||f.voices.length===0)return!1;const b=a.releaseScale??.12,g=a.attackScale??.02,y=a.transientGain??.08,x=i+s+l+.04,A=Math.max(1,Math.min(192,f.voices.length));return f.voices.slice(0,A).forEach((M,v)=>{const w=i+Math.max(0,Math.min(1,M.startRatio))*s,R=Math.max(.018,Math.min(Math.max(.02,s),Math.max(.001,M.durationRatio)*s)),k=t.createGain(),I=t.createGain(),E=Math.max(0,Math.min(1.5,Number.isFinite(M.trackVolume??NaN)?Number(M.trackVolume):.75)),F=Math.max(.05,Math.min(1.5,c)),L=Math.max(1e-4,Math.min(1.4,(M.velocity??.75)*E*F*.42)),B=Math.min(R*.48,Math.max(.002,R*g)),O=Math.min(R*.68,Math.max(.006,R*b));k.gain.setValueAtTime(1e-4,w),k.gain.linearRampToValueAtTime(L,w+B),k.gain.setValueAtTime(L,Math.max(w+B,w+R*.78)),k.gain.linearRampToValueAtTime(1e-4,Math.min(x,w+R+O)),I.gain.setValueAtTime(1,w),$F(I,[M.localField??null],w,R,Math.min(x,w+R+O)),I.connect(k),k.connect(n),p?.(k),p?.(I);const T=M9e({clipPitchCurve:d,voiceLocalField:M.localField??null,voiceStart:w,voiceDur:R,noteStart:i,nominalDur:s});a.oscillators.forEach((_,G)=>{const j=t.createOscillator(),N=t.createGain(),W=w+Math.max(0,_.startOffsetSec??0),V=Math.min(x,Math.max(W+.02,w+R*Math.max(.16,_.durationMul??1)+O+.02)),U=Number.isFinite(M.relativeSemitones??NaN)?Number(M.relativeSemitones):0,H=Math.max(20,Math.min(12e3,o*Math.pow(2,U/12)*Math.max(.125,_.freqMul??1)));j.type=_.type,T?D$({param:j.frequency,noteStart:w,noteEnd:w+R,oscStart:W,oscStop:V,baseFrequency:H,semitoneCurve:T}):j.frequency.setValueAtTime(H,W),_.detune&&j.detune.setValueAtTime(_.detune,W),N.gain.setValueAtTime(Math.max(1e-4,_.gain*(1+y)),W),N.gain.exponentialRampToValueAtTime(Math.max(1e-4,_.gain),W+Math.max(.01,R*.25)),j.connect(N),N.connect(I),j.start(W),j.stop(V),p?.(j),p?.(N)})}),!0}function R9e(e){const t=OT({laneId:e.laneId,laneSettings:e.laneSettings});return{swing:.24,edge:e.laneId==="hatClosed"||e.laneId==="hatOpen"?.58:.46,snap:e.value>=.95?.68:.52,air:e.laneId==="hatOpen"||e.laneId==="clap"?.54:.36,softness:e.laneId==="kick"?.42:.5,pan:t.pan,decayScale:t.decay,chokeGroup:t.chokeGroup}}function N$(e,t,n,r,a,o,i,s,l=null){const nodalSource=s.get(yW(a,r));if(nodalSource?.kind==="entrophon"){entrophonScheduleMelodic(e,t,n,r,a,o,i,nodalSource,l);return}if(nodalSource?.kind==="nodal"){nodalScheduleOffline(e,t,n,r,a,o,i,nodalSource,l);return}const noteFields=[...(r.instrumentFields??[]),...(r.localField?[r.localField]:[])].map(field=>Zr(field));const c=dL(yW(a,r),s),d=c.kind==="synth"?x9e(r):null,p=c.kind==="synth"?d??c.voice:null,f=Ax(n,r),b=F$(n,r),g=o+f*i,y=Math.max(.04,b*i),x=p?.attackScale??.02,A=p?.releaseScale??.12,M=p?.transientGain??.08,v=p?.panSpread??.12,w=fs(r),R=u7(r),k=w?.0035:.002,I=w?.0055:.006,E=Math.min(y*.8,Number.isFinite(r.edgeFadeInMs)?Math.max(.001,r.edgeFadeInMs/1e3):Math.max(k,d9e(r)*i||y*x)),F=Math.min(y*.8,Number.isFinite(r.edgeFadeOutMs)?Math.max(.001,r.edgeFadeOutMs/1e3):Math.max(I,T$(r)*i||y*A)),L=g+y+F+.02,B=Math.max(20,Math.min(12e3,m9e(n,r,c))),O=e.createGain(),T=e.createGain(),_=e.__mlMonoRender?null:e.createStereoPanner(),G=__mlPan(a.pan);_?.pan.setValueAtTime(G,g),T.gain.setValueAtTime(1,g),T.connect(O);let j=O;if(p?.filterType){const H=e.createBiquadFilter();H.type=p.filterType,H.frequency.setValueAtTime(p.filterFrequency??1200,g),H.Q.setValueAtTime(p.filterQ??.7,g),O.connect(H),j=H,l?.(H)}const W=!!r.carrierIntegralField&&r.carrierIntegralField.schemaVersion==="carrier-integral-field-v1"?1:Math.max(.001,r.velocity*a.volume*.45);O.gain.setValueAtTime(1e-4,g),O.gain.linearRampToValueAtTime(W,g+E),O.gain.setValueAtTime(W,g+y*.82),O.gain.linearRampToValueAtTime(1e-4,g+y+F),$F(T,[c.kind==="sample"?c.volumeEnvelope:null,...noteFields],g,y,L),_?(j.connect(_),_.connect(t)):j.connect(t),l?.(O),l?.(T),_&&l?.(_);const V=c.kind==="synth"?noteFields.map(field=>$p(field,"pitch-elastic")).filter(H=>!!H&&H.enabled&&!H.bypassed):[],U=V.length>0?B$(V,96):null;if(c.kind==="sample"){const H=vg({loaded:c,targetHz:B,minRate:.125,maxRate:8,fallbackHz:n.baseHz??220,requestedDurationSec:y}),q=Math.max(0,Number.isFinite(r.sampleOffsetSec)?Number(r.sampleOffsetSec):0),K=Number.isFinite(r.samplePlaybackDurationSec)?Math.max(.005,Number(r.samplePlaybackDurationSec)):null,Y=Math.max(.005,c.buffer.duration-q),J=K!=null?Math.max(.005,Math.min(Y,K)):Math.max(.005,Y),Z=r.materialPitchMode,te=Z==="source-fixed",X=Z==="source-granular",Q=te?B:Number.isFinite(r.anchorHz)?Math.max(1,Number(r.anchorHz)):c.baseHz??B,ne=w&&!te?"open-musical":"bounded",ee=UF({targetHz:B,anchorHz:Q,ratePolicy:ne}),ie=[c.pitchEnvelope,...noteFields.map(field=>$p(field,"pitch-elastic"))].filter(Ce=>!!Ce&&Ce.enabled&&!Ce.bypassed),de=ie.length>0,oe=w&&!te?Math.abs(1200*Math.log2(Math.max(1e-4,B/Math.max(1e-4,Q)))):0,ue=oe>6,fe=w&&!te&&oe<=6,he=R?Math.max(.024,J*.08):Math.max(.018,J*.05),re=w?Math.abs(y-J)>he:!1,le=w&&J>.005&&!fe&&(X||ue||re);if(de){Kne({ctx:e,destination:T,buffer:c.buffer,noteStart:g,noteEnd:L,nominalDur:y,safeOffsetSec:q,sliceDurationSec:J,basePlaybackRate:te?1:le?ee.elasticRate:H.playbackRate,fields:ie,quality:R?"fragment":"base",registerNode:l,ratePolicy:ne});return}if(le){Qne({ctx:e,destination:T,buffer:c.buffer,noteStart:g,noteEnd:L,nominalDur:y,safeOffsetSec:q,sliceDurationSec:J,playbackRate:te?1:ee.elasticRate,quality:R?"fragment":"base",registerNode:l,ratePolicy:ne});return}const Ae=e.createBufferSource();Ae.buffer=c.buffer;const ce=K==null?y>Math.max(.08,H.naturalDurationSec*.95)||H.shouldLoop:!1,ge=fe?1:H.playbackRate;if(Ae.playbackRate.setValueAtTime(ge,g),Ae.loop=ce,ce&&(Ae.loopStart=q,Ae.loopEnd=Math.min(c.buffer.duration,q+J)),Ae.connect(T),K!=null){const Ce=Math.min(Y,J/Math.max(ge,1e-4));Ae.start(g,q,Ce)}else Ae.start(g,q);Ae.stop(L),l?.(Ae);return}p&&(w9e({ctx:e,destination:T,note:r,preset:p,baseFrequency:B,noteStart:g,nominalDur:y,fadeOut:F,trackVolume:a.volume,liveSynthPitchCurve:U,registerNode:l})||p.oscillators.forEach(H=>{const q=e.createOscillator(),K=e.createGain(),Y=g+Math.max(0,H.startOffsetSec??0),J=Math.max(Y+.02,g+y*Math.max(.16,H.durationMul??1)+F+.02),Z=Math.max(20,Math.min(12e3,B*Math.max(.125,H.freqMul??1)));q.type=H.type,U?D$({param:q.frequency,noteStart:g,noteEnd:g+y,oscStart:Y,oscStop:J,baseFrequency:Z,semitoneCurve:U}):q.frequency.setValueAtTime(Z,Y),H.detune&&q.detune.setValueAtTime(H.detune,Y),K.gain.setValueAtTime(Math.max(1e-4,H.gain*(1+M)),Y),K.gain.exponentialRampToValueAtTime(Math.max(1e-4,H.gain),Y+Math.max(.01,y*.25)),q.connect(K),K.connect(T),q.start(Y),q.stop(J),l?.(q),l?.(K)}))}function C9e(e,t,n,r,a){if(!n.drumPattern||!n.drumKit)return;const o=IL({pattern:n.drumPattern,bars:Math.max(1,n.bars),segmentsPerBar:n.drumSegmentsPerBar??16,segmentMarkers:n.drumSegmentMarkers});O$(e,t,{...n,customDrumPattern:{useCustom:!0,presetSource:n.drumPattern,bars:o.bars,segmentsPerBar:o.segmentsPerBar,segmentMarkers:[...o.segmentMarkers],stepCount:o.stepCount,laneOrder:[...o.laneOrder],laneSteps:Object.fromEntries(o.laneOrder.map(i=>[i,[...(o.laneSteps??{})[i]??[]]]))}},r,a)}function O$(e,t,n,r,a){const o=n.drumKit;if(!n.customDrumPattern||!o)return;const i=D9(e,t),s=jT({presetSource:n.customDrumPattern.presetSource,globalKit:n.drumKit??"synthetic-kit",bars:n.customDrumPattern.bars||n.bars,segmentsPerBar:n.customDrumPattern.segmentsPerBar,segmentMarkers:n.customDrumPattern.segmentMarkers??[],stepCount:n.customDrumPattern.stepCount,laneOrder:n.customDrumPattern.laneOrder,laneSteps:n.customDrumPattern.laneSteps,laneKitOverrides:dce(n.drumLaneKitOverrides,void 0),laneSettings:n.drumLaneSettings,stepPrograms:n.customDrumPattern.stepPrograms});GT(s,l=>{if(__f52SampleLanes.includes(l.laneId)||!__f53StepAllowed(l.probability,l.laneId,l.stepIndex,0))return;const c=r+l.startRatio*a,d=(n.drumLevel??.84)*l.laneSettings.level*(Math.max(0,Math.min(1.25,l.value)));(l.layers.length?l.layers:[{id:"primary",active:!0,levelScale:1,decayScale:1,panOffset:0,gradient:0}]).forEach(f=>{if(!f.active)return;const b=n.drumStyle?PPe({laneId:l.laneId,value:l.value,laneSettings:n.drumLaneSettings,drumStyle:n.drumStyle}):R9e({laneId:l.laneId,value:l.value,laneSettings:n.drumLaneSettings});i.trigger(A9e[l.laneId],c,d*f.levelScale,f.kit??l.kit??C0({laneId:l.laneId,globalKit:o,overrides:s.laneKitOverrides}),{...b,pan:Math.max(-1,Math.min(1,b.pan+f.panOffset)),decayScale:b.decayScale*f.decayScale*l.decayLock,snap:Math.max(0,Math.min(1,(b.snap+f.gradient*.08)*l.toneLock)),air:Math.max(0,Math.min(1,(b.air+Math.max(0,f.gradient)*.06)*l.toneLock)),edge:Math.max(0,Math.min(1,(b.edge+Math.max(0,-f.gradient)*.06)*l.toneLock)),softness:Math.min(1,b.softness+(1-l.toneLock)*.55)})})})}function _$(e,t,n,r,a){if(n.customDrumPattern?.useCustom){O$(e,t,n,r,a);return}C9e(e,t,n,r,a)}
++/* F3.56.52: Offline raw-sample overdub onto the existing cyclic drum stem.
++ * All hit offsets use the canonical marked segment clock. Each long tail wraps through
++ * the rendered loop (it is never choked at the next step, nor scheduled on main thread).
++ * Sample originals remain in IndexedDB, never inside the grid/scratchpad.
++ */
++const __f52RawDecodedCache=new Map();let __f52RawDecodedBytes=0,__f52RawDecodedEpoch=0;
++if(typeof window!=='undefined')window.addEventListener('xensonar:melodic-sample-library-updated',event=>{
++ const id=event?.detail?.sampleId;__f52RawDecodedEpoch++;
++ if(id&&__f52RawDecodedCache.has(id)){
++  const old=__f52RawDecodedCache.get(id);__f52RawDecodedBytes-=old.length*old.numberOfChannels*4;__f52RawDecodedCache.delete(id);
++ }else if(!id){__f52RawDecodedCache.clear();__f52RawDecodedBytes=0;}
++});
++function __f52CacheDecoded(id,decoded){const bytes=decoded.length*decoded.numberOfChannels*4;if(bytes>32*1024*1024)return;
++ const previous=__f52RawDecodedCache.get(id);if(previous)__f52RawDecodedBytes-=previous.length*previous.numberOfChannels*4;
++ __f52RawDecodedCache.delete(id);__f52RawDecodedCache.set(id,decoded);__f52RawDecodedBytes+=bytes;
++ while(__f52RawDecodedBytes>32*1024*1024){const first=__f52RawDecodedCache.keys().next().value,old=__f52RawDecodedCache.get(first);__f52RawDecodedCache.delete(first);__f52RawDecodedBytes-=old.length*old.numberOfChannels*4;}
++}
++async function __f52PrepareDrumRaw(grid,ctx){
++ const decoded=new Map();if(!grid?.sampleSlots)return decoded;
++ for(const lane of __f52SampleLanes){const id=grid.sampleSlots[lane]?.id;if(!id||decoded.has(id))continue;try{let audio=__f52RawDecodedCache.get(id);if(!audio){const epoch=__f52RawDecodedEpoch,blob=await gw(id);if(!blob)continue;audio=await ctx.decodeAudioData((await blob.arrayBuffer()).slice(0));if(epoch===__f52RawDecodedEpoch)__f52CacheDecoded(id,audio);}else{__f52RawDecodedCache.delete(id);__f52RawDecodedCache.set(id,audio);}decoded.set(id,audio)}catch(err){console.warn("[xensonar][drum-sample] decode failed",id,err)}}
++ return decoded;
++}
++function __f52BlendDrumRaw(buffer,grid,cycleSec,decodedById,drumLevel=1){
++ if(!grid?.sampleSlots)return buffer;
++ const tracks=__f52SampleLanes.filter(lane=>grid.sampleSlots[lane]?.id&&(grid.laneSteps?.[lane]||[]).some(v=>v>0));
++ if(!tracks.length)return buffer;
++ const frameCount=Math.max(1,Math.min(buffer.length,Math.round(cycleSec*buffer.sampleRate)));
++ const output=[buffer.getChannelData(0),buffer.getChannelData(Math.min(1,buffer.numberOfChannels-1))];
++ for(const lane of tracks){
++  const slot=grid.sampleSlots[lane],decoded=decodedById.get(slot.id);if(!decoded)continue;
++  const srcRate=decoded.sampleRate,dstRate=buffer.sampleRate;
++  const src0=decoded.getChannelData(0),src1=decoded.getChannelData(Math.min(1,decoded.numberOfChannels-1));
++  const slotGain=Math.max(0,Math.min(2,slot.volume??1))*Math.max(0,Math.min(1.5,drumLevel))*.55;
++  // Fold the entire sound, including its tail, into one cyclic buffer once per lane.
++  // Then each active step shifts that folded signal. Complexity is source + hits*cycle,
++  // rather than source*hits (important for 1980s reverb snares and long field recordings).
++  const foldedL=new Float32Array(frameCount),foldedR=new Float32Array(frameCount);
++  const scale=srcRate/dstRate;
++  for(let i=0,end=Math.ceil(src0.length/scale);i<end;i++){
++    const p=i*scale,a=Math.floor(p),b=Math.min(src0.length-1,a+1),f=p-a,dest=i%frameCount;
++    foldedL[dest]+=(src0[a]*(1-f)+src0[b]*f);
++    foldedR[dest]+=(src1[a]*(1-f)+src1[b]*f);
++  }
++  for(let step=0;step<grid.stepCount;step++){
++   const velocity=grid.laneSteps[lane]?.[step]||0;if(velocity<=0)continue;
++   const program=WH(grid.stepPrograms?.[lane]?.[step],lane,step,velocity);
++   if(!__f53StepAllowed(program.probability,lane,step,0))continue;
++   const offset=Math.max(-.24,Math.min(.24,program?.microOffsetRatio??0));
++   const base=Td(step,grid.bars,grid.segmentsPerBar,grid.segmentMarkers,'start');
++   const start=((Math.round((base+offset/Math.max(1,grid.stepCount))*cycleSec*dstRate)%frameCount)+frameCount)%frameCount;
++   const pan=Math.max(-1,Math.min(1,(slot.pan||0)+(program?.layers?.[0]?.panOffset||0)));
++   const fold=buffer.numberOfChannels===1?.5:1;
++   const left=Math.cos((pan+1)*Math.PI/4)*slotGain*velocity*fold,right=Math.sin((pan+1)*Math.PI/4)*slotGain*velocity*fold;
++   if(program.decayLock<.999||program.toneLock<.999){
++     const timeLimit=program.decayLock>=1?decoded.duration:decoded.duration*program.decayLock;
++     const sampleFrames=Math.min(Math.ceil(src0.length/scale),Math.ceil(timeLimit*dstRate));
++     const cutoff=Math.min(dstRate*.47,500*Math.pow(40,program.toneLock));
++     const alpha=1-Math.exp(-2*Math.PI*cutoff/dstRate);let stateL=0,stateR=0;
++     const fadeFrames=Math.max(1,Math.round(Math.min(.015,timeLimit*.2)*dstRate));
++     for(let i=0;i<sampleFrames;i++){
++       const pos=i*scale,a=Math.floor(pos),b=Math.min(src0.length-1,a+1),frac=pos-a;
++       let leftIn=src0[a]*(1-frac)+src0[b]*frac,rightIn=src1[a]*(1-frac)+src1[b]*frac;
++       if(program.toneLock<.995){stateL+=alpha*(leftIn-stateL);stateR+=alpha*(rightIn-stateR);leftIn=stateL;rightIn=stateR;}
++       const fade=program.decayLock<1&&i>sampleFrames-fadeFrames?(sampleFrames-i)/fadeFrames:1;
++       const dest=(start+i)%frameCount;output[0][dest]+=leftIn*left*fade;output[1][dest]+=rightIn*right*fade;
++     }
++     continue;
++   }
++   for(let i=0;i<frameCount;i++){
++    const dest=(start+i)%frameCount;
++    output[0][dest]+=foldedL[i]*left;
++    output[1][dest]+=foldedR[i]*right;
++   }
++  }
++ }
++ return buffer;
++}
++
++async function z$(e, t = {}) {
++  e=__mlResolveCustomRequest(e);
++ const rate = Math.max(22050, Math.min(96000, t.sampleRate ?? 44100)), steps = iD(e.composer), duration = lD(e), drumDuration = cD(e), end = E$(e), stepSec = duration / steps;
++ const region = t.regionSec ?? null, seconds = region ? Math.max(.02, region.endSec - region.startSec) : end + Math.max(.02, t.tailSec ?? .18, t.drumOnly ? 0 : Math.max(nodalRenderTailSeconds(e), entrophonRenderTailSeconds(e)));
++ const initialChannels = __mlOutputChannels(e, t), frames = Math.ceil(seconds * rate);
++ let ctx = new OfflineAudioContext(initialChannels, frames, rate);
++ const sources = await SW(e, ctx);
++ const rawGrid = !region && !t.excludeDrums ? e.customDrumPattern : null;
++ const raw = rawGrid?.sampleSlots ? await __f52PrepareDrumRaw(rawGrid, ctx) : null;
++ const channels = __mlOutputChannels(e, t, sources, raw);
++ // Loaded stereo samples are known only after source preparation. AudioBuffers
++ // are reusable across contexts at this same rate; no synthesis is repeated.
++ if (channels !== initialChannels) ctx = new OfflineAudioContext(channels, frames, rate);
++ ctx.__mlMonoRender = channels === 1;
++ const master = ctx.createGain(); master.gain.setValueAtTime(.85, 0); master.connect(ctx.destination);
++ const notes = t.drumOnly ? [] : e.noteId ? e.composer.notes.filter(note => note.id === e.noteId) : e.composer.notes.filter(note => e.trackIds.includes(note.trackId));
++ for (const note of notes) {
++  const track = e.composer.tracks.find(item => item.id === note.trackId), pitch = e.composer.pitchSteps[uD(e.composer, note)] ?? e.composer.pitchSteps[0], span = region ? __mlNoteSpan(note, e.composer, e.bpm) : null;
++  if (region && (span.end <= region.startSec || span.start >= region.endSec)) continue;
++  if (track?.enabled && pitch && !pitch.muted) N$(ctx, master, e.composer, note, track, region ? -region.startSec : 0, stepSec, sources, null);
++ }
++ if (!region && !t.excludeDrums) _$(ctx, master, e, 0, drumDuration || end);
++ const rendered = await ctx.startRendering();
++ if (raw?.size) __f52BlendDrumRaw(rendered, rawGrid, drumDuration || end, raw, e.drumLevel ?? .84);
++ return rendered;
++}async function j$(e,t){
++ const n=await __mlRenderCached(e,t??{}),duration=t?.exactDurationSec;
++ if(!(Number.isFinite(duration)&&duration>0))return lg(n);
++ const frames=Math.max(1,Math.round(duration*n.sampleRate));
++ if(frames>n.length)throw new Error(`Melodic-Loop-Renderer liefert ${n.length} Frames, ${frames} are required for exact bar length.`);
++ // WAV encodes only the musical cycle; the render cache keeps the trailing note release.
++ // No PCM buffer copy, no change to offline synthesis, and no silent padding.
++ return lg({numberOfChannels:n.numberOfChannels,sampleRate:n.sampleRate,length:frames,getChannelData:channel=>n.getChannelData(channel)});
++}async function hh(e){e=__mlResolveCustomRequest(e);try{return await __mlPlayWithPreparation(e)}catch(error){if(error?.name==="AbortError")return false;throw error}}
++async function __mlPlayWithPreparation(e){// Single-note auditions remain live Nodal Worklet synthesis. The composed loop
++ // uses exactly the same already-present, deterministic per-track PCM stem
++ // rendering as the ordinary instruments and the export. This prevents
++ // overlapping melodic notes from competing for the transient live-voice budget.
++ if(nodalHasMelodicNotes(e) && e.noteId)return nodalPlayMelodic(e);hS();e={...e,signal:beginEntrophonMelodicPreparation()};const n=g9e();e.onToken?.(n);e.onPhase?.("preparing");const t=p9e();t.state==="suspended"&&await t.resume();if(!uP(n))return!1;const r=iD(e.composer),a=lD(e),o=cD(e),i=E$(e),s=a/r,l=()=>{const w=Number.isFinite(t.outputLatency)?Math.max(0,t.outputLatency):0,R=Number.isFinite(t.baseLatency)?Math.max(0,t.baseLatency):0;return Math.max(.018,Math.min(.05,R+w*.35+.006))},c=e.noteId?e.composer.notes.filter(w=>w.id===e.noteId):e.composer.notes.filter(w=>e.trackIds.includes(w.trackId)),d=e.onComposerPlayhead??e.onPlayhead;if(e.loop&&!e.noteId){
++ // Prepare each instrument regardless of temporary solo/mute; all four stay phase-locked.
++ // A later Only You click adjusts gains only, without re-rendering or resetting position.
++ const trackIds=e.drumPreviewOnly?[]:e.composer.tracks.map(track=>track.id);
++ if(__mlSoloTrackId!==null&&!e.composer.tracks.every(track=>track.enabled===(track.id===__mlSoloTrackId)))__mlSoloTrackId=null;
++ const stems=new Map();
++ for(const trackId of trackIds){
++  const buffer=await __mlGetStem(e,trackId);
++  if(!uP(n))return false;
++  stems.set(trackId,buffer);
++ }
++ if(c9e(e)){
++  const drumBuffer=await __mlGetStem(e,"__drums__");
++  if(!uP(n))return false;
++  stems.set("__drums__",drumBuffer);
++ }
++ if(!uP(n))return false;
++ const start=t.currentTime+l(),master=t.createGain();
++ master.gain.setValueAtTime(.0001,start);
++ master.gain.linearRampToValueAtTime(.82,start+.02);
++ master.__f49PreviewMaster=true;master.connect(t.destination);Mx(master);
++ const gains=new Map(),trackPanners=new Map();
++ for(const [id] of stems){
++  const gain=t.createGain();
++  const slot=e.composer.tracks.find(track=>track.id===id);
++  const active=!e.drumPreviewOnly&&__mlSoloTrackId!==null?id===__mlSoloTrackId:(id==="__drums__"?(e.drumMonitorEnabled===true||__mlDrumsAudible):!!slot?.enabled);
++  gain.gain.setValueAtTime(active?(id==="__drums__"?1:Math.max(0,Math.min(1,Number.isFinite(slot?.volume)?slot.volume:.8))/.8):0,start);
++  if(id==="__drums__"){const rack=__f48GetDrumRack(t,master);gain.connect(rack.input);Mx({disconnect:()=>rack.dispose()})}else{gain.connect(master);const pan=t.createStereoPanner();pan.pan.setValueAtTime(__mlPan(slot?.pan),start);pan.connect(gain);trackPanners.set(id,pan);Mx(pan);}Mx(gain);gains.set(id,gain);
++ }
++ const session={drumRenderRequest:JSON.parse(JSON.stringify(e)),token:n,ctx:t,source:null,master,stemBuffers:stems,stemGains:gains,trackPanners,drumDescriptorKey:c9e(e)?__mlStemDescriptor(e,"__drums__").key:null,drumMonitorExplicit:e.drumMonitorEnabled===true,
++  stemSources:[],liveEnabledIds:new Set(e.composer.tracks.filter(track=>track.enabled).map(track=>track.id)),liveTrackVolumes:new Map(e.composer.tracks.map(track=>[track.id,Number.isFinite(track.volume)?track.volume:.8])),melodicDurationSec:Math.max(.25,Math.max(1,e.composer.bars||1)*sD(e)),totalDurationSec:e.drumPreviewOnly?Math.max(.25,cD(e)||i):Math.max(.25,Math.max(1,e.composer.bars||1)*sD(e)),totalSteps:r,stepDurationSec:s,startTime:start,
++  loopOffsetSec:0,playheadCallback:d,globalPlayheadCallback:e.onGlobalPlayheadRatio};
++ __mlLaunchStemSources(session,0,start);
++ y9e(session);e.onPhase?.("playing");d?.(0);e.onGlobalPlayheadRatio?.(0);
++ const tick=()=>{
++  const current=b9e();if(!current||current.token!==n)return;
++  const delta=Math.max(0,xz(current.ctx)-current.startTime);
++  const pos=current.totalDurationSec>0?(current.loopOffsetSec+delta)%current.totalDurationSec:0;
++  current.playheadCallback?.(Math.min(current.totalSteps,pos/current.stepDurationSec));
++  current.globalPlayheadCallback?.(Math.max(0,Math.min(1,pos/Math.max(.001,current.totalDurationSec))));
++  if(typeof requestAnimationFrame!=="undefined")yA(requestAnimationFrame(tick));
++ };
++ if(typeof requestAnimationFrame!=="undefined")yA(requestAnimationFrame(tick));
++ return true;
++}const p=await SW(e,t);if(!uP(n))return!1;const f=t.currentTime+l(),b=t.createGain();b.gain.setValueAtTime(1e-4,f),b.gain.linearRampToValueAtTime(.8,f+.02),b.__f49PreviewMaster=true,b.connect(t.destination),Mx(b);const g=e.noteId?c[0]:void 0,y=g?Ax(e.composer,g)*s:0,x=e.noteId?f-y:f;c.forEach(w=>{const R=e.composer.tracks.find(I=>I.id===w.trackId),k=e.composer.pitchSteps[uD(e.composer,w)]??e.composer.pitchSteps[0];!R||!R.enabled||!k||k.muted||N$(t,b,e.composer,w,R,x,s,p,I=>Mx(I))}),e.noteId||_$(t,b,e,f,o||i);const entAudition=g?p.get(yW(e.composer.tracks.find(track=>track.id===g.trackId),g))?.noteBuffers?.get(g.id)?.durationSec:null;const A=entAudition??(g?Math.max(.45,Math.min(2.4,F$(e.composer,g)*s+T$(g)*s)):i+entrophonRenderTailSeconds(e)),M=f+A;d?.(g?Ax(e.composer,g):0),e.onGlobalPlayheadRatio?.(0);const v=()=>{if(!uP(n))return;const w=xz(t);if(w>=M){d?.(null),e.onGlobalPlayheadRatio?.(null),e.onEnded?.(),hS();return}const R=Math.max(0,w-f),k=g?Ax(e.composer,g)+R/s:Math.min(r,R/s);d?.(k),e.onGlobalPlayheadRatio?.(Math.max(0,Math.min(1,R/Math.max(.001,i)))),typeof requestAnimationFrame<"u"&&yA(requestAnimationFrame(v))};typeof requestAnimationFrame<"u"&&yA(requestAnimationFrame(v));return!0}async function P9e(e){
++ const{loopComposer:t,material:n}=e,r=t.activeTrackIds.filter(c=>Bo(t,c)?.enabled),a=r.length>0?r:t.tracks.filter(c=>c.enabled).map(c=>c.id);
++ if(a.length===0)throw new Error("No active Melodic Loop track to send.");
++ const bars=Math.max(1,Math.round(t.bars||1)),beatsPerBar=Math.max(1,Math.round(t.beatsPerBar||4)),bpm=Math.max(40,n.bpm||108),duration=bars*beatsPerBar*60/bpm;
++ const blob=await j$({composer:t,bpm,bars,trackIds:a},{exactDurationSec:duration});
++ const markers=ni(t).filter(c=>c.kind==="guide"&&c.repeatPerBar).map(c=>c.beat/beatsPerBar),name=Wp(n.name||"melodic-loop");
++ return{blob,durationSec:duration,bars,bpm,beatsPerBar,guideSegments:Math.max(1,Math.round(t.segmentCount||4)),guideMarkers:markers,carrier:__f333BuildCarrier(t,a),fileName:`${name}.wav`,safeName:name};
++}function I9e(e){const{material:t,loopComposer:n,rendered:r,handoff:a}=e;return{name:t.name,role:t.role,
++ bpm:r.bpm??Math.max(40,t.bpm||108),bars:r.bars,beatsPerBar:r.beatsPerBar,
++ guideSegments:r.guideSegments,guideMarkers:r.guideMarkers,loopStartSec:0,loopEndSec:r.durationSec,
++ rootHz:Math.max(30,Math.min(1200,Number.isFinite(n.baseHz)?n.baseHz:220)),sourceVersion:"loop-composer-v1",renderMode:"microtonal-logic:loop-composer",
++ durationSec:r.durationSec,intendedLoopDurationSec:r.durationSec,preferredMyzelGroup:a.preferredMyzelGroup,workspaceOrigin:"microtonal-logic",transitionGuard:a.transitionGuard,balanceCarrier:a.balanceCarrier,
++ routeSummary:"The Melodic Loop synth is sent to Xensonar as its own microtonal logic loop; Material Track receives the rendered loop and none of the old Forge 2 glyph/synesthetic render paths.",
++ stabilizeBy:"Melodic Loop tuning lines and the timing guide are rendered directly from the Loop Composer before handoff."}}function E9e(e){const{materialName:t,rendered:n}=e;return{nextMaterialName:t||n.safeName,nextRole:"loop",nextBars:n.bars,nextSourceView:"synesthetic",nextSecondaryView:"harmonic",nextViewBlend:.26}}function F9e(e,t,n){if(!t||e.renderSourceKind!=="synth-live")return[e];if(!t.voices.length)return[];const r=w1(e.localField,"dynamic-fade"),a=w1(e.localField,"pitch-elastic");return t.voices.map(o=>{const i=w1(o.localField,"dynamic-fade"),s=w1(o.localField,"pitch-elastic"),l=[],c=[];for(let d=0;d<96;d++){const p=d/95,f=o.startRatio+p*o.durationRatio,b=1+.95*r(f),g=1+.95*i(p);l.push(b*g),c.push(12*(a(f)+s(p)))}return{...e,id:`${e.id}:${o.id}`,startBeat:e.startBeat+Math.max(0,o.startRatio)*e.durationBeats,durationBeats:Math.max(.0625,o.durationRatio*e.durationBeats),lineHz:(e.lineHz??n)*Math.pow(2,o.relativeSemitones/12),velocity:Math.max(0,Math.min(1,o.velocity*(o.trackVolume??.75))),localField:null,compiledGainCurve:l,compiledPitchSemitones:c,panOverride:Number.isFinite(o.pan)?o.pan:null,spectralWindowMeta:o.spectralWindowMeta??null}})}function T9e(e){if(!e.pitchLines.length)return 0;let t=0,n=Number.POSITIVE_INFINITY;return e.pitchLines.forEach((r,a)=>{const o=Math.abs(Su(r)-e.baseHz);o<n&&(n=o,t=a)}),t}function L9e(e){const t=$n(e.loopComposer),n=Li(t),r=T9e(t);return{sourceKind:"synth",renderMode:"direct",anchorGridStep:r,formantWindowPlan:null,synthPattern:{bars:Math.max(1,t.bars),beatsPerBar:Math.max(1,t.beatsPerBar||4),stepsPerBar:Math.max(1,t.stepsPerBar),segmentCount:Math.max(1,t.segmentCount||1),baseHz:Math.max(1,t.baseHz||220),tuning:t.tuning||"12edo",repetitionModel:t.repetitionModel||"octave",activeTrackIds:[...t.activeTrackIds],tracks:t.tracks.map(a=>({id:a.id,label:a.label,color:a.color,instrumentRole:a.instrumentRole,instrumentPreset:a.instrumentPreset??null,patternPresetId:a.patternPresetId??null,enabled:a.enabled!==!1,volume:Number.isFinite(a.volume)?a.volume:.8,pan:Number.isFinite(a.pan??NaN)?Number(a.pan):0})),notes:t.notes.flatMap(a=>{const o=wa(t,a),i=t.pitchLines[o]??null,s={carrierIntegralTimbre:a.carrierIntegralTimbre??null,materialPitchMode:a.materialPitchMode??null,id:a.id,trackId:a.trackId,startBeat:cn(t,a)/n,durationBeats:yr(t,a)/n,gridStepOffset:o-r,channelIndex:o,octaveOffset:om(),velocity:Number.isFinite(a.velocity)?a.velocity:.8,gate:1,lineId:typeof a.lineId=="string"?a.lineId:null,lineHz:i?Su(i):null,instrumentPresetOverride:a.instrumentPresetOverride??null,noteClass:a.noteClass??"standard",renderSourceKind:f7(t,a),sourceMaterialId:typeof a.sourceMaterialId=="string"?a.sourceMaterialId:null,anchorHz:Number.isFinite(a.anchorHz??NaN)?Math.max(1,Number(a.anchorHz)):null,sourceTempoBpm:Number.isFinite(a.sourceTempoBpm??NaN)?Math.max(1,Number(a.sourceTempoBpm)):null,sourceLoopDurationSec:Number.isFinite(a.sourceLoopDurationSec??NaN)?Math.max(.005,Number(a.sourceLoopDurationSec)):null,sampleOffsetSec:Number.isFinite(a.sampleOffsetSec??NaN)?Math.max(0,Number(a.sampleOffsetSec)):null,samplePlaybackDurationSec:Number.isFinite(a.samplePlaybackDurationSec??NaN)?Math.max(.005,Number(a.samplePlaybackDurationSec)):null,fadeInBeats:rR(a)/n,fadeOutBeats:aR(a)/n,localField:a.localField?Zr(a.localField):null};return F9e(s,a.carrierIntegralField,t.baseHz)})},synthPatch:{compositionPresetId:t.compositionPresetId||"jazz",baseHz:Math.max(1,t.baseHz||220),tuning:t.tuning||"12edo",repetitionModel:t.repetitionModel||"octave",carrierIntegralTimbre:null,trackPatches:t.tracks.map(a=>({id:a.id,instrumentPreset:a.instrumentPreset??null,patternPresetId:a.patternPresetId??null,enabled:a.enabled!==!1,volume:Number.isFinite(a.volume)?a.volume:.8,pan:Number.isFinite(a.pan??NaN)?Number(a.pan):0}))}}}async function VR(e){return P9e({loopComposer:e.loopComposer,material:{name:e.materialExport.name,bpm:e.materialExport.bpm}})}async function B9e(e){ULe("legacy");const t=await VR(e),n=I9e({material:{name:e.materialExport.name,role:e.materialExport.role,bpm:e.materialExport.bpm},loopComposer:e.loopComposer,rendered:t,handoff:e.activeHandoffProfile,referenceBpm:e.referenceBpm}),r=$M(e.materialExport.adapterId,Ly(n,t.blob,e.canonicalProducer)),a=bu(r);e.materialExport.rootFollowPreferred&&ri("rootFollowBankMembership",{entryId:a.id,enabled:!0,config:__mlNodalRflConfig(e.loopComposer)}),e.setStatus(e.materialExport.rootFollowPreferred?`Melodic Loop sent to Xensonar via ${e.selectedAdapterName} · ${__mlContainsNodalTracks(e.loopComposer)?"rendered audio assigned to Root Follow (no direct Nodal RFL synth yet)":"marked as Root Follow Loop"}.`:`Melodic Loop sent to Xensonar via ${e.selectedAdapterName}.`)}async function D9e(e){
++ const transfer=__f334CreateTransfer(e.loopComposer,e.materialExport);
++ QLe(transfer);e.onRequestModeChange?.('experimental');
++ e.setStatus("Carrier figure ready for Spectral Forge · "+transfer.bars+" bars · "+transfer.beatsPerBar+'/4 · '+transfer.bpm+' BPM');
++}async function N9e(e){const t=await VR(e);e.stopAllForge2Preview("Transferring Melodic Loop to the Wave/Material canvas …");const n=new File([t.blob],t.fileName,{type:t.blob.type||"audio/wav"}),r=await Cg(n,i=>e.setStatus(`Decoding source ${(i*100).toFixed(0)}%`)),a=Math.min(Math.max(1,r.importDurationSec),r.originalDuration);e.setPendingImageImport(null),e.setRawSourceAsset(r),e.setSelectionStartSec(0),e.setSelectionDurationSec(a);const o=E9e({materialName:e.materialExport.name,rendered:t});e.setMaterialExport(i=>({...i,name:o.nextMaterialName,role:o.nextRole,bars:Da(o.nextBars)})),e.setLastAutoCorrect(null),e.setSourceView(o.nextSourceView),e.setSecondaryView(o.nextSecondaryView),e.setViewBlend(o.nextViewBlend),await e.applySelection(r,0,a),e.setActiveWorkspace("wave-material"),e.setStatus("Melodic Loop is now ready in SyntheticForge.")}function Jd(e){const{actions:t,statusMessage:n="Preview stopped."}=e;xt.stop(),t.stopPreviewAudio(),hS(),t.stopSelectionLoopPreview(),t.stopSourceAuditionPreview?.(!1),t.setIsPlaying(!1),t.setPlayheadPosition(0),t.setClipPreviewStep(null),t.setStatus(n)}async function O9e(e){const{withDrums:t,trackMode:n="visible",spectralData:r,synthMode:a,waveformMix:o,loopDurationSec:i,materialExport:s,loopComposer:l,grooveMachine:c,drumComputer:d,actions:p}=e;try{Jd({actions:p,statusMessage:"Starting Material Track with Groove ..."});const f=(n==="visible"?l.activeTrackIds:l.tracks.filter(y=>y.enabled).map(y=>y.id)).filter(y=>Bo(l,y)?.enabled);p.setIsPlaying(!0);const b=()=>{p.setIsPlaying(!1),p.setPlayheadPosition(0),hS(),p.setClipPreviewStep(null),p.setStatus(t?"Material Track + Groove stopped.":"Material Track + Clip Tracks stopped.")},g=10/Math.max(.05,i);await xt.play(r,a,o,0,p.setPlayheadPosition,b,void 0,{beatGuideAudible:s.beatGuideAudible,beatGuideVolume:s.beatGuideVolume,bars:s.bars,guideSegments:s.guideSegments,guideMarkers:s.guideMarkers,loopPreview:s.loopPreview,loopDurationSec:i,playbackRate:g}),await hh({composer:l,bpm:s.bpm,bars:l.bars,trackIds:f,drumPattern:t&&!d.useCustom?c.drumPattern:void 0,drumKit:t?c.drumKit:void 0,drumLevel:t?.9:void 0,customDrumPattern:t&&d.useCustom?d:null,drumLaneKitOverrides:t?c.drumLaneKitOverrides:void 0,drumLaneSettings:t?c.drumLaneSettings:void 0,onPlayhead:y=>p.setClipPreviewStep(y),onEnded:()=>{p.setClipPreviewStep(null)}}),p.setStatus(t?"Previewed Material Track with drums + Clip Tracks.":"Previewed Material Track with Clip Tracks.")}catch(f){console.error("[xensonar][forge2][material-groove-preview]",f),Jd({actions:p,statusMessage:`Material/Groove preview failed: ${f instanceof Error?f.message:String(f)}`})}}async function _9e(e){const{withTracks:t="none",loopComposer:n,materialExport:r,grooveMachine:a,drumComputer:o,actions:i}=e;let token=null;try{Jd({actions:i,statusMessage:"Starting drum preview ..."});const s=t==="visible"?n.activeTrackIds.filter(l=>Bo(n,l)?.enabled):t==="enabled"?n.tracks.filter(l=>l.enabled).map(l=>l.id):[];const started=await hh({composer:t==="none"?{...n,notes:[],tracks:[],activeTrackIds:[]}:n,drumPreviewOnly:t==="none",onToken:value=>{token=value},bpm:r.bpm,bars:n.bars,trackIds:s,drumPattern:o.useCustom?void 0:a.drumPattern,drumKit:a.drumKit,drumLevel:.92,drumMonitorEnabled:!0,customDrumPattern:o.useCustom?o:null,drumLaneKitOverrides:a.drumLaneKitOverrides,drumLaneSettings:a.drumLaneSettings,loop:!0,onPlayhead:l=>i.setClipPreviewStep(l),onEnded:()=>{i.setClipPreviewStep(null),i.setStatus(t==="none"?"Drum preview stopped.":"Groove preview stopped.")}});if(!started||token===null||!uP(token))return false;i.setStatus(t==="none"?"Drum Pattern is running in the preview loop.":"Drums with Clip Tracks are running in the preview loop.")}catch(s){if(token!==null&&!uP(token))return false;console.error("[xensonar][forge2][drum-preview]",s),i.setClipPreviewStep(null),i.setStatus(`Drum preview failed: ${s instanceof Error?s.message:String(s)}`)}}async function z9e(e){const{loopComposer:t,materialExport:n,actions:r}=e;let a=null;try{Jd({actions:r,statusMessage:"Starting loop preview of active instruments ..."});const o=t.tracks.filter(i=>i.enabled).map(i=>i.id),i=await hh({composer:t,bpm:n.bpm,bars:t.bars,trackIds:o,...__mlCanonicalDrumSpec(__mlSharedDrumMachine.snapshot,e.grooveMachine,e.drumComputer),loop:!0,onPlayhead:l=>r.setClipPreviewStep(l),onToken:l=>{a=l},onPhase:__mlSetPhase});i&&a!==null&&uP(a)&&(void __mlRefreshLiveDrumStem({composer:t,bpm:n.bpm,bars:t.bars,trackIds:o,loop:true,...__mlCanonicalDrumSpec(__mlSharedDrumMachine.snapshot,e.grooveMachine,e.drumComputer)}).catch(err=>console.error("[ml drum ready reconciliation]",err)),r.setStatus("Active instruments are running in the preview loop."))}catch(o){if(a===null||uP(a)){__mlSetPhase("idle"),r.setClipPreviewStep(null),r.setStatus(`Preview of active instruments failed: ${o instanceof Error?o.message:String(o)}`)}console.error("[xensonar][forge2][enabled-track-preview]",o)}}async function j9e(e){const{trackId:t,presetId:n,loopComposer:r,materialExport:a,actions:o}=e;try{Jd({actions:o,statusMessage:"Previewing instrument selection ..."});const i=$n(r),s=i.tracks.find(d=>d.id===t);if(!s)throw new Error("Track not found");s.instrumentPreset=n,s.enabled=!0,i.selectedTrackId=t,i.activeTrackIds=Array.from(new Set([...i.activeTrackIds,t]));const l=i.notes.find(d=>d.trackId===t),c=pr(i,l?{...l,id:`audition-${t}`}:{id:`audition-${t}`,trackId:t,channelIndex:Math.max(0,Math.min(i.pitchSteps.length-1,Math.floor(i.pitchSteps.length*.45))),lineId:i.pitchLines[Math.max(0,Math.min(i.pitchLines.length-1,Math.floor(i.pitchLines.length*.45)))]?.id,octaveOffset:0,startUnit:0,durationUnits:Math.max(1.5,i.stepsPerBar/2),fadeInUnits:0,fadeOutUnits:Math.max(.5,i.stepsPerBar/6),velocity:.92});i.notes=[c],i.selectedNoteId=c.id,await hh({composer:i,bpm:a.bpm,bars:i.bars,trackIds:[t],noteId:c.id,onPlayhead:d=>o.setClipPreviewStep(d),onEnded:()=>{o.setClipPreviewStep(null),o.setStatus("Instrument selection previewed.")}}),o.setStatus("Instrument selection is playing.")}catch(i){console.error("[xensonar][forge2][instrument-audition]",i),o.setClipPreviewStep(null),o.setStatus(`Instrument preview failed: ${i instanceof Error?i.message:String(i)}`)}}
+\ No newline at end of file
+diff --git a/tests/fixtures/maintenance-before/spatial.js b/tests/fixtures/maintenance-before/spatial.js
+new file mode 100644
+index 0000000..911b0f6
+--- /dev/null
++++ b/tests/fixtures/maintenance-before/spatial.js
+@@ -0,0 +1,79 @@
++/* Melodic spatial policy: centre-only arrangements use a mono render/cache.
++   Existing nonzero pans and stereo sample assets keep their spatial content. */
++function __mlPan(value) { return Number.isFinite(value) ? Math.max(-1, Math.min(1, value)) : 0; }
++function __mlAudibleTracks(request, options = {}) {
++  if (options.drumOnly) return [];
++  const ids = new Set(request.trackIds || []);
++  return request.composer.tracks.filter(track => track.enabled !== false && request.composer.notes.some(note =>
++    note.trackId === track.id && (request.noteId ? note.id === request.noteId : ids.has(track.id)) &&
++    !request.composer.pitchSteps?.[uD(request.composer, note)]?.muted));
++}
++function __mlOutputChannels(request, options = {}, sources = new Map(), rawDrums = new Map()) {
++  const tracks = __mlAudibleTracks(request, options);
++  if (tracks.some(track => __mlPan(track.pan) !== 0)) return 2;
++  // A stereo recording remains a stereo source even with its pan centred.
++  for (const track of tracks) for (const note of request.composer.notes) {
++    if (note.trackId !== track.id || request.noteId && note.id !== request.noteId) continue;
++    const source = sources.get(yW(track, note));
++    if ((source?.buffer?.numberOfChannels ?? source?.audioBuffer?.numberOfChannels ?? 1) > 1) return 2;
++    if (source?.kind === 'nodal' && source.instrument?.material?.width > 0) return 2;
++    const prepared = source?.noteBuffers?.get(note.id);
++    if ((prepared?.buffer?.numberOfChannels ?? prepared?.numberOfChannels ?? 1) > 1) return 2;
++  }
++  if (!options.excludeDrums && !options.regionSec && c9e(request)) {
++    const settings = [...Object.values(request.drumLaneSettings || Z0), ...Object.values(request.customDrumPattern?.laneSettings || {}), ...Object.values(request.customDrumPattern?.sampleSlots || {})];
++    if (__mlPan(request.drumStyle?.pan) || settings.some(lane => __mlPan(lane?.pan))) return 2;
++    const grid = request.customDrumPattern;
++    for (const programs of Object.values(grid?.stepPrograms || {})) {
++      if (Object.values(programs || {}).some(program => program?.layers?.some(layer => __mlPan(layer.panOffset)))) return 2;
++    }
++    for (const [lane, slot] of Object.entries(grid?.sampleSlots || {})) {
++      if (!grid.laneSteps?.[lane]?.some(value => value > 0)) continue;
++      if ((rawDrums.get(slot.id)?.numberOfChannels || 1) > 1) return 2;
++    }
++  }
++  return 1;
++}
++function __mlHasTrackPan(composer) {
++  return composer?.tracks?.some(track => track.enabled !== false && __mlPan(track.pan) !== 0 && composer.notes?.some(note => note.trackId === track.id)) ?? false;
++}
++function __mlSetLiveTrackPan(trackId, value) {
++  const playing = b9e(), node = playing?.trackPanners?.get(trackId);
++  if (!node) return false;
++  const now = playing.ctx.currentTime;
++  if (typeof node.pan.cancelAndHoldAtTime === 'function') node.pan.cancelAndHoldAtTime(now);
++  else {const current = node.pan.value;node.pan.cancelScheduledValues(now);node.pan.setValueAtTime(current,now);}
++  node.pan.setTargetAtTime(__mlPan(value), now, .012);
++  return true;
++}
++/* Volume and pan share one control geometry and mutation contract. Their
++   separate live audio parameters keep their own existing playback behavior. */
++function __MelodicTrackMix({track, index, mutate, field}) {
++  const pan = field === 'pan', value = Math.round((pan ? __mlPan(track.pan) : Math.max(0, Math.min(1, Number.isFinite(track.volume) ? track.volume : .8))) * 100);
++  const label = track.label || `Instrument ${index + 1}`, name = pan ? 'pan' : 'volume';
++  return u.jsxs('label', {className:'melodic-track-level '+(pan ? 'melodic-track-pan' : 'melodic-track-volume'), style:{'--xen-instrument-color':track.color||'#cbd5e1'}, title:pan ? 'Pan · double-click to centre' : 'Individual instrument playback volume', children:[
++    u.jsx('span', {children:pan ? 'Pan' : 'Vol'}),
++    u.jsx('input', {type:'range', min:pan ? -100 : 0, max:100, step:1, value, 'aria-label':label+' '+name,
++      onChange:event=>set(Number(event.currentTarget.value)), ...(pan ? {onDoubleClick:()=>set(0)} : {})}),
++    u.jsx('output', {children:pan ? value === 0 ? 'C' : (value < 0 ? 'L' : 'R') + Math.abs(value) : value+'%'})]});
++  function set(raw) {
++    const next = pan ? __mlPan(raw / 100) : Math.max(0, Math.min(1, raw / 100));
++    if (pan) __mlSetLiveTrackPan(track.id, next); else __mlSetLiveTrackVolume(track.id, next);
++    mutate(composer=>{const own=composer.tracks.find(item=>item.id===track.id);if(own)own[field]=next;},label+': '+name+' '+raw,{history:false});
++  }
++}
++function __MelodicTrackPan(props) { return u.jsx(__MelodicTrackMix, {...props,field:'pan'}); }
++function __MelodicTrackVolume(props) { return u.jsx(__MelodicTrackMix, {...props,field:'volume'}); }
++
++/* Repeated views of one parent-owned transport, with no extra clocks/state. */
++function __MelodicTransportControls({phase, drums, pattern, onPlay, onStop, onDrums, onNext, placement='editor'}) {
++  const idle=phase==='idle'||phase==='failed';
++  return u.jsxs('div',{'data-ml-transport':placement,className:placement==='primary'?'melodic-transport-dock':'melodic-transport-inline',children:[
++    u.jsx('button',{type:'button',onClick:idle?onPlay:onStop,style:{width:44,height:44,minWidth:44},
++      'aria-label':idle?'Aktive Instrumente als Loop abspielen':phase==='preparing'?'Loop-Vorbereitung abbrechen':'Loop stoppen',
++      title:idle?'▶ Listen to All Active Instruments':phase==='preparing'?'■ Vorbereitung abbrechen':'■ Loop stoppen',
++      className:'flex h-11 w-11 shrink-0 items-center justify-center rounded-md border border-violet-600/75 bg-violet-950/40 font-semibold text-violet-100 hover:bg-violet-900/50',children:idle?'▶':'■'}),
++    u.jsx('button',{type:'button','aria-pressed':drums,onClick:onDrums,title:(drums?'Schlagzeug ausblenden':'Aktuelles Drum-Machine-Pattern dazuschalten')+' · '+(pattern||'Drums'),
++      className:drums?'rounded border border-cyan-500 bg-cyan-950/65 px-1.5 py-2 text-[11px] font-semibold text-cyan-100':'rounded border border-neutral-700 bg-neutral-900/55 px-1.5 py-2 text-[11px] text-neutral-500 hover:text-neutral-200',children:'+ Drums'}),
++    u.jsx('button',{type:'button',onClick:onNext,title:'Load next pattern in the shared Drum Machine','aria-label':'Drum Machine: Next Pattern',className:'rounded border border-neutral-700 px-1.5 py-2 text-xs text-neutral-300 hover:bg-neutral-800',children:'›'})]});
++}
+diff --git a/tests/forge-progress-preservation.cjs b/tests/forge-progress-preservation.cjs
+index 0d19ea0..c7d7c60 100644
+--- a/tests/forge-progress-preservation.cjs
++++ b/tests/forge-progress-preservation.cjs
+@@ -1,7 +1,7 @@
+ 'use strict';
+ const fs=require('fs'),crypto=require('crypto'),assert=require('assert/strict');
+ const base=require('../docs/forge-progress-baseline-hashes.json'),patch=require('../docs/forge-progress-source-anchors.json'),m=require('../source-manifest.json');
+-const controls={...require('../docs/live-controls-source-anchors.json'),...require('../docs/ui-refinement-source-anchors.json'),...require('../docs/workflow-integrity-source-anchors.json')};
++const controls={...require('../docs/live-controls-source-anchors.json'),...require('../docs/ui-refinement-source-anchors.json'),...require('../docs/workflow-integrity-source-anchors.json'),...require('../docs/maintenance-source-anchors.json')};
+ const hash=f=>crypto.createHash('sha256').update(fs.readFileSync(f)).digest('hex');
+ let unchanged=0;for(const [file,expected] of Object.entries(base.hashes)){assert.equal(hash(file),controls[file]??patch[file]??expected,'unreviewed change: '+file);if(!patch[file]&&!controls[file])unchanged++;}
+ for(const [file,expected] of Object.entries(patch))assert.equal(hash(file),controls[file]??expected,'reviewed Forge source: '+file);
+diff --git a/tests/live-controls-preservation.cjs b/tests/live-controls-preservation.cjs
+index 61b3300..26eaf88 100644
+--- a/tests/live-controls-preservation.cjs
++++ b/tests/live-controls-preservation.cjs
+@@ -1,6 +1,6 @@
+ 'use strict';
+ const fs=require('fs'),crypto=require('crypto'),assert=require('assert/strict'),base=require('../docs/live-controls-baseline-hashes.json'),patch=require('../docs/live-controls-source-anchors.json'),m=require('../source-manifest.json');
+-const refinements={...require('../docs/ui-refinement-source-anchors.json'),...require('../docs/workflow-integrity-source-anchors.json')};
++const refinements={...require('../docs/ui-refinement-source-anchors.json'),...require('../docs/workflow-integrity-source-anchors.json'),...require('../docs/maintenance-source-anchors.json')};
+ const sha=f=>crypto.createHash('sha256').update(fs.readFileSync(f)).digest('hex');let unchanged=0;
+ for(const [f,hash] of Object.entries(base.hashes)){assert.equal(sha(f),refinements[f]??patch[f]??hash,'unexpected change: '+f);if(!patch[f]&&!refinements[f])unchanged++;}
+ for(const [f,hash] of Object.entries(patch))assert.equal(sha(f),refinements[f]??hash,'reviewed patch owner: '+f);
+diff --git a/tests/maintenance-equivalence.cjs b/tests/maintenance-equivalence.cjs
+new file mode 100644
+index 0000000..ff77abd
+--- /dev/null
++++ b/tests/maintenance-equivalence.cjs
+@@ -0,0 +1,58 @@
++'use strict';
++const fs=require('fs'),assert=require('assert/strict'),{load}=require('./offline_runtime.cjs');
++const h=load(process.cwd());
++const spatial=fs.readFileSync('tests/fixtures/maintenance-before/spatial.js','utf8').split('function __mlHasTrackPan')[0].replaceAll('__mlAudibleTracks','__beforeAudibleTracks').replaceAll('__mlOutputChannels','__beforeChannels').replace('function __mlPan','function __beforePan').replaceAll('__mlPan(', '__beforePan(');
++const articulation=fs.readFileSync('tests/fixtures/maintenance-before/nodal-bridge.js','utf8').split('function nodalComposerSourceFields')[0].replace('function resolveNodalArticulationFields','function __beforeArticulation');
++const cache=fs.readFileSync('tests/fixtures/maintenance-before/render-cache.js','utf8'),partial=cache.slice(cache.indexOf('function __mlPartialSpan('),cache.indexOf('function __mlSpliceBuffer(')).replace('function __mlPartialSpan','function __beforePartial');
++h.run(spatial+'\n'+articulation+'\n'+partial);
++const result=JSON.parse(h.run(`JSON.stringify((()=>{
++ let seed=91827;const random=()=>((seed=(seed*1664525+1013904223)>>>0)/4294967296),same=(a,b)=>JSON.stringify(a)===JSON.stringify(b);
++ let spatialCases=0,curveCases=0,partialCases=0;
++ for(let test=0;test<240;test++){
++  const tracks=Array.from({length:12},(_,i)=>({id:'t'+i,enabled:random()>.25,pan:random()>.8?.1:0,instrumentPreset:'p'+i}));
++  const notes=Array.from({length:120},(_,i)=>({id:'n'+i,trackId:'t'+Math.floor(random()*14),channelIndex:Math.floor(random()*3),instrumentPresetOverride:random()>.8?'override':undefined}));
++  const composer={tracks,notes,pitchSteps:[{muted:false},{muted:true},{muted:false}]},request={composer,trackIds:tracks.filter(()=>random()>.3).map(t=>t.id),noteId:test%5===0?'n'+Math.floor(random()*120):null};
++  const options={excludeDrums:true,drumOnly:test%19===0};
++  const sources=new Map(tracks.map((track,i)=>[track.instrumentPreset,i%3===0?{buffer:{numberOfChannels:2}}:i%3===1?{kind:'nodal',instrument:{material:{width:.3}}}:{kind:'entrophon',noteBuffers:new Map(notes.filter(n=>n.trackId===track.id).map(n=>[n.id,{buffer:{numberOfChannels:2}}]))}]));
++  if(!same(__mlAudibleTracks(request,options),__beforeAudibleTracks(request,options)))throw Error('Audible tracks drift '+test);
++  for(const loaded of [new Map(),sources]){if(__mlOutputChannels(request,options,loaded)!==__beforeChannels(request,options,loaded))throw Error('Channel policy drift '+test);spatialCases++;}
++ }
++ // Preserve the existing conservative stereo policy: a muted stereo note on a
++ // track with another audible note still keeps that source's stereo field.
++ const conservative={composer:{tracks:[{id:'a',enabled:true,pan:0,instrumentPreset:'mono'}],notes:[{id:'audible',trackId:'a',channelIndex:0},{id:'muted',trackId:'a',channelIndex:1,instrumentPresetOverride:'stereo'}],pitchSteps:[{muted:false},{muted:true}]},trackIds:['a']};
++ if(__mlOutputChannels(conservative,{excludeDrums:true},new Map([['stereo',{buffer:{numberOfChannels:2}}]]))!==2)throw Error('Conservative stereo policy changed');
++ for(let test=0;test<100;test++){
++  const make=()=>H5(H5(Yf(Dx(),test%2?'dynamic-fade':'pitch-elastic'),'left',random()*2-1),'right',random()*2-1);
++  const articulation={volumeEnvelope:test%3?make():null,pitchEnvelope:test%4?make():null},field=make(),local=test%13===0?[field,null,make()]:test%5?field:null,fields=Array.from({length:test%4},make);
++  if(test%7===0)field.enabled=false;if(test%11===0)field.bypassed=true;
++  if(test%17===0)field.range={startRatio:.42,endRatio:.47000000000000003};
++  for(const zero of [true,false]){const args=[articulation,local,zero,fields],snapshot=JSON.stringify(args);if(!same(resolveNodalArticulationFields(...args),__beforeArticulation(...args)))throw Error('Curve drift '+test);if(JSON.stringify(args)!==snapshot)throw Error('Authored field mutated');curveCases++;}
++ }
++ const raw={tracks:[{...Vp[0],enabled:true,instrumentPreset:'subPulse'}],notes:[],pitchSteps:[{id:'s',ratio:1,muted:false}],pitchLines:[{id:'l',hz:220}],baseHz:220,tuning:'ji',stepsPerBar:4,beatsPerBar:4,bars:32,zoom:1,scrollX:0,activeTrackIds:[Vp[0].id],selectedTrackId:Vp[0].id};
++ function descriptor(notes,meta='same'){return{meta,notes,noteMap:new Map(notes.map(n=>[String(n.id),JSON.stringify(n)]))};}
++ for(let test=0;test<100;test++){
++  const composer=$n(raw);composer.notes=Array.from({length:32},(_,i)=>pr(composer,{id:'n'+i,trackId:Vp[0].id,startUnit:i*(test%3?.18:3),durationUnits:.08,channelIndex:0,velocity:.7}));
++  const old=descriptor(composer.notes),nextNotes=JSON.parse(JSON.stringify(composer.notes));nextNotes[test%nextNotes.length].velocity=.3;
++  if(test%7===0)nextNotes.splice(test%nextNotes.length,1);
++  const next=descriptor(nextNotes,test%11===0?'different':'same'),request={composer:{...composer,notes:nextNotes},trackIds:[Vp[0].id],bpm:120,bars:32,noteId:test%13===0?'n0':null};
++  if(!same(__mlPartialSpan(old,next,request,{sampleRate:44100}),__beforePartial(old,next,request,{sampleRate:44100})))throw Error('Partial bounds drift '+test);partialCases++;
++ }
++ const large={composer:{tracks:Array.from({length:96},(_,i)=>({id:'t'+i,enabled:true,pan:0,instrumentPreset:'mono'})),pitchSteps:[{muted:false}],notes:[]},trackIds:Array.from({length:96},(_,i)=>'t'+i)};
++ let reads=0;large.composer.notes=Array.from({length:4096},(_,i)=>({id:'n'+i,channelIndex:0,get trackId(){reads++;return 't'+(i%96);}}));
++ reads=0;__beforeChannels(large,{excludeDrums:true});const spatialBefore=reads;reads=0;__mlOutputChannels(large,{excludeDrums:true});const spatialAfter=reads;
++ const originalZr=Zr;let normalizations=0;Zr=field=>{normalizations++;return originalZr(field);};let curveBefore,curveAfter;
++ try{const field=Dx(),args=[{volumeEnvelope:field,pitchEnvelope:field},field,true,[field,field,field]];normalizations=0;__beforeArticulation(...args);curveBefore=normalizations;normalizations=0;resolveNodalArticulationFields(...args);curveAfter=normalizations;}finally{Zr=originalZr;}
++ const composer=$n(raw);composer.notes=Array.from({length:48},(_,i)=>pr(composer,{id:'chain'+i,trackId:Vp[0].id,startUnit:(47-i)*.5,durationUnits:.05,channelIndex:0,velocity:.7}));
++ const previous=descriptor(composer.notes),changed=JSON.parse(JSON.stringify(composer.notes));changed[47].velocity=.4;
++ const next=descriptor(changed),request={composer:{...composer,notes:changed},trackIds:[Vp[0].id],bpm:120,bars:32};
++ const originalSpan=__mlNoteSpan;let spans=0,boundsBefore,boundsAfter;__mlNoteSpan=(...args)=>{spans++;return originalSpan(...args);};
++ try{spans=0;__beforePartial(previous,next,request,{sampleRate:44100});boundsBefore=spans;spans=0;__mlPartialSpan(previous,next,request,{sampleRate:44100});boundsAfter=spans;}finally{__mlNoteSpan=originalSpan;}
++ return{spatialCases,curveCases,partialCases,conservativeStereo:true,operationCounts:{spatialBefore,spatialAfter,curveBefore,curveAfter,boundsBefore,boundsAfter}};
++})())`));
++assert.equal(result.spatialCases,480);assert.equal(result.curveCases,200);assert.equal(result.partialCases,100);
++if(!process.argv.includes('--baseline')){
++ assert(result.operationCounts.spatialAfter<result.operationCounts.spatialBefore/10);
++ assert(result.operationCounts.curveAfter<result.operationCounts.curveBefore);
++ assert(result.operationCounts.boundsAfter<result.operationCounts.boundsBefore);
++}
++fs.mkdirSync('results/maintenance',{recursive:true});fs.writeFileSync('results/maintenance/'+(process.argv.includes('--baseline')?'baseline':'equivalence')+'.json',JSON.stringify(result,null,2)+'\n');console.log('PASS preservation and counted work:',JSON.stringify(result));
+diff --git a/tests/maintenance-preservation.cjs b/tests/maintenance-preservation.cjs
+new file mode 100644
+index 0000000..3a764b8
+--- /dev/null
++++ b/tests/maintenance-preservation.cjs
+@@ -0,0 +1,25 @@
++'use strict';
++const fs=require('fs'),assert=require('assert/strict'),crypto=require('crypto'),base=require('../docs/maintenance-baseline-hashes.json'),patch=require('../docs/maintenance-source-anchors.json'),manifest=require('../source-manifest.json');
++const sha=p=>crypto.createHash('sha256').update(fs.readFileSync(p)).digest('hex');
++for(const [file,hash] of Object.entries(base.hashes))assert.equal(sha(file),patch[file]??hash,'unreviewed source change '+file);
++assert.equal(Object.keys(patch).length,3);assert(manifest.files.every(file=>base.hashes[file]),'no new runtime dependency/module');
++const fixtures={'spatial.js':'src/mix/04_melodic_spatial.js','nodal-bridge.js':'src/nodal/06_melodic_bridge.js','render-cache.js':'src/forge_and_melodic/04_render_cache_and_stems.js'};
++for(const [name,original] of Object.entries(fixtures))assert.equal(sha('tests/fixtures/maintenance-before/'+name),base.hashes[original],'frozen reference must match prior commit');
++// Freeze everything outside the four reviewed functions, including the actual
++// renderers and all transport/cache owners in these same source files.
++const ts=require('typescript'),allowed={
++ 'spatial.js':new Set(['__mlAudibleTracks','__mlOutputChannels']),
++ 'nodal-bridge.js':new Set(['resolveNodalArticulationFields']),
++ 'render-cache.js':new Set(['__mlPartialSpan'])
++};
++function outsideReviewed(file,names){
++ const text=fs.readFileSync(file,'utf8'),ast=ts.createSourceFile(file,text,ts.ScriptTarget.Latest,true,ts.ScriptKind.JS);
++ assert.equal(ast.parseDiagnostics.length,0,file);const spans=[];
++ for(const statement of ast.statements)if(ts.isFunctionDeclaration(statement)&&names.has(statement.name?.text))spans.push([statement.getStart(ast),statement.end,statement.name.text]);
++ assert.equal(spans.length,names.size,'all reviewed functions must exist');let out='',cursor=0;
++ for(const [start,end,name] of spans){out+=text.slice(cursor,start)+'FUNCTION:'+name;cursor=end;}
++ return out+text.slice(cursor);
++}
++for(const [name,original] of Object.entries(fixtures))assert.equal(outsideReviewed(original,allowed[name]),outsideReviewed('tests/fixtures/maintenance-before/'+name,allowed[name]),'unexpected change outside reviewed function: '+original);
++
++fs.mkdirSync('results/maintenance',{recursive:true});fs.writeFileSync('results/maintenance/preservation.json',JSON.stringify({base:base.base,existingFiles:Object.keys(base.hashes).length,unchanged:Object.keys(base.hashes).length-3,reviewed:Object.keys(patch),newRuntimeModules:0,synthesisKernelsUnchanged:true,frozenReferencesVerified:true,onlyFourAdministrativeFunctionsChanged:true},null,2)+'\n');console.log('PASS maintenance: exactly three administrative sources changed; all synthesis kernels and frozen comparison sources preserved');
+diff --git a/tests/n21-f2-preservation.cjs b/tests/n21-f2-preservation.cjs
+index 85dea99..954c1f9 100644
+--- a/tests/n21-f2-preservation.cjs
++++ b/tests/n21-f2-preservation.cjs
+@@ -6,7 +6,7 @@ const sha=p=>crypto.createHash('sha256').update(fs.readFileSync(p)).digest('hex'
+ const patchFiles=['src/app/forge/01_room_shell.js','src/audio/05_live_voice_runtime.js','src/runtime/instrument/10_entrophon_and_voice_control.js'];
+ const patch=JSON.parse(fs.readFileSync('docs/granular-hold-source-anchors.json','utf8'));
+ const forge=JSON.parse(fs.readFileSync('docs/forge-progress-source-anchors.json','utf8'));
+-const controls={...JSON.parse(fs.readFileSync('docs/live-controls-source-anchors.json','utf8')),...require('../docs/ui-refinement-source-anchors.json'),...require('../docs/workflow-integrity-source-anchors.json')};
++const controls={...JSON.parse(fs.readFileSync('docs/live-controls-source-anchors.json','utf8')),...require('../docs/ui-refinement-source-anchors.json'),...require('../docs/workflow-integrity-source-anchors.json'),...require('../docs/maintenance-source-anchors.json')};
+ const live=JSON.parse(fs.readFileSync('docs/live-stability-source-anchors.json','utf8'));
+ for(const [file,hash] of Object.entries(contract.from_n21))assert.equal(sha(file),controls[file]??live[file]??(patchFiles.includes(file)?patch[file]:hash),`N21 audio/runtime regression: ${file}`);
+ for(const [file,hash] of Object.entries(patch))assert.equal(sha(file),controls[file]??live[file]??hash,`Granular Hold patch regression: ${file}`);
+diff --git a/tests/p4c2-n21-preservation.cjs b/tests/p4c2-n21-preservation.cjs
+index 62dbc25..157f9a9 100644
+--- a/tests/p4c2-n21-preservation.cjs
++++ b/tests/p4c2-n21-preservation.cjs
+@@ -1,6 +1,6 @@
+ 'use strict';
+ const fs=require('node:fs'),crypto=require('node:crypto'),assert=require('node:assert/strict');
+-const controls={...JSON.parse(fs.readFileSync('docs/live-controls-source-anchors.json')),...require('../docs/ui-refinement-source-anchors.json'),...require('../docs/workflow-integrity-source-anchors.json')};
++const controls={...JSON.parse(fs.readFileSync('docs/live-controls-source-anchors.json')),...require('../docs/ui-refinement-source-anchors.json'),...require('../docs/workflow-integrity-source-anchors.json'),...require('../docs/maintenance-source-anchors.json')};
+ const base=JSON.parse(fs.readFileSync('docs/p4c2-n21-n20-baseline-hashes.json')),changed=[];
+ for(const [file,hash]of Object.entries(base))if(crypto.createHash('sha256').update(fs.readFileSync(file)).digest('hex')!==hash)changed.push(file);
+ const expected=['src/mix/03_quick_menu.js','src/nodal/04_audio_runtime.js','src/nodal/12_surface_runtime.js','src/01_app_runtime.js','src/runtime/instrument/10_entrophon_and_voice_control.js','src/audio/05_live_voice_runtime.js','src/audio/entrophon/01_wasm_asset.js','src/audio/entrophon/02_worklet_and_voice_backend.js','src/rhythm/04_workspace_and_transport.js','styles/24_quick_menu.css',
+diff --git a/tests/ui-refinement-preservation.cjs b/tests/ui-refinement-preservation.cjs
+index 830a2d4..ab3d469 100644
+--- a/tests/ui-refinement-preservation.cjs
++++ b/tests/ui-refinement-preservation.cjs
+@@ -1,6 +1,6 @@
+ 'use strict';
+ 
+-const fs = require('fs'), assert = require('assert/strict'), crypto = require('crypto'), base = require('../docs/ui-refinement-baseline-hashes.json'), patch = {...require('../docs/ui-refinement-source-anchors.json'),...require('../docs/workflow-integrity-source-anchors.json')};
++const fs = require('fs'), assert = require('assert/strict'), crypto = require('crypto'), base = require('../docs/ui-refinement-baseline-hashes.json'), patch = {...require('../docs/ui-refinement-source-anchors.json'),...require('../docs/workflow-integrity-source-anchors.json'),...require('../docs/maintenance-source-anchors.json')};
+ 
+ const sha = file => crypto.createHash('sha256').update(fs.readFileSync(file)).digest('hex');
+ 
+diff --git a/tests/workflow-native-audio-browser.cjs b/tests/workflow-native-audio-browser.cjs
+index e56d667..7d4f471 100644
+--- a/tests/workflow-native-audio-browser.cjs
++++ b/tests/workflow-native-audio-browser.cjs
+@@ -1,5 +1,7 @@
+ 'use strict';
+ const fs=require('fs'),assert=require('assert/strict'),{chromium}=require('playwright'),{entry}=require('../source-manifest.json');
++const option=(name,fallback)=>{const at=process.argv.indexOf(name);if(at<0)return fallback;if(!process.argv[at+1])throw Error('Missing '+name);return process.argv[at+1];};
++const baselineHTML=option('--baseline-html','Xensonar_N21_F2_UI_Refinement_Test.html'),resultsDir=option('--results-dir','results/workflow-integrity');
+ const expose=`window.__workflowAudio={get api(){return{render:z$,normalise:$n,defaults:Vp,makeNote:pr,nodal:nodalOpenStarter,nodalV1:nodalStarter,entrophon:captureEntrophonInstrument,importSample:xee,wav:lg,field:()=>H5(H5(Yf(Dx(),'dynamic-fade'),'left',0),'right',-.6),customSave:typeof __mlSaveCustomInstrument==='function'?__mlSaveCustomInstrument:null,customStorage:typeof __mlCustomStorageKey==='string'?__mlCustomStorageKey:null}}};`;
+ async function run(page,html,custom){
+   await page.route('https://xensonar.test/**',route=>route.fulfill({contentType:'text/html',body:html.replace('const kEe=CEe("root");',expose+'const kEe=CEe("root");')}));
+@@ -35,7 +37,7 @@ async function run(page,html,custom){
+  const browser=await chromium.launch({executablePath:process.env.XEN_CHROMIUM_PATH||'/usr/bin/chromium',args:['--no-sandbox','--disable-dev-shm-usage']});const errors=[];
+  try{
+   const beforePage=await browser.newPage();beforePage.on('pageerror',error=>errors.push(error.message));
+-  const before=await run(beforePage,fs.readFileSync('Xensonar_N21_F2_UI_Refinement_Test.html','utf8'),false);await beforePage.close();
++  const before=await run(beforePage,fs.readFileSync(baselineHTML,'utf8'),false);await beforePage.close();
+   const page=await browser.newPage();page.on('pageerror',error=>errors.push(error.message));
+   const after=await run(page,fs.readFileSync(entry,'utf8'),true);
+   const sampleComparisons=[];
+@@ -62,7 +64,7 @@ async function run(page,html,custom){
+    }
+    assert(after[i].ordinary.peak>1e-4);
+   }
+-  assert.deepEqual(errors,[]);fs.mkdirSync('results/workflow-integrity',{recursive:true});fs.writeFileSync('results/workflow-integrity/native-audio.json',JSON.stringify({before,after,sampleComparisons,errors},null,2)+'\n');
++  assert.deepEqual(errors,[]);fs.mkdirSync(resultsDir,{recursive:true});fs.writeFileSync(require('path').join(resultsDir,'native-audio.json'),JSON.stringify({before,after,sampleComparisons,errors},null,2)+'\n');
+   console.log('PASS native PCM: previous/new ordinary outputs and saved/reloaded recipes exact for Legacy, Nodal V1/V2 and real Entrophon WASM; native sample differences below 1e-7 with prior/current repeat controls');
+  }catch(error){console.error('Browser errors:',errors);throw error}finally{await browser.close()}
+ })().catch(error=>{console.error(error);process.exitCode=1});
+diff --git a/tests/workflow-preservation.cjs b/tests/workflow-preservation.cjs
+index cfbf52e..8d712b6 100644
+--- a/tests/workflow-preservation.cjs
++++ b/tests/workflow-preservation.cjs
+@@ -1,5 +1,5 @@
+ 'use strict';
+-const fs=require('fs'),crypto=require('crypto'),assert=require('assert/strict'),base=require('../docs/workflow-integrity-baseline-hashes.json'),patch=require('../docs/workflow-integrity-source-anchors.json'),m=require('../source-manifest.json');
++const fs=require('fs'),crypto=require('crypto'),assert=require('assert/strict'),base=require('../docs/workflow-integrity-baseline-hashes.json'),patch={...require('../docs/workflow-integrity-source-anchors.json'),...require('../docs/maintenance-source-anchors.json')},m=require('../source-manifest.json');
+ const sha=f=>crypto.createHash('sha256').update(fs.readFileSync(f)).digest('hex');
+ let unchanged=0;
+ for(const [file,hash] of Object.entries(base.hashes)){assert.equal(sha(file),patch[file]??hash,file);if(!patch[file])unchanged++;}

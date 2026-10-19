@@ -1,0 +1,13 @@
+
+> xensonar-p4c2-n21-f2-merged@4.4.8-p4c2-n21-f2 test:maintenance
+> node tests/maintenance-equivalence.cjs && node tests/maintenance-preservation.cjs && node tests/rw2-source-index.cjs && node build.cjs --verify
+
+PASS preservation and counted work: {"spatialCases":480,"curveCases":200,"partialCases":100,"conservativeStereo":true,"operationCounts":{"spatialBefore":397872,"spatialAfter":4192,"curveBefore":10,"curveAfter":6,"boundsBefore":2402,"boundsAfter":98}}
+PASS maintenance: exactly three administrative sources changed; all synthesis kernels and frozen comparison sources preserved
+PASS RW2 source-index freshness, 198 manifest entries, 6437 declarations, 1056 file dependency pairs
+PASS reproducible standalone HTML e1db09b24d076ae8aeb07568cc986bb2c2da80f009d3782889aaea089440a6ed 5544465
+npm notice
+npm notice New major version of npm available! 11.9.0 -> 12.2.0
+npm notice Changelog: https://github.com/npm/cli/releases/tag/v12.2.0
+npm notice To update run: npm install -g npm@12.2.0
+npm notice

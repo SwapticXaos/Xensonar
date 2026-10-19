@@ -1,7 +1,7 @@
 'use strict';
 const fs=require('fs'),crypto=require('crypto'),assert=require('assert/strict');
 const base=require('../docs/forge-progress-baseline-hashes.json'),patch=require('../docs/forge-progress-source-anchors.json'),m=require('../source-manifest.json');
-const controls={...require('../docs/live-controls-source-anchors.json'),...require('../docs/ui-refinement-source-anchors.json'),...require('../docs/workflow-integrity-source-anchors.json')};
+const controls={...require('../docs/live-controls-source-anchors.json'),...require('../docs/ui-refinement-source-anchors.json'),...require('../docs/workflow-integrity-source-anchors.json'),...require('../docs/maintenance-source-anchors.json')};
 const hash=f=>crypto.createHash('sha256').update(fs.readFileSync(f)).digest('hex');
 let unchanged=0;for(const [file,expected] of Object.entries(base.hashes)){assert.equal(hash(file),controls[file]??patch[file]??expected,'unreviewed change: '+file);if(!patch[file]&&!controls[file])unchanged++;}
 for(const [file,expected] of Object.entries(patch))assert.equal(hash(file),controls[file]??expected,'reviewed Forge source: '+file);
