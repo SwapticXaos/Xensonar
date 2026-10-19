@@ -126,7 +126,9 @@
     "test:forge-progress:browser": "node tests/forge-progress-browser.cjs",
     "bench:forge-progress": "node tests/forge-progress-performance.cjs",
     "test:live-controls": "node tests/live-controls-preservation.cjs && node tests/live-controls-spatial.cjs && node tests/live-controls-drone.cjs && node build.cjs --verify",
-    "test:live-controls:browser": "node tests/live-controls-spatial-browser.cjs && node tests/live-controls-ui-browser.cjs"
+    "test:live-controls:browser": "node tests/live-controls-spatial-browser.cjs && node tests/live-controls-ui-browser.cjs",
+    "test:ui-refinement": "node tests/ui-refinement-preservation.cjs && node tests/ui-refinement-raster.cjs && node tests/nodal-envelope-zero.cjs && node build.cjs --verify",
+    "test:ui-refinement:browser": "node tests/ui-refinement-browser.cjs && node tests/ui-refinement-raster-browser.cjs && node tests/nodal-envelope-zero-browser.cjs && node tests/ui-refinement-marker-browser.cjs"
   },
   "devDependencies": {
     "playwright": "1.56.1",

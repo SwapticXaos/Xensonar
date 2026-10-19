@@ -50,9 +50,9 @@ function __QuickDock({params={},update=()=>{}}={}){
   observedPulse.current=s.pulse;setFlash(s.pulse);
   const timer=setTimeout(()=>setFlash(0),2300);return()=>clearTimeout(timer);
  },[s.pulse]);
- const [layout,setLayout]=P.useState({leftTop:156,leftHeight:52,migrated:false,rightWidth:210,rightInset:12,rightHeight:120,documentList:false});
+ const [layout,setLayout]=P.useState({leftTop:156,leftHeight:52,migrated:false,rightWidth:210,rightHeight:120,documentList:false});
  const occupied=Math.max(0,...Object.values(columns).map(entries=>entries.length));
- const needed=occupied?44+occupied*34+(occupied-1)*5+(remove?70:0)+(message?30:0):40;
+ const needed=occupied?38+occupied*34+(occupied-1)*5+(remove?70:0)+(message?30:0):38;
  P.useLayoutEffect(()=>{
   let frame=0;
   const measure=()=>{
@@ -62,12 +62,14 @@ function __QuickDock({params={},update=()=>{}}={}){
    const bottom=Math.max(pan?.getBoundingClientRect().bottom??148,panel?.getBoundingClientRect().bottom??148);
    const leftTop=Math.max(156,bottom+8),leftAvailable=Math.max(0,Math.floor(window.innerHeight-72-leftTop));
    const marker=document.querySelector('[aria-label="Place a marker in the recording"]'),side=marker?.getBoundingClientRect();
-   const usableRight=!!side&&side.width>=170&&window.innerWidth>=1600;
+   const railWidth=document.querySelector('.xen-quick-dock')?.getBoundingClientRect().width??210;
+   const usableRight=!!side&&side.width>=Math.min(170,railWidth)&&window.innerWidth>=1600;
    const migrated=occupied>0&&needed>leftAvailable&&usableRight;
-   const documentList=migrated&&needed>window.innerHeight-180;
+   // Reserve a usable recording hit area below the palette. Long lists
+   // use the existing document flow before the fixed target can reach zero.
+   const documentList=migrated&&needed>window.innerHeight-310;
    const next={leftTop,leftHeight:leftAvailable,migrated,
-    rightWidth:Math.max(0,Math.floor(side?.width??210)),
-    rightInset:Math.max(0,Math.ceil(window.innerWidth-(side?.right??window.innerWidth-12))),
+    rightWidth:railWidth,
     rightHeight:needed,documentList};
    document.documentElement.style.setProperty('--xen-quick-marker-top',migrated?(156+needed+10)+'px':'156px');
    document.documentElement.toggleAttribute('data-xen-quick-page-list',documentList);
@@ -81,7 +83,7 @@ function __QuickDock({params={},update=()=>{}}={}){
   return()=>{cancelAnimationFrame(frame);observer?.disconnect();window.removeEventListener('resize',queue);window.removeEventListener('scroll',queue);document.documentElement.style.removeProperty('--xen-quick-marker-top');document.documentElement.removeAttribute('data-xen-quick-page-list')};
  },[occupied,needed]);
  const collection=u.jsxs('div',{className:'xen-quick-collection'+(layout.migrated?' is-migrated':'')+(layout.documentList?' is-document':''),
-  style:layout.migrated?{right:layout.rightInset,width:layout.rightWidth}:undefined,
+  style:layout.migrated?{right:'var(--xen-side-rail-inset)',width:layout.rightWidth}:undefined,
   children:[u.jsx(__QuickMuteRow,{params,update}),u.jsx('div',{className:'xen-quick-grid',children:Object.entries(columns).map(([kind,entries])=>u.jsx('div',{className:'xen-quick-column','data-xen-quick-column':kind,children:entries.map((entry,index)=>u.jsxs('button',{type:'button',className:'xen-quick-tile',title:entry.name,'aria-label':entry.name,onClick:()=>{setMessage(__XenQuick.activate(entry)?'':entry.name+' ist nicht mehr verfügbar.')},onContextMenu:e=>{e.preventDefault();setRemove(entry)},children:[u.jsx('span',{className:entry.kind==='rootFollow'?'xen-quick-rfl':'',children:__XenQuick.icons[entry.kind]}),' '+(index+1)]},entry.kind+':'+entry.id))},kind))}),
    remove&&u.jsxs('div',{className:'xen-quick-confirm',children:[u.jsx('span',{children:'„'+remove.name+'“ entfernen?'}),u.jsx('button',{type:'button',onClick:()=>{__XenQuick.remove(remove);setRemove(null)},children:'Entfernen'}),u.jsx('button',{type:'button',onClick:()=>setRemove(null),children:'Abbrechen'})]}),message&&u.jsx('small',{role:'status',children:message})]});
  const dock=u.jsxs('section',{className:'xen-quick-dock'+(flash?' is-ready':'')+(layout.migrated?' is-migrated':''),'aria-label':'Schnellmenü','data-xen-quick-hint':__XenQuickHelpText,
@@ -248,12 +250,11 @@ if(typeof document!=='undefined'){
 }
 
 
-// Reuse the live transport switches; selection and saved material stay intact.
+// One canonical switch per column; Raster bypasses the RFL impulse timing.
+const __QuickMuteLanes=Object.freeze({grid:['rootFollowImpulsRasterMuted','Raster',true],material:['materialLoopActive','Material Track'],rootFollow:['rootFollowLoopActive','Root Follow Loop'],drum:['drumActive','Drums'],bass:['bassActive','Bass']});
 function __QuickMuteRow({params,update}){
- const lanes={material:['materialLoopActive','Material Track'],rootFollow:['rootFollowLoopActive','Root Follow Loop'],drum:['drumActive','Drums'],bass:['bassActive','Bass']};
- return u.jsx('div',{className:'xen-quick-mutes','aria-label':'Quick track mute',children:['grid',...Object.keys(lanes)].map(kind=>{
-  if(kind==='grid')return u.jsx('span',{title:'Raster',className:'xen-quick-grid-label',children:__XenQuick.icons.grid},kind);
-  const [field,label]=lanes[kind],muted=!params[field];
-  return u.jsx('button',{type:'button','data-quick-mute':kind,'aria-label':label+' mute','aria-pressed':muted,title:(muted?'Unmute ':'Mute ')+label,className:muted?'is-muted':'',onClick:()=>update({[field]:muted}),children:__XenQuick.icons[kind]},kind);
+ return u.jsx('div',{className:'xen-quick-mutes','aria-label':'Quick track mute',children:Object.entries(__QuickMuteLanes).map(([kind,[field,label,inverted]])=>{
+  const muted=inverted ? !!params[field] : !params[field];
+  return u.jsx('button',{type:'button','data-quick-mute':kind,'aria-label':label+' mute','aria-pressed':muted,title:kind==='grid' ? (muted?'Raster einschalten':'Raster umgehen · RFL kontinuierlich spielen') : (muted?'Unmute ':'Mute ')+label,className:muted?'is-muted':'',onClick:()=>update({[field]:inverted ? !muted : muted}),'aria-description':kind==='grid'?'Bypasses the RFL impulse grid; saved pattern and timbre are preserved.':undefined},kind);
  })});
 }

@@ -2,7 +2,7 @@
    This prepares material for the existing Melodic clock; it owns no transport. */
 function entrophonMelodicNoteOptions(composer,note,track,source,stepSec) {
   const durationSec=Math.max(.04,Math.min(30,F$(composer,note)*stepSec));
-  const fields=resolveNodalArticulationFields({},note.localField??null);
+  const fields=resolveNodalArticulationFields({},note.localField??null,false);
   return {frequency:m9e(composer,note,source),velocity:Math.max(0,Math.min(1,note.velocity??.8)),durationSec,
     attackSec:Number.isFinite(note.edgeFadeInMs)?Math.max(.001,Math.min(2,note.edgeFadeInMs/1000)):Math.max(source.instrument.config.attack,d9e(note)*stepSec),
     releaseSec:Number.isFinite(note.edgeFadeOutMs)?Math.max(.001,Math.min(3,note.edgeFadeOutMs/1000)):Math.max(source.instrument.config.release,T$(note)*stepSec),...fields};

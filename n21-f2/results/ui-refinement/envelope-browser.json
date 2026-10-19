@@ -1,0 +1,14 @@
+{
+  "errors": [],
+  "fade": {
+    "firstGain": 1,
+    "lastGain": 0,
+    "earlyPeak": 0.11031544953584671,
+    "tailPeak": 0,
+    "offlineAudible": true
+  },
+  "silent": {
+    "allGainsZero": true,
+    "allSamplesZero": true
+  }
+}

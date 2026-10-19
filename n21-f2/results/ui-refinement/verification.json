@@ -1,0 +1,50 @@
+{
+  "baseCommit": "a5ef47e2c0fdbffe480149fe3559731c9bf61553",
+  "entry": "Xensonar_N21_F2_UI_Refinement_Test.html",
+  "sha256": "378e0211db8d4bf9b7a65a883798cc7c408c7f74e43476b9c8f8238dc67b8002",
+  "bytes": 5526684,
+  "hostChecks": 65,
+  "hostFailures": 0,
+  "browser": "system Chromium with native WebAudio, Workers and intercepted HTTPS fixture",
+  "browserErrors": [],
+  "envelopeErrors": [],
+  "envelopeRates": [
+    44100,
+    48000,
+    96000
+  ],
+  "envelopeVersions": [
+    1,
+    2
+  ],
+  "envelopeZeroOutput": true,
+  "nonzeroNodalVsFrozenKernelMaxDifference": 0,
+  "sourcePreservation": {
+    "unchanged": 200,
+    "reviewedChanges": 25
+  },
+  "raster": "existing production lifecycle; authored pattern and granular mode retained",
+  "desktopRackGeometryPreservedAt": [
+    1740,
+    1600,
+    1100
+  ],
+  "narrowLayout": {
+    "width": 760,
+    "heightIncreasePx": 52,
+    "reason": "flowed transport row prevents overlap"
+  },
+  "notRun": [
+    "Opera",
+    "Firefox",
+    "physical audio-device listening"
+  ],
+  "cloudConfig": "saved draft; publication through environment settings",
+  "recordingMarkers": {
+    "nativeRecordingBrowserScenarios": 6,
+    "sideClicksPulseLogo": true,
+    "minimumHitAreaHeight": 120,
+    "maximumWaveCentreDeviationPx": 0.1,
+    "stoppedRecordingCannotAddMarkers": true
+  }
+}

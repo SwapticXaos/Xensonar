@@ -62,9 +62,14 @@
       "line": 43
     },
     {
+      "name": "__QuickMuteLanes",
+      "file": "src/mix/03_quick_menu.js",
+      "line": 254
+    },
+    {
       "name": "__QuickMuteRow",
       "file": "src/mix/03_quick_menu.js",
-      "line": 252
+      "line": 255
     },
     {
       "name": "__mlPan",
@@ -92,9 +97,19 @@
       "line": 40
     },
     {
+      "name": "__MelodicTrackMix",
+      "file": "src/mix/04_melodic_spatial.js",
+      "line": 51
+    },
+    {
       "name": "__MelodicTrackPan",
       "file": "src/mix/04_melodic_spatial.js",
-      "line": 49
+      "line": 65
+    },
+    {
+      "name": "__MelodicTrackVolume",
+      "file": "src/mix/04_melodic_spatial.js",
+      "line": 66
     },
     {
       "name": "__XenAudioProbe",
@@ -149,7 +164,7 @@
     {
       "name": "__XenNodalDSP",
       "file": "src/nodal/02_synthesis_kernel.js",
-      "line": 894
+      "line": 899
     },
     {
       "name": "createNodalInstrumentLibrary",
@@ -244,62 +259,62 @@
     {
       "name": "nodalComposerSourceFields",
       "file": "src/nodal/06_melodic_bridge.js",
-      "line": 11
+      "line": 14
     },
     {
       "name": "nodalFindInstrument",
       "file": "src/nodal/06_melodic_bridge.js",
-      "line": 23
+      "line": 26
     },
     {
       "name": "nodalLibraryEntryLabel",
       "file": "src/nodal/06_melodic_bridge.js",
-      "line": 30
+      "line": 33
     },
     {
       "name": "nodalInstrumentMenu",
       "file": "src/nodal/06_melodic_bridge.js",
-      "line": 36
+      "line": 39
     },
     {
       "name": "nodalLoadMelodicSources",
       "file": "src/nodal/06_melodic_bridge.js",
-      "line": 68
+      "line": 71
     },
     {
       "name": "nodalHasMelodicNotes",
       "file": "src/nodal/06_melodic_bridge.js",
-      "line": 79
+      "line": 82
     },
     {
       "name": "__mlContainsNodalTracks",
       "file": "src/nodal/06_melodic_bridge.js",
-      "line": 87
+      "line": 90
     },
     {
       "name": "__mlNodalRflConfig",
       "file": "src/nodal/06_melodic_bridge.js",
-      "line": 97
+      "line": 100
     },
     {
       "name": "nodalMelodicNoteTiming",
       "file": "src/nodal/06_melodic_bridge.js",
-      "line": 103
+      "line": 106
     },
     {
       "name": "nodalMelodicNoteOptions",
       "file": "src/nodal/06_melodic_bridge.js",
-      "line": 109
+      "line": 112
     },
     {
       "name": "nodalRenderTailSeconds",
       "file": "src/nodal/06_melodic_bridge.js",
-      "line": 117
+      "line": 120
     },
     {
       "name": "nodalScheduleOffline",
       "file": "src/nodal/06_melodic_bridge.js",
-      "line": 130
+      "line": 133
     },
     {
       "name": "nodalPlayMelodic",
@@ -2610,6 +2625,21 @@
       "name": "aZ",
       "file": "src/runtime/01_instrument_state.js",
       "line": 25
+    },
+    {
+      "name": "__XenDroneStart",
+      "file": "src/runtime/01_instrument_state.js",
+      "line": 27
+    },
+    {
+      "name": "__XenLegacyDroneStart",
+      "file": "src/runtime/01_instrument_state.js",
+      "line": 28
+    },
+    {
+      "name": "__xenDronePresetStart",
+      "file": "src/runtime/01_instrument_state.js",
+      "line": 29
     },
     {
       "name": "__wave39MakeGradient",
@@ -6472,214 +6502,224 @@
       "line": 1
     },
     {
+      "name": "__DroneVoiceChoices",
+      "file": "src/runtime/instrument/09_monitoring_and_manual_patterns.js",
+      "line": 2
+    },
+    {
+      "name": "__DroneVoiceChoice",
+      "file": "src/runtime/instrument/09_monitoring_and_manual_patterns.js",
+      "line": 3
+    },
+    {
       "name": "vie",
       "file": "src/runtime/instrument/09_monitoring_and_manual_patterns.js",
-      "line": 1
+      "line": 6
     },
     {
       "name": "Y6",
       "file": "src/runtime/instrument/09_monitoring_and_manual_patterns.js",
-      "line": 1
+      "line": 6
     },
     {
       "name": "Aie",
       "file": "src/runtime/instrument/09_monitoring_and_manual_patterns.js",
-      "line": 1
+      "line": 6
     },
     {
       "name": "xie",
       "file": "src/runtime/instrument/09_monitoring_and_manual_patterns.js",
-      "line": 1
+      "line": 6
     },
     {
       "name": "Mie",
       "file": "src/runtime/instrument/09_monitoring_and_manual_patterns.js",
-      "line": 1
+      "line": 6
     },
     {
       "name": "wie",
       "file": "src/runtime/instrument/09_monitoring_and_manual_patterns.js",
-      "line": 1
+      "line": 6
     },
     {
       "name": "Rie",
       "file": "src/runtime/instrument/09_monitoring_and_manual_patterns.js",
-      "line": 1
+      "line": 6
     },
     {
       "name": "J6",
       "file": "src/runtime/instrument/09_monitoring_and_manual_patterns.js",
-      "line": 1
+      "line": 6
     },
     {
       "name": "Cie",
       "file": "src/runtime/instrument/09_monitoring_and_manual_patterns.js",
-      "line": 1
+      "line": 6
     },
     {
       "name": "kie",
       "file": "src/runtime/instrument/09_monitoring_and_manual_patterns.js",
-      "line": 1
+      "line": 6
     },
     {
       "name": "Pie",
       "file": "src/runtime/instrument/09_monitoring_and_manual_patterns.js",
-      "line": 1
+      "line": 6
     },
     {
       "name": "Iie",
       "file": "src/runtime/instrument/09_monitoring_and_manual_patterns.js",
-      "line": 1
+      "line": 6
     },
     {
       "name": "mI",
       "file": "src/runtime/instrument/09_monitoring_and_manual_patterns.js",
-      "line": 1
+      "line": 6
     },
     {
       "name": "pI",
       "file": "src/runtime/instrument/09_monitoring_and_manual_patterns.js",
-      "line": 1
+      "line": 6
     },
     {
       "name": "Eie",
       "file": "src/runtime/instrument/09_monitoring_and_manual_patterns.js",
-      "line": 1
+      "line": 6
     },
     {
       "name": "Fie",
       "file": "src/runtime/instrument/09_monitoring_and_manual_patterns.js",
-      "line": 1
+      "line": 6
     },
     {
       "name": "Tie",
       "file": "src/runtime/instrument/09_monitoring_and_manual_patterns.js",
-      "line": 1
+      "line": 6
     },
     {
       "name": "Lie",
       "file": "src/runtime/instrument/09_monitoring_and_manual_patterns.js",
-      "line": 1
+      "line": 6
     },
     {
       "name": "Z6",
       "file": "src/runtime/instrument/09_monitoring_and_manual_patterns.js",
-      "line": 1
+      "line": 6
     },
     {
       "name": "sT",
       "file": "src/runtime/instrument/09_monitoring_and_manual_patterns.js",
-      "line": 1
+      "line": 6
     },
     {
       "name": "Bie",
       "file": "src/runtime/instrument/09_monitoring_and_manual_patterns.js",
-      "line": 1
+      "line": 6
     },
     {
       "name": "eG",
       "file": "src/runtime/instrument/09_monitoring_and_manual_patterns.js",
-      "line": 1
+      "line": 6
     },
     {
       "name": "M4",
       "file": "src/runtime/instrument/09_monitoring_and_manual_patterns.js",
-      "line": 1
+      "line": 6
     },
     {
       "name": "l0",
       "file": "src/runtime/instrument/09_monitoring_and_manual_patterns.js",
-      "line": 1
+      "line": 6
     },
     {
       "name": "tG",
       "file": "src/runtime/instrument/09_monitoring_and_manual_patterns.js",
-      "line": 1
+      "line": 6
     },
     {
       "name": "nG",
       "file": "src/runtime/instrument/09_monitoring_and_manual_patterns.js",
-      "line": 1
+      "line": 6
     },
     {
       "name": "lT",
       "file": "src/runtime/instrument/09_monitoring_and_manual_patterns.js",
-      "line": 1
+      "line": 6
     },
     {
       "name": "Ux",
       "file": "src/runtime/instrument/09_monitoring_and_manual_patterns.js",
-      "line": 1
+      "line": 6
     },
     {
       "name": "Kx",
       "file": "src/runtime/instrument/09_monitoring_and_manual_patterns.js",
-      "line": 1
+      "line": 6
     },
     {
       "name": "rG",
       "file": "src/runtime/instrument/09_monitoring_and_manual_patterns.js",
-      "line": 1
+      "line": 6
     },
     {
       "name": "Die",
       "file": "src/runtime/instrument/09_monitoring_and_manual_patterns.js",
-      "line": 1
+      "line": 6
     },
     {
       "name": "w4",
       "file": "src/runtime/instrument/09_monitoring_and_manual_patterns.js",
-      "line": 1
+      "line": 6
     },
     {
       "name": "Nie",
       "file": "src/runtime/instrument/09_monitoring_and_manual_patterns.js",
-      "line": 1
+      "line": 6
     },
     {
       "name": "k1",
       "file": "src/runtime/instrument/09_monitoring_and_manual_patterns.js",
-      "line": 1
+      "line": 6
     },
     {
       "name": "C2",
       "file": "src/runtime/instrument/09_monitoring_and_manual_patterns.js",
-      "line": 1
+      "line": 6
     },
     {
       "name": "eu",
       "file": "src/runtime/instrument/09_monitoring_and_manual_patterns.js",
-      "line": 1
+      "line": 6
     },
     {
       "name": "Pw",
       "file": "src/runtime/instrument/09_monitoring_and_manual_patterns.js",
-      "line": 1
+      "line": 6
     },
     {
       "name": "Oie",
       "file": "src/runtime/instrument/09_monitoring_and_manual_patterns.js",
-      "line": 1
+      "line": 6
     },
     {
       "name": "_ie",
       "file": "src/runtime/instrument/09_monitoring_and_manual_patterns.js",
-      "line": 1
+      "line": 6
     },
     {
       "name": "zie",
       "file": "src/runtime/instrument/09_monitoring_and_manual_patterns.js",
-      "line": 1
+      "line": 6
     },
     {
       "name": "jie",
       "file": "src/runtime/instrument/09_monitoring_and_manual_patterns.js",
-      "line": 1
+      "line": 6
     },
     {
       "name": "R4",
       "file": "src/runtime/instrument/09_monitoring_and_manual_patterns.js",
-      "line": 1
+      "line": 6
     },
     {
       "name": "Gie",
@@ -12800,6 +12840,16 @@
       "name": "__f442RFLMaterialSettings",
       "file": "src/audio/00_rfl_settings_cache.js",
       "line": 25
+    },
+    {
+      "name": "__f442RFLContinuousRaster",
+      "file": "src/audio/00_rfl_settings_cache.js",
+      "line": 39
+    },
+    {
+      "name": "__f442RFLRasterPolicy",
+      "file": "src/audio/00_rfl_settings_cache.js",
+      "line": 40
     },
     {
       "name": "Sp",
@@ -30719,107 +30769,107 @@
     {
       "name": "SQe",
       "file": "src/forge_and_melodic/07_tuning_and_logic_view.js",
-      "line": 24
+      "line": 18
     },
     {
       "name": "vQe",
       "file": "src/forge_and_melodic/07_tuning_and_logic_view.js",
-      "line": 24
+      "line": 18
     },
     {
       "name": "AQe",
       "file": "src/forge_and_melodic/07_tuning_and_logic_view.js",
-      "line": 51
+      "line": 45
     },
     {
       "name": "WR",
       "file": "src/forge_and_melodic/07_tuning_and_logic_view.js",
-      "line": 51
+      "line": 45
     },
     {
       "name": "xQe",
       "file": "src/forge_and_melodic/07_tuning_and_logic_view.js",
-      "line": 51
+      "line": 45
     },
     {
       "name": "MQe",
       "file": "src/forge_and_melodic/07_tuning_and_logic_view.js",
-      "line": 51
+      "line": 45
     },
     {
       "name": "wQe",
       "file": "src/forge_and_melodic/07_tuning_and_logic_view.js",
-      "line": 51
+      "line": 45
     },
     {
       "name": "RQe",
       "file": "src/forge_and_melodic/07_tuning_and_logic_view.js",
-      "line": 51
+      "line": 45
     },
     {
       "name": "CQe",
       "file": "src/forge_and_melodic/07_tuning_and_logic_view.js",
-      "line": 51
+      "line": 45
     },
     {
       "name": "kQe",
       "file": "src/forge_and_melodic/07_tuning_and_logic_view.js",
-      "line": 51
+      "line": 45
     },
     {
       "name": "PQe",
       "file": "src/forge_and_melodic/07_tuning_and_logic_view.js",
-      "line": 51
+      "line": 45
     },
     {
       "name": "IQe",
       "file": "src/forge_and_melodic/07_tuning_and_logic_view.js",
-      "line": 51
+      "line": 45
     },
     {
       "name": "EQe",
       "file": "src/forge_and_melodic/07_tuning_and_logic_view.js",
-      "line": 51
+      "line": 45
     },
     {
       "name": "FQe",
       "file": "src/forge_and_melodic/07_tuning_and_logic_view.js",
-      "line": 51
+      "line": 45
     },
     {
       "name": "TQe",
       "file": "src/forge_and_melodic/07_tuning_and_logic_view.js",
-      "line": 51
+      "line": 45
     },
     {
       "name": "LQe",
       "file": "src/forge_and_melodic/07_tuning_and_logic_view.js",
-      "line": 51
+      "line": 45
     },
     {
       "name": "BQe",
       "file": "src/forge_and_melodic/07_tuning_and_logic_view.js",
-      "line": 51
+      "line": 45
     },
     {
       "name": "DQe",
       "file": "src/forge_and_melodic/07_tuning_and_logic_view.js",
-      "line": 51
+      "line": 45
     },
     {
       "name": "NQe",
       "file": "src/forge_and_melodic/07_tuning_and_logic_view.js",
-      "line": 51
+      "line": 45
     },
     {
       "name": "OQe",
       "file": "src/forge_and_melodic/07_tuning_and_logic_view.js",
-      "line": 57
+      "line": 51
     },
     {
       "name": "_Qe",
       "file": "src/forge_and_melodic/07_tuning_and_logic_view.js",
-      "line": 60
+      "line": 54
     },
     {
       "name": "zQe",
@@ -33622,6 +33672,13 @@
       ]
     },
     {
+      "from": "src/audio/00_rfl_settings_cache.js",
+      "to": "src/runtime/instrument/12_rhythm_and_bass_editor.js",
+      "symbols": [
+        "fu"
+      ]
+    },
+    {
       "from": "src/audio/01_voice_and_rfl_ownership.js",
       "to": "src/01_app_runtime.js",
       "symbols": [
@@ -34054,7 +34111,8 @@
       "to": "src/audio/00_rfl_settings_cache.js",
       "symbols": [
         "__f442RFLBaseSettings",
-        "__f442RFLMaterialSettings"
+        "__f442RFLMaterialSettings",
+        "__f442RFLRasterPolicy"
       ]
     },
     {
@@ -34238,7 +34296,6 @@
       "symbols": [
         "EG",
         "X0",
-        "fu",
         "ile",
         "lle"
       ]
@@ -36046,7 +36103,6 @@
       "symbols": [
         "__mlDrumsAudible",
         "__mlPhase",
-        "__mlSetLiveTrackVolume",
         "__mlSubscribe",
         "__mlToggleDrums"
       ]
@@ -36098,7 +36154,8 @@
       "from": "src/forge_and_melodic/07_tuning_and_logic_view.js",
       "to": "src/mix/04_melodic_spatial.js",
       "symbols": [
-        "__MelodicTrackPan"
+        "__MelodicTrackPan",
+        "__MelodicTrackVolume"
       ]
     },
     {
@@ -39388,6 +39445,7 @@
       "from": "src/mix/04_melodic_spatial.js",
       "to": "src/forge_and_melodic/04_render_cache_and_stems.js",
       "symbols": [
+        "__mlSetLiveTrackVolume",
         "b9e"
       ]
     },
@@ -39567,7 +39625,8 @@
         "$p",
         "IF",
         "Zr",
-        "gc"
+        "gc",
+        "pn"
       ]
     },
     {
@@ -40335,6 +40394,7 @@
         "Ud",
         "Up",
         "Zs",
+        "__XenDroneStart",
         "fc",
         "hF",
         "ir",
@@ -40581,6 +40641,7 @@
         "Yz",
         "Zd",
         "Zs",
+        "__xenDronePresetStart",
         "aj",
         "bS",
         "dJ",
@@ -41228,6 +41289,7 @@
         "Ka",
         "OJ",
         "cj",
+        "dg",
         "lj",
         "ti",
         "xP",

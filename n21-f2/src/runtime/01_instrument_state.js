@@ -23,3 +23,7 @@ const k5=(e,t)=>{const n=Me(t,0,1),r=Math.abs(n-.5)*2;switch(e){case"bright_max"
 const rZ=(e,t,n,r)=>{const a=Me(e/vr,0,1),o=Me(1-t/ir,0,1),i=k5(n,a),s=k5(r,o);return{brightness:Me(i,0,1),attackHardness:Me(s,0,1)}};
 const ry=e=>{const t=Me(e,0,1);return t*t*(3-2*t)};
 const aZ=e=>{const t=Me(e,.75,8),n=1024,r=new Float32Array(n);for(let a=0;a<n;a+=1){const o=a/(n-1)*2-1;r[a]=Math.tanh(o*t)}return r};
+// One startup/preset contract for the main-room Drone controls.
+const __XenDroneStart=Object.freeze({dronePreset:'xenpolar_drone',droneTimbre:.35,droneVibrato:.2,droneFlanger:.12,droneRhythm:'Off'});
+const __XenLegacyDroneStart=Object.freeze({dronePreset:'fjord_tape',droneTimbre:.01,droneVibrato:.8,droneFlanger:.6,droneRhythm:'Puls 1/4'});
+function __xenDronePresetStart(id){return id==='xenpolar_drone'?__XenDroneStart:id==='fjord_tape'?__XenLegacyDroneStart:undefined;}

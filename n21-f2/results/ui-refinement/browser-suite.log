@@ -1,0 +1,63 @@
+
+> xensonar-p4c2-n21-f2-merged@4.4.8-p4c2-n21-f2 test:ui-refinement:browser
+> node tests/ui-refinement-browser.cjs && node tests/ui-refinement-raster-browser.cjs && node tests/nodal-envelope-zero-browser.cjs && node tests/ui-refinement-marker-browser.cjs
+
+PASS aligned volume/pan in default/solo/restored views; original bars geometry; relocated transport; matching rails; 17px mute gates; per-particle sliders; main-room Drone and reversible raster bypass
+[
+  {
+    "mode": "flowing",
+    "muted": false,
+    "windows": 19,
+    "grains": 136,
+    "energy": 120.19265846370736,
+    "peak": 0.1571594625711441
+  },
+  {
+    "mode": "flowing",
+    "muted": true,
+    "windows": 70,
+    "grains": 560,
+    "energy": 593.471544485691,
+    "peak": 0.16748365759849548
+  },
+  {
+    "mode": "flowing",
+    "muted": false,
+    "windows": 19,
+    "grains": 136,
+    "energy": 120.19265829913864,
+    "peak": 0.1571594476699829
+  },
+  {
+    "mode": "fragment",
+    "muted": false,
+    "windows": 19,
+    "grains": 179,
+    "energy": 63.05687916478194,
+    "peak": 0.13287320733070374
+  },
+  {
+    "mode": "fragment",
+    "muted": true,
+    "windows": 70,
+    "grains": 765,
+    "energy": 224.13226537812028,
+    "peak": 0.16948699951171875
+  },
+  {
+    "mode": "fragment",
+    "muted": false,
+    "windows": 19,
+    "grains": 179,
+    "energy": 63.05687931973978,
+    "peak": 0.13287320733070374
+  }
+]
+PASS native granular PCM: flowing/fragment, authored raster → continuous bypass → restored raster, finite output and bounded peaks
+PASS actual Nodal triangle drags: fade reaches exact-zero PCM, fully lowered envelope is silent, Melodic scheduling audible before fade, Pitch envelope preserved
+PASS real recording: six shortcut layouts, reachable side marker, exactly one marker per click, centred expanding logo feedback
+npm notice
+npm notice New major version of npm available! 11.9.0 -> 12.2.0
+npm notice Changelog: https://github.com/npm/cli/releases/tag/v12.2.0
+npm notice To update run: npm install -g npm@12.2.0
+npm notice

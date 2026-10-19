@@ -1,0 +1,54 @@
+{
+  "rows": [
+    {
+      "muted": false,
+      "pattern": [
+        1,
+        0,
+        0,
+        0
+      ],
+      "renders": 20,
+      "compiled": 1,
+      "stops": 1
+    },
+    {
+      "muted": true,
+      "pattern": [
+        1,
+        0,
+        0,
+        0
+      ],
+      "renders": 21,
+      "compiled": 1,
+      "stops": 1
+    },
+    {
+      "muted": false,
+      "pattern": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "renders": 0,
+      "compiled": 1,
+      "stops": 2
+    },
+    {
+      "muted": true,
+      "pattern": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "renders": 21,
+      "compiled": 1,
+      "stops": 1
+    }
+  ],
+  "patternPreserved": true,
+  "continuousPolicyReused": true
+}

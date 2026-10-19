@@ -1,0 +1,1 @@
+PASS Nodal V1/V2 envelope: exact-zero mapping and PCM tails at 44.1/48/96 kHz; no/positive contours sample-identical; other backend field semantics retained

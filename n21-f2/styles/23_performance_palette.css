@@ -17,7 +17,7 @@
 /* The existing particle grid keeps one stateful pan owner per agent. */
 .xen-performance-pan{flex:1;min-width:70px}
 @media(min-width:1600px) and (min-height:820px){
- .xen-performance{position:fixed;z-index:20;top:156px;left:12px;width:calc((100vw - 1152px)/2 - 28px);max-width:260px;margin:0}
+ .xen-performance{position:fixed;z-index:20;top:156px;left:var(--xen-side-rail-inset);width:var(--xen-side-rail-width);margin:0}
  .xen-performance-lanes{grid-template-columns:minmax(0,1fr);gap:8px}
  .xen-performance-lane+.xen-performance-lane{border-top:1px solid #262626;padding-top:7px}
  [data-xen-side-performance=collapsed]{width:48px}
@@ -30,3 +30,8 @@
 
 /* N12: octave controls share the existing heading line, never create a second line. */
 .xen-source-heading{min-width:0;flex-wrap:nowrap}.xen-source-heading .xen-performance-title{white-space:nowrap;min-width:0;font-size:10px}.xen-source-octave{white-space:nowrap;gap:2px;font-size:9px;flex-shrink:0}.xen-source-octave button{width:19px;height:19px;border-radius:3px;padding:0;line-height:17px}.xen-source-octave output{min-width:12px}.xen-performance-pan-note{min-height:10px;line-height:1.15}.xen-performance header{min-height:25px}.xen-performance header button{min-width:26px;min-height:26px;line-height:1}
+
+/* Both controls in every per-particle mixer use identical track geometry. */
+.xen-particle-mix-row .xen-performance-level,.xen-particle-mix-row .xen-performance-pan{font-size:10px;line-height:12px}
+.xen-particle-mix-row .xen-performance-level>span,.xen-particle-mix-row .xen-performance-pan>span{height:12px;white-space:nowrap}
+.xen-particle-mix-row input[type=range]{display:block;height:20px;margin:0}

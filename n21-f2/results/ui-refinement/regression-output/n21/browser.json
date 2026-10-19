@@ -1,0 +1,172 @@
+{
+  "file": "/workspace/Xensonar/n21-f2/Xensonar_N21_F2_UI_Refinement_Test.html",
+  "results": [
+    {
+      "check": "seven saved Material shortcuts, full left target, no nested scrollbar",
+      "dock": {
+        "x": 12,
+        "y": 686.03125,
+        "width": 260,
+        "height": 191,
+        "bottom": 877.03125,
+        "right": 272
+      },
+      "collection": {
+        "x": 1453,
+        "y": 156,
+        "width": 260,
+        "height": 308,
+        "bottom": 464,
+        "right": 1713
+      },
+      "pan": {
+        "x": 20,
+        "y": 620.6875,
+        "width": 244,
+        "height": 35,
+        "bottom": 655.6875,
+        "right": 264
+      },
+      "overflow": "visible",
+      "maxHeight": "none",
+      "scrollHeight": 306,
+      "clientHeight": 306,
+      "pageHeight": 6134
+    },
+    {
+      "check": "explicit library click: exactly two pulses, only in full left landing area",
+      "pulse": {
+        "iterations": "2",
+        "rect": {
+          "x": 12,
+          "y": 686.03125,
+          "width": 260,
+          "height": 191,
+          "top": 686.03125,
+          "right": 272,
+          "bottom": 877.03125,
+          "left": 12
+        }
+      }
+    },
+    {
+      "check": "drop near top of stable target, no drag pulse, no main-room replay"
+    },
+    {
+      "check": "resize",
+      "size": {
+        "width": 1920,
+        "height": 1080
+      },
+      "dock": {
+        "x": 12,
+        "y": 686.03125,
+        "width": 260,
+        "height": 321,
+        "bottom": 1007.03125,
+        "right": 272
+      },
+      "collection": {
+        "x": 12,
+        "y": 701.03125,
+        "width": 260,
+        "height": 306,
+        "bottom": 1007.03125,
+        "right": 272
+      },
+      "pan": {
+        "x": 20,
+        "y": 620.6875,
+        "width": 244,
+        "height": 35,
+        "bottom": 655.6875,
+        "right": 264
+      },
+      "overflow": "visible",
+      "maxHeight": "none",
+      "scrollHeight": 306,
+      "clientHeight": 306,
+      "pageHeight": 6134
+    },
+    {
+      "check": "resize",
+      "size": {
+        "width": 1600,
+        "height": 900
+      },
+      "dock": {
+        "x": 12,
+        "y": 686.03125,
+        "width": 196,
+        "height": 141,
+        "bottom": 827.03125,
+        "right": 208
+      },
+      "collection": {
+        "x": 1377,
+        "y": 156,
+        "width": 196,
+        "height": 308,
+        "bottom": 464,
+        "right": 1573
+      },
+      "pan": {
+        "x": 20,
+        "y": 620.6875,
+        "width": 180,
+        "height": 35,
+        "bottom": 655.6875,
+        "right": 200
+      },
+      "overflow": "visible",
+      "maxHeight": "none",
+      "scrollHeight": 306,
+      "clientHeight": 306,
+      "pageHeight": 6134
+    },
+    {
+      "check": "resize",
+      "size": {
+        "width": 1440,
+        "height": 900
+      },
+      "dock": {
+        "x": 12,
+        "y": 395.34375,
+        "width": 210,
+        "height": 432,
+        "bottom": 827.34375,
+        "right": 222
+      },
+      "collection": {
+        "x": 12,
+        "y": 521.34375,
+        "width": 210,
+        "height": 306,
+        "bottom": 827.34375,
+        "right": 222
+      },
+      "pan": {
+        "x": 907.15625,
+        "y": 330,
+        "width": 373.34375,
+        "height": 35,
+        "bottom": 365,
+        "right": 1280.5
+      },
+      "overflow": "visible",
+      "maxHeight": "none",
+      "scrollHeight": 306,
+      "clientHeight": 306,
+      "pageHeight": 6369
+    },
+    {
+      "check": "thirty-entry list has one page scroll and reachable last tile",
+      "height": 1205,
+      "client": 1203,
+      "scroll": 1203,
+      "overflow": "visible",
+      "page": 6134
+    }
+  ]
+}

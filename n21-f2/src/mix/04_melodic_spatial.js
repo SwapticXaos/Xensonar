@@ -46,16 +46,21 @@ function __mlSetLiveTrackPan(trackId, value) {
   node.pan.setTargetAtTime(__mlPan(value), now, .012);
   return true;
 }
-function __MelodicTrackPan({track, index, mutate}) {
-  const value = Math.round(__mlPan(track.pan) * 100), label = track.label || `Instrument ${index + 1}`;
-  return u.jsxs('label', {className:'melodic-track-pan', title:'Pan · double-click to centre', children:[
-    u.jsx('span', {children:'Pan'}),
-    u.jsx('input', {type:'range', min:-100, max:100, step:1, value, 'aria-label':label+' pan',
-      onChange:event => set(Number(event.currentTarget.value)), onDoubleClick:() => set(0)}),
-    u.jsx('output', {children:value === 0 ? 'C' : (value < 0 ? 'L' : 'R') + Math.abs(value)})]});
+/* Volume and pan share one control geometry and mutation contract. Their
+   separate live audio parameters keep their own existing playback behavior. */
+function __MelodicTrackMix({track, index, mutate, field}) {
+  const pan = field === 'pan', value = Math.round((pan ? __mlPan(track.pan) : Math.max(0, Math.min(1, Number.isFinite(track.volume) ? track.volume : .8))) * 100);
+  const label = track.label || `Instrument ${index + 1}`, name = pan ? 'pan' : 'volume';
+  return u.jsxs('label', {className:'melodic-track-level '+(pan ? 'melodic-track-pan' : 'melodic-track-volume'), title:pan ? 'Pan · double-click to centre' : 'Individual instrument playback volume', children:[
+    u.jsx('span', {children:pan ? 'Pan' : 'Vol'}),
+    u.jsx('input', {type:'range', min:pan ? -100 : 0, max:100, step:1, value, 'aria-label':label+' '+name,
+      onChange:event=>set(Number(event.currentTarget.value)), ...(pan ? {onDoubleClick:()=>set(0)} : {})}),
+    u.jsx('output', {children:pan ? value === 0 ? 'C' : (value < 0 ? 'L' : 'R') + Math.abs(value) : value+'%'})]});
   function set(raw) {
-    const pan = __mlPan(raw / 100);
-    __mlSetLiveTrackPan(track.id, pan);
-    mutate(composer => {const own = composer.tracks.find(item => item.id === track.id); if (own) own.pan = pan;}, label+': pan '+(raw || 'centre'), {history:false});
+    const next = pan ? __mlPan(raw / 100) : Math.max(0, Math.min(1, raw / 100));
+    if (pan) __mlSetLiveTrackPan(track.id, next); else __mlSetLiveTrackVolume(track.id, next);
+    mutate(composer=>{const own=composer.tracks.find(item=>item.id===track.id);if(own)own[field]=next;},label+': '+name+' '+raw,{history:false});
   }
 }
+function __MelodicTrackPan(props) { return u.jsx(__MelodicTrackMix, {...props,field:'pan'}); }
+function __MelodicTrackVolume(props) { return u.jsx(__MelodicTrackMix, {...props,field:'volume'}); }

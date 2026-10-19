@@ -1,0 +1,67 @@
+{
+  "rows": [
+    {
+      "version": 1,
+      "rate": 44100,
+      "silent": true,
+      "earlyPeak": 0.8817972540855408,
+      "tailPeak": 0,
+      "zeroFrame": 10941,
+      "maxDifference": 0
+    },
+    {
+      "version": 1,
+      "rate": 48000,
+      "silent": true,
+      "earlyPeak": 0.8818877935409546,
+      "tailPeak": 0,
+      "zeroFrame": 11908,
+      "maxDifference": 0
+    },
+    {
+      "version": 1,
+      "rate": 96000,
+      "silent": true,
+      "earlyPeak": 0.8821313977241516,
+      "tailPeak": 0,
+      "zeroFrame": 23814,
+      "maxDifference": 0
+    },
+    {
+      "version": 2,
+      "rate": 44100,
+      "silent": true,
+      "earlyPeak": 0.030004434287548065,
+      "tailPeak": 0,
+      "zeroFrame": 10941,
+      "maxDifference": 0
+    },
+    {
+      "version": 2,
+      "rate": 48000,
+      "silent": true,
+      "earlyPeak": 0.030003171414136887,
+      "tailPeak": 0,
+      "zeroFrame": 11908,
+      "maxDifference": 0
+    },
+    {
+      "version": 2,
+      "rate": 96000,
+      "silent": true,
+      "earlyPeak": 0.030041009187698364,
+      "tailPeak": 0,
+      "zeroFrame": 23814,
+      "maxDifference": 0
+    }
+  ],
+  "worklet": {
+    "earlyPeak": 0.03230556473135948,
+    "tailPeak": 0,
+    "frames": 32000
+  },
+  "zeroGain": true,
+  "neutralGain": 1,
+  "maximumGain": 1.95,
+  "legacyFieldFloorRetained": true
+}

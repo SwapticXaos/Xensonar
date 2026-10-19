@@ -1,0 +1,53 @@
+{
+  "rows": [
+    {
+      "mode": "flowing",
+      "muted": false,
+      "windows": 19,
+      "grains": 136,
+      "energy": 120.19265846370736,
+      "peak": 0.1571594625711441
+    },
+    {
+      "mode": "flowing",
+      "muted": true,
+      "windows": 70,
+      "grains": 560,
+      "energy": 593.471544485691,
+      "peak": 0.16748365759849548
+    },
+    {
+      "mode": "flowing",
+      "muted": false,
+      "windows": 19,
+      "grains": 136,
+      "energy": 120.19265829913864,
+      "peak": 0.1571594476699829
+    },
+    {
+      "mode": "fragment",
+      "muted": false,
+      "windows": 19,
+      "grains": 179,
+      "energy": 63.05687916478194,
+      "peak": 0.13287320733070374
+    },
+    {
+      "mode": "fragment",
+      "muted": true,
+      "windows": 70,
+      "grains": 765,
+      "energy": 224.13226537812028,
+      "peak": 0.16948699951171875
+    },
+    {
+      "mode": "fragment",
+      "muted": false,
+      "windows": 19,
+      "grains": 179,
+      "energy": 63.05687931973978,
+      "peak": 0.13287320733070374
+    }
+  ],
+  "errors": []
+}

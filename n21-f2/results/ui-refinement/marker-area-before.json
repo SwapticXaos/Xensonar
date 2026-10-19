@@ -1,0 +1,15 @@
+{
+  "entries": 20,
+  "viewport": {
+    "width": 1740,
+    "height": 1000
+  },
+  "geometry": {
+    "height": 24,
+    "top": 979,
+    "css": "top: var(--xen-quick-marker-top, 156px); bottom: 24px; right: 18px; width: max(0px, -34px - 36rem + 50vw);"
+  },
+  "sourceSha256": "1f6ea2c40a016f45e1d3be3208e777592921b5b62e93da25a8fbcada7c0b8a9f",
+  "contentHeight": 0,
+  "remainingBoxHeight": 24
+}

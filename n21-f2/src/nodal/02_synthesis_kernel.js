@@ -682,7 +682,11 @@ function createOpenNodalVoice(plan,options={},sampleRate=48000) {
         else{
           l=Math.tanh(l);r=Math.tanh(r);
           const dl=l-dcXL+.9995*dcYL,dr=r-dcXR+.9995*dcYR;dcXL=l;dcXR=r;dcYL=dl;dcYR=dr;
-          lpL+=lp*(dl-lpL);lpR+=lp*(dr-lpR);lastL=lpL;lastR=lpR;
+          lpL+=lp*(dl-lpL);lpR+=lp*(dr-lpR);
+          // An authored zero is an output mute, including DC/lowpass memory.
+          // Keep internal filters advancing for a later nonzero contour value.
+          const contourSilent=!!volume&&amplitude===0;
+          lastL=contourSilent?0:lpL;lastR=contourSilent?0:lpR;
           if(released)releaseAge++;age++;
         }
         const index=output+j,mono=(lastL+lastR)*.5;
@@ -860,7 +864,8 @@ function createOpenNodalVoice(plan,options={},sampleRate=48000) {
           out += real[offset + j] * plan.bands[band].pickup[j];
         }
       }
-      out *= gain * envelope * curveAt(volumeCurve, Math.min(1, age / Math.max(1, gateFrames)), 1) * 1.8 / pickupNorm;
+      const contourGain = curveAt(volumeCurve, Math.min(1, age / Math.max(1, gateFrames)), 1);
+      out *= gain * envelope * contourGain * 1.8 / pickupNorm;
       if (!Number.isFinite(out)) { faults++; ended = true; return 0; }
       // Fixed bounded output, DC blocker, anti-alias filtering. No adaptive loudness pumping.
       if(plan.emiliaInputDrive!=null)out *= plan.emiliaInputDrive;
@@ -868,7 +873,7 @@ function createOpenNodalVoice(plan,options={},sampleRate=48000) {
       const dc = out - dcX + .9995 * dcY; dcX = out; dcY = dc;
       lp1 += lp * (dc - lp1); lp2 += lp * (lp1 - lp2);
       age++;
-      return lp2;
+      return volumeCurve && contourGain === 0 ? 0 : lp2;
     }
     function process(left, right, start = 0, frames = left.length - start, accumulate = false) {
       for (let i = start; i < start + frames; i++) {

@@ -1,0 +1,13 @@
+
+> xensonar-p4c2-n21-f2-merged@4.4.8-p4c2-n21-f2 test:ui-refinement
+> node tests/ui-refinement-preservation.cjs && node tests/ui-refinement-raster.cjs && node tests/nodal-envelope-zero.cjs && node build.cjs --verify
+
+PASS UI refinement: 200 source/style/template files unchanged; other synthesis kernels, Drone colour, granular hold and RFL worklet/worker unchanged; reviewed Nodal zero-output guard
+PASS production RFL coordinator: normal/all-muted raster, continuous bypass, policy prepared once, cleanup and authored pattern preserved
+PASS Nodal V1/V2 envelope: exact-zero mapping and PCM tails at 44.1/48/96 kHz; no/positive contours sample-identical; other backend field semantics retained
+PASS reproducible standalone HTML 378e0211db8d4bf9b7a65a883798cc7c408c7f74e43476b9c8f8238dc67b8002 5526684
+npm notice
+npm notice New major version of npm available! 11.9.0 -> 12.2.0
+npm notice Changelog: https://github.com/npm/cli/releases/tag/v12.2.0
+npm notice To update run: npm install -g npm@12.2.0
+npm notice

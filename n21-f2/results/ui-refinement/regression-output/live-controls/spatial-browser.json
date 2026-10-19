@@ -1,0 +1,127 @@
+{
+  "rows": [
+    {
+      "label": "centred legacy",
+      "channels": 1,
+      "length": 24480,
+      "energies": [
+        137.74713660706533
+      ],
+      "wavChannels": 1,
+      "wavBytes": 49004
+    },
+    {
+      "label": "hard left",
+      "channels": 2,
+      "length": 24480,
+      "energies": [
+        137.74713660706533,
+        0
+      ],
+      "wavChannels": 2,
+      "wavBytes": 97964
+    },
+    {
+      "label": "hard right",
+      "channels": 2,
+      "length": 24480,
+      "energies": [
+        5.164690392099089e-31,
+        137.74713660706533
+      ],
+      "wavChannels": 2,
+      "wavBytes": 97964
+    },
+    {
+      "label": "return to centre",
+      "channels": 1,
+      "length": 24480,
+      "energies": [
+        137.74713660706533
+      ],
+      "wavChannels": 1,
+      "wavBytes": 49004
+    },
+    {
+      "label": "muted off-centre track",
+      "channels": 1,
+      "length": 24480,
+      "energies": [
+        137.74713660706533
+      ],
+      "wavChannels": 1,
+      "wavBytes": 49004
+    },
+    {
+      "label": "centred Nodal",
+      "channels": 1,
+      "length": 24480,
+      "energies": [
+        1.7705922066333932
+      ],
+      "wavChannels": 1,
+      "wavBytes": 49004
+    },
+    {
+      "label": "left Nodal",
+      "channels": 2,
+      "length": 24480,
+      "energies": [
+        1.7705922066333932,
+        0
+      ],
+      "wavChannels": 2,
+      "wavBytes": 97964
+    },
+    {
+      "label": "intrinsic stereo Nodal",
+      "channels": 2,
+      "length": 24480,
+      "energies": [
+        2.1040917268683588,
+        1.4701971095862205
+      ],
+      "wavChannels": 2,
+      "wavBytes": 97964
+    }
+  ],
+  "defaultPans": [
+    0,
+    0,
+    0,
+    0
+  ],
+  "stemPanIndependent": true,
+  "panPreserved": 0.6,
+  "rflSource": "material",
+  "live": {
+    "changed": true,
+    "sameToken": true,
+    "sameClock": true,
+    "samePCM": true,
+    "pan": 0.7403378486633301
+  },
+  "drone": [
+    {
+      "timbre": 0,
+      "rms": 0.02919780003661168,
+      "brightness": 0.00236084515720153,
+      "peak": 0.047283273190259933,
+      "finite": true
+    },
+    {
+      "timbre": 0.5,
+      "rms": 0.03641619793370116,
+      "brightness": 0.0031974963818437886,
+      "peak": 0.055212799459695816,
+      "finite": true
+    },
+    {
+      "timbre": 1,
+      "rms": 0.04410626066326403,
+      "brightness": 0.006079113405657997,
+      "peak": 0.06138371303677559,
+      "finite": true
+    }
+  ]
+}

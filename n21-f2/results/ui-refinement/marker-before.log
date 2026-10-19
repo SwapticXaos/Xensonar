@@ -1,0 +1,12 @@
+AssertionError [ERR_ASSERTION]: accepted side marker must pulse the logo
+
+0 !== 1
+
+    at /workspace/Xensonar/n21-f2/tests/ui-refinement-marker-browser.cjs:50:14 {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: 0,
+  expected: 1,
+  operator: 'strictEqual',
+  diff: 'simple'
+}

@@ -1,14 +1,18 @@
-# XenSonar N21–F2 · Live Controls und Mono/Stereo
+# XenSonar N21–F2 · UI, Raster-Mute und Nodal-Hüllkurve
 
-Die aktuelle, vom Nutzer gelieferte N21–F2-Quellbasis mit Granular-Hold, Live-Stabilitäts-Patch und korrigierter Forge-Fortschrittsanzeige sowie kompakten Mutes, Melodic-Panning und Xenpolar Drone
+Die aktuelle, vom Nutzer gelieferte N21–F2-Quellbasis mit Granular-Hold, Live-Stabilitäts-Patch und korrigierter Forge-Fortschrittsanzeige sowie ausgerichteten Mix-Reglern, Raster-Mute, Melodic-Panning und Xenpolar Drone im Hauptinstrument
 liegen in [`n21-f2/`](n21-f2/). Der ältere React-/Vite-Stand im Repository-Root
 bleibt als historischer Stand erhalten und ist nicht die Basis dieses Patches.
+Die Nodal-Volume-Hüllkurve erreicht am unteren Rand jetzt exakt Stille.
+Die Aufnahme-Markerfläche bleibt auch bei langen Schnellmenüs erreichbar; ihre grüne Ringwelle breitet sich um das XenSonar-Logo aus.
 
 ```sh
 cd n21-f2
 npm ci
 npm run build
 npm run verify:build
+npm run test:ui-refinement
+XEN_CHROMIUM_PATH=/usr/bin/chromium npm run test:ui-refinement:browser
 npm run test:live-controls
 XEN_CHROMIUM_PATH=/usr/bin/chromium npm run test:live-controls:browser
 npm run test:forge-progress
@@ -21,7 +25,7 @@ XEN_CHROMIUM_PATH=/usr/bin/chromium npm run test:granular:browser
 
 Direkt testbare Datei: `Xensonar_direct_test_latest.html`.
 Quellen, Patch und Prüfbericht: `artifacts/`.
-Details: [`n21-f2/docs/live-controls-report.md`](n21-f2/docs/live-controls-report.md).
+Details: [`n21-f2/docs/ui-refinement-report.md`](n21-f2/docs/ui-refinement-report.md).
 
 ## Historischer Repository-Stand: Xensonar 3.1.6
 
@@ -41,7 +45,7 @@ Generated helper files:
 
 Für Frontend-Patches wird zusätzlich zur Codeänderung immer ein direkt testbares Single-File-HTML bereitgestellt:
 
-- `Xensonar_direct_test_latest.html` (Snapshot aus `dist/index.html`)
+- `Xensonar_direct_test_latest.html` (aktueller Single-File-Build aus `n21-f2/`)
 
 Damit kann der aktuelle Stand ohne Build-Schritt direkt gegengeprüft werden.
 

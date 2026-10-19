@@ -1,10 +1,13 @@
 /* Shared field semantics. Uses the same resolvers as the Melodic sample/block editor. */
-function resolveNodalArticulationFields(articulation, localField = null) {
+function resolveNodalArticulationFields(articulation, localField = null, zeroVolumeFloor = true) {
+  // Nodal amplitude reaches silence at the lower edge. Other backends can
+  // retain the established +/-95% field through the explicit third argument.
+  const volumeGain = zeroVolumeFloor ? value => {const x=pn(value);return x<0 ? 1+x : IF(x);} : IF;
   const volume = [articulation.volumeEnvelope, localField].filter(Boolean).map(f => $p(Zr(f), 'dynamic-fade')).filter(f => f.enabled && !f.bypassed);
   const pitch = [articulation.pitchEnvelope, localField].filter(Boolean).map(f => $p(Zr(f), 'pitch-elastic')).filter(f => f.enabled && !f.bypassed);
   const count = 128;
   const volumeInputs = volume.map(field => ({field, curve: gc(field, count).resolved}));
-  const volumeCurve = volume.length ? Array.from({length: count}, (_, i) => volumeInputs.reduce((gain, source) => gain * IF(u6(source.field, i / (count - 1), source.curve)), 1)) : null;
+  const volumeCurve = volume.length ? Array.from({length: count}, (_, i) => volumeInputs.reduce((gain, source) => gain * volumeGain(u6(source.field, i / (count - 1), source.curve)), 1)) : null;
   const pitchCurve = pitch.length ? Array.from(B$(pitch, count)) : null;
   return {volumeCurve, pitchCurve};
 }

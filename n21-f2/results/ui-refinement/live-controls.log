@@ -1,0 +1,13 @@
+
+> xensonar-p4c2-n21-f2-merged@4.4.8-p4c2-n21-f2 test:live-controls
+> node tests/live-controls-preservation.cjs && node tests/live-controls-spatial.cjs && node tests/live-controls-drone.cjs && node build.cjs --verify
+
+PASS live controls patch: 194 sources/styles/templates unchanged; granular hold and RFL processor unchanged; authorized Nodal envelope guard reviewed
+PASS mono/stereo policy, muted tracks, original stereo assets and raw-drum downmix without double summing
+PASS 96 legacy drone automation comparisons; new triangle/sine drone, bounded colour cache, slow motion, catalogue and timbre range
+PASS reproducible standalone HTML 378e0211db8d4bf9b7a65a883798cc7c408c7f74e43476b9c8f8238dc67b8002 5526684
+npm notice
+npm notice New major version of npm available! 11.9.0 -> 12.2.0
+npm notice Changelog: https://github.com/npm/cli/releases/tag/v12.2.0
+npm notice To update run: npm install -g npm@12.2.0
+npm notice

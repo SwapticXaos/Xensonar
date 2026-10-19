@@ -32,3 +32,12 @@ function __f442RFLMaterialSettings(refs, raw, mode, envelope) {
   }
   return cache.material;
 }
+
+/* Control-derived impulse policy is compiled once per scheduler generation.
+   Bypass uses the existing continuous policy; authored divisions/pattern stay
+   in the parameter state and are restored by disabling this one master gate. */
+let __f442RFLContinuousRaster=null;
+function __f442RFLRasterPolicy(fields, muted=false){
+  if(!muted)return fu(fields);
+  return __f442RFLContinuousRaster??(__f442RFLContinuousRaster=fu({every:1,cycleDiv:1,counterDiv:1,clockMode:'mute-pattern',pattern:[1]}));
+}

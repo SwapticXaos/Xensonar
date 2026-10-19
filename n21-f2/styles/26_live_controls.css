@@ -1,21 +1,26 @@
-/* Compact transport gates share the five semantic quick-access columns. */
+/* Plain, half-height colour gates above the five shortcut columns. */
 .xen-quick-mutes{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:4px;margin-bottom:5px;align-items:center}
-.xen-quick-mutes button,.xen-quick-grid-label{display:flex;align-items:center;justify-content:center;height:24px;min-width:0;padding:0;border-radius:4px;font-size:12px}
-.xen-quick-mutes button{position:relative;border:1px solid #35624a;background:#153b24;color:#d2f5dc;cursor:pointer}
-.xen-quick-mutes button::after{content:'·';position:absolute;right:3px;bottom:0;color:#6ee7b7;font-weight:bold}
-.xen-quick-mutes button.is-muted{border-color:#6b4940;background:#30231f;opacity:.7}
-.xen-quick-mutes button.is-muted::after{content:'×';color:#ffba9d;font-size:10px}
-.xen-quick-mutes button:focus-visible{outline:2px solid #6ee7b7;outline-offset:2px}
-.xen-quick-grid-label{color:#70857a}
-.melodic-track-pan{display:flex;align-items:center;gap:4px;flex:1 1 95px;min-width:90px;font-size:10px;color:#b0bccc}
-.melodic-track-pan input{width:100%;min-width:35px;flex:1;accent-color:#a78bfa;height:20px;cursor:pointer}
-.melodic-track-pan output{font-variant-numeric:tabular-nums;width:25px;text-align:right;flex-shrink:0}
-.melodic-pattern-pan{align-items:center;column-gap:6px!important;row-gap:4px!important}
+.xen-quick-mutes button{display:block;width:100%;height:17px;min-height:17px;min-width:0;padding:0;border:1px solid #35d87a;border-radius:3px;background:#168e48;cursor:pointer}
+.xen-quick-mutes button.is-muted{border-color:#ff6666;background:#c82836}
+.xen-quick-mutes button:focus-visible{outline:2px solid #c3ffe0;outline-offset:2px}
+/* The same two grid columns own both mix rows, including Solo transitions. */
+.melodic-track-mix{display:grid;grid-template-columns:minmax(0,max-content) minmax(116px,1fr);gap:6px 8px;align-items:center}
+.melodic-track-actions,.melodic-pattern-pan{display:flex;flex-wrap:wrap;align-items:center;gap:4px;min-width:0}
+.melodic-track-level{display:grid;grid-template-columns:20px minmax(0,1fr) 32px;gap:6px;align-items:center;min-width:0;padding:4px 6px;border:1px solid #262626;border-radius:4px;font-size:10px;color:#b0bccc}
+.melodic-track-level input{display:block;width:100%;min-width:0;height:20px;margin:0;accent-color:#a78bfa;cursor:pointer}
+.melodic-track-level output{font-variant-numeric:tabular-nums;text-align:right;white-space:nowrap}
+.melodic-pattern-label{font-size:9px;color:#929cab;flex-shrink:0}
+.melodic-pattern-choice{padding:3px 6px;min-width:24px}
+.melodic-bars-controls{position:relative}
+.melodic-transport-dock{display:flex;align-items:center;gap:4px;white-space:nowrap}
+@media(min-width:768px){.melodic-bars-controls>div:nth-child(2){margin-bottom:0!important}.melodic-transport-dock{position:absolute;top:80px;left:0;margin-top:8px!important}}
+/* In the existing two-column layout the third card already occupies a new
+   row at 160px. Keep that size and the rack size, using the empty second
+   column so the original first-column space can house transport safely. */
+@media(min-width:768px) and (max-width:1279px){[data-xensonar-melodic-import-body-rack]>:nth-child(3){grid-column:2;width:160px;max-width:100%}}
 /* The document owns vertical scrolling; nested root scrollports create two
    gutters in Chromium/Opera. Room content and manager lists retain their flow. */
 html{height:auto;min-height:100%;overflow-x:hidden;overflow-y:auto;scrollbar-gutter:stable}
 body{height:auto;min-height:100vh;overflow:visible}
 #root{min-height:100vh}
 .flex-1.p-6.relative:has(>.nd-room-shell){padding-top:0}
-.melodic-pattern-label{font-size:9px;color:#929cab;flex-shrink:0}
-.melodic-pattern-pan .melodic-pattern-choice{padding:3px 6px;min-width:24px}

@@ -1,0 +1,5 @@
+{
+  "cases": 162,
+  "comparedStereoSamples": 6297588,
+  "match": "bit-identical Float32 output to unmodified F443, including resets, glissandi, release and natural tails"
+}

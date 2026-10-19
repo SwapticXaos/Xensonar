@@ -1,6 +1,6 @@
 {
-  "version": "XenSonar N21–F2 · Live Controls and Mono/Stereo",
-  "entry": "Xensonar_N21_F2_Live_Controls_Test.html",
+  "version": "XenSonar N21–F2 · Aligned Live Controls",
+  "entry": "Xensonar_N21_F2_UI_Refinement_Test.html",
   "files": [
     "src/mix/03_quick_menu.js",
     "src/mix/04_melodic_spatial.js",
@@ -199,8 +199,8 @@
     "src/05_dual_donor.js",
     "src/06_workbench_dialog.js"
   ],
-  "sha256": "cfff8263c2d39c083ba1b7ea5bf24eb7e4cc6208a25085385dd6b1ed64229d30",
-  "bytes": 5522665,
+  "sha256": "378e0211db8d4bf9b7a65a883798cc7c408c7f74e43476b9c8f8238dc67b8002",
+  "bytes": 5526684,
   "sourceOrder": "Concatenate in listed order. Explicit factories own Workbench, hybrid session, render capture, adapters, playback and analysis cache. Remaining registry fragments share one inline module; DSP factories stay independently serializable for workers.",
   "status": "F4.3.13 mainline plus F4.4.0 Nodal coupled-modal-v2, anchored at F4.3.5",
   "baseVersion": "F4.3.5 (three-way)",

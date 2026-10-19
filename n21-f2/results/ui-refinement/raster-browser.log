@@ -1,0 +1,51 @@
+[
+  {
+    "mode": "flowing",
+    "muted": false,
+    "windows": 19,
+    "grains": 136,
+    "energy": 120.19265830921148,
+    "peak": 0.1571594625711441
+  },
+  {
+    "mode": "flowing",
+    "muted": true,
+    "windows": 70,
+    "grains": 560,
+    "energy": 593.4715444179134,
+    "peak": 0.16748365759849548
+  },
+  {
+    "mode": "flowing",
+    "muted": false,
+    "windows": 19,
+    "grains": 136,
+    "energy": 120.19265823095702,
+    "peak": 0.1571594476699829
+  },
+  {
+    "mode": "fragment",
+    "muted": false,
+    "windows": 19,
+    "grains": 179,
+    "energy": 63.05687904736422,
+    "peak": 0.13287320733070374
+  },
+  {
+    "mode": "fragment",
+    "muted": true,
+    "windows": 70,
+    "grains": 765,
+    "energy": 224.13226556512888,
+    "peak": 0.16948701441287994
+  },
+  {
+    "mode": "fragment",
+    "muted": false,
+    "windows": 19,
+    "grains": 179,
+    "energy": 63.056878977612534,
+    "peak": 0.13287322223186493
+  }
+]
+PASS native granular PCM: flowing/fragment, authored raster → continuous bypass → restored raster, finite output and bounded peaks
