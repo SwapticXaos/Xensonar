@@ -1,0 +1,37 @@
+{
+  "status": "PASS",
+  "standaloneSHA256": "af78fa12bbdeda6e9f79d4856d11929826a94d05c9c2ecbb21eb2bdaff72c24b",
+  "hostDSPWorkerChecks": 65,
+  "failed": 0,
+  "focusedPassed": [
+    "workflow-integrity",
+    "merge",
+    "ui-refinement",
+    "live-controls",
+    "forge-progress",
+    "granular",
+    "live-stability"
+  ],
+  "browserPassed": [
+    "workflow-ui",
+    "workflow-native-audio",
+    "ui-refinement",
+    "ui-refinement-raster",
+    "nodal-envelope-zero",
+    "ui-refinement-marker",
+    "live-controls-spatial",
+    "live-controls-ui",
+    "granular-hold",
+    "granular-hold-hotkey"
+  ],
+  "sourceIndex": {
+    "modules": 198,
+    "declarations": 6437,
+    "dependencyPairs": 1056
+  },
+  "oldReportFilesPreserved": 27,
+  "limitations": [
+    "Chromium only; Opera/Firefox and physical hardware listening not available"
+  ],
+  "expectedFailure": "grid-before-expected-failure.log is the pre-fix reproduction, not a failed final check"
+}

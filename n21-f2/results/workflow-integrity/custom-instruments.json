@@ -1,0 +1,16 @@
+{
+  "authoredPreserved": true,
+  "snapshotIsolated": true,
+  "preserveAuthored": true,
+  "notFlattened": true,
+  "fieldLayers": 1,
+  "localFieldKept": true,
+  "idempotent": true,
+  "independent": true,
+  "menu": true,
+  "materialRoute": "material",
+  "distinctBodies": true,
+  "freshNoteSource": true,
+  "cycleRejected": true,
+  "quotaFailure": true
+}

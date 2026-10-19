@@ -19,57 +19,62 @@
     {
       "name": "__useQuickAdapter",
       "file": "src/mix/03_quick_menu.js",
-      "line": 24
+      "line": 27
     },
     {
       "name": "__useQuickActive",
       "file": "src/mix/03_quick_menu.js",
-      "line": 28
+      "line": 32
     },
     {
       "name": "__QuickBadge",
       "file": "src/mix/03_quick_menu.js",
-      "line": 33
+      "line": 37
     },
     {
       "name": "__XenQuickDragBindings",
       "file": "src/mix/03_quick_menu.js",
-      "line": 35
+      "line": 39
     },
     {
       "name": "__quickProps",
       "file": "src/mix/03_quick_menu.js",
-      "line": 36
+      "line": 40
     },
     {
       "name": "__XenLoopHotkeys",
       "file": "src/mix/03_quick_menu.js",
-      "line": 39
+      "line": 43
     },
     {
       "name": "__XenLoopKey",
       "file": "src/mix/03_quick_menu.js",
-      "line": 40
+      "line": 44
     },
     {
       "name": "__XenQuickHelpText",
       "file": "src/mix/03_quick_menu.js",
-      "line": 42
+      "line": 46
     },
     {
       "name": "__QuickDock",
       "file": "src/mix/03_quick_menu.js",
-      "line": 43
+      "line": 47
     },
     {
       "name": "__QuickMuteLanes",
       "file": "src/mix/03_quick_menu.js",
-      "line": 254
+      "line": 258
     },
     {
       "name": "__QuickMuteRow",
       "file": "src/mix/03_quick_menu.js",
-      "line": 255
+      "line": 259
+    },
+    {
+      "name": "__QuickHotkey",
+      "file": "src/mix/03_quick_menu.js",
+      "line": 266
     },
     {
       "name": "__mlPan",
@@ -110,6 +115,116 @@
       "name": "__MelodicTrackVolume",
       "file": "src/mix/04_melodic_spatial.js",
       "line": 66
+    },
+    {
+      "name": "__MelodicTransportControls",
+      "file": "src/mix/04_melodic_spatial.js",
+      "line": 69
+    },
+    {
+      "name": "__xenEmptyGrid",
+      "file": "src/mix/05_grid_runtime.js",
+      "line": 3
+    },
+    {
+      "name": "__xenMutedGridViews",
+      "file": "src/mix/05_grid_runtime.js",
+      "line": 4
+    },
+    {
+      "name": "__xenMutedGridProperties",
+      "file": "src/mix/05_grid_runtime.js",
+      "line": 5
+    },
+    {
+      "name": "__xenGridMuted",
+      "file": "src/mix/05_grid_runtime.js",
+      "line": 9
+    },
+    {
+      "name": "__xenLiveGridParams",
+      "file": "src/mix/05_grid_runtime.js",
+      "line": 12
+    },
+    {
+      "name": "__mlCustomStorageKey",
+      "file": "src/mix/06_custom_instruments.js",
+      "line": 3
+    },
+    {
+      "name": "__mlCustomVoiceKeys",
+      "file": "src/mix/06_custom_instruments.js",
+      "line": 4
+    },
+    {
+      "name": "__mlCustomStoredText",
+      "file": "src/mix/06_custom_instruments.js",
+      "line": 5
+    },
+    {
+      "name": "__mlCustomStoredEntries",
+      "file": "src/mix/06_custom_instruments.js",
+      "line": 5
+    },
+    {
+      "name": "__mlCustomId",
+      "file": "src/mix/06_custom_instruments.js",
+      "line": 6
+    },
+    {
+      "name": "__mlCustomDefinition",
+      "file": "src/mix/06_custom_instruments.js",
+      "line": 7
+    },
+    {
+      "name": "__mlCustomList",
+      "file": "src/mix/06_custom_instruments.js",
+      "line": 24
+    },
+    {
+      "name": "__mlCustomFind",
+      "file": "src/mix/06_custom_instruments.js",
+      "line": 38
+    },
+    {
+      "name": "__mlCustomSourceFields",
+      "file": "src/mix/06_custom_instruments.js",
+      "line": 44
+    },
+    {
+      "name": "__mlNoteFields",
+      "file": "src/mix/06_custom_instruments.js",
+      "line": 55
+    },
+    {
+      "name": "__mlCaptureCustomInstrument",
+      "file": "src/mix/06_custom_instruments.js",
+      "line": 58
+    },
+    {
+      "name": "__mlSaveCustomInstrument",
+      "file": "src/mix/06_custom_instruments.js",
+      "line": 69
+    },
+    {
+      "name": "__mlEmbedCustomInstrument",
+      "file": "src/mix/06_custom_instruments.js",
+      "line": 81
+    },
+    {
+      "name": "__mlCustomMenu",
+      "file": "src/mix/06_custom_instruments.js",
+      "line": 87
+    },
+    {
+      "name": "__mlResolveCustomRequest",
+      "file": "src/mix/06_custom_instruments.js",
+      "line": 94
+    },
+    {
+      "name": "__MelodicCustomSave",
+      "file": "src/mix/06_custom_instruments.js",
+      "line": 126
     },
     {
       "name": "__XenAudioProbe",
@@ -30109,92 +30224,92 @@
     {
       "name": "j$",
       "file": "src/forge_and_melodic/04_render_cache_and_stems.js",
-      "line": 370
+      "line": 371
     },
     {
       "name": "hh",
       "file": "src/forge_and_melodic/04_render_cache_and_stems.js",
-      "line": 378
+      "line": 379
     },
     {
       "name": "__mlPlayWithPreparation",
       "file": "src/forge_and_melodic/04_render_cache_and_stems.js",
-      "line": 379
+      "line": 380
     },
     {
       "name": "P9e",
       "file": "src/forge_and_melodic/04_render_cache_and_stems.js",
-      "line": 427
+      "line": 428
     },
     {
       "name": "I9e",
       "file": "src/forge_and_melodic/04_render_cache_and_stems.js",
-      "line": 434
+      "line": 435
     },
     {
       "name": "E9e",
       "file": "src/forge_and_melodic/04_render_cache_and_stems.js",
-      "line": 440
+      "line": 441
     },
     {
       "name": "F9e",
       "file": "src/forge_and_melodic/04_render_cache_and_stems.js",
-      "line": 440
+      "line": 441
     },
     {
       "name": "T9e",
       "file": "src/forge_and_melodic/04_render_cache_and_stems.js",
-      "line": 440
+      "line": 441
     },
     {
       "name": "L9e",
       "file": "src/forge_and_melodic/04_render_cache_and_stems.js",
-      "line": 440
+      "line": 441
     },
     {
       "name": "VR",
       "file": "src/forge_and_melodic/04_render_cache_and_stems.js",
-      "line": 440
+      "line": 441
     },
     {
       "name": "B9e",
       "file": "src/forge_and_melodic/04_render_cache_and_stems.js",
-      "line": 440
+      "line": 441
     },
     {
       "name": "D9e",
       "file": "src/forge_and_melodic/04_render_cache_and_stems.js",
-      "line": 440
+      "line": 441
     },
     {
       "name": "N9e",
       "file": "src/forge_and_melodic/04_render_cache_and_stems.js",
-      "line": 444
+      "line": 445
     },
     {
       "name": "Jd",
       "file": "src/forge_and_melodic/04_render_cache_and_stems.js",
-      "line": 444
+      "line": 445
     },
     {
       "name": "O9e",
       "file": "src/forge_and_melodic/04_render_cache_and_stems.js",
-      "line": 444
+      "line": 445
     },
     {
       "name": "_9e",
       "file": "src/forge_and_melodic/04_render_cache_and_stems.js",
-      "line": 444
+      "line": 445
     },
     {
       "name": "z9e",
       "file": "src/forge_and_melodic/04_render_cache_and_stems.js",
-      "line": 444
+      "line": 445
     },
     {
       "name": "j9e",
       "file": "src/forge_and_melodic/04_render_cache_and_stems.js",
-      "line": 444
+      "line": 445
     },
     {
       "name": "G9e",
@@ -32734,6 +32849,15 @@
     },
     {
       "from": "src/app/forge/01_room_shell.js",
+      "to": "src/mix/05_grid_runtime.js",
+      "symbols": [
+        "__xenEmptyGrid",
+        "__xenGridMuted",
+        "__xenLiveGridParams"
+      ]
+    },
+    {
+      "from": "src/app/forge/01_room_shell.js",
       "to": "src/nodal/03_library.js",
       "symbols": [
         "__XenNodalLibrary"
@@ -33717,6 +33841,13 @@
     },
     {
       "from": "src/audio/01_voice_and_rfl_ownership.js",
+      "to": "src/mix/05_grid_runtime.js",
+      "symbols": [
+        "__xenLiveGridParams"
+      ]
+    },
+    {
+      "from": "src/audio/01_voice_and_rfl_ownership.js",
       "to": "src/myzel/01_effect_mapping.js",
       "symbols": [
         "myzelAssignEffectToNode"
@@ -34055,6 +34186,13 @@
       "symbols": [
         "__XenAudioProbe",
         "__XenSoundTrace"
+      ]
+    },
+    {
+      "from": "src/audio/03_recorder.js",
+      "to": "src/mix/05_grid_runtime.js",
+      "symbols": [
+        "__xenLiveGridParams"
       ]
     },
     {
@@ -34563,6 +34701,13 @@
       "to": "src/audio/entrophon/02_worklet_and_voice_backend.js",
       "symbols": [
         "ML"
+      ]
+    },
+    {
+      "from": "src/audio/07_governor_and_drums.js",
+      "to": "src/mix/05_grid_runtime.js",
+      "symbols": [
+        "__xenLiveGridParams"
       ]
     },
     {
@@ -35394,6 +35539,13 @@
     },
     {
       "from": "src/forge_and_melodic/03_timeline_and_transport_ui.js",
+      "to": "src/mix/06_custom_instruments.js",
+      "symbols": [
+        "__mlEmbedCustomInstrument"
+      ]
+    },
+    {
+      "from": "src/forge_and_melodic/03_timeline_and_transport_ui.js",
       "to": "src/rhythm/01_compact_drum_grid.js",
       "symbols": [
         "__f52DrumLaneColors",
@@ -35589,6 +35741,13 @@
       "symbols": [
         "__mlOutputChannels",
         "__mlPan"
+      ]
+    },
+    {
+      "from": "src/forge_and_melodic/04_render_cache_and_stems.js",
+      "to": "src/mix/06_custom_instruments.js",
+      "symbols": [
+        "__mlResolveCustomRequest"
       ]
     },
     {
@@ -35798,6 +35957,20 @@
     },
     {
       "from": "src/forge_and_melodic/05_preview_and_sample_intake.js",
+      "to": "src/mix/04_melodic_spatial.js",
+      "symbols": [
+        "__MelodicTransportControls"
+      ]
+    },
+    {
+      "from": "src/forge_and_melodic/05_preview_and_sample_intake.js",
+      "to": "src/mix/06_custom_instruments.js",
+      "symbols": [
+        "__MelodicCustomSave"
+      ]
+    },
+    {
+      "from": "src/forge_and_melodic/05_preview_and_sample_intake.js",
       "to": "src/nodal/06_melodic_bridge.js",
       "symbols": [
         "__mlContainsNodalTracks"
@@ -35973,6 +36146,20 @@
       "to": "src/instruments/03_entrophon_library_ui.js",
       "symbols": [
         "EntrophonLibraryManager"
+      ]
+    },
+    {
+      "from": "src/forge_and_melodic/06_note_editor_and_material_tools.js",
+      "to": "src/mix/04_melodic_spatial.js",
+      "symbols": [
+        "__MelodicTransportControls"
+      ]
+    },
+    {
+      "from": "src/forge_and_melodic/06_note_editor_and_material_tools.js",
+      "to": "src/mix/06_custom_instruments.js",
+      "symbols": [
+        "__MelodicCustomSave"
       ]
     },
     {
@@ -36155,7 +36342,8 @@
       "to": "src/mix/04_melodic_spatial.js",
       "symbols": [
         "__MelodicTrackPan",
-        "__MelodicTrackVolume"
+        "__MelodicTrackVolume",
+        "__MelodicTransportControls"
       ]
     },
     {
@@ -39457,6 +39645,63 @@
       ]
     },
     {
+      "from": "src/mix/06_custom_instruments.js",
+      "to": "src/audio/03_rfl_transport_legacy.js",
+      "symbols": [
+        "yW"
+      ]
+    },
+    {
+      "from": "src/mix/06_custom_instruments.js",
+      "to": "src/instruments/01_entrophon_definition.js",
+      "symbols": [
+        "normalizeEntrophonInstrument"
+      ]
+    },
+    {
+      "from": "src/mix/06_custom_instruments.js",
+      "to": "src/instruments/02_entrophon_library.js",
+      "symbols": [
+        "entrophonFindInstrument"
+      ]
+    },
+    {
+      "from": "src/mix/06_custom_instruments.js",
+      "to": "src/instruments/05_entrophon_integration.js",
+      "symbols": [
+        "isSavedEntrophonSound"
+      ]
+    },
+    {
+      "from": "src/mix/06_custom_instruments.js",
+      "to": "src/nodal/01_instrument_model.js",
+      "symbols": [
+        "__XenNodalModel"
+      ]
+    },
+    {
+      "from": "src/mix/06_custom_instruments.js",
+      "to": "src/nodal/06_melodic_bridge.js",
+      "symbols": [
+        "nodalFindInstrument"
+      ]
+    },
+    {
+      "from": "src/mix/06_custom_instruments.js",
+      "to": "src/runtime/instrument/03_selection_and_recording_tools.js",
+      "symbols": [
+        "Zr"
+      ]
+    },
+    {
+      "from": "src/mix/06_custom_instruments.js",
+      "to": "src/vendor/01_react_dom.js",
+      "symbols": [
+        "P",
+        "u"
+      ]
+    },
+    {
       "from": "src/nodal/01_instrument_model.js",
       "to": "src/nodal/06_melodic_bridge.js",
       "symbols": [
@@ -39595,6 +39840,15 @@
       "to": "src/mix/04_melodic_spatial.js",
       "symbols": [
         "__mlHasTrackPan"
+      ]
+    },
+    {
+      "from": "src/nodal/06_melodic_bridge.js",
+      "to": "src/mix/06_custom_instruments.js",
+      "symbols": [
+        "__mlCustomId",
+        "__mlCustomMenu",
+        "__mlCustomSourceFields"
       ]
     },
     {
@@ -40339,6 +40593,14 @@
     },
     {
       "from": "src/rhythm/03_live_drum_bodies.js",
+      "to": "src/mix/05_grid_runtime.js",
+      "symbols": [
+        "__xenGridMuted",
+        "__xenLiveGridParams"
+      ]
+    },
+    {
+      "from": "src/rhythm/03_live_drum_bodies.js",
       "to": "src/nodal/12_surface_runtime.js",
       "symbols": [
         "__XenNodalSurfaces"
@@ -40551,6 +40813,22 @@
       "to": "src/mix/01_pan.js",
       "symbols": [
         "__XenPan"
+      ]
+    },
+    {
+      "from": "src/rhythm/04_workspace_and_transport.js",
+      "to": "src/mix/03_quick_menu.js",
+      "symbols": [
+        "__XenQuick"
+      ]
+    },
+    {
+      "from": "src/rhythm/04_workspace_and_transport.js",
+      "to": "src/mix/05_grid_runtime.js",
+      "symbols": [
+        "__xenEmptyGrid",
+        "__xenGridMuted",
+        "__xenLiveGridParams"
       ]
     },
     {

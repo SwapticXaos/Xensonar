@@ -1,0 +1,73 @@
+{
+  "errors": [],
+  "checks": [
+    "actual master switch bypasses the production Wave Starter cursor handler and grid lines without rewriting stored settings",
+    "canonical bank hotkeys, Backquote switching, green/grey letters, stable icons and one transient green tile flash per real keypress",
+    "one Nodal naming input beside Save Instrument, actual saved name, read-only name above",
+    {
+      "viewport": {
+        "width": 1740,
+        "height": 1000
+      },
+      "geometry": {
+        "width": 124.21875,
+        "panWidth": 124.21875,
+        "x": 274.03125,
+        "panX": 274.03125,
+        "background": "none",
+        "color": "rgb(56, 189, 248)",
+        "source": "#38bdf8",
+        "overflow": false
+      }
+    },
+    {
+      "viewport": {
+        "width": 1100,
+        "height": 900
+      },
+      "geometry": {
+        "width": 210.46875,
+        "panWidth": 210.46875,
+        "x": 274.03125,
+        "panX": 274.03125,
+        "background": "none",
+        "color": "rgb(56, 189, 248)",
+        "source": "#38bdf8",
+        "overflow": false
+      }
+    },
+    {
+      "viewport": {
+        "width": 760,
+        "height": 900
+      },
+      "geometry": {
+        "width": 362.96875,
+        "panWidth": 362.96875,
+        "x": 274.03125,
+        "panX": 274.03125,
+        "background": "none",
+        "color": "rgb(56, 189, 248)",
+        "source": "#38bdf8",
+        "overflow": false
+      }
+    },
+    "real custom save and library selection; duplicate transport views share one playing owner and stop state"
+  ],
+  "hotkeys": {
+    "materialKey": "A",
+    "rootKey": "A",
+    "flashes": [
+      "wf-material",
+      "wf-root"
+    ]
+  },
+  "transport": {
+    "owner": {
+      "token": 7,
+      "start": 1.257857596371882
+    },
+    "oneOwner": true,
+    "editorStartsPrimaryStops": true
+  }
+}

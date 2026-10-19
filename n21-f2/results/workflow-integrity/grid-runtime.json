@@ -1,0 +1,23 @@
+{
+  "result": {
+    "same": true,
+    "normallySnapped": 321,
+    "blocked": "muted-keyboard-wsb-position",
+    "free": "keyboard-wsb-position",
+    "freeHz": 220,
+    "keyboard": "direct-pitch-hit",
+    "cached": true,
+    "dynamic": true,
+    "noMutation": true,
+    "noLines": true,
+    "frozenSnap": false,
+    "restored": true
+  },
+  "queue": {
+    "mutedHasNoTimers": true,
+    "cleared": true,
+    "played": 0,
+    "anchor": 2,
+    "stopped": 2
+  }
+}

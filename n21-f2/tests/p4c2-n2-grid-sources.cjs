@@ -36,6 +36,6 @@ function verify(){
  }
  await runtime.select('wave','nodal:A@1');const last=calls.at(-1).hzs;assert(last.length>64);
  runtime.dispose();const previous=calls.length;runtime.warmWaveField(ctx);assert.equal(calls.length,previous);
- const shell=read('src/app/forge/01_room_shell.js');for(const callback of ['readWaveGridLines:()=>Xn()','readWaveGridFrequencies:()=>Fx(','readKeyboardGridFrequencies:()=>uw(','gridFrequencyToWaveBase:frequency=>Qa(Zs(frequency))'])assert(shell.includes(callback),'actual app must supply '+callback);
+ const shell=read('src/app/forge/01_room_shell.js');for(const callback of ['readWaveGridLines:()=>Xn()','readWaveGridParams:()=>__xenLiveGridParams(Tt.current)','readWaveGridFrequencies:()=>__xenGridMuted(Tt.current)?__xenEmptyGrid:Fx(','readKeyboardGridFrequencies:()=>{const p=__xenLiveGridParams(Tt.current);','gridFrequencyToWaveBase:frequency=>Qa(Zs(frequency))'])assert(shell.includes(callback),'actual app must supply '+callback);
  console.log('PASS N2 production grid/Snap/Keyboard/resolver: '+checked+' exact variant hits, 20 tuning/edit cases, keyboard-only selection, stable cursor, disposal');
 })().catch(e=>{runtime.dispose();console.error(e);process.exitCode=1});

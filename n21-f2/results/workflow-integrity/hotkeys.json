@@ -1,0 +1,44 @@
+{
+  "physicalKeyCases": [
+    [
+      {
+        "code": "Backquote",
+        "key": "`"
+      },
+      false
+    ],
+    [
+      {
+        "code": "Backquote",
+        "key": "^"
+      },
+      false
+    ],
+    [
+      {
+        "code": "Backquote",
+        "key": "°"
+      },
+      false
+    ],
+    [
+      {
+        "code": "Equal",
+        "key": "´"
+      },
+      true
+    ],
+    [
+      {
+        "code": "Quote",
+        "key": "'"
+      },
+      true
+    ]
+  ],
+  "reorder": true,
+  "limit": 9,
+  "unregister": true,
+  "unavailable": true,
+  "oneTransientTimer": true
+}

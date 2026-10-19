@@ -1,0 +1,15 @@
+{
+  "status": "PASS",
+  "html": {
+    "name": "Xensonar_N21_F2_Workflow_Integrity_Test.html",
+    "bytes": 5543157,
+    "sha256": "af78fa12bbdeda6e9f79d4856d11929826a94d05c9c2ecbb21eb2bdaff72c24b"
+  },
+  "portablePatchAppliesToPriorCommit": true,
+  "patchRebuildIdentical": true,
+  "sourceZipFreshInstallBuildUnitAndRealBrowserAudioPassed": true,
+  "sourceZipSHA256": "bee5955f9956d0d6742654327033e0f09ff55610b7f6310738511791d8e4d5c7",
+  "patchSHA256": "3127427f6bd35395039d2bb4ce85d9ad50ad8d9e1f2a84f3bb87dd6fe859edda",
+  "prior25ArtifactsVerifiedUnchanged": true,
+  "cloudStartInstructions": "saved as draft; publication remains in environment settings"
+}

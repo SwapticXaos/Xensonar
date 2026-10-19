@@ -1,6 +1,6 @@
 'use strict';
 const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/strict'),read=p=>fs.readFileSync(p,'utf8'),cut=(s,a,b)=>s.slice(s.indexOf(a),s.indexOf(b,s.indexOf(a)+a.length));
-const frames=new Map();let serial=0;const ctx={WeakMap,requestAnimationFrame:f=>(frames.set(++serial,f),serial),cancelAnimationFrame:id=>frames.delete(id)};vm.createContext(ctx);vm.runInContext(read('src/runtime/instrument/13_pointer_motion.js'),ctx);
+const frames=new Map();let serial=0;const ctx={WeakMap,requestAnimationFrame:f=>(frames.set(++serial,f),serial),cancelAnimationFrame:id=>frames.delete(id)};vm.createContext(ctx);vm.runInContext(read('src/mix/05_grid_runtime.js'),ctx);vm.runInContext(read('src/runtime/instrument/13_pointer_motion.js'),ctx);
 const input=read('src/rhythm/04_workspace_and_transport.js');vm.runInContext(cut(input,'aPe=e=>','oPe=e=>').replace(/,$/,'')+';this.arrows=aPe;',ctx);
 const ref={current:{cursorX:0,cursorY:100}},source={current:'mouse'},calls=[];
 const owner=ctx.__resonancePointerMotionFor({nexusRefs:ref,commitResonanceCursorY:y=>{ref.current.cursorY=y;calls.push(y)}});owner.move(500,200);

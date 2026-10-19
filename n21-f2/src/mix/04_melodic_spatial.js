@@ -51,7 +51,7 @@ function __mlSetLiveTrackPan(trackId, value) {
 function __MelodicTrackMix({track, index, mutate, field}) {
   const pan = field === 'pan', value = Math.round((pan ? __mlPan(track.pan) : Math.max(0, Math.min(1, Number.isFinite(track.volume) ? track.volume : .8))) * 100);
   const label = track.label || `Instrument ${index + 1}`, name = pan ? 'pan' : 'volume';
-  return u.jsxs('label', {className:'melodic-track-level '+(pan ? 'melodic-track-pan' : 'melodic-track-volume'), title:pan ? 'Pan · double-click to centre' : 'Individual instrument playback volume', children:[
+  return u.jsxs('label', {className:'melodic-track-level '+(pan ? 'melodic-track-pan' : 'melodic-track-volume'), style:{'--xen-instrument-color':track.color||'#cbd5e1'}, title:pan ? 'Pan · double-click to centre' : 'Individual instrument playback volume', children:[
     u.jsx('span', {children:pan ? 'Pan' : 'Vol'}),
     u.jsx('input', {type:'range', min:pan ? -100 : 0, max:100, step:1, value, 'aria-label':label+' '+name,
       onChange:event=>set(Number(event.currentTarget.value)), ...(pan ? {onDoubleClick:()=>set(0)} : {})}),
@@ -64,3 +64,16 @@ function __MelodicTrackMix({track, index, mutate, field}) {
 }
 function __MelodicTrackPan(props) { return u.jsx(__MelodicTrackMix, {...props,field:'pan'}); }
 function __MelodicTrackVolume(props) { return u.jsx(__MelodicTrackMix, {...props,field:'volume'}); }
+
+/* Repeated views of one parent-owned transport, with no extra clocks/state. */
+function __MelodicTransportControls({phase, drums, pattern, onPlay, onStop, onDrums, onNext, placement='editor'}) {
+  const idle=phase==='idle'||phase==='failed';
+  return u.jsxs('div',{'data-ml-transport':placement,className:placement==='primary'?'melodic-transport-dock':'melodic-transport-inline',children:[
+    u.jsx('button',{type:'button',onClick:idle?onPlay:onStop,style:{width:44,height:44,minWidth:44},
+      'aria-label':idle?'Aktive Instrumente als Loop abspielen':phase==='preparing'?'Loop-Vorbereitung abbrechen':'Loop stoppen',
+      title:idle?'▶ Listen to All Active Instruments':phase==='preparing'?'■ Vorbereitung abbrechen':'■ Loop stoppen',
+      className:'flex h-11 w-11 shrink-0 items-center justify-center rounded-md border border-violet-600/75 bg-violet-950/40 font-semibold text-violet-100 hover:bg-violet-900/50',children:idle?'▶':'■'}),
+    u.jsx('button',{type:'button','aria-pressed':drums,onClick:onDrums,title:(drums?'Schlagzeug ausblenden':'Aktuelles Drum-Machine-Pattern dazuschalten')+' · '+(pattern||'Drums'),
+      className:drums?'rounded border border-cyan-500 bg-cyan-950/65 px-1.5 py-2 text-[11px] font-semibold text-cyan-100':'rounded border border-neutral-700 bg-neutral-900/55 px-1.5 py-2 text-[11px] text-neutral-500 hover:text-neutral-200',children:'+ Drums'}),
+    u.jsx('button',{type:'button',onClick:onNext,title:'Load next pattern in the shared Drum Machine','aria-label':'Drum Machine: Next Pattern',className:'rounded border border-neutral-700 px-1.5 py-2 text-xs text-neutral-300 hover:bg-neutral-800',children:'›'})]});
+}

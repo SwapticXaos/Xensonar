@@ -4,7 +4,7 @@ const read=p=>fs.readFileSync(p,'utf8');
 const recorder=read('src/audio/03_recorder.js'),keys=read('src/rhythm/04_workspace_and_transport.js');
 const slice=(s,name,next)=>s.slice(s.indexOf('function '+name+'('),s.indexOf(next,s.indexOf('function '+name+'(')));
 const hz=(base,tuning,offset,index)=>220*Math.pow(2,index/12),toY=Math.log2;
-const lane=new Function('wF','Me','Zs',slice(recorder,'a1e','function s1e')+';return {create:o1e,resolve:i1e};')(hz,(x,a,b)=>Math.max(a,Math.min(b,x)),toY);
+const lane=new Function('wF','Me','Zs',read('src/mix/05_grid_runtime.js')+'\n'+slice(recorder,'a1e','function s1e')+';return {create:o1e,resolve:i1e};')(hz,(x,a,b)=>Math.max(a,Math.min(b,x)),toY);
 const handle=new Function('AJ','HJ','VJ','gPe','i1e',slice(keys,'bPe','function yPe')+';return bPe;')(e=>e.index,[],[],()=>({kind:'keyboard-wsb-position'}),lane.resolve);
 const events=[],state=lane.create();
 for(let index=0;index<9;index++){

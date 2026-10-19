@@ -13,6 +13,15 @@
 .melodic-pattern-choice{padding:3px 6px;min-width:24px}
 .melodic-bars-controls{position:relative}
 .melodic-transport-dock{display:flex;align-items:center;gap:4px;white-space:nowrap}
+.melodic-transport-inline{display:flex;align-items:center;gap:4px;white-space:nowrap}
+/* Keep a full input hit target, but draw only a thin, source-coloured line. */
+:is(.melodic-track-level,.xen-performance,.xen-particle-mix-row) input[type=range]{appearance:none!important;-webkit-appearance:none!important;background:transparent!important;border:0!important;box-shadow:none!important;border-radius:0!important;color:var(--xen-instrument-color,#a3a3a3);accent-color:var(--xen-instrument-color,#a3a3a3)}
+:is(.melodic-track-level,.xen-performance,.xen-particle-mix-row) input[type=range]::-webkit-slider-runnable-track{height:2px!important;background:currentColor!important;border:0!important;border-radius:0!important;box-shadow:none!important}
+:is(.melodic-track-level,.xen-performance,.xen-particle-mix-row) input[type=range]::-webkit-slider-thumb{appearance:none!important;-webkit-appearance:none!important;width:8px!important;height:8px!important;margin-top:-3px!important;border:0!important;border-radius:50%!important;background:currentColor!important;box-shadow:none!important}
+:is(.melodic-track-level,.xen-performance,.xen-particle-mix-row) input[type=range]::-moz-range-track{height:2px;background:currentColor;border:0;border-radius:0;box-shadow:none}
+:is(.melodic-track-level,.xen-performance,.xen-particle-mix-row) input[type=range]::-moz-range-progress{height:2px;background:currentColor}
+:is(.melodic-track-level,.xen-performance,.xen-particle-mix-row) input[type=range]::-moz-range-thumb{width:8px;height:8px;border:0;border-radius:50%;background:currentColor;box-shadow:none}
+:is(.melodic-track-level,.xen-performance,.xen-particle-mix-row) input[type=range]:focus-visible{outline:1px solid currentColor;outline-offset:2px}
 @media(min-width:768px){.melodic-bars-controls>div:nth-child(2){margin-bottom:0!important}.melodic-transport-dock{position:absolute;top:80px;left:0;margin-top:8px!important}}
 /* In the existing two-column layout the third card already occupies a new
    row at 160px. Keep that size and the rack size, using the empty second
@@ -24,3 +33,8 @@ html{height:auto;min-height:100%;overflow-x:hidden;overflow-y:auto;scrollbar-gut
 body{height:auto;min-height:100vh;overflow:visible}
 #root{min-height:100vh}
 .flex-1.p-6.relative:has(>.nd-room-shell){padding-top:0}
+
+.nd-export .nd-save-name{display:flex;flex-direction:column;gap:3px;min-width:140px;max-width:220px;flex:1}.nd-export .nd-save-name>span{font-size:9px;color:#a3a3a3}.nd-export .nd-save-name input{width:100%;min-width:0}.nd-export{align-items:flex-end!important}.nd-current-name strong{font-size:13px;font-weight:500;overflow-wrap:anywhere}
+.melodic-custom-save,.melodic-custom-save-form button{border:1px solid #4c8b72;border-radius:4px;padding:4px 8px;font-size:11px;color:#b9e9d3;background:#0c241b}.melodic-custom-save-form{display:flex;flex-wrap:wrap;align-items:flex-end;gap:6px}.melodic-custom-save-form label{display:flex;flex-direction:column;gap:3px;font-size:10px}.melodic-custom-save-form input{border:1px solid #46564f;background:#080e0b;color:#e2eee7;padding:4px 6px;max-width:180px}
+
+.xen-quick-hotkey{display:inline-block;width:0;position:relative;left:1px;font-size:8px;line-height:1;color:#525252;pointer-events:none}.xen-quick-hotkey.is-active{color:#4ade80}.xen-quick-tile.is-key-pulse{background:#1c9b52;border-color:#82ffb4;color:#eafff1;transition:none}

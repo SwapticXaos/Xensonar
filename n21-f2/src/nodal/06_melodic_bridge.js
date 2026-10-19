@@ -1,10 +1,10 @@
 /* Shared field semantics. Uses the same resolvers as the Melodic sample/block editor. */
-function resolveNodalArticulationFields(articulation, localField = null, zeroVolumeFloor = true) {
+function resolveNodalArticulationFields(articulation, localField = null, zeroVolumeFloor = true, instrumentFields = []) {
   // Nodal amplitude reaches silence at the lower edge. Other backends can
   // retain the established +/-95% field through the explicit third argument.
   const volumeGain = zeroVolumeFloor ? value => {const x=pn(value);return x<0 ? 1+x : IF(x);} : IF;
-  const volume = [articulation.volumeEnvelope, localField].filter(Boolean).map(f => $p(Zr(f), 'dynamic-fade')).filter(f => f.enabled && !f.bypassed);
-  const pitch = [articulation.pitchEnvelope, localField].filter(Boolean).map(f => $p(Zr(f), 'pitch-elastic')).filter(f => f.enabled && !f.bypassed);
+  const volume = [articulation.volumeEnvelope, ...instrumentFields, ...[localField].flat().filter(Boolean)].filter(Boolean).map(f => $p(Zr(f), 'dynamic-fade')).filter(f => f.enabled && !f.bypassed);
+  const pitch = [articulation.pitchEnvelope, ...instrumentFields, ...[localField].flat().filter(Boolean)].filter(Boolean).map(f => $p(Zr(f), 'pitch-elastic')).filter(f => f.enabled && !f.bypassed);
   const count = 128;
   const volumeInputs = volume.map(field => ({field, curve: gc(field, count).resolved}));
   const volumeCurve = volume.length ? Array.from({length: count}, (_, i) => volumeInputs.reduce((gain, source) => gain * volumeGain(u6(source.field, i / (count - 1), source.curve)), 1)) : null;
@@ -12,7 +12,7 @@ function resolveNodalArticulationFields(articulation, localField = null, zeroVol
   return {volumeCurve, pitchCurve};
 }
 function nodalComposerSourceFields(composer) {
-  const additional=entrophonComposerSourceFields(composer);
+  const additional={...entrophonComposerSourceFields(composer),...__mlCustomSourceFields(composer)};
   if (!composer.nodalInstruments) return additional;
   const entries = Object.entries(composer.nodalInstruments);
   if (entries.length > 48) throw new Error('Too many Nodal instrument sources');
@@ -54,7 +54,7 @@ function nodalInstrumentMenu(composer) {
     // The project owns its snapshot; the library may only contribute a changed display name.
     choices.set(id, {...stored, instrument: stored?.instrument ?? instrument, kind: stored ? 'library' : 'project'});
   }
-  if (!choices.size) return entrophonInstrumentMenu(composer);
+  if (!choices.size) return entrophonInstrumentMenu(composer).concat(__mlCustomMenu(composer));
   const values = Array.from(choices, ([id, data]) => ({id, ...data}));
   const counts = new Map();
   for (const value of values) counts.set(value.instrument.name, (counts.get(value.instrument.name) ?? 0) + 1);
@@ -66,7 +66,7 @@ function nodalInstrumentMenu(composer) {
     return {id, label: instrument.name + ' · ' + instrument.nodes.length + ' nodes' +
       (counts.get(instrument.name) > 1 ? ' · ' + index + '/' + counts.get(instrument.name) : '') +
       (kind === 'project' ? ' · in project' : ''), hint: 'Direct synthesis', baseHz: instrument.referenceHz, originLabel: 'Nodal'};
-  })}].concat(entrophonInstrumentMenu(composer));
+  })}].concat(entrophonInstrumentMenu(composer),__mlCustomMenu(composer));
 }
 function nodalLoadMelodicSources(request, sources) {
   for (const track of request.composer.tracks) {
@@ -92,7 +92,7 @@ function __mlContainsNodalTracks(composer) {
   const enabled = new Map(composer.tracks.filter(track => track.enabled !== false).map(track => [track.id, track]));
   return composer.notes.some(note => {
     const track = enabled.get(note.trackId);
-    return !!track && (yW(track, note)?.startsWith('nodal:')||isSavedEntrophonSound(yW(track,note)));
+    return !!track && (yW(track, note)?.startsWith('nodal:')||isSavedEntrophonSound(yW(track,note))||__mlCustomId(yW(track,note)));
   });
 }
 /* No direct Nodal event player exists in Root Follow yet. A composed WAV must
@@ -110,9 +110,9 @@ function nodalMelodicNoteTiming(composer, note, source, stepSec) {
     releaseSec: Number.isFinite(note.edgeFadeOutMs) ? Math.max(.001, Math.min(3, note.edgeFadeOutMs / 1000)) : Math.min(3, Math.max(source.instrument.articulation.releaseSec, T$(note) * stepSec))};
 }
 function nodalMelodicNoteOptions(composer, note, track, source, stepSec) {
-  const curves = note.localField == null && source.plan?.articulation
+  const curves = note.localField == null && !note.instrumentFields?.length && source.plan?.articulation
     ? {volumeCurve: source.plan.articulation.volumeCurve, pitchCurve: source.plan.articulation.pitchCurve}
-    : resolveNodalArticulationFields(source.instrument.articulation, note.localField ?? null);
+    : resolveNodalArticulationFields(source.instrument.articulation, note.localField ?? null, true, note.instrumentFields ?? []);
   return {frequency: m9e(composer, note, source), velocity: Math.max(0, Math.min(1, note.velocity ?? .8)),
     gain: Math.max(0, Math.min(1, track.volume ?? .8)) * .7 * Math.max(1, Math.min(1.2, note.velocity ?? .8)),
     ...nodalMelodicNoteTiming(composer, note, source, stepSec), ...curves};

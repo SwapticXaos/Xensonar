@@ -18,7 +18,7 @@ const surface=api.surface({library:{list:()=>entries},live:api.live,model:api.mo
 const runtime={canAdmitVoice:()=>physical<52,beginEvent:()=>({maxVoices:1}),admitVoice:()=>{physical++;return{};},releaseVoice:()=>physical--};
 const params={particlePreset:'classic',keyboardHoldSoundPreset:'clean_pluck'},output={},shell=read('src/app/forge/01_room_shell.js');
 const a=shell.indexOf('P.useEffect(()=>{__XenNodalSurfaces.configure')+'P.useEffect(()=>{'.length,b=shell.indexOf('},[i,et.particlePreset,',a);assert(a>0&&b>a);
-const effectEnv={__XenOctaves:{factor:()=>1},__XenNodalSurfaces:surface,Xn:()=>[],Fx:()=>[],uw:()=>[],Zs:x=>x,Tt:{current:params},Qa:()=>220,xn:{current:{cursorY:0}},zhe:()=>({playbackFreq:220}),NT:()=>({playbackFreq:220}),Lr:{current:ctx},i:ctx,Bs:async()=>ctx,Hh:()=>output,hi:()=>output,hl:{current:runtime},et:params,Ou:waveId};
+const effectEnv={...new Function(read('src/mix/05_grid_runtime.js')+';return {__xenLiveGridParams,__xenGridMuted,__xenEmptyGrid};')(),__XenOctaves:{factor:()=>1},__XenNodalSurfaces:surface,Xn:()=>[],Fx:()=>[],uw:()=>[],Zs:x=>x,Tt:{current:params},Qa:()=>220,xn:{current:{cursorY:0}},zhe:()=>({playbackFreq:220}),NT:()=>({playbackFreq:220}),Lr:{current:ctx},i:ctx,Bs:async()=>ctx,Hh:()=>output,hi:()=>output,hl:{current:runtime},et:params,Ou:waveId};
 const selectEffect=new Function(...Object.keys(effectEnv),shell.slice(a,b));
 // Drive the real upper Keyboard menu after removing the duplicated lower UI.
 const {performanceMenus,flatten}=require('./helpers/performance-menus.cjs');

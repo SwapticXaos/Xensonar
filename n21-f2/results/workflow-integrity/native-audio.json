@@ -1,0 +1,289 @@
+{
+  "before": [
+    {
+      "kind": "legacy",
+      "ordinary": {
+        "channels": 1,
+        "frames": 24480,
+        "hashes": [
+          "f5b71568307a891799d5277b4cc57929b31bfcfce2120136f87c082aff58c3c9"
+        ],
+        "peak": 0.10174985975027084,
+        "energy": 14.856573206127722
+      },
+      "repeat": {
+        "channels": 1,
+        "frames": 24480,
+        "hashes": [
+          "f5b71568307a891799d5277b4cc57929b31bfcfce2120136f87c082aff58c3c9"
+        ],
+        "peak": 0.10174985975027084,
+        "energy": 14.856573206127722
+      }
+    },
+    {
+      "kind": "nodal-v1",
+      "ordinary": {
+        "channels": 1,
+        "frames": 24480,
+        "hashes": [
+          "ac526a04561bc9fdcecfd1ccce05fd049e264cee24b364501f50d749cf2d6127"
+        ],
+        "peak": 0.2075800597667694,
+        "energy": 28.138755441049327
+      },
+      "repeat": {
+        "channels": 1,
+        "frames": 24480,
+        "hashes": [
+          "ac526a04561bc9fdcecfd1ccce05fd049e264cee24b364501f50d749cf2d6127"
+        ],
+        "peak": 0.2075800597667694,
+        "energy": 28.138755441049327
+      }
+    },
+    {
+      "kind": "nodal-v2",
+      "ordinary": {
+        "channels": 1,
+        "frames": 24480,
+        "hashes": [
+          "b4aec9591324c43c75ce6fe0ec14cada0b03c9c39379b6e536b6129dfc373c5c"
+        ],
+        "peak": 0.010233431123197079,
+        "energy": 0.2069909330997785
+      },
+      "repeat": {
+        "channels": 1,
+        "frames": 24480,
+        "hashes": [
+          "b4aec9591324c43c75ce6fe0ec14cada0b03c9c39379b6e536b6129dfc373c5c"
+        ],
+        "peak": 0.010233431123197079,
+        "energy": 0.2069909330997785
+      }
+    },
+    {
+      "kind": "entrophon",
+      "ordinary": {
+        "channels": 2,
+        "frames": 24480,
+        "hashes": [
+          "76eb145ab18089244d68f049a412188f369131265e8a5eda0659109339e39fa4",
+          "76eb145ab18089244d68f049a412188f369131265e8a5eda0659109339e39fa4"
+        ],
+        "peak": 0.4492731988430023,
+        "energy": 84.54832648033899
+      },
+      "repeat": {
+        "channels": 2,
+        "frames": 24480,
+        "hashes": [
+          "76eb145ab18089244d68f049a412188f369131265e8a5eda0659109339e39fa4",
+          "76eb145ab18089244d68f049a412188f369131265e8a5eda0659109339e39fa4"
+        ],
+        "peak": 0.4492731988430023,
+        "energy": 84.54832648033899
+      }
+    },
+    {
+      "kind": "sample",
+      "ordinary": {
+        "channels": 1,
+        "frames": 24480,
+        "hashes": [
+          "9935fdf630c9d8aaaf7d7cf3fc13b33a8b7a6950d120c0a16691ecee80520f40"
+        ],
+        "peak": 0.013305503875017166,
+        "energy": 0.10524121402246688
+      },
+      "repeat": {
+        "channels": 1,
+        "frames": 24480,
+        "hashes": [
+          "96a2b1cb7bf766c3986aaffefc80e6d124c60b91a9b7c9697360aee93f3add2a"
+        ],
+        "peak": 0.013305503875017166,
+        "energy": 0.10524121449369771
+      }
+    }
+  ],
+  "after": [
+    {
+      "kind": "legacy",
+      "ordinary": {
+        "channels": 1,
+        "frames": 24480,
+        "hashes": [
+          "f5b71568307a891799d5277b4cc57929b31bfcfce2120136f87c082aff58c3c9"
+        ],
+        "peak": 0.10174985975027084,
+        "energy": 14.856573206127722
+      },
+      "repeat": {
+        "channels": 1,
+        "frames": 24480,
+        "hashes": [
+          "f5b71568307a891799d5277b4cc57929b31bfcfce2120136f87c082aff58c3c9"
+        ],
+        "peak": 0.10174985975027084,
+        "energy": 14.856573206127722
+      },
+      "custom": {
+        "channels": 1,
+        "frames": 24480,
+        "hashes": [
+          "f5b71568307a891799d5277b4cc57929b31bfcfce2120136f87c082aff58c3c9"
+        ],
+        "peak": 0.10174985975027084,
+        "energy": 14.856573206127722
+      }
+    },
+    {
+      "kind": "nodal-v1",
+      "ordinary": {
+        "channels": 1,
+        "frames": 24480,
+        "hashes": [
+          "ac526a04561bc9fdcecfd1ccce05fd049e264cee24b364501f50d749cf2d6127"
+        ],
+        "peak": 0.2075800597667694,
+        "energy": 28.138755441049327
+      },
+      "repeat": {
+        "channels": 1,
+        "frames": 24480,
+        "hashes": [
+          "ac526a04561bc9fdcecfd1ccce05fd049e264cee24b364501f50d749cf2d6127"
+        ],
+        "peak": 0.2075800597667694,
+        "energy": 28.138755441049327
+      },
+      "custom": {
+        "channels": 1,
+        "frames": 24480,
+        "hashes": [
+          "ac526a04561bc9fdcecfd1ccce05fd049e264cee24b364501f50d749cf2d6127"
+        ],
+        "peak": 0.2075800597667694,
+        "energy": 28.138755441049327
+      }
+    },
+    {
+      "kind": "nodal-v2",
+      "ordinary": {
+        "channels": 1,
+        "frames": 24480,
+        "hashes": [
+          "b4aec9591324c43c75ce6fe0ec14cada0b03c9c39379b6e536b6129dfc373c5c"
+        ],
+        "peak": 0.010233431123197079,
+        "energy": 0.2069909330997785
+      },
+      "repeat": {
+        "channels": 1,
+        "frames": 24480,
+        "hashes": [
+          "b4aec9591324c43c75ce6fe0ec14cada0b03c9c39379b6e536b6129dfc373c5c"
+        ],
+        "peak": 0.010233431123197079,
+        "energy": 0.2069909330997785
+      },
+      "custom": {
+        "channels": 1,
+        "frames": 24480,
+        "hashes": [
+          "b4aec9591324c43c75ce6fe0ec14cada0b03c9c39379b6e536b6129dfc373c5c"
+        ],
+        "peak": 0.010233431123197079,
+        "energy": 0.2069909330997785
+      }
+    },
+    {
+      "kind": "entrophon",
+      "ordinary": {
+        "channels": 2,
+        "frames": 24480,
+        "hashes": [
+          "76eb145ab18089244d68f049a412188f369131265e8a5eda0659109339e39fa4",
+          "76eb145ab18089244d68f049a412188f369131265e8a5eda0659109339e39fa4"
+        ],
+        "peak": 0.4492731988430023,
+        "energy": 84.54832648033899
+      },
+      "repeat": {
+        "channels": 2,
+        "frames": 24480,
+        "hashes": [
+          "76eb145ab18089244d68f049a412188f369131265e8a5eda0659109339e39fa4",
+          "76eb145ab18089244d68f049a412188f369131265e8a5eda0659109339e39fa4"
+        ],
+        "peak": 0.4492731988430023,
+        "energy": 84.54832648033899
+      },
+      "custom": {
+        "channels": 2,
+        "frames": 24480,
+        "hashes": [
+          "76eb145ab18089244d68f049a412188f369131265e8a5eda0659109339e39fa4",
+          "76eb145ab18089244d68f049a412188f369131265e8a5eda0659109339e39fa4"
+        ],
+        "peak": 0.4492731988430023,
+        "energy": 84.54832648033899
+      }
+    },
+    {
+      "kind": "sample",
+      "ordinary": {
+        "channels": 1,
+        "frames": 24480,
+        "hashes": [
+          "a47c0bb615dc30da7a98407a34120bfb8df3f676a81c2df1018cb461585ecfc8"
+        ],
+        "peak": 0.013305503875017166,
+        "energy": 0.10524121425614308
+      },
+      "repeat": {
+        "channels": 1,
+        "frames": 24480,
+        "hashes": [
+          "40e4ee2ba0049b4da2b8541f3a2fb967b4433c04dbcac687d8b6b97f395a5969"
+        ],
+        "peak": 0.013305505737662315,
+        "energy": 0.10524121449313338
+      },
+      "custom": {
+        "channels": 1,
+        "frames": 24480,
+        "hashes": [
+          "67b7391a92580c9d4f005fa260af507afb9ac3345ea04088e00c1673889a7009"
+        ],
+        "peak": 0.013305505737662315,
+        "energy": 0.10524121430656172
+      }
+    }
+  ],
+  "sampleComparisons": [
+    {
+      "label": "previous build repeat control",
+      "maxAbsPCM": 4.605681169778109e-9,
+      "rmsDifference": 4.211667889854202e-10
+    },
+    {
+      "label": "current build repeat control",
+      "maxAbsPCM": 4.6566128730773926e-9,
+      "rmsDifference": 3.814648068719297e-10
+    },
+    {
+      "label": "previous/current",
+      "maxAbsPCM": 4.052708391100168e-9,
+      "rmsDifference": 3.8531948778921363e-10
+    },
+    {
+      "label": "saved/reloaded custom",
+      "maxAbsPCM": 4.6566128730773926e-9,
+      "rmsDifference": 4.205862898396455e-10
+    }
+  ],
+  "errors": []
+}

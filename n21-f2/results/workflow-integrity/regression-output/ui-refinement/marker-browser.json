@@ -1,0 +1,257 @@
+{
+  "rows": [
+    {
+      "scenario": {
+        "width": 1740,
+        "height": 1000,
+        "entries": 0
+      },
+      "geometry": {
+        "height": 804,
+        "width": 260,
+        "disabled": false
+      },
+      "centres": [
+        {
+          "time": 0,
+          "deltaX": 0,
+          "deltaY": 0,
+          "width": 3.1999969482421875
+        },
+        {
+          "time": 300,
+          "deltaX": 0,
+          "deltaY": 0,
+          "width": 39.501258850097656
+        },
+        {
+          "time": 900,
+          "deltaX": -0.000003814697265625,
+          "deltaY": -0.000003814697265625,
+          "width": 90.22738647460938
+        }
+      ],
+      "markers": [
+        {
+          "id": "marker-515-1",
+          "timeMs": 515
+        },
+        {
+          "id": "marker-804-2",
+          "timeMs": 804
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "width": 1740,
+        "height": 1000,
+        "entries": 7
+      },
+      "geometry": {
+        "height": 488,
+        "width": 260,
+        "disabled": false
+      },
+      "centres": [
+        {
+          "time": 0,
+          "deltaX": 0,
+          "deltaY": 0,
+          "width": 3.1999969482421875
+        },
+        {
+          "time": 300,
+          "deltaX": 0,
+          "deltaY": 0,
+          "width": 39.501258850097656
+        },
+        {
+          "time": 900,
+          "deltaX": -0.000003814697265625,
+          "deltaY": -0.000003814697265625,
+          "width": 90.22738647460938
+        }
+      ],
+      "markers": [
+        {
+          "id": "marker-896-1",
+          "timeMs": 896
+        },
+        {
+          "id": "marker-1202-2",
+          "timeMs": 1202
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "width": 1740,
+        "height": 1000,
+        "entries": 20
+      },
+      "geometry": {
+        "height": 120,
+        "width": 260,
+        "disabled": false
+      },
+      "centres": [
+        {
+          "time": 0,
+          "deltaX": 0,
+          "deltaY": 0,
+          "width": 3.1999969482421875
+        },
+        {
+          "time": 300,
+          "deltaX": 0,
+          "deltaY": 0,
+          "width": 39.501258850097656
+        },
+        {
+          "time": 900,
+          "deltaX": -0.000003814697265625,
+          "deltaY": 0,
+          "width": 90.22738647460938
+        }
+      ],
+      "markers": [
+        {
+          "id": "marker-379-1",
+          "timeMs": 379
+        },
+        {
+          "id": "marker-574-2",
+          "timeMs": 574
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "width": 1740,
+        "height": 1000,
+        "entries": 30
+      },
+      "geometry": {
+        "height": 120,
+        "width": 260,
+        "disabled": false
+      },
+      "centres": [
+        {
+          "time": 0,
+          "deltaX": 0,
+          "deltaY": 0,
+          "width": 3.1999969482421875
+        },
+        {
+          "time": 300,
+          "deltaX": 0,
+          "deltaY": 0,
+          "width": 39.501258850097656
+        },
+        {
+          "time": 900,
+          "deltaX": -0.000003814697265625,
+          "deltaY": 0,
+          "width": 90.22738647460938
+        }
+      ],
+      "markers": [
+        {
+          "id": "marker-462-1",
+          "timeMs": 462
+        },
+        {
+          "id": "marker-623-2",
+          "timeMs": 623
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "width": 1600,
+        "height": 900,
+        "entries": 7
+      },
+      "geometry": {
+        "height": 388,
+        "width": 190,
+        "disabled": false
+      },
+      "centres": [
+        {
+          "time": 0,
+          "deltaX": 0,
+          "deltaY": 0,
+          "width": 3.1999969482421875
+        },
+        {
+          "time": 300,
+          "deltaX": 0,
+          "deltaY": 0,
+          "width": 39.501258850097656
+        },
+        {
+          "time": 900,
+          "deltaX": -0.000003814697265625,
+          "deltaY": -0.000003814697265625,
+          "width": 90.22738647460938
+        }
+      ],
+      "markers": [
+        {
+          "id": "marker-468-1",
+          "timeMs": 468
+        },
+        {
+          "id": "marker-760-2",
+          "timeMs": 760
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "width": 1600,
+        "height": 900,
+        "entries": 17
+      },
+      "geometry": {
+        "height": 120,
+        "width": 190,
+        "disabled": false
+      },
+      "centres": [
+        {
+          "time": 0,
+          "deltaX": 0,
+          "deltaY": 0.0000152587890625,
+          "width": 3.1999969482421875
+        },
+        {
+          "time": 300,
+          "deltaX": 0,
+          "deltaY": 0.0000152587890625,
+          "width": 39.501258850097656
+        },
+        {
+          "time": 900,
+          "deltaX": -0.000003814697265625,
+          "deltaY": 0,
+          "width": 90.22738647460938
+        }
+      ],
+      "markers": [
+        {
+          "id": "marker-439-1",
+          "timeMs": 439
+        },
+        {
+          "id": "marker-670-2",
+          "timeMs": 670
+        }
+      ]
+    }
+  ],
+  "errors": []
+}
