@@ -1,4 +1,4 @@
-# XenSonar N21–F2 · Fester Hz-Raum und Detune
+# XenSonar N21–F2 · Projektintegrität und begrenzter Verlauf
 
 Die aktuelle, vom Nutzer gelieferte N21–F2-Quellbasis mit Granular-Hold, Live-Stabilitäts-Patch und korrigierter Forge-Fortschrittsanzeige sowie ausgerichteten Mix-Reglern, Raster-Mute, Melodic-Panning und Xenpolar Drone im Hauptinstrument
 liegen in [`n21-f2/`](n21-f2/). Der ältere React-/Vite-Stand im Repository-Root
@@ -8,7 +8,7 @@ Die Aufnahme-Markerfläche bleibt auch bei langen Schnellmenüs erreichbar; ihre
 
 Raster-Mute umfasst jetzt auch Wave Starter und Live-Quantisierung. Material-/RFL-Hotkeys sind im Schnellmenü sichtbar und geben beim Auslösen eine kurze grüne Rückmeldung. Der Melodic-Editor besitzt dieselbe Transportsteuerung wie der obere Bereich sowie wiederverwendbare Custom-Instrumente aus Originalklang und Kurven. Die Instrument-Regler verwenden dünne Linien in Instrumentfarbe; die Nodal-Namenseingabe steht beim Speichern.
 
-Der aktuelle Wartbarkeits-Patch reduziert wiederholte Notensuchen, Zeitgrenzenberechnungen und gemeinsame Feldnormalisierung. Vier Verwaltungsfunktionen in drei Dateien ändern sich; Klangerzeuger, Bedienung und Projektformate bleiben erhalten. Messungen und Vergleich mit dem vorherigen Code: [`n21-f2/docs/maintenance-report.md`](n21-f2/docs/maintenance-report.md).
+Der frühere Wartbarkeits-Patch reduziert wiederholte Notensuchen, Zeitgrenzenberechnungen und gemeinsame Feldnormalisierung. Vier Verwaltungsfunktionen in drei Dateien ändern sich; Klangerzeuger, Bedienung und Projektformate bleiben erhalten. Messungen und Vergleich mit dem vorherigen Code: [`n21-f2/docs/maintenance-report.md`](n21-f2/docs/maintenance-report.md).
 
 Neu: Im SpectralForge-Bereich **Sound Material · Donor** steht neben **Import Audio** die **Mikrofonaufnahme**. Stop übernimmt die eigene Stimme/Geräusche in den bisherigen Donor-Importweg; Verwerfen erhält die bisherige Quelle. Anleitung: [`n21-f2/README_MICROPHONE.md`](n21-f2/README_MICROPHONE.md).
 
@@ -18,11 +18,15 @@ Aktuell: Audio to Carrier behält die zuvor gewählte Klangmaschine bei. Vollgr�
 
 Aktuell: Lokale Pinsel-/Morph-Bearbeitung erhält die Hz-Zuordnung und Akkordintervalle. Der bisher ungewollte relative Frequenzraum ist als **Detune** neben dem unteren Synth-Lab-Play ausdrücklich dosierbar. Anleitung: [`n21-f2/README_PITCH_SPACE.md`](n21-f2/README_PITCH_SPACE.md).
 
+Aktuell: Forge-Snapshots im Workspace-Paket erhalten ihre vollständigen Array-Daten. Fehlerhafte Snapshots werden vor Änderungen am aktiven Arbeitsstand abgewiesen; Undo und Redo teilen sich ein Speicherbudget. Gemeinsame Freigabeprüfungen und CI sind eingerichtet. Anleitung: [`n21-f2/README_CONSOLIDATION.md`](n21-f2/README_CONSOLIDATION.md).
+
 ```sh
 cd n21-f2
 npm ci
 npm run build
 npm run verify:build
+npm run test:consolidation
+XEN_CHROMIUM_PATH=/usr/bin/chromium npm run test:consolidation:browser
 npm run test:pitch-space
 npm run test:pitch-space:browser
 npm run test:forge-ready

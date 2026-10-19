@@ -1,0 +1,23 @@
+{
+  "base": "be1fc5300f4e56556d5e0bd2976cc239f0566246",
+  "unchanged": 178,
+  "changed": [
+    "src/forge/editor/03_synthetic_sound_engines.js",
+    "src/forge/editor/05_machine_and_carrier_projection.js",
+    "src/forge/editor/07_composition_and_preview_ui.js",
+    "src/forge/editor/09_workflow_controls.js",
+    "src/forge_and_melodic/10_audition_and_persistence.js"
+  ],
+  "added": [
+    "src/mix/04_melodic_spatial.js",
+    "src/mix/05_grid_runtime.js",
+    "src/mix/06_custom_instruments.js",
+    "src/audio/drone/01_colour.js",
+    "src/forge/dsp/04_polytrace_render.js",
+    "src/forge/ui/03_microphone_intake.js",
+    "src/forge/analysis/04_audio_to_carrier.js",
+    "src/forge/analysis/05_carrier_pitch_space.js",
+    "src/forge/ui/04_audio_to_carrier_controls.js"
+  ],
+  "status": "PASS"
+}

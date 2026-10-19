@@ -1,0 +1,36 @@
+{
+  "entry": "Xensonar_N21_F2_Consolidation_Test.html",
+  "sha256": "447f01c5ccd2385e665d00c7fc4b2e2fb463d9a890510dfc6d5d99100446620c",
+  "startedAt": "2026-10-19T16:10:53.281Z",
+  "completedAt": "2026-10-19T16:13:01.040Z",
+  "running": false,
+  "scope": "Native Chromium; no physical audio interface or cross-browser claim",
+  "rows": [
+    {
+      "name": "consolidation-browser",
+      "passed": true,
+      "exit": 0,
+      "signal": null,
+      "milliseconds": 15343
+    },
+    {
+      "name": "forge-ready-browser",
+      "passed": true,
+      "exit": 0,
+      "signal": null,
+      "milliseconds": 38046
+    },
+    {
+      "name": "forge-pitch-browser",
+      "passed": true,
+      "exit": 0,
+      "signal": null,
+      "milliseconds": 74252
+    },
+    {
+      "name": "build-reproducibility",
+      "passed": true
+    }
+  ],
+  "failed": 0
+}

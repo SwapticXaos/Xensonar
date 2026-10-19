@@ -1,0 +1,24 @@
+{
+  "entry": "Xensonar_N21_F2_Consolidation_Test.html",
+  "sha256": "447f01c5ccd2385e665d00c7fc4b2e2fb463d9a890510dfc6d5d99100446620c",
+  "checks": 65,
+  "failed": 0,
+  "preservedPreviousResultFiles": [
+    "results/audio-carrier/analysis.json",
+    "results/audio-carrier/preservation.json",
+    "results/f3-instruments.json",
+    "results/f442-rfl-resident.json",
+    "results/f442-rfl-runtime.json",
+    "results/forge-progress/preservation.json",
+    "results/live-controls/preservation.json",
+    "results/microphone/preservation.json",
+    "results/nodal_backend.json",
+    "results/p3b-correlated-host-trace.json",
+    "results/p3b-timely-density-trace.json",
+    "results/p4c2-n20-mixed-render.json",
+    "results/p4c2-n21-validation.log",
+    "results/pitch-space/preservation.json",
+    "results/ui-refinement/preservation.json",
+    "results/workflow-integrity/preservation.json"
+  ]
+}

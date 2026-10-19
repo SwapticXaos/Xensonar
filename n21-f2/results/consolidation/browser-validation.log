@@ -1,0 +1,26 @@
+
+## consolidation-browser
+PASS native package download -> fresh profile -> file import -> IndexedDB -> restored playback, invalid-load protection and bounded history
+
+## forge-ready-browser
+PASS ready -> cached Play: emilia
+PASS ready -> cached Play: pure-dieter
+PASS ready -> cached Play: fractalia
+PASS ready -> cached Play: harmonic-xplore
+PASS ready -> cached Play: spektral-synthese
+PASS ready -> cached Play: antonia
+PASS ready -> cached Play: bert
+PASS ready -> cached Play: cecilia
+PASS truthful green readiness and cached Play across all eight machines and tempo edits
+
+## forge-pitch-browser
+PASS edited carrier: antonia
+PASS edited carrier: bert
+PASS edited carrier: cecilia
+PASS edited carrier: emilia
+PASS edited carrier: fractalia
+PASS edited carrier: pure-dieter
+PASS edited carrier: harmonic-xplore
+PASS edited carrier: spektral-synthese
+PASS real brush/Morph, all eight native Play modes, explicit reversible Detune and responsive footer
+PASS reproducible standalone HTML 447f01c5ccd2385e665d00c7fc4b2e2fb463d9a890510dfc6d5d99100446620c 5583388

@@ -1,6 +1,6 @@
 {
-  "version": "XenSonar N21–F2 · Stable Hz / Explicit Detune",
-  "entry": "Xensonar_N21_F2_Pitch_Space_Test.html",
+  "version": "XenSonar N21–F2 · Project Integrity / Bounded History",
+  "entry": "Xensonar_N21_F2_Consolidation_Test.html",
   "files": [
     "src/mix/03_quick_menu.js",
     "src/mix/04_melodic_spatial.js",
@@ -48,6 +48,8 @@
     "src/forge/emilia/02_lab_ui.js",
     "src/forge/dsp/04_donor_field.js",
     "src/forge/lifecycle/01_offline_jobs.js",
+    "src/storage/05_project_snapshots.js",
+    "src/storage/06_history_budget.js",
     "src/01_app_runtime.js",
     "src/forge/workbench/01_preset_catalog.js",
     "src/forge/workbench/02_recipe_normalization.js",
@@ -205,8 +207,8 @@
     "src/05_dual_donor.js",
     "src/06_workbench_dialog.js"
   ],
-  "sha256": "f6b462c8d7e9ac26cc62f51c363beee55afbbf4f0810f1f96f55236e87227bd3",
-  "bytes": 5573851,
+  "sha256": "447f01c5ccd2385e665d00c7fc4b2e2fb463d9a890510dfc6d5d99100446620c",
+  "bytes": 5583388,
   "sourceOrder": "Concatenate in listed order. Explicit factories own Workbench, hybrid session, render capture, adapters, playback and analysis cache. Remaining registry fragments share one inline module; DSP factories stay independently serializable for workers.",
   "status": "F4.3.13 mainline plus F4.4.0 Nodal coupled-modal-v2, anchored at F4.3.5",
   "baseVersion": "F4.3.5 (three-way)",

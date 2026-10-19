@@ -1,0 +1,7 @@
+{
+  "src/app/forge/03_spectral_grid_and_archives.js": "a74349029469214788680e96610a9d78b37c977b2155ebe26f8b104a6c8b7f7d",
+  "src/app/forge/04_profiles_and_body_models.js": "e079c056fcbfacdc5bdfc3732bba740ffabc2c085ff3a9f1b40a7f326c6e976e",
+  "src/app/forge/05_forge_state_and_analysis.js": "3eb1b0b79256b8d85361e3e55261322502e5f7368eff85290965005ed8ece008",
+  "src/storage/05_project_snapshots.js": "d4c2b8b6bdf8537832fba4612ffabccc4840ed23b4d5a1934685569db24bef1d",
+  "src/storage/06_history_budget.js": "27e63bb49ee637a44172ef2305c6b9e5a55eb7ba3cffd316e1082461f2c47b30"
+}

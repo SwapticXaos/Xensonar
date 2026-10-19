@@ -852,6 +852,16 @@
       "line": 4
     },
     {
+      "name": "__ForgeProjectSnapshot",
+      "file": "src/storage/05_project_snapshots.js",
+      "line": 4
+    },
+    {
+      "name": "__ForgeHistoryBudget",
+      "file": "src/storage/06_history_budget.js",
+      "line": 3
+    },
+    {
       "name": "__F35614AudioRef",
       "file": "src/01_app_runtime.js",
       "line": 4
@@ -22909,32 +22919,32 @@
     {
       "name": "SDe",
       "file": "src/app/forge/04_profiles_and_body_models.js",
-      "line": 5
+      "line": 19
     },
     {
       "name": "vDe",
       "file": "src/app/forge/04_profiles_and_body_models.js",
-      "line": 5
+      "line": 19
     },
     {
       "name": "ADe",
       "file": "src/app/forge/04_profiles_and_body_models.js",
-      "line": 5
+      "line": 19
     },
     {
       "name": "Ks",
       "file": "src/app/forge/04_profiles_and_body_models.js",
-      "line": 5
+      "line": 19
     },
     {
       "name": "TO",
       "file": "src/app/forge/04_profiles_and_body_models.js",
-      "line": 5
+      "line": 19
     },
     {
       "name": "xDe",
       "file": "src/app/forge/04_profiles_and_body_models.js",
-      "line": 5
+      "line": 19
     },
     {
       "name": "MDe",
@@ -22962,11 +22972,6 @@
       "line": 5
     },
     {
-      "name": "kDe",
-      "file": "src/app/forge/05_forge_state_and_analysis.js",
-      "line": 5
-    },
-    {
       "name": "Dk",
       "file": "src/app/forge/05_forge_state_and_analysis.js",
       "line": 5
@@ -22984,507 +22989,507 @@
     {
       "name": "IDe",
       "file": "src/app/forge/05_forge_state_and_analysis.js",
-      "line": 14
+      "line": 26
     },
     {
       "name": "EDe",
       "file": "src/app/forge/05_forge_state_and_analysis.js",
-      "line": 14
+      "line": 26
     },
     {
       "name": "FDe",
       "file": "src/app/forge/05_forge_state_and_analysis.js",
-      "line": 14
+      "line": 26
     },
     {
       "name": "TDe",
       "file": "src/app/forge/05_forge_state_and_analysis.js",
-      "line": 14
+      "line": 26
     },
     {
       "name": "LDe",
       "file": "src/app/forge/05_forge_state_and_analysis.js",
-      "line": 14
+      "line": 26
     },
     {
       "name": "Nk",
       "file": "src/app/forge/05_forge_state_and_analysis.js",
-      "line": 14
+      "line": 26
     },
     {
       "name": "OM",
       "file": "src/app/forge/05_forge_state_and_analysis.js",
-      "line": 14
+      "line": 26
     },
     {
       "name": "sU",
       "file": "src/app/forge/05_forge_state_and_analysis.js",
-      "line": 14
+      "line": 26
     },
     {
       "name": "BDe",
       "file": "src/app/forge/05_forge_state_and_analysis.js",
-      "line": 14
+      "line": 26
     },
     {
       "name": "DDe",
       "file": "src/app/forge/05_forge_state_and_analysis.js",
-      "line": 14
+      "line": 26
     },
     {
       "name": "NDe",
       "file": "src/app/forge/05_forge_state_and_analysis.js",
-      "line": 14
+      "line": 26
     },
     {
       "name": "ODe",
       "file": "src/app/forge/05_forge_state_and_analysis.js",
-      "line": 14
+      "line": 26
     },
     {
       "name": "_De",
       "file": "src/app/forge/05_forge_state_and_analysis.js",
-      "line": 14
+      "line": 26
     },
     {
       "name": "zDe",
       "file": "src/app/forge/05_forge_state_and_analysis.js",
-      "line": 14
+      "line": 26
     },
     {
       "name": "jDe",
       "file": "src/app/forge/05_forge_state_and_analysis.js",
-      "line": 14
+      "line": 26
     },
     {
       "name": "GDe",
       "file": "src/app/forge/05_forge_state_and_analysis.js",
-      "line": 14
+      "line": 26
     },
     {
       "name": "lU",
       "file": "src/app/forge/05_forge_state_and_analysis.js",
-      "line": 14
+      "line": 26
     },
     {
       "name": "HDe",
       "file": "src/app/forge/05_forge_state_and_analysis.js",
-      "line": 14
+      "line": 26
     },
     {
       "name": "VDe",
       "file": "src/app/forge/05_forge_state_and_analysis.js",
-      "line": 14
+      "line": 26
     },
     {
       "name": "WDe",
       "file": "src/app/forge/05_forge_state_and_analysis.js",
-      "line": 14
+      "line": 26
     },
     {
       "name": "qDe",
       "file": "src/app/forge/05_forge_state_and_analysis.js",
-      "line": 14
+      "line": 26
     },
     {
       "name": "QDe",
       "file": "src/app/forge/05_forge_state_and_analysis.js",
-      "line": 14
+      "line": 26
     },
     {
       "name": "UDe",
       "file": "src/app/forge/05_forge_state_and_analysis.js",
-      "line": 14
+      "line": 26
     },
     {
       "name": "KDe",
       "file": "src/app/forge/05_forge_state_and_analysis.js",
-      "line": 14
+      "line": 26
     },
     {
       "name": "$De",
       "file": "src/app/forge/05_forge_state_and_analysis.js",
-      "line": 14
+      "line": 26
     },
     {
       "name": "XDe",
       "file": "src/app/forge/05_forge_state_and_analysis.js",
-      "line": 14
+      "line": 26
     },
     {
       "name": "YDe",
       "file": "src/app/forge/05_forge_state_and_analysis.js",
-      "line": 14
+      "line": 26
     },
     {
       "name": "JDe",
       "file": "src/app/forge/05_forge_state_and_analysis.js",
-      "line": 17
+      "line": 29
     },
     {
       "name": "ZDe",
       "file": "src/app/forge/05_forge_state_and_analysis.js",
-      "line": 17
+      "line": 29
     },
     {
       "name": "eNe",
       "file": "src/app/forge/05_forge_state_and_analysis.js",
-      "line": 17
+      "line": 29
     },
     {
       "name": "tNe",
       "file": "src/app/forge/05_forge_state_and_analysis.js",
-      "line": 17
+      "line": 29
     },
     {
       "name": "nNe",
       "file": "src/app/forge/05_forge_state_and_analysis.js",
-      "line": 17
+      "line": 29
     },
     {
       "name": "rNe",
       "file": "src/app/forge/05_forge_state_and_analysis.js",
-      "line": 17
+      "line": 29
     },
     {
       "name": "ns",
       "file": "src/app/forge/05_forge_state_and_analysis.js",
-      "line": 17
+      "line": 29
     },
     {
       "name": "sS",
       "file": "src/app/forge/05_forge_state_and_analysis.js",
-      "line": 17
+      "line": 29
     },
     {
       "name": "Ar",
       "file": "src/app/forge/05_forge_state_and_analysis.js",
-      "line": 17
+      "line": 29
     },
     {
       "name": "aNe",
       "file": "src/app/forge/05_forge_state_and_analysis.js",
-      "line": 17
+      "line": 29
     },
     {
       "name": "pe",
       "file": "src/app/forge/05_forge_state_and_analysis.js",
-      "line": 17
+      "line": 29
     },
     {
       "name": "oNe",
       "file": "src/app/forge/05_forge_state_and_analysis.js",
-      "line": 17
+      "line": 29
     },
     {
       "name": "Vt",
       "file": "src/app/forge/05_forge_state_and_analysis.js",
-      "line": 17
+      "line": 29
     },
     {
       "name": "cU",
       "file": "src/app/forge/05_forge_state_and_analysis.js",
-      "line": 17
+      "line": 29
     },
     {
       "name": "BO",
       "file": "src/app/forge/05_forge_state_and_analysis.js",
-      "line": 17
+      "line": 29
     },
     {
       "name": "rh",
       "file": "src/app/forge/05_forge_state_and_analysis.js",
-      "line": 17
+      "line": 29
     },
     {
       "name": "iNe",
       "file": "src/app/forge/05_forge_state_and_analysis.js",
-      "line": 17
+      "line": 29
     },
     {
       "name": "sNe",
       "file": "src/app/forge/05_forge_state_and_analysis.js",
-      "line": 17
+      "line": 29
     },
     {
       "name": "lNe",
       "file": "src/app/forge/05_forge_state_and_analysis.js",
-      "line": 17
+      "line": 29
     },
     {
       "name": "uU",
       "file": "src/app/forge/05_forge_state_and_analysis.js",
-      "line": 17
+      "line": 29
     },
     {
       "name": "cNe",
       "file": "src/app/forge/05_forge_state_and_analysis.js",
-      "line": 17
+      "line": 29
     },
     {
       "name": "uNe",
       "file": "src/app/forge/05_forge_state_and_analysis.js",
-      "line": 17
+      "line": 29
     },
     {
       "name": "kR",
       "file": "src/app/forge/05_forge_state_and_analysis.js",
-      "line": 17
+      "line": 29
     },
     {
       "name": "PR",
       "file": "src/app/forge/05_forge_state_and_analysis.js",
-      "line": 17
+      "line": 29
     },
     {
       "name": "xB",
       "file": "src/app/forge/05_forge_state_and_analysis.js",
-      "line": 17
+      "line": 29
     },
     {
       "name": "dU",
       "file": "src/app/forge/05_forge_state_and_analysis.js",
-      "line": 17
+      "line": 29
     },
     {
       "name": "qd",
       "file": "src/app/forge/05_forge_state_and_analysis.js",
-      "line": 17
+      "line": 29
     },
     {
       "name": "T0",
       "file": "src/app/forge/05_forge_state_and_analysis.js",
-      "line": 17
+      "line": 29
     },
     {
       "name": "Gf",
       "file": "src/app/forge/05_forge_state_and_analysis.js",
-      "line": 17
+      "line": 29
     },
     {
       "name": "mU",
       "file": "src/app/forge/05_forge_state_and_analysis.js",
-      "line": 17
+      "line": 29
     },
     {
       "name": "CE",
       "file": "src/app/forge/05_forge_state_and_analysis.js",
-      "line": 17
+      "line": 29
     },
     {
       "name": "pU",
       "file": "src/app/forge/05_forge_state_and_analysis.js",
-      "line": 17
+      "line": 29
     },
     {
       "name": "hU",
       "file": "src/app/forge/05_forge_state_and_analysis.js",
-      "line": 17
+      "line": 29
     },
     {
       "name": "dNe",
       "file": "src/app/forge/05_forge_state_and_analysis.js",
-      "line": 17
+      "line": 29
     },
     {
       "name": "DO",
       "file": "src/app/forge/05_forge_state_and_analysis.js",
-      "line": 17
+      "line": 29
     },
     {
       "name": "__F33BaseCache",
       "file": "src/app/forge/05_forge_state_and_analysis.js",
-      "line": 17
+      "line": 29
     },
     {
       "name": "fU",
       "file": "src/app/forge/05_forge_state_and_analysis.js",
-      "line": 18
+      "line": 30
     },
     {
       "name": "mNe",
       "file": "src/app/forge/05_forge_state_and_analysis.js",
-      "line": 24
+      "line": 36
     },
     {
       "name": "sx",
       "file": "src/app/forge/05_forge_state_and_analysis.js",
-      "line": 24
+      "line": 36
     },
     {
       "name": "lx",
       "file": "src/app/forge/05_forge_state_and_analysis.js",
-      "line": 24
+      "line": 36
     },
     {
       "name": "L0",
       "file": "src/app/forge/05_forge_state_and_analysis.js",
-      "line": 24
+      "line": 36
     },
     {
       "name": "pNe",
       "file": "src/app/forge/05_forge_state_and_analysis.js",
-      "line": 24
+      "line": 36
     },
     {
       "name": "hNe",
       "file": "src/app/forge/05_forge_state_and_analysis.js",
-      "line": 24
+      "line": 36
     },
     {
       "name": "gU",
       "file": "src/app/forge/05_forge_state_and_analysis.js",
-      "line": 24
+      "line": 36
     },
     {
       "name": "e0",
       "file": "src/app/forge/05_forge_state_and_analysis.js",
-      "line": 24
+      "line": 36
     },
     {
       "name": "fNe",
       "file": "src/app/forge/05_forge_state_and_analysis.js",
-      "line": 24
+      "line": 36
     },
     {
       "name": "gNe",
       "file": "src/app/forge/05_forge_state_and_analysis.js",
-      "line": 24
+      "line": 36
     },
     {
       "name": "B0",
       "file": "src/app/forge/05_forge_state_and_analysis.js",
-      "line": 24
+      "line": 36
     },
     {
       "name": "bNe",
       "file": "src/app/forge/05_forge_state_and_analysis.js",
-      "line": 24
+      "line": 36
     },
     {
       "name": "yNe",
       "file": "src/app/forge/05_forge_state_and_analysis.js",
-      "line": 24
+      "line": 36
     },
     {
       "name": "SNe",
       "file": "src/app/forge/05_forge_state_and_analysis.js",
-      "line": 24
+      "line": 36
     },
     {
       "name": "vNe",
       "file": "src/app/forge/05_forge_state_and_analysis.js",
-      "line": 24
+      "line": 36
     },
     {
       "name": "ANe",
       "file": "src/app/forge/05_forge_state_and_analysis.js",
-      "line": 24
+      "line": 36
     },
     {
       "name": "xNe",
       "file": "src/app/forge/05_forge_state_and_analysis.js",
-      "line": 24
+      "line": 36
     },
     {
       "name": "MNe",
       "file": "src/app/forge/05_forge_state_and_analysis.js",
-      "line": 24
+      "line": 36
     },
     {
       "name": "IR",
       "file": "src/app/forge/05_forge_state_and_analysis.js",
-      "line": 24
+      "line": 36
     },
     {
       "name": "wNe",
       "file": "src/app/forge/05_forge_state_and_analysis.js",
-      "line": 24
+      "line": 36
     },
     {
       "name": "ah",
       "file": "src/app/forge/05_forge_state_and_analysis.js",
-      "line": 24
+      "line": 36
     },
     {
       "name": "cx",
       "file": "src/app/forge/05_forge_state_and_analysis.js",
-      "line": 24
+      "line": 36
     },
     {
       "name": "RNe",
       "file": "src/app/forge/05_forge_state_and_analysis.js",
-      "line": 24
+      "line": 36
     },
     {
       "name": "CNe",
       "file": "src/app/forge/05_forge_state_and_analysis.js",
-      "line": 24
+      "line": 36
     },
     {
       "name": "kNe",
       "file": "src/app/forge/05_forge_state_and_analysis.js",
-      "line": 24
+      "line": 36
     },
     {
       "name": "$1",
       "file": "src/app/forge/05_forge_state_and_analysis.js",
-      "line": 24
+      "line": 36
     },
     {
       "name": "Ok",
       "file": "src/app/forge/05_forge_state_and_analysis.js",
-      "line": 24
+      "line": 36
     },
     {
       "name": "ux",
       "file": "src/app/forge/05_forge_state_and_analysis.js",
-      "line": 24
+      "line": 36
     },
     {
       "name": "Py",
       "file": "src/app/forge/05_forge_state_and_analysis.js",
-      "line": 24
+      "line": 36
     },
     {
       "name": "uu",
       "file": "src/app/forge/05_forge_state_and_analysis.js",
-      "line": 24
+      "line": 36
     },
     {
       "name": "Hl",
       "file": "src/app/forge/05_forge_state_and_analysis.js",
-      "line": 24
+      "line": 36
     },
     {
       "name": "PNe",
       "file": "src/app/forge/05_forge_state_and_analysis.js",
-      "line": 24
+      "line": 36
     },
     {
       "name": "MB",
       "file": "src/app/forge/05_forge_state_and_analysis.js",
-      "line": 24
+      "line": 36
     },
     {
       "name": "INe",
       "file": "src/app/forge/05_forge_state_and_analysis.js",
-      "line": 24
+      "line": 36
     },
     {
       "name": "ENe",
       "file": "src/app/forge/05_forge_state_and_analysis.js",
-      "line": 24
+      "line": 36
     },
     {
       "name": "FNe",
       "file": "src/app/forge/05_forge_state_and_analysis.js",
-      "line": 24
+      "line": 36
     },
     {
       "name": "TNe",
       "file": "src/app/forge/05_forge_state_and_analysis.js",
-      "line": 24
+      "line": 36
     },
     {
       "name": "bU",
@@ -33476,19 +33481,16 @@
     },
     {
       "from": "src/app/forge/03_spectral_grid_and_archives.js",
-      "to": "src/vendor/01_react_dom.js",
+      "to": "src/storage/05_project_snapshots.js",
       "symbols": [
-        "P"
+        "__ForgeProjectSnapshot"
       ]
     },
     {
-      "from": "src/app/forge/04_profiles_and_body_models.js",
-      "to": "src/app/forge/02_boot_and_workspace_tools.js",
+      "from": "src/app/forge/03_spectral_grid_and_archives.js",
+      "to": "src/vendor/01_react_dom.js",
       "symbols": [
-        "Da",
-        "cc",
-        "nR",
-        "yu"
+        "P"
       ]
     },
     {
@@ -33555,13 +33557,6 @@
     },
     {
       "from": "src/app/forge/04_profiles_and_body_models.js",
-      "to": "src/forge/editor/01_display_and_canvas.js",
-      "symbols": [
-        "__forgeRestoreViewport"
-      ]
-    },
-    {
-      "from": "src/app/forge/04_profiles_and_body_models.js",
       "to": "src/forge/emilia/01_nodal_carrier.js",
       "symbols": [
         "__Emilia"
@@ -33580,6 +33575,13 @@
       "symbols": [
         "Dx",
         "gc"
+      ]
+    },
+    {
+      "from": "src/app/forge/04_profiles_and_body_models.js",
+      "to": "src/storage/05_project_snapshots.js",
+      "symbols": [
+        "__ForgeProjectSnapshot"
       ]
     },
     {
@@ -33674,6 +33676,13 @@
       "to": "src/forge/module_bundle/00_open.js",
       "symbols": [
         "__ForgeF33"
+      ]
+    },
+    {
+      "from": "src/app/forge/05_forge_state_and_analysis.js",
+      "to": "src/storage/06_history_budget.js",
+      "symbols": [
+        "__ForgeHistoryBudget"
       ]
     },
     {
@@ -42134,6 +42143,50 @@
       "to": "src/storage/02_donor_packages.js",
       "symbols": [
         "__PaketDonorF3568"
+      ]
+    },
+    {
+      "from": "src/storage/05_project_snapshots.js",
+      "to": "src/app/forge/02_boot_and_workspace_tools.js",
+      "symbols": [
+        "Da",
+        "cc",
+        "nR",
+        "yu"
+      ]
+    },
+    {
+      "from": "src/storage/05_project_snapshots.js",
+      "to": "src/app/forge/04_profiles_and_body_models.js",
+      "symbols": [
+        "CR",
+        "F0",
+        "NM",
+        "Rg",
+        "oi",
+        "qr",
+        "xDe"
+      ]
+    },
+    {
+      "from": "src/storage/05_project_snapshots.js",
+      "to": "src/forge/editor/01_display_and_canvas.js",
+      "symbols": [
+        "__forgeRestoreViewport"
+      ]
+    },
+    {
+      "from": "src/storage/05_project_snapshots.js",
+      "to": "src/forge/fractalia/03_instrument.js",
+      "symbols": [
+        "__Fractalia"
+      ]
+    },
+    {
+      "from": "src/storage/05_project_snapshots.js",
+      "to": "src/runtime/instrument/04_performance_and_output_profiles.js",
+      "symbols": [
+        "Sw"
       ]
     }
   ]

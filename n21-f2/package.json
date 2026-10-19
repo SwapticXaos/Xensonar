@@ -140,7 +140,10 @@
     "test:forge-ready": "node tests/forge-ready-contract.cjs && node tests/forge-progress-jobs.cjs && node tests/forge-ready-preservation.cjs && node build.cjs --verify",
     "test:forge-ready:browser": "node tests/forge-ready-browser.cjs",
     "test:pitch-space": "node tests/forge-pitch-space.cjs && node tests/forge-pitch-preservation.cjs && node build.cjs --verify",
-    "test:pitch-space:browser": "node tests/forge-pitch-browser.cjs"
+    "test:pitch-space:browser": "node tests/forge-pitch-browser.cjs",
+    "test:consolidation": "node tools/consolidation_validate.cjs",
+    "test:consolidation:browser": "node tools/consolidation_validate.cjs --browser",
+    "verify:release": "npm run test:consolidation && npm run test:consolidation:browser"
   },
   "devDependencies": {
     "playwright": "1.56.1",

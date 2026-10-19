@@ -1,0 +1,19 @@
+{
+  "base": "ff122aace46dac70ccb625bf1e2d3a1d70e66d33",
+  "unchanged": 222,
+  "changed": [
+    "src/forge/editor/02_tools_and_audio_inputs.js",
+    "src/forge/editor/03_synthetic_sound_engines.js",
+    "src/app/forge/04_profiles_and_body_models.js",
+    "src/app/forge/05_forge_state_and_analysis.js",
+    "src/forge_and_melodic/01_donor_selection_and_edits.js",
+    "src/forge_and_melodic/10_audition_and_persistence.js",
+    "src/forge/analysis/05_carrier_pitch_space.js",
+    "src/forge/editor/07_composition_and_preview_ui.js",
+    "src/forge/editor/09_workflow_controls.js",
+    "src/app/forge/03_spectral_grid_and_archives.js",
+    "src/storage/05_project_snapshots.js",
+    "src/storage/06_history_budget.js"
+  ],
+  "oscillatorsEnvelopesMixersUnchanged": true
+}

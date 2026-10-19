@@ -1,0 +1,24 @@
+{
+  "base": "0032c0968b113f58030df922a85d3d98af125d82",
+  "unchanged": 225,
+  "changedExisting": [
+    "src/forge/ui/02_donor_routing_and_hearing.js",
+    "src/forge/ui/03_microphone_intake.js",
+    "src/forge_and_melodic/10_audition_and_persistence.js",
+    "src/forge/editor/05_machine_and_carrier_projection.js",
+    "src/forge/editor/07_composition_and_preview_ui.js",
+    "src/forge/editor/02_tools_and_audio_inputs.js",
+    "src/forge/editor/03_synthetic_sound_engines.js",
+    "src/app/forge/04_profiles_and_body_models.js",
+    "src/app/forge/05_forge_state_and_analysis.js",
+    "src/forge_and_melodic/01_donor_selection_and_edits.js",
+    "src/forge/editor/09_workflow_controls.js",
+    "src/app/forge/03_spectral_grid_and_archives.js"
+  ],
+  "added": [
+    "src/forge/analysis/04_audio_to_carrier.js",
+    "src/forge/analysis/05_carrier_pitch_space.js",
+    "src/forge/ui/04_audio_to_carrier_controls.js"
+  ],
+  "synthesisKernelsUnchanged": true
+}

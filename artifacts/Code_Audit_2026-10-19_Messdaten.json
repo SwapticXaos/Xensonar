@@ -1,0 +1,19 @@
+{
+  "width": 2048,
+  "height": 512,
+  "gridBytes": 8388608,
+  "bodyBytes": 33554432,
+  "undoEntryBytes": 41943040,
+  "thirtyUndoBytes": 1258291200,
+  "serializedBodyMass": {
+    "xensonarArchiveOmittedTypedArray": true,
+    "format": "typed-array-metadata",
+    "type": "Float32Array",
+    "length": 1048576,
+    "byteLength": 4194304,
+    "previewLength": 1024
+  },
+  "portableLoadError": "TypeError: t.bodyMass.slice is not a function",
+  "context": "Chromium; production oLe/AQ/iLe/loadProjectSnapshot, instrumented access to unmodified functions; Body.resize at standard grid size; not a full package UI roundtrip",
+  "commit": "1179508dd99029be58554fc343a1ac4b9f781ae3"
+}
