@@ -1,0 +1,26 @@
+{
+  "errors": [],
+  "checks": [
+    "real OGG decoding; older delayed file cannot replace the latest source or auto-send to the Pink track",
+    "React input values survive deferred state updates without currentTarget crashes",
+    "intentional zero master volume can play a valid prepared sound without a false silent-source error",
+    "actual Navigator drag -> canonical rendering -> anti-click crop -> shared Sample Database WAV",
+    "Alt+drag retains navigator movement instead of sample selection",
+    "completed donor extraction remains authoritative over the different lower raw-audio mask",
+    "explicit trusted Pink-track send remains available after the guarded import"
+  ],
+  "sample": {
+    "name": "Integrated patch carrier · One Shot 20–60%.wav",
+    "duration": 0.4,
+    "channels": 1,
+    "peak": 0.110319584608078,
+    "first": 0.00002051454794127494,
+    "last": 0.000027590467652771622
+  },
+  "donor": {
+    "sameSource": true,
+    "sameModel": true,
+    "selected": true,
+    "duration": 0.2
+  }
+}

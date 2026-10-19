@@ -1,0 +1,120 @@
+{
+  "entry": "Xensonar_N21_F2_Integrated_Patches_Test.html",
+  "sha256": "bef56dbc13cc4b83ad04bf3e14876a36ed568908b2d3400093e33b18cb2fa278",
+  "startedAt": "2026-10-19T20:00:19.906Z",
+  "completedAt": "2026-10-19T20:01:25.697Z",
+  "running": false,
+  "scope": "Host behavior, production DSP/Worker tests and source preservation",
+  "rows": [
+    {
+      "name": "history-sharing",
+      "passed": true,
+      "exit": 0,
+      "signal": null,
+      "milliseconds": 8760
+    },
+    {
+      "name": "patch-integration",
+      "passed": true,
+      "exit": 0,
+      "signal": null,
+      "milliseconds": 2382
+    },
+    {
+      "name": "consolidation-snapshots",
+      "passed": true,
+      "exit": 0,
+      "signal": null,
+      "milliseconds": 17776
+    },
+    {
+      "name": "consolidation-history",
+      "passed": true,
+      "exit": 0,
+      "signal": null,
+      "milliseconds": 2513
+    },
+    {
+      "name": "consolidation-preservation",
+      "passed": true,
+      "exit": 0,
+      "signal": null,
+      "milliseconds": 658
+    },
+    {
+      "name": "rw2-source-index",
+      "passed": true,
+      "exit": 0,
+      "signal": null,
+      "milliseconds": 5198
+    },
+    {
+      "name": "forge-pitch-space",
+      "passed": true,
+      "exit": 0,
+      "signal": null,
+      "milliseconds": 5195
+    },
+    {
+      "name": "forge-ready-contract",
+      "passed": true,
+      "exit": 0,
+      "signal": null,
+      "milliseconds": 2813
+    },
+    {
+      "name": "forge-progress-jobs",
+      "passed": true,
+      "exit": 0,
+      "signal": null,
+      "milliseconds": 71
+    },
+    {
+      "name": "live-rfl-lifecycle",
+      "passed": true,
+      "exit": 0,
+      "signal": null,
+      "milliseconds": 3799
+    },
+    {
+      "name": "nodal-envelope-zero",
+      "passed": true,
+      "exit": 0,
+      "signal": null,
+      "milliseconds": 9057
+    },
+    {
+      "name": "workflow-grid-runtime",
+      "passed": true,
+      "exit": 0,
+      "signal": null,
+      "milliseconds": 1638
+    },
+    {
+      "name": "workflow-hotkeys",
+      "passed": true,
+      "exit": 0,
+      "signal": null,
+      "milliseconds": 1634
+    },
+    {
+      "name": "microphone-capture",
+      "passed": true,
+      "exit": 0,
+      "signal": null,
+      "milliseconds": 80
+    },
+    {
+      "name": "audio-carrier-analysis",
+      "passed": true,
+      "exit": 0,
+      "signal": null,
+      "milliseconds": 4039
+    },
+    {
+      "name": "build-reproducibility",
+      "passed": true
+    }
+  ],
+  "failed": 0
+}

@@ -43,22 +43,21 @@ function __f333AudiblePCM(buffer){
  if(!buffer||typeof buffer.getChannelData!=='function'||!Number.isFinite(buffer.length)||buffer.length<1)return false;
  if(__f333AudibleBuffers.has(buffer))return __f333AudibleBuffers.get(buffer);
  let audible=false;
- for(let ch=0;ch<Math.max(1,buffer.numberOfChannels||1)&&!audible;ch++){
-  const samples=buffer.getChannelData(ch);
-  for(let at=0;at<samples.length;at+=16){if(Number.isFinite(samples[at])&&Math.abs(samples[at])>1e-8){audible=true;break;}}
- }
- __f333AudibleBuffers.set(buffer,audible);
- return audible;
+ for(let ch=0;ch<buffer.numberOfChannels&&!audible;ch++)audible=__f333SamplesHaveSignal(buffer.getChannelData(ch));
+ __f333AudibleBuffers.set(buffer,audible);return audible;
 }
 const __f333AudibleSamples=new WeakMap();
-function __f333AudibleSource(source){
- const samples=source?.monoSamples;
+function __f333SamplesHaveSignal(samples){
  if(!samples?.length)return false;
  if(__f333AudibleSamples.has(samples))return __f333AudibleSamples.get(samples);
  let audible=false;
- for(let at=0;at<samples.length;at+=16)if(Number.isFinite(samples[at])&&Math.abs(samples[at])>1e-8){audible=true;break;}
- __f333AudibleSamples.set(samples,audible);
- return audible;
+ for(let at=0;at<samples.length;at++)if(Number.isFinite(samples[at])&&Math.abs(samples[at])>1e-8){audible=true;break;}
+ __f333AudibleSamples.set(samples,audible);return audible;
+}
+function __f333AudibleSource(source){
+ // The legacy reference/body readers consume monoSamples; their readiness
+ // must describe that signal rather than unused original stereo channels.
+ return __f333SamplesHaveSignal(source?.monoSamples);
 }
 
 // F4.4.9 trial: a return to the main room keeps the drawing and source
@@ -421,7 +420,7 @@ async function __f333RenderCurrent(state,options={}) {
  const needsGain=__F3564Master.getSnapshot().volume!==100;
  const result=await __f333RenderCurrentRaw(state,needsGain?{...options,flacBuffer:true}:options);
  if(!needsGain||!result.buffer)return result;
- return {...result,buffer:__f3564ApplyGain(result.buffer),blob:undefined};
+ return {...result,buffer:__f3564ApplyGain(result.buffer),signalBuffer:result.buffer,blob:undefined};
 }
 async function __f333PlayCurrent(state,options={}) {
   // Transport Play and "Listen to Figure with Donor" share the exact same lazy
@@ -440,7 +439,7 @@ async function __f333PlayCurrent(state,options={}) {
     {...options,isCurrent:current,loopPreview:state.materialExport.loopPreview});
   const rendered=await __f333RenderCurrent(state,options);
   if(!current())return false;
-  if(!__f333AudiblePCM(rendered.buffer))
+  if(!__f333AudiblePCM(rendered.signalBuffer??rendered.buffer))
    throw Error('The selected listening mode has no audible signal. Check the carrier figure and sound source.');
   const played=await xt.playBufferInternal(rendered.buffer,rendered.buffer.duration,options.fromPosition??0,
     p=>{if(current())options.onPosition?.(p)},()=>{if(current())options.onEnd?.()},
@@ -453,14 +452,14 @@ async function __f333PlayCurrent(state,options={}) {
 async function __f333SaveNavigatorSample(){
  const selected=__ForgeNavigatorSample.current();
  if(!selected)return false;
- const state=pe.getState(),revision=state.renderVersion,source=state.sourceAsset,route=__f333Route(state);
+ const state=pe.getState(),revision=state.renderVersion,source=state.sourceAsset,route=__f333Route(state),masterRevision=__F3564Master.getSnapshot().revision,hybridIdentity=route==='hybrid'?__F352Runtime.identity(state):null;
  if(__ForgeNavigatorSample.snapshot().busy)return false;
  __ForgeNavigatorSample.update({busy:true,message:'Rendering one-shot …'});
  try{
   // Render exactly the audible Forge listening route. Force an AudioBuffer even
   // on the legacy donor path, which otherwise exports a WAV blob directly.
   const render=await __f333RenderCurrent(state,{flacBuffer:true});
-  if(__ForgeNavigatorSample.current()!==selected||pe.getState().renderVersion!==revision||pe.getState().sourceAsset!==source||__f333Route(pe.getState())!==route)
+  if(__ForgeNavigatorSample.current()!==selected||pe.getState().renderVersion!==revision||pe.getState().sourceAsset!==source||__f333Route(pe.getState())!==route||__F3564Master.getSnapshot().revision!==masterRevision||(hybridIdentity&&__F352Runtime.identity()!==hybridIdentity))
    throw new Error('Figure or listening mode changed during sample rendering.');
   const buffer=render.buffer;
   if(!buffer||!buffer.length||!buffer.sampleRate)throw new Error('No playable PCM available for this listening mode.');
@@ -476,7 +475,8 @@ async function __f333SaveNavigatorSample(){
   for(let ch=0;ch<Math.min(2,buffer.numberOfChannels||1);ch++){
    const pcm=new Float32Array(frames),sourcePcm=buffer.getChannelData(ch);
    for(let i=0;i<frames;i++){
-    let value=sourcePcm[start+i]||0;
+    let value=sourcePcm[start+i];
+    if(!Number.isFinite(value))throw new Error('The selected audio contains invalid samples. Nothing was saved.');
     if(fade){if(i<fade)value*=i/fade;if(i>frames-1-fade)value*=(frames-1-i)/fade;}
     pcm[i]=value;peak=Math.max(peak,Math.abs(value));
    }

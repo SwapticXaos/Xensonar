@@ -1,0 +1,45 @@
+{
+  "local": {
+    "usage": {
+      "bytes": 44088740,
+      "maxBytes": 201326592,
+      "maxEntries": 30,
+      "undoEntries": 30,
+      "redoEntries": 0
+    },
+    "last": {
+      "copiedBytes": 49152,
+      "sharedBytes": 41893888,
+      "copiedPages": 3,
+      "sharedPages": 2557
+    },
+    "undoUsage": {
+      "bytes": 44088740,
+      "maxBytes": 201326592,
+      "maxEntries": 30,
+      "undoEntries": 0,
+      "redoEntries": 30
+    },
+    "redoUsage": {
+      "bytes": 44088740,
+      "maxBytes": 201326592,
+      "maxEntries": 30,
+      "undoEntries": 30,
+      "redoEntries": 0
+    },
+    "finalDetune": 0.90625
+  },
+  "edge": {
+    "exact": true,
+    "value": true,
+    "unchanged": true,
+    "empty": true
+  },
+  "dense": {
+    "bytes": 167868816,
+    "maxBytes": 201326592,
+    "maxEntries": 30,
+    "undoEntries": 4,
+    "redoEntries": 0
+  }
+}

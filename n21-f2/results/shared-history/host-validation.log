@@ -1,0 +1,65 @@
+
+## history-sharing
+PASS 30 full-size local edits, exact grid/body/grain/Detune Undo and Redo, shared page budget
+{"usage":{"bytes":44088740,"maxBytes":201326592,"maxEntries":30,"undoEntries":30,"redoEntries":0},"last":{"copiedBytes":49152,"sharedBytes":41893888,"copiedPages":3,"sharedPages":2557},"undoUsage":{"bytes":44088740,"maxBytes":201326592,"maxEntries":30,"undoEntries":0,"redoEntries":30},"redoUsage":{"bytes":44088740,"maxBytes":201326592,"maxEntries":30,"undoEntries":30,"redoEntries":0},"finalDetune":0.90625}
+PASS bit-exact signed zero/NaN, partial last pages, stamps, empty Body and zero-copy unchanged capture
+PASS dense changes still evict oldest snapshots within the same 192 MiB budget
+PASS project/archive snapshots retain their contiguous Float32 format
+
+## patch-integration
+PASS impulse, stereo-buffer audibility and matching legacy mono source readiness
+PASS Navigator stereo PCM/WAV duration, master-change invalidation, non-finite sample rejection and busy cleanup
+
+## consolidation-snapshots
+PASS archive codec restores complete raster, grain, body arrays and Detune
+PASS nine malformed snapshots rejected before any live workspace/transport/instrument mutation
+PASS typed-array offsets/types, long curves, empty legacy arrays and rejection of incomplete archive data
+PASS Fractalia storage failure leaves active workspace and transport intact
+
+## consolidation-history
+PASS shared-buffer accounting, combined count/byte limits, oldest-first eviction, oversized entry and full-size Body Undo/Redo
+{"usage":{"bytes":42308262,"maxBytes":201326592,"maxEntries":30,"undoEntries":7,"redoEntries":0},"undo":[0.6000000238418579,0.6000000238418579],"redo":[0.699999988079071,0.699999988079071],"after":{"bytes":42308262,"maxBytes":201326592,"maxEntries":30,"undoEntries":7,"redoEntries":0}}
+
+## consolidation-preservation
+PASS all four supplied patches retained; only reviewed history/audibility/sample adapters and one new history module change afterward
+PASS only archive codec adapters, project loader and history orchestration changed; all other source, DSP, UI and styles preserved
+
+## rw2-source-index
+PASS RW2 source-index freshness, 205 manifest entries, 6460 declarations, 1088 file dependency pairs
+
+## forge-pitch-space
+PASS local edit retains absolute pitch and chord intervals
+PASS explicit Detune, non-destructive render, Undo, snapshot roundtrip / portable metadata, old-project default and both absolute readers
+PASS nonzero Detune amounts survive Undo and Redo
+PASS lower Play uses actual percentage and ready/dirty colors
+
+## forge-ready-contract
+PASS audio-to-carrier retains last listening machine
+
+## forge-progress-jobs
+PASS joined/hidden render progress, shared PCM, monotonic bounds, instant cache, cancellation and retry
+
+## live-rfl-lifecycle
+{"rate":44100,"mode":"base","rootMessages":1550,"maxWindows":1,"skippedWindows":115,"peak":0.5459728837013245,"tailReleased":true}
+{"rate":44100,"mode":"fragment","rootMessages":1550,"maxWindows":1,"skippedWindows":115,"peak":1.198411226272583,"tailReleased":true}
+{"rate":48000,"mode":"base","rootMessages":1550,"maxWindows":1,"skippedWindows":115,"peak":0.5459033250808716,"tailReleased":true}
+{"rate":48000,"mode":"fragment","rootMessages":1550,"maxWindows":1,"skippedWindows":115,"peak":1.1153439283370972,"tailReleased":true}
+{"rate":96000,"mode":"base","rootMessages":1550,"maxWindows":1,"skippedWindows":114,"peak":0.5697279572486877,"tailReleased":true}
+{"rate":96000,"mode":"fragment","rootMessages":1550,"maxWindows":1,"skippedWindows":114,"peak":0.9831255674362183,"tailReleased":true}
+PASS RFL lifecycle: rapid/stale/invalid root updates, sample-rate mismatch, clock gaps, 128/256-frame quanta and complete tail release
+
+## nodal-envelope-zero
+PASS Nodal V1/V2 envelope: exact-zero mapping and PCM tails at 44.1/48/96 kHz; no/positive contours sample-identical; other backend field semantics retained
+
+## workflow-grid-runtime
+PASS global grid: real Wave Starter snap, keyboard restrictions, cached live view, authored restore, no muted timers or stale quantized replay
+
+## workflow-hotkeys
+PASS hotkeys: physical layout priority, canonical reorder/limit/unregister, same click activation, one transient pulse timer
+
+## microphone-capture
+PASS microphone lifecycle: file handoff, late permission/cancel, unmount, denial, encoder/error/empty data, 60s cap and complete resource cleanup
+
+## audio-carrier-analysis
+PASS 14 signal fixtures: harmonics, chords, native rates, noise gate, continuous pitch and PCM preservation
+PASS reproducible standalone HTML bef56dbc13cc4b83ad04bf3e14876a36ed568908b2d3400093e33b18cb2fa278 5599308

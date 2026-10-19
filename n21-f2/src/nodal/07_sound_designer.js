@@ -159,7 +159,7 @@ function NodalSoundDesigner({onModeChange}) {
   const selected = instrument.nodes.find(n => n.id === selectedId) ?? instrument.nodes[0];
   const plan = P.useMemo(() => __XenNodalModel.compile(instrument), [instrument]);
   const activeNodes = instrument.nodes.filter(n => !n.muted);
-  function stop() { generation.current++; backend.stop(); if (timer.current) clearInterval(timer.current); timer.current = null; setPhase('idle'); setProgress(0); setAnalyser(null); }
+  function stop() { if(autoPreviewTimer.current!==null){clearTimeout(autoPreviewTimer.current);autoPreviewTimer.current=null;} generation.current++; backend.stop(); if (timer.current) clearInterval(timer.current); timer.current = null; setPhase('idle'); setProgress(0); setAnalyser(null); }
   P.useEffect(() => {
     document.body.dataset.nodalSounddesign = 'true';
     try { setSaved(__XenNodalLibrary.list()); } catch (error) { setMessage(error.message); }

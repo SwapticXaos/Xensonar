@@ -1,0 +1,126 @@
+--- a/src/mix/03_quick_menu.js
++++ b/src/mix/03_quick_menu.js
+@@ -86,9 +86,10 @@
+   if(pan)observer?.observe(pan);if(panel)observer?.observe(panel);
+   return()=>{cancelAnimationFrame(frame);observer?.disconnect();window.removeEventListener('resize',queue);window.removeEventListener('scroll',queue);document.documentElement.style.removeProperty('--xen-quick-marker-top');document.documentElement.removeAttribute('data-xen-quick-page-list')};
+  },[occupied,needed]);
++ const allColumnsFilled=Object.values(columns).every(entries=>entries.length>0);
+  const collection=u.jsxs('div',{className:'xen-quick-collection'+(layout.migrated?' is-migrated':'')+(layout.documentList?' is-document':''),
+   style:layout.migrated?{right:'var(--xen-side-rail-inset)',width:layout.rightWidth}:undefined,
+-  children:[u.jsx(__QuickMuteRow,{params,update}),u.jsx('div',{className:'xen-quick-grid',children:Object.entries(columns).map(([kind,entries])=>u.jsx('div',{className:'xen-quick-column','data-xen-quick-column':kind,children:entries.map((entry,index)=>u.jsxs('button',{type:'button',className:'xen-quick-tile'+(s.tilePulse?.kind===kind&&s.tilePulse?.id===entry.id?' is-key-pulse':''),'data-xen-shortcut-kind':kind,'data-xen-shortcut-id':entry.id,title:entry.name,'aria-label':entry.name,onClick:()=>{setMessage(__XenQuick.activate(entry)?'':entry.name+' ist nicht mehr verfügbar.')},onContextMenu:e=>{e.preventDefault();setRemove(entry)},children:[u.jsx('span',{className:entry.kind==='rootFollow'?'xen-quick-rfl':'',children:__XenQuick.icons[entry.kind]}),' '+(index+1),u.jsx(__QuickHotkey,{kind,id:entry.id,params,hotkeys:s.hotkeys})]},entry.kind+':'+entry.id))},kind))}),
++  children:[u.jsx(__QuickMuteRow,{params,update,showIcons:!allColumnsFilled}),u.jsx('div',{className:'xen-quick-grid',children:Object.entries(columns).map(([kind,entries])=>u.jsx('div',{className:'xen-quick-column','data-xen-quick-column':kind,children:entries.map((entry,index)=>u.jsxs('button',{type:'button',className:'xen-quick-tile'+(s.tilePulse?.kind===kind&&s.tilePulse?.id===entry.id?' is-key-pulse':''),'data-xen-shortcut-kind':kind,'data-xen-shortcut-id':entry.id,title:entry.name,'aria-label':entry.name,onClick:()=>{setMessage(__XenQuick.activate(entry)?'':entry.name+' ist nicht mehr verfügbar.')},onContextMenu:e=>{e.preventDefault();setRemove(entry)},children:[u.jsx('span',{className:entry.kind==='rootFollow'?'xen-quick-rfl':'',children:__XenQuick.icons[entry.kind]}),' '+(index+1),u.jsx(__QuickHotkey,{kind,id:entry.id,params,hotkeys:s.hotkeys})]},entry.kind+':'+entry.id))},kind))}),
+    remove&&u.jsxs('div',{className:'xen-quick-confirm',children:[u.jsx('span',{children:'„'+remove.name+'“ entfernen?'}),u.jsx('button',{type:'button',onClick:()=>{__XenQuick.remove(remove);setRemove(null)},children:'Entfernen'}),u.jsx('button',{type:'button',onClick:()=>setRemove(null),children:'Abbrechen'})]}),message&&u.jsx('small',{role:'status',children:message})]});
+  const dock=u.jsxs('section',{className:'xen-quick-dock'+(flash?' is-ready':'')+(layout.migrated?' is-migrated':''),'aria-label':'Schnellmenü','data-xen-quick-hint':__XenQuickHelpText,
+   style:{top:layout.leftTop,height:layout.leftHeight,maxHeight:'none'},onPointerDown:e=>e.stopPropagation(),onMouseDown:e=>e.stopPropagation(),onClick:e=>e.stopPropagation(),
+@@ -256,10 +257,10 @@
+ 
+ // One canonical switch per column; Raster bypasses the RFL impulse timing.
+ const __QuickMuteLanes=Object.freeze({grid:['rootFollowImpulsRasterMuted','Raster',true],material:['materialLoopActive','Material Track'],rootFollow:['rootFollowLoopActive','Root Follow Loop'],drum:['drumActive','Drums'],bass:['bassActive','Bass']});
+-function __QuickMuteRow({params,update}){
++function __QuickMuteRow({params,update,showIcons=false}){
+  return u.jsx('div',{className:'xen-quick-mutes','aria-label':'Quick track mute',children:Object.entries(__QuickMuteLanes).map(([kind,[field,label,inverted]])=>{
+   const muted=inverted ? !!params[field] : !params[field];
+-  return u.jsx('button',{type:'button','data-quick-mute':kind,'aria-label':label+' mute','aria-pressed':muted,title:kind==='grid' ? (muted?'Raster einschalten':'Raster umgehen · RFL kontinuierlich spielen') : (muted?'Unmute ':'Mute ')+label,className:muted?'is-muted':'',onClick:()=>update({[field]:inverted ? !muted : muted}),'aria-description':kind==='grid'?'Bypasses the RFL impulse grid; saved pattern and timbre are preserved.':undefined},kind);
++  return u.jsx('button',{type:'button','data-quick-mute':kind,'aria-label':label+' mute','aria-pressed':muted,title:kind==='grid' ? (muted?'Raster einschalten':'Raster umgehen · RFL kontinuierlich spielen') : (muted?'Unmute ':'Mute ')+label,className:muted?'is-muted':'',onClick:()=>update({[field]:inverted ? !muted : muted}),'aria-description':kind==='grid'?'Bypasses the RFL impulse grid; saved pattern and timbre are preserved.':undefined,children:showIcons?u.jsx('span',{className:'xen-quick-mute-icon','aria-hidden':true,children:__XenQuick.icons[kind]}):null},kind);
+  })});
+ }
+ 
+--- a/src/nodal/07_sound_designer.js
++++ b/src/nodal/07_sound_designer.js
+@@ -91,12 +91,14 @@
+   const [dragView,setDragView] = P.useState(null);
+   const [instrument, setInstrument] = P.useState(initial.instrument), [selectedId, setSelectedId] = P.useState(initial.selectedId ?? initial.instrument.nodes[0].id);
+   const [tab, setTab] = P.useState(initial.tab), [phase, setPhase] = P.useState('idle'), [progress, setProgress] = P.useState(0);
++  const [autoPreview,setAutoPreview] = P.useState(false); // Per editor opening: opt in explicitly.
+   const [message, setMessage] = P.useState('Move nodes, adjust sound settings, or preview.'), [saved, setSaved] = P.useState([]), [ratioDraft, setRatioDraft] = P.useState('1');
+   const [soundTab, setSoundTab] = P.useState('material'), [analyser,setAnalyser] = P.useState(null);
+   const [withReference, setWithReference] = P.useState(true), [exported, setExported] = P.useState(null);
+   const [editTarget, setEditTarget] = P.useState(initial.editTarget ?? null);
+   const libraryEdit = initial.libraryEntry && !initial.editTarget;
+   const current = P.useRef(instrument), history = P.useRef(null), drag = P.useRef(null), generation = P.useRef(0), timer = P.useRef(null), phaseRef = P.useRef('idle');
++  const autoPreviewEnabled=P.useRef(false),autoPreviewTimer=P.useRef(null);
+   const svg = P.useRef(null), playStarted = P.useRef(0);
+   const fileInput = P.useRef(null), libraryIdentity = P.useRef(initial.libraryEntry ?? null);
+   const nodeFunctionMemory=P.useRef(new Map());
+@@ -161,7 +163,7 @@
+   P.useEffect(() => {
+     document.body.dataset.nodalSounddesign = 'true';
+     try { setSaved(__XenNodalLibrary.list()); } catch (error) { setMessage(error.message); }
+-    return () => { generation.current++; backend.stop(); if (timer.current) clearInterval(timer.current); delete document.body.dataset.nodalSounddesign; };
++    return () => { generation.current++; if(autoPreviewTimer.current!==null)clearTimeout(autoPreviewTimer.current); backend.stop(); if (timer.current) clearInterval(timer.current); delete document.body.dataset.nodalSounddesign; };
+   }, []);
+   P.useEffect(() => { setRatioDraft(nodalRatioText(selected)); }, [selected.id, selected.ratio]);
+   P.useLayoutEffect(() => { persist(instrument); }, [instrument, selectedId, tab]);
+@@ -178,6 +180,10 @@
+     if (phaseRef.current !== 'idle') stop();
+     current.current = normalized; persist(normalized); setInstrument(normalized); setExported(null);
+     if (!normalized.nodes.some(n=>n.id===selectedId)) setSelectedId(normalized.nodes[0].id);
++    // Changes are already committed/persisted. Avoid redundant costly previews
++    // while a slider is being moved; the latest committed snapshot always wins.
++    if(autoPreviewTimer.current!==null)clearTimeout(autoPreviewTimer.current);
++    if(autoPreviewEnabled.current)autoPreviewTimer.current=setTimeout(()=>{autoPreviewTimer.current=null;if(autoPreviewEnabled.current)audition();},180);
+   }
+   function editNode(patch, record = true) { commit({...current.current, nodes: current.current.nodes.map(n => n.id === selected.id ? {...n, ...patch} : n)}, record); }
+   function editArticulation(patch) { commit({...current.current, articulation: {...current.current.articulation, ...patch}}); }
+@@ -305,11 +311,13 @@
+       if(!e.defaultPrevented&&(e.ctrlKey||e.metaKey)&&!e.altKey&&e.key.toLowerCase()==='z'&&!e.target.matches('input,textarea,[contenteditable=true]')){e.preventDefault();applyHistory(e.shiftKey?'redo':'undo');}
+     }},
+     h('div',{className:'nd-toolbar'},
+-      h('div',{className:'nd-name nd-current-name'},h('span',null,'INSTRUMENT'),h('strong',null,instrument.name)),
++      h('div',{className:'nd-name nd-current-name'},h('span',null,'INSTRUMENT:'),' ',h('strong',null,instrument.name)),
+       h('label',null,h('span',null,'EXCITATION'),h('select',{value:instrument.excitation.kind,'aria-label':'Excitation',onChange:e=>commit({...instrument,excitation:{...instrument.excitation,kind:e.target.value}})},...['tone','impulse','breath'].map(k=>h('option',{key:k,value:k},k[0].toUpperCase()+k.slice(1))))),
+       h('label',null,h('span',null,'REFERENCE · Hz'),h('input',{type:'number',min:10,max:4000,step:.1,value:instrument.referenceHz,'aria-label':'Reference pitch',onChange:e=>{const v=+e.target.value;if(v>=10&&v<=4000)commit({...instrument,referenceHz:v});}})),
+       h('label',null,h('span',null,'DURATION · s'),h('input',{type:'number',min:.1,max:30,step:.1,value:instrument.articulation.durationSec,'aria-label':'Duration',onChange:e=>{const v=+e.target.value;if(v>=.1&&v<=30)editArticulation({durationSec:v});}})),
+-      h('button',{className:'nd-play '+(phase!=='idle'?'is-playing':''),'aria-label':phase==='preparing'?'Cancel preparation':phase==='playing'?'Stop preview':'Preview sound',onClick:()=>phase==='idle'?audition():stop()},phase==='idle'?'▶ Preview':phase==='preparing'?'■ Cancel':'■ Stop')),
++      h('div',{className:'nd-preview-control'},
++        h('button',{className:'nd-play '+(phase!=='idle'?'is-playing':''),'aria-label':phase==='preparing'?'Cancel preparation':phase==='playing'?'Stop preview':'Preview sound',onClick:()=>{if(autoPreviewTimer.current!==null){clearTimeout(autoPreviewTimer.current);autoPreviewTimer.current=null;}phase==='idle'?audition():stop();}},phase==='idle'?'▶ Preview':phase==='preparing'?'■ Cancel':'■ Stop'),
++        h('label',{className:'nd-auto-switch'},h('span',null,'Auto:'),h('input',{type:'checkbox','aria-label':'Auto preview',checked:autoPreview,onChange:e=>{const enabled=e.target.checked;autoPreviewEnabled.current=enabled;setAutoPreview(enabled);if(!enabled&&autoPreviewTimer.current!==null){clearTimeout(autoPreviewTimer.current);autoPreviewTimer.current=null;}}})))),
+     h('div',{className:'nd-preset-bank'},...__NodalOpenPresets.map(p=>h('button',{key:p.id,onClick:()=>loadPreset(p.id),title:p.hint,'aria-pressed':instrument.name===p.name+' Network'},h('i',{className:'nd-preset-glyph nd-glyph-'+p.id}),h('span',null,p.name),h('small',null,p.hint.split(' · ')[0])))),
+     h('div',{className:'nd-layout'},
+       h('div',{className:'nd-body-panel'},
+--- a/styles/20_nodal_sound_designer.css
++++ b/styles/20_nodal_sound_designer.css
+@@ -663,3 +663,10 @@
+   left:13px;
+   right:auto;
+ }
++
++/* N21-F2 auto audition: preview starts directly beneath the toolbar's top rule. */
++.nd-toolbar .nd-preview-control{align-self:stretch;display:flex;flex-direction:column;align-items:stretch;justify-content:flex-start;gap:4px;min-width:0}
++.nd-toolbar .nd-preview-control .nd-play{width:100%;min-height:32px}
++.nd-toolbar .nd-auto-switch{display:flex;align-items:center;justify-content:center;gap:7px;min-height:20px;color:#b7d6cf;font-size:10px;cursor:pointer;user-select:none}
++.nd-toolbar .nd-auto-switch input[type=checkbox]{margin:0;width:14px;height:14px;min-height:0;padding:0;accent-color:#8bd9bc;cursor:pointer}
++@media(max-width:760px){.nd-open-workshop .nd-toolbar .nd-preview-control{grid-column:3;grid-row:1}}
+--- a/styles/26_live_controls.css
++++ b/styles/26_live_controls.css
+@@ -3,6 +3,7 @@
+ .xen-quick-mutes button{display:block;width:100%;height:17px;min-height:17px;min-width:0;padding:0;border:1px solid #35d87a;border-radius:3px;background:#168e48;cursor:pointer}
+ .xen-quick-mutes button.is-muted{border-color:#ff6666;background:#c82836}
+ .xen-quick-mutes button:focus-visible{outline:2px solid #c3ffe0;outline-offset:2px}
++.xen-quick-mute-icon{display:block;font-size:11px;line-height:15px;text-align:center;pointer-events:none;filter:saturate(.85)}
+ /* The same two grid columns own both mix rows, including Solo transitions. */
+ .melodic-track-mix{display:grid;grid-template-columns:minmax(0,max-content) minmax(116px,1fr);gap:6px 8px;align-items:center}
+ .melodic-track-actions,.melodic-pattern-pan{display:flex;flex-wrap:wrap;align-items:center;gap:4px;min-width:0}
+--- a/docs/workflow-integrity-source-anchors.json
++++ b/docs/workflow-integrity-source-anchors.json
+@@ -1,7 +1,7 @@
+ {
+-  "src/mix/03_quick_menu.js": "eeb576b072ac5cbb774dc7be58342607a057c525d69dbc4d3b8db415c0eb181a",
++  "src/mix/03_quick_menu.js": "0a1fb8bb6ba95443081b6d05269d3b4f94a19ecde64f91dde4bd015f83a6075e",
+   "src/nodal/06_melodic_bridge.js": "72920f9d88760fcb395cf6b12abb2223446c8428e6285c0eaf63323dc878579a",
+-  "src/nodal/07_sound_designer.js": "7efaf1acd8e9c084bfb9e6bff535a1a997191787f974cd5d5b373fb8bd7ad354",
++  "src/nodal/07_sound_designer.js": "57f532aebe862cffbf89c305b4906f77bae523337211285ad127bfe2a9011e16",
+   "src/instruments/04_entrophon_melodic_audio.js": "824e50efe43a23ca8934b9e53bf35cc679cf805c4a621ad796896de3c01ea276",
+   "src/audio/01_voice_and_rfl_ownership.js": "76546b19610ba16b0818d7cea72420f8494a782d7cdde2c7301f71a13848015a",
+   "src/audio/03_recorder.js": "e3ec9d1ced5298297bcc2c18fe31dbe4c0363b01d0d607809b81821e630ddc03",
+@@ -16,7 +16,8 @@
+   "src/forge_and_melodic/06_note_editor_and_material_tools.js": "e7bca093062e31c02de8f9a30bd9a017c9da8eebda5ec214e686337afee62ab6",
+   "src/forge_and_melodic/07_tuning_and_logic_view.js": "9a42edd27ec28b642b6e9944d9dceff714a30b60ce9cb54715bde4357d09334f",
+   "src/mix/04_melodic_spatial.js": "a1eebc1cc3b0a7c559227da60019da3a3068f1fe3183c968c78353faeca9783f",
+-  "styles/26_live_controls.css": "46c74b1c8536c79bf4ebeafb307a066f880b070a730f10422cffe92a8d02307b",
++  "styles/26_live_controls.css": "982c47739f3c9cbb0ac7bb689ce58be56490f56a9d57026681055789b326c95e",
+   "src/mix/05_grid_runtime.js": "eec8e443ae3c2397a340da3c8335935cfec3e516f89331f8b57f85f30b95b7e6",
+-  "src/mix/06_custom_instruments.js": "4e09117f3171d4228a10343d44ce054220af027964b8885829e104d019b41070"
++  "src/mix/06_custom_instruments.js": "4e09117f3171d4228a10343d44ce054220af027964b8885829e104d019b41070",
++  "styles/20_nodal_sound_designer.css": "d13df44f3925ddfcdabbcb4a18d2530897bf23216d6a7b89d9f77e620acf94cd"
+ }

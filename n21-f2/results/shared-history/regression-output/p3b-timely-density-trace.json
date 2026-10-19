@@ -1,0 +1,375 @@
+{
+  "scope": "Six actual Qwe requests over 80ms with real gates/player/DSP and simulated ports; receipt is not physical output",
+  "enabled": true,
+  "session": 2,
+  "counts": {
+    "ingress|particle|requested": 6,
+    "gate32|particle|admitted": 6,
+    "nodal-surface|particle|bound": 6,
+    "nodal-player|particle|submitted": 6,
+    "worklet|particle|accepted": 6
+  },
+  "records": [
+    {
+      "seq": 1,
+      "eventId": "2:1",
+      "stage": "ingress",
+      "lane": "particle",
+      "reason": "requested",
+      "atMs": 1071.680614,
+      "eventTimeSec": 3.4,
+      "details": {
+        "origin": "host"
+      }
+    },
+    {
+      "seq": 2,
+      "eventId": "2:1",
+      "stage": "gate32",
+      "lane": "particle",
+      "reason": "admitted",
+      "atMs": 1071.69801,
+      "eventTimeSec": 3.4
+    },
+    {
+      "seq": 3,
+      "eventId": "2:1",
+      "stage": "nodal-surface",
+      "lane": "particle",
+      "reason": "bound",
+      "atMs": 1071.769538,
+      "eventTimeSec": 3.408,
+      "details": {
+        "desired": "nodal:A@1",
+        "active": "nodal:A@1"
+      }
+    },
+    {
+      "seq": 4,
+      "eventId": "2:1",
+      "stage": "nodal-player",
+      "lane": "particle",
+      "reason": "submitted",
+      "atMs": 1071.852324,
+      "eventTimeSec": 3.408,
+      "details": {
+        "voiceId": "voice-11",
+        "programId": "plan-1"
+      }
+    },
+    {
+      "seq": 5,
+      "eventId": "2:2",
+      "stage": "ingress",
+      "lane": "particle",
+      "reason": "requested",
+      "atMs": 1071.863494,
+      "eventTimeSec": 3.4,
+      "details": {
+        "origin": "host"
+      }
+    },
+    {
+      "seq": 6,
+      "eventId": "2:2",
+      "stage": "gate32",
+      "lane": "particle",
+      "reason": "admitted",
+      "atMs": 1071.865792,
+      "eventTimeSec": 3.4
+    },
+    {
+      "seq": 7,
+      "eventId": "2:2",
+      "stage": "nodal-surface",
+      "lane": "particle",
+      "reason": "bound",
+      "atMs": 1071.895321,
+      "eventTimeSec": 3.408,
+      "details": {
+        "desired": "nodal:A@1",
+        "active": "nodal:A@1"
+      }
+    },
+    {
+      "seq": 8,
+      "eventId": "2:2",
+      "stage": "nodal-player",
+      "lane": "particle",
+      "reason": "submitted",
+      "atMs": 1071.915251,
+      "eventTimeSec": 3.408,
+      "details": {
+        "voiceId": "voice-12",
+        "programId": "plan-1"
+      }
+    },
+    {
+      "seq": 9,
+      "eventId": "2:1",
+      "stage": "worklet",
+      "lane": "particle",
+      "reason": "accepted",
+      "atMs": 1072.160153,
+      "eventTimeSec": 3.408,
+      "details": {
+        "voiceId": "voice-11",
+        "programId": "plan-1"
+      }
+    },
+    {
+      "seq": 10,
+      "eventId": "2:2",
+      "stage": "worklet",
+      "lane": "particle",
+      "reason": "accepted",
+      "atMs": 1072.163937,
+      "eventTimeSec": 3.408,
+      "details": {
+        "voiceId": "voice-12",
+        "programId": "plan-1"
+      }
+    },
+    {
+      "seq": 11,
+      "eventId": "2:3",
+      "stage": "ingress",
+      "lane": "particle",
+      "reason": "requested",
+      "atMs": 1084.518353,
+      "eventTimeSec": 3.44,
+      "details": {
+        "origin": "host"
+      }
+    },
+    {
+      "seq": 12,
+      "eventId": "2:3",
+      "stage": "gate32",
+      "lane": "particle",
+      "reason": "admitted",
+      "atMs": 1084.530736,
+      "eventTimeSec": 3.44
+    },
+    {
+      "seq": 13,
+      "eventId": "2:3",
+      "stage": "nodal-surface",
+      "lane": "particle",
+      "reason": "bound",
+      "atMs": 1084.680142,
+      "eventTimeSec": 3.448,
+      "details": {
+        "desired": "nodal:A@1",
+        "active": "nodal:A@1"
+      }
+    },
+    {
+      "seq": 14,
+      "eventId": "2:3",
+      "stage": "nodal-player",
+      "lane": "particle",
+      "reason": "submitted",
+      "atMs": 1084.719006,
+      "eventTimeSec": 3.448,
+      "details": {
+        "voiceId": "voice-13",
+        "programId": "plan-1"
+      }
+    },
+    {
+      "seq": 15,
+      "eventId": "2:4",
+      "stage": "ingress",
+      "lane": "particle",
+      "reason": "requested",
+      "atMs": 1084.770104,
+      "eventTimeSec": 3.44,
+      "details": {
+        "origin": "host"
+      }
+    },
+    {
+      "seq": 16,
+      "eventId": "2:4",
+      "stage": "gate32",
+      "lane": "particle",
+      "reason": "admitted",
+      "atMs": 1084.774082,
+      "eventTimeSec": 3.44
+    },
+    {
+      "seq": 17,
+      "eventId": "2:4",
+      "stage": "nodal-surface",
+      "lane": "particle",
+      "reason": "bound",
+      "atMs": 1084.832859,
+      "eventTimeSec": 3.448,
+      "details": {
+        "desired": "nodal:A@1",
+        "active": "nodal:A@1"
+      }
+    },
+    {
+      "seq": 18,
+      "eventId": "2:4",
+      "stage": "nodal-player",
+      "lane": "particle",
+      "reason": "submitted",
+      "atMs": 1084.850678,
+      "eventTimeSec": 3.448,
+      "details": {
+        "voiceId": "voice-14",
+        "programId": "plan-1"
+      }
+    },
+    {
+      "seq": 19,
+      "eventId": "2:3",
+      "stage": "worklet",
+      "lane": "particle",
+      "reason": "accepted",
+      "atMs": 1084.946071,
+      "eventTimeSec": 3.448,
+      "details": {
+        "voiceId": "voice-13",
+        "programId": "plan-1"
+      }
+    },
+    {
+      "seq": 20,
+      "eventId": "2:4",
+      "stage": "worklet",
+      "lane": "particle",
+      "reason": "accepted",
+      "atMs": 1084.948428,
+      "eventTimeSec": 3.448,
+      "details": {
+        "voiceId": "voice-14",
+        "programId": "plan-1"
+      }
+    },
+    {
+      "seq": 21,
+      "eventId": "2:5",
+      "stage": "ingress",
+      "lane": "particle",
+      "reason": "requested",
+      "atMs": 1091.830578,
+      "eventTimeSec": 3.48,
+      "details": {
+        "origin": "host"
+      }
+    },
+    {
+      "seq": 22,
+      "eventId": "2:5",
+      "stage": "gate32",
+      "lane": "particle",
+      "reason": "admitted",
+      "atMs": 1091.840066,
+      "eventTimeSec": 3.48
+    },
+    {
+      "seq": 23,
+      "eventId": "2:5",
+      "stage": "nodal-surface",
+      "lane": "particle",
+      "reason": "bound",
+      "atMs": 1091.913384,
+      "eventTimeSec": 3.488,
+      "details": {
+        "desired": "nodal:A@1",
+        "active": "nodal:A@1"
+      }
+    },
+    {
+      "seq": 24,
+      "eventId": "2:5",
+      "stage": "nodal-player",
+      "lane": "particle",
+      "reason": "submitted",
+      "atMs": 1091.958666,
+      "eventTimeSec": 3.488,
+      "details": {
+        "voiceId": "voice-15",
+        "programId": "plan-1"
+      }
+    },
+    {
+      "seq": 25,
+      "eventId": "2:6",
+      "stage": "ingress",
+      "lane": "particle",
+      "reason": "requested",
+      "atMs": 1091.967761,
+      "eventTimeSec": 3.48,
+      "details": {
+        "origin": "host"
+      }
+    },
+    {
+      "seq": 26,
+      "eventId": "2:6",
+      "stage": "gate32",
+      "lane": "particle",
+      "reason": "admitted",
+      "atMs": 1091.969427,
+      "eventTimeSec": 3.48
+    },
+    {
+      "seq": 27,
+      "eventId": "2:6",
+      "stage": "nodal-surface",
+      "lane": "particle",
+      "reason": "bound",
+      "atMs": 1091.985556,
+      "eventTimeSec": 3.488,
+      "details": {
+        "desired": "nodal:A@1",
+        "active": "nodal:A@1"
+      }
+    },
+    {
+      "seq": 28,
+      "eventId": "2:6",
+      "stage": "nodal-player",
+      "lane": "particle",
+      "reason": "submitted",
+      "atMs": 1091.9935,
+      "eventTimeSec": 3.488,
+      "details": {
+        "voiceId": "voice-16",
+        "programId": "plan-1"
+      }
+    },
+    {
+      "seq": 29,
+      "eventId": "2:5",
+      "stage": "worklet",
+      "lane": "particle",
+      "reason": "accepted",
+      "atMs": 1092.033641,
+      "eventTimeSec": 3.488,
+      "details": {
+        "voiceId": "voice-15",
+        "programId": "plan-1"
+      }
+    },
+    {
+      "seq": 30,
+      "eventId": "2:6",
+      "stage": "worklet",
+      "lane": "particle",
+      "reason": "accepted",
+      "atMs": 1092.035669,
+      "eventTimeSec": 3.488,
+      "details": {
+        "voiceId": "voice-16",
+        "programId": "plan-1"
+      }
+    }
+  ],
+  "truncated": 0
+}

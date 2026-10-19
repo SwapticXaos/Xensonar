@@ -1,0 +1,2 @@
+PASS impulse, stereo-buffer audibility and matching legacy mono source readiness
+PASS Navigator stereo PCM/WAV duration, master-change invalidation, silent/non-finite sample rejection and busy cleanup

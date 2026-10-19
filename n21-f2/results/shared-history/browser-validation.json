@@ -1,0 +1,50 @@
+{
+  "entry": "Xensonar_N21_F2_Integrated_Patches_Test.html",
+  "sha256": "bef56dbc13cc4b83ad04bf3e14876a36ed568908b2d3400093e33b18cb2fa278",
+  "startedAt": "2026-10-19T20:00:25.517Z",
+  "completedAt": "2026-10-19T20:02:36.342Z",
+  "running": false,
+  "scope": "Native Chromium; no physical audio interface or cross-browser claim",
+  "rows": [
+    {
+      "name": "mute-auto-preview-browser",
+      "passed": true,
+      "exit": 0,
+      "signal": null,
+      "milliseconds": 9540
+    },
+    {
+      "name": "integrated-patches-browser",
+      "passed": true,
+      "exit": 0,
+      "signal": null,
+      "milliseconds": 7393
+    },
+    {
+      "name": "consolidation-browser",
+      "passed": true,
+      "exit": 0,
+      "signal": null,
+      "milliseconds": 14115
+    },
+    {
+      "name": "forge-ready-browser",
+      "passed": true,
+      "exit": 0,
+      "signal": null,
+      "milliseconds": 36442
+    },
+    {
+      "name": "forge-pitch-browser",
+      "passed": true,
+      "exit": 0,
+      "signal": null,
+      "milliseconds": 63185
+    },
+    {
+      "name": "build-reproducibility",
+      "passed": true
+    }
+  ],
+  "failed": 0
+}

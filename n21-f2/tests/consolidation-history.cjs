@@ -18,6 +18,6 @@ const runtime=h.run(`(()=>{
  pe.getState().redo();const redo=[g.get(0,0),ys().bodyMass[0]];
  return {usage,undo,redo,after:pe.getState().getHistoryUsage()};
 })()`);
-assert(runtime.usage.bytes<=runtime.usage.maxBytes);assert(runtime.usage.undoEntries<7&&runtime.usage.undoEntries>0);assert(Math.abs(runtime.undo[0]-.6)<1e-6);assert(Math.abs(runtime.undo[1]-.6)<1e-6);assert(Math.abs(runtime.redo[0]-.7)<1e-6);assert(Math.abs(runtime.redo[1]-.7)<1e-6);assert(runtime.after.bytes<=runtime.after.maxBytes);
+assert(runtime.usage.bytes<=runtime.usage.maxBytes);assert(runtime.usage.undoEntries===7);assert(Math.abs(runtime.undo[0]-.6)<1e-6);assert(Math.abs(runtime.undo[1]-.6)<1e-6);assert(Math.abs(runtime.redo[0]-.7)<1e-6);assert(Math.abs(runtime.redo[1]-.7)<1e-6);assert(runtime.after.bytes<=runtime.after.maxBytes);
 console.log('PASS shared-buffer accounting, combined count/byte limits, oldest-first eviction, oversized entry and full-size Body Undo/Redo');
 console.log(JSON.stringify(runtime));

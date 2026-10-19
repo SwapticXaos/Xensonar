@@ -1,0 +1,11 @@
+{
+  "errors": [],
+  "checks": [
+    "empty/partial palette shows five icons; filled columns hide icons; mute remains clickable",
+    "Auto defaults off, opt-in alone does not play, burst edits prepare only the latest committed sound through real Worker/WebAudio",
+    "disabling Auto cancels a pending preview",
+    "manual Preview cancels pending Auto without duplicate preparation",
+    "manual interval audition also cancels pending Auto instead of being replaced",
+    "unmount cancels pending preview and reopening requires opt-in again"
+  ]
+}

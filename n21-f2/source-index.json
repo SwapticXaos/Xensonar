@@ -64,17 +64,17 @@
     {
       "name": "__QuickMuteLanes",
       "file": "src/mix/03_quick_menu.js",
-      "line": 258
+      "line": 259
     },
     {
       "name": "__QuickMuteRow",
       "file": "src/mix/03_quick_menu.js",
-      "line": 259
+      "line": 260
     },
     {
       "name": "__QuickHotkey",
       "file": "src/mix/03_quick_menu.js",
-      "line": 266
+      "line": 267
     },
     {
       "name": "__mlPan",
@@ -569,12 +569,12 @@
     {
       "name": "NodalRoomHeader",
       "file": "src/nodal/07_sound_designer.js",
-      "line": 380
+      "line": 388
     },
     {
       "name": "koe",
       "file": "src/nodal/07_sound_designer.js",
-      "line": 399
+      "line": 407
     },
     {
       "name": "nodalImpactPreparationOrder",
@@ -807,14 +807,19 @@
       "line": 26
     },
     {
-      "name": "__ForgeTransportRack",
+      "name": "__ForgeNavigatorSaveButton",
       "file": "src/forge/editor/09_workflow_controls.js",
       "line": 38
     },
     {
+      "name": "__ForgeTransportRack",
+      "file": "src/forge/editor/09_workflow_controls.js",
+      "line": 50
+    },
+    {
       "name": "__PureDieterControls",
       "file": "src/forge/editor/09_workflow_controls.js",
-      "line": 101
+      "line": 114
     },
     {
       "name": "__PureDieter",
@@ -860,6 +865,11 @@
       "name": "__ForgeHistoryBudget",
       "file": "src/storage/06_history_budget.js",
       "line": 3
+    },
+    {
+      "name": "__ForgeHistorySnapshots",
+      "file": "src/storage/07_history_snapshots.js",
+      "line": 4
     },
     {
       "name": "__F35614AudioRef",
@@ -24287,104 +24297,109 @@
       "line": 130
     },
     {
+      "name": "__ForgeNavigatorSample",
+      "file": "src/forge/editor/01_display_and_canvas.js",
+      "line": 132
+    },
+    {
       "name": "G5e",
-      "file": "src/forge/editor/01_display_and_canvas.js",
-      "line": 130
-    },
-    {
-      "name": "H5e",
-      "file": "src/forge/editor/01_display_and_canvas.js",
-      "line": 130
-    },
-    {
-      "name": "V5e",
-      "file": "src/forge/editor/01_display_and_canvas.js",
-      "line": 130
-    },
-    {
-      "name": "YO",
-      "file": "src/forge/editor/01_display_and_canvas.js",
-      "line": 130
-    },
-    {
-      "name": "JO",
-      "file": "src/forge/editor/01_display_and_canvas.js",
-      "line": 130
-    },
-    {
-      "name": "W5e",
-      "file": "src/forge/editor/01_display_and_canvas.js",
-      "line": 130
-    },
-    {
-      "name": "U5e",
-      "file": "src/forge/editor/01_display_and_canvas.js",
-      "line": 130
-    },
-    {
-      "name": "ZO",
-      "file": "src/forge/editor/01_display_and_canvas.js",
-      "line": 130
-    },
-    {
-      "name": "X5e",
-      "file": "src/forge/editor/01_display_and_canvas.js",
-      "line": 130
-    },
-    {
-      "name": "e_",
-      "file": "src/forge/editor/01_display_and_canvas.js",
-      "line": 130
-    },
-    {
-      "name": "Y5e",
-      "file": "src/forge/editor/01_display_and_canvas.js",
-      "line": 130
-    },
-    {
-      "name": "J5e",
-      "file": "src/forge/editor/01_display_and_canvas.js",
-      "line": 130
-    },
-    {
-      "name": "Z5e",
-      "file": "src/forge/editor/01_display_and_canvas.js",
-      "line": 130
-    },
-    {
-      "name": "e4e",
-      "file": "src/forge/editor/01_display_and_canvas.js",
-      "line": 130
-    },
-    {
-      "name": "t4e",
-      "file": "src/forge/editor/01_display_and_canvas.js",
-      "line": 130
-    },
-    {
-      "name": "__forgeResizeViewportProjection",
-      "file": "src/forge/editor/01_display_and_canvas.js",
-      "line": 133
-    },
-    {
-      "name": "__forgeClampHorizontalViewport",
       "file": "src/forge/editor/01_display_and_canvas.js",
       "line": 144
     },
     {
-      "name": "n4e",
+      "name": "H5e",
       "file": "src/forge/editor/01_display_and_canvas.js",
-      "line": 149
+      "line": 147
     },
     {
-      "name": "__f35616StampBoundary",
+      "name": "V5e",
+      "file": "src/forge/editor/01_display_and_canvas.js",
+      "line": 147
+    },
+    {
+      "name": "YO",
+      "file": "src/forge/editor/01_display_and_canvas.js",
+      "line": 147
+    },
+    {
+      "name": "JO",
+      "file": "src/forge/editor/01_display_and_canvas.js",
+      "line": 147
+    },
+    {
+      "name": "W5e",
+      "file": "src/forge/editor/01_display_and_canvas.js",
+      "line": 147
+    },
+    {
+      "name": "U5e",
+      "file": "src/forge/editor/01_display_and_canvas.js",
+      "line": 147
+    },
+    {
+      "name": "ZO",
+      "file": "src/forge/editor/01_display_and_canvas.js",
+      "line": 147
+    },
+    {
+      "name": "X5e",
+      "file": "src/forge/editor/01_display_and_canvas.js",
+      "line": 147
+    },
+    {
+      "name": "e_",
+      "file": "src/forge/editor/01_display_and_canvas.js",
+      "line": 147
+    },
+    {
+      "name": "Y5e",
+      "file": "src/forge/editor/01_display_and_canvas.js",
+      "line": 147
+    },
+    {
+      "name": "J5e",
+      "file": "src/forge/editor/01_display_and_canvas.js",
+      "line": 147
+    },
+    {
+      "name": "Z5e",
+      "file": "src/forge/editor/01_display_and_canvas.js",
+      "line": 147
+    },
+    {
+      "name": "e4e",
+      "file": "src/forge/editor/01_display_and_canvas.js",
+      "line": 147
+    },
+    {
+      "name": "t4e",
+      "file": "src/forge/editor/01_display_and_canvas.js",
+      "line": 147
+    },
+    {
+      "name": "__forgeResizeViewportProjection",
+      "file": "src/forge/editor/01_display_and_canvas.js",
+      "line": 150
+    },
+    {
+      "name": "__forgeClampHorizontalViewport",
       "file": "src/forge/editor/01_display_and_canvas.js",
       "line": 161
     },
     {
+      "name": "n4e",
+      "file": "src/forge/editor/01_display_and_canvas.js",
+      "line": 166
+    },
+    {
+      "name": "__f35616StampBoundary",
+      "file": "src/forge/editor/01_display_and_canvas.js",
+      "line": 178
+    },
+    {
       "name": "r4e",
       "file": "src/forge/editor/01_display_and_canvas.js",
-      "line": 173
+      "line": 190
     },
     {
       "name": "a4e",
@@ -28059,532 +28074,532 @@
     {
       "name": "kGe",
       "file": "src/forge/ui/02_donor_routing_and_hearing.js",
-      "line": 156
+      "line": 164
     },
     {
       "name": "__F33BaseProof",
       "file": "src/forge/ui/02_donor_routing_and_hearing.js",
-      "line": 156
+      "line": 164
     },
     {
       "name": "PGe",
       "file": "src/forge/ui/02_donor_routing_and_hearing.js",
-      "line": 157
+      "line": 165
     },
     {
       "name": "IGe",
       "file": "src/forge/ui/02_donor_routing_and_hearing.js",
-      "line": 157
+      "line": 165
     },
     {
       "name": "EGe",
       "file": "src/forge/ui/02_donor_routing_and_hearing.js",
-      "line": 157
+      "line": 165
     },
     {
       "name": "l$",
       "file": "src/forge/ui/02_donor_routing_and_hearing.js",
-      "line": 157
+      "line": 165
     },
     {
       "name": "X_",
       "file": "src/forge/ui/02_donor_routing_and_hearing.js",
-      "line": 157
+      "line": 165
     },
     {
       "name": "c$",
       "file": "src/forge/ui/02_donor_routing_and_hearing.js",
-      "line": 157
+      "line": 165
     },
     {
       "name": "FGe",
       "file": "src/forge/ui/02_donor_routing_and_hearing.js",
-      "line": 157
+      "line": 165
     },
     {
       "name": "TGe",
       "file": "src/forge/ui/02_donor_routing_and_hearing.js",
-      "line": 157
+      "line": 165
     },
     {
       "name": "LGe",
       "file": "src/forge/ui/02_donor_routing_and_hearing.js",
-      "line": 157
+      "line": 165
     },
     {
       "name": "BGe",
       "file": "src/forge/ui/02_donor_routing_and_hearing.js",
-      "line": 157
+      "line": 165
     },
     {
       "name": "DGe",
       "file": "src/forge/ui/02_donor_routing_and_hearing.js",
-      "line": 157
+      "line": 165
     },
     {
       "name": "NGe",
       "file": "src/forge/ui/02_donor_routing_and_hearing.js",
-      "line": 157
+      "line": 165
     },
     {
       "name": "OGe",
       "file": "src/forge/ui/02_donor_routing_and_hearing.js",
-      "line": 157
+      "line": 165
     },
     {
       "name": "Y_",
       "file": "src/forge/ui/02_donor_routing_and_hearing.js",
-      "line": 157
+      "line": 165
     },
     {
       "name": "_Ge",
       "file": "src/forge/ui/02_donor_routing_and_hearing.js",
-      "line": 157
+      "line": 165
     },
     {
       "name": "zGe",
       "file": "src/forge/ui/02_donor_routing_and_hearing.js",
-      "line": 157
+      "line": 165
     },
     {
       "name": "jGe",
       "file": "src/forge/ui/02_donor_routing_and_hearing.js",
-      "line": 157
+      "line": 165
     },
     {
       "name": "HGe",
       "file": "src/forge/ui/02_donor_routing_and_hearing.js",
-      "line": 157
+      "line": 165
     },
     {
       "name": "gp",
       "file": "src/forge/ui/02_donor_routing_and_hearing.js",
-      "line": 157
+      "line": 165
     },
     {
       "name": "VGe",
       "file": "src/forge/ui/02_donor_routing_and_hearing.js",
-      "line": 157
+      "line": 165
     },
     {
       "name": "WGe",
       "file": "src/forge/ui/02_donor_routing_and_hearing.js",
-      "line": 157
+      "line": 165
     },
     {
       "name": "gA",
       "file": "src/forge/ui/02_donor_routing_and_hearing.js",
-      "line": 157
+      "line": 165
     },
     {
       "name": "qGe",
       "file": "src/forge/ui/02_donor_routing_and_hearing.js",
-      "line": 157
+      "line": 165
     },
     {
       "name": "__F341BaseHearing",
       "file": "src/forge/ui/02_donor_routing_and_hearing.js",
-      "line": 157
+      "line": 165
     },
     {
       "name": "UGe",
       "file": "src/forge/ui/02_donor_routing_and_hearing.js",
-      "line": 159
+      "line": 167
     },
     {
       "name": "KGe",
       "file": "src/forge/ui/02_donor_routing_and_hearing.js",
-      "line": 159
+      "line": 167
     },
     {
       "name": "$Ge",
       "file": "src/forge/ui/02_donor_routing_and_hearing.js",
-      "line": 159
+      "line": 167
     },
     {
       "name": "XGe",
       "file": "src/forge/ui/02_donor_routing_and_hearing.js",
-      "line": 159
+      "line": 167
     },
     {
       "name": "Zb",
       "file": "src/forge/ui/02_donor_routing_and_hearing.js",
-      "line": 159
+      "line": 167
     },
     {
       "name": "YGe",
       "file": "src/forge/ui/02_donor_routing_and_hearing.js",
-      "line": 159
+      "line": 167
     },
     {
       "name": "J_",
       "file": "src/forge/ui/02_donor_routing_and_hearing.js",
-      "line": 159
+      "line": 167
     },
     {
       "name": "Z_",
       "file": "src/forge/ui/02_donor_routing_and_hearing.js",
-      "line": 159
+      "line": 167
     },
     {
       "name": "JGe",
       "file": "src/forge/ui/02_donor_routing_and_hearing.js",
-      "line": 159
+      "line": 167
     },
     {
       "name": "ZGe",
       "file": "src/forge/ui/02_donor_routing_and_hearing.js",
-      "line": 159
+      "line": 167
     },
     {
       "name": "u$",
       "file": "src/forge/ui/02_donor_routing_and_hearing.js",
-      "line": 159
+      "line": 167
     },
     {
       "name": "eHe",
       "file": "src/forge/ui/02_donor_routing_and_hearing.js",
-      "line": 159
+      "line": 167
     },
     {
       "name": "QM",
       "file": "src/forge/ui/02_donor_routing_and_hearing.js",
-      "line": 159
+      "line": 167
     },
     {
       "name": "UM",
       "file": "src/forge/ui/02_donor_routing_and_hearing.js",
-      "line": 159
+      "line": 167
     },
     {
       "name": "tHe",
       "file": "src/forge/ui/02_donor_routing_and_hearing.js",
-      "line": 159
+      "line": 167
     },
     {
       "name": "nHe",
       "file": "src/forge/ui/02_donor_routing_and_hearing.js",
-      "line": 159
+      "line": 167
     },
     {
       "name": "rHe",
       "file": "src/forge/ui/02_donor_routing_and_hearing.js",
-      "line": 159
+      "line": 167
     },
     {
       "name": "ez",
       "file": "src/forge/ui/02_donor_routing_and_hearing.js",
-      "line": 159
+      "line": 167
     },
     {
       "name": "tz",
       "file": "src/forge/ui/02_donor_routing_and_hearing.js",
-      "line": 159
+      "line": 167
     },
     {
       "name": "aHe",
       "file": "src/forge/ui/02_donor_routing_and_hearing.js",
-      "line": 159
+      "line": 167
     },
     {
       "name": "la",
       "file": "src/forge/ui/02_donor_routing_and_hearing.js",
-      "line": 159
+      "line": 167
     },
     {
       "name": "oHe",
       "file": "src/forge/ui/02_donor_routing_and_hearing.js",
-      "line": 159
+      "line": 167
     },
     {
       "name": "iHe",
       "file": "src/forge/ui/02_donor_routing_and_hearing.js",
-      "line": 159
+      "line": 167
     },
     {
       "name": "sHe",
       "file": "src/forge/ui/02_donor_routing_and_hearing.js",
-      "line": 159
+      "line": 167
     },
     {
       "name": "Hn",
       "file": "src/forge/ui/02_donor_routing_and_hearing.js",
-      "line": 159
+      "line": 167
     },
     {
       "name": "lHe",
       "file": "src/forge/ui/02_donor_routing_and_hearing.js",
-      "line": 159
+      "line": 167
     },
     {
       "name": "cHe",
       "file": "src/forge/ui/02_donor_routing_and_hearing.js",
-      "line": 159
+      "line": 167
     },
     {
       "name": "uHe",
       "file": "src/forge/ui/02_donor_routing_and_hearing.js",
-      "line": 159
+      "line": 167
     },
     {
       "name": "dHe",
       "file": "src/forge/ui/02_donor_routing_and_hearing.js",
-      "line": 159
+      "line": 167
     },
     {
       "name": "mHe",
       "file": "src/forge/ui/02_donor_routing_and_hearing.js",
-      "line": 159
+      "line": 167
     },
     {
       "name": "pHe",
       "file": "src/forge/ui/02_donor_routing_and_hearing.js",
-      "line": 159
+      "line": 167
     },
     {
       "name": "hHe",
       "file": "src/forge/ui/02_donor_routing_and_hearing.js",
-      "line": 159
+      "line": 167
     },
     {
       "name": "fHe",
       "file": "src/forge/ui/02_donor_routing_and_hearing.js",
-      "line": 159
+      "line": 167
     },
     {
       "name": "gHe",
       "file": "src/forge/ui/02_donor_routing_and_hearing.js",
-      "line": 159
+      "line": 167
     },
     {
       "name": "bHe",
       "file": "src/forge/ui/02_donor_routing_and_hearing.js",
-      "line": 159
+      "line": 167
     },
     {
       "name": "yHe",
       "file": "src/forge/ui/02_donor_routing_and_hearing.js",
-      "line": 159
+      "line": 167
     },
     {
       "name": "d$",
       "file": "src/forge/ui/02_donor_routing_and_hearing.js",
-      "line": 159
+      "line": 167
     },
     {
       "name": "nz",
       "file": "src/forge/ui/02_donor_routing_and_hearing.js",
-      "line": 159
+      "line": 167
     },
     {
       "name": "SHe",
       "file": "src/forge/ui/02_donor_routing_and_hearing.js",
-      "line": 159
+      "line": 167
     },
     {
       "name": "vHe",
       "file": "src/forge/ui/02_donor_routing_and_hearing.js",
-      "line": 159
+      "line": 167
     },
     {
       "name": "AHe",
       "file": "src/forge/ui/02_donor_routing_and_hearing.js",
-      "line": 159
+      "line": 167
     },
     {
       "name": "xHe",
       "file": "src/forge/ui/02_donor_routing_and_hearing.js",
-      "line": 159
+      "line": 167
     },
     {
       "name": "MHe",
       "file": "src/forge/ui/02_donor_routing_and_hearing.js",
-      "line": 159
+      "line": 167
     },
     {
       "name": "wHe",
       "file": "src/forge/ui/02_donor_routing_and_hearing.js",
-      "line": 159
+      "line": 167
     },
     {
       "name": "RHe",
       "file": "src/forge/ui/02_donor_routing_and_hearing.js",
-      "line": 159
+      "line": 167
     },
     {
       "name": "CHe",
       "file": "src/forge/ui/02_donor_routing_and_hearing.js",
-      "line": 159
+      "line": 167
     },
     {
       "name": "kHe",
       "file": "src/forge/ui/02_donor_routing_and_hearing.js",
-      "line": 159
+      "line": 167
     },
     {
       "name": "PHe",
       "file": "src/forge/ui/02_donor_routing_and_hearing.js",
-      "line": 159
+      "line": 167
     },
     {
       "name": "IHe",
       "file": "src/forge/ui/02_donor_routing_and_hearing.js",
-      "line": 159
+      "line": 167
     },
     {
       "name": "EHe",
       "file": "src/forge/ui/02_donor_routing_and_hearing.js",
-      "line": 159
+      "line": 167
     },
     {
       "name": "FHe",
       "file": "src/forge/ui/02_donor_routing_and_hearing.js",
-      "line": 159
+      "line": 167
     },
     {
       "name": "THe",
       "file": "src/forge/ui/02_donor_routing_and_hearing.js",
-      "line": 159
+      "line": 167
     },
     {
       "name": "LHe",
       "file": "src/forge/ui/02_donor_routing_and_hearing.js",
-      "line": 159
+      "line": 167
     },
     {
       "name": "BHe",
       "file": "src/forge/ui/02_donor_routing_and_hearing.js",
-      "line": 159
+      "line": 167
     },
     {
       "name": "DHe",
       "file": "src/forge/ui/02_donor_routing_and_hearing.js",
-      "line": 159
+      "line": 167
     },
     {
       "name": "uS",
       "file": "src/forge/ui/02_donor_routing_and_hearing.js",
-      "line": 159
+      "line": 167
     },
     {
       "name": "KM",
       "file": "src/forge/ui/02_donor_routing_and_hearing.js",
-      "line": 159
+      "line": 167
     },
     {
       "name": "bp",
       "file": "src/forge/ui/02_donor_routing_and_hearing.js",
-      "line": 159
+      "line": 167
     },
     {
       "name": "XB",
       "file": "src/forge/ui/02_donor_routing_and_hearing.js",
-      "line": 159
+      "line": 167
     },
     {
       "name": "NHe",
       "file": "src/forge/ui/02_donor_routing_and_hearing.js",
-      "line": 159
+      "line": 167
     },
     {
       "name": "OHe",
       "file": "src/forge/ui/02_donor_routing_and_hearing.js",
-      "line": 159
+      "line": 167
     },
     {
       "name": "QE",
       "file": "src/forge/ui/02_donor_routing_and_hearing.js",
-      "line": 159
+      "line": 167
     },
     {
       "name": "_He",
       "file": "src/forge/ui/02_donor_routing_and_hearing.js",
-      "line": 159
+      "line": 167
     },
     {
       "name": "zHe",
       "file": "src/forge/ui/02_donor_routing_and_hearing.js",
-      "line": 159
+      "line": 167
     },
     {
       "name": "__F34LibrarySmallView",
       "file": "src/forge/ui/02_donor_routing_and_hearing.js",
-      "line": 161
+      "line": 169
     },
     {
       "name": "__F34CompactLibrary",
       "file": "src/forge/ui/02_donor_routing_and_hearing.js",
-      "line": 168
+      "line": 176
     },
     {
       "name": "jHe",
       "file": "src/forge/ui/02_donor_routing_and_hearing.js",
-      "line": 204
+      "line": 212
     },
     {
       "name": "GHe",
       "file": "src/forge/ui/02_donor_routing_and_hearing.js",
-      "line": 229
+      "line": 237
     },
     {
       "name": "HHe",
       "file": "src/forge/ui/02_donor_routing_and_hearing.js",
-      "line": 229
+      "line": 237
     },
     {
       "name": "VHe",
       "file": "src/forge/ui/02_donor_routing_and_hearing.js",
-      "line": 229
+      "line": 237
     },
     {
       "name": "WHe",
       "file": "src/forge/ui/02_donor_routing_and_hearing.js",
-      "line": 229
+      "line": 237
     },
     {
       "name": "qHe",
       "file": "src/forge/ui/02_donor_routing_and_hearing.js",
-      "line": 229
+      "line": 237
     },
     {
       "name": "QHe",
       "file": "src/forge/ui/02_donor_routing_and_hearing.js",
-      "line": 229
+      "line": 237
     },
     {
       "name": "UHe",
       "file": "src/forge/ui/02_donor_routing_and_hearing.js",
-      "line": 229
+      "line": 237
     },
     {
       "name": "KHe",
       "file": "src/forge/ui/02_donor_routing_and_hearing.js",
-      "line": 229
+      "line": 237
     },
     {
       "name": "$He",
       "file": "src/forge/ui/02_donor_routing_and_hearing.js",
-      "line": 229
+      "line": 237
     },
     {
       "name": "XHe",
       "file": "src/forge/ui/02_donor_routing_and_hearing.js",
-      "line": 229
+      "line": 237
     },
     {
       "name": "YHe",
       "file": "src/forge/ui/02_donor_routing_and_hearing.js",
-      "line": 229
+      "line": 237
     },
     {
       "name": "__CustomStampLibrary",
       "file": "src/forge/ui/02_donor_routing_and_hearing.js",
-      "line": 229
+      "line": 237
     },
     {
       "name": "__F35611DonorIntent",
       "file": "src/forge/ui/02_donor_routing_and_hearing.js",
-      "line": 229
+      "line": 237
     },
     {
       "name": "__f35645PairedMethods",
@@ -31537,264 +31552,294 @@
       "line": 27
     },
     {
+      "name": "__f333AudibleBuffers",
+      "file": "src/forge_and_melodic/10_audition_and_persistence.js",
+      "line": 41
+    },
+    {
+      "name": "__f333AudiblePCM",
+      "file": "src/forge_and_melodic/10_audition_and_persistence.js",
+      "line": 42
+    },
+    {
+      "name": "__f333AudibleSamples",
+      "file": "src/forge_and_melodic/10_audition_and_persistence.js",
+      "line": 49
+    },
+    {
+      "name": "__f333SamplesHaveSignal",
+      "file": "src/forge_and_melodic/10_audition_and_persistence.js",
+      "line": 50
+    },
+    {
+      "name": "__f333AudibleSource",
+      "file": "src/forge_and_melodic/10_audition_and_persistence.js",
+      "line": 57
+    },
+    {
       "name": "__f449ReleaseForgeDerivedCaches",
       "file": "src/forge_and_melodic/10_audition_and_persistence.js",
-      "line": 40
+      "line": 65
     },
     {
       "name": "__f333HearingCacheKey",
       "file": "src/forge_and_melodic/10_audition_and_persistence.js",
-      "line": 48
+      "line": 73
     },
     {
       "name": "__f333CachedPreviewReady",
       "file": "src/forge_and_melodic/10_audition_and_persistence.js",
-      "line": 61
+      "line": 86
     },
     {
       "name": "__f333Stop",
       "file": "src/forge_and_melodic/10_audition_and_persistence.js",
-      "line": 77
+      "line": 102
     },
     {
       "name": "__f333Idle",
       "file": "src/forge_and_melodic/10_audition_and_persistence.js",
-      "line": 85
+      "line": 110
     },
     {
       "name": "__f333WorkingSource",
       "file": "src/forge_and_melodic/10_audition_and_persistence.js",
-      "line": 89
+      "line": 114
     },
     {
       "name": "__f333AttachTransitionGuard",
       "file": "src/forge_and_melodic/10_audition_and_persistence.js",
-      "line": 93
+      "line": 118
     },
     {
       "name": "__f333Signature",
       "file": "src/forge_and_melodic/10_audition_and_persistence.js",
-      "line": 109
+      "line": 134
     },
     {
       "name": "__f333Curve",
       "file": "src/forge_and_melodic/10_audition_and_persistence.js",
-      "line": 115
+      "line": 140
     },
     {
       "name": "__f333BuildCarrier",
       "file": "src/forge_and_melodic/10_audition_and_persistence.js",
-      "line": 120
+      "line": 145
     },
     {
       "name": "__f333CarrierColumn",
       "file": "src/forge_and_melodic/10_audition_and_persistence.js",
-      "line": 143
+      "line": 168
     },
     {
       "name": "__f333MaterializeCarrier",
       "file": "src/forge_and_melodic/10_audition_and_persistence.js",
-      "line": 157
+      "line": 182
     },
     {
       "name": "__f333ReadCarrier",
       "file": "src/forge_and_melodic/10_audition_and_persistence.js",
-      "line": 172
+      "line": 197
     },
     {
       "name": "__f333CarrierSkeleton",
       "file": "src/forge_and_melodic/10_audition_and_persistence.js",
-      "line": 176
+      "line": 201
     },
     {
       "name": "__f333HearingRequest",
       "file": "src/forge_and_melodic/10_audition_and_persistence.js",
-      "line": 182
+      "line": 207
     },
     {
       "name": "__f333RenderHearing",
       "file": "src/forge_and_melodic/10_audition_and_persistence.js",
-      "line": 189
+      "line": 214
     },
     {
       "name": "__f3565PitchSemis",
       "file": "src/forge_and_melodic/10_audition_and_persistence.js",
-      "line": 258
+      "line": 283
     },
     {
       "name": "__f3565PitchRatio",
       "file": "src/forge_and_melodic/10_audition_and_persistence.js",
-      "line": 259
+      "line": 284
     },
     {
       "name": "__f3565PitchGrid",
       "file": "src/forge_and_melodic/10_audition_and_persistence.js",
-      "line": 262
+      "line": 287
     },
     {
       "name": "__f3565PitchSupport",
       "file": "src/forge_and_melodic/10_audition_and_persistence.js",
-      "line": 282
+      "line": 307
     },
     {
       "name": "__F3564Master",
       "file": "src/forge_and_melodic/10_audition_and_persistence.js",
-      "line": 288
+      "line": 313
     },
     {
       "name": "__f3564Live",
       "file": "src/forge_and_melodic/10_audition_and_persistence.js",
-      "line": 303
+      "line": 328
     },
     {
       "name": "__f3564PeakMemo",
       "file": "src/forge_and_melodic/10_audition_and_persistence.js",
-      "line": 304
+      "line": 329
     },
     {
       "name": "__f3564BufferPeak",
       "file": "src/forge_and_melodic/10_audition_and_persistence.js",
-      "line": 305
+      "line": 330
     },
     {
       "name": "__f3564SafeGain",
       "file": "src/forge_and_melodic/10_audition_and_persistence.js",
-      "line": 315
+      "line": 340
     },
     {
       "name": "__f3564ActivateLiveGain",
       "file": "src/forge_and_melodic/10_audition_and_persistence.js",
-      "line": 320
+      "line": 345
     },
     {
       "name": "__f3564UpdateLiveGain",
       "file": "src/forge_and_melodic/10_audition_and_persistence.js",
-      "line": 326
+      "line": 351
     },
     {
       "name": "__f3564ApplyGain",
       "file": "src/forge_and_melodic/10_audition_and_persistence.js",
-      "line": 336
+      "line": 361
     },
     {
       "name": "__f352Enabled",
       "file": "src/forge_and_melodic/10_audition_and_persistence.js",
-      "line": 349
+      "line": 374
     },
     {
       "name": "LU",
       "file": "src/forge_and_melodic/10_audition_and_persistence.js",
-      "line": 350
+      "line": 375
     },
     {
       "name": "KO",
       "file": "src/forge_and_melodic/10_audition_and_persistence.js",
-      "line": 351
+      "line": 376
     },
     {
       "name": "__f333Route",
       "file": "src/forge_and_melodic/10_audition_and_persistence.js",
-      "line": 352
+      "line": 377
     },
     {
       "name": "__f333RenderCurrentRaw",
       "file": "src/forge_and_melodic/10_audition_and_persistence.js",
-      "line": 368
+      "line": 393
     },
     {
       "name": "__f333RenderCurrent",
       "file": "src/forge_and_melodic/10_audition_and_persistence.js",
-      "line": 394
+      "line": 419
     },
     {
       "name": "__f333PlayCurrent",
       "file": "src/forge_and_melodic/10_audition_and_persistence.js",
-      "line": 400
+      "line": 425
+    },
+    {
+      "name": "__f333SaveNavigatorSample",
+      "file": "src/forge_and_melodic/10_audition_and_persistence.js",
+      "line": 452
     },
     {
       "name": "__f333ExportCurrent",
       "file": "src/forge_and_melodic/10_audition_and_persistence.js",
-      "line": 423
+      "line": 496
     },
     {
       "name": "__f345ExportFlacCurrent",
       "file": "src/forge_and_melodic/10_audition_and_persistence.js",
-      "line": 432
+      "line": 505
     },
     {
       "name": "__f333CurrentLabel",
       "file": "src/forge_and_melodic/10_audition_and_persistence.js",
-      "line": 447
+      "line": 520
     },
     {
       "name": "__f333PersistNow",
       "file": "src/forge_and_melodic/10_audition_and_persistence.js",
-      "line": 453
+      "line": 526
     },
     {
       "name": "__f334TransferEvent",
       "file": "src/forge_and_melodic/10_audition_and_persistence.js",
-      "line": 460
+      "line": 533
     },
     {
       "name": "__f334NoticeEvent",
       "file": "src/forge_and_melodic/10_audition_and_persistence.js",
-      "line": 461
+      "line": 534
     },
     {
       "name": "__f334TransferNotice",
       "file": "src/forge_and_melodic/10_audition_and_persistence.js",
-      "line": 462
+      "line": 535
     },
     {
       "name": "__f334Notice",
       "file": "src/forge_and_melodic/10_audition_and_persistence.js",
-      "line": 463
+      "line": 536
     },
     {
       "name": "__f334HasPendingCarrier",
       "file": "src/forge_and_melodic/10_audition_and_persistence.js",
-      "line": 467
+      "line": 540
     },
     {
       "name": "__f334CreateTransfer",
       "file": "src/forge_and_melodic/10_audition_and_persistence.js",
-      "line": 468
+      "line": 541
     },
     {
       "name": "__f334CommitCarrier",
       "file": "src/forge_and_melodic/10_audition_and_persistence.js",
-      "line": 483
+      "line": 556
     },
     {
       "name": "__f334ReceiveCarrier",
       "file": "src/forge_and_melodic/10_audition_and_persistence.js",
-      "line": 505
+      "line": 578
     },
     {
       "name": "__f340SeekFromNavigator",
       "file": "src/forge_and_melodic/10_audition_and_persistence.js",
-      "line": 525
+      "line": 598
     },
     {
       "name": "__F341Spectrograms",
       "file": "src/forge_and_melodic/10_audition_and_persistence.js",
-      "line": 540
+      "line": 613
     },
     {
       "name": "__f341Spectrogram",
       "file": "src/forge_and_melodic/10_audition_and_persistence.js",
-      "line": 541
+      "line": 614
     },
     {
       "name": "__mlSendRenderedAudioToSpectral",
       "file": "src/forge_and_melodic/10_audition_and_persistence.js",
-      "line": 560
+      "line": 633
     },
     {
       "name": "__mlReceiveRenderedAudio",
       "file": "src/forge_and_melodic/10_audition_and_persistence.js",
-      "line": 575
+      "line": 648
     },
     {
       "name": "__f341Selection",
@@ -33683,6 +33728,13 @@
       "to": "src/storage/06_history_budget.js",
       "symbols": [
         "__ForgeHistoryBudget"
+      ]
+    },
+    {
+      "from": "src/app/forge/05_forge_state_and_analysis.js",
+      "to": "src/storage/07_history_snapshots.js",
+      "symbols": [
+        "__ForgeHistorySnapshots"
       ]
     },
     {
@@ -36947,6 +36999,7 @@
         "IDe",
         "Vt",
         "ah",
+        "gU",
         "pU",
         "pe",
         "ys"
@@ -37025,6 +37078,7 @@
       "from": "src/forge_and_melodic/10_audition_and_persistence.js",
       "to": "src/forge/editor/01_display_and_canvas.js",
       "symbols": [
+        "__ForgeNavigatorSample",
         "__f449ReleaseForgeDisplayCache"
       ]
     },
@@ -37102,6 +37156,13 @@
       "symbols": [
         "LGe",
         "__F35611DonorIntent"
+      ]
+    },
+    {
+      "from": "src/forge_and_melodic/10_audition_and_persistence.js",
+      "to": "src/runtime/instrument/03_selection_and_recording_tools.js",
+      "symbols": [
+        "xS"
       ]
     },
     {
@@ -37536,6 +37597,7 @@
       "to": "src/forge_and_melodic/10_audition_and_persistence.js",
       "symbols": [
         "__F3564Master",
+        "__f333Route",
         "__f333WorkingSource",
         "__f340SeekFromNavigator",
         "__f3565PitchRatio"
@@ -38140,6 +38202,7 @@
       "from": "src/forge/editor/07_composition_and_preview_ui.js",
       "to": "src/forge/ui/02_donor_routing_and_hearing.js",
       "symbols": [
+        "__F35611DonorIntent",
         "__ForgeDonorRoutingF317"
       ]
     },
@@ -38243,7 +38306,15 @@
       "to": "src/forge_and_melodic/10_audition_and_persistence.js",
       "symbols": [
         "__f333Idle",
+        "__f333SaveNavigatorSample",
         "__f333Stop"
+      ]
+    },
+    {
+      "from": "src/forge/editor/09_workflow_controls.js",
+      "to": "src/forge/editor/01_display_and_canvas.js",
+      "symbols": [
+        "__ForgeNavigatorSample"
       ]
     },
     {

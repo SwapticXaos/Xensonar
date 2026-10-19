@@ -30,12 +30,12 @@ const ctx={
  __f333Route:s=>s.route,
  pe:{getState:()=>({})},
 };
-vm.createContext(ctx);vm.runInContext(helpers,ctx);
+vm.createContext(ctx);vm.runInContext(block(hearing,'const __f333AudibleBuffers=', '// F4.4.9 trial:'),ctx);vm.runInContext(helpers,ctx);
 const base={route:'hearing',machine:'emilia-nodal-carrier',snapshot:{signature:'paint-A',duration:2,emiliaInstrument:{key:'net-A'}},selection:'selection-A',synthLab:'lab-A',harmonicXplore:'hx-A',pitch:1};
 const req=ctx.__f333HearingRequest(base);
 const key=ctx.__f333HearingCacheKey(req,ctx.IB(req));
 assert.equal(ctx.__f333CachedPreviewReady(base),false,'unrendered mode is gray');
-ctx.__f333HearingCache.set(key,{length:96000});
+const pcm=new Float32Array(96000);pcm[1]=.5;ctx.__f333HearingCache.set(key,{length:pcm.length,numberOfChannels:1,getChannelData:()=>pcm});
 assert.equal(ctx.__f333CachedPreviewReady(base),true,'exact cached PCM is ready, even with no transport prewarm token');
 assert.equal(ctx.__f333CachedPreviewReady({...base,snapshot:{...base.snapshot,signature:'paint-B'}}),false,'editing the canvas invalidates readiness');
 assert.equal(ctx.__f333CachedPreviewReady({...base,snapshot:{...base.snapshot,emiliaInstrument:{key:'net-B'}}}),false,'new Emilia instrument cannot reuse old readiness');
@@ -43,7 +43,8 @@ assert.equal(ctx.__f333CachedPreviewReady({...base,pitch:1.15}),false,'changing 
 assert.equal(ctx.__f333CachedPreviewReady({...base,route:'donor'}),false,'an unrelated donor route cannot steal cached hearing readiness');
 ctx.__f333HearingCache.clear();
 assert.equal(ctx.__f333CachedPreviewReady(base),false,'sleeping Forge drops cached PCM readiness');
-assert.equal(ctx.__f333CachedPreviewReady({...base,route:'reference',sourceAsset:{monoSamples:new Float32Array(12)}}),true,'decoded reference audio is immediately playable');
+assert.equal(ctx.__f333CachedPreviewReady({...base,route:'reference',sourceAsset:{monoSamples:new Float32Array([0,.25])}}),true,'decoded reference audio is immediately playable');
+assert.equal(ctx.__f333CachedPreviewReady({...base,route:'reference',sourceAsset:{monoSamples:new Float32Array(12)}}),false,'silent reference is not audibly ready');
 assert.equal(ctx.__f333CachedPreviewReady({...base,route:'reference',sourceAsset:null}),false,'reference without source is not ready');
 assert.match(hearing,/__f333CacheReadyNotify\(\)/,'cache mutations must notify the button');
 assert.match(transport,/__f333CachedPreviewReady\(pe\.getState\(\)\)/,'transport reads the real audio cache');
