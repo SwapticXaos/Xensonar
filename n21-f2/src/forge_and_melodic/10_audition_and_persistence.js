@@ -420,6 +420,51 @@ async function __f333PlayCurrent(state,options={}) {
       beatGuide:{...state.materialExport,loopDurationSec:rendered.duration}});
   return played&&current();
 }
+// Forge Navigator one-shots reuse the canonical IndexedDB sample registry.
+// They deliberately do not change room, transport or active sample selection.
+async function __f333SaveNavigatorSample(){
+ const selected=__ForgeNavigatorSample.current();
+ if(!selected)return false;
+ const state=pe.getState(),revision=state.renderVersion,source=state.sourceAsset,route=__f333Route(state);
+ if(__ForgeNavigatorSample.snapshot().busy)return false;
+ __ForgeNavigatorSample.update({busy:true,message:'Rendering one-shot …'});
+ try{
+  // Render exactly the audible Forge listening route. Force an AudioBuffer even
+  // on the legacy donor path, which otherwise exports a WAV blob directly.
+  const render=await __f333RenderCurrent(state,{flacBuffer:true});
+  if(__ForgeNavigatorSample.current()!==selected||pe.getState().renderVersion!==revision||pe.getState().sourceAsset!==source||__f333Route(pe.getState())!==route)
+   throw new Error('Figure or listening mode changed during sample rendering.');
+  const buffer=render.buffer;
+  if(!buffer||!buffer.length||!buffer.sampleRate)throw new Error('No playable PCM available for this listening mode.');
+  const start=Math.min(buffer.length-1,Math.floor(selected.start*buffer.length));
+  const end=Math.min(buffer.length,Math.max(start+1,Math.ceil(selected.end*buffer.length)));
+  const frames=end-start,seconds=frames/buffer.sampleRate;
+  if(seconds<.025||seconds>5.001)throw new Error('One-shot selection must be between 25 ms and 5 seconds.');
+  // Preserve mono/stereo exactly as the current listening route rendered it.
+  // Never fold the right channel away or apply a new synthesis/pitch stage.
+  const channels=[];
+  let peak=0;
+  const fade=Math.min(Math.floor(buffer.sampleRate*.003),Math.floor(frames/4));
+  for(let ch=0;ch<Math.min(2,buffer.numberOfChannels||1);ch++){
+   const pcm=new Float32Array(frames),sourcePcm=buffer.getChannelData(ch);
+   for(let i=0;i<frames;i++){
+    let value=sourcePcm[start+i]||0;
+    if(fade){if(i<fade)value*=i/fade;if(i>frames-1-fade)value*=(frames-1-i)/fade;}
+    pcm[i]=value;peak=Math.max(peak,Math.abs(value));
+   }
+   channels.push(pcm);
+  }
+  if(peak<1e-8)throw new Error('The selected sample is silent. Nothing was saved.');
+  const title=(state.materialExport?.name||'Forge').trim().slice(0,74)||'Forge';
+  const fileName=title+' · One Shot '+Math.round(selected.start*100)+'–'+Math.round(selected.end*100)+'%.wav';
+  const wav=channels.length===1?xt.encodeSamplesToWAV(channels[0],buffer.sampleRate):gU(channels,buffer.sampleRate);
+  const blob=wav instanceof Blob?wav:new Blob([wav],{type:'audio/wav'});
+  const saved=await xS(fileName,blob);
+  __ForgeNavigatorSample.update({message:'Sample saved · '+saved.name});
+  return saved;
+ }catch(error){__ForgeNavigatorSample.update({message:error?.message||'Sample could not be saved.'});return false;
+ }finally{__ForgeNavigatorSample.update({busy:false});}
+}
 async function __f333ExportCurrent(state,options={}) {
   const epoch=__f333Epoch,revision=state.renderVersion,masterRevision=__F3564Master.getSnapshot().revision,hybridIdentity=__f333Route(state)==='hybrid'?__F352Runtime.identity(state):null;
   const result=await __f333RenderCurrent(state,options);

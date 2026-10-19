@@ -35,6 +35,18 @@ function __ForgeMiniPlay(){
   loading&&P.createElement('span',{'aria-hidden':true,className:'pointer-events-none absolute inset-x-0 bottom-0 bg-emerald-500/90',style:{height:fill+'%'}}),
   P.createElement('span',{className:'relative z-10'},loading?'■ '+fill+' %':playing?'⏸ Pause':'▶ Play'));
 }
+function __ForgeNavigatorSaveButton(){
+ const h=P.createElement,state=P.useSyncExternalStore(__ForgeNavigatorSample.subscribe,__ForgeNavigatorSample.snapshot,__ForgeNavigatorSample.snapshot);
+ const selected=__ForgeNavigatorSample.current();
+ return selected?h(P.Fragment,null,
+  h('button',{type:'button','data-forge-navigator-save-sample':true,disabled:state.busy,
+   'aria-label':'Save selected navigator range as sample',onClick:()=>void __f333SaveNavigatorSample(),
+   title:'Save the highlighted audio as a one-shot in the shared Sample Database',
+   className:'absolute z-20 left-0 bottom-full mb-1 w-1/2 min-w-max rounded border border-violet-400 bg-violet-950 px-2 py-1 text-[10px] font-semibold text-violet-100 shadow-md hover:bg-violet-800 disabled:opacity-50'
+  },state.busy?'Saving…':'Save as Sample'),
+  state.message&&h('span',{role:'status',className:'absolute left-0 top-full z-20 max-w-60 whitespace-nowrap rounded bg-black px-1 text-[10px] text-violet-200'},state.message)):
+  state.message?h('span',{role:'status',className:'absolute left-0 top-full z-20 text-[10px] text-violet-200'},state.message):null;
+}
 function __ForgeTransportRack(e){
  const h=P.createElement,choice=__useForgeListeningMode(),busy=e.rendering;
  const button={type:'button',className:'h-8 rounded border border-neutral-700 bg-neutral-900 px-2 text-xs text-neutral-100 hover:bg-neutral-800'};
@@ -92,7 +104,8 @@ function __ForgeTransportRack(e){
    h('div',{className:'f31-transport-bottom'},
     h('div',{'data-forge-hearing-destinations':'v2',className:'f33-rack-destinations'},
      h('div',{'data-forge-transport-picker':'true',className:'f35-rack-hearing-picker'},h(__ForgeListeningPicker,{label:'Listening mode · Play Rack',compact:true})),
-     destination('material'),destination('root'),destination('pink')),
+     destination('material'),h('div',{className:'relative inline-flex items-center'},
+      h(__ForgeNavigatorSaveButton),destination('root')),destination('pink')),
     h('div',{'data-forge-project-corner':'true',className:'f33-rack-project-corner'},
      h(jHe,{compact:true,onOpenInSpectralForge:()=>window.setTimeout(()=>{const anchor=document.querySelector('[data-xensonar-spectralforge-workmode-header]');anchor?.scrollIntoView({behavior:'smooth',block:'start'})},80)})))),
   h('input',{ref:e.fileInputRef,type:'file',accept:'image/*,.png,.jpg,.jpeg,.webp,.bmp,.gif',style:{display:'none'},onChange:e.handleImportFile}),
