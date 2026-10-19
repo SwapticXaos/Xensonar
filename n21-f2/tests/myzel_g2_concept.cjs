@@ -2,6 +2,7 @@
 const assert=require('node:assert/strict'),fs=require('node:fs'),vm=require('node:vm'),path=require('node:path');
 const root=path.join(__dirname,'..'),scope={console,Math,Number,WeakMap,Float32Array,Float64Array,Int8Array};vm.createContext(scope);
 for(const file of ['07_myzel_g_geometry.js','09_myzel_g_dsp.js','08_myzel_g_live.js'])vm.runInContext(fs.readFileSync(path.join(root,'src/audio',file),'utf8'),scope);
+vm.runInContext(fs.readFileSync(path.join(root,'src/nodal/13_installation_ball_grid.js'),'utf8'),scope);
 vm.runInContext('globalThis.api={make:createMyzelGDSP,frame:myzelGSpatialFrame,gesture:myzelGGesture,create:myzelGCreate,update:myzelGUpdate}',scope);
 const {make,frame,gesture,create,update}=scope.api,sr=24000,checks=[];
 const pass=s=>{checks.push(s);console.log('PASS',s)};

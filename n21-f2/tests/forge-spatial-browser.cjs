@@ -2,7 +2,7 @@
 const fs=require('fs'),assert=require('assert/strict'),{chromium}=require('playwright'),manifest=require('../source-manifest.json');
 const entry=process.env.XEN_BASELINE_HTML||manifest.entry;
 const html=fs.readFileSync(entry,'utf8').replace('const kEe=CEe("root");',`window.__sp=()=>({state:()=>pe.getState(),nav:__ForgeNavigatorSample,materials:bs,ready:()=>__f333CachedPreviewReady(pe.getState()),commit:()=>__f334CommitCarrier({name:'Spatial audit figure',bars:1,beatsPerBar:4,bpm:240,carrier:{version:'melodic-carrier-v1',durationBeats:4,tracks:[{id:'t',enabled:true}],notes:[{id:'n',trackId:'t',startBeat:0,durationBeats:4,pitchHz:[220],gainCurve:[.6]}]}},{neutral:true})});const kEe=CEe("root");`);
-const out=process.env.XEN_SPATIAL_RESULTS||'results/forge-spatial';fs.mkdirSync(out,{recursive:true});
+const out=process.env.XEN_SPATIAL_RESULTS||'results/nodal-ball-grid/forge-spatial';fs.mkdirSync(out,{recursive:true});
 const rect=value=>({x:value.x,y:value.y,width:value.width,height:value.height});
 (async()=>{
  const browser=await chromium.launch({executablePath:process.env.XEN_CHROMIUM_PATH||'/usr/bin/chromium',args:['--no-sandbox','--disable-dev-shm-usage']});
@@ -17,6 +17,7 @@ const rect=value=>({x:value.x,y:value.y,width:value.width,height:value.height});
    await page.getByRole('button',{name:/SpectralForge/}).click();
    await page.locator('[data-forge-shared-listening-picker]').selectOption('bert');
    const nav=page.locator('[data-forge-navigator="full-drawing"]'),canvas=nav.locator('canvas');
+   const originalGeometry=await page.evaluate(()=>{const root=document.querySelector('[data-f318-export-target="root"]').getBoundingClientRect(),rack=document.querySelector('[data-forge-play-rack]').getBoundingClientRect();return {rootTop:root.top+scrollY,rackHeight:rack.height}});
    await nav.scrollIntoViewIfNeeded();
    await page.waitForFunction(()=>document.querySelector('[data-forge-navigator] canvas')?.width>0);
    const geometry=()=>canvas.evaluate(c=>c.__navigatorViewport);
@@ -50,12 +51,19 @@ const rect=value=>({x:value.x,y:value.y,width:value.width,height:value.height});
    const sr=await save.boundingBox(),rr=await root.boundingBox();
    assert.ok(sr.y+sr.height+2<=rr.y,'Save as Sample must be north of Root Follow, with a gap');
    assert.ok(sr.height>=22&&sr.height<=30,'retain compact button height');
+   let stableGeometry=null;
+   if(width===1490){
+    const current=await page.evaluate(()=>{const root=document.querySelector('[data-f318-export-target="root"]').getBoundingClientRect(),rack=document.querySelector('[data-forge-play-rack]').getBoundingClientRect();return {rootTop:root.top+scrollY,rackHeight:rack.height}});
+    stableGeometry=current;assert.ok(Math.abs(current.rootTop-originalGeometry.rootTop)<1,'selection must not push Root Follow down');assert.ok(Math.abs(current.rackHeight-originalGeometry.rackHeight)<1,'selection must not increase desktop rack height');
+    const loop=await page.locator('[data-forge-loop-toggle]').boundingBox(),trim=await page.locator('.f31-trim-import > :first-child').boundingBox();
+    assert.ok(sr.y>=loop.y+loop.height,'save occupies space below Loop');assert.ok(sr.x+sr.width<=trim.x,'save stays left of Carrier trim');
+   }
    for(const button of [save,root]){
     const hit=await button.evaluate(e=>{const b=e.getBoundingClientRect();return e.contains(document.elementFromPoint(b.x+b.width/2,b.y+b.height/2));});
     assert.equal(hit,true,'each action must receive its own pointer click');
    }
    assert.equal(await save.count(),1,'one save owner');
-   report.geometry.push({width,save:rect(sr),root:rect(rr),whole,right,left,moved});
+   report.geometry.push({width,originalGeometry,stableGeometry,save:rect(sr),root:rect(rr),whole,right,left,moved});
    await page.locator('[data-forge-play-rack]').screenshot({path:out+'/rack-'+width+'.png'});
    if(width===1490){
     const input=page.locator('[data-material-intake-gateway] input[type=file]');

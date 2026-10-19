@@ -1,0 +1,12 @@
+{
+  "entry": "Xensonar_N21_F2_Nodal_Ball_Grid_Test.html",
+  "sha256": "e8e63ffe8703fbe3ed683603e880c5e5b8a2970f04cf620e0ed291e98313884d",
+  "passed": {
+    "host-validation": 22,
+    "browser-validation": 8,
+    "n21-regressions": 65
+  },
+  "merge": "passed",
+  "granular": "passed",
+  "native": "Chromium; no physical audio or cross-browser claim"
+}

@@ -814,7 +814,7 @@
     {
       "name": "__ForgeTransportRack",
       "file": "src/forge/editor/09_workflow_controls.js",
-      "line": 50
+      "line": 47
     },
     {
       "name": "__PureDieterControls",
@@ -880,6 +880,16 @@
       "name": "__ForgeHistorySnapshots",
       "file": "src/storage/07_history_snapshots.js",
       "line": 4
+    },
+    {
+      "name": "__NodalBallGrid",
+      "file": "src/nodal/13_installation_ball_grid.js",
+      "line": 3
+    },
+    {
+      "name": "__NodalBallControls",
+      "file": "src/nodal/13_installation_ball_grid.js",
+      "line": 46
     },
     {
       "name": "__F35614AudioRef",
@@ -6293,6 +6303,11 @@
     },
     {
       "name": "Pi",
+      "file": "src/runtime/instrument/08_library_and_tuning_editor.js",
+      "line": 52
+    },
+    {
+      "name": "__xenGridStepLimit",
       "file": "src/runtime/instrument/08_library_and_tuning_editor.js",
       "line": 52
     },
@@ -19757,99 +19772,114 @@
       "line": 757
     },
     {
-      "name": "lEe",
+      "name": "__xenGridOffsetValue",
       "file": "src/rhythm/04_workspace_and_transport.js",
       "line": 757
+    },
+    {
+      "name": "__xenGridShiftCents",
+      "file": "src/rhythm/04_workspace_and_transport.js",
+      "line": 758
+    },
+    {
+      "name": "__xenShiftGridOffsets",
+      "file": "src/rhythm/04_workspace_and_transport.js",
+      "line": 759
+    },
+    {
+      "name": "lEe",
+      "file": "src/rhythm/04_workspace_and_transport.js",
+      "line": 766
     },
     {
       "name": "cEe",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 757
+      "line": 766
     },
     {
       "name": "uEe",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 757
+      "line": 766
     },
     {
       "name": "dEe",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 757
+      "line": 766
     },
     {
       "name": "mEe",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 757
+      "line": 766
     },
     {
       "name": "pEe",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 757
+      "line": 766
     },
     {
       "name": "hEe",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 757
+      "line": 766
     },
     {
       "name": "fEe",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 757
+      "line": 766
     },
     {
       "name": "gEe",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 757
+      "line": 766
     },
     {
       "name": "bEe",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 757
+      "line": 766
     },
     {
       "name": "yEe",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 757
+      "line": 766
     },
     {
       "name": "o7",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 757
+      "line": 766
     },
     {
       "name": "SEe",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 757
+      "line": 766
     },
     {
       "name": "vEe",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 771
+      "line": 780
     },
     {
       "name": "AEe",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 783
+      "line": 792
     },
     {
       "name": "xEe",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 783
+      "line": 792
     },
     {
       "name": "MEe",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 783
+      "line": 792
     },
     {
       "name": "wk",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 783
+      "line": 792
     },
     {
       "name": "wEe",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 783
+      "line": 792
     },
     {
       "name": "__f350CloneDrumEdit",
@@ -33020,6 +33050,13 @@
     },
     {
       "from": "src/app/forge/01_room_shell.js",
+      "to": "src/nodal/13_installation_ball_grid.js",
+      "symbols": [
+        "__NodalBallGrid"
+      ]
+    },
+    {
+      "from": "src/app/forge/01_room_shell.js",
       "to": "src/rhythm/01_compact_drum_grid.js",
       "symbols": [
         "Ace",
@@ -34916,6 +34953,13 @@
       ]
     },
     {
+      "from": "src/audio/08_myzel_g_live.js",
+      "to": "src/nodal/13_installation_ball_grid.js",
+      "symbols": [
+        "__NodalBallGrid"
+      ]
+    },
+    {
       "from": "src/audio/09_myzel_g_dsp.js",
       "to": "src/runtime/instrument/05_timing_and_admission.js",
       "symbols": [
@@ -35035,6 +35079,13 @@
       "to": "src/nodal/12_surface_runtime.js",
       "symbols": [
         "__XenNodalSurfaces"
+      ]
+    },
+    {
+      "from": "src/audio/entrophon/02_worklet_and_voice_backend.js",
+      "to": "src/nodal/13_installation_ball_grid.js",
+      "symbols": [
+        "__NodalBallGrid"
       ]
     },
     {
@@ -40486,6 +40537,58 @@
       ]
     },
     {
+      "from": "src/nodal/13_installation_ball_grid.js",
+      "to": "src/audio/08_myzel_g_live.js",
+      "symbols": [
+        "myzelGClamp"
+      ]
+    },
+    {
+      "from": "src/nodal/13_installation_ball_grid.js",
+      "to": "src/mix/05_grid_runtime.js",
+      "symbols": [
+        "__xenGridMuted"
+      ]
+    },
+    {
+      "from": "src/nodal/13_installation_ball_grid.js",
+      "to": "src/rhythm/04_workspace_and_transport.js",
+      "symbols": [
+        "__xenGridShiftCents",
+        "pEe"
+      ]
+    },
+    {
+      "from": "src/nodal/13_installation_ball_grid.js",
+      "to": "src/runtime/01_instrument_state.js",
+      "symbols": [
+        "Ka",
+        "gj",
+        "tc"
+      ]
+    },
+    {
+      "from": "src/nodal/13_installation_ball_grid.js",
+      "to": "src/runtime/instrument/08_library_and_tuning_editor.js",
+      "symbols": [
+        "U6"
+      ]
+    },
+    {
+      "from": "src/nodal/13_installation_ball_grid.js",
+      "to": "src/runtime/instrument/09_monitoring_and_manual_patterns.js",
+      "symbols": [
+        "Y6"
+      ]
+    },
+    {
+      "from": "src/nodal/13_installation_ball_grid.js",
+      "to": "src/vendor/01_react_dom.js",
+      "symbols": [
+        "P"
+      ]
+    },
+    {
       "from": "src/rhythm/01_compact_drum_grid.js",
       "to": "src/app/forge/02_boot_and_workspace_tools.js",
       "symbols": [
@@ -41798,6 +41901,13 @@
       "to": "src/nodal/07_sound_designer.js",
       "symbols": [
         "koe"
+      ]
+    },
+    {
+      "from": "src/runtime/instrument/08_library_and_tuning_editor.js",
+      "to": "src/nodal/13_installation_ball_grid.js",
+      "symbols": [
+        "__NodalBallControls"
       ]
     },
     {

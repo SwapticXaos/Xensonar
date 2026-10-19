@@ -1,4 +1,4 @@
-# XenSonar N21–F2 · Forge Navigator und Material-Metadaten
+# XenSonar N21–F2 · Installation-Ballton und gemeinsame Raster
 
 Die aktuelle, vom Nutzer gelieferte N21–F2-Quellbasis mit Granular-Hold, Live-Stabilitäts-Patch und korrigierter Forge-Fortschrittsanzeige sowie ausgerichteten Mix-Reglern, Raster-Mute, Melodic-Panning und Xenpolar Drone im Hauptinstrument
 liegen in [`n21-f2/`](n21-f2/). Der ältere React-/Vite-Stand im Repository-Root
@@ -23,6 +23,8 @@ Aktuell: Forge-Snapshots im Workspace-Paket erhalten ihre vollständigen Array-D
 Aktuell: Vier Nutzer-Patches integrieren Mute-Symbole, Nodal Auto preview, Navigator-One-Shots, Import-Guards und Donor-/Play-Integrität. Undo/Redo teilen unveränderte Speicherblöcke; 30 lokale Schritte benötigen im vollständigen Raster-/Body-Test rund 42 MiB. Anleitung und Grenzen: [`n21-f2/README_INTEGRATED_PATCHES.md`](n21-f2/README_INTEGRATED_PATCHES.md).
 
 Aktuell: Navigator-One-Shot-Speichern steht räumlich oberhalb des Root-Follow-Ziels; Randgriffe zeigen wieder den Doppelpfeil. Das aktive Raw-Metadatenfeld trennt Inhalt von Verwendungsziel und reicht einen optionalen Frequenzanker korrekt weiter. Anleitung: [`n21-f2/README_FORGE_SPATIAL.md`](n21-f2/README_FORGE_SPATIAL.md).
+
+Aktuell: Installation besitzt einen regelbaren Ball-Grundton und optional Rasterimpulse mit derselben Rasterbibliothek wie der Hauptraum. Gemeinsame Cent-Verschiebung und freie Schrittzahl 2–256 sind integriert. Der Forge-Sample-Button nutzt die freie Fläche unter Loop, ohne die Desktop-Zielzeile zu verschieben. Anleitung: [`n21-f2/README_NODAL_BALL_GRID.md`](n21-f2/README_NODAL_BALL_GRID.md).
 
 ```sh
 cd n21-f2

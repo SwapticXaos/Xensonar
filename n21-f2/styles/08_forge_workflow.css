@@ -147,3 +147,10 @@
  display:flex;align-items:center;justify-content:center;
 }
 .f31-play-rack .f34-project-save-on-main .f33-project-save-feedback{grid-row:3;grid-column:1 / -1}
+
+/* Occupy the existing gap below Loop and left of Carrier trim. No extra
+   destination row or height in the desktop rack when a selection appears. */
+.f31-play-rack .f31-transport-main>div.f35-tempo-save{position:relative;align-self:stretch;min-width:0}
+.f35-navigator-save-slot{position:absolute;right:0;bottom:3px;height:25px}
+@media(min-width:1001px){.f31-play-rack .f34-transport-status{width:min(345px,55%);max-width:345px}}
+@media(max-width:1000px){.f35-navigator-save-slot{position:static;margin-top:4px}.f35-navigator-save-slot:empty{display:none}}

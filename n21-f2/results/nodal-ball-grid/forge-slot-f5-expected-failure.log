@@ -1,0 +1,9 @@
+AssertionError [ERR_ASSERTION]: selection must not push Root Follow down
+    at /workspace/Xensonar/n21-f2/tests/forge-spatial-browser.cjs:56:12 {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: false,
+  expected: true,
+  operator: '==',
+  diff: 'simple'
+}

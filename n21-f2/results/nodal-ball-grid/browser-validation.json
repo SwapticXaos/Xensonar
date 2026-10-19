@@ -1,0 +1,64 @@
+{
+  "entry": "Xensonar_N21_F2_Nodal_Ball_Grid_Test.html",
+  "sha256": "e8e63ffe8703fbe3ed683603e880c5e5b8a2970f04cf620e0ed291e98313884d",
+  "startedAt": "2026-10-19T21:08:58.094Z",
+  "completedAt": "2026-10-19T21:12:05.711Z",
+  "running": false,
+  "scope": "Native Chromium; no physical audio interface or cross-browser claim",
+  "rows": [
+    {
+      "name": "nodal-ball-grid-browser",
+      "passed": true,
+      "exit": 0,
+      "signal": null,
+      "milliseconds": 10225
+    },
+    {
+      "name": "forge-spatial-browser",
+      "passed": true,
+      "exit": 0,
+      "signal": null,
+      "milliseconds": 21571
+    },
+    {
+      "name": "mute-auto-preview-browser",
+      "passed": true,
+      "exit": 0,
+      "signal": null,
+      "milliseconds": 13213
+    },
+    {
+      "name": "integrated-patches-browser",
+      "passed": true,
+      "exit": 0,
+      "signal": null,
+      "milliseconds": 10206
+    },
+    {
+      "name": "consolidation-browser",
+      "passed": true,
+      "exit": 0,
+      "signal": null,
+      "milliseconds": 18466
+    },
+    {
+      "name": "forge-ready-browser",
+      "passed": true,
+      "exit": 0,
+      "signal": null,
+      "milliseconds": 47054
+    },
+    {
+      "name": "forge-pitch-browser",
+      "passed": true,
+      "exit": 0,
+      "signal": null,
+      "milliseconds": 66721
+    },
+    {
+      "name": "build-reproducibility",
+      "passed": true
+    }
+  ],
+  "failed": 0
+}

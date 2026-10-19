@@ -18,7 +18,7 @@ function createMyzelGDSP(sampleRate) {
   const route = new Int8Array(3).fill(-1), wanted = new Int8Array(3).fill(-1);
   let routeLength=0,wantedLength=0,retiringLength=0,pending=false,fade=1,clock=0,quietReset=true;
   const params={active:0,root:165,frequency:220,neighbourFrequency:220,presence:.5,neighbour:0,motion:0,
-    brightness:.6,tension:.3,body:.6,level:.7,pan:0,roughness:0,rootLevel:.62,ballLevel:.34,nodeLevel:.78,
+    brightness:.6,tension:.3,body:.6,level:.7,pan:0,roughness:0,rootLevel:.62,ballLevel:.34,nodeLevel:.78,ballToneHz:0,ballToneGate:1,
     density:.3,spread:.4,hollow:.4,bloom:.4,openness:.5,retention:.5,gesture:.5};
   const defaults={...params}, smooth={...params}, keys=Object.keys(params);
   const frequencies=new Float64Array(4), gains=new Float64Array(4), phases=new Float64Array(4);
@@ -93,7 +93,7 @@ function createMyzelGDSP(sampleRate) {
     if(!data||typeof data!=='object')return;
     if(data.reset===true){reset();for(const key of keys){params[key]=defaults[key];smooth[key]=defaults[key];}}
     for(const key of keys)if(key in data)params[key]=key==='root'||key==='frequency'||key==='neighbourFrequency'?
-      c(data[key],35,8000):key==='pan'?c(data[key],-1,1):c(data[key]);
+      c(data[key],35,8000):key==='ballToneHz'?c(data[key],0,8000):key==='pan'?c(data[key],-1,1):c(data[key]);
     if(Array.isArray(data.stages)){
       wanted.fill(-1);wantedLength=0;
       for(let i=0;i<Math.min(3,data.stages.length);i++){
@@ -170,8 +170,8 @@ function createMyzelGDSP(sampleRate) {
   }
   function sourceCoefficients() {
     const t=smooth;
-    frequencies[0]=t.root;frequencies[1]=t.root;frequencies[2]=t.frequency;frequencies[3]=t.neighbourFrequency;
-    gains[0]=t.rootLevel*.21;
+    frequencies[0]=params.ballToneHz>0?params.ballToneHz:t.root;frequencies[1]=t.root;frequencies[2]=t.frequency;frequencies[3]=t.neighbourFrequency;
+    gains[0]=t.rootLevel*.21*t.ballToneGate;
     gains[1]=t.ballLevel*(.04+t.gesture*.46)*(.25+t.presence*.75);
     gains[2]=t.nodeLevel*t.presence*(.08+t.gesture*.34);
     gains[3]=t.nodeLevel*t.neighbour*(.04+t.gesture*.19)*( .35+t.density*.65);

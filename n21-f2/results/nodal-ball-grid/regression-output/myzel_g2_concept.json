@@ -1,0 +1,29 @@
+{
+  "checks": [
+    "same input, compact vs spread layout changes normalized waveform beyond volume",
+    "exchanging labelled organs changes pair character, even with the same point cloud",
+    "spatial recipe depends on actual positions and roles, not incidental array order",
+    "root and two resident frequencies remain genuine independent pitches",
+    "all three source faders at zero are truly silent",
+    "custom resident contributes actual pitch but cannot become an organ",
+    "muted full-layout nodes cannot reappear through the legacy nearest-node fallback",
+    "actual ordered audio processing is noncommutative",
+    "two resonators own separate remembered states, preserved across slot changes and revisits",
+    "Korn revisits real prior audio after an absence, instead of a newly reset stage buffer",
+    "hysteresis keeps stable keyed history; disabling coupling clears the active route",
+    "explicit restart resets phases, stored material and hidden history reproducibly",
+    "all eleven labelled processor families transform the same source",
+    "hostile controls stay finite; route and memory pools stay bounded",
+    "bounded output and exact silence after deactivation",
+    "32-second held source remains continuous beyond the old Emilia watchdog boundary",
+    "native graph remains fixed and Forge room gate stops the installation"
+  ],
+  "layoutNormalizedDifference": 0.3039913097645055,
+  "rootAndResidentFrequencies": [
+    137,
+    137,
+    193.307,
+    267.11
+  ],
+  "memoryBytes": 979800
+}

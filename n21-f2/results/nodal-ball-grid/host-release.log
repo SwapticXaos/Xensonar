@@ -1,0 +1,30 @@
+
+> xensonar-p4c2-n21-f2-merged@4.4.8-p4c2-n21-f2 test:consolidation
+> node tools/consolidation_validate.cjs
+
+PASS myzel_g2_concept
+PASS myzel_g_worklet
+PASS nodal-ball-grid
+PASS nodal-ball-grid-preservation
+PASS forge-spatial-contracts
+PASS forge-spatial-preservation
+PASS history-sharing
+PASS patch-integration
+PASS consolidation-snapshots
+PASS consolidation-history
+PASS consolidation-preservation
+PASS rw2-source-index
+PASS forge-pitch-space
+PASS forge-ready-contract
+PASS forge-progress-jobs
+PASS live-rfl-lifecycle
+PASS nodal-envelope-zero
+PASS workflow-grid-runtime
+PASS workflow-hotkeys
+PASS microphone-capture
+PASS audio-carrier-analysis
+npm notice
+npm notice New major version of npm available! 11.9.0 -> 12.2.0
+npm notice Changelog: https://github.com/npm/cli/releases/tag/v12.2.0
+npm notice To update run: npm install -g npm@12.2.0
+npm notice

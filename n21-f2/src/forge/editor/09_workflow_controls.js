@@ -36,19 +36,18 @@ function __ForgeMiniPlay(){
   P.createElement('span',{className:'relative z-10'},loading?'■ '+fill+' %':playing?'⏸ Pause':'▶ Play'));
 }
 function __ForgeNavigatorSaveButton(){
- const h=P.createElement,state=P.useSyncExternalStore(__ForgeNavigatorSample.subscribe,__ForgeNavigatorSample.snapshot,__ForgeNavigatorSample.snapshot);
- const selected=__ForgeNavigatorSample.current();
- return selected?h(P.Fragment,null,
-  h('button',{type:'button','data-forge-navigator-save-sample':true,disabled:state.busy,
-   'aria-label':'Save selected navigator range as sample',onClick:()=>void __f333SaveNavigatorSample(),
-   title:'Save the highlighted audio as a one-shot in the shared Sample Database',
-   className:'rounded border border-violet-400 bg-violet-950 px-2 py-1 text-[10px] font-semibold text-violet-100 shadow-md hover:bg-violet-800 disabled:opacity-50',style:{width:'50%',minWidth:'max-content'}
-  },state.busy?'Saving…':'Save as Sample'),
-  state.message&&h('span',{role:'status',className:'rounded bg-black px-1 text-[10px] text-violet-200',style:{maxWidth:240,overflowWrap:'anywhere'}},state.message)):
-  state.message?h('span',{role:'status',className:'text-[10px] text-violet-200',style:{maxWidth:240,overflowWrap:'anywhere'}},state.message):null;
+ const state=P.useSyncExternalStore(__ForgeNavigatorSample.subscribe,__ForgeNavigatorSample.snapshot,__ForgeNavigatorSample.snapshot);
+ if(!__ForgeNavigatorSample.current())return null;
+ return P.createElement('button',{type:'button','data-forge-navigator-save-sample':true,disabled:state.busy,
+  'aria-label':'Save selected navigator range as sample',onClick:()=>void __f333SaveNavigatorSample(),
+  title:state.message||'Save the highlighted audio as a one-shot in the shared Sample Database',
+  className:'rounded border border-violet-400 bg-violet-950 px-2 py-1 text-[10px] font-semibold text-violet-100 shadow-md hover:bg-violet-800 disabled:opacity-50',style:{width:102,minWidth:'max-content',height:25}
+ },state.busy?'Saving…':'Save as Sample');
 }
 function __ForgeTransportRack(e){
  const h=P.createElement,choice=__useForgeListeningMode(),busy=e.rendering;
+ const navigatorMessage=P.useSyncExternalStore(__ForgeNavigatorSample.subscribe,()=>__ForgeNavigatorSample.snapshot().message,()=>__ForgeNavigatorSample.snapshot().message);
+ const hearingStatus=[e.statusMessage||choice.error,navigatorMessage].filter(Boolean).join(' · ');
  const button={type:'button',className:'h-8 rounded border border-neutral-700 bg-neutral-900 px-2 text-xs text-neutral-100 hover:bg-neutral-800'};
  const routing={
   material:{label:'Send to Material Track',color:'border-cyan-400 bg-cyan-800 hover:bg-cyan-700',icon:'📀'},
@@ -82,18 +81,20 @@ function __ForgeTransportRack(e){
       h('span',{className:'pointer-events-none relative z-10 flex h-full w-full items-center justify-center text-[18px] drop-shadow-[0_1px_2px_rgba(0,0,0,0.95)]','aria-hidden':true},e.playButtonView.symbol),
       h('span',{className:'sr-only'},e.playButtonView.screenReaderLabel)),
      h('button',{...button,onClick:e.handleStop,'aria-label':'Stop preview',title:'Stop preview'},'⏹')),
-    h('div',{'data-forge-hearing-status':true,'data-forge-calculation-status':'true',role:'status','aria-live':'polite',className:'f34-transport-status',title:e.statusMessage||choice.error||''},e.statusMessage||choice.error||' ')),
+    h('div',{'data-forge-hearing-status':true,'data-forge-calculation-status':'true',role:'status','aria-live':'polite',className:'f34-transport-status',title:hearingStatus||''},hearingStatus||' ')),
     h('div',{className:'flex flex-wrap items-center gap-1'},
      h('button',{...button,'data-f345-export-format':'wav','aria-label':'Download Listening Mode as WAV',disabled:busy,onClick:()=>e.handleDownloadCurrentPreview('wav')},'⬇ WAV'),
      h('button',{...button,'data-f345-export-format':'flac','aria-label':'Download Listening Mode as FLAC',disabled:busy,onClick:()=>e.handleDownloadCurrentPreview('flac')},'⬇ FLAC'),
      h('button',{...button,disabled:busy,onClick:e.handleExport},'💾 Canvas + JSON')),
-    h('div',{className:'flex items-center gap-2'},
+    h('div',{className:'f35-tempo-save'},
+     h('div',{className:'flex items-center gap-2'},
      h('label',{className:'flex items-center gap-1 text-xs text-neutral-300'},'Tempo',
       h('input',{type:'number',min:20,max:320,step:1,value:e.previewBpmInputValue,disabled:e.previewBpmDisabled,
        onChange:ev=>{const v=Number(ev.target.value);if(Number.isFinite(v))e.updateMaterialExport({bpm:Math.max(20,Math.min(320,Math.round(v)))})},
        style:{width:60},className:'rounded border border-neutral-700 bg-black px-1 py-1 text-right'})),
      h('label',{className:'flex items-center gap-1 text-xs text-neutral-300'},
-      h('input',{type:'checkbox',checked:e.previewLoopEnabled,disabled:e.previewLoopToggleDisabled,onChange:ev=>e.updateMaterialExport({loopPreview:ev.target.checked})}),'Loop')),
+      h('input',{type:'checkbox','data-forge-loop-toggle':true,checked:e.previewLoopEnabled,disabled:e.previewLoopToggleDisabled,onChange:ev=>e.updateMaterialExport({loopPreview:ev.target.checked})}),'Loop')),
+     h('div',{'data-forge-navigator-save-slot':true,className:'f35-navigator-save-slot'},h(__ForgeNavigatorSaveButton))),
     h('div',{className:'f31-trim-import'},h(__F3564TransportTrim,{isPlaying:e.isPlaying,restartPreview:e.handlePlay}),
      h('div',{className:'f31-import-bars'},
       h('button',{...button,'data-forge-import-image':true,'aria-label':'Import Image',title:'Load an image into the drawing',onClick:()=>e.fileInputRef.current?.click()},'▧ Import Image'),
@@ -102,10 +103,9 @@ function __ForgeTransportRack(e){
        h(Z_,{label:'Segments',value:e.materialExport.guideSegments,min:1,max:16,onChange:v=>e.updateMaterialExport({guideSegments:J_(v,1,16,e.materialExport.guideSegments)})})))),
     h('div',{'data-f34-project-save-on-main':'true',className:'f34-project-save-on-main'},h(eVe,{compact:true}))),
    h('div',{className:'f31-transport-bottom'},
-    h('div',{'data-forge-hearing-destinations':'v2',className:'f33-rack-destinations',style:{alignItems:'flex-end'}},
+    h('div',{'data-forge-hearing-destinations':'v2',className:'f33-rack-destinations'},
      h('div',{'data-forge-transport-picker':'true',className:'f35-rack-hearing-picker'},h(__ForgeListeningPicker,{label:'Listening mode · Play Rack',compact:true})),
-     destination('material'),h('div',{'data-forge-root-actions':true,style:{display:'inline-flex',flexDirection:'column',alignItems:'flex-start',gap:4}},
-      h(__ForgeNavigatorSaveButton),destination('root')),destination('pink')),
+     destination('material'),destination('root'),destination('pink')),
     h('div',{'data-forge-project-corner':'true',className:'f33-rack-project-corner'},
      h(jHe,{compact:true,onOpenInSpectralForge:()=>window.setTimeout(()=>{const anchor=document.querySelector('[data-xensonar-spectralforge-workmode-header]');anchor?.scrollIntoView({behavior:'smooth',block:'start'})},80)})))),
   h('input',{ref:e.fileInputRef,type:'file',accept:'image/*,.png,.jpg,.jpeg,.webp,.bmp,.gif',style:{display:'none'},onChange:e.handleImportFile}),

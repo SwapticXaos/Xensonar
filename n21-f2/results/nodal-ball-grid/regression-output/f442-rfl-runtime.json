@@ -1,0 +1,237 @@
+{
+  "checks": [
+    "all material settings equal uncached output across modes/pressure; in-place edits invalidate cache",
+    "10,000 unchanged material ticks perform one settings normalization",
+    "12 mono/stereo/rate matrices preserve every PCM byte and health message, including retune and bank crossfade",
+    "direct, granular and mixed event paths preserve PCM and retire tails in mono and stereo"
+  ],
+  "settings": [
+    {
+      "mode": "flowing",
+      "pressure": 0,
+      "equal": true,
+      "same": true,
+      "changed": true,
+      "mutation": true
+    },
+    {
+      "mode": "flowing",
+      "pressure": 0.55,
+      "equal": true,
+      "same": true,
+      "changed": true,
+      "mutation": true
+    },
+    {
+      "mode": "flowing",
+      "pressure": 0.85,
+      "equal": true,
+      "same": true,
+      "changed": true,
+      "mutation": true
+    },
+    {
+      "mode": "flowing",
+      "pressure": 1,
+      "equal": true,
+      "same": true,
+      "changed": true,
+      "mutation": true
+    },
+    {
+      "mode": "grainy",
+      "pressure": 0,
+      "equal": true,
+      "same": true,
+      "changed": true,
+      "mutation": true
+    },
+    {
+      "mode": "grainy",
+      "pressure": 0.55,
+      "equal": true,
+      "same": true,
+      "changed": true,
+      "mutation": true
+    },
+    {
+      "mode": "grainy",
+      "pressure": 0.85,
+      "equal": true,
+      "same": true,
+      "changed": true,
+      "mutation": true
+    },
+    {
+      "mode": "grainy",
+      "pressure": 1,
+      "equal": true,
+      "same": true,
+      "changed": true,
+      "mutation": true
+    },
+    {
+      "ticks": 10000,
+      "normalizations": 1
+    }
+  ],
+  "pcm": [
+    {
+      "sampleRate": 32000,
+      "sourceChannels": 1,
+      "outputChannels": 1,
+      "peak": 0.07795310765504837,
+      "stereoDelta": 0,
+      "byteIdentical": true
+    },
+    {
+      "sampleRate": 32000,
+      "sourceChannels": 1,
+      "outputChannels": 2,
+      "peak": 0.07795310765504837,
+      "stereoDelta": 0,
+      "byteIdentical": true
+    },
+    {
+      "sampleRate": 32000,
+      "sourceChannels": 2,
+      "outputChannels": 1,
+      "peak": 0.07795310765504837,
+      "stereoDelta": 0,
+      "byteIdentical": true
+    },
+    {
+      "sampleRate": 32000,
+      "sourceChannels": 2,
+      "outputChannels": 2,
+      "peak": 0.07837561517953873,
+      "stereoDelta": 0.0883505716919899,
+      "byteIdentical": true
+    },
+    {
+      "sampleRate": 44100,
+      "sourceChannels": 1,
+      "outputChannels": 1,
+      "peak": 0.0777241662144661,
+      "stereoDelta": 0,
+      "byteIdentical": true
+    },
+    {
+      "sampleRate": 44100,
+      "sourceChannels": 1,
+      "outputChannels": 2,
+      "peak": 0.0777241662144661,
+      "stereoDelta": 0,
+      "byteIdentical": true
+    },
+    {
+      "sampleRate": 44100,
+      "sourceChannels": 2,
+      "outputChannels": 1,
+      "peak": 0.0777241662144661,
+      "stereoDelta": 0,
+      "byteIdentical": true
+    },
+    {
+      "sampleRate": 44100,
+      "sourceChannels": 2,
+      "outputChannels": 2,
+      "peak": 0.07837557792663574,
+      "stereoDelta": 0.0883499626070261,
+      "byteIdentical": true
+    },
+    {
+      "sampleRate": 48000,
+      "sourceChannels": 1,
+      "outputChannels": 1,
+      "peak": 0.07772483676671982,
+      "stereoDelta": 0,
+      "byteIdentical": true
+    },
+    {
+      "sampleRate": 48000,
+      "sourceChannels": 1,
+      "outputChannels": 2,
+      "peak": 0.07772483676671982,
+      "stereoDelta": 0,
+      "byteIdentical": true
+    },
+    {
+      "sampleRate": 48000,
+      "sourceChannels": 2,
+      "outputChannels": 1,
+      "peak": 0.07772483676671982,
+      "stereoDelta": 0,
+      "byteIdentical": true
+    },
+    {
+      "sampleRate": 48000,
+      "sourceChannels": 2,
+      "outputChannels": 2,
+      "peak": 0.07837561517953873,
+      "stereoDelta": 0.0883505716919899,
+      "byteIdentical": true
+    },
+    {
+      "kind": "direct",
+      "sourceChannels": 1,
+      "peak": 0.18000000715255737,
+      "byteIdentical": true,
+      "retired": true
+    },
+    {
+      "kind": "direct",
+      "sourceChannels": 2,
+      "peak": 0.18000000715255737,
+      "byteIdentical": true,
+      "retired": true
+    },
+    {
+      "kind": "granular",
+      "sourceChannels": 1,
+      "peak": 0.01224589254707098,
+      "byteIdentical": true,
+      "retired": true
+    },
+    {
+      "kind": "granular",
+      "sourceChannels": 2,
+      "peak": 0.012595845386385918,
+      "byteIdentical": true,
+      "retired": true
+    },
+    {
+      "kind": "mixed",
+      "sourceChannels": 1,
+      "peak": 0.19138889014720917,
+      "byteIdentical": true,
+      "retired": true
+    },
+    {
+      "kind": "mixed",
+      "sourceChannels": 2,
+      "peak": 0.19221170246601105,
+      "byteIdentical": true,
+      "retired": true
+    }
+  ],
+  "benchmarks": [
+    {
+      "sourceChannels": 1,
+      "renderedSec": 10.666666666666666,
+      "oldMedianMs": 864.4674259999993,
+      "newMedianMs": 580.185453,
+      "speedup": 1.4899846618525943
+    },
+    {
+      "sourceChannels": 2,
+      "renderedSec": 10.666666666666666,
+      "oldMedianMs": 609.6130850000009,
+      "newMedianMs": 375.93553600000087,
+      "speedup": 1.6215894126061003
+    }
+  ],
+  "limitations": [
+    "VM CPU timings compare these implementations, not audible stability on the user laptop."
+  ]
+}
