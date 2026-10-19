@@ -1,4 +1,4 @@
-# XenSonar N21–F2 · Integrierte Patches und geteilter Verlauf
+# XenSonar N21–F2 · Forge Navigator und Material-Metadaten
 
 Die aktuelle, vom Nutzer gelieferte N21–F2-Quellbasis mit Granular-Hold, Live-Stabilitäts-Patch und korrigierter Forge-Fortschrittsanzeige sowie ausgerichteten Mix-Reglern, Raster-Mute, Melodic-Panning und Xenpolar Drone im Hauptinstrument
 liegen in [`n21-f2/`](n21-f2/). Der ältere React-/Vite-Stand im Repository-Root
@@ -21,6 +21,8 @@ Aktuell: Lokale Pinsel-/Morph-Bearbeitung erhält die Hz-Zuordnung und Akkordint
 Aktuell: Forge-Snapshots im Workspace-Paket erhalten ihre vollständigen Array-Daten. Fehlerhafte Snapshots werden vor Änderungen am aktiven Arbeitsstand abgewiesen; Undo und Redo teilen sich ein Speicherbudget. Gemeinsame Freigabeprüfungen und CI sind eingerichtet. Anleitung: [`n21-f2/README_CONSOLIDATION.md`](n21-f2/README_CONSOLIDATION.md).
 
 Aktuell: Vier Nutzer-Patches integrieren Mute-Symbole, Nodal Auto preview, Navigator-One-Shots, Import-Guards und Donor-/Play-Integrität. Undo/Redo teilen unveränderte Speicherblöcke; 30 lokale Schritte benötigen im vollständigen Raster-/Body-Test rund 42 MiB. Anleitung und Grenzen: [`n21-f2/README_INTEGRATED_PATCHES.md`](n21-f2/README_INTEGRATED_PATCHES.md).
+
+Aktuell: Navigator-One-Shot-Speichern steht räumlich oberhalb des Root-Follow-Ziels; Randgriffe zeigen wieder den Doppelpfeil. Das aktive Raw-Metadatenfeld trennt Inhalt von Verwendungsziel und reicht einen optionalen Frequenzanker korrekt weiter. Anleitung: [`n21-f2/README_FORGE_SPATIAL.md`](n21-f2/README_FORGE_SPATIAL.md).
 
 ```sh
 cd n21-f2

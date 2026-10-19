@@ -179,7 +179,8 @@ function BWe({onBack: e, variant: t = "legacy", sidebarTop: n, forge3Lens: r = "
                     role: B.role,
                     bpm: B.bpm,
                     bars: B.bars,
-                    guideSegments: B.guideSegments
+                    guideSegments: B.guideSegments,
+                    rootHz: B.rootHz
                 },
                 timbreStatusLabel: Ct,
                 embodimentStatusLabel: St

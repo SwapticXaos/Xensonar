@@ -1,6 +1,6 @@
 {
-  "version": "XenSonar N21–F2 · Integrated Patches / Shared History",
-  "entry": "Xensonar_N21_F2_Integrated_Patches_Test.html",
+  "version": "XenSonar N21–F2 · Forge Spatial Integrity",
+  "entry": "Xensonar_N21_F2_Forge_Spatial_Test.html",
   "files": [
     "src/mix/03_quick_menu.js",
     "src/mix/04_melodic_spatial.js",
@@ -208,8 +208,8 @@
     "src/05_dual_donor.js",
     "src/06_workbench_dialog.js"
   ],
-  "sha256": "bef56dbc13cc4b83ad04bf3e14876a36ed568908b2d3400093e33b18cb2fa278",
-  "bytes": 5599308,
+  "sha256": "7a34ef54d3d41248967fc370e9b7f9a74831fb425a62d16833a75951647a36f1",
+  "bytes": 5599768,
   "sourceOrder": "Concatenate in listed order. Explicit factories own Workbench, hybrid session, render capture, adapters, playback and analysis cache. Remaining registry fragments share one inline module; DSP factories stay independently serializable for workers.",
   "status": "F4.3.13 mainline plus F4.4.0 Nodal coupled-modal-v2, anchored at F4.3.5",
   "baseVersion": "F4.3.5 (three-way)",

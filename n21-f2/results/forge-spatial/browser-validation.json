@@ -1,0 +1,57 @@
+{
+  "entry": "Xensonar_N21_F2_Forge_Spatial_Test.html",
+  "sha256": "7a34ef54d3d41248967fc370e9b7f9a74831fb425a62d16833a75951647a36f1",
+  "startedAt": "2026-10-19T20:38:45.973Z",
+  "completedAt": "2026-10-19T20:41:35.864Z",
+  "running": false,
+  "scope": "Native Chromium; no physical audio interface or cross-browser claim",
+  "rows": [
+    {
+      "name": "forge-spatial-browser",
+      "passed": true,
+      "exit": 0,
+      "signal": null,
+      "milliseconds": 15381
+    },
+    {
+      "name": "mute-auto-preview-browser",
+      "passed": true,
+      "exit": 0,
+      "signal": null,
+      "milliseconds": 11022
+    },
+    {
+      "name": "integrated-patches-browser",
+      "passed": true,
+      "exit": 0,
+      "signal": null,
+      "milliseconds": 9171
+    },
+    {
+      "name": "consolidation-browser",
+      "passed": true,
+      "exit": 0,
+      "signal": null,
+      "milliseconds": 18012
+    },
+    {
+      "name": "forge-ready-browser",
+      "passed": true,
+      "exit": 0,
+      "signal": null,
+      "milliseconds": 56494
+    },
+    {
+      "name": "forge-pitch-browser",
+      "passed": true,
+      "exit": 0,
+      "signal": null,
+      "milliseconds": 59684
+    },
+    {
+      "name": "build-reproducibility",
+      "passed": true
+    }
+  ],
+  "failed": 0
+}

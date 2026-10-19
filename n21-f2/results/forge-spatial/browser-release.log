@@ -1,0 +1,15 @@
+
+> xensonar-p4c2-n21-f2-merged@4.4.8-p4c2-n21-f2 test:consolidation:browser
+> node tools/consolidation_validate.cjs --browser
+
+PASS forge-spatial-browser
+PASS mute-auto-preview-browser
+PASS integrated-patches-browser
+PASS consolidation-browser
+PASS forge-ready-browser
+PASS forge-pitch-browser
+npm notice
+npm notice New major version of npm available! 11.9.0 -> 12.2.0
+npm notice Changelog: https://github.com/npm/cli/releases/tag/v12.2.0
+npm notice To update run: npm install -g npm@12.2.0
+npm notice

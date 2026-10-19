@@ -1,0 +1,35 @@
+
+## forge-spatial-browser
+PASS Forge geometry, navigator cursor/gesture contracts and actual metadata transfers
+
+## mute-auto-preview-browser
+PASS supplied mute-icon and opt-in Auto-preview patch in native Chromium
+
+## integrated-patches-browser
+PASS OGG/import race, safe React controls, zero master gain, Navigator sample WAV and committed Donor identity
+
+## consolidation-browser
+PASS native package download -> fresh profile -> file import -> IndexedDB -> restored playback, invalid-load protection and bounded history
+
+## forge-ready-browser
+PASS ready -> cached Play: emilia
+PASS ready -> cached Play: pure-dieter
+PASS ready -> cached Play: fractalia
+PASS ready -> cached Play: harmonic-xplore
+PASS ready -> cached Play: spektral-synthese
+PASS ready -> cached Play: antonia
+PASS ready -> cached Play: bert
+PASS ready -> cached Play: cecilia
+PASS truthful green readiness and cached Play across all eight machines and tempo edits
+
+## forge-pitch-browser
+PASS edited carrier: antonia
+PASS edited carrier: bert
+PASS edited carrier: cecilia
+PASS edited carrier: emilia
+PASS edited carrier: fractalia
+PASS edited carrier: pure-dieter
+PASS edited carrier: harmonic-xplore
+PASS edited carrier: spektral-synthese
+PASS real brush/Morph, all eight native Play modes, explicit reversible Detune and responsive footer
+PASS reproducible standalone HTML 7a34ef54d3d41248967fc370e9b7f9a74831fb425a62d16833a75951647a36f1 5599768

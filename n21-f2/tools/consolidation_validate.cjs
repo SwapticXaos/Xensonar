@@ -2,11 +2,11 @@
 // A release gate exercises behavior, not just a moving list of source hashes.
 const fs=require('node:fs'),path=require('node:path'),{spawnSync}=require('node:child_process'),manifest=require('../source-manifest.json');
 const native=process.argv.includes('--browser');
-const tests=native?['mute-auto-preview-browser','integrated-patches-browser','consolidation-browser','forge-ready-browser','forge-pitch-browser']:[
- 'history-sharing','patch-integration','consolidation-snapshots','consolidation-history','consolidation-preservation','rw2-source-index',
+const tests=native?['forge-spatial-browser','mute-auto-preview-browser','integrated-patches-browser','consolidation-browser','forge-ready-browser','forge-pitch-browser']:[
+ 'forge-spatial-contracts','forge-spatial-preservation','history-sharing','patch-integration','consolidation-snapshots','consolidation-history','consolidation-preservation','rw2-source-index',
  'forge-pitch-space','forge-ready-contract','forge-progress-jobs','live-rfl-lifecycle',
  'nodal-envelope-zero','workflow-grid-runtime','workflow-hotkeys','microphone-capture','audio-carrier-analysis'];
-const results=path.join(__dirname,'../results/shared-history');fs.mkdirSync(results,{recursive:true});
+const results=path.join(__dirname,'../results/forge-spatial');fs.mkdirSync(results,{recursive:true});
 const suffix=native?'browser-validation':'host-validation',startedAt=new Date().toISOString();
 fs.writeFileSync(path.join(results,suffix+'.json'),JSON.stringify({entry:manifest.entry,sha256:manifest.sha256,startedAt,running:true,rows:[],failed:null},null,2)+'\n');
 const rows=[];let log='';

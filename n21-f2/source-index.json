@@ -822,6 +822,16 @@
       "line": 114
     },
     {
+      "name": "__forgeMaterialRootHz",
+      "file": "src/forge/editor/09_workflow_controls.js",
+      "line": 131
+    },
+    {
+      "name": "__ForgeMaterialMetadata",
+      "file": "src/forge/editor/09_workflow_controls.js",
+      "line": 132
+    },
+    {
       "name": "__PureDieter",
       "file": "src/forge/dsp/08_pure_dieter_worker.js",
       "line": 4
@@ -24309,97 +24319,97 @@
     {
       "name": "H5e",
       "file": "src/forge/editor/01_display_and_canvas.js",
-      "line": 147
+      "line": 151
     },
     {
       "name": "V5e",
       "file": "src/forge/editor/01_display_and_canvas.js",
-      "line": 147
+      "line": 151
     },
     {
       "name": "YO",
       "file": "src/forge/editor/01_display_and_canvas.js",
-      "line": 147
+      "line": 151
     },
     {
       "name": "JO",
       "file": "src/forge/editor/01_display_and_canvas.js",
-      "line": 147
+      "line": 151
     },
     {
       "name": "W5e",
       "file": "src/forge/editor/01_display_and_canvas.js",
-      "line": 147
+      "line": 151
     },
     {
       "name": "U5e",
       "file": "src/forge/editor/01_display_and_canvas.js",
-      "line": 147
+      "line": 151
     },
     {
       "name": "ZO",
       "file": "src/forge/editor/01_display_and_canvas.js",
-      "line": 147
+      "line": 151
     },
     {
       "name": "X5e",
       "file": "src/forge/editor/01_display_and_canvas.js",
-      "line": 147
+      "line": 151
     },
     {
       "name": "e_",
       "file": "src/forge/editor/01_display_and_canvas.js",
-      "line": 147
+      "line": 151
     },
     {
       "name": "Y5e",
       "file": "src/forge/editor/01_display_and_canvas.js",
-      "line": 147
+      "line": 151
     },
     {
       "name": "J5e",
       "file": "src/forge/editor/01_display_and_canvas.js",
-      "line": 147
+      "line": 151
     },
     {
       "name": "Z5e",
       "file": "src/forge/editor/01_display_and_canvas.js",
-      "line": 147
+      "line": 151
     },
     {
       "name": "e4e",
       "file": "src/forge/editor/01_display_and_canvas.js",
-      "line": 147
+      "line": 151
     },
     {
       "name": "t4e",
       "file": "src/forge/editor/01_display_and_canvas.js",
-      "line": 147
+      "line": 151
     },
     {
       "name": "__forgeResizeViewportProjection",
       "file": "src/forge/editor/01_display_and_canvas.js",
-      "line": 150
+      "line": 154
     },
     {
       "name": "__forgeClampHorizontalViewport",
       "file": "src/forge/editor/01_display_and_canvas.js",
-      "line": 161
+      "line": 165
     },
     {
       "name": "n4e",
       "file": "src/forge/editor/01_display_and_canvas.js",
-      "line": 166
+      "line": 170
     },
     {
       "name": "__f35616StampBoundary",
       "file": "src/forge/editor/01_display_and_canvas.js",
-      "line": 178
+      "line": 182
     },
     {
       "name": "r4e",
       "file": "src/forge/editor/01_display_and_canvas.js",
-      "line": 190
+      "line": 194
     },
     {
       "name": "a4e",
@@ -29169,47 +29179,47 @@
     {
       "name": "aP",
       "file": "src/forge_and_melodic/02_forge_keyboard_and_history.js",
-      "line": 504
+      "line": 505
     },
     {
       "name": "Zl",
       "file": "src/forge_and_melodic/02_forge_keyboard_and_history.js",
-      "line": 504
+      "line": 505
     },
     {
       "name": "DWe",
       "file": "src/forge_and_melodic/02_forge_keyboard_and_history.js",
-      "line": 504
+      "line": 505
     },
     {
       "name": "oz",
       "file": "src/forge_and_melodic/02_forge_keyboard_and_history.js",
-      "line": 504
+      "line": 505
     },
     {
       "name": "NWe",
       "file": "src/forge_and_melodic/02_forge_keyboard_and_history.js",
-      "line": 504
+      "line": 505
     },
     {
       "name": "a0",
       "file": "src/forge_and_melodic/02_forge_keyboard_and_history.js",
-      "line": 504
+      "line": 505
     },
     {
       "name": "ey",
       "file": "src/forge_and_melodic/02_forge_keyboard_and_history.js",
-      "line": 504
+      "line": 505
     },
     {
       "name": "iz",
       "file": "src/forge_and_melodic/02_forge_keyboard_and_history.js",
-      "line": 504
+      "line": 505
     },
     {
       "name": "OWe",
       "file": "src/forge_and_melodic/02_forge_keyboard_and_history.js",
-      "line": 504
+      "line": 505
     },
     {
       "name": "_We",
@@ -35316,6 +35326,7 @@
         "__ForgeMiniPlay",
         "__ForgeTransportAccess",
         "__PureDieterControls",
+        "__forgeMaterialRootHz",
         "__useForgeListeningMode"
       ]
     },
@@ -38174,7 +38185,8 @@
       "to": "src/forge/editor/09_workflow_controls.js",
       "symbols": [
         "__ForgeTransportAccess",
-        "__ForgeTransportRack"
+        "__ForgeTransportRack",
+        "__forgeMaterialRootHz"
       ]
     },
     {
@@ -39392,7 +39404,8 @@
       "from": "src/forge/ui/02_donor_routing_and_hearing.js",
       "to": "src/forge/editor/09_workflow_controls.js",
       "symbols": [
-        "__ForgeListeningMode"
+        "__ForgeListeningMode",
+        "__ForgeMaterialMetadata"
       ]
     },
     {

@@ -1,0 +1,16 @@
+{
+  "entry": "Xensonar_N21_F2_Integrated_Patches_Test.html",
+  "sha256": "bef56dbc13cc4b83ad04bf3e14876a36ed568908b2d3400093e33b18cb2fa278",
+  "expectedFailure": "left handle must advertise resizing: crosshair instead of ew-resize",
+  "observedOldGeometry": {
+    "save": {
+      "top": 498.578125,
+      "bottom": 523.578125
+    },
+    "root": {
+      "top": 495.078125,
+      "bottom": 531.078125
+    },
+    "overlap": true
+  }
+}

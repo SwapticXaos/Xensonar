@@ -42,10 +42,10 @@ function __ForgeNavigatorSaveButton(){
   h('button',{type:'button','data-forge-navigator-save-sample':true,disabled:state.busy,
    'aria-label':'Save selected navigator range as sample',onClick:()=>void __f333SaveNavigatorSample(),
    title:'Save the highlighted audio as a one-shot in the shared Sample Database',
-   className:'absolute z-20 left-0 bottom-full mb-1 w-1/2 min-w-max rounded border border-violet-400 bg-violet-950 px-2 py-1 text-[10px] font-semibold text-violet-100 shadow-md hover:bg-violet-800 disabled:opacity-50'
+   className:'rounded border border-violet-400 bg-violet-950 px-2 py-1 text-[10px] font-semibold text-violet-100 shadow-md hover:bg-violet-800 disabled:opacity-50',style:{width:'50%',minWidth:'max-content'}
   },state.busy?'Saving…':'Save as Sample'),
-  state.message&&h('span',{role:'status',className:'absolute left-0 top-full z-20 max-w-60 whitespace-nowrap rounded bg-black px-1 text-[10px] text-violet-200'},state.message)):
-  state.message?h('span',{role:'status',className:'absolute left-0 top-full z-20 text-[10px] text-violet-200'},state.message):null;
+  state.message&&h('span',{role:'status',className:'rounded bg-black px-1 text-[10px] text-violet-200',style:{maxWidth:240,overflowWrap:'anywhere'}},state.message)):
+  state.message?h('span',{role:'status',className:'text-[10px] text-violet-200',style:{maxWidth:240,overflowWrap:'anywhere'}},state.message):null;
 }
 function __ForgeTransportRack(e){
  const h=P.createElement,choice=__useForgeListeningMode(),busy=e.rendering;
@@ -102,9 +102,9 @@ function __ForgeTransportRack(e){
        h(Z_,{label:'Segments',value:e.materialExport.guideSegments,min:1,max:16,onChange:v=>e.updateMaterialExport({guideSegments:J_(v,1,16,e.materialExport.guideSegments)})})))),
     h('div',{'data-f34-project-save-on-main':'true',className:'f34-project-save-on-main'},h(eVe,{compact:true}))),
    h('div',{className:'f31-transport-bottom'},
-    h('div',{'data-forge-hearing-destinations':'v2',className:'f33-rack-destinations'},
+    h('div',{'data-forge-hearing-destinations':'v2',className:'f33-rack-destinations',style:{alignItems:'flex-end'}},
      h('div',{'data-forge-transport-picker':'true',className:'f35-rack-hearing-picker'},h(__ForgeListeningPicker,{label:'Listening mode · Play Rack',compact:true})),
-     destination('material'),h('div',{className:'relative inline-flex items-center'},
+     destination('material'),h('div',{'data-forge-root-actions':true,style:{display:'inline-flex',flexDirection:'column',alignItems:'flex-start',gap:4}},
       h(__ForgeNavigatorSaveButton),destination('root')),destination('pink')),
     h('div',{'data-forge-project-corner':'true',className:'f33-rack-project-corner'},
      h(jHe,{compact:true,onOpenInSpectralForge:()=>window.setTimeout(()=>{const anchor=document.querySelector('[data-xensonar-spectralforge-workmode-header]');anchor?.scrollIntoView({behavior:'smooth',block:'start'})},80)})))),
@@ -124,4 +124,23 @@ function __PureDieterControls(){
   P.createElement('p',{className:'text-[10px] text-neutral-400'},
    usesMix?'Waveform mix affects Additive, Granular and Glyph. Changed settings render on Play; exact repeats may use cache.':'IFFT reconstructs the painted spectrum directly; waveform mix does not apply in this mode.'),
   P.createElement('p',{className:'text-[10px] text-neutral-400'},'Stop or a mode change cancels the current render.'));
+}
+
+// Content and destination are separate: legacy role values stay readable in old
+// archives, but an imported sample is not restricted to one playback instrument.
+function __forgeMaterialRootHz(value){return typeof value==='number'&&Number.isFinite(value)&&value>0&&value<=24000?value:null;}
+function __ForgeMaterialMetadata({meta,onPatch,selection}){
+ const h=P.createElement,duration=selection?.fineLoopRange?.durationSec;
+ const label=(text,control)=>h('label',{className:'space-y-1 text-[11px] text-neutral-400'},h('span',{className:'block uppercase tracking-[0.18em] text-neutral-500'},text),control);
+ const input='w-full rounded border border-neutral-700 bg-neutral-950 px-2 py-1 text-neutral-100';
+ const count=(key,value)=>h('input',{type:'number',min:1,max:16,value, 'aria-label':key==='bars'?'Number of Bars':'Melodic Loop Bar Segments',onChange:event=>onPatch({[key]:Math.max(1,Math.min(16,Math.round(Number(event.currentTarget.value)||1)))}),className:input});
+ return h('section',{'data-forge-material-metadata':true,className:'rounded border border-neutral-800 bg-neutral-900/40 px-3 py-2 text-[11px] text-neutral-300'},
+  h('div',{className:'mb-2 uppercase tracking-[0.22em] text-neutral-500'},'Raw Audio · Metadata'),
+  h('p',{className:'mb-2 text-neutral-400'},'Sample / Loop · usable in Particles, Wave Starter, Melodic Loop and Drums. The destination does not change the source.'),
+  h('div',{className:'grid gap-2 sm:grid-cols-2'},
+   label('Number of Bars',count('bars',meta.bars)),
+   label('Frequency Anchor (Hz)',h('input',{type:'number',min:1,max:24000,step:'any',value:__forgeMaterialRootHz(meta.rootHz)??'',placeholder:'Auto','aria-label':'Material Frequency Anchor (Hz)',onChange:event=>{const value=event.currentTarget.value;onPatch({rootHz:value===''?null:__forgeMaterialRootHz(Number(value))})},className:input})),
+   h('div',null,h('span',{className:'block uppercase text-neutral-500'},'Original Tempo'),h('span',null,meta.bars>0&&duration>0?`${(meta.bars*(meta.beatsPerBar||4)*60/duration).toFixed(1)} BPM · calculated from bars / selection`:'Not calculated yet'))),
+  h('p',{className:'mt-2 text-neutral-500'},'Bars describe loop length. The frequency anchor is used for pitch following; empty keeps the existing automatic/default behavior.'),
+  h('details',{className:'mt-2'},h('summary',{className:'cursor-pointer text-neutral-400'},'Melodic Loop · visual guides'),label('Bar Segments (Guide Markers)',count('guideSegments',meta.guideSegments)),h('p',{className:'mt-1 text-neutral-500'},'Visual editing guides; no additional Root Follow subdivision.')));
 }

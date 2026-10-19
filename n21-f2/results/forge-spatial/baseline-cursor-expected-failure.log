@@ -1,0 +1,14 @@
+AssertionError [ERR_ASSERTION]: left handle must advertise resizing
++ actual - expected
+
++ 'crosshair'
+- 'ew-resize'
+
+    at /workspace/Xensonar/n21-f2/tests/forge-spatial-browser.cjs:28:11 {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: 'crosshair',
+  expected: 'ew-resize',
+  operator: 'strictEqual',
+  diff: 'simple'
+}
