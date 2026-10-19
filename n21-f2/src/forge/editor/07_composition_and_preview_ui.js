@@ -617,7 +617,7 @@ const C6e = P.forwardRef(function({variant: t = "legacy", forge3AudioMode: n = "
         isPlaying: c,
         sessionState: Re()
     }), __f333PcmCached=P.useMemo(()=>t==='forge3'&&__forgeVisible&&__f333CachedPreviewReady(pe.getState()),
-        [t,__forgeVisible,__f333HybridStatus,__f333CachedRevision,__f333TransportTuning,x,s,l,L,B,O,A.bars,A.bpm,A.beatsPerBar,w,k,E,o.selected]),
+        [t,__forgeVisible,__f333HybridStatus,__f333CachedRevision,__f333TransportTuning,x,s,l,L,B,O,A.bars,A.bpm,A.beatsPerBar,w,k,E,o.selected,o.modelRevision,__F35611DonorIntent]),
         Xt = !!o.selected && o.phase === "rendering", hn = !!o.selected && !!o.preparedFigureKey && o.preparedFigureRenderVersion === x && o.phase !== "rendering", fn = t === "forge3" ? (o.selected && __f333Route(pe.getState()) === "donor" ? hn : __f333PcmCached) : un.readyForImmediatePlay, Ut = Xt || (!fn && (un.renderFillActive || Ot.fillActive)), He = Xt ? Math.max(2, Math.min(99, Math.round(o.renderProgress * 100))) : Ot.fillActive ? Ot.fillPercent : un.renderFillPercent, _e = g6e({
         renderFillActive: Ut,
         renderFillPercent: He,

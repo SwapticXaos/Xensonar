@@ -35,6 +35,32 @@ function __f433RememberHearing(key,buffer){
  if(!wasCached)__f333CacheReadyNotify();
 }
 
+// A cache hit is not proof of audible readiness. In particular, an empty
+// Fractalia/Carrier render can produce an AudioBuffer containing only zeros.
+// Check at control rate and memoize by buffer identity, never on the audio thread.
+const __f333AudibleBuffers=new WeakMap();
+function __f333AudiblePCM(buffer){
+ if(!buffer||typeof buffer.getChannelData!=='function'||!Number.isFinite(buffer.length)||buffer.length<1)return false;
+ if(__f333AudibleBuffers.has(buffer))return __f333AudibleBuffers.get(buffer);
+ let audible=false;
+ for(let ch=0;ch<Math.max(1,buffer.numberOfChannels||1)&&!audible;ch++){
+  const samples=buffer.getChannelData(ch);
+  for(let at=0;at<samples.length;at+=16){if(Number.isFinite(samples[at])&&Math.abs(samples[at])>1e-8){audible=true;break;}}
+ }
+ __f333AudibleBuffers.set(buffer,audible);
+ return audible;
+}
+const __f333AudibleSamples=new WeakMap();
+function __f333AudibleSource(source){
+ const samples=source?.monoSamples;
+ if(!samples?.length)return false;
+ if(__f333AudibleSamples.has(samples))return __f333AudibleSamples.get(samples);
+ let audible=false;
+ for(let at=0;at<samples.length;at+=16)if(Number.isFinite(samples[at])&&Math.abs(samples[at])>1e-8){audible=true;break;}
+ __f333AudibleSamples.set(samples,audible);
+ return audible;
+}
+
 // F4.4.9 trial: a return to the main room keeps the drawing and source
 // assets, but not Forge-owned PCM previews and measured donor analyses.
 function __f449ReleaseForgeDerivedCaches(){
@@ -60,10 +86,10 @@ function __f333HearingCacheKey(request,context){
  }
 function __f333CachedPreviewReady(state){
  const route=__f333Route(state);
- if(route==='hybrid')return !!__F352Runtime.current();
- if(route==='reference')return !!state.sourceAsset?.monoSamples;
+ if(route==='hybrid')return __f333AudiblePCM(__F352Runtime.current()?.buffer);
+ if(route==='reference')return __f333AudibleSource(state.sourceAsset);
  // A loaded Audio Body is already available without an asynchronous Forge render.
- if(route==='body')return !!state.sourceAsset?.monoSamples;
+ if(route==='body')return __f333AudibleSource(state.sourceAsset);
  if((route!=='hearing'&&route!=='carrier')||__f333HearingCache.size===0)return false;
  try{
   const request=route==='hearing'?__f333HearingRequest(state):OB({
@@ -71,7 +97,7 @@ function __f333CachedPreviewReady(state){
    valueSource:'right-override',selection:state.carrierIntegralSelection,synthLab:state.carrierIntegralSynthLab,
    harmonicXplore:state.carrierIntegralHarmonicXplore,previewBpm:state.materialExport.bpm,
    previewGain:1,previewPitchSemitones:__f3565PitchSemis(),loopPreview:true});
-  return __f333HearingCache.has(__f333HearingCacheKey(request,IB(request)));
+  return __f333AudiblePCM(__f333HearingCache.get(__f333HearingCacheKey(request,IB(request))));
  }catch{return false}
 }
 function __f333Stop() {
@@ -414,6 +440,8 @@ async function __f333PlayCurrent(state,options={}) {
     {...options,isCurrent:current,loopPreview:state.materialExport.loopPreview});
   const rendered=await __f333RenderCurrent(state,options);
   if(!current())return false;
+  if(!__f333AudiblePCM(rendered.buffer))
+   throw Error('The selected listening mode has no audible signal. Check the carrier figure and sound source.');
   const played=await xt.playBufferInternal(rendered.buffer,rendered.buffer.duration,options.fromPosition??0,
     p=>{if(current())options.onPosition?.(p)},()=>{if(current())options.onEnd?.()},
     {isCurrent:current,playbackRate:1,loopPreview:route!=='reference'&&!!state.materialExport.loopPreview,lifecycleMode:`forge-f333-${route}`,

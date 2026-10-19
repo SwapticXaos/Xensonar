@@ -97,7 +97,15 @@ function CGe({sourceAdapters:e,targetAdapter:t,rawTargetAdapter:n,rawRootFollowT
    request.handled=true;
    Promise.resolve().then(async()=>{
     const asset=E?.sourceAsset,mask=F?.fineLoopRange;
-    // The committed lower purple mask is the user's primary Donor choice.
+    // A completed extraction is an active musical choice, not a draft. Repainting
+    // the purple mask must not replace it until the user explicitly Extracts again
+    // or chooses Use as Donor in the library. Only bootstrap from the mask when
+    // no completed source/model exists (the one-click, no-click-street path).
+    const committed=Vt.getSnapshot();
+    if(committed.model?.hybrid&&committed.source){
+     if(!Vt.selectDonor())throw Error('The committed donor could not be selected.');
+     return {source:'committed-runtime'};
+    }
     if(asset&&mask&&Number.isFinite(mask.startSec)&&Number.isFinite(mask.durationSec)&&mask.durationSec>0){
      if(mask.durationSec<.025||mask.durationSec>8)throw Error("The lower donor mask must be between 25 ms and 8 seconds long.");
      const target=sg(asset,{startSec:mask.startSec,durationSec:mask.durationSec});

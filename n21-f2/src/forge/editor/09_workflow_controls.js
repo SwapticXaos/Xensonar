@@ -29,7 +29,7 @@ function __ForgeMiniPlay(){
  const fill=Math.min(99,Math.round(Math.max(0,Number(state.progress)||0)));
  return P.createElement('button',{type:'button','data-forge-synth-snap-play':true,'data-forge-synth-lab-play':true,
   'aria-label':loading?'Cancel figure rendering':playing?'Pause figure preview':'Play current figure','aria-busy':loading,
-  title:loading?'Preparing current figure · '+fill+' %':playing?'Pause figure preview':state.ready?'Preview ready · starts immediately':'Preview not rendered yet',
+  title:loading?'Preparing current figure · '+fill+' %':playing?'Pause figure preview':state.ready?'Preview ready · starts immediately':'Preview is not yet audibly ready · Play prepares the selected mode',
   disabled:!state.available,onClick:()=>void __ForgeTransportAccess.activate(),
   className:'relative overflow-hidden inline-flex h-8 min-w-20 items-center justify-center gap-1 rounded border px-2 text-xs font-semibold text-white disabled:opacity-40 '+(loading?'border-neutral-500 bg-neutral-700':playing?'border-red-400 bg-red-600':state.ready?'border-green-400/40 bg-green-600 hover:bg-green-500':'border-neutral-500 bg-neutral-700')},
   loading&&P.createElement('span',{'aria-hidden':true,className:'pointer-events-none absolute inset-x-0 bottom-0 bg-emerald-500/90',style:{height:fill+'%'}}),
