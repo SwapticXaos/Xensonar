@@ -31777,319 +31777,329 @@
       "line": 19
     },
     {
-      "name": "__f333CacheReadySubscribe",
+      "name": "__f333ReadyMemo",
       "file": "src/forge_and_melodic/10_audition_and_persistence.js",
       "line": 20
     },
     {
-      "name": "__f333CacheReadySnapshot",
+      "name": "__f333CacheReadySubscribe",
       "file": "src/forge_and_melodic/10_audition_and_persistence.js",
       "line": 21
     },
     {
-      "name": "__f333CacheReadyNotify",
+      "name": "__f333CacheReadySnapshot",
       "file": "src/forge_and_melodic/10_audition_and_persistence.js",
       "line": 22
     },
     {
-      "name": "__f433CacheBytes",
+      "name": "__f333CacheReadyNotify",
       "file": "src/forge_and_melodic/10_audition_and_persistence.js",
-      "line": 26
+      "line": 23
     },
     {
-      "name": "__f433RememberHearing",
+      "name": "__f433CacheBytes",
       "file": "src/forge_and_melodic/10_audition_and_persistence.js",
       "line": 27
     },
     {
-      "name": "__f333AudibleBuffers",
+      "name": "__f433RememberHearing",
       "file": "src/forge_and_melodic/10_audition_and_persistence.js",
-      "line": 41
+      "line": 28
     },
     {
-      "name": "__f333AudiblePCM",
+      "name": "__f333AudibleBuffers",
       "file": "src/forge_and_melodic/10_audition_and_persistence.js",
       "line": 42
     },
     {
-      "name": "__f333AudibleSamples",
+      "name": "__f333AudiblePCM",
       "file": "src/forge_and_melodic/10_audition_and_persistence.js",
-      "line": 49
+      "line": 43
     },
     {
-      "name": "__f333SamplesHaveSignal",
+      "name": "__f333AudibleSamples",
       "file": "src/forge_and_melodic/10_audition_and_persistence.js",
       "line": 50
     },
     {
+      "name": "__f333SamplesHaveSignal",
+      "file": "src/forge_and_melodic/10_audition_and_persistence.js",
+      "line": 51
+    },
+    {
       "name": "__f333AudibleSource",
       "file": "src/forge_and_melodic/10_audition_and_persistence.js",
-      "line": 57
+      "line": 58
     },
     {
       "name": "__f449ReleaseForgeDerivedCaches",
       "file": "src/forge_and_melodic/10_audition_and_persistence.js",
-      "line": 65
+      "line": 66
     },
     {
       "name": "__f333HearingCacheKey",
       "file": "src/forge_and_melodic/10_audition_and_persistence.js",
-      "line": 73
+      "line": 74
+    },
+    {
+      "name": "__f333ReadyInputs",
+      "file": "src/forge_and_melodic/10_audition_and_persistence.js",
+      "line": 90
     },
     {
       "name": "__f333CachedPreviewReady",
       "file": "src/forge_and_melodic/10_audition_and_persistence.js",
-      "line": 86
+      "line": 101
     },
     {
       "name": "__f333Stop",
       "file": "src/forge_and_melodic/10_audition_and_persistence.js",
-      "line": 102
+      "line": 120
     },
     {
       "name": "__f333Idle",
       "file": "src/forge_and_melodic/10_audition_and_persistence.js",
-      "line": 110
+      "line": 128
     },
     {
       "name": "__f333WorkingSource",
       "file": "src/forge_and_melodic/10_audition_and_persistence.js",
-      "line": 114
+      "line": 132
     },
     {
       "name": "__f333AttachTransitionGuard",
       "file": "src/forge_and_melodic/10_audition_and_persistence.js",
-      "line": 118
+      "line": 136
     },
     {
       "name": "__f333Signature",
       "file": "src/forge_and_melodic/10_audition_and_persistence.js",
-      "line": 134
+      "line": 152
     },
     {
       "name": "__f333Curve",
       "file": "src/forge_and_melodic/10_audition_and_persistence.js",
-      "line": 140
+      "line": 158
     },
     {
       "name": "__f333BuildCarrier",
       "file": "src/forge_and_melodic/10_audition_and_persistence.js",
-      "line": 145
+      "line": 163
     },
     {
       "name": "__f333CarrierColumn",
       "file": "src/forge_and_melodic/10_audition_and_persistence.js",
-      "line": 168
+      "line": 186
     },
     {
       "name": "__f333MaterializeCarrier",
       "file": "src/forge_and_melodic/10_audition_and_persistence.js",
-      "line": 182
+      "line": 200
     },
     {
       "name": "__f333ReadCarrier",
       "file": "src/forge_and_melodic/10_audition_and_persistence.js",
-      "line": 197
+      "line": 215
     },
     {
       "name": "__f333CarrierSkeleton",
       "file": "src/forge_and_melodic/10_audition_and_persistence.js",
-      "line": 201
+      "line": 219
     },
     {
       "name": "__f333HearingRequest",
       "file": "src/forge_and_melodic/10_audition_and_persistence.js",
-      "line": 207
+      "line": 225
     },
     {
       "name": "__f333RenderHearing",
       "file": "src/forge_and_melodic/10_audition_and_persistence.js",
-      "line": 214
+      "line": 232
     },
     {
       "name": "__f3565PitchSemis",
       "file": "src/forge_and_melodic/10_audition_and_persistence.js",
-      "line": 283
+      "line": 301
     },
     {
       "name": "__f3565PitchRatio",
       "file": "src/forge_and_melodic/10_audition_and_persistence.js",
-      "line": 284
+      "line": 302
     },
     {
       "name": "__f3565PitchGrid",
       "file": "src/forge_and_melodic/10_audition_and_persistence.js",
-      "line": 287
+      "line": 305
     },
     {
       "name": "__f3565PitchSupport",
       "file": "src/forge_and_melodic/10_audition_and_persistence.js",
-      "line": 307
+      "line": 325
     },
     {
       "name": "__F3564Master",
       "file": "src/forge_and_melodic/10_audition_and_persistence.js",
-      "line": 313
+      "line": 331
     },
     {
       "name": "__f3564Live",
       "file": "src/forge_and_melodic/10_audition_and_persistence.js",
-      "line": 328
+      "line": 346
     },
     {
       "name": "__f3564PeakMemo",
       "file": "src/forge_and_melodic/10_audition_and_persistence.js",
-      "line": 329
+      "line": 347
     },
     {
       "name": "__f3564BufferPeak",
       "file": "src/forge_and_melodic/10_audition_and_persistence.js",
-      "line": 330
+      "line": 348
     },
     {
       "name": "__f3564SafeGain",
       "file": "src/forge_and_melodic/10_audition_and_persistence.js",
-      "line": 340
+      "line": 358
     },
     {
       "name": "__f3564ActivateLiveGain",
       "file": "src/forge_and_melodic/10_audition_and_persistence.js",
-      "line": 345
+      "line": 363
     },
     {
       "name": "__f3564UpdateLiveGain",
       "file": "src/forge_and_melodic/10_audition_and_persistence.js",
-      "line": 351
+      "line": 369
     },
     {
       "name": "__f3564ApplyGain",
       "file": "src/forge_and_melodic/10_audition_and_persistence.js",
-      "line": 361
+      "line": 379
     },
     {
       "name": "__f352Enabled",
       "file": "src/forge_and_melodic/10_audition_and_persistence.js",
-      "line": 374
+      "line": 392
     },
     {
       "name": "LU",
       "file": "src/forge_and_melodic/10_audition_and_persistence.js",
-      "line": 375
+      "line": 393
     },
     {
       "name": "KO",
       "file": "src/forge_and_melodic/10_audition_and_persistence.js",
-      "line": 376
+      "line": 394
     },
     {
       "name": "__f333Route",
       "file": "src/forge_and_melodic/10_audition_and_persistence.js",
-      "line": 377
+      "line": 395
     },
     {
       "name": "__f333RenderCurrentRaw",
       "file": "src/forge_and_melodic/10_audition_and_persistence.js",
-      "line": 393
+      "line": 411
     },
     {
       "name": "__f333RenderCurrent",
       "file": "src/forge_and_melodic/10_audition_and_persistence.js",
-      "line": 419
+      "line": 437
     },
     {
       "name": "__f333PlayCurrent",
       "file": "src/forge_and_melodic/10_audition_and_persistence.js",
-      "line": 425
+      "line": 443
     },
     {
       "name": "__f333SaveNavigatorSample",
       "file": "src/forge_and_melodic/10_audition_and_persistence.js",
-      "line": 452
+      "line": 470
     },
     {
       "name": "__f333ExportCurrent",
       "file": "src/forge_and_melodic/10_audition_and_persistence.js",
-      "line": 500
+      "line": 518
     },
     {
       "name": "__f345ExportFlacCurrent",
       "file": "src/forge_and_melodic/10_audition_and_persistence.js",
-      "line": 509
+      "line": 527
     },
     {
       "name": "__f333CurrentLabel",
       "file": "src/forge_and_melodic/10_audition_and_persistence.js",
-      "line": 524
+      "line": 542
     },
     {
       "name": "__f333PersistNow",
       "file": "src/forge_and_melodic/10_audition_and_persistence.js",
-      "line": 530
+      "line": 548
     },
     {
       "name": "__f334TransferEvent",
       "file": "src/forge_and_melodic/10_audition_and_persistence.js",
-      "line": 537
+      "line": 555
     },
     {
       "name": "__f334NoticeEvent",
       "file": "src/forge_and_melodic/10_audition_and_persistence.js",
-      "line": 538
+      "line": 556
     },
     {
       "name": "__f334TransferNotice",
       "file": "src/forge_and_melodic/10_audition_and_persistence.js",
-      "line": 539
+      "line": 557
     },
     {
       "name": "__f334Notice",
       "file": "src/forge_and_melodic/10_audition_and_persistence.js",
-      "line": 540
+      "line": 558
     },
     {
       "name": "__f334HasPendingCarrier",
       "file": "src/forge_and_melodic/10_audition_and_persistence.js",
-      "line": 544
+      "line": 562
     },
     {
       "name": "__f334CreateTransfer",
       "file": "src/forge_and_melodic/10_audition_and_persistence.js",
-      "line": 545
+      "line": 563
     },
     {
       "name": "__f334CommitCarrier",
       "file": "src/forge_and_melodic/10_audition_and_persistence.js",
-      "line": 560
+      "line": 578
     },
     {
       "name": "__f334ReceiveCarrier",
       "file": "src/forge_and_melodic/10_audition_and_persistence.js",
-      "line": 582
+      "line": 600
     },
     {
       "name": "__f340SeekFromNavigator",
       "file": "src/forge_and_melodic/10_audition_and_persistence.js",
-      "line": 602
+      "line": 620
     },
     {
       "name": "__F341Spectrograms",
       "file": "src/forge_and_melodic/10_audition_and_persistence.js",
-      "line": 617
+      "line": 635
     },
     {
       "name": "__f341Spectrogram",
       "file": "src/forge_and_melodic/10_audition_and_persistence.js",
-      "line": 618
+      "line": 636
     },
     {
       "name": "__mlSendRenderedAudioToSpectral",
       "file": "src/forge_and_melodic/10_audition_and_persistence.js",
-      "line": 637
+      "line": 655
     },
     {
       "name": "__mlReceiveRenderedAudio",
       "file": "src/forge_and_melodic/10_audition_and_persistence.js",
-      "line": 652
+      "line": 670
     },
     {
       "name": "__f341Selection",
@@ -39437,6 +39447,7 @@
       "from": "src/forge/module_bundle/21_experimentStatePersistence.js",
       "to": "src/forge_and_melodic/10_audition_and_persistence.js",
       "symbols": [
+        "__F3564Master",
         "__f333Epoch",
         "__f333RestoreBarrier"
       ]
@@ -39446,6 +39457,13 @@
       "to": "src/forge/01_workbench_state.js",
       "symbols": [
         "__F341Workbench"
+      ]
+    },
+    {
+      "from": "src/forge/module_bundle/21_experimentStatePersistence.js",
+      "to": "src/forge/editor/09_workflow_controls.js",
+      "symbols": [
+        "__ForgeListeningMode"
       ]
     },
     {

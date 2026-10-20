@@ -1,0 +1,12 @@
+{
+  "note": "Native local-edit reproduction before the transport route correction; current build at that intermediate stage is not the released HTML",
+  "observation": {
+    "jobs": 1,
+    "ready": false,
+    "version": 5,
+    "title": "Preview not rendered yet",
+    "status": " ",
+    "error": null,
+    "phase": "ready"
+  }
+}

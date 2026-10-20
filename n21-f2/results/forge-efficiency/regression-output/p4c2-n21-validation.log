@@ -1,0 +1,569 @@
+
+## p4c2-n7-frequency-pacing
+PASS N7 dynamic preparation: first 8 exact Hz, paced priority continuation, cached set free, stale and disposed results dropped
+
+## p4c2-n7-grid-deltas
+PASS N7 exact grid deltas: stable cursor zero work; one step 4 variants + 2 ratios; one ratio only 3 roots; mute zero calculations
+
+## p4c2-n7-impact-preparation
+PASS N7 impact forecast: read-only ring/velocity/sector ranking, exact root ratios, no notes/tickets and no repeated jobs on stable pitch
+
+## p4c2-n7-priority-queue
+PASS N7 shared priority queue: imminent grid entries first, valid in-flight batch retained, no redundant priority work, clean disposal
+
+## p4c2-n2-preparation-queue
+PASS N2 shared preparation: 16-item pacing, exact delta, full-cache replacement, last revision wins, opaque adapters, failure and disposal
+
+## p4c2-n2-grid-sources
+PASS N2 production grid/Snap/Keyboard/resolver: 31288 exact variant hits, 20 tuning/edit cases, keyboard-only selection, stable cursor, disposal
+
+## p4c2-n7-session-preparation
+PASS N7 session preparation: 5 rates, 3 timbres, 12 pooled voices; shared exact laws and allocation-free block scratch
+
+## p4c2-n7-interleaved-voices
+PASS N7 interleaved voices: 576800 exact sample values, 5400 exact states
+
+## p4c2-n6-input-routing
+PASS N6 review regression: Enter/Wave sustain retains Wave volume; Keyboard sustain/direct/gliss uses Keyboard; native identity and stable Nodal bus
+
+## p4c2-n6-catalog
+PASS N6 catalog: bounded independent MRU, stable snapshots, corruption, dedup, deleted sources and explicit pan capabilities
+
+## p4c2-n6-placement
+PASS N6 stereo PCM: opposing simultaneous particles, separate keyboard, exact centre, 128-frame smooth changes, one scratch pair
+
+## p4c2-n6-real-placement
+PASS N6 actual V2 PCM 48000 Hz: simultaneous opposite particles match unchanged synthesis and stay off Wave output
+PASS N6 actual V2 PCM 96000 Hz: simultaneous opposite particles match unchanged synthesis and stay off Wave output
+
+## p4c2-n5-pointer
+PASS N5 raw cursor, 500:1 motion work, synchronous adjacent clicks, no stale rollback, rerender/leave/state replacement
+
+## p4c2-n5-particle-motion
+PASS N5 no wave-load motion brake, real impact preserved, display interpolation is separate from physics
+PASS N5 actual clock/draw orchestration forwards alpha and skips zero-time simulation
+
+## p4c2-n5-review-regressions
+PASS N5 review fixes: newer edge arrow cancels pointer; reset/no-step presentation never reverses
+
+## p4b-l5-cursor-contract
+PASS P4B-L5: free focus and ball navigation over grid line, special drag and outside-release, overlay input forwarding; no audio-path changes
+
+## p4b-l8-cursor-gate
+PASS L8 bounded HUD renders: 20 per 200 5ms movements; free focus and click snapshot unchanged
+
+## p3b-host-admission
+PASS P3B actual host: six timely Nodal notes reach unchanged Worklet budget; early burst limit, late-stage rejection and ticket cleanup remain intact
+
+## p3b5-triple-nodal-burst-budget
+PASS shared triple Nodal budget, sample rate, bounded per-program pool, real processor full-cost tails
+
+## p3b5-three-lane-integration
+PASS three Nodal programs selected, shared bounded DSP+physical tickets, nonzero PCM, full end-of-tail release
+
+## p3b1-keyboard-directness
+PASS every distinct keyboard attack remains immediate; OS repeat stays with Hold
+
+## p3b1-keyboard-backend
+PASS explicit Classic keyboard uses its ready Worklet even under global Entrophon pressure
+
+## p3b1-keyboard-nodal
+PASS actual Keyboard UI→selection effect→input options→independent Nodal slot→nonzero DSP; shared budget, output and release ownership
+
+## p3b2-keyboard-entrophon
+PASS independent Keyboard Entrophon → real audio dispatch → Classic, Wave unaffected
+
+## p3b2-entrophon-body
+PASS explicit keyboard Entrophon retains its complete body with global Wave Entrophon disabled
+
+## p3b2-active-gate
+PASS explicit keyboard admission uses same readiness/voice-limit gate; Classic unchanged
+
+## p3b3-wave-c11-stale-boundary
+PASS P3B3 shared Wave C11 deadline: input accepted once, bounded catch-up, old events dropped
+
+## p3b3-keyboard-c11-lead
+PASS C11 keyboard direct owner: bounded short lead; wave unchanged; no fallback or queued attack
+
+## p3b4-c11-complexity-timing
+PASS P3B4 demand-aware planning: mono 12ms, 2 tones 14ms, 3-5 tones 16ms, dense 20ms; demand unchanged
+
+## p3b4-wave-cost-boundary
+PASS P3B4 existing shared Wave host: simple 4 units / gradient 24 units; bounded deadlines still apply
+
+## p3b6-coefficient-hotpath
+PASS P3B6 V2 PCM bit-identical, samples=98304, log 18144 -> 9216, pow 14888 -> 5840
+
+## p3b6-worker-frequency-coalescing
+PASS P3B6 worker coalescing, stale drop, two independent pitch families, no Main DSP
+
+## p3b6-worker-pitch-parity
+PASS P3B6 real worker pitch coefficient parity, forgotten plans fail closed, 12 frequencies
+
+## p4c1-source-preparation
+PASS P4C1 source transaction: mixed engines, scoped selection, unchanged geometry, resource currencies, abort barriers, rollback and idempotent release
+
+## p4c1-production-handoff
+PASS P4C1 production SW handoff: real mixed Nodal/C11, exact PCM, microtonal frequencies, deduplication, preflight limits, cancellation and worker cleanup
+
+## p4c2-n4-sample-parity
+PASS N4 {
+  cases: 108,
+  channelSampleValues: 9702873,
+  irregularBlocks: 84028,
+  snapshotComparisons: 3936,
+  baseline: 'P4C2-N3',
+  checks: [
+    'full release and natural tails',
+    'early release before attack',
+    'automatic gate',
+    'gliss after release',
+    'custom seed/pitch/volume curves',
+    'zero gain/velocity',
+    '3/7/12-node and single impulse',
+    'body 0/1, natural 0/1, width/register/follow',
+    'prepared templates and reset after completed tail',
+    'mono/alias/stereo, accumulate/overwrite, arbitrary offsets and frame sizes'
+  ],
+  result: 'bit-identical Float32 output and exact snapshots'
+}
+
+## p4c2-n4-template-placement
+PASS N4 prepared V2 pool: 9 configurations, no constructor transcendentals, old templates accepted; 108544 exact PCM values
+
+## p4c2-n3-particle-grid
+PASS N3 particle Root×Ratio {
+  cases: 24,
+  boundedCases: 4,
+  coverage: [
+    {
+      grid: 'edo12',
+      base: 1760,
+      particleSystem: '12edo',
+      roots: 70,
+      desired: 566,
+      requested: 566
+    },
+    {
+      grid: 'edo12',
+      base: 1318.137,
+      particleSystem: '12edo',
+      roots: 59,
+      desired: 561,
+      requested: 561
+    },
+    {
+      grid: 'edo12',
+      base: 1760,
+      particleSystem: 'bp',
+      roots: 70,
+      desired: 799,
+      requested: 799
+    },
+    {
+      grid: 'edo12',
+      base: 1318.137,
+      particleSystem: 'bp',
+      roots: 59,
+      desired: 725,
+      requested: 725
+    },
+    {
+      grid: 'edo12',
+      base: 1760,
+      particleSystem: 'ji',
+      roots: 70,
+      desired: 727,
+      requested: 727
+    },
+    {
+      grid: 'edo12',
+      base: 1318.137,
+      particleSystem: 'ji',
+      roots: 59,
+      desired: 634,
+      requested: 634
+    },
+    {
+      grid: 'edo31',
+      base: 1760,
+      particleSystem: '12edo',
+      roots: 184,
+      desired: 2113,
+      requested: 2048
+    },
+    {
+      grid: 'edo31',
+      base: 1318.137,
+      particleSystem: '12edo',
+      roots: 173,
+      desired: 2074,
+      requested: 2048
+    },
+    {
+      grid: 'edo31',
+      base: 1760,
+      particleSystem: 'bp',
+      roots: 184,
+      desired: 2099,
+      requested: 2048
+    },
+    {
+      grid: 'edo31',
+      base: 1318.137,
+      particleSystem: 'bp',
+      roots: 173,
+      desired: 2141,
+      requested: 2048
+    },
+    {
+      grid: 'edo31',
+      base: 1760,
+      particleSystem: 'ji',
+      roots: 184,
+      desired: 1896,
+      requested: 1896
+    },
+    {
+      grid: 'edo31',
+      base: 1318.137,
+      particleSystem: 'ji',
+      roots: 173,
+      desired: 1878,
+      requested: 1878
+    },
+    {
+      grid: 'bp',
+      base: 1760,
+      particleSystem: '12edo',
+      roots: 49,
+      desired: 563,
+      requested: 563
+    },
+    {
+      grid: 'bp',
+      base: 1318.137,
+      particleSystem: '12edo',
+      roots: 42,
+      desired: 504,
+      requested: 504
+    },
+    {
+      grid: 'bp',
+      base: 1760,
+      particleSystem: 'bp',
+      roots: 49,
+      desired: 385,
+      requested: 385
+    },
+    {
+      grid: 'bp',
+      base: 1318.137,
+      particleSystem: 'bp',
+      roots: 42,
+      desired: 405,
+      requested: 405
+    },
+    {
+      grid: 'bp',
+      base: 1760,
+      particleSystem: 'ji',
+      roots: 49,
+      desired: 513,
+      requested: 513
+    },
+    {
+      grid: 'bp',
+      base: 1318.137,
+      particleSystem: 'ji',
+      roots: 42,
+      desired: 459,
+      requested: 459
+    },
+    {
+      grid: 'ji',
+      base: 1760,
+      particleSystem: '12edo',
+      roots: 40,
+      desired: 461,
+      requested: 461
+    },
+    {
+      grid: 'ji',
+      base: 1318.137,
+      particleSystem: '12edo',
+      roots: 43,
+      desired: 513,
+      requested: 513
+    },
+    {
+      grid: 'ji',
+      base: 1760,
+      particleSystem: 'bp',
+      roots: 40,
+      desired: 460,
+      requested: 460
+    },
+    {
+      grid: 'ji',
+      base: 1318.137,
+      particleSystem: 'bp',
+      roots: 43,
+      desired: 531,
+      requested: 531
+    },
+    {
+      grid: 'ji',
+      base: 1760,
+      particleSystem: 'ji',
+      roots: 40,
+      desired: 299,
+      requested: 299
+    },
+    {
+      grid: 'ji',
+      base: 1318.137,
+      particleSystem: 'ji',
+      roots: 43,
+      desired: 397,
+      requested: 397
+    }
+  ],
+  exactCollisionFrequencyHits: 21468,
+  source: 'production D2e/NT, grid/Snap/Keyboard/cursor/lw; deterministic scale catalog fixtures',
+  checks: [
+    'particle-only prewarm before first collision',
+    'alias timbre sharing',
+    'independent plans',
+    'ratio edit vs motion',
+    'deselection reconciliation',
+    '2048 bound with exact uncached notes',
+    'context replacement',
+    'disposal'
+  ]
+}
+
+## p4c2-n3-particle-worker
+PASS N3 actual surface→Worker→shared queue→processor {
+  roots: 64,
+  ratios: 5,
+  particleFrequencies: 320,
+  programs: 1,
+  preparedOnsets: 5,
+  pitchTrigonometryOnPreparedOnsets: 0,
+  ratioEditNewFrequencies: 64,
+  nonzeroWavePcm: true,
+  nonzeroParticlePcm: true,
+  mainThreadCoefficientJobs: 0
+}
+
+## p4c2-n2-worker-runtime
+PASS N2 real Worker→shared queue→actual Worklet processor/DSP: 320 tones/20 packets, one-tone delta, rapid revisions, no onset work, nonzero PCM, disposal
+
+## p2-staged-audio-parity
+PASS P2 real Nodal V2 audio: eager versus paced pool samples identical across cold selection while old voice plays; samples=95232
+
+## f4311-ripple-and-psy
+PASS Emilia isolated HTML compositor waves and delayed release hook
+PASS Classic semitone bit identity; opt-in 31-EDO, 19-EDO, JI and BP tuning relationships
+PASS Main-room bass scheduler honors precomputed pitch but preserves timing, dynamics and legacy pattern fallback
+PASS PsyBass UI, generation, saved-clip ratios and live transport are wired
+
+## f4312-ripple-release
+PASS F4.3.12: imperative compositor layer; no ring on first move; release after settle; preview render cannot overlap ring onset; cleanup timeouts
+
+## f4313-ripple-pacing
+PASS F4.3.13: Haupt­raum-relative ring radius/speed/easing + composited wave unchanged
+
+## f3-instruments
+PASS Close/wide line spacing survives capture and compilation as actual partial spacing
+PASS Flat contours have zero roughness
+PASS Native export/import restores spectral states and modes exactly
+PASS Empty, malformed and settings-only instrument imports are rejected
+PASS Carrier timing is retained, with a short bounded instrument release inside the figure duration
+PASS Capturing and saving a drawing onto itself preserves its sound exactly
+PASS A second melody uses the same captured material
+PASS An empty carrier remains silent
+PASS All bodies and extreme fold/spacing controls produce finite bounded audio
+PASS Compilation and PCM rendering accept cancellation
+PASS Saved F2 instruments retain bit-identical legacy audio
+PASS Eight-second six-voice render completes with bounded precompiled material
+PASS The full eight-mode instrument also renders six voices within the same bounded architecture
+{
+  twoCompilesMs: 108.061248,
+  oneSecondMonoMs: 27.493707,
+  eightSecondsSixVoicesMs: 344.601099,
+  eightSecondsSixVoicesEightModesMs: 583.1647459999999
+}
+
+## p4c2-n20-cost-policy
+PASS N20 full/tail costs, rates, one shared ledger, primary reserve, exact once cleanup
+
+## p4c2-n20-shared-runtime
+PASS N20 shared runtime: [{"rate":48000,"nodes":3,"n19FullVoices":8,"n20FullVoices":9,"comparedChannelValues":141824,"energy":337.44366181489175,"allPhysicalTicketsReturned":true},{"rate":48000,"nodes":7,"n19FullVoices":4,"n20FullVoices":5,"comparedChannelValues":141824,"energy":292.4750285419672,"allPhysicalTicketsReturned":true},{"rate":48000,"nodes":12,"n19FullVoices":2,"n20FullVoices":3,"comparedChannelValues":141824,"energy":213.29642809580534,"allPhysicalTicketsReturned":true},{"rate":96000,"nodes":3,"n19FullVoices":4,"n20FullVoices":4,"comparedChannelValues":258048,"energy":546.8851951984547,"allPhysicalTicketsReturned":true},{"rate":96000,"nodes":7,"n19FullVoices":2,"n20FullVoices":2,"comparedChannelValues":258048,"energy":277.8107157537095,"allPhysicalTicketsReturned":true},{"rate":96000,"nodes":12,"n19FullVoices":1,"n20FullVoices":1,"comparedChannelValues":258048,"energy":178.18056087345155,"allPhysicalTicketsReturned":true}]
+
+## p4c2-n20-worker-preparation
+PASS N20 real Worker preparation barrier, exact pitches, immediate note path and cancellation
+
+## p4c2-n20-melodic-transport
+PASS N20 actual Melodic transport: real Worker/paced pools, exact microtonal preflight, primary ledger, one ticket per voice, play/stop cleanup
+
+## p4c2-n20-tail-budget
+PASS N20 48000 Hz held 9 → released tails plus new attacks 10 ; exact PCM, host/processor price, actual pool and all tickets reconciled
+PASS N20 96000 Hz held 4 → released tails plus new attacks 5 ; exact PCM, host/processor price, actual pool and all tickets reconciled
+
+## p4c2-n21-length-control
+PASS N21 finite/held cuts, primary isolation, one gesture, idempotence, German/English apostrophe
+
+## p4c2-n21-quickdock
+PASS N21 dock: full stable target, seven-item migration, one left pulse, no right pulse, no remount replay or nested height cap
+
+## p4c2-n21-c11-release
+PASS N21 native baseline vs new binary: exact unchanged PCM, all 18 outputs, Entrophon/Wave/Core at 44.1/48/96 kHz
+PASS N21 real C11 finite/held early release and pre-onset cancellation for Entrophon and Wave at three rates
+PASS N21 C11 cut isolation and completed-token no-op: concurrent shared voices survive
+PASS N21 manual Core cut: 3ms declick, epoch/lease fence, immediate subsequent playback; shared host rejects command
+
+## p4c2-n21-runtime-release
+PASS N21 production Nodal DSP/ports: finite Wave/Keyboard + held-particle cuts, ordinary particle protected, no future phantom onset, idempotent tickets at 48/96 kHz
+PASS N21 sample loading: keyup invalidates pending load, no phantom late start, subsequent notes playable, tracked voice/ticket cleaned once
+
+## p4c2-n21-preservation
+PASS exact graphics/readiness/donor/settings/persistence edits; all other sources, renderers and sound detail unchanged
+PASS P7 exact 00–22 source ancestry, explicit corrections and all untouched source/style/template hashes
+PASS bounded Ball controls/grid integration, unchanged main tuning engine and preserved original G kernel fixture
+PASS exact reviewed Forge spatial/metadata edits; all other source, synthesis and styles preserved
+PASS all four supplied patches retained; only reviewed history/audibility/sample adapters and one new history module change afterward
+PASS only archive codec adapters, project loader and history orchestration changed; all other source, DSP, UI and styles preserved
+PASS N21 audio/runtime outside explicit Granular Hold patch unchanged; N20F2 outside explicit Forge progress patch unchanged; exact Play/Save and navigation preserved
+PASS merged N21 preservation: 10 N21 adapters plus 6 N20F2 Forge/navigation adaptations; explicit Granular Hold adapters; other audio prep, DSP, RFL, drums, bass, material, physics preserved
+
+## p4c2-n20-mixed-render
+PASS N20 mixed render {"blocks":360,"sampleRate":48000,"nodalFullVoices":9,"energy":[171.62789219215156,968.0565154287513,4065.2159648162756,4881.441392296821],"p95HostMixtureMs":5.056935000000067,"quantumMs":2.6666666666666665,"primaryPcmExact":true,"scope":"Real C11 direct bass/pulse, Entrophon WASM and RFL resident Base plus nine full Nodal voices; host sequential render fixture, no browser scheduling/device/xrun claim"}
+
+## f442-rfl-runtime
+PASS all material settings equal uncached output across modes/pressure; in-place edits invalidate cache
+PASS 10,000 unchanged material ticks perform one settings normalization
+PASS 12 mono/stereo/rate matrices preserve every PCM byte and health message, including retune and bank crossfade
+PASS direct, granular and mixed event paths preserve PCM and retire tails in mono and stereo
+[{"sourceChannels":1,"renderedSec":10.666666666666666,"oldMedianMs":777.031266,"newMedianMs":513.6524289999998,"speedup":1.5127569191345152},{"sourceChannels":2,"renderedSec":10.666666666666666,"oldMedianMs":896.4726220000011,"newMedianMs":583.6215550000015,"speedup":1.5360512549951977}]
+
+## f442-rfl-resident
+{
+  "checks": [
+    "actual default resident Base and Fragment processors accept real PCM/map, render both channels, retune, and release"
+  ],
+  "routes": [
+    {
+      "mode": "base",
+      "sourceChannels": 1,
+      "renderedSec": 5,
+      "renderWallMs": 2431.7912160000005,
+      "peak": 0.9334388375282288,
+      "stereoDelta": 0,
+      "faults": 0,
+      "released": true
+    },
+    {
+      "mode": "fragment",
+      "sourceChannels": 1,
+      "renderedSec": 5,
+      "renderWallMs": 2619.6373410000006,
+      "peak": 1.3758435249328613,
+      "stereoDelta": 0,
+      "faults": 0,
+      "released": true
+    },
+    {
+      "mode": "base",
+      "sourceChannels": 2,
+      "renderedSec": 5,
+      "renderWallMs": 2208.0298520000015,
+      "peak": 0.9334388375282288,
+      "stereoDelta": 1.055550992488861,
+      "faults": 0,
+      "released": true
+    },
+    {
+      "mode": "fragment",
+      "sourceChannels": 2,
+      "renderedSec": 5,
+      "renderWallMs": 2926.0823600000003,
+      "peak": 1.382558822631836,
+      "stereoDelta": 1.559562087059021,
+      "faults": 0,
+      "released": true
+    }
+  ],
+  "limitations": [
+    "Worklet class executed in a VM; AudioContext scheduling, browser mixing and device xruns require browser/target hardware.",
+    "Modes intentionally differ in source slicing; timings do not rank musical quality."
+  ]
+}
+
+## p4b-entrophon-library
+PASS P4B Entrophon library: independent namespace, immutable project fallback, rename/revisions, stale and quota failures, inline save/edit identity and validation feedback
+
+## p4b-eight-instruments
+PASS P4B eight instruments: bounded slots, unique colors, snapshot roundtrip, L16 toolbar callbacks and independent managers
+
+## p4b-entrophon-melodic-audio
+PASS saved Entrophon real WASM worker PCM: exact snapshot isolation, different recipes, contours, three surfaces, silence, bounds, cancellation and worker disposal
+
+## p4b-integration
+PASS P4B integration: actual composer snapshot/reload, project-only sound after deletion, category, Wave/Keyboard+Particle recipe dispatch, stop cancellation
+
+## p4b-stem-isolation
+PASS P4B stem cache: unrelated instrument edits retain cached stem; own note/timbre invalidate; rendering context intact
+
+## nodal_backend
+{
+  "checks": [
+    "versioned descriptor round trip, no PCM payload",
+    "invalid versions, ratios, IDs and edges rejected",
+    "canonical plan independent of node enumeration and display metadata",
+    "installation snapshot ignores energy and cursor; fixed metric survives uniform resize",
+    "orthonormal modes and coupling spectrum reflect the actual graph",
+    "repeated notes reproduce identical sample data",
+    "independent voices cannot alter each others random state",
+    "block-size-independent DSP",
+    "coupled pair differs from independent summation at matched amplitude",
+    "removing an edge changes topology without moving any node",
+    "unrelated isolated node cannot renormalize existing contacts",
+    "local Fold differs from the linear body",
+    "material axes change response independently of contact topology",
+    "Root movement preserves voice age and releases cleanly",
+    "muting removes organs and fully muted plan produces silence",
+    "bounded output for dense nonlinear body over low/high registers and sample rates",
+    "library revisions, merge conflicts and quota errors preserve committed data",
+    "installation bridge tracks positions lazily; snapshots stay immutable",
+    "multi-ticket admission is transactional and release is idempotent",
+    "worklet processor gate, completion and stale drop"
+  ],
+  "metrics": {
+    "pair": {
+      "rms": 0.08097873047061215,
+      "peak": 0.1892409771680832
+    },
+    "couplingDifferenceRms": 0.027904842919190754,
+    "foldDifferenceRms": 0.09546488144586879
+  },
+  "benchmark": {
+    "3Nodes": {
+      "renderedSec": 1,
+      "wallMs": 407.0383439999996,
+      "cost": 2
+    },
+    "6Nodes": {
+      "renderedSec": 1,
+      "wallMs": 412.53068299999995,
+      "cost": 6
+    },
+    "12Nodes": {
+      "renderedSec": 1,
+      "wallMs": 830.5379270000003,
+      "cost": 21
+    }
+  }
+}
+PASS reproducible standalone HTML 1fb03b02e6180c015d2739b1fd692768e9937e6de1c89d25b28c4691945cd18e 5703556

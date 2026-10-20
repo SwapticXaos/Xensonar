@@ -337,8 +337,8 @@ const C6e = P.forwardRef(function({variant: t = "legacy", forge3AudioMode: n = "
         const Fe = o.phase === "playing" && o.auditionKind === "carrier";
         d(Fe), b(Fe), Fe || f(0);
     }, [ o.selected, o.phase, o.auditionKind, d, b, f ]);
-    const g = pe(Fe => Fe.pushUndo), y = pe(Fe => Fe.triggerRender), x = pe(Fe => Fe.renderVersion), A = pe(Fe => Fe.materialExport), M = pe(Fe => Fe.updateMaterialExport), v = pe(Fe => Fe.basisHearingTransportBridge), w = pe(Fe => Fe.sourceAsset), R = pe(Fe => Fe.setSourceAsset), k = pe(Fe => Fe.sourcePreviewMode), I = pe(Fe => Fe.setSourcePreviewMode), E = pe(Fe => Fe.sourceAssetContext), F = pe(Fe => Fe.activeMediatedBody), L = pe(Fe => Fe.carrierIntegralSelection), B = pe(Fe => Fe.carrierIntegralSynthLab), O = pe(Fe => Fe.carrierIntegralHarmonicXplore), T = pe(Fe => Fe.createProjectSnapshot), _ = P.useMemo(() => Xje({
-        donorSelected: !!o.selected,
+    const g = pe(Fe => Fe.pushUndo), y = pe(Fe => Fe.triggerRender), x = pe(Fe => Fe.renderVersion), A = pe(Fe => Fe.materialExport), M = pe(Fe => Fe.updateMaterialExport), v = pe(Fe => Fe.basisHearingTransportBridge), w = pe(Fe => Fe.sourceAsset), R = pe(Fe => Fe.setSourceAsset), k = pe(Fe => Fe.sourcePreviewMode), I = pe(Fe => Fe.setSourcePreviewMode), E = pe(Fe => Fe.sourceAssetContext), F = pe(Fe => Fe.activeMediatedBody), L = pe(Fe => Fe.carrierIntegralSelection), B = pe(Fe => Fe.carrierIntegralSynthLab), O = pe(Fe => Fe.carrierIntegralHarmonicXplore), T = pe(Fe => Fe.createProjectSnapshot), __f333DonorListening = t === "forge3" ? ["donor","hybrid","donor-pending"].includes(__f333Route(pe.getState())) : !!o.selected, _ = P.useMemo(() => Xje({
+        donorSelected: __f333DonorListening,
         variant: t,
         hasSourceAsset: !!w,
         sourcePreviewMode: k,
@@ -350,7 +350,7 @@ const C6e = P.forwardRef(function({variant: t = "legacy", forge3AudioMode: n = "
         synthMode: s,
         waveformMix: l,
         materialExport: A
-    }), [ O, L, B, o.selected, A.bars, A.bpm, A.beatsPerBar, A.loopPreview, x, w, k, E, s, t, l ]), {previewDurationSec: G, previewPlaybackRate: j, previewRenderRouteKind: N, previewRenderCanAutoAfterPaint: W, previewLoopAppliesToCurrentRoute: V, previewLoopEnabled: U, currentPreviewPreparedToken: H, currentPreviewRequest: q} = _, [K, Y] = P.useState(!1), [J, Z] = P.useState(0), te = P.useRef(0), [X, Q] = P.useState(""), {pendingImageImport: ne, pendingAudioImport: ee, fileInputRef: ie, imagePreviewCanvasRef: de, audioPreviewCanvasRef: oe, closeImageImport: ue, closeAudioImport: fe, handleImportFile: he, handleConfirmAudioImport: re, handleConfirmImageImport: le, updatePendingImageImport: Ae, updatePendingAudioImport: ce} = p6e({
+    }), [ O, L, B, __f333DonorListening, A.bars, A.bpm, A.beatsPerBar, A.loopPreview, x, w, k, E, s, t, l ]), {previewDurationSec: G, previewPlaybackRate: j, previewRenderRouteKind: N, previewRenderCanAutoAfterPaint: W, previewLoopAppliesToCurrentRoute: V, previewLoopEnabled: U, currentPreviewPreparedToken: H, currentPreviewRequest: q} = _, [K, Y] = P.useState(!1), [J, Z] = P.useState(0), te = P.useRef(0), [X, Q] = P.useState(""), {pendingImageImport: ne, pendingAudioImport: ee, fileInputRef: ie, imagePreviewCanvasRef: de, audioPreviewCanvasRef: oe, closeImageImport: ue, closeAudioImport: fe, handleImportFile: he, handleConfirmAudioImport: re, handleConfirmImageImport: le, updatePendingImageImport: Ae, updatePendingAudioImport: ce} = p6e({
         variant: t,
         spectralData: i,
         isPlaying: c,

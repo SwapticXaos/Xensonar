@@ -1,0 +1,27 @@
+{
+  "entry": "Xensonar_P7_Forge_Efficiency_Test.html",
+  "sha256": "1fb03b02e6180c015d2739b1fd692768e9937e6de1c89d25b28c4691945cd18e",
+  "readiness": {
+    "steadyCopies": 1,
+    "milliseconds": 572.6943550000001,
+    "checks": [
+      "same-input polling",
+      "gain identity",
+      "pitch",
+      "tempo",
+      "local paint",
+      "cache release"
+    ]
+  },
+  "portability": {
+    "schemaVersion": 2,
+    "count": 13,
+    "report": {
+      "present": true,
+      "importedCount": 13,
+      "skippedCount": 0,
+      "replacedCount": 0
+    },
+    "unrelated": false
+  }
+}

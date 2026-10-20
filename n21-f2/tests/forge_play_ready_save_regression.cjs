@@ -31,6 +31,12 @@ const ctx={
  pe:{getState:()=>({})},
 };
 vm.createContext(ctx);vm.runInContext(block(hearing,'const __f333AudibleBuffers=', '// F4.4.9 trial:'),ctx);vm.runInContext(helpers,ctx);
+// Keep the historical key test's fake request seam, supplying the real
+// readiness helper with the public state fields it now reads.
+ctx.__f333ReadyMemo=null;ctx.__f333CacheReadyRevision=0;
+const actualReady=ctx.__f333CachedPreviewReady;
+ctx.__f333CachedPreviewReady=state=>actualReady({...state,spectralData:state.snapshot,renderVersion:state.snapshot?.signature,carrierIntegralSelection:{machineId:state.machine},carrierIntegralSynthLab:state.synthLab,carrierIntegralHarmonicXplore:state.harmonicXplore,materialExport:{bars:1,bpm:120,beatsPerBar:4}});
+
 const base={route:'hearing',machine:'emilia-nodal-carrier',snapshot:{signature:'paint-A',duration:2,emiliaInstrument:{key:'net-A'}},selection:'selection-A',synthLab:'lab-A',harmonicXplore:'hx-A',pitch:1};
 const req=ctx.__f333HearingRequest(base);
 const key=ctx.__f333HearingCacheKey(req,ctx.IB(req));

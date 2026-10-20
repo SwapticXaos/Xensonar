@@ -1,0 +1,2 @@
+PASS compare-preserving instrument switching, exact original load, persistent A/B snapshots
+PASS same carrier/settings cache identity, 7-variant reuse, LRU entry and byte bounds

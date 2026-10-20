@@ -1,0 +1,18 @@
+{
+  "baseCommit": "dbf7d3a12a347d6644249bbf0ed8fcad18157ffd",
+  "entry": "Xensonar_P7_Forge_Efficiency_Test.html",
+  "sha256": "1fb03b02e6180c015d2739b1fd692768e9937e6de1c89d25b28c4691945cd18e",
+  "inputLayoutZipSha256": "a1beb48724896e85844596a1a5a45f5ca66552f9b0126cd5b1b905779c97a6d2",
+  "readinessBefore": {
+    "polls": 80,
+    "snapshots": 80,
+    "milliseconds": 25325.930791000003
+  },
+  "readinessAfter": {
+    "polls": 80,
+    "snapshots": 1,
+    "milliseconds": 341.75000500000033
+  },
+  "measurementScope": "Control/readiness work, not whole-render DSP speed; repeated suite measurements vary under load",
+  "historicArtifactsVerified": 86
+}

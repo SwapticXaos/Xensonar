@@ -73,10 +73,10 @@ const __Fractalia=(()=>{
   const atlas=await jobs.request(key,{...data,grid,durationSec,instrument:r,captureResolution},{check,onProgress,signal,priority});
   check();lastAtlas=atlas;onProgress?.(1);return atlas;
  }
- async function renderCarrier({grid,durationSec,previewPitchRatio=1,instrument=recipe,onProgress,signal,diagnostics}){
+ async function renderCarrier({grid,durationSec,previewPitchRatio=1,instrument=recipe,onProgress,signal,diagnostics,preparedDonorKey}){
   // Resolve a valid purple Sound Material mask lazily, before fixing the render identity.
   // In Fractalia this is material acquisition, not a command to change listening modes.
-  if(instrument.donor)await __f3562EnsureDonor();
+  if(instrument.donor&&(preparedDonorKey===undefined||preparedDonorKey!==fractaliaDonorSnapshot().key))await __f3562EnsureDonor();
   const donorKey=instrument.donor?fractaliaDonorSnapshot().key:null;
   const epoch=revision,transport=__f333Epoch,check=()=>{if(signal?.aborted||epoch!==revision||transport!==__f333Epoch||donorKey!==null&&fractaliaDonorSnapshot().key!==donorKey)throw new DOMException('Fractalia render cancelled','AbortError')};
   try{lastError=null;const atlas=await atlasFor({grid,durationSec,instrument,onProgress:p=>onProgress?.(p*.12),check,signal,priority:3}),data=source(grid,durationSec,previewPitchRatio),ctx=xt.getContext();

@@ -1,0 +1,16 @@
+{
+  "source": "XenSonar_P7_Reviewed_Quellen.zip",
+  "target": "src/forge_and_melodic/06_note_editor_and_material_tools.js",
+  "before_sha256": "305b79688ed416942c727c4d0a1137bd94074ea1c3e44c72bf8c96e55db0ddf3",
+  "after_sha256": "162ef7be55d6343e4a8ec901c760b3afc03cc19e3db4129e4e72ae888cc6bc3b",
+  "operations": [
+    {
+      "before": "className:\"text-[10px] text-neutral-500\",children:[\"Slot \",O+1,\" · \",B.bars,\" bars · \",B.role,\" · \",B.renderMode]",
+      "after": "className:\"truncate whitespace-nowrap text-[10px] text-neutral-500\",children:[\"Slot \",O+1,\" · \",B.bars,\" bars · \",B.role,\" · \",B.renderMode]"
+    },
+    {
+      "before": "className:\"row-span-1 flex h-10 w-10 shrink-0 items-center justify-center self-center rounded border border-fuchsia-800/50 text-base text-fuchsia-100 hover:bg-fuchsia-950/35 disabled:opacity-35\"",
+      "after": "className:\"flex h-7 w-7 shrink-0 items-center justify-center self-center rounded border border-fuchsia-800/50 text-sm text-fuchsia-100 hover:bg-fuchsia-950/35 disabled:opacity-35\""
+    }
+  ]
+}

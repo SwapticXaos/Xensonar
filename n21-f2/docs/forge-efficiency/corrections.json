@@ -1,0 +1,186 @@
+{
+  "src/forge_and_melodic/06_note_editor_and_material_tools.js": [
+    {
+      "old": "className:\"text-[10px] text-neutral-500\",children:[\"Slot \",O+1,\" · \",B.bars,\" bars · \",B.role,\" · \",B.renderMode]",
+      "new": "className:\"truncate whitespace-nowrap text-[10px] text-neutral-500\",children:[\"Slot \",O+1,\" · \",B.bars,\" bars · \",B.role,\" · \",B.renderMode]",
+      "count": 1
+    },
+    {
+      "old": "className:\"row-span-1 flex h-10 w-10 shrink-0 items-center justify-center self-center rounded border border-fuchsia-800/50 text-base text-fuchsia-100 hover:bg-fuchsia-950/35 disabled:opacity-35\"",
+      "new": "className:\"flex h-7 w-7 shrink-0 items-center justify-center self-center rounded border border-fuchsia-800/50 text-sm text-fuchsia-100 hover:bg-fuchsia-950/35 disabled:opacity-35\"",
+      "count": 1
+    }
+  ],
+  "src/forge_and_melodic/10_audition_and_persistence.js": [
+    {
+      "old": "const __f333CacheReadyListeners = new Set();",
+      "new": "const __f333CacheReadyListeners = new Set();\nlet __f333ReadyMemo=null;",
+      "count": 1
+    },
+    {
+      "old": "function __f333CacheReadyNotify(){++__f333CacheReadyRevision;",
+      "new": "function __f333CacheReadyNotify(){__f333ReadyMemo=null;++__f333CacheReadyRevision;",
+      "count": 1
+    },
+    {
+      "old": "function __f333CachedPreviewReady(state){",
+      "new": "// These are the same sound inputs as the full cache key. Store fields and\n// instrument recipes are immutable; grid edits commit through renderVersion.\n// Never memoize createProjectSnapshot itself: callers own and may edit that copy.\nfunction __f333ReadyInputs(state,route){\n const machine=route==='carrier'?'raw-darkpsy-oscillator':state.carrierIntegralSelection?.machineId;\n const fractalia=machine==='fractalia-self-carrier'?__Fractalia.snapshot():null;\n return [route,state.spectralData,state.renderVersion,state.spectralData?.carrierDetune??0,\n  state.spectralData?.melodicCarrier,state.carrierIntegralSelection,state.carrierIntegralSynthLab,\n  state.carrierIntegralHarmonicXplore,state.synthMode,state.waveformMix,\n  state.materialExport.bars,state.materialExport.bpm,state.materialExport.beatsPerBar,\n  __f3565PitchSemis(),xt.getContext().sampleRate,fractalia,\n  fractalia?.donor?fractaliaDonorSnapshot().key:null,\n  machine==='emilia-nodal-carrier'?__Emilia.snapshot():null,__f333CacheReadyRevision];\n}\nfunction __f333CachedPreviewReady(state){",
+      "count": 1
+    },
+    {
+      "old": " try{\n  const request=route==='hearing'?",
+      "new": " try{\n  const inputs=__f333ReadyInputs(state,route),memo=__f333ReadyMemo;\n  if(memo&&inputs.length===memo.inputs.length&&inputs.every((value,i)=>Object.is(value,memo.inputs[i]))&&__f333HearingCache.get(memo.key)===memo.buffer)return memo.ready;\n  const request=route==='hearing'?",
+      "count": 1
+    },
+    {
+      "old": "  return __f333AudiblePCM(__f333HearingCache.get(__f333HearingCacheKey(request,IB(request))));",
+      "new": "  const key=__f333HearingCacheKey(request,IB(request)),buffer=__f333HearingCache.get(key),ready=__f333AudiblePCM(buffer);\n  __f333ReadyMemo={inputs,key,buffer,ready};return ready;",
+      "count": 1
+    },
+    {
+      "old": "instrument:request.snapshot.fractaliaInstrument??__Fractalia.snapshot(),onProgress:request.onRenderProgress",
+      "new": "instrument:request.snapshot.fractaliaInstrument??__Fractalia.snapshot(),preparedDonorKey:(request.snapshot.fractaliaInstrument??__Fractalia.snapshot()).donor?fractaliaDonorSnapshot().key:undefined,onProgress:request.onRenderProgress",
+      "count": 1
+    }
+  ],
+  "src/forge/fractalia/03_instrument.js": [
+    {
+      "old": "instrument=recipe,onProgress,signal,diagnostics}){",
+      "new": "instrument=recipe,onProgress,signal,diagnostics,preparedDonorKey}){",
+      "count": 1
+    },
+    {
+      "old": "if(instrument.donor)await __f3562EnsureDonor();",
+      "new": "if(instrument.donor&&(preparedDonorKey===undefined||preparedDonorKey!==fractaliaDonorSnapshot().key))await __f3562EnsureDonor();",
+      "count": 1
+    }
+  ],
+  "src/app/forge/02_boot_and_workspace_tools.js": [
+    {
+      "old": "{key:\"xensonar.gluecksrad.wheelOrder.v1\",label:\"Random Wheel / MetaPreset Order\"}",
+      "new": "{key:\"xensonar.gluecksrad.wheelOrder.v1\",label:\"Random Wheel / MetaPreset Order\"},{key:\"xensonar:grid-tuning-library:derived-v1\",label:\"Derived / Linked Bass Grids\"},{key:\"xensonar:refucktor-drone-workbench.v1\",label:\"Drone Workbench\"},{key:\"xensonar:refucktor-drone-volume.v1\",label:\"Drone Volume\"},{key:\"xensonar.mix-pan.v1\",label:\"Mixer Panning\"},{key:\"xensonar.source-octaves.v1\",label:\"Source Octaves\"},{key:\"xensonar.quick-menu.v1\",label:\"Quick Access\"},{key:\"xensonar.melodic.custom-instruments.v1\",label:\"Custom Melodic Instruments\"},{key:\"xensonar.nodal.instruments.v1\",label:\"Nodal Instruments\"},{key:\"xensonar.entrophon.instruments.v1\",label:\"Entrophon Instruments\"},{key:\"xensonar.fractalia.f4\",label:\"Active Fractalia Instrument\"},{key:\"xensonar.fractalia.instruments.v4\",label:\"Fractalia Instruments\"},{key:\"xensonar.fractalia.compare.f433\",label:\"Fractalia A/B Variants\"},{key:\"xensonar.forge.emilia-hx-reciprocal.v4\",label:\"Active Emilia Instrument\"}",
+      "count": 1
+    },
+    {
+      "old": "function Q7(){const e=q7(),t=[];if(!e)return{schemaVersion:1,entries:t};for(const n of sB)try{const r=e.getItem(n.key);r!=null&&t.push({key:n.key,value:r,label:n.label})}catch{}return{schemaVersion:1,entries:t}}",
+      "new": "function Q7(){const e=q7(),t=[];if(!e)return{schemaVersion:2,entries:t};for(const n of sB)try{const r=e.getItem(n.key);r!=null&&t.push({key:n.key,value:r,label:n.label})}catch{}return{schemaVersion:2,entries:t}}",
+      "count": 1
+    },
+    {
+      "old": "function U7(e){return vt(e)?{schemaVersion:1,entries:Array.isArray(e.entries)?e.entries.filter(vt).map(n=>{const r=typeof n.key==\"string\"?n.key:\"\",a=typeof n.value==\"string\"?n.value:\"\",o=typeof n.label==\"string\"?n.label:r;return r&&sB.some(i=>i.key===r)?{key:r,value:a,label:o}:null}).filter(n=>n!==null):[]}:null}",
+      "new": "function U7(e){return vt(e)?{schemaVersion:e.schemaVersion===2?2:1,entries:Array.isArray(e.entries)?e.entries.filter(vt).map(n=>{const r=typeof n.key==\"string\"?n.key:\"\",a=typeof n.value==\"string\"?n.value:\"\",o=typeof n.label==\"string\"?n.label:r;return r&&sB.some(i=>i.key===r)?{key:r,value:a,label:o}:null}).filter(n=>n!==null):[]}:null}",
+      "count": 1
+    },
+    {
+      "old": "{key:\"xensonar:grid-tuning-library:derived-v1\",label:",
+      "new": "{key:\"xensonar:grid-tuning-library:derived-v1\",since:2,label:",
+      "count": 1
+    },
+    {
+      "old": "{key:\"xensonar:refucktor-drone-workbench.v1\",label:",
+      "new": "{key:\"xensonar:refucktor-drone-workbench.v1\",since:2,label:",
+      "count": 1
+    },
+    {
+      "old": "{key:\"xensonar:refucktor-drone-volume.v1\",label:",
+      "new": "{key:\"xensonar:refucktor-drone-volume.v1\",since:2,label:",
+      "count": 1
+    },
+    {
+      "old": "{key:\"xensonar.mix-pan.v1\",label:",
+      "new": "{key:\"xensonar.mix-pan.v1\",since:2,label:",
+      "count": 1
+    },
+    {
+      "old": "{key:\"xensonar.source-octaves.v1\",label:",
+      "new": "{key:\"xensonar.source-octaves.v1\",since:2,label:",
+      "count": 1
+    },
+    {
+      "old": "{key:\"xensonar.quick-menu.v1\",label:",
+      "new": "{key:\"xensonar.quick-menu.v1\",since:2,label:",
+      "count": 1
+    },
+    {
+      "old": "{key:\"xensonar.melodic.custom-instruments.v1\",label:",
+      "new": "{key:\"xensonar.melodic.custom-instruments.v1\",since:2,label:",
+      "count": 1
+    },
+    {
+      "old": "{key:\"xensonar.nodal.instruments.v1\",label:",
+      "new": "{key:\"xensonar.nodal.instruments.v1\",since:2,label:",
+      "count": 1
+    },
+    {
+      "old": "{key:\"xensonar.entrophon.instruments.v1\",label:",
+      "new": "{key:\"xensonar.entrophon.instruments.v1\",since:2,label:",
+      "count": 1
+    },
+    {
+      "old": "{key:\"xensonar.fractalia.f4\",label:",
+      "new": "{key:\"xensonar.fractalia.f4\",since:2,label:",
+      "count": 1
+    },
+    {
+      "old": "{key:\"xensonar.fractalia.instruments.v4\",label:",
+      "new": "{key:\"xensonar.fractalia.instruments.v4\",since:2,label:",
+      "count": 1
+    },
+    {
+      "old": "{key:\"xensonar.fractalia.compare.f433\",label:",
+      "new": "{key:\"xensonar.fractalia.compare.f433\",since:2,label:",
+      "count": 1
+    },
+    {
+      "old": "{key:\"xensonar.forge.emilia-hx-reciprocal.v4\",label:",
+      "new": "{key:\"xensonar.forge.emilia-hx-reciprocal.v4\",since:2,label:",
+      "count": 1
+    },
+    {
+      "old": "try{t.removeItem(o)}catch{}for(const o of n.entries)",
+      "new": "try{if(n.schemaVersion>=(sB.find(entry=>entry.key===o)?.since??1))t.removeItem(o)}catch{}for(const o of n.entries)",
+      "count": 1
+    }
+  ],
+  "src/forge/module_bundle/21_experimentStatePersistence.js": [
+    {
+      "old": "donorSelected: !!donor.selected,",
+      "new": "donorSelected: !!donor.selected,\nlisteningMode: typeof __ForgeListeningMode==='undefined'?null:__ForgeListeningMode.value(),\ntransport: typeof __F3564Master==='undefined'?null:{tuning:__F3564Master.getSnapshot().tuning,volume:__F3564Master.getSnapshot().volume},",
+      "count": 1
+    },
+    {
+      "old": "lastRestoredAt = Date.now();",
+      "new": "if(workspace.transport&&typeof __F3564Master!=='undefined'){\nif(Number.isFinite(workspace.transport.tuning))__F3564Master.set('tuning',workspace.transport.tuning);\nif(Number.isFinite(workspace.transport.volume))__F3564Master.set('volume',workspace.transport.volume);\n}\nif(typeof workspace.listeningMode==='string'&&typeof __ForgeListeningMode!=='undefined')__ForgeListeningMode.choose(workspace.listeningMode,{prepare:false});\nlastRestoredAt = Date.now();",
+      "count": 1
+    },
+    {
+      "old": "const unsubCombination=__F351Combination.subscribe(scheduleSave);cleanupDom.push(unsubCombination);",
+      "new": "const unsubCombination=__F351Combination.subscribe(scheduleSave);cleanupDom.push(unsubCombination);\nif(typeof __F3564Master!=='undefined')cleanupDom.push(__F3564Master.subscribe(scheduleSave));",
+      "count": 1
+    }
+  ],
+  "src/app/forge/03_spectral_grid_and_archives.js": [
+    {
+      "old": "const Z=` · ${GV(n)}",
+      "new": "const Z=`${r.importedCount>0?\" · Globale Klang-/Mix-Einstellungen nach Neuladen aktiv\":\"\"} · ${GV(n)}",
+      "count": 1
+    }
+  ],
+  "src/forge/editor/07_composition_and_preview_ui.js": [
+    {
+      "old": "T = pe(Fe => Fe.createProjectSnapshot), _ = P.useMemo(() => Xje({",
+      "new": "T = pe(Fe => Fe.createProjectSnapshot), __f333DonorListening = t === \"forge3\" ? [\"donor\",\"hybrid\",\"donor-pending\"].includes(__f333Route(pe.getState())) : !!o.selected, _ = P.useMemo(() => Xje({",
+      "count": 1
+    },
+    {
+      "old": "donorSelected: !!o.selected,",
+      "new": "donorSelected: __f333DonorListening,",
+      "count": 1
+    },
+    {
+      "old": "[ O, L, B, o.selected, A.bars,",
+      "new": "[ O, L, B, __f333DonorListening, A.bars,",
+      "count": 1
+    }
+  ]
+}

@@ -17,9 +17,10 @@ const __f447HearingJobs=new Map();
 // prewarm token alone cannot describe cached A/B listening variants.
 let __f333CacheReadyRevision = 0;
 const __f333CacheReadyListeners = new Set();
+let __f333ReadyMemo=null;
 function __f333CacheReadySubscribe(listener){__f333CacheReadyListeners.add(listener);return()=>__f333CacheReadyListeners.delete(listener)}
 function __f333CacheReadySnapshot(){return __f333CacheReadyRevision}
-function __f333CacheReadyNotify(){++__f333CacheReadyRevision;for(const listener of __f333CacheReadyListeners)listener()}
+function __f333CacheReadyNotify(){__f333ReadyMemo=null;++__f333CacheReadyRevision;for(const listener of __f333CacheReadyListeners)listener()}
 
 // Cached AudioBuffers are RAM-only. Retain useful A/B variants without unbounded allocation.
 
@@ -83,6 +84,20 @@ function __f333HearingCacheKey(request,context){
     emilia:request.machineId==='emilia-nodal-carrier'?__Emilia.semanticKey(request.snapshot.emiliaInstrument??__Emilia.snapshot()):null,
     duration:context.durationSec,pitch:context.previewPitchRatio,sampleRate:xt.getContext().sampleRate});
  }
+// These are the same sound inputs as the full cache key. Store fields and
+// instrument recipes are immutable; grid edits commit through renderVersion.
+// Never memoize createProjectSnapshot itself: callers own and may edit that copy.
+function __f333ReadyInputs(state,route){
+ const machine=route==='carrier'?'raw-darkpsy-oscillator':state.carrierIntegralSelection?.machineId;
+ const fractalia=machine==='fractalia-self-carrier'?__Fractalia.snapshot():null;
+ return [route,state.spectralData,state.renderVersion,state.spectralData?.carrierDetune??0,
+  state.spectralData?.melodicCarrier,state.carrierIntegralSelection,state.carrierIntegralSynthLab,
+  state.carrierIntegralHarmonicXplore,state.synthMode,state.waveformMix,
+  state.materialExport.bars,state.materialExport.bpm,state.materialExport.beatsPerBar,
+  __f3565PitchSemis(),xt.getContext().sampleRate,fractalia,
+  fractalia?.donor?fractaliaDonorSnapshot().key:null,
+  machine==='emilia-nodal-carrier'?__Emilia.snapshot():null,__f333CacheReadyRevision];
+}
 function __f333CachedPreviewReady(state){
  const route=__f333Route(state);
  if(route==='hybrid')return __f333AudiblePCM(__F352Runtime.current()?.buffer);
@@ -91,12 +106,15 @@ function __f333CachedPreviewReady(state){
  if(route==='body')return __f333AudibleSource(state.sourceAsset);
  if((route!=='hearing'&&route!=='carrier')||__f333HearingCache.size===0)return false;
  try{
+  const inputs=__f333ReadyInputs(state,route),memo=__f333ReadyMemo;
+  if(memo&&inputs.length===memo.inputs.length&&inputs.every((value,i)=>Object.is(value,memo.inputs[i]))&&__f333HearingCache.get(memo.key)===memo.buffer)return memo.ready;
   const request=route==='hearing'?__f333HearingRequest(state):OB({
    projectName:state.materialExport.name,snapshot:state.createProjectSnapshot(),machineId:'raw-darkpsy-oscillator',
    valueSource:'right-override',selection:state.carrierIntegralSelection,synthLab:state.carrierIntegralSynthLab,
    harmonicXplore:state.carrierIntegralHarmonicXplore,previewBpm:state.materialExport.bpm,
    previewGain:1,previewPitchSemitones:__f3565PitchSemis(),loopPreview:true});
-  return __f333AudiblePCM(__f333HearingCache.get(__f333HearingCacheKey(request,IB(request))));
+  const key=__f333HearingCacheKey(request,IB(request)),buffer=__f333HearingCache.get(key),ready=__f333AudiblePCM(buffer);
+  __f333ReadyMemo={inputs,key,buffer,ready};return ready;
  }catch{return false}
 }
 function __f333Stop() {
@@ -253,7 +271,7 @@ async function __f333RenderHearing(request) {
   let buffer;
   const branch=xK(String(request.machineId));
   if(request.machineId==='fractalia-self-carrier') {
-    buffer=await __Fractalia.renderCarrier({grid,durationSec:duration,previewPitchRatio:context.previewPitchRatio,instrument:request.snapshot.fractaliaInstrument??__Fractalia.snapshot(),onProgress:request.onRenderProgress});
+    buffer=await __Fractalia.renderCarrier({grid,durationSec:duration,previewPitchRatio:context.previewPitchRatio,instrument:request.snapshot.fractaliaInstrument??__Fractalia.snapshot(),preparedDonorKey:(request.snapshot.fractaliaInstrument??__Fractalia.snapshot()).donor?fractaliaDonorSnapshot().key:undefined,onProgress:request.onRenderProgress});
   } else if(request.machineId==='emilia-nodal-carrier') {
     buffer=await __Emilia.renderCarrier({grid,durationSec:duration,previewPitchRatio:context.previewPitchRatio,
       instrument:request.snapshot.emiliaInstrument??__Emilia.snapshot(),onProgress:request.onRenderProgress});

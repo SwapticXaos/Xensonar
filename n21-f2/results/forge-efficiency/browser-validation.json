@@ -1,0 +1,78 @@
+{
+  "entry": "Xensonar_P7_Forge_Efficiency_Test.html",
+  "sha256": "1fb03b02e6180c015d2739b1fd692768e9937e6de1c89d25b28c4691945cd18e",
+  "startedAt": "2026-10-20T20:20:44.052Z",
+  "completedAt": "2026-10-20T20:23:55.896Z",
+  "running": false,
+  "scope": "Native Chromium; no physical audio interface or cross-browser claim",
+  "rows": [
+    {
+      "name": "forge-efficiency-browser",
+      "passed": true,
+      "exit": 0,
+      "signal": null,
+      "milliseconds": 28262
+    },
+    {
+      "name": "p7-review-browser",
+      "passed": true,
+      "exit": 0,
+      "signal": null,
+      "milliseconds": 13050
+    },
+    {
+      "name": "nodal-ball-grid-browser",
+      "passed": true,
+      "exit": 0,
+      "signal": null,
+      "milliseconds": 6224
+    },
+    {
+      "name": "forge-spatial-browser",
+      "passed": true,
+      "exit": 0,
+      "signal": null,
+      "milliseconds": 11832
+    },
+    {
+      "name": "mute-auto-preview-browser",
+      "passed": true,
+      "exit": 0,
+      "signal": null,
+      "milliseconds": 7425
+    },
+    {
+      "name": "integrated-patches-browser",
+      "passed": true,
+      "exit": 0,
+      "signal": null,
+      "milliseconds": 6164
+    },
+    {
+      "name": "consolidation-browser",
+      "passed": true,
+      "exit": 0,
+      "signal": null,
+      "milliseconds": 10775
+    },
+    {
+      "name": "forge-ready-browser",
+      "passed": true,
+      "exit": 0,
+      "signal": null,
+      "milliseconds": 18593
+    },
+    {
+      "name": "forge-pitch-browser",
+      "passed": true,
+      "exit": 0,
+      "signal": null,
+      "milliseconds": 89359
+    },
+    {
+      "name": "build-reproducibility",
+      "passed": true
+    }
+  ],
+  "failed": 0
+}

@@ -1,6 +1,6 @@
-# XenSonar · geprüfte P7-Integration
+# XenSonar · Forge-Bereitschaft und portable Einstellungen
 
-Aktuelle Weiterarbeitsbasis: `n21-f2/Xensonar_P7_Reviewed_Test.html`. Geprüfte Stufen 00–22, Quell-Hotfix und gezielte Korrekturen; P7.12 bleibt unintegriertes Experiment. Details: [P7-Prüfbericht](n21-f2/docs/p7-review/report.md).
+Aktuelle Weiterarbeitsbasis: `n21-f2/Xensonar_P7_Forge_Efficiency_Test.html`. Geprüfter kompakter Material-Preview, konsistente Fractalia-Ladeplanung und erweiterte Paketstation. [Anleitung](n21-f2/README_FORGE_EFFICIENCY.md) · [Prüfbericht](n21-f2/docs/forge-efficiency/report.md). Die geprüfte P7-Integration bleibt erhalten; P7.12 bleibt unintegriertes Experiment.
 
 
 Die aktuelle, vom Nutzer gelieferte N21–F2-Quellbasis mit Granular-Hold, Live-Stabilitäts-Patch und korrigierter Forge-Fortschrittsanzeige sowie ausgerichteten Mix-Reglern, Raster-Mute, Melodic-Panning und Xenpolar Drone im Hauptinstrument

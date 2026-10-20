@@ -134,6 +134,8 @@ sourcePreviewMode: state.sourcePreviewMode ?? null,
 forge3EditTarget: state.forge3EditTarget ?? null,
 donorSource: null,
 donorSelected: !!donor.selected,
+listeningMode: typeof __ForgeListeningMode==='undefined'?null:__ForgeListeningMode.value(),
+transport: typeof __F3564Master==='undefined'?null:{tuning:__F3564Master.getSnapshot().tuning,volume:__F3564Master.getSnapshot().volume},
 donorRenderMethod: donor.model?.renderMethod ?? null,
 donorRegisterPolicy: donor.model?.bodyV3?.registerPolicy ?? null,
 donorWorkbench: __F341Workbench.export(),
@@ -265,6 +267,11 @@ args.runtime.failExtraction(token, error);
 throw error;
 }
 }
+if(workspace.transport&&typeof __F3564Master!=='undefined'){
+if(Number.isFinite(workspace.transport.tuning))__F3564Master.set('tuning',workspace.transport.tuning);
+if(Number.isFinite(workspace.transport.volume))__F3564Master.set('volume',workspace.transport.volume);
+}
+if(typeof workspace.listeningMode==='string'&&typeof __ForgeListeningMode!=='undefined')__ForgeListeningMode.choose(workspace.listeningMode,{prepare:false});
 lastRestoredAt = Date.now();
 lastError = null;
 restoreComplete = true;
@@ -301,6 +308,7 @@ return;
 unsubStore = args.store.subscribe(scheduleSave);
 unsubRuntime = args.runtime.subscribe(scheduleSave);const unsubWorkbench=__F341Workbench.subscribe(scheduleSave);cleanupDom.push(unsubWorkbench);
 const unsubCombination=__F351Combination.subscribe(scheduleSave);cleanupDom.push(unsubCombination);
+if(typeof __F3564Master!=='undefined')cleanupDom.push(__F3564Master.subscribe(scheduleSave));
 };
 const dispose = () => {
 disposed = true;
