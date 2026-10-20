@@ -1,0 +1,35 @@
+{
+  "format": "xensonar-source-span-patch-v1",
+  "order": 18,
+  "id": "P7_9_SAMPLE_DATABASE_RACK_LINK_RAYS",
+  "basis": "N21_F2_NODAL_BALL_GRID",
+  "previous_html_sha256": "28e1a810570c4e7e3308a33b5b711e275c913bf40a654bdba62a7ec0076adcb0",
+  "result_html_sha256": "616e0ad378b1c1f33660165064f64c345167812a28b085ece07c5720039bed88",
+  "result_html_bytes": 5689422,
+  "files": [
+    {
+      "path": "src/forge_and_melodic/06_note_editor_and_material_tools.js",
+      "before_sha256": "e7bca093062e31c02de8f9a30bd9a017c9da8eebda5ec214e686337afee62ab6",
+      "after_sha256": "624c8af6624adaa1e88d65bfcb863b7ee91747da38f0f89b143a56863b4a8eae",
+      "before_chars": 73235,
+      "after_chars": 75754,
+      "edits": [
+        {
+          "at": 58574,
+          "delete": 0,
+          "insert": "\n/* P7.9: purely visual, event-driven Sample Database rack connector.\n * Does not touch the sample library, audio graph or the rack layout. */\nfunction __XenSampleRackRays({open}) {\n  const [paths,setPaths]=P.useState([]);\n  P.useEffect(()=>{\n    if(!open){setPaths([]);return;}\n    let frame=0, alive=true;\n    const measure=()=>{\n      frame=0;\n      if(!alive)return;\n      const button=document.querySelector('[data-xen-sample-database-trigger]');\n      const rack=document.getElementById('melodic-sample-database-panel');\n      if(!button||!rack){setPaths([]);return;}\n      const a=button.getBoundingClientRect(),b=rack.getBoundingClientRect();\n      if(a.width<2||b.width<2||b.top<=a.bottom+6){setPaths([]);return;}\n      const origin=a.left+a.width/2;\n      const target=Math.max(b.left+32,Math.min(b.right-32,origin));\n      const y0=a.bottom+2,y1=b.top+1;\n      const fans=[[-Math.min(24,a.width*.3),-29],[0,0],[Math.min(24,a.width*.3),29]];\n      setPaths(old=>{\n        const next=fans.map(([dx,spread])=>`M ${(origin+dx).toFixed(1)} ${y0.toFixed(1)} L ${(target+spread).toFixed(1)} ${y1.toFixed(1)}`);\n        return old.length===next.length&&old.every((v,i)=>v===next[i])?old:next;\n      });\n    };\n    const schedule=()=>{if(!frame)frame=requestAnimationFrame(measure)};\n    const button=document.querySelector('[data-xen-sample-database-trigger]');\n    const rack=document.getElementById('melodic-sample-database-panel');\n    const observer=typeof ResizeObserver==='function'?new ResizeObserver(schedule):null;\n    if(button)observer?.observe(button);\n    if(rack)observer?.observe(rack);\n    window.addEventListener('resize',schedule,{passive:true});\n    window.addEventListener('scroll',schedule,{capture:true,passive:true});\n    schedule();\n    return ()=>{\n      alive=false;\n      if(frame)cancelAnimationFrame(frame);\n      observer?.disconnect();\n      window.removeEventListener('resize',schedule);\n      window.removeEventListener('scroll',schedule,true);\n    };\n  },[open]);\n  if(!open||!paths.length)return null;\n  return u.jsx('svg',{\n    'aria-hidden':'true',\n    'data-xen-sample-database-rays':'open',\n    style:{position:'fixed',top:0,left:0,width:'100vw',height:'100vh',zIndex:22,overflow:'visible',pointerEvents:'none'},\n    children:paths.map((d,i)=>u.jsx('path',{d,fill:'none',stroke:'#77b6c4',strokeWidth:i===1?1.15:.85,opacity:i===1?.56:.34,strokeLinecap:'round'},i))\n  });\n}\n"
+        },
+        {
+          "at": 69458,
+          "delete": 0,
+          "insert": "data-xen-sample-database-trigger\":\"true\",\""
+        },
+        {
+          "at": 69751,
+          "delete": 0,
+          "insert": "}),\n       u.jsx(__XenSampleRackRays,{open:!!openSampleDatabase"
+        }
+      ]
+    }
+  ]
+}

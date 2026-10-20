@@ -1,0 +1,13 @@
+{
+  "date": "2026-10-20",
+  "runtime_sha256": "bc0260682088a3a37a7bf9637d634b8027bc121b2546cb9b520a9760d94c002d",
+  "test_only_stage": "09",
+  "new_behavior_tests_passed": 17,
+  "retained_domain_tests_passed": 10,
+  "unchanged_src_style_template": 216,
+  "changed_declared_src_style_template": 20,
+  "added_declared_src": 1,
+  "base_test_merge": "PASS",
+  "p7_test_merge": "BLOCKED_BY_HISTORICAL_PRESERVATION_HASH",
+  "audio_behavior_modified": false
+}

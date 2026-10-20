@@ -1,0 +1,4 @@
+PASS provenance from actual Codex baseline through 00-08: 55 file applications, 168 exact edits, 21 distinct modules
+PASS no unreviewed source-span drift in declared modules or assembly order
+PASS P7 source boundary: 216 identical source/style/template files, 20 declared modifications, 1 declared addition
+PASS all 9 stages and exact existing module order retained: 00:10 01:6 02:4 03:5 04:5 05:2 06:10 07:7 08:6

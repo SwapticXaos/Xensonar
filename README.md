@@ -1,4 +1,7 @@
-# XenSonar N21–F2 · Installation-Ballton und gemeinsame Raster
+# XenSonar · geprüfte P7-Integration
+
+Aktuelle Weiterarbeitsbasis: `n21-f2/Xensonar_P7_Reviewed_Test.html`. Geprüfte Stufen 00–22, Quell-Hotfix und gezielte Korrekturen; P7.12 bleibt unintegriertes Experiment. Details: [P7-Prüfbericht](n21-f2/docs/p7-review/report.md).
+
 
 Die aktuelle, vom Nutzer gelieferte N21–F2-Quellbasis mit Granular-Hold, Live-Stabilitäts-Patch und korrigierter Forge-Fortschrittsanzeige sowie ausgerichteten Mix-Reglern, Raster-Mute, Melodic-Panning und Xenpolar Drone im Hauptinstrument
 liegen in [`n21-f2/`](n21-f2/). Der ältere React-/Vite-Stand im Repository-Root

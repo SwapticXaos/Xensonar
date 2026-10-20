@@ -1,0 +1,68 @@
+{
+  "expectedFailure": true,
+  "source": "src/forge_and_melodic/06_note_editor_and_material_tools.js",
+  "sha256": "4c0b9e45481b1c930ba957cd1f8307cf03a6e3f68c3df989219fea17181851b1",
+  "nodeExit": 1,
+  "diagnostics": [
+    {
+      "position": 42768,
+      "message": "',' expected."
+    },
+    {
+      "position": 42774,
+      "message": "',' expected."
+    },
+    {
+      "position": 42804,
+      "message": "',' expected."
+    },
+    {
+      "position": 42998,
+      "message": "',' expected."
+    },
+    {
+      "position": 43002,
+      "message": "',' expected."
+    },
+    {
+      "position": 43893,
+      "message": "';' expected."
+    },
+    {
+      "position": 43915,
+      "message": "',' expected."
+    },
+    {
+      "position": 47227,
+      "message": "';' expected."
+    },
+    {
+      "position": 47229,
+      "message": "Declaration or statement expected."
+    },
+    {
+      "position": 47230,
+      "message": "Declaration or statement expected."
+    },
+    {
+      "position": 47231,
+      "message": "Declaration or statement expected."
+    },
+    {
+      "position": 47232,
+      "message": "Declaration or statement expected."
+    },
+    {
+      "position": 47233,
+      "message": "Declaration or statement expected."
+    },
+    {
+      "position": 47234,
+      "message": "Declaration or statement expected."
+    },
+    {
+      "position": 47235,
+      "message": "Declaration or statement expected."
+    }
+  ]
+}

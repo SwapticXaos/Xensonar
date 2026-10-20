@@ -2,6 +2,46 @@
   "scope": "Static lexical references in the assembled application. Embedded code strings and registry require paths are not a complete runtime call graph.",
   "declarations": [
     {
+      "name": "__xenKeyboardFoundationDetach",
+      "file": "src/handoff/00_chat_feature_addons.js",
+      "line": 5
+    },
+    {
+      "name": "__xenKeyboardFoundationReleaseAfterNextGesture",
+      "file": "src/handoff/00_chat_feature_addons.js",
+      "line": 33
+    },
+    {
+      "name": "__XenKeyboardDetachBadge",
+      "file": "src/handoff/00_chat_feature_addons.js",
+      "line": 36
+    },
+    {
+      "name": "__XenBassGridInterval",
+      "file": "src/handoff/00_chat_feature_addons.js",
+      "line": 48
+    },
+    {
+      "name": "__XenBassGrid",
+      "file": "src/handoff/00_chat_feature_addons.js",
+      "line": 58
+    },
+    {
+      "name": "__XenBassGridRuntime",
+      "file": "src/handoff/00_chat_feature_addons.js",
+      "line": 182
+    },
+    {
+      "name": "__XenBassGridEditor",
+      "file": "src/handoff/00_chat_feature_addons.js",
+      "line": 190
+    },
+    {
+      "name": "__XenBassGridSource",
+      "file": "src/handoff/00_chat_feature_addons.js",
+      "line": 234
+    },
+    {
       "name": "__XenOctaves",
       "file": "src/mix/03_quick_menu.js",
       "line": 2
@@ -574,7 +614,7 @@
     {
       "name": "koe",
       "file": "src/nodal/07_sound_designer.js",
-      "line": 407
+      "line": 415
     },
     {
       "name": "nodalImpactPreparationOrder",
@@ -807,29 +847,59 @@
       "line": 26
     },
     {
-      "name": "__ForgeNavigatorSaveButton",
+      "name": "__f333NavigatorPreviewSource",
       "file": "src/forge/editor/09_workflow_controls.js",
-      "line": 38
+      "line": 39
     },
     {
-      "name": "__ForgeTransportRack",
+      "name": "__f333NavigatorPreviewTicket",
+      "file": "src/forge/editor/09_workflow_controls.js",
+      "line": 39
+    },
+    {
+      "name": "__f333StopNavigatorPreview",
+      "file": "src/forge/editor/09_workflow_controls.js",
+      "line": 40
+    },
+    {
+      "name": "__f333PreviewNavigatorSample",
       "file": "src/forge/editor/09_workflow_controls.js",
       "line": 47
     },
     {
+      "name": "__ForgeNavigatorSampleNameInput",
+      "file": "src/forge/editor/09_workflow_controls.js",
+      "line": 81
+    },
+    {
+      "name": "__ForgeNavigatorPreviewButton",
+      "file": "src/forge/editor/09_workflow_controls.js",
+      "line": 95
+    },
+    {
+      "name": "__ForgeNavigatorSaveButton",
+      "file": "src/forge/editor/09_workflow_controls.js",
+      "line": 102
+    },
+    {
+      "name": "__ForgeTransportRack",
+      "file": "src/forge/editor/09_workflow_controls.js",
+      "line": 111
+    },
+    {
       "name": "__PureDieterControls",
       "file": "src/forge/editor/09_workflow_controls.js",
-      "line": 114
+      "line": 178
     },
     {
       "name": "__forgeMaterialRootHz",
       "file": "src/forge/editor/09_workflow_controls.js",
-      "line": 131
+      "line": 195
     },
     {
       "name": "__ForgeMaterialMetadata",
       "file": "src/forge/editor/09_workflow_controls.js",
-      "line": 132
+      "line": 196
     },
     {
       "name": "__PureDieter",
@@ -2782,19 +2852,24 @@
       "line": 25
     },
     {
-      "name": "__XenDroneStart",
-      "file": "src/runtime/01_instrument_state.js",
-      "line": 27
-    },
-    {
-      "name": "__XenLegacyDroneStart",
+      "name": "__xenDronePersist",
       "file": "src/runtime/01_instrument_state.js",
       "line": 28
     },
     {
+      "name": "__XenDroneStart",
+      "file": "src/runtime/01_instrument_state.js",
+      "line": 50
+    },
+    {
+      "name": "__XenLegacyDroneStart",
+      "file": "src/runtime/01_instrument_state.js",
+      "line": 51
+    },
+    {
       "name": "__xenDronePresetStart",
       "file": "src/runtime/01_instrument_state.js",
-      "line": 29
+      "line": 52
     },
     {
       "name": "__wave39MakeGradient",
@@ -5347,6 +5422,11 @@
       "line": 36
     },
     {
+      "name": "__XenFullscreenButton",
+      "file": "src/runtime/instrument/05_timing_and_admission.js",
+      "line": 51
+    },
+    {
       "name": "Nre",
       "file": "src/runtime/instrument/05_timing_and_admission.js",
       "line": 51
@@ -6672,214 +6752,229 @@
       "line": 3
     },
     {
+      "name": "__XenDroneAnchorControls",
+      "file": "src/runtime/instrument/09_monitoring_and_manual_patterns.js",
+      "line": 7
+    },
+    {
+      "name": "__XenDroneStepWobbleEditor",
+      "file": "src/runtime/instrument/09_monitoring_and_manual_patterns.js",
+      "line": 19
+    },
+    {
+      "name": "__XenLegacyDroneControls",
+      "file": "src/runtime/instrument/09_monitoring_and_manual_patterns.js",
+      "line": 34
+    },
+    {
       "name": "vie",
       "file": "src/runtime/instrument/09_monitoring_and_manual_patterns.js",
-      "line": 6
+      "line": 36
     },
     {
       "name": "Y6",
       "file": "src/runtime/instrument/09_monitoring_and_manual_patterns.js",
-      "line": 6
+      "line": 64
     },
     {
       "name": "Aie",
       "file": "src/runtime/instrument/09_monitoring_and_manual_patterns.js",
-      "line": 6
+      "line": 64
     },
     {
       "name": "xie",
       "file": "src/runtime/instrument/09_monitoring_and_manual_patterns.js",
-      "line": 6
+      "line": 64
     },
     {
       "name": "Mie",
       "file": "src/runtime/instrument/09_monitoring_and_manual_patterns.js",
-      "line": 6
+      "line": 64
     },
     {
       "name": "wie",
       "file": "src/runtime/instrument/09_monitoring_and_manual_patterns.js",
-      "line": 6
+      "line": 64
     },
     {
       "name": "Rie",
       "file": "src/runtime/instrument/09_monitoring_and_manual_patterns.js",
-      "line": 6
+      "line": 64
     },
     {
       "name": "J6",
       "file": "src/runtime/instrument/09_monitoring_and_manual_patterns.js",
-      "line": 6
+      "line": 64
     },
     {
       "name": "Cie",
       "file": "src/runtime/instrument/09_monitoring_and_manual_patterns.js",
-      "line": 6
+      "line": 64
     },
     {
       "name": "kie",
       "file": "src/runtime/instrument/09_monitoring_and_manual_patterns.js",
-      "line": 6
+      "line": 64
     },
     {
       "name": "Pie",
       "file": "src/runtime/instrument/09_monitoring_and_manual_patterns.js",
-      "line": 6
+      "line": 64
     },
     {
       "name": "Iie",
       "file": "src/runtime/instrument/09_monitoring_and_manual_patterns.js",
-      "line": 6
+      "line": 64
     },
     {
       "name": "mI",
       "file": "src/runtime/instrument/09_monitoring_and_manual_patterns.js",
-      "line": 6
+      "line": 64
     },
     {
       "name": "pI",
       "file": "src/runtime/instrument/09_monitoring_and_manual_patterns.js",
-      "line": 6
+      "line": 64
     },
     {
       "name": "Eie",
       "file": "src/runtime/instrument/09_monitoring_and_manual_patterns.js",
-      "line": 6
+      "line": 64
     },
     {
       "name": "Fie",
       "file": "src/runtime/instrument/09_monitoring_and_manual_patterns.js",
-      "line": 6
+      "line": 64
     },
     {
       "name": "Tie",
       "file": "src/runtime/instrument/09_monitoring_and_manual_patterns.js",
-      "line": 6
+      "line": 64
     },
     {
       "name": "Lie",
       "file": "src/runtime/instrument/09_monitoring_and_manual_patterns.js",
-      "line": 6
+      "line": 64
     },
     {
       "name": "Z6",
       "file": "src/runtime/instrument/09_monitoring_and_manual_patterns.js",
-      "line": 6
+      "line": 70
     },
     {
       "name": "sT",
       "file": "src/runtime/instrument/09_monitoring_and_manual_patterns.js",
-      "line": 6
+      "line": 70
     },
     {
       "name": "Bie",
       "file": "src/runtime/instrument/09_monitoring_and_manual_patterns.js",
-      "line": 6
+      "line": 70
     },
     {
       "name": "eG",
       "file": "src/runtime/instrument/09_monitoring_and_manual_patterns.js",
-      "line": 6
+      "line": 70
     },
     {
       "name": "M4",
       "file": "src/runtime/instrument/09_monitoring_and_manual_patterns.js",
-      "line": 6
+      "line": 70
     },
     {
       "name": "l0",
       "file": "src/runtime/instrument/09_monitoring_and_manual_patterns.js",
-      "line": 6
+      "line": 70
     },
     {
       "name": "tG",
       "file": "src/runtime/instrument/09_monitoring_and_manual_patterns.js",
-      "line": 6
+      "line": 70
     },
     {
       "name": "nG",
       "file": "src/runtime/instrument/09_monitoring_and_manual_patterns.js",
-      "line": 6
+      "line": 70
     },
     {
       "name": "lT",
       "file": "src/runtime/instrument/09_monitoring_and_manual_patterns.js",
-      "line": 6
+      "line": 70
     },
     {
       "name": "Ux",
       "file": "src/runtime/instrument/09_monitoring_and_manual_patterns.js",
-      "line": 6
+      "line": 70
     },
     {
       "name": "Kx",
       "file": "src/runtime/instrument/09_monitoring_and_manual_patterns.js",
-      "line": 6
+      "line": 70
     },
     {
       "name": "rG",
       "file": "src/runtime/instrument/09_monitoring_and_manual_patterns.js",
-      "line": 6
+      "line": 70
     },
     {
       "name": "Die",
       "file": "src/runtime/instrument/09_monitoring_and_manual_patterns.js",
-      "line": 6
+      "line": 70
     },
     {
       "name": "w4",
       "file": "src/runtime/instrument/09_monitoring_and_manual_patterns.js",
-      "line": 6
+      "line": 70
     },
     {
       "name": "Nie",
       "file": "src/runtime/instrument/09_monitoring_and_manual_patterns.js",
-      "line": 6
+      "line": 70
     },
     {
       "name": "k1",
       "file": "src/runtime/instrument/09_monitoring_and_manual_patterns.js",
-      "line": 6
+      "line": 70
     },
     {
       "name": "C2",
       "file": "src/runtime/instrument/09_monitoring_and_manual_patterns.js",
-      "line": 6
+      "line": 70
     },
     {
       "name": "eu",
       "file": "src/runtime/instrument/09_monitoring_and_manual_patterns.js",
-      "line": 6
+      "line": 70
     },
     {
       "name": "Pw",
       "file": "src/runtime/instrument/09_monitoring_and_manual_patterns.js",
-      "line": 6
+      "line": 70
     },
     {
       "name": "Oie",
       "file": "src/runtime/instrument/09_monitoring_and_manual_patterns.js",
-      "line": 6
+      "line": 70
     },
     {
       "name": "_ie",
       "file": "src/runtime/instrument/09_monitoring_and_manual_patterns.js",
-      "line": 6
+      "line": 70
     },
     {
       "name": "zie",
       "file": "src/runtime/instrument/09_monitoring_and_manual_patterns.js",
-      "line": 6
+      "line": 70
     },
     {
       "name": "jie",
       "file": "src/runtime/instrument/09_monitoring_and_manual_patterns.js",
-      "line": 6
+      "line": 70
     },
     {
       "name": "R4",
       "file": "src/runtime/instrument/09_monitoring_and_manual_patterns.js",
-      "line": 6
+      "line": 70
     },
     {
       "name": "Gie",
@@ -7359,62 +7454,62 @@
     {
       "name": "isSavedEntrophonSound",
       "file": "src/instruments/05_entrophon_integration.js",
-      "line": 3
+      "line": 4
     },
     {
       "name": "entrophonLiveDefinition",
       "file": "src/instruments/05_entrophon_integration.js",
-      "line": 4
+      "line": 5
     },
     {
       "name": "entrophonSoundOptions",
       "file": "src/instruments/05_entrophon_integration.js",
-      "line": 11
+      "line": 19
     },
     {
       "name": "entrophonComposerSourceFields",
       "file": "src/instruments/05_entrophon_integration.js",
-      "line": 15
+      "line": 23
     },
     {
       "name": "entrophonInstrumentMenu",
       "file": "src/instruments/05_entrophon_integration.js",
-      "line": 30
+      "line": 38
     },
     {
       "name": "entrophonScheduleMelodic",
       "file": "src/instruments/05_entrophon_integration.js",
-      "line": 36
+      "line": 44
     },
     {
       "name": "entrophonEditSavedSound",
       "file": "src/instruments/05_entrophon_integration.js",
-      "line": 43
+      "line": 51
     },
     {
       "name": "EntrophonSoundEditor",
       "file": "src/instruments/05_entrophon_integration.js",
-      "line": 48
+      "line": 56
     },
     {
       "name": "__EntrophonMelodicPreparationController",
       "file": "src/instruments/05_entrophon_integration.js",
-      "line": 55
+      "line": 63
     },
     {
       "name": "beginEntrophonMelodicPreparation",
       "file": "src/instruments/05_entrophon_integration.js",
-      "line": 56
+      "line": 64
     },
     {
       "name": "cancelEntrophonMelodicPreparation",
       "file": "src/instruments/05_entrophon_integration.js",
-      "line": 57
+      "line": 65
     },
     {
       "name": "hasEntrophonMelodicNotes",
       "file": "src/instruments/05_entrophon_integration.js",
-      "line": 58
+      "line": 66
     },
     {
       "name": "assertInstrumentPreparationActive",
@@ -8979,1607 +9074,1607 @@
     {
       "name": "Oce",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "Vd",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "O4",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "E1",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "_4",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "Dw",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "_ce",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "zce",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "Xy",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "jce",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "Yy",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "Gce",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "Ya",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "si",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "Hce",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "tH",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "nH",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "rH",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "Vce",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "Wce",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "xI",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "MI",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "aH",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "qce",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "Qce",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "E2",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "Uce",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "Kce",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "rM",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "$ce",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "Xce",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "Yce",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "Jce",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "Zce",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "eue",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "tue",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "z4",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "nue",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "rue",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "aue",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "oue",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "wT",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "RT",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "aM",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "oH",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "iH",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "iue",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "sH",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "CT",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "lH",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "cH",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "sue",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "Jy",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "lue",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "cue",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "uue",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "j4",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "due",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "mue",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "pue",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "hue",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "fue",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "gue",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "bue",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "yue",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "Sue",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "vue",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "Aue",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "ay",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "zr",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "xue",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "uH",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "dH",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "Mue",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "wue",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "Rue",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "Cue",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "kue",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "Pue",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "Iue",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "Eue",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "Fue",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "Tue",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "Lue",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "Bue",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "Due",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "Ta",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "Nue",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "Oue",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "_ue",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "zue",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "jue",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "Zy",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "G4",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "F1",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "kT",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "Gue",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "Hue",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "Vue",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "Wue",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "que",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "Tb",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "mH",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "Que",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "pH",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "Uue",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "Kue",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "$ue",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "Xue",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "Yue",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "Jue",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "Zue",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "ede",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "tde",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "nde",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "rde",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "H4",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "ade",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "ode",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "hH",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "fH",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "ide",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "sde",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "lde",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "cde",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "ude",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "dde",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "mde",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "pde",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "hde",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "fde",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "VA",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "gde",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "bde",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "yde",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "Sde",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "vde",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "Ade",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "xde",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "Mde",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "wde",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "Rde",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "Cde",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "kde",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "Pde",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "PT",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "gH",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "Ide",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "Zm",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "jl",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "Ede",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "Nw",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "W4",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "Fde",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "Tde",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "Ow",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "bH",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "yH",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "SH",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "Lde",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "Bde",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "Dde",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "Nde",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "Ode",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "_de",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "zde",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "jde",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "Gde",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "Hde",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "Vde",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "Wde",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "qde",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "Qde",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "Ude",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "Kde",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "$de",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "Xde",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "Yde",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "Jde",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "Zde",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "eme",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "tme",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "nme",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "rme",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "ame",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "ome",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "ime",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "sme",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "lme",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "cme",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "ume",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "dme",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "mme",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "pme",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "hme",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "fme",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "gme",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "bme",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "yme",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "Sme",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "vme",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "Ame",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "xme",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "Mme",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "wme",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "Rme",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "ep",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "vH",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "Cme",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "kme",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "Pme",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "Ime",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "Eme",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "Fme",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "Tme",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "Rf",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "Lme",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "AH",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "Bme",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "wI",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "Dme",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "RI",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "Nme",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "Qc",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "$i",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "Cf",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "kf",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "Pf",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "If",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "Ef",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "Ff",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "CI",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "Ome",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "F2",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "T2",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "_me",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "zme",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "jme",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "Gme",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "Hme",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "Vme",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "Wme",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "qme",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "Qme",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "Ume",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "Kme",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "$me",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "Xme",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "Yme",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "Jme",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "Zme",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "epe",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "tpe",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "npe",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "rpe",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "Wl",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "tp",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "ape",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "ope",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "Mi",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "$o",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "ipe",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "spe",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "xH",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "lpe",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "cpe",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "upe",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "co",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "Co",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "dpe",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "mpe",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "ppe",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "hpe",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "fpe",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "gpe",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "nt",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "q4",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "bpe",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "ype",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "Spe",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "vpe",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "Ape",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "MH",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "eS",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "xpe",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "Mpe",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "bt",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "c0",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "wpe",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "Rpe",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "Cpe",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "kpe",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "Ppe",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "Ipe",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "Epe",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "Fpe",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "Tpe",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "Lpe",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "Bpe",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "Dpe",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "Npe",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "Ope",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "Fd",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "vn",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "wH",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "tu",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "_pe",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "zpe",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "jpe",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "IT",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "ET",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "oo",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "RH",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "Q4",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "Gpe",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 184
+      "line": 189
     },
     {
       "name": "jr",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 185
+      "line": 190
     },
     {
       "name": "U4",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 186
+      "line": 191
     },
     {
       "name": "K4",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 187
+      "line": 192
     },
     {
       "name": "$4",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 188
+      "line": 193
     },
     {
       "name": "Hpe",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 189
+      "line": 194
     },
     {
       "name": "En",
       "file": "src/rhythm/02_bass_and_rack.js",
-      "line": 190
+      "line": 195
     },
     {
       "name": "__xenDroneColourBanks",
@@ -11732,1254 +11827,1259 @@
       "line": 6
     },
     {
-      "name": "FI",
+      "name": "__XenMaterialStandalonePreview",
       "file": "src/audio/01_voice_and_rfl_ownership.js",
       "line": 25
+    },
+    {
+      "name": "FI",
+      "file": "src/audio/01_voice_and_rfl_ownership.js",
+      "line": 48
     },
     {
       "name": "Vw",
       "file": "src/audio/01_voice_and_rfl_ownership.js",
-      "line": 25
+      "line": 48
     },
     {
       "name": "l3",
       "file": "src/audio/01_voice_and_rfl_ownership.js",
-      "line": 25
+      "line": 48
     },
     {
       "name": "qT",
       "file": "src/audio/01_voice_and_rfl_ownership.js",
-      "line": 25
+      "line": 48
     },
     {
       "name": "Zfe",
       "file": "src/audio/01_voice_and_rfl_ownership.js",
-      "line": 25
+      "line": 48
     },
     {
       "name": "e0e",
       "file": "src/audio/01_voice_and_rfl_ownership.js",
-      "line": 25
+      "line": 48
     },
     {
       "name": "t0e",
       "file": "src/audio/01_voice_and_rfl_ownership.js",
-      "line": 25
+      "line": 48
     },
     {
       "name": "c3",
       "file": "src/audio/01_voice_and_rfl_ownership.js",
-      "line": 25
+      "line": 48
     },
     {
       "name": "Yd",
       "file": "src/audio/01_voice_and_rfl_ownership.js",
-      "line": 25
+      "line": 48
     },
     {
       "name": "n0e",
       "file": "src/audio/01_voice_and_rfl_ownership.js",
-      "line": 25
+      "line": 48
     },
     {
       "name": "r0e",
       "file": "src/audio/01_voice_and_rfl_ownership.js",
-      "line": 25
+      "line": 48
     },
     {
       "name": "a0e",
       "file": "src/audio/01_voice_and_rfl_ownership.js",
-      "line": 25
+      "line": 48
     },
     {
       "name": "o0e",
       "file": "src/audio/01_voice_and_rfl_ownership.js",
-      "line": 25
+      "line": 48
     },
     {
       "name": "i0e",
       "file": "src/audio/01_voice_and_rfl_ownership.js",
-      "line": 25
+      "line": 48
     },
     {
       "name": "s0e",
       "file": "src/audio/01_voice_and_rfl_ownership.js",
-      "line": 25
+      "line": 48
     },
     {
       "name": "u3",
       "file": "src/audio/01_voice_and_rfl_ownership.js",
-      "line": 25
+      "line": 48
     },
     {
       "name": "QT",
       "file": "src/audio/01_voice_and_rfl_ownership.js",
-      "line": 25
+      "line": 48
     },
     {
       "name": "Ei",
       "file": "src/audio/01_voice_and_rfl_ownership.js",
-      "line": 25
+      "line": 48
     },
     {
       "name": "TI",
       "file": "src/audio/01_voice_and_rfl_ownership.js",
-      "line": 25
+      "line": 48
     },
     {
       "name": "d3",
       "file": "src/audio/01_voice_and_rfl_ownership.js",
-      "line": 25
+      "line": 48
     },
     {
       "name": "Ww",
       "file": "src/audio/01_voice_and_rfl_ownership.js",
-      "line": 25
+      "line": 48
     },
     {
       "name": "l0e",
       "file": "src/audio/01_voice_and_rfl_ownership.js",
-      "line": 25
+      "line": 48
     },
     {
       "name": "c0e",
       "file": "src/audio/01_voice_and_rfl_ownership.js",
-      "line": 25
+      "line": 48
     },
     {
       "name": "GS",
       "file": "src/audio/01_voice_and_rfl_ownership.js",
-      "line": 25
+      "line": 48
     },
     {
       "name": "uV",
       "file": "src/audio/01_voice_and_rfl_ownership.js",
-      "line": 25
+      "line": 48
     },
     {
       "name": "UT",
       "file": "src/audio/01_voice_and_rfl_ownership.js",
-      "line": 25
+      "line": 48
     },
     {
       "name": "u0e",
       "file": "src/audio/01_voice_and_rfl_ownership.js",
-      "line": 25
+      "line": 48
     },
     {
       "name": "uh",
       "file": "src/audio/01_voice_and_rfl_ownership.js",
-      "line": 25
+      "line": 48
     },
     {
       "name": "KT",
       "file": "src/audio/01_voice_and_rfl_ownership.js",
-      "line": 25
+      "line": 48
     },
     {
       "name": "d0e",
       "file": "src/audio/01_voice_and_rfl_ownership.js",
-      "line": 25
+      "line": 48
     },
     {
       "name": "bu",
       "file": "src/audio/01_voice_and_rfl_ownership.js",
-      "line": 25
+      "line": 48
     },
     {
       "name": "$T",
       "file": "src/audio/01_voice_and_rfl_ownership.js",
-      "line": 25
+      "line": 48
     },
     {
       "name": "QA",
       "file": "src/audio/01_voice_and_rfl_ownership.js",
-      "line": 25
+      "line": 48
     },
     {
       "name": "dV",
       "file": "src/audio/01_voice_and_rfl_ownership.js",
-      "line": 25
+      "line": 48
     },
     {
       "name": "LI",
       "file": "src/audio/01_voice_and_rfl_ownership.js",
-      "line": 25
+      "line": 48
     },
     {
       "name": "bs",
       "file": "src/audio/01_voice_and_rfl_ownership.js",
-      "line": 25
+      "line": 48
     },
     {
       "name": "mV",
       "file": "src/audio/01_voice_and_rfl_ownership.js",
-      "line": 25
+      "line": 48
     },
     {
       "name": "m0e",
       "file": "src/audio/01_voice_and_rfl_ownership.js",
-      "line": 25
+      "line": 48
     },
     {
       "name": "p0e",
       "file": "src/audio/01_voice_and_rfl_ownership.js",
-      "line": 25
+      "line": 48
     },
     {
       "name": "h0e",
       "file": "src/audio/01_voice_and_rfl_ownership.js",
-      "line": 25
+      "line": 48
     },
     {
       "name": "f0e",
       "file": "src/audio/01_voice_and_rfl_ownership.js",
-      "line": 25
+      "line": 48
     },
     {
       "name": "g0e",
       "file": "src/audio/01_voice_and_rfl_ownership.js",
-      "line": 25
+      "line": 48
     },
     {
       "name": "b0e",
       "file": "src/audio/01_voice_and_rfl_ownership.js",
-      "line": 25
+      "line": 48
     },
     {
       "name": "y0e",
       "file": "src/audio/01_voice_and_rfl_ownership.js",
-      "line": 25
+      "line": 48
     },
     {
       "name": "S0e",
       "file": "src/audio/01_voice_and_rfl_ownership.js",
-      "line": 25
+      "line": 48
     },
     {
       "name": "pV",
       "file": "src/audio/01_voice_and_rfl_ownership.js",
-      "line": 25
+      "line": 48
     },
     {
       "name": "hV",
       "file": "src/audio/01_voice_and_rfl_ownership.js",
-      "line": 25
+      "line": 48
     },
     {
       "name": "eg",
       "file": "src/audio/01_voice_and_rfl_ownership.js",
-      "line": 25
+      "line": 48
     },
     {
       "name": "v0e",
       "file": "src/audio/01_voice_and_rfl_ownership.js",
-      "line": 25
+      "line": 48
     },
     {
       "name": "A0e",
       "file": "src/audio/01_voice_and_rfl_ownership.js",
-      "line": 25
+      "line": 48
     },
     {
       "name": "x0e",
       "file": "src/audio/01_voice_and_rfl_ownership.js",
-      "line": 25
+      "line": 48
     },
     {
       "name": "M0e",
       "file": "src/audio/01_voice_and_rfl_ownership.js",
-      "line": 25
+      "line": 48
     },
     {
       "name": "fV",
       "file": "src/audio/01_voice_and_rfl_ownership.js",
-      "line": 25
+      "line": 48
     },
     {
       "name": "w0e",
       "file": "src/audio/01_voice_and_rfl_ownership.js",
-      "line": 25
+      "line": 48
     },
     {
       "name": "R0e",
       "file": "src/audio/01_voice_and_rfl_ownership.js",
-      "line": 25
+      "line": 48
     },
     {
       "name": "gV",
       "file": "src/audio/01_voice_and_rfl_ownership.js",
-      "line": 25
+      "line": 48
     },
     {
       "name": "C0e",
       "file": "src/audio/01_voice_and_rfl_ownership.js",
-      "line": 25
+      "line": 48
     },
     {
       "name": "k0e",
       "file": "src/audio/01_voice_and_rfl_ownership.js",
-      "line": 25
+      "line": 48
     },
     {
       "name": "P0e",
       "file": "src/audio/01_voice_and_rfl_ownership.js",
-      "line": 25
+      "line": 48
     },
     {
       "name": "bV",
       "file": "src/audio/01_voice_and_rfl_ownership.js",
-      "line": 25
+      "line": 48
     },
     {
       "name": "I0e",
       "file": "src/audio/01_voice_and_rfl_ownership.js",
-      "line": 25
+      "line": 48
     },
     {
       "name": "yV",
       "file": "src/audio/01_voice_and_rfl_ownership.js",
-      "line": 25
+      "line": 48
     },
     {
       "name": "E0e",
       "file": "src/audio/01_voice_and_rfl_ownership.js",
-      "line": 25
+      "line": 48
     },
     {
       "name": "F0e",
       "file": "src/audio/01_voice_and_rfl_ownership.js",
-      "line": 25
+      "line": 48
     },
     {
       "name": "T0e",
       "file": "src/audio/01_voice_and_rfl_ownership.js",
-      "line": 25
+      "line": 48
     },
     {
       "name": "L0e",
       "file": "src/audio/01_voice_and_rfl_ownership.js",
-      "line": 25
+      "line": 48
     },
     {
       "name": "B0e",
       "file": "src/audio/01_voice_and_rfl_ownership.js",
-      "line": 25
+      "line": 48
     },
     {
       "name": "D0e",
       "file": "src/audio/01_voice_and_rfl_ownership.js",
-      "line": 25
+      "line": 48
     },
     {
       "name": "N0e",
       "file": "src/audio/01_voice_and_rfl_ownership.js",
-      "line": 25
+      "line": 48
     },
     {
       "name": "O0e",
       "file": "src/audio/01_voice_and_rfl_ownership.js",
-      "line": 25
+      "line": 48
     },
     {
       "name": "_0e",
       "file": "src/audio/01_voice_and_rfl_ownership.js",
-      "line": 25
+      "line": 48
     },
     {
       "name": "z0e",
       "file": "src/audio/01_voice_and_rfl_ownership.js",
-      "line": 25
+      "line": 48
     },
     {
       "name": "j0e",
       "file": "src/audio/01_voice_and_rfl_ownership.js",
-      "line": 25
+      "line": 48
     },
     {
       "name": "G0e",
       "file": "src/audio/01_voice_and_rfl_ownership.js",
-      "line": 25
+      "line": 48
     },
     {
       "name": "H0e",
       "file": "src/audio/01_voice_and_rfl_ownership.js",
-      "line": 25
+      "line": 48
     },
     {
       "name": "m3",
       "file": "src/audio/01_voice_and_rfl_ownership.js",
-      "line": 25
+      "line": 48
     },
     {
       "name": "V0e",
       "file": "src/audio/01_voice_and_rfl_ownership.js",
-      "line": 25
+      "line": 48
     },
     {
       "name": "W0e",
       "file": "src/audio/01_voice_and_rfl_ownership.js",
-      "line": 25
+      "line": 48
     },
     {
       "name": "q0e",
       "file": "src/audio/01_voice_and_rfl_ownership.js",
-      "line": 25
+      "line": 48
     },
     {
       "name": "Q0e",
       "file": "src/audio/01_voice_and_rfl_ownership.js",
-      "line": 25
+      "line": 48
     },
     {
       "name": "U0e",
       "file": "src/audio/01_voice_and_rfl_ownership.js",
-      "line": 25
+      "line": 48
     },
     {
       "name": "SV",
       "file": "src/audio/01_voice_and_rfl_ownership.js",
-      "line": 25
+      "line": 48
     },
     {
       "name": "K0e",
       "file": "src/audio/01_voice_and_rfl_ownership.js",
-      "line": 25
+      "line": 48
     },
     {
       "name": "$0e",
       "file": "src/audio/01_voice_and_rfl_ownership.js",
-      "line": 25
+      "line": 48
     },
     {
       "name": "X0e",
       "file": "src/audio/01_voice_and_rfl_ownership.js",
-      "line": 25
+      "line": 48
     },
     {
       "name": "XT",
       "file": "src/audio/01_voice_and_rfl_ownership.js",
-      "line": 25
+      "line": 48
     },
     {
       "name": "vV",
       "file": "src/audio/01_voice_and_rfl_ownership.js",
-      "line": 25
+      "line": 48
     },
     {
       "name": "Y0e",
       "file": "src/audio/01_voice_and_rfl_ownership.js",
-      "line": 25
+      "line": 48
     },
     {
       "name": "Zf",
       "file": "src/audio/01_voice_and_rfl_ownership.js",
-      "line": 25
+      "line": 48
     },
     {
       "name": "Wt",
       "file": "src/audio/01_voice_and_rfl_ownership.js",
-      "line": 25
+      "line": 48
     },
     {
       "name": "J0e",
       "file": "src/audio/01_voice_and_rfl_ownership.js",
-      "line": 25
+      "line": 48
     },
     {
       "name": "Z0e",
       "file": "src/audio/01_voice_and_rfl_ownership.js",
-      "line": 25
+      "line": 48
     },
     {
       "name": "ege",
       "file": "src/audio/01_voice_and_rfl_ownership.js",
-      "line": 25
+      "line": 48
     },
     {
       "name": "tge",
       "file": "src/audio/01_voice_and_rfl_ownership.js",
-      "line": 25
+      "line": 48
     },
     {
       "name": "nge",
       "file": "src/audio/01_voice_and_rfl_ownership.js",
-      "line": 25
+      "line": 48
     },
     {
       "name": "AV",
       "file": "src/audio/01_voice_and_rfl_ownership.js",
-      "line": 25
+      "line": 48
     },
     {
       "name": "rge",
       "file": "src/audio/01_voice_and_rfl_ownership.js",
-      "line": 25
+      "line": 48
     },
     {
       "name": "Nd",
       "file": "src/audio/01_voice_and_rfl_ownership.js",
-      "line": 25
+      "line": 48
     },
     {
       "name": "age",
       "file": "src/audio/01_voice_and_rfl_ownership.js",
-      "line": 25
+      "line": 48
     },
     {
       "name": "oge",
       "file": "src/audio/01_voice_and_rfl_ownership.js",
-      "line": 25
+      "line": 48
     },
     {
       "name": "tg",
       "file": "src/audio/01_voice_and_rfl_ownership.js",
-      "line": 25
+      "line": 48
     },
     {
       "name": "BI",
       "file": "src/audio/01_voice_and_rfl_ownership.js",
-      "line": 25
+      "line": 48
     },
     {
       "name": "YT",
       "file": "src/audio/01_voice_and_rfl_ownership.js",
-      "line": 25
+      "line": 48
     },
     {
       "name": "HS",
       "file": "src/audio/01_voice_and_rfl_ownership.js",
-      "line": 25
+      "line": 48
     },
     {
       "name": "z2",
       "file": "src/audio/01_voice_and_rfl_ownership.js",
-      "line": 25
+      "line": 48
     },
     {
       "name": "p3",
       "file": "src/audio/01_voice_and_rfl_ownership.js",
-      "line": 25
+      "line": 48
     },
     {
       "name": "Gp",
       "file": "src/audio/01_voice_and_rfl_ownership.js",
-      "line": 25
+      "line": 48
     },
     {
       "name": "xV",
       "file": "src/audio/01_voice_and_rfl_ownership.js",
-      "line": 25
+      "line": 48
     },
     {
       "name": "Yp",
       "file": "src/audio/01_voice_and_rfl_ownership.js",
-      "line": 25
+      "line": 48
     },
     {
       "name": "UA",
       "file": "src/audio/01_voice_and_rfl_ownership.js",
-      "line": 25
+      "line": 48
     },
     {
       "name": "ige",
       "file": "src/audio/01_voice_and_rfl_ownership.js",
-      "line": 25
+      "line": 48
     },
     {
       "name": "sge",
       "file": "src/audio/01_voice_and_rfl_ownership.js",
-      "line": 25
+      "line": 48
     },
     {
       "name": "lge",
       "file": "src/audio/01_voice_and_rfl_ownership.js",
-      "line": 25
+      "line": 48
     },
     {
       "name": "h3",
       "file": "src/audio/01_voice_and_rfl_ownership.js",
-      "line": 25
+      "line": 48
     },
     {
       "name": "cge",
       "file": "src/audio/01_voice_and_rfl_ownership.js",
-      "line": 25
+      "line": 48
     },
     {
       "name": "uge",
       "file": "src/audio/01_voice_and_rfl_ownership.js",
-      "line": 25
+      "line": 48
     },
     {
       "name": "dge",
       "file": "src/audio/01_voice_and_rfl_ownership.js",
-      "line": 25
+      "line": 48
     },
     {
       "name": "mge",
       "file": "src/audio/01_voice_and_rfl_ownership.js",
-      "line": 25
+      "line": 48
     },
     {
       "name": "pge",
       "file": "src/audio/01_voice_and_rfl_ownership.js",
-      "line": 25
+      "line": 48
     },
     {
       "name": "k0",
       "file": "src/audio/01_voice_and_rfl_ownership.js",
-      "line": 25
+      "line": 48
     },
     {
       "name": "MV",
       "file": "src/audio/01_voice_and_rfl_ownership.js",
-      "line": 25
+      "line": 48
     },
     {
       "name": "wV",
       "file": "src/audio/01_voice_and_rfl_ownership.js",
-      "line": 25
+      "line": 48
     },
     {
       "name": "RV",
       "file": "src/audio/01_voice_and_rfl_ownership.js",
-      "line": 25
+      "line": 48
     },
     {
       "name": "CV",
       "file": "src/audio/01_voice_and_rfl_ownership.js",
-      "line": 25
+      "line": 48
     },
     {
       "name": "kV",
       "file": "src/audio/01_voice_and_rfl_ownership.js",
-      "line": 25
+      "line": 48
     },
     {
       "name": "hge",
       "file": "src/audio/01_voice_and_rfl_ownership.js",
-      "line": 25
+      "line": 48
     },
     {
       "name": "fge",
       "file": "src/audio/01_voice_and_rfl_ownership.js",
-      "line": 25
+      "line": 48
     },
     {
       "name": "gge",
       "file": "src/audio/01_voice_and_rfl_ownership.js",
-      "line": 25
+      "line": 48
     },
     {
       "name": "Ys",
       "file": "src/audio/01_voice_and_rfl_ownership.js",
-      "line": 25
+      "line": 48
     },
     {
       "name": "JT",
       "file": "src/audio/01_voice_and_rfl_ownership.js",
-      "line": 25
+      "line": 48
     },
     {
       "name": "PV",
       "file": "src/audio/01_voice_and_rfl_ownership.js",
-      "line": 25
+      "line": 48
     },
     {
       "name": "bge",
       "file": "src/audio/01_voice_and_rfl_ownership.js",
-      "line": 25
+      "line": 48
     },
     {
       "name": "yge",
       "file": "src/audio/01_voice_and_rfl_ownership.js",
-      "line": 25
+      "line": 48
     },
     {
       "name": "Sge",
       "file": "src/audio/01_voice_and_rfl_ownership.js",
-      "line": 25
+      "line": 48
     },
     {
       "name": "ZT",
       "file": "src/audio/01_voice_and_rfl_ownership.js",
-      "line": 25
+      "line": 48
     },
     {
       "name": "IV",
       "file": "src/audio/01_voice_and_rfl_ownership.js",
-      "line": 25
+      "line": 48
     },
     {
       "name": "vge",
       "file": "src/audio/01_voice_and_rfl_ownership.js",
-      "line": 25
+      "line": 48
     },
     {
       "name": "Age",
       "file": "src/audio/01_voice_and_rfl_ownership.js",
-      "line": 25
+      "line": 48
     },
     {
       "name": "xge",
       "file": "src/audio/01_voice_and_rfl_ownership.js",
-      "line": 25
+      "line": 48
     },
     {
       "name": "EV",
       "file": "src/audio/01_voice_and_rfl_ownership.js",
-      "line": 25
+      "line": 48
     },
     {
       "name": "FV",
       "file": "src/audio/01_voice_and_rfl_ownership.js",
-      "line": 25
+      "line": 48
     },
     {
       "name": "Mge",
       "file": "src/audio/01_voice_and_rfl_ownership.js",
-      "line": 25
+      "line": 48
     },
     {
       "name": "wge",
       "file": "src/audio/01_voice_and_rfl_ownership.js",
-      "line": 25
+      "line": 48
     },
     {
       "name": "Rge",
       "file": "src/audio/01_voice_and_rfl_ownership.js",
-      "line": 25
+      "line": 48
     },
     {
       "name": "Cge",
       "file": "src/audio/01_voice_and_rfl_ownership.js",
-      "line": 25
+      "line": 48
     },
     {
       "name": "kge",
       "file": "src/audio/01_voice_and_rfl_ownership.js",
-      "line": 25
+      "line": 48
     },
     {
       "name": "Pge",
       "file": "src/audio/01_voice_and_rfl_ownership.js",
-      "line": 25
+      "line": 48
     },
     {
       "name": "Ige",
       "file": "src/audio/01_voice_and_rfl_ownership.js",
-      "line": 25
+      "line": 48
     },
     {
       "name": "Ege",
       "file": "src/audio/01_voice_and_rfl_ownership.js",
-      "line": 25
+      "line": 48
     },
     {
       "name": "eL",
       "file": "src/audio/01_voice_and_rfl_ownership.js",
-      "line": 25
+      "line": 48
     },
     {
       "name": "f3",
       "file": "src/audio/01_voice_and_rfl_ownership.js",
-      "line": 25
+      "line": 48
     },
     {
       "name": "Fge",
       "file": "src/audio/01_voice_and_rfl_ownership.js",
-      "line": 25
+      "line": 48
     },
     {
       "name": "TV",
       "file": "src/audio/01_voice_and_rfl_ownership.js",
-      "line": 25
+      "line": 48
     },
     {
       "name": "Tge",
       "file": "src/audio/01_voice_and_rfl_ownership.js",
-      "line": 25
+      "line": 48
     },
     {
       "name": "Lge",
       "file": "src/audio/01_voice_and_rfl_ownership.js",
-      "line": 25
+      "line": 48
     },
     {
       "name": "Bge",
       "file": "src/audio/01_voice_and_rfl_ownership.js",
-      "line": 25
+      "line": 48
     },
     {
       "name": "Dge",
       "file": "src/audio/01_voice_and_rfl_ownership.js",
-      "line": 25
+      "line": 48
     },
     {
       "name": "Zt",
       "file": "src/audio/01_voice_and_rfl_ownership.js",
-      "line": 25
+      "line": 48
     },
     {
       "name": "vy",
       "file": "src/audio/01_voice_and_rfl_ownership.js",
-      "line": 25
+      "line": 48
     },
     {
       "name": "Nge",
       "file": "src/audio/01_voice_and_rfl_ownership.js",
-      "line": 25
+      "line": 48
     },
     {
       "name": "Oge",
       "file": "src/audio/01_voice_and_rfl_ownership.js",
-      "line": 25
+      "line": 48
     },
     {
       "name": "tL",
       "file": "src/audio/01_voice_and_rfl_ownership.js",
-      "line": 25
+      "line": 48
     },
     {
       "name": "_ge",
       "file": "src/audio/01_voice_and_rfl_ownership.js",
-      "line": 25
+      "line": 48
     },
     {
       "name": "j2",
       "file": "src/audio/01_voice_and_rfl_ownership.js",
-      "line": 25
+      "line": 48
     },
     {
       "name": "zge",
       "file": "src/audio/01_voice_and_rfl_ownership.js",
-      "line": 25
+      "line": 48
     },
     {
       "name": "Bb",
       "file": "src/audio/01_voice_and_rfl_ownership.js",
-      "line": 25
+      "line": 48
     },
     {
       "name": "jge",
       "file": "src/audio/01_voice_and_rfl_ownership.js",
-      "line": 25
+      "line": 48
     },
     {
       "name": "Gge",
       "file": "src/audio/01_voice_and_rfl_ownership.js",
-      "line": 25
+      "line": 48
     },
     {
       "name": "LV",
       "file": "src/audio/01_voice_and_rfl_ownership.js",
-      "line": 25
+      "line": 48
     },
     {
       "name": "BV",
       "file": "src/audio/01_voice_and_rfl_ownership.js",
-      "line": 25
+      "line": 48
     },
     {
       "name": "Hge",
       "file": "src/audio/01_voice_and_rfl_ownership.js",
-      "line": 25
+      "line": 48
     },
     {
       "name": "Vge",
       "file": "src/audio/01_voice_and_rfl_ownership.js",
-      "line": 25
+      "line": 48
     },
     {
       "name": "Wge",
       "file": "src/audio/01_voice_and_rfl_ownership.js",
-      "line": 25
+      "line": 48
     },
     {
       "name": "qge",
       "file": "src/audio/01_voice_and_rfl_ownership.js",
-      "line": 25
+      "line": 48
     },
     {
       "name": "Qge",
       "file": "src/audio/01_voice_and_rfl_ownership.js",
-      "line": 25
+      "line": 48
     },
     {
       "name": "Ay",
       "file": "src/audio/01_voice_and_rfl_ownership.js",
-      "line": 25
+      "line": 48
     },
     {
       "name": "Uge",
       "file": "src/audio/01_voice_and_rfl_ownership.js",
-      "line": 25
+      "line": 48
     },
     {
       "name": "Kge",
       "file": "src/audio/01_voice_and_rfl_ownership.js",
-      "line": 25
+      "line": 48
     },
     {
       "name": "g3",
       "file": "src/audio/01_voice_and_rfl_ownership.js",
-      "line": 25
+      "line": 48
     },
     {
       "name": "b3",
       "file": "src/audio/01_voice_and_rfl_ownership.js",
-      "line": 25
+      "line": 48
     },
     {
       "name": "G2",
       "file": "src/audio/01_voice_and_rfl_ownership.js",
-      "line": 25
+      "line": 48
     },
     {
       "name": "y3",
       "file": "src/audio/01_voice_and_rfl_ownership.js",
-      "line": 25
+      "line": 48
     },
     {
       "name": "S3",
       "file": "src/audio/01_voice_and_rfl_ownership.js",
-      "line": 25
+      "line": 48
     },
     {
       "name": "qw",
       "file": "src/audio/01_voice_and_rfl_ownership.js",
-      "line": 25
+      "line": 48
     },
     {
       "name": "DV",
       "file": "src/audio/01_voice_and_rfl_ownership.js",
-      "line": 25
+      "line": 48
     },
     {
       "name": "NV",
       "file": "src/audio/01_voice_and_rfl_ownership.js",
-      "line": 25
+      "line": 48
     },
     {
       "name": "OV",
       "file": "src/audio/01_voice_and_rfl_ownership.js",
-      "line": 25
+      "line": 48
     },
     {
       "name": "_V",
       "file": "src/audio/01_voice_and_rfl_ownership.js",
-      "line": 25
+      "line": 48
     },
     {
       "name": "$ge",
       "file": "src/audio/01_voice_and_rfl_ownership.js",
-      "line": 25
+      "line": 48
     },
     {
       "name": "Xge",
       "file": "src/audio/01_voice_and_rfl_ownership.js",
-      "line": 25
+      "line": 48
     },
     {
       "name": "DI",
       "file": "src/audio/01_voice_and_rfl_ownership.js",
-      "line": 25
+      "line": 48
     },
     {
       "name": "Yge",
       "file": "src/audio/01_voice_and_rfl_ownership.js",
-      "line": 25
+      "line": 48
     },
     {
       "name": "Xi",
       "file": "src/audio/01_voice_and_rfl_ownership.js",
-      "line": 25
+      "line": 48
     },
     {
       "name": "Yi",
       "file": "src/audio/01_voice_and_rfl_ownership.js",
-      "line": 25
+      "line": 48
     },
     {
       "name": "Jge",
       "file": "src/audio/01_voice_and_rfl_ownership.js",
-      "line": 25
+      "line": 48
     },
     {
       "name": "zV",
       "file": "src/audio/01_voice_and_rfl_ownership.js",
-      "line": 25
+      "line": 48
     },
     {
       "name": "jV",
       "file": "src/audio/01_voice_and_rfl_ownership.js",
-      "line": 25
+      "line": 48
     },
     {
       "name": "Zge",
       "file": "src/audio/01_voice_and_rfl_ownership.js",
-      "line": 25
+      "line": 48
     },
     {
       "name": "ebe",
       "file": "src/audio/01_voice_and_rfl_ownership.js",
-      "line": 25
+      "line": 48
     },
     {
       "name": "Hs",
       "file": "src/audio/01_voice_and_rfl_ownership.js",
-      "line": 25
+      "line": 48
     },
     {
       "name": "GV",
       "file": "src/audio/01_voice_and_rfl_ownership.js",
-      "line": 25
+      "line": 48
     },
     {
       "name": "tbe",
       "file": "src/audio/01_voice_and_rfl_ownership.js",
-      "line": 25
+      "line": 48
     },
     {
       "name": "nbe",
       "file": "src/audio/01_voice_and_rfl_ownership.js",
-      "line": 25
+      "line": 48
     },
     {
       "name": "rbe",
       "file": "src/audio/01_voice_and_rfl_ownership.js",
-      "line": 25
+      "line": 48
     },
     {
       "name": "abe",
       "file": "src/audio/01_voice_and_rfl_ownership.js",
-      "line": 25
+      "line": 48
     },
     {
       "name": "obe",
       "file": "src/audio/01_voice_and_rfl_ownership.js",
-      "line": 25
+      "line": 48
     },
     {
       "name": "ibe",
       "file": "src/audio/01_voice_and_rfl_ownership.js",
-      "line": 25
+      "line": 48
     },
     {
       "name": "sbe",
       "file": "src/audio/01_voice_and_rfl_ownership.js",
-      "line": 25
+      "line": 48
     },
     {
       "name": "HV",
       "file": "src/audio/01_voice_and_rfl_ownership.js",
-      "line": 25
+      "line": 48
     },
     {
       "name": "xy",
       "file": "src/audio/01_voice_and_rfl_ownership.js",
-      "line": 25
+      "line": 48
     },
     {
       "name": "lM",
       "file": "src/audio/01_voice_and_rfl_ownership.js",
-      "line": 25
+      "line": 48
     },
     {
       "name": "v3",
       "file": "src/audio/01_voice_and_rfl_ownership.js",
-      "line": 25
+      "line": 48
     },
     {
       "name": "lbe",
       "file": "src/audio/01_voice_and_rfl_ownership.js",
-      "line": 25
+      "line": 48
     },
     {
       "name": "cM",
       "file": "src/audio/01_voice_and_rfl_ownership.js",
-      "line": 25
+      "line": 48
     },
     {
       "name": "uM",
       "file": "src/audio/01_voice_and_rfl_ownership.js",
-      "line": 25
+      "line": 48
     },
     {
       "name": "VV",
       "file": "src/audio/01_voice_and_rfl_ownership.js",
-      "line": 25
+      "line": 48
     },
     {
       "name": "dM",
       "file": "src/audio/01_voice_and_rfl_ownership.js",
-      "line": 25
+      "line": 48
     },
     {
       "name": "WV",
       "file": "src/audio/01_voice_and_rfl_ownership.js",
-      "line": 25
+      "line": 48
     },
     {
       "name": "qV",
       "file": "src/audio/01_voice_and_rfl_ownership.js",
-      "line": 25
+      "line": 48
     },
     {
       "name": "ube",
       "file": "src/audio/01_voice_and_rfl_ownership.js",
-      "line": 25
+      "line": 48
     },
     {
       "name": "A3",
       "file": "src/audio/01_voice_and_rfl_ownership.js",
-      "line": 25
+      "line": 48
     },
     {
       "name": "x3",
       "file": "src/audio/01_voice_and_rfl_ownership.js",
-      "line": 25
+      "line": 48
     },
     {
       "name": "dbe",
       "file": "src/audio/01_voice_and_rfl_ownership.js",
-      "line": 25
+      "line": 48
     },
     {
       "name": "M3",
       "file": "src/audio/01_voice_and_rfl_ownership.js",
-      "line": 25
+      "line": 48
     },
     {
       "name": "mbe",
       "file": "src/audio/01_voice_and_rfl_ownership.js",
-      "line": 25
+      "line": 48
     },
     {
       "name": "rs",
       "file": "src/audio/01_voice_and_rfl_ownership.js",
-      "line": 25
+      "line": 48
     },
     {
       "name": "QV",
       "file": "src/audio/01_voice_and_rfl_ownership.js",
-      "line": 25
+      "line": 48
     },
     {
       "name": "pbe",
       "file": "src/audio/01_voice_and_rfl_ownership.js",
-      "line": 25
+      "line": 48
     },
     {
       "name": "w3",
       "file": "src/audio/01_voice_and_rfl_ownership.js",
-      "line": 25
+      "line": 48
     },
     {
       "name": "R3",
       "file": "src/audio/01_voice_and_rfl_ownership.js",
-      "line": 25
+      "line": 48
     },
     {
       "name": "oy",
       "file": "src/audio/01_voice_and_rfl_ownership.js",
-      "line": 25
+      "line": 48
     },
     {
       "name": "C3",
       "file": "src/audio/01_voice_and_rfl_ownership.js",
-      "line": 25
+      "line": 48
     },
     {
       "name": "mM",
       "file": "src/audio/01_voice_and_rfl_ownership.js",
-      "line": 25
+      "line": 48
     },
     {
       "name": "hbe",
       "file": "src/audio/01_voice_and_rfl_ownership.js",
-      "line": 25
+      "line": 48
     },
     {
       "name": "k3",
       "file": "src/audio/01_voice_and_rfl_ownership.js",
-      "line": 25
+      "line": 48
     },
     {
       "name": "gbe",
       "file": "src/audio/01_voice_and_rfl_ownership.js",
-      "line": 25
+      "line": 48
     },
     {
       "name": "vg",
       "file": "src/audio/01_voice_and_rfl_ownership.js",
-      "line": 25
+      "line": 48
     },
     {
       "name": "bbe",
       "file": "src/audio/01_voice_and_rfl_ownership.js",
-      "line": 25
+      "line": 48
     },
     {
       "name": "NI",
       "file": "src/audio/01_voice_and_rfl_ownership.js",
-      "line": 25
+      "line": 48
     },
     {
       "name": "Sbe",
       "file": "src/audio/01_voice_and_rfl_ownership.js",
-      "line": 25
+      "line": 48
     },
     {
       "name": "vbe",
       "file": "src/audio/01_voice_and_rfl_ownership.js",
-      "line": 25
+      "line": 48
     },
     {
       "name": "Abe",
       "file": "src/audio/01_voice_and_rfl_ownership.js",
-      "line": 25
+      "line": 48
     },
     {
       "name": "__f49HoldParam",
       "file": "src/audio/01_voice_and_rfl_ownership.js",
-      "line": 26
+      "line": 49
     },
     {
       "name": "__f49SetRFLVolume",
       "file": "src/audio/01_voice_and_rfl_ownership.js",
-      "line": 30
+      "line": 53
     },
     {
       "name": "__f49AllowRFLProbe",
       "file": "src/audio/01_voice_and_rfl_ownership.js",
-      "line": 36
+      "line": 59
     },
     {
       "name": "__f49FadeAndRelease",
       "file": "src/audio/01_voice_and_rfl_ownership.js",
-      "line": 41
+      "line": 64
     },
     {
       "name": "__f49MaterialLevel",
       "file": "src/audio/01_voice_and_rfl_ownership.js",
-      "line": 49
+      "line": 72
     },
     {
       "name": "__f49StopRFL",
       "file": "src/audio/01_voice_and_rfl_ownership.js",
-      "line": 55
+      "line": 78
     },
     {
       "name": "__f49RegisterRFLNode",
       "file": "src/audio/01_voice_and_rfl_ownership.js",
-      "line": 84
+      "line": 107
     },
     {
       "name": "__f49ReleaseJanitorRecord",
       "file": "src/audio/01_voice_and_rfl_ownership.js",
-      "line": 93
+      "line": 116
     },
     {
       "name": "__f442RFLSettingsCache",
@@ -18392,139 +18492,224 @@
       "line": 185
     },
     {
+      "name": "__xenDroneIsPilot",
+      "file": "src/rhythm/03_live_drum_bodies.js",
+      "line": 188
+    },
+    {
+      "name": "__xenDroneTargetHz",
+      "file": "src/rhythm/03_live_drum_bodies.js",
+      "line": 189
+    },
+    {
+      "name": "__xenRefucktorCreateDroneVoice",
+      "file": "src/rhythm/03_live_drum_bodies.js",
+      "line": 207
+    },
+    {
+      "name": "__xenRefucktorCreateEcho",
+      "file": "src/rhythm/03_live_drum_bodies.js",
+      "line": 291
+    },
+    {
+      "name": "__xenRefucktorWobbleCurve",
+      "file": "src/rhythm/03_live_drum_bodies.js",
+      "line": 321
+    },
+    {
+      "name": "__xenRefucktorStepCurveCache",
+      "file": "src/rhythm/03_live_drum_bodies.js",
+      "line": 334
+    },
+    {
+      "name": "__xenRefucktorStepCurve",
+      "file": "src/rhythm/03_live_drum_bodies.js",
+      "line": 335
+    },
+    {
+      "name": "__xenRefucktorBuildWorkbenchFX",
+      "file": "src/rhythm/03_live_drum_bodies.js",
+      "line": 349
+    },
+    {
+      "name": "__xenRefucktorStopPattern",
+      "file": "src/rhythm/03_live_drum_bodies.js",
+      "line": 377
+    },
+    {
+      "name": "__xenRefucktorScheduleMute",
+      "file": "src/rhythm/03_live_drum_bodies.js",
+      "line": 385
+    },
+    {
+      "name": "__xenRefucktorFillPattern",
+      "file": "src/rhythm/03_live_drum_bodies.js",
+      "line": 417
+    },
+    {
+      "name": "__xenRefucktorRateMultipliers",
+      "file": "src/rhythm/03_live_drum_bodies.js",
+      "line": 447
+    },
+    {
+      "name": "__xenRefucktorSyncWorkbench",
+      "file": "src/rhythm/03_live_drum_bodies.js",
+      "line": 448
+    },
+    {
+      "name": "__xenRefucktorBuildSubmix",
+      "file": "src/rhythm/03_live_drum_bodies.js",
+      "line": 485
+    },
+    {
+      "name": "__xenRefucktorDispose",
+      "file": "src/rhythm/03_live_drum_bodies.js",
+      "line": 499
+    },
+    {
+      "name": "__xenRefucktorStop",
+      "file": "src/rhythm/03_live_drum_bodies.js",
+      "line": 519
+    },
+    {
+      "name": "__xenRefucktorSync",
+      "file": "src/rhythm/03_live_drum_bodies.js",
+      "line": 533
+    },
+    {
       "name": "k2e",
       "file": "src/rhythm/03_live_drum_bodies.js",
-      "line": 185
+      "line": 622
     },
     {
       "name": "P2e",
       "file": "src/rhythm/03_live_drum_bodies.js",
-      "line": 185
+      "line": 622
     },
     {
       "name": "nO",
       "file": "src/rhythm/03_live_drum_bodies.js",
-      "line": 185
+      "line": 622
     },
     {
       "name": "I2e",
       "file": "src/rhythm/03_live_drum_bodies.js",
-      "line": 185
+      "line": 622
     },
     {
       "name": "E2e",
       "file": "src/rhythm/03_live_drum_bodies.js",
-      "line": 185
+      "line": 622
     },
     {
       "name": "F2e",
       "file": "src/rhythm/03_live_drum_bodies.js",
-      "line": 185
+      "line": 622
     },
     {
       "name": "T2e",
       "file": "src/rhythm/03_live_drum_bodies.js",
-      "line": 185
+      "line": 622
     },
     {
       "name": "oE",
       "file": "src/rhythm/03_live_drum_bodies.js",
-      "line": 185
+      "line": 622
     },
     {
       "name": "L2e",
       "file": "src/rhythm/03_live_drum_bodies.js",
-      "line": 185
+      "line": 622
     },
     {
       "name": "B2e",
       "file": "src/rhythm/03_live_drum_bodies.js",
-      "line": 185
+      "line": 622
     },
     {
       "name": "D2e",
       "file": "src/rhythm/03_live_drum_bodies.js",
-      "line": 185
+      "line": 622
     },
     {
       "name": "_9",
       "file": "src/rhythm/03_live_drum_bodies.js",
-      "line": 185
+      "line": 622
     },
     {
       "name": "rO",
       "file": "src/rhythm/03_live_drum_bodies.js",
-      "line": 185
+      "line": 622
     },
     {
       "name": "N2e",
       "file": "src/rhythm/03_live_drum_bodies.js",
-      "line": 185
+      "line": 622
     },
     {
       "name": "O2e",
       "file": "src/rhythm/03_live_drum_bodies.js",
-      "line": 185
+      "line": 622
     },
     {
       "name": "_2e",
       "file": "src/rhythm/03_live_drum_bodies.js",
-      "line": 185
+      "line": 622
     },
     {
       "name": "z2e",
       "file": "src/rhythm/03_live_drum_bodies.js",
-      "line": 185
+      "line": 622
     },
     {
       "name": "j2e",
       "file": "src/rhythm/03_live_drum_bodies.js",
-      "line": 185
+      "line": 622
     },
     {
       "name": "aO",
       "file": "src/rhythm/03_live_drum_bodies.js",
-      "line": 185
+      "line": 622
     },
     {
       "name": "Of",
       "file": "src/rhythm/03_live_drum_bodies.js",
-      "line": 185
+      "line": 622
     },
     {
       "name": "oO",
       "file": "src/rhythm/03_live_drum_bodies.js",
-      "line": 185
+      "line": 622
     },
     {
       "name": "iO",
       "file": "src/rhythm/03_live_drum_bodies.js",
-      "line": 185
+      "line": 622
     },
     {
       "name": "G2e",
       "file": "src/rhythm/03_live_drum_bodies.js",
-      "line": 185
+      "line": 622
     },
     {
       "name": "H2e",
       "file": "src/rhythm/03_live_drum_bodies.js",
-      "line": 185
+      "line": 622
     },
     {
       "name": "V2e",
       "file": "src/rhythm/03_live_drum_bodies.js",
-      "line": 185
+      "line": 622
     },
     {
       "name": "W2e",
       "file": "src/rhythm/03_live_drum_bodies.js",
-      "line": 185
+      "line": 622
     },
     {
       "name": "q2e",
       "file": "src/rhythm/03_live_drum_bodies.js",
-      "line": 185
+      "line": 622
     },
     {
       "name": "__f351DraftStorageKey",
@@ -19029,857 +19214,857 @@
     {
       "name": "ePe",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 397
+      "line": 456
     },
     {
       "name": "tPe",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 397
+      "line": 456
     },
     {
       "name": "nPe",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 397
+      "line": 456
     },
     {
       "name": "rPe",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 397
+      "line": 456
     },
     {
       "name": "aPe",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 397
+      "line": 456
     },
     {
       "name": "oPe",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 397
+      "line": 456
     },
     {
       "name": "iPe",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 397
+      "line": 456
     },
     {
       "name": "sPe",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 397
+      "line": 456
     },
     {
       "name": "lPe",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 397
+      "line": 456
     },
     {
       "name": "cPe",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 397
+      "line": 456
     },
     {
       "name": "uPe",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 397
+      "line": 456
     },
     {
       "name": "dPe",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 397
+      "line": 456
     },
     {
       "name": "mPe",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 397
+      "line": 456
     },
     {
       "name": "pPe",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 397
+      "line": 456
     },
     {
       "name": "hPe",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 397
+      "line": 456
     },
     {
       "name": "fPe",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 397
+      "line": 456
     },
     {
       "name": "gPe",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 397
+      "line": 456
     },
     {
       "name": "bPe",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 397
+      "line": 456
     },
     {
       "name": "yPe",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 397
+      "line": 460
     },
     {
       "name": "SPe",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 397
+      "line": 460
     },
     {
       "name": "vPe",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 397
+      "line": 460
     },
     {
       "name": "APe",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 397
+      "line": 460
     },
     {
       "name": "xPe",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 397
+      "line": 460
     },
     {
       "name": "MPe",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 397
+      "line": 460
     },
     {
       "name": "wPe",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 397
+      "line": 464
     },
     {
       "name": "RPe",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 397
+      "line": 464
     },
     {
       "name": "CPe",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 397
+      "line": 464
     },
     {
       "name": "kPe",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 397
+      "line": 464
     },
     {
       "name": "Rp",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 397
+      "line": 464
     },
     {
       "name": "PPe",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 397
+      "line": 464
     },
     {
       "name": "IPe",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 397
+      "line": 464
     },
     {
       "name": "Q9",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 397
+      "line": 467
     },
     {
       "name": "EPe",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 397
+      "line": 467
     },
     {
       "name": "__f53StepAllowed",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 399
+      "line": 469
     },
     {
       "name": "FPe",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 406
+      "line": 476
     },
     {
       "name": "TPe",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 414
+      "line": 484
     },
     {
       "name": "LPe",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 414
+      "line": 484
     },
     {
       "name": "BPe",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 414
+      "line": 484
     },
     {
       "name": "DPe",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 414
+      "line": 484
     },
     {
       "name": "NPe",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 414
+      "line": 484
     },
     {
       "name": "OPe",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 414
+      "line": 484
     },
     {
       "name": "_Pe",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 448
+      "line": 518
     },
     {
       "name": "zPe",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 448
+      "line": 518
     },
     {
       "name": "jPe",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 448
+      "line": 518
     },
     {
       "name": "GPe",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 448
+      "line": 518
     },
     {
       "name": "sE",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 448
+      "line": 518
     },
     {
       "name": "HPe",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 448
+      "line": 518
     },
     {
       "name": "VPe",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 448
+      "line": 518
     },
     {
       "name": "WPe",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 448
+      "line": 518
     },
     {
       "name": "qPe",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 448
+      "line": 518
     },
     {
       "name": "QPe",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 448
+      "line": 518
     },
     {
       "name": "U9",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 448
+      "line": 518
     },
     {
       "name": "UPe",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 448
+      "line": 518
     },
     {
       "name": "KPe",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 448
+      "line": 518
     },
     {
       "name": "$Pe",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 448
+      "line": 518
     },
     {
       "name": "XPe",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 448
+      "line": 518
     },
     {
       "name": "YPe",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 448
+      "line": 518
     },
     {
       "name": "JPe",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 448
+      "line": 518
     },
     {
       "name": "ZPe",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 448
+      "line": 518
     },
     {
       "name": "eIe",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 448
+      "line": 518
     },
     {
       "name": "K9",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 448
+      "line": 518
     },
     {
       "name": "tIe",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 448
+      "line": 518
     },
     {
       "name": "lE",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 448
+      "line": 518
     },
     {
       "name": "Sk",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 448
+      "line": 518
     },
     {
       "name": "nIe",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 448
+      "line": 518
     },
     {
       "name": "rIe",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 448
+      "line": 518
     },
     {
       "name": "$9",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 448
+      "line": 518
     },
     {
       "name": "aIe",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 448
+      "line": 518
     },
     {
       "name": "X9",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 448
+      "line": 518
     },
     {
       "name": "oIe",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 448
+      "line": 518
     },
     {
       "name": "Y9",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 448
+      "line": 518
     },
     {
       "name": "iIe",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 448
+      "line": 518
     },
     {
       "name": "sIe",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 448
+      "line": 518
     },
     {
       "name": "lIe",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 456
+      "line": 526
     },
     {
       "name": "cIe",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 456
+      "line": 526
     },
     {
       "name": "uIe",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 456
+      "line": 526
     },
     {
       "name": "V1",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 456
+      "line": 526
     },
     {
       "name": "dIe",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 456
+      "line": 526
     },
     {
       "name": "mIe",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 456
+      "line": 526
     },
     {
       "name": "pIe",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 456
+      "line": 526
     },
     {
       "name": "hIe",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 456
+      "line": 526
     },
     {
       "name": "fIe",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 456
+      "line": 526
     },
     {
       "name": "gIe",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 456
+      "line": 526
     },
     {
       "name": "bIe",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 456
+      "line": 526
     },
     {
       "name": "yIe",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 456
+      "line": 526
     },
     {
       "name": "SIe",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 456
+      "line": 526
     },
     {
       "name": "vIe",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 456
+      "line": 526
     },
     {
       "name": "AIe",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 456
+      "line": 526
     },
     {
       "name": "xIe",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 465
+      "line": 535
     },
     {
       "name": "MIe",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 465
+      "line": 535
     },
     {
       "name": "J9",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 465
+      "line": 535
     },
     {
       "name": "wIe",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 465
+      "line": 535
     },
     {
       "name": "kd",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 465
+      "line": 535
     },
     {
       "name": "In",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 465
+      "line": 535
     },
     {
       "name": "RIe",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 465
+      "line": 535
     },
     {
       "name": "_f",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 465
+      "line": 535
     },
     {
       "name": "CIe",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 465
+      "line": 535
     },
     {
       "name": "vk",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 465
+      "line": 535
     },
     {
       "name": "kIe",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 465
+      "line": 535
     },
     {
       "name": "PIe",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 465
+      "line": 535
     },
     {
       "name": "IIe",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 465
+      "line": 535
     },
     {
       "name": "Z9",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 465
+      "line": 535
     },
     {
       "name": "EIe",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 465
+      "line": 535
     },
     {
       "name": "as",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 465
+      "line": 535
     },
     {
       "name": "TL",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 465
+      "line": 535
     },
     {
       "name": "e7",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 465
+      "line": 535
     },
     {
       "name": "t7",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 465
+      "line": 535
     },
     {
       "name": "FIe",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 465
+      "line": 535
     },
     {
       "name": "n7",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 465
+      "line": 535
     },
     {
       "name": "r7",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 465
+      "line": 535
     },
     {
       "name": "TIe",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 465
+      "line": 535
     },
     {
       "name": "LIe",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 465
+      "line": 535
     },
     {
       "name": "BIe",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 465
+      "line": 535
     },
     {
       "name": "a7",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 465
+      "line": 535
     },
     {
       "name": "LL",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 465
+      "line": 535
     },
     {
       "name": "DIe",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 465
+      "line": 535
     },
     {
       "name": "NIe",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 465
+      "line": 535
     },
     {
       "name": "Ak",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 465
+      "line": 535
     },
     {
       "name": "xk",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 465
+      "line": 535
     },
     {
       "name": "OIe",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 465
+      "line": 535
     },
     {
       "name": "_Ie",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 465
+      "line": 535
     },
     {
       "name": "Gn",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 465
+      "line": 535
     },
     {
       "name": "zIe",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 465
+      "line": 535
     },
     {
       "name": "jIe",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 465
+      "line": 535
     },
     {
       "name": "BL",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 465
+      "line": 535
     },
     {
       "name": "DL",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 465
+      "line": 535
     },
     {
       "name": "GIe",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 465
+      "line": 535
     },
     {
       "name": "HIe",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 465
+      "line": 535
     },
     {
       "name": "VIe",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 465
+      "line": 535
     },
     {
       "name": "WIe",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 465
+      "line": 535
     },
     {
       "name": "qIe",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 465
+      "line": 535
     },
     {
       "name": "uO",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 465
+      "line": 535
     },
     {
       "name": "QIe",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 465
+      "line": 535
     },
     {
       "name": "UIe",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 465
+      "line": 535
     },
     {
       "name": "KIe",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 465
+      "line": 535
     },
     {
       "name": "Mk",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 756
+      "line": 826
     },
     {
       "name": "$Ie",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 756
+      "line": 826
     },
     {
       "name": "XIe",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 756
+      "line": 826
     },
     {
       "name": "JIe",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 756
+      "line": 826
     },
     {
       "name": "ZIe",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 756
+      "line": 826
     },
     {
       "name": "eEe",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 756
+      "line": 826
     },
     {
       "name": "tEe",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 756
+      "line": 826
     },
     {
       "name": "nEe",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 756
+      "line": 826
     },
     {
       "name": "rEe",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 757
+      "line": 827
     },
     {
       "name": "dO",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 757
+      "line": 827
     },
     {
       "name": "aEe",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 757
+      "line": 827
     },
     {
       "name": "oEe",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 757
+      "line": 827
     },
     {
       "name": "iEe",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 757
+      "line": 827
     },
     {
       "name": "sEe",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 757
+      "line": 827
     },
     {
       "name": "__xenGridOffsetValue",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 757
+      "line": 827
     },
     {
       "name": "__xenGridShiftCents",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 758
+      "line": 828
     },
     {
       "name": "__xenShiftGridOffsets",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 759
+      "line": 829
     },
     {
       "name": "lEe",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 766
+      "line": 836
     },
     {
       "name": "cEe",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 766
+      "line": 836
     },
     {
       "name": "uEe",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 766
+      "line": 836
     },
     {
       "name": "dEe",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 766
+      "line": 836
     },
     {
       "name": "mEe",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 766
+      "line": 836
     },
     {
       "name": "pEe",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 766
+      "line": 836
     },
     {
       "name": "hEe",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 766
+      "line": 836
     },
     {
       "name": "fEe",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 766
+      "line": 836
     },
     {
       "name": "gEe",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 766
+      "line": 836
     },
     {
       "name": "bEe",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 766
+      "line": 836
     },
     {
       "name": "yEe",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 766
+      "line": 836
     },
     {
       "name": "o7",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 766
+      "line": 836
     },
     {
       "name": "SEe",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 766
+      "line": 836
     },
     {
       "name": "vEe",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 780
+      "line": 850
     },
     {
       "name": "AEe",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 792
+      "line": 862
     },
     {
       "name": "xEe",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 792
+      "line": 862
     },
     {
       "name": "MEe",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 792
+      "line": 862
     },
     {
       "name": "wk",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 792
+      "line": 862
     },
     {
       "name": "wEe",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 792
+      "line": 862
     },
     {
       "name": "__f350CloneDrumEdit",
@@ -24342,104 +24527,124 @@
       "line": 132
     },
     {
+      "name": "__f333NavigatorSampleEdgeHit",
+      "file": "src/forge/editor/01_display_and_canvas.js",
+      "line": 146
+    },
+    {
+      "name": "__f333NavigatorSampleResize",
+      "file": "src/forge/editor/01_display_and_canvas.js",
+      "line": 152
+    },
+    {
+      "name": "__f375ForgeSelectionMainPixel",
+      "file": "src/forge/editor/01_display_and_canvas.js",
+      "line": 161
+    },
+    {
+      "name": "__f375ForgeMainSelectionHandles",
+      "file": "src/forge/editor/01_display_and_canvas.js",
+      "line": 169
+    },
+    {
       "name": "G5e",
       "file": "src/forge/editor/01_display_and_canvas.js",
-      "line": 144
+      "line": 213
     },
     {
       "name": "H5e",
       "file": "src/forge/editor/01_display_and_canvas.js",
-      "line": 151
+      "line": 222
     },
     {
       "name": "V5e",
       "file": "src/forge/editor/01_display_and_canvas.js",
-      "line": 151
+      "line": 222
     },
     {
       "name": "YO",
       "file": "src/forge/editor/01_display_and_canvas.js",
-      "line": 151
+      "line": 222
     },
     {
       "name": "JO",
       "file": "src/forge/editor/01_display_and_canvas.js",
-      "line": 151
+      "line": 222
     },
     {
       "name": "W5e",
       "file": "src/forge/editor/01_display_and_canvas.js",
-      "line": 151
+      "line": 222
     },
     {
       "name": "U5e",
       "file": "src/forge/editor/01_display_and_canvas.js",
-      "line": 151
+      "line": 222
     },
     {
       "name": "ZO",
       "file": "src/forge/editor/01_display_and_canvas.js",
-      "line": 151
+      "line": 222
     },
     {
       "name": "X5e",
       "file": "src/forge/editor/01_display_and_canvas.js",
-      "line": 151
+      "line": 222
     },
     {
       "name": "e_",
       "file": "src/forge/editor/01_display_and_canvas.js",
-      "line": 151
+      "line": 222
     },
     {
       "name": "Y5e",
       "file": "src/forge/editor/01_display_and_canvas.js",
-      "line": 151
+      "line": 222
     },
     {
       "name": "J5e",
       "file": "src/forge/editor/01_display_and_canvas.js",
-      "line": 151
+      "line": 222
     },
     {
       "name": "Z5e",
       "file": "src/forge/editor/01_display_and_canvas.js",
-      "line": 151
+      "line": 222
     },
     {
       "name": "e4e",
       "file": "src/forge/editor/01_display_and_canvas.js",
-      "line": 151
+      "line": 222
     },
     {
       "name": "t4e",
       "file": "src/forge/editor/01_display_and_canvas.js",
-      "line": 151
+      "line": 223
     },
     {
       "name": "__forgeResizeViewportProjection",
       "file": "src/forge/editor/01_display_and_canvas.js",
-      "line": 154
+      "line": 226
     },
     {
       "name": "__forgeClampHorizontalViewport",
       "file": "src/forge/editor/01_display_and_canvas.js",
-      "line": 165
+      "line": 237
     },
     {
       "name": "n4e",
       "file": "src/forge/editor/01_display_and_canvas.js",
-      "line": 170
+      "line": 242
     },
     {
       "name": "__f35616StampBoundary",
       "file": "src/forge/editor/01_display_and_canvas.js",
-      "line": 182
+      "line": 254
     },
     {
       "name": "r4e",
       "file": "src/forge/editor/01_display_and_canvas.js",
-      "line": 194
+      "line": 266
     },
     {
       "name": "a4e",
@@ -30917,29 +31122,34 @@
       "line": 1
     },
     {
+      "name": "__XenSampleRackRays",
+      "file": "src/forge_and_melodic/06_note_editor_and_material_tools.js",
+      "line": 4
+    },
+    {
       "name": "sQe",
       "file": "src/forge_and_melodic/06_note_editor_and_material_tools.js",
-      "line": 1
+      "line": 51
     },
     {
       "name": "lQe",
       "file": "src/forge_and_melodic/06_note_editor_and_material_tools.js",
-      "line": 1
+      "line": 51
     },
     {
       "name": "cQe",
       "file": "src/forge_and_melodic/06_note_editor_and_material_tools.js",
-      "line": 1
+      "line": 51
     },
     {
       "name": "uQe",
       "file": "src/forge_and_melodic/06_note_editor_and_material_tools.js",
-      "line": 1
+      "line": 51
     },
     {
       "name": "mQe",
       "file": "src/forge_and_melodic/06_note_editor_and_material_tools.js",
-      "line": 2
+      "line": 52
     },
     {
       "name": "tF",
@@ -31799,87 +32009,87 @@
     {
       "name": "__f333ExportCurrent",
       "file": "src/forge_and_melodic/10_audition_and_persistence.js",
-      "line": 496
+      "line": 500
     },
     {
       "name": "__f345ExportFlacCurrent",
       "file": "src/forge_and_melodic/10_audition_and_persistence.js",
-      "line": 505
+      "line": 509
     },
     {
       "name": "__f333CurrentLabel",
       "file": "src/forge_and_melodic/10_audition_and_persistence.js",
-      "line": 520
+      "line": 524
     },
     {
       "name": "__f333PersistNow",
       "file": "src/forge_and_melodic/10_audition_and_persistence.js",
-      "line": 526
+      "line": 530
     },
     {
       "name": "__f334TransferEvent",
       "file": "src/forge_and_melodic/10_audition_and_persistence.js",
-      "line": 533
+      "line": 537
     },
     {
       "name": "__f334NoticeEvent",
       "file": "src/forge_and_melodic/10_audition_and_persistence.js",
-      "line": 534
+      "line": 538
     },
     {
       "name": "__f334TransferNotice",
       "file": "src/forge_and_melodic/10_audition_and_persistence.js",
-      "line": 535
+      "line": 539
     },
     {
       "name": "__f334Notice",
       "file": "src/forge_and_melodic/10_audition_and_persistence.js",
-      "line": 536
+      "line": 540
     },
     {
       "name": "__f334HasPendingCarrier",
       "file": "src/forge_and_melodic/10_audition_and_persistence.js",
-      "line": 540
+      "line": 544
     },
     {
       "name": "__f334CreateTransfer",
       "file": "src/forge_and_melodic/10_audition_and_persistence.js",
-      "line": 541
+      "line": 545
     },
     {
       "name": "__f334CommitCarrier",
       "file": "src/forge_and_melodic/10_audition_and_persistence.js",
-      "line": 556
+      "line": 560
     },
     {
       "name": "__f334ReceiveCarrier",
       "file": "src/forge_and_melodic/10_audition_and_persistence.js",
-      "line": 578
+      "line": 582
     },
     {
       "name": "__f340SeekFromNavigator",
       "file": "src/forge_and_melodic/10_audition_and_persistence.js",
-      "line": 598
+      "line": 602
     },
     {
       "name": "__F341Spectrograms",
       "file": "src/forge_and_melodic/10_audition_and_persistence.js",
-      "line": 613
+      "line": 617
     },
     {
       "name": "__f341Spectrogram",
       "file": "src/forge_and_melodic/10_audition_and_persistence.js",
-      "line": 614
+      "line": 618
     },
     {
       "name": "__mlSendRenderedAudioToSpectral",
       "file": "src/forge_and_melodic/10_audition_and_persistence.js",
-      "line": 633
+      "line": 637
     },
     {
       "name": "__mlReceiveRenderedAudio",
       "file": "src/forge_and_melodic/10_audition_and_persistence.js",
-      "line": 648
+      "line": 652
     },
     {
       "name": "__f341Selection",
@@ -32968,6 +33178,14 @@
     },
     {
       "from": "src/app/forge/01_room_shell.js",
+      "to": "src/handoff/00_chat_feature_addons.js",
+      "symbols": [
+        "__xenKeyboardFoundationDetach",
+        "__xenKeyboardFoundationReleaseAfterNextGesture"
+      ]
+    },
+    {
+      "from": "src/app/forge/01_room_shell.js",
       "to": "src/instruments/00_diagnostics.js",
       "symbols": [
         "__XenAudioProbe",
@@ -33173,6 +33391,7 @@
         "ZJ",
         "Zd",
         "Zs",
+        "__xenDronePersist",
         "eZ",
         "ea",
         "fr",
@@ -34524,6 +34743,13 @@
     },
     {
       "from": "src/audio/03_rfl_transport_legacy.js",
+      "to": "src/handoff/00_chat_feature_addons.js",
+      "symbols": [
+        "__XenBassGrid"
+      ]
+    },
+    {
+      "from": "src/audio/03_rfl_transport_legacy.js",
       "to": "src/instruments/02_entrophon_library.js",
       "symbols": [
         "entrophonFindInstrument"
@@ -35096,6 +35322,14 @@
         "RH",
         "dH",
         "eS"
+      ]
+    },
+    {
+      "from": "src/audio/entrophon/02_worklet_and_voice_backend.js",
+      "to": "src/rhythm/03_live_drum_bodies.js",
+      "symbols": [
+        "__xenDroneIsPilot",
+        "__xenDroneTargetHz"
       ]
     },
     {
@@ -36269,6 +36503,13 @@
         "uc",
         "wa",
         "yr"
+      ]
+    },
+    {
+      "from": "src/forge_and_melodic/06_note_editor_and_material_tools.js",
+      "to": "src/audio/01_voice_and_rfl_ownership.js",
+      "symbols": [
+        "__XenMaterialStandalonePreview"
       ]
     },
     {
@@ -37683,6 +37924,13 @@
     },
     {
       "from": "src/forge/editor/01_display_and_canvas.js",
+      "to": "src/forge/editor/09_workflow_controls.js",
+      "symbols": [
+        "__f333StopNavigatorPreview"
+      ]
+    },
+    {
+      "from": "src/forge/editor/01_display_and_canvas.js",
       "to": "src/forge/hybrid/09_runtime.js",
       "symbols": [
         "__F352Runtime"
@@ -38358,6 +38606,13 @@
     },
     {
       "from": "src/forge/editor/09_workflow_controls.js",
+      "to": "src/app/forge/07_preview_cache_and_controls.js",
+      "symbols": [
+        "xt"
+      ]
+    },
+    {
+      "from": "src/forge/editor/09_workflow_controls.js",
       "to": "src/forge_and_melodic/01_donor_selection_and_edits.js",
       "symbols": [
         "__f3562EnsureDonor",
@@ -38368,7 +38623,10 @@
       "from": "src/forge/editor/09_workflow_controls.js",
       "to": "src/forge_and_melodic/10_audition_and_persistence.js",
       "symbols": [
+        "__F3564Master",
         "__f333Idle",
+        "__f333RenderCurrent",
+        "__f333Route",
         "__f333SaveNavigatorSample",
         "__f333Stop"
       ]
@@ -39719,6 +39977,32 @@
       ]
     },
     {
+      "from": "src/handoff/00_chat_feature_addons.js",
+      "to": "src/runtime/01_instrument_state.js",
+      "symbols": [
+        "Au",
+        "Kp",
+        "sj",
+        "vF",
+        "xp"
+      ]
+    },
+    {
+      "from": "src/handoff/00_chat_feature_addons.js",
+      "to": "src/runtime/instrument/08_library_and_tuning_editor.js",
+      "symbols": [
+        "kb"
+      ]
+    },
+    {
+      "from": "src/handoff/00_chat_feature_addons.js",
+      "to": "src/vendor/01_react_dom.js",
+      "symbols": [
+        "P",
+        "u"
+      ]
+    },
+    {
       "from": "src/instruments/01_entrophon_definition.js",
       "to": "src/runtime/instrument/10_entrophon_and_voice_control.js",
       "symbols": [
@@ -41025,6 +41309,14 @@
     },
     {
       "from": "src/rhythm/03_live_drum_bodies.js",
+      "to": "src/handoff/00_chat_feature_addons.js",
+      "symbols": [
+        "__XenBassGrid",
+        "__xenKeyboardFoundationDetach"
+      ]
+    },
+    {
+      "from": "src/rhythm/03_live_drum_bodies.js",
       "to": "src/mix/05_grid_runtime.js",
       "symbols": [
         "__xenGridMuted",
@@ -41089,6 +41381,7 @@
         "Up",
         "Zs",
         "__XenDroneStart",
+        "__xenDronePersist",
         "fc",
         "hF",
         "ir",
@@ -41110,6 +41403,7 @@
       "to": "src/runtime/instrument/01_voice_gradients_and_effects.js",
       "symbols": [
         "Ex",
+        "Fx",
         "Tx",
         "bj",
         "uw"
@@ -41129,6 +41423,14 @@
         "DF",
         "Tj",
         "jP"
+      ]
+    },
+    {
+      "from": "src/rhythm/03_live_drum_bodies.js",
+      "to": "src/runtime/instrument/09_monitoring_and_manual_patterns.js",
+      "symbols": [
+        "$6",
+        "Sy"
       ]
     },
     {
@@ -41242,6 +41544,14 @@
     },
     {
       "from": "src/rhythm/04_workspace_and_transport.js",
+      "to": "src/handoff/00_chat_feature_addons.js",
+      "symbols": [
+        "__XenBassGrid",
+        "__xenKeyboardFoundationDetach"
+      ]
+    },
+    {
+      "from": "src/rhythm/04_workspace_and_transport.js",
       "to": "src/mix/01_pan.js",
       "symbols": [
         "__XenPan"
@@ -41351,6 +41661,7 @@
         "Yz",
         "Zd",
         "Zs",
+        "__xenDronePersist",
         "__xenDronePresetStart",
         "aj",
         "bS",
@@ -41871,6 +42182,16 @@
     },
     {
       "from": "src/runtime/instrument/08_library_and_tuning_editor.js",
+      "to": "src/handoff/00_chat_feature_addons.js",
+      "symbols": [
+        "__XenBassGrid",
+        "__XenBassGridEditor",
+        "__XenBassGridRuntime",
+        "__XenKeyboardDetachBadge"
+      ]
+    },
+    {
+      "from": "src/runtime/instrument/08_library_and_tuning_editor.js",
       "to": "src/mix/02_performance_catalog.js",
       "symbols": [
         "__PerformancePan",
@@ -41996,6 +42317,14 @@
       "to": "src/mix/03_quick_menu.js",
       "symbols": [
         "__useQuickAdapter"
+      ]
+    },
+    {
+      "from": "src/runtime/instrument/09_monitoring_and_manual_patterns.js",
+      "to": "src/rhythm/03_live_drum_bodies.js",
+      "symbols": [
+        "__xenDroneIsPilot",
+        "__xenDroneTargetHz"
       ]
     },
     {
@@ -42142,6 +42471,20 @@
       "symbols": [
         "P",
         "u"
+      ]
+    },
+    {
+      "from": "src/runtime/instrument/12_rhythm_and_bass_editor.js",
+      "to": "src/audio/01_voice_and_rfl_ownership.js",
+      "symbols": [
+        "__XenMaterialStandalonePreview"
+      ]
+    },
+    {
+      "from": "src/runtime/instrument/12_rhythm_and_bass_editor.js",
+      "to": "src/handoff/00_chat_feature_addons.js",
+      "symbols": [
+        "__XenBassGridSource"
       ]
     },
     {

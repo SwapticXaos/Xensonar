@@ -1,0 +1,96 @@
+{
+  "format": "xensonar-source-span-patch-v1",
+  "order": 17,
+  "id": "P7_8_RECORDER_ENOUGH_DISCARD_FULLSCREEN",
+  "basis": "N21_F2_NODAL_BALL_GRID",
+  "previous_html_sha256": "908306cffcf76d487d08b241ceaf779a02c0eb333147b92d9a5ade61f9eae277",
+  "result_html_sha256": "28e1a810570c4e7e3308a33b5b711e275c913bf40a654bdba62a7ec0076adcb0",
+  "result_html_bytes": 5686903,
+  "files": [
+    {
+      "path": "src/audio/03_recorder.js",
+      "before_sha256": "e3ec9d1ced5298297bcc2c18fe31dbe4c0363b01d0d607809b81821e630ddc03",
+      "after_sha256": "036d3a85f7f15a6ecda053ac845b8342f8508e97c8c6f9301f992868c04891a6",
+      "before_chars": 25785,
+      "after_chars": 26433,
+      "edits": [
+        {
+          "at": 6583,
+          "delete": 1547,
+          "insert": "discardedRecordersRef=P.useRef(new WeakSet()),o=P.useRef(null),i=P.useRef([]),s=P.useRef(null),l=P.useRef(null),c=P.useRef(null),d=P.useRef(null),p=P.useRef(null),f=P.useRef([]),b=P.useRef(null),g=P.useRef(\"with_drums\"),flacBusyRef=P.useRef(!1),[flacBusy,setFlacBusy]=P.useState(!1),[y,x]=P.useState({isRecording:!1,durationMs:0,hasTake:!1,filenameBase:\"xensonar-take\",exportStatus:\"idle\",exportMessage:\"\"}),[A,M]=P.useState([]),[v,w]=P.useState([]),[R,k]=P.useState(null),[I,E]=P.useState(0),[F,L]=P.useState(null),[B,O]=P.useState(null),[T,_]=P.useState(\"with_drums\"),[G,j]=P.useState([]),[N,W]=P.useState([]),V=Q=>Cve({blob:Q,recordingPreviewUrlRef:p,setRecordingPreviewUrl:k}),U=(Q=null)=>kve({range:Q,recordedBufferRef:c,filenameBase:y.filenameBase,lastRecordingSourceModeRef:g,recordingMarkersRef:f,setRecordingMarkers:M,setRecordingState:x}),H=Q=>{Ive({event:Q,hasTake:y.hasTake,timelineElement:b.current,previewAudio:d.current,recordedBuffer:c.current,fallbackDurationMs:y.durationMs,setRecordingCropDraft:O,setRecordingCrop:L})},q=()=>{hve({recordingStopTimerRef:l,mediaRecorderRef:o,setRecordingState:x})},discardRecording=()=>{const rec=o.current;if(!rec||rec.state===\"inactive\")return false;discardedRecordersRef.current.add(rec);rec.onstop=null;rec.ondataavailable=null;rec.onerror=null;if(l.current!==null){window.clearTimeout(l.current);TV(\"recording-discard-cleared-timeout\");l.current=null}try{rec.stop()}catch{}eL(\"recording-discarded\");o.current=null;i.current=[];c.current=null;s.current=null;f.current=[];M([]);w([]);L(null);O(null);E(0);V(null);x(st=>({...st,isRecording:false,hasTake:false,durationMs:0,exportStatus:\"idle\",exportMessage:\"\"}));return true},K=async()=>{await fve({ensureAudioReady:t,recordingSourceMode:T,lastRecordingSourceModeRef:g,ensureRecordingDestination:n,recordedBufferRef:c,recordingChunksRef:i,recordingStartAtRef:s,recordingMarkersRef:f,setRecordingMarkers:M,setRecordingWaveform:w,setRecordingCrop:L,setRecordingCropDraft:O,setRecordingPlayheadMs:E,updateRecordingPreviewUrl:V,getSupportedRecordingMimeType:JJ,mediaRecorderRef:o,setRecordingState:x,stopRecording:q,recordingStopTimerRef:l,maxRecordingMs:Oy,discardedRecordersRef"
+        },
+        {
+          "at": 10962,
+          "delete": 0,
+          "insert": "discardRecording,"
+        }
+      ]
+    },
+    {
+      "path": "src/audio/03_rfl_transport_legacy.js",
+      "before_sha256": "0701d547dc0e13dd808676e55a48ccd3126b2c8a2be3e8141d8f1d929247668b",
+      "after_sha256": "45297d0f3077934a7316486c6823d136540f485195834928dbd44437b8864343",
+      "before_chars": 100667,
+      "after_chars": 100794,
+      "edits": [
+        {
+          "at": 97590,
+          "delete": 1997,
+          "insert": ",isDiscarded:q}=e;return async()=>{try{if(q?.(n))return;const f=new Blob(a.current,{type:n.mimeType||r||\"audio/webm\"});l(f);const b=await f.arrayBuffer();if(q?.(n))return;const g=await t.decodeAudioData(b.slice(0));if(q?.(n))return;o.current=g,c(ave(g)),d(0);const y=i.current.length,x=dve({mode:s.current,decoded:g,markerCount:y});p(A=>({...A,...x}))}catch{l(null);const f=uve();p(b=>({...b,...f}))}finally{eL(\"recording-media-recorder-onstop-completed\")}}}function hve(e){const{recordingStopTimerRef:t,mediaRecorderRef:n,setRecordingState:r}=e;t.current!==null&&(window.clearTimeout(t.current),TV(\"recording-stop-cleared-timeout\"),t.current=null);const a=n.current;!!a&&a.state!==\"inactive\"?a.stop():eL(\"recording-stop-media-recorder-already-inactive\"),r(i=>({...i,isRecording:!1}))}async function fve(e){const{ensureAudioReady:t,recordingSourceMode:n,lastRecordingSourceModeRef:r,ensureRecordingDestination:a,recordedBufferRef:o,recordingChunksRef:i,recordingStartAtRef:s,recordingMarkersRef:l,setRecordingMarkers:c,setRecordingWaveform:d,setRecordingCrop:p,setRecordingCropDraft:f,setRecordingPlayheadMs:b,updateRecordingPreviewUrl:g,getSupportedRecordingMimeType:y,mediaRecorderRef:x,setRecordingState:A,stopRecording:M,recordingStopTimerRef:v,maxRecordingMs:w}=e;try{const R=await t(),k=n;r.current=k;const I=a(R,k);if(!I)return;ive({recordedBufferRef:o,recordingChunksRef:i,recordingStartAtRef:s,recordingMarkersRef:l,setRecordingMarkers:c,setRecordingWaveform:d,setRecordingCrop:p,setRecordingCropDraft:f,setRecordingPlayheadMs:b,updateRecordingPreviewUrl:g});const E=y(),F=E?new MediaRecorder(I.stream,{mimeType:E}):new MediaRecorder(I.stream);x.current=F,Ege(k,E||\"default\"),F.ondataavailable=B=>{B.data.size>0&&i.current.push(B.data)},F.onerror=()=>{f3(\"recording-media-recorder-error-event\");const B=lve();A(O=>({...O,...B}))},F.onstop=pve({ctx:R,recorder:F,mimeType:E,recordingChunksRef:i,recordedBufferRef:o,recordingMarkersRef:l,lastRecordingSourceModeRef:r,updateRecordingPreviewUrl:g,setRecordingWaveform:d,setRecordingPlayheadMs:b,setRecordingState:A,isDiscarded:B=>e.discardedRecordersRef?.current?.has(B)"
+        }
+      ]
+    },
+    {
+      "path": "src/app/forge/01_room_shell.js",
+      "before_sha256": "86c8f8ab244e108bbf77ff04ad41192723115050c8ea44eb520351306f64d908",
+      "after_sha256": "3e687b3553fbc5382ea6b313f5dfdb07fba98a98d959346c1c90684f7444e9d2",
+      "before_chars": 64360,
+      "after_chars": 64483,
+      "edits": [
+        {
+          "at": 29669,
+          "delete": 0,
+          "insert": "discardRecordingFromHeader=()=>Ea.recordingTake.discardRecording(),"
+        },
+        {
+          "at": 52134,
+          "delete": 0,
+          "insert": "onDiscardRecordingFromHeader:discardRecordingFromHeader,"
+        }
+      ]
+    },
+    {
+      "path": "src/rhythm/02_bass_and_rack.js",
+      "before_sha256": "61f8deee921ccd620297c2bc9f6675820167c0b313f632fdaba095336497e775",
+      "after_sha256": "df43c18502f462b5a06520c4b60448672d1e7d6950a5d3fe8ef3f1af12f5e8cc",
+      "before_chars": 190023,
+      "after_chars": 190143,
+      "edits": [
+        {
+          "at": 39679,
+          "delete": 3243,
+          "insert": "onDiscardRecordingFromHeader:e.onDiscardRecordingFromHeader,setFamilyRequestedActive:e.setFamilyRequestedActive,setRoom:e.setRoom,setXenpolarView:e.setXenpolarView},resonanceStatusStrip:{particleSystemLabel:e.particleSystemLabel,particleDisplayModeLabel:e.particleDisplayModeLabel,cursorHudHzLabel:e.cursorHudHzLabel,gridTuningLabel:e.gridTuningLabel,gridModeLabel:e.gridModeLabel,gridBaseHzLabel:e.gridBaseHzLabel,keyboardWindowRangeLabel:e.keyboardWindowRangeLabel,keyboardWindowFirstHzLabel:e.keyboardWindowFirstHzLabel,keyboardWindowLastHzLabel:e.keyboardWindowLastHzLabel,hotkeyModeLabel:e.hotkeyModeLabel,materialLoopNameLabel:e.materialLoopNameLabel,rootFollowLoopNameLabel:e.rootFollowLoopNameLabel,drumPatternNameLabel:e.drumPatternNameLabel,bassPatternNameLabel:e.bassPatternNameLabel,onOpenMaterialLoopManager:e.onOpenMaterialLoopManager,onOpenRootFollowLoopManager:e.onOpenRootFollowLoopManager,onOpenDrumPatternManager:e.onOpenDrumPatternManager,onOpenBassPatternManager:e.onOpenBassPatternManager,onOpenGridTuningRack:e.onOpenGridTuningRack,materialLoopActive:e.materialLoopActive,rootFollowLoopActive:e.rootFollowLoopActive,materialLoopHotkeysActive:e.materialLoopHotkeysActive,rootFollowLoopHotkeysActive:e.rootFollowLoopHotkeysActive,octaveActive:e.octaveActive,sustainActive:e.sustainActive,swellActive:e.swellActive,dampActive:e.dampActive,expressionMode:e.expressionMode,echoActive:e.echoActive,driveActive:e.driveActive},recordingMarkerSideRails:{isRecording:e.isRecording,sideMarkerPulses:e.sideMarkerPulses,scrollbarInsetPx:e.scrollbarInsetPx,addSideMarker:e.addSideMarker,triggerSideMarkerPulse:e.triggerSideMarkerPulse}}}const wT=\"xensonar-level3lab-mode\",RT=\"xensonar-level3lab-mode-session\",aM=\"xensonar-level3lab-last-regular-mode\",oH=\"xensonar-external-dock-view\";function iH(){if(typeof window>\"u\")return\"legacy\";const e=window.sessionStorage.getItem(RT);if(e===\"canonical\"||e===\"experimental\"||e===\"external\")return e;const t=window.localStorage.getItem(wT);return t===\"canonical\"||t===\"experimental\"||t===\"external\"?t:\"legacy\"}function iue(){if(typeof window>\"u\")return null;const e=window.sessionStorage.getItem(aM);if(e===\"canonical\"||e===\"experimental\")return e;const t=window.localStorage.getItem(aM);return t===\"canonical\"||t===\"experimental\"?t:null}function sH(){return typeof window>\"u\"?\"host\":window.localStorage.getItem(oH)===\"microto\"?\"microto\":\"host\"}function CT(e){typeof window>\"u\"||(window.localStorage.setItem(wT,e),window.sessionStorage.setItem(RT,e),(e===\"canonical\"||e===\"experimental\")&&(window.localStorage.setItem(aM,e),window.sessionStorage.setItem(aM,e)))}function lH(e){typeof window>\"u\"||window.localStorage.setItem(oH,e)}function cH(e){const t=sH(),n=iue();CT(n??\"legacy\"),t===\"microto\"&&lH(\"host\"),e(\"L3LAB\")}function sue(e){return e===\"L3LAB\"&&iH()===\"external\"&&sH()===\"microto\"}function Jy(e){e.setFamilyRequestedActive?.(null),e.setRoom(\"RESONANCE\")}function lue(e,t){return e===\"XENPOLAR\"||e===\"GAME\"||e===\"MAIN\"||t}function cue(e){return{room:e.room,recordingActive:e.recordingActive,logoMarkerPulses:e.logoMarkerPulses,recordingDurationLabel:e.recordingDurationLabel,xenpolarShortcutActive:e.xenpolarShortcutActive,xenpolarButtonActive:lue(e.room,e.xenpolarShortcutActive),onLogoClick:e.onLogoClick,onToggleRecordingFromHeader:e.onToggleRecordingFromHeader,onDiscardRecordingFromHeader:e.onDiscard"
+        }
+      ]
+    },
+    {
+      "path": "src/runtime/instrument/05_timing_and_admission.js",
+      "before_sha256": "53b440344b3a641e96df2be12c68b5979636b11c1211b660c1cb05143b65d3fe",
+      "after_sha256": "b56c34c729d23fefd79a436e8fa744185fc0052b45c02bc35f3f397f587c8e20",
+      "before_chars": 80678,
+      "after_chars": 81738,
+      "edits": [
+        {
+          "at": 9051,
+          "delete": 86,
+          "insert": "Finish recording and jump to Master Recording\":\"Start Master Recording\",children:e?`Enough!"
+        },
+        {
+          "at": 72692,
+          "delete": 3982,
+          "insert": "__XenFullscreenButton(){const [active,setActive]=P.useState(!!document.fullscreenElement);P.useEffect(()=>{const cb=()=>setActive(!!document.fullscreenElement);document.addEventListener(\"fullscreenchange\",cb);return()=>document.removeEventListener(\"fullscreenchange\",cb)},[]);const toggle=()=>{try{const result=document.fullscreenElement?document.exitFullscreen?.():document.documentElement.requestFullscreen?.();result?.catch?.(()=>{})}catch{}};return u.jsx(\"button\",{type:\"button\",onClick:toggle,title:active?\"Exit fullscreen (Esc)\":\"Fullscreen\", \"aria-label\":active?\"Exit fullscreen\":\"Fullscreen\",className:\"ml-1 h-[31px] w-[34px] rounded border border-neutral-600 text-neutral-100 hover:bg-neutral-800\",children:active?\"⤢\":\"⛶\"})}function Nre({room:e,recordingActive:t,logoMarkerPulses:n,recordingDurationLabel:r,xenpolarShortcutActive:a,xenpolarButtonActive:o,onLogoClick:i,onToggleRecordingFromHeader:s,onDiscardRecordingFromHeader:discard,onOpenResonance:l,onOpenTopology:c,onOpenMaterialschmiede:d,onOpenXenpolar:p}){const[f,b]=P.useState(!1);return u.jsxs(\"header\",{className:\"p-4 border-b border-neutral-800 flex justify-between items-center bg-black\",children:[u.jsxs(\"div\",{className:\"flex items-center gap-3\",children:[u.jsxs(\"button\",{type:\"button\",onClick:i,className:\"relative shrink-0 rounded-full focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400/70\",\"aria-label\":t?\"Marker setzen\":\"Xensonar Logo\",title:t?\"Set Marker (Logo/F9)\":\"Xensonar Logo\",children:[n.map((g,y)=>u.jsx(\"span\",{className:\"pointer-events-none absolute left-1/2 top-1/2 rounded-full border border-emerald-300/80\",style:{position:\"absolute\",left:\"50%\",top:\"50%\",width:16,height:16,transformOrigin:\"50% 50%\",transform:\"translate(-50%, -50%)\",animation:`logoMarkerPulse 1.2s ease-out ${y*.04}s forwards`}},g.id)),u.jsxs(\"svg\",{width:\"36\",height:\"36\",viewBox:\"0 0 64 64\",fill:\"none\",xmlns:\"http://www.w3.org/2000/svg\",className:\"relative z-10 text-neutral-300\",children:[u.jsxs(\"g\",{stroke:\"currentColor\",strokeWidth:\"2.35\",strokeLinecap:\"round\",strokeLinejoin:\"round\",children:[u.jsx(\"ellipse\",{cx:\"32\",cy:\"32\",rx:\"3.4\",ry:\"12.2\"}),u.jsx(\"ellipse\",{cx:\"32\",cy:\"32\",rx:\"3.4\",ry:\"12.2\",transform:\"rotate(45 32 32)\"}),u.jsx(\"ellipse\",{cx:\"32\",cy:\"32\",rx:\"3.4\",ry:\"12.2\",transform:\"rotate(90 32 32)\"}),u.jsx(\"ellipse\",{cx:\"32\",cy:\"32\",rx:\"3.4\",ry:\"12.2\",transform:\"rotate(135 32 32)\"}),u.jsx(\"circle\",{cx:\"32\",cy:\"23\",r:\"9.2\"}),u.jsx(\"circle\",{cx:\"41\",cy:\"32\",r:\"9.2\"}),u.jsx(\"circle\",{cx:\"32\",cy:\"41\",r:\"9.2\"}),u.jsx(\"circle\",{cx:\"23\",cy:\"32\",r:\"9.2\"}),u.jsx(\"polygon\",{points:\"32,4.4 38.0,10.5 26.0,10.5\"}),u.jsx(\"polygon\",{points:\"59.6,32 53.5,38.0 53.5,26.0\"}),u.jsx(\"polygon\",{points:\"32,59.6 26.0,53.5 38.0,53.5\"}),u.jsx(\"polygon\",{points:\"4.4,32 10.5,26.0 10.5,38.0\"}),u.jsx(\"polygon\",{points:\"13.1,13.1 21.1,13.1 13.1,21.1\"}),u.jsx(\"polygon\",{points:\"50.9,13.1 42.9,13.1 50.9,21.1\"}),u.jsx(\"polygon\",{points:\"13.1,50.9 21.1,50.9 13.1,42.9\"}),u.jsx(\"polygon\",{points:\"50.9,50.9 42.9,50.9 50.9,42.9\"})]}),u.jsx(\"circle\",{cx:\"32\",cy:\"14.0\",r:\"1.5\",fill:\"currentColor\"}),u.jsx(\"circle\",{cx:\"44.7\",cy:\"19.3\",r:\"1.5\",fill:\"currentColor\"}),u.jsx(\"circle\",{cx:\"50.0\",cy:\"32\",r:\"1.5\",fill:\"currentColor\"}),u.jsx(\"circle\",{cx:\"44.7\",cy:\"44.7\",r:\"1.5\",fill:\"currentColor\"}),u.jsx(\"circle\",{cx:\"32\",cy:\"50.0\",r:\"1.5\",fill:\"currentColor\"}),u.jsx(\"circle\",{cx:\"19.3\",cy:\"44.7\",r:\"1.5\",fill:\"currentColor\"}),u.jsx(\"circle\",{cx:\"14.0\",cy:\"32\",r:\"1.5\",fill:\"currentColor\"}),u.jsx(\"circle\",{cx:\"19.3\",cy:\"19.3\",r:\"1.5\",fill:\"currentColor\"})]})]}),u.jsxs(\"div\",{children:[u.jsx(\"h1\",{className:\"text-2xl font-extrabold tracking-widest bg-gradient-to-r from-violet-300 via-fuchsia-300 to-amber-200 bg-clip-text text-transparent\",style:{fontFamily:\"'Trebuchet MS', serif\"},children:\"XENSONAR\"}),u.jsx(\"p\",{className:\"text-[10px] text-neutral-400 tracking-widest uppercase mt-0.5\",children:\"Microtonal Synthesizer\"})]}),u.jsx(Zte,{open:f,onToggleOpen:()=>b(g=>!g),onOpenMaterialschmiede:d}),u.jsx(ene,{recordingActive:t,recordingDurationLabel:r,onToggleRecordingFromHeader:s}),t?u.jsx(\"button\",{type:\"button\",onClick:discard,title:\"Discard recording (no take, no scroll)\",\"aria-label\":\"Discard recording\",className:\"h-[30px] w-[30px] rounded border border-red-500/55 text-red-200 hover:bg-red-900/40\",children:\"×\"}):null]}),u.jsx(\"div\",{className:\"hidden xl:block text-[11px] text-amber-200/85 tracking-wide\",children:\"(\\\"Also\\\" suitable for Banana Groove!)\"}),u.jsxs(\"div\",{className:\"flex flex-wrap gap-2 justify-end\",children:[u.jsx(\"button\",{className:`px-4 py-1 text-sm ${e===\"RESONANCE\"?\"bg-purple-300 text-black\":\"border border-neutral-700\"}`,onClick:l,children:\"I. XENSONAR MAIN ROOM\"}),u.jsx(\"button\",{className:`px-4 py-1 text-sm ${e===\"L3LAB\"&&!a?\"bg-cyan-200 text-black\":\"border border-neutral-700\"}`,onClick:d,children:\"II. MATERIAL FORGE\"}),u.jsx(\"button\",{className:`px-4 py-1 text-sm ${e===\"TOPOLOGY\"?\"bg-white text-black\":\"border border-neutral-700\"}`,onClick:c,children:\"III. NODAL INSTALLATION\"}),Fte,u.jsx(__XenFullscreenButton,{})"
+        }
+      ]
+    }
+  ]
+}

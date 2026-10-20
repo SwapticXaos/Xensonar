@@ -1,0 +1,26 @@
+[
+  {
+    "archive": "01_PATCHKETTE_00_BIS_22_P7_11.zip",
+    "source": "XenSonar_P7_11_Codex_Patch_Handoff.zip",
+    "bytes": 183361,
+    "sha256": "6f4c48f7511700c88832f37bfca3d3ec1661507aa3096be100b246ad5e73fb8e"
+  },
+  {
+    "archive": "02_WHITE_SCREEN_HOTFIX_P7_11_1.zip",
+    "source": "XenSonar_P7_11_1_WhiteScreen_Hotfix_Codex.zip",
+    "bytes": 1416,
+    "sha256": "1566c16e6d0efaef550630a3c8a381f1b0d678008fbb34ac445063145128fe36"
+  },
+  {
+    "archive": "03_EXPRESSION_EXPERIMENT_P7_12_NICHT_ABGENOMMEN.zip",
+    "source": "XenSonar_P7_12_Live_Expression_Quellpatch_und_Tests.zip",
+    "bytes": 92214,
+    "sha256": "6b5fe9f5257ef7b834f5d8dbcc1d4364c497d1c702a2b81e77b4af4c18998dc7"
+  },
+  {
+    "archive": "04_P7_10_REFERENZ_HANDOFF.zip",
+    "source": "XenSonar_P7_10_Entrophon_Material_Preview_Codex_Diff_Handoff.zip",
+    "bytes": 181525,
+    "sha256": "ccc7a0b2c7bc82240ad795119a9914e6919c40c8b1ae8dfb9a69690ac227126e"
+  }
+]

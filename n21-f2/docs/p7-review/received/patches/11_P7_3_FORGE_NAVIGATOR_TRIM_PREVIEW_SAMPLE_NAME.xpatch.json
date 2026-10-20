@@ -1,0 +1,367 @@
+{
+  "format": "xensonar-source-span-patch-v1",
+  "order": 11,
+  "id": "P7_3_FORGE_NAVIGATOR_TRIM_PREVIEW_AND_NAMED_SAMPLE",
+  "basis": "P7.2 verified reconstruction; P7.3 Forge navigator-only feature",
+  "previous_html_sha256": "bc0260682088a3a37a7bf9637d634b8027bc121b2546cb9b520a9760d94c002d",
+  "result_html_sha256": "efe4338e4459d356f9684949ee85b62f015681cbbcc4950d3bc2f74054d17e84",
+  "result_html_bytes": 5677719,
+  "result_html_source_artifact": "XenSonar_N21_F2_P7_3_Forge_Navigator_Named_Sample_Test.html",
+  "files": [
+    {
+      "path": "src/forge/editor/01_display_and_canvas.js",
+      "before_sha256": "5c1290c4e880aacc6f5a8f149249058dcf98bec8e254713ef6190fbb8d08b3da",
+      "after_sha256": "8ccb9f897b7f1a71afd8cbe6a64f5b47662c5c459928d40a25f5e701427b136e",
+      "before_chars": 48280,
+      "after_chars": 50435,
+      "edits": [
+        {
+          "at": 18589,
+          "delete": 0,
+          "insert": "/* P7.3: purple sample-region handles are NOT the cyan Navigator viewport handles.\n   Hit-testing is read-only and does not allocate any audio object. */\nfunction __f333NavigatorSampleEdgeHit(x,width,selected,zone=9){\n if(!selected||!Number.isFinite(x)||!Number.isFinite(width)||width<=0||typeof zone!=='number'||!Number.isFinite(zone)||zone<=0)return null;\n const left=selected.start*width,right=selected.end*width;\n const dl=Math.abs(x-left),dr=Math.abs(x-right);\n return dl<=zone||dr<=zone?(dl<=dr?'selection-left':'selection-right'):null;\n}\nfunction __f333NavigatorSampleResize(edge,opposite,pointer){\n const minWidth=.003;\n const fixed=Math.max(0,Math.min(1,Number.isFinite(opposite)?opposite:0));\n const p=Math.max(0,Math.min(1,Number.isFinite(pointer)?pointer:fixed));\n return edge==='selection-left'?{start:Math.max(0,Math.min(fixed-minWidth,p)),end:fixed}:\n  {start:fixed,end:Math.min(1,Math.max(fixed+minWidth,p))};\n}\n"
+        },
+        {
+          "at": 19514,
+          "delete": 27,
+          "insert": "title:\"Purple selection edges trim the sample. Cyan viewport edges zoom the drawing.\",children:\"Violet trim · Cyan"
+        },
+        {
+          "at": 20169,
+          "delete": 6351,
+          "insert": "pointer=Math.max(0,Math.min(box.width,event.clientX-box.left));\n const sampleEdge=!event.altKey?__f333NavigatorSampleEdgeHit(pointer,box.width,__ForgeNavigatorSample.current()):null;\n const mode=geometry?Z5e(pointer,geometry):'move';\n event.currentTarget.style.cursor=sampleEdge?'ew-resize':mode==='move'?(event.altKey?'grab':'crosshair'):'ew-resize';\n },children:[u.jsx(\"canvas\",{ref:t,className:\"block w-full h-full\",style:{imageRendering:\"pixelated\",width:\"100%\",height:\"100%\"}}),selected&&u.jsx(\"div\",{\"data-forge-navigator-sample-selection\":true,\"aria-label\":\"One-shot sample selection\",className:\"pointer-events-none absolute inset-y-0 rounded border-x-2 border-violet-200 bg-violet-400/30\",style:{left:selected.start*100+\"%\",width:(selected.end-selected.start)*100+\"%\",background:\"rgba(167,139,250,0.32)\",borderLeft:\"2px solid rgba(221,214,254,0.96)\",borderRight:\"2px solid rgba(221,214,254,0.96)\"},children:state.previewing&&Number.isFinite(state.previewDurationSec)&&state.previewDurationSec>0?u.jsx(\"span\",{\"data-forge-navigator-region-playhead\":true,\"aria-hidden\":true,className:\"forge-navigator-region-sweep\",style:{\"--forge-region-preview-duration\":state.previewDurationSec+\"s\"},children:u.jsx(\"span\",{className:\"forge-navigator-region-playhead\"})}):null})]})]})}const H5e=.2,V5e=5,YO=72,JO=180,W5e=.0011,U5e=10;function ZO(e){return Number.isFinite(e)?Math.max(H5e,Math.min(V5e,e)):1}function X5e(e){const t=e.deltaMode===1?e.deltaY*16:e.deltaMode===2?e.deltaY*160:e.deltaY;return Number.isFinite(t)?Math.max(-YO,Math.min(YO,t)):0}function e_(e){const t=Math.max(1,e.spectralWidth),n=Math.max(1,Math.min(t,e.mainCanvasWidth/e.zoomX)),r=e.offsetX/t*e.containerWidth,a=Math.max(e.minWidthPx??10,n/t*e.containerWidth);return{visibleWidth:n,leftPx:r,widthPx:a,rightPx:r+a}}function Y5e(e,t,n){return Math.max(0,Math.min(e-t,n))}function J5e(e){const t=Math.max(1,Math.min(e.spectralWidth,e.mainCanvasWidth/e.zoomX)),n=Math.max(16,e.spectralWidth*.015),r=e.offsetX,a=r+t,o=e.pointerX/e.containerWidth*e.spectralWidth;if(e.mode===\"resize-left\"){const l=Math.max(0,Math.min(o,a-n)),c=Math.max(n,a-l),d=Math.max(.1,Math.min(20,e.mainCanvasWidth/c));return{offsetX:l,zoomX:d}}if(e.mode===\"resize-right\"){const l=Math.max(r+n,Math.min(e.spectralWidth,o)),c=Math.max(n,l-r);return{zoomX:Math.max(.1,Math.min(20,e.mainCanvasWidth/c))}}const i=o-t*.5,s=Math.max(0,e.spectralWidth-t);return{offsetX:Math.max(0,Math.min(s,i))}}function Z5e(e,t,n=U5e){return Math.abs(e-t.leftPx)<=n?\"resize-left\":Math.abs(e-t.rightPx)<=n?\"resize-right\":\"move\"}function e4e({mainCanvasRef:e,colorLUTRef:t,spectralData:n,viewPort:r,setViewPort:a,renderVersion:o,showGrainLayer:i,synthMode:s,playheadPosition:l,isPlaying:c,showPlayheadMarker:d}){const p=P.useRef(null),f=P.useRef(null),b=P.useRef(null),g=P.useCallback(()=>{const A=f.current;if(!A)return;const M=A.getContext(\"2d\");if(!M)return;const box=A.parentElement.getBoundingClientRect(),v=Math.max(1,Math.round(box.width)),w=Math.max(1,Math.round(box.height));if(A.width!==v)A.width=v;if(A.height!==w)A.height=w;M.clearRect(0,0,v,w);const R=t.current,k=i||s===\"granular\",I=n.width/v,E=n.height/w,cache=A.__fullOverview;let F;if(cache&&cache.grid===n&&cache.version===o&&cache.lut===R&&cache.grains===k&&cache.width===v&&cache.height===w)F=cache.pixels;else{F=M.createImageData(v,w);const L=F.data;for(let G=0;G<w;G++){const j=Math.floor(G*E),N=Math.min(n.height,Math.ceil((G+1)*E));for(let W=0;W<v;W++){const V=Math.floor(W*I),U=Math.min(n.width,Math.ceil((W+1)*I));let H=0,q=0;for(let J=j;J<N;J++)for(let Z=V;Z<U;Z++){const te=n.get(Z,J);te>H&&(H=te,q=n.getGrain(Z,J))}const K=Math.round(Math.max(0,Math.min(1,H))*255)*3,Y=(G*v+W)*4;if(k&&H>.01){const[J,Z,te]=kB(q),X=.36;L[Y]=Math.round(R[K]*(1-X)+J*X),L[Y+1]=Math.round(R[K+1]*(1-X)+Z*X),L[Y+2]=Math.round(R[K+2]*(1-X)+te*X)}else L[Y]=R[K],L[Y+1]=R[K+1],L[Y+2]=R[K+2];L[Y+3]=255}}A.__fullOverview={grid:n,version:o,lut:R,grains:k,width:v,height:w,pixels:F};}M.putImageData(F,0,0);const __liveViewport=pe.getState().viewPort,B=e_({spectralWidth:n.width,mainCanvasWidth:e.current?.width??n.width,containerWidth:v,offsetX:__liveViewport.offsetX,zoomX:__liveViewport.zoomX}),{widthPx:O}=B,T=Y5e(v,O,B.leftPx);A.__navigatorViewport=B;M.fillStyle=\"rgba(0, 0, 0, 0.28)\",M.fillRect(0,0,T,w),M.fillRect(T+O,0,v-(T+O),w);const _=M.createLinearGradient(T,0,T+O,0);if(_.addColorStop(0,\"rgba(34, 211, 238, 0.18)\"),_.addColorStop(.5,\"rgba(34, 211, 238, 0.08)\"),_.addColorStop(1,\"rgba(34, 211, 238, 0.18)\"),M.fillStyle=_,M.fillRect(T,0,O,w),M.strokeStyle=\"rgba(103, 232, 249, 0.95)\",M.lineWidth=2,M.strokeRect(T+.5,.5,Math.max(1,O-1),w-1),M.fillStyle=\"rgba(103, 232, 249, 0.95)\",M.fillRect(T-1,2,4,w-4),M.fillRect(T+O-3,2,4,w-4),c||d){const G=l*v;M.strokeStyle=\"rgba(0,255,136,0.95)\",M.lineWidth=1.5,M.beginPath(),M.moveTo(G,0),M.lineTo(G,w),M.stroke()}},[t,c,e,l,i,d,n,s,r,o]),y=P.useCallback((A,M)=>{const v=p.current,w=e.current;if(!v||!w)return;const R=v.getBoundingClientRect(),k=Math.max(0,Math.min(R.width,A-R.left));a(J5e({mode:M,pointerX:k,containerWidth:R.width,spectralWidth:n.width,mainCanvasWidth:w.width,offsetX:r.offsetX,zoomX:r.zoomX}))},[e,a,n.width,r.offsetX,r.zoomX]);P.useEffect(()=>{g()},[g,o]);/*navigator-bitmap-fit*/P.useEffect(()=>{const wrap=p.current,bitmap=f.current;if(!wrap||!bitmap||typeof ResizeObserver===\"undefined\")return;let frame=0;const sync=()=>{const box=wrap.getBoundingClientRect(),width=Math.max(1,Math.round(box.width)),height=Math.max(1,Math.round(box.height));if(!box.width||!box.height)return;if(bitmap.width!==width)bitmap.width=width;if(bitmap.height!==height)bitmap.height=height;g()};const queue=()=>{if(frame)cancelAnimationFrame(frame);frame=requestAnimationFrame(()=>{frame=0;sync()})};const observer=new ResizeObserver(queue);observer.observe(wrap);queue();return()=>{observer.disconnect();frame&&cancelAnimationFrame(frame)}},[g]);const x=P.useCallback(A=>{if(A.button!==0)return;const M=p.current,v=e.current;if(!M||!v)return;const w=M.getBoundingClientRect(),R=Math.max(0,Math.min(w.width,A.clientX-w.left)),k=e_({spectralWidth:n.width,mainCanvasWidth:v.width,containerWidth:w.width,offsetX:r.offsetX,zoomX:r.zoomX}),{leftPx:I}=k,E=Z5e(R,k),selection=__ForgeNavigatorSample.current(),selectionResize=!A.altKey?__f333NavigatorSampleEdgeHit(R,w.width,selection):null;\n b.current={mode:E,selectionResize,fixedRatio:selectionResize?(selectionResize==='selection-left'?selection.end:selection.start):0,select:!A.altKey&&!selectionResize&&E==='move',startRatio:w.width?R/w.width:0,grabOffsetPx:R-I,startLeftPx:I,startRightPx:k.rightPx,rectWidth:w.width,pointerDownX:A.clientX,moved:!1}},[e,n.width,r.offsetX,r.zoomX]);return P.useEffect(()=>{const ratio=v=>{const R=p.current?.getBoundingClientRect();return R&&R.width?Math.max(0,Math.min(1,(v-R.left)/R.width)):0};const A=v=>{const w=b.current;if(!w)return;if(!w.moved&&Math.abs(v.clientX-w.pointerDownX)>3)w.moved=!0;if(!w.moved)return;if(w.selectionResize){const span=__f333NavigatorSampleResize(w.selectionResize,w.fixedRatio,ratio(v.clientX));__ForgeNavigatorSample.select(span.start,span.end)}else if(w.select)__ForgeNavigatorSample.select(w.startRatio,ratio(v.clientX));else y(v.clientX,w.mode)},M=v=>{const w=b.current;if(!w)return;if(!w.moved){if(!w.selectionResize){__ForgeNavigatorSample.clear();__f340SeekFromNavigator(ratio(v.clientX))}}else if(w.selectionResize){const span=__f333NavigatorSampleResize(w.selectionResize,w.fixedRatio,ratio(v.clientX));__ForgeNavigatorSample.select(span.start,span.end"
+        }
+      ]
+    },
+    {
+      "path": "src/forge/editor/09_workflow_controls.js",
+      "before_sha256": "ae7cce96c501a8516ba981fc38664ea9c7a787deaa2e369ab9d4f28d558614c2",
+      "after_sha256": "0f07a52ef605a1609cf7519751f7a78cdf33dcbd75491ecde427bd1f08653333",
+      "before_chars": 20478,
+      "after_chars": 21801,
+      "edits": [
+        {
+          "at": 5318,
+          "delete": 0,
+          "insert": ",previewDurationSec:null"
+        },
+        {
+          "at": 7669,
+          "delete": 121,
+          "insert": ",previewDurationSec:null})}};\n  __f333NavigatorPreviewSource=voice;voice.start();__ForgeNavigatorSample.update({previewing:true,previewBusy:false,previewDurationSec:seconds"
+        },
+        {
+          "at": 7966,
+          "delete": 0,
+          "insert": "}\n/* P7.3: keep this title outside the button flow. Preview and Save stay anchored. */\nfunction __ForgeNavigatorSampleNameInput(){\n const state=P.useSyncExternalStore(__ForgeNavigatorSample.subscribe,__ForgeNavigatorSample.snapshot,__ForgeNavigatorSample.snapshot);\n if(!__ForgeNavigatorSample.current())return null;\n return P.createElement(P.Fragment,null,\n  P.createElement('label',{htmlFor:'f35-navigator-sample-name-input',className:'f35-navigator-sample-caption f33-project-name-text'},'Sample Name:'),\n  P.createElement('input',{id:'f35-navigator-sample-name-input',type:'text','data-forge-navigator-sample-name':true,\n  'aria-label':'Sample name',title:'Name this selection before saving · blank uses the automatic title',\n  placeholder:'',maxLength:74,value:state.nameDraft||'',\n  onChange:event=>__ForgeNavigatorSample.update({nameDraft:event.target.value}),\n  onKeyDown:event=>event.stopPropagation(),onKeyUp:event=>event.stopPropagation(),\n  className:'f35-navigator-sample-name rounded border border-violet-500/60 bg-neutral-950 px-2 text-[10px] text-violet-100 placeholder:text-violet-300/60 focus:border-fuchsia-400 focus:outline-none',\n  style:{width:102,minWidth:102,height:25,boxSizing:'border-box'}\n }));\n"
+        },
+        {
+          "at": 9512,
+          "delete": 13,
+          "insert": "102"
+        },
+        {
+          "at": 14416,
+          "delete": 0,
+          "insert": "SampleNameInput),h(__ForgeNavigator"
+        }
+      ]
+    },
+    {
+      "path": "src/forge_and_melodic/10_audition_and_persistence.js",
+      "before_sha256": "c5b66277635a1ff863ee8438aaba12590b24a2345118223b334aa0ff0297d817",
+      "after_sha256": "560c5cad51bbe72fd62bce54a8edd0464a01c2e8abcc9863691c68bfffe5ad59",
+      "before_chars": 43756,
+      "after_chars": 44058,
+      "edits": [
+        {
+          "at": 30922,
+          "delete": 15,
+          "insert": "// The compact field is optional. Sanitize a typed title before registry intake.\n  const typed=String(__ForgeNavigatorSample.snapshot().nameDraft||'')\n   .replace(/[\\x00-\\x1f<>:\"/\\\\|?*]/g,' ').replace(/\\s+/g,' ').trim()\n   .replace(/\\.wav$/i,'').replace(/[. ]+$/g,'').slice(0,74);\n  const fileName=typed?typed+'.wav':"
+        }
+      ]
+    },
+    {
+      "path": "styles/08_forge_workflow.css",
+      "before_sha256": "fc4050c44143ef5b9c227505ecf06cf6df31b1a5d8bdf417cedf186d40c9a198",
+      "after_sha256": "b380523af99df20184df86fcbccd8822c0ff3f9b16930ea6512e11ae7648b11b",
+      "before_chars": 14683,
+      "after_chars": 16011,
+      "edits": [
+        {
+          "at": 14455,
+          "delete": 0,
+          "insert": "/* Fixed-size name lives to the LEFT of Preview without moving Preview/Save. */\n.f35-navigator-sample-name{position:absolute;right:calc(100% + 4px);top:0;width:102px;height:25px;box-sizing:border-box}\n/* Match Project Name's slight vertical alignment and typography. The label\n   occupies only existing horizontal whitespace; no new toolbar row. */\n.f35-navigator-sample-caption{position:absolute;right:calc(100% + 110px);top:0;height:25px;display:flex;align-items:center;white-space:nowrap;flex-shrink:0;color:#a3a3a3;font-size:9px}\n@media(max-width:1000px){\n .f35-navigator-save-slot{margin-left:106px}\n}\n"
+        },
+        {
+          "at": 14683,
+          "delete": 0,
+          "insert": "\n/* P7.3: audibly timed navigator-region scan, compositor transform only. */\n.forge-navigator-region-sweep{\n position:absolute;inset:0;width:100%;height:100%;pointer-events:none;\n animation:forge-navigator-region-sweep var(--forge-region-preview-duration,1s) linear both;\n will-change:transform;\n}\n.forge-navigator-region-playhead{\n position:absolute;left:-1px;top:0;bottom:0;width:2px;\n background:linear-gradient(180deg,#f0abfc,#f472b6 52%,#d946ef);\n box-shadow:0 0 4px 1px rgba(240,171,252,.95),0 0 10px 2px rgba(217,70,239,.55);\n}\n@keyframes forge-navigator-region-sweep{from{transform:translateX(0)}to{transform:translateX(100%)}}\n@media(prefers-reduced-motion:reduce){.forge-navigator-region-sweep{animation:none}}\n"
+        }
+      ]
+    },
+    {
+      "path": "source-index.json",
+      "before_sha256": "20c5b15dc112cbb04a8b2a843cd72811943fa759f24fd9472c78efa643de76f1",
+      "after_sha256": "6f68188ee9a23d61c81320cb918af50112e5a795301f770f0dd84323b335f3c0",
+      "before_chars": 970572,
+      "after_chars": 970982,
+      "edits": [
+        {
+          "at": 20662,
+          "delete": 0,
+          "insert": "      \"name\": \"__ForgeNavigatorSampleNameInput\",\n      \"file\": \"src/forge/editor/09_workflow_controls.js\",\n      \"line\": 80\n    },\n    {\n"
+        },
+        {
+          "at": 20781,
+          "delete": 2,
+          "insert": "94"
+        },
+        {
+          "at": 20913,
+          "delete": 2,
+          "insert": "101"
+        },
+        {
+          "at": 21039,
+          "delete": 2,
+          "insert": "110"
+        },
+        {
+          "at": 21166,
+          "delete": 2,
+          "insert": "77"
+        },
+        {
+          "at": 21294,
+          "delete": 2,
+          "insert": "94"
+        },
+        {
+          "at": 21424,
+          "delete": 2,
+          "insert": "95"
+        },
+        {
+          "at": 547132,
+          "delete": 0,
+          "insert": "      \"name\": \"__f333NavigatorSampleEdgeHit\",\n      \"file\": \"src/forge/editor/01_display_and_canvas.js\",\n      \"line\": 146\n    },\n    {\n      \"name\": \"__f333NavigatorSampleResize\",\n      \"file\": \"src/forge/editor/01_display_and_canvas.js\",\n      \"line\": 152\n    },\n    {\n"
+        },
+        {
+          "at": 547227,
+          "delete": 2,
+          "insert": "59"
+        },
+        {
+          "at": 547338,
+          "delete": 2,
+          "insert": "68"
+        },
+        {
+          "at": 547449,
+          "delete": 2,
+          "insert": "68"
+        },
+        {
+          "at": 547559,
+          "delete": 2,
+          "insert": "68"
+        },
+        {
+          "at": 547669,
+          "delete": 2,
+          "insert": "68"
+        },
+        {
+          "at": 547780,
+          "delete": 2,
+          "insert": "68"
+        },
+        {
+          "at": 547891,
+          "delete": 2,
+          "insert": "68"
+        },
+        {
+          "at": 548001,
+          "delete": 2,
+          "insert": "68"
+        },
+        {
+          "at": 548112,
+          "delete": 2,
+          "insert": "68"
+        },
+        {
+          "at": 548222,
+          "delete": 2,
+          "insert": "68"
+        },
+        {
+          "at": 548333,
+          "delete": 2,
+          "insert": "68"
+        },
+        {
+          "at": 548444,
+          "delete": 2,
+          "insert": "68"
+        },
+        {
+          "at": 548555,
+          "delete": 2,
+          "insert": "68"
+        },
+        {
+          "at": 548666,
+          "delete": 2,
+          "insert": "68"
+        },
+        {
+          "at": 548777,
+          "delete": 2,
+          "insert": "69"
+        },
+        {
+          "at": 548916,
+          "delete": 2,
+          "insert": "72"
+        },
+        {
+          "at": 549054,
+          "delete": 2,
+          "insert": "83"
+        },
+        {
+          "at": 549165,
+          "delete": 2,
+          "insert": "88"
+        },
+        {
+          "at": 549293,
+          "delete": 3,
+          "insert": "200"
+        },
+        {
+          "at": 549404,
+          "delete": 3,
+          "insert": "212"
+        },
+        {
+          "at": 722927,
+          "delete": 3,
+          "insert": "500"
+        },
+        {
+          "at": 723071,
+          "delete": 1,
+          "insert": "9"
+        },
+        {
+          "at": 723208,
+          "delete": 1,
+          "insert": "4"
+        },
+        {
+          "at": 723342,
+          "delete": 2,
+          "insert": "30"
+        },
+        {
+          "at": 723481,
+          "delete": 1,
+          "insert": "7"
+        },
+        {
+          "at": 723617,
+          "delete": 1,
+          "insert": "8"
+        },
+        {
+          "at": 723756,
+          "delete": 1,
+          "insert": "9"
+        },
+        {
+          "at": 723886,
+          "delete": 2,
+          "insert": "40"
+        },
+        {
+          "at": 724029,
+          "delete": 1,
+          "insert": "4"
+        },
+        {
+          "at": 724168,
+          "delete": 1,
+          "insert": "5"
+        },
+        {
+          "at": 724305,
+          "delete": 2,
+          "insert": "60"
+        },
+        {
+          "at": 724444,
+          "delete": 2,
+          "insert": "82"
+        },
+        {
+          "at": 724585,
+          "delete": 3,
+          "insert": "602"
+        },
+        {
+          "at": 724724,
+          "delete": 1,
+          "insert": "7"
+        },
+        {
+          "at": 724860,
+          "delete": 1,
+          "insert": "8"
+        },
+        {
+          "at": 725010,
+          "delete": 1,
+          "insert": "7"
+        },
+        {
+          "at": 725152,
+          "delete": 2,
+          "insert": "52"
+        }
+      ]
+    },
+    {
+      "path": "tests/p7_3_forge_navigator.cjs",
+      "before_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "after_sha256": "c580d052f9190d4449c876830182e9f10be47cc20e2d4f920c1807cb4a866f92",
+      "before_chars": 0,
+      "after_chars": 5286,
+      "edits": [
+        {
+          "at": 0,
+          "delete": 0,
+          "insert": "#!/usr/bin/env node\n// P7.3 behaviour-first contract: selection resize must not interfere with viewport trim.\nconst fs=require('fs'),vm=require('vm'),assert=require('assert'),path=require('path');\nconst root=process.argv[2]||path.join(__dirname,'..');\nconst canvas=fs.readFileSync(path.join(root,'src/forge/editor/01_display_and_canvas.js'),'utf8');\nconst audio=fs.readFileSync(path.join(root,'src/forge/editor/09_workflow_controls.js'),'utf8');\nconst css=fs.readFileSync(path.join(root,'styles/08_forge_workflow.css'),'utf8');\nfunction extract(name){const i=canvas.indexOf('function '+name+'(');assert(i>=0,`missing ${name}`);const rest=canvas.slice(i);const start=rest.indexOf('{');let level=0;for(let j=start;j<rest.length;j++){if(rest[j]==='{')level++;else if(rest[j]==='}'&&--level===0)return rest.slice(0,j+1)}throw new Error(`unterminated ${name}`)}\nconst context={};vm.createContext(context);vm.runInContext(extract('__f333NavigatorSampleEdgeHit')+';'+extract('__f333NavigatorSampleResize')+';',context);\nconst hit=context.__f333NavigatorSampleEdgeHit,resize=context.__f333NavigatorSampleResize;\nconst selection={start:0.2,end:0.7};\nassert.equal(hit(100,500,selection),'selection-left');\nassert.equal(hit(350,500,selection),'selection-right');\nassert.equal(hit(200,500,selection),null);\nassert.equal(hit(100,500,null),null);\nassert.equal(hit(100,500,selection,4),'selection-left');\nassert.equal(hit(106,500,selection,4),null);\nassert.equal(hit(100,500,selection,true),null,'invalid hit widths rejected');\nlet r=resize('selection-left',selection.end,0.35);\nassert.equal(r.start,0.35); assert.equal(r.end,0.7);\nr=resize('selection-right',selection.start,0.5);\nassert.equal(r.start,0.2); assert.equal(r.end,0.5);\nr=resize('selection-left',selection.end,1);assert(r.end-r.start>=0.003-1e-9,'left edge cannot invert selection');\nr=resize('selection-right',selection.start,-1);assert(r.end-r.start>=0.003-1e-9,'right edge cannot invert selection');\nassert(canvas.includes('data-forge-navigator-region-playhead'), 'missing selected region playhead');\nassert(canvas.includes('w.selectionResize'), 'pointer drag must resize selection instead of viewport');\nassert(audio.includes('previewDurationSec:seconds'), 'preview duration must be sourced from actual PCM length');\nassert(css.includes('@keyframes forge-navigator-region-sweep'), 'compositor playhead sweep missing');\nconsole.log('PASS: independent invisible selection handles, bounds, cursor, and PCM-timed violet preview playhead');\n// Name-field regression (RED before implementation): exact width/height and real save routing.\nconst persistSource=fs.readFileSync(path.join(root,'src/forge_and_melodic/10_audition_and_persistence.js'),'utf8');\nassert(audio.includes('data-forge-navigator-sample-name'), 'region name must be editable in the Navigator action row');\nassert(audio.includes('Sample Name:'), 'sample name label must be visible before the input');\nassert(css.includes('.f35-navigator-sample-caption'), 'label needs the Project Name-aligned offset without moving controls');\nassert(audio.includes('h(__ForgeNavigatorSampleNameInput),h(__ForgeNavigatorPreviewButton),h(__ForgeNavigatorSaveButton)'), 'name must be left of Preview, keeping Preview and Save in order');\nassert(persistSource.includes('snapshot().nameDraft'), 'Save as Sample must read the typed name, not only display an input');\n// Verify save passes the user-entered title to the real Sample Database intake,\n// and a blank title preserves the old automatic naming contract.\n(async()=>{\n  const sourceStart=persistSource.indexOf('async function __f333SaveNavigatorSample(){');\n  const sourceEnd=persistSource.indexOf('async function __f333ExportCurrent(',sourceStart);\n  assert(sourceStart>=0&&sourceEnd>sourceStart,'missing canonical Forge save function');\n  const saveFunction=persistSource.slice(sourceStart,sourceEnd);\n  const selected={start:.2,end:.4};let draft='My Dark Drone',registered=[];\n  const channel=new Float32Array(48000).fill(.25);\n  const peState={renderVersion:4,sourceAsset:'audio1',materialExport:{name:'Forge'}};\n  const ctx={\n    __ForgeNavigatorSample:{current:()=>selected,snapshot:()=>({busy:false,nameDraft:draft}),update(){}},\n    pe:{getState:()=>peState},__f333Route:()=> 'pure',\n    __F3564Master:{getSnapshot:()=>({revision:2})},\n    __f333RenderCurrent:async()=>({buffer:{length:48000,sampleRate:48000,numberOfChannels:1,getChannelData:()=>channel}}),\n    xt:{encodeSamplesToWAV:()=>new Uint8Array(44)},\n    xS:async(name)=>{registered.push(name);return{name}},Blob,Float32Array,Number,Math,String,Error\n  };\n  vm.createContext(ctx);vm.runInContext(saveFunction+';',ctx);\n  await ctx.__f333SaveNavigatorSample();\n  assert.equal(registered[0],'My Dark Drone.wav','typed title must be the actual registry title');\n  draft=' ';await ctx.__f333SaveNavigatorSample();\n  assert.match(registered[1],/^Forge · One Shot 20–40%\\.wav$/,'blank title keeps the previous automatic fallback');\n  draft='dark/bass:17-EDO.wav';await ctx.__f333SaveNavigatorSample();\n  assert.equal(registered[2],'dark bass 17-EDO.wav','typed title is sanitized before saving');\n  console.log('PASS: sample name is used in actual Sample Database file registration, fallback and filename sanitization');\n})().catch(e=>{console.error(e);process.exitCode=1});\n"
+        }
+      ],
+      "new_file": true
+    },
+    {
+      "path": "tests/p7_3_source_rebase.cjs",
+      "before_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "after_sha256": "314a717316ddc53b3fe893d0e230b67e9cd9a6ec07ca7348ab11432ce177498a",
+      "before_chars": 0,
+      "after_chars": 2993,
+      "edits": [
+        {
+          "at": 0,
+          "delete": 0,
+          "insert": "'use strict';\n// Verify the Forge-only P7.3 delta against a separately reproduced P7.2 checkout.\n// This intentionally does NOT rewrite the historical P7 preservation test.\nconst fs=require('node:fs'),path=require('node:path'),crypto=require('node:crypto'),assert=require('node:assert/strict');\nconst target=path.resolve(process.argv[2]||'.');\nconst parent=process.argv[3]&&path.resolve(process.argv[3]);\nconst patchPath=process.argv[4]&&path.resolve(process.argv[4]);\nassert(parent&&patchPath,'Usage: node tests/p7_3_source_rebase.cjs <p7.3-root> <p7.2-root> <stage11.xpatch.json>');\nconst patch=JSON.parse(fs.readFileSync(patchPath));\nassert.equal(patch.order,11);\nconst hash=t=>crypto.createHash('sha256').update(t).digest('hex');\nlet editCount=0;\nfor(const f of patch.files){\n const oldPath=path.join(parent,f.path),newPath=path.join(target,f.path);\n const old=fs.existsSync(oldPath)?fs.readFileSync(oldPath,'utf8'):'';\n const got=fs.readFileSync(newPath,'utf8');\n assert.equal(hash(old),f.before_sha256,`${f.path}: wrong predecessor`);\n const points=Array.from(old);\n for(const e of [...f.edits].reverse()){\n  assert(e.at>=0&&e.at+e.delete<=points.length,`${f.path}: invalid Unicode span`);\n  points.splice(e.at,e.delete,...Array.from(e.insert));editCount++;\n }\n assert.equal(points.join(''),got,`${f.path}: unreviewed change outside exact stage11 spans`);\n assert.equal(hash(got),f.after_sha256,`${f.path}: wrong output`);\n}\n// No hidden source/style/template changes from the P7.2 snapshot.\nconst walk=(root,dir)=>fs.readdirSync(path.join(root,dir),{withFileTypes:true}).flatMap(entry=>entry.isDirectory()?walk(root,dir+'/'+entry.name):[dir+'/'+entry.name]);\nconst changed=new Set(patch.files.map(f=>f.path));\nlet unchanged=0;\nfor(const dir of ['src','styles','template'])for(const f of walk(parent,dir)){\n const next=path.join(target,f);assert(fs.existsSync(next),`P7.3 deleted original source ${f}`);\n if(changed.has(f))continue;\n assert.equal(hash(fs.readFileSync(next)),hash(fs.readFileSync(path.join(parent,f))),`Undeclared P7.3 code drift ${f}`);\n unchanged++;\n}\nconst manifest=JSON.parse(fs.readFileSync(path.join(target,'source-manifest.json')));\nlet html=fs.readFileSync(path.join(target,'template/head.html'),'utf8');\nfor(const f of manifest.files)html+=fs.readFileSync(path.join(target,f),'utf8');\nhtml+=fs.readFileSync(path.join(target,'template/script-close.html'),'utf8');\nfor(const s of manifest.styles)html+=s.tag+fs.readFileSync(path.join(target,s.file),'utf8')+'</style>'+s.after;\nhtml+=fs.readFileSync(path.join(target,'template/foot.html'),'utf8');\nassert.equal(hash(html),patch.result_html_sha256,'P7.3 produced wrong standalone HTML');\nassert.equal(Buffer.byteLength(html),patch.result_html_bytes,'P7.3 HTML size diverges');\nconsole.log(`PASS P7.3 exact rebase: ${patch.files.length} files, ${editCount} source-span edits, ${unchanged} inherited source/style/template files byte-identical`);\nconsole.log(`PASS P7.3 built HTML SHA256 ${patch.result_html_sha256}`);\n"
+        }
+      ],
+      "new_file": true
+    }
+  ]
+}

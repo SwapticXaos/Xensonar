@@ -24,6 +24,29 @@ const rZ=(e,t,n,r)=>{const a=Me(e/vr,0,1),o=Me(1-t/ir,0,1),i=k5(n,a),s=k5(r,o);r
 const ry=e=>{const t=Me(e,0,1);return t*t*(3-2*t)};
 const aZ=e=>{const t=Me(e,.75,8),n=1024,r=new Float32Array(n);for(let a=0;a<n;a+=1){const o=a/(n-1)*2-1;r[a]=Math.tanh(o*t)}return r};
 // One startup/preset contract for the main-room Drone controls.
-const __XenDroneStart=Object.freeze({dronePreset:'xenpolar_drone',droneTimbre:.35,droneVibrato:.2,droneFlanger:.12,droneRhythm:'Off'});
+/* P5: Persist musical Drone Workbench controls, never Web Audio nodes or rhythm timers. */
+const __xenDronePersist=(()=>{
+ const KEY='xensonar:refucktor-drone-workbench.v1',VOLUME='xensonar:refucktor-drone-volume.v1';
+ const fields=['dronePreset','droneFixedHz','droneSnapToGrid','droneTimbre','droneVibrato','droneFlanger','droneRefucktorEcho','droneRefucktorFeedback','droneRhythm','droneRhythmCustomSteps','droneWobbleDepth','droneWobbleShape','droneWobbleRate','droneDubDrive','droneCursorFollow','droneCursorAmount','droneStepWobbleShapes','droneDriveOn','droneDriveAmount','droneDriveTone','droneDriveMix','droneDriveOutput'];
+ const allowed=new Set(fields);
+ const normalize=(input)=>{
+  const out={};if(!input||typeof input!=='object')return out;
+  for(const key of fields){const value=input[key];
+   if(key==='droneStepWobbleShapes'){if(Array.isArray(value)&&value.length===16)out[key]=value.map(n=>Number.isInteger(n)&&n>=0&&n<=4?n:0);continue}
+   if(key==='droneRhythmCustomSteps'){if(Array.isArray(value)&&value.length===16)out[key]=value.map(n=>n?1:0);continue}
+   const booleans=['droneSnapToGrid','droneCursorFollow','droneDriveOn'];
+   const strings=['dronePreset','droneRhythm','droneWobbleShape','droneWobbleRate'];
+   if(booleans.includes(key)){if(typeof value==='boolean')out[key]=value;}
+   else if(strings.includes(key)){if(typeof value==='string'&&value.length<=64)out[key]=value;}
+   else if(typeof value==='number'&&Number.isFinite(value))out[key]=value;
+  }return out;
+ };
+ const load=()=>{try{const raw=localStorage.getItem(KEY);if(raw&&raw.length<8192)return normalize(JSON.parse(raw))}catch{}return {}};
+ const save=(state,patch)=>{if(!patch||!Object.keys(patch).some(k=>allowed.has(k)))return;try{localStorage.setItem(KEY,JSON.stringify(normalize(state)))}catch{}};
+ const loadVolume=()=>{try{const n=Number(localStorage.getItem(VOLUME));return n>=0&&n<=1&&localStorage.getItem(VOLUME)!==null?n:.15}catch{return .15}};
+ const saveVolume=n=>{if(Number.isFinite(n)&&n>=0&&n<=1)try{localStorage.setItem(VOLUME,String(n))}catch{}};
+ return {load,save,loadVolume,saveVolume};
+})();
+const __XenDroneStart=Object.freeze({dronePreset:'dark_sub',droneFixedHz:55,droneSnapToGrid:false,droneTimbre:.5,droneVibrato:.5,droneFlanger:0,droneRefucktorEcho:.24,droneRefucktorFeedback:.32,droneRhythm:'Off',droneWobbleDepth:0,droneWobbleShape:'Sine',droneWobbleRate:'1/8',droneDubDrive:0,droneCursorFollow:false,droneCursorAmount:.5,droneStepWobbleShapes:Array(16).fill(0)});
 const __XenLegacyDroneStart=Object.freeze({dronePreset:'fjord_tape',droneTimbre:.01,droneVibrato:.8,droneFlanger:.6,droneRhythm:'Puls 1/4'});
-function __xenDronePresetStart(id){return id==='xenpolar_drone'?__XenDroneStart:id==='fjord_tape'?__XenLegacyDroneStart:undefined;}
+function __xenDronePresetStart(id){return id==='dark_sub'?{dronePreset:id,droneTimbre:.5,droneVibrato:.5,droneFlanger:0,droneRefucktorEcho:.24,droneRefucktorFeedback:.32}:id==='ethereal_halo'?{dronePreset:id,droneTimbre:.5,droneVibrato:.5,droneFlanger:0,droneRefucktorEcho:.24,droneRefucktorFeedback:.32}:id==='xenpolar_drone'?{dronePreset:id,droneTimbre:.35,droneVibrato:.2,droneFlanger:.12,droneRhythm:'Off'}:id==='fjord_tape'?__XenLegacyDroneStart:undefined;}

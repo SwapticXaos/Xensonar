@@ -14,7 +14,7 @@ function performanceMenus(overrides={}){
     P:{useState:initial=>[typeof initial==='function'?initial():initial,()=>{}],useRef:()=>({current:null}),useId:()=> 'test-performance',useSyncExternalStore:(_subscribe,snapshot)=>snapshot()},
     u:{Fragment:'fragment',jsx:(type,props)=>({type,props}),jsxs:(type,props)=>({type,props})},
     localStorage:{getItem:()=>null,setItem(){}},window:{addEventListener(){}},
-    __SourceOctave:()=>null,__QuickDock:()=>null,Hd:()=>false,Ew:()=>({engineAmount:1}),dG:()=>{},...overrides
+    __SourceOctave:()=>null,__QuickDock:()=>null,__XenBassGridRuntime:()=>null,Hd:()=>false,Ew:()=>({engineAmount:1}),dG:()=>{},...overrides
   };
   const api=new Function(...Object.keys(env),code+';return {Ioe,__PerformanceSoundLane};')(...Object.values(env));
   return {flatten,menu(props,lane){

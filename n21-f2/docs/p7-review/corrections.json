@@ -1,0 +1,88 @@
+{
+  "src/forge_and_melodic/06_note_editor_and_material_tools.js": [
+    {
+      "old": "aria-label:`Preview ${B.name}`",
+      "new": "\"aria-label\":`Preview ${B.name}`",
+      "count": 1
+    }
+  ],
+  "src/runtime/instrument/09_monitoring_and_manual_patterns.js": [
+    {
+      "old": "{value:'ethereal_halo',label:'Ethereal Halo · Refucktor'}];",
+      "new": "{value:'ethereal_halo',label:'Ethereal Halo · Refucktor'},...dg.filter(item=>!['dark_sub','ethereal_halo'].includes(item.value))];",
+      "count": 1
+    },
+    {
+      "old": "function vie({onDronePresetChange:",
+      "new": "function __XenLegacyDroneControls({onDronePresetChange:__chooseDrone,nParamsUI:e,droneVolume:t,setDroneVolume:n,onDroneTimbreChange:r,updateNParams:a,transientDriveUi:o,updateTransientDriveSource:i,myzelEnabled:s,myzelStep16ths:l,toggleMyzelEnabled:c,setMyzelStep16ths:d,droneEditorOpen:p,setDroneEditorOpen:f}){return u.jsxs(\"div\",{className:\"flex flex-col gap-3 border border-neutral-800 bg-neutral-900/50 p-4\",children:[u.jsx(\"h3\",{className:\"mb-1 border-b border-neutral-800 pb-1 text-[10px] uppercase tracking-widest text-neutral-500\",children:\"Drone · Accompaniment · Drive\"}),u.jsx(__DroneVoiceChoice,{preset:e.dronePreset,onChange:__chooseDrone}),u.jsxs(\"div\",{children:[u.jsxs(\"label\",{className:\"mb-1 block text-xs text-neutral-400\",children:[\"Master Volume:\",(t*100).toFixed(0),\"%\"]}),u.jsx(\"input\",{type:\"range\",min:\"0\",max:\"1\",step:\"0.01\",value:t,onChange:b=>n(parseFloat(b.target.value)),className:\"w-full cursor-pointer\"})]}),u.jsxs(\"div\",{children:[u.jsxs(\"label\",{className:\"mb-1 block text-xs text-neutral-400\",children:[\"Drone Timbre:\",(e.droneTimbre*100).toFixed(0),\"%\"]}),u.jsx(\"input\",{type:\"range\",min:\"0\",max:\"1\",step:\"0.01\",value:e.droneTimbre,onChange:b=>r(parseFloat(b.target.value)),className:\"w-full cursor-pointer\"})]}),u.jsxs(\"div\",{className:\"grid grid-cols-2 gap-2\",children:[u.jsxs(\"div\",{children:[u.jsx(\"label\",{className:\"mb-1 block text-xs text-neutral-400\",children:\"Vibrato\"}),u.jsx(\"input\",{type:\"range\",min:\"0\",max:\"1\",step:\"0.01\",value:e.droneVibrato,onChange:b=>a({droneVibrato:parseFloat(b.target.value)}),className:\"w-full cursor-pointer\"})]}),u.jsxs(\"div\",{children:[u.jsx(\"label\",{className:\"mb-1 block text-xs text-neutral-400\",children:\"Flanger\"}),u.jsx(\"input\",{type:\"range\",min:\"0\",max:\"1\",step:\"0.01\",value:e.droneFlanger,onChange:b=>a({droneFlanger:parseFloat(b.target.value)}),className:\"w-full cursor-pointer\"})]})]}),u.jsxs(\"div\",{className:\"grid grid-cols-2 gap-2\",children:[u.jsxs(\"div\",{children:[u.jsx(\"label\",{className:\"mb-1 block text-xs text-neutral-400\",children:\"Drive Insert\"}),u.jsxs(\"label\",{className:\"mb-1 flex cursor-pointer items-center gap-2 text-sm text-neutral-300\",children:[u.jsx(\"input\",{type:\"checkbox\",checked:!!e.droneDriveOn,onChange:b=>a({droneDriveOn:b.target.checked})}),u.jsx(\"span\",{className:\"text-xs text-neutral-400\",children:e.droneDriveOn?\"An\":\"Aus\"})]})]}),u.jsxs(\"div\",{children:[u.jsxs(\"label\",{className:\"mb-1 block text-xs text-neutral-400\",children:[\"Drive: \",((e.droneDriveAmount??.36)*100).toFixed(0),\"%\"]}),u.jsx(\"input\",{type:\"range\",min:\"0\",max:\"1\",step:\"0.01\",value:e.droneDriveAmount??.36,onChange:b=>a({droneDriveAmount:parseFloat(b.target.value)}),className:\"w-full cursor-pointer\"})]})]}),u.jsxs(\"div\",{className:\"grid grid-cols-3 gap-2\",children:[u.jsxs(\"div\",{children:[u.jsx(\"label\",{className:\"mb-1 block text-xs text-neutral-400\",children:\"Tone\"}),u.jsx(\"input\",{type:\"range\",min:\"0\",max:\"1\",step:\"0.01\",value:e.droneDriveTone??.56,onChange:b=>a({droneDriveTone:parseFloat(b.target.value)}),className:\"w-full cursor-pointer\"})]}),u.jsxs(\"div\",{children:[u.jsx(\"label\",{className:\"mb-1 block text-xs text-neutral-400\",children:\"Mix\"}),u.jsx(\"input\",{type:\"range\",min:\"0\",max:\"1\",step:\"0.01\",value:e.droneDriveMix??.48,onChange:b=>a({droneDriveMix:parseFloat(b.target.value)}),className:\"w-full cursor-pointer\"})]}),u.jsxs(\"div\",{children:[u.jsx(\"label\",{className:\"mb-1 block text-xs text-neutral-400\",children:\"Output\"}),u.jsx(\"input\",{type:\"range\",min:\"0.3\",max:\"1.2\",step:\"0.01\",value:e.droneDriveOutput??.9,onChange:b=>a({droneDriveOutput:parseFloat(b.target.value)}),className:\"w-full cursor-pointer\"})]})]}),u.jsxs(\"div\",{className:\"rounded border border-neutral-800 bg-neutral-950/40 p-2\",children:[u.jsx(\"div\",{className:\"mb-2 text-[10px] uppercase tracking-widest text-neutral-500\",children:\"Drive Sources\"}),u.jsx(\"div\",{className:\"grid grid-cols-2 gap-2\",children:Sie.map(({key:b,label:g})=>{const y=o[b];return u.jsxs(\"div\",{className:\"rounded border border-neutral-800 bg-neutral-950/50 p-2\",children:[u.jsxs(\"label\",{className:\"mb-1 flex items-center gap-2 text-xs text-neutral-300\",children:[u.jsx(\"input\",{type:\"checkbox\",checked:y.enabled,onChange:x=>i(b,{enabled:x.target.checked})}),u.jsx(\"span\",{children:g}),u.jsxs(\"span\",{className:\"ml-auto text-[10px] text-neutral-500\",children:[(y.send*100).toFixed(0),\"%\"]})]}),u.jsx(\"input\",{type:\"range\",min:\"0\",max:\"1\",step:\"0.01\",value:y.send,onChange:x=>i(b,{send:parseFloat(x.target.value)}),className:\"w-full cursor-pointer\"})]},b)})})]}),u.jsxs(\"div\",{className:\"flex flex-col gap-2\",children:[u.jsxs(\"div\",{children:[u.jsx(\"label\",{className:\"mb-1 block text-xs text-neutral-400\",children:\"Drone Rhythm (Gate)\"}),u.jsxs(\"select\",{value:e.droneRhythm,onChange:b=>a({droneRhythm:b.target.value}),className:\"w-full border border-neutral-700 bg-neutral-950 p-1 text-sm text-neutral-300\",children:[u.jsx(\"option\",{value:\"Off\",children:\"Off (continuous)\"}),u.jsx(\"option\",{value:\"Puls 1/4\",children:\"Slow Pulse (1/4)\"}),u.jsx(\"option\",{value:\"Puls 1/8\",children:\"Driving Pulse (1/8)\"}),u.jsx(\"option\",{value:\"Puls 1/16\",children:\"Stutter (1/16)\"}),u.jsx(\"option\",{value:\"Synkope\",children:\"Syncopation (Pattern)\"}),u.jsx(\"option\",{value:\"Custom\",children:\"Custom (16 Step)\"})]})]}),u.jsx(yie,{currentMode:e.droneRhythm,currentCustomSteps:e.droneRhythmCustomSteps??[1,0,0,0,1,0,0,0,1,0,0,0,1,0,0,0],open:p,onToggle:()=>f(b=>!b),onSelectMode:b=>a({droneRhythm:b}),onChangeCustomSteps:b=>a({droneRhythmCustomSteps:b,droneRhythm:\"Custom\"})})]}),u.jsxs(\"div\",{className:\"grid grid-cols-2 gap-2\",children:[u.jsxs(\"div\",{children:[u.jsx(\"label\",{className:\"mb-1 block text-xs text-neutral-400\",children:\"Mycelium / Living Room (shared)\"}),u.jsx(\"button\",{onClick:c,className:`w-full border px-3 py-2 text-sm ${s?\"border-amber-500 bg-amber-900 text-amber-100\":\"border-neutral-700 text-neutral-200 hover:bg-neutral-900\"}`,children:s?\"Disable Mycelium\":\"Enable Mycelium\"})]}),u.jsxs(\"div\",{children:[u.jsx(\"label\",{className:\"mb-1 block text-xs text-neutral-400\",children:\"Mycelium Beat\"}),u.jsx(\"select\",{value:String(l),onChange:b=>d(parseInt(b.target.value,10)),className:\"w-full border border-neutral-700 bg-neutral-950 p-1 text-sm text-neutral-300\",children:Array.from({length:9},(b,g)=>g+1).map(b=>u.jsxs(\"option\",{value:b,children:[b,\" / 16\"]},b))})]})]})]})}\n\nfunction vie({onDronePresetChange:",
+      "count": 1
+    },
+    {
+      "old": "const [workbenchOpen,setWorkbenchOpen]=P.useState(false);",
+      "new": "const [workbenchOpen,setWorkbenchOpen]=P.useState(false);\n if(!__xenDroneIsPilot(e.dronePreset))return u.jsx(__XenLegacyDroneControls,{onDronePresetChange:__chooseDrone,nParamsUI:e,droneVolume:t,setDroneVolume:n,onDroneTimbreChange:r,updateNParams:a,transientDriveUi:o,updateTransientDriveSource:i,myzelEnabled:s,myzelStep16ths:l,toggleMyzelEnabled:c,setMyzelStep16ths:d});",
+      "count": 1
+    },
+    {
+      "old": "myzelEnabled:s,myzelStep16ths:l,toggleMyzelEnabled:c,setMyzelStep16ths:d});",
+      "new": "myzelEnabled:s,myzelStep16ths:l,toggleMyzelEnabled:c,setMyzelStep16ths:d,droneEditorOpen:workbenchOpen,setDroneEditorOpen:setWorkbenchOpen});",
+      "count": 1
+    }
+  ],
+  "src/forge/editor/09_workflow_controls.js": [
+    {
+      "old": "message:error?.message||'Preview unavailable.'})}\n}",
+      "new": "message:error?.message||'Preview unavailable.'})}\n finally{if(ticket===__f333NavigatorPreviewTicket&&!__f333NavigatorPreviewSource)__ForgeNavigatorSample.update({previewing:false,previewBusy:false,previewDurationSec:null});}\n}",
+      "count": 1
+    }
+  ],
+  "src/instruments/05_entrophon_integration.js": [
+    {
+      "old": "const __EntrophonLiveDefinitions=new Map();",
+      "new": "const __EntrophonLiveDefinitions=new Map();\nif(typeof window!=='undefined')window.addEventListener('xensonar:entrophon-library-changed',()=>__EntrophonLiveDefinitions.clear());",
+      "count": 1
+    }
+  ],
+  "src/audio/03_rfl_transport_legacy.js": [
+    {
+      "old": "isDiscarded:q}=e;return async()=>{try{if(q?.(n))return;const f=new Blob(a.current",
+      "new": "isDiscarded:q}=e;const chunks=a.current;return async()=>{try{if(q?.(n))return;const f=new Blob(chunks",
+      "count": 1
+    },
+    {
+      "old": "}catch{l(null);const f=uve();p(b=>({...b,...f}))}finally{eL(\"recording-media-recorder-onstop-completed\")",
+      "new": "}catch{if(q?.(n))return;l(null);const f=uve();p(b=>({...b,...f}))}finally{eL(\"recording-media-recorder-onstop-completed\")",
+      "count": 1
+    },
+    {
+      "old": "isDiscarded:B=>e.discardedRecordersRef?.current?.has(B)",
+      "new": "isDiscarded:B=>x.current!==B||e.discardedRecordersRef?.current?.has(B)",
+      "count": 1
+    }
+  ],
+  "src/runtime/01_instrument_state.js": [
+    {
+      "old": "if(typeof value==='boolean'||typeof value==='string'&&value.length<=64||typeof value==='number'&&Number.isFinite(value))out[key]=value;",
+      "new": "const booleans=['droneSnapToGrid','droneCursorFollow','droneDriveOn'];\n   const strings=['dronePreset','droneRhythm','droneWobbleShape','droneWobbleRate'];\n   if(booleans.includes(key)){if(typeof value==='boolean')out[key]=value;}\n   else if(strings.includes(key)){if(typeof value==='string'&&value.length<=64)out[key]=value;}\n   else if(typeof value==='number'&&Number.isFinite(value))out[key]=value;",
+      "count": 1
+    },
+    {
+      "old": ":id==='fjord_tape'?__XenLegacyDroneStart:undefined;",
+      "new": ":id==='xenpolar_drone'?{dronePreset:id,droneTimbre:.35,droneVibrato:.2,droneFlanger:.12,droneRhythm:'Off'}:id==='fjord_tape'?__XenLegacyDroneStart:undefined;",
+      "count": 1
+    }
+  ],
+  "src/rhythm/03_live_drum_bodies.js": [
+    {
+      "old": "if(!n.__xenRefucktorSubmix||n.__xenRefucktorSubmix.ctx!==ctx){\n    n.__xenRefucktorSubmix=",
+      "new": "if(!n.__xenRefucktorSubmix||n.__xenRefucktorSubmix.ctx!==ctx){\n    if(n.__xenRefucktorSubmix)__xenRefucktorDispose(n);\n    n.__xenRefucktorSubmix=",
+      "count": 1
+    }
+  ],
+  "src/handoff/00_chat_feature_addons.js": [
+    {
+      "old": "for(let k=0;k<16&&anchor>110;k++)anchor/=2;\n  for(let k=0;k<16&&anchor<27.5;k++)anchor*=2;",
+      "new": "const ratio=Math.pow(2,Number(vF(d.resolved))/1200);\n  if(!Number.isFinite(ratio)||ratio<=1)return Number.NaN;\n  for(let k=0;k<64&&anchor>110;k++)anchor/=ratio;\n  for(let k=0;k<64&&anchor<27.5&&anchor*ratio<=110;k++)anchor*=ratio;",
+      "count": 1
+    }
+  ]
+}

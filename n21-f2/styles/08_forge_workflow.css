@@ -152,5 +152,27 @@
    destination row or height in the desktop rack when a selection appears. */
 .f31-play-rack .f31-transport-main>div.f35-tempo-save{position:relative;align-self:stretch;min-width:0}
 .f35-navigator-save-slot{position:absolute;right:0;bottom:3px;height:25px}
+/* Fixed-size name lives to the LEFT of Preview without moving Preview/Save. */
+.f35-navigator-sample-name{position:absolute;right:calc(100% + 4px);top:0;width:102px;height:25px;box-sizing:border-box}
+/* Match Project Name's slight vertical alignment and typography. The label
+   occupies only existing horizontal whitespace; no new toolbar row. */
+.f35-navigator-sample-caption{position:absolute;right:calc(100% + 110px);top:0;height:25px;display:flex;align-items:center;white-space:nowrap;flex-shrink:0;color:#a3a3a3;font-size:9px}
+@media(max-width:1000px){
+ .f35-navigator-save-slot{margin-left:106px}
+}
 @media(min-width:1001px){.f31-play-rack .f34-transport-status{width:min(345px,55%);max-width:345px}}
 @media(max-width:1000px){.f35-navigator-save-slot{position:static;margin-top:4px}.f35-navigator-save-slot:empty{display:none}}
+
+/* P7.3: audibly timed navigator-region scan, compositor transform only. */
+.forge-navigator-region-sweep{
+ position:absolute;inset:0;width:100%;height:100%;pointer-events:none;
+ animation:forge-navigator-region-sweep var(--forge-region-preview-duration,1s) linear both;
+ will-change:transform;
+}
+.forge-navigator-region-playhead{
+ position:absolute;left:-1px;top:0;bottom:0;width:2px;
+ background:linear-gradient(180deg,#f0abfc,#f472b6 52%,#d946ef);
+ box-shadow:0 0 4px 1px rgba(240,171,252,.95),0 0 10px 2px rgba(217,70,239,.55);
+}
+@keyframes forge-navigator-region-sweep{from{transform:translateX(0)}to{transform:translateX(100%)}}
+@media(prefers-reduced-motion:reduce){.forge-navigator-region-sweep{animation:none}}

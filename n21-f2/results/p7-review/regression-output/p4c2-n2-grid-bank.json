@@ -1,0 +1,11 @@
+{
+  "preparedStarts": 2112,
+  "channelSamples": 2174976,
+  "baselineResetTrigonometry": 47520,
+  "preparedResetTrigonometry": 3168,
+  "retainedV1SeedTrigonometry": 3168,
+  "preparedPitchTrigonometry": 0,
+  "gridEntriesPerPlan": 320,
+  "dynamicParticleEntries": 32,
+  "pcm": "bit-identical to P4C2-N1; gliss, custom contour, unknown frequency and release included"
+}

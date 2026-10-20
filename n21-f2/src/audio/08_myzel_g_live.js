@@ -80,14 +80,14 @@ function myzelGUpdate(ctx,refs,request){
   const set=(param,value,seconds=.08)=>param.setTargetAtTime(value,now,seconds);
   if(!active){
     if(g.active){g.active=false;set(g.output.gain,0,.06);g.history.length=0;g.candidate=null;g.gestureEnergy=0;
-      g.ballToneState={};g.lastControls={active:0,rootLevel:0,ballLevel:0,nodeLevel:0,ballToneHz:0,ballToneGate:0,stages:[]};g.worklet?.port.postMessage(g.lastControls);}
+      g.ballToneState={};g.lastControls={active:0,rootLevel:0,ballLevel:0,nodeLevel:0,ballToneLevel:0,ballToneHz:0,ballToneGate:0,stages:[]};g.worklet?.port.postMessage(g.lastControls);}
     refs.activeNodeKey=null;refs.activeNodeLabel=null;refs.activeNodeFreq=0;return;
   }
   // Gate before spatial work. Only the freshest snapshot is used; no catch-up queue.
   if(now-g.lastMessage<.03&&g.active)return;
   const reset=!g.active;if(reset){g.active=true;g.previousContact=0;g.gestureEnergy=0;}
   const s=request.snapshot||{},mix=request.mix||{},root=c(request.rootHz,35,8000),frame=myzelGSpatialFrame(s,root);
-  const rootLevel=c(mix.rootLevel??.62),ballLevel=c(mix.ballLevel??.34),nodeLevel=c(mix.nodeLevel??.78);
+  const rootLevel=c(mix.rootLevel??.62),ballLevel=c(mix.ballLevel??.34),nodeLevel=c(mix.nodeLevel??.78),ballToneLevel=c(mix.ballToneLevel??1);
   const ballTone=__NodalBallGrid.control(s,mix,g.ballToneState??(g.ballToneState={}),now);
   const {stages,contact}=myzelGGesture(g,s,now,dt,request.couplingEnabled,frame,c(mix.decay??.72));
   const motion=c((s.myceliumBallSpeed??0)/13),delta=Math.max(0,contact-(g.previousContact??0));g.previousContact=contact;
@@ -99,16 +99,16 @@ function myzelGUpdate(ctx,refs,request){
   const presence=request.couplingEnabled?c(tone?.weight??(hasSpatial?0:contact)):0;
   const frequency=c(tone?.frequency??(hasSpatial?root:s.nearestNodeFreq??root),35,8000);
   const neighbourFrequency=c(neighbour?.frequency??frequency,35,8000);
-  const level=(rootLevel+ballLevel+nodeLevel)>0?.72:0;
+  const level=((rootLevel+ballLevel)*ballToneLevel+nodeLevel)>0?.72:0;
   const controls={active:1,reset,root,frequency,neighbourFrequency,presence,
     neighbour:request.couplingEnabled?c(neighbour?.weight??0):0,motion,
     brightness:c(s.myzelLocalBrightness??.5),tension:c(s.myzelRelationTension??s.constellationTension??0),
     body:c(s.myzelLocalBody??.6),roughness:c(s.myzelLocalRoughness??0),pan:c((s.cursorNormalizedX??.5)*2-1,-.8,.8),
-    rootLevel,ballLevel,nodeLevel,ballToneHz:ballTone.hz,ballToneGate:ballTone.gate,level,gesture:c(g.gestureEnergy),stages,
+    rootLevel,ballLevel,nodeLevel,ballToneLevel,ballToneHz:ballTone.hz,ballToneGate:ballTone.gate,level,gesture:c(g.gestureEnergy),stages,
     density:frame.density,spread:frame.spread,hollow:frame.hollow,bloom:frame.bloom,
     openness:frame.openness,retention:frame.retention};
   set(g.output.gain,.85,.075);set(g.fallFilter.frequency,c(frequency*(2+frame.openness*5),150,8500),.1);
-  const pitches=[ballTone.hz>0?ballTone.hz:root,root,frequency,neighbourFrequency],levels=[rootLevel*.05*ballTone.gate,ballLevel*(.006+g.gestureEnergy*.08),nodeLevel*presence*.08,nodeLevel*c(neighbour?.weight??0)*.04];
+  const pitches=[ballTone.hz>0?ballTone.hz:root,root,frequency,neighbourFrequency],levels=[rootLevel*.05*ballTone.gate*ballToneLevel,ballLevel*(.006+g.gestureEnergy*.08)*ballToneLevel,nodeLevel*presence*.08,nodeLevel*c(neighbour?.weight??0)*.04];
   g.voices.forEach((v,i)=>{set(v.oscillator.frequency,pitches[i],.065);set(v.amp.gain,levels[i],.065);});
   g.lastControls=controls;g.worklet?.port.postMessage(controls);g.lastMessage=now;
   refs.activeNodeLabel=s.nearestNodeLabel??null;refs.activeNodeKey=s.nearestNodeId??null;refs.activeNodeFreq=frequency;

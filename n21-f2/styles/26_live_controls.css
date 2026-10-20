@@ -39,3 +39,25 @@ body{height:auto;min-height:100vh;overflow:visible}
 .melodic-custom-save,.melodic-custom-save-form button{border:1px solid #4c8b72;border-radius:4px;padding:4px 8px;font-size:11px;color:#b9e9d3;background:#0c241b}.melodic-custom-save-form{display:flex;flex-wrap:wrap;align-items:flex-end;gap:6px}.melodic-custom-save-form label{display:flex;flex-direction:column;gap:3px;font-size:10px}.melodic-custom-save-form input{border:1px solid #46564f;background:#080e0b;color:#e2eee7;padding:4px 6px;max-width:180px}
 
 .xen-quick-hotkey{display:inline-block;width:0;position:relative;left:1px;font-size:8px;line-height:1;color:#525252;pointer-events:none}.xen-quick-hotkey.is-active{color:#4ade80}.xen-quick-tile.is-key-pulse{background:#1c9b52;border-color:#82ffb4;color:#eafff1;transition:none}
+
+/* Nodal: acoustics are independent from the installation visual stage. */
+.nd-modes .nd-sound-toggle{margin-left:.65rem;padding:.65rem 1rem;border:1px solid #3b6267;border-radius:8px;color:#c2e8e4;background:linear-gradient(130deg,#0c2c32,#0b171e);font-size:.78rem;font-weight:650;transition:background .15s,border-color .15s}
+.nd-modes .nd-sound-toggle.is-sounding{border-color:#318f88;box-shadow:inset 0 0 0 1px #134f4a}
+.nd-modes .nd-sound-toggle.is-muted{border-color:#555d68;background:#16191e;color:#9ca6b0}
+.nd-modes .nd-sound-toggle:hover{border-color:#89d3d0}
+.nd-modes .nd-sound-toggle:focus-visible{outline:2px solid #96e9e4;outline-offset:3px}
+/* Main room effects, consolidated without modifying the effects DSP. */
+.xen-effects-rack{border:1px solid #334250;border-radius:12px;background:linear-gradient(130deg,rgba(16,25,33,.98),rgba(9,14,22,.98));overflow:hidden}
+.xen-effects-rack-toggle{width:100%;display:flex;justify-content:space-between;gap:12px;align-items:center;padding:14px 18px;text-align:left;color:#d7e5ea;transition:background .2s}
+.xen-effects-rack-toggle:hover,.xen-effects-rack-toggle:focus-visible{background:rgba(72,141,153,.13);outline-offset:-2px}
+.xen-effects-rack-label{display:flex;align-items:center;gap:12px;min-width:0}
+.xen-effects-rack-icon{display:grid;place-items:center;width:35px;height:35px;flex-shrink:0;border-radius:10px;background:#112d36;color:#8fdce0;font-size:24px}
+.xen-effects-rack-label strong{display:block;font-size:14px;font-weight:700;letter-spacing:.06em}
+.xen-effects-rack-label small{display:block;margin-top:2px;font-size:11px;color:#8396a3;overflow-wrap:anywhere;line-height:1.35}
+.xen-effects-rack-state{display:inline-flex;align-items:center;gap:12px;white-space:nowrap;flex-shrink:0}
+.xen-effects-active-badge{border:1px solid #365969;border-radius:999px;padding:4px 9px;color:#a8d0d1;font-size:11px}
+.xen-effects-chevron{font-size:19px;color:#9ecfd3}
+.xen-effects-rack-content{border-top:1px solid #2a3945;padding:14px;background:rgba(0,0,0,.2)}
+.xen-effects-device{border-radius:8px;border-color:#34434e;background:linear-gradient(140deg,rgba(30,40,50,.83),rgba(12,18,25,.87));min-width:0}
+.xen-effects-device h3{color:#8ec6d2;border-bottom-color:#314750}
+@media(max-width:640px){.xen-effects-rack-toggle{padding:11px}.xen-effects-rack-label small{font-size:10px}.xen-effects-active-badge{font-size:10px}.nd-modes .nd-sound-toggle{margin-left:0}}

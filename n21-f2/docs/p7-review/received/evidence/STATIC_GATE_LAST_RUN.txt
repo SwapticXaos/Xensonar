@@ -1,0 +1,14 @@
+PASS original Refucktor voice is transplanted
+PASS Workbench wobble remains included
+PASS Derived/linked grid exists
+PASS Bass-grid RFL quantization exists
+PASS Keyboard foundation detachment exists
+PASS Left Alt expression action
+PASS Physical B expression action
+PASS Keyboard damping control
+PASS Power-off echo reset
+PASS Drone Workbench persistence
+PASS Forge navigator sample preview
+PASS English grid hover
+PASS Legacy AltGr availability
+PASS exact rebuilt HTML checksum + JavaScript module syntax + 13 scoped static checks

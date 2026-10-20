@@ -1,0 +1,13 @@
+{
+  "entry": "Xensonar_P7_Reviewed_Test.html",
+  "sha256": "d95c86c5d325080a167d1e022fb43243cf6a2db7f04e00e42bed567858e186fa",
+  "bytes": 5699885,
+  "passed": {
+    "host-validation": 34,
+    "browser-validation": 9,
+    "n21-regressions": 65
+  },
+  "merge": "passed",
+  "granular": "passed",
+  "p7_12": "not integrated; failed experimental live expression preserved as evidence"
+}

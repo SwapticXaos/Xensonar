@@ -1,0 +1,1019 @@
+{
+  "format": "xensonar-source-span-patch-v1",
+  "order": 13,
+  "id": "P7_5_FORGE_MAGNIFIED_SAMPLE_HANDLES",
+  "basis": "P7.3 established source; stages 12/13 remain separate",
+  "previous_html_sha256": "63c330c3d683a77af86c7ce600ae76d8a5a462dac4ef243c302f896e18f7d888",
+  "result_html_sha256": "05b2fb522db77a5995769815c294f266901b9c81d7d1b498fbbbc2d02a0b5ccc",
+  "result_html_bytes": 5682538,
+  "files": [
+    {
+      "path": "src/forge/editor/01_display_and_canvas.js",
+      "before_sha256": "8ccb9f897b7f1a71afd8cbe6a64f5b47662c5c459928d40a25f5e701427b136e",
+      "after_sha256": "8d691927609a0b71f7fbea553a0ae854a7187a42a7702ce3aad3b0820c9be1cc",
+      "before_chars": 50435,
+      "after_chars": 54470,
+      "edits": [
+        {
+          "at": 19517,
+          "delete": 0,
+          "insert": "/* P7.5: the SAME Navigator sample edges in the magnified Forge painting area.\n   No secondary selection state, no filled area and no audio/RAF work. */\nfunction __f375ForgeSelectionMainPixel(fraction,geometry){\n if(!geometry||!Number.isFinite(fraction)||!Number.isFinite(geometry.width)||geometry.width<=0||\n    !Number.isFinite(geometry.zoomX)||geometry.zoomX<=0||!Number.isFinite(geometry.offsetX)||\n    !Number.isFinite(geometry.rectWidth)||geometry.rectWidth<=0)return null;\n const canvasWidth=Number.isFinite(geometry.canvasWidth)&&geometry.canvasWidth>0?geometry.canvasWidth:geometry.rectWidth;\n const pixel=(fraction*geometry.width-geometry.offsetX)*geometry.zoomX*geometry.rectWidth/canvasWidth;\n return pixel>=0&&pixel<=geometry.rectWidth?pixel:null;\n}\nfunction __f375ForgeMainSelectionHandles({mainCanvasRef,spectralWidth,viewPort}){\n const snapshot=P.useSyncExternalStore(__ForgeNavigatorSample.subscribe,__ForgeNavigatorSample.snapshot,__ForgeNavigatorSample.snapshot);\n const selected=__ForgeNavigatorSample.current(),dragCleanup=P.useRef(null);\n P.useEffect(()=>()=>{dragCleanup.current?.();dragCleanup.current=null},[]);\n if(!selected||!Number.isFinite(spectralWidth)||spectralWidth<=0)return null;\n const canvas=mainCanvasRef.current,rect=canvas?.getBoundingClientRect?.();\n if(!canvas||!rect||rect.width<=0)return null;\n const geom={width:spectralWidth,zoomX:viewPort.zoomX,offsetX:viewPort.offsetX,rectWidth:rect.width,canvasWidth:canvas.width};\n const start=__f375ForgeSelectionMainPixel(selected.start,geom),end=__f375ForgeSelectionMainPixel(selected.end,geom);\n const makeHandle=(edge,position)=>{\n  if(position===null)return null;\n  const beginDrag=event=>{\n   if(event.button!==0)return;\n   event.preventDefault();event.stopPropagation();\n   dragCleanup.current?.();\n   const initial=__ForgeNavigatorSample.current();if(!initial)return;\n   const fixed=edge==='selection-left'?initial.end:initial.start;\n   const onMove=pointer=>{\n    const c=mainCanvasRef.current,box=c?.getBoundingClientRect?.();if(!c||!box||box.width<=0)return;\n    const x=Math.max(0,Math.min(box.width,pointer.clientX-box.left));\n    const dataX=viewPort.offsetX+x*c.width/box.width/Math.max(.00001,viewPort.zoomX);\n    const fraction=Math.max(0,Math.min(1,dataX/spectralWidth));\n    const span=__f333NavigatorSampleResize(edge,fixed,fraction);\n    __ForgeNavigatorSample.select(span.start,span.end);\n   };\n   const done=()=>{dragCleanup.current?.();dragCleanup.current=null};\n   const onBlur=()=>done();\n   const cleanup=()=>{window.removeEventListener('mousemove',onMove);window.removeEventListener('mouseup',done);window.removeEventListener('blur',onBlur)};\n   dragCleanup.current=cleanup;\n   window.addEventListener('mousemove',onMove);window.addEventListener('mouseup',done);window.addEventListener('blur',onBlur);\n  };\n  return u.jsxs('div',{\n   ...(edge==='selection-left'?{'data-forge-main-sample-start':true}:{'data-forge-main-sample-end':true}),\n   'aria-label':edge==='selection-left'?'Trim sample start':'Trim sample end',\n   title:edge==='selection-left'?'Drag violet triangle to trim sample start':'Drag violet triangle to trim sample end',\n   style:{position:'absolute',top:0,bottom:0,left:position+'px',width:'14px',transform:'translateX(-50%)',cursor:'ew-resize',zIndex:30,touchAction:'none'},onMouseDown:beginDrag,\n   children:[\n    u.jsx('span',{style:{pointerEvents:'none',position:'absolute',left:'50%',top:0,bottom:0,width:'1px',transform:'translateX(-50%)',background:'rgba(192,132,252,.9)'}}),\n    u.jsx('span',{style:{pointerEvents:'none',position:'absolute',left:'50%',top:0,transform:'translateX(-50%)',width:0,height:0,borderLeft:'5px solid transparent',borderRight:'5px solid transparent',borderTop:'8px solid #d8a0f5'}})\n   ]\n  });\n };\n return u.jsxs(P.Fragment,{children:[makeHandle('selection-left',start),makeHandle('selection-right',end)]});\n}\n"
+        },
+        {
+          "at": 20449,
+          "delete": 38,
+          "insert": "Violet selection edges trim the sample, also via the matching triangles and lines above the magnified painting"
+        },
+        {
+          "at": 50070,
+          "delete": 0,
+          "insert": "__f375ForgeMainSelectionHandles,{mainCanvasRef:r,spectralWidth:M.width,viewPort:v}),u.jsx("
+        }
+      ]
+    },
+    {
+      "path": "tests/p7_5_forge_main_handles.cjs",
+      "before_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "after_sha256": "c020b57401f72629536d15ff7f156ff02cfbdf1b9e2dc4bdb98a1cd3a7b3cdf5",
+      "before_chars": 0,
+      "after_chars": 1692,
+      "edits": [
+        {
+          "at": 0,
+          "delete": 0,
+          "insert": "'use strict';\nconst fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/strict');\nconst root=process.argv[2]||'/mnt/data/P7_4_KEYBOARD_CURSOR/n21-f2';\nconst s=fs.readFileSync(root+'/src/forge/editor/01_display_and_canvas.js','utf8');\nfunction extract(name){const i=s.indexOf('function '+name+'(');assert(i>=0,`missing ${name}`);const rest=s.slice(i);const st=rest.indexOf('{');let level=0;for(let j=st;j<rest.length;j++){if(rest[j]==='{')level++;else if(rest[j]==='}'&&!--level)return rest.slice(0,j+1)}throw Error('unterminated '+name)}\nconst c={};vm.createContext(c);vm.runInContext(extract('__f375ForgeSelectionMainPixel')+';this.map=__f375ForgeSelectionMainPixel;',c);\nconst map=c.map;\n// Visible viewport: data positions [200, 700) in a 1000-cell carrier, zoom=2 in a 1000px main canvas.\nconst input={width:1000,zoomX:2,offsetX:200,rectWidth:1000};\nassert.equal(map(.2,input),0);assert.equal(map(.7,input),1000);assert.equal(map(.45,input),500);\nassert.equal(map(.1,input),null,'offscreen left boundary should be hidden');\nassert.equal(map(.8,input),null,'offscreen right boundary should be hidden');\nassert.equal(map(.75,{width:1000,zoomX:1,offsetX:0,rectWidth:500,canvasWidth:1000}),375);\nassert(s.includes('data-forge-main-sample-start'),'missing purple start marker');\nassert(s.includes('data-forge-main-sample-end'),'missing purple end marker');\nassert(s.includes('__ForgeNavigatorSample.select(span.start,span.end)'),'main drag must update same Navigator sample owner');\nassert(s.includes('onMouseDown:beginDrag'),'start/end line or triangle must be draggable');\nconsole.log('PASS P7.5 Forge main canvas synchronized purple boundary handles and zoom mapping');\n"
+        }
+      ],
+      "new_file": true
+    },
+    {
+      "path": "source-index.json",
+      "before_sha256": "6f68188ee9a23d61c81320cb918af50112e5a795301f770f0dd84323b335f3c0",
+      "after_sha256": "b3adbcca45de32aae5fca785266c4a00468cd0640779ab19015c936291782308",
+      "before_chars": 970982,
+      "after_chars": 971258,
+      "edits": [
+        {
+          "at": 427557,
+          "delete": 2,
+          "insert": "42"
+        },
+        {
+          "at": 427667,
+          "delete": 2,
+          "insert": "42"
+        },
+        {
+          "at": 427777,
+          "delete": 2,
+          "insert": "42"
+        },
+        {
+          "at": 427887,
+          "delete": 2,
+          "insert": "42"
+        },
+        {
+          "at": 427997,
+          "delete": 2,
+          "insert": "42"
+        },
+        {
+          "at": 428107,
+          "delete": 2,
+          "insert": "42"
+        },
+        {
+          "at": 428217,
+          "delete": 2,
+          "insert": "42"
+        },
+        {
+          "at": 428327,
+          "delete": 2,
+          "insert": "42"
+        },
+        {
+          "at": 428437,
+          "delete": 2,
+          "insert": "42"
+        },
+        {
+          "at": 428547,
+          "delete": 2,
+          "insert": "42"
+        },
+        {
+          "at": 428657,
+          "delete": 2,
+          "insert": "42"
+        },
+        {
+          "at": 428767,
+          "delete": 2,
+          "insert": "42"
+        },
+        {
+          "at": 428877,
+          "delete": 2,
+          "insert": "42"
+        },
+        {
+          "at": 428987,
+          "delete": 2,
+          "insert": "42"
+        },
+        {
+          "at": 429097,
+          "delete": 2,
+          "insert": "42"
+        },
+        {
+          "at": 429207,
+          "delete": 2,
+          "insert": "42"
+        },
+        {
+          "at": 429317,
+          "delete": 2,
+          "insert": "42"
+        },
+        {
+          "at": 429427,
+          "delete": 2,
+          "insert": "42"
+        },
+        {
+          "at": 429537,
+          "delete": 2,
+          "insert": "46"
+        },
+        {
+          "at": 429647,
+          "delete": 2,
+          "insert": "46"
+        },
+        {
+          "at": 429757,
+          "delete": 2,
+          "insert": "46"
+        },
+        {
+          "at": 429867,
+          "delete": 2,
+          "insert": "46"
+        },
+        {
+          "at": 429977,
+          "delete": 2,
+          "insert": "46"
+        },
+        {
+          "at": 430087,
+          "delete": 2,
+          "insert": "46"
+        },
+        {
+          "at": 430197,
+          "delete": 2,
+          "insert": "50"
+        },
+        {
+          "at": 430307,
+          "delete": 2,
+          "insert": "50"
+        },
+        {
+          "at": 430417,
+          "delete": 2,
+          "insert": "50"
+        },
+        {
+          "at": 430527,
+          "delete": 2,
+          "insert": "50"
+        },
+        {
+          "at": 430636,
+          "delete": 2,
+          "insert": "50"
+        },
+        {
+          "at": 430746,
+          "delete": 2,
+          "insert": "50"
+        },
+        {
+          "at": 430856,
+          "delete": 2,
+          "insert": "50"
+        },
+        {
+          "at": 430965,
+          "delete": 2,
+          "insert": "53"
+        },
+        {
+          "at": 431075,
+          "delete": 2,
+          "insert": "53"
+        },
+        {
+          "at": 431198,
+          "delete": 2,
+          "insert": "55"
+        },
+        {
+          "at": 431308,
+          "delete": 2,
+          "insert": "62"
+        },
+        {
+          "at": 431418,
+          "delete": 2,
+          "insert": "70"
+        },
+        {
+          "at": 431528,
+          "delete": 2,
+          "insert": "70"
+        },
+        {
+          "at": 431638,
+          "delete": 2,
+          "insert": "70"
+        },
+        {
+          "at": 431748,
+          "delete": 2,
+          "insert": "70"
+        },
+        {
+          "at": 431858,
+          "delete": 2,
+          "insert": "70"
+        },
+        {
+          "at": 431968,
+          "delete": 2,
+          "insert": "70"
+        },
+        {
+          "at": 432077,
+          "delete": 3,
+          "insert": "504"
+        },
+        {
+          "at": 432187,
+          "delete": 3,
+          "insert": "504"
+        },
+        {
+          "at": 432297,
+          "delete": 3,
+          "insert": "504"
+        },
+        {
+          "at": 432407,
+          "delete": 3,
+          "insert": "504"
+        },
+        {
+          "at": 432516,
+          "delete": 3,
+          "insert": "504"
+        },
+        {
+          "at": 432626,
+          "delete": 3,
+          "insert": "504"
+        },
+        {
+          "at": 432736,
+          "delete": 3,
+          "insert": "504"
+        },
+        {
+          "at": 432846,
+          "delete": 3,
+          "insert": "504"
+        },
+        {
+          "at": 432956,
+          "delete": 3,
+          "insert": "504"
+        },
+        {
+          "at": 433066,
+          "delete": 3,
+          "insert": "504"
+        },
+        {
+          "at": 433175,
+          "delete": 3,
+          "insert": "504"
+        },
+        {
+          "at": 433285,
+          "delete": 3,
+          "insert": "504"
+        },
+        {
+          "at": 433395,
+          "delete": 3,
+          "insert": "504"
+        },
+        {
+          "at": 433505,
+          "delete": 3,
+          "insert": "504"
+        },
+        {
+          "at": 433615,
+          "delete": 3,
+          "insert": "504"
+        },
+        {
+          "at": 433725,
+          "delete": 3,
+          "insert": "504"
+        },
+        {
+          "at": 433835,
+          "delete": 3,
+          "insert": "504"
+        },
+        {
+          "at": 433945,
+          "delete": 3,
+          "insert": "504"
+        },
+        {
+          "at": 434055,
+          "delete": 3,
+          "insert": "504"
+        },
+        {
+          "at": 434164,
+          "delete": 3,
+          "insert": "504"
+        },
+        {
+          "at": 434274,
+          "delete": 3,
+          "insert": "504"
+        },
+        {
+          "at": 434383,
+          "delete": 3,
+          "insert": "504"
+        },
+        {
+          "at": 434492,
+          "delete": 3,
+          "insert": "504"
+        },
+        {
+          "at": 434602,
+          "delete": 3,
+          "insert": "504"
+        },
+        {
+          "at": 434712,
+          "delete": 3,
+          "insert": "504"
+        },
+        {
+          "at": 434821,
+          "delete": 3,
+          "insert": "504"
+        },
+        {
+          "at": 434931,
+          "delete": 3,
+          "insert": "504"
+        },
+        {
+          "at": 435040,
+          "delete": 3,
+          "insert": "504"
+        },
+        {
+          "at": 435150,
+          "delete": 3,
+          "insert": "504"
+        },
+        {
+          "at": 435259,
+          "delete": 3,
+          "insert": "504"
+        },
+        {
+          "at": 435369,
+          "delete": 3,
+          "insert": "504"
+        },
+        {
+          "at": 435479,
+          "delete": 3,
+          "insert": "504"
+        },
+        {
+          "at": 435590,
+          "delete": 2,
+          "insert": "12"
+        },
+        {
+          "at": 435700,
+          "delete": 2,
+          "insert": "12"
+        },
+        {
+          "at": 435810,
+          "delete": 2,
+          "insert": "12"
+        },
+        {
+          "at": 435919,
+          "delete": 2,
+          "insert": "12"
+        },
+        {
+          "at": 436029,
+          "delete": 2,
+          "insert": "12"
+        },
+        {
+          "at": 436139,
+          "delete": 2,
+          "insert": "12"
+        },
+        {
+          "at": 436249,
+          "delete": 2,
+          "insert": "12"
+        },
+        {
+          "at": 436359,
+          "delete": 2,
+          "insert": "12"
+        },
+        {
+          "at": 436469,
+          "delete": 2,
+          "insert": "12"
+        },
+        {
+          "at": 436579,
+          "delete": 2,
+          "insert": "12"
+        },
+        {
+          "at": 436689,
+          "delete": 2,
+          "insert": "12"
+        },
+        {
+          "at": 436799,
+          "delete": 2,
+          "insert": "12"
+        },
+        {
+          "at": 436909,
+          "delete": 2,
+          "insert": "12"
+        },
+        {
+          "at": 437019,
+          "delete": 2,
+          "insert": "12"
+        },
+        {
+          "at": 437129,
+          "delete": 2,
+          "insert": "12"
+        },
+        {
+          "at": 437239,
+          "delete": 2,
+          "insert": "21"
+        },
+        {
+          "at": 437349,
+          "delete": 2,
+          "insert": "21"
+        },
+        {
+          "at": 437458,
+          "delete": 2,
+          "insert": "21"
+        },
+        {
+          "at": 437568,
+          "delete": 2,
+          "insert": "21"
+        },
+        {
+          "at": 437677,
+          "delete": 2,
+          "insert": "21"
+        },
+        {
+          "at": 437786,
+          "delete": 2,
+          "insert": "21"
+        },
+        {
+          "at": 437896,
+          "delete": 2,
+          "insert": "21"
+        },
+        {
+          "at": 438005,
+          "delete": 2,
+          "insert": "21"
+        },
+        {
+          "at": 438115,
+          "delete": 2,
+          "insert": "21"
+        },
+        {
+          "at": 438224,
+          "delete": 2,
+          "insert": "21"
+        },
+        {
+          "at": 438334,
+          "delete": 2,
+          "insert": "21"
+        },
+        {
+          "at": 438444,
+          "delete": 2,
+          "insert": "21"
+        },
+        {
+          "at": 438554,
+          "delete": 2,
+          "insert": "21"
+        },
+        {
+          "at": 438663,
+          "delete": 2,
+          "insert": "21"
+        },
+        {
+          "at": 438773,
+          "delete": 2,
+          "insert": "21"
+        },
+        {
+          "at": 438882,
+          "delete": 2,
+          "insert": "21"
+        },
+        {
+          "at": 438991,
+          "delete": 2,
+          "insert": "21"
+        },
+        {
+          "at": 439100,
+          "delete": 2,
+          "insert": "21"
+        },
+        {
+          "at": 439209,
+          "delete": 2,
+          "insert": "21"
+        },
+        {
+          "at": 439319,
+          "delete": 2,
+          "insert": "21"
+        },
+        {
+          "at": 439428,
+          "delete": 2,
+          "insert": "21"
+        },
+        {
+          "at": 439537,
+          "delete": 2,
+          "insert": "21"
+        },
+        {
+          "at": 439647,
+          "delete": 2,
+          "insert": "21"
+        },
+        {
+          "at": 439757,
+          "delete": 2,
+          "insert": "21"
+        },
+        {
+          "at": 439867,
+          "delete": 2,
+          "insert": "21"
+        },
+        {
+          "at": 439976,
+          "delete": 2,
+          "insert": "21"
+        },
+        {
+          "at": 440085,
+          "delete": 2,
+          "insert": "21"
+        },
+        {
+          "at": 440195,
+          "delete": 2,
+          "insert": "21"
+        },
+        {
+          "at": 440305,
+          "delete": 2,
+          "insert": "21"
+        },
+        {
+          "at": 440414,
+          "delete": 2,
+          "insert": "21"
+        },
+        {
+          "at": 440523,
+          "delete": 2,
+          "insert": "21"
+        },
+        {
+          "at": 440633,
+          "delete": 2,
+          "insert": "21"
+        },
+        {
+          "at": 440743,
+          "delete": 2,
+          "insert": "21"
+        },
+        {
+          "at": 440852,
+          "delete": 2,
+          "insert": "21"
+        },
+        {
+          "at": 440962,
+          "delete": 2,
+          "insert": "21"
+        },
+        {
+          "at": 441072,
+          "delete": 2,
+          "insert": "21"
+        },
+        {
+          "at": 441181,
+          "delete": 2,
+          "insert": "21"
+        },
+        {
+          "at": 441290,
+          "delete": 2,
+          "insert": "21"
+        },
+        {
+          "at": 441400,
+          "delete": 2,
+          "insert": "21"
+        },
+        {
+          "at": 441510,
+          "delete": 2,
+          "insert": "21"
+        },
+        {
+          "at": 441620,
+          "delete": 2,
+          "insert": "21"
+        },
+        {
+          "at": 441730,
+          "delete": 2,
+          "insert": "21"
+        },
+        {
+          "at": 441840,
+          "delete": 2,
+          "insert": "21"
+        },
+        {
+          "at": 441949,
+          "delete": 2,
+          "insert": "21"
+        },
+        {
+          "at": 442059,
+          "delete": 2,
+          "insert": "21"
+        },
+        {
+          "at": 442169,
+          "delete": 2,
+          "insert": "21"
+        },
+        {
+          "at": 442279,
+          "delete": 2,
+          "insert": "21"
+        },
+        {
+          "at": 442388,
+          "delete": 2,
+          "insert": "12"
+        },
+        {
+          "at": 442498,
+          "delete": 2,
+          "insert": "12"
+        },
+        {
+          "at": 442608,
+          "delete": 2,
+          "insert": "12"
+        },
+        {
+          "at": 442718,
+          "delete": 2,
+          "insert": "12"
+        },
+        {
+          "at": 442828,
+          "delete": 2,
+          "insert": "12"
+        },
+        {
+          "at": 442938,
+          "delete": 2,
+          "insert": "12"
+        },
+        {
+          "at": 443048,
+          "delete": 2,
+          "insert": "12"
+        },
+        {
+          "at": 443158,
+          "delete": 2,
+          "insert": "12"
+        },
+        {
+          "at": 443268,
+          "delete": 2,
+          "insert": "13"
+        },
+        {
+          "at": 443377,
+          "delete": 2,
+          "insert": "13"
+        },
+        {
+          "at": 443487,
+          "delete": 2,
+          "insert": "13"
+        },
+        {
+          "at": 443597,
+          "delete": 2,
+          "insert": "13"
+        },
+        {
+          "at": 443707,
+          "delete": 2,
+          "insert": "13"
+        },
+        {
+          "at": 443817,
+          "delete": 2,
+          "insert": "13"
+        },
+        {
+          "at": 443944,
+          "delete": 2,
+          "insert": "13"
+        },
+        {
+          "at": 444070,
+          "delete": 2,
+          "insert": "14"
+        },
+        {
+          "at": 444198,
+          "delete": 2,
+          "insert": "15"
+        },
+        {
+          "at": 444308,
+          "delete": 2,
+          "insert": "22"
+        },
+        {
+          "at": 444418,
+          "delete": 2,
+          "insert": "22"
+        },
+        {
+          "at": 444528,
+          "delete": 2,
+          "insert": "22"
+        },
+        {
+          "at": 444638,
+          "delete": 2,
+          "insert": "22"
+        },
+        {
+          "at": 444748,
+          "delete": 2,
+          "insert": "22"
+        },
+        {
+          "at": 444858,
+          "delete": 2,
+          "insert": "22"
+        },
+        {
+          "at": 444968,
+          "delete": 2,
+          "insert": "22"
+        },
+        {
+          "at": 445078,
+          "delete": 2,
+          "insert": "22"
+        },
+        {
+          "at": 445188,
+          "delete": 2,
+          "insert": "22"
+        },
+        {
+          "at": 445298,
+          "delete": 2,
+          "insert": "22"
+        },
+        {
+          "at": 445408,
+          "delete": 2,
+          "insert": "22"
+        },
+        {
+          "at": 445517,
+          "delete": 2,
+          "insert": "22"
+        },
+        {
+          "at": 445627,
+          "delete": 2,
+          "insert": "22"
+        },
+        {
+          "at": 445737,
+          "delete": 2,
+          "insert": "36"
+        },
+        {
+          "at": 445847,
+          "delete": 2,
+          "insert": "48"
+        },
+        {
+          "at": 445957,
+          "delete": 2,
+          "insert": "48"
+        },
+        {
+          "at": 446067,
+          "delete": 2,
+          "insert": "48"
+        },
+        {
+          "at": 446176,
+          "delete": 2,
+          "insert": "48"
+        },
+        {
+          "at": 446286,
+          "delete": 2,
+          "insert": "48"
+        },
+        {
+          "at": 547542,
+          "delete": 0,
+          "insert": "      \"name\": \"__f375ForgeSelectionMainPixel\",\n      \"file\": \"src/forge/editor/01_display_and_canvas.js\",\n      \"line\": 161\n    },\n    {\n      \"name\": \"__f375ForgeMainSelectionHandles\",\n      \"file\": \"src/forge/editor/01_display_and_canvas.js\",\n      \"line\": 169\n    },\n    {\n"
+        },
+        {
+          "at": 547636,
+          "delete": 3,
+          "insert": "213"
+        },
+        {
+          "at": 547747,
+          "delete": 3,
+          "insert": "222"
+        },
+        {
+          "at": 547858,
+          "delete": 3,
+          "insert": "222"
+        },
+        {
+          "at": 547968,
+          "delete": 3,
+          "insert": "222"
+        },
+        {
+          "at": 548078,
+          "delete": 3,
+          "insert": "222"
+        },
+        {
+          "at": 548189,
+          "delete": 3,
+          "insert": "222"
+        },
+        {
+          "at": 548300,
+          "delete": 3,
+          "insert": "222"
+        },
+        {
+          "at": 548410,
+          "delete": 3,
+          "insert": "222"
+        },
+        {
+          "at": 548521,
+          "delete": 3,
+          "insert": "222"
+        },
+        {
+          "at": 548631,
+          "delete": 3,
+          "insert": "222"
+        },
+        {
+          "at": 548742,
+          "delete": 3,
+          "insert": "222"
+        },
+        {
+          "at": 548853,
+          "delete": 3,
+          "insert": "222"
+        },
+        {
+          "at": 548964,
+          "delete": 3,
+          "insert": "222"
+        },
+        {
+          "at": 549075,
+          "delete": 3,
+          "insert": "222"
+        },
+        {
+          "at": 549186,
+          "delete": 3,
+          "insert": "223"
+        },
+        {
+          "at": 549325,
+          "delete": 3,
+          "insert": "226"
+        },
+        {
+          "at": 549463,
+          "delete": 3,
+          "insert": "237"
+        },
+        {
+          "at": 549574,
+          "delete": 3,
+          "insert": "242"
+        },
+        {
+          "at": 549704,
+          "delete": 2,
+          "insert": "54"
+        },
+        {
+          "at": 549815,
+          "delete": 2,
+          "insert": "66"
+        }
+      ]
+    }
+  ]
+}

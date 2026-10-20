@@ -1,0 +1,32 @@
+
+> xensonar-p4c2-n21-f2-merged@4.4.8-p4c2-n21-f2 test:merge
+> node tests/n21-f2-preservation.cjs && node tests/forge_save_play_symmetry.cjs && node tests/forge_play_ready_save_regression.cjs && node tests/p4c2-n20-navigation.cjs && node tests/p4c2-n21-length-control.cjs && node tests/p4c2-n21-quickdock.cjs && node build.cjs --verify
+
+node:assert:95
+  throw new AssertionError(obj);
+  ^
+
+AssertionError [ERR_ASSERTION]: all other synthesis, ball motion, resident behavior, main grid and UI preserved: src/nodal/07_sound_designer.js
++ actual - expected
+
++ '2bdefec715f85296d4c8f19b90b63e785fbf8e2d37ce23f26537c07cf4b70ad0'
+- '854ec5072d1ce8c690393a83244773d803eb4270404940183cb43e63c8753e0c'
+
+    at Object.<anonymous> (/mnt/data/P7_2_FRESH_REPLAY/n21-f2/tests/nodal-ball-grid-preservation.cjs:9:9)
+    at Module._compile (node:internal/modules/cjs/loader:1730:14)
+    at Object..js (node:internal/modules/cjs/loader:1895:10)
+    at Module.load (node:internal/modules/cjs/loader:1465:32)
+    at Function._load (node:internal/modules/cjs/loader:1282:12)
+    at TracingChannel.traceSync (node:diagnostics_channel:322:14)
+    at wrapModuleLoad (node:internal/modules/cjs/loader:235:24)
+    at Module.require (node:internal/modules/cjs/loader:1487:12)
+    at require (node:internal/modules/helpers:135:16)
+    at Object.<anonymous> (/mnt/data/P7_2_FRESH_REPLAY/n21-f2/tests/nodal-ball-grid-compat.cjs:2:1) {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: '2bdefec715f85296d4c8f19b90b63e785fbf8e2d37ce23f26537c07cf4b70ad0',
+  expected: '854ec5072d1ce8c690393a83244773d803eb4270404940183cb43e63c8753e0c',
+  operator: 'strictEqual'
+}
+
+Node.js v22.16.0

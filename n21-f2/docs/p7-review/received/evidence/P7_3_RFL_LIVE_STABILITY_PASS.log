@@ -1,0 +1,26 @@
+
+> xensonar-p4c2-n21-f2-merged@4.4.8-p4c2-n21-f2 test:live-stability
+> node tests/live-rfl-boundaries.cjs && node tests/live-rfl-fallback.cjs && node tests/live-rfl-lifecycle.cjs && node tests/live-rfl-preparation.cjs
+
+{"mode":"base","rate":44100,"baseline":{"peak":4.707675457000732,"jump":0.49378716945648193,"outside":3411},"current":{"peak":0,"jump":0,"outside":0}}
+{"mode":"base","rate":48000,"baseline":{"peak":4.5972795486450195,"jump":0.4760704040527344,"outside":3247},"current":{"peak":0,"jump":0,"outside":0}}
+{"mode":"base","rate":96000,"baseline":{"peak":3.8174490928649902,"jump":0.4979236125946045,"outside":6788},"current":{"peak":0,"jump":0,"outside":0}}
+{"mode":"fragment","rate":44100,"baseline":{"peak":5.658315658569336,"jump":0.49806690216064453,"outside":4065},"current":{"peak":0,"jump":0,"outside":0}}
+{"mode":"fragment","rate":48000,"baseline":{"peak":5.442440986633301,"jump":0.4964022636413574,"outside":3827},"current":{"peak":0,"jump":0,"outside":0}}
+{"mode":"fragment","rate":96000,"baseline":{"peak":4.5473198890686035,"jump":0.49875640869140625,"outside":8185},"current":{"peak":0,"jump":0,"outside":0}}
+PASS live RFL crop boundaries: both render modes, root changes, 44.1/48/96kHz; excluded transients remain silent
+{"mode":"flowing","hz":110,"grains":39,"outside":0,"tooShort":0}
+{"mode":"flowing","hz":220,"grains":36,"outside":0,"tooShort":0}
+{"mode":"flowing","hz":880,"grains":40,"outside":0,"tooShort":0}
+{"mode":"fragment","hz":110,"grains":52,"outside":0,"tooShort":0}
+{"mode":"fragment","hz":220,"grains":49,"outside":0,"tooShort":0}
+{"mode":"fragment","hz":880,"grains":52,"outside":0,"tooShort":0}
+PASS RFL native fallback crop and fade durations at changing roots
+{"rate":44100,"mode":"base","rootMessages":1550,"maxWindows":1,"skippedWindows":115,"peak":0.5459728837013245,"tailReleased":true}
+{"rate":44100,"mode":"fragment","rootMessages":1550,"maxWindows":1,"skippedWindows":115,"peak":1.198411226272583,"tailReleased":true}
+{"rate":48000,"mode":"base","rootMessages":1550,"maxWindows":1,"skippedWindows":115,"peak":0.5459033250808716,"tailReleased":true}
+{"rate":48000,"mode":"fragment","rootMessages":1550,"maxWindows":1,"skippedWindows":115,"peak":1.1153439283370972,"tailReleased":true}
+{"rate":96000,"mode":"base","rootMessages":1550,"maxWindows":1,"skippedWindows":114,"peak":0.5697279572486877,"tailReleased":true}
+{"rate":96000,"mode":"fragment","rootMessages":1550,"maxWindows":1,"skippedWindows":114,"peak":0.9831255674362183,"tailReleased":true}
+PASS RFL lifecycle: rapid/stale/invalid root updates, sample-rate mismatch, clock gaps, 128/256-frame quanta and complete tail release
+PASS fragment worker extraction: all six cut-map arrays byte-identical in mono/stereo at 44.1/48/96kHz

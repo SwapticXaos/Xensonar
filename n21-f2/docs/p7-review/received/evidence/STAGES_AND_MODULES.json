@@ -1,0 +1,488 @@
+[
+  {
+    "number": "00",
+    "name": "BASE_BRIDGE_UI_CLEANUP",
+    "input_sha256": "e8e63ffe8703fbe3ed683603e880c5e5b8a2970f04cf620e0ed291e98313884d",
+    "result_sha256": "a863fbd2446cb0f249b74b0aef58bf825c82f9ebba189f53a44e9989ac86caf6",
+    "target_artifact": "XenSonar_N21_F2_Nodal_Installation_UI_Cleanup_Test.html",
+    "patch_name": "00_BASE_BRIDGE_UI_CLEANUP.xpatch.json",
+    "paths_changed": 10,
+    "insert_chars": 7897,
+    "remove_chars": 2516,
+    "patch_bytes": 12478,
+    "files": [
+      [
+        "src/app/forge/01_room_shell.js",
+        5,
+        608,
+        201
+      ],
+      [
+        "src/audio/01_voice_and_rfl_ownership.js",
+        4,
+        131,
+        18
+      ],
+      [
+        "src/audio/08_myzel_g_live.js",
+        5,
+        163,
+        51
+      ],
+      [
+        "src/audio/09_myzel_g_dsp.js",
+        2,
+        115,
+        67
+      ],
+      [
+        "src/nodal/07_sound_designer.js",
+        3,
+        1799,
+        710
+      ],
+      [
+        "src/nodal/13_installation_ball_grid.js",
+        3,
+        924,
+        685
+      ],
+      [
+        "src/rhythm/02_bass_and_rack.js",
+        5,
+        421,
+        67
+      ],
+      [
+        "src/runtime/instrument/08_library_and_tuning_editor.js",
+        3,
+        88,
+        611
+      ],
+      [
+        "src/runtime/instrument/09_monitoring_and_manual_patterns.js",
+        6,
+        1225,
+        106
+      ],
+      [
+        "styles/26_live_controls.css",
+        1,
+        2423,
+        0
+      ]
+    ]
+  },
+  {
+    "number": "01",
+    "name": "REFUCKTOR_ORIGINAL_ENGINE",
+    "input_sha256": "a863fbd2446cb0f249b74b0aef58bf825c82f9ebba189f53a44e9989ac86caf6",
+    "result_sha256": "11a640eb4ae665b7b5d00b26e74b6bb9495a430864b2bbf48ad7de7037e3fb7f",
+    "target_artifact": "XenSonar_N21_F2_Refucktor_Drone_OriginalEngine_Transplant_P2.html",
+    "patch_name": "01_REFUCKTOR_ORIGINAL_ENGINE.xpatch.json",
+    "paths_changed": 6,
+    "insert_chars": 15732,
+    "remove_chars": 7804,
+    "patch_bytes": 18438,
+    "files": [
+      [
+        "src/app/forge/01_room_shell.js",
+        1,
+        27,
+        0
+      ],
+      [
+        "src/audio/entrophon/02_worklet_and_voice_backend.js",
+        3,
+        804,
+        214
+      ],
+      [
+        "src/rhythm/03_live_drum_bodies.js",
+        2,
+        9570,
+        151
+      ],
+      [
+        "src/runtime/01_instrument_state.js",
+        1,
+        647,
+        307
+      ],
+      [
+        "src/runtime/instrument/09_monitoring_and_manual_patterns.js",
+        1,
+        4639,
+        7095
+      ],
+      [
+        "template/head.html",
+        1,
+        45,
+        37
+      ]
+    ]
+  },
+  {
+    "number": "02",
+    "name": "DRONE_WORKBENCH_WOBBLE",
+    "input_sha256": "11a640eb4ae665b7b5d00b26e74b6bb9495a430864b2bbf48ad7de7037e3fb7f",
+    "result_sha256": "6dd0f23cb65ca6509200cc7fed91198282bd4297109ca6db1f346c1d972f61d7",
+    "target_artifact": "XenSonar_N21_F2_Refucktor_Drone_Workbench_Wobble_P3.html",
+    "patch_name": "02_DRONE_WORKBENCH_WOBBLE.xpatch.json",
+    "paths_changed": 4,
+    "insert_chars": 16687,
+    "remove_chars": 2115,
+    "patch_bytes": 18997,
+    "files": [
+      [
+        "src/rhythm/03_live_drum_bodies.js",
+        7,
+        11807,
+        1060
+      ],
+      [
+        "src/runtime/01_instrument_state.js",
+        2,
+        300,
+        170
+      ],
+      [
+        "src/runtime/instrument/09_monitoring_and_manual_patterns.js",
+        5,
+        4552,
+        840
+      ],
+      [
+        "template/head.html",
+        1,
+        28,
+        45
+      ]
+    ]
+  },
+  {
+    "number": "03",
+    "name": "BASS_GRID_DERIVED_AND_LIVE",
+    "input_sha256": "6dd0f23cb65ca6509200cc7fed91198282bd4297109ca6db1f346c1d972f61d7",
+    "result_sha256": "852c636ba8cb322e3d71cc1b16fdbf3717544f9704032ee5d9cfa736d8d02f18",
+    "target_artifact": "XenSonar_N21_F2_Derived_Bass_Grid_P1_P2_Test.html",
+    "patch_name": "03_BASS_GRID_DERIVED_AND_LIVE.xpatch.json",
+    "paths_changed": 5,
+    "insert_chars": 10899,
+    "remove_chars": 401,
+    "patch_bytes": 13091,
+    "files": [
+      [
+        "src/handoff/00_chat_feature_addons.js",
+        1,
+        10090,
+        0
+      ],
+      [
+        "src/rhythm/04_workspace_and_transport.js",
+        1,
+        53,
+        0
+      ],
+      [
+        "src/runtime/instrument/08_library_and_tuning_editor.js",
+        6,
+        686,
+        373
+      ],
+      [
+        "src/runtime/instrument/12_rhythm_and_bass_editor.js",
+        1,
+        47,
+        0
+      ],
+      [
+        "template/head.html",
+        1,
+        23,
+        28
+      ]
+    ]
+  },
+  {
+    "number": "04",
+    "name": "BASS_GRID_UI_DRONE_RFL",
+    "input_sha256": "852c636ba8cb322e3d71cc1b16fdbf3717544f9704032ee5d9cfa736d8d02f18",
+    "result_sha256": "47ad3113aefa6f2034b11be418abf6cca6b8c909c517c052988e36953249c36b",
+    "target_artifact": "XenSonar_N21_F2_Derived_Bass_Grid_Drone_RFL_UI_P3_Test.html",
+    "patch_name": "04_BASS_GRID_UI_DRONE_RFL.xpatch.json",
+    "paths_changed": 5,
+    "insert_chars": 10263,
+    "remove_chars": 4217,
+    "patch_bytes": 12882,
+    "files": [
+      [
+        "src/audio/03_rfl_transport_legacy.js",
+        9,
+        529,
+        286
+      ],
+      [
+        "src/handoff/00_chat_feature_addons.js",
+        7,
+        8882,
+        3417
+      ],
+      [
+        "src/rhythm/03_live_drum_bodies.js",
+        2,
+        687,
+        447
+      ],
+      [
+        "src/runtime/instrument/08_library_and_tuning_editor.js",
+        2,
+        136,
+        44
+      ],
+      [
+        "template/head.html",
+        1,
+        29,
+        23
+      ]
+    ]
+  },
+  {
+    "number": "05",
+    "name": "LINKED_INDEPENDENT_TUNING",
+    "input_sha256": "47ad3113aefa6f2034b11be418abf6cca6b8c909c517c052988e36953249c36b",
+    "result_sha256": "1b0cb29a31fbff4d532df17d8015aedcfda735113c2a4198c77f1e5af4651d3b",
+    "target_artifact": "XenSonar_N21_F2_Bass_Grid_Link_To_Other_Grid_P4_Test.html",
+    "patch_name": "05_LINKED_INDEPENDENT_TUNING.xpatch.json",
+    "paths_changed": 2,
+    "insert_chars": 11816,
+    "remove_chars": 7296,
+    "patch_bytes": 13397,
+    "files": [
+      [
+        "src/handoff/00_chat_feature_addons.js",
+        13,
+        11787,
+        7267
+      ],
+      [
+        "template/head.html",
+        1,
+        29,
+        29
+      ]
+    ]
+  },
+  {
+    "number": "06",
+    "name": "POWER_ECHO_PERSISTENCE_FORGE",
+    "input_sha256": "1b0cb29a31fbff4d532df17d8015aedcfda735113c2a4198c77f1e5af4651d3b",
+    "result_sha256": "ddd5f5bec81bef1dada06c03476ec39d49d7742a1397d1f1c1b5418ca3954007",
+    "target_artifact": "XenSonar_N21_F2_P5_Power_Echo_Drone_Forge_Preview_Test.html",
+    "patch_name": "06_POWER_ECHO_PERSISTENCE_FORGE.xpatch.json",
+    "paths_changed": 10,
+    "insert_chars": 8663,
+    "remove_chars": 993,
+    "patch_bytes": 12506,
+    "files": [
+      [
+        "src/app/forge/01_room_shell.js",
+        1,
+        185,
+        0
+      ],
+      [
+        "src/forge/editor/01_display_and_canvas.js",
+        2,
+        58,
+        0
+      ],
+      [
+        "src/forge/editor/09_workflow_controls.js",
+        2,
+        4092,
+        2
+      ],
+      [
+        "src/handoff/00_chat_feature_addons.js",
+        2,
+        760,
+        433
+      ],
+      [
+        "src/rhythm/02_bass_and_rack.js",
+        2,
+        443,
+        83
+      ],
+      [
+        "src/rhythm/03_live_drum_bodies.js",
+        1,
+        282,
+        166
+      ],
+      [
+        "src/rhythm/04_workspace_and_transport.js",
+        2,
+        83,
+        14
+      ],
+      [
+        "src/runtime/01_instrument_state.js",
+        1,
+        1842,
+        0
+      ],
+      [
+        "src/runtime/instrument/08_library_and_tuning_editor.js",
+        4,
+        875,
+        266
+      ],
+      [
+        "template/head.html",
+        1,
+        43,
+        29
+      ]
+    ]
+  },
+  {
+    "number": "07",
+    "name": "SPACE_KEYBOARD_DETACH",
+    "input_sha256": "ddd5f5bec81bef1dada06c03476ec39d49d7742a1397d1f1c1b5418ca3954007",
+    "result_sha256": "d9881eb4945120f949dfa80aa0371850301a5f77aa38e1e14376e667ac64c122",
+    "target_artifact": "XenSonar_N21_F2_P6_Keyboard_Foundation_Detach_Test.html",
+    "patch_name": "07_SPACE_KEYBOARD_DETACH.xpatch.json",
+    "paths_changed": 7,
+    "insert_chars": 4510,
+    "remove_chars": 821,
+    "patch_bytes": 7513,
+    "files": [
+      [
+        "src/app/forge/01_room_shell.js",
+        3,
+        693,
+        327
+      ],
+      [
+        "src/audio/05_live_voice_runtime.js",
+        2,
+        52,
+        30
+      ],
+      [
+        "src/handoff/00_chat_feature_addons.js",
+        1,
+        2336,
+        0
+      ],
+      [
+        "src/rhythm/03_live_drum_bodies.js",
+        1,
+        108,
+        43
+      ],
+      [
+        "src/rhythm/04_workspace_and_transport.js",
+        6,
+        1026,
+        158
+      ],
+      [
+        "src/runtime/instrument/08_library_and_tuning_editor.js",
+        4,
+        259,
+        221
+      ],
+      [
+        "template/head.html",
+        1,
+        36,
+        42
+      ]
+    ]
+  },
+  {
+    "number": "08",
+    "name": "KEYBOARD_EXPRESSION_AND_HOVERS",
+    "input_sha256": "d9881eb4945120f949dfa80aa0371850301a5f77aa38e1e14376e667ac64c122",
+    "result_sha256": "bc0260682088a3a37a7bf9637d634b8027bc121b2546cb9b520a9760d94c002d",
+    "target_artifact": "XenSonar_N21_F2_P7_Keyboard_Expression_Hovers_Test.html",
+    "patch_name": "08_KEYBOARD_EXPRESSION_AND_HOVERS.xpatch.json",
+    "paths_changed": 6,
+    "insert_chars": 5704,
+    "remove_chars": 2390,
+    "patch_bytes": 8855,
+    "files": [
+      [
+        "src/app/forge/01_room_shell.js",
+        6,
+        99,
+        40
+      ],
+      [
+        "src/audio/05_live_voice_runtime.js",
+        2,
+        584,
+        281
+      ],
+      [
+        "src/rhythm/02_bass_and_rack.js",
+        3,
+        73,
+        0
+      ],
+      [
+        "src/rhythm/04_workspace_and_transport.js",
+        3,
+        2500,
+        1120
+      ],
+      [
+        "src/runtime/instrument/08_library_and_tuning_editor.js",
+        11,
+        2399,
+        913
+      ],
+      [
+        "template/head.html",
+        1,
+        49,
+        36
+      ]
+    ]
+  },
+  {
+    "number": "09",
+    "name": "CONSOLIDATION_TEST_GATES_ONLY",
+    "input_sha256": "bc0260682088a3a37a7bf9637d634b8027bc121b2546cb9b520a9760d94c002d",
+    "result_sha256": "bc0260682088a3a37a7bf9637d634b8027bc121b2546cb9b520a9760d94c002d",
+    "target_artifact": "UNCHANGED_P7_HTML",
+    "patch_name": "09_CONSOLIDATION_TEST_GATES_ONLY.xpatch.json",
+    "paths_changed": 3,
+    "runtime_source_changes": 0,
+    "files": [
+      [
+        "tests/p7_live_grid_space_behavior.cjs",
+        1,
+        0,
+        null
+      ],
+      [
+        "tests/p7_unchanged_source_boundary.cjs",
+        1,
+        0,
+        null
+      ],
+      [
+        "tests/p7_core_smoke_without_preservation.cjs",
+        1,
+        0,
+        null
+      ]
+    ]
+  }
+]

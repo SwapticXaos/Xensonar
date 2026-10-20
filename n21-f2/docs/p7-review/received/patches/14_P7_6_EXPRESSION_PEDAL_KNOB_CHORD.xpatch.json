@@ -1,0 +1,997 @@
+{
+  "format": "xensonar-source-span-patch-v1",
+  "order": 14,
+  "id": "P7_6_EXPRESSION_PEDAL_KNOB_CHORD",
+  "basis": "N21_F2_NODAL_BALL_GRID",
+  "previous_html_sha256": "05b2fb522db77a5995769815c294f266901b9c81d7d1b498fbbbc2d02a0b5ccc",
+  "result_html_sha256": "3bc0b0a452908b55ad1d9c405bd524a661b6b9868477fe31f3fb754ceb685461",
+  "result_html_bytes": 5684174,
+  "files": [
+    {
+      "path": "src/rhythm/04_workspace_and_transport.js",
+      "before_sha256": "226ecf561bd2a572ea27a52e743276f362b0fbbff41b42d6cb04fb9594f27218",
+      "after_sha256": "1c7f16031ba39f2d21ccbde6e3af8e9ce7d2a57d9e9eb381c1330f4d9167b81b",
+      "before_chars": 163845,
+      "after_chars": 164758,
+      "edits": [
+        {
+          "at": 54986,
+          "delete": 66,
+          "insert": " // P7.6: B + LEFT Alt switches the expression gesture between temporary piano\n // pedals and a latched knob. The chord is consumed until BOTH keys are released.\n const [t,n]=P.useState({octave:!1,sustain:!1,swell:!1,damp:!1,expressionMode:'pedal'});\n"
+        },
+        {
+          "at": 55128,
+          "delete": 0,
+          "insert": " const mode=P.useRef('pedal'),comboConsumed=P.useRef(!1);\n"
+        },
+        {
+          "at": 55344,
+          "delete": 210,
+          "insert": " const updateExpressionHold=P.useCallback((which,held)=>{\n  const ref=which==='swell'?swellHeld:dampHeld;\n  const changed=ref.current!==held;ref.current=held;\n  if(held&&changed&&swellHeld.current&&dampHeld.current&&!comboConsumed.current){\n   comboConsumed.current=!0;\n   mode.current=mode.current==='pedal'?'knob':'pedal';\n   expression.current=0; // Do not carry the previous mode's trim into the new mode.\n  }\n  if(!swellHeld.current&&!dampHeld.current)comboConsumed.current=!1;\n  n(v=>v[which]===held&&v.expressionMode===mode.current?v:{...v,[which]:held,expressionMode:mode.current});\n },[]);\n const setSwell=P.useCallback(held=>updateExpressionHold('swell',held),[updateExpressionHold]);\n const setDamp=P.useCallback(held=>updateExpressionHold('damp',held),[updateExpressionHold]);\n"
+        },
+        {
+          "at": 55723,
+          "delete": 432,
+          "insert": " const reset=P.useCallback(()=>{swellHeld.current=!1;dampHeld.current=!1;comboConsumed.current=!1;expression.current=0;octave.current=!1;sustain.current=!1;enter.current=!1;n({octave:!1,sustain:!1,swell:!1,damp:!1,expressionMode:mode.current})},[]);\n"
+        },
+        {
+          "at": 56174,
+          "delete": 167,
+          "insert": "  if(!e){swellHeld.current=!1;dampHeld.current=!1;comboConsumed.current=!1;expression.current=0;return}\n  // The physical chord does not produce a volume gesture, and a latched knob\n  // at rest requires no RAF work at all.\n  if((comboConsumed.current||(!t.swell&&!t.damp))&&(mode.current==='knob'||Math.abs(expression.current)<.001)){\n   if(mode.current==='pedal'&&Math.abs(expression.current)<.001)expression.current=0;\n   return;\n  }\n"
+        },
+        {
+          "at": 56451,
+          "delete": 67,
+          "insert": "   const direction=comboConsumed.current?0:(swellHeld.current?1:0)-(dampHeld.current?1:0);\n"
+        },
+        {
+          "at": 56626,
+          "delete": 153,
+          "insert": "   }else if(mode.current==='pedal'){\n    const next=expression.current*Math.exp(-dt/42);\n"
+        },
+        {
+          "at": 56835,
+          "delete": 75,
+          "insert": "   if(direction||(mode.current==='pedal'&&expression.current!==0))frame=requestAnimationFrame(tick);\n"
+        },
+        {
+          "at": 57004,
+          "delete": 24,
+          "insert": " },[e,t.swell,t.damp,t.expressionMode]);\n"
+        }
+      ]
+    },
+    {
+      "path": "src/rhythm/02_bass_and_rack.js",
+      "before_sha256": "4c51d727a94df65fb5c1345cafb7a8ab997512273fbb57bcf96869993c72dbfe",
+      "after_sha256": "61f8deee921ccd620297c2bc9f6675820167c0b313f632fdaba095336497e775",
+      "before_chars": 189920,
+      "after_chars": 190023,
+      "edits": [
+        {
+          "at": 40928,
+          "delete": 61,
+          "insert": "swellActive:e.swellActive,dampActive:e.dampActive,expressionMode:e.expressionMode,echoActive:"
+        },
+        {
+          "at": 128395,
+          "delete": 75,
+          "insert": "swellActive:e.status.swellActive,dampActive:e.status.dampActive,expressionMode:e.status.expressionMode,echoActive:"
+        },
+        {
+          "at": 137006,
+          "delete": 49,
+          "insert": "swellActive:l.swell,dampActive:l.damp,expressionMode:l.expressionMode,echoActive:"
+        }
+      ]
+    },
+    {
+      "path": "src/runtime/instrument/08_library_and_tuning_editor.js",
+      "before_sha256": "248632bf43e94408842f2e74134779a3765ce35640e02536e7f13351a602d9d0",
+      "after_sha256": "fe6d178a82d877b61cdeaadaf02060a834eaf72a9fa594cd8df967513beb2d85",
+      "before_chars": 77374,
+      "after_chars": 77994,
+      "edits": [
+        {
+          "at": 22182,
+          "delete": 66,
+          "insert": "\" (hold): raise keyboard expression; Pedal = returns on release, Knob = holds level\""
+        },
+        {
+          "at": 22252,
+          "delete": 204,
+          "insert": "u.jsxs(\"li\",{children:[u.jsx(\"kbd\",{className:\"bg-neutral-800 px-1 py-0.5 rounded text-xs text-white\",children:\"Left Alt\"}),\" (hold, not AltGr): lower keyboard expression in the chosen mode\"]}),u.jsxs(\"li\",{children:[u.jsx(\"kbd\",{className:\"bg-neutral-800 px-1 py-0.5 rounded text-xs text-white\",children:\"B + Left Alt\"}),\" (press together): toggle Pedal / Knob mode; both keys must be released before another toggle\"]}),"
+        },
+        {
+          "at": 32387,
+          "delete": 50,
+          "insert": "swellActive:k,dampActive:__dampActive,expressionMode:__expressionMode,echoActive:I"
+        },
+        {
+          "at": 38097,
+          "delete": 287,
+          "insert": "u.jsx(\"span\",{className:\"rounded border border-neutral-700 px-1 text-[10px] text-neutral-400\",title:\"B + Left Alt: toggle expression mode (Pedal / Knob)\",children:__expressionMode==='knob'?\"KNOB\":\"PEDAL\"}),u.jsx(kb,{kind:\"swell\",active:k,title:`Keyboard B · raise expression while held; ${__expressionMode==='knob'?'release to keep level':'release to return to normal'}. B + Left Alt toggles Pedal / Knob.`}),u.jsx(kb,{kind:\"damp\",active:__dampActive,title:`Keyboard Left Alt · lower expression while held (not AltGr); ${__expressionMode==='knob'?'release to keep level':'release to return to normal'}. B + Left Alt toggles Pedal / Knob.`})"
+        }
+      ]
+    },
+    {
+      "path": "source-index.json",
+      "before_sha256": "b3adbcca45de32aae5fca785266c4a00468cd0640779ab19015c936291782308",
+      "after_sha256": "fd18a4e91dda7072d81314bbb7fb6708f4ca4c70edce88b2453fdc6c81a0f534",
+      "before_chars": 971258,
+      "after_chars": 971258,
+      "edits": [
+        {
+          "at": 427542,
+          "delete": 18,
+          "insert": "      \"line\": 456\n"
+        },
+        {
+          "at": 427652,
+          "delete": 18,
+          "insert": "      \"line\": 456\n"
+        },
+        {
+          "at": 427762,
+          "delete": 18,
+          "insert": "      \"line\": 456\n"
+        },
+        {
+          "at": 427872,
+          "delete": 18,
+          "insert": "      \"line\": 456\n"
+        },
+        {
+          "at": 427982,
+          "delete": 18,
+          "insert": "      \"line\": 456\n"
+        },
+        {
+          "at": 428092,
+          "delete": 18,
+          "insert": "      \"line\": 456\n"
+        },
+        {
+          "at": 428202,
+          "delete": 18,
+          "insert": "      \"line\": 456\n"
+        },
+        {
+          "at": 428312,
+          "delete": 18,
+          "insert": "      \"line\": 456\n"
+        },
+        {
+          "at": 428422,
+          "delete": 18,
+          "insert": "      \"line\": 456\n"
+        },
+        {
+          "at": 428532,
+          "delete": 18,
+          "insert": "      \"line\": 456\n"
+        },
+        {
+          "at": 428642,
+          "delete": 18,
+          "insert": "      \"line\": 456\n"
+        },
+        {
+          "at": 428752,
+          "delete": 18,
+          "insert": "      \"line\": 456\n"
+        },
+        {
+          "at": 428862,
+          "delete": 18,
+          "insert": "      \"line\": 456\n"
+        },
+        {
+          "at": 428972,
+          "delete": 18,
+          "insert": "      \"line\": 456\n"
+        },
+        {
+          "at": 429082,
+          "delete": 18,
+          "insert": "      \"line\": 456\n"
+        },
+        {
+          "at": 429192,
+          "delete": 18,
+          "insert": "      \"line\": 456\n"
+        },
+        {
+          "at": 429302,
+          "delete": 18,
+          "insert": "      \"line\": 456\n"
+        },
+        {
+          "at": 429412,
+          "delete": 18,
+          "insert": "      \"line\": 456\n"
+        },
+        {
+          "at": 429522,
+          "delete": 18,
+          "insert": "      \"line\": 460\n"
+        },
+        {
+          "at": 429632,
+          "delete": 18,
+          "insert": "      \"line\": 460\n"
+        },
+        {
+          "at": 429742,
+          "delete": 18,
+          "insert": "      \"line\": 460\n"
+        },
+        {
+          "at": 429852,
+          "delete": 18,
+          "insert": "      \"line\": 460\n"
+        },
+        {
+          "at": 429962,
+          "delete": 18,
+          "insert": "      \"line\": 460\n"
+        },
+        {
+          "at": 430072,
+          "delete": 18,
+          "insert": "      \"line\": 460\n"
+        },
+        {
+          "at": 430182,
+          "delete": 18,
+          "insert": "      \"line\": 464\n"
+        },
+        {
+          "at": 430292,
+          "delete": 18,
+          "insert": "      \"line\": 464\n"
+        },
+        {
+          "at": 430402,
+          "delete": 18,
+          "insert": "      \"line\": 464\n"
+        },
+        {
+          "at": 430512,
+          "delete": 18,
+          "insert": "      \"line\": 464\n"
+        },
+        {
+          "at": 430621,
+          "delete": 18,
+          "insert": "      \"line\": 464\n"
+        },
+        {
+          "at": 430731,
+          "delete": 18,
+          "insert": "      \"line\": 464\n"
+        },
+        {
+          "at": 430841,
+          "delete": 18,
+          "insert": "      \"line\": 464\n"
+        },
+        {
+          "at": 430950,
+          "delete": 18,
+          "insert": "      \"line\": 467\n"
+        },
+        {
+          "at": 431060,
+          "delete": 18,
+          "insert": "      \"line\": 467\n"
+        },
+        {
+          "at": 431183,
+          "delete": 18,
+          "insert": "      \"line\": 469\n"
+        },
+        {
+          "at": 431293,
+          "delete": 18,
+          "insert": "      \"line\": 476\n"
+        },
+        {
+          "at": 431403,
+          "delete": 18,
+          "insert": "      \"line\": 484\n"
+        },
+        {
+          "at": 431513,
+          "delete": 18,
+          "insert": "      \"line\": 484\n"
+        },
+        {
+          "at": 431623,
+          "delete": 18,
+          "insert": "      \"line\": 484\n"
+        },
+        {
+          "at": 431733,
+          "delete": 18,
+          "insert": "      \"line\": 484\n"
+        },
+        {
+          "at": 431843,
+          "delete": 18,
+          "insert": "      \"line\": 484\n"
+        },
+        {
+          "at": 431953,
+          "delete": 18,
+          "insert": "      \"line\": 484\n"
+        },
+        {
+          "at": 432063,
+          "delete": 18,
+          "insert": "      \"line\": 518\n"
+        },
+        {
+          "at": 432173,
+          "delete": 18,
+          "insert": "      \"line\": 518\n"
+        },
+        {
+          "at": 432283,
+          "delete": 18,
+          "insert": "      \"line\": 518\n"
+        },
+        {
+          "at": 432393,
+          "delete": 18,
+          "insert": "      \"line\": 518\n"
+        },
+        {
+          "at": 432502,
+          "delete": 18,
+          "insert": "      \"line\": 518\n"
+        },
+        {
+          "at": 432612,
+          "delete": 18,
+          "insert": "      \"line\": 518\n"
+        },
+        {
+          "at": 432722,
+          "delete": 18,
+          "insert": "      \"line\": 518\n"
+        },
+        {
+          "at": 432832,
+          "delete": 18,
+          "insert": "      \"line\": 518\n"
+        },
+        {
+          "at": 432942,
+          "delete": 18,
+          "insert": "      \"line\": 518\n"
+        },
+        {
+          "at": 433052,
+          "delete": 18,
+          "insert": "      \"line\": 518\n"
+        },
+        {
+          "at": 433161,
+          "delete": 18,
+          "insert": "      \"line\": 518\n"
+        },
+        {
+          "at": 433271,
+          "delete": 18,
+          "insert": "      \"line\": 518\n"
+        },
+        {
+          "at": 433381,
+          "delete": 18,
+          "insert": "      \"line\": 518\n"
+        },
+        {
+          "at": 433491,
+          "delete": 18,
+          "insert": "      \"line\": 518\n"
+        },
+        {
+          "at": 433601,
+          "delete": 18,
+          "insert": "      \"line\": 518\n"
+        },
+        {
+          "at": 433711,
+          "delete": 18,
+          "insert": "      \"line\": 518\n"
+        },
+        {
+          "at": 433821,
+          "delete": 18,
+          "insert": "      \"line\": 518\n"
+        },
+        {
+          "at": 433931,
+          "delete": 18,
+          "insert": "      \"line\": 518\n"
+        },
+        {
+          "at": 434041,
+          "delete": 18,
+          "insert": "      \"line\": 518\n"
+        },
+        {
+          "at": 434150,
+          "delete": 18,
+          "insert": "      \"line\": 518\n"
+        },
+        {
+          "at": 434260,
+          "delete": 18,
+          "insert": "      \"line\": 518\n"
+        },
+        {
+          "at": 434369,
+          "delete": 18,
+          "insert": "      \"line\": 518\n"
+        },
+        {
+          "at": 434478,
+          "delete": 18,
+          "insert": "      \"line\": 518\n"
+        },
+        {
+          "at": 434588,
+          "delete": 18,
+          "insert": "      \"line\": 518\n"
+        },
+        {
+          "at": 434698,
+          "delete": 18,
+          "insert": "      \"line\": 518\n"
+        },
+        {
+          "at": 434807,
+          "delete": 18,
+          "insert": "      \"line\": 518\n"
+        },
+        {
+          "at": 434917,
+          "delete": 18,
+          "insert": "      \"line\": 518\n"
+        },
+        {
+          "at": 435026,
+          "delete": 18,
+          "insert": "      \"line\": 518\n"
+        },
+        {
+          "at": 435136,
+          "delete": 18,
+          "insert": "      \"line\": 518\n"
+        },
+        {
+          "at": 435245,
+          "delete": 18,
+          "insert": "      \"line\": 518\n"
+        },
+        {
+          "at": 435355,
+          "delete": 18,
+          "insert": "      \"line\": 518\n"
+        },
+        {
+          "at": 435465,
+          "delete": 18,
+          "insert": "      \"line\": 518\n"
+        },
+        {
+          "at": 435575,
+          "delete": 18,
+          "insert": "      \"line\": 526\n"
+        },
+        {
+          "at": 435685,
+          "delete": 18,
+          "insert": "      \"line\": 526\n"
+        },
+        {
+          "at": 435795,
+          "delete": 18,
+          "insert": "      \"line\": 526\n"
+        },
+        {
+          "at": 435904,
+          "delete": 18,
+          "insert": "      \"line\": 526\n"
+        },
+        {
+          "at": 436014,
+          "delete": 18,
+          "insert": "      \"line\": 526\n"
+        },
+        {
+          "at": 436124,
+          "delete": 18,
+          "insert": "      \"line\": 526\n"
+        },
+        {
+          "at": 436234,
+          "delete": 18,
+          "insert": "      \"line\": 526\n"
+        },
+        {
+          "at": 436344,
+          "delete": 18,
+          "insert": "      \"line\": 526\n"
+        },
+        {
+          "at": 436454,
+          "delete": 18,
+          "insert": "      \"line\": 526\n"
+        },
+        {
+          "at": 436564,
+          "delete": 18,
+          "insert": "      \"line\": 526\n"
+        },
+        {
+          "at": 436674,
+          "delete": 18,
+          "insert": "      \"line\": 526\n"
+        },
+        {
+          "at": 436784,
+          "delete": 18,
+          "insert": "      \"line\": 526\n"
+        },
+        {
+          "at": 436894,
+          "delete": 18,
+          "insert": "      \"line\": 526\n"
+        },
+        {
+          "at": 437004,
+          "delete": 18,
+          "insert": "      \"line\": 526\n"
+        },
+        {
+          "at": 437114,
+          "delete": 18,
+          "insert": "      \"line\": 526\n"
+        },
+        {
+          "at": 437224,
+          "delete": 18,
+          "insert": "      \"line\": 535\n"
+        },
+        {
+          "at": 437334,
+          "delete": 18,
+          "insert": "      \"line\": 535\n"
+        },
+        {
+          "at": 437443,
+          "delete": 18,
+          "insert": "      \"line\": 535\n"
+        },
+        {
+          "at": 437553,
+          "delete": 18,
+          "insert": "      \"line\": 535\n"
+        },
+        {
+          "at": 437662,
+          "delete": 18,
+          "insert": "      \"line\": 535\n"
+        },
+        {
+          "at": 437771,
+          "delete": 18,
+          "insert": "      \"line\": 535\n"
+        },
+        {
+          "at": 437881,
+          "delete": 18,
+          "insert": "      \"line\": 535\n"
+        },
+        {
+          "at": 437990,
+          "delete": 18,
+          "insert": "      \"line\": 535\n"
+        },
+        {
+          "at": 438100,
+          "delete": 18,
+          "insert": "      \"line\": 535\n"
+        },
+        {
+          "at": 438209,
+          "delete": 18,
+          "insert": "      \"line\": 535\n"
+        },
+        {
+          "at": 438319,
+          "delete": 18,
+          "insert": "      \"line\": 535\n"
+        },
+        {
+          "at": 438429,
+          "delete": 18,
+          "insert": "      \"line\": 535\n"
+        },
+        {
+          "at": 438539,
+          "delete": 18,
+          "insert": "      \"line\": 535\n"
+        },
+        {
+          "at": 438648,
+          "delete": 18,
+          "insert": "      \"line\": 535\n"
+        },
+        {
+          "at": 438758,
+          "delete": 18,
+          "insert": "      \"line\": 535\n"
+        },
+        {
+          "at": 438867,
+          "delete": 18,
+          "insert": "      \"line\": 535\n"
+        },
+        {
+          "at": 438976,
+          "delete": 18,
+          "insert": "      \"line\": 535\n"
+        },
+        {
+          "at": 439085,
+          "delete": 18,
+          "insert": "      \"line\": 535\n"
+        },
+        {
+          "at": 439194,
+          "delete": 18,
+          "insert": "      \"line\": 535\n"
+        },
+        {
+          "at": 439304,
+          "delete": 18,
+          "insert": "      \"line\": 535\n"
+        },
+        {
+          "at": 439413,
+          "delete": 18,
+          "insert": "      \"line\": 535\n"
+        },
+        {
+          "at": 439522,
+          "delete": 18,
+          "insert": "      \"line\": 535\n"
+        },
+        {
+          "at": 439632,
+          "delete": 18,
+          "insert": "      \"line\": 535\n"
+        },
+        {
+          "at": 439742,
+          "delete": 18,
+          "insert": "      \"line\": 535\n"
+        },
+        {
+          "at": 439852,
+          "delete": 18,
+          "insert": "      \"line\": 535\n"
+        },
+        {
+          "at": 439961,
+          "delete": 18,
+          "insert": "      \"line\": 535\n"
+        },
+        {
+          "at": 440070,
+          "delete": 18,
+          "insert": "      \"line\": 535\n"
+        },
+        {
+          "at": 440180,
+          "delete": 18,
+          "insert": "      \"line\": 535\n"
+        },
+        {
+          "at": 440290,
+          "delete": 18,
+          "insert": "      \"line\": 535\n"
+        },
+        {
+          "at": 440399,
+          "delete": 18,
+          "insert": "      \"line\": 535\n"
+        },
+        {
+          "at": 440508,
+          "delete": 18,
+          "insert": "      \"line\": 535\n"
+        },
+        {
+          "at": 440618,
+          "delete": 18,
+          "insert": "      \"line\": 535\n"
+        },
+        {
+          "at": 440728,
+          "delete": 18,
+          "insert": "      \"line\": 535\n"
+        },
+        {
+          "at": 440837,
+          "delete": 18,
+          "insert": "      \"line\": 535\n"
+        },
+        {
+          "at": 440947,
+          "delete": 18,
+          "insert": "      \"line\": 535\n"
+        },
+        {
+          "at": 441057,
+          "delete": 18,
+          "insert": "      \"line\": 535\n"
+        },
+        {
+          "at": 441166,
+          "delete": 18,
+          "insert": "      \"line\": 535\n"
+        },
+        {
+          "at": 441275,
+          "delete": 18,
+          "insert": "      \"line\": 535\n"
+        },
+        {
+          "at": 441385,
+          "delete": 18,
+          "insert": "      \"line\": 535\n"
+        },
+        {
+          "at": 441495,
+          "delete": 18,
+          "insert": "      \"line\": 535\n"
+        },
+        {
+          "at": 441605,
+          "delete": 18,
+          "insert": "      \"line\": 535\n"
+        },
+        {
+          "at": 441715,
+          "delete": 18,
+          "insert": "      \"line\": 535\n"
+        },
+        {
+          "at": 441825,
+          "delete": 18,
+          "insert": "      \"line\": 535\n"
+        },
+        {
+          "at": 441934,
+          "delete": 18,
+          "insert": "      \"line\": 535\n"
+        },
+        {
+          "at": 442044,
+          "delete": 18,
+          "insert": "      \"line\": 535\n"
+        },
+        {
+          "at": 442154,
+          "delete": 18,
+          "insert": "      \"line\": 535\n"
+        },
+        {
+          "at": 442264,
+          "delete": 18,
+          "insert": "      \"line\": 535\n"
+        },
+        {
+          "at": 442373,
+          "delete": 18,
+          "insert": "      \"line\": 826\n"
+        },
+        {
+          "at": 442483,
+          "delete": 18,
+          "insert": "      \"line\": 826\n"
+        },
+        {
+          "at": 442593,
+          "delete": 18,
+          "insert": "      \"line\": 826\n"
+        },
+        {
+          "at": 442703,
+          "delete": 18,
+          "insert": "      \"line\": 826\n"
+        },
+        {
+          "at": 442813,
+          "delete": 18,
+          "insert": "      \"line\": 826\n"
+        },
+        {
+          "at": 442923,
+          "delete": 18,
+          "insert": "      \"line\": 826\n"
+        },
+        {
+          "at": 443033,
+          "delete": 18,
+          "insert": "      \"line\": 826\n"
+        },
+        {
+          "at": 443143,
+          "delete": 18,
+          "insert": "      \"line\": 826\n"
+        },
+        {
+          "at": 443253,
+          "delete": 18,
+          "insert": "      \"line\": 827\n"
+        },
+        {
+          "at": 443362,
+          "delete": 18,
+          "insert": "      \"line\": 827\n"
+        },
+        {
+          "at": 443472,
+          "delete": 18,
+          "insert": "      \"line\": 827\n"
+        },
+        {
+          "at": 443582,
+          "delete": 18,
+          "insert": "      \"line\": 827\n"
+        },
+        {
+          "at": 443692,
+          "delete": 18,
+          "insert": "      \"line\": 827\n"
+        },
+        {
+          "at": 443802,
+          "delete": 18,
+          "insert": "      \"line\": 827\n"
+        },
+        {
+          "at": 443929,
+          "delete": 18,
+          "insert": "      \"line\": 827\n"
+        },
+        {
+          "at": 444055,
+          "delete": 18,
+          "insert": "      \"line\": 828\n"
+        },
+        {
+          "at": 444183,
+          "delete": 18,
+          "insert": "      \"line\": 829\n"
+        },
+        {
+          "at": 444293,
+          "delete": 18,
+          "insert": "      \"line\": 836\n"
+        },
+        {
+          "at": 444403,
+          "delete": 18,
+          "insert": "      \"line\": 836\n"
+        },
+        {
+          "at": 444513,
+          "delete": 18,
+          "insert": "      \"line\": 836\n"
+        },
+        {
+          "at": 444623,
+          "delete": 18,
+          "insert": "      \"line\": 836\n"
+        },
+        {
+          "at": 444733,
+          "delete": 18,
+          "insert": "      \"line\": 836\n"
+        },
+        {
+          "at": 444843,
+          "delete": 18,
+          "insert": "      \"line\": 836\n"
+        },
+        {
+          "at": 444953,
+          "delete": 18,
+          "insert": "      \"line\": 836\n"
+        },
+        {
+          "at": 445063,
+          "delete": 18,
+          "insert": "      \"line\": 836\n"
+        },
+        {
+          "at": 445173,
+          "delete": 18,
+          "insert": "      \"line\": 836\n"
+        },
+        {
+          "at": 445283,
+          "delete": 18,
+          "insert": "      \"line\": 836\n"
+        },
+        {
+          "at": 445393,
+          "delete": 18,
+          "insert": "      \"line\": 836\n"
+        },
+        {
+          "at": 445502,
+          "delete": 18,
+          "insert": "      \"line\": 836\n"
+        },
+        {
+          "at": 445612,
+          "delete": 18,
+          "insert": "      \"line\": 836\n"
+        },
+        {
+          "at": 445722,
+          "delete": 18,
+          "insert": "      \"line\": 850\n"
+        },
+        {
+          "at": 445832,
+          "delete": 18,
+          "insert": "      \"line\": 862\n"
+        },
+        {
+          "at": 445942,
+          "delete": 18,
+          "insert": "      \"line\": 862\n"
+        },
+        {
+          "at": 446052,
+          "delete": 18,
+          "insert": "      \"line\": 862\n"
+        },
+        {
+          "at": 446161,
+          "delete": 18,
+          "insert": "      \"line\": 862\n"
+        },
+        {
+          "at": 446271,
+          "delete": 18,
+          "insert": "      \"line\": 862\n"
+        }
+      ]
+    },
+    {
+      "path": "tests/p7_6_expression_mode.cjs",
+      "before_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "after_sha256": "e6705b4e8d8dfac5776c100a596e2f48add707e783b5fd550baaebeb6605ed12",
+      "before_chars": 0,
+      "after_chars": 3406,
+      "edits": [
+        {
+          "at": 0,
+          "delete": 0,
+          "insert": "'use strict';\n// Exercise the actual XenSonar keyboard-expression React hook, not a duplicate implementation.\nconst fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/strict');\nconst root=process.argv[2]||require('node:path').resolve(__dirname,'..');\nconst src=fs.readFileSync(root+'/src/rhythm/04_workspace_and_transport.js','utf8');\nconst start=src.indexOf('function Zke('),end=src.indexOf('function ePe(',start);\nassert(start>0&&end>start,'Keyboard expression hook remains resolvable');\nconst frames=new Map();let token=0,now=0,refs=[],states=[],stateAt=0,refAt=0,effects=[],cleanups=[];\nconst P={useRef:v=>refs[refAt++]??(refs[refAt-1]={current:v}),useState:v=>{\n  const i=stateAt++;if(!(i in states))states[i]=v;return[states[i],set=>{states[i]=typeof set==='function'?set(states[i]):set}];\n},useCallback:f=>f,useEffect:f=>effects.push(f)};\nconst context={P,window:{addEventListener(){},removeEventListener(){}},document:{addEventListener(){},removeEventListener(){},hidden:false},requestAnimationFrame:f=>{const id=++token;frames.set(id,f);return id},cancelAnimationFrame:id=>frames.delete(id)};\nvm.createContext(context);vm.runInContext(src.slice(start,end)+';this.make=Zke;',context);\nlet hold;function render(){for(const f of cleanups)f?.();cleanups=[];stateAt=0;refAt=0;effects=[];hold=context.make(true);for(const f of effects)cleanups.push(f())}\nfunction step(n=1){for(let i=0;i<n;i++){now+=16.667;const callbacks=[...frames.values()];frames.clear();for(const cb of callbacks)cb(now)}}\nfunction release(){hold.setSwellHoldActive(false);hold.setDampHoldActive(false);render();step(24);}\nrender();assert.equal(hold.resonanceActionBadges.expressionMode,'pedal','default is temporary expression pedal');\nhold.setSwellHoldActive(true);render();step(22);assert(hold.waveSoundSwellRef.current>.2,'B increases level while held');\nhold.setDampHoldActive(true);render();step(4);assert.equal(hold.resonanceActionBadges.expressionMode,'knob','pressing both toggles mode');\nlet comboLevel=hold.waveSoundSwellRef.current;\nhold.setSwellHoldActive(true);hold.setDampHoldActive(true);render();step(8);\nassert.equal(hold.resonanceActionBadges.expressionMode,'knob','repeated keydown does not toggle again');\nassert.equal(hold.waveSoundSwellRef.current,comboLevel,'combo does not modify expression');\nhold.setSwellHoldActive(false);render();step(9);\nassert.equal(hold.waveSoundSwellRef.current,comboLevel,'one remaining chord key does not damp');\nrelease();hold.setSwellHoldActive(true);render();step(15);const knobLevel=hold.waveSoundSwellRef.current;\nassert(knobLevel>.1,'knob ramps up');hold.setSwellHoldActive(false);render();step(22);\nassert.equal(hold.waveSoundSwellRef.current,knobLevel,'knob keeps level after release');\n// Reverse order: Left Alt then B should switch back to pedal once.\nhold.setDampHoldActive(true);hold.setSwellHoldActive(true);render();step(4);\nassert.equal(hold.resonanceActionBadges.expressionMode,'pedal');\nassert.equal(hold.waveSoundSwellRef.current,0,'switching mode resets stale knob trim');\nrelease();hold.setDampHoldActive(true);render();step(20);assert(hold.waveSoundSwellRef.current<-.1,'pedal damp works');\nhold.setDampHoldActive(false);render();step(25);assert(Math.abs(hold.waveSoundSwellRef.current)<.003,'pedal returns to neutral');\nconsole.log('PASS P7.6 pedal/knob toggle on B+LeftAlt, single-shot, chord suppression, and expression semantics');\n"
+        }
+      ],
+      "new_file": true
+    }
+  ]
+}

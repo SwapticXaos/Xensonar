@@ -484,7 +484,11 @@ async function __f333SaveNavigatorSample(){
   }
   if(peak<1e-8)throw new Error('The selected sample is silent. Nothing was saved.');
   const title=(state.materialExport?.name||'Forge').trim().slice(0,74)||'Forge';
-  const fileName=title+' · One Shot '+Math.round(selected.start*100)+'–'+Math.round(selected.end*100)+'%.wav';
+  // The compact field is optional. Sanitize a typed title before registry intake.
+  const typed=String(__ForgeNavigatorSample.snapshot().nameDraft||'')
+   .replace(/[\x00-\x1f<>:"/\\|?*]/g,' ').replace(/\s+/g,' ').trim()
+   .replace(/\.wav$/i,'').replace(/[. ]+$/g,'').slice(0,74);
+  const fileName=typed?typed+'.wav':title+' · One Shot '+Math.round(selected.start*100)+'–'+Math.round(selected.end*100)+'%.wav';
   const wav=channels.length===1?xt.encodeSamplesToWAV(channels[0],buffer.sampleRate):gU(channels,buffer.sampleRate);
   const blob=wav instanceof Blob?wav:new Blob([wav],{type:'audio/wav'});
   const saved=await xS(fileName,blob);

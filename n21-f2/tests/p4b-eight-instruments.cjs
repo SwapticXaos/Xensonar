@@ -5,7 +5,7 @@ const view=fs.readFileSync('src/forge_and_melodic/06_note_editor_and_material_to
 const ctx=vm.createContext({
  P:{useRef:value=>({current:value})},
  Tp:id=>id.startsWith('import:'),qS:()=>4,sR:()=>[{hz:220}],WS:x=>x,ll:()=>[],QS:(_,x)=>x,am:()=> 'octave',nodalComposerSourceFields:()=>({}),
- u:{Fragment:'fragment',jsx:(type,props)=>({type,props}),jsxs:(type,props)=>({type,props})},Vj:'archive',NodalLibraryManager:'nodal',EntrophonLibraryManager:'entrophon'
+ u:{Fragment:'fragment',jsx:(type,props)=>({type,props}),jsxs:(type,props)=>({type,props})},Vj:'archive',__XenSampleRackRays:'sample-rays',NodalLibraryManager:'nodal',EntrophonLibraryManager:'entrophon'
 });
 vm.runInContext(source.slice(source.indexOf('function Lp('),source.indexOf('function Xa('))+
  source.slice(source.indexOf('function uR('),source.indexOf('function Bo('))+

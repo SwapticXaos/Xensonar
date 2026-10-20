@@ -1,0 +1,76 @@
+===== node tests/p7_live_grid_space_behavior.cjs . =====
+PASS Default Main Grid preserves incoming Bass/Drone/RFL frequencies
+PASS Derived grid restricts degrees and performs nearest pitch mapping
+PASS Bass/Drone/RFL grid-routing switches are independent
+PASS A linked nine-EDO tuning is not folded back into main 12-EDO
+PASS Linked grid has no duplicate cents offset layer
+PASS Linked grid does NOT recompile when only main scale/mutes/offsets change
+PASS Changing the linked degree exclusions recomputes once
+PASS Deleted linked tuning is visible, and never silently maps to 12-EDO
+PASS All-muted Bass Grid drops Bass notes rather than generating replacements
+PASS When all steps muted, Drone and RFL do not emit an invalid pitch
+PASS Preview degrees ascend and stay within one period
+PASS Fifth interval has an English ~5th / 5th orientation label
+PASS Foundation detaches on Space and holds identical root before and after keyup
+PASS No keyup catch-up; only next intentional gesture reattaches foundation
+PASS Window blur resets latched Space state
+PASS Visibility hidden resets held foundation and prevents stuck modifier
+PASS Stored grid extension survives export/import with no duplicate tuning payload
+PASS 17 P7 runtime-derived-grid/keyboard-foundation behavior checks
+STATUS:0
+===== node tests/p7_core_smoke_without_preservation.cjs . =====
+PASS forge_save_play_symmetry.cjs
+PASS forge_play_ready_save_regression.cjs
+PASS p4c2-n20-navigation.cjs
+PASS p4c2-n21-length-control.cjs
+PASS p4c2-n21-quickdock.cjs
+PASS p3b1-keyboard-directness.cjs
+PASS p3b3-keyboard-c11-lead.cjs
+PASS f447-power-owner.cjs
+PASS p4c2-n2-grid-sources.cjs
+PASS p4c2-n2-grid-bank.cjs
+PASS 10 retained domain smoke suites. Historical hash-preservation suite remains separate and unresolved.
+STATUS:0
+===== node tests/p7_unchanged_source_boundary.cjs . /mnt/data/P7_2_BASELINE/n21-f2 /mnt/data/XenSonar_P7_2_Konsolidierung/Handoff/patches =====
+PASS P7 source boundary: 216 identical source/style/template files, 20 declared modifications, 1 declared addition
+PASS all 9 stages and exact existing module order retained: 00:10 01:6 02:4 03:5 04:5 05:2 06:10 07:7 08:6
+STATUS:0
+===== node tests/p7_2_patch_ancestry.cjs . /mnt/data/P7_2_BASELINE/n21-f2 /mnt/data/XenSonar_P7_2_Konsolidierung/Handoff/patches =====
+PASS provenance from actual Codex baseline through 00-08: 55 file applications, 168 exact edits, 21 distinct modules
+PASS no unreviewed source-span drift in declared modules or assembly order
+STATUS:0
+===== node tests/p7_2_installation_ball_audio.cjs . =====
+PASS installation Ball Grid crossing, mute, pitch continuity and no late catch-up
+PASS independent resident-gain boundary, native/Worklet ball-tone muting present
+STATUS:0
+===== node tests/p7_2_source_index_freshness.cjs . =====
+PASS fresh source-index: 6501 declarations / 1113 file dependencies
+STATUS:0
+===== npm run test:live-stability =====
+
+> xensonar-p4c2-n21-f2-merged@4.4.8-p4c2-n21-f2 test:live-stability
+> node tests/live-rfl-boundaries.cjs && node tests/live-rfl-fallback.cjs && node tests/live-rfl-lifecycle.cjs && node tests/live-rfl-preparation.cjs
+
+{"mode":"base","rate":44100,"baseline":{"peak":4.707675457000732,"jump":0.49378716945648193,"outside":3411},"current":{"peak":0,"jump":0,"outside":0}}
+{"mode":"base","rate":48000,"baseline":{"peak":4.5972795486450195,"jump":0.4760704040527344,"outside":3247},"current":{"peak":0,"jump":0,"outside":0}}
+{"mode":"base","rate":96000,"baseline":{"peak":3.8174490928649902,"jump":0.4979236125946045,"outside":6788},"current":{"peak":0,"jump":0,"outside":0}}
+{"mode":"fragment","rate":44100,"baseline":{"peak":5.658315658569336,"jump":0.49806690216064453,"outside":4065},"current":{"peak":0,"jump":0,"outside":0}}
+{"mode":"fragment","rate":48000,"baseline":{"peak":5.442440986633301,"jump":0.4964022636413574,"outside":3827},"current":{"peak":0,"jump":0,"outside":0}}
+{"mode":"fragment","rate":96000,"baseline":{"peak":4.5473198890686035,"jump":0.49875640869140625,"outside":8185},"current":{"peak":0,"jump":0,"outside":0}}
+PASS live RFL crop boundaries: both render modes, root changes, 44.1/48/96kHz; excluded transients remain silent
+{"mode":"flowing","hz":110,"grains":39,"outside":0,"tooShort":0}
+{"mode":"flowing","hz":220,"grains":36,"outside":0,"tooShort":0}
+{"mode":"flowing","hz":880,"grains":40,"outside":0,"tooShort":0}
+{"mode":"fragment","hz":110,"grains":52,"outside":0,"tooShort":0}
+{"mode":"fragment","hz":220,"grains":49,"outside":0,"tooShort":0}
+{"mode":"fragment","hz":880,"grains":52,"outside":0,"tooShort":0}
+PASS RFL native fallback crop and fade durations at changing roots
+{"rate":44100,"mode":"base","rootMessages":1550,"maxWindows":1,"skippedWindows":115,"peak":0.5459728837013245,"tailReleased":true}
+{"rate":44100,"mode":"fragment","rootMessages":1550,"maxWindows":1,"skippedWindows":115,"peak":1.198411226272583,"tailReleased":true}
+{"rate":48000,"mode":"base","rootMessages":1550,"maxWindows":1,"skippedWindows":115,"peak":0.5459033250808716,"tailReleased":true}
+{"rate":48000,"mode":"fragment","rootMessages":1550,"maxWindows":1,"skippedWindows":115,"peak":1.1153439283370972,"tailReleased":true}
+{"rate":96000,"mode":"base","rootMessages":1550,"maxWindows":1,"skippedWindows":114,"peak":0.5697279572486877,"tailReleased":true}
+{"rate":96000,"mode":"fragment","rootMessages":1550,"maxWindows":1,"skippedWindows":114,"peak":0.9831255674362183,"tailReleased":true}
+PASS RFL lifecycle: rapid/stale/invalid root updates, sample-rate mismatch, clock gaps, 128/256-frame quanta and complete tail release
+PASS fragment worker extraction: all six cut-map arrays byte-identical in mono/stereo at 44.1/48/96kHz
+STATUS:0

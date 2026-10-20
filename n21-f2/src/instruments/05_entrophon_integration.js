@@ -1,12 +1,20 @@
 /* Saved instruments use the existing selectors, composer snapshots and transport. */
 const __EntrophonLiveDefinitions=new Map();
+if(typeof window!=='undefined')window.addEventListener('xensonar:entrophon-library-changed',()=>__EntrophonLiveDefinitions.clear());
 function isSavedEntrophonSound(id){return typeof id==='string'&&id.startsWith('entrophon:');}
 function entrophonLiveDefinition(id){
   if(!isSavedEntrophonSound(id))return null;
   if(__EntrophonLiveDefinitions.has(id))return __EntrophonLiveDefinitions.get(id);
   const value=entrophonFindInstrument(id);
-  if(value){if(__EntrophonLiveDefinitions.size>=96)__EntrophonLiveDefinitions.delete(__EntrophonLiveDefinitions.keys().next().value);__EntrophonLiveDefinitions.set(id,value);}
-  return value;
+  if(value){if(__EntrophonLiveDefinitions.size>=96)__EntrophonLiveDefinitions.delete(__EntrophonLiveDefinitions.keys().next().value);__EntrophonLiveDefinitions.set(id,value);return value;}
+  // A saved live preset may still carry an earlier revision after its owner
+  // is edited. The library keeps only its newest revision. Never substitute
+  // a *different* instrument, and never rewrite immutable project snapshots.
+  const match=/^entrophon:(.+)@([1-9][0-9]*)$/.exec(id);
+  if(!match)return null;
+  let latest=null;
+  try{latest=__XenEntrophonLibrary.list().find(entry=>entry.id===match[1]&&entry.revision>Number(match[2]));}catch{}
+  return latest?.instrument??null;
 }
 function entrophonSoundOptions(existing=[]){
   let entries=[];try{entries=__XenEntrophonLibrary.list();}catch{}

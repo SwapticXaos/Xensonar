@@ -1,0 +1,30 @@
+{
+  "format": "xensonar-source-span-patch-v1",
+  "order": 19,
+  "id": "P7_9_1_MELODIC_NAVIGATOR_POINTERMOVE_UNFREEZE",
+  "basis": "N21_F2_NODAL_BALL_GRID",
+  "previous_html_sha256": "616e0ad378b1c1f33660165064f64c345167812a28b085ece07c5720039bed88",
+  "result_html_sha256": "943c39d4e63e4652d9343dce283dd10bb2432b4c4efb260df8b23bdfb34284d2",
+  "result_html_bytes": 5689507,
+  "files": [
+    {
+      "path": "src/forge_and_melodic/08_editor_actions.js",
+      "before_sha256": "19c42ddab54ecbc00c5d5326443e91b1e1aacc4d08d78f71d286ba67921e5c6b",
+      "after_sha256": "f206e65efe17363bad7e2f5c9c01c6fa5af0528c20ced3f8fd1a02fdfff89d03",
+      "before_chars": 85090,
+      "after_chars": 85175,
+      "edits": [
+        {
+          "at": 72334,
+          "delete": 0,
+          "insert": "pointermove\",g),window.addEventListener(\""
+        },
+        {
+          "at": 72610,
+          "delete": 0,
+          "insert": "move\",g),window.removeEventListener(\"pointer"
+        }
+      ]
+    }
+  ]
+}

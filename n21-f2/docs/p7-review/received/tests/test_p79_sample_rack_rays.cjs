@@ -1,0 +1,11 @@
+const assert = require('node:assert/strict');
+const fs = require('node:fs');
+const s = fs.readFileSync(process.argv[2] || '/mnt/data/p79work/n21-f2/src/forge_and_melodic/06_note_editor_and_material_tools.js', 'utf8');
+assert.match(s,/function __XenSampleRackRays\(/,'Rays component missing');
+assert.match(s,/data-xen-sample-database-trigger/,'No trigger selector');
+assert.match(s,/melodic-sample-database-panel/,'No target panel');
+assert.match(s,/pointerEvents:'none'/,'Decorative rays must not capture pointer events');
+assert.match(s,/open:!!openSampleDatabase/,'Rays must follow open state');
+assert.match(s,/ResizeObserver/,'Rays must track layout changes');
+assert.match(s,/requestAnimationFrame/,'Updates should be throttled');
+console.log('PASS: open-only and non-interactive Sample Database rays');

@@ -22,12 +22,12 @@ const __NodalBallGrid=(()=>{
   else if(y<previous){for(let i=grid.length-1;i>=0;i--)if(grid[i].y<previous&&grid[i].y>=y)crossed=grid[i];}
   // One fresh crossing per control frame; never replay a dense-grid backlog.
   // Reversing/jittering on the same boundary must first leave its small band.
-  if(crossed&&((mix.rootLevel??.62)>0)&&(!state.lastLine||crossed.id!==state.lastLine.id||Math.max(Math.abs(previous-state.lastLine.y),Math.abs(y-state.lastLine.y))>2/tc)){
+  if(crossed&&((mix.rootLevel??.62)>0)&&((mix.ballToneLevel??1)>0)&&(!state.lastLine||crossed.id!==state.lastLine.id||Math.max(Math.abs(previous-state.lastLine.y),Math.abs(y-state.lastLine.y))>2/tc)){
    state.frequency=crossed.freq;state.lastHit=time;state.lastLine=crossed;
   }
-  state.previousY=y;state.time=time;if((mix.rootLevel??.62)<=0){state.lastHit=-Infinity;state.lastLine=null;}
+  state.previousY=y;state.time=time;if((mix.rootLevel??.62)<=0||(mix.ballToneLevel??1)<=0){state.lastHit=-Infinity;state.lastLine=null;}
   const age=time-state.lastHit,gate=age>=0&&age<.14?(1-age/.14)**2:0;
-  return {hz:state.frequency,gate:(mix.rootLevel??.62)>0?gate:0};
+  return {hz:state.frequency,gate:(mix.rootLevel??.62)>0&&(mix.ballToneLevel??1)>0?gate:0};
  }
  function draw(ctx,width,height){
   if(binding?.modeRef.current!=='installation'||binding?.mixRef.current?.ballToneMode!=='grid')return;
@@ -53,13 +53,13 @@ function __NodalBallControls({mix,onMix}){
  const commitBase=()=>{const value=Number(base.replace(',','.'));if(Number.isFinite(value)&&value>=400&&value<=1760)__NodalBallGrid.update({gridBase:Math.round(value*10)/10});else setBase(String(params?.gridBase??440));};
  return h('section',{'data-nodal-ball-controls':true,style:{padding:'8px 10px',border:'1px solid #31575c',borderRadius:5,fontSize:12,color:'#bce6e9'}},
   h('div',{style:{display:'flex',flexWrap:'wrap',alignItems:'end',gap:12}},
-   label('Ball · Y-Ton '+Math.round((mix.rootLevel??.62)*100)+' %',h('input',{type:'range',min:0,max:1,step:.01,value:mix.rootLevel??.62,'aria-label':'Ball Y tone volume',onChange:event=>onMix('rootLevel',Number(event.currentTarget.value))})),
+   label('Ball · Y-Ton '+Math.round((mix.ballToneLevel??1)*100)+' %',h('input',{type:'range',min:0,max:1,step:.01,value:mix.ballToneLevel??1,'aria-label':'Ball Y tone volume',title:'Kontinuierlichen Ball-Eigenton samt Ball-Reaktion ausblenden, ohne Node-Resonanzen oder Root Reference zu verändern.',onChange:event=>onMix('ballToneLevel',Number(event.currentTarget.value))})),
    label('Auslösung',h('select',{'aria-label':'Ball tone trigger mode',value:mode,onChange:event=>onMix('ballToneMode',event.currentTarget.value)},h('option',{value:'continuous'},'Kontinuierlich'),h('option',{value:'grid'},'Rasterlinien überqueren'))),
    mode==='grid'&&params&&label('Hauptraum-Raster',h('select',{'aria-label':'Installation grid tuning',value:params.gridTuning,onChange:event=>__NodalBallGrid.changeTuning(event.currentTarget.value)},...rack.libraryOptions.map(item=>h('option',{key:item.value,value:item.value},item.label)))),
    mode==='grid'&&params&&label('Modus',h('select',{'aria-label':'Installation grid mode',value:params.gridMode,onChange:event=>__NodalBallGrid.changeMode(event.currentTarget.value)},h('option',{value:'chromatic'},'Alle Schritte'),...Ka(params.gridTuning).filter(item=>item.value!=='chromatic').map(item=>h('option',{key:item.value,value:item.value},item.label)))),
    mode==='grid'&&params&&label('Rasterbasis · Hz',h('input',{'aria-label':'Installation grid base Hz',type:'number',min:400,max:1760,step:.1,value:base,onChange:event=>setBase(event.currentTarget.value),onBlur:commitBase,onKeyDown:event=>{if(event.key==='Enter')event.currentTarget.blur()},style:{width:100}})),
    mode==='grid'&&params&&label('Raster verschieben · Cent',h('input',{type:'range',min:-500,max:500,step:1,value:__xenGridShiftCents(params.gridTuning,params.manualGridStepOffsets),'aria-label':'Installation grid shift cents',onChange:event=>__NodalBallGrid.shift(Number(event.currentTarget.value))})),
    mode==='grid'&&h('button',{type:'button',onClick:()=>setOpen(true),style:{border:'1px solid #44747d',padding:'5px 9px',borderRadius:4}},'Raster bearbeiten / Schrittzahl')),
-  h('p',{style:{fontSize:10,color:'#819fa4',marginTop:5}},mode==='grid'?__xenGridMuted(params)?'Das gemeinsame Raster ist stumm. Im Hauptraum entmuten, um Linien und Impulse zu hören.':'Gemeinsame Presets, Schrittzahl, Verschiebungen und stumme Stufen aus dem Hauptraum. Änderungen gelten dort ebenfalls.':'Lautstärke des dauernden Grundtons; Ball-Reaktion und Residents bleiben separat regelbar.'),
+  h('p',{style:{fontSize:10,color:'#819fa4',marginTop:5}},mode==='grid'?__xenGridMuted(params)?'Das gemeinsame Raster ist stumm. Im Hauptraum entmuten, um Linien und Impulse zu hören.':'Gemeinsame Presets, Schrittzahl, Verschiebungen und stumme Stufen aus dem Hauptraum. Änderungen gelten dort ebenfalls.':'Ball-Eigenton samt Ball-Reaktion; 0 lässt die Node-Resonanzen bestehen. Root Reference bleibt separat einstellbar.'),
   h(U6,{open,currentTuning:params?.gridTuning??'12edo',activeRack:rack.activeGridRack,onClose:()=>setOpen(false),onRackChange:rack.setStoredActiveGridRack,onActivateTuning:__NodalBallGrid.changeTuning,onResetRack:rack.resetStoredActiveGridRack}));
 }

@@ -1,0 +1,13 @@
+'use strict';
+const fs = require('node:fs');
+const assert = require('node:assert/strict');
+const path = require('node:path');
+const file = path.join(process.argv[2] || path.resolve(__dirname,'..'), 'src/runtime/instrument/05_timing_and_admission.js');
+const s=fs.readFileSync(file,'utf8');
+const i=s.indexOf('function ene({recordingActive:');
+assert(i>=0, 'Recorder header button is present');
+const snippet=s.slice(i,i+900);
+assert(snippet.includes('children:e?`Enough! ${t}`:"Rec"'), 'Recording must show Enough! and elapsed time');
+assert(snippet.includes('title:e?"Finish recording and jump to Master Recording"'), 'Tooltip must describe finish action');
+assert(!snippet.includes('children:e?`Stop ${t}`'), 'Old Stop label must be absent');
+console.log('PASS recorder Enough! title + timer');

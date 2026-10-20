@@ -1,0 +1,25 @@
+{
+  "format": "xensonar-source-span-patch-v1",
+  "order": 20,
+  "id": "P7_10_ENTROPHON_LIVE_STALE_REVISION",
+  "basis": "N21_F2_NODAL_BALL_GRID",
+  "previous_html_sha256": "943c39d4e63e4652d9343dce283dd10bb2432b4c4efb260df8b23bdfb34284d2",
+  "result_html_sha256": "2dd8c04e31390b905e7f482746438b0db3685a960642500a67c7f27ee2c8c9b4",
+  "result_html_bytes": 5689989,
+  "files": [
+    {
+      "path": "src/instruments/05_entrophon_integration.js",
+      "before_sha256": "553ad94d383cea739ceb54cda36241636934633c7a232af5658f621d5da9b94b",
+      "after_sha256": "b5bf31fa50460dd9883fc7d547b32d8f3c7931351782b2944df0ff18b8aac623",
+      "before_chars": 5227,
+      "after_chars": 5709,
+      "edits": [
+        {
+          "at": 607,
+          "delete": 16,
+          "insert": "return value;}\n  // A saved live preset may still carry an earlier revision after its owner\n  // is edited. The library keeps only its newest revision. Never substitute\n  // a *different* instrument, and never rewrite immutable project snapshots.\n  const match=/^entrophon:(.+)@([1-9][0-9]*)$/.exec(id);\n  if(!match)return null;\n  let latest=null;\n  try{latest=__XenEntrophonLibrary.list().find(entry=>entry.id===match[1]&&entry.revision>Number(match[2]));}catch{}\n  return latest?.instrument??null"
+        }
+      ]
+    }
+  ]
+}

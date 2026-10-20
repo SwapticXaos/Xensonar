@@ -1,0 +1,53 @@
+{
+  "format": "xensonar-source-span-patch-v1",
+  "order": 21,
+  "id": "P7_10_POWER_INDEPENDENT_MATERIAL_PREVIEW",
+  "basis": "N21_F2_NODAL_BALL_GRID",
+  "previous_html_sha256": "2dd8c04e31390b905e7f482746438b0db3685a960642500a67c7f27ee2c8c9b4",
+  "result_html_sha256": "222e8c8ef71272d95a1330dc906a4c56c5289b2ff33a267f9f2216fb06b106ed",
+  "result_html_bytes": 5691970,
+  "files": [
+    {
+      "path": "src/audio/01_voice_and_rfl_ownership.js",
+      "before_sha256": "961334ffe4076f0d8e3af5da7967de6d6425f1c95c20b0f08b491f28e811ae4c",
+      "after_sha256": "4cde8b062bfe7ff6e62a7fef4cb37c16e0468a0fafdff185b54007aba04dd372",
+      "before_chars": 167929,
+      "after_chars": 169002,
+      "edits": [
+        {
+          "at": 74047,
+          "delete": 0,
+          "insert": "__XenMaterialStandalonePreview=(()=>{\n  let active=null;\n  function stop(){\n    const old=active;active=null;if(!old)return;\n    try{old.audio.pause();old.audio.onended=null;old.audio.onerror=null;old.audio.removeAttribute?.('src');old.audio.load?.();}catch{}\n    try{URL.revokeObjectURL(old.url)}catch{}\n  }\n  async function toggleById(id){\n    if(active?.id===id){stop();return 'stopped';}\n    stop();\n    const entry=bs().entries.find(item=>item.id===id);\n    const blob=entry?.blob;\n    if(!blob||typeof blob.size!=='number'||blob.size<=0)return 'unavailable';\n    const url=URL.createObjectURL(blob),audio=new Audio();\n    const session={id,url,audio};active=session;\n    audio.preload='auto';audio.src=url;audio.loop=false;audio.volume=.72;\n    audio.onended=()=>{if(active===session)stop();};\n    audio.onerror=()=>{if(active===session)stop();};\n    try{await audio.play();return active===session?'playing':'stopped';}\n    catch(error){if(active===session)stop();throw error;}\n  }\n  return Object.freeze({toggleById,stop,activeId:()=>active?.id??null});\n})();\nconst "
+        }
+      ]
+    },
+    {
+      "path": "src/runtime/instrument/12_rhythm_and_bass_editor.js",
+      "before_sha256": "6a9e2954f5cb337b4acadbab439faf660666b2b3465b20eb713f579da4b49edc",
+      "after_sha256": "d6c6a5e69e1ffa700080238f44cce9250c482978b0fc86f4f6d56e8e0dc5a442",
+      "before_chars": 80903,
+      "after_chars": 81349,
+      "edits": [
+        {
+          "at": 10653,
+          "delete": 0,
+          "insert": "(\"button\",{type:\"button\",disabled:!e.selectedLoopMaterial?.blob,onClick:()=>void __XenMaterialStandalonePreview.toggleById(e.selectedLoopMaterial.id).catch(console.error),title:\"Preview selected Material Track even while instrument Power is off; click again to stop\",className:\"rounded border border-cyan-700/60 bg-cyan-950/25 px-2.5 py-1 text-xs text-cyan-100 hover:bg-cyan-900/30 disabled:opacity-35\",children:\"▶ Preview Material Track\"}),u.jsx"
+        }
+      ]
+    },
+    {
+      "path": "src/forge_and_melodic/06_note_editor_and_material_tools.js",
+      "before_sha256": "624c8af6624adaa1e88d65bfcb863b7ee91747da38f0f89b143a56863b4a8eae",
+      "after_sha256": "2793188bd1ff8d44a3dcd41b19cc3871b016bbec03ef6a5e0823c65e43e3264d",
+      "before_chars": 75754,
+      "after_chars": 76212,
+      "edits": [
+        {
+          "at": 42404,
+          "delete": 0,
+          "insert": "u.jsx(\"button\",{type:\"button\",disabled:t||!B.rawAudioReady,onClick:()=>void __XenMaterialStandalonePreview.toggleById(B.id).catch(console.error),title:B.rawAudioReady?\"Preview rendered material, independent of instrument Power; click again to stop\":\"No rendered audio body for this carrier mode\",className:\"mt-1 rounded border border-fuchsia-800/50 px-2 py-0.5 text-[10px] text-fuchsia-100 hover:bg-fuchsia-950/35 disabled:opacity-35\",children:\"▶ Preview\"}),"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,13 @@
+'use strict';
+const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/strict');
+const root=process.argv[2]||'/mnt/data/P7_3_FINAL_REPLAY/n21-f2';
+const src=fs.readFileSync(root+'/src/rhythm/04_workspace_and_transport.js','utf8');
+const start=src.indexOf('function bPe('),end=src.indexOf('function yPe(',start);
+assert(start>0&&end>start);
+const ctx={AJ:(event)=>event.__pitch, HJ:{},VJ:{},yJ:v=>v,iw:[],gPe:()=>({kind:'keyboard-wsb-position'}),i1e:()=>({kind:'continuous-gliss-target',targetY:312,targetHz:220})};
+vm.createContext(ctx);vm.runInContext(src.slice(start,end)+';this.handle=bPe;',ctx);
+const state={lastPitchIdx:4};let commits=[],audioReadies=0;
+const make=(pitch,repeat)=>({event:{__pitch:pitch,repeat,timeStamp:1},keyboardMirrorActive:false,keyboardWindowOffset:0,params:{},pitchLaneState:state,nowMs:200,rootFollowLoopActive:true,preventDefault(){},ensureKeyboardPitchAudioReadyOnce(){audioReadies++;return true},recordAdaptiveAction(){},commitCursorY(y,options){commits.push({y,options})},shouldEmitKeyboardHoldWavePreview:()=>true,resolveKeyboardWaveStarterSoundPreset:()=> 'tape_halo'});
+ctx.handle(make(4,true));assert.equal(commits.length,1,'Historical hold contract: repeat remains observable');assert.equal(commits[0].options.keyboardHoldRepeat,true,'Repeat must be marked as no-op for actual cursor owner');assert.equal(commits[0].options.previewWave,false,'Repeat must not launch an attack');assert.equal(audioReadies,0,'Same key repeat must not request audio ready');
+ctx.handle(make(5,true));assert.equal(commits.length,2,'Different pitch may update root/ball and keep glissando');assert.equal(commits[1].options.keyboardHoldRepeat,undefined,'New pitch is a real cursor event');
+const shell=fs.readFileSync(root+'/src/app/forge/01_room_shell.js','utf8');assert(shell.includes('if(_t.keyboardHoldRepeat)return ct;if(!_t.pointerMotion)__cancelResonancePointerMotion(xn)'), 'Hold-repeat must never cancel queued pointer motion or modify cursor');console.log('PASS P7.4 old keyboard repeat contract retained; repeat is no-op for cursor owner');

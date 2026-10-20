@@ -1,0 +1,22 @@
+{
+  "date": "2026-10-20",
+  "source": "XenSonar_N21_F2_Nodal_Ball_Grid_Quellen(1).zip",
+  "patches_00_through_10": "PASS",
+  "final_html_sha256": "bc0260682088a3a37a7bf9637d634b8027bc121b2546cb9b520a9760d94c002d",
+  "final_html_bytes": 5672609,
+  "functional_audio_ui_changes_in_p72": false,
+  "original_source_files_unchanged": 216,
+  "stage_00_to_08_file_applications": 55,
+  "stage_00_to_08_exact_edits": 168,
+  "stage_00_to_08_distinct_modules": 21,
+  "retained_domain_tests": "10/10 PASS",
+  "grid_space_behavior_tests": "17/17 PASS",
+  "p72_ancestry": "PASS",
+  "p72_ball_grid": "PASS",
+  "p72_source_index_freshness": "PASS, red/green verified",
+  "source_index_declarations": 6501,
+  "source_index_dependency_pairs": 1113,
+  "rfl_live_stability": "PASS",
+  "historical_nodal_preservation": "FAIL (baseline-anchored hash conflicts with intentional Stage 00 edits)",
+  "opera_audio_test": "NOT RUN"
+}

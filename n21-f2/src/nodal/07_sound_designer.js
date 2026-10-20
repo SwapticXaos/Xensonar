@@ -385,12 +385,11 @@ function NodalSoundDesigner({onModeChange}) {
       h('div',{className:'nd-export'},h('label',{className:'nd-name nd-save-name'},h('span',null,'INSTRUMENT NAME'),h('input',{value:instrument.name,'aria-label':'Instrument name',onChange:e=>commit({...instrument,name:e.target.value})})),h('button',{onClick:()=>save(false)},'Save Instrument'),h('button',{onClick:()=>save(true)},'Save as Variant'),editTarget?h('button',{onClick:backToMelodic},'Cancel · Back to Melodic Loop'):libraryEdit?h('button',{onClick:backToMelodic},'Back to Melodic Loop'):h('label',{className:'nd-reference-check'},h('input',{type:'checkbox',checked:withReference,onChange:e=>setWithReference(e.target.checked)}),'Add reference note'),libraryEdit?null:h('button',{className:'nd-send',onClick:send},editTarget?'Apply Changes':'Send to Melodic Loop'),!editTarget&&!libraryEdit?h('button',{disabled:!exported,onClick:backToMelodic},'Open Loop ↗'):null)));
 }
 // Room III is one workspace with three modes, not a floating Sound Design modal.
-function NodalRoomHeader({mode, onModeChange}) {
+function NodalRoomHeader({mode, onModeChange, installationSoundEnabled = true, onToggleInstallationSound}) {
   const h = P.createElement;
   const labels = {
     sounddesign: ['Sound Design', 'Material · Resonance · Constellation'],
-    installation: ['Installation', 'Resident nodes · Ball · Sound field'],
-    enhancer: ['Enhancer', 'Processing · Routing · Mix']
+    installation: ['Installation', 'Resident nodes · Ball · Sound field']
   };
   const current = labels[mode] || labels.installation;
   return h('header', {className: 'nd-heading nd-shared-heading'},
@@ -398,16 +397,29 @@ function NodalRoomHeader({mode, onModeChange}) {
       h('div', {className: 'nd-eyebrow'}, 'ROOM III / NODAL INSTALLATION'),
       h('h2', null, current[0]), h('p', null, current[1])),
     h('nav', {className: 'nd-modes', 'aria-label': 'Nodal modes'},
-      ...[['sounddesign', 'Sound Design'], ['installation', 'Installation'], ['enhancer', 'Enhancer']]
+      ...[['sounddesign', 'Sound Design'], ['installation', 'Installation']]
         .map(([id, label]) => h('button', {
           key: id, type: 'button', className: mode === id ? 'is-active' : '',
           'aria-pressed': mode === id, onClick: () => { if (mode !== id) onModeChange(id); }
-        }, label))));
+        }, label)),
+      mode === 'installation' && h('button', {
+        key: 'installation-sound', type: 'button',
+        className: 'nd-sound-toggle ' + (installationSoundEnabled ? 'is-sounding' : 'is-muted'),
+        'data-installation-sound-toggle': true,
+        'aria-label': installationSoundEnabled ? 'Installation · Klang ausschalten' : 'Installation · Klang einschalten',
+        'aria-pressed': installationSoundEnabled,
+        title: 'Nur die Installation stummschalten. Oszillatorball, Nodes und Sonar-Wellen bleiben sichtbar.',
+        onClick: onToggleInstallationSound
+      }, installationSoundEnabled ? '◖)) Installation · Klang an' : '◖× Installation · Klang aus')));
 }
 function koe(props) {
-  return P.createElement('section', {className: 'nd-room nd-room-shell', 'data-nodal-mode': props.mode},
-    P.createElement(NodalRoomHeader, {mode: props.mode, onModeChange: props.onModeChange}),
-    props.mode === 'sounddesign'
+  // A project saved with the historic Enhancer view opens its living installation instead.
+  P.useEffect(() => { if (props.mode === 'enhancer') props.onModeChange('installation'); }, [props.mode, props.onModeChange]);
+  const activeMode = props.mode === 'enhancer' ? 'installation' : props.mode;
+  return P.createElement('section', {className: 'nd-room nd-room-shell', 'data-nodal-mode': activeMode},
+    P.createElement(NodalRoomHeader, {mode: activeMode, onModeChange: props.onModeChange,
+      installationSoundEnabled: props.installationSoundEnabled, onToggleInstallationSound: props.onToggleInstallationSound}),
+    activeMode === 'sounddesign'
       ? P.createElement(NodalSoundDesigner, props)
-      : P.createElement('div', {className: 'nd-legacy-body nd-legacy-' + props.mode}, P.createElement(koeLegacy, props)));
+      : P.createElement('div', {className: 'nd-legacy-body nd-legacy-' + activeMode}, P.createElement(koeLegacy, {...props, mode: activeMode})));
 }

@@ -1,0 +1,158 @@
+[
+  {
+    "stage": "00",
+    "scope": "Installation: eigener Audio-Schalter, Ballpegel, Startwerte; Effekt-Rack",
+    "decision": "adaptiert",
+    "reason": "Neue Installation-Startwerte übernommen; separater Ballpegel und Residents geprüft. Vorherige Quellen als exakte Basis nachgewiesen."
+  },
+  {
+    "stage": "01",
+    "scope": "Refucktor-Grundklänge und eigener Drone-Signalweg",
+    "decision": "adaptiert",
+    "reason": "Dark Sub und Ethereal Halo übernommen; frühere Drone-Auswahl samt Originalreglern wieder zugänglich gemacht."
+  },
+  {
+    "stage": "02",
+    "scope": "Drone Workbench: Wobble, Drive, Flanger, 16-Step-Gate",
+    "decision": "adaptiert",
+    "reason": "Eigenständiger AudioNode-Pfad; Kontextwechsel räumt alten Graph vor Neuaufbau auf."
+  },
+  {
+    "stage": "03",
+    "scope": "Abgeleitetes Bass-Raster und Grid-Memory-Erweiterungen",
+    "decision": "übernommen",
+    "reason": "Kompilierte Tonhöhentabelle, Quantisierung am vorhandenen Bass-Einlass; keine zweite vollständige Rasterbibliothek."
+  },
+  {
+    "stage": "04",
+    "scope": "Bass-Raster-Bedienung, optionale Drone-/RFL-Zielquantisierung",
+    "decision": "übernommen",
+    "reason": "Optionale Zielverwendung bleibt getrennt; bestehende RFL-Lifecycle-Prüfungen weiter aktiv."
+  },
+  {
+    "stage": "05",
+    "scope": "Verknüpfte alternative Raster, Mutes und Bibliotheks-Refresh",
+    "decision": "adaptiert",
+    "reason": "Fehlende Referenzen fallen sichtbar zurück; Vorschau verwendet auch bei nicht oktavischen Rastern deren echte Periode."
+  },
+  {
+    "stage": "06",
+    "scope": "Drone-Speicherung, Power/Echo-Reset, Navigator-Vorschau",
+    "decision": "adaptiert",
+    "reason": "Persistierte Steuertypen validiert; veralteter Vorschauauftrag gibt seinen Ladezustand frei."
+  },
+  {
+    "stage": "07",
+    "scope": "Space: temporäre Trennung von Keyboard und Grundton-Verbund",
+    "decision": "übernommen",
+    "reason": "Halten, Loslassen ohne Nachholsprung, nächste absichtliche Geste, Blur/Visibility geprüft; Apostroph bleibt eigenständig."
+  },
+  {
+    "stage": "08",
+    "scope": "B/Alt-Anschlags-Expression und Bedienhinweise",
+    "decision": "übernommen",
+    "reason": "Keyboard-Ausdruck bleibt gegenüber Wave getrennt; keine Behauptung eines Live-VCA für laufende Stimmen."
+  },
+  {
+    "stage": "09",
+    "scope": "Verhaltens- und Abgrenzungsprüfungen",
+    "decision": "adaptiert",
+    "reason": "Historische Pfade dokumentiert; neue Freigabe nutzt aktive Produktionspfade und klare Ergebnisdateien."
+  },
+  {
+    "stage": "10",
+    "scope": "Installation-Prüfung, Abstammung und Quellindex",
+    "decision": "adaptiert",
+    "reason": "Quellindex frisch erzeugt; unabhängige Abgrenzung auf Stufen 00–22 plus explizite Korrekturen erweitert."
+  },
+  {
+    "stage": "11",
+    "scope": "Violette Navigator-Auswahl, Regionsvorschau, Sample-Name",
+    "decision": "adaptiert",
+    "reason": "Gegenwärtige Save-Position erhalten, einzelne Trefferflächen, Vorschau-Stale-Abschluss gehärtet."
+  },
+  {
+    "stage": "12",
+    "scope": "Keyboard-Repeat/Pointer-Besitz und Pedal-Rückkehr",
+    "decision": "übernommen",
+    "reason": "Wiederholte gehaltene Note verdrängt keine wartende Pointer-Geste; aktueller Pedalmodus später durch 14/22 verfeinert."
+  },
+  {
+    "stage": "13",
+    "scope": "Violette Trimgriffe im vergrößerten Forge-Bild",
+    "decision": "übernommen",
+    "reason": "Gemeinsamer Auswahlzustand, explizite Zeit-/Pixelabbildung, getrennt vom cyanfarbenen Zoomfenster."
+  },
+  {
+    "stage": "14",
+    "scope": "B+linkes Alt: Pedal-/Knob-Modus",
+    "decision": "adaptiert",
+    "reason": "Einmalige Umschaltung bis beide Tasten frei sind; Testwartezeit an die spätere 220-ms-Rückkehr aus Stufe 22 angepasst."
+  },
+  {
+    "stage": "15",
+    "scope": "Keyboard unabhängig vom Wave-Starter-Schalter",
+    "decision": "übernommen",
+    "reason": "Reale Keyboard-Eingabe plus Nodal-/Entrophon-Domänentests; Legacy-Zulassung kann den C11-Pfad verwenden."
+  },
+  {
+    "stage": "16",
+    "scope": "Sichtbarkeit Rasterlinie und dunkler Cursorball",
+    "decision": "übernommen",
+    "reason": "Darstellung im Main-Room; keine Änderung der Tonhöhenabbildung."
+  },
+  {
+    "stage": "17",
+    "scope": "Enough!, Aufnahme verwerfen und Vollbild",
+    "decision": "adaptiert",
+    "reason": "Abschluss bindet Recorder und Chunk-Array; verspätete Decode-Erfolge und Fehler dürfen einen neuen Take nicht verändern."
+  },
+  {
+    "stage": "18",
+    "scope": "Sample-Database-Verbindungslinien",
+    "decision": "übernommen",
+    "reason": "Nur Darstellung, keine Pointer-Hits; Observer/RAF werden beim Schließen entfernt."
+  },
+  {
+    "stage": "19",
+    "scope": "Melodic-Navigator: Pointermove nicht einfrieren",
+    "decision": "übernommen",
+    "reason": "Gleicher Listener wird beim Aufräumen wieder entfernt; vorhandene Navigator- und Transport-Prüfungen laufen weiter."
+  },
+  {
+    "stage": "20",
+    "scope": "Entrophon-Live-Auswahl bei veralteter Revision",
+    "decision": "adaptiert",
+    "reason": "Zusätzlich Live-Cache bei Bibliotheksänderung invalidiert; gleiche Instrumentidentität, gespeicherte Kompositions-Snapshots bleiben unverändert."
+  },
+  {
+    "stage": "21",
+    "scope": "Material-Vorschau unabhängig vom Instrument-Power",
+    "decision": "übernommen",
+    "reason": "Einzelner Audio-Element-Besitzer, Stop/Wechsel/Fehler widerrufen Objekt-URLs; keine zweite Instrument-Engine."
+  },
+  {
+    "stage": "22",
+    "scope": "Kompakte Material-Vorschau und weichere Pedalkurve",
+    "decision": "adaptiert",
+    "reason": "Fatalen ungequoteten aria-label-Schlüssel im Quellmodul korrigiert; weichere Rückkehr beibehalten."
+  },
+  {
+    "stage": "P7.11.1",
+    "scope": "Separater White-Screen-Hotfix",
+    "decision": "übernommen",
+    "reason": "Isoliert exakt rekonstruierter Fix-Hash 3d84f707…; Reparatur im Quellmodul statt nur in generierter HTML."
+  },
+  {
+    "stage": "P7.12",
+    "scope": "Experiment: Keyboard-Live-VCA",
+    "decision": "zurückgestellt",
+    "reason": "Nicht im Build. Gemeldeter Hörtest fehlgeschlagen, Anschlagsskalierung und nachgeschalteter VCA können sich multiplizieren; alternative/native/Entrophon-Wege sind nicht vollständig abgesichert."
+  },
+  {
+    "stage": "P7.10-Referenz",
+    "scope": "Doppelte frühere Übergabe",
+    "decision": "bereits enthalten",
+    "reason": "Alle 22 Patchdateien 00–21 sind bytegleich zur vollständigen Kette; nicht doppelt angewendet."
+  }
+]

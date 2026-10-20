@@ -1,0 +1,41 @@
+=== P7.3 final source ancestry ===
+PASS P7.3 exact rebase: 7 files, 58 source-span edits, 233 inherited source/style/template files byte-identical
+PASS P7.3 built HTML SHA256 efe4338e4459d356f9684949ee85b62f015681cbbcc4950d3bc2f74054d17e84
+=== Forge save/preview ===
+PASS: independent invisible selection handles, bounds, cursor, and PCM-timed violet preview playhead
+PASS: sample name is used in actual Sample Database file registration, fallback and filename sanitization
+=== source index ===
+PASS fresh source-index: 6504 declarations / 1113 file dependencies
+=== grid and keyboard ===
+PASS Default Main Grid preserves incoming Bass/Drone/RFL frequencies
+PASS Derived grid restricts degrees and performs nearest pitch mapping
+PASS Bass/Drone/RFL grid-routing switches are independent
+PASS A linked nine-EDO tuning is not folded back into main 12-EDO
+PASS Linked grid has no duplicate cents offset layer
+PASS Linked grid does NOT recompile when only main scale/mutes/offsets change
+PASS Changing the linked degree exclusions recomputes once
+PASS Deleted linked tuning is visible, and never silently maps to 12-EDO
+PASS All-muted Bass Grid drops Bass notes rather than generating replacements
+PASS When all steps muted, Drone and RFL do not emit an invalid pitch
+PASS Preview degrees ascend and stay within one period
+PASS Fifth interval has an English ~5th / 5th orientation label
+PASS Foundation detaches on Space and holds identical root before and after keyup
+PASS No keyup catch-up; only next intentional gesture reattaches foundation
+PASS Window blur resets latched Space state
+PASS Visibility hidden resets held foundation and prevents stuck modifier
+PASS Stored grid extension survives export/import with no duplicate tuning payload
+PASS 17 P7 runtime-derived-grid/keyboard-foundation behavior checks
+=== original domain checks ===
+PASS forge_save_play_symmetry.cjs
+PASS forge_play_ready_save_regression.cjs
+PASS p4c2-n20-navigation.cjs
+PASS p4c2-n21-length-control.cjs
+PASS p4c2-n21-quickdock.cjs
+PASS p3b1-keyboard-directness.cjs
+PASS p3b3-keyboard-c11-lead.cjs
+PASS f447-power-owner.cjs
+PASS p4c2-n2-grid-sources.cjs
+PASS p4c2-n2-grid-bank.cjs
+PASS 10 retained domain smoke suites. Historical hash-preservation suite remains separate and unresolved.
+=== reproducible html ===
+PASS reproducible standalone HTML efe4338e4459d356f9684949ee85b62f015681cbbcc4950d3bc2f74054d17e84 5677719

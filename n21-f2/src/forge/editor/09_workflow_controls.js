@@ -35,13 +35,77 @@ function __ForgeMiniPlay(){
   loading&&P.createElement('span',{'aria-hidden':true,className:'pointer-events-none absolute inset-x-0 bottom-0 bg-emerald-500/90',style:{height:fill+'%'}}),
   P.createElement('span',{className:'relative z-10'},loading?'■ '+fill+' %':playing?'⏸ Pause':'▶ Play'));
 }
+/* P5: bounded navigator audition, independent from the main Forge transport. */
+let __f333NavigatorPreviewSource=null,__f333NavigatorPreviewTicket=0;
+function __f333StopNavigatorPreview(){
+ ++__f333NavigatorPreviewTicket;
+ const source=__f333NavigatorPreviewSource;__f333NavigatorPreviewSource=null;
+ if(source){try{source.onended=null;source.stop()}catch{}try{source.disconnect()}catch{}}
+ if(__ForgeNavigatorSample.snapshot().previewing||__ForgeNavigatorSample.snapshot().previewBusy)
+  __ForgeNavigatorSample.update({previewing:false,previewBusy:false,previewDurationSec:null});
+}
+async function __f333PreviewNavigatorSample(){
+ if(__f333NavigatorPreviewSource||__ForgeNavigatorSample.snapshot().previewBusy){__f333StopNavigatorPreview();return}
+ const selected=__ForgeNavigatorSample.current();if(!selected)return;
+ const ticket=++__f333NavigatorPreviewTicket;
+ const state=pe.getState(),revision=state.renderVersion,route=__f333Route(state),masterRevision=__F3564Master.getSnapshot().revision;
+ const ctx=xt.getContext();__ForgeNavigatorSample.update({previewBusy:true,message:''});
+ try{
+  if(ctx.state==='suspended')await ctx.resume();
+  const render=await __f333RenderCurrent(state,{flacBuffer:true});
+  if(ticket!==__f333NavigatorPreviewTicket||__ForgeNavigatorSample.current()!==selected||pe.getState().renderVersion!==revision||__f333Route(pe.getState())!==route||__F3564Master.getSnapshot().revision!==masterRevision)return;
+  const buffer=render.buffer;
+  if(!buffer||!buffer.sampleRate||!buffer.length)throw Error('No playable audio for this navigator selection.');
+  const first=Math.max(0,Math.min(buffer.length-1,Math.floor(selected.start*buffer.length)));
+  const last=Math.max(first+1,Math.min(buffer.length,Math.ceil(selected.end*buffer.length)));
+  const count=last-first,seconds=count/buffer.sampleRate;
+  if(seconds<.025||seconds>5.001)throw Error('Select a region between 25 ms and 5 seconds.');
+  const audition=ctx.createBuffer(Math.min(2,buffer.numberOfChannels),count,buffer.sampleRate);
+  const fade=Math.min(Math.floor(buffer.sampleRate*.003),Math.floor(count/4));let peak=0;
+  for(let channel=0;channel<audition.numberOfChannels;channel++){
+   const source=buffer.getChannelData(channel),target=audition.getChannelData(channel);
+   for(let i=0;i<count;i++){
+    let value=source[first+i];if(!Number.isFinite(value))throw Error('Selected audio contains invalid samples.');
+    if(fade){if(i<fade)value*=i/fade;if(i>count-1-fade)value*=(count-1-i)/fade;}
+    target[i]=value;peak=Math.max(peak,Math.abs(value));
+   }
+  }
+  if(peak<1e-8)throw Error('The selected region is silent. Draw or select audible material.');
+  const voice=ctx.createBufferSource();voice.buffer=audition;voice.connect(ctx.destination);
+  voice.onended=()=>{try{voice.disconnect()}catch{}if(__f333NavigatorPreviewSource===voice){__f333NavigatorPreviewSource=null;__ForgeNavigatorSample.update({previewing:false,previewBusy:false,previewDurationSec:null})}};
+  __f333NavigatorPreviewSource=voice;voice.start();__ForgeNavigatorSample.update({previewing:true,previewBusy:false,previewDurationSec:seconds});
+ }catch(error){if(ticket===__f333NavigatorPreviewTicket)__ForgeNavigatorSample.update({previewing:false,previewBusy:false,message:error?.message||'Preview unavailable.'})}
+ finally{if(ticket===__f333NavigatorPreviewTicket&&!__f333NavigatorPreviewSource)__ForgeNavigatorSample.update({previewing:false,previewBusy:false,previewDurationSec:null});}
+}
+/* P7.3: keep this title outside the button flow. Preview and Save stay anchored. */
+function __ForgeNavigatorSampleNameInput(){
+ const state=P.useSyncExternalStore(__ForgeNavigatorSample.subscribe,__ForgeNavigatorSample.snapshot,__ForgeNavigatorSample.snapshot);
+ if(!__ForgeNavigatorSample.current())return null;
+ return P.createElement(P.Fragment,null,
+  P.createElement('label',{htmlFor:'f35-navigator-sample-name-input',className:'f35-navigator-sample-caption f33-project-name-text'},'Sample Name:'),
+  P.createElement('input',{id:'f35-navigator-sample-name-input',type:'text','data-forge-navigator-sample-name':true,
+  'aria-label':'Sample name',title:'Name this selection before saving · blank uses the automatic title',
+  placeholder:'',maxLength:74,value:state.nameDraft||'',
+  onChange:event=>__ForgeNavigatorSample.update({nameDraft:event.target.value}),
+  onKeyDown:event=>event.stopPropagation(),onKeyUp:event=>event.stopPropagation(),
+  className:'f35-navigator-sample-name rounded border border-violet-500/60 bg-neutral-950 px-2 text-[10px] text-violet-100 placeholder:text-violet-300/60 focus:border-fuchsia-400 focus:outline-none',
+  style:{width:102,minWidth:102,height:25,boxSizing:'border-box'}
+ }));
+}
+function __ForgeNavigatorPreviewButton(){
+ const h=P.createElement,state=P.useSyncExternalStore(__ForgeNavigatorSample.subscribe,__ForgeNavigatorSample.snapshot,__ForgeNavigatorSample.snapshot);
+ if(!__ForgeNavigatorSample.current())return null;
+ return h('button',{type:'button','data-forge-navigator-preview':true,'aria-label':state.previewing?'Stop selected navigator preview':'Play selected navigator range',
+  title:state.previewing?'Stop region preview':'Preview only the highlighted Navigator region',disabled:state.busy,
+  onClick:()=>void __f333PreviewNavigatorSample(),className:'h-[25px] w-[29px] shrink-0 rounded border border-violet-500 bg-neutral-900 text-xs text-violet-100 hover:bg-violet-800 disabled:opacity-50',style:{width:29,minWidth:29,height:25}},state.previewBusy?'…':state.previewing?'■':'▶');
+}
 function __ForgeNavigatorSaveButton(){
  const state=P.useSyncExternalStore(__ForgeNavigatorSample.subscribe,__ForgeNavigatorSample.snapshot,__ForgeNavigatorSample.snapshot);
  if(!__ForgeNavigatorSample.current())return null;
  return P.createElement('button',{type:'button','data-forge-navigator-save-sample':true,disabled:state.busy,
   'aria-label':'Save selected navigator range as sample',onClick:()=>void __f333SaveNavigatorSample(),
   title:state.message||'Save the highlighted audio as a one-shot in the shared Sample Database',
-  className:'rounded border border-violet-400 bg-violet-950 px-2 py-1 text-[10px] font-semibold text-violet-100 shadow-md hover:bg-violet-800 disabled:opacity-50',style:{width:102,minWidth:'max-content',height:25}
+  className:'rounded border border-violet-400 bg-violet-950 px-2 py-1 text-[10px] font-semibold text-violet-100 shadow-md hover:bg-violet-800 disabled:opacity-50',style:{width:102,minWidth:102,height:25}
  },state.busy?'Saving…':'Save as Sample');
 }
 function __ForgeTransportRack(e){
@@ -94,7 +158,7 @@ function __ForgeTransportRack(e){
        style:{width:60},className:'rounded border border-neutral-700 bg-black px-1 py-1 text-right'})),
      h('label',{className:'flex items-center gap-1 text-xs text-neutral-300'},
       h('input',{type:'checkbox','data-forge-loop-toggle':true,checked:e.previewLoopEnabled,disabled:e.previewLoopToggleDisabled,onChange:ev=>e.updateMaterialExport({loopPreview:ev.target.checked})}),'Loop')),
-     h('div',{'data-forge-navigator-save-slot':true,className:'f35-navigator-save-slot'},h(__ForgeNavigatorSaveButton))),
+     h('div',{'data-forge-navigator-save-slot':true,className:'f35-navigator-save-slot inline-flex items-center gap-1'},h(__ForgeNavigatorSampleNameInput),h(__ForgeNavigatorPreviewButton),h(__ForgeNavigatorSaveButton))),
     h('div',{className:'f31-trim-import'},h(__F3564TransportTrim,{isPlaying:e.isPlaying,restartPreview:e.handlePlay}),
      h('div',{className:'f31-import-bars'},
       h('button',{...button,'data-forge-import-image':true,'aria-label':'Import Image',title:'Load an image into the drawing',onClick:()=>e.fileInputRef.current?.click()},'▧ Import Image'),
