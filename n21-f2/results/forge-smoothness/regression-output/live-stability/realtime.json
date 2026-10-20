@@ -1,0 +1,18 @@
+{
+  "result": {
+    "frames": 70528,
+    "primaryDropouts": 0,
+    "nonfinite": 0,
+    "rflPeak": 0.3558860719203949,
+    "maxRflJump": 0.0005623698234558105,
+    "rflQuietFrames": 366,
+    "rate": 44100,
+    "updates": 480,
+    "mainThreadStalls": 4,
+    "stallMs": 80,
+    "elapsedMs": 1651.4000000059605,
+    "faults": []
+  },
+  "errors": [],
+  "scope": "Real Chromium AudioContext/AudioWorklets under 480 root messages and four intentional 80ms main-thread stalls; protects a simultaneous native primary lane. No physical-device xrun guarantee."
+}

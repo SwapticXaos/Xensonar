@@ -1,0 +1,25 @@
+{"frequencies":2048,"reads":3036}
+PASS original live cursor/raster mapping for 1080 real tuning cases and empty/boundary/midpoint/NaN semantics
+{"entry":"Xensonar_P7_Smoothness_Master_Test.html","sha256":"83752e1a5d33a6ddb3e3436270b8fd615284b082f77a9052dec87cc536e8d426","frequencies":2048,"reads":3036,"realCases":1080,"queriesPerRun":50000,"baseline":[72.42222800000013,61.972710000000006,77.52130699999998,64.25648000000001,65.8270120000002],"changed":[84.45851900000002,72.69907900000021,81.28223100000014,62.30266799999981,67.42924799999992],"speedup":0.9054724338392238,"scope":"Nearest-frequency lookup within an already compiled live grid; not total audio engine throughput"}
+node:internal/assert/utils:77
+    throw err;
+    ^
+
+AssertionError [ERR_ASSERTION]: live snap must inspect logarithmically many prepared frequencies
+    at Object.<anonymous> (/workspace/Xensonar/n21-f2/tests/live-grid-snap.cjs:21:137)
+    at Module._compile (node:internal/modules/cjs/loader:1872:14)
+    at Object..js (node:internal/modules/cjs/loader:2003:10)
+    at Module.load (node:internal/modules/cjs/loader:1594:32)
+    at Module._load (node:internal/modules/cjs/loader:1396:12)
+    at wrapModuleLoad (node:internal/modules/cjs/loader:255:19)
+    at Module.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:154:5)
+    at node:internal/main/run_main_module:33:47 {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: false,
+  expected: true,
+  operator: '==',
+  diff: 'simple'
+}
+
+Node.js v24.19.0

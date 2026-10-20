@@ -1,0 +1,23 @@
+{"measured":{"rms":0,"peak":0},"mix":{"main":0,"drone":0,"rhythm":0,"space":0,"density":0.0010500000000000002,"trim":0.9798844999999999}}
+node:internal/assert/utils:77
+    throw err;
+    ^
+
+AssertionError [ERR_ASSERTION]: master meter retains quiet floating-point signal
+    at Object.<anonymous> (/workspace/Xensonar/n21-f2/tests/master-output-contract.cjs:12:135)
+    at Module._compile (node:internal/modules/cjs/loader:1872:14)
+    at Object..js (node:internal/modules/cjs/loader:2003:10)
+    at Module.load (node:internal/modules/cjs/loader:1594:32)
+    at Module._load (node:internal/modules/cjs/loader:1396:12)
+    at wrapModuleLoad (node:internal/modules/cjs/loader:255:19)
+    at Module.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:154:5)
+    at node:internal/main/run_main_module:33:47 {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: false,
+  expected: true,
+  operator: '==',
+  diff: 'simple'
+}
+
+Node.js v24.19.0

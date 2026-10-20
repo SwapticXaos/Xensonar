@@ -1,0 +1,19 @@
+{
+  "entry": "Xensonar_P7_Smoothness_Master_Test.html",
+  "sha256": "f6f52b06d3bd2201db2ebeac955da9aa09fc4c7226c9aa8b8692637d985ac7b6",
+  "playback": {
+    "copies": 0,
+    "writes": 0
+  },
+  "afterEdit": {
+    "copies": 1,
+    "writes": 1,
+    "name": "Saved actual edit",
+    "pixel": 0.625
+  },
+  "afterFlush": {
+    "flushedCopies": 2,
+    "copies": 2,
+    "name": "Explicitly flushed edit"
+  }
+}

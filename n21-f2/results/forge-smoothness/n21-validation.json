@@ -1,0 +1,330 @@
+{
+  "rows": [
+    {
+      "test": "p4c2-n7-frequency-pacing",
+      "passed": true,
+      "exit": 0
+    },
+    {
+      "test": "p4c2-n7-grid-deltas",
+      "passed": true,
+      "exit": 0
+    },
+    {
+      "test": "p4c2-n7-impact-preparation",
+      "passed": true,
+      "exit": 0
+    },
+    {
+      "test": "p4c2-n7-priority-queue",
+      "passed": true,
+      "exit": 0
+    },
+    {
+      "test": "p4c2-n2-preparation-queue",
+      "passed": true,
+      "exit": 0
+    },
+    {
+      "test": "p4c2-n2-grid-sources",
+      "passed": true,
+      "exit": 0
+    },
+    {
+      "test": "p4c2-n7-session-preparation",
+      "passed": true,
+      "exit": 0
+    },
+    {
+      "test": "p4c2-n7-interleaved-voices",
+      "passed": true,
+      "exit": 0
+    },
+    {
+      "test": "p4c2-n6-input-routing",
+      "passed": true,
+      "exit": 0
+    },
+    {
+      "test": "p4c2-n6-catalog",
+      "passed": true,
+      "exit": 0
+    },
+    {
+      "test": "p4c2-n6-placement",
+      "passed": true,
+      "exit": 0
+    },
+    {
+      "test": "p4c2-n6-real-placement",
+      "passed": true,
+      "exit": 0
+    },
+    {
+      "test": "p4c2-n5-pointer",
+      "passed": true,
+      "exit": 0
+    },
+    {
+      "test": "p4c2-n5-particle-motion",
+      "passed": true,
+      "exit": 0
+    },
+    {
+      "test": "p4c2-n5-review-regressions",
+      "passed": true,
+      "exit": 0
+    },
+    {
+      "test": "p4b-l5-cursor-contract",
+      "passed": true,
+      "exit": 0
+    },
+    {
+      "test": "p4b-l8-cursor-gate",
+      "passed": true,
+      "exit": 0
+    },
+    {
+      "test": "p3b-host-admission",
+      "passed": true,
+      "exit": 0
+    },
+    {
+      "test": "p3b5-triple-nodal-burst-budget",
+      "passed": true,
+      "exit": 0
+    },
+    {
+      "test": "p3b5-three-lane-integration",
+      "passed": true,
+      "exit": 0
+    },
+    {
+      "test": "p3b1-keyboard-directness",
+      "passed": true,
+      "exit": 0
+    },
+    {
+      "test": "p3b1-keyboard-backend",
+      "passed": true,
+      "exit": 0
+    },
+    {
+      "test": "p3b1-keyboard-nodal",
+      "passed": true,
+      "exit": 0
+    },
+    {
+      "test": "p3b2-keyboard-entrophon",
+      "passed": true,
+      "exit": 0
+    },
+    {
+      "test": "p3b2-entrophon-body",
+      "passed": true,
+      "exit": 0
+    },
+    {
+      "test": "p3b2-active-gate",
+      "passed": true,
+      "exit": 0
+    },
+    {
+      "test": "p3b3-wave-c11-stale-boundary",
+      "passed": true,
+      "exit": 0
+    },
+    {
+      "test": "p3b3-keyboard-c11-lead",
+      "passed": true,
+      "exit": 0
+    },
+    {
+      "test": "p3b4-c11-complexity-timing",
+      "passed": true,
+      "exit": 0
+    },
+    {
+      "test": "p3b4-wave-cost-boundary",
+      "passed": true,
+      "exit": 0
+    },
+    {
+      "test": "p3b6-coefficient-hotpath",
+      "passed": true,
+      "exit": 0
+    },
+    {
+      "test": "p3b6-worker-frequency-coalescing",
+      "passed": true,
+      "exit": 0
+    },
+    {
+      "test": "p3b6-worker-pitch-parity",
+      "passed": true,
+      "exit": 0
+    },
+    {
+      "test": "p4c1-source-preparation",
+      "passed": true,
+      "exit": 0
+    },
+    {
+      "test": "p4c1-production-handoff",
+      "passed": true,
+      "exit": 0
+    },
+    {
+      "test": "p4c2-n4-sample-parity",
+      "passed": true,
+      "exit": 0
+    },
+    {
+      "test": "p4c2-n4-template-placement",
+      "passed": true,
+      "exit": 0
+    },
+    {
+      "test": "p4c2-n3-particle-grid",
+      "passed": true,
+      "exit": 0
+    },
+    {
+      "test": "p4c2-n3-particle-worker",
+      "passed": true,
+      "exit": 0
+    },
+    {
+      "test": "p4c2-n2-worker-runtime",
+      "passed": true,
+      "exit": 0
+    },
+    {
+      "test": "p2-staged-audio-parity",
+      "passed": true,
+      "exit": 0
+    },
+    {
+      "test": "f4311-ripple-and-psy",
+      "passed": true,
+      "exit": 0
+    },
+    {
+      "test": "f4312-ripple-release",
+      "passed": true,
+      "exit": 0
+    },
+    {
+      "test": "f4313-ripple-pacing",
+      "passed": true,
+      "exit": 0
+    },
+    {
+      "test": "f3-instruments",
+      "passed": true,
+      "exit": 0
+    },
+    {
+      "test": "p4c2-n20-cost-policy",
+      "passed": true,
+      "exit": 0
+    },
+    {
+      "test": "p4c2-n20-shared-runtime",
+      "passed": true,
+      "exit": 0
+    },
+    {
+      "test": "p4c2-n20-worker-preparation",
+      "passed": true,
+      "exit": 0
+    },
+    {
+      "test": "p4c2-n20-melodic-transport",
+      "passed": true,
+      "exit": 0
+    },
+    {
+      "test": "p4c2-n20-tail-budget",
+      "passed": true,
+      "exit": 0
+    },
+    {
+      "test": "p4c2-n21-length-control",
+      "passed": true,
+      "exit": 0
+    },
+    {
+      "test": "p4c2-n21-quickdock",
+      "passed": true,
+      "exit": 0
+    },
+    {
+      "test": "p4c2-n21-c11-release",
+      "passed": true,
+      "exit": 0
+    },
+    {
+      "test": "p4c2-n21-runtime-release",
+      "passed": true,
+      "exit": 0
+    },
+    {
+      "test": "p4c2-n21-preservation",
+      "passed": true,
+      "exit": 0
+    },
+    {
+      "test": "p4c2-n20-mixed-render",
+      "passed": true,
+      "exit": 0
+    },
+    {
+      "test": "f442-rfl-runtime",
+      "passed": true,
+      "exit": 0
+    },
+    {
+      "test": "f442-rfl-resident",
+      "passed": true,
+      "exit": 0
+    },
+    {
+      "test": "p4b-entrophon-library",
+      "passed": true,
+      "exit": 0
+    },
+    {
+      "test": "p4b-eight-instruments",
+      "passed": true,
+      "exit": 0
+    },
+    {
+      "test": "p4b-entrophon-melodic-audio",
+      "passed": true,
+      "exit": 0
+    },
+    {
+      "test": "p4b-integration",
+      "passed": true,
+      "exit": 0
+    },
+    {
+      "test": "p4b-stem-isolation",
+      "passed": true,
+      "exit": 0
+    },
+    {
+      "test": "nodal_backend",
+      "passed": true,
+      "exit": 0
+    },
+    {
+      "test": "build --verify",
+      "passed": true
+    }
+  ],
+  "failed": 0,
+  "scope": "Host tests with production DSP and real Worker threads; browser/hardware checks reported separately"
+}

@@ -1,0 +1,13 @@
+{
+  "baseCommit": "4805499b3d4d37b812f97cbeb2fe85e9e41158ac",
+  "entry": "Xensonar_P7_Smoothness_Master_Test.html",
+  "sha256": "f6f52b06d3bd2201db2ebeac955da9aa09fc4c7226c9aa8b8692637d985ac7b6",
+  "productionFiles": [
+    "src/forge/module_bundle/21_experimentStatePersistence.js",
+    "src/runtime/01_instrument_state.js",
+    "src/runtime/instrument/01_voice_gradients_and_effects.js"
+  ],
+  "preservedHistoricalArtifacts": 91,
+  "liveLookupReferenceSha256": "b72da509e4a0d9881ce9b6add51a4dd53edc7fa70ee283c0887617451b22bd2f",
+  "scope": "Measured live nearest-frequency search and autosave control work; master float meter precision. No sound generator or final protection changes."
+}

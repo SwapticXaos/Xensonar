@@ -111,6 +111,7 @@ await args.storage.put({ id: ref.assetId, value: base, updatedAt: Date.now() });
 return ref;
 };
 const saveNow = () => {
+clearTimers();
 if (disposed || restoring || !restoreComplete || protectingSavedState)
 return false;
 try {
@@ -211,6 +212,7 @@ if(!workspace.projectSnapshot)throw new Error("Saved carrier workspace state is 
 const [mainSource, donorSource] = await Promise.all([
 loadAsset(workspace.mainSource), loadAsset(workspace.donorSource),
 ]);
+if (disposed) return false;
 if(restoreEpoch!==__f333RestoreBarrier){restoreComplete=true;restoreSkippedForInteraction=true;lastError="Loading interrupted by a newer edit.";return false;}
 const state = args.store.getState();
 __F341Workbench.withSnapshotRestore(()=>state.loadProjectSnapshot(workspace.projectSnapshot));
@@ -251,6 +253,7 @@ const donorRestoreEpoch=__f333Epoch;
 const token = args.runtime.beginExtraction(donorSource);
 try {
 const model = await args.prepareDonor(donorSource);
+if (disposed) return false;
 if(donorRestoreEpoch!==__f333Epoch){args.runtime.stop();restoreComplete=true;restoreSkippedForInteraction=true;lastError="Donor loading interrupted by a newer edit.";return false;}
 if (args.runtime.commitExtraction(token, donorSource, model)) {
 if (workspace.donorRegisterPolicy)
@@ -263,6 +266,7 @@ throw new Error("Saved donor contains no usable granular material.");
 else throw new Error("Could not restore saved donor.");
 }
 catch (error) {
+if (disposed) return false;
 args.runtime.failExtraction(token, error);
 throw error;
 }
@@ -305,8 +309,20 @@ attachInteractionGuards();
 await restore();
 if (disposed)
 return;
-unsubStore = args.store.subscribe(scheduleSave);
-unsubRuntime = args.runtime.subscribe(scheduleSave);const unsubWorkbench=__F341Workbench.subscribe(scheduleSave);cleanupDom.push(unsubWorkbench);
+// Transport animation and preparation progress are not part of the saved workspace.
+// Observe every other field conservatively, including future store additions.
+const subscribeChanges = (source, read, ignoredKeys) => {
+const ignored = new Set(ignoredKeys);
+let previous = read();
+return source.subscribe(() => {
+const current = read(), keys = Object.keys(current);
+const changed = keys.length !== Object.keys(previous).length || keys.some(key => !ignored.has(key) && !Object.is(current[key], previous[key]));
+previous = current;
+if (changed) scheduleSave();
+});
+};
+unsubStore = subscribeChanges(args.store, () => args.store.getState(), ['isPlaying','playheadPosition','showPlayheadMarker','basisHearingTransportBridge','audioBufferDirty']);
+unsubRuntime = subscribeChanges(args.runtime, () => args.runtime.getSnapshot(), ['renderProgress','preparedFigureKey','preparedFigureRenderVersion','preparedFigureCacheHit']);const unsubWorkbench=__F341Workbench.subscribe(scheduleSave);cleanupDom.push(unsubWorkbench);
 const unsubCombination=__F351Combination.subscribe(scheduleSave);cleanupDom.push(unsubCombination);
 if(typeof __F3564Master!=='undefined')cleanupDom.push(__F3564Master.subscribe(scheduleSave));
 };

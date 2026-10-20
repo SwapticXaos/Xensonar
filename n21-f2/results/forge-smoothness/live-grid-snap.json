@@ -1,0 +1,24 @@
+{
+  "entry": "Xensonar_P7_Smoothness_Master_Test.html",
+  "sha256": "f6f52b06d3bd2201db2ebeac955da9aa09fc4c7226c9aa8b8692637d985ac7b6",
+  "frequencies": 2048,
+  "reads": 13,
+  "realCases": 1080,
+  "queriesPerRun": 50000,
+  "baseline": [
+    70.1331590000002,
+    64.75743699999998,
+    76.28665299999989,
+    71.33764599999995,
+    64.67538300000001
+  ],
+  "changed": [
+    7.8417329999999765,
+    3.650002000000086,
+    6.072801000000027,
+    3.0327310000000125,
+    3.1213480000001255
+  ],
+  "speedup": 19.214553581066134,
+  "scope": "Nearest-frequency lookup within an already compiled live grid; not total audio engine throughput"
+}

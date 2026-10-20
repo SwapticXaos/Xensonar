@@ -1,0 +1,13 @@
+{"playback":{"copies":0,"writes":0},"afterEdit":{"copies":1,"writes":1,"name":"Saved actual edit"},"afterFlush":{"flushedCopies":2,"copies":3,"name":"Explicitly flushed edit"}}
+AssertionError [ERR_ASSERTION]: explicit save consumes the pending autosave
+
+3 !== 2
+
+    at /workspace/Xensonar/n21-f2/tests/forge-save-lifecycle.cjs:18:289 {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: 3,
+  expected: 2,
+  operator: 'strictEqual',
+  diff: 'simple'
+}

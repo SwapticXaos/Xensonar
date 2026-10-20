@@ -1,0 +1,15 @@
+{"before":"spectral-material","after":"Obsolete saved work"}
+AssertionError [ERR_ASSERTION]: disposed persistence owner must not overwrite newer work with a late restore
++ actual - expected
+
++ 'Obsolete saved work'
+- 'spectral-material'
+
+    at /workspace/Xensonar/n21-f2/tests/forge-save-dispose.cjs:12:146 {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: 'Obsolete saved work',
+  expected: 'spectral-material',
+  operator: 'strictEqual',
+  diff: 'simple'
+}

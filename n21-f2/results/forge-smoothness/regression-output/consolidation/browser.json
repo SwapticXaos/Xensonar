@@ -1,0 +1,27 @@
+{
+  "checks": [
+    "production saved-workspace IndexedDB export and actual workspace-package download",
+    "fresh-profile package import, IndexedDB reload and complete snapshot load",
+    "malformed snapshot does not interrupt native playback or mutate the current raster",
+    "native Undo/Redo after archive restore remains reversible and within byte budget"
+  ],
+  "restored": {
+    "raster": 0.625,
+    "grain": 0.375,
+    "detune": 0.35,
+    "bodyType": "Float32Array",
+    "machine": "branch-b573-synth-window"
+  },
+  "history": {
+    "undo": 0.35,
+    "redo": 0.7,
+    "usage": {
+      "bytes": 41967746,
+      "maxBytes": 201326592,
+      "maxEntries": 30,
+      "undoEntries": 1,
+      "redoEntries": 0
+    }
+  },
+  "errors": []
+}

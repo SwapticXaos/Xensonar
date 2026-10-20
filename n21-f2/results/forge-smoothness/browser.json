@@ -1,0 +1,671 @@
+{
+  "entry": "Xensonar_P7_Smoothness_Master_Test.html",
+  "sha256": "f6f52b06d3bd2201db2ebeac955da9aa09fc4c7226c9aa8b8692637d985ac7b6",
+  "errors": [],
+  "checks": [
+    "32 real oscillators through four role buses: finite stereo output below 0 dBFS, mastering on/off, one output owner, no audio node allocation during controls",
+    "stereo side signal remains audible through the actual terminal chain",
+    "native IndexedDB autosave: repeated playhead updates do not copy the project; a real name edit saves once"
+  ],
+  "master": {
+    "active": {
+      "peak": 0.736642062664032,
+      "energy": [
+        3873.038152563901,
+        3757.537480210776
+      ],
+      "sideEnergy": 5356.938219066847,
+      "counts": {
+        "createWaveShaper": 1,
+        "createDynamicsCompressor": 2,
+        "createGain": 47,
+        "createAnalyser": 8,
+        "createBiquadFilter": 12
+      },
+      "meters": [
+        {
+          "main": 0,
+          "drone": 0,
+          "rhythm": 0,
+          "space": 0,
+          "density": 0.0010500000000000002,
+          "trim": 0.9738844999999999
+        },
+        {
+          "main": 0.25649861757728254,
+          "drone": 0.24423962476848235,
+          "rhythm": 0.2508991148899567,
+          "space": 0.24678900911493146,
+          "density": 0.667245518317308,
+          "trim": 0.900602992985096
+        },
+        {
+          "main": 0.2403943813091336,
+          "drone": 0.2520219141594608,
+          "rhythm": 0.2570191323650572,
+          "space": 0.2493301434716203,
+          "density": 0.8505959108730184,
+          "trim": 0.8804344498039679
+        },
+        {
+          "main": 0.2455691318509238,
+          "drone": 0.24951711548525723,
+          "rhythm": 0.2508062942117686,
+          "space": 0.2528010364547356,
+          "density": 0.8037219230525958,
+          "trim": 0.8855905884642145
+        },
+        {
+          "main": 0.2620501208131135,
+          "drone": 0.2473046694649571,
+          "rhythm": 0.24355866175160987,
+          "space": 0.24547245871452905,
+          "density": 0.6505216463297685,
+          "trim": 0.9024426189037255
+        },
+        {
+          "main": 0.2565439336638783,
+          "drone": 0.23904783061184534,
+          "rhythm": 0.2489530440399082,
+          "space": 0.2551507414433424,
+          "density": 1,
+          "trim": 0.864
+        },
+        {
+          "main": 0.24396045663627766,
+          "drone": 0.2449074611223434,
+          "rhythm": 0.25514653385243063,
+          "space": 0.25375858605171325,
+          "density": 0.47149427830187046,
+          "trim": 0.9221356293867943
+        },
+        {
+          "main": 0.2571707763762814,
+          "drone": 0.23916234227457836,
+          "rhythm": 0.2484457913172011,
+          "space": 0.2552077395371232,
+          "density": 1,
+          "trim": 0.864
+        },
+        {
+          "main": 0.25405754829512345,
+          "drone": 0.24626663945364907,
+          "rhythm": 0.24818018688563806,
+          "space": 0.2514227896450639,
+          "density": 1,
+          "trim": 0.864
+        },
+        {
+          "main": 0.2455814850107449,
+          "drone": 0.24971218106211568,
+          "rhythm": 0.25124721633960834,
+          "space": 0.25340197180021623,
+          "density": 1,
+          "trim": 0.864
+        },
+        {
+          "main": 0.24169257757002277,
+          "drone": 0.24809072776864707,
+          "rhythm": 0.25285344328960396,
+          "space": 0.2573021978527633,
+          "density": 1,
+          "trim": 0.864
+        },
+        {
+          "main": 0.2570758237220357,
+          "drone": 0.24439317224989277,
+          "rhythm": 0.25128097937862576,
+          "space": 0.2471811029263148,
+          "density": 1,
+          "trim": 0.864
+        },
+        {
+          "main": 0.25371436932666,
+          "drone": 0.24678297691763745,
+          "rhythm": 0.25121675938779686,
+          "space": 0.24827409274932666,
+          "density": 1,
+          "trim": 0.864
+        },
+        {
+          "main": 0.2463524150023289,
+          "drone": 0.24990398655327103,
+          "rhythm": 0.25139092543823777,
+          "space": 0.2522588648229607,
+          "density": 1,
+          "trim": 0.864
+        },
+        {
+          "main": 0.23203545343129936,
+          "drone": 0.25020090418448154,
+          "rhythm": 0.2568554315333267,
+          "space": 0.26049639508895767,
+          "density": 1,
+          "trim": 0.864
+        },
+        {
+          "main": 0.25004730356052324,
+          "drone": 0.24887688131603494,
+          "rhythm": 0.24918921453081716,
+          "space": 0.24998412014045224,
+          "density": 0.5519110584295391,
+          "trim": 0.9132897835727507
+        },
+        {
+          "main": 0.26501328094361265,
+          "drone": 0.23818019086425365,
+          "rhythm": 0.24614709069180782,
+          "space": 0.2489682662072787,
+          "density": 0.6208714660169298,
+          "trim": 0.9057041387381377
+        },
+        {
+          "main": 0.24728001343459924,
+          "drone": 0.24789987246894157,
+          "rhythm": 0.2514547128126512,
+          "space": 0.2511060006884266,
+          "density": 0.46472502580836256,
+          "trim": 0.9228802471610801
+        },
+        {
+          "main": 0.2363325729484426,
+          "drone": 0.24553949198612257,
+          "rhythm": 0.255605821557358,
+          "space": 0.25873271464236325,
+          "density": 0.27708880411096104,
+          "trim": 0.9435202315477943
+        },
+        {
+          "main": 0.25966274297759256,
+          "drone": 0.2533547030669061,
+          "rhythm": 0.24301181036970523,
+          "space": 0.24308070455353933,
+          "density": 1,
+          "trim": 0.864
+        },
+        {
+          "main": 0.2575678142513125,
+          "drone": 0.24449170707728188,
+          "rhythm": 0.2404729133682082,
+          "space": 0.24577142456848067,
+          "density": 0.08977320158976511,
+          "trim": 0.9641249478251258
+        },
+        {
+          "main": 0.22995575877463253,
+          "drone": 0.2563572116858277,
+          "rhythm": 0.259319607466504,
+          "space": 0.24867399277171887,
+          "density": 0.18442312083459408,
+          "trim": 0.9537134567081946
+        },
+        {
+          "main": 0,
+          "drone": 0,
+          "rhythm": 0,
+          "space": 0,
+          "density": 0.0010500000000000002,
+          "trim": 0.9738844999999999
+        }
+      ],
+      "guard": {
+        "mode": "enforce",
+        "owner": "master:output-trim->destination",
+        "audibleEdges": 1,
+        "silentEdges": 0,
+        "unauthorizedLive": 0,
+        "attempts": 1,
+        "blocked": 0,
+        "log": [
+          {
+            "t": 2127.7999999970198,
+            "label": "master:output-trim->destination",
+            "kind": "owner",
+            "action": "connect"
+          }
+        ]
+      }
+    },
+    "bypass": {
+      "peak": 0.8319413661956787,
+      "energy": [
+        8387.469820424009,
+        8821.665995217192
+      ],
+      "sideEnergy": 13627.2474027442,
+      "counts": {
+        "createWaveShaper": 1,
+        "createDynamicsCompressor": 2,
+        "createGain": 47,
+        "createAnalyser": 8,
+        "createBiquadFilter": 12
+      },
+      "meters": [
+        {
+          "main": 0,
+          "drone": 0,
+          "rhythm": 0,
+          "space": 0,
+          "density": 0,
+          "trim": 1
+        },
+        {
+          "main": 0,
+          "drone": 0,
+          "rhythm": 0,
+          "space": 0,
+          "density": 0,
+          "trim": 1
+        },
+        {
+          "main": 0,
+          "drone": 0,
+          "rhythm": 0,
+          "space": 0,
+          "density": 0,
+          "trim": 1
+        },
+        {
+          "main": 0,
+          "drone": 0,
+          "rhythm": 0,
+          "space": 0,
+          "density": 0,
+          "trim": 1
+        },
+        {
+          "main": 0,
+          "drone": 0,
+          "rhythm": 0,
+          "space": 0,
+          "density": 0,
+          "trim": 1
+        },
+        {
+          "main": 0,
+          "drone": 0,
+          "rhythm": 0,
+          "space": 0,
+          "density": 0,
+          "trim": 1
+        },
+        {
+          "main": 0,
+          "drone": 0,
+          "rhythm": 0,
+          "space": 0,
+          "density": 0,
+          "trim": 1
+        },
+        {
+          "main": 0,
+          "drone": 0,
+          "rhythm": 0,
+          "space": 0,
+          "density": 0,
+          "trim": 1
+        },
+        {
+          "main": 0,
+          "drone": 0,
+          "rhythm": 0,
+          "space": 0,
+          "density": 0,
+          "trim": 1
+        },
+        {
+          "main": 0,
+          "drone": 0,
+          "rhythm": 0,
+          "space": 0,
+          "density": 0,
+          "trim": 1
+        },
+        {
+          "main": 0,
+          "drone": 0,
+          "rhythm": 0,
+          "space": 0,
+          "density": 0,
+          "trim": 1
+        },
+        {
+          "main": 0,
+          "drone": 0,
+          "rhythm": 0,
+          "space": 0,
+          "density": 0,
+          "trim": 1
+        },
+        {
+          "main": 0,
+          "drone": 0,
+          "rhythm": 0,
+          "space": 0,
+          "density": 0,
+          "trim": 1
+        },
+        {
+          "main": 0,
+          "drone": 0,
+          "rhythm": 0,
+          "space": 0,
+          "density": 0,
+          "trim": 1
+        },
+        {
+          "main": 0,
+          "drone": 0,
+          "rhythm": 0,
+          "space": 0,
+          "density": 0,
+          "trim": 1
+        },
+        {
+          "main": 0,
+          "drone": 0,
+          "rhythm": 0,
+          "space": 0,
+          "density": 0,
+          "trim": 1
+        },
+        {
+          "main": 0,
+          "drone": 0,
+          "rhythm": 0,
+          "space": 0,
+          "density": 0,
+          "trim": 1
+        },
+        {
+          "main": 0,
+          "drone": 0,
+          "rhythm": 0,
+          "space": 0,
+          "density": 0,
+          "trim": 1
+        },
+        {
+          "main": 0,
+          "drone": 0,
+          "rhythm": 0,
+          "space": 0,
+          "density": 0,
+          "trim": 1
+        },
+        {
+          "main": 0,
+          "drone": 0,
+          "rhythm": 0,
+          "space": 0,
+          "density": 0,
+          "trim": 1
+        },
+        {
+          "main": 0,
+          "drone": 0,
+          "rhythm": 0,
+          "space": 0,
+          "density": 0,
+          "trim": 1
+        },
+        {
+          "main": 0,
+          "drone": 0,
+          "rhythm": 0,
+          "space": 0,
+          "density": 0,
+          "trim": 1
+        },
+        {
+          "main": 0,
+          "drone": 0,
+          "rhythm": 0,
+          "space": 0,
+          "density": 0,
+          "trim": 1
+        }
+      ],
+      "guard": {
+        "mode": "enforce",
+        "owner": "master:output-trim->destination",
+        "audibleEdges": 1,
+        "silentEdges": 0,
+        "unauthorizedLive": 0,
+        "attempts": 1,
+        "blocked": 0,
+        "log": [
+          {
+            "t": 2590.2999999970198,
+            "label": "master:output-trim->destination",
+            "kind": "owner",
+            "action": "connect"
+          }
+        ]
+      }
+    },
+    "side": {
+      "peak": 0.4606848955154419,
+      "energy": [
+        9252.1357634574,
+        9252.135742638251
+      ],
+      "sideEnergy": 37008.543012189046,
+      "counts": {
+        "createWaveShaper": 1,
+        "createDynamicsCompressor": 2,
+        "createGain": 15,
+        "createAnalyser": 8,
+        "createBiquadFilter": 12
+      },
+      "meters": [
+        {
+          "main": 0,
+          "drone": 0,
+          "rhythm": 0,
+          "space": 0,
+          "density": 0.0010500000000000002,
+          "trim": 0.9738844999999999
+        },
+        {
+          "main": 0,
+          "drone": 0,
+          "rhythm": 0,
+          "space": 0,
+          "density": 0.0010500000000000002,
+          "trim": 0.9738844999999999
+        },
+        {
+          "main": 0,
+          "drone": 0,
+          "rhythm": 0,
+          "space": 0,
+          "density": 0.0010500000000000002,
+          "trim": 0.9738844999999999
+        },
+        {
+          "main": 0,
+          "drone": 0,
+          "rhythm": 0,
+          "space": 0,
+          "density": 0.0010500000000000002,
+          "trim": 0.9738844999999999
+        },
+        {
+          "main": 0,
+          "drone": 0,
+          "rhythm": 0,
+          "space": 0,
+          "density": 0.0010500000000000002,
+          "trim": 0.9738844999999999
+        },
+        {
+          "main": 0,
+          "drone": 0,
+          "rhythm": 0,
+          "space": 0,
+          "density": 0.0010500000000000002,
+          "trim": 0.9738844999999999
+        },
+        {
+          "main": 0,
+          "drone": 0,
+          "rhythm": 0,
+          "space": 0,
+          "density": 0.0010500000000000002,
+          "trim": 0.9738844999999999
+        },
+        {
+          "main": 0,
+          "drone": 0,
+          "rhythm": 0,
+          "space": 0,
+          "density": 0.0010500000000000002,
+          "trim": 0.9738844999999999
+        },
+        {
+          "main": 0,
+          "drone": 0,
+          "rhythm": 0,
+          "space": 0,
+          "density": 0.0010500000000000002,
+          "trim": 0.9738844999999999
+        },
+        {
+          "main": 0,
+          "drone": 0,
+          "rhythm": 0,
+          "space": 0,
+          "density": 0.0010500000000000002,
+          "trim": 0.9738844999999999
+        },
+        {
+          "main": 0,
+          "drone": 0,
+          "rhythm": 0,
+          "space": 0,
+          "density": 0.0010500000000000002,
+          "trim": 0.9738844999999999
+        },
+        {
+          "main": 0,
+          "drone": 0,
+          "rhythm": 0,
+          "space": 0,
+          "density": 0.0010500000000000002,
+          "trim": 0.9738844999999999
+        },
+        {
+          "main": 0,
+          "drone": 0,
+          "rhythm": 0,
+          "space": 0,
+          "density": 0.0010500000000000002,
+          "trim": 0.9738844999999999
+        },
+        {
+          "main": 0,
+          "drone": 0,
+          "rhythm": 0,
+          "space": 0,
+          "density": 0.0010500000000000002,
+          "trim": 0.9738844999999999
+        },
+        {
+          "main": 0,
+          "drone": 0,
+          "rhythm": 0,
+          "space": 0,
+          "density": 0.0010500000000000002,
+          "trim": 0.9738844999999999
+        },
+        {
+          "main": 0,
+          "drone": 0,
+          "rhythm": 0,
+          "space": 0,
+          "density": 0.0010500000000000002,
+          "trim": 0.9738844999999999
+        },
+        {
+          "main": 0,
+          "drone": 0,
+          "rhythm": 0,
+          "space": 0,
+          "density": 0.0010500000000000002,
+          "trim": 0.9738844999999999
+        },
+        {
+          "main": 0,
+          "drone": 0,
+          "rhythm": 0,
+          "space": 0,
+          "density": 0.0010500000000000002,
+          "trim": 0.9738844999999999
+        },
+        {
+          "main": 0,
+          "drone": 0,
+          "rhythm": 0,
+          "space": 0,
+          "density": 0.0010500000000000002,
+          "trim": 0.9738844999999999
+        },
+        {
+          "main": 0,
+          "drone": 0,
+          "rhythm": 0,
+          "space": 0,
+          "density": 0.0010500000000000002,
+          "trim": 0.9738844999999999
+        },
+        {
+          "main": 0,
+          "drone": 0,
+          "rhythm": 0,
+          "space": 0,
+          "density": 0.0010500000000000002,
+          "trim": 0.9738844999999999
+        },
+        {
+          "main": 0,
+          "drone": 0,
+          "rhythm": 0,
+          "space": 0,
+          "density": 0.0010500000000000002,
+          "trim": 0.9738844999999999
+        },
+        {
+          "main": 0,
+          "drone": 0,
+          "rhythm": 0,
+          "space": 0,
+          "density": 0.0010500000000000002,
+          "trim": 0.9738844999999999
+        }
+      ],
+      "guard": {
+        "mode": "enforce",
+        "owner": "master:output-trim->destination",
+        "audibleEdges": 1,
+        "silentEdges": 0,
+        "unauthorizedLive": 0,
+        "attempts": 1,
+        "blocked": 0,
+        "log": [
+          {
+            "t": 2792.4000000059605,
+            "label": "master:output-trim->destination",
+            "kind": "owner",
+            "action": "connect"
+          }
+        ]
+      }
+    }
+  },
+  "autosave": {
+    "playbackCopies": 0,
+    "afterEdit": 1,
+    "lastSavedAt": 1792539800714
+  }
+}

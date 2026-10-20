@@ -1,0 +1,13 @@
+{"playback":{"copies":4,"writes":7},"afterEdit":{"copies":5,"writes":9,"name":"Saved actual edit"}}
+AssertionError [ERR_ASSERTION]: unchanged playback must not allocate project snapshots for autosave
+
+4 !== 0
+
+    at /workspace/Xensonar/n21-f2/tests/forge-save-lifecycle.cjs:18:45 {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: 4,
+  expected: 0,
+  operator: 'strictEqual',
+  diff: 'simple'
+}

@@ -1,0 +1,14 @@
+
+> xensonar-p4c2-n21-f2-merged@4.4.8-p4c2-n21-f2 test:granular
+> node tests/granular-hold.cjs && node tests/p4c2-n21-runtime-release.cjs && node tests/p4c2-n21-length-control.cjs && node build.cjs --verify
+
+PASS Granular Hold: continuous deceleration, fixed grain pitch, polyphony, late-grain skip, EOF bounds, gate-before-work, 20ms cut, idempotent lease cleanup
+PASS N21 production Nodal DSP/ports: finite Wave/Keyboard + held-particle cuts, ordinary particle protected, no future phantom onset, idempotent tickets at 48/96 kHz
+PASS N21 sample loading: keyup invalidates pending load, no phantom late start, subsequent notes playable, tracked voice/ticket cleaned once
+PASS N21 finite/held cuts, primary isolation, one gesture, idempotence, German/English apostrophe
+PASS reproducible standalone HTML f6f52b06d3bd2201db2ebeac955da9aa09fc4c7226c9aa8b8692637d985ac7b6 5704611
+npm notice
+npm notice New major version of npm available! 11.9.0 -> 12.2.0
+npm notice Changelog: https://github.com/npm/cli/releases/tag/v12.2.0
+npm notice To update run: npm install -g npm@12.2.0
+npm notice

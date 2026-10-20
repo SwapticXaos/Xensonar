@@ -1,0 +1,58 @@
+{
+  "src/forge/module_bundle/21_experimentStatePersistence.js": [
+    {
+      "old": "unsubStore = args.store.subscribe(scheduleSave);\nunsubRuntime = args.runtime.subscribe(scheduleSave);",
+      "new": "// Transport animation and preparation progress are not part of the saved workspace.\n// Observe every other field conservatively, including future store additions.\nconst subscribeChanges = (source, read, ignoredKeys) => {\nconst ignored = new Set(ignoredKeys);\nlet previous = read();\nreturn source.subscribe(() => {\nconst current = read(), keys = Object.keys(current);\nconst changed = keys.length !== Object.keys(previous).length || keys.some(key => !ignored.has(key) && !Object.is(current[key], previous[key]));\nprevious = current;\nif (changed) scheduleSave();\n});\n};\nunsubStore = subscribeChanges(args.store, () => args.store.getState(), ['isPlaying','playheadPosition','showPlayheadMarker','basisHearingTransportBridge','audioBufferDirty']);\nunsubRuntime = subscribeChanges(args.runtime, () => args.runtime.getSnapshot(), ['renderProgress','preparedFigureKey','preparedFigureRenderVersion','preparedFigureCacheHit']);",
+      "count": 1
+    },
+    {
+      "old": "const saveNow = () => {\nif (disposed",
+      "new": "const saveNow = () => {\nclearTimers();\nif (disposed",
+      "count": 1
+    },
+    {
+      "old": "const [mainSource, donorSource] = await Promise.all([\nloadAsset(workspace.mainSource), loadAsset(workspace.donorSource),\n]);",
+      "new": "const [mainSource, donorSource] = await Promise.all([\nloadAsset(workspace.mainSource), loadAsset(workspace.donorSource),\n]);\nif (disposed) return false;",
+      "count": 1
+    },
+    {
+      "old": "const model = await args.prepareDonor(donorSource);",
+      "new": "const model = await args.prepareDonor(donorSource);\nif (disposed) return false;",
+      "count": 1
+    },
+    {
+      "old": "catch (error) {\nargs.runtime.failExtraction(token, error);",
+      "new": "catch (error) {\nif (disposed) return false;\nargs.runtime.failExtraction(token, error);",
+      "count": 1
+    }
+  ],
+  "src/runtime/01_instrument_state.js": [
+    {
+      "old": "KY=(e,t)=>{e.getByteTimeDomainData(t);",
+      "new": "KY=(e,t)=>{e.getFloatTimeDomainData(t);",
+      "count": 1
+    },
+    {
+      "old": "const o=(t[a]-128)/128;n+=o*o",
+      "new": "const o=t[a];n+=o*o",
+      "count": 1
+    },
+    {
+      "old": "a.scratch[o]=new Uint8Array(l.fftSize)",
+      "new": "a.scratch[o]=new Float32Array(l.fftSize)",
+      "count": 1
+    },
+    {
+      "old": "const o=t[a];n+=o*o",
+      "new": "const o=Number.isFinite(t[a])?t[a]:0;n+=o*o",
+      "count": 1
+    }
+  ],
+  "src/runtime/instrument/01_voice_gradients_and_effects.js": [
+    {
+      "old": "const lZ=(e,t,n,r=[],a=[])=>{const o=Qa(e),i=Fx(t,n,r,a);if(!i.length)return Me(e,0,ir);let s=i[0],l=Math.abs(o-s);for(let c=1;c<i.length;c+=1){const d=Math.abs(o-i[c]);d<l&&(l=d,s=i[c])}return Zs(s)};",
+      "new": "const lZ=(e,t,n,r=[],a=[])=>{const o=Qa(e),i=Fx(t,n,r,a);if(!i.length)return Me(e,0,ir);if(!Number.isFinite(o))return Zs(i[0]);let lo=0,hi=i.length;while(lo<hi){const mid=(lo+hi)>>>1;if(i[mid]<o)lo=mid+1;else hi=mid}const below=i[Math.max(0,lo-1)],above=i[Math.min(lo,i.length-1)];return Zs(o-below<=above-o?below:above)};",
+      "count": 1
+    }
+  ]
+}

@@ -1,0 +1,2 @@
+{"before":"spectral-material","after":"spectral-material","donors":[{"failure":false,"commits":0,"errors":0,"stops":0},{"failure":true,"commits":0,"errors":0,"stops":0}]}
+PASS late restore cannot change the workspace after disposal

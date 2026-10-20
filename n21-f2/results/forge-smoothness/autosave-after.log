@@ -1,0 +1,2 @@
+{"playback":{"copies":0,"writes":0},"afterEdit":{"copies":1,"writes":1,"name":"Saved actual edit"}}
+PASS autosave ignores playback-only updates and preserves actual project edits
