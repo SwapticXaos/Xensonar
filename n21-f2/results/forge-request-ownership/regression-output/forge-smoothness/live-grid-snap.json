@@ -1,0 +1,24 @@
+{
+  "entry": "Xensonar_P7_Forge_Request_Stability_Test.html",
+  "sha256": "666c8f90117f2c3cd1ccc9533dd285cb503ff382b8d976603ddaf58a0caa2797",
+  "frequencies": 2048,
+  "reads": 13,
+  "realCases": 1080,
+  "queriesPerRun": 50000,
+  "baseline": [
+    96.82465000000002,
+    78.80012699999997,
+    74.87883000000011,
+    73.40213500000027,
+    72.92208200000005
+  ],
+  "changed": [
+    8.29703900000004,
+    4.89608300000009,
+    6.554028000000017,
+    2.737996000000294,
+    3.1181360000000495
+  ],
+  "speedup": 15.293619409638017,
+  "scope": "Nearest-frequency lookup within an already compiled live grid; not total audio engine throughput"
+}

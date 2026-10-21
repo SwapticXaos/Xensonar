@@ -1,0 +1,25 @@
+{
+  "entry": "Xensonar_P7_Architecture_Stability_Test.html",
+  "sha256": "30efae37d2450eae4ddc9c8ea5909af2ef2bcc72413fe4710d50a621db78c146",
+  "errors": [],
+  "beforeSwitch": {
+    "pendingDonors": 1,
+    "jobs": 0,
+    "ready": false
+  },
+  "afterSwitch": {
+    "mode": "antonia",
+    "jobs": [
+      {
+        "machine": "fractalia-self-carrier",
+        "epoch": 15
+      },
+      {
+        "machine": "branch-a-line-traffic",
+        "epoch": 15
+      }
+    ],
+    "ready": true
+  },
+  "error": "AssertionError [ERR_ASSERTION]: superseded Fractalia request must never start synthesis\n\n1 !== 0\n\n    at /workspace/Xensonar/n21-f2/tests/forge-request-browser.cjs:57:16"
+}

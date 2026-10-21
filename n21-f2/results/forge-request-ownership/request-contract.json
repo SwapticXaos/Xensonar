@@ -1,0 +1,121 @@
+{
+  "rows": [
+    {
+      "mode": "pure-dieter",
+      "loop": false,
+      "exactKey": true,
+      "exactContext": true
+    },
+    {
+      "mode": "pure-dieter",
+      "loop": true,
+      "exactKey": true,
+      "exactContext": true
+    },
+    {
+      "mode": "emilia",
+      "loop": false,
+      "exactKey": true,
+      "exactContext": true
+    },
+    {
+      "mode": "emilia",
+      "loop": true,
+      "exactKey": true,
+      "exactContext": true
+    },
+    {
+      "mode": "fractalia",
+      "loop": false,
+      "exactKey": true,
+      "exactContext": true
+    },
+    {
+      "mode": "fractalia",
+      "loop": true,
+      "exactKey": true,
+      "exactContext": true
+    },
+    {
+      "mode": "harmonic-xplore",
+      "loop": false,
+      "exactKey": true,
+      "exactContext": true
+    },
+    {
+      "mode": "harmonic-xplore",
+      "loop": true,
+      "exactKey": true,
+      "exactContext": true
+    },
+    {
+      "mode": "spektral-synthese",
+      "loop": false,
+      "exactKey": true,
+      "exactContext": true
+    },
+    {
+      "mode": "spektral-synthese",
+      "loop": true,
+      "exactKey": true,
+      "exactContext": true
+    },
+    {
+      "mode": "antonia",
+      "loop": false,
+      "exactKey": true,
+      "exactContext": true
+    },
+    {
+      "mode": "antonia",
+      "loop": true,
+      "exactKey": true,
+      "exactContext": true
+    },
+    {
+      "mode": "bert",
+      "loop": false,
+      "exactKey": true,
+      "exactContext": true
+    },
+    {
+      "mode": "bert",
+      "loop": true,
+      "exactKey": true,
+      "exactContext": true
+    },
+    {
+      "mode": "cecilia",
+      "loop": false,
+      "exactKey": true,
+      "exactContext": true
+    },
+    {
+      "mode": "cecilia",
+      "loop": true,
+      "exactKey": true,
+      "exactContext": true
+    },
+    {
+      "route": "hearing",
+      "callers": [
+        "hearing",
+        "hearing"
+      ],
+      "renderedRoute": "hearing",
+      "cacheHit": true,
+      "loopPreview": true
+    },
+    {
+      "route": "carrier",
+      "callers": [
+        "carrier",
+        "carrier"
+      ],
+      "renderedRoute": "carrier",
+      "cacheHit": true,
+      "loopPreview": true
+    }
+  ],
+  "privateSnapshots": true
+}

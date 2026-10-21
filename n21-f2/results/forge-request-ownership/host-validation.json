@@ -1,0 +1,337 @@
+{
+  "entry": "Xensonar_P7_Forge_Request_Stability_Test.html",
+  "sha256": "666c8f90117f2c3cd1ccc9533dd285cb503ff382b8d976603ddaf58a0caa2797",
+  "startedAt": "2026-10-21T06:19:30.343Z",
+  "completedAt": "2026-10-21T06:21:28.562Z",
+  "running": false,
+  "scope": "Host behavior, production DSP/Worker tests and source preservation",
+  "rows": [
+    {
+      "name": "forge-request-contract",
+      "passed": true,
+      "exit": 0,
+      "signal": null,
+      "milliseconds": 2169
+    },
+    {
+      "name": "forge-request-lifecycle",
+      "passed": true,
+      "exit": 0,
+      "signal": null,
+      "milliseconds": 64
+    },
+    {
+      "name": "f447-hearing-coalescing",
+      "passed": true,
+      "exit": 0,
+      "signal": null,
+      "milliseconds": 51
+    },
+    {
+      "name": "forge-request-preservation",
+      "passed": true,
+      "exit": 0,
+      "signal": null,
+      "milliseconds": 113
+    },
+    {
+      "name": "forge-persistence-ownership",
+      "passed": true,
+      "exit": 0,
+      "signal": null,
+      "milliseconds": 2607
+    },
+    {
+      "name": "architecture-stability-preservation",
+      "passed": true,
+      "exit": 0,
+      "signal": null,
+      "milliseconds": 146
+    },
+    {
+      "name": "live-grid-snap",
+      "passed": true,
+      "exit": 0,
+      "signal": null,
+      "milliseconds": 2378
+    },
+    {
+      "name": "forge-save-lifecycle",
+      "passed": true,
+      "exit": 0,
+      "signal": null,
+      "milliseconds": 1855
+    },
+    {
+      "name": "forge-save-dispose",
+      "passed": true,
+      "exit": 0,
+      "signal": null,
+      "milliseconds": 3814
+    },
+    {
+      "name": "master-output-contract",
+      "passed": true,
+      "exit": 0,
+      "signal": null,
+      "milliseconds": 1885
+    },
+    {
+      "name": "forge-smoothness-preservation",
+      "passed": true,
+      "exit": 0,
+      "signal": null,
+      "milliseconds": 350
+    },
+    {
+      "name": "forge-efficiency",
+      "passed": true,
+      "exit": 0,
+      "signal": null,
+      "milliseconds": 6129
+    },
+    {
+      "name": "forge-efficiency-preservation",
+      "passed": true,
+      "exit": 0,
+      "signal": null,
+      "milliseconds": 264
+    },
+    {
+      "name": "p7-review-regressions",
+      "passed": true,
+      "exit": 0,
+      "signal": null,
+      "milliseconds": 2414
+    },
+    {
+      "name": "p7-review-preservation",
+      "passed": true,
+      "exit": 0,
+      "signal": null,
+      "milliseconds": 285
+    },
+    {
+      "name": "p7_live_grid_space_behavior",
+      "passed": true,
+      "exit": 0,
+      "signal": null,
+      "milliseconds": 58
+    },
+    {
+      "name": "p7_2_installation_ball_audio",
+      "passed": true,
+      "exit": 0,
+      "signal": null,
+      "milliseconds": 51
+    },
+    {
+      "name": "p7_3_forge_navigator",
+      "passed": true,
+      "exit": 0,
+      "signal": null,
+      "milliseconds": 69
+    },
+    {
+      "name": "p7_4_repeat_pointer",
+      "passed": true,
+      "exit": 0,
+      "signal": null,
+      "milliseconds": 51
+    },
+    {
+      "name": "p7_5_forge_main_handles",
+      "passed": true,
+      "exit": 0,
+      "signal": null,
+      "milliseconds": 59
+    },
+    {
+      "name": "p7_6_expression_mode",
+      "passed": true,
+      "exit": 0,
+      "signal": null,
+      "milliseconds": 52
+    },
+    {
+      "name": "p7_7_keyboard_source_gate",
+      "passed": true,
+      "exit": 0,
+      "signal": null,
+      "milliseconds": 46
+    },
+    {
+      "name": "p7_8_recorder_async_cancel",
+      "passed": true,
+      "exit": 0,
+      "signal": null,
+      "milliseconds": 54
+    },
+    {
+      "name": "test_entrophon_live_revision",
+      "passed": true,
+      "exit": 0,
+      "signal": null,
+      "milliseconds": 48
+    },
+    {
+      "name": "test_material_standalone_preview",
+      "passed": true,
+      "exit": 0,
+      "signal": null,
+      "milliseconds": 70
+    },
+    {
+      "name": "myzel_g2_concept",
+      "passed": true,
+      "exit": 0,
+      "signal": null,
+      "milliseconds": 13086
+    },
+    {
+      "name": "myzel_g_worklet",
+      "passed": true,
+      "exit": 0,
+      "signal": null,
+      "milliseconds": 856
+    },
+    {
+      "name": "nodal-ball-grid",
+      "passed": true,
+      "exit": 0,
+      "signal": null,
+      "milliseconds": 7049
+    },
+    {
+      "name": "nodal-ball-grid-preservation",
+      "passed": true,
+      "exit": 0,
+      "signal": null,
+      "milliseconds": 341
+    },
+    {
+      "name": "forge-spatial-contracts",
+      "passed": true,
+      "exit": 0,
+      "signal": null,
+      "milliseconds": 537
+    },
+    {
+      "name": "forge-spatial-preservation",
+      "passed": true,
+      "exit": 0,
+      "signal": null,
+      "milliseconds": 409
+    },
+    {
+      "name": "history-sharing",
+      "passed": true,
+      "exit": 0,
+      "signal": null,
+      "milliseconds": 7852
+    },
+    {
+      "name": "patch-integration",
+      "passed": true,
+      "exit": 0,
+      "signal": null,
+      "milliseconds": 2753
+    },
+    {
+      "name": "consolidation-snapshots",
+      "passed": true,
+      "exit": 0,
+      "signal": null,
+      "milliseconds": 14694
+    },
+    {
+      "name": "consolidation-history",
+      "passed": true,
+      "exit": 0,
+      "signal": null,
+      "milliseconds": 2110
+    },
+    {
+      "name": "consolidation-preservation",
+      "passed": true,
+      "exit": 0,
+      "signal": null,
+      "milliseconds": 735
+    },
+    {
+      "name": "rw2-source-index",
+      "passed": true,
+      "exit": 0,
+      "signal": null,
+      "milliseconds": 5012
+    },
+    {
+      "name": "forge-pitch-space",
+      "passed": true,
+      "exit": 0,
+      "signal": null,
+      "milliseconds": 18572
+    },
+    {
+      "name": "forge-ready-contract",
+      "passed": true,
+      "exit": 0,
+      "signal": null,
+      "milliseconds": 2112
+    },
+    {
+      "name": "forge-progress-jobs",
+      "passed": true,
+      "exit": 0,
+      "signal": null,
+      "milliseconds": 50
+    },
+    {
+      "name": "live-rfl-lifecycle",
+      "passed": true,
+      "exit": 0,
+      "signal": null,
+      "milliseconds": 2217
+    },
+    {
+      "name": "nodal-envelope-zero",
+      "passed": true,
+      "exit": 0,
+      "signal": null,
+      "milliseconds": 9026
+    },
+    {
+      "name": "workflow-grid-runtime",
+      "passed": true,
+      "exit": 0,
+      "signal": null,
+      "milliseconds": 1750
+    },
+    {
+      "name": "workflow-hotkeys",
+      "passed": true,
+      "exit": 0,
+      "signal": null,
+      "milliseconds": 1614
+    },
+    {
+      "name": "microphone-capture",
+      "passed": true,
+      "exit": 0,
+      "signal": null,
+      "milliseconds": 51
+    },
+    {
+      "name": "audio-carrier-analysis",
+      "passed": true,
+      "exit": 0,
+      "signal": null,
+      "milliseconds": 2176
+    },
+    {
+      "name": "build-reproducibility",
+      "passed": true
+    }
+  ],
+  "failed": 0
+}

@@ -1,6 +1,6 @@
 {
-  "version": "XenSonar P7 · Persistence Ownership / Architecture Stability",
-  "entry": "Xensonar_P7_Architecture_Stability_Test.html",
+  "version": "XenSonar P7 · Shared Forge Request / Render Ownership",
+  "entry": "Xensonar_P7_Forge_Request_Stability_Test.html",
   "files": [
     "src/handoff/00_chat_feature_addons.js",
     "src/mix/03_quick_menu.js",
@@ -210,8 +210,8 @@
     "src/05_dual_donor.js",
     "src/06_workbench_dialog.js"
   ],
-  "sha256": "30efae37d2450eae4ddc9c8ea5909af2ef2bcc72413fe4710d50a621db78c146",
-  "bytes": 5705308,
+  "sha256": "666c8f90117f2c3cd1ccc9533dd285cb503ff382b8d976603ddaf58a0caa2797",
+  "bytes": 5705479,
   "sourceOrder": "Concatenate in listed order. Explicit factories own Workbench, hybrid session, render capture, adapters, playback and analysis cache. Remaining registry fragments share one inline module; DSP factories stay independently serializable for workers.",
   "status": "F4.3.13 mainline plus F4.4.0 Nodal coupled-modal-v2, anchored at F4.3.5",
   "baseVersion": "F4.3.5 (three-way)",

@@ -1,0 +1,62 @@
+[
+  {
+    "kind": "stop-during-prepare",
+    "outcome": "ready",
+    "key": "{\"version\":\"forge-hearing-f333\",\"carrierDetune\":0,\"spectral\":\"figure\",\"machine\":\"fractalia-self-carrier\",\"selection\":{},\"lab\":{},\"hx\":{},\"rawSynthesis\":null,\"fractaliaDonor\":\"donor-A\",\"fractalia\":\"A\",\"emilia\":null,\"duration\":1,\"pitch\":1,\"sampleRate\":8000}",
+    "donors": 1,
+    "rasters": 1,
+    "renders": 1,
+    "instruments": [
+      "A"
+    ],
+    "cached": 1
+  },
+  {
+    "kind": "donor-before-render",
+    "outcome": "ready",
+    "key": "{\"version\":\"forge-hearing-f333\",\"carrierDetune\":0,\"spectral\":\"figure\",\"machine\":\"fractalia-self-carrier\",\"selection\":{},\"lab\":{},\"hx\":{},\"rawSynthesis\":null,\"fractaliaDonor\":\"donor-A\",\"fractalia\":\"A\",\"emilia\":null,\"duration\":1,\"pitch\":1,\"sampleRate\":8000}",
+    "donors": 1,
+    "rasters": 1,
+    "renders": 1,
+    "instruments": [
+      "A"
+    ],
+    "cached": 1
+  },
+  {
+    "kind": "donor-during-render",
+    "outcome": "ready",
+    "key": "{\"version\":\"forge-hearing-f333\",\"carrierDetune\":0,\"spectral\":\"figure\",\"machine\":\"fractalia-self-carrier\",\"selection\":{},\"lab\":{},\"hx\":{},\"rawSynthesis\":null,\"fractaliaDonor\":\"donor-A\",\"fractalia\":\"A\",\"emilia\":null,\"duration\":1,\"pitch\":1,\"sampleRate\":8000}",
+    "donors": 1,
+    "rasters": 1,
+    "renders": 1,
+    "instruments": [
+      "A"
+    ],
+    "cached": 1
+  },
+  {
+    "kind": "recipe-after-request",
+    "outcome": "ready",
+    "key": "{\"version\":\"forge-hearing-f333\",\"carrierDetune\":0,\"spectral\":\"figure\",\"machine\":\"fractalia-self-carrier\",\"selection\":{},\"lab\":{},\"hx\":{},\"rawSynthesis\":null,\"fractaliaDonor\":\"donor-A\",\"fractalia\":\"A\",\"emilia\":null,\"duration\":1,\"pitch\":1,\"sampleRate\":8000}",
+    "donors": 1,
+    "rasters": 1,
+    "renders": 1,
+    "instruments": [
+      "B"
+    ],
+    "cached": 1
+  },
+  {
+    "kind": "normal",
+    "outcome": "ready",
+    "key": "{\"version\":\"forge-hearing-f333\",\"carrierDetune\":0,\"spectral\":\"figure\",\"machine\":\"fractalia-self-carrier\",\"selection\":{},\"lab\":{},\"hx\":{},\"rawSynthesis\":null,\"fractaliaDonor\":\"donor-A\",\"fractalia\":\"A\",\"emilia\":null,\"duration\":1,\"pitch\":1,\"sampleRate\":8000}",
+    "donors": 1,
+    "rasters": 1,
+    "renders": 1,
+    "instruments": [
+      "A"
+    ],
+    "cached": 1
+  }
+]

@@ -1,0 +1,92 @@
+{
+  "entry": "Xensonar_P7_Forge_Request_Stability_Test.html",
+  "sha256": "666c8f90117f2c3cd1ccc9533dd285cb503ff382b8d976603ddaf58a0caa2797",
+  "startedAt": "2026-10-21T06:21:30.016Z",
+  "completedAt": "2026-10-21T06:24:15.331Z",
+  "running": false,
+  "scope": "Native Chromium; no physical audio interface or cross-browser claim",
+  "rows": [
+    {
+      "name": "forge-request-browser",
+      "passed": true,
+      "exit": 0,
+      "signal": null,
+      "milliseconds": 6341
+    },
+    {
+      "name": "forge-smoothness-browser",
+      "passed": true,
+      "exit": 0,
+      "signal": null,
+      "milliseconds": 7380
+    },
+    {
+      "name": "forge-efficiency-browser",
+      "passed": true,
+      "exit": 0,
+      "signal": null,
+      "milliseconds": 27705
+    },
+    {
+      "name": "p7-review-browser",
+      "passed": true,
+      "exit": 0,
+      "signal": null,
+      "milliseconds": 14177
+    },
+    {
+      "name": "nodal-ball-grid-browser",
+      "passed": true,
+      "exit": 0,
+      "signal": null,
+      "milliseconds": 6295
+    },
+    {
+      "name": "forge-spatial-browser",
+      "passed": true,
+      "exit": 0,
+      "signal": null,
+      "milliseconds": 11729
+    },
+    {
+      "name": "mute-auto-preview-browser",
+      "passed": true,
+      "exit": 0,
+      "signal": null,
+      "milliseconds": 6750
+    },
+    {
+      "name": "integrated-patches-browser",
+      "passed": true,
+      "exit": 0,
+      "signal": null,
+      "milliseconds": 6555
+    },
+    {
+      "name": "consolidation-browser",
+      "passed": true,
+      "exit": 0,
+      "signal": null,
+      "milliseconds": 11727
+    },
+    {
+      "name": "forge-ready-browser",
+      "passed": true,
+      "exit": 0,
+      "signal": null,
+      "milliseconds": 19257
+    },
+    {
+      "name": "forge-pitch-browser",
+      "passed": true,
+      "exit": 0,
+      "signal": null,
+      "milliseconds": 47271
+    },
+    {
+      "name": "build-reproducibility",
+      "passed": true
+    }
+  ],
+  "failed": 0
+}

@@ -1,0 +1,33 @@
+{
+  "entry": "Xensonar_P7_Forge_Request_Stability_Test.html",
+  "sha256": "666c8f90117f2c3cd1ccc9533dd285cb503ff382b8d976603ddaf58a0caa2797",
+  "errors": [],
+  "checks": [
+    "actual keyboard ingress: Entrophon and Legacy with Wave disabled",
+    "real B/left Alt controller: pedal return, chord toggle and knob latch; no physical live-VCA claim",
+    "new Drone choices plus reachable original Legacy/Xenpolar controls",
+    "native OfflineAudioContext: both Refucktor voices equal supplied original PCM; neutral Workbench retained",
+    "sample name, Preview and Save remain separate clickable actions above Root Follow",
+    "Installation audio switch preserves visible field",
+    "native MediaRecorder start and Discard restore idle without a take",
+    "native Melodic Navigator pointer drag changes selection without freezing"
+  ],
+  "dronePCM": [
+    {
+      "preset": "dark_sub",
+      "peak": 0.20681913197040558,
+      "diff": 0,
+      "neutralDiff": 0
+    },
+    {
+      "preset": "ethereal_halo",
+      "peak": 0.11442452669143677,
+      "diff": 0,
+      "neutralDiff": 0
+    }
+  ],
+  "melodicNavigator": {
+    "before": "left: 0%; width: 100%;",
+    "after": "left: 9.375%; width: 90.625%;"
+  }
+}

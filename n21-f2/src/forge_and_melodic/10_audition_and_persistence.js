@@ -108,11 +108,7 @@ function __f333CachedPreviewReady(state){
  try{
   const inputs=__f333ReadyInputs(state,route),memo=__f333ReadyMemo;
   if(memo&&inputs.length===memo.inputs.length&&inputs.every((value,i)=>Object.is(value,memo.inputs[i]))&&__f333HearingCache.get(memo.key)===memo.buffer)return memo.ready;
-  const request=route==='hearing'?__f333HearingRequest(state):OB({
-   projectName:state.materialExport.name,snapshot:state.createProjectSnapshot(),machineId:'raw-darkpsy-oscillator',
-   valueSource:'right-override',selection:state.carrierIntegralSelection,synthLab:state.carrierIntegralSynthLab,
-   harmonicXplore:state.carrierIntegralHarmonicXplore,previewBpm:state.materialExport.bpm,
-   previewGain:1,previewPitchSemitones:__f3565PitchSemis(),loopPreview:true});
+  const request=__f333HearingRequest(state,undefined,route);
   const key=__f333HearingCacheKey(request,IB(request)),buffer=__f333HearingCache.get(key),ready=__f333AudiblePCM(buffer);
   __f333ReadyMemo={inputs,key,buffer,ready};return ready;
  }catch{return false}
@@ -222,32 +218,58 @@ function __f333CarrierSkeleton(document,grid,durationSec) {
       timeIndex:x,centerBin:p.bin,centerHz:p.hz,bandwidthBins:1,bandwidthHz:p.hz*.008,
       energy:p.energy,ridgeness:1,continuity:1,regime:'tonal',clusterId:null})))};
 }
-function __f333HearingRequest(state,progress) {
+// Readiness, prewarm, Play and export build their raw PCM request here.
+// The editable project snapshot remains a private copy owned by this request.
+function __f333HearingRequest(state,progress,route='hearing') {
   const snapshot=state.createProjectSnapshot();
-  return OB({projectName:state.materialExport.name,snapshot,machineId:state.carrierIntegralSelection.machineId,
+  const machineId=route==='carrier'?'raw-darkpsy-oscillator':state.carrierIntegralSelection.machineId;
+  return OB({projectName:state.materialExport.name,snapshot,machineId,
     valueSource:'right-override',selection:state.carrierIntegralSelection,synthLab:state.carrierIntegralSynthLab,
     harmonicXplore:state.carrierIntegralHarmonicXplore,previewBpm:state.materialExport.bpm,
-    previewGain:1,previewPitchSemitones:__f3565PitchSemis(),loopPreview:state.materialExport.loopPreview,onRenderProgress:progress});
+    previewGain:1,previewPitchSemitones:__f3565PitchSemis(),loopPreview:route==='carrier'||state.materialExport.loopPreview,onRenderProgress:progress});
 }
 async function __f333RenderHearing(request) {
+  // Progress is observation, not synthesis. A failed UI consumer must not abort
+  // another listener's shared render or remove its in-flight registry entry.
+  const publish=(listener,value,job)=>{
+    try{
+      listener(value);
+    }catch(error){
+      job?.listeners.delete(listener);
+      console.warn('[Forge] Progress listener detached after an error',error);
+    }
+  };
+  // Capture ownership before any asynchronous preparation. Stop during donor
+  // analysis cancels this request just as Stop during PCM synthesis does.
+  const epoch=typeof __f333Epoch==='number'?__f333Epoch:0;
+  const machine=request.machineId;
+  if(machine==='fractalia-self-carrier'&&!request.snapshot.fractaliaInstrument)
+    request={...request,snapshot:{...request.snapshot,fractaliaInstrument:__Fractalia.snapshot()}};
+  if(machine==='emilia-nodal-carrier'&&!request.snapshot.emiliaInstrument)
+    request={...request,snapshot:{...request.snapshot,emiliaInstrument:__Emilia.snapshot()}};
   // A Fractalia material recipe uses the selected purple mask as its Donor.
   // Prepare it before constructing the exact PCM cache key, not after a cache lookup.
-  if(request.machineId==='fractalia-self-carrier'&&(request.snapshot.fractaliaInstrument??__Fractalia.snapshot()).donor)
+  if(machine==='fractalia-self-carrier'&&request.snapshot.fractaliaInstrument.donor)
     await __f3562EnsureDonor();
+  const preparedDonorKey=machine==='fractalia-self-carrier'&&request.snapshot.fractaliaInstrument.donor?fractaliaDonorSnapshot().key:undefined;
+  const isCurrent=()=>epoch===(typeof __f333Epoch==='number'?__f333Epoch:0)&&
+    (preparedDonorKey===undefined||preparedDonorKey===fractaliaDonorSnapshot().key);
+  const check=()=>{if(!isCurrent())throw new DOMException('Hearing render superseded','AbortError')};
+  check();
   const context=IB(request),duration=context.durationSec;
   // Preview and export share this exact full-cycle buffer. Loop changes playback, not the render.
   context.previewDurationSec=duration;
   context.loopPreview=true;
   const key=__f333HearingCacheKey(request,context);
   const hit=__f333HearingCache.get(key);
-  if(hit){__f433RememberHearing(key,hit);request.onRenderProgress?.(1);return {buffer:hit,cacheKey:key,cacheHit:true,context};}
-  const epoch=typeof __f333Epoch==='number'?__f333Epoch:0,existing=__f447HearingJobs.get(key);
+  if(hit){__f433RememberHearing(key,hit);if(request.onRenderProgress)publish(request.onRenderProgress,1);return {buffer:hit,cacheKey:key,cacheHit:true,context};}
+  const existing=__f447HearingJobs.get(key);
   // Play, automatic preview and export may join the same PCM calculation.
   // Subscribe each consumer, replay completed work, and detach when it settles.
   const listener=request.onRenderProgress;
   const listen=async job=>{
     try{
-      if(listener){job.listeners.add(listener);listener(job.progress);}
+      if(listener){job.listeners.add(listener);publish(listener,job.progress,job);}
       return {...await job.promise,context};
     }
     finally{if(listener)job.listeners.delete(listener);}
@@ -259,39 +281,38 @@ async function __f333RenderHearing(request) {
     const next=Math.max(job.progress,Math.min(.99,Math.max(0,value)));
     if(next===job.progress)return;
     job.progress=next;
-    for(const listener of job.listeners)listener(next);
+    for(const listener of job.listeners)publish(listener,next,job);
   };
   request={...request,onRenderProgress:report};
   // Install before synthesis starts, including synchronous initial callbacks.
   __f447HearingJobs.set(key,job);
   job.promise=Promise.resolve().then(async()=>{
-  if(epoch!==(typeof __f333Epoch==='number'?__f333Epoch:0))throw new DOMException('Hearing render superseded','AbortError');
+  check();
   // Reconstruct the raster only for a cache miss that owns the render.
   const grid=TR(request.snapshot);
   let buffer;
   const branch=xK(String(request.machineId));
   if(request.machineId==='fractalia-self-carrier') {
-    buffer=await __Fractalia.renderCarrier({grid,durationSec:duration,previewPitchRatio:context.previewPitchRatio,instrument:request.snapshot.fractaliaInstrument??__Fractalia.snapshot(),preparedDonorKey:(request.snapshot.fractaliaInstrument??__Fractalia.snapshot()).donor?fractaliaDonorSnapshot().key:undefined,onProgress:request.onRenderProgress});
+    buffer=await __Fractalia.renderCarrier({grid,durationSec:duration,previewPitchRatio:context.previewPitchRatio,instrument:request.snapshot.fractaliaInstrument,preparedDonorKey,onProgress:request.onRenderProgress});
   } else if(request.machineId==='emilia-nodal-carrier') {
     buffer=await __Emilia.renderCarrier({grid,durationSec:duration,previewPitchRatio:context.previewPitchRatio,
-      instrument:request.snapshot.emiliaInstrument??__Emilia.snapshot(),onProgress:request.onRenderProgress});
+      instrument:request.snapshot.emiliaInstrument,onProgress:request.onRenderProgress});
   } else if(branch) {
     const carrier=DR({request,context,spectralData:grid}).rootFollowBuild;
     if(!carrier.summary.eligible) throw new Error(carrier.summary.reason||"The figure is empty.");
-    const rendered=await vK({request,context,spectralData:grid,baseHz:AK(carrier.summary.baseHz*context.previewPitchRatio),...branch,check:()=>{if(epoch!==(typeof __f333Epoch==='number'?__f333Epoch:0))throw new DOMException('Hearing render superseded','AbortError')}});
+    const rendered=await vK({request,context,spectralData:grid,baseHz:AK(carrier.summary.baseHz*context.previewPitchRatio),...branch,check});
     buffer=rendered.buffer;
   } else if(request.machineId==='raw-darkpsy-oscillator') {
-    const epoch=__f333Epoch;
-    buffer=await __PureDieter.render({grid:__f3565PitchGrid(grid,context.previewPitchRatio),mode:request.snapshot.synthMode,mix:request.snapshot.waveformMix,durationSec:duration,context:xt.getContext(),onProgress:request.onRenderProgress,check:()=>{if(epoch!==__f333Epoch)throw new DOMException('Pure Dieter cancelled','AbortError')}});
+    buffer=await __PureDieter.render({grid:__f3565PitchGrid(grid,context.previewPitchRatio),mode:request.snapshot.synthMode,mix:request.snapshot.waveformMix,durationSec:duration,context:xt.getContext(),onProgress:request.onRenderProgress,check});
   } else if(request.machineId==='harmonic-xplore-direct-carrier'||request.machineId==='spektral-synthese-body') {
     const args={spectralData:grid,synthLab:LR(context.synthLab),harmonicXplore:context.harmonicXplore,
       durationSec:duration,previewDurationSec:duration,rootHz:JU(grid,context.previewPitchRatio),gain:context.previewGain,
       onProgress:request.onRenderProgress,cooperative:!!request.onRenderProgress};
     buffer=(request.machineId==='spektral-synthese-body'?await DB(args):await BR(args)).buffer;
   } else throw new Error("This listening mode is unavailable for the active figure.");
-  if(epoch!==(typeof __f333Epoch==='number'?__f333Epoch:0))throw new DOMException('Hearing render superseded','AbortError');
+  check();
   __f433RememberHearing(key,buffer);
-  job.progress=1;for(const listener of job.listeners)listener(1);
+  job.progress=1;for(const listener of job.listeners)publish(listener,1,job);
   return {buffer,cacheKey:key,cacheHit:false,context};
   });
   try{return await listen(job)}finally{if(__f447HearingJobs.get(key)===job)__f447HearingJobs.delete(key)}
@@ -421,18 +442,14 @@ async function __f333RenderCurrentRaw(state,options={}) {
     buffer.copyToChannel(source.monoSamples.subarray(Math.round(start*source.sampleRate),Math.round(start*source.sampleRate)+frames),0);
     return {buffer,duration:buffer.duration,route};
   }
-  if(route==='hearing') return {...await __f333RenderHearing(__f333HearingRequest(state,options.onProgress)),duration,route};
+  if(route==='hearing'||route==='carrier') return {...await __f333RenderHearing(__f333HearingRequest(state,options.onProgress,route)),duration,route};
   if(route==='body') {
     const buffer=options.audioMode==='body'?xt.renderFromMediatedAudioBodyToBuffer(
       state.activeMediatedBody??FR(state.spectralData,ys(),state.sourceAsset),{sourceAsset:state.sourceAsset,loopDurationSec:duration,renderMode:'body_contract_preview'}):
       xt.renderForge3BodyPreviewToBuffer(state.sourceAsset,state.spectralData,ys(),duration);
     return {buffer,duration,route};
   }
-  const snapshot=state.createProjectSnapshot();
-  return {...await __f333RenderHearing(OB({projectName:state.materialExport.name,snapshot,machineId:'raw-darkpsy-oscillator',
-    valueSource:'right-override',selection:state.carrierIntegralSelection,synthLab:state.carrierIntegralSynthLab,
-    harmonicXplore:state.carrierIntegralHarmonicXplore,previewBpm:state.materialExport.bpm,previewGain:1,
-    previewPitchSemitones:__f3565PitchSemis(),loopPreview:true,onRenderProgress:options.onProgress})),duration,route};
+  throw new Error('Unsupported Forge listening route: '+route);
 }
 async function __f333RenderCurrent(state,options={}) {
  const needsGain=__F3564Master.getSnapshot().volume!==100;

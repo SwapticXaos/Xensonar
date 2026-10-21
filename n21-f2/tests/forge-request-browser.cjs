@@ -1,0 +1,71 @@
+'use strict';
+const fs = require('node:fs');
+const assert = require('node:assert/strict');
+const { chromium } = require('playwright');
+const {execFileSync}=require('node:child_process');
+const baseline=process.env.XEN_REQUEST_BASELINE;
+const readBaseline=file=>execFileSync('git',['show',baseline+':n21-f2/'+file],{encoding:'utf8',maxBuffer:16*1024*1024});
+const manifest = baseline?JSON.parse(readBaseline('source-manifest.json')):require('../source-manifest.json');
+const out = 'results/forge-request-ownership';
+let html = (baseline?readBaseline(manifest.entry):fs.readFileSync(manifest.entry, 'utf8')).replace('const kEe=CEe("root");', `
+window.__requestAPI=()=>({state:()=>pe.getState(),mode:__ForgeListeningMode,runtime:Vt,prepare:kE,fractalia:__Fractalia,persistence:()=>__f333Persistence,ready:()=>__f333CachedPreviewReady(pe.getState())});
+window.__requestJobs=[];window.__donorGates=[];window.__holdDonor=false;
+const __originalEnsure=__f3562EnsureDonor;
+__f3562EnsureDonor=async(...args)=>{const result=await __originalEnsure(...args);if(window.__holdDonor)await new Promise(resolve=>window.__donorGates.push(resolve));return result};
+const kEe=CEe("root");`).replace('__f447HearingJobs.set(key,job);', '__requestJobs.push({machine:request.machineId,epoch,key});__f447HearingJobs.set(key,job);');
+assert(html.includes('window.__requestAPI'));
+(async () => {
+    const browser = await chromium.launch({ executablePath: process.env.XEN_CHROMIUM_PATH || '/usr/bin/chromium', args: ['--no-sandbox', '--disable-dev-shm-usage'] });
+    const report = { entry: manifest.entry, sha256: manifest.sha256, errors: [] };
+    try {
+        const page = await browser.newPage({ viewport: { width: 1490, height: 1000 } });
+        page.setDefaultTimeout(45000);
+        page.on('pageerror', error => report.errors.push(error.message));
+        await page.route('https://xensonar.test/**', route => route.fulfill({ contentType: 'text/html', body: html }));
+        await page.goto('https://xensonar.test/request-ownership');
+        await page.getByRole('button', { name: 'II. MATERIAL FORGE', exact: true }).click();
+        await page.getByRole('button', { name: /SpectralForge/ }).click();
+        await page.waitForFunction(() => __requestAPI().persistence()?.status().restoreComplete);
+        await page.evaluate(async () => {
+            const api=__requestAPI();
+            api.mode.choose('donor',{prepare:false});
+            const sampleRate=16000,monoSamples=Float32Array.from({length:sampleRate},(_,i)=>.18*Math.sin(2*Math.PI*220*i/sampleRate));
+            const source={fileName:'Delayed donor.wav',sampleRate,channelCount:1,originalDuration:1,importStartSec:0,importDurationSec:1,monoSamples,leftSamples:monoSamples,rightSamples:monoSamples};
+            const token=api.runtime.beginExtraction(source),model=await api.prepare(source);
+            if(!api.runtime.commitExtraction(token,source,model))throw Error('Donor extraction failed');
+            api.state().setSpectralEmbodimentSourceAsset(source);
+            api.state().updateMaterialExport({bars:1,bpm:320});
+            const grid=api.state().spectralData;grid.clear();
+            for(let x=5;x<grid.width-5;x++)grid.set(x,300,.4);
+            api.state().triggerRender();
+            await api.fractalia.loadExample('glass');await api.fractalia.bindDonor(true);
+            __requestJobs=[];__holdDonor=true;
+            api.mode.choose('fractalia');
+        });
+        await page.waitForFunction(() => __donorGates.length > 0);
+        report.beforeSwitch = await page.evaluate(() => ({ pendingDonors: __donorGates.length, jobs: __requestJobs.length, ready: __requestAPI().ready() }));
+        assert.equal(report.beforeSwitch.jobs, 0, 'donor preparation must precede PCM synthesis');
+        const picker = page.locator('[data-forge-shared-listening-picker]');
+        await picker.selectOption('antonia');
+        await page.evaluate(() => { __holdDonor=false;__donorGates.splice(0).forEach(resolve=>resolve()); });
+        await page.waitForFunction(() => __requestAPI().ready());
+        const play = page.locator('[data-xensonar-spectralforge-render-fill-button]');
+        await page.waitForFunction(() => document.querySelector('[data-xensonar-spectralforge-render-fill-button]')?.classList.contains('bg-green-600'));
+        report.afterSwitch = await page.evaluate(() => ({ mode: __requestAPI().mode.value(), jobs: __requestJobs.map(x=>({machine:x.machine,epoch:x.epoch})), ready: __requestAPI().ready() }));
+        assert.equal(report.afterSwitch.mode, 'antonia');
+        assert.equal(report.afterSwitch.ready, true);
+        assert.equal(report.afterSwitch.jobs.filter(x=>x.machine==='fractalia-self-carrier').length, 0, 'superseded Fractalia request must never start synthesis');
+        assert.equal(report.afterSwitch.jobs.length, 1, 'only the current listening mode renders');
+        await play.click();
+        await page.waitForFunction(() => __requestAPI().state().isPlaying);
+        report.playJobs = await page.evaluate(() => __requestJobs.length);
+        assert.equal(report.playJobs, 1, 'green Play reuses the prepared PCM');
+        await page.getByRole('button', { name: 'Stop preview', exact: true }).click();
+        assert.deepEqual(report.errors, []);
+        fs.writeFileSync(out + (baseline?'/browser-request-before.json':'/browser-request.json'), JSON.stringify(report, null, 2) + '\n');
+        console.log('PASS native delayed donor -> listening-mode switch: no obsolete render, one current render, green Play reuses PCM');
+    } catch (error) {
+        fs.writeFileSync(out + (baseline?'/browser-request-before.json':'/browser-request-failure.json'), JSON.stringify({ ...report, error: error.stack }, null, 2) + '\n');
+        throw error;
+    } finally { await browser.close(); }
+})().catch(error => { console.error(error); process.exitCode = 1; });

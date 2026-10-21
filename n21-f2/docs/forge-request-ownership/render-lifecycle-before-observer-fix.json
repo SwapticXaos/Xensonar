@@ -1,0 +1,96 @@
+[
+  {
+    "kind": "stop-during-prepare",
+    "outcome": "AbortError",
+    "donors": 1,
+    "rasters": 0,
+    "renders": 0,
+    "instruments": [],
+    "warnings": 0,
+    "cached": 0
+  },
+  {
+    "kind": "donor-before-render",
+    "outcome": "AbortError",
+    "donors": 1,
+    "rasters": 0,
+    "renders": 0,
+    "instruments": [],
+    "warnings": 0,
+    "cached": 0
+  },
+  {
+    "kind": "donor-during-render",
+    "outcome": "AbortError",
+    "donors": 1,
+    "rasters": 1,
+    "renders": 1,
+    "instruments": [
+      "A"
+    ],
+    "warnings": 0,
+    "cached": 0
+  },
+  {
+    "kind": "recipe-after-request",
+    "outcome": "ready",
+    "key": "{\"version\":\"forge-hearing-f333\",\"carrierDetune\":0,\"spectral\":\"figure\",\"machine\":\"fractalia-self-carrier\",\"selection\":{},\"lab\":{},\"hx\":{},\"rawSynthesis\":null,\"fractaliaDonor\":\"donor-A\",\"fractalia\":\"A\",\"emilia\":null,\"duration\":1,\"pitch\":1,\"sampleRate\":8000}",
+    "donors": 1,
+    "rasters": 1,
+    "renders": 1,
+    "instruments": [
+      "A"
+    ],
+    "warnings": 0,
+    "cached": 1
+  },
+  {
+    "kind": "normal",
+    "outcome": "ready",
+    "key": "{\"version\":\"forge-hearing-f333\",\"carrierDetune\":0,\"spectral\":\"figure\",\"machine\":\"fractalia-self-carrier\",\"selection\":{},\"lab\":{},\"hx\":{},\"rawSynthesis\":null,\"fractaliaDonor\":\"donor-A\",\"fractalia\":\"A\",\"emilia\":null,\"duration\":1,\"pitch\":1,\"sampleRate\":8000}",
+    "donors": 1,
+    "rasters": 1,
+    "renders": 1,
+    "instruments": [
+      "A"
+    ],
+    "warnings": 0,
+    "cached": 1
+  },
+  {
+    "kind": "observer-initial",
+    "outcome": "Error",
+    "donors": 1,
+    "rasters": 1,
+    "renders": 1,
+    "instruments": [
+      "A"
+    ],
+    "warnings": 0,
+    "cached": 1
+  },
+  {
+    "kind": "observer-progress",
+    "outcome": "Error",
+    "donors": 1,
+    "rasters": 1,
+    "renders": 1,
+    "instruments": [
+      "A"
+    ],
+    "warnings": 0,
+    "cached": 0
+  },
+  {
+    "kind": "observer-final",
+    "outcome": "Error",
+    "donors": 1,
+    "rasters": 1,
+    "renders": 1,
+    "instruments": [
+      "A"
+    ],
+    "warnings": 0,
+    "cached": 1
+  }
+]

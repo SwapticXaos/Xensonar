@@ -1,0 +1,27 @@
+{
+  "entry": "Xensonar_P7_Forge_Request_Stability_Test.html",
+  "sha256": "666c8f90117f2c3cd1ccc9533dd285cb503ff382b8d976603ddaf58a0caa2797",
+  "readiness": {
+    "steadyCopies": 1,
+    "milliseconds": 487.2183839999998,
+    "checks": [
+      "same-input polling",
+      "gain identity",
+      "pitch",
+      "tempo",
+      "local paint",
+      "cache release"
+    ]
+  },
+  "portability": {
+    "schemaVersion": 2,
+    "count": 13,
+    "report": {
+      "present": true,
+      "importedCount": 13,
+      "skippedCount": 0,
+      "replacedCount": 0
+    },
+    "unrelated": false
+  }
+}

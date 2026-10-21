@@ -1,0 +1,109 @@
+{
+  "src/forge_and_melodic/10_audition_and_persistence.js": [
+    {
+      "old": "  const request=route==='hearing'?__f333HearingRequest(state):OB({\n   projectName:state.materialExport.name,snapshot:state.createProjectSnapshot(),machineId:'raw-darkpsy-oscillator',\n   valueSource:'right-override',selection:state.carrierIntegralSelection,synthLab:state.carrierIntegralSynthLab,\n   harmonicXplore:state.carrierIntegralHarmonicXplore,previewBpm:state.materialExport.bpm,\n   previewGain:1,previewPitchSemitones:__f3565PitchSemis(),loopPreview:true});",
+      "new": "  const request=__f333HearingRequest(state,undefined,route);",
+      "count": 1
+    },
+    {
+      "old": "function __f333HearingRequest(state,progress) {\n  const snapshot=state.createProjectSnapshot();\n  return OB({projectName:state.materialExport.name,snapshot,machineId:state.carrierIntegralSelection.machineId,",
+      "new": "// Readiness, prewarm, Play and export build their raw PCM request here.\n// The editable project snapshot remains a private copy owned by this request.\nfunction __f333HearingRequest(state,progress,route='hearing') {\n  const snapshot=state.createProjectSnapshot();\n  const machineId=route==='carrier'?'raw-darkpsy-oscillator':state.carrierIntegralSelection.machineId;\n  return OB({projectName:state.materialExport.name,snapshot,machineId,",
+      "count": 1
+    },
+    {
+      "old": "previewGain:1,previewPitchSemitones:__f3565PitchSemis(),loopPreview:state.materialExport.loopPreview,onRenderProgress:progress});",
+      "new": "previewGain:1,previewPitchSemitones:__f3565PitchSemis(),loopPreview:route==='carrier'||state.materialExport.loopPreview,onRenderProgress:progress});",
+      "count": 1
+    },
+    {
+      "old": "  if(route==='hearing') return {...await __f333RenderHearing(__f333HearingRequest(state,options.onProgress)),duration,route};",
+      "new": "  if(route==='hearing'||route==='carrier') return {...await __f333RenderHearing(__f333HearingRequest(state,options.onProgress,route)),duration,route};",
+      "count": 1
+    },
+    {
+      "old": "  const snapshot=state.createProjectSnapshot();\n  return {...await __f333RenderHearing(OB({projectName:state.materialExport.name,snapshot,machineId:'raw-darkpsy-oscillator',\n    valueSource:'right-override',selection:state.carrierIntegralSelection,synthLab:state.carrierIntegralSynthLab,\n    harmonicXplore:state.carrierIntegralHarmonicXplore,previewBpm:state.materialExport.bpm,previewGain:1,\n    previewPitchSemitones:__f3565PitchSemis(),loopPreview:true,onRenderProgress:options.onProgress})),duration,route};",
+      "new": "  throw new Error('Unsupported Forge listening route: '+route);",
+      "count": 1
+    },
+    {
+      "old": "async function __f333RenderHearing(request) {\n  // A Fractalia",
+      "new": "async function __f333RenderHearing(request) {\n  // Capture ownership before any asynchronous preparation. Stop during donor\n  // analysis cancels this request just as Stop during PCM synthesis does.\n  const epoch=typeof __f333Epoch==='number'?__f333Epoch:0;\n  const machine=request.machineId;\n  if(machine==='fractalia-self-carrier'&&!request.snapshot.fractaliaInstrument)\n    request={...request,snapshot:{...request.snapshot,fractaliaInstrument:__Fractalia.snapshot()}};\n  if(machine==='emilia-nodal-carrier'&&!request.snapshot.emiliaInstrument)\n    request={...request,snapshot:{...request.snapshot,emiliaInstrument:__Emilia.snapshot()}};\n  // A Fractalia",
+      "count": 1
+    },
+    {
+      "old": "    await __f3562EnsureDonor();\n  const context=IB(request),duration=context.durationSec;",
+      "new": "    await __f3562EnsureDonor();\n  const preparedDonorKey=machine==='fractalia-self-carrier'&&request.snapshot.fractaliaInstrument.donor?fractaliaDonorSnapshot().key:undefined;\n  const isCurrent=()=>epoch===(typeof __f333Epoch==='number'?__f333Epoch:0)&&\n    (preparedDonorKey===undefined||preparedDonorKey===fractaliaDonorSnapshot().key);\n  const check=()=>{if(!isCurrent())throw new DOMException('Hearing render superseded','AbortError')};\n  check();\n  const context=IB(request),duration=context.durationSec;",
+      "count": 1
+    },
+    {
+      "old": "  const epoch=typeof __f333Epoch==='number'?__f333Epoch:0,existing=__f447HearingJobs.get(key);",
+      "new": "  const existing=__f447HearingJobs.get(key);",
+      "count": 1
+    },
+    {
+      "old": "  if(epoch!==(typeof __f333Epoch==='number'?__f333Epoch:0))throw new DOMException('Hearing render superseded','AbortError');\n  // Reconstruct",
+      "new": "  check();\n  // Reconstruct",
+      "count": 1
+    },
+    {
+      "old": "instrument:request.snapshot.fractaliaInstrument??__Fractalia.snapshot(),preparedDonorKey:(request.snapshot.fractaliaInstrument??__Fractalia.snapshot()).donor?fractaliaDonorSnapshot().key:undefined",
+      "new": "instrument:request.snapshot.fractaliaInstrument,preparedDonorKey",
+      "count": 1
+    },
+    {
+      "old": "instrument:request.snapshot.emiliaInstrument??__Emilia.snapshot(),onProgress:request.onRenderProgress",
+      "new": "instrument:request.snapshot.emiliaInstrument,onProgress:request.onRenderProgress",
+      "count": 1
+    },
+    {
+      "old": "...branch,check:()=>{if(epoch!==(typeof __f333Epoch==='number'?__f333Epoch:0))throw new DOMException('Hearing render superseded','AbortError')}",
+      "new": "...branch,check",
+      "count": 1
+    },
+    {
+      "old": "    const epoch=__f333Epoch;\n    buffer=await __PureDieter.render({grid:__f3565PitchGrid(grid,context.previewPitchRatio),mode:request.snapshot.synthMode,mix:request.snapshot.waveformMix,durationSec:duration,context:xt.getContext(),onProgress:request.onRenderProgress,check:()=>{if(epoch!==__f333Epoch)throw new DOMException('Pure Dieter cancelled','AbortError')}});",
+      "new": "    buffer=await __PureDieter.render({grid:__f3565PitchGrid(grid,context.previewPitchRatio),mode:request.snapshot.synthMode,mix:request.snapshot.waveformMix,durationSec:duration,context:xt.getContext(),onProgress:request.onRenderProgress,check});",
+      "count": 1
+    },
+    {
+      "old": "  if(epoch!==(typeof __f333Epoch==='number'?__f333Epoch:0))throw new DOMException('Hearing render superseded','AbortError');\n  __f433RememberHearing",
+      "new": "  check();\n  __f433RememberHearing",
+      "count": 1
+    },
+    {
+      "old": "async function __f333RenderHearing(request) {\n  // Capture ownership",
+      "new": "async function __f333RenderHearing(request) {\n  // Progress is observation, not synthesis. A failed UI consumer must not abort\n  // another listener's shared render or remove its in-flight registry entry.\n  const publish=(listener,value,job)=>{\n    try{listener(value)}catch(error){job?.listeners.delete(listener);console.warn('[Forge] Progress listener detached after an error',error)}\n  };\n  // Capture ownership",
+      "count": 1
+    },
+    {
+      "old": "if(hit){__f433RememberHearing(key,hit);request.onRenderProgress?.(1);return",
+      "new": "if(hit){__f433RememberHearing(key,hit);if(request.onRenderProgress)publish(request.onRenderProgress,1);return",
+      "count": 1
+    },
+    {
+      "old": "job.listeners.add(listener);listener(job.progress);",
+      "new": "job.listeners.add(listener);publish(listener,job.progress,job);",
+      "count": 1
+    },
+    {
+      "old": "for(const listener of job.listeners)listener(next);",
+      "new": "for(const listener of job.listeners)publish(listener,next,job);",
+      "count": 1
+    },
+    {
+      "old": "job.progress=1;for(const listener of job.listeners)listener(1);",
+      "new": "job.progress=1;for(const listener of job.listeners)publish(listener,1,job);",
+      "count": 1
+    },
+    {
+      "old": "  if(request.machineId==='fractalia-self-carrier'&&(request.snapshot.fractaliaInstrument??__Fractalia.snapshot()).donor)\n    await __f3562EnsureDonor();",
+      "new": "  if(machine==='fractalia-self-carrier'&&request.snapshot.fractaliaInstrument.donor)\n    await __f3562EnsureDonor();",
+      "count": 1
+    },
+    {
+      "old": "    try{listener(value)}catch(error){job?.listeners.delete(listener);console.warn('[Forge] Progress listener detached after an error',error)}",
+      "new": "    try{\n      listener(value);\n    }catch(error){\n      job?.listeners.delete(listener);\n      console.warn('[Forge] Progress listener detached after an error',error);\n    }",
+      "count": 1
+    }
+  ]
+}

@@ -1,0 +1,21 @@
+{
+  "entry": "Xensonar_P7_Forge_Request_Stability_Test.html",
+  "sha256": "666c8f90117f2c3cd1ccc9533dd285cb503ff382b8d976603ddaf58a0caa2797",
+  "errors": [],
+  "beforeSwitch": {
+    "pendingDonors": 1,
+    "jobs": 0,
+    "ready": false
+  },
+  "afterSwitch": {
+    "mode": "antonia",
+    "jobs": [
+      {
+        "machine": "branch-a-line-traffic",
+        "epoch": 15
+      }
+    ],
+    "ready": true
+  },
+  "playJobs": 1
+}
