@@ -1,0 +1,152 @@
+{
+  "entry": "Xensonar_P7_Live_Control_Isolation_Test.html",
+  "sha256": "8b82986d2ce0f6e5171bc37dd9a935f2da2d0bb35dcb3296ecff1952e539eb48",
+  "errors": [],
+  "checks": [
+    "current cached donor: one cold render/one donor resolution, ready Play reuses exact PCM",
+    "local carrier edit prepares once and retains the committed donor",
+    "production Package Station download -> empty profile import/reload: donor, selected mode, gain/tuning, P7 grid/drone, pan and actual Nodal library",
+    "real Material import dialog: 28px Preview, long names/metadata stay on two single lines at 1490px and 720px"
+  ],
+  "cold": {
+    "jobs": 1,
+    "donorCalls": 1,
+    "key": "[1,1,true,\"Efficiency donor.wav|0|1|16000:16000:1476327354:2173727704|mono\",[],\"Efficiency donor.wav|16000|0|1|16000|2457796421\"]"
+  },
+  "edited": {
+    "jobs": 2,
+    "key": "[1,1,true,\"Efficiency donor.wav|0|1|16000:16000:1476327354:2173727704|mono\",[],\"Efficiency donor.wav|16000|0|1|16000|2457796421\"]"
+  },
+  "archive": {
+    "bytes": 118744244,
+    "settings": 12,
+    "forgeWorkspaces": 2
+  },
+  "restored": {
+    "mode": "donor",
+    "master": {
+      "tuning": 2,
+      "volume": 71,
+      "revision": 2
+    },
+    "pan": -0.4,
+    "bass": "bass",
+    "grid": {
+      "sourceMode": "derived",
+      "linkedTuningId": "",
+      "linkedMutedDegrees": [],
+      "droneEnabled": false,
+      "rflEnabled": false,
+      "mutedDegrees": [
+        2,
+        4
+      ],
+      "offsetsCents": {
+        "7": 13
+      }
+    },
+    "drone": {
+      "dronePreset": "dark_sub",
+      "droneFixedHz": 55,
+      "droneSnapToGrid": false,
+      "droneTimbre": 0.5,
+      "droneVibrato": 0.5,
+      "droneFlanger": 0,
+      "droneRefucktorEcho": 0.24,
+      "droneRefucktorFeedback": 0.32,
+      "droneRhythm": "Off",
+      "droneRhythmCustomSteps": [
+        1,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0
+      ],
+      "droneWobbleDepth": 0.37,
+      "droneWobbleShape": "Sine",
+      "droneWobbleRate": "1/8",
+      "droneDubDrive": 0,
+      "droneCursorFollow": false,
+      "droneCursorAmount": 0.5,
+      "droneStepWobbleShapes": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "droneDriveOn": false,
+      "droneDriveAmount": 0.22,
+      "droneDriveTone": 0.52,
+      "droneDriveMix": 0.26,
+      "droneDriveOutput": 0.82
+    },
+    "volume": "0.32",
+    "nodal": 1,
+    "donor": true
+  },
+  "compactPreview": [
+    {
+      "viewport": 1490,
+      "width": 28,
+      "height": 28,
+      "rowHeight": 46,
+      "lines": [
+        {
+          "height": 14.65625,
+          "lineHeight": 14.6667,
+          "whiteSpace": "nowrap",
+          "overflow": "ellipsis"
+        },
+        {
+          "height": 13.328125,
+          "lineHeight": 13.3333,
+          "whiteSpace": "nowrap",
+          "overflow": "ellipsis"
+        }
+      ]
+    },
+    {
+      "viewport": 720,
+      "width": 28,
+      "height": 28,
+      "rowHeight": 46,
+      "lines": [
+        {
+          "height": 14.65625,
+          "lineHeight": 14.6667,
+          "whiteSpace": "nowrap",
+          "overflow": "ellipsis"
+        },
+        {
+          "height": 13.328125,
+          "lineHeight": 13.3333,
+          "whiteSpace": "nowrap",
+          "overflow": "ellipsis"
+        }
+      ]
+    }
+  ]
+}

@@ -32,7 +32,7 @@ jobs:
         if: always() && steps.checks.outcome != 'skipped'
         with:
           name: host-validation
-          path: n21-f2/results/forge-request-ownership/
+          path: n21-f2/results/live-control-ownership/
   chromium:
     runs-on: ubuntu-latest
     timeout-minutes: 20
@@ -56,4 +56,4 @@ jobs:
         if: always() && steps.checks.outcome != 'skipped'
         with:
           name: chromium-validation
-          path: n21-f2/results/forge-request-ownership/
+          path: n21-f2/results/live-control-ownership/

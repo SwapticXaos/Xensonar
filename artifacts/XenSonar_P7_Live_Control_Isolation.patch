@@ -1,0 +1,2528 @@
+diff --git a/.github/workflows/consolidation.yml b/.github/workflows/consolidation.yml
+index 59071ec..4bbc97e 100644
+--- a/.github/workflows/consolidation.yml
++++ b/.github/workflows/consolidation.yml
+@@ -32,7 +32,7 @@ jobs:
+         if: always() && steps.checks.outcome != 'skipped'
+         with:
+           name: host-validation
+-          path: n21-f2/results/forge-request-ownership/
++          path: n21-f2/results/live-control-ownership/
+   chromium:
+     runs-on: ubuntu-latest
+     timeout-minutes: 20
+@@ -56,4 +56,4 @@ jobs:
+         if: always() && steps.checks.outcome != 'skipped'
+         with:
+           name: chromium-validation
+-          path: n21-f2/results/forge-request-ownership/
++          path: n21-f2/results/live-control-ownership/
+diff --git a/README.md b/README.md
+index 00972e0..fd34d3d 100644
+--- a/README.md
++++ b/README.md
+@@ -1,6 +1,6 @@
+-# XenSonar · gemeinsame Forge-Höranfrage und stabile Renderaufträge
++# XenSonar · Live-Steuerung und Diagnose entkoppelt
+ 
+-Aktuelle Weiterarbeitsbasis: `n21-f2/Xensonar_P7_Forge_Request_Stability_Test.html`. Gemeinsame Anfrage-Erzeugung für Carrier und Hörmaschinen, Abbruch bereits während der Donor-Vorbereitung und abgesicherte Fortschrittsbeobachter. [Anleitung](n21-f2/README_FORGE_REQUEST_STABILITY.md) · [Prüfbericht](n21-f2/docs/forge-request-ownership/report.md). Die bisherige Persistenz-Absicherung, Live-Optimierungen und Endstufe bleiben erhalten; P7.12 bleibt unintegriertes Experiment.
++Aktuelle Weiterarbeitsbasis: `n21-f2/Xensonar_P7_Live_Control_Isolation_Test.html`. Laufende Diagnosewerte bleiben vollständig verfügbar und lösen keine kompletten App-Renderdurchläufe mehr aus. [Anleitung](n21-f2/README_LIVE_CONTROL_ISOLATION.md) · [Prüfbericht](n21-f2/docs/live-control-ownership/report.md). Die bisherigen Forge-/Persistenz-Absicherungen, Klangmaschinen und Endstufe bleiben erhalten; P7.12 bleibt unintegriertes Experiment.
+ 
+ 
+ Die aktuelle, vom Nutzer gelieferte N21–F2-Quellbasis mit Granular-Hold, Live-Stabilitäts-Patch und korrigierter Forge-Fortschrittsanzeige sowie ausgerichteten Mix-Reglern, Raster-Mute, Melodic-Panning und Xenpolar Drone im Hauptinstrument
+diff --git a/n21-f2/README_LIVE_CONTROL_ISOLATION.md b/n21-f2/README_LIVE_CONTROL_ISOLATION.md
+new file mode 100644
+index 0000000..99178ed
+--- /dev/null
++++ b/n21-f2/README_LIVE_CONTROL_ISOLATION.md
+@@ -0,0 +1,21 @@
++# Live-Steuerung und Diagnose entkoppelt
++
++Aktive Einzeldatei: `Xensonar_P7_Live_Control_Isolation_Test.html`.
++
++Fortlaufende Diagnosewerte lösen keinen vollständigen Neuaufbau der Instrumentoberfläche mehr aus. Zwei vom Instrumentbesitzer gehaltene Messwertkanäle speichern weiterhin jeden vollständigen aktuellen Snapshot. Gezielte Abonnements können diese Daten beobachten, ohne die globale UI neu zu rendern. Die bisherigen Zugriffe auf den letzten Messwert bleiben über Getter aktuell.
++
++Messtakt, Audioanalyse, Aufnahme-/Exportlogik, Live-Master, Klangmaschinen und musikalische Regeln bleiben erhalten. Es werden keine Stimmen, Obertöne, Samples oder Qualitätsstufen reduziert. Die bloße Optimierung verworfener Initialisierungen wurde separat untersucht und wegen eines nicht belastbaren Zeitgewinns nicht integriert.
++
++[Prüfbericht und Messgrenzen](docs/live-control-ownership/report.md) · Nachweise: `results/live-control-ownership/`.
++
++```sh
++npm ci
++npm run build
++npm run verify:build
++node tests/live-control-ownership.cjs
++XEN_CHROMIUM_PATH=/usr/bin/chromium node tests/live-control-ownership-browser.cjs
++npm run test:consolidation
++XEN_CHROMIUM_PATH=/usr/bin/chromium npm run test:consolidation:browser
++```
++
++Die Paketstation benötigt nach einem Import weiterhin einmaliges Neuladen für globale Einstellungen. P7.12 bleibt ein archiviertes, nicht integriertes Experiment.
+diff --git a/n21-f2/docs/live-control-ownership/baseline.json b/n21-f2/docs/live-control-ownership/baseline.json
+new file mode 100644
+index 0000000..837bc96
+--- /dev/null
++++ b/n21-f2/docs/live-control-ownership/baseline.json
+@@ -0,0 +1,590 @@
++{
++  "commit": "6fdb86a6499897964c6e7c56436bb2d904309c5c",
++  "files": [
++    "src/handoff/00_chat_feature_addons.js",
++    "src/mix/03_quick_menu.js",
++    "src/mix/04_melodic_spatial.js",
++    "src/mix/05_grid_runtime.js",
++    "src/mix/06_custom_instruments.js",
++    "src/instruments/00_diagnostics.js",
++    "src/mix/01_pan.js",
++    "src/mix/02_performance_catalog.js",
++    "src/nodal/01_instrument_model.js",
++    "src/nodal/02_synthesis_kernel.js",
++    "src/nodal/03_library.js",
++    "src/nodal/03_preparation_worker.js",
++    "src/nodal/04_audio_runtime.js",
++    "src/nodal/05_installation_bridge.js",
++    "src/nodal/06_melodic_bridge.js",
++    "src/nodal/08_melodic_live_transport.js",
++    "src/nodal/09_melodic_session.js",
++    "src/nodal/10_library_manager.js",
++    "src/nodal/11_editing_session.js",
++    "src/nodal/07_sound_designer.js",
++    "src/nodal/12_surface_runtime.js",
++    "src/forge/emilia/04_source_materials.js",
++    "src/forge/emilia/05_hx_reciprocal.js",
++    "src/forge/emilia/03_network_color.js",
++    "src/forge/analysis/04_painted_voices.js",
++    "src/forge/emilia/06_preview_worker.js",
++    "src/forge/emilia/01_nodal_carrier.js",
++    "src/forge/fractalia/00_legacy_f2.js",
++    "src/forge/fractalia/01_core.js",
++    "src/forge/fractalia/02_mantle.js",
++    "src/forge/fractalia/04_relations.js",
++    "src/forge/fractalia/06_relational_render.js",
++    "src/forge/fractalia/05_relational_core.js",
++    "src/forge/fractalia/07_compile_jobs.js",
++    "src/forge/fractalia/08_donor_ecology.js",
++    "src/forge/fractalia/09_material_atlas.js",
++    "src/forge/fractalia/10_material_render.js",
++    "src/forge/fractalia/11_material_runtime.js",
++    "src/forge/fractalia/12_material_experiments.js",
++    "src/forge/fractalia/13_spectral_view.js",
++    "src/forge/fractalia/14_live_transfer.js",
++    "src/forge/fractalia/03_instrument.js",
++    "src/forge/editor/09_workflow_controls.js",
++    "src/forge/dsp/08_pure_dieter_worker.js",
++    "src/forge/emilia/02_lab_ui.js",
++    "src/forge/dsp/04_donor_field.js",
++    "src/forge/lifecycle/01_offline_jobs.js",
++    "src/storage/05_project_snapshots.js",
++    "src/storage/06_history_budget.js",
++    "src/storage/07_history_snapshots.js",
++    "src/nodal/13_installation_ball_grid.js",
++    "src/01_app_runtime.js",
++    "src/forge/workbench/01_preset_catalog.js",
++    "src/forge/workbench/02_recipe_normalization.js",
++    "src/forge/workbench/03_material_selection.js",
++    "src/forge/workbench/04_sound_bridge.js",
++    "src/forge/workbench/05_state_store.js",
++    "src/forge/01_workbench_state.js",
++    "src/forge/dsp/01_material_tools.js",
++    "src/forge/dsp/02_gestalt_tools.js",
++    "src/forge/dsp/03_pcm_worker.js",
++    "src/forge/original/01_articulation.js",
++    "src/forge/original/02_material.js",
++    "src/forge/original/03_gestalt_material.js",
++    "src/forge/original/04_gestalt.js",
++    "src/forge/original/05_dual_donor.js",
++    "src/forge/original/06_cecilia.js",
++    "src/forge/revised/01_material.js",
++    "src/forge/revised/02_gestalt.js",
++    "src/forge/module_bundle/00_open.js",
++    "src/forge/module_bundle/01_entry.js",
++    "src/forge/module_bundle/02_projectionCarrierPlan.js",
++    "src/forge/module_bundle/03_carrierDonorV2Types.js",
++    "src/forge/module_bundle/04_carrierSupportField.js",
++    "src/forge/module_bundle/05_carrierContinuity.js",
++    "src/forge/module_bundle/06_donorHybridModel.js",
++    "src/forge/module_bundle/07_donorBodyModel.js",
++    "src/forge/module_bundle/08_realSpectrum.js",
++    "src/forge/module_bundle/09_donorPitch.js",
++    "src/forge/module_bundle/10_donorSpectralEvidence.js",
++    "src/forge/module_bundle/11_donorSourceWindows.js",
++    "src/forge/module_bundle/12_renderDonorHybrid.js",
++    "src/forge/module_bundle/13_donorMaterialPlan.js",
++    "src/forge/module_bundle/14_granularCadence.js",
++    "src/forge/module_bundle/15_renderContinuousDonor.js",
++    "src/forge/module_bundle/16_complexSpectrum.js",
++    "src/forge/module_bundle/17_renderCarrierSupport.js",
++    "src/forge/module_bundle/18_donorSpectralFilm.js",
++    "src/forge/module_bundle/19_donorMaterialDiagnostics.js",
++    "src/forge/module_bundle/20_donorOutputMantle.js",
++    "src/forge/module_bundle/21_experimentStatePersistence.js",
++    "src/forge/module_bundle/22_materialIntakePersistence.js",
++    "src/forge/module_bundle/99_close.js",
++    "src/storage/01_donor_library.js",
++    "src/storage/02_donor_packages.js",
++    "src/storage/03_forge_packages.js",
++    "src/storage/04_sample_donor_bridge.js",
++    "src/vendor/01_react_dom.js",
++    "src/runtime/01_instrument_state.js",
++    "src/runtime/instrument/01_voice_gradients_and_effects.js",
++    "src/runtime/instrument/02_observation_and_sample_storage.js",
++    "src/runtime/instrument/03_selection_and_recording_tools.js",
++    "src/runtime/instrument/04_performance_and_output_profiles.js",
++    "src/audio/rfl/01_resident_worklet.js",
++    "src/audio/rfl/02_fragment_preparation.js",
++    "src/runtime/instrument/05_timing_and_admission.js",
++    "src/runtime/instrument/06_rooms_and_lifecycle.js",
++    "src/runtime/instrument/07_interpreters_and_installation.js",
++    "src/myzel/01_effect_mapping.js",
++    "src/runtime/instrument/08_library_and_tuning_editor.js",
++    "src/runtime/instrument/09_monitoring_and_manual_patterns.js",
++    "src/runtime/instrument/10_entrophon_and_voice_control.js",
++    "src/instruments/01_entrophon_definition.js",
++    "src/instruments/02_entrophon_library.js",
++    "src/instruments/03_entrophon_library_ui.js",
++    "src/instruments/04_entrophon_melodic_audio.js",
++    "src/instruments/05_entrophon_integration.js",
++    "src/instruments/06_source_preparation.js",
++    "src/instruments/07_pitch_preparation.js",
++    "src/runtime/instrument/11_recording_and_granular_controls.js",
++    "src/runtime/instrument/12_rhythm_and_bass_editor.js",
++    "src/rhythm/06_lane_pan.js",
++    "src/rhythm/01_compact_drum_grid.js",
++    "src/audio/07_myzel_g_geometry.js",
++    "src/audio/09_myzel_g_dsp.js",
++    "src/audio/08_myzel_g_live.js",
++    "src/runtime/instrument/13_pointer_motion.js",
++    "src/rhythm/02_bass_and_rack.js",
++    "src/audio/drone/01_colour.js",
++    "src/audio/01_voice_and_rfl_ownership.js",
++    "src/audio/00_rfl_settings_cache.js",
++    "src/audio/02_rfl_worklet.js",
++    "src/audio/03_rfl_transport_legacy.js",
++    "src/audio/03_flac_encoder.js",
++    "src/audio/03_recorder_helpers.js",
++    "src/audio/03_pcm_range.js",
++    "src/audio/03_recorder.js",
++    "src/audio/04_wave_worklet.js",
++    "src/audio/05_sample_granular_hold.js",
++    "src/audio/05_live_voice_runtime.js",
++    "src/audio/entrophon/01_wasm_asset.js",
++    "src/audio/entrophon/02_worklet_and_voice_backend.js",
++    "src/audio/entrophon/03_native_bridge.js",
++    "src/audio/07_governor_and_drums.js",
++    "src/rhythm/03_live_drum_bodies.js",
++    "src/rhythm/04_workspace_and_transport.js",
++    "src/rhythm/05_canonical_selection.js",
++    "src/app/forge/01_room_shell.js",
++    "src/app/forge/02_boot_and_workspace_tools.js",
++    "src/app/forge/03_spectral_grid_and_archives.js",
++    "src/app/forge/04_profiles_and_body_models.js",
++    "src/app/forge/05_forge_state_and_analysis.js",
++    "src/app/forge/06_donor_audio_and_audition.js",
++    "src/app/forge/07_preview_cache_and_controls.js",
++    "src/forge/editor/06_pcm_spectrum_view.js",
++    "src/forge/editor/07_view_lifecycle.js",
++    "src/forge/editor/01_display_and_canvas.js",
++    "src/forge/editor/02_tools_and_audio_inputs.js",
++    "src/forge/editor/03_synthetic_sound_engines.js",
++    "src/forge/dsp/04_polytrace_render.js",
++    "src/forge/editor/04_signal_atoms_and_bodies.js",
++    "src/forge/editor/05_machine_and_carrier_projection.js",
++    "src/forge/editor/06_output_routing.js",
++    "src/forge/editor/07_composition_and_preview_ui.js",
++    "src/forge/editor/08_stamp_library.js",
++    "src/forge/ui/03_microphone_intake.js",
++    "src/forge/analysis/04_audio_to_carrier.js",
++    "src/forge/analysis/05_carrier_pitch_space.js",
++    "src/forge/ui/04_audio_to_carrier_controls.js",
++    "src/forge/ui/02_donor_routing_and_hearing.js",
++    "src/forge/ui/03_method_selection.js",
++    "src/forge_and_melodic/01_donor_selection_and_edits.js",
++    "src/forge_and_melodic/02_forge_keyboard_and_history.js",
++    "src/forge_and_melodic/03_timeline_and_transport_ui.js",
++    "src/forge_and_melodic/04_render_cache_and_stems.js",
++    "src/forge_and_melodic/05_preview_and_sample_intake.js",
++    "src/forge_and_melodic/06_note_editor_and_material_tools.js",
++    "src/forge_and_melodic/07_tuning_and_logic_view.js",
++    "src/forge_and_melodic/08_editor_actions.js",
++    "src/forge_and_melodic/09_canonical_forge_room.js",
++    "src/forge_and_melodic/10_audition_and_persistence.js",
++    "src/forge_and_melodic/11_analysis_canvas_and_controls.js",
++    "src/forge/hybrid/01_recipe.js",
++    "src/forge/hybrid/02_session_store.js",
++    "src/forge/analysis/01_analysis_size.js",
++    "src/forge/analysis/02_analysis_cache.js",
++    "src/04_forge_render.js",
++    "src/forge/hybrid/03_render_pipeline.js",
++    "src/forge/hybrid/04_cecilia_dsp_and_worker.js",
++    "src/forge/hybrid/05_capture_tools.js",
++    "src/forge/hybrid/10_carrier_capture.js",
++    "src/forge/hybrid/06_job_capture.js",
++    "src/forge/hybrid/07_render_adapters.js",
++    "src/forge/hybrid/08_playback_controller.js",
++    "src/forge/hybrid/09_runtime.js",
++    "src/forge/ui/04_cecilia_controls.js",
++    "src/forge/analysis/03_source_identity_and_cache.js",
++    "src/forge/lifecycle/02_workbench_activity.js",
++    "src/forge/ui/05_workbench_controls.js",
++    "src/forge/dual/01_dsp_and_worker.js",
++    "src/forge/dual/02_session_store.js",
++    "src/forge/dual/03_audio_files.js",
++    "src/forge/dual/04_session_codec.js",
++    "src/forge/dual/05_library_bridge.js",
++    "src/forge/dual/06_output_controls.js",
++    "src/05_dual_donor.js",
++    "src/06_workbench_dialog.js"
++  ],
++  "styles": [
++    {
++      "file": "styles/00_base_utilities.css",
++      "tag": "<style rel=\"stylesheet\" crossorigin>",
++      "after": "\n  "
++    },
++    {
++      "file": "styles/01_near_feedback.css",
++      "tag": "<style id=\"f39-near-feedback-style\">",
++      "after": ""
++    },
++    {
++      "file": "styles/02_wave_amp.css",
++      "tag": "<style>",
++      "after": "\n"
++    },
++    {
++      "file": "styles/03_forge_mobile_sidebar.css",
++      "tag": "<style id=\"forge-sidebar-mobile-f315\">",
++      "after": ""
++    },
++    {
++      "file": "styles/04_workbench_base.css",
++      "tag": "<style id=\"f341-donor-workbench-style\">",
++      "after": "\n\n"
++    },
++    {
++      "file": "styles/05_workbench_controls.css",
++      "tag": "<style id=\"f347-workbench-style\">",
++      "after": "\n"
++    },
++    {
++      "file": "styles/06_donor_library.css",
++      "tag": "<style id=\"f348-library-layout\">",
++      "after": "\n"
++    },
++    {
++      "file": "styles/07_donor_library_dock.css",
++      "tag": "<style id=\"f349-library-side-dock\">",
++      "after": "\n"
++    },
++    {
++      "file": "styles/08_workbench_workflow.css",
++      "tag": "<style id=\"f350-workflow\">",
++      "after": "\n"
++    },
++    {
++      "file": "styles/09_combination_rack.css",
++      "tag": "<style id=\"f351-combination-rack\">",
++      "after": "\n"
++    },
++    {
++      "file": "styles/10_hybrid_workflow.css",
++      "tag": "<style id=\"f352-hybrid-workflow\">",
++      "after": "\n"
++    },
++    {
++      "file": "styles/11_carrier_controls.css",
++      "tag": "<style id=\"f3564-carrier-ui\">",
++      "after": ""
++    },
++    {
++      "file": "styles/12_drum_rack.css",
++      "tag": "<style id=\"xen-f35618-drum-rack-layout\">",
++      "after": ""
++    },
++    {
++      "file": "styles/13_drum_timing.css",
++      "tag": "<style id=\"xen-f35619-drum-timing\">",
++      "after": ""
++    },
++    {
++      "file": "styles/14_drum_responsive.css",
++      "tag": "<style id=\"xen-f35620-drum-layout\">",
++      "after": ""
++    },
++    {
++      "file": "styles/15_drum_playhead.css",
++      "tag": "<style id=\"xen-f35621-drum-karaoke\">",
++      "after": ""
++    },
++    {
++      "file": "styles/16_dual_donor_assembly.css",
++      "tag": "<style id=\"f35634-dual-donor-assembly-ui\">",
++      "after": "\n"
++    },
++    {
++      "file": "styles/17_dual_donor_output.css",
++      "tag": "<style>",
++      "after": "\n"
++    },
++    {
++      "file": "styles/18_forge_status.css",
++      "tag": "<style>",
++      "after": ""
++    },
++    {
++      "file": "styles/19_bass_manager_fix.css",
++      "tag": "<style id=\"xen-f355-fix1-bass\">",
++      "after": "\n"
++    },
++    {
++      "file": "styles/20_nodal_sound_designer.css",
++      "tag": "<style id=\"nodal-sound-designer-style\">",
++      "after": "\n"
++    },
++    {
++      "file": "styles/22_emilia3.css",
++      "tag": "<style data-xensonar-emilia3=\"true\">",
++      "after": "\n"
++    },
++    {
++      "file": "styles/08_forge_workflow.css",
++      "tag": "<style>",
++      "after": ""
++    },
++    {
++      "file": "styles/23_performance_palette.css",
++      "tag": "<style>",
++      "after": "\n"
++    },
++    {
++      "file": "styles/24_quick_menu.css",
++      "tag": "<style>",
++      "after": "\n"
++    },
++    {
++      "file": "styles/25_n20_forge_navigation.css",
++      "tag": "<style id=\"xen-n20-forge-navigation\">",
++      "after": "\n"
++    },
++    {
++      "file": "styles/26_live_controls.css",
++      "tag": "<style id=\"xen-live-controls\">",
++      "after": "\n"
++    }
++  ],
++  "hashes": {
++    "src/handoff/00_chat_feature_addons.js": "ed2256abcaaf774c9f45972947b839bffd33a9e4dc70628edfb884a5248a1253",
++    "src/mix/03_quick_menu.js": "0a1fb8bb6ba95443081b6d05269d3b4f94a19ecde64f91dde4bd015f83a6075e",
++    "src/mix/04_melodic_spatial.js": "398f3acabc5f7da84392ec193b6ad838931187d5961e5540993a7cbbec272856",
++    "src/mix/05_grid_runtime.js": "eec8e443ae3c2397a340da3c8335935cfec3e516f89331f8b57f85f30b95b7e6",
++    "src/mix/06_custom_instruments.js": "4e09117f3171d4228a10343d44ce054220af027964b8885829e104d019b41070",
++    "src/instruments/00_diagnostics.js": "f7b50b1f5b58b2116989ce23a8721505da99ca60eaaea4b7711d93f95762360e",
++    "src/mix/01_pan.js": "6feed55b4bbe349bec4c1c40dd458afddb8f4f049ef44c7d17586013b46a3e10",
++    "src/mix/02_performance_catalog.js": "6e00727e068e9c57eb569498bc07c27293d54ff0d67e59b9fa45d8e9ab02dd5f",
++    "src/nodal/01_instrument_model.js": "93a1d7ff54e155f2453ea683d738d0aef359c86a0e54b7b4e477870b478bb5bc",
++    "src/nodal/02_synthesis_kernel.js": "4302f389a137ae8ef6785a726172bdeb897e045a249f4f0c5ca0e75379fd7e85",
++    "src/nodal/03_library.js": "d55cc0e856c44176add41a56d66faf445e923994699e850a381e7e494da3d59c",
++    "src/nodal/03_preparation_worker.js": "5d0c90036830cee605310ea8d92f39fe514729cd2d750cacb3b24e6e59805c10",
++    "src/nodal/04_audio_runtime.js": "e65b2ebda0abaddc1e9441e491e640c445e08dd61bd580577647adb79b052da0",
++    "src/nodal/05_installation_bridge.js": "bc1707700358eb1ddfb3cbb59f7845854a4153c778b083fdec365f5e30a2872e",
++    "src/nodal/06_melodic_bridge.js": "55538a3b768c3674bb5f1e70a656367c4e5e2488cb776683f3f4684c18d0be2b",
++    "src/nodal/08_melodic_live_transport.js": "9ee6f2f295ffd587d6f52ac81a55b7b34c4239cfda8e95ffae5400980d2b9689",
++    "src/nodal/09_melodic_session.js": "d61a92708e7dab1ad42a7084b17f3a8f345ea9655fbf788d07b81d3927b215ac",
++    "src/nodal/10_library_manager.js": "4ee7ccc0d5ae907b28115d93eff7c354a54a80bdc06e1026000674aa94637c78",
++    "src/nodal/11_editing_session.js": "3a17df8f6f664f1ce970be95ac2f014b559c1a4ae39f905ab1efda81bb271fc3",
++    "src/nodal/07_sound_designer.js": "2bdefec715f85296d4c8f19b90b63e785fbf8e2d37ce23f26537c07cf4b70ad0",
++    "src/nodal/12_surface_runtime.js": "d97630da10efc49d3b9702e640921103bd759a9e0466c2cbf940e7fbcfee9f7b",
++    "src/forge/emilia/04_source_materials.js": "80a43afc95fd5b2efe6dd30aca015fec10351dda721f7041281e26c146167e2a",
++    "src/forge/emilia/05_hx_reciprocal.js": "e75f5cda56961f762e250ad4b3e57a33d4d3db9551bdb52bf668e1a0bb61e35c",
++    "src/forge/emilia/03_network_color.js": "d3878f9588f5e36015309d76d472e069fa7c81776057e3798bdb923e4bbc1c5f",
++    "src/forge/analysis/04_painted_voices.js": "c0d1e43996d7df24b6eadfef8c685eb9179103ce3318d1f9698c78b552dfe588",
++    "src/forge/emilia/06_preview_worker.js": "89e9b5ea9fa2e68f370b325c79ecc97875f60b11493b47048be1e0ff8ff5135d",
++    "src/forge/emilia/01_nodal_carrier.js": "6d6c588a5215f7cbb22c5e31fec50b4935f08083137480c9d4d3d62e629f7fa6",
++    "src/forge/fractalia/00_legacy_f2.js": "30d9287987f7b7352d5830eac2eeedf4a06fa236eafd61c083350fa96d3af2f7",
++    "src/forge/fractalia/01_core.js": "4185eceb088dfc8b4372000363eb36c9a2f42cd7874d99991551e44134a1bd22",
++    "src/forge/fractalia/02_mantle.js": "c81c5700a0e4becda5fdbecb299a3656596784c803c43b7ac4b589a01ee20934",
++    "src/forge/fractalia/04_relations.js": "cee8d44af6156cd0539b05ac0b63087bebeaa084cf107e79514ece7dcdfe361f",
++    "src/forge/fractalia/06_relational_render.js": "eee78e4310fd25e3fb99811f290928ff425ae605f2a8a2fa18a741aa721c6988",
++    "src/forge/fractalia/05_relational_core.js": "640cec76ab177164437a1a02c6cf137ba0268d8bf46e1efacc0aa0af5a479c7e",
++    "src/forge/fractalia/07_compile_jobs.js": "e0a3a521c74385663596723c4d5ad3af007965d3df5941614440df178311253f",
++    "src/forge/fractalia/08_donor_ecology.js": "7b3150b143a4a2a7151b8e34375b655375007b01c98d988993d28a5b389a513d",
++    "src/forge/fractalia/09_material_atlas.js": "7aefb1c10142644fd12024e91cfb5d88c816be09566cbddab407539ef69393e9",
++    "src/forge/fractalia/10_material_render.js": "106a9afdc6a90bc76236177dfdbb23c64ff1b5ce93322d940acde981c1826550",
++    "src/forge/fractalia/11_material_runtime.js": "a8fb5d09eebe736c82f4200b7c72028732b5472f5ba4470dc2bcf98b770260d0",
++    "src/forge/fractalia/12_material_experiments.js": "b09a3f611a9a6f494b1126cf7f9025fe6247be32a8e639064e29b5ed77a91e36",
++    "src/forge/fractalia/13_spectral_view.js": "c8fd1116fff4951fe0486bde0a7ce084a0d3b18de0b0e8f7b5e73ac77d32848e",
++    "src/forge/fractalia/14_live_transfer.js": "9b00d791a5243f6949fae75ae9cb6ed58361129d28a59d6249cef23e9ed28df1",
++    "src/forge/fractalia/03_instrument.js": "ef82178a25a4df36de98f45d41f6e98ce85a7cf9a06747ed26d49899697b9dca",
++    "src/forge/editor/09_workflow_controls.js": "c84a04f3452300ac4d6620ae920f67f0bc0d9dfacf4ae50ab6c1a14a699c3050",
++    "src/forge/dsp/08_pure_dieter_worker.js": "7373c1414a568f3ea9d56c33ab9fb52bc95613ba6a9211af16946bc554bb5a64",
++    "src/forge/emilia/02_lab_ui.js": "bdc3ca0f96b2307ce250cf327db6245e33ea01047dde2eca80be4d6c0bec0780",
++    "src/forge/dsp/04_donor_field.js": "e3d8ce96ad7d4f707c1b00c6823e467ec88320b3b815bb8dae00a8fd711cc988",
++    "src/forge/lifecycle/01_offline_jobs.js": "91a7018865c15b60fc56a54af828935097a7cb664d523bc4b7dac4d8d0c536ca",
++    "src/storage/05_project_snapshots.js": "d4c2b8b6bdf8537832fba4612ffabccc4840ed23b4d5a1934685569db24bef1d",
++    "src/storage/06_history_budget.js": "27e63bb49ee637a44172ef2305c6b9e5a55eb7ba3cffd316e1082461f2c47b30",
++    "src/storage/07_history_snapshots.js": "23cd8597462af5ed1dd0ed160163bc391467976e9d93d389d1f4acdf9046c1b4",
++    "src/nodal/13_installation_ball_grid.js": "4d7728e383b8d6359fcd5729d9dbc19089d5ea158decf46632bfd34655fa68af",
++    "src/01_app_runtime.js": "885a9004f6fba5d79809c80546c782f458a94f26c344632879bfb178f9b83f69",
++    "src/forge/workbench/01_preset_catalog.js": "92e52667eb406632636c5733505ad7e93a56864f5c3bc61ef645491ba7e04f94",
++    "src/forge/workbench/02_recipe_normalization.js": "1f2c230ca91f0c63da5451ed5432befda85ea6ddbac77d08019631600fdb6cbb",
++    "src/forge/workbench/03_material_selection.js": "022186707460174a20afccb9cb4521eba7e1a12c93d0bd69182e57a5436f973e",
++    "src/forge/workbench/04_sound_bridge.js": "fc81e389da33f9cc674c8c9399f6af8be8d4f848d3dc202c016080510ed25996",
++    "src/forge/workbench/05_state_store.js": "5b33017599a1e20cca132be0873758bd758e3333697d15100adca1a653f40ba3",
++    "src/forge/01_workbench_state.js": "fe8a21ff6eebd4c850f961d4169ee941a7f512ddbf9547c7c930d658eb2db173",
++    "src/forge/dsp/01_material_tools.js": "34273816f3ff5788fa44041ed6a44d14f64232bf13b891a700cb0f16156ba133",
++    "src/forge/dsp/02_gestalt_tools.js": "6baed4dc850b772d620036b9df1f93ed30aa324064d7e15eb0f91f6b1bfe5e80",
++    "src/forge/dsp/03_pcm_worker.js": "b47a5a711f4ada212c8cb2663503afe28834043d59c7cada3a84bc5fb88c4c5a",
++    "src/forge/original/01_articulation.js": "aa974100b110d2ea5f7f751a25339d89017cd905017df0f3078dc5172b2033c3",
++    "src/forge/original/02_material.js": "eca3a573ead36cca0a1c0f73f602c7064dce262aa4e4a1871c22223e9b19544f",
++    "src/forge/original/03_gestalt_material.js": "268788b25eb1aa8b35d978ba9bf15bf542aba8660c9e78aa253bd6cf6ede4b67",
++    "src/forge/original/04_gestalt.js": "e322d3c9ff50dab2d038a6ee290d8586d890850ba0b789a4241ca3328adf943c",
++    "src/forge/original/05_dual_donor.js": "3176730ba9d52fa46d271727b05563d46f049b3d91ebba64d0e7ae67c95d120b",
++    "src/forge/original/06_cecilia.js": "1793157528b6a687ef4d811d1b27212aa0ca26c824855fb7c890a9125d059fca",
++    "src/forge/revised/01_material.js": "039df326f0b67ae6b283d6d86b5e8deccb0aa86a8c5ef7c687d8345a0e52e0b2",
++    "src/forge/revised/02_gestalt.js": "288c8a614423abd9ed1adc4e90b5177c81a3c6bec0b03d760a157c77cb64da89",
++    "src/forge/module_bundle/00_open.js": "dd52fb8c8c042a332d538ec1730bab9c1056d8f5e7b534e1332662a8968221a8",
++    "src/forge/module_bundle/01_entry.js": "7da6f075fd0b724a800e23dd93c852f77ebcece81a41b3c136bd134f9639a998",
++    "src/forge/module_bundle/02_projectionCarrierPlan.js": "99eb34a9a90f278e72d078920fd0c49a7c35c32b6c5bdd2d2a23f50e20cafa62",
++    "src/forge/module_bundle/03_carrierDonorV2Types.js": "f1fd8dc51c24ac409e5ac48a195c2f341682f50044162f2feb8599c85f439418",
++    "src/forge/module_bundle/04_carrierSupportField.js": "cd270f8fa10c256dbd68aaa41c3d1c7108d34058f93c8a37392e51e603f732ae",
++    "src/forge/module_bundle/05_carrierContinuity.js": "4c6131cb4d0b490423ecfc512353f2ca42f26705fae07c9b8affa5de8f03de2b",
++    "src/forge/module_bundle/06_donorHybridModel.js": "c96ff9e2df5f50c701282ea5b1d6d823bc3bbd1d553929dee4b642bd60dbcdaf",
++    "src/forge/module_bundle/07_donorBodyModel.js": "7f8253d133d0413c6d8fbaa06f4836f6ad6061bb0f9aa3fe4efe7cb899d38442",
++    "src/forge/module_bundle/08_realSpectrum.js": "71800f20741beab81b4454c4752ac508f245f28d3a787056040c182c2f904264",
++    "src/forge/module_bundle/09_donorPitch.js": "5ae67accce5e161f73ae4361df26a1f48ffb3234dc1289c1b4f1c03479a8ba4b",
++    "src/forge/module_bundle/10_donorSpectralEvidence.js": "15d023d7173900f1b34cd603e512c70b2ed9bc1f0e073d0b3379eb538fbdb17b",
++    "src/forge/module_bundle/11_donorSourceWindows.js": "d2b9407c05976d3496b14debe59c46f700d5e5a6751965faab9822129e1d036d",
++    "src/forge/module_bundle/12_renderDonorHybrid.js": "c55706488d78dbaf104688cfd6723818344a6d6055086d7206b6886368ba1888",
++    "src/forge/module_bundle/13_donorMaterialPlan.js": "083129b78a98954c3247a5625a3ece131222e5933c58936bf608606018ae9028",
++    "src/forge/module_bundle/14_granularCadence.js": "2d24fa0fe85ad71855e9ffb253aab30ad2b895220e8c543541e95e24be0f27a9",
++    "src/forge/module_bundle/15_renderContinuousDonor.js": "173ed7794dfc9a31a0e1b0d6c693dcc370c932e4f56519b3fe863e70fea18195",
++    "src/forge/module_bundle/16_complexSpectrum.js": "066ed017c3e0ad073ce86b61b26bc20f460220ab9f2c4c756f5b08eb2e5f5bc5",
++    "src/forge/module_bundle/17_renderCarrierSupport.js": "6f41e89cd95dc72fdd69675067e693f094a882d0695faf5590d0c630e2ac59d5",
++    "src/forge/module_bundle/18_donorSpectralFilm.js": "a297214391cf55bd4ae51b611b65d02ed552553786a1f68c8e07e11f4cb6dd15",
++    "src/forge/module_bundle/19_donorMaterialDiagnostics.js": "ebde22ab29918fd65ae2b652559603dab870d76d5185ced7b7df9dd51d3a207b",
++    "src/forge/module_bundle/20_donorOutputMantle.js": "76307be1b9e2dc3ecb7edf15f1538378c93014e58b37f87ada4acd9ce0a76e54",
++    "src/forge/module_bundle/21_experimentStatePersistence.js": "571db1c553a088dd7ab58bc027c02909b478bdbdf20ae598601538d5f4f8eba0",
++    "src/forge/module_bundle/22_materialIntakePersistence.js": "6cafec657997e9e520d6e4b541e7277c4614791a26db1bf04843db8f9f3f3e3f",
++    "src/forge/module_bundle/99_close.js": "59c528363096f35351430920a4e283a1e3dd1a7ec88447e4e4c42d5e60497881",
++    "src/storage/01_donor_library.js": "80df7cebb66e3f7f8677178c776e0fc802873f5cce64cc0538d4c16f0700c729",
++    "src/storage/02_donor_packages.js": "2b2204611a763ab8a28e3c56217a074988dda2c82da0fc36d3e37573a9963524",
++    "src/storage/03_forge_packages.js": "96fb969b6785cb2fa67677b693593862da8e0e2c9eef7c6ac1fec7ea9b0cc3d5",
++    "src/storage/04_sample_donor_bridge.js": "d0d81ada2e31af2dff0ec97c2289261b513b7db26dbbfd23141e0c69930ddc4c",
++    "src/vendor/01_react_dom.js": "53fd4c16cb0532b5c8d7d4ea36851fcbfd7003db535361217a39fb0bd8bae7c9",
++    "src/runtime/01_instrument_state.js": "a51fa36121712001f013b5a9346d6087af41624cbd6a2c3998ba6ef273b45020",
++    "src/runtime/instrument/01_voice_gradients_and_effects.js": "66571d49145756f8c2c5e2e2f1e068d9e752806ac8b5d2b9437590e8c58ef1fa",
++    "src/runtime/instrument/02_observation_and_sample_storage.js": "dcd8df5dcbcee0c370726a305a3b1f9d5927a2275ac41451eae8b435251d0478",
++    "src/runtime/instrument/03_selection_and_recording_tools.js": "64b5f845cae8316ea6a13625698c6115ccb80a5b5c691336391be8c58a97560e",
++    "src/runtime/instrument/04_performance_and_output_profiles.js": "5b785620a9f1aa1469d226b5a7bfbf0fb31b2a5783ce0bfa633e4b8ff723189c",
++    "src/audio/rfl/01_resident_worklet.js": "6d897cdeccf681ea89bdfb2930f15f89e90b7277bfcb367feb771f9908565c9e",
++    "src/audio/rfl/02_fragment_preparation.js": "c47036740e92cd13952416aefb46f9c714b4cf47dc51a7392ade576dcc2e3e63",
++    "src/runtime/instrument/05_timing_and_admission.js": "b56c34c729d23fefd79a436e8fa744185fc0052b45c02bc35f3f397f587c8e20",
++    "src/runtime/instrument/06_rooms_and_lifecycle.js": "74dc9230f2656d8eadebe960ab8eaeeb56f18059a50d805a283847eeead94027",
++    "src/runtime/instrument/07_interpreters_and_installation.js": "f83901a67779f8ef75e283d54caa91e7e68192e4db217df898d03428a31f75dc",
++    "src/myzel/01_effect_mapping.js": "fd0dac53dff6cf6fc175efd833f292014ad23c5a7e7a1a8aa6fcdea662d8f435",
++    "src/runtime/instrument/08_library_and_tuning_editor.js": "fe6d178a82d877b61cdeaadaf02060a834eaf72a9fa594cd8df967513beb2d85",
++    "src/runtime/instrument/09_monitoring_and_manual_patterns.js": "0aaa3d3688218e4b96626fc42a4874a582377832b1535ca91601368628c2004f",
++    "src/runtime/instrument/10_entrophon_and_voice_control.js": "be3a9da7644034613547e8fd6b890d4b320b062e48004ae94c904440d86bf16c",
++    "src/instruments/01_entrophon_definition.js": "89568e4d8362321ab2e9861133e28a8f46540edc28b4e88d5ef8ea19b2a495c5",
++    "src/instruments/02_entrophon_library.js": "c46b81967b7c272cfb060f582154a8576f81dfd1b26cec248ddab2f60d5033dd",
++    "src/instruments/03_entrophon_library_ui.js": "08d04d10127e7fd4f566edd008dd11b55bc676be2b6eb7f15108a280c3235f92",
++    "src/instruments/04_entrophon_melodic_audio.js": "824e50efe43a23ca8934b9e53bf35cc679cf805c4a621ad796896de3c01ea276",
++    "src/instruments/05_entrophon_integration.js": "612bbb0909eb91d9ac6d2c0cb07b948be119dfff3cb55624f8047f1be87cbe22",
++    "src/instruments/06_source_preparation.js": "e616e6ccc1cac12c96f00bdeb03b961bc5630f64755b3c7e4d292591fdb0f351",
++    "src/instruments/07_pitch_preparation.js": "0606c67311b76324523b74bdbc50159af24cc94791dba20ae7477fb6a4c1272b",
++    "src/runtime/instrument/11_recording_and_granular_controls.js": "fc2fc66fe1b91bedc8e9de94f1b03ea46de83ea69ae0366d535954d2121226b2",
++    "src/runtime/instrument/12_rhythm_and_bass_editor.js": "d6c6a5e69e1ffa700080238f44cce9250c482978b0fc86f4f6d56e8e0dc5a442",
++    "src/rhythm/06_lane_pan.js": "f6d4e61fe6aecdcb8fbbf7cb9aa1c4eff4508689a77f57cc77a12c1d8df64c71",
++    "src/rhythm/01_compact_drum_grid.js": "4feb238a5f8120addcb3a66e8d374498252f449265e86df2b57f5ed79379a701",
++    "src/audio/07_myzel_g_geometry.js": "81334333c39314378d08417cff731122371b21d6264c9f588dd9d6e604e250f1",
++    "src/audio/09_myzel_g_dsp.js": "e674130fae29ecc60cb85a71931083f72af48b1cad0e62a6879eb5a3265cbbc1",
++    "src/audio/08_myzel_g_live.js": "fa6e1b41a7db3a19ae96e074eba20846fef95b9d43741a3fb78e1421bc397d39",
++    "src/runtime/instrument/13_pointer_motion.js": "0ddff43024ee3ed3d4e074444cf3c44b3844c511597b2d54448f2e9f165a73d3",
++    "src/rhythm/02_bass_and_rack.js": "df43c18502f462b5a06520c4b60448672d1e7d6950a5d3fe8ef3f1af12f5e8cc",
++    "src/audio/drone/01_colour.js": "cccbe1f3694f37a3aa0f221360f03971a30b284383e525da4c15da9e12949022",
++    "src/audio/01_voice_and_rfl_ownership.js": "4cde8b062bfe7ff6e62a7fef4cb37c16e0468a0fafdff185b54007aba04dd372",
++    "src/audio/00_rfl_settings_cache.js": "513ab3f4f26b8eb213b086d06f3c840b50d46982474b795268a1c8ea5312459e",
++    "src/audio/02_rfl_worklet.js": "c13e23318f08ed20c2a38908bfd6ea98aece06dccc7f6542f7743e2f5be00e77",
++    "src/audio/03_rfl_transport_legacy.js": "79c6cbc07a8680bf0fb044e6af3782b87c41520bbc5656eb8086be132a34b60e",
++    "src/audio/03_flac_encoder.js": "7125ee26eb5e4353c17b5589b854283498b411ed49adcdc4e7486c9e6fb1dfb4",
++    "src/audio/03_recorder_helpers.js": "d63ed4f43bb6f7710159d432c5b5d4d8c8cb79af7d535713902a9c7df29899e0",
++    "src/audio/03_pcm_range.js": "29f2a964869fc57b564cde1f0df2a7a0c0c377901fe7c2b9cce6f5b8205d9d1c",
++    "src/audio/03_recorder.js": "036d3a85f7f15a6ecda053ac845b8342f8508e97c8c6f9301f992868c04891a6",
++    "src/audio/04_wave_worklet.js": "37b659f26344720b8e2ef0091ca44fb87ca799b35041c1820ab41e3aff2a40b2",
++    "src/audio/05_sample_granular_hold.js": "175794655292cc35a8beeae08fa800adf0b5d2a91fb631c3663e46a0d7b5d768",
++    "src/audio/05_live_voice_runtime.js": "701d9a0b0346dbdb308e4774875ba27457b3567da727b368f82491b82fcbca16",
++    "src/audio/entrophon/01_wasm_asset.js": "292826664b9374a860f06a5e0d3041b0adeed22638e1266bdbd3d4386c59d658",
++    "src/audio/entrophon/02_worklet_and_voice_backend.js": "f4bf8a174315ce4e47bfbc922d5e9afc0e85beb8a35c49cd8615b57938d5b27c",
++    "src/audio/entrophon/03_native_bridge.js": "0e6248350506a548742f09e7566c62f713600cde6a84d99aff0e129030bc1e99",
++    "src/audio/07_governor_and_drums.js": "b5bb44b24e06667abe18526232488bb21958ce287bb6edb939d8c4fc53490d87",
++    "src/rhythm/03_live_drum_bodies.js": "83a75a6c6ef1b5e3c94fc3085c08da08312092d7fbb20bc2b6e374d816b2ea26",
++    "src/rhythm/04_workspace_and_transport.js": "39d732aff56ac3dac0d2d799afd80f48ab95a9f368a6be0b1359eacf610f9bab",
++    "src/rhythm/05_canonical_selection.js": "70c37d3458aa13b17985b873a2ca17fb3e8f8050a645cd030dd9e6e00164aead",
++    "src/app/forge/01_room_shell.js": "3e687b3553fbc5382ea6b313f5dfdb07fba98a98d959346c1c90684f7444e9d2",
++    "src/app/forge/02_boot_and_workspace_tools.js": "ff7b67c120977079611f83c8462f0ace8ad31b3a61d3a806629f8d83c7826869",
++    "src/app/forge/03_spectral_grid_and_archives.js": "1b988c898aa9b5386c01f7caba2d16a169b7e0f8c49be594c32a74e444721366",
++    "src/app/forge/04_profiles_and_body_models.js": "e079c056fcbfacdc5bdfc3732bba740ffabc2c085ff3a9f1b40a7f326c6e976e",
++    "src/app/forge/05_forge_state_and_analysis.js": "0dde5c109be85ae558a0f71d0672d1d613599f2c76477d4a5ffd171805368b26",
++    "src/app/forge/06_donor_audio_and_audition.js": "a2c47252f68252778eb94dacf646e19f8f3072c478a03651c09a0cd918354cbf",
++    "src/app/forge/07_preview_cache_and_controls.js": "bf180e9adcd25cb323e8cd1e471c65f1c1a141b7136283ffdac899e14f5b60ab",
++    "src/forge/editor/06_pcm_spectrum_view.js": "b7502ef94e2679c37c889e31bf87ad574215c5b5871643ba8a62f7de7df2dc22",
++    "src/forge/editor/07_view_lifecycle.js": "0956e31d83d8e67d4df961ff21b17de83b598908dc7772f719556cbc81ade255",
++    "src/forge/editor/01_display_and_canvas.js": "8d691927609a0b71f7fbea553a0ae854a7187a42a7702ce3aad3b0820c9be1cc",
++    "src/forge/editor/02_tools_and_audio_inputs.js": "4e3047d37fc19644f4691f1ef9dcfb78726ca8ddd8102a6808f795d18f7e5aab",
++    "src/forge/editor/03_synthetic_sound_engines.js": "0c2adeef0f98c8420d79b967c5d051e4e15b5fabe0a5e1857f77b2f20a36b814",
++    "src/forge/dsp/04_polytrace_render.js": "3ebfc857620db1b4a98bdf91bb916ca3045e4bf6a8e6b79369f15f57ed09467d",
++    "src/forge/editor/04_signal_atoms_and_bodies.js": "b58714b8c5e72c33241fa2a09ebbe125da72f9ca025399f98bc254604dfc5fc3",
++    "src/forge/editor/05_machine_and_carrier_projection.js": "08500dcd43fb85bbb8204a7f670e6af4cca5865980ae5338bd0b9165d1a3ec3a",
++    "src/forge/editor/06_output_routing.js": "d2c22da5006a55e11c37f667858bd1904cfebaec3aea6454d8d1a680b3352e78",
++    "src/forge/editor/07_composition_and_preview_ui.js": "e9c05852cfe39269bb9eb2b40039465adb8a5eab64d17d1f071af99311674f26",
++    "src/forge/editor/08_stamp_library.js": "3b563c47366a019ff0bc77beaf880d680a5a0f70fc624e6a9532bb26587ef6ae",
++    "src/forge/ui/03_microphone_intake.js": "c864c169488d1e93d1ad7d934dd622fae9123cb89d338264171dbab80cb3444a",
++    "src/forge/analysis/04_audio_to_carrier.js": "0c5fde26b0d7b0e509479d8883aab3942234c1c9ffcd88f8f14055dad314cc1b",
++    "src/forge/analysis/05_carrier_pitch_space.js": "9e4c33750b532d1ff984d88f002f080f4dc946862677ff02f3f7c786bbc18478",
++    "src/forge/ui/04_audio_to_carrier_controls.js": "78ac93353505874761e338170bd61f482ebf26d59e3ad86b915cbdd19305c7b2",
++    "src/forge/ui/02_donor_routing_and_hearing.js": "0d74942e809c874255d60a9bfc00065a65bd764951547476f1b8d6161ffe6f59",
++    "src/forge/ui/03_method_selection.js": "cdf3320ba84739143065396d63d69c4145955d59ef510d0bc278b91c3b473817",
++    "src/forge_and_melodic/01_donor_selection_and_edits.js": "694d7c4b70164ac929ae5c79655b15f6a985e21e722cc3b592ac67da61e93a53",
++    "src/forge_and_melodic/02_forge_keyboard_and_history.js": "5337913a16a26032b89a17f5509b9ba4014a50daded4a211732697e9eadce61a",
++    "src/forge_and_melodic/03_timeline_and_transport_ui.js": "f883180c4653a867b67e319f144aa0ced0e35909e57b8d257f2754f22dc93272",
++    "src/forge_and_melodic/04_render_cache_and_stems.js": "b900938343dfa7239cf996cb604b7644bdd2f16831582537a5856988d7e19cd5",
++    "src/forge_and_melodic/05_preview_and_sample_intake.js": "887519737b8a941be1f3f44e7821409a843e8f0ff9b33ee803ab65e35fc08720",
++    "src/forge_and_melodic/06_note_editor_and_material_tools.js": "162ef7be55d6343e4a8ec901c760b3afc03cc19e3db4129e4e72ae888cc6bc3b",
++    "src/forge_and_melodic/07_tuning_and_logic_view.js": "9a42edd27ec28b642b6e9944d9dceff714a30b60ce9cb54715bde4357d09334f",
++    "src/forge_and_melodic/08_editor_actions.js": "f206e65efe17363bad7e2f5c9c01c6fa5af0528c20ced3f8fd1a02fdfff89d03",
++    "src/forge_and_melodic/09_canonical_forge_room.js": "0b2d9054ee204b83d0203327a6e6171289dad69cfea1e772a30df97a9d8d60d8",
++    "src/forge_and_melodic/10_audition_and_persistence.js": "b63cdfc78cad8e1e12765ec4ce35c5f1c8aa494552ed35a1bec3fb9def11fcd9",
++    "src/forge_and_melodic/11_analysis_canvas_and_controls.js": "76bb5107cfa5dc16d86cfad05e5206b69b5e7d81de5b5f6bf813291a17a4b6d1",
++    "src/forge/hybrid/01_recipe.js": "8f9971f9a3eb3f105fb875819fa91771be2213b25d30b035bdb39d6043a99c24",
++    "src/forge/hybrid/02_session_store.js": "fb7b4cf3a23311dce3ede0a6a6dee42d17fe7df1d6486f3ffdd5a4a8656ffd20",
++    "src/forge/analysis/01_analysis_size.js": "56f1b22b8f823a1851fa38a145058c2ea34a422b36bf1e1f94b304ded2821585",
++    "src/forge/analysis/02_analysis_cache.js": "9d2de963ab4e133794d30ed552c78b0e0da5b0b65f464d7c269cf612d4561cd3",
++    "src/04_forge_render.js": "78bf6edcdd3a1499003c9d9f52e5eab1d132d99d04394974b93d140b9b06fb7a",
++    "src/forge/hybrid/03_render_pipeline.js": "f644acc3404e0f0948f19235ec59a8dd2de09fbc69b66b7e6bee3ba25c0205f4",
++    "src/forge/hybrid/04_cecilia_dsp_and_worker.js": "f801c81f5c657b400a49a65db7fed559074d6503cd00591dc0159018b37b19ba",
++    "src/forge/hybrid/05_capture_tools.js": "25ab13b8cf8118ea3bdeac88588becde0a5be3817a469ab684a769fb71c8c37e",
++    "src/forge/hybrid/10_carrier_capture.js": "7d493c3af6d70c70901a301e9f4a001e30e8653ad96547f0e63fadeebfa5f25e",
++    "src/forge/hybrid/06_job_capture.js": "fad0ad7ac5e4d84397eb7c4a955b002958f19dc33d79e8bc864967e766349cda",
++    "src/forge/hybrid/07_render_adapters.js": "8755b217732677487dc20647b46a0580ea218460e5f85ef986ff660bec422606",
++    "src/forge/hybrid/08_playback_controller.js": "616691ad1ebae4a7da355e190549429d376e09d948e44ed70496ad778ec9416d",
++    "src/forge/hybrid/09_runtime.js": "14638b2ce878288a480922e2b4c3a7dde8783adb9f3340245ba75035f34f8a68",
++    "src/forge/ui/04_cecilia_controls.js": "80537bbab856271cb41e3aa4d89489462933bfc6a80de64223cf28ee3359b176",
++    "src/forge/analysis/03_source_identity_and_cache.js": "c1536bd80ffdaf69c9602ca7c6994dc83d43250b63548bda9f96a1bea1006366",
++    "src/forge/lifecycle/02_workbench_activity.js": "dde7c5169b27d50f71c7bf971eee49d85bc8a4a724c833b6cb92e720f81b3026",
++    "src/forge/ui/05_workbench_controls.js": "9e00dd532f8832e866875abf37290c918a5134a1168e8ec14955e04f6067a508",
++    "src/forge/dual/01_dsp_and_worker.js": "757f740b04fb9b8e8771f51e64d4907516831680465089af56f25e96b5352b4c",
++    "src/forge/dual/02_session_store.js": "92a88bd5fcdb0623222409c2f4ab16df1771c5087a0dc379452f2df8de76483d",
++    "src/forge/dual/03_audio_files.js": "e920dd32c8ab5855d9b5db87bb71c49cfaa8829e3901d99ee696c580acc19d8e",
++    "src/forge/dual/04_session_codec.js": "4e2bb913898ea3a07fec3ca1ee991d916574188de37e44c5d63ec33ce7f5e498",
++    "src/forge/dual/05_library_bridge.js": "19bbebb6233870a251812e15c6dc5ca477de5dc2008a985e75d20ad1381a94b1",
++    "src/forge/dual/06_output_controls.js": "ce648197d0eb834bcf0c4f5cf05c9c942d36dd4293fd35b1f58a1ccf8ae3138e",
++    "src/05_dual_donor.js": "cc1241087c1e460a03920e3dfd8c271dc32536df8156a9125e9086937c142b0a",
++    "src/06_workbench_dialog.js": "0153369e5b58d75f66f392655d1eaa899c0a9a3ad0e5b7578f08ccf19f1ebd17",
++    "styles/00_base_utilities.css": "e09b40882f0e784107aac80ee8294e4c3363e7d596820c91469833da46d67081",
++    "styles/01_near_feedback.css": "a3ae120030efbac40a14ace2802e9f0924e6ac8c2af862b6c3901b51cec13efb",
++    "styles/02_wave_amp.css": "f000fd3a9f89337f9e255de1734700837f35681a72be59fb309a3d42deaf1634",
++    "styles/03_forge_mobile_sidebar.css": "ab91854df198c49cfea31757b193717865f3d26e5d68e370a7392eb9b8a31535",
++    "styles/04_workbench_base.css": "36d7ec5234da0071f61f31beebd31fb16072aa99f8a4da4ab97ae1af87645b42",
++    "styles/05_workbench_controls.css": "63bf3ddd8c66aaf9fc3e13b0dfab533ae352fae0efdfdf44351731da9fc335ab",
++    "styles/06_donor_library.css": "d8285928265fd25f970e370a50145db6237fb204b7932fe792b06101a1becf72",
++    "styles/07_donor_library_dock.css": "a9015ab49de1889c6a1f14e5dd6b5a0c13f261618eed9009c67d1c2a0ba02a34",
++    "styles/08_workbench_workflow.css": "31ba7c163fe9d563956753fcb10134f10d1cf7d759548ad75c78708a1b1ce7a6",
++    "styles/09_combination_rack.css": "53b6cc5fb8da5c397e7eb4eca8ac4e7bf4baf129b3356267c7d9d7e7c07282f3",
++    "styles/10_hybrid_workflow.css": "9c6c8ca5b10d43316c1799171b8617726ced37aef205a0da180c9f3ca7d3d533",
++    "styles/11_carrier_controls.css": "5b2d1e3c67bce5a18a72f7928f480180a1fc34051fe0f23a082803ea544a69af",
++    "styles/12_drum_rack.css": "2d919686bbc365ffc0b5f6a58b24e1408dd12780a8c2776cef2b0d4d90cea178",
++    "styles/13_drum_timing.css": "97f5a79dbc339b77cf3ddf43db7efd0ed938e3a52226435aeb03415e4986cf03",
++    "styles/14_drum_responsive.css": "cf0a6c4070a6b119eb10e7bc1e100be910799511393ff5316d052b0fb4fb2e08",
++    "styles/15_drum_playhead.css": "172b73e65d2510e479403395b09e468e33f830708046209bb966174ad092e847",
++    "styles/16_dual_donor_assembly.css": "5f1c9c86811f0ad65cd26e933a7958b6e77b7ea11fec0a0e0b387d309e259018",
++    "styles/17_dual_donor_output.css": "cae09d0b10d06d0f2691a77e6f935f3fbdb6ce3d0f23ac54b6145f6b807ca9ac",
++    "styles/18_forge_status.css": "325841dc85670fe707b0aaef263064582ebf539384808579a655f09b2b0b5fb6",
++    "styles/19_bass_manager_fix.css": "a5bfe03c03a3d66c6e7712ee05263406b0b99e619ad7645baf3c007991b60058",
++    "styles/20_nodal_sound_designer.css": "d13df44f3925ddfcdabbcb4a18d2530897bf23216d6a7b89d9f77e620acf94cd",
++    "styles/22_emilia3.css": "c2cf67556b33c63165a52dbd2fe42390541736f081c5719980ab3c2053a07faf",
++    "styles/08_forge_workflow.css": "b380523af99df20184df86fcbccd8822c0ff3f9b16930ea6512e11ae7648b11b",
++    "styles/23_performance_palette.css": "80ed8e70b1dd50154a0a954cfadc07a89bf17c0976f07bc2a46b50fdeb459b29",
++    "styles/24_quick_menu.css": "1c114dcf164149155b8c99ab735e1686e253517abecf10b090e0e94cb8b1471b",
++    "styles/25_n20_forge_navigation.css": "90fbaafbd463a0eee3f3152aa702b8ed773e1172751466376dd82af20c80590d",
++    "styles/26_live_controls.css": "607918b901969ce42fd6b0ab3ce430c7ec01ad5cafef7aa10e5b2f06273e56fb",
++    "template/head.html": "364d97a5ce20d23936fa2897a05471dea5222b54a4ed2fcd1c04a574cb2a4ff5",
++    "template/script-close.html": "701f651e6b496cbe2bf6fced4f76dc90e3b0c4a45da99ad2effc206d3a40bd67",
++    "template/foot.html": "af5c88b6ab4b01a5826bf521d32c1da95c2aea93fd650060a521f22cb24ed085"
++  },
++  "entry": "Xensonar_P7_Forge_Request_Stability_Test.html",
++  "htmlSha256": "666c8f90117f2c3cd1ccc9533dd285cb503ff382b8d976603ddaf58a0caa2797"
++}
+diff --git a/n21-f2/docs/live-control-ownership/corrections.json b/n21-f2/docs/live-control-ownership/corrections.json
+new file mode 100644
+index 0000000..72e290c
+--- /dev/null
++++ b/n21-f2/docs/live-control-ownership/corrections.json
+@@ -0,0 +1,10 @@
++{
++  "src/rhythm/04_workspace_and_transport.js": [
++    {
++      "old": "function Cke(){const[e,t]=P.useState(!1),[n,r]=P.useState(.68),[a,o]=P.useState(.54),[i,s]=P.useState(.48),[l,c]=P.useState(()=>Rke()),[d,p]=P.useState(()=>gk()),f=P.useRef(gk()),[b,g]=P.useState(()=>vj(gk()));return{liveMasteringEnabled:e,setLiveMasteringEnabled:t,liveMasteringStrength:n,setLiveMasteringStrength:r,liveMasteringGlue:a,setLiveMasteringGlue:o,liveMasteringAir:i,setLiveMasteringAir:s,liveMasterMonitor:l,setLiveMasterMonitor:c,audioEventIntakeMonitor:d,setAudioEventIntakeMonitor:p,audioEventIntakeMonitorRef:f,audioTapMonitor:b,setAudioTapMonitor:g}}function kke(){const e=wke(),t=Cke();return{...e,...t}}",
++      "new": "// Control telemetry is data, independent of the app's React render cycle.\n// A view may subscribe to its channel without rebuilding the instrument owner.\nfunction __createLiveControlSnapshot(initial){\n let snapshot=initial;const listeners=new Set();\n return Object.freeze({getSnapshot:()=>snapshot,\n  subscribe(listener){listeners.add(listener);return()=>listeners.delete(listener)},\n  publish(update){\n   const next=typeof update==='function'?update(snapshot):update;\n   if(Object.is(snapshot,next))return;\n   snapshot=next;\n   for(const listener of listeners)try{listener()}catch(error){console.warn('[Live control] Snapshot observer failed',error)}\n  }\n });\n}\nfunction __useLiveControlSnapshot(create){\n const owner=P.useRef(null);\n if(owner.current===null)owner.current=__createLiveControlSnapshot(create());\n return owner.current;\n}\nfunction Cke(){const[e,t]=P.useState(!1),[n,r]=P.useState(.68),[a,o]=P.useState(.54),[i,s]=P.useState(.48),[l,c]=P.useState(()=>Rke()),d=__useLiveControlSnapshot(gk),p=d.publish,f=P.useRef(gk()),b=__useLiveControlSnapshot(()=>vj(gk())),g=b.publish;return{liveMasteringEnabled:e,setLiveMasteringEnabled:t,liveMasteringStrength:n,setLiveMasteringStrength:r,liveMasteringGlue:a,setLiveMasteringGlue:o,liveMasteringAir:i,setLiveMasteringAir:s,liveMasterMonitor:l,setLiveMasterMonitor:c,get audioEventIntakeMonitor(){return d.getSnapshot()},audioEventIntakeMonitorChannel:d,setAudioEventIntakeMonitor:p,audioEventIntakeMonitorRef:f,get audioTapMonitor(){return b.getSnapshot()},audioTapMonitorChannel:b,setAudioTapMonitor:g}}function kke(){const e=wke(),t=Cke();return Object.defineProperties(e,Object.getOwnPropertyDescriptors(t))}",
++      "count": 1,
++      "stage": "telemetry"
++    }
++  ]
++}
+diff --git a/n21-f2/docs/live-control-ownership/discovery-ref-profile.json b/n21-f2/docs/live-control-ownership/discovery-ref-profile.json
+new file mode 100644
+index 0000000..27bf11d
+--- /dev/null
++++ b/n21-f2/docs/live-control-ownership/discovery-ref-profile.json
+@@ -0,0 +1,180 @@
++{
++  "result": {
++    "src/rhythm/04_workspace_and_transport.js gk()": {
++      "calls": 136,
++      "ms": 0.6000000238418579,
++      "max": 0.10000000894069672
++    },
++    "src/rhythm/04_workspace_and_transport.js Bke()": {
++      "calls": 136,
++      "ms": 11.500000044703484,
++      "max": 8.600000008940697
++    },
++    "src/runtime/instrument/04_performance_and_output_profiles.js zP()": {
++      "calls": 136,
++      "ms": 0.699999988079071,
++      "max": 0.20000000298023224
++    },
++    "src/runtime/instrument/04_performance_and_output_profiles.js BF()": {
++      "calls": 136,
++      "ms": 5.5999999195337296,
++      "max": 1.0999999940395355
++    },
++    "src/app/forge/01_room_shell.js kte()": {
++      "calls": 136,
++      "ms": 0.40000003576278687,
++      "max": 0.10000000894069672
++    },
++    "src/audio/07_governor_and_drums.js vCe()": {
++      "calls": 136,
++      "ms": 0.30000001192092896,
++      "max": 0.10000000894069672
++    },
++    "src/app/forge/01_room_shell.js CCe()": {
++      "calls": 136,
++      "ms": 1.100000038743019,
++      "max": 0.10000000894069672
++    },
++    "src/audio/07_governor_and_drums.js sCe()": {
++      "calls": 136,
++      "ms": 0.5999999791383743,
++      "max": 0.10000000894069672
++    },
++    "src/audio/entrophon/02_worklet_and_voice_backend.js VMe()": {
++      "calls": 136,
++      "ms": 0.7999999970197678,
++      "max": 0.10000000894069672
++    },
++    "src/audio/entrophon/02_worklet_and_voice_backend.js KMe()": {
++      "calls": 136,
++      "ms": 1.2000000178813934,
++      "max": 0.7999999970197678
++    },
++    "src/audio/entrophon/03_native_bridge.js jRe()": {
++      "calls": 136,
++      "ms": 0.5999999940395355,
++      "max": 0.10000000894069672
++    },
++    "src/audio/07_governor_and_drums.js BCe()": {
++      "calls": 136,
++      "ms": 2.2000000327825546,
++      "max": 0.10000000894069672
++    },
++    "src/audio/07_governor_and_drums.js HCe()": {
++      "calls": 136,
++      "ms": 0.5,
++      "max": 0.20000000298023224
++    },
++    "src/audio/07_governor_and_drums.js xCe()": {
++      "calls": 136,
++      "ms": 0.7000000327825546,
++      "max": 0.10000000894069672
++    },
++    "src/app/forge/01_room_shell.js ohe()": {
++      "calls": 136,
++      "ms": 0.4999999850988388,
++      "max": 0.10000000894069672
++    },
++    "src/audio/01_voice_and_rfl_ownership.js Ipe()": {
++      "calls": 136,
++      "ms": 0.20000001788139343,
++      "max": 0.10000000894069672
++    },
++    "src/audio/01_voice_and_rfl_ownership.js Fd()": {
++      "calls": 136,
++      "ms": 0.30000001192092896,
++      "max": 0.10000000894069672
++    },
++    "src/audio/01_voice_and_rfl_ownership.js ET(Fd(),.48,55,\"scanner\",\"hybrid\")": {
++      "calls": 136,
++      "ms": 3.1999999433755875,
++      "max": 0.3999999910593033
++    },
++    "src/audio/01_voice_and_rfl_ownership.js ype()": {
++      "calls": 136,
++      "ms": 0.29999999701976776,
++      "max": 0.10000000894069672
++    },
++    "src/audio/01_voice_and_rfl_ownership.js ipe()": {
++      "calls": 136,
++      "ms": 0.30000001192092896,
++      "max": 0.10000000894069672
++    },
++    "src/audio/01_voice_and_rfl_ownership.js mpe()": {
++      "calls": 136,
++      "ms": 0.20000000298023224,
++      "max": 0.10000000894069672
++    },
++    "src/audio/01_voice_and_rfl_ownership.js RH(Fd(),0,ay)": {
++      "calls": 136,
++      "ms": 0.19999998807907104,
++      "max": 0.09999999403953552
++    },
++    "src/audio/01_voice_and_rfl_ownership.js dH(Fd(),Et.current,ay)": {
++      "calls": 136,
++      "ms": 1.5000000149011612,
++      "max": 0.29999999701976776
++    },
++    "src/audio/01_voice_and_rfl_ownership.js PH(Fd(),110,Se.current,Et.current)": {
++      "calls": 136,
++      "ms": 7.699999988079071,
++      "max": 5.5
++    },
++    "src/audio/03_recorder.js o1e()": {
++      "calls": 136,
++      "ms": 0,
++      "max": 0
++    },
++    "src/app/forge/01_room_shell.js Mte({...wte,sourceMinOccupancyMs:Rte,silentHotPathSources:{wave:!0},getExternalPressureBias:wk})": {
++      "calls": 136,
++      "ms": 0.40000002086162567,
++      "max": 0.10000000894069672
++    },
++    "src/rhythm/04_workspace_and_transport.js zke()": {
++      "calls": 136,
++      "ms": 0.29999999701976776,
++      "max": 0.20000000298023224
++    },
++    "src/rhythm/04_workspace_and_transport.js yk()": {
++      "calls": 408,
++      "ms": 0.7000000029802322,
++      "max": 0.29999999701976776
++    },
++    "src/app/forge/01_room_shell.js rEe({gameWidth:vr,gameHeight:ir})": {
++      "calls": 136,
++      "ms": 0.7999999970197678,
++      "max": 0.10000000894069672
++    },
++    "src/rhythm/04_workspace_and_transport.js pj(QJ)": {
++      "calls": 136,
++      "ms": 1.7999999821186066,
++      "max": 0.20000000298023224
++    },
++    "src/rhythm/04_workspace_and_transport.js __f350RestoreRhythm({...u2e(e.current),...__xenDronePersist.load()})": {
++      "calls": 136,
++      "ms": 60.49999997019768,
++      "max": 3.1000000089406967
++    },
++    "src/rhythm/04_workspace_and_transport.js OSe()": {
++      "calls": 136,
++      "ms": 2,
++      "max": 1.4000000059604645
++    },
++    "src/rhythm/04_workspace_and_transport.js _Se()": {
++      "calls": 136,
++      "ms": 0.3999999910593033,
++      "max": 0.10000000894069672
++    },
++    "src/audio/03_rfl_transport_legacy.js Fbe()": {
++      "calls": 136,
++      "ms": 0.09999999403953552,
++      "max": 0.09999999403953552
++    },
++    "src/audio/05_live_voice_runtime.js Bie()": {
++      "calls": 136,
++      "ms": 0.29999998211860657,
++      "max": 0.09999999403953552
++    }
++  },
++  "errors": []
++}
+\ No newline at end of file
+diff --git a/n21-f2/docs/live-control-ownership/initial-variants-browser.json b/n21-f2/docs/live-control-ownership/initial-variants-browser.json
+new file mode 100644
+index 0000000..f443ded
+--- /dev/null
++++ b/n21-f2/docs/live-control-ownership/initial-variants-browser.json
+@@ -0,0 +1,135 @@
++{
++  "entry": "Xensonar_P7_Forge_Request_Stability_Test.html",
++  "sha256": "666c8f90117f2c3cd1ccc9533dd285cb503ff382b8d976603ddaf58a0caa2797",
++  "isolated": [
++    {
++      "stages": [],
++      "live": false,
++      "renders": 40,
++      "restores": 40,
++      "scriptMs": 214.876,
++      "taskMs": 243.374,
++      "snapshots": {
++        "intakeId": 39,
++        "tap": "Diagnostic 39",
++        "channels": 0,
++        "delivered": 0
++      }
++    },
++    {
++      "stages": [
++        "initialization"
++      ],
++      "live": false,
++      "renders": 40,
++      "restores": 0,
++      "scriptMs": 211.423,
++      "taskMs": 235.83300000000003,
++      "snapshots": {
++        "intakeId": 39,
++        "tap": "Diagnostic 39",
++        "channels": 0,
++        "delivered": 0
++      }
++    },
++    {
++      "stages": [
++        "telemetry"
++      ],
++      "live": false,
++      "renders": 0,
++      "restores": 0,
++      "scriptMs": 11.863,
++      "taskMs": 20.954,
++      "snapshots": {
++        "intakeId": 39,
++        "tap": "Diagnostic 39",
++        "channels": 2,
++        "delivered": 80
++      }
++    },
++    {
++      "stages": [
++        "initialization",
++        "telemetry"
++      ],
++      "live": false,
++      "renders": 0,
++      "restores": 0,
++      "scriptMs": 2.276,
++      "taskMs": 12.834,
++      "snapshots": {
++        "intakeId": 39,
++        "tap": "Diagnostic 39",
++        "channels": 2,
++        "delivered": 80
++      }
++    }
++  ],
++  "live": [
++    {
++      "rep": 0,
++      "stages": [],
++      "live": true,
++      "renders": 55,
++      "restores": 55,
++      "scriptMs": 718.2339999999999,
++      "taskMs": 2078.03
++    },
++    {
++      "rep": 0,
++      "stages": [
++        "initialization",
++        "telemetry"
++      ],
++      "live": true,
++      "renders": 36,
++      "restores": 0,
++      "scriptMs": 589.379,
++      "taskMs": 1884.4200000000003
++    },
++    {
++      "rep": 1,
++      "stages": [
++        "initialization",
++        "telemetry"
++      ],
++      "live": true,
++      "renders": 35,
++      "restores": 0,
++      "scriptMs": 607.0649999999999,
++      "taskMs": 2055.9890000000005
++    },
++    {
++      "rep": 1,
++      "stages": [],
++      "live": true,
++      "renders": 53,
++      "restores": 53,
++      "scriptMs": 571.047,
++      "taskMs": 1780.257
++    },
++    {
++      "rep": 2,
++      "stages": [],
++      "live": true,
++      "renders": 62,
++      "restores": 62,
++      "scriptMs": 778.0999999999999,
++      "taskMs": 2157.7380000000003
++    },
++    {
++      "rep": 2,
++      "stages": [
++        "initialization",
++        "telemetry"
++      ],
++      "live": true,
++      "renders": 38,
++      "restores": 0,
++      "scriptMs": 822.893,
++      "taskMs": 2563.682
++    }
++  ],
++  "scope": "Actual Chromium/React, 40 controlled paired diagnostic publications; separate powered playfield gesture runs. ScriptDuration is main-thread JavaScript, not DSP throughput."
++}
+diff --git a/n21-f2/docs/live-control-ownership/rejected-initialization.json b/n21-f2/docs/live-control-ownership/rejected-initialization.json
+new file mode 100644
+index 0000000..f5a0ba9
+--- /dev/null
++++ b/n21-f2/docs/live-control-ownership/rejected-initialization.json
+@@ -0,0 +1,10 @@
++{
++  "attempt": {
++    "old": "$2e=()=>{const e=P.useRef(pj(QJ)),t=P.useRef(__f350RestoreRhythm({...u2e(e.current),...__xenDronePersist.load()})),[n,r]=P.useState(t.current);",
++    "new": "$2e=()=>{\n// Main-room defaults and persisted settings belong to this mounted owner.\n// A render must never rebuild/discard them or reread browser storage.\nconst e=P.useRef(null);if(e.current===null)e.current=pj(QJ);\nconst t=P.useRef(null);if(t.current===null)t.current=__f350RestoreRhythm({...u2e(e.current),...__xenDronePersist.load()});\nconst [n,r]=P.useState(t.current);",
++    "count": 1,
++    "stage": "initialization"
++  },
++  "verdict": "Not integrated: isolated ScriptDuration 214.876 -> 211.423 ms (1.6%), within run-to-run variance; keep focus on the proven telemetry owner coupling.",
++  "measurement": "initial-variants-browser.json"
++}
+diff --git a/n21-f2/docs/live-control-ownership/report.md b/n21-f2/docs/live-control-ownership/report.md
+new file mode 100644
+index 0000000..46c4847
+--- /dev/null
++++ b/n21-f2/docs/live-control-ownership/report.md
+@@ -0,0 +1,71 @@
++# Live-Performance: Diagnose vom Instrumentbesitzer entkoppeln
++
++Basis: `6fdb86a6499897964c6e7c56436bb2d904309c5c`. Aktive Datei: `Xensonar_P7_Live_Control_Isolation_Test.html`.
++
++## Gefundener Hebel
++
++Die Untersuchung begann mit CPU-Profilen einer tatsächlich eingeschalteten Spielfläche in Chromium, einschließlich wiederholter Mausbewegungen bei laufendem Instrument. Danach wurden Konstruktoraufrufe und die tatsächlich veränderten React-Zustände getrennt beobachtet. Das zeigte zwei zusammenhängende Ursachen:
++
++- Zahlreiche Initialisierungen werden bei jedem App-Render erneut ausgeführt, obwohl `useRef` nur das erste Ergebnis behält. Im beobachteten Gestenlauf wurde beispielsweise die Rhythmus-/Drone-Wiederherstellung 136-mal ausgeführt. Diese Instrumentierung diente der Suche; ihre Zeitwerte enthalten eigenen Messaufwand.
++- Der wichtigere Auslöser ist die Kopplung reiner Diagnosezustände an die globale Instrumentoberfläche. Die beiden Felder für Audio-Event-Intake und Audio-Tap-Diagnose lebten als React-State im Hauptbesitzer. Jede neue Messung konnte dadurch den gesamten App-Baum erneut rendern und alle darin enthaltenen Initialisierungen erneut anstoßen.
++
++Im aktuellen Core-Build sind die dazugehörigen Diagnosepaneele in der Hauptansicht nicht eingebunden (`eue`/`tue` sind Platzhalter). Die Diagnose bleibt dennoch wichtig für Analyse, Laufzeitbeobachtung und Export. Deshalb wird ihre Datenproduktion erhalten und ihre unnötige Verbindung zum globalen Rendering entfernt.
++
++## Architekturänderung
++
++Genau eine Produktionsdatei ändert sich: `src/rhythm/04_workspace_and_transport.js`.
++
++Zwei vom jeweiligen Instrumentbesitzer gehaltene Snapshot-Kanäle ersetzen die zwei reinen Diagnose-States in `Cke`. Ihr kleiner Vertrag besteht aus `getSnapshot`, `publish` und `subscribe` mit Abmeldung. Sie gehören zum vorhandenen Besitzer; es gibt keinen zusätzlichen globalen Bus und keine neue Audio-Engine.
++
++`publish` übernimmt den vollständigen Snapshot unmittelbar, unterstützt wie zuvor funktionale Aktualisierungen und vermeidet Meldungen bei identischer Objektidentität. Mehrere Beobachter können gezielt abonnieren. Ein Fehler eines Beobachters wird protokolliert und unterbricht andere Beobachter nicht. Ein später eingebundenes Diagnosefenster kann etwa über `useSyncExternalStore` direkt abonnieren, ohne die ganze App zu beobachten.
++
++Die bisherigen `audioEventIntakeMonitor`- und `audioTapMonitor`-Zugriffe bleiben als aktuelle Getter erhalten. Der Aggregator `kke` übernimmt deshalb Eigenschaftsdeskriptoren: Eine gewöhnliche Objektkopie würde die Getter einmal auswerten und wieder veraltete Snapshots festhalten. Die native Prüfung liest nach 40 Veröffentlichungen die erwarteten letzten Werte über genau diese bestehenden Zugriffe.
++
++Die Audio-Event-Intake-Referenz für Steuerung und Diagnose bleibt bestehen. Der Audio-Tap-Messtakt von 128 ms, die Master-Kontrolle von 84 ms, deren AudioParam-Steuerung und die übrigen Analysefunktionen werden nicht geändert. Es werden weder Messungen ausgelassen noch Daten verdichtet oder klangliche Berechnungen vereinfacht. Die tatsächlichen musikalischen Steuerwerte bleiben regulärer Zustand; die Änderung betrifft ausschließlich die beiden Diagnose-Snapshots.
++
++## Nachgewiesener Unterschied
++
++Der native Regressionstest arbeitet mit dem vollständigen produktiven HTML und echtem React. Als Vergleich rekonstruiert er die vorherige HTML-Version durch Rücknahme genau der erklärten Produktionsänderung; deren SHA-256 muss exakt zur vorherigen Veröffentlichung passen. Dadurch vergleichen die Versuche dieselbe sonstige Codebasis.
++
++Eine kontrollierte Serie veröffentlicht 40 Paare vollständiger Diagnosewerte, mit je einer Browser-Frame-Grenze dazwischen. Das ist ein Belastungstest der Datenverbindung und kein behaupteter normaler Messtakt.
++
++| Verhalten | Bisherige Basis | Neue Basis |
++|---|---:|---:|
++| Veröffentlichte Diagnose-Snapshots | 80 | 80 |
++| Dadurch ausgelöste komplette App-Renderdurchläufe | 40 | 0 |
++| Dadurch mitlaufende Rhythmus-/Drone-Wiederherstellungen | 40 | 0 |
++| Letzter Intake-Wert | 39 | 39 |
++| Letzter Tap-Wert | Diagnostic 39 | Diagnostic 39 |
++| Vollständige Benachrichtigungen gezielter Abonnenten | kein Kanal | 80 |
++
++Im Freigabelauf sank `ScriptDuration` für diese kontrollierte Serie von rund 262 ms auf rund 1,7 ms. Ein vorheriger isolierter Kandidatenlauf zeigte denselben grundlegenden Unterschied mit rund 215 ms gegenüber rund 12 ms. Diese Werte messen die JavaScript-Arbeit der konkreten Meldungsserie auf dem Hauptthread, keine Beschleunigung der DSP-Kerne oder des gesamten Instruments um einen solchen Faktor.
++
++Zusätzlich führt der Test je drei abwechselnde Läufe mit eingeschaltetem Instrument und jeweils 100 echten Mausbewegungen auf der Spielfläche aus. Rohwerte stehen in `browser-performance.json`. Im Freigabelauf lagen die App-Renderzahlen der Basis bei 68/75/71 und die des Kandidaten bei 32/37/36. Auch ScriptDuration war dort geringer. Die Zeitmessungen schwanken zwischen Läufen und mit paralleler Cloud-Last; daraus wird keine allgemeine Prozentgarantie für Live-Latenz oder Gesamtgeschwindigkeit abgeleitet. Der belastbare Architekturgewinn ist die Entfernung der belegten Diagnose-zu-App-Render-Kopplung bei unveränderten Daten.
++
++Die CI-Grenze prüft die konkrete Ursache: Die kontrollierten Diagnosemeldungen dürfen höchstens zwei App-Renderdurchläufe aus anderen Initialisierungsereignissen überlagern; alle 80 Kanalbenachrichtigungen und die letzten Nutzdaten müssen erhalten bleiben. Es gibt kein fragiles, hardwareabhängiges Millisekundenlimit.
++
++## Separat verworfener Ansatz
++
++Das verzögerte Erzeugen der Main-Room-Defaults und Browser-Wiederherstellung wurde zunächst unabhängig untersucht. Es verhinderte die verworfenen Wiederherstellungen, ließ aber weiterhin alle App-Renderdurchläufe zu. Die isolierte JavaScript-Zeit änderte sich lediglich von 214,876 auf 211,423 ms, also rund 1,6 Prozent. Dieser Unterschied ist innerhalb der beobachteten Schwankung.
++
++Diese Änderung ist **nicht integriert**. Ihre genaue Versuchsfassung und das Urteil stehen in `rejected-initialization.json`; die getrennten Kandidatenmessungen stehen in `initial-variants-browser.json`. Die gespeicherte Initialisierung bleibt unverändert. Durch weniger unnötige App-Renderdurchläufe wird sie in der neuen Basis dennoch seltener ausgeführt. Das verhindert, dass ein kleiner, unbewiesener Ansatz zusammen mit dem größeren Architekturgewinn als Performanceverbesserung mitgeführt wird.
++
++## Erhalt der Instrumentlogik
++
++Alle Synthese-Kerne, Worklets, Stimmenlimits, musikalischen Tonhöhen-/Zeitregeln, Klangparameter, Panning-Pfade und die gesamte Endstufe bleiben bytegleich zur Basis. Es gibt keine neue Laufzeitabhängigkeit, Audioknoten, Intervalle, FFTs oder zusätzliche PCM-Kopien. UI-Quellen und gespeicherte Projekt-/Paketformate bleiben unverändert. Die 207 Quell- und 27 Stil-Einheiten sowie ihre Build-Reihenfolge bleiben bestehen.
++
++Der Host-Test prüft unabhängige Kanalbesitzer, vollständige Objektidentität, funktionale Aktualisierungen, gleiche Werte, Abmeldung, Beobachterfehler und 200 aufeinanderfolgende vollständige Snapshots. Der native Test prüft die tatsächliche Einbindung im App-Besitzer einschließlich alter Getter. Ein umkehrbarer Änderungsnachweis rekonstruiert die vorherige Produktionsdatei und schützt sämtliche unveränderten Quellen.
++
++Die vorhandene Forge-Anfrage- und Persistenz-Absicherung bleibt enthalten. P7.12 bleibt archiviertes, nicht integriertes Experiment. Globale Einstellungen erfordern nach Paketimport weiterhin einmaliges Neuladen.
++
++## Prüfungen und Grenzen
++
++Bestanden: 49 Host-/Build-Prüfungen, 13 Chromium-/Build-Prüfungen sowie die zusätzlichen Play-/Save-/Navigationsprüfungen. Ein ergänzender nativer Vertragstest erhält die Kanal- und Snapshot-Identität auch über eine normale Änderung des Master-Reglers und den dadurch gewollten App-Render hinweg.
++
++Der native PCM-Vergleich zur unmittelbaren Basis liefert identische Ergebnisse für Legacy, Nodal V1/V2 und den tatsächlichen Entrophon-WASM-Pfad; beim nativen Sample-Pfad bleiben Differenzen unter 1e-7 einschließlich Wiederholungskontrollen. Der tatsächliche RFL-Worklet verarbeitet 480 Root-Wechsel und vier absichtliche Hauptthread-Stalls von jeweils 80 ms ohne Aussetzer der geschützten Hauptspur, nicht endliche Werte oder Worklet-Fehler. Das sind konkrete getestete Signale und keine pauschale Zusage für jede Gerätekonfiguration.
++
++Build SHA-256: `8b82986d2ce0f6e5171bc37dd9a935f2da2d0bb35dcb3296ecff1952e539eb48`.
++
++Die Ergebnisse der gemeinsamen Host-/Build- und Chromium-/Build-Prüfungen stehen unter `results/live-control-ownership/`. Aktuelle Ergebnisse älterer Regressionstests werden darin separat archiviert; historische Veröffentlichungsnachweise bleiben unverändert.
++
++Die Messungen stammen aus Chromium in dieser Cloud-Umgebung. Sie sind kein physischer Audiogerätetest und kein Nachweis tatsächlicher Firefox-/Opera-Latenzen. Die Architekturänderung schafft Hauptthread-Spielraum; eine höhere zulässige Stimmenzahl oder geringere Audio-Puffergröße wird daraus nicht automatisch abgeleitet.
+diff --git a/n21-f2/source-index.json b/n21-f2/source-index.json
+index d1d9932..702e43f 100644
+--- a/n21-f2/source-index.json
++++ b/n21-f2/source-index.json
+@@ -19046,1025 +19046,1035 @@
+       "file": "src/rhythm/04_workspace_and_transport.js",
+       "line": 100
+     },
++    {
++      "name": "__createLiveControlSnapshot",
++      "file": "src/rhythm/04_workspace_and_transport.js",
++      "line": 102
++    },
++    {
++      "name": "__useLiveControlSnapshot",
++      "file": "src/rhythm/04_workspace_and_transport.js",
++      "line": 114
++    },
+     {
+       "name": "Cke",
+       "file": "src/rhythm/04_workspace_and_transport.js",
+-      "line": 100
++      "line": 119
+     },
+     {
+       "name": "kke",
+       "file": "src/rhythm/04_workspace_and_transport.js",
+-      "line": 100
++      "line": 119
+     },
+     {
+       "name": "Pke",
+       "file": "src/rhythm/04_workspace_and_transport.js",
+-      "line": 100
++      "line": 119
+     },
+     {
+       "name": "cO",
+       "file": "src/rhythm/04_workspace_and_transport.js",
+-      "line": 100
++      "line": 119
+     },
+     {
+       "name": "Ike",
+       "file": "src/rhythm/04_workspace_and_transport.js",
+-      "line": 100
++      "line": 119
+     },
+     {
+       "name": "W9",
+       "file": "src/rhythm/04_workspace_and_transport.js",
+-      "line": 100
++      "line": 119
+     },
+     {
+       "name": "Eke",
+       "file": "src/rhythm/04_workspace_and_transport.js",
+-      "line": 100
++      "line": 119
+     },
+     {
+       "name": "Fke",
+       "file": "src/rhythm/04_workspace_and_transport.js",
+-      "line": 187
++      "line": 206
+     },
+     {
+       "name": "bk",
+       "file": "src/rhythm/04_workspace_and_transport.js",
+-      "line": 395
++      "line": 414
+     },
+     {
+       "name": "q9",
+       "file": "src/rhythm/04_workspace_and_transport.js",
+-      "line": 395
++      "line": 414
+     },
+     {
+       "name": "Tke",
+       "file": "src/rhythm/04_workspace_and_transport.js",
+-      "line": 395
++      "line": 414
+     },
+     {
+       "name": "Lke",
+       "file": "src/rhythm/04_workspace_and_transport.js",
+-      "line": 395
++      "line": 414
+     },
+     {
+       "name": "Bke",
+       "file": "src/rhythm/04_workspace_and_transport.js",
+-      "line": 395
++      "line": 414
+     },
+     {
+       "name": "Dke",
+       "file": "src/rhythm/04_workspace_and_transport.js",
+-      "line": 395
++      "line": 414
+     },
+     {
+       "name": "Nke",
+       "file": "src/rhythm/04_workspace_and_transport.js",
+-      "line": 395
++      "line": 414
+     },
+     {
+       "name": "Oke",
+       "file": "src/rhythm/04_workspace_and_transport.js",
+-      "line": 395
++      "line": 414
+     },
+     {
+       "name": "_ke",
+       "file": "src/rhythm/04_workspace_and_transport.js",
+-      "line": 397
++      "line": 416
+     },
+     {
+       "name": "yk",
+       "file": "src/rhythm/04_workspace_and_transport.js",
+-      "line": 397
++      "line": 416
+     },
+     {
+       "name": "zke",
+       "file": "src/rhythm/04_workspace_and_transport.js",
+-      "line": 397
++      "line": 416
+     },
+     {
+       "name": "jke",
+       "file": "src/rhythm/04_workspace_and_transport.js",
+-      "line": 397
++      "line": 416
+     },
+     {
+       "name": "Gke",
+       "file": "src/rhythm/04_workspace_and_transport.js",
+-      "line": 397
++      "line": 416
+     },
+     {
+       "name": "Hke",
+       "file": "src/rhythm/04_workspace_and_transport.js",
+-      "line": 397
++      "line": 416
+     },
+     {
+       "name": "Vke",
+       "file": "src/rhythm/04_workspace_and_transport.js",
+-      "line": 397
++      "line": 416
+     },
+     {
+       "name": "Wke",
+       "file": "src/rhythm/04_workspace_and_transport.js",
+-      "line": 397
++      "line": 416
+     },
+     {
+       "name": "qke",
+       "file": "src/rhythm/04_workspace_and_transport.js",
+-      "line": 397
++      "line": 416
+     },
+     {
+       "name": "Qke",
+       "file": "src/rhythm/04_workspace_and_transport.js",
+-      "line": 397
++      "line": 416
+     },
+     {
+       "name": "Uke",
+       "file": "src/rhythm/04_workspace_and_transport.js",
+-      "line": 397
++      "line": 416
+     },
+     {
+       "name": "Kke",
+       "file": "src/rhythm/04_workspace_and_transport.js",
+-      "line": 397
++      "line": 416
+     },
+     {
+       "name": "$ke",
+       "file": "src/rhythm/04_workspace_and_transport.js",
+-      "line": 397
++      "line": 416
+     },
+     {
+       "name": "Xke",
+       "file": "src/rhythm/04_workspace_and_transport.js",
+-      "line": 397
++      "line": 416
+     },
+     {
+       "name": "Yke",
+       "file": "src/rhythm/04_workspace_and_transport.js",
+-      "line": 397
++      "line": 416
+     },
+     {
+       "name": "Jke",
+       "file": "src/rhythm/04_workspace_and_transport.js",
+-      "line": 397
++      "line": 416
+     },
+     {
+       "name": "Zke",
+       "file": "src/rhythm/04_workspace_and_transport.js",
+-      "line": 397
++      "line": 416
+     },
+     {
+       "name": "ePe",
+       "file": "src/rhythm/04_workspace_and_transport.js",
+-      "line": 456
++      "line": 475
+     },
+     {
+       "name": "tPe",
+       "file": "src/rhythm/04_workspace_and_transport.js",
+-      "line": 456
++      "line": 475
+     },
+     {
+       "name": "nPe",
+       "file": "src/rhythm/04_workspace_and_transport.js",
+-      "line": 456
++      "line": 475
+     },
+     {
+       "name": "rPe",
+       "file": "src/rhythm/04_workspace_and_transport.js",
+-      "line": 456
++      "line": 475
+     },
+     {
+       "name": "aPe",
+       "file": "src/rhythm/04_workspace_and_transport.js",
+-      "line": 456
++      "line": 475
+     },
+     {
+       "name": "oPe",
+       "file": "src/rhythm/04_workspace_and_transport.js",
+-      "line": 456
++      "line": 475
+     },
+     {
+       "name": "iPe",
+       "file": "src/rhythm/04_workspace_and_transport.js",
+-      "line": 456
++      "line": 475
+     },
+     {
+       "name": "sPe",
+       "file": "src/rhythm/04_workspace_and_transport.js",
+-      "line": 456
++      "line": 475
+     },
+     {
+       "name": "lPe",
+       "file": "src/rhythm/04_workspace_and_transport.js",
+-      "line": 456
++      "line": 475
+     },
+     {
+       "name": "cPe",
+       "file": "src/rhythm/04_workspace_and_transport.js",
+-      "line": 456
++      "line": 475
+     },
+     {
+       "name": "uPe",
+       "file": "src/rhythm/04_workspace_and_transport.js",
+-      "line": 456
++      "line": 475
+     },
+     {
+       "name": "dPe",
+       "file": "src/rhythm/04_workspace_and_transport.js",
+-      "line": 456
++      "line": 475
+     },
+     {
+       "name": "mPe",
+       "file": "src/rhythm/04_workspace_and_transport.js",
+-      "line": 456
++      "line": 475
+     },
+     {
+       "name": "pPe",
+       "file": "src/rhythm/04_workspace_and_transport.js",
+-      "line": 456
++      "line": 475
+     },
+     {
+       "name": "hPe",
+       "file": "src/rhythm/04_workspace_and_transport.js",
+-      "line": 456
++      "line": 475
+     },
+     {
+       "name": "fPe",
+       "file": "src/rhythm/04_workspace_and_transport.js",
+-      "line": 456
++      "line": 475
+     },
+     {
+       "name": "gPe",
+       "file": "src/rhythm/04_workspace_and_transport.js",
+-      "line": 456
++      "line": 475
+     },
+     {
+       "name": "bPe",
+       "file": "src/rhythm/04_workspace_and_transport.js",
+-      "line": 456
++      "line": 475
+     },
+     {
+       "name": "yPe",
+       "file": "src/rhythm/04_workspace_and_transport.js",
+-      "line": 460
++      "line": 479
+     },
+     {
+       "name": "SPe",
+       "file": "src/rhythm/04_workspace_and_transport.js",
+-      "line": 460
++      "line": 479
+     },
+     {
+       "name": "vPe",
+       "file": "src/rhythm/04_workspace_and_transport.js",
+-      "line": 460
++      "line": 479
+     },
+     {
+       "name": "APe",
+       "file": "src/rhythm/04_workspace_and_transport.js",
+-      "line": 460
++      "line": 479
+     },
+     {
+       "name": "xPe",
+       "file": "src/rhythm/04_workspace_and_transport.js",
+-      "line": 460
++      "line": 479
+     },
+     {
+       "name": "MPe",
+       "file": "src/rhythm/04_workspace_and_transport.js",
+-      "line": 460
++      "line": 479
+     },
+     {
+       "name": "wPe",
+       "file": "src/rhythm/04_workspace_and_transport.js",
+-      "line": 464
++      "line": 483
+     },
+     {
+       "name": "RPe",
+       "file": "src/rhythm/04_workspace_and_transport.js",
+-      "line": 464
++      "line": 483
+     },
+     {
+       "name": "CPe",
+       "file": "src/rhythm/04_workspace_and_transport.js",
+-      "line": 464
++      "line": 483
+     },
+     {
+       "name": "kPe",
+       "file": "src/rhythm/04_workspace_and_transport.js",
+-      "line": 464
++      "line": 483
+     },
+     {
+       "name": "Rp",
+       "file": "src/rhythm/04_workspace_and_transport.js",
+-      "line": 464
++      "line": 483
+     },
+     {
+       "name": "PPe",
+       "file": "src/rhythm/04_workspace_and_transport.js",
+-      "line": 464
++      "line": 483
+     },
+     {
+       "name": "IPe",
+       "file": "src/rhythm/04_workspace_and_transport.js",
+-      "line": 464
++      "line": 483
+     },
+     {
+       "name": "Q9",
+       "file": "src/rhythm/04_workspace_and_transport.js",
+-      "line": 467
++      "line": 486
+     },
+     {
+       "name": "EPe",
+       "file": "src/rhythm/04_workspace_and_transport.js",
+-      "line": 467
++      "line": 486
+     },
+     {
+       "name": "__f53StepAllowed",
+       "file": "src/rhythm/04_workspace_and_transport.js",
+-      "line": 469
++      "line": 488
+     },
+     {
+       "name": "FPe",
+       "file": "src/rhythm/04_workspace_and_transport.js",
+-      "line": 476
++      "line": 495
+     },
+     {
+       "name": "TPe",
+       "file": "src/rhythm/04_workspace_and_transport.js",
+-      "line": 484
++      "line": 503
+     },
+     {
+       "name": "LPe",
+       "file": "src/rhythm/04_workspace_and_transport.js",
+-      "line": 484
++      "line": 503
+     },
+     {
+       "name": "BPe",
+       "file": "src/rhythm/04_workspace_and_transport.js",
+-      "line": 484
++      "line": 503
+     },
+     {
+       "name": "DPe",
+       "file": "src/rhythm/04_workspace_and_transport.js",
+-      "line": 484
++      "line": 503
+     },
+     {
+       "name": "NPe",
+       "file": "src/rhythm/04_workspace_and_transport.js",
+-      "line": 484
++      "line": 503
+     },
+     {
+       "name": "OPe",
+       "file": "src/rhythm/04_workspace_and_transport.js",
+-      "line": 484
++      "line": 503
+     },
+     {
+       "name": "_Pe",
+       "file": "src/rhythm/04_workspace_and_transport.js",
+-      "line": 518
++      "line": 537
+     },
+     {
+       "name": "zPe",
+       "file": "src/rhythm/04_workspace_and_transport.js",
+-      "line": 518
++      "line": 537
+     },
+     {
+       "name": "jPe",
+       "file": "src/rhythm/04_workspace_and_transport.js",
+-      "line": 518
++      "line": 537
+     },
+     {
+       "name": "GPe",
+       "file": "src/rhythm/04_workspace_and_transport.js",
+-      "line": 518
++      "line": 537
+     },
+     {
+       "name": "sE",
+       "file": "src/rhythm/04_workspace_and_transport.js",
+-      "line": 518
++      "line": 537
+     },
+     {
+       "name": "HPe",
+       "file": "src/rhythm/04_workspace_and_transport.js",
+-      "line": 518
++      "line": 537
+     },
+     {
+       "name": "VPe",
+       "file": "src/rhythm/04_workspace_and_transport.js",
+-      "line": 518
++      "line": 537
+     },
+     {
+       "name": "WPe",
+       "file": "src/rhythm/04_workspace_and_transport.js",
+-      "line": 518
++      "line": 537
+     },
+     {
+       "name": "qPe",
+       "file": "src/rhythm/04_workspace_and_transport.js",
+-      "line": 518
++      "line": 537
+     },
+     {
+       "name": "QPe",
+       "file": "src/rhythm/04_workspace_and_transport.js",
+-      "line": 518
++      "line": 537
+     },
+     {
+       "name": "U9",
+       "file": "src/rhythm/04_workspace_and_transport.js",
+-      "line": 518
++      "line": 537
+     },
+     {
+       "name": "UPe",
+       "file": "src/rhythm/04_workspace_and_transport.js",
+-      "line": 518
++      "line": 537
+     },
+     {
+       "name": "KPe",
+       "file": "src/rhythm/04_workspace_and_transport.js",
+-      "line": 518
++      "line": 537
+     },
+     {
+       "name": "$Pe",
+       "file": "src/rhythm/04_workspace_and_transport.js",
+-      "line": 518
++      "line": 537
+     },
+     {
+       "name": "XPe",
+       "file": "src/rhythm/04_workspace_and_transport.js",
+-      "line": 518
++      "line": 537
+     },
+     {
+       "name": "YPe",
+       "file": "src/rhythm/04_workspace_and_transport.js",
+-      "line": 518
++      "line": 537
+     },
+     {
+       "name": "JPe",
+       "file": "src/rhythm/04_workspace_and_transport.js",
+-      "line": 518
++      "line": 537
+     },
+     {
+       "name": "ZPe",
+       "file": "src/rhythm/04_workspace_and_transport.js",
+-      "line": 518
++      "line": 537
+     },
+     {
+       "name": "eIe",
+       "file": "src/rhythm/04_workspace_and_transport.js",
+-      "line": 518
++      "line": 537
+     },
+     {
+       "name": "K9",
+       "file": "src/rhythm/04_workspace_and_transport.js",
+-      "line": 518
++      "line": 537
+     },
+     {
+       "name": "tIe",
+       "file": "src/rhythm/04_workspace_and_transport.js",
+-      "line": 518
++      "line": 537
+     },
+     {
+       "name": "lE",
+       "file": "src/rhythm/04_workspace_and_transport.js",
+-      "line": 518
++      "line": 537
+     },
+     {
+       "name": "Sk",
+       "file": "src/rhythm/04_workspace_and_transport.js",
+-      "line": 518
++      "line": 537
+     },
+     {
+       "name": "nIe",
+       "file": "src/rhythm/04_workspace_and_transport.js",
+-      "line": 518
++      "line": 537
+     },
+     {
+       "name": "rIe",
+       "file": "src/rhythm/04_workspace_and_transport.js",
+-      "line": 518
++      "line": 537
+     },
+     {
+       "name": "$9",
+       "file": "src/rhythm/04_workspace_and_transport.js",
+-      "line": 518
++      "line": 537
+     },
+     {
+       "name": "aIe",
+       "file": "src/rhythm/04_workspace_and_transport.js",
+-      "line": 518
++      "line": 537
+     },
+     {
+       "name": "X9",
+       "file": "src/rhythm/04_workspace_and_transport.js",
+-      "line": 518
++      "line": 537
+     },
+     {
+       "name": "oIe",
+       "file": "src/rhythm/04_workspace_and_transport.js",
+-      "line": 518
++      "line": 537
+     },
+     {
+       "name": "Y9",
+       "file": "src/rhythm/04_workspace_and_transport.js",
+-      "line": 518
++      "line": 537
+     },
+     {
+       "name": "iIe",
+       "file": "src/rhythm/04_workspace_and_transport.js",
+-      "line": 518
++      "line": 537
+     },
+     {
+       "name": "sIe",
+       "file": "src/rhythm/04_workspace_and_transport.js",
+-      "line": 518
++      "line": 537
+     },
+     {
+       "name": "lIe",
+       "file": "src/rhythm/04_workspace_and_transport.js",
+-      "line": 526
++      "line": 545
+     },
+     {
+       "name": "cIe",
+       "file": "src/rhythm/04_workspace_and_transport.js",
+-      "line": 526
++      "line": 545
+     },
+     {
+       "name": "uIe",
+       "file": "src/rhythm/04_workspace_and_transport.js",
+-      "line": 526
++      "line": 545
+     },
+     {
+       "name": "V1",
+       "file": "src/rhythm/04_workspace_and_transport.js",
+-      "line": 526
++      "line": 545
+     },
+     {
+       "name": "dIe",
+       "file": "src/rhythm/04_workspace_and_transport.js",
+-      "line": 526
++      "line": 545
+     },
+     {
+       "name": "mIe",
+       "file": "src/rhythm/04_workspace_and_transport.js",
+-      "line": 526
++      "line": 545
+     },
+     {
+       "name": "pIe",
+       "file": "src/rhythm/04_workspace_and_transport.js",
+-      "line": 526
++      "line": 545
+     },
+     {
+       "name": "hIe",
+       "file": "src/rhythm/04_workspace_and_transport.js",
+-      "line": 526
++      "line": 545
+     },
+     {
+       "name": "fIe",
+       "file": "src/rhythm/04_workspace_and_transport.js",
+-      "line": 526
++      "line": 545
+     },
+     {
+       "name": "gIe",
+       "file": "src/rhythm/04_workspace_and_transport.js",
+-      "line": 526
++      "line": 545
+     },
+     {
+       "name": "bIe",
+       "file": "src/rhythm/04_workspace_and_transport.js",
+-      "line": 526
++      "line": 545
+     },
+     {
+       "name": "yIe",
+       "file": "src/rhythm/04_workspace_and_transport.js",
+-      "line": 526
++      "line": 545
+     },
+     {
+       "name": "SIe",
+       "file": "src/rhythm/04_workspace_and_transport.js",
+-      "line": 526
++      "line": 545
+     },
+     {
+       "name": "vIe",
+       "file": "src/rhythm/04_workspace_and_transport.js",
+-      "line": 526
++      "line": 545
+     },
+     {
+       "name": "AIe",
+       "file": "src/rhythm/04_workspace_and_transport.js",
+-      "line": 526
++      "line": 545
+     },
+     {
+       "name": "xIe",
+       "file": "src/rhythm/04_workspace_and_transport.js",
+-      "line": 535
++      "line": 554
+     },
+     {
+       "name": "MIe",
+       "file": "src/rhythm/04_workspace_and_transport.js",
+-      "line": 535
++      "line": 554
+     },
+     {
+       "name": "J9",
+       "file": "src/rhythm/04_workspace_and_transport.js",
+-      "line": 535
++      "line": 554
+     },
+     {
+       "name": "wIe",
+       "file": "src/rhythm/04_workspace_and_transport.js",
+-      "line": 535
++      "line": 554
+     },
+     {
+       "name": "kd",
+       "file": "src/rhythm/04_workspace_and_transport.js",
+-      "line": 535
++      "line": 554
+     },
+     {
+       "name": "In",
+       "file": "src/rhythm/04_workspace_and_transport.js",
+-      "line": 535
++      "line": 554
+     },
+     {
+       "name": "RIe",
+       "file": "src/rhythm/04_workspace_and_transport.js",
+-      "line": 535
++      "line": 554
+     },
+     {
+       "name": "_f",
+       "file": "src/rhythm/04_workspace_and_transport.js",
+-      "line": 535
++      "line": 554
+     },
+     {
+       "name": "CIe",
+       "file": "src/rhythm/04_workspace_and_transport.js",
+-      "line": 535
++      "line": 554
+     },
+     {
+       "name": "vk",
+       "file": "src/rhythm/04_workspace_and_transport.js",
+-      "line": 535
++      "line": 554
+     },
+     {
+       "name": "kIe",
+       "file": "src/rhythm/04_workspace_and_transport.js",
+-      "line": 535
++      "line": 554
+     },
+     {
+       "name": "PIe",
+       "file": "src/rhythm/04_workspace_and_transport.js",
+-      "line": 535
++      "line": 554
+     },
+     {
+       "name": "IIe",
+       "file": "src/rhythm/04_workspace_and_transport.js",
+-      "line": 535
++      "line": 554
+     },
+     {
+       "name": "Z9",
+       "file": "src/rhythm/04_workspace_and_transport.js",
+-      "line": 535
++      "line": 554
+     },
+     {
+       "name": "EIe",
+       "file": "src/rhythm/04_workspace_and_transport.js",
+-      "line": 535
++      "line": 554
+     },
+     {
+       "name": "as",
+       "file": "src/rhythm/04_workspace_and_transport.js",
+-      "line": 535
++      "line": 554
+     },
+     {
+       "name": "TL",
+       "file": "src/rhythm/04_workspace_and_transport.js",
+-      "line": 535
++      "line": 554
+     },
+     {
+       "name": "e7",
+       "file": "src/rhythm/04_workspace_and_transport.js",
+-      "line": 535
++      "line": 554
+     },
+     {
+       "name": "t7",
+       "file": "src/rhythm/04_workspace_and_transport.js",
+-      "line": 535
++      "line": 554
+     },
+     {
+       "name": "FIe",
+       "file": "src/rhythm/04_workspace_and_transport.js",
+-      "line": 535
++      "line": 554
+     },
+     {
+       "name": "n7",
+       "file": "src/rhythm/04_workspace_and_transport.js",
+-      "line": 535
++      "line": 554
+     },
+     {
+       "name": "r7",
+       "file": "src/rhythm/04_workspace_and_transport.js",
+-      "line": 535
++      "line": 554
+     },
+     {
+       "name": "TIe",
+       "file": "src/rhythm/04_workspace_and_transport.js",
+-      "line": 535
++      "line": 554
+     },
+     {
+       "name": "LIe",
+       "file": "src/rhythm/04_workspace_and_transport.js",
+-      "line": 535
++      "line": 554
+     },
+     {
+       "name": "BIe",
+       "file": "src/rhythm/04_workspace_and_transport.js",
+-      "line": 535
++      "line": 554
+     },
+     {
+       "name": "a7",
+       "file": "src/rhythm/04_workspace_and_transport.js",
+-      "line": 535
++      "line": 554
+     },
+     {
+       "name": "LL",
+       "file": "src/rhythm/04_workspace_and_transport.js",
+-      "line": 535
++      "line": 554
+     },
+     {
+       "name": "DIe",
+       "file": "src/rhythm/04_workspace_and_transport.js",
+-      "line": 535
++      "line": 554
+     },
+     {
+       "name": "NIe",
+       "file": "src/rhythm/04_workspace_and_transport.js",
+-      "line": 535
++      "line": 554
+     },
+     {
+       "name": "Ak",
+       "file": "src/rhythm/04_workspace_and_transport.js",
+-      "line": 535
++      "line": 554
+     },
+     {
+       "name": "xk",
+       "file": "src/rhythm/04_workspace_and_transport.js",
+-      "line": 535
++      "line": 554
+     },
+     {
+       "name": "OIe",
+       "file": "src/rhythm/04_workspace_and_transport.js",
+-      "line": 535
++      "line": 554
+     },
+     {
+       "name": "_Ie",
+       "file": "src/rhythm/04_workspace_and_transport.js",
+-      "line": 535
++      "line": 554
+     },
+     {
+       "name": "Gn",
+       "file": "src/rhythm/04_workspace_and_transport.js",
+-      "line": 535
++      "line": 554
+     },
+     {
+       "name": "zIe",
+       "file": "src/rhythm/04_workspace_and_transport.js",
+-      "line": 535
++      "line": 554
+     },
+     {
+       "name": "jIe",
+       "file": "src/rhythm/04_workspace_and_transport.js",
+-      "line": 535
++      "line": 554
+     },
+     {
+       "name": "BL",
+       "file": "src/rhythm/04_workspace_and_transport.js",
+-      "line": 535
++      "line": 554
+     },
+     {
+       "name": "DL",
+       "file": "src/rhythm/04_workspace_and_transport.js",
+-      "line": 535
++      "line": 554
+     },
+     {
+       "name": "GIe",
+       "file": "src/rhythm/04_workspace_and_transport.js",
+-      "line": 535
++      "line": 554
+     },
+     {
+       "name": "HIe",
+       "file": "src/rhythm/04_workspace_and_transport.js",
+-      "line": 535
++      "line": 554
+     },
+     {
+       "name": "VIe",
+       "file": "src/rhythm/04_workspace_and_transport.js",
+-      "line": 535
++      "line": 554
+     },
+     {
+       "name": "WIe",
+       "file": "src/rhythm/04_workspace_and_transport.js",
+-      "line": 535
++      "line": 554
+     },
+     {
+       "name": "qIe",
+       "file": "src/rhythm/04_workspace_and_transport.js",
+-      "line": 535
++      "line": 554
+     },
+     {
+       "name": "uO",
+       "file": "src/rhythm/04_workspace_and_transport.js",
+-      "line": 535
++      "line": 554
+     },
+     {
+       "name": "QIe",
+       "file": "src/rhythm/04_workspace_and_transport.js",
+-      "line": 535
++      "line": 554
+     },
+     {
+       "name": "UIe",
+       "file": "src/rhythm/04_workspace_and_transport.js",
+-      "line": 535
++      "line": 554
+     },
+     {
+       "name": "KIe",
+       "file": "src/rhythm/04_workspace_and_transport.js",
+-      "line": 535
++      "line": 554
+     },
+     {
+       "name": "Mk",
+       "file": "src/rhythm/04_workspace_and_transport.js",
+-      "line": 826
++      "line": 845
+     },
+     {
+       "name": "$Ie",
+       "file": "src/rhythm/04_workspace_and_transport.js",
+-      "line": 826
++      "line": 845
+     },
+     {
+       "name": "XIe",
+       "file": "src/rhythm/04_workspace_and_transport.js",
+-      "line": 826
++      "line": 845
+     },
+     {
+       "name": "JIe",
+       "file": "src/rhythm/04_workspace_and_transport.js",
+-      "line": 826
++      "line": 845
+     },
+     {
+       "name": "ZIe",
+       "file": "src/rhythm/04_workspace_and_transport.js",
+-      "line": 826
++      "line": 845
+     },
+     {
+       "name": "eEe",
+       "file": "src/rhythm/04_workspace_and_transport.js",
+-      "line": 826
++      "line": 845
+     },
+     {
+       "name": "tEe",
+       "file": "src/rhythm/04_workspace_and_transport.js",
+-      "line": 826
++      "line": 845
+     },
+     {
+       "name": "nEe",
+       "file": "src/rhythm/04_workspace_and_transport.js",
+-      "line": 826
++      "line": 845
+     },
+     {
+       "name": "rEe",
+       "file": "src/rhythm/04_workspace_and_transport.js",
+-      "line": 827
++      "line": 846
+     },
+     {
+       "name": "dO",
+       "file": "src/rhythm/04_workspace_and_transport.js",
+-      "line": 827
++      "line": 846
+     },
+     {
+       "name": "aEe",
+       "file": "src/rhythm/04_workspace_and_transport.js",
+-      "line": 827
++      "line": 846
+     },
+     {
+       "name": "oEe",
+       "file": "src/rhythm/04_workspace_and_transport.js",
+-      "line": 827
++      "line": 846
+     },
+     {
+       "name": "iEe",
+       "file": "src/rhythm/04_workspace_and_transport.js",
+-      "line": 827
++      "line": 846
+     },
+     {
+       "name": "sEe",
+       "file": "src/rhythm/04_workspace_and_transport.js",
+-      "line": 827
++      "line": 846
+     },
+     {
+       "name": "__xenGridOffsetValue",
+       "file": "src/rhythm/04_workspace_and_transport.js",
+-      "line": 827
++      "line": 846
+     },
+     {
+       "name": "__xenGridShiftCents",
+       "file": "src/rhythm/04_workspace_and_transport.js",
+-      "line": 828
++      "line": 847
+     },
+     {
+       "name": "__xenShiftGridOffsets",
+       "file": "src/rhythm/04_workspace_and_transport.js",
+-      "line": 829
++      "line": 848
+     },
+     {
+       "name": "lEe",
+       "file": "src/rhythm/04_workspace_and_transport.js",
+-      "line": 836
++      "line": 855
+     },
+     {
+       "name": "cEe",
+       "file": "src/rhythm/04_workspace_and_transport.js",
+-      "line": 836
++      "line": 855
+     },
+     {
+       "name": "uEe",
+       "file": "src/rhythm/04_workspace_and_transport.js",
+-      "line": 836
++      "line": 855
+     },
+     {
+       "name": "dEe",
+       "file": "src/rhythm/04_workspace_and_transport.js",
+-      "line": 836
++      "line": 855
+     },
+     {
+       "name": "mEe",
+       "file": "src/rhythm/04_workspace_and_transport.js",
+-      "line": 836
++      "line": 855
+     },
+     {
+       "name": "pEe",
+       "file": "src/rhythm/04_workspace_and_transport.js",
+-      "line": 836
++      "line": 855
+     },
+     {
+       "name": "hEe",
+       "file": "src/rhythm/04_workspace_and_transport.js",
+-      "line": 836
++      "line": 855
+     },
+     {
+       "name": "fEe",
+       "file": "src/rhythm/04_workspace_and_transport.js",
+-      "line": 836
++      "line": 855
+     },
+     {
+       "name": "gEe",
+       "file": "src/rhythm/04_workspace_and_transport.js",
+-      "line": 836
++      "line": 855
+     },
+     {
+       "name": "bEe",
+       "file": "src/rhythm/04_workspace_and_transport.js",
+-      "line": 836
++      "line": 855
+     },
+     {
+       "name": "yEe",
+       "file": "src/rhythm/04_workspace_and_transport.js",
+-      "line": 836
++      "line": 855
+     },
+     {
+       "name": "o7",
+       "file": "src/rhythm/04_workspace_and_transport.js",
+-      "line": 836
++      "line": 855
+     },
+     {
+       "name": "SEe",
+       "file": "src/rhythm/04_workspace_and_transport.js",
+-      "line": 836
++      "line": 855
+     },
+     {
+       "name": "vEe",
+       "file": "src/rhythm/04_workspace_and_transport.js",
+-      "line": 850
++      "line": 869
+     },
+     {
+       "name": "AEe",
+       "file": "src/rhythm/04_workspace_and_transport.js",
+-      "line": 862
++      "line": 881
+     },
+     {
+       "name": "xEe",
+       "file": "src/rhythm/04_workspace_and_transport.js",
+-      "line": 862
++      "line": 881
+     },
+     {
+       "name": "MEe",
+       "file": "src/rhythm/04_workspace_and_transport.js",
+-      "line": 862
++      "line": 881
+     },
+     {
+       "name": "wk",
+       "file": "src/rhythm/04_workspace_and_transport.js",
+-      "line": 862
++      "line": 881
+     },
+     {
+       "name": "wEe",
+       "file": "src/rhythm/04_workspace_and_transport.js",
+-      "line": 862
++      "line": 881
+     },
+     {
+       "name": "__f350CloneDrumEdit",
+diff --git a/n21-f2/source-manifest.json b/n21-f2/source-manifest.json
+index 24a57f6..b4027a8 100644
+--- a/n21-f2/source-manifest.json
++++ b/n21-f2/source-manifest.json
+@@ -1,6 +1,6 @@
+ {
+-  "version": "XenSonar P7 · Shared Forge Request / Render Ownership",
+-  "entry": "Xensonar_P7_Forge_Request_Stability_Test.html",
++  "version": "XenSonar P7 · Live Control / Telemetry Isolation",
++  "entry": "Xensonar_P7_Live_Control_Isolation_Test.html",
+   "files": [
+     "src/handoff/00_chat_feature_addons.js",
+     "src/mix/03_quick_menu.js",
+@@ -210,8 +210,8 @@
+     "src/05_dual_donor.js",
+     "src/06_workbench_dialog.js"
+   ],
+-  "sha256": "666c8f90117f2c3cd1ccc9533dd285cb503ff382b8d976603ddaf58a0caa2797",
+-  "bytes": 5705479,
++  "sha256": "8b82986d2ce0f6e5171bc37dd9a935f2da2d0bb35dcb3296ecff1952e539eb48",
++  "bytes": 5706522,
+   "sourceOrder": "Concatenate in listed order. Explicit factories own Workbench, hybrid session, render capture, adapters, playback and analysis cache. Remaining registry fragments share one inline module; DSP factories stay independently serializable for workers.",
+   "status": "F4.3.13 mainline plus F4.4.0 Nodal coupled-modal-v2, anchored at F4.3.5",
+   "baseVersion": "F4.3.5 (three-way)",
+diff --git a/n21-f2/src/rhythm/04_workspace_and_transport.js b/n21-f2/src/rhythm/04_workspace_and_transport.js
+index ee537af..a1dc423 100644
+--- a/n21-f2/src/rhythm/04_workspace_and_transport.js
++++ b/n21-f2/src/rhythm/04_workspace_and_transport.js
+@@ -97,7 +97,26 @@ function __f350PersistRhythm(params){
+  if(typeof window==='undefined')return;
+  try{window.localStorage.setItem(__f350RhythmStorageKey,JSON.stringify({version:1,params:__f350RhythmSnapshot(params)}))}catch{}
+ }
+-const tR="xensonar-root-follow-loop-ui-v1",z9=e=>typeof window>"u"?null:window.localStorage,Q2e=e=>{const t=z9();if(!t)return{};try{const n=t.getItem(tR);if(!n)return{};const r=JSON.parse(n),a={active:typeof r.rootFollowLoopActive=="boolean"?r.rootFollowLoopActive:!1,id:typeof r.rootFollowLoopId=="string"?r.rootFollowLoopId:"",timeMode:aE(r.rootFollowLoopTimeMode)?r.rootFollowLoopTimeMode:"normal",volume:N9(r.rootFollowLoopVolume),granulationMode:rx(r.rootFollowLoopGranulationMode)?r.rootFollowLoopGranulationMode:"flowing",granularSettings:Jr(r.rootFollowGranularSettings,rx(r.rootFollowLoopGranulationMode)?r.rootFollowLoopGranulationMode:"flowing"),impulsRasterEvery:Lo(r.rootFollowImpulsRasterEvery),impulsRasterCycleDiv:Lo(r.rootFollowImpulsRasterCycleDiv),impulsRasterClockMode:hT(r.rootFollowImpulsRasterClockMode),impulsRasterPattern:Wy(r.rootFollowImpulsRasterPattern,{counterDiv:r.rootFollowImpulsRasterEvery,everyFallback:r.rootFollowImpulsRasterEvery})},o={};return typeof r.rootFollowLoopActive=="boolean"&&(o.rootFollowLoopActive=a.active),typeof r.rootFollowLoopId=="string"&&(o.rootFollowLoopId=a.id),aE(r.rootFollowLoopTimeMode)&&(o.rootFollowLoopTimeMode=a.timeMode),typeof r.rootFollowLoopVolume=="number"&&Number.isFinite(r.rootFollowLoopVolume)&&(o.rootFollowLoopVolume=a.volume),rx(r.rootFollowLoopGranulationMode)&&(o.rootFollowLoopGranulationMode=a.granulationMode),r.rootFollowGranularSettings&&typeof r.rootFollowGranularSettings=="object"&&(o.rootFollowGranularSettings=a.granularSettings),typeof r.rootFollowImpulsRasterEvery=="number"&&Number.isFinite(r.rootFollowImpulsRasterEvery)&&(o.rootFollowImpulsRasterEvery=a.impulsRasterEvery),typeof r.rootFollowImpulsRasterCycleDiv=="number"&&Number.isFinite(r.rootFollowImpulsRasterCycleDiv)&&(o.rootFollowImpulsRasterCycleDiv=a.impulsRasterCycleDiv),(r.rootFollowImpulsRasterClockMode==="fragment-compress"||r.rootFollowImpulsRasterClockMode==="mute-pattern")&&(o.rootFollowImpulsRasterClockMode=a.impulsRasterClockMode),Array.isArray(r.rootFollowImpulsRasterPattern)&&(o.rootFollowImpulsRasterPattern=a.impulsRasterPattern),o}catch{return{}}},U2e=e=>l2e(s2e(e)),K2e=(e,t)=>{const n=z9();if(n)try{n.setItem(tR,JSON.stringify(U2e(e)))}catch{}},$2e=()=>{const e=P.useRef(pj(QJ)),t=P.useRef(__f350RestoreRhythm({...u2e(e.current),...__xenDronePersist.load()})),[n,r]=P.useState(t.current);P.useEffect(()=>{nZ(n.gridBase)},[n.gridBase]),P.useEffect(()=>{try{window.localStorage.setItem(EL,n.particleSampleProfileMode??"current_db_v2")}catch{}},[n.particleSampleProfileMode]),P.useEffect(()=>{const o=Q2e();Object.keys(o).length!==0&&(Object.assign(t.current,o),r({...t.current}))},[]),P.useEffect(()=>{__f350PersistRhythm(n)},[n]),P.useEffect(()=>{K2e(n)},[n.rootFollowLoopActive,n.rootFollowLoopId,n.rootFollowLoopTimeMode,n.rootFollowLoopVolume,n.rootFollowLoopGranulationMode,n.rootFollowGranularSettings,n.rootFollowImpulsRasterEvery,n.rootFollowImpulsRasterCycleDiv,n.rootFollowImpulsRasterClockMode,n.rootFollowImpulsRasterPattern]);const a=P.useCallback(o=>{Object.assign(t.current,d2e(t.current,o)),Object.keys(o).some(key=>Object.hasOwn(__f48RackDefaults,key))&&__f48PatchRack(t.current),Object.keys(o).some(key=>key.startsWith("bass"))&&window.dispatchEvent(new Event(__f48BassParamsEvent)),r({...t.current});__xenDronePersist.save(t.current,o)},[]);return{initialOvertonesByPreset:e,nexusParamsRef:t,nParamsUI:n,updateNParams:a,rootFollowUiStorageKey:tR}},ax={ripples:32,sectorPulses:18},j9=({waveRadius:e,baseWaveMaxRadius:t,clampValue:n})=>t*n(e??1,.35,2.2),G9=()=>typeof performance<"u"&&typeof performance.now=="function"?performance.now():Date.now(),H9=({refs:e,waveRadius:t,waveDecay:n,baseWaveMaxRadius:r,clampValue:a,direction:o,cursorAtEvent:h})=>{const x=h?.x??e.cursorX,y=h?.y??e.cursorY;if(e.ripples.length>=ax.ripples)return{cursorX:x,cursorY:y,isSector:!1,direction:o};const i=G9(),s={x,y,radius:0,life:1,maxRadius:j9({waveRadius:t,baseWaveMaxRadius:r,clampValue:a}),decay:n??"linear",direction:o,hitAgents:[],launchedAtMs:i,timeLocked:!0,displayRadius:0,displayPrevRadius:0};return e.ripples.push(s),{cursorX:x,cursorY:y,isSector:!1,direction:o}},X2e=({refs:e,waveRadius:t,waveDecay:n,baseWaveMaxRadius:r,clampValue:a,direction:o,maxSectorPulses:i=ax.sectorPulses})=>{const s=Number.isNaN(i)?ax.sectorPulses:Math.max(0,Math.min(ax.sectorPulses,Math.floor(i)));if(e.sectorPulses.length>=s)return{cursorX:e.cursorX,cursorY:e.cursorY,isSector:!0,direction:o};const l=G9(),c={x:e.cursorX,y:e.cursorY,radius:0,life:1,maxRadius:j9({waveRadius:t,baseWaveMaxRadius:r,clampValue:a}),decay:n??"linear",direction:o,hitAgents:[],launchedAtMs:l,timeLocked:!0,displayRadius:0,displayPrevRadius:0};return e.sectorPulses.push(c),{cursorX:e.cursorX,cursorY:e.cursorY,isSector:!0,direction:o}},V9=(e,t)=>(e.markWaveLaunch(),e.playWaveStartSound(e.freqFromY(t.cursorY),t.isSector,{waveLaunchX:t.cursorX}),t);function Y2e(e,t,cursorAtEvent){if(!e.nexusActive)return null;const n=H9({refs:e.refs,waveRadius:e.params.waveRadius,waveDecay:e.params.waveDecay,baseWaveMaxRadius:e.baseWaveMaxRadius,clampValue:e.clampValue,direction:t,cursorAtEvent});return V9(e,n)}function J2e(e,t){if(!e.nexusActive)return null;const n=X2e({refs:e.refs,waveRadius:e.params.waveRadius,waveDecay:e.params.waveDecay,baseWaveMaxRadius:e.baseWaveMaxRadius,clampValue:e.clampValue,direction:t});return V9(e,n)}const Z2e={CUT_UPLOAD:"cut-upload"},eke={MATERIAL_INTAKE_GATEWAY:"material-intake-gateway"},FL=Z2e.CUT_UPLOAD,wp=eke.MATERIAL_INTAKE_GATEWAY;function tke(e,t=Date.now()){return{reason:FL,target:wp,token:`cut-upload:${e}`,createdAt:t}}function nke(e){if(!e||typeof e!="object")return!1;const t=e;return t.reason===FL&&t.target===wp&&typeof t.token=="string"&&t.token.length>0&&typeof t.createdAt=="number"&&Number.isFinite(t.createdAt)}function dy(e){return nke(e)}function rke({spectralForgeCutUploadRafIdsRef:e,spectralForgeCutUploadSequenceRef:t,setSpectralForgeExternalAudioFile:n,setSpectralForgeExternalAudioOrigin:r,setSpectralForgeEntryScrollIntent:a,setRoom:o}){P.useEffect(()=>{const i=()=>{e.current.forEach(c=>window.cancelAnimationFrame(c)),e.current=[]},s=c=>{const d=t.current+1;t.current=d,i(),n(null),r(null),a(null);try{CT("experimental")}catch{}o("L3LAB");const p=window.requestAnimationFrame(()=>{const f=window.requestAnimationFrame(()=>{e.current=e.current.filter(b=>b!==p&&b!==f),t.current===d&&(r(FL),a(tke(d)),n(c))});e.current.push(f)});e.current.push(p)},l=Xd("spectralForgeAudioCutUpload",c=>{const d=c?.file??null;d&&s(d)});return()=>{i(),l()}},[o,a,n,r,e,t])}function H1(e,t,n){return{...e,[t]:{...e[t],...n}}}function ake(){const[e,t]=P.useState(!0),[n,r]=P.useState(8),[a,o]=P.useState(()=>FSe()),[i,s]=P.useState(null),l=(q,K)=>{o(Y=>H1(Y,q,K))},[c,d]=P.useState(!1),[p,f]=P.useState(.42),[b,g]=P.useState(()=>TSe()),[y,x]=P.useState(()=>LSe()),A=(q,K)=>{g(Y=>H1(Y,q,K))},[M,v]=P.useState(!1),[w,R]=P.useState(()=>BSe()),[k,I]=P.useState(()=>DSe()),E=(q,K)=>{I(Y=>H1(Y,q,K))},[F,L]=P.useState(!1),[B,O]=P.useState(()=>NSe()),[T,_]=P.useState(null),G=(q,K)=>{O(Y=>H1(Y,q,K))},j=P.useRef(OSe()),N=P.useRef(_Se()),W=P.useCallback(q=>{j.current=q,Eie(q)},[]),V=P.useCallback(q=>{N.current=q,Fie(q)},[]),U=j.current,H=N.current;return{collectiveMemoryEnabled:e,setCollectiveMemoryEnabled:t,collectiveMemoryWindow:n,setCollectiveMemoryWindow:r,collectiveMemoryUi:a,setCollectiveMemoryUi:o,collectiveMemoryMonitor:i,setCollectiveMemoryMonitor:s,updateCollectiveMemoryUi:l,psychedelicSpiralEnabled:c,setPsychedelicSpiralEnabled:d,psychedelicSpiralFollow:p,setPsychedelicSpiralFollow:f,psychedelicSpiralUi:b,setPsychedelicSpiralUi:g,psychedelicSpiralMonitor:y,setPsychedelicSpiralMonitor:x,updatePsychedelicSpiralSource:A,enterHoldPsyFxEnabled:M,setEnterHoldPsyFxEnabled:v,enterHoldPsyFxUi:w,setEnterHoldPsyFxUi:R,transientDriveUi:k,setTransientDriveUi:I,updateTransientDriveSource:E,schwarmEnabled:F,setSchwarmEnabled:L,schwarmUi:B,setSchwarmUi:O,schwarmMonitor:T,setSchwarmMonitor:_,updateSchwarmSource:G,controlPerfMonitor:U,setControlPerfMonitor:W,transientRuntimeMonitor:H,setTransientRuntimeMonitor:V}}const oke=(e,t,n)=>Math.min(n,Math.max(t,e));function rS(e,t){const n=Ka(e);return n.some(r=>r.value===t)?t:n[0]?.value??"chromatic"}function ike(e,t){const n=lw(e),r=rS(e,t),a=MF(e,r),o=n.map(()=>1);return{nodes:n,resolvedMode:r,nextEnabled:a,nextVolumes:o,nexusPatch:{particleSystem:e,churchMode:r,agentEnabled:a,agentVolumes:o}}}function ske(e,t){const n=rS(e,t),r=Au(n,e);return{resolvedMode:n,nextEnabled:r,nexusPatch:{churchMode:n,agentEnabled:r}}}function lke(e,t){const n=rS(e,t),r=Au(n,e),a=Zd(e),o=[];for(let i=0;i<a;i+=1)r[i]||o.push(i);return{resolvedMode:n,nextMutes:o,nexusPatch:{gridMode:n,manualGridMutedSteps:o}}}function cke(e,t){const n=t.nexusPatch??{},r=uke(e,n),a=HSe(r.gridTuning,r.gridMode,t.gridAllowedSteps),o=VSe(r.gridTuning,t.gridOffsets),i=lw(r.particleSystem),s=Au(r.churchMode,r.particleSystem).slice(0,i.length),l=t.agentEnabledSteps&&t.agentEnabledSteps.length?Array.from({length:i.length},(d,p)=>t.agentEnabledSteps?.includes(p)??!1):s,c=Array.from({length:i.length},(d,p)=>{const f=t.agentVolumes?.[p];return typeof f=="number"?oke(f,0,1.5):l[p]?1:0});return{resolvedSelections:r,normalizedNexusPatch:dke(e,r),nextGridMutes:a,nextGridOffsets:o,nextAgentEnabled:l,nextAgentVolumes:c}}function uke(e,t){const n=t.gridTuning??e.gridTuning,r=t.particleSystem??e.particleSystem,a=t.gridMode??e.gridMode,o=t.churchMode??e.churchMode,i=rS(n,a),s=rS(r,o);return{gridTuning:n,gridMode:i,particleSystem:r,churchMode:s}}function dke(e,t){const n={};return t.gridTuning!==e.gridTuning&&(n.gridTuning=t.gridTuning),(t.gridMode!==e.gridMode||t.gridTuning!==e.gridTuning)&&(n.gridMode=t.gridMode),t.particleSystem!==e.particleSystem&&(n.particleSystem=t.particleSystem),(t.churchMode!==e.churchMode||t.particleSystem!==e.particleSystem)&&(n.churchMode=t.churchMode),n}const mke=["drone","particles","waves","myzel"],iE=(e,t)=>{const n={...e};for(const r of mke){const a=t?.[r];a&&(n[r]={...e[r]??{},...a})}return n},pke=(e,t)=>{const n=iE(e,t);for(const r of["drive","color","motion","feedback","bloom","mix","stereoWidth","outputGain"]){const a=t?.[r];typeof a=="number"&&(n[r]=a)}return n};function hke(e){return{applyMetaPreset:n=>{const r=pH(n,e.sessionMetaOverrides);if(!r)return;const a=e.sessionMetaOverrides[n]?.uiPatch??{};e.setActiveMetaPresetId(n),e.setActiveOvertoneMixer("drone"),r.tParams&&e.setTParams(r.tParams),typeof r.myzelEnabled=="boolean"&&(e.topologyLoopErrorRef.current=null,e.setSystemState("Flowing Mycelium"),e.setMyzelEnabled(r.myzelEnabled)),r.myzelPattern&&e.setMyzelPattern(r.myzelPattern),r.myzelBallMode&&e.setMyzelBallMode(r.myzelBallMode),r.myzelNodeMode&&e.setMyzelNodeMode(r.myzelNodeMode),typeof r.myzelStep16ths=="number"&&e.setMyzelStep16ths(r.myzelStep16ths),typeof r.droneVolume=="number"&&e.setDroneVolume(r.droneVolume),typeof r.waveSoundEnabled=="boolean"&&e.setWaveSoundEnabled(r.waveSoundEnabled),typeof r.waveSoundVolume=="number"&&e.setWaveSoundVolume(r.waveSoundVolume),e.setWaveSoundPreset(r.waveSoundPreset),typeof r.quantizeGrid=="number"&&e.setQuantizeGridMode(r.quantizeGrid),typeof r.gridTempoBpm=="number"&&e.setGridTempoBpmWithTrafficReset(r.gridTempoBpm),r.room3Body&&(typeof r.room3Body.enabled=="boolean"&&e.setRoom3BodyEnabled(r.room3Body.enabled),r.room3Body.controls&&e.setRoom3BodyControls(g=>({...g,...r.room3Body?.controls}))),r.collectiveMemory&&(typeof r.collectiveMemory.enabled=="boolean"&&e.setCollectiveMemoryEnabled(r.collectiveMemory.enabled),typeof r.collectiveMemory.window=="number"&&e.setCollectiveMemoryWindow(r.collectiveMemory.window),e.setCollectiveMemoryUi(g=>iE(g,r.collectiveMemory))),r.spiral&&(typeof r.spiral.enabled=="boolean"&&e.setPsychedelicSpiralEnabled(r.spiral.enabled),typeof r.spiral.follow=="number"&&e.setPsychedelicSpiralFollow(r.spiral.follow),e.setPsychedelicSpiralUi(g=>pke(g,r.spiral))),r.transientDrive&&e.setTransientDriveUi(g=>iE(g,r.transientDrive)),r.liveMastering&&(typeof r.liveMastering.enabled=="boolean"&&e.setLiveMasteringEnabled(r.liveMastering.enabled),typeof r.liveMastering.strength=="number"&&e.setLiveMasteringStrength(r.liveMastering.strength),typeof r.liveMastering.glue=="number"&&e.setLiveMasteringGlue(r.liveMastering.glue),typeof r.liveMastering.air=="number"&&e.setLiveMasteringAir(r.liveMastering.air));const o=r.nexusPatch??{},{normalizedNexusPatch:i,nextGridMutes:s,nextGridOffsets:l,nextAgentEnabled:c,nextAgentVolumes:d}=cke(e.nexusParamsRef.current,r);i.gridTuning&&e.changeGridTuning(i.gridTuning),i.gridMode&&e.setGridMode(i.gridMode),i.particleSystem&&e.setParticleSystem(i.particleSystem),i.churchMode&&e.setChurchMode(i.churchMode);const p={...e.initialOvertonesByPreset.current[r.dronePreset]??Ud()},f=Ta({...p,...r.droneOvertones??{}}),b=Ta({...r.waveOvertones??{}});e.nexusRefs.current.agents.forEach((g,y)=>{if(y>=c.length){g.lastHit=Number.POSITIVE_INFINITY,g.lastHitAudioTimeSec=void 0;return}g.lastHit=c[y]?0:Number.POSITIVE_INFINITY,g.lastHitAudioTimeSec=void 0}),e.updateNParams({...o,...i,...a,quantizeBpm:r.gridTempoBpm??o.quantizeBpm??e.nexusParamsRef.current.quantizeBpm,dronePreset:r.dronePreset,particlePreset:r.particlePreset,droneJIOvertones:f,droneJIOvertonesByPreset:{...e.nexusParamsRef.current.droneJIOvertonesByPreset,[r.dronePreset]:f},waveOvertones:b,manualGridMutedSteps:s,manualGridStepOffsets:l,agentEnabled:c,agentVolumes:d}),e.primeMyzelFromY(e.nexusRefs.current.cursorY,"toggle"),requestAnimationFrame(()=>{const g=e.nexusParamsRef.current;e.applyRealtimeDroneOvertones(g.droneJIOvertones,g.droneTimbre)})},metaPresetActionBoundaryExtractedFromAppTsx:!0,sourceGroupMergeRitualUnified:!0,noWaveStarterBassRootFollowOrRoom3BodyHotPathMoved:!0}}function fke(){const[e,t]=P.useState({}),[n,r]=P.useState(null),[a,o]=P.useState(null),[i,s]=P.useState(!1),l=P.useRef(2654435769),c=P.useRef(0),d=P.useRef(0),p=P.useRef(0);return{mandalaPresetColorOverrides:e,setMandalaPresetColorOverrides:t,mandalaRandomizingPresetId:n,setMandalaRandomizingPresetId:r,roulettePreviewPresetId:a,setRoulettePreviewPresetId:o,rouletteIsSpinning:i,setRouletteIsSpinning:s,mouseEntropyRef:l,lastMouseEntropyStampRef:c,mandalaSpinTokenRef:d,rouletteSpinTokenRef:p}}function gke(){const[e,t]=P.useState("drone"),[n,r]=P.useState(null),[a,o]=P.useState({}),i=fke();return{activeOvertoneMixer:e,setActiveOvertoneMixer:t,activeMetaPresetId:n,setActiveMetaPresetId:r,sessionMetaOverrides:a,setSessionMetaOverrides:o,metaPresetRouletteState:i}}const bke=(e,t,n=0,r=0)=>{let a=(e^Math.floor(t*1e3)^Math.floor(n*1e6)^r)>>>0;return a||(a=2654435769),a>>>0},sO=e=>{let t=e>>>0;return()=>(t^=t<<13,t>>>=0,t^=t>>>17,t>>>=0,t^=t<<5,t>>>=0,(t>>>0)/4294967296)},Cr=(e,t)=>{if(e.length===0)throw new Error("Cannot choose from an empty option list.");const n=Math.floor(t()*e.length)%e.length,r=e[n];if(r===void 0)throw new Error("Random option index resolved outside the option list.");return r},$t=(e,t,n,r=2)=>Number((t+(n-t)*e()).toFixed(r)),Va=(e,t=.5)=>e()<t,lO=e=>{const t=Ud(),n=Object.keys(t),r={};let a=0;return n.forEach((o,i)=>{e()<(i<4?.62:.32)&&(a+=1,r[o]=$t(e,.04,i<3?.92:.58))}),!a&&n[0]&&(r[n[0]]=.82),r},yke=e=>{const t=Cr(j0.map(s=>s.value),e),n=Cr(["ji","bp",...RJ],e),r=Cr(Ka(t).map(s=>s.value),e),a=Cr(Ka(n).map(s=>s.value),e),o=(s=.38)=>({enabled:Va(e,s),send:$t(e,.04,.72)}),i=()=>({enabled:Va(e,.44),send:$t(e,.02,.52),wet:$t(e,.05,.64)});return{preset:{dronePreset:Cr(dg.map(s=>s.value),e),particlePreset:Cr(gS.map(s=>s.value),e),waveSoundPreset:Cr(bS.map(s=>s.value),e),waveSoundEnabled:Va(e,.12),waveSoundVolume:$t(e,.14,.34),droneVolume:$t(e,.02,.24),quantizeGrid:Cr([8,16,32,64],e),gridTempoBpm:Math.round($t(e,82,148,0)),myzelEnabled:!0,myzelPattern:Cr(aj.map(s=>s.value),e),myzelBallMode:Cr(oj.map(s=>s.value),e),myzelNodeMode:Cr(ij.map(s=>s.value),e),myzelStep16ths:Cr([1,2,4,8],e),tParams:{tension:$t(e,.18,.96),slimLayers:$t(e,.08,.94),rawReality:$t(e,.12,.96),intensityGlobal:$t(e,.28,1)},room3Body:{enabled:Va(e,.14),controls:{coupling:$t(e,.14,.96),material:$t(e,0,1),air:$t(e,0,1),roughness:$t(e,0,1),resonance:$t(e,.12,.96)}},collectiveMemory:{enabled:Va(e,.48),window:$t(e,3,15,1),drone:i(),particles:i(),waves:i(),myzel:i()},spiral:{enabled:Va(e,.52),follow:$t(e,0,1),drive:$t(e,0,1),color:$t(e,0,1),motion:$t(e,0,1),feedback:$t(e,.04,.82),bloom:$t(e,0,1),mix:$t(e,.4,.96),stereoWidth:$t(e,.08,1),outputGain:$t(e,.38,1),drone:o(),particles:o(),waves:o(),myzel:o()},transientDrive:{drone:o(),particles:o(),waves:o(),myzel:o()},liveMastering:{enabled:Va(e,.52),strength:$t(e,0,1),glue:$t(e,0,1),air:$t(e,0,1)},nexusPatch:{echoOn:Va(e,.62),echoTempo:Math.round($t(e,180,720,0)),echoDecay:$t(e,.16,.84),waveRadius:$t(e,.88,1.42),waveDecay:Cr(mj.map(s=>s.value),e),gridOn:!0,gridBase:Cr([110,123.47,130.81,146.83,164.81,174.61,196,220,246.94,261.63,293.66,329.63,392,415.3,440],e),gridTuning:t,gridMode:r,particleSystem:n,churchMode:a,lockCursorToGrid:Va(e,.24),cursorSpeed:Math.round($t(e,2,8,0)),droneTimbre:$t(e,0,1),droneVibrato:$t(e,0,1),droneFlanger:$t(e,0,1),droneRhythm:Cr(["Off","Puls 1/4","Puls 1/8","Puls 1/16","Syncopation"],e),droneDriveOn:Va(e,.58),droneDriveAmount:$t(e,0,.82),droneDriveTone:$t(e,0,1),droneDriveMix:$t(e,0,1),droneDriveOutput:$t(e,.22,1),drumActive:Va(e,.08),drumPattern:Cr(sw.map(s=>s.value),e),drumKit:Cr(Ny.map(s=>s.value),e),drumVolume:$t(e,.2,.72),bassActive:Va(e,.12),bassPattern:Cr(fF.map(s=>s.value),e),bassVolume:$t(e,.16,.62),bassRootMode:Va(e,.68)?"auto":"fixed",bassRootHz:Cr([41.2,55,61.74,73.42,82.41,98,110],e),particleGradientX:Cr(MP.map(s=>s.value),e),particleGradientY:Cr(MP.map(s=>s.value),e),waveTimbreGradientEnabled:Va(e,.52),waveTimbreGradientX:Cr(uj.map(s=>s.value),e),waveVolumeGradientEnabled:Va(e,.36),waveVolumeGradientX:Cr(dj.map(s=>s.value),e),waveOvertonesEnabled:Va(e,.56),droneOvertoneWaveform:Cr(["sine","triangle","square","sawtooth"],e),waveOvertoneWaveform:Cr(["sine","triangle","square","sawtooth"],e),particleVolume:$t(e,.08,.28),particleMute:!1,quantizeOn:Va(e,.48),quantizeBpm:Math.round($t(e,84,156,0))},droneOvertones:lO(e),waveOvertones:lO(e)},uiPatch:{drumEdge:$t(e,0,1),drumSoftness:$t(e,0,1),drumAir:$t(e,0,1),drumSnap:$t(e,0,1),grooveSwing:$t(e,0,1),bassTone:$t(e,0,1),bassGrit:$t(e,0,1)}}};function Ske(e,t,n,r,a){const o=((t+1)*73856093^(n+1)*19349663^(Math.round(r*1e3)+1)*83492791^Math.round(a*1e3))>>>0;let i=e^o;return i=Math.imul(i^i>>>15,2246822519)>>>0,i^=i>>>13,i>>>0}function vke(e,t,n,r){return bke(e,t,n,r)}function Ake(e){const{metaPresetRouletteState:t}=e;P.useEffect(()=>{const o=i=>{const s=performance.now(),l=Math.max(0,s-t.lastMouseEntropyStampRef.current);t.lastMouseEntropyStampRef.current=s,t.mouseEntropyRef.current=Ske(t.mouseEntropyRef.current,i.clientX,i.clientY,l,s)};return window.addEventListener("mousemove",o,{passive:!0}),()=>window.removeEventListener("mousemove",o)},[t.lastMouseEntropyStampRef,t.mouseEntropyRef]);const n=()=>{const o=typeof performance<"u"&&"memory"in performance?Number(performance.memory?.usedJSHeapSize??0):0;return vke(t.mouseEntropyRef.current,performance.now(),e.audioCtxRef.current?.currentTime??0,o)};return{readEntropySeed:n,randomizeMetaPresetForSession:o=>{if(t.mandalaRandomizingPresetId||t.rouletteIsSpinning)return;const i=++t.mandalaSpinTokenRef.current;t.setMandalaRandomizingPresetId(o);const s=sO(n());let l=Math.floor(s()*F1.length),c=14+Math.floor(s()*18);const d=Math.max(c,1),p=()=>{if(i!==t.mandalaSpinTokenRef.current)return;if(t.setMandalaPresetColorOverrides(g=>({...g,[o]:F1[l%F1.length]})),c<=0){const g=yke(s);e.setSessionMetaOverrides(y=>({...y,[o]:g})),t.setMandalaRandomizingPresetId(null),e.applyMetaPreset(o);return}l=(l+1)%F1.length,c-=1;const f=1-c/d,b=48+f*f*260+s()*26;window.setTimeout(p,b)};p()},startMetaPresetRoulette:()=>{if(t.rouletteIsSpinning||t.mandalaRandomizingPresetId||!Zy.length)return;const o=++t.rouletteSpinTokenRef.current;t.setRouletteIsSpinning(!0);let i=n();i||(i=2738958700);const s=sO(i),l=Zy.map(y=>y.id);let c=Math.floor(s()*l.length);const d=Math.floor(s()*l.length);let f=(3+Math.floor(s()*4))*l.length+(d-c+l.length)%l.length;const b=Math.max(f,1),g=()=>{if(o!==t.rouletteSpinTokenRef.current)return;if(t.setRoulettePreviewPresetId(l[c]),f<=0){const A=l[d];t.setRoulettePreviewPresetId(A),t.setRouletteIsSpinning(!1),e.applyMetaPreset(A),window.setTimeout(()=>{t.rouletteSpinTokenRef.current===o&&t.setRoulettePreviewPresetId(null)},260);return}c=(c+1)%l.length,f-=1;const y=1-f/b,x=44+y*y*310+s()*24;window.setTimeout(g,x)};g()},metaPresetRouletteBoundaryExtractedFromAppTsx:!0,rouletteChoosesPresetButDoesNotApplyPresetSemantics:!0,noWaveStarterBassRootFollowOrRoom3BodyHotPathMoved:!0}}function xke(){const e=P.useRef(null);e.current===null&&(e.current=Qa(ir/2));const t=P.useRef(e.current),n=P.useRef(0),r=P.useRef({x:vr/2,y:ir/2}),a=P.useRef("auto"),o=P.useCallback(i=>{const s=typeof i=="function"?i(t.current):i;Number.isFinite(s)&&(t.current=s,Toe(s))},[]);return{cursorHudHz:t.current,setCursorHudHz:o,cursorHudHzRef:t,cursorHudLastUpdateRef:n,focusCursorRef:r,focusCursorLastInputRef:a}}function Mke(){const e=P.useRef(null),t=P.useRef({left:!1,right:!1,up:!1,down:!1}),n=P.useRef(0),r=P.useRef(1);return P.useMemo(()=>({nexusCanvasRef:e,nexusArrowRef:t,waveLaunchAtRef:n,waveImpactDecayRef:r}),[])}function wke(){const e=P.useRef(null),t=P.useRef(null),n=P.useRef(null),r=P.useRef(null),a=P.useRef(null),o=P.useRef(null),i=P.useRef(null),s=P.useRef(null),l=P.useRef(null),c=P.useRef(null),d=P.useRef({pre_fx:null,post_fx:null,monitor:null}),p=P.useRef(null),f=P.useRef(null),b=P.useRef(null),g=P.useRef(null),y=P.useRef(null),x=P.useRef(null),A=P.useRef(null),M=P.useRef(new Set),v=P.useMemo(()=>({finalMixBusRef:e,drumMixBusRef:t,masterMixBusRef:n,finalLimiterRef:r,finalClipperRef:a,finalOutputTrimRef:o,finalMixAnalyserRef:i,preFxTapAnalyserRef:s,postFxTapAnalyserRef:l,monitorTapAnalyserRef:c,audioTapScratchRef:d,liveMasteringRef:p,noDrumRecordClipperRef:f,noDrumRecordLimiterRef:b,noDrumRecordOutputRef:g,recordingDestinationWithDrumsRef:y,recordingDestinationWithoutDrumsRef:x,externalGameRecordingBusRef:A,externalGameRecordingBusConnectionTargetsRef:M}),[]);return{...v,liveMasterBusRuntimeRefs:v}}function gk(){return{pendingIntents:[],latestDecisions:[],latestTapSnapshots:[]}}const Rke=()=>({main:0,drone:0,rhythm:0,space:0,density:0,trim:.92});function Cke(){const[e,t]=P.useState(!1),[n,r]=P.useState(.68),[a,o]=P.useState(.54),[i,s]=P.useState(.48),[l,c]=P.useState(()=>Rke()),[d,p]=P.useState(()=>gk()),f=P.useRef(gk()),[b,g]=P.useState(()=>vj(gk()));return{liveMasteringEnabled:e,setLiveMasteringEnabled:t,liveMasteringStrength:n,setLiveMasteringStrength:r,liveMasteringGlue:a,setLiveMasteringGlue:o,liveMasteringAir:i,setLiveMasteringAir:s,liveMasterMonitor:l,setLiveMasterMonitor:c,audioEventIntakeMonitor:d,setAudioEventIntakeMonitor:p,audioEventIntakeMonitorRef:f,audioTapMonitor:b,setAudioTapMonitor:g}}function kke(){const e=wke(),t=Cke();return{...e,...t}}class Pke{constructor(t){this.ports=t}abort=new AbortController;startPromise=null;stopPromise=null;disconnected=!1;stopRequested=!1;error=null;phase="idle";publish(t){this.phase=t,this.ports.publish(t,this.error)}start(){return this.startPromise??=Promise.resolve().then(async()=>{if(!this.stopRequested)try{if(this.publish("preparing"),await this.ports.prepare(this.abort.signal),this.stopRequested||(this.publish("armed"),this.ports.disconnectBrowserMaster(),this.disconnected=!0,this.publish("activating"),await this.ports.settleBrowserMaster(this.abort.signal),this.stopRequested))return;await this.ports.commit(this.abort.signal),this.stopRequested||this.publish("native-owned")}catch(t){this.stopRequested||(this.error=t instanceof Error?t.message:String(t),this.stopRequested=!0,this.abort.abort())}}).then(async()=>{this.stopRequested&&await this.finish()})}stop(t){return t&&!this.error&&(this.error=t),this.stopRequested=!0,this.abort.abort(),this.startPromise?this.startPromise.then(()=>this.finish()):this.finish()}finish(){return this.stopPromise??=Promise.resolve().then(async()=>{this.publish("stopping");let t;try{t=await this.ports.stop()}catch(n){t={confirmed:!1,reason:String(n)}}if(this.disconnected&&!t.confirmed){this.error=[this.error,t.reason||"native-stop-unconfirmed"].filter(Boolean).join("; "),this.ports.dispose(),this.publish("owner-unknown");return}try{this.disconnected&&this.ports.reconnectBrowserMaster(),this.disconnected=!1,this.ports.dispose(),this.publish(this.error?"fault":"stopped")}catch(n){this.error=[this.error,String(n)].filter(Boolean).join("; "),this.ports.dispose(),this.publish("owner-unknown")}})}}const cO=new WeakMap;function Ike(e,t){const n=cO.get(e);let r=null,a=!1,o;const i=new Promise(l=>{o=l});cO.set(e,i);const s=(async()=>{if(n&&await n,a){o();return}r=t(),await r.start(),(r.phase==="fault"||r.phase==="stopped")&&o()})();return async()=>{a=!0,await s,r&&await r.stop(),r?.phase!=="owner-unknown"&&o()}}const W9="xensonar-post-master-pcm-tap",Eke=String.raw`
++const tR="xensonar-root-follow-loop-ui-v1",z9=e=>typeof window>"u"?null:window.localStorage,Q2e=e=>{const t=z9();if(!t)return{};try{const n=t.getItem(tR);if(!n)return{};const r=JSON.parse(n),a={active:typeof r.rootFollowLoopActive=="boolean"?r.rootFollowLoopActive:!1,id:typeof r.rootFollowLoopId=="string"?r.rootFollowLoopId:"",timeMode:aE(r.rootFollowLoopTimeMode)?r.rootFollowLoopTimeMode:"normal",volume:N9(r.rootFollowLoopVolume),granulationMode:rx(r.rootFollowLoopGranulationMode)?r.rootFollowLoopGranulationMode:"flowing",granularSettings:Jr(r.rootFollowGranularSettings,rx(r.rootFollowLoopGranulationMode)?r.rootFollowLoopGranulationMode:"flowing"),impulsRasterEvery:Lo(r.rootFollowImpulsRasterEvery),impulsRasterCycleDiv:Lo(r.rootFollowImpulsRasterCycleDiv),impulsRasterClockMode:hT(r.rootFollowImpulsRasterClockMode),impulsRasterPattern:Wy(r.rootFollowImpulsRasterPattern,{counterDiv:r.rootFollowImpulsRasterEvery,everyFallback:r.rootFollowImpulsRasterEvery})},o={};return typeof r.rootFollowLoopActive=="boolean"&&(o.rootFollowLoopActive=a.active),typeof r.rootFollowLoopId=="string"&&(o.rootFollowLoopId=a.id),aE(r.rootFollowLoopTimeMode)&&(o.rootFollowLoopTimeMode=a.timeMode),typeof r.rootFollowLoopVolume=="number"&&Number.isFinite(r.rootFollowLoopVolume)&&(o.rootFollowLoopVolume=a.volume),rx(r.rootFollowLoopGranulationMode)&&(o.rootFollowLoopGranulationMode=a.granulationMode),r.rootFollowGranularSettings&&typeof r.rootFollowGranularSettings=="object"&&(o.rootFollowGranularSettings=a.granularSettings),typeof r.rootFollowImpulsRasterEvery=="number"&&Number.isFinite(r.rootFollowImpulsRasterEvery)&&(o.rootFollowImpulsRasterEvery=a.impulsRasterEvery),typeof r.rootFollowImpulsRasterCycleDiv=="number"&&Number.isFinite(r.rootFollowImpulsRasterCycleDiv)&&(o.rootFollowImpulsRasterCycleDiv=a.impulsRasterCycleDiv),(r.rootFollowImpulsRasterClockMode==="fragment-compress"||r.rootFollowImpulsRasterClockMode==="mute-pattern")&&(o.rootFollowImpulsRasterClockMode=a.impulsRasterClockMode),Array.isArray(r.rootFollowImpulsRasterPattern)&&(o.rootFollowImpulsRasterPattern=a.impulsRasterPattern),o}catch{return{}}},U2e=e=>l2e(s2e(e)),K2e=(e,t)=>{const n=z9();if(n)try{n.setItem(tR,JSON.stringify(U2e(e)))}catch{}},$2e=()=>{const e=P.useRef(pj(QJ)),t=P.useRef(__f350RestoreRhythm({...u2e(e.current),...__xenDronePersist.load()})),[n,r]=P.useState(t.current);P.useEffect(()=>{nZ(n.gridBase)},[n.gridBase]),P.useEffect(()=>{try{window.localStorage.setItem(EL,n.particleSampleProfileMode??"current_db_v2")}catch{}},[n.particleSampleProfileMode]),P.useEffect(()=>{const o=Q2e();Object.keys(o).length!==0&&(Object.assign(t.current,o),r({...t.current}))},[]),P.useEffect(()=>{__f350PersistRhythm(n)},[n]),P.useEffect(()=>{K2e(n)},[n.rootFollowLoopActive,n.rootFollowLoopId,n.rootFollowLoopTimeMode,n.rootFollowLoopVolume,n.rootFollowLoopGranulationMode,n.rootFollowGranularSettings,n.rootFollowImpulsRasterEvery,n.rootFollowImpulsRasterCycleDiv,n.rootFollowImpulsRasterClockMode,n.rootFollowImpulsRasterPattern]);const a=P.useCallback(o=>{Object.assign(t.current,d2e(t.current,o)),Object.keys(o).some(key=>Object.hasOwn(__f48RackDefaults,key))&&__f48PatchRack(t.current),Object.keys(o).some(key=>key.startsWith("bass"))&&window.dispatchEvent(new Event(__f48BassParamsEvent)),r({...t.current});__xenDronePersist.save(t.current,o)},[]);return{initialOvertonesByPreset:e,nexusParamsRef:t,nParamsUI:n,updateNParams:a,rootFollowUiStorageKey:tR}},ax={ripples:32,sectorPulses:18},j9=({waveRadius:e,baseWaveMaxRadius:t,clampValue:n})=>t*n(e??1,.35,2.2),G9=()=>typeof performance<"u"&&typeof performance.now=="function"?performance.now():Date.now(),H9=({refs:e,waveRadius:t,waveDecay:n,baseWaveMaxRadius:r,clampValue:a,direction:o,cursorAtEvent:h})=>{const x=h?.x??e.cursorX,y=h?.y??e.cursorY;if(e.ripples.length>=ax.ripples)return{cursorX:x,cursorY:y,isSector:!1,direction:o};const i=G9(),s={x,y,radius:0,life:1,maxRadius:j9({waveRadius:t,baseWaveMaxRadius:r,clampValue:a}),decay:n??"linear",direction:o,hitAgents:[],launchedAtMs:i,timeLocked:!0,displayRadius:0,displayPrevRadius:0};return e.ripples.push(s),{cursorX:x,cursorY:y,isSector:!1,direction:o}},X2e=({refs:e,waveRadius:t,waveDecay:n,baseWaveMaxRadius:r,clampValue:a,direction:o,maxSectorPulses:i=ax.sectorPulses})=>{const s=Number.isNaN(i)?ax.sectorPulses:Math.max(0,Math.min(ax.sectorPulses,Math.floor(i)));if(e.sectorPulses.length>=s)return{cursorX:e.cursorX,cursorY:e.cursorY,isSector:!0,direction:o};const l=G9(),c={x:e.cursorX,y:e.cursorY,radius:0,life:1,maxRadius:j9({waveRadius:t,baseWaveMaxRadius:r,clampValue:a}),decay:n??"linear",direction:o,hitAgents:[],launchedAtMs:l,timeLocked:!0,displayRadius:0,displayPrevRadius:0};return e.sectorPulses.push(c),{cursorX:e.cursorX,cursorY:e.cursorY,isSector:!0,direction:o}},V9=(e,t)=>(e.markWaveLaunch(),e.playWaveStartSound(e.freqFromY(t.cursorY),t.isSector,{waveLaunchX:t.cursorX}),t);function Y2e(e,t,cursorAtEvent){if(!e.nexusActive)return null;const n=H9({refs:e.refs,waveRadius:e.params.waveRadius,waveDecay:e.params.waveDecay,baseWaveMaxRadius:e.baseWaveMaxRadius,clampValue:e.clampValue,direction:t,cursorAtEvent});return V9(e,n)}function J2e(e,t){if(!e.nexusActive)return null;const n=X2e({refs:e.refs,waveRadius:e.params.waveRadius,waveDecay:e.params.waveDecay,baseWaveMaxRadius:e.baseWaveMaxRadius,clampValue:e.clampValue,direction:t});return V9(e,n)}const Z2e={CUT_UPLOAD:"cut-upload"},eke={MATERIAL_INTAKE_GATEWAY:"material-intake-gateway"},FL=Z2e.CUT_UPLOAD,wp=eke.MATERIAL_INTAKE_GATEWAY;function tke(e,t=Date.now()){return{reason:FL,target:wp,token:`cut-upload:${e}`,createdAt:t}}function nke(e){if(!e||typeof e!="object")return!1;const t=e;return t.reason===FL&&t.target===wp&&typeof t.token=="string"&&t.token.length>0&&typeof t.createdAt=="number"&&Number.isFinite(t.createdAt)}function dy(e){return nke(e)}function rke({spectralForgeCutUploadRafIdsRef:e,spectralForgeCutUploadSequenceRef:t,setSpectralForgeExternalAudioFile:n,setSpectralForgeExternalAudioOrigin:r,setSpectralForgeEntryScrollIntent:a,setRoom:o}){P.useEffect(()=>{const i=()=>{e.current.forEach(c=>window.cancelAnimationFrame(c)),e.current=[]},s=c=>{const d=t.current+1;t.current=d,i(),n(null),r(null),a(null);try{CT("experimental")}catch{}o("L3LAB");const p=window.requestAnimationFrame(()=>{const f=window.requestAnimationFrame(()=>{e.current=e.current.filter(b=>b!==p&&b!==f),t.current===d&&(r(FL),a(tke(d)),n(c))});e.current.push(f)});e.current.push(p)},l=Xd("spectralForgeAudioCutUpload",c=>{const d=c?.file??null;d&&s(d)});return()=>{i(),l()}},[o,a,n,r,e,t])}function H1(e,t,n){return{...e,[t]:{...e[t],...n}}}function ake(){const[e,t]=P.useState(!0),[n,r]=P.useState(8),[a,o]=P.useState(()=>FSe()),[i,s]=P.useState(null),l=(q,K)=>{o(Y=>H1(Y,q,K))},[c,d]=P.useState(!1),[p,f]=P.useState(.42),[b,g]=P.useState(()=>TSe()),[y,x]=P.useState(()=>LSe()),A=(q,K)=>{g(Y=>H1(Y,q,K))},[M,v]=P.useState(!1),[w,R]=P.useState(()=>BSe()),[k,I]=P.useState(()=>DSe()),E=(q,K)=>{I(Y=>H1(Y,q,K))},[F,L]=P.useState(!1),[B,O]=P.useState(()=>NSe()),[T,_]=P.useState(null),G=(q,K)=>{O(Y=>H1(Y,q,K))},j=P.useRef(OSe()),N=P.useRef(_Se()),W=P.useCallback(q=>{j.current=q,Eie(q)},[]),V=P.useCallback(q=>{N.current=q,Fie(q)},[]),U=j.current,H=N.current;return{collectiveMemoryEnabled:e,setCollectiveMemoryEnabled:t,collectiveMemoryWindow:n,setCollectiveMemoryWindow:r,collectiveMemoryUi:a,setCollectiveMemoryUi:o,collectiveMemoryMonitor:i,setCollectiveMemoryMonitor:s,updateCollectiveMemoryUi:l,psychedelicSpiralEnabled:c,setPsychedelicSpiralEnabled:d,psychedelicSpiralFollow:p,setPsychedelicSpiralFollow:f,psychedelicSpiralUi:b,setPsychedelicSpiralUi:g,psychedelicSpiralMonitor:y,setPsychedelicSpiralMonitor:x,updatePsychedelicSpiralSource:A,enterHoldPsyFxEnabled:M,setEnterHoldPsyFxEnabled:v,enterHoldPsyFxUi:w,setEnterHoldPsyFxUi:R,transientDriveUi:k,setTransientDriveUi:I,updateTransientDriveSource:E,schwarmEnabled:F,setSchwarmEnabled:L,schwarmUi:B,setSchwarmUi:O,schwarmMonitor:T,setSchwarmMonitor:_,updateSchwarmSource:G,controlPerfMonitor:U,setControlPerfMonitor:W,transientRuntimeMonitor:H,setTransientRuntimeMonitor:V}}const oke=(e,t,n)=>Math.min(n,Math.max(t,e));function rS(e,t){const n=Ka(e);return n.some(r=>r.value===t)?t:n[0]?.value??"chromatic"}function ike(e,t){const n=lw(e),r=rS(e,t),a=MF(e,r),o=n.map(()=>1);return{nodes:n,resolvedMode:r,nextEnabled:a,nextVolumes:o,nexusPatch:{particleSystem:e,churchMode:r,agentEnabled:a,agentVolumes:o}}}function ske(e,t){const n=rS(e,t),r=Au(n,e);return{resolvedMode:n,nextEnabled:r,nexusPatch:{churchMode:n,agentEnabled:r}}}function lke(e,t){const n=rS(e,t),r=Au(n,e),a=Zd(e),o=[];for(let i=0;i<a;i+=1)r[i]||o.push(i);return{resolvedMode:n,nextMutes:o,nexusPatch:{gridMode:n,manualGridMutedSteps:o}}}function cke(e,t){const n=t.nexusPatch??{},r=uke(e,n),a=HSe(r.gridTuning,r.gridMode,t.gridAllowedSteps),o=VSe(r.gridTuning,t.gridOffsets),i=lw(r.particleSystem),s=Au(r.churchMode,r.particleSystem).slice(0,i.length),l=t.agentEnabledSteps&&t.agentEnabledSteps.length?Array.from({length:i.length},(d,p)=>t.agentEnabledSteps?.includes(p)??!1):s,c=Array.from({length:i.length},(d,p)=>{const f=t.agentVolumes?.[p];return typeof f=="number"?oke(f,0,1.5):l[p]?1:0});return{resolvedSelections:r,normalizedNexusPatch:dke(e,r),nextGridMutes:a,nextGridOffsets:o,nextAgentEnabled:l,nextAgentVolumes:c}}function uke(e,t){const n=t.gridTuning??e.gridTuning,r=t.particleSystem??e.particleSystem,a=t.gridMode??e.gridMode,o=t.churchMode??e.churchMode,i=rS(n,a),s=rS(r,o);return{gridTuning:n,gridMode:i,particleSystem:r,churchMode:s}}function dke(e,t){const n={};return t.gridTuning!==e.gridTuning&&(n.gridTuning=t.gridTuning),(t.gridMode!==e.gridMode||t.gridTuning!==e.gridTuning)&&(n.gridMode=t.gridMode),t.particleSystem!==e.particleSystem&&(n.particleSystem=t.particleSystem),(t.churchMode!==e.churchMode||t.particleSystem!==e.particleSystem)&&(n.churchMode=t.churchMode),n}const mke=["drone","particles","waves","myzel"],iE=(e,t)=>{const n={...e};for(const r of mke){const a=t?.[r];a&&(n[r]={...e[r]??{},...a})}return n},pke=(e,t)=>{const n=iE(e,t);for(const r of["drive","color","motion","feedback","bloom","mix","stereoWidth","outputGain"]){const a=t?.[r];typeof a=="number"&&(n[r]=a)}return n};function hke(e){return{applyMetaPreset:n=>{const r=pH(n,e.sessionMetaOverrides);if(!r)return;const a=e.sessionMetaOverrides[n]?.uiPatch??{};e.setActiveMetaPresetId(n),e.setActiveOvertoneMixer("drone"),r.tParams&&e.setTParams(r.tParams),typeof r.myzelEnabled=="boolean"&&(e.topologyLoopErrorRef.current=null,e.setSystemState("Flowing Mycelium"),e.setMyzelEnabled(r.myzelEnabled)),r.myzelPattern&&e.setMyzelPattern(r.myzelPattern),r.myzelBallMode&&e.setMyzelBallMode(r.myzelBallMode),r.myzelNodeMode&&e.setMyzelNodeMode(r.myzelNodeMode),typeof r.myzelStep16ths=="number"&&e.setMyzelStep16ths(r.myzelStep16ths),typeof r.droneVolume=="number"&&e.setDroneVolume(r.droneVolume),typeof r.waveSoundEnabled=="boolean"&&e.setWaveSoundEnabled(r.waveSoundEnabled),typeof r.waveSoundVolume=="number"&&e.setWaveSoundVolume(r.waveSoundVolume),e.setWaveSoundPreset(r.waveSoundPreset),typeof r.quantizeGrid=="number"&&e.setQuantizeGridMode(r.quantizeGrid),typeof r.gridTempoBpm=="number"&&e.setGridTempoBpmWithTrafficReset(r.gridTempoBpm),r.room3Body&&(typeof r.room3Body.enabled=="boolean"&&e.setRoom3BodyEnabled(r.room3Body.enabled),r.room3Body.controls&&e.setRoom3BodyControls(g=>({...g,...r.room3Body?.controls}))),r.collectiveMemory&&(typeof r.collectiveMemory.enabled=="boolean"&&e.setCollectiveMemoryEnabled(r.collectiveMemory.enabled),typeof r.collectiveMemory.window=="number"&&e.setCollectiveMemoryWindow(r.collectiveMemory.window),e.setCollectiveMemoryUi(g=>iE(g,r.collectiveMemory))),r.spiral&&(typeof r.spiral.enabled=="boolean"&&e.setPsychedelicSpiralEnabled(r.spiral.enabled),typeof r.spiral.follow=="number"&&e.setPsychedelicSpiralFollow(r.spiral.follow),e.setPsychedelicSpiralUi(g=>pke(g,r.spiral))),r.transientDrive&&e.setTransientDriveUi(g=>iE(g,r.transientDrive)),r.liveMastering&&(typeof r.liveMastering.enabled=="boolean"&&e.setLiveMasteringEnabled(r.liveMastering.enabled),typeof r.liveMastering.strength=="number"&&e.setLiveMasteringStrength(r.liveMastering.strength),typeof r.liveMastering.glue=="number"&&e.setLiveMasteringGlue(r.liveMastering.glue),typeof r.liveMastering.air=="number"&&e.setLiveMasteringAir(r.liveMastering.air));const o=r.nexusPatch??{},{normalizedNexusPatch:i,nextGridMutes:s,nextGridOffsets:l,nextAgentEnabled:c,nextAgentVolumes:d}=cke(e.nexusParamsRef.current,r);i.gridTuning&&e.changeGridTuning(i.gridTuning),i.gridMode&&e.setGridMode(i.gridMode),i.particleSystem&&e.setParticleSystem(i.particleSystem),i.churchMode&&e.setChurchMode(i.churchMode);const p={...e.initialOvertonesByPreset.current[r.dronePreset]??Ud()},f=Ta({...p,...r.droneOvertones??{}}),b=Ta({...r.waveOvertones??{}});e.nexusRefs.current.agents.forEach((g,y)=>{if(y>=c.length){g.lastHit=Number.POSITIVE_INFINITY,g.lastHitAudioTimeSec=void 0;return}g.lastHit=c[y]?0:Number.POSITIVE_INFINITY,g.lastHitAudioTimeSec=void 0}),e.updateNParams({...o,...i,...a,quantizeBpm:r.gridTempoBpm??o.quantizeBpm??e.nexusParamsRef.current.quantizeBpm,dronePreset:r.dronePreset,particlePreset:r.particlePreset,droneJIOvertones:f,droneJIOvertonesByPreset:{...e.nexusParamsRef.current.droneJIOvertonesByPreset,[r.dronePreset]:f},waveOvertones:b,manualGridMutedSteps:s,manualGridStepOffsets:l,agentEnabled:c,agentVolumes:d}),e.primeMyzelFromY(e.nexusRefs.current.cursorY,"toggle"),requestAnimationFrame(()=>{const g=e.nexusParamsRef.current;e.applyRealtimeDroneOvertones(g.droneJIOvertones,g.droneTimbre)})},metaPresetActionBoundaryExtractedFromAppTsx:!0,sourceGroupMergeRitualUnified:!0,noWaveStarterBassRootFollowOrRoom3BodyHotPathMoved:!0}}function fke(){const[e,t]=P.useState({}),[n,r]=P.useState(null),[a,o]=P.useState(null),[i,s]=P.useState(!1),l=P.useRef(2654435769),c=P.useRef(0),d=P.useRef(0),p=P.useRef(0);return{mandalaPresetColorOverrides:e,setMandalaPresetColorOverrides:t,mandalaRandomizingPresetId:n,setMandalaRandomizingPresetId:r,roulettePreviewPresetId:a,setRoulettePreviewPresetId:o,rouletteIsSpinning:i,setRouletteIsSpinning:s,mouseEntropyRef:l,lastMouseEntropyStampRef:c,mandalaSpinTokenRef:d,rouletteSpinTokenRef:p}}function gke(){const[e,t]=P.useState("drone"),[n,r]=P.useState(null),[a,o]=P.useState({}),i=fke();return{activeOvertoneMixer:e,setActiveOvertoneMixer:t,activeMetaPresetId:n,setActiveMetaPresetId:r,sessionMetaOverrides:a,setSessionMetaOverrides:o,metaPresetRouletteState:i}}const bke=(e,t,n=0,r=0)=>{let a=(e^Math.floor(t*1e3)^Math.floor(n*1e6)^r)>>>0;return a||(a=2654435769),a>>>0},sO=e=>{let t=e>>>0;return()=>(t^=t<<13,t>>>=0,t^=t>>>17,t>>>=0,t^=t<<5,t>>>=0,(t>>>0)/4294967296)},Cr=(e,t)=>{if(e.length===0)throw new Error("Cannot choose from an empty option list.");const n=Math.floor(t()*e.length)%e.length,r=e[n];if(r===void 0)throw new Error("Random option index resolved outside the option list.");return r},$t=(e,t,n,r=2)=>Number((t+(n-t)*e()).toFixed(r)),Va=(e,t=.5)=>e()<t,lO=e=>{const t=Ud(),n=Object.keys(t),r={};let a=0;return n.forEach((o,i)=>{e()<(i<4?.62:.32)&&(a+=1,r[o]=$t(e,.04,i<3?.92:.58))}),!a&&n[0]&&(r[n[0]]=.82),r},yke=e=>{const t=Cr(j0.map(s=>s.value),e),n=Cr(["ji","bp",...RJ],e),r=Cr(Ka(t).map(s=>s.value),e),a=Cr(Ka(n).map(s=>s.value),e),o=(s=.38)=>({enabled:Va(e,s),send:$t(e,.04,.72)}),i=()=>({enabled:Va(e,.44),send:$t(e,.02,.52),wet:$t(e,.05,.64)});return{preset:{dronePreset:Cr(dg.map(s=>s.value),e),particlePreset:Cr(gS.map(s=>s.value),e),waveSoundPreset:Cr(bS.map(s=>s.value),e),waveSoundEnabled:Va(e,.12),waveSoundVolume:$t(e,.14,.34),droneVolume:$t(e,.02,.24),quantizeGrid:Cr([8,16,32,64],e),gridTempoBpm:Math.round($t(e,82,148,0)),myzelEnabled:!0,myzelPattern:Cr(aj.map(s=>s.value),e),myzelBallMode:Cr(oj.map(s=>s.value),e),myzelNodeMode:Cr(ij.map(s=>s.value),e),myzelStep16ths:Cr([1,2,4,8],e),tParams:{tension:$t(e,.18,.96),slimLayers:$t(e,.08,.94),rawReality:$t(e,.12,.96),intensityGlobal:$t(e,.28,1)},room3Body:{enabled:Va(e,.14),controls:{coupling:$t(e,.14,.96),material:$t(e,0,1),air:$t(e,0,1),roughness:$t(e,0,1),resonance:$t(e,.12,.96)}},collectiveMemory:{enabled:Va(e,.48),window:$t(e,3,15,1),drone:i(),particles:i(),waves:i(),myzel:i()},spiral:{enabled:Va(e,.52),follow:$t(e,0,1),drive:$t(e,0,1),color:$t(e,0,1),motion:$t(e,0,1),feedback:$t(e,.04,.82),bloom:$t(e,0,1),mix:$t(e,.4,.96),stereoWidth:$t(e,.08,1),outputGain:$t(e,.38,1),drone:o(),particles:o(),waves:o(),myzel:o()},transientDrive:{drone:o(),particles:o(),waves:o(),myzel:o()},liveMastering:{enabled:Va(e,.52),strength:$t(e,0,1),glue:$t(e,0,1),air:$t(e,0,1)},nexusPatch:{echoOn:Va(e,.62),echoTempo:Math.round($t(e,180,720,0)),echoDecay:$t(e,.16,.84),waveRadius:$t(e,.88,1.42),waveDecay:Cr(mj.map(s=>s.value),e),gridOn:!0,gridBase:Cr([110,123.47,130.81,146.83,164.81,174.61,196,220,246.94,261.63,293.66,329.63,392,415.3,440],e),gridTuning:t,gridMode:r,particleSystem:n,churchMode:a,lockCursorToGrid:Va(e,.24),cursorSpeed:Math.round($t(e,2,8,0)),droneTimbre:$t(e,0,1),droneVibrato:$t(e,0,1),droneFlanger:$t(e,0,1),droneRhythm:Cr(["Off","Puls 1/4","Puls 1/8","Puls 1/16","Syncopation"],e),droneDriveOn:Va(e,.58),droneDriveAmount:$t(e,0,.82),droneDriveTone:$t(e,0,1),droneDriveMix:$t(e,0,1),droneDriveOutput:$t(e,.22,1),drumActive:Va(e,.08),drumPattern:Cr(sw.map(s=>s.value),e),drumKit:Cr(Ny.map(s=>s.value),e),drumVolume:$t(e,.2,.72),bassActive:Va(e,.12),bassPattern:Cr(fF.map(s=>s.value),e),bassVolume:$t(e,.16,.62),bassRootMode:Va(e,.68)?"auto":"fixed",bassRootHz:Cr([41.2,55,61.74,73.42,82.41,98,110],e),particleGradientX:Cr(MP.map(s=>s.value),e),particleGradientY:Cr(MP.map(s=>s.value),e),waveTimbreGradientEnabled:Va(e,.52),waveTimbreGradientX:Cr(uj.map(s=>s.value),e),waveVolumeGradientEnabled:Va(e,.36),waveVolumeGradientX:Cr(dj.map(s=>s.value),e),waveOvertonesEnabled:Va(e,.56),droneOvertoneWaveform:Cr(["sine","triangle","square","sawtooth"],e),waveOvertoneWaveform:Cr(["sine","triangle","square","sawtooth"],e),particleVolume:$t(e,.08,.28),particleMute:!1,quantizeOn:Va(e,.48),quantizeBpm:Math.round($t(e,84,156,0))},droneOvertones:lO(e),waveOvertones:lO(e)},uiPatch:{drumEdge:$t(e,0,1),drumSoftness:$t(e,0,1),drumAir:$t(e,0,1),drumSnap:$t(e,0,1),grooveSwing:$t(e,0,1),bassTone:$t(e,0,1),bassGrit:$t(e,0,1)}}};function Ske(e,t,n,r,a){const o=((t+1)*73856093^(n+1)*19349663^(Math.round(r*1e3)+1)*83492791^Math.round(a*1e3))>>>0;let i=e^o;return i=Math.imul(i^i>>>15,2246822519)>>>0,i^=i>>>13,i>>>0}function vke(e,t,n,r){return bke(e,t,n,r)}function Ake(e){const{metaPresetRouletteState:t}=e;P.useEffect(()=>{const o=i=>{const s=performance.now(),l=Math.max(0,s-t.lastMouseEntropyStampRef.current);t.lastMouseEntropyStampRef.current=s,t.mouseEntropyRef.current=Ske(t.mouseEntropyRef.current,i.clientX,i.clientY,l,s)};return window.addEventListener("mousemove",o,{passive:!0}),()=>window.removeEventListener("mousemove",o)},[t.lastMouseEntropyStampRef,t.mouseEntropyRef]);const n=()=>{const o=typeof performance<"u"&&"memory"in performance?Number(performance.memory?.usedJSHeapSize??0):0;return vke(t.mouseEntropyRef.current,performance.now(),e.audioCtxRef.current?.currentTime??0,o)};return{readEntropySeed:n,randomizeMetaPresetForSession:o=>{if(t.mandalaRandomizingPresetId||t.rouletteIsSpinning)return;const i=++t.mandalaSpinTokenRef.current;t.setMandalaRandomizingPresetId(o);const s=sO(n());let l=Math.floor(s()*F1.length),c=14+Math.floor(s()*18);const d=Math.max(c,1),p=()=>{if(i!==t.mandalaSpinTokenRef.current)return;if(t.setMandalaPresetColorOverrides(g=>({...g,[o]:F1[l%F1.length]})),c<=0){const g=yke(s);e.setSessionMetaOverrides(y=>({...y,[o]:g})),t.setMandalaRandomizingPresetId(null),e.applyMetaPreset(o);return}l=(l+1)%F1.length,c-=1;const f=1-c/d,b=48+f*f*260+s()*26;window.setTimeout(p,b)};p()},startMetaPresetRoulette:()=>{if(t.rouletteIsSpinning||t.mandalaRandomizingPresetId||!Zy.length)return;const o=++t.rouletteSpinTokenRef.current;t.setRouletteIsSpinning(!0);let i=n();i||(i=2738958700);const s=sO(i),l=Zy.map(y=>y.id);let c=Math.floor(s()*l.length);const d=Math.floor(s()*l.length);let f=(3+Math.floor(s()*4))*l.length+(d-c+l.length)%l.length;const b=Math.max(f,1),g=()=>{if(o!==t.rouletteSpinTokenRef.current)return;if(t.setRoulettePreviewPresetId(l[c]),f<=0){const A=l[d];t.setRoulettePreviewPresetId(A),t.setRouletteIsSpinning(!1),e.applyMetaPreset(A),window.setTimeout(()=>{t.rouletteSpinTokenRef.current===o&&t.setRoulettePreviewPresetId(null)},260);return}c=(c+1)%l.length,f-=1;const y=1-f/b,x=44+y*y*310+s()*24;window.setTimeout(g,x)};g()},metaPresetRouletteBoundaryExtractedFromAppTsx:!0,rouletteChoosesPresetButDoesNotApplyPresetSemantics:!0,noWaveStarterBassRootFollowOrRoom3BodyHotPathMoved:!0}}function xke(){const e=P.useRef(null);e.current===null&&(e.current=Qa(ir/2));const t=P.useRef(e.current),n=P.useRef(0),r=P.useRef({x:vr/2,y:ir/2}),a=P.useRef("auto"),o=P.useCallback(i=>{const s=typeof i=="function"?i(t.current):i;Number.isFinite(s)&&(t.current=s,Toe(s))},[]);return{cursorHudHz:t.current,setCursorHudHz:o,cursorHudHzRef:t,cursorHudLastUpdateRef:n,focusCursorRef:r,focusCursorLastInputRef:a}}function Mke(){const e=P.useRef(null),t=P.useRef({left:!1,right:!1,up:!1,down:!1}),n=P.useRef(0),r=P.useRef(1);return P.useMemo(()=>({nexusCanvasRef:e,nexusArrowRef:t,waveLaunchAtRef:n,waveImpactDecayRef:r}),[])}function wke(){const e=P.useRef(null),t=P.useRef(null),n=P.useRef(null),r=P.useRef(null),a=P.useRef(null),o=P.useRef(null),i=P.useRef(null),s=P.useRef(null),l=P.useRef(null),c=P.useRef(null),d=P.useRef({pre_fx:null,post_fx:null,monitor:null}),p=P.useRef(null),f=P.useRef(null),b=P.useRef(null),g=P.useRef(null),y=P.useRef(null),x=P.useRef(null),A=P.useRef(null),M=P.useRef(new Set),v=P.useMemo(()=>({finalMixBusRef:e,drumMixBusRef:t,masterMixBusRef:n,finalLimiterRef:r,finalClipperRef:a,finalOutputTrimRef:o,finalMixAnalyserRef:i,preFxTapAnalyserRef:s,postFxTapAnalyserRef:l,monitorTapAnalyserRef:c,audioTapScratchRef:d,liveMasteringRef:p,noDrumRecordClipperRef:f,noDrumRecordLimiterRef:b,noDrumRecordOutputRef:g,recordingDestinationWithDrumsRef:y,recordingDestinationWithoutDrumsRef:x,externalGameRecordingBusRef:A,externalGameRecordingBusConnectionTargetsRef:M}),[]);return{...v,liveMasterBusRuntimeRefs:v}}function gk(){return{pendingIntents:[],latestDecisions:[],latestTapSnapshots:[]}}const Rke=()=>({main:0,drone:0,rhythm:0,space:0,density:0,trim:.92});// Control telemetry is data, independent of the app's React render cycle.
++// A view may subscribe to its channel without rebuilding the instrument owner.
++function __createLiveControlSnapshot(initial){
++ let snapshot=initial;const listeners=new Set();
++ return Object.freeze({getSnapshot:()=>snapshot,
++  subscribe(listener){listeners.add(listener);return()=>listeners.delete(listener)},
++  publish(update){
++   const next=typeof update==='function'?update(snapshot):update;
++   if(Object.is(snapshot,next))return;
++   snapshot=next;
++   for(const listener of listeners)try{listener()}catch(error){console.warn('[Live control] Snapshot observer failed',error)}
++  }
++ });
++}
++function __useLiveControlSnapshot(create){
++ const owner=P.useRef(null);
++ if(owner.current===null)owner.current=__createLiveControlSnapshot(create());
++ return owner.current;
++}
++function Cke(){const[e,t]=P.useState(!1),[n,r]=P.useState(.68),[a,o]=P.useState(.54),[i,s]=P.useState(.48),[l,c]=P.useState(()=>Rke()),d=__useLiveControlSnapshot(gk),p=d.publish,f=P.useRef(gk()),b=__useLiveControlSnapshot(()=>vj(gk())),g=b.publish;return{liveMasteringEnabled:e,setLiveMasteringEnabled:t,liveMasteringStrength:n,setLiveMasteringStrength:r,liveMasteringGlue:a,setLiveMasteringGlue:o,liveMasteringAir:i,setLiveMasteringAir:s,liveMasterMonitor:l,setLiveMasterMonitor:c,get audioEventIntakeMonitor(){return d.getSnapshot()},audioEventIntakeMonitorChannel:d,setAudioEventIntakeMonitor:p,audioEventIntakeMonitorRef:f,get audioTapMonitor(){return b.getSnapshot()},audioTapMonitorChannel:b,setAudioTapMonitor:g}}function kke(){const e=wke(),t=Cke();return Object.defineProperties(e,Object.getOwnPropertyDescriptors(t))}class Pke{constructor(t){this.ports=t}abort=new AbortController;startPromise=null;stopPromise=null;disconnected=!1;stopRequested=!1;error=null;phase="idle";publish(t){this.phase=t,this.ports.publish(t,this.error)}start(){return this.startPromise??=Promise.resolve().then(async()=>{if(!this.stopRequested)try{if(this.publish("preparing"),await this.ports.prepare(this.abort.signal),this.stopRequested||(this.publish("armed"),this.ports.disconnectBrowserMaster(),this.disconnected=!0,this.publish("activating"),await this.ports.settleBrowserMaster(this.abort.signal),this.stopRequested))return;await this.ports.commit(this.abort.signal),this.stopRequested||this.publish("native-owned")}catch(t){this.stopRequested||(this.error=t instanceof Error?t.message:String(t),this.stopRequested=!0,this.abort.abort())}}).then(async()=>{this.stopRequested&&await this.finish()})}stop(t){return t&&!this.error&&(this.error=t),this.stopRequested=!0,this.abort.abort(),this.startPromise?this.startPromise.then(()=>this.finish()):this.finish()}finish(){return this.stopPromise??=Promise.resolve().then(async()=>{this.publish("stopping");let t;try{t=await this.ports.stop()}catch(n){t={confirmed:!1,reason:String(n)}}if(this.disconnected&&!t.confirmed){this.error=[this.error,t.reason||"native-stop-unconfirmed"].filter(Boolean).join("; "),this.ports.dispose(),this.publish("owner-unknown");return}try{this.disconnected&&this.ports.reconnectBrowserMaster(),this.disconnected=!1,this.ports.dispose(),this.publish(this.error?"fault":"stopped")}catch(n){this.error=[this.error,String(n)].filter(Boolean).join("; "),this.ports.dispose(),this.publish("owner-unknown")}})}}const cO=new WeakMap;function Ike(e,t){const n=cO.get(e);let r=null,a=!1,o;const i=new Promise(l=>{o=l});cO.set(e,i);const s=(async()=>{if(n&&await n,a){o();return}r=t(),await r.start(),(r.phase==="fault"||r.phase==="stopped")&&o()})();return async()=>{a=!0,await s,r&&await r.stop(),r?.phase!=="owner-unknown"&&o()}}const W9="xensonar-post-master-pcm-tap",Eke=String.raw`
+ class XensonarPostMasterPcmTap extends AudioWorkletProcessor {
+   constructor(options) {
+     super();
+diff --git a/n21-f2/tests/forge-request-preservation.cjs b/n21-f2/tests/forge-request-preservation.cjs
+index 49771ff..274936c 100644
+--- a/n21-f2/tests/forge-request-preservation.cjs
++++ b/n21-f2/tests/forge-request-preservation.cjs
+@@ -1,5 +1,5 @@
+ 'use strict';
+-const fs=require('fs'),assert=require('assert/strict'),crypto=require('crypto'),base=require('../docs/forge-request-ownership/baseline.json'),fixes=require('../docs/forge-request-ownership/corrections.json'),m=require('../source-manifest.json');
++const fs=require('fs'),assert=require('assert/strict'),crypto=require('crypto'),base=require('../docs/forge-request-ownership/baseline.json'),fixes=require('../docs/forge-request-ownership/corrections.json'),m=require('../source-manifest.json');const control=require('./live-control-preservation.cjs');
+ const sha=x=>crypto.createHash('sha256').update(x).digest('hex'),anchors={};
+-for(const [file,hash]of Object.entries(base.hashes)){let text=fs.readFileSync(file,'utf8');const current=sha(text);for(const c of [...(fixes[file]||[])].reverse()){assert.equal(text.split(c.new).length-1,c.count,'declared hearing request change '+file);text=text.split(c.new).join(c.old)}assert.equal(sha(text),hash,'unchanged source/synthesis/master protection '+file);if(fixes[file])anchors[file]=current}
+-assert.deepEqual(m.files,base.files);assert.deepEqual(m.styles,base.styles);console.log('PASS shared hearing request and guarded preparation; synthesis algorithms, live DSP, UI, schemas and source order unchanged');module.exports={anchors};
++for(const [file,hash]of Object.entries(base.hashes)){let text=fs.readFileSync(file,'utf8');const current=sha(text);if(control.anchors[file]){assert.equal(current,control.anchors[file]);anchors[file]=current;continue;}for(const c of [...(fixes[file]||[])].reverse()){assert.equal(text.split(c.new).length-1,c.count,'declared hearing request change '+file);text=text.split(c.new).join(c.old)}assert.equal(sha(text),hash,'unchanged source/synthesis/master protection '+file);if(fixes[file])anchors[file]=current}
++assert.deepEqual(m.files,base.files);assert.deepEqual(m.styles,base.styles);console.log('PASS shared hearing request and guarded preparation; synthesis algorithms, live DSP, UI, schemas and source order unchanged');module.exports={anchors:{...anchors,...control.anchors}};
+diff --git a/n21-f2/tests/live-control-ownership-browser.cjs b/n21-f2/tests/live-control-ownership-browser.cjs
+new file mode 100644
+index 0000000..13ddb3e
+--- /dev/null
++++ b/n21-f2/tests/live-control-ownership-browser.cjs
+@@ -0,0 +1,58 @@
++'use strict';
++const fs=require('node:fs'),assert=require('node:assert/strict'),{chromium}=require('playwright');
++const manifest=require('../source-manifest.json'),fixes=require('../docs/live-control-ownership/corrections.json');
++const crypto=require('node:crypto'),prior=require('../docs/live-control-ownership/baseline.json');
++const changes=Object.values(fixes).flat(),out='results/live-control-ownership';
++let baseline=fs.readFileSync(manifest.entry,'utf8');
++for(const change of [...changes].reverse())if(baseline.includes(change.new))baseline=baseline.replace(change.new,change.old);
++assert.equal(crypto.createHash('sha256').update(baseline).digest('hex'),prior.htmlSha256,'comparison restores the exact previous HTML');
++function variant(stages){let html=baseline;for(const change of changes)if(stages.includes(change.stage)){assert.equal(html.split(change.old).length-1,1);html=html.replace(change.old,change.new)}
++ assert(html.includes('l=kke(),'));return html.replace('l=kke(),','l=(window.__liveControl=kke()),').replace('function REe(){','function REe(){window.__ownerRenders=(window.__ownerRenders||0)+1;').replace('function __f350RestoreRhythm(defaults){','function __f350RestoreRhythm(defaults){window.__settingsRestores=(window.__settingsRestores||0)+1;');}
++const metric=(data,name)=>data.metrics.find(m=>m.name===name).value;
++async function run(browser,stages,live=false){
++ const context=await browser.newContext({viewport:{width:1490,height:1000}}),page=await context.newPage(),errors=[];
++ page.on('pageerror',e=>errors.push(e.message));const html=variant(stages);
++ await page.route('https://xensonar.test/**',r=>r.fulfill({contentType:'text/html',body:html}));
++ try{
++  await page.goto('https://xensonar.test/owned-control');await page.getByRole('button',{name:'Power',exact:true}).waitFor();await page.waitForTimeout(300);
++  if(live){await page.getByRole('button',{name:'Power',exact:true}).click();await page.waitForTimeout(300);await page.locator('canvas').first().scrollIntoViewIfNeeded()}
++  const session=await context.newCDPSession(page);await session.send('Performance.enable');
++  await page.evaluate(()=>{__ownerRenders=0;__settingsRestores=0});const before=await session.send('Performance.getMetrics');
++  let snapshots;
++  if(!live)snapshots=await page.evaluate(async()=>{
++   let delivered=0;const channels=[__liveControl.audioEventIntakeMonitorChannel,__liveControl.audioTapMonitorChannel].filter(Boolean),unsubscribe=channels.map(c=>c.subscribe(()=>delivered++));
++   for(let i=0;i<40;i++){
++    __liveControl.setAudioEventIntakeMonitor({pendingIntents:[{id:i,source:'wave'}],latestDecisions:[],latestTapSnapshots:[]});
++    __liveControl.setAudioTapMonitor({taps:{pre_fx:{rms:.1,peak:.2}},diagnosis:'Diagnostic '+i,hottestTap:'pre_fx'});
++    await new Promise(requestAnimationFrame);
++   }
++   await new Promise(requestAnimationFrame);for(const stop of unsubscribe)stop();
++   return {intakeId:__liveControl.audioEventIntakeMonitor.pendingIntents[0]?.id,tap:__liveControl.audioTapMonitor.diagnosis,channels:channels.length,delivered};
++  });
++  else{
++   const b=await page.locator('canvas').first().boundingBox();await page.mouse.move(b.x+b.width*.5,b.y+b.height*.5);await page.mouse.down();
++   for(let i=0;i<100;i++){await page.mouse.move(b.x+b.width*(.1+.8*(i%40)/39),b.y+b.height*(.15+.7*(1+Math.sin(i*.15))/2));await page.waitForTimeout(16)}
++   await page.mouse.up();await page.waitForTimeout(150);
++  }
++  const after=await session.send('Performance.getMetrics'),counts=await page.evaluate(()=>({renders:__ownerRenders,restores:__settingsRestores}));
++  if(!live)snapshots.ownerStable=await page.evaluate(async()=>{
++   const before=__liveControl,channel=before.audioTapMonitorChannel,tap=before.audioTapMonitor,intake=before.audioEventIntakeMonitor;
++   before.setLiveMasteringStrength(.731);await new Promise(requestAnimationFrame);await new Promise(requestAnimationFrame);
++   return __liveControl.liveMasteringStrength===.731&&__liveControl.audioTapMonitorChannel===channel&&__liveControl.audioTapMonitor===tap&&__liveControl.audioEventIntakeMonitor===intake;
++  });assert.deepEqual(errors,[]);
++  return {stages,live,...counts,scriptMs:(metric(after,'ScriptDuration')-metric(before,'ScriptDuration'))*1000,taskMs:(metric(after,'TaskDuration')-metric(before,'TaskDuration'))*1000,snapshots};
++ }finally{await context.close()}
++}
++(async()=>{
++ const browser=await chromium.launch({executablePath:process.env.XEN_CHROMIUM_PATH||'/usr/bin/chromium',args:['--no-sandbox','--disable-dev-shm-usage']});
++ try{
++  const isolated=[];for(const stages of [[],['telemetry']])isolated.push(await run(browser,stages));
++  const live=[];for(let rep=0;rep<(process.argv.includes('--quick')?0:3);rep++)for(const stages of rep%2?[['telemetry'],[]]:[[],['telemetry']])live.push({rep,...await run(browser,stages,true)});
++  const report={entry:manifest.entry,sha256:manifest.sha256,isolated,live,scope:process.argv.includes('--quick')?'Actual Chromium/React contract run: 40 paired diagnostic publications and owner stability; live gesture benchmark omitted.':'Actual Chromium/React, 40 controlled paired diagnostic publications; separate powered playfield gesture runs. ScriptDuration is main-thread JavaScript, not DSP throughput.'};
++  fs.writeFileSync(out+(process.argv.includes('--quick')?'/browser-control-contract.json':'/browser-performance.json'),JSON.stringify(report,null,2)+'\n');
++  for(const row of isolated){assert.equal(row.snapshots.intakeId,39);assert.equal(row.snapshots.tap,'Diagnostic 39');assert.equal(row.snapshots.ownerStable,true,'controls rerender normally without replacing telemetry ownership');if(row.stages.includes('telemetry')){assert(row.renders<=2,'telemetry must not rerender the instrument owner');assert.equal(row.snapshots.channels,2);assert.equal(row.snapshots.delivered,80)}else assert(row.renders>=35,'baseline exercises actual React updates');}
++  const median=xs=>xs.slice().sort((a,b)=>a-b)[Math.floor(xs.length/2)],old=live.filter(r=>!r.stages.length),next=live.filter(r=>r.stages.length);
++  const summary={isolated:isolated.map(r=>({stages:r.stages,renders:r.renders,restores:r.restores,scriptMs:r.scriptMs})),live:{baselineRenders:median(old.map(r=>r.renders)),currentRenders:median(next.map(r=>r.renders)),baselineScriptMs:median(old.map(r=>r.scriptMs)),currentScriptMs:median(next.map(r=>r.scriptMs))}};
++  console.log(JSON.stringify(summary));console.log('PASS telemetry snapshots stay current without app rerenders; unchanged payloads and owner stability'+(process.argv.includes('--quick')?'':' with alternating native live measurements'));
++ }finally{await browser.close()}
++})().catch(error=>{console.error(error);process.exitCode=1});
+diff --git a/n21-f2/tests/live-control-ownership.cjs b/n21-f2/tests/live-control-ownership.cjs
+new file mode 100644
+index 0000000..af61507
+--- /dev/null
++++ b/n21-f2/tests/live-control-ownership.cjs
+@@ -0,0 +1,20 @@
++'use strict';
++const fs=require('node:fs'),assert=require('node:assert/strict'),ts=require('typescript');
++const source=fs.readFileSync('src/rhythm/04_workspace_and_transport.js','utf8');
++const parsed=ts.createSourceFile('control.js',source,ts.ScriptTarget.Latest,true,ts.ScriptKind.JS);
++const declaration=parsed.statements.find(n=>ts.isFunctionDeclaration(n)&&n.name?.text==='__createLiveControlSnapshot');
++assert(declaration,'control telemetry owner exists');let warnings=0;
++const create=new Function('console',declaration.getText(parsed)+';return __createLiveControlSnapshot')({warn(){warnings++}});
++const first={pendingIntents:[],latestDecisions:[],latestTapSnapshots:[]},channel=create(first),separate=create({diagnosis:'independent'});
++assert.equal(channel.getSnapshot(),first);assert.equal(channel.getSnapshot(),channel.getSnapshot());
++let good=0,bad=0;const off=channel.subscribe(()=>good++),broken=channel.subscribe(()=>{bad++;throw Error('broken observer')});
++const second={pendingIntents:[{at:1,decision:'admitted'}],latestDecisions:[1],latestTapSnapshots:[{peak:.4}]};
++channel.publish(second);assert.equal(channel.getSnapshot(),second);assert.equal(good,1);assert.equal(bad,1);assert.equal(warnings,1);
++channel.publish(second);assert.equal(good,1,'unchanged identity does not publish');broken();off();
++channel.publish(previous=>({...previous,marker:'latest'}));assert.equal(channel.getSnapshot().marker,'latest');assert.equal(good,1,'unsubscribed observer is not retained');
++assert.equal(separate.getSnapshot().diagnosis,'independent');
++// A direct subscriber and getter see every complete payload, independent of React.
++let notifications=0;const unsubscribe=channel.subscribe(()=>notifications++);
++for(let i=0;i<200;i++){const record={sequence:i,pendingIntents:[{sequence:i}],latestDecisions:[{decision:'keep'}],latestTapSnapshots:[{rms:i/1000,peak:.8}]};channel.publish(record);assert.equal(channel.getSnapshot(),record)}
++unsubscribe();assert.equal(notifications,200);
++console.log('PASS independent telemetry ownership, exact payload identity, updater semantics, same-value bailout, unsubscribe and isolated observer failure');
+diff --git a/n21-f2/tests/live-control-preservation.cjs b/n21-f2/tests/live-control-preservation.cjs
+new file mode 100644
+index 0000000..1942859
+--- /dev/null
++++ b/n21-f2/tests/live-control-preservation.cjs
+@@ -0,0 +1,5 @@
++'use strict';
++const fs=require('fs'),assert=require('assert/strict'),crypto=require('crypto'),base=require('../docs/live-control-ownership/baseline.json'),fixes=require('../docs/live-control-ownership/corrections.json'),m=require('../source-manifest.json');
++const sha=x=>crypto.createHash('sha256').update(x).digest('hex'),anchors={};
++for(const [file,hash]of Object.entries(base.hashes)){let text=fs.readFileSync(file,'utf8');const current=sha(text);for(const c of [...(fixes[file]||[])].reverse()){assert.equal(text.split(c.new).length-1,c.count,'declared control ownership change '+file);text=text.split(c.new).join(c.old)}assert.equal(sha(text),hash,'unchanged source/synthesis/master protection '+file);if(fixes[file])anchors[file]=current}
++assert.deepEqual(m.files,base.files);assert.deepEqual(m.styles,base.styles);console.log('PASS isolated control telemetry; synthesis, audio scheduler/analysis, UI and stored formats unchanged');module.exports={anchors};
+diff --git a/n21-f2/tools/consolidation_validate.cjs b/n21-f2/tools/consolidation_validate.cjs
+index 6a06471..f9f3fa0 100644
+--- a/n21-f2/tools/consolidation_validate.cjs
++++ b/n21-f2/tools/consolidation_validate.cjs
+@@ -2,14 +2,14 @@
+ // A release gate exercises behavior, not just a moving list of source hashes.
+ const fs=require('node:fs'),path=require('node:path'),{spawnSync}=require('node:child_process'),manifest=require('../source-manifest.json');
+ const native=process.argv.includes('--browser');
+-const tests=native?['forge-request-browser','forge-smoothness-browser','forge-efficiency-browser','p7-review-browser','nodal-ball-grid-browser','forge-spatial-browser','mute-auto-preview-browser','integrated-patches-browser','consolidation-browser','forge-ready-browser','forge-pitch-browser']:[
+- 'forge-request-contract','forge-request-lifecycle','f447-hearing-coalescing','forge-request-preservation','forge-persistence-ownership','architecture-stability-preservation','live-grid-snap','forge-save-lifecycle','forge-save-dispose','master-output-contract','forge-smoothness-preservation',
++const tests=native?['live-control-ownership-browser','forge-request-browser','forge-smoothness-browser','forge-efficiency-browser','p7-review-browser','nodal-ball-grid-browser','forge-spatial-browser','mute-auto-preview-browser','integrated-patches-browser','consolidation-browser','forge-ready-browser','forge-pitch-browser']:[
++ 'live-control-ownership','live-control-preservation','forge-request-contract','forge-request-lifecycle','f447-hearing-coalescing','forge-request-preservation','forge-persistence-ownership','architecture-stability-preservation','live-grid-snap','forge-save-lifecycle','forge-save-dispose','master-output-contract','forge-smoothness-preservation',
+  'forge-efficiency','forge-efficiency-preservation',
+  'p7-review-regressions','p7-review-preservation','p7_live_grid_space_behavior','p7_2_installation_ball_audio','p7_3_forge_navigator','p7_4_repeat_pointer','p7_5_forge_main_handles','p7_6_expression_mode','p7_7_keyboard_source_gate','p7_8_recorder_async_cancel','test_entrophon_live_revision','test_material_standalone_preview',
+  'myzel_g2_concept','myzel_g_worklet','nodal-ball-grid','nodal-ball-grid-preservation','forge-spatial-contracts','forge-spatial-preservation','history-sharing','patch-integration','consolidation-snapshots','consolidation-history','consolidation-preservation','rw2-source-index',
+  'forge-pitch-space','forge-ready-contract','forge-progress-jobs','live-rfl-lifecycle',
+  'nodal-envelope-zero','workflow-grid-runtime','workflow-hotkeys','microphone-capture','audio-carrier-analysis'];
+-const results=path.join(__dirname,'../results/forge-request-ownership');fs.mkdirSync(results,{recursive:true});
++const results=path.join(__dirname,'../results/live-control-ownership');fs.mkdirSync(results,{recursive:true});
+ const suffix=native?'browser-validation':'host-validation',startedAt=new Date().toISOString();
+ fs.writeFileSync(path.join(results,suffix+'.json'),JSON.stringify({entry:manifest.entry,sha256:manifest.sha256,startedAt,running:true,rows:[],failed:null},null,2)+'\n');
+ const rows=[];let log='';

@@ -1,0 +1,19 @@
+{
+  "entry": "Xensonar_P7_Live_Control_Isolation_Test.html",
+  "sha256": "8b82986d2ce0f6e5171bc37dd9a935f2da2d0bb35dcb3296ecff1952e539eb48",
+  "playback": {
+    "copies": 0,
+    "writes": 0
+  },
+  "afterEdit": {
+    "copies": 1,
+    "writes": 1,
+    "name": "Saved actual edit",
+    "pixel": 0.625
+  },
+  "afterFlush": {
+    "flushedCopies": 2,
+    "copies": 2,
+    "name": "Explicitly flushed edit"
+  }
+}

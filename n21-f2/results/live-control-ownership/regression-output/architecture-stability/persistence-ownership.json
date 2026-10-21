@@ -1,0 +1,51 @@
+{
+  "start": {
+    "reads": 1,
+    "storeSubs": 1,
+    "storeUnsubs": 1,
+    "runtimeSubs": 1,
+    "runtimeUnsubs": 1
+  },
+  "restore": {
+    "reads": 1
+  },
+  "disposed": {
+    "readsAfterWaiting": 0,
+    "name": "spectral-material",
+    "status": {
+      "version": "spectral-forge-experiment-v1",
+      "restoring": false,
+      "restoreComplete": true,
+      "protectingSavedState": false,
+      "lastError": null,
+      "lastSavedAt": 0,
+      "lastRestoredAt": 0,
+      "restoreSkippedForInteraction": false
+    },
+    "writes": 1
+  },
+  "edited": {
+    "readsAfterWaiting": 1,
+    "name": "New edit while waiting",
+    "status": {
+      "version": "spectral-forge-experiment-v1",
+      "restoring": false,
+      "restoreComplete": true,
+      "protectingSavedState": true,
+      "lastError": "Loading interrupted by a newer edit.",
+      "lastSavedAt": 1792568940983,
+      "lastRestoredAt": 0,
+      "restoreSkippedForInteraction": true
+    },
+    "writes": 2
+  },
+  "retry": {
+    "reads": 2,
+    "failed": "temporary storage failure",
+    "recovered": null
+  },
+  "lateError": {
+    "unchanged": true,
+    "complete": false
+  }
+}

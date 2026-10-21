@@ -19047,1024 +19047,1034 @@
       "line": 100
     },
     {
+      "name": "__createLiveControlSnapshot",
+      "file": "src/rhythm/04_workspace_and_transport.js",
+      "line": 102
+    },
+    {
+      "name": "__useLiveControlSnapshot",
+      "file": "src/rhythm/04_workspace_and_transport.js",
+      "line": 114
+    },
+    {
       "name": "Cke",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 100
+      "line": 119
     },
     {
       "name": "kke",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 100
+      "line": 119
     },
     {
       "name": "Pke",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 100
+      "line": 119
     },
     {
       "name": "cO",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 100
+      "line": 119
     },
     {
       "name": "Ike",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 100
+      "line": 119
     },
     {
       "name": "W9",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 100
+      "line": 119
     },
     {
       "name": "Eke",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 100
+      "line": 119
     },
     {
       "name": "Fke",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 187
+      "line": 206
     },
     {
       "name": "bk",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 395
+      "line": 414
     },
     {
       "name": "q9",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 395
+      "line": 414
     },
     {
       "name": "Tke",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 395
+      "line": 414
     },
     {
       "name": "Lke",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 395
+      "line": 414
     },
     {
       "name": "Bke",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 395
+      "line": 414
     },
     {
       "name": "Dke",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 395
+      "line": 414
     },
     {
       "name": "Nke",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 395
+      "line": 414
     },
     {
       "name": "Oke",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 395
+      "line": 414
     },
     {
       "name": "_ke",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 397
+      "line": 416
     },
     {
       "name": "yk",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 397
+      "line": 416
     },
     {
       "name": "zke",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 397
+      "line": 416
     },
     {
       "name": "jke",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 397
+      "line": 416
     },
     {
       "name": "Gke",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 397
+      "line": 416
     },
     {
       "name": "Hke",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 397
+      "line": 416
     },
     {
       "name": "Vke",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 397
+      "line": 416
     },
     {
       "name": "Wke",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 397
+      "line": 416
     },
     {
       "name": "qke",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 397
+      "line": 416
     },
     {
       "name": "Qke",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 397
+      "line": 416
     },
     {
       "name": "Uke",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 397
+      "line": 416
     },
     {
       "name": "Kke",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 397
+      "line": 416
     },
     {
       "name": "$ke",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 397
+      "line": 416
     },
     {
       "name": "Xke",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 397
+      "line": 416
     },
     {
       "name": "Yke",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 397
+      "line": 416
     },
     {
       "name": "Jke",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 397
+      "line": 416
     },
     {
       "name": "Zke",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 397
+      "line": 416
     },
     {
       "name": "ePe",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 456
+      "line": 475
     },
     {
       "name": "tPe",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 456
+      "line": 475
     },
     {
       "name": "nPe",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 456
+      "line": 475
     },
     {
       "name": "rPe",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 456
+      "line": 475
     },
     {
       "name": "aPe",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 456
+      "line": 475
     },
     {
       "name": "oPe",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 456
+      "line": 475
     },
     {
       "name": "iPe",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 456
+      "line": 475
     },
     {
       "name": "sPe",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 456
+      "line": 475
     },
     {
       "name": "lPe",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 456
+      "line": 475
     },
     {
       "name": "cPe",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 456
+      "line": 475
     },
     {
       "name": "uPe",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 456
+      "line": 475
     },
     {
       "name": "dPe",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 456
+      "line": 475
     },
     {
       "name": "mPe",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 456
+      "line": 475
     },
     {
       "name": "pPe",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 456
+      "line": 475
     },
     {
       "name": "hPe",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 456
+      "line": 475
     },
     {
       "name": "fPe",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 456
+      "line": 475
     },
     {
       "name": "gPe",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 456
+      "line": 475
     },
     {
       "name": "bPe",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 456
+      "line": 475
     },
     {
       "name": "yPe",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 460
+      "line": 479
     },
     {
       "name": "SPe",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 460
+      "line": 479
     },
     {
       "name": "vPe",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 460
+      "line": 479
     },
     {
       "name": "APe",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 460
+      "line": 479
     },
     {
       "name": "xPe",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 460
+      "line": 479
     },
     {
       "name": "MPe",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 460
+      "line": 479
     },
     {
       "name": "wPe",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 464
+      "line": 483
     },
     {
       "name": "RPe",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 464
+      "line": 483
     },
     {
       "name": "CPe",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 464
+      "line": 483
     },
     {
       "name": "kPe",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 464
+      "line": 483
     },
     {
       "name": "Rp",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 464
+      "line": 483
     },
     {
       "name": "PPe",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 464
+      "line": 483
     },
     {
       "name": "IPe",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 464
+      "line": 483
     },
     {
       "name": "Q9",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 467
+      "line": 486
     },
     {
       "name": "EPe",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 467
+      "line": 486
     },
     {
       "name": "__f53StepAllowed",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 469
+      "line": 488
     },
     {
       "name": "FPe",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 476
+      "line": 495
     },
     {
       "name": "TPe",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 484
+      "line": 503
     },
     {
       "name": "LPe",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 484
+      "line": 503
     },
     {
       "name": "BPe",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 484
+      "line": 503
     },
     {
       "name": "DPe",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 484
+      "line": 503
     },
     {
       "name": "NPe",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 484
+      "line": 503
     },
     {
       "name": "OPe",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 484
+      "line": 503
     },
     {
       "name": "_Pe",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 518
+      "line": 537
     },
     {
       "name": "zPe",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 518
+      "line": 537
     },
     {
       "name": "jPe",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 518
+      "line": 537
     },
     {
       "name": "GPe",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 518
+      "line": 537
     },
     {
       "name": "sE",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 518
+      "line": 537
     },
     {
       "name": "HPe",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 518
+      "line": 537
     },
     {
       "name": "VPe",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 518
+      "line": 537
     },
     {
       "name": "WPe",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 518
+      "line": 537
     },
     {
       "name": "qPe",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 518
+      "line": 537
     },
     {
       "name": "QPe",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 518
+      "line": 537
     },
     {
       "name": "U9",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 518
+      "line": 537
     },
     {
       "name": "UPe",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 518
+      "line": 537
     },
     {
       "name": "KPe",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 518
+      "line": 537
     },
     {
       "name": "$Pe",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 518
+      "line": 537
     },
     {
       "name": "XPe",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 518
+      "line": 537
     },
     {
       "name": "YPe",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 518
+      "line": 537
     },
     {
       "name": "JPe",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 518
+      "line": 537
     },
     {
       "name": "ZPe",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 518
+      "line": 537
     },
     {
       "name": "eIe",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 518
+      "line": 537
     },
     {
       "name": "K9",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 518
+      "line": 537
     },
     {
       "name": "tIe",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 518
+      "line": 537
     },
     {
       "name": "lE",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 518
+      "line": 537
     },
     {
       "name": "Sk",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 518
+      "line": 537
     },
     {
       "name": "nIe",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 518
+      "line": 537
     },
     {
       "name": "rIe",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 518
+      "line": 537
     },
     {
       "name": "$9",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 518
+      "line": 537
     },
     {
       "name": "aIe",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 518
+      "line": 537
     },
     {
       "name": "X9",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 518
+      "line": 537
     },
     {
       "name": "oIe",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 518
+      "line": 537
     },
     {
       "name": "Y9",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 518
+      "line": 537
     },
     {
       "name": "iIe",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 518
+      "line": 537
     },
     {
       "name": "sIe",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 518
+      "line": 537
     },
     {
       "name": "lIe",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 526
+      "line": 545
     },
     {
       "name": "cIe",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 526
+      "line": 545
     },
     {
       "name": "uIe",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 526
+      "line": 545
     },
     {
       "name": "V1",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 526
+      "line": 545
     },
     {
       "name": "dIe",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 526
+      "line": 545
     },
     {
       "name": "mIe",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 526
+      "line": 545
     },
     {
       "name": "pIe",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 526
+      "line": 545
     },
     {
       "name": "hIe",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 526
+      "line": 545
     },
     {
       "name": "fIe",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 526
+      "line": 545
     },
     {
       "name": "gIe",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 526
+      "line": 545
     },
     {
       "name": "bIe",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 526
+      "line": 545
     },
     {
       "name": "yIe",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 526
+      "line": 545
     },
     {
       "name": "SIe",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 526
+      "line": 545
     },
     {
       "name": "vIe",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 526
+      "line": 545
     },
     {
       "name": "AIe",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 526
+      "line": 545
     },
     {
       "name": "xIe",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 535
+      "line": 554
     },
     {
       "name": "MIe",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 535
+      "line": 554
     },
     {
       "name": "J9",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 535
+      "line": 554
     },
     {
       "name": "wIe",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 535
+      "line": 554
     },
     {
       "name": "kd",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 535
+      "line": 554
     },
     {
       "name": "In",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 535
+      "line": 554
     },
     {
       "name": "RIe",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 535
+      "line": 554
     },
     {
       "name": "_f",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 535
+      "line": 554
     },
     {
       "name": "CIe",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 535
+      "line": 554
     },
     {
       "name": "vk",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 535
+      "line": 554
     },
     {
       "name": "kIe",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 535
+      "line": 554
     },
     {
       "name": "PIe",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 535
+      "line": 554
     },
     {
       "name": "IIe",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 535
+      "line": 554
     },
     {
       "name": "Z9",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 535
+      "line": 554
     },
     {
       "name": "EIe",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 535
+      "line": 554
     },
     {
       "name": "as",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 535
+      "line": 554
     },
     {
       "name": "TL",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 535
+      "line": 554
     },
     {
       "name": "e7",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 535
+      "line": 554
     },
     {
       "name": "t7",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 535
+      "line": 554
     },
     {
       "name": "FIe",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 535
+      "line": 554
     },
     {
       "name": "n7",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 535
+      "line": 554
     },
     {
       "name": "r7",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 535
+      "line": 554
     },
     {
       "name": "TIe",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 535
+      "line": 554
     },
     {
       "name": "LIe",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 535
+      "line": 554
     },
     {
       "name": "BIe",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 535
+      "line": 554
     },
     {
       "name": "a7",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 535
+      "line": 554
     },
     {
       "name": "LL",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 535
+      "line": 554
     },
     {
       "name": "DIe",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 535
+      "line": 554
     },
     {
       "name": "NIe",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 535
+      "line": 554
     },
     {
       "name": "Ak",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 535
+      "line": 554
     },
     {
       "name": "xk",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 535
+      "line": 554
     },
     {
       "name": "OIe",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 535
+      "line": 554
     },
     {
       "name": "_Ie",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 535
+      "line": 554
     },
     {
       "name": "Gn",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 535
+      "line": 554
     },
     {
       "name": "zIe",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 535
+      "line": 554
     },
     {
       "name": "jIe",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 535
+      "line": 554
     },
     {
       "name": "BL",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 535
+      "line": 554
     },
     {
       "name": "DL",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 535
+      "line": 554
     },
     {
       "name": "GIe",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 535
+      "line": 554
     },
     {
       "name": "HIe",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 535
+      "line": 554
     },
     {
       "name": "VIe",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 535
+      "line": 554
     },
     {
       "name": "WIe",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 535
+      "line": 554
     },
     {
       "name": "qIe",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 535
+      "line": 554
     },
     {
       "name": "uO",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 535
+      "line": 554
     },
     {
       "name": "QIe",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 535
+      "line": 554
     },
     {
       "name": "UIe",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 535
+      "line": 554
     },
     {
       "name": "KIe",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 535
+      "line": 554
     },
     {
       "name": "Mk",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 826
+      "line": 845
     },
     {
       "name": "$Ie",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 826
+      "line": 845
     },
     {
       "name": "XIe",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 826
+      "line": 845
     },
     {
       "name": "JIe",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 826
+      "line": 845
     },
     {
       "name": "ZIe",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 826
+      "line": 845
     },
     {
       "name": "eEe",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 826
+      "line": 845
     },
     {
       "name": "tEe",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 826
+      "line": 845
     },
     {
       "name": "nEe",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 826
+      "line": 845
     },
     {
       "name": "rEe",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 827
+      "line": 846
     },
     {
       "name": "dO",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 827
+      "line": 846
     },
     {
       "name": "aEe",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 827
+      "line": 846
     },
     {
       "name": "oEe",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 827
+      "line": 846
     },
     {
       "name": "iEe",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 827
+      "line": 846
     },
     {
       "name": "sEe",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 827
+      "line": 846
     },
     {
       "name": "__xenGridOffsetValue",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 827
+      "line": 846
     },
     {
       "name": "__xenGridShiftCents",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 828
+      "line": 847
     },
     {
       "name": "__xenShiftGridOffsets",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 829
+      "line": 848
     },
     {
       "name": "lEe",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 836
+      "line": 855
     },
     {
       "name": "cEe",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 836
+      "line": 855
     },
     {
       "name": "uEe",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 836
+      "line": 855
     },
     {
       "name": "dEe",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 836
+      "line": 855
     },
     {
       "name": "mEe",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 836
+      "line": 855
     },
     {
       "name": "pEe",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 836
+      "line": 855
     },
     {
       "name": "hEe",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 836
+      "line": 855
     },
     {
       "name": "fEe",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 836
+      "line": 855
     },
     {
       "name": "gEe",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 836
+      "line": 855
     },
     {
       "name": "bEe",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 836
+      "line": 855
     },
     {
       "name": "yEe",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 836
+      "line": 855
     },
     {
       "name": "o7",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 836
+      "line": 855
     },
     {
       "name": "SEe",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 836
+      "line": 855
     },
     {
       "name": "vEe",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 850
+      "line": 869
     },
     {
       "name": "AEe",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 862
+      "line": 881
     },
     {
       "name": "xEe",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 862
+      "line": 881
     },
     {
       "name": "MEe",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 862
+      "line": 881
     },
     {
       "name": "wk",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 862
+      "line": 881
     },
     {
       "name": "wEe",
       "file": "src/rhythm/04_workspace_and_transport.js",
-      "line": 862
+      "line": 881
     },
     {
       "name": "__f350CloneDrumEdit",

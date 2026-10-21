@@ -1,6 +1,6 @@
-# XenSonar · gemeinsame Forge-Höranfrage und stabile Renderaufträge
+# XenSonar · Live-Steuerung und Diagnose entkoppelt
 
-Aktuelle Weiterarbeitsbasis: `n21-f2/Xensonar_P7_Forge_Request_Stability_Test.html`. Gemeinsame Anfrage-Erzeugung für Carrier und Hörmaschinen, Abbruch bereits während der Donor-Vorbereitung und abgesicherte Fortschrittsbeobachter. [Anleitung](n21-f2/README_FORGE_REQUEST_STABILITY.md) · [Prüfbericht](n21-f2/docs/forge-request-ownership/report.md). Die bisherige Persistenz-Absicherung, Live-Optimierungen und Endstufe bleiben erhalten; P7.12 bleibt unintegriertes Experiment.
+Aktuelle Weiterarbeitsbasis: `n21-f2/Xensonar_P7_Live_Control_Isolation_Test.html`. Laufende Diagnosewerte bleiben vollständig verfügbar und lösen keine kompletten App-Renderdurchläufe mehr aus. [Anleitung](n21-f2/README_LIVE_CONTROL_ISOLATION.md) · [Prüfbericht](n21-f2/docs/live-control-ownership/report.md). Die bisherigen Forge-/Persistenz-Absicherungen, Klangmaschinen und Endstufe bleiben erhalten; P7.12 bleibt unintegriertes Experiment.
 
 
 Die aktuelle, vom Nutzer gelieferte N21–F2-Quellbasis mit Granular-Hold, Live-Stabilitäts-Patch und korrigierter Forge-Fortschrittsanzeige sowie ausgerichteten Mix-Reglern, Raster-Mute, Melodic-Panning und Xenpolar Drone im Hauptinstrument

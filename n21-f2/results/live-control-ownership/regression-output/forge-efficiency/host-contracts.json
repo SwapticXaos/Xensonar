@@ -1,0 +1,27 @@
+{
+  "entry": "Xensonar_P7_Live_Control_Isolation_Test.html",
+  "sha256": "8b82986d2ce0f6e5171bc37dd9a935f2da2d0bb35dcb3296ecff1952e539eb48",
+  "readiness": {
+    "steadyCopies": 1,
+    "milliseconds": 358.93335799999977,
+    "checks": [
+      "same-input polling",
+      "gain identity",
+      "pitch",
+      "tempo",
+      "local paint",
+      "cache release"
+    ]
+  },
+  "portability": {
+    "schemaVersion": 2,
+    "count": 13,
+    "report": {
+      "present": true,
+      "importedCount": 13,
+      "skippedCount": 0,
+      "replacedCount": 0
+    },
+    "unrelated": false
+  }
+}

@@ -1,0 +1,99 @@
+{
+  "entry": "Xensonar_P7_Live_Control_Isolation_Test.html",
+  "sha256": "8b82986d2ce0f6e5171bc37dd9a935f2da2d0bb35dcb3296ecff1952e539eb48",
+  "isolated": [
+    {
+      "stages": [],
+      "live": false,
+      "renders": 40,
+      "restores": 40,
+      "scriptMs": 262.449,
+      "taskMs": 294.067,
+      "snapshots": {
+        "intakeId": 39,
+        "tap": "Diagnostic 39",
+        "channels": 0,
+        "delivered": 0
+      }
+    },
+    {
+      "stages": [
+        "telemetry"
+      ],
+      "live": false,
+      "renders": 0,
+      "restores": 0,
+      "scriptMs": 1.704,
+      "taskMs": 11.697,
+      "snapshots": {
+        "intakeId": 39,
+        "tap": "Diagnostic 39",
+        "channels": 2,
+        "delivered": 80
+      }
+    }
+  ],
+  "live": [
+    {
+      "rep": 0,
+      "stages": [],
+      "live": true,
+      "renders": 68,
+      "restores": 68,
+      "scriptMs": 943.1229999999999,
+      "taskMs": 2741.783
+    },
+    {
+      "rep": 0,
+      "stages": [
+        "telemetry"
+      ],
+      "live": true,
+      "renders": 32,
+      "restores": 32,
+      "scriptMs": 513.21,
+      "taskMs": 1759.474
+    },
+    {
+      "rep": 1,
+      "stages": [
+        "telemetry"
+      ],
+      "live": true,
+      "renders": 37,
+      "restores": 37,
+      "scriptMs": 670.538,
+      "taskMs": 2239.9419999999996
+    },
+    {
+      "rep": 1,
+      "stages": [],
+      "live": true,
+      "renders": 75,
+      "restores": 75,
+      "scriptMs": 1330.9030000000002,
+      "taskMs": 3609.507
+    },
+    {
+      "rep": 2,
+      "stages": [],
+      "live": true,
+      "renders": 71,
+      "restores": 71,
+      "scriptMs": 1222.596,
+      "taskMs": 3189.088
+    },
+    {
+      "rep": 2,
+      "stages": [
+        "telemetry"
+      ],
+      "live": true,
+      "renders": 36,
+      "restores": 36,
+      "scriptMs": 686.3739999999999,
+      "taskMs": 2252.945
+    }
+  ],
+  "scope": "Actual Chromium/React, 40 controlled paired diagnostic publications; separate powered playfield gesture runs. ScriptDuration is main-thread JavaScript, not DSP throughput."
+}

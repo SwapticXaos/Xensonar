@@ -1,0 +1,40 @@
+{
+  "entry": "Xensonar_P7_Live_Control_Isolation_Test.html",
+  "sha256": "8b82986d2ce0f6e5171bc37dd9a935f2da2d0bb35dcb3296ecff1952e539eb48",
+  "isolated": [
+    {
+      "stages": [],
+      "live": false,
+      "renders": 40,
+      "restores": 40,
+      "scriptMs": 226.009,
+      "taskMs": 255.426,
+      "snapshots": {
+        "intakeId": 39,
+        "tap": "Diagnostic 39",
+        "channels": 0,
+        "delivered": 0,
+        "ownerStable": true
+      }
+    },
+    {
+      "stages": [
+        "telemetry"
+      ],
+      "live": false,
+      "renders": 0,
+      "restores": 0,
+      "scriptMs": 1.882,
+      "taskMs": 11.364,
+      "snapshots": {
+        "intakeId": 39,
+        "tap": "Diagnostic 39",
+        "channels": 2,
+        "delivered": 80,
+        "ownerStable": true
+      }
+    }
+  ],
+  "live": [],
+  "scope": "Actual Chromium/React contract run: 40 paired diagnostic publications and owner stability; live gesture benchmark omitted."
+}

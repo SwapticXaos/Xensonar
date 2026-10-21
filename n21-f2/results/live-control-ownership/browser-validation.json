@@ -1,0 +1,99 @@
+{
+  "entry": "Xensonar_P7_Live_Control_Isolation_Test.html",
+  "sha256": "8b82986d2ce0f6e5171bc37dd9a935f2da2d0bb35dcb3296ecff1952e539eb48",
+  "startedAt": "2026-10-21T07:48:55.021Z",
+  "completedAt": "2026-10-21T07:54:33.072Z",
+  "running": false,
+  "scope": "Native Chromium; no physical audio interface or cross-browser claim",
+  "rows": [
+    {
+      "name": "live-control-ownership-browser",
+      "passed": true,
+      "exit": 0,
+      "signal": null,
+      "milliseconds": 50652
+    },
+    {
+      "name": "forge-request-browser",
+      "passed": true,
+      "exit": 0,
+      "signal": null,
+      "milliseconds": 19355
+    },
+    {
+      "name": "forge-smoothness-browser",
+      "passed": true,
+      "exit": 0,
+      "signal": null,
+      "milliseconds": 9047
+    },
+    {
+      "name": "forge-efficiency-browser",
+      "passed": true,
+      "exit": 0,
+      "signal": null,
+      "milliseconds": 42582
+    },
+    {
+      "name": "p7-review-browser",
+      "passed": true,
+      "exit": 0,
+      "signal": null,
+      "milliseconds": 14297
+    },
+    {
+      "name": "nodal-ball-grid-browser",
+      "passed": true,
+      "exit": 0,
+      "signal": null,
+      "milliseconds": 7490
+    },
+    {
+      "name": "forge-spatial-browser",
+      "passed": true,
+      "exit": 0,
+      "signal": null,
+      "milliseconds": 91873
+    },
+    {
+      "name": "mute-auto-preview-browser",
+      "passed": true,
+      "exit": 0,
+      "signal": null,
+      "milliseconds": 8010
+    },
+    {
+      "name": "integrated-patches-browser",
+      "passed": true,
+      "exit": 0,
+      "signal": null,
+      "milliseconds": 6466
+    },
+    {
+      "name": "consolidation-browser",
+      "passed": true,
+      "exit": 0,
+      "signal": null,
+      "milliseconds": 12629
+    },
+    {
+      "name": "forge-ready-browser",
+      "passed": true,
+      "exit": 0,
+      "signal": null,
+      "milliseconds": 20920
+    },
+    {
+      "name": "forge-pitch-browser",
+      "passed": true,
+      "exit": 0,
+      "signal": null,
+      "milliseconds": 54592
+    },
+    {
+      "name": "build-reproducibility",
+      "passed": true
+    }
+  ],
+  "failed": 0
+}

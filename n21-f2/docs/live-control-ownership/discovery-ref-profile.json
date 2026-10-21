@@ -1,0 +1,180 @@
+{
+  "result": {
+    "src/rhythm/04_workspace_and_transport.js gk()": {
+      "calls": 136,
+      "ms": 0.6000000238418579,
+      "max": 0.10000000894069672
+    },
+    "src/rhythm/04_workspace_and_transport.js Bke()": {
+      "calls": 136,
+      "ms": 11.500000044703484,
+      "max": 8.600000008940697
+    },
+    "src/runtime/instrument/04_performance_and_output_profiles.js zP()": {
+      "calls": 136,
+      "ms": 0.699999988079071,
+      "max": 0.20000000298023224
+    },
+    "src/runtime/instrument/04_performance_and_output_profiles.js BF()": {
+      "calls": 136,
+      "ms": 5.5999999195337296,
+      "max": 1.0999999940395355
+    },
+    "src/app/forge/01_room_shell.js kte()": {
+      "calls": 136,
+      "ms": 0.40000003576278687,
+      "max": 0.10000000894069672
+    },
+    "src/audio/07_governor_and_drums.js vCe()": {
+      "calls": 136,
+      "ms": 0.30000001192092896,
+      "max": 0.10000000894069672
+    },
+    "src/app/forge/01_room_shell.js CCe()": {
+      "calls": 136,
+      "ms": 1.100000038743019,
+      "max": 0.10000000894069672
+    },
+    "src/audio/07_governor_and_drums.js sCe()": {
+      "calls": 136,
+      "ms": 0.5999999791383743,
+      "max": 0.10000000894069672
+    },
+    "src/audio/entrophon/02_worklet_and_voice_backend.js VMe()": {
+      "calls": 136,
+      "ms": 0.7999999970197678,
+      "max": 0.10000000894069672
+    },
+    "src/audio/entrophon/02_worklet_and_voice_backend.js KMe()": {
+      "calls": 136,
+      "ms": 1.2000000178813934,
+      "max": 0.7999999970197678
+    },
+    "src/audio/entrophon/03_native_bridge.js jRe()": {
+      "calls": 136,
+      "ms": 0.5999999940395355,
+      "max": 0.10000000894069672
+    },
+    "src/audio/07_governor_and_drums.js BCe()": {
+      "calls": 136,
+      "ms": 2.2000000327825546,
+      "max": 0.10000000894069672
+    },
+    "src/audio/07_governor_and_drums.js HCe()": {
+      "calls": 136,
+      "ms": 0.5,
+      "max": 0.20000000298023224
+    },
+    "src/audio/07_governor_and_drums.js xCe()": {
+      "calls": 136,
+      "ms": 0.7000000327825546,
+      "max": 0.10000000894069672
+    },
+    "src/app/forge/01_room_shell.js ohe()": {
+      "calls": 136,
+      "ms": 0.4999999850988388,
+      "max": 0.10000000894069672
+    },
+    "src/audio/01_voice_and_rfl_ownership.js Ipe()": {
+      "calls": 136,
+      "ms": 0.20000001788139343,
+      "max": 0.10000000894069672
+    },
+    "src/audio/01_voice_and_rfl_ownership.js Fd()": {
+      "calls": 136,
+      "ms": 0.30000001192092896,
+      "max": 0.10000000894069672
+    },
+    "src/audio/01_voice_and_rfl_ownership.js ET(Fd(),.48,55,\"scanner\",\"hybrid\")": {
+      "calls": 136,
+      "ms": 3.1999999433755875,
+      "max": 0.3999999910593033
+    },
+    "src/audio/01_voice_and_rfl_ownership.js ype()": {
+      "calls": 136,
+      "ms": 0.29999999701976776,
+      "max": 0.10000000894069672
+    },
+    "src/audio/01_voice_and_rfl_ownership.js ipe()": {
+      "calls": 136,
+      "ms": 0.30000001192092896,
+      "max": 0.10000000894069672
+    },
+    "src/audio/01_voice_and_rfl_ownership.js mpe()": {
+      "calls": 136,
+      "ms": 0.20000000298023224,
+      "max": 0.10000000894069672
+    },
+    "src/audio/01_voice_and_rfl_ownership.js RH(Fd(),0,ay)": {
+      "calls": 136,
+      "ms": 0.19999998807907104,
+      "max": 0.09999999403953552
+    },
+    "src/audio/01_voice_and_rfl_ownership.js dH(Fd(),Et.current,ay)": {
+      "calls": 136,
+      "ms": 1.5000000149011612,
+      "max": 0.29999999701976776
+    },
+    "src/audio/01_voice_and_rfl_ownership.js PH(Fd(),110,Se.current,Et.current)": {
+      "calls": 136,
+      "ms": 7.699999988079071,
+      "max": 5.5
+    },
+    "src/audio/03_recorder.js o1e()": {
+      "calls": 136,
+      "ms": 0,
+      "max": 0
+    },
+    "src/app/forge/01_room_shell.js Mte({...wte,sourceMinOccupancyMs:Rte,silentHotPathSources:{wave:!0},getExternalPressureBias:wk})": {
+      "calls": 136,
+      "ms": 0.40000002086162567,
+      "max": 0.10000000894069672
+    },
+    "src/rhythm/04_workspace_and_transport.js zke()": {
+      "calls": 136,
+      "ms": 0.29999999701976776,
+      "max": 0.20000000298023224
+    },
+    "src/rhythm/04_workspace_and_transport.js yk()": {
+      "calls": 408,
+      "ms": 0.7000000029802322,
+      "max": 0.29999999701976776
+    },
+    "src/app/forge/01_room_shell.js rEe({gameWidth:vr,gameHeight:ir})": {
+      "calls": 136,
+      "ms": 0.7999999970197678,
+      "max": 0.10000000894069672
+    },
+    "src/rhythm/04_workspace_and_transport.js pj(QJ)": {
+      "calls": 136,
+      "ms": 1.7999999821186066,
+      "max": 0.20000000298023224
+    },
+    "src/rhythm/04_workspace_and_transport.js __f350RestoreRhythm({...u2e(e.current),...__xenDronePersist.load()})": {
+      "calls": 136,
+      "ms": 60.49999997019768,
+      "max": 3.1000000089406967
+    },
+    "src/rhythm/04_workspace_and_transport.js OSe()": {
+      "calls": 136,
+      "ms": 2,
+      "max": 1.4000000059604645
+    },
+    "src/rhythm/04_workspace_and_transport.js _Se()": {
+      "calls": 136,
+      "ms": 0.3999999910593033,
+      "max": 0.10000000894069672
+    },
+    "src/audio/03_rfl_transport_legacy.js Fbe()": {
+      "calls": 136,
+      "ms": 0.09999999403953552,
+      "max": 0.09999999403953552
+    },
+    "src/audio/05_live_voice_runtime.js Bie()": {
+      "calls": 136,
+      "ms": 0.29999998211860657,
+      "max": 0.09999999403953552
+    }
+  },
+  "errors": []
+}

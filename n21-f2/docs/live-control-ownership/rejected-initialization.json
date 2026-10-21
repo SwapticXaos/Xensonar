@@ -1,0 +1,10 @@
+{
+  "attempt": {
+    "old": "$2e=()=>{const e=P.useRef(pj(QJ)),t=P.useRef(__f350RestoreRhythm({...u2e(e.current),...__xenDronePersist.load()})),[n,r]=P.useState(t.current);",
+    "new": "$2e=()=>{\n// Main-room defaults and persisted settings belong to this mounted owner.\n// A render must never rebuild/discard them or reread browser storage.\nconst e=P.useRef(null);if(e.current===null)e.current=pj(QJ);\nconst t=P.useRef(null);if(t.current===null)t.current=__f350RestoreRhythm({...u2e(e.current),...__xenDronePersist.load()});\nconst [n,r]=P.useState(t.current);",
+    "count": 1,
+    "stage": "initialization"
+  },
+  "verdict": "Not integrated: isolated ScriptDuration 214.876 -> 211.423 ms (1.6%), within run-to-run variance; keep focus on the proven telemetry owner coupling.",
+  "measurement": "initial-variants-browser.json"
+}

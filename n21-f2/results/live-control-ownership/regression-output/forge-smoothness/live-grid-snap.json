@@ -1,0 +1,24 @@
+{
+  "entry": "Xensonar_P7_Live_Control_Isolation_Test.html",
+  "sha256": "8b82986d2ce0f6e5171bc37dd9a935f2da2d0bb35dcb3296ecff1952e539eb48",
+  "frequencies": 2048,
+  "reads": 13,
+  "realCases": 1080,
+  "queriesPerRun": 50000,
+  "baseline": [
+    75.66482499999984,
+    73.28359300000011,
+    78.53949600000033,
+    74.75199500000008,
+    78.41437499999984
+  ],
+  "changed": [
+    8.886862999999948,
+    6.61148500000013,
+    4.292069999999967,
+    2.4145399999997608,
+    2.7771319999997104
+  ],
+  "speedup": 17.628982052948906,
+  "scope": "Nearest-frequency lookup within an already compiled live grid; not total audio engine throughput"
+}

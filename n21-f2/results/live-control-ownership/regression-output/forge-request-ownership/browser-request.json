@@ -1,0 +1,21 @@
+{
+  "entry": "Xensonar_P7_Live_Control_Isolation_Test.html",
+  "sha256": "8b82986d2ce0f6e5171bc37dd9a935f2da2d0bb35dcb3296ecff1952e539eb48",
+  "errors": [],
+  "beforeSwitch": {
+    "pendingDonors": 1,
+    "jobs": 0,
+    "ready": false
+  },
+  "afterSwitch": {
+    "mode": "antonia",
+    "jobs": [
+      {
+        "machine": "branch-a-line-traffic",
+        "epoch": 15
+      }
+    ],
+    "ready": true
+  },
+  "playJobs": 1
+}
