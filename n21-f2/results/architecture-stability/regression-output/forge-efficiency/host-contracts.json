@@ -1,0 +1,27 @@
+{
+  "entry": "Xensonar_P7_Architecture_Stability_Test.html",
+  "sha256": "30efae37d2450eae4ddc9c8ea5909af2ef2bcc72413fe4710d50a621db78c146",
+  "readiness": {
+    "steadyCopies": 1,
+    "milliseconds": 356.1064430000001,
+    "checks": [
+      "same-input polling",
+      "gain identity",
+      "pitch",
+      "tempo",
+      "local paint",
+      "cache release"
+    ]
+  },
+  "portability": {
+    "schemaVersion": 2,
+    "count": 13,
+    "report": {
+      "present": true,
+      "importedCount": 13,
+      "skippedCount": 0,
+      "replacedCount": 0
+    },
+    "unrelated": false
+  }
+}

@@ -1,0 +1,24 @@
+{
+  "entry": "Xensonar_P7_Architecture_Stability_Test.html",
+  "sha256": "30efae37d2450eae4ddc9c8ea5909af2ef2bcc72413fe4710d50a621db78c146",
+  "frequencies": 2048,
+  "reads": 13,
+  "realCases": 1080,
+  "queriesPerRun": 50000,
+  "baseline": [
+    91.34095699999989,
+    78.04378100000031,
+    77.67384200000015,
+    86.02452900000026,
+    88.36704399999962
+  ],
+  "changed": [
+    7.31617499999993,
+    4.941897000000154,
+    6.035243000000264,
+    4.750880000000052,
+    4.131818000000294
+  ],
+  "speedup": 17.407187766154895,
+  "scope": "Nearest-frequency lookup within an already compiled live grid; not total audio engine throughput"
+}

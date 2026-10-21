@@ -1,6 +1,6 @@
-# XenSonar · schnellere Live-Rastersuche und geprüfte Endstufe
+# XenSonar · stabile Zuständigkeiten für die Weiterentwicklung
 
-Aktuelle Weiterarbeitsbasis: `n21-f2/Xensonar_P7_Smoothness_Master_Test.html`. Schnellere Live-Rastersuche bei gleicher Tonhöhenlogik, weniger Speicherarbeit während der Wiedergabe, abgesicherte Wiederherstellung und präzisere Live-Master-Pegelmessung. [Anleitung](n21-f2/README_FORGE_SMOOTHNESS.md) · [Prüfbericht](n21-f2/docs/forge-smoothness/report.md). Die bisherigen Forge-/P7-Korrekturen bleiben erhalten; P7.12 bleibt unintegriertes Experiment.
+Aktuelle Weiterarbeitsbasis: `n21-f2/Xensonar_P7_Architecture_Stability_Test.html`. Der Forge-Speichercontroller startet einmalig, führt gleichzeitige Ladeanfragen zusammen und schützt neuere Bearbeitungen auch während ausstehender Sicherungen. [Anleitung](n21-f2/README_ARCHITECTURE_STABILITY.md) · [Architekturprüfung und nächste Schritte](n21-f2/docs/architecture-stability/report.md). Die bisherigen Klangmaschinen, Live-Optimierungen und Endstufe bleiben erhalten; P7.12 bleibt unintegriertes Experiment.
 
 
 Die aktuelle, vom Nutzer gelieferte N21–F2-Quellbasis mit Granular-Hold, Live-Stabilitäts-Patch und korrigierter Forge-Fortschrittsanzeige sowie ausgerichteten Mix-Reglern, Raster-Mute, Melodic-Panning und Xenpolar Drone im Hauptinstrument

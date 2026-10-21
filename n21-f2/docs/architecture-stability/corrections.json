@@ -1,0 +1,49 @@
+{
+  "src/forge/module_bundle/21_experimentStatePersistence.js": [
+    {
+      "old": "let writeChain = Promise.resolve();",
+      "new": "let writeChain = Promise.resolve();\n// A controller owns one subscription lifetime and at most one restore operation.\nlet startPromise = null;\nlet restorePromise = null;",
+      "count": 1
+    },
+    {
+      "old": "if (disposed || restoring || !restoreComplete || protectingSavedState)",
+      "new": "if (disposed || restorePromise || restoring || !restoreComplete || protectingSavedState)",
+      "count": 1
+    },
+    {
+      "old": "if (restoring || disposed || !restoreComplete || protectingSavedState)",
+      "new": "if (restorePromise || restoring || disposed || !restoreComplete || protectingSavedState)",
+      "count": 1
+    },
+    {
+      "old": "const restore = async () => {\nif(restoring||disposed)return false;\nclearTimers();\nawait writeChain.catch(()=>{});\nconst restoreEpoch=__f333RestoreBarrier;\nrestoring = true;",
+      "new": "const restore = () => {\nif (disposed) return Promise.resolve(false);\nif (restorePromise) return restorePromise;\nclearTimers();\n// Capture interaction ownership before waiting: edits during an outstanding save\n// must supersede this restore too. Already queued writes are allowed to finish.\nconst restoreEpoch = __f333RestoreBarrier;\nrestorePromise = (async () => {\nawait writeChain.catch(()=>{});\nif (disposed) return false;\nrestoring = true;",
+      "count": 1
+    },
+    {
+      "old": "const record = await args.storage.get(WORKSPACE_ID);\nif (!record)",
+      "new": "const record = await args.storage.get(WORKSPACE_ID);\nif (disposed) return false;\nif (!record)",
+      "count": 1
+    },
+    {
+      "old": "catch (error) {\nlastError = error instanceof Error ? error.message : String(error);\nrestoreComplete = true;",
+      "new": "catch (error) {\nif (disposed) return false;\nlastError = error instanceof Error ? error.message : String(error);\nrestoreComplete = true;",
+      "count": 1
+    },
+    {
+      "old": "finally {\nrestoring = false;\n}\n};",
+      "new": "finally {\nrestoring = false;\n}\n})().finally(() => { restorePromise = null; });\nreturn restorePromise;\n};",
+      "count": 1
+    },
+    {
+      "old": "const start = async () => {\nattachInteractionGuards();",
+      "new": "const start = () => {\nif (disposed) return Promise.resolve();\nif (startPromise) return startPromise;\nstartPromise = (async () => {\nattachInteractionGuards();",
+      "count": 1
+    },
+    {
+      "old": "if(typeof __F3564Master!=='undefined')cleanupDom.push(__F3564Master.subscribe(scheduleSave));\n};",
+      "new": "if(typeof __F3564Master!=='undefined')cleanupDom.push(__F3564Master.subscribe(scheduleSave));\n})();\nreturn startPromise;\n};",
+      "count": 1
+    }
+  ]
+}

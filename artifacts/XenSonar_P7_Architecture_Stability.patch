@@ -1,0 +1,1040 @@
+diff --git a/.github/workflows/consolidation.yml b/.github/workflows/consolidation.yml
+index 8b96388..8cf81cf 100644
+--- a/.github/workflows/consolidation.yml
++++ b/.github/workflows/consolidation.yml
+@@ -32,7 +32,7 @@ jobs:
+         if: always() && steps.checks.outcome != 'skipped'
+         with:
+           name: host-validation
+-          path: n21-f2/results/forge-smoothness/
++          path: n21-f2/results/architecture-stability/
+   chromium:
+     runs-on: ubuntu-latest
+     timeout-minutes: 20
+@@ -56,4 +56,4 @@ jobs:
+         if: always() && steps.checks.outcome != 'skipped'
+         with:
+           name: chromium-validation
+-          path: n21-f2/results/forge-smoothness/
++          path: n21-f2/results/architecture-stability/
+diff --git a/README.md b/README.md
+index 1064642..2ba1da9 100644
+--- a/README.md
++++ b/README.md
+@@ -1,6 +1,6 @@
+-# XenSonar · schnellere Live-Rastersuche und geprüfte Endstufe
++# XenSonar · stabile Zuständigkeiten für die Weiterentwicklung
+ 
+-Aktuelle Weiterarbeitsbasis: `n21-f2/Xensonar_P7_Smoothness_Master_Test.html`. Schnellere Live-Rastersuche bei gleicher Tonhöhenlogik, weniger Speicherarbeit während der Wiedergabe, abgesicherte Wiederherstellung und präzisere Live-Master-Pegelmessung. [Anleitung](n21-f2/README_FORGE_SMOOTHNESS.md) · [Prüfbericht](n21-f2/docs/forge-smoothness/report.md). Die bisherigen Forge-/P7-Korrekturen bleiben erhalten; P7.12 bleibt unintegriertes Experiment.
++Aktuelle Weiterarbeitsbasis: `n21-f2/Xensonar_P7_Architecture_Stability_Test.html`. Der Forge-Speichercontroller startet einmalig, führt gleichzeitige Ladeanfragen zusammen und schützt neuere Bearbeitungen auch während ausstehender Sicherungen. [Anleitung](n21-f2/README_ARCHITECTURE_STABILITY.md) · [Architekturprüfung und nächste Schritte](n21-f2/docs/architecture-stability/report.md). Die bisherigen Klangmaschinen, Live-Optimierungen und Endstufe bleiben erhalten; P7.12 bleibt unintegriertes Experiment.
+ 
+ 
+ Die aktuelle, vom Nutzer gelieferte N21–F2-Quellbasis mit Granular-Hold, Live-Stabilitäts-Patch und korrigierter Forge-Fortschrittsanzeige sowie ausgerichteten Mix-Reglern, Raster-Mute, Melodic-Panning und Xenpolar Drone im Hauptinstrument
+diff --git a/n21-f2/README_ARCHITECTURE_STABILITY.md b/n21-f2/README_ARCHITECTURE_STABILITY.md
+new file mode 100644
+index 0000000..4937622
+--- /dev/null
++++ b/n21-f2/README_ARCHITECTURE_STABILITY.md
+@@ -0,0 +1,20 @@
++# Stabile Zuständigkeiten für die Weiterentwicklung
++
++Aktive Einzeldatei: `Xensonar_P7_Architecture_Stability_Test.html`.
++
++Der Forge-Speichercontroller besitzt nun genau eine Startphase und höchstens einen gleichzeitigen Wiederherstellungsvorgang. Wiederholte Aufrufe teilen dessen Ergebnis. Alle bereits eingeplanten Schreibvorgänge dürfen vor einer Wiederherstellung abschließen; währenddessen werden keine zusätzlichen Sicherungen begonnen. Neuere Interaktionen unterbrechen das Laden auch dann, wenn sie während dieses Wartens stattfinden. Nach dem Abmelden beginnt kein weiterer Datenbank-Lesevorgang.
++
++Keine Änderungen an Klangmaschinen, DSP, Mastering, UI oder gespeicherten Formaten. Keine neue Abhängigkeit und kein zusätzlicher Audio- oder Analysezyklus.
++
++[Architekturprüfung, Prioritäten und Prüfgrenzen](docs/architecture-stability/report.md). Nachweise: `results/architecture-stability/`.
++
++```sh
++npm ci
++npm run build
++npm run verify:build
++node tests/forge-persistence-ownership.cjs
++npm run test:consolidation
++XEN_CHROMIUM_PATH=/usr/bin/chromium npm run test:consolidation:browser
++```
++
++Die bisherige Paketstation bleibt aktiv. Nach einem Paketimport einmal neu laden, damit globale Einstellungen aktiv werden. P7.12 bleibt ein archiviertes, nicht mitgebautes Experiment.
+diff --git a/n21-f2/docs/architecture-stability/baseline.json b/n21-f2/docs/architecture-stability/baseline.json
+new file mode 100644
+index 0000000..9bbe12b
+--- /dev/null
++++ b/n21-f2/docs/architecture-stability/baseline.json
+@@ -0,0 +1,588 @@
++{
++  "commit": "402d8f54fb7f18980f43eb7b3056724d8f3e8912",
++  "files": [
++    "src/handoff/00_chat_feature_addons.js",
++    "src/mix/03_quick_menu.js",
++    "src/mix/04_melodic_spatial.js",
++    "src/mix/05_grid_runtime.js",
++    "src/mix/06_custom_instruments.js",
++    "src/instruments/00_diagnostics.js",
++    "src/mix/01_pan.js",
++    "src/mix/02_performance_catalog.js",
++    "src/nodal/01_instrument_model.js",
++    "src/nodal/02_synthesis_kernel.js",
++    "src/nodal/03_library.js",
++    "src/nodal/03_preparation_worker.js",
++    "src/nodal/04_audio_runtime.js",
++    "src/nodal/05_installation_bridge.js",
++    "src/nodal/06_melodic_bridge.js",
++    "src/nodal/08_melodic_live_transport.js",
++    "src/nodal/09_melodic_session.js",
++    "src/nodal/10_library_manager.js",
++    "src/nodal/11_editing_session.js",
++    "src/nodal/07_sound_designer.js",
++    "src/nodal/12_surface_runtime.js",
++    "src/forge/emilia/04_source_materials.js",
++    "src/forge/emilia/05_hx_reciprocal.js",
++    "src/forge/emilia/03_network_color.js",
++    "src/forge/analysis/04_painted_voices.js",
++    "src/forge/emilia/06_preview_worker.js",
++    "src/forge/emilia/01_nodal_carrier.js",
++    "src/forge/fractalia/00_legacy_f2.js",
++    "src/forge/fractalia/01_core.js",
++    "src/forge/fractalia/02_mantle.js",
++    "src/forge/fractalia/04_relations.js",
++    "src/forge/fractalia/06_relational_render.js",
++    "src/forge/fractalia/05_relational_core.js",
++    "src/forge/fractalia/07_compile_jobs.js",
++    "src/forge/fractalia/08_donor_ecology.js",
++    "src/forge/fractalia/09_material_atlas.js",
++    "src/forge/fractalia/10_material_render.js",
++    "src/forge/fractalia/11_material_runtime.js",
++    "src/forge/fractalia/12_material_experiments.js",
++    "src/forge/fractalia/13_spectral_view.js",
++    "src/forge/fractalia/14_live_transfer.js",
++    "src/forge/fractalia/03_instrument.js",
++    "src/forge/editor/09_workflow_controls.js",
++    "src/forge/dsp/08_pure_dieter_worker.js",
++    "src/forge/emilia/02_lab_ui.js",
++    "src/forge/dsp/04_donor_field.js",
++    "src/forge/lifecycle/01_offline_jobs.js",
++    "src/storage/05_project_snapshots.js",
++    "src/storage/06_history_budget.js",
++    "src/storage/07_history_snapshots.js",
++    "src/nodal/13_installation_ball_grid.js",
++    "src/01_app_runtime.js",
++    "src/forge/workbench/01_preset_catalog.js",
++    "src/forge/workbench/02_recipe_normalization.js",
++    "src/forge/workbench/03_material_selection.js",
++    "src/forge/workbench/04_sound_bridge.js",
++    "src/forge/workbench/05_state_store.js",
++    "src/forge/01_workbench_state.js",
++    "src/forge/dsp/01_material_tools.js",
++    "src/forge/dsp/02_gestalt_tools.js",
++    "src/forge/dsp/03_pcm_worker.js",
++    "src/forge/original/01_articulation.js",
++    "src/forge/original/02_material.js",
++    "src/forge/original/03_gestalt_material.js",
++    "src/forge/original/04_gestalt.js",
++    "src/forge/original/05_dual_donor.js",
++    "src/forge/original/06_cecilia.js",
++    "src/forge/revised/01_material.js",
++    "src/forge/revised/02_gestalt.js",
++    "src/forge/module_bundle/00_open.js",
++    "src/forge/module_bundle/01_entry.js",
++    "src/forge/module_bundle/02_projectionCarrierPlan.js",
++    "src/forge/module_bundle/03_carrierDonorV2Types.js",
++    "src/forge/module_bundle/04_carrierSupportField.js",
++    "src/forge/module_bundle/05_carrierContinuity.js",
++    "src/forge/module_bundle/06_donorHybridModel.js",
++    "src/forge/module_bundle/07_donorBodyModel.js",
++    "src/forge/module_bundle/08_realSpectrum.js",
++    "src/forge/module_bundle/09_donorPitch.js",
++    "src/forge/module_bundle/10_donorSpectralEvidence.js",
++    "src/forge/module_bundle/11_donorSourceWindows.js",
++    "src/forge/module_bundle/12_renderDonorHybrid.js",
++    "src/forge/module_bundle/13_donorMaterialPlan.js",
++    "src/forge/module_bundle/14_granularCadence.js",
++    "src/forge/module_bundle/15_renderContinuousDonor.js",
++    "src/forge/module_bundle/16_complexSpectrum.js",
++    "src/forge/module_bundle/17_renderCarrierSupport.js",
++    "src/forge/module_bundle/18_donorSpectralFilm.js",
++    "src/forge/module_bundle/19_donorMaterialDiagnostics.js",
++    "src/forge/module_bundle/20_donorOutputMantle.js",
++    "src/forge/module_bundle/21_experimentStatePersistence.js",
++    "src/forge/module_bundle/22_materialIntakePersistence.js",
++    "src/forge/module_bundle/99_close.js",
++    "src/storage/01_donor_library.js",
++    "src/storage/02_donor_packages.js",
++    "src/storage/03_forge_packages.js",
++    "src/storage/04_sample_donor_bridge.js",
++    "src/vendor/01_react_dom.js",
++    "src/runtime/01_instrument_state.js",
++    "src/runtime/instrument/01_voice_gradients_and_effects.js",
++    "src/runtime/instrument/02_observation_and_sample_storage.js",
++    "src/runtime/instrument/03_selection_and_recording_tools.js",
++    "src/runtime/instrument/04_performance_and_output_profiles.js",
++    "src/audio/rfl/01_resident_worklet.js",
++    "src/audio/rfl/02_fragment_preparation.js",
++    "src/runtime/instrument/05_timing_and_admission.js",
++    "src/runtime/instrument/06_rooms_and_lifecycle.js",
++    "src/runtime/instrument/07_interpreters_and_installation.js",
++    "src/myzel/01_effect_mapping.js",
++    "src/runtime/instrument/08_library_and_tuning_editor.js",
++    "src/runtime/instrument/09_monitoring_and_manual_patterns.js",
++    "src/runtime/instrument/10_entrophon_and_voice_control.js",
++    "src/instruments/01_entrophon_definition.js",
++    "src/instruments/02_entrophon_library.js",
++    "src/instruments/03_entrophon_library_ui.js",
++    "src/instruments/04_entrophon_melodic_audio.js",
++    "src/instruments/05_entrophon_integration.js",
++    "src/instruments/06_source_preparation.js",
++    "src/instruments/07_pitch_preparation.js",
++    "src/runtime/instrument/11_recording_and_granular_controls.js",
++    "src/runtime/instrument/12_rhythm_and_bass_editor.js",
++    "src/rhythm/06_lane_pan.js",
++    "src/rhythm/01_compact_drum_grid.js",
++    "src/audio/07_myzel_g_geometry.js",
++    "src/audio/09_myzel_g_dsp.js",
++    "src/audio/08_myzel_g_live.js",
++    "src/runtime/instrument/13_pointer_motion.js",
++    "src/rhythm/02_bass_and_rack.js",
++    "src/audio/drone/01_colour.js",
++    "src/audio/01_voice_and_rfl_ownership.js",
++    "src/audio/00_rfl_settings_cache.js",
++    "src/audio/02_rfl_worklet.js",
++    "src/audio/03_rfl_transport_legacy.js",
++    "src/audio/03_flac_encoder.js",
++    "src/audio/03_recorder_helpers.js",
++    "src/audio/03_pcm_range.js",
++    "src/audio/03_recorder.js",
++    "src/audio/04_wave_worklet.js",
++    "src/audio/05_sample_granular_hold.js",
++    "src/audio/05_live_voice_runtime.js",
++    "src/audio/entrophon/01_wasm_asset.js",
++    "src/audio/entrophon/02_worklet_and_voice_backend.js",
++    "src/audio/entrophon/03_native_bridge.js",
++    "src/audio/07_governor_and_drums.js",
++    "src/rhythm/03_live_drum_bodies.js",
++    "src/rhythm/04_workspace_and_transport.js",
++    "src/rhythm/05_canonical_selection.js",
++    "src/app/forge/01_room_shell.js",
++    "src/app/forge/02_boot_and_workspace_tools.js",
++    "src/app/forge/03_spectral_grid_and_archives.js",
++    "src/app/forge/04_profiles_and_body_models.js",
++    "src/app/forge/05_forge_state_and_analysis.js",
++    "src/app/forge/06_donor_audio_and_audition.js",
++    "src/app/forge/07_preview_cache_and_controls.js",
++    "src/forge/editor/06_pcm_spectrum_view.js",
++    "src/forge/editor/07_view_lifecycle.js",
++    "src/forge/editor/01_display_and_canvas.js",
++    "src/forge/editor/02_tools_and_audio_inputs.js",
++    "src/forge/editor/03_synthetic_sound_engines.js",
++    "src/forge/dsp/04_polytrace_render.js",
++    "src/forge/editor/04_signal_atoms_and_bodies.js",
++    "src/forge/editor/05_machine_and_carrier_projection.js",
++    "src/forge/editor/06_output_routing.js",
++    "src/forge/editor/07_composition_and_preview_ui.js",
++    "src/forge/editor/08_stamp_library.js",
++    "src/forge/ui/03_microphone_intake.js",
++    "src/forge/analysis/04_audio_to_carrier.js",
++    "src/forge/analysis/05_carrier_pitch_space.js",
++    "src/forge/ui/04_audio_to_carrier_controls.js",
++    "src/forge/ui/02_donor_routing_and_hearing.js",
++    "src/forge/ui/03_method_selection.js",
++    "src/forge_and_melodic/01_donor_selection_and_edits.js",
++    "src/forge_and_melodic/02_forge_keyboard_and_history.js",
++    "src/forge_and_melodic/03_timeline_and_transport_ui.js",
++    "src/forge_and_melodic/04_render_cache_and_stems.js",
++    "src/forge_and_melodic/05_preview_and_sample_intake.js",
++    "src/forge_and_melodic/06_note_editor_and_material_tools.js",
++    "src/forge_and_melodic/07_tuning_and_logic_view.js",
++    "src/forge_and_melodic/08_editor_actions.js",
++    "src/forge_and_melodic/09_canonical_forge_room.js",
++    "src/forge_and_melodic/10_audition_and_persistence.js",
++    "src/forge_and_melodic/11_analysis_canvas_and_controls.js",
++    "src/forge/hybrid/01_recipe.js",
++    "src/forge/hybrid/02_session_store.js",
++    "src/forge/analysis/01_analysis_size.js",
++    "src/forge/analysis/02_analysis_cache.js",
++    "src/04_forge_render.js",
++    "src/forge/hybrid/03_render_pipeline.js",
++    "src/forge/hybrid/04_cecilia_dsp_and_worker.js",
++    "src/forge/hybrid/05_capture_tools.js",
++    "src/forge/hybrid/10_carrier_capture.js",
++    "src/forge/hybrid/06_job_capture.js",
++    "src/forge/hybrid/07_render_adapters.js",
++    "src/forge/hybrid/08_playback_controller.js",
++    "src/forge/hybrid/09_runtime.js",
++    "src/forge/ui/04_cecilia_controls.js",
++    "src/forge/analysis/03_source_identity_and_cache.js",
++    "src/forge/lifecycle/02_workbench_activity.js",
++    "src/forge/ui/05_workbench_controls.js",
++    "src/forge/dual/01_dsp_and_worker.js",
++    "src/forge/dual/02_session_store.js",
++    "src/forge/dual/03_audio_files.js",
++    "src/forge/dual/04_session_codec.js",
++    "src/forge/dual/05_library_bridge.js",
++    "src/forge/dual/06_output_controls.js",
++    "src/05_dual_donor.js",
++    "src/06_workbench_dialog.js"
++  ],
++  "styles": [
++    {
++      "file": "styles/00_base_utilities.css",
++      "tag": "<style rel=\"stylesheet\" crossorigin>",
++      "after": "\n  "
++    },
++    {
++      "file": "styles/01_near_feedback.css",
++      "tag": "<style id=\"f39-near-feedback-style\">",
++      "after": ""
++    },
++    {
++      "file": "styles/02_wave_amp.css",
++      "tag": "<style>",
++      "after": "\n"
++    },
++    {
++      "file": "styles/03_forge_mobile_sidebar.css",
++      "tag": "<style id=\"forge-sidebar-mobile-f315\">",
++      "after": ""
++    },
++    {
++      "file": "styles/04_workbench_base.css",
++      "tag": "<style id=\"f341-donor-workbench-style\">",
++      "after": "\n\n"
++    },
++    {
++      "file": "styles/05_workbench_controls.css",
++      "tag": "<style id=\"f347-workbench-style\">",
++      "after": "\n"
++    },
++    {
++      "file": "styles/06_donor_library.css",
++      "tag": "<style id=\"f348-library-layout\">",
++      "after": "\n"
++    },
++    {
++      "file": "styles/07_donor_library_dock.css",
++      "tag": "<style id=\"f349-library-side-dock\">",
++      "after": "\n"
++    },
++    {
++      "file": "styles/08_workbench_workflow.css",
++      "tag": "<style id=\"f350-workflow\">",
++      "after": "\n"
++    },
++    {
++      "file": "styles/09_combination_rack.css",
++      "tag": "<style id=\"f351-combination-rack\">",
++      "after": "\n"
++    },
++    {
++      "file": "styles/10_hybrid_workflow.css",
++      "tag": "<style id=\"f352-hybrid-workflow\">",
++      "after": "\n"
++    },
++    {
++      "file": "styles/11_carrier_controls.css",
++      "tag": "<style id=\"f3564-carrier-ui\">",
++      "after": ""
++    },
++    {
++      "file": "styles/12_drum_rack.css",
++      "tag": "<style id=\"xen-f35618-drum-rack-layout\">",
++      "after": ""
++    },
++    {
++      "file": "styles/13_drum_timing.css",
++      "tag": "<style id=\"xen-f35619-drum-timing\">",
++      "after": ""
++    },
++    {
++      "file": "styles/14_drum_responsive.css",
++      "tag": "<style id=\"xen-f35620-drum-layout\">",
++      "after": ""
++    },
++    {
++      "file": "styles/15_drum_playhead.css",
++      "tag": "<style id=\"xen-f35621-drum-karaoke\">",
++      "after": ""
++    },
++    {
++      "file": "styles/16_dual_donor_assembly.css",
++      "tag": "<style id=\"f35634-dual-donor-assembly-ui\">",
++      "after": "\n"
++    },
++    {
++      "file": "styles/17_dual_donor_output.css",
++      "tag": "<style>",
++      "after": "\n"
++    },
++    {
++      "file": "styles/18_forge_status.css",
++      "tag": "<style>",
++      "after": ""
++    },
++    {
++      "file": "styles/19_bass_manager_fix.css",
++      "tag": "<style id=\"xen-f355-fix1-bass\">",
++      "after": "\n"
++    },
++    {
++      "file": "styles/20_nodal_sound_designer.css",
++      "tag": "<style id=\"nodal-sound-designer-style\">",
++      "after": "\n"
++    },
++    {
++      "file": "styles/22_emilia3.css",
++      "tag": "<style data-xensonar-emilia3=\"true\">",
++      "after": "\n"
++    },
++    {
++      "file": "styles/08_forge_workflow.css",
++      "tag": "<style>",
++      "after": ""
++    },
++    {
++      "file": "styles/23_performance_palette.css",
++      "tag": "<style>",
++      "after": "\n"
++    },
++    {
++      "file": "styles/24_quick_menu.css",
++      "tag": "<style>",
++      "after": "\n"
++    },
++    {
++      "file": "styles/25_n20_forge_navigation.css",
++      "tag": "<style id=\"xen-n20-forge-navigation\">",
++      "after": "\n"
++    },
++    {
++      "file": "styles/26_live_controls.css",
++      "tag": "<style id=\"xen-live-controls\">",
++      "after": "\n"
++    }
++  ],
++  "hashes": {
++    "src/handoff/00_chat_feature_addons.js": "ed2256abcaaf774c9f45972947b839bffd33a9e4dc70628edfb884a5248a1253",
++    "src/mix/03_quick_menu.js": "0a1fb8bb6ba95443081b6d05269d3b4f94a19ecde64f91dde4bd015f83a6075e",
++    "src/mix/04_melodic_spatial.js": "398f3acabc5f7da84392ec193b6ad838931187d5961e5540993a7cbbec272856",
++    "src/mix/05_grid_runtime.js": "eec8e443ae3c2397a340da3c8335935cfec3e516f89331f8b57f85f30b95b7e6",
++    "src/mix/06_custom_instruments.js": "4e09117f3171d4228a10343d44ce054220af027964b8885829e104d019b41070",
++    "src/instruments/00_diagnostics.js": "f7b50b1f5b58b2116989ce23a8721505da99ca60eaaea4b7711d93f95762360e",
++    "src/mix/01_pan.js": "6feed55b4bbe349bec4c1c40dd458afddb8f4f049ef44c7d17586013b46a3e10",
++    "src/mix/02_performance_catalog.js": "6e00727e068e9c57eb569498bc07c27293d54ff0d67e59b9fa45d8e9ab02dd5f",
++    "src/nodal/01_instrument_model.js": "93a1d7ff54e155f2453ea683d738d0aef359c86a0e54b7b4e477870b478bb5bc",
++    "src/nodal/02_synthesis_kernel.js": "4302f389a137ae8ef6785a726172bdeb897e045a249f4f0c5ca0e75379fd7e85",
++    "src/nodal/03_library.js": "d55cc0e856c44176add41a56d66faf445e923994699e850a381e7e494da3d59c",
++    "src/nodal/03_preparation_worker.js": "5d0c90036830cee605310ea8d92f39fe514729cd2d750cacb3b24e6e59805c10",
++    "src/nodal/04_audio_runtime.js": "e65b2ebda0abaddc1e9441e491e640c445e08dd61bd580577647adb79b052da0",
++    "src/nodal/05_installation_bridge.js": "bc1707700358eb1ddfb3cbb59f7845854a4153c778b083fdec365f5e30a2872e",
++    "src/nodal/06_melodic_bridge.js": "55538a3b768c3674bb5f1e70a656367c4e5e2488cb776683f3f4684c18d0be2b",
++    "src/nodal/08_melodic_live_transport.js": "9ee6f2f295ffd587d6f52ac81a55b7b34c4239cfda8e95ffae5400980d2b9689",
++    "src/nodal/09_melodic_session.js": "d61a92708e7dab1ad42a7084b17f3a8f345ea9655fbf788d07b81d3927b215ac",
++    "src/nodal/10_library_manager.js": "4ee7ccc0d5ae907b28115d93eff7c354a54a80bdc06e1026000674aa94637c78",
++    "src/nodal/11_editing_session.js": "3a17df8f6f664f1ce970be95ac2f014b559c1a4ae39f905ab1efda81bb271fc3",
++    "src/nodal/07_sound_designer.js": "2bdefec715f85296d4c8f19b90b63e785fbf8e2d37ce23f26537c07cf4b70ad0",
++    "src/nodal/12_surface_runtime.js": "d97630da10efc49d3b9702e640921103bd759a9e0466c2cbf940e7fbcfee9f7b",
++    "src/forge/emilia/04_source_materials.js": "80a43afc95fd5b2efe6dd30aca015fec10351dda721f7041281e26c146167e2a",
++    "src/forge/emilia/05_hx_reciprocal.js": "e75f5cda56961f762e250ad4b3e57a33d4d3db9551bdb52bf668e1a0bb61e35c",
++    "src/forge/emilia/03_network_color.js": "d3878f9588f5e36015309d76d472e069fa7c81776057e3798bdb923e4bbc1c5f",
++    "src/forge/analysis/04_painted_voices.js": "c0d1e43996d7df24b6eadfef8c685eb9179103ce3318d1f9698c78b552dfe588",
++    "src/forge/emilia/06_preview_worker.js": "89e9b5ea9fa2e68f370b325c79ecc97875f60b11493b47048be1e0ff8ff5135d",
++    "src/forge/emilia/01_nodal_carrier.js": "6d6c588a5215f7cbb22c5e31fec50b4935f08083137480c9d4d3d62e629f7fa6",
++    "src/forge/fractalia/00_legacy_f2.js": "30d9287987f7b7352d5830eac2eeedf4a06fa236eafd61c083350fa96d3af2f7",
++    "src/forge/fractalia/01_core.js": "4185eceb088dfc8b4372000363eb36c9a2f42cd7874d99991551e44134a1bd22",
++    "src/forge/fractalia/02_mantle.js": "c81c5700a0e4becda5fdbecb299a3656596784c803c43b7ac4b589a01ee20934",
++    "src/forge/fractalia/04_relations.js": "cee8d44af6156cd0539b05ac0b63087bebeaa084cf107e79514ece7dcdfe361f",
++    "src/forge/fractalia/06_relational_render.js": "eee78e4310fd25e3fb99811f290928ff425ae605f2a8a2fa18a741aa721c6988",
++    "src/forge/fractalia/05_relational_core.js": "640cec76ab177164437a1a02c6cf137ba0268d8bf46e1efacc0aa0af5a479c7e",
++    "src/forge/fractalia/07_compile_jobs.js": "e0a3a521c74385663596723c4d5ad3af007965d3df5941614440df178311253f",
++    "src/forge/fractalia/08_donor_ecology.js": "7b3150b143a4a2a7151b8e34375b655375007b01c98d988993d28a5b389a513d",
++    "src/forge/fractalia/09_material_atlas.js": "7aefb1c10142644fd12024e91cfb5d88c816be09566cbddab407539ef69393e9",
++    "src/forge/fractalia/10_material_render.js": "106a9afdc6a90bc76236177dfdbb23c64ff1b5ce93322d940acde981c1826550",
++    "src/forge/fractalia/11_material_runtime.js": "a8fb5d09eebe736c82f4200b7c72028732b5472f5ba4470dc2bcf98b770260d0",
++    "src/forge/fractalia/12_material_experiments.js": "b09a3f611a9a6f494b1126cf7f9025fe6247be32a8e639064e29b5ed77a91e36",
++    "src/forge/fractalia/13_spectral_view.js": "c8fd1116fff4951fe0486bde0a7ce084a0d3b18de0b0e8f7b5e73ac77d32848e",
++    "src/forge/fractalia/14_live_transfer.js": "9b00d791a5243f6949fae75ae9cb6ed58361129d28a59d6249cef23e9ed28df1",
++    "src/forge/fractalia/03_instrument.js": "ef82178a25a4df36de98f45d41f6e98ce85a7cf9a06747ed26d49899697b9dca",
++    "src/forge/editor/09_workflow_controls.js": "c84a04f3452300ac4d6620ae920f67f0bc0d9dfacf4ae50ab6c1a14a699c3050",
++    "src/forge/dsp/08_pure_dieter_worker.js": "7373c1414a568f3ea9d56c33ab9fb52bc95613ba6a9211af16946bc554bb5a64",
++    "src/forge/emilia/02_lab_ui.js": "bdc3ca0f96b2307ce250cf327db6245e33ea01047dde2eca80be4d6c0bec0780",
++    "src/forge/dsp/04_donor_field.js": "e3d8ce96ad7d4f707c1b00c6823e467ec88320b3b815bb8dae00a8fd711cc988",
++    "src/forge/lifecycle/01_offline_jobs.js": "91a7018865c15b60fc56a54af828935097a7cb664d523bc4b7dac4d8d0c536ca",
++    "src/storage/05_project_snapshots.js": "d4c2b8b6bdf8537832fba4612ffabccc4840ed23b4d5a1934685569db24bef1d",
++    "src/storage/06_history_budget.js": "27e63bb49ee637a44172ef2305c6b9e5a55eb7ba3cffd316e1082461f2c47b30",
++    "src/storage/07_history_snapshots.js": "23cd8597462af5ed1dd0ed160163bc391467976e9d93d389d1f4acdf9046c1b4",
++    "src/nodal/13_installation_ball_grid.js": "4d7728e383b8d6359fcd5729d9dbc19089d5ea158decf46632bfd34655fa68af",
++    "src/01_app_runtime.js": "885a9004f6fba5d79809c80546c782f458a94f26c344632879bfb178f9b83f69",
++    "src/forge/workbench/01_preset_catalog.js": "92e52667eb406632636c5733505ad7e93a56864f5c3bc61ef645491ba7e04f94",
++    "src/forge/workbench/02_recipe_normalization.js": "1f2c230ca91f0c63da5451ed5432befda85ea6ddbac77d08019631600fdb6cbb",
++    "src/forge/workbench/03_material_selection.js": "022186707460174a20afccb9cb4521eba7e1a12c93d0bd69182e57a5436f973e",
++    "src/forge/workbench/04_sound_bridge.js": "fc81e389da33f9cc674c8c9399f6af8be8d4f848d3dc202c016080510ed25996",
++    "src/forge/workbench/05_state_store.js": "5b33017599a1e20cca132be0873758bd758e3333697d15100adca1a653f40ba3",
++    "src/forge/01_workbench_state.js": "fe8a21ff6eebd4c850f961d4169ee941a7f512ddbf9547c7c930d658eb2db173",
++    "src/forge/dsp/01_material_tools.js": "34273816f3ff5788fa44041ed6a44d14f64232bf13b891a700cb0f16156ba133",
++    "src/forge/dsp/02_gestalt_tools.js": "6baed4dc850b772d620036b9df1f93ed30aa324064d7e15eb0f91f6b1bfe5e80",
++    "src/forge/dsp/03_pcm_worker.js": "b47a5a711f4ada212c8cb2663503afe28834043d59c7cada3a84bc5fb88c4c5a",
++    "src/forge/original/01_articulation.js": "aa974100b110d2ea5f7f751a25339d89017cd905017df0f3078dc5172b2033c3",
++    "src/forge/original/02_material.js": "eca3a573ead36cca0a1c0f73f602c7064dce262aa4e4a1871c22223e9b19544f",
++    "src/forge/original/03_gestalt_material.js": "268788b25eb1aa8b35d978ba9bf15bf542aba8660c9e78aa253bd6cf6ede4b67",
++    "src/forge/original/04_gestalt.js": "e322d3c9ff50dab2d038a6ee290d8586d890850ba0b789a4241ca3328adf943c",
++    "src/forge/original/05_dual_donor.js": "3176730ba9d52fa46d271727b05563d46f049b3d91ebba64d0e7ae67c95d120b",
++    "src/forge/original/06_cecilia.js": "1793157528b6a687ef4d811d1b27212aa0ca26c824855fb7c890a9125d059fca",
++    "src/forge/revised/01_material.js": "039df326f0b67ae6b283d6d86b5e8deccb0aa86a8c5ef7c687d8345a0e52e0b2",
++    "src/forge/revised/02_gestalt.js": "288c8a614423abd9ed1adc4e90b5177c81a3c6bec0b03d760a157c77cb64da89",
++    "src/forge/module_bundle/00_open.js": "dd52fb8c8c042a332d538ec1730bab9c1056d8f5e7b534e1332662a8968221a8",
++    "src/forge/module_bundle/01_entry.js": "7da6f075fd0b724a800e23dd93c852f77ebcece81a41b3c136bd134f9639a998",
++    "src/forge/module_bundle/02_projectionCarrierPlan.js": "99eb34a9a90f278e72d078920fd0c49a7c35c32b6c5bdd2d2a23f50e20cafa62",
++    "src/forge/module_bundle/03_carrierDonorV2Types.js": "f1fd8dc51c24ac409e5ac48a195c2f341682f50044162f2feb8599c85f439418",
++    "src/forge/module_bundle/04_carrierSupportField.js": "cd270f8fa10c256dbd68aaa41c3d1c7108d34058f93c8a37392e51e603f732ae",
++    "src/forge/module_bundle/05_carrierContinuity.js": "4c6131cb4d0b490423ecfc512353f2ca42f26705fae07c9b8affa5de8f03de2b",
++    "src/forge/module_bundle/06_donorHybridModel.js": "c96ff9e2df5f50c701282ea5b1d6d823bc3bbd1d553929dee4b642bd60dbcdaf",
++    "src/forge/module_bundle/07_donorBodyModel.js": "7f8253d133d0413c6d8fbaa06f4836f6ad6061bb0f9aa3fe4efe7cb899d38442",
++    "src/forge/module_bundle/08_realSpectrum.js": "71800f20741beab81b4454c4752ac508f245f28d3a787056040c182c2f904264",
++    "src/forge/module_bundle/09_donorPitch.js": "5ae67accce5e161f73ae4361df26a1f48ffb3234dc1289c1b4f1c03479a8ba4b",
++    "src/forge/module_bundle/10_donorSpectralEvidence.js": "15d023d7173900f1b34cd603e512c70b2ed9bc1f0e073d0b3379eb538fbdb17b",
++    "src/forge/module_bundle/11_donorSourceWindows.js": "d2b9407c05976d3496b14debe59c46f700d5e5a6751965faab9822129e1d036d",
++    "src/forge/module_bundle/12_renderDonorHybrid.js": "c55706488d78dbaf104688cfd6723818344a6d6055086d7206b6886368ba1888",
++    "src/forge/module_bundle/13_donorMaterialPlan.js": "083129b78a98954c3247a5625a3ece131222e5933c58936bf608606018ae9028",
++    "src/forge/module_bundle/14_granularCadence.js": "2d24fa0fe85ad71855e9ffb253aab30ad2b895220e8c543541e95e24be0f27a9",
++    "src/forge/module_bundle/15_renderContinuousDonor.js": "173ed7794dfc9a31a0e1b0d6c693dcc370c932e4f56519b3fe863e70fea18195",
++    "src/forge/module_bundle/16_complexSpectrum.js": "066ed017c3e0ad073ce86b61b26bc20f460220ab9f2c4c756f5b08eb2e5f5bc5",
++    "src/forge/module_bundle/17_renderCarrierSupport.js": "6f41e89cd95dc72fdd69675067e693f094a882d0695faf5590d0c630e2ac59d5",
++    "src/forge/module_bundle/18_donorSpectralFilm.js": "a297214391cf55bd4ae51b611b65d02ed552553786a1f68c8e07e11f4cb6dd15",
++    "src/forge/module_bundle/19_donorMaterialDiagnostics.js": "ebde22ab29918fd65ae2b652559603dab870d76d5185ced7b7df9dd51d3a207b",
++    "src/forge/module_bundle/20_donorOutputMantle.js": "76307be1b9e2dc3ecb7edf15f1538378c93014e58b37f87ada4acd9ce0a76e54",
++    "src/forge/module_bundle/21_experimentStatePersistence.js": "fe4d83ff66c05ac2625727dcb9666815a7189ec99a9ab99d35d9f00472000e53",
++    "src/forge/module_bundle/22_materialIntakePersistence.js": "6cafec657997e9e520d6e4b541e7277c4614791a26db1bf04843db8f9f3f3e3f",
++    "src/forge/module_bundle/99_close.js": "59c528363096f35351430920a4e283a1e3dd1a7ec88447e4e4c42d5e60497881",
++    "src/storage/01_donor_library.js": "80df7cebb66e3f7f8677178c776e0fc802873f5cce64cc0538d4c16f0700c729",
++    "src/storage/02_donor_packages.js": "2b2204611a763ab8a28e3c56217a074988dda2c82da0fc36d3e37573a9963524",
++    "src/storage/03_forge_packages.js": "96fb969b6785cb2fa67677b693593862da8e0e2c9eef7c6ac1fec7ea9b0cc3d5",
++    "src/storage/04_sample_donor_bridge.js": "d0d81ada2e31af2dff0ec97c2289261b513b7db26dbbfd23141e0c69930ddc4c",
++    "src/vendor/01_react_dom.js": "53fd4c16cb0532b5c8d7d4ea36851fcbfd7003db535361217a39fb0bd8bae7c9",
++    "src/runtime/01_instrument_state.js": "a51fa36121712001f013b5a9346d6087af41624cbd6a2c3998ba6ef273b45020",
++    "src/runtime/instrument/01_voice_gradients_and_effects.js": "66571d49145756f8c2c5e2e2f1e068d9e752806ac8b5d2b9437590e8c58ef1fa",
++    "src/runtime/instrument/02_observation_and_sample_storage.js": "dcd8df5dcbcee0c370726a305a3b1f9d5927a2275ac41451eae8b435251d0478",
++    "src/runtime/instrument/03_selection_and_recording_tools.js": "64b5f845cae8316ea6a13625698c6115ccb80a5b5c691336391be8c58a97560e",
++    "src/runtime/instrument/04_performance_and_output_profiles.js": "5b785620a9f1aa1469d226b5a7bfbf0fb31b2a5783ce0bfa633e4b8ff723189c",
++    "src/audio/rfl/01_resident_worklet.js": "6d897cdeccf681ea89bdfb2930f15f89e90b7277bfcb367feb771f9908565c9e",
++    "src/audio/rfl/02_fragment_preparation.js": "c47036740e92cd13952416aefb46f9c714b4cf47dc51a7392ade576dcc2e3e63",
++    "src/runtime/instrument/05_timing_and_admission.js": "b56c34c729d23fefd79a436e8fa744185fc0052b45c02bc35f3f397f587c8e20",
++    "src/runtime/instrument/06_rooms_and_lifecycle.js": "74dc9230f2656d8eadebe960ab8eaeeb56f18059a50d805a283847eeead94027",
++    "src/runtime/instrument/07_interpreters_and_installation.js": "f83901a67779f8ef75e283d54caa91e7e68192e4db217df898d03428a31f75dc",
++    "src/myzel/01_effect_mapping.js": "fd0dac53dff6cf6fc175efd833f292014ad23c5a7e7a1a8aa6fcdea662d8f435",
++    "src/runtime/instrument/08_library_and_tuning_editor.js": "fe6d178a82d877b61cdeaadaf02060a834eaf72a9fa594cd8df967513beb2d85",
++    "src/runtime/instrument/09_monitoring_and_manual_patterns.js": "0aaa3d3688218e4b96626fc42a4874a582377832b1535ca91601368628c2004f",
++    "src/runtime/instrument/10_entrophon_and_voice_control.js": "be3a9da7644034613547e8fd6b890d4b320b062e48004ae94c904440d86bf16c",
++    "src/instruments/01_entrophon_definition.js": "89568e4d8362321ab2e9861133e28a8f46540edc28b4e88d5ef8ea19b2a495c5",
++    "src/instruments/02_entrophon_library.js": "c46b81967b7c272cfb060f582154a8576f81dfd1b26cec248ddab2f60d5033dd",
++    "src/instruments/03_entrophon_library_ui.js": "08d04d10127e7fd4f566edd008dd11b55bc676be2b6eb7f15108a280c3235f92",
++    "src/instruments/04_entrophon_melodic_audio.js": "824e50efe43a23ca8934b9e53bf35cc679cf805c4a621ad796896de3c01ea276",
++    "src/instruments/05_entrophon_integration.js": "612bbb0909eb91d9ac6d2c0cb07b948be119dfff3cb55624f8047f1be87cbe22",
++    "src/instruments/06_source_preparation.js": "e616e6ccc1cac12c96f00bdeb03b961bc5630f64755b3c7e4d292591fdb0f351",
++    "src/instruments/07_pitch_preparation.js": "0606c67311b76324523b74bdbc50159af24cc94791dba20ae7477fb6a4c1272b",
++    "src/runtime/instrument/11_recording_and_granular_controls.js": "fc2fc66fe1b91bedc8e9de94f1b03ea46de83ea69ae0366d535954d2121226b2",
++    "src/runtime/instrument/12_rhythm_and_bass_editor.js": "d6c6a5e69e1ffa700080238f44cce9250c482978b0fc86f4f6d56e8e0dc5a442",
++    "src/rhythm/06_lane_pan.js": "f6d4e61fe6aecdcb8fbbf7cb9aa1c4eff4508689a77f57cc77a12c1d8df64c71",
++    "src/rhythm/01_compact_drum_grid.js": "4feb238a5f8120addcb3a66e8d374498252f449265e86df2b57f5ed79379a701",
++    "src/audio/07_myzel_g_geometry.js": "81334333c39314378d08417cff731122371b21d6264c9f588dd9d6e604e250f1",
++    "src/audio/09_myzel_g_dsp.js": "e674130fae29ecc60cb85a71931083f72af48b1cad0e62a6879eb5a3265cbbc1",
++    "src/audio/08_myzel_g_live.js": "fa6e1b41a7db3a19ae96e074eba20846fef95b9d43741a3fb78e1421bc397d39",
++    "src/runtime/instrument/13_pointer_motion.js": "0ddff43024ee3ed3d4e074444cf3c44b3844c511597b2d54448f2e9f165a73d3",
++    "src/rhythm/02_bass_and_rack.js": "df43c18502f462b5a06520c4b60448672d1e7d6950a5d3fe8ef3f1af12f5e8cc",
++    "src/audio/drone/01_colour.js": "cccbe1f3694f37a3aa0f221360f03971a30b284383e525da4c15da9e12949022",
++    "src/audio/01_voice_and_rfl_ownership.js": "4cde8b062bfe7ff6e62a7fef4cb37c16e0468a0fafdff185b54007aba04dd372",
++    "src/audio/00_rfl_settings_cache.js": "513ab3f4f26b8eb213b086d06f3c840b50d46982474b795268a1c8ea5312459e",
++    "src/audio/02_rfl_worklet.js": "c13e23318f08ed20c2a38908bfd6ea98aece06dccc7f6542f7743e2f5be00e77",
++    "src/audio/03_rfl_transport_legacy.js": "79c6cbc07a8680bf0fb044e6af3782b87c41520bbc5656eb8086be132a34b60e",
++    "src/audio/03_flac_encoder.js": "7125ee26eb5e4353c17b5589b854283498b411ed49adcdc4e7486c9e6fb1dfb4",
++    "src/audio/03_recorder_helpers.js": "d63ed4f43bb6f7710159d432c5b5d4d8c8cb79af7d535713902a9c7df29899e0",
++    "src/audio/03_pcm_range.js": "29f2a964869fc57b564cde1f0df2a7a0c0c377901fe7c2b9cce6f5b8205d9d1c",
++    "src/audio/03_recorder.js": "036d3a85f7f15a6ecda053ac845b8342f8508e97c8c6f9301f992868c04891a6",
++    "src/audio/04_wave_worklet.js": "37b659f26344720b8e2ef0091ca44fb87ca799b35041c1820ab41e3aff2a40b2",
++    "src/audio/05_sample_granular_hold.js": "175794655292cc35a8beeae08fa800adf0b5d2a91fb631c3663e46a0d7b5d768",
++    "src/audio/05_live_voice_runtime.js": "701d9a0b0346dbdb308e4774875ba27457b3567da727b368f82491b82fcbca16",
++    "src/audio/entrophon/01_wasm_asset.js": "292826664b9374a860f06a5e0d3041b0adeed22638e1266bdbd3d4386c59d658",
++    "src/audio/entrophon/02_worklet_and_voice_backend.js": "f4bf8a174315ce4e47bfbc922d5e9afc0e85beb8a35c49cd8615b57938d5b27c",
++    "src/audio/entrophon/03_native_bridge.js": "0e6248350506a548742f09e7566c62f713600cde6a84d99aff0e129030bc1e99",
++    "src/audio/07_governor_and_drums.js": "b5bb44b24e06667abe18526232488bb21958ce287bb6edb939d8c4fc53490d87",
++    "src/rhythm/03_live_drum_bodies.js": "83a75a6c6ef1b5e3c94fc3085c08da08312092d7fbb20bc2b6e374d816b2ea26",
++    "src/rhythm/04_workspace_and_transport.js": "39d732aff56ac3dac0d2d799afd80f48ab95a9f368a6be0b1359eacf610f9bab",
++    "src/rhythm/05_canonical_selection.js": "70c37d3458aa13b17985b873a2ca17fb3e8f8050a645cd030dd9e6e00164aead",
++    "src/app/forge/01_room_shell.js": "3e687b3553fbc5382ea6b313f5dfdb07fba98a98d959346c1c90684f7444e9d2",
++    "src/app/forge/02_boot_and_workspace_tools.js": "ff7b67c120977079611f83c8462f0ace8ad31b3a61d3a806629f8d83c7826869",
++    "src/app/forge/03_spectral_grid_and_archives.js": "1b988c898aa9b5386c01f7caba2d16a169b7e0f8c49be594c32a74e444721366",
++    "src/app/forge/04_profiles_and_body_models.js": "e079c056fcbfacdc5bdfc3732bba740ffabc2c085ff3a9f1b40a7f326c6e976e",
++    "src/app/forge/05_forge_state_and_analysis.js": "0dde5c109be85ae558a0f71d0672d1d613599f2c76477d4a5ffd171805368b26",
++    "src/app/forge/06_donor_audio_and_audition.js": "a2c47252f68252778eb94dacf646e19f8f3072c478a03651c09a0cd918354cbf",
++    "src/app/forge/07_preview_cache_and_controls.js": "bf180e9adcd25cb323e8cd1e471c65f1c1a141b7136283ffdac899e14f5b60ab",
++    "src/forge/editor/06_pcm_spectrum_view.js": "b7502ef94e2679c37c889e31bf87ad574215c5b5871643ba8a62f7de7df2dc22",
++    "src/forge/editor/07_view_lifecycle.js": "0956e31d83d8e67d4df961ff21b17de83b598908dc7772f719556cbc81ade255",
++    "src/forge/editor/01_display_and_canvas.js": "8d691927609a0b71f7fbea553a0ae854a7187a42a7702ce3aad3b0820c9be1cc",
++    "src/forge/editor/02_tools_and_audio_inputs.js": "4e3047d37fc19644f4691f1ef9dcfb78726ca8ddd8102a6808f795d18f7e5aab",
++    "src/forge/editor/03_synthetic_sound_engines.js": "0c2adeef0f98c8420d79b967c5d051e4e15b5fabe0a5e1857f77b2f20a36b814",
++    "src/forge/dsp/04_polytrace_render.js": "3ebfc857620db1b4a98bdf91bb916ca3045e4bf6a8e6b79369f15f57ed09467d",
++    "src/forge/editor/04_signal_atoms_and_bodies.js": "b58714b8c5e72c33241fa2a09ebbe125da72f9ca025399f98bc254604dfc5fc3",
++    "src/forge/editor/05_machine_and_carrier_projection.js": "08500dcd43fb85bbb8204a7f670e6af4cca5865980ae5338bd0b9165d1a3ec3a",
++    "src/forge/editor/06_output_routing.js": "d2c22da5006a55e11c37f667858bd1904cfebaec3aea6454d8d1a680b3352e78",
++    "src/forge/editor/07_composition_and_preview_ui.js": "e9c05852cfe39269bb9eb2b40039465adb8a5eab64d17d1f071af99311674f26",
++    "src/forge/editor/08_stamp_library.js": "3b563c47366a019ff0bc77beaf880d680a5a0f70fc624e6a9532bb26587ef6ae",
++    "src/forge/ui/03_microphone_intake.js": "c864c169488d1e93d1ad7d934dd622fae9123cb89d338264171dbab80cb3444a",
++    "src/forge/analysis/04_audio_to_carrier.js": "0c5fde26b0d7b0e509479d8883aab3942234c1c9ffcd88f8f14055dad314cc1b",
++    "src/forge/analysis/05_carrier_pitch_space.js": "9e4c33750b532d1ff984d88f002f080f4dc946862677ff02f3f7c786bbc18478",
++    "src/forge/ui/04_audio_to_carrier_controls.js": "78ac93353505874761e338170bd61f482ebf26d59e3ad86b915cbdd19305c7b2",
++    "src/forge/ui/02_donor_routing_and_hearing.js": "0d74942e809c874255d60a9bfc00065a65bd764951547476f1b8d6161ffe6f59",
++    "src/forge/ui/03_method_selection.js": "cdf3320ba84739143065396d63d69c4145955d59ef510d0bc278b91c3b473817",
++    "src/forge_and_melodic/01_donor_selection_and_edits.js": "694d7c4b70164ac929ae5c79655b15f6a985e21e722cc3b592ac67da61e93a53",
++    "src/forge_and_melodic/02_forge_keyboard_and_history.js": "5337913a16a26032b89a17f5509b9ba4014a50daded4a211732697e9eadce61a",
++    "src/forge_and_melodic/03_timeline_and_transport_ui.js": "f883180c4653a867b67e319f144aa0ced0e35909e57b8d257f2754f22dc93272",
++    "src/forge_and_melodic/04_render_cache_and_stems.js": "b900938343dfa7239cf996cb604b7644bdd2f16831582537a5856988d7e19cd5",
++    "src/forge_and_melodic/05_preview_and_sample_intake.js": "887519737b8a941be1f3f44e7821409a843e8f0ff9b33ee803ab65e35fc08720",
++    "src/forge_and_melodic/06_note_editor_and_material_tools.js": "162ef7be55d6343e4a8ec901c760b3afc03cc19e3db4129e4e72ae888cc6bc3b",
++    "src/forge_and_melodic/07_tuning_and_logic_view.js": "9a42edd27ec28b642b6e9944d9dceff714a30b60ce9cb54715bde4357d09334f",
++    "src/forge_and_melodic/08_editor_actions.js": "f206e65efe17363bad7e2f5c9c01c6fa5af0528c20ced3f8fd1a02fdfff89d03",
++    "src/forge_and_melodic/09_canonical_forge_room.js": "0b2d9054ee204b83d0203327a6e6171289dad69cfea1e772a30df97a9d8d60d8",
++    "src/forge_and_melodic/10_audition_and_persistence.js": "b701e9f67c0a5a5eb6adb3a735ae996749e804f9e2a6d61e34988856ab6a23f2",
++    "src/forge_and_melodic/11_analysis_canvas_and_controls.js": "76bb5107cfa5dc16d86cfad05e5206b69b5e7d81de5b5f6bf813291a17a4b6d1",
++    "src/forge/hybrid/01_recipe.js": "8f9971f9a3eb3f105fb875819fa91771be2213b25d30b035bdb39d6043a99c24",
++    "src/forge/hybrid/02_session_store.js": "fb7b4cf3a23311dce3ede0a6a6dee42d17fe7df1d6486f3ffdd5a4a8656ffd20",
++    "src/forge/analysis/01_analysis_size.js": "56f1b22b8f823a1851fa38a145058c2ea34a422b36bf1e1f94b304ded2821585",
++    "src/forge/analysis/02_analysis_cache.js": "9d2de963ab4e133794d30ed552c78b0e0da5b0b65f464d7c269cf612d4561cd3",
++    "src/04_forge_render.js": "78bf6edcdd3a1499003c9d9f52e5eab1d132d99d04394974b93d140b9b06fb7a",
++    "src/forge/hybrid/03_render_pipeline.js": "f644acc3404e0f0948f19235ec59a8dd2de09fbc69b66b7e6bee3ba25c0205f4",
++    "src/forge/hybrid/04_cecilia_dsp_and_worker.js": "f801c81f5c657b400a49a65db7fed559074d6503cd00591dc0159018b37b19ba",
++    "src/forge/hybrid/05_capture_tools.js": "25ab13b8cf8118ea3bdeac88588becde0a5be3817a469ab684a769fb71c8c37e",
++    "src/forge/hybrid/10_carrier_capture.js": "7d493c3af6d70c70901a301e9f4a001e30e8653ad96547f0e63fadeebfa5f25e",
++    "src/forge/hybrid/06_job_capture.js": "fad0ad7ac5e4d84397eb7c4a955b002958f19dc33d79e8bc864967e766349cda",
++    "src/forge/hybrid/07_render_adapters.js": "8755b217732677487dc20647b46a0580ea218460e5f85ef986ff660bec422606",
++    "src/forge/hybrid/08_playback_controller.js": "616691ad1ebae4a7da355e190549429d376e09d948e44ed70496ad778ec9416d",
++    "src/forge/hybrid/09_runtime.js": "14638b2ce878288a480922e2b4c3a7dde8783adb9f3340245ba75035f34f8a68",
++    "src/forge/ui/04_cecilia_controls.js": "80537bbab856271cb41e3aa4d89489462933bfc6a80de64223cf28ee3359b176",
++    "src/forge/analysis/03_source_identity_and_cache.js": "c1536bd80ffdaf69c9602ca7c6994dc83d43250b63548bda9f96a1bea1006366",
++    "src/forge/lifecycle/02_workbench_activity.js": "dde7c5169b27d50f71c7bf971eee49d85bc8a4a724c833b6cb92e720f81b3026",
++    "src/forge/ui/05_workbench_controls.js": "9e00dd532f8832e866875abf37290c918a5134a1168e8ec14955e04f6067a508",
++    "src/forge/dual/01_dsp_and_worker.js": "757f740b04fb9b8e8771f51e64d4907516831680465089af56f25e96b5352b4c",
++    "src/forge/dual/02_session_store.js": "92a88bd5fcdb0623222409c2f4ab16df1771c5087a0dc379452f2df8de76483d",
++    "src/forge/dual/03_audio_files.js": "e920dd32c8ab5855d9b5db87bb71c49cfaa8829e3901d99ee696c580acc19d8e",
++    "src/forge/dual/04_session_codec.js": "4e2bb913898ea3a07fec3ca1ee991d916574188de37e44c5d63ec33ce7f5e498",
++    "src/forge/dual/05_library_bridge.js": "19bbebb6233870a251812e15c6dc5ca477de5dc2008a985e75d20ad1381a94b1",
++    "src/forge/dual/06_output_controls.js": "ce648197d0eb834bcf0c4f5cf05c9c942d36dd4293fd35b1f58a1ccf8ae3138e",
++    "src/05_dual_donor.js": "cc1241087c1e460a03920e3dfd8c271dc32536df8156a9125e9086937c142b0a",
++    "src/06_workbench_dialog.js": "0153369e5b58d75f66f392655d1eaa899c0a9a3ad0e5b7578f08ccf19f1ebd17",
++    "styles/00_base_utilities.css": "e09b40882f0e784107aac80ee8294e4c3363e7d596820c91469833da46d67081",
++    "styles/01_near_feedback.css": "a3ae120030efbac40a14ace2802e9f0924e6ac8c2af862b6c3901b51cec13efb",
++    "styles/02_wave_amp.css": "f000fd3a9f89337f9e255de1734700837f35681a72be59fb309a3d42deaf1634",
++    "styles/03_forge_mobile_sidebar.css": "ab91854df198c49cfea31757b193717865f3d26e5d68e370a7392eb9b8a31535",
++    "styles/04_workbench_base.css": "36d7ec5234da0071f61f31beebd31fb16072aa99f8a4da4ab97ae1af87645b42",
++    "styles/05_workbench_controls.css": "63bf3ddd8c66aaf9fc3e13b0dfab533ae352fae0efdfdf44351731da9fc335ab",
++    "styles/06_donor_library.css": "d8285928265fd25f970e370a50145db6237fb204b7932fe792b06101a1becf72",
++    "styles/07_donor_library_dock.css": "a9015ab49de1889c6a1f14e5dd6b5a0c13f261618eed9009c67d1c2a0ba02a34",
++    "styles/08_workbench_workflow.css": "31ba7c163fe9d563956753fcb10134f10d1cf7d759548ad75c78708a1b1ce7a6",
++    "styles/09_combination_rack.css": "53b6cc5fb8da5c397e7eb4eca8ac4e7bf4baf129b3356267c7d9d7e7c07282f3",
++    "styles/10_hybrid_workflow.css": "9c6c8ca5b10d43316c1799171b8617726ced37aef205a0da180c9f3ca7d3d533",
++    "styles/11_carrier_controls.css": "5b2d1e3c67bce5a18a72f7928f480180a1fc34051fe0f23a082803ea544a69af",
++    "styles/12_drum_rack.css": "2d919686bbc365ffc0b5f6a58b24e1408dd12780a8c2776cef2b0d4d90cea178",
++    "styles/13_drum_timing.css": "97f5a79dbc339b77cf3ddf43db7efd0ed938e3a52226435aeb03415e4986cf03",
++    "styles/14_drum_responsive.css": "cf0a6c4070a6b119eb10e7bc1e100be910799511393ff5316d052b0fb4fb2e08",
++    "styles/15_drum_playhead.css": "172b73e65d2510e479403395b09e468e33f830708046209bb966174ad092e847",
++    "styles/16_dual_donor_assembly.css": "5f1c9c86811f0ad65cd26e933a7958b6e77b7ea11fec0a0e0b387d309e259018",
++    "styles/17_dual_donor_output.css": "cae09d0b10d06d0f2691a77e6f935f3fbdb6ce3d0f23ac54b6145f6b807ca9ac",
++    "styles/18_forge_status.css": "325841dc85670fe707b0aaef263064582ebf539384808579a655f09b2b0b5fb6",
++    "styles/19_bass_manager_fix.css": "a5bfe03c03a3d66c6e7712ee05263406b0b99e619ad7645baf3c007991b60058",
++    "styles/20_nodal_sound_designer.css": "d13df44f3925ddfcdabbcb4a18d2530897bf23216d6a7b89d9f77e620acf94cd",
++    "styles/22_emilia3.css": "c2cf67556b33c63165a52dbd2fe42390541736f081c5719980ab3c2053a07faf",
++    "styles/08_forge_workflow.css": "b380523af99df20184df86fcbccd8822c0ff3f9b16930ea6512e11ae7648b11b",
++    "styles/23_performance_palette.css": "80ed8e70b1dd50154a0a954cfadc07a89bf17c0976f07bc2a46b50fdeb459b29",
++    "styles/24_quick_menu.css": "1c114dcf164149155b8c99ab735e1686e253517abecf10b090e0e94cb8b1471b",
++    "styles/25_n20_forge_navigation.css": "90fbaafbd463a0eee3f3152aa702b8ed773e1172751466376dd82af20c80590d",
++    "styles/26_live_controls.css": "607918b901969ce42fd6b0ab3ce430c7ec01ad5cafef7aa10e5b2f06273e56fb",
++    "template/head.html": "364d97a5ce20d23936fa2897a05471dea5222b54a4ed2fcd1c04a574cb2a4ff5",
++    "template/script-close.html": "701f651e6b496cbe2bf6fced4f76dc90e3b0c4a45da99ad2effc206d3a40bd67",
++    "template/foot.html": "af5c88b6ab4b01a5826bf521d32c1da95c2aea93fd650060a521f22cb24ed085"
++  }
++}
+diff --git a/n21-f2/docs/architecture-stability/corrections.json b/n21-f2/docs/architecture-stability/corrections.json
+new file mode 100644
+index 0000000..72cbdf0
+--- /dev/null
++++ b/n21-f2/docs/architecture-stability/corrections.json
+@@ -0,0 +1,49 @@
++{
++  "src/forge/module_bundle/21_experimentStatePersistence.js": [
++    {
++      "old": "let writeChain = Promise.resolve();",
++      "new": "let writeChain = Promise.resolve();\n// A controller owns one subscription lifetime and at most one restore operation.\nlet startPromise = null;\nlet restorePromise = null;",
++      "count": 1
++    },
++    {
++      "old": "if (disposed || restoring || !restoreComplete || protectingSavedState)",
++      "new": "if (disposed || restorePromise || restoring || !restoreComplete || protectingSavedState)",
++      "count": 1
++    },
++    {
++      "old": "if (restoring || disposed || !restoreComplete || protectingSavedState)",
++      "new": "if (restorePromise || restoring || disposed || !restoreComplete || protectingSavedState)",
++      "count": 1
++    },
++    {
++      "old": "const restore = async () => {\nif(restoring||disposed)return false;\nclearTimers();\nawait writeChain.catch(()=>{});\nconst restoreEpoch=__f333RestoreBarrier;\nrestoring = true;",
++      "new": "const restore = () => {\nif (disposed) return Promise.resolve(false);\nif (restorePromise) return restorePromise;\nclearTimers();\n// Capture interaction ownership before waiting: edits during an outstanding save\n// must supersede this restore too. Already queued writes are allowed to finish.\nconst restoreEpoch = __f333RestoreBarrier;\nrestorePromise = (async () => {\nawait writeChain.catch(()=>{});\nif (disposed) return false;\nrestoring = true;",
++      "count": 1
++    },
++    {
++      "old": "const record = await args.storage.get(WORKSPACE_ID);\nif (!record)",
++      "new": "const record = await args.storage.get(WORKSPACE_ID);\nif (disposed) return false;\nif (!record)",
++      "count": 1
++    },
++    {
++      "old": "catch (error) {\nlastError = error instanceof Error ? error.message : String(error);\nrestoreComplete = true;",
++      "new": "catch (error) {\nif (disposed) return false;\nlastError = error instanceof Error ? error.message : String(error);\nrestoreComplete = true;",
++      "count": 1
++    },
++    {
++      "old": "finally {\nrestoring = false;\n}\n};",
++      "new": "finally {\nrestoring = false;\n}\n})().finally(() => { restorePromise = null; });\nreturn restorePromise;\n};",
++      "count": 1
++    },
++    {
++      "old": "const start = async () => {\nattachInteractionGuards();",
++      "new": "const start = () => {\nif (disposed) return Promise.resolve();\nif (startPromise) return startPromise;\nstartPromise = (async () => {\nattachInteractionGuards();",
++      "count": 1
++    },
++    {
++      "old": "if(typeof __F3564Master!=='undefined')cleanupDom.push(__F3564Master.subscribe(scheduleSave));\n};",
++      "new": "if(typeof __F3564Master!=='undefined')cleanupDom.push(__F3564Master.subscribe(scheduleSave));\n})();\nreturn startPromise;\n};",
++      "count": 1
++    }
++  ]
++}
+diff --git a/n21-f2/docs/architecture-stability/report.md b/n21-f2/docs/architecture-stability/report.md
+new file mode 100644
+index 0000000..77973cc
+--- /dev/null
++++ b/n21-f2/docs/architecture-stability/report.md
+@@ -0,0 +1,83 @@
++# Architekturprüfung: stabile Grundlage für die Weiterentwicklung
++
++Basis: Commit `402d8f54fb7f18980f43eb7b3056724d8f3e8912`. Aktive Datei: `Xensonar_P7_Architecture_Stability_Test.html`.
++
++## Einschätzung
++
++Die Codebasis hat bereits wichtige Grundlagen: einen reproduzierbaren Einzeldatei-Build, einen Quellindex, Verhaltenstests mit produktivem Code, native Browserprüfungen, abgegrenzte Synthese-Kerne, Worker/Worklet-Ausführung, begrenzte Caches und abgesicherte Audio-Ausgänge. Deshalb ist eine komplette Neuarchitektur derzeit weder erforderlich noch ausreichend begründet. Das Instrument lässt sich sinnvoll weiterentwickeln, wenn Erweiterungen die bestehenden musikalischen Verträge ausdrücklich bewahren.
++
++Der Quellindex zählt 207 Einheiten, 6.512 Namen auf oberster Ebene und 1.116 gerichtete Abhängigkeitspaare zwischen Einheiten. Das ist eine Bestandsaufnahme, keine Performance-Messung und kein automatischer Qualitätswert. Die Quellpartitionen teilen weiterhin einen gemeinsamen Gültigkeitsbereich und eine festgelegte Build-Reihenfolge. Mehrere Einheiten enthalten über 100 KiB Quelltext. Dateiaufteilung allein schützt daher nicht vor unbeabsichtigten Querzugriffen und falscher Aufrufreihenfolge.
++
++Die Größe der ausgelieferten HTML-Datei ist hier kein nachgewiesener Engpass. Wichtiger sind PCM-/Snapshot-Speicher, Kopierarbeit, Hauptthread-Blockierung, pünktliche Audio-Steuerung und die Lebensdauer asynchroner Aufgaben. Eingebettete Bilder sind nicht der entscheidende Maßstab für Stabilität; auch Audio, Undo-Daten und doppelte Berechnungen beanspruchen Speicher. Eine Desktop-Hülle würde diese internen Probleme nicht automatisch lösen.
++
++## Priorität 1: eindeutige Zuständigkeit für laufende Aufgaben
++
++**Jetzt umgesetzt:** Der vorhandene Forge-Speichercontroller bekommt eine einmalige Startphase und einen gemeinsamen laufenden Restore-Vorgang. Schnittstelle und gespeicherte Formate bleiben unverändert. Diese Zuständigkeit gehört in den vorhandenen Controller; eine zusätzliche allgemeine Ereignisverwaltung würde dafür unnötige Komplexität erzeugen.
++
++Nachgewiesene Probleme vor der Korrektur:
++
++- Wiederholtes `start()` konnte dieselbe Datenbank mehrfach lesen und mehrfach abonnieren. Der neue Test beobachtete bei drei Aufrufen drei Lesevorgänge. Der Controller hielt nur die zuletzt registrierten Store-/Runtime-Abmeldungen fest.
++- Zwei `restore()`-Aufrufe konnten beide die Prüfung passieren, bevor der erste nach `await writeChain` sein `restoring` setzte.
++- Eine während dieses Wartens erfolgte neuere Interaktion lag vor dem bisherigen Zeitpunkt der Erfassung des Interaktionszählers. Damit konnte eine ältere Wiederherstellung diese Interaktion überholen.
++- Ein während des Wartens abgemeldeter Controller konnte danach noch einen Datenbank-Lesevorgang beginnen.
++
++Korrektur in `src/forge/module_bundle/21_experimentStatePersistence.js`:
++
++1. Wiederholtes Starten teilt dieselbe Promise und installiert genau ein Abonnement pro Quelle.
++2. Gleichzeitiges Wiederherstellen teilt dieselbe laufende Promise; ein späterer ausdrücklicher Restore nach Abschluss bleibt möglich.
++3. Der Interaktionszähler wird beim Anfordern erfasst. Bereits eingeplante Schreibvorgänge dürfen abschließen; neue Save-Anfragen werden während des wartenden Restore blockiert.
++4. Nach asynchronen Grenzen wird die Zuständigkeit geprüft, bevor weiter gelesen oder Zustand angewandt wird. Ein verspäteter Datenbankfehler nach Disposal überschreibt auch den Fehlerstatus nicht mehr.
++
++Ergebnis im gezielten Verhaltenstest: drei Startaufrufe ergeben einen Lesevorgang, je ein Store-/Runtime-Abonnement und je eine Abmeldung; parallele Restores ergeben einen Lesevorgang; Disposal während ausstehendem Save ergibt keinen weiteren Lesevorgang; eine neuere Interaktion bleibt erhalten.
++
++**Danach sinnvoll:** Andere langlebige Controller einzeln auf dieselben Eigentumsfragen prüfen: Wer darf Ergebnisse anwenden? Wer beendet Worker, Timer und Abonnements? Welcher Stand macht ein Ergebnis ungültig? Bereits bestehende Generations-/Epoch-Grenzen nicht pauschal durch einen einzigen globalen Abbruch ersetzen: Ein Forge-Render und eine live gespielte Stimme benötigen unterschiedliche Lebensdauern.
++
++## Priorität 2: eine verbindliche Forge-Höranfrage
++
++Die nächste fachlich wertvolle Architekturänderung liegt zwischen `src/forge/editor/07_composition_and_preview_ui.js` (`Xje`, `Yje`, Transportvorbereitung) und `src/forge_and_melodic/10_audition_and_persistence.js` (`__f333Route`, Höranfrage, Cache-Key, Readiness und Renderauftrag). Dort werden verwandte Entscheidungen an mehreren Stellen getroffen. Der kürzlich korrigierte Unterschied zwischen ausgewähltem Donor und tatsächlich gehörtem Carrier zeigt ein reales Regressionsrisiko.
++
++Ziel wäre eine einzige unveränderliche Höranfrage mit tatsächlicher Route, Klangmaschine, Quell-/Rezeptrevision, Zeit-/Tonhöhenparametern und Abbruchzuständigkeit. Vorbereitung, Play, Cache und Vollgrün-Anzeige sollen diese Anfrage verwenden. Fortschritt gehört zu deren laufendem Auftrag; Vollgrün setzt dessen fertigen, passenden hörbaren Puffer voraus. Die bestehenden musikalisch verschiedenen Renderer bleiben hinter dieser Grenze eigenständig.
++
++Vorteil: neue Hörweisen müssen nicht mehrere Interpretationen des aktuellen Zustands synchron erweitern. Mögliche Performance-Gewinne kommen aus vermiedenen Snapshots, wiederverwendeten fertigen Ergebnissen und zusammengeführten identischen Aufträgen. **Kein zusätzlicher Geschwindigkeitsgewinn dieser künftigen Änderung wurde hier gemessen.** Die bestehende Zusammenführung identischer Renderaufträge und der Ready-Cache bleiben aktiv.
++
++Abnahme: alle vorhandenen Hörweisen, kaltes/warmes Play, Donor-Wechsel während des Ladens, schneller Maschinenwechsel, Paint/Morph/Undo, Abbruch und Wiederaufnahme. Für globale Analyse-, Normalisierungs- oder Relationsschritte bleibt eine vollständige Neuberechnung erforderlich. Lokales PCM-Splicing ohne Abhängigkeitsnachweis wäre musikalisch riskant.
++
++## Priorität 3: editierbaren Zustand von vorbereiteten Audiodaten trennen
++
++Die Live-Engine soll weiterhin fertige Tabellen, Koeffizienten und kleine Steuerwerte erhalten. Aufwendige Analyse, Serialisierung oder allgemeine Zustandsabfragen gehören außerhalb des zeitkritischen Audio-Pfads. Diese Trennung existiert bereits in mehreren Nodal-/RFL-Bereichen; dort ist zunächst der vorhandene Vertrag zu stärken, statt neue Engines einzuführen.
++
++Konkreter nächster Untersuchungsbereich: Übergabe vom editierbaren Instrument-/Rasterzustand zu vorbereiteten Voice-/RFL-Daten, etwa in `src/audio/01_voice_and_rfl_ownership.js`, `src/audio/05_live_voice_runtime.js` und den Nodal-Vorbereitungsmodulen. Große Dateien sind nur ein Suchhinweis. Erst eine nachgewiesene doppelte Vorbereitung oder ein unnötiger Zugriff im Live-Pfad rechtfertigt eine Änderung.
++
++Sinnvoller Vertrag: ein vorbereiteter Stand besitzt eine eindeutige Revision und enthält alles, was die laufende Stimme braucht. Eine neue Revision wird vorbereitet und übernommen, ohne bereits klingende Ausläufe mit veränderten Puffergrenzen oder einem fremden Zustand zu beschädigen. Protokolle, nicht Klangmodelle, dürfen vereinheitlicht werden.
++
++Abnahme: Klang-/Tonhöhenparität, Root-Wechsel bei Hauptthread-Stalls, Stop/Release, mono/stereo, mehrere Sample-Raten und maximale reale Stimmenlast. Rasterabstände dürfen nicht vereinheitlicht werden: Die Cursor-Rastersuche verwendet linearen Hertz-Abstand; andere Instrumentpfade verwenden bewusst Cent-Abstände und teils andere Perioden als die Oktave.
++
++## Priorität 4: gespeicherten Zustand ausdrücklich beschreiben
++
++Forge-Autosave und globale Paketstation erfüllen unterschiedliche Zwecke und sollten bestehen bleiben. Zu prüfen sind ihre gemeinsamen Datenverträge, nicht eine erzwungene Zusammenlegung der Speicher.
++
++Wichtige Stellen: `src/forge/module_bundle/21_experimentStatePersistence.js` sowie `src/app/forge/02_boot_and_workspace_tools.js`. Die Paketstation besitzt bereits eine Allowlist und Versionsregeln. Künftig sollte jedes neue dauerhaft relevante Feld zusammen mit Export, Import, Rückwärtskompatibilität und einem Roundtrip-Test eingeführt werden. Flüchtige Zustände wie Playhead, Renderfortschritt und Audioknoten gehören nicht in den gespeicherten Projektzustand.
++
++Ein deklarativer Vertrag kann diese Zuordnung dokumentieren und Adapter gemeinsam prüfen. Er sollte erst dort ausführbarer gemeinsamer Code werden, wo die Semantik tatsächlich gleich ist. Ein pauschales Serialisieren aller Runtime-Felder wäre fehleranfälliger und teurer.
++
++Abnahme: Projekt aus Browser A in ein leeres Profil von Browser B übertragen, einschließlich Bibliotheken, Carrier-/Donor-Wahl, Tuning, Gain und neuer dauerhafter Einstellungen; alte Pakete behalten ihre bisherigen Regeln. Globale Einstellungen erfordern nach dem Paketimport weiterhin einmaliges Neuladen. Der vorhandene Chromium-Leerprofiltest ist ein Nachweis für die Importkette, kein Nachweis tatsächlicher Firefox-/Opera-Parität.
++
++## Priorität 5: Regressionen an musikalischen Grenzen abfangen
++
++Vorhandene Verhaltenstests bleiben die Grundlage. Ergänzungen sollten echte Grenzen absichern: Vollgrün entspricht spielbarem Ergebnis; Raster-Mute unterbindet alle zugehörigen Spielwirkungen; Envelope-Null ist Stille; Stop verwirft veraltete Aufgaben; Paket-Roundtrip erhält dauerhaften Zustand; gleiche Eingabe liefert die beabsichtigte Tonhöhenlogik. Quellhashes belegen zusätzlich den begrenzten Änderungsumfang, ersetzen diese Tests aber nicht.
++
++Der aktuelle Patch ergänzt zwei Host-Gates im gemeinsamen Release-Lauf: Zuständigkeit des Controllers und überprüfbare Begrenzung der Produktionsänderung. CI sammelt die Nachweise im neuen Ergebnisverzeichnis. Eine spätere Aufräumarbeit sollte die historisch gewachsene Kette der Freigabe-/Preservation-Skripte und die teilweise fest eingebauten Ergebnisverzeichnisse vereinfachen. Dabei historische Belege erhalten und Verhaltenstests nicht durch ständig aktualisierte Hashes ersetzen.
++
++## Bewusst erhalten
++
++Keine Zusammenlegung von Synthese-Kernen, keine Verringerung von Stimmen, Obertönen oder Auflösung. Keine Änderung an UI, Mastering, Granular-Fenstern, Tonhöhenregeln oder Projektformaten. Keine neue Laufzeitabhängigkeit, Framework-Umstellung oder Desktop-Hülle. Der Produktionspatch betrifft genau einen bestehenden Verwaltungscontroller. Die 207 Quell- und 27 Stil-Einheiten sowie ihre Reihenfolge bleiben erhalten. Die übrigen Produktionsquellen werden bytegenau gegen die geprüfte Basis kontrolliert.
++
++P7.12 bleibt archiviertes, nicht integriertes Experiment.
++
++## Validierung
++
++Bestanden: 43 Host-/Build-Prüfungen sowie 11 Chromium-/Build-Prüfungen, jeweils ohne Fehler. Der erweiterte gezielte Controller-Test wurde danach ebenfalls erfolgreich ausgeführt. Build SHA-256: `30efae37d2450eae4ddc9c8ea5909af2ef2bcc72413fe4710d50a621db78c146`.
++
++Die abschließenden Ergebnisse stehen in `results/architecture-stability/host-validation.json` und `browser-validation.json`. Der gezielte Test führt den echten Controller im vollständigen produktiven Offline-Runtime-Harness aus und hält Schreib-/Lesegrenzen gezielt an. Die bestehenden nativen Tests prüfen unter anderem Forge-Hörweisen/Readiness, Paint/Morph/Tonhöhen, Paketimport, räumliche Anordnung und die Master-Endstufe.
++
++Grenzen: kein allgemeiner Nachweis der Abwesenheit aller Regressionen; kein Hörtest an einer physischen Audioanlage und keine neue Opera-/Firefox-Messreihe. Dieser Patch beseitigt unnötige parallele Verwaltungsarbeit und schließt belegte Race-Conditions. Er beansprucht keine gemessene Beschleunigung der Synthese oder des gesamten Instruments.
+diff --git a/n21-f2/source-manifest.json b/n21-f2/source-manifest.json
+index c18d0d0..180ad02 100644
+--- a/n21-f2/source-manifest.json
++++ b/n21-f2/source-manifest.json
+@@ -1,6 +1,6 @@
+ {
+-  "version": "XenSonar P7 · Smooth Autosave / Live Master",
+-  "entry": "Xensonar_P7_Smoothness_Master_Test.html",
++  "version": "XenSonar P7 · Persistence Ownership / Architecture Stability",
++  "entry": "Xensonar_P7_Architecture_Stability_Test.html",
+   "files": [
+     "src/handoff/00_chat_feature_addons.js",
+     "src/mix/03_quick_menu.js",
+@@ -210,8 +210,8 @@
+     "src/05_dual_donor.js",
+     "src/06_workbench_dialog.js"
+   ],
+-  "sha256": "f6f52b06d3bd2201db2ebeac955da9aa09fc4c7226c9aa8b8692637d985ac7b6",
+-  "bytes": 5704611,
++  "sha256": "30efae37d2450eae4ddc9c8ea5909af2ef2bcc72413fe4710d50a621db78c146",
++  "bytes": 5705308,
+   "sourceOrder": "Concatenate in listed order. Explicit factories own Workbench, hybrid session, render capture, adapters, playback and analysis cache. Remaining registry fragments share one inline module; DSP factories stay independently serializable for workers.",
+   "status": "F4.3.13 mainline plus F4.4.0 Nodal coupled-modal-v2, anchored at F4.3.5",
+   "baseVersion": "F4.3.5 (three-way)",
+diff --git a/n21-f2/src/forge/module_bundle/21_experimentStatePersistence.js b/n21-f2/src/forge/module_bundle/21_experimentStatePersistence.js
+index 50abeec..b5e53fb 100644
+--- a/n21-f2/src/forge/module_bundle/21_experimentStatePersistence.js
++++ b/n21-f2/src/forge/module_bundle/21_experimentStatePersistence.js
+@@ -86,6 +86,9 @@ const maxLatencyMs = Math.max(debounceMs, args.maxLatencyMs ?? 4000);
+ let idleTimer = null;
+ let hardTimer = null;
+ let writeChain = Promise.resolve();
++// A controller owns one subscription lifetime and at most one restore operation.
++let startPromise = null;
++let restorePromise = null;
+ let restoring = false;
+ let restoreComplete = false;
+ let protectingSavedState = false;
+@@ -112,7 +115,7 @@ return ref;
+ };
+ const saveNow = () => {
+ clearTimers();
+-if (disposed || restoring || !restoreComplete || protectingSavedState)
++if (disposed || restorePromise || restoring || !restoreComplete || protectingSavedState)
+ return false;
+ try {
+ const state = args.store.getState();
+@@ -169,7 +172,7 @@ clearTimeout(hardTimer);
+ idleTimer = hardTimer = null;
+ };
+ const scheduleSave = () => {
+-if (restoring || disposed || !restoreComplete || protectingSavedState)
++if (restorePromise || restoring || disposed || !restoreComplete || protectingSavedState)
+ return;
+ if (idleTimer)
+ clearTimeout(idleTimer);
+@@ -191,15 +194,21 @@ if (!record?.value)
+ throw new Error('Audiodaten des gespeicherten Arbeitsstands fehlen.');
+ return hydrateAudioAsset(record.value, ref);
+ };
+-const restore = async () => {
+-if(restoring||disposed)return false;
++const restore = () => {
++if (disposed) return Promise.resolve(false);
++if (restorePromise) return restorePromise;
+ clearTimers();
++// Capture interaction ownership before waiting: edits during an outstanding save
++// must supersede this restore too. Already queued writes are allowed to finish.
++const restoreEpoch = __f333RestoreBarrier;
++restorePromise = (async () => {
+ await writeChain.catch(()=>{});
+-const restoreEpoch=__f333RestoreBarrier;
++if (disposed) return false;
+ restoring = true;
+ protectingSavedState = true;
+ try {
+ const record = await args.storage.get(WORKSPACE_ID);
++if (disposed) return false;
+ if (!record) {
+ restoreComplete = true;
+ protectingSavedState = false;
+@@ -284,6 +293,7 @@ restoreSkippedForInteraction = false;
+ return true;
+ }
+ catch (error) {
++if (disposed) return false;
+ lastError = error instanceof Error ? error.message : String(error);
+ restoreComplete = true;
+ return false;
+@@ -291,6 +301,8 @@ return false;
+ finally {
+ restoring = false;
+ }
++})().finally(() => { restorePromise = null; });
++return restorePromise;
+ };
+ const attachInteractionGuards = () => {
+ if (typeof document === 'undefined')
+@@ -304,7 +316,10 @@ cleanupDom.push(() => document.removeEventListener('visibilitychange', flush));
+ if (typeof window !== 'undefined')
+ cleanupDom.push(() => window.removeEventListener('pagehide', flush));
+ };
+-const start = async () => {
++const start = () => {
++if (disposed) return Promise.resolve();
++if (startPromise) return startPromise;
++startPromise = (async () => {
+ attachInteractionGuards();
+ await restore();
+ if (disposed)
+@@ -325,6 +340,8 @@ unsubStore = subscribeChanges(args.store, () => args.store.getState(), ['isPlayi
+ unsubRuntime = subscribeChanges(args.runtime, () => args.runtime.getSnapshot(), ['renderProgress','preparedFigureKey','preparedFigureRenderVersion','preparedFigureCacheHit']);const unsubWorkbench=__F341Workbench.subscribe(scheduleSave);cleanupDom.push(unsubWorkbench);
+ const unsubCombination=__F351Combination.subscribe(scheduleSave);cleanupDom.push(unsubCombination);
+ if(typeof __F3564Master!=='undefined')cleanupDom.push(__F3564Master.subscribe(scheduleSave));
++})();
++return startPromise;
+ };
+ const dispose = () => {
+ disposed = true;
+diff --git a/n21-f2/tests/architecture-stability-preservation.cjs b/n21-f2/tests/architecture-stability-preservation.cjs
+new file mode 100644
+index 0000000..afd020a
+--- /dev/null
++++ b/n21-f2/tests/architecture-stability-preservation.cjs
+@@ -0,0 +1,5 @@
++'use strict';
++const fs=require('fs'),assert=require('assert/strict'),crypto=require('crypto'),base=require('../docs/architecture-stability/baseline.json'),fixes=require('../docs/architecture-stability/corrections.json'),m=require('../source-manifest.json');
++const sha=x=>crypto.createHash('sha256').update(x).digest('hex'),anchors={};
++for(const [file,hash]of Object.entries(base.hashes)){let text=fs.readFileSync(file,'utf8');const current=sha(text);for(const c of [...(fixes[file]||[])].reverse()){assert.equal(text.split(c.new).length-1,c.count,'declared lifecycle ownership change '+file);text=text.split(c.new).join(c.old)}assert.equal(sha(text),hash,'unchanged source/synthesis/master protection '+file);if(fixes[file])anchors[file]=current}
++assert.deepEqual(m.files,base.files);assert.deepEqual(m.styles,base.styles);console.log('PASS single persistence owner; all synthesis, DSP, UI, storage schemas and source order unchanged');module.exports={anchors};
+diff --git a/n21-f2/tests/forge-persistence-ownership.cjs b/n21-f2/tests/forge-persistence-ownership.cjs
+new file mode 100644
+index 0000000..b3edfee
+--- /dev/null
++++ b/n21-f2/tests/forge-persistence-ownership.cjs
+@@ -0,0 +1,75 @@
++'use strict';
++const assert = require('node:assert/strict'), fs = require('node:fs'), { load } = require('./offline_runtime.cjs');
++const h = load(process.cwd());
++const watchdog = setTimeout(() => { console.error("FAIL unresolved persistence operation"); process.exit(1); }, 15000);
++(async () => {
++    const results = await h.run(`
++(async () => {
++    const create = __ForgeF33.createExperimentStatePersistenceController;
++    const spin = async (predicate) => { for (let i = 0; i < 100 && !predicate(); i++)
++        await Promise.resolve(); if (!predicate())
++        throw Error('Async boundary not reached'); };
++    async function duplicateStart() {
++        let release, reads = 0, releases = [], storeSubs = 0, storeUnsubs = 0, runtimeSubs = 0, runtimeUnsubs = 0;
++        const controller = create({ store: { getState: () => pe.getState(), subscribe: () => { storeSubs++; return () => storeUnsubs++; } }, runtime: { getSnapshot: () => Vt.getSnapshot(), subscribe: () => { runtimeSubs++; return () => runtimeUnsubs++; } }, prepareDonor: async () => null, storage: { get: () => { reads++; return new Promise(r => { release = r; releases.push(r); }); }, put: async () => { } } });
++        const a = controller.start(), b = controller.start();
++        await spin(() => !!release);
++        releases.splice(0).forEach(r => r(null));
++        await Promise.all([a, b]);
++        const c = controller.start();
++        for (let i = 0; i < 20; i++)
++            await Promise.resolve();
++        releases.splice(0).forEach(r => r(null));
++        await c;
++        controller.dispose();
++        return { reads, storeSubs, storeUnsubs, runtimeSubs, runtimeUnsubs };
++    }
++    async function overlappingRestore() { let reads = 0, release, releases = []; const controller = create({ store: pe, runtime: Vt, prepareDonor: async () => null, storage: { get: () => { reads++; return new Promise(r => { release = r; releases.push(r); }); }, put: async () => { } } }); const a = controller.restore(), b = controller.restore(); await spin(() => !!release); releases.forEach(r => r(null)); await Promise.all([a, b]); controller.dispose(); return { reads }; }
++    async function queuedRestore(dispose) {
++        let writes = 0, reads = 0, release;
++        const snapshot = pe.getState().createProjectSnapshot();
++        snapshot.materialExport.name = 'Old restored name';
++        const record = { value: { version: 'spectral-forge-experiment-v1', projectSnapshot: snapshot } };
++        const controller = create({ store: pe, runtime: Vt, prepareDonor: async () => null, storage: { get: async () => { reads++; return reads === 1 ? null : record; }, put: () => { writes++; return writes === 1 ? new Promise(r => release = r) : Promise.resolve(); } } });
++        await controller.start();
++        const saving = controller.saveNow();
++        await spin(() => !!release);
++        const beforeReads = reads;
++        const loading = controller.restore();
++        if (dispose)
++            controller.dispose();
++        else {
++            pe.getState().updateMaterialExport({ name: 'New edit while waiting' });
++            __f333RestoreBarrier++;
++        }
++        release();
++        await saving;
++        await loading;
++        const result = { readsAfterWaiting: reads - beforeReads, name: pe.getState().materialExport.name, status: controller.status(), writes };
++        controller.dispose();
++        return result;
++    }
++    async function retryRestore() { let reads = 0; const controller = create({ store: pe, runtime: Vt, prepareDonor: async () => null, storage: { get: async () => { reads++; if (reads === 1)
++                throw Error('temporary storage failure'); return null; }, put: async () => { } } }); await controller.restore(); const failed = controller.status().lastError; await controller.restore(); const recovered = controller.status().lastError; controller.dispose(); await controller.start(); await controller.restore(); return { reads, failed, recovered }; }
++    async function lateError() { let reject; const controller = create({ store: pe, runtime: Vt, prepareDonor: async () => null, storage: { get: () => new Promise((a, b) => reject = b), put: async () => { } } }); const pending = controller.start(); await spin(() => !!reject); controller.dispose(); const before = controller.status().lastError; reject(Error('obsolete read failure')); await pending; return { unchanged: before === controller.status().lastError, complete: controller.status().restoreComplete }; }
++    return { start: await duplicateStart(), restore: await overlappingRestore(), disposed: await queuedRestore(true), edited: await queuedRestore(false), retry: await retryRestore(), lateError: await lateError() };
++})();
++`);
++    fs.writeFileSync('results/architecture-stability/persistence-ownership.json', JSON.stringify(results, null, 2) + '\n');
++    assert.equal(results.start.reads, 1, 'start must install and restore only once');
++    for (const kind of ['store', 'runtime']) {
++        assert.equal(results.start[kind + 'Subs'], 1);
++        assert.equal(results.start[kind + 'Unsubs'], 1, 'every subscription must have one owner and cleanup');
++    }
++    assert.equal(results.restore.reads, 1, 'overlapping restore calls must share one read');
++    assert.equal(results.disposed.readsAfterWaiting, 0, 'disposed owner must not start another DB read after queued save');
++    assert.equal(results.edited.name, 'New edit while waiting', 'restore must respect edits made while waiting for a save');
++    assert.equal(results.edited.status.restoreSkippedForInteraction, true);
++    assert.equal(results.retry.reads, 2, 'a later restore can retry after failure, while disposal forbids restart');
++    assert.equal(results.retry.failed, 'temporary storage failure');
++    assert.equal(results.retry.recovered, null);
++    assert.equal(results.lateError.unchanged, true, 'late failures cannot overwrite the disposed owner error');
++    assert.equal(results.lateError.complete, false);
++    clearTimeout(watchdog);
++    console.log('PASS single persistence owner, joined restore, balanced subscriptions, disposal and edits while writes drain');
++})().catch(error => { clearTimeout(watchdog); console.error(error); process.exitCode = 1; });
+diff --git a/n21-f2/tests/forge-smoothness-preservation.cjs b/n21-f2/tests/forge-smoothness-preservation.cjs
+index 091ec43..5026be2 100644
+--- a/n21-f2/tests/forge-smoothness-preservation.cjs
++++ b/n21-f2/tests/forge-smoothness-preservation.cjs
+@@ -1,5 +1,5 @@
+ 'use strict';
+-const fs=require('fs'),assert=require('assert/strict'),crypto=require('crypto'),base=require('../docs/forge-smoothness/baseline.json'),fixes=require('../docs/forge-smoothness/corrections.json'),m=require('../source-manifest.json');
++const fs=require('fs'),assert=require('assert/strict'),crypto=require('crypto'),base=require('../docs/forge-smoothness/baseline.json'),fixes=require('../docs/forge-smoothness/corrections.json'),m=require('../source-manifest.json');const stability=require('./architecture-stability-preservation.cjs');
+ const sha=x=>crypto.createHash('sha256').update(x).digest('hex'),anchors={};
+-for(const [file,hash]of Object.entries(base.hashes)){let text=fs.readFileSync(file,'utf8');const current=sha(text);for(const c of [...(fixes[file]||[])].reverse()){assert.equal(text.split(c.new).length-1,c.count,'declared smoothness change '+file);text=text.split(c.new).join(c.old)}assert.equal(sha(text),hash,'unchanged source/synthesis/master protection '+file);if(fixes[file])anchors[file]=current}
+-assert.deepEqual(m.files,base.files);assert.deepEqual(m.styles,base.styles);console.log('PASS bounded autosave/lifecycle/master-meter/control changes; sound generators, final clipper/limiter, UI and schemas retained');module.exports={anchors};
++for(const [file,hash]of Object.entries(base.hashes)){let text=fs.readFileSync(file,'utf8');const current=sha(text);if(stability.anchors[file]){assert.equal(current,stability.anchors[file]);anchors[file]=current;continue;}for(const c of [...(fixes[file]||[])].reverse()){assert.equal(text.split(c.new).length-1,c.count,'declared smoothness change '+file);text=text.split(c.new).join(c.old)}assert.equal(sha(text),hash,'unchanged source/synthesis/master protection '+file);if(fixes[file])anchors[file]=current}
++assert.deepEqual(m.files,base.files);assert.deepEqual(m.styles,base.styles);console.log('PASS bounded autosave/lifecycle/master-meter/control changes; sound generators, final clipper/limiter, UI and schemas retained');module.exports={anchors:{...anchors,...stability.anchors}};
+diff --git a/n21-f2/tools/consolidation_validate.cjs b/n21-f2/tools/consolidation_validate.cjs
+index 7743cec..ee839b7 100644
+--- a/n21-f2/tools/consolidation_validate.cjs
++++ b/n21-f2/tools/consolidation_validate.cjs
+@@ -3,13 +3,13 @@
+ const fs=require('node:fs'),path=require('node:path'),{spawnSync}=require('node:child_process'),manifest=require('../source-manifest.json');
+ const native=process.argv.includes('--browser');
+ const tests=native?['forge-smoothness-browser','forge-efficiency-browser','p7-review-browser','nodal-ball-grid-browser','forge-spatial-browser','mute-auto-preview-browser','integrated-patches-browser','consolidation-browser','forge-ready-browser','forge-pitch-browser']:[
+- 'live-grid-snap','forge-save-lifecycle','forge-save-dispose','master-output-contract','forge-smoothness-preservation',
++ 'forge-persistence-ownership','architecture-stability-preservation','live-grid-snap','forge-save-lifecycle','forge-save-dispose','master-output-contract','forge-smoothness-preservation',
+  'forge-efficiency','forge-efficiency-preservation',
+  'p7-review-regressions','p7-review-preservation','p7_live_grid_space_behavior','p7_2_installation_ball_audio','p7_3_forge_navigator','p7_4_repeat_pointer','p7_5_forge_main_handles','p7_6_expression_mode','p7_7_keyboard_source_gate','p7_8_recorder_async_cancel','test_entrophon_live_revision','test_material_standalone_preview',
+  'myzel_g2_concept','myzel_g_worklet','nodal-ball-grid','nodal-ball-grid-preservation','forge-spatial-contracts','forge-spatial-preservation','history-sharing','patch-integration','consolidation-snapshots','consolidation-history','consolidation-preservation','rw2-source-index',
+  'forge-pitch-space','forge-ready-contract','forge-progress-jobs','live-rfl-lifecycle',
+  'nodal-envelope-zero','workflow-grid-runtime','workflow-hotkeys','microphone-capture','audio-carrier-analysis'];
+-const results=path.join(__dirname,'../results/forge-smoothness');fs.mkdirSync(results,{recursive:true});
++const results=path.join(__dirname,'../results/architecture-stability');fs.mkdirSync(results,{recursive:true});
+ const suffix=native?'browser-validation':'host-validation',startedAt=new Date().toISOString();
+ fs.writeFileSync(path.join(results,suffix+'.json'),JSON.stringify({entry:manifest.entry,sha256:manifest.sha256,startedAt,running:true,rows:[],failed:null},null,2)+'\n');
+ const rows=[];let log='';

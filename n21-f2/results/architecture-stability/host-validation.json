@@ -1,0 +1,309 @@
+{
+  "entry": "Xensonar_P7_Architecture_Stability_Test.html",
+  "sha256": "30efae37d2450eae4ddc9c8ea5909af2ef2bcc72413fe4710d50a621db78c146",
+  "startedAt": "2026-10-20T23:59:50.289Z",
+  "completedAt": "2026-10-21T00:01:43.939Z",
+  "running": false,
+  "scope": "Host behavior, production DSP/Worker tests and source preservation",
+  "rows": [
+    {
+      "name": "forge-persistence-ownership",
+      "passed": true,
+      "exit": 0,
+      "signal": null,
+      "milliseconds": 3111
+    },
+    {
+      "name": "architecture-stability-preservation",
+      "passed": true,
+      "exit": 0,
+      "signal": null,
+      "milliseconds": 114
+    },
+    {
+      "name": "live-grid-snap",
+      "passed": true,
+      "exit": 0,
+      "signal": null,
+      "milliseconds": 2495
+    },
+    {
+      "name": "forge-save-lifecycle",
+      "passed": true,
+      "exit": 0,
+      "signal": null,
+      "milliseconds": 2215
+    },
+    {
+      "name": "forge-save-dispose",
+      "passed": true,
+      "exit": 0,
+      "signal": null,
+      "milliseconds": 4364
+    },
+    {
+      "name": "master-output-contract",
+      "passed": true,
+      "exit": 0,
+      "signal": null,
+      "milliseconds": 3774
+    },
+    {
+      "name": "forge-smoothness-preservation",
+      "passed": true,
+      "exit": 0,
+      "signal": null,
+      "milliseconds": 165
+    },
+    {
+      "name": "forge-efficiency",
+      "passed": true,
+      "exit": 0,
+      "signal": null,
+      "milliseconds": 4668
+    },
+    {
+      "name": "forge-efficiency-preservation",
+      "passed": true,
+      "exit": 0,
+      "signal": null,
+      "milliseconds": 176
+    },
+    {
+      "name": "p7-review-regressions",
+      "passed": true,
+      "exit": 0,
+      "signal": null,
+      "milliseconds": 2019
+    },
+    {
+      "name": "p7-review-preservation",
+      "passed": true,
+      "exit": 0,
+      "signal": null,
+      "milliseconds": 366
+    },
+    {
+      "name": "p7_live_grid_space_behavior",
+      "passed": true,
+      "exit": 0,
+      "signal": null,
+      "milliseconds": 61
+    },
+    {
+      "name": "p7_2_installation_ball_audio",
+      "passed": true,
+      "exit": 0,
+      "signal": null,
+      "milliseconds": 54
+    },
+    {
+      "name": "p7_3_forge_navigator",
+      "passed": true,
+      "exit": 0,
+      "signal": null,
+      "milliseconds": 77
+    },
+    {
+      "name": "p7_4_repeat_pointer",
+      "passed": true,
+      "exit": 0,
+      "signal": null,
+      "milliseconds": 47
+    },
+    {
+      "name": "p7_5_forge_main_handles",
+      "passed": true,
+      "exit": 0,
+      "signal": null,
+      "milliseconds": 74
+    },
+    {
+      "name": "p7_6_expression_mode",
+      "passed": true,
+      "exit": 0,
+      "signal": null,
+      "milliseconds": 58
+    },
+    {
+      "name": "p7_7_keyboard_source_gate",
+      "passed": true,
+      "exit": 0,
+      "signal": null,
+      "milliseconds": 51
+    },
+    {
+      "name": "p7_8_recorder_async_cancel",
+      "passed": true,
+      "exit": 0,
+      "signal": null,
+      "milliseconds": 44
+    },
+    {
+      "name": "test_entrophon_live_revision",
+      "passed": true,
+      "exit": 0,
+      "signal": null,
+      "milliseconds": 55
+    },
+    {
+      "name": "test_material_standalone_preview",
+      "passed": true,
+      "exit": 0,
+      "signal": null,
+      "milliseconds": 52
+    },
+    {
+      "name": "myzel_g2_concept",
+      "passed": true,
+      "exit": 0,
+      "signal": null,
+      "milliseconds": 12573
+    },
+    {
+      "name": "myzel_g_worklet",
+      "passed": true,
+      "exit": 0,
+      "signal": null,
+      "milliseconds": 934
+    },
+    {
+      "name": "nodal-ball-grid",
+      "passed": true,
+      "exit": 0,
+      "signal": null,
+      "milliseconds": 9381
+    },
+    {
+      "name": "nodal-ball-grid-preservation",
+      "passed": true,
+      "exit": 0,
+      "signal": null,
+      "milliseconds": 289
+    },
+    {
+      "name": "forge-spatial-contracts",
+      "passed": true,
+      "exit": 0,
+      "signal": null,
+      "milliseconds": 520
+    },
+    {
+      "name": "forge-spatial-preservation",
+      "passed": true,
+      "exit": 0,
+      "signal": null,
+      "milliseconds": 407
+    },
+    {
+      "name": "history-sharing",
+      "passed": true,
+      "exit": 0,
+      "signal": null,
+      "milliseconds": 5843
+    },
+    {
+      "name": "patch-integration",
+      "passed": true,
+      "exit": 0,
+      "signal": null,
+      "milliseconds": 2903
+    },
+    {
+      "name": "consolidation-snapshots",
+      "passed": true,
+      "exit": 0,
+      "signal": null,
+      "milliseconds": 15181
+    },
+    {
+      "name": "consolidation-history",
+      "passed": true,
+      "exit": 0,
+      "signal": null,
+      "milliseconds": 2924
+    },
+    {
+      "name": "consolidation-preservation",
+      "passed": true,
+      "exit": 0,
+      "signal": null,
+      "milliseconds": 759
+    },
+    {
+      "name": "rw2-source-index",
+      "passed": true,
+      "exit": 0,
+      "signal": null,
+      "milliseconds": 5157
+    },
+    {
+      "name": "forge-pitch-space",
+      "passed": true,
+      "exit": 0,
+      "signal": null,
+      "milliseconds": 7206
+    },
+    {
+      "name": "forge-ready-contract",
+      "passed": true,
+      "exit": 0,
+      "signal": null,
+      "milliseconds": 2311
+    },
+    {
+      "name": "forge-progress-jobs",
+      "passed": true,
+      "exit": 0,
+      "signal": null,
+      "milliseconds": 51
+    },
+    {
+      "name": "live-rfl-lifecycle",
+      "passed": true,
+      "exit": 0,
+      "signal": null,
+      "milliseconds": 2426
+    },
+    {
+      "name": "nodal-envelope-zero",
+      "passed": true,
+      "exit": 0,
+      "signal": null,
+      "milliseconds": 13917
+    },
+    {
+      "name": "workflow-grid-runtime",
+      "passed": true,
+      "exit": 0,
+      "signal": null,
+      "milliseconds": 2107
+    },
+    {
+      "name": "workflow-hotkeys",
+      "passed": true,
+      "exit": 0,
+      "signal": null,
+      "milliseconds": 2325
+    },
+    {
+      "name": "microphone-capture",
+      "passed": true,
+      "exit": 0,
+      "signal": null,
+      "milliseconds": 56
+    },
+    {
+      "name": "audio-carrier-analysis",
+      "passed": true,
+      "exit": 0,
+      "signal": null,
+      "milliseconds": 2208
+    },
+    {
+      "name": "build-reproducibility",
+      "passed": true
+    }
+  ],
+  "failed": 0
+}

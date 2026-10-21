@@ -13924,6 +13924,9 @@ const maxLatencyMs = Math.max(debounceMs, args.maxLatencyMs ?? 4000);
 let idleTimer = null;
 let hardTimer = null;
 let writeChain = Promise.resolve();
+// A controller owns one subscription lifetime and at most one restore operation.
+let startPromise = null;
+let restorePromise = null;
 let restoring = false;
 let restoreComplete = false;
 let protectingSavedState = false;
@@ -13950,7 +13953,7 @@ return ref;
 };
 const saveNow = () => {
 clearTimers();
-if (disposed || restoring || !restoreComplete || protectingSavedState)
+if (disposed || restorePromise || restoring || !restoreComplete || protectingSavedState)
 return false;
 try {
 const state = args.store.getState();
@@ -14007,7 +14010,7 @@ clearTimeout(hardTimer);
 idleTimer = hardTimer = null;
 };
 const scheduleSave = () => {
-if (restoring || disposed || !restoreComplete || protectingSavedState)
+if (restorePromise || restoring || disposed || !restoreComplete || protectingSavedState)
 return;
 if (idleTimer)
 clearTimeout(idleTimer);
@@ -14029,15 +14032,21 @@ if (!record?.value)
 throw new Error('Audiodaten des gespeicherten Arbeitsstands fehlen.');
 return hydrateAudioAsset(record.value, ref);
 };
-const restore = async () => {
-if(restoring||disposed)return false;
+const restore = () => {
+if (disposed) return Promise.resolve(false);
+if (restorePromise) return restorePromise;
 clearTimers();
+// Capture interaction ownership before waiting: edits during an outstanding save
+// must supersede this restore too. Already queued writes are allowed to finish.
+const restoreEpoch = __f333RestoreBarrier;
+restorePromise = (async () => {
 await writeChain.catch(()=>{});
-const restoreEpoch=__f333RestoreBarrier;
+if (disposed) return false;
 restoring = true;
 protectingSavedState = true;
 try {
 const record = await args.storage.get(WORKSPACE_ID);
+if (disposed) return false;
 if (!record) {
 restoreComplete = true;
 protectingSavedState = false;
@@ -14122,6 +14131,7 @@ restoreSkippedForInteraction = false;
 return true;
 }
 catch (error) {
+if (disposed) return false;
 lastError = error instanceof Error ? error.message : String(error);
 restoreComplete = true;
 return false;
@@ -14129,6 +14139,8 @@ return false;
 finally {
 restoring = false;
 }
+})().finally(() => { restorePromise = null; });
+return restorePromise;
 };
 const attachInteractionGuards = () => {
 if (typeof document === 'undefined')
@@ -14142,7 +14154,10 @@ cleanupDom.push(() => document.removeEventListener('visibilitychange', flush));
 if (typeof window !== 'undefined')
 cleanupDom.push(() => window.removeEventListener('pagehide', flush));
 };
-const start = async () => {
+const start = () => {
+if (disposed) return Promise.resolve();
+if (startPromise) return startPromise;
+startPromise = (async () => {
 attachInteractionGuards();
 await restore();
 if (disposed)
@@ -14163,6 +14178,8 @@ unsubStore = subscribeChanges(args.store, () => args.store.getState(), ['isPlayi
 unsubRuntime = subscribeChanges(args.runtime, () => args.runtime.getSnapshot(), ['renderProgress','preparedFigureKey','preparedFigureRenderVersion','preparedFigureCacheHit']);const unsubWorkbench=__F341Workbench.subscribe(scheduleSave);cleanupDom.push(unsubWorkbench);
 const unsubCombination=__F351Combination.subscribe(scheduleSave);cleanupDom.push(unsubCombination);
 if(typeof __F3564Master!=='undefined')cleanupDom.push(__F3564Master.subscribe(scheduleSave));
+})();
+return startPromise;
 };
 const dispose = () => {
 disposed = true;
