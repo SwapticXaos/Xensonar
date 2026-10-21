@@ -1,0 +1,113 @@
+{
+  "entry": "Xensonar_P7_24_Song_Projects_Test.html",
+  "sha256": "e2b2384a0addae4c8a8720eff0c60bec4f6d44af89c382602f80d2f531cae86d",
+  "startedAt": "2026-10-21T11:32:29.665Z",
+  "completedAt": "2026-10-21T11:37:26.710Z",
+  "running": false,
+  "scope": "Native Chromium; no physical audio interface or cross-browser claim",
+  "rows": [
+    {
+      "name": "song-projects-browser",
+      "passed": true,
+      "exit": 0,
+      "signal": null,
+      "milliseconds": 26827
+    },
+    {
+      "name": "p7-24-entrophon-saved-live-browser",
+      "passed": true,
+      "exit": 0,
+      "signal": null,
+      "milliseconds": 14803
+    },
+    {
+      "name": "live-control-ownership-browser",
+      "passed": true,
+      "exit": 0,
+      "signal": null,
+      "milliseconds": 55981
+    },
+    {
+      "name": "forge-request-browser",
+      "passed": true,
+      "exit": 0,
+      "signal": null,
+      "milliseconds": 7032
+    },
+    {
+      "name": "forge-smoothness-browser",
+      "passed": true,
+      "exit": 0,
+      "signal": null,
+      "milliseconds": 8580
+    },
+    {
+      "name": "forge-efficiency-browser",
+      "passed": true,
+      "exit": 0,
+      "signal": null,
+      "milliseconds": 34921
+    },
+    {
+      "name": "p7-review-browser",
+      "passed": true,
+      "exit": 0,
+      "signal": null,
+      "milliseconds": 14943
+    },
+    {
+      "name": "nodal-ball-grid-browser",
+      "passed": false,
+      "exit": 1,
+      "signal": null,
+      "milliseconds": 7248
+    },
+    {
+      "name": "forge-spatial-browser",
+      "passed": true,
+      "exit": 0,
+      "signal": null,
+      "milliseconds": 12569
+    },
+    {
+      "name": "mute-auto-preview-browser",
+      "passed": true,
+      "exit": 0,
+      "signal": null,
+      "milliseconds": 7860
+    },
+    {
+      "name": "integrated-patches-browser",
+      "passed": true,
+      "exit": 0,
+      "signal": null,
+      "milliseconds": 6732
+    },
+    {
+      "name": "consolidation-browser",
+      "passed": true,
+      "exit": 0,
+      "signal": null,
+      "milliseconds": 16757
+    },
+    {
+      "name": "forge-ready-browser",
+      "passed": true,
+      "exit": 0,
+      "signal": null,
+      "milliseconds": 23909
+    },
+    {
+      "name": "forge-pitch-browser",
+      "passed": true,
+      "exit": 0,
+      "signal": null,
+      "milliseconds": 58514
+    },
+    {
+      "name": "build-reproducibility",
+      "passed": true
+    }
+  ],
+  "failed": 1
+}

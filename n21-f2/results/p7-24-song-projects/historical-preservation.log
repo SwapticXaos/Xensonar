@@ -1,0 +1,2 @@
+PASS P7.24 exact reversible source corrections, protected baseline and hashed additions/order
+PASS all 868 historical paths and exact 111-entry checksum prefix preserved

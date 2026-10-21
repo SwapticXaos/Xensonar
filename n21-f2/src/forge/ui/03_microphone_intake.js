@@ -58,7 +58,7 @@ function __createForgeMicCapture({onFile,onState=()=>{},mediaDevices=navigator.m
   function dispose(){if(disposed)return;disposed=true;generation++;release();}
   return {start,stop,cancel,dispose};
 }
-function __ForgeMicrophoneIntake({onFile,disabled=false,onBusyChange}) {
+function __ForgeMicrophoneIntake({onFile,disabled=false,onBusyChange,compact=false}) {
   const [state,setState]=P.useState({phase:'idle',message:'',seconds:0}),owner=P.useRef(null),element=P.useRef(null),importRef=P.useRef(onFile);
   importRef.current=onFile;
   P.useEffect(()=>{
@@ -68,13 +68,13 @@ function __ForgeMicrophoneIntake({onFile,disabled=false,onBusyChange}) {
   },[]);
   const recording=state.phase==='recording',requesting=state.phase==='requesting',processing=state.phase==='processing',busy=recording||requesting||processing;
   P.useEffect(()=>{onBusyChange?.(busy);},[busy,onBusyChange]);
-  return u.jsxs('div',{ref:element,'data-forge-microphone':state.phase,style:{display:'flex',flexWrap:'wrap',alignItems:'center',gap:6,maxWidth:440},children:[
+  return u.jsxs('div',{ref:element,'data-forge-microphone':state.phase,className:compact?'xen-rack-microphone':'',style:compact?undefined:{display:'flex',flexWrap:'wrap',alignItems:'center',gap:6,maxWidth:440},children:[
     u.jsx('button',{type:'button',disabled:processing||(!busy&&disabled),onClick:()=>recording?owner.current?.stop():requesting?owner.current?.cancel():owner.current?.start(),
-      'aria-label':recording?'Mikrofonaufnahme stoppen und importieren':requesting?'Mikrofonanfrage abbrechen':processing?'Mikrofonaufnahme wird importiert':'Mikrofon aufnehmen',
+      'aria-label':recording?'Stop and import microphone recording':requesting?'Cancel microphone request':processing?'Importing microphone recording':'Microphone',
       style:{border:'1px solid '+(recording?'#f87171':'#3f6e77'),borderRadius:5,padding:'6px 9px',background:recording?'#6b1620':'#10232a',color:'#e5f6f5',opacity:(processing||(!busy&&disabled))?0.5:1},
-      children:recording?'■ Stop · '+state.seconds.toFixed(1)+' s':requesting?'Abbrechen':processing?'Importiert …':'● Mikrofon'}),
-    recording&&u.jsx('button',{type:'button',onClick:()=>owner.current?.cancel(),className:'rounded border border-neutral-600 px-2 py-1 text-neutral-300',children:'Verwerfen'}),
-    u.jsx('span',{role:'status','aria-live':recording?'off':'polite',style:{fontSize:10,color:state.phase==='failed'?'#fca5a5':'#94a3b8',maxWidth:260},children:state.message||'Stimme / Mikrofon · bis 60 s'})
+      title:state.message||'Record audio with Microphone',children:recording?'🎙 Stop · '+state.seconds.toFixed(1)+' s':requesting?'🎙 Cancel':processing?'🎙 Importing…':compact&&state.phase==='failed'?'⚠ Microphone':'🎙 Microphone'}),
+    recording&&u.jsx('button',{type:'button',onClick:()=>owner.current?.cancel(),className:'rounded border border-neutral-600 px-2 py-1 text-neutral-300','aria-label':'Discard microphone recording',children:compact?'×':'Discard'}),
+    u.jsx('span',{role:'status','aria-live':recording?'off':'polite',className:compact?'sr-only':'',style:compact?undefined:{fontSize:10,color:state.phase==='failed'?'#fca5a5':'#94a3b8',maxWidth:260},children:state.message||'Stimme / Mikrofon · bis 60 s'})
   ]});
 }
 

@@ -1,0 +1,66 @@
+{
+  "errors": [],
+  "checks": [
+    "real brush click preserves untouched chord and left raster",
+    "real Morph drag preserves untouched chord and left raster",
+    {
+      "mode": "antonia",
+      "frames": 38400,
+      "finite": true,
+      "peak": 0.43984803557395935
+    },
+    {
+      "mode": "bert",
+      "frames": 38400,
+      "finite": true,
+      "peak": 0.4612197279930115
+    },
+    {
+      "mode": "cecilia",
+      "frames": 38400,
+      "finite": true,
+      "peak": 0.4945209324359894
+    },
+    {
+      "mode": "emilia",
+      "frames": 35280,
+      "finite": true,
+      "peak": 0.2877695858478546
+    },
+    {
+      "mode": "fractalia",
+      "frames": 35280,
+      "finite": true,
+      "peak": 0.7406384348869324
+    },
+    {
+      "mode": "pure-dieter",
+      "frames": 35280,
+      "finite": true,
+      "peak": 0.800000011920929
+    },
+    {
+      "mode": "harmonic-xplore",
+      "frames": 35280,
+      "finite": true,
+      "peak": 0.16600483655929565
+    },
+    {
+      "mode": "spektral-synthese",
+      "frames": 35280,
+      "finite": true,
+      "peak": 0.10352494567632675
+    },
+    "explicit Detune strength changes render only; Off restores original Hz and cached readiness",
+    "Detune Undo/Redo restores switch and amount"
+  ],
+  "afterMorph": {
+    "pitches": [
+      219.9999999728402,
+      329.99999998985544,
+      440.00000012747773
+    ],
+    "left": true,
+    "detune": 0
+  }
+}

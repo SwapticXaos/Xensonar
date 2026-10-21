@@ -1,0 +1,62 @@
+
+> xensonar-p4c2-n21-f2-merged@4.4.8-p4c2-n21-f2 test:merge
+> node tests/n21-f2-preservation.cjs && node tests/forge_save_play_symmetry.cjs && node tests/forge_play_ready_save_regression.cjs && node tests/p4c2-n20-navigation.cjs && node tests/p4c2-n21-length-control.cjs && node tests/p4c2-n21-quickdock.cjs && node build.cjs --verify
+
+PASS P7.24 exact reversible source corrections, protected baseline and hashed additions/order
+PASS isolated control telemetry; synthesis, audio scheduler/analysis, UI and stored formats unchanged
+PASS shared hearing request and guarded preparation; synthesis algorithms, live DSP, UI, schemas and source order unchanged
+PASS single persistence owner; all synthesis, DSP, UI, storage schemas and source order unchanged
+PASS bounded autosave/lifecycle/master-meter/control changes; sound generators, final clipper/limiter, UI and schemas retained
+PASS exact graphics/readiness/donor/settings/persistence edits; all other sources, renderers and sound detail unchanged
+PASS P7 exact 00–22 source ancestry, explicit corrections and all untouched source/style/template hashes
+PASS bounded Ball controls/grid integration, unchanged main tuning engine and preserved original G kernel fixture
+PASS exact reviewed Forge spatial/metadata edits; all other source, synthesis and styles preserved
+node:assert:152
+  throw new AssertionError(obj);
+  ^
+
+AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
++ actual - expected
+
+  [
+    'src/handoff/00_chat_feature_addons.js',
++   'src/mix/03_song_projects.js',
+    'src/storage/07_history_snapshots.js',
+-   'src/mix/03_song_projects.js',
+    'src/nodal/13_installation_ball_grid.js'
+  ]
+
+    at Object.<anonymous> (/workspace/Xensonar/n21-f2/tests/history-sharing-preservation.cjs:9:8)
+    at Module._compile (node:internal/modules/cjs/loader:1872:14)
+    at Object..js (node:internal/modules/cjs/loader:2003:10)
+    at Module.load (node:internal/modules/cjs/loader:1594:32)
+    at Module._load (node:internal/modules/cjs/loader:1396:12)
+    at wrapModuleLoad (node:internal/modules/cjs/loader:255:19)
+    at Module.require (node:internal/modules/cjs/loader:1617:12)
+    at require (node:internal/modules/helpers:153:16)
+    at Object.<anonymous> (/workspace/Xensonar/n21-f2/tests/history-sharing-compat.cjs:2:1)
+    at Module._compile (node:internal/modules/cjs/loader:1872:14) {
+  generatedMessage: true,
+  code: 'ERR_ASSERTION',
+  actual: [
+    'src/handoff/00_chat_feature_addons.js',
+    'src/mix/03_song_projects.js',
+    'src/storage/07_history_snapshots.js',
+    'src/nodal/13_installation_ball_grid.js'
+  ],
+  expected: [
+    'src/handoff/00_chat_feature_addons.js',
+    'src/storage/07_history_snapshots.js',
+    'src/mix/03_song_projects.js',
+    'src/nodal/13_installation_ball_grid.js'
+  ],
+  operator: 'deepStrictEqual',
+  diff: 'simple'
+}
+
+Node.js v24.19.0
+npm notice
+npm notice New major version of npm available! 11.9.0 -> 12.2.0
+npm notice Changelog: https://github.com/npm/cli/releases/tag/v12.2.0
+npm notice To update run: npm install -g npm@12.2.0
+npm notice

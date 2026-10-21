@@ -1,0 +1,25 @@
+{
+  "entry": "Xensonar_P7_24_Song_Projects_Test.html",
+  "sha256": "e2b2384a0addae4c8a8720eff0c60bec4f6d44af89c382602f80d2f531cae86d",
+  "errors": [],
+  "checks": [],
+  "shared": {
+    "tuning": "custom:nodal-grid-test-128",
+    "mode": "chromatic",
+    "base": 660,
+    "lines": 385
+  },
+  "shift": {
+    "before": {
+      "id": "custom:nodal-grid-test-128--1-71",
+      "freq": 484.7136434111795,
+      "y": 0.3035261585953602
+    },
+    "after": {
+      "freq": 519.503219937382,
+      "y": 0.24328446764089692
+    },
+    "cents": 120
+  },
+  "error": "AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:\n+ actual - expected\n\n+ 0\n- 542.5035924672305\n\n    at /workspace/Xensonar/n21-f2/tests/nodal-ball-grid-browser.cjs:46:57"
+}

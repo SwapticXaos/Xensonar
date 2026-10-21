@@ -1,0 +1,32 @@
+{
+  "base": "5e82993f5bf44c0c65c0dfbabacaf0688565a930",
+  "checkedAt": "2026-10-21T11:30:13.994351+00:00",
+  "productionBaselineUnits": 237,
+  "historicalPaths": 868,
+  "allFrozenHashesMatchGitBase": true,
+  "historicalRW2SnapshotTest": {
+    "currentExit": 1,
+    "baseExit": 1,
+    "actualBytes": 141230,
+    "expectedBytes": 139285,
+    "productionFilesUnchangedVsBase": true
+  },
+  "focusedPCM": {
+    "forge-progress-pcm": {
+      "passed": true,
+      "polytraceCases": 18,
+      "emiliaStereoExact": true,
+      "cancellation": true
+    },
+    "p2-staged-audio-parity": {
+      "passed": true,
+      "samples": 95232
+    },
+    "p4c2-n4-sample-parity": {
+      "passed": true,
+      "cases": 108,
+      "channelSampleValues": 9702873,
+      "bitIdenticalFloat32": true
+    }
+  }
+}

@@ -1,0 +1,54 @@
+{
+  "entry": "Xensonar_P7_24_Song_Projects_Test.html",
+  "sha256": "e2b2384a0addae4c8a8720eff0c60bec4f6d44af89c382602f80d2f531cae86d",
+  "errors": [],
+  "checks": [
+    "UI Ball level reaches zero; the separate .62 Root Reference remains independent",
+    "shared saved 128-step tuning, chromatic mode and shifted base remain identical across rooms",
+    "shared Grid Workbench exposes a single free-step editor (2–256)",
+    "actual native Worklet receives line frequency and impulse gate, zero volume and shared mute",
+    "no AudioNode/source allocations per crossing, and no stationary continuous tone in grid mode",
+    "1490/720 control geometry and clean room transitions"
+  ],
+  "shared": {
+    "tuning": "custom:nodal-grid-test-128",
+    "mode": "chromatic",
+    "base": 660,
+    "lines": 385
+  },
+  "shift": {
+    "before": {
+      "id": "custom:nodal-grid-test-128--1-71",
+      "freq": 484.7136434111795,
+      "y": 0.3035261585953602
+    },
+    "after": {
+      "freq": 519.503219937382,
+      "y": 0.24328446764089692
+    },
+    "cents": 120
+  },
+  "native": {
+    "worklet": true,
+    "error": null,
+    "timing": {
+      "baselineResets": 0,
+      "crossingDeltaSec": 0.040634920634920635
+    },
+    "hit": {
+      "hz": 542.5035924672305,
+      "gate": 1
+    },
+    "stopped": 0,
+    "zero": {
+      "level": 0,
+      "gate": 0
+    },
+    "muted": 0,
+    "nodesBefore": 14,
+    "nodesAfter": 14,
+    "sourcesBefore": 4,
+    "sourcesAfter": 4,
+    "lineHz": 542.5035924672305
+  }
+}

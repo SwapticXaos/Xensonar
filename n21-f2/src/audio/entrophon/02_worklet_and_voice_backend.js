@@ -12,7 +12,7 @@ if(e.ctx.state==="closed"||!Number.isFinite(t.freq)||t.freq<=0||!Number.isFinite
 const n=t.options?.source,r=t.options?.intendedStartTimeSec;
 if(r!==void 0&&(n==="wave"||n==="particle")&&!Jp(e.ctx,r,h9))return e.silentHotPathSources?.[n]===!0&&!(n==="wave"&&entrophonActive)||((e.recordCount??ea)("scheduled-tone-oscillator","voice-rejected",1),(e.recordAdaptiveAction??fr)("safe-envelope-stale-dropped",1)),__entResult(t,"stale");
 if((t.options?.source!=="wave"&&!t.options?.entrophonDefinition)||!entrophonActive)return ewe(e,t);
-const a=t.options?.source==="wave"&&(t.options?.heldLong===!0||e.heldLong===!0),o=$ie(entrophonActive),i=!e.submitEntrophonC11?d9(e.ctx,t.options?.intendedStartTimeSec??e.ctx.currentTime+t.offset,o):0;
+const a=t.options?.source==="wave"&&(t.options?.heldLong===!0||e.heldLong===!0),o=$ie(entrophonActive,t.options?.entrophonDefinition?.config),i=!e.submitEntrophonC11?d9(e.ctx,t.options?.intendedStartTimeSec??e.ctx.currentTime+t.offset,o):0;
 if(i<0)return __entResult(t,"ingress",true);
 try{
 const s=i===0&&t.options?.source==="wave"&&entrophonActive,l=t.options?.source?e.silentHotPathSources?.[t.options.source]===!0&&!s:!1,c=l?m9:e.recordCount??ea,d=l?p9:e.recordAdaptiveAction??fr,p=g9(e,t,c);

@@ -1,0 +1,101 @@
+{
+  "entry": "Xensonar_P7_24_Song_Projects_Test.html",
+  "sha256": "e2b2384a0addae4c8a8720eff0c60bec4f6d44af89c382602f80d2f531cae86d",
+  "isolated": [
+    {
+      "stages": [],
+      "live": false,
+      "renders": 40,
+      "restores": 40,
+      "scriptMs": 722.444,
+      "taskMs": 763.439,
+      "snapshots": {
+        "intakeId": 39,
+        "tap": "Diagnostic 39",
+        "channels": 0,
+        "delivered": 0,
+        "ownerStable": true
+      }
+    },
+    {
+      "stages": [
+        "telemetry"
+      ],
+      "live": false,
+      "renders": 0,
+      "restores": 0,
+      "scriptMs": 1.451,
+      "taskMs": 16.398,
+      "snapshots": {
+        "intakeId": 39,
+        "tap": "Diagnostic 39",
+        "channels": 2,
+        "delivered": 80,
+        "ownerStable": true
+      }
+    }
+  ],
+  "live": [
+    {
+      "rep": 0,
+      "stages": [],
+      "live": true,
+      "renders": 76,
+      "restores": 76,
+      "scriptMs": 1166.952,
+      "taskMs": 3298.257
+    },
+    {
+      "rep": 0,
+      "stages": [
+        "telemetry"
+      ],
+      "live": true,
+      "renders": 56,
+      "restores": 56,
+      "scriptMs": 1879.068,
+      "taskMs": 5354.548000000001
+    },
+    {
+      "rep": 1,
+      "stages": [
+        "telemetry"
+      ],
+      "live": true,
+      "renders": 38,
+      "restores": 38,
+      "scriptMs": 750.8059999999999,
+      "taskMs": 2524.181
+    },
+    {
+      "rep": 1,
+      "stages": [],
+      "live": true,
+      "renders": 67,
+      "restores": 67,
+      "scriptMs": 926.226,
+      "taskMs": 2701.8790000000004
+    },
+    {
+      "rep": 2,
+      "stages": [],
+      "live": true,
+      "renders": 71,
+      "restores": 71,
+      "scriptMs": 1058.257,
+      "taskMs": 2944.998
+    },
+    {
+      "rep": 2,
+      "stages": [
+        "telemetry"
+      ],
+      "live": true,
+      "renders": 44,
+      "restores": 44,
+      "scriptMs": 1106.184,
+      "taskMs": 3506.65
+    }
+  ],
+  "scope": "Actual Chromium/React, 40 controlled paired diagnostic publications; separate powered playfield gesture runs. ScriptDuration is main-thread JavaScript, not DSP throughput."
+}

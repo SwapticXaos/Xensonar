@@ -1,6 +1,6 @@
-# XenSonar · Live-Steuerung und Diagnose entkoppelt
+# XenSonar P7.24 · Song Projects und Parts
 
-Aktuelle Weiterarbeitsbasis: `n21-f2/Xensonar_P7_Live_Control_Isolation_Test.html`. Laufende Diagnosewerte bleiben vollständig verfügbar und lösen keine kompletten App-Renderdurchläufe mehr aus. [Anleitung](n21-f2/README_LIVE_CONTROL_ISOLATION.md) · [Prüfbericht](n21-f2/docs/live-control-ownership/report.md). Die bisherigen Forge-/Persistenz-Absicherungen, Klangmaschinen und Endstufe bleiben erhalten; P7.12 bleibt unintegriertes Experiment.
+Aktuelle Weiterarbeitsbasis: `n21-f2/Xensonar_P7_24_Song_Projects_Test.html`. Song Projects und Parts sichern und bearbeiten Quick-Access-Zusammenstellungen; erst **Aktivieren** ersetzt den aktiven Quick Access. P7.24 integriert außerdem die gelieferte Forge-Oberfläche, getrennte Keyboard-/Wave-Lautstärke und die gezielte Korrektur gespeicherter Entrophon-Stimmen. [Anleitung](n21-f2/README_P7_24_SONG_PROJECTS.md) · [Prüfbericht](n21-f2/docs/p7-24-song-projects/report.md).
 
 
 Die aktuelle, vom Nutzer gelieferte N21–F2-Quellbasis mit Granular-Hold, Live-Stabilitäts-Patch und korrigierter Forge-Fortschrittsanzeige sowie ausgerichteten Mix-Reglern, Raster-Mute, Melodic-Panning und Xenpolar Drone im Hauptinstrument

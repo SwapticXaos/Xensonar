@@ -35,15 +35,28 @@ const out='results/nodal-ball-grid';fs.mkdirSync(out,{recursive:true});
    const api=__nb(),ctx=new AudioContext();await ctx.resume();const silent=ctx.createGain();silent.gain.value=0;silent.connect(ctx.destination);
    const refs={};api.create(ctx,refs,silent);const g=refs.__myzelG;await g.ready;
    const count=g.nodes.length,sources=g.sources.length,line=api.grid.lines().find(x=>x.y>.2&&x.y<.7),mix={...api.grid.mix(),rootLevel:.7,ballLevel:0,nodeLevel:0};
-   const sleep=()=>new Promise(resolve=>setTimeout(resolve,45));
+   // The bridge gates on audio time (30 ms), not elapsed wall time. A delayed
+   // frame over 250 ms intentionally resets crossing history without a hit.
+   const deadline=performance.now()+5000,timing={baselineResets:0,crossingDeltaSec:null};
+   const waitForFrame=async()=>{while(g.active&&ctx.currentTime-g.lastMessage<.03){if(performance.now()>deadline)throw Error('Myzel audio control clock did not advance');await new Promise(resolve=>setTimeout(resolve,4));}};
    const tick=y=>api.update(ctx,refs,{enabled:true,audible:true,mode:'installation',couplingEnabled:false,rootHz:220,snapshot:{cursorNormalizedY:y,cursorNormalizedX:.5,myzelAudioNodes:[]},mix});
-   tick(line.y-.001);await sleep();tick(line.y+.001);const hit={...g.lastControls};
-   for(let i=0;i<8;i++){await sleep();tick(line.y+.001)}
-   const stopped={...g.lastControls};mix.rootLevel=0;await sleep();tick(line.y-.1);const zero={...g.lastControls};
-   api.grid.update({rootFollowImpulsRasterMuted:true});await sleep();tick(.9);const muted={...g.lastControls};api.grid.update({rootFollowImpulsRasterMuted:false});
-   const result={worklet:!!g.worklet,error:g.error,hit:{hz:hit.ballToneHz,gate:hit.ballToneGate},stopped:stopped.ballToneGate,zero:{level:zero.rootLevel,gate:zero.ballToneGate},muted:muted.ballToneGate,nodesBefore:count,nodesAfter:g.nodes.length,sourcesBefore:sources,sourcesAfter:g.sources.length,lineHz:line.freq};g.dispose();await ctx.close();return result;
+   const nextTick=async y=>{await waitForFrame();tick(y)};
+   tick(line.y-.001);let hit;
+   while(!hit){
+    if(performance.now()>deadline)throw Error('Myzel crossing never received a current control frame');
+    await waitForFrame();
+    if(ctx.currentTime-g.ballToneState.time>.25||g.ballToneState.grid!==api.grid.lines()){tick(line.y-.001);timing.baselineResets++;continue;}
+    const baselineTime=g.ballToneState.time;tick(line.y+.001);
+    timing.crossingDeltaSec=g.ballToneState.time-baselineTime;
+    if(timing.crossingDeltaSec>.25){await nextTick(line.y-.001);timing.baselineResets++;continue;}
+    hit={...g.lastControls};
+   }
+   do{await nextTick(line.y+.001)}while(g.lastControls.ballToneGate>0&&performance.now()<deadline);
+   const stopped={...g.lastControls};mix.rootLevel=0;await nextTick(line.y-.1);const zero={...g.lastControls};
+   api.grid.update({rootFollowImpulsRasterMuted:true});await nextTick(.9);const muted={...g.lastControls};api.grid.update({rootFollowImpulsRasterMuted:false});
+   const result={worklet:!!g.worklet,error:g.error,timing,hit:{hz:hit.ballToneHz,gate:hit.ballToneGate},stopped:stopped.ballToneGate,zero:{level:zero.rootLevel,gate:zero.ballToneGate},muted:muted.ballToneGate,nodesBefore:count,nodesAfter:g.nodes.length,sourcesBefore:sources,sourcesAfter:g.sources.length,lineHz:line.freq};g.dispose();await ctx.close();return result;
   });
-  assert.equal(native.worklet,true,native.error);assert.equal(native.hit.hz,native.lineHz);assert.ok(native.hit.gate>0);assert.equal(native.stopped,0);assert.deepEqual(native.zero,{level:0,gate:0});assert.equal(native.muted,0);assert.equal(native.nodesBefore,native.nodesAfter);assert.equal(native.sourcesBefore,native.sourcesAfter);report.native=native;
+  report.native=native;assert.equal(native.worklet,true,native.error);assert.equal(native.hit.hz,native.lineHz);assert.ok(native.hit.gate>0);assert.equal(native.stopped,0);assert.deepEqual(native.zero,{level:0,gate:0});assert.equal(native.muted,0);assert.equal(native.nodesBefore,native.nodesAfter);assert.equal(native.sourcesBefore,native.sourcesAfter);
   await p.getByRole('button',{name:'I. XENSONAR MAIN ROOM',exact:true}).click();assert.equal(await p.evaluate(()=>__nb().grid.params().gridTuning),id);assert.equal(await p.evaluate(()=>__nb().grid.params().gridBase),660);
   await p.getByRole('button',{name:/III.*NODAL/}).click();await p.getByRole('button',{name:'Installation',exact:true}).click();assert.equal(await panel.getByRole('combobox',{name:'Installation grid tuning',exact:true}).inputValue(),id);
   assert.deepEqual(report.errors,[]);report.checks=['UI Ball level reaches zero; the separate .62 Root Reference remains independent','shared saved 128-step tuning, chromatic mode and shifted base remain identical across rooms','shared Grid Workbench exposes a single free-step editor (2–256)','actual native Worklet receives line frequency and impulse gate, zero volume and shared mute','no AudioNode/source allocations per crossing, and no stationary continuous tone in grid mode','1490/720 control geometry and clean room transitions'];

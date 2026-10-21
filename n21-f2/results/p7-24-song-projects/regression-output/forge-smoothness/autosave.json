@@ -1,0 +1,19 @@
+{
+  "entry": "Xensonar_P7_24_Song_Projects_Test.html",
+  "sha256": "e2b2384a0addae4c8a8720eff0c60bec4f6d44af89c382602f80d2f531cae86d",
+  "playback": {
+    "copies": 0,
+    "writes": 0
+  },
+  "afterEdit": {
+    "copies": 1,
+    "writes": 1,
+    "name": "Saved actual edit",
+    "pixel": 0.625
+  },
+  "afterFlush": {
+    "flushedCopies": 2,
+    "copies": 2,
+    "name": "Explicitly flushed edit"
+  }
+}

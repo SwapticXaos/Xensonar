@@ -2,7 +2,7 @@
    timbre. One worker prepares a neutral carrier; the common commit owns Undo. */
 function __AudioToCarrierControls({source,range,disabled=false,onBusyChange}) {
   const [status,setStatus]=P.useState({phase:'idle',progress:0,message:''}),[settings,setSettings]=P.useState({voices:4,strictness:.5,noiseDb:-46,minimumMs:90,register:'standard'});
-  const controller=P.useRef(null),generation=P.useRef(0),element=P.useRef(null),input=P.useRef(null);
+  const controller=P.useRef(null),generation=P.useRef(0),element=P.useRef(null),filterPanel=P.useRef(null),input=P.useRef(null);
   input.current={source,start:range?.startSec,duration:range?.durationSec};
   const busy=status.phase==='analyzing';
   const cancel=P.useCallback(()=>{generation.current++;controller.current?.abort();controller.current=null;setStatus(previous=>previous.phase==='analyzing'?{phase:'idle',progress:0,message:'Analyse abgebrochen; Carrier unverändert.'}:previous);},[]);
@@ -30,20 +30,20 @@ function __AudioToCarrierControls({source,range,disabled=false,onBusyChange}) {
       __f334CommitCarrier(transfer,{neutral:true,message:'Audio als neutrale Tonlinien übernommen.'});__f333PersistNow();
       setStatus({phase:'idle',progress:1,message:result.notes.length+' Tonlinien übernommen · Klangmaschine beibehalten · Undo stellt die vorherige Figur wieder her.'});
       requestAnimationFrame(()=>document.querySelector('#spectralforge-station-draw')?.scrollIntoView({block:'start',behavior:'auto'}));
-    }catch(error){if(token===generation.current&&error?.name!=='AbortError')setStatus({phase:'failed',progress:0,message:error.message||'Audioanalyse fehlgeschlagen.'});}
+    }catch(error){if(token===generation.current&&error?.name!=='AbortError'){setStatus({phase:'failed',progress:0,message:error.message||'Audioanalyse fehlgeschlagen.'});if(filterPanel.current)filterPanel.current.open=true;}}
     finally{if(token===generation.current)controller.current=null;}
   }
   const field=(key,label,min,max,step,display)=>u.jsxs('label',{style:{display:'grid',gap:3,minWidth:140,fontSize:10},children:[label,u.jsx('input',{type:'range',min,max,step,value:settings[key],'aria-label':label,onChange:event=>{const next=Number(event.currentTarget.value);setSettings(value=>({...value,[key]:next}));}}),u.jsx('output',{children:display})]});
-  return u.jsxs('div',{ref:element,'data-audio-to-carrier':status.phase,style:{display:'flex',flexWrap:'wrap',alignItems:'center',gap:6,maxWidth:650},children:[
+  return u.jsxs('div',{ref:element,'data-audio-to-carrier':status.phase,className:'xen-carrier-actions',children:[
     u.jsx('button',{type:'button',disabled:!busy&&(disabled||!source||!range),onClick:busy?cancel:transform,'aria-busy':busy,
-      title:'Audio to Carrier · erkennt Grundtonlinien aus der unteren Raw-Audio-Maske, auch Akkorde. Ersetzt die Carrier-Figur; Undo bleibt verfügbar.',
-      style:{border:'1px solid #9a71c4',borderRadius:5,padding:'6px 9px',background:'#291d3d',color:'#eee2ff',opacity:(!busy&&(disabled||!source||!range))?0.5:1},
+      title:status.message?status.message+' · Audio to Carrier · Undo bleibt verfügbar.':'Audio to Carrier · erkennt Grundtonlinien aus der unteren Raw-Audio-Maske, auch Akkorde. Ersetzt die Carrier-Figur; Undo bleibt verfügbar.',
+      className:'xen-carrier-transform',
       children:busy?'Abbrechen · '+Math.round(status.progress*100)+' %':'Transform to Carrier'}),
-    u.jsxs('details',{children:[u.jsx('summary',{style:{fontSize:10,cursor:'pointer'},children:'Audio to Carrier · Filter'}),u.jsx('fieldset',{disabled:busy,style:{display:'flex',flexWrap:'wrap',gap:12,padding:8,border:'1px solid #4d3e61',marginTop:5},children:u.jsxs(P.Fragment,{children:[
+    u.jsxs('details',{ref:filterPanel,className:'xen-carrier-filter',children:[u.jsxs('summary',{title:'Erkennungsfilter für Transform to Carrier','aria-label':'Filter für Transform to Carrier',children:[u.jsx('span',{className:'xen-carrier-filter-text',children:'Filter'}),u.jsx('span',{className:'xen-carrier-filter-chevron','aria-hidden':true,children:'⌄'})]}),u.jsx('fieldset',{disabled:busy,className:'xen-carrier-filter-panel',children:u.jsxs(P.Fragment,{children:[
       field('voices','Max. gleichzeitige Töne',1,6,1,String(settings.voices)),field('noiseDb','Rauschschwelle',-70,-20,1,settings.noiseDb+' dB'),field('strictness','Erkennungsstrenge',0,1,.05,Math.round(settings.strictness*100)+' %'),field('minimumMs','Mindest-Tonlänge',40,240,10,settings.minimumMs+' ms'),
       u.jsxs('label',{style:{fontSize:10},children:['Tonbereich',u.jsxs('select',{'aria-label':'Tonbereich',value:settings.register,onChange:event=>{const next=event.currentTarget.value;setSettings(value=>({...value,register:next}));},style:{display:'block',background:'#171322',padding:4,border:'1px solid #4d3e61'},children:[u.jsx('option',{value:'standard',children:'Stimme / Gitarre · 65–1600 Hz'}),u.jsx('option',{value:'deep',children:'Tief · 35–1200 Hz'}),u.jsx('option',{value:'high',children:'Hoch · 100–3000 Hz'})]})]}),
-      u.jsx('span',{style:{fontSize:10,maxWidth:240,color:'#aaa1b7'},children:'Mehr Strenge unterdrückt unsichere Töne. Leisere Rauschschwelle für leise Stimmen. Sehr dichte Akkorde und Oktav-Dopplungen können mehrdeutig bleiben.'})
-    ]})})]}),
-    u.jsx('span',{role:'status',style:{fontSize:10,color:status.phase==='failed'?'#fca5a5':'#b6a8c9',maxWidth:320},children:status.message||'Raw Audio → Grundtonlinien · untere Maske · ersetzt Carrier mit Undo'})
+      u.jsx('span',{style:{fontSize:10,maxWidth:240,color:'#aaa1b7'},children:'Mehr Strenge unterdrückt unsichere Töne. Leisere Rauschschwelle für leise Stimmen. Sehr dichte Akkorde und Oktav-Dopplungen können mehrdeutig bleiben.'}),
+      (status.phase!=='idle'||status.message)&&u.jsx('div',{role:'status','aria-live':'polite',className:'xen-carrier-feedback',style:{color:status.phase==='failed'?'#fca5a5':'#b6a8c9'},children:status.message})
+    ]})})]})
   ]});
 }

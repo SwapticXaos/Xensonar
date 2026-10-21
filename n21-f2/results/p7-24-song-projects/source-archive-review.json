@@ -1,0 +1,53 @@
+{
+  "checkedAt": "2026-10-21T11:38:44.312475+00:00",
+  "commands": [
+    {
+      "command": [
+        "node",
+        "build.cjs"
+      ],
+      "exit": 0
+    },
+    {
+      "command": [
+        "node",
+        "build.cjs",
+        "--verify"
+      ],
+      "exit": 0
+    },
+    {
+      "command": [
+        "node",
+        "tests/rw2-source-index.cjs"
+      ],
+      "exit": 0
+    },
+    {
+      "command": [
+        "node",
+        "tests/p7-24-preservation.cjs"
+      ],
+      "exit": 0
+    },
+    {
+      "command": [
+        "node",
+        "tests/song-projects.cjs"
+      ],
+      "exit": 0
+    },
+    {
+      "command": [
+        "node",
+        "tests/p7-24-entrophon-reservation.cjs"
+      ],
+      "exit": 0
+    }
+  ],
+  "sha256": "e2b2384a0addae4c8a8720eff0c60bec4f6d44af89c382602f80d2f531cae86d",
+  "bytes": 5751989,
+  "rebuiltHTMLMatchesStandaloneArtifact": true,
+  "patchAppliesToExactBaseIndex": true,
+  "dependencyResolution": "NODE_PATH points to shared installed node_modules; ZIP contains no node_modules"
+}

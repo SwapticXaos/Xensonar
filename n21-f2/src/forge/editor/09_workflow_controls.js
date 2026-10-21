@@ -7,7 +7,9 @@ const __ForgeListeningMode=(()=>{
   return __F35611DonorIntent||donor&&!['emilia-nodal-carrier','fractalia-self-carrier'].includes(machine)?'donor':LGe.find(x=>x.machineId===machine)?.id||'pure-dieter'};
  function choose(id,{prepare=true}={}){error='';__f333Stop();pe.setState(__f333Idle());
   if(id==='donor'){__F35611DonorIntent=true;emit();if(prepare)void __f3562EnsureDonor().catch(e=>{if(value()==='donor'){error=e.message;emit()}})}
-  else{const option=LGe.find(x=>x.id===id);if(!option)return;__F35611DonorIntent=false;Vt.selectCarrier();const s=pe.getState();if(option.harmonicXploreProfileId)s.setCarrierIntegralHarmonicXplore({profileId:option.harmonicXploreProfileId,source:'user'});s.setCarrierIntegralSelection({machineId:option.machineId,source:'user'});emit()}
+  else{const option=LGe.find(x=>x.id===id);if(!option)return;__F35611DonorIntent=false;Vt.selectCarrier();const s=pe.getState();if(option.harmonicXploreProfileId)s.setCarrierIntegralHarmonicXplore({profileId:option.harmonicXploreProfileId,source:'user'});s.setCarrierIntegralSelection({machineId:option.machineId,source:'user'});
+   try{window.localStorage.setItem(__ForgePreferredListeningKey,option.machineId)}catch{};
+   emit()}
   window.dispatchEvent(new CustomEvent('xensonar:forge:listening-choice',{detail:id}));
  }
  const subscribe=fn=>{listeners.add(fn);const a=pe.subscribe(fn),b=Vt.subscribe(fn);return()=>{listeners.delete(fn);a();b()}};
@@ -108,8 +110,54 @@ function __ForgeNavigatorSaveButton(){
   className:'rounded border border-violet-400 bg-violet-950 px-2 py-1 text-[10px] font-semibold text-violet-100 shadow-md hover:bg-violet-800 disabled:opacity-50',style:{width:102,minWidth:102,height:25}
  },state.busy?'Saving…':'Save as Sample');
 }
+/* P7.21: both vertical signs share the *actual* top and bottom edges of
+   the two play-rack rows. The donor sign retains its tool-rail width; its
+   geometry must not depend on whether Brush or Morph shows a second row.
+   Measurements happen only on layout/resize, never in any audio hotpath. */
+function __ForgeRackVerticalAlign(rack){
+ const top=rack.querySelector('[data-forge-import-image]');
+ const bottom=rack.querySelector('[data-f318-export-target="pink"]');
+ const importAnchor=rack.querySelector('.xen-rack-vertical-import-anchor');
+ const importButton=importAnchor?.querySelector('.xen-vertical-import-audio');
+ const rail=document.querySelector('.xen-forge-tool-rail');
+ const donor=rail?.querySelector('.xen-donor-library-dock-switch');
+ if(!top||!bottom||!importAnchor||!importButton||!rail||!donor)return null;
+ let frame=0;
+ const measure=()=>{
+  frame=0;
+  if(!rack.isConnected||!rail.isConnected)return;
+  const topY=top.getBoundingClientRect().top;
+  const bottomY=bottom.getBoundingClientRect().bottom;
+  const height=bottomY-topY;
+  // Refrain from applying temporary invalid geometry during hidden/mount states.
+  if(!Number.isFinite(height)||height<60||height>400)return;
+  const importY=importAnchor.getBoundingClientRect().top;
+  const railY=rail.getBoundingClientRect().top;
+  importButton.style.top=(topY-importY).toFixed(2)+'px';
+  importButton.style.height=height.toFixed(2)+'px';
+  donor.style.top=(topY-railY).toFixed(2)+'px';
+  donor.style.height=height.toFixed(2)+'px';
+ };
+ const queue=()=>{if(!frame)frame=requestAnimationFrame(measure)};
+ const ro=typeof ResizeObserver==='function'?new ResizeObserver(queue):null;
+ for(const el of [rack,rail,top,bottom,importAnchor])ro?.observe(el);
+ window.addEventListener('resize',queue);
+ // Listening-mode/tool changes may relocate elements without resizing them.
+ window.addEventListener('xensonar:forge:listening-choice',queue);
+ queue();
+ return ()=>{
+  if(frame)cancelAnimationFrame(frame);
+  ro?.disconnect();
+  window.removeEventListener('resize',queue);
+  window.removeEventListener('xensonar:forge:listening-choice',queue);
+ };
+}
 function __ForgeTransportRack(e){
  const h=P.createElement,choice=__useForgeListeningMode(),busy=e.rendering;
+ const rackRef=P.useRef(null);
+ P.useLayoutEffect(()=>__ForgeRackVerticalAlign(rackRef.current)||undefined,[]);
+ const [__micBusyOnRack,__setMicBusyOnRack]=P.useState(false);
+ P.useEffect(()=>{const update=event=>__setMicBusyOnRack(!!event.detail?.busy);window.addEventListener('xensonar:forge:mic-busy',update);return()=>window.removeEventListener('xensonar:forge:mic-busy',update)},[]);
  const navigatorMessage=P.useSyncExternalStore(__ForgeNavigatorSample.subscribe,()=>__ForgeNavigatorSample.snapshot().message,()=>__ForgeNavigatorSample.snapshot().message);
  const hearingStatus=[e.statusMessage||choice.error,navigatorMessage].filter(Boolean).join(' · ');
  const button={type:'button',className:'h-8 rounded border border-neutral-700 bg-neutral-900 px-2 text-xs text-neutral-100 hover:bg-neutral-800'};
@@ -118,6 +166,23 @@ function __ForgeTransportRack(e){
   root:{label:'Use as Root Follow Loop',color:'border-violet-400 bg-violet-800 hover:bg-violet-700',icon:'🎼'},
   pink:{label:'Send to Pink Track (Melodic Loop)',color:'border-pink-400 bg-pink-800 hover:bg-pink-700',icon:'🎶'}
  };
+ // Re-use Material Intake's existing file input. No second importer or state.
+ const importAudio=()=>{
+  const fileInput=document.querySelector('[data-material-intake-gateway] input[type="file"]');
+  if(fileInput&&!fileInput.disabled){fileInput.click();return;}
+  document.querySelector('[data-material-intake-gateway]')?.scrollIntoView({block:'start',behavior:'smooth'});
+ };
+ const microphoneDock=h('div',{'data-forge-rack-microphone-slot':'true',className:'xen-rack-microphone-dock'});
+ const verticalImport=h('button',{
+  type:'button','data-forge-rack-import-audio':'true',
+  className:'xen-vertical-import-audio',
+  'aria-label':'Import Audio',
+  title:'Import Audio · Audiodatei in Material Intake laden',disabled:__micBusyOnRack,onClick:importAudio,
+ },h('span',{'aria-hidden':true,className:'xen-vertical-import-words'},
+     h('span',null,...'IMPORT'.split('').map(ch=>h('span',null,ch))),
+     h('span',null,...'AUDIO'.split('').map(ch=>h('span',null,ch)))),
+   h('svg',{'aria-hidden':true,className:'xen-vertical-import-arrow',viewBox:'0 0 44 23'},
+     h('path',{d:'M2 2 H42 L22 21 Z',fill:'currentColor'})));
  const destination=id=>h('button',{
    type:'button','data-f318-export-target':id,disabled:busy,
    onClick:()=>e.handleSendCurrentPreviewToXensonar(id),
@@ -129,7 +194,7 @@ function __ForgeTransportRack(e){
     h('span',{className:'relative z-10 text-[17px] leading-none'},routing[id].icon)),
    h('span',null,routing[id].label));
  return h(P.Fragment,null,
-  h('div',{'data-forge-play-rack':true,className:'f31-play-rack'},
+  h('div',{'data-forge-play-rack':true,className:'f31-play-rack',ref:rackRef},
    h('div',{className:'f31-transport-main'},
     h('div',{className:'f34-transport-and-status'},
     h('div',{className:'flex items-center gap-2'},
@@ -161,7 +226,10 @@ function __ForgeTransportRack(e){
      h('div',{'data-forge-navigator-save-slot':true,className:'f35-navigator-save-slot inline-flex items-center gap-1'},h(__ForgeNavigatorSampleNameInput),h(__ForgeNavigatorPreviewButton),h(__ForgeNavigatorSaveButton))),
     h('div',{className:'f31-trim-import'},h(__F3564TransportTrim,{isPlaying:e.isPlaying,restartPreview:e.handlePlay}),
      h('div',{className:'f31-import-bars'},
-      h('button',{...button,'data-forge-import-image':true,'aria-label':'Import Image',title:'Load an image into the drawing',onClick:()=>e.fileInputRef.current?.click()},'▧ Import Image'),
+      h('div',{className:'xen-rack-import-top'},
+       h('button',{...button,'data-forge-import-image':true,'aria-label':'Import Image',title:'Load an image into the drawing',onClick:()=>e.fileInputRef.current?.click()},'▧ Import Image'),
+       microphoneDock,
+       h('span',{className:'xen-rack-vertical-import-anchor'},verticalImport)),
       h('div',{className:'flex items-center gap-2'},
        h(Z_,{label:'Bars',value:e.materialExport.bars,min:1,max:16,onChange:v=>e.updateMaterialExport({bars:J_(v,1,16,e.materialExport.bars)})}),
        h(Z_,{label:'Segments',value:e.materialExport.guideSegments,min:1,max:16,onChange:v=>e.updateMaterialExport({guideSegments:J_(v,1,16,e.materialExport.guideSegments)})})))),

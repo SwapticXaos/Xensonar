@@ -1,0 +1,135 @@
+{
+  "base": "5e82993f5bf44c0c65c0dfbabacaf0688565a930",
+  "captured": [
+    {
+      "path": "n21-f2/results/architecture-stability/persistence-ownership.json",
+      "capturedAs": "results/p7-24-song-projects/regression-output/architecture-stability/persistence-ownership.json",
+      "sha256": "9a1f7828bac69a4a0cdc724e41ded1d21757b4cebf8c54d99507a9f47dc43b0f"
+    },
+    {
+      "path": "n21-f2/results/audio-carrier/analysis.json",
+      "capturedAs": "results/p7-24-song-projects/regression-output/audio-carrier/analysis.json",
+      "sha256": "dbc71581eef2743dd86430357bbbcb075650f6b5f983cbc5d24054db298d959c"
+    },
+    {
+      "path": "n21-f2/results/consolidation/browser.json",
+      "capturedAs": "results/p7-24-song-projects/regression-output/consolidation/browser.json",
+      "sha256": "bb35f3ffc03659ec5d94ccd58fc24072ced7ce761ff0df0f8c81a19a07bedf68"
+    },
+    {
+      "path": "n21-f2/results/forge-efficiency/browser.json",
+      "capturedAs": "results/p7-24-song-projects/regression-output/forge-efficiency/browser.json",
+      "sha256": "7a9435535c3db82c1cf51012d9278327d7234e7863c8151b982088490fd96699"
+    },
+    {
+      "path": "n21-f2/results/forge-efficiency/host-contracts.json",
+      "capturedAs": "results/p7-24-song-projects/regression-output/forge-efficiency/host-contracts.json",
+      "sha256": "468f37f0d72b94da535cbb971fed71b055b426cac7e423e501f04e33719e89db"
+    },
+    {
+      "path": "n21-f2/results/forge-request-ownership/browser-request.json",
+      "capturedAs": "results/p7-24-song-projects/regression-output/forge-request-ownership/browser-request.json",
+      "sha256": "5c928bc30a6c197388c927389d12268543fdf2a8072bc2e230b45ec3659e095f"
+    },
+    {
+      "path": "n21-f2/results/forge-smoothness/autosave.json",
+      "capturedAs": "results/p7-24-song-projects/regression-output/forge-smoothness/autosave.json",
+      "sha256": "9e202679e328b3cc9ac85da13529f2e505d22d5240c4f8247995b3fe2ac0b864"
+    },
+    {
+      "path": "n21-f2/results/forge-smoothness/browser.json",
+      "capturedAs": "results/p7-24-song-projects/regression-output/forge-smoothness/browser.json",
+      "sha256": "1807e62d32b3dbe6b264c154c8679d4ff8c41b64ad402fbd73fdc2c4525c5e4b"
+    },
+    {
+      "path": "n21-f2/results/forge-smoothness/live-grid-snap.json",
+      "capturedAs": "results/p7-24-song-projects/regression-output/forge-smoothness/live-grid-snap.json",
+      "sha256": "9ba13535fd43336fd26b4815e112f128f8fc89e6490fcdc1e6505e2eca790869"
+    },
+    {
+      "path": "n21-f2/results/live-control-ownership/browser-performance.json",
+      "capturedAs": "results/p7-24-song-projects/regression-output/live-control-ownership/browser-performance.json",
+      "sha256": "a568af454d605c75cd235e64f95aca72f8e2448618fe7f2675a1e2758fff9d7e"
+    },
+    {
+      "path": "n21-f2/results/nodal-ball-grid/browser.json",
+      "capturedAs": "results/p7-24-song-projects/regression-output/nodal-ball-grid/browser.json",
+      "sha256": "df1cdd9371a776d3ff31953e438902e929fedc43a993dd2bff8b45f251c24ae8"
+    },
+    {
+      "path": "n21-f2/results/nodal-ball-grid/controls-1490.png",
+      "capturedAs": "results/p7-24-song-projects/regression-output/nodal-ball-grid/controls-1490.png",
+      "sha256": "79aeda3882e11b67a6bcd36e091c3cfcc31fc4a9512094ff61778a73e9026f62"
+    },
+    {
+      "path": "n21-f2/results/nodal-ball-grid/field-1490.png",
+      "capturedAs": "results/p7-24-song-projects/regression-output/nodal-ball-grid/field-1490.png",
+      "sha256": "21db006f34d0283956952ab4f7764f0737066747f87fa40072d2cc73d217c049"
+    },
+    {
+      "path": "n21-f2/results/nodal-ball-grid/forge-spatial/browser.json",
+      "capturedAs": "results/p7-24-song-projects/regression-output/nodal-ball-grid/forge-spatial/browser.json",
+      "sha256": "ced2925f67df7fe9424fc1bbeeaa701e2d9cad9f502ee3687e6d75f6a4c70f90"
+    },
+    {
+      "path": "n21-f2/results/nodal-ball-grid/forge-spatial/rack-1490.png",
+      "capturedAs": "results/p7-24-song-projects/regression-output/nodal-ball-grid/forge-spatial/rack-1490.png",
+      "sha256": "721bd32e7270772ff54fd551578cd93fe4840de89ee7c40a905bfb77a9f987df"
+    },
+    {
+      "path": "n21-f2/results/nodal-ball-grid/forge-spatial/rack-720.png",
+      "capturedAs": "results/p7-24-song-projects/regression-output/nodal-ball-grid/forge-spatial/rack-720.png",
+      "sha256": "4d76e283fb20fd23a09d51d8b6f03e267f64fd2007733105c2fd2268e6a209b3"
+    },
+    {
+      "path": "n21-f2/results/p7-review/browser.json",
+      "capturedAs": "results/p7-24-song-projects/regression-output/p7-review/browser.json",
+      "sha256": "3f50c5b1c1154f4adebc91d890dabca6a46e709226b9211e9d7234f39aa27d77"
+    },
+    {
+      "path": "n21-f2/results/p7-review/forge-rack-1490.png",
+      "capturedAs": "results/p7-24-song-projects/regression-output/p7-review/forge-rack-1490.png",
+      "sha256": "47afffa7348dd12161361cd180409e5b0aaf4fa379fd27ecd32e93018600c542"
+    },
+    {
+      "path": "n21-f2/results/pitch-space/detune.png",
+      "capturedAs": "results/p7-24-song-projects/regression-output/pitch-space/detune.png",
+      "sha256": "0ecb988d03d90822bbc6b646b5c3b1ecb91668e1e8ceda893a372474d17358b3"
+    },
+    {
+      "path": "n21-f2/results/shared-history/contracts.json",
+      "capturedAs": "results/p7-24-song-projects/regression-output/shared-history/contracts.json",
+      "sha256": "6f791f55ae0778bf209b6d77304a4ceaaac0655dcc1667b9e7b8f9fe3d61a471"
+    },
+    {
+      "path": "n21-f2/results/myzel_g2_concept.json",
+      "capturedAs": "results/p7-24-song-projects/regression-output/myzel_g2_concept.json",
+      "sha256": "ddd6573c09bba0f08cd72fc012bd6dd3e88a30b69a93cdc40eb699d9f412b8b0",
+      "new": true
+    },
+    {
+      "path": "n21-f2/results/nodal-ball-grid/failure.json",
+      "capturedAs": "results/p7-24-song-projects/regression-output/nodal-ball-grid/failure.json",
+      "sha256": "96603feab4a3e97be0cfc9cbb39c2eaacc086bc62c31b533bb7289716966d483",
+      "new": true
+    },
+    {
+      "path": "n21-f2/results/p4c2-n3-entrophon-static.json",
+      "capturedAs": "results/p7-24-song-projects/regression-output/p4c2-n3-entrophon-static.json",
+      "sha256": "00bbab6acf52b55b9699cc8ce3c94b1084ed7bccf8df36d0e17b7302c8e6eff0",
+      "new": true
+    },
+    {
+      "path": "n21-f2/results/p7-24-integration/entrophon-before.json",
+      "capturedAs": "results/p7-24-song-projects/regression-output/p7-24-integration/entrophon-before.json",
+      "sha256": "8622c971e1c7ab79e5ff43fd00e32efebd3dd826729eb0e2f8c23b840b1b7447",
+      "new": true
+    },
+    {
+      "path": "n21-f2/results/p7-24-integration/entrophon-saved-live.json",
+      "capturedAs": "results/p7-24-song-projects/regression-output/p7-24-integration/entrophon-saved-live.json",
+      "sha256": "4e17698698a497345de6a7b98649352ed6ffdf5ba9b8d8fa46ea25e22d18eeb1",
+      "new": true
+    }
+  ]
+}

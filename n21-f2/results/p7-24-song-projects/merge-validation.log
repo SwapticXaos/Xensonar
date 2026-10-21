@@ -1,0 +1,27 @@
+
+> xensonar-p4c2-n21-f2-merged@4.4.8-p4c2-n21-f2 test:merge
+> node tests/n21-f2-preservation.cjs && node tests/forge_save_play_symmetry.cjs && node tests/forge_play_ready_save_regression.cjs && node tests/p4c2-n20-navigation.cjs && node tests/p4c2-n21-length-control.cjs && node tests/p4c2-n21-quickdock.cjs && node build.cjs --verify
+
+PASS P7.24 exact reversible source corrections, protected baseline and hashed additions/order
+PASS isolated control telemetry; synthesis, audio scheduler/analysis, UI and stored formats unchanged
+PASS shared hearing request and guarded preparation; synthesis algorithms, live DSP, UI, schemas and source order unchanged
+PASS single persistence owner; all synthesis, DSP, UI, storage schemas and source order unchanged
+PASS bounded autosave/lifecycle/master-meter/control changes; sound generators, final clipper/limiter, UI and schemas retained
+PASS exact graphics/readiness/donor/settings/persistence edits; all other sources, renderers and sound detail unchanged
+PASS P7 exact 00–22 source ancestry, explicit corrections and all untouched source/style/template hashes
+PASS bounded Ball controls/grid integration, unchanged main tuning engine and preserved original G kernel fixture
+PASS exact reviewed Forge spatial/metadata edits; all other source, synthesis and styles preserved
+PASS all four supplied patches retained; only reviewed history/audibility/sample adapters and one new history module change afterward
+PASS only archive codec adapters, project loader and history orchestration changed; all other source, DSP, UI and styles preserved
+PASS N21 audio/runtime outside explicit Granular Hold patch unchanged; N20F2 outside explicit Forge progress patch unchanged; exact Play/Save and navigation preserved
+PASS Forge rack Play/Save exact 42×34px geometry, unchanged Project Name and centered Save
+PASS Spectral Forge ready-from-cache / stale / source / Save geometry
+PASS N20 layout, controls, events, persistence and manifest contracts
+PASS N21 finite/held cuts, primary isolation, one gesture, idempotence, German/English apostrophe
+PASS N21 dock: full stable target, seven-item migration, one left pulse, no right pulse, no remount replay or nested height cap
+PASS reproducible standalone HTML e2b2384a0addae4c8a8720eff0c60bec4f6d44af89c382602f80d2f531cae86d 5751989
+npm notice
+npm notice New major version of npm available! 11.9.0 -> 12.2.0
+npm notice Changelog: https://github.com/npm/cli/releases/tag/v12.2.0
+npm notice To update run: npm install -g npm@12.2.0
+npm notice

@@ -1,9 +1,10 @@
 {
-  "version": "XenSonar P7 · Live Control / Telemetry Isolation",
-  "entry": "Xensonar_P7_Live_Control_Isolation_Test.html",
+  "version": "XenSonar P7.24 · Song Projects, Parts, UI and Saved Entrophon",
+  "entry": "Xensonar_P7_24_Song_Projects_Test.html",
   "files": [
     "src/handoff/00_chat_feature_addons.js",
     "src/mix/03_quick_menu.js",
+    "src/mix/03_song_projects.js",
     "src/mix/04_melodic_spatial.js",
     "src/mix/05_grid_runtime.js",
     "src/mix/06_custom_instruments.js",
@@ -210,8 +211,8 @@
     "src/05_dual_donor.js",
     "src/06_workbench_dialog.js"
   ],
-  "sha256": "8b82986d2ce0f6e5171bc37dd9a935f2da2d0bb35dcb3296ecff1952e539eb48",
-  "bytes": 5706522,
+  "sha256": "e2b2384a0addae4c8a8720eff0c60bec4f6d44af89c382602f80d2f531cae86d",
+  "bytes": 5751989,
   "sourceOrder": "Concatenate in listed order. Explicit factories own Workbench, hybrid session, render capture, adapters, playback and analysis cache. Remaining registry fragments share one inline module; DSP factories stay independently serializable for workers.",
   "status": "F4.3.13 mainline plus F4.4.0 Nodal coupled-modal-v2, anchored at F4.3.5",
   "baseVersion": "F4.3.5 (three-way)",
@@ -349,6 +350,11 @@
     {
       "file": "styles/26_live_controls.css",
       "tag": "<style id=\"xen-live-controls\">",
+      "after": "\n"
+    },
+    {
+      "file": "styles/27_song_projects.css",
+      "tag": "<style id=\"xen-song-projects\">",
       "after": "\n"
     }
   ],

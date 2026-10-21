@@ -3,10 +3,17 @@ const fs=require('node:fs'),assert=require('node:assert/strict'),{chromium}=requ
 const manifest=require('../source-manifest.json'),fixes=require('../docs/live-control-ownership/corrections.json');
 const crypto=require('node:crypto'),prior=require('../docs/live-control-ownership/baseline.json');
 const changes=Object.values(fixes).flat(),out='results/live-control-ownership';
-let baseline=fs.readFileSync(manifest.entry,'utf8');
-for(const change of [...changes].reverse())if(baseline.includes(change.new))baseline=baseline.replace(change.new,change.old);
-assert.equal(crypto.createHash('sha256').update(baseline).digest('hex'),prior.htmlSha256,'comparison restores the exact previous HTML');
-function variant(stages){let html=baseline;for(const change of changes)if(stages.includes(change.stage)){assert.equal(html.split(change.old).length-1,1);html=html.replace(change.old,change.new)}
+const currentHTML=fs.readFileSync(manifest.entry,'utf8');
+let historicalBaseline=fs.readFileSync('Xensonar_P7_Live_Control_Isolation_Test.html','utf8');
+for(const change of [...changes].reverse())if(historicalBaseline.includes(change.new))historicalBaseline=historicalBaseline.replace(change.new,change.old);
+assert.equal(crypto.createHash('sha256').update(historicalBaseline).digest('hex'),prior.htmlSha256,'comparison restores the exact previous HTML');
+// Hold all P7.24 UI/song/routing changes fixed: only telemetry differs in the paired run.
+let baseline=currentHTML;
+for(const change of [...changes].reverse()){
+ assert.equal(baseline.split(change.new).length-1,1,'exact telemetry-only baseline reversal');
+ baseline=baseline.replace(change.new,change.old);
+}
+function variant(stages){let html=stages.includes('telemetry')?currentHTML:baseline;for(const change of changes)if(stages.includes(change.stage)){assert.equal(html.split(change.new).length-1,1,'current telemetry correction remains exact')}
  assert(html.includes('l=kke(),'));return html.replace('l=kke(),','l=(window.__liveControl=kke()),').replace('function REe(){','function REe(){window.__ownerRenders=(window.__ownerRenders||0)+1;').replace('function __f350RestoreRhythm(defaults){','function __f350RestoreRhythm(defaults){window.__settingsRestores=(window.__settingsRestores||0)+1;');}
 const metric=(data,name)=>data.metrics.find(m=>m.name===name).value;
 async function run(browser,stages,live=false){

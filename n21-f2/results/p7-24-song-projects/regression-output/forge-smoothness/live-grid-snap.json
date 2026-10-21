@@ -1,0 +1,24 @@
+{
+  "entry": "Xensonar_P7_24_Song_Projects_Test.html",
+  "sha256": "e2b2384a0addae4c8a8720eff0c60bec4f6d44af89c382602f80d2f531cae86d",
+  "frequencies": 2048,
+  "reads": 13,
+  "realCases": 1080,
+  "queriesPerRun": 50000,
+  "baseline": [
+    119.49324799999977,
+    123.93651299999965,
+    137.99338799999987,
+    106.01420099999996,
+    128.7722130000002
+  ],
+  "changed": [
+    11.786035000000084,
+    6.551554999999553,
+    9.244740000000093,
+    3.3086450000000696,
+    4.3914669999999205
+  ],
+  "speedup": 18.917114028655504,
+  "scope": "Nearest-frequency lookup within an already compiled live grid; not total audio engine throughput"
+}

@@ -1,0 +1,41 @@
+{
+  "bodyComparisons": 864,
+  "byteIdenticalC11Records": 12,
+  "exactChannelSamples": 479640,
+  "staticWorkFor1000ChangingTones": [
+    {
+      "surface": "wave",
+      "before": {
+        "pow": 0,
+        "spread": 6000
+      },
+      "after": {
+        "pow": 0,
+        "spread": 0
+      }
+    },
+    {
+      "surface": "particle",
+      "before": {
+        "pow": 8000,
+        "spread": 6000
+      },
+      "after": {
+        "pow": 0,
+        "spread": 0
+      }
+    },
+    {
+      "surface": "spectral",
+      "before": {
+        "pow": 8000,
+        "spread": 6000
+      },
+      "after": {
+        "pow": 0,
+        "spread": 0
+      }
+    }
+  ],
+  "wasmDsp": "unchanged; production WASM rendered in real worker_threads"
+}

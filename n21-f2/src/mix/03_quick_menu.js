@@ -1,3 +1,18 @@
+const __XenSongKinds=Object.freeze(['grid','material','rootFollow','drum','bass']);
+function __xenValidateQuickItems(value){
+ if(!Array.isArray(value)||value.length>240)throw Error('A constellation must contain at most 240 references.');
+ const seen=new Set(),out=[];
+ for(const entry of value){
+  if(!entry||Object.getPrototypeOf(entry)!==Object.prototype||!['grid','material','rootFollow','drum','bass'].includes(entry.kind)||typeof entry.id!=='string'||!entry.id.trim()||entry.id.length>1024||typeof entry.name!=='string'||entry.name.length>1024||Object.keys(entry).some(k=>!['kind','id','name'].includes(k)))throw Error('Invalid quick-access reference.');
+  const key=entry.kind+'\0'+entry.id;if(seen.has(key))continue;seen.add(key);out.push({kind:entry.kind,id:entry.id,name:entry.name});
+ }
+ return out;
+}
+
+function __QuickColumns({items,variant='',render}){
+ return u.jsx('div',{className:'xen-quick-grid '+variant,children:__XenSongKinds.map(kind=>u.jsx('div',{className:'xen-quick-column','data-xen-quick-column':kind,...(variant?{'data-xen-song-column':kind,'data-xen-song-label':{grid:'Threadboard',material:'Material',rootFollow:'Root Follow',drum:'Drums',bass:'Bass'}[kind]}:{}),children:items.filter(e=>e.kind===kind).map((e,i)=>render(e,i,kind))},kind))});
+}
+
 /* P4C2 UI: semantic menu adapters, shared selections and source octave offsets. */
 const __XenOctaves=(()=>{
  let state={particle:0,wave:0,keyboard:0};const listeners=new Set();
@@ -9,14 +24,14 @@ function __SourceOctave({lane,title}){
  return u.jsxs('span',{className:'xen-source-octave',children:[u.jsx('span',{children:'Oct'}),u.jsx('button',{type:'button',title:title+' eine Oktave tiefer','aria-label':title+' octave down',disabled:v<=-3,onClick:()=>__XenOctaves.set(lane,v-1),children:'−'}),u.jsx('output',{'aria-label':title+' octave',children:v>0?'+'+v:String(v)}),u.jsx('button',{type:'button',title:title+' eine Oktave höher','aria-label':title+' octave up',disabled:v>=3,onClick:()=>__XenOctaves.set(lane,v+1),children:'+'})]});
 }
 const __XenQuick=(()=>{
- const adapters=new Map(),listeners=new Set(),icons={grid:'🪜',material:'📀',rootFollow:'🎼',drum:'🥁',bass:'🎸'};let active=null,items=[],pulse=0,closeActive=null;
- try{const saved=JSON.parse(localStorage.getItem('xensonar.quick-menu.v1')||'[]');if(Array.isArray(saved))items=saved.filter(e=>e&&icons[e.kind]&&typeof e.id==='string'&&typeof e.name==='string').slice(0,240);}catch{}
+ const adapters=new Map(),listeners=new Set(),icons={grid:'🪜',material:'📀',rootFollow:'🎼',drum:'🥁',bass:'🎸'};let active=null,items=[],pulse=0,closeActive=null,storageError='';
+ try{const saved=JSON.parse(localStorage.getItem('xensonar.quick-menu.v1')||'[]');items=__xenValidateQuickItems(saved);}catch(error){storageError='Quick Access: '+error.message}
  let hotkeys={material:[],rootFollow:[]},tilePulse=null,tileTimer=null,tileSerial=0;
- let snapshot={items,active,pulse,hotkeys,tilePulse};const emit=()=>{snapshot={items,active,pulse,hotkeys,tilePulse};for(const fn of listeners)fn()};
+ let snapshot={items,active,pulse,hotkeys,tilePulse,storageError};const emit=()=>{snapshot={items,active,pulse,hotkeys,tilePulse,storageError};for(const fn of listeners)fn()};
  function syncHotkeys(kind,entries){if(!Object.hasOwn(hotkeys,kind))return;const ids=entries.slice(0,__XenLoopHotkeys.length).map(entry=>entry.id);if(ids.join('\0')===hotkeys[kind].join('\0'))return;hotkeys={...hotkeys,[kind]:ids};emit()}
  function pulseEntry(kind,id){if(tileTimer)clearTimeout(tileTimer);const serial=++tileSerial;tilePulse={kind,id,serial};emit();tileTimer=setTimeout(()=>{tileTimer=null;if(tilePulse?.serial===serial){tilePulse=null;emit()}},220)}
- function save(){try{localStorage.setItem('xensonar.quick-menu.v1',JSON.stringify(items))}catch{}emit()}
- return {icons,adapters,syncHotkeys,pulseEntry,snapshot:()=>snapshot,subscribe:fn=>(listeners.add(fn),()=>listeners.delete(fn)),register(kind,adapter){adapters.set(kind,adapter);syncHotkeys(kind,adapter.entries);return()=>{if(adapters.get(kind)===adapter){adapters.delete(kind);syncHotkeys(kind,[])}}},signal(){pulse++;emit()},setActive(value,close){if(value)closeActive=close??closeActive;else closeActive=null;if(active?.kind===value?.kind&&active?.id===value?.id&&active?.name===value?.name)return;active=value;emit()},add(entry){if(!entry||!icons[entry.kind]||typeof entry.id!=='string')return;if(!items.some(e=>e.kind===entry.kind&&e.id===entry.id)){items=[...items,{kind:entry.kind,id:entry.id,name:String(entry.name||entry.id)}];save()}},remove(entry){items=items.filter(e=>e.kind!==entry.kind||e.id!==entry.id);save()},dismiss(){if(!active)return false;closeActive?.();return true},activate(entry){const adapter=adapters.get(entry.kind);if(!adapter)return false;const current=adapter.entries.find(e=>e.id===entry.id);if(!current)return false;adapter.choose(current.id);pulseEntry(entry.kind,current.id);return true;},cycle(dir){
+ function save(){try{localStorage.setItem('xensonar.quick-menu.v1',JSON.stringify(items));storageError=''}catch(error){storageError='Quick Access: '+error.message}emit()}
+ return {refreshLibraries:emit,getItems:()=>items.map(e=>({...e})),replaceItems(value){const next=__xenValidateQuickItems(value);try{localStorage.setItem('xensonar.quick-menu.v1',JSON.stringify(next))}catch(error){storageError='Quick Access: '+error.message;emit();throw error}items=next;storageError='';emit();return next.map(e=>({...e}))},icons,adapters,syncHotkeys,pulseEntry,snapshot:()=>snapshot,subscribe:fn=>(listeners.add(fn),()=>listeners.delete(fn)),register(kind,adapter){adapters.set(kind,adapter);syncHotkeys(kind,adapter.entries);return()=>{if(adapters.get(kind)===adapter){adapters.delete(kind);syncHotkeys(kind,[])}}},signal(){pulse++;emit()},setActive(value,close){if(value)closeActive=close??closeActive;else closeActive=null;if(active?.kind===value?.kind&&active?.id===value?.id&&active?.name===value?.name)return;active=value;emit()},add(entry){if(!entry||!icons[entry.kind]||typeof entry.id!=='string')return;if(!items.some(e=>e.kind===entry.kind&&e.id===entry.id)){items=[...items,{kind:entry.kind,id:entry.id,name:String(entry.name||entry.id)}];save()}},remove(entry){items=items.filter(e=>e.kind!==entry.kind||e.id!==entry.id);save()},dismiss(){if(!active)return false;closeActive?.();return true},activate(entry){const adapter=adapters.get(entry.kind);if(!adapter)return false;const current=adapter.entries.find(e=>e.id===entry.id);if(!current)return false;adapter.choose(current.id);pulseEntry(entry.kind,current.id);return true;},cycle(dir){
    if(!active)return false;
    const order=['grid','material','rootFollow','drum','bass'],events={grid:'xensonar:open-grid-tuning-rack',material:'xensonar:open-material-loop-manager',rootFollow:'xensonar:open-root-follow-loop-manager',drum:'xensonar:open-drum-pattern-manager',bass:'xensonar:open-bass-pattern-manager'};
    const next=order[(order.indexOf(active.kind)+dir+order.length)%order.length],close=closeActive;
@@ -27,7 +42,7 @@ const __XenQuick=(()=>{
 function __useQuickAdapter(kind,entries,selected,choose){
  const ref=P.useRef();ref.current={entries,selected,choose};
  P.useEffect(()=>__XenQuick.register(kind,{get entries(){return ref.current.entries},get selected(){return ref.current.selected},choose:id=>ref.current.choose(id)}),[kind]);
- P.useLayoutEffect(()=>__XenQuick.syncHotkeys(kind,entries),[kind,entries]);
+ P.useLayoutEffect(()=>{__XenQuick.syncHotkeys(kind,entries);__XenQuick.refreshLibraries()},[kind,entries]);
 }
 function __useQuickActive(kind,id,name,open=true,onClose){
  const close=P.useRef(onClose);close.current=onClose;
@@ -89,8 +104,8 @@ function __QuickDock({params={},update=()=>{}}={}){
  const allColumnsFilled=Object.values(columns).every(entries=>entries.length>0);
  const collection=u.jsxs('div',{className:'xen-quick-collection'+(layout.migrated?' is-migrated':'')+(layout.documentList?' is-document':''),
   style:layout.migrated?{right:'var(--xen-side-rail-inset)',width:layout.rightWidth}:undefined,
-  children:[u.jsx(__QuickMuteRow,{params,update,showIcons:!allColumnsFilled}),u.jsx('div',{className:'xen-quick-grid',children:Object.entries(columns).map(([kind,entries])=>u.jsx('div',{className:'xen-quick-column','data-xen-quick-column':kind,children:entries.map((entry,index)=>u.jsxs('button',{type:'button',className:'xen-quick-tile'+(s.tilePulse?.kind===kind&&s.tilePulse?.id===entry.id?' is-key-pulse':''),'data-xen-shortcut-kind':kind,'data-xen-shortcut-id':entry.id,title:entry.name,'aria-label':entry.name,onClick:()=>{setMessage(__XenQuick.activate(entry)?'':entry.name+' ist nicht mehr verfügbar.')},onContextMenu:e=>{e.preventDefault();setRemove(entry)},children:[u.jsx('span',{className:entry.kind==='rootFollow'?'xen-quick-rfl':'',children:__XenQuick.icons[entry.kind]}),' '+(index+1),u.jsx(__QuickHotkey,{kind,id:entry.id,params,hotkeys:s.hotkeys})]},entry.kind+':'+entry.id))},kind))}),
-   remove&&u.jsxs('div',{className:'xen-quick-confirm',children:[u.jsx('span',{children:'„'+remove.name+'“ entfernen?'}),u.jsx('button',{type:'button',onClick:()=>{__XenQuick.remove(remove);setRemove(null)},children:'Entfernen'}),u.jsx('button',{type:'button',onClick:()=>setRemove(null),children:'Abbrechen'})]}),message&&u.jsx('small',{role:'status',children:message})]});
+  children:[u.jsx(__QuickMuteRow,{params,update,showIcons:!allColumnsFilled}),u.jsx(__QuickColumns,{items:s.items,render:(entry,index,kind)=>u.jsxs('button',{type:'button',className:'xen-quick-tile'+(s.tilePulse?.kind===kind&&s.tilePulse?.id===entry.id?' is-key-pulse':''),'data-xen-shortcut-kind':kind,'data-xen-shortcut-id':entry.id,title:entry.name,'aria-label':entry.name,onClick:()=>{setMessage(__XenQuick.activate(entry)?'':entry.name+' ist nicht mehr verfügbar.')},onContextMenu:e=>{e.preventDefault();setRemove(entry)},children:[u.jsx('span',{className:entry.kind==='rootFollow'?'xen-quick-rfl':'',children:__XenQuick.icons[entry.kind]}),' '+(index+1),u.jsx(__QuickHotkey,{kind,id:entry.id,params,hotkeys:s.hotkeys})]},entry.kind+':'+entry.id)}),
+   remove&&u.jsxs('div',{className:'xen-quick-confirm',children:[u.jsx('span',{children:'„'+remove.name+'“ entfernen?'}),u.jsx('button',{type:'button',onClick:()=>{__XenQuick.remove(remove);setRemove(null)},children:'Entfernen'}),u.jsx('button',{type:'button',onClick:()=>setRemove(null),children:'Abbrechen'})]}),(message||s.storageError)&&u.jsx('small',{role:'status',children:message||s.storageError})]});
  const dock=u.jsxs('section',{className:'xen-quick-dock'+(flash?' is-ready':'')+(layout.migrated?' is-migrated':''),'aria-label':'Schnellmenü','data-xen-quick-hint':__XenQuickHelpText,
   style:{top:layout.leftTop,height:layout.leftHeight,maxHeight:'none'},onPointerDown:e=>e.stopPropagation(),onMouseDown:e=>e.stopPropagation(),onClick:e=>e.stopPropagation(),
   children:[flash>0&&u.jsx('span',{key:'drop-'+flash,className:'xen-quick-signal','aria-hidden':true}),!layout.documentList&&collection]});
@@ -147,25 +162,26 @@ if(typeof document!=='undefined'){
   function update(e){
    if(!session?.dragging)return;
    session.last={clientX:e.clientX,clientY:e.clientY};
-   const inside=inDock(e),zone=inside?null:zoneAt(e),sort=hooks();
+   const song=typeof __xenSongDropTarget==='function'?__xenSongDropTarget(e,session):null;session.songTarget=song;
+   const inside=!song&&session.modal.dataset.xenHeaderMenu!=='song'&&inDock(e),zone=inside||song?null:zoneAt(e),sort=hooks();
    session.overDock=inside;placeQuickHelp(e,inside);
    if(zone){
     if(!session.sorting){session.sorting=true;sort.start?.(libraryEvent(e))}
     sort.over?.(libraryEvent(e));
    }else leaveSort();
    document.querySelector('.xen-quick-dock')?.classList.toggle('xen-quick-pointer-over',inside);
-   ghost.classList.toggle('is-over',inside);
+   ghost.classList.toggle('is-over',inside||!!song);
    ghost.classList.toggle('is-sorting',!!zone);
    const detail=zone?sort.preview?.():'';
    ghost.textContent=(__XenQuick.icons[session.entry.kind]||'')+' '+session.entry.name+
-    (detail?' · '+detail:inside?' · +':'');
+    (song?' · Song Part':detail?' · '+detail:inside?' · +':'');
    ghost.style.left=Math.max(4,Math.min(e.clientX+14,window.innerWidth-ghost.offsetWidth-4))+'px';
    ghost.style.top=Math.max(4,Math.min(e.clientY-18,window.innerHeight-ghost.offsetHeight-4))+'px';
   }
   function tick(){
    if(!session?.dragging)return;
    if(!session.source.isConnected||!session.modal.isConnected){clear();return}
-   const zone=session.overDock?null:zoneAt(session.last);
+   const zone=session.songTarget?.column??(session.overDock?null:zoneAt(session.last));
    if(zone&&zone.scrollHeight>zone.clientHeight){
     const r=zone.getBoundingClientRect(),y=session.last.clientY;
     const step=y<r.top+28?-Math.min(12,(r.top+28-y)*.45):
@@ -216,7 +232,8 @@ if(typeof document!=='undefined'){
    e.preventDefault();e.stopImmediatePropagation();
    try{
     update(e);
-    if(inDock(e))__XenQuick.add(session.entry);
+    if(session.songTarget)__xenSongCommitDrop(session);
+    else if(session.modal.dataset.xenHeaderMenu!=='song'&&inDock(e))__XenQuick.add(session.entry);
     else if(zoneAt(e)&&session.sorting)hooks()?.drop?.(libraryEvent(e));
    }finally{clear()}
   },true);
@@ -239,7 +256,7 @@ if(typeof document!=='undefined'){
  // The pointer transaction consumes drag-generated clicks before this listener.
  window.addEventListener('click',e=>{
   const row=e.target?.closest?.('[data-xen-quick-kind][data-xen-quick-id]');
-  if(!e.defaultPrevented&&row?.closest('[data-xen-header-menu]'))__XenQuick.signal();
+  if(!e.defaultPrevented&&row?.closest('[data-xen-header-menu]')&&!row.closest('[data-xen-header-menu="song"]'))__XenQuick.signal();
  },true);
  const placeQuickHelp=(e,inside=inDock(e))=>{
   const hint=document.querySelector('.xen-quick-hover-info');if(!hint)return;

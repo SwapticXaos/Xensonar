@@ -1,0 +1,20 @@
+{
+  "sourceAdditions": [
+    {
+      "file": "src/mix/03_song_projects.js",
+      "after": "src/mix/03_quick_menu.js",
+      "sha256": "7c90ed45cb3c7d6a6ca194696f8f2ec05ddb5635782fd0165d5d21758a56013c"
+    }
+  ],
+  "styleAdditions": [
+    {
+      "definition": {
+        "file": "styles/27_song_projects.css",
+        "tag": "<style id=\"xen-song-projects\">",
+        "after": "\n"
+      },
+      "after": "styles/26_live_controls.css",
+      "sha256": "618260fd2f3d866dce111f9a8fb537db33a53f7e96c386bd8ea9994ed17f3d59"
+    }
+  ]
+}

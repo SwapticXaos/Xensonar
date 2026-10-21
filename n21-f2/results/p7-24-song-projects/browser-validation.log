@@ -1,0 +1,73 @@
+
+## song-projects-browser
+PASS Song Projects browser: real library adapters, pointer add/reorder/dedupe/cancel, native drag prevention, right-click removal, no choose/audio calls, missing references, live divergence, persistence, five tabs, narrow scrolling. {"pointerKinds":["grid","material","rootFollow","drum","bass"],"desktop":{"width":1118,"height":783},"packageRoundtrip":{"included":true,"restored":true,"legacyProtected":true,"imported":10},"narrow":{"client":382,"scroll":676},"freshPackage":{"songs":2,"materials":2,"rootFollow":2,"draftPreserved":true,"referencesResolve":true}}
+
+## p7-24-entrophon-saved-live-browser
+PASS saved Entrophon Wave/Keyboard: selected definition admission and native C11 PCM independent of cheaper/dearer Current; exact costs, revision/project/reload and missing-source contracts
+
+## live-control-ownership-browser
+{"isolated":[{"stages":[],"renders":40,"restores":40,"scriptMs":722.444},{"stages":["telemetry"],"renders":0,"restores":0,"scriptMs":1.451}],"live":{"baselineRenders":71,"currentRenders":44,"baselineScriptMs":1058.257,"currentScriptMs":1106.184}}
+PASS telemetry snapshots stay current without app rerenders; unchanged payloads and owner stability with alternating native live measurements
+
+## forge-request-browser
+PASS native delayed donor -> listening-mode switch: no obsolete render, one current render, green Play reuses PCM
+
+## forge-smoothness-browser
+PASS native master overload/stereo and IndexedDB autosave
+
+## forge-efficiency-browser
+PASS Fractalia single preparation/cache reuse, local edit and complete current-package fresh-profile roundtrip
+
+## p7-review-browser
+PASS P7 native keyboard/UI/Drone PCM and Forge action browser contracts
+
+## nodal-ball-grid-browser
+AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
++ actual - expected
+
++ 0
+- 542.5035924672305
+
+    at /workspace/Xensonar/n21-f2/tests/nodal-ball-grid-browser.cjs:46:57 {
+  generatedMessage: true,
+  code: 'ERR_ASSERTION',
+  actual: 0,
+  expected: 542.5035924672305,
+  operator: 'strictEqual',
+  diff: 'simple'
+}
+
+## forge-spatial-browser
+PASS Forge geometry, navigator cursor/gesture contracts and actual metadata transfers
+
+## mute-auto-preview-browser
+PASS supplied mute-icon and opt-in Auto-preview patch in native Chromium
+
+## integrated-patches-browser
+PASS OGG/import race, safe React controls, zero master gain, Navigator sample WAV and committed Donor identity
+
+## consolidation-browser
+PASS native package download -> fresh profile -> file import -> IndexedDB -> restored playback, invalid-load protection and bounded history
+
+## forge-ready-browser
+PASS ready -> cached Play: emilia
+PASS ready -> cached Play: pure-dieter
+PASS ready -> cached Play: fractalia
+PASS ready -> cached Play: harmonic-xplore
+PASS ready -> cached Play: spektral-synthese
+PASS ready -> cached Play: antonia
+PASS ready -> cached Play: bert
+PASS ready -> cached Play: cecilia
+PASS truthful green readiness and cached Play across all eight machines and tempo edits
+
+## forge-pitch-browser
+PASS edited carrier: antonia
+PASS edited carrier: bert
+PASS edited carrier: cecilia
+PASS edited carrier: emilia
+PASS edited carrier: fractalia
+PASS edited carrier: pure-dieter
+PASS edited carrier: harmonic-xplore
+PASS edited carrier: spektral-synthese
+PASS real brush/Morph, all eight native Play modes, explicit reversible Detune and responsive footer
+PASS reproducible standalone HTML e2b2384a0addae4c8a8720eff0c60bec4f6d44af89c382602f80d2f531cae86d 5751989
