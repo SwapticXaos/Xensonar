@@ -1,6 +1,6 @@
 {
-  "version": "XenSonar P7.38 · reviewed Sessions, grid profiles, auditions and startup geometry",
-  "entry": "Xensonar_P7_38_Sessions_Reviewed_Test.html",
+  "version": "XenSonar P7.39 · Combined Nodal, Starter Grid and demand-driven startup",
+  "entry": "Xensonar_P7_39_Combined_Startup_Test.html",
   "files": [
     "src/handoff/00_chat_feature_addons.js",
     "src/mix/03_quick_menu.js",
@@ -213,10 +213,10 @@
     "src/05_dual_donor.js",
     "src/06_workbench_dialog.js"
   ],
-  "sha256": "64f5bda8b01595dc265f2945397b83443b123b3f3babdf7eda511f8635eaed01",
-  "bytes": 5859506,
+  "sha256": "602dc8199d85cf49cd259aad14e3f13de6a071d2e1e53f0105af7babd86b504c",
+  "bytes": 5906819,
   "sourceOrder": "Concatenate in listed order. Explicit factories own Workbench, hybrid session, render capture, adapters, playback and analysis cache. Remaining registry fragments share one inline module; DSP factories stay independently serializable for workers.",
-  "status": "F4.3.13 mainline plus F4.4.0 Nodal coupled-modal-v2, anchored at F4.3.5",
+  "status": "reviewed Combined source plus native durability and startup hardening",
   "baseVersion": "F4.3.5 (three-way)",
   "styles": [
     {

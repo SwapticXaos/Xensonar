@@ -1,0 +1,49 @@
+{
+  "entry": "results/combined-startup/starter-grid/migration-fixed.html",
+  "rows": [
+    {
+      "variant": "original",
+      "failures": []
+    },
+    {
+      "variant": "renamed-tile",
+      "failures": []
+    },
+    {
+      "variant": "offset",
+      "failures": []
+    },
+    {
+      "variant": "mode",
+      "failures": []
+    },
+    {
+      "variant": "mask",
+      "failures": []
+    },
+    {
+      "variant": "custom-instance",
+      "failures": []
+    },
+    {
+      "variant": "renamed-session",
+      "failures": []
+    },
+    {
+      "variant": "unrelated-session",
+      "failures": []
+    },
+    {
+      "variant": "dirty-draft",
+      "failures": []
+    },
+    {
+      "variant": "existing-data",
+      "failures": []
+    }
+  ],
+  "audio": [],
+  "errors": [],
+  "pass": false,
+  "failure": "AssertionError [ERR_ASSERTION]: rendered fundamental follows native profile pitch\n    at /workspace/Xensonar/n21-f2/tests/combined-starter-grid-browser.cjs:85:143\n    at Array.forEach (<anonymous>)\n    at /workspace/Xensonar/n21-f2/tests/combined-starter-grid-browser.cjs:85:127"
+}

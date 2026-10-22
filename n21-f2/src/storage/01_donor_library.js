@@ -139,7 +139,7 @@ function __F36UsePanelController({ React: P, source, externalOpen, disabled, ref
 }
 function DonorLibraryPanel({ React: P, jsx, source, selection, readMode, sourceAdapterId, disabled, onLoad, onActivate, onLoadSelection, onPreview, onPreviewSelection, onStopPreview, externalOpen, onClose, refreshToken }) {
     const {open,items,name,setName,tags,setTags,filter,setFilter,working,message,setMessage,sampleMode,setSampleMode,sampleRows,run}=__F36UsePanelController({React:P,source,externalOpen,disabled,refreshToken});
-    const button = (label, action, off = false, title) => jsx.jsx('button', { type: 'button', onClick: action, disabled: off || ((working || disabled) && label !== 'Vorschau stoppen'), title, style: { background: '#113336', color: '#b6f4eb', border: '1px solid #346966', padding: '4px 8px', borderRadius: 5, opacity: off ? .5 : 1, cursor: off ? 'default' : 'pointer' }, children: label });
+    const button = (label, action, off = false, title) => jsx.jsx('button', { type: 'button', onClick: action, disabled: off || ((working || disabled) && label !== 'Stop preview'), title, style: { background: '#113336', color: '#b6f4eb', border: '1px solid #346966', padding: '4px 8px', borderRadius: 5, opacity: off ? .5 : 1, cursor: off ? 'default' : 'pointer' }, children: label });
     const matches = items.filter((x) => `${x.name} ${x.sourceLabel} ${x.tags.join(' ')}`.toLowerCase().includes(filter.trim().toLowerCase()));
     const donorAssetIds = new Set(items.map(p => p.assetId));
     return jsx.jsxs('section', { 'data-donor-library': 'v1', style: { margin: '6px 0 12px', border: '1px solid #275955', borderRadius: 7, padding: '8px 10px', background: '#0b1b20', fontSize: 11 }, children: [
@@ -168,9 +168,9 @@ function DonorLibraryPanel({ React: P, jsx, source, selection, readMode, sourceA
             ]}),
             open && !sampleMode && jsx.jsxs('div', { style: { marginTop: 8 }, children: [
                     jsx.jsxs('div', { style: { display: 'flex', gap: 6, flexWrap: 'wrap', marginBottom: 6 }, children: [
-                            jsx.jsx('input', { 'aria-label': 'Donor-Name', placeholder: 'Name des Donors', value: name, onChange: (e) => setName(e.target.value), maxLength: 100, style: { minWidth: 175, flex: 1, background: '#06161a', border: '1px solid #3b6663', borderRadius: 4, color: '#e1f7f4', padding: '5px' } }),
+                            jsx.jsx('input', { 'aria-label': 'Donor-Name', placeholder: 'Donor name', value: name, onChange: (e) => setName(e.target.value), maxLength: 100, style: { minWidth: 175, flex: 1, background: '#06161a', border: '1px solid #3b6663', borderRadius: 4, color: '#e1f7f4', padding: '5px' } }),
                             jsx.jsx('input', { 'aria-label': 'Donor-Tags', placeholder: 'Tags (kommagetrennt)', value: tags, onChange: (e) => setTags(e.target.value), style: { minWidth: 140, flex: 1, background: '#06161a', border: '1px solid #3b6663', borderRadius: 4, color: '#e1f7f4', padding: '5px' } }),
-                            button("Save Current Selection", () => run(async () => { await exports.donorLibrary.save(name, tags, { source, selection, readMode, sourceAdapterId }); setMessage('Donor-Auswahl gespeichert.'); }), !source?.sourceAsset || !selection),
+                            button("Save Current Selection", () => run(async () => { await exports.donorLibrary.save(name, tags, { source, selection, readMode, sourceAdapterId }); setMessage('Donor selection saved.'); }), !source?.sourceAsset || !selection),
                             button("Stop preview", () => onStopPreview?.()),
                         ] }),
                     jsx.jsx('input', { 'aria-label': "Search Donor Library", placeholder: "Search library …", value: filter, onChange: (e) => setFilter(e.target.value), style: { width: '100%', marginBottom: 6, background: '#06161a', border: '1px solid #2b4b49', color: '#d9f4ef', borderRadius: 4, padding: '5px' } }),
@@ -184,7 +184,7 @@ function DonorLibraryPanel({ React: P, jsx, source, selection, readMode, sourceA
                                     button("Preview", () => run(async () => { if(onPreviewSelection)await onPreviewSelection(item.id);else{const value = await exports.donorLibrary.load(item.id); await onPreview(value);} setMessage("Preview playing · stop using the existing audio controls."); })),
                                     button("Load", () => run(async () => { if(onLoadSelection)await onLoadSelection(item.id);else{const value = await exports.donorLibrary.load(item.id); await onLoad(value, false);} setMessage("Donor loaded as source. “Use as Donor” transfers the timbre onto your painted figure; “Send to Workbench” projects the raw sample instead."); })),
                                     button("Use as Donor", () => run(async () => { if(onActivate)await onActivate(item.id);else{const value = await exports.donorLibrary.load(item.id); await onLoad(value, true);} setMessage("Donor timbre activated for the painted figure."); })),
-                                    button("Delete", () => { if (window.confirm(`Donor-Auswahl „${item.name}” remove? The audio file will remain available for other selections.`))
+                                    button("Delete", () => { if (window.confirm(`Remove donor selection “${item.name}”? The audio file will remain available for other selections.`))
                                         void run(async () => exports.donorLibrary.remove(item.id)); }),
                                 ] }, item.id)) }),
                     message && jsx.jsx('div', { role: 'status', style: { marginTop: 7, color: '#e1c17e' }, children: message }),

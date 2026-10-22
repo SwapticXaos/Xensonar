@@ -16,7 +16,7 @@ function __createF3569SampleDonorBridge(io) {
   const clean = x => String(x ?? '').trim().slice(0, 100);
   async function getSample(id) {
     const row = await io.getSample(id);
-    if (!row?.blob || !(row.blob.size > 0)) throw new Error('Sample-Audio fehlt: ' + id + '. Bitte Sample-Bibliothek prüfen.');
+    if (!row?.blob || !(row.blob.size > 0)) throw new Error('Sample audio is missing: ' + id + '. Please check the sample library.');
     return row;
   }
   async function listSamples() {
@@ -25,7 +25,7 @@ function __createF3569SampleDonorBridge(io) {
   }
   async function materialize(row) {
     const pcm = await io.decodeAudio(row);
-    if (!pcm?.monoSamples?.length && !pcm?.leftSamples?.length) throw new Error('Sample lässt sich nicht als Donor dekodieren.');
+    if (!pcm?.monoSamples?.length && !pcm?.leftSamples?.length) throw new Error('The sample cannot be decoded as a donor.');
     const title=String(row.name || pcm.fileName || 'Sample');
     return { ...pcm, fileName: /\.[a-z0-9]{2,5}$/i.test(title) ? title : title + '.wav', __melodicSampleId:row.id };
   }
@@ -45,7 +45,7 @@ function __createF3569SampleDonorBridge(io) {
   }
   async function loadLinkedPreset(preset) {
     const sampleId = sampleIdFromAsset(preset?.assetId);
-    if (!sampleId) throw new Error('Der Donor ist kein verknüpftes Sample.');
+    if (!sampleId) throw new Error('The donor is not a linked sample.');
     const row = await getSample(sampleId), asset = await materialize(row);
     const result = sourceState(row, asset, preset.name, preset.selection);
     return { ...result, id:preset.id, source:{...result.source, ...preset.source, sourceAsset:asset,
@@ -76,7 +76,7 @@ function __createF3569SampleDonorBridge(io) {
     const asset = await materialize(row);
     // Store the replacement raw audio BEFORE removing the only blob reference.
     // One PCM copy is now necessary because the Sample role is going away.
-    if (!io.promote) throw new Error('Die Sample-Löschung kann verknüpfte Donoren nicht sicher erhalten.');
+    if (!io.promote) throw new Error('Deleting the sample may not safely preserve linked donors.');
     await io.promote(matching, asset);
     return matching.length;
   }
@@ -85,7 +85,7 @@ function __createF3569SampleDonorBridge(io) {
     const names = new Set((archive.samples || []).map(r => r.archivedId));
     for (const entry of archive.donorLibrary.presets) {
       const id = sampleIdFromAsset(entry?.value?.assetId);
-      if (id && !names.has(id)) throw new Error('Sample fehlt im Tüftel-Paket: '+id+' für einen verknüpften Donor.');
+      if (id && !names.has(id)) throw new Error('Sample is missing from the experiment package: '+id+' for a linked donor.');
     }
   }
   async function rebindImportedLinks(ids, idMap) {
@@ -144,4 +144,4 @@ const __F3569SampleDonor = __createF3569SampleDonorBridge({
   }
 });
 
-await __ForgeF33.preloadAllMaterialIntakeStates();
+// Material Intake restores only the requested workspace before its editing owner mounts.

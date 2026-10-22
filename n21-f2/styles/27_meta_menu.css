@@ -248,3 +248,15 @@
    second line. Reserve the header's true intrinsic height instead of letting
    flex shrink clip the field and its complete focus ring. */
 .xen-meta-browser-heading{flex:0 0 auto;height:auto;align-content:center;row-gap:8px}
+
+/* P7.38.3 – Global Session colors use the existing floating editor language. */
+.xen-meta-head>.xen-meta-heading-tools{display:flex;align-items:center;justify-content:flex-end;gap:10px;min-width:0;flex-wrap:wrap}
+.xen-meta-global-trigger{flex:0 0 auto;min-width:0;padding:5px 8px;border:1px solid #40677f;background:#152b3a;color:#b9dfef;font:600 11px ui-monospace,monospace;cursor:pointer}
+.xen-meta-global-trigger:hover:not(:disabled),.xen-meta-global-trigger[aria-expanded=true]{border-color:#61c6dc;background:#184659;color:#e8fdff}
+.xen-meta-global-trigger:disabled{opacity:.42;cursor:default}
+.xen-meta-global-color-editor{right:14px;top:52px;width:min(320px,calc(100% - 24px));max-height:min(400px,calc(100dvh - 155px));overflow:auto}
+.xen-meta-global-mode{display:flex;flex-direction:column;gap:5px;color:#b2d4e8}
+.xen-meta-global-mode select{min-width:0;width:100%;padding:6px 8px;border:1px solid #45667b;background:#132536;color:#e2f5fc;font-size:12px}
+.xen-meta-global-apply{align-self:stretch;padding:7px 10px;border-color:#46a2b6;color:#e2fbff;font-weight:700}
+.xen-meta-global-trigger:focus-visible,.xen-meta-global-color-editor button:focus-visible,.xen-meta-global-color-editor select:focus-visible,.xen-meta-global-color-editor input:focus-visible{outline:2px solid #8beaff;outline-offset:2px}
+.xen-meta-constellation .xen-meta-head>strong{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}

@@ -1,0 +1,239 @@
+{
+  "note": "Timing batch contaminated by a concurrent CPU diff process; retained PCM/read counts remain deterministic; do not cite speedup.",
+  "rows": [
+    {
+      "name": "baseline-retained",
+      "mode": "cold",
+      "backingMiB": [
+        47.31215763092041,
+        47.31215476989746,
+        47.31215763092041
+      ],
+      "activeRendererRSSMiB": [
+        190.9453125,
+        191.73828125,
+        190.625
+      ],
+      "assets": [
+        0,
+        0,
+        0
+      ],
+      "cachedKeys": [
+        0,
+        0,
+        0
+      ],
+      "roots": [
+        1,
+        1,
+        1
+      ],
+      "canvasPixels": [
+        970760,
+        970760,
+        970760
+      ],
+      "scriptMs": [
+        694.793,
+        666.6039999999999,
+        659.293
+      ]
+    },
+    {
+      "name": "baseline-retained",
+      "mode": "restored",
+      "backingMiB": [
+        100.04653930664062,
+        100.04654216766357,
+        100.04562282562256
+      ],
+      "activeRendererRSSMiB": [
+        242.84765625,
+        244.890625,
+        243.671875
+      ],
+      "assets": [
+        8,
+        8,
+        8
+      ],
+      "cachedKeys": [
+        8,
+        8,
+        8
+      ],
+      "roots": [
+        1,
+        1,
+        1
+      ],
+      "canvasPixels": [
+        970760,
+        970760,
+        970760
+      ],
+      "scriptMs": [
+        715.149,
+        735.952,
+        450.172
+      ]
+    },
+    {
+      "name": "candidate-retained",
+      "mode": "cold",
+      "backingMiB": [
+        47.34546089172363,
+        47.345455169677734,
+        48.868452072143555
+      ],
+      "activeRendererRSSMiB": [
+        202.8203125,
+        201.77734375,
+        208.41796875
+      ],
+      "assets": [
+        0,
+        0,
+        0
+      ],
+      "cachedKeys": [
+        0,
+        0,
+        0
+      ],
+      "roots": [
+        1,
+        1,
+        1
+      ],
+      "canvasPixels": [
+        970760,
+        970760,
+        970760
+      ],
+      "scriptMs": [
+        1093.8349999999998,
+        740.934,
+        607.287
+      ]
+    },
+    {
+      "name": "candidate-retained",
+      "mode": "restored",
+      "backingMiB": [
+        100.06775665283203,
+        100.08000755310059,
+        100.07899570465088
+      ],
+      "activeRendererRSSMiB": [
+        248.5625,
+        251.97265625,
+        253.44140625
+      ],
+      "assets": [
+        8,
+        8,
+        8
+      ],
+      "cachedKeys": [
+        8,
+        8,
+        8
+      ],
+      "roots": [
+        1,
+        1,
+        1
+      ],
+      "canvasPixels": [
+        970760,
+        970760,
+        970760
+      ],
+      "scriptMs": [
+        499.249,
+        478.765,
+        775.0709999999999
+      ]
+    },
+    {
+      "name": "after-retained",
+      "mode": "cold",
+      "backingMiB": [
+        48.87290382385254,
+        47.33802604675293,
+        47.33790397644043
+      ],
+      "activeRendererRSSMiB": [
+        208.46484375,
+        192.51171875,
+        199.69140625
+      ],
+      "assets": [
+        0,
+        0,
+        0
+      ],
+      "cachedKeys": [
+        0,
+        0,
+        0
+      ],
+      "roots": [
+        1,
+        1,
+        1
+      ],
+      "canvasPixels": [
+        970760,
+        970760,
+        970760
+      ],
+      "scriptMs": [
+        923.138,
+        1360.822,
+        1759.801
+      ]
+    },
+    {
+      "name": "after-retained",
+      "mode": "restored",
+      "backingMiB": [
+        48.87285614013672,
+        48.8730354309082,
+        49.62673854827881
+      ],
+      "activeRendererRSSMiB": [
+        213.01171875,
+        212.67578125,
+        213.34765625
+      ],
+      "assets": [
+        0,
+        0,
+        0
+      ],
+      "cachedKeys": [
+        0,
+        0,
+        0
+      ],
+      "roots": [
+        1,
+        1,
+        1
+      ],
+      "canvasPixels": [
+        970760,
+        970760,
+        970760
+      ],
+      "scriptMs": [
+        483.17,
+        545.063,
+        1279.143
+      ]
+    }
+  ]
+}

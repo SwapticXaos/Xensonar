@@ -1,0 +1,386 @@
+[
+  {
+    "path": "template/head.html",
+    "base_git_blob": "7bc5c0622b996b0cbf476f9d67471923c906300d",
+    "base_sha256": "364d97a5ce20d23936fa2897a05471dea5222b54a4ed2fcd1c04a574cb2a4ff5",
+    "bytes": 718
+  },
+  {
+    "path": "src/handoff/00_chat_feature_addons.js",
+    "base_git_blob": "24a1fd0f867e4845ae4346d9655d46b5a2baccef",
+    "base_sha256": "db366169829fb4bf82e3b16fe69475de2fa4054a69b71d2cb2cb71c3cc8403d6",
+    "bytes": 25678
+  },
+  {
+    "path": "src/mix/03_quick_menu.js",
+    "base_git_blob": "a5c6f49802121a4bb8cabcb0edb3aea006b0e810",
+    "base_sha256": "06d8008a842335e1de3e5fd5547bd4782e0382267c58654d6a8a81e1ce85bad5",
+    "bytes": 32928
+  },
+  {
+    "path": "src/mix/03_meta_menu.js",
+    "base_git_blob": "791838372f0f0cd2ecd8130912e9227f7f0896fb",
+    "base_sha256": "78fdbc6370a23d419a865261523592982b28a2f8559d761e8cd2840ca0cefbba",
+    "bytes": 61140
+  },
+  {
+    "path": "src/mix/04_melodic_spatial.js",
+    "base_git_blob": "557d82be5a9e516a59d13677a304a57151d8fdbe",
+    "base_sha256": "398f3acabc5f7da84392ec193b6ad838931187d5961e5540993a7cbbec272856",
+    "bytes": 7128
+  },
+  {
+    "path": "src/nodal/04_audio_runtime.js",
+    "base_git_blob": "a243df109c3dd335aabacdbb557c384f5790e37e",
+    "base_sha256": "e65b2ebda0abaddc1e9441e491e640c445e08dd61bd580577647adb79b052da0",
+    "bytes": 44417
+  },
+  {
+    "path": "src/nodal/07_sound_designer.js",
+    "base_git_blob": "ee0f7008483fc18660861a6458b5093bd48be93b",
+    "base_sha256": "2bdefec715f85296d4c8f19b90b63e785fbf8e2d37ce23f26537c07cf4b70ad0",
+    "bytes": 49317
+  },
+  {
+    "path": "src/forge/editor/09_workflow_controls.js",
+    "base_git_blob": "2faef3120b30fc402f6e3548ace1a1ffd33968e2",
+    "base_sha256": "e9a551e4a467f86ec6c6412c996aac482de4bd0368e5bdb7fdfb232994e75e66",
+    "bytes": 28820
+  },
+  {
+    "path": "src/nodal/13_installation_ball_grid.js",
+    "base_git_blob": "534068ce54933d35c683780c9345f18206a96ad3",
+    "base_sha256": "4d7728e383b8d6359fcd5729d9dbc19089d5ea158decf46632bfd34655fa68af",
+    "bytes": 7228
+  },
+  {
+    "path": "src/01_app_runtime.js",
+    "base_git_blob": "167e7bb9a8413eeebccf1c4a4e89678f3f156e4d",
+    "base_sha256": "885a9004f6fba5d79809c80546c782f458a94f26c344632879bfb178f9b83f69",
+    "bytes": 54505
+  },
+  {
+    "path": "src/forge/workbench/01_preset_catalog.js",
+    "base_git_blob": "a3585bc8c06edd3c4ac5b9143d516fc59c3c6236",
+    "base_sha256": "92e52667eb406632636c5733505ad7e93a56864f5c3bc61ef645491ba7e04f94",
+    "bytes": 14340
+  },
+  {
+    "path": "src/forge/module_bundle/21_experimentStatePersistence.js",
+    "base_git_blob": "b5e53fba995781ad6ead8967ae3153e5f63556c7",
+    "base_sha256": "571db1c553a088dd7ab58bc027c02909b478bdbdf20ae598601538d5f4f8eba0",
+    "bytes": 16068
+  },
+  {
+    "path": "src/storage/01_donor_library.js",
+    "base_git_blob": "07515f7d4c76aafb5e9a2748e03528b72fe0dc12",
+    "base_sha256": "80df7cebb66e3f7f8677178c776e0fc802873f5cce64cc0538d4c16f0700c729",
+    "bytes": 17056
+  },
+  {
+    "path": "src/storage/02_donor_packages.js",
+    "base_git_blob": "da3704a168b261328088b539e642fb7d859a7867",
+    "base_sha256": "2b2204611a763ab8a28e3c56217a074988dda2c82da0fc36d3e37573a9963524",
+    "bytes": 9477
+  },
+  {
+    "path": "src/storage/03_forge_packages.js",
+    "base_git_blob": "d43f10ea3af10a717229c75da5fb6eee9b8c4d21",
+    "base_sha256": "96fb969b6785cb2fa67677b693593862da8e0e2c9eef7c6ac1fec7ea9b0cc3d5",
+    "bytes": 2951
+  },
+  {
+    "path": "src/storage/04_sample_donor_bridge.js",
+    "base_git_blob": "c0f8ceabed9aea92ae9d55e3601460af88c4f601",
+    "base_sha256": "d0d81ada2e31af2dff0ec97c2289261b513b7db26dbbfd23141e0c69930ddc4c",
+    "bytes": 7823
+  },
+  {
+    "path": "src/runtime/01_instrument_state.js",
+    "base_git_blob": "157bc4345f6598e901a8340ca7927548830816c3",
+    "base_sha256": "a51fa36121712001f013b5a9346d6087af41624cbd6a2c3998ba6ef273b45020",
+    "bytes": 70238
+  },
+  {
+    "path": "src/runtime/instrument/01_voice_gradients_and_effects.js",
+    "base_git_blob": "b2b1a4401d0b2bb00e679dff983743f2d4aca292",
+    "base_sha256": "66571d49145756f8c2c5e2e2f1e068d9e752806ac8b5d2b9437590e8c58ef1fa",
+    "bytes": 34644
+  },
+  {
+    "path": "src/runtime/instrument/03_selection_and_recording_tools.js",
+    "base_git_blob": "00576a5ba245289e107436ad2b3e45e3a032aa0c",
+    "base_sha256": "64b5f845cae8316ea6a13625698c6115ccb80a5b5c691336391be8c58a97560e",
+    "bytes": 29533
+  },
+  {
+    "path": "src/runtime/instrument/04_performance_and_output_profiles.js",
+    "base_git_blob": "eb6f1b90319daeb76a1d15220db0196160aedc08",
+    "base_sha256": "5b785620a9f1aa1469d226b5a7bfbf0fb31b2a5783ce0bfa633e4b8ff723189c",
+    "bytes": 37671
+  },
+  {
+    "path": "src/runtime/instrument/05_timing_and_admission.js",
+    "base_git_blob": "972ee6326fcdc878bf922b1b97bcb174e769b2aa",
+    "base_sha256": "5865913275c92704c6c8ebf2f9c8fa919e750cafde7e78243babfb9c91fe7087",
+    "bytes": 81918
+  },
+  {
+    "path": "src/runtime/instrument/07_interpreters_and_installation.js",
+    "base_git_blob": "339e8ee8cc19d0841feff80e23736cc9d22bf6d2",
+    "base_sha256": "f83901a67779f8ef75e283d54caa91e7e68192e4db217df898d03428a31f75dc",
+    "bytes": 44611
+  },
+  {
+    "path": "src/runtime/instrument/08_library_and_tuning_editor.js",
+    "base_git_blob": "144303e22c5adbb259d2a60600562df2f021be65",
+    "base_sha256": "6f27f381407f64712b6da1adf24bcad382d1963f1d82d344bda34d24ff934ebc",
+    "bytes": 76349
+  },
+  {
+    "path": "src/runtime/instrument/09_monitoring_and_manual_patterns.js",
+    "base_git_blob": "deb59af1e9ae74493b67cf2be180144b721bc4c9",
+    "base_sha256": "e9a6f413aad403938332ce43a33058b8f677e6d110e1b1626f71fdd7e6d2dbd4",
+    "bytes": 78596
+  },
+  {
+    "path": "src/runtime/instrument/11_recording_and_granular_controls.js",
+    "base_git_blob": "ed8132183b66cc016baba76b5b8a4f8e6f7285e3",
+    "base_sha256": "fc2fc66fe1b91bedc8e9de94f1b03ea46de83ea69ae0366d535954d2121226b2",
+    "bytes": 47658
+  },
+  {
+    "path": "src/runtime/instrument/12_rhythm_and_bass_editor.js",
+    "base_git_blob": "b99c242f92088928db7caf8ebb973a524a3a9597",
+    "base_sha256": "b5c7afe95a3b39497183135c5c18d24aebf52c324248336c1b0b821c59859ad4",
+    "bytes": 81494
+  },
+  {
+    "path": "src/rhythm/01_compact_drum_grid.js",
+    "base_git_blob": "d1397275d7157908552607cbd4bc3ce9286ba8b1",
+    "base_sha256": "4feb238a5f8120addcb3a66e8d374498252f449265e86df2b57f5ed79379a701",
+    "bytes": 45307
+  },
+  {
+    "path": "src/rhythm/02_bass_and_rack.js",
+    "base_git_blob": "c272af4ece5ffeaf61d26f1b9529501462dce623",
+    "base_sha256": "b63c1a60936135eeda763ff8eaaf351665a031896608219b1555fa0795b8e518",
+    "bytes": 190378
+  },
+  {
+    "path": "src/audio/01_voice_and_rfl_ownership.js",
+    "base_git_blob": "b125b09b347b572772f87a31c30e834357cd5f49",
+    "base_sha256": "0cc0920a2011bb0e404d1d08ea49cd64222bf5b88858dbe8a7e8f070bc49b791",
+    "bytes": 170874
+  },
+  {
+    "path": "src/audio/02_rfl_worklet.js",
+    "base_git_blob": "261e77af007c39ba7ddcd07bb7648df385d039f1",
+    "base_sha256": "c13e23318f08ed20c2a38908bfd6ea98aece06dccc7f6542f7743e2f5be00e77",
+    "bytes": 102842
+  },
+  {
+    "path": "src/audio/03_rfl_transport_legacy.js",
+    "base_git_blob": "c6b5ba11206c363ba1b8c419670a1378a370a649",
+    "base_sha256": "79c6cbc07a8680bf0fb044e6af3782b87c41520bbc5656eb8086be132a34b60e",
+    "bytes": 100853
+  },
+  {
+    "path": "src/audio/03_flac_encoder.js",
+    "base_git_blob": "72286255b04cd243a23056b5378816b744b8ef99",
+    "base_sha256": "7125ee26eb5e4353c17b5589b854283498b411ed49adcdc4e7486c9e6fb1dfb4",
+    "bytes": 12267
+  },
+  {
+    "path": "src/audio/03_recorder.js",
+    "base_git_blob": "977530ce1b8fefdf8c4e1ab4700696a5b3f1a45d",
+    "base_sha256": "036d3a85f7f15a6ecda053ac845b8342f8508e97c8c6f9301f992868c04891a6",
+    "bytes": 26437
+  },
+  {
+    "path": "src/audio/entrophon/03_native_bridge.js",
+    "base_git_blob": "63a809f63c6e6113234f3cf5b27a0e6713b95236",
+    "base_sha256": "0e6248350506a548742f09e7566c62f713600cde6a84d99aff0e129030bc1e99",
+    "bytes": 11923
+  },
+  {
+    "path": "src/audio/07_governor_and_drums.js",
+    "base_git_blob": "beb768ceb1aa6c3bae965c8d9b0d6b1b1c7ecd80",
+    "base_sha256": "b5bb44b24e06667abe18526232488bb21958ce287bb6edb939d8c4fc53490d87",
+    "bytes": 93680
+  },
+  {
+    "path": "src/rhythm/04_workspace_and_transport.js",
+    "base_git_blob": "500af4b8e5de08a3eac1e7f0195f861ed2b7cc2d",
+    "base_sha256": "cf5a80dd9420b249e7193049c0f749b5fad746a629b5b539f7ba152fd65ae0a1",
+    "bytes": 165883
+  },
+  {
+    "path": "src/app/forge/01_room_shell.js",
+    "base_git_blob": "1396ffd2742637aa8184d81c0adddeaf77bd7d4b",
+    "base_sha256": "a8806a1fac70f5d44101c98b53835b5c505a2369f1fb44cbb60446519ebdffa3",
+    "bytes": 68025
+  },
+  {
+    "path": "src/app/forge/02_boot_and_workspace_tools.js",
+    "base_git_blob": "9b8a559bcb643cfa498fb9512e4bcf9bfac5c585",
+    "base_sha256": "5e49e9d5816eab43fb1faf7e6755dafdfc836c5789dc487fa73bf3c2b3bcbe63",
+    "bytes": 78618
+  },
+  {
+    "path": "src/app/forge/03_spectral_grid_and_archives.js",
+    "base_git_blob": "08baf51ab11e28369d9ca204d38f36643ed8d748",
+    "base_sha256": "1b988c898aa9b5386c01f7caba2d16a169b7e0f8c49be594c32a74e444721366",
+    "bytes": 69916
+  },
+  {
+    "path": "src/app/forge/04_profiles_and_body_models.js",
+    "base_git_blob": "da9144301df087b6c7574e0eadfdcd7a91f1cd1a",
+    "base_sha256": "4c35e20928890f480b0ddfa3ad8c733b4f8d7fc7ad9441a7a5dd5b72675c4609",
+    "bytes": 79761
+  },
+  {
+    "path": "src/app/forge/07_preview_cache_and_controls.js",
+    "base_git_blob": "4a21df474f9dd7aa9ff363bd1e1fdc1906079fae",
+    "base_sha256": "bf180e9adcd25cb323e8cd1e471c65f1c1a141b7136283ffdac899e14f5b60ab",
+    "bytes": 59302
+  },
+  {
+    "path": "src/forge/editor/02_tools_and_audio_inputs.js",
+    "base_git_blob": "e50420275f022de7f4381078dde366489df8d4aa",
+    "base_sha256": "cc6354b60c7fc9c8286a26a9b6e9a407fe0d695318ca78826f0b175be3736806",
+    "bytes": 51678
+  },
+  {
+    "path": "src/forge/editor/06_output_routing.js",
+    "base_git_blob": "0adb929eed14234a69121fc0a6a445cb7e29f0b8",
+    "base_sha256": "d2c22da5006a55e11c37f667858bd1904cfebaec3aea6454d8d1a680b3352e78",
+    "bytes": 32314
+  },
+  {
+    "path": "src/forge/editor/07_composition_and_preview_ui.js",
+    "base_git_blob": "c871e3baf02643c3c6f87197baf050d2a871eef6",
+    "base_sha256": "957ec0db733fd9e67fe9a7f14db36d4407be9599ad3a5611537ebaa894c01fdc",
+    "bytes": 107785
+  },
+  {
+    "path": "src/forge/ui/03_microphone_intake.js",
+    "base_git_blob": "06feb4c7ebe62384147e2f0386f6667079a2f102",
+    "base_sha256": "d601e33637bcbcb665e0fdafef201cf00b2f4a93ed8e8779afdfcede080b5471",
+    "bytes": 7745
+  },
+  {
+    "path": "src/forge/analysis/04_audio_to_carrier.js",
+    "base_git_blob": "c83a9383e096f3b5eb8f241bb60b9ded77a5ca77",
+    "base_sha256": "0c5fde26b0d7b0e509479d8883aab3942234c1c9ffcd88f8f14055dad314cc1b",
+    "bytes": 10229
+  },
+  {
+    "path": "src/forge/analysis/05_carrier_pitch_space.js",
+    "base_git_blob": "852f9ff851d901a8d6bff44b2410881d0a817150",
+    "base_sha256": "9e4c33750b532d1ff984d88f002f080f4dc946862677ff02f3f7c786bbc18478",
+    "bytes": 3143
+  },
+  {
+    "path": "src/forge/ui/04_audio_to_carrier_controls.js",
+    "base_git_blob": "494bb778aca63a6a82b2507fad0cefbf6ab420b2",
+    "base_sha256": "ab7b1197d5942974a0f6b1d07cdcc04c2c0ac95199ffa21182767ae49579dbeb",
+    "bytes": 6548
+  },
+  {
+    "path": "src/forge/ui/02_donor_routing_and_hearing.js",
+    "base_git_blob": "2961d00173a99b052a94e7c1bc6d3d0433d8cb77",
+    "base_sha256": "b536c5854d96eb5cd7bb316ab31484250c94b89ff2cd3c0caa3fcdb955f4e21b",
+    "bytes": 198748
+  },
+  {
+    "path": "src/forge/ui/03_method_selection.js",
+    "base_git_blob": "1e42ccfcd7b9d4f132114a184c23c79d5a0c645c",
+    "base_sha256": "cdf3320ba84739143065396d63d69c4145955d59ef510d0bc278b91c3b473817",
+    "bytes": 1404
+  },
+  {
+    "path": "src/forge_and_melodic/01_donor_selection_and_edits.js",
+    "base_git_blob": "4558baa0e1c715882b5330acfc42d46fc8ab69ac",
+    "base_sha256": "694d7c4b70164ac929ae5c79655b15f6a985e21e722cc3b592ac67da61e93a53",
+    "bytes": 55521
+  },
+  {
+    "path": "src/forge_and_melodic/03_timeline_and_transport_ui.js",
+    "base_git_blob": "76950e639a35ddff1bf7f1b742490f66a07d6d74",
+    "base_sha256": "f883180c4653a867b67e319f144aa0ced0e35909e57b8d257f2754f22dc93272",
+    "bytes": 59336
+  },
+  {
+    "path": "src/forge_and_melodic/04_render_cache_and_stems.js",
+    "base_git_blob": "c563e6f2a8839b581a12845a0bffe4927d85d6db",
+    "base_sha256": "b900938343dfa7239cf996cb604b7644bdd2f16831582537a5856988d7e19cd5",
+    "bytes": 56824
+  },
+  {
+    "path": "src/forge_and_melodic/05_preview_and_sample_intake.js",
+    "base_git_blob": "75bdf65d4a290339df53e1afcd2cf4ea95c80048",
+    "base_sha256": "887519737b8a941be1f3f44e7821409a843e8f0ff9b33ee803ab65e35fc08720",
+    "bytes": 67940
+  },
+  {
+    "path": "src/forge_and_melodic/06_note_editor_and_material_tools.js",
+    "base_git_blob": "407042b1a2ff707fe9daa983448dabe322aba49c",
+    "base_sha256": "263cd784e2dd992ca6d2e107db95c4afdf4b7326275ef020552e8191c2508e50",
+    "bytes": 77061
+  },
+  {
+    "path": "src/forge_and_melodic/08_editor_actions.js",
+    "base_git_blob": "ff9a03085485c5ff3eb591d64adb1c16ce4171cb",
+    "base_sha256": "f206e65efe17363bad7e2f5c9c01c6fa5af0528c20ced3f8fd1a02fdfff89d03",
+    "bytes": 85186
+  },
+  {
+    "path": "src/forge_and_melodic/11_analysis_canvas_and_controls.js",
+    "base_git_blob": "2c8d9ecc6609dd240b8bb2e23971fda7866300d6",
+    "base_sha256": "76bb5107cfa5dc16d86cfad05e5206b69b5e7d81de5b5f6bf813291a17a4b6d1",
+    "bytes": 19690
+  },
+  {
+    "path": "src/forge/hybrid/03_render_pipeline.js",
+    "base_git_blob": "dff2aa737784b3239d10e178ae16232d6aa34d1b",
+    "base_sha256": "f644acc3404e0f0948f19235ec59a8dd2de09fbc69b66b7e6bee3ba25c0205f4",
+    "bytes": 5901
+  },
+  {
+    "path": "src/forge/ui/04_cecilia_controls.js",
+    "base_git_blob": "3eaceebe48bb4441f840b5a0308eeb35291fbd22",
+    "base_sha256": "80537bbab856271cb41e3aa4d89489462933bfc6a80de64223cf28ee3359b176",
+    "bytes": 9514
+  },
+  {
+    "path": "src/forge/ui/05_workbench_controls.js",
+    "base_git_blob": "3fc5ee6acb5bf9c540c594d953510ecda0a23cf4",
+    "base_sha256": "9e00dd532f8832e866875abf37290c918a5134a1168e8ec14955e04f6067a508",
+    "bytes": 38838
+  },
+  {
+    "path": "src/06_workbench_dialog.js",
+    "base_git_blob": "164122c9fe286ceee197aacc5bbc616ff17452f8",
+    "base_sha256": "0153369e5b58d75f66f392655d1eaa899c0a9a3ad0e5b7578f08ccf19f1ebd17",
+    "bytes": 22226
+  },
+  {
+    "path": "styles/24_quick_menu.css",
+    "base_git_blob": "ae31f28a5214abcc97b6e9d4960bee6367d9cdc6",
+    "base_sha256": "c56ddc6c6775c4d1c2905ef09e6e92dda6f0354f6471cc209997e069906e0d0c",
+    "bytes": 6662
+  },
+  {
+    "path": "styles/27_meta_menu.css",
+    "base_git_blob": "57544c57865115f3724c55481e840c06a73e3a9a",
+    "base_sha256": "6501f2b8b8337e1a7a92d5c1e5679f97983443d1bc816836e9dc8446f4e33af9",
+    "bytes": 26317
+  },
+  {
+    "path": "source-manifest.json",
+    "base_git_blob": "8e74260bd4177c83e895e458a323991903bfe4e0",
+    "base_sha256": "80ead7686730970fc6ca2fc9300a346cce02abfd9dbc4dab51633ed4ba771279",
+    "bytes": 14503
+  }
+]

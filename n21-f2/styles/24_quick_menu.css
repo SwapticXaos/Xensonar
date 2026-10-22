@@ -46,10 +46,40 @@
 [data-xen-quick-kind][data-xen-quick-id]{cursor:grab;touch-action:none}
 .xen-quick-pointer-dragging,.xen-quick-pointer-dragging *{cursor:grabbing!important}
 .xen-quick-pointer-over .xen-quick-collection:not(.is-migrated){outline:2px solid #60ffa3;outline-offset:-2px;background:#10351d}
-/* Intrinsic wrapping keeps the header menus clear of the status indicators. */
-[data-xen-status-row]{flex-wrap:wrap;overflow:visible;row-gap:6px}
-[data-xen-status-menus]{flex-shrink:0;max-width:100%;display:flex;align-items:center;flex-wrap:wrap;gap:4px}
-[data-xen-status-menus]>.mx-1{margin-left:0;margin-right:0}
+/* P7.38.5: fixed performance-header slots. Reserve enough space for the
+   longest stock modes (Ionian (Major), Aeolian (Minor), Mixolydian) in both
+   Particles and Fretboard. No state-dependent Flex wrapping or moving cells.
+   Container queries target the actual instrument strip, not the viewport. */
+[data-xensonar-performance-strip]{container-name:xen-performance-strip;container-type:inline-size}
+[data-xen-status-row]{display:grid;grid-template-areas:"particles" "fretboard" "menus" "controls";grid-template-columns:minmax(0,1fr);align-items:center;gap:6px 10px;overflow:visible;white-space:nowrap;min-width:0}
+[data-xen-status-row]>[aria-hidden="true"],[data-xen-status-row]>.ml-auto{display:none}
+[data-xen-status-particles]{grid-area:particles;min-width:0;max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+[data-xen-status-particles]>span:last-child{font-variant-numeric:tabular-nums}
+[data-xen-status-fretboard]{grid-area:fretboard;min-width:0;width:100%;max-width:100%;display:flex;align-items:center;justify-content:flex-start;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+[data-xen-status-fretboard]>span{flex:0 0 auto}
+[data-xen-status-fretboard]>span:last-child{font-variant-numeric:tabular-nums}
+[data-xen-status-menus]{grid-area:menus;min-width:0;width:100%;max-width:100%;display:flex;align-items:center;flex-wrap:nowrap;gap:4px;overflow:hidden}
+[data-xen-status-menus]>button:not(.xen-meta-rack){flex:1 1 0;width:0;min-width:0;max-width:none}
+[data-xen-status-menus]>button:not(.xen-meta-rack)>.truncate{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+[data-xen-status-menus]>.mx-1{flex:0 0 auto;margin-left:0;margin-right:0}
+[data-xen-status-menus]>.xen-meta-rack{flex:0 0 auto;white-space:nowrap}
+/* P7.38.6: six larger Unicode icons, with unchanged text metrics and stable slots. */
+[data-xensonar-performance-strip] .xen-header-unicode-icon{display:inline-flex;align-items:center;justify-content:center;flex:0 0 18px;width:18px;height:18px;font-size:16px;line-height:1}
+[data-xen-status-menus]>.xen-meta-rack{column-gap:3px}
+
+[data-xen-status-controls]{grid-area:controls;display:flex;align-items:center;justify-content:flex-end;gap:8px;min-width:0;max-width:100%;white-space:nowrap}
+[data-xen-status-controls]>span[title*="expression mode"]{min-width:3.7rem;text-align:center}
+@container xen-performance-strip (min-width:860px){
+ [data-xen-status-row]{grid-template-areas:"particles fretboard" "menus controls";grid-template-columns:minmax(0,1fr) 27rem}
+}
+@container xen-performance-strip (min-width:1460px){
+ [data-xen-status-row]{grid-template-areas:"particles fretboard menus controls";grid-template-columns:24rem 27rem minmax(0,1fr) max-content}
+}
+@container xen-performance-strip (max-width:479px){
+ [data-xen-status-fretboard]{overflow-x:auto;text-overflow:clip}
+ [data-xen-status-controls]{justify-content:flex-start;gap:5px;overflow-x:auto}
+}
+
 
 /* N21: one fixed landing rectangle below Keyboard Pan. Stored entries may
    relocate; the landing feedback never follows them and never scrolls. */

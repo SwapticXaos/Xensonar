@@ -1,0 +1,19 @@
+{
+  "entry": "Xensonar_P7_39_Combined_Startup_Test.html",
+  "sha256": "602dc8199d85cf49cd259aad14e3f13de6a071d2e1e53f0105af7babd86b504c",
+  "playback": {
+    "copies": 0,
+    "writes": 0
+  },
+  "afterEdit": {
+    "copies": 1,
+    "writes": 1,
+    "name": "Saved actual edit",
+    "pixel": 0.625
+  },
+  "afterFlush": {
+    "flushedCopies": 2,
+    "copies": 2,
+    "name": "Explicitly flushed edit"
+  }
+}

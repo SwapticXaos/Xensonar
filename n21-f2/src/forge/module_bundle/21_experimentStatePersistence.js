@@ -191,7 +191,7 @@ if (!ref)
 return null;
 const record = await args.storage.get(ref.assetId);
 if (!record?.value)
-throw new Error('Audiodaten des gespeicherten Arbeitsstands fehlen.');
+throw new Error('Audio data is missing from the saved workspace.');
 return hydrateAudioAsset(record.value, ref);
 };
 const restore = () => {
@@ -215,7 +215,7 @@ protectingSavedState = false;
 lastError = null;
 return false;
 }
-if(record.value?.version!=='spectral-forge-experiment-v1')throw new Error('Gespeicherter Arbeitsstand hat ein unbekanntes Format.');
+if(record.value?.version!=='spectral-forge-experiment-v1')throw new Error('The saved workspace has an unrecognized format.');
 const workspace = record.value;
 if(!workspace.projectSnapshot)throw new Error("Saved carrier workspace state is incomplete.");
 const [mainSource, donorSource] = await Promise.all([

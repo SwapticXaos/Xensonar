@@ -1,0 +1,24 @@
+{
+  "baseline": "XenSonar_P7_38_Sessions_Reviewed_Quellen.zip",
+  "baseline_archive_sha256": "52aebccb22cd7312f2749e1b8de45032319fdfe7a82e9906eeb07d2049e2be31",
+  "baseline_html_path_inside_zip": "n21-f2/Xensonar_P7_38_Sessions_Reviewed_Test.html",
+  "baseline_html_sha256": "64f5bda8b01595dc265f2945397b83443b123b3f3babdf7eda511f8635eaed01",
+  "merged_candidate": "XenSonar_P7_38_12_Combined_Nodal_Grid_Review.html",
+  "merged_html_sha256": "572971dd9c06fd4aee243625e1b3d377933e35477304ec619a7b918509c56370",
+  "merged_html_bytes": 5884717,
+  "source_patch_sha256": "4c4978bc1a013076fe3c48c13304706094fe3845d3b6fa12100aec75c68271eb",
+  "html_patch_sha256": "9b5b6fe0650a23800f4986d5305fef1781db21f28a5cab4ba7e7e4abca8ac638",
+  "nodal_focused_patch_sha256": "67f7ea53957da7df3af6aa59939310a1da49d84e5b910da0b84a509dee75bc69",
+  "grid_focused_patch_gz_sha256": "5b5ac3e9a3e16bcb3166092f324bbf1cb91d6d1b2b9fb54e01872c538748fb27",
+  "changed_source_files": 64,
+  "source_rebuild": "PASS byte-exact after clean git apply",
+  "inline_js_syntax": "PASS",
+  "grid_mask_test": "P7.38.11 FAIL expected, merged PASS",
+  "nodal_promise_test": "merged PASS using simulated asynchronous persistence",
+  "live_browser_audio": "NOT VERIFIED",
+  "name_collisions": {
+    "P7.38.12_Nodal_Snapshot_Persistence": "parallel off P7.38.11",
+    "P7.38.12_Starter_Grid_Consistency": "parallel off P7.38.11",
+    "Combined_Nodal_Grid_Review": "merged validation candidate only"
+  }
+}

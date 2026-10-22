@@ -1,0 +1,31 @@
+{
+  "checks": [
+    "actual editing owner and autosave wait for saved PCM",
+    "parent Donor Play stays gray/unready with clear missing-source status and no render/audio fallback while saved PCM is held",
+    "saved donor/selection retained and true restored state autosaves",
+    "reload round trip retains real donor"
+  ],
+  "errors": [],
+  "heldDonor": {
+    "mode": "donor",
+    "route": "donor-pending",
+    "cached": false,
+    "playing": false,
+    "audio": {
+      "offline": 0,
+      "liveStarts": 0,
+      "plays": 0
+    },
+    "status": "Select a purple donor mask in Sound Material or load a donor from the library.",
+    "green": false,
+    "fill": 0
+  },
+  "restored": {
+    "name": "Retained donor",
+    "range": {
+      "startSec": 0.1,
+      "durationSec": 0.7
+    },
+    "pcm": 24000
+  }
+}

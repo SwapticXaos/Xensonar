@@ -26,13 +26,13 @@ jobs:
           cache: npm
           cache-dependency-path: n21-f2/package-lock.json
       - run: npm ci --no-audit --no-fund
-      - run: npm run test:consolidation
+      - run: node tools/combined_startup_validate.cjs
         id: checks
       - uses: actions/upload-artifact@v4
         if: always() && steps.checks.outcome != 'skipped'
         with:
           name: host-validation
-          path: n21-f2/results/sessions-reviewed/
+          path: n21-f2/results/combined-startup/
   chromium:
     runs-on: ubuntu-latest
     timeout-minutes: 20
@@ -51,10 +51,10 @@ jobs:
       - run: npx playwright install --with-deps chromium
       - name: Select installed browser
         run: node -e 'console.log("XEN_CHROMIUM_PATH="+require("playwright").chromium.executablePath())' >> "$GITHUB_ENV"
-      - run: npm run test:consolidation:browser
+      - run: node tools/combined_startup_validate.cjs --browser
         id: checks
       - uses: actions/upload-artifact@v4
         if: always() && steps.checks.outcome != 'skipped'
         with:
           name: chromium-validation
-          path: n21-f2/results/sessions-reviewed/
+          path: n21-f2/results/combined-startup/

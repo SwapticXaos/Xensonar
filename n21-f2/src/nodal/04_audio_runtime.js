@@ -284,7 +284,7 @@ function createNodalLiveRuntime({model, kernelFactory}) {
       for (const id of Array.from(pendingStarts.keys())) confirmStart(id, new Error('Nodal processor unavailable'));
       for (const entry of pending.values()) { clearTimeout(entry.timer); entry.reject(new Error('Nodal processor unavailable')); } pending.clear();
     }
-    node.onprocessorerror = () => { dispose(); admission.onError?.(new Error('Nodal-Audioprozessor ausgefallen. Bitte Wiedergabe neu starten.')); };
+    node.onprocessorerror = () => { dispose(); admission.onError?.(new Error('Nodal audio processor failed. Please restart playback.')); };
     node.port.onmessage = ({data}) => {
       if(data.type==='diagnostic'){if(diagnosticPending&&data.requestId===diagnosticSequence){const entry=diagnosticPending;diagnosticPending=null;clearTimeout(entry.timer);entry.resolve({status:'received',id:diagnosticId,host:snapshot(),consumer:data.snapshot});}return;}
       if (data.type === 'stage-needed') {requestStage(data.id);} else if (data.type === 'ready') { const entry = pending.get(data.id); if (entry) { clearTimeout(entry.timer); pending.delete(data.id); entry.resolve(); } }

@@ -14,7 +14,7 @@ function __createF3568DonorPackageBridge(storage) {
     Float32Array, Float64Array, Uint8Array, Uint16Array, Int8Array, Int16Array,
     Int32Array, Uint32Array, Uint8ClampedArray
   };
-  const fail = message => { throw new Error('Tüftelpaket / Donor-Bibliothek: ' + message); };
+  const fail = message => { throw new Error('Experiment package / donor library: ' + message); };
   const goodId = (id, prefix) => typeof id === 'string' && id.startsWith(prefix) && id.length > prefix.length && id.length <= 512;
   function base64Encode(bytes) {
     const blocks = [];
@@ -31,27 +31,27 @@ function __createF3568DonorPackageBridge(storage) {
   }
   function base64Decode(text, expectedSize) {
     if (typeof text !== 'string' || !Number.isSafeInteger(expectedSize) || expectedSize < 0 ||
-        text.length !== 4 * Math.ceil(expectedSize / 3)) fail('Audioformat oder Datenlänge ungültig.');
+        text.length !== 4 * Math.ceil(expectedSize / 3)) fail('Invalid audio format or data length.');
     const bytes = new Uint8Array(expectedSize);
     const step = 32768;
     let offset = 0;
     for (let at = 0; at < text.length; at += step) {
       let binary;
       try { binary = atob(text.slice(at, at + step)); }
-      catch { fail('Beschädigte Audiodaten im Paket.'); }
+      catch { fail('Corrupted audio data in the package.'); }
       for (let i = 0; i < binary.length; i++) {
-        if (offset >= expectedSize) fail('Audio-Bytezahl stimmt nicht.');
+        if (offset >= expectedSize) fail('Audio byte count does not match.');
         bytes[offset++] = binary.charCodeAt(i);
       }
     }
-    if (offset !== expectedSize) fail('Audiodaten sind unvollständig.');
+    if (offset !== expectedSize) fail('Audio data is incomplete.');
     return bytes.buffer;
   }
   function pack(value, seen = new WeakSet()) {
     if (value == null || typeof value === 'string' || typeof value === 'boolean' ||
         (typeof value === 'number' && Number.isFinite(value))) return value;
-    if (typeof value === 'number') fail('Ungültiger numerischer Wert im Material.');
-    if (typeof value !== 'object') fail('Nicht serialisierbarer Materialwert.');
+    if (typeof value === 'number') fail('Invalid numeric value in the material.');
+    if (typeof value !== 'object') fail('Material value cannot be serialized.');
     if (ArrayBuffer.isView(value) && !(value instanceof DataView)) {
       if (!TYPE[value.constructor?.name]) fail('Unbekanntes Audio-Arrayformat.');
       return { __xensonarPortableBytes: 1, type: value.constructor.name,
@@ -61,7 +61,7 @@ function __createF3568DonorPackageBridge(storage) {
       return { __xensonarPortableBytes: 1, type: 'ArrayBuffer', byteLength: value.byteLength,
         base64: base64Encode(new Uint8Array(value)) };
     if (typeof Blob !== 'undefined' && value instanceof Blob)
-      fail('Ein Audio-Asset enthält einen Blob; Export ohne Datenverlust nicht möglich.');
+      fail('An audio asset contains a blob; a lossless export is not possible.');
     if (seen.has(value)) fail('Zyklische Referenz in Materialdaten.');
     seen.add(value);
     const answer = Array.isArray(value) ? value.map(v => pack(v, seen)) : {};
@@ -95,7 +95,7 @@ function __createF3568DonorPackageBridge(storage) {
   }
   function assertAsset(value, id) {
     if (!value || (!value.monoSamples?.length && !value.leftSamples?.length))
-      fail('Roh-Audio fehlt für ' + id + '.');
+      fail('Raw audio is missing for ' + id + '.');
   }
   async function exportLibrary(validSamples = new Set()) {
     // Debounced Material Intake saves must be flushed before this call by the caller.
@@ -105,17 +105,17 @@ function __createF3568DonorPackageBridge(storage) {
     const assetIds = new Set();
     for (const row of presetRows) {
       if (!goodId(row.id, PRESET) || row.value?.version !== 'donor-library-v1' ||
-          !(goodId(row.value.assetId, ASSET) || linked(row.value.assetId))) fail('Ungültiger Donor-Eintrag: ' + row.id);
-      if (linked(row.value.assetId)) { if (!validSamples.has(row.value.assetId.slice(SAMPLE.length))) fail('Sample fehlt im Tüftel-Paket: ' + row.value.assetId); }
+          !(goodId(row.value.assetId, ASSET) || linked(row.value.assetId))) fail('Invalid donor entry: ' + row.id);
+      if (linked(row.value.assetId)) { if (!validSamples.has(row.value.assetId.slice(SAMPLE.length))) fail('Sample is missing from the experiment package: ' + row.value.assetId); }
       else assetIds.add(row.value.assetId);
     }
     for (const row of workspaceRows) {
-      if (!goodId(row.id, WORKSPACE)) fail('Ungültige Materialaufnahme: ' + row.id);
+      if (!goodId(row.id, WORKSPACE)) fail('Invalid material recording: ' + row.id);
       const id = refFromWorkspace(row);
-      if (id) { if (!goodId(id, ASSET)) fail('Ungültiger Materialaufnahme-Audioverweis.'); assetIds.add(id); }
+      if (id) { if (!goodId(id, ASSET)) fail('Invalid audio reference for the material recording.'); assetIds.add(id); }
     }
     const assets = await __F35613Archive.exportAssets(storage, assetIds, pack, assertAsset,
-      id => fail('Audio-Asset fehlt: ' + id));
+      id => fail('Audio asset is missing: ' + id));
     return {
       schemaVersion: 1,
       presets: __F35613Archive.packRows(presetRows, pack),
@@ -128,11 +128,11 @@ function __createF3568DonorPackageBridge(storage) {
     if (payload == null) return null;
     if (payload.schemaVersion !== 1 || !Array.isArray(payload.presets) ||
         !Array.isArray(payload.workspaces) || !Array.isArray(payload.assets))
-      fail('Unbekannte oder unvollständige Donor-Paketversion.');
+      fail('Unknown or incomplete donor package version.');
     __F35613Archive.assertMode(mode, () => fail('Unbekannter Importmodus.'));
     const unique = __F35613Archive.validateRows(
       [[payload.presets, PRESET], [payload.workspaces, WORKSPACE], [payload.assets, ASSET]],
-      goodId, row => fail('Doppelter oder ungültiger Eintrag: ' + (row?.id ?? '?')));
+      goodId, row => fail('Duplicate or invalid entry: ' + (row?.id ?? '?')));
     const assetsById = new Map(payload.assets.map(row => [row.id, row]));
     const planned = [];
     for (const record of payload.presets) {
@@ -141,7 +141,7 @@ function __createF3568DonorPackageBridge(storage) {
           !(goodId(value.assetId, ASSET) || linked(value.assetId)) ||
           (goodId(value.assetId, ASSET) && !assetsById.has(value.assetId)) ||
           (linked(value.assetId) && !sampleIdMap.has(value.assetId.slice(SAMPLE.length))))
-        fail('Donor-Metadaten oder Audioverweis fehlen.');
+        fail('Donor metadata or audio reference is missing.');
       if (linked(value.assetId)) { const mapped = __F35614AudioRef.sampleId(sampleIdMap.get(value.assetId.slice(SAMPLE.length)));
         value.assetId = mapped;
         value.source = {...(value.source ?? {}), sourceAsset:__F35614AudioRef.marker(mapped)};
@@ -150,7 +150,7 @@ function __createF3568DonorPackageBridge(storage) {
     }
     for (const record of payload.workspaces) {
       const value = unpack(record.value), id = value?.source?.sourceAsset?.__materialIntakeAssetRef;
-      if (id && !assetsById.has(id)) fail('Materialaufnahme-Audiodatei fehlt.');
+      if (id && !assetsById.has(id)) fail('Material recording audio file is missing.');
       planned.push({ id: record.id, value, updatedAt: Date.now() });
     }
     // Write audio first. On storage/quota failure no preset is left pointing at missing PCM.
@@ -171,8 +171,8 @@ function __createF3568DonorPackageBridge(storage) {
 }
 const __PaketDonorF3568 = __createF3568DonorPackageBridge(__f35612RecordStore(
   'xensonar-spectral-forge-material-intake-v1', {
-    open: 'Materialaufnahme-IndexedDB nicht erreichbar.',
-    putAbort: 'Materialaufnahme-Transaktion abgebrochen.',
-    put: 'Materialaufnahme-Transaktion fehlgeschlagen.',
+    open: 'Material recording IndexedDB is unavailable.',
+    putAbort: 'Material recording transaction aborted.',
+    put: 'Material recording transaction failed.',
   }
 ));

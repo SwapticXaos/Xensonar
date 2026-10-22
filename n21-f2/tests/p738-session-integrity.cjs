@@ -14,6 +14,7 @@ const context=vm.createContext({console,localStorage:storage,window:{},crypto:re
  setTimeout:()=>1,clearTimeout:()=>{},__xenGridStepLimit:256,Kp:id=>Array.from({length:19},(_,i)=>1200*i/19),vF:()=>1200,
  Au:mode=>Array.from({length:19},(_,i)=>mode==='chromatic'||i%2===0),Ka:()=>[{value:'chromatic'},{value:'dorian'}],
  sj:()=>[{id:'19edo',label:'19 EDO'}]});
+require('./sessions-test-helpers.cjs').installBootSnapshot(context);
 vm.runInContext(bass+'\n'+quick+'\n'+meta+'\n'+read('src/mix/03_legacy_song_import.js')+'\nthis.api={quick:__XenQuick,meta:__XenMetaSessions,room:__XenMainRoomSessionBridge,bass:__XenBassGrid,legacy:__xenLegacySongParts,make:__createXenMetaSessionStore};',context);
 const {api}=context,run=text=>vm.runInContext(text,context),json=value=>JSON.parse(JSON.stringify(value));
 run(`this.live={gridTuning:'19edo',gridBase:110,gridMode:'chromatic',manualGridMutedSteps:[]};

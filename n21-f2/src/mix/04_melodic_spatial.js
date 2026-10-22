@@ -87,10 +87,10 @@ function __MelodicTransportControls({phase, drums, pattern, onPlay, onStop, onDr
   const idle=phase==='idle'||phase==='failed';
   return u.jsxs('div',{'data-ml-transport':placement,className:placement==='primary'?'melodic-transport-dock':'melodic-transport-inline',children:[
     u.jsx('button',{type:'button',onClick:idle?onPlay:onStop,style:{width:44,height:44,minWidth:44},
-      'aria-label':idle?'Aktive Instrumente als Loop abspielen':phase==='preparing'?'Loop-Vorbereitung abbrechen':'Loop stoppen',
-      title:idle?'▶ Listen to All Active Instruments':phase==='preparing'?'■ Vorbereitung abbrechen':'■ Loop stoppen',
+      'aria-label':idle?'Play active instruments as a loop':phase==='preparing'?'Cancel loop preparation':'Stop loop',
+      title:idle?'▶ Listen to All Active Instruments':phase==='preparing'?'■ Cancel preparation':'■ Stop loop',
       className:'flex h-11 w-11 shrink-0 items-center justify-center rounded-md border border-violet-600/75 bg-violet-950/40 font-semibold text-violet-100 hover:bg-violet-900/50',children:idle?'▶':'■'}),
-    u.jsx('button',{type:'button','aria-pressed':drums,onClick:onDrums,title:(drums?'Schlagzeug ausblenden':'Aktuelles Drum-Machine-Pattern dazuschalten')+' · '+(pattern||'Drums'),
+    u.jsx('button',{type:'button','aria-pressed':drums,onClick:onDrums,title:(drums?'Hide drums':'Enable current Drum Machine pattern')+' · '+(pattern||'Drums'),
       className:drums?'rounded border border-cyan-500 bg-cyan-950/65 px-1.5 py-2 text-[11px] font-semibold text-cyan-100':'rounded border border-neutral-700 bg-neutral-900/55 px-1.5 py-2 text-[11px] text-neutral-500 hover:text-neutral-200',children:'+ Drums'}),
     u.jsx('button',{type:'button',onClick:onNext,title:'Load next pattern in the shared Drum Machine','aria-label':'Drum Machine: Next Pattern',className:'rounded border border-neutral-700 px-1.5 py-2 text-xs text-neutral-300 hover:bg-neutral-800',children:'›'})]});
 }

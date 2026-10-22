@@ -1,0 +1,514 @@
+[
+  {
+    "path": "template/head.html",
+    "candidate_disposition": "Adopt",
+    "review": "First-boot freshness snapshot occurs before initializers; storage-read failure blocks installation.",
+    "old_bytes": 718,
+    "candidate_bytes": 1115,
+    "literal_or_comment_only": null
+  },
+  {
+    "path": "src/handoff/00_chat_feature_addons.js",
+    "candidate_disposition": "Adopt",
+    "review": "Decoupling release clears held/pending state immediately; paired synchronous reconnect changes preserve active synth voices.",
+    "old_bytes": 25678,
+    "candidate_bytes": 25547,
+    "literal_or_comment_only": false
+  },
+  {
+    "path": "src/mix/03_quick_menu.js",
+    "candidate_disposition": "Adopt",
+    "review": "English UI/hover/error/diagnostic text only; AST structure, identifiers and numeric constants unchanged (literal values reviewed as wording).",
+    "old_bytes": 32928,
+    "candidate_bytes": 32861,
+    "literal_or_comment_only": true
+  },
+  {
+    "path": "src/mix/03_meta_menu.js",
+    "candidate_disposition": "Correct",
+    "review": "Adds two first-boot ordinary v2 sessions, per-profile masks, both-store migration, Main Room muted initialization, global colors, headings/import placement and English UI. Correct migration fingerprint and renamed-session protection; preserve customized colors.",
+    "old_bytes": 61140,
+    "candidate_bytes": 74954,
+    "literal_or_comment_only": false
+  },
+  {
+    "path": "src/mix/04_melodic_spatial.js",
+    "candidate_disposition": "Adopt",
+    "review": "English UI/hover/error/diagnostic text only; AST structure, identifiers and numeric constants unchanged (literal values reviewed as wording).",
+    "old_bytes": 7128,
+    "candidate_bytes": 7091,
+    "literal_or_comment_only": true
+  },
+  {
+    "path": "src/nodal/04_audio_runtime.js",
+    "candidate_disposition": "Adopt",
+    "review": "English UI/hover/error/diagnostic text only; AST structure, identifiers and numeric constants unchanged (literal values reviewed as wording).",
+    "old_bytes": 44417,
+    "candidate_bytes": 44408,
+    "literal_or_comment_only": true
+  },
+  {
+    "path": "src/nodal/07_sound_designer.js",
+    "candidate_disposition": "Adopt",
+    "review": "English UI/hover/error/diagnostic text only; AST structure, identifiers and numeric constants unchanged (literal values reviewed as wording).",
+    "old_bytes": 49317,
+    "candidate_bytes": 49300,
+    "literal_or_comment_only": true
+  },
+  {
+    "path": "src/forge/editor/09_workflow_controls.js",
+    "candidate_disposition": "Adopt",
+    "review": "English UI/hover/error/diagnostic text only; AST structure, identifiers and numeric constants unchanged (literal values reviewed as wording).",
+    "old_bytes": 28820,
+    "candidate_bytes": 28824,
+    "literal_or_comment_only": true
+  },
+  {
+    "path": "src/nodal/13_installation_ball_grid.js",
+    "candidate_disposition": "Adopt",
+    "review": "English UI/hover/error/diagnostic text only; AST structure, identifiers and numeric constants unchanged (literal values reviewed as wording).",
+    "old_bytes": 7228,
+    "candidate_bytes": 7147,
+    "literal_or_comment_only": true
+  },
+  {
+    "path": "src/01_app_runtime.js",
+    "candidate_disposition": "Adopt",
+    "review": "English UI/hover/error/diagnostic text only; AST structure, identifiers and numeric constants unchanged (literal values reviewed as wording).",
+    "old_bytes": 54505,
+    "candidate_bytes": 54478,
+    "literal_or_comment_only": true
+  },
+  {
+    "path": "src/forge/workbench/01_preset_catalog.js",
+    "candidate_disposition": "Adopt",
+    "review": "English UI/hover/error/diagnostic text only; AST structure, identifiers and numeric constants unchanged (literal values reviewed as wording).",
+    "old_bytes": 14340,
+    "candidate_bytes": 14360,
+    "literal_or_comment_only": true
+  },
+  {
+    "path": "src/forge/module_bundle/21_experimentStatePersistence.js",
+    "candidate_disposition": "Adopt",
+    "review": "English UI/hover/error/diagnostic text only; AST structure, identifiers and numeric constants unchanged (literal values reviewed as wording).",
+    "old_bytes": 16068,
+    "candidate_bytes": 16058,
+    "literal_or_comment_only": true
+  },
+  {
+    "path": "src/storage/01_donor_library.js",
+    "candidate_disposition": "Adopt",
+    "review": "English UI/hover/error/diagnostic text only; AST structure, identifiers and numeric constants unchanged (literal values reviewed as wording).",
+    "old_bytes": 17056,
+    "candidate_bytes": 17045,
+    "literal_or_comment_only": true
+  },
+  {
+    "path": "src/storage/02_donor_packages.js",
+    "candidate_disposition": "Adopt",
+    "review": "English UI/hover/error/diagnostic text only; AST structure, identifiers and numeric constants unchanged (literal values reviewed as wording).",
+    "old_bytes": 9477,
+    "candidate_bytes": 9479,
+    "literal_or_comment_only": true
+  },
+  {
+    "path": "src/storage/03_forge_packages.js",
+    "candidate_disposition": "Adopt",
+    "review": "English UI/hover/error/diagnostic text only; AST structure, identifiers and numeric constants unchanged (literal values reviewed as wording).",
+    "old_bytes": 2951,
+    "candidate_bytes": 2945,
+    "literal_or_comment_only": true
+  },
+  {
+    "path": "src/storage/04_sample_donor_bridge.js",
+    "candidate_disposition": "Adopt",
+    "review": "English UI/hover/error/diagnostic text only; AST structure, identifiers and numeric constants unchanged (literal values reviewed as wording).",
+    "old_bytes": 7823,
+    "candidate_bytes": 7811,
+    "literal_or_comment_only": true
+  },
+  {
+    "path": "src/runtime/01_instrument_state.js",
+    "candidate_disposition": "Adopt",
+    "review": "Native harmonic_minor mode [0,2,3,5,7,8,11], reusing existing tuning projection.",
+    "old_bytes": 70238,
+    "candidate_bytes": 70309,
+    "literal_or_comment_only": false
+  },
+  {
+    "path": "src/runtime/instrument/01_voice_gradients_and_effects.js",
+    "candidate_disposition": "Adopt",
+    "review": "English UI/hover/error/diagnostic text only; AST structure, identifiers and numeric constants unchanged (literal values reviewed as wording).",
+    "old_bytes": 34644,
+    "candidate_bytes": 34628,
+    "literal_or_comment_only": true
+  },
+  {
+    "path": "src/runtime/instrument/03_selection_and_recording_tools.js",
+    "candidate_disposition": "Adopt",
+    "review": "English UI/hover/error/diagnostic text only; AST structure, identifiers and numeric constants unchanged (literal values reviewed as wording).",
+    "old_bytes": 29533,
+    "candidate_bytes": 29536,
+    "literal_or_comment_only": true
+  },
+  {
+    "path": "src/runtime/instrument/04_performance_and_output_profiles.js",
+    "candidate_disposition": "Adopt",
+    "review": "English UI/hover/error/diagnostic text only; AST structure, identifiers and numeric constants unchanged (literal values reviewed as wording).",
+    "old_bytes": 37671,
+    "candidate_bytes": 37595,
+    "literal_or_comment_only": true
+  },
+  {
+    "path": "src/runtime/instrument/05_timing_and_admission.js",
+    "candidate_disposition": "Adopt",
+    "review": "English UI/hover/error/diagnostic text only; AST structure, identifiers and numeric constants unchanged (literal values reviewed as wording).",
+    "old_bytes": 81918,
+    "candidate_bytes": 81911,
+    "literal_or_comment_only": true
+  },
+  {
+    "path": "src/runtime/instrument/07_interpreters_and_installation.js",
+    "candidate_disposition": "Adopt",
+    "review": "English UI/hover/error/diagnostic text only; AST structure, identifiers and numeric constants unchanged (literal values reviewed as wording).",
+    "old_bytes": 44611,
+    "candidate_bytes": 44610,
+    "literal_or_comment_only": true
+  },
+  {
+    "path": "src/runtime/instrument/08_library_and_tuning_editor.js",
+    "candidate_disposition": "Adopt",
+    "review": "Native performance-strip Grid Workbench title reflects current tuning/mode; hover text improvements.",
+    "old_bytes": 76349,
+    "candidate_bytes": 76703,
+    "literal_or_comment_only": false
+  },
+  {
+    "path": "src/runtime/instrument/09_monitoring_and_manual_patterns.js",
+    "candidate_disposition": "Adopt",
+    "review": "English UI/hover/error/diagnostic text only; AST structure, identifiers and numeric constants unchanged (literal values reviewed as wording).",
+    "old_bytes": 78596,
+    "candidate_bytes": 78557,
+    "literal_or_comment_only": true
+  },
+  {
+    "path": "src/runtime/instrument/11_recording_and_granular_controls.js",
+    "candidate_disposition": "Adopt",
+    "review": "English UI/hover/error/diagnostic text only; AST structure, identifiers and numeric constants unchanged (literal values reviewed as wording).",
+    "old_bytes": 47658,
+    "candidate_bytes": 47640,
+    "literal_or_comment_only": true
+  },
+  {
+    "path": "src/runtime/instrument/12_rhythm_and_bass_editor.js",
+    "candidate_disposition": "Adopt",
+    "review": "English UI/hover/error/diagnostic text only; AST structure, identifiers and numeric constants unchanged (literal values reviewed as wording).",
+    "old_bytes": 81494,
+    "candidate_bytes": 81499,
+    "literal_or_comment_only": true
+  },
+  {
+    "path": "src/rhythm/01_compact_drum_grid.js",
+    "candidate_disposition": "Adopt",
+    "review": "English UI/hover/error/diagnostic text only; AST structure, identifiers and numeric constants unchanged (literal values reviewed as wording).",
+    "old_bytes": 45307,
+    "candidate_bytes": 45304,
+    "literal_or_comment_only": true
+  },
+  {
+    "path": "src/rhythm/02_bass_and_rack.js",
+    "candidate_disposition": "Adopt",
+    "review": "Custom indicator uses additional manual exclusions beyond native mode, retaining offset threshold semantics; this is display-only, not a low-level playable-grid mask substitute.",
+    "old_bytes": 190378,
+    "candidate_bytes": 190402,
+    "literal_or_comment_only": false
+  },
+  {
+    "path": "src/audio/01_voice_and_rfl_ownership.js",
+    "candidate_disposition": "Correct / Nodal review",
+    "review": "Persistence fence + error propagation; fast reconnect hook retunes existing synth AudioParams. Nodal owner validates transaction completion and immutable snapshot separately.",
+    "old_bytes": 170874,
+    "candidate_bytes": 172021,
+    "literal_or_comment_only": false
+  },
+  {
+    "path": "src/audio/02_rfl_worklet.js",
+    "candidate_disposition": "Adopt",
+    "review": "English UI/hover/error/diagnostic text only; AST structure, identifiers and numeric constants unchanged (literal values reviewed as wording).",
+    "old_bytes": 102842,
+    "candidate_bytes": 102830,
+    "literal_or_comment_only": true
+  },
+  {
+    "path": "src/audio/03_rfl_transport_legacy.js",
+    "candidate_disposition": "Adopt / Nodal review",
+    "review": "6ms keyboard/release reconnect for active direct synth voices; ordinary pointer glide retains 26ms. Legacy Nodal material fallback scoped to Nodal only, audio owner reviews durability.",
+    "old_bytes": 100853,
+    "candidate_bytes": 102189,
+    "literal_or_comment_only": false
+  },
+  {
+    "path": "src/audio/03_flac_encoder.js",
+    "candidate_disposition": "Adopt",
+    "review": "English UI/hover/error/diagnostic text only; AST structure, identifiers and numeric constants unchanged (literal values reviewed as wording).",
+    "old_bytes": 12267,
+    "candidate_bytes": 12265,
+    "literal_or_comment_only": true
+  },
+  {
+    "path": "src/audio/03_recorder.js",
+    "candidate_disposition": "Adopt",
+    "review": "English UI/hover/error/diagnostic text only; AST structure, identifiers and numeric constants unchanged (literal values reviewed as wording).",
+    "old_bytes": 26437,
+    "candidate_bytes": 26399,
+    "literal_or_comment_only": true
+  },
+  {
+    "path": "src/audio/entrophon/03_native_bridge.js",
+    "candidate_disposition": "Adopt",
+    "review": "English UI/hover/error/diagnostic text only; AST structure, identifiers and numeric constants unchanged (literal values reviewed as wording).",
+    "old_bytes": 11923,
+    "candidate_bytes": 11881,
+    "literal_or_comment_only": true
+  },
+  {
+    "path": "src/audio/07_governor_and_drums.js",
+    "candidate_disposition": "Adopt",
+    "review": "English UI/hover/error/diagnostic text only; AST structure, identifiers and numeric constants unchanged (literal values reviewed as wording).",
+    "old_bytes": 93680,
+    "candidate_bytes": 93683,
+    "literal_or_comment_only": true
+  },
+  {
+    "path": "src/rhythm/04_workspace_and_transport.js",
+    "candidate_disposition": "Adopt",
+    "review": "Decoupling setter releases held root then calls synchronous reconnect; no quantized catch-up or rhythm scheduler rewrite.",
+    "old_bytes": 165883,
+    "candidate_bytes": 166013,
+    "literal_or_comment_only": false
+  },
+  {
+    "path": "src/app/forge/01_room_shell.js",
+    "candidate_disposition": "Adopt",
+    "review": "Keyboard pitch and Space-release root ref reconnect share current cursor pitch; accepted keyboard gesture only; pointer arbitration retained.",
+    "old_bytes": 68025,
+    "candidate_bytes": 68738,
+    "literal_or_comment_only": false
+  },
+  {
+    "path": "src/app/forge/02_boot_and_workspace_tools.js",
+    "candidate_disposition": "Adopt",
+    "review": "English UI/hover/error/diagnostic text only; AST structure, identifiers and numeric constants unchanged (literal values reviewed as wording).",
+    "old_bytes": 78618,
+    "candidate_bytes": 78608,
+    "literal_or_comment_only": true
+  },
+  {
+    "path": "src/app/forge/03_spectral_grid_and_archives.js",
+    "candidate_disposition": "Adopt",
+    "review": "English UI/hover/error/diagnostic text only; AST structure, identifiers and numeric constants unchanged (literal values reviewed as wording).",
+    "old_bytes": 69916,
+    "candidate_bytes": 69649,
+    "literal_or_comment_only": true
+  },
+  {
+    "path": "src/app/forge/04_profiles_and_body_models.js",
+    "candidate_disposition": "Adopt",
+    "review": "English UI/hover/error/diagnostic text only; AST structure, identifiers and numeric constants unchanged (literal values reviewed as wording).",
+    "old_bytes": 79761,
+    "candidate_bytes": 79792,
+    "literal_or_comment_only": true
+  },
+  {
+    "path": "src/app/forge/07_preview_cache_and_controls.js",
+    "candidate_disposition": "Adopt",
+    "review": "English UI/hover/error/diagnostic text only; AST structure, identifiers and numeric constants unchanged (literal values reviewed as wording).",
+    "old_bytes": 59302,
+    "candidate_bytes": 59316,
+    "literal_or_comment_only": true
+  },
+  {
+    "path": "src/forge/editor/02_tools_and_audio_inputs.js",
+    "candidate_disposition": "Adopt",
+    "review": "English UI/hover/error/diagnostic text only; AST structure, identifiers and numeric constants unchanged (literal values reviewed as wording).",
+    "old_bytes": 51678,
+    "candidate_bytes": 51658,
+    "literal_or_comment_only": true
+  },
+  {
+    "path": "src/forge/editor/06_output_routing.js",
+    "candidate_disposition": "Adopt",
+    "review": "English UI/hover/error/diagnostic text only; AST structure, identifiers and numeric constants unchanged (literal values reviewed as wording).",
+    "old_bytes": 32314,
+    "candidate_bytes": 32313,
+    "literal_or_comment_only": true
+  },
+  {
+    "path": "src/forge/editor/07_composition_and_preview_ui.js",
+    "candidate_disposition": "Adopt",
+    "review": "Action-button module forwards an explicit title to native button; English hover/status text.",
+    "old_bytes": 107785,
+    "candidate_bytes": 107794,
+    "literal_or_comment_only": false
+  },
+  {
+    "path": "src/forge/ui/03_microphone_intake.js",
+    "candidate_disposition": "Adopt",
+    "review": "English UI/hover/error/diagnostic text only; AST structure, identifiers and numeric constants unchanged (literal values reviewed as wording).",
+    "old_bytes": 7745,
+    "candidate_bytes": 7669,
+    "literal_or_comment_only": true
+  },
+  {
+    "path": "src/forge/analysis/04_audio_to_carrier.js",
+    "candidate_disposition": "Adopt",
+    "review": "English UI/hover/error/diagnostic text only; AST structure, identifiers and numeric constants unchanged (literal values reviewed as wording).",
+    "old_bytes": 10229,
+    "candidate_bytes": 10206,
+    "literal_or_comment_only": true
+  },
+  {
+    "path": "src/forge/analysis/05_carrier_pitch_space.js",
+    "candidate_disposition": "Adopt",
+    "review": "English UI/hover/error/diagnostic text only; AST structure, identifiers and numeric constants unchanged (literal values reviewed as wording).",
+    "old_bytes": 3143,
+    "candidate_bytes": 3126,
+    "literal_or_comment_only": true
+  },
+  {
+    "path": "src/forge/ui/04_audio_to_carrier_controls.js",
+    "candidate_disposition": "Adopt",
+    "review": "English UI/hover/error/diagnostic text only; AST structure, identifiers and numeric constants unchanged (literal values reviewed as wording).",
+    "old_bytes": 6548,
+    "candidate_bytes": 6533,
+    "literal_or_comment_only": true
+  },
+  {
+    "path": "src/forge/ui/02_donor_routing_and_hearing.js",
+    "candidate_disposition": "Adopt / startup correction",
+    "review": "Extract Timbre buttons get hover descriptions. Later startup owner changes demand hydration separately, outside candidate attribution.",
+    "old_bytes": 198748,
+    "candidate_bytes": 198940,
+    "literal_or_comment_only": false
+  },
+  {
+    "path": "src/forge/ui/03_method_selection.js",
+    "candidate_disposition": "Adopt",
+    "review": "English UI/hover/error/diagnostic text only; AST structure, identifiers and numeric constants unchanged (literal values reviewed as wording).",
+    "old_bytes": 1404,
+    "candidate_bytes": 1401,
+    "literal_or_comment_only": true
+  },
+  {
+    "path": "src/forge_and_melodic/01_donor_selection_and_edits.js",
+    "candidate_disposition": "Adopt",
+    "review": "English UI/hover/error/diagnostic text only; AST structure, identifiers and numeric constants unchanged (literal values reviewed as wording).",
+    "old_bytes": 55521,
+    "candidate_bytes": 55519,
+    "literal_or_comment_only": true
+  },
+  {
+    "path": "src/forge_and_melodic/03_timeline_and_transport_ui.js",
+    "candidate_disposition": "Adopt",
+    "review": "English UI/hover/error/diagnostic text only; AST structure, identifiers and numeric constants unchanged (literal values reviewed as wording).",
+    "old_bytes": 59336,
+    "candidate_bytes": 59315,
+    "literal_or_comment_only": true
+  },
+  {
+    "path": "src/forge_and_melodic/04_render_cache_and_stems.js",
+    "candidate_disposition": "Correct / Nodal review",
+    "review": "Send to RFL promise fence defers publish until async persistence; renderer and target semantics reviewed by Nodal owner, mocked handoff test alone insufficient.",
+    "old_bytes": 56824,
+    "candidate_bytes": 57620,
+    "literal_or_comment_only": false
+  },
+  {
+    "path": "src/forge_and_melodic/05_preview_and_sample_intake.js",
+    "candidate_disposition": "Adopt",
+    "review": "English UI/hover/error/diagnostic text only; AST structure, identifiers and numeric constants unchanged (literal values reviewed as wording).",
+    "old_bytes": 67940,
+    "candidate_bytes": 67931,
+    "literal_or_comment_only": true
+  },
+  {
+    "path": "src/forge_and_melodic/06_note_editor_and_material_tools.js",
+    "candidate_disposition": "Adopt",
+    "review": "English UI/hover/error/diagnostic text only; AST structure, identifiers and numeric constants unchanged (literal values reviewed as wording).",
+    "old_bytes": 77061,
+    "candidate_bytes": 77033,
+    "literal_or_comment_only": true
+  },
+  {
+    "path": "src/forge_and_melodic/08_editor_actions.js",
+    "candidate_disposition": "Adopt",
+    "review": "English UI/hover/error/diagnostic text only; AST structure, identifiers and numeric constants unchanged (literal values reviewed as wording).",
+    "old_bytes": 85186,
+    "candidate_bytes": 85149,
+    "literal_or_comment_only": true
+  },
+  {
+    "path": "src/forge_and_melodic/11_analysis_canvas_and_controls.js",
+    "candidate_disposition": "Adopt",
+    "review": "English UI/hover/error/diagnostic text only; AST structure, identifiers and numeric constants unchanged (literal values reviewed as wording).",
+    "old_bytes": 19690,
+    "candidate_bytes": 19688,
+    "literal_or_comment_only": true
+  },
+  {
+    "path": "src/forge/hybrid/03_render_pipeline.js",
+    "candidate_disposition": "Adopt",
+    "review": "English UI/hover/error/diagnostic text only; AST structure, identifiers and numeric constants unchanged (literal values reviewed as wording).",
+    "old_bytes": 5901,
+    "candidate_bytes": 5883,
+    "literal_or_comment_only": true
+  },
+  {
+    "path": "src/forge/ui/04_cecilia_controls.js",
+    "candidate_disposition": "Adopt",
+    "review": "English UI/hover/error/diagnostic text only; AST structure, identifiers and numeric constants unchanged (literal values reviewed as wording).",
+    "old_bytes": 9514,
+    "candidate_bytes": 9507,
+    "literal_or_comment_only": true
+  },
+  {
+    "path": "src/forge/ui/05_workbench_controls.js",
+    "candidate_disposition": "Adopt",
+    "review": "English UI/hover/error/diagnostic text only; AST structure, identifiers and numeric constants unchanged (literal values reviewed as wording).",
+    "old_bytes": 38838,
+    "candidate_bytes": 38855,
+    "literal_or_comment_only": true
+  },
+  {
+    "path": "src/06_workbench_dialog.js",
+    "candidate_disposition": "Correct / startup review",
+    "review": "English UI plus serialized resumable starter demo render/hydration. New no-action OfflineAudioContext work traced by startup owner; demand scheduling under review, preserve initial Main Room grid/mute metadata.",
+    "old_bytes": 22226,
+    "candidate_bytes": 25517,
+    "literal_or_comment_only": false
+  },
+  {
+    "path": "styles/24_quick_menu.css",
+    "candidate_disposition": "Adopt",
+    "review": "Fixed performance header grid slots and actual-strip container queries replace state-dependent Flex wrapping; no playback or data changes.",
+    "old_bytes": 6662,
+    "candidate_bytes": 9285,
+    "literal_or_comment_only": null
+  },
+  {
+    "path": "styles/27_meta_menu.css",
+    "candidate_disposition": "Adopt",
+    "review": "Global session color-editor layout/styles and accessibility sizing; existing per-entry annotation ownership retained.",
+    "old_bytes": 26317,
+    "candidate_bytes": 27750,
+    "literal_or_comment_only": null
+  },
+  {
+    "path": "source-manifest.json",
+    "candidate_disposition": "Replace entry metadata",
+    "review": "Source list retained. Exact combined candidate SHA first reproduced, then new reviewed P7_39 entry and final SHA owned by release agent; never rewrite historical P7.38 HTML.",
+    "old_bytes": 14503,
+    "candidate_bytes": 14507,
+    "literal_or_comment_only": null
+  }
+]

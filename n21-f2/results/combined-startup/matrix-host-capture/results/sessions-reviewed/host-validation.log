@@ -1,0 +1,634 @@
+
+## sessions-reviewed-preservation
+PASS P7.38 exact 239-unit reversible baseline, bounded source/style retirements/additions, head extensions and build
+
+## p7-24-preservation
+PASS P7.24 exact reversible source corrections, protected baseline and hashed additions/order
+
+## p7_keyboard_wave_volume_isolation
+PASS Wave Starter and Keyboard independent before and after explicit Keyboard adjustment; UI and live agree
+
+## p7-24-entrophon-reservation
+PASS saved Wave/Keyboard admission estimates exact selected zero-pressure C11 record demand across 36 saved configurations and both relative Current costs
+
+## live-control-ownership
+PASS independent telemetry ownership, exact payload identity, updater semantics, same-value bailout, unsubscribe and isolated observer failure
+
+## live-control-preservation
+PASS P7.24 exact reversible source corrections, protected baseline and hashed additions/order
+PASS isolated control telemetry; synthesis, audio scheduler/analysis, UI and stored formats unchanged
+
+## forge-request-contract
+PASS same synthesis context/cache identity across eight modes; readiness and playback share request construction and exact PCM
+
+## forge-request-lifecycle
+PASS stopped donor preparation, donor identity before/during render, captured recipe, shared observers and normal completion
+
+## f447-hearing-coalescing
+PASS hearing coalescing, obsolete-result cache veto, retry after cancellation
+
+## forge-request-preservation
+PASS P7.24 exact reversible source corrections, protected baseline and hashed additions/order
+PASS isolated control telemetry; synthesis, audio scheduler/analysis, UI and stored formats unchanged
+PASS shared hearing request and guarded preparation; synthesis algorithms, live DSP, UI, schemas and source order unchanged
+
+## forge-persistence-ownership
+PASS single persistence owner, joined restore, balanced subscriptions, disposal and edits while writes drain
+
+## architecture-stability-preservation
+PASS P7.24 exact reversible source corrections, protected baseline and hashed additions/order
+PASS isolated control telemetry; synthesis, audio scheduler/analysis, UI and stored formats unchanged
+PASS shared hearing request and guarded preparation; synthesis algorithms, live DSP, UI, schemas and source order unchanged
+PASS single persistence owner; all synthesis, DSP, UI, storage schemas and source order unchanged
+
+## live-grid-snap
+{"frequencies":2048,"reads":13}
+PASS original live cursor/raster mapping for 1080 real tuning cases and empty/boundary/midpoint/NaN semantics
+{"entry":"Xensonar_P7_39_Combined_Startup_Test.html","sha256":"602dc8199d85cf49cd259aad14e3f13de6a071d2e1e53f0105af7babd86b504c","frequencies":2048,"reads":13,"realCases":1080,"queriesPerRun":50000,"baseline":[77.14048000000003,70.9904140000001,75.71336699999983,71.45576500000016,76.70540500000016],"changed":[7.948410999999851,3.1102740000001177,3.3659640000000763,2.6187639999998282,2.799315999999635],"speedup":24.342989395788592,"scope":"Nearest-frequency lookup within an already compiled live grid; not total audio engine throughput"}
+
+## forge-save-lifecycle
+{"playback":{"copies":0,"writes":0},"afterEdit":{"copies":1,"writes":1,"name":"Saved actual edit","pixel":0.625},"afterFlush":{"flushedCopies":2,"copies":2,"name":"Explicitly flushed edit"}}
+PASS autosave ignores playback-only updates and preserves actual project edits
+
+## forge-save-dispose
+{"before":"spectral-material","after":"spectral-material","donors":[{"failure":false,"commits":0,"errors":0,"stops":0},{"failure":true,"commits":0,"errors":0,"stops":0}]}
+PASS late restore cannot change the workspace after disposal
+
+## master-output-contract
+{"measured":{"rms":0.0010000000474974463,"peak":0.0010000000474974513},"mix":{"main":0.19607843155516125,"drone":0.784313726220645,"rhythm":0,"space":0,"density":0.05355000249361593,"trim":0.9741094997257023}}
+PASS master metering retains quiet role balance without byte quantization
+PASS nonfinite floating-point measurements cannot poison mastering parameters
+
+## forge-smoothness-preservation
+PASS P7.24 exact reversible source corrections, protected baseline and hashed additions/order
+PASS isolated control telemetry; synthesis, audio scheduler/analysis, UI and stored formats unchanged
+PASS shared hearing request and guarded preparation; synthesis algorithms, live DSP, UI, schemas and source order unchanged
+PASS single persistence owner; all synthesis, DSP, UI, storage schemas and source order unchanged
+PASS bounded autosave/lifecycle/master-meter/control changes; sound generators, final clipper/limiter, UI and schemas retained
+
+## forge-efficiency
+PASS ready identity reuses one snapshot and invalidates acoustic changes {"steadyCopies":1,"milliseconds":330.1881479999997,"checks":["same-input polling","gain identity","pitch","tempo","local paint","cache release"]}
+PASS portable current settings lossless roundtrip, legacy replace protection and narrow registry {"schemaVersion":2,"count":13,"report":{"present":true,"importedCount":13,"skippedCount":0,"replacedCount":0},"unrelated":false}
+
+## forge-efficiency-preservation
+PASS P7.24 exact reversible source corrections, protected baseline and hashed additions/order
+PASS isolated control telemetry; synthesis, audio scheduler/analysis, UI and stored formats unchanged
+PASS shared hearing request and guarded preparation; synthesis algorithms, live DSP, UI, schemas and source order unchanged
+PASS single persistence owner; all synthesis, DSP, UI, storage schemas and source order unchanged
+PASS bounded autosave/lifecycle/master-meter/control changes; sound generators, final clipper/limiter, UI and schemas retained
+PASS exact graphics/readiness/donor/settings/persistence edits; all other sources, renderers and sound detail unchanged
+
+## p7-review-regressions
+PASS complete built HTML script syntax (2 scripts)
+PASS cached live revision refresh, same instrument identity and captured snapshot unchanged
+PASS typed persisted Drone controls reject invalid AudioParam payloads
+PASS stale Navigator preview releases busy without starting or clearing a newer job
+PASS cancelled decoder rejection cannot publish into the next take
+
+## p7-review-preservation
+PASS P7.24 exact reversible source corrections, protected baseline and hashed additions/order
+PASS isolated control telemetry; synthesis, audio scheduler/analysis, UI and stored formats unchanged
+PASS shared hearing request and guarded preparation; synthesis algorithms, live DSP, UI, schemas and source order unchanged
+PASS single persistence owner; all synthesis, DSP, UI, storage schemas and source order unchanged
+PASS bounded autosave/lifecycle/master-meter/control changes; sound generators, final clipper/limiter, UI and schemas retained
+PASS exact graphics/readiness/donor/settings/persistence edits; all other sources, renderers and sound detail unchanged
+PASS P7 exact 00–22 source ancestry, explicit corrections and all untouched source/style/template hashes
+
+## p7_live_grid_space_behavior
+PASS Default Main Grid preserves incoming Bass/Drone/RFL frequencies
+PASS Derived grid restricts degrees and performs nearest pitch mapping
+PASS Bass/Drone/RFL grid-routing switches are independent
+PASS A linked nine-EDO tuning is not folded back into main 12-EDO
+PASS Linked grid has no duplicate cents offset layer
+PASS Linked grid does NOT recompile when only main scale/mutes/offsets change
+PASS Changing the linked degree exclusions recomputes once
+PASS Deleted linked tuning is visible, and never silently maps to 12-EDO
+PASS All-muted Bass Grid drops Bass notes rather than generating replacements
+PASS When all steps muted, Drone and RFL do not emit an invalid pitch
+PASS Preview degrees ascend and stay within one period
+PASS Fifth interval has an English ~5th / 5th orientation label
+node:assert:152
+  throw new AssertionError(obj);
+  ^
+
+AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+
+false !== true
+
+    at /workspace/Xensonar/n21-f2/tests/p7_live_grid_space_behavior.cjs:99:26
+    at test (/workspace/Xensonar/n21-f2/tests/p7_live_grid_space_behavior.cjs:32:25)
+    at Object.<anonymous> (/workspace/Xensonar/n21-f2/tests/p7_live_grid_space_behavior.cjs:97:1)
+    at Module._compile (node:internal/modules/cjs/loader:1872:14)
+    at Object..js (node:internal/modules/cjs/loader:2003:10)
+    at Module.load (node:internal/modules/cjs/loader:1594:32)
+    at Module._load (node:internal/modules/cjs/loader:1396:12)
+    at wrapModuleLoad (node:internal/modules/cjs/loader:255:19)
+    at Module.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:154:5)
+    at node:internal/main/run_main_module:33:47 {
+  generatedMessage: true,
+  code: 'ERR_ASSERTION',
+  actual: false,
+  expected: true,
+  operator: 'strictEqual',
+  diff: 'simple'
+}
+
+Node.js v24.19.0
+
+## p7_2_installation_ball_audio
+PASS installation Ball Grid crossing, mute, pitch continuity and no late catch-up
+PASS independent resident-gain boundary, native/Worklet ball-tone muting present
+
+## p7_3_forge_navigator
+PASS: independent invisible selection handles, bounds, cursor, and PCM-timed violet preview playhead
+PASS: sample name is used in actual Sample Database file registration, fallback and filename sanitization
+
+## p7_4_repeat_pointer
+PASS P7.4 old keyboard repeat contract retained; repeat is no-op for cursor owner
+
+## p7_5_forge_main_handles
+PASS P7.5 Forge main canvas synchronized purple boundary handles and zoom mapping
+
+## p7_6_expression_mode
+PASS P7.6 pedal/knob toggle on B+LeftAlt, single-shot, chord suppression, and expression semantics
+
+## p7_7_keyboard_source_gate
+PASS both live ingress and renderer admit Keyboard independently of Wave Starter OFF
+
+## p7_8_recorder_async_cancel
+PASS recorder normal/aborted/abort-in-decoder callback contracts
+
+## test_entrophon_live_revision
+PASS live stale revisions resolve latest same-id instrument, removed remains unavailable
+
+## test_material_standalone_preview
+ReferenceError: __XenStarterMaterial is not defined
+    at Object.toggleById (eval at <anonymous> (/workspace/Xensonar/n21-f2/tests/test_material_standalone_preview.cjs:11:9), <anonymous>:20:7)
+    at /workspace/Xensonar/n21-f2/tests/test_material_standalone_preview.cjs:14:23
+    at Object.<anonymous> (/workspace/Xensonar/n21-f2/tests/test_material_standalone_preview.cjs:20:3)
+    at Module._compile (node:internal/modules/cjs/loader:1872:14)
+    at Object..js (node:internal/modules/cjs/loader:2003:10)
+    at Module.load (node:internal/modules/cjs/loader:1594:32)
+    at Module._load (node:internal/modules/cjs/loader:1396:12)
+    at wrapModuleLoad (node:internal/modules/cjs/loader:255:19)
+    at Module.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:154:5)
+    at node:internal/main/run_main_module:33:47
+
+## myzel_g2_concept
+PASS same input, compact vs spread layout changes normalized waveform beyond volume
+PASS exchanging labelled organs changes pair character, even with the same point cloud
+PASS spatial recipe depends on actual positions and roles, not incidental array order
+PASS root and two resident frequencies remain genuine independent pitches
+PASS all three source faders at zero are truly silent
+PASS custom resident contributes actual pitch but cannot become an organ
+PASS muted full-layout nodes cannot reappear through the legacy nearest-node fallback
+PASS actual ordered audio processing is noncommutative
+PASS two resonators own separate remembered states, preserved across slot changes and revisits
+PASS Korn revisits real prior audio after an absence, instead of a newly reset stage buffer
+PASS hysteresis keeps stable keyed history; disabling coupling clears the active route
+PASS explicit restart resets phases, stored material and hidden history reproducibly
+PASS all eleven labelled processor families transform the same source
+PASS hostile controls stay finite; route and memory pools stay bounded
+PASS bounded output and exact silence after deactivation
+PASS 32-second held source remains continuous beyond the old Emilia watchdog boundary
+PASS native graph remains fixed and Forge room gate stops the installation
+
+## myzel_g_worklet
+PASS actual embedded AudioWorklet source registers, receives controls, processes finite nonzero stereo PCM
+
+## nodal-ball-grid
+PASS shared-grid projection, cache, crossing direction, jitter/stall/mute guards, zero gain and bit-identical legacy G PCM
+
+## nodal-ball-grid-preservation
+PASS P7.24 exact reversible source corrections, protected baseline and hashed additions/order
+PASS isolated control telemetry; synthesis, audio scheduler/analysis, UI and stored formats unchanged
+PASS shared hearing request and guarded preparation; synthesis algorithms, live DSP, UI, schemas and source order unchanged
+PASS single persistence owner; all synthesis, DSP, UI, storage schemas and source order unchanged
+PASS bounded autosave/lifecycle/master-meter/control changes; sound generators, final clipper/limiter, UI and schemas retained
+PASS exact graphics/readiness/donor/settings/persistence edits; all other sources, renderers and sound detail unchanged
+PASS P7 exact 00–22 source ancestry, explicit corrections and all untouched source/style/template hashes
+PASS bounded Ball controls/grid integration, unchanged main tuning engine and preserved original G kernel fixture
+
+## forge-spatial-contracts
+PASS metadata validation, unchanged legacy roles, optional guides and stale pitch-anchor export rejection
+
+## forge-spatial-preservation
+PASS P7.24 exact reversible source corrections, protected baseline and hashed additions/order
+PASS isolated control telemetry; synthesis, audio scheduler/analysis, UI and stored formats unchanged
+PASS shared hearing request and guarded preparation; synthesis algorithms, live DSP, UI, schemas and source order unchanged
+PASS single persistence owner; all synthesis, DSP, UI, storage schemas and source order unchanged
+PASS bounded autosave/lifecycle/master-meter/control changes; sound generators, final clipper/limiter, UI and schemas retained
+PASS exact graphics/readiness/donor/settings/persistence edits; all other sources, renderers and sound detail unchanged
+PASS P7 exact 00–22 source ancestry, explicit corrections and all untouched source/style/template hashes
+PASS bounded Ball controls/grid integration, unchanged main tuning engine and preserved original G kernel fixture
+PASS exact reviewed Forge spatial/metadata edits; all other source, synthesis and styles preserved
+
+## history-sharing
+PASS 30 full-size local edits, exact grid/body/grain/Detune Undo and Redo, shared page budget
+{"usage":{"bytes":44088690,"maxBytes":201326592,"maxEntries":30,"undoEntries":30,"redoEntries":0},"last":{"copiedBytes":49152,"sharedBytes":41893888,"copiedPages":3,"sharedPages":2557},"undoUsage":{"bytes":44088690,"maxBytes":201326592,"maxEntries":30,"undoEntries":0,"redoEntries":30},"redoUsage":{"bytes":44088690,"maxBytes":201326592,"maxEntries":30,"undoEntries":30,"redoEntries":0},"finalDetune":0.90625}
+PASS bit-exact signed zero/NaN, partial last pages, stamps, empty Body and zero-copy unchanged capture
+PASS dense changes still evict oldest snapshots within the same 192 MiB budget
+PASS project/archive snapshots retain their contiguous Float32 format
+
+## patch-integration
+PASS impulse, stereo-buffer audibility and matching legacy mono source readiness
+PASS Navigator stereo PCM/WAV duration, master-change invalidation, silent/non-finite sample rejection and busy cleanup
+
+## consolidation-snapshots
+PASS archive codec restores complete raster, grain, body arrays and Detune
+PASS nine malformed snapshots rejected before any live workspace/transport/instrument mutation
+PASS typed-array offsets/types, long curves, empty legacy arrays and rejection of incomplete archive data
+PASS Fractalia storage failure leaves active workspace and transport intact
+
+## consolidation-history
+PASS shared-buffer accounting, combined count/byte limits, oldest-first eviction, oversized entry and full-size Body Undo/Redo
+{"usage":{"bytes":42308212,"maxBytes":201326592,"maxEntries":30,"undoEntries":7,"redoEntries":0},"undo":[0.6000000238418579,0.6000000238418579],"redo":[0.699999988079071,0.699999988079071],"after":{"bytes":42308212,"maxBytes":201326592,"maxEntries":30,"undoEntries":7,"redoEntries":0}}
+
+## consolidation-preservation
+PASS P7.24 exact reversible source corrections, protected baseline and hashed additions/order
+PASS isolated control telemetry; synthesis, audio scheduler/analysis, UI and stored formats unchanged
+PASS shared hearing request and guarded preparation; synthesis algorithms, live DSP, UI, schemas and source order unchanged
+PASS single persistence owner; all synthesis, DSP, UI, storage schemas and source order unchanged
+PASS bounded autosave/lifecycle/master-meter/control changes; sound generators, final clipper/limiter, UI and schemas retained
+PASS exact graphics/readiness/donor/settings/persistence edits; all other sources, renderers and sound detail unchanged
+PASS P7 exact 00–22 source ancestry, explicit corrections and all untouched source/style/template hashes
+PASS bounded Ball controls/grid integration, unchanged main tuning engine and preserved original G kernel fixture
+PASS exact reviewed Forge spatial/metadata edits; all other source, synthesis and styles preserved
+PASS all four supplied patches retained; only reviewed history/audibility/sample adapters and one new history module change afterward
+PASS only archive codec adapters, project loader and history orchestration changed; all other source, DSP, UI and styles preserved
+
+## rw2-source-index
+PASS RW2 source-index freshness, 210 manifest entries, 6596 declarations, 1157 file dependency pairs
+
+## forge-pitch-space
+PASS local edit retains absolute pitch and chord intervals
+PASS explicit Detune, non-destructive render, Undo, snapshot roundtrip / portable metadata, old-project default and both absolute readers
+PASS nonzero Detune amounts survive Undo and Redo
+PASS lower Play uses actual percentage and ready/dirty colors
+
+## forge-ready-contract
+PASS audio-to-carrier retains last listening machine
+
+## forge-progress-jobs
+PASS joined/hidden render progress, shared PCM, monotonic bounds, instant cache, cancellation and retry
+
+## live-rfl-lifecycle
+{"rate":44100,"mode":"base","rootMessages":1550,"maxWindows":1,"skippedWindows":115,"peak":0.5459728837013245,"tailReleased":true}
+{"rate":44100,"mode":"fragment","rootMessages":1550,"maxWindows":1,"skippedWindows":115,"peak":1.198411226272583,"tailReleased":true}
+{"rate":48000,"mode":"base","rootMessages":1550,"maxWindows":1,"skippedWindows":115,"peak":0.5459033250808716,"tailReleased":true}
+{"rate":48000,"mode":"fragment","rootMessages":1550,"maxWindows":1,"skippedWindows":115,"peak":1.1153439283370972,"tailReleased":true}
+{"rate":96000,"mode":"base","rootMessages":1550,"maxWindows":1,"skippedWindows":114,"peak":0.5697279572486877,"tailReleased":true}
+{"rate":96000,"mode":"fragment","rootMessages":1550,"maxWindows":1,"skippedWindows":114,"peak":0.9831255674362183,"tailReleased":true}
+PASS RFL lifecycle: rapid/stale/invalid root updates, sample-rate mismatch, clock gaps, 128/256-frame quanta and complete tail release
+
+## nodal-envelope-zero
+PASS Nodal V1/V2 envelope: exact-zero mapping and PCM tails at 44.1/48/96 kHz; no/positive contours sample-identical; other backend field semantics retained
+
+## workflow-grid-runtime
+PASS global grid: real Wave Starter snap, keyboard restrictions, cached live view, authored restore, no muted timers or stale quantized replay
+
+## workflow-hotkeys
+PASS hotkeys: physical layout priority, canonical reorder/limit/unregister, same click activation, one transient pulse timer
+
+## microphone-capture
+AssertionError [ERR_ASSERTION]: The input did not match the regular expression /Berechtigung|berechtigung/. Input:
+
+'Microphone access was denied. Please allow microphone access in your browser and try again.'
+
+    at /workspace/Xensonar/n21-f2/tests/microphone-capture.cjs:21:197 {
+  generatedMessage: true,
+  code: 'ERR_ASSERTION',
+  actual: 'Microphone access was denied. Please allow microphone access in your browser and try again.',
+  expected: /Berechtigung|berechtigung/,
+  operator: 'match',
+  diff: 'simple'
+}
+
+## audio-carrier-analysis
+node:assert:604
+    throw err;
+    ^
+
+AssertionError [ERR_ASSERTION]: The input did not match the regular expression /Filter/. Input:
+
+'Error: Invalid filter setting.'
+
+    at Object.<anonymous> (/workspace/Xensonar/n21-f2/tests/audio-carrier-analysis.cjs:28:35)
+    at Module._compile (node:internal/modules/cjs/loader:1872:14)
+    at Object..js (node:internal/modules/cjs/loader:2003:10)
+    at Module.load (node:internal/modules/cjs/loader:1594:32)
+    at Module._load (node:internal/modules/cjs/loader:1396:12)
+    at wrapModuleLoad (node:internal/modules/cjs/loader:255:19)
+    at Module.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:154:5)
+    at node:internal/main/run_main_module:33:47 {
+  generatedMessage: true,
+  code: 'ERR_ASSERTION',
+  actual: evalmachine.<anonymous>:209
+      if(["voices","strictness","noiseDb","minimumMs","minHz","maxHz"].some(key=>options[key]!=null&&!Number.isFinite(Number(options[key]))))throw Error("Invalid filter setting.");
+                                                                                                                                             ^
+  
+  Error: Invalid filter setting.
+      at Object.analyze (evalmachine.<anonymous>:209:146)
+      at evalmachine.<anonymous>:1:10
+      at Script.runInContext (node:vm:149:12)
+      at Object.runInContext (node:vm:301:6)
+      at /workspace/Xensonar/n21-f2/tests/audio-carrier-analysis.cjs:28:49
+      at getActual (node:assert:611:5)
+      at strict.throws (node:assert:759:24)
+      at Object.<anonymous> (/workspace/Xensonar/n21-f2/tests/audio-carrier-analysis.cjs:28:35)
+      at Module._compile (node:internal/modules/cjs/loader:1872:14)
+      at Object..js (node:internal/modules/cjs/loader:2003:10),
+  expected: /Filter/,
+  operator: 'throws',
+  diff: 'simple'
+}
+
+Node.js v24.19.0
+
+## meta-menu-design-parity-keyboard
+evalmachine.<anonymous>:45
+  ]}):u.jsxs('div',{className:'xen-meta-browser',children:[u.jsxs('div',{className:'xen-meta-browser-heading',children:[u.jsx('button',{type:'button',className:'xen-meta-library-open-manager','aria-label':'Open original '+__XenMetaLabels[kind]+' manager','aria-haspopup':'dialog',title:'Open original '+__XenMetaLabels[kind]+' manager',onClick:()=>{if(!__xenOpenOriginalLibrary(kind))setNotice('Original '+__XenMetaLabels[kind]+' manager is unavailable in this room.')},children:__XenQuick.icons[kind]+' '+__XenMetaLabels[kind]}),u.jsx('input',{type:'search','aria-label':'Search library',placeholder:'Filter…',value:search,onChange:e=>setSearch(e.target.value)}),u.jsx('span',{children:entries.length+' entries'})]}),u.jsx(__XenStarterMaterialStatus,{}),u.jsx('div',{id:'xen-meta-library-list',role:'tabpanel',className:'xen-meta-library-list',children:entries.length?entries.map(row):u.jsx('p',{className:'xen-meta-empty-library',children:'No entries. New musical materials are created in their original library.'})})]}))]}),
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    ^
+
+ReferenceError: __XenStarterMaterialStatus is not defined
+    at Object.__XenMetaEditor (evalmachine.<anonymous>:45:725)
+    at Object.<anonymous> (/workspace/Xensonar/n21-f2/tests/meta-menu-design-parity-keyboard.cjs:13:24)
+    at Module._compile (node:internal/modules/cjs/loader:1872:14)
+    at Object..js (node:internal/modules/cjs/loader:2003:10)
+    at Module.load (node:internal/modules/cjs/loader:1594:32)
+    at Module._load (node:internal/modules/cjs/loader:1396:12)
+    at wrapModuleLoad (node:internal/modules/cjs/loader:255:19)
+    at Module.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:154:5)
+    at node:internal/main/run_main_module:33:47
+
+Node.js v24.19.0
+
+## meta-menu-design-parity
+PASS Meta Menu Prototype parity: insertion at indicated position, reorder, Undo/Redo
+
+## meta-menu-p726-editor-ui
+evalmachine.<anonymous>:45
+  ]}):u.jsxs('div',{className:'xen-meta-browser',children:[u.jsxs('div',{className:'xen-meta-browser-heading',children:[u.jsx('button',{type:'button',className:'xen-meta-library-open-manager','aria-label':'Open original '+__XenMetaLabels[kind]+' manager','aria-haspopup':'dialog',title:'Open original '+__XenMetaLabels[kind]+' manager',onClick:()=>{if(!__xenOpenOriginalLibrary(kind))setNotice('Original '+__XenMetaLabels[kind]+' manager is unavailable in this room.')},children:__XenQuick.icons[kind]+' '+__XenMetaLabels[kind]}),u.jsx('input',{type:'search','aria-label':'Search library',placeholder:'Filter…',value:search,onChange:e=>setSearch(e.target.value)}),u.jsx('span',{children:entries.length+' entries'})]}),u.jsx(__XenStarterMaterialStatus,{}),u.jsx('div',{id:'xen-meta-library-list',role:'tabpanel',className:'xen-meta-library-list',children:entries.length?entries.map(row):u.jsx('p',{className:'xen-meta-empty-library',children:'No entries. New musical materials are created in their original library.'})})]}))]}),
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    ^
+
+ReferenceError: __XenStarterMaterialStatus is not defined
+    at Object.__XenMetaEditor (evalmachine.<anonymous>:45:725)
+    at Object.<anonymous> (/workspace/Xensonar/n21-f2/tests/meta-menu-p726-editor-ui.cjs:17:14)
+    at Module._compile (node:internal/modules/cjs/loader:1872:14)
+    at Object..js (node:internal/modules/cjs/loader:2003:10)
+    at Module.load (node:internal/modules/cjs/loader:1594:32)
+    at Module._load (node:internal/modules/cjs/loader:1396:12)
+    at wrapModuleLoad (node:internal/modules/cjs/loader:255:19)
+    at Module.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:154:5)
+    at node:internal/main/run_main_module:33:47
+
+Node.js v24.19.0
+
+## meta-menu-p726-regressions
+PASS P7.26 session name, undo/redo, color history, save failure, session boundaries
+PASS P7.26 live Quick selection tracker
+
+## meta-menu-p729-ui
+evalmachine.<anonymous>:45
+  ]}):u.jsxs('div',{className:'xen-meta-browser',children:[u.jsxs('div',{className:'xen-meta-browser-heading',children:[u.jsx('button',{type:'button',className:'xen-meta-library-open-manager','aria-label':'Open original '+__XenMetaLabels[kind]+' manager','aria-haspopup':'dialog',title:'Open original '+__XenMetaLabels[kind]+' manager',onClick:()=>{if(!__xenOpenOriginalLibrary(kind))setNotice('Original '+__XenMetaLabels[kind]+' manager is unavailable in this room.')},children:__XenQuick.icons[kind]+' '+__XenMetaLabels[kind]}),u.jsx('input',{type:'search','aria-label':'Search library',placeholder:'Filter…',value:search,onChange:e=>setSearch(e.target.value)}),u.jsx('span',{children:entries.length+' entries'})]}),u.jsx(__XenStarterMaterialStatus,{}),u.jsx('div',{id:'xen-meta-library-list',role:'tabpanel',className:'xen-meta-library-list',children:entries.length?entries.map(row):u.jsx('p',{className:'xen-meta-empty-library',children:'No entries. New musical materials are created in their original library.'})})]}))]}),
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    ^
+
+ReferenceError: __XenStarterMaterialStatus is not defined
+    at Object.__XenMetaEditor (evalmachine.<anonymous>:45:725)
+    at Object.<anonymous> (/workspace/Xensonar/n21-f2/tests/meta-menu-p729-ui.cjs:13:16)
+    at Module._compile (node:internal/modules/cjs/loader:1872:14)
+    at Object..js (node:internal/modules/cjs/loader:2003:10)
+    at Module.load (node:internal/modules/cjs/loader:1594:32)
+    at Module._load (node:internal/modules/cjs/loader:1396:12)
+    at wrapModuleLoad (node:internal/modules/cjs/loader:255:19)
+    at Module.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:154:5)
+    at node:internal/main/run_main_module:33:47
+
+Node.js v24.19.0
+
+## meta-menu-p730-engage
+PASS Engage vs Edit semantics, saved identity, no auto-save, no playback
+evalmachine.<anonymous>:45
+  ]}):u.jsxs('div',{className:'xen-meta-browser',children:[u.jsxs('div',{className:'xen-meta-browser-heading',children:[u.jsx('button',{type:'button',className:'xen-meta-library-open-manager','aria-label':'Open original '+__XenMetaLabels[kind]+' manager','aria-haspopup':'dialog',title:'Open original '+__XenMetaLabels[kind]+' manager',onClick:()=>{if(!__xenOpenOriginalLibrary(kind))setNotice('Original '+__XenMetaLabels[kind]+' manager is unavailable in this room.')},children:__XenQuick.icons[kind]+' '+__XenMetaLabels[kind]}),u.jsx('input',{type:'search','aria-label':'Search library',placeholder:'Filter…',value:search,onChange:e=>setSearch(e.target.value)}),u.jsx('span',{children:entries.length+' entries'})]}),u.jsx(__XenStarterMaterialStatus,{}),u.jsx('div',{id:'xen-meta-library-list',role:'tabpanel',className:'xen-meta-library-list',children:entries.length?entries.map(row):u.jsx('p',{className:'xen-meta-empty-library',children:'No entries. New musical materials are created in their original library.'})})]}))]}),
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    ^
+
+ReferenceError: __XenStarterMaterialStatus is not defined
+    at Object.__XenMetaEditor (evalmachine.<anonymous>:45:725)
+    at Object.<anonymous> (/workspace/Xensonar/n21-f2/tests/meta-menu-p730-engage.cjs:47:18)
+    at Module._compile (node:internal/modules/cjs/loader:1872:14)
+    at Object..js (node:internal/modules/cjs/loader:2003:10)
+    at Module.load (node:internal/modules/cjs/loader:1594:32)
+    at Module._load (node:internal/modules/cjs/loader:1396:12)
+    at wrapModuleLoad (node:internal/modules/cjs/loader:255:19)
+    at Module.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:154:5)
+    at node:internal/main/run_main_module:33:47
+
+Node.js v24.19.0
+
+## meta-menu-store
+PASS Meta-Menu session store: first-use, dedupe, order, save, use, reload, legacy isolation
+PASS per-session color: independent palette, RGB validity, reload, live activation, no shared metadata
+
+## meta-save-dialog-ui
+PASS meta-save-dialog-ui: unchecked by default, checked opt-in for create/update, modal
+
+## meta-save-from-quick
+evalmachine.<anonymous>:68
+   if(!__XenStarterInstalled||starterInitialized||starterFrame!==null||!owner||!__XenQuick.adapters.has('grid'))return;
+   ^
+
+ReferenceError: __XenStarterInstalled is not defined
+    at Object.initializeStarter (evalmachine.<anonymous>:68:4)
+    at Object.attach (evalmachine.<anonymous>:78:81)
+    at Object.<anonymous> (/workspace/Xensonar/n21-f2/tests/meta-save-from-quick.cjs:48:21)
+    at Module._compile (node:internal/modules/cjs/loader:1872:14)
+    at Object..js (node:internal/modules/cjs/loader:2003:10)
+    at Module.load (node:internal/modules/cjs/loader:1594:32)
+    at Module._load (node:internal/modules/cjs/loader:1396:12)
+    at wrapModuleLoad (node:internal/modules/cjs/loader:255:19)
+    at Module.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:154:5)
+    at node:internal/main/run_main_module:33:47
+
+Node.js v24.19.0
+
+## p728-donor-autoprepare
+PASS P7.28 donor auto-prepare and prepared-cache priority
+
+## p728-session-room-settings
+PASS P7.28 optional main room snapshot capture, restore, clear, references unchanged
+
+## p728-sessions-reiter-interactive
+evalmachine.<anonymous>:45
+  ]}):u.jsxs('div',{className:'xen-meta-browser',children:[u.jsxs('div',{className:'xen-meta-browser-heading',children:[u.jsx('button',{type:'button',className:'xen-meta-library-open-manager','aria-label':'Open original '+__XenMetaLabels[kind]+' manager','aria-haspopup':'dialog',title:'Open original '+__XenMetaLabels[kind]+' manager',onClick:()=>{if(!__xenOpenOriginalLibrary(kind))setNotice('Original '+__XenMetaLabels[kind]+' manager is unavailable in this room.')},children:__XenQuick.icons[kind]+' '+__XenMetaLabels[kind]}),u.jsx('input',{type:'search','aria-label':'Search library',placeholder:'Filter…',value:search,onChange:e=>setSearch(e.target.value)}),u.jsx('span',{children:entries.length+' entries'})]}),u.jsx(__XenStarterMaterialStatus,{}),u.jsx('div',{id:'xen-meta-library-list',role:'tabpanel',className:'xen-meta-library-list',children:entries.length?entries.map(row):u.jsx('p',{className:'xen-meta-empty-library',children:'No entries. New musical materials are created in their original library.'})})]}))]}),
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    ^
+
+ReferenceError: __XenStarterMaterialStatus is not defined
+    at Object.__XenMetaEditor (evalmachine.<anonymous>:45:725)
+    at render (/workspace/Xensonar/n21-f2/tests/p728-sessions-reiter-interactive.cjs:20:47)
+    at Object.<anonymous> (/workspace/Xensonar/n21-f2/tests/p728-sessions-reiter-interactive.cjs:21:11)
+    at Module._compile (node:internal/modules/cjs/loader:1872:14)
+    at Object..js (node:internal/modules/cjs/loader:2003:10)
+    at Module.load (node:internal/modules/cjs/loader:1594:32)
+    at Module._load (node:internal/modules/cjs/loader:1396:12)
+    at wrapModuleLoad (node:internal/modules/cjs/loader:255:19)
+    at Module.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:154:5)
+    at node:internal/main/run_main_module:33:47
+
+Node.js v24.19.0
+
+## p728-sessions-tab-two-state
+evalmachine.<anonymous>:45
+  ]}):u.jsxs('div',{className:'xen-meta-browser',children:[u.jsxs('div',{className:'xen-meta-browser-heading',children:[u.jsx('button',{type:'button',className:'xen-meta-library-open-manager','aria-label':'Open original '+__XenMetaLabels[kind]+' manager','aria-haspopup':'dialog',title:'Open original '+__XenMetaLabels[kind]+' manager',onClick:()=>{if(!__xenOpenOriginalLibrary(kind))setNotice('Original '+__XenMetaLabels[kind]+' manager is unavailable in this room.')},children:__XenQuick.icons[kind]+' '+__XenMetaLabels[kind]}),u.jsx('input',{type:'search','aria-label':'Search library',placeholder:'Filter…',value:search,onChange:e=>setSearch(e.target.value)}),u.jsx('span',{children:entries.length+' entries'})]}),u.jsx(__XenStarterMaterialStatus,{}),u.jsx('div',{id:'xen-meta-library-list',role:'tabpanel',className:'xen-meta-library-list',children:entries.length?entries.map(row):u.jsx('p',{className:'xen-meta-empty-library',children:'No entries. New musical materials are created in their original library.'})})]}))]}),
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    ^
+
+ReferenceError: __XenStarterMaterialStatus is not defined
+    at Object.__XenMetaEditor (evalmachine.<anonymous>:45:725)
+    at render (/workspace/Xensonar/n21-f2/tests/p728-sessions-tab-two-state.cjs:18:43)
+    at Object.<anonymous> (/workspace/Xensonar/n21-f2/tests/p728-sessions-tab-two-state.cjs:20:11)
+    at Module._compile (node:internal/modules/cjs/loader:1872:14)
+    at Object..js (node:internal/modules/cjs/loader:2003:10)
+    at Module.load (node:internal/modules/cjs/loader:1594:32)
+    at Module._load (node:internal/modules/cjs/loader:1396:12)
+    at wrapModuleLoad (node:internal/modules/cjs/loader:255:19)
+    at Module.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:154:5)
+    at node:internal/main/run_main_module:33:47
+
+Node.js v24.19.0
+
+## p730-quickdock-first-layout
+evalmachine.<anonymous>:60
+   remove&&u.jsxs('div',{className:'xen-quick-confirm',children:[u.jsx('span',{children:'„'+remove.name+'“?'}),u.jsx('button',{type:'button',onClick:()=>{__XenQuick.remove(remove);setRemove(null)},children:'Remove'}),u.jsx('button',{type:'button',onClick:()=>setRemove(null),children:'Cancel'})]}),u.jsx(__XenStarterMaterialStatus,{}),(message||s.storageError)&&u.jsx('small',{role:'status',children:message||s.storageError})]});
+                                                                                                                                                                                                                                                                                                                ^
+
+ReferenceError: __XenStarterMaterialStatus is not defined
+    at Object.__QuickDock (evalmachine.<anonymous>:60:305)
+    at render (/workspace/Xensonar/n21-f2/tests/p730-quickdock-first-layout.cjs:17:69)
+    at Object.<anonymous> (/workspace/Xensonar/n21-f2/tests/p730-quickdock-first-layout.cjs:18:10)
+    at Module._compile (node:internal/modules/cjs/loader:1872:14)
+    at Object..js (node:internal/modules/cjs/loader:2003:10)
+    at Module.load (node:internal/modules/cjs/loader:1594:32)
+    at Module._load (node:internal/modules/cjs/loader:1396:12)
+    at wrapModuleLoad (node:internal/modules/cjs/loader:255:19)
+    at Module.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:154:5)
+    at node:internal/main/run_main_module:33:47
+
+Node.js v24.19.0
+
+## p732-meta-navigation-menus
+evalmachine.<anonymous>:45
+  ]}):u.jsxs('div',{className:'xen-meta-browser',children:[u.jsxs('div',{className:'xen-meta-browser-heading',children:[u.jsx('button',{type:'button',className:'xen-meta-library-open-manager','aria-label':'Open original '+__XenMetaLabels[kind]+' manager','aria-haspopup':'dialog',title:'Open original '+__XenMetaLabels[kind]+' manager',onClick:()=>{if(!__xenOpenOriginalLibrary(kind))setNotice('Original '+__XenMetaLabels[kind]+' manager is unavailable in this room.')},children:__XenQuick.icons[kind]+' '+__XenMetaLabels[kind]}),u.jsx('input',{type:'search','aria-label':'Search library',placeholder:'Filter…',value:search,onChange:e=>setSearch(e.target.value)}),u.jsx('span',{children:entries.length+' entries'})]}),u.jsx(__XenStarterMaterialStatus,{}),u.jsx('div',{id:'xen-meta-library-list',role:'tabpanel',className:'xen-meta-library-list',children:entries.length?entries.map(row):u.jsx('p',{className:'xen-meta-empty-library',children:'No entries. New musical materials are created in their original library.'})})]}))]}),
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    ^
+
+ReferenceError: __XenStarterMaterialStatus is not defined
+    at Object.__XenMetaEditor (evalmachine.<anonymous>:45:725)
+    at Object.<anonymous> (/workspace/Xensonar/n21-f2/tests/p732-meta-navigation-menus.cjs:16:16)
+    at Module._compile (node:internal/modules/cjs/loader:1872:14)
+    at Object..js (node:internal/modules/cjs/loader:2003:10)
+    at Module.load (node:internal/modules/cjs/loader:1594:32)
+    at Module._load (node:internal/modules/cjs/loader:1396:12)
+    at wrapModuleLoad (node:internal/modules/cjs/loader:255:19)
+    at Module.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:154:5)
+    at node:internal/main/run_main_module:33:47
+
+Node.js v24.19.0
+
+## p733-library-links-and-corner
+evalmachine.<anonymous>:45
+  ]}):u.jsxs('div',{className:'xen-meta-browser',children:[u.jsxs('div',{className:'xen-meta-browser-heading',children:[u.jsx('button',{type:'button',className:'xen-meta-library-open-manager','aria-label':'Open original '+__XenMetaLabels[kind]+' manager','aria-haspopup':'dialog',title:'Open original '+__XenMetaLabels[kind]+' manager',onClick:()=>{if(!__xenOpenOriginalLibrary(kind))setNotice('Original '+__XenMetaLabels[kind]+' manager is unavailable in this room.')},children:__XenQuick.icons[kind]+' '+__XenMetaLabels[kind]}),u.jsx('input',{type:'search','aria-label':'Search library',placeholder:'Filter…',value:search,onChange:e=>setSearch(e.target.value)}),u.jsx('span',{children:entries.length+' entries'})]}),u.jsx(__XenStarterMaterialStatus,{}),u.jsx('div',{id:'xen-meta-library-list',role:'tabpanel',className:'xen-meta-library-list',children:entries.length?entries.map(row):u.jsx('p',{className:'xen-meta-empty-library',children:'No entries. New musical materials are created in their original library.'})})]}))]}),
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    ^
+
+ReferenceError: __XenStarterMaterialStatus is not defined
+    at Object.__XenMetaEditor (evalmachine.<anonymous>:45:725)
+    at Object.<anonymous> (/workspace/Xensonar/n21-f2/tests/p733-library-links-and-corner.cjs:13:22)
+    at Module._compile (node:internal/modules/cjs/loader:1872:14)
+    at Object..js (node:internal/modules/cjs/loader:2003:10)
+    at Module.load (node:internal/modules/cjs/loader:1594:32)
+    at Module._load (node:internal/modules/cjs/loader:1396:12)
+    at wrapModuleLoad (node:internal/modules/cjs/loader:255:19)
+    at Module.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:154:5)
+    at node:internal/main/run_main_module:33:47
+
+Node.js v24.19.0
+
+## p734-grid-audition-pitches
+PASS real saved tuning steps: 12-EDO 13 notes, tritave 14 notes, 53-EDO 54 notes (none skipped)
+
+## p734-material-preview-state
+ReferenceError: __XenStarterMaterial is not defined
+    at Object.toggleById (evalmachine.<anonymous>:18:7)
+    at /workspace/Xensonar/n21-f2/tests/p734-material-preview-state.cjs:16:23
+    at Object.<anonymous> (/workspace/Xensonar/n21-f2/tests/p734-material-preview-state.cjs:23:3)
+    at Module._compile (node:internal/modules/cjs/loader:1872:14)
+    at Object..js (node:internal/modules/cjs/loader:2003:10)
+    at Module.load (node:internal/modules/cjs/loader:1594:32)
+    at Module._load (node:internal/modules/cjs/loader:1396:12)
+    at wrapModuleLoad (node:internal/modules/cjs/loader:255:19)
+    at Module.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:154:5)
+    at node:internal/main/run_main_module:33:47
+
+## p734-meta-mini-preview
+evalmachine.<anonymous>:45
+  ]}):u.jsxs('div',{className:'xen-meta-browser',children:[u.jsxs('div',{className:'xen-meta-browser-heading',children:[u.jsx('button',{type:'button',className:'xen-meta-library-open-manager','aria-label':'Open original '+__XenMetaLabels[kind]+' manager','aria-haspopup':'dialog',title:'Open original '+__XenMetaLabels[kind]+' manager',onClick:()=>{if(!__xenOpenOriginalLibrary(kind))setNotice('Original '+__XenMetaLabels[kind]+' manager is unavailable in this room.')},children:__XenQuick.icons[kind]+' '+__XenMetaLabels[kind]}),u.jsx('input',{type:'search','aria-label':'Search library',placeholder:'Filter…',value:search,onChange:e=>setSearch(e.target.value)}),u.jsx('span',{children:entries.length+' entries'})]}),u.jsx(__XenStarterMaterialStatus,{}),u.jsx('div',{id:'xen-meta-library-list',role:'tabpanel',className:'xen-meta-library-list',children:entries.length?entries.map(row):u.jsx('p',{className:'xen-meta-empty-library',children:'No entries. New musical materials are created in their original library.'})})]}))]}),
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    ^
+
+ReferenceError: __XenStarterMaterialStatus is not defined
+    at Object.__XenMetaEditor (evalmachine.<anonymous>:45:725)
+    at Object.<anonymous> (/workspace/Xensonar/n21-f2/tests/p734-meta-mini-preview.cjs:22:22)
+    at Module._compile (node:internal/modules/cjs/loader:1872:14)
+    at Object..js (node:internal/modules/cjs/loader:2003:10)
+    at Module.load (node:internal/modules/cjs/loader:1594:32)
+    at Module._load (node:internal/modules/cjs/loader:1396:12)
+    at wrapModuleLoad (node:internal/modules/cjs/loader:255:19)
+    at Module.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:154:5)
+    at node:internal/main/run_main_module:33:47
+
+Node.js v24.19.0
+
+## p735-action-arrows
+PASS preserved outward Engage and inward Edit arrows
+
+## p735-grid-audio-init
+PASS Grid lazy boot, native PCM clock and scoped buffer cancellation
+
+## p735-regression
+PASS P7.37 single-buffer Bowed Glass grid + original violet palette
+
+## p735f2-bowed-glass-grid
+PASS Bowed Glass source partials, true scale pitch ratios, audio-clock scheduling, live isolation
+
+## p735f2-full-scale-audition
+PASS full scale ascending with actual Kp steps, 12/17 EDO, BP tritave, irregular intervals, no shortcut
+
+## p736-grid-clock
+PASS P7.37 cancelled offline render cannot restart old preview after a delayed Promise
+
+## p737-grid-buffered-audio
+PASS full 19-EDO offline Bowed Glass rendered; one audio buffer source, no JS attack chain, scoped stop
+
+## p738-session-integrity
+PASS P7.38 same-tuning A→B→A modes/mutes, isolated Bass Grid, editor/live, settings Undo, Engage rollback and lossless legacy Part access
+
+## live-rfl-boundaries
+{"mode":"base","rate":44100,"baseline":{"peak":4.707675457000732,"jump":0.49378716945648193,"outside":3411},"current":{"peak":0,"jump":0,"outside":0}}
+{"mode":"base","rate":48000,"baseline":{"peak":4.5972795486450195,"jump":0.4760704040527344,"outside":3247},"current":{"peak":0,"jump":0,"outside":0}}
+{"mode":"base","rate":96000,"baseline":{"peak":3.8174490928649902,"jump":0.4979236125946045,"outside":6788},"current":{"peak":0,"jump":0,"outside":0}}
+{"mode":"fragment","rate":44100,"baseline":{"peak":5.658315658569336,"jump":0.49806690216064453,"outside":4065},"current":{"peak":0,"jump":0,"outside":0}}
+{"mode":"fragment","rate":48000,"baseline":{"peak":5.442440986633301,"jump":0.4964022636413574,"outside":3827},"current":{"peak":0,"jump":0,"outside":0}}
+{"mode":"fragment","rate":96000,"baseline":{"peak":4.5473198890686035,"jump":0.49875640869140625,"outside":8185},"current":{"peak":0,"jump":0,"outside":0}}
+PASS live RFL crop boundaries: both render modes, root changes, 44.1/48/96kHz; excluded transients remain silent
+
+## live-rfl-fallback
+{"mode":"flowing","hz":110,"grains":39,"outside":0,"tooShort":0}
+{"mode":"flowing","hz":220,"grains":36,"outside":0,"tooShort":0}
+{"mode":"flowing","hz":880,"grains":40,"outside":0,"tooShort":0}
+{"mode":"fragment","hz":110,"grains":52,"outside":0,"tooShort":0}
+{"mode":"fragment","hz":220,"grains":49,"outside":0,"tooShort":0}
+{"mode":"fragment","hz":880,"grains":52,"outside":0,"tooShort":0}
+PASS RFL native fallback crop and fade durations at changing roots
+
+## live-rfl-preparation
+PASS fragment worker extraction: all six cut-map arrays byte-identical in mono/stereo at 44.1/48/96kHz
+
+## historical Song contract
+PASS historical song-projects
+PASS reproducible standalone HTML 602dc8199d85cf49cd259aad14e3f13de6a071d2e1e53f0105af7babd86b504c 5906819

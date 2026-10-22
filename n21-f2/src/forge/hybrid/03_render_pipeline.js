@@ -23,7 +23,7 @@ function __f352CreatePipeline(adapters,{maxBytes=96*1024*1024}={}){
   const value=await run({isCancelled:()=>t!==epoch,onProgress:p=>{if(t===epoch)publish({stage:name,progress:start+Math.max(0,Math.min(1,p))*(end-start)});}});check(t);return put(key,value);
  }
  async function execute(job,t){try{
-  publish({phase:'rendering',stage:'Carrier vorbereiten',progress:0,error:''});
+  publish({phase:'rendering',stage:'Preparing carrier',progress:0,error:''});
   const donor=await stage('d:'+job.donorKey,"Donor Sound Body",async o=>{stats.donorRenders++;return adapters.donor(job,o);},t,0,.44);
   let synthetic=null,combined=donor;
   if(job.recipe.amount>0){
@@ -32,10 +32,10 @@ function __f352CreatePipeline(adapters,{maxBytes=96*1024*1024}={}){
   }
   check(t);const artifact={key:job.key,pcm:combined.pcm,sampleRate:job.sampleRate,durationSec:combined.pcm.length/job.sampleRate,
    material:donor.material,recipe:job.recipe,manifest:job.manifest,metrics:combined.metrics??{},stems:{donor:donor.pcm,synthetic:synthetic?.pcm??null},buffer:null,spectrum:null};
-  publish({stage:'Ergebnisdarstellung',progress:.95});
+  publish({stage:'Displaying result',progress:.95});
   artifact.buffer=adapters.buffer(artifact.pcm,job.sampleRate);
   artifact.spectrum=await adapters.spectrum(artifact.pcm,job.sampleRate,()=>t!==epoch,job);check(t);
-  result=Object.freeze(artifact);remember(result);publish({phase:'ready',stage:'Ergebnis bereit',progress:1});return result;
+  result=Object.freeze(artifact);remember(result);publish({phase:'ready',stage:'Result ready',progress:1});return result;
  }catch(e){if(t===epoch)publish({phase:e.name==='AbortError'?'idle':'error',stage:'',progress:0,error:e.name==='AbortError'?'':String(e.message??e)});throw e;}}
  function render(job){
   if(disposed)return Promise.reject(new DOMException("Render pipeline disposed.",'AbortError'));
@@ -45,7 +45,7 @@ function __f352CreatePipeline(adapters,{maxBytes=96*1024*1024}={}){
    // Preserve active as predecessor until it settles: no overlapping heavy renders.
    if(active?.ticket===epoch)epoch++;
    if(hit){artifacts.delete(job.key);artifacts.set(job.key,hit);result=hit.artifact;stats.cacheHits++;}
-   publish({phase:'ready',stage:'Gespeichertes Ergebnis bereit',progress:1,error:''});
+   publish({phase:'ready',stage:'Saved result ready',progress:1,error:''});
    return Promise.resolve(result);
   }
   // Same-key deduplication is only valid inside the SAME live epoch.

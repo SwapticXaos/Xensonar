@@ -13,7 +13,7 @@ const __xenKeyboardFoundationDetach=(()=>{
  };
  const release=()=>{
   if(!state.held)return;
-  state=Object.freeze({...state,held:false,pending:true});emit();
+  state=Object.freeze({held:false,pending:false,rootHz:null,cursorY:null});emit();
  };
  const resume=()=>{
   if(!state.pending&&!state.held)return;
@@ -38,9 +38,7 @@ function __XenKeyboardDetachBadge(){
    __xenKeyboardFoundationDetach.snapshot,__xenKeyboardFoundationDetach.snapshot);
  const label=state.held
    ?'Space held · Keyboard melody detached; Bass, Drone and RFL roots stay on their last pitch'
-   :state.pending
-   ?'Space released · Foundation holds until the next Keyboard or cursor pitch gesture'
-   :'Space (hold) · Keyboard melody independent of Bass, Drone and RFL roots';
+   :'Space (hold) · Decoupling Mode';
  return u.jsx(kb,{kind:'decouple',active:state.held||state.pending,title:label});
 }
 /* XenSonar P1/P2: sparse, per-grid derived Bass Grid; no new grid library or scheduler. */

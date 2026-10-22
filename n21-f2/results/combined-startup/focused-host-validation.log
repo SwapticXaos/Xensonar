@@ -1,0 +1,12 @@
+
+## combined-startup-intake
+PASS demand-only reads, per-key and per-asset joins, abort isolation, truthful absence, retry, missing-audio protection, bounded reader
+
+## combined-startup-owner
+PASS hydration gate, keyed switch, stale completion cancellation, retry, pending File intent retained
+
+## combined-starter-demand
+PASS starter demand single-flight, ready fast path, deletion, retry, synchronous activation contract, Stop/switch and pristine-only initialization
+
+## combined-starter-native
+PASS native starter direct letters, fresh lookup, mode/Stop/selection cancellation, preview gates, silent registration and existing-library bypass

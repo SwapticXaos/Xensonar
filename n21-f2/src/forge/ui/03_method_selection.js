@@ -20,5 +20,5 @@ function __f35645Methods(recipe){
    const mode=link.mode==='imprint'?'Imprint'+(link.direction==='A_to_B'?' A→B':link.direction==='B_to_A'?' B→A':''):link.mode==='cross'?'Cross':link.mode==='interlock'?'Interlock':null;
    if(mode&&!names.includes(mode))names.push(mode);
  }
- return names.length?names.join(' + '):'Keine Verbindung';
+ return names.length?names.join(' + '):'No connection';
 }

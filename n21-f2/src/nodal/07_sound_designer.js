@@ -406,11 +406,11 @@ function NodalRoomHeader({mode, onModeChange, installationSoundEnabled = true, o
         key: 'installation-sound', type: 'button',
         className: 'nd-sound-toggle ' + (installationSoundEnabled ? 'is-sounding' : 'is-muted'),
         'data-installation-sound-toggle': true,
-        'aria-label': installationSoundEnabled ? 'Installation · Klang ausschalten' : 'Installation · Klang einschalten',
+        'aria-label': installationSoundEnabled ? 'Installation · mute sound' : 'Installation · unmute sound',
         'aria-pressed': installationSoundEnabled,
-        title: 'Nur die Installation stummschalten. Oszillatorball, Nodes und Sonar-Wellen bleiben sichtbar.',
+        title: 'Mute only the Installation. The Oscillator Ball, nodes, and Sonar Waves remain visible.',
         onClick: onToggleInstallationSound
-      }, installationSoundEnabled ? '◖)) Installation · Klang an' : '◖× Installation · Klang aus')));
+      }, installationSoundEnabled ? '◖)) Installation · sound on' : '◖× Installation · sound off')));
 }
 function koe(props) {
   // A project saved with the historic Enhancer view opens its living installation instead.

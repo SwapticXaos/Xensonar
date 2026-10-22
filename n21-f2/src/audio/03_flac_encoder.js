@@ -183,7 +183,7 @@ function f319FlacWorkerEntry() {
 }
 
 function f319RecorderFlacEncode(buffer, range, onProgress) {
-  if(!buffer) return Promise.reject(new Error('Keine Aufnahme vorhanden.'));
+  if(!buffer) return Promise.reject(new Error('No recording available.'));
   const {left,right}=TW(buffer,range);
   if(left.length!==right.length||left.length<16) return Promise.reject(new Error("FLAC requires at least 16 samples."));
   let worker, workerURL;

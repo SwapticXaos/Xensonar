@@ -1,0 +1,56 @@
+{
+  "entry": "results/combined-startup/source-review/combined-candidate.html",
+  "rows": [
+    {
+      "variant": "original",
+      "failures": []
+    },
+    {
+      "variant": "renamed-tile",
+      "failures": [
+        "renamed-tile saved profiles preserved/repaired",
+        "renamed-tile saved profiles preserved/repaired",
+        "renamed-tile Quick profiles preserved"
+      ]
+    },
+    {
+      "variant": "offset",
+      "failures": [
+        "offset saved profiles preserved/repaired",
+        "offset saved profiles preserved/repaired",
+        "offset Quick profiles preserved"
+      ]
+    },
+    {
+      "variant": "mode",
+      "failures": []
+    },
+    {
+      "variant": "mask",
+      "failures": []
+    },
+    {
+      "variant": "custom-instance",
+      "failures": []
+    },
+    {
+      "variant": "renamed-session",
+      "failures": [
+        "renamed-session saved profiles preserved/repaired",
+        "renamed-session saved profiles preserved/repaired"
+      ]
+    },
+    {
+      "variant": "dirty-draft",
+      "failures": []
+    },
+    {
+      "variant": "existing-data",
+      "failures": []
+    }
+  ],
+  "audio": [],
+  "errors": [],
+  "pass": false,
+  "failure": "AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:\n\n0 !== 1\n\n    at /workspace/Xensonar/n21-f2/tests/combined-starter-grid-browser.cjs:81:11"
+}

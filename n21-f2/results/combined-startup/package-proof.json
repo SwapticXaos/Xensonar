@@ -1,0 +1,166 @@
+{
+  "baseline": "18fc0331a58fd7528d9f7c071418ebe590bd0b68",
+  "sourceZipSHA256": "c5d37ea9e8748ac54533ccda4fda4bf909aaff3fce3ffd8eb6b65c0935c9c3c3",
+  "patchSHA256": "2224e3780c5db80024975ab05c033102560f1f64cdf6b31b13f13e95f4ab1424",
+  "rows": [
+    {
+      "name": "source-zip-extracted-byte-inputs-and-included-history",
+      "passed": true,
+      "files": 2037,
+      "historicalPathsChecked": 753,
+      "scope": "All ZIP entries match exact package bytes and frozen workspace inputs before any test. Included historical paths are hashed; this is not the full repository history inventory."
+    },
+    {
+      "name": "source-zip-no-git-initial-source-guard",
+      "passed": true,
+      "exit": 0,
+      "output": "PASS P7.39 reversible release ledger, original production inputs, active additions and complete manifest"
+    },
+    {
+      "name": "source-zip-no-git-build",
+      "passed": true,
+      "exit": 0,
+      "output": "BUILT Xensonar_P7_39_Combined_Startup_Test.html 602dc8199d85cf49cd259aad14e3f13de6a071d2e1e53f0105af7babd86b504c 5906819"
+    },
+    {
+      "name": "source-zip-no-git-verify",
+      "passed": true,
+      "exit": 0,
+      "output": "PASS reproducible standalone HTML 602dc8199d85cf49cd259aad14e3f13de6a071d2e1e53f0105af7babd86b504c 5906819"
+    },
+    {
+      "name": "source-zip-no-git-combined-startup-preservation",
+      "passed": true,
+      "exit": 0,
+      "output": "PASS P7.39 reversible release ledger, original production inputs, active additions and complete manifest"
+    },
+    {
+      "name": "source-zip-no-git-sessions-reviewed-preservation",
+      "passed": true,
+      "exit": 0,
+      "output": "PASS P7.38 exact 239-unit reversible baseline, bounded source/style retirements/additions, head extensions and build"
+    },
+    {
+      "name": "source-zip-no-git-p7-24-preservation",
+      "passed": true,
+      "exit": 0,
+      "output": "PASS P7.24 exact reversible source corrections, protected baseline and hashed additions/order"
+    },
+    {
+      "name": "source-zip-no-git-combined-startup-intake",
+      "passed": true,
+      "exit": 0,
+      "output": "PASS demand-only reads, per-key and per-asset joins, abort isolation, truthful absence, retry, missing-audio protection, bounded reader"
+    },
+    {
+      "name": "source-zip-no-git-combined-startup-owner",
+      "passed": true,
+      "exit": 0,
+      "output": "PASS hydration gate, keyed switch, stale completion cancellation, retry, pending File intent retained"
+    },
+    {
+      "name": "source-zip-no-git-combined-starter-demand",
+      "passed": true,
+      "exit": 0,
+      "output": "PASS starter demand single-flight, ready fast path, deletion, retry, synchronous activation contract, Stop/switch and pristine-only initialization"
+    },
+    {
+      "name": "source-zip-no-git-combined-starter-native",
+      "passed": true,
+      "exit": 0,
+      "output": "PASS native starter direct letters, fresh lookup, mode/Stop/selection cancellation, preview gates, silent registration and existing-library bypass"
+    },
+    {
+      "name": "source-zip-no-git-final-source-guard",
+      "passed": true,
+      "exit": 0,
+      "output": "PASS P7.39 reversible release ledger, original production inputs, active additions and complete manifest"
+    },
+    {
+      "name": "patch-base-read-tree",
+      "passed": true,
+      "exit": 0,
+      "output": ""
+    },
+    {
+      "name": "patch-apply-base-index",
+      "passed": true,
+      "exit": 0,
+      "output": ""
+    },
+    {
+      "name": "patch-workingtree-apply",
+      "passed": true,
+      "exit": 0,
+      "output": "/workspace/Xensonar/artifacts/XenSonar_P7_39_Combined_Startup.patch:94054: trailing whitespace.\nBase: `XenSonar_P7_38_11_Starter_Sessions_Test.html`  \n/workspace/Xensonar/artifacts/XenSonar_P7_39_Combined_Startup.patch:94055: trailing whitespace.\nDeliverable: `XenSonar_P7_38_12_Starter_Grid_Consistency_Test.html`  \n/workspace/Xensonar/artifacts/XenSonar_P7_39_Combined_Startup.patch:94102: trailing whitespace.\n**Base:** `XenSonar_P7_38_10_English_UI_Hovers_Test.html`  \n/workspace/Xensonar/artifacts/XenSonar_P7_39_Combined_Startup.patch:94103: trailing whitespace.\n**Deliverable:** `XenSonar_P7_38_11_Starter_Sessions_Test.html`  \n/workspace/Xensonar/artifacts/XenSonar_P7_39_Combined_Startup.patch:94297: trailing whitespace.\n \nwarning: squelched 22 whitespace errors\nwarning: 27 lines add whitespace errors."
+    },
+    {
+      "name": "patched-baseline-no-git-initial-source-guard",
+      "passed": true,
+      "exit": 0,
+      "output": "PASS P7.39 reversible release ledger, original production inputs, active additions and complete manifest"
+    },
+    {
+      "name": "patched-baseline-no-git-build",
+      "passed": true,
+      "exit": 0,
+      "output": "BUILT Xensonar_P7_39_Combined_Startup_Test.html 602dc8199d85cf49cd259aad14e3f13de6a071d2e1e53f0105af7babd86b504c 5906819"
+    },
+    {
+      "name": "patched-baseline-no-git-verify",
+      "passed": true,
+      "exit": 0,
+      "output": "PASS reproducible standalone HTML 602dc8199d85cf49cd259aad14e3f13de6a071d2e1e53f0105af7babd86b504c 5906819"
+    },
+    {
+      "name": "patched-baseline-no-git-combined-startup-preservation",
+      "passed": true,
+      "exit": 0,
+      "output": "PASS P7.39 reversible release ledger, original production inputs, active additions and complete manifest"
+    },
+    {
+      "name": "patched-baseline-no-git-sessions-reviewed-preservation",
+      "passed": true,
+      "exit": 0,
+      "output": "PASS P7.38 exact 239-unit reversible baseline, bounded source/style retirements/additions, head extensions and build"
+    },
+    {
+      "name": "patched-baseline-no-git-p7-24-preservation",
+      "passed": true,
+      "exit": 0,
+      "output": "PASS P7.24 exact reversible source corrections, protected baseline and hashed additions/order"
+    },
+    {
+      "name": "patched-baseline-no-git-combined-startup-intake",
+      "passed": true,
+      "exit": 0,
+      "output": "PASS demand-only reads, per-key and per-asset joins, abort isolation, truthful absence, retry, missing-audio protection, bounded reader"
+    },
+    {
+      "name": "patched-baseline-no-git-combined-startup-owner",
+      "passed": true,
+      "exit": 0,
+      "output": "PASS hydration gate, keyed switch, stale completion cancellation, retry, pending File intent retained"
+    },
+    {
+      "name": "patched-baseline-no-git-combined-starter-demand",
+      "passed": true,
+      "exit": 0,
+      "output": "PASS starter demand single-flight, ready fast path, deletion, retry, synchronous activation contract, Stop/switch and pristine-only initialization"
+    },
+    {
+      "name": "patched-baseline-no-git-combined-starter-native",
+      "passed": true,
+      "exit": 0,
+      "output": "PASS native starter direct letters, fresh lookup, mode/Stop/selection cancellation, preview gates, silent registration and existing-library bypass"
+    },
+    {
+      "name": "patched-baseline-no-git-final-source-guard",
+      "passed": true,
+      "exit": 0,
+      "output": "PASS P7.39 reversible release ledger, original production inputs, active additions and complete manifest"
+    }
+  ],
+  "failed": 0,
+  "dependencyScope": "Temporary no-Git trees reuse existing pinned node_modules via a symlink. Source ZIP excludes dependencies; npm ci is the supported fresh install. Browser/hardware claims are restricted to separate native evidence."
+}

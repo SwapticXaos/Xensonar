@@ -1,0 +1,14 @@
+{
+  "receivedArchiveSHA256": "0ca611d038f5b3983986c4ab1b1d248fbf418451e6fb5a7879104e140925bab9",
+  "files": {
+    "README_START_HERE.md": "ea8651737c2d853401aa6e8c66080b7c2bfce3ee10a5210d3167de691800529c",
+    "handoffs/CODEX_HANDOFF.md": "3f53f575de5d6ba8d6cff39ea5962fab4428d3c86fb54d1cb035573e81e28a72",
+    "handoffs/ORIGINAL_STARTER_GRID_HANDOFF.md": "6f80d7b0debe9a0438c8c905dc47d83099d1a0190f126802f3543a39f5591657",
+    "handoffs/STARTER_SESSIONS_BACKGROUND.md": "2fc140344b3916e53870d0bdf5d3593c9dc452f8d5b7b32331ba3e883648bcd2",
+    "manifest.json": "b855bc26ab008d9980012834d08b2499d1bd3d7d8023637106b1d9ec1b29f762",
+    "patches/P7_38_to_COMBINED_CUMULATIVE_SOURCE.patch": "4c4978bc1a013076fe3c48c13304706094fe3845d3b6fa12100aec75c68271eb",
+    "tests/test_grid_consistency.cjs": "8c9713f132a3025c5d2bcc96050e8708d72b5247417823014bea4c8334ebc376",
+    "tests/test_nodal_export_regression.cjs": "7ecca08e06b02778b5285fb21188f03f3302ab1164e2cf9dfd4037eca9ae7e1b",
+    "tests/test_starter_colors.cjs": "e1ca70128d8d39b25078356fce4ec6e43270df14721e245527a32940414c7807"
+  }
+}

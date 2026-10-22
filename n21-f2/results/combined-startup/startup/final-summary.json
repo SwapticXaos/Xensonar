@@ -1,0 +1,248 @@
+{
+  "protocol": "Fresh Chromium browser per trial; exact standalone bytes served over loopback; wait for one React root plus two frames then observe 2s; no UI action/playback; post-GC backingStorage and renderer RSS. Two empty and two populated trials per stage.",
+  "fixturePCMBytes": 55296000,
+  "timingClaim": false,
+  "stages": {
+    "original": {
+      "file": "/workspace/Xensonar/n21-f2/results/combined-startup/startup/baseline.html",
+      "sha256": "64f5bda8b01595dc265f2945397b83443b123b3f3babdf7eda511f8635eaed01",
+      "bytes": 5859506,
+      "modes": {
+        "cold": [
+          {
+            "run": 0,
+            "retainedJSBytes": 12489020,
+            "retainedBackingBytes": 49610436,
+            "activeRendererRSSBytes": 203632640,
+            "assetReads": 0,
+            "cachedWorkspaces": 0,
+            "events": {
+              "Worker": 0,
+              "AudioContext": 0,
+              "OfflineAudioContext": 0,
+              "decode": 0
+            },
+            "reactRoots": 1,
+            "canvasPixels": 970760,
+            "errors": []
+          },
+          {
+            "run": 1,
+            "retainedJSBytes": 11474328,
+            "retainedBackingBytes": 49610436,
+            "activeRendererRSSBytes": 203689984,
+            "assetReads": 0,
+            "cachedWorkspaces": 0,
+            "events": {
+              "Worker": 0,
+              "AudioContext": 0,
+              "OfflineAudioContext": 0,
+              "decode": 0
+            },
+            "reactRoots": 1,
+            "canvasPixels": 970760,
+            "errors": []
+          }
+        ],
+        "restored": [
+          {
+            "run": 0,
+            "retainedJSBytes": 10242236,
+            "retainedBackingBytes": 104906453,
+            "activeRendererRSSBytes": 257654784,
+            "assetReads": 8,
+            "cachedWorkspaces": 8,
+            "events": {
+              "Worker": 0,
+              "AudioContext": 0,
+              "OfflineAudioContext": 0,
+              "decode": 0
+            },
+            "reactRoots": 1,
+            "canvasPixels": 970760,
+            "errors": []
+          },
+          {
+            "run": 1,
+            "retainedJSBytes": 10218556,
+            "retainedBackingBytes": 104905504,
+            "activeRendererRSSBytes": 257486848,
+            "assetReads": 8,
+            "cachedWorkspaces": 8,
+            "events": {
+              "Worker": 0,
+              "AudioContext": 0,
+              "OfflineAudioContext": 0,
+              "decode": 0
+            },
+            "reactRoots": 1,
+            "canvasPixels": 970760,
+            "errors": []
+          }
+        ]
+      }
+    },
+    "candidate": {
+      "file": "/workspace/Xensonar/n21-f2/results/combined-startup/source-review/combined-candidate.html",
+      "sha256": "572971dd9c06fd4aee243625e1b3d377933e35477304ec619a7b918509c56370",
+      "bytes": 5884717,
+      "modes": {
+        "cold": [
+          {
+            "run": 0,
+            "retainedJSBytes": 13680816,
+            "retainedBackingBytes": 51239249,
+            "activeRendererRSSBytes": 220647424,
+            "assetReads": 0,
+            "cachedWorkspaces": 0,
+            "events": {
+              "Worker": 0,
+              "AudioContext": 0,
+              "OfflineAudioContext": 3,
+              "decode": 0
+            },
+            "reactRoots": 1,
+            "canvasPixels": 970760,
+            "errors": []
+          },
+          {
+            "run": 1,
+            "retainedJSBytes": 14924980,
+            "retainedBackingBytes": 53629737,
+            "activeRendererRSSBytes": 225751040,
+            "assetReads": 0,
+            "cachedWorkspaces": 0,
+            "events": {
+              "Worker": 0,
+              "AudioContext": 0,
+              "OfflineAudioContext": 3,
+              "decode": 0
+            },
+            "reactRoots": 1,
+            "canvasPixels": 970760,
+            "errors": []
+          }
+        ],
+        "restored": [
+          {
+            "run": 0,
+            "retainedJSBytes": 13465188,
+            "retainedBackingBytes": 106537446,
+            "activeRendererRSSBytes": 274284544,
+            "assetReads": 8,
+            "cachedWorkspaces": 8,
+            "events": {
+              "Worker": 0,
+              "AudioContext": 0,
+              "OfflineAudioContext": 2,
+              "decode": 0
+            },
+            "reactRoots": 1,
+            "canvasPixels": 970760,
+            "errors": []
+          },
+          {
+            "run": 1,
+            "retainedJSBytes": 13309048,
+            "retainedBackingBytes": 106537461,
+            "activeRendererRSSBytes": 274255872,
+            "assetReads": 8,
+            "cachedWorkspaces": 8,
+            "events": {
+              "Worker": 0,
+              "AudioContext": 0,
+              "OfflineAudioContext": 2,
+              "decode": 0
+            },
+            "reactRoots": 1,
+            "canvasPixels": 970760,
+            "errors": []
+          }
+        ]
+      }
+    },
+    "combined": {
+      "file": "/workspace/Xensonar/n21-f2/Xensonar_P7_39_Combined_Startup_Test.html",
+      "sha256": "602dc8199d85cf49cd259aad14e3f13de6a071d2e1e53f0105af7babd86b504c",
+      "bytes": 5906819,
+      "modes": {
+        "cold": [
+          {
+            "run": 0,
+            "retainedJSBytes": 12427340,
+            "retainedBackingBytes": 49654802,
+            "activeRendererRSSBytes": 209068032,
+            "assetReads": 0,
+            "cachedWorkspaces": 0,
+            "events": {
+              "Worker": 0,
+              "AudioContext": 0,
+              "OfflineAudioContext": 0,
+              "decode": 0
+            },
+            "reactRoots": 1,
+            "canvasPixels": 970760,
+            "errors": [],
+            "unusedCachedFixturePCMBytes": 0
+          },
+          {
+            "run": 1,
+            "retainedJSBytes": 11821336,
+            "retainedBackingBytes": 49654802,
+            "activeRendererRSSBytes": 205996032,
+            "assetReads": 0,
+            "cachedWorkspaces": 0,
+            "events": {
+              "Worker": 0,
+              "AudioContext": 0,
+              "OfflineAudioContext": 0,
+              "decode": 0
+            },
+            "reactRoots": 1,
+            "canvasPixels": 970760,
+            "errors": [],
+            "unusedCachedFixturePCMBytes": 0
+          }
+        ],
+        "restored": [
+          {
+            "run": 0,
+            "retainedJSBytes": 11767296,
+            "retainedBackingBytes": 49653976,
+            "activeRendererRSSBytes": 208060416,
+            "assetReads": 0,
+            "cachedWorkspaces": 0,
+            "events": {
+              "Worker": 0,
+              "AudioContext": 0,
+              "OfflineAudioContext": 0,
+              "decode": 0
+            },
+            "reactRoots": 1,
+            "canvasPixels": 970760,
+            "errors": [],
+            "unusedCachedFixturePCMBytes": 0
+          },
+          {
+            "run": 1,
+            "retainedJSBytes": 12435116,
+            "retainedBackingBytes": 49654940,
+            "activeRendererRSSBytes": 211329024,
+            "assetReads": 0,
+            "cachedWorkspaces": 0,
+            "events": {
+              "Worker": 0,
+              "AudioContext": 0,
+              "OfflineAudioContext": 0,
+              "decode": 0
+            },
+            "reactRoots": 1,
+            "canvasPixels": 970760,
+            "errors": [],
+            "unusedCachedFixturePCMBytes": 0
+          }
+        ]
+      }
+    }
+  }
+}

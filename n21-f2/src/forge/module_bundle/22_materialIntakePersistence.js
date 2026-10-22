@@ -5,6 +5,7 @@ exports.resolveMaterialIntakeSelection = resolveMaterialIntakeSelection;
 exports.saveMaterialIntakeState = saveMaterialIntakeState;
 exports.flushMaterialIntakePersistence = flushMaterialIntakePersistence;
 exports.preloadAllMaterialIntakeStates = preloadAllMaterialIntakeStates;
+exports.ensureMaterialIntakeState = ensureMaterialIntakeState;
 exports.getPreloadedMaterialIntakeState = getPreloadedMaterialIntakeState;
 exports.materialIntakePersistenceStatus = materialIntakePersistenceStatus;
 exports.serializeMaterialIntakeStateForTest = serializeMaterialIntakeStateForTest;
@@ -14,6 +15,64 @@ const WORKSPACE_PREFIX = 'workspace:';
 const ASSET_PREFIX = 'asset:';
 const LIGHT_PREFIX = 'xensonar:spectral-forge:material-intake:v1:';
 const preloadCache = new Map();
+// A cache miss means unloaded; a fulfilled null means the workspace is absent.
+const loadingWorkspaces = new Map(), loadingAssets = new Map(), workspaceVersions = new Map();
+const assetQueue = [];
+let assetReaderBusy = false;
+function readAsset(id, priority = 0) {
+  if (loadingAssets.has(id)) {
+    const queued = assetQueue.find(item => item.id === id);
+    if (queued) queued.priority = Math.min(queued.priority,priority);
+    return loadingAssets.get(id);
+  }
+  const request = new Promise((resolve, reject) => {
+    assetQueue.push({id, priority, resolve, reject});
+    drainAssetQueue();
+  });
+  loadingAssets.set(id, request);
+  request.finally(() => { if (loadingAssets.get(id) === request) loadingAssets.delete(id); }).catch(() => {});
+  return request;
+}
+async function drainAssetQueue() {
+  if (assetReaderBusy) return;
+  assetReaderBusy = true;
+  try {
+    while (assetQueue.length) {
+      assetQueue.sort((a,b) => a.priority - b.priority);
+      const item = assetQueue.shift();
+      try { item.resolve(await getRecord(item.id)); } catch(error) { item.reject(error); }
+    }
+  } finally { assetReaderBusy = false; }
+}
+function joinWorkspaceRead(request, signal) {
+  if (!signal) return request;
+  if (signal.aborted) return Promise.reject(new DOMException('Workspace restoration cancelled.', 'AbortError'));
+  return new Promise((resolve,reject) => {
+    const abort = () => reject(new DOMException('Workspace restoration cancelled.', 'AbortError'));
+    signal.addEventListener('abort',abort,{once:true});
+    request.then(resolve,reject).finally(() => signal.removeEventListener('abort',abort));
+  });
+}
+function ensureMaterialIntakeState(key, {signal} = {}) {
+  if (!key) return joinWorkspaceRead(Promise.resolve(null),signal);
+  if (preloadCache.has(key)) return joinWorkspaceRead(Promise.resolve(preloadCache.get(key)),signal);
+  let request = loadingWorkspaces.get(key);
+  if (!request) {
+    const version = workspaceVersions.get(key) ?? 0;
+    request = (async () => {
+      const record = await getRecord(WORKSPACE_PREFIX + key);
+      const value = record?.value ? await hydrateWorkspace(record.value) : null;
+      // A later accepted save owns this key, even if an older read finishes last.
+      if ((workspaceVersions.get(key) ?? 0) === version) preloadCache.set(key,value);
+      lastLoadedAt = Date.now(); lastError = null;
+      return preloadCache.get(key) ?? null;
+    })();
+    loadingWorkspaces.set(key,request);
+    request.catch(error => { lastError = error instanceof Error ? error.message : String(error); })
+      .finally(() => { if (loadingWorkspaces.get(key) === request) loadingWorkspaces.delete(key); });
+  }
+  return joinWorkspaceRead(request,signal);
+}
 const pending = new Map();
 let browserHooksAttached = false;
 let lastError = null;
@@ -82,16 +141,17 @@ const { analysisCache: _derived, ...asset } = sourceAsset;
 clean.source = { ...clean.source, sourceAsset: { __materialIntakeAssetRef: assetId } };
 return { workspace: clean, asset, assetId };
 }
-async function hydrateWorkspace(workspace) {
+async function hydrateWorkspace(workspace, priority = 0) {
 const ref = workspace?.source?.sourceAsset?.__materialIntakeAssetRef;
 if (!ref)
 return workspace;
-const assetRecord = await getRecord(ref);
+const assetRecord = await readAsset(ref,priority);
 if (!assetRecord?.value)
-return workspace;
+throw new Error("Saved donor audio is missing. Restore the workspace package and retry.");
 return {
 ...workspace,
-source: { ...workspace.source, sourceAsset: assetRecord.value },
+// Joined I/O must not merge mutable/transferable PCM ownership across workspaces.
+source: { ...workspace.source, sourceAsset: cloneValue(assetRecord.value) },
 };
 }
 function lightweightRecord(key, state) {
@@ -163,6 +223,7 @@ console.warn('[xensonar][material-intake][persistent-save]', error);
 function saveMaterialIntakeState(key, state) {
 if (!key)
 return;
+workspaceVersions.set(key,(workspaceVersions.get(key) ?? 0)+1);
 preloadCache.set(key, snapshotState(state));
 saveLightweight(key, state);
 const prior = pending.get(key);
@@ -194,14 +255,20 @@ window.addEventListener('pagehide', flush);
 document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden')
 flush(); });
 }
-async function preloadAllMaterialIntakeStates() {
+let preloadOperation = null;
+function preloadAllMaterialIntakeStates() {
+  if (preloadOperation) return preloadOperation;
+  preloadOperation = refreshAllMaterialIntakeStates().finally(() => { preloadOperation = null; });
+  return preloadOperation;
+}
+async function refreshAllMaterialIntakeStates() {
 try {
 const records = await getWorkspaceRecords();
 for (const record of records) {
 if (!record.id.startsWith(WORKSPACE_PREFIX) || !record.value)
 continue;
 const key = record.id.slice(WORKSPACE_PREFIX.length);
-preloadCache.set(key, await hydrateWorkspace(record.value));
+preloadCache.set(key, await hydrateWorkspace(record.value,1));
 }
 lastLoadedAt = Date.now();
 lastError = null;
@@ -221,6 +288,8 @@ return {
 version: 'material-intake-persistent-v1',
 cachedKeys: [...preloadCache.keys()],
 pendingKeys: [...pending.keys()],
+loadingKeys: [...loadingWorkspaces.keys()],
+queuedAssetReads: assetQueue.length,
 lastSavedAt,
 lastLoadedAt,
 lastError,

@@ -90,7 +90,7 @@ const __F341PresetCatalog = Object.freeze({
     presets: [ {
         id: "gestalt-articulation-original",
         name: "Klanggestalt · Articulation · 1",
-        description: "Variante 1 dieser Hörweise · ursprüngliche Klangberechnung und Presetwerte (F3.56.40).",
+        description: "Variant 1 of this listening mode · original timbre rendering and preset values (F3.56.40).",
         values: {
             engine: "spectral",
             materialPilot: !0,
@@ -127,7 +127,7 @@ const __F341PresetCatalog = Object.freeze({
     }, {
         id: "gestalt-imprint-original",
         name: "Klanggestalt · Resonant Imprint · 1",
-        description: "Variante 1 dieser Hörweise · ursprüngliche Klangberechnung und Presetwerte (F3.56.40).",
+        description: "Variant 1 of this listening mode · original timbre rendering and preset values (F3.56.40).",
         values: {
             engine: "spectral",
             materialPilot: !0,
@@ -162,7 +162,7 @@ const __F341PresetCatalog = Object.freeze({
     }, {
         id: "gestalt-motion-original",
         name: "Klanggestalt · Timbre Motion · 1",
-        description: "Variante 1 dieser Hörweise · ursprüngliche Klangberechnung und Presetwerte (F3.56.40).",
+        description: "Variant 1 of this listening mode · original timbre rendering and preset values (F3.56.40).",
         values: {
             engine: "spectral",
             materialPilot: !0,
@@ -197,7 +197,7 @@ const __F341PresetCatalog = Object.freeze({
     }, {
         id: "gestalt-weave-original",
         name: "Klanggestalt · Material States · 1",
-        description: "Variante 1 dieser Hörweise · ursprüngliche Klangberechnung und Presetwerte (F3.56.40).",
+        description: "Variant 1 of this listening mode · original timbre rendering and preset values (F3.56.40).",
         values: {
             engine: "spectral",
             materialPilot: !0,
@@ -232,7 +232,7 @@ const __F341PresetCatalog = Object.freeze({
     }, {
         id: "material-flow-original",
         name: "Sound Material · Motion · 1",
-        description: "Variante 1 dieser Hörweise · ursprüngliche Klangberechnung und Presetwerte (F3.56.40).",
+        description: "Variant 1 of this listening mode · original timbre rendering and preset values (F3.56.40).",
         values: {
             engine: "spectral",
             materialPilot: !0,
@@ -265,7 +265,7 @@ const __F341PresetCatalog = Object.freeze({
     }, {
         id: "signature-pilot-original",
         name: "Donor-Signatur · Versuch · 1",
-        description: "Variante 1 dieser Hörweise · ursprüngliche Klangberechnung und Presetwerte (F3.56.40).",
+        description: "Variant 1 of this listening mode · original timbre rendering and preset values (F3.56.40).",
         values: {
             engine: "spectral",
             signaturePilot: !0,
@@ -323,7 +323,7 @@ const __F341PresetCatalog = Object.freeze({
     }, {
         id: "film-original",
         name: "Spektraler Film · 1",
-        description: "Variante 1 dieser Hörweise · ursprüngliche Klangberechnung und Presetwerte (F3.56.40).",
+        description: "Variant 1 of this listening mode · original timbre rendering and preset values (F3.56.40).",
         values: {
             engine: "spectral",
             mapping: .9,
@@ -354,7 +354,7 @@ const __F341PresetCatalog = Object.freeze({
     }, {
         id: "air-original",
         name: "Hauch & Reibung · 1",
-        description: "Variante 1 dieser Hörweise · ursprüngliche Klangberechnung und Presetwerte (F3.56.40).",
+        description: "Variant 1 of this listening mode · original timbre rendering and preset values (F3.56.40).",
         values: {
             engine: "spectral",
             noise: 1.8,
@@ -385,7 +385,7 @@ const __F341PresetCatalog = Object.freeze({
     }, {
         id: "freeze-original",
         name: "Stillbild · 1",
-        description: "Variante 1 dieser Hörweise · ursprüngliche Klangberechnung und Presetwerte (F3.56.40).",
+        description: "Variant 1 of this listening mode · original timbre rendering and preset values (F3.56.40).",
         values: {
             engine: "spectral",
             motion: 0,
@@ -416,7 +416,7 @@ const __F341PresetCatalog = Object.freeze({
     }, {
         id: "wander-original",
         name: "Wandernd · 1",
-        description: "Variante 1 dieser Hörweise · ursprüngliche Klangberechnung und Presetwerte (F3.56.40).",
+        description: "Variant 1 of this listening mode · original timbre rendering and preset values (F3.56.40).",
         values: {
             engine: "spectral",
             motion: 2.2,

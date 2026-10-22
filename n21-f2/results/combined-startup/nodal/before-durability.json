@@ -1,0 +1,59 @@
+{
+  "rows": [
+    {
+      "case": "native request success followed by transaction.abort",
+      "writePromise": "resolved",
+      "stored": null
+    },
+    {
+      "case": "B9e native midcommit abort",
+      "result": "Error: Exported WAV was not retained in the material library.",
+      "statuses": [
+        "Melodic Loop snapshot NOT saved: Exported WAV was not retained in the material library. · Root Follow assignment cancelled.",
+        "Melodic Loop snapshot NOT saved: Injected quota exceeded · Root Follow assignment cancelled."
+      ],
+      "materialGhost": true,
+      "membership": false,
+      "stored": null,
+      "trace": [
+        {
+          "stage": "request-success-abort"
+        },
+        {
+          "stage": "publish",
+          "ids": [
+            "export-abort"
+          ]
+        },
+        {
+          "stage": "event",
+          "kind": "registered",
+          "id": "export-abort"
+        },
+        {
+          "stage": "request-success-abort"
+        }
+      ]
+    },
+    {
+      "case": "B9e injected QuotaExceededError on real store",
+      "result": "QuotaExceededError: Injected quota exceeded",
+      "materialGhost": true,
+      "membership": false,
+      "stored": null,
+      "trace": [
+        {
+          "stage": "publish",
+          "ids": [
+            "export-quota"
+          ]
+        },
+        {
+          "stage": "event",
+          "kind": "registered",
+          "id": "export-quota"
+        }
+      ]
+    }
+  ]
+}

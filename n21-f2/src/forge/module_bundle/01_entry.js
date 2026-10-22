@@ -28,6 +28,7 @@ Object.defineProperty(exports,"createExperimentStatePersistenceController",{get:
 Object.defineProperty(exports, "attachExperimentStatePersistence", { enumerable: true, get: function () { return experimentStatePersistence_1.attachExperimentStatePersistence; } });
 Object.defineProperty(exports, "experimentStatePersistenceStatus", { enumerable: true, get: function () { return experimentStatePersistence_1.experimentStatePersistenceStatus; } });
 var materialIntakePersistence_1 = require("./module-source/src/features/l3lab/spectralForge/materialIntakePersistence");
+Object.defineProperty(exports, "ensureMaterialIntakeState", { enumerable: true, get: function () { return materialIntakePersistence_1.ensureMaterialIntakeState; } });
 Object.defineProperty(exports, "preloadAllMaterialIntakeStates", { enumerable: true, get: function () { return materialIntakePersistence_1.preloadAllMaterialIntakeStates; } });
 Object.defineProperty(exports, "getPreloadedMaterialIntakeState", { enumerable: true, get: function () { return materialIntakePersistence_1.getPreloadedMaterialIntakeState; } });
 Object.defineProperty(exports, "saveMaterialIntakeState", { enumerable: true, get: function () { return materialIntakePersistence_1.saveMaterialIntakeState; } });

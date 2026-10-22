@@ -1,0 +1,1943 @@
+{
+  "label": "original-parse-clean",
+  "file": "/workspace/Xensonar/n21-f2/results/combined-startup/startup/baseline.html",
+  "bytes": 5859506,
+  "conditions": "fresh Chromium browser per trial, exact standalone HTML served from loopback (file:// blocked by host policy), 1440x1000, no playback, 2s observation after load; restored fixture 8 workspaces each 12s stereo PCM + mono (52.7MiB persisted); host environment only",
+  "runs": [
+    {
+      "mode": "cold",
+      "run": 0,
+      "metrics": [
+        {
+          "name": "Timestamp",
+          "value": 208790.555409
+        },
+        {
+          "name": "AudioHandlers",
+          "value": 0
+        },
+        {
+          "name": "AudioWorkletProcessors",
+          "value": 0
+        },
+        {
+          "name": "Documents",
+          "value": 1
+        },
+        {
+          "name": "Frames",
+          "value": 1
+        },
+        {
+          "name": "JSEventListeners",
+          "value": 1322
+        },
+        {
+          "name": "LayoutObjects",
+          "value": 2411
+        },
+        {
+          "name": "MediaKeySessions",
+          "value": 0
+        },
+        {
+          "name": "MediaKeys",
+          "value": 0
+        },
+        {
+          "name": "Nodes",
+          "value": 4050
+        },
+        {
+          "name": "Resources",
+          "value": 1
+        },
+        {
+          "name": "ContextLifecycleStateObservers",
+          "value": 18
+        },
+        {
+          "name": "V8PerContextDatas",
+          "value": 2
+        },
+        {
+          "name": "WorkerGlobalScopes",
+          "value": 0
+        },
+        {
+          "name": "UACSSResources",
+          "value": 0
+        },
+        {
+          "name": "RTCPeerConnections",
+          "value": 0
+        },
+        {
+          "name": "ResourceFetchers",
+          "value": 1
+        },
+        {
+          "name": "AdSubframes",
+          "value": 0
+        },
+        {
+          "name": "DetachedScriptStates",
+          "value": 2
+        },
+        {
+          "name": "ArrayBufferContents",
+          "value": 209
+        },
+        {
+          "name": "LayoutCount",
+          "value": 7
+        },
+        {
+          "name": "RecalcStyleCount",
+          "value": 8
+        },
+        {
+          "name": "LayoutDuration",
+          "value": 0.612297
+        },
+        {
+          "name": "RecalcStyleDuration",
+          "value": 0.277313
+        },
+        {
+          "name": "DevToolsCommandDuration",
+          "value": 0.035784
+        },
+        {
+          "name": "ScriptDuration",
+          "value": 1.211146
+        },
+        {
+          "name": "V8CompileDuration",
+          "value": 0.000677
+        },
+        {
+          "name": "TaskDuration",
+          "value": 3.886624
+        },
+        {
+          "name": "TaskOtherDuration",
+          "value": 1.749407
+        },
+        {
+          "name": "ThreadTime",
+          "value": 2.333264
+        },
+        {
+          "name": "ProcessTime",
+          "value": 3.75
+        },
+        {
+          "name": "JSHeapUsedSize",
+          "value": 12267660
+        },
+        {
+          "name": "JSHeapTotalSize",
+          "value": 21368832
+        },
+        {
+          "name": "FirstMeaningfulPaint",
+          "value": 0
+        },
+        {
+          "name": "DomContentLoaded",
+          "value": 208787.480133
+        },
+        {
+          "name": "NavigationStart",
+          "value": 208786.016811
+        }
+      ],
+      "retained": {
+        "usedSize": 9624716,
+        "totalSize": 10883072,
+        "embedderHeapUsedSize": 5996920,
+        "backingStorageSize": 49610549
+      },
+      "processes": [
+        {
+          "type": "browser",
+          "id": 325002,
+          "cpuTime": 2.59,
+          "rssKiB": 133016
+        },
+        {
+          "type": "renderer",
+          "id": 325083,
+          "cpuTime": 0.17,
+          "rssKiB": 35428
+        },
+        {
+          "type": "renderer",
+          "id": 325085,
+          "cpuTime": 3.9,
+          "rssKiB": 198244
+        },
+        {
+          "type": "renderer",
+          "id": 325074,
+          "cpuTime": 1.96,
+          "rssKiB": 92564
+        },
+        {
+          "type": "GPU",
+          "id": 325047,
+          "cpuTime": 0.41,
+          "rssKiB": 49680
+        },
+        {
+          "type": "network.mojom.NetworkService",
+          "id": 325050,
+          "cpuTime": 0.55,
+          "rssKiB": 74376
+        },
+        {
+          "type": "storage.mojom.StorageService",
+          "id": 325051,
+          "cpuTime": 0.04,
+          "rssKiB": 23136
+        },
+        {
+          "type": "tracing.mojom.TracingService",
+          "id": 325120,
+          "cpuTime": 0.56,
+          "rssKiB": 33312
+        }
+      ],
+      "traceSummary": {
+        "V8.CompileCode": {
+          "count": 2428,
+          "ms": 898.0919999999961
+        },
+        "V8.ParseProgram": {
+          "count": 4,
+          "ms": 410.366
+        },
+        "V8.Compile": {
+          "count": 4,
+          "ms": 21.595
+        },
+        "V8.CompileIgnition": {
+          "count": 2508,
+          "ms": 104.16700000000071
+        },
+        "V8.CompileIgnitionFinalization": {
+          "count": 2351,
+          "ms": 29.606000000000492
+        },
+        "V8.PreParse": {
+          "count": 5121,
+          "ms": 320.4769999999921
+        },
+        "ParseHTML": {
+          "count": 7,
+          "ms": 751.5029999999999
+        },
+        "EvaluateScript": {
+          "count": 1,
+          "ms": 1.311
+        },
+        "v8.compile": {
+          "count": 1,
+          "ms": 0.648
+        },
+        "V8.CompileScript": {
+          "count": 2,
+          "ms": 450.07599999999996
+        },
+        "V8.ParseFunction": {
+          "count": 2424,
+          "ms": 180.0319999999986
+        },
+        "v8.compileModule": {
+          "count": 1,
+          "ms": 451.738
+        },
+        "v8.evaluateModule": {
+          "count": 1,
+          "ms": 61.328
+        }
+      },
+      "errors": [],
+      "events": [
+        {
+          "type": "local-read",
+          "at": 1405.0999999940395,
+          "key": "xensonar:grid-tuning-library:derived-v1"
+        },
+        {
+          "type": "local-read",
+          "at": 1425.5999999940395,
+          "key": "xensonar.source-octaves.v1"
+        },
+        {
+          "type": "local-read",
+          "at": 1425.7999999821186,
+          "key": "xensonar.quick-menu.v2"
+        },
+        {
+          "type": "local-read",
+          "at": 1425.7999999821186,
+          "key": "xensonar.quick-menu.v1"
+        },
+        {
+          "type": "local-read",
+          "at": 1429.8999999761581,
+          "key": "xensonar.meta-sessions.v2"
+        },
+        {
+          "type": "local-read",
+          "at": 1429.8999999761581,
+          "key": "xensonar.meta-sessions.v1"
+        },
+        {
+          "type": "local-read",
+          "at": 1430.7999999821186,
+          "key": "xensonar.mix-pan.v1"
+        },
+        {
+          "type": "local-read",
+          "at": 1431.0999999940395,
+          "key": "xensonar-performance-recent-sounds-v1"
+        },
+        {
+          "type": "local-read",
+          "at": 1440.699999988079,
+          "key": "xensonar.forge.emilia-hx-reciprocal.v4"
+        },
+        {
+          "type": "local-read",
+          "at": 1440.7999999821186,
+          "key": "xensonar.forge.emilia-timbre-body.v3"
+        },
+        {
+          "type": "local-read",
+          "at": 1440.7999999821186,
+          "key": "xensonar.forge.emilia-timbre-weave.v2"
+        },
+        {
+          "type": "local-read",
+          "at": 1440.7999999821186,
+          "key": "xensonar.forge.emilia-reciprocal-material.v1"
+        },
+        {
+          "type": "local-read",
+          "at": 1440.7999999821186,
+          "key": "xensonar.forge.emilia-graph-spectrum.v2"
+        },
+        {
+          "type": "local-read",
+          "at": 1440.7999999821186,
+          "key": "xensonar.forge.emilia-b-network.v1"
+        },
+        {
+          "type": "local-read",
+          "at": 1440.7999999821186,
+          "key": "xensonar.forge.emilia-hybrid.v1"
+        },
+        {
+          "type": "local-read",
+          "at": 1440.7999999821186,
+          "key": "xensonar:forge:emilia-draft:v1"
+        },
+        {
+          "type": "local-read",
+          "at": 1440.7999999821186,
+          "key": "xensonar.forge.emilia-b.v1"
+        },
+        {
+          "type": "local-read",
+          "at": 1440.7999999821186,
+          "key": "xensonar.forge.emilia3.v1"
+        },
+        {
+          "type": "local-read",
+          "at": 1449.199999988079,
+          "key": "xensonar.fractalia.instruments.v4"
+        },
+        {
+          "type": "local-read",
+          "at": 1449.199999988079,
+          "key": "xensonar.fractalia.instruments.v3"
+        },
+        {
+          "type": "local-read",
+          "at": 1449.199999988079,
+          "key": "xensonar.fractalia.instruments.v2"
+        },
+        {
+          "type": "local-read",
+          "at": 1449.2999999821186,
+          "key": "xensonar.fractalia.f4"
+        },
+        {
+          "type": "local-read",
+          "at": 1449.2999999821186,
+          "key": "xensonar.fractalia.f3"
+        },
+        {
+          "type": "local-read",
+          "at": 1449.2999999821186,
+          "key": "xensonar.fractalia.f2"
+        },
+        {
+          "type": "local-read",
+          "at": 1449.2999999821186,
+          "key": "xensonar.fractalia.compare.f433"
+        },
+        {
+          "type": "idb-open",
+          "at": 1462.7999999821186,
+          "db": "xensonar-spectral-forge-material-intake-v1"
+        },
+        {
+          "type": "idb-openCursor",
+          "at": 1541.2999999821186,
+          "db": "xensonar-spectral-forge-material-intake-v1",
+          "store": "records",
+          "key": "[object IDBKeyRange]"
+        },
+        {
+          "type": "local-read",
+          "at": 1643.0999999940395,
+          "key": "xensonar-rhythm-rack-v1"
+        },
+        {
+          "type": "local-read",
+          "at": 1656.3999999761581,
+          "key": "xensonar:main:rhythm-scratchpad:v1"
+        },
+        {
+          "type": "local-read",
+          "at": 1931.3999999761581,
+          "key": "xensonar:forge:preferred-listening-machine:v1"
+        },
+        {
+          "type": "local-read",
+          "at": 1953.3999999761581,
+          "key": "xensonar:forge:active-library-donor:v1"
+        },
+        {
+          "type": "local-read",
+          "at": 1954.199999988079,
+          "key": "xensonar:forge:hybrid-session:v2"
+        },
+        {
+          "type": "local-read",
+          "at": 1954.199999988079,
+          "key": "xensonar:forge:combination-rack:v1"
+        },
+        {
+          "type": "local-read",
+          "at": 1956.7999999821186,
+          "key": "xensonar:donor-workbench:presets:v1"
+        },
+        {
+          "type": "idb-open",
+          "at": 1960.3999999761581,
+          "db": "xensonar-spectral-forge-experiment-state"
+        },
+        {
+          "type": "local-read",
+          "at": 2053.199999988079,
+          "key": "xensonar-native-audio-enabled-v1"
+        },
+        {
+          "type": "local-read",
+          "at": 2057,
+          "key": "xensonar.resident.constellations.v1"
+        },
+        {
+          "type": "local-read",
+          "at": 2064.399999976158,
+          "key": "xensonar.nodal.instruments.v1"
+        },
+        {
+          "type": "local-read",
+          "at": 2064.5,
+          "key": "xensonar.entrophon.instruments.v1"
+        },
+        {
+          "type": "local-read",
+          "at": 2064.5999999940395,
+          "key": "xensonar.nodal.instruments.v1"
+        },
+        {
+          "type": "local-read",
+          "at": 2064.5999999940395,
+          "key": "xensonar.entrophon.instruments.v1"
+        },
+        {
+          "type": "local-read",
+          "at": 2066,
+          "key": "xensonar:grid-tuning-library:v2"
+        },
+        {
+          "type": "local-read",
+          "at": 2066.2999999821186,
+          "key": "xensonar-particle-sample-profile-mode"
+        },
+        {
+          "type": "local-read",
+          "at": 2066.699999988079,
+          "key": "xensonar.rootFollow.granular.startupPreset.v1"
+        },
+        {
+          "type": "local-read",
+          "at": 2067.199999988079,
+          "key": "xensonar:refucktor-drone-workbench.v1"
+        },
+        {
+          "type": "local-read",
+          "at": 2067.399999976158,
+          "key": "xensonar:main:drum-bass-memory:v1"
+        },
+        {
+          "type": "idb-open",
+          "at": 2068.5,
+          "db": "xensonar-drum-config-library"
+        },
+        {
+          "type": "idb-open",
+          "at": 2075.699999988079,
+          "db": "xensonar-material-library"
+        },
+        {
+          "type": "local-read",
+          "at": 2079.0999999940395,
+          "key": "xensonar-root-follow-loop-bank-v1"
+        },
+        {
+          "type": "local-read",
+          "at": 2082.5,
+          "key": "xensonar-root-follow-loop-ui-v1"
+        },
+        {
+          "type": "local-read",
+          "at": 2082.5,
+          "key": "xensonar-root-follow-loop-bank-v1"
+        },
+        {
+          "type": "local-read",
+          "at": 2083,
+          "key": "xensonar-last-workspace-package-import-ledger-v1"
+        },
+        {
+          "type": "local-read",
+          "at": 2083.0999999940395,
+          "key": "xensonar-last-workspace-package-import-ledger-v1"
+        },
+        {
+          "type": "local-read",
+          "at": 2104,
+          "key": "xensonar-root-follow-loop-bank-v1"
+        },
+        {
+          "type": "local-read",
+          "at": 2118.0999999940395,
+          "key": "xensonar-drum-pattern-playlist-v1"
+        },
+        {
+          "type": "local-read",
+          "at": 2170.699999988079,
+          "key": "xensonar.song-projects.v1"
+        },
+        {
+          "type": "local-read",
+          "at": 2174.199999988079,
+          "key": "xensonar-drum-pattern-playlist-v1"
+        },
+        {
+          "type": "local-read",
+          "at": 2174.399999976158,
+          "key": "xensonar-bass-clip-library-v1"
+        },
+        {
+          "type": "local-read",
+          "at": 2176.899999976158,
+          "key": "xensonar.performance.collapsed.v1"
+        },
+        {
+          "type": "local-read",
+          "at": 2177.199999988079,
+          "key": "xensonar.entrophonUnifiedSoundConfig.v116"
+        },
+        {
+          "type": "local-read",
+          "at": 2199.399999976158,
+          "key": "xensonar:grid-tuning-active-rack:v1"
+        },
+        {
+          "type": "local-read",
+          "at": 3083.7999999821186,
+          "key": "xensonar.gluecksrad.wheelOrder.v1"
+        },
+        {
+          "type": "idb-open",
+          "at": 3091,
+          "db": "xensonar-melodic-samples"
+        },
+        {
+          "type": "local-read",
+          "at": 3092.699999988079,
+          "key": "xensonar-root-follow-loop-ui-v1"
+        },
+        {
+          "type": "local-read",
+          "at": 3123.7999999821186,
+          "key": "xensonar:refucktor-drone-workbench.v1"
+        },
+        {
+          "type": "local-read",
+          "at": 3126.7999999821186,
+          "key": "xensonar:refucktor-drone-volume.v1"
+        },
+        {
+          "type": "local-read",
+          "at": 3126.899999976158,
+          "key": "xensonar:refucktor-drone-volume.v1"
+        },
+        {
+          "type": "local-read",
+          "at": 3127.0999999940395,
+          "key": "xensonar-drum-pattern-playlist-v1"
+        },
+        {
+          "type": "local-read",
+          "at": 3127.5999999940395,
+          "key": "xensonar:main:rhythm-scratchpad:v1"
+        },
+        {
+          "type": "local-read",
+          "at": 3127.699999988079,
+          "key": "xensonar:main:rhythm-scratchpad:v1"
+        },
+        {
+          "type": "local-read",
+          "at": 3133.899999976158,
+          "key": "xensonar-native-audio-enabled-v1"
+        },
+        {
+          "type": "local-read",
+          "at": 3134.7999999821186,
+          "key": "xensonar-particle-sample-profile-mode"
+        },
+        {
+          "type": "local-read",
+          "at": 3134.7999999821186,
+          "key": "xensonar.rootFollow.granular.startupPreset.v1"
+        },
+        {
+          "type": "local-read",
+          "at": 3134.7999999821186,
+          "key": "xensonar:refucktor-drone-workbench.v1"
+        },
+        {
+          "type": "local-read",
+          "at": 3135,
+          "key": "xensonar:main:drum-bass-memory:v1"
+        },
+        {
+          "type": "local-read",
+          "at": 3137.2999999821186,
+          "key": "xensonar-root-follow-loop-ui-v1"
+        },
+        {
+          "type": "local-read",
+          "at": 3137.2999999821186,
+          "key": "xensonar-root-follow-loop-bank-v1"
+        },
+        {
+          "type": "local-read",
+          "at": 3137.2999999821186,
+          "key": "xensonar-last-workspace-package-import-ledger-v1"
+        },
+        {
+          "type": "local-read",
+          "at": 3137.2999999821186,
+          "key": "xensonar-last-workspace-package-import-ledger-v1"
+        },
+        {
+          "type": "local-read",
+          "at": 3137.2999999821186,
+          "key": "xensonar-root-follow-loop-bank-v1"
+        },
+        {
+          "type": "local-read",
+          "at": 3162,
+          "key": "xensonar.song-projects.v1"
+        },
+        {
+          "type": "local-read",
+          "at": 3207.2999999821186,
+          "key": "xensonar-level3lab-mode-session"
+        },
+        {
+          "type": "local-read",
+          "at": 3207.399999976158,
+          "key": "xensonar-level3lab-mode"
+        },
+        {
+          "type": "local-read",
+          "at": 3207.5999999940395,
+          "key": "xensonar-level3lab-canonical-view-session"
+        },
+        {
+          "type": "local-read",
+          "at": 3207.5999999940395,
+          "key": "xensonar-level3lab-canonical-view"
+        },
+        {
+          "type": "local-read",
+          "at": 3260.399999976158,
+          "key": "xensonar-native-audio-enabled-v1"
+        },
+        {
+          "type": "local-read",
+          "at": 3262.0999999940395,
+          "key": "xensonar-particle-sample-profile-mode"
+        },
+        {
+          "type": "local-read",
+          "at": 3262.2999999821186,
+          "key": "xensonar.rootFollow.granular.startupPreset.v1"
+        },
+        {
+          "type": "local-read",
+          "at": 3262.399999976158,
+          "key": "xensonar:refucktor-drone-workbench.v1"
+        },
+        {
+          "type": "local-read",
+          "at": 3262.5,
+          "key": "xensonar:main:drum-bass-memory:v1"
+        },
+        {
+          "type": "local-read",
+          "at": 3263.899999976158,
+          "key": "xensonar-root-follow-loop-ui-v1"
+        },
+        {
+          "type": "local-read",
+          "at": 3263.899999976158,
+          "key": "xensonar-root-follow-loop-bank-v1"
+        },
+        {
+          "type": "local-read",
+          "at": 3263.899999976158,
+          "key": "xensonar-last-workspace-package-import-ledger-v1"
+        },
+        {
+          "type": "local-read",
+          "at": 3263.899999976158,
+          "key": "xensonar-last-workspace-package-import-ledger-v1"
+        },
+        {
+          "type": "local-read",
+          "at": 3263.899999976158,
+          "key": "xensonar-root-follow-loop-bank-v1"
+        },
+        {
+          "type": "local-read",
+          "at": 3290.0999999940395,
+          "key": "xensonar.song-projects.v1"
+        },
+        {
+          "type": "idb-getAll",
+          "at": 3469,
+          "db": "xensonar-drum-config-library",
+          "store": "drumConfigs"
+        },
+        {
+          "type": "idb-getAll",
+          "at": 3469.699999988079,
+          "db": "xensonar-material-library",
+          "store": "materials"
+        },
+        {
+          "type": "idb-get",
+          "at": 3470.0999999940395,
+          "db": "xensonar-spectral-forge-experiment-state",
+          "store": "records",
+          "key": "workspace:autosave-v1"
+        },
+        {
+          "type": "idb-openCursor",
+          "at": 3470.5999999940395,
+          "db": "xensonar-melodic-samples",
+          "store": "samples"
+        },
+        {
+          "type": "local-read",
+          "at": 3504.399999976158,
+          "key": "xensonar.nodal.melodic-session.v1"
+        },
+        {
+          "type": "local-read",
+          "at": 3562.5999999940395,
+          "key": "xensonar-melodic-loop-projects-v1"
+        },
+        {
+          "type": "idb-open",
+          "at": 3564.199999988079,
+          "db": "xensonar-spectral-forge-custom-stamps"
+        },
+        {
+          "type": "local-read",
+          "at": 3579.0999999940395,
+          "key": "xensonar.nodal.instruments.v1"
+        },
+        {
+          "type": "local-read",
+          "at": 3579.699999988079,
+          "key": "xensonar.entrophon.instruments.v1"
+        },
+        {
+          "type": "local-read",
+          "at": 3583.7999999821186,
+          "key": "xensonar.melodic.custom-instruments.v1"
+        },
+        {
+          "type": "idb-open",
+          "at": 3594.2999999821186,
+          "db": "xensonar-canonical-forge-projects"
+        },
+        {
+          "type": "idb-open",
+          "at": 3594.5999999940395,
+          "db": "xensonar-spectral-forge-projects"
+        },
+        {
+          "type": "local-read",
+          "at": 3595.2999999821186,
+          "key": "xensonar:grid-tuning-active-rack:v1"
+        },
+        {
+          "type": "local-read",
+          "at": 3595.2999999821186,
+          "key": "xensonar.nodal.melodic-session.v1"
+        },
+        {
+          "type": "local-read",
+          "at": 3595.2999999821186,
+          "key": "xensonar-root-follow-loop-bank-v1"
+        },
+        {
+          "type": "local-read",
+          "at": 3595.399999976158,
+          "key": "xensonar.resident.constellations.v1"
+        },
+        {
+          "type": "local-read",
+          "at": 3595.5,
+          "key": "xensonar:main:rhythm-scratchpad:v1"
+        },
+        {
+          "type": "local-read",
+          "at": 3595.5,
+          "key": "xensonar:main:drum-bass-memory:v1"
+        },
+        {
+          "type": "local-read",
+          "at": 3595.7999999821186,
+          "key": "xensonar:donor-workbench:presets:v1"
+        },
+        {
+          "type": "local-read",
+          "at": 3595.7999999821186,
+          "key": "xensonar:forge:hybrid-session:v2"
+        },
+        {
+          "type": "local-read",
+          "at": 3595.7999999821186,
+          "key": "xensonar:forge:combination-rack:v1"
+        },
+        {
+          "type": "local-read",
+          "at": 3595.7999999821186,
+          "key": "xensonar:forge:active-library-donor:v1"
+        },
+        {
+          "type": "local-read",
+          "at": 3595.7999999821186,
+          "key": "xensonar:grid-tuning-library:v2"
+        },
+        {
+          "type": "local-read",
+          "at": 3595.7999999821186,
+          "key": "xensonar:grid-tuning-active-rack:v1"
+        },
+        {
+          "type": "local-read",
+          "at": 3595.7999999821186,
+          "key": "xensonar-bass-clip-library-v1"
+        },
+        {
+          "type": "local-read",
+          "at": 3595.7999999821186,
+          "key": "xensonar-root-follow-loop-bank-v1"
+        },
+        {
+          "type": "local-read",
+          "at": 3595.7999999821186,
+          "key": "xensonar-root-follow-loop-ui-v1"
+        },
+        {
+          "type": "local-read",
+          "at": 3595.7999999821186,
+          "key": "xensonar-drum-pattern-playlist-v1"
+        },
+        {
+          "type": "local-read",
+          "at": 3595.7999999821186,
+          "key": "xensonar-particle-sample-profile-mode"
+        },
+        {
+          "type": "local-read",
+          "at": 3595.7999999821186,
+          "key": "xensonar.resident.constellations.v1"
+        },
+        {
+          "type": "local-read",
+          "at": 3595.7999999821186,
+          "key": "xensonar.entrophonUnifiedSoundConfig.v116"
+        },
+        {
+          "type": "local-read",
+          "at": 3595.7999999821186,
+          "key": "xensonar.rootFollow.granular.customSlot.v1"
+        },
+        {
+          "type": "local-read",
+          "at": 3595.7999999821186,
+          "key": "xensonar.gluecksrad.wheelOrder.v1"
+        },
+        {
+          "type": "local-read",
+          "at": 3595.899999976158,
+          "key": "xensonar:grid-tuning-library:derived-v1"
+        },
+        {
+          "type": "local-read",
+          "at": 3595.899999976158,
+          "key": "xensonar:refucktor-drone-workbench.v1"
+        },
+        {
+          "type": "local-read",
+          "at": 3595.899999976158,
+          "key": "xensonar:refucktor-drone-volume.v1"
+        },
+        {
+          "type": "local-read",
+          "at": 3595.899999976158,
+          "key": "xensonar.mix-pan.v1"
+        },
+        {
+          "type": "local-read",
+          "at": 3595.899999976158,
+          "key": "xensonar.source-octaves.v1"
+        },
+        {
+          "type": "local-read",
+          "at": 3595.899999976158,
+          "key": "xensonar.quick-menu.v1"
+        },
+        {
+          "type": "local-read",
+          "at": 3595.899999976158,
+          "key": "xensonar.meta-sessions.v1"
+        },
+        {
+          "type": "local-read",
+          "at": 3595.899999976158,
+          "key": "xensonar.song-projects.v1"
+        },
+        {
+          "type": "local-read",
+          "at": 3595.899999976158,
+          "key": "xensonar.melodic.custom-instruments.v1"
+        },
+        {
+          "type": "local-read",
+          "at": 3595.899999976158,
+          "key": "xensonar.nodal.instruments.v1"
+        },
+        {
+          "type": "local-read",
+          "at": 3595.899999976158,
+          "key": "xensonar.entrophon.instruments.v1"
+        },
+        {
+          "type": "local-read",
+          "at": 3595.899999976158,
+          "key": "xensonar.fractalia.f4"
+        },
+        {
+          "type": "local-read",
+          "at": 3595.899999976158,
+          "key": "xensonar.fractalia.instruments.v4"
+        },
+        {
+          "type": "local-read",
+          "at": 3595.899999976158,
+          "key": "xensonar.fractalia.compare.f433"
+        },
+        {
+          "type": "local-read",
+          "at": 3595.899999976158,
+          "key": "xensonar.forge.emilia-hx-reciprocal.v4"
+        },
+        {
+          "type": "local-read",
+          "at": 3647.899999976158,
+          "key": "xensonar-native-audio-enabled-v1"
+        },
+        {
+          "type": "local-read",
+          "at": 3660.2999999821186,
+          "key": "xensonar-particle-sample-profile-mode"
+        },
+        {
+          "type": "local-read",
+          "at": 3660.399999976158,
+          "key": "xensonar.rootFollow.granular.startupPreset.v1"
+        },
+        {
+          "type": "local-read",
+          "at": 3660.5999999940395,
+          "key": "xensonar:refucktor-drone-workbench.v1"
+        },
+        {
+          "type": "local-read",
+          "at": 3660.5999999940395,
+          "key": "xensonar:main:drum-bass-memory:v1"
+        },
+        {
+          "type": "local-read",
+          "at": 3661.199999988079,
+          "key": "xensonar-root-follow-loop-ui-v1"
+        },
+        {
+          "type": "local-read",
+          "at": 3661.199999988079,
+          "key": "xensonar-root-follow-loop-bank-v1"
+        },
+        {
+          "type": "local-read",
+          "at": 3661.199999988079,
+          "key": "xensonar-last-workspace-package-import-ledger-v1"
+        },
+        {
+          "type": "local-read",
+          "at": 3661.2999999821186,
+          "key": "xensonar-last-workspace-package-import-ledger-v1"
+        },
+        {
+          "type": "local-read",
+          "at": 3661.2999999821186,
+          "key": "xensonar-root-follow-loop-bank-v1"
+        },
+        {
+          "type": "local-read",
+          "at": 3661.899999976158,
+          "key": "xensonar-drum-pattern-playlist-v1"
+        },
+        {
+          "type": "local-read",
+          "at": 3664.7999999821186,
+          "key": "xensonar.song-projects.v1"
+        },
+        {
+          "type": "local-read",
+          "at": 3669.399999976158,
+          "key": "xensonar.nodal.melodic-session.v1"
+        },
+        {
+          "type": "local-read",
+          "at": 3678.2999999821186,
+          "key": "xensonar-melodic-loop-projects-v1"
+        },
+        {
+          "type": "local-read",
+          "at": 3682.2999999821186,
+          "key": "xensonar.nodal.instruments.v1"
+        },
+        {
+          "type": "local-read",
+          "at": 3682.399999976158,
+          "key": "xensonar.entrophon.instruments.v1"
+        },
+        {
+          "type": "local-read",
+          "at": 3682.399999976158,
+          "key": "xensonar.melodic.custom-instruments.v1"
+        },
+        {
+          "type": "local-read",
+          "at": 3683,
+          "key": "xensonar:grid-tuning-active-rack:v1"
+        },
+        {
+          "type": "local-read",
+          "at": 3683,
+          "key": "xensonar.nodal.melodic-session.v1"
+        },
+        {
+          "type": "local-read",
+          "at": 3683,
+          "key": "xensonar-root-follow-loop-bank-v1"
+        },
+        {
+          "type": "local-read",
+          "at": 3683,
+          "key": "xensonar.resident.constellations.v1"
+        },
+        {
+          "type": "local-read",
+          "at": 3683,
+          "key": "xensonar:main:rhythm-scratchpad:v1"
+        },
+        {
+          "type": "local-read",
+          "at": 3683,
+          "key": "xensonar:main:drum-bass-memory:v1"
+        },
+        {
+          "type": "local-read",
+          "at": 3683,
+          "key": "xensonar:donor-workbench:presets:v1"
+        },
+        {
+          "type": "local-read",
+          "at": 3683,
+          "key": "xensonar:forge:hybrid-session:v2"
+        },
+        {
+          "type": "local-read",
+          "at": 3683,
+          "key": "xensonar:forge:combination-rack:v1"
+        },
+        {
+          "type": "local-read",
+          "at": 3683,
+          "key": "xensonar:forge:active-library-donor:v1"
+        },
+        {
+          "type": "local-read",
+          "at": 3683,
+          "key": "xensonar:grid-tuning-library:v2"
+        },
+        {
+          "type": "local-read",
+          "at": 3683,
+          "key": "xensonar:grid-tuning-active-rack:v1"
+        },
+        {
+          "type": "local-read",
+          "at": 3683,
+          "key": "xensonar-bass-clip-library-v1"
+        },
+        {
+          "type": "local-read",
+          "at": 3683,
+          "key": "xensonar-root-follow-loop-bank-v1"
+        },
+        {
+          "type": "local-read",
+          "at": 3683,
+          "key": "xensonar-root-follow-loop-ui-v1"
+        },
+        {
+          "type": "local-read",
+          "at": 3683,
+          "key": "xensonar-drum-pattern-playlist-v1"
+        },
+        {
+          "type": "local-read",
+          "at": 3683,
+          "key": "xensonar-particle-sample-profile-mode"
+        },
+        {
+          "type": "local-read",
+          "at": 3683,
+          "key": "xensonar.resident.constellations.v1"
+        },
+        {
+          "type": "local-read",
+          "at": 3683,
+          "key": "xensonar.entrophonUnifiedSoundConfig.v116"
+        },
+        {
+          "type": "local-read",
+          "at": 3683,
+          "key": "xensonar.rootFollow.granular.customSlot.v1"
+        },
+        {
+          "type": "local-read",
+          "at": 3683,
+          "key": "xensonar.gluecksrad.wheelOrder.v1"
+        },
+        {
+          "type": "local-read",
+          "at": 3683,
+          "key": "xensonar:grid-tuning-library:derived-v1"
+        },
+        {
+          "type": "local-read",
+          "at": 3683,
+          "key": "xensonar:refucktor-drone-workbench.v1"
+        },
+        {
+          "type": "local-read",
+          "at": 3683,
+          "key": "xensonar:refucktor-drone-volume.v1"
+        },
+        {
+          "type": "local-read",
+          "at": 3683,
+          "key": "xensonar.mix-pan.v1"
+        },
+        {
+          "type": "local-read",
+          "at": 3683,
+          "key": "xensonar.source-octaves.v1"
+        },
+        {
+          "type": "local-read",
+          "at": 3683.0999999940395,
+          "key": "xensonar.quick-menu.v1"
+        },
+        {
+          "type": "local-read",
+          "at": 3683.0999999940395,
+          "key": "xensonar.meta-sessions.v1"
+        },
+        {
+          "type": "local-read",
+          "at": 3683.0999999940395,
+          "key": "xensonar.song-projects.v1"
+        },
+        {
+          "type": "local-read",
+          "at": 3683.0999999940395,
+          "key": "xensonar.melodic.custom-instruments.v1"
+        },
+        {
+          "type": "local-read",
+          "at": 3683.0999999940395,
+          "key": "xensonar.nodal.instruments.v1"
+        },
+        {
+          "type": "local-read",
+          "at": 3683.0999999940395,
+          "key": "xensonar.entrophon.instruments.v1"
+        },
+        {
+          "type": "local-read",
+          "at": 3683.0999999940395,
+          "key": "xensonar.fractalia.f4"
+        },
+        {
+          "type": "local-read",
+          "at": 3683.0999999940395,
+          "key": "xensonar.fractalia.instruments.v4"
+        },
+        {
+          "type": "local-read",
+          "at": 3683.0999999940395,
+          "key": "xensonar.fractalia.compare.f433"
+        },
+        {
+          "type": "local-read",
+          "at": 3683.0999999940395,
+          "key": "xensonar.forge.emilia-hx-reciprocal.v4"
+        },
+        {
+          "type": "local-read",
+          "at": 3900.5,
+          "key": "xensonar-drum-pattern-playlist-v1"
+        },
+        {
+          "type": "local-read",
+          "at": 4200.0999999940395,
+          "key": "xensonar-native-audio-enabled-v1"
+        },
+        {
+          "type": "local-read",
+          "at": 4200.899999976158,
+          "key": "xensonar-particle-sample-profile-mode"
+        },
+        {
+          "type": "local-read",
+          "at": 4200.899999976158,
+          "key": "xensonar.rootFollow.granular.startupPreset.v1"
+        },
+        {
+          "type": "local-read",
+          "at": 4201,
+          "key": "xensonar:refucktor-drone-workbench.v1"
+        },
+        {
+          "type": "local-read",
+          "at": 4201,
+          "key": "xensonar:main:drum-bass-memory:v1"
+        },
+        {
+          "type": "local-read",
+          "at": 4201.799999982119,
+          "key": "xensonar-root-follow-loop-ui-v1"
+        },
+        {
+          "type": "local-read",
+          "at": 4201.799999982119,
+          "key": "xensonar-root-follow-loop-bank-v1"
+        },
+        {
+          "type": "local-read",
+          "at": 4201.899999976158,
+          "key": "xensonar-last-workspace-package-import-ledger-v1"
+        },
+        {
+          "type": "local-read",
+          "at": 4202.199999988079,
+          "key": "xensonar-last-workspace-package-import-ledger-v1"
+        },
+        {
+          "type": "local-read",
+          "at": 4202.199999988079,
+          "key": "xensonar-root-follow-loop-bank-v1"
+        },
+        {
+          "type": "local-read",
+          "at": 4207.299999982119,
+          "key": "xensonar.song-projects.v1"
+        },
+        {
+          "type": "local-read",
+          "at": 4220.399999976158,
+          "key": "xensonar-native-audio-enabled-v1"
+        },
+        {
+          "type": "local-read",
+          "at": 4220.799999982119,
+          "key": "xensonar-particle-sample-profile-mode"
+        },
+        {
+          "type": "local-read",
+          "at": 4220.799999982119,
+          "key": "xensonar.rootFollow.granular.startupPreset.v1"
+        },
+        {
+          "type": "local-read",
+          "at": 4220.899999976158,
+          "key": "xensonar:refucktor-drone-workbench.v1"
+        },
+        {
+          "type": "local-read",
+          "at": 4221,
+          "key": "xensonar:main:drum-bass-memory:v1"
+        },
+        {
+          "type": "local-read",
+          "at": 4222.299999982119,
+          "key": "xensonar-root-follow-loop-ui-v1"
+        },
+        {
+          "type": "local-read",
+          "at": 4222.299999982119,
+          "key": "xensonar-root-follow-loop-bank-v1"
+        },
+        {
+          "type": "local-read",
+          "at": 4222.299999982119,
+          "key": "xensonar-last-workspace-package-import-ledger-v1"
+        },
+        {
+          "type": "local-read",
+          "at": 4222.299999982119,
+          "key": "xensonar-last-workspace-package-import-ledger-v1"
+        },
+        {
+          "type": "local-read",
+          "at": 4222.299999982119,
+          "key": "xensonar-root-follow-loop-bank-v1"
+        },
+        {
+          "type": "idb-getAll",
+          "at": 4227.899999976158,
+          "db": "xensonar-canonical-forge-projects",
+          "store": "canonicalForgeProjects"
+        },
+        {
+          "type": "idb-getAll",
+          "at": 4228.199999988079,
+          "db": "xensonar-melodic-samples",
+          "store": "samples"
+        },
+        {
+          "type": "idb-getAll",
+          "at": 4228.299999982119,
+          "db": "xensonar-melodic-samples",
+          "store": "samples"
+        },
+        {
+          "type": "idb-getAll",
+          "at": 4228.399999976158,
+          "db": "xensonar-spectral-forge-custom-stamps",
+          "store": "customStamps"
+        },
+        {
+          "type": "idb-getAll",
+          "at": 4228.5,
+          "db": "xensonar-spectral-forge-projects",
+          "store": "forgeProjects"
+        },
+        {
+          "type": "local-read",
+          "at": 4233.0999999940395,
+          "key": "xensonar-native-audio-enabled-v1"
+        },
+        {
+          "type": "local-read",
+          "at": 4233.399999976158,
+          "key": "xensonar.nodal.instruments.v1"
+        },
+        {
+          "type": "local-read",
+          "at": 4233.399999976158,
+          "key": "xensonar.entrophon.instruments.v1"
+        },
+        {
+          "type": "local-read",
+          "at": 4233.399999976158,
+          "key": "xensonar.nodal.instruments.v1"
+        },
+        {
+          "type": "local-read",
+          "at": 4233.399999976158,
+          "key": "xensonar.entrophon.instruments.v1"
+        },
+        {
+          "type": "local-read",
+          "at": 4233.5,
+          "key": "xensonar-particle-sample-profile-mode"
+        },
+        {
+          "type": "local-read",
+          "at": 4233.5,
+          "key": "xensonar.rootFollow.granular.startupPreset.v1"
+        },
+        {
+          "type": "local-read",
+          "at": 4233.5999999940395,
+          "key": "xensonar:refucktor-drone-workbench.v1"
+        },
+        {
+          "type": "local-read",
+          "at": 4233.799999982119,
+          "key": "xensonar:main:drum-bass-memory:v1"
+        },
+        {
+          "type": "local-read",
+          "at": 4234.0999999940395,
+          "key": "xensonar-root-follow-loop-ui-v1"
+        },
+        {
+          "type": "local-read",
+          "at": 4234.0999999940395,
+          "key": "xensonar-root-follow-loop-bank-v1"
+        },
+        {
+          "type": "local-read",
+          "at": 4234.199999988079,
+          "key": "xensonar-last-workspace-package-import-ledger-v1"
+        },
+        {
+          "type": "local-read",
+          "at": 4234.199999988079,
+          "key": "xensonar-last-workspace-package-import-ledger-v1"
+        },
+        {
+          "type": "local-read",
+          "at": 4234.199999988079,
+          "key": "xensonar-root-follow-loop-bank-v1"
+        },
+        {
+          "type": "local-read",
+          "at": 4237.5,
+          "key": "xensonar.song-projects.v1"
+        },
+        {
+          "type": "local-read",
+          "at": 4249.5,
+          "key": "xensonar.nodal.instruments.v1"
+        },
+        {
+          "type": "local-read",
+          "at": 4249.5999999940395,
+          "key": "xensonar.entrophon.instruments.v1"
+        },
+        {
+          "type": "local-read",
+          "at": 4249.5999999940395,
+          "key": "xensonar.melodic.custom-instruments.v1"
+        }
+      ],
+      "long": [
+        {
+          "at": 459.59999999403954,
+          "duration": 68
+        },
+        {
+          "at": 641.1999999880791,
+          "duration": 52
+        },
+        {
+          "at": 706.0999999940395,
+          "duration": 107
+        },
+        {
+          "at": 823.7999999821186,
+          "duration": 567
+        },
+        {
+          "at": 1399.0999999940395,
+          "duration": 76
+        },
+        {
+          "at": 1542.8999999761581,
+          "duration": 419
+        },
+        {
+          "at": 1966.5,
+          "duration": 464
+        },
+        {
+          "at": 2430.899999976158,
+          "duration": 634
+        },
+        {
+          "at": 3079.899999976158,
+          "duration": 227
+        },
+        {
+          "at": 3307.899999976158,
+          "duration": 138
+        },
+        {
+          "at": 3501.199999988079,
+          "duration": 103
+        },
+        {
+          "at": 3645.399999976158,
+          "duration": 288
+        },
+        {
+          "at": 4101.899999976158,
+          "duration": 72
+        }
+      ],
+      "at": 450.19999998807907,
+      "diagnostics": {
+        "domReadyMs": 998,
+        "loadMs": 1007,
+        "afterTwoFramesMs": 1024,
+        "longTasks": [
+          {
+            "navigationStartMs": 460,
+            "durationMs": 68
+          },
+          {
+            "navigationStartMs": 641,
+            "durationMs": 52
+          },
+          {
+            "navigationStartMs": 706,
+            "durationMs": 107
+          },
+          {
+            "navigationStartMs": 824,
+            "durationMs": 567
+          },
+          {
+            "navigationStartMs": 1399,
+            "durationMs": 76
+          },
+          {
+            "navigationStartMs": 1543,
+            "durationMs": 419
+          },
+          {
+            "navigationStartMs": 1967,
+            "durationMs": 464
+          },
+          {
+            "navigationStartMs": 2431,
+            "durationMs": 634
+          },
+          {
+            "navigationStartMs": 3080,
+            "durationMs": 227
+          },
+          {
+            "navigationStartMs": 3308,
+            "durationMs": 138
+          },
+          {
+            "navigationStartMs": 3501,
+            "durationMs": 103
+          },
+          {
+            "navigationStartMs": 3645,
+            "durationMs": 288
+          },
+          {
+            "navigationStartMs": 4102,
+            "durationMs": 72
+          }
+        ],
+        "jsHeapMB": 57
+      },
+      "nav": {
+        "name": "http://127.0.0.1:42243/",
+        "entryType": "navigation",
+        "startTime": 0,
+        "duration": 1473.0999999940395,
+        "navigationId": 7389,
+        "initiatorType": "navigation",
+        "deliveryType": "",
+        "nextHopProtocol": "http/1.1",
+        "renderBlockingStatus": "non-blocking",
+        "contentType": "text/html",
+        "contentEncoding": "",
+        "workerStart": 0,
+        "workerRouterEvaluationStart": 0,
+        "workerCacheLookupStart": 0,
+        "workerMatchedSourceType": "",
+        "workerFinalSourceType": "",
+        "redirectStart": 0,
+        "redirectEnd": 0,
+        "fetchStart": 24.599999994039536,
+        "domainLookupStart": 24.599999994039536,
+        "domainLookupEnd": 24.599999994039536,
+        "connectStart": 24.599999994039536,
+        "secureConnectionStart": 0,
+        "connectEnd": 24.599999994039536,
+        "requestStart": 27.299999982118607,
+        "responseStart": 236.89999997615814,
+        "firstInterimResponseStart": 0,
+        "finalResponseHeadersStart": 236.89999997615814,
+        "responseEnd": 593.3999999761581,
+        "transferSize": 5860049,
+        "encodedBodySize": 5859749,
+        "decodedBodySize": 5859749,
+        "responseStatus": 200,
+        "serverTiming": [],
+        "unloadEventStart": 0,
+        "unloadEventEnd": 0,
+        "domInteractive": 1401.7999999821186,
+        "domContentLoadedEventStart": 1463.2999999821186,
+        "domContentLoadedEventEnd": 1463.8999999761581,
+        "domComplete": 1470.2999999821186,
+        "loadEventStart": 1472.8999999761581,
+        "loadEventEnd": 1473.0999999940395,
+        "type": "navigate",
+        "redirectCount": 0,
+        "activationStart": 0,
+        "criticalCHRestart": 0,
+        "notRestoredReasons": null,
+        "confidence": {
+          "randomizedTriggerRate": 0.4994798,
+          "value": "high"
+        }
+      },
+      "heap": 59271422,
+      "material": {
+        "version": "material-intake-persistent-v1",
+        "cachedKeys": [],
+        "pendingKeys": [],
+        "lastSavedAt": 0,
+        "lastLoadedAt": 1792675768901,
+        "lastError": null
+      },
+      "reactRoots": 1,
+      "canvases": [
+        {
+          "width": 1100,
+          "height": 580,
+          "hidden": false
+        },
+        {
+          "width": 1180,
+          "height": 282,
+          "hidden": false
+        }
+      ],
+      "domNodes": 1580,
+      "buttons": 134,
+      "cpuTop": [
+        {
+          "ms": 1444.3029999999992,
+          "functionName": "(program)",
+          "scriptId": "0",
+          "url": "",
+          "lineNumber": -1,
+          "columnNumber": -1
+        },
+        {
+          "ms": 669.958,
+          "functionName": "(idle)",
+          "scriptId": "0",
+          "url": "",
+          "lineNumber": -1,
+          "columnNumber": -1
+        },
+        {
+          "ms": 532.9940000000003,
+          "functionName": "measure",
+          "scriptId": "6",
+          "url": "http://127.0.0.1:42243/",
+          "lineNumber": 456,
+          "columnNumber": 16
+        },
+        {
+          "ms": 97.05199999999996,
+          "functionName": "",
+          "scriptId": "6",
+          "url": "http://127.0.0.1:42243/",
+          "lineNumber": 68,
+          "columnNumber": 34
+        },
+        {
+          "ms": 67.167,
+          "functionName": "Hm",
+          "scriptId": "6",
+          "url": "http://127.0.0.1:42243/",
+          "lineNumber": 15937,
+          "columnNumber": 48703
+        },
+        {
+          "ms": 49.15399999999999,
+          "functionName": "DD",
+          "scriptId": "6",
+          "url": "http://127.0.0.1:42243/",
+          "lineNumber": 15937,
+          "columnNumber": 81640
+        },
+        {
+          "ms": 32.124,
+          "functionName": "",
+          "scriptId": "6",
+          "url": "http://127.0.0.1:42243/",
+          "lineNumber": 16153,
+          "columnNumber": 22098
+        },
+        {
+          "ms": 28.998,
+          "functionName": "PM",
+          "scriptId": "6",
+          "url": "http://127.0.0.1:42243/",
+          "lineNumber": 24428,
+          "columnNumber": 23183
+        },
+        {
+          "ms": 28.228,
+          "functionName": "addEventListener",
+          "scriptId": "0",
+          "url": "",
+          "lineNumber": -1,
+          "columnNumber": -1
+        },
+        {
+          "ms": 24.01,
+          "functionName": "Storage.getItem",
+          "scriptId": "4",
+          "url": "",
+          "lineNumber": 7,
+          "columnNumber": 71
+        },
+        {
+          "ms": 23.37,
+          "functionName": "gf",
+          "scriptId": "6",
+          "url": "http://127.0.0.1:42243/",
+          "lineNumber": 15937,
+          "columnNumber": 118542
+        },
+        {
+          "ms": 23.336,
+          "functionName": "",
+          "scriptId": "6",
+          "url": "http://127.0.0.1:42243/",
+          "lineNumber": 16843,
+          "columnNumber": 375
+        },
+        {
+          "ms": 21.423,
+          "functionName": "Storage.getItem",
+          "scriptId": "4",
+          "url": "",
+          "lineNumber": 7,
+          "columnNumber": 71
+        },
+        {
+          "ms": 21.1,
+          "functionName": "Boe",
+          "scriptId": "6",
+          "url": "http://127.0.0.1:42243/",
+          "lineNumber": 16789,
+          "columnNumber": 11773
+        },
+        {
+          "ms": 20.5,
+          "functionName": "(garbage collector)",
+          "scriptId": "0",
+          "url": "",
+          "lineNumber": -1,
+          "columnNumber": -1
+        },
+        {
+          "ms": 19.105,
+          "functionName": "ob",
+          "scriptId": "6",
+          "url": "http://127.0.0.1:42243/",
+          "lineNumber": 15937,
+          "columnNumber": 93636
+        },
+        {
+          "ms": 17.422,
+          "functionName": "oY",
+          "scriptId": "6",
+          "url": "http://127.0.0.1:42243/",
+          "lineNumber": 15938,
+          "columnNumber": 37450
+        },
+        {
+          "ms": 16.715,
+          "functionName": "REe",
+          "scriptId": "6",
+          "url": "http://127.0.0.1:42243/",
+          "lineNumber": 24169,
+          "columnNumber": 12
+        },
+        {
+          "ms": 15.709000000000001,
+          "functionName": "pN",
+          "scriptId": "6",
+          "url": "http://127.0.0.1:42243/",
+          "lineNumber": 15937,
+          "columnNumber": 119121
+        },
+        {
+          "ms": 15.097000000000001,
+          "functionName": "aX",
+          "scriptId": "6",
+          "url": "http://127.0.0.1:42243/",
+          "lineNumber": 15937,
+          "columnNumber": 117190
+        },
+        {
+          "ms": 14.071,
+          "functionName": "Xr",
+          "scriptId": "6",
+          "url": "http://127.0.0.1:42243/",
+          "lineNumber": 16930,
+          "columnNumber": 16474
+        },
+        {
+          "ms": 13.06,
+          "functionName": "PerformanceObserver.observe.type",
+          "scriptId": "4",
+          "url": "",
+          "lineNumber": 3,
+          "columnNumber": 25
+        },
+        {
+          "ms": 12.498000000000001,
+          "functionName": "aX",
+          "scriptId": "6",
+          "url": "http://127.0.0.1:42243/",
+          "lineNumber": 15937,
+          "columnNumber": 117190
+        },
+        {
+          "ms": 12.49,
+          "functionName": "module-source/src/features/l3lab/spectralForge/donorHybrid/renderDonorHybrid.ts",
+          "scriptId": "6",
+          "url": "http://127.0.0.1:42243/",
+          "lineNumber": 13388,
+          "columnNumber": 90
+        },
+        {
+          "ms": 12.47,
+          "functionName": "vX",
+          "scriptId": "6",
+          "url": "http://127.0.0.1:42243/",
+          "lineNumber": 15938,
+          "columnNumber": 7934
+        },
+        {
+          "ms": 12.101999999999999,
+          "functionName": "eKe",
+          "scriptId": "6",
+          "url": "http://127.0.0.1:42243/",
+          "lineNumber": 27931,
+          "columnNumber": 83312
+        },
+        {
+          "ms": 12.008999999999999,
+          "functionName": "Ba",
+          "scriptId": "6",
+          "url": "http://127.0.0.1:42243/",
+          "lineNumber": 24428,
+          "columnNumber": 44020
+        },
+        {
+          "ms": 10.883000000000001,
+          "functionName": "lr",
+          "scriptId": "6",
+          "url": "http://127.0.0.1:42243/",
+          "lineNumber": 15938,
+          "columnNumber": 71
+        },
+        {
+          "ms": 10.799999999999999,
+          "functionName": "Y$",
+          "scriptId": "6",
+          "url": "http://127.0.0.1:42243/",
+          "lineNumber": 15937,
+          "columnNumber": 86532
+        },
+        {
+          "ms": 9.936000000000002,
+          "functionName": "",
+          "scriptId": "6",
+          "url": "http://127.0.0.1:42243/",
+          "lineNumber": 24493,
+          "columnNumber": 2186
+        },
+        {
+          "ms": 9.68,
+          "functionName": "Hm",
+          "scriptId": "6",
+          "url": "http://127.0.0.1:42243/",
+          "lineNumber": 15937,
+          "columnNumber": 48703
+        },
+        {
+          "ms": 9.562,
+          "functionName": "Zte",
+          "scriptId": "6",
+          "url": "http://127.0.0.1:42243/",
+          "lineNumber": 16637,
+          "columnNumber": 4110
+        }
+      ]
+    }
+  ]
+}

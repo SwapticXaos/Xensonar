@@ -1,6 +1,8 @@
-# XenSonar P7.38 · geprüfte Sessions und Grid-Profile
+# XenSonar P7.39 · Combined Nodal / Starter Grid / Startup
 
-Aktuelle Weiterarbeitsbasis: `n21-f2/Xensonar_P7_38_Sessions_Reviewed_Test.html`. Sessions, unabhängige Grid-Profile, native Bibliotheksvorschauen und Hover-/Dock-Startkorrekturen wurden gegen die Übergabe und den erhaltenen P7.24-Stand geprüft. Gespeicherte Entrophon-Stimmen und die vollständige Grid-Audition aus einem Audiopuffer bleiben erhalten. [Anleitung](n21-f2/README_P7_38_SESSIONS_REVIEWED.md) · [Prüfbericht](n21-f2/docs/sessions-reviewed/report.md) · [Stufenprüfung](n21-f2/docs/hover-review/source-ledger.md).
+**Zwischenstand – Gesamtregression noch offen.** Aktueller Quellenstand mit fokussierten nativen Prüfungen und Startressourcenmessungen. Host-Gesamtmatrix: 68 von 84 Prüfungen bestanden, 16 offene Befunde; vollständige native Browser-Gesamtmatrix noch nicht ausgeführt. Einzelbefunde und nächster Plan stehen im [Prüfbericht](n21-f2/docs/combined-startup/report.md).
+
+Aktuelle Weiterarbeitsbasis: `n21-f2/Xensonar_P7_39_Combined_Startup_Test.html`. Die gemeinsame Übergabe integriert Nodal-Exportdauerhaftigkeit, native Starter-Grid-Profile und bedarfsgesteuertes Laden gespeicherter Workspace-Audiodaten. [Anleitung](n21-f2/README_P7_39_COMBINED_STARTUP.md) · [Prüfbericht](n21-f2/docs/combined-startup/report.md) · [Quellenprüfung](n21-f2/docs/combined-startup/source-review.md). Die direkte Nodal-Snapshot-Architektur bleibt eine abgegrenzte nächste Karte; die bisherige Nodal-/Hybrid-WAV-Route bleibt erforderlich. Frühere veröffentlichte HTMLs und Artefakte bleiben erhalten.
 
 
 Die aktuelle, vom Nutzer gelieferte N21–F2-Quellbasis mit Granular-Hold, Live-Stabilitäts-Patch und korrigierter Forge-Fortschrittsanzeige sowie ausgerichteten Mix-Reglern, Raster-Mute, Melodic-Panning und Xenpolar Drone im Hauptinstrument
@@ -34,8 +36,8 @@ cd n21-f2
 npm ci
 npm run build
 npm run verify:build
-npm run test:consolidation
-XEN_CHROMIUM_PATH=/usr/bin/chromium npm run test:consolidation:browser
+node tools/combined_startup_validate.cjs
+XEN_CHROMIUM_PATH=/usr/bin/chromium node tools/combined_startup_validate.cjs --browser
 npm run test:pitch-space
 npm run test:pitch-space:browser
 npm run test:forge-ready

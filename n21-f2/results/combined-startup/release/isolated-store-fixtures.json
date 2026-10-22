@@ -1,0 +1,84 @@
+{
+  "scope": "Focused old fixtures importing the real-owner helper; no browser/full matrix",
+  "rows": [
+    {
+      "file": "tests/meta-menu-store.cjs",
+      "passed": true,
+      "exit": 0,
+      "output": "PASS Meta-Menu session store: first-use, dedupe, order, save, use, reload, legacy isolation\nPASS per-session color: independent palette, RGB validity, reload, live activation, no shared metadata\n"
+    },
+    {
+      "file": "tests/p728-sessions-tab-two-state.cjs",
+      "passed": true,
+      "exit": 0,
+      "output": "PASS two-state 🎧 Sessions supertab behavior and tab width/color rules\n"
+    },
+    {
+      "file": "tests/meta-menu-p730-engage.cjs",
+      "passed": true,
+      "exit": 0,
+      "output": "PASS Engage vs Edit semantics, saved identity, no auto-save, no playback\nPASS UI labels, Engage click, separate Delete, right-side edit control\n"
+    },
+    {
+      "file": "tests/p738-session-integrity.cjs",
+      "passed": true,
+      "exit": 0,
+      "output": "PASS P7.38 same-tuning A→B→A modes/mutes, isolated Bass Grid, editor/live, settings Undo, Engage rollback and lossless legacy Part access\n"
+    },
+    {
+      "file": "tests/p732-meta-navigation-menus.cjs",
+      "passed": true,
+      "exit": 0,
+      "output": "PASS P7.32 two right-facing action arrows, original five library buttons, preserved handlers and Meta navigation\n"
+    },
+    {
+      "file": "tests/meta-menu-p726-editor-ui.cjs",
+      "passed": true,
+      "exit": 0,
+      "output": "PASS P7.26 Meta editor: blank title input, Undo/Redo present, correct enabled state and handlers\n"
+    },
+    {
+      "file": "tests/meta-menu-design-parity-keyboard.cjs",
+      "passed": true,
+      "exit": 0,
+      "output": "PASS source-row click+Enter and tab keyboard gestures present\n"
+    },
+    {
+      "file": "tests/p733-library-links-and-corner.cjs",
+      "passed": true,
+      "exit": 0,
+      "output": "PASS P7.33 primary library link, five half-square corner links, and filter focus geometry\n"
+    },
+    {
+      "file": "tests/p734-meta-mini-preview.cjs",
+      "passed": true,
+      "exit": 0,
+      "output": "PASS P7.34 colors, matte corners, compact tile preview, reactive material import and index\n"
+    },
+    {
+      "file": "tests/p728-sessions-reiter-interactive.cjs",
+      "passed": true,
+      "exit": 0,
+      "output": "PASS interactive Sessions super-tab: manage, load and return to five libraries\n"
+    },
+    {
+      "file": "tests/p728-session-room-settings.cjs",
+      "passed": true,
+      "exit": 0,
+      "output": "PASS P7.28 optional main room snapshot capture, restore, clear, references unchanged\n"
+    },
+    {
+      "file": "tests/meta-menu-design-parity.cjs",
+      "passed": true,
+      "exit": 0,
+      "output": "PASS Meta Menu Prototype parity: insertion at indicated position, reorder, Undo/Redo\n"
+    },
+    {
+      "file": "tests/meta-menu-p729-ui.cjs",
+      "passed": true,
+      "exit": 0,
+      "output": "PASS toolbar adjacency, caption, tooltip, capture-only, grouped Sessions tab\n"
+    }
+  ],
+  "failed": 0
+}

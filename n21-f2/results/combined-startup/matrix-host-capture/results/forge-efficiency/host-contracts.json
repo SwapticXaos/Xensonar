@@ -1,0 +1,27 @@
+{
+  "entry": "Xensonar_P7_39_Combined_Startup_Test.html",
+  "sha256": "602dc8199d85cf49cd259aad14e3f13de6a071d2e1e53f0105af7babd86b504c",
+  "readiness": {
+    "steadyCopies": 1,
+    "milliseconds": 330.1881479999997,
+    "checks": [
+      "same-input polling",
+      "gain identity",
+      "pitch",
+      "tempo",
+      "local paint",
+      "cache release"
+    ]
+  },
+  "portability": {
+    "schemaVersion": 2,
+    "count": 13,
+    "report": {
+      "present": true,
+      "importedCount": 13,
+      "skippedCount": 0,
+      "replacedCount": 0
+    },
+    "unrelated": false
+  }
+}

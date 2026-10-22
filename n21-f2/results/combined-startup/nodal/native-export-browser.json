@@ -1,0 +1,324 @@
+{
+  "rows": [
+    {
+      "kind": "nodal",
+      "id": "audit-nodal-449kmp",
+      "immediate": {
+        "audio": {
+          "id": "audit-nodal-449kmp",
+          "hash": "504468a89b1b05d9416a825943934bc392e8b931b0278f997f18779f1ff839ff",
+          "bytes": 392044,
+          "peak": 0.039979249238967896,
+          "energy": 15.316045753307712,
+          "bpm": 108,
+          "blobUrl": "blob:https://nodal-export.test/7730f37e-8973-426a-ab52-10309c9c46d3"
+        },
+        "playback": {
+          "phase": "preparing",
+          "status": {
+            "phase": "playing",
+            "key": "rootFollow\u0000audit-nodal-449kmp",
+            "error": null
+          },
+          "peak": 0.007730766199529171,
+          "sourceKind": "material",
+          "renderMode": "flowing"
+        }
+      },
+      "afterProjectAndPresetDeletion": {
+        "id": "audit-nodal-449kmp",
+        "hash": "504468a89b1b05d9416a825943934bc392e8b931b0278f997f18779f1ff839ff",
+        "bytes": 392044,
+        "peak": 0.039979249238967896,
+        "energy": 15.316045753307712,
+        "bpm": 108,
+        "blobUrl": "blob:https://nodal-export.test/7730f37e-8973-426a-ab52-10309c9c46d3"
+      },
+      "afterDeletionPlayback": {
+        "phase": "preparing",
+        "status": {
+          "phase": "playing",
+          "key": "rootFollow\u0000audit-nodal-449kmp",
+          "error": null
+        },
+        "peak": 0.0037051760591566563,
+        "sourceKind": "material",
+        "renderMode": "flowing"
+      },
+      "afterHardReload": {
+        "id": "audit-nodal-449kmp",
+        "hash": "504468a89b1b05d9416a825943934bc392e8b931b0278f997f18779f1ff839ff",
+        "bytes": 392044,
+        "peak": 0.039979249238967896,
+        "energy": 15.316045753307712,
+        "bpm": 108,
+        "blobUrl": "blob:https://nodal-export.test/dca7df06-ffee-4327-b295-ce7d27eceb50"
+      },
+      "reloadPlayback": {
+        "phase": "preparing",
+        "status": {
+          "phase": "playing",
+          "key": "rootFollow\u0000audit-nodal-449kmp",
+          "error": null
+        },
+        "peak": 0.003680759109556675,
+        "sourceKind": "material",
+        "renderMode": "flowing"
+      }
+    },
+    {
+      "kind": "synth",
+      "id": "audit-synth-nioxan",
+      "immediate": {
+        "audio": {
+          "id": "audit-synth-nioxan",
+          "hash": "0893b4a55b7e5c8acbdb6c2ad7efeed7866b7b8e2e4e71e7d1a60f80fbadca4f",
+          "bytes": 196044,
+          "peak": 0.089202880859375,
+          "energy": 154.1169920060796,
+          "bpm": 108,
+          "blobUrl": "blob:https://nodal-export.test/8ac6ea12-120a-47ee-9cb1-a635dd4353ea"
+        },
+        "playback": {
+          "phase": "preparing",
+          "status": {
+            "phase": "playing",
+            "key": "rootFollow\u0000audit-synth-nioxan",
+            "error": null
+          },
+          "peak": 0.008348220959305763,
+          "sourceKind": "synth",
+          "renderMode": "direct"
+        }
+      },
+      "afterProjectAndPresetDeletion": {
+        "id": "audit-synth-nioxan",
+        "hash": "0893b4a55b7e5c8acbdb6c2ad7efeed7866b7b8e2e4e71e7d1a60f80fbadca4f",
+        "bytes": 196044,
+        "peak": 0.089202880859375,
+        "energy": 154.1169920060796,
+        "bpm": 108,
+        "blobUrl": "blob:https://nodal-export.test/8ac6ea12-120a-47ee-9cb1-a635dd4353ea"
+      },
+      "afterDeletionPlayback": {
+        "phase": "preparing",
+        "status": {
+          "phase": "playing",
+          "key": "rootFollow\u0000audit-synth-nioxan",
+          "error": null
+        },
+        "peak": 0.002222978975623846,
+        "sourceKind": "synth",
+        "renderMode": "direct"
+      },
+      "afterHardReload": {
+        "id": "audit-synth-nioxan",
+        "hash": "0893b4a55b7e5c8acbdb6c2ad7efeed7866b7b8e2e4e71e7d1a60f80fbadca4f",
+        "bytes": 196044,
+        "peak": 0.089202880859375,
+        "energy": 154.1169920060796,
+        "bpm": 108,
+        "blobUrl": "blob:https://nodal-export.test/1f4d6464-86e4-4b4b-a22e-c3377846f387"
+      },
+      "reloadPlayback": {
+        "phase": "preparing",
+        "status": {
+          "phase": "playing",
+          "key": "rootFollow\u0000audit-synth-nioxan",
+          "error": null
+        },
+        "peak": 0.03213898092508316,
+        "sourceKind": "synth",
+        "renderMode": "direct"
+      }
+    },
+    {
+      "kind": "hybrid",
+      "id": "audit-hybrid-2izvwp",
+      "immediate": {
+        "audio": {
+          "id": "audit-hybrid-2izvwp",
+          "hash": "1fa6d0556ab3888a51d1364ed1f92c9ad76a379e13797b001465330a64698390",
+          "bytes": 392044,
+          "peak": 0.083099365234375,
+          "energy": 160.36605385306848,
+          "bpm": 108,
+          "blobUrl": "blob:https://nodal-export.test/f3e688c5-ecc8-423f-a477-e99df18efc1a"
+        },
+        "playback": {
+          "phase": "preparing",
+          "status": {
+            "phase": "playing",
+            "key": "rootFollow\u0000audit-hybrid-2izvwp",
+            "error": null
+          },
+          "peak": 0.01124843955039978,
+          "sourceKind": "material",
+          "renderMode": "flowing"
+        }
+      },
+      "afterProjectAndPresetDeletion": {
+        "id": "audit-hybrid-2izvwp",
+        "hash": "1fa6d0556ab3888a51d1364ed1f92c9ad76a379e13797b001465330a64698390",
+        "bytes": 392044,
+        "peak": 0.083099365234375,
+        "energy": 160.36605385306848,
+        "bpm": 108,
+        "blobUrl": "blob:https://nodal-export.test/f3e688c5-ecc8-423f-a477-e99df18efc1a"
+      },
+      "afterDeletionPlayback": {
+        "phase": "preparing",
+        "status": {
+          "phase": "playing",
+          "key": "rootFollow\u0000audit-hybrid-2izvwp",
+          "error": null
+        },
+        "peak": 0.008341141045093536,
+        "sourceKind": "material",
+        "renderMode": "flowing"
+      },
+      "afterHardReload": {
+        "id": "audit-hybrid-2izvwp",
+        "hash": "1fa6d0556ab3888a51d1364ed1f92c9ad76a379e13797b001465330a64698390",
+        "bytes": 392044,
+        "peak": 0.083099365234375,
+        "energy": 160.36605385306848,
+        "bpm": 108,
+        "blobUrl": "blob:https://nodal-export.test/151ff103-5db8-45a1-a789-c1679d7318fe"
+      },
+      "reloadPlayback": {
+        "phase": "preparing",
+        "status": {
+          "phase": "playing",
+          "key": "rootFollow\u0000audit-hybrid-2izvwp",
+          "error": null
+        },
+        "peak": 0.007736505009233952,
+        "sourceKind": "material",
+        "renderMode": "flowing"
+      }
+    }
+  ],
+  "errors": [],
+  "sourceSHA256": "51f4a94890770066f65395f2dd6aa2aec71c619e03d4945a955c01d6ac162133",
+  "savedProjectLifecycle": {
+    "created": true,
+    "editedVelocity": 0.02,
+    "remaining": 0
+  },
+  "revokedURLs": 3,
+  "archivedCatalog": {
+    "ids": [
+      "archive-fill-51",
+      "archive-fill-50",
+      "archive-fill-49",
+      "archive-fill-48",
+      "archive-fill-47",
+      "archive-fill-46",
+      "archive-fill-45",
+      "archive-fill-44",
+      "archive-fill-43",
+      "archive-fill-42",
+      "archive-fill-41",
+      "archive-fill-40",
+      "archive-fill-39",
+      "archive-fill-38",
+      "archive-fill-37",
+      "archive-fill-36",
+      "archive-fill-35",
+      "archive-fill-34",
+      "archive-fill-33",
+      "archive-fill-32",
+      "archive-fill-31",
+      "archive-fill-30",
+      "archive-fill-29",
+      "archive-fill-28",
+      "archive-fill-27",
+      "archive-fill-26",
+      "archive-fill-25",
+      "archive-fill-24",
+      "archive-fill-23",
+      "archive-fill-22",
+      "archive-fill-21",
+      "archive-fill-20",
+      "archive-fill-19",
+      "archive-fill-18",
+      "archive-fill-17",
+      "archive-fill-16",
+      "archive-fill-15",
+      "archive-fill-14",
+      "archive-fill-13",
+      "archive-fill-12",
+      "archive-fill-11",
+      "archive-fill-10",
+      "archive-fill-9",
+      "archive-fill-8",
+      "archive-fill-7",
+      "archive-fill-6",
+      "archive-fill-5",
+      "archive-fill-4",
+      "audit-hybrid-2izvwp",
+      "audit-synth-nioxan",
+      "audit-nodal-449kmp"
+    ],
+    "unreferencedCount": 48,
+    "storedCount": 55,
+    "bankUnchanged": true
+  },
+  "catalogAfterReload": {
+    "ids": [
+      "archive-fill-51",
+      "archive-fill-50",
+      "archive-fill-49",
+      "archive-fill-48",
+      "archive-fill-47",
+      "archive-fill-46",
+      "archive-fill-45",
+      "archive-fill-44",
+      "archive-fill-43",
+      "archive-fill-42",
+      "archive-fill-41",
+      "archive-fill-40",
+      "archive-fill-39",
+      "archive-fill-38",
+      "archive-fill-37",
+      "archive-fill-36",
+      "archive-fill-35",
+      "archive-fill-34",
+      "archive-fill-33",
+      "archive-fill-32",
+      "archive-fill-31",
+      "archive-fill-30",
+      "archive-fill-29",
+      "archive-fill-28",
+      "archive-fill-27",
+      "archive-fill-26",
+      "archive-fill-25",
+      "archive-fill-24",
+      "archive-fill-23",
+      "archive-fill-22",
+      "archive-fill-21",
+      "archive-fill-20",
+      "archive-fill-19",
+      "archive-fill-18",
+      "archive-fill-17",
+      "archive-fill-16",
+      "archive-fill-15",
+      "archive-fill-14",
+      "archive-fill-13",
+      "archive-fill-12",
+      "archive-fill-11",
+      "archive-fill-10",
+      "archive-fill-9",
+      "archive-fill-8",
+      "archive-fill-7",
+      "archive-fill-6",
+      "archive-fill-5",
+      "archive-fill-4",
+      "audit-hybrid-2izvwp",
+      "audit-synth-nioxan",
+      "audit-nodal-449kmp"
+    ],
+    "unreferencedCount": 48
+  }
+}

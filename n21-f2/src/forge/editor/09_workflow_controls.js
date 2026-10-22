@@ -182,7 +182,7 @@ function __ForgeTransportRack(e){
   type:'button','data-forge-rack-import-audio':'true',
   className:'xen-vertical-import-audio',
   'aria-label':'Import Audio',
-  title:'Import Audio · Audiodatei in Material Intake laden',disabled:__micBusyOnRack,onClick:importAudio,
+  title:'Import Audio · load an audio file into Material Intake',disabled:__micBusyOnRack,onClick:importAudio,
  },h('span',{'aria-hidden':true,className:'xen-vertical-import-words'},
      h('span',null,...'IMPORT'.split('').map(ch=>h('span',null,ch))),
      h('span',null,...'AUDIO'.split('').map(ch=>h('span',null,ch)))),

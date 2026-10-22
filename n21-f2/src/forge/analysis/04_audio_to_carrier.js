@@ -3,14 +3,14 @@
 function __audioCarrierAnalysisFactory(tools) {
   const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
   function analyze({samples,sampleRate,options={}},progress=()=>{}) {
-    if(!(samples instanceof Float32Array)||!samples.length||!Number.isFinite(sampleRate)||sampleRate<8000||sampleRate>192000)throw Error('Ungültige Audioquelle.');
+    if(!(samples instanceof Float32Array)||!samples.length||!Number.isFinite(sampleRate)||sampleRate<8000||sampleRate>192000)throw Error('Invalid audio source.');
     const duration=samples.length/sampleRate;
-    if(duration<.12||duration>60.01)throw Error('Bitte eine Audio-Maske zwischen 0,12 und 60 Sekunden wählen.');
-    if(["voices","strictness","noiseDb","minimumMs","minHz","maxHz"].some(key=>options[key]!=null&&!Number.isFinite(Number(options[key]))))throw Error("Ungültige Filtereinstellung.");
+    if(duration<.12||duration>60.01)throw Error('Please select an audio region between 0.12 and 60 seconds.');
+    if(["voices","strictness","noiseDb","minimumMs","minHz","maxHz"].some(key=>options[key]!=null&&!Number.isFinite(Number(options[key]))))throw Error("Invalid filter setting.");
     const voices=clamp(Math.round(options.voices??4),1,6),strict=clamp(Number(options.strictness??.5),0,1),gate=Math.pow(10,clamp(Number(options.noiseDb??-46),-80,-15)/20),minimum=clamp(Number(options.minimumMs??90),40,300)/1000;
     const low=clamp(Number(options.minHz??65),35,200),high=clamp(Number(options.maxHz??1600),400,3000),rate=Math.min(12000,sampleRate),step=sampleRate/rate;
     const pcm=new Float32Array(Math.ceil(samples.length/step)),kernel=tools.makeSincKernel(step),model={samples},run={sourceStart:0,sourceEnd:samples.length-1};
-    for(let i=0;i<samples.length;i++)if(!Number.isFinite(samples[i]))throw Error('Die Quelle enthält ungültige Audiodaten.');
+    for(let i=0;i<samples.length;i++)if(!Number.isFinite(samples[i]))throw Error('The source contains invalid audio data.');
     for(let i=0;i<pcm.length;i++){
       pcm[i]=kernel?tools.resample(model,run,i*step,kernel):samples[Math.min(samples.length-1,Math.round(i*step))];
       if(i%16384===0)progress(.12*i/pcm.length);
@@ -62,7 +62,7 @@ function __audioCarrierAnalysisFactory(tools) {
       return chosen;
     }
     const active=[],finished=[];let serial=0,lastProgress=0;
-    function close(track){if(track.points.length*hop/rate>=minimum){if(finished.length>=4096)throw Error("Zu viele Tonlinien. Bitte eine kürzere Maske oder strengere Filter wählen.");finished.push(track);}}
+    function close(track){if(track.points.length*hop/rate>=minimum){if(finished.length>=4096)throw Error("Too many pitch lines. Please select a shorter region or stricter filters.");finished.push(track);}}
     for(let center=Math.floor(hop/2);center<pcm.length;center+=hop){
       const time=center/rate,pitches=detect(center),used=new Set();
       for(const track of active)track.matched=false;
@@ -89,7 +89,7 @@ function __audioCarrierAnalyze(source,range,options,{signal,onProgress=()=>{}}={
   return new Promise((resolve,reject)=>{
     if(signal?.aborted){reject(new DOMException('Abgebrochen','AbortError'));return;}
     const rate=source?.sampleRate,start=Math.round(range?.startSec*rate),end=Math.min(source?.monoSamples?.length??0,Math.round((range?.startSec+range?.durationSec)*rate));
-    if(!Number.isFinite(rate)||!Number.isFinite(start)||!Number.isFinite(end)||start<0||end<=start||range.durationSec<.12||range.durationSec>60){reject(Error('Bitte eine Audio-Maske zwischen 0,12 und 60 Sekunden wählen.'));return;}
+    if(!Number.isFinite(rate)||!Number.isFinite(start)||!Number.isFinite(end)||start<0||end<=start||range.durationSec<.12||range.durationSec>60){reject(Error('Please select an audio region between 0.12 and 60 seconds.'));return;}
     let worker,url,timer,settled=false;
     const done=(error,result)=>{if(settled)return;settled=true;clearTimeout(timer);signal?.removeEventListener('abort',abort);worker?.terminate();if(url)URL.revokeObjectURL(url);error?reject(error):resolve(result);};
     const abort=()=>done(new DOMException('Abgebrochen','AbortError'));
@@ -98,7 +98,7 @@ function __audioCarrierAnalyze(source,range,options,{signal,onProgress=()=>{}}={
       url=URL.createObjectURL(new Blob([code],{type:'text/javascript'}));worker=new Worker(url);
       worker.onmessage=({data})=>{if(data.error)done(Error(data.error));else if(data.result)done(null,data.result);else if(Number.isFinite(data.progress))onProgress(data.progress);};
       worker.onerror=event=>done(Error(event.message||'Audioanalyse fehlgeschlagen.'));
-      signal?.addEventListener('abort',abort,{once:true});timer=setTimeout(()=>done(Error('Die Analyse dauert zu lange. Bitte eine kürzere Maske wählen.')),120000);
+      signal?.addEventListener('abort',abort,{once:true});timer=setTimeout(()=>done(Error('Analysis is taking too long. Please select a shorter region.')),120000);
       const samples=source.monoSamples.slice(start,end);worker.postMessage({samples,sampleRate:rate,options},[samples.buffer]);
     }catch(error){done(error);}
   });

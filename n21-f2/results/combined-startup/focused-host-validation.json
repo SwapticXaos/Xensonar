@@ -1,0 +1,29 @@
+{
+  "rows": [
+    {
+      "name": "combined-startup-intake",
+      "passed": true,
+      "exit": 0,
+      "milliseconds": 142
+    },
+    {
+      "name": "combined-startup-owner",
+      "passed": true,
+      "exit": 0,
+      "milliseconds": 106
+    },
+    {
+      "name": "combined-starter-demand",
+      "passed": true,
+      "exit": 0,
+      "milliseconds": 169
+    },
+    {
+      "name": "combined-starter-native",
+      "passed": true,
+      "exit": 0,
+      "milliseconds": 5577
+    }
+  ],
+  "failed": 0
+}

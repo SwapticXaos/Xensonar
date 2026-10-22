@@ -1,0 +1,120 @@
+{
+  "rows": [
+    {
+      "case": "native success then transaction.abort",
+      "result": "AbortError",
+      "stored": null
+    },
+    {
+      "case": "abort",
+      "result": "AbortError",
+      "statuses": [
+        "Melodic Loop snapshot NOT saved [commit/AbortError]: Failed to persist material · Root Follow assignment cancelled."
+      ],
+      "stage": "commit",
+      "materialGhost": false,
+      "membership": false,
+      "stored": null,
+      "trace": [
+        {
+          "stage": "request-success-abort"
+        }
+      ]
+    },
+    {
+      "case": "quota",
+      "result": "QuotaExceededError",
+      "statuses": [
+        "Melodic Loop snapshot NOT saved [commit/QuotaExceededError]: Injected quota exceeded · Root Follow assignment cancelled."
+      ],
+      "stage": "commit",
+      "materialGhost": false,
+      "membership": false,
+      "stored": null,
+      "trace": []
+    },
+    {
+      "case": "success",
+      "result": "resolved",
+      "statuses": [
+        "Melodic Loop sent to Xensonar via undefined · rendered audio assigned to Root Follow (no direct Nodal RFL synth yet)."
+      ],
+      "materialPublished": true,
+      "membership": true,
+      "storedBlobBytes": 128,
+      "trace": [
+        {
+          "stage": "publish",
+          "ids": [
+            "export-success"
+          ]
+        },
+        {
+          "stage": "event",
+          "kind": "registered",
+          "id": "export-success"
+        },
+        {
+          "stage": "membership",
+          "type": "rootFollowBankMembership",
+          "payload": {
+            "entryId": "export-success",
+            "enabled": true,
+            "config": {
+              "sourceKind": "material",
+              "renderMode": "flowing"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "case": "delete before export commit",
+      "result": "AbortError",
+      "ghost": false,
+      "stored": null
+    },
+    {
+      "case": "delete after native request success",
+      "result": "AbortError",
+      "ghost": false,
+      "stored": null
+    },
+    {
+      "case": "version upgrade after DB operations",
+      "result": "complete"
+    },
+    {
+      "case": "durable export without IndexedDB",
+      "result": "Error: IndexedDB not available",
+      "ghost": false
+    },
+    {
+      "case": "lost saved blob",
+      "name": "MissingMaterialAudioError",
+      "code": "MATERIAL_AUDIO_MISSING",
+      "stage": "root-follow-decode",
+      "message": "Saved audio is missing for \"Lost Nodal\" (lost-blob).",
+      "visibleEvent": {
+        "stage": "root-follow-decode",
+        "materialId": "lost-blob",
+        "name": "MissingMaterialAudioError",
+        "message": "Saved audio is missing for \"Lost Nodal\" (lost-blob).",
+        "code": "MATERIAL_AUDIO_MISSING",
+        "sourceHash": null
+      }
+    },
+    {
+      "case": "hydrate preserves current edit",
+      "name": "live edit"
+    }
+  ],
+  "dbName": "nodal-durability-1792675949264",
+  "revokedUnpublishedURLs": 5,
+  "freshDocument": {
+    "ids": [
+      "export-success"
+    ],
+    "bytes": 128
+  }
+}

@@ -1,0 +1,595 @@
+{
+  "entry": "Xensonar_P7_39_Combined_Startup_Test.html",
+  "sha256": "602dc8199d85cf49cd259aad14e3f13de6a071d2e1e53f0105af7babd86b504c",
+  "startedAt": "2026-10-22T18:23:30.305Z",
+  "completedAt": "2026-10-22T18:25:47.654Z",
+  "running": false,
+  "scope": "Host behavior, production DSP/Worker tests and source preservation",
+  "rows": [
+    {
+      "name": "sessions-reviewed-preservation",
+      "passed": true,
+      "exit": 0,
+      "signal": null,
+      "milliseconds": 224
+    },
+    {
+      "name": "p7-24-preservation",
+      "passed": true,
+      "exit": 0,
+      "signal": null,
+      "milliseconds": 303
+    },
+    {
+      "name": "p7_keyboard_wave_volume_isolation",
+      "passed": true,
+      "exit": 0,
+      "signal": null,
+      "milliseconds": 44
+    },
+    {
+      "name": "p7-24-entrophon-reservation",
+      "passed": true,
+      "exit": 0,
+      "signal": null,
+      "milliseconds": 65
+    },
+    {
+      "name": "live-control-ownership",
+      "passed": true,
+      "exit": 0,
+      "signal": null,
+      "milliseconds": 907
+    },
+    {
+      "name": "live-control-preservation",
+      "passed": true,
+      "exit": 0,
+      "signal": null,
+      "milliseconds": 279
+    },
+    {
+      "name": "forge-request-contract",
+      "passed": true,
+      "exit": 0,
+      "signal": null,
+      "milliseconds": 1988
+    },
+    {
+      "name": "forge-request-lifecycle",
+      "passed": true,
+      "exit": 0,
+      "signal": null,
+      "milliseconds": 66
+    },
+    {
+      "name": "f447-hearing-coalescing",
+      "passed": true,
+      "exit": 0,
+      "signal": null,
+      "milliseconds": 168
+    },
+    {
+      "name": "forge-request-preservation",
+      "passed": true,
+      "exit": 0,
+      "signal": null,
+      "milliseconds": 368
+    },
+    {
+      "name": "forge-persistence-ownership",
+      "passed": true,
+      "exit": 0,
+      "signal": null,
+      "milliseconds": 3155
+    },
+    {
+      "name": "architecture-stability-preservation",
+      "passed": true,
+      "exit": 0,
+      "signal": null,
+      "milliseconds": 409
+    },
+    {
+      "name": "live-grid-snap",
+      "passed": true,
+      "exit": 0,
+      "signal": null,
+      "milliseconds": 2240
+    },
+    {
+      "name": "forge-save-lifecycle",
+      "passed": true,
+      "exit": 0,
+      "signal": null,
+      "milliseconds": 1911
+    },
+    {
+      "name": "forge-save-dispose",
+      "passed": true,
+      "exit": 0,
+      "signal": null,
+      "milliseconds": 3572
+    },
+    {
+      "name": "master-output-contract",
+      "passed": true,
+      "exit": 0,
+      "signal": null,
+      "milliseconds": 1749
+    },
+    {
+      "name": "forge-smoothness-preservation",
+      "passed": true,
+      "exit": 0,
+      "signal": null,
+      "milliseconds": 962
+    },
+    {
+      "name": "forge-efficiency",
+      "passed": true,
+      "exit": 0,
+      "signal": null,
+      "milliseconds": 4429
+    },
+    {
+      "name": "forge-efficiency-preservation",
+      "passed": true,
+      "exit": 0,
+      "signal": null,
+      "milliseconds": 484
+    },
+    {
+      "name": "p7-review-regressions",
+      "passed": true,
+      "exit": 0,
+      "signal": null,
+      "milliseconds": 2291
+    },
+    {
+      "name": "p7-review-preservation",
+      "passed": true,
+      "exit": 0,
+      "signal": null,
+      "milliseconds": 491
+    },
+    {
+      "name": "p7_live_grid_space_behavior",
+      "passed": false,
+      "exit": 1,
+      "signal": null,
+      "milliseconds": 52
+    },
+    {
+      "name": "p7_2_installation_ball_audio",
+      "passed": true,
+      "exit": 0,
+      "signal": null,
+      "milliseconds": 53
+    },
+    {
+      "name": "p7_3_forge_navigator",
+      "passed": true,
+      "exit": 0,
+      "signal": null,
+      "milliseconds": 60
+    },
+    {
+      "name": "p7_4_repeat_pointer",
+      "passed": true,
+      "exit": 0,
+      "signal": null,
+      "milliseconds": 57
+    },
+    {
+      "name": "p7_5_forge_main_handles",
+      "passed": true,
+      "exit": 0,
+      "signal": null,
+      "milliseconds": 56
+    },
+    {
+      "name": "p7_6_expression_mode",
+      "passed": true,
+      "exit": 0,
+      "signal": null,
+      "milliseconds": 46
+    },
+    {
+      "name": "p7_7_keyboard_source_gate",
+      "passed": true,
+      "exit": 0,
+      "signal": null,
+      "milliseconds": 48
+    },
+    {
+      "name": "p7_8_recorder_async_cancel",
+      "passed": true,
+      "exit": 0,
+      "signal": null,
+      "milliseconds": 50
+    },
+    {
+      "name": "test_entrophon_live_revision",
+      "passed": true,
+      "exit": 0,
+      "signal": null,
+      "milliseconds": 43
+    },
+    {
+      "name": "test_material_standalone_preview",
+      "passed": false,
+      "exit": 1,
+      "signal": null,
+      "milliseconds": 47
+    },
+    {
+      "name": "myzel_g2_concept",
+      "passed": true,
+      "exit": 0,
+      "signal": null,
+      "milliseconds": 12981
+    },
+    {
+      "name": "myzel_g_worklet",
+      "passed": true,
+      "exit": 0,
+      "signal": null,
+      "milliseconds": 936
+    },
+    {
+      "name": "nodal-ball-grid",
+      "passed": true,
+      "exit": 0,
+      "signal": null,
+      "milliseconds": 14285
+    },
+    {
+      "name": "nodal-ball-grid-preservation",
+      "passed": true,
+      "exit": 0,
+      "signal": null,
+      "milliseconds": 1664
+    },
+    {
+      "name": "forge-spatial-contracts",
+      "passed": true,
+      "exit": 0,
+      "signal": null,
+      "milliseconds": 569
+    },
+    {
+      "name": "forge-spatial-preservation",
+      "passed": true,
+      "exit": 0,
+      "signal": null,
+      "milliseconds": 569
+    },
+    {
+      "name": "history-sharing",
+      "passed": true,
+      "exit": 0,
+      "signal": null,
+      "milliseconds": 9069
+    },
+    {
+      "name": "patch-integration",
+      "passed": true,
+      "exit": 0,
+      "signal": null,
+      "milliseconds": 4310
+    },
+    {
+      "name": "consolidation-snapshots",
+      "passed": true,
+      "exit": 0,
+      "signal": null,
+      "milliseconds": 19572
+    },
+    {
+      "name": "consolidation-history",
+      "passed": true,
+      "exit": 0,
+      "signal": null,
+      "milliseconds": 3062
+    },
+    {
+      "name": "consolidation-preservation",
+      "passed": true,
+      "exit": 0,
+      "signal": null,
+      "milliseconds": 961
+    },
+    {
+      "name": "rw2-source-index",
+      "passed": true,
+      "exit": 0,
+      "signal": null,
+      "milliseconds": 4230
+    },
+    {
+      "name": "forge-pitch-space",
+      "passed": true,
+      "exit": 0,
+      "signal": null,
+      "milliseconds": 6529
+    },
+    {
+      "name": "forge-ready-contract",
+      "passed": true,
+      "exit": 0,
+      "signal": null,
+      "milliseconds": 2348
+    },
+    {
+      "name": "forge-progress-jobs",
+      "passed": true,
+      "exit": 0,
+      "signal": null,
+      "milliseconds": 62
+    },
+    {
+      "name": "live-rfl-lifecycle",
+      "passed": true,
+      "exit": 0,
+      "signal": null,
+      "milliseconds": 3501
+    },
+    {
+      "name": "nodal-envelope-zero",
+      "passed": true,
+      "exit": 0,
+      "signal": null,
+      "milliseconds": 9328
+    },
+    {
+      "name": "workflow-grid-runtime",
+      "passed": true,
+      "exit": 0,
+      "signal": null,
+      "milliseconds": 1901
+    },
+    {
+      "name": "workflow-hotkeys",
+      "passed": true,
+      "exit": 0,
+      "signal": null,
+      "milliseconds": 2953
+    },
+    {
+      "name": "microphone-capture",
+      "passed": false,
+      "exit": 1,
+      "signal": null,
+      "milliseconds": 55
+    },
+    {
+      "name": "audio-carrier-analysis",
+      "passed": false,
+      "exit": 1,
+      "signal": null,
+      "milliseconds": 2597
+    },
+    {
+      "name": "meta-menu-design-parity-keyboard",
+      "passed": false,
+      "exit": 1,
+      "signal": null,
+      "milliseconds": 52
+    },
+    {
+      "name": "meta-menu-design-parity",
+      "passed": true,
+      "exit": 0,
+      "signal": null,
+      "milliseconds": 72
+    },
+    {
+      "name": "meta-menu-p726-editor-ui",
+      "passed": false,
+      "exit": 1,
+      "signal": null,
+      "milliseconds": 55
+    },
+    {
+      "name": "meta-menu-p726-regressions",
+      "passed": true,
+      "exit": 0,
+      "signal": null,
+      "milliseconds": 288
+    },
+    {
+      "name": "meta-menu-p729-ui",
+      "passed": false,
+      "exit": 1,
+      "signal": null,
+      "milliseconds": 65
+    },
+    {
+      "name": "meta-menu-p730-engage",
+      "passed": false,
+      "exit": 1,
+      "signal": null,
+      "milliseconds": 66
+    },
+    {
+      "name": "meta-menu-store",
+      "passed": true,
+      "exit": 0,
+      "signal": null,
+      "milliseconds": 111
+    },
+    {
+      "name": "meta-save-dialog-ui",
+      "passed": true,
+      "exit": 0,
+      "signal": null,
+      "milliseconds": 67
+    },
+    {
+      "name": "meta-save-from-quick",
+      "passed": false,
+      "exit": 1,
+      "signal": null,
+      "milliseconds": 71
+    },
+    {
+      "name": "p728-donor-autoprepare",
+      "passed": true,
+      "exit": 0,
+      "signal": null,
+      "milliseconds": 72
+    },
+    {
+      "name": "p728-session-room-settings",
+      "passed": true,
+      "exit": 0,
+      "signal": null,
+      "milliseconds": 67
+    },
+    {
+      "name": "p728-sessions-reiter-interactive",
+      "passed": false,
+      "exit": 1,
+      "signal": null,
+      "milliseconds": 157
+    },
+    {
+      "name": "p728-sessions-tab-two-state",
+      "passed": false,
+      "exit": 1,
+      "signal": null,
+      "milliseconds": 58
+    },
+    {
+      "name": "p730-quickdock-first-layout",
+      "passed": false,
+      "exit": 1,
+      "signal": null,
+      "milliseconds": 71
+    },
+    {
+      "name": "p732-meta-navigation-menus",
+      "passed": false,
+      "exit": 1,
+      "signal": null,
+      "milliseconds": 61
+    },
+    {
+      "name": "p733-library-links-and-corner",
+      "passed": false,
+      "exit": 1,
+      "signal": null,
+      "milliseconds": 61
+    },
+    {
+      "name": "p734-grid-audition-pitches",
+      "passed": true,
+      "exit": 0,
+      "signal": null,
+      "milliseconds": 49
+    },
+    {
+      "name": "p734-material-preview-state",
+      "passed": false,
+      "exit": 1,
+      "signal": null,
+      "milliseconds": 47
+    },
+    {
+      "name": "p734-meta-mini-preview",
+      "passed": false,
+      "exit": 1,
+      "signal": null,
+      "milliseconds": 81
+    },
+    {
+      "name": "p735-action-arrows",
+      "passed": true,
+      "exit": 0,
+      "signal": null,
+      "milliseconds": 53
+    },
+    {
+      "name": "p735-grid-audio-init",
+      "passed": true,
+      "exit": 0,
+      "signal": null,
+      "milliseconds": 51
+    },
+    {
+      "name": "p735-regression",
+      "passed": true,
+      "exit": 0,
+      "signal": null,
+      "milliseconds": 54
+    },
+    {
+      "name": "p735f2-bowed-glass-grid",
+      "passed": true,
+      "exit": 0,
+      "signal": null,
+      "milliseconds": 49
+    },
+    {
+      "name": "p735f2-full-scale-audition",
+      "passed": true,
+      "exit": 0,
+      "signal": null,
+      "milliseconds": 43
+    },
+    {
+      "name": "p736-grid-clock",
+      "passed": true,
+      "exit": 0,
+      "signal": null,
+      "milliseconds": 51
+    },
+    {
+      "name": "p737-grid-buffered-audio",
+      "passed": true,
+      "exit": 0,
+      "signal": null,
+      "milliseconds": 63
+    },
+    {
+      "name": "p738-session-integrity",
+      "passed": true,
+      "exit": 0,
+      "signal": null,
+      "milliseconds": 78
+    },
+    {
+      "name": "live-rfl-boundaries",
+      "passed": true,
+      "exit": 0,
+      "signal": null,
+      "milliseconds": 2871
+    },
+    {
+      "name": "live-rfl-fallback",
+      "passed": true,
+      "exit": 0,
+      "signal": null,
+      "milliseconds": 1899
+    },
+    {
+      "name": "live-rfl-preparation",
+      "passed": true,
+      "exit": 0,
+      "signal": null,
+      "milliseconds": 1956
+    },
+    {
+      "name": "historical-song-host-contract",
+      "passed": true,
+      "exit": 0,
+      "milliseconds": 353
+    },
+    {
+      "name": "build-reproducibility",
+      "passed": true
+    }
+  ],
+  "failed": 16
+}

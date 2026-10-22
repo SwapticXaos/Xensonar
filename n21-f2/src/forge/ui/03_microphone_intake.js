@@ -10,22 +10,22 @@ function __createForgeMicCapture({onFile,onState=()=>{},mediaDevices=navigator.m
     if(stream){for(const track of stream.getTracks()){track.onended=null;track.stop();}stream=null;}
   };
   const messageFor=error=>error?.name==='NotAllowedError'||error?.name==='SecurityError'
-    ?'Mikrofonzugriff wurde nicht erlaubt. Bitte die Mikrofonberechtigung im Browser freigeben und erneut starten.'
-    :error?.name==='NotFoundError'?'Kein Mikrofon gefunden. Bitte ein Mikrofon anschließen und erneut starten.'
-    :error?.name==='NotReadableError'?'Das Mikrofon ist nicht verfügbar oder wird von einer anderen Anwendung belegt.'
-    :error?.message||'Die Mikrofonaufnahme ist fehlgeschlagen.';
+    ?'Microphone access was denied. Please allow microphone access in your browser and try again.'
+    :error?.name==='NotFoundError'?'No microphone found. Please connect a microphone and try again.'
+    :error?.name==='NotReadableError'?'The microphone is unavailable or is being used by another application.'
+    :error?.message||'Microphone recording failed.';
   const fail=(error,token)=>{if(disposed||token!==generation)return;generation++;release();notify('failed',messageFor(error));};
-  function cancel(){if(disposed||!['requesting','recording'].includes(phase))return;generation++;release();notify('idle','Aufnahme verworfen.');}
+  function cancel(){if(disposed||!['requesting','recording'].includes(phase))return;generation++;release();notify('idle','Recording discarded.');}
   function stop(){
     if(disposed||phase!=='recording')return;
-    clearTimers();notify('processing','Aufnahme wird als Audio importiert …');
+    clearTimers();notify('processing','Importing the recording as audio …');
     try{if(recorder?.state!=='inactive')recorder.stop();}catch(error){fail(error,generation);}
   }
   async function start(){
     if(disposed||!['idle','failed'].includes(phase))return;
-    if(!secure||!mediaDevices?.getUserMedia){notify('failed','Mikrofonaufnahme benötigt HTTPS oder localhost und einen Browser mit Mikrofonunterstützung.');return;}
-    if(!Recorder){notify('failed','Dieser Browser unterstützt keine Mikrofonaufnahme. Der Audio-Dateiimport ist weiterhin verfügbar.');return;}
-    const token=++generation;notify('requesting','Bitte den Mikrofonzugriff im Browser erlauben.');
+    if(!secure||!mediaDevices?.getUserMedia){notify('failed','Microphone recording requires HTTPS or localhost and a browser that supports microphone input.');return;}
+    if(!Recorder){notify('failed','This browser does not support microphone recording. Audio file import is still available.');return;}
+    const token=++generation;notify('requesting','Please allow microphone access in your browser.');
     try{
       const acquired=await mediaDevices.getUserMedia({audio:{echoCancellation:false,noiseSuppression:false,autoGainControl:false},video:false});
       if(disposed||token!==generation){acquired.getTracks().forEach(track=>track.stop());return;}
@@ -34,23 +34,23 @@ function __createForgeMicCapture({onFile,onState=()=>{},mediaDevices=navigator.m
       recorder=mime?new Recorder(stream,{mimeType:mime}):new Recorder(stream);
       const current=recorder,chunks=[];let finished=false;
       current.ondataavailable=event=>{if(token===generation&&event.data?.size)chunks.push(event.data);};
-      current.onerror=event=>fail(event.error||Error('Die Mikrofonaufnahme wurde unterbrochen.'),token);
+      current.onerror=event=>fail(event.error||Error('Microphone recording was interrupted.'),token);
       current.onstop=async()=>{
         if(finished||disposed||token!==generation)return;finished=true;
-        const type=current.mimeType||chunks[0]?.type||'audio/webm';release();notify('processing','Aufnahme wird als Audio importiert …');
+        const type=current.mimeType||chunks[0]?.type||'audio/webm';release();notify('processing','Importing the recording as audio …');
         try{
-          if(!chunks.length)throw Error('Die Aufnahme enthält keine Audiodaten. Bitte erneut aufnehmen.');
+          if(!chunks.length)throw Error('The recording contains no audio. Please record again.');
           const extension=type.includes('ogg')?'ogg':type.includes('mp4')?'m4a':'webm';
           const stamp=new Date().toISOString().replace(/[:.]/g,'-');
           const file=new File(chunks,'Mikrofon_'+stamp+'.'+extension,{type});
           const loaded=await onFile(file);
           if(disposed||token!==generation)return;
-          if(loaded===false)throw Error('Die Aufnahme konnte nicht importiert werden. Bitte erneut aufnehmen oder eine Audiodatei importieren.');
-          notify('idle','Aufnahme als Donor-Quelle geladen. Unten kannst du die Maske wählen und den Donor anhören.');
+          if(loaded===false)throw Error('The recording could not be imported. Please record again or import an audio file.');
+          notify('idle','Recording loaded as a donor source. Select a region in the mask below and preview the donor.');
         }catch(error){fail(error,token);}
       };
-      current.start(250);started=performance.now();notify('recording','Mikrofonaufnahme läuft.',0);
-      tick=setInterval(()=>{if(token===generation&&phase==='recording')notify('recording','Mikrofonaufnahme läuft.',Math.min(maxSeconds,(performance.now()-started)/1000));},250);
+      current.start(250);started=performance.now();notify('recording','Microphone recording in progress.',0);
+      tick=setInterval(()=>{if(token===generation&&phase==='recording')notify('recording','Microphone recording in progress.',Math.min(maxSeconds,(performance.now()-started)/1000));},250);
       limit=setTimeout(stop,maxSeconds*1000);
       for(const track of stream.getAudioTracks())track.onended=stop;
     }catch(error){fail(error,token);}

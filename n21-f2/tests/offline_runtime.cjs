@@ -30,6 +30,7 @@ function load(root,{speed1=false,speed3Baseline=false,nodalFix12Baseline=false,f
  sandbox.window=sandbox;sandbox.self=sandbox;sandbox.sessionStorage=sandbox.localStorage;
  sandbox.Worker=BlobWorker;sandbox.setInterval=(...args)=>{const timer=setInterval(...args);timer.unref();return timer;};sandbox.clearInterval=clearInterval;
  const context=vm.createContext(sandbox);
+ require('./sessions-test-helpers.cjs').installBootSnapshot(context,root);
  const partitionFile=path.join(root,'source-partitions.json');
  const origins=new Map();
  if(fs.existsSync(partitionFile))for(const group of JSON.parse(fs.readFileSync(partitionFile)).groups)for(const file of group.files)origins.set(file,group.original);

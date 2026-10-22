@@ -1,0 +1,24 @@
+{
+  "entry": "Xensonar_P7_39_Combined_Startup_Test.html",
+  "sha256": "602dc8199d85cf49cd259aad14e3f13de6a071d2e1e53f0105af7babd86b504c",
+  "frequencies": 2048,
+  "reads": 13,
+  "realCases": 1080,
+  "queriesPerRun": 50000,
+  "baseline": [
+    77.14048000000003,
+    70.9904140000001,
+    75.71336699999983,
+    71.45576500000016,
+    76.70540500000016
+  ],
+  "changed": [
+    7.948410999999851,
+    3.1102740000001177,
+    3.3659640000000763,
+    2.6187639999998282,
+    2.799315999999635
+  ],
+  "speedup": 24.342989395788592,
+  "scope": "Nearest-frequency lookup within an already compiled live grid; not total audio engine throughput"
+}
