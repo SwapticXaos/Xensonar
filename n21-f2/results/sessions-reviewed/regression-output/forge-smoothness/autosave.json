@@ -1,0 +1,19 @@
+{
+  "entry": "XenSonar_P7_38_Sessions_Reviewed_Test.html",
+  "sha256": "12ecf1e11e2032ee11cc0ebfd8d4a4b26e7876d63e612f6513b7f2855fa0f149",
+  "playback": {
+    "copies": 0,
+    "writes": 0
+  },
+  "afterEdit": {
+    "copies": 1,
+    "writes": 1,
+    "name": "Saved actual edit",
+    "pixel": 0.625
+  },
+  "afterFlush": {
+    "flushedCopies": 2,
+    "copies": 2,
+    "name": "Explicitly flushed edit"
+  }
+}

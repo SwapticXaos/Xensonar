@@ -1,0 +1,10 @@
+'use strict';
+const assert=require('node:assert/strict'),fs=require('node:fs');
+const source=fs.readFileSync('src/app/forge/01_room_shell.js','utf8');
+const part=source.slice(source.indexOf('/* P7.37: render the ENTIRE saved tuning to one native audio buffer before'),source.indexOf('const{initialOvertonesByPreset:Oa'));
+assert.match(part,/Promise\.resolve\(\)\.then\(\(\)=>Bs\(\)\)/,'the same audio owner initializes lazily after preview click');
+assert.match(part,/source\.start\(ctx\.currentTime\+\.035\)/,'single source starts in audio clock with lead time');
+assert.match(part,/return cancel;/,'preview returns an isolated cancellation handler');
+assert.match(part,/source\.stop\(\)/,'cancel stops preview-owned audio buffer');
+assert.doesNotMatch(part,/setTimeout\(advance,155\)/,'no immediate timer-driven tone chain');
+console.log('PASS Grid lazy boot, native PCM clock and scoped buffer cancellation');

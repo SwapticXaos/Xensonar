@@ -1,0 +1,132 @@
+{
+  "entry": "XenSonar_P7_38_Sessions_Reviewed_Test.html",
+  "sha256": "8109f9ecbf7b310eecf96a45c571739cae493c570ac5a1b0b4036dba0cd23605",
+  "errors": [],
+  "geometry": [
+    {
+      "width": 1490,
+      "originalGeometry": {
+        "rootTop": 1118.078125,
+        "rackHeight": 166
+      },
+      "stableGeometry": {
+        "rootTop": 1118.078125,
+        "rackHeight": 166
+      },
+      "save": {
+        "x": 495.890625,
+        "y": 671.078125,
+        "width": 102,
+        "height": 25
+      },
+      "root": {
+        "x": 501.40625,
+        "y": 699.078125,
+        "width": 219.640625,
+        "height": 36
+      },
+      "whole": {
+        "visibleWidth": 2048,
+        "leftPx": 0,
+        "widthPx": 925,
+        "rightPx": 925
+      },
+      "right": {
+        "visibleWidth": 1370.4994594594596,
+        "leftPx": 0,
+        "widthPx": 619,
+        "rightPx": 619
+      },
+      "left": {
+        "visibleWidth": 1124.7394594594596,
+        "leftPx": 111,
+        "widthPx": 508.00000000000006,
+        "rightPx": 619
+      },
+      "moved": {
+        "visibleWidth": 1124.7394594594596,
+        "leftPx": 184.99999999999997,
+        "widthPx": 508.00000000000006,
+        "rightPx": 693
+      }
+    },
+    {
+      "width": 720,
+      "originalGeometry": {
+        "rootTop": 1371.953125,
+        "rackHeight": 330
+      },
+      "stableGeometry": null,
+      "save": {
+        "x": 222,
+        "y": 487.953125,
+        "width": 102,
+        "height": 25
+      },
+      "root": {
+        "x": 83,
+        "y": 697.953125,
+        "width": 219.640625,
+        "height": 36
+      },
+      "whole": {
+        "visibleWidth": 2048,
+        "leftPx": 0,
+        "widthPx": 583,
+        "rightPx": 583
+      },
+      "right": {
+        "visibleWidth": 1370.017152658662,
+        "leftPx": 0,
+        "widthPx": 390,
+        "rightPx": 390
+      },
+      "left": {
+        "visibleWidth": 1127.629502572899,
+        "leftPx": 69,
+        "widthPx": 321.00000000000006,
+        "rightPx": 390.00000000000006
+      },
+      "moved": {
+        "visibleWidth": 1127.629502572899,
+        "leftPx": 115.49999999999997,
+        "widthPx": 321.00000000000006,
+        "rightPx": 436.5
+      }
+    }
+  ],
+  "checks": [
+    "1490/720 px: separate north-positioned Save/Root actions with independent hit targets",
+    "Navigator: both resize cursors and real edge gestures, middle selection, Alt move and Whole Drawing reset",
+    "raw metadata: no destination Role selector, legacy project role retained",
+    "110 Hz anchor and bar count survive actual raw Material/Root and rendered Root transfers; new loops use the loop contract",
+    "bar segments remain optional editor guides; empty anchor retains fallback",
+    "frequency anchor survives full project snapshot restore and Undo/Redo"
+  ],
+  "persistence": {
+    "project": 110,
+    "undo": 110,
+    "redo": 330
+  },
+  "metadata": {
+    "raw": {
+      "id": "metadata-hfs3nc",
+      "bars": 3,
+      "rootHz": 110,
+      "role": "loop",
+      "guideSegments": 7,
+      "rootFollowPreferred": true
+    },
+    "track": {
+      "bars": 3,
+      "rootHz": 110,
+      "role": "loop"
+    },
+    "rendered": {
+      "rootHz": 110,
+      "role": "loop",
+      "bars": 1,
+      "mode": "hearing"
+    }
+  }
+}

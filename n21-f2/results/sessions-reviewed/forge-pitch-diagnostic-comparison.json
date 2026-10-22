@@ -1,0 +1,11 @@
+{
+  "baselineCommit": "10178acb733db38f1801b263ac5200d98c17e69b",
+  "baselineHTMLSHA256": "e2b2384a0addae4c8a8720eff0c60bec4f6d44af89c382602f80d2f531cae86d",
+  "currentHTMLSHA256": "64f5bda8b01595dc265f2945397b83443b123b3f3babdf7eda511f8635eaed01",
+  "baselinePassed": true,
+  "currentUnmodifiedFixturePassed": true,
+  "currentDiagnosticFixturePassed": true,
+  "diagnosticScope": "Checkpoint logging only around existing awaits in the original fixture; both base and current completed all eight engines, Detune/Off, Undo/Redo and responsive footer. Initial full-matrix timeout is retained; no production fix or increased gate timeout.",
+  "baselineLog": "baseline-forge-pitch-diagnostic.log",
+  "currentLog": "final-forge-pitch-diagnostic.log"
+}

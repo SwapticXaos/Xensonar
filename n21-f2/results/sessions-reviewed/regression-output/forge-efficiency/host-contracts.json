@@ -1,0 +1,27 @@
+{
+  "entry": "XenSonar_P7_38_Sessions_Reviewed_Test.html",
+  "sha256": "12ecf1e11e2032ee11cc0ebfd8d4a4b26e7876d63e612f6513b7f2855fa0f149",
+  "readiness": {
+    "steadyCopies": 1,
+    "milliseconds": 362.68913599999996,
+    "checks": [
+      "same-input polling",
+      "gain identity",
+      "pitch",
+      "tempo",
+      "local paint",
+      "cache release"
+    ]
+  },
+  "portability": {
+    "schemaVersion": 2,
+    "count": 13,
+    "report": {
+      "present": true,
+      "importedCount": 13,
+      "skippedCount": 0,
+      "replacedCount": 0
+    },
+    "unrelated": false
+  }
+}

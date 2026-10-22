@@ -36,13 +36,17 @@ function dje(e,t,n,r){const a=Math.max(1,e.baseHz||220),o=new Map(e.tracks.map(c
   const destinationLabel=root?'Root Follow Loop':pink?'pinke Spur im Melodic Loop':"Material Track";
   e.setWorkflowBusy(!0);e.setStatusMessage(`${n()} an ${destinationLabel} senden …`);
   try{
-   const i=await t(),s=e.getActivePreviewDuration();
+   const selected=__ForgeNavigatorSample.current();
+   const clip=selected?await __f333RenderNavigatorClip(selected):null;
+   const i=clip?clip.blob:await t(),s=clip?clip.durationSec:e.getActivePreviewDuration();
    const l={
-    name:e.materialExport.name,role:"loop",bpm:e.materialExport.bpm,bars:e.materialExport.bars,beatsPerBar:e.materialExport.beatsPerBar,
+    name:clip?__f333NavigatorName(e.materialExport.name):e.materialExport.name,role:"loop",bpm:e.materialExport.bpm,bars:clip?__f333NavigatorBars(e.materialExport.bars):e.materialExport.bars,beatsPerBar:e.materialExport.beatsPerBar,
     guideSegments:e.materialExport.guideSegments,guideMarkers:e.materialExport.guideMarkers,
     loopStartSec:0,loopEndSec:s,rootHz:__forgeMaterialRootHz(e.materialExport.rootHz),
     sourceVersion:e.variant==='forge3'?'xensonar-forge3-preview-v1':'xensonar-l3lab-v1',
     renderMode:__f333Route(pe.getState()),
+    ...(clip?{sourceVersion:'xensonar-forge-navigator-selection-v1',
+      navigatorSourceStart:selected.start,navigatorSourceEnd:selected.end}:{}),
     durationSec:s,intendedLoopDurationSec:s,
     ...(root?{rootFollowPreferred:true,workspaceOrigin:'spectral-forge-rendered-hearing',routeSummary:"Rendered listening mode as an Audio Root Follow Loop"}:{}),
     ...(pink?{workspaceOrigin:'spectral-forge-rendered-hearing',routeSummary:"Rendered listening mode as a pink Melodic Loop track"}:{})

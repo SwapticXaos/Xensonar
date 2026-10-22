@@ -1,0 +1,99 @@
+
+## preservation
+PASS P7.38 exact 239-unit reversible baseline, bounded source/style retirements/additions, head extensions and build
+
+## ancestry
+PASS P7.24 exact reversible source corrections, protected baseline and hashed additions/order
+
+## session-integrity
+PASS P7.38 same-tuning A→B→A modes/mutes, isolated Bass Grid, editor/live, settings Undo, Engage rollback and lossless legacy Part access
+
+## live-rfl-lifecycle
+{"rate":44100,"mode":"base","rootMessages":1550,"maxWindows":1,"skippedWindows":115,"peak":0.5459728837013245,"tailReleased":true}
+{"rate":44100,"mode":"fragment","rootMessages":1550,"maxWindows":1,"skippedWindows":115,"peak":1.198411226272583,"tailReleased":true}
+{"rate":48000,"mode":"base","rootMessages":1550,"maxWindows":1,"skippedWindows":115,"peak":0.5459033250808716,"tailReleased":true}
+{"rate":48000,"mode":"fragment","rootMessages":1550,"maxWindows":1,"skippedWindows":115,"peak":1.1153439283370972,"tailReleased":true}
+{"rate":96000,"mode":"base","rootMessages":1550,"maxWindows":1,"skippedWindows":114,"peak":0.5697279572486877,"tailReleased":true}
+{"rate":96000,"mode":"fragment","rootMessages":1550,"maxWindows":1,"skippedWindows":114,"peak":0.9831255674362183,"tailReleased":true}
+PASS RFL lifecycle: rapid/stale/invalid root updates, sample-rate mismatch, clock gaps, 128/256-frame quanta and complete tail release
+
+## live-rfl-boundaries
+{"mode":"base","rate":44100,"baseline":{"peak":4.707675457000732,"jump":0.49378716945648193,"outside":3411},"current":{"peak":0,"jump":0,"outside":0}}
+{"mode":"base","rate":48000,"baseline":{"peak":4.5972795486450195,"jump":0.4760704040527344,"outside":3247},"current":{"peak":0,"jump":0,"outside":0}}
+{"mode":"base","rate":96000,"baseline":{"peak":3.8174490928649902,"jump":0.4979236125946045,"outside":6788},"current":{"peak":0,"jump":0,"outside":0}}
+{"mode":"fragment","rate":44100,"baseline":{"peak":5.658315658569336,"jump":0.49806690216064453,"outside":4065},"current":{"peak":0,"jump":0,"outside":0}}
+{"mode":"fragment","rate":48000,"baseline":{"peak":5.442440986633301,"jump":0.4964022636413574,"outside":3827},"current":{"peak":0,"jump":0,"outside":0}}
+{"mode":"fragment","rate":96000,"baseline":{"peak":4.5473198890686035,"jump":0.49875640869140625,"outside":8185},"current":{"peak":0,"jump":0,"outside":0}}
+PASS live RFL crop boundaries: both render modes, root changes, 44.1/48/96kHz; excluded transients remain silent
+
+## live-rfl-fallback
+{"mode":"flowing","hz":110,"grains":39,"outside":0,"tooShort":0}
+{"mode":"flowing","hz":220,"grains":36,"outside":0,"tooShort":0}
+{"mode":"flowing","hz":880,"grains":40,"outside":0,"tooShort":0}
+{"mode":"fragment","hz":110,"grains":52,"outside":0,"tooShort":0}
+{"mode":"fragment","hz":220,"grains":49,"outside":0,"tooShort":0}
+{"mode":"fragment","hz":880,"grains":52,"outside":0,"tooShort":0}
+PASS RFL native fallback crop and fade durations at changing roots
+
+## live-rfl-preparation
+PASS fragment worker extraction: all six cut-map arrays byte-identical in mono/stereo at 44.1/48/96kHz
+
+## preview-state
+PASS standalone Material audio preview ▶→■→▶, mutual interruption, automatic end, and independent Power
+
+## mini-preview
+PASS P7.34 colors, matte corners, compact tile preview, reactive material import and index
+
+## engage
+PASS Engage vs Edit semantics, saved identity, no auto-save, no playback
+PASS UI labels, Engage click, separate Delete, right-side edit control
+
+## session-store
+PASS Meta-Menu session store: first-use, dedupe, order, save, use, reload, legacy isolation
+PASS per-session color: independent palette, RGB validity, reload, live activation, no shared metadata
+
+## session-room-settings
+PASS P7.28 optional main room snapshot capture, restore, clear, references unchanged
+
+## preservation-negative-controls
+PASS clean preservation control and 7 independent mutation detections
+
+## native-session-auditions
+PASS native Sessions PCM: RFL/drums/bass, stop, switch, preparation cancellation, missing source, unchanged live state
+
+## live-rfl-native-browser
+{"mode":"flowing","rate":44100,"nativeGrains":448,"excludedTransientPeak":0}
+{"mode":"flowing","rate":48000,"nativeGrains":448,"excludedTransientPeak":0}
+{"mode":"flowing","rate":96000,"nativeGrains":448,"excludedTransientPeak":0}
+{"mode":"fragment","rate":44100,"nativeGrains":559,"excludedTransientPeak":0}
+{"mode":"fragment","rate":48000,"nativeGrains":559,"excludedTransientPeak":0}
+{"mode":"fragment","rate":96000,"nativeGrains":559,"excludedTransientPeak":0}
+
+## session-reload-browser
+PASS native origin reload: v1→v2 profiles/colors, 19 EDO A→B→A modes/mutes, isolated Bass Grid, visible saved/draft Part import and duplicate prevention
+
+## native-layout-browser
+PASS native 1490/720 shared Period/Bass dialogs and markers; first visible dock, resize, room and fullscreen transitions
+
+## grid-native-contract-browser
+AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+
+60 !== 20
+
+    at /workspace/Xensonar/n21-f2/tests/p738-grid-native-contract-browser.cjs:28:38 {
+  generatedMessage: true,
+  code: 'ERR_ASSERTION',
+  actual: 60,
+  expected: 20,
+  operator: 'strictEqual',
+  diff: 'simple'
+}
+
+## historical-song-browser
+PASS historical song-projects-browser
+
+## tab-geometry-browser
+PASS: front tabs opaque; two central gaps reveal clickable Sessions layer; session/panel joined; label centered; library switch reversible
+
+## build-reproducibility
+PASS reproducible standalone HTML 64f5bda8b01595dc265f2945397b83443b123b3f3babdf7eda511f8635eaed01 5859506

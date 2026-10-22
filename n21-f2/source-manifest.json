@@ -1,10 +1,12 @@
 {
-  "version": "XenSonar P7.24 · Song Projects, Parts, UI and Saved Entrophon",
-  "entry": "Xensonar_P7_24_Song_Projects_Test.html",
+  "version": "XenSonar P7.38 · reviewed Sessions, grid profiles, auditions and startup geometry",
+  "entry": "Xensonar_P7_38_Sessions_Reviewed_Test.html",
   "files": [
     "src/handoff/00_chat_feature_addons.js",
     "src/mix/03_quick_menu.js",
-    "src/mix/03_song_projects.js",
+    "src/mix/03_meta_menu.js",
+    "src/mix/03_legacy_song_import.js",
+    "src/mix/03_session_auditions.js",
     "src/mix/04_melodic_spatial.js",
     "src/mix/05_grid_runtime.js",
     "src/mix/06_custom_instruments.js",
@@ -211,8 +213,8 @@
     "src/05_dual_donor.js",
     "src/06_workbench_dialog.js"
   ],
-  "sha256": "e2b2384a0addae4c8a8720eff0c60bec4f6d44af89c382602f80d2f531cae86d",
-  "bytes": 5751989,
+  "sha256": "64f5bda8b01595dc265f2945397b83443b123b3f3babdf7eda511f8635eaed01",
+  "bytes": 5859506,
   "sourceOrder": "Concatenate in listed order. Explicit factories own Workbench, hybrid session, render capture, adapters, playback and analysis cache. Remaining registry fragments share one inline module; DSP factories stay independently serializable for workers.",
   "status": "F4.3.13 mainline plus F4.4.0 Nodal coupled-modal-v2, anchored at F4.3.5",
   "baseVersion": "F4.3.5 (three-way)",
@@ -353,10 +355,24 @@
       "after": "\n"
     },
     {
-      "file": "styles/27_song_projects.css",
-      "tag": "<style id=\"xen-song-projects\">",
+      "file": "styles/27_meta_menu.css",
+      "tag": "<style id=\"xen-meta-menu\">",
       "after": "\n"
     }
   ],
-  "baselineSha256": "db629ca4919537047c50b458cc3c420271920acf54099befb1e56113e8e120f7"
+  "baselineSha256": "db629ca4919537047c50b458cc3c420271920acf54099befb1e56113e8e120f7",
+  "headExtensions": [
+    {
+      "file": "styles/28_grid_profiles.css",
+      "tag": "<style id=\"xen-grid-profile-session-css\">",
+      "close": "</style>",
+      "after": "\n    "
+    },
+    {
+      "file": "src/app/00_startup_diagnostics.js",
+      "tag": "<script id=\"xen-startup-observer\">",
+      "close": "</script>",
+      "after": "\n"
+    }
+  ]
 }

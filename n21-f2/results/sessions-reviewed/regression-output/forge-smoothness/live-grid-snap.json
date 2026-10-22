@@ -1,0 +1,24 @@
+{
+  "entry": "XenSonar_P7_38_Sessions_Reviewed_Test.html",
+  "sha256": "12ecf1e11e2032ee11cc0ebfd8d4a4b26e7876d63e612f6513b7f2855fa0f149",
+  "frequencies": 2048,
+  "reads": 13,
+  "realCases": 1080,
+  "queriesPerRun": 50000,
+  "baseline": [
+    77.186465,
+    76.73242300000015,
+    77.05203499999993,
+    69.28372999999988,
+    67.6486319999999
+  ],
+  "changed": [
+    10.746547000000191,
+    5.2279530000000705,
+    4.785305999999991,
+    2.984768000000031,
+    3.156091999999717
+  ],
+  "speedup": 16.035008628497383,
+  "scope": "Nearest-frequency lookup within an already compiled live grid; not total audio engine throughput"
+}

@@ -1,0 +1,18 @@
+'use strict';
+const assert=require('node:assert/strict'),fs=require('node:fs');
+const src=fs.readFileSync('src/app/forge/01_room_shell.js','utf8');
+const css=fs.readFileSync('styles/27_meta_menu.css','utf8');
+const js=fs.readFileSync('src/mix/03_meta_menu.js','utf8');
+assert.match(src,/__XenMetaAudition\.register\('grid'/);
+const grid=src.slice(src.indexOf('/* P7.37: render the ENTIRE saved tuning to one native audio buffer before'),src.indexOf('const{initialOvertonesByPreset:Oa'));
+assert.match(grid,/\bBs\(\)/,'Grid audition must call the existing ensureAudioReady before keyboard emission');
+assert.match(grid,/gL\('bowed_glass'\)/,'Grid uses the existing Bowed Glass partial definition');
+assert.match(grid,/osc\.start\(launch\)/,'Offline grid generation schedules oscillator starts in audio time');
+assert.match(grid,/source=ctx\.createBufferSource\(\)/,'Grid must play a single completed buffer');
+assert.doesNotMatch(grid,/ee\.current\?\.\(hz,false/,'Grid preview must not chain immediate keyboard voice attacks');
+assert.doesNotMatch(grid,/set.*Power|set.*GridTuning/,'Grid preview never changes live selection or power');
+assert.match(css,/\.xen-meta-browser-heading \.xen-meta-library-open-manager\{[^}]*background:#4c316c/,'Library button must use original Entrophon violet, not generic theme color');
+assert.match(css,/\.xen-meta-source-menu svg path\{[^}]*fill:#4c316c/,'Corner triangle must use original violet');
+const fragment=js.slice(js.indexOf('const __XenMetaAudition='),js.indexOf('function __XenMetaEditor'));
+assert.match(fragment,/providers\.get\(e\.kind\)/,'Preview providers remain source-specific');
+console.log('PASS P7.37 single-buffer Bowed Glass grid + original violet palette');

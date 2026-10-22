@@ -1,0 +1,32 @@
+'use strict';
+const assert=require('node:assert/strict');
+const fs=require('node:fs'),vm=require('node:vm');
+const src=fs.readFileSync('src/mix/03_meta_menu.js','utf8');
+const css=fs.readFileSync('styles/27_meta_menu.css','utf8');
+const fragment=src.slice(src.indexOf('function __XenMetaEditor('),src.indexOf('/* Contextual Save in Sessions dialog'));
+const jsx=(type,props)=>({type,props});
+const initial={name:'Untitled Session',items:[],colors:{},roomSettings:null,saved:[],loadedId:null,dirty:true,error:'',canUndo:false,canRedo:false};
+const triggered=[];const cycled=[];
+const store={subscribe:()=>()=>{},snapshot:()=>initial,diagnostics:()=>[],use:()=>{triggered.push('engage');return true},editCurrentLive:()=>{triggered.push('edit');return true}};
+const ctx=vm.createContext({__XenMetaSessions:store,__XenQuick:{getItems:()=>[],subscribe:()=>()=>{},snapshot:()=>({items:[],active:{kind:'meta'}}),icons:{grid:'🪜',material:'📀',rootFollow:'🎼',drum:'🥁',bass:'🎸'},cycle:dir=>{cycled.push(dir);return true}},__XenSongKinds:['grid','material','rootFollow','drum','bass'],__XenMetaLabels:{grid:'Threadboard',material:'Material Track',rootFollow:'Root Follow Loop',drum:'Drums',bass:'Bass'},__xenMetaLibraryEntries:()=>[],__xenOpenOriginalLibrary:kind=>{triggered.push(kind);return true},__quickProps:()=>({}),P:{useSyncExternalStore:(a,b)=>b(),useState:v=>[v,()=>{}],useRef:()=>({current:null}),useEffect:()=>{}},u:{jsx,jsxs:jsx},window:{confirm:()=>true},document:{querySelector:()=>null}});
+require('./sessions-test-helpers.cjs').install(ctx);
+vm.runInContext(fragment+'\nglobalThis.render=__XenMetaEditor',ctx);
+function walk(obj,out=[]){if(obj?.type)out.push(obj);for(const child of [obj?.props?.children].flat(Infinity)){if(child&&typeof child==='object')walk(child,out)}return out;}
+function textContent(node){if(typeof node==='string')return node;return (Array.isArray(node)?node:[node]).map(x=>x&&typeof x==='object'?textContent(x.props?.children):String(x??'')).join('');}
+const tree=ctx.render({onClose:()=>{}}),nodes=walk(tree);
+const buttons=nodes.filter(n=>n.type==='button');
+const engage=buttons.find(n=>textContent(n.props.children).includes('Engage!'));
+const edit=buttons.find(n=>textContent(n.props.children).includes('Edit Current Live Session'));
+assert(engage&&edit,'Both existing session actions still exist');
+assert.equal(textContent(engage.props.children),'Engage! ➜','Engage points out of Meta-Menu');
+assert.equal(textContent(edit.props.children),'➜ Edit Current Live Session','Edit points into Session Editor');
+assert(nodes.filter(n=>n.props.className==='xen-meta-action-arrow').length===2,'Two independently aligned visible arrows');
+engage.props.onClick();edit.props.onClick();assert.deepEqual(triggered,['engage','edit'],'Existing business handlers are unchanged');
+const menuButtons=buttons.filter(n=>n.props.className==='xen-meta-source-menu');
+assert.equal(menuButtons.length,5,'Exactly one triangle in each of five constellation headers');
+menuButtons.forEach(b=>b.props.onClick({stopPropagation(){}}));
+assert.deepEqual(triggered,['engage','edit','grid','material','rootFollow','drum','bass']);
+assert(css.includes('.xen-meta-overlay.is-native-behind'),'Original dialogs are above Meta without replacing it');
+assert(css.includes('.xen-meta-action-arrow'),'Arrows get dedicated vertical CSS alignment');
+assert(src.includes('xensonar:open-meta-menu'),'Meta is navigable from the five original menus');
+console.log('PASS P7.32 two right-facing action arrows, original five library buttons, preserved handlers and Meta navigation');

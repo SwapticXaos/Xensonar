@@ -1,0 +1,34 @@
+'use strict';
+const assert=require('node:assert/strict');
+const fs=require('node:fs');
+const vm=require('node:vm');
+const src=fs.readFileSync('src/mix/03_meta_menu.js','utf8');
+const css=fs.readFileSync('styles/27_meta_menu.css','utf8');
+const start=src.indexOf('function __XenMetaEditor(');
+const end=src.indexOf('/* Contextual Save in Sessions dialog',start);
+assert(start>=0&&end>start);
+const calls=[],saved=[{id:'session-1',name:'Drone Set',items:[{kind:'grid',id:'17edo',name:'17 EDO'}],roomSettings:null}];
+const state={name:'Freie Session',items:[],loadedId:null,saved,dirty:false,error:'',canUndo:false,canRedo:false};
+const store={subscribe:()=>()=>{},snapshot:()=>state,diagnostics:()=>[],itemColor:()=>({}),load:id=>calls.push(['load',id]),newSession:()=>calls.push(['new']),save:()=>calls.push(['save'])};
+const jsx=(type,props)=>({type,props});
+let hooks=[],index=0;
+const P={useSyncExternalStore:(sub,read)=>read(),useState:initial=>{const i=index++;if(!(i in hooks))hooks[i]=initial;return[hooks[i],next=>{hooks[i]=typeof next==='function'?next(hooks[i]):next}]},useRef:()=>({current:null}),useEffect:()=>{}};
+const context=vm.createContext({__XenMetaSessions:store,__XenQuick:{subscribe:()=>()=>{},snapshot:()=>({items:[]}),icons:{grid:'🪜',material:'📀',rootFollow:'🎼',drum:'🥁',bass:'🎸'}},__XenSongKinds:['grid','material','rootFollow','drum','bass'],__xenMetaLibraryEntries:()=>[],__XenMetaLabels:{grid:'Threadboard',material:'Material',rootFollow:'RFL',drum:'Drums',bass:'Bass'},__quickProps:()=>({}),P,u:{jsx,jsxs:jsx},window:{confirm:()=>true,addEventListener:()=>{},removeEventListener:()=>{}},document:{querySelector:()=>null}});
+require('./sessions-test-helpers.cjs').install(context);
+vm.runInContext(src.slice(start,end)+'\nthis.renderEditor=__XenMetaEditor',context);
+function walk(n,all=[]){if(!n||typeof n!=='object')return all;if(n.type)all.push(n);for(const child of [n.props?.children].flat(Infinity))walk(child,all);return all}
+function render(){index=0;return walk(context.renderEditor({onClose:()=>{}}))}
+let nodes=render();
+let back=nodes.find(n=>n.type==='button'&&n.props.className==='xen-meta-session-backtab');
+assert(back,'🎧 Sessions needs a real button, not an aria-hidden decorative div');
+assert.equal(back.props['aria-pressed'],false);back.props.onClick();
+nodes=render();back=nodes.find(n=>n.type==='button'&&n.props.className==='xen-meta-session-backtab');
+assert.equal(back.props['aria-pressed'],true);
+assert(nodes.some(n=>n.props?.['data-xen-meta-session-manager']),'Sessions tab opens the saved-session management panel');
+const load=nodes.find(n=>n.type==='button'&&n.props?.['aria-label']==='Load session: Drone Set');
+assert(load,'saved session can be loaded via Sessions tab');load.props.onClick();assert.deepEqual(calls.pop(),['load','session-1']);
+const grid=nodes.find(n=>n.type==='button'&&n.props.role==='tab'&&String(n.props.children?.[1]?.props?.children)==='Thread');
+assert(grid,'source tabs remain accessible');grid.props.onClick();
+nodes=render();assert(!nodes.some(n=>n.props?.['data-xen-meta-session-manager']));
+assert(!/\.xen-meta-session-backtab\s*\{[^}]*pointer-events\s*:\s*none/s.test(css),'the Sessions tab must capture clicks');
+console.log('PASS interactive Sessions super-tab: manage, load and return to five libraries');

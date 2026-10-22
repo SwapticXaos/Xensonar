@@ -1,0 +1,31 @@
+{
+  "pointerKinds": [
+    "grid",
+    "material",
+    "rootFollow",
+    "drum",
+    "bass"
+  ],
+  "desktop": {
+    "width": 1118,
+    "height": 783
+  },
+  "packageRoundtrip": {
+    "included": true,
+    "restored": true,
+    "legacyProtected": true,
+    "imported": 10
+  },
+  "narrow": {
+    "client": 382,
+    "scroll": 676
+  },
+  "freshPackage": {
+    "songs": 2,
+    "materials": 2,
+    "rootFollow": 2,
+    "draftPreserved": true,
+    "referencesResolve": true
+  },
+  "pageErrors": []
+}

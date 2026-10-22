@@ -1,0 +1,101 @@
+{
+  "entry": "XenSonar_P7_38_Sessions_Reviewed_Test.html",
+  "sha256": "12ecf1e11e2032ee11cc0ebfd8d4a4b26e7876d63e612f6513b7f2855fa0f149",
+  "isolated": [
+    {
+      "stages": [],
+      "live": false,
+      "renders": 40,
+      "restores": 40,
+      "scriptMs": 247.666,
+      "taskMs": 273.483,
+      "snapshots": {
+        "intakeId": 39,
+        "tap": "Diagnostic 39",
+        "channels": 0,
+        "delivered": 0,
+        "ownerStable": true
+      }
+    },
+    {
+      "stages": [
+        "telemetry"
+      ],
+      "live": false,
+      "renders": 0,
+      "restores": 0,
+      "scriptMs": 2.42,
+      "taskMs": 50.458000000000006,
+      "snapshots": {
+        "intakeId": 39,
+        "tap": "Diagnostic 39",
+        "channels": 2,
+        "delivered": 80,
+        "ownerStable": true
+      }
+    }
+  ],
+  "live": [
+    {
+      "rep": 0,
+      "stages": [],
+      "live": true,
+      "renders": 77,
+      "restores": 77,
+      "scriptMs": 1545.217,
+      "taskMs": 3636.9339999999997
+    },
+    {
+      "rep": 0,
+      "stages": [
+        "telemetry"
+      ],
+      "live": true,
+      "renders": 34,
+      "restores": 34,
+      "scriptMs": 570.114,
+      "taskMs": 1884.236
+    },
+    {
+      "rep": 1,
+      "stages": [
+        "telemetry"
+      ],
+      "live": true,
+      "renders": 39,
+      "restores": 39,
+      "scriptMs": 750.31,
+      "taskMs": 2377.545
+    },
+    {
+      "rep": 1,
+      "stages": [],
+      "live": true,
+      "renders": 76,
+      "restores": 76,
+      "scriptMs": 1134.544,
+      "taskMs": 3176.4590000000003
+    },
+    {
+      "rep": 2,
+      "stages": [],
+      "live": true,
+      "renders": 61,
+      "restores": 61,
+      "scriptMs": 845.115,
+      "taskMs": 2375.583
+    },
+    {
+      "rep": 2,
+      "stages": [
+        "telemetry"
+      ],
+      "live": true,
+      "renders": 35,
+      "restores": 35,
+      "scriptMs": 651.183,
+      "taskMs": 2176.849
+    }
+  ],
+  "scope": "Actual Chromium/React, 40 controlled paired diagnostic publications; separate powered playfield gesture runs. ScriptDuration is main-thread JavaScript, not DSP throughput."
+}

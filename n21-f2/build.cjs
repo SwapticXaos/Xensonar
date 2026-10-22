@@ -6,6 +6,16 @@ const root=__dirname,manifestFile=path.join(root,'source-manifest.json');
 const manifest=JSON.parse(fs.readFileSync(manifestFile,'utf8'));
 const read=name=>fs.readFileSync(path.join(root,name),'utf8');
 let html=read('template/head.html');
+if(manifest.headExtensions?.length){
+ const marker='<script type="module" crossorigin>';
+ if(!html.includes(marker))throw Error('Missing module entry boundary');
+ const extensions=manifest.headExtensions.map(item=>{
+  if(!/^(?:src|styles)\/[a-zA-Z0-9_./-]+$/.test(item.file)||item.file.includes('..'))throw Error('Invalid head extension path');
+  if(!['</style>','</script>'].includes(item.close))throw Error('Invalid head extension wrapper');
+  return item.tag+read(item.file)+item.close+item.after;
+ }).join('');
+ html=html.replace(marker,extensions+marker);
+}
 for(const file of manifest.files)html+=read(file);
 html+=read('template/script-close.html');
 for(const item of manifest.styles)html+=item.tag+read(item.file)+'</style>'+item.after;

@@ -1,0 +1,26 @@
+{
+  "reference-profile-reset": {
+    "exitCode": 1,
+    "referenceSHA256": "35406409a61e3cbe8d989490b2f8dedd95ac2934205248f1873f643a1219d9bb",
+    "focus": "",
+    "expected": "FAIL against supplied reference"
+  },
+  "reference-settings-undo": {
+    "exitCode": 1,
+    "referenceSHA256": "35406409a61e3cbe8d989490b2f8dedd95ac2934205248f1873f643a1219d9bb",
+    "focus": "undo",
+    "expected": "FAIL against supplied reference"
+  },
+  "reference-engage-rollback": {
+    "exitCode": 1,
+    "referenceSHA256": "35406409a61e3cbe8d989490b2f8dedd95ac2934205248f1873f643a1219d9bb",
+    "focus": "rollback",
+    "expected": "FAIL against supplied reference"
+  },
+  "corrected-integrity": {
+    "exitCode": 0,
+    "referenceSHA256": null,
+    "focus": null,
+    "expected": "PASS"
+  }
+}

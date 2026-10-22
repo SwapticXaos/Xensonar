@@ -1,0 +1,39 @@
+{
+  "baseline": "10178acb733db38f1801b263ac5200d98c17e69b",
+  "completedAt": "2026-10-22T07:30:45.022661+00:00",
+  "entrySHA256": "64f5bda8b01595dc265f2945397b83443b123b3f3babdf7eda511f8635eaed01",
+  "artifactCount": 121,
+  "preservedPrefixCount": 116,
+  "newArtifacts": [
+    {
+      "file": "Xensonar_P7_38_Sessions_Reviewed_Test.html",
+      "bytes": 5859506,
+      "sha256": "64f5bda8b01595dc265f2945397b83443b123b3f3babdf7eda511f8635eaed01"
+    },
+    {
+      "file": "XenSonar_P7_38_Sessions_Reviewed_Quellen.zip",
+      "bytes": 30597760,
+      "sha256": "52aebccb22cd7312f2749e1b8de45032319fdfe7a82e9906eeb07d2049e2be31"
+    },
+    {
+      "file": "P7_38_Sessions_Reviewed_Messdaten.zip",
+      "bytes": 3896439,
+      "sha256": "6b95f500ed9d10845dbb118c003eb9f66aa3996195693c6849141689359d1796"
+    },
+    {
+      "file": "P7_38_Sessions_Reviewed_Pruefbericht.md",
+      "bytes": 10904,
+      "sha256": "1496cab98e59d45798d5dfe144ce4cf74edf19aa7a4cd72b87175e778efb9e60"
+    },
+    {
+      "file": "XenSonar_P7_38_Sessions_Reviewed.patch",
+      "bytes": 5845146,
+      "sha256": "e420a47f334f5f6622b59fec450b713f6d6cf9f9d5ecfb0155a603a3952ad9f7"
+    }
+  ],
+  "sourceZipBelow32MiB": true,
+  "sourceZipAndPatchReconstructionChecks": 10,
+  "packageProofMatchesFinalArtifacts": true,
+  "evidenceContainsCurrentPackageProof": true,
+  "zipIntegrityPassed": true
+}

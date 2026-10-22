@@ -1,0 +1,92 @@
+[
+  {
+    "file": "source-manifest.json",
+    "patch_base": "28e345a",
+    "current": "28e345a",
+    "identical": true
+  },
+  {
+    "file": "src/app/forge/01_room_shell.js",
+    "patch_base": "34bf355",
+    "current": "34bf355",
+    "identical": true
+  },
+  {
+    "file": "src/app/forge/02_boot_and_workspace_tools.js",
+    "patch_base": "8a81b6a",
+    "current": "8a81b6a",
+    "identical": true
+  },
+  {
+    "file": "src/audio/01_voice_and_rfl_ownership.js",
+    "patch_base": "f9f2c55",
+    "current": "f9f2c55",
+    "identical": true
+  },
+  {
+    "file": "src/forge/editor/01_display_and_canvas.js",
+    "patch_base": "c3a41e7",
+    "current": "c3a41e7",
+    "identical": true
+  },
+  {
+    "file": "src/forge/editor/07_composition_and_preview_ui.js",
+    "patch_base": "f76fe7d",
+    "current": "f76fe7d",
+    "identical": true
+  },
+  {
+    "file": "src/forge/editor/09_workflow_controls.js",
+    "patch_base": "6648b79",
+    "current": "6648b79",
+    "identical": true
+  },
+  {
+    "file": "src/forge/ui/02_donor_routing_and_hearing.js",
+    "patch_base": "9b4c96f",
+    "current": "9b4c96f",
+    "identical": true
+  },
+  {
+    "file": "src/forge_and_melodic/06_note_editor_and_material_tools.js",
+    "patch_base": "f41bed5",
+    "current": "f41bed5",
+    "identical": true
+  },
+  {
+    "file": "src/forge_and_melodic/10_audition_and_persistence.js",
+    "patch_base": "ee810bf",
+    "current": "ee810bf",
+    "identical": true
+  },
+  {
+    "file": "src/mix/03_quick_menu.js",
+    "patch_base": "afa7072",
+    "current": "afa7072",
+    "identical": true
+  },
+  {
+    "file": "src/runtime/instrument/05_timing_and_admission.js",
+    "patch_base": "201d8f0",
+    "current": "201d8f0",
+    "identical": true
+  },
+  {
+    "file": "src/runtime/instrument/08_library_and_tuning_editor.js",
+    "patch_base": "64ba8db",
+    "current": "64ba8db",
+    "identical": true
+  },
+  {
+    "file": "styles/24_quick_menu.css",
+    "patch_base": "85dcc42",
+    "current": "85dcc42",
+    "identical": true
+  },
+  {
+    "file": "tests/p7_3_forge_navigator.cjs",
+    "patch_base": "dc5e88c",
+    "current": "dc5e88c",
+    "identical": true
+  }
+]

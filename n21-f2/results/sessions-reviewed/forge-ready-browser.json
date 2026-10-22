@@ -1,0 +1,15 @@
+{
+  "errors": [],
+  "checks": [
+    "default route prepares exact Play buffer",
+    "emilia: ready -> Play without recalculation",
+    "pure-dieter: ready -> Play without recalculation",
+    "fractalia: ready -> Play without recalculation",
+    "harmonic-xplore: ready -> Play without recalculation",
+    "spektral-synthese: ready -> Play without recalculation",
+    "antonia: ready -> Play without recalculation",
+    "bert: ready -> Play without recalculation",
+    "cecilia: ready -> Play without recalculation",
+    "tempo edit invalidates and prepares new identity"
+  ]
+}

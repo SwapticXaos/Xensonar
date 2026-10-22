@@ -40,7 +40,13 @@ assert(persistSource.includes('snapshot().nameDraft'), 'Save as Sample must read
   const sourceStart=persistSource.indexOf('async function __f333SaveNavigatorSample(){');
   const sourceEnd=persistSource.indexOf('async function __f333ExportCurrent(',sourceStart);
   assert(sourceStart>=0&&sourceEnd>sourceStart,'missing canonical Forge save function');
-  const saveFunction=persistSource.slice(sourceStart,sourceEnd);
+  // P7.27 Navigator routing refactors shared rendering/name logic into three
+  // top-level helpers. Run the real helper code in this isolated behaviour test
+  // rather than incorrectly treating their calls as absent in production.
+  const sharedStart=persistSource.indexOf('function __f333NavigatorTypedName(){');
+  const helperCode=sharedStart>=0&&sharedStart<sourceStart?
+    persistSource.slice(sharedStart,sourceStart):'';
+  const saveFunction=helperCode+persistSource.slice(sourceStart,sourceEnd);
   const selected={start:.2,end:.4};let draft='My Dark Drone',registered=[];
   const channel=new Float32Array(48000).fill(.25);
   const peState={renderVersion:4,sourceAsset:'audio1',materialExport:{name:'Forge'}};

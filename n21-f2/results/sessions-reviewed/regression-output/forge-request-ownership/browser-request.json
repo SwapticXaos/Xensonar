@@ -1,0 +1,21 @@
+{
+  "entry": "XenSonar_P7_38_Sessions_Reviewed_Test.html",
+  "sha256": "3ef8e54b77a385d0054d9467b49fe79b08a381657731817b1ebc367ebf3f3807",
+  "errors": [],
+  "beforeSwitch": {
+    "pendingDonors": 1,
+    "jobs": 0,
+    "ready": false
+  },
+  "afterSwitch": {
+    "mode": "antonia",
+    "jobs": [
+      {
+        "machine": "branch-a-line-traffic",
+        "epoch": 15
+      }
+    ],
+    "ready": true
+  },
+  "playJobs": 1
+}

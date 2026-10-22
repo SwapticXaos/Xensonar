@@ -16,7 +16,89 @@ const __keyboardIngress=Lt?.keyboardGestureSource==="keyboard-direct"||Lt?.keybo
 if(!wr||(!__keyboardIngress&&!fa.current.enabled&&!Lt?.waveStarterPreview)||!Number.isFinite(ct)||ct<=0)return;if(typeof __XenAudioProbe!=="undefined"&&__XenAudioProbe.enabled)Lt={...Lt,traceId:Lt?.traceId??__XenAudioProbe.begin("wave",wr.currentTime)};if(!kc(wr,"wave",Lt?.traceId))return;if(!Fxe(Lt)){Oh().request(ct,_t,Lt);return}tAe(Es(),ct,_t,Lt)},_h=(ct,_t=!1,Lt)=>{const __performanceKeyboard=Lt?.keyboardGestureSource==="keyboard-direct"||Lt?.keyboardGestureSource==="keyboard-glissando"||Lt?.waveStarterGestureLoopLane==="klaviatur";// P7.7: Keyboard and Wave Starter have independent activation ownership.
 // The keyboard's source/volume stay independent even when Wave Starter is OFF.
 // This is an ephemeral runtime view only: never mutate the Wave Starter state.
-const wr=__performanceKeyboard?{...fa.current,enabled:true,volume:Tt.current.keyboardMixVolume??.3}:fa.current;if(!wr.enabled&&!Lt?.waveStarterPreview)return;const Fr=Lr.current??i;if(!Fr)return;const Wi=dO(xn);Sl(Wi.cursorY,"wave");const ja={selection:$w(Lt?.waveStarterPresetOverride??wr.preset),emitState:pL({baseFreq:ct,isSector:_t,cursorX:Wi.cursorX,octaveHeld:Nu.current,swell:__performanceKeyboard?Rc.current:0,runtimeVolume:Lt?.waveStarterPreview?Math.max(wr.volume,.22):wr.volume,waveTimbreGradientEnabled:Tt.current.waveTimbreGradientEnabled,waveTimbreGradientX:Tt.current.waveTimbreGradientX,waveVolumeGradientEnabled:Tt.current.waveVolumeGradientEnabled,waveVolumeGradientX:Tt.current.waveVolumeGradientX,options:Lt})};const Dc=xe&&ot.current&&Ke.current!=="installation",Ho=Br&&aa.waves.enabled&&(aa.waves.send>.002||aa.waves.wet>.002)||_a&&qu.waves.enabled&&qu.waves.send>.002||!!et.droneDriveOn&&Go.waves.enabled&&Go.waves.send>.002||Ao&&_o.current&&pi.waveSend>.002||Bm&&Ts.waves.enabled&&Ts.waves.send>.002||qe&&at>.002,zs=ja.selection.kind==="preset"?{presetId:ja.selection.presetId,playbackFreqHz:ja.emitState.playbackFreq,productVolume:ja.emitState.volume,runtimeVolume:Lt?.waveStarterPreview?Math.max(wr.volume,.22):wr.volume,isSector:_t,waveGradient:ja.emitState.waveGradient,swellBlend:0,overtonesEnabled:Tt.current.waveOvertonesEnabled,overtoneAmounts:Tt.current.waveOvertones,overtoneWaveform:Tt.current.waveOvertoneWaveform,overtoneMode:Tt.current.waveOvertoneMode,overtoneGlobalLevel:Tt.current.waveOvertoneGlobalLevel}:null,Vo=zs?o9(zs):null,qi=PCe({heldLong:Sm.current,forceSustainExtend:!!Lt?.forceSustainExtend,bodyExciterExpected:Dc,activeWaveAux:Ho,waveGradientAmount:ja.emitState.waveGradient.amount,overtonesEnabled:Tt.current.waveOvertonesEnabled,overtoneMode:Tt.current.waveOvertoneMode,swellBlend:0,c11CorePlanReady:!!Vo?.ok,c11CorePlanReason:Vo?.ok===!1?Vo.reason:null}),Qm=MEe,Bl=ue.enabled&&qi.c11Allowed&&Ho?()=>(AL({ctx:Fr,activeMask:(Br&&aa.waves.enabled&&(aa.waves.send>.002||aa.waves.wet>.002)?1:0)|(_a&&qu.waves.enabled&&qu.waves.send>.002?2:0)|(et.droneDriveOn&&Go.waves.enabled&&Go.waves.send>.002?4:0)|(Ao&&_o.current&&pi.waveSend>.002?8:0)|(Bm&&Ts.waves.enabled&&Ts.waves.send>.002?16:0)|(qe&&at>.002?32:0),essentialWaveOnly:!1,enterHoldPsyFxEnabled:Ao,enterHoldActive:_o.current,ensureCollectiveMemoryFx:Cl,ensurePsychedelicSpiralDevice:fi,ensureTransientDriveDevice:Vi,ensureEnterHoldPsyFxDevice:Qu,ensureSchwarmdeuterDevice:Uu,ensureMyzelPostFxRouter:Fc}),exe({ctx:Fr,essentialWaveOnly:!1,transientDriveWaves:fo.current.waves,psychedelicSpiralWaves:Cs.current.waves,collectiveMemoryWaves:Rs.current.waves?.input,enterHoldPsyFxWaves:Ac.current.waves,enterHoldPsyFxEnabled:Ao,enterHoldActive:_o.current,schwarmdeuterWaves:go.current.waves,myzelPostFxWaves:er.current.waves})):null;RCe({ctx:Fr,isSector:_t,options:Lt,selection:ja.selection,resolved:ja.emitState,entrophonActive:!!ja.selection.entrophonPreset||(Lt?.entrophonWaveActive??Hd()),rootFollowActive:!!et.rootFollowLoopActive,nativeOwner:ie.ownerRef.current?.state==="open"?ie.ownerRef.current:null,xrgOwner:oe.governorRef.current,browserImplant:ue,nativePilot:he,transientRuntime:hl.current,c11CorePlan:null,c11CorePlanInput:zs,c11CoreToneCount:Vo?.ok?Vo.toneCount:null,c11AuxTargets:Qm,c11PrepareAuxTargets:Bl,c11Allowed:qi.c11Allowed,c11BypassReason:qi.c11BypassReason,executor:re,coreOwnerAllowed:qi.coreOwnerAllowed,coreOwnerBypassReason:qi.coreOwnerBypassReason})!=="owned"&&Exe({ctx:Fr,resolvedDirect:ja,baseFreq:ct,isSector:_t,options:Lt,runtime:wr,cursor:Wi,octaveHeld:Nu.current,swellBlend:0,heldLong:Sm.current,nexusSound:{waveTimbreGradientEnabled:Tt.current.waveTimbreGradientEnabled,waveTimbreGradientX:Tt.current.waveTimbreGradientX,waveVolumeGradientEnabled:Tt.current.waveVolumeGradientEnabled,waveVolumeGradientX:Tt.current.waveVolumeGradientX,waveOvertonesEnabled:Tt.current.waveOvertonesEnabled,waveOvertones:Tt.current.waveOvertones,waveOvertoneWaveform:Tt.current.waveOvertoneWaveform,waveOvertoneMode:Tt.current.waveOvertoneMode,waveOvertoneGlobalLevel:Tt.current.waveOvertoneGlobalLevel},fxRoutes:{ensureCollectiveMemoryFx:Cl,ensurePsychedelicSpiralDevice:fi,ensureTransientDriveDevice:Vi,ensureEnterHoldPsyFxDevice:Qu,ensureSchwarmdeuterDevice:Uu,ensureMyzelPostFxRouter:Fc},fxTargets:{activeMask:(Br&&aa.waves.enabled&&(aa.waves.send>.002||aa.waves.wet>.002)?1:0)|(_a&&qu.waves.enabled&&qu.waves.send>.002?2:0)|(et.droneDriveOn&&Go.waves.enabled&&Go.waves.send>.002?4:0)|(Ao&&_o.current&&pi.waveSend>.002?8:0)|(Bm&&Ts.waves.enabled&&Ts.waves.send>.002?16:0)|(qe&&at>.002?32:0),get transientDriveWaves(){return fo.current.waves},get psychedelicSpiralWaves(){return Cs.current.waves},get collectiveMemoryWaves(){return Rs.current.waves?.input},get enterHoldPsyFxWaves(){return Ac.current.waves},enterHoldPsyFxEnabled:Ao,enterHoldActive:_o.current,get schwarmdeuterWaves(){return go.current.waves},get myzelPostFxWaves(){return er.current.waves}},activeScheduledTonesRef:eo,transientRuntime:hl.current,beginTransientEvent:(Dl,Qi,Nc)=>Ec(Dl,Qi,Nc),getWaveOutput:Dl=>ja.selection.kind==="sample"?__XenPan.route(Dl,__performanceKeyboard?"keyboard":"wave",hi(Dl,"space")):hi(Dl,"space"),primeMyzelFromY:()=>{},playScheduledTone:Hm,triggerBodyExciter:bv,enqueueOvertoneArp:Dr})};ee.current=_h;const{initialOvertonesByPreset:Oa,nexusParamsRef:Tt,nParamsUI:et,updateNParams:Mr,rootFollowUiStorageKey:Gu}=$2e();
+const wr=__performanceKeyboard?{...fa.current,enabled:true,volume:Tt.current.keyboardMixVolume??.3}:fa.current;if(!wr.enabled&&!Lt?.waveStarterPreview)return;const Fr=Lr.current??i;if(!Fr)return;const Wi=dO(xn);Sl(Wi.cursorY,"wave");const ja={selection:$w(Lt?.waveStarterPresetOverride??wr.preset),emitState:pL({baseFreq:ct,isSector:_t,cursorX:Wi.cursorX,octaveHeld:Nu.current,swell:__performanceKeyboard?Rc.current:0,runtimeVolume:Lt?.waveStarterPreview?Math.max(wr.volume,.22):wr.volume,waveTimbreGradientEnabled:Tt.current.waveTimbreGradientEnabled,waveTimbreGradientX:Tt.current.waveTimbreGradientX,waveVolumeGradientEnabled:Tt.current.waveVolumeGradientEnabled,waveVolumeGradientX:Tt.current.waveVolumeGradientX,options:Lt})};const Dc=xe&&ot.current&&Ke.current!=="installation",Ho=Br&&aa.waves.enabled&&(aa.waves.send>.002||aa.waves.wet>.002)||_a&&qu.waves.enabled&&qu.waves.send>.002||!!et.droneDriveOn&&Go.waves.enabled&&Go.waves.send>.002||Ao&&_o.current&&pi.waveSend>.002||Bm&&Ts.waves.enabled&&Ts.waves.send>.002||qe&&at>.002,zs=ja.selection.kind==="preset"?{presetId:ja.selection.presetId,playbackFreqHz:ja.emitState.playbackFreq,productVolume:ja.emitState.volume,runtimeVolume:Lt?.waveStarterPreview?Math.max(wr.volume,.22):wr.volume,isSector:_t,waveGradient:ja.emitState.waveGradient,swellBlend:0,overtonesEnabled:Tt.current.waveOvertonesEnabled,overtoneAmounts:Tt.current.waveOvertones,overtoneWaveform:Tt.current.waveOvertoneWaveform,overtoneMode:Tt.current.waveOvertoneMode,overtoneGlobalLevel:Tt.current.waveOvertoneGlobalLevel}:null,Vo=zs?o9(zs):null,qi=PCe({heldLong:Sm.current,forceSustainExtend:!!Lt?.forceSustainExtend,bodyExciterExpected:Dc,activeWaveAux:Ho,waveGradientAmount:ja.emitState.waveGradient.amount,overtonesEnabled:Tt.current.waveOvertonesEnabled,overtoneMode:Tt.current.waveOvertoneMode,swellBlend:0,c11CorePlanReady:!!Vo?.ok,c11CorePlanReason:Vo?.ok===!1?Vo.reason:null}),Qm=MEe,Bl=ue.enabled&&qi.c11Allowed&&Ho?()=>(AL({ctx:Fr,activeMask:(Br&&aa.waves.enabled&&(aa.waves.send>.002||aa.waves.wet>.002)?1:0)|(_a&&qu.waves.enabled&&qu.waves.send>.002?2:0)|(et.droneDriveOn&&Go.waves.enabled&&Go.waves.send>.002?4:0)|(Ao&&_o.current&&pi.waveSend>.002?8:0)|(Bm&&Ts.waves.enabled&&Ts.waves.send>.002?16:0)|(qe&&at>.002?32:0),essentialWaveOnly:!1,enterHoldPsyFxEnabled:Ao,enterHoldActive:_o.current,ensureCollectiveMemoryFx:Cl,ensurePsychedelicSpiralDevice:fi,ensureTransientDriveDevice:Vi,ensureEnterHoldPsyFxDevice:Qu,ensureSchwarmdeuterDevice:Uu,ensureMyzelPostFxRouter:Fc}),exe({ctx:Fr,essentialWaveOnly:!1,transientDriveWaves:fo.current.waves,psychedelicSpiralWaves:Cs.current.waves,collectiveMemoryWaves:Rs.current.waves?.input,enterHoldPsyFxWaves:Ac.current.waves,enterHoldPsyFxEnabled:Ao,enterHoldActive:_o.current,schwarmdeuterWaves:go.current.waves,myzelPostFxWaves:er.current.waves})):null;RCe({ctx:Fr,isSector:_t,options:Lt,selection:ja.selection,resolved:ja.emitState,entrophonActive:!!ja.selection.entrophonPreset||(Lt?.entrophonWaveActive??Hd()),rootFollowActive:!!et.rootFollowLoopActive,nativeOwner:ie.ownerRef.current?.state==="open"?ie.ownerRef.current:null,xrgOwner:oe.governorRef.current,browserImplant:ue,nativePilot:he,transientRuntime:hl.current,c11CorePlan:null,c11CorePlanInput:zs,c11CoreToneCount:Vo?.ok?Vo.toneCount:null,c11AuxTargets:Qm,c11PrepareAuxTargets:Bl,c11Allowed:qi.c11Allowed,c11BypassReason:qi.c11BypassReason,executor:re,coreOwnerAllowed:qi.coreOwnerAllowed,coreOwnerBypassReason:qi.coreOwnerBypassReason})!=="owned"&&Exe({ctx:Fr,resolvedDirect:ja,baseFreq:ct,isSector:_t,options:Lt,runtime:wr,cursor:Wi,octaveHeld:Nu.current,swellBlend:0,heldLong:Sm.current,nexusSound:{waveTimbreGradientEnabled:Tt.current.waveTimbreGradientEnabled,waveTimbreGradientX:Tt.current.waveTimbreGradientX,waveVolumeGradientEnabled:Tt.current.waveVolumeGradientEnabled,waveVolumeGradientX:Tt.current.waveVolumeGradientX,waveOvertonesEnabled:Tt.current.waveOvertonesEnabled,waveOvertones:Tt.current.waveOvertones,waveOvertoneWaveform:Tt.current.waveOvertoneWaveform,waveOvertoneMode:Tt.current.waveOvertoneMode,waveOvertoneGlobalLevel:Tt.current.waveOvertoneGlobalLevel},fxRoutes:{ensureCollectiveMemoryFx:Cl,ensurePsychedelicSpiralDevice:fi,ensureTransientDriveDevice:Vi,ensureEnterHoldPsyFxDevice:Qu,ensureSchwarmdeuterDevice:Uu,ensureMyzelPostFxRouter:Fc},fxTargets:{activeMask:(Br&&aa.waves.enabled&&(aa.waves.send>.002||aa.waves.wet>.002)?1:0)|(_a&&qu.waves.enabled&&qu.waves.send>.002?2:0)|(et.droneDriveOn&&Go.waves.enabled&&Go.waves.send>.002?4:0)|(Ao&&_o.current&&pi.waveSend>.002?8:0)|(Bm&&Ts.waves.enabled&&Ts.waves.send>.002?16:0)|(qe&&at>.002?32:0),get transientDriveWaves(){return fo.current.waves},get psychedelicSpiralWaves(){return Cs.current.waves},get collectiveMemoryWaves(){return Rs.current.waves?.input},get enterHoldPsyFxWaves(){return Ac.current.waves},enterHoldPsyFxEnabled:Ao,enterHoldActive:_o.current,get schwarmdeuterWaves(){return go.current.waves},get myzelPostFxWaves(){return er.current.waves}},activeScheduledTonesRef:eo,transientRuntime:hl.current,beginTransientEvent:(Dl,Qi,Nc)=>Ec(Dl,Qi,Nc),getWaveOutput:Dl=>ja.selection.kind==="sample"?__XenPan.route(Dl,__performanceKeyboard?"keyboard":"wave",hi(Dl,"space")):hi(Dl,"space"),primeMyzelFromY:()=>{},playScheduledTone:Hm,triggerBodyExciter:bv,enqueueOvertoneArp:Dr})};ee.current=_h;
+/* P7.37: render the ENTIRE saved tuning to one native audio buffer before
+   starting playback. The previous 340ms lookahead could lose notes whenever
+   the main thread stalled beyond the lookahead. Once rendered, individual
+   attacks belong solely to the audio sample clock, not any JS scheduler.
+   Original Bowed Glass partial definitions, short preview-only articulation;
+   no mutation of the live Keyboard, voice owner, instrument or transport. */
+P.useEffect(()=>{
+ if(typeof __XenMetaAudition==='undefined')return;
+ return __XenMetaAudition.register('grid',{
+  available:entry=>__xenMetaGridPreviewPitches(Number(Tt.current?.gridBase??110),entry.id,entry.gridProfile).length>0,
+  start:(entry,finished)=>{
+   const notes=__xenMetaGridPreviewPitches(Number(Tt.current?.gridBase??110),entry.id,entry.gridProfile);
+   if(!notes.length)return null;
+   let canceled=false,source=null;
+   const stepSec=.155,tailSec=.132;
+   // P7.35-F2 timbre and every saved scale step are intentionally preserved.
+   const partials=gL('bowed_glass').slice(0,3);
+   const cancel=()=>{
+    if(canceled)return;
+    canceled=true;
+    if(source){
+     source.onended=null;
+     try{source.stop()}catch{}
+     try{source.disconnect()}catch{}
+     source=null;
+    }
+   };
+   // No prewarming on room load; first click activates the existing audio bus.
+   Promise.resolve().then(()=>Bs()).then(async ctx=>{
+    if(canceled)return;
+    if(!ctx||ctx.state!=='running'){finished();return}
+    const sampleRate=ctx.sampleRate;
+    const duration=(notes.length-1)*stepSec+tailSec+.04;
+    const frameCount=Math.ceil(duration*sampleRate);
+    // Built-in OfflineAudioContext does DSP asynchronously and returns a PCM
+    // AudioBuffer. This is NOT an additional live synth or timing worklet.
+    const offline=new OfflineAudioContext(1,frameCount,sampleRate);
+    for(let i=0;i<notes.length;i++){
+     const when=i*stepSec,hz=notes[i];
+     const noteGain=offline.createGain(),noteFilter=offline.createBiquadFilter();
+     noteFilter.type='lowpass';
+     noteFilter.frequency.setValueAtTime(3200,when);
+     noteFilter.Q.setValueAtTime(.7,when);
+     noteGain.gain.setValueAtTime(.00001,when);
+     noteGain.gain.linearRampToValueAtTime(.12,when+.012);
+     noteGain.gain.exponentialRampToValueAtTime(.00001,when+tailSec);
+     noteGain.connect(noteFilter);noteFilter.connect(offline.destination);
+     for(const spec of partials){
+      const launch=when+Math.max(0,Number(spec.delay)||0);
+      const stopAt=when+tailSec+.008;
+      if(launch>=stopAt)continue;
+      const osc=offline.createOscillator(),gain=offline.createGain();
+      osc.type=spec.waveform;
+      osc.frequency.setValueAtTime(hz*spec.freqMul,launch);
+      gain.gain.setValueAtTime(Math.max(0,spec.gainMul),launch);
+      osc.connect(gain);gain.connect(noteGain);
+      osc.start(launch);osc.stop(stopAt);
+     }
+    }
+    const rendered=await offline.startRendering();
+    if(canceled)return;
+    if(ctx.state!=='running'){finished();return}
+    // Exactly ONE live source; no per-step JS wakeups or catch-up bursts.
+    const output=__XenPan.route(ctx,'keyboard',hi(ctx,'space'));
+    source=ctx.createBufferSource();source.buffer=rendered;
+    source.connect(output);
+    source.onended=()=>{
+     if(canceled)return;
+     source.disconnect();source=null;
+     finished();
+    };
+    source.start(ctx.currentTime+.035);
+   }).catch(error=>{
+    if(canceled)return;
+    console.warn('[xensonar][grid-audition][buffer-render]',error);
+    cancel();finished();
+   });
+   return cancel;
+  }
+ });
+},[]);
+const{initialOvertonesByPreset:Oa,nexusParamsRef:Tt,nParamsUI:et,updateNParams:Mr,rootFollowUiStorageKey:Gu}=$2e();
 // N6: shortcuts and full menus share selections and the same bounded history.
 const __performanceLastSources=P.useRef(null);
 P.useEffect(()=>{const remember=()=>{const next={wave:__xenWaveStarterMenuValue(Ou),particle:et.particlePreset,keyboard:et.keyboardHoldSoundPreset??Ou},previous=__performanceLastSources.current;__performanceLastSources.current=next;for(const lane of ['wave','particle','keyboard'])if(previous?previous[lane]!==next[lane]:!__XenPerformanceCatalog.snapshot()[lane].length)__XenPerformanceCatalog.remember(lane,next[lane])};remember();return Kie(remember)},[Ou,et.particlePreset,et.keyboardHoldSoundPreset]);

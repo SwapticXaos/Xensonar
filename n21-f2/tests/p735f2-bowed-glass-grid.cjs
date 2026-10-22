@@ -1,0 +1,11 @@
+'use strict';
+const assert=require('node:assert/strict'),fs=require('node:fs');
+const source=fs.readFileSync('src/app/forge/01_room_shell.js','utf8');
+const part=source.slice(source.indexOf('/* P7.37: render the ENTIRE saved tuning to one native audio buffer before'),source.indexOf('const{initialOvertonesByPreset:Oa'));
+assert.match(part,/gL\('bowed_glass'\)/,'uses production Bowed Glass preset definition');
+assert.match(part,/osc\.frequency\.setValueAtTime\(hz\*spec\.freqMul,launch\)/);
+assert.match(part,/osc\.start\(launch\);osc\.stop\(stopAt\)/);
+assert.match(part,/offline\.startRendering\(\)/);
+assert.match(part,/source\.buffer=rendered/);
+assert.doesNotMatch(part,/ee\.current|setKeyboardPreset|setWaveStarterPreset/,'preview never changes live preset/voice');
+console.log('PASS Bowed Glass source partials, true scale pitch ratios, audio-clock scheduling, live isolation');

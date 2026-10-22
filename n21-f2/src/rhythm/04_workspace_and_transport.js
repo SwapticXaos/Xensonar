@@ -504,13 +504,13 @@ function FPe(e){const{drumMachine:t,entry:n,stepIndex:r,time:a,stepDurationSec:o
  const ctx=e.audioCtx;
  return {playBassNote:(time,hz,level,duration,accent=.72,options)=>{
   if(!Number.isFinite(time)||!Number.isFinite(hz)||hz<=0||!Number.isFinite(level)||level<=1e-5||ctx.state==='closed')return null;
-  hz=__XenBassGrid.quantize(hz);if(!(hz>0))return null;const params=e.nexusParamsRef.current,tone=Me(params.bassTone??.48,0,1),grit=Me(params.bassGrit??.18,0,1),ghost=!!options?.ghost;
+  hz=(e.quantizeBassHz||__XenBassGrid.quantize)(hz);if(!(hz>0))return null;const params=e.nexusParamsRef.current,tone=Me(params.bassTone??.48,0,1),grit=Me(params.bassGrit??.18,0,1),ghost=!!options?.ghost;
   const key=Object.hasOwn(__f48BassVoices,params.bassVoice)?params.bassVoice:'classic',voice=__f48BassVoices[key],classic=key==='classic';
   const length=Me(duration*(params.bassDecay??1),.025,8),at=Math.max(time,ctx.currentTime),nodes=[],sources=[];
   const own=node=>(nodes.push(node),node),mix=own(ctx.createGain()),filter=own(ctx.createBiquadFilter()),output=own(ctx.createGain());
   let shaper=null;
   if(classic||grit>.001){shaper=own(ctx.createWaveShaper());shaper.curve=NPe.get(grit);mix.connect(shaper);shaper.connect(filter)}else mix.connect(filter);
-  filter.connect(output);output.connect(__XenPan.route(ctx,"bass",e.ensureFinalMixBus(ctx)));
+  filter.connect(output);output.connect(e.bassDestination||__XenPan.route(ctx,"bass",e.ensureFinalMixBus(ctx)));
   if(e.enterHoldPsyFxEnabled&&e.enterHoldRef.current){e.ensureEnterHoldPsyFxDevice(ctx);const send=e.enterHoldPsyFxSendsRef.current.bass;if(send)output.connect(__XenPan.route(ctx,"bass",send))}
   const oscillator=(type,frequency,weight=1)=>{
    const source=own(ctx.createOscillator());sources.push(source);source.type=type;source.frequency.setValueAtTime(frequency,at);

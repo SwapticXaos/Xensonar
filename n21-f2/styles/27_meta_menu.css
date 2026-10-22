@@ -1,0 +1,250 @@
+/* 🎧 Meta-Menu: the approved Tabbed Library (A). Only session references here. */
+.xen-meta-rack{display:inline-flex;align-items:center;height:24px;max-width:132px;min-width:0;flex:0 1 auto;white-space:nowrap;border:1px solid #336879;border-radius:3px;padding:2px 5px;background:#0e2531;color:#bceaf4;font-size:11px;font-weight:600}
+.xen-meta-rack:hover,.xen-meta-rack:focus-visible{border-color:#47cde7;background:#123b4b}
+.xen-meta-overlay{position:fixed;inset:0;z-index:170;display:flex;align-items:center;justify-content:center;padding:16px;background:#000c;overflow:auto}
+.xen-meta-editor{display:flex;flex-direction:column;min-height:0;height:min(690px,calc(100dvh - 32px));max-height:calc(100dvh - 32px);width:min(1370px,calc(100vw - 32px));background:#0d1723;color:#dcecf8;border:1px solid #334c61;box-shadow:0 25px 70px #000c;font-size:12px}
+.xen-meta-editor button,.xen-meta-editor select,.xen-meta-editor input{font:inherit}.xen-meta-editor button{cursor:pointer}.xen-meta-editor button:disabled{opacity:.45;cursor:default}
+.xen-meta-editor button:focus-visible,.xen-meta-editor input:focus-visible,.xen-meta-editor select:focus-visible{outline:2px solid #44d9eb;outline-offset:2px}
+.xen-meta-titlebar{display:flex;align-items:center;gap:14px;padding:10px 15px;border-bottom:1px solid #31465b;background:#0c1520;min-height:43px}
+.xen-meta-titlebar strong{font-size:15px;color:#e0f6ff}.xen-meta-caption{font-size:10px;color:#819db0;letter-spacing:.02em}.xen-meta-titlebar button{margin-left:auto;font-size:20px;line-height:1;background:transparent;border:0;color:#bacfda;padding:2px 9px}
+.xen-meta-toolbar{display:flex;flex-wrap:wrap;align-items:center;gap:8px;min-height:58px;padding:12px 14px;background:#121f2e;border-bottom:1px solid #33465a}
+.xen-meta-small-label{color:#91adc1;font-size:10px;letter-spacing:.13em}.xen-meta-toolbar input,.xen-meta-toolbar select{background:#0b1420;border:1px solid #455d74;color:#dcecf8;padding:7px 9px;min-width:0}
+.xen-meta-toolbar input{width:min(22vw,265px);min-width:130px}.xen-meta-toolbar select{width:210px}.xen-meta-toolbar button,.xen-meta-footer>button{border:1px solid #43576d;background:#1d2a3a;color:#cfdeee;padding:7px 10px}
+.xen-meta-toolbar button:hover,.xen-meta-footer>button:hover{background:#2d4158}.xen-meta-toolbar button:nth-last-of-type(1){background:#32c3d7;border-color:#32c3d7;color:#041822;font-weight:800}
+.xen-meta-dirty{font:10px ui-monospace,SFMono-Regular,monospace;color:#edc47b;white-space:nowrap}.xen-meta-live{font:10px ui-monospace,monospace;color:#94acbc;white-space:nowrap}
+.xen-meta-workspace{display:grid;grid-template-columns:minmax(335px,39fr) minmax(500px,61fr);min-height:0;flex:1 1 auto;overflow:hidden}
+.xen-meta-library{min-width:0;display:flex;flex-direction:column;overflow:hidden;background:#101c2a;border-right:1px solid #35516b}
+.xen-meta-constellation{min-width:0;display:flex;flex-direction:column;overflow:hidden;padding:0 14px 10px;background:#0c1522}
+.xen-meta-head{display:flex;align-items:center;justify-content:space-between;gap:8px;min-height:57px;padding:13px 15px 11px;color:#e4edf8}.xen-meta-head strong{font-size:14px}.xen-meta-head small{font:10px ui-monospace,monospace;color:#9bacc2;letter-spacing:.11em}
+.xen-meta-constellation .xen-meta-head{padding-left:2px;padding-right:0}
+/* These are actual connected file-folder tabs, not a row of unrelated pills. */
+.xen-meta-tabs{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));padding:0 13px;gap:3px;position:relative;margin-bottom:-1px;z-index:1}
+.xen-meta-tabs>button{display:flex;gap:4px;align-items:center;justify-content:center;padding:10px 4px 9px;background:#152435;border:1px solid #304860;border-bottom-color:#456077;border-radius:7px 7px 0 0;color:#9db3c6;white-space:nowrap;font-weight:600;min-width:0;overflow:hidden;text-overflow:ellipsis}
+.xen-meta-tabs>button[aria-selected=true]{background:#0d1d2c;border-color:#4ab4cd;border-bottom:1px solid #0d1d2c;color:#d9faff;transform:translateY(1px);z-index:2}
+.xen-meta-browser{display:flex;flex-direction:column;min-height:0;margin:0 13px 13px;border:1px solid #334f66;background:#0d1d2c;flex:1}
+.xen-meta-browser-heading{display:flex;align-items:center;gap:8px;padding:10px 11px;border-bottom:1px solid #304456;min-height:40px}.xen-meta-browser-heading strong{margin-right:auto;font-weight:700;white-space:nowrap}.xen-meta-browser-heading input{min-width:0;width:130px;background:#0c1622;border:1px solid #344d62;padding:5px 7px;color:#dcecf8}.xen-meta-browser-heading span{font:10px ui-monospace,monospace;white-space:nowrap;color:#9cb6c8}
+.xen-meta-library-list{min-height:0;max-height:none;flex:1 1 auto;overflow:auto;padding:10px;scrollbar-width:thin}
+.xen-meta-library-row{height:51px;display:flex;align-items:center;gap:11px;margin-bottom:7px;padding:7px 10px;border:1px solid #35516a;background:#162638;color:#d3e5ef;cursor:grab;user-select:none}
+.xen-meta-library-row:hover{background:#20354a;border-color:#468aaa}.xen-meta-source-icon{font-size:16px;flex:0 0 19px}.xen-meta-source-name{font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex:1}.xen-meta-library-row button{flex:0 0 27px;width:27px;height:28px;border:1px solid #41657f;background:#122e40;color:#91e4f1;font-size:16px}
+.xen-meta-library-row button:hover{background:#235468}.xen-meta-empty-library{margin:12px;color:#93abc0;font-size:11px;line-height:1.5}
+.xen-meta-helper{font-size:10px;color:#8da3ba;padding:0 0 10px}
+.xen-meta-board{display:grid;grid-template-columns:repeat(5,minmax(108px,1fr));gap:7px;min-height:0;max-height:none;padding:9px;border:1px solid #364b62;background:#0a1320;overflow:auto;flex:1}
+.xen-meta-lane{min-width:0;min-height:0;background:#0d1b2a;border:1px solid #2d4159;padding:4px;transition:background .12s,border-color .12s}
+.xen-meta-lane>header{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;min-height:51px;line-height:1.4;color:#d9e8f3;text-align:center}
+.xen-meta-lane>header strong{font:700 11px ui-monospace,monospace}.xen-meta-lane>header small{font-size:10px;color:#8fa9bf}
+.xen-meta-lane-items{display:flex;flex-direction:column;gap:5px;min-height:205px}
+.xen-meta-tile{display:flex;align-items:center;gap:5px;width:100%;min-height:38px;max-height:38px;padding:5px 4px;border:1px solid #42617c;background:#1b3042;color:#d8edfd;text-align:left;cursor:grab;user-select:none}
+.xen-meta-tile:hover{background:#294b64;border-color:#61b1d3}
+.xen-meta-tile-index{font-size:10px;color:#92dff6;flex:0 0 12px}.xen-meta-tile-name{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font:10px ui-monospace,SFMono-Regular,monospace;min-width:0}.xen-meta-tile.is-missing{border-color:#ca9259;color:#eecd96}
+.xen-meta-board.is-drop-hover{border-color:#32d6ec;background:#0b2432}
+.xen-meta-board.is-drop-hover .xen-meta-lane.is-drop-lane{background:#173648;border-color:#54d4ed}
+.xen-meta-board.is-drop-hover .xen-meta-lane.is-drop-lane .xen-meta-lane-items:after{content:'+ drop here';color:#6cddf5;font:10px ui-monospace,monospace;text-align:center;display:block;border-top:2px solid #43b4d1;padding-top:6px}
+.xen-meta-board-foot{display:flex;justify-content:flex-start;padding:8px 0;font-size:10px;color:#88a3b9}
+.xen-meta-footer{display:flex;gap:10px;align-items:center;flex-wrap:wrap;min-height:41px;padding:8px 14px;border-top:1px solid #35516a;background:#101d2b}
+.xen-meta-footer [role=status]{color:#96b3c7;font:10px ui-monospace,monospace;margin-left:auto}
+@media(max-width:1080px){.xen-meta-editor{width:calc(100vw - 14px)}.xen-meta-workspace{grid-template-columns:minmax(280px,42fr) minmax(375px,58fr)}.xen-meta-overlay{padding:7px}.xen-meta-board{grid-template-columns:repeat(5,minmax(110px,1fr))}.xen-meta-tabs{padding:0 7px}.xen-meta-tabs>button{font-size:10px;gap:2px}}
+@media(max-width:760px){.xen-meta-workspace{grid-template-columns:minmax(215px,43fr) minmax(0,57fr)}.xen-meta-constellation{padding:0 7px}.xen-meta-library-list{padding:5px}.xen-meta-tabs{gap:1px;padding:0 3px}.xen-meta-tabs>button{flex-direction:column;font-size:9px;padding:5px 1px}.xen-meta-browser{margin:0 4px 8px}.xen-meta-board{grid-template-columns:repeat(5,minmax(95px,1fr));min-height:280px}.xen-meta-toolbar{padding:8px 10px}.xen-meta-toolbar input{min-width:100px;width:145px}.xen-meta-toolbar select{width:165px}.xen-meta-caption,.xen-meta-live{display:none}}
+
+/* Contextual color chooser floats ABOVE the compact board; no added row or scroll region. */
+.xen-meta-constellation{position:relative}
+.xen-meta-tile.is-color-selected{outline:2px solid #b6eefa;outline-offset:1px}
+.xen-meta-color-editor{position:absolute;z-index:9;right:14px;top:55px;width:min(275px,calc(100% - 24px));box-sizing:border-box;padding:10px 12px;border:1px solid #55c4dc;background:#102535;box-shadow:0 15px 30px #000c;color:#e3f5fc;display:flex;flex-direction:column;gap:9px}
+.xen-meta-color-editor>header{display:flex;align-items:center;gap:6px;min-width:0}.xen-meta-color-editor>header strong{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex:1}
+.xen-meta-color-editor>header button{border:0;background:none;color:#e3f5fc;font-size:18px;padding:0 6px}
+.xen-meta-color-controls{display:flex;gap:14px}.xen-meta-color-controls label{flex:1;display:flex;align-items:center;justify-content:space-between;gap:7px;color:#b2d4e8}
+.xen-meta-color-controls input[type=color]{appearance:auto;inline-size:44px;block-size:30px;min-inline-size:44px;padding:2px;border:1px solid #45667b;background:#132536;cursor:pointer}
+.xen-meta-color-reset{align-self:start;padding:5px 9px;border:1px solid #466679;background:#182d40;color:#d5effb}
+.xen-meta-color-editor small{font-size:10px;color:#95b7ca;line-height:1.4}
+/* Live Quick Access receives only the explicitly activated Session's visual annotations.
+   Keypress pulse remains higher-priority feedback than decorative session colors. */
+.xen-quick-tile.is-session-tinted:not(.is-key-pulse){border-color:var(--xen-session-border);background:var(--xen-session-bg)}
+.xen-quick-tile.is-session-tinted:not(.is-key-pulse):hover{filter:brightness(1.20)}
+
+/* Disk is OUTSIDE the existing five mute buttons, with no new row or changed widths.
+   Left dock -> on its right; right (migrated) dock -> on its left. */
+.xen-quick-mutes-save{position:relative;min-width:0}
+.xen-quick-save-trigger{position:absolute;z-index:4;top:-3px;right:-28px;left:auto;width:23px;height:23px;display:grid;place-items:center;padding:0;border:1px solid #3f9770;border-radius:4px;background:#0c261a;color:#c0fadd;font-size:15px;line-height:1;cursor:pointer;box-shadow:0 2px 8px #0009}
+.xen-quick-collection.is-migrated .xen-quick-save-trigger{left:-28px;right:auto}
+.xen-quick-save-trigger:hover,.xen-quick-save-trigger:focus-visible{border-color:#86ebbf;background:#144a32}
+.xen-quick-save-trigger:focus-visible{outline:2px solid #adffdc;outline-offset:2px}
+.xen-quick-save-overlay{position:fixed;inset:0;z-index:250;display:flex;align-items:center;justify-content:center;background:#000c;padding:14px}
+.xen-quick-save-dialog{box-sizing:border-box;display:flex;flex-direction:column;gap:12px;width:min(425px,calc(100vw - 28px));padding:15px 17px;border:1px solid #407a8d;background:#101c2c;color:#d9f3ff;box-shadow:0 18px 55px #000c;font-size:12px}
+.xen-quick-save-dialog>header{display:flex;align-items:center;justify-content:space-between;gap:15px;font-size:15px}
+.xen-quick-save-dialog>header button{background:transparent;border:0;color:#d9f3ff;font-size:20px;cursor:pointer}
+.xen-quick-save-dialog p{margin:0;color:#a7c1d1}
+.xen-quick-save-dialog label{display:grid;gap:5px}
+.xen-quick-save-dialog label>span{font-size:11px;color:#86c9dd}
+.xen-quick-save-dialog input,.xen-quick-save-dialog select{width:100%;box-sizing:border-box;padding:8px;border:1px solid #49657d;background:#081727;color:#e9f8ff;font:inherit}
+.xen-quick-save-dialog .xen-quick-save-include-settings{display:flex;align-items:center;gap:9px;cursor:pointer;min-height:26px}
+.xen-quick-save-dialog .xen-quick-save-include-settings input{width:16px;height:16px;flex:0 0 16px;padding:0;margin:0;accent-color:#57c8b4;cursor:pointer}
+.xen-quick-save-dialog .xen-quick-save-include-settings span{color:#d9f3ff;font-size:12px}
+.xen-quick-save-actions{display:flex;gap:8px;flex-wrap:wrap}
+.xen-quick-save-actions button{flex:1 1 145px;min-height:34px;border:1px solid #54718c;background:#20374b;color:#d9f3ff;padding:7px 10px;font-size:12px;cursor:pointer}
+.xen-quick-save-actions .is-new{border-color:#43ac9d;background:#134b47}
+.xen-quick-save-actions button:disabled{opacity:.35;cursor:default}
+.xen-quick-save-dialog .xen-quick-save-error{color:#ffb4b4;line-height:1.35}
+
+/* P7.26: wider dual-color frames without altering tile outer box dimensions. */
+.xen-meta-tile{box-sizing:border-box;border-width:3px;padding:3px 2px}
+.xen-quick-tile.is-session-tinted{box-sizing:border-box;border-width:3px}
+/* P7.26: only the selected live source gets larger typography, never a bigger tile footprint. */
+.xen-quick-tile .xen-quick-symbol{font-size:inherit;line-height:1;display:inline-flex;align-items:center;justify-content:center}
+.xen-quick-tile .xen-quick-index{font-size:inherit;font-variant-numeric:tabular-nums;margin-left:2px}
+.xen-quick-tile.is-selected-live{font-weight:800;font-size:13px;letter-spacing:-.025em}
+.xen-quick-tile.is-selected-live .xen-quick-symbol{font-size:18px}
+.xen-quick-tile.is-selected-live .xen-quick-index{font-size:13px}
+.xen-quick-tile.is-selected-live .xen-quick-hotkey{font-size:11px;font-weight:800;left:1px}
+/* History lives in the existing footer, after the informational status. */
+.xen-meta-footer-status{flex:1 1 160px;min-width:0}
+.xen-meta-history-controls{display:flex;align-items:center;gap:6px;margin-left:auto;flex:0 0 auto}
+.xen-meta-history-controls button{border:1px solid #47718a;background:#192f43;color:#bfe9fa;padding:6px 10px;min-height:30px;font-weight:700}
+.xen-meta-history-controls button:disabled{opacity:.34;cursor:default}
+.xen-meta-history-controls button:not(:disabled):hover{background:#23506a;border-color:#6dd4f0}
+
+/* Prototype-A drag fidelity: out-of-flow insertion line. No row/layout shift. */
+.xen-meta-lane-items{position:relative;}
+.xen-meta-insertion-line{position:absolute;z-index:6;left:4px;right:4px;height:3px;
+ background:#74f2fb;box-shadow:0 0 0 1px #174b63,0 0 9px #2bd5f1b5;
+ border-radius:2px;pointer-events:none;}
+
+/* P7.28: interactive rear Sessions tab opens the saved-session manager;
+   source tabs remain independently usable in the front layer. */
+.xen-meta-tab-assembly{position:relative;margin:0 13px 0;padding-top:35px;min-width:0;isolation:isolate}
+.xen-meta-session-backtab{position:absolute;z-index:0;cursor:pointer;top:0;left:0;right:0;height:39px;box-sizing:border-box;display:flex;justify-content:center;align-items:flex-start;padding:5px 11px 0;border:1px solid #366a84;border-bottom:0;border-radius:9px 9px 0 0;background:linear-gradient(180deg,#18384d 0%,#142b3e 75%,#102536 100%);color:#ade5f3;font:700 12px/20px system-ui,sans-serif;letter-spacing:.035em}
+.xen-meta-session-backtab-label{display:inline-flex;justify-content:center;align-items:center;gap:5px;white-space:nowrap;line-height:20px;pointer-events:none}
+.xen-meta-tab-assembly>.xen-meta-tabs{z-index:1;position:relative;padding:0;gap:3px;margin-bottom:-1px}
+.xen-meta-tab-assembly>.xen-meta-tabs>button{border-color:#376078;border-bottom-color:#3f6d86;background:#19354a;min-height:37px}
+.xen-meta-tab-assembly>.xen-meta-tabs>button[aria-selected=true]{background:#0d1d2c;border-color:#4ab4cd;border-bottom-color:#0d1d2c}
+.xen-meta-tab-assembly+.xen-meta-browser{border-top-color:#3e6c87}
+@media(max-width:1080px){.xen-meta-tab-assembly{margin:0 7px 0}}
+@media(max-width:760px){.xen-meta-tab-assembly{margin:0 4px 0;padding-top:35px}.xen-meta-session-backtab{height:39px;padding:5px 8px 0}.xen-meta-tab-assembly>.xen-meta-tabs{gap:1px}.xen-meta-tab-assembly>.xen-meta-tabs>button{min-height:39px}}
+
+/* Keep the *clickable* button within the fully exposed header band.
+   The non-interactive rear plate bridges behind opaque tabs all the way to
+   the session list. A full-height button would have its center covered by
+   foreground tabs and become unreachable to ordinary pointer/automation. */
+.xen-meta-session-backtab::after{content:"";position:absolute;top:calc(100% - 1px);left:-1px;right:-1px;height:50px;
+  background:inherit;border:1px solid currentColor;border-top:0;border-bottom:0;
+  pointer-events:none;opacity:.95}
+.xen-meta-tab-assembly[data-xen-meta-tab-mode="libraries"] .xen-meta-session-backtab::after{border-color:#376681}
+.xen-meta-tab-assembly[data-xen-meta-tab-mode="sessions"] .xen-meta-session-backtab::after{left:-2px;right:-2px;border-color:#82dfed}
+/* The raised top part is the exposed clickable handle; five source tabs remain on top. */
+.xen-meta-session-backtab:hover{background:linear-gradient(180deg,#235675 0%,#183a53 75%,#102536 100%);border-color:#5cc7df}
+.xen-meta-session-backtab[aria-pressed=true]{border-color:#69d8ee;color:#e1fbff;background:linear-gradient(180deg,#275d77,#174157 80%,#103044)}
+.xen-meta-session-backtab:focus-visible{outline:2px solid #85e6f8;outline-offset:2px}
+.xen-meta-session-manager{min-height:0}
+.xen-meta-session-list{display:flex;flex-direction:column;gap:7px;overflow-y:auto;min-height:0;flex:1 1 auto;padding:10px}
+.xen-meta-session-row{display:flex;align-items:center;gap:7px;padding:9px 8px;border:1px solid #35516a;background:#162638}
+.xen-meta-session-row.is-active{border-color:#43b4d1;background:#16364b}
+.xen-meta-session-details{display:flex;flex:1;flex-direction:column;gap:3px;min-width:0}
+.xen-meta-session-details strong{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.xen-meta-session-details small{color:#8fb8c8;font-size:10px}
+.xen-meta-session-row>button{padding:6px 7px;background:#17344a;border:1px solid #48708a;color:#c8ebfa;cursor:pointer}
+.xen-meta-session-row>button:hover{background:#245775}
+
+/* Session supertab has two real interaction states.
+   The front row stays in the same grid: no target-coordinate jump or extra row.
+   When managing Sessions, all five source tabs retract into separated "teeth".
+   Switching to a material tab restores their full width and lowers the supertab. */
+.xen-meta-tab-assembly .xen-meta-session-backtab,
+.xen-meta-tab-assembly>.xen-meta-tabs,
+.xen-meta-tab-assembly>.xen-meta-tabs>button{
+  transition:top 160ms ease,height 160ms ease,background-color 160ms ease,
+    border-color 160ms ease,color 160ms ease,margin-inline 160ms ease,
+    opacity 160ms ease,box-shadow 160ms ease;
+}
+.xen-meta-tab-assembly[data-xen-meta-tab-mode="libraries"] .xen-meta-session-backtab{
+  top:7px;height:30px;border-color:#376681;
+  background:linear-gradient(180deg,#19394c 0%,#152e40 75%,#102536 100%);
+  box-shadow:none;
+}
+.xen-meta-tab-assembly[data-xen-meta-tab-mode="sessions"] .xen-meta-session-backtab{
+  /* The live rear folder spans the whole front-tab row and touches the pane.
+     Its uninterrupted colour shows through the gaps between the teeth. */
+  top:-5px;height:42px;border:2px solid #82dfed;border-bottom:0;
+  color:#e1fbff;background:linear-gradient(180deg,#29647f 0%,#1c4c64 70%,#12354a 100%);
+  box-shadow:0 0 0 1px #3a8296 inset,0 -3px 13px #45b7cf24;
+}
+.xen-meta-tab-assembly[data-xen-meta-tab-mode="sessions"] .xen-meta-tabs>button{
+  /* Opaque teeth: the Sessions layer is revealed only in the gaps. */
+  margin-inline:4px;color:#71869a;
+  background:#0b1927;border-color:#253e51;
+}
+/* No horizontal divider across the middle openings: the raised Sessions
+   supertab visually becomes the top edge of the selected session list. */
+.xen-meta-tab-assembly[data-xen-meta-tab-mode="sessions"] + .xen-meta-session-manager{
+  border-top:0;
+  background:linear-gradient(to bottom,#12354a 0px,#12354a 8px,#0d1d2c 36px);
+}
+
+.xen-meta-tab-assembly[data-xen-meta-tab-mode="sessions"] .xen-meta-tabs>button:hover,
+.xen-meta-tab-assembly[data-xen-meta-tab-mode="sessions"] .xen-meta-tabs>button:focus-visible{
+  color:#d9faff;background:#21465a;border-color:#5ebad1;
+}
+@media(max-width:760px){
+  .xen-meta-tab-assembly[data-xen-meta-tab-mode="sessions"] .xen-meta-tabs>button{margin-inline:2px}
+  .xen-meta-tab-assembly[data-xen-meta-tab-mode="sessions"] .xen-meta-session-backtab{top:-4px;height:41px}
+  .xen-meta-tab-assembly[data-xen-meta-tab-mode="libraries"] .xen-meta-session-backtab{top:7px;height:30px}
+}
+@media(prefers-reduced-motion:reduce){
+  .xen-meta-tab-assembly .xen-meta-session-backtab,
+  .xen-meta-tab-assembly>.xen-meta-tabs,
+  .xen-meta-tab-assembly>.xen-meta-tabs>button{transition:none}
+}
+
+/* P7.29 UI-integrity: one viewport-bounded dialog regardless of content count.
+   Toolbar/footer keep their natural size; scrolling belongs to the lists and board. */
+.xen-meta-toolbar{flex:0 0 auto}
+.xen-meta-footer{flex:0 0 auto}
+.xen-meta-toolbar .xen-meta-add-settings{border-color:#53788d;white-space:nowrap;color:#bff0f6;background:#183747}
+.xen-meta-toolbar .xen-meta-add-settings:hover{border-color:#75d4e8;background:#234d5f}
+.xen-meta-tab-assembly{flex:0 0 auto}
+.xen-meta-browser,.xen-meta-constellation{min-height:0}
+@media(max-height:520px){.xen-meta-editor{height:calc(100dvh - 12px);max-height:calc(100dvh - 12px)}
+ .xen-meta-overlay{padding:6px}.xen-meta-titlebar{padding-block:5px}
+ .xen-meta-head{min-height:37px;padding-block:5px}
+ .xen-meta-toolbar{padding-block:6px;min-height:0;gap:5px}
+ .xen-meta-footer{padding-block:5px;gap:5px}}
+
+/* P7.32 · Native manager sits above the retained Session editor (native z>=140).
+   Restore the normal z-index automatically when native quick-active closes. */
+.xen-meta-overlay.is-native-behind{z-index:100}
+.xen-meta-lane>header{position:relative;padding-right:0}
+/* P7.33: actual upper-right *half-square*, not a boxed dropdown chevron.
+   Geometry M2 2 H30 V30 Z => two equal 28-unit perpendicular legs,
+   hypotenuse from top-left to bottom-right. Border matches the 1px Session item borders. */
+.xen-meta-lane>header .xen-meta-source-menu{position:absolute;right:0;top:0;display:block;box-sizing:border-box;width:32px;height:32px;padding:0;border:0;border-radius:0;background:transparent;cursor:pointer;z-index:3}
+.xen-meta-source-menu svg{display:block;width:32px;height:32px;pointer-events:none}
+.xen-meta-source-menu svg path{fill:#4c316c;stroke:#a78bfa;stroke-width:1px;stroke-linejoin:miter;stroke-opacity:.52;opacity:1;transition:opacity 140ms ease,fill 140ms ease,stroke 140ms ease}
+.xen-meta-lane>header .xen-meta-source-menu:hover svg path,.xen-meta-lane>header .xen-meta-source-menu:focus-visible svg path{fill:#4c316c;stroke:#a78bfa;stroke-opacity:.92;opacity:1}
+.xen-meta-lane>header .xen-meta-source-menu:focus-visible{outline:2px solid #a78bfa;outline-offset:1px}
+/* Primary semantic link belongs to the selected library itself.
+   Keep the browser heading above the tab deck so the Filter focus ring
+   cannot be hidden by the rear Sessions tab or the foreground library tabs. */
+.xen-meta-browser-heading{position:relative;z-index:3;flex-wrap:wrap;gap:8px;padding:15px 11px 11px;min-height:61px;box-sizing:border-box;overflow:visible}
+.xen-meta-browser-heading .xen-meta-library-open-manager{flex:0 0 188px;width:188px;min-width:0;max-width:100%;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.3;box-sizing:border-box;padding:7px 8px;border-radius:6px;border:1px solid #a78bfa;background:#4c316c;color:#ede9fe;font-weight:700;cursor:pointer;transition:background 140ms ease,border-color 140ms ease,color 140ms ease}
+.xen-meta-browser-heading .xen-meta-library-open-manager:hover,.xen-meta-browser-heading .xen-meta-library-open-manager:focus-visible{background:#4c316c;border-color:#a78bfa;color:#f5f3ff;filter:brightness(1.20)}
+.xen-meta-browser-heading .xen-meta-library-open-manager:active{background:#4c316c;border-color:#a78bfa;color:#fff;filter:brightness(1.35)}
+.xen-meta-browser-heading input{flex:0 1 130px;min-width:82px;width:130px;box-sizing:border-box}
+.xen-meta-browser-heading input:focus-visible{outline:2px solid #64dcfa;outline-offset:2px;position:relative;z-index:4}
+.xen-meta-browser-heading span{flex:0 0 auto}
+@media(max-width:760px){.xen-meta-browser-heading{padding:14px 7px 9px;gap:7px}.xen-meta-browser-heading .xen-meta-library-open-manager{flex-basis:188px;padding:7px 6px}.xen-meta-browser-heading input{flex-basis:95px;width:95px}}
+
+.xen-meta-action-arrow{display:inline-flex;position:relative;top:-2px;align-items:center;font:900 19px/1 Arial,sans-serif;vertical-align:middle;color:inherit}
+
+/* P7.34: index is a tiny corner marker, not a text column; the preview
+   control fits INSIDE the unchanged 38px-high Session item. */
+.xen-meta-tile{position:relative;box-sizing:border-box;padding:5px 3px 5px 7px;gap:3px;min-height:38px;max-height:38px}
+.xen-meta-tile-index{position:absolute;top:1px;left:2px;font:600 8px/1 ui-monospace,monospace;color:#92dff6;opacity:.70;pointer-events:none}
+.xen-meta-tile-name{flex:1 1 auto;min-width:0;display:block;padding-left:2px;line-height:1.3}
+.xen-meta-tile-preview{box-sizing:border-box;display:inline-flex;align-items:center;justify-content:center;flex:0 0 18px;width:18px;height:19px;min-width:18px;padding:0!important;margin:0!important;border:1px solid #577287;border-radius:2px;background:#102537;color:#bfe6f2;font:600 10px/1 Arial,sans-serif;cursor:pointer}
+.xen-meta-tile-preview:hover:not(:disabled){border-color:#6aafca;background:#23475b;color:#f0fcff}
+.xen-meta-tile-preview[aria-pressed=true]{border-color:#b4c7d8;background:#24364d;color:#fff}
+.xen-meta-tile-preview:disabled{opacity:.4;cursor:default}
+.xen-meta-library-row .xen-meta-row-preview{flex:0 0 22px;width:22px;height:23px;min-height:0;padding:0;border:1px solid #41657f;border-radius:2px;background:#122e40;color:#91e4f1;font:600 11px/1 Arial,sans-serif}
+.xen-meta-library-row .xen-meta-row-preview:hover:not(:disabled){background:#235468}
+@media(max-width:760px){.xen-meta-browser-heading .xen-meta-library-open-manager{flex-basis:188px;width:min(188px,100%)}}
+/* At narrow widths the fixed-width violet link may wrap the Filter to a
+   second line. Reserve the header's true intrinsic height instead of letting
+   flex shrink clip the field and its complete focus ring. */
+.xen-meta-browser-heading{flex:0 0 auto;height:auto;align-content:center;row-gap:8px}

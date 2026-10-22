@@ -61,3 +61,6 @@
 .xen-quick-dock>.xen-quick-signal{position:absolute;inset:0;z-index:2;pointer-events:none}
 .xen-quick-dock.is-migrated{background:transparent}
 @media(max-width:900px){.xen-quick-dock,.xen-quick-collection{max-height:none}}
+
+/* Named session below the existing live tiles; no extra menu controls. */
+.xen-quick-session-caption{font:10px/1.2 ui-monospace,monospace;color:#a8c8bb;text-align:right;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:5px;padding-right:2px;min-height:12px;max-width:100%}

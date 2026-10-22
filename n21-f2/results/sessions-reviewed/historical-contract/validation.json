@@ -1,0 +1,19 @@
+{
+  "base": "10178acb733db38f1801b263ac5200d98c17e69b",
+  "scope": "Original unchanged P7.24 source, manifest, templates, styles and Song contract tests extracted from git; historical UI contract retained alongside active Sessions migration tests.",
+  "rows": [
+    {
+      "name": "song-projects",
+      "passed": true,
+      "exit": 0,
+      "milliseconds": 160
+    },
+    {
+      "name": "song-projects-browser",
+      "passed": true,
+      "exit": 0,
+      "milliseconds": 25111
+    }
+  ],
+  "failed": 0
+}

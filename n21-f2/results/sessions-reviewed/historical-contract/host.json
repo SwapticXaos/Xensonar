@@ -1,0 +1,13 @@
+{
+  "base": "10178acb733db38f1801b263ac5200d98c17e69b",
+  "scope": "Original unchanged P7.24 Song contract executed against the exact source/style/template projection proven by sessions-reviewed-preservation; browser uses native Chromium.",
+  "rows": [
+    {
+      "name": "song-projects",
+      "passed": true,
+      "exit": 0,
+      "milliseconds": 86
+    }
+  ],
+  "failed": 0
+}

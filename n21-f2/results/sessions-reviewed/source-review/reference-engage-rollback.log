@@ -1,0 +1,127 @@
+node:assert:152
+  throw new AssertionError(obj);
+  ^
+
+AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
++ actual - expected
+
+  [
+    {
++     gridProfile: {
++       bassConfig: {
++         bassUsesGrid: true,
++         droneEnabled: false,
++         linkedMutedDegrees: [],
++         linkedTuningId: '',
++         mutedDegrees: [
++           4
++         ],
++         offsetsCents: {},
++         rflEnabled: false,
++         sourceMode: 'derived'
++       },
++       bassEnabled: true,
++       mainMutedDegrees: [
++         8
++       ],
++       mainStepOffsets: [],
++       modeId: 'dorian'
++     },
++     id: '19edo',
++     instanceId: 'grid-profile-b5554f11-ae05-49f0-bdda-8def559b7de7',
++     kind: 'grid',
++     name: '19 EDO'
+-     id: 'clip:original',
+-     kind: 'bass',
+-     name: 'Original'
+    },
++   {
++     gridProfile: {
++       bassConfig: {
++         bassUsesGrid: true,
++         droneEnabled: false,
++         linkedMutedDegrees: [],
++         linkedTuningId: '',
++         mutedDegrees: [
++           5
++         ],
++         offsetsCents: {},
++         rflEnabled: false,
++         sourceMode: 'derived'
++       },
++       bassEnabled: true,
++       mainMutedDegrees: [
++         3
++       ],
++       mainStepOffsets: [],
++       modeId: 'chromatic'
++     },
++     id: '19edo',
++     instanceId: 'grid-profile-d44a2427-a507-49cc-b7eb-d919c5a16552',
++     kind: 'grid',
++     name: '19 EDO · Variation'
++   }
+  ]
+
+    at Object.<anonymous> (/workspace/Xensonar/n21-f2/tests/p738-session-integrity.cjs:53:43)
+    at Module._compile (node:internal/modules/cjs/loader:1872:14)
+    at Object..js (node:internal/modules/cjs/loader:2003:10)
+    at Module.load (node:internal/modules/cjs/loader:1594:32)
+    at Module._load (node:internal/modules/cjs/loader:1396:12)
+    at wrapModuleLoad (node:internal/modules/cjs/loader:255:19)
+    at Module.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:154:5)
+    at node:internal/main/run_main_module:33:47 {
+  generatedMessage: true,
+  code: 'ERR_ASSERTION',
+  actual: [
+    {
+      kind: 'grid',
+      id: '19edo',
+      name: '19 EDO',
+      instanceId: 'grid-profile-b5554f11-ae05-49f0-bdda-8def559b7de7',
+      gridProfile: {
+        modeId: 'dorian',
+        mainMutedDegrees: [ 8 ],
+        mainStepOffsets: [],
+        bassEnabled: true,
+        bassConfig: {
+          sourceMode: 'derived',
+          linkedTuningId: '',
+          linkedMutedDegrees: [],
+          droneEnabled: false,
+          rflEnabled: false,
+          mutedDegrees: [ 4 ],
+          offsetsCents: {},
+          bassUsesGrid: true
+        }
+      }
+    },
+    {
+      kind: 'grid',
+      id: '19edo',
+      name: '19 EDO · Variation',
+      instanceId: 'grid-profile-d44a2427-a507-49cc-b7eb-d919c5a16552',
+      gridProfile: {
+        modeId: 'chromatic',
+        mainMutedDegrees: [ 3 ],
+        mainStepOffsets: [],
+        bassEnabled: true,
+        bassConfig: {
+          sourceMode: 'derived',
+          linkedTuningId: '',
+          linkedMutedDegrees: [],
+          droneEnabled: false,
+          rflEnabled: false,
+          mutedDegrees: [ 5 ],
+          offsetsCents: {},
+          bassUsesGrid: true
+        }
+      }
+    }
+  ],
+  expected: [ { kind: 'bass', id: 'clip:original', name: 'Original' } ],
+  operator: 'deepStrictEqual',
+  diff: 'simple'
+}
+
+Node.js v24.19.0

@@ -1,6 +1,6 @@
-# XenSonar P7.24 · Song Projects und Parts
+# XenSonar P7.38 · geprüfte Sessions und Grid-Profile
 
-Aktuelle Weiterarbeitsbasis: `n21-f2/Xensonar_P7_24_Song_Projects_Test.html`. Song Projects und Parts sichern und bearbeiten Quick-Access-Zusammenstellungen; erst **Aktivieren** ersetzt den aktiven Quick Access. P7.24 integriert außerdem die gelieferte Forge-Oberfläche, getrennte Keyboard-/Wave-Lautstärke und die gezielte Korrektur gespeicherter Entrophon-Stimmen. [Anleitung](n21-f2/README_P7_24_SONG_PROJECTS.md) · [Prüfbericht](n21-f2/docs/p7-24-song-projects/report.md).
+Aktuelle Weiterarbeitsbasis: `n21-f2/Xensonar_P7_38_Sessions_Reviewed_Test.html`. Sessions, unabhängige Grid-Profile, native Bibliotheksvorschauen und Hover-/Dock-Startkorrekturen wurden gegen die Übergabe und den erhaltenen P7.24-Stand geprüft. Gespeicherte Entrophon-Stimmen und die vollständige Grid-Audition aus einem Audiopuffer bleiben erhalten. [Anleitung](n21-f2/README_P7_38_SESSIONS_REVIEWED.md) · [Prüfbericht](n21-f2/docs/sessions-reviewed/report.md) · [Stufenprüfung](n21-f2/docs/hover-review/source-ledger.md).
 
 
 Die aktuelle, vom Nutzer gelieferte N21–F2-Quellbasis mit Granular-Hold, Live-Stabilitäts-Patch und korrigierter Forge-Fortschrittsanzeige sowie ausgerichteten Mix-Reglern, Raster-Mute, Melodic-Panning und Xenpolar Drone im Hauptinstrument

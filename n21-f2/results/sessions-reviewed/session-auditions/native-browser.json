@@ -1,0 +1,831 @@
+{
+  "readinessError": "Root Follow preview could not start.",
+  "readinessState": {
+    "phase": "failed",
+    "key": "rootFollow\u0000session-rfl-source-gfta1u",
+    "error": "Root Follow preview could not start."
+  },
+  "naturalEnds": [
+    {
+      "kind": "bass",
+      "status": {
+        "phase": "idle",
+        "key": null,
+        "error": null
+      },
+      "key": null
+    },
+    {
+      "kind": "drum",
+      "status": {
+        "phase": "idle",
+        "key": null,
+        "error": null
+      },
+      "key": null
+    }
+  ],
+  "manualRoot": {
+    "status": {
+      "phase": "idle",
+      "key": null,
+      "error": null
+    },
+    "id": "session-rfl-source-gfta1u",
+    "active": true,
+    "mode": "material"
+  },
+  "manualAfterStop": {
+    "id": "session-rfl-source-gfta1u",
+    "active": true,
+    "mode": "material"
+  },
+  "rootSwitch": {
+    "status": {
+      "phase": "playing",
+      "key": "rootFollow\u0000session-rfl-second-nxic7v",
+      "error": null
+    },
+    "audio": {
+      "peak": 0.05830308049917221,
+      "energy": 9.696177271868589,
+      "taps": 14
+    },
+    "lastWindow": {
+      "stage": "first-render-window",
+      "perfNowMs": 12660.09999999404,
+      "generatedAtIso": "2026-10-22T07:22:06.638Z",
+      "audioNowSec": 9.250249433106577,
+      "token": 13,
+      "loopId": "session-rfl-second-nxic7v",
+      "loopName": "Session RFL second",
+      "sourceKind": "material",
+      "renderMode": "flowing",
+      "rootFollowLoopActive": true,
+      "rootFollowPreviewActive": true,
+      "rootFollowPlayfieldInside": false,
+      "effectivePlaybackGate": true,
+      "selectedEntryExists": true,
+      "timerActive": false,
+      "gainConnected": true,
+      "activeNodes": 0,
+      "activeSynthVoices": 0,
+      "cacheSize": 2,
+      "stopReason": null,
+      "coldStartLeadMs": 1860.8616780045343,
+      "coldStartRisk": false,
+      "detail": {
+        "renderWindowStartSec": 11.11111111111111,
+        "restartLeadFloorMs": 24,
+        "delayMs": 250,
+        "synthDirect": false,
+        "qualityMode": "base"
+      }
+    }
+  },
+  "secondSourceId": "session-rfl-second-nxic7v",
+  "missingSampleError": "Missing drum sample: absent-session-sample",
+  "missingSampleState": {
+    "phase": "failed",
+    "key": "drum\u0000exported:session-missing-drums",
+    "error": "Missing drum sample: absent-session-sample"
+  },
+  "actual19": [
+    {
+      "hz": 59.16298224211003,
+      "time": 1.6666666666666667
+    }
+  ],
+  "expected19": 59.16298224211003,
+  "cancelledAudio": {
+    "peak": 4.591196898218186e-7,
+    "energy": 1.1896190364673795e-10,
+    "taps": 14
+  },
+  "rawDrum": [
+    {
+      "firstNonzero": 9801,
+      "frames": 301938,
+      "rate": 44100,
+      "channels": 2,
+      "energy": 14.426087803124352,
+      "peak": 0.040444038808345795,
+      "args": [
+        5.14031746031746,
+        0,
+        6.846666666666667
+      ]
+    }
+  ],
+  "rawDrumBpm": 108,
+  "baselineDiff": 0,
+  "injectedDiff": 0,
+  "rows": [
+    {
+      "entry": {
+        "kind": "rootFollow",
+        "id": "session-rfl-source-gfta1u",
+        "name": "Session RFL source"
+      },
+      "state": "preparing",
+      "status": {
+        "phase": "playing",
+        "key": "rootFollow\u0000session-rfl-source-gfta1u",
+        "error": null
+      },
+      "buffers": [],
+      "nativeAudio": {
+        "peak": 0.09701310843229294,
+        "energy": 31.459207055846612,
+        "taps": 2
+      },
+      "nativeDebug": {
+        "power": false,
+        "preview": true,
+        "params": {
+          "active": true,
+          "id": "session-rfl-source-gfta1u"
+        },
+        "gain": 0.2199999988079071,
+        "nodeCount": 0,
+        "truth": {
+          "version": 1,
+          "reportKind": "xensonar-root-follow-playback-truth-probe",
+          "generatedAtIso": "2026-10-22T07:22:00.302Z",
+          "latest": {
+            "stage": "first-render-window",
+            "perfNowMs": 3415.5999999940395,
+            "generatedAtIso": "2026-10-22T07:21:57.393Z",
+            "audioNowSec": 0.17124716553287983,
+            "token": 3,
+            "loopId": "session-rfl-source-gfta1u",
+            "loopName": "Session RFL source",
+            "sourceKind": "material",
+            "renderMode": "flowing",
+            "rootFollowLoopActive": true,
+            "rootFollowPreviewActive": true,
+            "rootFollowPlayfieldInside": false,
+            "effectivePlaybackGate": true,
+            "selectedEntryExists": true,
+            "timerActive": false,
+            "gainConnected": true,
+            "activeNodes": 0,
+            "activeSynthVoices": 0,
+            "cacheSize": 1,
+            "stopReason": null,
+            "coldStartLeadMs": 2050.975056689342,
+            "coldStartRisk": false,
+            "detail": {
+              "renderWindowStartSec": 2.2222222222222223,
+              "restartLeadFloorMs": 24,
+              "delayMs": 250,
+              "synthDirect": false,
+              "qualityMode": "base"
+            }
+          },
+          "recent": [
+            {
+              "stage": "gate-close",
+              "perfNowMs": 2036.5,
+              "generatedAtIso": "2026-10-22T07:21:56.014Z",
+              "audioNowSec": null,
+              "token": 0,
+              "loopId": null,
+              "loopName": null,
+              "sourceKind": null,
+              "renderMode": null,
+              "rootFollowLoopActive": false,
+              "rootFollowPreviewActive": false,
+              "rootFollowPlayfieldInside": false,
+              "effectivePlaybackGate": false,
+              "selectedEntryExists": false,
+              "timerActive": false,
+              "gainConnected": false,
+              "activeNodes": 0,
+              "activeSynthVoices": 0,
+              "cacheSize": 0,
+              "stopReason": "no-audio-context",
+              "coldStartLeadMs": null,
+              "coldStartRisk": false,
+              "detail": {
+                "nexusActive": false,
+                "reason": "no-audio-context"
+              }
+            },
+            {
+              "stage": "gate-close",
+              "perfNowMs": 2932.9000000059605,
+              "generatedAtIso": "2026-10-22T07:21:56.910Z",
+              "audioNowSec": null,
+              "token": 1,
+              "loopId": "session-rfl-source-gfta1u",
+              "loopName": "Session RFL source",
+              "sourceKind": "material",
+              "renderMode": "flowing",
+              "rootFollowLoopActive": false,
+              "rootFollowPreviewActive": false,
+              "rootFollowPlayfieldInside": false,
+              "effectivePlaybackGate": false,
+              "selectedEntryExists": true,
+              "timerActive": false,
+              "gainConnected": false,
+              "activeNodes": 0,
+              "activeSynthVoices": 0,
+              "cacheSize": 0,
+              "stopReason": "no-audio-context",
+              "coldStartLeadMs": null,
+              "coldStartRisk": false,
+              "detail": {
+                "nexusActive": false,
+                "reason": "no-audio-context"
+              }
+            },
+            {
+              "stage": "preview-gate-change",
+              "perfNowMs": 3284.9000000059605,
+              "generatedAtIso": "2026-10-22T07:21:57.262Z",
+              "audioNowSec": null,
+              "token": null,
+              "loopId": null,
+              "loopName": null,
+              "sourceKind": null,
+              "renderMode": null,
+              "rootFollowLoopActive": true,
+              "rootFollowPreviewActive": true,
+              "rootFollowPlayfieldInside": null,
+              "effectivePlaybackGate": true,
+              "selectedEntryExists": true,
+              "timerActive": null,
+              "gainConnected": null,
+              "activeNodes": null,
+              "activeSynthVoices": null,
+              "cacheSize": null,
+              "stopReason": null,
+              "coldStartLeadMs": null,
+              "coldStartRisk": false,
+              "detail": {
+                "source": "toggleRootFollowPreview",
+                "loopId": "session-rfl-source-gfta1u"
+              }
+            },
+            {
+              "stage": "gate-open",
+              "perfNowMs": 3320.699999988079,
+              "generatedAtIso": "2026-10-22T07:21:57.298Z",
+              "audioNowSec": 0.07256235827664399,
+              "token": 3,
+              "loopId": "session-rfl-source-gfta1u",
+              "loopName": "Session RFL source",
+              "sourceKind": "material",
+              "renderMode": "flowing",
+              "rootFollowLoopActive": true,
+              "rootFollowPreviewActive": true,
+              "rootFollowPlayfieldInside": false,
+              "effectivePlaybackGate": true,
+              "selectedEntryExists": true,
+              "timerActive": false,
+              "gainConnected": false,
+              "activeNodes": 0,
+              "activeSynthVoices": 0,
+              "cacheSize": 0,
+              "stopReason": null,
+              "coldStartLeadMs": null,
+              "coldStartRisk": false,
+              "detail": {
+                "rootHz": 246.94169999999997
+              }
+            },
+            {
+              "stage": "scheduler-first-tick",
+              "perfNowMs": 3409.5,
+              "generatedAtIso": "2026-10-22T07:21:57.387Z",
+              "audioNowSec": 0.16253968253968254,
+              "token": 3,
+              "loopId": "session-rfl-source-gfta1u",
+              "loopName": "Session RFL source",
+              "sourceKind": "material",
+              "renderMode": "flowing",
+              "rootFollowLoopActive": true,
+              "rootFollowPreviewActive": true,
+              "rootFollowPlayfieldInside": false,
+              "effectivePlaybackGate": true,
+              "selectedEntryExists": true,
+              "timerActive": false,
+              "gainConnected": false,
+              "activeNodes": 0,
+              "activeSynthVoices": 0,
+              "cacheSize": 1,
+              "stopReason": null,
+              "coldStartLeadMs": null,
+              "coldStartRisk": false
+            },
+            {
+              "stage": "first-render-window",
+              "perfNowMs": 3415.5999999940395,
+              "generatedAtIso": "2026-10-22T07:21:57.393Z",
+              "audioNowSec": 0.17124716553287983,
+              "token": 3,
+              "loopId": "session-rfl-source-gfta1u",
+              "loopName": "Session RFL source",
+              "sourceKind": "material",
+              "renderMode": "flowing",
+              "rootFollowLoopActive": true,
+              "rootFollowPreviewActive": true,
+              "rootFollowPlayfieldInside": false,
+              "effectivePlaybackGate": true,
+              "selectedEntryExists": true,
+              "timerActive": false,
+              "gainConnected": true,
+              "activeNodes": 0,
+              "activeSynthVoices": 0,
+              "cacheSize": 1,
+              "stopReason": null,
+              "coldStartLeadMs": 2050.975056689342,
+              "coldStartRisk": false,
+              "detail": {
+                "renderWindowStartSec": 2.2222222222222223,
+                "restartLeadFloorMs": 24,
+                "delayMs": 250,
+                "synthDirect": false,
+                "qualityMode": "base"
+              }
+            }
+          ],
+          "eventCount": 6,
+          "latestGateOpen": {
+            "stage": "gate-open",
+            "perfNowMs": 3320.699999988079,
+            "generatedAtIso": "2026-10-22T07:21:57.298Z",
+            "audioNowSec": 0.07256235827664399,
+            "token": 3,
+            "loopId": "session-rfl-source-gfta1u",
+            "loopName": "Session RFL source",
+            "sourceKind": "material",
+            "renderMode": "flowing",
+            "rootFollowLoopActive": true,
+            "rootFollowPreviewActive": true,
+            "rootFollowPlayfieldInside": false,
+            "effectivePlaybackGate": true,
+            "selectedEntryExists": true,
+            "timerActive": false,
+            "gainConnected": false,
+            "activeNodes": 0,
+            "activeSynthVoices": 0,
+            "cacheSize": 0,
+            "stopReason": null,
+            "coldStartLeadMs": null,
+            "coldStartRisk": false,
+            "detail": {
+              "rootHz": 246.94169999999997
+            }
+          },
+          "latestGateClose": {
+            "stage": "gate-close",
+            "perfNowMs": 2932.9000000059605,
+            "generatedAtIso": "2026-10-22T07:21:56.910Z",
+            "audioNowSec": null,
+            "token": 1,
+            "loopId": "session-rfl-source-gfta1u",
+            "loopName": "Session RFL source",
+            "sourceKind": "material",
+            "renderMode": "flowing",
+            "rootFollowLoopActive": false,
+            "rootFollowPreviewActive": false,
+            "rootFollowPlayfieldInside": false,
+            "effectivePlaybackGate": false,
+            "selectedEntryExists": true,
+            "timerActive": false,
+            "gainConnected": false,
+            "activeNodes": 0,
+            "activeSynthVoices": 0,
+            "cacheSize": 0,
+            "stopReason": "no-audio-context",
+            "coldStartLeadMs": null,
+            "coldStartRisk": false,
+            "detail": {
+              "nexusActive": false,
+              "reason": "no-audio-context"
+            }
+          },
+          "latestStopReason": "no-audio-context",
+          "latestColdStartRisk": false,
+          "note": "Low-overhead probe: records Root-Follow lifecycle/gate/restart edges only, not per-grain or per-window continuous telemetry."
+        }
+      }
+    },
+    {
+      "entry": {
+        "id": "preset:forge_rooted",
+        "name": "RhythmForge · Rooted",
+        "bars": null,
+        "kind": "drum"
+      },
+      "state": "playing",
+      "status": {
+        "phase": "playing",
+        "key": "drum\u0000preset:forge_rooted",
+        "error": null
+      },
+      "buffers": [
+        {
+          "firstNonzero": 0,
+          "frames": 203938,
+          "rate": 44100,
+          "channels": 1,
+          "energy": 254.27727466715598,
+          "peak": 0.47005560994148254,
+          "args": [
+            3.4104308390022675,
+            0,
+            4.624444444444444
+          ]
+        }
+      ],
+      "nativeAudio": {
+        "peak": 0.14369288086891174,
+        "energy": 0.8908841723082875,
+        "taps": 4
+      },
+      "nativeDebug": null
+    },
+    {
+      "entry": {
+        "id": "preset:psy_classic",
+        "name": "PsyBass · Classic Offbeat",
+        "bars": null,
+        "kind": "bass"
+      },
+      "state": "playing",
+      "status": {
+        "phase": "playing",
+        "key": "bass\u0000preset:psy_classic",
+        "error": null
+      },
+      "buffers": [
+        {
+          "firstNonzero": 12242,
+          "frames": 103293,
+          "rate": 44100,
+          "channels": 2,
+          "energy": 46.12914348545237,
+          "peak": 0.08157052099704742,
+          "args": [
+            4.272471655328798,
+            0,
+            2.342244897959184
+          ]
+        }
+      ],
+      "nativeAudio": {
+        "peak": 0.058730777353048325,
+        "energy": 5.256537354490435,
+        "taps": 6
+      },
+      "nativeDebug": null
+    }
+  ],
+  "events": [
+    {
+      "phase": "idle",
+      "key": null,
+      "error": null
+    },
+    {
+      "phase": "preparing",
+      "key": "rootFollow\u0000session-rfl-source-gfta1u",
+      "error": null
+    },
+    {
+      "phase": "playing",
+      "key": "rootFollow\u0000session-rfl-source-gfta1u",
+      "error": null
+    },
+    {
+      "phase": "idle",
+      "key": null,
+      "error": null
+    },
+    {
+      "phase": "idle",
+      "key": null,
+      "error": null
+    },
+    {
+      "phase": "preparing",
+      "key": "drum\u0000preset:forge_rooted",
+      "error": null
+    },
+    {
+      "phase": "playing",
+      "key": "drum\u0000preset:forge_rooted",
+      "error": null
+    },
+    {
+      "phase": "idle",
+      "key": null,
+      "error": null
+    },
+    {
+      "phase": "idle",
+      "key": null,
+      "error": null
+    },
+    {
+      "phase": "preparing",
+      "key": "bass\u0000preset:psy_classic",
+      "error": null
+    },
+    {
+      "phase": "playing",
+      "key": "bass\u0000preset:psy_classic",
+      "error": null
+    },
+    {
+      "phase": "idle",
+      "key": null,
+      "error": null
+    },
+    {
+      "phase": "idle",
+      "key": null,
+      "error": null
+    },
+    {
+      "phase": "preparing",
+      "key": "drum\u0000exported:session-raw-drums",
+      "error": null
+    },
+    {
+      "phase": "playing",
+      "key": "drum\u0000exported:session-raw-drums",
+      "error": null
+    },
+    {
+      "phase": "idle",
+      "key": null,
+      "error": null
+    },
+    {
+      "phase": "idle",
+      "key": null,
+      "error": null
+    },
+    {
+      "phase": "preparing",
+      "key": "drum\u0000preset:forge_rooted",
+      "error": null
+    },
+    {
+      "phase": "playing",
+      "key": "drum\u0000preset:forge_rooted",
+      "error": null
+    },
+    {
+      "phase": "idle",
+      "key": null,
+      "error": null
+    },
+    {
+      "phase": "preparing",
+      "key": "bass\u0000preset:psy_classic",
+      "error": null
+    },
+    {
+      "phase": "playing",
+      "key": "bass\u0000preset:psy_classic",
+      "error": null
+    },
+    {
+      "phase": "idle",
+      "key": null,
+      "error": null
+    },
+    {
+      "phase": "idle",
+      "key": null,
+      "error": null
+    },
+    {
+      "phase": "preparing",
+      "key": "rootFollow\u0000session-rfl-source-gfta1u",
+      "error": null
+    },
+    {
+      "phase": "idle",
+      "key": null,
+      "error": null
+    },
+    {
+      "phase": "idle",
+      "key": null,
+      "error": null
+    },
+    {
+      "phase": "failed",
+      "key": "bass\u0000clip:missing-ref",
+      "error": "Library source is unavailable."
+    },
+    {
+      "phase": "idle",
+      "key": null,
+      "error": null
+    },
+    {
+      "phase": "idle",
+      "key": null,
+      "error": null
+    },
+    {
+      "phase": "preparing",
+      "key": "bass\u0000clip:bass-clip:workcopy:mvj7qpi1",
+      "error": null
+    },
+    {
+      "phase": "playing",
+      "key": "bass\u0000clip:bass-clip:workcopy:mvj7qpi1",
+      "error": null
+    },
+    {
+      "phase": "idle",
+      "key": null,
+      "error": null
+    },
+    {
+      "phase": "idle",
+      "key": null,
+      "error": null
+    },
+    {
+      "phase": "preparing",
+      "key": "rootFollow\u0000session-rfl-source-gfta1u",
+      "error": null
+    },
+    {
+      "phase": "idle",
+      "key": null,
+      "error": null
+    },
+    {
+      "phase": "idle",
+      "key": null,
+      "error": null
+    },
+    {
+      "phase": "preparing",
+      "key": "rootFollow\u0000session-rfl-source-gfta1u",
+      "error": null
+    },
+    {
+      "phase": "idle",
+      "key": null,
+      "error": null
+    },
+    {
+      "phase": "preparing",
+      "key": "rootFollow\u0000session-rfl-second-nxic7v",
+      "error": null
+    },
+    {
+      "phase": "playing",
+      "key": "rootFollow\u0000session-rfl-second-nxic7v",
+      "error": null
+    },
+    {
+      "phase": "idle",
+      "key": null,
+      "error": null
+    },
+    {
+      "phase": "idle",
+      "key": null,
+      "error": null
+    },
+    {
+      "phase": "idle",
+      "key": null,
+      "error": null
+    },
+    {
+      "phase": "preparing",
+      "key": "drum\u0000exported:session-missing-drums",
+      "error": null
+    },
+    {
+      "phase": "failed",
+      "key": "drum\u0000exported:session-missing-drums",
+      "error": "Missing drum sample: absent-session-sample"
+    },
+    {
+      "phase": "idle",
+      "key": null,
+      "error": null
+    },
+    {
+      "phase": "idle",
+      "key": null,
+      "error": null
+    },
+    {
+      "phase": "preparing",
+      "key": "rootFollow\u0000session-rfl-source-gfta1u",
+      "error": null
+    },
+    {
+      "phase": "failed",
+      "key": "rootFollow\u0000session-rfl-source-gfta1u",
+      "error": "Root Follow preview could not start."
+    },
+    {
+      "phase": "idle",
+      "key": null,
+      "error": null
+    },
+    {
+      "phase": "idle",
+      "key": null,
+      "error": null
+    },
+    {
+      "phase": "preparing",
+      "key": "bass\u0000preset:psy_classic",
+      "error": null
+    },
+    {
+      "phase": "playing",
+      "key": "bass\u0000preset:psy_classic",
+      "error": null
+    },
+    {
+      "phase": "idle",
+      "key": null,
+      "error": null
+    },
+    {
+      "phase": "idle",
+      "key": null,
+      "error": null
+    },
+    {
+      "phase": "idle",
+      "key": null,
+      "error": null
+    },
+    {
+      "phase": "preparing",
+      "key": "drum\u0000preset:forge_rooted",
+      "error": null
+    },
+    {
+      "phase": "playing",
+      "key": "drum\u0000preset:forge_rooted",
+      "error": null
+    },
+    {
+      "phase": "idle",
+      "key": null,
+      "error": null
+    },
+    {
+      "phase": "idle",
+      "key": null,
+      "error": null
+    }
+  ],
+  "switched": "playing",
+  "switchState": {
+    "phase": "playing",
+    "key": "bass\u0000preset:psy_classic",
+    "error": null
+  },
+  "cancelState": {
+    "phase": "idle",
+    "key": null,
+    "error": null
+  },
+  "unavailable": "unavailable",
+  "missingState": {
+    "phase": "failed",
+    "key": "bass\u0000clip:missing-ref",
+    "error": "Library source is unavailable."
+  },
+  "liveBefore": "{\"room\":{\"version\":1,\"nParamsUI\":{\"dronePreset\":\"dark_sub\",\"droneFixedHz\":55,\"droneSnapToGrid\":false,\"droneTimbre\":0.5,\"droneVibrato\":0.5,\"droneFlanger\":0,\"droneRefucktorEcho\":0.24,\"droneRefucktorFeedback\":0.32,\"droneRhythm\":\"Off\",\"droneWobbleDepth\":0,\"droneWobbleShape\":\"Sine\",\"droneWobbleRate\":\"1/8\",\"droneDubDrive\":0,\"droneCursorFollow\":false,\"droneCursorAmount\":0.5,\"droneStepWobbleShapes\":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],\"echoOn\":false,\"echoTempo\":400,\"echoDecay\":0.6,\"waveRadius\":1.09,\"waveDecay\":\"abrupt\",\"gridOn\":true,\"gridBase\":440,\"gridTuning\":\"12edo\",\"gridMode\":\"ionian\",\"rememberGrid\":false,\"gridStates\":{},\"manualGridMutedSteps\":[1,3,6,8,10],\"manualGridStepOffsets\":[0,0,0,0,0,0,0,0,0,0,0,0],\"particleSystem\":\"ji\",\"churchMode\":\"ionian\",\"lockCursorToGrid\":true,\"cursorSpeed\":4,\"droneDriveOn\":false,\"droneDriveAmount\":0.22,\"droneDriveTone\":0.52,\"droneDriveMix\":0.26,\"droneDriveOutput\":0.82,\"droneRhythmCustomSteps\":[1,0,0,0,1,0,0,0,1,0,0,0,1,0,0,0],\"drumActive\":true,\"drumPattern\":\"broken_lilt\",\"drumKit\":\"dusty_tape\",\"drumLaneKits\":{},\"drumVolume\":0.52,\"drumEdge\":0.46,\"drumSoftness\":0.58,\"drumAir\":0.5,\"drumSnap\":0.48,\"grooveSwing\":0.38,\"drumConfigMode\":\"preset\",\"drumConfigId\":\"\",\"bassActive\":true,\"bassPattern\":\"forge_fractured\",\"bassPatternMode\":\"preset\",\"bassClipId\":\"\",\"psyBassPitchMode\":\"classic-semitone\",\"bassVoice\":\"classic\",\"bassResonance\":0,\"bassEnvelope\":1,\"bassDecay\":1,\"bassSub\":1,\"drumPhaser\":0,\"drumPhaserRate\":0.28,\"drumPhaserDepth\":0.55,\"drumDistance\":0,\"drumPan\":0,\"drumDecay\":1,\"bassVolume\":0.1,\"bassTone\":0.48,\"bassGrit\":0.18,\"bassRootMode\":\"auto\",\"bassRootHz\":55,\"particlePreset\":\"dust_chime\",\"particleSampleProfileMode\":\"current_db_v2\",\"particleGradientX\":\"edge_spark\",\"particleGradientY\":\"warm_center\",\"waveTimbreGradientEnabled\":true,\"waveTimbreGradientX\":\"wire_to_psy\",\"waveVolumeGradientEnabled\":false,\"waveVolumeGradientX\":\"none\",\"waveOvertonesEnabled\":false,\"droneOvertoneWaveform\":\"triangle\",\"waveOvertoneWaveform\":\"triangle\",\"waveOvertoneMode\":\"arp\",\"waveOvertoneArpRate\":64,\"waveOvertoneArpPattern\":\"updown\",\"waveOvertoneArpSteps\":8,\"waveOvertoneGlobalLevel\":1,\"waveOvertones\":{\"9/8\":0,\"6/5\":0,\"5/4\":0,\"4/3\":0,\"11/8\":0,\"3/2\":0,\"8/5\":0,\"13/8\":0,\"5/3\":0,\"7/4\":0,\"15/8\":0},\"waveStarterHoldSegments\":24,\"waveStarterHoldCustomSegments\":48,\"waveStarterHoldReferenceBars\":1,\"waveStarterHoldPatternSteps\":[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],\"waveStarterHoldSoundPreset\":\"tape_halo\",\"keyboardHoldSegments\":24,\"keyboardHoldCustomSegments\":48,\"keyboardHoldReferenceBars\":1,\"keyboardHoldPatternSteps\":[1,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],\"keyboardHoldSoundPreset\":\"tape_halo\",\"particleVolume\":0.165,\"particleMute\":false,\"quantizeOn\":true,\"quantizeBpm\":108,\"materialLoopActive\":true,\"materialLoopSyncToBeat\":true,\"materialLoopId\":\"session-rfl-second-nxic7v\",\"materialLoopVolume\":0.22,\"materialLoopTimeMode\":\"normal\",\"rootFollowImpulsRasterMuted\":false,\"rootFollowLoopActive\":false,\"rootFollowLoopId\":\"session-rfl-source-gfta1u\",\"rootFollowLoopVolume\":0.22,\"rootFollowLoopTimeMode\":\"normal\",\"rootFollowLoopGranulationMode\":\"flowing\",\"rootFollowGranularSettings\":{\"preset\":\"flowing\",\"powerMode\":\"balanced\",\"windowMs\":70,\"stepMs\":40,\"leadMs\":64,\"startLeadMs\":18,\"qualityMode\":\"base\",\"microDensity\":0.92,\"sourceSpread\":0.86,\"jitter\":0.12,\"maxGrainsPerWindow\":18},\"rootFollowImpulsRasterEvery\":1,\"rootFollowImpulsRasterCycleDiv\":1,\"rootFollowImpulsRasterClockMode\":\"fragment-compress\",\"rootFollowImpulsRasterPattern\":[1],\"resonanceHotkeyMode\":\"material\",\"agentEnabled\":[true,true,false,true,true,false,true,false,false,true,false,true],\"agentVolumes\":[1,1,1,1,1,1,1,1,1,1,1,1],\"droneJIOvertones\":{\"9/8\":0,\"6/5\":0.22,\"5/4\":0,\"4/3\":0.52,\"11/8\":0,\"3/2\":0.35,\"8/5\":0,\"13/8\":0,\"5/3\":0,\"7/4\":0,\"15/8\":0},\"droneJIOvertonesByPreset\":{\"xenpolar_drone\":{\"9/8\":0,\"6/5\":0,\"5/4\":0,\"4/3\":0,\"11/8\":0,\"3/2\":0,\"8/5\":0,\"13/8\":0,\"5/3\":0,\"7/4\":0,\"15/8\":0},\"warm_pad\":{\"9/8\":0,\"6/5\":0.24,\"5/4\":0.55,\"4/3\":0.48,\"11/8\":0,\"3/2\":0.72,\"8/5\":0,\"13/8\":0,\"5/3\":0,\"7/4\":0,\"15/8\":0.2},\"string_swell\":{\"9/8\":0,\"6/5\":0,\"5/4\":0.42,\"4/3\":0,\"11/8\":0,\"3/2\":0.68,\"8/5\":0.3,\"13/8\":0,\"5/3\":0.46,\"7/4\":0,\"15/8\":0.28},\"dark_sub\":{\"9/8\":0,\"6/5\":0.22,\"5/4\":0,\"4/3\":0.52,\"11/8\":0,\"3/2\":0.35,\"8/5\":0,\"13/8\":0,\"5/3\":0,\"7/4\":0,\"15/8\":0},\"metallic\":{\"9/8\":0,\"6/5\":0,\"5/4\":0,\"4/3\":0,\"11/8\":0.62,\"3/2\":0.24,\"8/5\":0,\"13/8\":0.58,\"5/3\":0,\"7/4\":0.4,\"15/8\":0},\"vocal_choir\":{\"9/8\":0.3,\"6/5\":0,\"5/4\":0.62,\"4/3\":0,\"11/8\":0,\"3/2\":0.56,\"8/5\":0,\"13/8\":0,\"5/3\":0,\"7/4\":0,\"15/8\":0.4},\"ethereal_halo\":{\"9/8\":0,\"6/5\":0,\"5/4\":0,\"4/3\":0,\"11/8\":0.42,\"3/2\":0.36,\"8/5\":0,\"13/8\":0.54,\"5/3\":0,\"7/4\":0,\"15/8\":0.66},\"reed_drone\":{\"9/8\":0,\"6/5\":0.48,\"5/4\":0,\"4/3\":0.52,\"11/8\":0,\"3/2\":0.58,\"8/5\":0,\"13/8\":0,\"5/3\":0,\"7/4\":0.34,\"15/8\":0},\"pulse_matrix\":{\"9/8\":0.52,\"6/5\":0,\"5/4\":0.44,\"4/3\":0,\"11/8\":0.46,\"3/2\":0,\"8/5\":0,\"13/8\":0.5,\"5/3\":0,\"7/4\":0,\"15/8\":0},\"fjord_tape\":{\"9/8\":0,\"6/5\":0.3,\"5/4\":0,\"4/3\":0.44,\"11/8\":0,\"3/2\":0.52,\"8/5\":0,\"13/8\":0,\"5/3\":0.36,\"7/4\":0,\"15/8\":0},\"resonant_fifths\":{\"9/8\":0,\"6/5\":0,\"5/4\":0,\"4/3\":0.66,\"11/8\":0,\"3/2\":0.78,\"8/5\":0,\"13/8\":0,\"5/3\":0.44,\"7/4\":0,\"15/8\":0.32},\"cello\":{\"9/8\":0,\"6/5\":0.4,\"5/4\":0.48,\"4/3\":0,\"11/8\":0,\"3/2\":0.58,\"8/5\":0.35,\"13/8\":0,\"5/3\":0,\"7/4\":0,\"15/8\":0},\"saxophon\":{\"9/8\":0,\"6/5\":0,\"5/4\":0.52,\"4/3\":0,\"11/8\":0.38,\"3/2\":0.5,\"8/5\":0,\"13/8\":0,\"5/3\":0,\"7/4\":0.34,\"15/8\":0},\"glass_pipe\":{\"9/8\":0,\"6/5\":0,\"5/4\":0,\"4/3\":0,\"11/8\":0.56,\"3/2\":0.32,\"8/5\":0,\"13/8\":0.52,\"5/3\":0,\"7/4\":0,\"15/8\":0.44},\"membrane_bloom\":{\"9/8\":0,\"6/5\":0.28,\"5/4\":0.22,\"4/3\":0.66,\"11/8\":0,\"3/2\":0.42,\"8/5\":0,\"13/8\":0,\"5/3\":0,\"7/4\":0,\"15/8\":0},\"bronze_reed\":{\"9/8\":0,\"6/5\":0,\"5/4\":0.46,\"4/3\":0,\"11/8\":0.44,\"3/2\":0.52,\"8/5\":0,\"13/8\":0,\"5/3\":0,\"7/4\":0.38,\"15/8\":0},\"dust_bow\":{\"9/8\":0,\"6/5\":0.42,\"5/4\":0,\"4/3\":0.46,\"11/8\":0,\"3/2\":0.4,\"8/5\":0,\"13/8\":0,\"5/3\":0,\"7/4\":0,\"15/8\":0.28}},\"showGrid\":true,\"cursorSnap\":true,\"quantizeEvents\":true},\"wave\":{\"preset\":\"tape_halo\",\"enabled\":true,\"volume\":0.22},\"pan\":{\"material\":0,\"rootFollow\":0,\"bass\":0,\"particle\":0,\"wave\":0,\"keyboard\":0,\"particle:0\":0,\"particle:1\":0,\"particle:2\":0,\"particle:3\":0,\"particle:4\":0,\"particle:5\":0,\"particle:6\":0,\"particle:7\":0,\"particle:8\":0,\"particle:9\":0,\"particle:10\":0,\"particle:11\":0,\"particle:12\":0,\"particle:13\":0,\"particle:14\":0,\"particle:15\":0,\"particle:16\":0,\"particle:17\":0,\"particle:18\":0,\"particle:19\":0,\"particle:20\":0,\"particle:21\":0,\"particle:22\":0,\"particle:23\":0,\"particle:24\":0,\"particle:25\":0,\"particle:26\":0,\"particle:27\":0,\"particle:28\":0,\"particle:29\":0,\"particle:30\":0,\"particle:31\":0},\"octaves\":{\"particle\":0,\"wave\":0,\"keyboard\":0},\"bassGridSource\":\"main\"},\"quick\":{\"material\":\"session-rfl-second-nxic7v\",\"rootFollow\":\"session-rfl-source-gfta1u\",\"drum\":\"preset:broken_lilt\",\"bass\":\"preset:forge_fractured\",\"grid\":\"12edo\"},\"grid\":{},\"session\":[]}",
+  "liveAfter": "{\"room\":{\"version\":1,\"nParamsUI\":{\"dronePreset\":\"dark_sub\",\"droneFixedHz\":55,\"droneSnapToGrid\":false,\"droneTimbre\":0.5,\"droneVibrato\":0.5,\"droneFlanger\":0,\"droneRefucktorEcho\":0.24,\"droneRefucktorFeedback\":0.32,\"droneRhythm\":\"Off\",\"droneWobbleDepth\":0,\"droneWobbleShape\":\"Sine\",\"droneWobbleRate\":\"1/8\",\"droneDubDrive\":0,\"droneCursorFollow\":false,\"droneCursorAmount\":0.5,\"droneStepWobbleShapes\":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],\"echoOn\":false,\"echoTempo\":400,\"echoDecay\":0.6,\"waveRadius\":1.09,\"waveDecay\":\"abrupt\",\"gridOn\":true,\"gridBase\":440,\"gridTuning\":\"12edo\",\"gridMode\":\"ionian\",\"rememberGrid\":false,\"gridStates\":{},\"manualGridMutedSteps\":[1,3,6,8,10],\"manualGridStepOffsets\":[0,0,0,0,0,0,0,0,0,0,0,0],\"particleSystem\":\"ji\",\"churchMode\":\"ionian\",\"lockCursorToGrid\":true,\"cursorSpeed\":4,\"droneDriveOn\":false,\"droneDriveAmount\":0.22,\"droneDriveTone\":0.52,\"droneDriveMix\":0.26,\"droneDriveOutput\":0.82,\"droneRhythmCustomSteps\":[1,0,0,0,1,0,0,0,1,0,0,0,1,0,0,0],\"drumActive\":true,\"drumPattern\":\"broken_lilt\",\"drumKit\":\"dusty_tape\",\"drumLaneKits\":{},\"drumVolume\":0.52,\"drumEdge\":0.46,\"drumSoftness\":0.58,\"drumAir\":0.5,\"drumSnap\":0.48,\"grooveSwing\":0.38,\"drumConfigMode\":\"preset\",\"drumConfigId\":\"\",\"bassActive\":true,\"bassPattern\":\"forge_fractured\",\"bassPatternMode\":\"preset\",\"bassClipId\":\"\",\"psyBassPitchMode\":\"classic-semitone\",\"bassVoice\":\"classic\",\"bassResonance\":0,\"bassEnvelope\":1,\"bassDecay\":1,\"bassSub\":1,\"drumPhaser\":0,\"drumPhaserRate\":0.28,\"drumPhaserDepth\":0.55,\"drumDistance\":0,\"drumPan\":0,\"drumDecay\":1,\"bassVolume\":0.1,\"bassTone\":0.48,\"bassGrit\":0.18,\"bassRootMode\":\"auto\",\"bassRootHz\":55,\"particlePreset\":\"dust_chime\",\"particleSampleProfileMode\":\"current_db_v2\",\"particleGradientX\":\"edge_spark\",\"particleGradientY\":\"warm_center\",\"waveTimbreGradientEnabled\":true,\"waveTimbreGradientX\":\"wire_to_psy\",\"waveVolumeGradientEnabled\":false,\"waveVolumeGradientX\":\"none\",\"waveOvertonesEnabled\":false,\"droneOvertoneWaveform\":\"triangle\",\"waveOvertoneWaveform\":\"triangle\",\"waveOvertoneMode\":\"arp\",\"waveOvertoneArpRate\":64,\"waveOvertoneArpPattern\":\"updown\",\"waveOvertoneArpSteps\":8,\"waveOvertoneGlobalLevel\":1,\"waveOvertones\":{\"9/8\":0,\"6/5\":0,\"5/4\":0,\"4/3\":0,\"11/8\":0,\"3/2\":0,\"8/5\":0,\"13/8\":0,\"5/3\":0,\"7/4\":0,\"15/8\":0},\"waveStarterHoldSegments\":24,\"waveStarterHoldCustomSegments\":48,\"waveStarterHoldReferenceBars\":1,\"waveStarterHoldPatternSteps\":[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],\"waveStarterHoldSoundPreset\":\"tape_halo\",\"keyboardHoldSegments\":24,\"keyboardHoldCustomSegments\":48,\"keyboardHoldReferenceBars\":1,\"keyboardHoldPatternSteps\":[1,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],\"keyboardHoldSoundPreset\":\"tape_halo\",\"particleVolume\":0.165,\"particleMute\":false,\"quantizeOn\":true,\"quantizeBpm\":108,\"materialLoopActive\":true,\"materialLoopSyncToBeat\":true,\"materialLoopId\":\"session-rfl-second-nxic7v\",\"materialLoopVolume\":0.22,\"materialLoopTimeMode\":\"normal\",\"rootFollowImpulsRasterMuted\":false,\"rootFollowLoopActive\":false,\"rootFollowLoopId\":\"session-rfl-source-gfta1u\",\"rootFollowLoopVolume\":0.22,\"rootFollowLoopTimeMode\":\"normal\",\"rootFollowLoopGranulationMode\":\"flowing\",\"rootFollowGranularSettings\":{\"preset\":\"flowing\",\"powerMode\":\"balanced\",\"windowMs\":70,\"stepMs\":40,\"leadMs\":64,\"startLeadMs\":18,\"qualityMode\":\"base\",\"microDensity\":0.92,\"sourceSpread\":0.86,\"jitter\":0.12,\"maxGrainsPerWindow\":18},\"rootFollowImpulsRasterEvery\":1,\"rootFollowImpulsRasterCycleDiv\":1,\"rootFollowImpulsRasterClockMode\":\"fragment-compress\",\"rootFollowImpulsRasterPattern\":[1],\"resonanceHotkeyMode\":\"material\",\"agentEnabled\":[true,true,false,true,true,false,true,false,false,true,false,true],\"agentVolumes\":[1,1,1,1,1,1,1,1,1,1,1,1],\"droneJIOvertones\":{\"9/8\":0,\"6/5\":0.22,\"5/4\":0,\"4/3\":0.52,\"11/8\":0,\"3/2\":0.35,\"8/5\":0,\"13/8\":0,\"5/3\":0,\"7/4\":0,\"15/8\":0},\"droneJIOvertonesByPreset\":{\"xenpolar_drone\":{\"9/8\":0,\"6/5\":0,\"5/4\":0,\"4/3\":0,\"11/8\":0,\"3/2\":0,\"8/5\":0,\"13/8\":0,\"5/3\":0,\"7/4\":0,\"15/8\":0},\"warm_pad\":{\"9/8\":0,\"6/5\":0.24,\"5/4\":0.55,\"4/3\":0.48,\"11/8\":0,\"3/2\":0.72,\"8/5\":0,\"13/8\":0,\"5/3\":0,\"7/4\":0,\"15/8\":0.2},\"string_swell\":{\"9/8\":0,\"6/5\":0,\"5/4\":0.42,\"4/3\":0,\"11/8\":0,\"3/2\":0.68,\"8/5\":0.3,\"13/8\":0,\"5/3\":0.46,\"7/4\":0,\"15/8\":0.28},\"dark_sub\":{\"9/8\":0,\"6/5\":0.22,\"5/4\":0,\"4/3\":0.52,\"11/8\":0,\"3/2\":0.35,\"8/5\":0,\"13/8\":0,\"5/3\":0,\"7/4\":0,\"15/8\":0},\"metallic\":{\"9/8\":0,\"6/5\":0,\"5/4\":0,\"4/3\":0,\"11/8\":0.62,\"3/2\":0.24,\"8/5\":0,\"13/8\":0.58,\"5/3\":0,\"7/4\":0.4,\"15/8\":0},\"vocal_choir\":{\"9/8\":0.3,\"6/5\":0,\"5/4\":0.62,\"4/3\":0,\"11/8\":0,\"3/2\":0.56,\"8/5\":0,\"13/8\":0,\"5/3\":0,\"7/4\":0,\"15/8\":0.4},\"ethereal_halo\":{\"9/8\":0,\"6/5\":0,\"5/4\":0,\"4/3\":0,\"11/8\":0.42,\"3/2\":0.36,\"8/5\":0,\"13/8\":0.54,\"5/3\":0,\"7/4\":0,\"15/8\":0.66},\"reed_drone\":{\"9/8\":0,\"6/5\":0.48,\"5/4\":0,\"4/3\":0.52,\"11/8\":0,\"3/2\":0.58,\"8/5\":0,\"13/8\":0,\"5/3\":0,\"7/4\":0.34,\"15/8\":0},\"pulse_matrix\":{\"9/8\":0.52,\"6/5\":0,\"5/4\":0.44,\"4/3\":0,\"11/8\":0.46,\"3/2\":0,\"8/5\":0,\"13/8\":0.5,\"5/3\":0,\"7/4\":0,\"15/8\":0},\"fjord_tape\":{\"9/8\":0,\"6/5\":0.3,\"5/4\":0,\"4/3\":0.44,\"11/8\":0,\"3/2\":0.52,\"8/5\":0,\"13/8\":0,\"5/3\":0.36,\"7/4\":0,\"15/8\":0},\"resonant_fifths\":{\"9/8\":0,\"6/5\":0,\"5/4\":0,\"4/3\":0.66,\"11/8\":0,\"3/2\":0.78,\"8/5\":0,\"13/8\":0,\"5/3\":0.44,\"7/4\":0,\"15/8\":0.32},\"cello\":{\"9/8\":0,\"6/5\":0.4,\"5/4\":0.48,\"4/3\":0,\"11/8\":0,\"3/2\":0.58,\"8/5\":0.35,\"13/8\":0,\"5/3\":0,\"7/4\":0,\"15/8\":0},\"saxophon\":{\"9/8\":0,\"6/5\":0,\"5/4\":0.52,\"4/3\":0,\"11/8\":0.38,\"3/2\":0.5,\"8/5\":0,\"13/8\":0,\"5/3\":0,\"7/4\":0.34,\"15/8\":0},\"glass_pipe\":{\"9/8\":0,\"6/5\":0,\"5/4\":0,\"4/3\":0,\"11/8\":0.56,\"3/2\":0.32,\"8/5\":0,\"13/8\":0.52,\"5/3\":0,\"7/4\":0,\"15/8\":0.44},\"membrane_bloom\":{\"9/8\":0,\"6/5\":0.28,\"5/4\":0.22,\"4/3\":0.66,\"11/8\":0,\"3/2\":0.42,\"8/5\":0,\"13/8\":0,\"5/3\":0,\"7/4\":0,\"15/8\":0},\"bronze_reed\":{\"9/8\":0,\"6/5\":0,\"5/4\":0.46,\"4/3\":0,\"11/8\":0.44,\"3/2\":0.52,\"8/5\":0,\"13/8\":0,\"5/3\":0,\"7/4\":0.38,\"15/8\":0},\"dust_bow\":{\"9/8\":0,\"6/5\":0.42,\"5/4\":0,\"4/3\":0.46,\"11/8\":0,\"3/2\":0.4,\"8/5\":0,\"13/8\":0,\"5/3\":0,\"7/4\":0,\"15/8\":0.28}},\"showGrid\":true,\"cursorSnap\":true,\"quantizeEvents\":true},\"wave\":{\"preset\":\"tape_halo\",\"enabled\":true,\"volume\":0.22},\"pan\":{\"material\":0,\"rootFollow\":0,\"bass\":0,\"particle\":0,\"wave\":0,\"keyboard\":0,\"particle:0\":0,\"particle:1\":0,\"particle:2\":0,\"particle:3\":0,\"particle:4\":0,\"particle:5\":0,\"particle:6\":0,\"particle:7\":0,\"particle:8\":0,\"particle:9\":0,\"particle:10\":0,\"particle:11\":0,\"particle:12\":0,\"particle:13\":0,\"particle:14\":0,\"particle:15\":0,\"particle:16\":0,\"particle:17\":0,\"particle:18\":0,\"particle:19\":0,\"particle:20\":0,\"particle:21\":0,\"particle:22\":0,\"particle:23\":0,\"particle:24\":0,\"particle:25\":0,\"particle:26\":0,\"particle:27\":0,\"particle:28\":0,\"particle:29\":0,\"particle:30\":0,\"particle:31\":0},\"octaves\":{\"particle\":0,\"wave\":0,\"keyboard\":0},\"bassGridSource\":\"main\"},\"quick\":{\"material\":\"session-rfl-second-nxic7v\",\"rootFollow\":\"session-rfl-source-gfta1u\",\"drum\":\"preset:broken_lilt\",\"bass\":\"preset:forge_fractured\",\"grid\":\"12edo\"},\"grid\":{},\"session\":[]}",
+  "libraryKeys": [
+    "material",
+    "rootFollow",
+    "drum",
+    "bass",
+    "grid"
+  ],
+  "pointerUI": true,
+  "nativeManager": {
+    "power": false,
+    "preview": true,
+    "audio": {
+      "peak": 0.08918870240449905,
+      "energy": 30.403740933895588,
+      "taps": 25
+    }
+  },
+  "errors": []
+}

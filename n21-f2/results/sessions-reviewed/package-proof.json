@@ -1,0 +1,69 @@
+{
+  "baseline": "10178acb733db38f1801b263ac5200d98c17e69b",
+  "sourceZipSHA256": "52aebccb22cd7312f2749e1b8de45032319fdfe7a82e9906eeb07d2049e2be31",
+  "patchSHA256": "e420a47f334f5f6622b59fec450b713f6d6cf9f9d5ecfb0155a603a3952ad9f7",
+  "rows": [
+    {
+      "name": "source-zip-build",
+      "passed": true,
+      "exit": 0,
+      "output": "BUILT Xensonar_P7_38_Sessions_Reviewed_Test.html 64f5bda8b01595dc265f2945397b83443b123b3f3babdf7eda511f8635eaed01 5859506"
+    },
+    {
+      "name": "source-zip-verify",
+      "passed": true,
+      "exit": 0,
+      "output": "PASS reproducible standalone HTML 64f5bda8b01595dc265f2945397b83443b123b3f3babdf7eda511f8635eaed01 5859506"
+    },
+    {
+      "name": "source-zip-preservation",
+      "passed": true,
+      "exit": 0,
+      "output": "PASS P7.38 exact 239-unit reversible baseline, bounded source/style retirements/additions, head extensions and build"
+    },
+    {
+      "name": "source-zip-ancestry",
+      "passed": true,
+      "exit": 0,
+      "output": "PASS P7.24 exact reversible source corrections, protected baseline and hashed additions/order"
+    },
+    {
+      "name": "source-zip-integrity",
+      "passed": true,
+      "exit": 0,
+      "output": "PASS P7.38 same-tuning A\u2192B\u2192A modes/mutes, isolated Bass Grid, editor/live, settings Undo, Engage rollback and lossless legacy Part access"
+    },
+    {
+      "name": "patch-base-read-tree",
+      "passed": true,
+      "exit": 0,
+      "output": ""
+    },
+    {
+      "name": "patch-apply-base-index",
+      "passed": true,
+      "exit": 0,
+      "output": ""
+    },
+    {
+      "name": "patch-workingtree-apply",
+      "passed": true,
+      "exit": 0,
+      "output": "/workspace/Xensonar/artifacts/XenSonar_P7_38_Sessions_Reviewed.patch:2228: trailing whitespace.\n**Archivierte Codex-Basis:** P7.24, Commit `e3568a8` (aktueller tats\u00e4chlicher Codex-HEAD unbekannt).  \n/workspace/Xensonar/artifacts/XenSonar_P7_38_Sessions_Reviewed.patch:2229: trailing whitespace.\n**Letzter modular integrierter Zielstand:** P7.37 Rhythm.  \n/workspace/Xensonar/artifacts/XenSonar_P7_38_Sessions_Reviewed.patch:2230: trailing whitespace.\n**Letzte Demo:** `XenSonar_P7_37_GridProfiles_Hover_BootGuard_Test.html`, SHA256 `35406409a61e3cbe8d989490b2f8dedd95ac2934205248f1873f643a1219d9bb`.  \n/workspace/Xensonar/artifacts/XenSonar_P7_38_Sessions_Reviewed.patch:2312: trailing whitespace.\n**Bearbeitungsstand:** 22.10.2026; erg\u00e4nzt bis zum gesicherten P7.37 Hover/Boot-Guard-Artefakt  \n/workspace/Xensonar/artifacts/XenSonar_P7_38_Sessions_Reviewed.patch:2313: trailing whitespace.\n**Status:** **Quellen- und HTML-Netto-Diffs verifiziert; letzte HTML-only-Funktionen noch nicht modular portiert**.  \nwarning: squelched 16 whitespace errors\nwarning: 21 lines add whitespace errors."
+    },
+    {
+      "name": "patched-base-build",
+      "passed": true,
+      "exit": 0,
+      "output": "BUILT Xensonar_P7_38_Sessions_Reviewed_Test.html 64f5bda8b01595dc265f2945397b83443b123b3f3babdf7eda511f8635eaed01 5859506"
+    },
+    {
+      "name": "patched-base-preservation",
+      "passed": true,
+      "exit": 0,
+      "output": "PASS P7.38 exact 239-unit reversible baseline, bounded source/style retirements/additions, head extensions and build"
+    }
+  ],
+  "failed": 0,
+  "dependencyScope": "Build/test proofs reuse the existing pinned node_modules through a temporary symlink; ZIP excludes dependencies. npm ci is the supported clean dependency installation."
+}

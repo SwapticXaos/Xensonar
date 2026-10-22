@@ -1,0 +1,184 @@
+{
+  "entry": "XenSonar_P7_38_Sessions_Reviewed_Test.html",
+  "sha256": "12ecf1e11e2032ee11cc0ebfd8d4a4b26e7876d63e612f6513b7f2855fa0f149",
+  "startedAt": "2026-10-21T23:29:44.145Z",
+  "completedAt": "2026-10-21T23:40:22.289Z",
+  "running": false,
+  "scope": "Native Chromium; no physical audio interface or cross-browser claim",
+  "rows": [
+    {
+      "name": "p738-session-reload-browser",
+      "passed": true,
+      "exit": 0,
+      "signal": null,
+      "milliseconds": 5547
+    },
+    {
+      "name": "p7-24-entrophon-saved-live-browser",
+      "passed": true,
+      "exit": 0,
+      "signal": null,
+      "milliseconds": 11303
+    },
+    {
+      "name": "live-control-ownership-browser",
+      "passed": true,
+      "exit": 0,
+      "signal": null,
+      "milliseconds": 52250
+    },
+    {
+      "name": "forge-request-browser",
+      "passed": true,
+      "exit": 0,
+      "signal": null,
+      "milliseconds": 6681
+    },
+    {
+      "name": "forge-smoothness-browser",
+      "passed": true,
+      "exit": 0,
+      "signal": null,
+      "milliseconds": 8850
+    },
+    {
+      "name": "forge-efficiency-browser",
+      "passed": true,
+      "exit": 0,
+      "signal": null,
+      "milliseconds": 31327
+    },
+    {
+      "name": "p7-review-browser",
+      "passed": true,
+      "exit": 0,
+      "signal": null,
+      "milliseconds": 15261
+    },
+    {
+      "name": "nodal-ball-grid-browser",
+      "passed": true,
+      "exit": 0,
+      "signal": null,
+      "milliseconds": 6356
+    },
+    {
+      "name": "forge-spatial-browser",
+      "passed": true,
+      "exit": 0,
+      "signal": null,
+      "milliseconds": 12515
+    },
+    {
+      "name": "mute-auto-preview-browser",
+      "passed": true,
+      "exit": 0,
+      "signal": null,
+      "milliseconds": 8524
+    },
+    {
+      "name": "integrated-patches-browser",
+      "passed": true,
+      "exit": 0,
+      "signal": null,
+      "milliseconds": 7449
+    },
+    {
+      "name": "consolidation-browser",
+      "passed": true,
+      "exit": 0,
+      "signal": null,
+      "milliseconds": 12988
+    },
+    {
+      "name": "forge-ready-browser",
+      "passed": true,
+      "exit": 0,
+      "signal": null,
+      "milliseconds": 22102
+    },
+    {
+      "name": "forge-pitch-browser",
+      "passed": false,
+      "exit": 0,
+      "signal": null,
+      "error": "spawnSync /opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node ETIMEDOUT",
+      "milliseconds": 381058
+    },
+    {
+      "name": "meta-menu-design-parity-browser",
+      "passed": true,
+      "exit": 0,
+      "signal": null,
+      "milliseconds": 1615
+    },
+    {
+      "name": "meta-menu-p730-geometry-browser",
+      "passed": true,
+      "exit": 0,
+      "signal": null,
+      "milliseconds": 3366
+    },
+    {
+      "name": "p728-tab-geometry-browser",
+      "passed": false,
+      "exit": 1,
+      "signal": null,
+      "milliseconds": 1395
+    },
+    {
+      "name": "p732-original-menus-browser",
+      "passed": true,
+      "exit": 0,
+      "signal": null,
+      "milliseconds": 4240
+    },
+    {
+      "name": "p733-library-links-browser",
+      "passed": true,
+      "exit": 0,
+      "signal": null,
+      "milliseconds": 11764
+    },
+    {
+      "name": "p734-browser-links",
+      "passed": true,
+      "exit": 0,
+      "signal": null,
+      "milliseconds": 12173
+    },
+    {
+      "name": "p734-grid-browser",
+      "passed": true,
+      "exit": 0,
+      "signal": null,
+      "milliseconds": 8353
+    },
+    {
+      "name": "p735-violet-browser",
+      "passed": true,
+      "exit": 0,
+      "signal": null,
+      "milliseconds": 3446
+    },
+    {
+      "name": "p735f2-grid-browser-audio",
+      "passed": true,
+      "exit": 0,
+      "signal": null,
+      "milliseconds": 5220
+    },
+    {
+      "name": "p737-grid-pcm-browser",
+      "passed": true,
+      "exit": 0,
+      "signal": null,
+      "milliseconds": 4207
+    },
+    {
+      "name": "build-reproducibility",
+      "passed": true
+    }
+  ],
+  "failed": 2
+}

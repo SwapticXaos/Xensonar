@@ -430,8 +430,22 @@ function __f333Route(state) {
   return 'carrier';
 }
 async function __f333RenderCurrentRaw(state,options={}) {
+  // A prepared/cache donor wins over a newly painted purple mask. When no mask
+  // is committed, Play/Save prepares the current mask automatically via the
+  // same resolver used by the primary transport; never demand another click.
+  if(__f333Route(state)==='donor-pending'){
+    const epoch=__f333Epoch,source=state.sourceAsset;
+    if(typeof __ForgeNavigatorSample!=='undefined'&&__ForgeNavigatorSample.current()&&
+        (__ForgeNavigatorSample.snapshot().previewBusy||__ForgeNavigatorSample.snapshot().busy))
+      __ForgeNavigatorSample.update({message:'Preparing donor timbre …'});
+    await __f3562EnsureDonor();
+    if(epoch!==__f333Epoch||pe.getState().sourceAsset!==source)
+      throw new DOMException('Donor preparation superseded','AbortError');
+    if(!Vt.selectDonor())throw Error('The chosen donor could not be prepared.');
+    state=pe.getState();
+  }
   const duration=Zp(state.materialExport.bars,state.materialExport.bpm,state.materialExport.beatsPerBar),route=__f333Route(state);
-  if(route==='donor-pending')throw Error('Donor selected, but no donor mask is prepared. Extract a timbre or choose a saved donor first.');
+  if(route==='donor-pending')throw Error('No valid donor is available for the selected listening mode.');
   if(route==='hybrid'){const artifact=await __F352Runtime.render(state);return {buffer:artifact.buffer,duration:artifact.durationSec,route,artifact};}
   if(route==='donor') return options.flacBuffer?{buffer:await KO(state.spectralData,duration,true),duration,route}:{blob:await KO(state.spectralData,duration),duration,route};
   if(route==='reference') {
@@ -482,55 +496,68 @@ async function __f333PlayCurrent(state,options={}) {
       beatGuide:{...state.materialExport,loopDurationSec:rendered.duration}});
   return played&&current();
 }
+/* Navigator routing always cuts the audible listening mode, not the source or
+   spectrogram. Rendering is offline and guarded against stale selection changes. */
+function __f333NavigatorTypedName(){return String(__ForgeNavigatorSample.snapshot().nameDraft||'')
+ .replace(/[\x00-\x1f<>:"/\\|?*]/g,' ').replace(/\s+/g,' ').trim()
+ .replace(/\.wav$/i,'').replace(/[. ]+$/g,'').slice(0,74);}
+function __f333NavigatorName(projectName){
+ // Project Name is a local editable draft in the rack. Read the visible draft
+ // at export, rather than silently using the older persisted material name.
+ const draft=typeof document!=='undefined'?
+  document.querySelector('[data-forge-project-save-in-rack="true"] input[aria-label="Project Name"]')?.value:null;
+ return __f333NavigatorTypedName()||String(draft||projectName||'Forge').trim().slice(0,74)||'Forge';
+}
+async function __f333RenderNavigatorClip(selected,{oneShot=false}={}){
+ if(!selected||__ForgeNavigatorSample.current()!==selected)throw Error('Navigator selection is no longer valid.');
+ const state=pe.getState(),revision=state.renderVersion,source=state.sourceAsset,
+       route=__f333Route(state),masterRevision=__F3564Master.getSnapshot().revision,
+       hybridIdentity=route==='hybrid'?__F352Runtime.identity(state):null;
+ const result=await __f333RenderCurrent(state,{flacBuffer:true});
+ if(__ForgeNavigatorSample.current()!==selected||pe.getState().renderVersion!==revision||
+    pe.getState().sourceAsset!==source||__f333Route(pe.getState())!==route||
+    __F3564Master.getSnapshot().revision!==masterRevision||
+    (hybridIdentity&&__F352Runtime.identity()!==hybridIdentity))
+   throw Error('Figure or listening mode changed during navigator export.');
+ const buffer=result.buffer;
+ if(!buffer?.length||!buffer.sampleRate)throw Error('No playable PCM available for this listening mode.');
+ const start=Math.min(buffer.length-1,Math.floor(selected.start*buffer.length));
+ const end=Math.min(buffer.length,Math.max(start+1,Math.ceil(selected.end*buffer.length)));
+ const frames=end-start,seconds=frames/buffer.sampleRate;
+ if(seconds<.025||(oneShot&&seconds>5.001))throw Error(oneShot?
+   'One-shot selection must be between 25 ms and 5 seconds.':'Navigator loop selection must be at least 25 ms.');
+ const channels=[];let peak=0;
+ const fade=Math.min(Math.floor(buffer.sampleRate*.003),Math.floor(frames/4));
+ for(let ch=0;ch<Math.min(2,buffer.numberOfChannels||1);ch++){
+  const pcm=new Float32Array(frames),sourcePcm=buffer.getChannelData(ch);
+  for(let i=0;i<frames;i++){
+   let value=sourcePcm[start+i];
+   if(!Number.isFinite(value))throw Error('The selected audio contains invalid samples. Nothing was exported.');
+   if(fade){if(i<fade)value*=i/fade;if(i>frames-1-fade)value*=(frames-1-i)/fade;}
+   pcm[i]=value;peak=Math.max(peak,Math.abs(value));
+  }channels.push(pcm);
+ }
+ if(peak<1e-8)throw Error('The selected region is silent. Nothing was exported.');
+ const wav=channels.length===1?xt.encodeSamplesToWAV(channels[0],buffer.sampleRate):gU(channels,buffer.sampleRate);
+ return {blob:wav instanceof Blob?wav:new Blob([wav],{type:'audio/wav'}),durationSec:seconds};
+}
 // Forge Navigator one-shots reuse the canonical IndexedDB sample registry.
 // They deliberately do not change room, transport or active sample selection.
 async function __f333SaveNavigatorSample(){
  const selected=__ForgeNavigatorSample.current();
- if(!selected)return false;
- const state=pe.getState(),revision=state.renderVersion,source=state.sourceAsset,route=__f333Route(state),masterRevision=__F3564Master.getSnapshot().revision,hybridIdentity=route==='hybrid'?__F352Runtime.identity(state):null;
- if(__ForgeNavigatorSample.snapshot().busy)return false;
+ if(!selected||__ForgeNavigatorSample.snapshot().busy)return false;
+ const projectName=pe.getState().materialExport?.name;
  __ForgeNavigatorSample.update({busy:true,message:'Rendering one-shot …'});
  try{
-  // Render exactly the audible Forge listening route. Force an AudioBuffer even
-  // on the legacy donor path, which otherwise exports a WAV blob directly.
-  const render=await __f333RenderCurrent(state,{flacBuffer:true});
-  if(__ForgeNavigatorSample.current()!==selected||pe.getState().renderVersion!==revision||pe.getState().sourceAsset!==source||__f333Route(pe.getState())!==route||__F3564Master.getSnapshot().revision!==masterRevision||(hybridIdentity&&__F352Runtime.identity()!==hybridIdentity))
-   throw new Error('Figure or listening mode changed during sample rendering.');
-  const buffer=render.buffer;
-  if(!buffer||!buffer.length||!buffer.sampleRate)throw new Error('No playable PCM available for this listening mode.');
-  const start=Math.min(buffer.length-1,Math.floor(selected.start*buffer.length));
-  const end=Math.min(buffer.length,Math.max(start+1,Math.ceil(selected.end*buffer.length)));
-  const frames=end-start,seconds=frames/buffer.sampleRate;
-  if(seconds<.025||seconds>5.001)throw new Error('One-shot selection must be between 25 ms and 5 seconds.');
-  // Preserve mono/stereo exactly as the current listening route rendered it.
-  // Never fold the right channel away or apply a new synthesis/pitch stage.
-  const channels=[];
-  let peak=0;
-  const fade=Math.min(Math.floor(buffer.sampleRate*.003),Math.floor(frames/4));
-  for(let ch=0;ch<Math.min(2,buffer.numberOfChannels||1);ch++){
-   const pcm=new Float32Array(frames),sourcePcm=buffer.getChannelData(ch);
-   for(let i=0;i<frames;i++){
-    let value=sourcePcm[start+i];
-    if(!Number.isFinite(value))throw new Error('The selected audio contains invalid samples. Nothing was saved.');
-    if(fade){if(i<fade)value*=i/fade;if(i>frames-1-fade)value*=(frames-1-i)/fade;}
-    pcm[i]=value;peak=Math.max(peak,Math.abs(value));
-   }
-   channels.push(pcm);
-  }
-  if(peak<1e-8)throw new Error('The selected sample is silent. Nothing was saved.');
-  const title=(state.materialExport?.name||'Forge').trim().slice(0,74)||'Forge';
-  // The compact field is optional. Sanitize a typed title before registry intake.
-  const typed=String(__ForgeNavigatorSample.snapshot().nameDraft||'')
-   .replace(/[\x00-\x1f<>:"/\\|?*]/g,' ').replace(/\s+/g,' ').trim()
-   .replace(/\.wav$/i,'').replace(/[. ]+$/g,'').slice(0,74);
-  const fileName=typed?typed+'.wav':title+' · One Shot '+Math.round(selected.start*100)+'–'+Math.round(selected.end*100)+'%.wav';
-  const wav=channels.length===1?xt.encodeSamplesToWAV(channels[0],buffer.sampleRate):gU(channels,buffer.sampleRate);
-  const blob=wav instanceof Blob?wav:new Blob([wav],{type:'audio/wav'});
-  const saved=await xS(fileName,blob);
+  const clip=await __f333RenderNavigatorClip(selected,{oneShot:true});
+  const typed=__f333NavigatorTypedName();
+  const name=typed?typed+'.wav':__f333NavigatorName(projectName)+' · One Shot '+
+   Math.round(selected.start*100)+'–'+Math.round(selected.end*100)+'%.wav';
+  const saved=await xS(name,clip.blob);
   __ForgeNavigatorSample.update({message:'Sample saved · '+saved.name});
   return saved;
- }catch(error){__ForgeNavigatorSample.update({message:error?.message||'Sample could not be saved.'});return false;
- }finally{__ForgeNavigatorSample.update({busy:false});}
+ }catch(error){__ForgeNavigatorSample.update({message:error?.message||'Sample could not be saved.'});return false;}
+ finally{__ForgeNavigatorSample.update({busy:false});}
 }
 async function __f333ExportCurrent(state,options={}) {
   const epoch=__f333Epoch,revision=state.renderVersion,masterRevision=__F3564Master.getSnapshot().revision,hybridIdentity=__f333Route(state)==='hybrid'?__F352Runtime.identity(state):null;

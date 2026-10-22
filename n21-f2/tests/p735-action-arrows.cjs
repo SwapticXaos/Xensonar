@@ -1,0 +1,10 @@
+'use strict';
+const assert=require('node:assert/strict'),fs=require('node:fs');
+const s=fs.readFileSync('src/mix/03_meta_menu.js','utf8');
+const css=fs.readFileSync('styles/27_meta_menu.css','utf8');
+const e=s.indexOf("children:['Engage! ',u.jsx('span',{className:'xen-meta-action-arrow'");
+const edit=s.indexOf("className:'xen-meta-action-arrow','aria-hidden':'true',children:'➜'}),' Edit Current Live Session'");
+assert(e>=0,'Engage direction must point outward to the right');
+assert(edit>=0,'Edit must have its arrow before the text, also pointing right');
+assert.match(css,/xen-meta-action-arrow/,'Visual arrow has custom alignment');
+console.log('PASS preserved outward Engage and inward Edit arrows');

@@ -1,0 +1,151 @@
+
+## p738-session-reload-browser
+PASS native origin reload: v1→v2 profiles/colors, 19 EDO A→B→A modes/mutes, isolated Bass Grid, visible saved/draft Part import and duplicate prevention
+
+## p7-24-entrophon-saved-live-browser
+PASS saved Entrophon Wave/Keyboard: selected definition admission and native C11 PCM independent of cheaper/dearer Current; exact costs, revision/project/reload and missing-source contracts
+
+## live-control-ownership-browser
+{"isolated":[{"stages":[],"renders":40,"restores":40,"scriptMs":247.666},{"stages":["telemetry"],"renders":0,"restores":0,"scriptMs":2.42}],"live":{"baselineRenders":76,"currentRenders":35,"baselineScriptMs":1134.544,"currentScriptMs":651.183}}
+PASS telemetry snapshots stay current without app rerenders; unchanged payloads and owner stability with alternating native live measurements
+
+## forge-request-browser
+PASS native delayed donor -> listening-mode switch: no obsolete render, one current render, green Play reuses PCM
+
+## forge-smoothness-browser
+PASS native master overload/stereo and IndexedDB autosave
+
+## forge-efficiency-browser
+PASS Fractalia single preparation/cache reuse, local edit and complete current-package fresh-profile roundtrip
+
+## p7-review-browser
+PASS P7 native keyboard/UI/Drone PCM and Forge action browser contracts
+
+## nodal-ball-grid-browser
+PASS Installation Ball volume/shared grid UI, native Worklet crossings, mute, fixed node count and room parity
+
+## forge-spatial-browser
+PASS Forge geometry, navigator cursor/gesture contracts and actual metadata transfers
+
+## mute-auto-preview-browser
+PASS supplied mute-icon and opt-in Auto-preview patch in native Chromium
+
+## integrated-patches-browser
+PASS OGG/import race, safe React controls, zero master gain, Navigator sample WAV and committed Donor identity
+
+## consolidation-browser
+PASS native package download -> fresh profile -> file import -> IndexedDB -> restored playback, invalid-load protection and bounded history
+
+## forge-ready-browser
+PASS ready -> cached Play: emilia
+PASS ready -> cached Play: pure-dieter
+PASS ready -> cached Play: fractalia
+PASS ready -> cached Play: harmonic-xplore
+PASS ready -> cached Play: spektral-synthese
+PASS ready -> cached Play: antonia
+PASS ready -> cached Play: bert
+PASS ready -> cached Play: cecilia
+PASS truthful green readiness and cached Play across all eight machines and tempo edits
+
+## forge-pitch-browser
+PASS edited carrier: antonia
+PASS edited carrier: bert
+PASS edited carrier: cecilia
+PASS edited carrier: emilia
+PASS edited carrier: fractalia
+PASS edited carrier: pure-dieter
+PASS edited carrier: harmonic-xplore
+PASS edited carrier: spektral-synthese
+
+## meta-menu-design-parity-browser
+PASS browser pointer y 77 → before 'a' one 3px insertion marker
+PASS browser pointer y 120 → before 'b' one 3px insertion marker
+PASS browser pointer y 148.4 → before 'c' one 3px insertion marker
+PASS browser pointer y 226 → before None one 3px insertion marker
+PASS self-reorder ignores original source; marker removes after drop
+
+## meta-menu-p730-geometry-browser
+PASS 1360x850: editor height 690px stable, Sessions click, opaque teeth, gap 4px
+PASS 1920x1080: editor height 690px stable, Sessions click, opaque teeth, gap 4px
+PASS 900x700: editor height 668px stable, Sessions click, opaque teeth, gap 4px
+PASS 750x650: editor height 618px stable, Sessions click, opaque teeth, gap 2px
+PASS 400x650: editor height 618px stable, Sessions click, opaque teeth, gap 2px
+
+## p728-tab-geometry-browser
+Traceback (most recent call last):
+  File "/workspace/Xensonar/n21-f2/tests/p728-tab-geometry-browser.py", line 16, in <module>
+    assert rects['centerDiff']<=2, f"{width}px: Sessions should be centered over the tabs, not right-justified ({rects['centerDiff']:.1f}px off)"
+           ^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 750px: Sessions should be centered over the tabs, not right-justified (7.7px off)
+
+## p732-original-menus-browser
+PASS original library grid opens above Meta and closes back to Meta
+PASS original library material opens above Meta and closes back to Meta
+PASS original library rootFollow opens above Meta and closes back to Meta
+PASS original library drum opens above Meta and closes back to Meta
+PASS original library bass opens above Meta and closes back to Meta
+PASS six-position navigation Meta -> Grid -> Meta
+PASS six-position navigation Meta -> Bass -> Meta
+PASS no JS page errors
+
+## p733-library-links-browser
+PASS 1440 grid library link + unobscured filter + corner link
+PASS 1440 material library link + unobscured filter + corner link
+PASS 1440 rootFollow library link + unobscured filter + corner link
+PASS 1440 drum library link + unobscured filter + corner link
+PASS 1440 bass library link + unobscured filter + corner link
+PASS 960 grid library link + unobscured filter
+PASS 960 material library link + unobscured filter
+PASS 960 rootFollow library link + unobscured filter
+PASS 960 drum library link + unobscured filter
+PASS 960 bass library link + unobscured filter
+PASS 760 grid library link + unobscured filter
+PASS 760 material library link + unobscured filter
+PASS 760 rootFollow library link + unobscured filter
+PASS 760 drum library link + unobscured filter
+PASS 760 bass library link + unobscured filter
+
+## p734-browser-links
+PASS 1440 grid library link + unobscured filter + corner link
+PASS 1440 material library link + unobscured filter + corner link
+PASS 1440 rootFollow library link + unobscured filter + corner link
+PASS 1440 drum library link + unobscured filter + corner link
+PASS 1440 bass library link + unobscured filter + corner link
+PASS 960 grid library link + unobscured filter
+PASS 960 material library link + unobscured filter
+PASS 960 rootFollow library link + unobscured filter
+PASS 960 drum library link + unobscured filter
+PASS 960 bass library link + unobscured filter
+PASS 760 grid library link + unobscured filter
+PASS 760 material library link + unobscured filter
+PASS 760 rootFollow library link + unobscured filter
+PASS 760 drum library link + unobscured filter
+PASS 760 bass library link + unobscured filter
+
+## p734-grid-browser
+enable: 0
+grid library 9 preview buttons 9
+before ▶
+after ■
+ended ▶
+errors []
+
+## p735-violet-browser
+{'background': 'rgb(76, 49, 108)', 'border': 'rgb(167, 139, 250)', 'cornerFill': 'rgb(76, 49, 108)', 'cornerStroke': 'rgb(167, 139, 250)', 'cornerOpacity': '0.52'}
+PASS real computed UI uses original violets
+
+## p735f2-grid-browser-audio
+grid entry count 9
+first id Preview 12 EDO
+before ▶ {'ctx': 0, 'osc': 0, 'buffer': 0}
+after 70 ■ {'ctx': 1, 'osc': 10, 'buffer': 1}
+after 300 ■ {'ctx': 1, 'osc': 10, 'buffer': 1}
+after 1100 ■ {'ctx': 1, 'osc': 10, 'buffer': 1}
+errors [] warnings ["[xensonar][forge-project-library][hydrate] SecurityError: Failed to execute 'open' on 'IDBFactory': access to the Indexed Database API is denied in this context.\n    at <anonymous>:18573:37489\n    at new Promise (<anonymous>)\n    at NS (<anonymous>:18573:37424)\n    at em (<anonymous>:18573:37826)\n    at dFe (<anonymous>:24361:15957)\n    at $7 (<anonymous>:24361:16085)\n    at cB (<anonymous>:24361:16235)\n    at wUe (<anonymous>:27864:48046)\n    at eKe (<anonymous>:27865:3796)\n    at Hm (<anonymous>:15870:48836)", "[xensonar][forge-custom-stamp-library][hydrate] SecurityError: Failed to execute 'open' on 'IDBFactory': access to the Indexed Database API is denied in this context.\n    at <anonymous>:18573:37489\n    at new Promise (<anonymous>)\n    at NS (<anonymous>:18573:37424)\n    at em (<anonymous>:18573:37826)\n    at rQ (<anonymous>:24361:23946)\n    at EFe (<anonymous>:24361:24019)\n    at XS (<anonymous>:24361:24063)\n    at dB (<anonymous>:24361:24218)\n    at eKe (<anonymous>:27864:88471)\n    at Hm (<anonymous>:15870:48836)", "WebSocket connection to 'ws://127.0.0.1:47812/' failed: Error in connection establishment: net::ERR_CONNECTION_REFUSED", "WebSocket connection to 'ws://127.0.0.1:47812/' failed: Error in connection establishment: net::ERR_CONNECTION_REFUSED"]
+
+## p737-grid-pcm-browser
+AudioBuffer / starts 44100 2.032018140589569 1 liveOsc 49 steps 13
+PCM attacks [(0, 0.009, 0.0), (1, 0.0091, 0.0), (2, 0.0088, 0.0), (3, 0.0088, 0.0), (4, 0.009, 0.0), (5, 0.0089, 0.0), (6, 0.009, 0.0), (7, 0.009, 0.0), (8, 0.009, 0.0), (9, 0.0091, 0.0), (10, 0.009, 0.0), (11, 0.0091, 0.0), (12, 0.0091, 0.0)]
+Note: live oscillators belong to general XenSonar boot and cannot be attributed to grid playback from this counter.
+PASS actual rendered PCM: every scale step has energy at precise 155 ms sample positions; single source; stop; no errors
+PASS reproducible standalone HTML 64f5bda8b01595dc265f2945397b83443b123b3f3babdf7eda511f8635eaed01 5859506

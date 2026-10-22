@@ -1,0 +1,158 @@
+{
+  "entry": "Xensonar_P7_38_Sessions_Reviewed_Test.html",
+  "sha256": "64f5bda8b01595dc265f2945397b83443b123b3f3babdf7eda511f8635eaed01",
+  "startedAt": "2026-10-22T07:21:35.576385+00:00",
+  "completedAt": "2026-10-22T07:25:03.705403+00:00",
+  "running": false,
+  "scope": "Targeted checks on frozen final HTML and source; preflight matrices retain their original SHA and first attempts.",
+  "rows": [
+    {
+      "name": "preservation",
+      "passed": true,
+      "exit": 0,
+      "milliseconds": 321
+    },
+    {
+      "name": "ancestry",
+      "passed": true,
+      "exit": 0,
+      "milliseconds": 293
+    },
+    {
+      "name": "session-integrity",
+      "passed": true,
+      "exit": 0,
+      "milliseconds": 170
+    },
+    {
+      "name": "live-rfl-lifecycle",
+      "passed": true,
+      "exit": 0,
+      "milliseconds": 5070
+    },
+    {
+      "name": "live-rfl-boundaries",
+      "passed": true,
+      "exit": 0,
+      "milliseconds": 3361
+    },
+    {
+      "name": "live-rfl-fallback",
+      "passed": true,
+      "exit": 0,
+      "milliseconds": 2037
+    },
+    {
+      "name": "live-rfl-preparation",
+      "passed": true,
+      "exit": 0,
+      "milliseconds": 2285
+    },
+    {
+      "name": "preview-state",
+      "passed": true,
+      "exit": 0,
+      "milliseconds": 74
+    },
+    {
+      "name": "mini-preview",
+      "passed": true,
+      "exit": 0,
+      "milliseconds": 79
+    },
+    {
+      "name": "engage",
+      "passed": true,
+      "exit": 0,
+      "milliseconds": 97
+    },
+    {
+      "name": "session-store",
+      "passed": true,
+      "exit": 0,
+      "milliseconds": 97
+    },
+    {
+      "name": "session-room-settings",
+      "passed": true,
+      "exit": 0,
+      "milliseconds": 203
+    },
+    {
+      "name": "preservation-negative-controls",
+      "passed": true,
+      "exit": 0,
+      "milliseconds": 1747
+    },
+    {
+      "name": "native-session-auditions",
+      "passed": true,
+      "exit": 0,
+      "milliseconds": 32126
+    },
+    {
+      "name": "live-rfl-native-browser",
+      "passed": true,
+      "exit": 0,
+      "milliseconds": 6377
+    },
+    {
+      "name": "session-reload-browser",
+      "passed": true,
+      "exit": 0,
+      "milliseconds": 10250
+    },
+    {
+      "name": "native-layout-browser",
+      "passed": true,
+      "exit": 0,
+      "milliseconds": 8593
+    },
+    {
+      "name": "grid-native-contract-browser",
+      "passed": true,
+      "exit": 0,
+      "milliseconds": 6077,
+      "reason": "Fixture originally counted each delayed Bowed Glass partial as a distinct note. It now observes the actual note gain attack envelopes and separately asserts all three native partials per note, PCM energy, exact period ratio and delayed-render Stop. Production unchanged.",
+      "attempts": [
+        {
+          "name": "grid-native-contract-browser",
+          "passed": false,
+          "exit": 1,
+          "milliseconds": 6077
+        },
+        {
+          "passed": true,
+          "exit": 0,
+          "log": "final-grid-rerun.log"
+        }
+      ]
+    },
+    {
+      "name": "historical-song-browser",
+      "passed": true,
+      "exit": 0,
+      "milliseconds": 64221
+    },
+    {
+      "name": "tab-geometry-browser",
+      "passed": true,
+      "exit": 0,
+      "milliseconds": 5903
+    },
+    {
+      "name": "build-reproducibility",
+      "passed": true,
+      "exit": 0,
+      "milliseconds": 170
+    },
+    {
+      "name": "forge-pitch-browser",
+      "passed": true,
+      "exit": 0,
+      "reason": "Unmodified original fixture passed in serial focused run on frozen HTML, including all eight engines, explicit Detune, Off, Undo/Redo and responsive footer. Diagnostic run also completed. Initial timeout retained in preflight matrix.",
+      "log": "final-forge-pitch.log"
+    }
+  ],
+  "failed": 0
+}

@@ -1,0 +1,21 @@
+'use strict';
+const assert=require('node:assert/strict'),fs=require('node:fs'),vm=require('node:vm');
+const src=fs.readFileSync('src/mix/03_meta_menu.js','utf8');
+const start=src.indexOf('function __XenMetaEditor('),end=src.indexOf('/* Contextual Save in Sessions dialog',start);
+assert(start>=0&&end>start);
+const calls=[],entry={kind:'grid',id:'17edo',name:'17 EDO'},s={name:'Freie Session',items:[],saved:[],loadedId:null,dirty:true,canUndo:false,canRedo:false,error:''};
+const store={snapshot:()=>s,subscribe:()=>()=>{},diagnostics:()=>[],itemColor:()=>({}),addItem:e=>calls.push(['add',e.id]),setName:n=>calls.push(['name',n]),undo:()=>{},redo:()=>{}};
+const jsx=(type,props)=>({type,props});
+const context=vm.createContext({P:{useSyncExternalStore:(sub,get)=>get(),useState:init=>[init, v=>calls.push(['state',v])],useRef:()=>({current:null}),useEffect:()=>{}},__XenMetaSessions:store,__XenQuick:{snapshot:()=>({items:[]}),subscribe:()=>()=>{},icons:{grid:'🪜',material:'📀',rootFollow:'🎼',drum:'🥁',bass:'🎸'}},__XenSongKinds:['grid','material','rootFollow','drum','bass'],__XenMetaLabels:{grid:'Threadboard',material:'Material Track',rootFollow:'Root Follow Loop',drum:'Drums',bass:'Bass'},__xenMetaLibraryEntries:kind=>kind==='grid'?[entry]:[],__quickProps:()=>({}),u:{jsx,jsxs:jsx},window:{confirm:()=>true},document:{querySelector:()=>null}});
+require('./sessions-test-helpers.cjs').install(context);
+vm.runInContext(src.slice(start,end)+'\nthis.render=__XenMetaEditor',context);
+function walk(obj,out=[]){if(obj?.type)out.push(obj);for(const k of [obj?.props?.children].flat(Infinity))if(k&&typeof k==='object')walk(k,out);return out}
+const all=walk(context.render({onClose:()=>{}}));
+const row=all.find(el=>el.props?.className==='xen-meta-library-row');assert(row);
+assert.equal(row.props.role,'button','source rows must be keyboard accessible, like the prototype');
+assert.equal(row.props.tabIndex,0);
+row.props.onClick({target:{closest:()=>null}});assert.deepEqual(calls.pop(),['add','17edo']);
+let prevented=false;row.props.onKeyDown({key:'Enter',preventDefault:()=>{prevented=true}});assert(prevented);assert.deepEqual(calls.pop(),['add','17edo']);
+const tab=all.find(el=>el.props?.role==='tab'&&el.props?.['aria-selected']===true);assert(tab);
+assert.equal(typeof tab.props.onKeyDown,'function','tabs must support arrow-navigation like the prototype');
+console.log('PASS source-row click+Enter and tab keyboard gestures present');

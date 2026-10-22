@@ -1,0 +1,72 @@
+{
+  "sourceAdditions": [
+    {
+      "file": "src/mix/03_meta_menu.js",
+      "after": "src/mix/03_quick_menu.js",
+      "sha256": "78fdbc6370a23d419a865261523592982b28a2f8559d761e8cd2840ca0cefbba"
+    },
+    {
+      "file": "src/mix/03_legacy_song_import.js",
+      "after": "src/mix/03_meta_menu.js",
+      "sha256": "9634577de200c9d58a478c34162e130a7894a38e9358e71e1baa2bbf5a2a8ca0"
+    },
+    {
+      "file": "src/mix/03_session_auditions.js",
+      "after": "src/mix/03_legacy_song_import.js",
+      "sha256": "5558bedfbc96a8eca909629ee37a187a279dc08a96b8474c349ad340df2bd88e"
+    }
+  ],
+  "styleAdditions": [
+    {
+      "definition": {
+        "file": "styles/27_meta_menu.css",
+        "tag": "<style id=\"xen-meta-menu\">",
+        "after": "\n"
+      },
+      "after": "styles/26_live_controls.css",
+      "sha256": "6501f2b8b8337e1a7a92d5c1e5679f97983443d1bc816836e9dc8446f4e33af9"
+    }
+  ],
+  "sourceRetirements": [
+    {
+      "file": "src/mix/03_song_projects.js",
+      "index": 2,
+      "sha256": "7c90ed45cb3c7d6a6ca194696f8f2ec05ddb5635782fd0165d5d21758a56013c"
+    }
+  ],
+  "styleRetirements": [
+    {
+      "definition": {
+        "file": "styles/27_song_projects.css",
+        "tag": "<style id=\"xen-song-projects\">",
+        "after": "\n"
+      },
+      "index": 27,
+      "sha256": "618260fd2f3d866dce111f9a8fb537db33a53f7e96c386bd8ea9994ed17f3d59"
+    }
+  ],
+  "headExtensions": [
+    {
+      "definition": {
+        "file": "styles/28_grid_profiles.css",
+        "tag": "<style id=\"xen-grid-profile-session-css\">",
+        "close": "</style>",
+        "after": "\n    "
+      },
+      "sha256": "a89182480e73a456e4c93f9b7f02d11640eeca12f841f52e2cb75e41b36fea68"
+    },
+    {
+      "definition": {
+        "file": "src/app/00_startup_diagnostics.js",
+        "tag": "<script id=\"xen-startup-observer\">",
+        "close": "</script>",
+        "after": "\n"
+      },
+      "sha256": "f8b931065fa0ea127f2eb879fcf995689dbcd60f03fd0ac5cbcfb15475868a86"
+    }
+  ],
+  "build": {
+    "file": "build.cjs",
+    "sha256": "917746f23ca0b975b65da09cc6f1345c4e0ac7fb29cbfa5fa462bcc5b7639baf"
+  }
+}

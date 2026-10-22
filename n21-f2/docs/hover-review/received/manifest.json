@@ -1,0 +1,40 @@
+{
+  "schema": "xensonar-codex-handoff/2026-10-22-update/v2",
+  "historical_codex_base": {
+    "label": "P7.24 Song Projects",
+    "commit": "e3568a8",
+    "actual_codex_head": "unknown"
+  },
+  "last_verified_source_build": "P7.37 Rhythm",
+  "latest_html_build": "P7.37 GridProfiles Hover Boot Guard",
+  "latest_modular_source_port_completed": false,
+  "reference_sha256": {
+    "p724_source_archive": "778d722430a300269d481bfaf7e12c8914407d9ca549e6cbead5b6f819709ce6",
+    "p724_html": "e2b2384a0addae4c8a8720eff0c60bec4f6d44af89c382602f80d2f531cae86d",
+    "p737_html": "18445166e19116b2267cbdaf42ab2e0a0478bed951838e37d9cc87f1338cfc86",
+    "latest_html": "35406409a61e3cbe8d989490b2f8dedd95ac2934205248f1873f643a1219d9bb"
+  },
+  "file_sha256": {
+    "CODEX_MERGE_RUNBOOK.md": "9f05a8903e4411ced83d20280181fd284f66d269248a7676eaf9788eaafffb09",
+    "PATCH_LOG_MASTER_P7_24_bis_HOVER_BOOTGUARD.md": "bf515c528206326972bf3d669e835746440a107340eda1f25989efb82bc6bab2",
+    "README_START_HERE.md": "f24e398b5a3b7c203b4f9d24750094355e94b40e7ce6325ada510810236713b8",
+    "XenSonar_P7_37_GridProfiles_Hover_BootGuard_Test.html": "35406409a61e3cbe8d989490b2f8dedd95ac2934205248f1873f643a1219d9bb",
+    "patches/P7_24_to_Hover_BootGuard_HTML_NET_REFERENCE.patch": "227b019caf4c84ea0a02968a880f36b0ef089f319c585c571ddca630a54561b1",
+    "patches/P7_24_to_P7_37_Rhythm_SOURCE_CUMULATIVE.patch": "4903c81433c1bc33ccc59bb1ca7a1163d58deb0bb7a6eb9906a59867ee58018b",
+    "patches/P7_37_Rhythm_to_GridProfiles_Hover_BootGuard_HTML_CUMULATIVE.patch": "c38ca7c2f7f13f892218f92fe5fc027dc74dfee1ad7592f7fb0e5923539727e0",
+    "verify_package.py": "63e1a6648888eabf3913f63189828f06d68b86b89966c88782b49dbd9c984a05"
+  },
+  "test_evidence": {
+    "source_patch_clean_apply_to_p724": "PASS in this handoff",
+    "source_p737_rebuild_byteidentical": "PASS in this handoff",
+    "p737_grid_buffered_audio_test": "PASS in this handoff",
+    "p737_html_to_latest_html_patch": "PASS patch --fuzz=0, SHA-identical",
+    "p724_html_to_latest_html_patch": "PASS patch --fuzz=0, SHA-identical",
+    "two_latest_html_script_syntax_checks": "PASS",
+    "latest_html_full_browser_regression": "NOT DONE here; previous handoffs have limited smokes",
+    "latest_html_source_port": "NOT DONE",
+    "hardware_opera_pipewire_audio": "NOT DONE",
+    "origin_based_persistence_reload": "NOT DONE",
+    "confirmed_browser_crash_fix": "NOT DEMONSTRATED"
+  }
+}

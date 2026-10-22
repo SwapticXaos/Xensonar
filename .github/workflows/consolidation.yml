@@ -32,7 +32,7 @@ jobs:
         if: always() && steps.checks.outcome != 'skipped'
         with:
           name: host-validation
-          path: n21-f2/results/p7-24-song-projects/
+          path: n21-f2/results/sessions-reviewed/
   chromium:
     runs-on: ubuntu-latest
     timeout-minutes: 20
@@ -47,6 +47,7 @@ jobs:
           cache: npm
           cache-dependency-path: n21-f2/package-lock.json
       - run: npm ci --no-audit --no-fund
+      - run: python3 -m pip install playwright==1.56.0
       - run: npx playwright install --with-deps chromium
       - name: Select installed browser
         run: node -e 'console.log("XEN_CHROMIUM_PATH="+require("playwright").chromium.executablePath())' >> "$GITHUB_ENV"
@@ -56,4 +57,4 @@ jobs:
         if: always() && steps.checks.outcome != 'skipped'
         with:
           name: chromium-validation
-          path: n21-f2/results/p7-24-song-projects/
+          path: n21-f2/results/sessions-reviewed/

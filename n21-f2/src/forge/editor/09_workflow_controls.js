@@ -159,12 +159,17 @@ function __ForgeTransportRack(e){
  const [__micBusyOnRack,__setMicBusyOnRack]=P.useState(false);
  P.useEffect(()=>{const update=event=>__setMicBusyOnRack(!!event.detail?.busy);window.addEventListener('xensonar:forge:mic-busy',update);return()=>window.removeEventListener('xensonar:forge:mic-busy',update)},[]);
  const navigatorMessage=P.useSyncExternalStore(__ForgeNavigatorSample.subscribe,()=>__ForgeNavigatorSample.snapshot().message,()=>__ForgeNavigatorSample.snapshot().message);
+ const navigatorSelectionState=P.useSyncExternalStore(__ForgeNavigatorSample.subscribe,__ForgeNavigatorSample.snapshot,__ForgeNavigatorSample.snapshot);
+ const navigatorSelection=__ForgeNavigatorSample.current();
+ const suggestedBars=__f333NavigatorEstimateBars(navigatorSelection,e.materialExport.bars);
+ const effectiveBars=__f333NavigatorBars(e.materialExport.bars);
+ const barsManuallySet=Number.isInteger(navigatorSelectionState.barsDraft);
  const hearingStatus=[e.statusMessage||choice.error,navigatorMessage].filter(Boolean).join(' · ');
  const button={type:'button',className:'h-8 rounded border border-neutral-700 bg-neutral-900 px-2 text-xs text-neutral-100 hover:bg-neutral-800'};
  const routing={
-  material:{label:'Send to Material Track',color:'border-cyan-400 bg-cyan-800 hover:bg-cyan-700',icon:'📀'},
-  root:{label:'Use as Root Follow Loop',color:'border-violet-400 bg-violet-800 hover:bg-violet-700',icon:'🎼'},
-  pink:{label:'Send to Pink Track (Melodic Loop)',color:'border-pink-400 bg-pink-800 hover:bg-pink-700',icon:'🎶'}
+  material:{label:'Send to Material Track',color:'border-cyan-400 bg-cyan-800 hover:bg-cyan-700',sheen:'rgba(8,145,178,.18)',icon:'📀'},
+  root:{label:'Use as Root Follow Loop',color:'border-violet-400 bg-violet-800 hover:bg-violet-700',sheen:'rgba(139,92,246,.08)',icon:'🎼'},
+  pink:{label:'Send to Pink Track (Melodic Loop)',color:'border-pink-400 bg-pink-800 hover:bg-pink-700',sheen:'rgba(236,72,153,.16)',icon:'🎶'}
  };
  // Re-use Material Intake's existing file input. No second importer or state.
  const importAudio=()=>{
@@ -184,8 +189,15 @@ function __ForgeTransportRack(e){
    h('svg',{'aria-hidden':true,className:'xen-vertical-import-arrow',viewBox:'0 0 44 23'},
      h('path',{d:'M2 2 H42 L22 21 Z',fill:'currentColor'})));
  const destination=id=>h('button',{
-   type:'button','data-f318-export-target':id,disabled:busy,
+   type:'button','data-f318-export-target':id,'data-forge-navigator-route-active':navigatorSelection?'true':'false',disabled:busy,
    onClick:()=>e.handleSendCurrentPreviewToXensonar(id),
+   title:navigatorSelection?'Send only the purple Navigator selection · '+effectiveBars+' bars':'Send the entire Forge figure',
+   // A translucent purple sheen marks selection routing but keeps every
+   // destination's native cyan / violet / pink background and border.
+   style:navigatorSelection?{
+    backgroundImage:'linear-gradient(180deg, rgba(196,181,253,.12), rgba(124,58,237,.08)), linear-gradient('+routing[id].sheen+', '+routing[id].sheen+')',
+    boxShadow:'inset 0 0 0 1px rgba(196,181,253,.19), 0 0 7px rgba(139,92,246,.11)'
+   }:undefined,
    className:'h-9 inline-flex items-center gap-2 rounded border px-3 text-xs font-semibold text-white shadow-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-white disabled:opacity-50 '+routing[id].color
   },id==='material'?
    h('span',{'aria-hidden':true,className:'text-base leading-none'},routing[id].icon):
@@ -231,8 +243,18 @@ function __ForgeTransportRack(e){
        microphoneDock,
        h('span',{className:'xen-rack-vertical-import-anchor'},verticalImport)),
       h('div',{className:'flex items-center gap-2'},
-       h(Z_,{label:'Bars',value:e.materialExport.bars,min:1,max:16,onChange:v=>e.updateMaterialExport({bars:J_(v,1,16,e.materialExport.bars)})}),
-       h(Z_,{label:'Segments',value:e.materialExport.guideSegments,min:1,max:16,onChange:v=>e.updateMaterialExport({guideSegments:J_(v,1,16,e.materialExport.guideSegments)})})))),
+       navigatorSelection?h('label',{'data-forge-navigator-bars':'true',title:'Estimated from the purple selection and Carrier bar grid; editable without changing the Carrier.',className:'flex items-center gap-1 rounded border border-violet-400 px-2 py-1 text-[10px] text-violet-100',style:{backgroundColor:'#4c1d95'}},
+        h('span',{className:'uppercase tracking-[0.14em] text-violet-200'},'Bars'),
+        h('input',{type:'number',min:1,max:16,step:1,'aria-label':'Navigator selection bars',value:navigatorSelectionState.barsDraft===''?'':effectiveBars,
+         onChange:ev=>{const text=ev.currentTarget.value.trim();__ForgeNavigatorSample.update({barsDraft:text===''?'':J_(Number(text),1,16,suggestedBars)});},
+         onBlur:()=>{if(__ForgeNavigatorSample.snapshot().barsDraft==='')__ForgeNavigatorSample.update({barsDraft:null});},
+         onKeyDown:ev=>ev.stopPropagation(),onKeyUp:ev=>ev.stopPropagation(),
+         className:'h-6 w-12 rounded border border-violet-500 px-1.5 text-right font-mono text-[11px] text-violet-50',style:{backgroundColor:'#5b21b6'}}),
+        !barsManuallySet&&h('span',{'aria-label':'Estimated bars',title:'Estimated · confirm by editing',className:'font-bold text-violet-200'},'?')):
+        h(Z_,{label:'Bars',value:e.materialExport.bars,min:1,max:16,onChange:v=>e.updateMaterialExport({bars:J_(v,1,16,e.materialExport.bars)})}),
+       navigatorSelection?h('div',{'data-forge-navigator-segments':'true','aria-label':'Segments not applicable to navigator selection',className:'flex items-center gap-1 rounded border px-2 py-1 text-[10px] text-violet-300',style:{backgroundColor:'rgba(76,29,149,.35)',borderColor:'rgba(167,139,250,.45)',opacity:.5},title:'Segments belong to the full Carrier grid; the selected clip uses its own bar count.'},
+        h('span',{className:'uppercase tracking-[0.14em]'},'Segments'),h('span',{className:'h-6 w-12'})):
+        h(Z_,{label:'Segments',value:e.materialExport.guideSegments,min:1,max:16,onChange:v=>e.updateMaterialExport({guideSegments:J_(v,1,16,e.materialExport.guideSegments)})})))),
     h('div',{'data-f34-project-save-on-main':'true',className:'f34-project-save-on-main'},h(eVe,{compact:true}))),
    h('div',{className:'f31-transport-bottom'},
     h('div',{'data-forge-hearing-destinations':'v2',className:'f33-rack-destinations'},

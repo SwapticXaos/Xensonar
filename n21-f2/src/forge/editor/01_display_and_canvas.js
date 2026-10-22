@@ -135,12 +135,24 @@ const __ForgeNavigatorSample=(()=>{
  function update(patch){state=Object.freeze({...state,...patch});for(const fn of listeners)fn()}
  function select(a,b){__f333StopNavigatorPreview();const source=pe.getState(),start=Math.max(0,Math.min(1,Math.min(a,b))),end=Math.max(0,Math.min(1,Math.max(a,b)));
   if(!Number.isFinite(start)||!Number.isFinite(end)||end-start<.003)return clear();
-  update({selection:{start,end,source:source.sourceAsset,revision:source.renderVersion,route:__f333Route(source)},message:''});
+  update({selection:{start,end,source:source.sourceAsset,revision:source.renderVersion,route:__f333Route(source)},barsDraft:null,message:''});
  }
  function clear(){__f333StopNavigatorPreview();if(state.selection||state.message)update({selection:null,message:''})}
  function current(){const s=state.selection,p=pe.getState();return !!s&&s.revision===p.renderVersion&&s.source===p.sourceAsset&&s.route===__f333Route(p)?s:null}
  return {snapshot,subscribe,select,clear,current,update};
 })();
+/* Navigator selection metadata belongs to the selection draft, never to the Carrier.
+   An untouched suggestion is marked uncertain; users can override it explicitly. */
+function __f333NavigatorEstimateBars(selection,sourceBars){
+ if(!selection)return null;
+ const source=Math.max(1,Math.min(16,Math.round(Number(sourceBars)||1)));
+ return Math.max(1,Math.min(16,Math.round((selection.end-selection.start)*source)));
+}
+function __f333NavigatorBars(sourceBars){
+ const selected=__ForgeNavigatorSample.current();if(!selected)return null;
+ const draft=__ForgeNavigatorSample.snapshot().barsDraft;
+ return Number.isInteger(draft)&&draft>=1&&draft<=16?draft:__f333NavigatorEstimateBars(selected,sourceBars);
+}
 /* P7.3: purple sample-region handles are NOT the cyan Navigator viewport handles.
    Hit-testing is read-only and does not allocate any audio object. */
 function __f333NavigatorSampleEdgeHit(x,width,selected,zone=9){

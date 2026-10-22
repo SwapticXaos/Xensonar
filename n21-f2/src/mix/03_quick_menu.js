@@ -1,10 +1,31 @@
 const __XenSongKinds=Object.freeze(['grid','material','rootFollow','drum','bass']);
+/* P7.38 — per-session Grid Profiles; tune ID and tile instance ID are separate. */
+const __xenGridUid=()=> 'grid-profile-'+(globalThis.crypto?.randomUUID?.()??Math.random().toString(36).slice(2));
+const __xenGridKey=e=>e?.kind==='grid'?('grid\0'+(e.instanceId?.startsWith('legacy:')?e.id:(e.instanceId||e.id))):(e.kind+'\0'+e.id);
+const __xenGridCompatibleMode=(tuningId,mode)=>typeof Ka==='function'&&!Ka(tuningId).some(m=>m.value===mode)?'chromatic':mode||'chromatic';
+const __xenGridModeName=id=>(typeof yF!=='undefined'?yF:[]).find(m=>m.value===id)?.label||String(id||'Chromatic');
+function __xenGridProfile(raw){
+ const v=raw&&typeof raw==='object'&&!Array.isArray(raw)?raw:{};
+ const degrees=a=>[...new Set((Array.isArray(a)?a:[]).filter(n=>Number.isInteger(n)&&n>=0&&n<256))].sort((a,b)=>a-b);
+ const offsets=Array.isArray(v.mainStepOffsets)?v.mainStepOffsets.slice(0,256).map(x=>Number.isFinite(Number(x))?Math.max(-120,Math.min(120,Number(x))):0):[];
+ const bc=__XenBassGrid.normalize(v.bassConfig);
+ return {modeId:typeof v.modeId==='string'&&v.modeId.length<80?v.modeId:'chromatic',mainMutedDegrees:degrees(v.mainMutedDegrees),mainStepOffsets:offsets,
+   bassEnabled:v.bassEnabled===true,bassConfig:{...bc,bassUsesGrid:v.bassConfig?.bassUsesGrid!==false}};
+}
 function __xenValidateQuickItems(value){
  if(!Array.isArray(value)||value.length>240)throw Error('A constellation must contain at most 240 references.');
  const seen=new Set(),out=[];
  for(const entry of value){
-  if(!entry||Object.getPrototypeOf(entry)!==Object.prototype||!['grid','material','rootFollow','drum','bass'].includes(entry.kind)||typeof entry.id!=='string'||!entry.id.trim()||entry.id.length>1024||typeof entry.name!=='string'||entry.name.length>1024||Object.keys(entry).some(k=>!['kind','id','name'].includes(k)))throw Error('Invalid quick-access reference.');
-  const key=entry.kind+'\0'+entry.id;if(seen.has(key))continue;seen.add(key);out.push({kind:entry.kind,id:entry.id,name:entry.name});
+  if(!entry||Object.getPrototypeOf(entry)!==Object.prototype||!['grid','material','rootFollow','drum','bass'].includes(entry.kind)||typeof entry.id!=='string'||!entry.id.trim()||entry.id.length>1024||typeof entry.name!=='string'||entry.name.length>1024)throw Error('Invalid quick-access reference.');
+  if(entry.kind==='grid'){
+   if(Object.keys(entry).some(k=>!['kind','id','name','instanceId','gridProfile'].includes(k)))throw Error('Invalid grid profile fields.');
+   const instanceId=typeof entry.instanceId==='string'&&entry.instanceId.length>0&&entry.instanceId.length<160?entry.instanceId:'legacy:'+entry.id;
+   const key='grid\0'+instanceId;if(seen.has(key))continue;seen.add(key);
+   out.push({kind:'grid',id:entry.id,name:entry.name,instanceId,gridProfile:entry.gridProfile?__xenGridProfile(entry.gridProfile):null});
+  }else{
+   if(Object.keys(entry).some(k=>!['kind','id','name'].includes(k)))throw Error('Invalid quick-access reference.');
+   const key=entry.kind+'\0'+entry.id;if(seen.has(key))continue;seen.add(key);out.push({kind:entry.kind,id:entry.id,name:entry.name});
+  }
  }
  return out;
 }
@@ -25,24 +46,31 @@ function __SourceOctave({lane,title}){
 }
 const __XenQuick=(()=>{
  const adapters=new Map(),listeners=new Set(),icons={grid:'🪜',material:'📀',rootFollow:'🎼',drum:'🥁',bass:'🎸'};let active=null,items=[],pulse=0,closeActive=null,storageError='';
- try{const saved=JSON.parse(localStorage.getItem('xensonar.quick-menu.v1')||'[]');items=__xenValidateQuickItems(saved);}catch(error){storageError='Quick Access: '+error.message}
- let hotkeys={material:[],rootFollow:[]},tilePulse=null,tileTimer=null,tileSerial=0;
- let snapshot={items,active,pulse,hotkeys,tilePulse,storageError};const emit=()=>{snapshot={items,active,pulse,hotkeys,tilePulse,storageError};for(const fn of listeners)fn()};
+ try{const saved=JSON.parse((localStorage.getItem('xensonar.quick-menu.v2')||localStorage.getItem('xensonar.quick-menu.v1')||'[]'));items=__xenValidateQuickItems(saved);}catch(error){storageError='Quick Access: '+error.message}
+ let selectedByKind={},hotkeys={material:[],rootFollow:[]},tilePulse=null,tileTimer=null,tileSerial=0;
+ let snapshot={items,active,pulse,hotkeys,tilePulse,storageError,selectedByKind};const emit=()=>{snapshot={items,active,pulse,hotkeys,tilePulse,storageError,selectedByKind};for(const fn of listeners)fn()};
+ function setSelected(kind,id){if(!icons[kind]||id===undefined||id===null)return;const key=String(id);if(kind==='grid'&&__XenBassGrid.liveOverride()?.tuningId===key)return;if(selectedByKind[kind]===key)return;selectedByKind={...selectedByKind,[kind]:key};emit()}
  function syncHotkeys(kind,entries){if(!Object.hasOwn(hotkeys,kind))return;const ids=entries.slice(0,__XenLoopHotkeys.length).map(entry=>entry.id);if(ids.join('\0')===hotkeys[kind].join('\0'))return;hotkeys={...hotkeys,[kind]:ids};emit()}
  function pulseEntry(kind,id){if(tileTimer)clearTimeout(tileTimer);const serial=++tileSerial;tilePulse={kind,id,serial};emit();tileTimer=setTimeout(()=>{tileTimer=null;if(tilePulse?.serial===serial){tilePulse=null;emit()}},220)}
- function save(){try{localStorage.setItem('xensonar.quick-menu.v1',JSON.stringify(items));storageError=''}catch(error){storageError='Quick Access: '+error.message}emit()}
- return {refreshLibraries:emit,getItems:()=>items.map(e=>({...e})),replaceItems(value){const next=__xenValidateQuickItems(value);try{localStorage.setItem('xensonar.quick-menu.v1',JSON.stringify(next))}catch(error){storageError='Quick Access: '+error.message;emit();throw error}items=next;storageError='';emit();return next.map(e=>({...e}))},icons,adapters,syncHotkeys,pulseEntry,snapshot:()=>snapshot,subscribe:fn=>(listeners.add(fn),()=>listeners.delete(fn)),register(kind,adapter){adapters.set(kind,adapter);syncHotkeys(kind,adapter.entries);return()=>{if(adapters.get(kind)===adapter){adapters.delete(kind);syncHotkeys(kind,[])}}},signal(){pulse++;emit()},setActive(value,close){if(value)closeActive=close??closeActive;else closeActive=null;if(active?.kind===value?.kind&&active?.id===value?.id&&active?.name===value?.name)return;active=value;emit()},add(entry){if(!entry||!icons[entry.kind]||typeof entry.id!=='string')return;if(!items.some(e=>e.kind===entry.kind&&e.id===entry.id)){items=[...items,{kind:entry.kind,id:entry.id,name:String(entry.name||entry.id)}];save()}},remove(entry){items=items.filter(e=>e.kind!==entry.kind||e.id!==entry.id);save()},dismiss(){if(!active)return false;closeActive?.();return true},activate(entry){const adapter=adapters.get(entry.kind);if(!adapter)return false;const current=adapter.entries.find(e=>e.id===entry.id);if(!current)return false;adapter.choose(current.id);pulseEntry(entry.kind,current.id);return true;},cycle(dir){
+ function save(){try{localStorage.setItem('xensonar.quick-menu.v2',JSON.stringify(items));storageError=''}catch(error){storageError='Quick Access: '+error.message}emit()}
+ return {setSelected,restoreGridSelection(value,override){selectedByKind={...selectedByKind,grid:value??null};__XenBassGrid.setLiveOverride(override);emit()},clearGridSelection(){selectedByKind={...selectedByKind,grid:null};__XenBassGrid.clearLiveOverride();emit()},refreshLibraries:emit,getItems:()=>items.map(e=>JSON.parse(JSON.stringify(e))),replaceItems(value){const next=__xenValidateQuickItems(value);try{localStorage.setItem('xensonar.quick-menu.v2',JSON.stringify(next))}catch(error){storageError='Quick Access: '+error.message;emit();throw error}items=next;storageError='';emit();return next.map(e=>JSON.parse(JSON.stringify(e)))},icons,adapters,syncHotkeys,pulseEntry,snapshot:()=>snapshot,subscribe:fn=>(listeners.add(fn),()=>listeners.delete(fn)),register(kind,adapter){adapters.set(kind,adapter);setSelected(kind,adapter.selected);syncHotkeys(kind,adapter.entries);return()=>{if(adapters.get(kind)===adapter){adapters.delete(kind);syncHotkeys(kind,[])}}},signal(){pulse++;emit()},setActive(value,close){if(value)closeActive=close??closeActive;else closeActive=null;if(active?.kind===value?.kind&&active?.id===value?.id&&active?.name===value?.name)return;active=value;emit()},add(entry){if(!entry||!icons[entry.kind]||typeof entry.id!=='string')return;if(!items.some(e=>__xenGridKey(e)===__xenGridKey(entry))){items=__xenValidateQuickItems([...items,entry.kind==='grid'?{kind:'grid',id:entry.id,name:String(entry.name||entry.id),instanceId:entry.instanceId||__xenGridUid(),gridProfile:entry.gridProfile}: {kind:entry.kind,id:entry.id,name:String(entry.name||entry.id)}]);save()}},remove(entry){items=items.filter(e=>__xenGridKey(e)!==__xenGridKey(entry));save()},dismiss(){if(!active)return false;closeActive?.();return true},activate(entry){const adapter=adapters.get(entry.kind);if(!adapter)return false;const current=adapter.entries.find(e=>e.id===entry.id);if(!current)return false;if(entry.kind==='grid'&&entry.gridProfile){if(!__XenMainRoomSessionBridge.applyGridProfile(entry))return false;}else adapter.choose(current.id);if(entry.kind==='grid'){if(!entry.gridProfile)__XenBassGrid.clearLiveOverride();selectedByKind={...selectedByKind,grid:entry.instanceId||'legacy:'+entry.id};emit()}else setSelected(entry.kind,current.id);pulseEntry(entry.kind,entry.kind==='grid'?(entry.instanceId||'legacy:'+entry.id):current.id);return true;},cycle(dir){
    if(!active)return false;
-   const order=['grid','material','rootFollow','drum','bass'],events={grid:'xensonar:open-grid-tuning-rack',material:'xensonar:open-material-loop-manager',rootFollow:'xensonar:open-root-follow-loop-manager',drum:'xensonar:open-drum-pattern-manager',bass:'xensonar:open-bass-pattern-manager'};
-   const next=order[(order.indexOf(active.kind)+dir+order.length)%order.length],close=closeActive;
+   const order=['grid','material','rootFollow','drum','bass','meta'],events={grid:'xensonar:open-grid-tuning-rack',material:'xensonar:open-material-loop-manager',rootFollow:'xensonar:open-root-follow-loop-manager',drum:'xensonar:open-drum-pattern-manager',bass:'xensonar:open-bass-pattern-manager',meta:'xensonar:open-meta-menu'};
+   const at=order.indexOf(active.kind);if(at<0)return false;
+   const next=order[(at+dir+order.length)%order.length],close=closeActive;
    close?.();active=null;closeActive=null;emit();
-   window.setTimeout(()=>window.dispatchEvent(new CustomEvent(events[next])),0);return true;
+   window.setTimeout(()=>{
+    if(next==='meta'){window.dispatchEvent(new CustomEvent(events[next]));return}
+    // Native buttons own the real modal-open state; the legacy event remains a fallback.
+    if(typeof __xenOpenOriginalLibrary!=='function'||!__xenOpenOriginalLibrary(next))window.dispatchEvent(new CustomEvent(events[next]));
+   },0);return true;
   }};
 })();
 function __useQuickAdapter(kind,entries,selected,choose){
  const ref=P.useRef();ref.current={entries,selected,choose};
  P.useEffect(()=>__XenQuick.register(kind,{get entries(){return ref.current.entries},get selected(){return ref.current.selected},choose:id=>ref.current.choose(id)}),[kind]);
  P.useLayoutEffect(()=>{__XenQuick.syncHotkeys(kind,entries);__XenQuick.refreshLibraries()},[kind,entries]);
+ P.useLayoutEffect(()=>{__XenQuick.setSelected(kind,selected)},[kind,selected]);
 }
 function __useQuickActive(kind,id,name,open=true,onClose){
  const close=P.useRef(onClose);close.current=onClose;
@@ -59,8 +87,29 @@ const __XenLoopHotkeys=Object.freeze(['A','S','D','F','G','H','J','K','L']);
 function __XenLoopKey(index){return Number.isInteger(index)&&index>=0&&index<__XenLoopHotkeys.length?' ('+__XenLoopHotkeys[index]+')':'';}
 /* N19: preserve N14/N17 design; pointer gestures and hover share the visible left landing surface. */
 const __XenQuickHelpText='Ziehe den Eintrag ins Schnellmenü für leichteren Zugang.';
+/* P7.37 H1: the four timed Quick Access kinds show their real library bar count.
+   Reuse the owning adapter's metadata; do not store stale timing in session tiles.
+   A missing count remains unknown rather than being guessed from the tuning or BPM. */
+function __xenTimedBarsFromRecord(record){
+ if(!record||typeof record!=='object')return null;
+ const values=[record.bars,record.barCount,record.loopBars,record.durationBars,
+  record.loopComposer?.bars,record.composer?.bars,record.pattern?.bars,
+  record.material?.bars,record.config?.bars];
+ for(const raw of values){const n=Number(raw);if(raw!==undefined&&raw!==null&&raw!==''&&Number.isInteger(n)&&n>=1&&n<=1024)return n}
+ return null;
+}
+function __xenQuickEntryTitle(entry){
+ if(entry.kind==='grid')return entry.name+' · '+__xenGridModeName(entry.gridProfile?.modeId)+(entry.gridProfile?.bassEnabled?' · Bass Grid':'');
+ const timed=['material','rootFollow','drum','bass'].includes(entry.kind);
+ if(!timed)return entry.name;
+ const adapter=__XenQuick.adapters.get(entry.kind);
+ const current=adapter?.entries?.find(x=>String(x.id)===String(entry.id));
+ const bars=__xenTimedBarsFromRecord(current)??__xenTimedBarsFromRecord(entry);
+ return entry.name+(bars===null?'':' · '+bars+' '+(bars===1?'Takt':'Takte'));
+}
 function __QuickDock({params={},update=()=>{}}={}){
- const s=P.useSyncExternalStore(__XenQuick.subscribe,__XenQuick.snapshot,__XenQuick.snapshot),[remove,setRemove]=P.useState(null),[message,setMessage]=P.useState('');
+ const s=P.useSyncExternalStore(__XenQuick.subscribe,__XenQuick.snapshot,__XenQuick.snapshot),[remove,setRemove]=P.useState(null),[message,setMessage]=P.useState(''),[saveOpen,setSaveOpen]=P.useState(false);
+ P.useSyncExternalStore(typeof __XenMetaSessions!=='undefined'?__XenMetaSessions.subscribe:()=>()=>{},typeof __XenMetaSessions!=='undefined'?__XenMetaSessions.snapshot:()=>null,typeof __XenMetaSessions!=='undefined'?__XenMetaSessions.snapshot:()=>null);
  const columns=P.useMemo(()=>{const next={grid:[],material:[],rootFollow:[],drum:[],bass:[]};for(const entry of s.items)next[entry.kind]?.push(entry);return next;},[s.items]);
  // A pulse is an event observed by THIS mounted room, never restored state.
  const observedPulse=P.useRef(s.pulse),[flash,setFlash]=P.useState(0);
@@ -69,11 +118,13 @@ function __QuickDock({params={},update=()=>{}}={}){
   observedPulse.current=s.pulse;setFlash(s.pulse);
   const timer=setTimeout(()=>setFlash(0),2300);return()=>clearTimeout(timer);
  },[s.pulse]);
- const [layout,setLayout]=P.useState({leftTop:156,leftHeight:52,migrated:false,rightWidth:210,rightHeight:120,documentList:false});
+ /* Do not display the provisional left dock before its first geometry measurement. */
+ const [layout,setLayout]=P.useState({leftTop:156,leftHeight:52,migrated:false,rightWidth:210,rightHeight:120,documentList:false,ready:false});
  const occupied=Math.max(0,...Object.values(columns).map(entries=>entries.length));
- const needed=occupied?38+occupied*34+(occupied-1)*5+(remove?70:0)+(message?30:0):38;
+ const sessionLabel=typeof __XenMetaSessions!=='undefined'?__XenMetaSessions.liveSessionLabel():'';
+ const needed=(occupied?38+occupied*34+(occupied-1)*5+(remove?70:0)+(message?30:0):38)+(sessionLabel?18:0);
  P.useLayoutEffect(()=>{
-  let frame=0;
+  let frame=0,settledFrames=0,lastBootGeometry='',layoutIsReady=false;
   const measure=()=>{
    frame=0;
    const pan=document.querySelector('.xen-performance [aria-label="Keyboard"] .xen-performance-pan');
@@ -89,7 +140,16 @@ function __QuickDock({params={},update=()=>{}}={}){
    const documentList=migrated&&needed>window.innerHeight-310;
    const next={leftTop,leftHeight:leftAvailable,migrated,
     rightWidth:railWidth,
-    rightHeight:needed,documentList};
+    rightHeight:needed,documentList,ready:true};
+   // Keep the dock hidden until two consecutive frame measurements agree.
+   // Otherwise the first visible frame can briefly expose provisional geometry.
+   const signature=[leftTop,leftAvailable,migrated,railWidth,needed,documentList].join('|');
+   if(!layoutIsReady){
+    settledFrames=signature===lastBootGeometry?settledFrames+1:1;
+    lastBootGeometry=signature;
+    if(settledFrames<2){queue();return}
+    layoutIsReady=true;
+   }
    document.documentElement.style.setProperty('--xen-quick-marker-top',migrated?(156+needed+10)+'px':'156px');
    document.documentElement.toggleAttribute('data-xen-quick-page-list',documentList);
    setLayout(old=>Object.keys(next).every(k=>old[k]===next[k])?old:next);
@@ -104,13 +164,14 @@ function __QuickDock({params={},update=()=>{}}={}){
  const allColumnsFilled=Object.values(columns).every(entries=>entries.length>0);
  const collection=u.jsxs('div',{className:'xen-quick-collection'+(layout.migrated?' is-migrated':'')+(layout.documentList?' is-document':''),
   style:layout.migrated?{right:'var(--xen-side-rail-inset)',width:layout.rightWidth}:undefined,
-  children:[u.jsx(__QuickMuteRow,{params,update,showIcons:!allColumnsFilled}),u.jsx(__QuickColumns,{items:s.items,render:(entry,index,kind)=>u.jsxs('button',{type:'button',className:'xen-quick-tile'+(s.tilePulse?.kind===kind&&s.tilePulse?.id===entry.id?' is-key-pulse':''),'data-xen-shortcut-kind':kind,'data-xen-shortcut-id':entry.id,title:entry.name,'aria-label':entry.name,onClick:()=>{setMessage(__XenQuick.activate(entry)?'':entry.name+' ist nicht mehr verfügbar.')},onContextMenu:e=>{e.preventDefault();setRemove(entry)},children:[u.jsx('span',{className:entry.kind==='rootFollow'?'xen-quick-rfl':'',children:__XenQuick.icons[entry.kind]}),' '+(index+1),u.jsx(__QuickHotkey,{kind,id:entry.id,params,hotkeys:s.hotkeys})]},entry.kind+':'+entry.id)}),
+  children:[u.jsxs('div',{className:'xen-quick-mutes-save',children:[u.jsx(__QuickMuteRow,{params,update,showIcons:!allColumnsFilled}),u.jsx('button',{type:'button',className:'xen-quick-save-trigger','aria-label':'Save Quick Access in Sessions',title:'Schnellzugriff als Session speichern','aria-haspopup':'dialog',onClick:()=>setSaveOpen(true),children:'💾'})]}),u.jsx(__QuickColumns,{items:s.items,render:(entry,index,kind)=>u.jsxs('button',{type:'button',className:'xen-quick-tile'+(s.selectedByKind?.[kind]===(kind==='grid'?(entry.instanceId||'legacy:'+entry.id):entry.id)?' is-selected-live':'')+(s.tilePulse?.kind===kind&&s.tilePulse?.id===(kind==='grid'?(entry.instanceId||'legacy:'+entry.id):entry.id)?' is-key-pulse':'')+(typeof __XenMetaSessions!=='undefined'&&Object.keys(__XenMetaSessions.liveItemColor(entry)).length?' is-session-tinted':''),style:(()=>{const tint=typeof __XenMetaSessions!=='undefined'?__XenMetaSessions.liveItemColor(entry):{};return {'--xen-session-border':tint.border??'#294632','--xen-session-bg':tint.background??'#0c2414'}})(),'data-xen-shortcut-kind':kind,'data-xen-shortcut-id':entry.instanceId||entry.id,title:__xenQuickEntryTitle(entry),'aria-label':entry.name,onClick:()=>{setMessage(__XenQuick.activate(entry)?'':entry.name+' ist nicht mehr verfügbar.')},onContextMenu:e=>{e.preventDefault();setRemove(entry)},children:[u.jsx('span',{className:'xen-quick-symbol'+(entry.kind==='rootFollow'?' xen-quick-rfl':''),children:__XenQuick.icons[entry.kind]}),entry.kind==='grid'&&u.jsx('span',{className:'xen-grid-profile-badge',children:__xenGridModeName(entry.gridProfile?.modeId).slice(0,3)+(entry.gridProfile?.bassEnabled?' ◇':'')}),u.jsx('span',{className:'xen-quick-index',children:index+1}),u.jsx(__QuickHotkey,{kind,id:entry.id,params,hotkeys:s.hotkeys})]},__xenGridKey(entry))}),
+   sessionLabel&&u.jsx('div',{className:'xen-quick-session-caption',title:'Aktive gespeicherte Session',children:'Session: '+sessionLabel}),
    remove&&u.jsxs('div',{className:'xen-quick-confirm',children:[u.jsx('span',{children:'„'+remove.name+'“ entfernen?'}),u.jsx('button',{type:'button',onClick:()=>{__XenQuick.remove(remove);setRemove(null)},children:'Entfernen'}),u.jsx('button',{type:'button',onClick:()=>setRemove(null),children:'Abbrechen'})]}),(message||s.storageError)&&u.jsx('small',{role:'status',children:message||s.storageError})]});
  const dock=u.jsxs('section',{className:'xen-quick-dock'+(flash?' is-ready':'')+(layout.migrated?' is-migrated':''),'aria-label':'Schnellmenü','data-xen-quick-hint':__XenQuickHelpText,
-  style:{top:layout.leftTop,height:layout.leftHeight,maxHeight:'none'},onPointerDown:e=>e.stopPropagation(),onMouseDown:e=>e.stopPropagation(),onClick:e=>e.stopPropagation(),
+  style:{top:layout.leftTop,height:layout.leftHeight,maxHeight:'none',visibility:layout.ready?'visible':'hidden',pointerEvents:layout.ready?'auto':'none'},onPointerDown:e=>e.stopPropagation(),onMouseDown:e=>e.stopPropagation(),onClick:e=>e.stopPropagation(),
   children:[flash>0&&u.jsx('span',{key:'drop-'+flash,className:'xen-quick-signal','aria-hidden':true}),!layout.documentList&&collection]});
- return typeof document==='undefined'?dock:u.jsxs(P.Fragment,{children:[dock,layout.documentList&&ao.createPortal(collection,document.body),
-  ao.createPortal(u.jsx('span',{className:'xen-quick-hover-info',role:'tooltip',children:__XenQuickHelpText}),document.body)]});
+ return typeof document==='undefined'?dock:u.jsxs(P.Fragment,{children:[dock,layout.ready&&layout.documentList&&ao.createPortal(collection,document.body),
+  ao.createPortal(u.jsx('span',{className:'xen-quick-hover-info',role:'tooltip',children:__XenQuickHelpText}),document.body),saveOpen&&u.jsx(__XenQuickSaveDialog,{onClose:()=>setSaveOpen(false)})]});
 }
 if(typeof document!=='undefined'){
  // The fixed target and the visible LEFT palette are one landing surface.
@@ -142,7 +203,7 @@ if(typeof document!=='undefined'){
    const old=session;
    try{leaveSort()}finally{
     session=null;cancelAnimationFrame(frame);frame=0;
-    ghost?.remove();ghost=null;
+    ghost?.remove();ghost=null;document.querySelector('.xen-meta-board')?.classList.remove('is-drop-hover');for(const lane of document.querySelectorAll('.xen-meta-lane'))lane.classList.remove('is-drop-lane');if(typeof __xenMetaRenderDropMarker==='function')__xenMetaRenderDropMarker(null);
     document.documentElement.classList.remove('xen-quick-pointer-dragging');
     document.querySelector('.xen-quick-dock')?.classList.remove('xen-quick-pointer-over');
     if(old.dragging)suppressClick=true;
@@ -162,26 +223,29 @@ if(typeof document!=='undefined'){
   function update(e){
    if(!session?.dragging)return;
    session.last={clientX:e.clientX,clientY:e.clientY};
-   const song=typeof __xenSongDropTarget==='function'?__xenSongDropTarget(e,session):null;session.songTarget=song;
-   const inside=!song&&session.modal.dataset.xenHeaderMenu!=='song'&&inDock(e),zone=inside||song?null:zoneAt(e),sort=hooks();
+   const meta=typeof __xenMetaDropTarget==='function'?__xenMetaDropTarget(e,session):null;session.metaTarget=meta;
+   const board=document.querySelector('.xen-meta-board');board?.classList.toggle('is-drop-hover',!!meta);
+   if(typeof __xenMetaRenderDropMarker==='function')__xenMetaRenderDropMarker(meta);
+   for(const lane of document.querySelectorAll('.xen-meta-lane'))lane.classList.toggle('is-drop-lane',!!meta&&lane===meta.column);
+   const inside=!meta&&session.modal.dataset.xenHeaderMenu!=='meta'&&inDock(e),zone=inside||meta?null:zoneAt(e),sort=hooks();
    session.overDock=inside;placeQuickHelp(e,inside);
    if(zone){
     if(!session.sorting){session.sorting=true;sort.start?.(libraryEvent(e))}
     sort.over?.(libraryEvent(e));
    }else leaveSort();
    document.querySelector('.xen-quick-dock')?.classList.toggle('xen-quick-pointer-over',inside);
-   ghost.classList.toggle('is-over',inside||!!song);
+   ghost.classList.toggle('is-over',inside||!!meta);
    ghost.classList.toggle('is-sorting',!!zone);
    const detail=zone?sort.preview?.():'';
    ghost.textContent=(__XenQuick.icons[session.entry.kind]||'')+' '+session.entry.name+
-    (song?' · Song Part':detail?' · '+detail:inside?' · +':'');
+    (meta?' · LOSLASSEN → SESSION':session.modal.dataset.xenHeaderMenu==='meta'?' · ZUR KONSTELLATION ZIEHEN':detail?' · '+detail:inside?' · +':'');
    ghost.style.left=Math.max(4,Math.min(e.clientX+14,window.innerWidth-ghost.offsetWidth-4))+'px';
    ghost.style.top=Math.max(4,Math.min(e.clientY-18,window.innerHeight-ghost.offsetHeight-4))+'px';
   }
   function tick(){
    if(!session?.dragging)return;
    if(!session.source.isConnected||!session.modal.isConnected){clear();return}
-   const zone=session.songTarget?.column??(session.overDock?null:zoneAt(session.last));
+   const zone=session.metaTarget?.column??(session.overDock?null:zoneAt(session.last));
    if(zone&&zone.scrollHeight>zone.clientHeight){
     const r=zone.getBoundingClientRect(),y=session.last.clientY;
     const step=y<r.top+28?-Math.min(12,(r.top+28-y)*.45):
@@ -232,9 +296,10 @@ if(typeof document!=='undefined'){
    e.preventDefault();e.stopImmediatePropagation();
    try{
     update(e);
-    if(session.songTarget)__xenSongCommitDrop(session);
-    else if(session.modal.dataset.xenHeaderMenu!=='song'&&inDock(e))__XenQuick.add(session.entry);
+    if(session.metaTarget)__xenMetaCommitDrop(session);
+    else if(session.modal.dataset.xenHeaderMenu!=='meta'&&inDock(e))__XenQuick.add(session.entry);
     else if(zoneAt(e)&&session.sorting)hooks()?.drop?.(libraryEvent(e));
+    else if(session.modal.dataset.xenHeaderMenu==='meta')window.dispatchEvent(new CustomEvent('xensonar:meta-drag-note',{detail:{message:'Nicht abgelegt · Quelle unverändert. Rechts auf die Konstellation ziehen.'}}));
    }finally{clear()}
   },true);
   // Captured drags may dispatch click at HTML or the common modal ancestor.
@@ -256,7 +321,7 @@ if(typeof document!=='undefined'){
  // The pointer transaction consumes drag-generated clicks before this listener.
  window.addEventListener('click',e=>{
   const row=e.target?.closest?.('[data-xen-quick-kind][data-xen-quick-id]');
-  if(!e.defaultPrevented&&row?.closest('[data-xen-header-menu]')&&!row.closest('[data-xen-header-menu="song"]'))__XenQuick.signal();
+  if(!e.defaultPrevented&&row?.closest('[data-xen-header-menu]')&&!row.closest('[data-xen-header-menu="meta"]'))__XenQuick.signal();
  },true);
  const placeQuickHelp=(e,inside=inDock(e))=>{
   const hint=document.querySelector('.xen-quick-hover-info');if(!hint)return;
@@ -268,7 +333,7 @@ if(typeof document!=='undefined'){
  };
  window.addEventListener('pointermove',e=>placeQuickHelp(e),true);
  window.addEventListener('blur',()=>{const hint=document.querySelector('.xen-quick-hover-info');if(hint)hint.style.display='none'});
- window.addEventListener('keydown',e=>{if(!__XenQuick.snapshot().active)return;if(e.key==='Escape'){e.preventDefault();e.stopImmediatePropagation();__XenQuick.dismiss();return}if(e.code==='CapsLock'||e.code==='ShiftLeft'){e.stopImmediatePropagation();return}if(!['ArrowLeft','ArrowRight'].includes(e.key)||e.altKey||e.ctrlKey||e.metaKey||e.target?.closest('input,select,textarea,[contenteditable="true"],[role="slider"]'))return;e.preventDefault();e.stopImmediatePropagation();if(!e.repeat)__XenQuick.cycle(e.key==='ArrowRight'?1:-1)},true);
+ window.addEventListener('keydown',e=>{if(e.target?.closest?.('.xen-quick-save-dialog,[data-xen-header-menu="meta"]'))return;if(!__XenQuick.snapshot().active)return;if(e.key==='Escape'){e.preventDefault();e.stopImmediatePropagation();__XenQuick.dismiss();return}if(e.code==='CapsLock'||e.code==='ShiftLeft'){e.stopImmediatePropagation();return}if(!['ArrowLeft','ArrowRight'].includes(e.key)||e.altKey||e.ctrlKey||e.metaKey||e.target?.closest('input,select,textarea,[contenteditable="true"],[role="slider"]'))return;e.preventDefault();e.stopImmediatePropagation();if(!e.repeat)__XenQuick.cycle(e.key==='ArrowRight'?1:-1)},true);
 }
 
 

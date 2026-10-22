@@ -1,0 +1,45 @@
+{
+  "rows": [
+    {
+      "name": "clean-control",
+      "exit": 0,
+      "detected": null
+    },
+    {
+      "name": "unreviewed-baseline-edit",
+      "exit": 1,
+      "detected": true
+    },
+    {
+      "name": "extra-correction-edit",
+      "exit": 1,
+      "detected": true
+    },
+    {
+      "name": "new-source-edit",
+      "exit": 1,
+      "detected": true
+    },
+    {
+      "name": "retired-source-edit",
+      "exit": 1,
+      "detected": true
+    },
+    {
+      "name": "source-order-change",
+      "exit": 1,
+      "detected": true
+    },
+    {
+      "name": "head-wrapper-change",
+      "exit": 1,
+      "detected": true
+    },
+    {
+      "name": "build-extension-edit",
+      "exit": 1,
+      "detected": true
+    }
+  ],
+  "failed": 0
+}

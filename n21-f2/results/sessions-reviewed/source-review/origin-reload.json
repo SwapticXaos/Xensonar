@@ -1,0 +1,2394 @@
+{
+  "entry": "Xensonar_P7_38_Sessions_Reviewed_Test.html",
+  "scope": "Native Chromium HTTPS origin localStorage reload and mounted Main Room profile owners; no audio device claim",
+  "initial": {
+    "state": {
+      "version": 2,
+      "name": "Migrated V1",
+      "items": [
+        {
+          "kind": "grid",
+          "id": "19edo",
+          "name": "19 EDO",
+          "instanceId": "legacy:19edo",
+          "gridProfile": null
+        }
+      ],
+      "colors": {
+        "grid\u000019edo": {
+          "border": "#123456"
+        }
+      },
+      "roomSettings": null,
+      "saved": [
+        {
+          "id": "old-session",
+          "name": "Migrated V1",
+          "items": [
+            {
+              "kind": "grid",
+              "id": "19edo",
+              "name": "19 EDO",
+              "instanceId": "legacy:19edo",
+              "gridProfile": null
+            }
+          ],
+          "colors": {
+            "grid\u000019edo": {
+              "border": "#123456"
+            }
+          },
+          "roomSettings": null
+        }
+      ],
+      "loadedId": "old-session",
+      "activePalette": null,
+      "dirty": false,
+      "error": "",
+      "canUndo": false,
+      "canRedo": false
+    },
+    "quick": [
+      {
+        "kind": "grid",
+        "id": "19edo",
+        "name": "19 EDO",
+        "instanceId": "legacy:19edo",
+        "gridProfile": null
+      }
+    ],
+    "modes": [
+      {
+        "value": "chromatic",
+        "label": "Chromatic",
+        "steps": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11
+        ]
+      },
+      {
+        "value": "ionian",
+        "label": "Ionian (Major)",
+        "steps": [
+          0,
+          2,
+          4,
+          5,
+          7,
+          9,
+          11
+        ]
+      },
+      {
+        "value": "dorian",
+        "label": "Dorian",
+        "steps": [
+          0,
+          2,
+          3,
+          5,
+          7,
+          9,
+          10
+        ]
+      },
+      {
+        "value": "ukr_dorian",
+        "label": "Ukrainian Dorian",
+        "steps": [
+          0,
+          2,
+          3,
+          6,
+          7,
+          9,
+          10
+        ]
+      },
+      {
+        "value": "phrygian",
+        "label": "Phrygian",
+        "steps": [
+          0,
+          1,
+          3,
+          5,
+          7,
+          8,
+          10
+        ]
+      },
+      {
+        "value": "lydian",
+        "label": "Lydian",
+        "steps": [
+          0,
+          2,
+          4,
+          6,
+          7,
+          9,
+          11
+        ]
+      },
+      {
+        "value": "mixolydian",
+        "label": "Mixolydian",
+        "steps": [
+          0,
+          2,
+          4,
+          5,
+          7,
+          9,
+          10
+        ]
+      },
+      {
+        "value": "aeolian",
+        "label": "Aeolian (Minor)",
+        "steps": [
+          0,
+          2,
+          3,
+          5,
+          7,
+          8,
+          10
+        ]
+      },
+      {
+        "value": "locrian",
+        "label": "Locrian",
+        "steps": [
+          0,
+          1,
+          3,
+          5,
+          6,
+          8,
+          10
+        ]
+      }
+    ],
+    "bassDisk": null
+  },
+  "prepared": {
+    "version": 2,
+    "name": "V2 Profiles",
+    "items": [
+      {
+        "kind": "grid",
+        "id": "19edo",
+        "name": "19 EDO",
+        "instanceId": "legacy:19edo",
+        "gridProfile": {
+          "modeId": "dorian",
+          "mainMutedDegrees": [
+            1
+          ],
+          "mainStepOffsets": [],
+          "bassEnabled": true,
+          "bassConfig": {
+            "sourceMode": "derived",
+            "linkedTuningId": "",
+            "linkedMutedDegrees": [],
+            "droneEnabled": false,
+            "rflEnabled": false,
+            "mutedDegrees": [
+              3
+            ],
+            "offsetsCents": {},
+            "bassUsesGrid": true
+          }
+        }
+      },
+      {
+        "kind": "grid",
+        "id": "19edo",
+        "name": "19 EDO · Variation",
+        "instanceId": "grid-profile-30d24b8b-93db-405a-88b0-07f632cb6b15",
+        "gridProfile": {
+          "modeId": "chromatic",
+          "mainMutedDegrees": [
+            2
+          ],
+          "mainStepOffsets": [],
+          "bassEnabled": true,
+          "bassConfig": {
+            "sourceMode": "derived",
+            "linkedTuningId": "",
+            "linkedMutedDegrees": [],
+            "droneEnabled": false,
+            "rflEnabled": false,
+            "mutedDegrees": [
+              4
+            ],
+            "offsetsCents": {},
+            "bassUsesGrid": true
+          }
+        }
+      }
+    ],
+    "colors": {
+      "grid\u000019edo": {
+        "border": "#123456"
+      },
+      "grid\u0000grid-profile-30d24b8b-93db-405a-88b0-07f632cb6b15": {
+        "border": "#123456"
+      }
+    },
+    "roomSettings": null,
+    "saved": [
+      {
+        "id": "old-session",
+        "name": "V2 Profiles",
+        "items": [
+          {
+            "kind": "grid",
+            "id": "19edo",
+            "name": "19 EDO",
+            "instanceId": "legacy:19edo",
+            "gridProfile": {
+              "modeId": "dorian",
+              "mainMutedDegrees": [
+                1
+              ],
+              "mainStepOffsets": [],
+              "bassEnabled": true,
+              "bassConfig": {
+                "sourceMode": "derived",
+                "linkedTuningId": "",
+                "linkedMutedDegrees": [],
+                "droneEnabled": false,
+                "rflEnabled": false,
+                "mutedDegrees": [
+                  3
+                ],
+                "offsetsCents": {},
+                "bassUsesGrid": true
+              }
+            }
+          },
+          {
+            "kind": "grid",
+            "id": "19edo",
+            "name": "19 EDO · Variation",
+            "instanceId": "grid-profile-30d24b8b-93db-405a-88b0-07f632cb6b15",
+            "gridProfile": {
+              "modeId": "chromatic",
+              "mainMutedDegrees": [
+                2
+              ],
+              "mainStepOffsets": [],
+              "bassEnabled": true,
+              "bassConfig": {
+                "sourceMode": "derived",
+                "linkedTuningId": "",
+                "linkedMutedDegrees": [],
+                "droneEnabled": false,
+                "rflEnabled": false,
+                "mutedDegrees": [
+                  4
+                ],
+                "offsetsCents": {},
+                "bassUsesGrid": true
+              }
+            }
+          }
+        ],
+        "colors": {
+          "grid\u000019edo": {
+            "border": "#123456"
+          },
+          "grid\u0000grid-profile-30d24b8b-93db-405a-88b0-07f632cb6b15": {
+            "border": "#123456"
+          }
+        },
+        "roomSettings": null
+      }
+    ],
+    "loadedId": "old-session",
+    "activePalette": null,
+    "dirty": false,
+    "error": "",
+    "canUndo": true,
+    "canRedo": false
+  },
+  "reloaded": {
+    "version": 2,
+    "name": "V2 Profiles",
+    "items": [
+      {
+        "kind": "grid",
+        "id": "19edo",
+        "name": "19 EDO",
+        "instanceId": "legacy:19edo",
+        "gridProfile": {
+          "modeId": "dorian",
+          "mainMutedDegrees": [
+            1
+          ],
+          "mainStepOffsets": [],
+          "bassEnabled": true,
+          "bassConfig": {
+            "sourceMode": "derived",
+            "linkedTuningId": "",
+            "linkedMutedDegrees": [],
+            "droneEnabled": false,
+            "rflEnabled": false,
+            "mutedDegrees": [
+              3
+            ],
+            "offsetsCents": {},
+            "bassUsesGrid": true
+          }
+        }
+      },
+      {
+        "kind": "grid",
+        "id": "19edo",
+        "name": "19 EDO · Variation",
+        "instanceId": "grid-profile-30d24b8b-93db-405a-88b0-07f632cb6b15",
+        "gridProfile": {
+          "modeId": "chromatic",
+          "mainMutedDegrees": [
+            2
+          ],
+          "mainStepOffsets": [],
+          "bassEnabled": true,
+          "bassConfig": {
+            "sourceMode": "derived",
+            "linkedTuningId": "",
+            "linkedMutedDegrees": [],
+            "droneEnabled": false,
+            "rflEnabled": false,
+            "mutedDegrees": [
+              4
+            ],
+            "offsetsCents": {},
+            "bassUsesGrid": true
+          }
+        }
+      }
+    ],
+    "colors": {
+      "grid\u000019edo": {
+        "border": "#123456"
+      },
+      "grid\u0000grid-profile-30d24b8b-93db-405a-88b0-07f632cb6b15": {
+        "border": "#123456"
+      }
+    },
+    "roomSettings": null,
+    "saved": [
+      {
+        "id": "old-session",
+        "name": "V2 Profiles",
+        "items": [
+          {
+            "kind": "grid",
+            "id": "19edo",
+            "name": "19 EDO",
+            "instanceId": "legacy:19edo",
+            "gridProfile": {
+              "modeId": "dorian",
+              "mainMutedDegrees": [
+                1
+              ],
+              "mainStepOffsets": [],
+              "bassEnabled": true,
+              "bassConfig": {
+                "sourceMode": "derived",
+                "linkedTuningId": "",
+                "linkedMutedDegrees": [],
+                "droneEnabled": false,
+                "rflEnabled": false,
+                "mutedDegrees": [
+                  3
+                ],
+                "offsetsCents": {},
+                "bassUsesGrid": true
+              }
+            }
+          },
+          {
+            "kind": "grid",
+            "id": "19edo",
+            "name": "19 EDO · Variation",
+            "instanceId": "grid-profile-30d24b8b-93db-405a-88b0-07f632cb6b15",
+            "gridProfile": {
+              "modeId": "chromatic",
+              "mainMutedDegrees": [
+                2
+              ],
+              "mainStepOffsets": [],
+              "bassEnabled": true,
+              "bassConfig": {
+                "sourceMode": "derived",
+                "linkedTuningId": "",
+                "linkedMutedDegrees": [],
+                "droneEnabled": false,
+                "rflEnabled": false,
+                "mutedDegrees": [
+                  4
+                ],
+                "offsetsCents": {},
+                "bassUsesGrid": true
+              }
+            }
+          }
+        ],
+        "colors": {
+          "grid\u000019edo": {
+            "border": "#123456"
+          },
+          "grid\u0000grid-profile-30d24b8b-93db-405a-88b0-07f632cb6b15": {
+            "border": "#123456"
+          }
+        },
+        "roomSettings": null
+      }
+    ],
+    "loadedId": "old-session",
+    "activePalette": null,
+    "dirty": false,
+    "error": "",
+    "canUndo": false,
+    "canRedo": false
+  },
+  "switches": [
+    {
+      "params": {
+        "dronePreset": "dark_sub",
+        "droneFixedHz": 55,
+        "droneSnapToGrid": false,
+        "droneTimbre": 0.5,
+        "droneVibrato": 0.5,
+        "droneFlanger": 0,
+        "droneRefucktorEcho": 0.24,
+        "droneRefucktorFeedback": 0.32,
+        "droneRhythm": "Off",
+        "droneWobbleDepth": 0,
+        "droneWobbleShape": "Sine",
+        "droneWobbleRate": "1/8",
+        "droneDubDrive": 0,
+        "droneCursorFollow": false,
+        "droneCursorAmount": 0.5,
+        "droneStepWobbleShapes": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "echoOn": false,
+        "echoTempo": 400,
+        "echoDecay": 0.6,
+        "waveRadius": 1.09,
+        "waveDecay": "abrupt",
+        "gridOn": true,
+        "gridBase": 440,
+        "gridTuning": "19edo",
+        "gridMode": "dorian",
+        "rememberGrid": false,
+        "gridStates": {},
+        "manualGridMutedSteps": [
+          1
+        ],
+        "manualGridStepOffsets": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "particleSystem": "ji",
+        "churchMode": "ionian",
+        "lockCursorToGrid": true,
+        "cursorSpeed": 4,
+        "droneDriveOn": false,
+        "droneDriveAmount": 0.22,
+        "droneDriveTone": 0.52,
+        "droneDriveMix": 0.26,
+        "droneDriveOutput": 0.82,
+        "droneRhythmCustomSteps": [
+          1,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          0
+        ],
+        "drumActive": true,
+        "drumPattern": "broken_lilt",
+        "drumKit": "dusty_tape",
+        "drumLaneKits": {},
+        "drumVolume": 0.52,
+        "drumEdge": 0.46,
+        "drumSoftness": 0.58,
+        "drumAir": 0.5,
+        "drumSnap": 0.48,
+        "grooveSwing": 0.38,
+        "drumConfigMode": "preset",
+        "drumConfigId": "",
+        "bassActive": true,
+        "bassPattern": "forge_fractured",
+        "bassPatternMode": "preset",
+        "bassClipId": "",
+        "psyBassPitchMode": "classic-semitone",
+        "bassVoice": "classic",
+        "bassResonance": 0,
+        "bassEnvelope": 1,
+        "bassDecay": 1,
+        "bassSub": 1,
+        "drumPhaser": 0,
+        "drumPhaserRate": 0.28,
+        "drumPhaserDepth": 0.55,
+        "drumDistance": 0,
+        "drumPan": 0,
+        "drumDecay": 1,
+        "bassVolume": 0.1,
+        "bassTone": 0.48,
+        "bassGrit": 0.18,
+        "bassRootMode": "auto",
+        "bassRootHz": 55,
+        "particlePreset": "dust_chime",
+        "particleSampleProfileMode": "current_db_v2",
+        "particleGradientX": "edge_spark",
+        "particleGradientY": "warm_center",
+        "waveTimbreGradientEnabled": true,
+        "waveTimbreGradientX": "wire_to_psy",
+        "waveVolumeGradientEnabled": false,
+        "waveVolumeGradientX": "none",
+        "waveOvertonesEnabled": false,
+        "droneOvertoneWaveform": "triangle",
+        "waveOvertoneWaveform": "triangle",
+        "waveOvertoneMode": "arp",
+        "waveOvertoneArpRate": 64,
+        "waveOvertoneArpPattern": "updown",
+        "waveOvertoneArpSteps": 8,
+        "waveOvertoneGlobalLevel": 1,
+        "waveOvertones": {
+          "9/8": 0,
+          "6/5": 0,
+          "5/4": 0,
+          "4/3": 0,
+          "11/8": 0,
+          "3/2": 0,
+          "8/5": 0,
+          "13/8": 0,
+          "5/3": 0,
+          "7/4": 0,
+          "15/8": 0
+        },
+        "waveStarterHoldSegments": 24,
+        "waveStarterHoldCustomSegments": 48,
+        "waveStarterHoldReferenceBars": 1,
+        "waveStarterHoldPatternSteps": [
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1
+        ],
+        "waveStarterHoldSoundPreset": "tape_halo",
+        "keyboardHoldSegments": 24,
+        "keyboardHoldCustomSegments": 48,
+        "keyboardHoldReferenceBars": 1,
+        "keyboardHoldPatternSteps": [
+          1,
+          0,
+          0,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1
+        ],
+        "keyboardHoldSoundPreset": "tape_halo",
+        "particleVolume": 0.165,
+        "particleMute": false,
+        "quantizeOn": true,
+        "quantizeBpm": 108,
+        "materialLoopActive": false,
+        "materialLoopSyncToBeat": true,
+        "materialLoopId": "",
+        "materialLoopVolume": 0.22,
+        "materialLoopTimeMode": "normal",
+        "rootFollowImpulsRasterMuted": false,
+        "rootFollowLoopActive": false,
+        "rootFollowLoopId": "",
+        "rootFollowLoopVolume": 0.22,
+        "rootFollowLoopTimeMode": "normal",
+        "rootFollowLoopGranulationMode": "flowing",
+        "rootFollowGranularSettings": {
+          "preset": "flowing",
+          "powerMode": "balanced",
+          "windowMs": 70,
+          "stepMs": 40,
+          "leadMs": 64,
+          "startLeadMs": 18,
+          "qualityMode": "base",
+          "microDensity": 0.92,
+          "sourceSpread": 0.86,
+          "jitter": 0.12,
+          "maxGrainsPerWindow": 18
+        },
+        "rootFollowImpulsRasterEvery": 1,
+        "rootFollowImpulsRasterCycleDiv": 1,
+        "rootFollowImpulsRasterClockMode": "fragment-compress",
+        "rootFollowImpulsRasterPattern": [
+          1
+        ],
+        "resonanceHotkeyMode": "material",
+        "agentEnabled": [
+          true,
+          true,
+          false,
+          true,
+          true,
+          false,
+          true,
+          false,
+          false,
+          true,
+          false,
+          true
+        ],
+        "agentVolumes": [
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1
+        ],
+        "droneJIOvertones": {
+          "9/8": 0,
+          "6/5": 0.22,
+          "5/4": 0,
+          "4/3": 0.52,
+          "11/8": 0,
+          "3/2": 0.35,
+          "8/5": 0,
+          "13/8": 0,
+          "5/3": 0,
+          "7/4": 0,
+          "15/8": 0
+        },
+        "droneJIOvertonesByPreset": {
+          "xenpolar_drone": {
+            "9/8": 0,
+            "6/5": 0,
+            "5/4": 0,
+            "4/3": 0,
+            "11/8": 0,
+            "3/2": 0,
+            "8/5": 0,
+            "13/8": 0,
+            "5/3": 0,
+            "7/4": 0,
+            "15/8": 0
+          },
+          "warm_pad": {
+            "9/8": 0,
+            "6/5": 0.24,
+            "5/4": 0.55,
+            "4/3": 0.48,
+            "11/8": 0,
+            "3/2": 0.72,
+            "8/5": 0,
+            "13/8": 0,
+            "5/3": 0,
+            "7/4": 0,
+            "15/8": 0.2
+          },
+          "string_swell": {
+            "9/8": 0,
+            "6/5": 0,
+            "5/4": 0.42,
+            "4/3": 0,
+            "11/8": 0,
+            "3/2": 0.68,
+            "8/5": 0.3,
+            "13/8": 0,
+            "5/3": 0.46,
+            "7/4": 0,
+            "15/8": 0.28
+          },
+          "dark_sub": {
+            "9/8": 0,
+            "6/5": 0.22,
+            "5/4": 0,
+            "4/3": 0.52,
+            "11/8": 0,
+            "3/2": 0.35,
+            "8/5": 0,
+            "13/8": 0,
+            "5/3": 0,
+            "7/4": 0,
+            "15/8": 0
+          },
+          "metallic": {
+            "9/8": 0,
+            "6/5": 0,
+            "5/4": 0,
+            "4/3": 0,
+            "11/8": 0.62,
+            "3/2": 0.24,
+            "8/5": 0,
+            "13/8": 0.58,
+            "5/3": 0,
+            "7/4": 0.4,
+            "15/8": 0
+          },
+          "vocal_choir": {
+            "9/8": 0.3,
+            "6/5": 0,
+            "5/4": 0.62,
+            "4/3": 0,
+            "11/8": 0,
+            "3/2": 0.56,
+            "8/5": 0,
+            "13/8": 0,
+            "5/3": 0,
+            "7/4": 0,
+            "15/8": 0.4
+          },
+          "ethereal_halo": {
+            "9/8": 0,
+            "6/5": 0,
+            "5/4": 0,
+            "4/3": 0,
+            "11/8": 0.42,
+            "3/2": 0.36,
+            "8/5": 0,
+            "13/8": 0.54,
+            "5/3": 0,
+            "7/4": 0,
+            "15/8": 0.66
+          },
+          "reed_drone": {
+            "9/8": 0,
+            "6/5": 0.48,
+            "5/4": 0,
+            "4/3": 0.52,
+            "11/8": 0,
+            "3/2": 0.58,
+            "8/5": 0,
+            "13/8": 0,
+            "5/3": 0,
+            "7/4": 0.34,
+            "15/8": 0
+          },
+          "pulse_matrix": {
+            "9/8": 0.52,
+            "6/5": 0,
+            "5/4": 0.44,
+            "4/3": 0,
+            "11/8": 0.46,
+            "3/2": 0,
+            "8/5": 0,
+            "13/8": 0.5,
+            "5/3": 0,
+            "7/4": 0,
+            "15/8": 0
+          },
+          "fjord_tape": {
+            "9/8": 0,
+            "6/5": 0.3,
+            "5/4": 0,
+            "4/3": 0.44,
+            "11/8": 0,
+            "3/2": 0.52,
+            "8/5": 0,
+            "13/8": 0,
+            "5/3": 0.36,
+            "7/4": 0,
+            "15/8": 0
+          },
+          "resonant_fifths": {
+            "9/8": 0,
+            "6/5": 0,
+            "5/4": 0,
+            "4/3": 0.66,
+            "11/8": 0,
+            "3/2": 0.78,
+            "8/5": 0,
+            "13/8": 0,
+            "5/3": 0.44,
+            "7/4": 0,
+            "15/8": 0.32
+          },
+          "cello": {
+            "9/8": 0,
+            "6/5": 0.4,
+            "5/4": 0.48,
+            "4/3": 0,
+            "11/8": 0,
+            "3/2": 0.58,
+            "8/5": 0.35,
+            "13/8": 0,
+            "5/3": 0,
+            "7/4": 0,
+            "15/8": 0
+          },
+          "saxophon": {
+            "9/8": 0,
+            "6/5": 0,
+            "5/4": 0.52,
+            "4/3": 0,
+            "11/8": 0.38,
+            "3/2": 0.5,
+            "8/5": 0,
+            "13/8": 0,
+            "5/3": 0,
+            "7/4": 0.34,
+            "15/8": 0
+          },
+          "glass_pipe": {
+            "9/8": 0,
+            "6/5": 0,
+            "5/4": 0,
+            "4/3": 0,
+            "11/8": 0.56,
+            "3/2": 0.32,
+            "8/5": 0,
+            "13/8": 0.52,
+            "5/3": 0,
+            "7/4": 0,
+            "15/8": 0.44
+          },
+          "membrane_bloom": {
+            "9/8": 0,
+            "6/5": 0.28,
+            "5/4": 0.22,
+            "4/3": 0.66,
+            "11/8": 0,
+            "3/2": 0.42,
+            "8/5": 0,
+            "13/8": 0,
+            "5/3": 0,
+            "7/4": 0,
+            "15/8": 0
+          },
+          "bronze_reed": {
+            "9/8": 0,
+            "6/5": 0,
+            "5/4": 0.46,
+            "4/3": 0,
+            "11/8": 0.44,
+            "3/2": 0.52,
+            "8/5": 0,
+            "13/8": 0,
+            "5/3": 0,
+            "7/4": 0.38,
+            "15/8": 0
+          },
+          "dust_bow": {
+            "9/8": 0,
+            "6/5": 0.42,
+            "5/4": 0,
+            "4/3": 0.46,
+            "11/8": 0,
+            "3/2": 0.4,
+            "8/5": 0,
+            "13/8": 0,
+            "5/3": 0,
+            "7/4": 0,
+            "15/8": 0.28
+          }
+        },
+        "showGrid": true,
+        "cursorSnap": true,
+        "quantizeEvents": true
+      },
+      "override": {
+        "instanceId": "legacy:19edo",
+        "tuningId": "19edo",
+        "profile": {
+          "modeId": "dorian",
+          "mainMutedDegrees": [
+            1
+          ],
+          "mainStepOffsets": [],
+          "bassEnabled": true,
+          "bassConfig": {
+            "sourceMode": "derived",
+            "linkedTuningId": "",
+            "linkedMutedDegrees": [],
+            "droneEnabled": false,
+            "rflEnabled": false,
+            "mutedDegrees": [
+              3
+            ],
+            "offsetsCents": {},
+            "bassUsesGrid": true
+          }
+        }
+      },
+      "selected": "legacy:19edo",
+      "bassDisk": null
+    },
+    {
+      "params": {
+        "dronePreset": "dark_sub",
+        "droneFixedHz": 55,
+        "droneSnapToGrid": false,
+        "droneTimbre": 0.5,
+        "droneVibrato": 0.5,
+        "droneFlanger": 0,
+        "droneRefucktorEcho": 0.24,
+        "droneRefucktorFeedback": 0.32,
+        "droneRhythm": "Off",
+        "droneWobbleDepth": 0,
+        "droneWobbleShape": "Sine",
+        "droneWobbleRate": "1/8",
+        "droneDubDrive": 0,
+        "droneCursorFollow": false,
+        "droneCursorAmount": 0.5,
+        "droneStepWobbleShapes": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "echoOn": false,
+        "echoTempo": 400,
+        "echoDecay": 0.6,
+        "waveRadius": 1.09,
+        "waveDecay": "abrupt",
+        "gridOn": true,
+        "gridBase": 440,
+        "gridTuning": "19edo",
+        "gridMode": "chromatic",
+        "rememberGrid": false,
+        "gridStates": {},
+        "manualGridMutedSteps": [
+          2
+        ],
+        "manualGridStepOffsets": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "particleSystem": "ji",
+        "churchMode": "ionian",
+        "lockCursorToGrid": true,
+        "cursorSpeed": 4,
+        "droneDriveOn": false,
+        "droneDriveAmount": 0.22,
+        "droneDriveTone": 0.52,
+        "droneDriveMix": 0.26,
+        "droneDriveOutput": 0.82,
+        "droneRhythmCustomSteps": [
+          1,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          0
+        ],
+        "drumActive": true,
+        "drumPattern": "broken_lilt",
+        "drumKit": "dusty_tape",
+        "drumLaneKits": {},
+        "drumVolume": 0.52,
+        "drumEdge": 0.46,
+        "drumSoftness": 0.58,
+        "drumAir": 0.5,
+        "drumSnap": 0.48,
+        "grooveSwing": 0.38,
+        "drumConfigMode": "preset",
+        "drumConfigId": "",
+        "bassActive": true,
+        "bassPattern": "forge_fractured",
+        "bassPatternMode": "preset",
+        "bassClipId": "",
+        "psyBassPitchMode": "classic-semitone",
+        "bassVoice": "classic",
+        "bassResonance": 0,
+        "bassEnvelope": 1,
+        "bassDecay": 1,
+        "bassSub": 1,
+        "drumPhaser": 0,
+        "drumPhaserRate": 0.28,
+        "drumPhaserDepth": 0.55,
+        "drumDistance": 0,
+        "drumPan": 0,
+        "drumDecay": 1,
+        "bassVolume": 0.1,
+        "bassTone": 0.48,
+        "bassGrit": 0.18,
+        "bassRootMode": "auto",
+        "bassRootHz": 55,
+        "particlePreset": "dust_chime",
+        "particleSampleProfileMode": "current_db_v2",
+        "particleGradientX": "edge_spark",
+        "particleGradientY": "warm_center",
+        "waveTimbreGradientEnabled": true,
+        "waveTimbreGradientX": "wire_to_psy",
+        "waveVolumeGradientEnabled": false,
+        "waveVolumeGradientX": "none",
+        "waveOvertonesEnabled": false,
+        "droneOvertoneWaveform": "triangle",
+        "waveOvertoneWaveform": "triangle",
+        "waveOvertoneMode": "arp",
+        "waveOvertoneArpRate": 64,
+        "waveOvertoneArpPattern": "updown",
+        "waveOvertoneArpSteps": 8,
+        "waveOvertoneGlobalLevel": 1,
+        "waveOvertones": {
+          "9/8": 0,
+          "6/5": 0,
+          "5/4": 0,
+          "4/3": 0,
+          "11/8": 0,
+          "3/2": 0,
+          "8/5": 0,
+          "13/8": 0,
+          "5/3": 0,
+          "7/4": 0,
+          "15/8": 0
+        },
+        "waveStarterHoldSegments": 24,
+        "waveStarterHoldCustomSegments": 48,
+        "waveStarterHoldReferenceBars": 1,
+        "waveStarterHoldPatternSteps": [
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1
+        ],
+        "waveStarterHoldSoundPreset": "tape_halo",
+        "keyboardHoldSegments": 24,
+        "keyboardHoldCustomSegments": 48,
+        "keyboardHoldReferenceBars": 1,
+        "keyboardHoldPatternSteps": [
+          1,
+          0,
+          0,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1
+        ],
+        "keyboardHoldSoundPreset": "tape_halo",
+        "particleVolume": 0.165,
+        "particleMute": false,
+        "quantizeOn": true,
+        "quantizeBpm": 108,
+        "materialLoopActive": false,
+        "materialLoopSyncToBeat": true,
+        "materialLoopId": "",
+        "materialLoopVolume": 0.22,
+        "materialLoopTimeMode": "normal",
+        "rootFollowImpulsRasterMuted": false,
+        "rootFollowLoopActive": false,
+        "rootFollowLoopId": "",
+        "rootFollowLoopVolume": 0.22,
+        "rootFollowLoopTimeMode": "normal",
+        "rootFollowLoopGranulationMode": "flowing",
+        "rootFollowGranularSettings": {
+          "preset": "flowing",
+          "powerMode": "balanced",
+          "windowMs": 70,
+          "stepMs": 40,
+          "leadMs": 64,
+          "startLeadMs": 18,
+          "qualityMode": "base",
+          "microDensity": 0.92,
+          "sourceSpread": 0.86,
+          "jitter": 0.12,
+          "maxGrainsPerWindow": 18
+        },
+        "rootFollowImpulsRasterEvery": 1,
+        "rootFollowImpulsRasterCycleDiv": 1,
+        "rootFollowImpulsRasterClockMode": "fragment-compress",
+        "rootFollowImpulsRasterPattern": [
+          1
+        ],
+        "resonanceHotkeyMode": "material",
+        "agentEnabled": [
+          true,
+          true,
+          false,
+          true,
+          true,
+          false,
+          true,
+          false,
+          false,
+          true,
+          false,
+          true
+        ],
+        "agentVolumes": [
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1
+        ],
+        "droneJIOvertones": {
+          "9/8": 0,
+          "6/5": 0.22,
+          "5/4": 0,
+          "4/3": 0.52,
+          "11/8": 0,
+          "3/2": 0.35,
+          "8/5": 0,
+          "13/8": 0,
+          "5/3": 0,
+          "7/4": 0,
+          "15/8": 0
+        },
+        "droneJIOvertonesByPreset": {
+          "xenpolar_drone": {
+            "9/8": 0,
+            "6/5": 0,
+            "5/4": 0,
+            "4/3": 0,
+            "11/8": 0,
+            "3/2": 0,
+            "8/5": 0,
+            "13/8": 0,
+            "5/3": 0,
+            "7/4": 0,
+            "15/8": 0
+          },
+          "warm_pad": {
+            "9/8": 0,
+            "6/5": 0.24,
+            "5/4": 0.55,
+            "4/3": 0.48,
+            "11/8": 0,
+            "3/2": 0.72,
+            "8/5": 0,
+            "13/8": 0,
+            "5/3": 0,
+            "7/4": 0,
+            "15/8": 0.2
+          },
+          "string_swell": {
+            "9/8": 0,
+            "6/5": 0,
+            "5/4": 0.42,
+            "4/3": 0,
+            "11/8": 0,
+            "3/2": 0.68,
+            "8/5": 0.3,
+            "13/8": 0,
+            "5/3": 0.46,
+            "7/4": 0,
+            "15/8": 0.28
+          },
+          "dark_sub": {
+            "9/8": 0,
+            "6/5": 0.22,
+            "5/4": 0,
+            "4/3": 0.52,
+            "11/8": 0,
+            "3/2": 0.35,
+            "8/5": 0,
+            "13/8": 0,
+            "5/3": 0,
+            "7/4": 0,
+            "15/8": 0
+          },
+          "metallic": {
+            "9/8": 0,
+            "6/5": 0,
+            "5/4": 0,
+            "4/3": 0,
+            "11/8": 0.62,
+            "3/2": 0.24,
+            "8/5": 0,
+            "13/8": 0.58,
+            "5/3": 0,
+            "7/4": 0.4,
+            "15/8": 0
+          },
+          "vocal_choir": {
+            "9/8": 0.3,
+            "6/5": 0,
+            "5/4": 0.62,
+            "4/3": 0,
+            "11/8": 0,
+            "3/2": 0.56,
+            "8/5": 0,
+            "13/8": 0,
+            "5/3": 0,
+            "7/4": 0,
+            "15/8": 0.4
+          },
+          "ethereal_halo": {
+            "9/8": 0,
+            "6/5": 0,
+            "5/4": 0,
+            "4/3": 0,
+            "11/8": 0.42,
+            "3/2": 0.36,
+            "8/5": 0,
+            "13/8": 0.54,
+            "5/3": 0,
+            "7/4": 0,
+            "15/8": 0.66
+          },
+          "reed_drone": {
+            "9/8": 0,
+            "6/5": 0.48,
+            "5/4": 0,
+            "4/3": 0.52,
+            "11/8": 0,
+            "3/2": 0.58,
+            "8/5": 0,
+            "13/8": 0,
+            "5/3": 0,
+            "7/4": 0.34,
+            "15/8": 0
+          },
+          "pulse_matrix": {
+            "9/8": 0.52,
+            "6/5": 0,
+            "5/4": 0.44,
+            "4/3": 0,
+            "11/8": 0.46,
+            "3/2": 0,
+            "8/5": 0,
+            "13/8": 0.5,
+            "5/3": 0,
+            "7/4": 0,
+            "15/8": 0
+          },
+          "fjord_tape": {
+            "9/8": 0,
+            "6/5": 0.3,
+            "5/4": 0,
+            "4/3": 0.44,
+            "11/8": 0,
+            "3/2": 0.52,
+            "8/5": 0,
+            "13/8": 0,
+            "5/3": 0.36,
+            "7/4": 0,
+            "15/8": 0
+          },
+          "resonant_fifths": {
+            "9/8": 0,
+            "6/5": 0,
+            "5/4": 0,
+            "4/3": 0.66,
+            "11/8": 0,
+            "3/2": 0.78,
+            "8/5": 0,
+            "13/8": 0,
+            "5/3": 0.44,
+            "7/4": 0,
+            "15/8": 0.32
+          },
+          "cello": {
+            "9/8": 0,
+            "6/5": 0.4,
+            "5/4": 0.48,
+            "4/3": 0,
+            "11/8": 0,
+            "3/2": 0.58,
+            "8/5": 0.35,
+            "13/8": 0,
+            "5/3": 0,
+            "7/4": 0,
+            "15/8": 0
+          },
+          "saxophon": {
+            "9/8": 0,
+            "6/5": 0,
+            "5/4": 0.52,
+            "4/3": 0,
+            "11/8": 0.38,
+            "3/2": 0.5,
+            "8/5": 0,
+            "13/8": 0,
+            "5/3": 0,
+            "7/4": 0.34,
+            "15/8": 0
+          },
+          "glass_pipe": {
+            "9/8": 0,
+            "6/5": 0,
+            "5/4": 0,
+            "4/3": 0,
+            "11/8": 0.56,
+            "3/2": 0.32,
+            "8/5": 0,
+            "13/8": 0.52,
+            "5/3": 0,
+            "7/4": 0,
+            "15/8": 0.44
+          },
+          "membrane_bloom": {
+            "9/8": 0,
+            "6/5": 0.28,
+            "5/4": 0.22,
+            "4/3": 0.66,
+            "11/8": 0,
+            "3/2": 0.42,
+            "8/5": 0,
+            "13/8": 0,
+            "5/3": 0,
+            "7/4": 0,
+            "15/8": 0
+          },
+          "bronze_reed": {
+            "9/8": 0,
+            "6/5": 0,
+            "5/4": 0.46,
+            "4/3": 0,
+            "11/8": 0.44,
+            "3/2": 0.52,
+            "8/5": 0,
+            "13/8": 0,
+            "5/3": 0,
+            "7/4": 0.38,
+            "15/8": 0
+          },
+          "dust_bow": {
+            "9/8": 0,
+            "6/5": 0.42,
+            "5/4": 0,
+            "4/3": 0.46,
+            "11/8": 0,
+            "3/2": 0.4,
+            "8/5": 0,
+            "13/8": 0,
+            "5/3": 0,
+            "7/4": 0,
+            "15/8": 0.28
+          }
+        },
+        "showGrid": true,
+        "cursorSnap": true,
+        "quantizeEvents": true
+      },
+      "override": {
+        "instanceId": "grid-profile-30d24b8b-93db-405a-88b0-07f632cb6b15",
+        "tuningId": "19edo",
+        "profile": {
+          "modeId": "chromatic",
+          "mainMutedDegrees": [
+            2
+          ],
+          "mainStepOffsets": [],
+          "bassEnabled": true,
+          "bassConfig": {
+            "sourceMode": "derived",
+            "linkedTuningId": "",
+            "linkedMutedDegrees": [],
+            "droneEnabled": false,
+            "rflEnabled": false,
+            "mutedDegrees": [
+              4
+            ],
+            "offsetsCents": {},
+            "bassUsesGrid": true
+          }
+        }
+      },
+      "selected": "grid-profile-30d24b8b-93db-405a-88b0-07f632cb6b15",
+      "bassDisk": null
+    },
+    {
+      "params": {
+        "dronePreset": "dark_sub",
+        "droneFixedHz": 55,
+        "droneSnapToGrid": false,
+        "droneTimbre": 0.5,
+        "droneVibrato": 0.5,
+        "droneFlanger": 0,
+        "droneRefucktorEcho": 0.24,
+        "droneRefucktorFeedback": 0.32,
+        "droneRhythm": "Off",
+        "droneWobbleDepth": 0,
+        "droneWobbleShape": "Sine",
+        "droneWobbleRate": "1/8",
+        "droneDubDrive": 0,
+        "droneCursorFollow": false,
+        "droneCursorAmount": 0.5,
+        "droneStepWobbleShapes": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "echoOn": false,
+        "echoTempo": 400,
+        "echoDecay": 0.6,
+        "waveRadius": 1.09,
+        "waveDecay": "abrupt",
+        "gridOn": true,
+        "gridBase": 440,
+        "gridTuning": "19edo",
+        "gridMode": "dorian",
+        "rememberGrid": false,
+        "gridStates": {},
+        "manualGridMutedSteps": [
+          1
+        ],
+        "manualGridStepOffsets": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "particleSystem": "ji",
+        "churchMode": "ionian",
+        "lockCursorToGrid": true,
+        "cursorSpeed": 4,
+        "droneDriveOn": false,
+        "droneDriveAmount": 0.22,
+        "droneDriveTone": 0.52,
+        "droneDriveMix": 0.26,
+        "droneDriveOutput": 0.82,
+        "droneRhythmCustomSteps": [
+          1,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          0
+        ],
+        "drumActive": true,
+        "drumPattern": "broken_lilt",
+        "drumKit": "dusty_tape",
+        "drumLaneKits": {},
+        "drumVolume": 0.52,
+        "drumEdge": 0.46,
+        "drumSoftness": 0.58,
+        "drumAir": 0.5,
+        "drumSnap": 0.48,
+        "grooveSwing": 0.38,
+        "drumConfigMode": "preset",
+        "drumConfigId": "",
+        "bassActive": true,
+        "bassPattern": "forge_fractured",
+        "bassPatternMode": "preset",
+        "bassClipId": "",
+        "psyBassPitchMode": "classic-semitone",
+        "bassVoice": "classic",
+        "bassResonance": 0,
+        "bassEnvelope": 1,
+        "bassDecay": 1,
+        "bassSub": 1,
+        "drumPhaser": 0,
+        "drumPhaserRate": 0.28,
+        "drumPhaserDepth": 0.55,
+        "drumDistance": 0,
+        "drumPan": 0,
+        "drumDecay": 1,
+        "bassVolume": 0.1,
+        "bassTone": 0.48,
+        "bassGrit": 0.18,
+        "bassRootMode": "auto",
+        "bassRootHz": 55,
+        "particlePreset": "dust_chime",
+        "particleSampleProfileMode": "current_db_v2",
+        "particleGradientX": "edge_spark",
+        "particleGradientY": "warm_center",
+        "waveTimbreGradientEnabled": true,
+        "waveTimbreGradientX": "wire_to_psy",
+        "waveVolumeGradientEnabled": false,
+        "waveVolumeGradientX": "none",
+        "waveOvertonesEnabled": false,
+        "droneOvertoneWaveform": "triangle",
+        "waveOvertoneWaveform": "triangle",
+        "waveOvertoneMode": "arp",
+        "waveOvertoneArpRate": 64,
+        "waveOvertoneArpPattern": "updown",
+        "waveOvertoneArpSteps": 8,
+        "waveOvertoneGlobalLevel": 1,
+        "waveOvertones": {
+          "9/8": 0,
+          "6/5": 0,
+          "5/4": 0,
+          "4/3": 0,
+          "11/8": 0,
+          "3/2": 0,
+          "8/5": 0,
+          "13/8": 0,
+          "5/3": 0,
+          "7/4": 0,
+          "15/8": 0
+        },
+        "waveStarterHoldSegments": 24,
+        "waveStarterHoldCustomSegments": 48,
+        "waveStarterHoldReferenceBars": 1,
+        "waveStarterHoldPatternSteps": [
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1
+        ],
+        "waveStarterHoldSoundPreset": "tape_halo",
+        "keyboardHoldSegments": 24,
+        "keyboardHoldCustomSegments": 48,
+        "keyboardHoldReferenceBars": 1,
+        "keyboardHoldPatternSteps": [
+          1,
+          0,
+          0,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1
+        ],
+        "keyboardHoldSoundPreset": "tape_halo",
+        "particleVolume": 0.165,
+        "particleMute": false,
+        "quantizeOn": true,
+        "quantizeBpm": 108,
+        "materialLoopActive": false,
+        "materialLoopSyncToBeat": true,
+        "materialLoopId": "",
+        "materialLoopVolume": 0.22,
+        "materialLoopTimeMode": "normal",
+        "rootFollowImpulsRasterMuted": false,
+        "rootFollowLoopActive": false,
+        "rootFollowLoopId": "",
+        "rootFollowLoopVolume": 0.22,
+        "rootFollowLoopTimeMode": "normal",
+        "rootFollowLoopGranulationMode": "flowing",
+        "rootFollowGranularSettings": {
+          "preset": "flowing",
+          "powerMode": "balanced",
+          "windowMs": 70,
+          "stepMs": 40,
+          "leadMs": 64,
+          "startLeadMs": 18,
+          "qualityMode": "base",
+          "microDensity": 0.92,
+          "sourceSpread": 0.86,
+          "jitter": 0.12,
+          "maxGrainsPerWindow": 18
+        },
+        "rootFollowImpulsRasterEvery": 1,
+        "rootFollowImpulsRasterCycleDiv": 1,
+        "rootFollowImpulsRasterClockMode": "fragment-compress",
+        "rootFollowImpulsRasterPattern": [
+          1
+        ],
+        "resonanceHotkeyMode": "material",
+        "agentEnabled": [
+          true,
+          true,
+          false,
+          true,
+          true,
+          false,
+          true,
+          false,
+          false,
+          true,
+          false,
+          true
+        ],
+        "agentVolumes": [
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1
+        ],
+        "droneJIOvertones": {
+          "9/8": 0,
+          "6/5": 0.22,
+          "5/4": 0,
+          "4/3": 0.52,
+          "11/8": 0,
+          "3/2": 0.35,
+          "8/5": 0,
+          "13/8": 0,
+          "5/3": 0,
+          "7/4": 0,
+          "15/8": 0
+        },
+        "droneJIOvertonesByPreset": {
+          "xenpolar_drone": {
+            "9/8": 0,
+            "6/5": 0,
+            "5/4": 0,
+            "4/3": 0,
+            "11/8": 0,
+            "3/2": 0,
+            "8/5": 0,
+            "13/8": 0,
+            "5/3": 0,
+            "7/4": 0,
+            "15/8": 0
+          },
+          "warm_pad": {
+            "9/8": 0,
+            "6/5": 0.24,
+            "5/4": 0.55,
+            "4/3": 0.48,
+            "11/8": 0,
+            "3/2": 0.72,
+            "8/5": 0,
+            "13/8": 0,
+            "5/3": 0,
+            "7/4": 0,
+            "15/8": 0.2
+          },
+          "string_swell": {
+            "9/8": 0,
+            "6/5": 0,
+            "5/4": 0.42,
+            "4/3": 0,
+            "11/8": 0,
+            "3/2": 0.68,
+            "8/5": 0.3,
+            "13/8": 0,
+            "5/3": 0.46,
+            "7/4": 0,
+            "15/8": 0.28
+          },
+          "dark_sub": {
+            "9/8": 0,
+            "6/5": 0.22,
+            "5/4": 0,
+            "4/3": 0.52,
+            "11/8": 0,
+            "3/2": 0.35,
+            "8/5": 0,
+            "13/8": 0,
+            "5/3": 0,
+            "7/4": 0,
+            "15/8": 0
+          },
+          "metallic": {
+            "9/8": 0,
+            "6/5": 0,
+            "5/4": 0,
+            "4/3": 0,
+            "11/8": 0.62,
+            "3/2": 0.24,
+            "8/5": 0,
+            "13/8": 0.58,
+            "5/3": 0,
+            "7/4": 0.4,
+            "15/8": 0
+          },
+          "vocal_choir": {
+            "9/8": 0.3,
+            "6/5": 0,
+            "5/4": 0.62,
+            "4/3": 0,
+            "11/8": 0,
+            "3/2": 0.56,
+            "8/5": 0,
+            "13/8": 0,
+            "5/3": 0,
+            "7/4": 0,
+            "15/8": 0.4
+          },
+          "ethereal_halo": {
+            "9/8": 0,
+            "6/5": 0,
+            "5/4": 0,
+            "4/3": 0,
+            "11/8": 0.42,
+            "3/2": 0.36,
+            "8/5": 0,
+            "13/8": 0.54,
+            "5/3": 0,
+            "7/4": 0,
+            "15/8": 0.66
+          },
+          "reed_drone": {
+            "9/8": 0,
+            "6/5": 0.48,
+            "5/4": 0,
+            "4/3": 0.52,
+            "11/8": 0,
+            "3/2": 0.58,
+            "8/5": 0,
+            "13/8": 0,
+            "5/3": 0,
+            "7/4": 0.34,
+            "15/8": 0
+          },
+          "pulse_matrix": {
+            "9/8": 0.52,
+            "6/5": 0,
+            "5/4": 0.44,
+            "4/3": 0,
+            "11/8": 0.46,
+            "3/2": 0,
+            "8/5": 0,
+            "13/8": 0.5,
+            "5/3": 0,
+            "7/4": 0,
+            "15/8": 0
+          },
+          "fjord_tape": {
+            "9/8": 0,
+            "6/5": 0.3,
+            "5/4": 0,
+            "4/3": 0.44,
+            "11/8": 0,
+            "3/2": 0.52,
+            "8/5": 0,
+            "13/8": 0,
+            "5/3": 0.36,
+            "7/4": 0,
+            "15/8": 0
+          },
+          "resonant_fifths": {
+            "9/8": 0,
+            "6/5": 0,
+            "5/4": 0,
+            "4/3": 0.66,
+            "11/8": 0,
+            "3/2": 0.78,
+            "8/5": 0,
+            "13/8": 0,
+            "5/3": 0.44,
+            "7/4": 0,
+            "15/8": 0.32
+          },
+          "cello": {
+            "9/8": 0,
+            "6/5": 0.4,
+            "5/4": 0.48,
+            "4/3": 0,
+            "11/8": 0,
+            "3/2": 0.58,
+            "8/5": 0.35,
+            "13/8": 0,
+            "5/3": 0,
+            "7/4": 0,
+            "15/8": 0
+          },
+          "saxophon": {
+            "9/8": 0,
+            "6/5": 0,
+            "5/4": 0.52,
+            "4/3": 0,
+            "11/8": 0.38,
+            "3/2": 0.5,
+            "8/5": 0,
+            "13/8": 0,
+            "5/3": 0,
+            "7/4": 0.34,
+            "15/8": 0
+          },
+          "glass_pipe": {
+            "9/8": 0,
+            "6/5": 0,
+            "5/4": 0,
+            "4/3": 0,
+            "11/8": 0.56,
+            "3/2": 0.32,
+            "8/5": 0,
+            "13/8": 0.52,
+            "5/3": 0,
+            "7/4": 0,
+            "15/8": 0.44
+          },
+          "membrane_bloom": {
+            "9/8": 0,
+            "6/5": 0.28,
+            "5/4": 0.22,
+            "4/3": 0.66,
+            "11/8": 0,
+            "3/2": 0.42,
+            "8/5": 0,
+            "13/8": 0,
+            "5/3": 0,
+            "7/4": 0,
+            "15/8": 0
+          },
+          "bronze_reed": {
+            "9/8": 0,
+            "6/5": 0,
+            "5/4": 0.46,
+            "4/3": 0,
+            "11/8": 0.44,
+            "3/2": 0.52,
+            "8/5": 0,
+            "13/8": 0,
+            "5/3": 0,
+            "7/4": 0.38,
+            "15/8": 0
+          },
+          "dust_bow": {
+            "9/8": 0,
+            "6/5": 0.42,
+            "5/4": 0,
+            "4/3": 0.46,
+            "11/8": 0,
+            "3/2": 0.4,
+            "8/5": 0,
+            "13/8": 0,
+            "5/3": 0,
+            "7/4": 0,
+            "15/8": 0.28
+          }
+        },
+        "showGrid": true,
+        "cursorSnap": true,
+        "quantizeEvents": true
+      },
+      "override": {
+        "instanceId": "legacy:19edo",
+        "tuningId": "19edo",
+        "profile": {
+          "modeId": "dorian",
+          "mainMutedDegrees": [
+            1
+          ],
+          "mainStepOffsets": [],
+          "bassEnabled": true,
+          "bassConfig": {
+            "sourceMode": "derived",
+            "linkedTuningId": "",
+            "linkedMutedDegrees": [],
+            "droneEnabled": false,
+            "rflEnabled": false,
+            "mutedDegrees": [
+              3
+            ],
+            "offsetsCents": {},
+            "bassUsesGrid": true
+          }
+        }
+      },
+      "selected": "legacy:19edo",
+      "bassDisk": null
+    }
+  ],
+  "variation": {
+    "originalId": "custom:mvj7rf8r-ppacop",
+    "cloneId": "custom:mvj7rf8v-fnne1s",
+    "before": "{\"periodFamily\":\"octave\",\"steps\":19,\"periodCents\":1200,\"stepCents\":[0,65.2,126.3,189.5,252.6,315.8,378.9,442.1,505.3,568.4,631.6,694.7,757.9,821.1,884.2,947.4,1010.5,1073.7,1136.8],\"name\":\"Custom original\",\"nameTouched\":false,\"editingCustomId\":\"custom:mvj7rf8r-ppacop\",\"jiTrackedCents\":{\"5/3\":884.2}}",
+    "after": "{\"periodFamily\":\"octave\",\"steps\":19,\"periodCents\":1200,\"stepCents\":[0,65.2,126.3,189.5,252.6,315.8,378.9,442.1,505.3,568.4,631.6,694.7,757.9,821.1,884.2,947.4,1010.5,1073.7,1136.8],\"name\":\"Custom original\",\"nameTouched\":false,\"editingCustomId\":\"custom:mvj7rf8r-ppacop\",\"jiTrackedCents\":{\"5/3\":884.2}}",
+    "liveTuning": "19edo",
+    "customModes": [
+      {
+        "value": "chromatic",
+        "label": "Chromatic",
+        "steps": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11
+        ]
+      },
+      {
+        "value": "ionian",
+        "label": "Ionian (Major)",
+        "steps": [
+          0,
+          2,
+          4,
+          5,
+          7,
+          9,
+          11
+        ]
+      },
+      {
+        "value": "dorian",
+        "label": "Dorian",
+        "steps": [
+          0,
+          2,
+          3,
+          5,
+          7,
+          9,
+          10
+        ]
+      },
+      {
+        "value": "ukr_dorian",
+        "label": "Ukrainian Dorian",
+        "steps": [
+          0,
+          2,
+          3,
+          6,
+          7,
+          9,
+          10
+        ]
+      },
+      {
+        "value": "phrygian",
+        "label": "Phrygian",
+        "steps": [
+          0,
+          1,
+          3,
+          5,
+          7,
+          8,
+          10
+        ]
+      },
+      {
+        "value": "lydian",
+        "label": "Lydian",
+        "steps": [
+          0,
+          2,
+          4,
+          6,
+          7,
+          9,
+          11
+        ]
+      },
+      {
+        "value": "mixolydian",
+        "label": "Mixolydian",
+        "steps": [
+          0,
+          2,
+          4,
+          5,
+          7,
+          9,
+          10
+        ]
+      },
+      {
+        "value": "aeolian",
+        "label": "Aeolian (Minor)",
+        "steps": [
+          0,
+          2,
+          3,
+          5,
+          7,
+          8,
+          10
+        ]
+      },
+      {
+        "value": "locrian",
+        "label": "Locrian",
+        "steps": [
+          0,
+          1,
+          3,
+          5,
+          6,
+          8,
+          10
+        ]
+      }
+    ]
+  },
+  "bpVariation": {
+    "id": "custom:mvj7rf9b-vai0y2",
+    "modes": [
+      {
+        "value": "chromatic",
+        "label": "Chromatic",
+        "steps": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11
+        ]
+      },
+      {
+        "value": "bp_lambda",
+        "label": "BP Lambda",
+        "steps": [
+          0,
+          2,
+          3,
+          4,
+          6,
+          7,
+          9,
+          10,
+          12
+        ]
+      },
+      {
+        "value": "bp_major",
+        "label": "BP Dur",
+        "steps": [
+          0,
+          2,
+          4,
+          5,
+          7,
+          8,
+          9,
+          11,
+          12
+        ]
+      },
+      {
+        "value": "bp_minor",
+        "label": "BP Moll",
+        "steps": [
+          0,
+          1,
+          3,
+          5,
+          6,
+          8,
+          9,
+          11,
+          12
+        ]
+      }
+    ],
+    "nativeModes": [
+      {
+        "value": "chromatic",
+        "label": "Chromatic",
+        "steps": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11
+        ]
+      },
+      {
+        "value": "bp_lambda",
+        "label": "BP Lambda",
+        "steps": [
+          0,
+          2,
+          3,
+          4,
+          6,
+          7,
+          9,
+          10,
+          12
+        ]
+      },
+      {
+        "value": "bp_major",
+        "label": "BP Dur",
+        "steps": [
+          0,
+          2,
+          4,
+          5,
+          7,
+          8,
+          9,
+          11,
+          12
+        ]
+      },
+      {
+        "value": "bp_minor",
+        "label": "BP Moll",
+        "steps": [
+          0,
+          1,
+          3,
+          5,
+          6,
+          8,
+          9,
+          11,
+          12
+        ]
+      }
+    ],
+    "liveTuning": "19edo"
+  },
+  "legacy": {
+    "count": 2,
+    "duplicate": false,
+    "after": 2,
+    "error": "Meta-Menu: This saved/draft part was already imported.",
+    "raw": "{\"version\":1,\"saved\":[{\"version\":1,\"id\":\"legacy-song\",\"name\":\"Saved Song\",\"activePartId\":\"part-b\",\"parts\":[{\"id\":\"part-a\",\"name\":\"Intro\",\"items\":[{\"kind\":\"bass\",\"id\":\"clip:missing\",\"name\":\"Missing retained\"}]},{\"id\":\"part-b\",\"name\":\"Verse\",\"items\":[]}]}],\"drafts\":[{\"version\":1,\"id\":\"legacy-song\",\"name\":\"Saved Song\",\"activePartId\":\"part-b\",\"parts\":[{\"id\":\"part-a\",\"name\":\"Edited Intro\",\"items\":[{\"kind\":\"bass\",\"id\":\"clip:missing\",\"name\":\"Missing retained\"}]},{\"id\":\"part-b\",\"name\":\"Verse\",\"items\":[]}]}],\"selectedId\":\"legacy-song\"}",
+    "v1Meta": "{\"version\":1,\"id\":\"old-session\",\"name\":\"Migrated V1\",\"items\":[{\"kind\":\"grid\",\"id\":\"19edo\",\"name\":\"19 EDO\"}],\"colors\":{\"grid\\u000019edo\":{\"border\":\"#123456\"}},\"roomSettings\":null,\"saved\":[{\"id\":\"old-session\",\"name\":\"Migrated V1\",\"items\":[{\"kind\":\"grid\",\"id\":\"19edo\",\"name\":\"19 EDO\"}],\"colors\":{\"grid\\u000019edo\":{\"border\":\"#123456\"}},\"roomSettings\":null}],\"loadedId\":\"old-session\",\"activePalette\":null,\"dirty\":false}",
+    "v1Quick": "[{\"kind\":\"grid\",\"id\":\"19edo\",\"name\":\"19 EDO\"}]"
+  },
+  "errors": []
+}

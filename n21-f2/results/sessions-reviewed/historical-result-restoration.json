@@ -1,0 +1,27 @@
+{
+  "baseline": "10178acb733db38f1801b263ac5200d98c17e69b",
+  "capturedAndRestored": [
+    "n21-f2/results/architecture-stability/persistence-ownership.json",
+    "n21-f2/results/audio-carrier/analysis.json",
+    "n21-f2/results/consolidation/browser.json",
+    "n21-f2/results/forge-efficiency/browser.json",
+    "n21-f2/results/forge-efficiency/host-contracts.json",
+    "n21-f2/results/forge-request-ownership/browser-request.json",
+    "n21-f2/results/forge-smoothness/autosave.json",
+    "n21-f2/results/forge-smoothness/browser.json",
+    "n21-f2/results/forge-smoothness/live-grid-snap.json",
+    "n21-f2/results/live-control-ownership/browser-performance.json",
+    "n21-f2/results/nodal-ball-grid/browser.json",
+    "n21-f2/results/nodal-ball-grid/controls-1490.png",
+    "n21-f2/results/nodal-ball-grid/controls-720.png",
+    "n21-f2/results/nodal-ball-grid/field-1490.png",
+    "n21-f2/results/nodal-ball-grid/forge-spatial/browser.json",
+    "n21-f2/results/nodal-ball-grid/forge-spatial/rack-1490.png",
+    "n21-f2/results/nodal-ball-grid/forge-spatial/rack-720.png",
+    "n21-f2/results/p7-review/browser.json",
+    "n21-f2/results/p7-review/forge-rack-1490.png",
+    "n21-f2/results/pitch-space/detune.png",
+    "n21-f2/results/shared-history/contracts.json"
+  ],
+  "count": 21
+}

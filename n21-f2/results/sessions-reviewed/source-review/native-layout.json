@@ -1,0 +1,150 @@
+{
+  "entry": "Xensonar_P7_38_Sessions_Reviewed_Test.html",
+  "scope": "Native Chromium 1490/720 dialog geometry, first visible dock samples, resize, room and fullscreen transitions. No user-browser or intermittent fullscreen-crash claim.",
+  "samples": [
+    {
+      "label": "initial1490",
+      "top": 395.34375,
+      "bottom": 887.34375,
+      "panelBottom": 387.34375,
+      "width": 1490,
+      "height": 960
+    },
+    {
+      "label": "resize1490",
+      "top": 395.34375,
+      "bottom": 887.34375,
+      "panelBottom": 387.34375,
+      "width": 1490,
+      "height": 960
+    },
+    {
+      "label": "nativeDialogs1490",
+      "editor": {
+        "x": 52.5,
+        "y": 135,
+        "width": 1370,
+        "height": 690
+      },
+      "bass": {
+        "x": 432.5,
+        "y": 283.796875,
+        "width": 610,
+        "height": 392.40625
+      },
+      "period": {
+        "x": 412.5,
+        "y": 87.703125,
+        "width": 650,
+        "height": 784.59375
+      },
+      "bassGrouping": {
+        "gap": 10,
+        "sameLine": true
+      },
+      "markerStyle": {
+        "left": "0px",
+        "right": "10px"
+      }
+    },
+    {
+      "label": "resize720",
+      "top": 550.34375,
+      "bottom": 887.34375,
+      "panelBottom": 542.34375,
+      "width": 720,
+      "height": 960
+    },
+    {
+      "label": "nativeDialogs720",
+      "editor": {
+        "x": 7,
+        "y": 135,
+        "width": 691,
+        "height": 690
+      },
+      "bass": {
+        "x": 47.5,
+        "y": 283.796875,
+        "width": 610,
+        "height": 392.40625
+      },
+      "period": {
+        "x": 27.5,
+        "y": 87.703125,
+        "width": 650,
+        "height": 784.59375
+      },
+      "bassGrouping": {
+        "gap": 10,
+        "sameLine": true
+      },
+      "markerStyle": {
+        "left": "0px",
+        "right": "10px"
+      }
+    },
+    {
+      "label": "roomRoundTrip",
+      "top": 395.34375,
+      "bottom": 887.34375,
+      "panelBottom": 387.34375,
+      "width": 1490,
+      "height": 960
+    },
+    {
+      "label": "fullscreenEnter",
+      "top": 395.34375,
+      "bottom": 887.34375,
+      "panelBottom": 387.34375,
+      "width": 1490,
+      "height": 960
+    },
+    {
+      "label": "fullscreenExit",
+      "top": 395.34375,
+      "bottom": 887.34375,
+      "panelBottom": 387.34375,
+      "width": 1490,
+      "height": 960
+    }
+  ],
+  "firstFrames": [
+    {
+      "top": 395.34375,
+      "bottom": 887.34375,
+      "panelBottom": 387.34375,
+      "width": 1490,
+      "height": 960
+    },
+    {
+      "top": 395.34375,
+      "bottom": 887.34375,
+      "panelBottom": 387.34375,
+      "width": 1490,
+      "height": 960
+    },
+    {
+      "top": 395.34375,
+      "bottom": 887.34375,
+      "panelBottom": 387.34375,
+      "width": 1490,
+      "height": 960
+    },
+    {
+      "top": 395.34375,
+      "bottom": 887.34375,
+      "panelBottom": 387.34375,
+      "width": 1490,
+      "height": 960
+    },
+    {
+      "top": 395.34375,
+      "bottom": 887.34375,
+      "panelBottom": 387.34375,
+      "width": 1490,
+      "height": 960
+    }
+  ],
+  "errors": []
+}

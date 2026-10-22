@@ -1,5 +1,7 @@
 'use strict';
 const assert=require('assert/strict'),{load,PCMBuffer}=require('./offline_runtime.cjs');const h=load(process.cwd());
+// The P7.27 shared Navigator name helper reads the visible optional Project Name.
+h.context.document.querySelector=()=>null;
 const b=new PCMBuffer({numberOfChannels:1,length:64,sampleRate:48000});b.getChannelData(0)[1]=.5;h.context.impulse=b;
 assert.equal(h.run('__f333AudiblePCM(impulse)'),true,'valid impulses between former 16-sample probe points must be playable');
 const stereo=new PCMBuffer({numberOfChannels:2,length:3,sampleRate:48000});stereo.getChannelData(0)[1]=.5;stereo.getChannelData(1)[1]=-.5;h.context.stereo=stereo;assert(h.run('__f333AudiblePCM(stereo)'));
