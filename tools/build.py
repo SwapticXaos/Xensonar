@@ -8,7 +8,7 @@ from pathlib import Path
 root = Path(__file__).resolve().parent.parent
 man = json.loads((root / 'source-manifest.json').read_text('utf-8'))
 tpl = (root / man['template']).read_bytes().decode('utf-8')
-sec = {s['id']: s['files'] for s in man['sections']}
+sec = {s['id']: s['files'] for s in man['sources']}
 def body(m):
     return ''.join((root / f).read_bytes().decode('utf-8') for f in sec[m.group(1)])
 out = re.sub('⁣XEN-SECTION:([^⁣]+)⁣', body, tpl)

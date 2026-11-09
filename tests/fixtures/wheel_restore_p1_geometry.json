@@ -1,0 +1,1007 @@
+[
+  {
+    "tag": "ellipse",
+    "attrs": {
+      "cx": "",
+      "cy": "",
+      "rx": "4",
+      "ry": "18",
+      "r": "",
+      "points": "",
+      "transform": "",
+      "fill": "",
+      "stroke": "",
+      "stroke-width": ""
+    }
+  },
+  {
+    "tag": "ellipse",
+    "attrs": {
+      "cx": "",
+      "cy": "",
+      "rx": "4",
+      "ry": "18",
+      "r": "",
+      "points": "",
+      "transform": "rotate(45)",
+      "fill": "",
+      "stroke": "",
+      "stroke-width": ""
+    }
+  },
+  {
+    "tag": "ellipse",
+    "attrs": {
+      "cx": "",
+      "cy": "",
+      "rx": "4",
+      "ry": "18",
+      "r": "",
+      "points": "",
+      "transform": "rotate(90)",
+      "fill": "",
+      "stroke": "",
+      "stroke-width": ""
+    }
+  },
+  {
+    "tag": "ellipse",
+    "attrs": {
+      "cx": "",
+      "cy": "",
+      "rx": "4",
+      "ry": "18",
+      "r": "",
+      "points": "",
+      "transform": "rotate(135)",
+      "fill": "",
+      "stroke": "",
+      "stroke-width": ""
+    }
+  },
+  {
+    "tag": "circle",
+    "attrs": {
+      "cx": "0",
+      "cy": "-18",
+      "rx": "",
+      "ry": "",
+      "r": "18",
+      "points": "",
+      "transform": "",
+      "fill": "",
+      "stroke": "",
+      "stroke-width": ""
+    }
+  },
+  {
+    "tag": "circle",
+    "attrs": {
+      "cx": "18",
+      "cy": "0",
+      "rx": "",
+      "ry": "",
+      "r": "18",
+      "points": "",
+      "transform": "",
+      "fill": "",
+      "stroke": "",
+      "stroke-width": ""
+    }
+  },
+  {
+    "tag": "circle",
+    "attrs": {
+      "cx": "0",
+      "cy": "18",
+      "rx": "",
+      "ry": "",
+      "r": "18",
+      "points": "",
+      "transform": "",
+      "fill": "",
+      "stroke": "",
+      "stroke-width": ""
+    }
+  },
+  {
+    "tag": "circle",
+    "attrs": {
+      "cx": "-18",
+      "cy": "0",
+      "rx": "",
+      "ry": "",
+      "r": "18",
+      "points": "",
+      "transform": "",
+      "fill": "",
+      "stroke": "",
+      "stroke-width": ""
+    }
+  },
+  {
+    "tag": "polygon",
+    "attrs": {
+      "cx": "",
+      "cy": "",
+      "rx": "",
+      "ry": "",
+      "r": "",
+      "points": "0,-489,-38-9,-38",
+      "transform": "",
+      "fill": "",
+      "stroke": "",
+      "stroke-width": ""
+    }
+  },
+  {
+    "tag": "polygon",
+    "attrs": {
+      "cx": "",
+      "cy": "",
+      "rx": "",
+      "ry": "",
+      "r": "",
+      "points": "48,038,-938,9",
+      "transform": "",
+      "fill": "",
+      "stroke": "",
+      "stroke-width": ""
+    }
+  },
+  {
+    "tag": "polygon",
+    "attrs": {
+      "cx": "",
+      "cy": "",
+      "rx": "",
+      "ry": "",
+      "r": "",
+      "points": "0,48-9,389,38",
+      "transform": "",
+      "fill": "",
+      "stroke": "",
+      "stroke-width": ""
+    }
+  },
+  {
+    "tag": "polygon",
+    "attrs": {
+      "cx": "",
+      "cy": "",
+      "rx": "",
+      "ry": "",
+      "r": "",
+      "points": "-48,0-38,9-38,-9",
+      "transform": "",
+      "fill": "",
+      "stroke": "",
+      "stroke-width": ""
+    }
+  },
+  {
+    "tag": "ellipse",
+    "attrs": {
+      "cx": "",
+      "cy": "",
+      "rx": "4",
+      "ry": "18",
+      "r": "",
+      "points": "",
+      "transform": "",
+      "fill": "",
+      "stroke": "",
+      "stroke-width": ""
+    }
+  },
+  {
+    "tag": "ellipse",
+    "attrs": {
+      "cx": "",
+      "cy": "",
+      "rx": "4",
+      "ry": "18",
+      "r": "",
+      "points": "",
+      "transform": "rotate(45)",
+      "fill": "",
+      "stroke": "",
+      "stroke-width": ""
+    }
+  },
+  {
+    "tag": "ellipse",
+    "attrs": {
+      "cx": "",
+      "cy": "",
+      "rx": "4",
+      "ry": "18",
+      "r": "",
+      "points": "",
+      "transform": "rotate(90)",
+      "fill": "",
+      "stroke": "",
+      "stroke-width": ""
+    }
+  },
+  {
+    "tag": "ellipse",
+    "attrs": {
+      "cx": "",
+      "cy": "",
+      "rx": "4",
+      "ry": "18",
+      "r": "",
+      "points": "",
+      "transform": "rotate(135)",
+      "fill": "",
+      "stroke": "",
+      "stroke-width": ""
+    }
+  },
+  {
+    "tag": "circle",
+    "attrs": {
+      "cx": "0",
+      "cy": "-18",
+      "rx": "",
+      "ry": "",
+      "r": "18",
+      "points": "",
+      "transform": "",
+      "fill": "",
+      "stroke": "",
+      "stroke-width": ""
+    }
+  },
+  {
+    "tag": "circle",
+    "attrs": {
+      "cx": "18",
+      "cy": "0",
+      "rx": "",
+      "ry": "",
+      "r": "18",
+      "points": "",
+      "transform": "",
+      "fill": "",
+      "stroke": "",
+      "stroke-width": ""
+    }
+  },
+  {
+    "tag": "circle",
+    "attrs": {
+      "cx": "0",
+      "cy": "18",
+      "rx": "",
+      "ry": "",
+      "r": "18",
+      "points": "",
+      "transform": "",
+      "fill": "",
+      "stroke": "",
+      "stroke-width": ""
+    }
+  },
+  {
+    "tag": "circle",
+    "attrs": {
+      "cx": "-18",
+      "cy": "0",
+      "rx": "",
+      "ry": "",
+      "r": "18",
+      "points": "",
+      "transform": "",
+      "fill": "",
+      "stroke": "",
+      "stroke-width": ""
+    }
+  },
+  {
+    "tag": "polygon",
+    "attrs": {
+      "cx": "",
+      "cy": "",
+      "rx": "",
+      "ry": "",
+      "r": "",
+      "points": "0,-489,-38-9,-38",
+      "transform": "",
+      "fill": "",
+      "stroke": "",
+      "stroke-width": ""
+    }
+  },
+  {
+    "tag": "polygon",
+    "attrs": {
+      "cx": "",
+      "cy": "",
+      "rx": "",
+      "ry": "",
+      "r": "",
+      "points": "48,038,-938,9",
+      "transform": "",
+      "fill": "",
+      "stroke": "",
+      "stroke-width": ""
+    }
+  },
+  {
+    "tag": "polygon",
+    "attrs": {
+      "cx": "",
+      "cy": "",
+      "rx": "",
+      "ry": "",
+      "r": "",
+      "points": "0,48-9,389,38",
+      "transform": "",
+      "fill": "",
+      "stroke": "",
+      "stroke-width": ""
+    }
+  },
+  {
+    "tag": "polygon",
+    "attrs": {
+      "cx": "",
+      "cy": "",
+      "rx": "",
+      "ry": "",
+      "r": "",
+      "points": "-48,0-38,9-38,-9",
+      "transform": "",
+      "fill": "",
+      "stroke": "",
+      "stroke-width": ""
+    }
+  },
+  {
+    "tag": "ellipse",
+    "attrs": {
+      "cx": "",
+      "cy": "",
+      "rx": "4",
+      "ry": "18",
+      "r": "",
+      "points": "",
+      "transform": "",
+      "fill": "",
+      "stroke": "",
+      "stroke-width": ""
+    }
+  },
+  {
+    "tag": "ellipse",
+    "attrs": {
+      "cx": "",
+      "cy": "",
+      "rx": "4",
+      "ry": "18",
+      "r": "",
+      "points": "",
+      "transform": "rotate(45)",
+      "fill": "",
+      "stroke": "",
+      "stroke-width": ""
+    }
+  },
+  {
+    "tag": "ellipse",
+    "attrs": {
+      "cx": "",
+      "cy": "",
+      "rx": "4",
+      "ry": "18",
+      "r": "",
+      "points": "",
+      "transform": "rotate(90)",
+      "fill": "",
+      "stroke": "",
+      "stroke-width": ""
+    }
+  },
+  {
+    "tag": "ellipse",
+    "attrs": {
+      "cx": "",
+      "cy": "",
+      "rx": "4",
+      "ry": "18",
+      "r": "",
+      "points": "",
+      "transform": "rotate(135)",
+      "fill": "",
+      "stroke": "",
+      "stroke-width": ""
+    }
+  },
+  {
+    "tag": "circle",
+    "attrs": {
+      "cx": "0",
+      "cy": "-18",
+      "rx": "",
+      "ry": "",
+      "r": "18",
+      "points": "",
+      "transform": "",
+      "fill": "",
+      "stroke": "",
+      "stroke-width": ""
+    }
+  },
+  {
+    "tag": "circle",
+    "attrs": {
+      "cx": "18",
+      "cy": "0",
+      "rx": "",
+      "ry": "",
+      "r": "18",
+      "points": "",
+      "transform": "",
+      "fill": "",
+      "stroke": "",
+      "stroke-width": ""
+    }
+  },
+  {
+    "tag": "circle",
+    "attrs": {
+      "cx": "0",
+      "cy": "18",
+      "rx": "",
+      "ry": "",
+      "r": "18",
+      "points": "",
+      "transform": "",
+      "fill": "",
+      "stroke": "",
+      "stroke-width": ""
+    }
+  },
+  {
+    "tag": "circle",
+    "attrs": {
+      "cx": "-18",
+      "cy": "0",
+      "rx": "",
+      "ry": "",
+      "r": "18",
+      "points": "",
+      "transform": "",
+      "fill": "",
+      "stroke": "",
+      "stroke-width": ""
+    }
+  },
+  {
+    "tag": "circle",
+    "attrs": {
+      "cx": "0",
+      "cy": "-30",
+      "rx": "",
+      "ry": "",
+      "r": "4.1",
+      "points": "",
+      "transform": "",
+      "fill": "rgba(251,113,133,0.09)",
+      "stroke": "#5f5f5f",
+      "stroke-width": "1.1"
+    }
+  },
+  {
+    "tag": "circle",
+    "attrs": {
+      "cx": "0",
+      "cy": "-30",
+      "rx": "",
+      "ry": "",
+      "r": "1.9",
+      "points": "",
+      "transform": "",
+      "fill": "#737373",
+      "stroke": "",
+      "stroke-width": ""
+    }
+  },
+  {
+    "tag": "circle",
+    "attrs": {
+      "cx": "21.2",
+      "cy": "-21.2",
+      "rx": "",
+      "ry": "",
+      "r": "4.1",
+      "points": "",
+      "transform": "",
+      "fill": "rgba(245,158,11,0.09)",
+      "stroke": "#5f5f5f",
+      "stroke-width": "1.1"
+    }
+  },
+  {
+    "tag": "circle",
+    "attrs": {
+      "cx": "21.2",
+      "cy": "-21.2",
+      "rx": "",
+      "ry": "",
+      "r": "1.9",
+      "points": "",
+      "transform": "",
+      "fill": "#737373",
+      "stroke": "",
+      "stroke-width": ""
+    }
+  },
+  {
+    "tag": "circle",
+    "attrs": {
+      "cx": "30",
+      "cy": "0",
+      "rx": "",
+      "ry": "",
+      "r": "4.1",
+      "points": "",
+      "transform": "",
+      "fill": "rgba(250,204,21,0.09)",
+      "stroke": "#5f5f5f",
+      "stroke-width": "1.1"
+    }
+  },
+  {
+    "tag": "circle",
+    "attrs": {
+      "cx": "30",
+      "cy": "0",
+      "rx": "",
+      "ry": "",
+      "r": "1.9",
+      "points": "",
+      "transform": "",
+      "fill": "#737373",
+      "stroke": "",
+      "stroke-width": ""
+    }
+  },
+  {
+    "tag": "circle",
+    "attrs": {
+      "cx": "21.2",
+      "cy": "21.2",
+      "rx": "",
+      "ry": "",
+      "r": "4.1",
+      "points": "",
+      "transform": "",
+      "fill": "rgba(74,222,128,0.09)",
+      "stroke": "#5f5f5f",
+      "stroke-width": "1.1"
+    }
+  },
+  {
+    "tag": "circle",
+    "attrs": {
+      "cx": "21.2",
+      "cy": "21.2",
+      "rx": "",
+      "ry": "",
+      "r": "1.9",
+      "points": "",
+      "transform": "",
+      "fill": "#737373",
+      "stroke": "",
+      "stroke-width": ""
+    }
+  },
+  {
+    "tag": "circle",
+    "attrs": {
+      "cx": "0",
+      "cy": "30",
+      "rx": "",
+      "ry": "",
+      "r": "4.1",
+      "points": "",
+      "transform": "",
+      "fill": "rgba(45,212,191,0.09)",
+      "stroke": "#5f5f5f",
+      "stroke-width": "1.1"
+    }
+  },
+  {
+    "tag": "circle",
+    "attrs": {
+      "cx": "0",
+      "cy": "30",
+      "rx": "",
+      "ry": "",
+      "r": "1.9",
+      "points": "",
+      "transform": "",
+      "fill": "#737373",
+      "stroke": "",
+      "stroke-width": ""
+    }
+  },
+  {
+    "tag": "circle",
+    "attrs": {
+      "cx": "-21.2",
+      "cy": "21.2",
+      "rx": "",
+      "ry": "",
+      "r": "4.1",
+      "points": "",
+      "transform": "",
+      "fill": "rgba(56,189,248,0.09)",
+      "stroke": "#5f5f5f",
+      "stroke-width": "1.1"
+    }
+  },
+  {
+    "tag": "circle",
+    "attrs": {
+      "cx": "-21.2",
+      "cy": "21.2",
+      "rx": "",
+      "ry": "",
+      "r": "1.9",
+      "points": "",
+      "transform": "",
+      "fill": "#737373",
+      "stroke": "",
+      "stroke-width": ""
+    }
+  },
+  {
+    "tag": "circle",
+    "attrs": {
+      "cx": "-30",
+      "cy": "0",
+      "rx": "",
+      "ry": "",
+      "r": "4.1",
+      "points": "",
+      "transform": "",
+      "fill": "rgba(129,140,248,0.09)",
+      "stroke": "#5f5f5f",
+      "stroke-width": "1.1"
+    }
+  },
+  {
+    "tag": "circle",
+    "attrs": {
+      "cx": "-30",
+      "cy": "0",
+      "rx": "",
+      "ry": "",
+      "r": "1.9",
+      "points": "",
+      "transform": "",
+      "fill": "#737373",
+      "stroke": "",
+      "stroke-width": ""
+    }
+  },
+  {
+    "tag": "circle",
+    "attrs": {
+      "cx": "-21.2",
+      "cy": "-21.2",
+      "rx": "",
+      "ry": "",
+      "r": "4.1",
+      "points": "",
+      "transform": "",
+      "fill": "rgba(192,132,252,0.09)",
+      "stroke": "#5f5f5f",
+      "stroke-width": "1.1"
+    }
+  },
+  {
+    "tag": "circle",
+    "attrs": {
+      "cx": "-21.2",
+      "cy": "-21.2",
+      "rx": "",
+      "ry": "",
+      "r": "1.9",
+      "points": "",
+      "transform": "",
+      "fill": "#737373",
+      "stroke": "",
+      "stroke-width": ""
+    }
+  },
+  {
+    "tag": "polygon",
+    "attrs": {
+      "cx": "",
+      "cy": "",
+      "rx": "",
+      "ry": "",
+      "r": "",
+      "points": "0,-489,-38-9,-38",
+      "transform": "",
+      "fill": "",
+      "stroke": "",
+      "stroke-width": ""
+    }
+  },
+  {
+    "tag": "polygon",
+    "attrs": {
+      "cx": "",
+      "cy": "",
+      "rx": "",
+      "ry": "",
+      "r": "",
+      "points": "48,038,-938,9",
+      "transform": "",
+      "fill": "",
+      "stroke": "",
+      "stroke-width": ""
+    }
+  },
+  {
+    "tag": "polygon",
+    "attrs": {
+      "cx": "",
+      "cy": "",
+      "rx": "",
+      "ry": "",
+      "r": "",
+      "points": "0,48-9,389,38",
+      "transform": "",
+      "fill": "",
+      "stroke": "",
+      "stroke-width": ""
+    }
+  },
+  {
+    "tag": "polygon",
+    "attrs": {
+      "cx": "",
+      "cy": "",
+      "rx": "",
+      "ry": "",
+      "r": "",
+      "points": "-48,0-38,9-38,-9",
+      "transform": "",
+      "fill": "",
+      "stroke": "",
+      "stroke-width": ""
+    }
+  },
+  {
+    "tag": "polygon",
+    "attrs": {
+      "cx": "",
+      "cy": "",
+      "rx": "",
+      "ry": "",
+      "r": "",
+      "points": "-31,-31-20,-31-31,-20",
+      "transform": "",
+      "fill": "",
+      "stroke": "",
+      "stroke-width": ""
+    }
+  },
+  {
+    "tag": "polygon",
+    "attrs": {
+      "cx": "",
+      "cy": "",
+      "rx": "",
+      "ry": "",
+      "r": "",
+      "points": "31,-3120,-3131,-20",
+      "transform": "",
+      "fill": "",
+      "stroke": "",
+      "stroke-width": ""
+    }
+  },
+  {
+    "tag": "polygon",
+    "attrs": {
+      "cx": "",
+      "cy": "",
+      "rx": "",
+      "ry": "",
+      "r": "",
+      "points": "31,3120,3131,20",
+      "transform": "",
+      "fill": "",
+      "stroke": "",
+      "stroke-width": ""
+    }
+  },
+  {
+    "tag": "polygon",
+    "attrs": {
+      "cx": "",
+      "cy": "",
+      "rx": "",
+      "ry": "",
+      "r": "",
+      "points": "-31,31-20,31-31,20",
+      "transform": "",
+      "fill": "",
+      "stroke": "",
+      "stroke-width": ""
+    }
+  },
+  {
+    "tag": "polygon",
+    "attrs": {
+      "cx": "",
+      "cy": "",
+      "rx": "",
+      "ry": "",
+      "r": "",
+      "points": "0,-489,-38-9,-38",
+      "transform": "",
+      "fill": "rgba(251,113,133,0.08)",
+      "stroke": "rgba(251,113,133,0.48)",
+      "stroke-width": "1.45"
+    }
+  },
+  {
+    "tag": "polygon",
+    "attrs": {
+      "cx": "",
+      "cy": "",
+      "rx": "",
+      "ry": "",
+      "r": "",
+      "points": "31,-3120,-3131,-20",
+      "transform": "",
+      "fill": "rgba(245,158,11,0.08)",
+      "stroke": "rgba(245,158,11,0.48)",
+      "stroke-width": "1.45"
+    }
+  },
+  {
+    "tag": "polygon",
+    "attrs": {
+      "cx": "",
+      "cy": "",
+      "rx": "",
+      "ry": "",
+      "r": "",
+      "points": "48,038,-938,9",
+      "transform": "",
+      "fill": "rgba(250,204,21,0.08)",
+      "stroke": "rgba(250,204,21,0.48)",
+      "stroke-width": "1.45"
+    }
+  },
+  {
+    "tag": "polygon",
+    "attrs": {
+      "cx": "",
+      "cy": "",
+      "rx": "",
+      "ry": "",
+      "r": "",
+      "points": "31,3120,3131,20",
+      "transform": "",
+      "fill": "rgba(74,222,128,0.08)",
+      "stroke": "rgba(74,222,128,0.48)",
+      "stroke-width": "1.45"
+    }
+  },
+  {
+    "tag": "polygon",
+    "attrs": {
+      "cx": "",
+      "cy": "",
+      "rx": "",
+      "ry": "",
+      "r": "",
+      "points": "0,48-9,389,38",
+      "transform": "",
+      "fill": "rgba(45,212,191,0.08)",
+      "stroke": "rgba(45,212,191,0.48)",
+      "stroke-width": "1.45"
+    }
+  },
+  {
+    "tag": "polygon",
+    "attrs": {
+      "cx": "",
+      "cy": "",
+      "rx": "",
+      "ry": "",
+      "r": "",
+      "points": "-31,31-20,31-31,20",
+      "transform": "",
+      "fill": "rgba(56,189,248,0.08)",
+      "stroke": "rgba(56,189,248,0.48)",
+      "stroke-width": "1.45"
+    }
+  },
+  {
+    "tag": "polygon",
+    "attrs": {
+      "cx": "",
+      "cy": "",
+      "rx": "",
+      "ry": "",
+      "r": "",
+      "points": "-48,0-38,9-38,-9",
+      "transform": "",
+      "fill": "rgba(129,140,248,0.08)",
+      "stroke": "rgba(129,140,248,0.48)",
+      "stroke-width": "1.45"
+    }
+  },
+  {
+    "tag": "polygon",
+    "attrs": {
+      "cx": "",
+      "cy": "",
+      "rx": "",
+      "ry": "",
+      "r": "",
+      "points": "-31,-31-20,-31-31,-20",
+      "transform": "",
+      "fill": "rgba(192,132,252,0.08)",
+      "stroke": "rgba(192,132,252,0.48)",
+      "stroke-width": "1.45"
+    }
+  },
+  {
+    "tag": "circle",
+    "attrs": {
+      "cx": "0",
+      "cy": "0",
+      "rx": "",
+      "ry": "",
+      "r": "6.2",
+      "points": "",
+      "transform": "",
+      "fill": "rgba(255,255,255,0.025)",
+      "stroke": "rgba(163,163,163,0.28)",
+      "stroke-width": "1.1"
+    }
+  },
+  {
+    "tag": "circle",
+    "attrs": {
+      "cx": "0",
+      "cy": "0",
+      "rx": "",
+      "ry": "",
+      "r": "2.5",
+      "points": "",
+      "transform": "",
+      "fill": "rgba(212,212,212,0.42)",
+      "stroke": "",
+      "stroke-width": ""
+    }
+  },
+  {
+    "tag": "circle",
+    "attrs": {
+      "cx": "0",
+      "cy": "0",
+      "rx": "",
+      "ry": "",
+      "r": "1.1",
+      "points": "",
+      "transform": "",
+      "fill": "rgba(255,255,255,0.75)",
+      "stroke": "",
+      "stroke-width": ""
+    }
+  }
+]

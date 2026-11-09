@@ -14,7 +14,7 @@ flowchart LR
   O28["28.10. Gesamtmerge<br/>305 Dateien, 205 Tests"]
   N05["05.11. Stage05<br/>Testkandidat"]
   W31["08.11. W31<br/>Handoff e4fc…"]
-  MAIN["09.11. main<br/>375 Dateien<br/>Oktober-Grenzen"]
+  MAIN["09.11. main<br/>363 Dateien<br/>Oktober-Grenzen"]
   TS -- "kompiliert (belegt: Literale, Namen)" --> BUILD
   BUILD -. "zerlegt in 228 Module (Bericht, rekonstruiert)" .-> E3
   E3 -. "Stammbaum A/B/C unbewiesen" .-> O26
@@ -35,7 +35,7 @@ Durchgezogen = durch Textvergleich belegt. Gestrichelt = nur durch historische B
 | `ERHALTEN_OKT_IDENTISCH` | 200 | Text identisch mit dem Oktober-Modul gleichen Namens |
 | `VERAENDERT_OKT_MODUL` | 97 | Oktober-Modul, im Inneren weiterentwickelt; Grenzen und Name erhalten |
 | `NEU_NACH_OKT_BLOCK` | 43 | eigener Block, nach dem 28.10. entstanden (z. B. Wave Editor, Melodic-Speicher) |
-| `NEU_NACH_OKT_EINSCHUB` | 29 | zwischen Oktober-Dateien eingefügter Code |
+| `NEU_NACH_OKT_EINSCHUB` | 17 | zwischen Oktober-Dateien eingefügter Code |
 | `GEAENDERT_NACH_UEBERGABE` | 6 | seit W31 geändert (DUB-ECHO-04, LIVEPATH-01/02); deckt sich exakt mit den Commits |
 | `HERKUNFT_UNBEKANNT` | 0 | |
 
@@ -43,10 +43,10 @@ Durchgezogen = durch Textvergleich belegt. Gestrichelt = nur durch historische B
 
 | unverändert seit | Dateien |
 |---|---|
-| 26.10. | 188 |
+| 26.10. | 186 |
 | 28.10. | 16 |
-| 05.11. | 80 |
-| 08.11. (W31) | 85 |
+| 05.11. | 75 |
+| 08.11. (W31) | 80 |
 | nach Übergabe geändert | 6 |
 
 Pro Datei stehen außerdem die Anweisungs-Ähnlichkeit zu jedem Wegpunkt und die TypeScript-Kandidaten in der JSON-Datei.
@@ -58,7 +58,7 @@ Pro Datei stehen außerdem die Anweisungs-Ähnlichkeit zu jedem Wegpunkt und die
 
 ## 3. TypeScript-Herkunft (`../TS_ORIGIN_MAP.json`, `PROVENANCE_MATCHES.json`)
 
-- 47 Quelldateien in `main` ↔ 248 TypeScript-Dateien über eindeutige Zeichenketten (≥ 16 Zeichen, genau einmal im Code).
+- 46 Quelldateien in `main` ↔ 248 TypeScript-Dateien über eindeutige Zeichenketten (≥ 16 Zeichen, genau einmal im Code).
 - GPTs `evidence_probe.py` (≥ 32 Zeichen, eindeutig im TS-Baum): 295 TS-Dateien mit Treffern; 196 Oktober-Module ≥ 120 B wörtlich, 100 mit Ankertreffern.
 - Beweisgrad durchgehend `LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY`: Orientierung, keine Modulidentität.
 - Ähnlichkeitszahlen auf Dateiebene (z. B. „`App.tsx` 10 %") sind **kein** Maß für verlorene Architektur. Minifizierung, Aufteilung auf mehrere Dateien und spätere Patches verwischen Zeichenketten.
@@ -85,3 +85,5 @@ python3 tools/analysis/ts_origin_map.py ../ts
 python3 tools/analysis/evidence_probe.py --runtime index.html --oct-zip <Oktober-ZIP> --ts-zip <400.2-ZIP> --out docs/provenance/PROVENANCE_MATCHES.json
 ```
 Herkunft der Wegpunkte und Hashes: Zweig `reference/waypoints`. Oktober-Manifeste: Quellbaum-Nachtrag und Provenienzbrücke (Pakete vom 09.11.2026).
+
+**Hinweis Stufe 2b:** Dateigrenzen wurden nachgeschärft (`tools/migrations/03_…`, `04_…`), sodass jede im Oktober allein gültige JS-Datei es wieder ist; 12 vermeintliche Einschübe waren abgeschnittene Dateienden. Zahlen oben sind nach dieser Korrektur.

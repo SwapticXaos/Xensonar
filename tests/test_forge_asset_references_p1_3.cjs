@@ -1,0 +1,77 @@
+'use strict';
+/* P1.3 RED→GREEN: preserve repository ownership, legacy IDs, and material workspace clone safety. */
+const assert=require('node:assert/strict');
+const fs=require('node:fs');
+const path=require('node:path');
+const vm=require('node:vm');
+const root=path.resolve(__dirname,'..');
+const src=file=>fs.readFileSync(path.join(root,file),'utf8');
+const xctx=vm.createContext({Float32Array,Map,Set,Object,Number});
+vm.runInContext(src('src/contracts/01_asset_contract.js'),xctx);
+vm.runInContext(src('src/contracts/02_asset_resolution.js'),xctx);
+const references=vm.runInContext('__XenAssetResolutionV1',xctx);
+function portion(text,from,to) {
+ const start=text.indexOf(from),end=text.indexOf(to,start+from.length);
+ assert.ok(start!==-1 && end>start,`Could not isolate ${from} before ${to}`);
+ return text.slice(start,end);
+}
+const id='asset:Åudio Fläche|48000|2|3.125000|4|4|hash';
+const experiment=src('src/forge/module_bundle/21_experimentStatePersistence.js');
+const material=src('src/forge/module_bundle/22_materialIntakePersistence.js');
+// Prove the actual production factory and workspace readers, not a toy replacement.
+const ectx=vm.createContext({__XenAssetResolutionV1:references,Float32Array,Map,Set,Object,Number});
+vm.runInContext('const finite = value => Number.isFinite(Number(value)) ? Number(value) : 0;',ectx);
+vm.runInContext(portion(experiment,'function hydrateAudioAsset(base, ref) {','function browserStorage()'),ectx);
+const createExperimentReader=vm.runInContext('createExperimentAudioReader',ectx);
+const mctx=vm.createContext({__XenAssetResolutionV1:references,Float32Array,Map,Set,Object,Number});
+vm.runInContext(portion(material,'function cloneValue(value, seen = new WeakMap()) {','const recordStore'),mctx);
+vm.runInContext('const readAsset = (...args) => globalThis.__assetTestRead(...args);',mctx);
+vm.runInContext(portion(material,'function createMaterialIntakeAudioReader(', 'function lightweightRecord('),mctx);
+const createMaterialReader=vm.runInContext('createMaterialIntakeAudioReader',mctx);
+const hydrateWorkspace=vm.runInContext('hydrateWorkspace',mctx);
+(async()=>{
+ const exPCM={fileName:'Experiment',sampleRate:48000,monoSamples:new Float32Array([.1,.2,.3,.4]),channelCount:1};
+ const matPCM={fileName:'Material',sampleRate:48000,monoSamples:new Float32Array([-.1,-.2,-.3,-.4]),channelCount:1};
+ let experimentReads=0, materialReads=0, lastPriority=-1;
+ const experimentStore={get:async key=>{experimentReads++;return key===id?{value:exPCM}:null;}};
+ const experimentReader=createExperimentReader(experimentStore);
+ assert.equal(experimentReads,0,'Reader construction must not trigger hydration');
+ const readMaterial=async (key,priority)=>{materialReads++;lastPriority=priority;return key===id?{value:matPCM}:null;};
+ mctx.__assetTestRead=readMaterial;
+ const materialReader=createMaterialReader(readMaterial);
+ assert.equal(materialReads,0,'Read port must not preload Material Intake assets');
+ const ref={assetId:id,importStartSec:0.25,importDurationSec:1.5};
+ const loaded=await experimentReader(ref);
+ assert.notStrictEqual(loaded,exPCM,'Legacy experiment hydration adds selection metadata');
+ assert.strictEqual(loaded.monoSamples,exPCM.monoSamples,'Experiment reader must not clone PCM');
+ assert.equal(loaded.importStartSec,.25);
+ assert.equal(loaded.importDurationSec,1.5);
+ assert.equal(experimentReads,1);assert.equal(materialReads,0,'Never read Material Intake for experiment state');
+ const workspace={source:{sourceAsset:{__materialIntakeAssetRef:id},label:'Mask'},selection:{fineLoopRange:{startSec:0,durationSec:1}}};
+ const loadedMaterial=await hydrateWorkspace(workspace,8);
+ assert.equal(loadedMaterial.source.sourceAsset.fileName,'Material');
+ assert.notStrictEqual(loadedMaterial.source.sourceAsset.monoSamples,matPCM.monoSamples,'Material workspace must preserve its own PCM cloning policy');
+ assert.equal(loadedMaterial.source.sourceAsset.monoSamples[0],matPCM.monoSamples[0],'PCM bytes preserved');
+ assert.equal(lastPriority,8,'Material asset queue priority forwarded');
+ assert.equal(experimentReads,1);assert.equal(materialReads,1,'No cross-store reads with identical asset IDs');
+ assert.equal(workspace.source.sourceAsset.__materialIntakeAssetRef,id,'Persistent marker unchanged');
+ const second = await hydrateWorkspace(workspace,2);
+ assert.notStrictEqual(second.source.sourceAsset.monoSamples,loadedMaterial.source.sourceAsset.monoSamples,'Two material editing workspaces do not share mutable PCM arrays');
+ assert.equal(lastPriority,2);
+ assert.strictEqual(await experimentReader(null),null);
+ assert.deepEqual(await hydrateWorkspace({source:null}),{source:null});
+ await assert.rejects(experimentReader({assetId:'melodic-sample:other'}),/provider/i);
+ await assert.rejects(experimentReader({assetId:'asset:missing'}),/Audio data is missing from the saved workspace/);
+ await assert.rejects(materialReader('asset:missing'),/Saved donor audio is missing/);
+ await assert.rejects(experimentReader({assetId:'asset:bad\nline'}),/invalid reference/i);
+ await assert.rejects(materialReader('asset:bad\nline'),/invalid reference/i);
+ // Legacy PCM need not satisfy new descriptor checks in the experiment-store read path.
+ const legacyReader=createExperimentReader({get:async()=>({value:{fileName:'Legacy',originalDuration:1,leftSamples:[.1]}})});
+ assert.equal((await legacyReader(ref)).fileName,'Legacy');
+ const pcmResolver=references.createResolver([{namespace:'asset',producer:'test',load:async()=>exPCM}]);
+ const strict=await pcmResolver.resolve(id);
+ assert.strictEqual(strict.asset,exPCM);
+ assert.equal(strict.xenData.kind,'audio/pcm');
+ assert.strictEqual((await pcmResolver.read(id)).asset,exPCM);
+ console.log('P1.3 PASS: scoped Forge repositories, historical IDs, material clone, experiment borrow, priority, errors, strict donor unchanged');
+})().catch(error=>{console.error(error);process.exitCode=1;});

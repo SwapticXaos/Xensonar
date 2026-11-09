@@ -6,7 +6,7 @@ import json,re,sys,bisect,collections
 from pathlib import Path
 R=Path(__file__).resolve().parents[2];TS=Path(sys.argv[1])
 man=json.loads((R/'source-manifest.json').read_text('utf-8'))
-files=[f for s in man['sections'] for f in s['files'] if f.endswith('.js')]
+files=[f for s in man['sources'] for f in s['files'] if f.endswith('.js')]
 starts=[];buf=[];pos=0
 for f in files:
     t=(R/f).read_text('utf-8');starts.append(pos);buf.append(t);pos+=len(t)

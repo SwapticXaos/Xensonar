@@ -1,0 +1,54 @@
+'use strict';
+// Ω1-E: actual cross-renderer VoiceLease contract; run RED against Ω1-D.
+const assert=require('node:assert/strict');
+const fs=require('node:fs');
+const vm=require('node:vm');
+const path=require('node:path');
+const root=path.resolve(__dirname,'..');
+const leasePath=path.join(root,'src/audio/lifecycle/00_voice_lease.js');
+assert(fs.existsSync(leasePath),'The shared voice lease contract does not yet exist (RED on Ω1-D)');
+const source=fs.readFileSync(leasePath,'utf8');
+const world={Map,Set,WeakMap,Object,Array,Number};
+vm.createContext(world);
+vm.runInContext(source+'\nthis.makeLease=__xenCreateVoiceLease;this.retire=__xenRetireVoiceLeases;this.count=__xenVoiceLeaseCount;this.cutOwned=__xenCutOwnedVoice;',world);
+const context={state:'running'},other={state:'running'};
+const events=[];
+function make(ctx,label,extra={}){
+ return world.makeLease({context:ctx,renderer:label,releaseTicket:()=>events.push(label+':ticket'),disconnect:()=>events.push(label+':disconnect'),stop:()=>events.push(label+':stop'),...extra});
+}
+const pcm=make(context,'pcm'),elastic=make(context,'elastic'),nodal=make(context,'nodal',{trackContext:false});
+assert.equal(world.count(context),2,'Only context-owned PCM leases enter its retirement registry');
+assert.equal(pcm.state,'reserved');
+assert.equal(pcm.commit(),true);assert.equal(pcm.state,'active');
+assert.equal(pcm.commit(),false,'The same lease can only be claimed once');
+assert.equal(elastic.commit(),true);
+assert.equal(pcm.onEnded(),true);
+assert.equal(pcm.onEnded(),false,'Duplicate native onended cannot release another ticket');
+assert.equal(pcm.cut(),false,'An ended voice cannot be stopped again');
+assert.deepEqual(events.slice(0,2),['pcm:disconnect','pcm:ticket']);
+assert.equal(world.count(context),1);
+assert.equal(world.retire(context),1);
+assert.equal(world.count(context),0);
+assert.equal(world.retire(context),0,'Repeated rollover is idempotent');
+assert.deepEqual(events.slice(2,5),['elastic:stop','elastic:disconnect','elastic:ticket']);
+assert.equal(nodal.state,'reserved');assert.equal(nodal.commit(),true);
+assert.equal(world.retire(other),0);
+assert.equal(nodal.cut(),true);
+assert.deepEqual(events.slice(-3),['nodal:stop','nodal:disconnect','nodal:ticket']);
+const broken=world.makeLease({context,renderer:'broken',stop:()=>{throw new Error('closed-port');},disconnect:()=>{throw new Error('disconnected');},releaseTicket:()=>events.push('broken:ticket')});
+broken.commit();assert.doesNotThrow(()=>broken.cut());
+assert.equal(broken.state,'released');assert.equal(world.count(context),0);
+assert.equal(events.filter(s=>s==='broken:ticket').length,1,'Even invalid ports release physical admission once');
+let recursive;recursive=world.makeLease({context,renderer:'reentrant',stop:()=>{recursive.onEnded();recursive.cut();},releaseTicket:()=>events.push('reentrant:ticket')});
+recursive.commit();assert.equal(recursive.cut(),true,'A physical cut must report success even when native onended fires synchronously');
+assert.equal(recursive.cut(),false);assert.equal(events.filter(e=>e==='reentrant:ticket').length,1);
+const src=fs.readFileSync(path.join(root,'src/audio/entrophon/02_worklet_and_voice_backend.js'),'utf8');
+const nodalSource=fs.readFileSync(path.join(root,'src/nodal/12_surface_runtime.js'),'utf8');
+for(const marker of ['renderer:"particle-pcm"','renderer:"resident-elastic"','__xenCreateVoiceLease(', '__xenRetireVoiceLeases(t)'])
+ assert(src.includes(marker),`Missing real PCM/elastic lifecycle integration: ${marker}`);
+assert(nodalSource.includes('__xenCutOwnedVoice(voice)'),'Nodal must use the shared nonallocating handle release rule');
+assert(!nodalSource.includes('renderer:"nodal"'),'Nodal Note-On must not allocate a new VoiceLease');
+let cutCount=0;const nodalVoice={cut(){cutCount++;return true}};
+assert.equal(world.cutOwned(nodalVoice),true);assert.equal(cutCount,1);
+assert.equal(world.cutOwned({cut(){throw new Error('lost message port')}}),false);
+console.log('OMEGA SHARED VOICE LEASE PASS: idempotent end/cut, independent contexts, PCM/elastic/Nodal bridge');

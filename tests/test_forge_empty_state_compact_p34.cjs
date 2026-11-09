@@ -1,0 +1,15 @@
+'use strict';
+const assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path');
+const root=path.resolve(__dirname,'..');
+const source=fs.readFileSync(path.join(root,'src/rooms/00_empty_audio_p32.js'),'utf8');
+const css=fs.readFileSync(path.join(root,'styles/areas/040_xen-p9-m9-cockpit-canonical.css'),'utf8');
+const lab=fs.readFileSync(path.join(root,'src/rooms/lab.js'),'utf8');
+assert(!source.includes('xen-p33-diagnostics-dummy'),'do not duplicate actual Advanced diagnostics control');
+assert(lab.includes('data-forge-advanced'),'existing single diagnostics detail remains');
+assert(source.includes("Let's say Seven Bars"),'joking dummy text must appear in the bar-meter label');
+assert(!source.includes("h('span',null,'Seven Bars')"),'no disconnected label on the right');
+assert(source.includes('mask.runs[')&&source.includes('mask.ink['),'the A must be removed from animated NO SIGNAL waveform, not obscured');
+assert(source.includes('data-p34-a-triangle'),'the red actionable triangle must replace the A glyph');
+assert(source.includes('data-p33-animated-canvas'),'retain extracted donor animation');
+assert(css.includes('xen-p32-mirror-button'),'existing import control retained');
+console.log('P34 source PASS: one diagnostics, proper bar-meter phrase, A-glyph triangle substitution');

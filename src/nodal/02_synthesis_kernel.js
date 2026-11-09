@@ -960,3 +960,7 @@ function createOpenNodalVoice(plan,options={},sampleRate=48000) {
     const left = new Float32Array(frames), v = voice(plan, {...options, held: false}, sampleRate);
     if (plan.kernelVersion === 'coupled-modal-v2') { const right = new Float32Array(frames), mono = new Float32Array(frames); v.process(left,right); for(let i=0;i<frames;i++)mono[i]=(left[i]+right[i])*.5; return {pcm:mono,left,right,sampleRate,snapshot:v.snapshot()}; }
     v.process(left); return {pcm: left, sampleRate, snapshot: v.snapshot()};
+  }
+  return {voice,render,preparePitches,preparePacket,installPrepared,prepareEmiliaFixed};
+}
+const __XenNodalDSP = createNodalSynthesisKernel();

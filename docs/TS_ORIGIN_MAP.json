@@ -477,7 +477,7 @@
    },
    {
     "ts": "src/features/xensonar/input/waveStarterHoldSegmentClock.ts",
-    "anchors": 9
+    "anchors": 11
    },
    {
     "ts": "src/features/xensonar/rooms/ResonanceParallelEffectsPanel.tsx",
@@ -1072,9 +1072,9 @@
     "anchors": 2
    }
   ],
-  "src/post-oct/gaps/010-main-bundle__09_after_09_monitoring_and_manual_patterns.js": [
+  "src/rhythm/01_compact_drum_grid.js": [
    {
-    "ts": "src/features/xensonar/input/waveStarterHoldSegmentClock.ts",
+    "ts": "src/features/xensonar/rooms/grooveBassPanel/DrumPatternManagerDialog.tsx",
     "anchors": 2
    }
   ],
@@ -1144,12 +1144,6 @@
    {
     "ts": "src/features/xensonar/rooms/GridTuningRackDialog.tsx",
     "anchors": 15
-   }
-  ],
-  "src/rhythm/01_compact_drum_grid.js": [
-   {
-    "ts": "src/features/xensonar/rooms/grooveBassPanel/DrumPatternManagerDialog.tsx",
-    "anchors": 2
    }
   ]
  }

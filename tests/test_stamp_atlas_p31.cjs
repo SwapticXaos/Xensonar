@@ -1,0 +1,30 @@
+'use strict';
+const assert=require('node:assert/strict'),fs=require('node:fs'),vm=require('node:vm');
+const src=fs.readFileSync('src/forge/stamps/01_atlas_2026_bridge.js','utf8');
+const ctx={Float32Array,Uint8Array,Uint8ClampedArray,Math,Object,Array,Set,Map,atob,Blob,Response,DecompressionStream,console};
+vm.runInNewContext(src,ctx);
+const api=vm.runInNewContext('__XenStampAtlas2026',ctx);
+(async()=>{
+ const original={id:'violin-bow',name:'Violin Bow',category:'melodic',description:'Long bow',tags:[],defaultSize:12,defaultIntensity:.7,previewColor:'#ffaacc',stamp:{width:32,height:8,data:new Float32Array(256).fill(.7),grainData:new Float32Array(256).fill(.5)}};
+ const revised=api.refineSustains([original]);
+ assert(revised.length>=1);
+ assert.equal(revised[0].stamp.width,32);
+ assert.deepEqual(Array.from(original.stamp.data),Array(256).fill(Math.fround(.7)),'must never mutate the legacy ID');
+ const temporal=Array.from({length:32},(_,x)=>revised[0].stamp.data[x+3*32]);
+ assert(Math.max(...temporal)-Math.min(...temporal)>.4,'sustains must have distinct attacks, holds and breathing rests');
+ const atlas=await api.loadVariants([original]);
+ assert.equal(atlas.length,8);
+ assert(atlas.find(x=>x.name==='Rhythm Islands'));
+ assert(atlas.find(x=>x.name==='Breathing Vowels'));
+ for(const p of atlas){assert.equal(p.stamp.width,256);assert.equal(p.stamp.height,256);assert.equal(p.stamp.data.length,65536);assert.equal(p.stamp.grainData.length,65536);assert(p.stamp.data.some(x=>x>.1),'imported raster must contain real energy');assert(p.stamp.data.every(Number.isFinite));}
+ assert(atlas.every(x=>x.stamp.data!==original.stamp.data));
+ assert.equal(api.soundFor,undefined,'retired parallel sound profiles are removed');
+ const lab=fs.readFileSync('src/rooms/lab.js','utf8'),css=fs.readFileSync('styles/areas/028_inline-028.css','utf8');
+ assert(lab.includes('__XenStampAtlas2026.loadVariants('));
+ assert(lab.includes('Rhythm Islands') || lab.includes('barcode-grid--2026-03'));
+ assert(lab.includes('__XenStampFigureAudition'));
+ assert(!lab.includes('children:"⇈"'),'no side-by-side arrows in outer UPPER');
+ assert(lab.includes('children:"⌃\\n⌃"'),'two vertically stacked angles required');
+ assert(css.includes('rgba(242,183,65') || css.includes('rgba(245,192,83'),'outer triangle must be gold');
+ console.log('P31 PASS: eight Atlas grids, temporal sustain revisions, single figure source, stacked chevrons, gold outer triangle');
+})().catch(e=>{console.error(e);process.exitCode=1});

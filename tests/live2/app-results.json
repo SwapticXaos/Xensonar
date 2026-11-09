@@ -1,0 +1,899 @@
+{
+  "boot": {
+    "ready": true,
+    "painted": true,
+    "steps": [
+      {
+        "name": "shell",
+        "ms": 0
+      },
+      {
+        "name": "module-entered",
+        "ms": 223
+      },
+      {
+        "name": "react-mount-requested",
+        "ms": 261
+      },
+      {
+        "name": "document-parsed",
+        "ms": 348
+      },
+      {
+        "name": "main-mounted",
+        "ms": 419
+      },
+      {
+        "name": "main-painted",
+        "ms": 628
+      },
+      {
+        "name": "cold-start:particle",
+        "ms": 801
+      },
+      {
+        "name": "cold-start:wave",
+        "ms": 934
+      },
+      {
+        "name": "cold-start:keyboard",
+        "ms": 1067
+      },
+      {
+        "name": "cold-complete",
+        "ms": 1067
+      },
+      {
+        "name": "startup-quiet",
+        "ms": 1173
+      }
+    ],
+    "longTaskCount": 5,
+    "lastLongTaskEndMs": 678,
+    "coldPending": 0,
+    "coldDone": 1,
+    "coldCancelled": 0,
+    "liveInputWaitMs": 0
+  },
+  "signal": [
+    {
+      "selection": "sample:uvo-silence",
+      "planning": {
+        "tonePlans": 0,
+        "bodyPlans": 0
+      },
+      "oscillators": 0,
+      "buffers": 1,
+      "fxCalls": 0,
+      "bodyCalls": 0,
+      "created": 5,
+      "disconnected": 5,
+      "activeBefore": 1,
+      "activeAfter": 0,
+      "frequencies": [],
+      "rms": 0,
+      "peak": 0
+    },
+    {
+      "selection": "dust_chime",
+      "planning": {
+        "tonePlans": 1,
+        "bodyPlans": 0
+      },
+      "oscillators": 7,
+      "buffers": 1,
+      "fxCalls": 0,
+      "bodyCalls": 1,
+      "created": 30,
+      "disconnected": 30,
+      "activeBefore": 8,
+      "activeAfter": 0,
+      "frequencies": [
+        694.6593627929688,
+        1385.6817626953125,
+        227.30999755859375,
+        664.6544189453125,
+        978.3422241210938,
+        227.31,
+        658.28976
+      ],
+      "rms": 0.016364528915958035,
+      "peak": 0.26745671033859253
+    },
+    {
+      "selection": "crystal_bowl",
+      "planning": {
+        "tonePlans": 1,
+        "bodyPlans": 0
+      },
+      "oscillators": 5,
+      "buffers": 1,
+      "fxCalls": 0,
+      "bodyCalls": 1,
+      "created": 22,
+      "disconnected": 22,
+      "activeBefore": 6,
+      "activeAfter": 0,
+      "frequencies": [
+        694.6593627929688,
+        1385.6817626953125,
+        227.30999755859375,
+        230.1699981689453,
+        227.31
+      ],
+      "rms": 0.09138260087421039,
+      "peak": 0.2924080193042755
+    },
+    {
+      "selection": "entrophon:factory:reiner-sinus@1",
+      "planning": {
+        "tonePlans": 0,
+        "bodyPlans": 0
+      },
+      "oscillators": 1,
+      "buffers": 0,
+      "fxCalls": 0,
+      "bodyCalls": 0,
+      "created": 8,
+      "disconnected": 8,
+      "activeBefore": 0,
+      "activeAfter": 0,
+      "frequencies": [
+        227.31
+      ],
+      "rms": 0.04446197201759566,
+      "peak": 0.22638456523418427
+    }
+  ],
+  "wave": [
+    {
+      "lane": "wave",
+      "selection": "sample:uvo-wave",
+      "oscillators": 0,
+      "buffers": 1,
+      "created": 6,
+      "disconnected": 6,
+      "freq": [],
+      "activeBefore": 1,
+      "activeAfter": 0,
+      "rms": 0
+    },
+    {
+      "lane": "wave",
+      "selection": "vibrato_glass",
+      "oscillators": 2,
+      "buffers": 0,
+      "created": 6,
+      "disconnected": 6,
+      "freq": [
+        227.30999755859375,
+        456.8930969238281
+      ],
+      "activeBefore": 2,
+      "activeAfter": 0,
+      "rms": 0.032413984972242474
+    },
+    {
+      "lane": "wave",
+      "selection": "entrophon:factory:reiner-sinus@1",
+      "oscillators": 2,
+      "buffers": 0,
+      "created": 16,
+      "disconnected": 16,
+      "freq": [
+        227.31,
+        340.96500000000003
+      ],
+      "activeBefore": 2,
+      "activeAfter": 0,
+      "rms": 0.05252269852035067
+    },
+    {
+      "lane": "keyboard",
+      "selection": "sample:uvo-wave",
+      "oscillators": 0,
+      "buffers": 1,
+      "created": 6,
+      "disconnected": 6,
+      "freq": [],
+      "activeBefore": 1,
+      "activeAfter": 0,
+      "rms": 0
+    },
+    {
+      "lane": "keyboard",
+      "selection": "vibrato_glass",
+      "oscillators": 2,
+      "buffers": 0,
+      "created": 6,
+      "disconnected": 6,
+      "freq": [
+        227.30999755859375,
+        456.8930969238281
+      ],
+      "activeBefore": 2,
+      "activeAfter": 0,
+      "rms": 0.03240079270233163
+    },
+    {
+      "lane": "keyboard",
+      "selection": "entrophon:factory:reiner-sinus@1",
+      "oscillators": 2,
+      "buffers": 0,
+      "created": 16,
+      "disconnected": 16,
+      "freq": [
+        227.31,
+        340.96500000000003
+      ],
+      "activeBefore": 2,
+      "activeAfter": 0,
+      "rms": 0.05253052896099986
+    }
+  ],
+  "lifecycle": [
+    {
+      "action": "fresh",
+      "starts": 1,
+      "expected": 1,
+      "pass": true
+    },
+    {
+      "action": "switch",
+      "starts": 0,
+      "expected": 0,
+      "pass": true
+    },
+    {
+      "action": "aba",
+      "starts": 0,
+      "expected": 0,
+      "pass": true
+    },
+    {
+      "action": "unrelated",
+      "starts": 1,
+      "expected": 1,
+      "pass": true
+    },
+    {
+      "action": "independent",
+      "starts": 1,
+      "expected": 1,
+      "pass": true
+    },
+    {
+      "action": "retire",
+      "starts": 0,
+      "expected": 0,
+      "pass": true
+    },
+    {
+      "action": "cut",
+      "starts": 0,
+      "expected": 0,
+      "pass": true
+    },
+    {
+      "action": "close",
+      "starts": 0,
+      "expected": 0,
+      "pass": true
+    },
+    {
+      "action": "Pwe-pending-retire",
+      "starts": 0,
+      "expected": 0,
+      "pass": true
+    },
+    {
+      "action": "Gwe-pending-retire",
+      "starts": 0,
+      "expected": 0,
+      "pass": true
+    },
+    {
+      "action": "dAe-pending-retire",
+      "starts": 0,
+      "expected": 0,
+      "pass": true
+    },
+    {
+      "action": "manual-active-retire",
+      "before": 1,
+      "remaining": 0,
+      "tones": 0,
+      "releases": 1,
+      "pass": true
+    }
+  ],
+  "worklets": {
+    "particleState": "ready",
+    "rows": [
+      {
+        "lane": "particle",
+        "id": "sample:uvo-live",
+        "peak": 0.00036273241857998073,
+        "activeDuring": 1,
+        "activeAfter": 0,
+        "c11Submitted": 0,
+        "elapsedMs": 1131.199999999255
+      },
+      {
+        "lane": "particle",
+        "id": "dust_chime",
+        "peak": 0.011278021149337292,
+        "activeDuring": 5,
+        "activeAfter": 0,
+        "c11Submitted": 0,
+        "elapsedMs": 1134.5
+      },
+      {
+        "lane": "particle",
+        "id": "entrophon:factory:reiner-sinus@1",
+        "peak": 0.013779248110949993,
+        "activeDuring": 0,
+        "activeAfter": 0,
+        "c11Submitted": 1,
+        "elapsedMs": 1132.300000000745
+      },
+      {
+        "lane": "particle",
+        "id": "nodal:nodal-mvnthvtk-vmt9efb@1",
+        "peak": 0.0014360819477587938,
+        "activeDuring": 1,
+        "activeAfter": 0,
+        "c11Submitted": 1,
+        "elapsedMs": 1131.699999999255
+      },
+      {
+        "lane": "wave",
+        "id": "sample:uvo-live",
+        "peak": 0.0008985818130895495,
+        "activeDuring": 1,
+        "activeAfter": 0,
+        "c11Submitted": 1,
+        "elapsedMs": 1131.2000000001863
+      },
+      {
+        "lane": "wave",
+        "id": "vibrato_glass",
+        "peak": 0.00960733462125063,
+        "activeDuring": 2,
+        "activeAfter": 0,
+        "c11Submitted": 3,
+        "elapsedMs": 1132.2999999998137
+      },
+      {
+        "lane": "wave",
+        "id": "entrophon:factory:reiner-sinus@1",
+        "peak": 0.009921511635184288,
+        "activeDuring": 2,
+        "activeAfter": 0,
+        "c11Submitted": 5,
+        "elapsedMs": 1132.1000000005588
+      },
+      {
+        "lane": "wave",
+        "id": "nodal:nodal-mvnthvtk-vmt9efb@1",
+        "peak": 0.0014360819477587938,
+        "activeDuring": 1,
+        "activeAfter": 0,
+        "c11Submitted": 5,
+        "elapsedMs": 1131.0999999996275
+      },
+      {
+        "lane": "keyboard",
+        "id": "sample:uvo-live",
+        "peak": 0.0008933497010730207,
+        "activeDuring": 1,
+        "activeAfter": 0,
+        "c11Submitted": 5,
+        "elapsedMs": 1130.7999999998137
+      },
+      {
+        "lane": "keyboard",
+        "id": "vibrato_glass",
+        "peak": 0.008412884548306465,
+        "activeDuring": 2,
+        "activeAfter": 0,
+        "c11Submitted": 7,
+        "elapsedMs": 1131.2000000001863
+      },
+      {
+        "lane": "keyboard",
+        "id": "entrophon:factory:reiner-sinus@1",
+        "peak": 0.009921511635184288,
+        "activeDuring": 2,
+        "activeAfter": 0,
+        "c11Submitted": 9,
+        "elapsedMs": 1131.1000000005588
+      },
+      {
+        "lane": "keyboard",
+        "id": "nodal:nodal-mvnthvtk-vmt9efb@1",
+        "peak": 0.0014360819477587938,
+        "activeDuring": 1,
+        "activeAfter": 0,
+        "c11Submitted": 9,
+        "elapsedMs": 1130.7999999998137
+      },
+      {
+        "heldRelease": true,
+        "activeAfter": 0
+      }
+    ],
+    "final": {
+      "voices": {
+        "activeVoices": 0,
+        "executionHandles": 0,
+        "policyReservations": 0,
+        "releaseTimers": 0,
+        "hardLimit": 84,
+        "load": 0,
+        "droppedVoices": 5,
+        "reducedEvents": 6,
+        "gatedSends": 0,
+        "bySource": {
+          "particle": 0,
+          "wave": 0,
+          "drum": 0,
+          "other": 0
+        }
+      },
+      "c11": {
+        "nodePresent": true,
+        "writerKind": "message-port-pool",
+        "messagePoolPresent": true,
+        "epoch": 1,
+        "sessionActive": true,
+        "submitted": 11,
+        "kernelAccepted": 11,
+        "kernelRejected": 0,
+        "renderWindowsStarted": 11,
+        "ended": 11,
+        "admissionRejected": 0,
+        "producerRejectReasons": {
+          "inactive": 0,
+          "invalidTarget": 0,
+          "targetPast": 0,
+          "transportCapacity": 0,
+          "quantumCap": 0,
+          "invalidDemand": 0,
+          "duplicateToken": 0,
+          "renderUnits": 0,
+          "voices": 0,
+          "reservationCapacity": 0
+        },
+        "submitRejectReasons": {
+          "missingReservation": 0,
+          "inactive": 0,
+          "oldEpoch": 0,
+          "targetMismatch": 0,
+          "targetPast": 0,
+          "underestimated": 0,
+          "transportCapacity": 0,
+          "transportException": 0
+        },
+        "reservationReleases": {
+          "normalEnd": 11,
+          "rejection": 0,
+          "sessionFence": 0,
+          "producerCancel": 5
+        },
+        "finishCallbackFailures": 0,
+        "inputAgeBasis": "context-minus-intended-start",
+        "inputAgeMs": {
+          "upperInclusive": [
+            -0.001,
+            2,
+            5,
+            10,
+            20,
+            50,
+            100
+          ],
+          "counts": [
+            12,
+            4,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "count": 16,
+          "min": -49.59999999962861,
+          "max": 0.20000000018605135,
+          "invalid": 0
+        },
+        "reservationTargetSlackFrames": {
+          "upperInclusive": [
+            -1024,
+            -256,
+            -128,
+            -1,
+            0,
+            128,
+            256,
+            512,
+            1024
+          ],
+          "counts": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            6,
+            0,
+            2,
+            8
+          ],
+          "count": 16,
+          "min": 240,
+          "max": 2637,
+          "invalid": 0
+        },
+        "acceptedTargetSlackFrames": {
+          "upperInclusive": [
+            -1024,
+            -256,
+            -128,
+            -1,
+            0,
+            128,
+            256,
+            512,
+            1024
+          ],
+          "counts": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            6,
+            0,
+            2,
+            8
+          ],
+          "count": 16,
+          "min": 240,
+          "max": 2637,
+          "invalid": 0
+        },
+        "sessionStateMessages": 1,
+        "sessionStateChanges": 1,
+        "recordResultIgnoredEpochMismatch": 0,
+        "startedIgnoredEpochMismatch": 0,
+        "endedIgnoredEpochMismatch": 0,
+        "allEpochResultAccepted": 11,
+        "allEpochResultRejected": 0,
+        "reservedRenderUnits": 0,
+        "renderUnitLimit": 256,
+        "reservedVoices": 0,
+        "reservations": 0,
+        "transportAvailableRecords": 32,
+        "transportCapacityRecords": 32,
+        "transportPeakInFlightRecords": 2,
+        "profile": 1,
+        "auxRouteCount": 0,
+        "directMirrorTargetCount": 0,
+        "contextState": "running",
+        "sampleRate": 48000,
+        "capabilities": {
+          "audioWorklet": true,
+          "webAssembly": true,
+          "sharedArrayBuffer": false,
+          "crossOriginIsolated": false,
+          "sabFastPath": false
+        }
+      },
+      "nodal": {
+        "readyPlans": 1,
+        "activeVoices": 0,
+        "activeCost": 0,
+        "maxCost": 16,
+        "maxVoices": 32,
+        "disposed": false,
+        "controlPrepared": true,
+        "separateLanes": true,
+        "submitted": 3,
+        "accepted": 3,
+        "ended": 3,
+        "rejected": 0,
+        "rejectReasons": {},
+        "sharedCapacity": {
+          "activeCost": 0,
+          "activeVoices": 0,
+          "maxCost": 16,
+          "maxVoices": 32,
+          "primaryOwners": 0,
+          "primaryReserve": 0,
+          "players": 1,
+          "rejected": 0
+        },
+        "gridPreparation": [],
+        "gridCoverage": null,
+        "particleGridCoverage": null,
+        "gridPrograms": []
+      },
+      "uvo": null
+    }
+  },
+  "bridge": {
+    "ui": {
+      "isRecording": false,
+      "hasTake": true,
+      "durationMs": 1424,
+      "exportStatus": "ready",
+      "exportMessage": "Take ready (with drums). · PCM Float32 (ohne Codec-Kompression)"
+    },
+    "frames": 68352,
+    "cropFrames": 18096,
+    "cropError": 0,
+    "previewError": 0,
+    "eq": {
+      "version": 70,
+      "audioPriority": {
+        "paintEdits": 66,
+        "paintFlushes": 7,
+        "morphEdits": 0,
+        "morphAudioFrames": 0,
+        "heldKeys": 0,
+        "morphHotKeys": 0
+      },
+      "morphHotKeys": 0,
+      "workerActive": true,
+      "workerFailed": false,
+      "fitRunning": false,
+      "fitQueued": 0,
+      "fitCache": 2,
+      "devices": 1,
+      "filters": 12,
+      "sources": [
+        "material:uvo-combined"
+      ],
+      "live": [
+        {
+          "source": "material:uvo-combined",
+          "backend": "worklet-coefficients",
+          "sent": 7,
+          "coalesced": 0,
+          "processor": {
+            "kind": "stats",
+            "applied": 4,
+            "coalesced": 0,
+            "frameGaps": 0,
+            "nonfinite": 0,
+            "peak": 0.039206599201273624,
+            "filters": 12,
+            "dualFrames": 14592,
+            "frames": 48000,
+            "unchanged": 0,
+            "sleeping": false
+          },
+          "error": null,
+          "state": "worklet"
+        }
+      ]
+    },
+    "pcm": {
+      "format": "float32",
+      "state": "ready",
+      "frames": 68352,
+      "firstFrame": 36096,
+      "lastFrame": 104448,
+      "frameGaps": 0,
+      "missingFrames": 0,
+      "overlapFrames": 0,
+      "directTap": true,
+      "sampleRate": 48000
+    },
+    "voices": {
+      "voices": {
+        "activeVoices": 11,
+        "executionHandles": 11,
+        "policyReservations": 0,
+        "releaseTimers": 0,
+        "hardLimit": 84,
+        "load": 0.13095238095238096,
+        "droppedVoices": 10,
+        "reducedEvents": 14,
+        "gatedSends": 0,
+        "bySource": {
+          "particle": 0,
+          "wave": 11,
+          "drum": 0,
+          "other": 0
+        }
+      },
+      "c11": {
+        "nodePresent": true,
+        "writerKind": "message-port-pool",
+        "messagePoolPresent": true,
+        "epoch": 1,
+        "sessionActive": true,
+        "submitted": 20,
+        "kernelAccepted": 20,
+        "kernelRejected": 0,
+        "renderWindowsStarted": 20,
+        "ended": 9,
+        "admissionRejected": 0,
+        "producerRejectReasons": {
+          "inactive": 0,
+          "invalidTarget": 0,
+          "targetPast": 0,
+          "transportCapacity": 0,
+          "quantumCap": 0,
+          "invalidDemand": 0,
+          "duplicateToken": 0,
+          "renderUnits": 0,
+          "voices": 0,
+          "reservationCapacity": 0
+        },
+        "submitRejectReasons": {
+          "missingReservation": 0,
+          "inactive": 0,
+          "oldEpoch": 0,
+          "targetMismatch": 0,
+          "targetPast": 0,
+          "underestimated": 0,
+          "transportCapacity": 0,
+          "transportException": 0
+        },
+        "reservationReleases": {
+          "normalEnd": 9,
+          "rejection": 0,
+          "sessionFence": 0,
+          "producerCancel": 10
+        },
+        "finishCallbackFailures": 0,
+        "inputAgeBasis": "context-minus-intended-start",
+        "inputAgeMs": {
+          "upperInclusive": [
+            -0.001,
+            2,
+            5,
+            10,
+            20,
+            50,
+            100
+          ],
+          "counts": [
+            20,
+            10,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "count": 30,
+          "min": -49.79999999981377,
+          "max": 0.29999999981378256,
+          "invalid": 0
+        },
+        "reservationTargetSlackFrames": {
+          "upperInclusive": [
+            -1024,
+            -256,
+            -128,
+            -1,
+            0,
+            128,
+            256,
+            512,
+            1024
+          ],
+          "counts": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            10,
+            0,
+            0,
+            20
+          ],
+          "count": 30,
+          "min": 242,
+          "max": 2646,
+          "invalid": 0
+        },
+        "acceptedTargetSlackFrames": {
+          "upperInclusive": [
+            -1024,
+            -256,
+            -128,
+            -1,
+            0,
+            128,
+            256,
+            512,
+            1024
+          ],
+          "counts": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            10,
+            0,
+            0,
+            20
+          ],
+          "count": 30,
+          "min": 242,
+          "max": 2646,
+          "invalid": 0
+        },
+        "sessionStateMessages": 1,
+        "sessionStateChanges": 1,
+        "recordResultIgnoredEpochMismatch": 0,
+        "startedIgnoredEpochMismatch": 0,
+        "endedIgnoredEpochMismatch": 0,
+        "allEpochResultAccepted": 20,
+        "allEpochResultRejected": 0,
+        "reservedRenderUnits": 88,
+        "renderUnitLimit": 256,
+        "reservedVoices": 11,
+        "reservations": 11,
+        "transportAvailableRecords": 32,
+        "transportCapacityRecords": 32,
+        "transportPeakInFlightRecords": 2,
+        "profile": 1,
+        "auxRouteCount": 0,
+        "directMirrorTargetCount": 0,
+        "contextState": "running",
+        "sampleRate": 48000,
+        "capabilities": {
+          "audioWorklet": true,
+          "webAssembly": true,
+          "sharedArrayBuffer": false,
+          "crossOriginIsolated": false,
+          "sabFastPath": false
+        }
+      },
+      "nodal": {
+        "readyPlans": 1,
+        "activeVoices": 0,
+        "activeCost": 0,
+        "maxCost": 16,
+        "maxVoices": 32,
+        "disposed": false,
+        "controlPrepared": true,
+        "separateLanes": true,
+        "submitted": 13,
+        "accepted": 13,
+        "ended": 13,
+        "rejected": 0,
+        "rejectReasons": {},
+        "sharedCapacity": {
+          "activeCost": 0,
+          "activeVoices": 0,
+          "maxCost": 16,
+          "maxVoices": 32,
+          "primaryOwners": 0,
+          "primaryReserve": 0,
+          "players": 1,
+          "rejected": 0
+        },
+        "gridPreparation": [],
+        "gridCoverage": null,
+        "particleGridCoverage": null,
+        "gridPrograms": []
+      },
+      "uvo": null
+    }
+  }
+}

@@ -1,0 +1,646 @@
+{
+"avalanche_control.cjs": {
+"timeline": "Grrr",
+"main_msg": "node:internal/assert/utils:77"
+},
+"avalanche_eq_runtime.cjs": {
+"timeline": "GGGG",
+"main_msg": ""
+},
+"avalanche_axes_load.cjs": {
+"timeline": "Grrr",
+"main_msg": "node:assert:150"
+},
+"avalanche_handlers.cjs": {
+"timeline": "Grrr",
+"main_msg": "TypeError: __XenEQ.neutral is not a function"
+},
+"avalanche_mod_budget.cjs": {
+"timeline": "GGrr",
+"main_msg": "AssertionError [ERR_ASSERTION]: only current final variant published"
+},
+"avalanche_native_timbre.cjs": {
+"timeline": "Grrr",
+"main_msg": "SyntaxError: Identifier '__XenP36SamplePreviewOwner' has already been declared"
+},
+"avalanche_routes.cjs": {
+"timeline": "GGGG",
+"main_msg": ""
+},
+"avalanche_worker_lifecycle.cjs": {
+"timeline": "Grrr",
+"main_msg": "AssertionError [ERR_ASSERTION]: pointer-up skips obsolete prepared position"
+},
+"avalanche_worker_slices.cjs": {
+"timeline": "GGGG",
+"main_msg": ""
+},
+"bass_identity_preview.test.cjs": {
+"timeline": "Grrr",
+"main_msg": "not ok 1 - direct audition renders saved clip timbre without selecting it or mutating live sound"
+},
+"bass_timbre_contract_p1.test.cjs": {
+"timeline": "Grrr",
+"main_msg": "not ok 1 - Bass definition sound captures exactly the seven live DSP controls"
+},
+"avalanche_pcm.cjs": {
+"timeline": "Grrr",
+"main_msg": "SyntaxError: Identifier '__XenP36SamplePreviewOwner' has already been declared"
+},
+"bass_tuning_identity.test.cjs": {
+"timeline": "GGGG",
+"main_msg": "# fail 0"
+},
+"eq_morph_noop_pointer.cjs": {
+"timeline": "GGGG",
+"main_msg": ""
+},
+"carrier_polyphony_r2.test.cjs": {
+"timeline": "GGGG",
+"main_msg": "# fail 0"
+},
+"eq_nailed3_paint_regression.cjs": {
+"timeline": "rrrr",
+"main_msg": "node:assert:883"
+},
+"eq_nailed3_dsp_budget.cjs": {
+"timeline": "GGGG",
+"main_msg": ""
+},
+"eq_tool_preference.test.cjs": {
+"timeline": "Grrr",
+"main_msg": "not ok 2 - legacy session EQ restore changes per-source EQ only and leaves global tool preference untouched"
+},
+"eq_raster_preview_parity_fix.cjs": {
+"timeline": "GGGG",
+"main_msg": ""
+},
+"eq_morph_priority_p0.test.cjs": {
+"timeline": "GGGG",
+"main_msg": "# fail 0"
+},
+"forge_interpretations.test.cjs": {
+"timeline": "Grrr",
+"main_msg": "not ok 1 - existing interpretations retain distinct musical structures, source identity and chosen track color"
+},
+"freeze_release_r15.cjs": {
+"timeline": "Grrr",
+"main_msg": "Error: ENOENT: no such file or directory, open '/tmp/claude-0/-home-user-xensonar/6556a3f7-e4e9-5ad9-9a41-e75f29b1ac2e/scratchpad/s2b/repo2/template/standalone.html'"
+},
+"hard_vinyl_settlement.test.cjs": {
+"timeline": "Grrr",
+"main_msg": "not ok 1 - hard Vinyl release commits the reached PCM phase without retargeting or changing attApplied"
+},
+"hold_prefix_safety.cjs": {
+"timeline": "Grrr",
+"main_msg": "TypeError: this.holdPrepCopySources is not a function"
+},
+"hold_prefix_takeover.cjs": {
+"timeline": "Grrr",
+"main_msg": "ReferenceError: __XenNodalSurfaces is not defined"
+},
+"hold_resident_browser.cjs": {
+"timeline": "rrrr",
+"main_msg": "Error: ENOENT: no such file or directory, open '/tmp/claude-0/-home-user-xensonar/6556a3f7-e4e9-5ad9-9a41-e75f29b1ac2e/scratchpad/s2b/repo2/UVO1_TESTS/browser_probe.js'"
+},
+"hold_resident_controller.cjs": {
+"timeline": "Grrr",
+"main_msg": "ReferenceError: __XenNodalSurfaces is not defined"
+},
+"forge_pink_transfer.test.cjs": {
+"timeline": "Grrr",
+"main_msg": "not ok 1 - Pink transport registers the current carrier and opens interpretation choice instead of inserting audio"
+},
+"__audit_merge_manual_centers.test.cjs": {
+"timeline": "rrrr",
+"main_msg": "not ok 1 - P1 song-performance codec accepts v1 and writes v2 with bounded, item-owned placement"
+},
+"expressive_burst_contract.test.cjs": {
+"timeline": "rrrr",
+"main_msg": "not ok 2 - stalled hold processor skips stale catch-up and new phase traffic does not change per-sample process"
+},
+"ld2_owner_refs.cjs": {
+"timeline": "GGGG",
+"main_msg": ""
+},
+"merge_clean_flac.cjs": {
+"timeline": "GGrr",
+"main_msg": "AssertionError [ERR_ASSERTION]: product export must default diagnostic tones off"
+},
+"merge_eq_fallback_window.cjs": {
+"timeline": "GGGG",
+"main_msg": "PASS EQ processor errors recover audible native paths before, during and after worklet bridge"
+},
+"hold_resident_processor.cjs": {
+"timeline": "GGGG",
+"main_msg": "    \"maxError\": 0,"
+},
+"merge_eq_gesture_lifecycle.cjs": {
+"timeline": "rrrr",
+"main_msg": "browserType.launch: Failed to launch chromium because executable doesn't exist at /tmp/claude-0/-home-user-xensonar/6556a3f7-e4e9-5ad9-9a41-e75f29b1ac2e/scratchpad/browser-runtime/chromium"
+},
+"merge_package_snapshot_retry.cjs": {
+"timeline": "GGGG",
+"main_msg": "PASS rollback snapshot retakes fresh flushed runtime, validates before commit, bounds retries and preserves unrelated failures"
+},
+"merge_pcm2_continuity.cjs": {
+"timeline": "Grrr",
+"main_msg": "AssertionError [ERR_ASSERTION]: absent-input silence must occupy its full timeline frames"
+},
+"merge_eq_preference_bridge.test.cjs": {
+"timeline": "GGGG",
+"main_msg": "# fail 0"
+},
+"mix_smoothing.cjs": {
+"timeline": "GGrr",
+"main_msg": "ReferenceError: __xenDrumEchoOverlay is not defined"
+},
+"avalanche_axes_browser.cjs": {
+"timeline": "rrrr",
+"main_msg": "  name: 'TimeoutError'"
+},
+"omega_acoustic_sync.test.cjs": {
+"timeline": "GGGG",
+"main_msg": "# fail 0"
+},
+"omega_atomic_voice_ownership.test.cjs": {
+"timeline": "Grrr",
+"main_msg": "# node:internal/assert/utils:77"
+},
+"omega_async_sample_ownership.test.cjs": {
+"timeline": "GGGG",
+"main_msg": "# fail 0"
+},
+"omega_c11_legacy_lifecycle.test.cjs": {
+"timeline": "GGGG",
+"main_msg": "# fail 0"
+},
+"omega_live_gate.test.cjs": {
+"timeline": "GGGG",
+"main_msg": "# fail 0"
+},
+"omega_nodal_dispose_ownership.test.cjs": {
+"timeline": "Grrr",
+"main_msg": "# node:internal/assert/utils:77"
+},
+"ld2_layout_browser.cjs": {
+"timeline": "rrrr",
+"main_msg": "AssertionError [ERR_ASSERTION]: all three Material lanes must fit without scrolling {\"size\":{\"width\":1440,\"height\":1000},\"step\":\"17px\",\"pairs\":[76,76,76],\"content\":436,\"count\":12,\"client\":373,\"scroll\""
+},
+"omega_particle_selection_epoch.test.cjs": {
+"timeline": "rrrr",
+"main_msg": "# ReferenceError: __xenNParamsPublish is not defined"
+},
+"omega_sample_purity.test.cjs": {
+"timeline": "GGGG",
+"main_msg": "# fail 0"
+},
+"p37_test_tools.cjs": {
+"timeline": "GGGG",
+"main_msg": ""
+},
+"omega_shared_voice_lease.test.cjs": {
+"timeline": "GGGG",
+"main_msg": "# fail 0"
+},
+"omega_voice_lease_renderer_integration.test.cjs": {
+"timeline": "Grrr",
+"main_msg": "# AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:"
+},
+"mix_audio_browser.cjs": {
+"timeline": "GGGG",
+"main_msg": ""
+},
+"render_empty_audio_p32.cjs": {
+"timeline": "GGGG",
+"main_msg": ""
+},
+"power_warm_noise.cjs": {
+"timeline": "GGGG",
+"main_msg": ""
+},
+"song_instrument_definitions.test.cjs": {
+"timeline": "Grrr",
+"main_msg": "# ReferenceError: __XenNodalHoldPCM is not defined"
+},
+"rfl_pitch_identity.test.cjs": {
+"timeline": "GGGG",
+"main_msg": "# fail 0"
+},
+"song_performance_p0.test.cjs": {
+"timeline": "Grrr",
+"main_msg": "not ok 1 - same sample can have different Nudge, pan, volume, and EQ per saved song"
+},
+"session_bass_drone_p2.test.cjs": {
+"timeline": "Grrr",
+"main_msg": "not ok 1 - Quick Save stores instrument Bass Timbre and Drone regardless of the Room Settings checkbox"
+},
+"song_source_config_p2.test.cjs": {
+"timeline": "Grrr",
+"main_msg": "not ok 1 - source capture includes detached Current Entrophon settings and all agent pans"
+},
+"song_sources_codec.cjs": {
+"timeline": "Grrr",
+"main_msg": "ReferenceError: __XenLiveSampleProfiles is not defined"
+},
+"source_contract.cjs": {
+"timeline": "Grrr",
+"main_msg": "TypeError: Cannot read properties of undefined (reading 'files')"
+},
+"song_performance_p1_browser.cjs": {
+"timeline": "rrrr",
+"main_msg": "page.evaluate: Error: Real starter PCM preparation did not complete"
+},
+"test_architecture_boundaries.cjs": {
+"timeline": "GGGG",
+"main_msg": ""
+},
+"t2_geometry_resize.test.cjs": {
+"timeline": "GGGG",
+"main_msg": "# Subtest: retained room DOM cannot restore stale geometry after changing mode at narrow width"
+},
+"test_asset_resolution_p1_2.cjs": {
+"timeline": "GGGG",
+"main_msg": ""
+},
+"test_blob_audio_roundtrip_p3_14.cjs": {
+"timeline": "GGGG",
+"main_msg": ""
+},
+"test_browser_probe_generator_p3_11.cjs": {
+"timeline": "GGGG",
+"main_msg": ""
+},
+"test_consolidation_p2_9.cjs": {
+"timeline": "GGGG",
+"main_msg": ""
+},
+"test_data_contract_v1.cjs": {
+"timeline": "GGGG",
+"main_msg": ""
+},
+"test_drum_atomic_p3_8.cjs": {
+"timeline": "GGGG",
+"main_msg": ""
+},
+"test_emilia_factory_reference_r16.cjs": {
+"timeline": "GGGG",
+"main_msg": ""
+},
+"test_emilia_first_contact_persistence_r16.cjs": {
+"timeline": "GGGG",
+"main_msg": ""
+},
+"test_emilia_starter_five_r14.cjs": {
+"timeline": "GGGG",
+"main_msg": ""
+},
+"test_emilia_starter_seven_r15.cjs": {
+"timeline": "GGGG",
+"main_msg": ""
+},
+"test_eq_p6_budget_and_tool.cjs": {
+"timeline": "GGGG",
+"main_msg": ""
+},
+"test_forge_asset_references_p1_3.cjs": {
+"timeline": "GGGG",
+"main_msg": "P1.3 PASS: scoped Forge repositories, historical IDs, material clone, experiment borrow, priority, errors, strict donor unchanged"
+},
+"test_forge_atomic_p3_8.cjs": {
+"timeline": "GGGG",
+"main_msg": ""
+},
+"test_binary_archive_p4.cjs": {
+"timeline": "GGGG",
+"main_msg": ""
+},
+"test_forge_diagnostics_fold_p29.cjs": {
+"timeline": "GGGG",
+"main_msg": ""
+},
+"test_forge_cross_geometry_lock.cjs": {
+"timeline": "GGGG",
+"main_msg": ""
+},
+"test_forge_donor_animation_p33.cjs": {
+"timeline": "GGGG",
+"main_msg": ""
+},
+"test_forge_empty_audio_connector_p32.cjs": {
+"timeline": "GGGG",
+"main_msg": ""
+},
+"test_forge_empty_audio_p32.cjs": {
+"timeline": "GGGG",
+"main_msg": ""
+},
+"test_forge_empty_state_compact_p34.cjs": {
+"timeline": "GGGG",
+"main_msg": ""
+},
+"test_forge_export_graphic_wiring.cjs": {
+"timeline": "rrrr",
+"main_msg": "node:internal/assert/utils:77"
+},
+"test_forge_first_contact_name_parity_r13.cjs": {
+"timeline": "GGGG",
+"main_msg": ""
+},
+"test_forge_first_contact_info_r18.cjs": {
+"timeline": "GGrr",
+"main_msg": "ReferenceError: __XenMaterialBarsInput is not defined"
+},
+"test_forge_meter_segments_r7.cjs": {
+"timeline": "rrrr",
+"main_msg": "node:assert:883"
+},
+"test_forge_meter_r8.cjs": {
+"timeline": "GGrr",
+"main_msg": "ReferenceError: __xenAudioMaterialBars is not defined"
+},
+"test_forge_r13_click_load_feedback.cjs": {
+"timeline": "GGGG",
+"main_msg": ""
+},
+"test_forge_name_anchor_ui.cjs": {
+"timeline": "rrrr",
+"main_msg": "node:internal/assert/utils:77"
+},
+"test_forge_r17_stamp_feedback_aspect.cjs": {
+"timeline": "GGGG",
+"main_msg": ""
+},
+"test_forge_r13_curated_play_discovery.cjs": {
+"timeline": "GGGG",
+"main_msg": ""
+},
+"test_forge_rack_single_presentation_rc3.cjs": {
+"timeline": "GGGG",
+"main_msg": ""
+},
+"test_forge_shared_inert_r14.cjs": {
+"timeline": "GGGG",
+"main_msg": ""
+},
+"test_forge_slot_layout_rc4.cjs": {
+"timeline": "GGGG",
+"main_msg": ""
+},
+"test_forge_ui_contract_r5.cjs": {
+"timeline": "GGGG",
+"main_msg": ""
+},
+"test_forge_ui_contract_r7.cjs": {
+"timeline": "GGGG",
+"main_msg": ""
+},
+"test_forge_ui_contract_r6.cjs": {
+"timeline": "rrrr",
+"main_msg": "node:assert:883"
+},
+"test_forge_upper_triangle_p30.cjs": {
+"timeline": "GGGG",
+"main_msg": ""
+},
+"test_idb_batch_transaction_p3_8.cjs": {
+"timeline": "GGGG",
+"main_msg": ""
+},
+"test_idle_lifecycle_p37.cjs": {
+"timeline": "rrrr",
+"main_msg": "Error: Cannot find module '@napi-rs/canvas'"
+},
+"test_import_coordinator_p2_2.cjs": {
+"timeline": "GGGG",
+"main_msg": "P2.2 PASS: journal checkpoints, interrupted replay, uncertain commit, identity/mapping guard, journal errors"
+},
+"test_integration_p41_rc4_pcm1.cjs": {
+"timeline": "GGrr",
+"main_msg": "node:assert:883"
+},
+"test_material_atomic_p3_9.cjs": {
+"timeline": "GGGG",
+"main_msg": ""
+},
+"test_library_inventory_p2_8.cjs": {
+"timeline": "GGGG",
+"main_msg": ""
+},
+"test_material_durability_p3_8.cjs": {
+"timeline": "GGGG",
+"main_msg": ""
+},
+"test_melodic_precision_r20.cjs": {
+"timeline": "Grrr",
+"main_msg": "node:assert:883"
+},
+"test_package_atomic_p2.cjs": {
+"timeline": "GGGG",
+"main_msg": ""
+},
+"test_melodic_project_restore_p3_5.cjs": {
+"timeline": "GGGG",
+"main_msg": ""
+},
+"test_package_selection_contract_p41.cjs": {
+"timeline": "Grrr",
+"main_msg": "AssertionError [ERR_ASSERTION]: The input did not match the regular expression /Mindestens/. Input:"
+},
+"test_package_station_crash_recovery_p3_16.cjs": {
+"timeline": "GGGG",
+"main_msg": ""
+},
+"test_package_station_export_p3_12.cjs": {
+"timeline": "GGGG",
+"main_msg": "[xensonar][workspace-archive][export][drum-config-library] Error: database unavailable"
+},
+"test_package_station_independent_p3_13.cjs": {
+"timeline": "Grrr",
+"main_msg": "ReferenceError: __xmemMelodicLegacyFence is not defined"
+},
+"ld2_eq_browser.cjs": {
+"timeline": "rrrr",
+"main_msg": "  name: 'TimeoutError'"
+},
+"song_performance_p1.test.cjs": {
+"timeline": "rrrr",
+"main_msg": "not ok 1 - P1 song-performance codec accepts v1 and writes v2 with bounded, item-owned placement"
+},
+"test_package_station_selection_p41.cjs": {
+"timeline": "Grrr",
+"main_msg": "  name: 'TimeoutError'"
+},
+"test_package_station_stream_diagnostics_p3_15.cjs": {
+"timeline": "GGGG",
+"main_msg": ""
+},
+"test_pcm_capture_merged.cjs": {
+"timeline": "Grrr",
+"main_msg": "node:assert:883"
+},
+"test_preflight_reservation_p3_10.cjs": {
+"timeline": "GGGG",
+"main_msg": ""
+},
+"test_project_commit_p3_7.cjs": {
+"timeline": "GGGG",
+"main_msg": ""
+},
+"test_project_full_baseline_p3_8.cjs": {
+"timeline": "GGGG",
+"main_msg": ""
+},
+"test_project_react_commit_p3_7.cjs": {
+"timeline": "GGGG",
+"main_msg": "P3.7 REACT PASS: actual import handler only applies after storage readback; failures block UI state"
+},
+"test_project_reservations_p3_6.cjs": {
+"timeline": "GGGG",
+"main_msg": ""
+},
+"test_reference_graph_p2_6.cjs": {
+"timeline": "GGGG",
+"main_msg": ""
+},
+"avalanche_eq_ui_browser.cjs": {
+"timeline": "rrrr",
+"main_msg": "  name: 'TimeoutError'"
+},
+"test_reference_integrity_p2_5.cjs": {
+"timeline": "GGGG",
+"main_msg": "P2.5 PASS: referenced sample graph, replace/differential/merge semantics, local risk inventory, early fail-closed wiring"
+},
+"test_reference_graph_p2_7.cjs": {
+"timeline": "GGGG",
+"main_msg": ""
+},
+"test_reserved_project_payload_p3_10.cjs": {
+"timeline": "GGGG",
+"main_msg": ""
+},
+"test_root_follow_prepare_p3_4.cjs": {
+"timeline": "GGGG",
+"main_msg": ""
+},
+"test_runtime_package_trace_p3_15.cjs": {
+"timeline": "Grrr",
+"main_msg": "diagnostic ZIP failure {"
+},
+"test_sample_destructive_p2_4.cjs": {
+"timeline": "GGGG",
+"main_msg": "P2.4 PASS: preflight, copy-before-delete, replay, collision guard, strict error propagation"
+},
+"test_sample_delete_transaction_p2_4.cjs": {
+"timeline": "GGGG",
+"main_msg": ""
+},
+"test_session_library_delete_guard.cjs": {
+"timeline": "GGGG",
+"main_msg": "[xensonar][starter-catalog][hydrate] ReferenceError: __XenMetaSessions is not defined"
+},
+"test_sample_recovery_p2_3.cjs": {
+"timeline": "GGGG",
+"main_msg": ""
+},
+"test_package_station_browser_p4.cjs": {
+"timeline": "Grrr",
+"main_msg": ""
+},
+"test_stamp_atlas_p31.cjs": {
+"timeline": "GGGG",
+"main_msg": ""
+},
+"test_stamp_data_p37.cjs": {
+"timeline": "GGGG",
+"main_msg": ""
+},
+"test_stamp_figure_p37.cjs": {
+"timeline": "GGGG",
+"main_msg": ""
+},
+"test_stamp_gallery_p30.cjs": {
+"timeline": "GGGG",
+"main_msg": ""
+},
+"test_synthetic_forge_atomic_p3_8.cjs": {
+"timeline": "GGGG",
+"main_msg": ""
+},
+"test_stamp_dsp_p37.cjs": {
+"timeline": "GGGG",
+"main_msg": ""
+},
+"test_ui_patch_debris_cleanup.cjs": {
+"timeline": "GGGG",
+"main_msg": "PASS compact first-contact UI, A-glyph resize failure, no discarded CSS/DOM layer"
+},
+"test_workspace_phase_fragments_p3_3.cjs": {
+"timeline": "GGGG",
+"main_msg": ""
+},
+"test_workspace_library_ports_p3_1.cjs": {
+"timeline": "GGGG",
+"main_msg": "P3.1 PASS: explicit ports, lazy/no-op, ordering, error propagation and wiring"
+},
+"test_workspace_result_projection_p3_2.cjs": {
+"timeline": "GGGG",
+"main_msg": ""
+},
+"ui_m1_p1.cjs": {
+"timeline": "GGGG",
+"main_msg": ""
+},
+"test_workspace_roundtrip_p3_11.cjs": {
+"timeline": "GGGG",
+"main_msg": "P3.11 PASS: resume_after_forge_commit_failure"
+},
+"ui_m1_p2_carrier_play.cjs": {
+"timeline": "GGGG",
+"main_msg": ""
+},
+"ui_m1_p3_cleanup.cjs": {
+"timeline": "Grrr",
+"main_msg": "node:assert:150"
+},
+"ui_r2_integration.test.cjs": {
+"timeline": "Grrr",
+"main_msg": "# Error: ENOENT: no such file or directory, open '/tmp/claude-0/-home-user-xensonar/6556a3f7-e4e9-5ad9-9a41-e75f29b1ac2e/scratchpad/s2b/repo2/docs/integration-ui-r2/PARENT_SOURCE_HASHES.json'"
+},
+"ui_side_arrows.cjs": {
+"timeline": "Grrr",
+"main_msg": "locator.waitFor: Error: strict mode violation: locator('.xen-performance header button') resolved to 2 elements:"
+},
+"ui_visual_restore.cjs": {
+"timeline": "GGGG",
+"main_msg": ""
+},
+"wheel_reversible_browser.cjs": {
+"timeline": "rrrr",
+"main_msg": "AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:"
+},
+"power_browser_smoke.cjs": {
+"timeline": "GrGG",
+"main_msg": "PASS full standalone Power ON/OFF \u00d73 at 1360px, workspace remains mounted, no page errors"
+},
+"working_session.test.cjs": {
+"timeline": "Grrr",
+"main_msg": "not ok 1 - named active working session reloads latest live source edits without changing the saved row"
+},
+"test_package_station_large_p4.cjs": {
+"timeline": "Grrr",
+"main_msg": ""
+},
+"test_stamp_full_browser_p37.cjs": {
+"timeline": "GGGG",
+"main_msg": ""
+},
+"wheel_original_mandala_browser.cjs": {
+"timeline": "rrrr",
+"main_msg": "  name: 'TimeoutError'"
+},
+"test_package_station_outputs_p4.cjs": {
+"timeline": "rrrr",
+"main_msg": ""
+}
+}

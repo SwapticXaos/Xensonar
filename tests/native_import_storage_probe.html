@@ -1,0 +1,50 @@
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>XenSonar – Native Storage Acceptance Probe</title><style>body{font:16px/1.55 system-ui,sans-serif;max-width:840px;margin:2rem auto;padding:1rem;background:#081d24;color:#e5fbf7}button{background:#124c5b;border:1px solid #26a4bd;border-radius:6px;color:white;padding:.8rem 1.1rem;cursor:pointer}pre{white-space:pre-wrap;background:#102d36;border-radius:8px;padding:1.4rem}.warn{color:#ffc978}.ok{color:#7ae6bf}</style></head><body>
+<h1>XenSonar – Native Browser Storage Probe</h1>
+<p>Dieser eigenständige Test verwendet <strong>nur</strong> die separate IndexedDB <code>xensonar-import-milestone-probe-v1</code> und den eigenen LocalStorage-Schlüssel <code>xensonar.import-probe.v1</code>. Er verändert keine XenSonar-Bibliotheken, Audiodaten oder Projekte.</p>
+<p>Im Zielbrowser (Opera/Firefox) als lokale HTML öffnen, „Tests durchführen“ anklicken und das Ergebnis sichern. Die Tests prüfen Browser-Speichergrundlagen, <strong>nicht</strong> den vollständigen XenSonar-Workspace-Importer.</p>
+<button id="start">Tests durchführen</button><pre id="output">Noch nicht ausgeführt.</pre><p class="warn">Eine bestandene Storage-Probe allein ist keine Freigabe des gesamten Import-Systems. Die echten Merge-/Replace-/Differential- und Wiederanlauffälle müssen separat mit Testarchiven durchlaufen.</p>
+<script>
+'use strict';
+const out=document.getElementById('output');
+const lines=[];const log=(kind,msg)=>{lines.push(kind+'  '+msg);out.textContent=lines.join('\n')};
+const dbName='xensonar-import-milestone-probe-v1',storageKey='xensonar.import-probe.v1';
+function openDB(){return new Promise((resolve,reject)=>{const req=indexedDB.open(dbName,1);req.onupgradeneeded=()=>{const db=req.result;db.createObjectStore('audio');db.createObjectStore('metadata')};req.onsuccess=()=>resolve(req.result);req.onerror=()=>reject(req.error)})}
+function txDone(tx){return new Promise((resolve,reject)=>{tx.oncomplete=()=>resolve('complete');tx.onabort=()=>reject(tx.error||new Error('transaction aborted'));tx.onerror=()=>{};})}
+function get(db,store,key){return new Promise((resolve,reject)=>{const tx=db.transaction(store,'readonly'),req=tx.objectStore(store).get(key);req.onsuccess=()=>resolve(req.result);req.onerror=()=>reject(req.error);tx.onabort=()=>reject(tx.error||new Error('read aborted'))})}
+async function run(){lines.length=0;log('INFO','Origin: '+location.origin+'; '+navigator.userAgent);
+try{
+ const stamp='test-'+Date.now()+'-'+Math.random().toString(36).slice(2);
+ localStorage.setItem(storageKey,stamp);
+ if(localStorage.getItem(storageKey)!==stamp)throw Error('localStorage readback mismatch');
+ log('PASS','LocalStorage: write/readback');
+ localStorage.removeItem(storageKey);
+ const db=await openDB();log('PASS','IndexedDB database open');
+ const aborted=db.transaction(['audio','metadata'],'readwrite');
+ const abortOutcome=txDone(aborted).then(()=>false,()=>true);
+ aborted.objectStore('audio').put(new Uint8Array([1,2,3]),'abort-fixture');
+ aborted.objectStore('metadata').put({id:'abort-fixture'},'abort-fixture');
+ aborted.abort();
+ if(!await abortOutcome)throw Error('abort incorrectly completed');
+ if(await get(db,'audio','abort-fixture')!==undefined||await get(db,'metadata','abort-fixture')!==undefined)throw Error('partial abort persisted');
+ log('PASS','IndexedDB atomic abort across two stores');
+ const committed=db.transaction(['audio','metadata'],'readwrite');const done=txDone(committed);
+ committed.objectStore('audio').put(new Uint8Array([7,9,11]),'commit-fixture');
+ committed.objectStore('metadata').put({id:'commit-fixture',version:1},'commit-fixture');
+ await done;db.close();
+ const reopened=await openDB();const bytes=await get(reopened,'audio','commit-fixture');const meta=await get(reopened,'metadata','commit-fixture');
+ if(!(bytes instanceof Uint8Array)||Array.from(bytes).join(',')!=='7,9,11'||meta?.version!==1)throw Error('reopen mismatch');
+ log('PASS','IndexedDB commit, close and reopen');
+ const cleanup=reopened.transaction(['audio','metadata'],'readwrite');const cleanDone=txDone(cleanup);
+ for(const name of ['audio','metadata']){cleanup.objectStore(name).delete('commit-fixture');cleanup.objectStore(name).delete('abort-fixture')}await cleanDone;reopened.close();
+ log('PASS','Probe fixtures cleaned');
+ if(navigator.locks?.request){
+  let held=false;await navigator.locks.request('xensonar.workspace-import.v1',{mode:'exclusive'},async()=>{
+   held=true;const rejected=await navigator.locks.request('xensonar.workspace-import.v1',{mode:'exclusive',ifAvailable:true},lock=>!lock);
+   if(!rejected)throw Error('parallel lock was granted');
+  });if(!held)throw Error('lock could not be acquired');log('PASS','Web Locks: concurrent import rejected within this origin');
+ }else log('WARN','Web Locks unavailable; P3.7 protects only the current tab plus optimistic storage checks');
+ log('RESULT','Native browser storage probe completed successfully. Save this output for milestone acceptance.');
+}catch(e){log('FAIL',String(e&&e.stack||e))}
+}
+document.getElementById('start').addEventListener('click',run);
+</script></body></html>

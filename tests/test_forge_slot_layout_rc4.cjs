@@ -1,0 +1,35 @@
+'use strict';
+/** RC4: shared, presentational-only slot order for active and inactive Forge racks. */
+const assert=require('node:assert/strict'),fs=require('node:fs'),vm=require('node:vm');
+const read=x=>fs.readFileSync(x,'utf8');
+const src=read('src/rooms/00_forge_rack_presentation.js');
+const live=read('src/rooms/lab.js');
+const empty=read('src/rooms/00_empty_audio_p32.js');
+assert(src.includes('const __ForgeRackLayout='),'one declaration owns action row order');
+assert(src.includes('function __ForgeRackOrder('),'slot renderer must consume canonical layout');
+assert(src.includes('function __ForgeRackClass('),'visual class identity has one owner');
+assert(!live.includes('className:"xen-forge-tile-'),'live actions must use shared class identity');
+assert(live.includes("primary:__ForgeRackOrder('primary',{"),'active rack must consume layout');
+assert(live.includes("secondary:__ForgeRackOrder('secondary',{"),'active secondary row must consume layout');
+assert(!live.includes('primary:[u.jsx(xi,'),'old independently ordered live row removed');
+assert(!src.includes("primary:['load','repair'"),'inactive manual ordering removed');
+assert(!empty.includes('__ForgeRackInactivePreview()') && empty.includes('},controls);'), 'idle must use identical controls from live owner');
+const P={createElement:(tag,props,...children)=>({tag,props:props||{},children})};
+const ctx=vm.createContext({P});vm.runInContext(src,ctx);
+const data=vm.runInContext('({layout:__ForgeRackLayout,primary:__ForgeRackOrder("primary",{load:"load",repair:"repair",apply:"apply",extract:"extract",play:"play",material:"material"}),secondary:__ForgeRackOrder("secondary",{pink:"pink",saveGroup:["root","sample","donor","carrier"]})})',ctx);
+assert.deepEqual(Array.from(data.primary),['load','repair','apply','extract','play','material']);
+assert.throws(()=>vm.runInContext('__ForgeRackOrder("primary", {load: 1})',ctx),/Missing Forge rack slot: repair/,'adding a new feature must not silently omit unbound actions');
+assert.deepEqual(Array.from(data.secondary).flat(Infinity),['pink','root','sample','donor','carrier']);
+// Every public action has exactly one position; grouping is only presentation.
+const copy=vm.runInContext('Object.keys(__ForgeRackCopy).filter(k=>__ForgeRackCopy[k]?.className)',ctx);
+const flatOrder=[...data.layout.primary,...data.layout.secondary.filter(k=>k!=='saveGroup'),...data.layout.saveGroup];
+assert.deepEqual([...flatOrder].sort(),[...copy].sort());
+assert.equal(new Set(flatOrder).size,flatOrder.length);
+const optional=vm.runInContext('__ForgeRackOrder("primary",{load:1,repair:2,apply:3,extract:4,play:5,material:false})',ctx);
+assert.equal(optional.at(-1),false,'unavailable action uses explicit false slot without changing layout');
+const className=vm.runInContext('__ForgeRackClass("sample","extra")',ctx);
+assert.equal(className,'xen-forge-tile-sample extra');
+assert(live.includes('const __forgeSharedControls=u.jsxs('),'only one live/idle action tree is assembled');
+assert(live.includes('controls:__forgeSharedControls'),'idle is rendered with that actual tree');
+assert(!/(?:AudioContext|AudioWorklet|indexedDB|localStorage|\.play\(|\.importPackage\()/i.test(src));
+console.log('PASS RC4 shared slot/layout declaration; active/inactive are composed without shared audio state');

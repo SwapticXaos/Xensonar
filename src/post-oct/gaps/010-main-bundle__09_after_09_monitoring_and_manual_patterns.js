@@ -1,12 +1,3 @@
-      observedMs:e.nowMs,intervalMs:interval,segments,targetHz:gesture.targetHz});
-   if(__c20cActive){
-    out.push({lane,keyId:gesture.keyId,targetHz:gesture.targetHz,intervalMs:interval,segmentsPerBar:segments,referenceBars:bars,pulseIndex,sustainExtendActive:gesture.sustainExtendActive,articulation:gesture.articulation,extendPolicy:gesture.extendPolicy,reason:"gesture-loop-segment-pulse"});
-    e.state.loopPulseCount++;
-   }else {e.state.patternMutedPulseCount++;if(typeof __XenNodalSurfaces!=="undefined")__XenNodalSurfaces.muteFallbackHold?.(lane==="klaviatur"?"keyboard":"wave",gesture.keyId);}
-  }
- }
- return out;
-}
 function k1(e){if(typeof __XenSampleClock04!=="undefined"){
  for(const lane of (e.lane?[e.lane]:['wellenstart','klaviatur']))for(const [code,g] of Object.entries(e.state.gestures[lane]||{})){
   if((!e.keyId||e.keyId===code)&&Number.isFinite(g.startedAtMs))__XenSampleClock04.cancelKey(g.sampleClock04Ctx,lane,code,g.startedAtMs,true);

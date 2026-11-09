@@ -1,23 +1,3 @@
-        programToken:programKey==null?null:String(programKey)};
-    };
-    const requested=describe(slot?.id,selected,null);
-    const prepared=describe(slot?.ready?.id,slot?.ready?.instrument,slot?.ready?.programKey);
-    const holdPrepared=describe(hold?.id,hold?.instrument,null);
-    return {lane,desiredId:slot?.id??null,phase:slot?.phase??'idle',error:slot?.error??null,
-      requested,prepared,holdPrepared,
-      requestedMatchesPrepared:requested&&prepared?requested.acousticKey===prepared.acousticKey:null,
-      requestedMatchesHoldPrepared:requested&&holdPrepared?requested.acousticKey===holdPrepared.acousticKey:null,
-      preparedProgramReady:!!slot?.ready&&slot?.context===config?.getContext()&&owner?.player===slot.ready.player,
-      holdProgramReady:!!hold?.pinned&&hold?.context===config?.getContext()&&owner?.player===hold.player,
-      fallbackHeldVoices:[...fallbackHoldVoices.keys()].filter(key=>key.startsWith(lane+':')).length};
-  },pcmDiagnostics:()=>({cache:owner?.player?.pcmG2Status?.()??null,capture:owner?.player?.pcmG3Status?.()??null}),options,warmParticleField,warmWaveField,releaseHeld,releaseParticles,releaseLive,releaseFallbackHold,muteFallbackHold,syncHoldClock,stopHoldClocks,endFallbackHoldGesture,dispose,snapshot:()=>{
-    const status=owner?.player?.snapshot();if(!status)return null;
-    const programs=new Set();for(const slot of lanes.values())if(acceptsGrid(slot,owner?.context)&&slot.gridPrepared)programs.add(slot.gridPrepared);
-    return {...status,gridCoverage:preparedGrid?{total:preparedGrid.total,requested:Math.min(2048,preparedGrid.total),limited:preparedGrid.total>2048}:null,
-      particleGridCoverage:preparedParticleGrid?{roots:preparedParticleGrid.grid.roots.length,ratios:preparedParticleGrid.ratios.length,total:preparedParticleGrid.frequencies.length}:null,
-      gridPrograms:[...programs].map(p=>({wave:!!p.wave,particle:!!p.particle,total:p.total,requested:p.requested,limited:p.total>p.requested}))};
-  }});
-}
 const __XenNodalSurfaces=createNodalSurfaceRuntime({library:__XenNodalLibrary,live:__XenNodalLive,model:__XenNodalModel});
 /* XEN_SOUND_RECIPE_BRIDGE_START */
 /* Instrument-only diagnostic extraction: explicit user action, read-only.

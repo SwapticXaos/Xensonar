@@ -1,0 +1,12 @@
+'use strict';
+const fs=require('node:fs'),path=require('node:path'),vm=require('node:vm'),assert=require('node:assert/strict');
+const source=fs.readFileSync(path.join(__dirname,'../src/01_app_runtime.js'),'utf8'),start=source.indexOf('function __wave39WarmNoise('),end=source.indexOf('\n}',start)+2;
+const routes=new WeakMap(),ctx={},sent=[],host={waveReady:true,node:{port:{postMessage:(m,b)=>sent.push({m,b})}}};routes.set(ctx,{host});
+const box={rg:routes};vm.createContext(box);vm.runInContext(source.slice(start,end)+'\nglobalThis.warm=__wave39WarmNoise;',box);
+const samples=new Float32Array([.1,-.2,.3]),buffer={length:3,getChannelData:()=>samples};
+assert.doesNotThrow(()=>box.warm(ctx,buffer),'Power warm-up resolves its main host without an out-of-scope owner');
+assert.equal(sent.length,1);assert.equal(sent[0].m.type,'WAVE_NOISE');assert.deepEqual(sent[0].m.samples,samples);assert.notEqual(sent[0].m.samples,samples,'copy original noise');assert.equal(sent[0].b[0],sent[0].m.samples.buffer);
+box.warm(ctx,buffer);assert.equal(sent.length,1,'same buffer is warmed once');
+assert.doesNotThrow(()=>box.warm({},buffer),'pre-ready context is safe');
+host.waveReady=false;box.warm(ctx,{...buffer});assert.equal(sent.length,1,'not-ready host receives nothing');
+console.log('PASS Power noise warm-up owner, sample copy, no-op repeat and pre-ready context');

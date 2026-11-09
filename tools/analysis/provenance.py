@@ -18,7 +18,7 @@ man=json.loads((R/'source-manifest.json').read_text('utf-8'))
 status={r['file']:r['status'] for r in json.loads((R/'docs/SOURCE_TREE_STATUS.json').read_text())}
 tsmap=json.loads((R/'docs/TS_ORIGIN_MAP.json').read_text())['files']
 rows=[]
-for s in man['sections']:
+for s in man['sources']:
     for f in s['files']:
         t=(R/f).read_text('utf-8');u=units(t)
         pres={d:(t in txt) for d,_,txt,_,_ in wp}

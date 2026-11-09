@@ -5,5 +5,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: index.html must equal a fresh build of src/
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: index.html must equal a fresh build of the sources
         run: python3 tools/build.py --check
+      - name: regression tests known green (Oct-28 suite, no browser)
+        run: ./tools/run_tests.sh

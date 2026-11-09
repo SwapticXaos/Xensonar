@@ -1,0 +1,16 @@
+'use strict';
+const assert=require('node:assert/strict');
+const fs=require('node:fs');
+const vm=require('node:vm');
+const path=require('node:path');
+const code=fs.readFileSync(path.join(__dirname,'../src/contracts/15_melodic_project_reservations.js'),'utf8');
+const sandbox=vm.createContext({Map,Set,Date,Object,JSON,String,Error,TypeError});
+vm.runInContext(code,sandbox);
+const reservations=vm.runInContext('__XenMelodicProjectReservationsP36',sandbox);
+const one={id:'melodic-123',name:'Pulse',sourcePackageId:'pkg-1',contentHash:'stale-hash',composer:{notes:[{pitch:60}]},patternVariants:{A:{gain:1}},patternLinks:{}};
+const modified={...one,composer:{notes:[{pitch:61}]}};
+assert.throws(()=>reservations.applyMerge([one],[modified]),/conflict/i,'same ID/name/hash cannot hide changed musical content');
+const equivalent={patternLinks:{},patternVariants:{A:{gain:1}},composer:{notes:[{pitch:60}]},contentHash:'stale-hash',sourcePackageId:'pkg-1',name:'Pulse',id:'melodic-123'};
+assert.equal(reservations.applyMerge([one],[equivalent]).length,1,'key order must not create a false collision');
+assert.deepEqual(JSON.parse(JSON.stringify(reservations.applyMerge([one],[]))),[one],'unchanged inventory remains unchanged');
+console.log('P3.10 PASS: reserved project replay checks musical payload despite stale metadata hash');

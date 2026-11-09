@@ -3,7 +3,7 @@
 Reassemble with tools/build.py. Byte-identical round trip is checked at the end."""
 import re, sys, json
 from pathlib import Path
-root = Path(__file__).resolve().parent.parent
+root = Path(__file__).resolve().parents[2]
 html = (root / 'index.html').read_text('utf-8')
 src = root / 'src'
 TOKEN = '⁣XEN-BLOCK:{}⁣'   # invisible separator, never present in the app

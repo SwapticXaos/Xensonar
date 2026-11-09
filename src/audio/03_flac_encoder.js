@@ -243,3 +243,5 @@ function f319RecorderFlacEncode(buffer, range, onProgress, acousticPlan=null, bi
       }catch(error){finish(error);}
     };
     worker.postMessage({type:'init',sampleRate:Math.round(buffer.sampleRate),frames:left.length,bitsPerSample,strictLevels:bitsPerSample===24});
+  });
+}

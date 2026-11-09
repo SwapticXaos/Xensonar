@@ -1,5 +1,3 @@
-  });
-}
 
 
 /* MRU01 P4: bounded, single-file, stream-encoded FLAC for disk-backed PCM.

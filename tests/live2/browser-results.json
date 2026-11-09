@@ -1,0 +1,237 @@
+{
+  "static": [
+    {
+      "rate": 44100,
+      "bands": 4,
+      "maxError": 5.653128027915955e-7,
+      "relativeRms": 0.00002385235740165579
+    },
+    {
+      "rate": 44100,
+      "bands": 12,
+      "maxError": 0.000002355314791202545,
+      "relativeRms": 0.00009091120379659762
+    },
+    {
+      "rate": 44100,
+      "bands": 24,
+      "maxError": 0.0000039637088775634766,
+      "relativeRms": 0.00016206553503754793
+    },
+    {
+      "rate": 48000,
+      "bands": 4,
+      "maxError": 5.844049155712128e-7,
+      "relativeRms": 0.000026395962965389503
+    },
+    {
+      "rate": 48000,
+      "bands": 12,
+      "maxError": 0.0000033602118492126465,
+      "relativeRms": 0.00010218161014920697
+    },
+    {
+      "rate": 48000,
+      "bands": 24,
+      "maxError": 0.000005608424544334412,
+      "relativeRms": 0.00020714568087949433
+    },
+    {
+      "rate": 96000,
+      "bands": 4,
+      "maxError": 0.000001430511474609375,
+      "relativeRms": 0.0000784389618764701
+    },
+    {
+      "rate": 96000,
+      "bands": 12,
+      "maxError": 0.000005938112735748291,
+      "relativeRms": 0.00029083798370481087
+    },
+    {
+      "rate": 96000,
+      "bands": 24,
+      "maxError": 0.000011387281119823456,
+      "relativeRms": 0.0004950210236113576
+    }
+  ],
+  "live": {
+    "before": {
+      "version": 24,
+      "audioPriority": {
+        "paintEdits": 12,
+        "paintFlushes": 3,
+        "morphEdits": 0,
+        "morphAudioFrames": 0,
+        "heldKeys": 0,
+        "morphHotKeys": 0
+      },
+      "morphHotKeys": 0,
+      "workerActive": false,
+      "workerFailed": false,
+      "fitRunning": false,
+      "fitQueued": 0,
+      "fitCache": 0,
+      "devices": 3,
+      "filters": 72,
+      "sources": [
+        "material:stress",
+        "bass:stress",
+        "rootFollow:stress"
+      ],
+      "live": [
+        {
+          "source": "material:stress",
+          "backend": "worklet-coefficients",
+          "sent": 0,
+          "coalesced": 0,
+          "processor": null,
+          "error": null,
+          "state": "worklet"
+        },
+        {
+          "source": "bass:stress",
+          "backend": "worklet-coefficients",
+          "sent": 0,
+          "coalesced": 0,
+          "processor": null,
+          "error": null,
+          "state": "worklet"
+        },
+        {
+          "source": "rootFollow:stress",
+          "backend": "worklet-coefficients",
+          "sent": 0,
+          "coalesced": 0,
+          "processor": null,
+          "error": null,
+          "state": "worklet"
+        }
+      ]
+    },
+    "after": {
+      "version": 477,
+      "audioPriority": {
+        "paintEdits": 462,
+        "paintFlushes": 48,
+        "morphEdits": 0,
+        "morphAudioFrames": 0,
+        "heldKeys": 0,
+        "morphHotKeys": 0
+      },
+      "morphHotKeys": 0,
+      "workerActive": false,
+      "workerFailed": false,
+      "fitRunning": false,
+      "fitQueued": 0,
+      "fitCache": 0,
+      "devices": 3,
+      "filters": 72,
+      "sources": [
+        "material:stress",
+        "bass:stress",
+        "rootFollow:stress"
+      ],
+      "live": [
+        {
+          "source": "material:stress",
+          "backend": "worklet-coefficients",
+          "sent": 13,
+          "coalesced": 0,
+          "processor": {
+            "kind": "stats",
+            "applied": 14,
+            "coalesced": 0,
+            "frameGaps": 2,
+            "nonfinite": 0,
+            "peak": 0.09522273458202299,
+            "filters": 48,
+            "dualFrames": 61824,
+            "frames": 144000,
+            "unchanged": 0,
+            "sleeping": false
+          },
+          "error": null,
+          "state": "worklet"
+        },
+        {
+          "source": "bass:stress",
+          "backend": "worklet-coefficients",
+          "sent": 16,
+          "coalesced": 0,
+          "processor": {
+            "kind": "stats",
+            "applied": 16,
+            "coalesced": 0,
+            "frameGaps": 2,
+            "nonfinite": 0,
+            "peak": 0.1273659844430186,
+            "filters": 24,
+            "dualFrames": 72960,
+            "frames": 144000,
+            "unchanged": 1,
+            "sleeping": false
+          },
+          "error": null,
+          "state": "worklet"
+        },
+        {
+          "source": "rootFollow:stress",
+          "backend": "worklet-coefficients",
+          "sent": 16,
+          "coalesced": 0,
+          "processor": {
+            "kind": "stats",
+            "applied": 16,
+            "coalesced": 0,
+            "frameGaps": 2,
+            "nonfinite": 0,
+            "peak": 0.10340822656793124,
+            "filters": 24,
+            "dualFrames": 72960,
+            "frames": 144000,
+            "unchanged": 1,
+            "sleeping": false
+          },
+          "error": null,
+          "state": "worklet"
+        }
+      ]
+    },
+    "nativeCreatedDuringGesture": 0,
+    "nativeRampsDuringGesture": 0,
+    "controlMaxMs": 0.6999999992549419,
+    "captureFrames": 130304,
+    "captureFinite": true,
+    "wavError": 0
+  },
+  "disposed": {
+    "version": 477,
+    "audioPriority": {
+      "paintEdits": 462,
+      "paintFlushes": 48,
+      "morphEdits": 0,
+      "morphAudioFrames": 0,
+      "heldKeys": 0,
+      "morphHotKeys": 0
+    },
+    "morphHotKeys": 0,
+    "workerActive": false,
+    "workerFailed": false,
+    "fitRunning": false,
+    "fitQueued": 0,
+    "fitCache": 0,
+    "devices": 0,
+    "filters": 0,
+    "sources": [],
+    "live": []
+  },
+  "floatExport": {
+    "exact": true,
+    "format": 3,
+    "bits": 32,
+    "size": 264132,
+    "decodeExact": true,
+    "canPlay": true
+  }
+}

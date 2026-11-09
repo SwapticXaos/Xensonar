@@ -1,0 +1,48 @@
+const fs=require('fs'),vm=require('vm'),assert=require('assert');
+const html=fs.readFileSync(process.argv[2]||'/mnt/data/XenSonar_P9_M13_Deferred_V2_Boot_Test.html','utf8');
+const start=html.indexOf('function __createXenMetaSessionStore(');
+const end=html.indexOf('const __XenMetaSessions=__createXenMetaSessionStore(',start);
+const code=html.slice(start,end);
+const KEY='xensonar.meta-sessions.v2',BOOT='xensonar.meta-sessions.m13.boot.v1';
+const data=(count)=>({version:2,name:'Current draft',items:[],colors:{},roomSettings:null,saved:Array.from({length:count},(_,i)=>({id:'s-'+i,name:'Session '+i,items:[],colors:{},roomSettings:null})),loadedId:null,activePalette:{id:'s-5',name:'Session 5',items:[],colors:{}},dirty:false});
+function spawn(raw,seed){
+ const map=new Map([[KEY,raw]]);if(seed)map.set(BOOT,JSON.stringify(seed));
+ const hits=[];const storage={getItem(k){hits.push(['get',k]);return map.get(k)??null},setItem(k,v){hits.push(['set',k]);map.set(k,String(v))},removeItem(k){hits.push(['remove',k]);map.delete(k)}};
+ const quick={getItems:()=>[],replaceItems:()=>{}};
+ const ctx={storage,quick,console,queueMicrotask,crypto:{randomUUID:()=>String(Date.now())},__xenMetaValidateItems:x=>x,__xenMetaValidateColors:(x,y)=>y||{},__xenQuickGlobalRows:()=>5,__XenMainRoomSessionBridge:{safe:x=>x,available:()=>false},__xenGridKey:e=>e.id};
+ const script=code+'\nconst __XenMetaSessions=__createXenMetaSessionStore(storage,quick);\nglobalThis.store=__XenMetaSessions;';
+ vm.runInNewContext(script,ctx);
+ return {store:ctx.store,map,hits};
+}
+(async()=>{
+ const raw=JSON.stringify(data(1200));const seed={version:1,archiveRows:7,count:1200,activePalette:data(1200).activePalette};
+ const normal=spawn(raw);
+ assert.equal(normal.store.isDormant(),false);
+ assert.equal(normal.store.snapshot().saved.length,1200);
+ assert(normal.hits.some(([op,k])=>op==='get'&&k===KEY));
+ const boot=spawn(raw,seed);
+ assert(boot.store.isDormant());assert.equal(boot.store.snapshot().saved.length,0);
+ assert.equal(boot.store.snapshot().archiveRows,7);
+ assert.equal(boot.store.liveSessionLabel(),'Session 5');
+ assert.equal(boot.hits.filter(([op,k])=>op==='get'&&k===KEY).length,0,'startup read of V2');
+ assert(boot.store.ensureHydrated());
+ assert.equal(boot.store.snapshot().saved.length,1200);
+ assert.equal(boot.hits.filter(([op,k])=>op==='get'&&k===KEY).length,1);
+ assert(boot.store.saveFromQuickAsNew('New Sound'));
+ assert.equal(JSON.parse(boot.map.get(KEY)).saved.length,1201);
+ assert(boot.store.fastBootEnabled());
+ assert.equal(JSON.parse(boot.map.get(BOOT)).count,1201);
+ const legacy=spawn(raw,seed);
+ legacy.map.set(KEY,JSON.stringify({...data(1200),saved:[...data(1200).saved,{id:'outside',name:'Old HTML Addition',items:[],colors:{},roomSettings:null}]}));
+ assert(legacy.store.ensureHydrated());
+ assert(legacy.store.snapshot().saved.some(e=>e.id==='outside'));
+ const damaged=spawn('{broken',seed);
+ assert.equal(damaged.store.ensureHydrated(),false);
+ assert.equal(damaged.store.saveAsNew('Never write'),false);
+ assert.equal(damaged.map.get(KEY),'{broken');
+ const enabled=spawn(raw);
+ assert(enabled.store.enableFastBoot());
+ assert(enabled.map.has(BOOT));assert(enabled.store.disableFastBoot());assert(!enabled.map.has(BOOT));
+ await new Promise(resolve=>setImmediate(resolve));
+ console.log('M13_STORE_CONTRACT_PASS', {records:1200,bootV2Reads:0,canonicalReadsOnDemand:1,oldVersionSync:'pass',corruptRefusesWrite:true});
+})().catch(e=>{console.error(e);process.exit(1)});

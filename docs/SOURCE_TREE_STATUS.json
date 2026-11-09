@@ -188,14 +188,8 @@
 {
 "file": "src/mix/03_session_auditions.js",
 "status": "oct-evolved",
-"bytes": 9606,
+"bytes": 9616,
 "oct28_bytes": 9510
-},
-{
-"file": "src/post-oct/gaps/010-main-bundle__04_after_03_session_auditions.js",
-"status": "post-oct-gap",
-"bytes": 10,
-"oct28_bytes": 0
 },
 {
 "file": "src/mix/04_melodic_spatial.js",
@@ -242,14 +236,8 @@
 {
 "file": "src/nodal/02_synthesis_kernel.js",
 "status": "oct-evolved",
-"bytes": 68595,
+"bytes": 68742,
 "oct28_bytes": 64852
-},
-{
-"file": "src/post-oct/gaps/010-main-bundle__05_after_02_synthesis_kernel.js",
-"status": "post-oct-gap",
-"bytes": 147,
-"oct28_bytes": 0
 },
 {
 "file": "src/nodal/03_library.js",
@@ -320,13 +308,13 @@
 {
 "file": "src/nodal/12_surface_runtime.js",
 "status": "oct-evolved",
-"bytes": 57107,
+"bytes": 59090,
 "oct28_bytes": 28374
 },
 {
 "file": "src/post-oct/gaps/010-main-bundle__06_after_12_surface_runtime.js",
 "status": "post-oct-gap",
-"bytes": 8341,
+"bytes": 6358,
 "oct28_bytes": 0
 },
 {
@@ -596,14 +584,8 @@
 {
 "file": "src/contracts/16_project_commit_boundary.js",
 "status": "oct-evolved",
-"bytes": 4273,
+"bytes": 5102,
 "oct28_bytes": 4269
-},
-{
-"file": "src/post-oct/gaps/010-main-bundle__07_after_16_project_commit_boundary.js",
-"status": "post-oct-gap",
-"bytes": 829,
-"oct28_bytes": 0
 },
 {
 "file": "src/01_app_runtime.js",
@@ -956,13 +938,13 @@
 {
 "file": "src/runtime/instrument/09_monitoring_and_manual_patterns.js",
 "status": "oct-evolved",
-"bytes": 95702,
+"bytes": 96330,
 "oct28_bytes": 80389
 },
 {
 "file": "src/post-oct/gaps/010-main-bundle__09_after_09_monitoring_and_manual_patterns.js",
 "status": "post-oct-gap",
-"bytes": 6373,
+"bytes": 5745,
 "oct28_bytes": 0
 },
 {
@@ -1016,14 +998,8 @@
 {
 "file": "src/runtime/instrument/11_recording_and_granular_controls.js",
 "status": "oct-evolved",
-"bytes": 53542,
+"bytes": 53893,
 "oct28_bytes": 47501
-},
-{
-"file": "src/post-oct/gaps/010-main-bundle__10_after_11_recording_and_granular_controls.js",
-"status": "post-oct-gap",
-"bytes": 351,
-"oct28_bytes": 0
 },
 {
 "file": "src/runtime/instrument/12_rhythm_and_bass_editor.js",
@@ -1040,14 +1016,8 @@
 {
 "file": "src/rhythm/01_compact_drum_grid.js",
 "status": "oct-evolved",
-"bytes": 61667,
+"bytes": 62371,
 "oct28_bytes": 46595
-},
-{
-"file": "src/post-oct/gaps/010-main-bundle__12_after_01_compact_drum_grid.js",
-"status": "post-oct-gap",
-"bytes": 704,
-"oct28_bytes": 0
 },
 {
 "file": "src/audio/07_myzel_g_geometry.js",
@@ -1058,14 +1028,8 @@
 {
 "file": "src/audio/09_myzel_g_dsp.js",
 "status": "oct-evolved",
-"bytes": 19396,
+"bytes": 20735,
 "oct28_bytes": 16301
-},
-{
-"file": "src/post-oct/gaps/010-main-bundle__13_after_09_myzel_g_dsp.js",
-"status": "post-oct-gap",
-"bytes": 1339,
-"oct28_bytes": 0
 },
 {
 "file": "src/audio/08_myzel_g_live.js",
@@ -1106,13 +1070,13 @@
 {
 "file": "src/audio/02_rfl_worklet.js",
 "status": "oct-evolved",
-"bytes": 104085,
+"bytes": 104003,
 "oct28_bytes": 102830
 },
 {
 "file": "src/post-oct/gaps/010-main-bundle__14_after_02_rfl_worklet.js",
 "status": "post-oct-gap",
-"bytes": 14033,
+"bytes": 14115,
 "oct28_bytes": 0
 },
 {
@@ -1142,26 +1106,20 @@
 {
 "file": "src/audio/03_flac_encoder.js",
 "status": "oct-evolved",
-"bytes": 13811,
+"bytes": 13819,
 "oct28_bytes": 12384
 },
 {
 "file": "src/post-oct/gaps/010-main-bundle__16_after_03_flac_encoder.js",
 "status": "post-oct-gap",
-"bytes": 9835,
+"bytes": 9827,
 "oct28_bytes": 0
 },
 {
 "file": "src/audio/03_recorder_helpers.js",
 "status": "oct-evolved",
-"bytes": 1470,
+"bytes": 1612,
 "oct28_bytes": 1415
-},
-{
-"file": "src/post-oct/gaps/010-main-bundle__17_after_03_recorder_helpers.js",
-"status": "post-oct-gap",
-"bytes": 142,
-"oct28_bytes": 0
 },
 {
 "file": "src/audio/03_pcm_range.js",
@@ -1200,28 +1158,16 @@
 "oct28_bytes": 11784
 },
 {
-"file": "src/post-oct/gaps/010-main-bundle__19_after_avalanche.js",
-"status": "post-oct-gap",
-"bytes": 1489,
-"oct28_bytes": 0
-},
-{
 "file": "src/audio/hold_resident.js",
 "status": "oct-evolved",
-"bytes": 7780,
+"bytes": 9269,
 "oct28_bytes": 6301
 },
 {
 "file": "src/audio/hold_modulation.js",
 "status": "oct-evolved",
-"bytes": 7185,
+"bytes": 7266,
 "oct28_bytes": 3490
-},
-{
-"file": "src/post-oct/gaps/010-main-bundle__20_after_hold_modulation.js",
-"status": "post-oct-gap",
-"bytes": 81,
-"oct28_bytes": 0
 },
 {
 "file": "src/audio/05_live_voice_runtime.js",
@@ -1274,32 +1220,20 @@
 {
 "file": "src/rhythm/05_canonical_selection.js",
 "status": "oct-evolved",
-"bytes": 8797,
+"bytes": 9283,
 "oct28_bytes": 6603
-},
-{
-"file": "src/post-oct/gaps/010-main-bundle__22_after_05_canonical_selection.js",
-"status": "post-oct-gap",
-"bytes": 485,
-"oct28_bytes": 0
 },
 {
 "file": "src/app/forge/01_room_shell.js",
 "status": "oct-evolved",
-"bytes": 71717,
+"bytes": 71716,
 "oct28_bytes": 68185
 },
 {
 "file": "src/app/forge/02_boot_and_workspace_tools.js",
 "status": "oct-evolved",
-"bytes": 87775,
+"bytes": 87993,
 "oct28_bytes": 80311
-},
-{
-"file": "src/post-oct/gaps/010-main-bundle__23_after_02_boot_and_workspace_tools.js",
-"status": "post-oct-gap",
-"bytes": 218,
-"oct28_bytes": 0
 },
 {
 "file": "src/forge/stamps/01_atlas_2026_bridge.js",
@@ -1406,14 +1340,8 @@
 {
 "file": "src/forge/editor/07_composition_and_preview_ui.js",
 "status": "oct-evolved",
-"bytes": 127116,
+"bytes": 128332,
 "oct28_bytes": 110055
-},
-{
-"file": "src/post-oct/gaps/010-main-bundle__24_after_07_composition_and_preview_ui.js",
-"status": "post-oct-gap",
-"bytes": 1216,
-"oct28_bytes": 0
 },
 {
 "file": "src/forge/ui/03_microphone_intake.js",

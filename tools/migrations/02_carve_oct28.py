@@ -6,7 +6,7 @@ Result: src/** and styles/** at Oct-28 paths, src/post-oct/** for code added aft
 source-manifest.json (ordered sections). Build: python3 tools/build.py (byte-identical)."""
 import json,re,sys,shutil
 from pathlib import Path
-R=Path(__file__).resolve().parent.parent
+R=Path(__file__).resolve().parents[2]
 plan=json.load(open(sys.argv[1]))
 tpl=(R/'src/index.template.html').read_text('utf-8')
 sections=[];written=set()

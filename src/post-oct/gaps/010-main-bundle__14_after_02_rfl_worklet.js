@@ -1,3 +1,4 @@
+/* XenSonar LM01 — isolated, lossless, disk-backed master-session take storage.
  * Dedicated only to opt-in Master Recording, never used by Loop-Rec.
  * PCM is Float32 stereo and written in 4 MiB batches to IndexedDB.
  * MRU01 P1–P3: atomic PCM checkpoints, sample-exact range access, continuous WAV.

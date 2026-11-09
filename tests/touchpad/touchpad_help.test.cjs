@@ -1,0 +1,13 @@
+'use strict';
+const fs=require('node:fs');const assert=require('node:assert/strict');
+const source=fs.readFileSync('src/myzel/01_effect_mapping.js','utf8');
+const styles=fs.readFileSync('styles/areas/029_inline-029.css','utf8');
+assert.match(source,/function __XenTouchpadTypingHelp\(/,'dedicated UI module exists');
+assert.match(source,/lane==='keyboard'\s*&&\s*u\.jsx\(__XenTouchpadTypingHelp/,'widget only in Keyboard lane');
+assert.match(source,/gsettings set org\.gnome\.desktop\.peripherals\.touchpad disable-while-typing /,'exact GNOME schema and key');
+assert.match(source,/__xenTouchpadTypingCommand/,'one authoritative command composer');
+assert.match(source,/navigator\.clipboard/,'uses native clipboard');
+assert.match(source,/onClick[^\n]*selectCommand/,'button click triggers selection');
+assert.match(styles,/\.xen-touchpad-helper/,'scoped component styling exists');
+assert.doesNotMatch(source,/\bexecSync\s*\(|\bchild_process\b/,'browser cannot directly execute shell');
+console.log('PASS Touchpad helper static source contract');

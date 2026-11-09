@@ -1,0 +1,30 @@
+'use strict';
+/* Optical NAME anchor: structure, unchanged naming state, no animation/hover gate. */
+const assert = require('node:assert/strict');
+const fs = require('node:fs');
+const path = require('node:path');
+const root = path.resolve(__dirname,'..');
+const jsx = fs.readFileSync(path.join(root,'src/rooms/lab.js'),'utf8');
+const presenter=fs.readFileSync(path.join(root,'src/rooms/00_forge_rack_presentation.js'),'utf8');
+const css = fs.readFileSync(path.join(root,'styles/areas/040_xen-p9-m9-cockpit-canonical.css'),'utf8');
+const nameStart = jsx.indexOf('className:"xen-forge-name-rack');
+assert(nameStart > 0, 'A dedicated NAME visual layout must exist in the Forge naming block');
+const card = jsx.slice(nameStart, nameStart+2100);
+assert(card.includes('className:"xen-forge-name-word"'), 'large NAME anchor missing');
+assert(card.includes('children:"NAME"'), 'NAME legend missing');
+assert(card.includes('className:"xen-forge-name-colon"'), 'dedicated input-row colon missing');
+assert(card.includes('children:":"'), 'colon must be visible');
+assert(card.includes('className:"xen-forge-name-heading '), 'existing heading must follow NAME in the grid');
+assert(card.includes('children:__ForgeRackCopy.titleHeading')&&presenter.includes("titleHeading:'Loop/Sample betiteln'"), 'existing heading changed');
+assert(card.includes('value:oe,onChange:qe=>ue(qe.target.value),placeholder:fA(E)'), 'existing controlled title and auto-title placeholder must be preserved');
+assert(card.includes('children:__ForgeRackCopy.titleHelp')&&presenter.includes('This title is used for Material Track, direct Melodic Loop pink-track import, Root Follow, and saving the purple mask as a sample.'), 'existing always-visible help text changed');
+assert(card.includes('"aria-label":"Loop/Sample betiteln"'), 'input needs a short accessible name, not the entire help copy');
+for (const cls of ['.xen-forge-name-rack','.xen-forge-name-word','.xen-forge-name-colon','.xen-forge-name-heading'])
+ assert(css.includes(cls), `Missing stylesheet rule ${cls}`);
+assert(/\.xen-forge-name-colon\s*\{[^}]*grid-row\s*:\s*2\s*;/m.test(css),'colon must align to center input row');
+assert(/\.xen-forge-name-word\s*\{[^}]*grid-row\s*:\s*1\s*\/\s*4\s*;/m.test(css),'NAME must span all three rows');
+assert(/\.xen-forge-name-word\s*\{[^}]*font-family\s*:\s*Impact/m.test(css),'NAME must inherit PLAY-like condensed font family');
+assert(!/\.xen-forge-name-(?:rack|word|colon)[^}]*animation\s*:/m.test(css),'NAME should not animate');
+assert(!/\.xen-forge-name-word:hover/m.test(css),'NAME should not depend on hover');
+assert(jsx.includes('__ForgeRackCaption("pink")')&&presenter.includes("pink:{className:'xen-forge-tile-pink'"),'Pink Track destination/action label must remain recognizable');
+console.log('P2.8 NAME UI PASS: static PLAY-inspired anchor, smaller input-row colon, preserved controlled title and help');

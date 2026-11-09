@@ -1,0 +1,52 @@
+'use strict';
+const assert=require('node:assert/strict');
+const vm=require('node:vm');
+const fs=require('node:fs');
+const path=require('node:path');
+const root=path.resolve(__dirname,'..');
+const ctx=vm.createContext({Map,Set,Object,Array,Error,TypeError,console});
+vm.runInContext(fs.readFileSync(path.join(root,'src/contracts/07_reference_integrity.js'),'utf8'),ctx);
+const api=vm.runInContext('__XenReferenceIntegrityP25',ctx);
+const composer=refs=>({tracks:refs.map((value,index)=>({id:`track-${index}`,instrumentPreset:value}))});
+const row=id=>({archivedId:id,name:id,dataBase64:'AQID'});
+const pack={samples:[row('a'),row('b')],workspace:{name:'Current',composer:composer(['sample:a','synth:a','sample:b'])},projects:[{id:'p1',name:'Saved',composer:composer(['sample:a'])}]};
+let plan=api.inspect({archive:pack,mode:'replace',existingSamples:[{id:'legacy1'}],localProjects:[{id:'old',name:'Old',composer:composer(['sample:legacy1'])}],activeComposer:composer(['sample:legacy1'])});
+assert.equal(plan.incomingReferenceCount,3);
+assert.equal(plan.missing.length,0);
+assert.equal(plan.localAtRisk.length,2);
+assert.equal(plan.deletableCount,1);
+assert.equal(plan.mode,'replace');
+assert.equal(plan.sampleCount,2);
+assert.equal(api.assertSafe(plan),plan);
+const resolution=api.verifyResolved({archive:pack,mapping:new Map([['a','new-a'],['b','new-b']]),
+  availableSamples:[{id:'new-a'},{id:'new-b'}]});
+assert.equal(resolution.resolvedCount,3);
+assert.throws(()=>api.verifyResolved({archive:pack,mapping:new Map([['a','new-a'],['b','new-b']]),
+  availableSamples:[{id:'new-a'}]}),/unresolved|missing/i);
+
+const missing={...pack,projects:[...pack.projects,{id:'broken',name:'Broken',composer:composer(['sample:no-such-id'])}]};
+plan=api.inspect({archive:missing,mode:'replace',existingSamples:[{id:'no-such-id'}]});
+assert.equal(plan.missing.length,1,'replace must not accept old IDs that will be removed');
+assert.match(plan.missing[0].source,/Broken/);
+assert.throws(()=>api.assertSafe(plan),/missing sample|fehlende Sample/i);
+plan=api.inspect({archive:missing,mode:'differential',existingSamples:[{id:'no-such-id'}]});
+assert.equal(plan.missing.length,0,'differential can retain existing sample IDs');
+plan=api.inspect({archive:missing,mode:'merge',existingSamples:[]});
+assert.equal(plan.missing.length,1);
+plan=api.inspect({archive:{...pack,samples:[],workspace:{name:'Workspace',composer:composer(['sample:a'])}},mode:'replace',existingSamples:[]});
+assert.equal(plan.missing.length,2,'empty package cannot satisfy sample tracks');
+const original=JSON.stringify(pack); api.inspect({archive:pack,mode:'replace',existingSamples:[]});
+assert.equal(JSON.stringify(pack),original,'inspection must not mutate inputs');
+assert.throws(()=>api.inspect({archive:pack,mode:'unknown',existingSamples:[]}),/mode/i);
+assert.throws(()=>api.inspect({archive:pack,mode:'replace',existingSamples:null}),/inventory/i);
+// No speculative traversal of unrelated keys: only the actual XenSonar composer.tracks instrumentPreset field.
+const hidden={...pack,workspace:{composer:{tracks:[{instrumentPreset:'sample:a',random:{sampleId:'not-a-schema'}}]}}};
+assert.equal(api.inspect({archive:hidden,mode:'replace',existingSamples:[]}).missing.length,0);
+const source=fs.readFileSync(path.join(root,'src/app/forge/03_spectral_grid_and_archives.js'),'utf8');
+assert(source.includes('__XenReferenceIntegrityP25.inspect('),'actual import must use preflight');
+assert(source.includes('__XenReferenceIntegrityP25.assertSafe('),'actual import must fail closed');
+const start=source.indexOf('async function _Q(e)');
+const safety=source.indexOf('__XenReferenceIntegrityP25.assertSafe(',start);
+const firstWrite=source.indexOf('NLe({records:o,mode:e.mode})',start);
+assert(safety>start && safety<firstWrite,'reference preflight must precede first legacy workspace write');
+console.log('P2.5 PASS: referenced sample graph, replace/differential/merge semantics, local risk inventory, early fail-closed wiring');

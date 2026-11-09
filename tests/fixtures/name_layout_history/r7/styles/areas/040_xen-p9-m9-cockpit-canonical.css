@@ -1,0 +1,471 @@
+
+/* M9: single-owned presentation of M7-frozen chevron and validated fade.
+   Removed historical M2/M4/M5/M6/M7 override layers. No DSP/JS modifications. */
+/* Core quick-rack material palette and tile states. */
+.xen-quick-collection{
+ background:#05151c;
+ box-shadow:inset 0 1px 0 #3a8b9950,0 6px 20px #0008;
+}
+.xen-quick-tile:not(.is-session-tinted):not(.is-key-pulse){
+ background-image:linear-gradient(156deg,#3c98a110 0%,transparent 49%,#00000023 100%);
+ box-shadow:inset 0 1px 0 #a2e7e612,inset 0 -1px 0 #0005;
+}
+.xen-quick-tile:not(.is-session-tinted):not(.is-key-pulse):hover{
+ background-image:linear-gradient(157deg,#87ecf425 0%,transparent 76%);
+ box-shadow:inset 0 1px 0 #a2e7e638,0 0 9px #37b9be24;
+}
+
+/* Five-state LED optics – unchanged behavior and shapes. */
+/* M3 · Instrument-grade encapsulated optics. Only the lamps are restyled;
+   aria-pressed/is-muted and all five original button event owners stay intact. */
+.xen-quick-mutes button{
+ --led-ink:#041b14;--led-rim:#4d9c80;
+ --led-reflect:rgba(211,255,228,.60);--led-glare:rgba(220,255,238,.88);
+ --led-core:#a5ffd0;--led-halo:rgba(31,255,137,.62);
+ position:relative;isolation:isolate;box-sizing:border-box;overflow:hidden;
+ height:17px;min-height:17px;border:1px solid var(--led-rim);border-radius:4px;
+ background:linear-gradient(180deg,#35594d 0%,#071a15 23%,#020b09 68%,#1c3b30 100%);
+ box-shadow:0 0 0 1px #010909,inset 0 1px 0 #bbffe13c,
+            inset 0 -1px 0 #000b,0 1px 2px #0009;
+ transition:border-color .13s ease,box-shadow .13s ease,filter .13s ease;
+}
+.xen-quick-mutes button.is-muted{
+ --led-ink:#2b0a15;--led-rim:#ab5168;
+ --led-reflect:rgba(255,207,218,.53);--led-glare:rgba(255,238,240,.9);
+ --led-core:#ffc8ca;--led-halo:rgba(255,61,101,.68);
+ background:linear-gradient(180deg,#673341 0%,#230e16 23%,#10050a 68%,#46202c 100%);
+ box-shadow:0 0 0 1px #120409,inset 0 1px 0 #ffe0e13e,
+            inset 0 -1px 0 #000b,0 1px 2px #0009;
+}
+/* Optical resin: narrow chrome lip, luminous center, deep vignette.
+   A small technical facet on each edge reads as physical hardware, not a solid paint fill. */
+.xen-quick-mutes button::before{
+ content:"";position:absolute;inset:2px 3px 2px;pointer-events:none;
+ border:1px solid rgba(224,255,235,.28);border-radius:3px;
+ background:
+  radial-gradient(ellipse 55% 72% at 50% 51%,var(--led-core) -12%,transparent 92%),
+  radial-gradient(ellipse 75% 105% at 50% 59%,var(--led-halo) 0%,transparent 78%),
+  linear-gradient(180deg,rgba(243,255,251,.43) 0%,rgba(213,255,236,.13) 21%,transparent 41%,rgba(0,0,0,.30) 90%,var(--led-ink) 100%),
+  linear-gradient(90deg,#05231b 0%,#167848 16%,#219452 50%,#167848 84%,#05231b 100%);
+ box-shadow:inset 0 1px 0 #ffffff7b,inset 0 -2px 3px #0008,
+            inset 1px 0 2px #0007,inset -1px 0 2px #0007,
+            0 0 6px var(--led-halo);
+ animation:xenCyberOpticFlux 5.2s ease-in-out infinite;
+}
+.xen-quick-mutes button.is-muted::before{
+ border-color:rgba(255,216,225,.36);
+ background:
+  radial-gradient(ellipse 55% 72% at 50% 51%,var(--led-core) -12%,transparent 92%),
+  radial-gradient(ellipse 75% 105% at 50% 59%,var(--led-halo) 0%,transparent 78%),
+  linear-gradient(180deg,rgba(255,247,248,.40) 0%,rgba(255,210,225,.12) 21%,transparent 41%,rgba(0,0,0,.30) 90%,var(--led-ink) 100%),
+  linear-gradient(90deg,#2b0a15 0%,#95253d 16%,#cf3856 50%,#95253d 84%,#2b0a15 100%);
+ box-shadow:inset 0 1px 0 #ffffff78,inset 0 -2px 3px #0009,
+            inset 1px 0 2px #0008,inset -1px 0 2px #0008,
+            0 0 6px var(--led-halo);
+ animation:xenCyberOpticFlux 5.2s ease-in-out infinite;
+}
+/* Specular glass arc plus two distinct polished end highlights. Soft "breathing"
+   changes the emitted light, not button position or the user's mute state. */
+.xen-quick-mutes button::after{
+ content:"";position:absolute;inset:2px 3px;pointer-events:none;z-index:1;border-radius:3px;
+ background:
+  radial-gradient(ellipse 3px 2px at 13% 56%,var(--led-glare),transparent 100%),
+  radial-gradient(ellipse 3px 2px at 87% 56%,var(--led-glare),transparent 100%),
+  linear-gradient(105deg,transparent 5%,var(--led-reflect) 25%,rgba(255,255,255,.1) 45%,transparent 64%) 0 1px / 100% 3px no-repeat;
+ opacity:.78;animation:xenCyberOpticBreath 4.6s ease-in-out infinite;
+}
+.xen-quick-mutes button:nth-child(2)::before{animation-delay:-.93s}
+.xen-quick-mutes button:nth-child(2)::after{animation-delay:-.93s}
+.xen-quick-mutes button:nth-child(3)::before{animation-delay:-1.86s}
+.xen-quick-mutes button:nth-child(3)::after{animation-delay:-1.86s}
+.xen-quick-mutes button:nth-child(4)::before{animation-delay:-2.79s}
+.xen-quick-mutes button:nth-child(4)::after{animation-delay:-2.79s}
+.xen-quick-mutes button:nth-child(5)::before{animation-delay:-3.72s}
+.xen-quick-mutes button:nth-child(5)::after{animation-delay:-3.72s}
+.xen-quick-mutes button:hover{filter:brightness(1.14);
+ box-shadow:0 0 0 1px #081712,inset 0 1px 0 #ddfff166,
+            0 0 9px var(--led-halo),0 1px 2px #0009}
+.xen-quick-mutes button:active{filter:brightness(.72);
+ box-shadow:0 0 0 1px #000,inset 0 2px 3px #000c}
+.xen-quick-mutes button:focus-visible{outline:2px solid #95f5ff;outline-offset:2px}
+.xen-quick-mute-icon{position:relative;z-index:2;line-height:15px;
+ color:#f0fff8;text-shadow:0 1px 1px #001910,0 0 2px #001910}
+@keyframes xenCyberOpticBreath{0%,100%{opacity:.62}50%{opacity:.93}}
+@keyframes xenCyberOpticFlux{0%,100%{filter:brightness(.91)}38%{filter:brightness(1.06)}53%{filter:brightness(.96)}76%{filter:brightness(1.14)}}
+@media(prefers-reduced-motion:reduce){.xen-quick-mutes button::before,.xen-quick-mutes button::after{animation:none;opacity:1;filter:none}}
+
+/* Generic collapse element styles for nonmigrated contexts. */
+.xen-quick-collapse-trigger{
+ box-sizing:border-box;overflow:hidden;isolation:isolate;
+ width:26px;height:26px;min-width:26px;min-height:26px;
+ padding:0;border:1px solid #467484;
+ border-radius:7px 3px 3px 7px;
+ background:linear-gradient(155deg,#1a3c49 0%,#0d2530 35%,#07161e 61%,#123540 100%);
+ color:#ed8dff;font:900 20px/1 ui-sans-serif,system-ui,sans-serif;
+ text-shadow:0 0 5px #ee6eff8c,0 1px 1px #000d;
+ box-shadow:inset 0 1px 0 #c5f6ff45,inset 1px 0 0 #9eefff22,
+            inset 0 -2px 3px #010a10,0 2px 7px #0008;
+ transition:color 130ms,border-color 130ms,box-shadow 130ms,background 130ms;
+}
+
+.xen-quick-collapse-trigger::before{
+ content:"";position:absolute;pointer-events:none;top:2px;left:3px;right:4px;height:2px;
+ border-radius:9px;background:linear-gradient(90deg,transparent,#9eeffb78 38%,#a7f8ff94 58%,transparent);
+}
+.xen-quick-collapse-trigger::after{
+ content:"";position:absolute;pointer-events:none;right:1px;top:5px;bottom:5px;width:2px;
+ border-radius:2px;background:linear-gradient(#3f99a7,#173a46,#3f8996);opacity:.85;
+}
+.xen-quick-collapse-trigger:hover{
+ color:#ffc3ff;border-color:#83c0d0;
+ background:linear-gradient(155deg,#244e5b,#103641 49%,#0a222b 75%,#1a4350);
+ box-shadow:inset 0 1px 0 #e6ffff72,inset 1px 0 0 #b3f8ff3a,
+            0 0 8px #66b9e44a,0 2px 7px #0008;
+ text-shadow:0 0 8px #f06dff,0 0 2px #ffffff8c;
+}
+.xen-quick-collapse-trigger:active{background:#06131b;color:#d97cec;
+ box-shadow:inset 0 2px 5px #000c}
+.xen-quick-collapse-trigger:focus-visible{outline:2px solid #96f0ff;outline-offset:2px}
+
+
+/* Position and text are exactly M7 (pixel-frozen). The contour owns the
+   painted body; the actual button owns only pointer and accessible label. */
+.xen-quick-collection.is-migrated .xen-quick-collapse-trigger:not(.xen-quick-collapse-tab){
+ left:-37px;right:auto;top:26px;
+ width:29px;min-width:29px;height:26px;min-height:26px;
+ box-sizing:border-box;overflow:visible;isolation:auto;
+ display:flex;align-items:center;justify-content:center;
+ padding:0 3px 2px 0;
+ border:0;border-radius:10px 0 0 10px;background:transparent;
+ color:#f191ff;font:700 23px/1 'DejaVu Sans Mono',ui-monospace,monospace;
+ text-shadow:0 0 6px #f462e7a4,0 0 2px #e64cff;
+ box-shadow:none;transition:color .14s ease,text-shadow .14s ease,filter .14s ease;
+ z-index:4;
+}
+.xen-quick-collection.is-migrated .xen-quick-collapse-trigger:not(.xen-quick-collapse-tab)::before,
+.xen-quick-collection.is-migrated .xen-quick-collapse-trigger:not(.xen-quick-collapse-tab)::after{content:none}
+.xen-quick-collection.is-migrated .xen-quick-collapse-trigger:not(.xen-quick-collapse-tab):hover{
+ background:transparent;color:#ffd6ff;text-shadow:0 0 8px #fa8df4ed,0 0 3px #fff8;
+ border:0;box-shadow:none;
+}
+.xen-quick-collection.is-migrated .xen-quick-collapse-trigger:not(.xen-quick-collapse-tab):active{
+ background:transparent;color:#ffe3ff;border:0;box-shadow:none;
+}
+.xen-quick-collection.is-migrated .xen-quick-collapse-trigger:not(.xen-quick-collapse-tab):focus-visible{
+ outline:2px solid #8ae4ec;outline-offset:2px;
+}
+
+/* A single rack-owned decorative shape. 49px canvas outside the panel;
+   actual pigment occupies x<=45 (tile left is x=48). Native panel outline
+   remains untouched. Fade is encoded IN the SVG, not an overlay. */
+.xen-quick-collection.is-migrated::before{
+ content:"";position:absolute;z-index:3;pointer-events:none;
+ left:-40px;top:14px;bottom:0;width:49px;height:auto;
+ background-image:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2249%22%20height%3D%22100%25%22%3E%3Cdefs%3E%3ClinearGradient%20id%3D%22shell%22%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%221%22%20y2%3D%220%22%3E%3Cstop%20stop-color%3D%22%230b2c39%22%2F%3E%3Cstop%20offset%3D%22.55%22%20stop-color%3D%22%2308232d%22%2F%3E%3Cstop%20offset%3D%221%22%20stop-color%3D%22%2305151c%22%2F%3E%3C%2FlinearGradient%3E%3ClinearGradient%20id%3D%22fadeTail%22%20x1%3D%220%22%20y1%3D%2257%22%20x2%3D%220%22%20y2%3D%22120%22%20gradientUnits%3D%22userSpaceOnUse%22%3E%3Cstop%20offset%3D%220%22%20stop-color%3D%22%232b6876%22%20stop-opacity%3D%221%22%2F%3E%3Cstop%20offset%3D%22.35%22%20stop-color%3D%22%232b6876%22%20stop-opacity%3D%22.72%22%2F%3E%3Cstop%20offset%3D%22.72%22%20stop-color%3D%22%232b6876%22%20stop-opacity%3D%22.28%22%2F%3E%3Cstop%20offset%3D%221%22%20stop-color%3D%22%232b6876%22%20stop-opacity%3D%220%22%2F%3E%3C%2FlinearGradient%3E%3ClinearGradient%20id%3D%22fadeBody%22%20x1%3D%220%22%20y1%3D%2258%22%20x2%3D%220%22%20y2%3D%22110%22%20gradientUnits%3D%22userSpaceOnUse%22%3E%3Cstop%20offset%3D%220%22%20stop-color%3D%22%23fff%22%20stop-opacity%3D%221%22%2F%3E%3Cstop%20offset%3D%221%22%20stop-color%3D%22%23fff%22%20stop-opacity%3D%220%22%2F%3E%3C%2FlinearGradient%3E%3Cmask%20id%3D%22bodyMask%22%20maskUnits%3D%22userSpaceOnUse%22%20x%3D%220%22%20y%3D%220%22%20width%3D%2249%22%20height%3D%22125%22%3E%3Crect%20x%3D%220%22%20y%3D%220%22%20width%3D%2249%22%20height%3D%2258%22%20fill%3D%22white%22%2F%3E%3Crect%20x%3D%220%22%20y%3D%2258%22%20width%3D%2249%22%20height%3D%2254%22%20fill%3D%22url%28%23fadeBody%29%22%2F%3E%3C%2Fmask%3E%3C%2Fdefs%3E%3Cpath%20mask%3D%22url%28%23bodyMask%29%22%20d%3D%22M40%200%20H45%20V112%20H40%20V57%20C40%2051%2036%2047%2030%2047%20H22%20Q12%2047%2012%2037%20V31%20Q12%2021%2022%2021%20H30%20C36%2021%2040%2017%2040%2011%20Z%22%20fill%3D%22url%28%23shell%29%22%2F%3E%3Cpath%20d%3D%22M40%200%20V11%20C40%2017%2036%2021%2030%2021%20H22%20Q12%2021%2012%2031%20V37%20Q12%2047%2022%2047%20H30%20C36%2047%2040%2051%2040%2057%22%20fill%3D%22none%22%20stroke%3D%22%232b6876%22%20stroke-width%3D%221.25%22%20stroke-linejoin%3D%22round%22%20stroke-linecap%3D%22round%22%2F%3E%3Cline%20x1%3D%2240%22%20y1%3D%2256.8%22%20x2%3D%2240%22%20y2%3D%22120%22%20stroke%3D%22url%28%23fadeTail%29%22%20stroke-width%3D%221.25%22%20stroke-linecap%3D%22butt%22%2F%3E%3Cpath%20d%3D%22M22%2022%20H30%20C35%2022%2039%2018%2039%2011%22%20fill%3D%22none%22%20stroke%3D%22%2365aeba%22%20stroke-opacity%3D%22.23%22%20stroke-width%3D%22.7%22%20stroke-linecap%3D%22round%22%2F%3E%3C%2Fsvg%3E");
+ background-size:49px 100%;background-position:0 0;background-repeat:no-repeat;
+ filter:drop-shadow(-1px 1px 2px rgba(0,0,0,.25));
+}
+.xen-quick-collection.is-migrated:has(.xen-quick-collapse-trigger:hover)::before{
+ filter:brightness(1.19) drop-shadow(-1px 1px 4px rgba(79,183,210,.17));
+}
+
+/* Collapsed: keep a visible, usable recovery control. Chevron semantics are
+   reversed; the separate closed-state tab never changes the saved-diskette. */
+.xen-quick-dock.is-collapsed .xen-quick-collapse-trigger.xen-quick-collapse-tab{
+ width:26px;height:26px;min-width:26px;min-height:26px;padding:0 0 2px 1px;
+ display:flex;align-items:center;justify-content:center;
+ border:0;border-radius:8px 0 0 8px;
+ background:linear-gradient(105deg,#123541,#05151c 83%);
+ color:#f191ff;font:700 23px/1 'DejaVu Sans Mono',ui-monospace,monospace;
+ text-shadow:0 0 5px #e364e6b5;box-shadow:inset 1px 0 0 #7bd9e64f;
+}
+.xen-quick-dock.is-collapsed .xen-quick-collapse-trigger.xen-quick-collapse-tab::before,
+.xen-quick-dock.is-collapsed .xen-quick-collapse-trigger.xen-quick-collapse-tab::after{content:none}
+.xen-quick-dock.is-collapsed .xen-quick-collapse-trigger.xen-quick-collapse-tab:hover{
+ color:#ffe0ff;background:linear-gradient(105deg,#194858,#071d26 85%);
+}
+
+/* A single hardware-record lamp within the existing header recording action.
+   The active red state follows the true recording prop; not an animation guess. */
+[data-xen-header-record]{
+ position:relative;isolation:isolate;min-height:30px;
+ padding:5px 12px 5px 23px;border:1px solid #b458d4;
+ border-radius:5px;color:#ffe8ff;
+ background:linear-gradient(155deg,#371a44 0%,#1c0a2c 46%,#12071e 100%);
+ box-shadow:inset 0 1px 0 #f5d5ff50,inset 0 -2px 2px #09010e,
+            0 0 0 1px #4e195b66,0 2px 7px #0008;
+ text-shadow:0 0 3px #df80ff70;
+ transition:background 130ms,border-color 130ms,box-shadow 130ms,color 130ms;
+}
+[data-xen-header-record]::before{
+ content:"";position:absolute;pointer-events:none;left:8px;top:50%;width:9px;height:9px;
+ box-sizing:border-box;border:1px solid #ffe0ff8c;border-radius:3px;
+ transform:translateY(-50%);
+ background:radial-gradient(circle at 40% 34%,#ffefff 0%,#efb3ff 26%,#c141f1 63%,#57136b 100%);
+ box-shadow:0 0 0 1px #25002a,inset 0 1px 1px #fff8,0 0 6px #d86cff80;
+ animation:xenHeaderRecBreathe 4.8s ease-in-out infinite;
+}
+[data-xen-header-record]::after{
+ content:"";position:absolute;pointer-events:none;inset:2px 4px auto;height:2px;
+ border-radius:3px;background:linear-gradient(95deg,transparent,#ffe3ff55 38%,transparent 90%);
+}
+[data-xen-header-record]:hover{
+ color:#fff7ff;border-color:#ee9aff;
+ background:linear-gradient(155deg,#52245c,#2c103c 46%,#1e0a29);
+ box-shadow:inset 0 1px 0 #ffedff70,inset 0 -2px 2px #09010e,
+            0 0 0 1px #79248c77,0 0 12px #cf58f06b;
+}
+[data-xen-header-record]:hover::before{box-shadow:0 0 0 1px #29012d,inset 0 1px 1px #fff8,0 0 10px #e98bff}
+[data-xen-header-record][data-xen-header-recording="true"]{
+ color:#fff0f0;border-color:#e86b86;
+ background:linear-gradient(155deg,#5b2433,#2a0b19 49%,#1c080f);
+ box-shadow:inset 0 1px 0 #ffe2e259,inset 0 -2px 2px #13030a,
+            0 0 0 1px #84213966,0 0 9px #f3516861;
+}
+[data-xen-header-record][data-xen-header-recording="true"]::before{
+ border-color:#ffe0e4;
+ background:radial-gradient(circle at 40% 34%,#fff5f0 0%,#ffc0c7 24%,#fe536b 62%,#8c1b35 100%);
+ box-shadow:0 0 0 1px #42121f,inset 0 1px 1px #fffa,0 0 10px #f44969;
+ animation-duration:2.8s;
+}
+[data-xen-header-record][data-xen-header-recording="true"]:hover{border-color:#ffa8b6;color:#fff}
+[data-xen-header-record]:active{box-shadow:inset 0 2px 5px #000e;filter:brightness(.9)}
+[data-xen-header-record]:focus-visible{outline:2px solid #ffa6f7;outline-offset:2px}
+@keyframes xenHeaderRecBreathe{0%,100%{opacity:.89;filter:brightness(.98)}55%{opacity:1;filter:brightness(1.18)}}
+/* The large Optical Forge PLAY word is the actual hover target. The green
+   background no longer has to carry feedback through a bright white glyph. */
+.xen-forge-giant-play .xen-forge-giant-play-legend{
+ transition:color 115ms ease,text-shadow 115ms ease;
+}
+.xen-forge-giant-play:hover:not(:disabled) .xen-forge-giant-play-legend,
+.xen-forge-giant-play:focus-visible .xen-forge-giant-play-legend{
+ color:#ff6cda;text-shadow:0 0 8px #ff65d5a8,0 1px 3px #3b0929,0 0 2px #fff4;
+}
+@media(prefers-reduced-motion:reduce){[data-xen-header-record]::before{animation:none}}
+
+/* Header Package Station: sibling of Rec with a cool cyan optical lens.
+   Retains existing click, aria-expanded, package opening behavior and text. */
+[data-xen-header-package]{
+ position:relative;isolation:isolate;min-height:30px;
+ padding:5px 13px 5px 25px;
+ border:1px solid #377b92;border-radius:999px;
+ color:#c8f4ff;
+ background:linear-gradient(155deg,#103748 0%,#08212e 43%,#03121b 100%);
+ box-shadow:inset 0 1px 0 #cbf7ff4b,inset 0 -2px 2px #000d,
+            0 0 0 1px #16495b68,0 2px 7px #0008;
+ text-shadow:0 0 4px #47beea48;
+ transition:background .14s,border-color .14s,box-shadow .14s,color .14s;
+}
+[data-xen-header-package]::before{
+ content:"";position:absolute;pointer-events:none;left:9px;top:50%;
+ width:9px;height:9px;box-sizing:border-box;border-radius:3px;
+ border:1px solid #defaffae;transform:translateY(-50%);
+ background:radial-gradient(circle at 40% 32%,#f0ffff 0%,#adefff 25%,#3ab7e7 64%,#145a7c 100%);
+ box-shadow:0 0 0 1px #001926,inset 0 1px 1px #fff8,0 0 6px #46d1f7a0;
+ animation:xenHeaderPackageBreathe 5.1s ease-in-out infinite;
+}
+[data-xen-header-package]::after{
+ content:"";position:absolute;pointer-events:none;top:2px;left:9px;right:11px;height:2px;
+ border-radius:3px;background:linear-gradient(90deg,transparent,#bfefff58 45%,transparent);
+}
+[data-xen-header-package]:hover,[data-xen-header-package][aria-expanded="true"]{
+ color:#e5faff;border-color:#76c8de;
+ background:linear-gradient(155deg,#165369,#0b2b3c 47%,#051822);
+ box-shadow:inset 0 1px 0 #e0fbff7b,inset 0 -2px 2px #010b12,
+            0 0 0 1px #29677b66,0 0 12px #3db6db45;
+}
+[data-xen-header-package]:hover::before,[data-xen-header-package][aria-expanded="true"]::before{
+ box-shadow:0 0 0 1px #001926,inset 0 1px 1px #fff8,0 0 10px #50d7ff;
+}
+[data-xen-header-package]:focus-visible{outline:2px solid #98ebff;outline-offset:2px}
+[data-xen-header-package]:active{filter:brightness(.88)}
+@keyframes xenHeaderPackageBreathe{0%,100%{opacity:.90;filter:brightness(1)}55%{opacity:1;filter:brightness(1.16)}}
+@media(prefers-reduced-motion:reduce){[data-xen-header-package]::before{animation:none}}
+
+
+/* Forge Naming Anker / isolated P2.8 UI patch.
+   Optical echo of the PLAY legend; static off-white mint (no pink hover).
+   NAME spans all 3 information rows. The smaller colon points at input row 2.
+   Each existing text line stays permanently visible; no tooltip dependency. */
+.xen-forge-name-rack{
+  display:grid;
+  grid-template-columns:clamp(6.3rem,7.2vw,7.5rem) .9rem minmax(0,1fr) 17.5rem;
+  grid-template-rows:auto minmax(2.375rem,auto) auto;
+  align-items:center;
+  column-gap:.38rem;
+  row-gap:.5rem;
+  /* Same vertical spacing as the original three lines: 8px top/bottom
+     plus the original 8px inter-row margins. NAME must not set card height. */
+  min-width:0;
+  padding:.5rem .75rem;
+}
+.xen-forge-name-word{
+  grid-column:1;
+  grid-row:1 / 4;
+  align-self:center;
+  display:block;
+  white-space:nowrap;
+  overflow:visible;
+  font-family:Impact,'Arial Narrow','Liberation Sans Narrow',sans-serif;
+  font-stretch:condensed;
+  font-weight:900;
+  font-size:clamp(4.85rem,6.7vw,5.2rem);
+  letter-spacing:-.025em;
+  line-height:.92;
+  color:#e6fff0;
+  text-shadow:0 0 6px #76ffba47,0 1px 2px #032915;
+  transform:scaleX(.50);
+  transform-origin:left center;
+  user-select:none;
+  pointer-events:none;
+}
+.xen-forge-name-colon{
+  grid-column:2;
+  grid-row:2;
+  align-self:center;
+  justify-self:center;
+  font-family:Impact,'Arial Narrow','Liberation Sans Narrow',sans-serif;
+  font-size:1.4rem;
+  font-weight:900;
+  line-height:1;
+  color:#d1f9df;
+  text-shadow:0 0 4px #73f5ac37;
+  user-select:none;
+  pointer-events:none;
+}
+.xen-forge-name-heading{grid-column:3;grid-row:1;display:block;min-width:0;}
+.xen-forge-name-input{grid-column:3;grid-row:2;display:block;min-width:0;}
+.xen-forge-name-help{grid-column:3;grid-row:3;display:block;min-width:0;}
+@media(max-width:640px){
+  .xen-forge-name-rack{grid-template-columns:4.1rem .6rem minmax(0,1fr);column-gap:.2rem;padding:.5rem .75rem;}
+  .xen-forge-name-word{font-size:3.8rem;transform:scaleX(.42);}
+  .xen-forge-name-colon{font-size:1.45rem;}
+}
+
+/* P2.8 Forge export readability: same tile geometry, compact two-line legends.
+   The NAME band gains a RIGHT-hand controls column, never a new vertical row. */
+.xen-forge-export-tile{display:inline-flex;align-items:center;justify-content:center;gap:7px;min-width:0;width:100%;line-height:1.3;text-align:left;}
+.xen-forge-export-icon{display:inline-flex;align-items:center;justify-content:center;flex:0 0 27px;font-size:24px;line-height:1;}
+.xen-forge-export-words{display:flex;flex-direction:column;align-items:flex-start;min-width:0;gap:2px;font-size:11px;line-height:1.25;white-space:nowrap;}
+.xen-carrier-transform{min-width:13.5rem;gap:0;}
+.xen-forge-name-rack>.xen-forge-inline-metadata{grid-column:4;grid-row:1 / 4;min-width:0;align-self:center;}
+.xen-forge-inline-metadata{display:grid;grid-template-columns:minmax(0,.8fr) minmax(0,1.2fr);column-gap:7px;min-width:0;}
+.xen-forge-quick-field{display:flex;flex-direction:column;gap:5px;min-width:0;color:#a1a1aa;font-size:10px;}
+.xen-forge-quick-caption{display:block;min-width:0;text-transform:uppercase;white-space:nowrap;letter-spacing:.09em;font-size:9px;line-height:14px;}
+.xen-forge-quick-input{box-sizing:border-box;display:block;width:100%;min-width:0;height:33px;font-size:11px;}
+.xen-forge-name-help{white-space:nowrap;overflow-x:auto;overflow-y:hidden;scrollbar-width:thin;}
+@media(max-width:1060px){
+ .xen-forge-name-rack{grid-template-columns:clamp(4.1rem,9vw,6.3rem) .7rem minmax(0,1fr) 12.2rem;column-gap:.3rem;}
+ .xen-forge-quick-caption{font-size:8px;letter-spacing:0;}
+ .xen-forge-export-words{font-size:10px;}
+}
+@media(max-width:640px){
+ .xen-forge-name-rack{grid-template-columns:4.1rem .6rem minmax(0,1fr) 9.8rem;column-gap:.2rem;}
+ .xen-forge-inline-metadata{column-gap:3px;}
+ .xen-forge-quick-caption{font-size:8px;line-height:12px;white-space:normal;}
+ .xen-forge-export-icon{font-size:22px;flex-basis:23px;}
+}
+/* Tiny screens cannot fit NAME + editable title + two numeric controls in 375px.
+   Keep all three title lines on one line and allow horizontal scrolling of
+   the band rather than crushing the title input or growing its height. */
+@media(max-width:480px){
+ .xen-forge-name-section{overflow-x:auto;overscroll-behavior-x:contain;}
+ .xen-forge-name-rack{min-width:720px;}
+}
+
+/* Forge action-cross invariant (P2.8 UI corrective patch): fixed semantic rows,
+   never let the browser's flex-wrap reshuffle Pink Track above Root Follow.
+   Widths matched to the user's original screenshot; only Transform grows,
+   Material Track is slightly shorter to balance the two outside cards. */
+.xen-forge-action-rack{display:flex;flex-direction:column;gap:8px;position:relative;}
+.xen-forge-action-row{display:flex;align-items:stretch;flex-wrap:nowrap;gap:8px;
+  height:80px;min-height:80px;max-width:100%;overflow-x:auto;overflow-y:hidden;
+  scrollbar-width:thin;box-sizing:border-box;}
+.xen-forge-action-row>button,.xen-forge-source-save-row>button{
+  box-sizing:border-box;flex-shrink:0;min-height:80px;height:80px;max-height:80px;
+}
+.xen-forge-source-save-row{display:flex;flex:0 0 auto;gap:8px;flex-wrap:nowrap;height:80px;align-items:stretch;}
+.xen-forge-tile-load{width:148px;min-width:148px;}
+.xen-forge-tile-repair{width:168px;min-width:168px;}
+.xen-forge-tile-apply{width:100px;min-width:100px;}
+.xen-forge-tile-extract{width:248px;min-width:248px;}
+.xen-forge-tile-play{width:113px;min-width:113px;}
+.xen-forge-tile-material{width:310px;min-width:310px;}
+.xen-forge-tile-pink{width:271px;min-width:271px;}
+.xen-forge-tile-root{width:191px;min-width:191px;}
+.xen-forge-tile-sample{width:152px;min-width:152px;}
+.xen-forge-tile-donor{width:171px;min-width:171px;}
+.xen-forge-action-rack .xen-carrier-transform{width:216px;min-width:13.5rem;
+  height:80px;min-height:80px;max-height:80px;flex-shrink:0;}
+.xen-forge-action-rack .xen-carrier-actions{flex:0 0 auto;height:80px;}
+/* the UP triangle remains anchored to the rack, never a layout tile */
+@media(max-width:1260px){.xen-forge-action-rack>.xen-forge-up-triangle{display:none;}}
+
+/* P32: first-contact raw-audio stage. Only mounted while Material Intake lacks
+   a real source. No additional layout space or persistent dummy audio state. */
+.xen-p32-empty-audio{display:flex;flex-direction:column;gap:9px;padding:8px 0 2px;color:#8d96a8;font:11px/1.4 ui-monospace,monospace}
+.xen-p32-label-row{display:flex;justify-content:space-between;gap:12px;letter-spacing:.12em;color:#9ba4b0;min-height:15px}
+.xen-p32-upper{position:relative;isolation:isolate;line-height:0}
+.xen-p32-wave{display:block;width:100%;height:102px;border:1px solid #203542;background:#000412}
+.xen-p32-wave[aria-label^="No Sound"]{height:124px}
+.xen-p32-mask-guide{display:grid;grid-template-columns:11rem 11rem minmax(0,1fr);gap:12px;align-items:center;min-height:40px;font-size:10px;letter-spacing:.13em}
+.xen-p32-mask-guide-info{letter-spacing:0;padding:8px;border:1px solid #30303a;border-radius:4px;color:#92939e}
+.xen-p32-mirror-button{position:absolute;visibility:hidden;width:0;height:0;padding:0;border:0;background:transparent;cursor:pointer;z-index:2;transform:translateX(-50%)}
+.xen-p32-mirror-button:focus-visible{outline:2px solid #ff919d;outline-offset:3px}
+.xen-p32-mirror-button:disabled{opacity:.6;cursor:not-allowed}
+.xen-p32-mirror-triangle{display:block;width:100%;height:100%;filter:drop-shadow(0 0 5px rgba(255,50,73,.45))}
+.xen-p32-meter-label{font-size:10px;letter-spacing:.15em;color:#80888f}
+.xen-p32-meter{height:34px}
+.xen-p32-filament{stroke-dasharray:5 8;animation:xenP32ThreeCornerFlow 3.2s linear infinite;opacity:.66}
+.xen-p32-membrane{animation:xenP32MembraneGlow 4.2s ease-in-out infinite}
+@keyframes xenP32ThreeCornerFlow{0%{stroke-dashoffset:0;opacity:.22}45%{opacity:.78}100%{stroke-dashoffset:-92;opacity:.22}}
+@keyframes xenP32MembraneGlow{0%,100%{opacity:.18}50%{opacity:.65}}
+@media(max-width:650px){.xen-p32-mask-guide{grid-template-columns:1fr 1fr}.xen-p32-mask-guide-info{grid-column:1/-1}}
+@media(prefers-reduced-motion:reduce){.xen-p32-filament,.xen-p32-membrane{animation:none!important}}
+
+/* P33 — actual uploaded waveform idle animation (no synthetic waveform reconstruction).
+ * Canvas is an overlay inside the original mask; preserves P32 geometry and red import cue. */
+.xen-p33-lower{position:relative;isolation:isolate;line-height:0;}
+.xen-p33-wave-canvas{position:absolute;display:block;z-index:1;pointer-events:none;
+  width:100%;height:auto;mix-blend-mode:screen;}
+.xen-p33-wave-canvas-upper{left:28.667%;top:6.86%;width:61.333%;height:86.28%;}
+.xen-p33-wave-canvas-lower{left:17.333%;top:1.6%;width:69.5%;height:96.77%;}
+.xen-p33-meter-label{display:flex;align-items:center;justify-content:flex-start;gap:12px;}
+.xen-p33-meter-label span{color:#d5b6ff;font-weight:700;letter-spacing:.09em;white-space:nowrap;}
+/* The full Forge is VISIBLE, but intentionally inactive without a real source.
+ * Separate preview controls never dispatch the real export/preview actions. */
+.xen-p33-inactive-rack{opacity:.71;filter:saturate(.74);pointer-events:none;
+  display:flex;flex-direction:column;gap:8px;margin-top:2px;}
+.xen-p33-inactive-tile{display:flex;align-items:center;justify-content:center;flex:none;
+  height:80px;min-height:80px;border:1px solid #5d4087;border-radius:4px;
+  background:#14101e;color:#dce5f3;padding:6px 9px;
+  font:11px/1.4 ui-monospace,monospace;text-align:center;cursor:default;}
+.xen-p33-inactive-tile:disabled{opacity:1;cursor:default;}
+.xen-p33-inactive-tile.xen-forge-tile-load{border-color:#3d404a;}
+.xen-p33-inactive-tile.xen-forge-tile-repair,.xen-p33-inactive-tile.xen-forge-tile-donor{border-color:#08bdda;}
+.xen-p33-inactive-tile.xen-forge-tile-pink{border-color:#fd1795;}
+.xen-p33-inactive-tile.xen-forge-tile-material{border-color:#dfa63d;}
+.xen-p33-inactive-tile.xen-forge-tile-play{border-color:#6ed5a5;}
+.xen-p33-inactive-tile.xen-forge-tile-root,.xen-p33-inactive-tile.xen-forge-tile-sample{border-color:#a45cdb;}
+.xen-p33-inactive-tile.xen-carrier-transform{width:216px;min-width:216px;}
+.xen-p33-play-word{color:#ddffea;font:900 61px/.95 Impact,'Arial Narrow',sans-serif;
+ transform:scaleX(.58);}
+.xen-p33-name-dummy{display:flex;align-items:center;min-height:105px;border:1px solid #413064;
+ border-radius:4px;background:#100d1c;padding:8px 12px;gap:8px;min-width:0;}
+.xen-p33-name-big{font:900 66px/.95 Impact,'Arial Narrow',sans-serif;
+ color:#dfffea;display:block;letter-spacing:-.055em;transform:scaleX(.67);transform-origin:left center;
+ width:95px;flex:0 0 95px;}
+.xen-p33-name-colon{font:900 27px Impact,sans-serif;color:#d8ffee;}
+.xen-p33-name-lines{display:flex;flex-direction:column;gap:6px;flex:1 1 auto;min-width:0;}
+.xen-p33-name-lines>div{color:#c1a2e5;font-size:9px;letter-spacing:.14em;}
+.xen-p33-name-lines input{height:34px;border:1px solid #613eae;background:#100f18;color:#e6e6e6;
+ width:100%;min-width:0;padding:5px 8px;box-sizing:border-box;}
+.xen-p33-name-lines small{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#a09aa9;}
+.xen-p33-meta-mini{width:240px;flex:0 0 240px;display:flex;justify-content:center;
+ flex-direction:column;gap:12px;font-size:9px;letter-spacing:.08em;color:#b5a5cb;}
+@media(max-width:800px){.xen-p33-meta-mini{width:160px;flex-basis:160px;}}
+@media(max-width:600px){.xen-p33-name-big{font-size:45px;width:65px;flex-basis:65px;}
+  .xen-p33-meta-mini{width:110px;flex-basis:110px;font-size:8px;}}
+
+/* P34: red import glyph replaces the donor waveform A, positioned from its
+ * real text-mask ink extents. Until measured, do not show a displaced cue. */

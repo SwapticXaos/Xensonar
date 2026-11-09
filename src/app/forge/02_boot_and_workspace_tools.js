@@ -288,3 +288,7 @@ async function saveMelodicDiscovery(candidate,name){
  const record={...candidate,id:'melodic-project-'+crypto.randomUUID(),name,origin:'browserLocal',sourcePackageId:null,syncState:'localOnly',contentHash:YS(candidate)};
  const next=[...entries,record].sort((a,b)=>a.name.localeCompare(b.name));
   const __xmem02c=window.XenSonarXMemMelodicCutoverTest;
+  if(__xmem02c?.active())await __xmem02c.commit({projects:next,expectedProjects:entries,description:'Discovery project Save'});
+  else if(!G7(next))throw Error('Melodic project could not be saved.');
+ return record;
+}

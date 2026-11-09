@@ -1,0 +1,15 @@
+'use strict';
+const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/strict'),path=require('node:path');
+const code=fs.readFileSync(path.resolve(__dirname,'../../../src/quickrack/equalizer/eq-core.js'),'utf8');
+let trig=0;const fastMath=Object.create(Math);fastMath.sin=(...a)=>{trig++;return Math.sin(...a)};fastMath.cos=(...a)=>{trig++;return Math.cos(...a)};
+const s={Math:fastMath,localStorage:{getItem:()=>null,setItem(){}},window:{addEventListener(){}},requestAnimationFrame:()=>1,console,Number,Array,Object,JSON,Map,Set,WeakMap,WeakSet,setTimeout,clearTimeout};
+vm.runInNewContext(code+'\nglobalThis.eq=__XenEQ;',s);const eq=s.eq;
+let cfg=eq.clean({...eq.neutral(),mode:'raster',bands:24,a:Array.from({length:360},(_,i)=>Math.floor(i/15)%2?1:-1)});
+let first=eq.plan(cfg,48000);
+assert.ok(first.bandError<.1);
+assert.ok(trig<150,`raster must reuse each band's fixed trig geometry instead of recalculating it for every center: ${trig}`);
+const previousTrig=trig;cfg=eq.clean({...cfg,a:Array(360).fill(.5)});
+const second=eq.plan(cfg,48000);
+assert.ok(second.bandError<.1);
+assert.ok(trig-previousTrig<100,`same rate/band count reuses geometry, not 24*24 trig calls: ${trig-previousTrig}`);
+console.log('PASS 24-band raster fixed geometry reuse:',trig,'trig calls total');

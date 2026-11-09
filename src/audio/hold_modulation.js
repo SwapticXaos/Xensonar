@@ -105,3 +105,5 @@ const __XenHoldMod=(()=>{
  });
  function activate(s){const p=s.pendingTimbre;if(!p||!s.armed||!__XenHoldResident.isCurrent(s)||p.tap.epoch!==p.host.epoch)return;delete s.pendingTimbre;p.host.node.port.postMessage({type:'HOLD_TIMBRE',id:s.id,epoch:p.host.epoch,revision:p.revision,tap:p.tap,xNorm:p.xNorm},p.tap.ch.map(c=>c.buf.buffer));}
  function dispose(ctx){const s=workers.get(ctx);if(s?.timer!==null)clearTimeout(s?.timer);s?.abort.abort();workers.delete(ctx);for(const [key,p] of pending)if(p.session.ctx===ctx)pending.delete(key);for(const [key,p] of [...initialQueue])if(p.s.ctx===ctx){initialQueue.delete(key);clearTimeout(p.timer);}}
+ return {prepare,ready,queueable,initial,cancel,request,activate,dispose};
+})();

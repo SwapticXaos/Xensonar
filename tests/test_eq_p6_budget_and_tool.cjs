@@ -1,0 +1,21 @@
+'use strict';
+const fs=require('fs'),vm=require('vm'),assert=require('assert/strict');
+const root=__dirname+'/../src/quickrack/equalizer/';
+const core=fs.readFileSync(root+'eq-core.js','utf8');
+const ui=fs.readFileSync(root+'eq-ui.js','utf8');
+assert.match(core,/FIT_Q=\[\.9,2,3\.5,5,9,18\]/,'Six candidates per location: no increase to search size');
+assert.match(core,/FIT_POINTS=360,FIT_POSITIONS=39/,'same fitting grid');
+assert.match(core,/for\(let pass=0;pass<1 && chosen\.length;pass\+\+\)/,'bounded fitter uses fewer iterations than P5');
+assert.equal((core.match(/FIT_Q=\[\.9,2,3\.5,5,9,18\]/g)||[]).length,2,'main and worker share identical palette');
+const store=()=>{const values={};return {getItem:key=>values[key]??null,setItem:(key,value)=>{values[key]=value},values}};
+function make(pref,version='v2'){const storage=store();if(pref)storage.setItem('xensonar.ui.eq.tool.'+version,pref);const context={window:{addEventListener:()=>{}},localStorage:storage};const block=ui.slice(ui.indexOf('const __xenEqToolPreference='),ui.indexOf('function __XenEQPanel('));vm.runInNewContext(block+'\nglobalThis.pref=__xenEqToolPreference;',context);return {pref:context.pref,storage}}
+const first=make();assert.equal(first.pref.get(),'draw','first use defaults to Paint');let notifications=0;first.pref.subscribe(()=>notifications++);
+first.pref.set('morph');assert.equal(first.pref.get(),'morph');assert.equal(first.storage.values['xensonar.ui.eq.tool.v2'],'morph');assert.equal(notifications,1);
+first.pref.set('morph');assert.equal(notifications,1,'no redundant state notifications');
+first.pref.set('draw');assert.equal(first.pref.get(),'draw');
+assert.equal(make('morph').pref.get(),'morph','prior explicit selection survives reload');
+assert.equal(make('junk').pref.get(),'draw','invalid value falls back safely');
+assert.equal(make('morph','v1').pref.get(),'draw','historical v1 Morph is intentionally not inherited by P9 first-start');
+assert.match(ui,/P\.useSyncExternalStore\(__xenEqToolPreference\.subscribe/,'tool preference is shared between panels');
+assert.match(ui,/const tools=\{\.\.\.brushTools,mode:toolMode\}/,'renderer gets global mode');
+console.log('PASS P6/P9 global Paint default/persistence and unchanged optimizer dimensional budget');

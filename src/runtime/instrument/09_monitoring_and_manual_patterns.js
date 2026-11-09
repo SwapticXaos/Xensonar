@@ -374,3 +374,12 @@ function Nie(e){
    const __c20cActive=tG(e.activeStepsByLane?.[lane],segments,pulseIndex);
    globalThis.__XenC20C?.pulse({lane,keyId:gesture.keyId,epoch:gesture.startedAtMs,pulseIndex,
       active:__c20cActive,dueMs:gesture.nextPulseAtMs-(skipped+1)*interval,
+      observedMs:e.nowMs,intervalMs:interval,segments,targetHz:gesture.targetHz});
+   if(__c20cActive){
+    out.push({lane,keyId:gesture.keyId,targetHz:gesture.targetHz,intervalMs:interval,segmentsPerBar:segments,referenceBars:bars,pulseIndex,sustainExtendActive:gesture.sustainExtendActive,articulation:gesture.articulation,extendPolicy:gesture.extendPolicy,reason:"gesture-loop-segment-pulse"});
+    e.state.loopPulseCount++;
+   }else {e.state.patternMutedPulseCount++;if(typeof __XenNodalSurfaces!=="undefined")__XenNodalSurfaces.muteFallbackHold?.(lane==="klaviatur"?"keyboard":"wave",gesture.keyId);}
+  }
+ }
+ return out;
+}

@@ -1,0 +1,14 @@
+'use strict';
+const assert=require('node:assert/strict');
+const fs=require('node:fs');const path=require('node:path');
+const css=fs.readFileSync(path.resolve(__dirname,'../../styles/areas/030_inline-030.css'),'utf8');
+const blocks=(selector)=>[...css.matchAll(new RegExp(selector.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+'\\s*\\{([^}]*)\\}','g'))].map(m=>m[1]);
+assert.equal(blocks('.xen-quick-pointer-ghost').length,1,'ghost width must have single owner');
+assert.match(blocks('.xen-quick-pointer-ghost')[0],/max-width:min\(480px,calc\(100vw - 8px\)\)/);
+assert.equal(blocks('.xen-lane-slider').length,1,'lane base columns must have single owner');
+assert.match(blocks('.xen-lane-slider')[0],/grid-template-columns:43px minmax\(0,1fr\)/);
+assert.match(blocks('.xen-lane-slider')[0],/position:relative/);
+assert.match(blocks('.xen-lane-slider.is-window-open')[0],/grid-template-columns:43px minmax\(0,1fr\)/);
+assert.ok(blocks('.xen-quick-pointer-ghost.is-sorting').length);
+assert.ok(blocks('.xen-quick-pointer-ghost.is-over').length);
+console.log('PASS quick-dock ghost and lane slider single-owner CSS, stateful variants intact');

@@ -122,3 +122,5 @@ function __useSessionRhythmAuditions(value){
    }};
   const offDrum=__XenMetaAudition.register('drum',drum),offBass=__XenMetaAudition.register('bass',bass);
   return()=>{offDrum();offBass();detachFill()};
+ },[]);
+}

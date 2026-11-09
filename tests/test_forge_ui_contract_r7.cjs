@@ -1,0 +1,31 @@
+'use strict';
+const assert=require('node:assert/strict');
+const fs=require('node:fs');const vm=require('node:vm');const path=require('node:path');
+const root=path.resolve(__dirname,'..');
+const read=p=>fs.readFileSync(path.join(root,p),'utf8');
+const lab=read('src/rooms/lab.js');const css=read('styles/areas/028_inline-028.css');const controls=read('src/forge/editor/09_workflow_controls.js');
+// Regression: colon must NOT inherit NAME's oversized typography or transform.
+assert.match(controls,/className:'f35-navigator-name-glyph'[^\n]*'NAME'/,'NAME word must have its own glyph');
+assert.match(controls,/className:'f35-navigator-name-colon'[^\n]*':'/,'Colon must be independently positioned and stay small');
+assert.doesNotMatch(controls,/f35-navigator-name-glyph'\},'NAME:'/,'Old combined uppercase label distorted colon');
+assert.match(css,/\.f35-navigator-name-colon\s*\{[^}]*font-size:1[234]px/,'Colon has original small size');
+assert.match(css,/\.f35-navigator-name-glyph\s*\{[^}]*transform:/,'NAME enlarged without affecting row geometry');
+assert.match(css,/\.xen-carrier-range\s+select\s*\{[^}]*appearance:none/,'Hide default down arrow');
+assert.match(css,/\.xen-carrier-range::after\s*\{[^}]*content:'⌃'/,'Explicit upward affordance for upward-opening native option popup');
+// The golden outer triangle must not swallow the turquoise triangle's separate click.
+assert.match(lab,/className:'xen-forge-down-corner'[^\n]*onClick:\s*e=>__forgeScrollCompletelyDown\(e\.currentTarget\)/,'Gold click scrolls to page bottom');
+assert.match(lab,/className:'xen-forge-down-corner-inner'[^\n]*onClick:__forgeScrollToForgeActionRack/,'Cyan click keeps former UP rack navigation');
+assert.match(css,/\.xen-forge-down-corner-inner\s*\{[^}]*z-index:6/,'Turquoise click target over gold without nesting buttons');
+const start=lab.indexOf('function __forgeScrollCompletelyDown('),stop=lab.indexOf('function __forgePositionCarrierFilterPanel(',start);
+assert.ok(start>=0&&stop>start,'Down navigation helper is pure and isolated');
+const winCalls=[],parentCalls=[];
+const document={documentElement:{scrollHeight:2000},body:{scrollHeight:2200}};
+const scrollParent={parentElement:document.documentElement,scrollHeight:1500,clientHeight:400,scrollTo:x=>parentCalls.push(x)};
+const target={parentElement:scrollParent};
+const ctx={document,window:{matchMedia:()=>({matches:true}),getComputedStyle:()=>({overflowY:'auto'}),scrollTo:x=>winCalls.push(x)}};
+vm.createContext(ctx);vm.runInContext(lab.slice(start,stop),ctx);
+ctx.__forgeScrollCompletelyDown(target);
+assert.equal(winCalls[0].top,2200);
+assert.equal(winCalls[0].behavior,'auto');
+assert.equal(parentCalls[0].top,1500);
+console.log('PASS R7: split colon/NAME; two independently clickable corner regions; upwards pitch select caret');

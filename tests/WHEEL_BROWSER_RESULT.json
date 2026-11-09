@@ -1,0 +1,21 @@
+{
+  "session": "5 columns; repeated spins; room/EQ/pan/pitch/attack/selection/mix/layers and unsaved Drum/Bass edits restored; autosave held; explicit save retained",
+  "nativeEngage": "PASS",
+  "rollback": "Injected partial activation failure restored A",
+  "Entrophon": {
+    "peak": 0.4861209988594055,
+    "frames": 18608
+  },
+  "Nodal": {
+    "silent": false,
+    "cost": 1,
+    "nodes": 3
+  },
+  "Melodic Loop": {
+    "peak": 0.09871026873588562,
+    "frames": 199969
+  },
+  "keep": "Next experiment returns to the accepted baseline",
+  "restart": "All four native saves survive reload",
+  "errors": []
+}

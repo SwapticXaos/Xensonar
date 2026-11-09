@@ -1,0 +1,38 @@
+'use strict';
+const assert=require('node:assert/strict');const fs=require('node:fs');const path=require('node:path');
+const root=path.resolve(__dirname,'..');const read=p=>fs.readFileSync(path.join(root,p),'utf8');
+const controls=read('src/forge/editor/09_workflow_controls.js');const routing=read('src/forge/editor/07_composition_and_preview_ui.js');const lab=read('src/rooms/lab.js');const ui=read('styles/areas/028_inline-028.css');const rack=read('src/factories/ForgeTransportRack.js');
+assert.match(controls,/f35-navigator-name-glyph[^\n]*'NAME'/,'NAME label must be visible and not imply a Figure Project');
+assert.doesNotMatch(controls,/if\(!__ForgeNavigatorSample\.current\(\)\)return null;/,'All navigator sample controls must remain mounted');
+assert.match(controls,/disabled:\s*!selected\s*\|\|\s*state\.busy/,'No save/play before selection');
+assert.match(routing,/__f333NavigatorTypedName\(\)/,'Three destination routes honor optional typed name');
+assert.match(routing,/entry\.name/,'Transfer confirmation discloses stored title');
+assert.match(lab,/__forgePositionCarrierFilterPanel/,'Carrier filter must escape clipped rack row');
+assert.match(ui,/\.xen-carrier-filter-panel\s*\{\s*position:fixed/,'Filter overlay must be viewport-positioned');
+assert.match(ui,/:has\(\[data-f318-export-target\]/,'Destination hover must illuminate the shared naming opportunity');
+assert.match(lab,/data-forge-down-corner/,'Upper mirror navigation must exist');
+assert.match(ui,/\.xen-forge-down-corner/,'Corner triangle needs isolated geometry');
+assert.match(lab,/__forgeScrollToForgeActionRack/,'Upper corner scrolls back to lower UP control');
+assert.match(rack,/__ForgeNavigatorSampleNameInput/);
+// Exercise real (extracted, unchanged) positioning code, not a mocked substitute.
+const vm=require('node:vm');
+const start=lab.indexOf('function __forgeScrollToForgeActionRack()');
+const end=lab.indexOf('function FractaliaMaterialImage(',start);
+assert.ok(start>=0&&end>start);
+const ctx={innerWidth:800,innerHeight:600,window:{matchMedia:()=>({matches:true})},document:{querySelector:()=>null}};
+vm.createContext(ctx);vm.runInContext(lab.slice(start,end),ctx);
+const style={};let anchor={left:100,right:180,top:90,bottom:170};
+const details={open:true,querySelector:key=>key==='summary'?{getBoundingClientRect:()=>anchor}:{style,scrollHeight:210}};
+ctx.__forgePositionCarrierFilterPanel(details);
+assert.equal(style.left,'10px');assert.equal(style.top,'177px');assert.equal(style.width,'426px');
+anchor={left:100,right:180,top:480,bottom:560};ctx.__forgePositionCarrierFilterPanel(details);
+assert.equal(style.top,'567px','Filter must open downward rather than reverse above its downward chevron');
+let scrolled=null;ctx.document.querySelector=()=>({scrollIntoView:arg=>scrolled=arg});
+ctx.__forgeScrollToForgeActionRack();assert.equal(scrolled.block,'end');assert.equal(scrolled.behavior,'auto');
+// Source-side name sanitation must remain the only shared name authority.
+const audition=read('src/forge_and_melodic/10_audition_and_persistence.js');
+const nameFn=audition.slice(audition.indexOf('function __f333NavigatorTypedName()'),audition.indexOf('function __f333NavigatorName(',audition.indexOf('function __f333NavigatorTypedName()')));
+const nameCtx={__ForgeNavigatorSample:{snapshot:()=>({nameDraft:' My Piece/Live.wav '})}};
+vm.createContext(nameCtx);vm.runInContext(nameFn,nameCtx);
+assert.equal(nameCtx.__f333NavigatorTypedName(),'My Piece Live');
+console.log('PASS Forge R5: always visible controls, optional shared name, filtered popup anchor, reversed navigation');
