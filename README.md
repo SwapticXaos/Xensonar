@@ -6,14 +6,16 @@ Experimentelles, offlinefähiges Musikinstrument im Browser: mikrotonal, frei in
 - `CLAUDE.md` und `docs/`: Arbeitsregeln, Philosophie, Architektur, Heiß/Kalt-Vertrag.
 - `evidence/`: Prüfberichte früherer Stände.
 
-## Versionen (Tags)
+## Versionen
+
+Jede Version liegt als eigener Zweig `version/...` vor (auf GitHub oben links im Zweig-Menü auswählbar).
 
 | Tag | Stand |
 |---|---|
-| `xensonar-3.1.6-maerz` | alter Quellcode-Stand (März 2026) |
-| `w31-milestone` | W31-Meilenstein |
-| `w31-af01-ml01-kh04` | W31 mit AF01/ML01/KH04 |
-| `dub-echo-03-racklive-01` | Dub Echo + geschützte Drum-Rack-Regler |
-| `liveguard02` | zusätzlich Slider-Gate für die Hauptraum-Regler (aktuell) |
+| `version/xensonar-3.1.6-maerz` | alter Quellcode-Stand (März 2026) |
+| `version/w31-milestone` | W31-Meilenstein |
+| `version/w31-af01-ml01-kh04` | W31 mit AF01/ML01/KH04 |
+| `version/dub-echo-03-racklive-01` | Dub Echo + geschützte Drum-Rack-Regler |
+| `version/liveguard02` | zusätzlich Slider-Gate für die Hauptraum-Regler (aktuell, = `main`) |
 
-Zweig `gpt-dub02` (Tag `dub02-gpt`): parallele Echo-Linie DUB02 aus der GPT-Phase, zum Zusammenführen.
+Zweig `gpt-dub02`: parallele Echo-Linie DUB02 aus der GPT-Phase, zum Zusammenführen.
