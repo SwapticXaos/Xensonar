@@ -63,3 +63,32 @@ Gemeinsamer globaler Scope aller Dateien; Priorität haben Owner- und Lifecycle-
 - **Kein Rückholen alter Funktionen:** Oktober-Inhalte werden nur als **Grenzen und Namen** genutzt; der Inhalt jeder Datei kommt ausschließlich aus dem aktuellen `main`.
 - `src/rhythm/06_lane_pan.js` gilt als ersetzt, nicht als verloren; vor Stufe 3 gegen `__XenPan` bestätigen.
 - Testinfrastruktur (Playwright 1.62.1 im Oktober) gegen die hier vorhandene Version prüfen.
+
+---
+
+# Nachtrag: September-TypeScript-Quellbaum (400.2 / 399)
+
+**Eingang:** `XenSonar_CLAUDE_HISTORISCHE_TS_ARCHITEKTUR_2026-11-09.zip` (Archiv-SHA-256 laut `EVIDENCE.json`). Analysiert wurde 400.2 (399 ist zu 99 % inhaltsgleich: 1 649 von 1 669 gemeinsamen Dateien identisch).
+
+## Befund
+- 400.2 ist ein echtes TypeScript/React/Vite-Projekt: **1 328 Produktdateien** (ohne Tests, `.d.ts`, `external/`), 8,7 MB Quelltext, explizite Imports/Exports, Typecheck-Matrix in Teilbereichen.
+- **Abstammung belegt:** Von 14 686 markanten Zeichenketten aus dem TS-Code stehen 5 326 (36 %) unverändert im heutigen `index.html`. 211 TS-Dateien haben ≥ 3 eindeutige Anker im heutigen Hauptblock. Beispiel: `features/xensonar/rooms/useStableRhythmMetronomePulse.ts` ist Zeile für Zeile die minifizierte Funktion `tEe`, die in LIVEPATH-02 entschärft wurde.
+- **Starke Weiterentwicklung seitdem:** 371 von 891 TS-Dateien mit ≥ 3 Zeichenketten sind zu < 10 % wiederzuerkennen, nur 85 zu ≥ 80 %. `App.tsx` nur 10 %.
+- **Lage im heutigen Bundle:** Die TS-stämmigen Teile liegen in **46 der 230 Oktober-Bereiche**, die zusammen **3,46 MB (57 %)** des Hauptblocks ausmachen. Das ist der minifizierte React-Kern. Die übrigen ~184 Oktober-Bereiche sind später direkt als lesbares JavaScript hinzugekommen.
+
+## Schichtenbild
+1. **September:** modulares TypeScript → Vite-Build → minifiziertes Bundle.
+2. **Oktober:** das gebaute Bundle wird Arbeitsbasis; Concat-Quellbaum mit 305 Bereichsdateien (minifizierter Kern + lesbare Ergänzungen), 205 Tests.
+3. **November:** direkte Patches an der Einzel-HTML (W31, DUB, LIVEPATH).
+
+Die TS-Pipeline kann **nicht** einfach reaktiviert werden: Zwei Monate Änderungen am minifizierten Kern müssten zurück in TypeScript portiert und als Ganzes auf Klang-, Persistenz- und UI-Parität geprüft werden. Das ist nicht in einem verifizierbaren Schritt machbar.
+
+## Was der TS-Baum jetzt wert ist
+1. **Lesbare Landkarte des minifizierten Kerns** (größter Sofortnutzen): Zuordnung minifizierte Funktion/Bereich → TS-Datei mit Namen, Typen, Kommentaren. Macht Patches am Kern sicherer und schneller.
+2. **Daten- und Schnittstellenverträge:** TS-Typen dokumentieren Session-, Drum-, Material- und Paket-Schemata (wichtig für Retrokompatibilität).
+3. **Weg zurück zu typisierten Modulen, bereichsweise:** Wird ein Bereich ohnehin bearbeitet oder herausgelöst, dient die TS-Datei als Ausgangspunkt; der aktuelle Code ist die Wahrheit, Abweichungen werden nachgezogen, das Modul wird einzeln kompiliert und per Parität-Tests gegen den alten Bereich geprüft.
+
+## Ergänzter Plan
+- **Stufe 2a** (unverändert): Oktober-Grenzen auf `main` legen, byte-identisch.
+- **Stufe 2c (neu):** TS-Baum 400.2 als nur-lesbare Referenz in einen eigenen Zweig `reference/ts-400.2` (nicht in `main`, nicht gebaut). In `main` eine Zuordnungsdatei Oktober-Bereich ↔ TS-Dateien (aus Zeichenketten-Ankern), später verfeinert auf Funktionsebene.
+- **Stufe 3:** bereichsweise Rückführung in typisierte Module nur dort, wo ohnehin gearbeitet wird; Reihenfolge nach Nutzen (Kaltbereiche zuerst), jeweils mit Paritätstests und Messung.
