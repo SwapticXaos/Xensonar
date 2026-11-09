@@ -24,4 +24,6 @@ Jede Version liegt als eigener Zweig `version/...` vor (auf GitHub oben links im
 
 Zweig `reference/ts-400.2`: historischer TypeScript/React-Quellbaum (September), nur lesen; Herkunftskarte `docs/TS_ORIGIN_MAP.json`.
 
+Zweig `reference/waypoints`: historische Runtimes 26.10.–W31 für die Herkunftsanalyse. Herkunftskarte: `docs/provenance/PROVENANCE.md`.
+
 Zweig `gpt-dub02`: parallele Echo-Linie DUB02 aus der GPT-Phase, zum Zusammenführen.

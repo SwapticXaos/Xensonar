@@ -1,0 +1,4941 @@
+{
+  "runtime_file": "index.html",
+  "runtime_sha256": "aec64584fb7a98e70b1c2e80286007b8f7f509db410c53d914e2d0ffeb5f5961",
+  "runtime_bytes": 8560617,
+  "method": "EXACT bytes and unique static literals only. No semantic/behavioral claim.",
+  "oct_modules": [
+    {
+      "path": "XenSonar/src/04_forge_render.js",
+      "status": "EXACT_FULL",
+      "bytes": 430,
+      "sha256": "78bf6edcdd3a1499003c9d9f52e5eab1d132d99d04394974b93d140b9b06fb7a"
+    },
+    {
+      "path": "XenSonar/src/05_dual_donor.js",
+      "status": "EXACT_FULL",
+      "bytes": 6134,
+      "sha256": "b87d7d80132f197a62297220656c33a1c9943d22bd55b7bc5a861335597b7a87"
+    },
+    {
+      "path": "XenSonar/src/app/forge/04_profiles_and_body_models.js",
+      "status": "EXACT_FULL",
+      "bytes": 78307,
+      "sha256": "fe73cee512e42ea500c4a436d6248ee5d51f69a93f4bd8ac33b237bbda86d36b"
+    },
+    {
+      "path": "XenSonar/src/app/forge/06_donor_audio_and_audition.js",
+      "status": "EXACT_FULL",
+      "bytes": 45287,
+      "sha256": "a2c47252f68252778eb94dacf646e19f8f3072c478a03651c09a0cd918354cbf"
+    },
+    {
+      "path": "XenSonar/src/audio/00_rfl_settings_cache.js",
+      "status": "EXACT_FULL",
+      "bytes": 2058,
+      "sha256": "513ab3f4f26b8eb213b086d06f3c840b50d46982474b795268a1c8ea5312459e"
+    },
+    {
+      "path": "XenSonar/src/audio/03_acoustic_sync.js",
+      "status": "EXACT_FULL",
+      "bytes": 7957,
+      "sha256": "83eb2eef3feed86518f4d53da3f45d1365a60c596661bc26c330fc41d0981594"
+    },
+    {
+      "path": "XenSonar/src/audio/03_pcm_range.js",
+      "status": "EXACT_FULL",
+      "bytes": 258,
+      "sha256": "29f2a964869fc57b564cde1f0df2a7a0c0c377901fe7c2b9cce6f5b8205d9d1c"
+    },
+    {
+      "path": "XenSonar/src/audio/07_myzel_g_geometry.js",
+      "status": "EXACT_FULL",
+      "bytes": 3866,
+      "sha256": "81334333c39314378d08417cff731122371b21d6264c9f588dd9d6e604e250f1"
+    },
+    {
+      "path": "XenSonar/src/audio/drone/01_colour.js",
+      "status": "EXACT_FULL",
+      "bytes": 1458,
+      "sha256": "cccbe1f3694f37a3aa0f221360f03971a30b284383e525da4c15da9e12949022"
+    },
+    {
+      "path": "XenSonar/src/audio/entrophon/01_wasm_asset.js",
+      "status": "EXACT_FULL",
+      "bytes": 83345,
+      "sha256": "292826664b9374a860f06a5e0d3041b0adeed22638e1266bdbd3d4386c59d658"
+    },
+    {
+      "path": "XenSonar/src/audio/lifecycle/00_voice_lease.js",
+      "status": "EXACT_FULL",
+      "bytes": 3154,
+      "sha256": "913601b77522ec65154d532ea3f726283865d375d167c845d20ff050befec6f1"
+    },
+    {
+      "path": "XenSonar/src/audio/rfl/01_resident_worklet.js",
+      "status": "EXACT_FULL",
+      "bytes": 23329,
+      "sha256": "6d897cdeccf681ea89bdfb2930f15f89e90b7277bfcb367feb771f9908565c9e"
+    },
+    {
+      "path": "XenSonar/src/audio/rfl/02_fragment_preparation.js",
+      "status": "EXACT_FULL",
+      "bytes": 4975,
+      "sha256": "c47036740e92cd13952416aefb46f9c714b4cf47dc51a7392ade576dcc2e3e63"
+    },
+    {
+      "path": "XenSonar/src/contracts/01_asset_contract.js",
+      "status": "EXACT_FULL",
+      "bytes": 5237,
+      "sha256": "da4c91831eb513cce300840ab82b82a64af16ba0dd9de526bedb632ab6970583"
+    },
+    {
+      "path": "XenSonar/src/contracts/02_asset_resolution.js",
+      "status": "EXACT_FULL",
+      "bytes": 3597,
+      "sha256": "0c308f6f0d3ea6070e5edd14bb853efcddd4bd71c40740c55ba19b2e96f0029b"
+    },
+    {
+      "path": "XenSonar/src/contracts/03_package_transaction.js",
+      "status": "EXACT_FULL",
+      "bytes": 1471,
+      "sha256": "6bb66a3bf58ab2af8af9fdfdf869172fa40af209fa23f3c8b0e6c8234fe8f026"
+    },
+    {
+      "path": "XenSonar/src/contracts/04_import_coordinator.js",
+      "status": "EXACT_FULL",
+      "bytes": 7049,
+      "sha256": "90bcf9c3c5ffb6abcb5ce468c63ceba22c422e1e7699b7ca7f1a3367ce36bb33"
+    },
+    {
+      "path": "XenSonar/src/contracts/05_sample_recovery.js",
+      "status": "EXACT_FULL",
+      "bytes": 5032,
+      "sha256": "785dab2fc78e16b31e33c6a44432badada094f05cfdde456f53e9c8f527d0052"
+    },
+    {
+      "path": "XenSonar/src/contracts/06_sample_destructive_import.js",
+      "status": "EXACT_FULL",
+      "bytes": 2714,
+      "sha256": "9b31cba82a876256e192a9c0b4b521d241591b10ad05b2ff22a146be78bd39f9"
+    },
+    {
+      "path": "XenSonar/src/contracts/07_reference_integrity.js",
+      "status": "EXACT_FULL",
+      "bytes": 5207,
+      "sha256": "c387a3a1213842b592f68a8e1b584e800ef13998ddaf3c9b869cb798c74ffa12"
+    },
+    {
+      "path": "XenSonar/src/contracts/08_reference_graph.js",
+      "status": "EXACT_FULL",
+      "bytes": 6835,
+      "sha256": "4ab781cea2dd723b2056bc91a4d23c653675e2112e92230a9abed2c595e3cc9b"
+    },
+    {
+      "path": "XenSonar/src/contracts/09_reference_graph_extensions.js",
+      "status": "EXACT_FULL",
+      "bytes": 4889,
+      "sha256": "ab4c10b69994880eccb9cb489abb2032c37f0da1778ea37e87d645606e33455f"
+    },
+    {
+      "path": "XenSonar/src/contracts/10_library_inventory_ports.js",
+      "status": "EXACT_FULL",
+      "bytes": 4328,
+      "sha256": "bd19f2bacd65c0d4ed1b578c79a45c3fd86e27c3e3d5583ce16cba5c1caee0fb"
+    },
+    {
+      "path": "XenSonar/src/contracts/11_workspace_library_phases.js",
+      "status": "EXACT_FULL",
+      "bytes": 1194,
+      "sha256": "aa8ce4b167547395b73bb812b2a3f65dfcac089e6a4625fce4c8be294021b773"
+    },
+    {
+      "path": "XenSonar/src/contracts/12_workspace_result_projection.js",
+      "status": "EXACT_FULL",
+      "bytes": 6149,
+      "sha256": "4a50581cbd23310dfc15e7aca8f50ceaf6806c0a665d877306c2654d5784ae38"
+    },
+    {
+      "path": "XenSonar/src/contracts/13_root_follow_import_plan.js",
+      "status": "EXACT_FULL",
+      "bytes": 3334,
+      "sha256": "d242ca823aca7a3f28fee39609b7986d0bbf0ed632e38b32125f0b63b2cdd107"
+    },
+    {
+      "path": "XenSonar/src/contracts/14_melodic_project_restore_plan.js",
+      "status": "EXACT_FULL",
+      "bytes": 2885,
+      "sha256": "e841edb7983751f4422a1c5a031855b8b2c57ad49eaa9bf82a5925988579e177"
+    },
+    {
+      "path": "XenSonar/src/contracts/15_melodic_project_reservations.js",
+      "status": "EXACT_FULL",
+      "bytes": 6734,
+      "sha256": "44cb91c46f6af21aa6779e82a28af1977fc3aea059ad8dc2c9e02e10891317d4"
+    },
+    {
+      "path": "XenSonar/src/contracts/16_workspace_export_stream.js",
+      "status": "EXACT_FULL",
+      "bytes": 6927,
+      "sha256": "9750a8610b1b3e89e64d8146a74ec45931633e27ad5473c01f6fbf2bd2fe2f76"
+    },
+    {
+      "path": "XenSonar/src/factories/XenBassGridEditor.js",
+      "status": "EXACT_FULL",
+      "bytes": 8038,
+      "sha256": "3020b009c315623bc33296c24178180c6c5e5e4859e400f23843410d400a9fa6"
+    },
+    {
+      "path": "XenSonar/src/factories/XenSessionPeriodDialog.js",
+      "status": "EXACT_FULL",
+      "bytes": 4831,
+      "sha256": "d1692043ae664940068571119c57075dde1d743bfae04b8b748e6e65fab34a46"
+    },
+    {
+      "path": "XenSonar/src/factories/xenM10BackupFactory.js",
+      "status": "EXACT_FULL",
+      "bytes": 5754,
+      "sha256": "a491c1a9240876b9d727059ea0c3d7125c2f7ac1b1418ea0e2af3cbac1b78a99"
+    },
+    {
+      "path": "XenSonar/src/factories/xenM11HydrationFactory.js",
+      "status": "EXACT_FULL",
+      "bytes": 2206,
+      "sha256": "93e420f258ee9e9cf6f031266e0a5c5122ca6b12b1cd7401a9e12df071762469"
+    },
+    {
+      "path": "XenSonar/src/factories/xenM12InventoryFactory.js",
+      "status": "EXACT_FULL",
+      "bytes": 6277,
+      "sha256": "450059ab86824c346701b04ff1a2e7af6924cf4929281bbfb3506dab41bf9f3e"
+    },
+    {
+      "path": "XenSonar/src/factories/xenM9ArchiveFactory.js",
+      "status": "EXACT_FULL",
+      "bytes": 9198,
+      "sha256": "966e33616eecbf6d1cd77c112905c885b59c75942493108bcffca3b609bd4b7e"
+    },
+    {
+      "path": "XenSonar/src/forge/01_workbench_state.js",
+      "status": "EXACT_FULL",
+      "bytes": 594,
+      "sha256": "fe8a21ff6eebd4c850f961d4169ee941a7f512ddbf9547c7c930d658eb2db173"
+    },
+    {
+      "path": "XenSonar/src/forge/analysis/01_analysis_size.js",
+      "status": "EXACT_FULL",
+      "bytes": 720,
+      "sha256": "56f1b22b8f823a1851fa38a145058c2ea34a422b36bf1e1f94b304ded2821585"
+    },
+    {
+      "path": "XenSonar/src/forge/analysis/02_analysis_cache.js",
+      "status": "EXACT_FULL",
+      "bytes": 1780,
+      "sha256": "9d2de963ab4e133794d30ed552c78b0e0da5b0b65f464d7c269cf612d4561cd3"
+    },
+    {
+      "path": "XenSonar/src/forge/analysis/03_source_identity_and_cache.js",
+      "status": "EXACT_FULL",
+      "bytes": 1828,
+      "sha256": "c1536bd80ffdaf69c9602ca7c6994dc83d43250b63548bda9f96a1bea1006366"
+    },
+    {
+      "path": "XenSonar/src/forge/analysis/04_audio_to_carrier.js",
+      "status": "EXACT_FULL",
+      "bytes": 242,
+      "sha256": "4ce597961c14b18d47e688e63a4ab69527fc28eca8a829528766100c2e4baaab"
+    },
+    {
+      "path": "XenSonar/src/forge/analysis/04_painted_voices.js",
+      "status": "EXACT_FULL",
+      "bytes": 2961,
+      "sha256": "c0d1e43996d7df24b6eadfef8c685eb9179103ce3318d1f9698c78b552dfe588"
+    },
+    {
+      "path": "XenSonar/src/forge/analysis/05_carrier_pitch_space.js",
+      "status": "EXACT_FULL",
+      "bytes": 1447,
+      "sha256": "7b979002ff11cddad220fef1495c088b6f6ad20489a294a642d8f896d12c91b6"
+    },
+    {
+      "path": "XenSonar/src/forge/analysis/06_polyphonic_transfer.js",
+      "status": "EXACT_FULL",
+      "bytes": 6648,
+      "sha256": "b51c32f4d61ffa8bb76dcef4e02343851102d63d8afc2ad036df4213c99bdd4f"
+    },
+    {
+      "path": "XenSonar/src/forge/dsp/01_material_tools.js",
+      "status": "EXACT_FULL",
+      "bytes": 9800,
+      "sha256": "34273816f3ff5788fa44041ed6a44d14f64232bf13b891a700cb0f16156ba133"
+    },
+    {
+      "path": "XenSonar/src/forge/dsp/02_gestalt_tools.js",
+      "status": "EXACT_FULL",
+      "bytes": 7205,
+      "sha256": "6baed4dc850b772d620036b9df1f93ed30aa324064d7e15eb0f91f6b1bfe5e80"
+    },
+    {
+      "path": "XenSonar/src/forge/dsp/03_pcm_worker.js",
+      "status": "EXACT_FULL",
+      "bytes": 1545,
+      "sha256": "43c8841b16b3f4770a83683eb52d0d3657051d750aca7b47121984c417843560"
+    },
+    {
+      "path": "XenSonar/src/forge/dsp/04_donor_field.js",
+      "status": "EXACT_FULL",
+      "bytes": 8728,
+      "sha256": "e3d8ce96ad7d4f707c1b00c6823e467ec88320b3b815bb8dae00a8fd711cc988"
+    },
+    {
+      "path": "XenSonar/src/forge/dsp/08_pure_dieter_worker.js",
+      "status": "EXACT_FULL",
+      "bytes": 3421,
+      "sha256": "739446c79e46d2dad055fde7e401b388be2a2b653aaeee473b0566ccc0aaee81"
+    },
+    {
+      "path": "XenSonar/src/forge/dual/01_dsp_and_worker.js",
+      "status": "EXACT_FULL",
+      "bytes": 18272,
+      "sha256": "757f740b04fb9b8e8771f51e64d4907516831680465089af56f25e96b5352b4c"
+    },
+    {
+      "path": "XenSonar/src/forge/dual/02_session_store.js",
+      "status": "EXACT_FULL",
+      "bytes": 1789,
+      "sha256": "93edca9c7ccbafa78a88345739549bc0d72f3409ef2ef0cf34bbb00108f41ae9"
+    },
+    {
+      "path": "XenSonar/src/forge/dual/05_library_bridge.js",
+      "status": "EXACT_FULL",
+      "bytes": 2993,
+      "sha256": "66ef32fdfa6d6c88523ee0b822f67e5c2ed8ff906a53a5f5987f694144948dae"
+    },
+    {
+      "path": "XenSonar/src/forge/editor/03_synthetic_sound_engines.js",
+      "status": "EXACT_FULL",
+      "bytes": 27502,
+      "sha256": "8b2eeccc9a234f0e8a583fbff9568275cf8ad51fbe603501c4074071ac69e00b"
+    },
+    {
+      "path": "XenSonar/src/forge/editor/04_signal_atoms_and_bodies.js",
+      "status": "EXACT_FULL",
+      "bytes": 30620,
+      "sha256": "b58714b8c5e72c33241fa2a09ebbe125da72f9ca025399f98bc254604dfc5fc3"
+    },
+    {
+      "path": "XenSonar/src/forge/editor/06_pcm_spectrum_view.js",
+      "status": "EXACT_FULL",
+      "bytes": 4645,
+      "sha256": "d307ed01b1fd736b26b8eb4586f2c09fb6ddd2e014b8e724343514e72031a41a"
+    },
+    {
+      "path": "XenSonar/src/forge/editor/07_view_lifecycle.js",
+      "status": "EXACT_FULL",
+      "bytes": 789,
+      "sha256": "0956e31d83d8e67d4df961ff21b17de83b598908dc7772f719556cbc81ade255"
+    },
+    {
+      "path": "XenSonar/src/forge/emilia/01_nodal_carrier.js",
+      "status": "EXACT_FULL",
+      "bytes": 18226,
+      "sha256": "43ac3efd39ad2d8694b2b162d7738d917ca4021e162ebd4fcd64b985f5a929df"
+    },
+    {
+      "path": "XenSonar/src/forge/emilia/02_lab_ui.js",
+      "status": "EXACT_FULL",
+      "bytes": 341,
+      "sha256": "84a0c903025d89a3181aae800211f1bdf5574e8c38c8d2bda40bfca36aba5a5d"
+    },
+    {
+      "path": "XenSonar/src/forge/emilia/03_network_color.js",
+      "status": "EXACT_FULL",
+      "bytes": 6545,
+      "sha256": "d3878f9588f5e36015309d76d472e069fa7c81776057e3798bdb923e4bbc1c5f"
+    },
+    {
+      "path": "XenSonar/src/forge/emilia/04_source_materials.js",
+      "status": "EXACT_FULL",
+      "bytes": 2346,
+      "sha256": "80a43afc95fd5b2efe6dd30aca015fec10351dda721f7041281e26c146167e2a"
+    },
+    {
+      "path": "XenSonar/src/forge/emilia/05_hx_reciprocal.js",
+      "status": "EXACT_FULL",
+      "bytes": 1940,
+      "sha256": "e75f5cda56961f762e250ad4b3e57a33d4d3db9551bdb52bf668e1a0bb61e35c"
+    },
+    {
+      "path": "XenSonar/src/forge/emilia/06_preview_worker.js",
+      "status": "EXACT_FULL",
+      "bytes": 2111,
+      "sha256": "89e9b5ea9fa2e68f370b325c79ecc97875f60b11493b47048be1e0ff8ff5135d"
+    },
+    {
+      "path": "XenSonar/src/forge/fractalia/00_legacy_f2.js",
+      "status": "EXACT_FULL",
+      "bytes": 13153,
+      "sha256": "30d9287987f7b7352d5830eac2eeedf4a06fa236eafd61c083350fa96d3af2f7"
+    },
+    {
+      "path": "XenSonar/src/forge/fractalia/01_core.js",
+      "status": "EXACT_FULL",
+      "bytes": 18778,
+      "sha256": "4185eceb088dfc8b4372000363eb36c9a2f42cd7874d99991551e44134a1bd22"
+    },
+    {
+      "path": "XenSonar/src/forge/fractalia/02_mantle.js",
+      "status": "EXACT_FULL",
+      "bytes": 2047,
+      "sha256": "c81c5700a0e4becda5fdbecb299a3656596784c803c43b7ac4b589a01ee20934"
+    },
+    {
+      "path": "XenSonar/src/forge/fractalia/03_instrument.js",
+      "status": "EXACT_FULL",
+      "bytes": 15428,
+      "sha256": "0b587d152a72a4b5ec13930789d2947e08793d36f2cf714345daa1e60918e9a6"
+    },
+    {
+      "path": "XenSonar/src/forge/fractalia/04_relations.js",
+      "status": "EXACT_FULL",
+      "bytes": 6000,
+      "sha256": "cee8d44af6156cd0539b05ac0b63087bebeaa084cf107e79514ece7dcdfe361f"
+    },
+    {
+      "path": "XenSonar/src/forge/fractalia/05_relational_core.js",
+      "status": "EXACT_FULL",
+      "bytes": 11085,
+      "sha256": "640cec76ab177164437a1a02c6cf137ba0268d8bf46e1efacc0aa0af5a479c7e"
+    },
+    {
+      "path": "XenSonar/src/forge/fractalia/07_compile_jobs.js",
+      "status": "EXACT_FULL",
+      "bytes": 2620,
+      "sha256": "e0a3a521c74385663596723c4d5ad3af007965d3df5941614440df178311253f"
+    },
+    {
+      "path": "XenSonar/src/forge/fractalia/08_donor_ecology.js",
+      "status": "EXACT_FULL",
+      "bytes": 3840,
+      "sha256": "7b3150b143a4a2a7151b8e34375b655375007b01c98d988993d28a5b389a513d"
+    },
+    {
+      "path": "XenSonar/src/forge/fractalia/09_material_atlas.js",
+      "status": "EXACT_FULL",
+      "bytes": 10145,
+      "sha256": "7aefb1c10142644fd12024e91cfb5d88c816be09566cbddab407539ef69393e9"
+    },
+    {
+      "path": "XenSonar/src/forge/fractalia/10_material_render.js",
+      "status": "EXACT_FULL",
+      "bytes": 9530,
+      "sha256": "106a9afdc6a90bc76236177dfdbb23c64ff1b5ce93322d940acde981c1826550"
+    },
+    {
+      "path": "XenSonar/src/forge/fractalia/11_material_runtime.js",
+      "status": "EXACT_FULL",
+      "bytes": 6168,
+      "sha256": "a8fb5d09eebe736c82f4200b7c72028732b5472f5ba4470dc2bcf98b770260d0"
+    },
+    {
+      "path": "XenSonar/src/forge/fractalia/12_material_experiments.js",
+      "status": "EXACT_FULL",
+      "bytes": 6213,
+      "sha256": "b09a3f611a9a6f494b1126cf7f9025fe6247be32a8e639064e29b5ed77a91e36"
+    },
+    {
+      "path": "XenSonar/src/forge/fractalia/13_spectral_view.js",
+      "status": "EXACT_FULL",
+      "bytes": 2859,
+      "sha256": "c8fd1116fff4951fe0486bde0a7ce084a0d3b18de0b0e8f7b5e73ac77d32848e"
+    },
+    {
+      "path": "XenSonar/src/forge/fractalia/14_live_transfer.js",
+      "status": "EXACT_FULL",
+      "bytes": 4095,
+      "sha256": "9b00d791a5243f6949fae75ae9cb6ed58361129d28a59d6249cef23e9ed28df1"
+    },
+    {
+      "path": "XenSonar/src/forge/hybrid/01_recipe.js",
+      "status": "EXACT_FULL",
+      "bytes": 2220,
+      "sha256": "8f9971f9a3eb3f105fb875819fa91771be2213b25d30b035bdb39d6043a99c24"
+    },
+    {
+      "path": "XenSonar/src/forge/hybrid/02_session_store.js",
+      "status": "EXACT_FULL",
+      "bytes": 2070,
+      "sha256": "fb7b4cf3a23311dce3ede0a6a6dee42d17fe7df1d6486f3ffdd5a4a8656ffd20"
+    },
+    {
+      "path": "XenSonar/src/forge/hybrid/03_render_pipeline.js",
+      "status": "EXACT_FULL",
+      "bytes": 5883,
+      "sha256": "6586e94139dcf9fcc70629a5592893be0876cf2b48718353caae9429e9b7db4b"
+    },
+    {
+      "path": "XenSonar/src/forge/hybrid/04_cecilia_dsp_and_worker.js",
+      "status": "EXACT_FULL",
+      "bytes": 15791,
+      "sha256": "3439bd0960fa9f7994e46b08877035597c7eef25e04bb38fc81839c9e7d8b43c"
+    },
+    {
+      "path": "XenSonar/src/forge/hybrid/05_capture_tools.js",
+      "status": "EXACT_FULL",
+      "bytes": 1876,
+      "sha256": "25ab13b8cf8118ea3bdeac88588becde0a5be3817a469ab684a769fb71c8c37e"
+    },
+    {
+      "path": "XenSonar/src/forge/hybrid/06_job_capture.js",
+      "status": "EXACT_FULL",
+      "bytes": 3789,
+      "sha256": "fad0ad7ac5e4d84397eb7c4a955b002958f19dc33d79e8bc864967e766349cda"
+    },
+    {
+      "path": "XenSonar/src/forge/hybrid/07_render_adapters.js",
+      "status": "EXACT_FULL",
+      "bytes": 2190,
+      "sha256": "8755b217732677487dc20647b46a0580ea218460e5f85ef986ff660bec422606"
+    },
+    {
+      "path": "XenSonar/src/forge/hybrid/08_playback_controller.js",
+      "status": "EXACT_FULL",
+      "bytes": 3795,
+      "sha256": "616691ad1ebae4a7da355e190549429d376e09d948e44ed70496ad778ec9416d"
+    },
+    {
+      "path": "XenSonar/src/forge/hybrid/09_runtime.js",
+      "status": "EXACT_FULL",
+      "bytes": 873,
+      "sha256": "5dbc3a5fc065bec8b29d1f63ecaa907399cdc10ccabb62369a6479a355ad52c3"
+    },
+    {
+      "path": "XenSonar/src/forge/hybrid/10_carrier_capture.js",
+      "status": "EXACT_FULL",
+      "bytes": 2390,
+      "sha256": "7d493c3af6d70c70901a301e9f4a001e30e8653ad96547f0e63fadeebfa5f25e"
+    },
+    {
+      "path": "XenSonar/src/forge/lifecycle/01_offline_jobs.js",
+      "status": "EXACT_FULL",
+      "bytes": 5546,
+      "sha256": "91a7018865c15b60fc56a54af828935097a7cb664d523bc4b7dac4d8d0c536ca"
+    },
+    {
+      "path": "XenSonar/src/forge/lifecycle/02_workbench_activity.js",
+      "status": "EXACT_FULL",
+      "bytes": 146,
+      "sha256": "034313d6ca92c33929bdbc1f5edf7310df13661faa8f8895667bfcdbc810a0c1"
+    },
+    {
+      "path": "XenSonar/src/forge/module_bundle/01_entry.js",
+      "status": "EXACT_FULL",
+      "bytes": 5480,
+      "sha256": "bacc54f7e4071f84a8694daf4839364f75b71c0f1745048f9bd668162856830c"
+    },
+    {
+      "path": "XenSonar/src/forge/module_bundle/02_projectionCarrierPlan.js",
+      "status": "EXACT_FULL",
+      "bytes": 6806,
+      "sha256": "99eb34a9a90f278e72d078920fd0c49a7c35c32b6c5bdd2d2a23f50e20cafa62"
+    },
+    {
+      "path": "XenSonar/src/forge/module_bundle/03_carrierDonorV2Types.js",
+      "status": "EXACT_FULL",
+      "bytes": 192,
+      "sha256": "f1fd8dc51c24ac409e5ac48a195c2f341682f50044162f2feb8599c85f439418"
+    },
+    {
+      "path": "XenSonar/src/forge/module_bundle/04_carrierSupportField.js",
+      "status": "EXACT_FULL",
+      "bytes": 3566,
+      "sha256": "cd270f8fa10c256dbd68aaa41c3d1c7108d34058f93c8a37392e51e603f732ae"
+    },
+    {
+      "path": "XenSonar/src/forge/module_bundle/05_carrierContinuity.js",
+      "status": "EXACT_FULL",
+      "bytes": 6868,
+      "sha256": "4c6131cb4d0b490423ecfc512353f2ca42f26705fae07c9b8affa5de8f03de2b"
+    },
+    {
+      "path": "XenSonar/src/forge/module_bundle/06_donorHybridModel.js",
+      "status": "EXACT_FULL",
+      "bytes": 8936,
+      "sha256": "c96ff9e2df5f50c701282ea5b1d6d823bc3bbd1d553929dee4b642bd60dbcdaf"
+    },
+    {
+      "path": "XenSonar/src/forge/module_bundle/07_donorBodyModel.js",
+      "status": "EXACT_FULL",
+      "bytes": 14989,
+      "sha256": "7f8253d133d0413c6d8fbaa06f4836f6ad6061bb0f9aa3fe4efe7cb899d38442"
+    },
+    {
+      "path": "XenSonar/src/forge/module_bundle/08_realSpectrum.js",
+      "status": "EXACT_FULL",
+      "bytes": 1604,
+      "sha256": "71800f20741beab81b4454c4752ac508f245f28d3a787056040c182c2f904264"
+    },
+    {
+      "path": "XenSonar/src/forge/module_bundle/09_donorPitch.js",
+      "status": "EXACT_FULL",
+      "bytes": 1619,
+      "sha256": "5ae67accce5e161f73ae4361df26a1f48ffb3234dc1289c1b4f1c03479a8ba4b"
+    },
+    {
+      "path": "XenSonar/src/forge/module_bundle/10_donorSpectralEvidence.js",
+      "status": "EXACT_FULL",
+      "bytes": 3746,
+      "sha256": "15d023d7173900f1b34cd603e512c70b2ed9bc1f0e073d0b3379eb538fbdb17b"
+    },
+    {
+      "path": "XenSonar/src/forge/module_bundle/11_donorSourceWindows.js",
+      "status": "EXACT_FULL",
+      "bytes": 5549,
+      "sha256": "d2b9407c05976d3496b14debe59c46f700d5e5a6751965faab9822129e1d036d"
+    },
+    {
+      "path": "XenSonar/src/forge/module_bundle/12_renderDonorHybrid.js",
+      "status": "EXACT_FULL",
+      "bytes": 19238,
+      "sha256": "c55706488d78dbaf104688cfd6723818344a6d6055086d7206b6886368ba1888"
+    },
+    {
+      "path": "XenSonar/src/forge/module_bundle/13_donorMaterialPlan.js",
+      "status": "EXACT_FULL",
+      "bytes": 3137,
+      "sha256": "083129b78a98954c3247a5625a3ece131222e5933c58936bf608606018ae9028"
+    },
+    {
+      "path": "XenSonar/src/forge/module_bundle/14_granularCadence.js",
+      "status": "EXACT_FULL",
+      "bytes": 2241,
+      "sha256": "2d24fa0fe85ad71855e9ffb253aab30ad2b895220e8c543541e95e24be0f27a9"
+    },
+    {
+      "path": "XenSonar/src/forge/module_bundle/15_renderContinuousDonor.js",
+      "status": "EXACT_FULL",
+      "bytes": 15172,
+      "sha256": "173ed7794dfc9a31a0e1b0d6c693dcc370c932e4f56519b3fe863e70fea18195"
+    },
+    {
+      "path": "XenSonar/src/forge/module_bundle/16_complexSpectrum.js",
+      "status": "EXACT_FULL",
+      "bytes": 2012,
+      "sha256": "066ed017c3e0ad073ce86b61b26bc20f460220ab9f2c4c756f5b08eb2e5f5bc5"
+    },
+    {
+      "path": "XenSonar/src/forge/module_bundle/17_renderCarrierSupport.js",
+      "status": "EXACT_FULL",
+      "bytes": 14937,
+      "sha256": "6f41e89cd95dc72fdd69675067e693f094a882d0695faf5590d0c630e2ac59d5"
+    },
+    {
+      "path": "XenSonar/src/forge/module_bundle/18_donorSpectralFilm.js",
+      "status": "EXACT_FULL",
+      "bytes": 8766,
+      "sha256": "a297214391cf55bd4ae51b611b65d02ed552553786a1f68c8e07e11f4cb6dd15"
+    },
+    {
+      "path": "XenSonar/src/forge/module_bundle/19_donorMaterialDiagnostics.js",
+      "status": "EXACT_FULL",
+      "bytes": 2158,
+      "sha256": "ebde22ab29918fd65ae2b652559603dab870d76d5185ced7b7df9dd51d3a207b"
+    },
+    {
+      "path": "XenSonar/src/forge/module_bundle/20_donorOutputMantle.js",
+      "status": "EXACT_FULL",
+      "bytes": 1580,
+      "sha256": "76307be1b9e2dc3ecb7edf15f1538378c93014e58b37f87ada4acd9ce0a76e54"
+    },
+    {
+      "path": "XenSonar/src/forge/module_bundle/22_materialIntakePersistence.js",
+      "status": "EXACT_FULL",
+      "bytes": 12229,
+      "sha256": "3e5b27f6a9333f0f406f1983b1a2206a1327c8aa621e336e4a11647561d6c733"
+    },
+    {
+      "path": "XenSonar/src/forge/module_bundle/99_close.js",
+      "status": "EXACT_FULL",
+      "bytes": 676,
+      "sha256": "59c528363096f35351430920a4e283a1e3dd1a7ec88447e4e4c42d5e60497881"
+    },
+    {
+      "path": "XenSonar/src/forge/original/01_articulation.js",
+      "status": "EXACT_FULL",
+      "bytes": 5191,
+      "sha256": "aa974100b110d2ea5f7f751a25339d89017cd905017df0f3078dc5172b2033c3"
+    },
+    {
+      "path": "XenSonar/src/forge/original/02_material.js",
+      "status": "EXACT_FULL",
+      "bytes": 13508,
+      "sha256": "eca3a573ead36cca0a1c0f73f602c7064dce262aa4e4a1871c22223e9b19544f"
+    },
+    {
+      "path": "XenSonar/src/forge/original/03_gestalt_material.js",
+      "status": "EXACT_FULL",
+      "bytes": 9336,
+      "sha256": "268788b25eb1aa8b35d978ba9bf15bf542aba8660c9e78aa253bd6cf6ede4b67"
+    },
+    {
+      "path": "XenSonar/src/forge/original/04_gestalt.js",
+      "status": "EXACT_FULL",
+      "bytes": 21481,
+      "sha256": "266be3231b3df2f45f3a9d21a46ac1c3a37acc0163cbbf28d547164d6aab4b3f"
+    },
+    {
+      "path": "XenSonar/src/forge/original/05_dual_donor.js",
+      "status": "EXACT_FULL",
+      "bytes": 12891,
+      "sha256": "3176730ba9d52fa46d271727b05563d46f049b3d91ebba64d0e7ae67c95d120b"
+    },
+    {
+      "path": "XenSonar/src/forge/original/06_cecilia.js",
+      "status": "EXACT_FULL",
+      "bytes": 8232,
+      "sha256": "1793157528b6a687ef4d811d1b27212aa0ca26c824855fb7c890a9125d059fca"
+    },
+    {
+      "path": "XenSonar/src/forge/revised/01_material.js",
+      "status": "EXACT_FULL",
+      "bytes": 9848,
+      "sha256": "039df326f0b67ae6b283d6d86b5e8deccb0aa86a8c5ef7c687d8345a0e52e0b2"
+    },
+    {
+      "path": "XenSonar/src/forge/revised/02_gestalt.js",
+      "status": "EXACT_FULL",
+      "bytes": 26044,
+      "sha256": "15d0e052344df914a523642c362bd32d0ed92d82161def9088628aa893b3d239"
+    },
+    {
+      "path": "XenSonar/src/forge/stamps/01_atlas_2026_bridge.js",
+      "status": "EXACT_FULL",
+      "bytes": 99238,
+      "sha256": "fd512d60d95627fbbeaf33356c030ddf15ab9faa7ce0dcc9f4bd73f5ed1e7c54"
+    },
+    {
+      "path": "XenSonar/src/forge/stamps/02_atlas_audition.js",
+      "status": "EXACT_FULL",
+      "bytes": 10561,
+      "sha256": "9595652246f850f506eaa9a2795f039122c46ea918e9cdbdb4a82a9bdd286e7e"
+    },
+    {
+      "path": "XenSonar/src/forge/ui/03_microphone_intake.js",
+      "status": "EXACT_FULL",
+      "bytes": 215,
+      "sha256": "5a97b72616b72cd5ab0ed074833339515592d32476ccf23b85a7244842bec92c"
+    },
+    {
+      "path": "XenSonar/src/forge/ui/04_audio_to_carrier_controls.js",
+      "status": "EXACT_FULL",
+      "bytes": 179,
+      "sha256": "d976cebe2579410b8f68c403e4d84fd568728a54f6e1de6024a011d170bec129"
+    },
+    {
+      "path": "XenSonar/src/forge/ui/05_workbench_controls.js",
+      "status": "EXACT_FULL",
+      "bytes": 968,
+      "sha256": "6d6cdb454caac0557d09863ad70f6ad9b18ec7af24c3d2490dc91662ce07ae36"
+    },
+    {
+      "path": "XenSonar/src/forge/workbench/01_preset_catalog.js",
+      "status": "EXACT_FULL",
+      "bytes": 14360,
+      "sha256": "a4aa4bdd1f353ca004eadec82fc540c4944bcffe8d46de6e8a990342dec0367e"
+    },
+    {
+      "path": "XenSonar/src/forge/workbench/02_recipe_normalization.js",
+      "status": "EXACT_FULL",
+      "bytes": 5187,
+      "sha256": "1f2c230ca91f0c63da5451ed5432befda85ea6ddbac77d08019631600fdb6cbb"
+    },
+    {
+      "path": "XenSonar/src/forge/workbench/03_material_selection.js",
+      "status": "EXACT_FULL",
+      "bytes": 11613,
+      "sha256": "022186707460174a20afccb9cb4521eba7e1a12c93d0bd69182e57a5436f973e"
+    },
+    {
+      "path": "XenSonar/src/forge/workbench/04_sound_bridge.js",
+      "status": "EXACT_FULL",
+      "bytes": 919,
+      "sha256": "fc81e389da33f9cc674c8c9399f6af8be8d4f848d3dc202c016080510ed25996"
+    },
+    {
+      "path": "XenSonar/src/forge/workbench/05_state_store.js",
+      "status": "EXACT_FULL",
+      "bytes": 12284,
+      "sha256": "5b33017599a1e20cca132be0873758bd758e3333697d15100adca1a653f40ba3"
+    },
+    {
+      "path": "XenSonar/src/forge_and_melodic/07_tuning_and_logic_view.js",
+      "status": "EXACT_FULL",
+      "bytes": 4077,
+      "sha256": "c540d308a48484873798f07766e1af6927bd15daeb3718f44eff1f43642eb09b"
+    },
+    {
+      "path": "XenSonar/src/instruments/01_entrophon_definition.js",
+      "status": "EXACT_FULL",
+      "bytes": 4205,
+      "sha256": "c66d6a6454b6e4d56ef94ed49d421a01b65bf17d29dd2818e031ae840f9409aa"
+    },
+    {
+      "path": "XenSonar/src/instruments/02_entrophon_library.js",
+      "status": "EXACT_FULL",
+      "bytes": 2367,
+      "sha256": "0a8e39cb71778c2c89a28e4adf601b9b25fb7614708e7dfe75e31eebf5c57abb"
+    },
+    {
+      "path": "XenSonar/src/instruments/03_entrophon_library_ui.js",
+      "status": "EXACT_FULL",
+      "bytes": 2281,
+      "sha256": "d6590c57482ee0d66e29047675852e4ba84fd853f5f91c6d35d1d930ae1d3071"
+    },
+    {
+      "path": "XenSonar/src/instruments/07_pitch_preparation.js",
+      "status": "EXACT_FULL",
+      "bytes": 4200,
+      "sha256": "0606c67311b76324523b74bdbc50159af24cc94791dba20ae7477fb6a4c1272b"
+    },
+    {
+      "path": "XenSonar/src/integrations/XEN_WISSENSRAUM_BRIDGE_D_INTEGRATION.js",
+      "status": "EXACT_FULL",
+      "bytes": 13487,
+      "sha256": "d9f0f4b8668349c87ccbec70eb13a5e58eb5d607150f74698ea3a68b543c12db"
+    },
+    {
+      "path": "XenSonar/src/merge_meta_additions/042_xen-h1-side-rail-sync.js",
+      "status": "EXACT_FULL",
+      "bytes": 1360,
+      "sha256": "ad7888d24f963f02d6f6ea5de26b039e7b15373c5cc397c4b94b82a04ec46f3b"
+    },
+    {
+      "path": "XenSonar/src/merge_meta_additions/044_xen-h3-permanent-rails.js",
+      "status": "EXACT_FULL",
+      "bytes": 733,
+      "sha256": "de30dfceaee27238d6ec14125826321f7b12f2400c02012b037e34f8f34b278c"
+    },
+    {
+      "path": "XenSonar/src/mix/03_legacy_song_import.js",
+      "status": "EXACT_FULL",
+      "bytes": 3734,
+      "sha256": "9634577de200c9d58a478c34162e130a7894a38e9358e71e1baa2bbf5a2a8ca0"
+    },
+    {
+      "path": "XenSonar/src/mix/04_melodic_spatial.js",
+      "status": "EXACT_FULL",
+      "bytes": 3529,
+      "sha256": "ba9f4b0cc342747c985b10d57593dda20891b626478e33a6460da25ffeb1b616"
+    },
+    {
+      "path": "XenSonar/src/mix/05_grid_runtime.js",
+      "status": "EXACT_FULL",
+      "bytes": 1148,
+      "sha256": "eec8e443ae3c2397a340da3c8335935cfec3e516f89331f8b57f85f30b95b7e6"
+    },
+    {
+      "path": "XenSonar/src/nodal/03_library.js",
+      "status": "EXACT_FULL",
+      "bytes": 5541,
+      "sha256": "d55cc0e856c44176add41a56d66faf445e923994699e850a381e7e494da3d59c"
+    },
+    {
+      "path": "XenSonar/src/nodal/03_preparation_worker.js",
+      "status": "EXACT_FULL",
+      "bytes": 4557,
+      "sha256": "5d0c90036830cee605310ea8d92f39fe514729cd2d750cacb3b24e6e59805c10"
+    },
+    {
+      "path": "XenSonar/src/nodal/08_melodic_live_transport.js",
+      "status": "EXACT_FULL",
+      "bytes": 11480,
+      "sha256": "9ee6f2f295ffd587d6f52ac81a55b7b34c4239cfda8e95ffae5400980d2b9689"
+    },
+    {
+      "path": "XenSonar/src/nodal/10_library_manager.js",
+      "status": "EXACT_FULL",
+      "bytes": 426,
+      "sha256": "8057223fb60d03ff98d2262aa215ef60774086435c81cb3899525a18e4eb77af"
+    },
+    {
+      "path": "XenSonar/src/nodal/11_editing_session.js",
+      "status": "EXACT_FULL",
+      "bytes": 2462,
+      "sha256": "3a17df8f6f664f1ce970be95ac2f014b559c1a4ae39f905ab1efda81bb271fc3"
+    },
+    {
+      "path": "XenSonar/src/nodal/13_installation_ball_grid.js",
+      "status": "EXACT_FULL",
+      "bytes": 3451,
+      "sha256": "a1b742a8c935e2390d293eb758028f214d00326bea055b845784dc07c10b2afd"
+    },
+    {
+      "path": "XenSonar/src/rooms/00_empty_audio_p32.js",
+      "status": "EXACT_FULL",
+      "bytes": 12770,
+      "sha256": "2bb3dc6b9d0d86f819ea998f7927a6774558a6d0333a460076715346e7298df6"
+    },
+    {
+      "path": "XenSonar/src/rooms/00_idle_wave_donor_p33.js",
+      "status": "EXACT_FULL",
+      "bytes": 15667,
+      "sha256": "39bcfc8135eb3043b35027b012ceac3201b56f5e682626a4c32d9773124b06f4"
+    },
+    {
+      "path": "XenSonar/src/runtime/instrument/04_performance_and_output_profiles.js",
+      "status": "EXACT_FULL",
+      "bytes": 37589,
+      "sha256": "2e9aebd1b35133c8e48374f9aaeed91da0663e32dda2b38f58309033e52cfb1e"
+    },
+    {
+      "path": "XenSonar/src/runtime/instrument/07_interpreters_and_installation.js",
+      "status": "EXACT_FULL",
+      "bytes": 11281,
+      "sha256": "63537d60c90368a888e7a0fd54a772861851a09bdcb81705fc15e205d5887c8e"
+    },
+    {
+      "path": "XenSonar/src/runtime/instrument/13_pointer_motion.js",
+      "status": "EXACT_FULL",
+      "bytes": 1469,
+      "sha256": "0ddff43024ee3ed3d4e074444cf3c44b3844c511597b2d54448f2e9f165a73d3"
+    },
+    {
+      "path": "XenSonar/src/startup/00_room_and_function_dispatch.js",
+      "status": "EXACT_FULL",
+      "bytes": 2740,
+      "sha256": "b808e2392aba760cab49b376f9ebd3aa2e40253c36ccb38a22ec204b791cf0ef"
+    },
+    {
+      "path": "XenSonar/src/startup/01_startup_observer.js",
+      "status": "EXACT_FULL",
+      "bytes": 1138,
+      "sha256": "f8b931065fa0ea127f2eb879fcf995689dbcd60f03fd0ac5cbcfb15475868a86"
+    },
+    {
+      "path": "XenSonar/src/startup/02_boot_stage_controller.js",
+      "status": "EXACT_FULL",
+      "bytes": 7135,
+      "sha256": "f0071a90ea4b6fb4c97c7d137847598d35ac46e9c11fee0267d594b1514b9c69"
+    },
+    {
+      "path": "XenSonar/src/storage/02_donor_packages.js",
+      "status": "EXACT_FULL",
+      "bytes": 13094,
+      "sha256": "ba42815cfa34ac76264f5811b79fb78abc5f9a5409ccea9d3f74286f74c9a735"
+    },
+    {
+      "path": "XenSonar/src/storage/03_forge_packages.js",
+      "status": "EXACT_FULL",
+      "bytes": 3431,
+      "sha256": "cc8f262dfcc64bfc422e60b799b7bf32f30f32c62a2d40163ad684590a2cf531"
+    },
+    {
+      "path": "XenSonar/src/storage/04_sample_donor_bridge.js",
+      "status": "EXACT_FULL",
+      "bytes": 8062,
+      "sha256": "c00de178c37e4622644e181a00fe2a4ac3a2337b514a3c2823099ec3ac992f44"
+    },
+    {
+      "path": "XenSonar/src/storage/06_history_budget.js",
+      "status": "EXACT_FULL",
+      "bytes": 2028,
+      "sha256": "27e63bb49ee637a44172ef2305c6b9e5a55eb7ba3cffd316e1082461f2c47b30"
+    },
+    {
+      "path": "XenSonar/src/storage/07_history_snapshots.js",
+      "status": "EXACT_FULL",
+      "bytes": 3792,
+      "sha256": "23cd8597462af5ed1dd0ed160163bc391467976e9d93d389d1f4acdf9046c1b4"
+    },
+    {
+      "path": "XenSonar/src/ui/04_header_scrollbar_gauge_sb2.js",
+      "status": "EXACT_FULL",
+      "bytes": 888,
+      "sha256": "31a80b3105b016c77db6bd5f7c95ad1fcc2e2c7a3f3b577fab12c1217af3aebc"
+    },
+    {
+      "path": "XenSonar/src/vendor/01_react_dom.js",
+      "status": "EXACT_FULL",
+      "bytes": 194714,
+      "sha256": "53fd4c16cb0532b5c8d7d4ea36851fcbfd7003db535361217a39fb0bd8bae7c9"
+    },
+    {
+      "path": "XenSonar/styles/areas/001_xen-grid-profile-session-css.css",
+      "status": "EXACT_FULL",
+      "bytes": 4427,
+      "sha256": "a89182480e73a456e4c93f9b7f02d11640eeca12f841f52e2cb75e41b36fea68"
+    },
+    {
+      "path": "XenSonar/styles/areas/003_xen-boot-mandala-css.css",
+      "status": "EXACT_FULL",
+      "bytes": 1478,
+      "sha256": "f1f5fb950bbb293645ba5bd3875baa94966d55667079ae2eb8ad8f845a85894b"
+    },
+    {
+      "path": "XenSonar/styles/areas/007_f39-near-feedback-style.css",
+      "status": "EXACT_FULL",
+      "bytes": 507,
+      "sha256": "a3ae120030efbac40a14ace2802e9f0924e6ac8c2af862b6c3901b51cec13efb"
+    },
+    {
+      "path": "XenSonar/styles/areas/009_forge-sidebar-mobile-f315.css",
+      "status": "EXACT_FULL",
+      "bytes": 312,
+      "sha256": "ab91854df198c49cfea31757b193717865f3d26e5d68e370a7392eb9b8a31535"
+    },
+    {
+      "path": "XenSonar/styles/areas/010_f341-donor-workbench-style.css",
+      "status": "EXACT_FULL",
+      "bytes": 6533,
+      "sha256": "36d7ec5234da0071f61f31beebd31fb16072aa99f8a4da4ab97ae1af87645b42"
+    },
+    {
+      "path": "XenSonar/styles/areas/011_f347-workbench-style.css",
+      "status": "EXACT_FULL",
+      "bytes": 4529,
+      "sha256": "63bf3ddd8c66aaf9fc3e13b0dfab533ae352fae0efdfdf44351731da9fc335ab"
+    },
+    {
+      "path": "XenSonar/styles/areas/012_f348-library-layout.css",
+      "status": "EXACT_FULL",
+      "bytes": 2411,
+      "sha256": "d8285928265fd25f970e370a50145db6237fb204b7932fe792b06101a1becf72"
+    },
+    {
+      "path": "XenSonar/styles/areas/013_f349-library-side-dock.css",
+      "status": "EXACT_FULL",
+      "bytes": 2235,
+      "sha256": "a9015ab49de1889c6a1f14e5dd6b5a0c13f261618eed9009c67d1c2a0ba02a34"
+    },
+    {
+      "path": "XenSonar/styles/areas/014_f350-workflow.css",
+      "status": "EXACT_FULL",
+      "bytes": 3843,
+      "sha256": "31ba7c163fe9d563956753fcb10134f10d1cf7d759548ad75c78708a1b1ce7a6"
+    },
+    {
+      "path": "XenSonar/styles/areas/015_f351-combination-rack.css",
+      "status": "EXACT_FULL",
+      "bytes": 5258,
+      "sha256": "53b6cc5fb8da5c397e7eb4eca8ac4e7bf4baf129b3356267c7d9d7e7c07282f3"
+    },
+    {
+      "path": "XenSonar/styles/areas/016_f352-hybrid-workflow.css",
+      "status": "EXACT_FULL",
+      "bytes": 1371,
+      "sha256": "9c6c8ca5b10d43316c1799171b8617726ced37aef205a0da180c9f3ca7d3d533"
+    },
+    {
+      "path": "XenSonar/styles/areas/017_f3564-carrier-ui.css",
+      "status": "EXACT_FULL",
+      "bytes": 1448,
+      "sha256": "5b2d1e3c67bce5a18a72f7928f480180a1fc34051fe0f23a082803ea544a69af"
+    },
+    {
+      "path": "XenSonar/styles/areas/018_xen-f35618-drum-rack-layout.css",
+      "status": "EXACT_FULL",
+      "bytes": 919,
+      "sha256": "2d919686bbc365ffc0b5f6a58b24e1408dd12780a8c2776cef2b0d4d90cea178"
+    },
+    {
+      "path": "XenSonar/styles/areas/019_xen-f35619-drum-timing.css",
+      "status": "EXACT_FULL",
+      "bytes": 829,
+      "sha256": "97f5a79dbc339b77cf3ddf43db7efd0ed938e3a52226435aeb03415e4986cf03"
+    },
+    {
+      "path": "XenSonar/styles/areas/020_xen-f35620-drum-layout.css",
+      "status": "EXACT_FULL",
+      "bytes": 202,
+      "sha256": "cf0a6c4070a6b119eb10e7bc1e100be910799511393ff5316d052b0fb4fb2e08"
+    },
+    {
+      "path": "XenSonar/styles/areas/022_f35634-dual-donor-assembly-ui.css",
+      "status": "EXACT_FULL",
+      "bytes": 14560,
+      "sha256": "5f1c9c86811f0ad65cd26e933a7958b6e77b7ea11fec0a0e0b387d309e259018"
+    },
+    {
+      "path": "XenSonar/styles/areas/023_inline-023.css",
+      "status": "EXACT_FULL",
+      "bytes": 5315,
+      "sha256": "cae09d0b10d06d0f2691a77e6f935f3fbdb6ce3d0f23ac54b6145f6b807ca9ac"
+    },
+    {
+      "path": "XenSonar/styles/areas/025_xen-f355-fix1-bass.css",
+      "status": "EXACT_FULL",
+      "bytes": 403,
+      "sha256": "a5bfe03c03a3d66c6e7712ee05263406b0b99e619ad7645baf3c007991b60058"
+    },
+    {
+      "path": "XenSonar/styles/areas/027_inline-027.css",
+      "status": "EXACT_FULL",
+      "bytes": 5527,
+      "sha256": "ad8ede25f66dda315da30ae6d887fa3c063304b2a8f9fc9f6113716908dbb95d"
+    },
+    {
+      "path": "XenSonar/styles/areas/029_inline-029.css",
+      "status": "EXACT_FULL",
+      "bytes": 6107,
+      "sha256": "0d259561645caf89c1457cf09bb3b1fc4ecb063dfc98dc9c21ff1b79f326072c"
+    },
+    {
+      "path": "XenSonar/styles/areas/032_xen-lane-register-tabs.css",
+      "status": "EXACT_FULL",
+      "bytes": 1743,
+      "sha256": "4dab94c3faacbc4f67fdd36b46cd2321582f11fecd18d9202103d7f90d539a64"
+    },
+    {
+      "path": "XenSonar/styles/areas/033_xen-lane-nodal-palette.css",
+      "status": "EXACT_FULL",
+      "bytes": 2094,
+      "sha256": "b0bd2cb7ea2a3a02c42dc0566c48bb858917c3c925bba2379fdb6f7d03b77c96"
+    },
+    {
+      "path": "XenSonar/styles/areas/034_xen-n20-forge-navigation.css",
+      "status": "EXACT_FULL",
+      "bytes": 5306,
+      "sha256": "608018f90ae1fb600718c66482c6a04820f93a075ad87aee4bbed43f19ef0e5e"
+    },
+    {
+      "path": "XenSonar/styles/areas/035_xen-live-controls.css",
+      "status": "EXACT_FULL",
+      "bytes": 8003,
+      "sha256": "7cdd13a530c421d2a59eb5d69536c2a629fb4056244afdedeb5341c9a7dc879c"
+    },
+    {
+      "path": "XenSonar/styles/areas/038_xen-drum-mini-mixer-style.css",
+      "status": "EXACT_FULL",
+      "bytes": 1871,
+      "sha256": "ac4d7cb7ea9b0515c49837d3de38eb311e4c124e64a48f75486d1ab90330cdbf"
+    },
+    {
+      "path": "XenSonar/styles/areas/039_xen-meta-layout-mute-fix.css",
+      "status": "EXACT_FULL",
+      "bytes": 1801,
+      "sha256": "3fe4093a5da7b35d7d373de368ea1f7f66d89b518c987043025bdae24dcf1c59"
+    },
+    {
+      "path": "XenSonar/styles/bundle/base_01.css",
+      "status": "EXACT_FULL",
+      "bytes": 180185,
+      "sha256": "926787ae6c85105a59522b5508524937ef5ad3ff9840245e61bc31b0164d8aba"
+    },
+    {
+      "path": "XenSonar/styles/bundle/base_02.css",
+      "status": "EXACT_FULL",
+      "bytes": 8733,
+      "sha256": "8c3f2d9e8cc25404cf9ae9fa86f85238191ece48887d052b79187ebea6671464"
+    },
+    {
+      "path": "XenSonar/styles/merge_meta_additions/045_xen-r3-wheel-layout.css",
+      "status": "EXACT_FULL",
+      "bytes": 1880,
+      "sha256": "63c5cb1fb97f291eddebfca9b943ef9cc2be5fc8e593528b08caaf4ff8b7a7ae"
+    },
+    {
+      "path": "XenSonar/styles/merge_meta_additions/046_xen-h4-h1-icons-hairline-vector.css",
+      "status": "EXACT_FULL",
+      "bytes": 3519,
+      "sha256": "d91413b5a0a7f9d5f767cf9ea727c67fb0eb9e55f9476a26f04702e68f534c79"
+    },
+    {
+      "path": "XenSonar/styles/merge_meta_additions/047_xen-r4-initial-randomize.css",
+      "status": "EXACT_FULL",
+      "bytes": 674,
+      "sha256": "2803d926bcd1b3d24af9849c664ee22c01b955427a35182b3cff9fddbb51d1bf"
+    },
+    {
+      "path": "XenSonar/styles/overlays/melodic/01_compose_patchbay_v2.css",
+      "status": "EXACT_FULL",
+      "bytes": 2392,
+      "sha256": "5b2795ddf695af3e4bdab2631accdd28bdcb6cfcd020eb5da91a1f17329d5407"
+    },
+    {
+      "path": "XenSonar/styles/overlays/nodal/01_nodal_concave_shell_v3.css",
+      "status": "EXACT_FULL",
+      "bytes": 11257,
+      "sha256": "d1c52c05363833dcbd3f2ea7a089abdbb51573182dffc79104715f006e20562e"
+    },
+    {
+      "path": "XenSonar/styles/overlays/nodal/02_unified_scrollbars_sb1.css",
+      "status": "EXACT_FULL",
+      "bytes": 1813,
+      "sha256": "885529735b7e93959c7d8adb292a69422318999141f16a22d7082d9bc3b992e7"
+    },
+    {
+      "path": "XenSonar/styles/overlays/nodal/03_stable_room_header_sb2.css",
+      "status": "EXACT_FULL",
+      "bytes": 900,
+      "sha256": "765d1d56a9c867fcee31037c06c8d8c06c94dbf193a0240b5ea037c6a5b8604a"
+    },
+    {
+      "path": "XenSonar/styles/overlays/nodal/04_shell_geometry_t2.css",
+      "status": "EXACT_FULL",
+      "bytes": 4582,
+      "sha256": "5888142a6d1868b22e658020eba595fe2b5a1f9fd437b5cfd88be9a3e88b20cc"
+    },
+    {
+      "path": "XenSonar/styles/ui-fonts.css",
+      "status": "EXACT_FULL",
+      "bytes": 117442,
+      "sha256": "6783f48a7cebaae6821675703464ed687332974dab011b6bb618e6e2de0dabbc"
+    },
+    {
+      "path": "XenSonar/src/01_app_runtime.js",
+      "status": "ANCHOR_ONLY",
+      "bytes": 50252,
+      "anchor_offsets": [
+        0,
+        24870,
+        49740
+      ]
+    },
+    {
+      "path": "XenSonar/src/app/forge/01_room_shell.js",
+      "status": "ANCHOR_ONLY",
+      "bytes": 68185,
+      "anchor_offsets": [
+        0,
+        33836,
+        67673
+      ]
+    },
+    {
+      "path": "XenSonar/src/app/forge/02_boot_and_workspace_tools.js",
+      "status": "ANCHOR_ONLY",
+      "bytes": 80311,
+      "anchor_offsets": [
+        39899
+      ]
+    },
+    {
+      "path": "XenSonar/src/app/forge/03_spectral_grid_and_archives.js",
+      "status": "ANCHOR_ONLY",
+      "bytes": 81732,
+      "anchor_offsets": [
+        0,
+        40610,
+        81220
+      ]
+    },
+    {
+      "path": "XenSonar/src/app/forge/05_forge_state_and_analysis.js",
+      "status": "ANCHOR_ONLY",
+      "bytes": 38280,
+      "anchor_offsets": [
+        0,
+        18884,
+        37768
+      ]
+    },
+    {
+      "path": "XenSonar/src/app/forge/07_preview_cache_and_controls.js",
+      "status": "ANCHOR_ONLY",
+      "bytes": 41774,
+      "anchor_offsets": [
+        0,
+        41262
+      ]
+    },
+    {
+      "path": "XenSonar/src/audio/01_voice_and_rfl_ownership.js",
+      "status": "ANCHOR_ONLY",
+      "bytes": 201760,
+      "anchor_offsets": [
+        0,
+        100624,
+        201248
+      ]
+    },
+    {
+      "path": "XenSonar/src/audio/02_rfl_worklet.js",
+      "status": "ANCHOR_ONLY",
+      "bytes": 102830,
+      "anchor_offsets": [
+        51159,
+        102318
+      ]
+    },
+    {
+      "path": "XenSonar/src/audio/03_pcm_master_recorder.js",
+      "status": "ANCHOR_ONLY",
+      "bytes": 11916,
+      "anchor_offsets": [
+        0,
+        11404
+      ]
+    },
+    {
+      "path": "XenSonar/src/audio/03_recorder.js",
+      "status": "ANCHOR_ONLY",
+      "bytes": 27478,
+      "anchor_offsets": [
+        0,
+        26966
+      ]
+    },
+    {
+      "path": "XenSonar/src/audio/03_rfl_transport_legacy.js",
+      "status": "ANCHOR_ONLY",
+      "bytes": 103216,
+      "anchor_offsets": [
+        0,
+        51352,
+        102704
+      ]
+    },
+    {
+      "path": "XenSonar/src/audio/04_wave_worklet.js",
+      "status": "ANCHOR_ONLY",
+      "bytes": 86145,
+      "anchor_offsets": [
+        0,
+        42816,
+        85633
+      ]
+    },
+    {
+      "path": "XenSonar/src/audio/05_live_voice_runtime.js",
+      "status": "ANCHOR_ONLY",
+      "bytes": 166106,
+      "anchor_offsets": [
+        0,
+        82797,
+        165594
+      ]
+    },
+    {
+      "path": "XenSonar/src/audio/05_sample_granular_hold.js",
+      "status": "ANCHOR_ONLY",
+      "bytes": 8115,
+      "anchor_offsets": [
+        0,
+        3801,
+        7603
+      ]
+    },
+    {
+      "path": "XenSonar/src/audio/07_governor_and_drums.js",
+      "status": "ANCHOR_ONLY",
+      "bytes": 93683,
+      "anchor_offsets": [
+        0,
+        46585
+      ]
+    },
+    {
+      "path": "XenSonar/src/audio/08_myzel_g_live.js",
+      "status": "ANCHOR_ONLY",
+      "bytes": 9164,
+      "anchor_offsets": [
+        0,
+        4326
+      ]
+    },
+    {
+      "path": "XenSonar/src/audio/09_myzel_g_dsp.js",
+      "status": "ANCHOR_ONLY",
+      "bytes": 16301,
+      "anchor_offsets": [
+        0,
+        7894
+      ]
+    },
+    {
+      "path": "XenSonar/src/audio/avalanche.js",
+      "status": "ANCHOR_ONLY",
+      "bytes": 11784,
+      "anchor_offsets": [
+        5636
+      ]
+    },
+    {
+      "path": "XenSonar/src/audio/entrophon/02_worklet_and_voice_backend.js",
+      "status": "ANCHOR_ONLY",
+      "bytes": 171558,
+      "anchor_offsets": [
+        0,
+        85523,
+        171046
+      ]
+    },
+    {
+      "path": "XenSonar/src/audio/entrophon/03_native_bridge.js",
+      "status": "ANCHOR_ONLY",
+      "bytes": 11881,
+      "anchor_offsets": [
+        0
+      ]
+    },
+    {
+      "path": "XenSonar/src/audio/hold_resident.js",
+      "status": "ANCHOR_ONLY",
+      "bytes": 6301,
+      "anchor_offsets": [
+        2894
+      ]
+    },
+    {
+      "path": "XenSonar/src/contracts/16_project_commit_boundary.js",
+      "status": "ANCHOR_ONLY",
+      "bytes": 4269,
+      "anchor_offsets": [
+        0,
+        1878
+      ]
+    },
+    {
+      "path": "XenSonar/src/factories/ForgeTransportRack.js",
+      "status": "ANCHOR_ONLY",
+      "bytes": 11593,
+      "anchor_offsets": [
+        0,
+        11081
+      ]
+    },
+    {
+      "path": "XenSonar/src/factories/XenMetaEditor.js",
+      "status": "ANCHOR_ONLY",
+      "bytes": 33666,
+      "anchor_offsets": [
+        0,
+        16577,
+        33154
+      ]
+    },
+    {
+      "path": "XenSonar/src/forge/dsp/04_polytrace_render.js",
+      "status": "ANCHOR_ONLY",
+      "bytes": 8903,
+      "anchor_offsets": [
+        0,
+        4195,
+        8391
+      ]
+    },
+    {
+      "path": "XenSonar/src/forge/editor/01_display_and_canvas.js",
+      "status": "ANCHOR_ONLY",
+      "bytes": 9487,
+      "anchor_offsets": [
+        0,
+        4487,
+        8975
+      ]
+    },
+    {
+      "path": "XenSonar/src/forge/editor/02_tools_and_audio_inputs.js",
+      "status": "ANCHOR_ONLY",
+      "bytes": 39803,
+      "anchor_offsets": [
+        0,
+        19645,
+        39291
+      ]
+    },
+    {
+      "path": "XenSonar/src/forge/editor/05_machine_and_carrier_projection.js",
+      "status": "ANCHOR_ONLY",
+      "bytes": 55438,
+      "anchor_offsets": [
+        0,
+        27463,
+        54926
+      ]
+    },
+    {
+      "path": "XenSonar/src/forge/editor/06_output_routing.js",
+      "status": "ANCHOR_ONLY",
+      "bytes": 23779,
+      "anchor_offsets": [
+        0,
+        11633,
+        23267
+      ]
+    },
+    {
+      "path": "XenSonar/src/forge/editor/07_composition_and_preview_ui.js",
+      "status": "ANCHOR_ONLY",
+      "bytes": 110055,
+      "anchor_offsets": [
+        0
+      ]
+    },
+    {
+      "path": "XenSonar/src/forge/editor/09_workflow_controls.js",
+      "status": "ANCHOR_ONLY",
+      "bytes": 15752,
+      "anchor_offsets": [
+        0,
+        7620,
+        15240
+      ]
+    },
+    {
+      "path": "XenSonar/src/forge/fractalia/06_relational_render.js",
+      "status": "ANCHOR_ONLY",
+      "bytes": 5236,
+      "anchor_offsets": [
+        0,
+        2362,
+        4724
+      ]
+    },
+    {
+      "path": "XenSonar/src/forge/module_bundle/21_experimentStatePersistence.js",
+      "status": "ANCHOR_ONLY",
+      "bytes": 16814,
+      "anchor_offsets": [
+        0,
+        8151,
+        16302
+      ]
+    },
+    {
+      "path": "XenSonar/src/forge/ui/02_donor_routing_and_hearing.js",
+      "status": "ANCHOR_ONLY",
+      "bytes": 86664,
+      "anchor_offsets": [
+        0,
+        43076,
+        86152
+      ]
+    },
+    {
+      "path": "XenSonar/src/forge/ui/03_method_selection.js",
+      "status": "ANCHOR_ONLY",
+      "bytes": 10092,
+      "anchor_offsets": [
+        0,
+        9580
+      ]
+    },
+    {
+      "path": "XenSonar/src/forge_and_melodic/03_timeline_and_transport_ui.js",
+      "status": "ANCHOR_ONLY",
+      "bytes": 16568,
+      "anchor_offsets": [
+        0,
+        8028
+      ]
+    },
+    {
+      "path": "XenSonar/src/forge_and_melodic/04_render_cache_and_stems.js",
+      "status": "ANCHOR_ONLY",
+      "bytes": 66791,
+      "anchor_offsets": [
+        0,
+        66279
+      ]
+    },
+    {
+      "path": "XenSonar/src/forge_and_melodic/10_audition_and_persistence.js",
+      "status": "ANCHOR_ONLY",
+      "bytes": 44713,
+      "anchor_offsets": [
+        0,
+        22100,
+        44201
+      ]
+    },
+    {
+      "path": "XenSonar/src/handoff/00_chat_feature_addons.js",
+      "status": "ANCHOR_ONLY",
+      "bytes": 31840,
+      "anchor_offsets": [
+        0,
+        15664,
+        31328
+      ]
+    },
+    {
+      "path": "XenSonar/src/instruments/00_diagnostics.js",
+      "status": "ANCHOR_ONLY",
+      "bytes": 8406,
+      "anchor_offsets": [
+        0,
+        3947,
+        7894
+      ]
+    },
+    {
+      "path": "XenSonar/src/instruments/04_entrophon_melodic_audio.js",
+      "status": "ANCHOR_ONLY",
+      "bytes": 16770,
+      "anchor_offsets": [
+        8129,
+        16258
+      ]
+    },
+    {
+      "path": "XenSonar/src/instruments/05_entrophon_integration.js",
+      "status": "ANCHOR_ONLY",
+      "bytes": 6644,
+      "anchor_offsets": [
+        0,
+        3066,
+        6132
+      ]
+    },
+    {
+      "path": "XenSonar/src/instruments/06_source_preparation.js",
+      "status": "ANCHOR_ONLY",
+      "bytes": 6562,
+      "anchor_offsets": [
+        3025,
+        6050
+      ]
+    },
+    {
+      "path": "XenSonar/src/mix/01_pan.js",
+      "status": "ANCHOR_ONLY",
+      "bytes": 5660,
+      "anchor_offsets": [
+        2574
+      ]
+    },
+    {
+      "path": "XenSonar/src/mix/02_performance_catalog.js",
+      "status": "ANCHOR_ONLY",
+      "bytes": 3175,
+      "anchor_offsets": [
+        0,
+        1331
+      ]
+    },
+    {
+      "path": "XenSonar/src/mix/03_meta_menu__after_v2-session-store.js",
+      "status": "ANCHOR_ONLY",
+      "bytes": 37638,
+      "anchor_offsets": [
+        0,
+        37126
+      ]
+    },
+    {
+      "path": "XenSonar/src/mix/03_meta_menu__before_v2-session-store.js",
+      "status": "ANCHOR_ONLY",
+      "bytes": 27714,
+      "anchor_offsets": [
+        0,
+        27202
+      ]
+    },
+    {
+      "path": "XenSonar/src/mix/03_quick_menu__after_eq-core__after_eq-ui.js",
+      "status": "ANCHOR_ONLY",
+      "bytes": 38543,
+      "anchor_offsets": [
+        0
+      ]
+    },
+    {
+      "path": "XenSonar/src/mix/03_quick_menu__before_eq-core.js",
+      "status": "ANCHOR_ONLY",
+      "bytes": 67350,
+      "anchor_offsets": [
+        0,
+        33419,
+        66838
+      ]
+    },
+    {
+      "path": "XenSonar/src/mix/03_session_auditions.js",
+      "status": "ANCHOR_ONLY",
+      "bytes": 9510,
+      "anchor_offsets": [
+        0,
+        4499
+      ]
+    },
+    {
+      "path": "XenSonar/src/mix/06_custom_instruments.js",
+      "status": "ANCHOR_ONLY",
+      "bytes": 5508,
+      "anchor_offsets": [
+        0,
+        2498,
+        4996
+      ]
+    },
+    {
+      "path": "XenSonar/src/myzel/01_effect_mapping.js",
+      "status": "ANCHOR_ONLY",
+      "bytes": 69617,
+      "anchor_offsets": [
+        0,
+        34552,
+        69105
+      ]
+    },
+    {
+      "path": "XenSonar/src/nodal/01_instrument_model.js",
+      "status": "ANCHOR_ONLY",
+      "bytes": 22415,
+      "anchor_offsets": [
+        0,
+        10951,
+        21903
+      ]
+    },
+    {
+      "path": "XenSonar/src/nodal/02_synthesis_kernel.js",
+      "status": "ANCHOR_ONLY",
+      "bytes": 64852,
+      "anchor_offsets": [
+        32170
+      ]
+    },
+    {
+      "path": "XenSonar/src/nodal/04_audio_runtime.js",
+      "status": "ANCHOR_ONLY",
+      "bytes": 44408,
+      "anchor_offsets": [
+        0,
+        43896
+      ]
+    },
+    {
+      "path": "XenSonar/src/nodal/05_installation_bridge.js",
+      "status": "ANCHOR_ONLY",
+      "bytes": 16447,
+      "anchor_offsets": [
+        7967,
+        15935
+      ]
+    },
+    {
+      "path": "XenSonar/src/nodal/06_melodic_bridge.js",
+      "status": "ANCHOR_ONLY",
+      "bytes": 7614,
+      "anchor_offsets": [
+        0,
+        3551,
+        7102
+      ]
+    },
+    {
+      "path": "XenSonar/src/nodal/07_sound_designer.js",
+      "status": "ANCHOR_ONLY",
+      "bytes": 3182,
+      "anchor_offsets": [
+        0,
+        1335
+      ]
+    },
+    {
+      "path": "XenSonar/src/nodal/09_melodic_session.js",
+      "status": "ANCHOR_ONLY",
+      "bytes": 2275,
+      "anchor_offsets": [
+        1763
+      ]
+    },
+    {
+      "path": "XenSonar/src/nodal/12_surface_runtime.js",
+      "status": "ANCHOR_ONLY",
+      "bytes": 28374,
+      "anchor_offsets": [
+        0
+      ]
+    },
+    {
+      "path": "XenSonar/src/package_station/01_binary_archive.js",
+      "status": "ANCHOR_ONLY",
+      "bytes": 48775,
+      "anchor_offsets": [
+        0,
+        24131
+      ]
+    },
+    {
+      "path": "XenSonar/src/package_station/02_export_selection.js",
+      "status": "ANCHOR_ONLY",
+      "bytes": 4915,
+      "anchor_offsets": [
+        0,
+        2201,
+        4403
+      ]
+    },
+    {
+      "path": "XenSonar/src/quickrack/equalizer/eq-core.js",
+      "status": "ANCHOR_ONLY",
+      "bytes": 52570,
+      "anchor_offsets": [
+        26029,
+        52058
+      ]
+    },
+    {
+      "path": "XenSonar/src/quickrack/equalizer/eq-ui.js",
+      "status": "ANCHOR_ONLY",
+      "bytes": 29483,
+      "anchor_offsets": [
+        0,
+        14485
+      ]
+    },
+    {
+      "path": "XenSonar/src/quickrack/equalizer/eq-worklet.js",
+      "status": "ANCHOR_ONLY",
+      "bytes": 12834,
+      "anchor_offsets": [
+        0,
+        12322
+      ]
+    },
+    {
+      "path": "XenSonar/src/rhythm/01_compact_drum_grid.js",
+      "status": "ANCHOR_ONLY",
+      "bytes": 46595,
+      "anchor_offsets": [
+        0,
+        46083
+      ]
+    },
+    {
+      "path": "XenSonar/src/rhythm/02_bass_and_rack.js",
+      "status": "ANCHOR_ONLY",
+      "bytes": 167938,
+      "anchor_offsets": [
+        0,
+        167426
+      ]
+    },
+    {
+      "path": "XenSonar/src/rhythm/03_live_drum_bodies.js",
+      "status": "ANCHOR_ONLY",
+      "bytes": 71472,
+      "anchor_offsets": [
+        0,
+        70960
+      ]
+    },
+    {
+      "path": "XenSonar/src/rhythm/04_workspace_and_transport.js",
+      "status": "ANCHOR_ONLY",
+      "bytes": 157797,
+      "anchor_offsets": [
+        0,
+        78642,
+        157285
+      ]
+    },
+    {
+      "path": "XenSonar/src/rhythm/05_canonical_selection.js",
+      "status": "ANCHOR_ONLY",
+      "bytes": 6603,
+      "anchor_offsets": [
+        0,
+        3045
+      ]
+    },
+    {
+      "path": "XenSonar/src/rooms/00_forge_rack_presentation.js",
+      "status": "ANCHOR_ONLY",
+      "bytes": 3257,
+      "anchor_offsets": [
+        0,
+        1372
+      ]
+    },
+    {
+      "path": "XenSonar/src/rooms/canonical.js",
+      "status": "ANCHOR_ONLY",
+      "bytes": 406431,
+      "anchor_offsets": [
+        0,
+        405919
+      ]
+    },
+    {
+      "path": "XenSonar/src/rooms/lab.js",
+      "status": "ANCHOR_ONLY",
+      "bytes": 565054,
+      "anchor_offsets": [
+        0,
+        282271,
+        564542
+      ]
+    },
+    {
+      "path": "XenSonar/src/rooms/nodal.js",
+      "status": "ANCHOR_ONLY",
+      "bytes": 100457,
+      "anchor_offsets": [
+        0,
+        49972,
+        99945
+      ]
+    },
+    {
+      "path": "XenSonar/src/runtime/01_instrument_state.js",
+      "status": "ANCHOR_ONLY",
+      "bytes": 69885,
+      "anchor_offsets": [
+        0,
+        34686,
+        69373
+      ]
+    },
+    {
+      "path": "XenSonar/src/runtime/instrument/01_voice_gradients_and_effects.js",
+      "status": "ANCHOR_ONLY",
+      "bytes": 34628,
+      "anchor_offsets": [
+        0,
+        17058,
+        34116
+      ]
+    },
+    {
+      "path": "XenSonar/src/runtime/instrument/02_observation_and_sample_storage.js",
+      "status": "ANCHOR_ONLY",
+      "bytes": 32335,
+      "anchor_offsets": [
+        0,
+        15911,
+        31823
+      ]
+    },
+    {
+      "path": "XenSonar/src/runtime/instrument/03_selection_and_recording_tools.js",
+      "status": "ANCHOR_ONLY",
+      "bytes": 37090,
+      "anchor_offsets": [
+        0,
+        18289,
+        36578
+      ]
+    },
+    {
+      "path": "XenSonar/src/runtime/instrument/05_timing_and_admission.js",
+      "status": "ANCHOR_ONLY",
+      "bytes": 89619,
+      "anchor_offsets": [
+        0,
+        44553,
+        89107
+      ]
+    },
+    {
+      "path": "XenSonar/src/runtime/instrument/06_rooms_and_lifecycle.js",
+      "status": "ANCHOR_ONLY",
+      "bytes": 40812,
+      "anchor_offsets": [
+        0,
+        20150,
+        40300
+      ]
+    },
+    {
+      "path": "XenSonar/src/runtime/instrument/09_monitoring_and_manual_patterns.js",
+      "status": "ANCHOR_ONLY",
+      "bytes": 80389,
+      "anchor_offsets": [
+        0,
+        39938
+      ]
+    },
+    {
+      "path": "XenSonar/src/runtime/instrument/10_entrophon_and_voice_control.js",
+      "status": "ANCHOR_ONLY",
+      "bytes": 63914,
+      "anchor_offsets": [
+        0,
+        31701
+      ]
+    },
+    {
+      "path": "XenSonar/src/runtime/instrument/11_recording_and_granular_controls.js",
+      "status": "ANCHOR_ONLY",
+      "bytes": 47501,
+      "anchor_offsets": [
+        0,
+        23494
+      ]
+    },
+    {
+      "path": "XenSonar/src/runtime/instrument/12_rhythm_and_bass_editor.js",
+      "status": "ANCHOR_ONLY",
+      "bytes": 84329,
+      "anchor_offsets": [
+        0,
+        41908
+      ]
+    },
+    {
+      "path": "XenSonar/src/sessions/v2-session-store.js",
+      "status": "ANCHOR_ONLY",
+      "bytes": 77859,
+      "anchor_offsets": [
+        0,
+        38673
+      ]
+    },
+    {
+      "path": "XenSonar/src/storage/01_donor_library.js",
+      "status": "ANCHOR_ONLY",
+      "bytes": 17776,
+      "anchor_offsets": [
+        0,
+        17264
+      ]
+    },
+    {
+      "path": "XenSonar/src/storage/05_project_snapshots.js",
+      "status": "ANCHOR_ONLY",
+      "bytes": 7945,
+      "anchor_offsets": [
+        0,
+        3716,
+        7433
+      ]
+    },
+    {
+      "path": "XenSonar/src/ui/05_shell_geometry_t2.js",
+      "status": "ANCHOR_ONLY",
+      "bytes": 6369,
+      "anchor_offsets": [
+        0,
+        2928
+      ]
+    },
+    {
+      "path": "XenSonar/styles/areas/024_inline-024.css",
+      "status": "ANCHOR_ONLY",
+      "bytes": 1629,
+      "anchor_offsets": [
+        0,
+        1117
+      ]
+    },
+    {
+      "path": "XenSonar/styles/areas/026_nodal-sound-designer-style.css",
+      "status": "ANCHOR_ONLY",
+      "bytes": 45777,
+      "anchor_offsets": [
+        0,
+        22632,
+        45265
+      ]
+    },
+    {
+      "path": "XenSonar/styles/areas/028_inline-028.css",
+      "status": "ANCHOR_ONLY",
+      "bytes": 70902,
+      "anchor_offsets": [
+        0,
+        35195,
+        70390
+      ]
+    },
+    {
+      "path": "XenSonar/styles/areas/030_inline-030.css",
+      "status": "ANCHOR_ONLY",
+      "bytes": 19111,
+      "anchor_offsets": [
+        0,
+        18599
+      ]
+    },
+    {
+      "path": "XenSonar/styles/areas/031_xen-quick-title-view.css",
+      "status": "ANCHOR_ONLY",
+      "bytes": 3282,
+      "anchor_offsets": [
+        0,
+        1385,
+        2770
+      ]
+    },
+    {
+      "path": "XenSonar/styles/areas/036_xen-meta-menu.css",
+      "status": "ANCHOR_ONLY",
+      "bytes": 34522,
+      "anchor_offsets": [
+        0,
+        17005,
+        34010
+      ]
+    },
+    {
+      "path": "XenSonar/styles/areas/037_xen-p715-right-rack-bass-workshop.css",
+      "status": "ANCHOR_ONLY",
+      "bytes": 4571,
+      "anchor_offsets": [
+        2029,
+        4059
+      ]
+    },
+    {
+      "path": "XenSonar/styles/areas/040_xen-p9-m9-cockpit-canonical.css",
+      "status": "ANCHOR_ONLY",
+      "bytes": 30281,
+      "anchor_offsets": [
+        0,
+        14884,
+        29769
+      ]
+    },
+    {
+      "path": "XenSonar/styles/merge_meta_additions/041_xen-h1-circle-anchors.css",
+      "status": "ANCHOR_ONLY",
+      "bytes": 7652,
+      "anchor_offsets": [
+        0,
+        3570
+      ]
+    },
+    {
+      "path": "XenSonar/styles/merge_meta_additions/043_xen-h3-precision-rings.css",
+      "status": "ANCHOR_ONLY",
+      "bytes": 3324,
+      "anchor_offsets": [
+        0,
+        1406
+      ]
+    },
+    {
+      "path": "XenSonar/styles/package_station/selection.css",
+      "status": "ANCHOR_ONLY",
+      "bytes": 2405,
+      "anchor_offsets": [
+        946,
+        1893
+      ]
+    },
+    {
+      "path": "XenSonar/styles/quickrack/eq.css",
+      "status": "ANCHOR_ONLY",
+      "bytes": 11473,
+      "anchor_offsets": [
+        0,
+        5480,
+        10961
+      ]
+    }
+  ],
+  "ts_candidate_origins": [
+    {
+      "path": "src/features/xensonar/rooms/GridTuningRackDialog.tsx",
+      "unique_static_literals_found": 31,
+      "examples": [
+        "flex max-h-[calc(100vh-2rem)] w-full max-w-6xl flex-col overflow-hidden rounded-2xl border",
+        "rounded border border-violet-700/70 bg-violet-950/25 px-2 py-1 text-[10px] uppercase track",
+        "rounded border border-fuchsia-800/70 px-3 py-2 text-[10px] uppercase tracking-[0.2em] text",
+        "absolute left-0 top-full z-10 mt-1 w-[9.5rem] rounded border border-fuchsia-800/70 bg-[#12"
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    },
+    {
+      "path": "src/features/topology/MyzelInstallationControls.tsx",
+      "unique_static_literals_found": 25,
+      "examples": [
+        "rounded border border-emerald-700/60 bg-emerald-950/25 px-4 py-3 text-xs font-semibold tex",
+        "flex flex-wrap items-center justify-between gap-2 rounded border border-neutral-800 bg-neu",
+        "flex items-center gap-2 rounded border border-neutral-800 bg-black/30 px-3 py-2 text-sm te",
+        "flex items-center gap-2 rounded border border-cyan-900/35 bg-cyan-950/10 px-3 py-2 text-xs"
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    },
+    {
+      "path": "src/features/xensonar/audioTraffic/audioTrafficForensics.ts",
+      "unique_static_literals_found": 24,
+      "examples": [
+        "stableLaneSabTransportSingleFileHtmlLikelyBlocked",
+        "stableLaneSabTransportSharedArrayBufferAvailable",
+        "stableLanePlanTransportDroppedSupersededCount",
+        "stableLanePlanTransportBackendFallbackReason"
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    },
+    {
+      "path": "src/features/xensonar/rooms/materialLoopPanel/LoopBankManagerDialog.tsx",
+      "unique_static_literals_found": 23,
+      "examples": [
+        "mt-3 w-full rounded border border-violet-800/70 px-3 py-2 text-violet-100 hover:bg-violet-",
+        "rounded-full border border-fuchsia-800/70 px-3 py-1 text-base font-bold leading-none text-",
+        "rounded border border-amber-700/80 px-3 py-2 text-amber-100 hover:bg-amber-950/35 disabled",
+        "rounded border border-cyan-700/80 px-3 py-2 text-cyan-100 hover:bg-cyan-950/35 disabled:op"
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    },
+    {
+      "path": "src/features/xensonar/rooms/grooveBassPanel/BassPatternManagerDialog.tsx",
+      "unique_static_literals_found": 22,
+      "examples": [
+        "rounded border border-fuchsia-900/40 px-1.5 py-0.5 text-[9px] uppercase tracking-widest te",
+        "mt-1 w-full rounded border border-neutral-700 bg-neutral-950 px-2 py-1 text-neutral-100 di",
+        "mt-1 w-full rounded border border-cyan-900/50 bg-neutral-950 px-2 py-1 text-cyan-50 disabl",
+        "rounded border border-cyan-900/45 px-1.5 py-0.5 text-[9px] uppercase tracking-widest text-"
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    },
+    {
+      "path": "src/features/l3lab/canonicalForge/MaterialImportDialog.tsx",
+      "unique_static_literals_found": 22,
+      "examples": [
+        "rounded border border-pink-600/80 bg-pink-950/35 px-2.5 py-1 text-[10px] font-semibold tex",
+        "rounded border border-cyan-700/80 bg-cyan-950/25 px-2.5 py-1 text-[10px] font-semibold tex",
+        "mt-auto w-full rounded border border-fuchsia-700 bg-fuchsia-950/35 px-3 py-2 text-sm font-",
+        "shrink-0 rounded-full border border-emerald-700/50 px-2 py-0.5 text-[9px] uppercase tracki"
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    },
+    {
+      "path": "src/features/xensonar/rootFollow/rootFollowWorkletShadowBridge.ts",
+      "unique_static_literals_found": 21,
+      "examples": [
+        "root-follow-worklet-stable-lane-posted-plan-awaiting-ack-buffer-already-hydrated",
+        "AudioWorklet processorerror fired; processor output is treated as silent.",
+        "root-follow-worklet-stable-lane-posted-buffer-and-plan-awaiting-ack",
+        "blob-url-worklet-shadow-loaded-active-keepalive-node-instantiated"
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    },
+    {
+      "path": "src/features/xensonar/rooms/materialLoopPanel/RootFollowImpulseRasterControls.tsx",
+      "unique_static_literals_found": 20,
+      "examples": [
+        "w-12 rounded border border-violet-900/60 bg-black/35 px-1 py-0.5 text-center text-[10px] t",
+        "w-full rounded border border-violet-800/65 bg-black/35 px-2 py-1 text-center text-violet-5",
+        "rounded border border-violet-900/60 bg-black/25 px-2.5 py-0.5 text-[10px] text-violet-200/",
+        "shrink-0 rounded border border-violet-800/50 px-2 py-0.5 text-[10px] text-violet-300/70 tr"
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    },
+    {
+      "path": "src/features/l3lab/materialIntake/MaterialIntakePanel.tsx",
+      "unique_static_literals_found": 20,
+      "examples": [
+        "flex flex-wrap items-center gap-2 rounded border border-neutral-800 bg-neutral-900/40 px-3",
+        "mb-3 rounded border border-amber-900/40 bg-amber-950/15 px-3 py-2 text-[11px] text-amber-1",
+        "rounded border border-neutral-800 bg-neutral-900/40 px-3 py-2 text-[11px] text-neutral-300",
+        "rounded border border-neutral-800 bg-neutral-900/50 px-3 py-2 text-[11px] text-neutral-400"
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    },
+    {
+      "path": "src/features/l3lab/spectralForge/integral/carrierIntegralMachineCapabilities.ts",
+      "unique_static_literals_found": 20,
+      "examples": [
+        "Do not route Pure Dieter through synthetic CarrierLoopBody adapters; keep raw-material-bod",
+        "Cecilia remains the first CarrierLoopBody curve adapter/audition path; Antonia and Bert re",
+        "Antonia uses the Branch-A line-traffic reading as the single active Antonia variance refer",
+        "Do not auto-replace HarmonicXplorE or Pure Dieter with SpektralSynthese; keep it as an exp"
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    },
+    {
+      "path": "src/features/xensonar/audio/waveStarterWorkletPilotProcessorSource.ts",
+      "unique_static_literals_found": 19,
+      "examples": [
+        "wave-starter-processor-hold-gesture-start' ? 'wave-starter-processor-hold-gesture-start-ac",
+        "sine' || tone.waveform === 'square' || tone.waveform === 'sawtooth' || tone.waveform === '",
+        "wave-starter-processor-hold-gesture-start' || message.type === 'wave-starter-processor-hol",
+        "wave-starter-sample-failover-candidate' || message.type === 'wave-starter-sample-processor"
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    },
+    {
+      "path": "src/features/l3lab/spectralForge/components/CarrierIntegralVerwaltenPanel.tsx",
+      "unique_static_literals_found": 19,
+      "examples": [
+        "flex min-h-[24rem] items-center justify-center rounded-2xl border-2 border-dashed border-n",
+        "rounded-full border border-violet-800/70 px-3 py-1 text-base font-bold leading-none text-v",
+        "rounded border border-violet-700/80 bg-violet-950/30 px-2 py-1 text-violet-100 hover:bg-vi",
+        "flex flex-wrap items-center justify-between gap-2 text-[10px] uppercase tracking-[0.18em] "
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    },
+    {
+      "path": "src/features/l3lab/canonicalForge/LocalFieldEditorPanel.tsx",
+      "unique_static_literals_found": 19,
+      "examples": [
+        "mb-2 flex items-center justify-between gap-3 text-[10px] uppercase tracking-[0.16em] text-",
+        "rounded border border-pink-900/40 bg-pink-950/10 px-3 py-2 text-[11px] text-pink-100/76",
+        "rounded border border-pink-800/60 px-1.5 py-0.5 text-pink-100 hover:bg-pink-950/30",
+        "rounded border border-pink-900/45 bg-pink-950/15 p-3 text-[11px] text-pink-100/82"
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    },
+    {
+      "path": "src/features/l3lab/spectralForge/components/carrierIntegralVerwalten/CarrierIntegralMachineEditorSection.tsx",
+      "unique_static_literals_found": 18,
+      "examples": [
+        "mt-3 w-full rounded border border-fuchsia-800/50 bg-fuchsia-950/20 px-3 py-1.5 text-left t",
+        "mt-3 w-full rounded border border-cyan-800/50 bg-cyan-950/20 px-3 py-1.5 text-left text-[1",
+        "rounded border border-emerald-800/70 bg-emerald-950/20 px-2 py-1 text-[10px] text-emerald-",
+        "rounded border border-lime-800/60 bg-black/35 px-2 py-1 text-lime-50 outline-none focus:bo"
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    },
+    {
+      "path": "src/features/l3lab/spectralForge/components/transportBar/TransportBarPresentation.tsx",
+      "unique_static_literals_found": 18,
+      "examples": [
+        "pointer-events-none relative z-10 flex h-full w-full items-center justify-center text-[18p",
+        "h-7 w-16 rounded border border-neutral-700 bg-neutral-950 px-2 text-right font-mono text-[",
+        "flex items-center gap-1 rounded border border-neutral-700 bg-neutral-950/70 p-1 text-[10px",
+        "h-8 px-3 rounded bg-emerald-700 hover:bg-emerald-600 text-xs font-medium disabled:opacity-"
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    },
+    {
+      "path": "src/features/l3lab/spectralForge/components/HarmonizerPanel.tsx",
+      "unique_static_literals_found": 18,
+      "examples": [
+        "w-full h-7 rounded bg-amber-700 hover:bg-amber-600 text-white text-xs font-medium mb-1.5 f",
+        "flex-1 h-7 rounded bg-gray-800 hover:bg-gray-700 disabled:opacity-30 text-gray-300",
+        "rounded border border-fuchsia-500/40 px-2 py-0.5 text-[10px] text-fuchsia-300",
+        "rounded border border-neutral-700 px-2 py-0.5 text-[10px] text-neutral-400"
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    },
+    {
+      "path": "src/features/xensonar/rooms/materialLoopPanel/RootFollowGranularManagerDialog.tsx",
+      "unique_static_literals_found": 17,
+      "examples": [
+        "rounded border border-cyan-700/60 bg-cyan-950/30 px-2 py-2 text-cyan-50 hover:bg-cyan-950/",
+        "mt-4 grid min-h-0 flex-1 gap-3 overflow-hidden lg:grid-cols-[3.4rem_minmax(0,0.88fr)_minma",
+        "rounded border border-violet-900/60 px-2 py-1 text-[10px] uppercase tracking-widest text-v",
+        "mt-2 rounded border border-cyan-900/55 bg-black/25 p-2 text-[10px] leading-relaxed text-cy"
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    },
+    {
+      "path": "src/external/microto/app/roomRegistry.ts",
+      "unique_static_literals_found": 16,
+      "examples": [
+        "Move the cursor vertically to sweep pitch; click or Space to play. Toggle JI grid (G or bu",
+        "Glide the cursor through the shared field to stir agents; watch pulses and wisps react; no",
+        "Move the cursor to read the battlefield and HUD first; then add keyboard movement and shot",
+        "Browse named harmonic worlds; click a world to load it into the synth, then follow the Wor"
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    },
+    {
+      "path": "src/features/xensonar/rooms/grooveBassPanel/BassPatternBodyPreview.tsx",
+      "unique_static_literals_found": 16,
+      "examples": [
+        "absolute -top-0.5 left-1/2 h-0 w-0 -translate-x-1/2 border-x-[5px] border-t-[8px] border-x",
+        "rounded border border-emerald-800/60 bg-emerald-950/25 px-2 py-1 text-[10px] uppercase tra",
+        "rounded border border-cyan-900/60 bg-black/30 px-2 py-1 text-[10px] uppercase tracking-wid",
+        "absolute left-1 -translate-y-1/2 rounded bg-black/70 px-1 text-[9px] text-cyan-100/55"
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    },
+    {
+      "path": "src/features/xensonar/audio/waveStarterFailoverDecisionGate.ts",
+      "unique_static_literals_found": 16,
+      "examples": [
+        "Hydrated sample-token candidate may enter the bounded Worklet one-shot failover path; no l",
+        "Synth VoiceSpec may enter the Worklet synth failover path after a dropped/deferred legacy ",
+        "Sample failover is blocked until the Worklet has hydrated the matching buffer token; Legac",
+        "Failover decision gate could not inspect a WaveStarter VoiceSpec; event is not eligible fo"
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    },
+    {
+      "path": "src/features/l3lab/spectralForge/components/carrierIntegralVerwalten/carrierIntegralMachineUi.ts",
+      "unique_static_literals_found": 16,
+      "examples": [
+        "border-emerald-400 bg-emerald-500/14 shadow-[0_0_18px_rgba(16,185,129,0.08)]",
+        "border-violet-400 bg-violet-500/14 shadow-[0_0_18px_rgba(167,139,250,0.08)]",
+        "border-indigo-400 bg-indigo-500/14 shadow-[0_0_18px_rgba(129,140,248,0.08)]",
+        "border-amber-400 bg-amber-500/14 shadow-[0_0_18px_rgba(245,158,11,0.08)]"
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    },
+    {
+      "path": "src/components/systemMemory/PackageActionRow.tsx",
+      "unique_static_literals_found": 15,
+      "examples": [
+        "w-full max-w-xl rounded-2xl border border-amber-700/50 bg-neutral-950 p-4 text-xs text-neu",
+        "rounded-xl border border-amber-600/80 bg-amber-950/20 p-3 text-left text-amber-100 hover:b",
+        "rounded-xl border border-rose-700/70 bg-rose-950/15 p-3 text-left text-rose-100 hover:bg-r",
+        "rounded-xl border border-cyan-700/70 bg-cyan-950/15 p-3 text-left text-cyan-100 hover:bg-c"
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    },
+    {
+      "path": "src/features/xensonar/recording/recordingDisposalRegistry.ts",
+      "unique_static_literals_found": 15,
+      "examples": [
+        "recording/recordingDisposalRegistry.registerRecordingDurationDisplaySecondTick",
+        "recording/recordingDisposalRegistry.registerRecordingMarkerHotkeyListener",
+        "recording/recordingDisposalRegistry.registerRecordingPreviewPlayheadRaf",
+        "recording/recordingDisposalRegistry.registerRecordingMaxDurationTimeout"
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    },
+    {
+      "path": "src/external/microto/domain/worldGallery.ts",
+      "unique_static_literals_found": 14,
+      "examples": [
+        "Start in the neutral 12-EDO reference orbit, then move into a 19-EDO training orbit tuned ",
+        "Begin in the neutral 12-EDO reference orbit, then move into a 22-EDO training bridge world",
+        "Start in the neutral 12-EDO reference orbit, then step into a 31-EDO training world tuned ",
+        "Walk a rhythmic path: start in a 22-EDO arena pulsefield, cool down in a shared JI commons"
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    },
+    {
+      "path": "src/features/xensonar/rooms/ResonanceStatusStrip.tsx",
+      "unique_static_literals_found": 14,
+      "examples": [
+        "shrink-0 rounded-sm border border-transparent px-1 py-0.5 text-neutral-300 transition hove",
+        "M3.8 13.9c2.2 0 2.6-5.4 5.2-5.4s1.9 7.4 4.5 7.4 2.3-7.4 4.7-7.4 2.4 3.3 3.2 3.3",
+        "flex min-w-0 items-center gap-2 overflow-hidden whitespace-nowrap leading-none",
+        "mb-2 border border-neutral-800 bg-neutral-950/70 px-3 py-1.5 text-[10px]"
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    },
+    {
+      "path": "src/features/xensonar/audio/waveStarterWorkletPilotMessageReducer.ts",
+      "unique_static_literals_found": 14,
+      "examples": [
+        "wave-starter-processor-runtime-sample-voice-acked-renderer-queued",
+        "wave-starter-processor-owned-hold-gesture-rejected",
+        "wave-starter-processor-runtime-synth-voice-acked",
+        "wave-starter-sample-failover-candidate-rendered"
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    },
+    {
+      "path": "src/features/topology/MyzelRoom3SynthControls.tsx",
+      "unique_static_literals_found": 14,
+      "examples": [
+        "mb-2 flex items-center justify-between gap-3 text-[10px] uppercase tracking-[0.2em] text-n",
+        "mb-3 flex flex-wrap items-center justify-between gap-3 border-b border-fuchsia-900/40 pb-2",
+        "mb-3 flex flex-wrap items-center justify-between gap-3 border-b border-violet-900/40 pb-2",
+        "mb-3 flex flex-wrap items-center justify-between gap-3 border-b border-cyan-900/40 pb-2"
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    },
+    {
+      "path": "src/features/l3lab/spectralForge/lifecycle/spectralForgePreviewLifecycleRegistry.ts",
+      "unique_static_literals_found": 14,
+      "examples": [
+        "spectralForge/lifecycle.registerSpectralForgePreviewAnimationFrame",
+        "spectralForge/lifecycle.registerSpectralForgePreviewAudioSource",
+        "spectralForge/lifecycle.registerSpectralForgeSourceAsset",
+        "spectral-forge-download-object-url-revoked"
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    },
+    {
+      "path": "src/external/microto/app/components/WorldHintCard.tsx",
+      "unique_static_literals_found": 13,
+      "examples": [
+        "w-full min-h-[40px] resize-y rounded-sm border border-neutral-800 bg-black/60 px-1.5 py-1 ",
+        "mt-1 rounded border border-neutral-700 bg-neutral-900/80 px-1.5 py-0.5 text-[9px] text-neu",
+        "rounded border border-neutral-700 bg-neutral-900/70 px-1.5 py-0.5 text-[9px] text-neutral-",
+        "rounded border border-neutral-700 bg-neutral-900/80 px-1.5 py-0.5 text-[9px] text-neutral-"
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    },
+    {
+      "path": "src/features/l3lab/canonicalForge/drumMachinePanel.tsx",
+      "unique_static_literals_found": 13,
+      "examples": [
+        "rounded border border-neutral-800 bg-black/40 px-3 py-2 text-[11px] leading-relaxed text-n",
+        "flex items-center justify-between text-[10px] uppercase tracking-[0.18em] text-neutral-500",
+        "rounded border border-neutral-800 bg-neutral-950/60 px-3 py-2 text-xs text-neutral-300",
+        "flex items-center justify-between uppercase tracking-[0.18em] text-neutral-500"
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    },
+    {
+      "path": "src/features/l3lab/canonicalForge/SpectralImportColorDialog.tsx",
+      "unique_static_literals_found": 13,
+      "examples": [
+        "pointer-events-none absolute h-3 w-3 -translate-x-1/2 -translate-y-1/2 rounded-full border",
+        "linear-gradient(to top, #000 0%, transparent 100%), linear-gradient(to right, #fff 0%, tra",
+        "mt-3 rounded border border-amber-700/60 bg-amber-950/25 px-3 py-2 text-[11px] text-amber-1",
+        "relative h-44 w-full cursor-crosshair overflow-hidden rounded border border-neutral-700"
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    },
+    {
+      "path": "src/features/l3lab/canonicalForge/SampleInspectorMenu.tsx",
+      "unique_static_literals_found": 13,
+      "examples": [
+        "mt-3 rounded border border-fuchsia-900/40 bg-fuchsia-950/15 px-3 py-2 text-[11px] text-fuc",
+        "min-w-0 flex-1 rounded border border-neutral-700 bg-neutral-900 px-2 py-2 text-sm text-neu",
+        "mt-1 w-full rounded border border-neutral-700 bg-neutral-900 px-2 py-2 text-sm text-neutra",
+        "w-full rounded border border-neutral-700 bg-neutral-900 px-2 py-2 text-sm text-neutral-100"
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    },
+    {
+      "path": "src/features/xensonar/rooms/ResonanceSoundPalettePanel.tsx",
+      "unique_static_literals_found": 12,
+      "examples": [
+        "grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-x-2 gap-y-1 max-h-32 overflow-y-auto pr",
+        "flex items-center gap-1 bg-neutral-950 px-1 py-0.5 border border-neutral-800",
+        "flex items-center gap-2 text-xs text-neutral-400 uppercase tracking-widest",
+        "block text-[10px] text-neutral-500 uppercase tracking-widest mb-1"
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    },
+    {
+      "path": "src/features/xensonar/rooms/ResonanceParallelEffectsPanel.tsx",
+      "unique_static_literals_found": 12,
+      "examples": [
+        "text-[10px] text-neutral-500 uppercase tracking-widest mb-1 border-b border-neutral-800 pb",
+        "rounded border border-neutral-800 bg-neutral-950/40 px-2 py-2 text-[11px] text-neutral-500",
+        "bg-neutral-900/50 p-4 border border-neutral-800 flex flex-col gap-3",
+        "border border-neutral-800 bg-neutral-950/50 p-2 flex flex-col gap-2"
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    },
+    {
+      "path": "src/features/xensonar/audio/waveStarterWorkletPilotBridge.ts",
+      "unique_static_literals_found": 12,
+      "examples": [
+        "wave-starter-shadow-pilot-loaded-parallel-mix-gated-after-shape-proof",
+        "wave-starter-worklet-processor-error-silent-fallback",
+        "wave-starter-processor-runtime-sample-voice-posted",
+        "wave-starter-processor-runtime-synth-voice-posted"
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    },
+    {
+      "path": "src/features/topology/MyzelTopologyPanel.tsx",
+      "unique_static_literals_found": 12,
+      "examples": [
+        "rounded border border-neutral-700 px-4 py-3 text-sm font-semibold tracking-[0.08em] text-n",
+        "mt-6 rounded border border-neutral-800 bg-neutral-950/50 px-4 py-3 text-sm leading-relaxed",
+        "rounded border border-cyan-900/40 bg-cyan-950/10 px-3 py-3 text-xs text-cyan-100",
+        "flex flex-wrap items-center justify-between gap-3 text-xs text-neutral-400"
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    },
+    {
+      "path": "src/features/l3lab/materialIntake/materialIntakePanel/FeedbackButton.tsx",
+      "unique_static_literals_found": 12,
+      "examples": [
+        "bg-neutral-800/90 shadow-[0_0_0_1px_rgba(255,255,255,0.06)]",
+        "border-emerald-700 text-emerald-100 hover:bg-emerald-950/30",
+        "bg-emerald-950/65 shadow-[0_0_0_1px_rgba(16,185,129,0.42)]",
+        "border-neutral-700 text-neutral-100 hover:bg-neutral-900"
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    },
+    {
+      "path": "src/features/xensonar/audio/postMasterPcmWorkerSource.ts",
+      "unique_static_literals_found": 11,
+      "examples": [
+        "/v1/post-master/stop', { method: 'POST', headers: headers(), body: 'generation=",
+        "&session=' + encodeURIComponent(sessionId) + '&generation=",
+        "sampleRate=' + sampleRate + '&channels=2&prefillFrames=",
+        "-' + response.status + ':' + String(body.error || '"
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    },
+    {
+      "path": "src/features/l3lab/spectralForge/components/carrierIntegralVerwalten/CarrierIntegralLibrarySection.tsx",
+      "unique_static_literals_found": 11,
+      "examples": [
+        "rounded border border-cyan-700/70 bg-cyan-950/30 px-2 py-1 text-cyan-100 hover:bg-cyan-900",
+        "rounded border border-rose-800/80 px-2 py-1 text-rose-100 hover:bg-rose-950/35 disabled:op",
+        "mt-3 rounded border border-emerald-900/60 bg-emerald-950/20 px-2 py-1 text-[10px] text-eme",
+        "mt-3 rounded border border-red-900/70 bg-red-950/40 px-2 py-1 text-[10px] text-red-200"
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    },
+    {
+      "path": "src/features/l3lab/spectralForge/integral/carrierLoopBodyRootFollowModulationPlan.ts",
+      "unique_static_literals_found": 11,
+      "examples": [
+        "Apply the painted Carrier contour as relative cents over the current Root Follow base/root",
+        "Apply the painted Carrier energy contour as a loop-synchronous amplitude/dynamic body.",
+        "Keep presence as a non-rendering focus hint until a safe runtime adapter exists.",
+        "Keep roughness as a non-rendering hint until a safe timbre adapter exists."
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    },
+    {
+      "path": "src/features/l3lab/canonicalForge/miniMapPanels.tsx",
+      "unique_static_literals_found": 11,
+      "examples": [
+        "absolute top-1 bottom-1 rounded border border-cyan-500/70 bg-cyan-500/14 shadow-[0_0_0_1px",
+        "absolute top-1 bottom-1 rounded-md border border-cyan-300/80 bg-cyan-400/10 shadow-[0_0_0_",
+        "absolute left-1 right-1 rounded-md border border-cyan-300/80 bg-cyan-400/10 shadow-[0_0_0_",
+        "pointer-events-none absolute inset-0 flex items-center justify-center text-[10px] text-cya"
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    },
+    {
+      "path": "src/core/audio/audioPressureMap.ts",
+      "unique_static_literals_found": 10,
+      "examples": [
+        "adaptive-admission: no flush reduction has been observed since the last reset",
+        "stable-rhythm-wellenstarter-pulse-throttled-for-beat",
+        "sample-loading: late sample starts were observed",
+        "keyboard-input-global-lane-protected"
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    },
+    {
+      "path": "src/features/xensonar/layout/PackageStationControl.tsx",
+      "unique_static_literals_found": 10,
+      "examples": [
+        "mt-1 w-full rounded border border-emerald-600/50 bg-neutral-950/70 px-2 py-1 text-[11px] n",
+        "mt-1 block rounded border border-emerald-500/70 bg-emerald-900/35 px-2 py-1.5 text-center ",
+        "rounded-full border border-cyan-700/70 bg-cyan-950/25 px-3 py-1.5 text-[10px] uppercase tr",
+        "mt-2 rounded-lg border border-cyan-800/50 bg-cyan-950/20 px-2 py-1.5 text-center text-[10p"
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    },
+    {
+      "path": "src/features/l3lab/spectralForge/components/Toolbar.tsx",
+      "unique_static_literals_found": 10,
+      "examples": [
+        "text-[10px] text-cyan-300 px-1.5 pb-1.5 border-b border-gray-700 mb-1 flex items-center ju",
+        "fixed z-50 bg-gray-900 border border-gray-700 rounded-md p-1.5 w-72 shadow-2xl",
+        "px-1.5 pb-1.5 text-[10px] text-gray-500 border-b border-gray-800 mb-2",
+        "flex flex-col gap-1 p-1.5 bg-gray-900 border-r border-gray-700 w-12"
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    },
+    {
+      "path": "src/external/microto/features/commons/ResonanceCommonsRoom.tsx",
+      "unique_static_literals_found": 9,
+      "examples": [
+        "grid grid-cols-1 md:grid-cols-4 gap-3 mb-3 text-xs border border-neutral-800 p-3 bg-black/",
+        "px-4 py-2 border border-violet-500 text-violet-100 hover:bg-violet-900/30",
+        "w-full border border-neutral-800 bg-black cursor-crosshair touch-none",
+        "w-full bg-neutral-950 border border-neutral-700 p-1 text-neutral-300"
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    },
+    {
+      "path": "src/features/xensonar/rooms/RecordingTakePanel.tsx",
+      "unique_static_literals_found": 9,
+      "examples": [
+        "px-3 py-1.5 border border-amber-700/80 text-amber-100 disabled:text-neutral-600 disabled:b",
+        "px-3 py-1.5 border border-neutral-700 text-neutral-200 disabled:text-neutral-600 disabled:",
+        "flex flex-col md:flex-row md:items-center md:justify-between gap-3 mb-3 border-b border-ne",
+        "flex flex-col md:flex-row md:items-center md:justify-between gap-2 text-xs text-neutral-50"
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    },
+    {
+      "path": "src/features/xensonar/rooms/PlaylistDragActionHud.tsx",
+      "unique_static_literals_found": 9,
+      "examples": [
+        "border-fuchsia-500/80 bg-fuchsia-950/95 text-fuchsia-50",
+        "border-fuchsia-400/70 bg-fuchsia-900/50 text-fuchsia-50",
+        "border-violet-500/80 bg-violet-950/95 text-violet-50",
+        "border-violet-400/70 bg-violet-900/50 text-violet-50"
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    },
+    {
+      "path": "src/features/xensonar/audio/waveStarterWorkletVoicePoolRuntime.ts",
+      "unique_static_literals_found": 9,
+      "examples": [
+        "hydrated-sample-voice-spec-posted-to-worklet-voice-pool-runtime-with-synth-substitution-fo",
+        "synth-voice-spec-posted-to-worklet-voice-pool-runtime-with-legacy-reference-not-repeated",
+        "sample-token-pending-worklet-only-suppresses-legacy-node-burst",
+        "pilot-unready-worklet-only-suppresses-legacy-node-burst"
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    },
+    {
+      "path": "src/features/xensonar/audio/waveStarterSampleBufferTokenShadow.ts",
+      "unique_static_literals_found": 9,
+      "examples": [
+        "Sample buffer token shadow was posted to the Worklet bridge. Rendering is still disabled u",
+        "Sample buffer token shadow could not load a sample buffer. Legacy sample playback remains ",
+        "Sample buffer token shadow failed during async hydration. Legacy sample playback remains u",
+        "Sample buffer token shadow could not be hydrated because no AudioContext was available."
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    },
+    {
+      "path": "src/features/xensonar/material/buildRootFollowPanelProps.ts",
+      "unique_static_literals_found": 9,
+      "examples": [
+        "onRootFollowImpulsRasterClockModeChange",
+        "onRootFollowImpulsRasterCycleDivChange",
+        "onSendManagedMaterialLoopToRootFollow",
+        "onRootFollowImpulsRasterPatternChange"
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    },
+    {
+      "path": "src/features/topology/MyzelEnhancerControls.tsx",
+      "unique_static_literals_found": 9,
+      "examples": [
+        "rounded border border-neutral-800 bg-neutral-950/50 px-3 py-2 text-[11px] text-neutral-400",
+        "mb-3 flex flex-wrap items-center justify-between gap-3 border-b border-neutral-800 pb-2",
+        "uppercase tracking-[0.2em] text-[10px] text-fuchsia-300/80",
+        "text-[10px] uppercase tracking-[0.24em] text-neutral-500"
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    },
+    {
+      "path": "src/features/l3lab/spectralForge/components/EmbodimentFieldPanel.tsx",
+      "unique_static_literals_found": 9,
+      "examples": [
+        "rounded border border-violet-800/50 bg-violet-950/20 px-3 py-2 text-[11px] text-violet-100",
+        "rounded border border-neutral-800 bg-neutral-900/60 px-3 py-2 text-[11px] text-neutral-300",
+        "mt-2 rounded border border-amber-800/70 bg-amber-950/25 px-2 py-1 text-amber-100",
+        "font-mono uppercase tracking-[0.2em] text-neutral-500"
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    },
+    {
+      "path": "src/features/l3lab/spectralForge/components/spectralCanvas/SpectralCanvasHud.tsx",
+      "unique_static_literals_found": 9,
+      "examples": [
+        "absolute top-2 right-3 translate-y-6 bg-black/65 text-[10px] text-cyan-200 px-2 py-1 round",
+        "absolute top-2 right-3 bg-black/65 text-[10px] text-emerald-300 px-2 py-1 rounded pointer-",
+        "absolute bottom-1 right-1 bg-black/70 text-xs text-gray-300 px-2 py-1 rounded font-mono po",
+        "absolute top-2 left-14 bg-black/80 text-xs text-cyan-300 px-3 py-1.5 rounded pointer-event"
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    },
+    {
+      "path": "src/features/l3lab/spectralForge/integral/carrierIntegralRuntimeRoutes.ts",
+      "unique_static_literals_found": 9,
+      "examples": [
+        "spectralforge-v2-harmonic-xplore-direct-carrier",
+        "spectralforge-v2-b573-synth-window-body",
+        "spectralforge-v2-raw-darkpsy-oscillator",
+        "spectralforge-v2-spektral-synthese-body"
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    },
+    {
+      "path": "src/features/l3lab/canonicalForge/MaterialBaseFragmentActionCard.tsx",
+      "unique_static_literals_found": 9,
+      "examples": [
+        "border-pink-400 bg-pink-600/90 text-white shadow-[0_0_0_1px_rgba(251,113,133,0.35),0_8px_2",
+        "min-w-0 flex-1 rounded border border-neutral-700 bg-neutral-950 px-2 py-1 text-neutral-100",
+        "rounded border border-fuchsia-900/40 bg-fuchsia-950/20 px-3 py-2 text-[11px] text-fuchsia-",
+        "mt-2 flex items-center gap-2 rounded border border-neutral-800 bg-black/25 px-2 py-1.5 tex"
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    },
+    {
+      "path": "src/features/xensonar/input/appStableRhythmLaneEffectArgsContractProbe.ts",
+      "unique_static_literals_found": 8,
+      "examples": [
+        "stableRhythmLaneMyzelLayerStepActionExtractedFromAppTsx",
+        "stableRhythmLaneBassNoteActionExtractedFromAppTsx",
+        "browserFunctionalSanityRequiredAfterThisCut",
+        "nextAbsoluteStepTimeTruthStillAppNexusRef"
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    },
+    {
+      "path": "src/features/xensonar/material/materialTrackLifecycleRegistry.ts",
+      "unique_static_literals_found": 8,
+      "examples": [
+        "material/materialTrackLifecycleRegistry.registerMaterialTrackAudioSource",
+        "material/materialTrackLifecycleRegistry.markMaterialTrackPlaybackFailed",
+        "material/materialTrackLifecycleRegistry.registerMaterialTrackCacheEntry",
+        "material/materialTrackLifecycleRegistry.registerMaterialTrackGainNode"
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    },
+    {
+      "path": "src/features/l3lab/spectralForge/components/CustomStampLibraryPanel.tsx",
+      "unique_static_literals_found": 8,
+      "examples": [
+        "rounded border border-neutral-800 bg-neutral-950/40 px-2 py-1 text-[10px] text-neutral-500",
+        "rounded border border-neutral-700 px-1.5 py-0.5 text-neutral-300",
+        "rounded bg-neutral-900 px-1.5 py-0.5 text-[9px] text-neutral-400",
+        "space-y-2 rounded border border-neutral-800 bg-black/20 p-2"
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    },
+    {
+      "path": "src/features/l3lab/spectralForge/audio/AudioEngine.ts",
+      "unique_static_literals_found": 8,
+      "examples": [
+        "carrier-integral-root-follow-preview-ended",
+        "spectralforge-carrier-integral-audition-v1",
+        "spectral-forge-preview-source-stopped",
+        "[xensonar][carrier-integral-audition]"
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    },
+    {
+      "path": "src/features/xensonar/rooms/EntrophonUnifiedSoundPanel.tsx",
+      "unique_static_literals_found": 7,
+      "examples": [
+        "mt-1 w-full bg-neutral-950 border border-neutral-700 p-1 text-xs text-neutral-300",
+        "px-2 py-1 border border-fuchsia-600 bg-fuchsia-950/40 text-fuchsia-100 text-xs",
+        "text-[10px] uppercase tracking-[0.25em] text-fuchsia-200/80",
+        "text-[10px] text-neutral-400 uppercase tracking-widest"
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    },
+    {
+      "path": "src/features/xensonar/audio/waveStarterWorkletPilotReport.ts",
+      "unique_static_literals_found": 7,
+      "examples": [
+        "__XENSONAR_WAVE_STARTER_WORKLET_PILOT_REPORT__",
+        "xensonar-wave-starter-worklet-pilot-report",
+        "sample-buffer-token-shadow-accepted",
+        "sample-failover-candidate-rendered"
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    },
+    {
+      "path": "src/features/xensonar/rootFollow/rootFollowWorkletShadowProcessorMessage.ts",
+      "unique_static_literals_found": 7,
+      "examples": [
+        "root-follow-worklet-buffer-shadow-acknowledged-transfer",
+        "root-follow-worklet-granular-shadow-acknowledged-plan",
+        "root-follow-worklet-direct-pilot-acknowledged-events",
+        "root-follow-worklet-granular-pilot-acknowledged-plan"
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    },
+    {
+      "path": "src/features/xensonar/runtime/xensonarEventChannels.ts",
+      "unique_static_literals_found": 7,
+      "examples": [
+        "xensonar:carrier-integral-raw-material-melodic-export",
+        "xensonar:carrier-integral-melodic-pink-export",
+        "xensonar:material-intake-raw-melodic-import",
+        "xensonar:spectral-forge-audio-cut-upload"
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    },
+    {
+      "path": "src/features/l3lab/materialIntake/entryScroll.ts",
+      "unique_static_literals_found": 7,
+      "examples": [
+        "[data-spectralforge-scroll-root=\"true\"], [data-wheel-allow-scroll=\"true\"], .overflow-y-aut",
+        "[data-cut-upload-entry-target=\"true\"], [data-material-intake-gateway=\"true\"]",
+        "scroll helper could not find the material intake gateway target",
+        "[data-spectralforge-scroll-root=\"true\"]"
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    },
+    {
+      "path": "src/features/l3lab/spectralForge/components/harmonizerPanel/DirectRendererReferencePanel.tsx",
+      "unique_static_literals_found": 7,
+      "examples": [
+        "mt-1.5 text-[10px] text-gray-500 leading-relaxed bg-gray-800/50 p-1.5 rounded",
+        "rounded bg-gray-800/50 p-1.5 text-[10px] leading-relaxed text-gray-500",
+        "w-3 h-3 rounded-full bg-cyan-400 inline-block",
+        "w-3 h-3 rounded-full bg-gray-400 inline-block"
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    },
+    {
+      "path": "src/features/l3lab/spectralForge/SpectralForgeRoom.tsx",
+      "unique_static_literals_found": 7,
+      "examples": [
+        "flex min-h-[720px] overflow-hidden border border-neutral-800 bg-gray-950 text-white select",
+        "flex min-h-[440px] shrink-0 flex-col md:min-h-[520px] lg:min-h-[600px]",
+        "rounded border border-neutral-700 bg-neutral-900 px-2 py-1",
+        "flex items-center gap-3 px-3 py-2 text-xs text-neutral-300"
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    },
+    {
+      "path": "src/features/l3lab/canonicalForge/MelodicLoopSidebar.tsx",
+      "unique_static_literals_found": 7,
+      "examples": [
+        "space-y-2 rounded border border-neutral-800 bg-neutral-950/60 p-3 text-xs text-neutral-400",
+        "grid gap-3 xl:grid-cols-[minmax(15rem,22rem)_minmax(0,1fr)_minmax(18rem,24rem)]",
+        "rounded border border-dashed border-neutral-800 px-2 py-2 text-neutral-500",
+        "rounded border border-neutral-800 bg-neutral-950/60 px-2 py-1.5"
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    },
+    {
+      "path": "src/features/xensonar/rooms/level3lab/Level3LabWorkspaceSelector.tsx",
+      "unique_static_literals_found": 6,
+      "examples": [
+        "rounded border border-cyan-900/40 bg-cyan-950/15 p-3 text-[11px] leading-relaxed text-cyan",
+        "space-y-3 border border-neutral-800 bg-neutral-950/60 p-3 text-xs text-neutral-400",
+        "text-lg font-semibold uppercase tracking-[0.22em] text-violet-200 md:text-xl",
+        "text-lg font-semibold uppercase tracking-[0.22em] text-cyan-200 md:text-xl"
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    },
+    {
+      "path": "src/features/xensonar/rooms/ResonanceMetaPresetWheelPanel.tsx",
+      "unique_static_literals_found": 6,
+      "examples": [
+        "mandalaCenterPulse 0.42s ease-in-out infinite",
+        "text-[11px] leading-relaxed text-neutral-400",
+        "text-sm font-semibold text-fuchsia-100",
+        "4\" ry=\"18\" transform=\"rotate(135)"
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    },
+    {
+      "path": "src/features/xensonar/audio/waveStarterSampleFailoverCandidate.ts",
+      "unique_static_literals_found": 6,
+      "examples": [
+        "__XENSONAR_WAVE_STARTER_SAMPLE_FAILOVER_CANDIDATE__",
+        "xensonar-wave-starter-sample-failover-candidate",
+        "sample-failover-blocked-missing-buffer-token",
+        "sample-failover-blocked-until-hydrated-token"
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    },
+    {
+      "path": "src/features/xensonar/audio/waveStarterWorkletInstrumentEngineSkeleton.ts",
+      "unique_static_literals_found": 6,
+      "examples": [
+        "__XENSONAR_WAVE_STARTER_WORKLET_INSTRUMENT_ENGINE_SKELETON__",
+        "xensonar-wave-starter-worklet-instrument-engine-skeleton",
+        "sample-voice-pool-candidate-owned-by-engine-skeleton",
+        "synth-voice-pool-candidate-owned-by-engine-skeleton"
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    },
+    {
+      "path": "src/features/xensonar/input/waveStarterHoldPathForensics.ts",
+      "unique_static_literals_found": 6,
+      "examples": [
+        "__XENSONAR_WAVE_STARTER_HOLD_PATH_FORENSICS__",
+        "__xensonarReadWaveStarterHoldPathForensics",
+        "xensonar-wave-starter-hold-path-forensics",
+        "gesture-loop-bridge-with-legacy-fallback"
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    },
+    {
+      "path": "src/features/xensonar/audioTraffic/quantizedTrafficTimerRegistry.ts",
+      "unique_static_literals_found": 6,
+      "examples": [
+        "audioTraffic/quantizedTrafficTimerRegistry.ensureQuantizedTrafficFlushIntervalRegistered",
+        "audioTraffic/quantizedTrafficTimerRegistry.ensureQuantizedTrafficParticleLoopRegistered",
+        "quantized-traffic.flush-loop.interval",
+        "quantized-traffic:flush-loop-interval"
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    },
+    {
+      "path": "src/features/l3lab/materialIntake/useMaterialIntakeEntryGateway.ts",
+      "unique_static_literals_found": 6,
+      "examples": [
+        "file/origin cleanup acknowledged separately from entry-scroll intent consumption",
+        "MaterialIntakePanel observed a valid material-intake entry scroll intent",
+        "starting RAF/timer convergence for material-intake gateway entry",
+        "scroll pass did not yet place the gateway visibly near the top"
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    },
+    {
+      "path": "src/features/l3lab/spectralForge/components/carrierIntegralVerwalten/CarrierIntegralSignalSendSection.tsx",
+      "unique_static_literals_found": 6,
+      "examples": [
+        "rounded-xl border border-pink-800/70 bg-pink-950/20 p-4 shadow-[0_0_18px_rgba(236,72,153,0",
+        "mt-2 rounded border border-pink-800/70 bg-pink-950/25 px-2 py-1 text-[10px] text-pink-100",
+        "border-violet-700/70 bg-violet-950/35 text-violet-100 hover:bg-violet-900/45",
+        "border-cyan-700/70 bg-cyan-950/35 text-cyan-100 hover:bg-cyan-900/45"
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    },
+    {
+      "path": "src/features/l3lab/spectralForge/components/transportBar/transportBarUiModel.ts",
+      "unique_static_literals_found": 6,
+      "examples": [
+        "rounded border border-fuchsia-500/40 bg-fuchsia-500/10 px-2 py-1 text-[10px] text-fuchsia-",
+        "rounded border border-neutral-700 bg-neutral-950/80 px-2 py-1 text-[10px] text-neutral-300",
+        "border-neutral-300 bg-neutral-700 text-white shadow-inner disabled:cursor-progress",
+        "border-neutral-500/60 bg-neutral-700 text-neutral-100 hover:bg-neutral-600"
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    },
+    {
+      "path": "src/features/l3lab/spectralForge/components/SpectralForgeFunctionalHeader.tsx",
+      "unique_static_literals_found": 6,
+      "examples": [
+        "flex items-center gap-1 rounded border border-neutral-700 bg-neutral-950/80 px-2 py-1 text",
+        "h-6 w-12 rounded border border-neutral-700 bg-black px-1.5 text-right font-mono text-[11px",
+        "border border-fuchsia-700 bg-fuchsia-950/35 px-3 py-1.5 text-fuchsia-100 hover:bg-fuchsia-",
+        "border border-neutral-700 px-3 py-1.5 text-neutral-300 hover:bg-neutral-900"
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    },
+    {
+      "path": "src/features/l3lab/spectralForge/components/toolbar/toolbarUiModel.ts",
+      "unique_static_literals_found": 6,
+      "examples": [
+        "w-9 h-9 flex items-center justify-center rounded text-sm font-bold",
+        "bg-amber-950/30 hover:bg-amber-900/30 border border-amber-800/40",
+        "bg-red-600 shadow-lg shadow-red-500/40 text-white animate-pulse",
+        "w-9 h-9 flex items-center justify-center rounded text-lg"
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    },
+    {
+      "path": "src/features/l3lab/spectralForge/integral/carrierIntegralRawMelodicMaterialHandoff.ts",
+      "unique_static_literals_found": 6,
+      "examples": [
+        "spectralforge-harmonic-xplore-raw-melodic-material-3.2.91.7.5.150",
+        "spectralforge-spektral-synthese-raw-melodic-material-3.2.91.7.7.8",
+        "spectralforge-pure-dieter-raw-melodic-material-3.2.91.7.5.77",
+        "spektral-synthese-raw-melodic-material"
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    },
+    {
+      "path": "src/features/l3lab/spectralForge/integral/carrierIntegralHarmonicXploreDirectEngine.ts",
+      "unique_static_literals_found": 6,
+      "examples": [
+        "harmonic-xplore-direct-carrier-engine-3.2.91.7.6.1-klangfarben-erweiterung",
+        "contour-provenance-clean/no-noise-dust/log-frequency-prediction",
+        "harmonic-xplore-direct/vector-momentum-carrier-gestalt",
+        "harmonic-xplore-direct-ratio-carrier-buffer"
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    },
+    {
+      "path": "src/features/l3lab/canonicalForge/SelectedSampleEffectStrip.tsx",
+      "unique_static_literals_found": 6,
+      "examples": [
+        "mt-2 flex flex-wrap items-center justify-between gap-2 text-[10px] uppercase tracking-[0.1",
+        "mt-3 rounded border border-fuchsia-900/50 bg-fuchsia-950/20 p-3 text-[11px] text-fuchsia-1",
+        "rounded border border-fuchsia-700/70 px-2 py-1 text-xs text-fuchsia-100 hover:bg-fuchsia-9",
+        "mt-3 flex flex-wrap gap-2 rounded border border-fuchsia-900/40 bg-black/20 p-2"
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    },
+    {
+      "path": "src/features/l3lab/canonicalForge/projectLibrary.ts",
+      "unique_static_literals_found": 6,
+      "examples": [
+        "[xensonar][synthetic-forge-workspace-library][hydrate]",
+        "Failed to open SyntheticForge workspace project DB",
+        "Failed to export SyntheticForge workspace projects",
+        "Failed to load SyntheticForge workspace projects"
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    },
+    {
+      "path": "src/features/l3lab/canonicalForge/SelectedLoopBlockInspector.tsx",
+      "unique_static_literals_found": 6,
+      "examples": [
+        "mt-3 rounded border border-fuchsia-900/45 bg-fuchsia-950/15 p-3 text-[11px] text-fuchsia-1",
+        "rounded border border-neutral-700 px-2 py-1 text-[11px] text-neutral-200 hover:bg-neutral-",
+        "rounded border border-cyan-900/60 bg-cyan-950/30 px-2 py-0.5 text-[10px] text-cyan-100",
+        "rounded border border-dashed border-neutral-800 px-2 py-3 text-neutral-500"
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    },
+    {
+      "path": "src/features/l3lab/canonicalForge/melodicLoopPanel.tsx",
+      "unique_static_literals_found": 6,
+      "examples": [
+        "grid gap-3 rounded border border-neutral-800 bg-neutral-950/60 px-3 py-3 text-xs text-neut",
+        "w-12 shrink-0 rounded border border-neutral-800 bg-neutral-950/60 p-2 text-[10px] text-neu",
+        "rounded border border-neutral-800 bg-neutral-950/60 px-3 py-3 text-xs text-neutral-400",
+        "rounded border border-neutral-700 px-2 py-1 text-neutral-200 hover:bg-neutral-900"
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    },
+    {
+      "path": "src/core/audio/xensonarBlobWorkletSmokeTest.ts",
+      "unique_static_literals_found": 5,
+      "examples": [
+        "silentGate', defaultValue: 0, minValue: 0, maxValue: 0, automationRate: 'k-rate",
+        "blob-url-module-loaded-and-silent-node-instantiated",
+        "xensonar-blob-worklet-smoke-probe",
+        "xensonar-blob-worklet-smoke-ready"
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    },
+    {
+      "path": "src/external/microto/app/components/RoomRecommendedWorldsStrip.tsx",
+      "unique_static_literals_found": 5,
+      "examples": [
+        "border-neutral-600 text-neutral-300 hover:border-neutral-500 hover:bg-neutral-800/80",
+        "border-amber-400 text-amber-200 bg-amber-500/20 cursor-default",
+        "truncate max-w-[140px] inline-block align-middle",
+        "ml-1.5 text-neutral-500 font-medium"
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    },
+    {
+      "path": "src/features/xensonar/rooms/level3lab/Level3LabCanonicalMount.tsx",
+      "unique_static_literals_found": 5,
+      "examples": [
+        "space-y-3 border border-red-900/70 bg-red-950/20 p-4 text-sm text-red-100",
+        "border border-violet-900/60 bg-violet-950/20 p-4 text-sm text-violet-100",
+        "border border-red-700 px-3 py-1.5 text-red-100 hover:bg-red-900/40",
+        "text-xs uppercase tracking-[0.25em] text-red-300"
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    },
+    {
+      "path": "src/features/xensonar/rooms/SegmentPatternGrid.tsx",
+      "unique_static_literals_found": 5,
+      "examples": [
+        "grid min-w-0 max-w-full gap-1 rounded border border-neutral-800 bg-neutral-950/60 p-2",
+        "border-violet-900/70 bg-violet-950/35 text-violet-300/45 hover:bg-violet-900/45",
+        "border-neutral-800 bg-neutral-900 text-neutral-500 hover:bg-neutral-800",
+        "border-emerald-500 bg-emerald-800/60 text-emerald-100"
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    },
+    {
+      "path": "src/features/xensonar/rooms/materialLoopPanel/MaterialLoopManagerDetails.tsx",
+      "unique_static_literals_found": 5,
+      "examples": [
+        "rounded border border-neutral-800 bg-neutral-950/70 p-2 text-[11px] leading-relaxed text-n",
+        "min-w-0 max-w-full rounded border border-violet-900/50 bg-violet-950/10 p-3 space-y-3",
+        "flex items-center gap-2 cursor-pointer text-sm text-neutral-300 font-semibold",
+        "rounded border border-cyan-900/50 bg-cyan-950/10 p-3 space-y-3"
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    },
+    {
+      "path": "src/features/xensonar/rooms/materialLoopPanel/rootFollowSideBySideLayout.ts",
+      "unique_static_literals_found": 5,
+      "examples": [
+        "items-start justify-start pl-[max(0.75rem,calc((100vw-88rem)/2+0.75rem))] pt-3",
+        "pointer-events-none items-start justify-end bg-transparent px-3 pb-3 pt-3",
+        "pointer-events-auto h-[calc(100vh-1.5rem)] max-w-[42rem]",
+        "justify-start bg-black/65 px-3 pb-3 pt-3"
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    },
+    {
+      "path": "src/features/xensonar/audio/waveStarterVoiceSpecFailoverContract.ts",
+      "unique_static_literals_found": 5,
+      "examples": [
+        "__XENSONAR_WAVE_STARTER_VOICE_SPEC_FAILOVER_CONTRACT__",
+        "xensonar-wave-starter-voice-spec-failover-contract",
+        "sample-spec-contract-ready-buffer-missing",
+        "mixed-synth-sample-contract-observed"
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    },
+    {
+      "path": "src/features/xensonar/input/appStableRhythmLaneRunnerCallPlanContractRegistryProbe.ts",
+      "unique_static_literals_found": 5,
+      "examples": [
+        "schedule-rhythmforge-bass-step-if-pattern-available",
+        "schedule-rhythmforge-drum-step-if-pattern-available",
+        "schedule-psy-bass-step-if-pattern-available",
+        "schedule-bass-clip-step-if-clip-resolved"
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    },
+    {
+      "path": "src/features/xensonar/performanceCrisis/ui/PerformanceCrisisRootFollowTabTypes.ts",
+      "unique_static_literals_found": 5,
+      "examples": [
+        "onRootFollowQuantizationCustomSegmentsChange",
+        "rootFollowQuantizationCustomSegments",
+        "onRootFollowQuantizationGridChange",
+        "onRootFollowQuantizationModeChange"
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    },
+    {
+      "path": "src/features/l3lab/materialIntake/useMaterialIntakeController.ts",
+      "unique_static_literals_found": 5,
+      "examples": [
+        "[xensonar][material-intake][preview-restart]",
+        "[xensonar][material-intake][raw-send]",
+        "[xensonar][material-intake][commit]",
+        "[xensonar][material-intake][repair]"
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    },
+    {
+      "path": "src/features/l3lab/spectralForge/components/ToolSettings.tsx",
+      "unique_static_literals_found": 5,
+      "examples": [
+        "bg-gray-900 border-t border-gray-700 px-4 py-2 flex items-center gap-6 text-xs text-gray-3",
+        "flex items-center gap-1 rounded border border-cyan-500/30 bg-cyan-500/10 px-2 py-1",
+        "text-red-400 font-bold flex items-center gap-1 bg-red-900/40 px-2 py-0.5 rounded",
+        "h-6 px-2 rounded bg-gray-800 hover:bg-gray-700 text-cyan-300"
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    },
+    {
+      "path": "src/features/l3lab/spectralForge/integral/carrierDescriptorShadowProbe.ts",
+      "unique_static_literals_found": 5,
+      "examples": [
+        "descriptor-does-not-change-pinkspur-granular-contract",
+        "carrier-descriptor-shadow-probe-3.2.91.7.5.86",
+        "descriptor-does-not-change-melodic-loop",
+        "descriptor-does-not-change-root-follow"
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    },
+    {
+      "path": "src/features/l3lab/canonicalForge/forgePlaybackActions.ts",
+      "unique_static_literals_found": 5,
+      "examples": [
+        "[xensonar][forge2][material-groove-preview]",
+        "[xensonar][forge2][enabled-track-preview]",
+        "[xensonar][forge2][instrument-audition]",
+        "[xensonar][forge2][track-preview]"
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    },
+    {
+      "path": "src/features/l3lab/canonicalForge/MelodicSampleLibraryHeader.tsx",
+      "unique_static_literals_found": 5,
+      "examples": [
+        "rounded border border-fuchsia-700/70 bg-fuchsia-950/25 px-3 py-2 text-fuchsia-100 hover:bg",
+        "rounded border border-violet-700/70 bg-violet-950/25 px-3 py-2 text-violet-100 hover:bg-vi",
+        "rounded border border-neutral-700 bg-neutral-900 px-3 py-2 text-neutral-200 hover:bg-neutr",
+        "rounded border border-cyan-700/70 bg-cyan-950/25 px-3 py-2 text-cyan-100 hover:bg-cyan-900"
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    },
+    {
+      "path": "src/App.tsx",
+      "unique_static_literals_found": 4,
+      "examples": [
+        "ui-monospace, SFMono-Regular, Menlo, monospace",
+        "root-follow-worklet-liveness-prime",
+        "1px solid rgba(103,232,249,0.55)",
+        "1px solid rgba(167,243,208,0.55)"
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    },
+    {
+      "path": "src/features/xensonar/domain/instrumentData.ts",
+      "unique_static_literals_found": 4,
+      "examples": [
+        "Custom divisions of the octave using the current Pelog-like cents list.",
+        "Custom divisions of the octave using the current Rast-like cents list.",
+        "Equal divisions of the tritave with native Bohlen-Pierce modes.",
+        "Ratio-based octave field using the existing JI pitch pool."
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    },
+    {
+      "path": "src/features/xensonar/browserImplant/runtimeDiagnostics.ts",
+      "unique_static_literals_found": 4,
+      "examples": [
+        "string' || typeof value === 'number' || typeof value === 'boolean",
+        "No audio samples are stored in this diagnostic.",
+        "Xensonar C11 Browser Implant runtime diagnostic",
+        "Important boot stages to inspect:"
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    },
+    {
+      "path": "src/features/xensonar/rooms/resonanceWorkspaceIntentEvents.ts",
+      "unique_static_literals_found": 4,
+      "examples": [
+        "xensonar:open-root-follow-loop-manager",
+        "xensonar:open-material-loop-manager",
+        "xensonar:open-bass-pattern-manager",
+        "xensonar:open-drum-pattern-manager"
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    },
+    {
+      "path": "src/features/xensonar/rooms/ResonanceHarmonicSystemControls.tsx",
+      "unique_static_literals_found": 4,
+      "examples": [
+        "ml-auto border border-neutral-700 bg-neutral-900 px-2 py-0.5 text-xs text-neutral-400 hove",
+        "w-28 shrink-0 border border-neutral-700 bg-neutral-950 px-2 py-1 text-right text-sm text-n",
+        "mt-2 flex items-center justify-between gap-2 text-[10px] text-neutral-500",
+        "mt-auto flex items-center gap-2 pt-2"
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    },
+    {
+      "path": "src/features/xensonar/rooms/ResonanceGuidePanel.tsx",
+      "unique_static_literals_found": 4,
+      "examples": [
+        "text-xs text-pink-400 uppercase tracking-widest mb-2 font-bold border-b border-neutral-800",
+        "bg-neutral-800 px-1 py-0.5 rounded text-xs text-white",
+        "grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-4",
+        "text-neutral-300 font-semibold mb-1"
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    },
+    {
+      "path": "src/features/xensonar/rooms/materialLoopPanel/RootFollowAnchorControl.tsx",
+      "unique_static_literals_found": 4,
+      "examples": [
+        "shrink-0 rounded border border-violet-800/70 px-2 py-1 text-[10px] text-violet-100 hover:b",
+        "rounded border border-violet-900/50 bg-black/25 p-2 text-[11px] leading-relaxed text-viole",
+        "min-w-0 flex-1 rounded border border-violet-900/50 bg-neutral-950 px-2 py-1 text-violet-50",
+        "grid gap-2 sm:grid-cols-[0.9fr_1.35fr]"
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    },
+    {
+      "path": "src/features/xensonar/audio/waveStarterAttackIntegrityCongestionBrake.ts",
+      "unique_static_literals_found": 4,
+      "examples": [
+        "xensonar-wave-starter-attack-integrity-congestion-brake",
+        "__XENSONAR_WAVE_STARTER_ATTACK_INTEGRITY_CONGESTION__",
+        "capacity-brake-temporary-wave-starter-window",
+        "capacity-critical-lane-protection"
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    },
+    {
+      "path": "src/features/xensonar/audio/waveStarterVoicePoolLiveReport.ts",
+      "unique_static_literals_found": 4,
+      "examples": [
+        "__XENSONAR_WAVE_STARTER_VOICE_POOL_LIVE_REPORT__",
+        "xensonar-wave-starter-voice-pool-live-report",
+        "latest-intent-replacements-unresolved",
+        "deferred-slot-without-release-or-drop"
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    },
+    {
+      "path": "src/features/xensonar/input/waveStarterGestureLoopWorkletBridge.ts",
+      "unique_static_literals_found": 4,
+      "examples": [
+        "xensonar-wave-starter-gesture-loop-worklet-bridge-report",
+        "__XENSONAR_WAVE_STARTER_GESTURE_LOOP_WORKLET_BRIDGE__",
+        "xensonar-wave-starter-gesture-loop-worklet-bridge",
+        "hold-gesture-loop-special-path-isolated-off"
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    },
+    {
+      "path": "src/features/xensonar/input/appStableRhythmLaneSchedulerCacheHelperCandidateAudits.ts",
+      "unique_static_literals_found": 4,
+      "examples": [
+        "rhythmForgeDrumBarIndexRef.current",
+        "nexusParamsRef.current.quantizeBpm",
+        "rhythmForgeDrumPatternRef.current",
+        "bassClipPlaybackCacheRef.current"
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    },
+    {
+      "path": "src/features/xensonar/recording/recordingEffectHandlers.ts",
+      "unique_static_literals_found": 4,
+      "examples": [
+        "recording-cleanup-media-recorder-stopped-or-inactive",
+        "recording-duration-display-second-tick-cleared",
+        "recording-preview-playhead-raf-cancelled",
+        "recording-cleanup-cleared-timeout"
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    },
+    {
+      "path": "src/features/xensonar/rootFollow/rootFollowWorkletShadowProcessorSource.ts",
+      "unique_static_literals_found": 4,
+      "examples": [
+        "stable-lane-synthetic-silent-plan' || plan.probeKind === 'stable-lane-synthetic-silent-pla",
+        ":granular-pilot:' + this.granularPilotMessageCount + ':",
+        "pilot-' + this.directPilotMessageCount + '-",
+        "xensonar-root-follow-worklet-shadow-bridge"
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    },
+    {
+      "path": "src/features/l3lab/spectralForge/components/carrierIntegralVerwalten/CarrierGestureStrip.tsx",
+      "unique_static_literals_found": 4,
+      "examples": [
+        "absolute top-0 h-full border-x border-fuchsia-200/95 bg-fuchsia-500/18 shadow-[0_0_18px_rg",
+        "relative mt-2 h-24 cursor-crosshair overflow-hidden rounded border border-violet-900/60 bg",
+        "absolute top-0 h-full w-px bg-white/90 shadow-[0_0_10px_rgba(255,255,255,0.7)]",
+        "flex h-full items-center justify-center text-[11px] text-neutral-600"
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    },
+    {
+      "path": "src/features/l3lab/spectralForge/components/transportBar/useTransportMaterialActions.ts",
+      "unique_static_literals_found": 4,
+      "examples": [
+        "spectralForge/TransportBar.handleDownloadCurrentPreview",
+        "spectralForge/TransportBar.handleExport.audio",
+        "spectralForge/TransportBar.handleExport.json",
+        "Exportiere Material (WAV + JSON)..."
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    },
+    {
+      "path": "src/features/l3lab/spectralForge/components/transportBar/TransportImageImportDialog.tsx",
+      "unique_static_literals_found": 4,
+      "examples": [
+        "flex items-center gap-2 rounded border border-neutral-800 bg-neutral-950/50 px-3 py-2 text",
+        "h-auto w-full rounded-lg border border-neutral-700 bg-white",
+        "w-full accent-emerald-400 disabled:opacity-40",
+        "w-full accent-violet-400 disabled:opacity-40"
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    },
+    {
+      "path": "src/features/l3lab/spectralForge/projectLibrary.ts",
+      "unique_static_literals_found": 4,
+      "examples": [
+        "[xensonar][forge-project-library][archive-record-skip]",
+        "[xensonar][forge-project-library][archive-read]",
+        "[xensonar][forge-project-library][hydrate]",
+        "xensonar-spectral-forge-projects"
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    },
+    {
+      "path": "src/features/l3lab/spectralForge/customStampLibrary.ts",
+      "unique_static_literals_found": 4,
+      "examples": [
+        "[xensonar][forge-custom-stamp-library][archive-record-skip]",
+        "[xensonar][forge-custom-stamp-library][archive-read]",
+        "[xensonar][forge-custom-stamp-library][hydrate]",
+        "xensonar-spectral-forge-custom-stamps"
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    },
+    {
+      "path": "src/features/l3lab/spectralForge/integral/carrierIntegralTransferExecutionPhases.ts",
+      "unique_static_literals_found": 4,
+      "examples": [
+        "carrier-integral-transfer-audio-identity-v1",
+        "carrierIntegralRawMaterialMelodicExport",
+        "carrier-integral-raw-material-export",
+        "carrierIntegralMelodicPinkExport"
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    },
+    {
+      "path": "src/features/l3lab/spectralForge/integral/carrierIntegralAuditionRoutes.ts",
+      "unique_static_literals_found": 4,
+      "examples": [
+        "harmonic-xplore-direct-preview-cache-v2-stable-musical-params",
+        "harmonic-xplore-direct-carrier-rendered-preview",
+        "harmonic-xplore-direct-carrier-cached-preview",
+        "pure-dieter-cached-rendered-preview"
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    },
+    {
+      "path": "src/features/l3lab/spectralForge/integral/carrierLoopBodyShadowProbe.ts",
+      "unique_static_literals_found": 4,
+      "examples": [
+        "Branch C CarrierLoopBody curve body was built as a shadow probe only; no renderer, transfe",
+        "Branch C interval-window plan was not available for this root-follow build.",
+        "carrier-loop-body-shadow-probe-3.2.91.6.9.161",
+        "branch-c-carrier-loop-body-shadow-probe"
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    },
+    {
+      "path": "src/features/l3lab/canonicalForge/melodicLoopPreviewActions.ts",
+      "unique_static_literals_found": 4,
+      "examples": [
+        "[xensonar][melodic-loop][forge1-export]",
+        "[xensonar][melodic-loop][forge2-export]",
+        "[xensonar][forge2][clip-preview]",
+        "[xensonar][melodic-loop][export]"
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    },
+    {
+      "path": "src/features/l3lab/canonicalForge/melodicWorkspaceArchiveActions.ts",
+      "unique_static_literals_found": 4,
+      "examples": [
+        "[xensonar][workspace-archive][export][spectral-forge-custom-stamp-library]",
+        "[xensonar][workspace-archive][export][spectral-forge-project-library]",
+        "[xensonar][workspace-archive][export][spectral-forge-workspaces]",
+        "[xensonar][workspace-archive][export][drum-config-library]"
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    },
+    {
+      "path": "src/core/systemMemory/packageImportLedger.ts",
+      "unique_static_literals_found": 3,
+      "examples": [
+        "xensonar-last-workspace-package-import-ledger-v1",
+        "xensonar:workspace-package-import-ledger",
+        "offener SyntheticForge-Arbeitsstand"
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    },
+    {
+      "path": "src/external/microto/app/components/StandaloneRoomFrame.tsx",
+      "unique_static_literals_found": 3,
+      "examples": [
+        "px-3 py-2 border border-neutral-700 text-neutral-300 hover:bg-neutral-800",
+        "flex flex-wrap items-center justify-between gap-3 mb-4",
+        "border border-neutral-800 bg-neutral-950 p-5 mt-4"
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    },
+    {
+      "path": "src/features/xensonar/domain/gridLibraryPersistence.ts",
+      "unique_static_literals_found": 3,
+      "examples": [
+        "xensonar:grid-tuning-library-updated",
+        "xensonar:grid-tuning-active-rack:v1",
+        "xensonar:grid-tuning-rack-updated"
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    },
+    {
+      "path": "src/features/xensonar/rooms/ResonanceStagePanel.tsx",
+      "unique_static_literals_found": 3,
+      "examples": [
+        "pointer-events-none absolute inset-0 z-10 flex items-center justify-center text-neutral-70",
+        "relative overflow-hidden border border-neutral-800 bg-neutral-900 cursor-crosshair",
+        "mb-4 flex flex-col gap-3 md:flex-row md:items-center md:justify-between"
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    },
+    {
+      "path": "src/features/xensonar/rooms/grooveBassPanel/DrumManagerControls.tsx",
+      "unique_static_literals_found": 3,
+      "examples": [
+        "rounded border border-neutral-800 bg-neutral-950/60 p-3 space-y-3 text-neutral-300",
+        "grid grid-cols-[88px_1fr] items-center gap-2 text-xs text-neutral-300",
+        "w-full cursor-pointer accent-fuchsia-500"
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    },
+    {
+      "path": "src/features/xensonar/rooms/ResonanceBurstDiagnosticsPanel.tsx",
+      "unique_static_literals_found": 3,
+      "examples": [
+        "flex flex-col gap-3 md:flex-row md:items-center md:justify-between",
+        "rounded border border-neutral-800 bg-black/30 px-3 py-2",
+        "border border-neutral-800 bg-neutral-950/40 px-3 py-2"
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    },
+    {
+      "path": "src/features/xensonar/rooms/WaveStarterHoldPatternEditorSlot.tsx",
+      "unique_static_literals_found": 3,
+      "examples": [
+        "w-full border border-neutral-700 bg-neutral-950 p-1 text-xs text-neutral-300",
+        "mb-1 block text-[10px] uppercase tracking-widest text-neutral-500",
+        "grid grid-cols-2 gap-2 sm:grid-cols-5"
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    },
+    {
+      "path": "src/features/xensonar/rooms/AppRoomViewport.tsx",
+      "unique_static_literals_found": 3,
+      "examples": [
+        "mx-auto flex h-full max-w-2xl items-center justify-center p-4 text-center text-sm text-neu",
+        "rounded-2xl border border-neutral-800 bg-neutral-950/80 p-4",
+        "flex items-center justify-center h-full opacity-50"
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    },
+    {
+      "path": "src/features/xensonar/rooms/DroneRhythmEditorSlot.tsx",
+      "unique_static_literals_found": 3,
+      "examples": [
+        "border-neutral-700 bg-neutral-950 text-neutral-300 hover:bg-neutral-900",
+        "border-violet-400 bg-violet-700/40 text-violet-100",
+        "grid grid-cols-2 gap-2 sm:grid-cols-3"
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    },
+    {
+      "path": "src/features/xensonar/rooms/ExperimentalForgeWorkshopRoom.tsx",
+      "unique_static_literals_found": 3,
+      "examples": [
+        "space-y-3 rounded border border-neutral-800 bg-neutral-950/70 p-3 text-xs text-neutral-300",
+        "rounded border border-neutral-800 bg-neutral-950/60 p-3 leading-relaxed text-neutral-400",
+        "uppercase tracking-[0.22em] text-neutral-500"
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    },
+    {
+      "path": "src/features/xensonar/audio/useNativeWaveStarterPilot.ts",
+      "unique_static_literals_found": 3,
+      "examples": [
+        "native control adapter unavailable for shutdown recovery",
+        "native sidecar is not a physical audio owner",
+        "native control adapter did not register"
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    },
+    {
+      "path": "src/features/xensonar/audio/stableRhythmLane.ts",
+      "unique_static_literals_found": 3,
+      "examples": [
+        "wave-starter-hold-arms-beat-prefill-before-stall",
+        "wave-starter-brake-pressure-widens-beat-prefill",
+        "wave-starter-critical-pressure-protects-beat"
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    },
+    {
+      "path": "src/features/xensonar/audio/waveStarterSynthFailoverCandidate.ts",
+      "unique_static_literals_found": 3,
+      "examples": [
+        "__XENSONAR_WAVE_STARTER_SYNTH_FAILOVER_CANDIDATE__",
+        "xensonar-wave-starter-synth-failover-candidate",
+        "sample-failover-blocked-buffer-token-required"
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    },
+    {
+      "path": "src/features/xensonar/input/appResonanceArrowMotionRafCallsiteSourceProbe.ts",
+      "unique_static_literals_found": 3,
+      "examples": [
+        "app-resonance-arrow-motion-raf-callsite-source-probe",
+        "requestAnimationFrameOwnerStillApp",
+        "cancelAnimationFrameOwnerStillApp"
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    },
+    {
+      "path": "src/features/xensonar/recording/recordingRuntimeActions.ts",
+      "unique_static_literals_found": 3,
+      "examples": [
+        "recording-audio-init-or-recorder-construction-failed",
+        "recording-stop-media-recorder-already-inactive",
+        "recording-media-recorder-error-event"
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    },
+    {
+      "path": "src/features/xensonar/rootFollow/useNativeRootFollowMaterialPilot.ts",
+      "unique_static_literals_found": 3,
+      "examples": [
+        "native material batch exceeds 8 windows",
+        "material channels must be mono/stereo",
+        "native sidecar not physical-ready"
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    },
+    {
+      "path": "src/features/xensonar/rootFollow/rootFollowMaterialRenderer.ts",
+      "unique_static_literals_found": 3,
+      "examples": [
+        "electron-browser-reference-restore-keeps-worklet-auditions-out-of-default-material-path",
+        "less-main-thread-root-material-slice-spawning-after-sustained-worklet-proof",
+        "stable-lane-sustained-replaces-legacy-material-slice"
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    },
+    {
+      "path": "src/features/xensonar/material/useRootFollowLoopPlayback.ts",
+      "unique_static_literals_found": 3,
+      "examples": [
+        "timeline-derived-root-follow-window-mute-pattern",
+        "timeline-derived-slot-fragment-compression",
+        "scheduler-tick-quantized-fallback"
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    },
+    {
+      "path": "src/features/l3lab/melodicSampleBridge.ts",
+      "unique_static_literals_found": 3,
+      "examples": [
+        "xensonar:melodic-sample-from-raw-selection",
+        "xensonar:melodic-sample-request-result",
+        "xensonar:melodic-sample-from-blob"
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    },
+    {
+      "path": "src/features/l3lab/spectralForge/embodiment/carrierDonorV2FrontActions.ts",
+      "unique_static_literals_found": 3,
+      "examples": [
+        "spectralForge/carrierDonorV2FrontActions.triggerBlobDownload",
+        "spectral-forge-room-download-url-revoked",
+        "Front V2 material handoff failed"
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    },
+    {
+      "path": "src/features/l3lab/spectralForge/components/CarrierIntegralPanel.tsx",
+      "unique_static_literals_found": 3,
+      "examples": [
+        "group flex w-full items-center gap-3 rounded border border-fuchsia-700/70 bg-fuchsia-950/2",
+        "block text-[12px] font-black uppercase tracking-[0.16em] text-fuchsia-100 group-hover:text",
+        "mt-0.5 block text-[10px] uppercase tracking-[0.18em] text-fuchsia-300/70"
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    },
+    {
+      "path": "src/features/l3lab/spectralForge/components/harmonizerPanel/useBasisHearingAudition.ts",
+      "unique_static_literals_found": 3,
+      "examples": [
+        "basis hearing request is stale before playback start",
+        "[xensonar][spectralforge][basis-hearing-preview]",
+        "Basis-Hearing prepared cache reused"
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    },
+    {
+      "path": "src/features/l3lab/spectralForge/components/harmonizerPanel/DonorHearingButton.tsx",
+      "unique_static_literals_found": 3,
+      "examples": [
+        "rounded border border-amber-800 bg-amber-950/30 px-2 py-1 text-[11px] text-amber-100",
+        "rounded border border-violet-700 px-1.5 py-0.5 text-[10px]",
+        "px-1 text-[10px] leading-relaxed text-neutral-400"
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    },
+    {
+      "path": "src/features/l3lab/spectralForge/components/SpectralCanvas.tsx",
+      "unique_static_literals_found": 3,
+      "examples": [
+        "grid flex-1 min-h-0 grid-rows-[minmax(0,1fr)_auto] bg-black",
+        "relative min-h-[300px] overflow-hidden",
+        "absolute inset-0 pointer-events-none"
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    },
+    {
+      "path": "src/features/l3lab/spectralForge/components/uiModel/spectralForgeUiModelShared.ts",
+      "unique_static_literals_found": 3,
+      "examples": [
+        "border-neutral-600/70 bg-neutral-900/50",
+        "border-neutral-800 bg-neutral-950/40",
+        "border-cyan-600/70 bg-cyan-950/20"
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    },
+    {
+      "path": "src/features/l3lab/spectralForge/integral/carrierIntegralTransferPolicyMatrix.ts",
+      "unique_static_literals_found": 3,
+      "examples": [
+        "spectralforge-carrier-integral-rendered-material-core-six-7.7.43",
+        "spectralforge-carrier-integral-audio-paint-core-six-7.7.43",
+        "spectralforge-raw-carrier-material-6.8.39"
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    },
+    {
+      "path": "src/features/l3lab/canonicalForge/materialImportChannel.ts",
+      "unique_static_literals_found": 3,
+      "examples": [
+        "xensonar:carrier-integral-audio-paint-registry-v1",
+        "carrier-integral-granular-material",
+        "xensonar:request-material-import"
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    },
+    {
+      "path": "src/features/l3lab/canonicalForge/workspaceScaffoldPanels.tsx",
+      "unique_static_literals_found": 3,
+      "examples": [
+        "flex flex-wrap items-start justify-between gap-3 border border-neutral-800 bg-neutral-950/",
+        "space-y-3 border border-neutral-800 bg-neutral-950/70 p-3",
+        "grid gap-3 lg:grid-cols-[minmax(0,1fr)_26rem]"
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    },
+    {
+      "path": "src/features/l3lab/materialLibrary.ts",
+      "unique_static_literals_found": 3,
+      "examples": [
+        "[xensonar][material-library][persist]",
+        "[xensonar][material-library][hydrate]",
+        "Failed to load persisted materials"
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    },
+    {
+      "path": "src/external/microto/features/refactorField/SharedFieldCanvasLayer.tsx",
+      "unique_static_literals_found": 2,
+      "examples": [
+        "pointer-events-auto absolute rounded-full border border-amber-200/20 bg-transparent cursor",
+        "pointer-events-none absolute inset-0 h-full w-full"
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    },
+    {
+      "path": "src/features/xensonar/domain/gridWorkbenchBridge.ts",
+      "unique_static_literals_found": 2,
+      "examples": [
+        "xensonar:open-grid-workbench-for-melodic-loop",
+        "xensonar:apply-grid-tuning-to-melodic-loop"
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    },
+    {
+      "path": "src/features/xensonar/drumConfigLibrary.ts",
+      "unique_static_literals_found": 2,
+      "examples": [
+        "[xensonar][drum-config-library][archive-read]",
+        "[xensonar][drum-config-library][hydrate]"
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    },
+    {
+      "path": "src/features/xensonar/browserImplant/useBrowserWaveStarterImplant.ts",
+      "unique_static_literals_found": 2,
+      "examples": [
+        "browser implant tone-plan encoder missing after ownership",
+        "C11/WASM AudioWorklet did not become READY"
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    },
+    {
+      "path": "src/features/xensonar/ui/edgeDragMaskSurface.tsx",
+      "unique_static_literals_found": 2,
+      "examples": [
+        "pointer-events-none absolute inset-y-0 rounded border border-fuchsia-200/70 bg-fuchsia-500",
+        "[data-xensonar-edge-drag-mask-handle]"
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    },
+    {
+      "path": "src/features/xensonar/rooms/grooveBassPanel/DrumPatternManagerDialog.tsx",
+      "unique_static_literals_found": 2,
+      "examples": [
+        "w-full rounded border border-cyan-700/80 px-3 py-2 text-cyan-100 hover:bg-cyan-950/35",
+        "rounded border border-cyan-800/60 bg-cyan-950/15 p-3"
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    },
+    {
+      "path": "src/features/xensonar/rooms/RootFollowIconBadge.tsx",
+      "unique_static_literals_found": 2,
+      "examples": [
+        "relative inline-flex h-4 w-4 shrink-0 items-center justify-center text-[13px] leading-none",
+        "absolute h-3.5 w-3.5 rounded-full bg-white shadow-sm shadow-black/40"
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    },
+    {
+      "path": "src/features/xensonar/rooms/topologyRuntimeArgs.ts",
+      "unique_static_literals_found": 2,
+      "examples": [
+        "installResidentWaveExcitationEnabled",
+        "installResidentBallCouplingEnabled"
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    },
+    {
+      "path": "src/features/xensonar/rooms/resonanceRuntimeMonitorLiveChannel.ts",
+      "unique_static_literals_found": 2,
+      "examples": [
+        "xensonar:resonance-transient-runtime-monitor",
+        "xensonar:resonance-control-perf-monitor"
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    },
+    {
+      "path": "src/features/xensonar/rooms/ResonanceInlineEditorSlot.tsx",
+      "unique_static_literals_found": 2,
+      "examples": [
+        "flex w-full items-center justify-between rounded border border-violet-700 bg-violet-900/40",
+        "rounded border border-violet-800/70 bg-violet-950/20 p-2"
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    },
+    {
+      "path": "src/features/xensonar/audio/waveStarterWorkletProcessorRuntimeOwnership.ts",
+      "unique_static_literals_found": 2,
+      "examples": [
+        "__XENSONAR_WAVE_STARTER_WORKLET_PROCESSOR_RUNTIME_OWNERSHIP__",
+        "xensonar-wave-starter-worklet-processor-runtime-ownership"
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    },
+    {
+      "path": "src/features/xensonar/audio/particleVoicePoolLiveReport.ts",
+      "unique_static_literals_found": 2,
+      "examples": [
+        "__XENSONAR_PARTICLE_VOICE_POOL_LIVE_REPORT__",
+        "xensonar-particle-voice-pool-live-report"
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    },
+    {
+      "path": "src/features/xensonar/audio/waveStarter9061DirectContract.ts",
+      "unique_static_literals_found": 2,
+      "examples": [
+        "waveStarterGestureLoopWorkletBridge",
+        "waveStarterGestureLoopWorkletOnly"
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    },
+    {
+      "path": "src/features/xensonar/audio/waveStarterProcessorRuntimePressureFeedback.ts",
+      "unique_static_literals_found": 2,
+      "examples": [
+        "__XENSONAR_WAVE_STARTER_PROCESSOR_RUNTIME_PRESSURE_FEEDBACK__",
+        "xensonar-wave-starter-processor-runtime-pressure-feedback"
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    },
+    {
+      "path": "src/features/xensonar/input/appStableRhythmLaneSchedulerCallsiteSourceProbe.ts",
+      "unique_static_literals_found": 2,
+      "examples": [
+        "app-stable-rhythm-lane-scheduler-callsite-source-probe",
+        "actionPortClosuresStillInlineInApp"
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    },
+    {
+      "path": "src/features/xensonar/input/appStableRhythmLaneSchedulerStepVoiceValuesBuilderProbe.ts",
+      "unique_static_literals_found": 2,
+      "examples": [
+        "app-stable-rhythm-lane-scheduler-drum-step-voice-values-builder-probe",
+        "app-stable-rhythm-lane-scheduler-bass-step-voice-values-builder-probe"
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    },
+    {
+      "path": "src/features/xensonar/audioTraffic/quantizedCollisionRuntime.ts",
+      "unique_static_literals_found": 2,
+      "examples": [
+        "quantized-collision-runtime-stop-interval",
+        "quantized-collision-runtime-stop-raf"
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    },
+    {
+      "path": "src/features/xensonar/rootFollow/rootFollowPlaybackTruthProbe.ts",
+      "unique_static_literals_found": 2,
+      "examples": [
+        "Low-overhead probe: records Root-Follow lifecycle/gate/restart edges only, not per-grain o",
+        "xensonar-root-follow-playback-truth-probe"
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    },
+    {
+      "path": "src/features/xensonar/architecture/machineRooms.ts",
+      "unique_static_literals_found": 2,
+      "examples": [
+        "Formung nachgelagert halten; Partikelmaterial selbst bleibt Forge-/Performance-Sache.",
+        "SyntheticForge · Drum Machine / Melodic Loop"
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    },
+    {
+      "path": "src/features/xensonar/layout/appShellFramePropsTypes.ts",
+      "unique_static_literals_found": 2,
+      "examples": [
+        "resonanceBurstDiagnosticsPanelProps",
+        "resonanceParallelEffectsPanelProps"
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    },
+    {
+      "path": "src/features/xensonar/layout/nativeAudioRuntime.ts",
+      "unique_static_literals_found": 2,
+      "examples": [
+        "undefined' || typeof document === 'undefined",
+        "xensonar-native-audio-enabled-v1"
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    },
+    {
+      "path": "src/features/xensonar/layout/AppHeader.tsx",
+      "unique_static_literals_found": 2,
+      "examples": [
+        "relative shrink-0 rounded-full focus:outline-none focus-visible:ring-2 focus-visible:ring-",
+        "pointer-events-none absolute left-1/2 top-1/2 rounded-full border border-emerald-300/80"
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    },
+    {
+      "path": "src/features/l3lab/materialIntake/adapters/target/canonicalForgeTargetAdapter.ts",
+      "unique_static_literals_found": 2,
+      "examples": [
+        "xensonar:canonical-intake-raw-send",
+        "xensonar:canonical-intake-commit"
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    },
+    {
+      "path": "src/features/l3lab/spectralForge/components/carrierIntegralVerwalten/CarrierIntegralNumberSlider.tsx",
+      "unique_static_literals_found": 2,
+      "examples": [
+        "flex items-center justify-between gap-2 text-[10px]",
+        "mt-1 text-[9px] text-amber-200/80"
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    },
+    {
+      "path": "src/features/l3lab/spectralForge/components/ProjectLibraryPanel.tsx",
+      "unique_static_literals_found": 2,
+      "examples": [
+        "w-full rounded border border-cyan-700/60 bg-cyan-950/30 px-2 py-1 text-[11px] text-cyan-20",
+        "block space-y-1 text-[11px] text-neutral-400"
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    },
+    {
+      "path": "src/features/l3lab/spectralForge/audio/ImageImporter.ts",
+      "unique_static_literals_found": 2,
+      "examples": [
+        "spectral-forge-canvas-clone-url-revoked",
+        "spectral-forge-file-image-url-revoked"
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    },
+    {
+      "path": "src/features/l3lab/spectralForge/state/storeCarrierIntegralActions.ts",
+      "unique_static_literals_found": 2,
+      "examples": [
+        "resetCarrierIntegralHarmonicXplore",
+        "setCarrierIntegralHarmonicXplore"
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    },
+    {
+      "path": "src/features/l3lab/spectralForge/state/storeCarrierDonorV2Actions.ts",
+      "unique_static_literals_found": 2,
+      "examples": [
+        "recomputeCarrierDonorV2Eligibility",
+        "setCarrierDonorTransferMacroAxes"
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    },
+    {
+      "path": "src/features/l3lab/spectralForge/integral/carrierIntegralSpektralSyntheseEngine.ts",
+      "unique_static_literals_found": 2,
+      "examples": [
+        "spektral-synthese-audio-identity-v7-shared-render-state",
+        "spektral-synthese-route-v6-shared-render-state"
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    },
+    {
+      "path": "src/features/l3lab/spectralForge/integral/carrierIntegralSpektralSyntheseDescriptor.ts",
+      "unique_static_literals_found": 2,
+      "examples": [
+        "spektral-synthese-descriptor-empty-v2",
+        "spektral-synthese-structure-empty"
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    },
+    {
+      "path": "src/features/l3lab/spectralForge/integral/carrierIntegralHarmonicXploreRenderConfig.ts",
+      "unique_static_literals_found": 2,
+      "examples": [
+        "carrier-integral-harmonic-xplore-render-config-v1",
+        "carrier-integral-harmonic-xplore-v1"
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    },
+    {
+      "path": "src/features/l3lab/spectralForge/integral/carrierIntegralHarmonicXploreLens.ts",
+      "unique_static_literals_found": 2,
+      "examples": [
+        "harmonic-xplore-metallic-inharmonic",
+        "harmonic-xplore-undertone-mirror"
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    },
+    {
+      "path": "src/features/l3lab/contracts/carrierIntegralMelodicHandoffContract.ts",
+      "unique_static_literals_found": 2,
+      "examples": [
+        "xensonar:pending-carrier-integral-raw-material-melodic-export",
+        "xensonar:pending-carrier-integral-pink-export"
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    },
+    {
+      "path": "src/features/l3lab/contracts/carrierIntegralEditorIntent.ts",
+      "unique_static_literals_found": 2,
+      "examples": [
+        "xensonar:carrier-integral-editor-intent",
+        "xensonar:open-carrier-integral-editor"
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    },
+    {
+      "path": "src/features/l3lab/canonicalForge/melodicSampleActions.ts",
+      "unique_static_literals_found": 2,
+      "examples": [
+        "[xensonar][melodic-samples][basehz-preview]",
+        "[xensonar][melodic-samples][tempo-preview]"
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    },
+    {
+      "path": "src/features/l3lab/canonicalForge/melodicWorkspaceArchiveManifest.ts",
+      "unique_static_literals_found": 2,
+      "examples": [
+        "spectral-forge-workspace-project-library",
+        "spectral-forge-current-workspace"
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    },
+    {
+      "path": "src/features/l3lab/canonicalForge/MelodicSampleLibraryPanel.tsx",
+      "unique_static_literals_found": 2,
+      "examples": [
+        "rounded border border-neutral-800 bg-neutral-950/60 px-3 py-3 text-xs text-neutral-300",
+        "mt-3 rounded border border-red-900/70 bg-red-950/20 px-3 py-2 text-[11px] text-red-100"
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    },
+    {
+      "path": "src/features/l3lab/melodicSamples/melodicSampleLibraryEvents.ts",
+      "unique_static_literals_found": 2,
+      "examples": [
+        "xensonar:melodic-sample-library-updated",
+        "xensonar:melodic-sample-library-status"
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    },
+    {
+      "path": "src/components/xensonar/Panel.tsx",
+      "unique_static_literals_found": 1,
+      "examples": [
+        "flex items-start justify-between gap-4"
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    },
+    {
+      "path": "src/core/browser/browserSafeFileInput.ts",
+      "unique_static_literals_found": 1,
+      "examples": [
+        "fixed left-[-10000px] top-0 h-px w-px opacity-0"
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    },
+    {
+      "path": "src/core/audio/xensonarMicrotonalSoundEngine.ts",
+      "unique_static_literals_found": 1,
+      "examples": [
+        "xensonar.entrophonUnifiedSoundConfig.v116"
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    },
+    {
+      "path": "src/external/microto/app/components/WorldDiscoveryStrip.tsx",
+      "unique_static_literals_found": 1,
+      "examples": [
+        "border-amber-400 text-amber-200 bg-amber-500/20"
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    },
+    {
+      "path": "src/external/microto/app/components/ShellHarmonicContextRow.tsx",
+      "unique_static_literals_found": 1,
+      "examples": [
+        "text-[10px] text-neutral-400 italic"
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    },
+    {
+      "path": "src/external/microto/game/jumpRunSoundtrack/JumpRunSoundtrackRoom.tsx",
+      "unique_static_literals_found": 1,
+      "examples": [
+        "border border-neutral-800 bg-neutral-950 overflow-hidden"
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    },
+    {
+      "path": "src/external/microto/game/jumpRunSoundtrack/PlatformerLivePreview.tsx",
+      "unique_static_literals_found": 1,
+      "examples": [
+        "flex items-center justify-between text-xs"
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    },
+    {
+      "path": "src/external/microto/features/worldLab/WorldLabRoom.tsx",
+      "unique_static_literals_found": 1,
+      "examples": [
+        "rounded border border-neutral-700 bg-neutral-900/80 px-1.5 py-0.5"
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    },
+    {
+      "path": "src/external/microto/features/worldGallery/WorldGalleryRoom.tsx",
+      "unique_static_literals_found": 1,
+      "examples": [
+        "mb-1 text-[10px] text-neutral-400"
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    },
+    {
+      "path": "src/external/microto/features/worldGallery/WorldGalleryCard.tsx",
+      "unique_static_literals_found": 1,
+      "examples": [
+        "rounded border border-neutral-700 bg-neutral-900/80 px-1.5 py-0.5 text-[9px] text-neutral-"
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    },
+    {
+      "path": "src/external/microto/features/resonance/components/ResonanceWaveStatusBlock.tsx",
+      "unique_static_literals_found": 1,
+      "examples": [
+        "border border-neutral-800 bg-neutral-950/70 p-3"
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    },
+    {
+      "path": "src/features/xensonar/nativeImplant/waveStarterNativeCorePlan.ts",
+      "unique_static_literals_found": 1,
+      "examples": [
+        "xensonar-wave-starter-core-tone-plan"
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    },
+    {
+      "path": "src/features/xensonar/browserImplant/worklet/browserC11Host.ts",
+      "unique_static_literals_found": 1,
+      "examples": [
+        "C11 browser host requires wasmBytes or compiledModule"
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    },
+    {
+      "path": "src/features/xensonar/browserImplant/worklet/realKernelBridge.ts",
+      "unique_static_literals_found": 1,
+      "examples": [
+        "INIT requires compiledModule or wasmBytes"
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    },
+    {
+      "path": "src/features/xensonar/browserImplant/useBrowserEntrophonImplant.ts",
+      "unique_static_literals_found": 1,
+      "examples": [
+        "Entrophon C11/WASM host did not become READY"
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    },
+    {
+      "path": "src/features/xensonar/browserImplant/vendor/ringbuf.js/ringbuf.ts",
+      "unique_static_literals_found": 1,
+      "examples": [
+        "Pass a concrete typed array class as second argument"
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    },
+    {
+      "path": "src/features/xensonar/groove/bassClipLibrary.ts",
+      "unique_static_literals_found": 1,
+      "examples": [
+        "xensonar:bass-clip-library-updated"
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    },
+    {
+      "path": "src/features/xensonar/family/refactor/XensonarRefactorRoomPanels.tsx",
+      "unique_static_literals_found": 1,
+      "examples": [
+        "text-sm font-semibold tracking-[0.08em]"
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    },
+    {
+      "path": "src/features/xensonar/rooms/nexusParamsInitialState.ts",
+      "unique_static_literals_found": 1,
+      "examples": [
+        "xensonar-particle-sample-profile-mode"
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    },
+    {
+      "path": "src/features/xensonar/rooms/resonanceCursorHudLiveChannel.ts",
+      "unique_static_literals_found": 1,
+      "examples": [
+        "xensonar:resonance-cursor-hud-hz"
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    },
+    {
+      "path": "src/features/xensonar/rooms/RecordingMarkerSideRails.tsx",
+      "unique_static_literals_found": 1,
+      "examples": [
+        "relative z-10 text-[10px] leading-tight text-neutral-500"
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    },
+    {
+      "path": "src/features/xensonar/rooms/appResonancePresetPreviewActionPorts.ts",
+      "unique_static_literals_found": 1,
+      "examples": [
+        "previewParticlePresetSelectionAction"
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    },
+    {
+      "path": "src/features/xensonar/rooms/gridTuningRack/useGridTuningRackLibraryWorkspace.ts",
+      "unique_static_literals_found": 1,
+      "examples": [
+        "[xensonar][grid-library][import]"
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    },
+    {
+      "path": "src/features/xensonar/rooms/ResonanceTimingEchoControls.tsx",
+      "unique_static_literals_found": 1,
+      "examples": [
+        "mt-2 rounded border border-neutral-800 bg-neutral-950/50 px-2 py-1 text-xs text-neutral-50"
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    },
+    {
+      "path": "src/features/xensonar/rooms/materialLoopPanel/QuickLoopUploadControls.tsx",
+      "unique_static_literals_found": 1,
+      "examples": [
+        "flex items-center gap-2 text-neutral-400"
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    },
+    {
+      "path": "src/features/xensonar/rooms/materialLoopPanel/materialLoopPanelControls.tsx",
+      "unique_static_literals_found": 1,
+      "examples": [
+        "rounded border border-neutral-800 bg-neutral-950/70 p-2 space-y-2"
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    },
+    {
+      "path": "src/features/xensonar/rooms/xenpolarShortcut.ts",
+      "unique_static_literals_found": 1,
+      "examples": [
+        "xensonar-level3lab-last-regular-mode"
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    },
+    {
+      "path": "src/features/xensonar/rooms/resonanceInputPolicy.ts",
+      "unique_static_literals_found": 1,
+      "examples": [
+        "[data-wheel-allow-scroll=\"true\"], [data-xensonar-scroll-island], [data-spectralforge-scrol"
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    },
+    {
+      "path": "src/features/xensonar/audio/stationaryRhythmWorkletPressureFeedback.ts",
+      "unique_static_literals_found": 1,
+      "examples": [
+        "__XENSONAR_STATIONARY_RHYTHM_WORKLET_PRESSURE__"
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    },
+    {
+      "path": "src/features/xensonar/audio/waveStarterFailoverEventLedger.ts",
+      "unique_static_literals_found": 1,
+      "examples": [
+        "xensonar-wave-starter-failover-ledger-entry"
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    },
+    {
+      "path": "src/features/xensonar/audio/appResidentTrafficBridgeIoSnapshot.ts",
+      "unique_static_literals_found": 1,
+      "examples": [
+        "installationFieldConfigRef.current"
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    },
+    {
+      "path": "src/features/xensonar/audio/stationaryRhythmWorkletLaneContracts.ts",
+      "unique_static_literals_found": 1,
+      "examples": [
+        "xensonar-stationary-rhythm-worklet-lane-probe"
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    },
+    {
+      "path": "src/features/xensonar/audio/scheduledToneLifecycle.ts",
+      "unique_static_literals_found": 1,
+      "examples": [
+        "Cannot add nodes to a released tone graph"
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    },
+    {
+      "path": "src/features/xensonar/audio/scheduledTonePlaybackBoundary.ts",
+      "unique_static_literals_found": 1,
+      "examples": [
+        "Entrophon voice has no base oscillator"
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    },
+    {
+      "path": "src/features/xensonar/drumPatternPlaylistEventContract.ts",
+      "unique_static_literals_found": 1,
+      "examples": [
+        "xensonar:drum-pattern-playlist-updated"
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    },
+    {
+      "path": "src/features/xensonar/input/appStableRhythmLaneSchedulerBassStepBranchClassifierProbe.ts",
+      "unique_static_literals_found": 1,
+      "examples": [
+        "app-stable-rhythm-lane-scheduler-bass-step-branch-classifier-probe"
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    },
+    {
+      "path": "src/features/xensonar/input/appStableRhythmLaneStepExecutionFrameProbe.ts",
+      "unique_static_literals_found": 1,
+      "examples": [
+        "app-stable-rhythm-lane-step-execution-frame-probe"
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    },
+    {
+      "path": "src/features/xensonar/input/appGlobalInputAndMetronomeSourceBuilder.ts",
+      "unique_static_literals_found": 1,
+      "examples": [
+        "nexusRefs.current.nextAbsoluteStep"
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    },
+    {
+      "path": "src/features/xensonar/input/appStableRhythmLaneQuantizedBassStepValuesProbe.ts",
+      "unique_static_literals_found": 1,
+      "examples": [
+        "app-stable-rhythm-lane-quantized-bass-step-values-probe"
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    },
+    {
+      "path": "src/features/xensonar/input/appStableRhythmLaneStepExecutionFrameBuilderProbe.ts",
+      "unique_static_literals_found": 1,
+      "examples": [
+        "app-stable-rhythm-lane-step-execution-frame-builder-probe"
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    },
+    {
+      "path": "src/features/xensonar/input/appStableRhythmLaneSchedulerStepLocalsBuilderProbe.ts",
+      "unique_static_literals_found": 1,
+      "examples": [
+        "app-stable-rhythm-lane-scheduler-step-locals-builder-probe"
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    },
+    {
+      "path": "src/features/xensonar/input/appStableRhythmLaneSchedulerPrestepContextArgBuilderProbe.ts",
+      "unique_static_literals_found": 1,
+      "examples": [
+        "app-stable-rhythm-lane-scheduler-prestep-context-arg-builder-probe"
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    },
+    {
+      "path": "src/features/xensonar/input/appStableRhythmLaneSchedulerDrumStepBranchClassifierProbe.ts",
+      "unique_static_literals_found": 1,
+      "examples": [
+        "app-stable-rhythm-lane-scheduler-drum-step-branch-classifier-probe"
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    },
+    {
+      "path": "src/features/xensonar/recording/recordingRackScrollBridge.ts",
+      "unique_static_literals_found": 1,
+      "examples": [
+        "data-xensonar-master-recording-rack"
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    },
+    {
+      "path": "src/features/xensonar/recording/recordingUiActions.ts",
+      "unique_static_literals_found": 1,
+      "examples": [
+        "materialforge-send:missing-buffer"
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    },
+    {
+      "path": "src/features/xensonar/recording/useRecordingRuntimeLifecycle.ts",
+      "unique_static_literals_found": 1,
+      "examples": [
+        "recording-marker-hotkey-listener-removed"
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    },
+    {
+      "path": "src/features/xensonar/recording/recordingSessionWorkflow.ts",
+      "unique_static_literals_found": 1,
+      "examples": [
+        "recording-media-recorder-onstop-completed"
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    },
+    {
+      "path": "src/features/xensonar/rootFollow/rootFollowWorkletShadowReport.ts",
+      "unique_static_literals_found": 1,
+      "examples": [
+        "__XENSONAR_ROOT_FOLLOW_WORKLET_SHADOW__"
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    },
+    {
+      "path": "src/features/xensonar/rootFollow/rootFollowStableLanePlanTransport.ts",
+      "unique_static_literals_found": 1,
+      "examples": [
+        "sab-ringbuffer-backend-reserved-falling-back-to-message-port"
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    },
+    {
+      "path": "src/features/xensonar/rootFollow/rootFollowSamplePreparation.ts",
+      "unique_static_literals_found": 1,
+      "examples": [
+        "[root-follow] Samples unavailable; affected notes remain silent:"
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    },
+    {
+      "path": "src/features/xensonar/rootFollow/rootFollowGranularSettings.ts",
+      "unique_static_literals_found": 1,
+      "examples": [
+        "xensonar.rootFollow.granular.startupPreset.v1"
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    },
+    {
+      "path": "src/features/xensonar/rootFollow/rootFollowMaterialImpulseRasterRuntime.ts",
+      "unique_static_literals_found": 1,
+      "examples": [
+        "fragment-compressed-into-active-segment"
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    },
+    {
+      "path": "src/features/xensonar/rootFollow/useRootFollowRuntimeBoundary.ts",
+      "unique_static_literals_found": 1,
+      "examples": [
+        "useRootFollowPlayfieldGateBoundary"
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    },
+    {
+      "path": "src/features/xensonar/rootFollow/rootFollowLifecycleContractProbe.ts",
+      "unique_static_literals_found": 1,
+      "examples": [
+        "Root-Follow-Transportanker driftete innerhalb derselben Session."
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    },
+    {
+      "path": "src/features/xensonar/diagnostics/buildAppBurstDiagnosticsPanelBoundary.ts",
+      "unique_static_literals_found": 1,
+      "examples": [
+        "onReactivateRootFollowFromPackage"
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    },
+    {
+      "path": "src/features/xensonar/performanceCrisis/waveStarterSpecialPathIsolationContract.ts",
+      "unique_static_literals_found": 1,
+      "examples": [
+        "__XENSONAR_WAVE_STARTER_SPECIAL_PATH_ISOLATION__"
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    },
+    {
+      "path": "src/features/xensonar/runtime/liveRuntimeDisposalRegistry.ts",
+      "unique_static_literals_found": 1,
+      "examples": [
+        "unknown-native-or-external-release"
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    },
+    {
+      "path": "src/features/xensonar/material/useMaterialLoopController.ts",
+      "unique_static_literals_found": 1,
+      "examples": [
+        "[xensonar][material-loop-upload]"
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    },
+    {
+      "path": "src/features/xensonar/material/rootFollowBankStorage.ts",
+      "unique_static_literals_found": 1,
+      "examples": [
+        "xensonar-root-follow-loop-bank-v1"
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    },
+    {
+      "path": "src/features/xensonar/material/materialLoopPlaybackWorkflow.ts",
+      "unique_static_literals_found": 1,
+      "examples": [
+        "material-track-gain-disconnected"
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    },
+    {
+      "path": "src/features/xensonar/material/materialLoopRuntimeBoundary.ts",
+      "unique_static_literals_found": 1,
+      "examples": [
+        "material-loop-runtime-boundary-cache-cleared"
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    },
+    {
+      "path": "src/features/xensonar/drumPatternPlaylist.ts",
+      "unique_static_literals_found": 1,
+      "examples": [
+        "xensonar-drum-pattern-playlist-v1"
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    },
+    {
+      "path": "src/features/topology/residentConstellations.ts",
+      "unique_static_literals_found": 1,
+      "examples": [
+        "xensonar.resident.constellations.v1"
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    },
+    {
+      "path": "src/features/l3lab/materialIntake/adapters/target/rawMelodicPinkLaneTargetAdapter.ts",
+      "unique_static_literals_found": 1,
+      "examples": [
+        "material-intake-raw-audio-direct"
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    },
+    {
+      "path": "src/features/l3lab/spectralForge/donorV2/buildAnchorRelativeTimbreTensor.ts",
+      "unique_static_literals_found": 1,
+      "examples": [
+        "Donor timbre tensor requires analysisCache"
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    },
+    {
+      "path": "src/features/l3lab/spectralForge/donorV2/donorProjectionArtifacts.ts",
+      "unique_static_literals_found": 1,
+      "examples": [
+        "carrier-donor-v2:donor-projection:carrier-view"
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    },
+    {
+      "path": "src/features/l3lab/spectralForge/donorV2/extractDonorAnchors.ts",
+      "unique_static_literals_found": 1,
+      "examples": [
+        "Donor analysis requires analysisCache"
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    },
+    {
+      "path": "src/features/l3lab/spectralForge/body/mediatedAudioBodyFactory.ts",
+      "unique_static_literals_found": 1,
+      "examples": [
+        "v1_presence_interpretation_bridge"
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    },
+    {
+      "path": "src/features/l3lab/spectralForge/embodiment/carrierDonorV2EmbodimentWorkflow.ts",
+      "unique_static_literals_found": 1,
+      "examples": [
+        "Front V2 embodiment workflow failed"
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    },
+    {
+      "path": "src/features/l3lab/spectralForge/components/carrierIntegralVerwalten/carrierIntegralLibraryActionFlow.ts",
+      "unique_static_literals_found": 1,
+      "examples": [
+        "Bibliotheksaktion fehlgeschlagen"
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    },
+    {
+      "path": "src/features/l3lab/spectralForge/components/InlineSynthLabPanel.tsx",
+      "unique_static_literals_found": 1,
+      "examples": [
+        "rounded border border-fuchsia-900/60 bg-fuchsia-950/10"
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    },
+    {
+      "path": "src/features/l3lab/spectralForge/components/toolSettings/toolSettingsUiModel.ts",
+      "unique_static_literals_found": 1,
+      "examples": [
+        "Normal = leises Material lokal wegschneiden"
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    },
+    {
+      "path": "src/features/l3lab/spectralForge/components/previewSession/spectralForgePreviewRequestKey.ts",
+      "unique_static_literals_found": 1,
+      "examples": [
+        "spectral-forge-transport-preview-request-v2"
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    },
+    {
+      "path": "src/features/l3lab/spectralForge/components/transportBar/transportBarDownload.ts",
+      "unique_static_literals_found": 1,
+      "examples": [
+        "spectral-forge-transport-download-url-revoked"
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    },
+    {
+      "path": "src/features/l3lab/spectralForge/components/transportBar/TransportAudioImportDialog.tsx",
+      "unique_static_literals_found": 1,
+      "examples": [
+        "h-auto w-full rounded-lg border border-neutral-700 bg-[#060913]"
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    },
+    {
+      "path": "src/features/l3lab/spectralForge/components/harmonizerPanel/directRendererReferenceModel.ts",
+      "unique_static_literals_found": 1,
+      "examples": [
+        "bg-cyan-700 text-white ring-1 ring-cyan-400"
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    },
+    {
+      "path": "src/features/l3lab/spectralForge/components/harmonizerPanel/DonorProofStrip.tsx",
+      "unique_static_literals_found": 1,
+      "examples": [
+        "flex items-center justify-between gap-2 text-[10px] text-neutral-400"
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    },
+    {
+      "path": "src/features/l3lab/spectralForge/components/TransportBar.tsx",
+      "unique_static_literals_found": 1,
+      "examples": [
+        "SpectralForge serial preview render failed:"
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    },
+    {
+      "path": "src/features/l3lab/spectralForge/components/MaterialLibraryPanel.tsx",
+      "unique_static_literals_found": 1,
+      "examples": [
+        "border border-neutral-700 bg-neutral-900 px-2 py-1 text-neutral-100"
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    },
+    {
+      "path": "src/features/l3lab/spectralForge/audio/CarrierDonorBodyRenderer.ts",
+      "unique_static_literals_found": 1,
+      "examples": [
+        "renderFromMediatedAudioBodyToBuffer requires sourceAsset for source-first body rendering"
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    },
+    {
+      "path": "src/features/l3lab/spectralForge/audio/wavEncoding.ts",
+      "unique_static_literals_found": 1,
+      "examples": [
+        "Invalid audio channels or sample rate"
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    },
+    {
+      "path": "src/features/l3lab/spectralForge/audio/spectralPreviewRenderCache.ts",
+      "unique_static_literals_found": 1,
+      "examples": [
+        "spectral-forge-preview-render-cache-7.5.157-content-addressed-serial-after-paint"
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    },
+    {
+      "path": "src/features/l3lab/spectralForge/validation/evaluateCarrierDonorV2Validation.ts",
+      "unique_static_literals_found": 1,
+      "examples": [
+        "V2-Render hat kaum messbare Energie."
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    },
+    {
+      "path": "src/features/l3lab/spectralForge/rootFollow/buildV2RootFollowEvent.ts",
+      "unique_static_literals_found": 1,
+      "examples": [
+        "spectralforge_v2_carrier_signature"
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    },
+    {
+      "path": "src/features/l3lab/spectralForge/state/storeEmbodimentActions.ts",
+      "unique_static_literals_found": 1,
+      "examples": [
+        "setSpectralEmbodimentSourceAsset"
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    },
+    {
+      "path": "src/features/l3lab/spectralForge/integral/carrierIntegralSpektralSyntheseRenderModifiers.ts",
+      "unique_static_literals_found": 1,
+      "examples": [
+        "spektral-render-modifiers-v1-descriptor-body"
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    },
+    {
+      "path": "src/features/l3lab/spectralForge/integral/branchCCarrierLoopBodyAdapterOptions.ts",
+      "unique_static_literals_found": 1,
+      "examples": [
+        "branch-c-carrier-loop-body-adapter-options-3.2.91.6.9.170"
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    },
+    {
+      "path": "src/features/l3lab/spectralForge/integral/carrierGestureSampleSaveProbe.ts",
+      "unique_static_literals_found": 1,
+      "examples": [
+        "xensonar-carrier-gesture-sample-save-probe"
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    },
+    {
+      "path": "src/features/l3lab/spectralForge/integral/carrierIntegralTransferDebugBoundary.ts",
+      "unique_static_literals_found": 1,
+      "examples": [
+        "descriptor-extraction-failed-without-audio-side-effect"
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    },
+    {
+      "path": "src/features/l3lab/spectralForge/integral/carrierIntegralRenderedPreviewCache.ts",
+      "unique_static_literals_found": 1,
+      "examples": [
+        "carrier-integral-rendered-preview-cache-7.5.161-inflight-after-paint-truth"
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    },
+    {
+      "path": "src/features/l3lab/spectralForge/integral/carrierLoopBodyCurveTypes.ts",
+      "unique_static_literals_found": 1,
+      "examples": [
+        "carrier-loop-body-curve-contract-3.2.91.6.9.159"
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    },
+    {
+      "path": "src/features/l3lab/spectralForge/integral/materialBodyPreviewCache.ts",
+      "unique_static_literals_found": 1,
+      "examples": [
+        "material-body-preview-cache-6.9.0.17"
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    },
+    {
+      "path": "src/features/l3lab/spectralForge/integral/carrierIntegralSpektralSyntheseStochastic.ts",
+      "unique_static_literals_found": 1,
+      "examples": [
+        "spektral-stochastic-v1-seed-visible-contract"
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    },
+    {
+      "path": "src/features/l3lab/contracts/materialIntakeMelodicHandoffContract.ts",
+      "unique_static_literals_found": 1,
+      "examples": [
+        "xensonar:pending-material-intake-raw-melodic-import-v1"
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    },
+    {
+      "path": "src/features/l3lab/canonicalForge/useCanonicalForgeHandoffEffects.ts",
+      "unique_static_literals_found": 1,
+      "examples": [
+        "[xensonar][forge2][external-handoff]"
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    },
+    {
+      "path": "src/features/l3lab/canonicalForge/microtonalLogicWorkspaceProps.ts",
+      "unique_static_literals_found": 1,
+      "examples": [
+        "canImportSpectralSelectionAsMelodicSample"
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    },
+    {
+      "path": "src/features/l3lab/canonicalForge/microtonalLogicWorkspace.tsx",
+      "unique_static_literals_found": 1,
+      "examples": [
+        "space-y-4 rounded border border-neutral-800 bg-neutral-950/70 p-4"
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    },
+    {
+      "path": "src/features/l3lab/canonicalForge/syntheticForgeWorkspacePackage.ts",
+      "unique_static_literals_found": 1,
+      "examples": [
+        "xensonar:spectral-forge-package-workspace-restored"
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    },
+    {
+      "path": "src/features/l3lab/canonicalForge/melodicSampleRegistration.ts",
+      "unique_static_literals_found": 1,
+      "examples": [
+        "[xensonar][melodic-samples][register-blob]"
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    },
+    {
+      "path": "src/features/l3lab/canonicalForge/analysis.ts",
+      "unique_static_literals_found": 1,
+      "examples": [
+        "Canonical bundle requires source.analysisCache"
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    },
+    {
+      "path": "src/features/l3lab/canonicalForge/melodicSampleWorkspaceController.ts",
+      "unique_static_literals_found": 1,
+      "examples": [
+        "[xensonar][melodic-loop][freeze-note-to-sample]"
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    },
+    {
+      "path": "src/features/l3lab/canonicalForge/useCanonicalForgeDerivedState.ts",
+      "unique_static_literals_found": 1,
+      "examples": [
+        "[xensonar][loop-composer][gesture-audition]"
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    },
+    {
+      "path": "src/features/l3lab/canonicalForge/previewControllers.ts",
+      "unique_static_literals_found": 1,
+      "examples": [
+        "[xensonar][forge2][selection-loop-preview]"
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    },
+    {
+      "path": "src/features/l3lab/canonicalForge/melodicProjectLibrary.ts",
+      "unique_static_literals_found": 1,
+      "examples": [
+        "xensonar-melodic-loop-projects-v1"
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    },
+    {
+      "path": "src/features/l3lab/canonicalForge/melodicProjectWorkspaceController.ts",
+      "unique_static_literals_found": 1,
+      "examples": [
+        "[xensonar][workspace-archive][import]"
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    },
+    {
+      "path": "src/features/l3lab/canonicalForge/melodicSampleLibrary.ts",
+      "unique_static_literals_found": 1,
+      "examples": [
+        "Failed to load melodic sample blob"
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    },
+    {
+      "path": "src/features/resonance/nodalModulationMatrix.ts",
+      "unique_static_literals_found": 1,
+      "examples": [
+        "overlap-to-resonator-interference"
+      ],
+      "evidence": "LITERAL_MATCH_ONLY_NOT_MODULE_IDENTITY"
+    }
+  ]
+}
