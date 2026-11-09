@@ -48,6 +48,9 @@ const drain=async()=>{for(let i=0;i<5;i++)await Promise.resolve()};
 (async()=>{
  const ctx=makeContext(),tap=graphNode(),liveDestination=graphNode();tap.connect(liveDestination);
  const recorder=await scope.pcm.create(ctx,null,tap);recorder.start();
+ // Stufe 2b (09.11.2026): since LM01/MRU01 the worklet starts on a 'start' message (sample-accurate
+ // scheduled start for Loop-Rec boundaries). Let that message arrive before feeding quanta.
+ await drain();
  const worker=nodes.at(-1).processor,expectedL=[],expectedR=[];
  for(let block=0;block<230;block++){
   const silent=block>=140&&block<147;

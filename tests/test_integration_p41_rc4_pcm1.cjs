@@ -13,7 +13,7 @@ assert.match(read('src/rooms/lab.js'),/__ForgeRackOrder\('primary'/);
 assert.match(read('src/rooms/lab.js'),/__ForgeRackCaption\("extract"/);
 assert.match(read('src/forge/stamps/02_atlas_audition.js'),/\w/);
 assert.match(read('src/audio/03_pcm_master_recorder.js'),/function __xenMasterPcmWorkletModule\(/);
-assert.match(read('src/audio/03_rfl_transport_legacy.js'),/await __xenCreateMasterPCMRecorder\(R,I\.stream,I\.__xenPcmTap\)/);
+assert.match(read('src/audio/03_rfl_transport_legacy.js'),/await __xenCreateMasterPCMRecorder\(R,I\.stream,I\.__xenPcmTap(?:,[^)]*)?\)/ /* Stufe 2b: W31/MRU01 adds status + long-session sink args */);
 assert.match(read('src/audio/03_rfl_transport_legacy.js'),/Browser-Codec \(möglicherweise verlustbehaftet\)/);
 const all = mf.sources.flatMap(s=>s.files);
 assert.equal(all.length,new Set(all).size, 'module included twice');

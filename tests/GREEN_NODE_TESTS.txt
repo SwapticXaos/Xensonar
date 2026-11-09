@@ -9,9 +9,11 @@ eq_nailed3_dsp_budget.cjs
 eq_raster_preview_parity_fix.cjs
 hold_resident_processor.cjs
 ld2_owner_refs.cjs
+merge_clean_flac.cjs
 merge_eq_fallback_window.cjs
 merge_eq_preference_bridge.test.cjs
 merge_package_snapshot_retry.cjs
+merge_pcm2_continuity.cjs
 omega_acoustic_sync.test.cjs
 omega_async_sample_ownership.test.cjs
 omega_c11_legacy_lifecycle.test.cjs
@@ -56,6 +58,7 @@ test_forge_ui_contract_r7.cjs
 test_forge_upper_triangle_p30.cjs
 test_idb_batch_transaction_p3_8.cjs
 test_import_coordinator_p2_2.cjs
+test_integration_p41_rc4_pcm1.cjs
 test_library_inventory_p2_8.cjs
 test_material_atomic_p3_9.cjs
 test_material_durability_p3_8.cjs
@@ -64,6 +67,7 @@ test_package_atomic_p2.cjs
 test_package_station_crash_recovery_p3_16.cjs
 test_package_station_export_p3_12.cjs
 test_package_station_stream_diagnostics_p3_15.cjs
+test_pcm_capture_merged.cjs
 test_preflight_reservation_p3_10.cjs
 test_project_commit_p3_7.cjs
 test_project_full_baseline_p3_8.cjs

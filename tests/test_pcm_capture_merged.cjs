@@ -2,7 +2,7 @@
 // Historical PCM1 entry point, upgraded to the integrated Float32 contract.
 const assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path');
 const html=fs.readFileSync(process.argv[2]||path.join(__dirname,'../dist/XenSonar_Standalone.html'),'utf8');
-assert.match(html,/await __xenCreateMasterPCMRecorder\(R,I\.stream,I\.__xenPcmTap\)/);
+assert.match(html,/await __xenCreateMasterPCMRecorder\(R,I\.stream,I\.__xenPcmTap(?:,[^)]*)?\)/ /* Stufe 2b: W31/MRU01 adds status + long-session sink args */);
 assert.match(html,/n\.__xenPcmCapture\?n\.toWavBlob\(\)/);
 assert.match(html,/n\.__xenPcmCapture\?await n\.toAudioBuffer\(t/);
 assert.match(html,/new MediaRecorder\(I\.stream/);

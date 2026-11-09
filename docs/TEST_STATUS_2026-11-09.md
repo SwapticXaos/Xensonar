@@ -15,7 +15,7 @@ Zeitleiste: dieselben Tests gegen Quellbäume von 28.10., 05.11. (Stage05) und W
 **Keine einzige Regression durch die Arbeiten seit der Übergabe** (DUB-ECHO-04, LIVEPATH-01/02, Quellbaum).
 
 ## Automatisch geprüft
-93 grüne Tests ohne Browser laufen in der GitHub-Action (`tools/run_tests.sh`, Liste `tests/GREEN_NODE_TESTS.txt`, ca. 15 s). 4 grüne Browser-Tests (`mix_audio_browser`, `ui_visual_restore`, `power_browser_smoke`, `test_stamp_full_browser_p37`) laufen lokal mit Playwright.
+97 grüne Tests ohne Browser laufen in der GitHub-Action (`tools/run_tests.sh`, Liste `tests/GREEN_NODE_TESTS.txt`, ca. 15 s). 4 grüne Browser-Tests (`mix_audio_browser`, `ui_visual_restore`, `power_browser_smoke`, `test_stamp_full_browser_p37`) laufen lokal mit Playwright.
 
 ## Rote Tests: vorläufige Einordnung (nur aus der Fehlermeldung, nicht einzeln untersucht)
 
@@ -97,3 +97,15 @@ Zeitleiste: dieselben Tests gegen Quellbäume von 28.10., 05.11. (Stage05) und W
 1. VERHALTEN-Tests ab 05.11./W31 einzeln prüfen, Audio/Export/Persistenz zuerst (z. B. `merge_pcm2_continuity`, `merge_clean_flac`, `working_session`, `session_bass_drone_p2`, `song_performance_p0`): Regression → eigener Fix-Auftrag; gewollte Änderung → Test begründet anpassen.
 2. TESTUMGEBUNG: Dateiauswahl der Tests aus `source-manifest.json` ableiten statt fester Listen.
 3. Die schon im Oktober roten 20 Tests nur bei Bedarf.
+
+## Einzeln geklärt (09.11.2026)
+
+| Test | Befund | Beleg | Maßnahme |
+|---|---|---|---|
+| `merge_pcm2_continuity` | **gewollt** (LM01/MRU01): Rekorder-Worklet startet erst auf eine `start`-Nachricht (sample-genauer, geplanter Start für Loop-Rec-Grenzen). Der Test fütterte Audio vor Ankunft der Nachricht → 128 Samples fehlten. | Mit `await drain()` nach `start()` besteht der vollständige Test (exakte Float32/WAV-Daten, Stille, Recycling, Aufräumen). | Test angepasst, in CI |
+| `merge_clean_flac` | **gewollt** (MRU01/FF01): `downloadFlac` hat zusätzlich `bitDepth` (24-Bit-FLAC); Dateiname `-${bitDepth}bit-diagnostic-sync.flac`. Diagnose-Töne bleiben standardmäßig aus. | Vertrag unverändert, nur Text-Signatur. | Test angepasst, in CI |
+| `test_pcm_capture_merged` | **gewollt** (W31/MRU01): Rekorder-Aufruf hat zwei zusätzliche Argumente (Status, Langzeit-Speicher). | Rest des Tests besteht unverändert. | Test angepasst, in CI |
+| `test_integration_p41_rc4_pcm1` | wie oben | wie oben | Test angepasst, in CI |
+| `working_session`, `session_bass_drone_p2`, `song_source_config_p2` | **nicht aussagekräftig in Isolation**: Die Tests schneiden einzelne Besitzer-Objekte aus dem Code; seit November hängen diese an vielen weiteren Funktionen, teils im minifizierten Kern. Automatisches Nachladen der Abhängigkeiten wurde versucht (bis zu 20 Definitionen), bleibt aber wackelig. | Fehlschläge wären vom Testaufbau verursacht, nicht von der App. | Tests auf Oktober-Stand belassen; Prüfung des Speicherverhaltens stattdessen als Browser-Ende-zu-Ende-Test vorgeschlagen |
+
+**Muster:** Viele Oktober-Tests sind Quelltext-Verträge (exakte Code-Zeichenketten). Weiterentwicklung bricht sie, ohne dass sich das Verhalten ändert. Bei solchen Tests wird der Vertrag geprüft, nicht der Wortlaut.

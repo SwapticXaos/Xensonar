@@ -55,8 +55,11 @@ function flatten(worker,lane){const result=new Float32Array(n);for(const block o
  assert(altered>800,'explicit diagnostic export did not add its fingerprint');
  assertSourceUnchanged();assert.equal(diagnostic.type,'audio/flac');assert(markedWorker.terminated);
  assert.equal(urls.size,0,'Worker URLs must be released');
- assert(recording.includes('downloadFlac=async(Q="full",{syncTones=false}={})'),'product export must default diagnostic tones off');
+ // Stufe 2b (09.11.2026): signature gained bitDepth (24-bit FLAC, MRU01/FF01); the contract is unchanged:
+ // diagnostic sync tones default to off.
+ assert(/downloadFlac=async\(Q="full",\{syncTones=false(?:,[^}]*)?\}=\{\}\)/.test(recording),'product export must default diagnostic tones off');
  assert(recording.includes('syncTones?f.current:[]'),'ordinary product export must supply no acoustic markers');
- assert(recording.includes('-diagnostic-sync.flac'),'diagnostic file must have an explicit filename');
+ // Stufe 2b: filename now carries the bit depth (`-${bitDepth}bit-diagnostic-sync.flac`, MRU01/FF01).
+ assert(recording.includes("${syncTones?'-diagnostic-sync':''}.flac"),'diagnostic file must have an explicit filename');
  console.log('PASS ordinary FLAC preserves copied program PCM; explicit diagnostic stamping spans chunks without mutating source buffers');
 })().catch(error=>{console.error(error);process.exitCode=1});
