@@ -1,3 +1,8 @@
+/* PKG-BOOT-TDZ-01: Package Station boot() runs before the main module reaches
+ * `const __XMEM_MR03_ROOT_PILOT` (audio/01_voice_and_rfl_ownership.js). Reading that const here threw
+ * "Cannot access before initialization" whenever a restore journal was pending (after any .xenpack
+ * import or crash recovery), so the app never finished starting. Same definition, read at call time. */
+function __xmemRootPilotEarly(){return typeof window!=="undefined"&&window.__XMEM_MR03_ENABLE_ROOT__===true}
 /* Package Station 4: lossless, framed structured-clone archive.
  * One IDB record at a time, <= 1 MiB binary I/O, awaited disk writes.
  * No Base64, archive-sized string, getAll(audio), or renderer dependency.
@@ -590,7 +595,7 @@ function __createXenPackageStation4(env=globalThis) {
   }
  }
  async function prepare(options={}){
-  if(__XMEM_MR03_ROOT_PILOT)throw Error('XMEM-MR03C Root-IDB pilot: Product backup is blocked.');
+  if(__xmemRootPilotEarly())throw Error('XMEM-MR03C Root-IDB pilot: Product backup is blocked.');
   if(globalThis.__XMEM_MR03_ENABLE_MELODIC__===true){
    check(options.__allowXmemLabExport===true&&options.confirmTestExport===true,'MR03C: Produkt-Backup ist gesperrt; nur ausdrücklich bestätigter Testexport ohne Restore-Freigabe.');
    check(options.selection==null||__XenPackageSelection41.scope(options.selection).complete,'MR03C: selektive XMEM-Projektsicherung ist noch gesperrt.');
@@ -633,7 +638,7 @@ function __createXenPackageStation4(env=globalThis) {
  }
  async function copyTo(src,name){const out=await spool(name,true);try{for(let i=0;i<src.size;i+=CHUNK)await out.write(await src.read(i,Math.min(CHUNK,src.size-i)));return await out.close()}catch(e){await out.abort();throw e}}
  async function applyArchive(src){
-  if(__XMEM_MR03_ROOT_PILOT||globalThis.__XMEM_MR03_ENABLE_MELODIC__===true)throw Error('XMEM-MR03C APPLY BLOCKED: never mutate a selected IDB authority.');
+  if(__xmemRootPilotEarly()||globalThis.__XMEM_MR03_ENABLE_MELODIC__===true)throw Error('XMEM-MR03C APPLY BLOCKED: never mutate a selected IDB authority.');
   // A COMPLETE validation pass precedes deleting or changing any application data.
   const valid=await walk(src);if(valid.version>=6)throw Error('XMEM-MR03C APPLY BLOCKED: v6/v7 IDB restore owner is not accepted.');
   const existing=new Set((await inventory()).map(d=>d.name));let db=null,storeName=null,activeSchema=null;
@@ -688,7 +693,7 @@ function __createXenPackageStation4(env=globalThis) {
   }
  }
  async function prepareXmemLab(options={}){
-  check(globalThis.__XMEM_MR03_ENABLE_MELODIC__===true&&!__XMEM_MR03_ROOT_PILOT,
+  check(globalThis.__XMEM_MR03_ENABLE_MELODIC__===true&&!__xmemRootPilotEarly(),
    'MR03C only available in isolated Melodic test origin, never under Root pilot.');
   check(options.confirmTestExport===true, 'MR03C requires explicit confirmTestExport:true.');
   const owner=globalThis.XenSonarXMemMelodicCutoverTest;
@@ -895,7 +900,7 @@ function __createXenPackageStation4(env=globalThis) {
    });
  }
  async function importFiles(files,mode='replace'){
-  if(__XMEM_MR03_ROOT_PILOT||globalThis.__XMEM_MR03_ENABLE_MELODIC__===true)throw Error('XMEM-MR03C RESTORE BLOCKED: v6 canonical IDB+assets cold restore not yet proven.');
+  if(__xmemRootPilotEarly()||globalThis.__XMEM_MR03_ENABLE_MELODIC__===true)throw Error('XMEM-MR03C RESTORE BLOCKED: v6 canonical IDB+assets cold restore not yet proven.');
   check(!busy,'Ein Vorgang läuft bereits.');check(!env.localStorage.getItem(JOURNAL),'Zuerst die ausstehende Wiederherstellung abschließen.');
   const sorted=[...files].sort((a,b)=>a.name.localeCompare(b.name));check(sorted.length>0,'Keine Datei gewählt.');
   if(sorted.length>1){const base=sorted[0].name.replace(/\.\d{4}$/,'');check(sorted.every((f,i)=>f.name===base+'.'+String(i+1).padStart(4,'0')),'Alle zusammengehörigen Archivteile in lückenloser Reihenfolge auswählen.');}
@@ -914,7 +919,7 @@ function __createXenPackageStation4(env=globalThis) {
  }
  async function boot(){
   if(mr03dJournal())throw Error('MR03D DISPOSABLE RESTORE JOURNAL PRESENT: normal boot blocked; use isolated laboratory verification only.');
-  if(__XMEM_MR03_ROOT_PILOT||globalThis.__XMEM_MR03_ENABLE_MELODIC__===true)throw Error('XMEM-MR03C RESTORE BLOCKED: legacy boot recovery cannot own the IDB workspace.');
+  if(__xmemRootPilotEarly()||globalThis.__XMEM_MR03_ENABLE_MELODIC__===true)throw Error('XMEM-MR03C RESTORE BLOCKED: legacy boot recovery cannot own the IDB workspace.');
   const raw=env.localStorage.getItem(JOURNAL);
   if(raw){trace('recovery-start');
    let journal;try{journal=JSON.parse(raw);check(journal.version===4&&['prepared','applying','rolling-back'].includes(journal.phase),'Wiederherstellungsjournal ist ungültig.')}catch(e){showRecoveryError(e);throw e}
@@ -1041,7 +1046,7 @@ function __createXenPackageStation4(env=globalThis) {
    inPackage:!!row.inPackage,managed:!!row.managed,summary:catalogueDescription(value)};
  }
  async function catalogue(selection){
-  if(__XMEM_MR03_ROOT_PILOT||globalThis.__XMEM_MR03_ENABLE_MELODIC__===true)throw Error('XMEM-MR03C CATALOGUE BLOCKED: canonical IDB categories not yet independently verified.');
+  if(__xmemRootPilotEarly()||globalThis.__XMEM_MR03_ENABLE_MELODIC__===true)throw Error('XMEM-MR03C CATALOGUE BLOCKED: canonical IDB categories not yet independently verified.');
   check(!busy,'Ein Vorgang läuft bereits.');
   aborted=false;
   const runtime=await hooks.capture?.(selection)??null,plan=await selectionPlan(selection??__XenPackageSelection41.all(),runtime),rows=[];

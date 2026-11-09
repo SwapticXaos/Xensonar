@@ -1,2 +1,5 @@
 dist/
 docs/hold_wasm_oracle.latest.json
+test-results-p4/
+test-results-p41/
+test-results-*/
