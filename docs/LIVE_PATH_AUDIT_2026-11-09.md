@@ -62,3 +62,19 @@ Der nicht-JavaScript-Anteil (~22 %) ist überwiegend Zeichnen/Compositing (Layou
 | P6 | Telemetrie-Intervall und Diagnose hinter Schalter | KALT | kleiner | gering |
 
 Jeder Patch einzeln, mit Vorher/Nachher-Messung derselben Skripte.
+
+## Umgesetzt: LIVEPATH-01 (09.11.2026)
+
+| Messung (20 s Spiel, Headless) | vorher | nachher |
+|---|---|---|
+| große JSON-Serialisierungen | 132 · 5,57 MB | 39 · 1,64 MB |
+| AudioParam-Befehle/s | 154 | 94 |
+| davon unveränderte Drone-Lautstärke/s | 60 | 0 |
+| WebSocket-Versuche (10 s) / Konsolenfehler | 16 / 5 | 0 / 0 |
+| JavaScript-Anteil Hauptthread im Spiel | 5,9 % | 4,5 % |
+
+- P1 `__useQuickAdapter`: meldet Bibliotheken nur bei feldweise geänderten Einträgen neu (17 → 0 Meldungen/s).
+- P2 Drone-Lautstärke: neue Automation nur bei neuem Ziel oder wenn ein anderer Schreiber den Wert verändert hat.
+- P3 XNC (nativer Begleiter, Port 47812) nur mit `?xnc=1`. Vollständiges Entfernen (XNC, Native Audio 32185, Owner-Auswahl) vorgemerkt für den Quellbaum-Umbau.
+- P4 Session-Arbeitskopie: höchstens alle 1,5 s serialisieren, letzter Stand garantiert, `pagehide` sichert sofort. Neuladen 0,3 s und 2,5 s nach einer Änderung getestet: Wert bleibt erhalten (wie Parent).
+- Offen: Root-Follow-Statustexte lesen weiter pro Render den Speicher; App-Neuaufbau pro Metronom-Schlag; Bridge-`attach` bei jedem Render.
