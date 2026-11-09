@@ -9,7 +9,7 @@ Anlass: Nutzer hört den Materialspur-Pitch „körnig“. Befund und Messungen:
 | Größenzuwachs | **+11,6 KB**. Davon ca. 5 KB Worker-Code als Text (wird erst im Worker ausgeführt) und ca. 3,5 KB Owner. Nichts davon läuft beim Start. |
 | Zone | Startpfad der Materialspur (HEISS · Steuerung, einmal pro Start) und **KALT** (Rendern im Worker). Im Audio-Thread läuft im Ruhezustand **weniger** als vorher: Der Echtzeit-Shifter geht bei Abweichung 0 in den exakten Bypass. |
 | Daten-Owner | Neu: `__XenMaterialPitchVariants` (Varianten pro dekodiertem Quellpuffer, `WeakMap`, nichts persistiert). Gemeinsam genutzt: `__xenOSQRPCMWorker` (One-Shot-Offline-Worker, gleicher Worker, gleiches Budget), weitergereicht als `__xenSharedOfflinePCMWorker`. Unverändert: `__XenMaterialVoiceMix` (Pitch-Wert, Song Save). |
-| Status | CODE_PRESENT, BROWSER_CHECKED (Headless-Chromium, Messplätze). **Nicht:** Abhören, Gerätetest, Firefox/Safari, drei Spuren gleichzeitig mit Pitch, USER_ACCEPTED, Netlify. |
+| Status | CODE_PRESENT, BROWSER_CHECKED (Headless-Chromium, Messplätze), **USER_ACCEPTED (09.11., Nutzer: „klingt besser“)**. **Nicht:** Abhören durch Claude, Gerätetest, Firefox/Safari, drei Spuren gleichzeitig mit Pitch, USER_ACCEPTED, Netlify. |
 
 ## Verhalten
 

@@ -45,3 +45,22 @@ B ist noch nicht gemessen: Das Grain-Worklet braucht sein Plan-Protokoll (Lane-P
 - Mehr Leseköpfe (4/6/8) verbessern nur ausgerichtete Töne. Bei allen anderen löschen sie Teiltöne aus (Färbung 70–100 dB). **Keine Lösung.** Kubische statt linearer Interpolation ändert nichts.
 - C: durchgehend −38 bis −56 dB, Färbung ≈ 0.
 - **Entscheidung:** Materialspur-Pitch über C mit Schleifenmodus, vorgerendert in der Ruhe, A nur als Vorschau während der Geste → `docs/PATCH_PITCH-HQ-01.md`. Root-Follow-Pitch-Regler folgt separat (Versatz in die Grain-Engine B).
+
+## Nachtrag 2: Root-Follow-Pitch über die Grain-Engine (B), verworfen
+
+Versuch (nicht ausgeliefert, zurückgenommen): Root-Follow-Pitch-Versatz auf den verfolgten Grundton legen statt auf den Bus-Shifter (A). Technisch erreicht der Versatz den Resident-Worklet (`xensonar-raw-resident-v1`): Zielton 266,78 → 282,65 Hz, Grain-Rate 1 → 1,0595, kein Fehler. Am Klang zeigt sich aber, dass **B kein Transponierer ist**.
+
+Deterministische Probe ohne Browser (`node tools/probes/rf_core_pitch_probe.js`, Kern `RawResidentCore`, 300-Hz-Sinus, neutrale Tuning-Skalen):
+
+| Versatz | erwartet | Spitze | Fremdanteil |
+|---|---|---|---|
+| 0 | 300 Hz | 300,3 Hz | −8,8 dB (Grain-Textur auch ohne Versatz) |
+| +100 Cent | 317,8 Hz | **300,3 Hz** | **0 dB** |
+| +700 Cent | 449,5 Hz | **508,3 Hz** | **0 dB** |
+| +1200 Cent | 600 Hz | 591,8 Hz | −3,3 dB |
+
+Die Grains (12–60 ms, Ansatz alle ~6 ms an transportgebundenen Quellpositionen) erzeugen die gewollte Root-Follow-Textur. Kleine und mittlere Verschiebungen werden dabei verschmiert, nicht transponiert. Im Browser mit den App-Einstellungen zeigte sich dasselbe: Das Band beim Zielton stieg von 4,5 % auf 12,6 %, der alte Ton blieb.
+
+Methodischer Hinweis: Ein Korrelationsmaß über das breite Grain-Spektrum ist ungeeignet, weil das Seitenbandmuster am Grain-Takt hängt und nicht an der Tonhöhe. Gültig sind nur Messungen am isolierten Worklet bzw. am Kern.
+
+**Entscheidung:** Der Root-Follow-Pitch-Regler bleibt beim Bus-Shifter A. Bei der Voreinstellung (±100 Cent) ist A messbar sauber (um −54 dB). Erst bei großen Verschiebungen wird A körnig. Da Root Follow live dem Grundton folgt, ist ein Vorrendern wie bei der Materialspur nicht möglich. Eine Verbesserung von A für große Live-Verschiebungen (z. B. tonhöhensynchrone Grains/PSOLA im Worklet) wäre ein eigenes Vorhaben mit Messplatz.
