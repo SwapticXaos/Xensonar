@@ -40,7 +40,23 @@ let __f351BassDraft=(function(){
   return clip?.id===__f351BassScratchId?{id:__f351BassScratchId,source:record.source,clip}:null;
  }catch{return null}
 })();
-function __f351CommitBass(clip,params,update){
+/* BASS-DRAG-01: dragging a bass block calls __f351CommitBass on every pointer move. UI (warm) follows
+ * every move via its own light event; the audio clip player (hot) is told at most every 150 ms and the
+ * draft is persisted (cold) at most every 400 ms. A non-gesture commit (pointer up, history step, menu
+ * action) flushes both at once. */
+const __f351BassUiEvent='xensonar:bass-draft-ui';
+let __f351BassAudioTimer=0,__f351BassAudioAt=-1e9,__f351BassSaveTimer=0;
+function __f351BassPublish(gesture){
+ if(!gesture||typeof window==='undefined'){
+  clearTimeout(__f351BassAudioTimer);clearTimeout(__f351BassSaveTimer);__f351BassAudioTimer=__f351BassSaveTimer=0;
+  __f351SaveDraft('bass',__f351BassDraft);__f351BassAudioAt=performance.now();kce();return;
+ }
+ window.dispatchEvent(new Event(__f351BassUiEvent));
+ if(!__f351BassSaveTimer)__f351BassSaveTimer=setTimeout(()=>{__f351BassSaveTimer=0;__f351SaveDraft('bass',__f351BassDraft)},400);
+ if(!__f351BassAudioTimer)__f351BassAudioTimer=setTimeout(()=>{__f351BassAudioTimer=0;__f351BassAudioAt=performance.now();kce()},Math.max(0,150-(performance.now()-__f351BassAudioAt)));
+}
+if(typeof window!=='undefined')window.addEventListener('pagehide',()=>{if(__f351BassSaveTimer){clearTimeout(__f351BassSaveTimer);__f351BassSaveTimer=0;__f351SaveDraft('bass',__f351BassDraft)}});
+function __f351CommitBass(clip,params,update,gesture=false){
  if(!clip||typeof clip!=='object')return null;
  const source=__f351BassDraft?.source||(params?.bassPatternMode==='clip'&&params.bassClipId!==__f351BassScratchId
    ?'clip:'+params.bassClipId:'preset:'+(params?.bassPattern||'offbeat'));
@@ -48,11 +64,10 @@ function __f351CommitBass(clip,params,update){
  try{next=Pr({...clip,id:__f351BassScratchId,name:clip.name||'Bass Entwurf',
    generatorMeta:{...clip.generatorMeta,kind:'manual'}})}catch{return null}
  __f351BassDraft={id:__f351BassScratchId,source,clip:next};
- __f351SaveDraft('bass',__f351BassDraft);
  if(params?.bassPatternMode!=='clip'||params.bassClipId!==__f351BassScratchId)
    update?.({bassPatternMode:'clip',bassClipId:__f351BassScratchId});
  // Same library-update event refreshes not-yet-started steps, never restarts the clock.
- kce();
+ __f351BassPublish(gesture);
  return next;
 }
 function __f351ClearBassDraft(){

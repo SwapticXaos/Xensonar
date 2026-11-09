@@ -109,3 +109,16 @@ Reload-Persistenz (0,3 s / 2,5 s nach Änderung), Echo-, Rack- und Slider-Regres
 1. Leinwand-Auflösung an tatsächliche Größe × Pixeldichte koppeln (schärfer auf Retina, ~30 % weniger Pixel bei DPR 1).
 2. „Sparmodus" für schwache Rechner: Rasterlinien dünner/ohne Verlauf, Bildrate der Grafik halbieren (Audio unberührt).
 3. Filter-Animationen der Header-Knöpfe (7 Stück) durch reine Opacity-Animationen ersetzen (~2 Prozentpunkte).
+
+## BASS-DRAG-01 (09.11.2026): Bass-Workshop-Ziehen entkoppelt
+
+Befund (gemeldet vom Nutzer: Audio-Aussetzer beim Verschieben von Bass-Blöcken): Jede Mausbewegung rief `__f351CommitBass` → Entwurf komplett lesen/serialisieren/schreiben + Ereignis `xensonar:bass-clip-library-updated` → der Bass-Clip-Player verwarf alle geplanten Noten ≥ 25 ms voraus und baute sie neu.
+
+| beim Ziehen (Headless, im Spiel) | vorher | nachher |
+|---|---|---|
+| Meldungen an den Clip-Player | 30/s | 6–7/s |
+| Entwurf-Speicherungen | 30/s (44 KB/s) | 2/s (3 KB/s) |
+| abgebrochene Oszillatoren | 90/s | 17–25/s |
+| angezeigte Blockpositionen / Endstand | 24 / 5,75 + 14 | identisch |
+
+Änderung: Anzeige (warm) bekommt jede Bewegung über ein eigenes Ereignis `xensonar:bass-draft-ui`; Audio (heiß) höchstens alle 150 ms (Endstand garantiert); Entwurf (kalt) höchstens alle 400 ms, `pagehide` sichert sofort; der Clip-Player ersetzt nur Noten mit ≥ 120 ms Vorlauf. Test: `tests/e2e/bass_drag_livepath.cjs` (rot auf Parent).

@@ -40,7 +40,8 @@ function __f48BassClipPlayer(ctx,playBassNote,readClip,readParams){
   // A change to a generator follows the common lookahead. Keep prepared clip notes
   // until its first generator step arrives, rather than introducing a silent gap.
   const params=readParams?.();if(params?.bassActive&&params.bassPatternMode!=='clip')return;
-  for(const job of pending.values())if(job.time>=ctx.currentTime+.025){
+  // BASS-DRAG-01: replace only steps with >= 120 ms preparation time; what is about to sound keeps its prepared version.
+  for(const job of pending.values())if(job.time>=ctx.currentTime+.12){
    if(event?.type===Cce&&job.clip===readClip(job.clip.id))continue;
    cancel(job);render(job);replacements++;
   }
