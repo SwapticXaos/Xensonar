@@ -122,3 +122,6 @@ Befund (gemeldet vom Nutzer: Audio-Aussetzer beim Verschieben von Bass-Blöcken)
 | angezeigte Blockpositionen / Endstand | 24 / 5,75 + 14 | identisch |
 
 Änderung: Anzeige (warm) bekommt jede Bewegung über ein eigenes Ereignis `xensonar:bass-draft-ui`; Audio (heiß) höchstens alle 150 ms (Endstand garantiert); Entwurf (kalt) höchstens alle 400 ms, `pagehide` sichert sofort; der Clip-Player ersetzt nur Noten mit ≥ 120 ms Vorlauf. Test: `tests/e2e/bass_drag_livepath.cjs` (rot auf Parent).
+
+## BASS-VOICE-COALESCE-01 (09.11.2026)
+Bass-Klangregler (z. B. Filter Resonance) lösten bei jeder Bewegung `xensonar:bass-voice-updated` aus → Clip-Player verwarf und plante alle vorbereiteten Bass-Schritte neu (27 Ereignisse/s, 90 abgebrochene Oszillatoren/s). Jetzt höchstens alle 150 ms (letzter Wert garantiert); neue Schritte lesen den Live-Wert ohnehin beim Planen. Gemessen: 6,6 Ereignisse/s, 24–26 abgebrochene Oszillatoren/s; Live-Wert = Reglerwert nach Loslassen. Test: `tests/e2e/bass_drag_livepath.cjs` (rot auf Parent).

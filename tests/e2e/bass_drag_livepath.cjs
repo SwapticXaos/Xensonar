@@ -8,7 +8,7 @@ const html=path.resolve(process.argv[2]||'dist/XenSonar_PROBE.html');
 (async()=>{
   const b=await chromium.launch({args:['--autoplay-policy=no-user-gesture-required']});const p=await b.newPage({viewport:{width:1440,height:900}});
   const errors=[];p.on('pageerror',e=>errors.push(e.message));
-  await p.addInitScript(()=>{const c=window.__bm={kce:0,saves:0,stops:0};addEventListener('xensonar:bass-clip-library-updated',()=>c.kce++);
+  await p.addInitScript(()=>{const c=window.__bm={kce:0,saves:0,stops:0,voice:0,lastVoiceAt:0};addEventListener('xensonar:bass-clip-library-updated',()=>c.kce++);addEventListener('xensonar:bass-voice-updated',()=>{c.voice++;c.lastVoiceAt=performance.now()});
     const si=Storage.prototype.setItem;Storage.prototype.setItem=function(k,v){if(/rhythm-scratchpad/.test(k))c.saves++;return si.call(this,k,v)};
     const co=BaseAudioContext.prototype.createOscillator;BaseAudioContext.prototype.createOscillator=function(){const o=co.call(this),st=o.stop.bind(o);o.stop=(...a)=>{c.stops++;return st(...a)};return o}});
   await p.goto('file://'+html);await p.waitForTimeout(3500);await p.getByRole('button',{name:'Power'}).click();await p.waitForTimeout(1200);
@@ -27,7 +27,22 @@ const html=path.resolve(process.argv[2]||'dist/XenSonar_PROBE.html');
   assert(shown>=15,`block must follow the pointer (${shown} distinct positions shown)`);
   const draft=await p.evaluate(()=>JSON.parse(localStorage.getItem('xensonar:main:rhythm-scratchpad:v1')||'null'));
   assert.ok(draft?.bass?.clip?.events?.length,'final draft persisted');
+  // BASS-VOICE-COALESCE-01: bass voice slider drag (clip player active after the edit above)
+  const slider=p.locator('input[aria-label="Filter Resonance"]');assert.ok(await slider.count(),'Filter Resonance slider');
+  await slider.scrollIntoViewIfNeeded();const sb=await slider.boundingBox();
+  const a2=await p.evaluate(()=>({...__bm}));const t2=Date.now();
+  await p.mouse.move(sb.x+sb.width*.3,sb.y+sb.height/2);await p.mouse.down();
+  for(let i=0;i<120;i++){await p.mouse.move(sb.x+sb.width*(.3+.4*Math.abs(Math.sin(i/15))),sb.y+sb.height/2);await p.waitForTimeout(16)}
+  await p.mouse.move(sb.x+sb.width*.8,sb.y+sb.height/2);const upAt=await p.evaluate(()=>performance.now());await p.mouse.up();
+  const s2=(Date.now()-t2)/1000,z2=await p.evaluate(()=>({...__bm}));await p.waitForTimeout(400);const z3=await p.evaluate(()=>({...__bm}));
+  const vr=(z2.voice-a2.voice)/s2,cr=(z2.stops-a2.stops)/s2;
+  assert(vr<=9,`bass voice refreshes ${vr.toFixed(1)}/s (max 9/s while moving a slider)`);
+  assert(cr<=35,`oscillators cancelled ${cr.toFixed(1)}/s (max 35/s while moving a slider)`);
+  assert(z3.lastVoiceAt>=upAt-20,'final slider value reaches the clip player after release');
+  const sliderVal=Number(await slider.inputValue()),liveVal=await p.evaluate(()=>__xenProbe.bridge.capture().nParamsUI.bassResonance);
+  assert(Math.abs(sliderVal-liveVal)<1e-9,`live bassResonance ${liveVal} equals slider ${sliderVal}`);
   assert.deepEqual(errors,[],'no page errors');
+  console.log(`PASS bass slider: refresh ${vr.toFixed(1)}/s, osc cancels ${cr.toFixed(1)}/s, final value delivered`);
   console.log(`PASS bass drag: refresh ${rate('kce').toFixed(1)}/s, draft writes ${rate('saves').toFixed(1)}/s, osc cancels ${rate('stops').toFixed(1)}/s, ${shown} positions shown, final ${finalLeft}`);
   await b.close();
 })().catch(e=>{console.error(e);process.exit(1)});
