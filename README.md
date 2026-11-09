@@ -16,4 +16,4 @@ Experimentelles, offlinefähiges Musikinstrument im Browser: mikrotonal, frei in
 | `dub-echo-03-racklive-01` | Dub Echo + geschützte Drum-Rack-Regler |
 | `liveguard02` | zusätzlich Slider-Gate für die Hauptraum-Regler (aktuell) |
 
-Zweig `gpt-dub02`: parallele Echo-Linie DUB02 aus der GPT-Phase, zum Zusammenführen.
+Zweig `gpt-dub02` (Tag `dub02-gpt`): parallele Echo-Linie DUB02 aus der GPT-Phase, zum Zusammenführen.
