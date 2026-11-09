@@ -630,17 +630,17 @@ if(!hasOld){
 }
 return true}function Xfe(){const e=P.useRef(new Map),t=P.useRef(null),n=P.useRef(null),r=P.useRef(0),p=P.useRef(null),pitch=P.useRef(null);return{cacheRef:e,sourceRef:t,gainRef:n,panRef:p,pitchRef:pitch,tokenRef:r}}function qA(e){__xenLRF5MaterialStop(e)}function Yfe(e){e.tokenRef.current+=1,qA(e),Wfe(e.cacheRef.current,"material-loop-runtime-boundary-cache-cleared"),e.cacheRef.current.clear()}/* Material Pitch P1: each live graph follows its stable material ID directly.
    A knob gesture changes only the processor, never the source/clock/ATT. */
-function __xenBindMaterialPitch(node,id){
+function __xenBindMaterialPitch(node,id,mix=__XenMaterialVoiceMix){
  node.__xenMaterialPitchOff?.();
  let applied=NaN;
- const apply=()=>{const cents=__XenMaterialVoiceMix.get(id).pitch;if(cents===applied&&node.__xenPitchCents===cents)return;__XenTimeStablePitch.tune(node,cents);if(node.__xenPitchCents===cents)applied=cents;
+ const apply=()=>{const cents=mix.get(id).pitch;if(cents===applied&&node.__xenPitchCents===cents)return;__XenTimeStablePitch.tune(node,cents);if(node.__xenPitchCents===cents)applied=cents;
   const record=globalThis.__XEN_LANE_PITCH_DIAGNOSTICS__?.material?.[id];
   if(record&&record.state==='connected'){
    if(node.__xenPitchCents===cents){record.pitchCents=cents;record.commandCount=(record.commandCount||0)+1}
    else{record.state='command-failed';record.reason='pitch message was not accepted';console.warn('[xensonar][material-pitch] pitch command failed',id)}
   }
  };
- node.__xenMaterialPitchOff=__XenMaterialVoiceMix.subscribe(apply);apply();
+ node.__xenMaterialPitchOff=mix.subscribe(apply);apply();
 }
 function __xenMaterialSetVoicePitch(refs,value){__XenTimeStablePitch.tune(refs.pitchRef?.current,value)}
 function __xenMaterialSetVoicePan(refs,ctx,value){
@@ -651,13 +651,13 @@ function __xenMaterialSetVoicePan(refs,ctx,value){
 /* N3.5: connect each existing material StereoPanner to its own stable voice ID.
    Direct AudioParam automation does not depend on a deferred React repaint and
    does not restart, merge or re-route one of the three independent sources. */
-function __xenBindMaterialPan(node,id,isPrimary=false){
+function __xenBindMaterialPan(node,id,isPrimary=false,mix=__XenMaterialVoiceMix){
  node.__xenMaterialPanOff?.();
  // Primary Material is controlled by the original menu's Pan owner;
  // auxiliary Material voices use their own existing VoiceMix owners.
  const apply=()=>__xenMaterialSetVoicePan({panRef:{current:node}},node.context,
-  isPrimary?__XenPan.snapshot().material:__XenMaterialVoiceMix.get(id).pan);
- node.__xenMaterialPanOff=isPrimary?__XenPan.subscribeLive(apply):__XenMaterialVoiceMix.subscribe(apply);
+  isPrimary?__XenPan.snapshot().material:mix.get(id).pan);
+ node.__xenMaterialPanOff=isPrimary?__XenPan.subscribeLive(apply):mix.subscribe(apply);
  apply();
 }
 /* LRF5.2: one published Material Track owner per AudioContext.

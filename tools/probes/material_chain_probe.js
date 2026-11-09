@@ -27,6 +27,8 @@ let panMove=panAt>=0?labels[panAt]:'not found: '+JSON.stringify(labels.filter(t=
 let panValues=null;if(panAt>=0){const before=await vis[panAt].evaluate(x=>x.value);await vis[panAt].focus();for(let k=0;k<10;k++)await p.keyboard.press('ArrowRight');await p.waitForTimeout(300);
  if(await vis[panAt].evaluate(x=>x.value)===before){const bb=await vis[panAt].boundingBox();await p.mouse.click(bb.x+bb.width*0.9,bb.y+bb.height/2)}
  await p.waitForTimeout(800);panValues=[before,await vis[panAt].evaluate(x=>x.value)]}
+const pitchAt=labels.findIndex(t=>/pitch/i.test(t)&&/material|tone/i.test(t));let pitchValues=null;
+if(pitchAt>=0){const before=await vis[pitchAt].evaluate(x=>x.value);const bb=await vis[pitchAt].boundingBox();await p.mouse.click(bb.x+bb.width*0.75,bb.y+bb.height/2);await p.waitForTimeout(800);pitchValues=[before,await vis[pitchAt].evaluate(x=>x.value)]}
 const res=await p.evaluate(async()=>{const E=window.__chain.edges;const out=new Map();for(const [a,t] of E){if(!out.has(a))out.set(a,[]);out.get(a).push(t)}
  const phase=[...out.keys()].find(n=>n.__name==='xen-material-phase-v1');if(!phase)return {error:'no material phase node'};
  const desc=n=>{if(n instanceof AudioParam)return 'AudioParam';const k=n.constructor.name+(n.__name?':'+n.__name:'');
@@ -40,4 +42,4 @@ const res=await p.evaluate(async()=>{const E=window.__chain.edges;const out=new 
  for(let i=0;i<30;i++){await new Promise(r=>setTimeout(r,100));an.getFloatTimeDomainData(buf);let s=0;for(const v of buf)s+=v*v;const r=Math.sqrt(s/buf.length);peak=Math.max(peak,r);sum+=r;k++}
  const lanePan=(out.get((out.get((out.get(phase)||[])[0])||[])[0])||[]).find(n=>n instanceof StereoPannerNode);
  return {lanePanAfterSlider:lanePan?+lanePan.pan.value.toFixed(3):null,chain,laneGainHasEQ:!!gain,eqOutputFanout:(out.get(tap)||[]).filter(x=>x!==an).map(desc),rmsPeak:+peak.toFixed(4),rmsMean:+(sum/k).toFixed(4),pitchDiag:globalThis.__XEN_LANE_PITCH_DIAGNOSTICS__?.material}});
-console.log(JSON.stringify({target:path.basename(target),panSlider:panMove,panValues,...res,errors},null,1));await b.close();})();
+console.log(JSON.stringify({target:path.basename(target),panSlider:panMove,panValues,pitchValues,...res,errors},null,1));await b.close();})();
