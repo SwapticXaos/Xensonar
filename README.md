@@ -18,6 +18,7 @@ Jede Version liegt als eigener Zweig `version/...` vor (auf GitHub oben links im
 | `version/dub-echo-03-racklive-01` | Dub Echo + geschützte Drum-Rack-Regler |
 | `version/liveguard02` | zusätzlich Slider-Gate für die Hauptraum-Regler |
 | `version/dub-echo-04` | Echo mit Time Warp, N in M, Enter-Übernahme |
-| `version/livepath-01` | Live-Pfad entlastet: Session-Sicherung, Drone-Automation, XNC opt-in (aktuell, = `main`) |
+| `version/livepath-01` | Live-Pfad entlastet: Session-Sicherung, Drone-Automation, XNC opt-in |
+| `version/livepath-02` | kein App-Neuaufbau pro Schlag mehr (aktuell, = `main`) |
 
 Zweig `gpt-dub02`: parallele Echo-Linie DUB02 aus der GPT-Phase, zum Zusammenführen.

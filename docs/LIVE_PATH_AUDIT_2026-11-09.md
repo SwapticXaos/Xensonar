@@ -78,3 +78,19 @@ Jeder Patch einzeln, mit Vorher/Nachher-Messung derselben Skripte.
 - P3 XNC (nativer Begleiter, Port 47812) nur mit `?xnc=1`. Vollständiges Entfernen (XNC, Native Audio 32185, Owner-Auswahl) vorgemerkt für den Quellbaum-Umbau.
 - P4 Session-Arbeitskopie: höchstens alle 1,5 s serialisieren, letzter Stand garantiert, `pagehide` sichert sofort. Neuladen 0,3 s und 2,5 s nach einer Änderung getestet: Wert bleibt erhalten (wie Parent).
 - Offen: Root-Follow-Statustexte lesen weiter pro Render den Speicher; App-Neuaufbau pro Metronom-Schlag; Bridge-`attach` bei jedem Render.
+
+## Umgesetzt: LIVEPATH-02 (09.11.2026)
+
+`tEe()` setzte pro Viertel per `setState` einen `metronomePulse`, der zwar in Props weitergereicht, aber von **keiner Komponente gelesen** wird. Folge: ein kompletter App-Neuaufbau pro Schlag. Ein DOM-Mutations-Vergleich (8 s Spiel) zeigte, dass dabei nichts Sichtbares passiert: nur React setzt `name`/`type` an ~100 Eingabefeldern neu. Der Puls ist jetzt ein No-op; die Schnittstelle bleibt.
+
+| Messung (Live Room spielt, Headless) | Original | LIVEPATH-01 | LIVEPATH-02 |
+|---|---|---|---|
+| React-Commits in 8 s | 15 | 15 | **0** |
+| JSON-Serialisierung in 20 s | 5,57 MB | 1,64 MB | **0** |
+| Storage-Lesezugriffe in 20 s | 476 | 288 | **0** |
+| JavaScript-Anteil Hauptthread | 5,9 % | 4,5 % | **3,4 %** |
+| Heap im Spiel | 27 MB | 23 MB | **19 MB** |
+| Konsolenfehler beim Start | 5 | 0 | 0 |
+
+Damit entfällt auch H2 (Root-Follow-Statustexte lesen den Speicher nur noch bei echten Änderungen). Übrig im Spieltakt: Drum-Scheduler (25-ms-Tick, gewollt), Canvas-Visuals, rAF-Schleifen.
+Reload-Persistenz (0,3 s / 2,5 s nach Änderung), Echo-, Rack- und Slider-Regressionen: unverändert.
