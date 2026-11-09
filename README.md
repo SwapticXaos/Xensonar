@@ -22,4 +22,6 @@ Jede Version liegt als eigener Zweig `version/...` vor (auf GitHub oben links im
 | `version/livepath-01` | Live-Pfad entlastet: Session-Sicherung, Drone-Automation, XNC opt-in |
 | `version/livepath-02` | kein App-Neuaufbau pro Schlag mehr (aktuell, = `main`) |
 
+Zweig `reference/ts-400.2`: historischer TypeScript/React-Quellbaum (September), nur lesen; Herkunftskarte `docs/TS_ORIGIN_MAP.json`.
+
 Zweig `gpt-dub02`: parallele Echo-Linie DUB02 aus der GPT-Phase, zum Zusammenführen.

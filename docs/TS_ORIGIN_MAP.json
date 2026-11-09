@@ -1,0 +1,1156 @@
+{
+ "method": "unique string literals (>=16 chars) from 400.2 TS found exactly once in current sources; >=2 anchors per pair",
+ "ts_ref": "branch reference/ts-400.2",
+ "files": {
+  "src/app/forge/01_room_shell.js": [
+   {
+    "ts": "src/App.tsx",
+    "anchors": 5
+   }
+  ],
+  "src/audio/07_governor_and_drums.js": [
+   {
+    "ts": "src/features/xensonar/rootFollow/useNativeRootFollowMaterialPilot.ts",
+    "anchors": 12
+   }
+  ],
+  "src/audio/entrophon/03_native_bridge.js": [
+   {
+    "ts": "src/App.tsx",
+    "anchors": 4
+   },
+   {
+    "ts": "src/features/xensonar/audio/useNativeWaveStarterPilot.ts",
+    "anchors": 3
+   }
+  ],
+  "src/runtime/instrument/04_performance_and_output_profiles.js": [
+   {
+    "ts": "src/components/systemMemory/PackageActionRow.tsx",
+    "anchors": 15
+   },
+   {
+    "ts": "src/features/soundLibrary/sharedSoundCatalog.ts",
+    "anchors": 15
+   },
+   {
+    "ts": "src/features/xensonar/architecture/machineRooms.ts",
+    "anchors": 12
+   },
+   {
+    "ts": "src/features/xensonar/terminology/productTerminology.ts",
+    "anchors": 2
+   }
+  ],
+  "src/rooms/lab.js": [
+   {
+    "ts": "src/features/l3lab/spectralForge/components/EmbodimentFieldPanel.tsx",
+    "anchors": 20
+   },
+   {
+    "ts": "src/features/l3lab/spectralForge/components/spectralCanvas/spectralCanvasOverlayRenderer.ts",
+    "anchors": 18
+   },
+   {
+    "ts": "src/features/l3lab/materialIntake/MaterialIntakePanel.tsx",
+    "anchors": 17
+   },
+   {
+    "ts": "src/features/l3lab/materialIntake/entryScroll.ts",
+    "anchors": 14
+   },
+   {
+    "ts": "src/features/l3lab/spectralForge/components/ToolSettings.tsx",
+    "anchors": 13
+   },
+   {
+    "ts": "src/features/l3lab/spectralForge/components/spectralCanvas/SpectralCanvasHud.tsx",
+    "anchors": 13
+   },
+   {
+    "ts": "src/features/l3lab/spectralForge/components/HarmonizerPanel.tsx",
+    "anchors": 11
+   },
+   {
+    "ts": "src/features/l3lab/spectralForge/components/Toolbar.tsx",
+    "anchors": 11
+   },
+   {
+    "ts": "src/features/l3lab/spectralForge/validation/evaluateCarrierDonorV2Validation.ts",
+    "anchors": 11
+   },
+   {
+    "ts": "src/features/l3lab/materialIntake/useMaterialIntakeEntryGateway.ts",
+    "anchors": 9
+   },
+   {
+    "ts": "src/features/l3lab/spectralForge/components/CustomStampLibraryPanel.tsx",
+    "anchors": 8
+   },
+   {
+    "ts": "src/features/l3lab/spectralForge/components/toolbar/toolbarUiModel.ts",
+    "anchors": 8
+   }
+  ],
+  "src/runtime/01_instrument_state.js": [
+   {
+    "ts": "src/core/audio/audioPressureMap.ts",
+    "anchors": 21
+   },
+   {
+    "ts": "src/features/xensonar/domain/instrumentData.ts",
+    "anchors": 4
+   },
+   {
+    "ts": "src/features/xensonar/domain/gridLibraryPersistence.ts",
+    "anchors": 2
+   },
+   {
+    "ts": "src/features/xensonar/input/resonanceKeyboardInputRouter.ts",
+    "anchors": 2
+   },
+   {
+    "ts": "src/features/xensonar/input/resonanceKeyboardPitchCommandAssemblyBoundary.ts",
+    "anchors": 2
+   },
+   {
+    "ts": "src/features/xensonar/input/useAppResonanceKeyboardInputEffectBoundary.ts",
+    "anchors": 2
+   }
+  ],
+  "src/audio/03_rfl_transport_legacy.js": [
+   {
+    "ts": "src/features/xensonar/material/useRootFollowLoopPlayback.ts",
+    "anchors": 10
+   },
+   {
+    "ts": "src/features/xensonar/audioTraffic/audioTrafficForensics.ts",
+    "anchors": 7
+   },
+   {
+    "ts": "src/features/xensonar/rootFollow/rootFollowMaterialRenderer.ts",
+    "anchors": 7
+   },
+   {
+    "ts": "src/core/audio/audioWorkletVoicePoolBoundary.ts",
+    "anchors": 4
+   },
+   {
+    "ts": "src/features/xensonar/recording/recordingRuntimeActions.ts",
+    "anchors": 4
+   },
+   {
+    "ts": "src/features/xensonar/rootFollow/rootFollowPlaybackTruthProbe.ts",
+    "anchors": 3
+   },
+   {
+    "ts": "src/features/xensonar/audio/holisticVoicePoolFallback.ts",
+    "anchors": 2
+   },
+   {
+    "ts": "src/features/xensonar/rootFollow/rootFollowActiveVoiceRuntime.ts",
+    "anchors": 2
+   },
+   {
+    "ts": "src/features/xensonar/rootFollow/rootFollowVoicePoolShadowRuntime.ts",
+    "anchors": 2
+   },
+   {
+    "ts": "src/features/xensonar/rootFollow/useRootFollowRuntimeBoundary.ts",
+    "anchors": 2
+   }
+  ],
+  "src/runtime/instrument/02_observation_and_sample_storage.js": [
+   {
+    "ts": "src/features/xensonar/audio/liveMasterBusRuntimeBoundary.ts",
+    "anchors": 13
+   },
+   {
+    "ts": "src/core/audio/xensonarBlobWorkletSmokeTest.ts",
+    "anchors": 6
+   }
+  ],
+  "src/audio/01_voice_and_rfl_ownership.js": [
+   {
+    "ts": "src/features/xensonar/recording/recordingDisposalRegistry.ts",
+    "anchors": 23
+   },
+   {
+    "ts": "src/features/l3lab/spectralForge/lifecycle/spectralForgePreviewLifecycleRegistry.ts",
+    "anchors": 16
+   },
+   {
+    "ts": "src/features/resonance/modalBody.ts",
+    "anchors": 14
+   },
+   {
+    "ts": "src/features/xensonar/material/materialTrackLifecycleRegistry.ts",
+    "anchors": 14
+   },
+   {
+    "ts": "src/features/xensonar/rootFollow/rootFollowPlaybackTruthProbe.ts",
+    "anchors": 11
+   },
+   {
+    "ts": "src/features/xensonar/drumConfigLibrary.ts",
+    "anchors": 6
+   },
+   {
+    "ts": "src/features/l3lab/materialAdapter.ts",
+    "anchors": 5
+   },
+   {
+    "ts": "src/features/l3lab/materialLibrary.ts",
+    "anchors": 5
+   },
+   {
+    "ts": "src/features/xensonar/material/materialLoopPlaybackWorkflow.ts",
+    "anchors": 5
+   },
+   {
+    "ts": "src/features/xensonar/audioTraffic/quantizedCollisionRuntime.ts",
+    "anchors": 3
+   },
+   {
+    "ts": "src/features/xensonar/material/materialLoopUploadActions.ts",
+    "anchors": 3
+   },
+   {
+    "ts": "src/features/xensonar/material/useRootFollowLoopBankController.ts",
+    "anchors": 3
+   }
+  ],
+  "src/app/forge/03_spectral_grid_and_archives.js": [
+   {
+    "ts": "src/features/l3lab/spectralForge/audio/stampPresets.ts",
+    "anchors": 22
+   },
+   {
+    "ts": "src/features/l3lab/canonicalForge/melodicWorkspaceArchiveActions.ts",
+    "anchors": 6
+   },
+   {
+    "ts": "src/features/l3lab/canonicalForge/melodicWorkspaceArchiveCodec.ts",
+    "anchors": 4
+   },
+   {
+    "ts": "src/core/systemMemory/packageImportLedger.ts",
+    "anchors": 3
+   },
+   {
+    "ts": "src/features/l3lab/canonicalForge/projectLibrary.ts",
+    "anchors": 3
+   }
+  ],
+  "src/rooms/canonical.js": [
+   {
+    "ts": "src/features/l3lab/canonicalForge/loopComposerRendering.ts",
+    "anchors": 31
+   },
+   {
+    "ts": "src/features/l3lab/canonicalForge/MaterialImportDialog.tsx",
+    "anchors": 29
+   },
+   {
+    "ts": "src/features/l3lab/canonicalForge/miniMapPanels.tsx",
+    "anchors": 22
+   },
+   {
+    "ts": "src/features/l3lab/canonicalForge/SampleInspectorMenu.tsx",
+    "anchors": 18
+   },
+   {
+    "ts": "src/features/l3lab/canonicalForge/SpectralImportColorDialog.tsx",
+    "anchors": 16
+   },
+   {
+    "ts": "src/features/l3lab/canonicalForge/viewportMath.ts",
+    "anchors": 15
+   },
+   {
+    "ts": "src/features/l3lab/canonicalForge/drumMachinePanel.tsx",
+    "anchors": 13
+   },
+   {
+    "ts": "src/features/l3lab/canonicalForge/MaterialBaseFragmentActionCard.tsx",
+    "anchors": 10
+   },
+   {
+    "ts": "src/features/l3lab/canonicalForge/SelectedSampleEffectStrip.tsx",
+    "anchors": 9
+   },
+   {
+    "ts": "src/features/l3lab/canonicalForge/melodicLoopPanel.tsx",
+    "anchors": 9
+   },
+   {
+    "ts": "src/features/l3lab/canonicalForge/melodicSampleActions.ts",
+    "anchors": 9
+   },
+   {
+    "ts": "src/features/l3lab/canonicalForge/selectedSampleWaveformPreview.ts",
+    "anchors": 9
+   }
+  ],
+  "src/forge_and_melodic/04_render_cache_and_stems.js": [
+   {
+    "ts": "src/features/l3lab/canonicalForge/LocalFieldEditorPanel.tsx",
+    "anchors": 28
+   },
+   {
+    "ts": "src/features/l3lab/canonicalForge/MelodicSampleLibraryHeader.tsx",
+    "anchors": 4
+   },
+   {
+    "ts": "src/features/l3lab/canonicalForge/melodicLoopTransferPrep.ts",
+    "anchors": 2
+   }
+  ],
+  "src/forge_and_melodic/03_timeline_and_transport_ui.js": [
+   {
+    "ts": "src/features/xensonar/rooms/level3lab/Level3LabCanonicalMount.tsx",
+    "anchors": 4
+   },
+   {
+    "ts": "src/features/l3lab/forgeBridge.ts",
+    "anchors": 3
+   },
+   {
+    "ts": "src/features/l3lab/canonicalForge/canonicalForgeRoomContracts.ts",
+    "anchors": 2
+   }
+  ],
+  "src/forge/editor/06_output_routing.js": [
+   {
+    "ts": "src/features/l3lab/spectralForge/integral/carrierIntegralMenuModel.ts",
+    "anchors": 12
+   },
+   {
+    "ts": "src/features/l3lab/spectralForge/integral/carrierDescriptorShadowProbe.ts",
+    "anchors": 5
+   }
+  ],
+  "src/runtime/instrument/03_selection_and_recording_tools.js": [
+   {
+    "ts": "src/features/l3lab/canonicalForge/localField.ts",
+    "anchors": 11
+   },
+   {
+    "ts": "src/features/soundLibrary/liveMelodicSampleLoad.ts",
+    "anchors": 7
+   },
+   {
+    "ts": "src/features/l3lab/canonicalForge/melodicSampleLibrary.ts",
+    "anchors": 3
+   },
+   {
+    "ts": "src/features/xensonar/audio/useAppAudioReadinessRuntimeBoundary.ts",
+    "anchors": 3
+   }
+  ],
+  "src/app/forge/02_boot_and_workspace_tools.js": [
+   {
+    "ts": "src/features/l3lab/canonicalForge/melodicWorkspaceArchiveManifest.ts",
+    "anchors": 10
+   },
+   {
+    "ts": "src/features/l3lab/spectralForge/projectLibrary.ts",
+    "anchors": 10
+   },
+   {
+    "ts": "src/features/l3lab/canonicalForge/melodicWorkspaceArchiveTypes.ts",
+    "anchors": 7
+   },
+   {
+    "ts": "src/features/l3lab/spectralForge/customStampLibrary.ts",
+    "anchors": 7
+   },
+   {
+    "ts": "src/features/l3lab/canonicalForge/melodicWorkspaceBrowserStoragePackage.ts",
+    "anchors": 5
+   },
+   {
+    "ts": "src/features/l3lab/canonicalForge/loopCompositionDomain.ts",
+    "anchors": 4
+   },
+   {
+    "ts": "src/features/l3lab/canonicalForge/melodicProjectLibrary.ts",
+    "anchors": 2
+   }
+  ],
+  "src/rooms/nodal.js": [
+   {
+    "ts": "src/features/topology/MyzelRoom3SynthControls.tsx",
+    "anchors": 25
+   },
+   {
+    "ts": "src/features/topology/MyzelInstallationControls.tsx",
+    "anchors": 24
+   },
+   {
+    "ts": "src/features/topology/MyzelTopologyPanel.tsx",
+    "anchors": 19
+   },
+   {
+    "ts": "src/features/topology/MyzelEnhancerControls.tsx",
+    "anchors": 11
+   },
+   {
+    "ts": "src/features/l3lab/canonicalForge/loopCompositionDomain.ts",
+    "anchors": 8
+   },
+   {
+    "ts": "src/features/xensonar/rooms/TopologyRoom.tsx",
+    "anchors": 4
+   },
+   {
+    "ts": "src/features/topology/residentSoundMenuModel.ts",
+    "anchors": 2
+   },
+   {
+    "ts": "src/features/xensonar/myzelSynth/myzelSynthRegistry.ts",
+    "anchors": 2
+   },
+   {
+    "ts": "src/features/xensonar/myzelSynth/myzelSynthRegistryTypes.ts",
+    "anchors": 2
+   },
+   {
+    "ts": "src/features/xensonar/rooms/IrrlichtArenaPanel.tsx",
+    "anchors": 2
+   }
+  ],
+  "src/forge/editor/07_composition_and_preview_ui.js": [
+   {
+    "ts": "src/features/l3lab/materialIntake/materialIntakePanel/FeedbackButton.tsx",
+    "anchors": 14
+   },
+   {
+    "ts": "src/features/l3lab/spectralForge/components/transportBar/TransportBarPresentation.tsx",
+    "anchors": 12
+   },
+   {
+    "ts": "src/features/l3lab/spectralForge/audio/ImageImporter.ts",
+    "anchors": 6
+   },
+   {
+    "ts": "src/features/l3lab/spectralForge/components/transportBar/transportBarUiModel.ts",
+    "anchors": 5
+   },
+   {
+    "ts": "src/features/l3lab/spectralForge/components/transportBar/useTransportMaterialActions.ts",
+    "anchors": 5
+   },
+   {
+    "ts": "src/features/l3lab/spectralForge/components/transportBar/TransportImageImportDialog.tsx",
+    "anchors": 4
+   },
+   {
+    "ts": "src/features/l3lab/spectralForge/components/transportBar/useTransportImportWorkflow.ts",
+    "anchors": 4
+   },
+   {
+    "ts": "src/features/l3lab/spectralForge/integral/carrierIntegralTransferExecutionPhases.ts",
+    "anchors": 4
+   },
+   {
+    "ts": "src/features/l3lab/canonicalForge/materialImportChannel.ts",
+    "anchors": 3
+   },
+   {
+    "ts": "src/features/l3lab/contracts/carrierIntegralMelodicHandoffContract.ts",
+    "anchors": 2
+   },
+   {
+    "ts": "src/features/l3lab/spectralForge/components/TransportBar.tsx",
+    "anchors": 2
+   },
+   {
+    "ts": "src/features/l3lab/spectralForge/integral/carrierGestureSampleSaveProbe.ts",
+    "anchors": 2
+   }
+  ],
+  "src/runtime/instrument/09_monitoring_and_manual_patterns.js": [
+   {
+    "ts": "src/features/xensonar/rooms/RecordingTakePanel.tsx",
+    "anchors": 20
+   },
+   {
+    "ts": "src/features/xensonar/input/waveStarterHoldSegmentClock.ts",
+    "anchors": 9
+   },
+   {
+    "ts": "src/features/xensonar/rooms/ResonanceParallelEffectsPanel.tsx",
+    "anchors": 5
+   },
+   {
+    "ts": "src/features/xensonar/rooms/SegmentPatternGrid.tsx",
+    "anchors": 5
+   },
+   {
+    "ts": "src/features/xensonar/rooms/ResonanceHarmonicSystemControls.tsx",
+    "anchors": 4
+   },
+   {
+    "ts": "src/features/xensonar/rooms/DroneRhythmEditorSlot.tsx",
+    "anchors": 3
+   },
+   {
+    "ts": "src/features/xensonar/rooms/ResonanceDroneDriveControls.tsx",
+    "anchors": 3
+   },
+   {
+    "ts": "src/features/xensonar/rooms/ResonanceInlineEditorSlot.tsx",
+    "anchors": 3
+   },
+   {
+    "ts": "src/features/xensonar/rooms/ResonanceTimingEchoControls.tsx",
+    "anchors": 3
+   },
+   {
+    "ts": "src/features/xensonar/rooms/resonanceRuntimeMonitorLiveChannel.ts",
+    "anchors": 2
+   }
+  ],
+  "src/forge/editor/02_tools_and_audio_inputs.js": [
+   {
+    "ts": "src/features/l3lab/spectralForge/integral/carrierIntegralMachineCapabilities.ts",
+    "anchors": 48
+   },
+   {
+    "ts": "src/features/l3lab/spectralForge/integral/carrierIntegralHarmonicXploreDirectEngine.ts",
+    "anchors": 14
+   },
+   {
+    "ts": "src/features/l3lab/spectralForge/integral/carrierLoopBodyInterpretationMatrix.ts",
+    "anchors": 10
+   },
+   {
+    "ts": "src/features/l3lab/spectralForge/integral/carrierLoopBodyModel.ts",
+    "anchors": 6
+   },
+   {
+    "ts": "src/features/l3lab/spectralForge/audio/AudioImporter.ts",
+    "anchors": 3
+   },
+   {
+    "ts": "src/features/l3lab/spectralForge/integral/carrierLoopBodyCurveTypes.ts",
+    "anchors": 2
+   }
+  ],
+  "src/forge/ui/02_donor_routing_and_hearing.js": [
+   {
+    "ts": "src/features/l3lab/spectralForge/components/carrierIntegralVerwalten/CarrierIntegralMachineEditorSection.tsx",
+    "anchors": 37
+   },
+   {
+    "ts": "src/features/l3lab/spectralForge/components/CarrierIntegralVerwaltenPanel.tsx",
+    "anchors": 24
+   },
+   {
+    "ts": "src/features/l3lab/spectralForge/components/carrierIntegralVerwalten/CarrierIntegralLibrarySection.tsx",
+    "anchors": 18
+   },
+   {
+    "ts": "src/features/l3lab/spectralForge/components/carrierIntegralVerwalten/carrierIntegralMachineUi.ts",
+    "anchors": 17
+   },
+   {
+    "ts": "src/features/l3lab/spectralForge/components/carrierIntegralVerwalten/CarrierIntegralSignalSendSection.tsx",
+    "anchors": 7
+   },
+   {
+    "ts": "src/features/l3lab/spectralForge/components/carrierIntegralVerwalten/CarrierIntegralNumberSlider.tsx",
+    "anchors": 5
+   },
+   {
+    "ts": "src/features/l3lab/spectralForge/components/CarrierIntegralPanel.tsx",
+    "anchors": 4
+   },
+   {
+    "ts": "src/features/l3lab/spectralForge/components/carrierIntegralVerwalten/CarrierGestureStrip.tsx",
+    "anchors": 4
+   },
+   {
+    "ts": "src/features/l3lab/materialIntake/entryScroll.ts",
+    "anchors": 2
+   },
+   {
+    "ts": "src/features/l3lab/spectralForge/components/carrierIntegralVerwalten/carrierIntegralPreviewExportRoutes.ts",
+    "anchors": 2
+   }
+  ],
+  "src/forge/ui/03_method_selection.js": [
+   {
+    "ts": "src/features/l3lab/materialIntake/adapters/target/forge3TargetAdapter.ts",
+    "anchors": 2
+   },
+   {
+    "ts": "src/features/l3lab/materialIntake/adapters/target/rawXensonarTargetAdapter.ts",
+    "anchors": 2
+   },
+   {
+    "ts": "src/features/l3lab/spectralForge/components/ProjectLibraryPanel.tsx",
+    "anchors": 2
+   }
+  ],
+  "src/forge_and_melodic/07_tuning_and_logic_view.js": [
+   {
+    "ts": "src/features/l3lab/melodicSampleBridge.ts",
+    "anchors": 3
+   },
+   {
+    "ts": "src/features/l3lab/materialIntake/adapters/target/canonicalForgeTargetAdapter.ts",
+    "anchors": 2
+   },
+   {
+    "ts": "src/features/xensonar/domain/gridWorkbenchBridge.ts",
+    "anchors": 2
+   }
+  ],
+  "src/app/forge/07_preview_cache_and_controls.js": [
+   {
+    "ts": "src/features/l3lab/spectralForge/audio/AudioEngine.ts",
+    "anchors": 13
+   },
+   {
+    "ts": "src/features/l3lab/spectralForge/components/transportBar/useTransportMaterialActions.ts",
+    "anchors": 2
+   }
+  ],
+  "src/forge_and_melodic/10_audition_and_persistence.js": [
+   {
+    "ts": "src/features/l3lab/spectralForge/audio/AudioEngine.ts",
+    "anchors": 3
+   }
+  ],
+  "src/audio/03_recorder.js": [
+   {
+    "ts": "src/features/xensonar/input/resonanceKeyboardPitchLane.ts",
+    "anchors": 6
+   },
+   {
+    "ts": "src/features/xensonar/recording/recordingEffectHandlers.ts",
+    "anchors": 4
+   },
+   {
+    "ts": "src/features/xensonar/audio/waveStarterFailoverEventLedger.ts",
+    "anchors": 3
+   },
+   {
+    "ts": "src/features/xensonar/browserImplant/protocol/admissionDiagnostics.ts",
+    "anchors": 2
+   },
+   {
+    "ts": "src/features/xensonar/recording/recordingUiActions.ts",
+    "anchors": 2
+   }
+  ],
+  "src/forge/editor/04_signal_atoms_and_bodies.js": [
+   {
+    "ts": "src/features/l3lab/spectralForge/integral/branchCCarrierLoopBodyResonanceMapping.ts",
+    "anchors": 2
+   }
+  ],
+  "src/forge/editor/05_machine_and_carrier_projection.js": [
+   {
+    "ts": "src/features/l3lab/spectralForge/integral/carrierLoopBodyRootFollowModulationPlan.ts",
+    "anchors": 32
+   },
+   {
+    "ts": "src/features/l3lab/spectralForge/integral/carrierIntegralRuntimeRoutes.ts",
+    "anchors": 14
+   },
+   {
+    "ts": "src/features/l3lab/spectralForge/rootFollow/buildV2RootFollowEvent.ts",
+    "anchors": 10
+   },
+   {
+    "ts": "src/features/l3lab/spectralForge/integral/carrierIntegralAuditionRoutes.ts",
+    "anchors": 7
+   },
+   {
+    "ts": "src/features/l3lab/spectralForge/integral/carrierLoopBodyShadowProbe.ts",
+    "anchors": 4
+   },
+   {
+    "ts": "src/features/l3lab/spectralForge/integral/carrierIntegralRawMelodicMaterialHandoff.ts",
+    "anchors": 3
+   },
+   {
+    "ts": "src/features/l3lab/spectralForge/integral/carrierIntegralSendTargetContracts.ts",
+    "anchors": 2
+   },
+   {
+    "ts": "src/features/l3lab/spectralForge/integral/carrierIntegralTransferPolicyMatrix.ts",
+    "anchors": 2
+   }
+  ],
+  "src/forge/editor/03_synthetic_sound_engines.js": [
+   {
+    "ts": "src/features/l3lab/spectralForge/integral/carrierIntegralSpektralSyntheseDescriptor.ts",
+    "anchors": 3
+   },
+   {
+    "ts": "src/features/l3lab/spectralForge/integral/carrierIntegralSpektralSyntheseStochastic.ts",
+    "anchors": 3
+   },
+   {
+    "ts": "src/features/l3lab/spectralForge/integral/carrierIntegralSpektralSyntheseEngine.ts",
+    "anchors": 2
+   }
+  ],
+  "src/app/forge/04_profiles_and_body_models.js": [
+   {
+    "ts": "src/features/l3lab/spectralForge/integral/carrierIntegralRegistry.ts",
+    "anchors": 17
+   },
+   {
+    "ts": "src/features/l3lab/spectralForge/integral/carrierIntegralBodySources.ts",
+    "anchors": 12
+   },
+   {
+    "ts": "src/features/l3lab/spectralForge/integral/carrierIntegralHarmonicXploreLens.ts",
+    "anchors": 10
+   },
+   {
+    "ts": "src/features/l3lab/spectralForge/integral/carrierIntegralContracts.ts",
+    "anchors": 7
+   },
+   {
+    "ts": "src/features/l3lab/spectralForge/state/storeCarrierDonorV2Actions.ts",
+    "anchors": 4
+   },
+   {
+    "ts": "src/features/l3lab/spectralForge/state/storeCarrierIntegralActions.ts",
+    "anchors": 3
+   },
+   {
+    "ts": "src/features/l3lab/spectralForge/state/storeEmbodimentActions.ts",
+    "anchors": 3
+   },
+   {
+    "ts": "src/features/l3lab/spectralForge/integral/carrierIntegralHarmonicXploreRenderConfig.ts",
+    "anchors": 2
+   }
+  ],
+  "src/runtime/instrument/07_interpreters_and_installation.js": [
+   {
+    "ts": "src/features/resonance/nodalModulationMatrix.ts",
+    "anchors": 9
+   }
+  ],
+  "src/audio/entrophon/02_worklet_and_voice_backend.js": [
+   {
+    "ts": "src/features/xensonar/browserImplant/useBrowserWaveStarterImplant.ts",
+    "anchors": 15
+   },
+   {
+    "ts": "src/features/xensonar/browserImplant/useBrowserEntrophonImplant.ts",
+    "anchors": 13
+   },
+   {
+    "ts": "src/features/xensonar/audio/particleVoicePoolLiveReport.ts",
+    "anchors": 11
+   },
+   {
+    "ts": "src/features/topology/myzelRoom3CanvasRenderer.ts",
+    "anchors": 5
+   },
+   {
+    "ts": "src/features/soundLibrary/particleSampleAnchor.ts",
+    "anchors": 4
+   },
+   {
+    "ts": "src/features/topology/myzelSpatialEffectMix.ts",
+    "anchors": 3
+   },
+   {
+    "ts": "src/features/xensonar/browserImplant/protocol/admissionDiagnostics.ts",
+    "anchors": 2
+   },
+   {
+    "ts": "src/features/xensonar/browserImplant/worklet/realKernelBridge.ts",
+    "anchors": 2
+   }
+  ],
+  "src/rhythm/02_bass_and_rack.js": [
+   {
+    "ts": "src/features/xensonar/audioTraffic/quantizedTrafficTimerRegistry.ts",
+    "anchors": 8
+   },
+   {
+    "ts": "src/features/xensonar/rooms/ResonanceStagePanel.tsx",
+    "anchors": 7
+   },
+   {
+    "ts": "src/features/xensonar/performanceCrisis/performanceCrisisPresetRegistry.ts",
+    "anchors": 5
+   },
+   {
+    "ts": "src/features/xensonar/performanceCrisis/ui/PerformanceCrisisRootFollowTabTypes.ts",
+    "anchors": 5
+   },
+   {
+    "ts": "src/features/xensonar/runtime/liveRuntimeDisposalRegistry.ts",
+    "anchors": 3
+   },
+   {
+    "ts": "src/features/xensonar/layout/AppMainContent.tsx",
+    "anchors": 2
+   },
+   {
+    "ts": "src/features/xensonar/rooms/GameRoom.tsx",
+    "anchors": 2
+   },
+   {
+    "ts": "src/features/xensonar/rooms/IrrlichtArenaPanel.tsx",
+    "anchors": 2
+   },
+   {
+    "ts": "src/features/xensonar/rooms/xenpolarShortcut.ts",
+    "anchors": 2
+   }
+  ],
+  "src/runtime/instrument/05_timing_and_admission.js": [
+   {
+    "ts": "src/features/xensonar/layout/AppHeader.tsx",
+    "anchors": 20
+   },
+   {
+    "ts": "src/features/xensonar/layout/PackageStationControl.tsx",
+    "anchors": 16
+   },
+   {
+    "ts": "src/features/xensonar/browserImplant/runtimeDiagnostics.ts",
+    "anchors": 15
+   },
+   {
+    "ts": "src/features/xensonar/XensonarApp.tsx",
+    "anchors": 4
+   },
+   {
+    "ts": "src/features/xensonar/layout/HeaderRecordingButton.tsx",
+    "anchors": 2
+   },
+   {
+    "ts": "src/features/xensonar/layout/nativeAudioRuntime.ts",
+    "anchors": 2
+   },
+   {
+    "ts": "src/features/xensonar/rooms/RoomNav.tsx",
+    "anchors": 2
+   }
+  ],
+  "src/runtime/instrument/10_entrophon_and_voice_control.js": [
+   {
+    "ts": "src/features/xensonar/rooms/ResonanceMetaPresetWheelPanel.tsx",
+    "anchors": 9
+   },
+   {
+    "ts": "src/features/xensonar/rooms/ResonanceSoundPalettePanel.tsx",
+    "anchors": 8
+   },
+   {
+    "ts": "src/features/xensonar/rooms/EntrophonUnifiedSoundPanel.tsx",
+    "anchors": 6
+   }
+  ],
+  "src/audio/05_live_voice_runtime.js": [
+   {
+    "ts": "src/features/xensonar/audio/waveStarterFailoverDecisionGate.ts",
+    "anchors": 29
+   },
+   {
+    "ts": "src/features/xensonar/audio/waveStarterVoiceSpecFailoverContract.ts",
+    "anchors": 21
+   },
+   {
+    "ts": "src/features/xensonar/audio/waveStarterVoicePoolLiveReport.ts",
+    "anchors": 17
+   },
+   {
+    "ts": "src/features/xensonar/audio/waveStarterSampleBufferTokenShadow.ts",
+    "anchors": 15
+   },
+   {
+    "ts": "src/features/xensonar/input/waveStarterHoldPathForensics.ts",
+    "anchors": 15
+   },
+   {
+    "ts": "src/features/xensonar/audio/waveStarterWorkletPilotMessageReducer.ts",
+    "anchors": 13
+   },
+   {
+    "ts": "src/features/xensonar/audio/waveStarterSampleFailoverCandidate.ts",
+    "anchors": 11
+   },
+   {
+    "ts": "src/features/xensonar/audio/waveStarterWorkletPilotBridge.ts",
+    "anchors": 11
+   },
+   {
+    "ts": "src/features/xensonar/audio/waveStarterAttackIntegrityCongestionBrake.ts",
+    "anchors": 10
+   },
+   {
+    "ts": "src/features/xensonar/audio/waveStarterSynthFailoverCandidate.ts",
+    "anchors": 8
+   },
+   {
+    "ts": "src/features/xensonar/audio/waveStarterWorkletVoicePoolRuntime.ts",
+    "anchors": 8
+   },
+   {
+    "ts": "src/features/xensonar/browserImplant/worklet/browserC11Host.ts",
+    "anchors": 6
+   }
+  ],
+  "src/rhythm/04_workspace_and_transport.js": [
+   {
+    "ts": "src/features/xensonar/audio/postMasterPcmWorkerSource.ts",
+    "anchors": 30
+   },
+   {
+    "ts": "src/features/xensonar/input/appStableRhythmLaneRunnerCallPlanContractRegistryProbe.ts",
+    "anchors": 26
+   },
+   {
+    "ts": "src/features/xensonar/input/appStableRhythmLaneSchedulerCacheHelperCandidateAudits.ts",
+    "anchors": 15
+   },
+   {
+    "ts": "src/features/xensonar/audio/usePostMasterPcmOutput.ts",
+    "anchors": 7
+   },
+   {
+    "ts": "src/features/xensonar/layout/nativeAudioRuntime.ts",
+    "anchors": 7
+   },
+   {
+    "ts": "src/features/xensonar/input/appResonanceArrowMotionRafCallsiteSourceProbe.ts",
+    "anchors": 6
+   },
+   {
+    "ts": "src/features/xensonar/audio/postMasterPcmTransport.ts",
+    "anchors": 5
+   },
+   {
+    "ts": "src/features/xensonar/audio/stableRhythmLane.ts",
+    "anchors": 4
+   },
+   {
+    "ts": "src/features/xensonar/input/appStableRhythmLaneEffectArgsContractProbe.ts",
+    "anchors": 4
+   },
+   {
+    "ts": "src/features/xensonar/input/appStableRhythmLaneSchedulerStepVoiceValuesBuilderProbe.ts",
+    "anchors": 4
+   },
+   {
+    "ts": "src/features/xensonar/input/resonanceKeyboardInputRouter.ts",
+    "anchors": 4
+   },
+   {
+    "ts": "src/features/xensonar/input/appStableRhythmLaneSchedulerCallsiteSourceProbe.ts",
+    "anchors": 3
+   }
+  ],
+  "src/rhythm/03_live_drum_bodies.js": [
+   {
+    "ts": "src/features/xensonar/rooms/resonanceNexusOverlayFrame.ts",
+    "anchors": 13
+   },
+   {
+    "ts": "src/features/xensonar/audio/resonanceJiOwnershipProbe.ts",
+    "anchors": 3
+   },
+   {
+    "ts": "src/features/xensonar/rooms/useAppResonanceNexusMainLoopBoundary.ts",
+    "anchors": 3
+   }
+  ],
+  "src/audio/04_wave_worklet.js": [
+   {
+    "ts": "src/features/xensonar/audio/waveStarterWorkletPilotProcessorSource.ts",
+    "anchors": 22
+   },
+   {
+    "ts": "src/features/xensonar/audio/waveStarterWorkletPilotReport.ts",
+    "anchors": 18
+   }
+  ],
+  "src/runtime/instrument/11_recording_and_granular_controls.js": [
+   {
+    "ts": "src/features/xensonar/rooms/materialLoopPanel/LoopBankManagerDialog.tsx",
+    "anchors": 24
+   },
+   {
+    "ts": "src/features/xensonar/rooms/materialLoopPanel/RootFollowGranularManagerDialog.tsx",
+    "anchors": 19
+   },
+   {
+    "ts": "src/features/xensonar/rooms/materialLoopPanel/RootFollowAnchorControl.tsx",
+    "anchors": 7
+   },
+   {
+    "ts": "src/features/xensonar/rooms/materialLoopPanel/materialLoopPanelControls.tsx",
+    "anchors": 6
+   },
+   {
+    "ts": "src/features/xensonar/audioMaterial/audioMaterialInterpretationProfile.ts",
+    "anchors": 5
+   },
+   {
+    "ts": "src/features/xensonar/rooms/materialLoopPanel/rootFollowSideBySideLayout.ts",
+    "anchors": 5
+   },
+   {
+    "ts": "src/features/xensonar/runtime/xensonarEventChannels.ts",
+    "anchors": 5
+   },
+   {
+    "ts": "src/features/xensonar/rooms/grooveBassPanel/DrumPatternManagerDialog.tsx",
+    "anchors": 3
+   },
+   {
+    "ts": "src/features/xensonar/domain/audioCutUploadEntryRequest.ts",
+    "anchors": 2
+   },
+   {
+    "ts": "src/features/xensonar/rootFollow/rootFollowGranularSettings.ts",
+    "anchors": 2
+   }
+  ],
+  "src/audio/02_rfl_worklet.js": [
+   {
+    "ts": "src/features/xensonar/rootFollow/rootFollowWorkletShadowBridge.ts",
+    "anchors": 23
+   },
+   {
+    "ts": "src/features/xensonar/rootFollow/rootFollowMaterialRenderer.ts",
+    "anchors": 10
+   },
+   {
+    "ts": "src/features/xensonar/rootFollow/rootFollowLaneOwnershipPolicy.ts",
+    "anchors": 8
+   },
+   {
+    "ts": "src/features/xensonar/rootFollow/rootFollowWorkletShadowProcessorMessage.ts",
+    "anchors": 7
+   },
+   {
+    "ts": "src/features/xensonar/rootFollow/rootFollowMaterialImpulseRasterRuntime.ts",
+    "anchors": 6
+   },
+   {
+    "ts": "src/features/xensonar/rootFollow/rootFollowSharedArrayBufferReadiness.ts",
+    "anchors": 6
+   },
+   {
+    "ts": "src/features/xensonar/diagnostics/stableLaneStressHarness.ts",
+    "anchors": 5
+   },
+   {
+    "ts": "src/features/xensonar/rootFollow/rootFollowSampleBufferWorkletShadowTransfer.ts",
+    "anchors": 4
+   },
+   {
+    "ts": "src/features/xensonar/rootFollow/rootFollowWorkletShadowProcessorSource.ts",
+    "anchors": 4
+   },
+   {
+    "ts": "src/features/xensonar/audioTraffic/audioTrafficForensics.ts",
+    "anchors": 3
+   },
+   {
+    "ts": "src/features/xensonar/rootFollow/rootFollowCrisisRenderPolicy.ts",
+    "anchors": 2
+   },
+   {
+    "ts": "src/features/xensonar/rootFollow/rootFollowGranularWorkletRenderPlan.ts",
+    "anchors": 2
+   }
+  ],
+  "src/post-oct/gaps/010-main-bundle__09_after_09_monitoring_and_manual_patterns.js": [
+   {
+    "ts": "src/features/xensonar/input/waveStarterHoldSegmentClock.ts",
+    "anchors": 2
+   }
+  ],
+  "src/forge/module_bundle/22_materialIntakePersistence.js": [
+   {
+    "ts": "src/features/xensonar/layout/nativeAudioRuntime.ts",
+    "anchors": 2
+   }
+  ],
+  "src/runtime/instrument/12_rhythm_and_bass_editor.js": [
+   {
+    "ts": "src/features/xensonar/rooms/grooveBassPanel/BassPatternManagerDialog.tsx",
+    "anchors": 25
+   },
+   {
+    "ts": "src/features/xensonar/rooms/materialLoopPanel/RootFollowImpulseRasterControls.tsx",
+    "anchors": 22
+   },
+   {
+    "ts": "src/features/xensonar/rooms/grooveBassPanel/BassPatternBodyPreview.tsx",
+    "anchors": 18
+   },
+   {
+    "ts": "src/features/xensonar/rooms/materialLoopPanel/MaterialLoopManagerDetails.tsx",
+    "anchors": 13
+   },
+   {
+    "ts": "src/features/xensonar/rooms/grooveBassPanel/DrumManagerControls.tsx",
+    "anchors": 4
+   },
+   {
+    "ts": "src/features/xensonar/rootFollow/rootFollowImpulseRasterPolicy.ts",
+    "anchors": 2
+   }
+  ],
+  "src/myzel/01_effect_mapping.js": [
+   {
+    "ts": "src/features/xensonar/rooms/GridTuningRackDialog.tsx",
+    "anchors": 21
+   },
+   {
+    "ts": "src/features/xensonar/rooms/ResonanceStatusStrip.tsx",
+    "anchors": 14
+   },
+   {
+    "ts": "src/features/xensonar/rooms/PlaylistDragActionHud.tsx",
+    "anchors": 10
+   },
+   {
+    "ts": "src/features/xensonar/rooms/RecordingMarkerSideRails.tsx",
+    "anchors": 4
+   },
+   {
+    "ts": "src/features/xensonar/rooms/AppRoomViewport.tsx",
+    "anchors": 3
+   },
+   {
+    "ts": "src/features/xensonar/rooms/ResonanceGuidePanel.tsx",
+    "anchors": 3
+   },
+   {
+    "ts": "src/features/xensonar/rooms/RootFollowIconBadge.tsx",
+    "anchors": 3
+   }
+  ],
+  "src/mix/03_meta_menu__after_v2-session-store.js": [
+   {
+    "ts": "src/features/xensonar/rooms/GridTuningRackDialog.tsx",
+    "anchors": 15
+   }
+  ],
+  "src/rhythm/01_compact_drum_grid.js": [
+   {
+    "ts": "src/features/xensonar/rooms/grooveBassPanel/DrumPatternManagerDialog.tsx",
+    "anchors": 2
+   }
+  ]
+ }
+}
