@@ -10,6 +10,10 @@ function __deactivateForgeWorkspace(){
 }
 /* LIVEZONE-01: rooms outside the live zone (Live Room + Nodal Center). */
 function __xenIsColdRoom(room){return room==="L3LAB"}
+/* R3: cold rooms that still play through the live AudioContext (e.g. a future
+   multitrack room). The live-zone sleep never suspends the context for them. */
+const __xenRoomsUsingLiveContext=new Set();
+function __xenRoomUsesLiveContext(room){return __xenRoomsUsingLiveContext.has(room)}
 function __setForgeWorkspaceVisible(visible){
  if(visible===__forgeWorkspaceVisible)return;
  __forgeWorkspaceVisible=visible;

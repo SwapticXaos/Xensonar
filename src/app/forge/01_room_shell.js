@@ -266,10 +266,11 @@ P.useEffect(()=>{
   retireParticleTraffic:()=>{__xenRetireParticleTraffic(xl);__XenNodalSurfaces.releaseParticles()},
   ensureAudioReady:Bs,prewarmAudioRuntime:Ju}).catch(error=>hr("audio","live-zone-sleep",error));
  const ctx=i;
- if(!ctx||sleep.timer!==null)return;
+ if(!ctx||sleep.timer!==null||__xenRoomUsesLiveContext(e))return;
  sleep.timer=setTimeout(()=>{
   sleep.timer=null;
-  if(!__xenIsColdRoom(__xenLiveZonePrev.current)||ctx.state!=="running"||__xenLiveZoneRecording())return;
+  const now=__xenLiveZonePrev.current;
+  if(!__xenIsColdRoom(now)||__xenRoomUsesLiveContext(now)||ctx.state!=="running"||__xenLiveZoneRecording())return;
   sleep.ctx=ctx;ctx.suspend().catch(error=>{sleep.ctx=null;hr("audio","live-zone-suspend",error)});
  },1500);
 },[e]);
