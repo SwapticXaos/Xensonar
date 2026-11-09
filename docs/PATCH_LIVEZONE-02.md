@@ -9,7 +9,7 @@ Baut auf LIVEZONE-01 auf (`docs/PATCH_LIVEZONE-01.md`).
 | Größenzuwachs | +1 343 Bytes gegenüber LIVEZONE-01, +2 918 Bytes gegenüber `livepath-02` |
 | Zone | Grenze WARM/KALT (Raumwechsel) und AudioContext-Lebenszyklus. Kein Knotengraph, keine Parameter, kein Scheduler verändert. |
 | Daten-Owner | Raum: `Yde()` (`setRoom` mit Leave-Guard), Shell `REe`. Live-Kontext: `ensureAudioReady` bleibt Owner und weckt selbst auf. Aufnahme nur gelesen. Keine Persistenz berührt. |
-| Status | CODE_PRESENT, BROWSER_CHECKED (Headless-Chromium). **Nicht:** Gerätetest, Abhören, Firefox/Safari, USER_ACCEPTED, Netlify. |
+| Status | CODE_PRESENT, BROWSER_CHECKED (Headless-Chromium), **USER_ACCEPTED (09.11., Abhörtest durch den Nutzer: „alles in Ordnung“)**. Nicht: Firefox/Safari-Prüfung durch Claude, Netlify. |
 
 ## Änderungen
 
