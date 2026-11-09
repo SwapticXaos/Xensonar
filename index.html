@@ -12,7 +12,7 @@
      <meta name="xensonar-drum-memory" content="W30C-DM1-DM2-DM3;session-scoped-kit-eq-playground;native-QA-pending" />
     <meta name="xensonar-drum-expansion-parent-sha256" content="bf3c464dc6c8dccce9e6e95dc9197350168d2bf624febc03437875956e957b83" />
     <title>XenSonar W31 AF01+ML01+KH04 – Keyboard Hold Factory 16/1 + troodle/EQ · QA</title>
-    <meta name="xensonar-drum-dub-echo" content="DUB-ECHO-03+RACK-LIVE-01+NPARAMS-GATE-01;bar-ratio-n/d+beat-marker+free-ms+feel-push-pull+polyrhythm-L:R+cross-feed;throw+spin;browser-tested" />
+    <meta name="xensonar-drum-dub-echo" content="DUB-ECHO-04+RACK-LIVE-01+NPARAMS-GATE-01;time-warp+n-in-m+enter-commit;bar-ratio-n/d+beat-marker+free-ms+feel-push-pull+polyrhythm-L:R+cross-feed;throw+spin;browser-tested" />
     <meta name="xensonar-keyboard-hold-presets" content="KH04;factory-keyboard-hold-16-in-1-bar;troodle-sound-EQ-coupled;QA-pending" />
     <meta name="xensonar-patch" content="THUNDER_PITCH02+NODAL_HOLD_PRECISION04_SMARTMERGE01;isolated;browser-and-hardware-acceptance-pending" />
     <meta name="xensonar-merge" content="P35+NH01_REV12;LRF5.1-3way;test-candidate;hardware-audio-pending" />
@@ -34386,11 +34386,13 @@ function __xenDrumEchoTimes(params){
  const p=params||{},bar=__xenDrumEchoStep()*16,mode=p.drumEchoMode??0;
  const num=p.drumEchoNum??3,den=p.drumEchoDen??16,l=p.drumEchoPolyL??1,r=p.drumEchoPolyR??1;
  const ratio=mode===2?__xenDrumEchoMarkerRatio(p.drumEchoMarker??3):num/den;
- const base=mode===1?(p.drumEchoMs??375)/1000:bar*ratio;
+ // Time Warp (from DUB02): continuous factor that stays tempo-synced; Free ms is not warped.
+ const warp=mode===1?1:Math.max(.25,Math.min(4,p.drumEchoWarp??1));
+ const base=mode===1?(p.drumEchoMs??375)/1000:bar*ratio*warp;
  const feel=Math.max(-1,Math.min(1,p.drumEchoFeel??0))*bar/32;
  const left=Math.max(.005,Math.min(__xenDrumEchoMaxSec,base)),rawRight=left*l/r,right=Math.max(.005,Math.min(__xenDrumEchoMaxSec,rawRight));
  const firstLeft=Math.max(.005,Math.min(__xenDrumEchoMaxSec,left+feel)),firstRight=Math.max(.005,Math.min(__xenDrumEchoMaxSec,right+feel));
- return {left,right,firstLeft,firstRight,feel,base,bar,ratioOfBar:base/bar,beats:base/(bar/4),clamped:base>__xenDrumEchoMaxSec||rawRight>__xenDrumEchoMaxSec};
+ return {left,right,firstLeft,firstRight,feel,warp,base,bar,ratioOfBar:base/bar,beats:base/(bar/4),clamped:base>__xenDrumEchoMaxSec||rawRight>__xenDrumEchoMaxSec};
 }
 /* nearest boundary of the active beat, for reading Free mode against the markers */
 function __xenDrumEchoNearestMarker(sec){
@@ -34449,7 +34451,7 @@ function __xenDrumEchoReleaseOverlay(keys){
 const __f48RackKey='xensonar-rhythm-rack-v1';
 // Keep the established default drum excitation; the live mixer scales its output.
 const __XenDrumMixReference=.52;
-const __f48RackDefaults={bassVoice:'classic',bassResonance:0,bassEnvelope:1,bassDecay:1,bassSub:1,bassVoiceRecipe:null,bassVoiceUserId:'',bassVoiceUserName:'',drumPhaser:0,drumPhaserRate:.28,drumPhaserDepth:.55,drumDistance:0,drumPan:0,drumDecay:1,drumVolume:__XenDrumMixReference,drumEcho:0,drumEchoMode:0,drumEchoNum:3,drumEchoDen:16,drumEchoMarker:3,drumEchoFeel:0,drumEchoMs:375,drumEchoPolyL:1,drumEchoPolyR:1,drumEchoCross:1,drumEchoFeedback:.45,drumEchoTone:.45,drumEchoSpread:.6};
+const __f48RackDefaults={bassVoice:'classic',bassResonance:0,bassEnvelope:1,bassDecay:1,bassSub:1,bassVoiceRecipe:null,bassVoiceUserId:'',bassVoiceUserName:'',drumPhaser:0,drumPhaserRate:.28,drumPhaserDepth:.55,drumDistance:0,drumPan:0,drumDecay:1,drumVolume:__XenDrumMixReference,drumEcho:0,drumEchoMode:0,drumEchoNum:3,drumEchoDen:16,drumEchoMarker:3,drumEchoFeel:0,drumEchoWarp:1,drumEchoMs:375,drumEchoPolyL:1,drumEchoPolyR:1,drumEchoCross:1,drumEchoFeedback:.45,drumEchoTone:.45,drumEchoSpread:.6};
 function __f48CleanRack(value){
  const v=value||{},out={};
  for(const [key,fallback] of Object.entries(__f48RackDefaults)){
@@ -34460,7 +34462,7 @@ function __f48CleanRack(value){
    const [lo,hi]=__xenDrumEchoIntLimits[key];let raw=v[key];
    if(!Number.isFinite(raw)&&(key==='drumEchoNum'||key==='drumEchoDen')&&Number.isFinite(v.drumEchoDivision)){const legacy=__xenDrumEchoLegacy[Math.max(0,Math.min(7,Math.round(v.drumEchoDivision)))];raw=key==='drumEchoNum'?legacy[0]:legacy[1]}
    out[key]=Number.isFinite(raw)?Math.max(lo,Math.min(hi,Math.round(raw))):fallback;continue}
-  const limits=key==='drumEchoFeel'?[-1,1]:key==='drumEchoMs'?[10,3900]:key==='drumEchoFeedback'?[0,.92]:key==='drumPhaserRate'?[.05,2]:key==='bassDecay'||key==='drumDecay'?[.25,2]:key==='bassEnvelope'?[0,2]:key==='bassSub'?[0,1.5]:key==='drumPan'?[-1,1]:[0,1];
+  const limits=key==='drumEchoWarp'?[.25,4]:key==='drumEchoFeel'?[-1,1]:key==='drumEchoMs'?[10,3900]:key==='drumEchoFeedback'?[0,.92]:key==='drumPhaserRate'?[.05,2]:key==='bassDecay'||key==='drumDecay'?[.25,2]:key==='bassEnvelope'?[0,2]:key==='bassSub'?[0,1.5]:key==='drumPan'?[-1,1]:[0,1];
   out[key]=Number.isFinite(v[key])?Math.max(limits[0],Math.min(limits[1],v[key])):fallback;
  }
  return out;
@@ -34816,10 +34818,20 @@ function __f48DrumGlobalEQ(){
  ]});
 }
 function __xenDrumEchoStepper({label,value,min,max,onChange,title}){
+ const [draft,setDraft]=P.useState(null),field=P.useRef(null),latest=P.useRef(null);
  const set=n=>{if(Number.isFinite(n))onChange(Math.max(min,Math.min(max,Math.round(n))))};
+ const commit=()=>{if(draft!==null){if(draft.trim()!=='')set(Number(draft));setDraft(null)}};
+ latest.current={commit,cancel:()=>setDraft(null)};
+ // The instrument's keyboard guard stops key events at window level before they reach
+ // inputs, so Enter/Escape are read there too, but only while this field has focus.
+ P.useEffect(()=>{const onKey=event=>{if(event.target!==field.current)return;
+   if(event.key==='Enter'){event.preventDefault();latest.current.commit();field.current.blur()}
+   else if(event.key==='Escape'){latest.current.cancel();field.current.blur()}};
+  window.addEventListener('keydown',onKey,true);return()=>window.removeEventListener('keydown',onKey,true)},[]);
  return u.jsxs('span',{className:'xen-echo-stepper',title,children:[u.jsx('em',{children:label}),
   u.jsx('button',{type:'button','aria-label':label+' minus',disabled:value<=min,onClick:()=>set(value-1),children:'−'}),
-  u.jsx('input',{type:'number','aria-label':label,min,max,step:1,value,onChange:event=>set(Number(event.target.value)),onFocus:event=>event.target.select()}),
+  u.jsx('input',{ref:field,type:'number','aria-label':label,min,max,step:1,value:draft??value,onChange:event=>setDraft(event.target.value),onBlur:commit,
+   onKeyDown:event=>{if(event.key==='Enter'){event.preventDefault();commit();event.currentTarget.blur()}else if(event.key==='Escape'){setDraft(null);event.currentTarget.blur()}},onFocus:event=>event.target.select()}),
   u.jsx('button',{type:'button','aria-label':label+' plus',disabled:value>=max,onClick:()=>set(value+1),children:'+'})]});
 }
 const __xenDrumEchoChips=[
@@ -34854,6 +34866,18 @@ function __xenDrumEchoMarkerStrip({grid,k,onPick}){
     title:'Boundary '+(i+1)+' at '+(Math.round(grid.cuts[i+1]*10000)/10000)+' of the bar'+(even?'':' (shifted marker)'),
     'aria-label':'Echo to boundary '+(i+1),onClick:()=>onPick(i+1)},i)})});
 }
+/* N in M (from DUB02): N even repeats across M beats. A main-room bar has 4 beats,
+ * so one repeat lasts M/N beats = M/(4N) bar; it is written into Bar ratio n/d. */
+function __xenDrumEchoNinM({onSet}){
+ const [n,setN]=P.useState(5),[m,setM]=P.useState(4);
+ const g=__xenDrumEchoGcd(m,4*n);
+ return u.jsxs('div',{className:'xen-rack-actions xen-echo-ratio',children:[u.jsx('span',{children:'N in M'}),
+  u.jsx(__xenDrumEchoStepper,{label:'N',value:n,min:1,max:32,title:'Repeats',onChange:setN}),
+  u.jsx('b',{className:'xen-echo-slash',children:'in'}),
+  u.jsx(__xenDrumEchoStepper,{label:'M',value:m,min:1,max:32,title:'Beats',onChange:setM}),
+  u.jsx('button',{type:'button',title:'Set the echo to '+n+' even repeats across '+m+' beats',onClick:()=>onSet(m/g,4*n/g),children:'Set → '+(m/g)+'/'+(4*n/g)+' bar'}),
+  u.jsx('i',{className:'xen-echo-readout',children:n+' repeats across '+m+' beats = '+(Math.round(m/n*1000)/1000)+' beats each'})]});
+}
 function __xenDrumEchoPanel({params,update}){
  const [,refresh]=P.useReducer(x=>x+1,0),[held,setHeld]=P.useState(null);
  P.useEffect(()=>{__xenDrumEchoWatchGrid();window.addEventListener('xensonar:drum-echo-tempo',refresh);
@@ -34871,7 +34895,7 @@ function __xenDrumEchoPanel({params,update}){
   onKeyUp:event=>{if(event.key===' '||event.key==='Enter'){setHeld(null);__xenDrumEchoThrow(null)}},onBlur:()=>{if(held===m){setHeld(null);__xenDrumEchoThrow(null)}}});
  // Free-mode slider is logarithmic: equal travel = equal time ratio, like a pitch fader.
  const msToPos=x=>Math.round(1000*Math.log(x/10)/Math.log(390)),posToMs=x=>Math.round(10*Math.pow(390,x/1000));
- const base={drumEchoPolyL:1,drumEchoPolyR:1,drumEchoCross:1,drumEchoFeel:0};
+ const base={drumEchoPolyL:1,drumEchoPolyR:1,drumEchoCross:1,drumEchoFeel:0,drumEchoWarp:1};
  const presets=[
   ['Off',{drumEcho:0}],
   ['Dub 3/16',{...base,drumEcho:.38,drumEchoMode:0,drumEchoNum:3,drumEchoDen:16,drumEchoFeedback:.55,drumEchoTone:.38,drumEchoSpread:.7}],
@@ -34887,6 +34911,7 @@ function __xenDrumEchoPanel({params,update}){
  const headline=mode===1?['Free ',ms(times.base),' ms ≈ ',near.num,'/',near.den,' bar',near.error>.005?' (off-grid)':'']
   :mode===2?['Marker ',marker,' of ',grid.seg,marker>grid.seg?' (next bar)':'',' = ',r4(times.ratioOfBar),' bar = ',ms(times.left),' ms']
   :[num,'/',den,' bar · ',__xenDrumEchoTupletName(num,den),' = ',ms(times.left),' ms'];
+ if(mode!==1&&Math.abs(times.warp-1)>.0005)headline.splice(headline.length-3,0,' × ',Math.round(times.warp*1000)/1000);
  return u.jsxs('div',{className:'xen-drum-echo','aria-label':'Dub Echo',children:[
   u.jsxs('div',{className:'xen-rhythm-title',children:['Dub Echo · ',...headline,' @ ',__xenDrumEchoBpm(),' BPM',Math.abs(feelMs)>=1?' · '+(feelMs>0?'+':'')+feelMs+' ms':'',polyL!==polyR?' · L:R '+polyL+':'+polyR+' → R '+ms(times.right)+' ms':'']}),
   u.jsxs('div',{className:'xen-rack-actions',role:'radiogroup','aria-label':'Echo clock',children:[u.jsx('span',{children:'Clock'}),
@@ -34912,6 +34937,12 @@ function __xenDrumEchoPanel({params,update}){
      label:v=>{const m=posToMs(v),bar=__xenDrumEchoStep()*16;return m+' ms · '+r4(m/1000/bar)+' bar · '+Math.round(m/1000/(bar/4)*1000)/1000+' beats'}}),
     u.jsx('button',{type:'button',title:'Snap to the nearest bar ratio (denominator up to 32) and follow the tempo again',onClick:()=>update({drumEchoMode:0,drumEchoNum:near.num,drumEchoDen:near.den}),children:'Snap → '+near.num+'/'+near.den+' bar'}),
     u.jsx('button',{type:'button',title:'Snap to the nearest boundary of the active beat',onClick:()=>update({drumEchoMode:2,drumEchoMarker:nearMarker.k}),children:'Snap → marker '+nearMarker.k})]}),
+  mode===0?u.jsx(__xenDrumEchoNinM,{onSet:(n,d)=>update({drumEchoMode:0,drumEchoNum:n,drumEchoDen:d})}):null,
+  mode!==1?u.jsxs('div',{className:'xen-rack-actions xen-echo-feel',children:[u.jsx('span',{children:'Warp'}),
+   u.jsx(__xenDrumEchoLiveRange,{aria:'Time warp, tempo-synced factor',min:-1,max:1,step:.001,value:Math.log(val('drumEchoWarp'))/Math.log(4),update,
+    patchFor:v=>({drumEchoWarp:Math.abs(v)<.015?1:Math.round(Math.pow(4,v)*1000)/1000}),
+    label:v=>{const w=Math.abs(v)<.015?1:Math.pow(4,v);return '× '+(Math.round(w*1000)/1000)+(w===1?' (on the ratio)':' · stays in tempo')+'   ·   ← shorter | longer →'}}),
+   ...[[.5,'½'],[2/3,'⅔'],[.75,'¾'],[1,'×1'],[4/3,'4/3'],[1.5,'3/2'],[2,'2']].map(([w,label])=>u.jsx('button',{type:'button',className:Math.abs(val('drumEchoWarp')-w)<.002?'is-active':'',onClick:()=>update({drumEchoWarp:Math.round(w*1000)/1000}),children:label},label))]}):null,
   u.jsxs('div',{className:'xen-rack-actions xen-echo-feel',children:[u.jsx('span',{children:'Feel'}),
    u.jsx(__xenDrumEchoLiveRange,{aria:'Echo feel, ahead or behind the grid',min:-1,max:1,step:.01,value:feel,update,patchFor:v=>({drumEchoFeel:Math.abs(v)<.03?0:v}),
     label:v=>{const f=Math.abs(v)<.03?0:Math.round(v*__xenDrumEchoStep()*16/32*1000);return (f===0?'on the grid':f>0?'+'+f+' ms behind the grid (drag)':f+' ms ahead of the grid (push)')+'   ·   ← push | drag →'}}),
@@ -34946,7 +34977,7 @@ function __f48DrumRack({params,update}){
   u.jsx(__xenDrumEchoPanel,{params,update}),
   u.jsxs('div',{className:'xen-rack-actions',children:[u.jsx('span',{children:'Sound scenes'}),...[
    ['Dry Punch','asphalt_punch',.65,.3,.5,.8,0,0],['Velvet Room','velvet_breaks',.3,.8,.35,.4,0,.65],['Metal Sweep','glass_metal',.65,.3,.8,.55,.5,.2],['Tape Drift','dusty_tape',.4,.7,.4,.35,.32,.35]
-  ].map(([label,kit,edge,softness,air,snap,phaser,distance])=>u.jsx('button',{type:'button',onClick:()=>update({drumKit:kit,drumLaneKits:{},drumEdge:edge,drumSoftness:softness,drumAir:air,drumSnap:snap,drumPhaser:phaser,drumDistance:distance}),children:label},label)),u.jsx('button',{type:'button',onClick:()=>update({drumPhaser:0,drumDistance:0,drumPan:0,drumDecay:1,drumVolume:__XenDrumMixReference,drumEcho:0,drumEchoMode:0,drumEchoNum:3,drumEchoDen:16,drumEchoMarker:3,drumEchoFeel:0,drumEchoMs:375,drumEchoPolyL:1,drumEchoPolyR:1,drumEchoCross:1,drumEchoFeedback:.45,drumEchoTone:.45,drumEchoSpread:.6}),children:'Reset Rack'})]}),
+  ].map(([label,kit,edge,softness,air,snap,phaser,distance])=>u.jsx('button',{type:'button',onClick:()=>update({drumKit:kit,drumLaneKits:{},drumEdge:edge,drumSoftness:softness,drumAir:air,drumSnap:snap,drumPhaser:phaser,drumDistance:distance}),children:label},label)),u.jsx('button',{type:'button',onClick:()=>update({drumPhaser:0,drumDistance:0,drumPan:0,drumDecay:1,drumVolume:__XenDrumMixReference,drumEcho:0,drumEchoMode:0,drumEchoNum:3,drumEchoDen:16,drumEchoMarker:3,drumEchoFeel:0,drumEchoWarp:1,drumEchoMs:375,drumEchoPolyL:1,drumEchoPolyR:1,drumEchoCross:1,drumEchoFeedback:.45,drumEchoTone:.45,drumEchoSpread:.6}),children:'Reset Rack'})]}),
   u.jsxs('div',{className:'xen-rack-actions',children:[u.jsx('span',{children:'Beat moves'}),...[['Rotate ←','left'],['Rotate →','right'],['Thin Beat','sparse'],['Hat Pulse','pulse'],['Half-time Snare','backbeat']].map(([label,kind])=>u.jsx('button',{type:'button',onClick:()=>transform(kind),children:label},kind)),u.jsx('button',{type:'button',disabled:!__mlSharedDrumMachine.canUndo(),onClick:()=>__mlSharedDrumMachine.undo(),children:'Undo Beat Move'}),u.jsx('button',{type:'button',disabled:!__mlSharedDrumMachine.canRedo(),onClick:()=>__mlSharedDrumMachine.redo(),children:'Redo Beat Move'})]})]});
 }
 
