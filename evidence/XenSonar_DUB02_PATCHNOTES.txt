@@ -1,0 +1,67 @@
+XenSonar W31 / AF01 + ML01 + KH04 / DUB02
+Main Room Drum Rack: Polyrhythmic Tempo Echo
+
+SOURCE (accepted DUB01 parent): XenSonar_W31_AF01_ML01_KH04_DUB01_index.html
+SOURCE SHA-256: c0cc5c590c0c7df53da83e3018a33159af33404d6fddcee5a8c1b426adcba6fa
+DUB02 SHA-256: be56213d6713bf35ea5478614132138ecc1b1f6b655a455805b713669ca834d7
+
+PHILOSOPHY / MODEL
+The Main Room clock gives quarter-beat pulse (60/BPM), and beatsPerBar.
+No new metronome, no changes to the Main Room meter, no legacy drum changes.
+Echo time is a relation to quarter-beats, not an assumption that 4/4 is universal.
+
+FOUR COEXISTING CLOCK-RELATIVE MODES
+1. Steps: familiar notes 1/64 through 1/1, dotted values, one/two bars
+   following the actual Main Room meter; odd 5/8, 7/8, 9/8, 11/8,
+   13/8 and 5/16, 7/16, 11/16, 13/16; triplet, quintuplet and
+   septuplet subdivisions; 3:2, 5:4, 7:4, 9:4, 11:8 cross-rhythms.
+2. N/D: enter arbitrary numerator and denominator 1..128. This mode
+   represents N/D of a whole note = 4*N/D quarter beats. 7/8 = 3.5 beats.
+   The user's global song time signature is untouched.
+3. N in M: enter N even hits across M Main Room quarter beats.
+   Echo delay = M/N beats. E.g., five in four beats = 0.8 beats.
+4. Free: freely type 0.01..128 quarter beats or scrub 0.01..16 on slider,
+   0.001 beat resolution for fine-tuning; not quantized.
+
+TIME WARP
+A continuous multiplier x0.25..4 applies to all four modes (1x neutral).
+Computed readout shows beats and ms; explicitly warns if the hard Web
+Audio delay limit of 19.5 seconds clamps the requested result.
+
+TECHNICAL
+- New settings use existing drum rack parameters via canonical nParamsUI,
+  persistence and saved session path. Old DUB01 sessions default to 'preset'
+  and keep their original note value, send, feedback and tone.
+- No new FX branch: existing DUB01 Web Audio feedback delay is reused.
+- Delay is re-timed in place on Main Room BPM/meter changes, without
+  recreating the delay node. Feedback remains capped at 0.82.
+- Number inputs commit on Enter or blur, allowing multi-digit editing;
+  sliders and quick ratio buttons update live.
+- Momentary Dub Throw (mouse/touch/keyboard) remains ephemeral and unchanged.
+- Reset Rack restores time mode/ratios/time warp as well as effect controls.
+
+TEST EVIDENCE
+- Test-driven development: six new feature tests failed on DUB01 parent
+  (RED) then passed on DUB02 (GREEN); all 13 focused Node tests pass.
+- Headless Chromium baseline/candidate comparison: existing drum controls
+  present; N/D editing, 5:4 / 7:4 quick ratios, free beats, time warp,
+  realtime computed labels, session persistence, Reset Rack, mouse and
+  keyboard Dub Throw all passed; no JS errors.
+- 1440, 768, 390 pixel widths checked; all three alternative mode panels
+  additionally examined at 390px without horizontal overflow.
+- Actual OfflineAudioContext browser render shows first and second echo
+  at predicted delayed positions for 7/8, 5 in 4, 7 in 1 and a floating,
+  stretched beat value; dry comparison contains no repeat in those windows.
+
+RESIDUALS
+- No physical sound-card test and no extended live performance endurance.
+- Changing delay time during feedback may deliberately create a pitch glide,
+  as with tape/dub delays; no hard clock discontinuity-free promise.
+- 'N/D meter' concerns the Echo Time relationship only, not global Main
+  Room transport/step sequencer time signature editing.
+- Actual requested durations above 19.5 seconds are bounded by the Web
+  Audio DelayNode maximum; the UI warns when this occurs.
+
+NETLIFY
+Upload DUB02_NETLIFY.zip (one index.html) as a manual deploy of the
+EXISTING XenSonar site and publish the new deploy to production.

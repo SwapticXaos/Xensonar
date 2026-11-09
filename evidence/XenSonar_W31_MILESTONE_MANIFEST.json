@@ -1,0 +1,48 @@
+{
+  "milestone": "XenSonar W31",
+  "date": "2026-11-08",
+  "status": "QA_PENDING, consolidated development working milestone; old parents preserved",
+  "base_file": "XenSonar_W30C_MRU01_FF01_FLAC_SECURITY_FALLBACK_QA_PENDING.html",
+  "base_sha256": "a252a013aca5083a52f3c2e6ee3e3373cca381eb4be2320d7da8302e3104b13d",
+  "milestone_file": "XenSonar_W31_MILESTONE_INTEGRATED_QA_PENDING.html",
+  "milestone_sha256": "53b9d3f4639176037ecd7d646c15c95ea5cdae91932df04a655cc8249c626dc3",
+  "patch_file": "XenSonar_W31_MILESTONE_INTEGRATION.patch",
+  "patch_sha256": "2360345a3adb5a09d35de5815e908329bdc0fe44dad3632e206934e40313fa38",
+  "diff_applies_with_fuzz_0": true,
+  "reapply_fail_closed": true,
+  "changes_scripts_from_ff01": [
+    10,
+    15,
+    19
+  ],
+  "source_hashes": {
+    "ED1": "df4e25478a92da603dfe8a3008aba5a8ac71b4b325404f065bacc7ee0374cbf1",
+    "TD02": "cdd6622713500f5a2c51d845be91298372ca6a4921e93623099daa709ae99afb",
+    "RFL01": "c8bb3a3fbedeba7df3f4df131af5feadf457c4c8c92fd38029fc70322d5d2d28",
+    "LM01": "c7b2c1c3cfe12a6142fc8a37923cd538ca3ec4aac79d1a9f57dfdfb9675b6981",
+    "MRU01_FF01": "a252a013aca5083a52f3c2e6ee3e3373cca381eb4be2320d7da8302e3104b13d",
+    "GM01_VG01": "629e6697d820f534f4f8721fe62aeb17c8e51561c04ca9eeb6d3924e6034a722"
+  },
+  "tested": {
+    "script_syntax": "32/32 PASS",
+    "GM01_pcm": "15/15 plus 500 random",
+    "VG01_pcm": "8/8",
+    "MRU01": "16/16",
+    "FF01_Node": "8/8",
+    "GM01_browser": "10/10",
+    "VG01_browser": "10/10",
+    "triangle_dom": "PASS",
+    "TD02_PCM": "3/3",
+    "RFL_scheduling": "PASS",
+    "RFL_OfflineAudioContext": "PASS",
+    "Drum_PCM": "90 legacy,18 new; PASS",
+    "beat_owner": "8/8",
+    "package_station_flush": "4/4"
+  },
+  "remaining": [
+    "Full integrated file:// Firefox and Opera/browser audio verification",
+    "Real 2-hour long recording with lossless integrity checks",
+    "15-minute vs 2-hour mode unification (MRU01 P7 not implemented)",
+    "Long-recording browser storage capacity and quota end-to-end"
+  ]
+}

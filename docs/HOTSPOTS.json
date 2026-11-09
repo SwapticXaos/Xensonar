@@ -1,0 +1,134 @@
+[
+  {
+    "area": "Drum Rack Main UI",
+    "search_term": "function __mlCompactDrumGrid",
+    "html_line": 33334,
+    "occurrences": 1
+  },
+  {
+    "area": "DUB03 Time Model",
+    "search_term": "function __xenDrumEchoTimes",
+    "html_line": 34385,
+    "occurrences": 1
+  },
+  {
+    "area": "DUB03 marker grid",
+    "search_term": "function __xenDrumEchoGrid",
+    "html_line": 34363,
+    "occurrences": 1
+  },
+  {
+    "area": "DUB03 tempo",
+    "search_term": "function __xenDrumEchoTempo",
+    "html_line": 34414,
+    "occurrences": 1
+  },
+  {
+    "area": "DUB03 live FX",
+    "search_term": "__xenDrumEchoCurve",
+    "html_line": 34424,
+    "occurrences": 6
+  },
+  {
+    "area": "DUB03 Rack controls",
+    "search_term": "xen-drum-rack-controls",
+    "html_line": 34926,
+    "occurrences": 6
+  },
+  {
+    "area": "DUB03 hard delay limit",
+    "search_term": "const __xenDrumEchoMaxSec",
+    "html_line": 34355,
+    "occurrences": 1
+  },
+  {
+    "area": "LIVEGUARD02 UI throttling",
+    "search_term": "function __xenNParamsPublish",
+    "html_line": 12504,
+    "occurrences": 1
+  },
+  {
+    "area": "LIVEGUARD02 controlled slider",
+    "search_term": "function __XenRange",
+    "html_line": 12515,
+    "occurrences": 1
+  },
+  {
+    "area": "AudioParam Firefox fix",
+    "search_term": "AF01: A step envelope",
+    "html_line": 43172,
+    "occurrences": 1
+  },
+  {
+    "area": "Wave Editor Kernel",
+    "search_term": "XenSonar Wave Editor W01",
+    "html_line": 57169,
+    "occurrences": 2
+  },
+  {
+    "area": "Sessions manager",
+    "search_term": "__XenMetaSessions",
+    "html_line": 4459,
+    "occurrences": 197
+  },
+  {
+    "area": "Root Follow",
+    "search_term": "Root Follow",
+    "html_line": 448,
+    "occurrences": 248
+  },
+  {
+    "area": "Master long recording",
+    "search_term": "Long Master",
+    "html_line": null,
+    "occurrences": 0
+  },
+  {
+    "area": "Package Station",
+    "search_term": "Package Station 4.1",
+    "html_line": 1958,
+    "occurrences": 1
+  },
+  {
+    "area": "Keyboard Hold",
+    "search_term": "Keyboard Hold",
+    "html_line": 14,
+    "occurrences": 3
+  },
+  {
+    "area": "Troodle EQ",
+    "search_term": "troodle",
+    "html_line": 14,
+    "occurrences": 19
+  },
+  {
+    "area": "Nodal",
+    "search_term": "__XenNodalModel",
+    "html_line": 12243,
+    "occurrences": 44
+  },
+  {
+    "area": "Spectral Forge",
+    "search_term": "Spectral Forge",
+    "html_line": 11020,
+    "occurrences": 76
+  },
+  {
+    "area": "Golden Move",
+    "search_term": "Golden Move",
+    "html_line": 57373,
+    "occurrences": 9
+  },
+  {
+    "area": "Sound Path Diagnostics",
+    "search_term": "__XenSoundRecipeDiagnostics",
+    "html_line": 17334,
+    "occurrences": 3
+  },
+  {
+    "area": "Runtime Exports",
+    "search_term": "__XenSoundRecipeExportUI",
+    "html_line": 41880,
+    "occurrences": 2
+  }
+]

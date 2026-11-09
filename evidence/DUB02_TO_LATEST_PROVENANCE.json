@@ -1,0 +1,17 @@
+{
+  "parent": "baselines/DUB02_predecessor.html",
+  "parent_sha256": "be56213d6713bf35ea5478614132138ecc1b1f6b655a455805b713669ca834d7",
+  "child": "runtime/index.html",
+  "child_sha256": "e4fcc0852649c84e7c00c3b251d6dbbb89f11e2af88ae153d2e6723d898deb29",
+  "parent_scripts": 32,
+  "child_scripts": 32,
+  "parent_styles": 77,
+  "child_styles": 77,
+  "changed_script_block_numbers": [
+    10
+  ],
+  "changed_style_block_numbers": [
+    20
+  ],
+  "git_numstat": "365\t245\t/mnt/data/{handoff_inputs/XenSonar_W31_AF01_ML01_KH04_DUB02_index.html => handoff_work/index.html}"
+}
