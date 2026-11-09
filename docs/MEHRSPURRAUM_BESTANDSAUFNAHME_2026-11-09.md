@@ -155,7 +155,7 @@ Raum IV:    Zeitleisten-Scheduler ───┘        (MaterialPhase, TimeStable
 | Frage | Wo nachsehen | Warum |
 |---|---|---|
 | Wo greift der Loop-Taktgeber in die Spurkette (`src/audio/01_voice_and_rfl_ownership.js:401–568`, `:680`, `:1029–1089`)? | Aufrufkette `$fe` / `zfe` / `cV`, Refs `sourceRef`, `gainRef`, `pitchRef`, `panRef` | Zeigt, wo U2 ansetzt und was der Live-Regressionsvergleich abdecken muss |
-| Was läuft heute nach einem Raumwechsel im Live Room weiter (Audio, Scheduler, Timer, rAF)? | `setRoom`-Aufrufer, Effekte abhängig von `room` | Ausgangslage für U1 |
+| ~~Was läuft heute nach einem Raumwechsel im Live Room weiter (Audio, Scheduler, Timer, rAF)?~~ **Gemessen:** siehe `docs/RAUMWECHSEL_MESSUNG_2026-11-09.md`. Visuals schlafen; Audio und Scheduler laufen bei Power an weiter; Steuer-Uhr läuft nach Power aus weiter, AudioContext bleibt `running` | `setRoom`-Aufrufer, Effekte abhängig von `room` | Ausgangslage für U1 |
 | Hängt `__XenMaterialVoiceMix` an der Material-ID? Clips brauchen eine **eigene** ID pro Clip | `src/mix/03_quick_menu__before_eq-core.js:456ff` | Zwei Clips desselben Materials mit verschiedener Tonhöhe |
 | Darf der Live-Kontext ohne Live-Power laufen? `__XenOneShotLivePort` verlangt aktive Live-Power | `:795ff` | Bestimmt, wie Raum IV startet |
 | Interpolation in `XenLaneShift` und im Phasen-Worklet: linear oder Sinc? | `:253ff`, `:531ff` | Klangqualität beim Pitchen (siehe neue Ebene) |
