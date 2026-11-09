@@ -120,7 +120,7 @@ Zeitleiste: dieselben Tests gegen Quellbäume von 28.10., 05.11. (Stage05) und W
 | **Testumgebung, nicht aussagekräftig** | `bass_identity_preview`, `forge_interpretations`, `forge_pink_transfer`, `hard_vinyl_settlement`, `omega_atomic_voice_ownership`, `omega_nodal_dispose_ownership`, `omega_voice_lease_renderer_integration`, `test_runtime_package_trace_p3_15`, `eq_tool_preference`, `avalanche_handlers`, `hold_prefix_safety` sowie die 13 TESTUMGEBUNG-Fälle | Test schneidet Code aus; neuer Code braucht mehr Kontext oder Funktionen wurden verschoben |
 | **Regression gefunden und behoben (PKG-BOOT-TDZ-01)** | `test_package_station_browser_p4`, `test_package_station_selection_p41` | siehe unten; beide grün nach Fix |
 | **Grenze der Testumgebung** | `test_package_station_large_p4` | 8 MB und 128 MB grün; 512 MB lässt den Headless-Browser abstürzen, auch mit dem Oktober-Stand |
-| **offen (Browser)** | `ui_side_arrows` | nicht untersucht |
+| **gewollt, Test angepasst, grün** | `ui_side_arrows` | seit November hat auch „One-Shot Fills“ einen Einklapp-Pfeil; Test prüft den ersten (Instrumente) |
 
 ### Echter Fehler (keine Regression): Drone-Lautstärke wird nicht pro Session gespeichert
 - Speicher und Brücke sind dafür verdrahtet (`sources.drone.volume`, `getSongDroneVolume`/`setSongDroneVolume`).
@@ -135,3 +135,7 @@ Zeitleiste: dieselben Tests gegen Quellbäume von 28.10., 05.11. (Stage05) und W
 - Ab 05.11. (Stage05, W31, main bis Fix): Nach dem Import eines `.xenpack` (und bei jeder Paketstations-Absturz-Wiederherstellung) lädt die App neu und ruft vor allen Räumen `__xenPackageStation4().boot()` auf. Darin wurde `const __XMEM_MR03_ROOT_PILOT` gelesen, das erst ~33 000 Zeilen später definiert wird → `Cannot access … before initialization`, Start hängt bei „Startup is taking longer than expected", Daten werden nicht wiederhergestellt. 28.10.: funktioniert.
 - Fix: In `src/package_station/01_binary_archive.js` wird derselbe Wert (`window.__XMEM_MR03_ENABLE_ROOT__===true`) zur Aufrufzeit gelesen (`__xmemRootPilotEarly()`); Verhalten identisch, keine Reihenfolge-Abhängigkeit.
 - Belege: `tests/e2e/package_import_roundtrip.cjs` (rot auf Parent, grün mit Fix), Oktober-Tests `test_package_station_browser_p4` (Roundtrip, Re-Export, Korruption, Absturz-Rücksetzung: passed) und `test_package_station_selection_p41` grün.
+
+## Browser-Prüfung in CI (Stand 09.11.2026)
+`tools/run_e2e.sh`: 5 eigene Tests (Sessions, Songs, Bass-Ziehen/-Regler, Paket-Import) gegen den Prüf-Build plus 5 grüne Oktober-Browser-Tests gegen `index.html`: `ui_side_arrows`, `mix_audio_browser` (natives Stereo, schnelle Pan-/Lautstärkefahrten), `ui_visual_restore`, `power_browser_smoke` (Power ein/aus ×3), `test_stamp_full_browser_p37`.
+Fehler-Durchlauf durch alle Räume und Hauptbereiche (Live Room, Material Forge, Nodal Center, Drum Machine, Bass Workshop, Meta-Menü, Rec, Spuren, Power ein/aus): 0 Seitenfehler, 0 Konsolenfehler.

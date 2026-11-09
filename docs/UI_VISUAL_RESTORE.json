@@ -1,0 +1,334 @@
+{
+  "icons": [
+    "📀",
+    "🎼",
+    "🎸",
+    "🥁"
+  ],
+  "family": "\"XenSonar Emoji\", ui-sans-serif, system-ui, sans-serif",
+  "main": [
+    {
+      "index": "0",
+      "text": "🪜"
+    },
+    {
+      "index": "1",
+      "text": "📀"
+    },
+    {
+      "index": "2",
+      "text": "🎼"
+    },
+    {
+      "index": "3",
+      "text": "🥁"
+    },
+    {
+      "index": "4",
+      "text": "🎸"
+    },
+    {
+      "index": "5",
+      "text": "🎧"
+    },
+    {
+      "index": "6",
+      "text": "💾"
+    },
+    {
+      "index": "7",
+      "text": "🪜"
+    },
+    {
+      "index": "8",
+      "text": "🪜"
+    },
+    {
+      "index": "9",
+      "text": "🪜"
+    },
+    {
+      "index": "10",
+      "text": "📀"
+    },
+    {
+      "index": "11",
+      "text": "📀"
+    },
+    {
+      "index": "12",
+      "text": "📀"
+    },
+    {
+      "index": "13",
+      "text": "🎼"
+    },
+    {
+      "index": "14",
+      "text": "🎼"
+    },
+    {
+      "index": "15",
+      "text": "🎼"
+    },
+    {
+      "index": "16",
+      "text": "🥁"
+    },
+    {
+      "index": "17",
+      "text": "🥁"
+    },
+    {
+      "index": "18",
+      "text": "🥁"
+    },
+    {
+      "index": "19",
+      "text": "🎸"
+    },
+    {
+      "index": "20",
+      "text": "🎸"
+    },
+    {
+      "index": "21",
+      "text": "🎸"
+    },
+    {
+      "index": "22",
+      "text": "📀"
+    },
+    {
+      "index": "23",
+      "text": "🎼"
+    },
+    {
+      "index": "24",
+      "text": "🎸"
+    },
+    {
+      "index": "25",
+      "text": "🥁"
+    },
+    {
+      "index": "26",
+      "text": "🎵 Melodic Fills"
+    },
+    {
+      "index": "27",
+      "text": "🥁 Drum Fills"
+    },
+    {
+      "index": "28",
+      "text": "📀 Material Track"
+    },
+    {
+      "index": "29",
+      "text": "🎼 Root Follow Loop"
+    },
+    {
+      "index": "30",
+      "text": " jump between the top nine playlist entries; "
+    },
+    {
+      "index": "31",
+      "text": ") — under 🥁 in the header you can set the or"
+    },
+    {
+      "index": "32",
+      "text": "The bass menu 🎸 currently has no hotkey assi"
+    }
+  ],
+  "meta": [
+    {
+      "index": "0",
+      "text": "🪜"
+    },
+    {
+      "index": "1",
+      "text": "📀"
+    },
+    {
+      "index": "2",
+      "text": "🎼"
+    },
+    {
+      "index": "3",
+      "text": "🥁"
+    },
+    {
+      "index": "4",
+      "text": "🎸"
+    },
+    {
+      "index": "5",
+      "text": "🎧"
+    },
+    {
+      "index": "6",
+      "text": "💾"
+    },
+    {
+      "index": "7",
+      "text": "🪜"
+    },
+    {
+      "index": "8",
+      "text": "🪜"
+    },
+    {
+      "index": "9",
+      "text": "🪜"
+    },
+    {
+      "index": "10",
+      "text": "📀"
+    },
+    {
+      "index": "11",
+      "text": "📀"
+    },
+    {
+      "index": "12",
+      "text": "📀"
+    },
+    {
+      "index": "13",
+      "text": "🎼"
+    },
+    {
+      "index": "14",
+      "text": "🎼"
+    },
+    {
+      "index": "15",
+      "text": "🎼"
+    },
+    {
+      "index": "16",
+      "text": "🥁"
+    },
+    {
+      "index": "17",
+      "text": "🥁"
+    },
+    {
+      "index": "18",
+      "text": "🥁"
+    },
+    {
+      "index": "19",
+      "text": "🎸"
+    },
+    {
+      "index": "20",
+      "text": "🎸"
+    },
+    {
+      "index": "21",
+      "text": "🎸"
+    },
+    {
+      "index": "22",
+      "text": "📀"
+    },
+    {
+      "index": "23",
+      "text": "🎼"
+    },
+    {
+      "index": "24",
+      "text": "🎸"
+    },
+    {
+      "index": "25",
+      "text": "🥁"
+    },
+    {
+      "index": "26",
+      "text": "🎵 Melodic Fills"
+    },
+    {
+      "index": "27",
+      "text": "🥁 Drum Fills"
+    },
+    {
+      "index": "28",
+      "text": "📀 Material Track"
+    },
+    {
+      "index": "29",
+      "text": "🎼 Root Follow Loop"
+    },
+    {
+      "index": "30",
+      "text": " jump between the top nine playlist entries; "
+    },
+    {
+      "index": "31",
+      "text": ") — under 🥁 in the header you can set the or"
+    },
+    {
+      "index": "32",
+      "text": "The bass menu 🎸 currently has no hotkey assi"
+    },
+    {
+      "index": "33",
+      "text": "🎧 Meta-Menu"
+    },
+    {
+      "index": "34",
+      "text": "🎧 Sessions"
+    },
+    {
+      "index": "35",
+      "text": "🪜"
+    },
+    {
+      "index": "36",
+      "text": "📀"
+    },
+    {
+      "index": "37",
+      "text": "🎼"
+    },
+    {
+      "index": "38",
+      "text": "🥁"
+    },
+    {
+      "index": "39",
+      "text": "🎸"
+    },
+    {
+      "index": "40",
+      "text": "🎧 Saved Sessions"
+    },
+    {
+      "index": "41",
+      "text": "🎨 Session Colors"
+    },
+    {
+      "index": "42",
+      "text": "🪜 GRID"
+    },
+    {
+      "index": "43",
+      "text": "📀 MAT"
+    },
+    {
+      "index": "44",
+      "text": "🎼 RFL"
+    },
+    {
+      "index": "45",
+      "text": "🥁 DRM"
+    },
+    {
+      "index": "46",
+      "text": "🎸 BASS"
+    }
+  ],
+  "errors": []
+}

@@ -1,0 +1,22 @@
+{
+  "same": true,
+  "panners": 1,
+  "filters": 0,
+  "diagnostics": {
+    "panStages": 1,
+    "levelStages": 1,
+    "level": 0,
+    "phaserNodes": 0,
+    "placementNodes": 0,
+    "echoNodes": 0,
+    "echoSec": null,
+    "echoMode": null,
+    "lfo": false,
+    "disposed": false
+  },
+  "delta": 0.004288111813376924,
+  "peak": 0.14887635409832,
+  "tail": 0,
+  "velocity": 0.52,
+  "level": 0.26
+}

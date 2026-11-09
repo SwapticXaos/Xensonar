@@ -9,7 +9,7 @@ const fs=require('fs'),path=require('path'),assert=require('assert/strict'),{chr
  const doc=await cdp.send('DOM.getDocument'),proof=[];
  for(const [selector,expected] of [['.xen-performance header button',['◀','▶']],['.xen-quick-collapse-trigger',['>','<']]]){
  for(let i=0;i<2;i++){
- const button=page.locator(selector);await button.waitFor({state:'visible'});
+ const button=page.locator(selector).first(); // Stufe 2b: since Nov the One-Shot Fills panel has the same collapse arrow; the test targets the first (Instruments)await button.waitFor({state:'visible'});
  await page.mouse.move(700,10);await page.waitForTimeout(180);
  const style=await button.evaluate(e=>{const s=getComputedStyle(e);return {text:e.textContent,color:s.color,background:s.backgroundColor,width:e.getBoundingClientRect().width,height:e.getBoundingClientRect().height}});
  assert.equal(style.text,expected[i]);assert.equal(style.color,selector.startsWith('.xen-performance')?'rgb(232, 121, 249)':'rgb(241, 145, 255)');if(selector.startsWith('.xen-performance'))assert.equal(style.background,'rgb(0, 0, 0)');

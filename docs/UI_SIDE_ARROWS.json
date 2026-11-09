@@ -1,0 +1,70 @@
+[
+  {
+    "selector": ".xen-performance header button",
+    "state": "expanded",
+    "text": "◀",
+    "color": "rgb(232, 121, 249)",
+    "background": "rgb(0, 0, 0)",
+    "width": 26,
+    "height": 26,
+    "fonts": [
+      {
+        "familyName": "DejaVu Sans Mono",
+        "postScriptName": "DejaVuSansMono",
+        "isCustomFont": false,
+        "glyphCount": 1
+      }
+    ]
+  },
+  {
+    "selector": ".xen-performance header button",
+    "state": "collapsed",
+    "text": "▶",
+    "color": "rgb(232, 121, 249)",
+    "background": "rgb(0, 0, 0)",
+    "width": 26,
+    "height": 26,
+    "fonts": [
+      {
+        "familyName": "DejaVu Sans Mono",
+        "postScriptName": "DejaVuSansMono",
+        "isCustomFont": false,
+        "glyphCount": 1
+      }
+    ]
+  },
+  {
+    "selector": ".xen-quick-collapse-trigger",
+    "state": "expanded",
+    "text": ">",
+    "color": "rgb(241, 145, 255)",
+    "background": "rgba(0, 0, 0, 0)",
+    "width": 29,
+    "height": 26,
+    "fonts": [
+      {
+        "familyName": "DejaVu Sans Mono",
+        "postScriptName": "DejaVuSansMono-Bold",
+        "isCustomFont": false,
+        "glyphCount": 1
+      }
+    ]
+  },
+  {
+    "selector": ".xen-quick-collapse-trigger",
+    "state": "collapsed",
+    "text": "<",
+    "color": "rgb(241, 145, 255)",
+    "background": "rgba(0, 0, 0, 0)",
+    "width": 26,
+    "height": 26,
+    "fonts": [
+      {
+        "familyName": "DejaVu Sans Mono",
+        "postScriptName": "DejaVuSansMono-Bold",
+        "isCustomFont": false,
+        "glyphCount": 1
+      }
+    ]
+  }
+]
