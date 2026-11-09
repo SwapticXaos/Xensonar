@@ -1,0 +1,7 @@
+
+.xen-fp9-carrier-grid{grid-template-rows:minmax(500px,1fr) auto auto}
+@media(max-width:767px){.xen-fp9-carrier-grid{grid-template-rows:minmax(301px,1fr) auto auto}}
+.xen-forge-progress-line{box-sizing:border-box;display:block;width:100%;min-width:0;min-height:28px;padding:5px 9px;border:1px solid rgba(55,152,165,.3);border-radius:3px;background:rgba(4,15,23,.82);color:#bce9eb;font:11px/1.5 ui-monospace,SFMono-Regular,Consolas,monospace;white-space:normal;overflow:visible;overflow-wrap:anywhere;word-break:normal}
+.xen-forge-progress-error{border-color:rgba(251,113,133,.75);background:rgba(69,10,10,.4);color:#fecdd3}
+@media(max-width:550px){.xen-forge-header-pitch{font-size:10px;min-width:0;gap:4px}.xen-forge-progress-line{font-size:11px}}
+@media(prefers-reduced-motion:reduce){.xen-forge-pitch-near{animation:none}}

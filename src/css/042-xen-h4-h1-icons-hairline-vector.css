@@ -1,0 +1,50 @@
+
+/* Header H4 — fidelity correction. H1 icon glyph size is an ACCEPTED invariant. */
+/* Only the vector ring itself changes. H1: Roman 19px; six instrument glyphs 23px. */
+.xen-h1-room-btn .xen-h1-room-disc::before,
+[data-xensonar-performance-strip] .xen-header-unicode-icon::before{
+ -webkit-mask-image:url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA0MCA0MCI+PGNpcmNsZSBjeD0iMjAiIGN5PSIyMCIgcj0iMTkuMDUiIHN0cm9rZT0iIzAwMCIgc3Ryb2tlLXdpZHRoPSIwLjg1IiBmaWxsPSJub25lIi8+PC9zdmc+")!important;mask-image:url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA0MCA0MCI+PGNpcmNsZSBjeD0iMjAiIGN5PSIyMCIgcj0iMTkuMDUiIHN0cm9rZT0iIzAwMCIgc3Ryb2tlLXdpZHRoPSIwLjg1IiBmaWxsPSJub25lIi8+PC9zdmc+")!important;
+ filter:blur(.14px);opacity:.93;
+}
+.xen-h1-room-btn .xen-h1-room-disc{
+ --xen-h3-ring:currentColor;
+ /* H5: restore H1 diffuse luminous halo without losing the thin H4 SVG stroke. */
+ box-shadow:0 0 0 2px #08070e,0 0 14px color-mix(in srgb,var(--xen-h3-ring) 23%,transparent)!important;
+ transition:box-shadow .16s ease-out;
+}
+[data-xensonar-performance-strip] .xen-header-unicode-icon{
+ width:41px!important;height:41px!important;flex:0 0 41px!important;
+ font-size:23px!important;line-height:1!important;
+ box-shadow:0 0 0 2px #08070e,0 0 9px color-mix(in srgb,var(--xen-h3-ring,#8bbbd8) 20%,transparent)!important;
+ transition:box-shadow .16s ease-out;
+}
+/* Restore the individualized thin-stroke colors from the accepted H1 appearance. */
+[data-xen-status-fretboard] .xen-header-unicode-icon{--xen-h3-ring:#8a6da9}
+[data-xen-status-menus] > button:nth-of-type(1) .xen-header-unicode-icon{--xen-h3-ring:#b78b35}
+[data-xen-status-menus] > button:nth-of-type(2) .xen-header-unicode-icon{--xen-h3-ring:#8b7cd3}
+[data-xen-status-menus] > button:nth-of-type(3) .xen-header-unicode-icon{--xen-h3-ring:#c78080;font-size:23px!important}
+[data-xen-status-menus] > button:nth-of-type(4) .xen-header-unicode-icon{--xen-h3-ring:#b68a5a;font-size:23px!important}
+[data-xen-status-menus] > button.xen-meta-rack .xen-header-unicode-icon{--xen-h3-ring:#66b6d8;font-size:23px!important}
+/* Preserve H1 mobile-specific glyph ratio rather than overriding it unintentionally. */
+@media(max-width:680px){
+ [data-xensonar-performance-strip] .xen-header-unicode-icon{font-size:20px!important;width:37px!important;height:37px!important;flex-basis:37px!important}
+ [data-xen-status-menus] > button:nth-of-type(3) .xen-header-unicode-icon,
+ [data-xen-status-menus] > button:nth-of-type(4) .xen-header-unicode-icon,
+ [data-xen-status-menus] > button.xen-meta-rack .xen-header-unicode-icon{font-size:20px!important}
+}
+
+/* Restored H1 interaction affordance: H3/H4 !important idle shadows used to mask it. */
+.xen-h1-room-btn:hover .xen-h1-room-disc,
+.xen-h1-room-btn:focus-visible .xen-h1-room-disc,
+.xen-h1-room-btn:active .xen-h1-room-disc{
+ box-shadow:0 0 0 2px #08070e,0 0 18px color-mix(in srgb,var(--xen-h3-ring) 62%,transparent)!important;
+}
+[data-xensonar-performance-strip] button:hover .xen-header-unicode-icon,
+[data-xensonar-performance-strip] button:focus-visible .xen-header-unicode-icon,
+[data-xensonar-performance-strip] button:active .xen-header-unicode-icon{
+ box-shadow:0 0 0 2px #08070e,0 0 15px color-mix(in srgb,var(--xen-h3-ring,#8bbbd8) 54%,transparent)!important;
+}
+@media(prefers-reduced-motion:reduce){
+ .xen-h1-room-btn .xen-h1-room-disc,
+ [data-xensonar-performance-strip] .xen-header-unicode-icon{transition:none}
+}

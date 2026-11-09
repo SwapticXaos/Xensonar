@@ -1,0 +1,9 @@
+
+/* Forge-only pitch readout: no cursor HUD or performance-heavy overlays. */
+.xen-forge-header-pitch{display:inline-flex;align-items:center;gap:6px;min-width:120px;max-width:100%;color:#d9f5e9;white-space:nowrap;font:12px/1.35 ui-monospace,SFMono-Regular,Consolas,monospace;font-variant-numeric:tabular-nums}
+.xen-forge-note-marker{display:inline-block;color:#718b87;opacity:.55;transition:color .18s ease,opacity .18s ease,text-shadow .18s ease;will-change:auto}
+.xen-forge-pitch-near{color:#4ade80;opacity:1;text-shadow:0 0 8px rgba(74,222,128,.55);animation:xen-forge-pitch-bloom 1.15s ease-in-out infinite}
+.xen-forge-note-name{font-weight:650;min-width:2.8em}
+.xen-forge-note-freq{color:#a8ccce;min-width:4.9em}
+@keyframes xen-forge-pitch-bloom{0%,100%{text-shadow:0 0 1px rgba(74,222,128,.35)}50%{text-shadow:0 0 9px rgba(74,222,128,.9)}}
+@media(prefers-reduced-motion:reduce){.xen-forge-pitch-near{animation:none}}

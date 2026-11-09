@@ -4,11 +4,11 @@ Du arbeitest am bestehenden **XenSonar**, nicht an einem neuen DAW-Prototyp. Die
 
 ## Primärquellen und Priorität
 
-1. **`runtime/index.html` ist alleiniger aktueller ausführbarer Source-of-Truth in diesem Paket.** Ihre SHA-256 steht im README/Manifest. Nicht neu formatieren oder vollständig generieren, wenn ein kleiner präziser Patch ausreicht.
-2. `deployment/...NETLIFY.zip` enthält byteidentische `index.html`. Separate HTML **und** ZIP sind pro Release Pflicht.
-3. `source_reference` ist **nur lesbare Dekompilation nach HTML-Blockgrenzen**; keine bestehende Modul-Build-Pipeline oder alternative Releasebasis behaupten.
-4. `baselines/` und `history/` sind Vergleiche/Provenienz, keine ungeprüften Merge-Quellen.
-5. Sätze in alten Patchplänen sind keine Beweise für aktiv implementierte Features. Sie können ausdrücklich `QA_PENDING`, `REVERTED`, `ISOLATED` oder `NOT_MERGED` sein.
+1. **`src/` ist die Quelle, `index.html` das gebaute Ergebnis.** `src/index.template.html` enthält das HTML-Gerüst, `src/js/` und `src/css/` je einen Block pro `<script>`/`<style>` (Nummer = Reihenfolge, Name = Block-`id`). Nach jeder Änderung `python3 tools/build.py` ausführen; `python3 tools/build.py --check` muss vor jedem Commit OK melden (läuft auch als GitHub-Action).
+2. **`index.html` im Repo-Hauptverzeichnis** ist die einzige ausgelieferte Datei (Netlify, offline). Nie direkt bearbeiten. Pro Release zusätzlich eine ZIP mit byteidentischer `index.html`.
+3. Versionen liegen als Zweige `version/...` (siehe README). Der alte Quellcode 3.1.6 (`version/xensonar-3.1.6-maerz`) ist Herkunft, keine Arbeitsbasis.
+4. `docs/` und `evidence/` sind Begleitdokumente. Sätze in alten Patchplänen sind keine Beweise für aktiv implementierte Features (`QA_PENDING`, `REVERTED`, `ISOLATED`, `NOT_MERGED`).
+5. Nicht neu formatieren oder vollständig generieren, wenn ein kleiner präziser Patch reicht. Der große Block `src/js/010-main-bundle.js` ist gebautes React-Bundle mit späteren Direkt-Patches.
 
 ## Zielbild
 

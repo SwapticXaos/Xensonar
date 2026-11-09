@@ -1,0 +1,283 @@
+
+/* XenSonar Wave Editor W05 — native header launch / inline editor. */
+.xwe-launch{position:static;border:1px solid #a78bfa;background:#231438eF;color:#f3e8ff;border-radius:5px;padding:4px 9px;font:600 11px system-ui;cursor:pointer}.xwe-launch:focus-visible,.xwe-dialog :focus-visible,.xwe-menu :focus-visible{outline:2px solid #67e8f9;outline-offset:2px}.xwe-inline{width:100%;min-width:0;max-width:100%;margin:4px 0 8px}.xwe-dialog{box-sizing:border-box;width:100%;max-height:min(58dvh,560px);overflow:auto;display:flex;flex-direction:column;background:#0b1020;color:#dbeafe;border:1px solid #55657f;border-radius:12px;box-shadow:0 24px 100px #000c;font:12px/1.5 system-ui,sans-serif;color-scheme:dark}.xwe-dialog *{box-sizing:border-box}.xwe-head{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:13px 16px;border-bottom:1px solid #273249;background:linear-gradient(115deg,#17233c,#211632)}.xwe-head h2{font:600 18px system-ui;margin:0}.xwe-eyebrow{font-size:10px;letter-spacing:.17em;text-transform:uppercase;color:#93a7c8}.xwe-dialog button,.xwe-dialog select,.xwe-dialog input,.xwe-menu button{font:inherit;color:inherit;border:1px solid #36415a;border-radius:5px;background:#162139;padding:6px 9px;min-height:30px}.xwe-dialog button{cursor:pointer}.xwe-dialog button:hover,.xwe-menu button:hover{background:#283452;border-color:#a78bfa}.xwe-dialog button:disabled{opacity:.38;cursor:default}.xwe-primary{background:#553a90!important;border-color:#9c78e6!important}.xwe-warn{color:#fbbf24}.xwe-toolbar{display:flex;flex-wrap:wrap;align-items:center;gap:6px;padding:8px 14px;border-bottom:1px solid #273249}.xwe-toolbar label{display:flex;align-items:center;gap:5px}.xwe-toolbar input[type=number]{width:90px}.xwe-toolbar .xwe-spacer{flex:1}.xwe-body{padding:12px 14px;display:grid;grid-template-columns:minmax(200px,.7fr) minmax(0,1.8fr);gap:12px;flex:0 0 auto;min-height:auto}.xwe-panel{background:#10182b;border:1px solid #29344c;border-radius:7px;padding:11px;min-width:0}.xwe-panel h3{font:600 11px system-ui;letter-spacing:.12em;text-transform:uppercase;color:#9fb4d4;margin:0 0 9px}.xwe-edit-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:5px}.xwe-edit-grid button{text-align:left;font-size:11px;padding:5px 7px}.xwe-field{display:flex;justify-content:space-between;align-items:center;gap:8px;margin:6px 0}.xwe-field input,.xwe-field select{max-width:130px;min-width:0}.xwe-chain{display:flex;gap:5px;overflow-x:auto;padding-bottom:8px;min-height:46px}.xwe-node{white-space:nowrap;display:flex;align-items:center;border:1px solid #35415b;border-radius:5px;padding:3px;background:#0b1324;gap:2px}.xwe-node[data-active=true]{border-color:#bb93ff;background:#2d2142}.xwe-node button{border:0;background:transparent;font-size:10px;padding:3px;min-height:24px}.xwe-node input{accent-color:#a78bfa}.xwe-parameters{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1px 15px}.xwe-parameters .xwe-field{display:grid;grid-template-columns:1fr 88px auto}.xwe-parameters input{width:88px}.xwe-lane-head{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin:12px 0 7px}.xwe-lane-head select{max-width:210px}.xwe-small{font-size:10px;color:#91a6c5}.xwe-hint{margin-top:7px;color:#95a6c4}.xwe-status{flex:1;min-width:180px;color:#aec3e4}.xwe-progress{width:90px;accent-color:#a78bfa}.xwe-menu{position:fixed;z-index:2147483550;background:#101729;border:1px solid #685482;border-radius:8px;padding:6px;color:#e0e7ff;font:12px system-ui;box-shadow:0 15px 60px #000b;width:250px;max-height:calc(100dvh - 20px);overflow:auto;color-scheme:dark}.xwe-menu button{display:block;width:100%;border:0;text-align:left;background:transparent;padding:7px 9px;border-radius:4px;cursor:pointer}.xwe-menu .xwe-menu-title{font-size:10px;color:#b49ad5;padding:5px 9px;letter-spacing:.09em;text-transform:uppercase}.xwe-menu .xwe-menu-back{border-bottom:1px solid #38415a;margin-bottom:4px}.xwe-meter{display:flex;gap:12px;font-variant-numeric:tabular-nums;color:#a9bddb}.xwe-analysis{white-space:pre-wrap;max-height:180px;overflow:auto;font-size:11px;color:#bbd5ec;background:#080f20;padding:8px;border-radius:4px}.xwe-hidden{display:none!important}@media(max-width:700px){.xwe-dialog{max-height:min(66dvh,620px);border-radius:6px}.xwe-body{display:flex;flex-direction:column;overflow:visible}.xwe-parameters{grid-template-columns:1fr}.xwe-head{padding:10px}.xwe-toolbar{padding:6px}.xwe-toolbar input[type=number]{width:74px}.xwe-dialog button{padding:5px 7px}.xwe-panel{padding:9px}.xwe-edit-grid{grid-template-columns:repeat(3,minmax(0,1fr))}.xwe-lane-head{gap:4px}}
+
+.xwe-inline .xwe-head{padding:7px 11px}.xwe-inline .xwe-head h2{font-size:14px}.xwe-inline .xwe-toolbar{padding:5px 10px}.xwe-inline .xwe-body{padding:8px 10px;gap:8px}.xwe-inline .xwe-dialog{border-color:#6b3d85;background:#0b0e1a}.xwe-inline .xwe-panel{padding:8px}.xwe-inline .xwe-lane-head{margin-top:6px}.xwe-inline .xwe-inline .xwe-dialog:focus-within{border-color:#9665b8}
+
+/* W05: button shares the existing Source options header, never an extra row. */
+.xwe-inline-mount{min-width:0;max-width:100%}
+.xwe-launch-slot{display:inline-flex;flex:0 0 auto;align-items:center;margin-left:auto;margin-right:8px}
+.xwe-launch-slot .xwe-launch{padding:2px 9px;min-height:24px;line-height:18px;white-space:nowrap;font-size:11px}
+.xwe-apply-undo{white-space:nowrap}
+@media(max-width:770px){.xwe-launch-slot .xwe-launch{padding:2px 5px;font-size:10px}.xwe-launch-slot{margin-right:4px}}
+
+.xwe-inline canvas[hidden]{display:none!important}
+
+/* W04 shared native MWCM curve tool: no duplicate drawing surface or JS events. */
+.xwe-morph-mount:empty{display:none}
+.xwe-morph-mount [data-xwe-native-morph]{min-width:0}
+.xwe-morph-mount .nd-shared-field-compact{padding:7px;max-width:100%}
+/* Respect the larger offline editing workspace. An inherited Nodal shared-field
+   rule sets canvas height:180px!important; local context must supersede it. */
+.xwe-morph-mount .nd-shared-field-compact canvas{height:230px!important;max-width:100%;touch-action:none}
+.xwe-morph-mount .nd-shared-field-compact input[type=range]{min-width:0}
+
+/* W06: inline workspace owns its full natural height; only the PAGE may scroll. */
+.xwe-inline .xwe-dialog{max-height:none;overflow:visible}
+.xwe-inline .xwe-body{overflow:visible}
+.xwe-inline .xwe-chain{overflow:visible;flex-wrap:wrap;min-height:0}
+.xwe-inline .xwe-analysis{max-height:none;overflow:visible}
+.xwe-head-actions{display:inline-flex;align-items:center;gap:6px;flex:0 0 auto}
+.xwe-head-actions [aria-label="Audio abspielen"]{background:#283455;color:#c4ffe2;border-color:#527f71;white-space:nowrap}
+canvas[data-xwe-hover-hit="channel"]{cursor:pointer!important}
+canvas[data-xwe-hover-hit="move"]{cursor:grab!important}
+canvas[data-xwe-hover-hit="resize-left"],canvas[data-xwe-hover-hit="resize-right"]{cursor:ew-resize!important}
+[data-xwe-meter-anchor="true"]{position:relative;width:100%;min-width:0}
+[data-xwe-meter-anchor="true"]>[data-xen-bar-meter]{cursor:pointer}
+.xwe-meter-popup{position:absolute;left:0;top:100%;z-index:150;background:#121728;border:1px solid #936ec4;border-radius:7px;padding:11px;box-shadow:0 12px 35px #000b;display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap;min-width:225px;width:max-content;max-width:min(96vw,400px);color:#d9e9ff;font:12px system-ui}
+.xwe-meter-popup label{display:flex;flex-direction:column;gap:4px}
+.xwe-meter-popup input{width:92px;background:#090e1c;border:1px solid #516184;border-radius:4px;color:white;padding:5px}
+@media(max-width:770px){.xwe-head-actions{gap:4px}.xwe-head-actions button{font-size:11px}.xwe-meter-popup{left:0;max-width:calc(100vw - 26px)}}
+/* Long action names remain legible even when the existing two-column grid narrows. */
+.xwe-inline .xwe-edit-grid button{min-width:0;overflow-wrap:anywhere;word-break:break-word;white-space:normal;line-height:1.3;height:auto}
+ 
+/* W07: compact toolbar stereo modes. Original drawn waveform letters remain unchanged. */
+.xwe-channel-modes{display:inline-flex;align-items:center;gap:3px;padding:0 4px;border-left:1px solid #495273;border-right:1px solid #495273;flex:0 0 auto}
+.xwe-dialog .xwe-channel-modes button{min-height:27px;padding:3px 8px;border:0;background:transparent;color:#c2cbe0;font-size:12px;line-height:19px;border-radius:3px}
+.xwe-dialog .xwe-channel-modes button[data-xwe-channel-mode="all"]{min-width:96px;background:rgba(139,92,246,.12);border:1px solid rgba(169,133,208,.55);color:#ece4fa}
+.xwe-dialog .xwe-channel-modes button[aria-pressed=true]{background:rgba(161,111,211,.23);color:#efdbff;font-weight:750;box-shadow:inset 0 -2px 0 #c084fc}
+.xwe-mix-popup{position:fixed;z-index:2147483300;width:min(335px,calc(100vw - 16px));max-height:none;overflow:visible;background:#13172a;border:1px solid #9975cf;box-shadow:0 16px 48px #000c;border-radius:8px;padding:12px;color:#e5e6fa}
+.xwe-mix-popup h3{margin:0 0 4px;font-size:13px;color:#e2ceff;text-transform:none;letter-spacing:0}
+.xwe-mix-popup .xwe-small{margin:3px 0 11px}
+.xwe-mix-fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px 12px}
+.xwe-mix-field{display:flex;flex-direction:column;gap:3px;font-size:11px;color:#b7c7de}
+.xwe-dialog .xwe-mix-field input{width:100%;min-width:0;min-height:27px;padding:3px 6px}
+.xwe-mix-field input:disabled{opacity:.35}
+.xwe-mix-actions{display:flex;justify-content:flex-end;gap:7px;margin-top:11px}
+
+/* W11 native Live Room EQ in the existing offline FX panel. */
+.xwe-offline-eq-host:empty{display:none}
+.xwe-offline-eq-host .xen-eq-panel{max-width:100%;background:#09191c;border:1px solid #426661;border-radius:6px}
+.xwe-offline-eq-host .xen-eq-panel header.xen-eq-window-bar{cursor:default}
+.xwe-offline-eq-host .xen-eq-body{min-width:0}
+.xwe-offline-eq-host .xen-eq-profile canvas{max-width:100%;height:220px!important}
+.xwe-offline-eq-host .xen-eq-window-bar button{min-height:25px}
+.xwe-offline-eq-host .xen-eq-toolbar input[type=number]{width:56px!important}
+.xwe-lane-head[hidden]{display:none!important}
+@media(max-width:770px){.xwe-offline-eq-host .xen-eq-panel{padding:5px}.xwe-offline-eq-host .xen-eq-toolbar{flex-wrap:wrap}}
+
+/* W12: a single top action row, no bottom footer. Status/progress exist for ARIA/worker only. */
+.xwe-head{position:relative;flex-wrap:nowrap;min-height:44px;gap:10px}
+.xwe-head h2{white-space:nowrap;font-size:14px}
+.xwe-head .xwe-header-workflow{display:flex;align-items:center;gap:5px;flex:1;min-width:0;justify-content:flex-end}
+.xwe-head .xwe-header-workflow>button,.xwe-head .xwe-header-workflow>select{min-height:26px;padding:3px 6px;white-space:nowrap;font-size:11px;line-height:18px;flex:0 0 auto}
+.xwe-head .xwe-head-actions{flex:0 0 auto;gap:5px}
+.xwe-head .xwe-head-actions button{white-space:nowrap;min-height:26px;padding:3px 8px;font-size:11px;line-height:18px}
+.xwe-head .xwe-header-workflow .xwe-primary{background:#3f2466;border-color:#b192e5;color:#fff}
+.xwe-head .xwe-status.xwe-sr-only,.xwe-head .xwe-progress.xwe-sr-only{position:absolute!important;width:1px!important;height:1px!important;overflow:hidden!important;clip-path:inset(50%)!important;white-space:nowrap!important;pointer-events:none}
+/* P5: unbaked-chain warning uses the existing ARIA output; no new rows/controls. */
+.xwe-head .xwe-status.xwe-p5-warning{position:fixed!important;left:50%!important;top:14px!important;transform:translateX(-50%)!important;z-index:2147483000!important;width:max-content!important;max-width:min(620px,calc(100vw - 28px))!important;height:auto!important;overflow:visible!important;clip-path:none!important;white-space:normal!important;pointer-events:none!important;display:block!important;padding:9px 14px!important;border:1px solid #f6ca76!important;border-radius:8px!important;background:#302017f5!important;color:#ffeac5!important;box-shadow:0 8px 28px #000b!important;font:600 12px/1.45 system-ui,sans-serif!important;text-align:center!important}
+/* Playheads are positioned over existing Forge wave canvases, never drawn into new waveform canvases. */
+.xwe-playhead-owner{position:relative}
+.xwe-playhead{position:absolute;pointer-events:none;z-index:15;width:2px;background:#59f8e6;box-shadow:0 0 7px #59f8e6aa,1px 0 1px #001;display:none}
+.xwe-playhead::before{content:"";position:absolute;top:-1px;left:-5px;border-left:6px solid transparent;border-right:6px solid transparent;border-top:8px solid #59f8e6;filter:drop-shadow(0 1px 3px #001)}
+@media(max-width:1050px){.xwe-head{flex-wrap:wrap}.xwe-head .xwe-header-workflow{order:3;flex-basis:100%;justify-content:flex-start;flex-wrap:wrap}.xwe-head-actions{margin-left:auto}}
+
+/* W30 P7: viewport-only fine navigation. Compact four controls next to A · Original. */
+.xwe-view-controls{display:inline-flex;align-items:center;gap:2px;padding:0 3px;border-left:1px solid #5a6286;border-right:1px solid #5a6286;white-space:nowrap;flex:0 0 auto}
+.xwe-head .xwe-header-workflow .xwe-view-controls>button{display:inline-flex;align-items:center;justify-content:center;min-width:26px;width:26px;min-height:26px;height:26px;padding:2px!important;border-color:#4a5b77;background:#14243c;color:#a9e9fa;touch-action:none;user-select:none;-webkit-user-select:none}
+.xwe-view-controls button[data-xwe-view='pan-left'],.xwe-view-controls button[data-xwe-view='pan-right']{color:#e0d1ff!important}
+.xwe-view-controls svg{display:block;width:17px;height:17px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;pointer-events:none}
+.xwe-head .xwe-header-workflow .xwe-view-controls>button:active,.xwe-head .xwe-header-workflow .xwe-view-controls>button[data-xwe-nav-held='true']{background:#32466d;border-color:#93d9f4}
+@media(max-width:1050px){.xwe-head .xwe-header-workflow{flex-wrap:nowrap;overflow-x:auto;overscroll-behavior-inline:contain;scrollbar-width:thin}}
+
+/* W12b: contextual delayed feedback; never takes space in the editor flow. */
+.xwe-head .xwe-compute-strip[hidden],.xwe-head .xwe-compute-strip .xwe-compute-cancel[hidden],.xwe-head .xwe-compute-strip .xwe-progress[hidden]{display:none!important}
+.xwe-head .xwe-compute-strip{position:absolute;z-index:12;top:50%;transform:translateY(-50%);left:120px;width:min(380px,32%);height:21px;display:flex;align-items:center;gap:7px;padding:2px 7px;border:1px solid #52627e;border-radius:5px;background:#121b2bec;box-shadow:0 3px 14px #0009;pointer-events:none}
+.xwe-head .xwe-compute-message{font:10px/1.2 system-ui;white-space:nowrap;color:#c1e6fb}
+.xwe-head .xwe-compute-strip .xwe-progress{flex:1;height:5px;min-width:18px;margin:0;accent-color:#5de3be}
+.xwe-head .xwe-compute-cancel{pointer-events:auto;flex:0 0 auto;min-width:18px;min-height:18px;padding:0;border:1px solid #7e83a2;border-radius:4px;line-height:15px;color:#e9eaf7;background:#293047}
+@media(max-width:1050px){.xwe-head .xwe-compute-strip{top:21px}}
+@media(max-width:570px){.xwe-head .xwe-compute-strip{left:116px;width:max(66px,calc(100% - 292px))}}
+
+/* W15: contextual Mix Paste control only; no permanent row. */
+.xwe-mix-link{display:flex;align-items:center;gap:6px;margin-top:8px;font-size:11px;color:#c6d2e7;cursor:pointer}
+.xwe-mix-link input{width:15px!important;min-width:15px;min-height:15px;margin:0;accent-color:#c39dff}
+
+/* W16: one full-width vertical grip for the complete stereo selection rectangle. */
+canvas[data-xwe-hover-hit="resize-bottom"]{cursor:ns-resize!important}
+
+/* W16 audio scratchpad: single shared editor model, not another editor or PCM engine. */
+.xwe-scratchpad{border:1px solid #495474;border-radius:6px;background:#090f21;padding:8px;margin:9px 0 7px;min-width:0}
+.xwe-scratchpad[data-active="true"]{border-color:#d3a2ff;box-shadow:inset 0 0 0 1px #b28ad4aa;background:#18112c}
+.xwe-scratch-head{display:flex;align-items:center;gap:8px;flex-wrap:wrap;font:11px/1.4 system-ui}
+.xwe-scratch-head strong{color:#d6beff;font-weight:700;font-size:12px}
+.xwe-scratch-active{background:#262b45;border-radius:3px;padding:2px 5px;color:#d8dfee}
+.xwe-scratchpad[data-active="true"] .xwe-scratch-active{color:#fff;background:#65448f}
+.xwe-scratch-info{margin-left:auto;color:#9aaed2}
+.xwe-scratch-actions{display:flex;gap:5px;align-items:center;flex-wrap:wrap;margin:6px 0}
+.xwe-scratch-actions button{min-height:25px;font-size:11px;padding:3px 8px}
+.xwe-scratch-actions button[aria-pressed="true"]{background:#405d65;border-color:#9acec8;color:#eef}
+.xwe-scratchpad canvas{display:block;width:100%;height:88px;max-width:100%;border:1px solid #465275;border-radius:4px;touch-action:none;cursor:pointer}
+.xwe-scratchpad[data-active="true"] canvas{border-color:#c99fff;cursor:crosshair}
+
+/* W16 desktop FX/scratch: both tools share horizontal working space;
+   the pad is collapsed while empty and never creates a second editor row. */
+.xwe-scratchpad[data-has-audio="false"] canvas{display:none}
+.xwe-scratchpad{margin:0;min-width:0}
+.xwe-scratchpad canvas{height:72px;}
+@media(min-width:1180px){
+ .xwe-fx-layout{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,.9fr);align-content:start;gap:7px 10px}
+ .xwe-fx-layout>h3{grid-column:1/-1}
+ .xwe-fx-controls{grid-column:1;min-width:0}
+ .xwe-fx-layout>.xwe-scratchpad{grid-column:2;grid-row:2;align-self:start}
+ .xwe-fx-layout>.xwe-field,.xwe-fx-layout>.xwe-toolbar{grid-column:1/-1}
+}
+@media(max-width:1179px){.xwe-fx-layout>.xwe-scratchpad{margin:8px 0 7px}}
+
+/* W17 – full-height scratch, one toolbar (five controls only) LEFT of the waveform. */
+.xwe-scratchpad{display:flex;flex-direction:column;align-self:stretch;min-height:235px;padding:6px;overflow:hidden}
+.xwe-scratch-head{flex:0 0 auto;min-height:26px;gap:4px}
+.xwe-scratch-info{font-size:10px}
+.xwe-scratch-workspace{flex:1;min-height:210px;display:grid;grid-template-columns:74px minmax(0,1fr);align-items:stretch;gap:6px}
+.xwe-scratch-actions{display:flex;flex-direction:column;justify-content:flex-start;flex-wrap:nowrap;margin:0;gap:5px;min-width:0}
+.xwe-scratch-actions button{width:100%;padding:3px!important;font-size:10px;min-height:29px;text-align:center}
+.xwe-scratchpad .xwe-scratch-workspace canvas{width:100%;height:100%;min-height:210px;max-width:100%;display:block;border-radius:3px}
+.xwe-scratchpad[data-has-audio="false"] .xwe-scratch-workspace canvas{display:block;opacity:.52}
+@media(min-width:1180px){.xwe-fx-layout>.xwe-scratchpad{grid-row:2;align-self:stretch}}
+@media(max-width:1179px){.xwe-scratchpad{min-height:245px}.xwe-scratch-workspace{min-height:210px}}
+canvas[data-xwe-workspace-resize="true"]{border-bottom:3px solid #4e7890!important}
+canvas[data-xwe-workspace-resize="true"][data-xwe-workspace-edge="true"]{cursor:ns-resize!important;border-bottom-color:#79e9ee!important}
+
+
+/* W18: one shared header at the very top, mutually exclusive workspace views.
+   No extra header row; not a second editor or duplicated Morph/FX engine. */
+.xwe-fx-layout{display:grid!important;grid-template-columns:minmax(0,1.08fr) minmax(0,.92fr)!important;grid-template-rows:auto auto auto auto;gap:6px 10px!important;align-content:start}
+.xwe-fx-layout>.xwe-fx-header{grid-column:1/-1;grid-row:1;display:flex;align-items:center;gap:8px;min-width:0;min-height:28px;margin:0;padding:0}
+.xwe-fx-header>h3{flex:0 0 auto;margin:0!important;line-height:27px}
+.xwe-fx-header>.xwe-fx-focus-button{margin-left:4px}
+.xwe-fx-header>.xwe-scratch-head{margin-left:auto;display:flex;align-items:center;gap:7px;flex-wrap:nowrap;min-width:0;min-height:27px}
+.xwe-fx-header .xwe-fx-focus-button{font-size:10px;line-height:18px;min-height:25px;padding:3px 9px;white-space:nowrap;color:#a6b3d1;background:#111b30;border:1px solid #344763}
+.xwe-fx-header .xwe-fx-focus-button[aria-pressed=true]{color:#f3dcff;border-color:#ab7ed7;background:#352048;box-shadow:inset 0 -2px 0 #c29fe7}
+.xwe-fx-header .xwe-scratch-info{font-size:10px;color:#91a8c8;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:170px}
+.xwe-fx-layout[data-xwe-fx-focus="morph"] .xwe-scratch-info{display:none}
+.xwe-fx-header .xwe-scratch-active{display:none}
+.xwe-fx-layout>.xwe-fx-controls{grid-column:1!important;grid-row:2!important;min-width:0}
+.xwe-fx-layout>.xwe-scratchpad{grid-column:2!important;grid-row:2!important;margin:0!important;align-self:stretch;min-width:0}
+.xwe-fx-layout>.xwe-field,.xwe-fx-layout>.xwe-toolbar{grid-column:1/-1!important;grid-row:auto}
+.xwe-fx-layout[data-xwe-fx-focus="morph"]{grid-template-columns:minmax(0,1fr)!important}
+.xwe-fx-layout[data-xwe-fx-focus="morph"]>.xwe-fx-controls{grid-column:1/-1!important}
+.xwe-fx-layout[data-xwe-fx-focus="morph"]>.xwe-scratchpad{display:none!important}
+.xwe-fx-layout[data-xwe-fx-focus="scratch"] .xwe-morph-area{display:none!important}
+.xwe-fx-layout[data-xwe-fx-focus="scratch"] .xwe-scratchpad{display:flex!important}
+.xwe-fx-layout .xwe-morph-area{min-width:0}
+.xwe-fx-layout>.xwe-scratchpad{min-height:265px;padding:6px}
+.xwe-fx-layout>.xwe-scratchpad .xwe-scratch-workspace{min-height:238px}
+.xwe-fx-layout>.xwe-scratchpad .xwe-scratch-workspace canvas{min-height:238px}
+/* Use only one page scroller. The Morph and Scratch views never scroll internally. */
+.xwe-fx-layout>.xwe-scratchpad{overflow:hidden}
+@media(max-width:900px){
+ .xwe-fx-layout{grid-template-columns:minmax(0,1fr)!important}
+ .xwe-fx-layout>.xwe-fx-controls,.xwe-fx-layout>.xwe-scratchpad{grid-column:1/-1!important}
+ .xwe-fx-layout[data-xwe-fx-focus="scratch"]>.xwe-fx-controls{grid-row:2!important}
+ .xwe-fx-layout[data-xwe-fx-focus="scratch"]>.xwe-scratchpad{grid-row:3!important}
+ .xwe-fx-header .xwe-scratch-active,.xwe-fx-header .xwe-scratch-info{display:none}
+}
+
+/* W18B: two simultaneously visible tools, not mutually exclusive tabs. */
+.xwe-fx-layout{position:relative!important;align-content:start}
+.xwe-fx-layout>.xwe-fx-header{position:relative;z-index:2}
+.xwe-fx-header .xwe-scratch-head{margin-left:auto!important}
+.xwe-fx-header .xwe-scratch-head button{min-height:25px}
+.xwe-fx-header .xwe-scratch-active{display:inline-flex!important;font-size:10px;white-space:nowrap}
+.xwe-fx-layout .xwe-morph-area{display:block!important;min-width:0}
+.xwe-fx-layout[data-xwe-fx-focus="morph"]{grid-template-columns:minmax(0,1fr)!important}
+.xwe-fx-layout[data-xwe-fx-focus="morph"]>.xwe-fx-controls{grid-column:1/-1!important;width:100%}
+.xwe-fx-layout[data-xwe-fx-focus="morph"] .xwe-parameters{max-width:min(56%,650px)}
+.xwe-fx-layout[data-xwe-fx-focus="morph"] .xwe-morph-area{margin-top:var(--xwe-morph-reserve,0px)}
+.xwe-fx-layout[data-xwe-fx-focus="morph"]>.xwe-scratchpad{
+ display:flex!important;position:absolute!important;z-index:1;top:35px;right:8px;left:auto;
+ width:43%;height:var(--xwe-scratch-compact-height,163px);min-height:0!important;
+ margin:0!important;padding:4px!important;align-self:start;grid-column:auto!important;grid-row:auto!important;
+}
+.xwe-fx-layout[data-xwe-fx-focus="morph"]>.xwe-scratchpad .xwe-scratch-workspace{
+ height:100%;min-height:0!important;grid-template-columns:64px minmax(0,1fr);gap:5px;
+}
+.xwe-fx-layout[data-xwe-fx-focus="morph"]>.xwe-scratchpad .xwe-scratch-actions{gap:3px}
+.xwe-fx-layout[data-xwe-fx-focus="morph"]>.xwe-scratchpad .xwe-scratch-actions button{
+ min-height:23px!important;padding:2px!important;font-size:9px;
+}
+.xwe-fx-layout[data-xwe-fx-focus="morph"]>.xwe-scratchpad .xwe-scratch-workspace canvas{
+ display:block!important;min-height:0!important;height:100%!important;
+}
+.xwe-fx-layout[data-xwe-fx-focus="scratch"]{grid-template-columns:minmax(0,1.07fr) minmax(0,.93fr)!important}
+.xwe-fx-layout[data-xwe-fx-focus="scratch"]>.xwe-fx-controls{grid-column:1!important;grid-row:2!important}
+.xwe-fx-layout[data-xwe-fx-focus="scratch"]>.xwe-scratchpad{
+ position:relative!important;display:flex!important;grid-column:2!important;grid-row:2!important;
+ min-height:235px!important;align-self:stretch;margin:0!important;height:auto!important;
+}
+.xwe-fx-layout[data-xwe-fx-focus="scratch"] .xwe-morph-area{display:block!important}
+.xwe-fx-layout[data-xwe-fx-focus="scratch"] .xwe-parameters{max-width:100%}
+.xwe-fx-layout[data-xwe-fx-focus="scratch"]>.xwe-scratchpad .xwe-scratch-workspace canvas{display:block!important;min-height:210px}
+/* Small viewports: don't hide tools or introduce a second vertical section. */
+@media(max-width:900px){
+ .xwe-fx-layout[data-xwe-fx-focus="scratch"],.xwe-fx-layout[data-xwe-fx-focus="morph"]{grid-template-columns:minmax(0,1fr)!important}
+ .xwe-fx-layout[data-xwe-fx-focus="scratch"]>.xwe-fx-controls{grid-column:1/-1!important;grid-row:2!important}
+ .xwe-fx-layout[data-xwe-fx-focus="scratch"]>.xwe-scratchpad{position:absolute!important;top:35px;right:5px;z-index:1;grid-column:auto!important;grid-row:auto!important;width:45%;height:var(--xwe-scratch-compact-height,163px)!important;min-height:0!important;padding:4px!important;align-self:start}
+ .xwe-fx-layout[data-xwe-fx-focus="scratch"]>.xwe-scratchpad .xwe-scratch-workspace{min-height:0!important;height:100%;grid-template-columns:49px minmax(0,1fr);gap:3px}
+ .xwe-fx-layout[data-xwe-fx-focus="scratch"]>.xwe-scratchpad .xwe-scratch-workspace canvas{min-height:0!important;height:100%!important}
+ .xwe-fx-layout[data-xwe-fx-focus="scratch"]>.xwe-scratchpad .xwe-scratch-actions button{min-height:23px!important;font-size:9px;padding:1px!important}
+ .xwe-fx-layout[data-xwe-fx-focus="scratch"] .xwe-morph-area{margin-top:var(--xwe-morph-reserve,0px)}
+ .xwe-fx-layout .xwe-parameters{max-width:53%!important;grid-template-columns:minmax(0,1fr)!important}
+ .xwe-fx-header .xwe-scratch-info{display:none!important}
+}
+
+/* W19: signal actual channel count, intentional conversion; keep header one line. */
+.xwe-title-with-channels{display:flex;align-items:center;gap:7px;white-space:nowrap}
+.xwe-title-with-channels [data-xwe-mono-stereo-toggle]{font-size:10px;padding:3px 6px;min-height:23px;border-radius:4px;border:1px solid rgba(126,174,225,.55);color:#d3e8fd;background:#122239;cursor:pointer}
+.xwe-title-with-channels [data-xwe-mono-stereo-toggle]:disabled{opacity:.78;cursor:default;background:#121d31}
+/* W19: scratch height independent of selected FX node / parameter panel height. */
+@media(min-width:901px){.xwe-fx-layout[data-xwe-fx-focus="scratch"]>.xwe-scratchpad{min-height:max(66vh,var(--xwe-scratch-retained-height,0px))!important}}
+.xwe-fx-layout[data-xwe-fx-focus="scratch"]>.xwe-scratchpad .xwe-scratch-workspace{min-height:0}
+
+/* W20 Chromatic Contour Design 01: the 17 ORIGINAL Edit Audio actions only. */
+.xwe-dialog [data-xwe-edit-panel="true"] button.xwe-chromatic-action{
+ display:flex;align-items:center;gap:6px;text-align:left;min-width:0;min-height:34px;padding:5px 6px;
+ color:#e9f2ff;border:1px solid var(--xwe-accent);border-radius:5px;
+ background:linear-gradient(100deg,#162139 0%,#162139 40%,var(--xwe-mid) 74%,var(--xwe-tip) 100%);
+ font-size:11px;line-height:1.25;box-shadow:inset 0 1px #fff00009;
+ transition:filter .16s,border-color .16s,box-shadow .16s,transform .1s;
+}
+.xwe-dialog [data-xwe-edit-panel="true"] button.xwe-chromatic-action:hover{
+ filter:brightness(1.16);border-color:var(--xwe-accent);box-shadow:0 0 0 1px var(--xwe-accent),inset 0 1px #ffffff14;
+}
+.xwe-dialog [data-xwe-edit-panel="true"] button.xwe-chromatic-action:active{transform:translateY(1px)}
+.xwe-dialog [data-xwe-edit-panel="true"] button.xwe-chromatic-action:focus-visible{outline:2px solid #fff;outline-offset:2px}
+.xwe-chromatic-mark{display:inline-flex;flex:0 0 19px;align-items:center;justify-content:center;color:var(--xwe-accent)}
+.xwe-chromatic-mark svg{width:19px;height:19px;display:block;stroke-width:1.85}
+.xwe-chromatic-label{min-width:0;overflow-wrap:anywhere}
+/* Preserve compact geometry for the three existing full-width edits. */
+.xwe-dialog [data-xwe-edit-panel="true"]>button.xwe-chromatic-action{width:100%;margin:2px 0 4px}
+/* Actual React-native Morph button + active tool states. Only within Wave Editor. */
+.xwe-morph-mount .xwe-native-morph-heading{display:inline-flex;align-items:center;gap:7px;flex-wrap:wrap}
+.xwe-dialog .xwe-morph-mount button[data-xwe-native-morph-button="true"]{
+ min-height:28px;padding:4px 11px;font-size:11px;font-weight:750;letter-spacing:.02em;
+ color:#fff0fa;border:1px solid #c084fc;border-radius:5px;background:linear-gradient(110deg,#54316b,#2a1a45);
+ box-shadow:inset 0 -2px 0 #c084fc,0 0 9px #ad73de43;cursor:pointer;
+}
+.xwe-morph-mount [data-xwe-effect-label="true"]{font-size:11px;color:#f3d6f2;font-weight:600}
+.xwe-dialog .xwe-morph-mount .nd-shared-field-compact div.inline-flex>button[aria-pressed]{
+ position:relative;min-height:28px;padding:5px 11px;border-radius:5px;border:1px solid #4d4664;background:#151329;
+ color:#b4a9c3;font-weight:600;transition:box-shadow .1s,background .1s,color .1s;
+}
+.xwe-dialog .xwe-morph-mount .nd-shared-field-compact div.inline-flex>button[aria-pressed="true"]{
+ color:#fff;border-color:#edb4fb;background:linear-gradient(115deg,#7b389e,#4a245e);
+ box-shadow:inset 0 -3px 0 #f3a2e9,0 0 0 1px #c084fc55,0 0 13px #d17eea55;
+}
+.xwe-dialog .xwe-morph-mount .nd-shared-field-compact div.inline-flex>button[aria-pressed="true"]:nth-child(2){
+ background:linear-gradient(115deg,#9c602a,#52341e);border-color:#ffd38e;
+ box-shadow:inset 0 -3px 0 #ffd38e,0 0 0 1px #e7b36c55,0 0 13px #e2ab6655;
+}
+.xwe-dialog .xwe-morph-mount .nd-shared-field-compact div.inline-flex>button[aria-pressed="false"]{opacity:.8}
+.xwe-dialog .xwe-morph-mount .nd-shared-field-compact div.inline-flex>button[aria-pressed]:focus-visible{outline:2px solid #fff;outline-offset:2px}
+@media(prefers-reduced-motion:reduce){.xwe-dialog [data-xwe-edit-panel="true"] button.xwe-chromatic-action{transition:none}}

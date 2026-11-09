@@ -1,0 +1,14 @@
+
+.xen-drum-lane-head{display:grid;grid-template-columns:minmax(0,1fr) 12px;gap:1px;align-items:center;min-width:0;width:100%;height:24px;overflow:visible}
+.xen-drum-lane-name{position:relative;display:block;min-width:0;max-width:100%;height:24px;text-align:left;padding:1px 0 3px;background:transparent;border:1px solid transparent;color:#c4ced8;touch-action:none;cursor:ew-resize;user-select:none;font-size:10px;letter-spacing:-.32px;white-space:nowrap}
+.xen-drum-lane-sample{border-color:#5b7779;border-radius:3px;color:#a6eee6;padding-left:1px}
+.xen-drum-lane-caption{display:block;position:relative;z-index:1;overflow:hidden;text-overflow:clip;white-space:nowrap;pointer-events:none}
+.xen-drum-lane-fill{position:absolute;bottom:0;left:0;height:1px;opacity:.32;pointer-events:none;border-radius:1px;animation:xenDrumLaneBreath 2.8s ease-in-out infinite;transition:background-color .13s linear,opacity .16s ease}
+.xen-drum-lane-name:hover .xen-drum-lane-fill,.xen-drum-lane-fill.is-dragging{opacity:1;height:2px;box-shadow:0 0 6px currentColor;animation:none}
+.xen-drum-mini-mute{display:grid;place-items:center;width:12px;height:24px;min-width:0;border:none;padding:0;background:transparent;cursor:pointer}
+.xen-drum-mini-led{display:block;box-sizing:border-box;width:10px;height:24px;border:1px solid #49e3aa;border-radius:2px;background:#2aab80;box-shadow:0 0 5px #2aab8055;opacity:.85}
+.xen-drum-mini-led[data-muted="true"]{background:#8a53ba;border-color:#b078eb;box-shadow:0 0 5px #8a53ba77}
+.xen-drum-mini-mute:hover .xen-drum-mini-led,.xen-drum-mini-mute:focus-visible .xen-drum-mini-led{opacity:1;filter:brightness(1.45)}
+.xen-drum-lane-name:focus-visible,.xen-drum-mini-mute:focus-visible{outline:1px solid #99e9df;outline-offset:-1px}
+@keyframes xenDrumLaneBreath{50%{opacity:.47}}
+@media(prefers-reduced-motion:reduce){.xen-drum-lane-fill{animation:none}}

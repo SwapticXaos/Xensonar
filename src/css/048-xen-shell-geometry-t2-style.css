@@ -1,0 +1,66 @@
+/* XenSonar · Nodal Art Installation · Geometric T2 (standalone additive adapter).
+   Reference: V3 nine-slice SVG shell (viewBox 0 0 198 960, 170 unit arc).
+   Four panel corners are computed from the SAME reference in JS.
+   Never skews text/controls, never changes instrument hitbox or shell itself. */
+.nd-room.nd-room-shell[data-nodal-mode="installation"].nd-geo-t2 .nd-legacy-meta,
+.nd-room.nd-room-shell[data-nodal-mode="installation"].nd-geo-t2 [data-nodal-ball-controls],
+.nd-room.nd-room-shell[data-nodal-mode="installation"].nd-geo-t2 .nd-legacy-card > .mt-5 > section:has(> button[aria-expanded]) {
+  position:relative!important; isolation:isolate; z-index:2;
+  border-color:transparent!important; border-radius:0!important;
+  background:transparent!important;box-shadow:none!important;overflow:visible!important;
+  --nd-geo-top:0px; --nd-geo-bottom:0px;
+}
+.nd-room.nd-room-shell[data-nodal-mode="installation"].nd-geo-t2 .nd-legacy-meta::before,
+.nd-room.nd-room-shell[data-nodal-mode="installation"].nd-geo-t2 .nd-legacy-meta::after,
+.nd-room.nd-room-shell[data-nodal-mode="installation"].nd-geo-t2 [data-nodal-ball-controls]::before,
+.nd-room.nd-room-shell[data-nodal-mode="installation"].nd-geo-t2 [data-nodal-ball-controls]::after,
+.nd-room.nd-room-shell[data-nodal-mode="installation"].nd-geo-t2 .nd-legacy-card > .mt-5 > section:has(> button[aria-expanded])::before,
+.nd-room.nd-room-shell[data-nodal-mode="installation"].nd-geo-t2 .nd-legacy-card > .mt-5 > section:has(> button[aria-expanded])::after {
+  content:"";display:block;position:absolute;pointer-events:none;box-sizing:border-box;
+  inset:0 calc(-1 * var(--nd-geo-top));
+  clip-path:polygon(0 0,100% 0,calc(100% - var(--nd-geo-top) + var(--nd-geo-bottom)) 100%,calc(var(--nd-geo-top) - var(--nd-geo-bottom)) 100%);
+  z-index:-2; background:var(--nd-geo-stroke,#36585d);
+}
+.nd-room.nd-room-shell[data-nodal-mode="installation"].nd-geo-t2 .nd-legacy-meta::after,
+.nd-room.nd-room-shell[data-nodal-mode="installation"].nd-geo-t2 [data-nodal-ball-controls]::after,
+.nd-room.nd-room-shell[data-nodal-mode="installation"].nd-geo-t2 .nd-legacy-card > .mt-5 > section:has(> button[aria-expanded])::after {
+  inset:1px calc(1px - var(--nd-geo-top));
+  clip-path:polygon(0 0,100% 0,calc(100% - var(--nd-geo-top) + var(--nd-geo-bottom) - 2px) 100%,calc(var(--nd-geo-top) - var(--nd-geo-bottom) + 2px) 100%);
+  background:var(--nd-geo-fill,#0e2229);z-index:-1;
+}
+.nd-room.nd-room-shell[data-nodal-mode="installation"].nd-geo-t2 .nd-legacy-meta {
+  --nd-geo-stroke:#3b6769;--nd-geo-fill:#10242a;
+}
+.nd-room.nd-room-shell[data-nodal-mode="installation"].nd-geo-t2 .nd-legacy-meta .nd-legacy-info {
+  background:transparent!important;border-color:transparent!important;border-radius:0!important;
+  transform:translateX(calc(-1 * var(--nd-geo-info-shift,0px)));
+}
+.nd-room.nd-room-shell[data-nodal-mode="installation"].nd-geo-t2 .nd-legacy-meta .nd-legacy-tools {
+  transform:translateX(var(--nd-geo-tool-shift,0px));
+}
+.nd-room.nd-room-shell[data-nodal-mode="installation"].nd-geo-t2 .nd-legacy-meta > div:last-child {
+  transform:translateX(calc(-1 * var(--nd-geo-row-shift,0px)));
+}
+.nd-room.nd-room-shell[data-nodal-mode="installation"].nd-geo-t2 [data-nodal-ball-controls] {
+  --nd-geo-stroke:#31575c;--nd-geo-fill:#0e2229;
+}
+.nd-room.nd-room-shell[data-nodal-mode="installation"].nd-geo-t2 .nd-legacy-card > .mt-5 > section:has(> button[aria-expanded]) {
+  --nd-geo-stroke:#30444b;--nd-geo-fill:#101c21;
+}
+.nd-room.nd-room-shell[data-nodal-mode="installation"].nd-geo-t2 > .nd-shared-heading {
+  border-bottom-color:transparent!important;position:relative;z-index:2;
+}
+.nd-room.nd-room-shell[data-nodal-mode="installation"].nd-geo-t2 > .nd-shared-heading::after {
+  content:"";pointer-events:none;position:absolute;height:1px;
+  background:var(--nd-line,#31474d);bottom:0;
+  left:calc(-1 * var(--nd-geo-heading-edge,0px));right:calc(-1 * var(--nd-geo-heading-edge,0px));
+}
+.nd-room.nd-room-shell[data-nodal-mode="installation"].nd-geo-t2 .nd-heading-copy > :is(.nd-eyebrow,h2,p) {
+  transform:translateX(calc(-1 * var(--nd-geo-heading-shift,0px)));
+}
+/* Without visible side wings (narrow breakpoint) retain original layout. */
+@media(max-width:1100px){
+ .nd-room.nd-room-shell[data-nodal-mode="installation"].nd-geo-t2 .nd-heading-copy > :is(.nd-eyebrow,h2,p),
+ .nd-room.nd-room-shell[data-nodal-mode="installation"].nd-geo-t2 .nd-legacy-meta :is(.nd-legacy-info,.nd-legacy-tools),
+ .nd-room.nd-room-shell[data-nodal-mode="installation"].nd-geo-t2 .nd-legacy-meta > div:last-child{transform:none!important}
+}

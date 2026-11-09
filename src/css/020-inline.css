@@ -1,0 +1,34 @@
+
+.xen-drum-rack,.xen-bass-sound{margin-top:12px;padding:12px;border:1px solid #51416b;border-radius:8px;background:#17111f;color:#ddd}
+.xen-rhythm-title{font-size:11px;letter-spacing:.12em;color:#e9b3ed;margin-bottom:10px}
+.xen-drum-rack-controls{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.xen-rhythm-control{display:flex;flex-direction:column;gap:5px;min-width:0;margin-bottom:8px;font-size:11px;color:#cbb9d4}
+.xen-rhythm-control input{width:100%;accent-color:#cd7edb;cursor:pointer}.xen-rhythm-control select{width:100%;padding:5px;border:1px solid #555;background:#16101c;color:#eee}
+.xen-rack-actions{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin-top:10px}.xen-rack-actions span{min-width:75px;font-size:10px;color:#bca8c9}
+.xen-rack-actions button,.xen-bass-sound button{padding:5px 8px;border:1px solid #655071;border-radius:4px;font-size:11px;background:#25192d}.xen-rack-actions button:hover,.xen-bass-sound button:hover{background:#3c254b}.xen-rack-actions button:disabled{opacity:.4}
+.xen-drum-echo{margin-top:12px;padding-top:10px;border-top:1px solid #3b2f4d}
+.xen-drum-echo .xen-drum-rack-controls{grid-template-columns:repeat(5,minmax(0,1fr));margin-top:10px}
+.xen-rack-actions button.is-active{background:#5a2f6b;border-color:#cd7edb;color:#fff}
+.xen-drum-echo-hold{touch-action:none;user-select:none}
+.xen-drum-echo .xen-echo-chips{margin-top:4px;gap:4px}
+.xen-drum-echo .xen-echo-chips button{padding:3px 7px;min-width:42px;font-variant-numeric:tabular-nums}
+.xen-echo-stepper{display:inline-flex;align-items:center;gap:3px;min-width:0!important}
+.xen-echo-stepper em{font-style:normal;font-size:10px;color:#bca8c9;margin-right:2px}
+.xen-echo-stepper input{width:46px;padding:4px 4px;border:1px solid #655071;border-radius:4px;background:#16101c;color:#f2e6f7;font-size:12px;text-align:center;font-variant-numeric:tabular-nums}
+.xen-echo-stepper button{width:24px;padding:4px 0!important}
+.xen-echo-slash{font-size:15px;color:#e9b3ed;margin:0 2px}
+.xen-echo-readout{font-style:normal;font-size:10px;color:#ad9ab6;margin-left:6px}
+.xen-echo-free .xen-rhythm-control,.xen-echo-feel .xen-rhythm-control{flex:1 1 260px;margin:0}
+.xen-echo-strip-row{flex-wrap:nowrap}
+.xen-echo-strip{display:flex;flex:1 1 auto;min-width:0;height:26px;border:1px solid #655071;border-radius:4px;overflow:hidden;background:#120d18}
+.xen-echo-strip .xen-echo-seg{flex-basis:0;min-width:2px;height:100%;padding:0!important;border:0!important;border-right:1px solid #4a3a5c!important;border-radius:0!important;background:#1d1526!important;cursor:pointer}
+.xen-echo-strip .xen-echo-seg.is-shifted{border-right-color:#e9b3ed!important}
+.xen-echo-strip .xen-echo-seg.is-in{background:#3a2448!important}
+.xen-echo-strip .xen-echo-seg.is-target{background:#5a2f6b!important;box-shadow:inset -3px 0 0 #f0c2f5}
+.xen-echo-strip .xen-echo-seg:hover{background:#4b2c5c!important}
+@media(max-width:760px){.xen-drum-echo .xen-drum-rack-controls{grid-template-columns:repeat(2,minmax(0,1fr))}.xen-echo-readout{flex-basis:100%;margin-left:0}}
+.xen-rhythm-note{font-size:10px;color:#ad9ab6}
+.xen-main-drum-editor,.xen-drum-rack{flex-shrink:0}
+@media(max-width:1120px){.xen-main-drum-columns>div{overflow-y:visible!important;min-height:max-content!important;height:max-content!important}}
+@media(max-width:1023px){.xen-bass-manager-columns{display:flex!important;flex-direction:column;overflow-y:auto!important}.xen-bass-manager-columns>div{flex-shrink:0;overflow-y:visible!important}.xen-bass-manager-modal{max-height:calc(100vh - 2rem)}}
+@media(max-width:760px){.xen-drum-rack-controls{grid-template-columns:repeat(2,minmax(0,1fr))}}

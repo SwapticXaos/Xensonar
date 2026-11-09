@@ -1,0 +1,51 @@
+/* Compose Patchbay V2: an independent inset keycap, within the existing hit target.
+   Stacked light and shade (not an all-yellow double outline) restores button affordance. */
+.melodic-compact-control-grid{position:relative}
+.melodic-project-actions .xen-compose-from-scratch{
+  position:relative;isolation:isolate;
+  border-color:#edcb4b;
+  border-radius:6px;
+  background:linear-gradient(166deg,rgba(223,183,65,.86) 0%,rgba(188,148,49,.82) 60%,rgba(153,113,34,.87) 100%);
+  color:#102943;
+  font-weight:650;
+  text-shadow:0 1px 0 rgba(255,239,162,.26);
+  box-shadow:inset 0 1px 0 rgba(255,238,140,.44),inset 0 -1px 0 rgba(83,59,16,.35),0 1px 3px rgba(0,0,0,.34);
+}
+.melodic-project-actions .xen-compose-from-scratch::before{
+  content:"";position:absolute;inset:3px;border-radius:4px;
+  border:1px solid rgba(255,222,101,.56);
+  border-top-color:rgba(255,245,175,.77);
+  border-left-color:rgba(255,234,136,.68);
+  border-right-color:rgba(112,78,20,.55);
+  border-bottom-color:rgba(92,62,15,.62);
+  box-shadow:inset 1px 1px 0 rgba(255,243,178,.27),inset -1px -1px 0 rgba(62,43,12,.23);
+  pointer-events:none;
+}
+.melodic-project-actions .xen-compose-from-scratch:hover:not(:disabled){
+  border-color:#f8de76;
+  background:linear-gradient(166deg,rgba(233,196,87,.91) 0%,rgba(201,160,58,.88) 60%,rgba(170,126,43,.91) 100%);
+  color:#0d273d;
+}
+.melodic-project-actions .xen-compose-from-scratch:active:not(:disabled){
+  box-shadow:inset 0 2px 3px rgba(69,48,15,.36),0 0 0 1px rgba(40,30,12,.2);
+  background:linear-gradient(166deg,rgba(177,135,42,.88),rgba(209,171,68,.85));
+}
+.melodic-project-actions .xen-compose-from-scratch:focus-visible{
+  outline:2px solid #fff0ac;outline-offset:2px;
+}
+.xen-compose-patchbay-wires{
+  position:absolute;inset:0;width:100%;height:100%;z-index:3;
+  pointer-events:none;overflow:visible;
+  color:#77869c;opacity:.9;
+}
+.xen-compose-patchbay-wires[aria-hidden="true"]{user-select:none}
+.xen-compose-patchbay-wires path{
+  fill:none;stroke:currentColor;stroke-width:1.65;
+  stroke-linecap:round;stroke-linejoin:round;
+  vector-effect:non-scaling-stroke;
+}
+.xen-compose-patchbay-wires circle{fill:#8b99ad;stroke:#0b101a;stroke-width:1}
+@media(max-width:1199px){.xen-compose-patchbay-wires{display:none}}
+@media(prefers-reduced-motion:no-preference){
+  .melodic-project-actions .xen-compose-from-scratch{transition:background .15s ease,border-color .15s ease}
+}

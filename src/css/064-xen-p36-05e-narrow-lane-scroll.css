@@ -1,0 +1,13 @@
+
+/* At narrow widths do not allow the last instrument row to vanish behind the
+   fixed meta footer. Scroll the existing instrument list, not the whole dialog. */
+@media(max-width:800px){
+ .xen-fill-lane[data-xen-fill-column="instruments"]{overflow:hidden;min-height:0}
+ .xen-fill-lane[data-xen-fill-column="instruments"] .xen-fill-lane-items{
+  flex:1 1 auto;min-height:0;overflow-y:auto;overscroll-behavior:contain;
+  scrollbar-width:thin;scrollbar-color:#32677c transparent;
+ }
+ .xen-fill-lane[data-xen-fill-column="instruments"] .xen-fill-lane-hint{
+  flex-shrink:0;margin-top:0;
+ }
+}

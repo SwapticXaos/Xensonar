@@ -1,0 +1,36 @@
+
+/* UX geometry invariant: toggling the raised Sessions folder must not resize
+   its parent columns, the two pane headers, or the library viewport. */
+.xen-meta-editor{--xen-meta-library-heading-height:61px}
+.xen-meta-workspace{grid-template-rows:minmax(0,1fr)}
+.xen-meta-library>.xen-meta-head,.xen-meta-constellation>.xen-meta-head{
+ box-sizing:border-box;flex:0 0 57px;height:57px;min-height:57px;max-height:57px}
+.xen-meta-head>strong{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.xen-meta-tab-assembly{
+ box-sizing:border-box;flex:0 0 72px;height:72px;min-height:72px;max-height:72px;padding-top:35px}
+.xen-meta-tab-assembly>.xen-meta-tabs{
+ box-sizing:border-box;height:37px;min-height:37px;max-height:37px}
+.xen-meta-tab-assembly>.xen-meta-tabs>button{
+ box-sizing:border-box;height:37px;min-height:37px;max-height:37px;padding:0 4px}
+.xen-meta-library>.xen-meta-browser>.xen-meta-browser-heading{
+ box-sizing:border-box;flex:0 0 var(--xen-meta-library-heading-height);
+ height:var(--xen-meta-library-heading-height);min-height:var(--xen-meta-library-heading-height);
+ max-height:var(--xen-meta-library-heading-height);align-content:center;overflow:visible}
+.xen-meta-library>.xen-meta-browser{min-height:0;flex:1 1 0}
+@media(max-width:1000px){
+ /* The original library heading wraps its Filter input; reserve the same space
+    for the simpler Saved Sessions heading rather than collapsing its height. */
+ .xen-meta-editor{--xen-meta-library-heading-height:96px}
+}
+@media(max-width:760px){
+ .xen-meta-tab-assembly{flex:0 0 74px;height:74px;min-height:74px;max-height:74px}
+ .xen-meta-tab-assembly>.xen-meta-tabs{height:39px;min-height:39px;max-height:39px}
+ .xen-meta-tab-assembly>.xen-meta-tabs>button{height:39px;min-height:39px;max-height:39px;padding:3px 1px}
+}
+/* P36 UX-01: Session heading is taller than the old fixed library-filter
+   heading at narrow widths. Allow content-sized wrapping inside its own
+   pane so the five raised library tabs remain genuinely pointer-clickable. */
+.xen-meta-library>.xen-meta-session-manager>.xen-meta-browser-heading{
+ box-sizing:border-box;flex:0 0 auto;height:auto;min-height:var(--xen-meta-library-heading-height);
+ max-height:none;align-content:flex-start
+}

@@ -1,0 +1,28 @@
+
+/* F3-49: donor library as an optional single-owner sidebar beside the main workbench. */
+.f349-dialog.f349-docked{display:grid;grid-template-columns:minmax(232px,282px) minmax(0,1fr);column-gap:14px;align-items:start}
+.f349-dialog.f349-expanded{display:grid;grid-template-columns:minmax(0,1fr);align-items:start}
+.f349-dialog>.f341-header{grid-column:1/-1;min-width:0}
+.f349-dialog .f349-workspace{grid-column:2;grid-row:2;min-width:0}
+.f349-dialog.f349-expanded .f349-workspace{grid-column:1;grid-row:2}
+.f349-dialog .f349-library-dock{grid-column:1;grid-row:2;min-width:0;align-self:start;position:sticky;top:8px}
+.f349-dialog .f349-library-dock[hidden]{display:none!important}
+.f349-dialog .f349-library-dock .f348-library{margin:0;padding:8px}
+.f349-dialog .f349-library-dock .f348-library .f347-library-items{grid-template-columns:minmax(0,1fr);gap:4px}
+.f349-dialog .f349-library-dock .f347-library-item{grid-template-columns:minmax(0,1fr) 25px 75px;min-height:35px;padding:4px 5px}
+.f349-dialog .f349-library-dock .f347-library-item strong{font-size:10.5px}
+.f349-dialog .f349-library-dock .f347-library-tools{display:grid;grid-template-columns:minmax(0,1fr);gap:5px}
+.f349-dialog .f349-library-dock .f347-library-tools input{flex:none;width:100%;min-width:0!important}
+.f349-dialog .f349-library-dock .f347-library-tools button{width:100%}
+.f349-dialog .f349-library-dock .f347-library-heading{display:block}
+.f349-dialog .f349-library-dock .f347-library-heading h3{font-size:12px}
+.f349-dialog .f349-library-dock .f347-library-heading p{font-size:10px}
+.f349-dialog .f349-library-dock .f348-library-pages{justify-content:flex-start;flex-wrap:wrap}
+.f349-dialog .f349-workspace>.f341-toolbar{margin-top:1px}
+@media(max-width:1249px){
+ .f349-dialog.f349-docked,.f349-dialog.f349-expanded{display:block;position:relative}
+ .f349-dialog .f349-library-dock{position:absolute;left:12px;top:76px;z-index:12;width:min(310px,calc(100% - 24px));box-sizing:border-box;box-shadow:0 12px 40px #000d;border-radius:9px;background:#0b1724}
+ .f349-dialog .f349-workspace{width:100%}
+ .f349-dialog>.f341-header{position:relative;z-index:13}
+}
+@media(max-width:440px){.f349-dialog .f349-library-dock{left:4px;top:90px;width:calc(100% - 8px)}}

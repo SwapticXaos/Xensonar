@@ -1,0 +1,47 @@
+
+/* Only selected-state color and the flush tab/panel seam change. The native
+   LIVE14 button, panel, row size, padding, typography and component tree stay intact. */
+.xen-hold-pattern-tabs>.xen-hold-pattern-panel>div>button[role="tab"]{
+ background:#121c27!important;
+ color:#93a6b4!important;
+ border-color:#3b5365!important;
+ box-shadow:none;
+ transition:none!important;
+}
+.xen-hold-pattern-tabs>.xen-hold-pattern-panel>div>button[role="tab"][aria-selected="true"]{
+ position:relative;
+ overflow:visible;
+ background:#126171!important;
+ color:#f1ffff!important;
+ border-color:#6cf3ee!important;
+ border-bottom-color:#126171!important;
+ box-shadow:none;
+}
+/* Bridge the already existing 8px tab/editor gap without increasing its height. */
+.xen-hold-pattern-tabs>.xen-hold-pattern-panel>div>button[role="tab"][aria-selected="true"]::after{
+ content:"";
+ position:absolute;
+ left:-1px;
+ right:-1px;
+ top:calc(100% - 1px);
+ height:10px;
+ box-sizing:border-box;
+ background:linear-gradient(180deg,#126171 0%,#0d1e29 100%);
+ border-left:1px solid #6cf3ee;
+ border-right:1px solid #6cf3ee;
+ pointer-events:none;
+ z-index:2;
+}
+.xen-hold-pattern-tabs>.xen-hold-pattern-panel>div>button[role="tab"]:hover:not([aria-selected="true"]){
+ background:#213646!important;color:#c6e5ee!important;border-color:#6296aa!important;
+}
+.xen-hold-pattern-tabs>.xen-hold-pattern-panel>div>button[role="tab"]:focus-visible{
+ outline:3px solid #f6fdae;outline-offset:2px;position:relative;z-index:1;
+}
+.xen-hold-pattern-tabs>.xen-hold-pattern-panel>div>div[role="tabpanel"]{
+ border-top-color:#6cf3ee;
+ border-right-color:#348c9b;
+ border-left-color:#348c9b;
+ border-bottom-color:#348c9b;
+ background:#0d1e29;
+}

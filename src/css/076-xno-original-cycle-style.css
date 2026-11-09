@@ -1,0 +1,39 @@
+
+/* Optical CRT interaction only. Original Spectral Forge donor stays byte-identical. */
+.xno-idle-overlay[hidden]{display:none!important}
+.xno-idle-overlay{position:absolute;inset:0;z-index:24;overflow:hidden;background:#080d13;isolation:isolate;cursor:pointer;pointer-events:auto;touch-action:manipulation}
+.xno-idle-overlay .xno-crt-image{position:absolute;inset:0;transform-origin:50% 50%;}
+.xno-idle-overlay canvas{display:block;width:100%;height:100%;pointer-events:none}
+.xno-idle-overlay.is-switching{background:#000;cursor:default}
+.xno-idle-overlay.is-switching .xno-crt-image{animation:xno-crt-picture-off 290ms linear forwards;will-change:transform,filter,opacity}
+@keyframes xno-crt-picture-off{
+ 0%{transform:scale(1,1);opacity:1;filter:brightness(1)}
+ 9%{transform:scale(1,1);opacity:1;filter:brightness(1.2)}
+ 43%{transform:scale(1,.008);opacity:1;filter:brightness(3.4)}
+ 56%{transform:scale(1,.008);opacity:1;filter:brightness(5)}
+ 77%{transform:scale(.002,.008);opacity:1;filter:brightness(8)}
+ 87%{transform:scale(.002,.008);opacity:.8;filter:brightness(10)}
+ 100%{transform:scale(0,0);opacity:0;filter:brightness(0)}
+}
+.xno-idle-overlay.is-switching::after{
+ content:"";position:absolute;pointer-events:none;left:50%;top:50%;width:85%;height:2px;
+ transform-origin:50% 50%;background:#dbffff;border-radius:40%;
+ box-shadow:0 0 6px 2px #a3faff,0 0 22px 4px rgba(99,250,255,.7);
+ animation:xno-crt-beam-off 290ms linear forwards;
+}
+@keyframes xno-crt-beam-off{
+ 0%,34%{transform:translate(-50%,-50%) scaleX(1);opacity:0}
+ 45%{transform:translate(-50%,-50%) scaleX(1);opacity:.95}
+ 57%{transform:translate(-50%,-50%) scaleX(.94);opacity:1}
+ 77%{transform:translate(-50%,-50%) scaleX(.002);opacity:1}
+ 88%{transform:translate(-50%,-50%) scaleX(.002);opacity:.95}
+ 100%{transform:translate(-50%,-50%) scaleX(0);opacity:0}
+}
+.xno-idle-overlay.is-black{background:#000!important;cursor:default}
+.xno-idle-overlay.is-black .xno-crt-image{display:none!important}
+.xno-idle-overlay.is-black::after{display:none!important}
+.xno-idle-overlay:focus-visible{outline:1px solid #77cbdc;outline-offset:-2px}
+.xno-idle-overlay.is-black:focus-visible{outline:none}
+@media(prefers-reduced-motion:reduce){
+ .xno-idle-overlay.is-switching .xno-crt-image,.xno-idle-overlay.is-switching::after{animation-duration:1ms}
+}

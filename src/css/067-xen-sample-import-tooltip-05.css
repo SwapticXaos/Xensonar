@@ -1,0 +1,3 @@
+
+.xen-sample-import-tip{visibility:hidden;opacity:0;pointer-events:none;position:absolute;top:calc(100% + 8px);left:0;z-index:80;width:min(24rem,calc(100vw - 3rem));display:flex;flex-direction:column;gap:.35rem;padding:.7rem .85rem;border:1px solid rgba(167,139,250,.65);border-radius:.4rem;background:#141019;color:#e9dcff;font-size:11px;line-height:1.45;white-space:normal;box-shadow:0 10px 26px rgba(0,0,0,.6)}
+.xen-sample-import-tip-wrap:hover .xen-sample-import-tip,.xen-sample-import-tip-wrap:focus-within .xen-sample-import-tip{visibility:visible;opacity:1}

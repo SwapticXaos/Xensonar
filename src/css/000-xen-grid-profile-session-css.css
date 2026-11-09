@@ -1,0 +1,39 @@
+
+.xen-meta-color-editor:has(.xen-grid-profile-controls){width:min(342px,calc(100% - 24px));max-height:min(540px,calc(100dvh - 170px));overflow-y:auto;overscroll-behavior:contain}
+.xen-grid-profile-controls{display:flex;flex-direction:column;gap:10px;margin-bottom:14px;padding:4px 0 14px;border-bottom:1px solid rgba(71,191,196,.4);color:#cceeed}
+.xen-grid-profile-controls>label{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.xen-grid-profile-controls select{background:#101e27;color:#e0f4fa;border:1px solid #3d7580;border-radius:4px;padding:5px;max-width:61%;min-width:110px}
+.xen-grid-mode-mutes{display:grid;grid-template-columns:repeat(auto-fill,minmax(31px,1fr));gap:4px;max-height:120px;overflow:auto}
+.xen-grid-mode-mutes button{min-height:28px;border:1px solid #397e87;background:#17464b;color:#dafaf9;border-radius:4px;font-size:11px}
+.xen-grid-mode-mutes button.is-muted{background:#1a2429;color:#788b91;border-color:#334249;text-decoration:line-through}
+.xen-grid-bass-actions{display:inline-flex;align-items:center;justify-content:flex-start;gap:9px;max-width:100%;align-self:flex-start;flex-wrap:wrap}
+.xen-grid-bass-actions label{display:inline-flex;align-items:center;gap:7px;white-space:nowrap;cursor:pointer}.xen-grid-bass-actions input{accent-color:#36cbd3;width:16px;height:16px;margin:0}.xen-grid-bass-actions button{margin-left:1px;min-width:58px}
+.xen-grid-bass-actions button,.xen-grid-clone{border:1px solid #43808c;background:#112d38;color:#e1f3f5;padding:5px 10px;border-radius:5px}
+.xen-grid-profile-controls hr{width:100%;border-color:#344d57}
+.xen-grid-bass-modal{position:fixed;inset:0;z-index:2147483000;background:rgba(2,8,15,.74);display:grid;place-items:center;padding:18px;overflow:auto}
+.xen-grid-bass-dialog{width:min(610px,calc(100vw - 38px));max-height:min(90vh,750px);overflow:auto;background:#07131c;border:1px solid #358590;box-shadow:0 18px 65px #000;border-radius:9px;padding:15px;color:#d7eef2}
+.xen-grid-bass-dialog>header,.xen-grid-bass-dialog>footer{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:12px}
+.xen-grid-bass-dialog>footer{justify-content:flex-end;margin-top:12px;margin-bottom:0}
+.xen-grid-bass-dialog>footer button,.xen-grid-bass-dialog>header button{border:1px solid #397987;padding:6px 14px;color:#dff7f7;border-radius:5px;background:#122e39}
+.xen-grid-bass-dialog [data-xen-bass-grid-editor]{width:100%;max-width:100%;background:transparent}
+.xen-grid-bass-dialog [data-xen-bass-grid-flyout]{box-shadow:none!important;overflow:visible!important}
+.xen-grid-profile-badge{font-size:10px;color:#9bdfdf;white-space:nowrap}
+.xen-grid-period-open{border:1px solid #8f64b1;background:#1e1631;color:#e5d9f7;padding:6px 10px;border-radius:5px}
+.xen-grid-period-dialog{width:min(650px,calc(100vw - 38px));max-height:calc(100dvh - 36px)}
+.xen-grid-period-caption{display:block;margin-top:5px;color:#aebac9;font-size:11px;line-height:1.35}
+.xen-grid-period-fields{display:flex;flex-wrap:wrap;align-items:flex-end;gap:10px;margin:12px 0}
+.xen-grid-period-fields label{display:flex;flex:1 1 115px;flex-direction:column;gap:5px;font-size:11px;color:#d6c5ea}
+.xen-grid-period-fields input,.xen-grid-period-fields select,.xen-grid-period-name input{width:100%;min-width:0;padding:7px;background:#111421;border:1px solid #684e90;border-radius:5px;color:#faf4ff}
+.xen-grid-period-fields button,.xen-grid-period-ji button{padding:7px 10px;background:#21182f;color:#f0dafa;border:1px solid #684e90;border-radius:5px}
+.xen-grid-period-ji{display:flex;flex-wrap:wrap;gap:5px;max-height:90px;overflow-y:auto}
+.xen-grid-period-name{display:flex;flex-direction:column;gap:5px;font-size:11px;color:#d6c5ea;margin:10px 0}
+
+
+/* Period marker rack is precisely the existing Grid Workbench control, not an alternate widget. */
+.xen-grid-period-dialog .xen-native-period-rack{margin-top:14px;margin-bottom:14px}
+.xen-grid-period-dialog .xen-native-period-plane{touch-action:none}
+.xen-grid-period-dialog .xen-native-period-rack button{background:transparent;border:0;border-radius:0;padding:0;box-shadow:none}
+.xen-grid-period-dialog .xen-native-period-rack button:focus-visible{outline:1px solid #cfb3ef;outline-offset:2px}
+.xen-grid-period-dialog .xen-native-period-rack button:disabled{opacity:1}
+.xen-grid-period-dialog .xen-period-zero-label{display:none}
+.xen-grid-period-dialog .xen-native-period-rack .min-w-0{min-width:0}

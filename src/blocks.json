@@ -1,0 +1,656 @@
+[
+ {
+  "file": "css/000-xen-grid-profile-session-css.css",
+  "tag": "style",
+  "attrs": "id=\"xen-grid-profile-session-css\"",
+  "bytes": 4427
+ },
+ {
+  "file": "js/000-xen-render-monitor.js",
+  "tag": "script",
+  "attrs": "id=\"xen-render-monitor\"",
+  "bytes": 7470
+ },
+ {
+  "file": "js/001-xen-startup-observer.js",
+  "tag": "script",
+  "attrs": "id=\"xen-startup-observer\"",
+  "bytes": 1138
+ },
+ {
+  "file": "css/001-xen-boot-mandala-css.css",
+  "tag": "style",
+  "attrs": "id=\"xen-boot-mandala-css\"",
+  "bytes": 1478
+ },
+ {
+  "file": "js/002-xen-boot-stage-controller.js",
+  "tag": "script",
+  "attrs": "id=\"xen-boot-stage-controller\"",
+  "bytes": 7135
+ },
+ {
+  "file": "js/003-xen-opera-power-d3-diagnostics.js",
+  "tag": "script",
+  "attrs": "id=\"xen-opera-power-d3-diagnostics\"",
+  "bytes": 5782
+ },
+ {
+  "file": "js/004-xen-xmem-root01-idb-owner.js",
+  "tag": "script",
+  "attrs": "id=\"xen-xmem-root01-idb-owner\" data-xmem-status=\"opt-in-test-only\"",
+  "bytes": 12197
+ },
+ {
+  "file": "js/005-xen-melodic-compact-idb01.js",
+  "tag": "script",
+  "attrs": "id=\"xen-melodic-compact-idb01\"",
+  "bytes": 17525
+ },
+ {
+  "file": "js/006-xen-xmem02-melodic-stage.js",
+  "tag": "script",
+  "attrs": "id=\"xen-xmem02-melodic-stage\" data-status=\"mr03b-isolated-opt-in-only\"",
+  "bytes": 8477
+ },
+ {
+  "file": "js/007-xen-xmem02b-melodic-repository-pilot.js",
+  "tag": "script",
+  "attrs": "id=\"xen-xmem02b-melodic-repository-pilot\" data-status=\"mr03b-isolated-opt-in-only\"",
+  "bytes": 16086
+ },
+ {
+  "file": "js/008-xen-xmem02d1-melodic-epoch.js",
+  "tag": "script",
+  "attrs": "id=\"xen-xmem02d1-melodic-epoch\" data-status=\"mr03b-isolated-opt-in-only\"",
+  "bytes": 16685
+ },
+ {
+  "file": "js/009-xen-xmem02c-melodic-native-adapter.js",
+  "tag": "script",
+  "attrs": "id=\"xen-xmem02c-melodic-native-adapter\" data-status=\"mr03b-isolated-opt-in-only\"",
+  "bytes": 14038
+ },
+ {
+  "file": "js/010-main-bundle.js",
+  "tag": "script",
+  "attrs": "type=\"module\" crossorigin",
+  "bytes": 6086816
+ },
+ {
+  "file": "css/002-main-bundle.css",
+  "tag": "style",
+  "attrs": "rel=\"stylesheet\" crossorigin",
+  "bytes": 308766
+ },
+ {
+  "file": "css/003-f39-near-feedback-style.css",
+  "tag": "style",
+  "attrs": "id=\"f39-near-feedback-style\"",
+  "bytes": 507
+ },
+ {
+  "file": "css/004-inline.css",
+  "tag": "style",
+  "attrs": "",
+  "bytes": 113
+ },
+ {
+  "file": "css/005-forge-sidebar-mobile-f315.css",
+  "tag": "style",
+  "attrs": "id=\"forge-sidebar-mobile-f315\"",
+  "bytes": 312
+ },
+ {
+  "file": "css/006-f341-donor-workbench-style.css",
+  "tag": "style",
+  "attrs": "id=\"f341-donor-workbench-style\"",
+  "bytes": 6533
+ },
+ {
+  "file": "css/007-f347-workbench-style.css",
+  "tag": "style",
+  "attrs": "id=\"f347-workbench-style\"",
+  "bytes": 4529
+ },
+ {
+  "file": "css/008-f348-library-layout.css",
+  "tag": "style",
+  "attrs": "id=\"f348-library-layout\"",
+  "bytes": 2411
+ },
+ {
+  "file": "css/009-f349-library-side-dock.css",
+  "tag": "style",
+  "attrs": "id=\"f349-library-side-dock\"",
+  "bytes": 2235
+ },
+ {
+  "file": "css/010-f350-workflow.css",
+  "tag": "style",
+  "attrs": "id=\"f350-workflow\"",
+  "bytes": 3843
+ },
+ {
+  "file": "css/011-f351-combination-rack.css",
+  "tag": "style",
+  "attrs": "id=\"f351-combination-rack\"",
+  "bytes": 5258
+ },
+ {
+  "file": "css/012-f352-hybrid-workflow.css",
+  "tag": "style",
+  "attrs": "id=\"f352-hybrid-workflow\"",
+  "bytes": 1371
+ },
+ {
+  "file": "css/013-f3564-carrier-ui.css",
+  "tag": "style",
+  "attrs": "id=\"f3564-carrier-ui\"",
+  "bytes": 1448
+ },
+ {
+  "file": "css/014-xen-f35618-drum-rack-layout.css",
+  "tag": "style",
+  "attrs": "id=\"xen-f35618-drum-rack-layout\"",
+  "bytes": 919
+ },
+ {
+  "file": "css/015-xen-f35619-drum-timing.css",
+  "tag": "style",
+  "attrs": "id=\"xen-f35619-drum-timing\"",
+  "bytes": 829
+ },
+ {
+  "file": "css/016-xen-f35620-drum-layout.css",
+  "tag": "style",
+  "attrs": "id=\"xen-f35620-drum-layout\"",
+  "bytes": 202
+ },
+ {
+  "file": "css/017-xen-f35621-drum-karaoke.css",
+  "tag": "style",
+  "attrs": "id=\"xen-f35621-drum-karaoke\"",
+  "bytes": 927
+ },
+ {
+  "file": "css/018-f35634-dual-donor-assembly-ui.css",
+  "tag": "style",
+  "attrs": "id=\"f35634-dual-donor-assembly-ui\"",
+  "bytes": 14560
+ },
+ {
+  "file": "css/019-inline.css",
+  "tag": "style",
+  "attrs": "",
+  "bytes": 5315
+ },
+ {
+  "file": "css/020-inline.css",
+  "tag": "style",
+  "attrs": "",
+  "bytes": 3655
+ },
+ {
+  "file": "css/021-xen-f355-fix1-bass.css",
+  "tag": "style",
+  "attrs": "id=\"xen-f355-fix1-bass\"",
+  "bytes": 403
+ },
+ {
+  "file": "css/022-nodal-sound-designer-style.css",
+  "tag": "style",
+  "attrs": "id=\"nodal-sound-designer-style\"",
+  "bytes": 45867
+ },
+ {
+  "file": "css/023-inline.css",
+  "tag": "style",
+  "attrs": "data-xensonar-emilia3=\"true\"",
+  "bytes": 5527
+ },
+ {
+  "file": "css/024-inline.css",
+  "tag": "style",
+  "attrs": "",
+  "bytes": 74983
+ },
+ {
+  "file": "css/025-inline.css",
+  "tag": "style",
+  "attrs": "",
+  "bytes": 6107
+ },
+ {
+  "file": "css/026-inline.css",
+  "tag": "style",
+  "attrs": "",
+  "bytes": 18819
+ },
+ {
+  "file": "css/027-xen-loop-rec-l9-feedback.css",
+  "tag": "style",
+  "attrs": "id=\"xen-loop-rec-l9-feedback\"",
+  "bytes": 574
+ },
+ {
+  "file": "css/028-xen-quick-title-view.css",
+  "tag": "style",
+  "attrs": "id=\"xen-quick-title-view\"",
+  "bytes": 3316
+ },
+ {
+  "file": "css/029-xen-lane-register-tabs.css",
+  "tag": "style",
+  "attrs": "id=\"xen-lane-register-tabs\"",
+  "bytes": 1743
+ },
+ {
+  "file": "css/030-xen-lane-nodal-palette.css",
+  "tag": "style",
+  "attrs": "id=\"xen-lane-nodal-palette\"",
+  "bytes": 2094
+ },
+ {
+  "file": "css/031-xen-n20-forge-navigation.css",
+  "tag": "style",
+  "attrs": "id=\"xen-n20-forge-navigation\"",
+  "bytes": 5306
+ },
+ {
+  "file": "css/032-xen-live-controls.css",
+  "tag": "style",
+  "attrs": "id=\"xen-live-controls\"",
+  "bytes": 8003
+ },
+ {
+  "file": "css/033-xen-meta-menu.css",
+  "tag": "style",
+  "attrs": "id=\"xen-meta-menu\"",
+  "bytes": 42287
+ },
+ {
+  "file": "css/034-xen-p715-right-rack-bass-workshop.css",
+  "tag": "style",
+  "attrs": "id=\"xen-p715-right-rack-bass-workshop\"",
+  "bytes": 4329
+ },
+ {
+  "file": "css/035-xen-drum-mini-mixer-style.css",
+  "tag": "style",
+  "attrs": "id=\"xen-drum-mini-mixer-style\"",
+  "bytes": 1871
+ },
+ {
+  "file": "css/036-xen-meta-layout-mute-fix.css",
+  "tag": "style",
+  "attrs": "id=\"xen-meta-layout-mute-fix\"",
+  "bytes": 2242
+ },
+ {
+  "file": "css/037-xen-p9-m9-cockpit-canonical.css",
+  "tag": "style",
+  "attrs": "id=\"xen-p9-m9-cockpit-canonical\"",
+  "bytes": 30313
+ },
+ {
+  "file": "css/038-xen-eq-p1.css",
+  "tag": "style",
+  "attrs": "id=\"xen-eq-p1\"",
+  "bytes": 12945
+ },
+ {
+  "file": "css/039-xen-h1-circle-anchors.css",
+  "tag": "style",
+  "attrs": "id=\"xen-h1-circle-anchors\"",
+  "bytes": 7656
+ },
+ {
+  "file": "js/011-xen-h1-side-rail-sync.js",
+  "tag": "script",
+  "attrs": "id=\"xen-h1-side-rail-sync\"",
+  "bytes": 1360
+ },
+ {
+  "file": "css/040-xen-h3-precision-rings.css",
+  "tag": "style",
+  "attrs": "id=\"xen-h3-precision-rings\"",
+  "bytes": 3328
+ },
+ {
+  "file": "js/012-xen-h3-permanent-rails.js",
+  "tag": "script",
+  "attrs": "id=\"xen-h3-permanent-rails\"",
+  "bytes": 733
+ },
+ {
+  "file": "css/041-xen-r3-wheel-layout.css",
+  "tag": "style",
+  "attrs": "id=\"xen-r3-wheel-layout\"",
+  "bytes": 1880
+ },
+ {
+  "file": "css/042-xen-h4-h1-icons-hairline-vector.css",
+  "tag": "style",
+  "attrs": "id=\"xen-h4-h1-icons-hairline-vector\"",
+  "bytes": 3519
+ },
+ {
+  "file": "css/043-xen-r4-initial-randomize.css",
+  "tag": "style",
+  "attrs": "id=\"xen-r4-initial-randomize\"",
+  "bytes": 674
+ },
+ {
+  "file": "css/044-xen-nodal-room-iii-concave-shell-v3.css",
+  "tag": "style",
+  "attrs": "id=\"xen-nodal-room-iii-concave-shell-v3\"",
+  "bytes": 11257
+ },
+ {
+  "file": "css/045-xen-scrollbars-v3-unified.css",
+  "tag": "style",
+  "attrs": "id=\"xen-scrollbars-v3-unified\"",
+  "bytes": 1813
+ },
+ {
+  "file": "css/046-xen-header-stable-nav-sb2.css",
+  "tag": "style",
+  "attrs": "id=\"xen-header-stable-nav-sb2\"",
+  "bytes": 900
+ },
+ {
+  "file": "css/047-xen-compose-patchbay-v2.css",
+  "tag": "style",
+  "attrs": "id=\"xen-compose-patchbay-v2\"",
+  "bytes": 2392
+ },
+ {
+  "file": "css/048-xen-shell-geometry-t2-style.css",
+  "tag": "style",
+  "attrs": "id=\"xen-shell-geometry-t2-style\"",
+  "bytes": 4582
+ },
+ {
+  "file": "js/013-xen-shell-geometry-t2-js.js",
+  "tag": "script",
+  "attrs": "id=\"xen-shell-geometry-t2-js\"",
+  "bytes": 7353
+ },
+ {
+  "file": "css/049-xen-compose-tangerine-aurora-ta1.css",
+  "tag": "style",
+  "attrs": "id=\"xen-compose-tangerine-aurora-ta1\"",
+  "bytes": 3613
+ },
+ {
+  "file": "css/050-xen-hke1-hotkey-extension.css",
+  "tag": "style",
+  "attrs": "id=\"xen-hke1-hotkey-extension\"",
+  "bytes": 2295
+ },
+ {
+  "file": "css/051-xen-forge-header-pitch-css.css",
+  "tag": "style",
+  "attrs": "id=\"xen-forge-header-pitch-css\"",
+  "bytes": 923
+ },
+ {
+  "file": "css/052-xen-forge-fp9-progress-css.css",
+  "tag": "style",
+  "attrs": "id=\"xen-forge-fp9-progress-css\"",
+  "bytes": 826
+ },
+ {
+  "file": "css/053-xen-rack-bar-editor-style.css",
+  "tag": "style",
+  "attrs": "id=\"xen-rack-bar-editor-style\"",
+  "bytes": 2649
+ },
+ {
+  "file": "css/054-xen-spectral-workflow-style.css",
+  "tag": "style",
+  "attrs": "id=\"xen-spectral-workflow-style\"",
+  "bytes": 6504
+ },
+ {
+  "file": "js/014-xen-spectral-workflow-script.js",
+  "tag": "script",
+  "attrs": "id=\"xen-spectral-workflow-script\"",
+  "bytes": 9414
+ },
+ {
+  "file": "css/055-xen-raw-volume-rv02-css.css",
+  "tag": "style",
+  "attrs": "id=\"xen-raw-volume-rv02-css\"",
+  "bytes": 1186
+ },
+ {
+  "file": "css/056-xen-hold-pattern-tabs-v1.css",
+  "tag": "style",
+  "attrs": "id=\"xen-hold-pattern-tabs-v1\"",
+  "bytes": 2029
+ },
+ {
+  "file": "css/057-xen-thunder-hold-tabs-v3-geometry-safe.css",
+  "tag": "style",
+  "attrs": "id=\"xen-thunder-hold-tabs-v3-geometry-safe\"",
+  "bytes": 1689
+ },
+ {
+  "file": "css/058-xen-one-shot-fills-style.css",
+  "tag": "style",
+  "attrs": "id=\"xen-one-shot-fills-style\"",
+  "bytes": 14492
+ },
+ {
+  "file": "css/059-xen-p36-sample-length.css",
+  "tag": "style",
+  "attrs": "id=\"xen-p36-sample-length\"",
+  "bytes": 380
+ },
+ {
+  "file": "css/060-xen-p36-session-instrument-settings.css",
+  "tag": "style",
+  "attrs": "id=\"xen-p36-session-instrument-settings\"",
+  "bytes": 888
+ },
+ {
+  "file": "css/061-xen-p36-4b-material-nudge-style.css",
+  "tag": "style",
+  "attrs": "id=\"xen-p36-4b-material-nudge-style\"",
+  "bytes": 686
+ },
+ {
+  "file": "css/062-xen-p36-05b-compact-instrument-arrow.css",
+  "tag": "style",
+  "attrs": "id=\"xen-p36-05b-compact-instrument-arrow\"",
+  "bytes": 966
+ },
+ {
+  "file": "css/063-xen-p36-05d-preserve-instrument-rows.css",
+  "tag": "style",
+  "attrs": "id=\"xen-p36-05d-preserve-instrument-rows\"",
+  "bytes": 844
+ },
+ {
+  "file": "css/064-xen-p36-05e-narrow-lane-scroll.css",
+  "tag": "style",
+  "attrs": "id=\"xen-p36-05e-narrow-lane-scroll\"",
+  "bytes": 589
+ },
+ {
+  "file": "css/065-xen-sample-grid-six-06.css",
+  "tag": "style",
+  "attrs": "id=\"xen-sample-grid-six-06\"",
+  "bytes": 1224
+ },
+ {
+  "file": "css/066-xen-bass-voice-editor-01.css",
+  "tag": "style",
+  "attrs": "id=\"xen-bass-voice-editor-01\"",
+  "bytes": 2313
+ },
+ {
+  "file": "css/067-xen-sample-import-tooltip-05.css",
+  "tag": "style",
+  "attrs": "id=\"xen-sample-import-tooltip-05\"",
+  "bytes": 565
+ },
+ {
+  "file": "css/068-xen-sample-controls-grouped-07.css",
+  "tag": "style",
+  "attrs": "id=\"xen-sample-controls-grouped-07\"",
+  "bytes": 2574
+ },
+ {
+  "file": "css/069-xen-touchpad-inline-particles-02.css",
+  "tag": "style",
+  "attrs": "id=\"xen-touchpad-inline-particles-02\"",
+  "bytes": 2949
+ },
+ {
+  "file": "css/070-xen-thunder-pitch02-css.css",
+  "tag": "style",
+  "attrs": "id=\"xen-thunder-pitch02-css\"",
+  "bytes": 3029
+ },
+ {
+  "file": "css/071-xen-wave-editor-w01-css.css",
+  "tag": "style",
+  "attrs": "id=\"xen-wave-editor-w01-css\"",
+  "bytes": 29513
+ },
+ {
+  "file": "js/015-xen-wave-editor-w01-modules.js",
+  "tag": "script",
+  "attrs": "id=\"xen-wave-editor-w01-modules\"",
+  "bytes": 200735
+ },
+ {
+  "file": "js/016-xen-header-scrollbar-gauge-sb2.js",
+  "tag": "script",
+  "attrs": "id=\"xen-header-scrollbar-gauge-sb2\"",
+  "bytes": 888
+ },
+ {
+  "file": "js/017-XEN_WISSENSRAUM_BRIDGE_D_INTEGRATION.js",
+  "tag": "script",
+  "attrs": "id=\"XEN_WISSENSRAUM_BRIDGE_D_INTEGRATION\"",
+  "bytes": 13487
+ },
+ {
+  "file": "css/072-xen-scissors-offline-ui.css",
+  "tag": "style",
+  "attrs": "id=\"xen-scissors-offline-ui\"",
+  "bytes": 992
+ },
+ {
+  "file": "css/073-xen-troodle-preset-layout06.css",
+  "tag": "style",
+  "attrs": "id=\"xen-troodle-preset-layout06\"",
+  "bytes": 583
+ },
+ {
+  "file": "js/018-xen-room-canonical.js",
+  "tag": "script",
+  "attrs": "type=\"application/x-xensonar-room\" id=\"xen-room-canonical\"",
+  "bytes": 447845
+ },
+ {
+  "file": "js/019-xen-room-lab.js",
+  "tag": "script",
+  "attrs": "type=\"application/x-xensonar-room\" id=\"xen-room-lab\"",
+  "bytes": 627984
+ },
+ {
+  "file": "js/020-xen-room-nodal.js",
+  "tag": "script",
+  "attrs": "type=\"application/x-xensonar-room\" id=\"xen-room-nodal\"",
+  "bytes": 100791
+ },
+ {
+  "file": "js/021-xen-function-__ForgeTransportRack.js",
+  "tag": "script",
+  "attrs": "type=\"application/x-xensonar-function\" id=\"xen-function-__ForgeTransportRack\"",
+  "bytes": 22725
+ },
+ {
+  "file": "js/022-xen-function-__XenBassGridEditor.js",
+  "tag": "script",
+  "attrs": "type=\"application/x-xensonar-function\" id=\"xen-function-__XenBassGridEditor\"",
+  "bytes": 8038
+ },
+ {
+  "file": "js/023-xen-function-__xenM12InventoryFactory.js",
+  "tag": "script",
+  "attrs": "type=\"application/x-xensonar-function\" id=\"xen-function-__xenM12InventoryFactory\"",
+  "bytes": 6277
+ },
+ {
+  "file": "js/024-xen-function-__xenM11HydrationFactory.js",
+  "tag": "script",
+  "attrs": "type=\"application/x-xensonar-function\" id=\"xen-function-__xenM11HydrationFactory\"",
+  "bytes": 2206
+ },
+ {
+  "file": "js/025-xen-function-__xenM10BackupFactory.js",
+  "tag": "script",
+  "attrs": "type=\"application/x-xensonar-function\" id=\"xen-function-__xenM10BackupFactory\"",
+  "bytes": 5754
+ },
+ {
+  "file": "js/026-xen-function-__xenM9ArchiveFactory.js",
+  "tag": "script",
+  "attrs": "type=\"application/x-xensonar-function\" id=\"xen-function-__xenM9ArchiveFactory\"",
+  "bytes": 9198
+ },
+ {
+  "file": "js/027-xen-function-__XenMetaEditor.js",
+  "tag": "script",
+  "attrs": "type=\"application/x-xensonar-function\" id=\"xen-function-__XenMetaEditor\"",
+  "bytes": 71216
+ },
+ {
+  "file": "js/028-xen-function-__XenSessionPeriodDialog.js",
+  "tag": "script",
+  "attrs": "type=\"application/x-xensonar-function\" id=\"xen-function-__XenSessionPeriodDialog\"",
+  "bytes": 4831
+ },
+ {
+  "file": "css/074-xen-compose-tangerine-aurora-ta1.css",
+  "tag": "style",
+  "attrs": "id=\"xen-compose-tangerine-aurora-ta1\"",
+  "bytes": 3613
+ },
+ {
+  "file": "css/075-xen-looprec-dock-canonical.css",
+  "tag": "style",
+  "attrs": "id=\"xen-looprec-dock-canonical\"",
+  "bytes": 10562
+ },
+ {
+  "file": "css/076-xno-original-cycle-style.css",
+  "tag": "style",
+  "attrs": "id=\"xno-original-cycle-style\"",
+  "bytes": 2317
+ },
+ {
+  "file": "js/029-xno-original-cycle-runtime.js",
+  "tag": "script",
+  "attrs": "id=\"xno-original-cycle-runtime\"",
+  "bytes": 23566
+ },
+ {
+  "file": "js/030-inline.js",
+  "tag": "script",
+  "attrs": "",
+  "bytes": 3537
+ },
+ {
+  "file": "js/031-xen-sound-recipe-export-ui.js",
+  "tag": "script",
+  "attrs": "id=\"xen-sound-recipe-export-ui\"",
+  "bytes": 11451
+ }
+]

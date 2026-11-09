@@ -1,0 +1,21 @@
+
+/* Five self-contained, fixed-width controls. No ghost columns and no data-dependent reflow. */
+#melodic-sample-database-panel .xen-sample-controls-grid{display:flex;flex-wrap:wrap;align-items:flex-start;justify-content:flex-start;gap:.6rem .85rem;width:max-content;max-width:100%;}
+#melodic-sample-database-panel .xen-sample-control{box-sizing:border-box;min-width:0;display:flex;flex-direction:column;align-items:stretch;justify-content:flex-end;gap:.35rem;min-height:3.35rem;font-size:11px;flex-shrink:0;}
+#melodic-sample-database-panel .xen-sample-control-title{display:block;white-space:nowrap;color:#b9b7bd;line-height:1rem;font-size:11px;}
+#melodic-sample-database-panel .xen-sample-role-control{width:8.1rem}
+#melodic-sample-database-panel .xen-sample-playback-control{width:7.4rem}
+#melodic-sample-database-panel .xen-sample-anchor-control{width:11.2rem}
+#melodic-sample-database-panel .xen-sample-max-control{width:14.6rem}
+#melodic-sample-database-panel .xen-sample-tail-control{width:11rem}
+#melodic-sample-database-panel .xen-sample-control select{box-sizing:border-box;height:2rem;width:100%;min-width:0;font-size:11px;}
+#melodic-sample-database-panel .xen-sample-control input[type=range]{box-sizing:border-box;width:100%;height:.35rem;min-width:0;min-height:.35rem;flex-shrink:0;margin:0;cursor:pointer}
+#melodic-sample-database-panel .xen-sample-control input[type=range]:disabled{opacity:.23;cursor:not-allowed}
+#melodic-sample-database-panel .xen-sample-anchor-row{height:2rem;display:flex;align-items:center}
+#melodic-sample-database-panel .xen-sample-max-row{display:grid;grid-template-columns:5.2rem 8rem;align-items:center;gap:.4rem;min-width:0}
+#melodic-sample-database-panel .xen-sample-length-track{width:8rem;height:2rem;position:relative;min-width:0;display:flex;align-items:center}
+#melodic-sample-database-panel .xen-sample-length-bubble{position:absolute;top:-1.25rem;transform:translateX(-50%);font:10px/1.1 ui-monospace,monospace;color:#9debe6;background:#101b1b;border:1px solid #286361;border-radius:.25rem;padding:1px 3px;pointer-events:none;white-space:nowrap;text-align:center;min-width:2.8rem}
+#melodic-sample-database-panel .xen-sample-tail-row{display:flex;align-items:center;gap:.35rem;height:2rem;white-space:nowrap}
+#melodic-sample-database-panel .xen-sample-tail-row>span{font-size:10px;color:#a5a5a5}
+#melodic-sample-database-panel .xen-sample-tail-row input[type=range]{flex:1;width:1px}
+@media(max-width:760px){#melodic-sample-database-panel .xen-sample-controls-grid{width:100%;justify-content:flex-start;gap:.8rem .65rem}}

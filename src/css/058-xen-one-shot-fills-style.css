@@ -1,0 +1,165 @@
+
+/* Restored historical expanded Quickrack control geometry from the original Quickrack stylesheet.
+   The former P35 expanded override targeted Quickrack instead of One-Shot Fills and covered the Save diskette.
+   Keep the existing collapsed-tab styling below unchanged. */
+.xen-quick-dock.is-collapsed .xen-quick-collapse-trigger.xen-quick-collapse-tab{top:0;z-index:9;background:transparent;border:0;border-radius:0;box-shadow:none}
+.xen-quick-dock.is-collapsed .xen-quick-collapse-trigger.xen-quick-collapse-tab:hover,
+.xen-quick-dock.is-collapsed .xen-quick-collapse-trigger.xen-quick-collapse-tab:active{background:transparent;border:0;box-shadow:none}
+
+
+
+
+
+.xen-fill-color-editor{z-index:11}
+.xen-fill-color-editor .xen-grid-period-open{cursor:pointer}
+body:has(.xen-meta-overlay) .xen-quick-hover-info{display:none!important}
+
+/* One-shot trigger tile: left half labels the Fill, right half shows Package Station brackets.
+   The Frame / Background colors are the existing session-scoped Fill palette. */
+.xen-fill-live-lane>.xen-fill-onebar-source{box-sizing:border-box;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);align-items:center;width:100%;height:30px;min-height:30px;max-height:30px;min-width:0;text-align:left;padding:3px 3px 3px 6px;border:1px solid var(--xen-fill-accent,#31637a);border-radius:4px;background:var(--xen-fill-plate,#123044);color:#d1f4ff;font:11px var(--font-mono);cursor:pointer;user-select:none}
+.xen-fill-onebar-label{display:block;min-width:0;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.xen-fill-onebar-arcade{display:grid;justify-items:end;align-items:center;min-width:0;pointer-events:none}
+.xen-fill-onebar-action{display:flex;align-items:center;justify-content:center;gap:1px;width:32px;height:22px;border-radius:6px;background:var(--xen-fill-accent,#31637a);pointer-events:none;box-shadow:inset 0 0 0 1px #ffffff21,0 1px 4px #0007;transition:transform 100ms ease,filter 100ms ease}
+.xen-fill-onebar-action>svg{width:13px;height:19px;flex:0 0 13px;display:block;pointer-events:none;color:var(--xen-fill-plate,#123044)}
+.xen-fill-onebar-action>svg path{stroke-width:3.2;stroke-linecap:round;stroke-linejoin:round}
+.xen-fill-onebar-dot{width:4px;height:4px;flex:0 0 4px;border-radius:50%;background:var(--xen-fill-plate,#123044);pointer-events:none}
+.xen-fill-live-lane>.xen-fill-onebar-source:hover .xen-fill-onebar-action{filter:brightness(1.17)}
+.xen-fill-live-lane>.xen-fill-onebar-source:active .xen-fill-onebar-action{transform:scale(.9)}
+.xen-fill-live-lane>.xen-fill-onebar-source:focus-visible{outline:2px solid #7ce8f5;outline-offset:2px}
+@media(prefers-reduced-motion:reduce){.xen-fill-onebar-action{transition:none}}
+/* Canonical overlay selector: search lives in the open popup, not in the rack. */
+.xen-preset-pop-trigger{box-sizing:border-box;display:flex;align-items:center;justify-content:space-between;gap:5px;width:100%;min-width:0;height:30px;border:1px solid #525252;border-radius:3px;padding:4px 6px;background:#0a0a0a;color:#e5e5e5;font:11px var(--font-mono);text-align:left;cursor:pointer}
+.xen-preset-pop-trigger>span:first-child{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.xen-preset-pop-trigger>span:last-child{flex:0 0 auto;color:#91b6c7}
+.xen-preset-pop-trigger:disabled{opacity:.5;cursor:default}
+.xen-preset-pop-trigger:focus-visible{outline:2px solid #e879f9;outline-offset:2px}
+.xen-preset-popover{box-sizing:border-box;position:fixed;z-index:2147483100;display:flex;flex-direction:column;min-width:0;overflow:hidden;border:1px solid #4c758e;border-radius:6px;background:#091826;color:#d5edfa;box-shadow:0 14px 35px #000c;font:11px var(--font-mono)}
+.xen-preset-pop-search-row{flex:0 0 auto;display:flex;justify-content:flex-end;align-items:center;padding:5px 7px;background:#112638;border-bottom:1px solid #406075}
+.xen-preset-pop-search-row>input{box-sizing:border-box;width:min(174px,100%);height:25px;min-width:0;padding:3px 5px;border:1px solid #537c91;border-radius:4px;background:#081623;color:#daf6ff;font:11px var(--font-mono)}
+.xen-preset-pop-list{overflow:auto;min-height:0;overscroll-behavior:contain}
+.xen-preset-pop-group-title{font-weight:700;color:#78d4e4;padding:6px 7px 4px;background:#13293b;position:sticky;top:0}
+.xen-preset-pop-option{box-sizing:border-box;display:block;width:100%;min-height:25px;padding:5px 9px 5px 16px;text-align:left;border:0;background:transparent;color:#d4e6f4;font:11px var(--font-mono);cursor:pointer;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.xen-preset-pop-option:hover,.xen-preset-pop-option:focus-visible{background:#245065;color:white}
+.xen-preset-pop-option[aria-selected="true"]{color:#93f8e5;background:#173e43}
+.xen-preset-pop-no-match{padding:12px;text-align:center;color:#9ab3bd}
+.xen-fill-mini-menu{position:fixed;z-index:2147483000;width:224px;max-width:calc(100vw - 16px);border:1px solid #69b6d3;border-radius:7px;background:#0b1b2b;box-shadow:0 12px 35px #000c;color:#d4f1fa;padding:10px;font:11px var(--font-mono)}
+.xen-fill-mini-menu>header{display:flex;justify-content:space-between;align-items:center;gap:4px;margin-bottom:9px}
+.xen-fill-mini-menu>header strong{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}
+.xen-fill-mini-menu>header button{background:#18364d;color:#c6edfa;border:1px solid #426c81;border-radius:3px;cursor:pointer}
+.xen-fill-mini-menu>label{display:block;margin-top:9px}.xen-fill-mini-menu>label span{display:block;margin-bottom:4px}
+.xen-fill-mini-menu input[type=range]{display:block;width:100%;height:17px;accent-color:#58c5d4}
+
+.xen-fill-tabbar{display:grid;flex:0 0 auto;grid-template-columns:1fr 1fr;gap:6px;padding-top:8px;margin-bottom:5px}
+.xen-fill-tabbar>button{background:#142537;color:#9eb7ce;border:1px solid #31516d;border-radius:6px 6px 0 0;min-height:36px;cursor:pointer;letter-spacing:.10em;font:700 12px var(--font-mono)}
+.xen-fill-tabbar>button.is-active{background:#164454;color:#dbfaff;border-color:#50d7e7;border-bottom-color:#164454}
+.xen-fill-tabbar>button:focus-visible,.xen-fill-slot:focus-visible,.xen-fill-slot button:focus-visible{outline:2px solid #7ce8f5}
+.xen-fill-tab-panel{display:flex;flex:1 1 auto;min-height:0;min-width:0;flex-direction:column;overflow:hidden}
+.xen-meta-one-shot-board{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));min-width:0;gap:7px;padding:9px;background:#09131f;border:1px solid #355169;flex:1;min-height:0;overflow:auto}
+.xen-fill-lane{border:1px solid #284457;background:#0d1c2b;padding:6px;min-width:0;min-height:160px;display:flex;flex-direction:column;gap:9px}
+.xen-fill-lane>header{display:flex;flex-direction:column;text-align:center;align-items:center;gap:4px;min-height:43px}
+.xen-fill-lane>header strong{font:700 11px var(--font-mono);color:#d9edf6}.xen-fill-lane>header small{font:10px var(--font-mono);color:#82a5bb}
+/* Fill cards intentionally inherit the Grid & Loops tile dress code. */
+.xen-meta-tile.xen-fill-slot{width:100%;flex:0 0 38px;cursor:pointer;border-width:3px;border-radius:0;padding:5px 3px 5px 7px}
+.xen-meta-tile.xen-fill-slot.is-color-selected{outline:2px solid #b6eefa;outline-offset:1px}
+.xen-fill-lane-items{display:flex;flex-direction:column;gap:7px}.xen-fill-lane-hint{color:#7696ad;font-size:10px;text-align:center;margin-top:auto;line-height:1.4}
+
+
+
+
+
+@media(max-width:800px){.xen-meta-one-shot-board{grid-template-columns:repeat(3,minmax(105px,1fr))}.xen-fill-lane{padding:3px}.xen-fill-tabbar>button{min-height:32px}}
+
+.xen-fill-live{background:#070d15;color:#b9dce8;border:1px solid #274759;border-radius:5px;padding:7px;margin:6px 0 12px;min-width:0}
+.xen-fill-live>header{color:#83d7e3;font:700 10px var(--font-mono);letter-spacing:.12em;margin-bottom:7px;display:flex;align-items:center;justify-content:space-between;gap:8px;min-height:25px}
+.xen-fill-live-header>button{background:transparent;border:0;color:#e879f9;cursor:pointer;min-width:26px;min-height:25px;font:20px var(--font-mono);line-height:1;display:grid;place-items:center;padding:0}
+.xen-fill-live-header>button:focus-visible{outline:2px solid #7ce8f5;outline-offset:2px}
+
+/* UI Integrity V2 / One-Shot Fill: only the real Live Room Fill dock toggle.
+   Expanded: visible triangle vertical edge aligns to the dock right border at unchanged Y; collapsed: preserve existing position.
+   Keep a distinct click owner; preserve the instrument toggle. */
+.xen-performance .xen-fill-live {position:relative}
+.xen-performance .xen-fill-live > .xen-fill-live-header {position:relative;min-height:26px}
+.xen-performance .xen-fill-live > .xen-fill-live-header > button[aria-controls] {
+  position:absolute;z-index:2;top:0;right:-15px;box-sizing:border-box;
+  width:26px;height:26px;min-width:26px;min-height:26px;padding:0;
+  border:0;border-radius:0;background:transparent;box-shadow:none;filter:none;
+  display:grid;place-items:center;
+}
+.xen-performance .xen-fill-live[data-xen-fill-collapsed=true] > .xen-fill-live-header > button[aria-controls] {
+  top:0;left:0;right:auto;
+}
+.xen-performance:has(> .xen-performance-instruments[data-xen-side-performance=collapsed]):has(> .xen-fill-live[data-xen-fill-collapsed=true]) {
+  background:transparent;
+}
+
+.xen-fill-live-content{min-width:0}
+.xen-performance-instruments{width:100%;min-width:0}
+.xen-performance:has(> .xen-performance-instruments[data-xen-side-performance=collapsed]):has(> .xen-fill-live[data-xen-fill-collapsed=true]){width:64px;box-sizing:border-box}
+.xen-performance-instruments[data-xen-side-performance=collapsed]{box-sizing:border-box;width:48px;padding:6px 4px}
+.xen-fill-live[data-xen-fill-collapsed=true]{box-sizing:border-box;width:48px;padding:6px 4px;background:transparent;border:0;border-radius:0}
+.xen-fill-live[data-xen-fill-collapsed=true]>.xen-fill-live-header{justify-content:flex-start;gap:0;margin:0;min-height:26px}
+.xen-fill-live-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.xen-fill-live-lane{display:flex;flex-direction:column;gap:4px;min-width:0}
+.xen-fill-live-lane>strong{font:600 10px var(--font-mono);color:#b8dce6}
+.xen-fill-live-content>small{font:10px var(--font-mono);color:#bc9b61;display:block;margin-top:7px}
+
+.xen-fill-instrument{display:flex;flex-direction:column;align-items:stretch;gap:4px;min-width:0;line-height:1.25;background:#102e40;border:1px solid #366177;border-radius:5px;padding:11px 6px;color:#d0ecfc;text-align:left;font:12px var(--font-mono);cursor:pointer}
+.xen-fill-instrument-role{font:600 11px var(--font-mono);color:#8fbaca}
+.xen-fill-instrument-current{font:700 11px var(--font-mono);color:#e2f8ff;overflow-wrap:anywhere;line-height:1.35}
+.xen-fill-lane[data-xen-fill-column="melodic"]:has(.xen-fill-slot) .xen-fill-lane-hint{padding-top:6px}
+
+.xen-fill-lane[data-xen-fill-column="instruments"] .xen-fill-lane-items{gap:4px}
+.xen-fill-instrument-editor{display:flex;flex-direction:column;gap:2px;cursor:default;padding:4px!important}
+.xen-fill-instrument-editor .xen-fill-instrument{display:flex;flex-direction:column;align-items:stretch;gap:4px;min-width:0;line-height:1.25;background:#102e40;border:1px solid #366177;border-radius:5px;padding:11px 6px;color:#d0ecfc;text-align:left;font:12px var(--font-mono);cursor:pointer}
+.xen-fill-instrument-role{font-size:10px;line-height:1.1}
+.xen-fill-instrument-editor .xen-fill-instrument-current{font-size:10px;line-height:1.2}
+.xen-fill-instrument-editor .xen-preset-pop-trigger{width:100%;min-width:0;background:#081c2b;color:#c9eff8;border:1px solid #416a7d;border-radius:4px;font:10px var(--font-mono);padding:3px 3px;min-height:23px}
+.xen-fill-instrument-editor .xen-fill-instrument-actions{display:grid;grid-template-columns:1fr 1fr;gap:4px}
+.xen-fill-instrument-editor .xen-fill-instrument-actions button{font:10px var(--font-mono);padding:3px 2px;min-height:22px;background:#183a47;color:#d7edf2;border:1px solid #4b7c8a;border-radius:4px;cursor:pointer}
+.xen-fill-instrument-editor .xen-fill-instrument-actions button:disabled{opacity:.38;cursor:default}
+
+
+/* OSQR-RESIZE-01 · Live Room One-Shot Fills ONLY (not the right Quick Rack).
+   The gesture surface is outside the pad hit targets. Expanded height is allocated
+   to real pads, not fake gaps; the two existing columns and trigger owners survive. */
+.xen-performance .xen-fill-live:not([data-xen-fill-collapsed="true"]){position:relative}
+.xen-performance .xen-fill-live[data-xen-osqr-resized="true"]{
+ box-sizing:border-box;display:flex;flex-direction:column;
+}
+.xen-performance .xen-fill-live[data-xen-osqr-resized="true"]>.xen-fill-live-header{flex:0 0 auto}
+.xen-performance .xen-fill-live[data-xen-osqr-resized="true"]>.xen-fill-live-content{
+ display:flex;flex-direction:column;flex:1 1 auto;min-height:0;
+}
+.xen-performance .xen-fill-live[data-xen-osqr-resized="true"] .xen-fill-live-grid{
+ flex:1 1 auto;min-height:0;align-items:stretch;
+}
+.xen-performance .xen-fill-live[data-xen-osqr-resized="true"] .xen-fill-live-lane{
+ min-height:0;align-items:stretch;
+}
+.xen-performance .xen-fill-live[data-xen-osqr-resized="true"] .xen-fill-live-lane>.xen-fill-onebar-source{
+ flex:1 1 0;height:auto;max-height:none;min-height:30px;
+}
+.xen-performance .xen-fill-live .xen-osqr-resize-handle{
+ position:absolute;z-index:5;top:calc(100% - 1px);left:50%;transform:translateX(-50%);
+ display:block;box-sizing:border-box;width:64px;height:45px;margin:0;padding:0;
+ border:0!important;background:transparent!important;box-shadow:none!important;
+ touch-action:none;user-select:none;cursor:ns-resize;
+}
+.xen-performance .xen-fill-live .xen-osqr-resize-handle:before{
+ content:'';position:absolute;left:calc(50% - 3px);top:0;width:6px;height:16px;
+ border-radius:0 0 4px 4px;background:#78d8e4;pointer-events:none;
+}
+.xen-performance .xen-fill-live .xen-osqr-resize-knob{
+ position:absolute;left:50%;top:13px;transform:translateX(-50%);
+ width:34px;height:34px;border:5px solid #78d8e4;border-radius:50%;
+ background:#0c1c2d;box-shadow:0 3px 9px #000b;pointer-events:none;
+}
+.xen-performance .xen-fill-live .xen-osqr-resize-handle:is(:hover,[data-osqr-dragging="true"]) .xen-osqr-resize-knob{
+ background:#245c69;border-color:#b1f5f6;
+}
+.xen-performance .xen-fill-live .xen-osqr-resize-handle:focus-visible{
+ outline:2px solid #7ce8f5!important;outline-offset:2px;
+}
+
+.xen-fill-lane.is-fill-drop{border-color:#63dfbf!important;box-shadow:inset 0 0 0 2px rgba(67,224,180,.5)}
+.xen-fill-lane.is-fill-invalid{border-color:#df7e7e!important;box-shadow:inset 0 0 0 1px rgba(235,101,101,.6)}

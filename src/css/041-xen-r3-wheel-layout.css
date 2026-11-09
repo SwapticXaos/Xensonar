@@ -1,0 +1,16 @@
+
+/* R3: format-aware contextual controls live in the old Randomize height, not in a second dock. */
+.xen-wheel-shell .xen-wheel-mandala-stage{width:min(100%,376px);max-width:100%;margin:4px auto 1px}
+.xen-wheel-shell .xen-wheel-r3-actionline{width:100%;height:44px;min-height:44px;display:flex;align-items:center;gap:4px;min-width:0;padding:3px 4px;background:linear-gradient(180deg,#241326,#190d1b);border:1px solid #8b5079;border-top:0;box-sizing:border-box;color:#cdb5d2;overflow:hidden;flex:none}
+.xen-wheel-r3-info{flex:1 1 2px;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:9px;line-height:1.1;color:#d6b5cb}
+.xen-wheel-r3-tools{display:flex;flex:none;gap:2px;min-width:0;max-width:calc(100% - 40px)}
+.xen-wheel-r3-button{white-space:nowrap;padding:2px 4px;font-family:'Noto Sans ExtraCondensed','Liberation Sans Narrow',sans-serif;font-size:10px;line-height:19px;min-height:26px;letter-spacing:-.02em;border:1px solid #63425b;color:#f6daeb;background:#100e15;cursor:pointer}
+.xen-wheel-r3-button:disabled{opacity:.35;cursor:default}
+.xen-wheel-r3-button:focus-visible,.xen-wheel-r3-reroll:focus-visible{outline:2px solid #d79ccf;outline-offset:1px}
+.xen-wheel-r3-reroll{width:32px;height:34px;min-width:32px;min-height:34px;flex:none;border:1px solid #c47aa9;background:#532443;color:#fff1fb;font-size:25px;line-height:30px;cursor:pointer}
+.xen-wheel-r3-reroll:hover:not(:disabled){background:#814068}
+.xen-wheel-r3-reroll:disabled{opacity:.48;cursor:wait}
+/* The old dock no longer exists in R3; allow larger mandala without growing the
+   wheel's containing region or moving following Settings down. */
+@media(max-width:1400px){.xen-wheel-shell .xen-wheel-mandala-stage{width:min(100%,340px)}.xen-wheel-r3-button{font-size:9px;padding-inline:3px}}
+@media(max-width:680px){.xen-wheel-shell .xen-wheel-mandala-stage{width:min(100%,285px)}}

@@ -1,0 +1,9 @@
+
+/* Keep the Nodal factory bank at its existing height on narrow viewports.
+   Four columns retain two rows for seven presets; labels remain readable. */
+@media(max-width:580px){
+ .nd-open-workshop .nd-preset-bank button{display:flex;align-items:center;justify-content:center;min-width:0;padding:6px 4px;min-height:40px;}
+ .nd-open-workshop .nd-preset-bank button>.nd-preset-glyph,
+ .nd-open-workshop .nd-preset-bank button>small{display:none;}
+ .nd-open-workshop .nd-preset-bank button>span{font-size:10px;letter-spacing:0;white-space:nowrap;overflow:visible;text-overflow:clip;}
+}

@@ -1,0 +1,22 @@
+
+/* Cabinet-file metaphor: the selected tab is contiguous with its own control sheet.
+   Surface uses existing lane palette; no size change to Quickrack or underlying sliders. */
+.xen-lane-controls{--xen-lane-page-bg:#0b2118;padding:3px 3px 2px}
+.xen-lane-tabs{position:relative;z-index:2;grid-template-columns:repeat(3,minmax(0,1fr));gap:3px;margin-bottom:-1px;padding:0}
+.xen-lane-tabs::before{content:"";position:absolute;left:0;right:0;bottom:0;height:1px;background:#56c997;z-index:1;pointer-events:none}
+.xen-lane-tabs button{box-sizing:border-box;position:relative;min-width:0;margin:0;padding:4px 2px 3px;
+ border-radius:5px 5px 0 0;border:1px solid #345b48;border-bottom-color:#345b48;
+ background:#08160f;color:#7c9e8e;opacity:.74;transform:translateY(1px);
+ transition:background-color .12s ease,color .12s ease,opacity .12s ease,border-color .12s ease;
+ text-align:center;line-height:13px;font-size:9px}
+.xen-lane-tabs button:not(.is-active){opacity:.7;box-shadow:inset 0 -2px 3px #030a0780;filter:saturate(.75)}
+.xen-lane-tabs button:not(.is-active):hover{opacity:.95;background:#0d2a1d;color:#bddfcb}
+.xen-lane-tabs button.is-active{z-index:3;transform:none;background:var(--xen-lane-page-bg);opacity:1;
+ color:#e5fff1;border-color:#56c997;border-bottom-color:var(--xen-lane-page-bg);
+ box-shadow:inset 0 2px 0 #54d3a04a}
+.xen-lane-tabs button:focus-visible{outline:2px solid #b0ffcf;outline-offset:2px;z-index:4}
+.xen-lane-page{box-sizing:border-box;position:relative;z-index:1;min-width:0;
+ background:var(--xen-lane-page-bg);border:1px solid #56c997;border-radius:0 0 4px 4px;
+ padding:3px 2px 2px}
+.xen-lane-page .xen-lane-row{background:#0a1d14}
+@media(prefers-reduced-motion:reduce){.xen-lane-tabs button{transition:none}}

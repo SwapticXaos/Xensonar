@@ -1,0 +1,7 @@
+
+.xen-meta-material-nudge{display:flex;flex-direction:column;gap:8px;border-block:1px solid #416675;padding:10px 0;color:#d9edf4}
+.xen-meta-material-nudge>label{display:grid;grid-template-columns:auto minmax(45px,1fr) auto;gap:8px;align-items:center;font-size:12px}
+.xen-meta-material-nudge input[type=range]{min-width:0;width:100%;accent-color:#48bdca}
+.xen-meta-material-nudge output{min-width:69px;text-align:right;white-space:nowrap;font-size:11px;font-variant-numeric:tabular-nums}
+.xen-meta-material-nudge>small{font-size:11px;line-height:1.4;opacity:.8}
+.xen-meta-color-editor:has(.xen-meta-material-nudge){max-height:min(44vh,385px);overflow-y:auto;overscroll-behavior:contain}

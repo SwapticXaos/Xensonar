@@ -1,0 +1,29 @@
+
+/* Live Quickrack appearance only. No effect on transport, saved content or library IDs. */
+.xen-quick-tile.is-title-mode{position:relative;flex-direction:column;gap:0;justify-content:center;overflow:hidden;min-width:0;padding:1px 2px;line-height:1.05}
+/* Neutral title remains compact. Visual emphasis belongs only to selected/live tiles. */
+.xen-quick-short-title{display:block;max-width:100%;overflow:hidden;white-space:nowrap;text-overflow:clip;font-size:10px;font-weight:500;letter-spacing:.005em;line-height:11px;color:inherit;transform:none;transform-origin:50% 50%}
+.xen-quick-tile.is-title-mode.is-selected-live .xen-quick-short-title,
+.xen-quick-tile.is-title-mode.is-parallel-material .xen-quick-short-title{font-size:14px;font-weight:900;letter-spacing:-.025em;line-height:15px;transform:none;text-shadow:0 0 6px rgba(168,255,220,.3)}
+.xen-quick-title-hotkey{display:block;min-height:9px;margin-top:2px;font-size:9px;font-weight:700;line-height:9px;color:#96b7a3;text-align:center;pointer-events:none}
+.xen-quick-title-hotkey.is-active{color:#4ade80}
+/* Static tile metadata: only .xen-quick-short-title is allowed to grow. */
+.xen-quick-tile.is-title-mode .xen-quick-title-index{position:absolute;top:2px;left:3px;z-index:1;font:400 8px/9px var(--font-mono);letter-spacing:0;pointer-events:none;color:#315a96;opacity:1;transform:none}
+.xen-quick-tile.is-title-mode .xen-quick-grid-pattern{display:block;min-height:9px;margin-top:2px;font:700 9px/9px var(--font-mono);color:#96b7a3;text-align:center;pointer-events:none;transform:none}
+/* Right-edge, left-pointing Bass Grid marker. Symbol and Titles share geometry. */
+.xen-quick-tile{position:relative}
+.xen-bass-grid-flag{position:absolute;right:0;bottom:3px;width:0;height:0;border-top:2.5px solid transparent;border-bottom:2.5px solid transparent;border-right:5px solid #ab87e8;filter:drop-shadow(-1px 0 1px #27153d);pointer-events:none;z-index:5}
+.xen-quick-tile.is-title-mode>.xen-bass-grid-flag{bottom:2px}
+.xen-meta-tile>.xen-bass-grid-flag{right:0;bottom:4px}
+.xen-quick-tile .xen-quick-grid-pattern{padding-right:5px}
+
+
+/* The view selection belongs to the Session Colors level, not the Meta titlebar. */
+/* View choices form a two-tooth extension of Session Colors: right edge stays flush. */
+.xen-meta-view-stack{display:flex;flex-direction:column;align-items:stretch;gap:0;flex:0 0 auto;width:max-content;max-width:100%;min-width:0}
+.xen-meta-view-stack .xen-meta-display-controls{display:grid;grid-template-columns:minmax(0,1fr) auto auto;align-items:stretch;gap:0;width:100%;box-sizing:border-box;margin:-1px 0 0;padding:0;border:0;background:transparent;white-space:nowrap}
+.xen-meta-display-caption{align-self:center;font:500 9px/13px var(--font-mono);color:#8dabbe}
+.xen-meta-view-stack .xen-meta-display-controls button{box-sizing:border-box;position:relative;margin:0;padding:1px 3px;min-height:16px;border:1px solid transparent;border-radius:0;background:transparent;color:#8eacbc;font:650 9px/12px var(--font-mono);cursor:pointer}
+.xen-meta-view-stack .xen-meta-display-controls button:hover{background:#1a3745;color:#d7edf0}
+.xen-meta-view-stack .xen-meta-display-controls button.is-active{z-index:1;border-color:#4aadb0;background:#124c57;color:#ecffff;font-weight:800}
+.xen-meta-constellation .xen-meta-head{padding-block:8px}

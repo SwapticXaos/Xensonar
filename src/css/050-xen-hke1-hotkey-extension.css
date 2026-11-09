@@ -1,0 +1,34 @@
+
+/* HKE1 · Shared Controls & Space / Hotkeys A–# panel. No size/geometry of other main room cards changed. */
+.xen-mainroom-control-triptych > .xen-hotkeys-controls-pair{
+  display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:10px;
+  align-items:stretch;min-width:0;min-height:0;background:transparent;border:0;border-top:0;
+}
+.xen-hotkeys-controls-pair > div,.xen-hotkeys-controls-pair > .xen-hotkeys-new-panel{
+  min-width:0;min-height:0;background:#0c0f16;border:1px solid #2b2b34;border-radius:3px;
+}
+.xen-hotkeys-controls-pair > div{border-top:1px solid #785933;gap:9px;padding:12px}
+.xen-hotkeys-new-panel{border-top:2px solid #d48c42!important;padding:12px;display:flex;flex-direction:column;gap:8px}
+.xen-mainroom-control-triptych .xen-hotkeys-new-panel h3{color:#f1b66c;font-size:21px!important;margin:0}
+.xen-hotkeys-new-targets{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:5px}
+.xen-hotkeys-new-option,.xen-hotkeys-new-layout button{
+  min-width:0;min-height:28px;border-radius:3px;border:1px solid #5b4e3d;
+  padding:4px 5px;background:#17181d;color:#d5c6af;
+  font:600 10px/1.15 system-ui,sans-serif;cursor:pointer;
+}
+.xen-hotkeys-new-option:hover,.xen-hotkeys-new-layout button:hover{border-color:#d7a463;color:#ffe5be}
+.xen-hotkeys-new-option[aria-pressed="true"],.xen-hotkeys-new-layout button[aria-pressed="true"]{
+  border-color:#f1b56d;background:linear-gradient(110deg,#442516,#342d22);color:#ffdfb4;
+  box-shadow:inset 0 1px 0 #ffb86c22,0 0 8px #df84232e;
+}
+.xen-hotkeys-new-panel button:focus-visible{outline:2px solid #ffe2aa;outline-offset:2px}
+.xen-hotkeys-new-layout{display:flex;flex-wrap:wrap;align-items:center;gap:4px}
+.xen-hotkeys-new-layout>span{color:#8a949b;font:10px system-ui,sans-serif;margin-right:2px}
+.xen-hotkeys-new-layout button{min-height:24px;padding:3px 7px}
+.xen-hotkeys-new-hint{font:10px/1.4 system-ui,sans-serif;color:#af9582;margin:0;overflow-wrap:anywhere}
+@media (max-width:1080px){
+ .xen-mainroom-control-triptych > .xen-hotkeys-controls-pair{grid-template-columns:minmax(0,1fr)}
+ .xen-hotkeys-new-panel{padding:10px}
+}
+/* Defer to existing triptych breakpoint; don't squeeze controls below legible width. */
+@media (prefers-reduced-motion:reduce){.xen-hotkeys-new-panel button{transition:none!important}}

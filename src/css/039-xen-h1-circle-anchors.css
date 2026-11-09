@@ -1,0 +1,117 @@
+
+/* XENSONAR H1 — CIRCLE ANCHOR HEADER (room navigation + performance strip ONLY)
+   Source base E3 Aurora MainRoom Spatial V3. Merge owner: header/upper navigation.
+   All circles are decorative children of their ONE existing functional button.
+   No padding/height/grid-row changes on either header or on the lower settings map. */
+.xen-h1-room-nav{align-items:center;column-gap:15px;row-gap:8px;overflow:visible}
+.xen-h1-room-btn{
+  position:relative;isolation:isolate;display:inline-flex;align-items:center;justify-content:center;
+  white-space:nowrap;min-height:30px;height:30px;line-height:1;vertical-align:middle;
+  padding-left:31px!important;padding-right:11px!important;overflow:visible;
+}
+.xen-h1-room-btn .xen-h1-room-disc{
+  position:absolute;left:-14px;top:50%;transform:translateY(-50%);z-index:2;
+  width:39px;height:39px;display:flex;align-items:center;justify-content:center;
+  box-sizing:border-box;border:1.5px solid currentColor;border-radius:50%;
+  font-family:Georgia,'Times New Roman',serif;font-size:19px;font-weight:bold;
+  line-height:1;letter-spacing:-1px;background:#08070e;
+  box-shadow:0 0 0 2px #000,0 0 14px rgba(196,154,233,.22);
+  color:#e7c3ff;cursor:pointer;pointer-events:auto;
+}
+.xen-h1-room-btn:nth-of-type(2) .xen-h1-room-disc{color:#a5f3fc;box-shadow:0 0 0 2px #000,0 0 12px rgba(102,217,234,.20)}
+.xen-h1-room-btn:nth-of-type(3) .xen-h1-room-disc{color:#f0e5ff;box-shadow:0 0 0 2px #000,0 0 12px rgba(190,173,245,.20)}
+.xen-h1-room-btn .xen-h1-room-label{position:relative;z-index:1;font-size:12px;font-weight:600;letter-spacing:.045em}
+.xen-h1-room-btn:hover .xen-h1-room-disc,.xen-h1-room-btn:focus-visible .xen-h1-room-disc{
+  box-shadow:0 0 0 2px #08070e,0 0 18px rgba(207,165,255,.6)
+}
+/* The performance row remains the same grid row and same 24px button height.
+   The disc overhangs visually but its parent button receives pointer input. */
+[data-xensonar-performance-strip] [data-xen-status-fretboard],
+[data-xensonar-performance-strip] [data-xen-status-menus] > button{
+  position:relative!important;isolation:isolate;overflow:visible!important;
+  height:24px!important;min-height:24px!important;max-height:24px!important;
+  display:inline-flex;align-items:center;justify-content:flex-start;
+  padding-left:25px!important;box-sizing:border-box;
+}
+/* H7: Preserve H1 text placement. Move the 41px disc LEFT of that text,
+   never expand the button padding. The 12px freed at the right of the
+   fretboard clickable area is the dedicated clearance for Material Track. */
+[data-xensonar-performance-strip] [data-xen-status-fretboard]{
+  padding-left:27px!important;
+  width:calc(100% - 12px)!important;max-width:calc(100% - 12px)!important;
+}
+[data-xensonar-performance-strip] .xen-header-unicode-icon{
+  position:absolute!important;left:-20px;top:50%;transform:translateY(-50%);
+  width:33px!important;height:33px!important;flex:0 0 33px!important;
+  display:inline-flex;align-items:center;justify-content:center;
+  box-sizing:border-box;border:1px solid #536b7c;border-radius:50%;
+  font-size:23px!important;line-height:1!important;
+  background:#0a1018;box-shadow:0 0 0 2px #000,0 0 9px rgba(120,189,216,.18);
+  overflow:visible;z-index:3;cursor:pointer;pointer-events:auto;
+}
+[data-xen-status-fretboard] .xen-header-unicode-icon{color:#c8b4ef!important;border-color:#8a6da9}
+[data-xen-status-menus] > button:nth-of-type(1) .xen-header-unicode-icon{border-color:#b78b35;background:#211a09}
+[data-xen-status-menus] > button:nth-of-type(2) .xen-header-unicode-icon{border-color:#8b7cd3;background:#101029}
+[data-xen-status-menus] > button:nth-of-type(3) .xen-header-unicode-icon{border-color:#c78080;background:#221018}
+[data-xen-status-menus] > button:nth-of-type(4) .xen-header-unicode-icon{border-color:#b68a5a;background:#1d1510}
+[data-xen-status-menus] > button.xen-meta-rack .xen-header-unicode-icon{border-color:#66b6d8;background:#0d2130}
+[data-xen-status-menus] .xen-header-unicode-icon[data-xensonar-root-follow-icon-bg] > span:first-child{width:27px!important;height:27px!important}
+[data-xen-status-menus] > button{padding-right:5px!important}
+[data-xen-status-menus] > button .truncate{min-width:0!important;text-overflow:ellipsis}
+/* On two-sided menu buttons, the 41px circle overhangs its owner's left
+   edge by 20px. A 22px slot-to-slot gap (11px on either side of each
+   retired slash separator) ensures every NEXT circle starts after the
+   PREVIOUS rectangle has ended. */
+[data-xen-status-menus]{overflow:visible!important;gap:11px!important;padding-left:8px;transform:translateX(-5px)}
+/* Meta-Menu has no retired slash separator before it; restore that
+   equivalent spacing without changing the circle or any text metrics. */
+[data-xen-status-menus] > button.xen-meta-rack{margin-left:11px!important}
+@container xen-performance-strip (min-width:1460px){
+ /* Shift unused space from Particle's title column to Fretboard. The long
+    built-in tuning + mode + root label now fits before Material's circle.
+    The menu absorbs this title-safe reservation without moving the controls. */
+ [data-xen-status-row]{grid-template-columns:21.3rem 25.7rem minmax(0,1fr) max-content}
+}
+[data-xen-status-menus] > .mx-1{width:0!important;font-size:0!important;margin:0!important;overflow:hidden}
+[data-xen-status-row]{overflow:visible!important}
+[data-xen-status-fretboard]{overflow:visible!important;text-overflow:clip!important}
+[data-xensonar-performance-strip] button:hover .xen-header-unicode-icon,
+[data-xensonar-performance-strip] button:focus-visible .xen-header-unicode-icon{box-shadow:0 0 0 2px #000,0 0 15px rgba(150,214,255,.54)}
+/* Instruments (left) and Quick Rack (right) already own fixed rails in Spatial V3.
+   Do not replace their layout or move to a scroll-triggered collapse state. */
+/* Tonal raster alone is bounded between the two fixed rails. The Settings map
+   below deliberately remains wide; no global shell or sonic-map width changes. */
+@media (min-width:1024px){
+ /* Use the existing fixed desktop side-rail contract also at ordinary laptop widths.
+    Before H1 the left rail became static below 1600px, unlike the Quick Rack. */
+ .xen-performance{
+   position:fixed;z-index:20;top:var(--xen-h1-side-rail-top,164px);left:var(--xen-side-rail-inset);
+   width:var(--xen-side-rail-width);margin:0;
+ }
+ .xen-performance-lanes{grid-template-columns:minmax(0,1fr);gap:8px}
+ .xen-performance-lane+.xen-performance-lane{border-top:1px solid #262626;padding-top:7px}
+ [data-xen-side-performance=collapsed]{width:48px}
+ .xen-mainroom-shell > .xen-h1-tonal-stage{
+    box-sizing:border-box;
+    width:min(100%,calc(100vw - 2 * (var(--xen-side-rail-width) + var(--xen-side-rail-inset)) - 44px));
+    max-width:none;margin-left:auto;margin-right:auto;
+ }
+}
+@media(max-width:1023px){
+ .xen-h1-room-btn .xen-h1-room-disc{width:33px;height:33px;font-size:16px;left:-11px}
+ .xen-h1-room-btn{padding-left:26px!important}
+ .xen-h1-room-btn .xen-h1-room-label{font-size:11px}
+ .xen-h1-room-nav{column-gap:10px}
+}
+/* Above and independently of the middle raster, BOTH side rails are viewport-fixed.
+   Their vertical origin follows the measured status-strip bottom, not its old 156px
+   constant (which collided with menu icons when the strip wraps to two rows). */
+.xen-quick-dock,.xen-quick-collection.is-right-docked{
+ top:var(--xen-h1-side-rail-top,164px)!important;
+}
+@media(min-width:1024px){.xen-performance{top:var(--xen-h1-side-rail-top,164px)!important}}
+@media(max-width:680px){
+ [data-xen-status-menus]{transform:none;padding-left:0}
+ [data-xen-status-menus] .xen-header-unicode-icon{left:-7px;width:29px!important;height:29px!important;font-size:20px!important}
+}
+

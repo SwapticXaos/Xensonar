@@ -1,0 +1,7 @@
+
+.xen-session-instrument-settings{position:fixed;z-index:2147483200;width:min(278px,calc(100vw - 16px));max-height:calc(100dvh - 16px);overflow:auto;background:#122631;color:#e6f5f6;border:1px solid #61a2ae;box-shadow:0 12px 40px #000b;border-radius:8px;padding:12px;display:flex;flex-direction:column;gap:12px;font:12px var(--font-mono,monospace)}
+.xen-session-instrument-settings header,.xen-session-instrument-settings footer{display:flex;gap:8px;align-items:center;justify-content:space-between}
+.xen-session-instrument-settings label{display:flex;flex-direction:column;gap:6px}
+.xen-session-instrument-settings input{width:100%;accent-color:#66ccd2}
+.xen-session-instrument-settings button{color:#cceff3;background:#214453;border:1px solid #447b87;padding:5px 9px;border-radius:4px;cursor:pointer}
+.xen-session-instrument-settings small{font-size:10px;color:#a9c8d0;line-height:1.4}

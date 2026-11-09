@@ -1,0 +1,7 @@
+
+/* One header row; no transfer button in Preview/Save action grid. */
+.xen-fill-instrument-editor .xen-p36-instrument-head{display:flex;align-items:center;justify-content:space-between;gap:2px;min-width:0;min-height:28px;width:100%}
+.xen-fill-instrument-editor .xen-p36-instrument-head .xen-fill-instrument-role{flex:1 1 auto;min-width:0;overflow-wrap:anywhere}
+.xen-fill-instrument-editor .xen-p36-transfer-arrow{display:flex;align-items:center;justify-content:center;flex:0 0 28px;width:28px;height:28px;min-width:28px;max-width:28px;min-height:28px;max-height:28px;padding:0;box-sizing:border-box;border:1px solid #59c4d1;border-radius:4px;background:#114454;color:#d0faff;font:bold 20px/1 var(--font-mono,monospace);cursor:pointer;touch-action:manipulation}
+.xen-fill-instrument-editor .xen-p36-transfer-arrow:hover:not(:disabled){background:#236878;border-color:#82f3f7}
+.xen-fill-instrument-editor .xen-p36-transfer-arrow:disabled{opacity:.42;cursor:default}

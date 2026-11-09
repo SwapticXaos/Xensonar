@@ -1,0 +1,52 @@
+
+/* WF-04: compact automatic unrolling field note, Spectral Forge palette. */
+[data-xen-workflow-tile="spectral-forge"] {min-width:0;}
+[data-xen-workflow-select] {display:block;width:100%;height:100%;}
+.xen-wf-more {position:absolute;right:15px;bottom:13px;z-index:1;display:inline-flex;align-items:center;justify-content:center;gap:5px;padding:3px 9px;border:1px solid #82e9f1;border-radius:6px;background:#164d61;color:#d6ffff;font:700 11px/1.65 ui-monospace,SFMono-Regular,monospace;letter-spacing:.02em;cursor:pointer;box-shadow:0 0 8px rgba(69,220,236,.3);transition:background .15s,border-color .15s;}
+.xen-wf-more:hover,.xen-wf-more-active {background:#46b6c7!important;border-color:#e5ffff!important;color:#071f36!important;box-shadow:0 0 0 1px #1f667f,0 0 13px #84ffffb3!important;}
+.xen-wf-more:focus-visible {outline:2px solid #b9f5ff;outline-offset:2px;}
+[data-xen-workflow-tile="spectral-forge"]:has([data-xen-workflow-more]) [data-xen-workflow-select]>div:last-child {padding-right:74px;}
+/* M6 integration: preserve original Forge viewport height while accommodating More. */
+[data-xen-workflow-tile="spectral-forge"] [data-xen-workflow-select] {padding-top:12px;padding-bottom:2.125px;}
+.xen-wf-more {bottom:6px;}
+.xen-wf-overlay {position:fixed;inset:0;z-index:2147483000;font:13px system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:#173f4d;}
+.xen-wf-backdrop {position:absolute;inset:0;background:radial-gradient(ellipse 100% 100% at 50% 35%,#0315249c,#020914d4);opacity:0;transition:opacity .25s;cursor:default;}
+.xen-wf-overlay.is-open .xen-wf-backdrop {opacity:1;}
+.xen-wf-more-mirror {position:fixed!important;right:auto;bottom:auto;z-index:6;padding:3px 9px;pointer-events:auto;}
+.xen-wf-attachment {position:fixed;z-index:3;filter:drop-shadow(0 14px 25px #000b19bb);}
+.xen-wf-cords {position:absolute;left:var(--wf-cord-x,calc(100% - 55px));top:-33px;display:flex;justify-content:space-between;width:24px;height:39px;pointer-events:none;}
+.xen-wf-cords i {width:3px;border:1px solid #156b7c88;border-radius:2px;background:linear-gradient(90deg,#0c3650,#6bdfeb,#c5a8ec);box-shadow:0 0 5px #46d3e38f;}
+.xen-wf-window {position:relative;overflow:hidden;height:66px;opacity:0;transition:opacity .22s ease,height 980ms cubic-bezier(.24,.62,.32,1);will-change:height;}
+.xen-wf-overlay.is-open .xen-wf-window {opacity:1;}
+.xen-wf-overlay.is-closing .xen-wf-window {transition:height 660ms cubic-bezier(.55,0,.62,.34);}
+.xen-wf-rod {position:absolute;left:0;right:0;height:22px;border:1px solid #4b8d9f;border-radius:13px/50%;background:linear-gradient(180deg,#183d5e 0%,#286b82 12%,#70bdc9 34%,#c8edf2 49%,#8b80ba 67%,#335273 93%,#1b3349);box-shadow:0 2px 8px #081e379c,0 0 10px #60d7e644;z-index:4;}
+.xen-wf-rod::before,.xen-wf-rod::after {content:"";position:absolute;top:-3px;bottom:-3px;width:10px;border:1px solid #6b4e9b;border-radius:5px;background:linear-gradient(90deg,#3a355b,#b89ad5,#67c9d6,#315e7e);box-shadow:0 0 6px #dba1f477;}
+.xen-wf-rod::before {left:-3px;}.xen-wf-rod::after {right:-3px;}
+.xen-wf-rod-top {top:0;}
+.xen-wf-rod-bottom {bottom:0;height:25px;z-index:5;pointer-events:none;user-select:none;display:grid;place-items:center;}
+.xen-wf-folded-title {position:absolute;z-index:3;top:19px;left:13px;right:13px;text-align:center;color:#195b72;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font:700 13px/23px Georgia,serif;letter-spacing:.01em;background:linear-gradient(90deg,#c7edec,#e6eaf3,#dddcf0);border:1px solid #87bfc9;pointer-events:none;transition:opacity .12s;}
+.xen-wf-overlay:not(.is-folded) .xen-wf-folded-title {opacity:0;}
+.xen-wf-paper {position:relative;display:flex;flex-direction:column;margin:12px 13px 16px;background-color:#e8f2f3;background-image:linear-gradient(90deg,#12667c24,transparent 10%,transparent 89%,#5f42971c),linear-gradient(145deg,#e6f8f7 0%,#f2f6f7 42%,#e4edf6 74%,#e7ddf2 100%);border-left:1px solid #68bdcb;border-right:1px solid #aaa5d3;color:#17434b;box-shadow:inset 0 12px 18px -15px #235c77,inset 0 -12px 17px -16px #71578b,0 0 0 1px #17b0c61f;}
+.xen-wf-paper-head {display:flex;align-items:center;justify-content:space-between;gap:8px;margin:12px 23px 0;border-bottom:1px solid #91bcc886;}
+.xen-wf-paper-head span {font:9px ui-monospace,SFMono-Regular,Consolas,monospace;letter-spacing:.15em;color:#367589;}
+.xen-wf-close {height:24px;width:27px;display:grid;place-items:center;border:1px solid transparent;border-radius:50%;background:transparent;color:#346b79;font:19px system-ui;cursor:pointer;}
+.xen-wf-close:hover,.xen-wf-close:focus-visible {background:#ceeaee;color:#143e58;border-color:#74bbc9;}
+.xen-wf-reading {flex:0 0 auto;min-height:0;overflow:visible;padding:8px 23px 4px;}
+.xen-wf-reading h2 {color:#164f64;font:700 22px/1.15 Georgia,serif;letter-spacing:-.02em;margin:0 0 13px;}
+.xen-wf-reading h2 span {color:#347a8e;}
+.xen-wf-copy {columns:2;column-gap:23px;column-rule:1px solid #73aaba55;font:12.5px/1.44 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;}
+.xen-wf-copy p {break-inside:avoid;orphans:2;widows:2;color:#38576a;margin:0 0 9px;}
+.xen-wf-copy strong,.xen-wf-mantra strong {color:#195c70;font-weight:750;}
+.xen-wf-recommend {break-inside:avoid;display:flex;align-items:start;gap:8px;background:linear-gradient(100deg,#d1f0ef,#e8e4f6);border-left:3px solid #44bcc6;border-radius:0 5px 5px 0;padding:8px 10px;margin:4px 0 10px;}
+.xen-wf-recommend .icon {color:#9662bd;font-size:17px;line-height:1.2;}
+.xen-wf-recommend p {margin:0;}
+.xen-wf-reading .xen-wf-mantra {font:700 14px/1.3 Georgia,serif;margin:11px 0 5px;text-align:center;}
+.xen-wf-footer {display:flex;justify-content:space-between;align-items:center;gap:9px;border-top:1px solid #97bdc987;padding:8px 0 9px;margin:0 23px;}
+.xen-wf-footer span {font:9px ui-monospace,SFMono-Regular,Consolas,monospace;color:#487b94;}
+.xen-wf-footer button {font:700 11px system-ui;border:0;background:transparent;color:#17667e;cursor:pointer;}
+.xen-wf-footer button:hover,.xen-wf-footer button:focus-visible {color:#9557b4;text-decoration:underline;}
+@media(max-width:650px){
+ .xen-wf-paper-head {margin:11px 16px 0;}.xen-wf-reading {padding:7px 16px 4px;}.xen-wf-reading h2{font-size:19px;margin-bottom:9px;}.xen-wf-copy{columns:1;font-size:12px;line-height:1.4;}.xen-wf-copy p{margin-bottom:8px;}.xen-wf-footer{margin:0 16px;}.xen-wf-footer span{display:none;}.xen-wf-folded-title{font-size:11px;}
+}
+@media(prefers-reduced-motion:reduce){.xen-wf-overlay *{transition-duration:.01ms!important;}}
+

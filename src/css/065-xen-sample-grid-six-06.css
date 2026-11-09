@@ -1,0 +1,32 @@
+
+/* SAMPLE-GRID-06: compact six-column Sample Database list, independent of All/A-Z/search.
+ * Only presentation. Sample identities, order source, Inspector, storage, Donor and audio unchanged. */
+#melodic-sample-database-panel .xen-ml-sample-grid-six {
+  grid-template-columns: repeat(6,minmax(0,1fr));
+}
+#melodic-sample-database-panel .xen-ml-sample-grid-six > button {
+  min-width: 0;
+  max-width: 100%;
+  overflow: hidden;
+}
+#melodic-sample-database-panel .xen-ml-sample-grid-six > button > div {
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+#melodic-sample-database-panel .xen-ml-sample-grid-six > div {
+  grid-column: 1 / -1;
+}
+@media (max-width: 1099px) {
+  #melodic-sample-database-panel .xen-ml-sample-grid-six { grid-template-columns: repeat(4,minmax(0,1fr)); }
+}
+@media (max-width: 760px) {
+  #melodic-sample-database-panel .xen-ml-sample-grid-six { grid-template-columns: repeat(3,minmax(0,1fr)); }
+}
+@media (max-width: 560px) {
+  #melodic-sample-database-panel .xen-ml-sample-grid-six { grid-template-columns: repeat(2,minmax(0,1fr)); }
+}
+@media (max-width: 420px) {
+  #melodic-sample-database-panel .xen-ml-sample-grid-six { grid-template-columns: minmax(0,1fr); }
+}

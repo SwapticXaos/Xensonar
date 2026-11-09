@@ -1,0 +1,36 @@
+
+/* V3-SB1: scrollbar cosmetics + unreserved empty viewport gutter only.
+   The native scrollbar is shown by overflow:auto only WHEN needed. It is not
+   hidden, faked, made narrower, or turned into a second scroll container.
+   Scope: application-wide (Room I, II, III, dialogs, galleries). */
+html, body { scrollbar-gutter:auto !important; }
+:where(html, body, html *) {
+  scrollbar-color:#355e61 #050608 !important;
+}
+/* Chromium/Safari fallback when standardized scrollbar-color is unsupported.
+   No ::-webkit-scrollbar width override: preserve OS/native hitbox widths. */
+:where(html, body, html *)::-webkit-scrollbar-track { background-color:#050608; }
+:where(html, body, html *)::-webkit-scrollbar-thumb {
+  background-color:#355e61;
+  border-radius:999px;
+}
+:where(html, body, html *)::-webkit-scrollbar-thumb:hover {background-color:#4b8989;}
+/* Preserve the approved V3 look, but reclaim the already measured 21px of
+   avoidable Sound Design overflow in the 921–980px desktop-height band.
+   Ported ONLY from the whitespace subsection of V4: no nested canvas or
+   installation-shape changes. The node canvas itself remains full-size. */
+@media (min-width:1180px) and (min-height:921px) and (max-height:980px) {
+  .nd-room.nd-room-shell[data-nodal-mode="sounddesign"] {padding-bottom:8px}
+  .nd-room.nd-room-shell[data-nodal-mode="sounddesign"] > .nd-shared-heading {
+    margin-bottom:5px; padding-bottom:7px;
+  }
+  .nd-room.nd-room-shell[data-nodal-mode="sounddesign"] .nd-open-workshop .nd-toolbar {
+    margin-bottom:5px; padding-bottom:5px;
+  }
+  .nd-room.nd-room-shell[data-nodal-mode="sounddesign"] .nd-open-workshop .nd-preset-bank {
+    margin-bottom:7px;
+  }
+  .nd-room.nd-room-shell[data-nodal-mode="sounddesign"] .nd-open-workshop .nd-footer {
+    margin-top:7px; padding-top:7px;
+  }
+}

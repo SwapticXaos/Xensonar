@@ -1,0 +1,107 @@
+
+/* Nodal III / reference-native frame, isolated on the APPROVED E3/H7/D2/M2a/M2b base.
+   No new wrapper or grid track. The instrument keeps its original 1260px max-width.
+   Source: user-supplied 'Raum III – Nodal-Rahmen-html.zip', direct SVG paths.
+   Excluded ONLY: long oscillating spindle paths and their gold dot circles.
+   Frame's filled black side serves as visually recessed background. */
+.nd-room.nd-room-shell {
+  --nd-frame-gutter: max(0px,calc(50vw - 50% + 2px));
+  --nd-frame-arc: clamp(0px,calc((100vw - 1260px) / 2),170px);
+}
+.nd-room.nd-room-shell[data-nodal-mode="installation"] {
+  --nd-frame-arc:clamp(0px,calc((100vw - 1420px) / 2),170px);
+}
+/* The existing ::before/::after represent side gutters, NOT content columns.
+   A nine-slice SVG keeps top and bottom curvatures round on taller art installations.
+   Separate side slices stretch the middle vertically without altering any React DOM. */
+/* The shell is the colored center and the colored side wings, not a box.
+   Keep the confirmed 1260px content geometry and its border BOX SIZE. */
+.nd-room.nd-room-shell {
+  border-color:transparent !important;
+  border-radius:0 !important;
+  box-shadow:none !important;
+}
+/* Room III alone: eliminate the shared main's 24px rectangular black footer. */
+main:has(> .nd-room.nd-room-shell) {padding-bottom:0 !important;}
+.nd-room.nd-room-shell::before,
+.nd-room.nd-room-shell::after {
+  content:"" !important;
+  display:block !important;
+  position:absolute !important;
+  top:0 !important;
+  width:var(--nd-frame-gutter) !important;
+  height:100% !important;
+  aspect-ratio:auto !important;
+  pointer-events:none !important;
+  background:#101d25 !important;
+  border:0 solid transparent;
+  border-image-source:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20198%20960%22%20preserveAspectRatio%3D%22none%22%20fill%3D%22none%22%20stroke-width%3D%221%22%3E%3Cg%3E%3Cpath%20d%3D%22M0%200%20A170%20170%200%200%201%20170%20170%20L170%20790%20A170%20170%200%200%201%200%20960%20Z%22%20fill%3D%22%23050608%22%20stroke%3D%22%235f9a96%22%20stroke-width%3D%221.3%22%3E%3C%2Fpath%3E%3Cg%20stroke%3D%22%236fb5ad%22%3E%3Cpath%20d%3D%22M0%2085.0%20A85.0%2085.0%200%200%201%2085.0%20170%20L85.0%20790%20A85.0%2085.0%200%200%201%200%20875.0%22%20stroke-opacity%3D%220.57%22%3E%3C%2Fpath%3E%3Cpath%20d%3D%22M0%20113.3%20A56.7%2056.7%200%200%201%2056.7%20170%20L56.7%20790%20A56.7%2056.7%200%200%201%200%20846.7%22%20stroke-opacity%3D%220.48%22%3E%3C%2Fpath%3E%3Cpath%20d%3D%22M0%20127.5%20A42.5%2042.5%200%200%201%2042.5%20170%20L42.5%20790%20A42.5%2042.5%200%200%201%200%20832.5%22%20stroke-opacity%3D%220.39%22%3E%3C%2Fpath%3E%3Cpath%20d%3D%22M0%20136.0%20A34.0%2034.0%200%200%201%2034.0%20170%20L34.0%20790%20A34.0%2034.0%200%200%201%200%20824.0%22%20stroke-opacity%3D%220.30%22%3E%3C%2Fpath%3E%3Cpath%20d%3D%22M0%20141.7%20A28.3%2028.3%200%200%201%2028.3%20170%20L28.3%20790%20A28.3%2028.3%200%200%201%200%20818.3%22%20stroke-opacity%3D%220.21%22%3E%3C%2Fpath%3E%3Cpath%20d%3D%22M0%20145.7%20A24.3%2024.3%200%200%201%2024.3%20170%20L24.3%20790%20A24.3%2024.3%200%200%201%200%20814.3%22%20stroke-opacity%3D%220.12%22%3E%3C%2Fpath%3E%3C%2Fg%3E%3Cg%20stroke%3D%22%2383d5c9%22%3E%3Cpath%20d%3D%22M52.8%200%20A178%20178%200%200%201%20178%20170%20L178%20790%20A178%20178%200%200%201%2052.8%20960%22%20stroke-opacity%3D%220.55%22%3E%3C%2Fpath%3E%3Cpath%20d%3D%22M75.5%200%20A186%20186%200%200%201%20186%20170%20L186%20790%20A186%20186%200%200%201%2075.5%20960%22%20stroke-opacity%3D%220.32%22%3E%3C%2Fpath%3E%3Cpath%20d%3D%22M101.5%200%20A198%20198%200%200%201%20198%20170%20L198%20790%20A198%20198%200%200%201%20101.5%20960%22%20stroke-opacity%3D%220.16%22%3E%3C%2Fpath%3E%3C%2Fg%3E%3C%2Fg%3E%3C%2Fsvg%3E");
+  border-image-slice:170 0 170 0 fill;
+  border-image-width:var(--nd-frame-arc) 0 var(--nd-frame-arc) 0;
+  border-image-repeat:stretch;
+  z-index:1;
+}
+.nd-room.nd-room-shell::before { left:calc(50% - 50vw) !important;right:auto !important; transform:none !important; }
+.nd-room.nd-room-shell::after  { right:calc(50% - 50vw) !important;left:auto !important; transform:scaleX(-1) !important; }
+/* The installation is a different matte. Both wings share its underlying fill. */
+.nd-room.nd-room-shell[data-nodal-mode="installation"]::before,
+.nd-room.nd-room-shell[data-nodal-mode="installation"]::after {
+  background-color:#10191f !important;
+}
+/* Preserve the source's bottom ruler as a background, inside *existing* lower
+   breathing room: zero changes to padding, columns, heights or scroll ownership. */
+.nd-room.nd-room-shell[data-nodal-mode="sounddesign"] {
+  background-image:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%20928%201440%2032%22%20preserveAspectRatio%3D%22none%22%20fill%3D%22none%22%20stroke-width%3D%221%22%3E%3Cline%20stroke%3D%22%234a7a78%22%20x1%3D%22216%22%20x2%3D%221224%22%20y1%3D%22946%22%20y2%3D%22946%22%3E%3C%2Fline%3E%3Cline%20stroke%3D%22%2383d5c9%22%20x1%3D%22216.0%22%20x2%3D%22216.0%22%20y1%3D%22946%22%20y2%3D%22930%22%3E%3C%2Fline%3E%3Cline%20stroke%3D%22%234a7a78%22%20x1%3D%22387.3%22%20x2%3D%22387.3%22%20y1%3D%22946%22%20y2%3D%22938%22%3E%3C%2Fline%3E%3Cline%20stroke%3D%22%234a7a78%22%20x1%3D%22481.1%22%20x2%3D%22481.1%22%20y1%3D%22946%22%20y2%3D%22938%22%3E%3C%2Fline%3E%3Cline%20stroke%3D%22%234a7a78%22%20x1%3D%22540.5%22%20x2%3D%22540.5%22%20y1%3D%22946%22%20y2%3D%22938%22%3E%3C%2Fline%3E%3Cline%20stroke%3D%22%234a7a78%22%20x1%3D%22634.4%22%20x2%3D%22634.4%22%20y1%3D%22946%22%20y2%3D%22938%22%3E%3C%2Fline%3E%3Cline%20stroke%3D%22%234a7a78%22%20x1%3D%22679.1%22%20x2%3D%22679.1%22%20y1%3D%22946%22%20y2%3D%22938%22%3E%3C%2Fline%3E%3Cline%20stroke%3D%22%2383d5c9%22%20x1%3D%22805.6%22%20x2%3D%22805.6%22%20y1%3D%22946%22%20y2%3D%22930%22%3E%3C%2Fline%3E%3Cline%20stroke%3D%22%234a7a78%22%20x1%3D%22899.5%22%20x2%3D%22899.5%22%20y1%3D%22946%22%20y2%3D%22938%22%3E%3C%2Fline%3E%3Cline%20stroke%3D%22%234a7a78%22%20x1%3D%22922.0%22%20x2%3D%22922.0%22%20y1%3D%22946%22%20y2%3D%22938%22%3E%3C%2Fline%3E%3Cline%20stroke%3D%22%234a7a78%22%20x1%3D%22958.9%22%20x2%3D%22958.9%22%20y1%3D%22946%22%20y2%3D%22938%22%3E%3C%2Fline%3E%3Cline%20stroke%3D%22%234a7a78%22%20x1%3D%221029.8%22%20x2%3D%221029.8%22%20y1%3D%22946%22%20y2%3D%22938%22%3E%3C%2Fline%3E%3Cline%20stroke%3D%22%234a7a78%22%20x1%3D%221130.1%22%20x2%3D%221130.1%22%20y1%3D%22946%22%20y2%3D%22938%22%3E%3C%2Fline%3E%3Cline%20stroke%3D%22%2383d5c9%22%20x1%3D%221224.0%22%20x2%3D%221224.0%22%20y1%3D%22946%22%20y2%3D%22930%22%3E%3C%2Fline%3E%3C%2Fsvg%3E"),radial-gradient(ellipse 22% 62% at 28% 30%,#19323966 0%,transparent 100%);
+  background-color:#101d25;
+  background-position:center bottom,center center;
+  background-size:100% 16px,auto;
+  background-repeat:no-repeat,no-repeat;
+}
+.nd-room.nd-room-shell[data-nodal-mode="installation"] {
+  background-image:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%20928%201440%2032%22%20preserveAspectRatio%3D%22none%22%20fill%3D%22none%22%20stroke-width%3D%221%22%3E%3Cline%20stroke%3D%22%234a7a78%22%20x1%3D%22216%22%20x2%3D%221224%22%20y1%3D%22946%22%20y2%3D%22946%22%3E%3C%2Fline%3E%3Cline%20stroke%3D%22%2383d5c9%22%20x1%3D%22216.0%22%20x2%3D%22216.0%22%20y1%3D%22946%22%20y2%3D%22930%22%3E%3C%2Fline%3E%3Cline%20stroke%3D%22%234a7a78%22%20x1%3D%22387.3%22%20x2%3D%22387.3%22%20y1%3D%22946%22%20y2%3D%22938%22%3E%3C%2Fline%3E%3Cline%20stroke%3D%22%234a7a78%22%20x1%3D%22481.1%22%20x2%3D%22481.1%22%20y1%3D%22946%22%20y2%3D%22938%22%3E%3C%2Fline%3E%3Cline%20stroke%3D%22%234a7a78%22%20x1%3D%22540.5%22%20x2%3D%22540.5%22%20y1%3D%22946%22%20y2%3D%22938%22%3E%3C%2Fline%3E%3Cline%20stroke%3D%22%234a7a78%22%20x1%3D%22634.4%22%20x2%3D%22634.4%22%20y1%3D%22946%22%20y2%3D%22938%22%3E%3C%2Fline%3E%3Cline%20stroke%3D%22%234a7a78%22%20x1%3D%22679.1%22%20x2%3D%22679.1%22%20y1%3D%22946%22%20y2%3D%22938%22%3E%3C%2Fline%3E%3Cline%20stroke%3D%22%2383d5c9%22%20x1%3D%22805.6%22%20x2%3D%22805.6%22%20y1%3D%22946%22%20y2%3D%22930%22%3E%3C%2Fline%3E%3Cline%20stroke%3D%22%234a7a78%22%20x1%3D%22899.5%22%20x2%3D%22899.5%22%20y1%3D%22946%22%20y2%3D%22938%22%3E%3C%2Fline%3E%3Cline%20stroke%3D%22%234a7a78%22%20x1%3D%22922.0%22%20x2%3D%22922.0%22%20y1%3D%22946%22%20y2%3D%22938%22%3E%3C%2Fline%3E%3Cline%20stroke%3D%22%234a7a78%22%20x1%3D%22958.9%22%20x2%3D%22958.9%22%20y1%3D%22946%22%20y2%3D%22938%22%3E%3C%2Fline%3E%3Cline%20stroke%3D%22%234a7a78%22%20x1%3D%221029.8%22%20x2%3D%221029.8%22%20y1%3D%22946%22%20y2%3D%22938%22%3E%3C%2Fline%3E%3Cline%20stroke%3D%22%234a7a78%22%20x1%3D%221130.1%22%20x2%3D%221130.1%22%20y1%3D%22946%22%20y2%3D%22938%22%3E%3C%2Fline%3E%3Cline%20stroke%3D%22%2383d5c9%22%20x1%3D%221224.0%22%20x2%3D%221224.0%22%20y1%3D%22946%22%20y2%3D%22930%22%3E%3C%2Fline%3E%3C%2Fsvg%3E"),radial-gradient(ellipse 40% 66% at 45% 26%,#102129b0 0%,transparent 100%),
+     radial-gradient(ellipse 26% 60% at 71% 77%,#18242abc 0%,transparent 100%);
+  background-color:#10191f;
+  background-position:center bottom,center center;
+  background-size:100% 16px,auto;
+  background-repeat:no-repeat,no-repeat;
+}
+/* Responsive fallback never reserves inner layout space. */
+/* Narrow screens: when a reference-original arc would have less than the
+   source's useful curvature width, retain the already-approved small quarter-
+   circle instead of removing the frame or flattening the new contour art. */
+@media (max-width:1260px) {
+  .nd-room.nd-room-shell[data-nodal-mode="sounddesign"]::before,
+  .nd-room.nd-room-shell[data-nodal-mode="sounddesign"]::after {
+    height:auto !important; aspect-ratio:1 !important;
+    border-image-source:none !important;
+    background-repeat:no-repeat !important;
+  }
+  .nd-room.nd-room-shell[data-nodal-mode="sounddesign"]::before {
+    background-image:linear-gradient(to bottom,#31444a 0 1px,transparent 1px),
+      radial-gradient(circle farthest-side at 0 100%,transparent calc(100% - 1.5px),
+      #31444a calc(100% - .4px),#12222a calc(100% + .65px)) !important;
+  }
+  .nd-room.nd-room-shell[data-nodal-mode="sounddesign"]::after {
+    background-image:linear-gradient(to bottom,#31444a 0 1px,transparent 1px),
+      radial-gradient(circle farthest-side at 0 100%,transparent calc(100% - 1.5px),
+      #31444a calc(100% - .4px),#101d25 calc(100% + .65px)) !important;
+  }
+}
+@media (max-width:1420px) {
+  .nd-room.nd-room-shell[data-nodal-mode="installation"]::before,
+  .nd-room.nd-room-shell[data-nodal-mode="installation"]::after {
+    height:auto !important; aspect-ratio:1 !important;
+    border-image-source:none !important;
+    background-repeat:no-repeat !important;
+  }
+  .nd-room.nd-room-shell[data-nodal-mode="installation"]::before {
+    background-image:linear-gradient(to bottom,#31444a 0 1px,transparent 1px),
+      radial-gradient(circle farthest-side at 0 100%,transparent calc(100% - 1.5px),
+      #31444a calc(100% - .4px),#102129 calc(100% + .65px)) !important;
+  }
+  .nd-room.nd-room-shell[data-nodal-mode="installation"]::after {
+    background-image:linear-gradient(to bottom,#31444a 0 1px,transparent 1px),
+      radial-gradient(circle farthest-side at 0 100%,transparent calc(100% - 1.5px),
+      #31444a calc(100% - .4px),#10191f calc(100% + .65px)) !important;
+  }
+}

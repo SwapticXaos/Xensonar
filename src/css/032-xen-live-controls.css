@@ -1,0 +1,65 @@
+/* Plain, half-height colour gates above the five shortcut columns. */
+.xen-quick-mutes{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:4px;margin-bottom:5px;align-items:center}
+.xen-quick-mutes button{display:block;width:100%;height:17px;min-height:17px;min-width:0;padding:0;border:1px solid #35d87a;border-radius:3px;background:#168e48;cursor:pointer}
+.xen-quick-mutes button.is-muted{border-color:#ff6666;background:#c82836}
+.xen-quick-mutes button:focus-visible{outline:2px solid #c3ffe0;outline-offset:2px}
+.xen-quick-mute-icon{display:block;font-size:11px;line-height:15px;text-align:center;pointer-events:none;filter:saturate(.85)}
+.xen-quick-mute-icon.is-monochrome{font-family:"Noto Sans Symbols 2","DejaVu Sans",sans-serif;font-variant-emoji:text;filter:grayscale(1) contrast(2);color:#f2f2f2;text-shadow:none}
+
+/* The same two grid columns own both mix rows, including Solo transitions. */
+.melodic-track-mix{display:grid;grid-template-columns:minmax(0,max-content) minmax(116px,1fr);gap:6px 8px;align-items:center}
+.melodic-track-actions,.melodic-pattern-pan{display:flex;flex-wrap:wrap;align-items:center;gap:4px;min-width:0}
+.melodic-track-level{display:grid;grid-template-columns:20px minmax(0,1fr) 32px;gap:6px;align-items:center;min-width:0;padding:4px 6px;border:1px solid #262626;border-radius:4px;font-size:10px;color:#b0bccc}
+.melodic-track-level input{display:block;width:100%;min-width:0;height:20px;margin:0;accent-color:#a78bfa;cursor:pointer}
+.melodic-track-level output{font-variant-numeric:tabular-nums;text-align:right;white-space:nowrap}
+.melodic-pattern-label{font-size:9px;color:#929cab;flex-shrink:0}
+.melodic-pattern-choice{padding:3px 6px;min-width:24px}
+.melodic-bars-controls{position:relative}
+.melodic-transport-dock{display:flex;align-items:center;gap:4px;white-space:nowrap}
+.melodic-transport-inline{display:flex;align-items:center;gap:4px;white-space:nowrap}
+/* Keep a full input hit target, but draw only a thin, source-coloured line. */
+:is(.melodic-track-level,.xen-performance,.xen-particle-mix-row) input[type=range]{appearance:none!important;-webkit-appearance:none!important;background:transparent!important;border:0!important;box-shadow:none!important;border-radius:0!important;color:var(--xen-instrument-color,#a3a3a3);accent-color:var(--xen-instrument-color,#a3a3a3)}
+:is(.melodic-track-level,.xen-performance,.xen-particle-mix-row) input[type=range]::-webkit-slider-runnable-track{height:2px!important;background:currentColor!important;border:0!important;border-radius:0!important;box-shadow:none!important}
+:is(.melodic-track-level,.xen-performance,.xen-particle-mix-row) input[type=range]::-webkit-slider-thumb{appearance:none!important;-webkit-appearance:none!important;width:8px!important;height:8px!important;margin-top:-3px!important;border:0!important;border-radius:50%!important;background:currentColor!important;box-shadow:none!important}
+:is(.melodic-track-level,.xen-performance,.xen-particle-mix-row) input[type=range]::-moz-range-track{height:2px;background:currentColor;border:0;border-radius:0;box-shadow:none}
+:is(.melodic-track-level,.xen-performance,.xen-particle-mix-row) input[type=range]::-moz-range-progress{height:2px;background:currentColor}
+:is(.melodic-track-level,.xen-performance,.xen-particle-mix-row) input[type=range]::-moz-range-thumb{width:8px;height:8px;border:0;border-radius:50%;background:currentColor;box-shadow:none}
+:is(.melodic-track-level,.xen-performance,.xen-particle-mix-row) input[type=range]:focus-visible{outline:1px solid currentColor;outline-offset:2px}
+@media(min-width:768px){.melodic-bars-controls>div:nth-child(2){margin-bottom:0!important}.melodic-transport-dock{position:absolute;top:80px;left:0;margin-top:8px!important}}
+/* In the existing two-column layout the third card already occupies a new
+   row at 160px. Keep that size and the rack size, using the empty second
+   column so the original first-column space can house transport safely. */
+@media(min-width:768px) and (max-width:1279px){[data-xensonar-melodic-import-body-rack]>:nth-child(3){grid-column:2;width:160px;max-width:100%}}
+/* The document owns vertical scrolling; nested root scrollports create two
+   gutters in Chromium/Opera. Room content and manager lists retain their flow. */
+html{height:auto;min-height:100%;overflow-x:hidden;overflow-y:auto;scrollbar-gutter:stable}
+body{height:auto;min-height:100vh;overflow:visible}
+#root{min-height:100vh}
+.flex-1.p-6.relative:has(>.nd-room-shell){padding-top:0}
+
+.nd-export .nd-save-name{display:flex;flex-direction:column;gap:3px;min-width:140px;max-width:220px;flex:1}.nd-export .nd-save-name>span{font-size:9px;color:#a3a3a3}.nd-export .nd-save-name input{width:100%;min-width:0}.nd-export{align-items:flex-end!important}.nd-current-name strong{font-size:13px;font-weight:500;overflow-wrap:anywhere}
+.melodic-custom-save,.melodic-custom-save-form button{border:1px solid #4c8b72;border-radius:4px;padding:4px 8px;font-size:11px;color:#b9e9d3;background:#0c241b}.melodic-custom-save-form{display:flex;flex-wrap:wrap;align-items:flex-end;gap:6px}.melodic-custom-save-form label{display:flex;flex-direction:column;gap:3px;font-size:10px}.melodic-custom-save-form input{border:1px solid #46564f;background:#080e0b;color:#e2eee7;padding:4px 6px;max-width:180px}
+
+.xen-quick-hotkey{display:inline-block;width:0;position:relative;left:1px;font-size:8px;line-height:1;color:#525252;pointer-events:none}.xen-quick-hotkey.is-active{color:#4ade80}.xen-quick-tile.is-key-pulse{background:#1c9b52;border-color:#82ffb4;color:#eafff1;transition:none}
+
+/* Nodal: acoustics are independent from the installation visual stage. */
+.nd-modes .nd-sound-toggle{margin-left:.65rem;padding:.65rem 1rem;border:1px solid #3b6267;border-radius:8px;color:#c2e8e4;background:linear-gradient(130deg,#0c2c32,#0b171e);font-size:.78rem;font-weight:650;transition:background .15s,border-color .15s}
+.nd-modes .nd-sound-toggle.is-sounding{border-color:#318f88;box-shadow:inset 0 0 0 1px #134f4a}
+.nd-modes .nd-sound-toggle.is-muted{border-color:#555d68;background:#16191e;color:#9ca6b0}
+.nd-modes .nd-sound-toggle:hover{border-color:#89d3d0}
+.nd-modes .nd-sound-toggle:focus-visible{outline:2px solid #96e9e4;outline-offset:3px}
+/* Main room effects, consolidated without modifying the effects DSP. */
+.xen-effects-rack{border:1px solid #334250;border-radius:12px;background:linear-gradient(130deg,rgba(16,25,33,.98),rgba(9,14,22,.98));overflow:hidden}
+.xen-effects-rack-toggle{width:100%;display:flex;justify-content:space-between;gap:12px;align-items:center;padding:14px 18px;text-align:left;color:#d7e5ea;transition:background .2s}
+.xen-effects-rack-toggle:hover,.xen-effects-rack-toggle:focus-visible{background:rgba(72,141,153,.13);outline-offset:-2px}
+.xen-effects-rack-label{display:flex;align-items:center;gap:12px;min-width:0}
+.xen-effects-rack-icon{display:grid;place-items:center;width:35px;height:35px;flex-shrink:0;border-radius:10px;background:#112d36;color:#8fdce0;font-size:24px}
+.xen-effects-rack-label strong{display:block;font-size:14px;font-weight:700;letter-spacing:.06em}
+.xen-effects-rack-label small{display:block;margin-top:2px;font-size:11px;color:#8396a3;overflow-wrap:anywhere;line-height:1.35}
+.xen-effects-rack-state{display:inline-flex;align-items:center;gap:12px;white-space:nowrap;flex-shrink:0}
+.xen-effects-active-badge{border:1px solid #365969;border-radius:999px;padding:4px 9px;color:#a8d0d1;font-size:11px}
+.xen-effects-chevron{font-size:19px;color:#9ecfd3}
+.xen-effects-rack-content{border-top:1px solid #2a3945;padding:14px;background:rgba(0,0,0,.2)}
+.xen-effects-device{border-radius:8px;border-color:#34434e;background:linear-gradient(140deg,rgba(30,40,50,.83),rgba(12,18,25,.87));min-width:0}
+.xen-effects-device h3{color:#8ec6d2;border-bottom-color:#314750}
+@media(max-width:640px){.xen-effects-rack-toggle{padding:11px}.xen-effects-rack-label small{font-size:10px}.xen-effects-active-badge{font-size:10px}.nd-modes .nd-sound-toggle{margin-left:0}}

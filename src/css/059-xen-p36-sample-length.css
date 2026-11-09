@@ -1,0 +1,5 @@
+
+.xen-p36-length-setting{display:flex;flex-direction:column;gap:7px;border-block:1px solid #3f6a74;padding:8px 0}
+.xen-p36-length-setting label{display:flex;align-items:center;gap:9px}
+.xen-p36-length-setting input[type=number]{width:75px;color:#e6f5f6;background:#172a37;border:1px solid #638e9b;border-radius:4px;padding:4px}
+.xen-p36-length-setting input:disabled{opacity:.55}

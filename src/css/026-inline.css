@@ -1,0 +1,180 @@
+/* One width contract for both side rails and the Instruments palette. */
+:root{--xen-side-rail-width:210px;--xen-side-rail-inset:12px}
+@media(max-width:900px){:root{--xen-side-rail-width:158px;--xen-side-rail-inset:6px}}
+@media(min-width:1600px) and (min-height:820px){:root{--xen-side-rail-width:min(260px,calc((100vw - 1152px)/2 - 28px))}}
+.xen-source-heading{display:flex;justify-content:space-between;align-items:center;gap:6px}.xen-source-octave{display:inline-flex;align-items:center;gap:4px;font-size:10px;color:#a5b4c8}.xen-source-octave button{width:22px;height:22px;border:1px solid #334155;border-radius:5px;color:#e2e8f0;background:#0b1220}.xen-source-octave button:hover{border-color:#67e8f9;background:#12303a}.xen-source-octave button:disabled{opacity:.3}.xen-source-octave output{min-width:18px;text-align:center;font-variant-numeric:tabular-nums}
+.xen-quick-dock{position:fixed;left:auto!important;right:var(--xen-side-rail-inset)!important;top:156px!important;bottom:auto!important;width:var(--xen-side-rail-width);min-height:0;max-height:none;overflow:visible;z-index:40;padding:0;border:0;border-radius:7px;background:transparent;color:#b4c9bf;pointer-events:auto;isolation:isolate}.xen-quick-signal{position:absolute;inset:0;background:#19d26b;pointer-events:none;z-index:2;border-radius:inherit;animation:xenQuickPulse 1.15s ease-out 2 forwards}.xen-quick-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));align-items:start;gap:4px}.xen-quick-column{display:flex;flex-direction:column;gap:5px;min-width:0}.xen-quick-tile{display:flex;align-items:center;justify-content:center;white-space:nowrap;min-width:0;width:100%;padding:0;font-variant-numeric:tabular-nums;min-height:34px;border:1px solid #285765;border-radius:5px;background:#0a2530;color:#dceff1;font-size:10px;transition:background .15s,border-color .15s}.xen-quick-tile:hover{background:#123e47;border-color:#60c3c9}.xen-quick-tile:focus-visible{outline:2px solid #83eaf2;outline-offset:2px}.xen-quick-rfl{background:white;border-radius:50%;color:black}.xen-quick-badge{margin-left:6px;font-size:12px}.xen-quick-confirm{display:flex;flex-wrap:wrap;gap:6px;padding-top:8px;font-size:11px}.xen-quick-confirm span{width:100%}.xen-quick-confirm button{border:1px solid #54645c;border-radius:5px;padding:4px 6px}.xen-quick-confirm button:first-of-type{color:#fda4af;border-color:#9f3452}
+@keyframes xenQuickPulse{0%{opacity:0}30%{opacity:.6}100%{opacity:0}}
+[data-xen-header-menu]{outline:none}
+@media(prefers-reduced-motion:reduce){.xen-quick-signal{animation-duration:.3s}}
+
+/* N12: separate, permanently discoverable drop zone and bounded five-column display. */
+.xen-quick-dock.is-ready{outline:1px solid #197642;outline-offset:-2px}
+
+/* P7.39.28: return the N12 left-side landing and its original two-pulse green hint.
+   The rack itself stays right; this is a pointer-transparent viewport target. */
+.xen-quick-left-landing{position:fixed;left:var(--xen-side-rail-inset);
+ width:var(--xen-side-rail-width);min-height:0;box-sizing:border-box;
+ z-index:40;border-radius:7px;pointer-events:none;isolation:isolate;overflow:hidden}
+.xen-quick-left-landing.is-ready{outline:1px solid #197642;outline-offset:-2px}
+.xen-quick-left-landing.xen-quick-pointer-over{outline:2px solid #19d26b;outline-offset:-2px}
+.xen-quick-collection.is-right-docked.xen-quick-pointer-over{outline:2px solid #19d26b;outline-offset:-2px}
+
+.xen-quick-collection{position:absolute;left:0;bottom:0;width:100%;padding:8px;border-radius:7px;background:#081c25;overflow:visible;overscroll-behavior:auto;max-height:none;}
+.xen-quick-collection:has(.xen-quick-grid:not(:has(.xen-quick-tile))):not(:has(.xen-quick-confirm)){background:transparent}
+.xen-quick-collection.is-right-docked{position:fixed;left:auto!important;right:var(--xen-side-rail-inset)!important;top:156px!important;bottom:auto;box-sizing:border-box;z-index:41;max-height:none;border:1px solid #245762}
+
+/* N17: tooltip is informational, not an input layer; no hitbox can mask a library. */
+.xen-quick-hover-info{position:fixed;display:none;pointer-events:none;z-index:185;
+ max-width:min(290px,calc(100vw - 16px));width:max-content;white-space:normal;
+ padding:7px 10px;font-size:12px;line-height:1.4;color:#d9f6e5;
+ background:#0b291b;border:1px solid #19d26b;border-radius:6px;
+ box-shadow:0 6px 18px #000a}
+
+/* N18: Pointer export escapes a modal without relying on native browser drag image.
+   Ghost is strictly visual; it never intercepts clicks, pointer or drop events. */
+.xen-quick-pointer-ghost{position:fixed;z-index:220;pointer-events:none;
+ max-width:min(480px,calc(100vw - 8px));overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+ padding:7px 11px;border-radius:7px;border:1px solid #20d678;
+ background:#102a1e;color:#e8fff1;font-size:12px;line-height:19px;
+ box-shadow:0 6px 18px #0009;opacity:.88}
+.xen-quick-pointer-ghost.is-over{border-color:#92ffc5;background:#17462e;opacity:1}
+.xen-quick-pointer-dragging,.xen-quick-pointer-dragging *{user-select:none!important}
+.xen-quick-dock.xen-quick-pointer-over{outline:2px solid #60ffa3;outline-offset:-2px;
+ background:rgba(18,109,53,.25)}
+
+/* N19: one visible ghost, with library operation or quick-access feedback. */
+.xen-quick-pointer-dragging [data-xen-sort-preview]{display:none}
+.xen-quick-pointer-ghost.is-sorting{border-color:#d879ed;background:#2d1535}
+[data-xen-quick-kind][data-xen-quick-id]{cursor:grab;touch-action:none}
+.xen-quick-pointer-dragging,.xen-quick-pointer-dragging *{cursor:grabbing!important}
+
+/* P7.38.5: fixed performance-header slots. Reserve enough space for the
+   longest stock modes (Ionian (Major), Aeolian (Minor), Mixolydian) in both
+   Particles and Fretboard. No state-dependent Flex wrapping or moving cells.
+   Container queries target the actual instrument strip, not the viewport. */
+[data-xensonar-performance-strip]{container-name:xen-performance-strip;container-type:inline-size}
+[data-xen-status-row]{display:grid;grid-template-areas:"particles" "fretboard" "menus" "controls";grid-template-columns:minmax(0,1fr);align-items:center;gap:6px 10px;overflow:visible;white-space:nowrap;min-width:0}
+[data-xen-status-row]>[aria-hidden="true"],[data-xen-status-row]>.ml-auto{display:none}
+[data-xen-status-particles]{grid-area:particles;min-width:0;max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+[data-xen-status-particles]>span:last-child{font-variant-numeric:tabular-nums}
+[data-xen-status-fretboard]{grid-area:fretboard;min-width:0;width:100%;max-width:100%;display:flex;align-items:center;justify-content:flex-start;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+[data-xen-status-fretboard]>span{flex:0 0 auto}
+[data-xen-status-fretboard]>span:last-child{font-variant-numeric:tabular-nums}
+[data-xen-status-menus]{grid-area:menus;min-width:0;width:100%;max-width:100%;display:flex;align-items:center;flex-wrap:nowrap;gap:4px;overflow:hidden}
+[data-xen-status-menus]>button:not(.xen-meta-rack){flex:1 1 0;width:0;min-width:0;max-width:none}
+[data-xen-status-menus]>button:not(.xen-meta-rack)>.truncate{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+[data-xen-status-menus]>.mx-1{flex:0 0 auto;margin-left:0;margin-right:0}
+[data-xen-status-menus]>.xen-meta-rack{flex:0 0 auto;white-space:nowrap}
+/* P7.38.6: six larger Unicode icons, with unchanged text metrics and stable slots. */
+[data-xensonar-performance-strip] .xen-header-unicode-icon{display:inline-flex;align-items:center;justify-content:center;flex:0 0 18px;width:18px;height:18px;font-size:16px;line-height:1}
+[data-xen-status-menus]>.xen-meta-rack{column-gap:3px}
+
+[data-xen-status-controls]{grid-area:controls;display:flex;align-items:center;justify-content:flex-end;gap:8px;min-width:0;max-width:100%;white-space:nowrap}
+[data-xen-status-controls]>span[title*="expression mode"]{min-width:3.7rem;text-align:center}
+@container xen-performance-strip (min-width:860px){
+ [data-xen-status-row]{grid-template-areas:"particles fretboard" "menus controls";grid-template-columns:minmax(0,1fr) 27rem}
+}
+@container xen-performance-strip (min-width:1460px){
+ [data-xen-status-row]{grid-template-areas:"particles fretboard menus controls";grid-template-columns:24rem 27rem minmax(0,1fr) max-content}
+}
+@container xen-performance-strip (max-width:479px){
+ [data-xen-status-fretboard]{overflow-x:auto;text-overflow:clip}
+ [data-xen-status-controls]{justify-content:flex-start;gap:5px;overflow-x:auto}
+}
+
+
+/* N21: one fixed landing rectangle below Keyboard Pan. Stored entries may
+   relocate; the landing feedback never follows them and never scrolls. */
+.xen-quick-dock>.xen-quick-signal{position:absolute;inset:0;z-index:2;pointer-events:none}
+.xen-quick-dock.is-right-docked{background:transparent}
+
+/* Named session below the existing live tiles; no extra menu controls. */
+.xen-quick-session-caption{font:10px/1.2 var(--font-mono);color:#a8c8bb;text-align:right;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:5px;padding-right:2px;min-height:12px;max-width:100%}
+/* P7.38.17: same vertical footprint for every saved session. Five visible
+   entry slots = 5*34 + 4*5 = 190px; every additional slot adds 39px. */
+.xen-quick-collection.is-right-docked .xen-quick-grid{min-height:var(--xen-quick-rows-height,190px)}
+/* P7.38.13 · Two sub-mute-sized session arrows share the existing caption row.
+   The outer diskette and triangle are outside the five-column grid and do not
+   consume a new rack row or move the existing mute buttons. */
+.xen-quick-session-controls{display:flex;align-items:center;justify-content:space-between;gap:4px;margin-top:5px;min-height:16px;width:100%;min-width:0}
+.xen-quick-session-stepper{display:flex;align-items:center;flex:0 0 auto;gap:4px;margin:0;padding:0}
+.xen-quick-session-controls .xen-quick-session-caption{flex:0 1 auto;min-width:0;min-height:12px;margin-top:0;padding-right:2px;text-align:right}
+.xen-quick-session-nav{box-sizing:border-box;display:grid;place-items:center;flex:0 0 20px;width:20px;height:16px;padding:0;border:1px solid #89aa97;border-radius:4px;background:#07130b;color:#e4f3ea;font-size:19px;font-weight:700;line-height:12px;cursor:pointer}
+.xen-quick-session-nav:hover:not(:disabled){background:#17432b;border-color:#b8efd0}
+.xen-quick-session-nav:disabled{opacity:.32;cursor:default}
+.xen-quick-session-nav:focus-visible,.xen-quick-collapse-trigger:focus-visible{outline:2px solid #bbffd9;outline-offset:2px}
+/* Instruments triangle: matching 26px size, purple glyph and black body. */
+.xen-quick-collapse-trigger{position:absolute;z-index:5;top:26px;right:-29.5px;left:auto;display:grid;place-items:center;box-sizing:border-box;width:26px;height:26px;min-width:26px;min-height:26px;padding:0;border:0;border-radius:0;background:#000;color:#e879f9;font:20px/1 sans-serif;cursor:pointer}
+.xen-quick-collection.is-right-docked .xen-quick-collapse-trigger{left:-29.5px;right:auto}
+.xen-quick-collapse-trigger:hover{color:#f5b4ff;background:#150d18}
+/* Collapsed = one tab anchored to the corresponding OUTER screen edge.
+   The five-column collection, diskette, signal and session header aren't mounted. */
+.xen-quick-dock.is-collapsed{box-sizing:border-box;padding:0!important;margin:0!important;width:26px;min-width:26px;height:26px;min-height:26px;overflow:visible;outline:none!important;background:transparent!important;border:none!important;box-shadow:none!important}
+.xen-quick-dock.is-collapsed .xen-quick-collapse-tab{position:absolute;left:0;right:auto;top:0;z-index:45;width:26px;height:26px;pointer-events:auto}
+.xen-quick-dock.is-collapsed.is-ready{outline:none!important}
+.xen-quick-dock.is-collapsed.xen-quick-pointer-over{outline:none!important}
+
+/* P7.39.27 — three slim, stacked controls per lane; max three independent Material lanes.
+   UI is an access point to existing owners; no redundant mixer state. */
+.xen-lane-controls{box-sizing:border-box;margin-top:4px;padding:3px 3px 2px;border-top:1px solid #255c43;background:#06140f;color:#bfe6ce;font:10px/1.25 var(--font-sans);min-width:0;max-height:calc(100dvh - 420px);overflow-y:auto;overscroll-behavior:contain;scrollbar-width:thin;scrollbar-color:#275943 #06140f}
+.xen-lane-tabs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:2px;margin-bottom:3px}
+.xen-lane-tabs button{background:#06150f;border:1px solid #325843;border-radius:2px;color:#bbd1c5;min-width:0;font-size:9px;padding:3px 1px;line-height:13px;cursor:pointer;overflow:hidden;white-space:nowrap;text-overflow:clip}
+.xen-lane-tabs button.is-active{border-color:#57e4ac;background:#14402b;color:#f0fff8}
+.xen-lane-row{position:relative;border:1px solid #254638;border-radius:2px;margin:0 0 4px;padding:4px 3px 23px;background:#091a12;min-width:0}
+.xen-lane-row:last-child{margin-bottom:0}
+.xen-lane-name{height:16px;font-size:10px;line-height:16px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;color:#9ae7c2}
+.xen-lane-pair{display:flex;flex-direction:column;gap:0;min-width:0}
+.xen-lane-slider{position:relative;display:grid;grid-template-columns:43px minmax(0,1fr);align-items:center;gap:3px;min-width:0;min-height:var(--xen-lane-step,22px);line-height:var(--xen-lane-step,22px);cursor:pointer}
+.xen-lane-slider-heading{color:#c6dbc9;font-size:9px;white-space:nowrap}
+.xen-lane-slider input[type=range]{box-sizing:border-box;display:block;width:100%;min-width:0;height:var(--xen-lane-step,22px);padding:0;margin:0;cursor:pointer;appearance:none;-webkit-appearance:none;background:transparent;accent-color:#5de3aa}
+.xen-lane-slider input[type=range]::-webkit-slider-runnable-track{height:2px;border-radius:1px;background:#497964}
+.xen-lane-slider input[type=range]::-moz-range-track{height:2px;border-radius:1px;background:#497964}
+.xen-lane-slider input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:11px;height:11px;margin-top:-4.5px;border-radius:50%;border:1px solid #a5f4d2;background:#45bf91}
+.xen-lane-slider input[type=range]::-moz-range-thumb{width:10px;height:10px;border-radius:50%;border:1px solid #a5f4d2;background:#45bf91}
+.xen-lane-slider input[type=range]:focus-visible{outline:2px solid #a5f4d2;outline-offset:0}
+.xen-lane-slider.is-dsp-pending{opacity:.43;cursor:help}
+.xen-lane-slider.is-dsp-pending input[type=range]{cursor:not-allowed}
+.xen-lane-empty{padding:4px 2px;font-size:9px;color:#8ca89c}
+
+/* P7.39.30: ear-first window modulation. No numeric fields and no idle lights. */
+.xen-lane-slider-heading{display:flex;align-items:center;justify-content:flex-start;min-width:0;width:100%;line-height:13px}
+.xen-lane-slider.is-window-open{grid-template-columns:43px minmax(0,1fr)}
+.xen-lane-slider.is-window-open .xen-lane-window-toggle{margin-left:0}
+.xen-lane-window-toggle{box-sizing:border-box;width:max-content;max-width:100%;padding:0 3px;border:1px solid #52806b;border-radius:3px;background:#10251a;color:#bfead2;font:inherit;font-size:9px;cursor:pointer}
+.xen-lane-window-toggle:hover,.xen-lane-window-toggle:focus-visible,.xen-lane-window-toggle[aria-expanded=true]{background:#245c3b;color:#fff;border-color:#9bffbd}
+/* P9-N3: the ball itself follows the audio stroke. No positional CSS easing. */
+.xen-nudge-motion{position:absolute;inset:0 5.5px;pointer-events:none;z-index:2}
+.xen-nudge-arc{position:absolute;width:100%;height:17px;overflow:visible;transition:opacity 90ms linear}
+.xen-nudge-arc path{fill:none;stroke:#b9f3d3;stroke-width:1.3;vector-effect:non-scaling-stroke;stroke-linecap:round}
+.xen-nudge-applied{position:absolute;top:5px;width:7px;height:7px;box-sizing:border-box;border:1.3px solid #e4ffb2;border-radius:50%;background:#143b2d;transform:translateX(-50%);transition:opacity 90ms linear}
+.xen-nudge-motion[data-motion=brake] .xen-nudge-arc path{stroke:#e4d49a}
+.xen-nudge-motion[data-feel=hard] .xen-nudge-applied{transition:none}
+/* P9-N3.1: reveal only beneath the opened Material Nudge window.
+   The imaginary fifth 17px row crosses the green lower lane boundary slightly.
+   Right-aligned columns preserve the original header's horizontal dock. */
+.xen-lane-row.has-nudge-options{position:relative;overflow:visible;z-index:3}
+.xen-lane-nudge-options{position:fixed;transform:translateX(-100%);z-index:205;display:flex;align-items:flex-start;justify-content:flex-end;gap:4px;min-width:0;height:17px;white-space:nowrap}
+.xen-lane-nudge-options .xen-lane-window-toggle{max-width:none;box-sizing:border-box;height:16px;line-height:13px;padding:0 3px;flex-shrink:0}
+.xen-lane-nudge-mode{width:auto;white-space:nowrap}
+.xen-lane-nudge-feel{width:34px;min-width:34px;text-align:center;white-space:nowrap}
+
+@media(prefers-reduced-motion:reduce){.xen-nudge-applied{top:5px!important;transition:none}.xen-nudge-arc{display:none}}
+
+.xen-lane-range-wrap{position:relative;min-width:0;width:100%;height:17px;display:flex;align-items:center}
+.xen-lane-range-wrap>input[type=range]{width:100%;min-width:0;position:relative;z-index:1}
+.xen-lane-window-popover{position:fixed;transform:none;z-index:200;width:15px;height:78px;border:1px solid #388458;border-radius:6px;background:#091d12eb;box-shadow:0 0 8px #0008;display:flex;align-items:center;justify-content:center}
+.xen-lane-window-ticks{position:absolute;inset:0;pointer-events:none;z-index:3}
+.xen-lane-window-ticks i{position:absolute;left:-9px;width:6px;height:2px;transform:translateY(-50%);border-radius:1px;background:#a1fcb9;box-shadow:0 0 4px #6bee93;transition:top .08s linear}
+.xen-lane-window-popover input[type=range]{appearance:slider-vertical;-webkit-appearance:slider-vertical;writing-mode:vertical-lr;direction:rtl;box-sizing:border-box;width:14px;height:67px;margin:0;padding:0;accent-color:#65ef9d;cursor:ns-resize}
+.xen-lane-light-signal{position:absolute;inset:0 5px;pointer-events:none;overflow:hidden;z-index:2}
+.xen-lane-light-signal i{position:absolute;top:7px;width:4px;height:4px;border-radius:50%;background:#9effb5;box-shadow:0 0 4px #99ffb4,0 0 8px #42ff8a;opacity:0}
+.xen-lane-light-signal[data-direction=expand] i:first-child{animation:xenLaneExpandLeft .44s ease-out both}
+.xen-lane-light-signal[data-direction=expand] i:last-child{animation:xenLaneExpandRight .44s ease-out both}
+.xen-lane-light-signal[data-direction=contract] i:first-child{animation:xenLaneContractLeft .44s ease-in both}
+.xen-lane-light-signal[data-direction=contract] i:last-child{animation:xenLaneContractRight .44s ease-in both}
+@keyframes xenLaneExpandLeft{0%{left:50%;opacity:0}18%{opacity:1}100%{left:3%;opacity:0}}
+@keyframes xenLaneExpandRight{0%{left:50%;opacity:0}18%{opacity:1}100%{left:97%;opacity:0}}
+@keyframes xenLaneContractLeft{0%{left:3%;opacity:0}18%{opacity:1}100%{left:50%;opacity:0}}
+@keyframes xenLaneContractRight{0%{left:97%;opacity:0}18%{opacity:1}100%{left:50%;opacity:0}}
+@media(prefers-reduced-motion:reduce){.xen-lane-light-signal i{animation:none!important}}

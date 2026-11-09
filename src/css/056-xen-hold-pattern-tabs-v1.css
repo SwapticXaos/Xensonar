@@ -1,0 +1,17 @@
+
+/* Hold pattern tab bar remains two columns. The editor stays inside its own
+   moderate-width column: no 560px minimum, no sideways scroll. Only these
+   resident Hold instances override the shared segmented grid layout. */
+.xen-hold-pattern-tabs{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 8px;width:100%;min-width:0;max-width:100%}
+.xen-hold-pattern-tabs>.xen-hold-pattern-panel,
+.xen-hold-pattern-tabs>.xen-hold-pattern-panel>div{display:contents}
+.xen-hold-pattern-tabs>.xen-hold-pattern-panel>div>button{min-width:0;min-height:38px;border-radius:6px 6px 0 0;align-self:end;overflow:hidden}
+.xen-hold-pattern-tabs>.xen-hold-pattern-panel:first-child>div>button{grid-column:1;grid-row:1}
+.xen-hold-pattern-tabs>.xen-hold-pattern-panel:nth-child(2)>div>button{grid-column:2;grid-row:1}
+.xen-hold-pattern-tabs>.xen-hold-pattern-panel>div>button[aria-selected="true"]{border-color:rgb(167 139 250);background:rgba(76,29,149,.4);color:rgb(237 233 254)}
+.xen-hold-pattern-tabs>.xen-hold-pattern-panel>div>div[role="tabpanel"]{grid-column:1/-1;grid-row:2;min-width:0;max-width:100%;width:100%;box-sizing:border-box;overflow-x:hidden;padding:8px 7px 7px;border:1px solid rgba(109,40,217,.52);border-top:1px solid rgba(167,139,250,.6);background:rgba(46,16,101,.1)}
+.xen-hold-pattern-tabs [role="tabpanel"] .xen-hold-pattern{min-width:0;max-width:100%}
+.xen-hold-pattern-tabs [role="tabpanel"] [data-xensonar-shared-segment-pattern-grid]{min-width:0!important;max-width:min(100%, 360px)!important;width:100%;box-sizing:border-box;grid-template-columns:repeat(12,minmax(0,1fr))!important;gap:3px!important;padding:5px!important}
+.xen-hold-pattern-tabs [role="tabpanel"] [data-xensonar-shared-segment-pattern-grid]>button{min-width:0;max-width:100%;padding:0 1px!important;white-space:nowrap;overflow-wrap:normal;font-size:10px;line-height:1}
+.xen-hold-pattern-tabs [role="tabpanel"] .xen-hold-pattern input,
+.xen-hold-pattern-tabs [role="tabpanel"] .xen-hold-pattern select{min-width:0;max-width:100%}

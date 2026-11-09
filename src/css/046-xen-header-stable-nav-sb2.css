@@ -1,0 +1,19 @@
+
+/* SB2.1: Fix the three global room selectors to the same viewport anchor,
+   regardless of whether native viewport scrollbars are currently present.
+   Keep the rest of the application scrollbar-gutter:auto; do NOT reintroduce
+   the empty 15px column alongside the Nodal room.
+   --xen-header-native-gutter is the platform's native scrollbar thickness,
+   measured once via a detached 100px scroll probe (0px on overlay systems).
+*/
+:root { --xen-header-native-gutter:0px; }
+header:has(> .xen-h1-room-nav) {
+  box-sizing:border-box;
+  width:calc(100vw - var(--xen-header-native-gutter));
+}
+/* Active room formerly drops its 1px border, changing width by 2px and
+   nudging its neighbors even when the viewport width never changes.
+   Retain identical outer dimensions without painting an active-state border. */
+.xen-h1-room-nav > .xen-h1-room-btn:not(.border) {
+  border:1px solid transparent;
+}

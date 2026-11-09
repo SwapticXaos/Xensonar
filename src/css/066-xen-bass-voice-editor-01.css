@@ -1,0 +1,26 @@
+
+/* BVE-01: controls stay inside the existing Bass Workshop scrolling pane. */
+/* BVA-02: self-contained audition controls always visible beside Voice selection. */
+.xen-bva-inline{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:5px 0 9px;min-width:0}
+.xen-bva-hz{display:inline-flex;align-items:center;gap:6px;font-size:11px;color:#c3e9e6;white-space:nowrap}
+.xen-bva-hz input{width:84px;max-width:24vw;accent-color:#44c5c4;cursor:pointer;margin:0}
+.xen-bva-inline button{border:1px solid #4b9d96;border-radius:5px;color:#dcfffa;background:#174b4d;padding:6px 10px;min-height:30px;cursor:pointer;font-size:11px}
+.xen-bva-inline button:hover{background:#22646a}
+.xen-bva-error{font-size:10px;color:#f4adad;flex-basis:100%;overflow-wrap:anywhere}
+.xen-bve-toolbar{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:6px 0 9px}
+.xen-bve-toolbar button,.xen-bve-save button{border:1px solid #398e98;border-radius:5px;color:#d3fbff;background:#16323f;padding:6px 10px;cursor:pointer;font-size:11px}
+.xen-bve-toolbar button:hover,.xen-bve-save button:hover{background:#225061}
+.xen-bve-caption{font-size:10px;color:#a8d4d8;min-width:0;overflow-wrap:anywhere}
+.xen-bve-editor{border:1px solid #3a7c89;border-radius:7px;background:#0d2634;padding:10px;margin:7px 0 12px;display:flex;flex-direction:column;gap:9px;min-width:0;box-sizing:border-box}
+.xen-bve-hint,.xen-bve-editor small{font-size:10px;line-height:1.45;color:#c8dbe1}
+.xen-bve-muted{opacity:.5}
+.xen-bve-classic{display:flex;align-items:flex-start;gap:8px;color:#d4e9ee;font-size:11px;line-height:1.4}
+.xen-bve-classic input{flex:none;accent-color:#42c6d4}
+.xen-bve-save{display:flex;align-items:stretch;flex-wrap:wrap;gap:7px;border-top:1px solid #40636d;padding-top:10px}
+.xen-bve-save input{min-width:130px;flex:1 1 160px;color:#e4f9ff;background:#0c1722;border:1px solid #438390;border-radius:4px;padding:7px 8px;font:inherit;font-size:12px}
+.xen-bve-save button{flex:1 1 auto;min-height:30px}
+.xen-bve-save button:disabled{opacity:.4;cursor:not-allowed}
+.xen-bve-notice{font-size:10px;color:#aeeccf;min-height:14px;overflow-wrap:anywhere}
+.xen-bve-editor .xen-rhythm-control{min-width:0}
+.xen-bve-editor select{min-width:0;max-width:100%}
+@media(max-width:640px){.xen-bve-editor{padding:8px}.xen-bve-save button{flex:1 1 42%}}

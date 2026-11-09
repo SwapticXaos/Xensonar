@@ -1,0 +1,13 @@
+
+/* Raw sand / burnt-orange palette follows the Material Track tile,
+ * not the bright gold UPPER corner. No circle handle. */
+.xen-forge-raw-volume-dock{position:relative;display:flex;flex:0 0 auto;overflow:visible;align-items:stretch;--xen-raw-volume-space:148px;padding-right:var(--xen-raw-volume-space)}
+.xen-forge-raw-volume-dock>.xen-forge-tile-material{flex:none}
+.xen-forge-raw-volume-triangle{position:absolute;top:0;left:calc(100% - var(--xen-raw-volume-space));overflow:visible;z-index:4;pointer-events:none;user-select:none;touch-action:none;filter:drop-shadow(0 1px 2px #1b110e44)}
+.xen-raw-volume-shape{fill:rgba(205,119,38,.20);stroke:#95613c;stroke-width:1.6;stroke-linejoin:round;pointer-events:none}
+.xen-raw-volume-label{fill:#d7b08b;font-size:11px;font-weight:750;letter-spacing:.02em;pointer-events:none}
+.xen-raw-volume-handle{pointer-events:all;cursor:ew-resize;touch-action:none;outline:none}
+.xen-raw-volume-grip-hit{fill:rgba(211,136,63,.001);stroke:none}
+.xen-forge-raw-volume-triangle:has(.xen-raw-volume-handle:focus-visible) .xen-raw-volume-shape{stroke:#c18b5c;stroke-width:2.4}
+.xen-raw-volume-handle[aria-disabled=true]{opacity:.45;cursor:not-allowed}
+

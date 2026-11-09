@@ -2,7 +2,8 @@
 
 Experimentelles, offlinefähiges Musikinstrument im Browser: mikrotonal, frei in Tuning und Zeit.
 
-- `index.html`: die komplette App. Diese eine Datei wird auf Netlify veröffentlicht oder direkt im Browser geöffnet.
+- `index.html`: die komplette App. Diese eine Datei wird auf Netlify veröffentlicht oder direkt im Browser geöffnet. Sie wird aus `src/` gebaut: `python3 tools/build.py`.
+- `src/`: die App in Bausteinen (HTML-Gerüst, 32 Skript- und 77 Stilblöcke).
 - `CLAUDE.md` und `docs/`: Arbeitsregeln, Philosophie, Architektur, Heiß/Kalt-Vertrag.
 - `evidence/`: Prüfberichte früherer Stände.
 

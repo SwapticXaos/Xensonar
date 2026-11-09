@@ -1,0 +1,109 @@
+
+/* Canonical Loop-Rec/Power dock: separate transport owners and hit targets,
+   one measured visible/clickable silhouette, with reserved header clearance. */
+@media(min-width:1024px){.xen-h1-tonal-stage>.relative.mb-4{column-gap:68px}}
+.xen-power-loop-dock{position:relative;width:28rem;max-width:100%;flex-shrink:1;height:48px}
+.xen-power-loop-dock>.xen-power-rec-contour{position:absolute;left:0;top:0;width:100%;height:100%;overflow:visible;z-index:2;pointer-events:none}
+.xen-power-rec-contour>.xen-power-rec-hit{fill:#2b153a;stroke:#b985db;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round;vector-effect:non-scaling-stroke;pointer-events:visibleFill;cursor:pointer}
+/* ML-UI-02: visual-only slope echoes; same coordinates as the live left edge. */
+.xen-power-rec-contour .xen-looprec-slope-echoes{pointer-events:none}
+.xen-power-rec-contour .xen-looprec-slope-echo{fill:none;stroke:#b985db;stroke-linecap:round;vector-effect:non-scaling-stroke;pointer-events:none}
+.xen-power-rec-contour .xen-looprec-slope-echo:nth-child(1){stroke-width:1.4;opacity:.46}
+.xen-power-rec-contour .xen-looprec-slope-echo:nth-child(2){stroke-width:1.15;opacity:.27}
+.xen-power-rec-contour .xen-looprec-slope-echo:nth-child(3){stroke-width:1;opacity:.12}
+.xen-power-rec-contour[data-xen-recording="true"] .xen-looprec-slope-echo{stroke:#47ed91}
+/* Enough reuses the master-rec aurora, clipped by the transport hit path. */
+.xen-power-rec-contour[data-xen-recording="true"]>.xen-power-rec-hit{fill:transparent;stroke:#47ed91}
+.xen-power-rec-contour .xen-rec-aurora-foreign{pointer-events:none;overflow:visible}
+.xen-power-rec-contour .xen-rec-aurora{position:relative;display:block;width:100%;height:100%;isolation:isolate;overflow:hidden;pointer-events:none;
+ background:radial-gradient(ellipse 80% 160% at 18% 13%,#75ffae6b 0%,transparent 67%),radial-gradient(ellipse 70% 120% at 77% 85%,#22fa8d44 0%,transparent 72%),linear-gradient(113deg,#07542f 0%,#19bc5a 39%,#20d568 55%,#064f34 100%);
+ animation:xen-enough-aurora-halo 10.4s linear infinite}
+.xen-power-loop-dock>[data-xen-loop-rec][data-xen-enough-active="true"]{color:#fffefd;text-shadow:0 1px 3px #07170d,0 0 6px #07170d;display:flex;align-items:center;justify-content:center}
+.xen-power-loop-dock>[data-xen-loop-rec][data-xen-enough-active="true"] .xen-enough-legend{position:relative;z-index:2;pointer-events:none}
+@media(prefers-reduced-motion:reduce){.xen-power-rec-contour .xen-rec-aurora,.xen-power-rec-contour .xen-enough-veil,.xen-power-rec-contour .xen-enough-filaments,.xen-power-rec-contour .xen-enough-ripples{animation:none!important}}
+.xen-power-loop-dock[data-xen-loop-rec-hidden="true"]>.xen-power-rec-contour{display:none}
+/* Power-ready gating includes REC, restore control, discard and shared silhouette. */
+.xen-power-loop-dock:not(.xen-looprec-revealed)>[data-xen-loop-rec],
+.xen-power-loop-dock:not(.xen-looprec-revealed)>[data-xen-loop-rec-restore],
+.xen-power-loop-dock:not(.xen-looprec-revealed)>[data-xen-loop-rec-discard],
+.xen-power-loop-dock:not(.xen-looprec-revealed)>.xen-power-rec-contour{visibility:hidden;pointer-events:none}
+
+.xen-power-loop-dock>.xen-loop-rec-restore{position:absolute;left:auto;right:11px;bottom:-4px;top:auto;z-index:5;min-height:20px;padding:2px 6px;border:1px solid #4e4559;border-radius:5px;background:#14151d;color:#9d94aa;font:600 10px/1 monospace;cursor:pointer;box-shadow:none}
+.xen-power-loop-dock>.xen-loop-rec-restore:focus-visible{outline:2px solid #e5baff;outline-offset:2px}
+.xen-power-loop-dock>.xen-loop-rec-ack{position:absolute;left:4px;bottom:0;z-index:6;width:18px;height:18px;padding:0;border:1px solid #67526b;border-radius:50%;background:#201823;color:#bcadbf;font:600 12px/1 monospace;cursor:pointer}
+.xen-power-loop-dock>.xen-loop-rec-ack:hover{background:#3b263d}
+.xen-power-loop-dock>.xen-loop-rec-ack:focus-visible{outline:2px solid #d7c3e5;outline-offset:2px}
+.xen-power-loop-dock>[data-xen-loop-rec]{position:absolute;left:0;top:calc(100% - 14px);width:100%;height:48px;min-height:48px;box-sizing:border-box;border:0;border-radius:0;background:none;box-shadow:none;outline:none;pointer-events:none;color:#f2d9ff;font:600 15px/1.2 sans-serif;padding:0 12px;z-index:3;white-space:nowrap;cursor:pointer;touch-action:manipulation}
+/* Keep the original dock coordinates through every recording phase. */
+.xen-power-loop-dock:has(>[data-xen-loop-rec]:focus-visible) .xen-power-rec-hit{stroke:#e5baff;stroke-width:3;filter:drop-shadow(0 0 3px #e5baff)}
+.xen-power-loop-dock>[data-xen-loop-rec]:disabled{opacity:.7;cursor:progress}
+@media(min-width:768px){.xen-power-loop-dock{width:calc(15.3% + 33px);flex:0 0 calc(15.3% + 33px)}}
+
+/* Loop-Rec lilac Rec indicator: decorative only. Based on the existing
+   Master Record visual, but ROUND by design; never changes capture state.
+   Do not render over the running Enough treatment or disabled busy states. */
+.xen-power-loop-dock>[data-xen-loop-rec][data-xen-enough-active="false"]:not(:disabled){
+ display:flex;align-items:center;justify-content:center;gap:9px;
+}
+.xen-power-loop-dock>[data-xen-loop-rec][data-xen-enough-active="false"]:not(:disabled)::before{
+ content:"";display:block;position:relative;pointer-events:none;flex:none;
+ width:11px;height:11px;box-sizing:border-box;
+ border:1px solid #ffe0ff8c;border-radius:50%;
+ background:radial-gradient(circle at 40% 34%,#ffefff 0%,#efb3ff 26%,#c141f1 63%,#57136b 100%);
+ box-shadow:0 0 0 1px #25002a,inset 0 1px 1px #fff8,0 0 6px #d86cff80;
+}
+
+/* Loop-Rec Discard X — a microphone-style OUTSIDE companion, not Enough content.
+   The circle touches the upper right EDGE of the Enough control and occupies the
+   exterior free space beside Quiet Core. No extra hit area inside Enough. */
+.xen-power-loop-dock>.xen-loop-rec-discard{
+ position:absolute;top:calc(100% - 14px - 10px);right:-20px;z-index:8;
+ display:grid;place-items:center;width:20px;height:20px;padding:0;
+ border:1px solid #fa8896;border-radius:50%;background:#a82136;color:#fff0f2;
+ font:700 15px/1 sans-serif;cursor:pointer;touch-action:manipulation;
+ box-shadow:inset 0 1px rgba(255,255,255,.21),0 1px 6px rgba(0,0,0,.5);
+}
+.xen-power-loop-dock>.xen-loop-rec-discard:hover{background:#ce3449;border-color:#ffb4bc}
+.xen-power-loop-dock>.xen-loop-rec-discard:focus-visible{outline:2px solid #fff0be;outline-offset:2px}
+@media(max-width:1023px){
+ /* Compact layout: the 17px orbit gap belongs to the satellites, not Power. */
+ .xen-power-loop-dock>.xen-loop-rec-discard{
+  top:1px;right:calc(85px - 17px);width:17px;height:17px;font-size:13px;
+ }
+}
+@media(prefers-reduced-motion:reduce){.xen-power-loop-dock>.xen-loop-rec-discard{transition:none}}
+
+/* Quiet Core #06: cosmetic power switch. Desktop anchors use measured diskette top. */
+.xen-power-loop-dock>.xen-qc-wrap{position:absolute;right:0;bottom:18px;width:var(--xen-qc-size,77px);height:var(--xen-qc-size,77px);z-index:4;isolation:isolate;overflow:visible}
+.xen-qc-switch{position:relative;z-index:2;display:block;appearance:none;width:100%;height:100%;padding:0;border:1px solid #4c5c63;border-radius:50%;cursor:pointer;-webkit-tap-highlight-color:transparent;background:linear-gradient(145deg,#1f303a,#0d171f);box-shadow:inset 1px 2px 3px rgba(255,255,255,.04),0 6px 16px rgba(0,0,0,.52),0 0 0 4px rgba(25,38,43,.8);transition:background .22s,border-color .22s,box-shadow .22s,transform .12s}
+.xen-qc-switch::before,.xen-qc-switch::after{content:'';position:absolute;border-radius:50%;pointer-events:none;transition:border-color .22s}
+.xen-qc-switch::before{inset:14%;border:1px solid #394952}
+.xen-qc-switch::after{inset:5%;border:1px solid rgba(159,183,190,.07)}
+.xen-qc-switch.is-on{background:linear-gradient(145deg,#292d26,#191e1b);border-color:#a08b56;box-shadow:inset 1px 2px 3px rgba(255,255,255,.05),0 6px 16px rgba(0,0,0,.52),0 0 0 4px rgba(48,43,27,.78),0 0 16px rgba(255,202,98,.16)}
+.xen-qc-switch.is-on::before{border-color:#887747}
+.xen-qc-switch:active{transform:scale(.965)}
+.xen-qc-switch:focus-visible{outline:2px solid #55ddd5;outline-offset:7px}
+.xen-qc-glyph{position:absolute;inset:22%;width:56%;height:56%;fill:none;stroke:#737d84;stroke-width:7;stroke-linecap:round;stroke-linejoin:round;filter:drop-shadow(0 1px 1px rgba(0,0,0,.8));transition:stroke .22s,filter .22s}
+.xen-qc-switch.is-on .xen-qc-glyph{stroke:#ffe894;filter:drop-shadow(0 0 3px #ffe270) drop-shadow(0 0 8px #ffbc32)}
+.xen-qc-burst{position:absolute;inset:-30%;pointer-events:none;z-index:5}
+.xen-qc-electric{position:absolute;inset:0;width:100%;height:100%;overflow:visible;filter:drop-shadow(0 0 2px #fff7b6) drop-shadow(0 0 5px rgba(255,216,99,.72))}
+.xen-qc-electric path{stroke-dasharray:200;stroke-dashoffset:200;animation:xen-qc-spark .54s ease-out forwards}
+.xen-qc-electric path:nth-child(2){animation-delay:.08s}
+.xen-qc-electric path:nth-child(3){animation-delay:.12s}
+.xen-qc-flash{position:absolute;inset:25%;border-radius:50%;background:radial-gradient(circle,rgba(255,253,221,.62),rgba(255,224,114,.21) 45%,transparent 70%);animation:xen-qc-flare .42s ease-out both}
+.xen-qc-particle{position:absolute;left:35%;top:18%;width:3px;height:3px;border-radius:50%;background:#fff3b1;box-shadow:0 0 6px #ffd452;animation:xen-qc-particle .68s ease-out both}
+.xen-qc-particle-two{left:75%;top:60%;animation-delay:.08s;--dx:19px;--dy:12px}
+.xen-qc-particle-one{--dx:-16px;--dy:-11px}
+@keyframes xen-qc-spark{0%{stroke-dashoffset:200;opacity:0}15%{opacity:1}52%{stroke-dashoffset:0;opacity:1}100%{stroke-dashoffset:-35;opacity:0}}
+@keyframes xen-qc-flare{0%{opacity:0;transform:scale(.5)}13%{opacity:.85;transform:scale(1.1)}100%{opacity:0;transform:scale(1.25)}}
+@keyframes xen-qc-particle{0%{opacity:1;transform:scale(1.3)}100%{opacity:0;transform:translate(var(--dx),var(--dy)) scale(.1)}}
+@media(max-width:1023px){
+ /* Mobile/tablet: do not extrapolate the diskette anchor into a 357px switch.
+    Stack the panel header to avoid the pre-existing Quick-Rack overlap. */
+ .xen-h1-tonal-stage>.relative.mb-4{flex-direction:column!important;align-items:flex-start!important;gap:12px}
+ .xen-power-loop-dock{width:min(320px,100%)!important;flex:0 0 72px!important;height:72px!important;margin-top:4px}
+ .xen-power-loop-dock>.xen-qc-wrap{width:68px;height:68px;right:0;top:0;bottom:auto}
+ .xen-power-loop-dock>[data-xen-loop-rec]{top:10px;left:0;width:calc(100% - 85px);height:48px}
+ .xen-power-loop-dock>.xen-loop-rec-restore{top:auto;left:auto;right:11px;bottom:-4px}
+}
+@media(prefers-reduced-motion:reduce){.xen-qc-switch,.xen-qc-glyph{transition:none!important}.xen-qc-burst{display:none!important}}

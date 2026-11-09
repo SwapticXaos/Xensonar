@@ -1,0 +1,9 @@
+
+/* R4 — first visit gets the original visible Randomize button.
+   Exactly the same reserved 44px slot as R3. No layout shift below. */
+.xen-wheel-shell .xen-wheel-r4-primary{width:100%;height:44px;min-height:44px;display:block;
+ box-sizing:border-box;margin:0;padding:3px 8px;cursor:pointer;
+ border:1px solid #8b5079;background:linear-gradient(180deg,#532443,#29132a);
+ font-family:inherit;color:#f4d1e7;font-size:15px;font-weight:700;letter-spacing:.045em}
+.xen-wheel-shell .xen-wheel-r4-primary:hover:not(:disabled){background:linear-gradient(180deg,#693152,#351935)}
+.xen-wheel-shell .xen-wheel-r4-primary:focus-visible{outline:2px solid #d79ccf;outline-offset:1px}

@@ -1,0 +1,28 @@
+
+/* N3.5: Nodal Center × Fractalia – teal-green glass, ice-green highlights.
+   Chromatics only: do not change lane height, geometry, or register clipping. */
+.xen-lane-controls{--xen-lane-page-bg:#0c2329;background:#071923;color:#c4ebe6;border-top-color:#277879;scrollbar-color:#28666d #071923}
+.xen-lane-page{background:#0c2329;border-color:#338f91}
+.xen-lane-page .xen-lane-row,.xen-lane-row{background:#0a1c25;border-color:#27565e}
+.xen-lane-name{color:#a1dedb}
+.xen-lane-slider-heading{color:#d0eeea}
+.xen-lane-tabs::before{background:#4ac9b8}
+.xen-lane-tabs button{background:#081922;color:#95b7b8;border-color:#275f65}
+.xen-lane-tabs button:not(.is-active):hover{background:#123b43;color:#e0ffef}
+.xen-lane-tabs button.is-active{background:var(--xen-lane-page-bg);color:#f1fff4;border-color:#4ac9b8;border-bottom-color:var(--xen-lane-page-bg);box-shadow:inset 0 2px 0 #9cffe94d}
+.xen-lane-tabs button:focus-visible{outline-color:#e4fff3}
+.xen-lane-slider input[type=range]{accent-color:#64d5c7}
+.xen-lane-slider input[type=range]::-webkit-slider-runnable-track{background:#36757c}
+.xen-lane-slider input[type=range]::-moz-range-track{background:#36757c}
+.xen-lane-slider input[type=range]::-webkit-slider-thumb{background:#4faeac;border-color:#c6fff1}
+.xen-lane-slider input[type=range]::-moz-range-thumb{background:#4faeac;border-color:#c6fff1}
+.xen-lane-slider input[type=range]:focus-visible{outline-color:#c8fff1}
+.xen-lane-window-toggle{background:#0e2a33;color:#b8e8df;border-color:#377980}
+.xen-lane-window-toggle:hover,.xen-lane-window-toggle:focus-visible,.xen-lane-window-toggle[aria-expanded=true]{background:#185c64;border-color:#baffed;color:#f0fffa}
+.xen-lane-window-popover{background:#0b232beB;border-color:#388c8b}
+.xen-lane-window-ticks i{background:#c5ffde;box-shadow:0 0 4px #91ecd8}
+.xen-lane-window-popover input[type=range]{accent-color:#69d7cc}
+.xen-lane-light-signal i{background:#e2fff2;box-shadow:0 0 4px #d4fff3,0 0 8px #52d5c1}
+.xen-nudge-arc path{stroke:#b8ffe4}
+.xen-nudge-applied{border-color:#e5fff2;background:#17464c}
+.xen-lane-empty{color:#98babc}

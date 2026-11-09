@@ -1,0 +1,39 @@
+
+/* H3: surgical visual delta from H2. Original H1 colors, delicate crisp SVG outlines,
+   extra optical space for 🎧 🎸 🥁. No header row growth. */
+.xen-h1-room-btn .xen-h1-room-disc,
+[data-xensonar-performance-strip] .xen-header-unicode-icon{border:0!important;box-shadow:0 0 9px color-mix(in srgb,var(--xen-h3-ring) 15%,transparent)!important;}
+.xen-h1-room-btn .xen-h1-room-disc::before,
+[data-xensonar-performance-strip] .xen-header-unicode-icon::before{
+ content:"";position:absolute;inset:0;z-index:4;pointer-events:none;
+ background:var(--xen-h3-ring,#beadd0);
+ -webkit-mask-image:url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA0MCA0MCI+PGNpcmNsZSBjeD0iMjAiIGN5PSIyMCIgcj0iMTguODUiIGZpbGw9Im5vbmUiIHN0cm9rZT0iYmxhY2siIHN0cm9rZS13aWR0aD0iMS4xNSIvPjwvc3ZnPg==");mask-image:url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA0MCA0MCI+PGNpcmNsZSBjeD0iMjAiIGN5PSIyMCIgcj0iMTguODUiIGZpbGw9Im5vbmUiIHN0cm9rZT0iYmxhY2siIHN0cm9rZS13aWR0aD0iMS4xNSIvPjwvc3ZnPg==");
+ -webkit-mask-size:100% 100%;mask-size:100% 100%;
+ -webkit-mask-position:center;mask-position:center;
+ -webkit-mask-repeat:no-repeat;mask-repeat:no-repeat;
+}
+.xen-h1-room-btn:hover .xen-h1-room-disc::before,
+.xen-h1-room-btn:focus-visible .xen-h1-room-disc::before,
+[data-xensonar-performance-strip] button:hover .xen-header-unicode-icon::before,
+[data-xensonar-performance-strip] button:focus-visible .xen-header-unicode-icon::before{filter:drop-shadow(0 0 2px var(--xen-h3-ring));}
+.xen-h1-room-btn:nth-of-type(1) .xen-h1-room-disc{--xen-h3-ring:#cfa7ec}
+.xen-h1-room-btn:nth-of-type(2) .xen-h1-room-disc{--xen-h3-ring:#87d9e4}
+.xen-h1-room-btn:nth-of-type(3) .xen-h1-room-disc{--xen-h3-ring:#ccbcdd}
+[data-xensonar-performance-strip] .xen-header-unicode-icon{
+ width:38px!important;height:38px!important;flex:0 0 38px!important;
+ font-size:22px!important;left:-20px;
+}
+[data-xen-status-fretboard] .xen-header-unicode-icon{--xen-h3-ring:#a889d0}
+[data-xen-status-menus] > button:nth-of-type(1) .xen-header-unicode-icon{--xen-h3-ring:#bd913f}
+[data-xen-status-menus] > button:nth-of-type(2) .xen-header-unicode-icon{--xen-h3-ring:#8b83ca}
+[data-xen-status-menus] > button:nth-of-type(3) .xen-header-unicode-icon{--xen-h3-ring:#ca8781;font-size:21px!important}
+[data-xen-status-menus] > button:nth-of-type(4) .xen-header-unicode-icon{--xen-h3-ring:#b99569;font-size:20px!important}
+[data-xen-status-menus] > button.xen-meta-rack .xen-header-unicode-icon{--xen-h3-ring:#63b4ce;font-size:20px!important}
+/* Panels belong to the same document-space origin as the tonal stage,
+   not viewport-fixed overlays over the following Settings. H2 clamp is gone. */
+@media(min-width:1024px){
+ .xen-performance{position:absolute!important;top:var(--xen-h3-relrail-top,82px)!important;max-height:none!important;overflow-y:visible!important;}
+ .xen-quick-dock{position:absolute!important;top:var(--xen-h3-relrail-top,82px)!important;bottom:auto!important;}
+ .xen-quick-collection.is-right-docked{position:absolute!important;top:0!important;bottom:auto!important;right:0!important;left:auto!important;}
+}
+@media(max-width:680px){[data-xensonar-performance-strip] .xen-header-unicode-icon{width:33px!important;height:33px!important;left:-8px;font-size:19px!important}}

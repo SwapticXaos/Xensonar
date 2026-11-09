@@ -1,0 +1,18 @@
+
+/* Preserve pre-arrow card height. Transfer arrow occupies existing free upper-
+   right space, never a flex row. Ellipsis only when a long name collides. */
+.xen-fill-instrument-editor{position:relative;}
+.xen-fill-instrument-editor .xen-p36-instrument-head{
+ display:block;min-height:0;height:11px;line-height:11px;max-height:11px;
+}
+.xen-fill-instrument-editor .xen-p36-instrument-head .xen-fill-instrument-role{
+ display:block;max-width:calc(100% - 35px);overflow:hidden;
+ text-overflow:ellipsis;white-space:nowrap;overflow-wrap:normal;
+}
+.xen-fill-instrument-editor .xen-p36-transfer-arrow{
+ position:absolute;top:3px;right:4px;left:auto;z-index:1;
+}
+.xen-fill-instrument-editor > .xen-fill-instrument-current{
+ display:block;max-width:calc(100% - 35px);overflow:hidden;
+ text-overflow:ellipsis;white-space:nowrap;overflow-wrap:normal;
+}

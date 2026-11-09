@@ -1,0 +1,9 @@
+
+/* Readable, persistent capture result in an existing Quick Rack information area.
+   No timer removes an error; no extra space is taken from the synth field. */
+.xen-quick-collection .xen-loop-rec-dock-status{display:block;white-space:normal;
+ overflow:visible;text-overflow:unset;overflow-wrap:anywhere;line-height:1.35;
+ max-width:100%;font:600 10px/1.35 sans-serif;color:#bff2d7;
+ padding:3px 4px;border-left:2px solid #77e4b2;background:#102827}
+.xen-quick-collection .xen-loop-rec-dock-status[role=alert]{color:#ffe2c1;
+ border-left-color:#ffbd83;background:#40221c}
