@@ -5,7 +5,7 @@ Anlass: Nutzer hört den Materialspur-Pitch „körnig“. Befund und Messungen:
 | | |
 |---|---|
 | Basis | MATERIAL-LANE-01 (USER_ACCEPTED), `index.html` 8 564 693 Bytes, SHA-256 `351f46c064f404c02a11a3ecaff4fcb79c2c333aeeaa2f67b90cd384124b2c8f` |
-| Ergebnis | siehe Commit/Lieferung (Größe und SHA im Manifest) |
+| Ergebnis | `index.html` 8 576 290 Bytes, SHA-256 `5285bcdeda8353f704a0bb2b6bbe1b16ac89d3fa16c8962f13d5003bf0d7fd65`, Commit `5dbce82` |
 | Größenzuwachs | **+11,6 KB**. Davon ca. 5 KB Worker-Code als Text (wird erst im Worker ausgeführt) und ca. 3,5 KB Owner. Nichts davon läuft beim Start. |
 | Zone | Startpfad der Materialspur (HEISS · Steuerung, einmal pro Start) und **KALT** (Rendern im Worker). Im Audio-Thread läuft im Ruhezustand **weniger** als vorher: Der Echtzeit-Shifter geht bei Abweichung 0 in den exakten Bypass. |
 | Daten-Owner | Neu: `__XenMaterialPitchVariants` (Varianten pro dekodiertem Quellpuffer, `WeakMap`, nichts persistiert). Gemeinsam genutzt: `__xenOSQRPCMWorker` (One-Shot-Offline-Worker, gleicher Worker, gleiches Budget), weitergereicht als `__xenSharedOfflinePCMWorker`. Unverändert: `__XenMaterialVoiceMix` (Pitch-Wert, Song Save). |
