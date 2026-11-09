@@ -27,19 +27,38 @@ let panMove=panAt>=0?labels[panAt]:'not found: '+JSON.stringify(labels.filter(t=
 let panValues=null;if(panAt>=0){const before=await vis[panAt].evaluate(x=>x.value);await vis[panAt].focus();for(let k=0;k<10;k++)await p.keyboard.press('ArrowRight');await p.waitForTimeout(300);
  if(await vis[panAt].evaluate(x=>x.value)===before){const bb=await vis[panAt].boundingBox();await p.mouse.click(bb.x+bb.width*0.9,bb.y+bb.height/2)}
  await p.waitForTimeout(800);panValues=[before,await vis[panAt].evaluate(x=>x.value)]}
-const pitchAt=labels.findIndex(t=>/pitch/i.test(t)&&/material|tone/i.test(t));let pitchValues=null;
-if(pitchAt>=0){const before=await vis[pitchAt].evaluate(x=>x.value);const bb=await vis[pitchAt].boundingBox();await p.mouse.click(bb.x+bb.width*0.75,bb.y+bb.height/2);await p.waitForTimeout(800);pitchValues=[before,await vis[pitchAt].evaluate(x=>x.value)]}
+const pitchAt=labels.findIndex(t=>/pitch/i.test(t)&&/material|tone/i.test(t));let pitchValues=null,hq=null;
+const lanePitch=()=>p.evaluate(()=>{const m=globalThis.__XEN_LANE_PITCH_DIAGNOSTICS__?.material||{};const k=Object.keys(m)[0];const node=window.__chain.edges.map(e=>e[0]).filter(n=>n.__name==='xen-lane-time-pitch-v1').pop();return k?{diag:m[k].pitchCents,rendered:m[k].renderedCents??0,node:node?.__xenPitchCents??null,nodeBase:node?.__xenPitchBaseCents??null}:null});
+const hqState=()=>p.evaluate(()=>globalThis.__XEN_MATERIAL_PITCH_HQ__?.state??null);
+if(pitchAt>=0){const before=await vis[pitchAt].evaluate(x=>x.value);
+ // continuous level watch at the lane output during the gesture and the variant swap
+ await p.evaluate(()=>{const E=window.__chain.edges;const g=E.map(e=>e[0]).find(n=>n instanceof GainNode&&n.__xenEQDevice);const ctx=g.context;const an=ctx.createAnalyser();an.fftSize=1024;
+  window.__watch={an,min:1,samples:[],stop:false};const buf=new Float32Array(1024);const tick=()=>{if(window.__watch.stop)return;const eq=[...window.__chain.edges].map(e=>e[0]).filter(n=>n instanceof GainNode&&n.__xenEQDevice).pop();
+   if(eq&&eq.__xenEQDevice&&eq!==window.__watch.tapped){try{eq.__xenEQDevice.output.connect(an)}catch{}window.__watch.tapped=eq}an.getFloatTimeDomainData(buf);let q=0;for(const v of buf)q+=v*v;window.__watch.samples.push(Math.sqrt(q/buf.length));setTimeout(tick,20)};tick()});
+ const bb=await vis[pitchAt].boundingBox();await p.mouse.click(bb.x+bb.width*0.75,bb.y+bb.height/2);await p.waitForTimeout(120);
+ const preview=await lanePitch();
+ await p.waitForTimeout(2500);
+ const after=await lanePitch(),state=await hqState();
+ const watch=await p.evaluate(()=>{window.__watch.stop=true;const s=window.__watch.samples.slice(5);return {n:s.length,min:Math.min(...s),max:Math.max(...s),dips:s.filter(v=>v<.004).length}});
+ pitchValues=[before,await vis[pitchAt].evaluate(x=>x.value)];hq={realtimeCentsDuringGesture:preview,realtimeCentsAtRest:after,variants:state,levelWatch:watch};
+ // extreme: slider to its minimum via keyboard (Home), rest, verify the variant follows
+ await vis[pitchAt].focus();await p.keyboard.press('Home');await p.waitForTimeout(3000);
+ hq.extreme={slider:await vis[pitchAt].evaluate(x=>x.value),realtime:await lanePitch(),variants:await hqState()};
+ // back to zero: native value setter + input event (as a typed value would)
+ await vis[pitchAt].evaluate(x=>{const set=Object.getOwnPropertyDescriptor(HTMLInputElement.prototype,'value').set;set.call(x,'0');x.dispatchEvent(new Event('input',{bubbles:true}));x.dispatchEvent(new Event('change',{bubbles:true}))});
+ await p.waitForTimeout(3000);
+ hq.zero={slider:await vis[pitchAt].evaluate(x=>x.value),realtime:await lanePitch(),variants:await hqState()}}
 const res=await p.evaluate(async()=>{const E=window.__chain.edges;const out=new Map();for(const [a,t] of E){if(!out.has(a))out.set(a,[]);out.get(a).push(t)}
- const phase=[...out.keys()].find(n=>n.__name==='xen-material-phase-v1');if(!phase)return {error:'no material phase node'};
+ const phase=[...out.keys()].filter(n=>n.__name==='xen-material-phase-v1').pop();if(!phase)return {error:'no material phase node'};
  const desc=n=>{if(n instanceof AudioParam)return 'AudioParam';const k=n.constructor.name+(n.__name?':'+n.__name:'');
   if(n instanceof StereoPannerNode)return k+'(pan='+n.pan.value.toFixed(3)+')';if(n instanceof GainNode)return k+'(gain@connect)';if(n instanceof BiquadFilterNode)return k+'('+n.type+')';return k};
  const chain=[];let cur=phase,seen=new Set(),lane=null;
  for(let d=0;d<12&&cur;d++){seen.add(cur);const next=(out.get(cur)||[]).filter(x=>!(x instanceof AudioParam));chain.push(desc(cur)+' -> ['+next.map(desc).join(', ')+']');
   if(cur instanceof StereoPannerNode)lane=cur;cur=next.find(x=>!seen.has(x)&&!(x instanceof AudioDestinationNode))||null}
  const ctx=phase.context;const an=ctx.createAnalyser();an.fftSize=2048;
- const gain=[...out.keys()].find(n=>n instanceof GainNode&&n.__xenEQDevice);const tap=gain.__xenEQDevice.output;tap.connect(an);
+ const gain=[...out.keys()].filter(n=>n instanceof GainNode&&n.__xenEQDevice).pop();const tap=gain.__xenEQDevice.output;tap.connect(an);
  let peak=0,sum=0,k=0;const buf=new Float32Array(2048);
  for(let i=0;i<30;i++){await new Promise(r=>setTimeout(r,100));an.getFloatTimeDomainData(buf);let s=0;for(const v of buf)s+=v*v;const r=Math.sqrt(s/buf.length);peak=Math.max(peak,r);sum+=r;k++}
  const lanePan=(out.get((out.get((out.get(phase)||[])[0])||[])[0])||[]).find(n=>n instanceof StereoPannerNode);
  return {lanePanAfterSlider:lanePan?+lanePan.pan.value.toFixed(3):null,chain,laneGainHasEQ:!!gain,eqOutputFanout:(out.get(tap)||[]).filter(x=>x!==an).map(desc),rmsPeak:+peak.toFixed(4),rmsMean:+(sum/k).toFixed(4),pitchDiag:globalThis.__XEN_LANE_PITCH_DIAGNOSTICS__?.material}});
-console.log(JSON.stringify({target:path.basename(target),panSlider:panMove,panValues,pitchValues,...res,errors},null,1));await b.close();})();
+console.log(JSON.stringify({target:path.basename(target),panSlider:panMove,panValues,pitchValues,pitchHQ:hq,...res,errors},null,1));await b.close();})();

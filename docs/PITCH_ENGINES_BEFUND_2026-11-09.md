@@ -38,3 +38,10 @@ B ist noch nicht gemessen: Das Grain-Worklet braucht sein Plan-Protokoll (Lane-P
 1. **B für die Pitch-Regler** (Material und Root Follow): ein Echtzeitweg mit Granular Manager, Körnung manuell einstellbar, konsistent mit Root Follow. Voraussetzung: B zuerst messen. Es liest Grains ebenfalls linear, und pro Materialspur liefe ein Grain-Worklet (CPU).
 2. **C nach dem One-Shot-Muster** („kalte Quelle, vorgerenderte Variante“): Während der Regler bewegt wird, A als sofortige Vorschau; wenn die Hand ruht, rendert C die verstimmte Schleife im Worker, und sie wird phasengleich mit Überblendung eingesetzt. Beste gemessene Qualität, im Ruhezustand keine Echtzeit-DSP. Offen: Grenze 30 s im Worker, Zusammenspiel mit dem Phasen-Player (Nudge), Renderzeit langer Loops.
 3. **A verbessern** (mehr Leseköpfe, bessere Interpolation): kleinster Eingriff, bleibt aber ein dritter Weg. Entspricht nicht dem Ziel „ein bester Weg“.
+
+## Nachtrag: faire Testtöne, Kopfzahl-Varianten, Entscheidung
+
+- 220/440 Hz passen zufällig auf das 55-ms-Kopfraster. Mit nicht ausgerichteten Grundtönen (197, 233, 311, 431, 523 Hz) ist A schlechter als oben: um **−20 dB** bei einer Quinte, bei einer Oktave aufwärts bis **−2 dB** (Färbung 60 dB). Der Messplatz nutzt jetzt diese Töne und misst die Färbung (Teiltonpegel gegenüber dem Ideal).
+- Mehr Leseköpfe (4/6/8) verbessern nur ausgerichtete Töne. Bei allen anderen löschen sie Teiltöne aus (Färbung 70–100 dB). **Keine Lösung.** Kubische statt linearer Interpolation ändert nichts.
+- C: durchgehend −38 bis −56 dB, Färbung ≈ 0.
+- **Entscheidung:** Materialspur-Pitch über C mit Schleifenmodus, vorgerendert in der Ruhe, A nur als Vorschau während der Geste → `docs/PATCH_PITCH-HQ-01.md`. Root-Follow-Pitch-Regler folgt separat (Versatz in die Grain-Engine B).

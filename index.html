@@ -4605,6 +4605,9 @@ const __XenOneShotLivePort=(()=>{
 
 /* One-Shot audio renderer: source-format dispatch, free-phase bar timing, bounded voices.
    The original library and live transport owners are never taken over. */
+/* PITCH-HQ-01: the One-Shot offline PCM worker queue is shared with the
+   Material Track pitch variants (same worker, same budget). Set once below. */
+let __xenSharedOfflinePCMWorker=null;
 const __XenOneShotAudio=(()=>{
  const prepared=new Map(),voices=new Set(),decodedSources=new Map();let drumOwner=null,previewVoice=null,previewTicket=0;
  // OSQR-PCMR-01: cold decoded source and hot rendered variants have distinct, bounded lifetimes.
@@ -4650,9 +4653,93 @@ const __xenOSQRWorkerCode=String.raw`"use strict";
 // PCMR-04: Quality-bounded offline ONE-SHOT renderer. This runs only in a
 // dedicated Worker, never in AudioWorklet's time-critical audio quantum.
 // Windowed-sinc interpolation is polyphase-tabulated and bandlimited for pitch>1.
+// PITCH-HQ-01: time-preserving, seamless LOOP render (Material Track pitch).
+// Same kernel and registration principle as the one-shot path below, but the
+// source and the output are cyclic: no edge fades, no boundary reflection,
+// unity level. The one-shot path is untouched.
+function xenRenderLoop(d){
+ const {id,rate,pitch,channels}=d;
+ if(!Number.isFinite(rate)||rate<8000||!Number.isFinite(pitch)||pitch<.24||pitch>4.01||
+    !Array.isArray(channels)||!channels.length||channels.length>2||
+    channels.some(c=>!(c instanceof Float32Array)||c.length!==channels[0].length))
+  throw Error('Invalid loop render parameters');
+ const L=channels[0].length;
+ if(L<Math.round(.03*rate)||L>rate*600)throw Error('Loop length outside renderable range');
+ for(const ch of channels)for(let i=0;i<L;i++)if(!Number.isFinite(ch[i]))throw Error('Non-finite input PCM cannot be rendered safely');
+ const outputs=channels.map(()=>new Float32Array(L)),weights=new Float32Array(L);
+ if(Math.abs(pitch-1)<1e-9){
+  for(let c=0;c<channels.length;c++)outputs[c].set(channels[c]);
+  self.postMessage({id,channels:outputs,grainCount:0,renderer:'pitchhq-loop-direct'},outputs.map(c=>c.buffer));return;
+ }
+ const nG=Math.max(2,Math.round(L/(.06*rate))),hop=L/nG;
+ const taps=80,half=taps/2,phases=1024,cutoff=.47/Math.max(1,pitch);
+ const kernels=new Float32Array(taps*(phases+1));
+ for(let phase=0;phase<=phases;phase++){
+  const fraction=phase/phases,off=phase*taps;let norm=0;
+  for(let k=0;k<taps;k++){
+   const x=k-(half-1)-fraction,angle=2*Math.PI*cutoff*x;
+   const sinc=Math.abs(angle)<1e-9?1:Math.sin(angle)/angle;
+   const win=.42-.5*Math.cos(2*Math.PI*k/(taps-1))+.08*Math.cos(4*Math.PI*k/(taps-1));
+   const value=2*cutoff*sinc*win;kernels[off+k]=value;norm+=value;
+  }
+  if(Math.abs(norm)<1e-12)throw Error('Invalid sinc kernel');
+  for(let k=0;k<taps;k++)kernels[off+k]/=norm;
+ }
+ const wrap=i=>{i%=L;return i<0?i+L:i};
+ const sample=(channel,pos)=>{
+  const base=Math.floor(pos),phase=Math.min(phases,Math.max(0,Math.round((pos-base)*phases)));
+  const off=phase*taps,input=channels[channel],s0=base-half+1;let value=0;
+  if(s0>=0&&s0+taps<=L)for(let i=0;i<taps;i++)value+=input[s0+i]*kernels[off+i];
+  else for(let i=0;i<taps;i++)value+=input[wrap(s0+i)]*kernels[off+i];
+  return value;
+ };
+ const linear=(channel,pos)=>{const i=Math.floor(pos),f=pos-i;return channels[channel][wrap(i)]*(1-f)+channels[channel][wrap(i+1)]*f};
+ const transientMaterial=channels.some(input=>{
+  const block=Math.max(64,Math.round(.012*rate));
+  for(let i=0;i<L;i+=block){
+   const end=Math.min(L,i+block);let sum2=0,peak=0,n=0;
+   for(let j=i;j<end;j+=2){const v=Math.abs(input[j]);sum2+=v*v;peak=Math.max(peak,v);n++;}
+   if(n>=12&&peak>.03&&peak*peak>18*sum2/n)return true;
+  }
+  return false;
+ });
+ const maxShift=Math.round(.006*rate),searchStep=Math.max(2,Math.floor(rate/8000)),checkStep=Math.max(2,Math.floor(rate/6000));
+ for(let k=0;k<nG;k++){
+  const center=k*hop,j0=Math.ceil(center-hop),j1=Math.ceil(center+hop);
+  let shift=0;
+  if(k>0&&!transientMaterial){
+   // One source-time offset for the whole stereo signal, aligned against the
+   // output already accumulated (previous grain; for the last grain also grain 0).
+   const check=at=>{const scores=[];
+    for(let ch=0;ch<outputs.length;ch++){let xy=0,xx=0,yy=0,n=0;
+     for(let j=j0;j<j1;j+=checkStep){const dst=wrap(j),w=weights[dst];if(w<.2)continue;
+      const x=outputs[ch][dst]/w,y=linear(ch,center+at+(j-center)*pitch);xy+=x*y;xx+=x*x;yy+=y*y;n++;}
+     scores.push(n>=16&&xx>1e-7&&yy>1e-7?xy/Math.sqrt(xx*yy):null);}
+    return scores;};
+   const base=check(0),active=base.map((v,i)=>v!==null?i:-1).filter(i=>i>=0);
+   if(active.length){
+    const average=scores=>active.reduce((v,i)=>v+scores[i],0)/active.length;
+    const baseScore=average(base);let bestScore=-2,bestAt=0;
+    for(let at=-maxShift;at<=maxShift;at+=searchStep){const scores=check(at);
+     if(active.some(i=>scores[i]===null||scores[i]<base[i]-.025))continue;
+     const score=average(scores)-.008*Math.abs(at)/maxShift;if(score>bestScore){bestScore=score;bestAt=at;}}
+    if(bestScore>.78&&bestScore>baseScore+.08)shift=bestAt;
+   }
+  }
+  for(let j=j0;j<j1;j++){
+   const w=.5-.5*Math.cos(Math.PI*(j-center+hop)/hop);if(w<1e-10)continue;
+   const dst=wrap(j);weights[dst]+=w;const pos=center+shift+(j-center)*pitch;
+   for(let ch=0;ch<outputs.length;ch++)outputs[ch][dst]+=sample(ch,pos)*w;
+  }
+ }
+ for(let i=0;i<L;i++){const norm=weights[i]>1e-9?1/weights[i]:0;
+  for(let ch=0;ch<outputs.length;ch++){const v=outputs[ch][i]*norm;if(!Number.isFinite(v))throw Error('Invalid offline PCM output');outputs[ch][i]=v;}}
+ self.postMessage({id,channels:outputs,grainCount:nG,renderer:'pitchhq-loop-sinc80'},outputs.map(c=>c.buffer));
+}
 self.onmessage=e=>{
  const d=e.data;
  if(!d||d.type!=="render")return;
+ if(d.loop===true){try{xenRenderLoop(d)}catch(error){self.postMessage({id:d.id,error:String(error?.message||error)})}return;}
  try{
   const {id,rate,sourceRate,frames,pitch,start,span,regionEnd,channels}=d;
   if(!Number.isFinite(rate)||rate<8000||!Number.isFinite(sourceRate)||sourceRate<8000||
@@ -4885,6 +4972,7 @@ const __xenOSQRPCMWorker=(()=>{
   });
  },pending:()=>waiting.size,budget:()=>({jobs:waiting.size,bytesReserved,maxJobs:MAX_JOBS,maxBytes:MAX_RESERVED})});
 })();
+__xenSharedOfflinePCMWorker=__xenOSQRPCMWorker;
 async function renderMaterialPCM(item,t,data){
  const source=data.buffer,rate=source?.sampleRate;
  if(!source||!(data.sourceSeconds>.002)||!(t.seconds>.002)||!(rate>=8000))
@@ -5239,6 +5327,79 @@ async function renderMaterialPCM(item,t,data){
    prepared:()=>[...prepared].map(([key,value])=>({key,status:value.status,bytes:pcmBytes(value.value?.buffer)})),
    cachedSourceCount:()=>decodedSources.size,activeVoices:()=>voices.size,
    renderBudget:()=>__xenOSQRPCMWorker.budget()});
+})();
+/* PITCH-HQ-01: a resting Material Track pitch plays a pre-rendered,
+   time-preserving loop variant from the shared offline PCM worker (80-tap
+   windowed-sinc granular, cyclic). The realtime lane shifter only bridges the
+   difference while the hand moves. Variants live with the decoded source buffer
+   (WeakMap), at most the active and the newest per source; nothing is persisted.
+   Loops whose render would exceed the worker job budget keep the realtime path. */
+const __XenMaterialPitchVariants=(()=>{
+ const REST_MS=350,JOB_LIMIT=48*1024*1024;
+ const bySource=new WeakMap(),sources=new Map(),active=new Map(),versions=new Map(),timers=new Map(),lastPitch=new Map(),listeners=new Set();
+ let revision=0;
+ const emit=()=>{for(const fn of listeners)fn()};
+ const bump=id=>{versions.set(id,(versions.get(id)??0)+1);revision++;emit()};
+ const regionOf=(buffer,entry)=>{const sr=buffer.sampleRate,len=buffer.length;
+  const a=Math.max(0,Math.min(len-1,Math.round((Number(entry?.loopStartSec)||0)*sr)));
+  const end=Number.isFinite(entry?.loopEndSec)?entry.loopEndSec:buffer.duration;
+  const b=Math.max(a+1,Math.min(len,Math.round(end*sr)));return {a,b}};
+ const keyOf=(cents,r)=>cents+'|'+r.a+'|'+r.b;
+ const isActive=row=>{for(const v of active.values())if(v.row===row)return true;return false};
+ function rowFor(buffer,key,create){
+  let map=bySource.get(buffer);if(!map){if(!create)return null;map=new Map();bySource.set(buffer,map)}
+  let row=map.get(key);if(!row&&create){row={status:'idle',buffer:null,map,key};map.set(key,row)}return row||null;
+ }
+ function schedule(id,ms=REST_MS){clearTimeout(timers.get(id));timers.set(id,setTimeout(()=>{timers.delete(id);void render(id)},ms))}
+ async function render(id){
+  const src=sources.get(id),buffer=src?.buffer.deref(),ctx=src?.ctx.deref();
+  if(!buffer||!ctx||ctx.state==='closed')return;
+  const cents=__XenMaterialVoiceMix.get(id).pitch,current=active.get(id)?.cents??0;
+  if(Math.abs(cents)<.05){if(Math.abs(current)>=.05)bump(id);return}
+  const r=regionOf(buffer,src.entry),len=r.b-r.a,count=Math.min(2,buffer.numberOfChannels);
+  if(len<Math.round(.03*buffer.sampleRate)||2*(2*len*count*4)+1048576>JOB_LIMIT)return;
+  const row=rowFor(buffer,keyOf(cents,r),true);
+  if(row.status==='ready'){if(current!==cents)bump(id);return}
+  if(row.status!=='idle')return;
+  row.status='pending';
+  try{
+   const channels=[];for(let c=0;c<count;c++)channels.push(buffer.getChannelData(c).slice(r.a,r.b));
+   const result=await __xenSharedOfflinePCMWorker.render({loop:true,rate:buffer.sampleRate,sourceRate:buffer.sampleRate,frames:len,pitch:Math.pow(2,cents/1200),channels});
+   try{
+    if(ctx.state==='closed'){row.status='idle';return}
+    const out=ctx.createBuffer(result.channels.length,len,buffer.sampleRate);
+    result.channels.forEach((data,i)=>out.copyToChannel(data,i));
+    row.buffer=out;row.status='ready';
+   }finally{result.release()}
+   for(const [key,other] of row.map)if(other!==row&&other.status==='ready'&&!isActive(other))row.map.delete(key);
+   if(sources.get(id)?.buffer.deref()===buffer&&__XenMaterialVoiceMix.get(id).pitch===cents&&(active.get(id)?.cents??0)!==cents)bump(id);
+  }catch(error){
+   const busy=/capacity busy/i.test(String(error?.message||''));
+   row.status=busy?'idle':'failed';
+   if(busy)schedule(id,1200);
+   else console.warn('[xensonar][material-pitch-hq] realtime pitch stays active',id,String(error?.message||error));
+  }
+ }
+ __XenMaterialVoiceMix.subscribe(()=>{for(const id of sources.keys()){const pitch=__XenMaterialVoiceMix.get(id).pitch;if(lastPitch.get(id)!==pitch){lastPitch.set(id,pitch);schedule(id)}}});
+ /* Called once per voice start by $fe. Returns the ready variant or null and
+    asks for one when a pitch is set. Never blocks the start. */
+ function resolve(ctx,buffer,entry,id,cents){
+  if(!id||!buffer||typeof WeakRef!=='function')return null;
+  sources.set(id,{ctx:new WeakRef(ctx),buffer:new WeakRef(buffer),entry});lastPitch.set(id,cents);
+  if(Math.abs(cents)>=.05){
+   const row=rowFor(buffer,keyOf(cents,regionOf(buffer,entry)),false);
+   if(row?.status==='ready'&&row.buffer&&row.buffer.sampleRate===ctx.sampleRate){
+    active.set(id,{cents,row});
+    return {buffer:row.buffer,cents,entry:{...entry,loopStartSec:0,loopEndSec:row.buffer.duration}};
+   }
+   schedule(id,0);
+  }
+  active.delete(id);return null;
+ }
+ if(typeof globalThis!=='undefined')globalThis.__XEN_MATERIAL_PITCH_HQ__={get state(){return {revision,active:Object.fromEntries([...active].map(([id,v])=>[id,v.cents]))}}};
+ return Object.freeze({resolve,version:id=>versions.get(id)??0,revision:()=>revision,
+  subscribe:fn=>(listeners.add(fn),()=>listeners.delete(fn)),
+  diagnostics:()=>({revision,active:Object.fromEntries([...active].map(([id,v])=>[id,v.cents]))})});
 })();
 globalThis.__XenOneShotDebug=Object.freeze({assignments:__XenOneShotAssignments,audio:__XenOneShotAudio,
  silentEdits:()=>__XenOSQRSilentEdit.pending()});
@@ -35922,12 +36083,17 @@ function Kfe(e){const{entries:t,currentId:n,currentActive:r,pendingRegisteredId:
  // Defer this voice until the Session-specific edited PCM is ready.
  const restoring=__XenRackLiveBarEdits.pendingFor(original.id);
  if(restoring){await restoring;if(published.tokenRef.current!==l||t.state==='closed')return false}
- const edit=__XenRackLiveBarEdits.get(original.id),
+ let edit=__XenRackLiveBarEdits.get(original.id),
  n=edit?{...original,bars:edit.bars,loopStartSec:0,loopEndSec:edit.duration}:original;
  // Prepared PCM is copied to the live AudioContext on the control thread.
  // The durable/original decoded-buffer cache is never replaced by an edit.
  let c=edit?__XenRackLiveBarEdits.bufferFor(t,edit):s.cacheRef.current.get(n.id);
  if(!c)try{const g=await __materialAudioBlob(n,"material-decode").arrayBuffer();if(s.tokenRef.current!==l||t.state==="closed")return false;c=await t.decodeAudioData(g.slice(0));if(s.tokenRef.current!==l||t.state==="closed")return false;s.cacheRef.current.set(n.id,c),Hfe(n,c)}catch(g){if(s.tokenRef.current!==l||t.state==="closed")return false;throw Ufe(n,g instanceof Error?g.message:"decode-or-cache-failed"),g}if(s.tokenRef.current!==l)return!1;
+// PITCH-HQ-01: a resting pitch plays its pre-rendered loop variant; the lane
+// shifter then only covers the difference (zero at rest = exact bypass).
+const pitchVariant=__XenMaterialPitchVariants.resolve(t,c,n,n.id,__XenMaterialVoiceMix.get(n.id).pitch);
+const pitchBase=pitchVariant?pitchVariant.cents:0;
+if(pitchVariant){c=pitchVariant.buffer;n=pitchVariant.entry}
 // Load processor only at source activation. The native zero-pitch bypass is exact.
 const pitchReady=await __XenTimeStablePitch.ensure(t);
 if(s.tokenRef.current!==l)return!1;
@@ -35975,10 +36141,10 @@ if(e.liveBarEdit&&hasOld&&previousTimeline?.entryId===n.id){
 }
 const transportOrigin=liveHandoff?d.startAtSec-liveHandoff.offset:(preservePhase?previousTimeline.originSec:liveOrigin??d.startAtSec);
 const attackPhase=liveHandoff?liveHandoff.offset*d.playbackRate:(preservePhase||liveOrigin!==null?(d.startAtSec-transportOrigin)*d.playbackRate:0);
-const pitchNode=pitchReady?__XenTimeStablePitch.createMaterial(t,currentVoice.pitch,d.startAtSec):null;
-if(pitchNode)__xenBindMaterialPitch(pitchNode,n.id);
+const pitchNode=pitchReady?__XenTimeStablePitch.createMaterial(t,currentVoice.pitch-pitchBase,d.startAtSec):null;
+if(pitchNode){pitchNode.__xenPitchBaseCents=pitchBase;__xenBindMaterialPitch(pitchNode,n.id)}
 if(__XenTimeStablePitch.ensure&&typeof globalThis!=='undefined'&&globalThis.__XEN_LANE_PITCH_DIAGNOSTICS__){
- globalThis.__XEN_LANE_PITCH_DIAGNOSTICS__.material[n.id]={state:pitchNode?'connected':'dry-fallback',pitchCents:currentVoice.pitch,reason:pitchNode?'':globalThis.__XEN_LANE_PITCH_DIAGNOSTICS__.reason||'worklet node creation failed',at:Date.now()};
+ globalThis.__XEN_LANE_PITCH_DIAGNOSTICS__.material[n.id]={state:pitchNode?'connected':'dry-fallback',pitchCents:currentVoice.pitch-pitchBase,renderedCents:pitchBase,reason:pitchNode?'':globalThis.__XEN_LANE_PITCH_DIAGNOSTICS__.reason||'worklet node creation failed',at:Date.now()};
  if(!pitchNode)console.warn('[xensonar][material-pitch] DRY FALLBACK, Pitch has no audible effect for material',n.id);
  else if(typeof pitchNode.addEventListener==='function')pitchNode.addEventListener('processorerror',()=>{
   const item=globalThis.__XEN_LANE_PITCH_DIAGNOSTICS__?.material?.[n.id];
@@ -36064,7 +36230,7 @@ return true}function Xfe(){const e=P.useRef(new Map),t=P.useRef(null),n=P.useRef
 function __xenBindMaterialPitch(node,id,mix=__XenMaterialVoiceMix){
  node.__xenMaterialPitchOff?.();
  let applied=NaN;
- const apply=()=>{const cents=mix.get(id).pitch;if(cents===applied&&node.__xenPitchCents===cents)return;__XenTimeStablePitch.tune(node,cents);if(node.__xenPitchCents===cents)applied=cents;
+ const apply=()=>{const cents=mix.get(id).pitch-(node.__xenPitchBaseCents||0);if(cents===applied&&node.__xenPitchCents===cents)return;__XenTimeStablePitch.tune(node,cents);if(node.__xenPitchCents===cents)applied=cents;
   const record=globalThis.__XEN_LANE_PITCH_DIAGNOSTICS__?.material?.[id];
   if(record&&record.state==='connected'){
    if(node.__xenPitchCents===cents){record.pitchCents=cents;record.commandCount=(record.commandCount||0)+1}
@@ -36073,7 +36239,7 @@ function __xenBindMaterialPitch(node,id,mix=__XenMaterialVoiceMix){
  };
  node.__xenMaterialPitchOff=mix.subscribe(apply);apply();
 }
-function __xenMaterialSetVoicePitch(refs,value){__XenTimeStablePitch.tune(refs.pitchRef?.current,value)}
+function __xenMaterialSetVoicePitch(refs,value){const node=refs.pitchRef?.current;__XenTimeStablePitch.tune(node,value-(node?.__xenPitchBaseCents||0))}
 function __xenMaterialSetVoicePan(refs,ctx,value){
  const node=refs.panRef?.current;if(!node||node.context!==ctx||ctx?.state==='closed')return;
  const pan=Math.max(-1,Math.min(1,Number.isFinite(value)?value:0)),now=ctx.currentTime;
@@ -36124,6 +36290,7 @@ function Jfe({audioCtx:e,nexusActive:t,materialLoopActive:n,selectedLoopMaterial
   // Update synchronously so an asynchronous decoder takes the newest target.
   const voice=__XenMaterialVoiceMix.get(r?.id,voiceMix);
   const editVersion=__XenRackLiveBarEdits.version(r?.id);
+  const pitchVersion=__XenMaterialPitchVariants.version(r?.id);
   const value=muted?0:i*headroom;
   l.__xenMaterialPrimary=true;
   l.__xenMaterialVoiceId=r?.id;
@@ -36156,7 +36323,7 @@ function Jfe({audioCtx:e,nexusActive:t,materialLoopActive:n,selectedLoopMaterial
       // unmount/Power OFF without a successor still retires on the next task.
       l.__xenLRF5DisposeTimer=setTimeout(()=>{delete l.__xenLRF5DisposeTimer;qA(l)},0);
     };
-  },[e,t,n,r,a,o,s,voice.attApplied,editVersion]);
+  },[e,t,n,r,a,o,s,voice.attApplied,editVersion,pitchVersion]);
 }const __XenMaterialStandalonePreview=(()=>{
   let active=null,generation=0;
   const listeners=new Set();
@@ -36468,7 +36635,7 @@ P.useEffect(()=>{const pending=A.current;if(!pending)return;if(pending.pending&&
 P.useEffect(()=>()=>{w()},[w]),P.useEffect(()=>{l(L=>V0e({followForgeHandoff:s,materialLoopActive:e.materialLoopActive,effectiveLoopMyzelGroup:b.effectiveLoopMyzelGroup,currentGroup:L})??L)},[b.effectiveLoopMyzelGroup,s,e.materialLoopActive,l]);const k=L=>{if(__xenStarterNativePending(L)){__xenStarterNativeRun('rootFollow',entries=>{const row=entries.find(entry=>entry.id===L);if(row){v.current=false;r({rootFollowLoopId:row.id,rootFollowLoopActive:true})}},null,L);return;}__xenStarterNativeCancel('rootFollow');const B=g.rootFollowLoopEntries.find(O=>O.id===L);B&&(v.current=!1,r({rootFollowLoopId:B.id,rootFollowLoopActive:!0}))},I=()=>{if(A.current?.pending){w();r({rootFollowLoopActive:false});return;}if(__xenStarterNativeWaiting.rootFollow){__xenStarterNativeCancel('rootFollow');w();r({rootFollowLoopActive:false});return;}if(!M.current.rootFollowLoopActive&&__xenStarterNativePending()){__xenStarterNativeRun('rootFollow',entries=>{const row=entries.find(entry=>entry.id===M.current.rootFollowLoopId)??entries[0];if(row){v.current=false;r({rootFollowLoopId:row.id,rootFollowLoopActive:!M.current.rootFollowLoopActive})}});return;}__xenStarterNativeCancel('rootFollow');v.current=!1,r({rootFollowLoopActive:!e.rootFollowLoopActive})},E=L=>{if(__xenStarterNativePending()){__xenStarterNativeRun('rootFollow',entries=>{const index=pV({entries,currentId:M.current.rootFollowLoopId,browseArmed:v.current,key:L,directCount:o}),row=entries[index];if(row){v.current=true;r({rootFollowLoopId:row.id,rootFollowLoopActive:true})}},null,L);return;}__xenStarterNativeCancel('rootFollow');const B=g.rootFollowLoopEntries;if(!B.length)return;const O=pV({entries:B,currentId:e.rootFollowLoopId,browseArmed:v.current,key:L,directCount:o});if(O<0)return;const T=B[O];T&&(v.current=!0,r({rootFollowLoopId:T.id,rootFollowLoopActive:!0}))},F=dge({nParamsUI:e,controller:{exportedLoopMaterials:b.exportedLoopMaterials,recentLoopHotkeyEntries:b.recentLoopHotkeyEntries,rootFollowLoopEntries:g.rootFollowLoopEntries,recentRootFollowHotkeyEntries:g.recentRootFollowHotkeyEntries,selectedLoopMaterial:b.selectedLoopMaterial,selectedRootFollowLoop:g.selectedRootFollowLoop,managedLoopMaterial:b.managedLoopMaterial,managedLoopIndex:b.managedLoopIndex,managedRootFollowLoopMaterial:g.managedRootFollowLoopMaterial,managedRootFollowLoopIndex:g.managedRootFollowLoopIndex,managedLoopInRootFollowBank:b.managedLoopMaterial?g.isEntryInRootFollowLoopBank(b.managedLoopMaterial.id):!1,selectedLoopHandoffProfile:b.selectedLoopHandoffProfile,effectiveLoopMyzelGroup:b.effectiveLoopMyzelGroup,materialLoopUiStatus:b.materialLoopUiStatus,rootFollowLoopUiStatus:g.rootFollowLoopUiStatus,rootFollowPreviewActive:y,toggleRootFollowPreview:R,stopRootFollowPreview:w,setRootFollowAuditionPitchHz:f,materialLoopRenameDraft:b.materialLoopRenameDraft,materialLoopDragId:b.materialLoopDragId,materialLoopDropId:b.materialLoopDropId,rootFollowLoopRenameDraft:g.rootFollowLoopRenameDraft,rootFollowLoopDragId:g.rootFollowLoopDragId,rootFollowLoopDropId:g.rootFollowLoopDropId,setMaterialLoopRenameDraft:b.setMaterialLoopRenameDraft,setRootFollowLoopRenameDraft:g.setRootFollowLoopRenameDraft,selectMaterialLoopDirect:b.selectMaterialLoopDirect,closeMaterialLoopManager:b.closeMaterialLoopManager,openMaterialLoopManager:b.openMaterialLoopManager,activateManagedMaterialLoop:b.activateManagedMaterialLoop,saveMaterialLoopRename:()=>{b.saveMaterialLoopRename()},browseManagedMaterialLoop:b.browseManagedMaterialLoop,shiftMaterialLoopOrder:L=>{b.shiftMaterialLoopOrder(L)},deleteMaterialLoopDirect:L=>{b.deleteMaterialLoopDirect(L)},handleMaterialLoopDragStart:b.handleMaterialLoopDragStart,handleMaterialLoopDragOver:b.handleMaterialLoopDragOver,handleMaterialLoopDrop:(L,B,O,T,_)=>{b.handleMaterialLoopDrop(L,B,O,T,_)},handleMaterialLoopDragEnd:b.handleMaterialLoopDragEnd,uploadMaterialLoopFile:b.uploadMaterialLoopFile,uploadRootFollowLoopFile:g.uploadRootFollowLoopFile,setRootFollowLoopAnchor:g.setRootFollowLoopAnchor,stampCurrentRootFollowLoopAnchor:g.stampCurrentRootFollowLoopAnchor,closeRootFollowLoopManager:g.closeRootFollowLoopManager,openRootFollowLoopManager:g.openRootFollowLoopManager,activateManagedRootFollowLoop:g.activateManagedRootFollowLoop,saveRootFollowLoopRename:g.saveRootFollowLoopRename,browseManagedRootFollowLoop:g.browseManagedRootFollowLoop,shiftRootFollowLoopOrder:g.shiftRootFollowLoopOrder,deleteManagedRootFollowLoop:g.deleteManagedRootFollowLoop,handleRootFollowLoopDragStart:g.handleRootFollowLoopDragStart,handleRootFollowLoopDragOver:g.handleRootFollowLoopDragOver,handleRootFollowLoopDrop:g.handleRootFollowLoopDrop,handleRootFollowLoopDragEnd:g.handleRootFollowLoopDragEnd,sendManagedMaterialLoopToRootFollow:L=>g.addToRootFollowLoopBank(L)},myzelGroups:i,updateNParams:r,hotkeyLabels:c,referenceBpm:Bfe(),formatMaterialLoopBars:Dfe,getEffectiveMaterialLoopBars:Hw});return{recentLoopHotkeyEntries:b.recentLoopHotkeyEntries,recentRootFollowHotkeyEntries:g.recentRootFollowHotkeyEntries,selectedLoopMaterial:b.selectedLoopMaterial,selectedRootFollowLoop:g.selectedRootFollowLoop,selectedRootFollowLoopConfig:g.selectedRootFollowLoopConfig,managedLoopMaterial:b.managedLoopMaterial,selectedLoopHandoffProfile:b.selectedLoopHandoffProfile,rootFollowPreviewActive:y,materialLoopPanelProps:F,selectMaterialLoopDirect:b.selectMaterialLoopDirect,toggleMaterialLoopDirect:b.toggleMaterialLoopDirect,browseMaterialLoopWithUmlaut:b.browseMaterialLoopWithUmlaut,selectRootFollowLoopDirect:k,toggleRootFollowLoopDirect:I,browseRootFollowLoopWithUmlaut:E}}function yge(e){return bge(e)}/* Material Track polyphony: independent sources, independent interpretedBars.
    Reconcile by material ID: adding/removing one layer never restarts other layers.
    The existing primary lane retains its original owner and timing. */
-function __xenParallelMaterialRuntime({audioCtx,active,masterEnabled,primaryEntry,bpm,timeMode,volume,syncToBeat,getRhythmBus,ensureMyzelPostFxRouter,getForgeSend,voiceMix,editRevision},secondaryIds){
+function __xenParallelMaterialRuntime({audioCtx,active,masterEnabled,primaryEntry,bpm,timeMode,volume,syncToBeat,getRhythmBus,ensureMyzelPostFxRouter,getForgeSend,voiceMix,editRevision,pitchRevision},secondaryIds){
  const voices=P.useRef(new Map());
  const list=secondaryIds.length?__xenMaterialPolyPlan(bs().entries,primaryEntry?.id,secondaryIds):[];
  const keyed=list.map(row=>row.id).join('\0');
@@ -36493,6 +36660,17 @@ function __xenParallelMaterialRuntime({audioCtx,active,masterEnabled,primaryEntr
      syncToBeat,refs:record.refs,liveBarEdit:true,getRhythmBus,ensureMyzelPostFxRouter,getForgeSend})
      .catch(err=>console.warn('[xensonar][parallel-material] live edit deferred',id,err));
    }
+   // PITCH-HQ-01: a newly rendered (or released) pitch variant swaps in with phase preserved.
+   const pitchVersion=__XenMaterialPitchVariants.version(id);
+   if(wanted.has(id)&&record.ctx===ctx&&record.bpm===bpm&&record.timeMode===timeMode&&record.syncToBeat===syncToBeat&&
+      record.att===__XenMaterialVoiceMix.get(id,voiceMix).attApplied&&record.editRevision===revision&&record.pitchVersion!==pitchVersion){
+    record.pitchVersion=pitchVersion;record.refs.tokenRef.current++;
+    __xenLRF5MaterialCancelPending(record.refs);
+    $fe({ctx,entry:wanted.get(id).entry,quantizeBpm:bpm,timeMode,
+     volume:headroom*__XenMaterialVoiceMix.get(id,voiceMix).volume,
+     syncToBeat,refs:record.refs,getRhythmBus,ensureMyzelPostFxRouter,getForgeSend})
+     .catch(err=>console.warn('[xensonar][parallel-material] pitch variant deferred',id,err));
+   }
    if(!wanted.has(id)||record.ctx!==ctx||record.bpm!==bpm||record.timeMode!==timeMode||record.syncToBeat!==syncToBeat||record.att!==__XenMaterialVoiceMix.get(id,voiceMix).attApplied){
     if(record.att!==__XenMaterialVoiceMix.get(id,voiceMix).attApplied&&
        record.ctx===ctx&&record.bpm===bpm&&record.timeMode===timeMode&&record.syncToBeat===syncToBeat){
@@ -36506,7 +36684,7 @@ function __xenParallelMaterialRuntime({audioCtx,active,masterEnabled,primaryEntr
    const refs={cacheRef:{current:new Map()},sourceRef:{current:null},gainRef:{current:null},panRef:{current:null},pitchRef:{current:null},tokenRef:{current:1},__xenMaterialVoiceId:id,__xenMaterialTimeline:preservedTimelines.get(id)??null};
    preservedTimelines.delete(id);
    refs.__f35639MaterialVolume=headroom*__XenMaterialVoiceMix.get(id,voiceMix).volume;
-   const record={ctx,bpm,timeMode,syncToBeat,att:__XenMaterialVoiceMix.get(id,voiceMix).attApplied,editRevision:__XenRackLiveBarEdits.version(id),refs};voices.current.set(id,record);
+   const record={ctx,bpm,timeMode,syncToBeat,att:__XenMaterialVoiceMix.get(id,voiceMix).attApplied,editRevision:__XenRackLiveBarEdits.version(id),pitchVersion:__XenMaterialPitchVariants.version(id),refs};voices.current.set(id,record);
    $fe({ctx,entry:row.entry,quantizeBpm:bpm,timeMode,volume:headroom*__XenMaterialVoiceMix.get(id,voiceMix).volume,syncToBeat,refs,getRhythmBus,ensureMyzelPostFxRouter,getForgeSend})
     .catch(err=>{if(voices.current.get(id)!==record)return;console.warn('[xensonar][parallel-material] dropped',id,err);refs.tokenRef.current++;qA(refs);voices.current.delete(id)});
   }
@@ -36518,17 +36696,18 @@ function __xenParallelMaterialRuntime({audioCtx,active,masterEnabled,primaryEntr
    __xenMaterialSetVoicePan(record.refs,ctx,voice.pan);
    __xenMaterialSetVoicePitch(record.refs,voice.pitch);
   }
- },[audioCtx,active,masterEnabled,primaryEntry?.id,bpm,timeMode,syncToBeat,keyed,volume,voiceMix,editRevision]);
+ },[audioCtx,active,masterEnabled,primaryEntry?.id,bpm,timeMode,syncToBeat,keyed,volume,voiceMix,editRevision,pitchRevision]);
 }
 function Sge(e){
  const editRevision=P.useSyncExternalStore(__XenRackLiveBarEdits.subscribe,__XenRackLiveBarEdits.revision,__XenRackLiveBarEdits.revision);
+ const pitchRevision=P.useSyncExternalStore(__XenMaterialPitchVariants.subscribe,__XenMaterialPitchVariants.revision,__XenMaterialPitchVariants.revision);
  const voiceMix=P.useSyncExternalStore(__XenMaterialVoiceMix.subscribe,__XenMaterialVoiceMix.snapshot,__XenMaterialVoiceMix.snapshot);
  const primaryOff=P.useSyncExternalStore(__XenMaterialPrimarySwitch.subscribe,__XenMaterialPrimarySwitch.snapshot,__XenMaterialPrimarySwitch.snapshot);
  const extras=P.useSyncExternalStore(__XenMaterialLayers.subscribe,__XenMaterialLayers.snapshot,__XenMaterialLayers.snapshot);
  const valid=extras.length?__xenMaterialPolyPlan(bs().entries,e.selectedLoopMaterial?.id,extras):[];
  const headroom=1/Math.sqrt(1+valid.length);
  Jfe({...e,parallelHeadroom:headroom,primaryMuted:primaryOff,voiceMix});
- __xenParallelMaterialRuntime({audioCtx:e.audioCtx,active:e.nexusActive,masterEnabled:e.materialLoopActive,primaryEntry:e.selectedLoopMaterial,bpm:e.quantizeBpm,timeMode:e.materialLoopTimeMode,volume:e.materialLoopVolume,syncToBeat:e.materialLoopSyncToBeat,getRhythmBus:e.getRhythmBus,ensureMyzelPostFxRouter:e.ensureMyzelPostFxRouter,getForgeSend:e.getForgeSend,voiceMix,editRevision},extras);
+ __xenParallelMaterialRuntime({audioCtx:e.audioCtx,active:e.nexusActive,masterEnabled:e.materialLoopActive,primaryEntry:e.selectedLoopMaterial,bpm:e.quantizeBpm,timeMode:e.materialLoopTimeMode,volume:e.materialLoopVolume,syncToBeat:e.materialLoopSyncToBeat,getRhythmBus:e.getRhythmBus,ensureMyzelPostFxRouter:e.ensureMyzelPostFxRouter,getForgeSend:e.getForgeSend,voiceMix,editRevision,pitchRevision},extras);
 }const ZT="recording:media-recorder",IV="recording:max-duration-timeout",vge="recording:duration-display-second-tick",Age="recording:preview-playhead-raf",xge="recording:marker-hotkey-listener";function EV(e){return`recording:object-url:${e}`}function FV(e){return`recording:download-object-url:${e}`}function Mge(e,t){return Ya({id:EV(e),kind:"object-url",subsystem:"recording",label:"recording.preview.object-url",owner:"recording/recordingDisposalRegistry.registerRecordingPreviewObjectUrl",meta:{size:t.size,type:t.type||"unknown"}})}function wge(e,t="recording-preview-object-url-revoked"){return e?si(EV(e),t):!1}function Rge(e,t,n,r){return Ya({id:FV(e),kind:"object-url",subsystem:"recording",label:"recording.download.object-url",owner:"recording/recordingDisposalRegistry.registerRecordingDownloadObjectUrl",meta:{filename:n,size:t.size,type:t.type||"unknown",revokeDelayMs:r}})}function Cge(e,t="recording-download-object-url-revoked"){return e?si(FV(e),t):!1}function kge(){return Ya({id:vge,kind:"interval",subsystem:"recording",label:"recording.duration.display-second-tick",owner:"recording/recordingDisposalRegistry.registerRecordingDurationDisplaySecondTick",meta:{visibleResolutionMs:1e3,pollIntervalMs:1e3}})}function Pge(e){return Ya({id:Age,kind:"animation-frame",subsystem:"recording",label:"recording.preview.playhead-raf",owner:"recording/recordingDisposalRegistry.registerRecordingPreviewPlayheadRaf",meta:{hasPreviewUrl:e}})}function Ige(){return Ya({id:xge,kind:"event-listener",subsystem:"recording",label:"recording.marker.hotkey-listener",owner:"recording/recordingDisposalRegistry.registerRecordingMarkerHotkeyListener",meta:{event:"keydown"}})}function Ege(e,t){return Ya({id:ZT,kind:"media-recorder",subsystem:"recording",label:"recording.media-recorder",owner:"recording/recordingDisposalRegistry.registerRecordingMediaRecorder",meta:{sourceMode:e,mimeType:t}})}function eL(e="recording-media-recorder-released"){return si(ZT,e)}function f3(e="recording-media-recorder-failed"){tH({id:`${ZT}:failed`,kind:"media-recorder",subsystem:"recording",label:"recording.media-recorder",owner:"recording/recordingDisposalRegistry.markRecordingMediaRecorderFailed",reason:e})}function Fge(e){return Ya({id:IV,kind:"timeout",subsystem:"recording",label:"recording.max-duration-timeout",owner:"recording/recordingDisposalRegistry.registerRecordingMaxDurationTimeout",meta:{maxRecordingMs:e}})}function TV(e="recording-max-duration-timeout-released"){return si(IV,e)}const Tge=8,Lge=.35,Bge=.0015;function Dge(){return{active:!1,continuity:"idle",currentSessionId:null,currentToken:null,currentLoopId:null,currentLoopName:null,sessionStarts:0,sessionStops:0,schedulerTicks:0,retuneSamples:0,retuneSamplesWithoutRestart:0,rootHzChangesWithinSession:0,sameLoopRestartSuspicions:0,tokenMismatchWarnings:0,transportAnchorWarnings:0,lastRootHz:null,lastRootDeltaCents:null,lastTransportAnchorSec:null,lastNextSliceStartSec:null,lastStage:null,warnings:[],currentSession:null,sequence:0}}const Zt=Dge();function vy(e){Zt.warnings=[e,...Zt.warnings.filter(t=>t!==e)].slice(0,Tge),Zt.continuity="suspect"}function Nge(e,t){return!Number.isFinite(e??NaN)||!Number.isFinite(t??NaN)||!e||!t||e<=0||t<=0?null:1200*Math.log2(t/e)}function Oge(e,t){return Zt.sequence+=1,`root-follow:${t??"unknown"}:${e}:${Zt.sequence}`}function tL(e){Zt.active=!!e&&e.closedAtAudioSec===null,Zt.currentSessionId=e?.id??null,Zt.currentToken=e?.token??null,Zt.currentLoopId=e?.loopId??null,Zt.currentLoopName=e?.loopName??null,Zt.lastRootHz=e?.lastRootHz??Zt.lastRootHz,Zt.lastTransportAnchorSec=e?.lastTransportAnchorSec??Zt.lastTransportAnchorSec,Zt.lastNextSliceStartSec=e?.lastNextSliceStartSec??Zt.lastNextSliceStartSec,Zt.continuity!=="suspect"&&(Zt.continuity=Zt.active?"open":"idle")}function _ge(e){Zt.currentSession&&Zt.currentSession.closedAtAudioSec===null&&Zt.currentSession.loopId===e.loopId&&Zt.currentSession.token!==e.token&&(Zt.sameLoopRestartSuspicions+=1,vy("Root Follow session was reopened for the same loop before the previous session was visibly closed."));const t={id:Oge(e.token,e.loopId),token:e.token,loopId:e.loopId,loopName:e.loopName,sourceKind:e.sourceKind,renderMode:e.renderMode,openedAtAudioSec:e.audioNowSec,closedAtAudioSec:null,lastAudioSec:e.audioNowSec,lastRootHz:e.rootHz,lastTransportAnchorSec:null,lastNextSliceStartSec:null,retuneSamples:0,rootHzChanges:0,schedulerTicks:0};Zt.sessionStarts+=1,Zt.currentSession=t,Zt.lastStage="gate-open",Zt.continuity!=="suspect"&&(Zt.continuity="open"),tL(t)}function j2(e){const t=Zt.currentSession;t&&t.closedAtAudioSec===null&&(e.token!==null&&t.token!==e.token&&(Zt.tokenMismatchWarnings+=1,vy("Root Follow cleanup reported a token different from the active session.")),t.closedAtAudioSec=e.audioNowSec,t.lastAudioSec=e.audioNowSec,Zt.sessionStops+=1),Zt.lastStage=e.stage,Zt.continuity!=="suspect"&&(Zt.continuity="idle"),tL(t??null)}function zge(e){Zt.schedulerTicks+=1;const t=Zt.currentSession;if(!t||t.closedAtAudioSec!==null){Zt.tokenMismatchWarnings+=1,vy("Root Follow scheduler ticked without an open lifecycle session."),Zt.lastStage=e.stage;return}t.token!==e.token&&(Zt.tokenMismatchWarnings+=1,vy("Root Follow scheduler ticked with a token different from the active session.")),t.schedulerTicks+=1,t.lastAudioSec=e.audioNowSec;const n=Nge(t.lastRootHz,e.rootHz);Zt.lastRootDeltaCents=n,n!==null&&Math.abs(n)>Lge&&(t.rootHzChanges+=1,Zt.rootHzChangesWithinSession+=1,Zt.retuneSamples+=1,Zt.retuneSamplesWithoutRestart+=1,t.retuneSamples+=1,Zt.continuity!=="suspect"&&(Zt.continuity="intact")),Number.isFinite(e.rootHz??NaN)&&e.rootHz!==null&&(t.lastRootHz=e.rootHz),Number.isFinite(e.transportAnchorSec??NaN)&&e.transportAnchorSec!==null&&(t.lastTransportAnchorSec!==null&&Math.abs(t.lastTransportAnchorSec-e.transportAnchorSec+(e.attackAppliedSec??0)-(t.lastAttackAppliedSec??0))>Bge&&(Zt.transportAnchorWarnings+=1,vy("Root-Follow-Transportanker driftete innerhalb derselben Session.")),t.lastTransportAnchorSec=e.transportAnchorSec,t.lastAttackAppliedSec=e.attackAppliedSec??0),Number.isFinite(e.nextSliceStartSec??NaN)&&e.nextSliceStartSec!==null&&(t.lastNextSliceStartSec=e.nextSliceStartSec),Zt.lastStage=e.stage,tL(t)}function Bb(){const{currentSession:e,sequence:t,...n}=Zt;return{...n,warnings:[...n.warnings]}}const jge="spectral-forge:source-asset:main",Gge="spectral-forge:source-asset:embodiment",LV="spectral-forge:preview-audio-source",BV="spectral-forge:preview-position-raf",Hge="spectral-forge.source-asset",Vge="spectral-forge.preview.audio-source",Wge="spectral-forge.preview.position-raf",qge="spectral-forge.download.object-url",Qge="spectral-forge.image.object-url";function Ay(e,t=4){return Number.isFinite(e)?Number(e.toFixed(t)):null}
 /* xen-lazy:lab */
 

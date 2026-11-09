@@ -820,6 +820,9 @@ const __XenOneShotLivePort=(()=>{
 
 /* One-Shot audio renderer: source-format dispatch, free-phase bar timing, bounded voices.
    The original library and live transport owners are never taken over. */
+/* PITCH-HQ-01: the One-Shot offline PCM worker queue is shared with the
+   Material Track pitch variants (same worker, same budget). Set once below. */
+let __xenSharedOfflinePCMWorker=null;
 const __XenOneShotAudio=(()=>{
  const prepared=new Map(),voices=new Set(),decodedSources=new Map();let drumOwner=null,previewVoice=null,previewTicket=0;
  // OSQR-PCMR-01: cold decoded source and hot rendered variants have distinct, bounded lifetimes.
@@ -865,9 +868,93 @@ const __xenOSQRWorkerCode=String.raw`"use strict";
 // PCMR-04: Quality-bounded offline ONE-SHOT renderer. This runs only in a
 // dedicated Worker, never in AudioWorklet's time-critical audio quantum.
 // Windowed-sinc interpolation is polyphase-tabulated and bandlimited for pitch>1.
+// PITCH-HQ-01: time-preserving, seamless LOOP render (Material Track pitch).
+// Same kernel and registration principle as the one-shot path below, but the
+// source and the output are cyclic: no edge fades, no boundary reflection,
+// unity level. The one-shot path is untouched.
+function xenRenderLoop(d){
+ const {id,rate,pitch,channels}=d;
+ if(!Number.isFinite(rate)||rate<8000||!Number.isFinite(pitch)||pitch<.24||pitch>4.01||
+    !Array.isArray(channels)||!channels.length||channels.length>2||
+    channels.some(c=>!(c instanceof Float32Array)||c.length!==channels[0].length))
+  throw Error('Invalid loop render parameters');
+ const L=channels[0].length;
+ if(L<Math.round(.03*rate)||L>rate*600)throw Error('Loop length outside renderable range');
+ for(const ch of channels)for(let i=0;i<L;i++)if(!Number.isFinite(ch[i]))throw Error('Non-finite input PCM cannot be rendered safely');
+ const outputs=channels.map(()=>new Float32Array(L)),weights=new Float32Array(L);
+ if(Math.abs(pitch-1)<1e-9){
+  for(let c=0;c<channels.length;c++)outputs[c].set(channels[c]);
+  self.postMessage({id,channels:outputs,grainCount:0,renderer:'pitchhq-loop-direct'},outputs.map(c=>c.buffer));return;
+ }
+ const nG=Math.max(2,Math.round(L/(.06*rate))),hop=L/nG;
+ const taps=80,half=taps/2,phases=1024,cutoff=.47/Math.max(1,pitch);
+ const kernels=new Float32Array(taps*(phases+1));
+ for(let phase=0;phase<=phases;phase++){
+  const fraction=phase/phases,off=phase*taps;let norm=0;
+  for(let k=0;k<taps;k++){
+   const x=k-(half-1)-fraction,angle=2*Math.PI*cutoff*x;
+   const sinc=Math.abs(angle)<1e-9?1:Math.sin(angle)/angle;
+   const win=.42-.5*Math.cos(2*Math.PI*k/(taps-1))+.08*Math.cos(4*Math.PI*k/(taps-1));
+   const value=2*cutoff*sinc*win;kernels[off+k]=value;norm+=value;
+  }
+  if(Math.abs(norm)<1e-12)throw Error('Invalid sinc kernel');
+  for(let k=0;k<taps;k++)kernels[off+k]/=norm;
+ }
+ const wrap=i=>{i%=L;return i<0?i+L:i};
+ const sample=(channel,pos)=>{
+  const base=Math.floor(pos),phase=Math.min(phases,Math.max(0,Math.round((pos-base)*phases)));
+  const off=phase*taps,input=channels[channel],s0=base-half+1;let value=0;
+  if(s0>=0&&s0+taps<=L)for(let i=0;i<taps;i++)value+=input[s0+i]*kernels[off+i];
+  else for(let i=0;i<taps;i++)value+=input[wrap(s0+i)]*kernels[off+i];
+  return value;
+ };
+ const linear=(channel,pos)=>{const i=Math.floor(pos),f=pos-i;return channels[channel][wrap(i)]*(1-f)+channels[channel][wrap(i+1)]*f};
+ const transientMaterial=channels.some(input=>{
+  const block=Math.max(64,Math.round(.012*rate));
+  for(let i=0;i<L;i+=block){
+   const end=Math.min(L,i+block);let sum2=0,peak=0,n=0;
+   for(let j=i;j<end;j+=2){const v=Math.abs(input[j]);sum2+=v*v;peak=Math.max(peak,v);n++;}
+   if(n>=12&&peak>.03&&peak*peak>18*sum2/n)return true;
+  }
+  return false;
+ });
+ const maxShift=Math.round(.006*rate),searchStep=Math.max(2,Math.floor(rate/8000)),checkStep=Math.max(2,Math.floor(rate/6000));
+ for(let k=0;k<nG;k++){
+  const center=k*hop,j0=Math.ceil(center-hop),j1=Math.ceil(center+hop);
+  let shift=0;
+  if(k>0&&!transientMaterial){
+   // One source-time offset for the whole stereo signal, aligned against the
+   // output already accumulated (previous grain; for the last grain also grain 0).
+   const check=at=>{const scores=[];
+    for(let ch=0;ch<outputs.length;ch++){let xy=0,xx=0,yy=0,n=0;
+     for(let j=j0;j<j1;j+=checkStep){const dst=wrap(j),w=weights[dst];if(w<.2)continue;
+      const x=outputs[ch][dst]/w,y=linear(ch,center+at+(j-center)*pitch);xy+=x*y;xx+=x*x;yy+=y*y;n++;}
+     scores.push(n>=16&&xx>1e-7&&yy>1e-7?xy/Math.sqrt(xx*yy):null);}
+    return scores;};
+   const base=check(0),active=base.map((v,i)=>v!==null?i:-1).filter(i=>i>=0);
+   if(active.length){
+    const average=scores=>active.reduce((v,i)=>v+scores[i],0)/active.length;
+    const baseScore=average(base);let bestScore=-2,bestAt=0;
+    for(let at=-maxShift;at<=maxShift;at+=searchStep){const scores=check(at);
+     if(active.some(i=>scores[i]===null||scores[i]<base[i]-.025))continue;
+     const score=average(scores)-.008*Math.abs(at)/maxShift;if(score>bestScore){bestScore=score;bestAt=at;}}
+    if(bestScore>.78&&bestScore>baseScore+.08)shift=bestAt;
+   }
+  }
+  for(let j=j0;j<j1;j++){
+   const w=.5-.5*Math.cos(Math.PI*(j-center+hop)/hop);if(w<1e-10)continue;
+   const dst=wrap(j);weights[dst]+=w;const pos=center+shift+(j-center)*pitch;
+   for(let ch=0;ch<outputs.length;ch++)outputs[ch][dst]+=sample(ch,pos)*w;
+  }
+ }
+ for(let i=0;i<L;i++){const norm=weights[i]>1e-9?1/weights[i]:0;
+  for(let ch=0;ch<outputs.length;ch++){const v=outputs[ch][i]*norm;if(!Number.isFinite(v))throw Error('Invalid offline PCM output');outputs[ch][i]=v;}}
+ self.postMessage({id,channels:outputs,grainCount:nG,renderer:'pitchhq-loop-sinc80'},outputs.map(c=>c.buffer));
+}
 self.onmessage=e=>{
  const d=e.data;
  if(!d||d.type!=="render")return;
+ if(d.loop===true){try{xenRenderLoop(d)}catch(error){self.postMessage({id:d.id,error:String(error?.message||error)})}return;}
  try{
   const {id,rate,sourceRate,frames,pitch,start,span,regionEnd,channels}=d;
   if(!Number.isFinite(rate)||rate<8000||!Number.isFinite(sourceRate)||sourceRate<8000||
@@ -1100,6 +1187,7 @@ const __xenOSQRPCMWorker=(()=>{
   });
  },pending:()=>waiting.size,budget:()=>({jobs:waiting.size,bytesReserved,maxJobs:MAX_JOBS,maxBytes:MAX_RESERVED})});
 })();
+__xenSharedOfflinePCMWorker=__xenOSQRPCMWorker;
 async function renderMaterialPCM(item,t,data){
  const source=data.buffer,rate=source?.sampleRate;
  if(!source||!(data.sourceSeconds>.002)||!(t.seconds>.002)||!(rate>=8000))
@@ -1454,6 +1542,79 @@ async function renderMaterialPCM(item,t,data){
    prepared:()=>[...prepared].map(([key,value])=>({key,status:value.status,bytes:pcmBytes(value.value?.buffer)})),
    cachedSourceCount:()=>decodedSources.size,activeVoices:()=>voices.size,
    renderBudget:()=>__xenOSQRPCMWorker.budget()});
+})();
+/* PITCH-HQ-01: a resting Material Track pitch plays a pre-rendered,
+   time-preserving loop variant from the shared offline PCM worker (80-tap
+   windowed-sinc granular, cyclic). The realtime lane shifter only bridges the
+   difference while the hand moves. Variants live with the decoded source buffer
+   (WeakMap), at most the active and the newest per source; nothing is persisted.
+   Loops whose render would exceed the worker job budget keep the realtime path. */
+const __XenMaterialPitchVariants=(()=>{
+ const REST_MS=350,JOB_LIMIT=48*1024*1024;
+ const bySource=new WeakMap(),sources=new Map(),active=new Map(),versions=new Map(),timers=new Map(),lastPitch=new Map(),listeners=new Set();
+ let revision=0;
+ const emit=()=>{for(const fn of listeners)fn()};
+ const bump=id=>{versions.set(id,(versions.get(id)??0)+1);revision++;emit()};
+ const regionOf=(buffer,entry)=>{const sr=buffer.sampleRate,len=buffer.length;
+  const a=Math.max(0,Math.min(len-1,Math.round((Number(entry?.loopStartSec)||0)*sr)));
+  const end=Number.isFinite(entry?.loopEndSec)?entry.loopEndSec:buffer.duration;
+  const b=Math.max(a+1,Math.min(len,Math.round(end*sr)));return {a,b}};
+ const keyOf=(cents,r)=>cents+'|'+r.a+'|'+r.b;
+ const isActive=row=>{for(const v of active.values())if(v.row===row)return true;return false};
+ function rowFor(buffer,key,create){
+  let map=bySource.get(buffer);if(!map){if(!create)return null;map=new Map();bySource.set(buffer,map)}
+  let row=map.get(key);if(!row&&create){row={status:'idle',buffer:null,map,key};map.set(key,row)}return row||null;
+ }
+ function schedule(id,ms=REST_MS){clearTimeout(timers.get(id));timers.set(id,setTimeout(()=>{timers.delete(id);void render(id)},ms))}
+ async function render(id){
+  const src=sources.get(id),buffer=src?.buffer.deref(),ctx=src?.ctx.deref();
+  if(!buffer||!ctx||ctx.state==='closed')return;
+  const cents=__XenMaterialVoiceMix.get(id).pitch,current=active.get(id)?.cents??0;
+  if(Math.abs(cents)<.05){if(Math.abs(current)>=.05)bump(id);return}
+  const r=regionOf(buffer,src.entry),len=r.b-r.a,count=Math.min(2,buffer.numberOfChannels);
+  if(len<Math.round(.03*buffer.sampleRate)||2*(2*len*count*4)+1048576>JOB_LIMIT)return;
+  const row=rowFor(buffer,keyOf(cents,r),true);
+  if(row.status==='ready'){if(current!==cents)bump(id);return}
+  if(row.status!=='idle')return;
+  row.status='pending';
+  try{
+   const channels=[];for(let c=0;c<count;c++)channels.push(buffer.getChannelData(c).slice(r.a,r.b));
+   const result=await __xenSharedOfflinePCMWorker.render({loop:true,rate:buffer.sampleRate,sourceRate:buffer.sampleRate,frames:len,pitch:Math.pow(2,cents/1200),channels});
+   try{
+    if(ctx.state==='closed'){row.status='idle';return}
+    const out=ctx.createBuffer(result.channels.length,len,buffer.sampleRate);
+    result.channels.forEach((data,i)=>out.copyToChannel(data,i));
+    row.buffer=out;row.status='ready';
+   }finally{result.release()}
+   for(const [key,other] of row.map)if(other!==row&&other.status==='ready'&&!isActive(other))row.map.delete(key);
+   if(sources.get(id)?.buffer.deref()===buffer&&__XenMaterialVoiceMix.get(id).pitch===cents&&(active.get(id)?.cents??0)!==cents)bump(id);
+  }catch(error){
+   const busy=/capacity busy/i.test(String(error?.message||''));
+   row.status=busy?'idle':'failed';
+   if(busy)schedule(id,1200);
+   else console.warn('[xensonar][material-pitch-hq] realtime pitch stays active',id,String(error?.message||error));
+  }
+ }
+ __XenMaterialVoiceMix.subscribe(()=>{for(const id of sources.keys()){const pitch=__XenMaterialVoiceMix.get(id).pitch;if(lastPitch.get(id)!==pitch){lastPitch.set(id,pitch);schedule(id)}}});
+ /* Called once per voice start by $fe. Returns the ready variant or null and
+    asks for one when a pitch is set. Never blocks the start. */
+ function resolve(ctx,buffer,entry,id,cents){
+  if(!id||!buffer||typeof WeakRef!=='function')return null;
+  sources.set(id,{ctx:new WeakRef(ctx),buffer:new WeakRef(buffer),entry});lastPitch.set(id,cents);
+  if(Math.abs(cents)>=.05){
+   const row=rowFor(buffer,keyOf(cents,regionOf(buffer,entry)),false);
+   if(row?.status==='ready'&&row.buffer&&row.buffer.sampleRate===ctx.sampleRate){
+    active.set(id,{cents,row});
+    return {buffer:row.buffer,cents,entry:{...entry,loopStartSec:0,loopEndSec:row.buffer.duration}};
+   }
+   schedule(id,0);
+  }
+  active.delete(id);return null;
+ }
+ if(typeof globalThis!=='undefined')globalThis.__XEN_MATERIAL_PITCH_HQ__={get state(){return {revision,active:Object.fromEntries([...active].map(([id,v])=>[id,v.cents]))}}};
+ return Object.freeze({resolve,version:id=>versions.get(id)??0,revision:()=>revision,
+  subscribe:fn=>(listeners.add(fn),()=>listeners.delete(fn)),
+  diagnostics:()=>({revision,active:Object.fromEntries([...active].map(([id,v])=>[id,v.cents]))})});
 })();
 globalThis.__XenOneShotDebug=Object.freeze({assignments:__XenOneShotAssignments,audio:__XenOneShotAudio,
  silentEdits:()=>__XenOSQRSilentEdit.pending()});
