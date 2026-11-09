@@ -35,11 +35,9 @@ async function droneVolume(p,set){
   assert.equal(A.room,null,'Room Settings unchecked: no room snapshot');
   assert.equal(A.bass.bassVoice,'hollow');assert.equal(A.bass.bassResonance,.73);assert.equal(B.bass.bassVoice,'sub');
   assert.equal(A.drone.params.droneRhythm,'Synkope');assert.equal(A.drone.params.droneFixedHz,55);assert.equal(B.drone.params.droneFixedHz,110);
-  // KNOWN GAP (09.11.2026): Drone volume is wired in store/bridge (sources.drone.volume) but the main room
-  // never passes droneVolume into the owner props (soundPalette), so it is not stored per session in the real
-  // app (all waypoints since 28.10.). Checked only with XEN_EXPECT_DRONE_VOLUME=1 until fixed.
-  const dv=process.env.XEN_EXPECT_DRONE_VOLUME==='1';
-  if(dv){assert.equal(A.drone.volume,va);assert.equal(B.drone.volume,vb)}else if(A.drone.volume!==undefined)console.log('NOTE drone volume is now stored; enable XEN_EXPECT_DRONE_VOLUME=1');
+  // SESSION-DRONE-VOL-01 (09.11.2026): drone volume is stored per session (was never wired before).
+  const dv=process.env.XEN_EXPECT_DRONE_VOLUME!=='0';
+  if(dv){assert.equal(A.drone.volume,va);assert.equal(B.drone.volume,vb)}
   // A/B/A switching restores live state
   const check=async(id,exp,vol)=>{assert.equal(await p.evaluate(id=>__xenProbe.meta.activateSaved(id),id),true);await p.waitForTimeout(700);
     const l=await live(p);for(const k of Object.keys(exp))assert.equal(l[k],exp[k],`${k} after activating`);if(dv)assert.equal(await droneVolume(p),vol,'drone volume after activating')};
@@ -52,7 +50,14 @@ async function droneVolume(p,set){
   assert(after.includes('E2E A')&&after.includes('E2E B'),'sessions survive reload');
   await check(B.id,{bassVoice:'sub',droneFixedHz:110,droneRhythm:'Off'},vb);
   await check(A.id,{bassVoice:'hollow',droneFixedHz:55,droneRhythm:'Synkope'},va);
+  // sessions saved before the fix carry no drone volume: activating them must leave the current volume alone
+  await p.evaluate(()=>{const k='xensonar.meta-sessions.v2',d=JSON.parse(localStorage.getItem(k));for(const r of d.saved)if(r.name==='E2E B'&&r.songPerformance?.sources?.drone)delete r.songPerformance.sources.drone.volume;localStorage.setItem(k,JSON.stringify(d))});
+  await p.reload();await ready(p);await p.waitForTimeout(1500);
+  const keep=await droneVolume(p,.33);
+  assert.equal(await p.evaluate(id=>__xenProbe.meta.activateSaved(id),B.id),true);await p.waitForTimeout(700);
+  assert.equal(await droneVolume(p),keep,'legacy session without drone volume leaves the current volume untouched');
+  assert.equal((await live(p)).droneFixedHz,110,'legacy session still restores its drone params');
   assert.deepEqual(errors,[],'no page errors');
-  console.log(`PASS E2E sessions: bass timbre and drone params per session, A/B/A, reload${dv?', drone volume':' (drone volume: KNOWN GAP, not checked)'}`);
+  console.log(`PASS E2E sessions: bass timbre and drone params per session, A/B/A, reload${dv?', drone volume, legacy sessions without volume':''}`);
   await b.close();
 })().catch(e=>{console.error(e);process.exit(1)});

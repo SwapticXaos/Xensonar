@@ -124,7 +124,7 @@ Zeitleiste: dieselben Tests gegen Quellbäume von 28.10., 05.11. (Stage05) und W
 - Speicher und Brücke sind dafür verdrahtet (`sources.drone.volume`, `getSongDroneVolume`/`setSongDroneVolume`).
 - Der Hauptraum übergibt `droneVolume` aber nie an das Brücken-Objekt (`Jce(e.soundPalette)` liest `e.droneVolume`; `soundPalette` enthält es in **keinem** Stand seit 28.10.). Ergebnis: Lautstärke immer `undefined`, nur global im Browserspeicher.
 - Der Oktober-Test war grün, weil er sich einen eigenen Hauptraum-Ersatz mit diesem Wert baute.
-- Behebung: `droneVolume` und `setDroneVolume` in `soundPalette` aufnehmen (klein). Wartet auf Freigabe. Der Browser-Test prüft das mit `XEN_EXPECT_DRONE_VOLUME=1`.
+- **Behoben in SESSION-DRONE-VOL-01:** `droneVolume`/`setDroneVolume` in `soundPalette` (`Iue`, `src/rhythm/02_bass_and_rack.js`). Browser-Test prüft Speichern, A/B/A, Neuladen und Alt-Sessions ohne Lautstärke (bleibt unangetastet); auf dem alten Stand rot.
 
 ## Browser-Tests (Prüf-Build)
 `python3 tools/build.py --probe` baut `dist/XenSonar_PROBE.html` mit `tests/probe/expose.js` (nur Test, nie in `index.html`). `tests/e2e/*.cjs` steuern die echte App über ihre eigenen Besitzer (`__XenMetaSessions`, `__XenMainRoomSessionBridge`) und echte Regler.
