@@ -37,3 +37,42 @@ Probe: `node tools/probes/room_activity_probe.js [out.json]` (nicht ausgeliefert
   - K1: Drone-rAF nur anfordern, wenn eine Drone tatsächlich aktiv ist (Zone HEISS/Steuerung, klein).
   - K2: AudioContext bei Power aus und ohne anderen Nutzer (Forge-Vorschau, Raum IV) `suspend()`en, bei Bedarf `resume()`. **Vorsicht:** Wiedereintritt, Latenz beim ersten Ton, Firefox-Verhalten und Aufnahme-Owner (`__XenLoopRec`, Long Master) müssen geprüft werden. Keine schnelle Änderung.
 - Offene Nutzerfrage: Soll der Live-Groove weiterlaufen, wenn man in Forge oder Nodal wechselt (heutiges Verhalten), oder soll er dort pausieren?
+
+---
+
+## Nachtrag: Prüfungen für „Live-Bereich verlassen = aus“
+
+**Nutzerentscheidung (09.11.):** Live Room und Nodal-Installation (Myzel, Reiter *Art Installation*) bilden zusammen den **Live-Bereich**. Sounddesign (Material Forge, Nodal-Reiter *Sound Design*) ist nicht live. Beim Verlassen des Live-Bereichs ist zunächst alles Live aus. „Power aus“ soll wirklich aus heißen.
+
+### Prüfung 1: Drum-Vorhören im Melodic Loop (Forge). Ergebnis: unabhängig
+
+`startDrumPreview` → `_9e` → `hh` → `__mlPlayWithPreparation` (`src/rooms/canonical.js:723`, `src/forge_and_melodic/04_render_cache_and_stems.js:445`) spielt über einen **eigenen** AudioContext (`p9e()`, 44,1 kHz), nicht über die Drum-Maschine des Live Room. Der Forge-Kontext suspendiert sich nach 1,2 s Leerlauf selbst (`__xenAuditionScheduleIdle`). **Folge:** Live aus beim Wechsel in die Forge berührt das Vorhören dort nicht. Das Suspend-Muster ist zugleich das Vorbild für K2.
+
+### Prüfung 2: Myzel / Art Installation. Ergebnis: läuft in der Forge weiter
+
+- Ein- und Ausschalten nur im Nodal Center (`toggleMyzelEnabled`: außerhalb von Nodal öffnet er den Raum), unabhängig von Live-Power (`myzelEnabled`, `installationSoundEnabled`).
+- Läuft auf **demselben** Live-AudioContext (`ensureAudioReady`).
+- Gemessen (`node tools/probes/myzel_room_probe.js`, zwei Läufe):
+
+| Phase | Hauptthread | rAF/s | Ausgang RMS |
+|---|---|---|---|
+| H Nodal, Art Installation, Myzel an | 19–21 % | 242 (4 Schleifen) | 0,10–0,19 |
+| I Live Room, Myzel an, Power aus | 25–26 % | 365 | 0,08–0,23 (gewollt: Knoten im Spielfeld) |
+| **J Forge, Myzel an** | **5 %** | **241 (4 Schleifen)** | **0,05–0,13 hörbar** |
+
+- Schleifen in der Forge: Topologie-Schleife (`src/audio/entrophon/02_worklet_and_voice_backend.js`, `[xensonar][topology-loop]`), Myzel-Drone-Modulation (`g2e`), Installations-Mix (`installationAudible`), Steuer-Uhr `EY`.
+- Vorhandener Ausschalt-Pfad: Ereignis `xensonar:mycelium-session-engaged` → `sessionOff` setzt Myzel und Installationsklang aus.
+- Forge hat schon einen Sichtbarkeits-Haken: `__setForgeWorkspaceVisible(room==="L3LAB")` → `__deactivateForgeWorkspace()` (Kaltzone schläft). Ein Gegenstück für den Live-Bereich fehlt.
+
+### Prüfung 3: Laufende Aufnahme beim Raumwechsel
+
+Der Rec-Knopf sitzt in der Kopfzeile aller Räume. Aufgenommen wird am Master des Live-Kontexts (`ensureRecordingDestination` am Output-Trim). Das Vorhören der Forge läuft in eigenem Kontext und wird **nicht** aufgenommen. **Folge:** Würde der Live-Bereich beim Wechsel ausgeschaltet, nähme eine laufende Aufnahme ab dann Stille auf. Vorschlag: Bei laufender Aufnahme nachfragen (Aufnahme beenden / Live weiterlaufen lassen / abbrechen), nicht stillschweigend ausschalten.
+
+### Patch 1 (Drone-rAF) zurückgestellt
+
+Beide Drone-Schleifen laufen nur bei Power an (Effekt-Bedingung `if(!t||!n)return`, `n` = Live-Power):
+- Manuelle JI-Obertöne: Abhängigkeiten nur `[ctx, power]`. Ein Preset-Wechsel wird **pro Frame über eine Ref abgefragt**. Ohne diese Abfrage müsste der Preset-Zustand neu durchgereicht werden (Eingriff im heißen Pfad).
+- Frame-Mix: Die Schleife korrigiert pro Frame die Drone-Lautstärke, *„wenn ein anderer Schreiber sie verschoben hat“* (LIVEPATH-01). Ein Abbruch im Pilot-Preset würde diese Schutzfunktion ändern.
+- Gemessener Nutzen ist klein: Forge mit Power an, alles zusammen 2–3 % Hauptthread.
+
+**Entscheidung:** kein Einzelpatch. Mit „Live-Bereich verlassen = Power aus“ enden beide Schleifen ohnehin, weil die Effekte von Power abhängen. Laut Heiß/Kalt-Vertrag werden bewährte heiße Pfade nur bei reproduziertem Problem geändert.
