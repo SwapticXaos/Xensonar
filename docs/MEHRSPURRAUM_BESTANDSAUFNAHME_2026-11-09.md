@@ -130,6 +130,10 @@ Raum IV:    Zeitleisten-Scheduler ───┘        (MaterialPhase, TimeStable
 
 **Grundsatz (Nutzerentscheidung 09.11.):** Live Room und Raum IV laufen **nie gleichzeitig**. Wer im Mehrspurraum arbeitet, braucht den Live-Pfad nicht. Die Frage lautet also nicht, ob man den Live-Pfad unangetastet lassen kann, sondern **wie sauber umgeschaltet wird**. Gemeinsamer Code darf dafür umgebaut werden. Die einzige Pflicht: Nach dem Umbau klingt der Live Room wie vorher. Gemeinsam genutzt wird der Code, nicht die Laufzeit.
 
+**Modus statt Eingriff (Nutzerentscheidung 09.11.):** Ein einziger Modus-Owner kennt den aktiven Zustand, `live` oder `mehrspur`. Im Modus `live` ist die Loop-Uhr der Strukturgeber, im Modus `mehrspur` die Zeitleiste. Die Spurkette bleibt dieselbe und fragt nur, wer gerade den Takt vorgibt. Zwei Regeln dazu:
+- **Wechsel an der Grenze:** Ein Schalter beendet nichts, was schon läuft. Beim Wechsel legt sich der bisherige Modus mit seinen vorhandenen Mitteln schlafen (Live-Power aus, eingeplante Ereignisse verwerfen), danach wacht der neue auf.
+- **Nur beim Wechsel abfragen:** Bausteine melden sich beim Modus-Owner an und werden einmal benachrichtigt. Kein Abfragen des Modus pro Scheduler-Tick oder Audioblock (Zone HEISS bleibt unberührt).
+
 **Umschaltung, drei Bausteine:**
 
 - **U1 Modus-Owner mit Übergabe:** Beim Betreten von Raum IV werden Material-Loops, One-Shots und Drum-/Bass-Scheduler des Live Room gestoppt. Live-Power aus (`__XenOneShotLivePort.setPower(false)` gibt es), Spurknoten über die Lifecycle-Registry freigeben, Visuals parken. AudioContext und Masterbus bleiben. Beim Verlassen: Arrangement-Knoten abbauen, Live-Zustand aus der Session wiederherstellen (der Session-Store hält ihn schon). Heute ist ein Raumwechsel nur `setRoom(...)` (z. B. `cH()` in `src/rhythm/02_bass_and_rack.js:1061`). Die Forge bleibt nach dem ersten Öffnen versteckt eingehängt (`__xenForgeWasOpened`, Keepalive für die Package Station). Ob der Live Room beim Wechsel in die Forge heute verstummt, ist **nicht geprüft**.
