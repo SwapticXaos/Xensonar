@@ -11,7 +11,7 @@
     <meta name="xensonar-ed1-parent-sha256" content="9b1813229d9bb77df457cbb848619b8bece7c131515d72d788d672d0438684aa" />
      <meta name="xensonar-drum-memory" content="W30C-DM1-DM2-DM3;session-scoped-kit-eq-playground;native-QA-pending" />
     <meta name="xensonar-drum-expansion-parent-sha256" content="bf3c464dc6c8dccce9e6e95dc9197350168d2bf624febc03437875956e957b83" />
-    <title>XenSonar W31 AF01+ML01+KH04 – Keyboard Hold Factory 16/1 + troodle/EQ · QA</title>
+    <title>XenSonar W31 AF01+ML01+KH04+DUB01 – Main Room Dub Echo · QA</title>
     <meta name="xensonar-keyboard-hold-presets" content="KH04;factory-keyboard-hold-16-in-1-bar;troodle-sound-EQ-coupled;QA-pending" />
     <meta name="xensonar-patch" content="THUNDER_PITCH02+NODAL_HOLD_PRECISION04_SMARTMERGE01;isolated;browser-and-hardware-acceptance-pending" />
     <meta name="xensonar-merge" content="P35+NH01_REV12;LRF5.1-3way;test-candidate;hardware-audio-pending" />
@@ -29616,7 +29616,7 @@ function sh(e,t){
     t.externalGameRecordingBusConnectionTargetsRef?.current?.clear();
     if(t.audioTapScratchRef)t.audioTapScratchRef.current={pre_fx:null,post_fx:null,monitor:null};
   }
-  if(!t.finalMixBusRef.current){const n=e.createWaveShaper(),r=e.createDynamicsCompressor(),a=e.createGain(),o=e.createAnalyser(),i=e.createAnalyser(),s=e.createAnalyser(),l=e.createAnalyser(),c=$Y(e);Rj(e,n,r,a),o.fftSize=1024,o.smoothingTimeConstant=.76,i.fftSize=512,i.smoothingTimeConstant=.72,s.fftSize=512,s.smoothingTimeConstant=.72,l.fftSize=512,l.smoothingTimeConstant=.72,c.premaster&&La(c.premaster,i,{label:"master:preamplifier->pre-fx-tap",subsystem:"master"}),c.glue&&La(c.glue,n,{label:"master:glue->clipper",subsystem:"master"}),La(n,r,{label:"master:clipper->limiter",subsystem:"master"}),La(r,s,{label:"master:limiter->post-fx-tap",subsystem:"master"}),La(r,a,{label:"master:limiter->output-trim",subsystem:"master"}),QZ(e).authorizeAudible(a,"master:output-trim->destination"),La(a,e.destination,{label:"master:output-trim->destination",subsystem:"master"}),La(a,o,{label:"master:output-trim->analyser",subsystem:"diagnostics"}),La(a,l,{label:"master:output-trim->monitor-tap",subsystem:"diagnostics"}),t.audioTapScratchRef.current.pre_fx=new Uint8Array(i.fftSize),t.audioTapScratchRef.current.post_fx=new Uint8Array(s.fftSize),t.audioTapScratchRef.current.monitor=new Uint8Array(l.fftSize),t.preFxTapAnalyserRef.current=i,t.postFxTapAnalyserRef.current=s,t.monitorTapAnalyserRef.current=l,t.finalMixBusRef.current=c.inputs.main,t.drumMixBusRef.current=c.inputs.rhythm,t.masterMixBusRef.current=c.premaster,t.liveMasteringRef.current=c,t.finalMixAnalyserRef.current=o,t.finalClipperRef.current=n,t.finalLimiterRef.current=r,t.finalOutputTrimRef.current=a}__XenLCR1A.bind(t,e);return __XenLoopRec.mark(t.finalMixBusRef.current)}function Cj(ctx,refs){sh(ctx,refs);const rack=__f48GetDrumRack(ctx,refs.drumMixBusRef.current),input=__XenEQ.route(ctx,'drum',rack.input);input.__xenDrumMix=rack;return input}function dw(e,t,n="main"){const r=sh(e,t);return __XenLoopRec.mark(t.liveMasteringRef.current?.inputs[n]??r)}function UZ(e,t,n){return dw(e,t,UY(n))}function kP(e){const t=e.externalGameRecordingBusRef.current;if(!t)return;const n=e.externalGameRecordingBusConnectionTargetsRef.current,r=a=>{!a||n.has(a)||(La(t,a,{label:"recording:external-game-capture->media-destination",subsystem:"recording"}),n.add(a))};r(e.recordingDestinationWithDrumsRef.current),r(e.recordingDestinationWithoutDrumsRef.current)}function KZ(e,t){if(sh(e,t),!t.externalGameRecordingBusRef.current){const n=e.createGain();n.gain.value=1,t.externalGameRecordingBusRef.current=n}return kP(t),t.externalGameRecordingBusRef.current}function $Z(e,t){if(sh(e,t),!t.noDrumRecordOutputRef.current){const n=e.createWaveShaper(),r=e.createDynamicsCompressor(),a=e.createGain();Rj(e,n,r,a),La(t.liveMasteringRef.current?.musicPremaster??t.finalMixBusRef.current,n,{label:"recording:no-drum-premaster->clipper",subsystem:"recording"}),La(n,r,{label:"recording:no-drum-clipper->limiter",subsystem:"recording"}),La(r,a,{label:"recording:no-drum-limiter->output",subsystem:"recording"}),t.noDrumRecordClipperRef.current=n,t.noDrumRecordLimiterRef.current=r,t.noDrumRecordOutputRef.current=a}return t.noDrumRecordOutputRef.current}function XZ(e,t,n){if(n==="without_drums"){if(!t.recordingDestinationWithoutDrumsRef.current){const r=e.createMediaStreamDestination();r.__xenPcmTap=$Z(e,t);La(r.__xenPcmTap,r,{label:"recording:no-drum-tap->media-destination",subsystem:"recording"}),t.recordingDestinationWithoutDrumsRef.current=r,kP(t)}return t.recordingDestinationWithoutDrumsRef.current}if(!t.recordingDestinationWithDrumsRef.current){const r=e.createMediaStreamDestination();r.__xenPcmTap=t.finalOutputTrimRef.current??sh(e,t);La(r.__xenPcmTap,r,{label:"recording:main-output->media-destination",subsystem:"recording"}),t.recordingDestinationWithDrumsRef.current=r,kP(t)}return t.recordingDestinationWithDrumsRef.current}// P3: disconnected stable ports let a running source enable a later effect
+  if(!t.finalMixBusRef.current){const n=e.createWaveShaper(),r=e.createDynamicsCompressor(),a=e.createGain(),o=e.createAnalyser(),i=e.createAnalyser(),s=e.createAnalyser(),l=e.createAnalyser(),c=$Y(e);Rj(e,n,r,a),o.fftSize=1024,o.smoothingTimeConstant=.76,i.fftSize=512,i.smoothingTimeConstant=.72,s.fftSize=512,s.smoothingTimeConstant=.72,l.fftSize=512,l.smoothingTimeConstant=.72,c.premaster&&La(c.premaster,i,{label:"master:preamplifier->pre-fx-tap",subsystem:"master"}),c.glue&&La(c.glue,n,{label:"master:glue->clipper",subsystem:"master"}),La(n,r,{label:"master:clipper->limiter",subsystem:"master"}),La(r,s,{label:"master:limiter->post-fx-tap",subsystem:"master"}),La(r,a,{label:"master:limiter->output-trim",subsystem:"master"}),QZ(e).authorizeAudible(a,"master:output-trim->destination"),La(a,e.destination,{label:"master:output-trim->destination",subsystem:"master"}),La(a,o,{label:"master:output-trim->analyser",subsystem:"diagnostics"}),La(a,l,{label:"master:output-trim->monitor-tap",subsystem:"diagnostics"}),t.audioTapScratchRef.current.pre_fx=new Uint8Array(i.fftSize),t.audioTapScratchRef.current.post_fx=new Uint8Array(s.fftSize),t.audioTapScratchRef.current.monitor=new Uint8Array(l.fftSize),t.preFxTapAnalyserRef.current=i,t.postFxTapAnalyserRef.current=s,t.monitorTapAnalyserRef.current=l,t.finalMixBusRef.current=c.inputs.main,t.drumMixBusRef.current=c.inputs.rhythm,t.masterMixBusRef.current=c.premaster,t.liveMasteringRef.current=c,t.finalMixAnalyserRef.current=o,t.finalClipperRef.current=n,t.finalLimiterRef.current=r,t.finalOutputTrimRef.current=a}__XenLCR1A.bind(t,e);return __XenLoopRec.mark(t.finalMixBusRef.current)}function Cj(ctx,refs){sh(ctx,refs);const rack=__f48GetDrumRack(ctx,refs.drumMixBusRef.current);rack.setMainRoom(true);const input=__XenEQ.route(ctx,'drum',rack.input);input.__xenDrumMix=rack;return input}function dw(e,t,n="main"){const r=sh(e,t);return __XenLoopRec.mark(t.liveMasteringRef.current?.inputs[n]??r)}function UZ(e,t,n){return dw(e,t,UY(n))}function kP(e){const t=e.externalGameRecordingBusRef.current;if(!t)return;const n=e.externalGameRecordingBusConnectionTargetsRef.current,r=a=>{!a||n.has(a)||(La(t,a,{label:"recording:external-game-capture->media-destination",subsystem:"recording"}),n.add(a))};r(e.recordingDestinationWithDrumsRef.current),r(e.recordingDestinationWithoutDrumsRef.current)}function KZ(e,t){if(sh(e,t),!t.externalGameRecordingBusRef.current){const n=e.createGain();n.gain.value=1,t.externalGameRecordingBusRef.current=n}return kP(t),t.externalGameRecordingBusRef.current}function $Z(e,t){if(sh(e,t),!t.noDrumRecordOutputRef.current){const n=e.createWaveShaper(),r=e.createDynamicsCompressor(),a=e.createGain();Rj(e,n,r,a),La(t.liveMasteringRef.current?.musicPremaster??t.finalMixBusRef.current,n,{label:"recording:no-drum-premaster->clipper",subsystem:"recording"}),La(n,r,{label:"recording:no-drum-clipper->limiter",subsystem:"recording"}),La(r,a,{label:"recording:no-drum-limiter->output",subsystem:"recording"}),t.noDrumRecordClipperRef.current=n,t.noDrumRecordLimiterRef.current=r,t.noDrumRecordOutputRef.current=a}return t.noDrumRecordOutputRef.current}function XZ(e,t,n){if(n==="without_drums"){if(!t.recordingDestinationWithoutDrumsRef.current){const r=e.createMediaStreamDestination();r.__xenPcmTap=$Z(e,t);La(r.__xenPcmTap,r,{label:"recording:no-drum-tap->media-destination",subsystem:"recording"}),t.recordingDestinationWithoutDrumsRef.current=r,kP(t)}return t.recordingDestinationWithoutDrumsRef.current}if(!t.recordingDestinationWithDrumsRef.current){const r=e.createMediaStreamDestination();r.__xenPcmTap=t.finalOutputTrimRef.current??sh(e,t);La(r.__xenPcmTap,r,{label:"recording:main-output->media-destination",subsystem:"recording"}),t.recordingDestinationWithDrumsRef.current=r,kP(t)}return t.recordingDestinationWithDrumsRef.current}// P3: disconnected stable ports let a running source enable a later effect
 // without restarting its dry path. No filter, shaper or delay exists yet.
 const __xenMyzelPostPortBanks=new WeakMap();
 function __xenPrepareMyzelPostPorts(ctx,sends){
@@ -34315,14 +34315,51 @@ function __f48BassClipPlayer(ctx,playBassNote,readClip,readParams){
 const __f48RackKey='xensonar-rhythm-rack-v1';
 // Keep the established default drum excitation; the live mixer scales its output.
 const __XenDrumMixReference=.52;
-const __f48RackDefaults={bassVoice:'classic',bassResonance:0,bassEnvelope:1,bassDecay:1,bassSub:1,bassVoiceRecipe:null,bassVoiceUserId:'',bassVoiceUserName:'',drumPhaser:0,drumPhaserRate:.28,drumPhaserDepth:.55,drumDistance:0,drumPan:0,drumDecay:1,drumVolume:__XenDrumMixReference};
+/* DUB02: A beat is a quarter-note pulse from the Main Room transport.
+ * Meter fractions (N/D), tuplets (N in M quarter-beats), and unrestricted
+ * floating beat lengths are independent representations of echo time.
+ * The global song meter is never silently overwritten by an echo fraction. */
+const __f48DubDivisions=Object.freeze({
+ '1/64':.0625,'1/32':.125,'1/16':.25,'1/8':.5,'1/8.':.75,
+ '1/4':1,'1/4.':1.5,'1/2':2,'1/1':4,'1bar':null,'2bars':null,
+ '1/8T':1/3,'5:1':1/5,'7:1':1/7,
+ '3:2':2/3,'5:4':4/5,'7:4':4/7,'9:4':4/9,'11:8':8/11,
+ '5/16':1.25,'7/16':1.75,'11/16':2.75,'13/16':3.25,
+ '5/8':2.5,'7/8':3.5,'9/8':4.5,'11/8':5.5,'13/8':6.5
+});
+const __f48DubModes=Object.freeze(['preset','fraction','polyrhythm','free']);
+const __f48DubBound=(value,min,max,fallback)=>Number.isFinite(value)?Math.max(min,Math.min(max,value)):fallback;
+function __f48DubBeatLength(state,beatsPerBar=4){
+ const p=typeof state==='string'?{drumDubDivision:state}:state||{};
+ const meter=__f48DubBound(beatsPerBar,1,256,4);
+ const mode=__f48DubModes.includes(p.drumDubTimeMode)?p.drumDubTimeMode:'preset';
+ let beats;
+ if(mode==='fraction')beats=4*__f48DubBound(p.drumDubNumerator,1,128,5)/__f48DubBound(p.drumDubDenominator,1,128,8);
+ else if(mode==='polyrhythm')beats=__f48DubBound(p.drumDubTupletBeats,1,128,4)/__f48DubBound(p.drumDubTupletCount,1,128,5);
+ else if(mode==='free')beats=__f48DubBound(p.drumDubFreeBeats,.01,128,.75);
+ else{
+  const division=Object.hasOwn(__f48DubDivisions,p.drumDubDivision)?p.drumDubDivision:'1/8.';
+  beats=division==='1bar'?meter:division==='2bars'?meter*2:__f48DubDivisions[division];
+ }
+ return beats*__f48DubBound(p.drumDubWarp,.25,4,1);
+}
+function __f48DubSeconds(state,bpm,beatsPerBar=4){
+ const pulse=60/__f48DubBound(bpm,20,960,120);
+ return Math.max(.01,Math.min(19.5,pulse*__f48DubBeatLength(state,beatsPerBar)));
+}
+const __f48RackDefaults={drumDubDivision:'1/8.',drumDubTimeMode:'preset',drumDubNumerator:5,drumDubDenominator:8,drumDubTupletCount:5,drumDubTupletBeats:4,drumDubFreeBeats:.75,drumDubWarp:1,drumDubMix:0,drumDubFeedback:.52,drumDubTone:.38,bassVoice:'classic',bassResonance:0,bassEnvelope:1,bassDecay:1,bassSub:1,bassVoiceRecipe:null,bassVoiceUserId:'',bassVoiceUserName:'',drumPhaser:0,drumPhaserRate:.28,drumPhaserDepth:.55,drumDistance:0,drumPan:0,drumDecay:1,drumVolume:__XenDrumMixReference};
 function __f48CleanRack(value){
  const v=value||{},out={};
  for(const [key,fallback] of Object.entries(__f48RackDefaults)){
+  if(key==='drumDubDivision'){out[key]=Object.hasOwn(__f48DubDivisions,v[key])?v[key]:fallback;continue}
+  if(key==='drumDubTimeMode'){out[key]=__f48DubModes.includes(v[key])?v[key]:fallback;continue}
+  if(['drumDubNumerator','drumDubDenominator','drumDubTupletCount','drumDubTupletBeats'].includes(key)){out[key]=Math.round(__f48DubBound(v[key],1,128,fallback));continue}
+  if(key==='drumDubFreeBeats'){out[key]=__f48DubBound(v[key],.01,128,fallback);continue}
+  if(key==='drumDubWarp'){out[key]=__f48DubBound(v[key],.25,4,fallback);continue}
   if(key==='bassVoice'){out[key]=v.bassVoice==='custom'&&__xenBassVoiceRecipeClean(v.bassVoiceRecipe)?'custom':Object.hasOwn(__f48BassVoices,v[key])?v[key]:'classic';continue}
    if(key==='bassVoiceRecipe'){out[key]=out.bassVoice==='custom'?__xenBassVoiceRecipeClean(v[key]):null;continue}
    if(key==='bassVoiceUserId'||key==='bassVoiceUserName'){out[key]=out.bassVoice==='custom'&&typeof v[key]==='string'?v[key].slice(0,key==='bassVoiceUserId'?95:60):'';continue}
-  const limits=key==='drumPhaserRate'?[.05,2]:key==='bassDecay'||key==='drumDecay'?[.25,2]:key==='bassEnvelope'?[0,2]:key==='bassSub'?[0,1.5]:key==='drumPan'?[-1,1]:[0,1];
+  const limits=key==='drumPhaserRate'?[.05,2]:key==='bassDecay'||key==='drumDecay'?[.25,2]:key==='bassEnvelope'?[0,2]:key==='bassSub'?[0,1.5]:key==='drumPan'?[-1,1]:key==='drumDubMix'?[0,.75]:key==='drumDubFeedback'?[0,.82]:[0,1];
   out[key]=Number.isFinite(v[key])?Math.max(limits[0],Math.min(limits[1],v[key])):fallback;
  }
  return out;
@@ -34331,6 +34368,12 @@ function __f48ReadRack(){try{return __f48CleanRack(JSON.parse(window.localStorag
 let __f48RackParams=__f48ReadRack();
 const __f48RackDevices=new Set(),__f48DrumRacks=new WeakMap();
 let __f48RackSaveTimer=null;
+/* Performance throw is intentionally ephemeral, never serialized into a drum pattern. */
+let __f48DubThrowHeld=false;
+function __f48SetDubThrow(held){
+ __f48DubThrowHeld=!!held;
+ for(const device of __f48RackDevices)if(device.isMainRoom)device.setThrow(__f48DubThrowHeld);
+}
 function __f48PersistRack(){__f48RackSaveTimer=null;try{window.localStorage.setItem(__f48RackKey,JSON.stringify(__f48RackParams))}catch{}}
 if(typeof window!=='undefined')window.addEventListener?.('pagehide',()=>{if(__f48RackSaveTimer!==null){clearTimeout(__f48RackSaveTimer);__f48PersistRack()}});
 function __f48PatchRack(params){
@@ -34343,7 +34386,7 @@ function __f48GetDrumRack(ctx,destination){
  const existing=buses.get(destination);if(existing)return existing;
  const input=ctx.createGain(),dry=ctx.createGain(),sum=ctx.createGain(),bypass=ctx.createGain(),pan=ctx.createStereoPanner(),level=ctx.createGain();input.connect(dry);dry.connect(sum);sum.connect(bypass);bypass.connect(pan);pan.connect(level);level.connect(destination);
  let volumeOwned=false,outputLevel=1;
- let phaser=null,room=null,disposed=false,disableTimer=null,lastParams=__f48RackParams;
+ let phaser=null,room=null,echo=null,disposed=false,disableTimer=null,lastParams=__f48RackParams,mainRoom=false,throwActive=false;
  const ramp=(param,value)=>__xenSmoothMixParam(param,value,ctx);
  const release=branch=>{if(!branch)return;try{branch.lfo?.stop()}catch{}for(const node of branch.nodes)try{node.disconnect()}catch{}try{(branch.lfo?input:sum).disconnect(branch.first)}catch{}};
  const makePhaser=()=>{
@@ -34362,6 +34405,32 @@ function __f48GetDrumRack(ctx,destination){
   first.connect(delayA);delayA.connect(damp);delayA.connect(delayB);delayB.connect(damp);damp.connect(reflections);reflections.connect(pan);
   return {first,direct,reflections,nodes:[first,direct,delayA,delayB,damp,reflections]};
  };
+ /* Tap after the drum phaser, before the placement stage. Return only the wet
+  * repeats to the stereo/pan stage; this loop can never feed the other instruments. */
+ const makeDubEcho=()=>{
+  const send=ctx.createGain(),highpass=ctx.createBiquadFilter(),delay=ctx.createDelay(20),
+   lowpass=ctx.createBiquadFilter(),feedback=ctx.createGain(),wet=ctx.createGain();
+  send.gain.value=0;wet.gain.value=.65;feedback.gain.value=0;
+  highpass.type='highpass';highpass.frequency.value=160;highpass.Q.value=.6;
+  const clock=__XenMainRoomSessionBridge.liveClock();
+  // Set initial delay time before connecting a live send: no startup pitch dive.
+  delay.delayTime.value=__f48DubSeconds(lastParams,clock?.bpm,clock?.beatsPerBar);
+  lowpass.type='lowpass';lowpass.frequency.value=550+9800*lastParams.drumDubTone*lastParams.drumDubTone;lowpass.Q.value=.65;
+  sum.connect(send);send.connect(highpass);highpass.connect(delay);
+  delay.connect(lowpass);lowpass.connect(wet);wet.connect(pan);
+  lowpass.connect(feedback);feedback.connect(delay);
+  return {send,highpass,delay,lowpass,feedback,wet,
+   nodes:[send,highpass,delay,lowpass,feedback,wet]};
+ };
+ const applyDub=params=>{
+  if(!echo&&(params.drumDubMix>.001||throwActive))echo=makeDubEcho();
+  if(!echo)return;
+  const clock=__XenMainRoomSessionBridge.liveClock();
+  ramp(echo.delay.delayTime,__f48DubSeconds(params,clock?.bpm,clock?.beatsPerBar));
+  ramp(echo.send.gain,throwActive?Math.max(.8,params.drumDubMix):params.drumDubMix);
+  ramp(echo.feedback.gain,params.drumDubFeedback);
+  ramp(echo.lowpass.frequency,550+9800*params.drumDubTone*params.drumDubTone);
+ };
  const onContextState=()=>{if(ctx.state==='closed')device.dispose()};
  const device={ctx,input,
   update(params){if(disposed||ctx.state==='closed')return;lastParams=params;if(disableTimer!==null){clearTimeout(disableTimer);disableTimer=null}
@@ -34371,14 +34440,18 @@ function __f48GetDrumRack(ctx,destination){
    ramp(dry.gain,1-mix);ramp(bypass.gain,placed?0:1);
    if(phaser){ramp(phaser.wet.gain,mix);ramp(phaser.lfo.frequency,params.drumPhaserRate);ramp(phaser.depth.gain,params.drumPhaserDepth*400)}
    if(room){ramp(room.first.frequency,20000*Math.pow(.2,distance));ramp(room.direct.gain,placed?1-distance*.36:0);ramp(room.reflections.gain,placed?distance*.14:0)}
+   applyDub(params);
    if(phaser&&mix<=.001||room&&!placed)disableTimer=setTimeout(()=>{
     disableTimer=null;if(phaser&&lastParams.drumPhaser<=.001){release(phaser);phaser=null}
     if(room&&lastParams.drumDistance<=.001){release(room);room=null}
    },160);
   },
+  setMainRoom(value){if(mainRoom===!!value)return;mainRoom=!!value;if(!mainRoom)throwActive=false;else throwActive=__f48DubThrowHeld;device.update(lastParams)},
+  get isMainRoom(){return mainRoom},
+  setThrow(value){if(disposed||!mainRoom)return;throwActive=!!value;device.update(lastParams)},
   setVolume(value){if(disposed||!Number.isFinite(value))return;volumeOwned=true;outputLevel=Math.max(0,Math.min(1,value));ramp(level.gain,outputLevel/__XenDrumMixReference)},
-  diagnostics(){return {panStages:1,levelStages:1,level:outputLevel,phaserNodes:phaser?.nodes.length||0,placementNodes:room?.nodes.length||0,lfo:!!phaser,disposed}},
-  dispose(){if(disposed)return;disposed=true;clearTimeout(disableTimer);release(phaser);release(room);phaser=room=null;for(const node of [input,dry,sum,bypass,pan,level])node.disconnect();ctx.removeEventListener?.('statechange',onContextState);buses.delete(destination);__f48RackDevices.delete(device)}
+  diagnostics(){return {panStages:1,levelStages:1,level:outputLevel,phaserNodes:phaser?.nodes.length||0,placementNodes:room?.nodes.length||0,dubEchoNodes:echo?.nodes.length||0,dubFeedback:echo?echo.feedback.gain.value:0,dubSend:echo?echo.send.gain.value:0,dubThrow:throwActive,lfo:!!phaser,disposed}},
+  dispose(){if(disposed)return;disposed=true;clearTimeout(disableTimer);release(phaser);release(room);if(echo){try{sum.disconnect(echo.send)}catch{}for(const node of echo.nodes)try{node.disconnect()}catch{}}phaser=room=echo=null;for(const node of [input,dry,sum,bypass,pan,level])node.disconnect();ctx.removeEventListener?.('statechange',onContextState);buses.delete(destination);__f48RackDevices.delete(device)}
  };
  buses.set(destination,device);__f48RackDevices.add(device);ctx.addEventListener?.('statechange',onContextState);device.update(__f48RackParams);return device;
 }
@@ -34629,9 +34702,39 @@ function __f48DrumGlobalEQ(){
    children:u.jsx(__XenEQPanel,{sourceKey,owner:'Drums',onClose:()=>setOpen(false),expanded,setExpanded},sourceKey)}),document.body):null
  ]});
 }
+/* A controlled editor that permits empty intermediate text while typing fractions.
+ * Commit on Enter/blur, avoiding e.g. 1 -> 13 being prematurely clamped. */
+function __f48DubNumber({label,value,min=1,max=128,step=1,onChange}){
+ const ref=P.useRef(null),[draft,setDraft]=P.useState(String(value));
+ P.useEffect(()=>{if(document.activeElement!==ref.current)setDraft(String(value))},[value]);
+ const commit=()=>{const text=draft.trim(),numeric=Number(text);
+  if(text&&Number.isFinite(numeric)){
+   const clamped=Math.max(min,Math.min(max,step===1?Math.round(numeric):numeric));
+   setDraft(String(clamped));onChange(clamped);
+  }else setDraft(String(value));
+ };
+ return u.jsxs('label',{className:'xen-dub-number',children:[u.jsx('span',{children:label}),
+  u.jsx('input',{ref,type:'number','aria-label':label,inputMode:'decimal',value:draft,min,max,step,
+   onChange:event=>setDraft(event.target.value),onBlur:commit,
+   onKeyDown:event=>{if(event.key==='Enter'){event.preventDefault();event.currentTarget.blur()}}})]});
+}
 function __f48DrumRack({params,update}){
  const [,refresh]=P.useReducer(x=>x+1,0);
+ const [throwHeld,setThrowHeld]=P.useState(false);
  P.useEffect(()=>__mlSharedDrumMachine.subscribe(()=>refresh()),[]);
+ P.useEffect(()=>()=>__f48SetDubThrow(false),[]);
+ const setThrow=value=>{__f48SetDubThrow(value);setThrowHeld(value)};
+ /* Main Room hotkeys consume Space in capture phase. While this specific button
+  * owns focus, reserve Space/Enter for the momentary effect before room hotkeys. */
+ P.useEffect(()=>{
+  const onKey=event=>{
+   if((event.key!==' '&&event.key!=='Enter')||!document.activeElement?.matches?.('[data-dub-throw]'))return;
+   event.preventDefault();event.stopPropagation();
+   if(event.type==='keyup'||!event.repeat)setThrow(event.type==='keydown');
+  };
+  window.addEventListener('keydown',onKey,true);window.addEventListener('keyup',onKey,true);
+  return()=>{window.removeEventListener('keydown',onKey,true);window.removeEventListener('keyup',onKey,true)};
+ },[]);
  const transform=kind=>{
   const bridge=__mlSharedDrumMachine,snapshot=bridge.snapshot,current=bridge.liveEdit;
   const grid=__f52EnsureDrumGrid(current?.grid||__mlGridFromSelection(snapshot));
@@ -34641,10 +34744,78 @@ function __f48DrumRack({params,update}){
  };
  return u.jsxs('section',{className:'xen-drum-rack','aria-label':'Drum Rack',children:[u.jsx('div',{className:'xen-rhythm-title',children:'Drum Rack · Motion & Space'}),u.jsxs('div',{className:'xen-drum-rack-controls',children:[
   ...[['Phaser Mix','drumPhaser',0,1],['Phaser Rate','drumPhaserRate',.05,2,' Hz'],['Phaser Depth','drumPhaserDepth',0,1],['Distance · Front → Back','drumDistance',0,1],['Drum Decay','drumDecay',.25,2]].map(([label,key,min,max,suffix])=>u.jsx(__f48Range,{label,value:params[key]??__f48RackDefaults[key],min,max,suffix,onChange:value=>update({[key]:value})},key)),u.jsx(__f48DrumGlobalEQ,{})]}),
+  u.jsxs('div',{className:'xen-dub-echo',children:[
+   u.jsxs('div',{className:'xen-dub-echo-heading',children:[u.jsx('strong',{children:'◌ Dub Echo · Polyrhythmic Time'}),
+    u.jsx('span',{children:`${Math.round(__XenMainRoomSessionBridge.liveClock().bpm||120)} BPM · Main Room clock`})]}),
+   u.jsxs('div',{className:'xen-dub-timing',children:[
+    u.jsxs('label',{className:'xen-rhythm-control xen-dub-time-model',children:[u.jsx('span',{children:'Echo Timing · model'}),
+     u.jsx('select',{'aria-label':'Echo Time Model',value:params.drumDubTimeMode??__f48RackDefaults.drumDubTimeMode,
+      onChange:event=>update({drumDubTimeMode:event.target.value}),children:[
+       ['preset','Steps · musical notes'],['fraction','N/D · free meter fraction'],['polyrhythm','N in M · polyrhythm'],['free','Free · continuous beats']
+      ].map(([value,label])=>u.jsx('option',{value,children:label},value))})]}),
+    (params.drumDubTimeMode??'preset')==='preset'&&u.jsxs('label',{className:'xen-rhythm-control xen-dub-preset',children:[
+     u.jsx('span',{children:'Echo Time · step / meter'}),
+     u.jsx('select',{'aria-label':'Dub Echo Time',value:params.drumDubDivision??__f48RackDefaults.drumDubDivision,
+      onChange:event=>update({drumDubDivision:event.target.value}),children:[
+       ['Straight + dotted', [['1/64','1/64'],['1/32','1/32'],['1/16','1/16'],['1/8','1/8'],['1/8.','1/8 dotted'],['1/4','1/4'],['1/4.','1/4 dotted'],['1/2','1/2'],['1/1','1/1 whole'],['1bar','1 bar · Main Room meter'],['2bars','2 bars · Main Room meter']]],
+       ['Tuplets + cross-rhythms',[['1/8T','1/8 triplet · 3 in 1 beat'],['5:1','5 in 1 beat · quintuplet'],['7:1','7 in 1 beat · septuplet'],['3:2','3 : 2 beats'],['5:4','5 : 4 beats'],['7:4','7 : 4 beats'],['9:4','9 : 4 beats'],['11:8','11 : 8 beats']]],
+       ['Odd meter fractions',[['5/16','5/16'],['7/16','7/16'],['11/16','11/16'],['13/16','13/16'],['5/8','5/8'],['7/8','7/8'],['9/8','9/8'],['11/8','11/8'],['13/8','13/8']]]
+      ].map(([label,options])=>u.jsx('optgroup',{label,children:options.map(([value,name])=>u.jsx('option',{value,children:name},value))},label))})]}),
+    (params.drumDubTimeMode==='fraction')&&u.jsxs('div',{className:'xen-dub-pair',children:[
+     u.jsx(__f48DubNumber,{label:'Echo Numerator',value:params.drumDubNumerator??5,onChange:value=>update({drumDubNumerator:value})}),
+     u.jsx('span',{className:'xen-dub-pair-glyph','aria-hidden':true,children:'/'}),
+     u.jsx(__f48DubNumber,{label:'Echo Denominator',value:params.drumDubDenominator??8,onChange:value=>update({drumDubDenominator:value})})]}),
+    (params.drumDubTimeMode==='polyrhythm')&&u.jsxs('div',{className:'xen-dub-pair',children:[
+     u.jsx(__f48DubNumber,{label:'Tuplet Count',value:params.drumDubTupletCount??5,onChange:value=>update({drumDubTupletCount:value})}),
+     u.jsx('span',{className:'xen-dub-pair-glyph',children:'in'}),
+     u.jsx(__f48DubNumber,{label:'Tuplet Span Beats',value:params.drumDubTupletBeats??4,onChange:value=>update({drumDubTupletBeats:value})})]}),
+    params.drumDubTimeMode==='free'&&u.jsxs('div',{className:'xen-dub-free-controls',children:[
+     u.jsx(__f48DubNumber,{label:'Free Echo Beats',value:params.drumDubFreeBeats??.75,min:.01,max:128,step:.001,onChange:value=>update({drumDubFreeBeats:value})}),
+     u.jsx('input',{type:'range','aria-label':'Free Echo Beats Slider',min:.01,max:16,step:.001,
+      value:Math.max(.01,Math.min(16,params.drumDubFreeBeats??.75)),onChange:event=>update({drumDubFreeBeats:Number(event.target.value)})})]}),
+    u.jsxs('div',{className:'xen-dub-warp',children:[
+     u.jsx(__f48DubNumber,{label:'Echo Time Warp ×',value:params.drumDubWarp??1,min:.25,max:4,step:.001,onChange:value=>update({drumDubWarp:value})}),
+     u.jsx('input',{type:'range','aria-label':'Echo Time Warp',min:.25,max:4,step:.005,value:params.drumDubWarp??1,
+      onChange:event=>update({drumDubWarp:Number(event.target.value)})}),
+     u.jsx('button',{type:'button',title:'Reset Time Warp to 1×',onClick:()=>update({drumDubWarp:1}),children:'1×'})]}),
+   ]}),
+   u.jsxs('div',{className:'xen-dub-steps',children:[
+    u.jsx('span',{children:'Quick ratios'}),
+    ...[['3:2',{drumDubTimeMode:'polyrhythm',drumDubTupletCount:3,drumDubTupletBeats:2}],
+        ['5:4',{drumDubTimeMode:'polyrhythm',drumDubTupletCount:5,drumDubTupletBeats:4}],
+        ['7:4',{drumDubTimeMode:'polyrhythm',drumDubTupletCount:7,drumDubTupletBeats:4}],
+        ['7/8',{drumDubTimeMode:'fraction',drumDubNumerator:7,drumDubDenominator:8}],
+        ['11/16',{drumDubTimeMode:'fraction',drumDubNumerator:11,drumDubDenominator:16}],
+        ['Free',{drumDubTimeMode:'free'}]
+    ].map(([label,patch])=>u.jsx('button',{type:'button',onClick:()=>update(patch),children:label},label))
+   ]}),
+   (()=>{const clock=__XenMainRoomSessionBridge.liveClock(),beat=__f48DubBeatLength(params,clock?.beatsPerBar),
+     seconds=__f48DubSeconds(params,clock?.bpm,clock?.beatsPerBar),limited=Math.abs(beat*60/Math.max(20,Number(clock?.bpm)||120)-seconds)>.0001;
+     return u.jsxs('div',{className:'xen-dub-readout','aria-live':'polite',children:[
+      u.jsx('strong',{children:`↻ ${Number(beat.toFixed(4))} beats · ${Number((seconds*1000).toFixed(1))} ms`}),
+      u.jsx('span',{children:limited?'20 s engine limit: echo time capped at 19.5 s.':'1 beat = 1 quarter-note pulse · ratios do not change Main Room meter.'})
+     ]})})(),
+   u.jsxs('div',{className:'xen-drum-rack-controls',children:[
+    ...[['Dub Send','drumDubMix',0,.75],['Echo Feedback','drumDubFeedback',0,.82],['Echo Tone','drumDubTone',0,1]].map(([label,key,min,max])=>
+     u.jsx(__f48Range,{label,value:params[key]??__f48RackDefaults[key],min,max,onChange:value=>update({[key]:value})},key))
+   ]}),
+   u.jsxs('div',{className:'xen-dub-echo-foot',children:[
+    u.jsx('button',{type:'button',className:'xen-dub-throw','aria-label':'Dub Throw · hold to send drums into echo',
+     'aria-pressed':throwHeld,'data-dub-throw':true,
+     title:'Momentary echo send. Hold on a drum hit, release to leave a filtered echo tail.',
+     onPointerDown:event=>{try{event.currentTarget.setPointerCapture(event.pointerId)}catch{}setThrow(true)},
+     onPointerUp:()=>setThrow(false),onPointerCancel:()=>setThrow(false),
+     onLostPointerCapture:()=>setThrow(false),
+     onKeyDown:event=>{if((event.key===' '||event.key==='Enter')&&!event.repeat){event.preventDefault();setThrow(true)}},
+     onKeyUp:event=>{if(event.key===' '||event.key==='Enter'){event.preventDefault();setThrow(false)}},
+     onBlur:()=>setThrow(false),children:throwHeld?'◉ THROWING':'◎ DUB THROW · HOLD'}),
+    u.jsx('span',{className:'xen-rhythm-note',children:'0 Send = dry drums. Hold Throw to echo individual hits; release leaves a fading filtered tail. Feedback remains below unity.'})
+   ]})
+  ]}),
   u.jsx('div',{className:'xen-rhythm-note',children:'Distance adds darker early reflections. Phaser Mix 0 switches the phaser off.'}),
   u.jsxs('div',{className:'xen-rack-actions',children:[u.jsx('span',{children:'Sound scenes'}),...[
    ['Dry Punch','asphalt_punch',.65,.3,.5,.8,0,0],['Velvet Room','velvet_breaks',.3,.8,.35,.4,0,.65],['Metal Sweep','glass_metal',.65,.3,.8,.55,.5,.2],['Tape Drift','dusty_tape',.4,.7,.4,.35,.32,.35]
-  ].map(([label,kit,edge,softness,air,snap,phaser,distance])=>u.jsx('button',{type:'button',onClick:()=>update({drumKit:kit,drumLaneKits:{},drumEdge:edge,drumSoftness:softness,drumAir:air,drumSnap:snap,drumPhaser:phaser,drumDistance:distance}),children:label},label)),u.jsx('button',{type:'button',onClick:()=>update({drumPhaser:0,drumDistance:0,drumPan:0,drumDecay:1,drumVolume:__XenDrumMixReference}),children:'Reset Rack'})]}),
+  ].map(([label,kit,edge,softness,air,snap,phaser,distance])=>u.jsx('button',{type:'button',onClick:()=>update({drumKit:kit,drumLaneKits:{},drumEdge:edge,drumSoftness:softness,drumAir:air,drumSnap:snap,drumPhaser:phaser,drumDistance:distance,...(label==='Dry Punch'?{drumDubMix:0}:{})}),children:label},label)),u.jsx('button',{type:'button',onClick:()=>{setThrow(false);update({drumPhaser:0,drumDistance:0,drumPan:0,drumDecay:1,drumVolume:__XenDrumMixReference,drumDubMix:0,drumDubFeedback:__f48RackDefaults.drumDubFeedback,drumDubTone:__f48RackDefaults.drumDubTone,drumDubDivision:__f48RackDefaults.drumDubDivision,drumDubTimeMode:__f48RackDefaults.drumDubTimeMode,drumDubNumerator:__f48RackDefaults.drumDubNumerator,drumDubDenominator:__f48RackDefaults.drumDubDenominator,drumDubTupletCount:__f48RackDefaults.drumDubTupletCount,drumDubTupletBeats:__f48RackDefaults.drumDubTupletBeats,drumDubFreeBeats:__f48RackDefaults.drumDubFreeBeats,drumDubWarp:1})},children:'Reset Rack'})]}),
   u.jsxs('div',{className:'xen-rack-actions',children:[u.jsx('span',{children:'Beat moves'}),...[['Rotate ←','left'],['Rotate →','right'],['Thin Beat','sparse'],['Hat Pulse','pulse'],['Half-time Snare','backbeat']].map(([label,kind])=>u.jsx('button',{type:'button',onClick:()=>transform(kind),children:label},kind)),u.jsx('button',{type:'button',disabled:!__mlSharedDrumMachine.canUndo(),onClick:()=>__mlSharedDrumMachine.undo(),children:'Undo Beat Move'}),u.jsx('button',{type:'button',disabled:!__mlSharedDrumMachine.canRedo(),onClick:()=>__mlSharedDrumMachine.redo(),children:'Redo Beat Move'})]})]});
 }
 
@@ -43450,7 +43621,7 @@ const tR="xensonar-root-follow-loop-ui-v1",z9=e=>typeof window>"u"?null:window.l
     Object.defineProperty(t.current,"__xenParticleSourceRevision",{value:0,writable:true,configurable:true});
    t.current.__xenParticleSourceRevision+=1;
   }
-  Object.assign(t.current,d2e(t.current,o)),Object.keys(o).some(key=>Object.hasOwn(__f48RackDefaults,key))&&__f48PatchRack(t.current),Object.keys(o).some(key=>key.startsWith("bass"))&&window.dispatchEvent(new Event(__f48BassParamsEvent)),r({...t.current});__xenDronePersist.save(t.current,o);__XenMetaSessions.scheduleWorkingCopy()},[]);return{initialOvertonesByPreset:e,nexusParamsRef:t,nParamsUI:n,updateNParams:a,rootFollowUiStorageKey:tR}},ax={ripples:32,sectorPulses:18},j9=({waveRadius:e,baseWaveMaxRadius:t,clampValue:n})=>t*n(e??1,.35,2.2),G9=()=>typeof performance<"u"&&typeof performance.now=="function"?performance.now():Date.now(),H9=({refs:e,waveRadius:t,waveDecay:n,baseWaveMaxRadius:r,clampValue:a,direction:o,cursorAtEvent:h})=>{const x=h?.x??e.cursorX,y=h?.y??e.cursorY;if(e.ripples.length>=ax.ripples)return{cursorX:x,cursorY:y,isSector:!1,direction:o};const i=G9(),s={x,y,radius:0,life:1,maxRadius:j9({waveRadius:t,baseWaveMaxRadius:r,clampValue:a}),decay:n??"linear",direction:o,hitAgents:[],launchedAtMs:i,timeLocked:!0,displayRadius:0,displayPrevRadius:0};return e.ripples.push(s),{cursorX:x,cursorY:y,isSector:!1,direction:o}},X2e=({refs:e,waveRadius:t,waveDecay:n,baseWaveMaxRadius:r,clampValue:a,direction:o,maxSectorPulses:i=ax.sectorPulses})=>{const s=Number.isNaN(i)?ax.sectorPulses:Math.max(0,Math.min(ax.sectorPulses,Math.floor(i)));if(e.sectorPulses.length>=s)return{cursorX:e.cursorX,cursorY:e.cursorY,isSector:!0,direction:o};const l=G9(),c={x:e.cursorX,y:e.cursorY,radius:0,life:1,maxRadius:j9({waveRadius:t,baseWaveMaxRadius:r,clampValue:a}),decay:n??"linear",direction:o,hitAgents:[],launchedAtMs:l,timeLocked:!0,displayRadius:0,displayPrevRadius:0};return e.sectorPulses.push(c),{cursorX:e.cursorX,cursorY:e.cursorY,isSector:!0,direction:o}},V9=(e,t)=>(e.markWaveLaunch(),e.playWaveStartSound(e.freqFromY(t.cursorY),t.isSector,{waveLaunchX:t.cursorX}),t);function Y2e(e,t,cursorAtEvent){if(!e.nexusActive)return null;const n=H9({refs:e.refs,waveRadius:e.params.waveRadius,waveDecay:e.params.waveDecay,baseWaveMaxRadius:e.baseWaveMaxRadius,clampValue:e.clampValue,direction:t,cursorAtEvent});return V9(e,n)}function J2e(e,t){if(!e.nexusActive)return null;const n=X2e({refs:e.refs,waveRadius:e.params.waveRadius,waveDecay:e.params.waveDecay,baseWaveMaxRadius:e.baseWaveMaxRadius,clampValue:e.clampValue,direction:t});return V9(e,n)}const Z2e={CUT_UPLOAD:"cut-upload"},eke={MATERIAL_INTAKE_GATEWAY:"material-intake-gateway"},FL=Z2e.CUT_UPLOAD,wp=eke.MATERIAL_INTAKE_GATEWAY;function tke(e,t=Date.now()){return{reason:FL,target:wp,token:`cut-upload:${e}`,createdAt:t}}function nke(e){if(!e||typeof e!="object")return!1;const t=e;return t.reason===FL&&t.target===wp&&typeof t.token=="string"&&t.token.length>0&&typeof t.createdAt=="number"&&Number.isFinite(t.createdAt)}function dy(e){return nke(e)}function rke({spectralForgeCutUploadRafIdsRef:e,spectralForgeCutUploadSequenceRef:t,setSpectralForgeExternalAudioFile:n,setSpectralForgeExternalAudioOrigin:r,setSpectralForgeEntryScrollIntent:a,setRoom:o}){P.useEffect(()=>{const i=()=>{e.current.forEach(c=>window.cancelAnimationFrame(c)),e.current=[]},s=c=>{const d=t.current+1;t.current=d,i(),n(null),r(null),a(null);try{CT("experimental")}catch{}o("L3LAB");const p=window.requestAnimationFrame(()=>{const f=window.requestAnimationFrame(()=>{e.current=e.current.filter(b=>b!==p&&b!==f),t.current===d&&(r(FL),a(tke(d)),n(c))});e.current.push(f)});e.current.push(p)},l=Xd("spectralForgeAudioCutUpload",c=>{const d=c?.file??null;d&&s(d)}),field=()=>{t.current++;i();n(null);r(null);a(null);try{CT("experimental")}catch{}o("L3LAB")};window.addEventListener('xensonar:meta-edit-forge-field-open',field);return()=>{i();l();window.removeEventListener('xensonar:meta-edit-forge-field-open',field)}},[o,a,n,r,e,t])}function H1(e,t,n){return{...e,[t]:{...e[t],...n}}}function ake(){const[e,t]=P.useState(!1),[n,r]=P.useState(8),[a,o]=P.useState(()=>FSe()),[i,s]=P.useState(null),l=(q,K)=>{o(Y=>H1(Y,q,K))},[c,d]=P.useState(!1),[p,f]=P.useState(.42),[b,g]=P.useState(()=>TSe()),[y,x]=P.useState(()=>LSe()),A=(q,K)=>{g(Y=>H1(Y,q,K))},[M,v]=P.useState(!1),[w,R]=P.useState(()=>BSe()),[k,I]=P.useState(()=>DSe()),E=(q,K)=>{I(Y=>H1(Y,q,K))},[F,L]=P.useState(!1),[B,O]=P.useState(()=>NSe()),[T,_]=P.useState(null),G=(q,K)=>{O(Y=>H1(Y,q,K))},j=P.useRef(OSe()),N=P.useRef(_Se()),W=P.useCallback(q=>{j.current=q,Eie(q)},[]),V=P.useCallback(q=>{N.current=q,Fie(q)},[]),U=j.current,H=N.current;return{collectiveMemoryEnabled:e,setCollectiveMemoryEnabled:t,collectiveMemoryWindow:n,setCollectiveMemoryWindow:r,collectiveMemoryUi:a,setCollectiveMemoryUi:o,collectiveMemoryMonitor:i,setCollectiveMemoryMonitor:s,updateCollectiveMemoryUi:l,psychedelicSpiralEnabled:c,setPsychedelicSpiralEnabled:d,psychedelicSpiralFollow:p,setPsychedelicSpiralFollow:f,psychedelicSpiralUi:b,setPsychedelicSpiralUi:g,psychedelicSpiralMonitor:y,setPsychedelicSpiralMonitor:x,updatePsychedelicSpiralSource:A,enterHoldPsyFxEnabled:M,setEnterHoldPsyFxEnabled:v,enterHoldPsyFxUi:w,setEnterHoldPsyFxUi:R,transientDriveUi:k,setTransientDriveUi:I,updateTransientDriveSource:E,schwarmEnabled:F,setSchwarmEnabled:L,schwarmUi:B,setSchwarmUi:O,schwarmMonitor:T,setSchwarmMonitor:_,updateSchwarmSource:G,controlPerfMonitor:U,setControlPerfMonitor:W,transientRuntimeMonitor:H,setTransientRuntimeMonitor:V}}function rS(e,t){const n=Ka(e);return n.some(r=>r.value===t)?t:n[0]?.value??"chromatic"}function ike(e,t){const n=lw(e),r=rS(e,t),a=MF(e,r),o=n.map(()=>1);return{nodes:n,resolvedMode:r,nextEnabled:a,nextVolumes:o,nexusPatch:{particleSystem:e,churchMode:r,agentEnabled:a,agentVolumes:o}}}function ske(e,t){const n=rS(e,t),r=Au(n,e);return{resolvedMode:n,nextEnabled:r,nexusPatch:{churchMode:n,agentEnabled:r}}}function lke(e,t){const n=rS(e,t),r=Au(n,e),a=Zd(e),o=[];for(let i=0;i<a;i+=1)r[i]||o.push(i);return{resolvedMode:n,nextMutes:o,nexusPatch:{gridMode:n,manualGridMutedSteps:o}}}function gke(){const [activeOvertoneMixer,setActiveOvertoneMixer]=P.useState("drone");return {activeOvertoneMixer,setActiveOvertoneMixer}}function xke(){const e=P.useRef(null);e.current===null&&(e.current=Qa(ir/2));const t=P.useRef(e.current),n=P.useRef(0),r=P.useRef({x:vr/2,y:ir/2}),a=P.useRef("auto"),o=P.useCallback(i=>{const s=typeof i=="function"?i(t.current):i;Number.isFinite(s)&&(t.current=s,Toe(s))},[]);return{cursorHudHz:t.current,setCursorHudHz:o,cursorHudHzRef:t,cursorHudLastUpdateRef:n,focusCursorRef:r,focusCursorLastInputRef:a}}function Mke(){const e=P.useRef(null),t=P.useRef({left:!1,right:!1,up:!1,down:!1}),n=P.useRef(0),r=P.useRef(1);return P.useMemo(()=>({nexusCanvasRef:e,nexusArrowRef:t,waveLaunchAtRef:n,waveImpactDecayRef:r}),[])}function wke(){const e=P.useRef(null),t=P.useRef(null),n=P.useRef(null),r=P.useRef(null),a=P.useRef(null),o=P.useRef(null),i=P.useRef(null),s=P.useRef(null),l=P.useRef(null),c=P.useRef(null),d=P.useRef({pre_fx:null,post_fx:null,monitor:null}),p=P.useRef(null),f=P.useRef(null),b=P.useRef(null),g=P.useRef(null),y=P.useRef(null),x=P.useRef(null),A=P.useRef(null),M=P.useRef(new Set),v=P.useMemo(()=>({finalMixBusRef:e,drumMixBusRef:t,masterMixBusRef:n,finalLimiterRef:r,finalClipperRef:a,finalOutputTrimRef:o,finalMixAnalyserRef:i,preFxTapAnalyserRef:s,postFxTapAnalyserRef:l,monitorTapAnalyserRef:c,audioTapScratchRef:d,liveMasteringRef:p,noDrumRecordClipperRef:f,noDrumRecordLimiterRef:b,noDrumRecordOutputRef:g,recordingDestinationWithDrumsRef:y,recordingDestinationWithoutDrumsRef:x,externalGameRecordingBusRef:A,externalGameRecordingBusConnectionTargetsRef:M}),[]);__XenLCR1A.bind(v);return{...v,liveMasterBusRuntimeRefs:v}}function gk(){return{pendingIntents:[],latestDecisions:[],latestTapSnapshots:[]}}const Rke=()=>({main:0,drone:0,rhythm:0,space:0,density:0,trim:.92});// Control telemetry is data, independent of the app's React render cycle.
+  Object.assign(t.current,d2e(t.current,o)),Object.keys(o).some(key=>Object.hasOwn(__f48RackDefaults,key)||key==='quantizeBpm'||key==='beatsPerBar')&&__f48PatchRack(t.current),Object.keys(o).some(key=>key.startsWith("bass"))&&window.dispatchEvent(new Event(__f48BassParamsEvent)),r({...t.current});__xenDronePersist.save(t.current,o);__XenMetaSessions.scheduleWorkingCopy()},[]);return{initialOvertonesByPreset:e,nexusParamsRef:t,nParamsUI:n,updateNParams:a,rootFollowUiStorageKey:tR}},ax={ripples:32,sectorPulses:18},j9=({waveRadius:e,baseWaveMaxRadius:t,clampValue:n})=>t*n(e??1,.35,2.2),G9=()=>typeof performance<"u"&&typeof performance.now=="function"?performance.now():Date.now(),H9=({refs:e,waveRadius:t,waveDecay:n,baseWaveMaxRadius:r,clampValue:a,direction:o,cursorAtEvent:h})=>{const x=h?.x??e.cursorX,y=h?.y??e.cursorY;if(e.ripples.length>=ax.ripples)return{cursorX:x,cursorY:y,isSector:!1,direction:o};const i=G9(),s={x,y,radius:0,life:1,maxRadius:j9({waveRadius:t,baseWaveMaxRadius:r,clampValue:a}),decay:n??"linear",direction:o,hitAgents:[],launchedAtMs:i,timeLocked:!0,displayRadius:0,displayPrevRadius:0};return e.ripples.push(s),{cursorX:x,cursorY:y,isSector:!1,direction:o}},X2e=({refs:e,waveRadius:t,waveDecay:n,baseWaveMaxRadius:r,clampValue:a,direction:o,maxSectorPulses:i=ax.sectorPulses})=>{const s=Number.isNaN(i)?ax.sectorPulses:Math.max(0,Math.min(ax.sectorPulses,Math.floor(i)));if(e.sectorPulses.length>=s)return{cursorX:e.cursorX,cursorY:e.cursorY,isSector:!0,direction:o};const l=G9(),c={x:e.cursorX,y:e.cursorY,radius:0,life:1,maxRadius:j9({waveRadius:t,baseWaveMaxRadius:r,clampValue:a}),decay:n??"linear",direction:o,hitAgents:[],launchedAtMs:l,timeLocked:!0,displayRadius:0,displayPrevRadius:0};return e.sectorPulses.push(c),{cursorX:e.cursorX,cursorY:e.cursorY,isSector:!0,direction:o}},V9=(e,t)=>(e.markWaveLaunch(),e.playWaveStartSound(e.freqFromY(t.cursorY),t.isSector,{waveLaunchX:t.cursorX}),t);function Y2e(e,t,cursorAtEvent){if(!e.nexusActive)return null;const n=H9({refs:e.refs,waveRadius:e.params.waveRadius,waveDecay:e.params.waveDecay,baseWaveMaxRadius:e.baseWaveMaxRadius,clampValue:e.clampValue,direction:t,cursorAtEvent});return V9(e,n)}function J2e(e,t){if(!e.nexusActive)return null;const n=X2e({refs:e.refs,waveRadius:e.params.waveRadius,waveDecay:e.params.waveDecay,baseWaveMaxRadius:e.baseWaveMaxRadius,clampValue:e.clampValue,direction:t});return V9(e,n)}const Z2e={CUT_UPLOAD:"cut-upload"},eke={MATERIAL_INTAKE_GATEWAY:"material-intake-gateway"},FL=Z2e.CUT_UPLOAD,wp=eke.MATERIAL_INTAKE_GATEWAY;function tke(e,t=Date.now()){return{reason:FL,target:wp,token:`cut-upload:${e}`,createdAt:t}}function nke(e){if(!e||typeof e!="object")return!1;const t=e;return t.reason===FL&&t.target===wp&&typeof t.token=="string"&&t.token.length>0&&typeof t.createdAt=="number"&&Number.isFinite(t.createdAt)}function dy(e){return nke(e)}function rke({spectralForgeCutUploadRafIdsRef:e,spectralForgeCutUploadSequenceRef:t,setSpectralForgeExternalAudioFile:n,setSpectralForgeExternalAudioOrigin:r,setSpectralForgeEntryScrollIntent:a,setRoom:o}){P.useEffect(()=>{const i=()=>{e.current.forEach(c=>window.cancelAnimationFrame(c)),e.current=[]},s=c=>{const d=t.current+1;t.current=d,i(),n(null),r(null),a(null);try{CT("experimental")}catch{}o("L3LAB");const p=window.requestAnimationFrame(()=>{const f=window.requestAnimationFrame(()=>{e.current=e.current.filter(b=>b!==p&&b!==f),t.current===d&&(r(FL),a(tke(d)),n(c))});e.current.push(f)});e.current.push(p)},l=Xd("spectralForgeAudioCutUpload",c=>{const d=c?.file??null;d&&s(d)}),field=()=>{t.current++;i();n(null);r(null);a(null);try{CT("experimental")}catch{}o("L3LAB")};window.addEventListener('xensonar:meta-edit-forge-field-open',field);return()=>{i();l();window.removeEventListener('xensonar:meta-edit-forge-field-open',field)}},[o,a,n,r,e,t])}function H1(e,t,n){return{...e,[t]:{...e[t],...n}}}function ake(){const[e,t]=P.useState(!1),[n,r]=P.useState(8),[a,o]=P.useState(()=>FSe()),[i,s]=P.useState(null),l=(q,K)=>{o(Y=>H1(Y,q,K))},[c,d]=P.useState(!1),[p,f]=P.useState(.42),[b,g]=P.useState(()=>TSe()),[y,x]=P.useState(()=>LSe()),A=(q,K)=>{g(Y=>H1(Y,q,K))},[M,v]=P.useState(!1),[w,R]=P.useState(()=>BSe()),[k,I]=P.useState(()=>DSe()),E=(q,K)=>{I(Y=>H1(Y,q,K))},[F,L]=P.useState(!1),[B,O]=P.useState(()=>NSe()),[T,_]=P.useState(null),G=(q,K)=>{O(Y=>H1(Y,q,K))},j=P.useRef(OSe()),N=P.useRef(_Se()),W=P.useCallback(q=>{j.current=q,Eie(q)},[]),V=P.useCallback(q=>{N.current=q,Fie(q)},[]),U=j.current,H=N.current;return{collectiveMemoryEnabled:e,setCollectiveMemoryEnabled:t,collectiveMemoryWindow:n,setCollectiveMemoryWindow:r,collectiveMemoryUi:a,setCollectiveMemoryUi:o,collectiveMemoryMonitor:i,setCollectiveMemoryMonitor:s,updateCollectiveMemoryUi:l,psychedelicSpiralEnabled:c,setPsychedelicSpiralEnabled:d,psychedelicSpiralFollow:p,setPsychedelicSpiralFollow:f,psychedelicSpiralUi:b,setPsychedelicSpiralUi:g,psychedelicSpiralMonitor:y,setPsychedelicSpiralMonitor:x,updatePsychedelicSpiralSource:A,enterHoldPsyFxEnabled:M,setEnterHoldPsyFxEnabled:v,enterHoldPsyFxUi:w,setEnterHoldPsyFxUi:R,transientDriveUi:k,setTransientDriveUi:I,updateTransientDriveSource:E,schwarmEnabled:F,setSchwarmEnabled:L,schwarmUi:B,setSchwarmUi:O,schwarmMonitor:T,setSchwarmMonitor:_,updateSchwarmSource:G,controlPerfMonitor:U,setControlPerfMonitor:W,transientRuntimeMonitor:H,setTransientRuntimeMonitor:V}}function rS(e,t){const n=Ka(e);return n.some(r=>r.value===t)?t:n[0]?.value??"chromatic"}function ike(e,t){const n=lw(e),r=rS(e,t),a=MF(e,r),o=n.map(()=>1);return{nodes:n,resolvedMode:r,nextEnabled:a,nextVolumes:o,nexusPatch:{particleSystem:e,churchMode:r,agentEnabled:a,agentVolumes:o}}}function ske(e,t){const n=rS(e,t),r=Au(n,e);return{resolvedMode:n,nextEnabled:r,nexusPatch:{churchMode:n,agentEnabled:r}}}function lke(e,t){const n=rS(e,t),r=Au(n,e),a=Zd(e),o=[];for(let i=0;i<a;i+=1)r[i]||o.push(i);return{resolvedMode:n,nextMutes:o,nexusPatch:{gridMode:n,manualGridMutedSteps:o}}}function gke(){const [activeOvertoneMixer,setActiveOvertoneMixer]=P.useState("drone");return {activeOvertoneMixer,setActiveOvertoneMixer}}function xke(){const e=P.useRef(null);e.current===null&&(e.current=Qa(ir/2));const t=P.useRef(e.current),n=P.useRef(0),r=P.useRef({x:vr/2,y:ir/2}),a=P.useRef("auto"),o=P.useCallback(i=>{const s=typeof i=="function"?i(t.current):i;Number.isFinite(s)&&(t.current=s,Toe(s))},[]);return{cursorHudHz:t.current,setCursorHudHz:o,cursorHudHzRef:t,cursorHudLastUpdateRef:n,focusCursorRef:r,focusCursorLastInputRef:a}}function Mke(){const e=P.useRef(null),t=P.useRef({left:!1,right:!1,up:!1,down:!1}),n=P.useRef(0),r=P.useRef(1);return P.useMemo(()=>({nexusCanvasRef:e,nexusArrowRef:t,waveLaunchAtRef:n,waveImpactDecayRef:r}),[])}function wke(){const e=P.useRef(null),t=P.useRef(null),n=P.useRef(null),r=P.useRef(null),a=P.useRef(null),o=P.useRef(null),i=P.useRef(null),s=P.useRef(null),l=P.useRef(null),c=P.useRef(null),d=P.useRef({pre_fx:null,post_fx:null,monitor:null}),p=P.useRef(null),f=P.useRef(null),b=P.useRef(null),g=P.useRef(null),y=P.useRef(null),x=P.useRef(null),A=P.useRef(null),M=P.useRef(new Set),v=P.useMemo(()=>({finalMixBusRef:e,drumMixBusRef:t,masterMixBusRef:n,finalLimiterRef:r,finalClipperRef:a,finalOutputTrimRef:o,finalMixAnalyserRef:i,preFxTapAnalyserRef:s,postFxTapAnalyserRef:l,monitorTapAnalyserRef:c,audioTapScratchRef:d,liveMasteringRef:p,noDrumRecordClipperRef:f,noDrumRecordLimiterRef:b,noDrumRecordOutputRef:g,recordingDestinationWithDrumsRef:y,recordingDestinationWithoutDrumsRef:x,externalGameRecordingBusRef:A,externalGameRecordingBusConnectionTargetsRef:M}),[]);__XenLCR1A.bind(v);return{...v,liveMasterBusRuntimeRefs:v}}function gk(){return{pendingIntents:[],latestDecisions:[],latestTapSnapshots:[]}}const Rke=()=>({main:0,drone:0,rhythm:0,space:0,density:0,trim:.92});// Control telemetry is data, independent of the app's React render cycle.
 // A view may subscribe to its channel without rebuilding the instrument owner.
 function __createLiveControlSnapshot(initial){
  let snapshot=initial;const listeners=new Set();
@@ -51892,6 +52063,38 @@ __XenStarterMaterial.attach(__xenStarterRenderDemo,value=>!__XenStarterMaterial.
 .xen-rack-actions{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin-top:10px}.xen-rack-actions span{min-width:75px;font-size:10px;color:#bca8c9}
 .xen-rack-actions button,.xen-bass-sound button{padding:5px 8px;border:1px solid #655071;border-radius:4px;font-size:11px;background:#25192d}.xen-rack-actions button:hover,.xen-bass-sound button:hover{background:#3c254b}.xen-rack-actions button:disabled{opacity:.4}
 .xen-rhythm-note{font-size:10px;color:#ad9ab6}
+.xen-dub-echo{margin:12px 0 10px;padding:12px;border:1px solid #67507c;border-radius:8px;background:linear-gradient(110deg,#23172c,#151a29)}
+.xen-dub-echo-heading{display:flex;flex-wrap:wrap;justify-content:space-between;gap:6px;margin-bottom:10px;color:#f6c8ff;font-size:12px;letter-spacing:.045em}
+.xen-dub-echo-heading span{font-weight:400;color:#b6a5c9;font-size:11px}
+.xen-dub-timing{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.2fr) minmax(0,1.2fr);gap:10px;align-items:end}
+.xen-dub-timing>.xen-rhythm-control{margin-bottom:0}
+.xen-dub-time-model{grid-column:span 1}
+.xen-dub-preset,.xen-dub-pair,.xen-dub-free-controls{grid-column:span 1}
+.xen-dub-pair{display:flex;align-items:center;justify-content:stretch;gap:6px;min-width:0}
+.xen-dub-pair-glyph{font-size:17px;font-weight:bold;flex:0 0 auto;color:#e1a0f0}
+.xen-dub-number{display:flex;flex-direction:column;gap:5px;min-width:0;flex:1;font-size:10px;color:#d8badb}
+.xen-dub-number input{min-width:0;width:100%;padding:5px;border:1px solid #745388;border-radius:4px;background:#17101e;color:#fff;font-size:12px;box-sizing:border-box}
+.xen-dub-free-controls{display:flex;gap:8px;align-items:center;min-width:0}
+.xen-dub-free-controls input[type=range],.xen-dub-warp input[type=range]{min-width:40px;width:100%;accent-color:#dca3ec;cursor:pointer}
+.xen-dub-warp{grid-column:span 1;display:flex;align-items:center;gap:6px;min-width:0}
+.xen-dub-warp .xen-dub-number{flex:0 1 105px}
+.xen-dub-warp button,.xen-dub-steps button{padding:6px 8px;color:#e7d2ef;border:1px solid #654775;border-radius:5px;background:#342141;cursor:pointer;font-size:11px;min-height:28px}
+.xen-dub-warp button:hover,.xen-dub-steps button:hover{background:#5c3570}
+.xen-dub-steps{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin:9px 0}
+.xen-dub-steps span{color:#bea7cb;font-size:10px;margin-right:3px}
+.xen-dub-steps button{padding:4px 9px}
+.xen-dub-readout{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:6px 10px;margin:8px 0 12px;border-radius:5px;background:#301e38;font-size:11px}
+.xen-dub-readout strong{color:#fae4ff;white-space:nowrap}
+.xen-dub-readout span{color:#cfb5d6;font-size:10px}
+@media(max-width:950px){.xen-dub-timing{grid-template-columns:repeat(2,minmax(0,1fr))}.xen-dub-warp{grid-column:1/-1}}
+@media(max-width:490px){.xen-dub-timing{grid-template-columns:minmax(0,1fr)}.xen-dub-warp{grid-column:span 1}.xen-dub-pair{gap:8px}.xen-dub-number{min-width:0}.xen-dub-readout{align-items:flex-start;flex-direction:column;gap:4px}}
+
+.xen-dub-echo-foot{display:flex;align-items:center;flex-wrap:wrap;gap:12px}
+.xen-dub-echo-foot .xen-rhythm-note{flex:1;min-width:180px;line-height:1.45}
+.xen-dub-throw{padding:10px 15px;border:1px solid #a569c5;border-radius:6px;background:#48215c;color:#fff4ff;font-size:12px;font-weight:700;letter-spacing:.055em;cursor:pointer;touch-action:none;user-select:none;min-height:42px}
+.xen-dub-throw:hover{background:#68337f}.xen-dub-throw[aria-pressed='true']{background:#b65cc5;border-color:#f2b6ff;color:#180e23;box-shadow:0 0 12px #9e4cb566}
+.xen-dub-throw:focus-visible{outline:2px solid #f2b6ff;outline-offset:3px}
+
 .xen-main-drum-editor,.xen-drum-rack{flex-shrink:0}
 @media(max-width:1120px){.xen-main-drum-columns>div{overflow-y:visible!important;min-height:max-content!important;height:max-content!important}}
 @media(max-width:1023px){.xen-bass-manager-columns{display:flex!important;flex-direction:column;overflow-y:auto!important}.xen-bass-manager-columns>div{flex-shrink:0;overflow-y:visible!important}.xen-bass-manager-modal{max-height:calc(100vh - 2rem)}}
