@@ -94,3 +94,18 @@ Jeder Patch einzeln, mit Vorher/Nachher-Messung derselben Skripte.
 
 Damit entfällt auch H2 (Root-Follow-Statustexte lesen den Speicher nur noch bei echten Änderungen). Übrig im Spieltakt: Drum-Scheduler (25-ms-Tick, gewollt), Canvas-Visuals, rAF-Schleifen.
 Reload-Persistenz (0,3 s / 2,5 s nach Änderung), Echo-, Rack- und Slider-Regressionen: unverändert.
+
+## Grafik des Hauptraums (Analyse 09.11.2026, keine Codeänderung)
+
+- Eine sichtbare Leinwand, intern 1100×580, angezeigt 908×479 (bei DPR 1 ca. 46 % mehr Pixel als nötig, bei DPR 2 unscharf).
+- JavaScript für das Zeichnen: **0,66 ms pro Bild** (~4 % des Bildbudgets).
+- Pro Bild: ~600 Liniensegmente, 66 `stroke`, 59 `fill`, 49 `fillText`, wenige Verläufe. **Keine** teuren Operationen (kein `getImageData`, kein `shadowBlur`, kein `filter`).
+- Ausschlussversuche (Headless, Software-Raster): Leinwand ausgeblendet 27 % → 7 % Hauptthread; ohne `stroke` 28 → 18 %; ohne Text 28 → 26 %; ohne `fill` 28 → 24 %; CSS-Animationen pausiert 27 → 25 %.
+- Größter Posten: die **37 Rasterlinien** (Tonhöhen-Gitter, je 1100 px, 3 px, teils Verlauf), danach 8 Drone-Wellen. Das ist das sichtbare Instrument, keine Leerarbeit.
+- Zwischenspeichern als Bitmap lohnt nicht: ein vollflächiges `drawImage` pro Bild kostet mehr Pixel als die Linien.
+- Auf Rechnern mit GPU-beschleunigtem Canvas ist der Rasteranteil klein; relevant ist er auf Rechnern ohne Beschleunigung (Software-Canvas).
+
+**Mögliche Schritte, alle mit sichtbarer Wirkung, daher Nutzerentscheidung:**
+1. Leinwand-Auflösung an tatsächliche Größe × Pixeldichte koppeln (schärfer auf Retina, ~30 % weniger Pixel bei DPR 1).
+2. „Sparmodus" für schwache Rechner: Rasterlinien dünner/ohne Verlauf, Bildrate der Grafik halbieren (Audio unberührt).
+3. Filter-Animationen der Header-Knöpfe (7 Stück) durch reine Opacity-Animationen ersetzen (~2 Prozentpunkte).
