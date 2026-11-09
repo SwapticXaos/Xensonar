@@ -12,3 +12,14 @@ jobs:
         run: python3 tools/build.py --check
       - name: regression tests known green (Oct-28 suite, no browser)
         run: ./tools/run_tests.sh
+  e2e:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: install Playwright Chromium (test only)
+        run: npm install --no-save playwright@1.63.0 && npx playwright install --with-deps chromium
+      - name: browser end-to-end tests (probe build)
+        run: ./tools/run_e2e.sh

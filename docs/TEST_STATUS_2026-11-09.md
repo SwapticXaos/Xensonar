@@ -109,3 +109,22 @@ Zeitleiste: dieselben Tests gegen Quellbäume von 28.10., 05.11. (Stage05) und W
 | `working_session`, `session_bass_drone_p2`, `song_source_config_p2` | **nicht aussagekräftig in Isolation**: Die Tests schneiden einzelne Besitzer-Objekte aus dem Code; seit November hängen diese an vielen weiteren Funktionen, teils im minifizierten Kern. Automatisches Nachladen der Abhängigkeiten wurde versucht (bis zu 20 Definitionen), bleibt aber wackelig. | Fehlschläge wären vom Testaufbau verursacht, nicht von der App. | Tests auf Oktober-Stand belassen; Prüfung des Speicherverhaltens stattdessen als Browser-Ende-zu-Ende-Test vorgeschlagen |
 
 **Muster:** Viele Oktober-Tests sind Quelltext-Verträge (exakte Code-Zeichenketten). Weiterentwicklung bricht sie, ohne dass sich das Verhalten ändert. Bei solchen Tests wird der Vertrag geprüft, nicht der Wortlaut.
+
+## Gesamteinordnung der 44 seit Oktober roten Tests (Stand 09.11.2026, Ende des Tages)
+
+| Ergebnis | Tests | Bedeutung |
+|---|---|---|
+| **gewollt, Test angepasst, grün** | `merge_pcm2_continuity`, `merge_clean_flac`, `test_pcm_capture_merged`, `test_integration_p41_rc4_pcm1` | siehe oben |
+| **gewollt, Test noch alt** | `bass_timbre_contract_p1` (Bass-Klang hat 3 neue Felder für eigene Stimmen: `bassVoiceRecipe/UserId/UserName`), `avalanche_axes_load`, `avalanche_control`, `avalanche_mod_budget`, `avalanche_worker_lifecycle` (Avalanche-Umbau: Morph-Anker, Hold-Tiefe, `runtimeHoldMorph`), `test_melodic_precision_r20`, `test_package_selection_contract_p41` (Quelltext-/Textvergleich), `ui_m1_p3_cleanup` (erwartet den Oktober-Build-Ausgabenamen) | Verhalten weiterentwickelt; Test prüft den alten Stand |
+| **durch Browser-Tests ersetzt** | `working_session`, `session_bass_drone_p2`, `song_source_config_p2`, `song_performance_p0` | `tests/e2e/session_persistence.cjs`, `tests/e2e/song_sources.cjs` (echte App, Prüf-Build) |
+| **Testumgebung, nicht aussagekräftig** | `bass_identity_preview`, `forge_interpretations`, `forge_pink_transfer`, `hard_vinyl_settlement`, `omega_atomic_voice_ownership`, `omega_nodal_dispose_ownership`, `omega_voice_lease_renderer_integration`, `test_runtime_package_trace_p3_15`, `eq_tool_preference`, `avalanche_handlers`, `hold_prefix_safety` sowie die 13 TESTUMGEBUNG-Fälle | Test schneidet Code aus; neuer Code braucht mehr Kontext oder Funktionen wurden verschoben |
+| **offen (Browser)** | `test_package_station_browser_p4`, `test_package_station_large_p4`, `test_package_station_selection_p41`, `ui_side_arrows` | Browser-Abläufe, nicht untersucht |
+
+### Echter Fehler (keine Regression): Drone-Lautstärke wird nicht pro Session gespeichert
+- Speicher und Brücke sind dafür verdrahtet (`sources.drone.volume`, `getSongDroneVolume`/`setSongDroneVolume`).
+- Der Hauptraum übergibt `droneVolume` aber nie an das Brücken-Objekt (`Jce(e.soundPalette)` liest `e.droneVolume`; `soundPalette` enthält es in **keinem** Stand seit 28.10.). Ergebnis: Lautstärke immer `undefined`, nur global im Browserspeicher.
+- Der Oktober-Test war grün, weil er sich einen eigenen Hauptraum-Ersatz mit diesem Wert baute.
+- Behebung: `droneVolume` und `setDroneVolume` in `soundPalette` aufnehmen (klein). Wartet auf Freigabe. Der Browser-Test prüft das mit `XEN_EXPECT_DRONE_VOLUME=1`.
+
+## Browser-Tests (Prüf-Build)
+`python3 tools/build.py --probe` baut `dist/XenSonar_PROBE.html` mit `tests/probe/expose.js` (nur Test, nie in `index.html`). `tests/e2e/*.cjs` steuern die echte App über ihre eigenen Besitzer (`__XenMetaSessions`, `__XenMainRoomSessionBridge`) und echte Regler.
