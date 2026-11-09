@@ -128,9 +128,17 @@ Raum IV:    Zeitleisten-Scheduler ───┘        (MaterialPhase, TimeStable
                                          Master: Eingang „arrangement“ → premaster → glue → clip → limit → trim
 ```
 
+**Grundsatz (Nutzerentscheidung 09.11.):** Live Room und Raum IV laufen **nie gleichzeitig**. Wer im Mehrspurraum arbeitet, braucht den Live-Pfad nicht. Die Frage lautet also nicht, ob man den Live-Pfad unangetastet lassen kann, sondern **wie sauber umgeschaltet wird**. Gemeinsamer Code darf dafür umgebaut werden. Die einzige Pflicht: Nach dem Umbau klingt der Live Room wie vorher. Gemeinsam genutzt wird der Code, nicht die Laufzeit.
+
+**Umschaltung, drei Bausteine:**
+
+- **U1 Modus-Owner mit Übergabe:** Beim Betreten von Raum IV werden Material-Loops, One-Shots und Drum-/Bass-Scheduler des Live Room gestoppt. Live-Power aus (`__XenOneShotLivePort.setPower(false)` gibt es), Spurknoten über die Lifecycle-Registry freigeben, Visuals parken. AudioContext und Masterbus bleiben. Beim Verlassen: Arrangement-Knoten abbauen, Live-Zustand aus der Session wiederherstellen (der Session-Store hält ihn schon). Heute ist ein Raumwechsel nur `setRoom(...)` (z. B. `cH()` in `src/rhythm/02_bass_and_rack.js:1061`). Die Forge bleibt nach dem ersten Öffnen versteckt eingehängt (`__xenForgeWasOpened`, Keepalive für die Package Station). Ob der Live Room beim Wechsel in die Forge heute verstummt, ist **nicht geprüft**.
+- **U2 Taktgeber als Parameter der Spurkette:** Die Kette (Phase/Elastik → Pitch → EQ → Pan → Gain) bekommt ihren Taktgeber übergeben: Loop-Uhr (Standard im Live Room, Verhalten unverändert) oder Zeitleisten-Uhr (Raum IV).
+- **U3 Instanzen statt Einzelstücke:** `__XenMaterialVoiceMix` und `__XenMaterialLayers` sind heute Singletons (IIFE), die nach Material-ID schlüsseln. Daraus werden Fabriken: Der Live Room behält seine Instanz, Raum IV bekommt eine eigene, die nach **Clip-ID** schlüsselt. Derselbe Code, getrennter Zustand, und die Persistenz der Live-Session bleibt unberührt.
+
 **Regeln:**
 
-1. **Kopieren statt herauslösen ist verboten.** Kein zweiter Materialspur-Owner. Wenn die Spurkette zu eng mit dem Loop-Scheduler verdrahtet ist, wird sie in einem eigenen, kleinen Patch mit Vorher/Nachher-Test herausgelöst (Live-Pfad: Zone HEISS, nur mit PCM- und Abhörvergleich).
+1. **Kopieren ist verboten.** Kein zweiter Materialspur-Owner. Gemeinsamer Code wird für U2/U3 umgebaut. Danach folgt **ein** Regressionsvergleich im Live Room (PCM vorher/nachher bei gleichen Material-, Pitch-, Nudge-, EQ- und Pan-Einstellungen, dazu Abhören durch den Nutzer).
 2. **Ein Kontext, ein Master.** Raum IV nutzt den Live-Kontext und einen neuen benannten Master-Eingang.
 3. **Wenn Raum IV spielt, schläft der Live Room:** keine Partikel und Visuals, keine Loop-Scheduler. Das wird im Patch geprüft (Timer, rAF und Listener zählen).
 4. **Kühl heißt vorgeplant:** langer Vorlauf, Neuplanung nur bei Änderung; Live-Granular nur auf der Spur, an der gearbeitet wird, alle anderen als Freeze.
@@ -142,7 +150,8 @@ Raum IV:    Zeitleisten-Scheduler ───┘        (MaterialPhase, TimeStable
 
 | Frage | Wo nachsehen | Warum |
 |---|---|---|
-| Lässt sich die Spurkette aus dem Start der Materialspur (`src/audio/01_voice_and_rfl_ownership.js:476–568`, `:680`, `:1029–1089`) ohne Verhaltensänderung lösen? | Aufrufkette `$fe` / `zfe` / `cV`, Refs `sourceRef`, `gainRef`, `pitchRef`, `panRef` | Entscheidet, ob „ein Baustein, zwei Taktgeber“ ohne Eingriff in den heißen Pfad möglich ist |
+| Wo greift der Loop-Taktgeber in die Spurkette (`src/audio/01_voice_and_rfl_ownership.js:401–568`, `:680`, `:1029–1089`)? | Aufrufkette `$fe` / `zfe` / `cV`, Refs `sourceRef`, `gainRef`, `pitchRef`, `panRef` | Zeigt, wo U2 ansetzt und was der Live-Regressionsvergleich abdecken muss |
+| Was läuft heute nach einem Raumwechsel im Live Room weiter (Audio, Scheduler, Timer, rAF)? | `setRoom`-Aufrufer, Effekte abhängig von `room` | Ausgangslage für U1 |
 | Hängt `__XenMaterialVoiceMix` an der Material-ID? Clips brauchen eine **eigene** ID pro Clip | `src/mix/03_quick_menu__before_eq-core.js:456ff` | Zwei Clips desselben Materials mit verschiedener Tonhöhe |
 | Darf der Live-Kontext ohne Live-Power laufen? `__XenOneShotLivePort` verlangt aktive Live-Power | `:795ff` | Bestimmt, wie Raum IV startet |
 | Interpolation in `XenLaneShift` und im Phasen-Worklet: linear oder Sinc? | `:253ff`, `:531ff` | Klangqualität beim Pitchen (siehe neue Ebene) |
