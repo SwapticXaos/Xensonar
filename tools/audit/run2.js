@@ -1,0 +1,17 @@
+const {chromium}=require('playwright');const fs=require('fs');const HTML=process.argv[2];const lines=fs.readFileSync(HTML,'utf8').split('\n');
+const snip=s=>{const [l,c]=s.split(':').map(Number);return (lines[l-1]||'').slice(Math.max(0,c-80),c+30).replace(/\s+/g,' ')};
+(async()=>{const b=await chromium.launch({args:['--autoplay-policy=no-user-gesture-required']});const p=await b.newPage({viewport:{width:1440,height:900}});
+await p.addInitScript({path:__dirname+'/probe2.js'});await p.goto('file://'+HTML);await p.waitForTimeout(4000);
+const c=await p.context().newCDPSession(p);await c.send('Performance.enable');
+await p.getByRole('button',{name:'Power'}).click();await p.waitForTimeout(2500);
+const a=await p.evaluate(()=>__a2.snap());const m0=(await c.send('Performance.getMetrics')).metrics.reduce((o,x)=>(o[x.name]=x.value,o),{});
+await p.waitForTimeout(10000);
+const z=await p.evaluate(()=>__a2.snap());const m1=(await c.send('Performance.getMetrics')).metrics.reduce((o,x)=>(o[x.name]=x.value,o),{});
+const sec=(z.t-a.t)/1000,wall=m1.Timestamp-m0.Timestamp;
+const d=(k)=>{const m=new Map(a[k]);return z[k].map(([s,v])=>[s,(v-(m.get(s)||0))/sec]).filter(x=>x[1]>.2).sort((x,y)=>y[1]-x[1])};
+const pct=k=>((m1[k]-m0[k])/wall*100).toFixed(1);
+console.log('main thread %: task',pct('TaskDuration'),'script',pct('ScriptDuration'),'layout',pct('LayoutDuration'),'style',pct('RecalcStyleDuration'),'| layouts/s',((m1.LayoutCount-m0.LayoutCount)/wall).toFixed(1),'styleRecalcs/s',((m1.RecalcStyleCount-m0.RecalcStyleCount)/wall).toFixed(1));
+const ap=d('ap');console.log('AudioParam automation calls/s total',ap.reduce((s,x)=>s+x[1],0).toFixed(0));ap.slice(0,14).forEach(([s,r])=>console.log('  ',r.toFixed(0).padStart(5),s,'|',snip(s.split(' @')[1])));
+const same=d('same');console.log('setTargetAtTime with SAME value as previous call, /s total',same.reduce((s,x)=>s+x[1],0).toFixed(0));same.slice(0,8).forEach(([s,r])=>console.log('  ',r.toFixed(0).padStart(5),s,'|',snip(s)));
+console.log('working-copy schedule callers /s');d('wc').slice(0,6).forEach(([s,r])=>console.log('  ',r.toFixed(1),s,'\n      ',s.split(' < ').slice(1).map(snip).join('\n       ')));
+await b.close()})();
