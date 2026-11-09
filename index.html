@@ -35900,6 +35900,19 @@ function __xenLRF5MaterialStop(refs){
  if(refs.__xenLRF5DisposeTimer!==undefined){clearTimeout(refs.__xenLRF5DisposeTimer);delete refs.__xenLRF5DisposeTimer}
  __xenLRF5MaterialCancelPending(refs);cV(refs);
 }
+/* R1 (MT-CHAIN-01): shared Material lane chain, timing-free.
+   source -> [pitch] -> gain -> [pan] -> EQ -> route(output). Order and start values
+   are exactly those of the Live Material Track ($fe); Room IV clips reuse it with
+   their own EQ key, pan binding and output route. */
+function __xenMaterialLaneChain(ctx,{source,pitchNode=null,gain,panValue=0,onPan,eqKey,route}){
+ source.connect(pitchNode??gain);if(pitchNode)pitchNode.connect(gain);
+ const pan=typeof ctx.createStereoPanner==='function'?ctx.createStereoPanner():null;
+ if(pan){pan.pan.value=panValue;gain.connect(pan);onPan?.(pan)}
+ const eq=__XenEQ.create(ctx,eqKey);
+ (pan??gain).connect(eq.input);gain.__xenEQDevice=eq;
+ route(eq.output);
+ return {pan,eq,output:eq.output};
+}
 function Kfe(e){const{entries:t,currentId:n,currentActive:r,pendingRegisteredId:a}=e;if(e.preserveCurrentId&&!a)return{patch:null,clearPendingRegisteredId:!1};if(!t.length)return n?{patch:{materialLoopId:"",materialLoopActive:!1},clearPendingRegisteredId:!0}:{patch:null,clearPendingRegisteredId:!0};if(n&&t.some(i=>i.id===n))return{patch:null,clearPendingRegisteredId:!1};const o=a?t.find(i=>i.id===a)?.id??"":"";return{patch:{materialLoopId:o||t[0].id,materialLoopActive:r||!!o},clearPendingRegisteredId:!!o}}async function $fe(e){const{ctx:t,entry:original,quantizeBpm:r,timeMode:a,volume:o,syncToBeat:i,refs:published}=e,
  l=published.tokenRef.current;let s=published;
  // Defer this voice until the Session-specific edited PCM is ready.
@@ -35981,15 +35994,13 @@ f.__f49StartAt=d.startAtSec;
 f.gain.setValueAtTime(0,d.sharedTime.audioNowSec);
 // First start is a separate case; it MUST accept figures that begin in silence.
 if(!hasOld){f.gain.setValueAtTime(0,xfadeAt);f.gain.linearRampToValueAtTime(d.gainValue,xfadeAt+.008)}
-p.connect(pitchNode??f);if(pitchNode)pitchNode.connect(f);
 const voice=__XenMaterialVoiceMix.get(s.__xenMaterialVoiceId);
 const initialMaterialPan=s.__xenMaterialPrimary===true?__XenPan.snapshot().material:voice.pan;
-const localPan=typeof t.createStereoPanner==='function'?t.createStereoPanner():null;
-if(localPan){localPan.pan.value=initialMaterialPan;f.connect(localPan);s.panRef.current=localPan;__xenBindMaterialPan(localPan,s.__xenMaterialVoiceId,s.__xenMaterialPrimary===true)}
-const eqDevice=__XenEQ.create(t,__XenEQ.keyFor('material',n.id));
-(localPan??f).connect(eqDevice.input);f.__xenEQDevice=eqDevice;
-const localOutput=eqDevice.output;
-localOutput.connect(e.getRhythmBus(t)),e.ensureMyzelPostFxRouter(t);const b=e.getForgeSend();b&&localOutput.connect(b),s.sourceRef.current=p,s.gainRef.current=f,qfe({entry:n,loopStart:d.loopStartSec,loopEnd:d.loopEndSec,playbackRate:d.playbackRate,startAt:preflightAt,syncToBeat:d.syncToBeat}),Qfe(n,o),p.onended=()=>{p.__xenMaterialTransportOff?.();p.__xenMaterialTransportOff=null;if(pitchNode){pitchNode.__xenMaterialPitchOff?.();pitchNode.__xenMaterialPitchOff=null}if(s.panRef?.current===localPan){localPan?.__xenMaterialPanOff?.();if(localPan)localPan.__xenMaterialPanOff=null;s.panRef.current=null;if(published.panRef?.current===localPan)published.panRef.current=null;try{localPan?.disconnect()}catch{}}if(s.sourceRef.current===p){try{p.disconnect()}catch{}s.sourceRef.current=null;if(published.sourceRef.current===p)published.sourceRef.current=null;sV("material-track-source-ended")}f.__xenEQDevice?.dispose();if(s.gainRef.current===f){try{f.disconnect()}catch{}s.gainRef.current=null;if(published.gainRef.current===f)published.gainRef.current=null;lV("material-track-gain-ended")}};
+const {pan:localPan,eq:eqDevice,output:localOutput}=__xenMaterialLaneChain(t,{source:p,pitchNode,gain:f,panValue:initialMaterialPan,
+ onPan:pan=>{s.panRef.current=pan;__xenBindMaterialPan(pan,s.__xenMaterialVoiceId,s.__xenMaterialPrimary===true)},
+ eqKey:__XenEQ.keyFor('material',n.id),
+ route:out=>{out.connect(e.getRhythmBus(t)),e.ensureMyzelPostFxRouter(t);const b=e.getForgeSend();b&&out.connect(b)}});
+s.sourceRef.current=p,s.gainRef.current=f,qfe({entry:n,loopStart:d.loopStartSec,loopEnd:d.loopEndSec,playbackRate:d.playbackRate,startAt:preflightAt,syncToBeat:d.syncToBeat}),Qfe(n,o),p.onended=()=>{p.__xenMaterialTransportOff?.();p.__xenMaterialTransportOff=null;if(pitchNode){pitchNode.__xenMaterialPitchOff?.();pitchNode.__xenMaterialPitchOff=null}if(s.panRef?.current===localPan){localPan?.__xenMaterialPanOff?.();if(localPan)localPan.__xenMaterialPanOff=null;s.panRef.current=null;if(published.panRef?.current===localPan)published.panRef.current=null;try{localPan?.disconnect()}catch{}}if(s.sourceRef.current===p){try{p.disconnect()}catch{}s.sourceRef.current=null;if(published.sourceRef.current===p)published.sourceRef.current=null;sV("material-track-source-ended")}f.__xenEQDevice?.dispose();if(s.gainRef.current===f){try{f.disconnect()}catch{}s.gainRef.current=null;if(published.gainRef.current===f)published.gainRef.current=null;lV("material-track-gain-ended")}};
 if(phasePlayer){
  p.__xenLRF5PhaseDispose=()=>phasePlayer.dispose();
  phasePlayer.onFault=()=>{if(s.tokenRef.current!==l||s.sourceRef.current!==p)return;s.tokenRef.current++;qA(s);$fe({...e,forceNativePhase:true}).catch(error=>console.error('[xensonar][material-phase] fallback',error));};
