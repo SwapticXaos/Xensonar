@@ -15,7 +15,7 @@ Grundlage: `docs/MEHRSPURRAUM_SPURKETTE_STUDIE_2026-11-09.md`. Drei getrennte Co
 
 - **R3** (`551bee0`), `src/forge/editor/07_view_lifecycle.js`, `src/app/forge/01_room_shell.js`: `__xenRoomUsesLiveContext(room)`. Der Schlafmodus (LIVEZONE-02) hält den Live-Kontext nicht an, wenn der Zielraum ihn beansprucht. Heute beansprucht ihn kein Raum; Raum IV trägt sich später ein.
 - **R1** (`c9cd661`), `src/audio/01_voice_and_rfl_ownership.js`: `__xenMaterialLaneChain(ctx,{source,pitchNode,gain,panValue,onPan,eqKey,route})` übernimmt aus `$fe` die Stufe Quelle → Pitch → Gain → Pan → EQ → Route. Gleiche Reihenfolge, gleiche Startwerte; Live übergibt `eqKey=keyFor('material',id)`, die Pan-Bindung und das bisherige Routing (Rhythmus-Bus, Myzel-Router, Forge-Send).
-- **R2**, `src/mix/03_quick_menu__before_eq-core.js`, `src/audio/01_voice_and_rfl_ownership.js`: `__XenMaterialVoiceMix` wird von `__xenCreateMaterialVoiceMix()` erzeugt (Inhalt unverändert). `__xenBindMaterialPitch/Pan` nehmen optional eine Instanz (Standard: Live).
+- **R2** (`4d83383`), `src/mix/03_quick_menu__before_eq-core.js`, `src/audio/01_voice_and_rfl_ownership.js`: `__XenMaterialVoiceMix` wird von `__xenCreateMaterialVoiceMix()` erzeugt (Inhalt unverändert). `__xenBindMaterialPitch/Pan` nehmen optional eine Instanz (Standard: Live).
 
 Diff gegen die Basis: nur Script-Block 12; 32 Scripts / 77 Styles; Syntax wie Basis.
 
@@ -42,4 +42,4 @@ Pegelschwankung zwischen Läufen ±10 %, auch innerhalb desselben Stands; sie ko
 
 ## Rückweg
 
-LIVEZONE-02 (`089349a9…59cd`). Im Quellbaum: Commits `551bee0`, `c9cd661` und R2 zurücknehmen, `python3 tools/build.py`.
+LIVEZONE-02 (`089349a9…59cd`). Im Quellbaum: Commits `551bee0`, `c9cd661`, `4d83383` zurücknehmen, `python3 tools/build.py`.
