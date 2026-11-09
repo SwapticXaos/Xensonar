@@ -1,0 +1,12 @@
+
+.xen-mainroom-particle-band .xen-particle-header{margin-right:0}
+.xen-mainroom-particle-band .xen-sample-particle-mode-inline{margin-left:auto}
+.xen-mainroom-particle-band .xen-particle-mass-controls{margin-left:0}
+@media(max-width:710px){
+ .xen-mainroom-particle-band .xen-particle-hotkeys{display:flex;flex-wrap:nowrap;gap:5px;align-items:center}
+ .xen-mainroom-particle-band .xen-particle-header{width:auto;flex:0 0 auto;margin:0;font-size:22px}
+ .xen-mainroom-particle-band .xen-sample-particle-mode-inline{flex:0 1 112px;margin:0;min-width:88px}
+ .xen-mainroom-particle-band .xen-particle-mass-controls{flex:0 0 auto;margin:0;flex-wrap:nowrap;gap:3px}
+ .xen-mainroom-particle-band .xen-particle-mass-controls button{padding:3px 4px;font-size:9px}
+ .xen-mainroom-hold-zone .xen-thunder-header{justify-content:flex-start}
+}

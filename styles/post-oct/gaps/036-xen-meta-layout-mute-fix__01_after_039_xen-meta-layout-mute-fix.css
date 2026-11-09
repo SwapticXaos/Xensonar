@@ -1,0 +1,7 @@
+/* P36 UX-01: Session heading is taller than the old fixed library-filter
+   heading at narrow widths. Allow content-sized wrapping inside its own
+   pane so the five raised library tabs remain genuinely pointer-clickable. */
+.xen-meta-library>.xen-meta-session-manager>.xen-meta-browser-heading{
+ box-sizing:border-box;flex:0 0 auto;height:auto;min-height:var(--xen-meta-library-heading-height);
+ max-height:none;align-content:flex-start
+}

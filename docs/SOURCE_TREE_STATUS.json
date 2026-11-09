@@ -1,0 +1,2252 @@
+[
+{
+"file": "styles/areas/001_xen-grid-profile-session-css.css",
+"status": "oct-identical",
+"bytes": 4427,
+"oct28_bytes": 4427
+},
+{
+"file": "src/post-oct/000-xen-render-monitor.js",
+"status": "post-oct",
+"bytes": 7470,
+"oct28_bytes": 0
+},
+{
+"file": "src/startup/01_startup_observer.js",
+"status": "oct-identical",
+"bytes": 1138,
+"oct28_bytes": 1138
+},
+{
+"file": "styles/areas/003_xen-boot-mandala-css.css",
+"status": "oct-identical",
+"bytes": 1478,
+"oct28_bytes": 1478
+},
+{
+"file": "src/startup/02_boot_stage_controller.js",
+"status": "oct-identical",
+"bytes": 7135,
+"oct28_bytes": 7135
+},
+{
+"file": "src/post-oct/003-xen-opera-power-d3-diagnostics.js",
+"status": "post-oct",
+"bytes": 5782,
+"oct28_bytes": 0
+},
+{
+"file": "src/post-oct/004-xen-xmem-root01-idb-owner.js",
+"status": "post-oct",
+"bytes": 12197,
+"oct28_bytes": 0
+},
+{
+"file": "src/post-oct/005-xen-melodic-compact-idb01.js",
+"status": "post-oct",
+"bytes": 17525,
+"oct28_bytes": 0
+},
+{
+"file": "src/post-oct/006-xen-xmem02-melodic-stage.js",
+"status": "post-oct",
+"bytes": 8477,
+"oct28_bytes": 0
+},
+{
+"file": "src/post-oct/007-xen-xmem02b-melodic-repository-pilot.js",
+"status": "post-oct",
+"bytes": 16086,
+"oct28_bytes": 0
+},
+{
+"file": "src/post-oct/008-xen-xmem02d1-melodic-epoch.js",
+"status": "post-oct",
+"bytes": 16685,
+"oct28_bytes": 0
+},
+{
+"file": "src/post-oct/009-xen-xmem02c-melodic-native-adapter.js",
+"status": "post-oct",
+"bytes": 14038,
+"oct28_bytes": 0
+},
+{
+"file": "src/package_station/02_export_selection.js",
+"status": "oct-evolved",
+"bytes": 5197,
+"oct28_bytes": 4915
+},
+{
+"file": "src/package_station/01_binary_archive.js",
+"status": "oct-evolved",
+"bytes": 90403,
+"oct28_bytes": 48775
+},
+{
+"file": "src/post-oct/gaps/010-main-bundle__01_after_01_binary_archive.js",
+"status": "post-oct-gap",
+"bytes": 190,
+"oct28_bytes": 0
+},
+{
+"file": "src/startup/00_room_and_function_dispatch.js",
+"status": "oct-identical",
+"bytes": 2740,
+"oct28_bytes": 2740
+},
+{
+"file": "src/contracts/01_asset_contract.js",
+"status": "oct-identical",
+"bytes": 5237,
+"oct28_bytes": 5237
+},
+{
+"file": "src/contracts/02_asset_resolution.js",
+"status": "oct-identical",
+"bytes": 3597,
+"oct28_bytes": 3597
+},
+{
+"file": "src/handoff/00_chat_feature_addons.js",
+"status": "oct-evolved",
+"bytes": 33107,
+"oct28_bytes": 31840
+},
+{
+"file": "src/mix/03_quick_menu__before_eq-core.js",
+"status": "oct-evolved",
+"bytes": 144422,
+"oct28_bytes": 67350
+},
+{
+"file": "src/quickrack/equalizer/eq-worklet.js",
+"status": "oct-evolved",
+"bytes": 14480,
+"oct28_bytes": 12834
+},
+{
+"file": "src/quickrack/equalizer/eq-core.js",
+"status": "oct-evolved",
+"bytes": 65533,
+"oct28_bytes": 52570
+},
+{
+"file": "src/mix/03_quick_menu__after_eq-core__before_eq-ui.js",
+"status": "oct-identical",
+"bytes": 1,
+"oct28_bytes": 1
+},
+{
+"file": "src/quickrack/equalizer/eq-ui.js",
+"status": "oct-evolved",
+"bytes": 35648,
+"oct28_bytes": 29483
+},
+{
+"file": "src/mix/03_quick_menu__after_eq-core__after_eq-ui.js",
+"status": "oct-evolved",
+"bytes": 74676,
+"oct28_bytes": 38543
+},
+{
+"file": "src/post-oct/gaps/010-main-bundle__02_after_03_quick_menu__after_eq-core__after_eq-ui.js",
+"status": "post-oct-gap",
+"bytes": 3075,
+"oct28_bytes": 0
+},
+{
+"file": "src/mix/03_meta_menu__before_v2-session-store.js",
+"status": "oct-evolved",
+"bytes": 29570,
+"oct28_bytes": 27714
+},
+{
+"file": "src/sessions/v2-session-store.js",
+"status": "oct-evolved",
+"bytes": 158620,
+"oct28_bytes": 77859
+},
+{
+"file": "src/post-oct/gaps/010-main-bundle__03_after_v2-session-store.js",
+"status": "post-oct-gap",
+"bytes": 2266,
+"oct28_bytes": 0
+},
+{
+"file": "src/mix/03_meta_menu__after_v2-session-store.js",
+"status": "oct-evolved",
+"bytes": 106290,
+"oct28_bytes": 37638
+},
+{
+"file": "src/mix/03_legacy_song_import.js",
+"status": "oct-identical",
+"bytes": 3734,
+"oct28_bytes": 3734
+},
+{
+"file": "src/mix/03_session_auditions.js",
+"status": "oct-evolved",
+"bytes": 9606,
+"oct28_bytes": 9510
+},
+{
+"file": "src/post-oct/gaps/010-main-bundle__04_after_03_session_auditions.js",
+"status": "post-oct-gap",
+"bytes": 10,
+"oct28_bytes": 0
+},
+{
+"file": "src/mix/04_melodic_spatial.js",
+"status": "oct-identical",
+"bytes": 3529,
+"oct28_bytes": 3529
+},
+{
+"file": "src/mix/05_grid_runtime.js",
+"status": "oct-identical",
+"bytes": 1148,
+"oct28_bytes": 1148
+},
+{
+"file": "src/mix/06_custom_instruments.js",
+"status": "oct-evolved",
+"bytes": 8774,
+"oct28_bytes": 5508
+},
+{
+"file": "src/instruments/00_diagnostics.js",
+"status": "oct-evolved",
+"bytes": 8637,
+"oct28_bytes": 8406
+},
+{
+"file": "src/mix/01_pan.js",
+"status": "oct-evolved",
+"bytes": 7645,
+"oct28_bytes": 5660
+},
+{
+"file": "src/mix/02_performance_catalog.js",
+"status": "oct-evolved",
+"bytes": 3178,
+"oct28_bytes": 3175
+},
+{
+"file": "src/nodal/01_instrument_model.js",
+"status": "oct-evolved",
+"bytes": 53116,
+"oct28_bytes": 22415
+},
+{
+"file": "src/nodal/02_synthesis_kernel.js",
+"status": "oct-evolved",
+"bytes": 68595,
+"oct28_bytes": 64852
+},
+{
+"file": "src/post-oct/gaps/010-main-bundle__05_after_02_synthesis_kernel.js",
+"status": "post-oct-gap",
+"bytes": 147,
+"oct28_bytes": 0
+},
+{
+"file": "src/nodal/03_library.js",
+"status": "oct-identical",
+"bytes": 5541,
+"oct28_bytes": 5541
+},
+{
+"file": "src/nodal/03_preparation_worker.js",
+"status": "oct-identical",
+"bytes": 4557,
+"oct28_bytes": 4557
+},
+{
+"file": "src/nodal/04_audio_runtime.js",
+"status": "oct-evolved",
+"bytes": 126395,
+"oct28_bytes": 44408
+},
+{
+"file": "src/nodal/05_installation_bridge.js",
+"status": "oct-evolved",
+"bytes": 17278,
+"oct28_bytes": 16447
+},
+{
+"file": "src/nodal/06_melodic_bridge.js",
+"status": "oct-evolved",
+"bytes": 7747,
+"oct28_bytes": 7614
+},
+{
+"file": "src/nodal/08_melodic_live_transport.js",
+"status": "oct-identical",
+"bytes": 11480,
+"oct28_bytes": 11480
+},
+{
+"file": "src/nodal/09_melodic_session.js",
+"status": "oct-evolved",
+"bytes": 2485,
+"oct28_bytes": 2275
+},
+{
+"file": "src/nodal/10_library_manager.js",
+"status": "oct-identical",
+"bytes": 426,
+"oct28_bytes": 426
+},
+{
+"file": "src/nodal/11_editing_session.js",
+"status": "oct-identical",
+"bytes": 2462,
+"oct28_bytes": 2462
+},
+{
+"file": "src/nodal/07_sound_designer.js",
+"status": "oct-evolved",
+"bytes": 3268,
+"oct28_bytes": 3182
+},
+{
+"file": "src/audio/lifecycle/00_voice_lease.js",
+"status": "oct-identical",
+"bytes": 3154,
+"oct28_bytes": 3154
+},
+{
+"file": "src/nodal/12_surface_runtime.js",
+"status": "oct-evolved",
+"bytes": 57107,
+"oct28_bytes": 28374
+},
+{
+"file": "src/post-oct/gaps/010-main-bundle__06_after_12_surface_runtime.js",
+"status": "post-oct-gap",
+"bytes": 8341,
+"oct28_bytes": 0
+},
+{
+"file": "src/forge/emilia/04_source_materials.js",
+"status": "oct-identical",
+"bytes": 2346,
+"oct28_bytes": 2346
+},
+{
+"file": "src/forge/emilia/05_hx_reciprocal.js",
+"status": "oct-identical",
+"bytes": 1940,
+"oct28_bytes": 1940
+},
+{
+"file": "src/forge/emilia/03_network_color.js",
+"status": "oct-identical",
+"bytes": 6545,
+"oct28_bytes": 6545
+},
+{
+"file": "src/forge/analysis/04_painted_voices.js",
+"status": "oct-identical",
+"bytes": 2961,
+"oct28_bytes": 2961
+},
+{
+"file": "src/forge/emilia/06_preview_worker.js",
+"status": "oct-identical",
+"bytes": 2111,
+"oct28_bytes": 2111
+},
+{
+"file": "src/forge/emilia/01_nodal_carrier.js",
+"status": "oct-identical",
+"bytes": 18226,
+"oct28_bytes": 18226
+},
+{
+"file": "src/forge/fractalia/00_legacy_f2.js",
+"status": "oct-identical",
+"bytes": 13153,
+"oct28_bytes": 13153
+},
+{
+"file": "src/forge/fractalia/01_core.js",
+"status": "oct-identical",
+"bytes": 18778,
+"oct28_bytes": 18778
+},
+{
+"file": "src/forge/fractalia/02_mantle.js",
+"status": "oct-identical",
+"bytes": 2047,
+"oct28_bytes": 2047
+},
+{
+"file": "src/forge/fractalia/04_relations.js",
+"status": "oct-identical",
+"bytes": 6000,
+"oct28_bytes": 6000
+},
+{
+"file": "src/forge/fractalia/06_relational_render.js",
+"status": "oct-evolved",
+"bytes": 5271,
+"oct28_bytes": 5236
+},
+{
+"file": "src/forge/fractalia/05_relational_core.js",
+"status": "oct-identical",
+"bytes": 11085,
+"oct28_bytes": 11085
+},
+{
+"file": "src/forge/fractalia/07_compile_jobs.js",
+"status": "oct-identical",
+"bytes": 2620,
+"oct28_bytes": 2620
+},
+{
+"file": "src/forge/fractalia/08_donor_ecology.js",
+"status": "oct-identical",
+"bytes": 3840,
+"oct28_bytes": 3840
+},
+{
+"file": "src/forge/fractalia/09_material_atlas.js",
+"status": "oct-identical",
+"bytes": 10145,
+"oct28_bytes": 10145
+},
+{
+"file": "src/forge/fractalia/10_material_render.js",
+"status": "oct-identical",
+"bytes": 9530,
+"oct28_bytes": 9530
+},
+{
+"file": "src/forge/fractalia/11_material_runtime.js",
+"status": "oct-identical",
+"bytes": 6168,
+"oct28_bytes": 6168
+},
+{
+"file": "src/forge/fractalia/12_material_experiments.js",
+"status": "oct-identical",
+"bytes": 6213,
+"oct28_bytes": 6213
+},
+{
+"file": "src/forge/fractalia/13_spectral_view.js",
+"status": "oct-identical",
+"bytes": 2859,
+"oct28_bytes": 2859
+},
+{
+"file": "src/forge/fractalia/14_live_transfer.js",
+"status": "oct-identical",
+"bytes": 4095,
+"oct28_bytes": 4095
+},
+{
+"file": "src/forge/fractalia/03_instrument.js",
+"status": "oct-identical",
+"bytes": 15428,
+"oct28_bytes": 15428
+},
+{
+"file": "src/forge/editor/09_workflow_controls.js",
+"status": "oct-evolved",
+"bytes": 17480,
+"oct28_bytes": 15752
+},
+{
+"file": "src/forge/dsp/08_pure_dieter_worker.js",
+"status": "oct-identical",
+"bytes": 3421,
+"oct28_bytes": 3421
+},
+{
+"file": "src/forge/emilia/02_lab_ui.js",
+"status": "oct-identical",
+"bytes": 341,
+"oct28_bytes": 341
+},
+{
+"file": "src/forge/dsp/04_donor_field.js",
+"status": "oct-identical",
+"bytes": 8728,
+"oct28_bytes": 8728
+},
+{
+"file": "src/forge/lifecycle/01_offline_jobs.js",
+"status": "oct-identical",
+"bytes": 5546,
+"oct28_bytes": 5546
+},
+{
+"file": "src/storage/05_project_snapshots.js",
+"status": "oct-evolved",
+"bytes": 7965,
+"oct28_bytes": 7945
+},
+{
+"file": "src/storage/06_history_budget.js",
+"status": "oct-identical",
+"bytes": 2028,
+"oct28_bytes": 2028
+},
+{
+"file": "src/storage/07_history_snapshots.js",
+"status": "oct-identical",
+"bytes": 3792,
+"oct28_bytes": 3792
+},
+{
+"file": "src/nodal/13_installation_ball_grid.js",
+"status": "oct-identical",
+"bytes": 3451,
+"oct28_bytes": 3451
+},
+{
+"file": "src/contracts/03_package_transaction.js",
+"status": "oct-identical",
+"bytes": 1471,
+"oct28_bytes": 1471
+},
+{
+"file": "src/contracts/04_import_coordinator.js",
+"status": "oct-identical",
+"bytes": 7049,
+"oct28_bytes": 7049
+},
+{
+"file": "src/contracts/05_sample_recovery.js",
+"status": "oct-identical",
+"bytes": 5032,
+"oct28_bytes": 5032
+},
+{
+"file": "src/contracts/06_sample_destructive_import.js",
+"status": "oct-identical",
+"bytes": 2714,
+"oct28_bytes": 2714
+},
+{
+"file": "src/contracts/07_reference_integrity.js",
+"status": "oct-identical",
+"bytes": 5207,
+"oct28_bytes": 5207
+},
+{
+"file": "src/contracts/08_reference_graph.js",
+"status": "oct-identical",
+"bytes": 6835,
+"oct28_bytes": 6835
+},
+{
+"file": "src/contracts/09_reference_graph_extensions.js",
+"status": "oct-identical",
+"bytes": 4889,
+"oct28_bytes": 4889
+},
+{
+"file": "src/contracts/10_library_inventory_ports.js",
+"status": "oct-identical",
+"bytes": 4328,
+"oct28_bytes": 4328
+},
+{
+"file": "src/contracts/11_workspace_library_phases.js",
+"status": "oct-identical",
+"bytes": 1194,
+"oct28_bytes": 1194
+},
+{
+"file": "src/contracts/16_workspace_export_stream.js",
+"status": "oct-identical",
+"bytes": 6927,
+"oct28_bytes": 6927
+},
+{
+"file": "src/contracts/12_workspace_result_projection.js",
+"status": "oct-identical",
+"bytes": 6149,
+"oct28_bytes": 6149
+},
+{
+"file": "src/contracts/13_root_follow_import_plan.js",
+"status": "oct-identical",
+"bytes": 3334,
+"oct28_bytes": 3334
+},
+{
+"file": "src/contracts/14_melodic_project_restore_plan.js",
+"status": "oct-identical",
+"bytes": 2885,
+"oct28_bytes": 2885
+},
+{
+"file": "src/contracts/15_melodic_project_reservations.js",
+"status": "oct-identical",
+"bytes": 6734,
+"oct28_bytes": 6734
+},
+{
+"file": "src/contracts/16_project_commit_boundary.js",
+"status": "oct-evolved",
+"bytes": 4273,
+"oct28_bytes": 4269
+},
+{
+"file": "src/post-oct/gaps/010-main-bundle__07_after_16_project_commit_boundary.js",
+"status": "post-oct-gap",
+"bytes": 829,
+"oct28_bytes": 0
+},
+{
+"file": "src/01_app_runtime.js",
+"status": "oct-evolved",
+"bytes": 53226,
+"oct28_bytes": 50252
+},
+{
+"file": "src/forge/workbench/01_preset_catalog.js",
+"status": "oct-identical",
+"bytes": 14360,
+"oct28_bytes": 14360
+},
+{
+"file": "src/forge/workbench/02_recipe_normalization.js",
+"status": "oct-identical",
+"bytes": 5187,
+"oct28_bytes": 5187
+},
+{
+"file": "src/forge/workbench/03_material_selection.js",
+"status": "oct-identical",
+"bytes": 11613,
+"oct28_bytes": 11613
+},
+{
+"file": "src/forge/workbench/04_sound_bridge.js",
+"status": "oct-identical",
+"bytes": 919,
+"oct28_bytes": 919
+},
+{
+"file": "src/forge/workbench/05_state_store.js",
+"status": "oct-identical",
+"bytes": 12284,
+"oct28_bytes": 12284
+},
+{
+"file": "src/forge/01_workbench_state.js",
+"status": "oct-identical",
+"bytes": 594,
+"oct28_bytes": 594
+},
+{
+"file": "src/forge/dsp/01_material_tools.js",
+"status": "oct-identical",
+"bytes": 9800,
+"oct28_bytes": 9800
+},
+{
+"file": "src/forge/dsp/02_gestalt_tools.js",
+"status": "oct-identical",
+"bytes": 7205,
+"oct28_bytes": 7205
+},
+{
+"file": "src/forge/dsp/03_pcm_worker.js",
+"status": "oct-identical",
+"bytes": 1545,
+"oct28_bytes": 1545
+},
+{
+"file": "src/forge/original/01_articulation.js",
+"status": "oct-identical",
+"bytes": 5191,
+"oct28_bytes": 5191
+},
+{
+"file": "src/forge/original/02_material.js",
+"status": "oct-identical",
+"bytes": 13508,
+"oct28_bytes": 13508
+},
+{
+"file": "src/forge/original/03_gestalt_material.js",
+"status": "oct-identical",
+"bytes": 9336,
+"oct28_bytes": 9336
+},
+{
+"file": "src/forge/original/04_gestalt.js",
+"status": "oct-identical",
+"bytes": 21481,
+"oct28_bytes": 21481
+},
+{
+"file": "src/forge/original/05_dual_donor.js",
+"status": "oct-identical",
+"bytes": 12891,
+"oct28_bytes": 12891
+},
+{
+"file": "src/forge/original/06_cecilia.js",
+"status": "oct-identical",
+"bytes": 8232,
+"oct28_bytes": 8232
+},
+{
+"file": "src/forge/revised/01_material.js",
+"status": "oct-identical",
+"bytes": 9848,
+"oct28_bytes": 9848
+},
+{
+"file": "src/forge/revised/02_gestalt.js",
+"status": "oct-identical",
+"bytes": 26044,
+"oct28_bytes": 26044
+},
+{
+"file": "src/forge/module_bundle/01_entry.js",
+"status": "oct-identical",
+"bytes": 5480,
+"oct28_bytes": 5480
+},
+{
+"file": "src/forge/module_bundle/02_projectionCarrierPlan.js",
+"status": "oct-identical",
+"bytes": 6806,
+"oct28_bytes": 6806
+},
+{
+"file": "src/forge/module_bundle/03_carrierDonorV2Types.js",
+"status": "oct-identical",
+"bytes": 192,
+"oct28_bytes": 192
+},
+{
+"file": "src/forge/module_bundle/04_carrierSupportField.js",
+"status": "oct-identical",
+"bytes": 3566,
+"oct28_bytes": 3566
+},
+{
+"file": "src/forge/module_bundle/05_carrierContinuity.js",
+"status": "oct-identical",
+"bytes": 6868,
+"oct28_bytes": 6868
+},
+{
+"file": "src/forge/module_bundle/06_donorHybridModel.js",
+"status": "oct-identical",
+"bytes": 8936,
+"oct28_bytes": 8936
+},
+{
+"file": "src/forge/module_bundle/07_donorBodyModel.js",
+"status": "oct-identical",
+"bytes": 14989,
+"oct28_bytes": 14989
+},
+{
+"file": "src/forge/module_bundle/08_realSpectrum.js",
+"status": "oct-identical",
+"bytes": 1604,
+"oct28_bytes": 1604
+},
+{
+"file": "src/forge/module_bundle/09_donorPitch.js",
+"status": "oct-identical",
+"bytes": 1619,
+"oct28_bytes": 1619
+},
+{
+"file": "src/forge/module_bundle/10_donorSpectralEvidence.js",
+"status": "oct-identical",
+"bytes": 3746,
+"oct28_bytes": 3746
+},
+{
+"file": "src/forge/module_bundle/11_donorSourceWindows.js",
+"status": "oct-identical",
+"bytes": 5549,
+"oct28_bytes": 5549
+},
+{
+"file": "src/forge/module_bundle/12_renderDonorHybrid.js",
+"status": "oct-identical",
+"bytes": 19238,
+"oct28_bytes": 19238
+},
+{
+"file": "src/forge/module_bundle/13_donorMaterialPlan.js",
+"status": "oct-identical",
+"bytes": 3137,
+"oct28_bytes": 3137
+},
+{
+"file": "src/forge/module_bundle/14_granularCadence.js",
+"status": "oct-identical",
+"bytes": 2241,
+"oct28_bytes": 2241
+},
+{
+"file": "src/forge/module_bundle/15_renderContinuousDonor.js",
+"status": "oct-identical",
+"bytes": 15172,
+"oct28_bytes": 15172
+},
+{
+"file": "src/forge/module_bundle/16_complexSpectrum.js",
+"status": "oct-identical",
+"bytes": 2012,
+"oct28_bytes": 2012
+},
+{
+"file": "src/forge/module_bundle/17_renderCarrierSupport.js",
+"status": "oct-identical",
+"bytes": 14937,
+"oct28_bytes": 14937
+},
+{
+"file": "src/forge/module_bundle/18_donorSpectralFilm.js",
+"status": "oct-identical",
+"bytes": 8766,
+"oct28_bytes": 8766
+},
+{
+"file": "src/forge/module_bundle/19_donorMaterialDiagnostics.js",
+"status": "oct-identical",
+"bytes": 2158,
+"oct28_bytes": 2158
+},
+{
+"file": "src/forge/module_bundle/20_donorOutputMantle.js",
+"status": "oct-identical",
+"bytes": 1580,
+"oct28_bytes": 1580
+},
+{
+"file": "src/forge/module_bundle/21_experimentStatePersistence.js",
+"status": "oct-evolved",
+"bytes": 16854,
+"oct28_bytes": 16814
+},
+{
+"file": "src/forge/module_bundle/22_materialIntakePersistence.js",
+"status": "oct-identical",
+"bytes": 12229,
+"oct28_bytes": 12229
+},
+{
+"file": "src/forge/module_bundle/99_close.js",
+"status": "oct-identical",
+"bytes": 676,
+"oct28_bytes": 676
+},
+{
+"file": "src/storage/01_donor_library.js",
+"status": "oct-evolved",
+"bytes": 19879,
+"oct28_bytes": 17776
+},
+{
+"file": "src/storage/02_donor_packages.js",
+"status": "oct-identical",
+"bytes": 13094,
+"oct28_bytes": 13094
+},
+{
+"file": "src/storage/03_forge_packages.js",
+"status": "oct-identical",
+"bytes": 3431,
+"oct28_bytes": 3431
+},
+{
+"file": "src/storage/04_sample_donor_bridge.js",
+"status": "oct-identical",
+"bytes": 8062,
+"oct28_bytes": 8062
+},
+{
+"file": "src/vendor/01_react_dom.js",
+"status": "oct-identical",
+"bytes": 194714,
+"oct28_bytes": 194714
+},
+{
+"file": "src/post-oct/gaps/010-main-bundle__08_after_01_react_dom.js",
+"status": "post-oct-gap",
+"bytes": 1458,
+"oct28_bytes": 0
+},
+{
+"file": "src/runtime/01_instrument_state.js",
+"status": "oct-evolved",
+"bytes": 71613,
+"oct28_bytes": 69885
+},
+{
+"file": "src/runtime/instrument/01_voice_gradients_and_effects.js",
+"status": "oct-evolved",
+"bytes": 36980,
+"oct28_bytes": 34628
+},
+{
+"file": "src/runtime/instrument/02_observation_and_sample_storage.js",
+"status": "oct-evolved",
+"bytes": 42881,
+"oct28_bytes": 32335
+},
+{
+"file": "src/runtime/instrument/03_selection_and_recording_tools.js",
+"status": "oct-evolved",
+"bytes": 39342,
+"oct28_bytes": 37090
+},
+{
+"file": "src/runtime/instrument/04_performance_and_output_profiles.js",
+"status": "oct-identical",
+"bytes": 37589,
+"oct28_bytes": 37589
+},
+{
+"file": "src/audio/rfl/01_resident_worklet.js",
+"status": "oct-identical",
+"bytes": 23329,
+"oct28_bytes": 23329
+},
+{
+"file": "src/audio/rfl/02_fragment_preparation.js",
+"status": "oct-identical",
+"bytes": 4975,
+"oct28_bytes": 4975
+},
+{
+"file": "src/runtime/instrument/05_timing_and_admission.js",
+"status": "oct-evolved",
+"bytes": 112259,
+"oct28_bytes": 89619
+},
+{
+"file": "src/runtime/instrument/06_rooms_and_lifecycle.js",
+"status": "oct-evolved",
+"bytes": 40818,
+"oct28_bytes": 40812
+},
+{
+"file": "src/runtime/instrument/07_interpreters_and_installation.js",
+"status": "oct-identical",
+"bytes": 11281,
+"oct28_bytes": 11281
+},
+{
+"file": "src/myzel/01_effect_mapping.js",
+"status": "oct-evolved",
+"bytes": 111150,
+"oct28_bytes": 69617
+},
+{
+"file": "src/runtime/instrument/09_monitoring_and_manual_patterns.js",
+"status": "oct-evolved",
+"bytes": 95702,
+"oct28_bytes": 80389
+},
+{
+"file": "src/post-oct/gaps/010-main-bundle__09_after_09_monitoring_and_manual_patterns.js",
+"status": "post-oct-gap",
+"bytes": 6373,
+"oct28_bytes": 0
+},
+{
+"file": "src/runtime/instrument/10_entrophon_and_voice_control.js",
+"status": "oct-evolved",
+"bytes": 63996,
+"oct28_bytes": 63914
+},
+{
+"file": "src/instruments/01_entrophon_definition.js",
+"status": "oct-identical",
+"bytes": 4205,
+"oct28_bytes": 4205
+},
+{
+"file": "src/instruments/02_entrophon_library.js",
+"status": "oct-identical",
+"bytes": 2367,
+"oct28_bytes": 2367
+},
+{
+"file": "src/instruments/03_entrophon_library_ui.js",
+"status": "oct-identical",
+"bytes": 2281,
+"oct28_bytes": 2281
+},
+{
+"file": "src/instruments/04_entrophon_melodic_audio.js",
+"status": "oct-evolved",
+"bytes": 17499,
+"oct28_bytes": 16770
+},
+{
+"file": "src/instruments/05_entrophon_integration.js",
+"status": "oct-evolved",
+"bytes": 6688,
+"oct28_bytes": 6644
+},
+{
+"file": "src/instruments/06_source_preparation.js",
+"status": "oct-evolved",
+"bytes": 6910,
+"oct28_bytes": 6562
+},
+{
+"file": "src/instruments/07_pitch_preparation.js",
+"status": "oct-identical",
+"bytes": 4200,
+"oct28_bytes": 4200
+},
+{
+"file": "src/runtime/instrument/11_recording_and_granular_controls.js",
+"status": "oct-evolved",
+"bytes": 53542,
+"oct28_bytes": 47501
+},
+{
+"file": "src/post-oct/gaps/010-main-bundle__10_after_11_recording_and_granular_controls.js",
+"status": "post-oct-gap",
+"bytes": 351,
+"oct28_bytes": 0
+},
+{
+"file": "src/runtime/instrument/12_rhythm_and_bass_editor.js",
+"status": "oct-evolved",
+"bytes": 84363,
+"oct28_bytes": 84329
+},
+{
+"file": "src/post-oct/gaps/010-main-bundle__11_after_12_rhythm_and_bass_editor.js",
+"status": "post-oct-gap",
+"bytes": 3734,
+"oct28_bytes": 0
+},
+{
+"file": "src/rhythm/01_compact_drum_grid.js",
+"status": "oct-evolved",
+"bytes": 61667,
+"oct28_bytes": 46595
+},
+{
+"file": "src/post-oct/gaps/010-main-bundle__12_after_01_compact_drum_grid.js",
+"status": "post-oct-gap",
+"bytes": 704,
+"oct28_bytes": 0
+},
+{
+"file": "src/audio/07_myzel_g_geometry.js",
+"status": "oct-identical",
+"bytes": 3866,
+"oct28_bytes": 3866
+},
+{
+"file": "src/audio/09_myzel_g_dsp.js",
+"status": "oct-evolved",
+"bytes": 19396,
+"oct28_bytes": 16301
+},
+{
+"file": "src/post-oct/gaps/010-main-bundle__13_after_09_myzel_g_dsp.js",
+"status": "post-oct-gap",
+"bytes": 1339,
+"oct28_bytes": 0
+},
+{
+"file": "src/audio/08_myzel_g_live.js",
+"status": "oct-evolved",
+"bytes": 12886,
+"oct28_bytes": 9164
+},
+{
+"file": "src/runtime/instrument/13_pointer_motion.js",
+"status": "oct-identical",
+"bytes": 1469,
+"oct28_bytes": 1469
+},
+{
+"file": "src/rhythm/02_bass_and_rack.js",
+"status": "oct-evolved",
+"bytes": 233016,
+"oct28_bytes": 167938
+},
+{
+"file": "src/audio/drone/01_colour.js",
+"status": "oct-identical",
+"bytes": 1458,
+"oct28_bytes": 1458
+},
+{
+"file": "src/audio/01_voice_and_rfl_ownership.js",
+"status": "oct-evolved",
+"bytes": 240491,
+"oct28_bytes": 201760
+},
+{
+"file": "src/audio/00_rfl_settings_cache.js",
+"status": "oct-identical",
+"bytes": 2058,
+"oct28_bytes": 2058
+},
+{
+"file": "src/audio/02_rfl_worklet.js",
+"status": "oct-evolved",
+"bytes": 104085,
+"oct28_bytes": 102830
+},
+{
+"file": "src/post-oct/gaps/010-main-bundle__14_after_02_rfl_worklet.js",
+"status": "post-oct-gap",
+"bytes": 14033,
+"oct28_bytes": 0
+},
+{
+"file": "src/audio/03_pcm_master_recorder.js",
+"status": "oct-evolved",
+"bytes": 19853,
+"oct28_bytes": 11916
+},
+{
+"file": "src/post-oct/gaps/010-main-bundle__15_after_03_pcm_master_recorder.js",
+"status": "post-oct-gap",
+"bytes": 29622,
+"oct28_bytes": 0
+},
+{
+"file": "src/audio/03_rfl_transport_legacy.js",
+"status": "oct-evolved",
+"bytes": 107154,
+"oct28_bytes": 103216
+},
+{
+"file": "src/audio/03_acoustic_sync.js",
+"status": "oct-identical",
+"bytes": 7957,
+"oct28_bytes": 7957
+},
+{
+"file": "src/audio/03_flac_encoder.js",
+"status": "oct-evolved",
+"bytes": 13811,
+"oct28_bytes": 12384
+},
+{
+"file": "src/post-oct/gaps/010-main-bundle__16_after_03_flac_encoder.js",
+"status": "post-oct-gap",
+"bytes": 9835,
+"oct28_bytes": 0
+},
+{
+"file": "src/audio/03_recorder_helpers.js",
+"status": "oct-evolved",
+"bytes": 1470,
+"oct28_bytes": 1415
+},
+{
+"file": "src/post-oct/gaps/010-main-bundle__17_after_03_recorder_helpers.js",
+"status": "post-oct-gap",
+"bytes": 142,
+"oct28_bytes": 0
+},
+{
+"file": "src/audio/03_pcm_range.js",
+"status": "oct-identical",
+"bytes": 258,
+"oct28_bytes": 258
+},
+{
+"file": "src/audio/03_recorder.js",
+"status": "oct-evolved",
+"bytes": 38209,
+"oct28_bytes": 27478
+},
+{
+"file": "src/audio/04_wave_worklet.js",
+"status": "oct-evolved",
+"bytes": 87414,
+"oct28_bytes": 86145
+},
+{
+"file": "src/post-oct/gaps/010-main-bundle__18_after_04_wave_worklet.js",
+"status": "post-oct-gap",
+"bytes": 1,
+"oct28_bytes": 0
+},
+{
+"file": "src/audio/05_sample_granular_hold.js",
+"status": "oct-evolved",
+"bytes": 8693,
+"oct28_bytes": 8115
+},
+{
+"file": "src/audio/avalanche.js",
+"status": "oct-evolved",
+"bytes": 17991,
+"oct28_bytes": 11784
+},
+{
+"file": "src/post-oct/gaps/010-main-bundle__19_after_avalanche.js",
+"status": "post-oct-gap",
+"bytes": 1489,
+"oct28_bytes": 0
+},
+{
+"file": "src/audio/hold_resident.js",
+"status": "oct-evolved",
+"bytes": 7780,
+"oct28_bytes": 6301
+},
+{
+"file": "src/audio/hold_modulation.js",
+"status": "oct-evolved",
+"bytes": 7185,
+"oct28_bytes": 3490
+},
+{
+"file": "src/post-oct/gaps/010-main-bundle__20_after_hold_modulation.js",
+"status": "post-oct-gap",
+"bytes": 81,
+"oct28_bytes": 0
+},
+{
+"file": "src/audio/05_live_voice_runtime.js",
+"status": "oct-evolved",
+"bytes": 184486,
+"oct28_bytes": 166106
+},
+{
+"file": "src/audio/entrophon/01_wasm_asset.js",
+"status": "oct-identical",
+"bytes": 83345,
+"oct28_bytes": 83345
+},
+{
+"file": "src/audio/entrophon/02_worklet_and_voice_backend.js",
+"status": "oct-evolved",
+"bytes": 197638,
+"oct28_bytes": 171558
+},
+{
+"file": "src/audio/entrophon/03_native_bridge.js",
+"status": "oct-evolved",
+"bytes": 13260,
+"oct28_bytes": 11881
+},
+{
+"file": "src/audio/07_governor_and_drums.js",
+"status": "oct-evolved",
+"bytes": 102842,
+"oct28_bytes": 93683
+},
+{
+"file": "src/rhythm/03_live_drum_bodies.js",
+"status": "oct-evolved",
+"bytes": 73098,
+"oct28_bytes": 71472
+},
+{
+"file": "src/post-oct/gaps/010-main-bundle__21_after_03_live_drum_bodies.js",
+"status": "post-oct-gap",
+"bytes": 6924,
+"oct28_bytes": 0
+},
+{
+"file": "src/rhythm/04_workspace_and_transport.js",
+"status": "oct-evolved",
+"bytes": 166567,
+"oct28_bytes": 157797
+},
+{
+"file": "src/rhythm/05_canonical_selection.js",
+"status": "oct-evolved",
+"bytes": 8797,
+"oct28_bytes": 6603
+},
+{
+"file": "src/post-oct/gaps/010-main-bundle__22_after_05_canonical_selection.js",
+"status": "post-oct-gap",
+"bytes": 485,
+"oct28_bytes": 0
+},
+{
+"file": "src/app/forge/01_room_shell.js",
+"status": "oct-evolved",
+"bytes": 71717,
+"oct28_bytes": 68185
+},
+{
+"file": "src/app/forge/02_boot_and_workspace_tools.js",
+"status": "oct-evolved",
+"bytes": 87775,
+"oct28_bytes": 80311
+},
+{
+"file": "src/post-oct/gaps/010-main-bundle__23_after_02_boot_and_workspace_tools.js",
+"status": "post-oct-gap",
+"bytes": 218,
+"oct28_bytes": 0
+},
+{
+"file": "src/forge/stamps/01_atlas_2026_bridge.js",
+"status": "oct-identical",
+"bytes": 99238,
+"oct28_bytes": 99238
+},
+{
+"file": "src/forge/stamps/02_atlas_audition.js",
+"status": "oct-identical",
+"bytes": 10561,
+"oct28_bytes": 10561
+},
+{
+"file": "src/app/forge/03_spectral_grid_and_archives.js",
+"status": "oct-evolved",
+"bytes": 82394,
+"oct28_bytes": 81732
+},
+{
+"file": "src/app/forge/04_profiles_and_body_models.js",
+"status": "oct-identical",
+"bytes": 78307,
+"oct28_bytes": 78307
+},
+{
+"file": "src/app/forge/05_forge_state_and_analysis.js",
+"status": "oct-evolved",
+"bytes": 38300,
+"oct28_bytes": 38280
+},
+{
+"file": "src/app/forge/06_donor_audio_and_audition.js",
+"status": "oct-identical",
+"bytes": 45287,
+"oct28_bytes": 45287
+},
+{
+"file": "src/app/forge/07_preview_cache_and_controls.js",
+"status": "oct-evolved",
+"bytes": 43851,
+"oct28_bytes": 41774
+},
+{
+"file": "src/forge/editor/06_pcm_spectrum_view.js",
+"status": "oct-identical",
+"bytes": 4645,
+"oct28_bytes": 4645
+},
+{
+"file": "src/forge/editor/07_view_lifecycle.js",
+"status": "oct-identical",
+"bytes": 789,
+"oct28_bytes": 789
+},
+{
+"file": "src/forge/editor/01_display_and_canvas.js",
+"status": "oct-evolved",
+"bytes": 9452,
+"oct28_bytes": 9487
+},
+{
+"file": "src/forge/editor/02_tools_and_audio_inputs.js",
+"status": "oct-evolved",
+"bytes": 40840,
+"oct28_bytes": 39803
+},
+{
+"file": "src/forge/editor/03_synthetic_sound_engines.js",
+"status": "oct-identical",
+"bytes": 27502,
+"oct28_bytes": 27502
+},
+{
+"file": "src/forge/dsp/04_polytrace_render.js",
+"status": "oct-evolved",
+"bytes": 9226,
+"oct28_bytes": 8903
+},
+{
+"file": "src/forge/editor/04_signal_atoms_and_bodies.js",
+"status": "oct-identical",
+"bytes": 30620,
+"oct28_bytes": 30620
+},
+{
+"file": "src/forge/editor/05_machine_and_carrier_projection.js",
+"status": "oct-evolved",
+"bytes": 56131,
+"oct28_bytes": 55438
+},
+{
+"file": "src/forge/editor/06_output_routing.js",
+"status": "oct-evolved",
+"bytes": 23971,
+"oct28_bytes": 23779
+},
+{
+"file": "src/forge/analysis/06_polyphonic_transfer.js",
+"status": "oct-identical",
+"bytes": 6648,
+"oct28_bytes": 6648
+},
+{
+"file": "src/forge/editor/07_composition_and_preview_ui.js",
+"status": "oct-evolved",
+"bytes": 127116,
+"oct28_bytes": 110055
+},
+{
+"file": "src/post-oct/gaps/010-main-bundle__24_after_07_composition_and_preview_ui.js",
+"status": "post-oct-gap",
+"bytes": 1216,
+"oct28_bytes": 0
+},
+{
+"file": "src/forge/ui/03_microphone_intake.js",
+"status": "oct-identical",
+"bytes": 215,
+"oct28_bytes": 215
+},
+{
+"file": "src/forge/analysis/04_audio_to_carrier.js",
+"status": "oct-identical",
+"bytes": 242,
+"oct28_bytes": 242
+},
+{
+"file": "src/forge/analysis/05_carrier_pitch_space.js",
+"status": "oct-identical",
+"bytes": 1447,
+"oct28_bytes": 1447
+},
+{
+"file": "src/forge/ui/04_audio_to_carrier_controls.js",
+"status": "oct-identical",
+"bytes": 179,
+"oct28_bytes": 179
+},
+{
+"file": "src/forge/ui/02_donor_routing_and_hearing.js",
+"status": "oct-evolved",
+"bytes": 92010,
+"oct28_bytes": 86664
+},
+{
+"file": "src/forge/ui/03_method_selection.js",
+"status": "oct-evolved",
+"bytes": 10414,
+"oct28_bytes": 10092
+},
+{
+"file": "src/forge_and_melodic/03_timeline_and_transport_ui.js",
+"status": "oct-evolved",
+"bytes": 16818,
+"oct28_bytes": 16568
+},
+{
+"file": "src/forge_and_melodic/04_render_cache_and_stems.js",
+"status": "oct-evolved",
+"bytes": 73129,
+"oct28_bytes": 66791
+},
+{
+"file": "src/forge_and_melodic/07_tuning_and_logic_view.js",
+"status": "oct-identical",
+"bytes": 4077,
+"oct28_bytes": 4077
+},
+{
+"file": "src/forge_and_melodic/10_audition_and_persistence.js",
+"status": "oct-evolved",
+"bytes": 49629,
+"oct28_bytes": 44713
+},
+{
+"file": "src/forge/hybrid/01_recipe.js",
+"status": "oct-identical",
+"bytes": 2220,
+"oct28_bytes": 2220
+},
+{
+"file": "src/forge/hybrid/02_session_store.js",
+"status": "oct-identical",
+"bytes": 2070,
+"oct28_bytes": 2070
+},
+{
+"file": "src/forge/analysis/01_analysis_size.js",
+"status": "oct-identical",
+"bytes": 720,
+"oct28_bytes": 720
+},
+{
+"file": "src/forge/analysis/02_analysis_cache.js",
+"status": "oct-identical",
+"bytes": 1780,
+"oct28_bytes": 1780
+},
+{
+"file": "src/04_forge_render.js",
+"status": "oct-identical",
+"bytes": 430,
+"oct28_bytes": 430
+},
+{
+"file": "src/forge/hybrid/03_render_pipeline.js",
+"status": "oct-identical",
+"bytes": 5883,
+"oct28_bytes": 5883
+},
+{
+"file": "src/forge/hybrid/04_cecilia_dsp_and_worker.js",
+"status": "oct-identical",
+"bytes": 15791,
+"oct28_bytes": 15791
+},
+{
+"file": "src/forge/hybrid/05_capture_tools.js",
+"status": "oct-identical",
+"bytes": 1876,
+"oct28_bytes": 1876
+},
+{
+"file": "src/forge/hybrid/10_carrier_capture.js",
+"status": "oct-identical",
+"bytes": 2390,
+"oct28_bytes": 2390
+},
+{
+"file": "src/forge/hybrid/06_job_capture.js",
+"status": "oct-identical",
+"bytes": 3789,
+"oct28_bytes": 3789
+},
+{
+"file": "src/forge/hybrid/07_render_adapters.js",
+"status": "oct-identical",
+"bytes": 2190,
+"oct28_bytes": 2190
+},
+{
+"file": "src/forge/hybrid/08_playback_controller.js",
+"status": "oct-identical",
+"bytes": 3795,
+"oct28_bytes": 3795
+},
+{
+"file": "src/forge/hybrid/09_runtime.js",
+"status": "oct-identical",
+"bytes": 873,
+"oct28_bytes": 873
+},
+{
+"file": "src/forge/analysis/03_source_identity_and_cache.js",
+"status": "oct-identical",
+"bytes": 1828,
+"oct28_bytes": 1828
+},
+{
+"file": "src/forge/lifecycle/02_workbench_activity.js",
+"status": "oct-identical",
+"bytes": 146,
+"oct28_bytes": 146
+},
+{
+"file": "src/forge/ui/05_workbench_controls.js",
+"status": "oct-identical",
+"bytes": 968,
+"oct28_bytes": 968
+},
+{
+"file": "src/forge/dual/01_dsp_and_worker.js",
+"status": "oct-identical",
+"bytes": 18272,
+"oct28_bytes": 18272
+},
+{
+"file": "src/forge/dual/02_session_store.js",
+"status": "oct-identical",
+"bytes": 1789,
+"oct28_bytes": 1789
+},
+{
+"file": "src/forge/dual/05_library_bridge.js",
+"status": "oct-identical",
+"bytes": 2993,
+"oct28_bytes": 2993
+},
+{
+"file": "src/05_dual_donor.js",
+"status": "oct-identical",
+"bytes": 6134,
+"oct28_bytes": 6134
+},
+{
+"file": "styles/bundle/base_01.css",
+"status": "oct-identical",
+"bytes": 180185,
+"oct28_bytes": 180185
+},
+{
+"file": "styles/bundle/base_02.css",
+"status": "oct-identical",
+"bytes": 8733,
+"oct28_bytes": 8733
+},
+{
+"file": "styles/post-oct/gaps/002-main-bundle__01_after_base_02.css",
+"status": "post-oct-gap",
+"bytes": 81,
+"oct28_bytes": 0
+},
+{
+"file": "styles/package_station/selection.css",
+"status": "oct-evolved",
+"bytes": 2325,
+"oct28_bytes": 2405
+},
+{
+"file": "styles/ui-fonts.css",
+"status": "oct-identical",
+"bytes": 117442,
+"oct28_bytes": 117442
+},
+{
+"file": "styles/areas/007_f39-near-feedback-style.css",
+"status": "oct-identical",
+"bytes": 507,
+"oct28_bytes": 507
+},
+{
+"file": "styles/areas/008_inline-008.css",
+"status": "oct-identical",
+"bytes": 113,
+"oct28_bytes": 113
+},
+{
+"file": "styles/areas/009_forge-sidebar-mobile-f315.css",
+"status": "oct-identical",
+"bytes": 312,
+"oct28_bytes": 312
+},
+{
+"file": "styles/areas/010_f341-donor-workbench-style.css",
+"status": "oct-identical",
+"bytes": 6533,
+"oct28_bytes": 6533
+},
+{
+"file": "styles/areas/011_f347-workbench-style.css",
+"status": "oct-identical",
+"bytes": 4529,
+"oct28_bytes": 4529
+},
+{
+"file": "styles/areas/012_f348-library-layout.css",
+"status": "oct-identical",
+"bytes": 2411,
+"oct28_bytes": 2411
+},
+{
+"file": "styles/areas/013_f349-library-side-dock.css",
+"status": "oct-identical",
+"bytes": 2235,
+"oct28_bytes": 2235
+},
+{
+"file": "styles/areas/014_f350-workflow.css",
+"status": "oct-identical",
+"bytes": 3843,
+"oct28_bytes": 3843
+},
+{
+"file": "styles/areas/015_f351-combination-rack.css",
+"status": "oct-identical",
+"bytes": 5258,
+"oct28_bytes": 5258
+},
+{
+"file": "styles/areas/016_f352-hybrid-workflow.css",
+"status": "oct-identical",
+"bytes": 1371,
+"oct28_bytes": 1371
+},
+{
+"file": "styles/areas/017_f3564-carrier-ui.css",
+"status": "oct-identical",
+"bytes": 1448,
+"oct28_bytes": 1448
+},
+{
+"file": "styles/areas/018_xen-f35618-drum-rack-layout.css",
+"status": "oct-identical",
+"bytes": 919,
+"oct28_bytes": 919
+},
+{
+"file": "styles/areas/019_xen-f35619-drum-timing.css",
+"status": "oct-identical",
+"bytes": 829,
+"oct28_bytes": 829
+},
+{
+"file": "styles/areas/020_xen-f35620-drum-layout.css",
+"status": "oct-identical",
+"bytes": 202,
+"oct28_bytes": 202
+},
+{
+"file": "styles/post-oct/017-xen-f35621-drum-karaoke.css",
+"status": "post-oct",
+"bytes": 927,
+"oct28_bytes": 0
+},
+{
+"file": "styles/areas/022_f35634-dual-donor-assembly-ui.css",
+"status": "oct-identical",
+"bytes": 14560,
+"oct28_bytes": 14560
+},
+{
+"file": "styles/areas/023_inline-023.css",
+"status": "oct-identical",
+"bytes": 5315,
+"oct28_bytes": 5315
+},
+{
+"file": "styles/areas/024_inline-024.css",
+"status": "oct-evolved",
+"bytes": 3655,
+"oct28_bytes": 1629
+},
+{
+"file": "styles/areas/025_xen-f355-fix1-bass.css",
+"status": "oct-identical",
+"bytes": 403,
+"oct28_bytes": 403
+},
+{
+"file": "styles/areas/026_nodal-sound-designer-style.css",
+"status": "oct-evolved",
+"bytes": 45867,
+"oct28_bytes": 45777
+},
+{
+"file": "styles/areas/027_inline-027.css",
+"status": "oct-identical",
+"bytes": 5527,
+"oct28_bytes": 5527
+},
+{
+"file": "styles/areas/028_inline-028.css",
+"status": "oct-evolved",
+"bytes": 74155,
+"oct28_bytes": 70902
+},
+{
+"file": "styles/post-oct/gaps/024-inline__01_after_028_inline-028.css",
+"status": "post-oct-gap",
+"bytes": 828,
+"oct28_bytes": 0
+},
+{
+"file": "styles/areas/029_inline-029.css",
+"status": "oct-identical",
+"bytes": 6107,
+"oct28_bytes": 6107
+},
+{
+"file": "styles/areas/030_inline-030.css",
+"status": "oct-evolved",
+"bytes": 18819,
+"oct28_bytes": 19111
+},
+{
+"file": "styles/post-oct/027-xen-loop-rec-l9-feedback.css",
+"status": "post-oct",
+"bytes": 574,
+"oct28_bytes": 0
+},
+{
+"file": "styles/areas/031_xen-quick-title-view.css",
+"status": "oct-evolved",
+"bytes": 3316,
+"oct28_bytes": 3282
+},
+{
+"file": "styles/areas/032_xen-lane-register-tabs.css",
+"status": "oct-identical",
+"bytes": 1743,
+"oct28_bytes": 1743
+},
+{
+"file": "styles/areas/033_xen-lane-nodal-palette.css",
+"status": "oct-identical",
+"bytes": 2094,
+"oct28_bytes": 2094
+},
+{
+"file": "styles/areas/034_xen-n20-forge-navigation.css",
+"status": "oct-identical",
+"bytes": 5306,
+"oct28_bytes": 5306
+},
+{
+"file": "styles/areas/035_xen-live-controls.css",
+"status": "oct-identical",
+"bytes": 8003,
+"oct28_bytes": 8003
+},
+{
+"file": "styles/areas/036_xen-meta-menu.css",
+"status": "oct-evolved",
+"bytes": 41891,
+"oct28_bytes": 34522
+},
+{
+"file": "styles/post-oct/gaps/033-xen-meta-menu__01_after_036_xen-meta-menu.css",
+"status": "post-oct-gap",
+"bytes": 396,
+"oct28_bytes": 0
+},
+{
+"file": "styles/areas/037_xen-p715-right-rack-bass-workshop.css",
+"status": "oct-evolved",
+"bytes": 4329,
+"oct28_bytes": 4571
+},
+{
+"file": "styles/areas/038_xen-drum-mini-mixer-style.css",
+"status": "oct-identical",
+"bytes": 1871,
+"oct28_bytes": 1871
+},
+{
+"file": "styles/areas/039_xen-meta-layout-mute-fix.css",
+"status": "oct-identical",
+"bytes": 1801,
+"oct28_bytes": 1801
+},
+{
+"file": "styles/post-oct/gaps/036-xen-meta-layout-mute-fix__01_after_039_xen-meta-layout-mute-fix.css",
+"status": "post-oct-gap",
+"bytes": 441,
+"oct28_bytes": 0
+},
+{
+"file": "styles/areas/040_xen-p9-m9-cockpit-canonical.css",
+"status": "oct-evolved",
+"bytes": 30313,
+"oct28_bytes": 30281
+},
+{
+"file": "styles/quickrack/eq_before.css",
+"status": "oct-identical",
+"bytes": 1,
+"oct28_bytes": 1
+},
+{
+"file": "styles/post-oct/gaps/038-xen-eq-p1__01_after_eq_before.css",
+"status": "post-oct-gap",
+"bytes": 1133,
+"oct28_bytes": 0
+},
+{
+"file": "styles/quickrack/eq.css",
+"status": "oct-evolved",
+"bytes": 11810,
+"oct28_bytes": 11473
+},
+{
+"file": "styles/quickrack/eq_after.css",
+"status": "oct-identical",
+"bytes": 1,
+"oct28_bytes": 1
+},
+{
+"file": "styles/merge_meta_additions/041_xen-h1-circle-anchors.css",
+"status": "oct-evolved",
+"bytes": 7656,
+"oct28_bytes": 7652
+},
+{
+"file": "src/merge_meta_additions/042_xen-h1-side-rail-sync.js",
+"status": "oct-identical",
+"bytes": 1360,
+"oct28_bytes": 1360
+},
+{
+"file": "styles/merge_meta_additions/043_xen-h3-precision-rings.css",
+"status": "oct-evolved",
+"bytes": 3328,
+"oct28_bytes": 3324
+},
+{
+"file": "src/merge_meta_additions/044_xen-h3-permanent-rails.js",
+"status": "oct-identical",
+"bytes": 733,
+"oct28_bytes": 733
+},
+{
+"file": "styles/merge_meta_additions/045_xen-r3-wheel-layout.css",
+"status": "oct-identical",
+"bytes": 1880,
+"oct28_bytes": 1880
+},
+{
+"file": "styles/merge_meta_additions/046_xen-h4-h1-icons-hairline-vector.css",
+"status": "oct-identical",
+"bytes": 3519,
+"oct28_bytes": 3519
+},
+{
+"file": "styles/merge_meta_additions/047_xen-r4-initial-randomize.css",
+"status": "oct-identical",
+"bytes": 674,
+"oct28_bytes": 674
+},
+{
+"file": "styles/overlays/nodal/01_nodal_concave_shell_v3.css",
+"status": "oct-identical",
+"bytes": 11257,
+"oct28_bytes": 11257
+},
+{
+"file": "styles/overlays/nodal/02_unified_scrollbars_sb1.css",
+"status": "oct-identical",
+"bytes": 1813,
+"oct28_bytes": 1813
+},
+{
+"file": "styles/overlays/nodal/03_stable_room_header_sb2.css",
+"status": "oct-identical",
+"bytes": 900,
+"oct28_bytes": 900
+},
+{
+"file": "styles/overlays/melodic/01_compose_patchbay_v2.css",
+"status": "oct-identical",
+"bytes": 2392,
+"oct28_bytes": 2392
+},
+{
+"file": "styles/overlays/nodal/04_shell_geometry_t2.css",
+"status": "oct-identical",
+"bytes": 4582,
+"oct28_bytes": 4582
+},
+{
+"file": "src/ui/05_shell_geometry_t2.js",
+"status": "oct-evolved",
+"bytes": 7353,
+"oct28_bytes": 6369
+},
+{
+"file": "styles/post-oct/049-xen-compose-tangerine-aurora-ta1.css",
+"status": "post-oct",
+"bytes": 3613,
+"oct28_bytes": 0
+},
+{
+"file": "styles/post-oct/050-xen-hke1-hotkey-extension.css",
+"status": "post-oct",
+"bytes": 2295,
+"oct28_bytes": 0
+},
+{
+"file": "styles/post-oct/051-xen-forge-header-pitch-css.css",
+"status": "post-oct",
+"bytes": 923,
+"oct28_bytes": 0
+},
+{
+"file": "styles/post-oct/052-xen-forge-fp9-progress-css.css",
+"status": "post-oct",
+"bytes": 826,
+"oct28_bytes": 0
+},
+{
+"file": "styles/post-oct/053-xen-rack-bar-editor-style.css",
+"status": "post-oct",
+"bytes": 2649,
+"oct28_bytes": 0
+},
+{
+"file": "styles/post-oct/054-xen-spectral-workflow-style.css",
+"status": "post-oct",
+"bytes": 6504,
+"oct28_bytes": 0
+},
+{
+"file": "src/post-oct/014-xen-spectral-workflow-script.js",
+"status": "post-oct",
+"bytes": 9414,
+"oct28_bytes": 0
+},
+{
+"file": "styles/post-oct/055-xen-raw-volume-rv02-css.css",
+"status": "post-oct",
+"bytes": 1186,
+"oct28_bytes": 0
+},
+{
+"file": "styles/post-oct/056-xen-hold-pattern-tabs-v1.css",
+"status": "post-oct",
+"bytes": 2029,
+"oct28_bytes": 0
+},
+{
+"file": "styles/post-oct/057-xen-thunder-hold-tabs-v3-geometry-safe.css",
+"status": "post-oct",
+"bytes": 1689,
+"oct28_bytes": 0
+},
+{
+"file": "styles/post-oct/058-xen-one-shot-fills-style.css",
+"status": "post-oct",
+"bytes": 14492,
+"oct28_bytes": 0
+},
+{
+"file": "styles/post-oct/059-xen-p36-sample-length.css",
+"status": "post-oct",
+"bytes": 380,
+"oct28_bytes": 0
+},
+{
+"file": "styles/post-oct/060-xen-p36-session-instrument-settings.css",
+"status": "post-oct",
+"bytes": 888,
+"oct28_bytes": 0
+},
+{
+"file": "styles/post-oct/061-xen-p36-4b-material-nudge-style.css",
+"status": "post-oct",
+"bytes": 686,
+"oct28_bytes": 0
+},
+{
+"file": "styles/post-oct/062-xen-p36-05b-compact-instrument-arrow.css",
+"status": "post-oct",
+"bytes": 966,
+"oct28_bytes": 0
+},
+{
+"file": "styles/post-oct/063-xen-p36-05d-preserve-instrument-rows.css",
+"status": "post-oct",
+"bytes": 844,
+"oct28_bytes": 0
+},
+{
+"file": "styles/post-oct/064-xen-p36-05e-narrow-lane-scroll.css",
+"status": "post-oct",
+"bytes": 589,
+"oct28_bytes": 0
+},
+{
+"file": "styles/post-oct/065-xen-sample-grid-six-06.css",
+"status": "post-oct",
+"bytes": 1224,
+"oct28_bytes": 0
+},
+{
+"file": "styles/post-oct/066-xen-bass-voice-editor-01.css",
+"status": "post-oct",
+"bytes": 2313,
+"oct28_bytes": 0
+},
+{
+"file": "styles/post-oct/067-xen-sample-import-tooltip-05.css",
+"status": "post-oct",
+"bytes": 565,
+"oct28_bytes": 0
+},
+{
+"file": "styles/post-oct/068-xen-sample-controls-grouped-07.css",
+"status": "post-oct",
+"bytes": 2574,
+"oct28_bytes": 0
+},
+{
+"file": "styles/post-oct/069-xen-touchpad-inline-particles-02.css",
+"status": "post-oct",
+"bytes": 2949,
+"oct28_bytes": 0
+},
+{
+"file": "styles/post-oct/070-xen-thunder-pitch02-css.css",
+"status": "post-oct",
+"bytes": 3029,
+"oct28_bytes": 0
+},
+{
+"file": "styles/post-oct/071-xen-wave-editor-w01-css.css",
+"status": "post-oct",
+"bytes": 29513,
+"oct28_bytes": 0
+},
+{
+"file": "src/post-oct/015-xen-wave-editor-w01-modules.js",
+"status": "post-oct",
+"bytes": 200735,
+"oct28_bytes": 0
+},
+{
+"file": "src/ui/04_header_scrollbar_gauge_sb2.js",
+"status": "oct-identical",
+"bytes": 888,
+"oct28_bytes": 888
+},
+{
+"file": "src/integrations/XEN_WISSENSRAUM_BRIDGE_D_INTEGRATION.js",
+"status": "oct-identical",
+"bytes": 13487,
+"oct28_bytes": 13487
+},
+{
+"file": "styles/post-oct/072-xen-scissors-offline-ui.css",
+"status": "post-oct",
+"bytes": 992,
+"oct28_bytes": 0
+},
+{
+"file": "styles/post-oct/073-xen-troodle-preset-layout06.css",
+"status": "post-oct",
+"bytes": 583,
+"oct28_bytes": 0
+},
+{
+"file": "src/rooms/canonical.js",
+"status": "oct-evolved",
+"bytes": 447845,
+"oct28_bytes": 406431
+},
+{
+"file": "src/rooms/00_idle_wave_donor_p33.js",
+"status": "oct-identical",
+"bytes": 15667,
+"oct28_bytes": 15667
+},
+{
+"file": "src/rooms/00_forge_rack_presentation.js",
+"status": "oct-evolved",
+"bytes": 12293,
+"oct28_bytes": 3257
+},
+{
+"file": "src/rooms/00_empty_audio_p32.js",
+"status": "oct-identical",
+"bytes": 12770,
+"oct28_bytes": 12770
+},
+{
+"file": "src/rooms/lab.js",
+"status": "oct-evolved",
+"bytes": 587254,
+"oct28_bytes": 565054
+},
+{
+"file": "src/rooms/nodal.js",
+"status": "oct-evolved",
+"bytes": 100791,
+"oct28_bytes": 100457
+},
+{
+"file": "src/factories/ForgeTransportRack.js",
+"status": "oct-evolved",
+"bytes": 22725,
+"oct28_bytes": 11593
+},
+{
+"file": "src/factories/XenBassGridEditor.js",
+"status": "oct-identical",
+"bytes": 8038,
+"oct28_bytes": 8038
+},
+{
+"file": "src/factories/xenM12InventoryFactory.js",
+"status": "oct-identical",
+"bytes": 6277,
+"oct28_bytes": 6277
+},
+{
+"file": "src/factories/xenM11HydrationFactory.js",
+"status": "oct-identical",
+"bytes": 2206,
+"oct28_bytes": 2206
+},
+{
+"file": "src/factories/xenM10BackupFactory.js",
+"status": "oct-identical",
+"bytes": 5754,
+"oct28_bytes": 5754
+},
+{
+"file": "src/factories/xenM9ArchiveFactory.js",
+"status": "oct-identical",
+"bytes": 9198,
+"oct28_bytes": 9198
+},
+{
+"file": "src/factories/XenMetaEditor.js",
+"status": "oct-evolved",
+"bytes": 71216,
+"oct28_bytes": 33666
+},
+{
+"file": "src/factories/XenSessionPeriodDialog.js",
+"status": "oct-identical",
+"bytes": 4831,
+"oct28_bytes": 4831
+},
+{
+"file": "styles/post-oct/074-xen-compose-tangerine-aurora-ta1.css",
+"status": "post-oct",
+"bytes": 3613,
+"oct28_bytes": 0
+},
+{
+"file": "styles/post-oct/075-xen-looprec-dock-canonical.css",
+"status": "post-oct",
+"bytes": 10562,
+"oct28_bytes": 0
+},
+{
+"file": "styles/post-oct/076-xno-original-cycle-style.css",
+"status": "post-oct",
+"bytes": 2317,
+"oct28_bytes": 0
+},
+{
+"file": "src/post-oct/029-xno-original-cycle-runtime.js",
+"status": "post-oct",
+"bytes": 23566,
+"oct28_bytes": 0
+},
+{
+"file": "src/post-oct/030-inline.js",
+"status": "post-oct",
+"bytes": 3537,
+"oct28_bytes": 0
+},
+{
+"file": "src/post-oct/031-xen-sound-recipe-export-ui.js",
+"status": "post-oct",
+"bytes": 11451,
+"oct28_bytes": 0
+}
+]

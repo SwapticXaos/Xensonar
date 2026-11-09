@@ -1,0 +1,18 @@
+.xen-package-popup{left:calc(50% - 116px);width:232px;border-radius:20px;background:rgba(10,10,10,.97);backdrop-filter:none}
+.xen-package-selection-panel{position:absolute;left:calc(100% + 10px);top:28px;width:312px;max-height:min(700px,calc(100dvh - 154px));overflow-y:auto;overscroll-behavior:contain;color:#cffafe;background:rgba(10,10,10,.97);border-radius:20px;box-shadow:0 16px 42px rgba(0,0,0,.6);font-size:11px;scrollbar-width:thin;scrollbar-color:#155e75 #0a0a0a;z-index:1}
+.xen-package-selection-heading{display:flex;align-items:center;justify-content:space-between;padding:4px 4px 8px;font-size:12px;letter-spacing:.04em}
+.xen-package-selection-heading>span{font-size:10px;color:#67e8f9}
+.xen-package-selection-tools{display:flex;gap:6px;padding:0 4px 8px;position:sticky;top:0;background:rgba(10,10,10,.97);z-index:2}
+.xen-package-shortcut{flex:0 0 auto;border:1px solid rgba(14,116,144,.45);border-radius:7px;background:rgba(8,51,68,.22);padding:3px 6px;color:#67e8f9;font-size:9px;line-height:1.2;cursor:pointer;white-space:nowrap}
+.xen-package-shortcut:hover{background:rgba(14,116,144,.36);color:#ecfeff}
+.xen-package-shortcut:focus-visible,.xen-package-selection-row input:focus-visible{outline:2px solid #67e8f9;outline-offset:2px}
+.xen-package-shortcut:disabled{opacity:.4;cursor:wait}
+.xen-package-selection-group{padding:5px 3px 7px;border-top:1px solid rgba(14,116,144,.28)}
+.xen-package-selection-row{display:flex;align-items:center;gap:4px;min-height:27px;padding:2px 0 2px 10px}
+.xen-package-selection-row>label{display:flex;align-items:center;gap:7px;min-width:0;flex:1;cursor:pointer;line-height:1.25}
+.xen-package-selection-row>label>span{overflow-wrap:anywhere}
+.xen-package-selection-row input{margin:0;flex:0 0 13px;width:13px;height:13px;accent-color:#67e8f9;cursor:pointer}
+.xen-package-selection-group-title{padding-left:0;min-height:30px;color:#ecfeff;font-weight:650;font-size:10px}
+.xen-package-selection-note{padding:6px 5px 2px;color:#9ca3af;font-size:10px;line-height:1.4}
+@media(max-width:850px){.xen-package-selection-panel{left:auto;right:0;top:calc(100% + 10px)}}
+@media(max-width:650px){.xen-package-selection-panel{position:fixed;left:12px;right:12px;top:var(--xen-package-selection-top,240px);width:auto;max-height:calc(100dvh - var(--xen-package-selection-top,240px) - 14px)}}

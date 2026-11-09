@@ -1,0 +1,1037 @@
+{
+ "format": "xensonar-concat-v2",
+ "template": "src/index.template.html",
+ "output": "index.html",
+ "note": "Ordered concat build. Content = current main; file boundaries/names from Oct-28 source tree where they still match (Stufe 2a).",
+ "sections": [
+  {
+   "id": "css-000-xen-grid-profile-session-css",
+   "oct28_section": "@@XENSONAR_COMPONENT_001@@",
+   "files": [
+    "styles/areas/001_xen-grid-profile-session-css.css"
+   ]
+  },
+  {
+   "id": "js-000-xen-render-monitor",
+   "oct28_section": null,
+   "files": [
+    "src/post-oct/000-xen-render-monitor.js"
+   ]
+  },
+  {
+   "id": "js-001-xen-startup-observer",
+   "oct28_section": "@@XENSONAR_COMPONENT_002@@",
+   "files": [
+    "src/startup/01_startup_observer.js"
+   ]
+  },
+  {
+   "id": "css-001-xen-boot-mandala-css",
+   "oct28_section": "@@XENSONAR_COMPONENT_003@@",
+   "files": [
+    "styles/areas/003_xen-boot-mandala-css.css"
+   ]
+  },
+  {
+   "id": "js-002-xen-boot-stage-controller",
+   "oct28_section": "@@XENSONAR_COMPONENT_004@@",
+   "files": [
+    "src/startup/02_boot_stage_controller.js"
+   ]
+  },
+  {
+   "id": "js-003-xen-opera-power-d3-diagnostics",
+   "oct28_section": null,
+   "files": [
+    "src/post-oct/003-xen-opera-power-d3-diagnostics.js"
+   ]
+  },
+  {
+   "id": "js-004-xen-xmem-root01-idb-owner",
+   "oct28_section": null,
+   "files": [
+    "src/post-oct/004-xen-xmem-root01-idb-owner.js"
+   ]
+  },
+  {
+   "id": "js-005-xen-melodic-compact-idb01",
+   "oct28_section": null,
+   "files": [
+    "src/post-oct/005-xen-melodic-compact-idb01.js"
+   ]
+  },
+  {
+   "id": "js-006-xen-xmem02-melodic-stage",
+   "oct28_section": null,
+   "files": [
+    "src/post-oct/006-xen-xmem02-melodic-stage.js"
+   ]
+  },
+  {
+   "id": "js-007-xen-xmem02b-melodic-repository-pilot",
+   "oct28_section": null,
+   "files": [
+    "src/post-oct/007-xen-xmem02b-melodic-repository-pilot.js"
+   ]
+  },
+  {
+   "id": "js-008-xen-xmem02d1-melodic-epoch",
+   "oct28_section": null,
+   "files": [
+    "src/post-oct/008-xen-xmem02d1-melodic-epoch.js"
+   ]
+  },
+  {
+   "id": "js-009-xen-xmem02c-melodic-native-adapter",
+   "oct28_section": null,
+   "files": [
+    "src/post-oct/009-xen-xmem02c-melodic-native-adapter.js"
+   ]
+  },
+  {
+   "id": "js-010-main-bundle",
+   "oct28_section": "@@XENSONAR_COMPONENT_005@@",
+   "files": [
+    "src/package_station/02_export_selection.js",
+    "src/package_station/01_binary_archive.js",
+    "src/post-oct/gaps/010-main-bundle__01_after_01_binary_archive.js",
+    "src/startup/00_room_and_function_dispatch.js",
+    "src/contracts/01_asset_contract.js",
+    "src/contracts/02_asset_resolution.js",
+    "src/handoff/00_chat_feature_addons.js",
+    "src/mix/03_quick_menu__before_eq-core.js",
+    "src/quickrack/equalizer/eq-worklet.js",
+    "src/quickrack/equalizer/eq-core.js",
+    "src/mix/03_quick_menu__after_eq-core__before_eq-ui.js",
+    "src/quickrack/equalizer/eq-ui.js",
+    "src/mix/03_quick_menu__after_eq-core__after_eq-ui.js",
+    "src/post-oct/gaps/010-main-bundle__02_after_03_quick_menu__after_eq-core__after_eq-ui.js",
+    "src/mix/03_meta_menu__before_v2-session-store.js",
+    "src/sessions/v2-session-store.js",
+    "src/post-oct/gaps/010-main-bundle__03_after_v2-session-store.js",
+    "src/mix/03_meta_menu__after_v2-session-store.js",
+    "src/mix/03_legacy_song_import.js",
+    "src/mix/03_session_auditions.js",
+    "src/post-oct/gaps/010-main-bundle__04_after_03_session_auditions.js",
+    "src/mix/04_melodic_spatial.js",
+    "src/mix/05_grid_runtime.js",
+    "src/mix/06_custom_instruments.js",
+    "src/instruments/00_diagnostics.js",
+    "src/mix/01_pan.js",
+    "src/mix/02_performance_catalog.js",
+    "src/nodal/01_instrument_model.js",
+    "src/nodal/02_synthesis_kernel.js",
+    "src/post-oct/gaps/010-main-bundle__05_after_02_synthesis_kernel.js",
+    "src/nodal/03_library.js",
+    "src/nodal/03_preparation_worker.js",
+    "src/nodal/04_audio_runtime.js",
+    "src/nodal/05_installation_bridge.js",
+    "src/nodal/06_melodic_bridge.js",
+    "src/nodal/08_melodic_live_transport.js",
+    "src/nodal/09_melodic_session.js",
+    "src/nodal/10_library_manager.js",
+    "src/nodal/11_editing_session.js",
+    "src/nodal/07_sound_designer.js",
+    "src/audio/lifecycle/00_voice_lease.js",
+    "src/nodal/12_surface_runtime.js",
+    "src/post-oct/gaps/010-main-bundle__06_after_12_surface_runtime.js",
+    "src/forge/emilia/04_source_materials.js",
+    "src/forge/emilia/05_hx_reciprocal.js",
+    "src/forge/emilia/03_network_color.js",
+    "src/forge/analysis/04_painted_voices.js",
+    "src/forge/emilia/06_preview_worker.js",
+    "src/forge/emilia/01_nodal_carrier.js",
+    "src/forge/fractalia/00_legacy_f2.js",
+    "src/forge/fractalia/01_core.js",
+    "src/forge/fractalia/02_mantle.js",
+    "src/forge/fractalia/04_relations.js",
+    "src/forge/fractalia/06_relational_render.js",
+    "src/forge/fractalia/05_relational_core.js",
+    "src/forge/fractalia/07_compile_jobs.js",
+    "src/forge/fractalia/08_donor_ecology.js",
+    "src/forge/fractalia/09_material_atlas.js",
+    "src/forge/fractalia/10_material_render.js",
+    "src/forge/fractalia/11_material_runtime.js",
+    "src/forge/fractalia/12_material_experiments.js",
+    "src/forge/fractalia/13_spectral_view.js",
+    "src/forge/fractalia/14_live_transfer.js",
+    "src/forge/fractalia/03_instrument.js",
+    "src/forge/editor/09_workflow_controls.js",
+    "src/forge/dsp/08_pure_dieter_worker.js",
+    "src/forge/emilia/02_lab_ui.js",
+    "src/forge/dsp/04_donor_field.js",
+    "src/forge/lifecycle/01_offline_jobs.js",
+    "src/storage/05_project_snapshots.js",
+    "src/storage/06_history_budget.js",
+    "src/storage/07_history_snapshots.js",
+    "src/nodal/13_installation_ball_grid.js",
+    "src/contracts/03_package_transaction.js",
+    "src/contracts/04_import_coordinator.js",
+    "src/contracts/05_sample_recovery.js",
+    "src/contracts/06_sample_destructive_import.js",
+    "src/contracts/07_reference_integrity.js",
+    "src/contracts/08_reference_graph.js",
+    "src/contracts/09_reference_graph_extensions.js",
+    "src/contracts/10_library_inventory_ports.js",
+    "src/contracts/11_workspace_library_phases.js",
+    "src/contracts/16_workspace_export_stream.js",
+    "src/contracts/12_workspace_result_projection.js",
+    "src/contracts/13_root_follow_import_plan.js",
+    "src/contracts/14_melodic_project_restore_plan.js",
+    "src/contracts/15_melodic_project_reservations.js",
+    "src/contracts/16_project_commit_boundary.js",
+    "src/post-oct/gaps/010-main-bundle__07_after_16_project_commit_boundary.js",
+    "src/01_app_runtime.js",
+    "src/forge/workbench/01_preset_catalog.js",
+    "src/forge/workbench/02_recipe_normalization.js",
+    "src/forge/workbench/03_material_selection.js",
+    "src/forge/workbench/04_sound_bridge.js",
+    "src/forge/workbench/05_state_store.js",
+    "src/forge/01_workbench_state.js",
+    "src/forge/dsp/01_material_tools.js",
+    "src/forge/dsp/02_gestalt_tools.js",
+    "src/forge/dsp/03_pcm_worker.js",
+    "src/forge/original/01_articulation.js",
+    "src/forge/original/02_material.js",
+    "src/forge/original/03_gestalt_material.js",
+    "src/forge/original/04_gestalt.js",
+    "src/forge/original/05_dual_donor.js",
+    "src/forge/original/06_cecilia.js",
+    "src/forge/revised/01_material.js",
+    "src/forge/revised/02_gestalt.js",
+    "src/forge/module_bundle/01_entry.js",
+    "src/forge/module_bundle/02_projectionCarrierPlan.js",
+    "src/forge/module_bundle/03_carrierDonorV2Types.js",
+    "src/forge/module_bundle/04_carrierSupportField.js",
+    "src/forge/module_bundle/05_carrierContinuity.js",
+    "src/forge/module_bundle/06_donorHybridModel.js",
+    "src/forge/module_bundle/07_donorBodyModel.js",
+    "src/forge/module_bundle/08_realSpectrum.js",
+    "src/forge/module_bundle/09_donorPitch.js",
+    "src/forge/module_bundle/10_donorSpectralEvidence.js",
+    "src/forge/module_bundle/11_donorSourceWindows.js",
+    "src/forge/module_bundle/12_renderDonorHybrid.js",
+    "src/forge/module_bundle/13_donorMaterialPlan.js",
+    "src/forge/module_bundle/14_granularCadence.js",
+    "src/forge/module_bundle/15_renderContinuousDonor.js",
+    "src/forge/module_bundle/16_complexSpectrum.js",
+    "src/forge/module_bundle/17_renderCarrierSupport.js",
+    "src/forge/module_bundle/18_donorSpectralFilm.js",
+    "src/forge/module_bundle/19_donorMaterialDiagnostics.js",
+    "src/forge/module_bundle/20_donorOutputMantle.js",
+    "src/forge/module_bundle/21_experimentStatePersistence.js",
+    "src/forge/module_bundle/22_materialIntakePersistence.js",
+    "src/forge/module_bundle/99_close.js",
+    "src/storage/01_donor_library.js",
+    "src/storage/02_donor_packages.js",
+    "src/storage/03_forge_packages.js",
+    "src/storage/04_sample_donor_bridge.js",
+    "src/vendor/01_react_dom.js",
+    "src/post-oct/gaps/010-main-bundle__08_after_01_react_dom.js",
+    "src/runtime/01_instrument_state.js",
+    "src/runtime/instrument/01_voice_gradients_and_effects.js",
+    "src/runtime/instrument/02_observation_and_sample_storage.js",
+    "src/runtime/instrument/03_selection_and_recording_tools.js",
+    "src/runtime/instrument/04_performance_and_output_profiles.js",
+    "src/audio/rfl/01_resident_worklet.js",
+    "src/audio/rfl/02_fragment_preparation.js",
+    "src/runtime/instrument/05_timing_and_admission.js",
+    "src/runtime/instrument/06_rooms_and_lifecycle.js",
+    "src/runtime/instrument/07_interpreters_and_installation.js",
+    "src/myzel/01_effect_mapping.js",
+    "src/runtime/instrument/09_monitoring_and_manual_patterns.js",
+    "src/post-oct/gaps/010-main-bundle__09_after_09_monitoring_and_manual_patterns.js",
+    "src/runtime/instrument/10_entrophon_and_voice_control.js",
+    "src/instruments/01_entrophon_definition.js",
+    "src/instruments/02_entrophon_library.js",
+    "src/instruments/03_entrophon_library_ui.js",
+    "src/instruments/04_entrophon_melodic_audio.js",
+    "src/instruments/05_entrophon_integration.js",
+    "src/instruments/06_source_preparation.js",
+    "src/instruments/07_pitch_preparation.js",
+    "src/runtime/instrument/11_recording_and_granular_controls.js",
+    "src/post-oct/gaps/010-main-bundle__10_after_11_recording_and_granular_controls.js",
+    "src/runtime/instrument/12_rhythm_and_bass_editor.js",
+    "src/post-oct/gaps/010-main-bundle__11_after_12_rhythm_and_bass_editor.js",
+    "src/rhythm/01_compact_drum_grid.js",
+    "src/post-oct/gaps/010-main-bundle__12_after_01_compact_drum_grid.js",
+    "src/audio/07_myzel_g_geometry.js",
+    "src/audio/09_myzel_g_dsp.js",
+    "src/post-oct/gaps/010-main-bundle__13_after_09_myzel_g_dsp.js",
+    "src/audio/08_myzel_g_live.js",
+    "src/runtime/instrument/13_pointer_motion.js",
+    "src/rhythm/02_bass_and_rack.js",
+    "src/audio/drone/01_colour.js",
+    "src/audio/01_voice_and_rfl_ownership.js",
+    "src/audio/00_rfl_settings_cache.js",
+    "src/audio/02_rfl_worklet.js",
+    "src/post-oct/gaps/010-main-bundle__14_after_02_rfl_worklet.js",
+    "src/audio/03_pcm_master_recorder.js",
+    "src/post-oct/gaps/010-main-bundle__15_after_03_pcm_master_recorder.js",
+    "src/audio/03_rfl_transport_legacy.js",
+    "src/audio/03_acoustic_sync.js",
+    "src/audio/03_flac_encoder.js",
+    "src/post-oct/gaps/010-main-bundle__16_after_03_flac_encoder.js",
+    "src/audio/03_recorder_helpers.js",
+    "src/post-oct/gaps/010-main-bundle__17_after_03_recorder_helpers.js",
+    "src/audio/03_pcm_range.js",
+    "src/audio/03_recorder.js",
+    "src/audio/04_wave_worklet.js",
+    "src/post-oct/gaps/010-main-bundle__18_after_04_wave_worklet.js",
+    "src/audio/05_sample_granular_hold.js",
+    "src/audio/avalanche.js",
+    "src/post-oct/gaps/010-main-bundle__19_after_avalanche.js",
+    "src/audio/hold_resident.js",
+    "src/audio/hold_modulation.js",
+    "src/post-oct/gaps/010-main-bundle__20_after_hold_modulation.js",
+    "src/audio/05_live_voice_runtime.js",
+    "src/audio/entrophon/01_wasm_asset.js",
+    "src/audio/entrophon/02_worklet_and_voice_backend.js",
+    "src/audio/entrophon/03_native_bridge.js",
+    "src/audio/07_governor_and_drums.js",
+    "src/rhythm/03_live_drum_bodies.js",
+    "src/post-oct/gaps/010-main-bundle__21_after_03_live_drum_bodies.js",
+    "src/rhythm/04_workspace_and_transport.js",
+    "src/rhythm/05_canonical_selection.js",
+    "src/post-oct/gaps/010-main-bundle__22_after_05_canonical_selection.js",
+    "src/app/forge/01_room_shell.js",
+    "src/app/forge/02_boot_and_workspace_tools.js",
+    "src/post-oct/gaps/010-main-bundle__23_after_02_boot_and_workspace_tools.js",
+    "src/forge/stamps/01_atlas_2026_bridge.js",
+    "src/forge/stamps/02_atlas_audition.js",
+    "src/app/forge/03_spectral_grid_and_archives.js",
+    "src/app/forge/04_profiles_and_body_models.js",
+    "src/app/forge/05_forge_state_and_analysis.js",
+    "src/app/forge/06_donor_audio_and_audition.js",
+    "src/app/forge/07_preview_cache_and_controls.js",
+    "src/forge/editor/06_pcm_spectrum_view.js",
+    "src/forge/editor/07_view_lifecycle.js",
+    "src/forge/editor/01_display_and_canvas.js",
+    "src/forge/editor/02_tools_and_audio_inputs.js",
+    "src/forge/editor/03_synthetic_sound_engines.js",
+    "src/forge/dsp/04_polytrace_render.js",
+    "src/forge/editor/04_signal_atoms_and_bodies.js",
+    "src/forge/editor/05_machine_and_carrier_projection.js",
+    "src/forge/editor/06_output_routing.js",
+    "src/forge/analysis/06_polyphonic_transfer.js",
+    "src/forge/editor/07_composition_and_preview_ui.js",
+    "src/post-oct/gaps/010-main-bundle__24_after_07_composition_and_preview_ui.js",
+    "src/forge/ui/03_microphone_intake.js",
+    "src/forge/analysis/04_audio_to_carrier.js",
+    "src/forge/analysis/05_carrier_pitch_space.js",
+    "src/forge/ui/04_audio_to_carrier_controls.js",
+    "src/forge/ui/02_donor_routing_and_hearing.js",
+    "src/forge/ui/03_method_selection.js",
+    "src/forge_and_melodic/03_timeline_and_transport_ui.js",
+    "src/forge_and_melodic/04_render_cache_and_stems.js",
+    "src/forge_and_melodic/07_tuning_and_logic_view.js",
+    "src/forge_and_melodic/10_audition_and_persistence.js",
+    "src/forge/hybrid/01_recipe.js",
+    "src/forge/hybrid/02_session_store.js",
+    "src/forge/analysis/01_analysis_size.js",
+    "src/forge/analysis/02_analysis_cache.js",
+    "src/04_forge_render.js",
+    "src/forge/hybrid/03_render_pipeline.js",
+    "src/forge/hybrid/04_cecilia_dsp_and_worker.js",
+    "src/forge/hybrid/05_capture_tools.js",
+    "src/forge/hybrid/10_carrier_capture.js",
+    "src/forge/hybrid/06_job_capture.js",
+    "src/forge/hybrid/07_render_adapters.js",
+    "src/forge/hybrid/08_playback_controller.js",
+    "src/forge/hybrid/09_runtime.js",
+    "src/forge/analysis/03_source_identity_and_cache.js",
+    "src/forge/lifecycle/02_workbench_activity.js",
+    "src/forge/ui/05_workbench_controls.js",
+    "src/forge/dual/01_dsp_and_worker.js",
+    "src/forge/dual/02_session_store.js",
+    "src/forge/dual/05_library_bridge.js",
+    "src/05_dual_donor.js"
+   ]
+  },
+  {
+   "id": "css-002-main-bundle",
+   "oct28_section": "@@XENSONAR_COMPONENT_006@@",
+   "files": [
+    "styles/bundle/base_01.css",
+    "styles/bundle/base_02.css",
+    "styles/post-oct/gaps/002-main-bundle__01_after_base_02.css",
+    "styles/package_station/selection.css",
+    "styles/ui-fonts.css"
+   ]
+  },
+  {
+   "id": "css-003-f39-near-feedback-style",
+   "oct28_section": "@@XENSONAR_COMPONENT_007@@",
+   "files": [
+    "styles/areas/007_f39-near-feedback-style.css"
+   ]
+  },
+  {
+   "id": "css-004-inline",
+   "oct28_section": "@@XENSONAR_COMPONENT_008@@",
+   "files": [
+    "styles/areas/008_inline-008.css"
+   ]
+  },
+  {
+   "id": "css-005-forge-sidebar-mobile-f315",
+   "oct28_section": "@@XENSONAR_COMPONENT_009@@",
+   "files": [
+    "styles/areas/009_forge-sidebar-mobile-f315.css"
+   ]
+  },
+  {
+   "id": "css-006-f341-donor-workbench-style",
+   "oct28_section": "@@XENSONAR_COMPONENT_010@@",
+   "files": [
+    "styles/areas/010_f341-donor-workbench-style.css"
+   ]
+  },
+  {
+   "id": "css-007-f347-workbench-style",
+   "oct28_section": "@@XENSONAR_COMPONENT_011@@",
+   "files": [
+    "styles/areas/011_f347-workbench-style.css"
+   ]
+  },
+  {
+   "id": "css-008-f348-library-layout",
+   "oct28_section": "@@XENSONAR_COMPONENT_012@@",
+   "files": [
+    "styles/areas/012_f348-library-layout.css"
+   ]
+  },
+  {
+   "id": "css-009-f349-library-side-dock",
+   "oct28_section": "@@XENSONAR_COMPONENT_013@@",
+   "files": [
+    "styles/areas/013_f349-library-side-dock.css"
+   ]
+  },
+  {
+   "id": "css-010-f350-workflow",
+   "oct28_section": "@@XENSONAR_COMPONENT_014@@",
+   "files": [
+    "styles/areas/014_f350-workflow.css"
+   ]
+  },
+  {
+   "id": "css-011-f351-combination-rack",
+   "oct28_section": "@@XENSONAR_COMPONENT_015@@",
+   "files": [
+    "styles/areas/015_f351-combination-rack.css"
+   ]
+  },
+  {
+   "id": "css-012-f352-hybrid-workflow",
+   "oct28_section": "@@XENSONAR_COMPONENT_016@@",
+   "files": [
+    "styles/areas/016_f352-hybrid-workflow.css"
+   ]
+  },
+  {
+   "id": "css-013-f3564-carrier-ui",
+   "oct28_section": "@@XENSONAR_COMPONENT_017@@",
+   "files": [
+    "styles/areas/017_f3564-carrier-ui.css"
+   ]
+  },
+  {
+   "id": "css-014-xen-f35618-drum-rack-layout",
+   "oct28_section": "@@XENSONAR_COMPONENT_018@@",
+   "files": [
+    "styles/areas/018_xen-f35618-drum-rack-layout.css"
+   ]
+  },
+  {
+   "id": "css-015-xen-f35619-drum-timing",
+   "oct28_section": "@@XENSONAR_COMPONENT_019@@",
+   "files": [
+    "styles/areas/019_xen-f35619-drum-timing.css"
+   ]
+  },
+  {
+   "id": "css-016-xen-f35620-drum-layout",
+   "oct28_section": "@@XENSONAR_COMPONENT_020@@",
+   "files": [
+    "styles/areas/020_xen-f35620-drum-layout.css"
+   ]
+  },
+  {
+   "id": "css-017-xen-f35621-drum-karaoke",
+   "oct28_section": null,
+   "files": [
+    "styles/post-oct/017-xen-f35621-drum-karaoke.css"
+   ]
+  },
+  {
+   "id": "css-018-f35634-dual-donor-assembly-ui",
+   "oct28_section": "@@XENSONAR_COMPONENT_022@@",
+   "files": [
+    "styles/areas/022_f35634-dual-donor-assembly-ui.css"
+   ]
+  },
+  {
+   "id": "css-019-inline",
+   "oct28_section": "@@XENSONAR_COMPONENT_023@@",
+   "files": [
+    "styles/areas/023_inline-023.css"
+   ]
+  },
+  {
+   "id": "css-020-inline",
+   "oct28_section": "@@XENSONAR_COMPONENT_024@@",
+   "files": [
+    "styles/areas/024_inline-024.css"
+   ]
+  },
+  {
+   "id": "css-021-xen-f355-fix1-bass",
+   "oct28_section": "@@XENSONAR_COMPONENT_025@@",
+   "files": [
+    "styles/areas/025_xen-f355-fix1-bass.css"
+   ]
+  },
+  {
+   "id": "css-022-nodal-sound-designer-style",
+   "oct28_section": "@@XENSONAR_COMPONENT_026@@",
+   "files": [
+    "styles/areas/026_nodal-sound-designer-style.css"
+   ]
+  },
+  {
+   "id": "css-023-inline",
+   "oct28_section": "@@XENSONAR_COMPONENT_027@@",
+   "files": [
+    "styles/areas/027_inline-027.css"
+   ]
+  },
+  {
+   "id": "css-024-inline",
+   "oct28_section": "@@XENSONAR_COMPONENT_028@@",
+   "files": [
+    "styles/areas/028_inline-028.css",
+    "styles/post-oct/gaps/024-inline__01_after_028_inline-028.css"
+   ]
+  },
+  {
+   "id": "css-025-inline",
+   "oct28_section": "@@XENSONAR_COMPONENT_029@@",
+   "files": [
+    "styles/areas/029_inline-029.css"
+   ]
+  },
+  {
+   "id": "css-026-inline",
+   "oct28_section": "@@XENSONAR_COMPONENT_030@@",
+   "files": [
+    "styles/areas/030_inline-030.css"
+   ]
+  },
+  {
+   "id": "css-027-xen-loop-rec-l9-feedback",
+   "oct28_section": null,
+   "files": [
+    "styles/post-oct/027-xen-loop-rec-l9-feedback.css"
+   ]
+  },
+  {
+   "id": "css-028-xen-quick-title-view",
+   "oct28_section": "@@XENSONAR_COMPONENT_031@@",
+   "files": [
+    "styles/areas/031_xen-quick-title-view.css"
+   ]
+  },
+  {
+   "id": "css-029-xen-lane-register-tabs",
+   "oct28_section": "@@XENSONAR_COMPONENT_032@@",
+   "files": [
+    "styles/areas/032_xen-lane-register-tabs.css"
+   ]
+  },
+  {
+   "id": "css-030-xen-lane-nodal-palette",
+   "oct28_section": "@@XENSONAR_COMPONENT_033@@",
+   "files": [
+    "styles/areas/033_xen-lane-nodal-palette.css"
+   ]
+  },
+  {
+   "id": "css-031-xen-n20-forge-navigation",
+   "oct28_section": "@@XENSONAR_COMPONENT_034@@",
+   "files": [
+    "styles/areas/034_xen-n20-forge-navigation.css"
+   ]
+  },
+  {
+   "id": "css-032-xen-live-controls",
+   "oct28_section": "@@XENSONAR_COMPONENT_035@@",
+   "files": [
+    "styles/areas/035_xen-live-controls.css"
+   ]
+  },
+  {
+   "id": "css-033-xen-meta-menu",
+   "oct28_section": "@@XENSONAR_COMPONENT_036@@",
+   "files": [
+    "styles/areas/036_xen-meta-menu.css",
+    "styles/post-oct/gaps/033-xen-meta-menu__01_after_036_xen-meta-menu.css"
+   ]
+  },
+  {
+   "id": "css-034-xen-p715-right-rack-bass-workshop",
+   "oct28_section": "@@XENSONAR_COMPONENT_037@@",
+   "files": [
+    "styles/areas/037_xen-p715-right-rack-bass-workshop.css"
+   ]
+  },
+  {
+   "id": "css-035-xen-drum-mini-mixer-style",
+   "oct28_section": "@@XENSONAR_COMPONENT_038@@",
+   "files": [
+    "styles/areas/038_xen-drum-mini-mixer-style.css"
+   ]
+  },
+  {
+   "id": "css-036-xen-meta-layout-mute-fix",
+   "oct28_section": "@@XENSONAR_COMPONENT_039@@",
+   "files": [
+    "styles/areas/039_xen-meta-layout-mute-fix.css",
+    "styles/post-oct/gaps/036-xen-meta-layout-mute-fix__01_after_039_xen-meta-layout-mute-fix.css"
+   ]
+  },
+  {
+   "id": "css-037-xen-p9-m9-cockpit-canonical",
+   "oct28_section": "@@XENSONAR_COMPONENT_040@@",
+   "files": [
+    "styles/areas/040_xen-p9-m9-cockpit-canonical.css"
+   ]
+  },
+  {
+   "id": "css-038-xen-eq-p1",
+   "oct28_section": "@@XENSONAR_COMPONENT_041@@",
+   "files": [
+    "styles/quickrack/eq_before.css",
+    "styles/post-oct/gaps/038-xen-eq-p1__01_after_eq_before.css",
+    "styles/quickrack/eq.css",
+    "styles/quickrack/eq_after.css"
+   ]
+  },
+  {
+   "id": "css-039-xen-h1-circle-anchors",
+   "oct28_section": "@@XENSONAR_COMPONENT_042@@",
+   "files": [
+    "styles/merge_meta_additions/041_xen-h1-circle-anchors.css"
+   ]
+  },
+  {
+   "id": "js-011-xen-h1-side-rail-sync",
+   "oct28_section": "@@XENSONAR_COMPONENT_043@@",
+   "files": [
+    "src/merge_meta_additions/042_xen-h1-side-rail-sync.js"
+   ]
+  },
+  {
+   "id": "css-040-xen-h3-precision-rings",
+   "oct28_section": "@@XENSONAR_COMPONENT_044@@",
+   "files": [
+    "styles/merge_meta_additions/043_xen-h3-precision-rings.css"
+   ]
+  },
+  {
+   "id": "js-012-xen-h3-permanent-rails",
+   "oct28_section": "@@XENSONAR_COMPONENT_045@@",
+   "files": [
+    "src/merge_meta_additions/044_xen-h3-permanent-rails.js"
+   ]
+  },
+  {
+   "id": "css-041-xen-r3-wheel-layout",
+   "oct28_section": "@@XENSONAR_COMPONENT_046@@",
+   "files": [
+    "styles/merge_meta_additions/045_xen-r3-wheel-layout.css"
+   ]
+  },
+  {
+   "id": "css-042-xen-h4-h1-icons-hairline-vector",
+   "oct28_section": "@@XENSONAR_COMPONENT_047@@",
+   "files": [
+    "styles/merge_meta_additions/046_xen-h4-h1-icons-hairline-vector.css"
+   ]
+  },
+  {
+   "id": "css-043-xen-r4-initial-randomize",
+   "oct28_section": "@@XENSONAR_COMPONENT_048@@",
+   "files": [
+    "styles/merge_meta_additions/047_xen-r4-initial-randomize.css"
+   ]
+  },
+  {
+   "id": "css-044-xen-nodal-room-iii-concave-shell-v3",
+   "oct28_section": "@@XENSONAR_COMPONENT_061@@",
+   "files": [
+    "styles/overlays/nodal/01_nodal_concave_shell_v3.css"
+   ]
+  },
+  {
+   "id": "css-045-xen-scrollbars-v3-unified",
+   "oct28_section": "@@XENSONAR_COMPONENT_062@@",
+   "files": [
+    "styles/overlays/nodal/02_unified_scrollbars_sb1.css"
+   ]
+  },
+  {
+   "id": "css-046-xen-header-stable-nav-sb2",
+   "oct28_section": "@@XENSONAR_COMPONENT_063@@",
+   "files": [
+    "styles/overlays/nodal/03_stable_room_header_sb2.css"
+   ]
+  },
+  {
+   "id": "css-047-xen-compose-patchbay-v2",
+   "oct28_section": "@@XENSONAR_COMPONENT_065@@",
+   "files": [
+    "styles/overlays/melodic/01_compose_patchbay_v2.css"
+   ]
+  },
+  {
+   "id": "css-048-xen-shell-geometry-t2-style",
+   "oct28_section": "@@XENSONAR_COMPONENT_066@@",
+   "files": [
+    "styles/overlays/nodal/04_shell_geometry_t2.css"
+   ]
+  },
+  {
+   "id": "js-013-xen-shell-geometry-t2-js",
+   "oct28_section": "@@XENSONAR_COMPONENT_067@@",
+   "files": [
+    "src/ui/05_shell_geometry_t2.js"
+   ]
+  },
+  {
+   "id": "css-049-xen-compose-tangerine-aurora-ta1",
+   "oct28_section": null,
+   "files": [
+    "styles/post-oct/049-xen-compose-tangerine-aurora-ta1.css"
+   ]
+  },
+  {
+   "id": "css-050-xen-hke1-hotkey-extension",
+   "oct28_section": null,
+   "files": [
+    "styles/post-oct/050-xen-hke1-hotkey-extension.css"
+   ]
+  },
+  {
+   "id": "css-051-xen-forge-header-pitch-css",
+   "oct28_section": null,
+   "files": [
+    "styles/post-oct/051-xen-forge-header-pitch-css.css"
+   ]
+  },
+  {
+   "id": "css-052-xen-forge-fp9-progress-css",
+   "oct28_section": null,
+   "files": [
+    "styles/post-oct/052-xen-forge-fp9-progress-css.css"
+   ]
+  },
+  {
+   "id": "css-053-xen-rack-bar-editor-style",
+   "oct28_section": null,
+   "files": [
+    "styles/post-oct/053-xen-rack-bar-editor-style.css"
+   ]
+  },
+  {
+   "id": "css-054-xen-spectral-workflow-style",
+   "oct28_section": null,
+   "files": [
+    "styles/post-oct/054-xen-spectral-workflow-style.css"
+   ]
+  },
+  {
+   "id": "js-014-xen-spectral-workflow-script",
+   "oct28_section": null,
+   "files": [
+    "src/post-oct/014-xen-spectral-workflow-script.js"
+   ]
+  },
+  {
+   "id": "css-055-xen-raw-volume-rv02-css",
+   "oct28_section": null,
+   "files": [
+    "styles/post-oct/055-xen-raw-volume-rv02-css.css"
+   ]
+  },
+  {
+   "id": "css-056-xen-hold-pattern-tabs-v1",
+   "oct28_section": null,
+   "files": [
+    "styles/post-oct/056-xen-hold-pattern-tabs-v1.css"
+   ]
+  },
+  {
+   "id": "css-057-xen-thunder-hold-tabs-v3-geometry-safe",
+   "oct28_section": null,
+   "files": [
+    "styles/post-oct/057-xen-thunder-hold-tabs-v3-geometry-safe.css"
+   ]
+  },
+  {
+   "id": "css-058-xen-one-shot-fills-style",
+   "oct28_section": null,
+   "files": [
+    "styles/post-oct/058-xen-one-shot-fills-style.css"
+   ]
+  },
+  {
+   "id": "css-059-xen-p36-sample-length",
+   "oct28_section": null,
+   "files": [
+    "styles/post-oct/059-xen-p36-sample-length.css"
+   ]
+  },
+  {
+   "id": "css-060-xen-p36-session-instrument-settings",
+   "oct28_section": null,
+   "files": [
+    "styles/post-oct/060-xen-p36-session-instrument-settings.css"
+   ]
+  },
+  {
+   "id": "css-061-xen-p36-4b-material-nudge-style",
+   "oct28_section": null,
+   "files": [
+    "styles/post-oct/061-xen-p36-4b-material-nudge-style.css"
+   ]
+  },
+  {
+   "id": "css-062-xen-p36-05b-compact-instrument-arrow",
+   "oct28_section": null,
+   "files": [
+    "styles/post-oct/062-xen-p36-05b-compact-instrument-arrow.css"
+   ]
+  },
+  {
+   "id": "css-063-xen-p36-05d-preserve-instrument-rows",
+   "oct28_section": null,
+   "files": [
+    "styles/post-oct/063-xen-p36-05d-preserve-instrument-rows.css"
+   ]
+  },
+  {
+   "id": "css-064-xen-p36-05e-narrow-lane-scroll",
+   "oct28_section": null,
+   "files": [
+    "styles/post-oct/064-xen-p36-05e-narrow-lane-scroll.css"
+   ]
+  },
+  {
+   "id": "css-065-xen-sample-grid-six-06",
+   "oct28_section": null,
+   "files": [
+    "styles/post-oct/065-xen-sample-grid-six-06.css"
+   ]
+  },
+  {
+   "id": "css-066-xen-bass-voice-editor-01",
+   "oct28_section": null,
+   "files": [
+    "styles/post-oct/066-xen-bass-voice-editor-01.css"
+   ]
+  },
+  {
+   "id": "css-067-xen-sample-import-tooltip-05",
+   "oct28_section": null,
+   "files": [
+    "styles/post-oct/067-xen-sample-import-tooltip-05.css"
+   ]
+  },
+  {
+   "id": "css-068-xen-sample-controls-grouped-07",
+   "oct28_section": null,
+   "files": [
+    "styles/post-oct/068-xen-sample-controls-grouped-07.css"
+   ]
+  },
+  {
+   "id": "css-069-xen-touchpad-inline-particles-02",
+   "oct28_section": null,
+   "files": [
+    "styles/post-oct/069-xen-touchpad-inline-particles-02.css"
+   ]
+  },
+  {
+   "id": "css-070-xen-thunder-pitch02-css",
+   "oct28_section": null,
+   "files": [
+    "styles/post-oct/070-xen-thunder-pitch02-css.css"
+   ]
+  },
+  {
+   "id": "css-071-xen-wave-editor-w01-css",
+   "oct28_section": null,
+   "files": [
+    "styles/post-oct/071-xen-wave-editor-w01-css.css"
+   ]
+  },
+  {
+   "id": "js-015-xen-wave-editor-w01-modules",
+   "oct28_section": null,
+   "files": [
+    "src/post-oct/015-xen-wave-editor-w01-modules.js"
+   ]
+  },
+  {
+   "id": "js-016-xen-header-scrollbar-gauge-sb2",
+   "oct28_section": "@@XENSONAR_COMPONENT_064@@",
+   "files": [
+    "src/ui/04_header_scrollbar_gauge_sb2.js"
+   ]
+  },
+  {
+   "id": "js-017-XEN_WISSENSRAUM_BRIDGE_D_INTEGRATION",
+   "oct28_section": "@@XENSONAR_COMPONENT_049@@",
+   "files": [
+    "src/integrations/XEN_WISSENSRAUM_BRIDGE_D_INTEGRATION.js"
+   ]
+  },
+  {
+   "id": "css-072-xen-scissors-offline-ui",
+   "oct28_section": null,
+   "files": [
+    "styles/post-oct/072-xen-scissors-offline-ui.css"
+   ]
+  },
+  {
+   "id": "css-073-xen-troodle-preset-layout06",
+   "oct28_section": null,
+   "files": [
+    "styles/post-oct/073-xen-troodle-preset-layout06.css"
+   ]
+  },
+  {
+   "id": "js-018-xen-room-canonical",
+   "oct28_section": "@@XENSONAR_COMPONENT_050@@",
+   "files": [
+    "src/rooms/canonical.js"
+   ]
+  },
+  {
+   "id": "js-019-xen-room-lab",
+   "oct28_section": "@@XENSONAR_COMPONENT_051@@",
+   "files": [
+    "src/rooms/00_idle_wave_donor_p33.js",
+    "src/rooms/00_forge_rack_presentation.js",
+    "src/rooms/00_empty_audio_p32.js",
+    "src/rooms/lab.js"
+   ]
+  },
+  {
+   "id": "js-020-xen-room-nodal",
+   "oct28_section": "@@XENSONAR_COMPONENT_052@@",
+   "files": [
+    "src/rooms/nodal.js"
+   ]
+  },
+  {
+   "id": "js-021-xen-function-__ForgeTransportRack",
+   "oct28_section": "@@XENSONAR_COMPONENT_053@@",
+   "files": [
+    "src/factories/ForgeTransportRack.js"
+   ]
+  },
+  {
+   "id": "js-022-xen-function-__XenBassGridEditor",
+   "oct28_section": "@@XENSONAR_COMPONENT_054@@",
+   "files": [
+    "src/factories/XenBassGridEditor.js"
+   ]
+  },
+  {
+   "id": "js-023-xen-function-__xenM12InventoryFactory",
+   "oct28_section": "@@XENSONAR_COMPONENT_055@@",
+   "files": [
+    "src/factories/xenM12InventoryFactory.js"
+   ]
+  },
+  {
+   "id": "js-024-xen-function-__xenM11HydrationFactory",
+   "oct28_section": "@@XENSONAR_COMPONENT_056@@",
+   "files": [
+    "src/factories/xenM11HydrationFactory.js"
+   ]
+  },
+  {
+   "id": "js-025-xen-function-__xenM10BackupFactory",
+   "oct28_section": "@@XENSONAR_COMPONENT_057@@",
+   "files": [
+    "src/factories/xenM10BackupFactory.js"
+   ]
+  },
+  {
+   "id": "js-026-xen-function-__xenM9ArchiveFactory",
+   "oct28_section": "@@XENSONAR_COMPONENT_058@@",
+   "files": [
+    "src/factories/xenM9ArchiveFactory.js"
+   ]
+  },
+  {
+   "id": "js-027-xen-function-__XenMetaEditor",
+   "oct28_section": "@@XENSONAR_COMPONENT_059@@",
+   "files": [
+    "src/factories/XenMetaEditor.js"
+   ]
+  },
+  {
+   "id": "js-028-xen-function-__XenSessionPeriodDialog",
+   "oct28_section": "@@XENSONAR_COMPONENT_060@@",
+   "files": [
+    "src/factories/XenSessionPeriodDialog.js"
+   ]
+  },
+  {
+   "id": "css-074-xen-compose-tangerine-aurora-ta1",
+   "oct28_section": null,
+   "files": [
+    "styles/post-oct/074-xen-compose-tangerine-aurora-ta1.css"
+   ]
+  },
+  {
+   "id": "css-075-xen-looprec-dock-canonical",
+   "oct28_section": null,
+   "files": [
+    "styles/post-oct/075-xen-looprec-dock-canonical.css"
+   ]
+  },
+  {
+   "id": "css-076-xno-original-cycle-style",
+   "oct28_section": null,
+   "files": [
+    "styles/post-oct/076-xno-original-cycle-style.css"
+   ]
+  },
+  {
+   "id": "js-029-xno-original-cycle-runtime",
+   "oct28_section": null,
+   "files": [
+    "src/post-oct/029-xno-original-cycle-runtime.js"
+   ]
+  },
+  {
+   "id": "js-030-inline",
+   "oct28_section": null,
+   "files": [
+    "src/post-oct/030-inline.js"
+   ]
+  },
+  {
+   "id": "js-031-xen-sound-recipe-export-ui",
+   "oct28_section": null,
+   "files": [
+    "src/post-oct/031-xen-sound-recipe-export-ui.js"
+   ]
+  }
+ ]
+}

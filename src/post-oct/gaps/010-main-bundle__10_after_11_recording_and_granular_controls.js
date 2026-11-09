@@ -1,0 +1,1 @@
+ text-neutral-300 hover:bg-neutral-900"}`,children:"Particles"}),u.jsx("button",{type:"button",onClick:()=>t("keyboard-extension"),className:`rounded-sm border px-2 py-1 ${e==="keyboard-extension"?"border-amber-400/90 bg-orange-950/30 text-orange-100":"border-neutral-700 text-neutral-300 hover:bg-neutral-900"}`,children:"Keyboard Extension"})]})]})}

@@ -4,11 +4,11 @@ Du arbeitest am bestehenden **XenSonar**, nicht an einem neuen DAW-Prototyp. Die
 
 ## Primärquellen und Priorität
 
-1. **`src/` ist die Quelle, `index.html` das gebaute Ergebnis.** `src/index.template.html` enthält das HTML-Gerüst, `src/js/` und `src/css/` je einen Block pro `<script>`/`<style>` (Nummer = Reihenfolge, Name = Block-`id`). Nach jeder Änderung `python3 tools/build.py` ausführen; `python3 tools/build.py --check` muss vor jedem Commit OK melden (läuft auch als GitHub-Action).
+1. **Quelle = `source-manifest.json` + `src/**` + `styles/**`, `index.html` ist das gebaute Ergebnis** (geordneter Concat-Build, kein Bundler; globaler Scope). Dateinamen und -grenzen folgen dem Oktober-Quellbaum (28.10.), wo sie noch passen; Inhalt ist immer der aktuelle Stand. `src/post-oct/` = seit Oktober neu hinzugekommene Blöcke, `src/post-oct/gaps/` bzw. `styles/post-oct/gaps/` = zwischen Oktober-Dateien eingefügter Code. Status je Datei: `docs/SOURCE_TREE_STATUS.json`. Nach jeder Änderung `python3 tools/build.py`; `python3 tools/build.py --check` muss vor jedem Commit OK melden (GitHub-Action).
 2. **`index.html` im Repo-Hauptverzeichnis** ist die einzige ausgelieferte Datei (Netlify, offline). Nie direkt bearbeiten. Pro Release zusätzlich eine ZIP mit byteidentischer `index.html`.
 3. Versionen liegen als Zweige `version/...` (siehe README). Der alte Quellcode 3.1.6 (`version/xensonar-3.1.6-maerz`) ist Herkunft, keine Arbeitsbasis.
 4. `docs/` und `evidence/` sind Begleitdokumente. Sätze in alten Patchplänen sind keine Beweise für aktiv implementierte Features (`QA_PENDING`, `REVERTED`, `ISOLATED`, `NOT_MERGED`).
-5. Nicht neu formatieren oder vollständig generieren, wenn ein kleiner präziser Patch reicht. Der große Block `src/js/010-main-bundle.js` ist gebautes React-Bundle mit späteren Direkt-Patches.
+5. Nicht neu formatieren oder vollständig generieren, wenn ein kleiner präziser Patch reicht. Ein Teil des Codes (v. a. 46 große Bereiche, z. B. `src/audio/…`, `src/rhythm/…`) ist minifizierter React-Kern aus dem September-TypeScript-Baum; lesbare Herkunft siehe Zweig `reference/ts-400.2` und `docs/TS_ORIGIN_MAP.json`.
 
 ## Zielbild
 

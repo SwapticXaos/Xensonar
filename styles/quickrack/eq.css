@@ -1,0 +1,76 @@
+/* EQ UI-Integrity: direct source controls; EQ stays under meta modal (native-behind 100, normal 170), native menus stay above. */
+.xen-eq-trigger{position:absolute;left:24px;bottom:4px;z-index:2;height:16px;line-height:13px;border-color:#74b9ad;color:#aaf5df;padding:0 4px!important}
+.xen-eq-flyout{position:fixed;z-index:91;overflow:auto;overscroll-behavior:contain;scrollbar-width:thin;border:1px solid #4e887b;border-radius:7px;background:#081617f5;box-shadow:0 8px 30px #000b;color:#b8dbd7;font:11px var(--font-sans)}
+/* EQ-FLOAT01: only the flyout header is draggable; no instrument-pane reflow. */
+.xen-eq-panel header.xen-eq-window-bar{cursor:grab;touch-action:none;user-select:none;-webkit-user-select:none}
+.xen-eq-panel header.xen-eq-window-bar:active{cursor:grabbing}
+.xen-eq-panel header.xen-eq-window-bar button{touch-action:auto;cursor:pointer}
+.xen-eq-panel{position:relative;padding:8px}.xen-eq-panel header,.xen-eq-toolbar,.xen-eq-panel footer{display:flex;align-items:center;gap:8px;justify-content:space-between}.xen-eq-panel header strong{overflow:hidden;white-space:nowrap;text-overflow:ellipsis;max-width:90%;font-size:11px;font-weight:500}.xen-eq-panel button{font-size:10px;line-height:15px;border:1px solid #3c625f;border-radius:3px;background:#102427;color:#cbe1de;padding:0 5px;cursor:pointer}.xen-eq-panel button:hover{background:#284342}.xen-eq-panel button[aria-pressed=true]{border-color:#7ed1b2;color:#b4ffd8}.xen-eq-toolbar{margin:7px 0;justify-content:flex-start;gap:6px}.xen-eq-toolbar label{font-size:10px;white-space:nowrap}.xen-eq-toolbar input{width:38px;padding:0 1px;background:#091519;border:1px solid #365557;border-radius:3px;color:#d5e9e6;font-size:10px}.xen-eq-toolbar button:last-child{margin-left:auto}
+.xen-eq-body{display:grid;grid-template-columns:minmax(0,1fr) 44px;gap:5px;align-items:stretch}.xen-eq-editors{min-width:0;display:grid;gap:8px}.xen-eq-morph{display:flex;flex-direction:column;align-items:center;gap:5px;color:#c5e8df;font-size:10px}.xen-eq-morph input{appearance:none;-webkit-appearance:none;writing-mode:vertical-lr;direction:ltr;flex:1;height:0;min-height:160px;width:36px;background:transparent;margin:0;touch-action:none;cursor:ns-resize}.xen-eq-morph span:first-child{color:#63ded9}.xen-eq-morph span:last-child{color:#c5a2f2}
+.xen-eq-profile .nd-shared-field-compact{padding:5px!important;border-color:#315956!important;background:#0a1c20!important}.xen-eq-profile:nth-child(2) .nd-shared-field-compact{border-color:#544269!important}.xen-eq-profile .nd-shared-field-compact>div:first-child{gap:2px!important;flex-wrap:nowrap!important}.xen-eq-profile .nd-shared-field-compact>div:first-child>div:last-child{gap:3px!important;flex-wrap:wrap!important;justify-content:flex-end}.xen-eq-profile .nd-shared-field-compact>div:first-child>div:last-child>button:first-of-type{display:none!important}.xen-eq-profile .nd-shared-field-compact>div:first-child button{font-size:9px!important;padding:0 3px!important}.xen-eq-profile .nd-shared-field-compact>div:first-child .inline-flex{padding:1px!important}.xen-eq-profile .nd-shared-field-compact>div:nth-child(2){margin-top:5px!important;padding:0!important;border:0!important;background:transparent!important}.xen-eq-profile canvas{display:block!important;width:100%!important;height:var(--xen-eq-canvas-height,85px)!important;touch-action:none;border:0!important}.xen-eq-panel.is-expanded .xen-eq-profile canvas{height:clamp(110px,calc((100vh - 440px)/2),210px)!important}.xen-eq-profile .nd-field-status{display:none!important}.xen-eq-profile .nd-shared-field-compact>div:last-child{margin-top:4px!important;display:block!important}.xen-eq-profile .nd-shared-field-compact>div:last-child>div:first-child{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:5px!important}.xen-eq-profile .nd-shared-field-compact>div:last-child label:first-child{display:none!important}.xen-eq-profile .nd-shared-field-compact>div:last-child label{font-size:7px!important;letter-spacing:0!important;line-height:9px!important}.xen-eq-profile .nd-shared-field-compact label span{letter-spacing:0!important;white-space:nowrap}.xen-eq-profile .nd-shared-field-compact label input{display:block!important;height:8px!important;margin:0!important;width:100%!important;accent-color:#7cbfb4}.xen-eq-profile .nd-shared-field-compact label div{gap:1px!important}.xen-eq-profile .nd-shared-field-compact label div span:last-child{display:none}.xen-eq-panel footer{margin-top:6px;font-size:9px;color:#8fabaa}
+.xen-eq-window{display:flex;justify-content:center;gap:26px;padding:5px 0 10px;border-top:1px solid #31514b}.xen-eq-window label{display:flex;align-items:center;gap:9px;font-size:9px}.xen-eq-window-clamp{position:relative;height:62px;width:16px;background:#091d12;border:1px solid #388458;border-radius:6px}.xen-eq-window-clamp:before,.xen-eq-window-clamp:after{content:'';position:absolute;left:-7px;width:5px;height:2px;background:#a1fcb9}.xen-eq-window-clamp:before{top:calc(50% - var(--eq-span,25px))}.xen-eq-window-clamp:after{bottom:calc(50% - var(--eq-span,25px))}.xen-eq-window input{appearance:slider-vertical;-webkit-appearance:slider-vertical;writing-mode:vertical-lr;direction:rtl;width:14px;height:60px;margin:0;accent-color:#a1fcb9}
+
+.xen-lane-tabs{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:3px}
+.xen-lane-tabs button{min-width:0;display:grid;justify-items:center;align-content:center;gap:2px;padding:4px 1px 3px;white-space:normal;line-height:12px;font-family:var(--font-sans)}
+.xen-lane-tab-icon{display:block;font-family:"XenSonar Emoji",var(--font-sans);font-size:15px;line-height:18px;min-height:18px}
+.xen-lane-tab-title{display:block;font-size:9px;line-height:11px;white-space:normal}
+
+
+.xen-eq-panel.is-expanded{padding:12px}.xen-eq-panel.is-expanded header strong{font-size:13px}.xen-eq-panel.is-expanded .xen-eq-toolbar{margin:8px 0 6px}.xen-eq-panel.is-expanded .xen-eq-profile .nd-shared-field-compact{padding:8px!important}.xen-eq-panel.is-expanded .xen-eq-profile .nd-shared-field-compact>div:first-child button{font-size:11px!important;padding:2px 7px!important}.xen-eq-panel.is-expanded .xen-eq-profile .nd-shared-field-compact>div:last-child label{font-size:9px!important;line-height:12px!important}.xen-eq-panel.is-expanded .xen-eq-body{grid-template-columns:minmax(0,1fr) 44px;gap:8px}
+
+/* EQ follow-up: one brush palette across the two independent curve canvases. */
+/* Shared action lane: always measure siblings before introducing a new vertical row. */
+.xen-eq-command-strip{display:flex;align-items:center;justify-content:space-between;flex-wrap:nowrap;gap:5px;min-width:0;margin:5px 0 7px}
+.xen-eq-shared-tools{display:flex;justify-content:flex-end;align-items:center;flex:0 0 auto;gap:5px;margin:0 0 0 auto;white-space:nowrap}
+.xen-eq-shared-tools button{display:inline-flex;align-items:center;justify-content:center;gap:4px;min-height:22px;padding:2px 8px!important;white-space:nowrap}
+.xen-eq-shared-tools button[aria-pressed=true]{background:#204b46;border-color:#77cdbc;color:#e0fff3}
+.xen-eq-shared-settings{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px;margin:8px 0 2px}
+.xen-eq-tool-slider{display:block;min-width:0;color:#bcd5d0;font-size:9px}
+.xen-eq-tool-slider>span{display:flex;justify-content:space-between;align-items:center;gap:3px;white-space:nowrap}
+.xen-eq-tool-slider output{color:#a2e3d0;font-variant-numeric:tabular-nums;white-space:nowrap}
+.xen-eq-tool-slider input{display:block;width:100%;height:11px;accent-color:#89d3bc;margin:2px 0 0}
+.xen-eq-profile .nd-shared-field-compact>div:first-child .inline-flex{display:none!important}
+.xen-eq-profile .nd-shared-field-compact>div:last-child{display:none!important}
+.xen-eq-pen-mode{cursor:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2224%22%20height%3D%2224%22%20viewBox%3D%220%200%2024%2024%22%3E%3Cpath%20d%3D%22M3%2021l5.5-1.5L21%207l-4-4L4.5%2015.5z%22%20fill%3D%22%23e2fff0%22%20stroke%3D%22%2309483e%22%20stroke-width%3D%221.2%22%2F%3E%3Cpath%20d%3D%22M14.5%205.5l4%204%22%20fill%3D%22none%22%20stroke%3D%22%2309483e%22%20stroke-width%3D%221.5%22%2F%3E%3Cpath%20d%3D%22M3%2021l3.6-3.6%22%20stroke%3D%22%2309483e%22%20stroke-width%3D%221.2%22%2F%3E%3C%2Fsvg%3E") 3 21,crosshair}
+.xen-eq-panel.is-expanded .xen-eq-shared-settings{gap:12px;margin-top:12px}
+.xen-eq-panel.is-expanded .xen-eq-tool-slider{font-size:10px}
+
+/* EQ patterns: transient shared Freeze and explicitly saved A/B template catalog. */
+.xen-eq-pattern-actions{display:flex;align-items:center;flex:0 1 auto;flex-wrap:nowrap;white-space:nowrap;gap:5px;min-width:0;margin:0}
+.xen-eq-pattern-actions button{min-height:22px;padding:1px 7px!important;border-color:#365f5c;white-space:nowrap;flex-shrink:0}
+.xen-eq-pattern-actions button:first-child{border-color:#7bc2ce;color:#b2f3fb}
+.xen-eq-pattern-actions button:disabled,.xen-eq-pattern-drawer button:disabled{opacity:.35;cursor:default}
+.xen-eq-pattern-actions .xen-eq-clear-freeze{margin-left:auto;min-width:22px;color:#a9cfda}
+.xen-eq-pattern-drawer{position:absolute;z-index:6;top:80px;right:12px;width:min(440px,calc(100% - 24px));display:flex;align-items:center;gap:6px;flex-wrap:wrap;padding:8px;margin:0;border:1px solid #3c6768;border-radius:4px;background:#0a2528;box-shadow:0 8px 22px #000a;font-size:10px}
+.xen-eq-pattern-drawer input,.xen-eq-pattern-drawer select{min-width:0;max-width:100%;background:#061518;color:#d7eee9;border:1px solid #3f7270;border-radius:3px;padding:3px 5px;font-size:10px}
+.xen-eq-pattern-drawer input{flex:1 1 110px}
+.xen-eq-pattern-drawer select{flex:1 1 130px}
+.xen-eq-pattern-drawer label{color:#b7dbd9}
+.xen-eq-pattern-notice{position:absolute;z-index:7;top:80px;left:12px;max-width:calc(100% - 24px);pointer-events:none;font-size:9px;color:#b2e8d6;background:#0a2528e6;border:1px solid #5e9e8b;border-radius:3px;padding:4px 7px;margin:0}
+
+@media (max-width:650px){
+.xen-eq-command-strip{gap:3px}
+.xen-eq-pattern-actions{gap:3px}
+.xen-eq-pattern-actions button{padding:1px 4px!important;font-size:9px}
+.xen-eq-shared-tools{gap:3px}
+.xen-eq-shared-tools button{padding:1px 4px!important;font-size:9px}
+}
+
+/* EQ ShapeFit Raster+Adaptiv: same source curves; explicit acoustic mode. */
+.xen-eq-mode{display:inline-flex;align-items:center;gap:2px;padding:2px;border:1px solid #315956;border-radius:6px;background:#081c21;flex-shrink:0}
+.xen-eq-mode button{font-size:10px;padding:2px 7px!important;min-height:24px;border:1px solid transparent;border-radius:4px;white-space:nowrap;color:#a0c2c5;background:transparent}
+.xen-eq-mode button[aria-pressed=true]{border-color:#50c9c2;background:#144945;color:#dbfff4;box-shadow:inset 0 0 8px #57caba25}
+.xen-eq-toolbar{flex-wrap:wrap;justify-content:flex-start!important}
+.xen-eq-toolbar>button:last-child{margin-left:auto}
+.xen-eq-mode{padding:1px}
+.xen-eq-mode button{min-height:19px;padding:0 6px!important;line-height:16px}
+.xen-eq-panel.is-expanded .xen-eq-toolbar{margin:5px 0 5px}
+
+
+
+/* A broader vertical grip inside the existing flyout width. */
+.xen-eq-morph input::-webkit-slider-runnable-track{width:4px;height:100%;border-radius:4px;background:linear-gradient(#63ded9,#c5a2f2)}
+.xen-eq-morph input::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:32px;height:10px;margin-left:-14px;border:1px solid #d4f7e6;border-radius:6px;background:#b6eacb;box-shadow:0 1px 4px #0008}
+.xen-eq-morph input::-moz-range-track{width:4px;height:100%;border-radius:4px;background:linear-gradient(#63ded9,#c5a2f2)}
+.xen-eq-morph input::-moz-range-thumb{width:32px;height:10px;border:1px solid #d4f7e6;border-radius:6px;background:#b6eacb;box-shadow:0 1px 4px #0008}
+.xen-eq-morph input:focus-visible{outline:1px solid #c6f1e2;outline-offset:2px;border-radius:6px}

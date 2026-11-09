@@ -1,0 +1,13 @@
+/* Instrument and One-Shot static presentation: one editor, same audio engine. */
+.xen-eq-editors.is-static{grid-template-columns:minmax(0,1fr)!important}
+.xen-eq-editors.is-static .xen-eq-profile{max-width:none}
+.xen-eq-panel.is-static .xen-eq-command-strip{flex-wrap:wrap;justify-content:flex-start;row-gap:6px}
+.xen-eq-panel.is-static .xen-eq-pattern-actions{flex-wrap:wrap;white-space:normal}
+.xen-eq-panel.is-static .xen-eq-shared-tools{margin-left:0}
+.xen-eq-panel.is-static .xen-eq-toolbar{flex-wrap:wrap}
+.xen-fill-mini-menu header .xen-fill-mini-actions{display:flex;align-items:center;gap:5px;flex:0 0 auto}
+.xen-fill-mini-menu header .xen-fill-mini-eq{font-size:10px;min-width:25px;padding:2px 4px;line-height:15px;color:#72e6dd;border:1px solid #468980;border-radius:3px}
+
+/* Instrument EQ: absolute button inside existing heading; no grid/flex reflow. */
+.xen-source-heading:has(.xen-instrument-eq-trigger){position:relative}
+.xen-eq-trigger.xen-instrument-eq-trigger{position:absolute;bottom:auto;z-index:3;box-sizing:border-box;width:19px;min-width:19px;height:16px;line-height:13px;padding:0!important;font-size:9px}

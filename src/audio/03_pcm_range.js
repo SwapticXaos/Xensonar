@@ -1,0 +1,1 @@
+function TW(e,t=null){let n=e.getChannelData(0),r=e.numberOfChannels>1?e.getChannelData(1):e.getChannelData(0),a=Math.round(e.duration*1e3);if(t){const o=ove(e,t.startMs,t.endMs);n=o.left,r=o.right,a=o.durationMs}return{left:n,right:r,effectiveDurationMs:a}}

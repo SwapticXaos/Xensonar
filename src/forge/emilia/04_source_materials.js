@@ -1,0 +1,11 @@
+/* Exact local source primitives from HarmonicXplorE (ZQ/ZBe/eDe) and Cecilia (v3e/a_/Vk/A3e/x3e). No Carrier reader or note tracker is imported. */
+function __emiliaSource_ZBe(e){const t=[];let n=2;for(;t.length<e;)__emiliaSource_JBe(n)&&t.push(n),n+=1;return t}
+function __emiliaSource_eDe(e){if(e<=0)return[];if(e===1)return[1];const t=[1,2];for(;t.length<e;)t.push(t[t.length-1]+t[t.length-2]);return t}
+function __emiliaSource_ZQ(e,t,n="phaseFull"){const r=Math.max(1,Math.min(32,Math.floor(e||1)));let a;switch(t){case"singular":a=[1];break;case"octave":a=Array.from({length:r},(o,i)=>2**i);break;case"numOdd":a=Array.from({length:r},(o,i)=>2*i+1);break;case"numEven":a=Array.from({length:r},(o,i)=>2*(i+1));break;case"numPrime":a=__emiliaSource_ZBe(r);break;case"numFibo":a=__emiliaSource_eDe(r);break;case"upper":a=Array.from({length:r},(o,i)=>i+2);break;case"lower":a=Array.from({length:r},(o,i)=>1/(i+2));break;case"under":a=Array.from({length:r},(o,i)=>1/(i+1));break;case"inharmonic":a=Array.from({length:r},(o,i)=>Math.pow(i+1,1.41421356237));break;case"natural":default:a=Array.from({length:r},(o,i)=>i+1);break}return n==="phaseDown"?a.map(o=>-Math.abs(o)):a.map(o=>Math.abs(o))}
+const __emiliaSource_v3e=199.834572;
+const __emiliaSource_a_=[.0533437,.1280363,.7784623,.5341669,.0620899,.1369675,.2177907,.1049711,.0172901,.0059834,.0045256,.0039858,.0036316,.0035388,.003048,.0029331,.0024074,.0025647,.0024391,.0020912,.0018565,.0022511,.0020288,.0018316,.0016913,.0015208,.0014905,.0014174,.0015873,.0016795,.0014376,.0012828,9072e-7,8462e-7,8299e-7,8723e-7,8148e-7,175e-6,0,0];
+const __emiliaSource_Vk=[[650,1400,2600],[450,1900,2800],[300,2300,3e3],[450,900,2500],[300,700,2400]];
+function __emiliaSource_A3e(e){const t=Math.max(0,e/__emiliaSource_v3e-1),n=Math.floor(t),r=t-n;return(__emiliaSource_a_[n]??5e-5)*(1-r)+(__emiliaSource_a_[n+1]??5e-5)*r}
+function __emiliaSource_x3e(e,t){const n=Math.min(3,Math.floor(t.vowel)),r=t.vowel-n,a=Math.pow(2,t.formantShift/12),o=[0,...__emiliaSource_Vk[n].map((c,d)=>(c*(1-r)+__emiliaSource_Vk[n+1][d]*r)*a),7200*a],i=[0,...__emiliaSource_Vk[0],7200];let s=0;for(;s<o.length-2&&e>o[s+1];)s++;const l=(e-o[s])/(o[s+1]-o[s]);return i[s]+l*(i[s+1]-i[s])}
+
+function __emiliaSource_JBe(e){if(!Number.isFinite(e)||e<2)return!1;for(let t=2;t<=Math.sqrt(e);t+=1)if(e%t===0)return!1;return!0}

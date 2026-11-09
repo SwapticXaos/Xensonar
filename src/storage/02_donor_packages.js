@@ -1,0 +1,245 @@
+
+/* F3.56.8 — Paketstation: portable Donor Library + Material Intake workspaces.
+ * PCM is losslessly encoded as binary base64, rather than JSON-number arrays
+ * (or the package serializer's deliberately truncated typed-array previews).
+ * The record store is shared with the existing Material Intake persistence.
+ */
+function __createF3568DonorPackageBridge(storage) {
+  const PRESET = 'donor-library:preset:';
+  const WORKSPACE = 'workspace:';
+  const ASSET = 'asset:';
+  const SAMPLE = __F35614AudioRef.samplePrefix;
+  const linked = id => goodId(id, SAMPLE);
+  const TYPE = {
+    Float32Array, Float64Array, Uint8Array, Uint16Array, Int8Array, Int16Array,
+    Int32Array, Uint32Array, Uint8ClampedArray
+  };
+  const fail = message => { throw new Error('Experiment package / donor library: ' + message); };
+  const goodId = (id, prefix) => typeof id === 'string' && id.startsWith(prefix) && id.length > prefix.length && id.length <= 512;
+  function base64Encode(bytes) {
+    const blocks = [];
+    // A multiple of three is essential to avoid padding between chunks.
+    const blockSize = 24576;
+    for (let at = 0; at < bytes.length; at += blockSize) {
+      const chunk = bytes.subarray(at, Math.min(bytes.length, at + blockSize));
+      let binary = '';
+      for (let i = 0; i < chunk.length; i += 8192)
+        binary += String.fromCharCode(...chunk.subarray(i, i + 8192));
+      blocks.push(btoa(binary));
+    }
+    return blocks.join('');
+  }
+  function base64Decode(text, expectedSize) {
+    if (typeof text !== 'string' || !Number.isSafeInteger(expectedSize) || expectedSize < 0 ||
+        text.length !== 4 * Math.ceil(expectedSize / 3)) fail('Invalid audio format or data length.');
+    const bytes = new Uint8Array(expectedSize);
+    const step = 32768;
+    let offset = 0;
+    for (let at = 0; at < text.length; at += step) {
+      let binary;
+      try { binary = atob(text.slice(at, at + step)); }
+      catch { fail('Corrupted audio data in the package.'); }
+      for (let i = 0; i < binary.length; i++) {
+        if (offset >= expectedSize) fail('Audio byte count does not match.');
+        bytes[offset++] = binary.charCodeAt(i);
+      }
+    }
+    if (offset !== expectedSize) fail('Audio data is incomplete.');
+    return bytes.buffer;
+  }
+  function pack(value, seen = new WeakSet()) {
+    if (value == null || typeof value === 'string' || typeof value === 'boolean' ||
+        (typeof value === 'number' && Number.isFinite(value))) return value;
+    if (typeof value === 'number') fail('Invalid numeric value in the material.');
+    if (typeof value !== 'object') fail('Material value cannot be serialized.');
+    if (ArrayBuffer.isView(value) && !(value instanceof DataView)) {
+      if (!TYPE[value.constructor?.name]) fail('Unbekanntes Audio-Arrayformat.');
+      return { __xensonarPortableBytes: 1, type: value.constructor.name,
+        byteLength: value.byteLength, base64: base64Encode(new Uint8Array(value.buffer, value.byteOffset, value.byteLength)) };
+    }
+    if (value instanceof ArrayBuffer)
+      return { __xensonarPortableBytes: 1, type: 'ArrayBuffer', byteLength: value.byteLength,
+        base64: base64Encode(new Uint8Array(value)) };
+    if (typeof Blob !== 'undefined' && value instanceof Blob)
+      fail('An audio asset contains a blob; a lossless export is not possible.');
+    if (seen.has(value)) fail('Zyklische Referenz in Materialdaten.');
+    seen.add(value);
+    const answer = Array.isArray(value) ? value.map(v => pack(v, seen)) : {};
+    if (!Array.isArray(value)) for (const [key, part] of Object.entries(value)) {
+      if (key === 'analysisCache' || key === '__proto__' || key === 'constructor') continue;
+      if (part === undefined) continue;
+      answer[key] = pack(part, seen);
+    }
+    seen.delete(value);
+    return answer;
+  }
+  // Export is the cold path. File/Blob require async arrayBuffer(), unlike
+  // PCM typed arrays. Keep the synchronous pack() API for old callers/tests.
+  async function packAsync(value, seen = new WeakSet()) {
+    if (typeof Blob !== 'undefined' && value instanceof Blob) {
+      const isFile = typeof File !== 'undefined' && value instanceof File;
+      if(typeof __XenPackageExportTraceP315!=='undefined')
+        __XenPackageExportTraceP315.step('audio-blob-read-start',{bytes:value.size});
+      const bytes = new Uint8Array(await value.arrayBuffer());
+      if(typeof __XenPackageExportTraceP315!=='undefined')
+        __XenPackageExportTraceP315.step('audio-blob-encode-start',{bytes:bytes.byteLength});
+      const encoded=base64Encode(bytes);
+      if(typeof __XenPackageExportTraceP315!=='undefined')
+        __XenPackageExportTraceP315.step('audio-blob-encoded',{bytes:bytes.byteLength});
+      const record = {__xensonarPortableBlob:1,byteLength:bytes.byteLength,
+        mimeType:value.type,base64:encoded};
+      if (isFile) {
+        record.fileName=value.name;
+        record.lastModified=value.lastModified;
+      }
+      return record;
+    }
+    if (ArrayBuffer.isView(value) || value instanceof ArrayBuffer) {
+      if(typeof __XenPackageExportTraceP315!=='undefined')
+        __XenPackageExportTraceP315.step('audio-pcm-encode-start',{bytes:value.byteLength});
+      const encoded=pack(value);
+      if(typeof __XenPackageExportTraceP315!=='undefined')
+        __XenPackageExportTraceP315.step('audio-pcm-encoded',{bytes:value.byteLength});
+      return encoded;
+    }
+    if (value == null || typeof value !== 'object') return pack(value);
+    if (seen.has(value)) fail('Zyklische Referenz in Materialdaten.');
+    seen.add(value);
+    try {
+      if (Array.isArray(value)) {
+        const result=[];
+        for (const part of value) result.push(await packAsync(part,seen));
+        return result;
+      }
+      const result={};
+      for (const [key,part] of Object.entries(value)) {
+        if (key==='analysisCache' || key==='__proto__' || key==='constructor' || part===undefined) continue;
+        result[key]=await packAsync(part,seen);
+      }
+      return result;
+    } finally { seen.delete(value); }
+  }
+  function unpack(value) {
+    if (value == null || typeof value !== 'object') return value;
+    if (value.__xensonarPortableBlob === 1) {
+      if (typeof value.mimeType !== 'string' || typeof value.base64 !== 'string' ||
+          !Number.isSafeInteger(value.byteLength) || value.byteLength < 0 ||
+          (value.fileName !== undefined && (typeof value.fileName !== 'string' ||
+           !Number.isSafeInteger(value.lastModified) || value.lastModified < 0)))
+        fail('Invalid stored audio Blob metadata.');
+      const bytes = base64Decode(value.base64,value.byteLength);
+      if (value.fileName !== undefined) {
+        if (typeof File === 'undefined') fail('This browser cannot restore an audio File.');
+        return new File([bytes],value.fileName,{type:value.mimeType,lastModified:value.lastModified});
+      }
+      return new Blob([bytes],{type:value.mimeType});
+    }
+    if (value.__xensonarPortableBytes === 1) {
+      const raw = base64Decode(value.base64, value.byteLength);
+      if (value.type === 'ArrayBuffer') return raw;
+      const ctor = TYPE[value.type];
+      if (!ctor || raw.byteLength % ctor.BYTES_PER_ELEMENT) fail('Unbekannter PCM-Datentyp.');
+      return new ctor(raw);
+    }
+    if (Array.isArray(value)) return value.map(unpack);
+    const result = {};
+    for (const [key, part] of Object.entries(value)) {
+      if (key === '__proto__' || key === 'constructor' || key === 'analysisCache') continue;
+      result[key] = unpack(part);
+    }
+    return result;
+  }
+  function refFromWorkspace(row) {
+    return __F35614AudioRef.fromSource(row?.value?.source);
+  }
+  function assertAsset(value, id) {
+    if (!value || (!value.monoSamples?.length && !value.leftSamples?.length))
+      fail('Raw audio is missing for ' + id + '.');
+  }
+  async function exportLibrary(validSamples = new Set()) {
+    // Debounced Material Intake saves must be flushed before this call by the caller.
+    const [presetRows, workspaceRows] = await Promise.all([
+      storage.listPrefix(PRESET), storage.listPrefix(WORKSPACE)
+    ]);
+    const assetIds = new Set();
+    for (const row of presetRows) {
+      if (!goodId(row.id, PRESET) || row.value?.version !== 'donor-library-v1' ||
+          !(goodId(row.value.assetId, ASSET) || linked(row.value.assetId))) fail('Invalid donor entry: ' + row.id);
+      if (linked(row.value.assetId)) { if (!validSamples.has(row.value.assetId.slice(SAMPLE.length))) fail('Donor '+JSON.stringify(row.value.name || row.id)+' verweist auf ein nicht exportierbares Sample ('+row.value.assetId+'). Prüfe Sample Database und Donor Library. Fehlendes Audio wird nicht stillschweigend weggelassen.'); }
+      else assetIds.add(row.value.assetId);
+    }
+    for (const row of workspaceRows) {
+      if (!goodId(row.id, WORKSPACE)) fail('Invalid material recording: ' + row.id);
+      const id = refFromWorkspace(row);
+      if (id) { if (!goodId(id, ASSET)) fail('Invalid audio reference for the material recording.'); assetIds.add(id); }
+    }
+    const assets = await __F35613Archive.exportAssets(storage, assetIds, packAsync, assertAsset,
+      id => fail('Audio asset is missing: ' + id));
+    return {
+      schemaVersion: 1,
+      presets: await __F35613Archive.packRowsAsync(presetRows, packAsync),
+      workspaces: await __F35613Archive.packRowsAsync(workspaceRows, packAsync),
+      assets
+    };
+  }
+  function prepareLibrary(payload, mode, sampleIdMap = new Map()) {
+    // Older Tüftelpakete have no donor section: they must NEVER erase local donors.
+    if (payload == null) return null;
+    if (payload.schemaVersion !== 1 || !Array.isArray(payload.presets) ||
+        !Array.isArray(payload.workspaces) || !Array.isArray(payload.assets))
+      fail('Unknown or incomplete donor package version.');
+    __F35613Archive.assertMode(mode, () => fail('Unbekannter Importmodus.'));
+    const unique = __F35613Archive.validateRows(
+      [[payload.presets, PRESET], [payload.workspaces, WORKSPACE], [payload.assets, ASSET]],
+      goodId, row => fail('Duplicate or invalid entry: ' + (row?.id ?? '?')));
+    const assetsById = new Map(payload.assets.map(row => [row.id, row]));
+    const planned = [];
+    for (const record of payload.presets) {
+      const value = unpack(record.value);
+      if (value.version !== 'donor-library-v1' || record.id !== PRESET + value.id ||
+          !(goodId(value.assetId, ASSET) || linked(value.assetId)) ||
+          (goodId(value.assetId, ASSET) && !assetsById.has(value.assetId)) ||
+          (linked(value.assetId) && !sampleIdMap.has(value.assetId.slice(SAMPLE.length))))
+        fail('Donor metadata or audio reference is missing.');
+      if (linked(value.assetId)) { const mapped = __F35614AudioRef.sampleId(sampleIdMap.get(value.assetId.slice(SAMPLE.length)));
+        value.assetId = mapped;
+        value.source = {...(value.source ?? {}), sourceAsset:__F35614AudioRef.marker(mapped)};
+      }
+      planned.push({ id: record.id, value, updatedAt: Date.now() });
+    }
+    for (const record of payload.workspaces) {
+      const value = unpack(record.value), id = value?.source?.sourceAsset?.__materialIntakeAssetRef;
+      if (id && !assetsById.has(id)) fail('Material recording audio file is missing.');
+      planned.push({ id: record.id, value, updatedAt: Date.now() });
+    }
+    // P2: full preflight, then one atomic IDB transaction in this repository.
+    // No asset or metadata remains if the transaction aborts halfway through.
+    const preparedAssets=__XenPackageTransactionsV1.prepareAssets(payload.assets,unpack,assertAsset);
+    return {preparedAssets,planned,mode,unique,payload};
+  }
+  async function commitPrepared(prepared) {
+    if (prepared==null) return null;
+    const {preparedAssets,planned,mode,unique,payload}=prepared;
+    const transaction=await storage.importPackage({
+      assets:preparedAssets,metadata:planned,mode,
+      metadataPrefixes:[PRESET,WORKSPACE],archiveIds:unique
+    });
+    const {audioImported,audioReused}=transaction;
+    const count=transaction.metadataWrittenIds.filter(id=>id.startsWith(PRESET)).length;
+    const restoredWorkspaces=transaction.metadataWrittenIds.filter(id=>id.startsWith(WORKSPACE)).length;
+    return { donorCount: count, workspaceCount: restoredWorkspaces,
+      donorTotal: payload.presets.length, workspaceTotal: payload.workspaces.length,
+      audioImported, audioReused, skipped: planned.length - transaction.metadataCount };
+  }
+  async function importLibrary(payload,mode,sampleIdMap=new Map()) {
+    return commitPrepared(prepareLibrary(payload,mode,sampleIdMap));
+  }
+  return Object.freeze({ exportLibrary, importLibrary, prepareLibrary, commitPrepared, pack, packAsync, unpack, getRecord: storage.get.bind(storage), putRecords: storage.putMany.bind(storage) });
+}
+const __PaketDonorF3568 = __createF3568DonorPackageBridge(__f35612RecordStore(
+  'xensonar-spectral-forge-material-intake-v1', {
+    open: 'Material recording IndexedDB is unavailable.',
+    putAbort: 'Material recording transaction aborted.',
+    put: 'Material recording transaction failed.',
+  }
+));
