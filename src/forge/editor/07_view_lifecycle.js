@@ -8,6 +8,8 @@ function __deactivateForgeWorkspace(){
  if(typeof __f333Stop==='function')__f333Stop();
  if(typeof __f449ReleaseForgeDerivedCaches==='function')__f449ReleaseForgeDerivedCaches();
 }
+/* LIVEZONE-01: rooms outside the live zone (Live Room + Nodal Center). */
+function __xenIsColdRoom(room){return room==="L3LAB"}
 function __setForgeWorkspaceVisible(visible){
  if(visible===__forgeWorkspaceVisible)return;
  __forgeWorkspaceVisible=visible;
