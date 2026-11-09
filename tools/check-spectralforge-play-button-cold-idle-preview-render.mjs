@@ -1,0 +1,25 @@
+#!/usr/bin/env node
+import fs from 'node:fs';
+const read = (p) => fs.readFileSync(p, 'utf8');
+const fail = (msg) => { console.error(`[xensonar][play-button-cold-idle-preview-render] FAIL: ${msg}`); process.exit(1); };
+const has = (src, needle, label = needle) => { if (!src.includes(needle)) fail(`missing ${label}`); };
+const notHas = (src, needle, label = needle) => { if (src.includes(needle)) fail(`unexpected ${label}`); };
+const transport = read('src/features/l3lab/spectralForge/components/TransportBar.tsx');
+const activity = read('src/features/l3lab/spectralForge/components/previewSession/useTransportPreviewActivityGate.ts');
+const derivation = read('src/features/l3lab/spectralForge/components/previewSession/spectralForgeTransportPreviewDerivation.ts');
+const route = read('src/features/l3lab/spectralForge/components/previewSession/spectralForgePreviewRoute.ts');
+const uiModel = read('src/features/l3lab/spectralForge/components/transportBar/transportBarUiModel.ts');
+has(activity, 'const userPointerDownRef = useRef(false);', 'pointer-down guard ref');
+has(activity, 'const lastUserActivityAtRef = useRef(', 'last user activity ref');
+has(activity, "window.addEventListener('pointerdown'", 'pointerdown activity listener');
+has(activity, "window.addEventListener('wheel'", 'wheel activity listener');
+has(activity, ": { coldIdleMs: 2000, firstDelayMs: 80, retryDelayMs: 80 };", '2s spectral cold idle contract');
+has(transport, 'const scheduleColdRender = () =>', 'cold render scheduler');
+has(transport, 'if (quietWindow.blocked) {', 'defer while pointer active or not quiet');
+has(route, "'Vorschau wartet auf Werkzeug-Freigabe'", 'tool-release status');
+has(route, "'Vorschau wartet auf ruhigen Werkzeugmoment'", 'quiet-moment status');
+has(derivation, 'previewRouteCanAutoAfterPaint(previewRenderRouteKind)', 'cold render eligibility is explicit');
+notHas(transport, 'runSerialAfterPaintPreviewRender();\n      }, 90);', 'old immediate 90ms render start');
+has(transport, 'const previewReadyForImmediatePlay = transportReadyGate.readyForImmediatePlay;', 'full green driven by prepared/ready gate');
+has(uiModel, 'Vorschau bereit · startet sofort', 'full green immediate-play tooltip preserved');
+console.log('[xensonar][play-button-cold-idle-preview-render] OK: activity gate owns cold-idle input; scheduler and ready truth remain separate.');

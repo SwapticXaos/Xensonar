@@ -1,0 +1,14 @@
+{
+  "extends": "./tsconfig.typecheck.browser.json",
+  "compilerOptions": {
+    "noEmit": true
+  },
+  "include": [
+    "src/features/l3lab/materialIntake/**/*",
+    "src/features/l3lab/melodicSamples/**/*",
+    "src/features/l3lab/contracts/**/*",
+    "src/core/**/*",
+    "src/utils/**/*",
+    "src/vite-env.d.ts"
+  ]
+}

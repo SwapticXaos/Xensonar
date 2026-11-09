@@ -1,0 +1,14 @@
+{
+  "status": "hardened-native-kernel",
+  "make_acceptance": {"status":"VERIFIED","passed":12,"failed":0,"missing":0},
+  "cmake_ctest": {"status":"VERIFIED","passed":11,"failed":0},
+  "asan_ubsan": {"status":"VERIFIED","passed":11,"failed":0},
+  "tsan": {"status":"VERIFIED","passed":11,"failed":0,"note":"one program-publication race was found, fixed with acquire ordering, then suite passed"},
+  "panic_epoch_fence": "VERIFIED",
+  "scheduler": {"status":"VERIFIED","structure":"fixed-capacity min-heap","capacity":4096,"worst_case_insert":"O(log N)","reverse_4096_observed_ms":"~0.2-0.4 informational"},
+  "rt_allocation": "VERIFIED",
+  "pipewire_compile": "IMPLEMENTED_NOT_EXECUTED",
+  "pipewire_physical": "IMPLEMENTED_NOT_EXECUTED",
+  "xensonar_sound_parity": "PARITY_NOT_ESTABLISHED",
+  "implant_boundary": "DOCUMENTED"
+}

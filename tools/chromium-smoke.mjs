@@ -1,0 +1,18 @@
+import http from 'http';
+import fs from 'fs';
+import { spawn } from 'child_process';
+const htmlPath = process.argv[2] || 'dist/index.html';
+const html = fs.readFileSync(htmlPath);
+const server = http.createServer((req,res)=>{res.writeHead(200, {'content-type':'text/html'}); res.end(html);});
+await new Promise(r=>server.listen(4177,'127.0.0.1',r));
+const profile = '/tmp/xensonar-chrome-smoke-'+Date.now();
+const args = ['--headless=new','--disable-gpu','--no-sandbox','--disable-dev-shm-usage',`--user-data-dir=${profile}`,'--enable-logging=stderr','--v=0','http://127.0.0.1:4177'];
+const p = spawn('/usr/bin/chromium', args, {stdio:['ignore','pipe','pipe']});
+let out='', err='';
+p.stdout.on('data', d=> out += d.toString());
+p.stderr.on('data', d=> err += d.toString());
+await new Promise(r=>setTimeout(r,4000));
+p.kill('SIGTERM');
+server.close();
+console.log('STDOUT\n'+out.slice(-4000));
+console.log('STDERR\n'+err.slice(-8000));

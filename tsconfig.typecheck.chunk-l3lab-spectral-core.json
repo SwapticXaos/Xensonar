@@ -1,0 +1,24 @@
+{
+  "extends": "./tsconfig.typecheck.browser.json",
+  "compilerOptions": {
+    "noEmit": true
+  },
+  "include": [
+    "src/features/l3lab/spectralForge/types/**/*",
+    "src/features/l3lab/spectralForge/model/**/*",
+    "src/features/l3lab/spectralForge/utils/**/*",
+    "src/features/l3lab/spectralForge/tools/**/*",
+    "src/features/l3lab/spectralForge/carrierDonor/**/*",
+    "src/features/l3lab/spectralForge/carrierV2/**/*",
+    "src/features/l3lab/spectralForge/donorV2/**/*",
+    "src/features/l3lab/spectralForge/bindingV2/**/*",
+    "src/features/l3lab/spectralForge/body/**/*",
+    "src/features/l3lab/spectralForge/embodiment/**/*",
+    "src/features/l3lab/spectralForge/transfer/**/*",
+    "src/features/l3lab/spectralForge/forge3/**/*",
+    "src/features/l3lab/contracts/**/*",
+    "src/core/**/*",
+    "src/utils/**/*",
+    "src/vite-env.d.ts"
+  ]
+}

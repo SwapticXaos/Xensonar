@@ -1,0 +1,17 @@
+{
+  "extends": "./tsconfig.typecheck.browser.json",
+  "compilerOptions": {
+    "noEmit": true
+  },
+  "include": [
+    "src/features/l3lab/canonicalForge/*Preview*.ts",
+    "src/features/l3lab/canonicalForge/previewControllers.ts",
+    "src/features/l3lab/canonicalForge/loopPreview.ts",
+    "src/features/l3lab/canonicalForge/forgePlaybackActions.ts",
+    "src/features/l3lab/contracts/**/*",
+    "src/features/l3lab/materialIntake/**/*",
+    "src/core/**/*",
+    "src/utils/**/*",
+    "src/vite-env.d.ts"
+  ]
+}

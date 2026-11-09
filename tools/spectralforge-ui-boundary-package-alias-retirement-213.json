@@ -1,0 +1,15 @@
+{
+  "schemaVersion": 1,
+  "patch": 213,
+  "canonicalSuite": "xensonar:sanity:spectralforge-ui-boundary",
+  "retiredPackageAliases": [
+    "xensonar:check-spectralforge-transportbar-ui-boundary-refactor-7768",
+    "xensonar:check-spectralforge-canvas-viewport-boundary-refactor-7771",
+    "xensonar:check-spectralforge-toolsettings-ui-model-boundary-refactor-7776",
+    "xensonar:check-spectralforge-toolbar-ui-model-boundary-refactor-7777",
+    "xensonar:check-spectralforge-materiallibrary-ui-model-boundary-refactor-7778",
+    "xensonar:check-spectralforge-customstamp-ui-model-boundary-refactor-7779",
+    "xensonar:check-spectralforge-ui-boundary-registry-consolidation-7780"
+  ],
+  "note": "The seven local check tools remain modular and are invoked directly by the current suite. Only redundant package-script exposure is removed."
+}

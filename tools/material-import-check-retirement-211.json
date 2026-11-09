@@ -1,0 +1,56 @@
+{
+  "schemaVersion": 1,
+  "patch": 211,
+  "currentSanity": "tools/run-material-import-current-sanity.mjs",
+  "preservedScenarioModules": [
+    "tools/material-import-sanity/audioPaintDialogBridgeScenario.mjs",
+    "tools/material-import-sanity/audioPaintImportTruthScenario.mjs"
+  ],
+  "retiredChecks": [
+    {
+      "path": "tools/check-audio-paint-direct-import-scroll-5128.mjs",
+      "reason": "stale direct-import UI snapshot; current Carrier→Melodic and material-import suites own the handoff contract"
+    },
+    {
+      "path": "tools/check-audio-paint-repair-fretless-safe-5127.mjs",
+      "reason": "stale UI highlight/source-shape snapshot"
+    },
+    {
+      "path": "tools/check-audio-paint-targets-and-dialog-layout-5124.mjs",
+      "reason": "stale lane ordering/layout snapshot"
+    },
+    {
+      "path": "tools/check-import-refactor-5130.mjs",
+      "reason": "hard-coded package/source version 5.130 snapshot"
+    },
+    {
+      "path": "tools/check-import-refactor-and-569-guard-5129.mjs",
+      "reason": "wrapper only; explicitly reported coverage by the current Carrier Melodic import sanity suite"
+    },
+    {
+      "path": "tools/check-material-import-channel-5118.mjs",
+      "reason": "stale workspace-routing source snapshot"
+    },
+    {
+      "path": "tools/check-material-import-dummy-flow-5119.mjs",
+      "reason": "stale nonce/source-shape flow replaced by current browser-like runtime dummy scenario"
+    },
+    {
+      "path": "tools/check-material-import-lanes-5121.mjs",
+      "reason": "stale literal lane-label snapshot"
+    },
+    {
+      "path": "tools/check-material-import-side-by-side-5122.mjs",
+      "reason": "stale layout/literal-label snapshot"
+    },
+    {
+      "path": "tools/check-spectralforge-carrier-integral-anchor-body-5114.mjs",
+      "reason": "stale Carrier Integral anchor/body snapshot; current Carrier Integral sanity owns body-source and transfer contracts"
+    },
+    {
+      "path": "tools/check-spectralforge-carrier-integral-pink-body-5115.mjs",
+      "reason": "stale Pink-body source-shape snapshot; current Carrier Integral and Carrier→Melodic suites own the corridor"
+    }
+  ],
+  "retainedStandaloneCheck": "tools/check-material-import-runtime-dummy-5120.mjs (requires full dev dependency set including jsdom)"
+}

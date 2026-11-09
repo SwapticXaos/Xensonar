@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+set -euo pipefail
+HERE="$(cd "$(dirname "$0")/.." && pwd)"
+bash "$HERE/core/build-wasm.sh"
+node "$HERE/tests/test-reference323.mjs" > "$HERE/artifacts/REFERENCE_323_TRACE_TEST.json"
+node "$HERE/tests/test-wasm-core.mjs" > "$HERE/artifacts/WASM_CORE_TEST.json"
+node "$HERE/tests/test-worklet-adapter.mjs" > "$HERE/artifacts/WORKLET_ADAPTER_MODEL_TEST.json"
+"${CC:-cc}" -O3 -fno-builtin "$HERE/tests/p0_native_core_smoke.c" -lm -o "$HERE/artifacts/p0_native_core_smoke"
+"$HERE/artifacts/p0_native_core_smoke" > "$HERE/artifacts/NATIVE_CORE_SMOKE.json"
+node "$HERE/tests/test-audit-regressions.mjs" > "$HERE/artifacts/ASTRA_REGRESSION_TEST.json"
+node "$HERE/tests/test-transport-safety.mjs" > "$HERE/artifacts/TRANSPORT_SAFETY_MODEL_TEST.json"
+node --check "$HERE/worklet/p0-worklet.js"
+node --check "$HERE/web/main.js"
+node --check "$HERE/web/p0-fixtures.js"
+echo "P0 source/model suite PASS"

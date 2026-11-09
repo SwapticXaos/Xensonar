@@ -1,0 +1,28 @@
+{
+  "description": "Core corridor TypeScript budget for ongoing Xensonar refactoring. Budgets are intentionally non-improving ceilings based on the last green safe-retry baseline.",
+  "files": [
+    "src/App.tsx",
+    "src/features/xensonar/domain/appGridModeContracts.ts",
+    "src/features/l3lab/canonicalForge/CanonicalForgeRoom.tsx",
+    "src/features/l3lab/canonicalForge/canonicalForgeContracts.ts",
+    "src/features/xensonar/layout/appChromeProps.ts",
+    "src/features/xensonar/layout/appChromeRuntimeBindings.ts",
+    "src/features/xensonar/layout/appResonanceChromeRuntimeArgs.ts",
+    "src/features/xensonar/layout/appResonanceAuxPanelRuntimeArgs.ts",
+    "src/features/xensonar/layout/appResonanceScreenCoordinator.ts",
+    "src/features/xensonar/layout/appSurfaceRuntimeCoordinator.ts",
+    "src/features/xensonar/layout/appRoomSceneRuntimeArgsBuilder.ts",
+    "src/features/xensonar/layout/appRoomSceneRuntimeArgs.ts",
+    "src/features/xensonar/layout/appRoomSceneRuntimeBindings.ts",
+    "src/features/xensonar/layout/appShellFrameProps.ts",
+    "src/features/xensonar/layout/resonancePanelCoordinator.ts"
+  ],
+  "budgets": {
+    "total": 230,
+    "perFile": {
+      "src/App.tsx": 66,
+      "src/features/l3lab/canonicalForge/CanonicalForgeRoom.tsx": 163,
+      "src/features/xensonar/layout/appResonanceAuxPanelRuntimeArgs.ts": 1
+    }
+  }
+}

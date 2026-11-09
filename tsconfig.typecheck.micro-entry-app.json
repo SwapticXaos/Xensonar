@@ -1,0 +1,12 @@
+{
+  "extends": "./tsconfig.typecheck.browser.json",
+  "compilerOptions": {
+    "noEmit": true
+  },
+  "include": [
+    "src/App.tsx",
+    "src/main.tsx",
+    "vite.config.ts",
+    "src/vite-env.d.ts"
+  ]
+}

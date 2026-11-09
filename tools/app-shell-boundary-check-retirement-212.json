@@ -1,0 +1,13 @@
+{
+  "schemaVersion": 1,
+  "patch": 212,
+  "replacement": "tools/check-app-shell-boundaries-current.mjs",
+  "retiredChecks": [
+    "tools/check-app-room-shell-boundary-refactor-7785.mjs",
+    "tools/check-app-stationary-rhythm-probe-boundary-refactor-7786.mjs",
+    "tools/check-app-resonance-input-shell-boundary-refactor-7787.mjs",
+    "tools/check-app-meta-preset-session-boundary-refactor-7788.mjs",
+    "tools/check-app-surface-frame-shell-boundary-refactor-7789.mjs"
+  ],
+  "note": "The current validator preserves the five ownership contracts but uses present-day type ownership for the Surface Frame shell instead of the stale 7.7.89 inline-type marker."
+}

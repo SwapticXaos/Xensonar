@@ -1,0 +1,39 @@
+{
+  "name": "Forge Core Type Budget Summary",
+  "description": "Focused TypeScript budget for the CanonicalForge refactor corridor. This budget watches the room shell plus the boundary/controller files introduced during the current hardening sequence.",
+  "files": [
+    "src/features/l3lab/canonicalForge/CanonicalForgeRoom.tsx",
+    "src/features/l3lab/canonicalForge/canonicalForgeContracts.ts",
+    "src/features/l3lab/canonicalForge/useCanonicalMicrotonalWorkspaceConfig.ts",
+    "src/features/l3lab/canonicalForge/microtonalLogicActionBuilders.ts",
+    "src/features/l3lab/canonicalForge/microtonalLogicWorkspace.tsx",
+    "src/features/l3lab/canonicalForge/microtonalLogicPanels.tsx",
+    "src/features/l3lab/canonicalForge/useCanonicalForgeLifecycleEffects.ts",
+    "src/features/l3lab/canonicalForge/loopPreview.ts",
+    "src/features/l3lab/canonicalForge/canonicalHistoryController.ts",
+    "src/features/l3lab/canonicalForge/canonicalMaterialTransferController.ts",
+    "src/features/l3lab/canonicalForge/previewControllers.ts",
+    "src/features/l3lab/canonicalForge/melodicLoopPanel.tsx",
+    "src/features/l3lab/canonicalForge/workspaceScaffoldPanels.tsx",
+    "src/features/l3lab/canonicalForge/useCanonicalLoopComposerInteractions.ts"
+  ],
+  "budgets": {
+    "total": 175,
+    "perFile": {
+      "src/features/l3lab/canonicalForge/CanonicalForgeRoom.tsx": 161,
+      "src/features/l3lab/canonicalForge/canonicalForgeContracts.ts": 0,
+      "src/features/l3lab/canonicalForge/useCanonicalMicrotonalWorkspaceConfig.ts": 4,
+      "src/features/l3lab/canonicalForge/microtonalLogicActionBuilders.ts": 0,
+      "src/features/l3lab/canonicalForge/microtonalLogicWorkspace.tsx": 0,
+      "src/features/l3lab/canonicalForge/microtonalLogicPanels.tsx": 0,
+      "src/features/l3lab/canonicalForge/useCanonicalForgeLifecycleEffects.ts": 0,
+      "src/features/l3lab/canonicalForge/loopPreview.ts": 5,
+      "src/features/l3lab/canonicalForge/canonicalHistoryController.ts": 5,
+      "src/features/l3lab/canonicalForge/canonicalMaterialTransferController.ts": 0,
+      "src/features/l3lab/canonicalForge/previewControllers.ts": 0,
+      "src/features/l3lab/canonicalForge/melodicLoopPanel.tsx": 0,
+      "src/features/l3lab/canonicalForge/workspaceScaffoldPanels.tsx": 0,
+      "src/features/l3lab/canonicalForge/useCanonicalLoopComposerInteractions.ts": 0
+    }
+  }
+}

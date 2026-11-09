@@ -1,0 +1,13 @@
+{
+  "extends": "./tsconfig.typecheck.browser.json",
+  "compilerOptions": {
+    "noEmit": true
+  },
+  "include": [
+    "src/features/xensonar/recording/**/*",
+    "src/features/xensonar/rooms/RecordingTakePanel.tsx",
+    "src/core/**/*",
+    "src/utils/**/*",
+    "src/vite-env.d.ts"
+  ]
+}

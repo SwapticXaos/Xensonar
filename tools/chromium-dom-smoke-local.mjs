@@ -1,0 +1,23 @@
+
+import http from 'http';
+import fs from 'fs';
+import { spawn } from 'child_process';
+const htmlPath = process.argv[2] || 'dist/index.html';
+const html = fs.readFileSync(htmlPath);
+const server = http.createServer((req,res)=>{res.writeHead(200, {'content-type':'text/html'}); res.end(html);});
+await new Promise(r=>server.listen(4178,'127.0.0.1',r));
+const profile = '/tmp/xensonar-chrome-dom-smoke-'+Date.now();
+const args = ['--headless=new','--disable-gpu','--no-sandbox','--disable-dev-shm-usage',`--user-data-dir=${profile}`,'--virtual-time-budget=5000','--dump-dom','http://127.0.0.1:4178'];
+const p = spawn('/usr/bin/chromium', args, {stdio:['ignore','pipe','pipe']});
+let out='', err='';
+p.stdout.on('data', d=> out += d.toString());
+p.stderr.on('data', d=> err += d.toString());
+const code = await new Promise(r=>p.on('exit',r));
+server.close();
+const rootMatch = out.match(/<div id="root">([\s\S]*?)<\/div>/);
+const root = rootMatch ? rootMatch[1].trim() : '';
+const titleOk = /Xensonar|Hauptraum|Material|Root|Resonanz|Xen/.test(out);
+const emptyRoot = root === '';
+const summary = { code, outBytes: out.length, errBytes: err.length, emptyRoot, titleOk, rootPreview: root.slice(0,200), browserErrPreview: err.slice(-800) };
+console.log(JSON.stringify(summary,null,2));
+if (emptyRoot || !titleOk) process.exit(1);

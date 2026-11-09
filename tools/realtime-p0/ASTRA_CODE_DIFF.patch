@@ -1,0 +1,1462 @@
+--- a/docs/PROVENANCE_LEDGER.md
++++ b/docs/PROVENANCE_LEDGER.md
+@@ -105,3 +105,8 @@
+ ## Patch 133 — Refactor foundation (2026-09-14)
+ 
+ AI-assisted, user-authorized project-native refactor based on the user-provided Patch 132 source. Establishes canonical architecture-line/artifact-patch metadata, conservatively consolidates duplicate check aliases, introduces an explicit Carrier/Donor freshness graph, extracts pure AudioEngine buffer math, separates Root Follow lane-ownership policy, separates SpectralCanvas renderer/paint/commit responsibilities, splits Canonical Forge public types behind the existing facade, and introduces `MusicalTrajectory` plus `DonorIdentityBackend` contracts. No npm dependency, external audio material, model weights or third-party DSP implementation was added. The existing Donor Body V3 DSP renderer remains unchanged and its Patch-131 formant/polyphony regression was re-executed against the Patch-133 source graph. A fresh Vite/React HTML build is not claimed because full package dependencies could not be materialized and the required offline npm cache is incomplete. See `docs/PATCH_133_REFACTOR_FOUNDATION.md` and `validation/patch133/`.
++
++
++## 2026-09-20 · Patch 325 audit1 · Isolated P0-W laboratory repair
++
++User-authorized AI-assisted audit and correction of the Sol P0-W package. Product runtime, package manifests and frozen 320/323 references are unchanged by this correction. Changes are limited to `tools/realtime-p0/`, P0 reports and this provenance entry. The existing portable C core remains the single DSP source for WASM and native offline tests; no copied third-party DSP source, sample recording, npm dependency or product runtime dependency was added. The pinned Zig 0.13.0 compiler (installed as a development tool through the `ziglang` package) built the WASM artifact here; GCC 13.3.0 built the native offline fixture. Neither compiler nor its distribution is bundled. Build commands and artifact hashes are in `tools/realtime-p0/artifacts/ASTRA_TOOLCHAIN.json` and `MANIFEST_SHA256.txt`. Clang remains an alternate unexecuted build path on this host. Proven tests include finite synthesized samples and native/WASM fixture equality, not physical audio, callback deadlines or complete v0.2 conformance. Inherited browser policy failure is retained as evidence and was not bypassed. See `ASTRA_325_P0W_AUDIT.md`.
+--- a/tools/realtime-p0/core/build-wasm.sh
++++ b/tools/realtime-p0/core/build-wasm.sh
+@@ -2,13 +2,13 @@
+ set -euo pipefail
+ HERE="$(cd "$(dirname "$0")" && pwd)"
+ OUT="$HERE/../artifacts/p0_core.wasm"
+-clang --target=wasm32 -O3 -nostdlib \
+-  -Wl,--no-entry \
+-  -Wl,--export-memory \
+-  -Wl,--export-all \
+-  -Wl,--strip-all \
+-  -Wl,--initial-memory=262144 \
+-  -Wl,--max-memory=262144 \
+-  -o "$OUT" "$HERE/p0_core.c"
++if command -v clang >/dev/null 2>&1; then
++  clang --target=wasm32 -O3 -fno-builtin -nostdlib -Wl,--no-entry -Wl,--export-memory -Wl,--export-dynamic -Wl,--strip-all -Wl,-z,stack-size=65536 -Wl,--initial-memory=262144 -Wl,--max-memory=262144 -o "$OUT" "$HERE/p0_core.c"
++elif [[ -n "${P0_ZIG:-}" && -x "$P0_ZIG" ]]; then
++  "$P0_ZIG" build-exe "$HERE/p0_core.c" -target wasm32-freestanding -O ReleaseFast -fno-entry -rdynamic --stack 65536 --initial-memory=262144 --max-memory=262144 "-femit-bin=$OUT" -cflags -fno-builtin --
++else
++  echo 'Need Clang with wasm32 linker, or set P0_ZIG to an installed Zig executable.' >&2
++  exit 1
++fi
+ printf 'built %s\n' "$OUT"
+ sha256sum "$OUT"
+--- a/tools/realtime-p0/core/p0_core.c
++++ b/tools/realtime-p0/core/p0_core.c
+@@ -98,6 +98,12 @@
+ static P0Voice g_voices[P0_TOTAL_VOICES];
+ static P0PendingGroup g_pending[P0_MAX_PENDING_GROUPS];
+ static uint32_t g_closed_generation[P0_TOKEN_SLOTS];
++static uint32_t g_seen_generation[P0_TOKEN_SLOTS];
++static uint64_t g_token_input_sequence[P0_TOKEN_SLOTS];
++static uint8_t g_token_kind[P0_TOKEN_SLOTS];
++static uint32_t g_held_generation[P0_TOKEN_SLOTS];
++static uint64_t g_reconcile_sequence = 0;
++static uint64_t g_builder_input_sequence = 0;
+ static P0PendingGroup g_builder;
+ static uint8_t g_builder_active = 0;
+ static P0ProgramStep g_program[P0_PROGRAM_STEPS];
+@@ -110,9 +116,12 @@
+ static uint64_t g_state_revision = 0;
+ static float g_root_hz = 220.0f;
+ static float g_program_gain = 1.0f;
++static float g_root_target=220.0f,g_gain_target=1.0f,g_root_step=0,g_gain_step=0;
++static uint32_t g_state_ramp_remaining=0;
+ 
+ static uint8_t g_program_running = 0;
+ static uint32_t g_program_revision = 0;
++static uint32_t g_program_closed_revision = 0;
+ static uint32_t g_program_steps = 16;
+ static uint32_t g_program_tempo_milli = 120000;
+ static uint64_t g_program_start_frame = 0;
+@@ -135,6 +144,13 @@
+ static uint64_t g_state_applied = 0;
+ static uint64_t g_state_ignored_old = 0;
+ 
++static int finite_float(float x) { return __builtin_isfinite(x); }
++static int valid_coefficients(float b0, float b1, float b2, float a1, float a2) {
++  return finite_float(b0) && finite_float(b1) && finite_float(b2) && finite_float(a1) && finite_float(a2)
++    && b0 >= -4 && b0 <= 4 && b1 >= -4 && b1 <= 4 && b2 >= -4 && b2 <= 4
++    && a2 > -1 && a2 < 1 && 1+a1+a2 > 0 && 1-a1+a2 > 0;
++}
++
+ static void zero_voice(P0Voice* v) {
+   uint8_t* p = (uint8_t*)v;
+   for (size_t i = 0; i < sizeof(P0Voice); ++i) p[i] = 0;
+@@ -154,6 +170,12 @@
+ static uint32_t pending_group_count(void) {
+   uint32_t n = 0;
+   for (uint32_t i = 0; i < P0_MAX_PENDING_GROUPS; ++i) if (g_pending[i].occupied) ++n;
++  return n;
++}
++
++static uint32_t pending_note_count(void) {
++  uint32_t n=0;
++  for (uint32_t i=0;i<P0_MAX_PENDING_GROUPS;++i) if (g_pending[i].occupied) n+=g_pending[i].note_count;
+   return n;
+ }
+ 
+@@ -189,11 +211,13 @@
+ 
+ static void begin_linear_release(P0Voice* v, uint32_t frames, uint8_t panic) {
+   if (!v->active) return;
++  if (v->delay_frames) { zero_voice(v); return; }
+   if (frames < 1) frames = 1;
++  if (v->releasing && v->release_frames_remaining <= frames) return;
+   v->releasing = 1;
+   v->panic_releasing = panic;
+   v->release_frames_remaining = frames;
+-  v->release_step = (v->env - 0.0001f) / (float)frames;
++  v->release_step = v->env / (float)frames;
+ }
+ 
+ static void close_voice(P0Voice* v) {
+@@ -205,7 +229,7 @@
+   return generation <= g_closed_generation[slot];
+ }
+ 
+-static void start_voice_from_note(const P0PendingNote* n, uint32_t delay_frames) {
++static void start_voice_from_note(const P0PendingNote* n, uint32_t delay_frames, uint32_t attack_frames) {
+   int idx = find_free_voice();
+   if (idx < 0) return;
+   P0Voice* v = &g_voices[(uint32_t)idx];
+@@ -218,7 +242,7 @@
+   v->peak = n->peak;
+   v->env = 0.0001f;
+   v->delay_frames = delay_frames;
+-  v->attack_frames = n->attack_frames ? n->attack_frames : 1u;
++  v->attack_frames = attack_frames ? attack_frames : 1u;
+   v->release_start_frames = n->release_start_frames;
+   v->stop_frames = n->stop_frames;
+   v->release_coef = n->release_coef;
+@@ -226,6 +250,8 @@
+ }
+ 
+ static void start_program_voice(float frequency_hz, float peak, uint32_t delay_frames) {
++  if (!finite_float(frequency_hz) || frequency_hz <= 0 || frequency_hz > g_sample_rate * 0.45f
++      || !finite_float(peak) || peak < 0 || peak > 1) { ++g_invalid_rejected; return; }
+   int idx = find_free_voice();
+   if (idx < 0) { ++g_capacity_rejected; return; }
+   P0Voice* v = &g_voices[(uint32_t)idx];
+@@ -235,7 +261,7 @@
+   v->token_slot = 0;
+   v->token_generation = 0;
+   v->increment = ((double)frequency_hz * (double)P0_SINE_TABLE) / (double)g_sample_rate;
+-  v->peak = peak * g_program_gain;
++  v->peak = peak;
+   v->env = 0.0001f;
+   v->delay_frames = delay_frames;
+   v->attack_frames = g_program_attack_frames ? g_program_attack_frames : 1u;
+@@ -271,9 +297,19 @@
+     P0ProgramStep* step = &g_program[step_index];
+     uint32_t allowed = step->count;
+     if (allowed > P0_MAX_GROUP_NOTES) allowed = P0_MAX_GROUP_NOTES;
+-    if (notes_started_this_block + allowed > 4u) allowed = 4u - notes_started_this_block;
++    if (notes_started_this_block + allowed > 4u) { ++g_capacity_rejected; ++g_program_step_counter; continue; }
++    if (free_attack_voice_count()<allowed) { ++g_capacity_rejected; ++g_program_step_counter; continue; }
++    uint32_t delay=(uint32_t)(due-block_start);
++    uint32_t ramp_delay=delay<g_state_ramp_remaining?delay:g_state_ramp_remaining;
++    float root_at_start=g_root_hz+g_root_step*(float)ramp_delay;
++    uint8_t valid=1;
++    for(uint32_t n=0;n<allowed;++n) {
++      float frequency=root_at_start*step->ratio[n];
++      if(!finite_float(frequency)||frequency<=0||frequency>g_sample_rate*.45f)valid=0;
++    }
++    if(!valid){++g_invalid_rejected;++g_program_step_counter;continue;}
+     for (uint32_t n = 0; n < allowed; ++n) {
+-      start_program_voice(g_root_hz * step->ratio[n], step->gain[n], (uint32_t)(due - block_start));
++      start_program_voice(root_at_start * step->ratio[n], step->gain[n], delay);
+       ++notes_started_this_block;
+     }
+     ++g_program_step_counter;
+@@ -283,6 +319,7 @@
+ 
+ static void process_pending(uint64_t block_start, uint32_t frames) {
+   uint64_t block_end = block_start + (uint64_t)frames;
++  uint32_t lead = (g_sample_rate * 5u + 999u) / 1000u;
+   uint32_t inspected = 0;
+   uint32_t notes_started = 0;
+   for (uint32_t i = 0; i < P0_MAX_PENDING_GROUPS && inspected < 16u; ++i) {
+@@ -291,7 +328,9 @@
+     ++inspected;
+     if (g_owner_closed) { zero_group(g); ++g_cancelled; continue; }
+     if (block_start > g->latest_admission_frame) { zero_group(g); ++g_expired; continue; }
+-    if (g->intended_frame >= block_end) continue;
++    // Sorted directory; inspect at most 16 occupied entries. Reserve just early
++    // enough to retain an on-time start despite the existing 5 ms safe lead.
++    if (g->intended_frame >= block_end + lead) break;
+     uint8_t valid = 1;
+     for (uint32_t n = 0; n < g->note_count; ++n) {
+       if (token_closed(g->notes[n].token_slot, g->notes[n].token_generation)) { valid = 0; break; }
+@@ -301,8 +340,16 @@
+     if (free_attack_voice_count() < g->note_count) {
+       zero_group(g); ++g_capacity_rejected; continue;
+     }
+-    uint32_t delay = g->intended_frame > block_start ? (uint32_t)(g->intended_frame - block_start) : 0u;
+-    for (uint32_t n = 0; n < g->note_count; ++n) start_voice_from_note(&g->notes[n], delay);
++    uint64_t safe_start = g->intended_frame > block_start + lead ? g->intended_frame : block_start + lead;
++    uint32_t delay = (uint32_t)(safe_start - block_start);
++    for (uint32_t n = 0; n < g->note_count; ++n) {
++      P0PendingNote* note = &g->notes[n];
++      uint64_t intended_peak = g->intended_frame + note->attack_frames;
++      uint32_t attack = note->attack_frames;
++      if (note->kind == P0_KIND_LEGACY) attack = safe_start >= intended_peak
++        ? (g_sample_rate * 35u + 9999u) / 10000u : (uint32_t)(intended_peak - safe_start);
++      start_voice_from_note(note, delay, attack);
++    }
+     notes_started += g->note_count;
+     g_started_external += g->note_count;
+     zero_group(g);
+@@ -317,7 +364,7 @@
+   if (v->releasing) {
+     if (v->release_frames_remaining > 0) {
+       v->env -= v->release_step;
+-      if (v->env < 0.0001f) v->env = 0.0001f;
++      if (v->env < 0) v->env = 0;
+       --v->release_frames_remaining;
+     } else {
+       close_voice(v);
+@@ -325,9 +372,11 @@
+     }
+   } else {
+     if (v->age_frames < v->attack_frames) {
+-      float t = (float)(v->age_frames + 1u) / (float)v->attack_frames;
++      float t = (float)v->age_frames / (float)v->attack_frames;
+       v->env = 0.0001f + (v->peak - 0.0001f) * t;
+-    } else if ((v->kind == P0_KIND_LEGACY || v->kind == P0_KIND_PROGRAM) && v->age_frames >= v->release_start_frames) {
++    } else if (v->age_frames == v->attack_frames) {
++      v->env = v->peak;
++    } else if ((v->kind == P0_KIND_LEGACY || v->kind == P0_KIND_PROGRAM) && v->age_frames > v->release_start_frames) {
+       float target = 0.0001f;
+       v->env = target + (v->env - target) * v->release_coef;
+     }
+@@ -337,15 +386,16 @@
+   v->phase += v->increment;
+   if (v->phase >= (double)P0_SINE_TABLE) v->phase -= (double)P0_SINE_TABLE;
+   float y = biquad(v, x) * v->env;
++  if(v->kind==P0_KIND_PROGRAM)y*=g_program_gain;
+   ++v->age_frames;
+-  if (!v->releasing && (v->kind == P0_KIND_LEGACY || v->kind == P0_KIND_PROGRAM) && v->age_frames >= v->stop_frames) {
++  if ((v->releasing && v->release_frames_remaining == 0) || (!v->releasing && (v->kind == P0_KIND_LEGACY || v->kind == P0_KIND_PROGRAM) && v->age_frames >= v->stop_frames)) {
+     close_voice(v);
+   }
+   return y;
+ }
+ 
+-__attribute__((visibility("default"))) uint32_t p0_sine_table_ptr(void) { return (uint32_t)(uintptr_t)&g_sine[0]; }
+-__attribute__((visibility("default"))) uint32_t p0_output_ptr(void) { return (uint32_t)(uintptr_t)&g_output[0]; }
++__attribute__((visibility("default"))) uintptr_t p0_sine_table_ptr(void) { return (uintptr_t)&g_sine[0]; }
++__attribute__((visibility("default"))) uintptr_t p0_output_ptr(void) { return (uintptr_t)&g_output[0]; }
+ __attribute__((visibility("default"))) uint32_t p0_max_block(void) { return P0_MAX_BLOCK; }
+ 
+ __attribute__((visibility("default"))) void p0_init(uint32_t sample_rate) {
+@@ -355,17 +405,20 @@
+   g_owner_closed = 1;
+   g_lease_valid_through = 0;
+   g_state_revision = 0;
++  g_reconcile_sequence = 0;
+   g_root_hz = 220.0f;
+   g_program_gain = 1.0f;
++  g_root_target=220.0f;g_gain_target=1.0f;g_root_step=g_gain_step=0;g_state_ramp_remaining=0;
+   g_program_running = 0;
+   g_program_revision = 0;
++  g_program_closed_revision = 0;
+   g_program_steps = 16;
+   g_program_tempo_milli = 120000;
+   g_program_step_counter = 0;
+   g_builder_active = 0;
+   for (uint32_t i = 0; i < P0_TOTAL_VOICES; ++i) zero_voice(&g_voices[i]);
+   for (uint32_t i = 0; i < P0_MAX_PENDING_GROUPS; ++i) zero_group(&g_pending[i]);
+-  for (uint32_t i = 0; i < P0_TOKEN_SLOTS; ++i) g_closed_generation[i] = 0;
++  for (uint32_t i = 0; i < P0_TOKEN_SLOTS; ++i) { g_closed_generation[i] = 0; g_seen_generation[i] = 0; }
+   for (uint32_t i = 0; i < P0_PROGRAM_STEPS; ++i) {
+     g_program[i].count = 0;
+     for (uint32_t n = 0; n < P0_MAX_GROUP_NOTES; ++n) { g_program[i].ratio[n] = 1.0f; g_program[i].gain[n] = 0.0f; }
+@@ -376,39 +429,51 @@
+ }
+ 
+ __attribute__((visibility("default"))) int32_t p0_arm(uint32_t owner_epoch, uint64_t lease_valid_through_frame) {
+-  if (owner_epoch == 0) return P0_RESULT_INVALID;
++  if (owner_epoch == 0 || owner_epoch <= g_owner_epoch || !g_owner_closed
++      || lease_valid_through_frame <= g_frame || lease_valid_through_frame > g_frame + (uint64_t)g_sample_rate*2u) return P0_RESULT_INVALID;
+   if (active_voice_count() != 0 || pending_group_count() != 0 || g_program_running) return P0_RESULT_CAPACITY;
+   g_owner_epoch = owner_epoch;
+   g_owner_closed = 0;
+   g_lease_valid_through = lease_valid_through_frame;
++  g_state_revision = 0;
++  g_program_revision = g_program_closed_revision = 0;
++  g_reconcile_sequence = 0;
++  for (uint32_t i = 0; i < P0_TOKEN_SLOTS; ++i) { g_closed_generation[i] = 0; g_seen_generation[i] = 0; }
+   return P0_RESULT_OK;
+ }
+ 
+ __attribute__((visibility("default"))) int32_t p0_renew_lease(uint32_t owner_epoch, uint64_t lease_valid_through_frame) {
+   if (g_owner_closed || owner_epoch != g_owner_epoch) return P0_RESULT_CLOSED;
++  if (lease_valid_through_frame <= g_frame || lease_valid_through_frame > g_frame + (uint64_t)g_sample_rate*2u) return P0_RESULT_INVALID;
+   if (lease_valid_through_frame > g_lease_valid_through) g_lease_valid_through = lease_valid_through_frame;
+   return P0_RESULT_OK;
+ }
+ 
+ __attribute__((visibility("default"))) int32_t p0_set_state(uint32_t owner_epoch, uint64_t revision, float root_hz, float program_gain) {
+   if (g_owner_closed || owner_epoch != g_owner_epoch) return P0_RESULT_CLOSED;
+-  if (!(root_hz > 0.0f) || !(program_gain >= 0.0f)) { ++g_invalid_rejected; return P0_RESULT_INVALID; }
++  if (!finite_float(root_hz) || !finite_float(program_gain) || !(root_hz > 0.0f)
++      || root_hz > g_sample_rate*0.45f || !(program_gain >= 0.0f) || program_gain > 1) { ++g_invalid_rejected; return P0_RESULT_INVALID; }
+   if (revision <= g_state_revision) { ++g_state_ignored_old; return P0_RESULT_REJECTED; }
+   g_state_revision = revision;
+-  g_root_hz = root_hz;
+-  g_program_gain = program_gain;
++  g_root_target=root_hz;g_gain_target=program_gain;
++  g_state_ramp_remaining=(g_sample_rate+99u)/100u;
++  g_root_step=(root_hz-g_root_hz)/(float)g_state_ramp_remaining;
++  g_gain_step=(program_gain-g_program_gain)/(float)g_state_ramp_remaining;
+   ++g_state_applied;
+   return P0_RESULT_OK;
+ }
+ 
+ __attribute__((visibility("default"))) int32_t p0_begin_attack_group(uint32_t owner_epoch, uint64_t group_id, uint32_t note_count, uint64_t intended_frame, uint64_t latest_admission_frame) {
+   if (g_owner_closed || owner_epoch != g_owner_epoch) return P0_RESULT_CLOSED;
+-  if (note_count < 1u || note_count > P0_MAX_GROUP_NOTES || latest_admission_frame < intended_frame) return P0_RESULT_INVALID;
+-  if (pending_group_count() >= P0_MAX_PENDING_GROUPS) return P0_RESULT_CAPACITY;
++  g_builder_active = 0;
++  if (note_count < 1u || note_count > P0_MAX_GROUP_NOTES || latest_admission_frame < intended_frame
++      || intended_frame > g_frame + (uint64_t)g_sample_rate*2u) return P0_RESULT_INVALID;
++  if (pending_note_count() + note_count > 64u) return P0_RESULT_CAPACITY;
+   zero_group(&g_builder);
+   g_builder.occupied = 1;
+   g_builder.note_count = (uint8_t)note_count;
+   g_builder.group_id = group_id;
++  g_builder_input_sequence = group_id;
+   g_builder.intended_frame = intended_frame;
+   g_builder.latest_admission_frame = latest_admission_frame;
+   g_builder_active = 1;
+@@ -422,7 +487,11 @@
+   uint32_t attack_frames, uint32_t release_start_frames, uint32_t stop_frames, float release_coef
+ ) {
+   if (!g_builder_active || index >= g_builder.note_count || token_slot >= P0_TOKEN_SLOTS || token_generation == 0) return P0_RESULT_INVALID;
+-  if (!(frequency_hz > 0.0f) || !(peak > 0.0f) || attack_frames == 0 || stop_frames <= attack_frames) return P0_RESULT_INVALID;
++  if (!finite_float(frequency_hz) || !finite_float(peak) || !(frequency_hz > 0.0f)
++      || frequency_hz > g_sample_rate*0.45f || !(peak > 0.0f) || peak > 1
++      || attack_frames == 0 || attack_frames > g_sample_rate || stop_frames <= attack_frames
++      || !finite_float(release_coef) || release_coef < 0 || release_coef > 1
++      || !valid_coefficients(b0,b1,b2,a1,a2)) { g_builder_active = 0; return P0_RESULT_INVALID; }
+   if (kind != P0_KIND_LEGACY && kind != P0_KIND_GATED) return P0_RESULT_INVALID;
+   P0PendingNote* n = &g_builder.notes[index];
+   n->token_slot = (uint16_t)token_slot;
+@@ -447,13 +516,31 @@
+       ++g_cancelled;
+       return P0_RESULT_CLOSED;
+     }
+-  }
+-  for (uint32_t i = 0; i < P0_MAX_PENDING_GROUPS; ++i) {
+-    if (!g_pending[i].occupied) {
+-      g_pending[i] = g_builder;
+-      g_builder_active = 0;
+-      return P0_RESULT_OK;
+-    }
++    if (note->token_generation <= g_seen_generation[note->token_slot]) { g_builder_active = 0; return P0_RESULT_REJECTED; }
++    if (note->kind == P0_KIND_GATED && g_builder_input_sequence <= g_reconcile_sequence
++        && g_held_generation[note->token_slot] != note->token_generation) { g_builder_active=0; return P0_RESULT_CLOSED; }
++    if (g_token_kind[note->token_slot] == P0_KIND_GATED && g_seen_generation[note->token_slot] > g_closed_generation[note->token_slot]) { g_builder_active=0; return P0_RESULT_CAPACITY; }
++    for (uint32_t j=0;j<n;++j) if (g_builder.notes[j].token_slot == note->token_slot) { g_builder_active = 0; return P0_RESULT_INVALID; }
++  }
++  // Fixed-size compaction + sorted insertion. Future entries cannot hide a due one.
++  uint32_t count=0;
++  for (uint32_t i=0;i<P0_MAX_PENDING_GROUPS;++i) if (g_pending[i].occupied) {
++    if (count!=i) g_pending[count]=g_pending[i];
++    ++count;
++  }
++  for (uint32_t i=count;i<P0_MAX_PENDING_GROUPS;++i) zero_group(&g_pending[i]);
++  if (count < P0_MAX_PENDING_GROUPS) {
++    uint32_t pos=count;
++    while (pos>0 && g_pending[pos-1].intended_frame>g_builder.intended_frame) { g_pending[pos]=g_pending[pos-1]; --pos; }
++    g_pending[pos]=g_builder;
++    for (uint32_t n=0;n<g_builder.note_count;++n) {
++      uint32_t slot=g_builder.notes[n].token_slot;
++      g_seen_generation[slot]=g_builder.notes[n].token_generation;
++      g_token_input_sequence[slot]=g_builder_input_sequence;
++      g_token_kind[slot]=g_builder.notes[n].kind;
++    }
++    g_builder_active=0;
++    return P0_RESULT_OK;
+   }
+   g_builder_active = 0;
+   return P0_RESULT_CAPACITY;
+@@ -461,6 +548,8 @@
+ 
+ __attribute__((visibility("default"))) int32_t p0_release(uint32_t owner_epoch, uint32_t token_slot, uint32_t token_generation, uint32_t release_frames) {
+   if (owner_epoch != g_owner_epoch || token_slot >= P0_TOKEN_SLOTS || token_generation == 0) return P0_RESULT_INVALID;
++  if (release_frames == 0 || release_frames > g_sample_rate) return P0_RESULT_INVALID;
++  if (token_generation <= g_closed_generation[token_slot]) return P0_RESULT_OK;
+   if (token_generation > g_closed_generation[token_slot]) g_closed_generation[token_slot] = token_generation;
+   ++g_release_count;
+   for (uint32_t i = 0; i < P0_MAX_PENDING_GROUPS; ++i) {
+@@ -468,19 +557,21 @@
+     if (!g->occupied) continue;
+     uint8_t match = 0;
+     for (uint32_t n = 0; n < g->note_count; ++n) {
+-      if (g->notes[n].token_slot == token_slot && g->notes[n].token_generation == token_generation) { match = 1; break; }
++      if (g->notes[n].token_slot == token_slot && g->notes[n].token_generation <= token_generation) { match = 1; break; }
+     }
+     if (match) { zero_group(g); ++g_cancelled; }
+   }
+   for (uint32_t i = 0; i < P0_TOTAL_VOICES; ++i) {
+     P0Voice* v = &g_voices[i];
+-    if (v->active && v->token_slot == token_slot && v->token_generation == token_generation) begin_linear_release(v, release_frames, 0);
++    if (v->active && v->kind != P0_KIND_PROGRAM && v->token_slot == token_slot && v->token_generation <= token_generation) begin_linear_release(v, release_frames, 0);
+   }
+   return P0_RESULT_OK;
+ }
+ 
+ __attribute__((visibility("default"))) int32_t p0_panic(uint32_t owner_epoch, uint32_t fade_frames) {
+   if (owner_epoch != g_owner_epoch) return P0_RESULT_INVALID;
++  if (g_owner_closed) return P0_RESULT_OK;
++  if (fade_frames == 0 || fade_frames > g_sample_rate) return P0_RESULT_INVALID;
+   g_owner_closed = 1;
+   g_program_running = 0;
+   g_builder_active = 0;
+@@ -490,13 +581,49 @@
+   return P0_RESULT_OK;
+ }
+ 
++// Full held-state reconciliation is separate from one-shot articulation.
++__attribute__((visibility("default"))) void p0_set_closed_generation(uint32_t slot,uint32_t generation) {
++  if(slot<P0_TOKEN_SLOTS && generation>g_closed_generation[slot])g_closed_generation[slot]=generation;
++}
++__attribute__((visibility("default"))) int32_t p0_apply_closed(uint32_t owner_epoch) {
++  if(owner_epoch!=g_owner_epoch)return P0_RESULT_INVALID;
++  for(uint32_t i=0;i<P0_MAX_PENDING_GROUPS;++i)if(g_pending[i].occupied) {
++    for(uint32_t j=0;j<g_pending[i].note_count;++j)if(token_closed(g_pending[i].notes[j].token_slot,g_pending[i].notes[j].token_generation)) {
++      zero_group(&g_pending[i]);++g_cancelled;break;
++    }
++  }
++  for(uint32_t i=0;i<P0_TOTAL_VOICES;++i)if(g_voices[i].active&&g_voices[i].kind!=P0_KIND_PROGRAM
++      &&token_closed(g_voices[i].token_slot,g_voices[i].token_generation))begin_linear_release(&g_voices[i],g_sample_rate*30u/1000u,0);
++  return P0_RESULT_OK;
++}
++__attribute__((visibility("default"))) void p0_group_input_sequence(uint64_t sequence) { g_builder_input_sequence=sequence; }
++__attribute__((visibility("default"))) int32_t p0_reconcile_begin(uint64_t observed_sequence) {
++  if (observed_sequence < g_reconcile_sequence) return P0_RESULT_REJECTED;
++  g_reconcile_sequence=observed_sequence;
++  for (uint32_t i=0;i<P0_TOKEN_SLOTS;++i) g_held_generation[i]=0;
++  return P0_RESULT_OK;
++}
++__attribute__((visibility("default"))) void p0_reconcile_hold(uint32_t slot,uint32_t generation) {
++  if(slot<P0_TOKEN_SLOTS)g_held_generation[slot]=generation;
++}
++__attribute__((visibility("default"))) int32_t p0_reconcile_apply(uint32_t owner_epoch) {
++  if(owner_epoch!=g_owner_epoch)return P0_RESULT_INVALID;
++  for(uint32_t i=0;i<P0_TOKEN_SLOTS;++i) if(g_token_kind[i]==P0_KIND_GATED
++    &&g_seen_generation[i]>g_closed_generation[i]&&g_token_input_sequence[i]<=g_reconcile_sequence
++    &&g_held_generation[i]!=g_seen_generation[i]) { g_closed_generation[i]=g_seen_generation[i];++g_release_count; }
++  return p0_apply_closed(owner_epoch);
++}
++
+ __attribute__((visibility("default"))) int32_t p0_program_set_header(
+   uint32_t owner_epoch, uint32_t revision, uint32_t steps, uint32_t tempo_milli,
+   float b0, float b1, float b2, float a1, float a2,
+   uint32_t attack_frames, uint32_t release_start_frames, uint32_t stop_frames, float release_coef
+ ) {
+   if (g_owner_closed || owner_epoch != g_owner_epoch) return P0_RESULT_CLOSED;
+-  if (steps < 1 || steps > P0_PROGRAM_STEPS || tempo_milli < 1000u) return P0_RESULT_INVALID;
++  if (g_program_running || revision <= g_program_revision) return P0_RESULT_REJECTED;
++  if (steps < 1 || steps > P0_PROGRAM_STEPS || tempo_milli < 10000u || tempo_milli > 400000u
++      || !valid_coefficients(b0,b1,b2,a1,a2) || !finite_float(release_coef) || release_coef < 0 || release_coef > 1
++      || attack_frames == 0 || attack_frames > g_sample_rate || stop_frames <= attack_frames) return P0_RESULT_INVALID;
+   g_program_revision = revision;
+   g_program_steps = steps;
+   g_program_tempo_milli = tempo_milli;
+@@ -515,6 +642,10 @@
+ ) {
+   if (g_owner_closed || owner_epoch != g_owner_epoch) return P0_RESULT_CLOSED;
+   if (step >= g_program_steps || count > P0_MAX_GROUP_NOTES) return P0_RESULT_INVALID;
++  if (g_program_running || !finite_float(r0) || !finite_float(r1) || !finite_float(r2)
++      || !finite_float(g0) || !finite_float(g1) || !finite_float(g2)
++      || r0 <= 0 || r1 <= 0 || r2 <= 0 || r0 > 16 || r1 > 16 || r2 > 16
++      || g0 < 0 || g1 < 0 || g2 < 0 || g0 > 1 || g1 > 1 || g2 > 1) return P0_RESULT_INVALID;
+   P0ProgramStep* s = &g_program[step];
+   s->count = (uint8_t)count;
+   s->ratio[0] = r0; s->gain[0] = g0;
+@@ -525,6 +656,8 @@
+ 
+ __attribute__((visibility("default"))) int32_t p0_program_start(uint32_t owner_epoch, uint64_t start_frame) {
+   if (g_owner_closed || owner_epoch != g_owner_epoch) return P0_RESULT_CLOSED;
++  if (g_program_running || start_frame < g_frame || start_frame > g_frame + g_sample_rate*2u || !g_program_revision
++      || g_program_revision <= g_program_closed_revision) return P0_RESULT_REJECTED;
+   g_program_start_frame = start_frame;
+   g_program_step_counter = 0;
+   g_program_running = 1;
+@@ -534,6 +667,7 @@
+ __attribute__((visibility("default"))) int32_t p0_program_stop(uint32_t owner_epoch, uint32_t panic_fade_frames) {
+   if (owner_epoch != g_owner_epoch) return P0_RESULT_INVALID;
+   g_program_running = 0;
++  g_program_closed_revision = g_program_revision;
+   if (panic_fade_frames) {
+     for (uint32_t i = 0; i < P0_TOTAL_VOICES; ++i) if (g_voices[i].active && g_voices[i].kind == P0_KIND_PROGRAM) begin_linear_release(&g_voices[i], panic_fade_frames, 0);
+   }
+@@ -548,10 +682,15 @@
+   process_pending(g_frame, frames);
+   render_program_due(g_frame, frames);
+   for (uint32_t i = 0; i < frames; ++i) {
++    if (!g_owner_closed && g_frame+i >= g_lease_valid_through) p0_panic(g_owner_epoch, (g_sample_rate*5u+999u)/1000u);
+     float mix = 0.0f;
+     for (uint32_t v = 0; v < P0_TOTAL_VOICES; ++v) mix += render_voice_sample(&g_voices[v]);
+     g_output[i * 2u] = mix;
+     g_output[i * 2u + 1u] = mix;
++    if(g_state_ramp_remaining) {
++      g_root_hz+=g_root_step;g_program_gain+=g_gain_step;
++      if(--g_state_ramp_remaining==0){g_root_hz=g_root_target;g_program_gain=g_gain_target;g_root_step=g_gain_step=0;}
++    }
+   }
+   g_frame += frames;
+   return frames;
+@@ -564,6 +703,7 @@
+ __attribute__((visibility("default"))) uint64_t p0_state_revision(void) { return g_state_revision; }
+ __attribute__((visibility("default"))) uint32_t p0_active_voices(void) { return active_voice_count(); }
+ __attribute__((visibility("default"))) uint32_t p0_pending_groups(void) { return pending_group_count(); }
++__attribute__((visibility("default"))) uint32_t p0_pending_notes(void) { return pending_note_count(); }
+ __attribute__((visibility("default"))) uint32_t p0_program_running(void) { return g_program_running; }
+ __attribute__((visibility("default"))) uint64_t p0_started_external(void) { return g_started_external; }
+ __attribute__((visibility("default"))) uint64_t p0_started_program(void) { return g_started_program; }
+--- a/tools/realtime-p0/harness/server.mjs
++++ b/tools/realtime-p0/harness/server.mjs
+@@ -6,8 +6,9 @@
+ const port = Number(process.env.PORT || 32191);
+ const types = {'.html':'text/html; charset=utf-8','.js':'text/javascript; charset=utf-8','.wasm':'application/wasm','.json':'application/json; charset=utf-8','.md':'text/plain; charset=utf-8','.ts':'text/plain; charset=utf-8'};
+ http.createServer((req,res)=>{
+-  let rel=decodeURIComponent((req.url||'/').split('?')[0]); if(rel==='/') rel='/web/index.html';
+-  const file=path.resolve(root,'.'+rel); if(!file.startsWith(root)){res.writeHead(403);return res.end('forbidden');}
++  let rel;try {rel=decodeURIComponent((req.url||'/').split('?')[0]);} catch {res.writeHead(400);return res.end('bad path');}
++  if(rel==='/') rel='/web/index.html';
++  const file=path.resolve(root,'.'+rel); if(file!==root&&!file.startsWith(root+path.sep)){res.writeHead(403);return res.end('forbidden');}
+   fs.stat(file,(err,st)=>{ if(err||!st.isFile()){res.writeHead(404);return res.end('not found');}
+     res.setHeader('Content-Type',types[path.extname(file)]||'application/octet-stream');
+     res.setHeader('Cache-Control','no-store'); res.setHeader('Cross-Origin-Opener-Policy','same-origin'); res.setHeader('Cross-Origin-Embedder-Policy','require-corp');
+--- a/tools/realtime-p0/tests/p0_native_core_smoke.c
++++ b/tools/realtime-p0/tests/p0_native_core_smoke.c
+@@ -1,9 +1,20 @@
+ #include <math.h>
+ #include <stdio.h>
++#include <stdlib.h>
+ #include "../core/p0_core.c"
+-int main(void){
+-  p0_init(48000); for(int i=0;i<P0_SINE_TABLE;i++) g_sine[i]=(float)sin(P0_PI2*(double)i/(double)P0_SINE_TABLE);
+-  p0_set_frame(0); if(p0_arm(1,96000)!=1) return 2; if(p0_set_state(1,1,220,1)!=1) return 3;
+-  for(int i=0;i<20;i++) p0_render(128);
+-  printf("{\"pass\":true,\"frame\":%llu,\"voices\":%u}\n",(unsigned long long)p0_frame(),p0_active_voices()); return 0;
++int main(int argc,char**argv){
++  p0_init(48000);float* table=(float*)p0_sine_table_ptr();
++  for(int i=0;i<P0_SINE_TABLE;i++)table[i]=(float)sin(P0_PI2*(double)i/P0_SINE_TABLE);
++  if(p0_arm(1,96000)!=1)return 2;
++  double w=P0_PI2*2400/48000,cs=cos(w),alpha=sin(w)/(2*pow(10,1.0/20)),a0=1+alpha;
++  p0_begin_attack_group(1,1,3,2400,6720);
++  for(int i=0;i<3;i++)if(p0_set_attack_note(i,i+1,1,1,220+110*i,.04,(1-cs)/2/a0,(1-cs)/a0,(1-cs)/2/a0,-2*cs/a0,(1-alpha)/a0,1536,5011,12480,exp(-1.0/(.025704*48000)))!=1)return 3;
++  if(p0_commit_attack_group()!=1)return 4;
++  FILE*out=argc>1?fopen(argv[1],"wb"):NULL;if(argc>1&&!out)return 5;
++  double peak=0,sum=0;unsigned count=0;
++  for(unsigned cursor=0;cursor<72000;){unsigned n=72000-cursor;if(n>128)n=128;p0_render(n);float*s=(float*)p0_output_ptr();
++    for(unsigned i=0;i<n;i++){float x=s[2*i];if(!isfinite(x))return 6;if(fabs(x)>peak)peak=fabs(x);sum+=x*x;count++;if(out)fwrite(&x,sizeof x,1,out);}cursor+=n;}
++  if(out)fclose(out);p0_panic(1,240);p0_render(256);
++  if(peak<.001||p0_started_external()!=3||p0_active_voices()!=0)return 7;
++  printf("{\"pass\":true,\"frames\":%u,\"peak\":%.9g,\"rms\":%.9g,\"notes\":3,\"physicalDevice\":false}\n",count,peak,sqrt(sum/count));return 0;
+ }
+--- /dev/null
++++ b/tools/realtime-p0/tests/probe-original-325.mjs
+@@ -0,0 +1,39 @@
++// Run against the unchanged incoming Sol 325, never against the repaired core.
++import fs from 'node:fs';
++import path from 'node:path';
++import vm from 'node:vm';
++import {pathToFileURL} from 'node:url';
++const root=path.resolve(process.argv[2] || 'ORIGINAL_SOL_325/tools/realtime-p0');
++const f=await import(pathToFileURL(path.join(root,'web/p0-fixtures.js')));
++const bytes=fs.readFileSync(path.join(root,'artifacts/p0_core.wasm'));
++const results=[];
++async function core(){const {instance}=await WebAssembly.instantiate(bytes,{});const e=instance.exports;e.p0_init(48000);const a=new Float32Array(e.memory.buffer,e.p0_sine_table_ptr(),4096);a.forEach((_,i)=>a[i]=Math.sin(2*Math.PI*i/4096));e.p0_arm(1,960000n);return e;}
++function enqueue(e,id,start,deadline,note){let r=e.p0_begin_attack_group(1,BigInt(id),1,BigInt(start),BigInt(deadline));if(r!==1)return r;let n=note;r=e.p0_set_attack_note(0,n.tokenSlot,n.tokenGeneration,n.kind,n.frequencyHz,n.peak,n.b0,n.b1,n.b2,n.a1,n.a2,n.attackFrames,n.releaseStartFrames,n.stopFrames,n.releaseCoef);return r===1?e.p0_commit_attack_group():r;}
++{
++const e=await core();e.p0_panic(1,240);results.push({id:'A01',finding:'closed owner epoch can rearm unchanged',actual:e.p0_arm(1,960000n),required:'reject'});
++}
++{
++const e=await core(),n=f.makeLegacyNote(48000,1,1,220);enqueue(e,1,256,5000,n);enqueue(e,1,256,5000,n);for(let i=0;i<8;i++)e.p0_render(128);results.push({id:'A02',finding:'duplicate token starts twice',actual:Number(e.p0_started_external()),required:1});
++}
++{
++const e=await core();for(let i=0;i<16;i++)enqueue(e,i+1,48000,52000,f.makeLegacyNote(48000,i+1,1,220));enqueue(e,17,128,1000,f.makeLegacyNote(48000,17,1,330));for(let i=0;i<16;i++)e.p0_render(128);results.push({id:'A03',finding:'16 future entries hide due attack',actual:Number(e.p0_started_external()),required:1});
++}
++{
++const e=await core();enqueue(e,1,0,5000,f.makeGatedNote(48000,1,1,220));for(let i=0;i<10;i++)e.p0_render(128);for(let i=0;i<40;i++){e.p0_release(1,1,1,1440);e.p0_render(128);}results.push({id:'A04',finding:'duplicate releases repeatedly restart fade',actual:e.p0_active_voices(),required:0});
++}
++{
++const e=await core();e.p0_panic(1,240);e.p0_set_frame(5000n);e.p0_arm(2,960000n);let n=f.makeLegacyNote(48000,1,1,220);e.p0_begin_attack_group(2,1n,1,776n,5096n);e.p0_set_attack_note(0,n.tokenSlot,n.tokenGeneration,n.kind,n.frequencyHz,n.peak,n.b0,n.b1,n.b2,n.a1,n.a2,n.attackFrames,n.releaseStartFrames,n.stopFrames,n.releaseCoef);e.p0_commit_attack_group();e.p0_render(128);let a=new Float32Array(e.memory.buffer,e.p0_output_ptr(),256);let first=-1;for(let i=0;i<128;i++)if(Math.abs(a[2*i])>1e-12){first=5000+i;break;}results.push({id:'A05',finding:'late accepted tone loses 323 safe-start lead',actualFirstNonzeroFrame:first,requiredEarliestFrame:5240});
++}
++{
++const e=await core();results.push({id:'A06',finding:'nonfinite state admitted',actual:e.p0_set_state(1,1n,Infinity,1),required:'reject'});
++}
++const main=fs.readFileSync(path.join(root,'web/main.js'),'utf8');const code=main.slice(main.indexOf('class P0BoundedClient'),main.indexOf('\nlet live ='))+'\nglobalThis.Client=P0BoundedClient;';const scope=vm.createContext({});vm.runInContext(code,scope);
++{
++const posted=[],c=new scope.Client({postMessage:m=>posted.push(m)},()=>{});for(let i=0;i<17;i++)c.postSafety({kind:'release',tokenSlot:i,tokenGeneration:1});results.push({id:'A07',finding:'panic rejected behind 17 releases',actual:c.postSafety({kind:'panic'}),required:true});
++}
++{
++const posted=[],c=new scope.Client({postMessage:m=>posted.push(m)},()=>{});for(let i=0;i<4;i++)c.postNormal({kind:'attack-group',id:i});c.handle({kind:'receipt',op:'attack-group'});c.handle({kind:'receipt',op:'attack-group'});results.push({id:'A08',finding:'receipts have no packet identity; duplicates free credits',postedAfterTwoIndistinguishableReceipts:posted.length,required:'exact id/epoch match'});
++}
++results.push({id:'A09',finding:'browser overall verdict omits computed audio thresholds and silence',evidenceClass:'source',verdictExpression:main.slice(main.indexOf('result.pass = Boolean('),main.indexOf('window.__P0_RESULT__ = result;'))});
++
++console.log(JSON.stringify(results,null,2));
+--- a/tools/realtime-p0/tests/run-all.sh
++++ b/tools/realtime-p0/tests/run-all.sh
+@@ -1,12 +1,14 @@
+ #!/usr/bin/env bash
+ set -euo pipefail
+ HERE="$(cd "$(dirname "$0")/.." && pwd)"
+-"$HERE/core/build-wasm.sh"
++bash "$HERE/core/build-wasm.sh"
+ node "$HERE/tests/test-reference323.mjs" > "$HERE/artifacts/REFERENCE_323_TRACE_TEST.json"
+ node "$HERE/tests/test-wasm-core.mjs" > "$HERE/artifacts/WASM_CORE_TEST.json"
+ node "$HERE/tests/test-worklet-adapter.mjs" > "$HERE/artifacts/WORKLET_ADAPTER_MODEL_TEST.json"
+-clang -O3 "$HERE/tests/p0_native_core_smoke.c" -lm -o "$HERE/artifacts/p0_native_core_smoke"
++"${CC:-cc}" -O3 -fno-builtin "$HERE/tests/p0_native_core_smoke.c" -lm -o "$HERE/artifacts/p0_native_core_smoke"
+ "$HERE/artifacts/p0_native_core_smoke" > "$HERE/artifacts/NATIVE_CORE_SMOKE.json"
++node "$HERE/tests/test-audit-regressions.mjs" > "$HERE/artifacts/ASTRA_REGRESSION_TEST.json"
++node "$HERE/tests/test-transport-safety.mjs" > "$HERE/artifacts/TRANSPORT_SAFETY_MODEL_TEST.json"
+ node --check "$HERE/worklet/p0-worklet.js"
+ node --check "$HERE/web/main.js"
+ node --check "$HERE/web/p0-fixtures.js"
+--- /dev/null
++++ b/tools/realtime-p0/tests/test-audit-regressions.mjs
+@@ -0,0 +1,73 @@
++import fs from 'node:fs';
++import os from 'node:os';
++import path from 'node:path';
++import assert from 'node:assert/strict';
++import {fileURLToPath} from 'node:url';
++import {execFileSync} from 'node:child_process';
++import * as f from '../web/p0-fixtures.js';
++import {P0BoundedClient} from '../web/p0-client.js';
++import {assessBrowserResult} from '../web/p0-verdict.js';
++const root=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'..');
++const bytes=fs.readFileSync(path.join(root,'artifacts/p0_core.wasm'));
++const results=[];
++async function core(sr=48000){const {instance}=await WebAssembly.instantiate(bytes,{});const e=instance.exports;e.p0_init(sr);const a=new Float32Array(e.memory.buffer,e.p0_sine_table_ptr(),4096);for(let i=0;i<a.length;i++)a[i]=Math.sin(2*Math.PI*i/a.length);assert.equal(e.p0_arm(1,BigInt(sr*2)),1);return e;}
++function enq(e,id,start,deadline,notes,owner=1,seq=id){
++ let r=e.p0_begin_attack_group(owner,BigInt(id),notes.length,BigInt(start),BigInt(deadline));if(r!==1)return r;
++ e.p0_group_input_sequence(BigInt(seq));
++ for(let i=0;i<notes.length;i++){const n=notes[i];r=e.p0_set_attack_note(i,n.tokenSlot,n.tokenGeneration,n.kind,n.frequencyHz,n.peak,n.b0,n.b1,n.b2,n.a1,n.a2,n.attackFrames,n.releaseStartFrames,n.stopFrames,n.releaseCoef);if(r!==1)return r;}
++ return e.p0_commit_attack_group();
++}
++function render(e,frames,block=128){const out=new Float32Array(frames);let cur=0;while(cur<frames){const q=Math.min(block,frames-cur);e.p0_render(q);const a=new Float32Array(e.memory.buffer,e.p0_output_ptr(),q*2);for(let i=0;i<q;i++){assert.ok(Number.isFinite(a[i*2]));out[cur+i]=a[i*2];}cur+=q;}return out;}
++async function check(id,fn){await fn();results.push({id,pass:true});}
++await check('A01-terminal-epoch',async()=>{const e=await core();e.p0_panic(1,240);assert.notEqual(e.p0_arm(1,96000n),1);assert.equal(e.p0_arm(2,96000n),1);assert.equal(e.p0_begin_attack_group(1,1n,1,240n,4000n),-3);});
++await check('A02-token-dedup',async()=>{const e=await core(),n=f.makeLegacyNote(48000,1,1,220);assert.equal(enq(e,1,256,5000,[n]),1);assert.notEqual(enq(e,1,256,5000,[n]),1);render(e,16000);assert.equal(e.p0_started_external(),1n);assert.notEqual(enq(e,2,16500,20000,[n]),1);});
++await check('A03-future-head',async()=>{const e=await core();for(let i=0;i<16;i++)assert.equal(enq(e,i+1,48000,52000,[f.makeLegacyNote(48000,i+1,1,220)]),1);assert.equal(enq(e,17,256,1000,[f.makeLegacyNote(48000,17,1,330)]),1);render(e,2048);assert.equal(e.p0_started_external(),1n);});
++await check('A04-idempotent-release',async()=>{const e=await core();enq(e,1,256,5000,[f.makeGatedNote(48000,1,1,220)]);render(e,1280);for(let i=0;i<40;i++){e.p0_release(1,1,1,1440);render(e,128);}assert.equal(e.p0_active_voices(),0);});
++await check('A05-late-admission-padding',async()=>{const e=await core();render(e,5000);assert.equal(enq(e,1,776,5096,[f.makeLegacyNote(48000,1,1,220)]),1);const a=render(e,512);assert.equal(a.findIndex(x=>Math.abs(x)>1e-12),241);assert.equal(e.p0_started_external(),1n);});
++await check('A06-finite-inputs',async()=>{const e=await core();assert.notEqual(e.p0_set_state(1,1n,Infinity,1),1);for(const field of ['frequencyHz','peak','a1','releaseCoef']){const n=f.makeLegacyNote(48000,1,1,220);n[field]=NaN;assert.notEqual(enq(e,1,256,1000,[n]),1);}assert.equal(e.p0_pending_notes(),0);});
++const scope={sessionId:'test-session',engineEpoch:'test-engine',ownerEpoch:1};
++function client(){const sent=[];return {sent,c:new P0BoundedClient({postMessage:m=>sent.push(m)},()=>{},scope)};}
++function ack(c,m){c.handle({...scope,kind:'receipt',channel:m.channel,packetSequence:m.packetSequence});}
++await check('A07-panic-under-safety-pressure',()=>{const {c,sent}=client();for(let i=0;i<128;i++)assert.equal(c.postSafety({kind:'release',tokenSlot:i,tokenGeneration:1}),true);assert.equal(sent.length,1);assert.equal(c.postSafety({kind:'panic'}),true);ack(c,sent[0]);assert.equal(sent.length,2);assert.equal(sent[1].state.ownerEpochClosed,true);assert.ok(sent[1].state.closedThroughGenerationBySlot.every(v=>v===1));assert.equal(c.postNormal({kind:'program-start'}),false);});
++await check('A08-credit-identity',()=>{const {c,sent}=client();for(let i=0;i<4;i++)c.postNormal({kind:'program-start',startFrame:i});assert.equal(sent.length,2);ack(c,sent[0]);assert.equal(sent.length,3);ack(c,sent[0]);assert.equal(sent.length,3);c.handle({...scope,sessionId:'old',kind:'receipt',channel:'normal',packetSequence:sent[1].packetSequence});assert.equal(sent.length,3);assert.equal(c.count('normal'),2);});
++await check('A09-real-verdict',()=>{
++ const audio={reference:{finite:true,peak:.04},candidate:{finite:true,peak:.04},compare:{lengthEqual:true,maxAbs:1e-6,rms:1e-7}};
++ const r={environment:{sampleRate:48000},faults:[],tests:{referenceNormal:audio,referenceHeld:audio,referenceChord:audio,stall500:{frameAdvance:40000,programStartsAdvance:4},staleAttack:{startsBefore:3,startsAfter:3,expiredBefore:0,expired:1},releaseBeforeStart:{startsBefore:3,startsAfter:3,cancelledBefore:0,cancelled:1},stateHighWater:{stateRevision:21,expectedRevision:21},panic:{ownerClosed:1,programRunning:0,activeVoices:0,pendingGroups:0,peak:0,frame:10000,requestedFrame:9000}}};
++ assert.equal(assessBrowserResult(r),true);const bad=structuredClone(r);bad.tests.referenceNormal.compare.maxAbs=.1;assert.equal(assessBrowserResult(bad),false);const sound=structuredClone(r);sound.tests.panic.activeVoices=1;assert.equal(assessBrowserResult(sound),false);
++});
++await check('A10-gate-reconcile-orders',async()=>{
++ const e=await core();assert.equal(e.p0_reconcile_begin(10n),1);e.p0_reconcile_apply(1);
++ assert.notEqual(enq(e,1,256,5000,[f.makeGatedNote(48000,1,1,220)],1,9),1);
++ assert.equal(enq(e,2,256,5000,[f.makeLegacyNote(48000,2,1,330)],1,8),1);
++ assert.equal(enq(e,3,256,5000,[f.makeGatedNote(48000,3,1,440)],1,11),1);
++ render(e,512);assert.equal(e.p0_reconcile_begin(12n),1);e.p0_reconcile_apply(1);render(e,1536);
++ assert.equal(e.p0_active_voices(),1);assert.equal(e.p0_reconcile_begin(10n),0);
++});
++await check('A11-silence-fade-and-lease',async()=>{
++ const e=await core();enq(e,1,256,5000,[f.makeGatedNote(48000,1,1,220)]);render(e,2000);e.p0_panic(1,240);render(e,240);assert.equal(e.p0_active_voices(),0);assert.ok(render(e,128).every(x=>x===0));
++ const z=await core();enq(z,1,256,5000,[f.makeGatedNote(48000,1,1,220)]);render(z,96000+240);assert.equal(z.p0_owner_closed(),1);assert.equal(z.p0_active_voices(),0);
++});
++await check('A12-pending-notes-bound',async()=>{const e=await core();for(let i=0;i<21;i++)assert.equal(enq(e,i+1,48000,52000,[0,1,2].map(j=>f.makeLegacyNote(48000,i*3+j,1,220))),1);assert.equal(e.p0_pending_notes(),63);assert.notEqual(enq(e,22,48000,52000,[f.makeLegacyNote(48000,64,1,220),f.makeLegacyNote(48000,65,1,330)]),1);});
++await check('A13-block-and-rate-parity',async()=>{
++ for(const sr of [44100,48000,96000]){
++  let baseline;
++  for(const block of [64,128,256]){const e=await core(sr);enq(e,1,Math.round(sr*.05),Math.round(sr*.14),[f.makeLegacyNote(sr,1,1,220)]);const samples=render(e,Math.round(sr*.4),block);
++   if(baseline)for(let i=0;i<samples.length;i++)assert.ok(Math.abs(baseline[i]-samples[i])<=1e-6);else baseline=samples;
++  }
++ }
++});
++await check('A14-native-WASM-signal-parity',async()=>{
++ const temp=fs.mkdtempSync(path.join(os.tmpdir(),'p0-native-'));try{
++  const file=path.join(temp,'native.f32');const report=JSON.parse(execFileSync(path.join(root,'artifacts/p0_native_core_smoke'),[file],{encoding:'utf8'}));assert.equal(report.pass,true);
++  const buf=fs.readFileSync(file),native=new Float32Array(buf.buffer,buf.byteOffset,buf.length/4);
++  const e=await core();enq(e,1,2400,6720,[220,330,440].map((freq,i)=>f.makeLegacyNote(48000,i+1,1,freq)));const wasm=render(e,72000);
++  let max=0;for(let i=0;i<wasm.length;i++)max=Math.max(max,Math.abs(wasm[i]-native[i]));assert.ok(max<=1e-6,`max ${max}`);
++  results.push({id:'native-WASM-sample-error',maxAbs:max,frames:wasm.length,physicalDevice:false});
++ }finally{fs.rmSync(temp,{recursive:true,force:true});}
++});
++await check('A15-program-chord-atomic-and-zero-gain',async()=>{
++ function program(e){const c=f.webAudioLowpassCoefficients(48000,2400,1),v=f.legacy323Envelope(48000,.18,false);assert.equal(e.p0_program_set_header(1,1,1,120000,c.b0,c.b1,c.b2,c.a1,c.a2,v.attackFrames,v.releaseStartFrames,v.stopFrames,v.releaseCoef),1);assert.equal(e.p0_program_set_step(1,0,3,1,.04,1.5,.04,2,.04),1);}
++ const e=await core();program(e);e.p0_set_state(1,1n,18000,1);render(e,512);assert.equal(e.p0_program_start(1,768n),1);render(e,512);assert.equal(e.p0_started_program(),0n);assert.ok(e.p0_invalid_rejected()>0n);
++ const z=await core();program(z);z.p0_program_start(1,256n);assert.ok(render(z,2000).some(x=>Math.abs(x)>.001));assert.equal(z.p0_set_state(1,1n,220,0),1);render(z,480);assert.ok(render(z,10000).every(x=>x===0));
++});
++console.log(JSON.stringify({pass:true,scope:'Node/WASM/native offline model; no browser/device approval',results},null,2));
+--- a/tools/realtime-p0/tests/test-reference323.mjs
++++ b/tools/realtime-p0/tests/test-reference323.mjs
+@@ -13,11 +13,11 @@
+ class Osc extends Node { constructor(){ super(); this.frequency={value:0}; this.type='sine'; this.starts=[]; this.stops=[]; } start(t){this.starts.push(t)} stop(t){this.stops.push(t)} }
+ class Gain extends Node { constructor(){super();this.gain=new Param()} }
+ class Filter extends Node { constructor(){super();this.frequency=new Param();this.Q=new Param();this.type='lowpass'} }
+-function run(heldLong){
+-  const ctx={state:'running',currentTime:0,createOscillator:()=>new Osc(),createGain:()=>new Gain(),createBiquadFilter:()=>new Filter()};
++function run(heldLong,currentTime=0,offset=0.05){
++  const ctx={state:'running',currentTime,createOscillator:()=>new Osc(),createGain:()=>new Gain(),createBiquadFilter:()=>new Filter()};
+   const active={current:[]}; const out=new Node();
+   const ok=playScheduledToneWithLifecycle({ctx,activeScheduledTonesRef:active,transientRuntime:{admitVoice:()=>null,pickTargets:(x)=>x.filter(Boolean),releaseVoice:()=>{}},getMainOutput:()=>out,heldLong,recordCount:()=>{},recordAdaptiveAction:()=>{},silentHotPathSources:{other:true}},
+-    {freq:220,offset:0.05,dur:0.18,type:'sine',volume:0.04,q:1,cutoff:2400,options:{source:'other'}});
++    {freq:220,offset,dur:0.18,type:'sine',volume:0.04,q:1,cutoff:2400,options:{source:'other'}});
+   assert.equal(ok,true); assert.equal(active.current.length,1);
+   const h=active.current[0];
+   return {gain:h.gain.gain.events, filterFreq:h.filter.frequency.events, filterQ:h.filter.Q.events, starts:h.osc.starts,stops:h.osc.stops};
+@@ -32,4 +32,10 @@
+ assert.ok(Math.abs(targetH[2]-0.99)<1e-9);
+ assert.ok(Math.abs(targetH[3]-0.0476)<1e-9);
+ assert.ok(Math.abs(held.stops[0]-1.21)<1e-9);
+-console.log(JSON.stringify({pass:true,normal,held},null,2));
++const admittedNow=5000/48000;
++const late=run(false,admittedNow,-0.088);
++assert.ok(Math.abs(late.starts[0]-(admittedNow+.005))<1e-12);
++assert.ok(Math.abs(late.gain.find(e=>e[0]==='linear')[2]-(admittedNow+.0085))<1e-12);
++assert.ok(Math.abs(late.gain.find(e=>e[0]==='target')[2]-(admittedNow+.005+.1044))<1e-12);
++assert.ok(Math.abs(late.stops[0]-(admittedNow+.005+.26))<1e-12);
++console.log(JSON.stringify({pass:true,normal,held,accepted88msLate:late},null,2));
+--- /dev/null
++++ b/tools/realtime-p0/tests/test-transport-safety.mjs
+@@ -0,0 +1,85 @@
++import fs from 'node:fs';
++import assert from 'node:assert/strict';
++import {P0BoundedClient,P0_PROTOCOL} from '../web/p0-client.js';
++import {makeGatedNote,makeLegacyNote,webAudioLowpassCoefficients,legacy323Envelope,P0_PROGRAM_STEPS} from '../web/p0-fixtures.js';
++const wasmModule=await WebAssembly.compile(fs.readFileSync(new URL('../artifacts/p0_core.wasm',import.meta.url)));
++globalThis.sampleRate=48000;globalThis.currentFrame=0;
++let Processor,outbox;
++globalThis.AudioWorkletProcessor=class{constructor(){const target=outbox;this.port={onmessage:null,postMessage:m=>target.push(structuredClone(m))};}};
++globalThis.registerProcessor=(_name,klass)=>{Processor=klass;};
++await import('../worklet/p0-worklet.js');
++function wire(name){
++  const ab=[],ba=[],reports=[],scope={sessionId:name,engineEpoch:'engine-'+name,ownerEpoch:1};
++  outbox=ba;globalThis.currentFrame=0;
++  const p=new Processor({processorOptions:{...scope,wasmModule}});
++  const c=new P0BoundedClient({postMessage:m=>ab.push(structuredClone(m))},m=>reports.push(m),scope);
++  const deliver=()=>{while(ab.length)p.port.onmessage({data:ab.shift()});};
++  const replies=()=>{while(ba.length)c.handle(ba.shift());};
++  const pump=()=>{let budget=2000;while(ab.length||ba.length){assert.ok(--budget>0);deliver();replies();}};
++  const render=(frames)=>{const a=new Float32Array(frames);let k=0;while(k<frames){const n=Math.min(128,frames-k),out=[[new Float32Array(n),new Float32Array(n)]];globalThis.currentFrame=Number(p.e.p0_frame());assert.equal(p.process([],out),true);a.set(out[0][0],k);k+=n;}return a;};
++  const arm=()=>{c.postNormal({kind:'arm',leaseValidThroughFrame:72000});pump();assert.equal(p.e.p0_owner_closed(),0);};
++  const attack=(id,slot,gated=false,intended=512,inputSequence=id)=>c.postNormal({kind:'attack-group',groupId:id,inputSequence,intendedFrame:intended,latestAdmissionFrame:intended+4320,notes:[(gated?makeGatedNote:makeLegacyNote)(48000,slot,1,220)]});
++  const program=()=>{const h={revision:1,tempoMilli:120000,...webAudioLowpassCoefficients(48000,2400,1),...legacy323Envelope(48000,.18,false)};c.postNormal({kind:'program-config',header:h,steps:P0_PROGRAM_STEPS});pump();};
++  pump();return {ab,ba,reports,scope,p,c,pump,deliver,replies,render,arm,attack,program};
++}
++const results=[];
++function check(id,fn){const detail=fn();results.push({id,pass:true,...detail});}
++check('T01-full-pressure-panic-through-real-adapter',()=>{
++  const w=wire('pressure');w.arm();w.program();
++  w.c.postNormal({kind:'program-start',startFrame:15000});w.pump();
++  for(let i=0;i<16;i++){assert.equal(w.attack(i+1,i,true),true);w.pump();}
++  const played=w.render(2000);assert.ok(played.some(x=>Math.abs(x)>.001));assert.equal(w.p.e.p0_active_voices(),16);
++  for(let i=0;i<64;i++){assert.equal(w.attack(100+i,32+i,false,30000),true);w.pump();}
++  assert.equal(w.p.e.p0_pending_notes(),64);
++  for(let i=0;i<32;i++)w.attack(200+i,96+i,false,30000);
++  assert.equal(w.c.count('normal'),2);assert.ok(w.c.normalQueue.length>0);
++  for(let i=0;i<128;i++)assert.equal(w.c.postSafety({kind:'release',tokenSlot:i,tokenGeneration:1}),true);
++  assert.equal(w.c.postSafety({kind:'panic'}),true);assert.equal(w.c.normalQueue.length,0);
++  assert.equal(w.c.count('safety'),1);w.pump();
++  assert.equal(w.p.e.p0_owner_closed(),1);assert.equal(w.p.e.p0_pending_notes(),0);assert.equal(w.p.e.p0_program_running(),0);
++  w.render(240);assert.equal(w.p.e.p0_active_voices(),0);assert.ok(w.render(10000).every(x=>x===0));w.pump();
++  const proof=w.reports.filter(m=>m.kind==='render-proof').at(-1);assert.equal(proof.peak,0);assert.equal(proof.fault,false);
++  const forged={...w.scope,protocol:P0_PROTOCOL,packetSequence:10000,channel:'normal',kind:'arm',leaseValidThroughFrame:72000};
++  w.p.port.onmessage({data:forged});assert.equal(w.p.e.p0_owner_closed(),1);
++  w.p.port.onmessage({data:{...forged,sessionId:'old',packetSequence:10001}});assert.equal(w.p.e.p0_owner_closed(),1);
++  return {activeBefore:16,pendingBefore:64,silentAfterFade:true};
++});
++check('T02-reconcile-before-arm-and-after-start',()=>{
++  const w=wire('reconcile');w.c.postSafety({kind:'gate-reconcile',observedInputSequence:10,held:[]});w.pump();w.arm();
++  w.attack(1,1,true,512,9);w.attack(2,2,false,512,8);w.pump();w.attack(3,3,true,512,11);w.pump();w.render(2000);
++  assert.equal(w.p.e.p0_started_external(),2n);assert.equal(w.p.e.p0_active_voices(),2);
++  w.c.postSafety({kind:'gate-reconcile',observedInputSequence:12,held:[]});w.pump();w.render(1440);
++  assert.equal(w.p.e.p0_active_voices(),1);
++});
++check('T03-terminal-safety-before-arm-or-program',()=>{
++  const w=wire('early-panic');w.c.postSafety({kind:'panic'});w.pump();
++  w.p.port.onmessage({data:{...w.scope,protocol:P0_PROTOCOL,packetSequence:100,channel:'normal',kind:'arm',leaseValidThroughFrame:72000}});
++  assert.equal(w.p.e.p0_owner_closed(),1);assert.equal(w.p.e.p0_owner_epoch(),0);
++  const z=wire('early-stop');z.c.postSafety({kind:'program-stop'});z.pump();z.arm();z.program();z.c.postNormal({kind:'program-start',startFrame:512});z.pump();z.render(8000);assert.equal(z.p.e.p0_started_program(),0n);
++});
++check('T04-invalid-lease-cannot-mutate-state',()=>{
++  const w=wire('lease');w.arm();w.c.postState({kind:'state',revision:1,rootHz:220,programGain:1,leaseValidThroughFrame:72000});w.pump();
++  w.c.postState({kind:'state',revision:2,rootHz:330,programGain:0,leaseValidThroughFrame:0});w.pump();assert.equal(w.p.e.p0_state_revision(),1n);
++});
++function stallTake(ms){
++  const w=wire('stall-'+ms);w.arm();w.program();w.c.postNormal({kind:'program-start',startFrame:512});w.pump();
++  let revision=0,nextHeartbeat=0;const total=60000,samples=new Float32Array(total);let k=0;
++  while(k<total){
++    if(k>=nextHeartbeat&&!(k>=16800&&k<16800+48*ms)){
++      w.c.postState({kind:'state',revision:++revision,rootHz:220,programGain:1,leaseValidThroughFrame:k+72000});w.pump();nextHeartbeat=k+12000;
++    }
++    const n=Math.min(128,total-k);samples.set(w.render(n),k);k+=n;
++  }
++  return {samples,started:Number(w.p.e.p0_started_program()),faulted:w.p.faulted};
++}
++check('T05-100-250-500ms-model-stall-sample-continuity',()=>{
++  const baseline=stallTake(0);assert.ok(baseline.samples.some(x=>Math.abs(x)>.001));
++  for(const ms of [100,250,500]){const t=stallTake(ms);assert.equal(t.started,baseline.started);assert.equal(t.faulted,false);for(let i=0;i<t.samples.length;i++)assert.equal(t.samples[i],baseline.samples[i]);}
++  return {frames:60000,starts:baseline.started,maxAbs:0,actualBrowserStall:false};
++});
++check('T06-silent-preparation-versus-armed-frame-gap',()=>{
++ const w=wire('warmup');globalThis.currentFrame=512;const out=[[new Float32Array(128),new Float32Array(128)]];
++ assert.equal(w.p.process([],out),true);assert.equal(w.p.e.p0_frame(),640n);assert.equal(w.p.faulted,false);
++ w.arm();globalThis.currentFrame=1024;w.p.process([],out);assert.equal(w.p.faulted,true);assert.equal(w.p.e.p0_owner_closed(),1);
++});
++console.log(JSON.stringify({pass:true,scope:'Actual client + actual adapter + actual WASM; simulated MessagePort/render clock. No browser/device approval.',results},null,2));
+--- a/tools/realtime-p0/tests/test-worklet-adapter.mjs
++++ b/tools/realtime-p0/tests/test-worklet-adapter.mjs
+@@ -5,17 +5,23 @@
+ const root=path.resolve(path.dirname(new URL(import.meta.url).pathname),'..');
+ const { P0_PROGRAM_STEPS, webAudioLowpassCoefficients, legacy323Envelope, makeLegacyNote } = await import(pathToFileURL(path.join(root,'web/p0-fixtures.js')).href);
+ const sent=[];
++const scope={sessionId:'model-session',engineEpoch:'model-engine',ownerEpoch:7};let sequence=0;
+ globalThis.sampleRate=48000; globalThis.currentFrame=0;
+ globalThis.AudioWorkletProcessor=class { constructor(){ this.port={postMessage:(m)=>sent.push(m),onmessage:null}; } };
+ let Processor=null; globalThis.registerProcessor=(name,klass)=>{assert.equal(name,'xensonar-p0-w');Processor=klass;};
+ await import(pathToFileURL(path.join(root,'worklet/p0-worklet.js')).href+'?t='+Date.now());
+ const wasmBytes=fs.readFileSync(path.join(root,'artifacts/p0_core.wasm'));
+-const p=new Processor({processorOptions:{wasmBytes}});
+-function msg(data){p.port.onmessage({data});}
++const wasmModule=await WebAssembly.compile(wasmBytes);
++const p=new Processor({processorOptions:{wasmModule,...scope}});
++function msg(data){
++ if(data.kind==='panic')data={kind:'safety-state',state:{revision:1,closedThroughGenerationBySlot:Array(128).fill(0),reconcileGates:null,stopProgram:false,ownerEpochClosed:true}};
++ const channel=data.kind==='state'?'state':data.kind==='safety-state'?'safety':'normal';
++ p.port.onmessage({data:{...data,...scope,channel,protocol:'p0-w/325-audit1',packetSequence:++sequence}});
++}
+ const sr=48000, ownerEpoch=7;
+ msg({kind:'arm',ownerEpoch,leaseValidThroughFrame:sr*2});
+-msg({kind:'state',ownerEpoch,revision:21,rootHz:220,programGain:1});
+-msg({kind:'state',ownerEpoch,revision:20,rootHz:330,programGain:1});
++msg({kind:'state',ownerEpoch,revision:21,rootHz:220,programGain:1,leaseValidThroughFrame:sr*2});
++msg({kind:'state',ownerEpoch,revision:20,rootHz:330,programGain:1,leaseValidThroughFrame:sr*2});
+ const coeff=webAudioLowpassCoefficients(sr,2400,1), env=legacy323Envelope(sr,.18,false);
+ msg({kind:'program-config',ownerEpoch,header:{revision:1,tempoMilli:120000,...coeff,attackFrames:env.attackFrames,releaseStartFrames:env.releaseStartFrames,stopFrames:env.stopFrames,releaseCoef:env.releaseCoef},steps:P0_PROGRAM_STEPS});
+ msg({kind:'program-start',ownerEpoch,startFrame:256});
+--- a/tools/realtime-p0/web/index.html
++++ b/tools/realtime-p0/web/index.html
+@@ -3,5 +3,5 @@
+ <style>body{font:15px system-ui,sans-serif;background:#111;color:#eee;max-width:980px;margin:32px auto;padding:0 20px}button{margin:4px;padding:9px 13px}pre{white-space:pre-wrap;background:#181818;padding:12px;min-height:240px;border:1px solid #333}.note{color:#bbb}</style></head>
+ <body data-test-status="idle"><h1>Xensonar 325 — P0-W Realtime Lab</h1>
+ <p class="note">Separate pilot surface. No App.tsx wiring, no legacy muting, no Root Follow/Wellenstarter product ownership.</p>
+-<p><button id="start">Start P0-W</button><button id="chord">Chord3</button><button id="hold">Gated Hold</button><button id="program">16-Step Program</button><button id="stall">Block UI 500 ms</button><button id="panic">Panic</button><button id="autotest">Run automated probes</button></p>
++<p><button id="start">Start P0-W</button><button id="chord" disabled>Chord3</button><button id="hold" disabled>Gated Hold</button><button id="program" disabled>16-Step Program</button><button id="stall">Block UI 500 ms</button><button id="panic">Panic</button><button id="autotest">Run automated probes</button><button id="download" disabled>Download probe report</button></p>
+ <pre id="log">idle</pre><script type="module" src="./main.js"></script></body></html>
+--- a/tools/realtime-p0/web/main.js
++++ b/tools/realtime-p0/web/main.js
+@@ -1,3 +1,5 @@
++import { P0BoundedClient, P0_PROTOCOL } from './p0-client.js';
++import { assessBrowserResult } from './p0-verdict.js';
+ import { playScheduledToneWithLifecycle } from '../reference323/compiled/features/xensonar/audio/scheduledTonePlaybackBoundary.js';
+ import { P0_PROGRAM_STEPS, legacy323Envelope, gatedEnvelope, makeLegacyNote, makeGatedNote, webAudioLowpassCoefficients } from './p0-fixtures.js';
+ 
+@@ -5,7 +7,7 @@
+ const logLines = [];
+ function log(message, data) {
+   const line = `${new Date().toISOString()} ${message}${data === undefined ? '' : ' ' + JSON.stringify(data)}`;
+-  logLines.push(line);
++  logLines.push(line); if (logLines.length > 120) logLines.shift();
+   if ($('log')) $('log').textContent = logLines.slice(-120).join('\n');
+   console.log('[P0-W]', message, data ?? '');
+ }
+@@ -63,7 +65,7 @@
+   const table = new Float32Array(e.memory.buffer, e.p0_sine_table_ptr(), 4096);
+   for (let i = 0; i < table.length; i++) table[i] = Math.sin(2 * Math.PI * i / table.length);
+   e.p0_set_frame(0n);
+-  e.p0_arm(1, BigInt(sr * 10));
++  e.p0_arm(1, BigInt(sr * 2));
+   e.p0_set_state(1, 1n, 220, 1);
+   return e;
+ }
+@@ -108,93 +110,95 @@
+     const d = a[i] - b[i]; const ad = Math.abs(d); if (ad > maxAbs) maxAbs = ad; sumSq += d * d;
+   }
+   const rms = Math.sqrt(sumSq / Math.max(1, n));
+-  return { maxAbs, rms, rmsDbFs: rms > 0 ? 20 * Math.log10(rms) : -Infinity };
+-}
+-
+-class P0BoundedClient {
+-  constructor(port, onMessage) {
+-    this.port = port; this.onMessage = onMessage;
+-    this.normalQueue = []; this.normalInFlight = 0;
+-    this.statePending = null; this.stateInFlight = false;
+-    this.safetyQueue = []; this.safetyInFlight = false;
+-    port.onmessage = (ev) => this.handle(ev.data);
+-  }
+-  handle(message) {
+-    if (message?.kind === 'receipt') {
+-      if (['attack-group','program-config','program-start','program-stop'].includes(message.op)) { this.normalInFlight = Math.max(0, this.normalInFlight - 1); this.flushNormal(); }
+-      else if (message.op === 'state') { this.stateInFlight = false; this.flushState(); }
+-      else if (['release','panic'].includes(message.op)) { this.safetyInFlight = false; this.flushSafety(); }
+-    }
+-    this.onMessage?.(message);
+-  }
+-  postNormal(message) {
+-    if (this.normalQueue.length >= 64) return false;
+-    this.normalQueue.push(message); this.flushNormal(); return true;
+-  }
+-  flushNormal() { while (this.normalInFlight < 2 && this.normalQueue.length) { this.normalInFlight++; this.port.postMessage(this.normalQueue.shift()); } }
+-  postState(message) { this.statePending = message; this.flushState(); }
+-  flushState() { if (!this.stateInFlight && this.statePending) { const m=this.statePending; this.statePending=null; this.stateInFlight=true; this.port.postMessage(m); } }
+-  postSafety(message) {
+-    if (this.safetyQueue.length >= 16) return false;
+-    this.safetyQueue.push(message); this.flushSafety(); return true;
+-  }
+-  flushSafety() { if (!this.safetyInFlight && this.safetyQueue.length) { this.safetyInFlight=true; this.port.postMessage(this.safetyQueue.shift()); } }
+-}
+-
+-let live = null;
++  return { lengthEqual: a.length === b.length && a.length > 0, framesA: a.length, framesB: b.length, maxAbs, rms, rmsDbFs: rms > 0 ? 20 * Math.log10(rms) : -Infinity };
++}
++
++let live = null, livePromise = null, automatedRunning = false;
++async function stopLive() {
++  const old=live;if(!old)return;
++  clearInterval(old.heartbeat);old.client.postSafety({kind:'panic'});
++  await sleep(250 + 1000*(old.ctx.baseLatency+(old.ctx.outputLatency??0)));
++  old.node.disconnect();await old.ctx.close();if(live===old)live=null;
++}
+ async function startLive() {
+-  if (live) return live;
++  if(live&&!live.client.closed)return live;
++  if(livePromise)return livePromise;
++  livePromise=(async()=>{if(live)await stopLive();return prepareLive();})();
++  try{return await livePromise;}finally{livePromise=null;}
++}
++async function prepareLive() {
+   const ctx = new AudioContext({ latencyHint: 'interactive', sampleRate: 48000 });
++  try {
++  await ctx.resume();
+   await ctx.audioWorklet.addModule('../worklet/p0-worklet.js');
+   const wasmBytes = await (await fetch('../artifacts/p0_core.wasm')).arrayBuffer();
++  const wasmModule = await WebAssembly.compile(wasmBytes);
++  const wasmSha256=Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256',wasmBytes)),b=>b.toString(16).padStart(2,'0')).join('');
++  const scope={sessionId:crypto.randomUUID(),engineEpoch:crypto.randomUUID(),ownerEpoch:1};
+   const node = new AudioWorkletNode(ctx, 'xensonar-p0-w', {
+-    numberOfInputs: 0, numberOfOutputs: 1, outputChannelCount: [2], processorOptions: { wasmBytes }
++    numberOfInputs: 0, numberOfOutputs: 1, outputChannelCount: [2], processorOptions: { wasmModule, ...scope }
+   });
+   const testBus = ctx.createGain(); testBus.gain.value = 1;
+   node.connect(testBus).connect(ctx.destination);
+-  const messages = [];
+-  const client = new P0BoundedClient(node.port, (message) => { messages.push({ at: performance.now(), ...message }); if (message.kind === 'fault') log('FAULT', message); });
++  const messages = [], faults=[];
++  const client = new P0BoundedClient(node.port, (message) => {
++    messages.push({at:performance.now(),...message});if(messages.length>128)messages.shift();
++    if(message.kind==='fault'){faults.push(message.message);if(faults.length>32)faults.shift();log('FAULT',message);}
++  },scope);
++  node.onprocessorerror=()=>{faults.push('processorerror');client.postSafety({kind:'panic'});log('FAULT','processorerror');};
+   await ctx.resume();
+-  await sleep(80);
++  const preparedFrame=Math.ceil(ctx.currentTime*ctx.sampleRate);
++  const readyLimit=performance.now()+4000;
++  while(!messages.some(m=>m.kind==='render-proof'&&m.frame>=preparedFrame+ctx.sampleRate*.25)) {
++    if(performance.now()>readyLimit||faults.length){await ctx.close();throw new Error('No current render proof');}
++    await sleep(25);
++  }
+   const ownerEpoch = 1;
+   const nowFrame = Math.ceil(ctx.currentTime * ctx.sampleRate);
+-  node.port.postMessage({ kind: 'arm', ownerEpoch, leaseValidThroughFrame: nowFrame + Math.round(ctx.sampleRate * 1.5) });
++  client.postNormal({ kind: 'arm', ownerEpoch, leaseValidThroughFrame: nowFrame + Math.round(ctx.sampleRate * 1.5) });
+   let stateRevision = 1;
+   client.postState({ kind: 'state', ownerEpoch, revision: stateRevision, rootHz: 220, programGain: 1, leaseValidThroughFrame: nowFrame + Math.round(ctx.sampleRate * 1.5) });
+   const coeff = webAudioLowpassCoefficients(ctx.sampleRate, 2400, 1);
+   const env = legacy323Envelope(ctx.sampleRate, 0.18, false);
+   client.postNormal({ kind: 'program-config', ownerEpoch, header: { revision: 1, tempoMilli: 120000, ...coeff,
+     attackFrames: env.attackFrames, releaseStartFrames: env.releaseStartFrames, stopFrames: env.stopFrames, releaseCoef: env.releaseCoef }, steps: P0_PROGRAM_STEPS });
+-  live = { ctx, node, client, testBus, messages, ownerEpoch, groupId: 1, tokenGen: new Uint32Array(128), heartbeat: null, stateRevision, rootHz: 220, programGain: 1 };
++  const session = { ctx, node, client, testBus, messages, faults, wasmSha256, ownerEpoch, groupId: 1, tokenGen: new Uint32Array(128), heartbeat: null, stateRevision, rootHz: 220, programGain: 1 };
++  live=session;
+   const renew = () => {
+-    if (!live) return;
++    if (live!==session || client.closed) {clearInterval(session.heartbeat);session.heartbeat=null;return;}
+     const f = Math.ceil(ctx.currentTime * ctx.sampleRate);
+     live.stateRevision += 1;
+     client.postState({ kind: 'state', ownerEpoch, revision: live.stateRevision, rootHz: live.rootHz, programGain: live.programGain, leaseValidThroughFrame: f + Math.round(ctx.sampleRate * 1.5) });
+   };
+   renew();
+   live.heartbeat = setInterval(renew, 250);
++  for(const id of ['chord','hold','program'])$(id).disabled=false;
+   log('live-ready', { sampleRate: ctx.sampleRate, baseLatency: ctx.baseLatency, outputLatency: ctx.outputLatency ?? null });
+-  return live;
++  return session;
++  } catch(error) {if(ctx.state!=='closed')await ctx.close();throw error;}
+ }
+ 
+ function latestProof(l) { for (let i = l.messages.length - 1; i >= 0; i--) if (l.messages[i].kind === 'render-proof') return l.messages[i]; return null; }
+ function nextToken(l, slot) { const g = ++l.tokenGen[slot]; return { tokenSlot: slot, tokenGeneration: g }; }
+ 
+-async function liveChord(freqs = [220,330,440], gated = false) {
+-  const l = await startLive(); const sr = l.ctx.sampleRate;
+-  const start = Math.ceil(l.ctx.currentTime * sr) + 256;
++async function liveChord(freqs = [220,330,440], gated = false, eventAt = performance.now(), onOwner = null) {
++  const l = await startLive(); onOwner?.(l.client); const sr = l.ctx.sampleRate;
++  const eventAge=performance.now()-eventAt;
++  if(!Number.isFinite(eventAge)||eventAge < -1 || eventAge>90)return [];
++  const start = Math.max(0,Math.ceil(l.ctx.currentTime*sr-eventAge*sr/1000)+256);
+   const maxLate = legacy323Envelope(sr, 0.18, false).maxLatenessSeconds;
+   const notes = freqs.map((f, i) => {
+     const t = nextToken(l, i + 1); return gated ? makeGatedNote(sr, t.tokenSlot, t.tokenGeneration, f) : makeLegacyNote(sr, t.tokenSlot, t.tokenGeneration, f);
+   });
+-  l.client.postNormal({ kind: 'attack-group', ownerEpoch: l.ownerEpoch, groupId: l.groupId++, intendedFrame: start,
++  const accepted=l.client.postNormal({ kind: 'attack-group', ownerEpoch: l.ownerEpoch, groupId: l.groupId++, intendedFrame: start,
+     latestAdmissionFrame: start + Math.round(maxLate * sr), notes });
+-  return notes;
++  return accepted?notes:[];
+ }
+ 
+ async function runAutomated() {
+-  const result = { pass: false, tests: {}, environment: {} };
++  if(automatedRunning)return window.__P0_RESULT__??null;
++  automatedRunning=true;$('autotest').disabled=true;$('download').disabled=true;
++  const result = { pass: false, protocol: P0_PROTOCOL, scope: 'Browser smoke and offline A/W; physical device and complete P0 acceptance remain separate', tests: {}, environment: {} };
+   try {
+     // Exact 323 transpiled module vs portable core, on-time fixture.
+     const ref = await renderReference323({ freqs: [220], heldLong: false });
+@@ -206,8 +210,13 @@
+     const candHeld = await renderCandidateOffline({ freqs: [220], heldLong: true, seconds: 1.5 });
+     result.tests.referenceHeld = { reference: audioMetrics(refHeld), candidate: audioMetrics(candHeld), compare: compareAudio(refHeld, candHeld) };
+ 
++    await stopLive();
+     const l = await startLive();
+-    result.environment = { sampleRate: l.ctx.sampleRate, baseLatency: l.ctx.baseLatency, outputLatency: l.ctx.outputLatency ?? null };
++    const refChord=await renderReference323({freqs:[220,330,440]});
++    const candChord=await renderCandidateOffline({freqs:[220,330,440]});
++    result.tests.referenceChord={reference:audioMetrics(refChord),candidate:audioMetrics(candChord),compare:compareAudio(refChord,candChord)};
++    result.wasmSha256=l.wasmSha256;
++    result.environment = { userAgent: navigator.userAgent, crossOriginIsolated, sampleRate: l.ctx.sampleRate, baseLatency: l.ctx.baseLatency, outputLatency: l.ctx.outputLatency ?? null };
+     const sr = l.ctx.sampleRate;
+     const programStart = Math.ceil(l.ctx.currentTime * sr) + 512;
+     l.client.postNormal({ kind: 'program-start', ownerEpoch: l.ownerEpoch, startFrame: programStart });
+@@ -229,7 +238,7 @@
+       latestAdmissionFrame: oldDeadline, notes: [makeLegacyNote(sr, tok.tokenSlot, tok.tokenGeneration, 550)] });
+     await sleep(150);
+     const afterStale = latestProof(l);
+-    result.tests.staleAttack = { startsBefore: startsBeforeStale, startsAfter: afterStale?.startedExternal, expired: afterStale?.expired };
++    result.tests.staleAttack = { startsBefore: startsBeforeStale, startsAfter: afterStale?.startedExternal, expired: afterStale?.expired, expiredBefore: after?.expired ?? 0 };
+ 
+     // Pending gated start followed by release: no resurrection.
+     const tok2 = nextToken(l, 21);
+@@ -241,29 +250,26 @@
+     const beforeReleaseWait = latestProof(l)?.startedExternal ?? 0;
+     await sleep(450);
+     const afterReleaseWait = latestProof(l);
+-    result.tests.releaseBeforeStart = { startsBefore: beforeReleaseWait, startsAfter: afterReleaseWait?.startedExternal, cancelled: afterReleaseWait?.cancelled };
++    result.tests.releaseBeforeStart = { startsBefore: beforeReleaseWait, startsAfter: afterReleaseWait?.startedExternal, cancelled: afterReleaseWait?.cancelled, cancelledBefore: afterStale?.cancelled ?? 0 };
+ 
+     // State high-water mark. Stop lease heartbeats so the expected revision is deterministic.
+     clearInterval(l.heartbeat); l.heartbeat = null;
+-    l.stateRevision = 21; l.rootHz = 330; l.client.postState({ kind: 'state', ownerEpoch: l.ownerEpoch, revision: 21, rootHz: 330, programGain: 1, leaseValidThroughFrame: Math.ceil(l.ctx.currentTime*sr)+Math.round(sr*1.5) });
+-    l.client.postState({ kind: 'state', ownerEpoch: l.ownerEpoch, revision: 20, rootHz: 440, programGain: 1, leaseValidThroughFrame: Math.ceil(l.ctx.currentTime*sr)+Math.round(sr*1.5) });
++    const expectedRevision=Math.max(l.stateRevision+2,21);
++    l.stateRevision = expectedRevision; l.rootHz = 330; l.client.postState({ kind: 'state', ownerEpoch: l.ownerEpoch, revision: expectedRevision, rootHz: 330, programGain: 1, leaseValidThroughFrame: Math.ceil(l.ctx.currentTime*sr)+Math.round(sr*1.5) });
++    l.client.postState({ kind: 'state', ownerEpoch: l.ownerEpoch, revision: expectedRevision-1, rootHz: 440, programGain: 1, leaseValidThroughFrame: Math.ceil(l.ctx.currentTime*sr)+Math.round(sr*1.5) });
+     await sleep(150);
+-    result.tests.stateHighWater = { stateRevision: latestProof(l)?.stateRevision };
++    result.tests.stateHighWater = { stateRevision: latestProof(l)?.stateRevision, expectedRevision };
+ 
+     // Panic must stop program and old owner.
++    const panicRequestedFrame=Math.ceil(l.ctx.currentTime*sr);
+     l.client.postSafety({ kind: 'panic', ownerEpoch: l.ownerEpoch, fadeFrames: gatedEnvelope(sr).panicFrames });
+-    await sleep(120);
++    await sleep(250);
+     const panicProof = latestProof(l);
+-    result.tests.panic = panicProof;
++    result.tests.panic = {...panicProof,requestedFrame:panicRequestedFrame};
+ 
+     if (l.heartbeat) { clearInterval(l.heartbeat); l.heartbeat = null; }
+-    result.pass = Boolean(
+-      result.tests.stall500.frameAdvance > sr * 0.35 &&
+-      result.tests.stall500.programStartsAdvance >= 1 && result.tests.stall500.programStartsAdvance <= 12 &&
+-      result.tests.staleAttack.startsAfter === result.tests.staleAttack.startsBefore &&
+-      result.tests.releaseBeforeStart.startsAfter === result.tests.releaseBeforeStart.startsBefore &&
+-      result.tests.stateHighWater.stateRevision === 21 && panicProof?.ownerClosed === 1 && panicProof?.programRunning === 0
+-    );
++    result.faults=l.faults.slice();
++    result.pass=assessBrowserResult(result);
+     window.__P0_RESULT__ = result;
+     document.body.dataset.testStatus = result.pass ? 'pass' : 'fail';
+     log('AUTOTEST-DONE', result);
+@@ -272,17 +278,34 @@
+     window.__P0_RESULT__ = result;
+     document.body.dataset.testStatus = 'fail';
+     log('AUTOTEST-ERROR', result.error);
+-  }
++    if(live){clearInterval(live.heartbeat);live.client.postSafety({kind:'panic'});}
++  } finally {automatedRunning=false;$('autotest').disabled=false;$('download').disabled=false;}
+   return result;
+ }
+ 
+-window.p0 = { startLive, liveChord, runAutomated, renderReference323, renderCandidateOffline };
+-$('start')?.addEventListener('click', () => startLive());
+-$('chord')?.addEventListener('click', () => liveChord());
+-$('hold')?.addEventListener('pointerdown', async () => { const notes = await liveChord([220], true); window.__heldNote = notes[0]; });
+-$('hold')?.addEventListener('pointerup', async () => { const l = live, n = window.__heldNote; if (l && n) l.client.postSafety({ kind:'release', ownerEpoch:l.ownerEpoch, tokenSlot:n.tokenSlot, tokenGeneration:n.tokenGeneration, releaseFrames:gatedEnvelope(l.ctx.sampleRate).releaseFrames }); });
+-$('program')?.addEventListener('click', async () => { const l=await startLive(); l.client.postNormal({kind:'program-start',ownerEpoch:l.ownerEpoch,startFrame:Math.ceil(l.ctx.currentTime*l.ctx.sampleRate)+256}); });
++window.p0 = { startLive, stopLive, liveChord, runAutomated, renderReference323, renderCandidateOffline };
++function uiError(error){log('UI-ERROR',String(error?.stack??error));}
++$('start')?.addEventListener('click', () => startLive().catch(uiError));
++$('chord')?.addEventListener('click', event => liveChord([220,330,440],false,event.timeStamp).catch(uiError));
++let heldGesture=null;
++function releaseHeld(event) {
++  const g=heldGesture;if(!g||event&&event.pointerId!==undefined&&event.pointerId!==g.pointerId)return;
++  g.released=true;heldGesture=null;
++  if(g.note)g.client.postSafety({kind:'release',tokenSlot:g.note.tokenSlot,tokenGeneration:g.note.tokenGeneration});
++}
++$('hold')?.addEventListener('pointerdown',async event=>{
++  releaseHeld();const g={pointerId:event.pointerId,released:false,note:null,client:null};heldGesture=g;
++  $('hold').setPointerCapture(event.pointerId);
++  let notes;try {notes=await liveChord([220],true,event.timeStamp,client=>{g.client=client;});} catch(error){releaseHeld();uiError(error);return;}g.note=notes[0];
++  if(g.released&&g.note)g.client.postSafety({kind:'release',tokenSlot:g.note.tokenSlot,tokenGeneration:g.note.tokenGeneration});
++});
++for(const name of ['pointerup','pointercancel','lostpointercapture'])$('hold')?.addEventListener(name,releaseHeld);
++window.addEventListener('blur',()=>releaseHeld());
++document.addEventListener('visibilitychange',()=>{if(document.hidden)releaseHeld();});
++$('program')?.addEventListener('click', () => startLive().then(l=>l.client.postNormal({kind:'program-start',ownerEpoch:l.ownerEpoch,startFrame:Math.ceil(l.ctx.currentTime*l.ctx.sampleRate)+256})).catch(uiError));
+ $('stall')?.addEventListener('click', () => busyStall(500));
+-$('panic')?.addEventListener('click', async () => { const l=await startLive(); l.client.postSafety({kind:'panic',ownerEpoch:l.ownerEpoch,fadeFrames:gatedEnvelope(l.ctx.sampleRate).panicFrames}); });
++$('panic')?.addEventListener('click', async () => { const l=live;if(!l)return;clearInterval(l.heartbeat);releaseHeld();for(const id of ['chord','hold','program'])$(id).disabled=true;l.client.postSafety({kind:'panic',ownerEpoch:l.ownerEpoch,fadeFrames:gatedEnvelope(l.ctx.sampleRate).panicFrames}); });
+ $('autotest')?.addEventListener('click', runAutomated);
+ if (new URLSearchParams(location.search).get('autotest') === '1') setTimeout(runAutomated, 100);
++
++$('download')?.addEventListener('click',()=>{if(!window.__P0_RESULT__)return;const url=URL.createObjectURL(new Blob([JSON.stringify(window.__P0_RESULT__,null,2)],{type:'application/json'}));const a=document.createElement('a');a.href=url;a.download='P0_BROWSER_RESULT.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);});
+--- /dev/null
++++ b/tools/realtime-p0/web/p0-client.js
+@@ -0,0 +1,72 @@
++// P0 control plane only. Physical packet credits and full coalesced safety state.
++export const P0_PROTOCOL = 'p0-w/325-audit1';
++export class P0BoundedClient {
++  constructor(port,onMessage,scope) {
++    this.port=port;this.onMessage=onMessage;this.scope=Object.freeze({...scope});this.sequence=0;
++    this.normalQueue=[];this.inFlight=new Map();this.statePending=null;this.stateRevision=0;
++    this.safetyPending=false;this.safetyRevision=0;this.closed=false;
++    this.safety={closedThroughGenerationBySlot:Array(128).fill(0),reconcileGates:null,stopProgram:false,ownerEpochClosed:false};
++    port.onmessage=ev=>this.handle(ev.data);
++  }
++  matches(m) { return m?.sessionId===this.scope.sessionId&&m?.engineEpoch===this.scope.engineEpoch&&m?.ownerEpoch===this.scope.ownerEpoch; }
++  handle(m) {
++    if (!this.matches(m)) return;
++    if(m.kind==='render-proof'&&m.armedOwnerEpoch===this.scope.ownerEpoch&&m.ownerClosed===1) {
++      this.closed=true;this.normalQueue.length=0;this.statePending=null;
++    }
++    if (m.kind==='receipt') {
++      const pending=this.inFlight.get(m.packetSequence);
++      if (!pending || pending.channel!==m.channel) return;
++      this.inFlight.delete(m.packetSequence);
++      this.flush();
++    }
++    this.onMessage?.(m);
++  }
++  count(channel) { let n=0;for(const v of this.inFlight.values())if(v.channel===channel)n++;return n; }
++  send(channel,message) {
++    const packet={...message,...this.scope,protocol:P0_PROTOCOL,channel,packetSequence:++this.sequence};
++    // Only bounded, validated fixture objects reach this control-plane serializer.
++    if (JSON.stringify(packet).length>8192) return false;
++    this.inFlight.set(packet.packetSequence,{channel});
++    try { this.port.postMessage(packet); } catch(error) {this.inFlight.delete(packet.packetSequence);throw error;}
++    return true;
++  }
++  postNormal(m) {
++    if(this.closed || this.normalQueue.length>=64)return false;
++    let notes=m.notes?.length??0;
++    for(const q of this.normalQueue)notes+=q.notes?.length??0;
++    if(notes>64||JSON.stringify(m).length>7600)return false;
++    this.normalQueue.push(m);this.flush();return true;
++  }
++  postState(m) {
++    if(this.closed||!Number.isSafeInteger(m.revision)||m.revision<=this.stateRevision)return false;
++    this.stateRevision=m.revision;this.statePending=m;this.flush();return true;
++  }
++  postSafety(m) {
++    if(m.kind==='release') {
++      if(!Number.isInteger(m.tokenSlot)||m.tokenSlot<0||m.tokenSlot>=128||!Number.isInteger(m.tokenGeneration)||m.tokenGeneration<1||m.tokenGeneration>0xffffffff)return false;
++      this.safety.closedThroughGenerationBySlot[m.tokenSlot]=Math.max(this.safety.closedThroughGenerationBySlot[m.tokenSlot],m.tokenGeneration);
++    } else if(m.kind==='panic') {
++      this.safety.ownerEpochClosed=true;this.closed=true;this.normalQueue.length=0;this.statePending=null;
++    } else if(m.kind==='gate-reconcile') {
++      if(!Number.isSafeInteger(m.observedInputSequence)||m.observedInputSequence<0||!Array.isArray(m.held)||m.held.length>16)return false;
++      if(m.observedInputSequence<(this.safety.reconcileGates?.observedInputSequence??-1))return false;
++      this.safety.reconcileGates={observedInputSequence:m.observedInputSequence,held:m.held.map(x=>({...x}))};
++    } else if(m.kind==='program-stop')this.safety.stopProgram=true;
++    else return false;
++    this.safetyRevision++;this.safetyPending=true;this.flush();return true;
++  }
++  flush() {
++    // Reserved safety slot; every replacement retains all terminal watermarks.
++    if(this.safetyPending&&this.count('safety')===0) {
++      const state={...this.safety,revision:this.safetyRevision,closedThroughGenerationBySlot:this.safety.closedThroughGenerationBySlot.slice()};
++      this.safetyPending=false;
++      this.send('safety',{kind:'safety-state',state});
++    }
++    if(this.closed)return;
++    if(this.statePending&&this.count('state')===0) {
++      const m=this.statePending;this.statePending=null;this.send('state',m);
++    }
++    while(this.count('normal')<2&&this.normalQueue.length)this.send('normal',this.normalQueue.shift());
++  }
++}
+--- /dev/null
++++ b/tools/realtime-p0/web/p0-verdict.js
+@@ -0,0 +1,18 @@
++export function audioPass(test) {
++  return test?.reference?.finite===true && test?.candidate?.finite===true
++    && test.reference.peak>0.001 && test.candidate.peak>0.001
++    && test.compare?.lengthEqual===true
++    && Number.isFinite(test.compare?.maxAbs) && test.compare.maxAbs<=1e-3
++    && Number.isFinite(test.compare?.rms) && test.compare.rms<=1e-3;
++}
++export function assessBrowserResult(result) {
++  const t=result.tests,sr=result.environment.sampleRate;
++  return Boolean(audioPass(t.referenceNormal)&&audioPass(t.referenceHeld)&&audioPass(t.referenceChord)
++    &&t.stall500?.frameAdvance>sr*.35&&t.stall500?.programStartsAdvance>=1&&t.stall500.programStartsAdvance<=12
++    &&t.staleAttack?.startsAfter===t.staleAttack?.startsBefore&&t.staleAttack?.expired>t.staleAttack?.expiredBefore
++    &&t.releaseBeforeStart?.startsAfter===t.releaseBeforeStart?.startsBefore&&t.releaseBeforeStart?.cancelled>t.releaseBeforeStart?.cancelledBefore
++    &&t.stateHighWater?.stateRevision===t.stateHighWater?.expectedRevision
++    &&t.panic?.ownerClosed===1&&t.panic.programRunning===0&&t.panic.activeVoices===0&&t.panic.pendingGroups===0&&t.panic.peak===0
++    &&t.panic.frame>t.panic.requestedFrame+Math.ceil(sr*.005)
++    &&result.faults?.length===0);
++}
+--- a/tools/realtime-p0/worklet/p0-worklet.js
++++ b/tools/realtime-p0/worklet/p0-worklet.js
+@@ -1,119 +1,141 @@
++import { P0_PROTOCOL } from '../web/p0-client.js';
++const integer=(v,min=0,max=Number.MAX_SAFE_INTEGER)=>Number.isSafeInteger(v)&&v>=min&&v<=max;
++const finite=(v,min,max)=>Number.isFinite(v)&&v>=min&&v<=max;
+ class XensonarP0Processor extends AudioWorkletProcessor {
+   constructor(options) {
+     super();
+-    const bytes = options.processorOptions?.wasmBytes;
+-    if (!bytes) throw new Error('P0-W: missing wasmBytes');
+-    const module = new WebAssembly.Module(bytes);
+-    const instance = new WebAssembly.Instance(module, {});
+-    this.e = instance.exports;
++    const o=options.processorOptions;
++    if(!(o?.wasmModule instanceof WebAssembly.Module))throw new Error('P0 requires a module compiled before node construction');
++    if(typeof o.sessionId!=='string'||typeof o.engineEpoch!=='string'||!integer(o.ownerEpoch,1,0xffffffff))throw new Error('P0 missing scope');
++    this.scope={sessionId:o.sessionId,engineEpoch:o.engineEpoch,ownerEpoch:o.ownerEpoch};
++    this.e=new WebAssembly.Instance(o.wasmModule,{}).exports;
+     this.e.p0_init(sampleRate);
+-    const table = new Float32Array(this.e.memory.buffer, this.e.p0_sine_table_ptr(), 4096);
+-    for (let i = 0; i < table.length; i++) table[i] = Math.sin(2 * Math.PI * i / table.length);
++    const table=new Float32Array(this.e.memory.buffer,this.e.p0_sine_table_ptr(),4096);
++    for(let i=0;i<table.length;i++)table[i]=Math.sin(2*Math.PI*i/table.length);
+     this.e.p0_set_frame(BigInt(currentFrame));
+-    this.outputPtr = this.e.p0_output_ptr();
+-    this.reportEvery = Math.max(1, Math.round(sampleRate / 10));
+-    this.nextReportFrame = currentFrame + this.reportEvery;
+-    this.ownerEpoch = 0;
+-    this.port.onmessage = (ev) => this.onMessage(ev.data);
+-    this.port.postMessage({ kind: 'ready', frame: currentFrame, sampleRate });
++    this.samples=new Float32Array(this.e.memory.buffer,this.e.p0_output_ptr(),this.e.p0_max_block()*2);
++    this.reportEvery=Math.ceil(sampleRate/10);this.nextReportFrame=currentFrame+this.reportEvery;
++    this.windowStart=currentFrame;this.windowPeak=0;this.faulted=false;
++    this.packetHigh={normal:0,state:0,safety:0};this.safetyRevision=0;
++    this.safetyState=null;this.epochClosed=false;this.programClosed=false;
++    this.port.onmessage=ev=>this.onMessage(ev.data);
++    this.post({kind:'ready',frame:currentFrame,sampleRate});
+   }
+-
+-  onMessage(msg) {
+-    if (!msg || typeof msg.kind !== 'string') return;
+-    const e = this.e;
+-    let result = 0;
++  post(m){this.port.postMessage({...m,...this.scope});}
++  fault(message){this.epochClosed=true;if(!this.faulted){this.faulted=true;this.post({kind:'fault',message,frame:Number(this.e.p0_frame())});}}
++  applySafety(s){
++    const e=this.e,owner=this.scope.ownerEpoch;
++    if(s.ownerEpochClosed){
++      this.epochClosed=true;
++      return e.p0_owner_epoch()===owner?e.p0_panic(owner,Math.ceil(sampleRate*.005)):1;
++    }
++    if(s.stopProgram)this.programClosed=true;
++    // Safety can precede Arm. Retain the full image across the core's epoch reset.
++    if(e.p0_owner_epoch()!==owner)return 1;
++    for(let i=0;i<128;i++)e.p0_set_closed_generation(i,s.closedThroughGenerationBySlot[i]);
++    const g=s.reconcileGates;
++    if(g&&e.p0_reconcile_begin(BigInt(g.observedInputSequence))===1){
++      for(const n of g.held)e.p0_reconcile_hold(n.logicalSlot,n.generation);
++      e.p0_reconcile_apply(owner);
++    }else e.p0_apply_closed(owner);
++    if(this.programClosed)e.p0_program_stop(owner,0);
++    return 1;
++  }
++  validNote(n){return n&&integer(n.tokenSlot,0,127)&&integer(n.tokenGeneration,1,0xffffffff)&&integer(n.kind,1,2)
++    &&finite(n.frequencyHz,1,sampleRate*.45)&&finite(n.peak,0.000001,1)
++    &&['b0','b1','b2','a1','a2'].every(k=>finite(n[k],-4,4))
++    &&integer(n.attackFrames,1,sampleRate)&&integer(n.releaseStartFrames,0,0xffffffff)
++    &&integer(n.stopFrames,n.attackFrames+1,0xffffffff)&&finite(n.releaseCoef,0,1);}
++  onMessage(m){
++    if(!m||m.protocol!==P0_PROTOCOL||m.sessionId!==this.scope.sessionId||m.engineEpoch!==this.scope.engineEpoch
++       ||m.ownerEpoch!==this.scope.ownerEpoch||!Object.hasOwn(this.packetHigh,m.channel)||!integer(m.packetSequence,1))return;
++    const receipt=result=>this.post({kind:'receipt',channel:m.channel,packetSequence:m.packetSequence,op:m.kind,result,frame:Number(this.e.p0_frame())});
++    if(m.packetSequence<=this.packetHigh[m.channel]){receipt(-1);return;}
++    this.packetHigh[m.channel]=m.packetSequence;
++    const e=this.e;let result=-1;
++    if(this.epochClosed&&m.channel!=='safety'){receipt(-3);return;}
+     try {
+-      switch (msg.kind) {
++      if(m.channel==='safety'&&m.kind==='safety-state') {
++        const s=m.state;
++        if(!s||!integer(s.revision,1)||s.revision<=this.safetyRevision||!Array.isArray(s.closedThroughGenerationBySlot)
++          ||s.closedThroughGenerationBySlot.length!==128||!s.closedThroughGenerationBySlot.every(v=>integer(v,0,0xffffffff))
++          ||typeof s.ownerEpochClosed!=='boolean'||typeof s.stopProgram!=='boolean') {receipt(-1);return;}
++        const g=s.reconcileGates;
++        if(g&&(!integer(g.observedInputSequence)||!Array.isArray(g.held)||g.held.length>16
++          ||!g.held.every(n=>integer(n.logicalSlot,0,127)&&integer(n.generation,1,0xffffffff)))){receipt(-1);return;}
++        this.safetyRevision=s.revision;this.safetyState=s;
++        result=this.applySafety(s);
++      } else if(m.channel==='state'&&m.kind==='state') {
++        if(integer(m.revision,1)&&finite(m.rootHz,1,sampleRate*.45)&&finite(m.programGain,0,1)
++          &&integer(m.leaseValidThroughFrame,Number(e.p0_frame())+1,Number(e.p0_frame())+sampleRate*2)) {
++          const r=e.p0_set_state(m.ownerEpoch,BigInt(m.revision),m.rootHz,m.programGain);
++          // An old state is not a new lease. Absolute expiry is never rebased on receipt.
++          result=r===1?e.p0_renew_lease(m.ownerEpoch,BigInt(m.leaseValidThroughFrame)):r;
++        }
++      } else if(m.channel==='normal') switch(m.kind) {
+         case 'arm':
+-          this.ownerEpoch = msg.ownerEpoch >>> 0;
+-          result = e.p0_arm(this.ownerEpoch, BigInt(Math.floor(msg.leaseValidThroughFrame)));
++          if(integer(m.leaseValidThroughFrame))result=e.p0_arm(m.ownerEpoch,BigInt(m.leaseValidThroughFrame));
++          if(result===1&&this.safetyState)this.applySafety(this.safetyState);
+           break;
+-        case 'lease':
+-          result = e.p0_renew_lease(msg.ownerEpoch >>> 0, BigInt(Math.floor(msg.leaseValidThroughFrame)));
+-          break;
+-        case 'state': {
+-          const stateResult = e.p0_set_state(msg.ownerEpoch >>> 0, BigInt(msg.revision), msg.rootHz, msg.programGain);
+-          const leaseResult = msg.leaseValidThroughFrame === undefined ? 1 : e.p0_renew_lease(msg.ownerEpoch >>> 0, BigInt(Math.floor(msg.leaseValidThroughFrame)));
+-          result = leaseResult !== 1 ? leaseResult : (stateResult < 0 ? stateResult : 1);
++        case 'attack-group': {
++          if(!integer(m.groupId,1)||!integer(m.inputSequence??m.groupId,1)||!integer(m.intendedFrame)||!integer(m.latestAdmissionFrame)
++            ||!Array.isArray(m.notes)||m.notes.length<1||m.notes.length>3||!m.notes.every(n=>this.validNote(n)))break;
++          result=e.p0_begin_attack_group(m.ownerEpoch,BigInt(m.groupId),m.notes.length,BigInt(m.intendedFrame),BigInt(m.latestAdmissionFrame));
++          if(result!==1)break;
++          e.p0_group_input_sequence(BigInt(m.inputSequence??m.groupId));
++          for(let i=0;i<m.notes.length;i++){
++            const n=m.notes[i];result=e.p0_set_attack_note(i,n.tokenSlot,n.tokenGeneration,n.kind,n.frequencyHz,n.peak,n.b0,n.b1,n.b2,n.a1,n.a2,n.attackFrames,n.releaseStartFrames,n.stopFrames,n.releaseCoef);
++            if(result!==1)break;
++          }
++          if(result===1)result=e.p0_commit_attack_group();
+           break;
+         }
+-        case 'attack-group': {
+-          result = e.p0_begin_attack_group(msg.ownerEpoch >>> 0, BigInt(msg.groupId), msg.notes.length,
+-            BigInt(Math.floor(msg.intendedFrame)), BigInt(Math.floor(msg.latestAdmissionFrame)));
+-          if (result === 1) {
+-            for (let i = 0; i < msg.notes.length; i++) {
+-              const n = msg.notes[i];
+-              result = e.p0_set_attack_note(i, n.tokenSlot, n.tokenGeneration, n.kind, n.frequencyHz, n.peak,
+-                n.b0, n.b1, n.b2, n.a1, n.a2, n.attackFrames, n.releaseStartFrames, n.stopFrames, n.releaseCoef);
+-              if (result !== 1) break;
+-            }
+-            if (result === 1) result = e.p0_commit_attack_group();
++        case 'program-config': {
++          const h=m.header;
++          if(!h||!integer(h.revision,1,0xffffffff)||!integer(h.tempoMilli,10000,400000)
++            ||!Array.isArray(m.steps)||m.steps.length<1||m.steps.length>64||!['b0','b1','b2','a1','a2'].every(k=>finite(h[k],-4,4))
++            ||!integer(h.attackFrames,1,sampleRate)||!integer(h.releaseStartFrames)||!integer(h.stopFrames,h.attackFrames+1,0xffffffff)||!finite(h.releaseCoef,0,1)
++            ||!m.steps.every(s=>Array.isArray(s)&&s.length<=3&&s.every(n=>Array.isArray(n)&&n.length===2&&finite(n[0],0.001,16)&&finite(n[1],0,1))))break;
++          result=e.p0_program_set_header(m.ownerEpoch,h.revision,m.steps.length,h.tempoMilli,h.b0,h.b1,h.b2,h.a1,h.a2,h.attackFrames,h.releaseStartFrames,h.stopFrames,h.releaseCoef);
++          if(result!==1)break;
++          for(let i=0;i<m.steps.length;i++){
++            const s=m.steps[i],a=s[0]??[1,0],b=s[1]??[1,0],c=s[2]??[1,0];
++            result=e.p0_program_set_step(m.ownerEpoch,i,s.length,a[0],a[1],b[0],b[1],c[0],c[1]);
++            if(result!==1)break;
+           }
+           break;
+         }
+-        case 'release':
+-          result = e.p0_release(msg.ownerEpoch >>> 0, msg.tokenSlot, msg.tokenGeneration, msg.releaseFrames);
+-          break;
+-        case 'panic':
+-          result = e.p0_panic(msg.ownerEpoch >>> 0, msg.fadeFrames);
+-          break;
+-        case 'program-config': {
+-          const h = msg.header;
+-          result = e.p0_program_set_header(msg.ownerEpoch >>> 0, h.revision, msg.steps.length, h.tempoMilli,
+-            h.b0, h.b1, h.b2, h.a1, h.a2, h.attackFrames, h.releaseStartFrames, h.stopFrames, h.releaseCoef);
+-          if (result === 1) {
+-            for (let i = 0; i < msg.steps.length; i++) {
+-              const s = msg.steps[i];
+-              const a = s[0] || [1, 0], b = s[1] || [1, 0], c = s[2] || [1, 0];
+-              result = e.p0_program_set_step(msg.ownerEpoch >>> 0, i, s.length,
+-                a[0], a[1], b[0], b[1], c[0], c[1]);
+-              if (result !== 1) break;
+-            }
+-          }
+-          break;
+-        }
+-        case 'program-start':
+-          result = e.p0_program_start(msg.ownerEpoch >>> 0, BigInt(Math.floor(msg.startFrame)));
+-          break;
+-        case 'program-stop':
+-          result = e.p0_program_stop(msg.ownerEpoch >>> 0, msg.fadeFrames || 0);
+-          break;
++        case 'program-start': if(!this.programClosed&&integer(m.startFrame))result=e.p0_program_start(m.ownerEpoch,BigInt(m.startFrame));break;
+       }
+-    } catch (error) {
+-      this.port.postMessage({ kind: 'fault', op: msg.kind, message: String(error?.message || error) });
+-      return;
++      receipt(result);
++    } catch(error){receipt(-1);this.fault(String(error?.message??error));e.p0_panic(this.scope.ownerEpoch,Math.ceil(sampleRate*.005));}
++  }
++  process(_inputs,outputs){
++    const out=outputs[0];if(!out?.length)return true;
++    const frames=out[0].length;
++    if(frames>this.e.p0_max_block()){for(const ch of out)ch.fill(0);this.fault('unsupported block size');return false;}
++    if(Number(this.e.p0_frame())!==currentFrame){
++      if(this.e.p0_owner_epoch()===0&&!this.epochClosed&&!this.faulted){
++        // Construction/connection may precede the first render callback. Only
++        // the silent, never-armed preparation phase may adopt its first frame.
++        this.e.p0_set_frame(BigInt(currentFrame));this.windowStart=currentFrame;this.windowPeak=0;this.nextReportFrame=currentFrame+this.reportEvery;
++      }else{this.e.p0_panic(this.scope.ownerEpoch,Math.ceil(sampleRate*.005));this.fault('frame discontinuity; re-arm requires a new session');}
+     }
+-    this.port.postMessage({ kind: 'receipt', op: msg.kind, result, frame: Number(e.p0_frame()) });
+-  }
+-
+-  process(_inputs, outputs) {
+-    const out = outputs[0];
+-    if (!out || out.length < 1) return true;
+-    const frames = out[0].length;
+     this.e.p0_render(frames);
+-    const interleaved = new Float32Array(this.e.memory.buffer, this.outputPtr, frames * 2);
+-    const left = out[0];
+-    const right = out[1] || out[0];
+-    for (let i = 0; i < frames; i++) {
+-      left[i] = interleaved[i * 2];
+-      right[i] = interleaved[i * 2 + 1];
++    for(let i=0;i<frames;i++){
++      let l=this.samples[i*2],r=this.samples[i*2+1];
++      if(!Number.isFinite(l)||!Number.isFinite(r)){l=r=0;this.fault('nonfinite DSP sample');this.e.p0_panic(this.scope.ownerEpoch,Math.ceil(sampleRate*.005));}
++      for(let c=0;c<out.length;c++)out[c][i]=c===0?l:r;
++      this.windowPeak=Math.max(this.windowPeak,Math.abs(l),Math.abs(r));
+     }
+-    if (currentFrame >= this.nextReportFrame) {
+-      const peak = (() => {
+-        let p = 0;
+-        for (let i = 0; i < frames; i++) { const a = Math.abs(left[i]); if (a > p) p = a; }
+-        return p;
+-      })();
+-      this.port.postMessage({
+-        kind: 'render-proof', frame: Number(this.e.p0_frame()), activeVoices: this.e.p0_active_voices(),
+-        pendingGroups: this.e.p0_pending_groups(), programRunning: this.e.p0_program_running(), peak,
+-        startedExternal: Number(this.e.p0_started_external()), startedProgram: Number(this.e.p0_started_program()),
+-        expired: Number(this.e.p0_expired()), cancelled: Number(this.e.p0_cancelled()),
+-        ownerClosed: this.e.p0_owner_closed(), stateRevision: Number(this.e.p0_state_revision())
+-      });
+-      this.nextReportFrame = currentFrame + this.reportEvery;
++    if(currentFrame+frames>=this.nextReportFrame){
++      this.post({kind:'render-proof',firstFrame:this.windowStart,frame:Number(this.e.p0_frame()),activeVoices:this.e.p0_active_voices(),
++        pendingGroups:this.e.p0_pending_groups(),pendingNotes:this.e.p0_pending_notes(),programRunning:this.e.p0_program_running(),peak:this.windowPeak,
++        startedExternal:Number(this.e.p0_started_external()),startedProgram:Number(this.e.p0_started_program()),expired:Number(this.e.p0_expired()),
++        cancelled:Number(this.e.p0_cancelled()),ownerClosed:this.e.p0_owner_closed(),armedOwnerEpoch:this.e.p0_owner_epoch(),stateRevision:Number(this.e.p0_state_revision()),fault:this.faulted});
++      this.windowPeak=0;this.windowStart=currentFrame+frames;this.nextReportFrame=this.windowStart+this.reportEvery;
+     }
+     return true;
+   }
+ }
+-registerProcessor('xensonar-p0-w', XensonarP0Processor);
++registerProcessor('xensonar-p0-w',XensonarP0Processor);

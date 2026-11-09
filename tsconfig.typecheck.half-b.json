@@ -1,0 +1,11 @@
+{
+  "extends": "./tsconfig.typecheck.browser.json",
+  "include": [
+    "src/features/l3lab/**/*",
+    "src/external/**/*",
+    "src/features/xenpolar/**/*",
+    "src/utils/**/*",
+    "src/core/**/*",
+    "src/vite-env.d.ts"
+  ]
+}

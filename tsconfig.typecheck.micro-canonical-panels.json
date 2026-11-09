@@ -1,0 +1,17 @@
+{
+  "extends": "./tsconfig.typecheck.browser.json",
+  "compilerOptions": {
+    "noEmit": true
+  },
+  "include": [
+    "src/features/l3lab/canonicalForge/*Panel.tsx",
+    "src/features/l3lab/canonicalForge/*Panels.tsx",
+    "src/features/l3lab/canonicalForge/drumMachinePanel.tsx",
+    "src/features/l3lab/canonicalForge/melodicLoopPanel.tsx",
+    "src/features/l3lab/canonicalForge/microtonalLogicPanels.tsx",
+    "src/features/l3lab/contracts/**/*",
+    "src/core/**/*",
+    "src/utils/**/*",
+    "src/vite-env.d.ts"
+  ]
+}

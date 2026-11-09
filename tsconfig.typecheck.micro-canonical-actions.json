@@ -1,0 +1,19 @@
+{
+  "extends": "./tsconfig.typecheck.browser.json",
+  "compilerOptions": {
+    "noEmit": true
+  },
+  "include": [
+    "src/features/l3lab/canonicalForge/*Actions.ts",
+    "src/features/l3lab/canonicalForge/*Controller.ts",
+    "src/features/l3lab/canonicalForge/*Controllers.ts",
+    "src/features/l3lab/canonicalForge/*Workflow.ts",
+    "src/features/l3lab/canonicalForge/canonical*Controller.ts",
+    "src/features/l3lab/canonicalForge/canonical*Actions.ts",
+    "src/features/l3lab/contracts/**/*",
+    "src/features/l3lab/materialIntake/**/*",
+    "src/core/**/*",
+    "src/utils/**/*",
+    "src/vite-env.d.ts"
+  ]
+}

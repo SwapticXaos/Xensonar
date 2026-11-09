@@ -1,0 +1,22 @@
+export type RootFollowSpectralWindowMeta = {
+  schemaVersion: 1;
+  windowId: string;
+  windowRole: 'body' | 'surface' | 'skin' | 'articulation';
+  layer: 'ordered' | 'body' | 'residual' | 'transient' | 'mixed';
+  anchorCount: number;
+  bindingCount: number;
+  allocationCount: number;
+  startTimeIndex: number;
+  endTimeIndex: number;
+  yMinBin: number;
+  yMaxBin: number;
+  yCentroidBin: number;
+  ySpread: number;
+  energyGraph: number[];
+  densityGraph: number[];
+  centroidGraph: number[];
+  spreadGraph: number[];
+  continuity: number;
+  roughness: number;
+  transientness: number;
+};

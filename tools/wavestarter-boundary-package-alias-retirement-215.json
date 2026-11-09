@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "patch": 215,
+  "canonicalSuite": "xensonar:sanity:wavestarter-boundary",
+  "retainedCompatibilityEntry": "xensonar:check-wave-starter-runtime-boundary",
+  "retiredPackageAliases": [
+    "xensonar:check-wave-starter-gradient-tone-shape-boundary",
+    "xensonar:check-wave-starter-gradient-tone-graph-boundary",
+    "xensonar:check-wave-starter-gradient-tone-playback-boundary",
+    "xensonar:check-wave-starter-overtone-playback-plan-boundary",
+    "xensonar:check-wave-starter-swell-reinforcement-plan-boundary",
+    "xensonar:check-wave-starter-body-exciter-plan-boundary",
+    "xensonar:check-wave-starter-sample-playback-boundary",
+    "xensonar:check-wave-starter-fx-routing-boundary"
+  ],
+  "note": "No Wellenstarter runner or product source is changed. The runner still supports every --only target directly. The runtime-boundary package entry is retained because Smart-Merge/Codex contracts reference it."
+}

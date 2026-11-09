@@ -1,0 +1,18 @@
+import fs from 'node:fs';
+import path from 'node:path';
+const root = process.cwd();
+const read = (file) => fs.readFileSync(path.join(root, file), 'utf8');
+const fail = (message) => { console.error(`[stable-music-lane-worklet-speaker-proof] FAIL: ${message}`); process.exit(1); };
+const processor = read('src/features/xensonar/audio/stableMusicLaneWorkletProcessorSource.ts');
+const bridge = read('src/features/xensonar/audio/stableMusicLaneWorkletBridge.ts');
+const app = read('src/App.tsx');
+if (!processor.includes('speakerProofPulseCount')) fail('processor must count speaker proof pulses');
+if (!processor.includes('speakerProofPeakAbs')) fail('processor must publish speaker proof peak');
+if (!processor.includes('Math.sin(this.speakerProofPhase)')) fail('speaker proof must synthesize signal inside AudioWorklet');
+if (!processor.includes('this.isSpeakerProbeRunning()')) fail('speaker proof must be gated by direct Worklet speaker-probe mode');
+if (!bridge.includes('speakerProofDirectGain')) fail('bridge must create explicit direct speaker proof gain');
+if (!(bridge.includes('createdNode.connect(proofDirectGain)') && bridge.includes('proofDirectGain.connect(ctx.destination)'))) fail('Worklet proof output must reach ctx.destination directly, without app rhythm bus dependency');
+if (!app.includes('stableMusicLaneBeatWorkletOnlyRef.current = !!nParamsUI.drumActive')) fail('legacy drum path must still be suppressed from user beat intent');
+if (bridge.includes('createOscillator')) fail('bridge must not synthesize a main-thread oscillator fallback');
+if (app.includes('stableMusicLaneSpeakerProofOscillator')) fail('App must not add a main-thread speaker-proof oscillator fallback');
+console.log('[stable-music-lane-worklet-speaker-proof] PASS Worklet-only beat has an explicit processor-generated speaker proof path');

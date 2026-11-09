@@ -1,0 +1,18 @@
+{
+  "extends": "./tsconfig.typecheck.browser.json",
+  "compilerOptions": {
+    "noEmit": true
+  },
+  "include": [
+    "src/features/l3lab/canonicalForge/**/*",
+    "src/features/l3lab/adapters/**/*",
+    "src/features/l3lab/contracts/**/*",
+    "src/features/l3lab/forge3/**/*",
+    "src/features/l3lab/materialIntake/**/*",
+    "src/features/l3lab/melodicSamples/**/*",
+    "src/features/l3lab/external/**/*",
+    "src/core/**/*",
+    "src/utils/**/*",
+    "src/vite-env.d.ts"
+  ]
+}

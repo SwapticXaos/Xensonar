@@ -1,0 +1,15 @@
+{
+  "extends": "./tsconfig.typecheck.browser.json",
+  "compilerOptions": {
+    "noEmit": true
+  },
+  "include": [
+    "src/features/xensonar/audio/**/*",
+    "src/features/resonance/**/*",
+    "src/features/topology/**/*",
+    "src/core/**/*",
+    "src/data/**/*",
+    "src/utils/**/*",
+    "src/vite-env.d.ts"
+  ]
+}

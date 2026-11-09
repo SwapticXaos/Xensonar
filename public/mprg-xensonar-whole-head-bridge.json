@@ -1,0 +1,20 @@
+{
+  "bridgeKind": "mprg-xensonar-whole-head-install-manifest",
+  "version": 1,
+  "protocol": "mprg-xensonar-head-bridge/v1",
+  "xensonarRole": "source-zip-provider-and-cold-head-bridge",
+  "userReadme": "MPRG_XENSONAR_WHOLE_HEAD_INSTALL_README.md",
+  "microtoSeedAdapter": "src/external/microto/integrations/xensonar/mprgBridgeAdapter.ts",
+  "installGuideModule": "src/external/microto/integrations/xensonar/mprgWholeHeadInstallGuide.ts",
+  "truthBoundary": {
+    "headlessInstallMayClaimAudioTruth": false,
+    "sourceZipInstallMayExecuteXensonarCode": false,
+    "microtoIsSeedBodyAdapterNotWholeEngine": true
+  },
+  "followupPayloads": [
+    "trail-loop-body",
+    "material-seed-export",
+    "resonance-gate-decision",
+    "dynamic-quality-pulse"
+  ]
+}

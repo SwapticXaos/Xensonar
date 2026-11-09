@@ -1,0 +1,160 @@
+{
+  "schemaVersion": 1,
+  "baseline": "Xensonar_206",
+  "purpose": "Retirement ledger for stale red Carrier Integral checks. Historical scripts remain recoverable from earlier source artifacts; current checks are semantic/current-line oriented.",
+  "retired": [
+    {
+      "script": "xensonar:check-spectralforge-carrier-integral-smart-merge-contract",
+      "tool": "tools/check-spectralforge-carrier-integral-smart-merge-contract.mjs",
+      "reason": "Mixed active and archived machine assumptions; current semantic pieces live in focused sanity checks."
+    },
+    {
+      "script": "xensonar:check-spectralforge-carrier-integral-panel-ui",
+      "tool": "tools/check-spectralforge-carrier-integral-panel-ui.mjs",
+      "reason": "Contradicts current single-Antonia/core-six surface; expected archived Voll/Glatt/Dieter V2/Donatello active UI."
+    },
+    {
+      "script": "xensonar:check-spectralforge-carrier-integral-selection-persistence",
+      "tool": "tools/check-spectralforge-carrier-integral-selection-persistence.mjs",
+      "reason": "Valid persistence contract retained, but old check depended on broad integral/index barrel export."
+    },
+    {
+      "script": "xensonar:check-spectralforge-carrier-integral-param-runtime",
+      "tool": "tools/check-spectralforge-carrier-integral-param-runtime.mjs",
+      "reason": "Valid parameter bridge retained, but controls moved from CarrierIntegralPanel to MachineEditorSection."
+    },
+    {
+      "script": "xensonar:check-spectralforge-carrier-integral-menu-adapter",
+      "tool": "tools/check-spectralforge-carrier-integral-menu-adapter.mjs",
+      "reason": "Historical direct-body mapping no longer matches current core-six menu model."
+    },
+    {
+      "script": "xensonar:check-spectralforge-carrier-integral-library-bridge",
+      "tool": "tools/check-spectralforge-carrier-integral-library-bridge.mjs",
+      "reason": "Historical monolithic manager/library DOM markers after LibrarySection extraction."
+    },
+    {
+      "script": "xensonar:check-spectralforge-carrier-integral-library-audition",
+      "tool": "tools/check-spectralforge-carrier-integral-library-audition.mjs",
+      "reason": "Historical monolithic quiet-library/audition markup after section extraction."
+    },
+    {
+      "script": "xensonar:check-spectralforge-carrier-integral-raw-audition-route",
+      "tool": "tools/check-spectralforge-carrier-integral-raw-audition-route.mjs",
+      "reason": "Historical source-shape for audition dispatcher before route-boundary refactors."
+    },
+    {
+      "script": "xensonar:check-spectralforge-carrier-integral-synth-lab",
+      "tool": "tools/check-spectralforge-carrier-integral-synth-lab.mjs",
+      "reason": "Historical liquid-selection/Synth-Lab markup locations after MachineEditorSection extraction."
+    },
+    {
+      "script": "xensonar:check-spectralforge-carrier-integral-audition-override-contract",
+      "tool": "tools/check-spectralforge-carrier-integral-audition-override-contract.mjs",
+      "reason": "Historical audition override source-shape; stored-values selection workflow was simplified later."
+    },
+    {
+      "script": "xensonar:check-spectralforge-carrier-integral-microscope-ui",
+      "tool": "tools/check-spectralforge-carrier-integral-microscope-ui.mjs",
+      "reason": "Expected monolithic panel markers that now live in section boundaries."
+    },
+    {
+      "script": "xensonar:check-spectralforge-carrier-integral-elaborated-microscope-ui",
+      "tool": "tools/check-spectralforge-carrier-integral-elaborated-microscope-ui.mjs",
+      "reason": "Expected monolithic panel markers/controls after UI section extraction."
+    },
+    {
+      "script": "xensonar:check-spectralforge-carrier-integral-instrument-copy",
+      "tool": "tools/check-spectralforge-carrier-integral-instrument-copy.mjs",
+      "reason": "Historical copy snapshot; current control surface is sectioned and wording evolved."
+    },
+    {
+      "script": "xensonar:check-spectralforge-carrier-integral-pink-lane",
+      "tool": "tools/check-spectralforge-carrier-integral-pink-lane.mjs",
+      "reason": "Historical direct Melodic-panel integration; current handoff goes through shared MaterialImportDialog."
+    },
+    {
+      "script": "xensonar:check-carrier-integral-rendered-material-boundary",
+      "tool": "tools/check-carrier-integral-rendered-material-boundary.mjs",
+      "reason": "Historical barrel/registry ownership assumptions superseded by current loop-body/render-body boundaries."
+    },
+    {
+      "script": "xensonar:check-carrier-integral-transfer-sanity",
+      "tool": "tools/check-carrier-integral-transfer-sanity.mjs",
+      "reason": "Historical execution phase/source-shape assumptions superseded by transfer policy parity/current sanity."
+    },
+    {
+      "script": "xensonar:check-carrier-integral-879-ui-transfer-truth",
+      "tool": "tools/check-carrier-integral-879-ui-transfer-truth.mjs",
+      "reason": "Contradicts current line: Voll/Glatt are explicitly forbidden as active UI split."
+    },
+    {
+      "script": "xensonar:check-spectralforge-carrier-integral-verwalten-boundary",
+      "tool": "tools/check-spectralforge-carrier-integral-verwalten-boundary.mjs",
+      "reason": "Aggregate preflight accumulated removed helpers and old monolithic ownership."
+    },
+    {
+      "script": "xensonar:check-carrier-integral-send-target-boundary",
+      "tool": "tools/check-carrier-integral-send-target-boundary.mjs",
+      "reason": "Historical exact prose/Donatello-era assertions; current send-target contracts are covered by semantic sanity."
+    },
+    {
+      "script": "xensonar:check-spectralforge-carrier-integral-harmonic-xplore-lens",
+      "tool": "tools/check-spectralforge-carrier-integral-harmonic-xplore-lens.mjs",
+      "reason": "Expected HX presets to be spread into Synth Lab; current truth-split explicitly forbids that coupling."
+    },
+    {
+      "script": "xensonar:check-spectralforge-carrier-integral-harmonic-xplore-gestalt-binding",
+      "tool": "tools/check-spectralforge-carrier-integral-harmonic-xplore-gestalt-binding.mjs",
+      "reason": "Hard-coded historical voice-count marker; current engine deliberately scales detail/voice targets."
+    },
+    {
+      "script": "xensonar:check-spectralforge-carrier-integral-spectral-window-body",
+      "tool": "tools/check-spectralforge-carrier-integral-spectral-window-body.mjs",
+      "reason": "Expected archived dieter-window-body in active registry; current core-six keeps it archived."
+    },
+    {
+      "script": "xensonar:check-carrier-integral-playhead-and-harmonic-xplore-recovery",
+      "tool": "tools/check-carrier-integral-playhead-and-harmonic-xplore-recovery.mjs",
+      "reason": "Historical quick-audition deck source-shape no longer canonical."
+    },
+    {
+      "script": "xensonar:check-spectralforge-carrier-integral-transfer-execution-phases-boundary",
+      "tool": "tools/check-spectralforge-carrier-integral-transfer-execution-phases-boundary.mjs",
+      "reason": "Expected removed internal helper name; policy parity/current transfer contracts replace it."
+    },
+    {
+      "script": "xensonar:check-carrier-integral-transfer-debug-boundary",
+      "tool": "tools/check-carrier-integral-transfer-debug-boundary.mjs",
+      "reason": "Expected broad integral barrel export; debug boundary no longer needs barrel exposure."
+    },
+    {
+      "script": "xensonar:check-carrier-integral-preview-export-route-boundary",
+      "tool": "tools/check-carrier-integral-preview-export-route-boundary.mjs",
+      "reason": "Expected removed standalone preview dispatcher; preview-session/cache boundaries are canonical."
+    },
+    {
+      "script": "xensonar:check-carrier-integral-machine-capability-preview-contract",
+      "tool": "tools/check-carrier-integral-machine-capability-preview-contract.mjs",
+      "reason": "Expected old supportsPrewarmFor helper; current capability/preview model changed."
+    },
+    {
+      "script": "xensonar:check-donatello-dieter-render-body-boundary",
+      "tool": "tools/check-donatello-dieter-render-body-boundary.mjs",
+      "reason": "Historical active-render-body ownership/source-shape; current line archives these bodies from active core-six while retaining registry/cache compatibility."
+    },
+    {
+      "script": "xensonar:check-material-body-preview-cache-sanity",
+      "tool": "tools/check-material-body-preview-cache-sanity.mjs",
+      "reason": "Historical executor cache wiring source-shape; current rendered-preview-cache boundary plus archived render-body compatibility check supersedes it."
+    }
+  ],
+  "currentCanonical": [
+    "xensonar:sanity:spectralforge-carrier-integral",
+    "xensonar:check-spectralforge-carrier-core-six-surface-7743",
+    "xensonar:check-spectralforge-antonia-branch-a-single-surface-7775",
+    "xensonar:check-spectralforge-integral-workshop-selection-simplify",
+    "xensonar:check-spectralforge-carrier-integral-transfer-policy-parity-boundary",
+    "xensonar:sanity:carrier-melodic-import"
+  ]
+}

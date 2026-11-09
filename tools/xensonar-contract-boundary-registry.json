@@ -1,0 +1,912 @@
+{
+  "schemaVersion": 1,
+  "name": "xensonar-contract-boundary-registry",
+  "description": "Canonical registry for runtime-facade / pure-type-contract boundaries introduced during the maintenance refactor line. The checker validates type-only contracts, runtime ownership, and prevents pure type consumers from routing through runtime facades.",
+  "boundaries": [
+    {
+      "id": "room3-topology-ui-state",
+      "runtime": "src/features/xensonar/room3/useRoom3TopologyUiState.ts",
+      "contract": "src/features/xensonar/room3/room3TopologyUiStateTypes.ts",
+      "requiredContractExports": [
+        "ConstellationStateSnapshot",
+        "Room3InstallationSharedFieldFlags",
+        "Room3TopologyStateRefs",
+        "Room3TopologyUiState",
+        "TopologyAudioRefs"
+      ],
+      "requiredRuntimeValueExports": [
+        "useRoom3TopologyUiState"
+      ],
+      "requireCompatibilityReexport": true
+    },
+    {
+      "id": "canonical-forge-session",
+      "runtime": "src/features/l3lab/canonicalForge/session.ts",
+      "contract": "src/features/l3lab/canonicalForge/sessionTypes.ts",
+      "requiredContractExports": [
+        "CanonicalCarrierIntegralFieldClip",
+        "CanonicalCarrierIntegralFieldVoiceEvent",
+        "CanonicalDrumComputerState",
+        "CanonicalDrumViewportState",
+        "CanonicalDrumVoiceId",
+        "CanonicalForgeSessionState",
+        "CanonicalForgeWorkspace",
+        "CanonicalLogicView",
+        "CanonicalLoopComposerRepetitionModel",
+        "CanonicalLoopComposerState",
+        "CanonicalLoopComposerTuning",
+        "CanonicalLoopCompositionPreset",
+        "CanonicalLoopNoteEvent",
+        "CanonicalLoopNoteRenderSourceKind",
+        "CanonicalLoopPitchLine",
+        "CanonicalLoopPitchStep",
+        "CanonicalLoopTimeGuideMarker",
+        "CanonicalLoopTrack",
+        "CanonicalMaterialExportConfig",
+        "CanonicalMaterialRole",
+        "CanonicalSourcePreviewMode",
+        "CanonicalSynthMode",
+        "CanonicalTool",
+        "CanonicalToolSettings",
+        "CanonicalTransferMode",
+        "WaveformMix"
+      ],
+      "requiredRuntimeValueExports": [
+        "getCanonicalForgeSession",
+        "setCanonicalForgeSession"
+      ],
+      "requireCompatibilityReexport": true
+    },
+    {
+      "id": "resonance-panel-props",
+      "runtime": "src/features/xensonar/layout/useAppResonancePanelPropsBoundary.ts",
+      "contract": "src/features/xensonar/layout/useAppResonancePanelPropsBoundaryTypes.ts",
+      "requiredContractExports": [
+        "AppResonancePanelPropsBoundary",
+        "AppResonancePanelPropsBoundaryContractEntry",
+        "AppResonancePanelPropsBoundaryOutputContractMap",
+        "AppResonancePanelPropsBurstDiagnosticsInput",
+        "AppResonancePanelPropsCallsiteCleanupProbe",
+        "AppResonancePanelPropsMaterialTrackInput",
+        "AppResonancePanelPropsParticleSystemInput",
+        "AppResonancePanelPropsPerformanceCrisisInput",
+        "AppResonancePanelPropsResonanceControlInput",
+        "UseAppResonancePanelPropsBoundaryArgs"
+      ],
+      "requiredRuntimeValueExports": [
+        "APP_RESONANCE_PANEL_BRIDGE_READINESS",
+        "APP_RESONANCE_PANEL_PROPS_BOUNDARY_BUILD_ORDER",
+        "APP_RESONANCE_PANEL_PROPS_BOUNDARY_CONTRACT",
+        "APP_RESONANCE_PANEL_PROPS_CALLSITE_CLEANUP_PROBE",
+        "useAppResonancePanelPropsBoundary"
+      ],
+      "requireCompatibilityReexport": true
+    },
+    {
+      "id": "resonance-panel-boundary",
+      "runtime": "validation/contracts/xensonar/layout/appResonancePanelBoundaryIndex.ts",
+      "contract": "src/features/xensonar/layout/appResonancePanelBoundaryTypes.ts",
+      "requiredContractExports": [
+        "AppResonancePanelBoundaryInputContractMap",
+        "AppResonancePanelBoundaryInputGroupName",
+        "AppResonancePanelBoundaryKey",
+        "AppResonancePanelBoundaryManifestEntry",
+        "AppResonancePanelBoundaryOutputContractMap",
+        "AppResonancePanelBoundaryOutputContractName",
+        "AppResonancePanelBoundaryShapeAuditEntry"
+      ],
+      "requiredRuntimeValueExports": [
+        "APP_RESONANCE_PANEL_BOUNDARY_CONTRACT_CLEANUP_PROBE",
+        "APP_RESONANCE_PANEL_BOUNDARY_KEYS",
+        "APP_RESONANCE_PANEL_BOUNDARY_MANIFEST",
+        "APP_RESONANCE_PANEL_BOUNDARY_SHAPE_AUDIT"
+      ],
+      "requireCompatibilityReexport": true
+    },
+    {
+      "id": "resonance-screen-panel-runtime-args",
+      "runtime": "src/features/xensonar/layout/appResonanceScreenPanelRuntimeArgs.ts",
+      "contract": "src/features/xensonar/layout/appResonanceScreenPanelRuntimeArgsTypes.ts",
+      "requiredContractExports": [
+        "AppResonanceScreenCorePanelArgs",
+        "AppResonanceScreenCorePanelSourceArgs",
+        "AppResonanceScreenDynamicSoundPaletteSourceArgs",
+        "AppResonanceScreenDynamicSoundPaletteSourceKey",
+        "AppResonanceScreenPanelRuntimeArgs",
+        "AppResonanceScreenPanelRuntimeArgsInput",
+        "AppResonanceScreenSoundPaletteActionAdapterKey",
+        "AppResonanceScreenSoundPaletteActionArgs",
+        "AppResonanceScreenSoundPaletteActionSource",
+        "AppResonanceScreenSoundPaletteCatalogArgs",
+        "AppResonanceScreenSoundPaletteCatalogKey",
+        "AppResonanceScreenStageSourceArgs",
+        "AppResonanceScreenStageSourceKey",
+        "ResonancePanelRuntimeArgs",
+        "ResonanceScreenRuntimeArgs"
+      ],
+      "requiredRuntimeValueExports": [
+        "APP_RESONANCE_SCREEN_CORE_PANEL_SOURCE_GROUP_MAP",
+        "APP_RESONANCE_SCREEN_PANEL_RUNTIME_ARGS_BUILDER_EXTRACT",
+        "APP_RESONANCE_SCREEN_SOUND_PALETTE_ACTION_SOURCE_CLEANUP",
+        "APP_RESONANCE_SCREEN_SOUND_PALETTE_CATALOG_SOURCE_CLEANUP",
+        "buildAppResonanceScreenCorePanelArgs",
+        "buildAppResonanceScreenPanelRuntimeArgs",
+        "buildAppResonanceScreenSoundPaletteActionArgs",
+        "buildAppResonanceScreenSoundPaletteCatalogArgs"
+      ],
+      "requireCompatibilityReexport": true
+    },
+    {
+      "id": "room-scene-runtime-source",
+      "runtime": "src/features/xensonar/layout/appRoomSceneRuntimeSourceBuilder.ts",
+      "contract": "src/features/xensonar/layout/appRoomSceneRuntimeSourceTypes.ts",
+      "requiredContractExports": [
+        "AppRoomSceneInstallationDeviceSourceArgs",
+        "AppRoomSceneInstallationResidentSourceArgs",
+        "AppRoomSceneRuntimeContractSourceArgs",
+        "AppRoomSceneTopologyHandoffSourceArgs",
+        "AppRoomSceneTopologyRuntimeSourceArgs",
+        "AppRoomSceneViewportGameArenaSourceArgs",
+        "AppRoomSceneViewportSpectralForgeEntrySourceArgs",
+        "AppRoomSceneViewportXenpolarSourceArgs",
+        "BuildAppRoomSceneRuntimeSourceInput"
+      ],
+      "requiredRuntimeValueExports": [
+        "APP_ROOM_SCENE_RUNTIME_SOURCE_BUILDER_PROBE",
+        "buildAppRoomSceneRuntimeSource"
+      ],
+      "requireCompatibilityReexport": true
+    },
+    {
+      "id": "resonance-aux-panel-runtime-args",
+      "runtime": "src/features/xensonar/layout/appResonanceAuxPanelRuntimeArgs.ts",
+      "contract": "src/features/xensonar/layout/appResonanceAuxPanelRuntimeArgsTypes.ts",
+      "requiredContractExports": [
+        "AppAuxPanelBoundaryInputContractMap",
+        "AppAuxPanelBoundaryInputGroupName",
+        "AppAuxPanelBoundaryKey",
+        "AppAuxPanelBoundaryOutputContractMap",
+        "AppAuxPanelBoundaryOutputContractName",
+        "AppAuxPanelBoundarySourceContractMap",
+        "AppAuxPanelGrooveBassFlattenedContract",
+        "AppResonanceAuxPanelRuntimeArgs",
+        "BuildAppResonanceAuxPanelRuntimeArgsInput"
+      ],
+      "requiredRuntimeValueExports": [
+        "APP_AUX_PANEL_BOUNDARY_CONTRACT_CLEANUP_PROBE",
+        "APP_AUX_PANEL_BOUNDARY_KEYS",
+        "APP_RESONANCE_SCREEN_AUX_PANEL_SOURCE_CLEANUP",
+        "buildAppResonanceAuxPanelRuntimeArgs"
+      ],
+      "requireCompatibilityReexport": true
+    },
+    {
+      "id": "resonance-screen-stage-source",
+      "runtime": "src/features/xensonar/layout/appResonanceScreenStageSourceBuilder.ts",
+      "contract": "src/features/xensonar/layout/appResonanceScreenStageSourceTypes.ts",
+      "requiredContractExports": [
+        "AppResonanceScreenStageActivitySourceArgs",
+        "AppResonanceScreenStageAudioReadinessSourceArgs",
+        "AppResonanceScreenStageCanvasSourceArgs",
+        "AppResonanceScreenStageGridCursorSourceArgs",
+        "AppResonanceScreenStageInstallationGateSourceArgs",
+        "BuildAppResonanceScreenStageSourceInput"
+      ],
+      "requiredRuntimeValueExports": [
+        "APP_RESONANCE_SCREEN_STAGE_SOURCE_BUILDER_PROBE",
+        "buildAppResonanceScreenStageSource"
+      ],
+      "requireCompatibilityReexport": true
+    },
+    {
+      "id": "resonance-screen-sound-palette-source",
+      "runtime": "src/features/xensonar/layout/appResonanceScreenSoundPaletteSourceBuilder.ts",
+      "contract": "src/features/xensonar/layout/appResonanceScreenSoundPaletteSourceTypes.ts",
+      "requiredContractExports": [
+        "AppResonanceScreenSoundPaletteMetaMandalaSourceArgs",
+        "AppResonanceScreenSoundPaletteOvertoneControlSourceArgs",
+        "AppResonanceScreenSoundPalettePresetMenuSourceArgs",
+        "AppResonanceScreenSoundPaletteWaveControlSourceArgs",
+        "BuildAppResonanceScreenSoundPaletteSourceInput"
+      ],
+      "requiredRuntimeValueExports": [
+        "APP_RESONANCE_SCREEN_SOUND_PALETTE_SOURCE_BUILDER_PROBE",
+        "buildAppResonanceScreenSoundPaletteSource"
+      ],
+      "requireCompatibilityReexport": true
+    },
+    {
+      "id": "resonance-screen-runtime-source",
+      "runtime": "src/features/xensonar/layout/appResonanceScreenRuntimeSourceBuilder.ts",
+      "contract": "src/features/xensonar/layout/appResonanceScreenRuntimeSourceTypes.ts",
+      "requiredContractExports": [
+        "AppResonanceScreenRuntimeSourceArgs",
+        "AppResonanceScreenRuntimeSourceAuxPanelArgs",
+        "AppResonanceScreenRuntimeSourceChromeArgs",
+        "AppResonanceScreenRuntimeSourceCorePanelArgs",
+        "AppResonanceScreenRuntimeSourceSoundPaletteActionArgs",
+        "BuildAppResonanceScreenRuntimeSourceInput"
+      ],
+      "requiredRuntimeValueExports": [
+        "APP_RESONANCE_SCREEN_RUNTIME_SOURCE_BUILDER_PROBE",
+        "buildAppResonanceScreenRuntimeSource"
+      ],
+      "requireCompatibilityReexport": true
+    },
+    {
+      "id": "resonance-control-runtime",
+      "runtime": "src/features/xensonar/rooms/buildResonanceControlProps.ts",
+      "contract": "src/features/xensonar/rooms/resonanceControlRuntimeTypes.ts",
+      "requiredContractExports": [
+        "ResonanceControlRuntimePropKeys",
+        "ResonanceControlRuntimeProps",
+        "ResonanceControlRuntimeSpreadProps"
+      ],
+      "requiredRuntimeValueExports": [
+        "buildResonanceControlProps"
+      ],
+      "requireCompatibilityReexport": true
+    },
+    {
+      "id": "resonance-control-panel-boundary",
+      "runtime": "src/features/xensonar/rooms/buildAppResonanceControlPanelBoundary.ts",
+      "contract": "src/features/xensonar/rooms/appResonanceControlPanelBoundaryTypes.ts",
+      "requiredContractExports": [
+        "AppResonanceControlGridBoundary",
+        "AppResonanceControlMyzelInstallationBoundary",
+        "AppResonanceControlPanelBoundaryArgs",
+        "AppResonanceControlStateBoundary",
+        "AppResonanceControlToneActionsBoundary",
+        "AppResonanceControlTrafficRefsBoundary"
+      ],
+      "requiredRuntimeValueExports": [
+        "buildAppResonanceControlPanelBoundary"
+      ],
+      "requireCompatibilityReexport": true
+    },
+    {
+      "id": "l3lab-material-schema",
+      "runtime": "src/features/l3lab/materialSchema.ts",
+      "contract": "src/features/l3lab/materialSchemaTypes.ts",
+      "requiredContractExports": [
+        "XensonarMaterialAudioPayload",
+        "XensonarMaterialGuide",
+        "XensonarMaterialManifestV1",
+        "XensonarMaterialPackageV1",
+        "XensonarMaterialPitch",
+        "XensonarMaterialPlaybackHints",
+        "XensonarMaterialProvenance",
+        "XensonarMaterialRenderInfo",
+        "XensonarMaterialRole",
+        "XensonarMaterialTiming"
+      ],
+      "requiredRuntimeValueExports": [
+        "XENSONAR_MATERIAL_SCHEMA_VERSION"
+      ],
+      "requireCompatibilityReexport": true
+    },
+    {
+      "id": "canonical-project-library",
+      "runtime": "src/features/l3lab/canonicalForge/projectLibrary.ts",
+      "contract": "src/features/l3lab/canonicalForge/projectLibraryTypes.ts",
+      "requiredContractExports": [
+        "CanonicalForgeProjectMeta",
+        "CanonicalForgeProjectRecord",
+        "CanonicalForgeProjectSnapshot"
+      ],
+      "requiredRuntimeValueExports": [
+        "deleteCanonicalForgeProject",
+        "loadCanonicalForgeProject",
+        "renameCanonicalForgeProject",
+        "saveCanonicalForgeProject",
+        "useCanonicalForgeProjectLibrary"
+      ],
+      "requireCompatibilityReexport": true
+    },
+    {
+      "id": "parallel-effects-aux-panel",
+      "runtime": "src/features/xensonar/layout/buildAppParallelEffectsAuxPanelBoundary.ts",
+      "contract": "src/features/xensonar/layout/buildAppParallelEffectsAuxPanelBoundaryTypes.ts",
+      "requiredContractExports": [
+        "AppParallelEffectsAuxPanelBoundary",
+        "AppParallelEffectsAuxPanelBoundaryInput",
+        "AppParallelEffectsAuxPanelCompactBoundaryInput",
+        "AppParallelEffectsAuxPanelGroupedBoundaryInput",
+        "AppParallelEffectsCollectiveMemoryBoundary",
+        "AppParallelEffectsEnterHoldPsyFxBoundary",
+        "AppParallelEffectsLiveMasteringBoundary",
+        "AppParallelEffectsPsychedelicSpiralBoundary",
+        "AppParallelEffectsRuntimeMonitorBoundary",
+        "AppParallelEffectsSchwarmBoundary",
+        "AppParallelEffectsSharedFormatterBoundary"
+      ],
+      "requiredRuntimeValueExports": [
+        "APP_PARALLEL_EFFECTS_AUX_PANEL_BOUNDARY_CONTRACT",
+        "APP_PARALLEL_EFFECTS_AUX_PANEL_CALLSITE_CLEANUP_PROBE",
+        "buildAppParallelEffectsAuxPanelBoundary"
+      ],
+      "requireCompatibilityReexport": true
+    },
+    {
+      "id": "recording-take-aux-panel",
+      "runtime": "src/features/xensonar/layout/buildAppRecordingTakeAuxPanelBoundary.ts",
+      "contract": "src/features/xensonar/layout/buildAppRecordingTakeAuxPanelBoundaryTypes.ts",
+      "requiredContractExports": [
+        "AppRecordingTakeAuxPanelBoundary",
+        "AppRecordingTakeAuxPanelBoundaryGroupedInput",
+        "AppRecordingTakeAuxPanelBoundaryInput",
+        "AppRecordingTakeAuxPanelProps",
+        "AppRecordingTakeExportBoundary",
+        "AppRecordingTakeSessionBoundary",
+        "AppRecordingTakeSourceBoundary",
+        "AppRecordingTakeTimelineBoundary"
+      ],
+      "requiredRuntimeValueExports": [
+        "APP_RECORDING_TAKE_AUX_PANEL_BOUNDARY_CONTRACT",
+        "buildAppRecordingTakeAuxPanelBoundary"
+      ],
+      "requireCompatibilityReexport": true
+    },
+    {
+      "id": "resonance-chrome-presentation",
+      "runtime": "src/features/xensonar/layout/appResonanceChromePresentationSources.ts",
+      "contract": "src/features/xensonar/layout/appResonanceChromePresentationSourceTypes.ts",
+      "requiredContractExports": [
+        "BuildAppResonanceChromeGrooveStatusPresentationSourceInput",
+        "BuildAppResonanceChromeHeaderPresentationSourceInput",
+        "BuildAppResonanceChromeSideRailsPresentationSourceInput",
+        "BuildAppResonanceChromeStatusPresentationSourceInput",
+        "ChromeGrooveStatusSource",
+        "ChromeHeaderSource",
+        "ChromeSideRailsSource",
+        "ChromeStatusSource"
+      ],
+      "requiredRuntimeValueExports": [
+        "APP_RESONANCE_CHROME_PRESENTATION_SOURCES_PROBE",
+        "buildAppResonanceChromeGrooveStatusPresentationSource",
+        "buildAppResonanceChromeHeaderPresentationSource",
+        "buildAppResonanceChromeSideRailsPresentationSource",
+        "buildAppResonanceChromeStatusPresentationSource"
+      ],
+      "requireCompatibilityReexport": true
+    },
+    {
+      "id": "resonance-panel-callsite-source",
+      "runtime": "src/features/xensonar/layout/appResonancePanelCallsiteSources.ts",
+      "contract": "src/features/xensonar/layout/appResonancePanelCallsiteSourceTypes.ts",
+      "requiredContractExports": [
+        "AppPanelBurstDiagnosticsCallsiteSource",
+        "AppPanelBurstDiagnosticsExportContextSource",
+        "AppPanelMaterialTrackCallsiteSource",
+        "AppPanelParticleSystemCallsiteSource",
+        "AppPanelPerformanceCrisisCallsiteSource",
+        "AppPanelResonanceControlCallsiteSource",
+        "AppResonancePanelCallsiteSourcesArgs"
+      ],
+      "requiredRuntimeValueExports": [
+        "buildAppResonancePanelCallsiteSources"
+      ],
+      "requireCompatibilityReexport": true
+    },
+    {
+      "id": "resonance-chrome-runtime-boundary",
+      "runtime": "src/features/xensonar/layout/useAppResonanceChromeRuntimeBoundary.ts",
+      "contract": "src/features/xensonar/layout/useAppResonanceChromeRuntimeBoundaryTypes.ts",
+      "requiredContractExports": [
+        "AppResonanceChromeRuntimeBoundary",
+        "UseAppResonanceChromeRuntimeBoundaryArgs"
+      ],
+      "requiredRuntimeValueExports": [
+        "useAppResonanceChromeRuntimeBoundary"
+      ],
+      "requireCompatibilityReexport": true
+    },
+    {
+      "id": "resonance-chrome-runtime-args",
+      "runtime": "src/features/xensonar/layout/appResonanceChromeRuntimeArgs.ts",
+      "contract": "src/features/xensonar/layout/appResonanceChromeRuntimeArgsTypes.ts",
+      "requiredContractExports": [
+        "AppChromeRuntimeArgs",
+        "BuildAppResonanceChromeRuntimeArgsInput"
+      ],
+      "requiredRuntimeValueExports": [
+        "buildAppResonanceChromeRuntimeArgs"
+      ],
+      "requireCompatibilityReexport": true
+    },
+    {
+      "id": "room-scene-runtime-args",
+      "runtime": "src/features/xensonar/layout/appRoomSceneRuntimeArgsBuilder.ts",
+      "contract": "src/features/xensonar/layout/appRoomSceneRuntimeArgsBuilderTypes.ts",
+      "requiredContractExports": [
+        "AppRoomSceneRuntimeEntryArgs",
+        "BuildAppRoomSceneRuntimeArgsBuilderInput"
+      ],
+      "requiredRuntimeValueExports": [
+        "buildAppRoomSceneRuntimeArgsBuilder"
+      ],
+      "requireCompatibilityReexport": true
+    },
+    {
+      "id": "surface-frame-mount-source",
+      "runtime": "src/features/xensonar/layout/appSurfaceFrameMountSourceBuilder.ts",
+      "contract": "src/features/xensonar/layout/appSurfaceFrameMountSourceTypes.ts",
+      "requiredContractExports": [
+        "AppSurfaceFramePerformanceCrisisPanelMountSourceArgs",
+        "AppSurfaceFrameResonanceScreenMountSourceArgs",
+        "AppSurfaceFrameRoomGateSourceArgs",
+        "AppSurfaceFrameRoomSceneMountSourceArgs",
+        "BuildAppSurfaceFrameMountSourceInput"
+      ],
+      "requiredRuntimeValueExports": [
+        "APP_SURFACE_FRAME_MOUNT_SOURCE_BUILDER_PROBE",
+        "buildAppSurfaceFrameMountSource"
+      ],
+      "requireCompatibilityReexport": true
+    },
+    {
+      "id": "presentation-source-builder",
+      "runtime": "src/features/xensonar/layout/appPresentationSourceBuilders.ts",
+      "contract": "src/features/xensonar/layout/appPresentationSourceBuilderTypes.ts",
+      "requiredContractExports": [
+        "AppRoomSceneViewportPresentationSourceInput",
+        "BuildAppResonanceAuxPanelPresentationSourceInput",
+        "BuildAppResonanceScreenCorePanelsPresentationSourceInput",
+        "BuildAppResonanceScreenSoundPalettePresentationSourceInput",
+        "BuildAppResonanceScreenStagePresentationSourceInput",
+        "BuildAppResonanceSoundPaletteActionPresentationSourceInput",
+        "BuildAppRoomScenePresentationSourceInput",
+        "SpectralForgeEntryUploadState"
+      ],
+      "requiredRuntimeValueExports": [
+        "APP_PRESENTATION_SOURCE_BUILDERS_PROBE",
+        "buildAppResonanceAuxPanelPresentationSource",
+        "buildAppResonanceScreenCorePanelsPresentationSource",
+        "buildAppResonanceScreenSoundPalettePresentationSource",
+        "buildAppResonanceScreenStagePresentationSource",
+        "buildAppResonanceSoundPaletteActionSource",
+        "buildAppRoomScenePresentationSource",
+        "buildAppSpectralForgeEntrySceneSource"
+      ],
+      "requireCompatibilityReexport": true
+    },
+    {
+      "id": "installation-field-actions",
+      "runtime": "src/features/xensonar/rooms/installationFieldActions.ts",
+      "contract": "src/features/xensonar/rooms/installationFieldActionsTypes.ts",
+      "requiredContractExports": [
+        "BuildInstallationFieldActionsArgs",
+        "InstallationFieldActions"
+      ],
+      "requiredRuntimeValueExports": [
+        "buildInstallationFieldActions"
+      ],
+      "requireCompatibilityReexport": false
+    },
+    {
+      "id": "topology-support-bindings",
+      "runtime": "src/features/xensonar/rooms/topologyRoomSupportBindings.ts",
+      "contract": "src/features/xensonar/rooms/topologyRoomSupportBindingsTypes.ts",
+      "requiredContractExports": [
+        "BuildTopologyRoomSupportBindingsArgs"
+      ],
+      "requiredRuntimeValueExports": [
+        "buildTopologyRoomSupportBindings"
+      ],
+      "requireCompatibilityReexport": false
+    },
+    {
+      "id": "grid-library-package",
+      "runtime": "src/features/xensonar/domain/gridLibraryPackage.ts",
+      "contract": "src/features/xensonar/domain/gridLibraryPackageTypes.ts",
+      "requiredContractExports": [
+        "GridLibraryArchive",
+        "GridLibraryArchiveEntry",
+        "GridLibraryArchivePayload"
+      ],
+      "requiredRuntimeValueExports": [
+        "buildGridLibraryArchive",
+        "buildGridLibraryArchivePackageId",
+        "buildGridLibraryArchivePayload",
+        "buildGridLibraryContentHash",
+        "downloadGridLibraryArchive",
+        "parseGridLibraryArchive",
+        "parseGridLibraryArchivePayload",
+        "serializeGridLibraryArchive"
+      ],
+      "requireCompatibilityReexport": true
+    },
+    {
+      "id": "machine-rooms",
+      "runtime": "src/features/xensonar/architecture/machineRooms.ts",
+      "contract": "src/features/xensonar/architecture/machineRoomTypes.ts",
+      "requiredContractExports": [
+        "Forge2WorkspaceDefinition",
+        "Forge2WorkspaceId",
+        "MachineRoomDefinition",
+        "MachineRoomHandoffProfile",
+        "MachineRoomId",
+        "MyzelPostFxGroupDefinition",
+        "MyzelPostFxGroupId",
+        "SupportedMaterialRole",
+        "TransitionGuardId"
+      ],
+      "requiredRuntimeValueExports": [
+        "FORGE2_WORKSPACES",
+        "MACHINE_ROOMS",
+        "MYZEL_POST_FX_GROUPS",
+        "buildMachineRoomHandoffProfile",
+        "buildProducerRoadmapNotes",
+        "derivePreferredMyzelGroup",
+        "describeMaterialRoleHandoff",
+        "describeScopedMyzelRoute",
+        "getForge2WorkspaceDefinition",
+        "getForgeModeHint",
+        "getMachineRoomDefinition",
+        "getMyzelPostFxGroupDefinition",
+        "getTransitionGuidingSentence",
+        "summarizeForge2WorkspaceShift",
+        "summarizeHandoffProfile"
+      ],
+      "requireCompatibilityReexport": true
+    },
+    {
+      "id": "live-runtime-disposal-registry",
+      "runtime": "src/features/xensonar/runtime/liveRuntimeDisposalRegistry.ts",
+      "contract": "src/features/xensonar/runtime/liveRuntimeDisposalRegistryTypes.ts",
+      "requiredContractExports": [
+        "LiveRuntimeDisposalRegistrySnapshot",
+        "LiveRuntimeResourceHandle",
+        "LiveRuntimeResourceKind",
+        "LiveRuntimeResourceRegistration",
+        "LiveRuntimeResourceSnapshotEntry",
+        "LiveRuntimeResourceStatus",
+        "LiveRuntimeResourceSubsystem",
+        "LiveRuntimeResourceSummary"
+      ],
+      "requiredRuntimeValueExports": [
+        "markLiveRuntimeResourceFailed",
+        "markLiveRuntimeResourceReleased",
+        "markLiveRuntimeResourceUnknown",
+        "registerLiveRuntimeResource",
+        "resetLiveRuntimeDisposalRegistryForTests",
+        "snapshotLiveRuntimeDisposalRegistry"
+      ],
+      "requireCompatibilityReexport": true
+    },
+    {
+      "id": "myzel-synth-registry",
+      "runtime": "src/features/xensonar/myzelSynth/myzelSynthRegistry.ts",
+      "contract": "src/features/xensonar/myzelSynth/myzelSynthRegistryTypes.ts",
+      "requiredContractExports": [
+        "MyzelSynthAudioDeviceRefs",
+        "MyzelSynthDeviceDefinition",
+        "MyzelSynthDeviceId",
+        "MyzelSynthDeviceRole",
+        "MyzelSynthRegisteredAudioDevices",
+        "MyzelSynthRuntimePolicy",
+        "MyzelSynthRuntimeSnapshot"
+      ],
+      "requiredRuntimeValueExports": [
+        "MYZEL_SYNTH_DEVICE_REGISTRY",
+        "createDefaultMyzelSynthRuntimePolicy",
+        "describeMyzelSynthRuntime",
+        "ensureMyzelSynthRegisteredAudioDevices",
+        "listMyzelNodalDeviceLabels",
+        "normalizeMyzelSynthRuntimePolicy"
+      ],
+      "requireCompatibilityReexport": true
+    },
+    {
+      "id": "app-grid-mode-contracts",
+      "runtime": "src/features/xensonar/domain/appGridModeContracts.ts",
+      "contract": "src/features/xensonar/domain/appGridModeContractTypes.ts",
+      "requiredContractExports": [
+        "ChurchModeContractPatch",
+        "ChurchModeContractResult",
+        "GridModeContractPatch",
+        "GridModeContractResult",
+        "MetaPresetNexusContractInput",
+        "MetaPresetNexusContractResult",
+        "NexusSelectionContractState",
+        "NexusSelectionPatch",
+        "ParticleSystemContractPatch",
+        "ParticleSystemContractResult",
+        "ResolvedMetaPresetSelections"
+      ],
+      "requiredRuntimeValueExports": [
+        "buildChurchModeContract",
+        "buildGridModeContract",
+        "buildMetaPresetNexusContract",
+        "buildParticleSystemContract",
+        "buildResolvedSelectionPatch",
+        "resolveCompatibleMode",
+        "resolveMetaPresetSelections"
+      ],
+      "requireCompatibilityReexport": true
+    },
+    {
+      "id": "app-shell-frame-props",
+      "runtime": "src/features/xensonar/layout/appShellFrameProps.ts",
+      "contract": "src/features/xensonar/layout/appShellFramePropsTypes.ts",
+      "requiredContractExports": [
+        "AppMainContentProps",
+        "AppShellFrameProps",
+        "BuildAppShellFramePropsArgs"
+      ],
+      "requiredRuntimeValueExports": [
+        "buildAppShellFrameProps"
+      ],
+      "requireCompatibilityReexport": true
+    },
+    {
+      "id": "app-surface-runtime-coordinator",
+      "runtime": "src/features/xensonar/layout/appSurfaceRuntimeCoordinator.ts",
+      "contract": "src/features/xensonar/layout/appSurfaceRuntimeCoordinatorTypes.ts",
+      "requiredContractExports": [
+        "BuildAppResonanceScreenRuntimePropsArgs",
+        "BuildAppRoomSceneRuntimePropsArgs",
+        "BuildAppSurfaceRuntimePropsArgs"
+      ],
+      "requiredRuntimeValueExports": [
+        "buildAppResonanceScreenRuntimeProps",
+        "buildAppRoomSceneRuntimeProps",
+        "buildAppSurfaceRuntimeProps"
+      ],
+      "requireCompatibilityReexport": true
+    },
+    {
+      "id": "surface-frame-runtime-boundary",
+      "runtime": "src/features/xensonar/layout/useAppSurfaceFrameRuntimeBoundary.ts",
+      "contract": "src/features/xensonar/layout/useAppSurfaceFrameRuntimeBoundaryTypes.ts",
+      "requiredContractExports": [
+        "AppSurfaceFrameRuntimeBoundary",
+        "UseAppSurfaceFrameRuntimeBoundaryArgs"
+      ],
+      "requiredRuntimeValueExports": [
+        "useAppSurfaceFrameRuntimeBoundary"
+      ],
+      "requireCompatibilityReexport": true
+    },
+    {
+      "id": "resonance-screen-runtime-assembly",
+      "runtime": "src/features/xensonar/layout/useAppResonanceScreenRuntimeAssembly.ts",
+      "contract": "src/features/xensonar/layout/useAppResonanceScreenRuntimeAssemblyTypes.ts",
+      "requiredContractExports": [
+        "AppResonanceScreenRuntimeAssemblyCorePanelsInput",
+        "UseAppResonanceScreenRuntimeAssemblyArgs"
+      ],
+      "requiredRuntimeValueExports": [
+        "APP_RESONANCE_SCREEN_RUNTIME_ASSEMBLY_EXTRACT",
+        "useAppResonanceScreenRuntimeAssembly"
+      ],
+      "requireCompatibilityReexport": true
+    },
+    {
+      "id": "particle-system-panel-boundary",
+      "runtime": "src/features/xensonar/rooms/buildAppParticleSystemPanelBoundary.ts",
+      "contract": "src/features/xensonar/rooms/buildAppParticleSystemPanelBoundaryTypes.ts",
+      "requiredContractExports": [
+        "AppParticleSystemAgentActionBoundary",
+        "AppParticleSystemPanelBoundaryArgs",
+        "AppParticleSystemPresetCatalogSourceBoundary",
+        "AppParticleSystemSelectionBoundary"
+      ],
+      "requiredRuntimeValueExports": [
+        "buildAppParticleSystemPanelBoundary"
+      ],
+      "requireCompatibilityReexport": true
+    },
+    {
+      "id": "recording-marker-workflow",
+      "runtime": "src/features/xensonar/recording/recordingMarkerWorkflow.ts",
+      "contract": "src/features/xensonar/recording/recordingMarkerWorkflowTypes.ts",
+      "requiredContractExports": [
+        "LogoMarkerPulse",
+        "SideMarkerPulse"
+      ],
+      "requiredRuntimeValueExports": [
+        "addRecordingMarkerWorkflow",
+        "triggerLogoMarkerPulse",
+        "triggerSideMarkerPulse"
+      ],
+      "requireCompatibilityReexport": true
+    },
+    {
+      "id": "drum-config-ui-helpers",
+      "runtime": "src/features/xensonar/drumConfigUiHelpers.ts",
+      "contract": "src/features/xensonar/drumConfigUiHelpersTypes.ts",
+      "requiredContractExports": [
+        "DrumConfigMode",
+        "DrumConfigPatch"
+      ],
+      "requiredRuntimeValueExports": [
+        "buildDrumConfigSelectionPatch",
+        "resolveDeletedDrumConfigFallback",
+        "resolveDrumConfigModeFallback",
+        "resolveSelectedExportedDrumConfig"
+      ],
+      "requireCompatibilityReexport": true
+    },
+    {
+      "id": "drum-pattern-playlist",
+      "runtime": "src/features/xensonar/drumPatternPlaylist.ts",
+      "contract": "src/features/xensonar/drumPatternPlaylistTypes.ts",
+      "requiredContractExports": [
+        "DrumPlaylistConfigOption",
+        "DrumPlaylistEntry",
+        "DrumPlaylistPatternOption",
+        "DrumPlaylistState"
+      ],
+      "requiredRuntimeValueExports": [
+        "buildDefaultDrumPlaylistEntries",
+        "createExportedDrumPlaylistId",
+        "createPresetDrumPlaylistId",
+        "getActiveDrumPlaylistId",
+        "hideDrumPlaylistEntry",
+        "moveDrumPlaylistEntry",
+        "moveDrumPlaylistEntryFromVisibleOrder",
+        "patchForDrumPlaylistEntry",
+        "readDrumPlaylistState",
+        "resolveActiveDrumPlaylistEntry",
+        "resolveDrumPlaylistEntries",
+        "resolveNextDrumPlaylistPatch",
+        "updateDrumPlaylistAlias",
+        "writeDrumPlaylistState"
+      ],
+      "requireCompatibilityReexport": true
+    },
+    {
+      "id": "meta-presets",
+      "runtime": "src/features/xensonar/domain/metaPresets.ts",
+      "contract": "src/features/xensonar/domain/metaPresetTypes.ts",
+      "requiredContractExports": [
+        "MetaPresetDefinition",
+        "MetaPresetId"
+      ],
+      "requiredRuntimeValueExports": [
+        "DEFAULT_META_PRESET_WHEEL_SLOT_IDS",
+        "META_PRESETS",
+        "createMetaOvertoneMix"
+      ],
+      "requireCompatibilityReexport": true
+    },
+    {
+      "id": "drum-config-library",
+      "runtime": "src/features/xensonar/drumConfigLibrary.ts",
+      "contract": "src/features/xensonar/drumConfigLibraryTypes.ts",
+      "requiredContractExports": [
+        "DrumConfigEntry",
+        "DrumConfigLibraryArchiveImportResult",
+        "DrumConfigLibraryArchivePayload"
+      ],
+      "requiredRuntimeValueExports": [
+        "applyDrumConfigLibraryArchivePayload",
+        "deleteDrumConfigEntry",
+        "drumMatrixToConfigEntry",
+        "exportDrumConfigLibraryArchivePayload",
+        "getDrumConfigLibraryState",
+        "listDrumConfigLibraryEntries",
+        "parseDrumConfigLibraryArchivePayload",
+        "registerDrumConfig",
+        "registerDrumConfigFromMatrix",
+        "subscribeDrumConfigLibrary",
+        "updateDrumConfigEntry",
+        "useDrumConfigLibrary"
+      ],
+      "requireCompatibilityReexport": true
+    },
+    {
+      "id": "drum-pattern-machine",
+      "runtime": "src/features/xensonar/drumPatternMachine.ts",
+      "contract": "src/features/xensonar/drumPatternMachineTypes.ts",
+      "requiredContractExports": [
+        "DrumLaneId",
+        "DrumPatternMatrix",
+        "DrumStepTrigger",
+        "DrumTriggerTiming"
+      ],
+      "requiredRuntimeValueExports": [
+        "DEFAULT_RHYTHMFORGE_DRUM_DESCRIPTORS",
+        "DRUM_LANE_ORDER",
+        "buildStaticDrumPatternMatrix",
+        "buildVisibleDrumPatternMatrix",
+        "createEmptyDrumPatternMatrix",
+        "freezeRhythmForgeDrumPatternMatrix",
+        "getRhythmForgeDrumFlavor",
+        "getStaticDrumStepTriggers",
+        "isRhythmForgeDrumPattern"
+      ],
+      "requireCompatibilityReexport": true
+    },
+    {
+      "id": "drum-kit-routing",
+      "runtime": "src/features/xensonar/groove/drumKitRouting.ts",
+      "contract": "src/features/xensonar/groove/drumKitRoutingTypes.ts",
+      "requiredContractExports": [
+        "DrumLaneKitOverrides",
+        "DrumSoundPalette"
+      ],
+      "requiredRuntimeValueExports": [
+        "DEFAULT_DRUM_LANE_KIT_OVERRIDES",
+        "DRUM_LANE_LABELS",
+        "buildDrumSoundPalette",
+        "isDrumKit",
+        "mergeDrumLaneKitOverrides",
+        "resolveDrumLaneKit",
+        "resolveDrumVoiceKit",
+        "sanitizeDrumKit",
+        "sanitizeDrumLaneKitOverrides",
+        "withDrumLaneKitOverride"
+      ],
+      "requireCompatibilityReexport": true
+    },
+    {
+      "id": "family-room-manifest",
+      "runtime": "src/features/xensonar/rooms/familyRoomManifest.ts",
+      "contract": "src/features/xensonar/rooms/familyRoomManifestTypes.ts",
+      "requiredContractExports": [
+        "FamilyApp",
+        "FamilyCard"
+      ],
+      "requiredRuntimeValueExports": [
+        "FAMILY_CARDS"
+      ],
+      "requireCompatibilityReexport": true
+    },
+    {
+      "id": "resonance-panel-coordinator",
+      "runtime": "src/features/xensonar/rooms/resonancePanelCoordinator.ts",
+      "contract": "src/features/xensonar/rooms/resonancePanelCoordinatorTypes.ts",
+      "requiredContractExports": [
+        "BuildResonancePanelSuitePropsArgs",
+        "ResonancePanelSuiteProps"
+      ],
+      "requiredRuntimeValueExports": [
+        "buildResonancePanelSuiteProps"
+      ],
+      "requireCompatibilityReexport": true
+    },
+    {
+      "id": "workspace-package-activation-report",
+      "runtime": "src/features/xensonar/material/workspacePackageActivationReport.ts",
+      "contract": "src/features/xensonar/material/workspacePackageActivationReportTypes.ts",
+      "requiredContractExports": [
+        "WorkspacePackageActivationReport",
+        "WorkspacePackageActivationState"
+      ],
+      "requiredRuntimeValueExports": [
+        "buildWorkspacePackageActivationReport"
+      ],
+      "requireCompatibilityReexport": true
+    },
+    {
+      "id": "material-track-panel-boundary",
+      "runtime": "src/features/xensonar/groove/buildAppMaterialTrackPanelBoundary.ts",
+      "contract": "src/features/xensonar/groove/buildAppMaterialTrackPanelBoundaryTypes.ts",
+      "requiredContractExports": [
+        "AppMaterialTrackPanelBaseBoundaryArgs",
+        "AppMaterialTrackPanelBoundaryArgs",
+        "AppMaterialTrackPanelCompactBoundaryArgs",
+        "AppMaterialTrackPanelGroupedBoundaryArgs",
+        "AppMaterialTrackPreviewBoundaryArgs",
+        "AppMaterialTrackPreviewSourceBoundaryArgs"
+      ],
+      "requiredRuntimeValueExports": [
+        "APP_MATERIAL_TRACK_PANEL_CALLSITE_CLEANUP_CONTRACT",
+        "buildAppBassPreviewContext",
+        "buildAppMaterialTrackPanelBoundary"
+      ],
+      "requireCompatibilityReexport": true
+    }
+  ],
+  "globalAssertions": {
+    "forbiddenText": [
+      {
+        "file": "src/features/xensonar/layout/appResonancePanelCallsiteSourceTypes.ts",
+        "text": "UseAppResonancePanelPropsBoundaryArgs",
+        "reason": "stale unused type dependency removed in patch 200"
+      }
+    ]
+  }
+}

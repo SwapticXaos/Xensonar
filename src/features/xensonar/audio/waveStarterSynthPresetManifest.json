@@ -1,0 +1,375 @@
+{
+  "version": "wave-starter-synth-preset-v1",
+  "presets": {
+    "glass_ping": [
+      {
+        "freqMul": 1,
+        "delay": 0,
+        "duration": 0.4,
+        "waveform": "triangle",
+        "gainMul": 1,
+        "resonance": 2,
+        "cutoffHz": 1800,
+        "prominence": 1
+      }
+    ],
+    "soft_pluck": [
+      {
+        "freqMul": 1,
+        "delay": 0,
+        "duration": 0.3,
+        "waveform": "sine",
+        "gainMul": 1,
+        "resonance": 1,
+        "cutoffHz": 1200,
+        "prominence": 1
+      }
+    ],
+    "bell_tone": [
+      {
+        "freqMul": 1,
+        "delay": 0,
+        "duration": 0.5,
+        "waveform": "sine",
+        "gainMul": 0.8,
+        "resonance": 1,
+        "cutoffHz": 2400,
+        "prominence": 1
+      },
+      {
+        "freqMul": 2,
+        "delay": 0.02,
+        "duration": 0.3,
+        "waveform": "triangle",
+        "gainMul": 0.4,
+        "resonance": 1,
+        "cutoffHz": 2400,
+        "prominence": 0.56
+      }
+    ],
+    "clean_pluck": [
+      {
+        "freqMul": 1,
+        "delay": 0,
+        "duration": 0.25,
+        "waveform": "sawtooth",
+        "gainMul": 0.7,
+        "resonance": 3,
+        "cutoffHz": 800,
+        "prominence": 1
+      }
+    ],
+    "deep_sub": [
+      {
+        "freqMul": 0.5,
+        "delay": 0,
+        "duration": 0.55,
+        "waveform": "sine",
+        "gainMul": 0.9,
+        "resonance": 1.4,
+        "cutoffHz": 620,
+        "prominence": 1
+      },
+      {
+        "freqMul": 0.75,
+        "delay": 0.03,
+        "duration": 0.45,
+        "waveform": "triangle",
+        "gainMul": 0.35,
+        "resonance": 1.2,
+        "cutoffHz": 900,
+        "prominence": 0.6
+      }
+    ],
+    "vibrato_glass": [
+      {
+        "freqMul": 1,
+        "delay": 0,
+        "duration": 0.52,
+        "waveform": "triangle",
+        "gainMul": 0.78,
+        "resonance": 1.8,
+        "cutoffHz": 2100,
+        "prominence": 1
+      },
+      {
+        "freqMul": 2.01,
+        "delay": 0.018,
+        "duration": 0.46,
+        "waveform": "sine",
+        "gainMul": 0.34,
+        "resonance": 1.1,
+        "cutoffHz": 2600,
+        "prominence": 0.52
+      },
+      {
+        "freqMul": 0.998,
+        "delay": 0.028,
+        "duration": 0.62,
+        "waveform": "sine",
+        "gainMul": 0.22,
+        "resonance": 1.0,
+        "cutoffHz": 1700,
+        "prominence": 0.34
+      }
+    ],
+    "tape_halo": [
+      {
+        "freqMul": 1,
+        "delay": 0,
+        "duration": 0.7,
+        "waveform": "triangle",
+        "gainMul": 0.72,
+        "resonance": 1.6,
+        "cutoffHz": 1400,
+        "prominence": 1
+      },
+      {
+        "freqMul": 1.5,
+        "delay": 0.03,
+        "duration": 0.56,
+        "waveform": "sine",
+        "gainMul": 0.32,
+        "resonance": 1.0,
+        "cutoffHz": 1800,
+        "prominence": 0.54
+      },
+      {
+        "freqMul": 0.5,
+        "delay": 0.05,
+        "duration": 0.64,
+        "waveform": "sine",
+        "gainMul": 0.24,
+        "resonance": 0.9,
+        "cutoffHz": 900,
+        "prominence": 0.3
+      }
+    ],
+    "membrane_thump": [
+      {
+        "freqMul": 0.5,
+        "delay": 0,
+        "duration": 0.24,
+        "waveform": "triangle",
+        "gainMul": 0.95,
+        "resonance": 1.2,
+        "cutoffHz": 520,
+        "prominence": 1
+      },
+      {
+        "freqMul": 0.98,
+        "delay": 0.01,
+        "duration": 0.16,
+        "waveform": "sine",
+        "gainMul": 0.24,
+        "resonance": 1,
+        "cutoffHz": 760,
+        "prominence": 0.42
+      }
+    ],
+    "reed_sigh": [
+      {
+        "freqMul": 1,
+        "delay": 0,
+        "duration": 0.28,
+        "waveform": "square",
+        "gainMul": 0.7,
+        "resonance": 2.4,
+        "cutoffHz": 1200,
+        "prominence": 1
+      },
+      {
+        "freqMul": 1.5,
+        "delay": 0.018,
+        "duration": 0.32,
+        "waveform": "triangle",
+        "gainMul": 0.24,
+        "resonance": 2.8,
+        "cutoffHz": 1700,
+        "prominence": 0.46
+      }
+    ],
+    "spark_chime": [
+      {
+        "freqMul": 1,
+        "delay": 0,
+        "duration": 0.18,
+        "waveform": "sine",
+        "gainMul": 0.72,
+        "resonance": 3.6,
+        "cutoffHz": 3000,
+        "prominence": 1
+      },
+      {
+        "freqMul": 2.48,
+        "delay": 0.01,
+        "duration": 0.12,
+        "waveform": "triangle",
+        "gainMul": 0.22,
+        "resonance": 2.2,
+        "cutoffHz": 4200,
+        "prominence": 0.34
+      },
+      {
+        "freqMul": 3.72,
+        "delay": 0.016,
+        "duration": 0.1,
+        "waveform": "sine",
+        "gainMul": 0.12,
+        "resonance": 1.6,
+        "cutoffHz": 5200,
+        "prominence": 0.18
+      }
+    ],
+    "bowed_glass": [
+      {
+        "freqMul": 1,
+        "delay": 0,
+        "duration": 0.82,
+        "waveform": "triangle",
+        "gainMul": 0.66,
+        "resonance": 1.8,
+        "cutoffHz": 2000,
+        "prominence": 1
+      },
+      {
+        "freqMul": 2.01,
+        "delay": 0.06,
+        "duration": 0.74,
+        "waveform": "sine",
+        "gainMul": 0.24,
+        "resonance": 1.1,
+        "cutoffHz": 2800,
+        "prominence": 0.42
+      },
+      {
+        "freqMul": 0.5,
+        "delay": 0.03,
+        "duration": 0.64,
+        "waveform": "sine",
+        "gainMul": 0.14,
+        "resonance": 0.9,
+        "cutoffHz": 1200,
+        "prominence": 0.24
+      }
+    ],
+    "kalimba_tine": [
+      {
+        "freqMul": 1,
+        "delay": 0,
+        "duration": 0.24,
+        "waveform": "triangle",
+        "gainMul": 0.76,
+        "resonance": 2.2,
+        "cutoffHz": 2200,
+        "prominence": 1
+      },
+      {
+        "freqMul": 2.04,
+        "delay": 0.012,
+        "duration": 0.16,
+        "waveform": "sine",
+        "gainMul": 0.2,
+        "resonance": 1.2,
+        "cutoffHz": 3200,
+        "prominence": 0.34
+      }
+    ],
+    "gong_wash": [
+      {
+        "freqMul": 1,
+        "delay": 0,
+        "duration": 0.64,
+        "waveform": "sine",
+        "gainMul": 0.72,
+        "resonance": 1.6,
+        "cutoffHz": 1600,
+        "prominence": 1
+      },
+      {
+        "freqMul": 1.5,
+        "delay": 0.02,
+        "duration": 0.52,
+        "waveform": "triangle",
+        "gainMul": 0.24,
+        "resonance": 1.1,
+        "cutoffHz": 2200,
+        "prominence": 0.46
+      },
+      {
+        "freqMul": 2.48,
+        "delay": 0.06,
+        "duration": 0.4,
+        "waveform": "sine",
+        "gainMul": 0.14,
+        "resonance": 1.0,
+        "cutoffHz": 2600,
+        "prominence": 0.24
+      }
+    ],
+    "chime_spray": [
+      {
+        "freqMul": 1,
+        "delay": 0,
+        "duration": 0.2,
+        "waveform": "sine",
+        "gainMul": 0.68,
+        "resonance": 3.8,
+        "cutoffHz": 3400,
+        "prominence": 1
+      },
+      {
+        "freqMul": 2.62,
+        "delay": 0.01,
+        "duration": 0.12,
+        "waveform": "triangle",
+        "gainMul": 0.2,
+        "resonance": 2.2,
+        "cutoffHz": 4600,
+        "prominence": 0.34
+      },
+      {
+        "freqMul": 3.94,
+        "delay": 0.016,
+        "duration": 0.1,
+        "waveform": "sine",
+        "gainMul": 0.12,
+        "resonance": 1.8,
+        "cutoffHz": 5400,
+        "prominence": 0.18
+      }
+    ],
+    "dust_pulse": [
+      {
+        "freqMul": 1,
+        "delay": 0,
+        "duration": 0.14,
+        "waveform": "triangle",
+        "gainMul": 0.56,
+        "resonance": 3.4,
+        "cutoffHz": 2600,
+        "prominence": 1
+      },
+      {
+        "freqMul": 2.2,
+        "delay": 0.004,
+        "duration": 0.09,
+        "waveform": "sine",
+        "gainMul": 0.14,
+        "resonance": 2.2,
+        "cutoffHz": 4200,
+        "prominence": 0.24
+      },
+      {
+        "freqMul": 3.36,
+        "delay": 0.012,
+        "duration": 0.08,
+        "waveform": "sine",
+        "gainMul": 0.08,
+        "resonance": 1.6,
+        "cutoffHz": 5200,
+        "prominence": 0.12
+      }
+    ]
+  }
+}

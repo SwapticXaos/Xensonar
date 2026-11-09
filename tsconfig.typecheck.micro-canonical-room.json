@@ -1,0 +1,16 @@
+{
+  "extends": "./tsconfig.typecheck.browser.json",
+  "compilerOptions": {
+    "noEmit": true
+  },
+  "include": [
+    "src/features/l3lab/canonicalForge/CanonicalForgeRoom.tsx",
+    "src/features/l3lab/canonicalForge/useCanonical*.ts",
+    "src/features/l3lab/canonicalForge/*Panel.tsx",
+    "src/features/l3lab/contracts/**/*",
+    "src/features/l3lab/materialIntake/**/*",
+    "src/core/**/*",
+    "src/utils/**/*",
+    "src/vite-env.d.ts"
+  ]
+}

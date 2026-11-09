@@ -1,0 +1,120 @@
+{
+  "micro": [
+    {
+      "name": "xensonar-architecture",
+      "project": "tsconfig.typecheck.micro-xensonar-architecture.json"
+    },
+    {
+      "name": "xensonar-audio",
+      "project": "tsconfig.typecheck.micro-xensonar-audio.json"
+    },
+    {
+      "name": "xensonar-domain",
+      "project": "tsconfig.typecheck.micro-xensonar-domain.json"
+    },
+    {
+      "name": "xensonar-material",
+      "project": "tsconfig.typecheck.micro-xensonar-material.json"
+    },
+    {
+      "name": "xensonar-recording",
+      "project": "tsconfig.typecheck.micro-xensonar-recording.json"
+    },
+    {
+      "name": "xensonar-root-follow",
+      "project": "tsconfig.typecheck.micro-xensonar-root-follow.json"
+    },
+    {
+      "name": "xensonar-layout",
+      "project": "tsconfig.typecheck.micro-xensonar-layout.json"
+    },
+    {
+      "name": "xensonar-rooms-common",
+      "project": "tsconfig.typecheck.micro-xensonar-rooms-common.json"
+    },
+    {
+      "name": "xensonar-rooms-panels",
+      "project": "tsconfig.typecheck.micro-xensonar-rooms-panels.json"
+    },
+    {
+      "name": "xensonar-family-assets",
+      "project": "tsconfig.typecheck.micro-xensonar-family-assets.json"
+    },
+    {
+      "name": "xensonar-family-refactor",
+      "project": "tsconfig.typecheck.micro-xensonar-family-refactor.json"
+    },
+    {
+      "name": "l3lab-contracts-adapters",
+      "project": "tsconfig.typecheck.micro-l3lab-contracts-adapters.json"
+    },
+    {
+      "name": "l3lab-material-intake",
+      "project": "tsconfig.typecheck.micro-l3lab-material-intake.json"
+    },
+    {
+      "name": "l3lab-spectral-types-model",
+      "project": "tsconfig.typecheck.micro-l3lab-spectral-types-model.json"
+    },
+    {
+      "name": "l3lab-spectral-donor-carrier",
+      "project": "tsconfig.typecheck.micro-l3lab-spectral-donor-carrier.json"
+    },
+    {
+      "name": "l3lab-spectral-body-embodiment",
+      "project": "tsconfig.typecheck.micro-l3lab-spectral-body-embodiment.json"
+    },
+    {
+      "name": "l3lab-spectral-audio",
+      "project": "tsconfig.typecheck.micro-l3lab-spectral-audio.json"
+    },
+    {
+      "name": "l3lab-spectral-state",
+      "project": "tsconfig.typecheck.micro-l3lab-spectral-state.json"
+    },
+    {
+      "name": "l3lab-spectral-components",
+      "project": "tsconfig.typecheck.micro-l3lab-spectral-components.json"
+    },
+    {
+      "name": "l3lab-spectral-forge3-tools",
+      "project": "tsconfig.typecheck.micro-l3lab-spectral-forge3-tools.json"
+    },
+    {
+      "name": "canonical-domain-grid",
+      "project": "tsconfig.typecheck.micro-canonical-domain-grid.json"
+    },
+    {
+      "name": "canonical-actions",
+      "project": "tsconfig.typecheck.micro-canonical-actions.json"
+    },
+    {
+      "name": "canonical-hooks",
+      "project": "tsconfig.typecheck.micro-canonical-hooks.json"
+    },
+    {
+      "name": "canonical-preview",
+      "project": "tsconfig.typecheck.micro-canonical-preview.json"
+    },
+    {
+      "name": "canonical-panels",
+      "project": "tsconfig.typecheck.micro-canonical-panels.json"
+    },
+    {
+      "name": "canonical-session-persistence",
+      "project": "tsconfig.typecheck.micro-canonical-session-persistence.json"
+    },
+    {
+      "name": "canonical-room",
+      "project": "tsconfig.typecheck.micro-canonical-room.json"
+    },
+    {
+      "name": "external-microto",
+      "project": "tsconfig.typecheck.micro-external-microto.json"
+    },
+    {
+      "name": "entry-app",
+      "project": "tsconfig.typecheck.micro-entry-app.json"
+    }
+  ]
+}

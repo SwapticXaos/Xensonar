@@ -1,0 +1,15 @@
+{
+  "extends": "./tsconfig.typecheck.browser.json",
+  "compilerOptions": {
+    "noEmit": true
+  },
+  "include": [
+    "src/features/xensonar/rooms/CommonsRoom.tsx",
+    "src/components/ResonanceCommonsRoom.tsx",
+    "src/features/xensonar/rooms/auxiliaryRoomProps.ts",
+    "src/external/microto/features/commons/**/*",
+    "src/core/**/*",
+    "src/utils/**/*",
+    "src/vite-env.d.ts"
+  ]
+}

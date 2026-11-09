@@ -1,0 +1,11 @@
+import fs from 'node:fs';
+const cache = fs.readFileSync('src/features/xensonar/audio/waveStarterDriveCurveCache.ts','utf8');
+const graph = fs.readFileSync('src/features/xensonar/audio/waveStarterGradientToneGraph.ts','utf8');
+const must = (c,m) => { if(!c) throw new Error(m); };
+must(cache.includes('MAX_WAVE_STARTER_DRIVE_CURVES = 8'), 'cache must remain bounded to 8 entries');
+must(cache.includes('Object.is(entry.amount, amount)'), 'cache must use exact-value matching');
+must(cache.includes('driveCurveCache.shift()'), 'cache must evict old entries');
+must(graph.includes('getWaveStarterDriveCurve(waveGradient.exciterDrive)'), 'exciter curve must use cache');
+must(graph.includes('getWaveStarterDriveCurve(waveGradient.jawariDrive)'), 'jawari curve must use cache');
+must(!graph.includes('makeDriveCurve('), 'gradient graph must not generate drive curves directly');
+console.log('PASS wave-starter-drive-curve-cache');

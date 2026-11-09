@@ -1,0 +1,17 @@
+import fs from 'node:fs';
+import path from 'node:path';
+const root = process.cwd();
+const read = (file) => fs.readFileSync(path.join(root, file), 'utf8');
+const fail = (message) => { console.error(`[stable-music-lane-contracts] FAIL: ${message}`); process.exit(1); };
+const requireText = (file, marker) => { if (!read(file).includes(marker)) fail(`${file} missing marker: ${marker}`); };
+const pkg = JSON.parse(read('package.json'));
+if (pkg.version !== '3.2.91.7.2.3') fail(`package version must be 3.2.91.7.2.3, got ${pkg.version}`);
+requireText('src/features/xensonar/audio/stableMusicLaneContracts.ts', "export const STABLE_MUSIC_LANE_IDS = ['beat', 'bass', 'material', 'rootFollow'] as const");
+requireText('src/features/xensonar/audio/stableMusicLaneContracts.ts', "intent: 'rfl-amplified-wavestarter-burst-threshold-decoupling'");
+requireText('src/features/xensonar/audio/stableMusicLaneContracts.ts', "mode: 'shadow' | 'beat-audible' | 'speaker-probe'");
+requireText('src/features/xensonar/audio/stableMusicLaneContracts.ts', 'beatAudioRunning: boolean');
+requireText('src/features/xensonar/audio/stableMusicLaneContracts.ts', "freezeIfControlStale: true");
+requireText('src/features/xensonar/audio/stableMusicLaneWorkletProcessorSource.ts', "registerProcessor('xensonar-stable-music-lane-worklet'");
+requireText('src/features/xensonar/audio/stableMusicLaneSnapshotBuilders.ts', 'buildStableMusicLaneSnapshot');
+requireText('src/features/xensonar/audio/useStableMusicLaneRuntimeBoundary.ts', 'useStableMusicLaneRuntimeBoundary');
+console.log('[stable-music-lane-contracts] PASS stable lanes are beat/bass/material/rootFollow only');

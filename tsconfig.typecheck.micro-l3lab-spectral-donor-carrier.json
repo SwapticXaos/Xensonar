@@ -1,0 +1,16 @@
+{
+  "extends": "./tsconfig.typecheck.browser.json",
+  "compilerOptions": {
+    "noEmit": true
+  },
+  "include": [
+    "src/features/l3lab/spectralForge/carrierDonor/**/*",
+    "src/features/l3lab/spectralForge/carrierV2/**/*",
+    "src/features/l3lab/spectralForge/donorV2/**/*",
+    "src/features/l3lab/spectralForge/bindingV2/**/*",
+    "src/features/l3lab/spectralForge/types/**/*",
+    "src/core/**/*",
+    "src/utils/**/*",
+    "src/vite-env.d.ts"
+  ]
+}

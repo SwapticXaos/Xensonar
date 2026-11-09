@@ -1,0 +1,1120 @@
+--- a/docs/PROVENANCE_LEDGER.md
++++ b/docs/PROVENANCE_LEDGER.md
+@@ -114,3 +114,8 @@
+ ## 2026-09-20 · Patch 326 · Bounded P0-W PCM stall tap
+ 
+ User-authorized AI-assisted continuation of the isolated Astra `p0-w/325-audit1` laboratory. Product `src/`, package manifests, the frozen 320 oracle, the frozen 323 reference and the inherited 324 P1 product changes are not modified. Patch 326 adds only laboratory capture/measurement code under `tools/realtime-p0/` plus this provenance entry. The new PCM tap uses a fixed pool of sixteen 4096-frame stereo Float32 transfer buffers (524288 bytes total), records absolute AudioWorklet render-frame metadata and returns buffers on the control plane. Pool exhaustion drops recording frames explicitly while audio passthrough continues; no silent gap filling is implemented. New Node/worklet model tests verify exact no-gap capture and deliberate visible recording loss. Actual browser/device signal, physical loopback, callback CPU budget and real 100/250/500 ms main-thread-stall PCM equality remain unexecuted on this host because the inherited browser-navigation policy block was not bypassed. No new dependency, external audio material or product audio owner was added. See `tools/realtime-p0/SOL_326_PCM_TAP_IMPLEMENTATION.md`.
++
++
++## 2026-09-21 · Patch 326 audit1 · PCM measurement integrity repair
++
++User-authorized AI-assisted audit of the supplied Sol 326 laboratory ZIP. Seven counterexamples were reproduced against that input. Original project-native measurement code now fences buffer ownership/generations, bounds active takes, validates chunk/end metadata, makes completion immutable to late messages and rejects silent or invalid aggregate verdicts. Recorder exhaustion holds buffer returns while lease heartbeats continue; the 1500 ms engine lease is unchanged. The lab keeps the primary audio route direct and records through a silent parallel branch; this isolates tap-node failure, not shared audio-thread CPU. Raw PCM export and independent recomputation are added. No new dependency, external musical material or third-party source was added. The audited DSP C/WASM, synth adapter, control client and frozen reference files remain byte-identical; WASM was not rebuilt. Source/model/actual ArrayBuffer-transfer tests are distinguished from unexecuted browser/device/callback evidence. The input is a lab-only ZIP, so claims about an unseen complete Sol product tree cannot be independently established. See `tools/realtime-p0/ASTRA_326_PCM_TAP_AUDIT.md`.
+--- /dev/null
++++ b/tools/realtime-p0/harness/unpack-pcm-evidence.mjs
+@@ -0,0 +1,63 @@
++import fs from 'node:fs';
++import path from 'node:path';
++import crypto from 'node:crypto';
++import {fileURLToPath} from 'node:url';
++import {P0PcmTapClient,P0_TAP_PROTOCOL,P0_TAP_BYTES} from '../web/p0-pcm-tap-client.js';
++import {AUDITED_WASM_SHA256,pcmMetrics,comparePcm,renderProgramOracle,assessCaptureSuite} from '../web/p0-capture-oracle.js';
++const sha=b=>crypto.createHash('sha256').update(b).digest('hex');
++const names=new Set(['baseline','stall100','stall250','stall500','overflowReturns']);
++function requireValue(condition,message){if(!condition)throw new Error(message);}
++export async function verifyEvidence(evidence,wasmBytes){
++ requireValue(evidence?.format==='p0-pcm-evidence/1'&&Array.isArray(evidence.pcm)&&evidence.pcm.length<=5,'unsupported evidence');
++ requireValue(sha(wasmBytes)===AUDITED_WASM_SHA256,'local audited WASM hash mismatch');
++ requireValue(evidence.report&&typeof evidence.report.takes==='object'&&evidence.report.takes!==null,'missing capture report');
++ const module=await WebAssembly.compile(wasmBytes),report=structuredClone(evidence.report),decoded=[];const seen=new Set();
++ for(const item of evidence.pcm){
++  requireValue(names.has(item.name)&&!seen.has(item.name),'unknown or duplicate take');seen.add(item.name);
++  const t=report?.takes?.[item.name];requireValue(t&&item.encoding==='f32le-interleaved-stereo'&&item.sampleRate===t.sampleRate&&item.frames===t.frameCount,'take metadata mismatch');
++  requireValue(Number.isSafeInteger(item.frames)&&item.frames>0&&item.frames<=960000&&Number.isInteger(item.sampleRate)&&item.sampleRate>=8000&&item.sampleRate<=96000,'take bound');
++  requireValue(typeof item.base64==='string'&&item.base64.length===4*Math.ceil(item.frames*8/3)&&/^[A-Za-z0-9+/]*={0,2}$/.test(item.base64),'PCM encoding/size');
++  const bytes=Buffer.from(item.base64,'base64');requireValue(bytes.length===item.frames*8&&sha(bytes)===item.sha256&&item.sha256===t.pcmSha256,'PCM hash mismatch');
++  const data=new Float32Array(bytes.buffer.slice(bytes.byteOffset,bytes.byteOffset+bytes.length));
++  const scope={sessionId:t.sessionId,engineEpoch:t.engineEpoch,ownerEpoch:t.ownerEpoch};
++  const c=new P0PcmTapClient({postMessage(){}},scope),message=m=>c.handle({...scope,protocol:P0_TAP_PROTOCOL,...m});
++  message({kind:'tap-ready',sampleRate:item.sampleRate,poolBuffers:16,framesPerBuffer:4096});message({kind:'pool-status',initialized:true,poolSize:16,available:16});
++  const capture=c.startCapture(t.captureStartFrame,t.frameCount);
++  message({kind:'capture-armed',captureId:capture.captureId,startFrame:t.captureStartFrame,endFrame:t.captureStartFrame+t.frameCount,expectedFrames:t.frameCount,sampleRate:item.sampleRate,channels:2,poolSize:16});
++  requireValue(Array.isArray(t.chunks)&&t.chunks.length<=Math.ceil(item.frames/4096)+18,'chunk metadata bound');
++  for(const chunk of t.chunks){
++   const offset=chunk.firstFrame-t.captureStartFrame;
++   requireValue(Number.isSafeInteger(offset)&&offset>=0&&Number.isSafeInteger(chunk.frames)&&chunk.frames>0&&chunk.frames<=4096&&offset+chunk.frames<=item.frames,'chunk range');
++   const buffer=new ArrayBuffer(P0_TAP_BYTES);new Float32Array(buffer).set(data.subarray(offset*2,(offset+chunk.frames)*2));
++   message({kind:'pcm-chunk',...chunk,captureId:capture.captureId,sampleRate:item.sampleRate,channels:2,buffer});
++  }
++  requireValue(t.end?.kind==='capture-end'&&t.end.captureId===capture.captureId&&c.matches(t.end),'invalid capture-end envelope');
++  message(t.end);requireValue(c.takes.size===0,'capture-end did not settle');const complete=await capture.done;c.close();
++  t.validation=complete.validation;t.metrics=pcmMetrics(data);
++  const expected=renderProgramOracle(module,item.sampleRate,item.frames,t.relativeProgramStartFrame);
++  const overflow=item.name==='overflowReturns',ranges=t.chunks.map(x=>[(x.firstFrame-t.captureStartFrame)*2,(x.firstFrame-t.captureStartFrame+x.frames)*2]);
++  t.oracleCompare=comparePcm(expected,data,overflow?ranges:null);
++  if(overflow)t.recoveryMetrics=pcmMetrics(data.subarray(Math.min(item.frames,Math.max(0,t.returnReleaseFrame-t.captureStartFrame+256))*2));
++  decoded.push({name:item.name,bytes,data,sampleRate:item.sampleRate,frames:item.frames});
++ }
++ // Missing raw data is never satisfied by a JSON summary from another run.
++ for(const name of names)if(!seen.has(name))delete report.takes[name];
++ const baseline=decoded.find(x=>x.name==='baseline');
++ if(baseline)for(const d of decoded)if(/^stall/.test(d.name))report.takes[d.name].compare=comparePcm(baseline.data,d.data);
++ report.gates=assessCaptureSuite(report);report.pass=report.gates.pass;report.rawPcmRecomputed=true;
++ report.evidenceOrigin=evidence.captureOrigin??'unspecified';report.physicalOutputProven=false;
++ report.verificationScope='PCM, chunk accounting and predicates recomputed; browser timing/receipts are supplied metadata, not authenticated execution proof.';
++ return {report,decoded};
++}
++function wave(bytes,sampleRate,frames){
++ const h=Buffer.alloc(56);h.write('RIFF',0);h.writeUInt32LE(bytes.length+48,4);h.write('WAVEfmt ',8);h.writeUInt32LE(16,16);h.writeUInt16LE(3,20);h.writeUInt16LE(2,22);h.writeUInt32LE(sampleRate,24);h.writeUInt32LE(sampleRate*8,28);h.writeUInt16LE(8,32);h.writeUInt16LE(32,34);h.write('fact',36);h.writeUInt32LE(4,40);h.writeUInt32LE(frames,44);h.write('data',48);h.writeUInt32LE(bytes.length,52);return Buffer.concat([h,bytes]);
++}
++if(process.argv[1]&&path.resolve(process.argv[1])===fileURLToPath(import.meta.url)){
++ const input=process.argv[2],output=process.argv[3];if(!input||!output)throw new Error('Usage: node harness/unpack-pcm-evidence.mjs P0_STALL_CAPTURE_EVIDENCE.json output-directory');
++ requireValue(fs.statSync(input).size<=16*1024*1024,'evidence exceeds 16 MiB');
++ const result=await verifyEvidence(JSON.parse(fs.readFileSync(input,'utf8')),fs.readFileSync(new URL('../artifacts/p0_core.wasm',import.meta.url)));
++ fs.mkdirSync(output,{recursive:false});
++ fs.writeFileSync(path.join(output,'RECOMPUTED_CAPTURE_REPORT.json'),JSON.stringify(result.report,null,2)+'\n',{flag:'wx'});
++ for(const d of result.decoded){const suffix=result.report.takes[d.name].validation.frameExact?'':'_RECORDING_GAPS_OR_INVALID';fs.writeFileSync(path.join(output,d.name+suffix+'.wav'),wave(d.bytes,d.sampleRate,d.frames),{flag:'wx'});}
++ console.log(JSON.stringify({pass:result.report.pass,rawPcmRecomputed:true,takes:result.decoded.length,physicalOutputProven:false,output},null,2));
++}
+--- /dev/null
++++ b/tools/realtime-p0/tests/pcm-test-support.mjs
+@@ -0,0 +1,28 @@
++import assert from 'node:assert/strict';
++import fs from 'node:fs';
++import {P0PcmTapClient,P0_TAP_PROTOCOL} from '../web/p0-pcm-tap-client.js';
++export const wasmModule=await WebAssembly.compile(fs.readFileSync(new URL('../artifacts/p0_core.wasm',import.meta.url)));
++export const classes=new Map();let target;
++globalThis.sampleRate=48000;globalThis.currentFrame=0;
++globalThis.AudioWorkletProcessor=class{constructor(){const out=target;this.port={onmessage:null,postMessage:(m,transfer=[])=>out.push(structuredClone(m,{transfer}))};}};
++globalThis.registerProcessor=(name,type)=>classes.set(name,type);
++await import('../worklet/p0-pcm-tap.js');
++await import('../worklet/p0-worklet.js');
++export function processor(name,options,out){target=out;return new (classes.get(name))({processorOptions:options});}
++export function tapWire(sr=48000,monitorOnly=false){
++  globalThis.sampleRate=sr;globalThis.currentFrame=0;
++  const scope={sessionId:'capture-model',engineEpoch:'engine',ownerEpoch:1},ab=[],ba=[],events=[];
++  const p=processor('xensonar-p0-pcm-tap',{...scope,monitorOnly},ba);
++  const c=new P0PcmTapClient({postMessage:(m,transfer=[])=>ab.push(structuredClone(m,{transfer}))},scope,m=>events.push(m));
++  let frame=0;
++  const deliver=()=>{while(ab.length)p.port.onmessage({data:ab.shift()});};
++  const receive=()=>{while(ba.length)c.handle(ba.shift());};
++  const pump=()=>{let left=1000;while(ab.length||ba.length){assert.ok(--left>0);deliver();receive();}};
++  const raw=m=>p.onMessage({...scope,protocol:P0_TAP_PROTOCOL,...m});
++  function render(n=128,input=null){
++    const l=input?.[0]??Float32Array.from({length:n},(_,i)=>((frame+i)%101)/202),r=input?.[1]??Float32Array.from(l,x=>-x);
++    const out=[new Float32Array(n),new Float32Array(n)];globalThis.currentFrame=frame;
++    p.process([[l,r]],[out]);if(monitorOnly){assert.ok(out.every(c=>c.every(x=>x===0)));}else{assert.deepEqual(out[0],l);assert.deepEqual(out[1],r);}frame+=n;globalThis.currentFrame=frame;return out;
++  }
++  pump();return {p,c,ab,ba,events,scope,pump,deliver,receive,raw,render,get frame(){return frame;},set frame(n){frame=n;globalThis.currentFrame=n;}};
++}
+--- /dev/null
++++ b/tools/realtime-p0/tests/probe-original-326.mjs
+@@ -0,0 +1,51 @@
++import fs from 'node:fs';
++import vm from 'node:vm';
++import assert from 'node:assert/strict';
++import {P0PcmTapClient,P0_TAP_BYTES} from '../artifacts/original-sol-326/source/web/p0-pcm-tap-client.js';
++const scope={sessionId:'probe',engineEpoch:'e',ownerEpoch:1};
++const protocol='p0-pcm-tap/326-v1';const results=[];
++function client(){return new P0PcmTapClient({postMessage(){}},scope);}
++function recv(c,m){c.handle({...scope,protocol,...m});}
++function buf(frames,value=.25){const b=new ArrayBuffer(P0_TAP_BYTES);new Float32Array(b).fill(value);return b;}
++{
++ const c=client(),t=c.startCapture(100,16);recv(c,{kind:'pcm-chunk',captureId:1,sequence:70,firstFrame:100,frames:16,sampleRate:96000,channels:1,buffer:buf(16)});
++ recv(c,{kind:'capture-end',captureId:1,startFrame:0,endFrame:999,expectedFrames:900,capturedFrames:0,droppedFrames:0,chunks:800});
++ const done=await t.done;results.push({id:'F01-unchecked-metadata',actualFrameExact:done.validation.frameExact,required:false});
++ recv(c,{kind:'pcm-chunk',captureId:1,sequence:71,firstFrame:100,frames:16,sampleRate:48000,channels:2,buffer:buf(16,.75)});
++ results.push({id:'F02-finalized-data-mutation',sampleAfterCompletion:done.data[0],required:.25});
++}
++{
++ const c=client();for(let i=0;i<32;i++)c.startCapture(0,16);
++ results.push({id:'F03-unbounded-active-takes',retained:c.takes.size,required:'one active bounded take'});
++}
++{
++ const c=client();c.startCapture(0,16);let error=null;try{recv(c,{kind:'pcm-chunk',captureId:1,sequence:1,firstFrame:0,frames:16,sampleRate:48000,channels:2,buffer:new ArrayBuffer(4)});}catch(e){error=e.name;}
++ results.push({id:'F04-short-buffer-throws',actual:error,required:'reject with invalid evidence and no uncaught exception'});
++}
++{
++ const source=fs.readFileSync(new URL('../artifacts/original-sol-326/source/web/main.js',import.meta.url),'utf8');
++ const start=source.indexOf('report.pass=[100,250,500]'),end=source.indexOf('window.__P0_STALL_CAPTURE_RESULT__',start);
++ const takes={baseline:{validation:{frameExact:false},peak:0}};
++ for(const ms of [100,250,500])takes['stall'+ms]={validation:{frameExact:true},compare:{lengthEqual:true,maxAbs:0,rms:0},stallActualMs:ms,peak:0};
++ const context={report:{takes},overflow:{validation:{gapFrames:1},end:{droppedFrames:1},proof:{frame:2},captureStartFrame:0}};
++ vm.runInNewContext(source.slice(start,end),context);
++ results.push({id:'F05-silent-suite-pass',actual:context.report.pass,required:false});
++}
++{
++ globalThis.currentFrame=0;globalThis.sampleRate=48000;let Processor;const sent=[];
++ globalThis.AudioWorkletProcessor=class{constructor(){this.port={onmessage:null,postMessage:(m,t=[])=>sent.push(structuredClone(m,{transfer:t}))};}};
++ globalThis.registerProcessor=(_n,c)=>{Processor=c;};
++ await import('../artifacts/original-sol-326/source/worklet/p0-pcm-tap.js');
++ const p=new Processor({processorOptions:scope});const send=m=>p.onMessage({...scope,protocol,...m});
++ send({kind:'pool-init',buffers:Array.from({length:16},()=>new ArrayBuffer(P0_TAP_BYTES))});send({kind:'capture-start',captureId:1,startFrame:0,frameCount:100000});
++ for(let k=0;k<65536;k+=128){globalThis.currentFrame=k;const x=new Float32Array(128);p.process([[x,x]],[[new Float32Array(128),new Float32Array(128)]]);}
++ const inFlight=sent.filter(x=>x.kind==='pcm-chunk').length;
++ send({kind:'pool-init',buffers:Array.from({length:16},()=>new ArrayBuffer(P0_TAP_BYTES))});
++ results.push({id:'F06-physical-pool-inflation',inFlight,available:p.pool.length,total:inFlight+p.pool.length,maximum:16});
++}
++{
++ const bytes=fs.readFileSync(new URL('../artifacts/original-sol-326/source/artifacts/p0_core.wasm',import.meta.url));const e=(await WebAssembly.instantiate(bytes,{})).instance.exports;
++ e.p0_init(48000);e.p0_arm(1,72000n);for(let n=0;n<86400;n+=128)e.p0_render(Math.min(128,86400-n));
++ results.push({id:'F07-1800ms-exceeds-lease',elapsedMs:1800,leaseMs:1500,ownerClosed:e.p0_owner_closed(),interpretation:'Render clock progress is compatible with terminally closed silent synthesis.'});
++}
++console.log(JSON.stringify({scope:'Executed counterexamples against original Sol 326; no browser navigation',results},null,2));
+--- a/tools/realtime-p0/tests/run-326.sh
++++ b/tools/realtime-p0/tests/run-326.sh
+@@ -12,11 +12,15 @@
+ node "$HERE/tests/test-transport-safety.mjs" > "$HERE/artifacts/TRANSPORT_SAFETY_MODEL_TEST.json"
+ node "$HERE/tests/test-pcm-tap.mjs" > "$HERE/artifacts/PCM_TAP_MODEL_TEST.json"
+ node "$HERE/tests/test-pcm-tap-client.mjs" > "$HERE/artifacts/PCM_TAP_CLIENT_TEST.json"
++node "$HERE/tests/test-capture-oracle.mjs" > "$HERE/artifacts/CAPTURE_ORACLE_MODEL_TEST.json"
+ "$HERE/artifacts/p0_native_core_smoke" > "$HERE/artifacts/NATIVE_CORE_SMOKE.json"
+ node --check "$HERE/worklet/p0-worklet.js"
+ node --check "$HERE/worklet/p0-pcm-tap.js"
+ node --check "$HERE/web/main.js"
+ node --check "$HERE/web/p0-client.js"
+ node --check "$HERE/web/p0-pcm-tap-client.js"
++node --check "$HERE/web/p0-pcm-contract.js"
++node --check "$HERE/web/p0-capture-oracle.js"
++node --check "$HERE/harness/unpack-pcm-evidence.mjs"
+ node --check "$HERE/web/p0-fixtures.js"
+-echo "P0 audit1 + 326 PCM tap source/model suite PASS"
++echo "P0 325-audit1 + 326-audit1 PCM source/model and evidence-recomputation suite PASS; browser/device gates remain open"
+--- /dev/null
++++ b/tools/realtime-p0/tests/test-capture-oracle.mjs
+@@ -0,0 +1,88 @@
++import assert from 'node:assert/strict';
++import fs from 'node:fs';
++import crypto from 'node:crypto';
++import os from 'node:os';
++import path from 'node:path';
++import {execFileSync} from 'node:child_process';
++import {fileURLToPath} from 'node:url';
++import {verifyEvidence} from '../harness/unpack-pcm-evidence.mjs';
++import {tapWire,processor,wasmModule} from './pcm-test-support.mjs';
++import {P0_TAP_PROTOCOL} from '../web/p0-pcm-contract.js';
++import {P0_PROTOCOL} from '../web/p0-client.js';
++import {P0_PROGRAM_STEPS,legacy323Envelope,webAudioLowpassCoefficients} from '../web/p0-fixtures.js';
++import {AUDITED_WASM_SHA256,renderProgramOracle,pcmMetrics,comparePcm,assessCaptureSuite} from '../web/p0-capture-oracle.js';
++const results=[];
++function check(id,fn){results.push({id,pass:true,...fn()});}
++async function take(sr=48000,stallMs=0,overflow=false){
++ const w=tapWire(sr),sent=[],s=processor('xensonar-p0-w',{...w.scope,wasmModule},sent);let sequence=0,revision=0;
++ const msg=m=>s.onMessage({...w.scope,protocol:P0_PROTOCOL,channel:m.kind==='state'?'state':'normal',packetSequence:++sequence,...m});
++ msg({kind:'arm',leaseValidThroughFrame:Math.round(sr*1.5)});
++ const h={revision:1,tempoMilli:120000,...webAudioLowpassCoefficients(sr,2400,1),...legacy323Envelope(sr,.18,false)};
++ msg({kind:'program-config',header:h,steps:P0_PROGRAM_STEPS});
++ const start=64,count=Math.round(sr*(overflow?3:1.25)),relative=Math.round(sr*.1),programStart=start+relative;
++ const t=w.c.startCapture(start,count);w.pump();msg({kind:'program-start',startFrame:programStart});
++ const receipt=sent.find(x=>x.kind==='receipt'&&x.op==='program-start');assert.equal(receipt.result,1);
++ const pauseStart=start+Math.round(sr*.32),pauseEnd=pauseStart+Math.round(sr*(overflow?1.8:stallMs/1000));
++ let nextHeartbeat=0,held=false,releaseFrame=null;
++ while(w.frame<start+count+sr*.12){
++  const f=w.frame,paused=!overflow&&f>=pauseStart&&f<pauseEnd;
++  if(!paused&&f>=nextHeartbeat){msg({kind:'state',revision:++revision,rootHz:220,programGain:1,leaseValidThroughFrame:f+Math.round(sr*1.5)});nextHeartbeat=f+Math.round(sr*.25);}
++  if(overflow&&f>=pauseStart&&f<pauseEnd&&!held){w.c.holdBufferReturns(true);held=true;}
++  if(held&&f>=pauseEnd){w.c.holdBufferReturns(false);w.pump();held=false;releaseFrame=f;}
++  const audio=[[new Float32Array(128),new Float32Array(128)]];globalThis.currentFrame=f;s.process([],audio);w.render(128,audio[0]);if(!paused)w.pump();
++ }
++ w.pump();const done=await t.done;
++ const reference=renderProgramOracle(wasmModule,sr,count,relative),ranges=done.chunks.map(c=>[(c.firstFrame-start)*2,(c.firstFrame-start+c.frames)*2]);
++ const result={...w.scope,wasmSha256:AUDITED_WASM_SHA256,sampleRate:sr,channels:2,captureStartFrame:start,relativeProgramStartFrame:relative,frameCount:count,
++  validation:done.validation,end:done.end,programReceipt:receipt,proof:sent.filter(x=>x.kind==='render-proof').at(-1),faults:[],metrics:pcmMetrics(done.data),
++  oracleCompare:comparePcm(reference,done.data,overflow?ranges:null),data:done.data,chunks:done.chunks,
++  stallRequestedMs:stallMs,stallActualMs:stallMs,audioFrameBefore:pauseStart,audioFrameAfter:pauseStart+Math.round(stallMs*sr/1000),
++  // Predicate fixture only. This test does not claim a PerformanceObserver event.
++  traceSupported:true,stallPerfStart:10,stallPerfEnd:10+stallMs,longTasks:[{startTime:10,duration:stallMs}]};
++ if(overflow)Object.assign(result,{faultInjection:'withheld-buffer-returns',holdRequestedMs:1800,holdActualMs:1800,returnReleaseFrame:releaseFrame,recoveryMetrics:pcmMetrics(done.data.subarray((releaseFrame-start+256)*2))});
++ assert.equal(result.oracleCompare.maxAbs,0);assert.equal(result.oracleCompare.rms,0);return result;
++}
++const baseline=await take();const report={protocol:P0_PROTOCOL,tapProtocol:P0_TAP_PROTOCOL,wasmSha256:AUDITED_WASM_SHA256,wg1:{pass:true,wasmSha256:AUDITED_WASM_SHA256},takes:{baseline}};
++for(const ms of [100,250,500]){const t=await take(48000,ms);t.compare=comparePcm(baseline.data,t.data);report.takes['stall'+ms]=t;}
++report.takes.overflowReturns=await take(48000,0,true);
++check('O01-full-engine-tap-client-model',()=>{assert.equal(assessCaptureSuite(report).pass,true);return {rates:[48000],normalFrames:baseline.frameCount,normalStallsMs:[100,250,500],maxAbs:0,overflowDropped:report.takes.overflowReturns.validation.gapFrames,engineOpenAfterOverflow:report.takes.overflowReturns.proof.ownerClosed===0,actualBrowser:false};});
++check('O02-silence-invalid-baseline-and-nonfinite-never-pass',()=>{
++ const silent=structuredClone(report);for(const t of Object.values(silent.takes)){t.metrics={finite:true,peak:0,rms:0};}assert.equal(assessCaptureSuite(silent).pass,false);
++ for(const mutate of [r=>{r.takes.baseline.validation.frameExact=false;},r=>{r.takes.stall500.oracleCompare.maxAbs=.01;},r=>{r.takes.stall250.metrics.finite=false;},r=>{r.takes.stall100.programReceipt.result=-1;},r=>{r.takes.baseline.proof.fault=true;}]){const r=structuredClone(report);mutate(r);assert.equal(assessCaptureSuite(r).pass,false);}
++});
++check('O03-lease-stop-cannot-pass-recorder-overflow',()=>{const r=structuredClone(report);r.takes.overflowReturns.proof.ownerClosed=1;r.takes.overflowReturns.proof.programRunning=0;assert.equal(assessCaptureSuite(r).pass,false);r.takes.overflowReturns.proof.frame+=900000;assert.equal(assessCaptureSuite(r).pass,false);});
++check('O04-trace-and-provenance-are-required',()=>{
++ for(const mutate of [r=>{r.takes.stall500.traceSupported=false;},r=>{r.takes.stall100.longTasks=[];},r=>{r.wg1.pass=false;},r=>{r.wasmSha256='foreign';},r=>{r.takes.baseline.proof.sessionId='foreign';}]){const r=structuredClone(report);mutate(r);assert.equal(assessCaptureSuite(r).pass,false);}
++});
++for(const sr of [44100,96000]){const b=await take(sr),t=await take(sr,500);assert.equal(b.validation.frameExact,true);assert.equal(t.validation.frameExact,true);assert.equal(comparePcm(b.data,t.data).maxAbs,0);}
++results.push({id:'O05-44k1-96k-500ms-pool-coverage',pass:true,maxAbs:0});
++const rawReport=structuredClone(report),pcm=[];
++const sha=b=>crypto.createHash('sha256').update(b).digest('hex');
++for(const [name,t] of Object.entries(rawReport.takes)){
++ const bytes=Buffer.from(t.data.buffer,t.data.byteOffset,t.data.byteLength);t.pcmSha256=sha(bytes);
++ pcm.push({name,encoding:'f32le-interleaved-stereo',sampleRate:t.sampleRate,frames:t.frameCount,sha256:t.pcmSha256,base64:bytes.toString('base64')});delete t.data;
++}
++const evidence={format:'p0-pcm-evidence/1',captureOrigin:'node-model-fixture',report:rawReport,pcm};
++const wasmBytes=fs.readFileSync(new URL('../artifacts/p0_core.wasm',import.meta.url));
++const verified=await verifyEvidence(JSON.parse(JSON.stringify(evidence)),wasmBytes);
++assert.equal(verified.report.pass,true);assert.equal(verified.decoded.length,5);assert.equal(verified.report.physicalOutputProven,false);
++results.push({id:'O06-raw-PCM-roundtrip-independent-recomputation',pass:true,takes:5,browserEvidence:false});
++const missing=structuredClone(evidence);missing.pcm.pop();assert.equal((await verifyEvidence(missing,wasmBytes)).report.pass,false);
++const corrupt=structuredClone(evidence);corrupt.pcm[0].sha256='corrupt';await assert.rejects(()=>verifyEvidence(corrupt,wasmBytes),/hash mismatch/);
++for(const mutate of [e=>{e.report.takes.baseline.end.kind='foreign';},e=>{e.report.takes.baseline.end.sessionId='foreign';},e=>{e.report.takes.baseline.end.captureId=99;}]){
++ const bad=structuredClone(evidence);mutate(bad);await assert.rejects(()=>verifyEvidence(bad,wasmBytes),/capture-end envelope/);
++}
++const fabricated=structuredClone(evidence);
++for(const t of fabricated.pcm){const bytes=Buffer.alloc(t.frames*8);t.base64=bytes.toString('base64');t.sha256=sha(bytes);fabricated.report.takes[t.name].pcmSha256=t.sha256;}
++assert.equal((await verifyEvidence(fabricated,wasmBytes)).report.pass,false);
++results.push({id:'O07-missing-corrupt-foreign-end-and-rehashed-silence-rejected',pass:true});
++const temp=fs.mkdtempSync(path.join(os.tmpdir(),'p0-pcm-evidence-'));
++try{
++ const input=path.join(temp,'model.json'),output=path.join(temp,'decoded');fs.writeFileSync(input,JSON.stringify(evidence));
++ const cli=JSON.parse(execFileSync(process.execPath,[fileURLToPath(new URL('../harness/unpack-pcm-evidence.mjs',import.meta.url)),input,output],{encoding:'utf8'}));
++ assert.equal(cli.pass,true);assert.equal(cli.physicalOutputProven,false);
++ const wav=fs.readFileSync(path.join(output,'baseline.wav'));assert.equal(wav.toString('ascii',0,4),'RIFF');assert.equal(wav.readUInt16LE(20),3);assert.equal(wav.readUInt16LE(22),2);assert.equal(wav.readUInt32LE(24),48000);assert.equal(wav.readUInt32LE(44),60000);assert.equal(wav.length,60000*8+56);
++ assert.ok(fs.existsSync(path.join(output,'overflowReturns_RECORDING_GAPS_OR_INVALID.wav')));
++}finally{fs.rmSync(temp,{recursive:true,force:true});}
++results.push({id:'O08-CLI-Float32-WAV-export-and-gap-label',pass:true});
++console.log(JSON.stringify({pass:true,scope:'Actual synth adapter/WASM + actual tap/client, simulated render and control stalls. Trace and W-G1 fields are predicate fixtures, not browser evidence.',results},null,2));
+--- a/tools/realtime-p0/tests/test-pcm-tap-client.mjs
++++ b/tools/realtime-p0/tests/test-pcm-tap-client.mjs
+@@ -1,17 +1,30 @@
+ import assert from 'node:assert/strict';
+-import path from 'node:path';
+-import { pathToFileURL } from 'node:url';
+-const root=path.resolve(path.dirname(new URL(import.meta.url).pathname),'..');
+-const {P0PcmTapClient,P0_TAP_BYTES}=await import(pathToFileURL(path.join(root,'web/p0-pcm-tap-client.js')).href+'?t='+Date.now());
+-const sent=[];const port={onmessage:null,postMessage:(m,transfer=[])=>sent.push({m,transfer})};
+-const scope={sessionId:'s',engineEpoch:'e',ownerEpoch:1};const client=new P0PcmTapClient(port,scope);
+-assert.equal(sent.length,1);assert.equal(sent[0].m.kind,'pool-init');assert.equal(sent[0].m.buffers.length,16);assert.equal(sent[0].m.buffers[0].byteLength,P0_TAP_BYTES);
+-const take=client.startCapture(1000,5000);assert.equal(sent.at(-1).m.kind,'capture-start');
+-function recv(m){port.onmessage({data:{...m,...scope,protocol:'p0-pcm-tap/326-v1'}});}
+-const b1=new ArrayBuffer(P0_TAP_BYTES);new Float32Array(b1).fill(.25);recv({kind:'pcm-chunk',captureId:take.captureId,sequence:1,firstFrame:1000,frames:4096,sampleRate:48000,channels:2,buffer:b1});
+-const b2=new ArrayBuffer(P0_TAP_BYTES);new Float32Array(b2).fill(.5);recv({kind:'pcm-chunk',captureId:take.captureId,sequence:2,firstFrame:5096,frames:904,sampleRate:48000,channels:2,buffer:b2});
+-recv({kind:'capture-end',captureId:take.captureId,startFrame:1000,endFrame:6000,expectedFrames:5000,capturedFrames:5000,droppedFrames:0,chunks:2});
+-const done=await take.done;assert.equal(done.validation.frameExact,true);assert.equal(done.data[0],.25);assert.equal(done.data[4096*2],.5);
+-const returns=sent.filter(x=>x.m.kind==='buffer-return');assert.equal(returns.length,2);
+-const gap=client.startCapture(10000,5000);const b3=new ArrayBuffer(P0_TAP_BYTES);recv({kind:'pcm-chunk',captureId:gap.captureId,sequence:1,firstFrame:10000,frames:2000,sampleRate:48000,channels:2,buffer:b3});recv({kind:'capture-end',captureId:gap.captureId,startFrame:10000,endFrame:15000,expectedFrames:5000,capturedFrames:2000,droppedFrames:3000,chunks:1});const gapDone=await gap.done;assert.equal(gapDone.validation.frameExact,false);assert.equal(gapDone.validation.gapFrames,3000);assert.equal(gapDone.validation.droppedFrames,3000);
+-console.log(JSON.stringify({pass:true,exact:done.validation,gap:gapDone.validation,returnedBuffers:returns.length},null,2));
++import {tapWire} from './pcm-test-support.mjs';
++import {P0_TAP_PROTOCOL,P0_TAP_BYTES} from '../web/p0-pcm-contract.js';
++const results=[];
++async function check(id,fn){results.push({id,pass:true,...await fn()});}
++function sampleChunk(w,changes={}){return {...w.scope,protocol:P0_TAP_PROTOCOL,kind:'pcm-chunk',bufferId:0,bufferGeneration:1,captureId:1,sequence:1,firstFrame:0,frames:16,sampleRate:48000,channels:2,buffer:new ArrayBuffer(P0_TAP_BYTES),...changes};}
++function end(w,changes={}){return {...w.scope,protocol:P0_TAP_PROTOCOL,kind:'capture-end',captureId:1,startFrame:0,endFrame:16,expectedFrames:16,sampleRate:48000,channels:2,capturedFrames:16,droppedFrames:0,poolDroppedFrames:0,timelineGapFrames:0,timelineOverlapFrames:0,formatErrorFrames:0,nonfiniteFrames:0,chunks:1,aborted:false,...changes};}
++await check('C01-wrong-rate-channels-and-end-counters',async()=>{
++ for(const mutation of [{sampleRate:96000},{channels:1},{sequence:2}]){const w=tapWire(),t=w.c.startCapture(0,16);w.pump();w.c.handle(sampleChunk(w,mutation));w.c.handle(end(w));assert.equal((await t.done).validation.frameExact,false);}
++ for(const mutation of [{capturedFrames:0},{startFrame:1},{expectedFrames:15},{chunks:8},{aborted:true}]){const w=tapWire(),t=w.c.startCapture(0,16);w.pump();w.c.handle(sampleChunk(w));w.c.handle(end(w,mutation));assert.equal((await t.done).validation.frameExact,false);}
++});
++await check('C02-completed-take-cannot-change',async()=>{
++ const w=tapWire(),t=w.c.startCapture(0,16);w.pump();w.render();w.pump();const done=await t.done,copy=done.data.slice();
++ const b=new ArrayBuffer(P0_TAP_BYTES);new Float32Array(b).fill(.75);w.c.handle(sampleChunk(w,{bufferGeneration:2,buffer:b}));assert.deepEqual(done.data,copy);assert.equal(w.c.takes.size,0);
++});
++await check('C03-active-count-size-and-cancel-bounds',async()=>{
++ const w=tapWire();assert.throws(()=>w.c.startCapture(0,480001));const t=w.c.startCapture(0,16);assert.throws(()=>w.c.startCapture(0,16));assert.equal(w.c.takes.size,1);w.pump();w.c.cancel('test-cancel');assert.equal((await t.done).validation.frameExact,false);w.pump();assert.equal(w.c.takes.size,0);assert.equal(w.c.drainingId,null);
++ const u=w.c.startCapture(0,16);w.pump();w.render();w.pump();assert.equal((await u.done).validation.frameExact,true);
++});
++await check('C04-malformed-buffer-no-throw',async()=>{
++ const w=tapWire(),t=w.c.startCapture(0,16);w.pump();assert.doesNotThrow(()=>w.c.handle(sampleChunk(w,{buffer:new ArrayBuffer(4)})));w.c.handle(end(w));assert.equal((await t.done).validation.frameExact,false);
++});
++await check('C05-duplicate-sequence-foreign-and-nonfinite',async()=>{
++ for(const mutation of [{sessionId:'foreign'},{sequence:0},{bufferGeneration:0}]){const w=tapWire(),t=w.c.startCapture(0,16);w.pump();w.c.handle(sampleChunk(w,mutation));w.c.handle(end(w));assert.equal((await t.done).validation.frameExact,false);}
++ const w=tapWire(),t=w.c.startCapture(0,16);w.pump();const b=new ArrayBuffer(P0_TAP_BYTES);new Float32Array(b)[0]=NaN;w.c.handle(sampleChunk(w,{buffer:b}));w.c.handle(end(w));assert.equal((await t.done).validation.frameExact,false);
++});
++await check('C06-close-settles-inflight-and-disables-start',async()=>{
++ const w=tapWire(),t=w.c.startCapture(0,16);w.pump();w.c.close();const done=await t.done;assert.equal(done.validation.reason,'context-closed');assert.equal(w.c.takes.size,0);assert.throws(()=>w.c.startCapture(0,16));
++});
++console.log(JSON.stringify({pass:true,scope:'Main-side PCM ownership/validation, simulated transport; no browser proof',results},null,2));
+--- a/tools/realtime-p0/tests/test-pcm-tap.mjs
++++ b/tools/realtime-p0/tests/test-pcm-tap.mjs
+@@ -1,33 +1,43 @@
+ import assert from 'node:assert/strict';
+-import path from 'node:path';
+-import { pathToFileURL } from 'node:url';
+-const root=path.resolve(path.dirname(new URL(import.meta.url).pathname),'..');
+-globalThis.sampleRate=48000;globalThis.currentFrame=0;
+-let Processor=null;const sent=[];
+-globalThis.AudioWorkletProcessor=class{constructor(){this.port={postMessage:(m,_transfer)=>sent.push(m),onmessage:null};}};
+-globalThis.registerProcessor=(name,klass)=>{assert.equal(name,'xensonar-p0-pcm-tap');Processor=klass;};
+-await import(pathToFileURL(path.join(root,'worklet/p0-pcm-tap.js')).href+'?t='+Date.now());
+-const scope={sessionId:'tap-session',engineEpoch:'tap-engine',ownerEpoch:7};
+-const protocol='p0-pcm-tap/326-v1';
+-function deliver(p,m){p.port.onmessage({data:{...m,...scope,protocol}});}
+-function block(p,frames=128,value=0.25){const l=new Float32Array(frames).fill(value),r=new Float32Array(frames).fill(-value),ol=new Float32Array(frames),or=new Float32Array(frames);p.process([[l,r]],[[ol,or]]);assert.deepEqual([...ol],[...l]);assert.deepEqual([...or],[...r]);globalThis.currentFrame+=frames;}
+-
+-const p=new Processor({processorOptions:scope});
+-const buffers=Array.from({length:16},()=>new ArrayBuffer(4096*2*4));
+-deliver(p,{kind:'pool-init',buffers});
+-deliver(p,{kind:'capture-start',captureId:1,startFrame:64,frameCount:5000});
+-while(globalThis.currentFrame<5200)block(p);
+-const chunks=sent.filter(x=>x.kind==='pcm-chunk'&&x.captureId===1);
+-const end=sent.findLast(x=>x.kind==='capture-end'&&x.captureId===1);
+-assert.equal(chunks.length,2);assert.equal(chunks[0].firstFrame,64);assert.equal(chunks[0].frames,4096);assert.equal(chunks[1].firstFrame,4160);assert.equal(chunks[1].frames,904);
+-assert.equal(end.capturedFrames,5000);assert.equal(end.droppedFrames,0);assert.equal(end.chunks,2);
+-for(const c of chunks){assert.equal(c.sessionId,scope.sessionId);assert.equal(c.engineEpoch,scope.engineEpoch);assert.equal(c.ownerEpoch,scope.ownerEpoch);assert.equal(c.sampleRate,48000);}
+-
+-// A deliberately undersized pool demonstrates visible recording loss without stopping pass-through audio.
+-globalThis.currentFrame=0;sent.length=0;const q=new Processor({processorOptions:scope});
+-deliver(q,{kind:'pool-init',buffers:[new ArrayBuffer(4096*2*4)]});
+-deliver(q,{kind:'capture-start',captureId:2,startFrame:0,frameCount:9000});
+-while(globalThis.currentFrame<9100)block(q);
+-const gapEnd=sent.findLast(x=>x.kind==='capture-end'&&x.captureId===2);
+-assert.ok(gapEnd.droppedFrames>=4904);assert.equal(gapEnd.capturedFrames,4096);assert.equal(sent.filter(x=>x.kind==='pcm-chunk').length,1);
+-console.log(JSON.stringify({pass:true,normal:{chunks:chunks.map(x=>({firstFrame:x.firstFrame,frames:x.frames})),end},overflow:{end:gapEnd}},null,2));
++import {tapWire,processor} from './pcm-test-support.mjs';
++import {P0_TAP_BYTES,P0_TAP_PROTOCOL} from '../web/p0-pcm-contract.js';
++const results=[];
++async function check(id,fn){results.push({id,pass:true,...await fn()});}
++await check('P01-real-transfer-exact-and-block-profiles',async()=>{
++ for(const size of [64,128,256]){const w=tapWire(),t=w.c.startCapture(64,5000);w.pump();while(w.frame<5200){w.render(size);w.pump();}const done=await t.done;
++  assert.equal(done.validation.frameExact,true);assert.equal(done.validation.receivedFrames,5000);assert.equal(w.c.takes.size,0);
++  for(let i=0;i<5000;i++){assert.equal(done.data[2*i],Math.fround(((i+64)%101)/202));assert.equal(done.data[2*i+1],Math.fround(-((i+64)%101)/202));}
++ }return {framesPerTake:5000,actualTransferDetachment:true};
++});
++await check('P02-16-slot-overflow-and-passthrough',async()=>{
++ const w=tapWire(),t=w.c.startCapture(0,90000);w.pump();w.c.holdBufferReturns(true);
++ while(w.frame<80000){w.render();w.pump();}assert.equal(w.p.slots.filter(x=>x?.state===3).length,16);
++ const ownedBefore=w.p.slots.slice();w.raw({kind:'pool-init',buffers:Array.from({length:16},(_,bufferId)=>({bufferId,buffer:new ArrayBuffer(P0_TAP_BYTES)}))});assert.deepEqual(w.p.slots,ownedBefore);
++ w.c.holdBufferReturns(false);w.pump();while(w.frame<90100){w.render();w.pump();}const done=await t.done;
++ assert.equal(done.validation.integrity,true);assert.equal(done.validation.frameExact,false);assert.ok(done.validation.gapFrames>0);assert.equal(done.end.poolDroppedFrames,done.validation.gapFrames);
++ assert.ok(done.data.subarray(82000*2).some(x=>x!==0));return {captured:done.end.capturedFrames,dropped:done.end.droppedFrames,registeredSlots:w.p.poolSize};
++});
++await check('P03-clock-gap-has-correct-position',async()=>{
++ const w=tapWire(),t=w.c.startCapture(0,1000);w.pump();w.render();w.pump();w.frame+=128;while(w.frame<1100){w.render();w.pump();}
++ const done=await t.done;assert.equal(done.validation.frameExact,false);assert.equal(done.end.timelineGapFrames,128);assert.equal(done.validation.gapFrames,128);assert.equal(done.chunks[0].frames,128);assert.equal(done.chunks[1].firstFrame,256);
++});
++await check('P04-clock-overlap-rejected',async()=>{
++ const w=tapWire(),t=w.c.startCapture(0,1000);w.pump();w.render();w.frame=0;while(w.frame<1100){w.render();w.pump();}
++ const done=await t.done;assert.equal(done.validation.frameExact,false);assert.equal(done.end.timelineOverlapFrames,128);
++});
++await check('P05-no-PCM-view-allocation-in-process',async()=>{
++ const w=tapWire(),t=w.c.startCapture(0,9000);w.pump();const Original=Float32Array;
++ const l=new Original(128),r=new Original(128),out=[[new Original(128),new Original(128)]];
++ globalThis.Float32Array=new Proxy(Original,{construct(){throw new Error('view allocation inside process');}});
++ try{for(let f=0;f<9200;f+=128){globalThis.currentFrame=f;w.p.process([[l,r]],out);}}finally{globalThis.Float32Array=Original;}
++ w.pump();assert.equal((await t.done).validation.frameExact,true);
++});
++await check('P06-single-capture-replay-and-loan-fencing',async()=>{
++ const w=tapWire(),t=w.c.startCapture(0,5000);w.pump();
++ w.raw({kind:'capture-start',captureId:2,startFrame:0,frameCount:5000});assert.ok(w.ba.some(m=>m.kind==='capture-rejected'&&m.reason==='capture-busy'));
++ while(w.frame<5200){w.render();w.pump();}await t.done;
++ w.raw({kind:'capture-start',captureId:1,startFrame:w.frame,frameCount:5000});assert.ok(w.ba.some(m=>m.kind==='capture-rejected'&&m.reason==='capture-id'));
++ const slot=w.p.slots[0],view=slot.view;w.raw({kind:'buffer-return',bufferId:0,bufferGeneration:slot.generation,buffer:new ArrayBuffer(P0_TAP_BYTES)});assert.equal(slot.view,view);
++});
++await check('P07-monitor-branch-zero-output-captures-original',async()=>{const w=tapWire(48000,true),t=w.c.startCapture(0,16);w.pump();w.render();w.pump();const d=await t.done;assert.equal(d.validation.frameExact,true);assert.ok(d.data.some(x=>x!==0));});
++console.log(JSON.stringify({pass:true,scope:'Tap with real structuredClone transfers, simulated AudioWorklet/render callbacks; no browser proof',results},null,2));
+--- a/tools/realtime-p0/web/index.html
++++ b/tools/realtime-p0/web/index.html
+@@ -1,7 +1,7 @@
+ <!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+-<title>Xensonar 326 — P0-W Realtime Lab</title>
++<title>Xensonar 326-audit1 — P0-W Realtime Lab</title>
+ <style>body{font:15px system-ui,sans-serif;background:#111;color:#eee;max-width:980px;margin:32px auto;padding:0 20px}button{margin:4px;padding:9px 13px}pre{white-space:pre-wrap;background:#181818;padding:12px;min-height:240px;border:1px solid #333}.note{color:#bbb}</style></head>
+-<body data-test-status="idle"><h1>Xensonar 326 — P0-W Realtime Lab</h1>
++<body data-test-status="idle"><h1>Xensonar 326-audit1 — P0-W Realtime Lab</h1>
+ <p class="note">Separate pilot surface. No App.tsx wiring, no legacy muting, no Root Follow/Wellenstarter product ownership.</p>
+-<p><button id="start">Start P0-W</button><button id="chord" disabled>Chord3</button><button id="hold" disabled>Gated Hold</button><button id="program" disabled>16-Step Program</button><button id="stall">Block UI 500 ms</button><button id="panic">Panic</button><button id="autotest">Run automated probes</button><button id="stallcapture">Run PCM stall capture</button><button id="download">Download probe report</button><button id="downloadstall">Download stall report</button></p>
++<p><button id="start">Start P0-W</button><button id="chord" disabled>Chord3</button><button id="hold" disabled>Gated Hold</button><button id="program" disabled>16-Step Program</button><button id="stall">Block UI 500 ms</button><button id="panic">Panic</button><button id="autotest">Run automated probes</button><button id="stallcapture">Run PCM stall capture</button><button id="download">Download probe report</button><button id="downloadstall">Download stall report</button><button id="downloadpcm">Download PCM evidence</button></p>
+ <pre id="log">idle</pre><script type="module" src="./main.js"></script></body></html>
+--- a/tools/realtime-p0/web/main.js
++++ b/tools/realtime-p0/web/main.js
+@@ -1,5 +1,6 @@
+ import { P0BoundedClient, P0_PROTOCOL } from './p0-client.js';
+-import { P0PcmTapClient, P0_TAP_FRAMES_PER_BUFFER } from './p0-pcm-tap-client.js';
++import { P0PcmTapClient, P0_TAP_FRAMES_PER_BUFFER, P0_TAP_PROTOCOL } from './p0-pcm-tap-client.js';
++import { AUDITED_WASM_SHA256, pcmMetrics, comparePcm, expectedProgramStarts, renderProgramOracle, assessCaptureSuite } from './p0-capture-oracle.js';
+ import { assessBrowserResult } from './p0-verdict.js';
+ import { playScheduledToneWithLifecycle } from '../reference323/compiled/features/xensonar/audio/scheduledTonePlaybackBoundary.js';
+ import { P0_PROGRAM_STEPS, legacy323Envelope, gatedEnvelope, makeLegacyNote, makeGatedNote, webAudioLowpassCoefficients } from './p0-fixtures.js';
+@@ -15,18 +16,14 @@
+ 
+ const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+ const longTaskEntries=[];
++const traceSupported=globalThis.PerformanceObserver?.supportedEntryTypes?.includes('longtask')===true;
+ try {
+-  if(globalThis.PerformanceObserver?.supportedEntryTypes?.includes('longtask')) {
++  if(traceSupported) {
+     const observer=new PerformanceObserver(list=>{for(const e of list.getEntries()){longTaskEntries.push({name:e.name,startTime:e.startTime,duration:e.duration});if(longTaskEntries.length>128)longTaskEntries.shift();}});
+     observer.observe({type:'longtask',buffered:true});
+   }
+ } catch {}
+ function busyStall(ms) { const until = performance.now() + ms; while (performance.now() < until) {} }
+-function compareInterleaved(a,b) {
+-  const n=Math.min(a.length,b.length);let maxAbs=0,sumSq=0;
+-  for(let i=0;i<n;i++){const d=a[i]-b[i],ad=Math.abs(d);if(ad>maxAbs)maxAbs=ad;sumSq+=d*d;}
+-  const rms=Math.sqrt(sumSq/Math.max(1,n));return {lengthEqual:a.length===b.length,framesStereo:n/2,maxAbs,rms,rmsDbFs:rms>0?20*Math.log10(rms):-Infinity};
+-}
+ 
+ function audioMetrics(data) {
+   let peak = 0, sumSq = 0, finite = true;
+@@ -127,11 +124,23 @@
+ }
+ 
+ let live = null, livePromise = null, automatedRunning = false;
++let capturedTakes=[],probeCancelled=false;
++function assertProbeActive(){if(probeCancelled)throw new Error('Probe cancelled by Panic');}
++function probeBusy(busy){
++  automatedRunning=busy;if(busy)probeCancelled=false;
++  for(const id of ['start','chord','hold','program','stall','autotest','stallcapture']){
++    const element=$(id);if(element)element.disabled=busy||(['chord','hold','program'].includes(id)&&(!live||live.client.closed));
++  }
++  for(const id of ['download','downloadstall','downloadpcm'])if($(id))$(id).disabled=busy;
++}
++async function withTimeout(promise,ms,message){let timer;try{return await Promise.race([promise,new Promise((_,reject)=>{timer=setTimeout(()=>reject(new Error(message)),ms);})]);}finally{clearTimeout(timer);}}
++async function waitForEvidence(read,ms=4000){const deadline=performance.now()+ms;while(performance.now()<deadline){const value=read();if(value)return value;await sleep(10);}throw new Error('Current evidence timeout');}
++const digest=async data=>Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256',data)),b=>b.toString(16).padStart(2,'0')).join('');
+ async function stopLive() {
+   const old=live;if(!old)return;
+-  clearInterval(old.heartbeat);old.client.postSafety({kind:'panic'});
++  clearInterval(old.heartbeat);old.tap?.cancel('session-stop');old.client.postSafety({kind:'panic'});
+   await sleep(250 + 1000*(old.ctx.baseLatency+(old.ctx.outputLatency??0)));
+-  old.node.disconnect();old.tapNode?.disconnect();await old.ctx.close();if(live===old)live=null;
++  old.tap?.close();old.node.disconnect();old.testBus.disconnect();old.tapNode?.disconnect();old.tapSink?.disconnect();await old.ctx.close();if(live===old)live=null;
+ }
+ async function startLive() {
+   if(live&&!live.client.closed)return live;
+@@ -142,7 +151,7 @@
+ async function prepareLive() {
+   const ctx = new AudioContext({ latencyHint: 'interactive', sampleRate: 48000 });
+   try {
+-  await ctx.resume();
++  await withTimeout(ctx.resume(),4000,'AudioContext resume timeout; start with a user gesture');
+   await ctx.audioWorklet.addModule('../worklet/p0-worklet.js');
+   await ctx.audioWorklet.addModule('../worklet/p0-pcm-tap.js');
+   const wasmBytes = await (await fetch('../artifacts/p0_core.wasm')).arrayBuffer();
+@@ -153,8 +162,10 @@
+     numberOfInputs: 0, numberOfOutputs: 1, outputChannelCount: [2], processorOptions: { wasmModule, ...scope }
+   });
+   const testBus = ctx.createGain(); testBus.gain.value = 1;
+-  const tapNode=new AudioWorkletNode(ctx,'xensonar-p0-pcm-tap',{numberOfInputs:1,numberOfOutputs:1,outputChannelCount:[2],processorOptions:{...scope}});
+-  node.connect(testBus).connect(tapNode).connect(ctx.destination);
++  const tapNode=new AudioWorkletNode(ctx,'xensonar-p0-pcm-tap',{numberOfInputs:1,numberOfOutputs:1,outputChannelCount:[2],processorOptions:{...scope,monitorOnly:true}});
++  const tapSink=ctx.createGain();tapSink.gain.value=0;
++  node.connect(testBus);testBus.connect(ctx.destination);
++  testBus.connect(tapNode).connect(tapSink).connect(ctx.destination);
+   const tapEvents=[];
+   const tap=new P0PcmTapClient(tapNode.port,scope,message=>{tapEvents.push({at:performance.now(),...message});if(tapEvents.length>128)tapEvents.shift();});
+   const messages = [], faults=[];
+@@ -162,11 +173,12 @@
+     messages.push({at:performance.now(),...message});if(messages.length>128)messages.shift();
+     if(message.kind==='fault'){faults.push(message.message);if(faults.length>32)faults.shift();log('FAULT',message);}
+   },scope);
+-  node.onprocessorerror=()=>{faults.push('processorerror');client.postSafety({kind:'panic'});log('FAULT','processorerror');};
+-  await ctx.resume();
++  node.onprocessorerror=()=>{faults.push('synth-processorerror');if(faults.length>32)faults.shift();client.postSafety({kind:'panic'});log('FAULT','synth-processorerror');};
++  tapNode.onprocessorerror=()=>{faults.push('tap-processorerror');if(faults.length>32)faults.shift();tap.cancel('tap-processorerror');log('FAULT','tap-processorerror');};
++  await withTimeout(ctx.resume(),4000,'AudioContext resume timeout; start with a user gesture');
+   const preparedFrame=Math.ceil(ctx.currentTime*ctx.sampleRate);
+   const readyLimit=performance.now()+4000;
+-  while(!messages.some(m=>m.kind==='render-proof'&&m.frame>=preparedFrame+ctx.sampleRate*.25)) {
++  while(!tap.ready||!tap.poolReady||!messages.some(m=>m.kind==='render-proof'&&m.frame>=preparedFrame+ctx.sampleRate*.25)) {
+     if(performance.now()>readyLimit||faults.length){await ctx.close();throw new Error('No current render proof');}
+     await sleep(25);
+   }
+@@ -179,7 +191,7 @@
+   const env = legacy323Envelope(ctx.sampleRate, 0.18, false);
+   client.postNormal({ kind: 'program-config', ownerEpoch, header: { revision: 1, tempoMilli: 120000, ...coeff,
+     attackFrames: env.attackFrames, releaseStartFrames: env.releaseStartFrames, stopFrames: env.stopFrames, releaseCoef: env.releaseCoef }, steps: P0_PROGRAM_STEPS });
+-  const session = { ctx, node, client, testBus, tapNode, tap, tapEvents, messages, faults, wasmSha256, ownerEpoch, groupId: 1, tokenGen: new Uint32Array(128), heartbeat: null, stateRevision, rootHz: 220, programGain: 1 };
++  const session = { ctx, node, client, testBus, tapNode, tapSink, tap, tapEvents, messages, faults, wasmSha256, wasmModule, scope, ownerEpoch, groupId: 1, tokenGen: new Uint32Array(128), heartbeat: null, stateRevision, rootHz: 220, programGain: 1 };
+   live=session;
+   const renew = () => {
+     if (live!==session || client.closed) {clearInterval(session.heartbeat);session.heartbeat=null;return;}
+@@ -189,7 +201,7 @@
+   };
+   renew();
+   live.heartbeat = setInterval(renew, 250);
+-  for(const id of ['chord','hold','program'])$(id).disabled=false;
++  for(const id of ['chord','hold','program'])$(id).disabled=automatedRunning;
+   log('live-ready', { sampleRate: ctx.sampleRate, baseLatency: ctx.baseLatency, outputLatency: ctx.outputLatency ?? null });
+   return session;
+   } catch(error) {if(ctx.state!=='closed')await ctx.close();throw error;}
+@@ -199,6 +211,7 @@
+ function nextToken(l, slot) { const g = ++l.tokenGen[slot]; return { tokenSlot: slot, tokenGeneration: g }; }
+ 
+ async function liveChord(freqs = [220,330,440], gated = false, eventAt = performance.now(), onOwner = null) {
++  if(automatedRunning)return [];
+   const l = await startLive(); onOwner?.(l.client); const sr = l.ctx.sampleRate;
+   const eventAge=performance.now()-eventAt;
+   if(!Number.isFinite(eventAge)||eventAge < -1 || eventAge>90)return [];
+@@ -213,8 +226,8 @@
+ }
+ 
+ async function runAutomated() {
+-  if(automatedRunning)return window.__P0_RESULT__??null;
+-  automatedRunning=true;$('autotest').disabled=true;$('download').disabled=true;
++  if(automatedRunning)throw new Error('A probe is already running');
++  probeBusy(true);$('download').disabled=true;
+   const result = { pass: false, protocol: P0_PROTOCOL, scope: 'Browser smoke and offline A/W; physical device and complete P0 acceptance remain separate', tests: {}, environment: {} };
+   try {
+     // Exact 323 transpiled module vs portable core, on-time fixture.
+@@ -235,6 +248,7 @@
+     result.wasmSha256=l.wasmSha256;
+     result.environment = { userAgent: navigator.userAgent, crossOriginIsolated, sampleRate: l.ctx.sampleRate, baseLatency: l.ctx.baseLatency, outputLatency: l.ctx.outputLatency ?? null };
+     const sr = l.ctx.sampleRate;
++    assertProbeActive();
+     const programStart = Math.ceil(l.ctx.currentTime * sr) + 512;
+     l.client.postNormal({ kind: 'program-start', ownerEpoch: l.ownerEpoch, startFrame: programStart });
+     await sleep(400);
+@@ -286,7 +300,7 @@
+ 
+     if (l.heartbeat) { clearInterval(l.heartbeat); l.heartbeat = null; }
+     result.faults=l.faults.slice();
+-    result.pass=assessBrowserResult(result);
++    assertProbeActive();result.pass=assessBrowserResult(result);
+     window.__P0_RESULT__ = result;
+     document.body.dataset.testStatus = result.pass ? 'pass' : 'fail';
+     log('AUTOTEST-DONE', result);
+@@ -296,7 +310,7 @@
+     document.body.dataset.testStatus = 'fail';
+     log('AUTOTEST-ERROR', result.error);
+     if(live){clearInterval(live.heartbeat);live.client.postSafety({kind:'panic'});}
+-  } finally {automatedRunning=false;$('autotest').disabled=false;$('download').disabled=false;}
++  } finally {probeBusy(false);$('download').disabled=false;}
+   return result;
+ }
+ 
+@@ -305,54 +319,76 @@
+   const deadline=performance.now()+timeoutMs;
+   while(Math.ceil(ctx.currentTime*ctx.sampleRate)<targetFrame){if(performance.now()>deadline)throw new Error('audio-frame wait timeout');await sleep(4);}
+ }
+-function expectedProgramNoteStarts(sampleRate,captureStartFrame,programStartFrame,frameCount,tempoBpm=120) {
+-  const stepFrames=sampleRate*60/(tempoBpm*4);const result=[];
+-  for(let step=0;;step++){
+-    const frame=Math.round(programStartFrame+step*stepFrames);if(frame>=captureStartFrame+frameCount)break;
+-    const patternIndex=step%P0_PROGRAM_STEPS.length;if(frame>=captureStartFrame&&P0_PROGRAM_STEPS[patternIndex]?.length)result.push({frame,relativeFrame:frame-captureStartFrame,step:patternIndex,notes:P0_PROGRAM_STEPS[patternIndex].length});
+-  }
+-  return result;
+-}
+-async function runCapturedProgramTake(stallMs=0,{frameCount=60000,overflowExpected=false}={}) {
+-  await stopLive();const l=await startLive();const sr=l.ctx.sampleRate;
+-  const now=Math.ceil(l.ctx.currentTime*sr);const captureStart=now+Math.max(P0_TAP_FRAMES_PER_BUFFER,Math.ceil(sr*.12));
+-  const programStart=captureStart+Math.round(sr*.10);const stallFrame=programStart+Math.round(sr*.22);
+-  const take=l.tap.startCapture(captureStart,frameCount);
+-  const programAccepted=l.client.postNormal({kind:'program-start',ownerEpoch:l.ownerEpoch,startFrame:programStart});
+-  if(!programAccepted)throw new Error('program-start rejected before capture');
+-  await waitForAudioFrame(l.ctx,stallFrame);
+-  const perfStart=performance.now(),audioBefore=Math.ceil(l.ctx.currentTime*sr);if(stallMs>0)busyStall(stallMs);const perfEnd=performance.now(),audioAfter=Math.ceil(l.ctx.currentTime*sr);
+-  const completed=await Promise.race([take.done,new Promise((_,reject)=>setTimeout(()=>reject(new Error('capture timeout')),5000+stallMs))]);
+-  await sleep(50);
+-  const proof=latestProof(l);const traceLongTasks=longTaskEntries.filter(e=>e.startTime<=perfEnd+50&&e.startTime+e.duration>=perfStart-50);
+-  const expectedStarts=expectedProgramNoteStarts(sr,captureStart,programStart,frameCount);
+-  const result={stallRequestedMs:stallMs,stallActualMs:perfEnd-perfStart,stallPerfStart:perfStart,stallPerfEnd:perfEnd,audioFrameBefore:audioBefore,audioFrameAfter:audioAfter,
+-    sampleRate:sr,captureStartFrame:captureStart,programStartFrame:programStart,stallFrame,frameCount,expectedStarts,validation:completed.validation,end:completed.end,
+-    longTasks:traceLongTasks,proof,overflowExpected,data:completed.data};
+-  l.client.postSafety({kind:'panic',ownerEpoch:l.ownerEpoch,fadeFrames:gatedEnvelope(sr).panicFrames});
+-  await sleep(30);return result;
+-}
+-async function runStallCaptureSuite() {
+-  if(automatedRunning)throw new Error('automated probe already running');
+-  $('stallcapture')&&( $('stallcapture').disabled=true );
+-  const report={protocol:P0_PROTOCOL,tapProtocol:'p0-pcm-tap/326-v1',scope:'bounded PCM tap lab evidence; device/loopback and callback CPU budget remain separate',takes:{},pass:false};
++async function runCapturedProgramTake(stallMs=0,{overflowReturns=false}={}) {
++  if(!Number.isFinite(stallMs)||stallMs<0||stallMs>500)throw new Error('UI stall profile must be 0 to 500 ms');
++  assertProbeActive();await stopLive();const l=await startLive();const sr=l.ctx.sampleRate;
+   try {
+-    const baseline=await runCapturedProgramTake(0);report.takes.baseline={...baseline,data:undefined};
+-    for(const ms of [100,250,500]) {
+-      const take=await runCapturedProgramTake(ms);const compare=compareInterleaved(baseline.data,take.data);
+-      report.takes[`stall${ms}`]={...take,data:undefined,compare};
+-    }
+-    const overflow=await runCapturedProgramTake(1800,{frameCount:144000,overflowExpected:true});
+-    report.takes.overflow1800={...overflow,data:undefined};
+-    report.pass=[100,250,500].every(ms=>{const t=report.takes[`stall${ms}`];return t.validation.frameExact&&t.compare.lengthEqual&&t.compare.maxAbs===0&&t.compare.rms===0&&t.stallActualMs>=ms*.95;})
+-      && overflow.validation.gapFrames>0&&overflow.end?.droppedFrames>0&&(overflow.proof?.frame??0)>overflow.captureStartFrame;
+-    window.__P0_STALL_CAPTURE_RESULT__=report;log('STALL-CAPTURE-DONE',report);
+-  } catch(error) {report.error=String(error?.stack??error);window.__P0_STALL_CAPTURE_RESULT__=report;log('STALL-CAPTURE-ERROR',report.error);} finally {$('stallcapture')&&( $('stallcapture').disabled=false );}
++    assertProbeActive();
++    if(l.wasmSha256!==AUDITED_WASM_SHA256)throw new Error('Audited WASM hash mismatch');
++    await waitForEvidence(()=>l.messages.find(m=>m.kind==='receipt'&&m.op==='program-config'&&m.result===1));
++    const frameCount=Math.round(sr*(overflowReturns?3:1.25)),relativeProgramStartFrame=Math.round(sr*.10);
++    const oracle=renderProgramOracle(l.wasmModule,sr,frameCount,relativeProgramStartFrame);
++    const now=Math.ceil(l.ctx.currentTime*sr),captureStart=now+Math.max(P0_TAP_FRAMES_PER_BUFFER,Math.ceil(sr*.12));
++    const programStart=captureStart+relativeProgramStartFrame,stallFrame=programStart+Math.round(sr*.22);
++    const take=l.tap.startCapture(captureStart,frameCount),postedAt=performance.now();
++    if(!l.client.postNormal({kind:'program-start',ownerEpoch:l.ownerEpoch,startFrame:programStart}))throw new Error('Program start transport rejected');
++    const programReceipt=await waitForEvidence(()=>l.messages.find(m=>m.kind==='receipt'&&m.op==='program-start'&&m.at>=postedAt));
++    if(programReceipt.result!==1)throw new Error('Engine rejected program start: '+programReceipt.result);
++    await waitForAudioFrame(l.ctx,stallFrame);assertProbeActive();
++    const perfStart=performance.now(),audioBefore=Math.ceil(l.ctx.currentTime*sr),outputTimestampBefore=l.ctx.getOutputTimestamp?.()??null;
++    const holdRequestedMs=1800;let returnReleaseFrame=null;
++    if(overflowReturns){l.tap.holdBufferReturns(true);try{await sleep(holdRequestedMs);}finally{returnReleaseFrame=Math.ceil(l.ctx.currentTime*sr);l.tap.holdBufferReturns(false);}}
++    else if(stallMs>0)busyStall(stallMs);
++    const perfEnd=performance.now(),audioAfter=Math.ceil(l.ctx.currentTime*sr),outputTimestampAfter=l.ctx.getOutputTimestamp?.()??null;
++    const completed=await withTimeout(take.done,5000,'Capture timeout');assertProbeActive();
++    const proof=await waitForEvidence(()=>{const p=latestProof(l);return p&&p.frame>=captureStart+frameCount?p:null;});
++    await sleep(50);
++    const ranges=completed.chunks.map(c=>[(c.firstFrame-captureStart)*2,(c.firstFrame-captureStart+c.frames)*2]);
++    const result={...l.scope,wasmSha256:l.wasmSha256,stallRequestedMs:stallMs,stallActualMs:overflowReturns?0:perfEnd-perfStart,
++      stallPerfStart:perfStart,stallPerfEnd:perfEnd,audioFrameBefore:audioBefore,audioFrameAfter:audioAfter,outputTimestampBefore,outputTimestampAfter,
++      sampleRate:sr,channels:2,captureStartFrame:captureStart,programStartFrame:programStart,relativeProgramStartFrame,stallFrame,frameCount,
++      expectedStarts:expectedProgramStarts(sr,captureStart,programStart,frameCount),validation:completed.validation,end:completed.end,chunks:completed.chunks,
++      traceSupported,longTasks:longTaskEntries.filter(e=>e.startTime<=perfEnd+5&&e.startTime+e.duration>=perfStart-5),proof,programReceipt,faults:l.faults.slice(),
++      metrics:pcmMetrics(completed.data),oracleCompare:comparePcm(oracle,completed.data,overflowReturns?ranges:null),data:completed.data,
++      environment:{userAgent:navigator.userAgent,crossOriginIsolated,sampleRate:sr,baseLatency:l.ctx.baseLatency,outputLatency:l.ctx.outputLatency??null}};
++    if(overflowReturns)Object.assign(result,{faultInjection:'withheld-buffer-returns',holdRequestedMs,holdActualMs:perfEnd-perfStart,returnReleaseFrame,
++      recoveryMetrics:pcmMetrics(completed.data.subarray(Math.min(frameCount,Math.max(0,returnReleaseFrame-captureStart+256))*2))});
++    result.pcmSha256=await digest(completed.data.buffer);assertProbeActive();return result;
++  } finally {l.tap.holdBufferReturns(false);await stopLive();}
++}
++async function runOneCaptureProbe(ms=0,options={}){
++  if(automatedRunning)throw new Error('A probe is already running');probeBusy(true);
++  try{return await runCapturedProgramTake(ms,options);}finally{probeBusy(false);}
++}
++async function runStallCaptureSuite(){
++  if(automatedRunning)throw new Error('A probe is already running');
++  // W-G1 is executed automatically if it is not already valid for this artifact.
++  if(window.__P0_RESULT__?.pass!==true||window.__P0_RESULT__.wasmSha256!==AUDITED_WASM_SHA256)await runAutomated();
++  probeBusy(true);capturedTakes=[];
++  const report={runId:crypto.randomUUID(),createdAt:new Date().toISOString(),protocol:P0_PROTOCOL,tapProtocol:P0_TAP_PROTOCOL,wasmSha256:AUDITED_WASM_SHA256,wg1:window.__P0_RESULT__??null,
++    scope:'Digital graph PCM/real UI-stall capture; physical output and callback deadline proof remain separate',takes:{},pass:false};
++  try{
++    if(report.wg1?.pass!==true)throw new Error('W-G1 did not pass; PCM suite is not approved to continue');
++    const baseline=await runCapturedProgramTake(0);capturedTakes.push({name:'baseline',...baseline});report.takes.baseline={...baseline,data:undefined};report.environment=baseline.environment;
++    for(const ms of [100,250,500]){const take=await runCapturedProgramTake(ms);take.compare=comparePcm(baseline.data,take.data);capturedTakes.push({name:'stall'+ms,...take});report.takes['stall'+ms]={...take,data:undefined};}
++    const overflow=await runCapturedProgramTake(0,{overflowReturns:true});capturedTakes.push({name:'overflowReturns',...overflow});report.takes.overflowReturns={...overflow,data:undefined};
++    assertProbeActive();report.gates=assessCaptureSuite(report);report.pass=report.gates.pass;
++    report.status=report.pass?'digital-capture-pass':report.gates.sampleContinuityPass&&!report.gates.tracePass?'trace-evidence-pending':'failed';
++    log('STALL-CAPTURE-DONE',report);
++  }catch(error){report.error=String(error?.stack??error);report.status='failed';log('STALL-CAPTURE-ERROR',report.error);}
++  finally{window.__P0_STALL_CAPTURE_RESULT__=report;document.body.dataset.captureStatus=report.status;probeBusy(false);}
+   return report;
+ }
++async function downloadCaptureEvidence(){
++  if(automatedRunning||!window.__P0_STALL_CAPTURE_RESULT__)return;
++  const pcm=[];
++  for(const t of capturedTakes){const bytes=new Uint8Array(t.data.buffer,t.data.byteOffset,t.data.byteLength);let binary='';for(let i=0;i<bytes.length;i+=8192)binary+=String.fromCharCode(...bytes.subarray(i,i+8192));pcm.push({name:t.name,encoding:'f32le-interleaved-stereo',sampleRate:t.sampleRate,frames:t.frameCount,sha256:t.pcmSha256,base64:btoa(binary)});}
++  downloadJson('P0_STALL_CAPTURE_EVIDENCE.json',{format:'p0-pcm-evidence/1',captureOrigin:'browser-page',report:window.__P0_STALL_CAPTURE_RESULT__,pcm});
++}
++
+ function downloadJson(name,value){const url=URL.createObjectURL(new Blob([JSON.stringify(value,null,2)],{type:'application/json'}));const a=document.createElement('a');a.href=url;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);}
+ 
+-window.p0 = { startLive, stopLive, liveChord, runAutomated, runStallCaptureSuite, runCapturedProgramTake, renderReference323, renderCandidateOffline };
++window.p0 = { startLive:()=>{if(automatedRunning)throw new Error('A probe is running');return startLive();}, stopLive, liveChord, runAutomated, runStallCaptureSuite, runCapturedProgramTake:runOneCaptureProbe, renderReference323, renderCandidateOffline };
+ function uiError(error){log('UI-ERROR',String(error?.stack??error));}
+ $('start')?.addEventListener('click', () => startLive().catch(uiError));
+ $('chord')?.addEventListener('click', event => liveChord([220,330,440],false,event.timeStamp).catch(uiError));
+@@ -373,10 +409,12 @@
+ document.addEventListener('visibilitychange',()=>{if(document.hidden)releaseHeld();});
+ $('program')?.addEventListener('click', () => startLive().then(l=>l.client.postNormal({kind:'program-start',ownerEpoch:l.ownerEpoch,startFrame:Math.ceil(l.ctx.currentTime*l.ctx.sampleRate)+256})).catch(uiError));
+ $('stall')?.addEventListener('click', () => busyStall(500));
+-$('panic')?.addEventListener('click', async () => { const l=live;if(!l)return;clearInterval(l.heartbeat);releaseHeld();for(const id of ['chord','hold','program'])$(id).disabled=true;l.client.postSafety({kind:'panic',ownerEpoch:l.ownerEpoch,fadeFrames:gatedEnvelope(l.ctx.sampleRate).panicFrames}); });
+-$('autotest')?.addEventListener('click', runAutomated);
++$('panic')?.addEventListener('click', async () => { if(automatedRunning)probeCancelled=true;const l=live;if(!l)return;clearInterval(l.heartbeat);releaseHeld();for(const id of ['chord','hold','program'])$(id).disabled=true;l.client.postSafety({kind:'panic',ownerEpoch:l.ownerEpoch,fadeFrames:gatedEnvelope(l.ctx.sampleRate).panicFrames}); });
++$('autotest')?.addEventListener('click', ()=>runAutomated().catch(uiError));
+ $('stallcapture')?.addEventListener('click',()=>runStallCaptureSuite().catch(uiError));
+-if (new URLSearchParams(location.search).get('autotest') === '1') setTimeout(runAutomated, 100);
++if (new URLSearchParams(location.search).get('autotest') === '1') setTimeout(()=>runAutomated().catch(uiError), 100);
+ 
+ $('download')?.addEventListener('click',()=>{if(window.__P0_RESULT__)downloadJson('P0_BROWSER_RESULT.json',window.__P0_RESULT__);});
+ $('downloadstall')?.addEventListener('click',()=>{if(window.__P0_STALL_CAPTURE_RESULT__)downloadJson('P0_STALL_CAPTURE_RESULT.json',window.__P0_STALL_CAPTURE_RESULT__);});
++
++$('downloadpcm')?.addEventListener('click',()=>downloadCaptureEvidence().catch(uiError));
+--- /dev/null
++++ b/tools/realtime-p0/web/p0-capture-oracle.js
+@@ -0,0 +1,61 @@
++import {P0_PROGRAM_STEPS,legacy323Envelope,webAudioLowpassCoefficients} from './p0-fixtures.js';
++import {P0_TAP_PROTOCOL} from './p0-pcm-contract.js';
++export const AUDITED_WASM_SHA256='8add51d3875c0b4c5187b4ce8a581f03f3bc238b29b2f3277f05608e62809aa0';
++export function pcmMetrics(data){
++  let peak=0,sum=0,finite=true,nonzero=0;
++  for(const x of data){if(!Number.isFinite(x)){finite=false;continue;}peak=Math.max(peak,Math.abs(x));sum+=x*x;if(x!==0)nonzero++;}
++  return {finite,peak,rms:finite?Math.sqrt(sum/Math.max(1,data.length)):null,nonzeroSamples:nonzero,framesStereo:data.length/2};
++}
++export function comparePcm(a,b,ranges=null){
++  let maxAbs=0,sum=0,samples=0,finite=true;const lengthEqual=a.length===b.length&&a.length>0;
++  const scan=(from,to)=>{for(let i=from;i<to;i++){if(!Number.isFinite(a[i])||!Number.isFinite(b[i])){finite=false;continue;}const d=a[i]-b[i];maxAbs=Math.max(maxAbs,Math.abs(d));sum+=d*d;samples++;}};
++  if(ranges)for(const [from,to] of ranges)scan(from,to);else scan(0,Math.min(a.length,b.length));
++  return {lengthEqual,finite,samplesCompared:samples,maxAbs:finite?maxAbs:null,rms:finite?Math.sqrt(sum/Math.max(1,samples)):null};
++}
++export function expectedProgramStarts(sr,captureStart,programStart,frameCount){
++  const entries=[];
++  for(let step=0;;step++){
++    const frame=programStart+Math.round(step*sr*15000/120000);if(frame>=captureStart+frameCount)break;
++    const index=step%P0_PROGRAM_STEPS.length,count=P0_PROGRAM_STEPS[index].length;
++    if(frame>=captureStart&&count)entries.push({frame,relativeFrame:frame-captureStart,step:index,notes:count});
++  }
++  return entries;
++}
++export function renderProgramOracle(wasmModule,sr,frameCount,relativeStart){
++  const e=new WebAssembly.Instance(wasmModule,{}).exports;e.p0_init(sr);
++  const table=new Float32Array(e.memory.buffer,e.p0_sine_table_ptr(),4096);for(let i=0;i<table.length;i++)table[i]=Math.sin(2*Math.PI*i/table.length);
++  const ok=r=>{if(r!==1)throw new Error('offline program oracle rejected configuration');};
++  ok(e.p0_arm(1,BigInt(Math.round(sr*1.5))));ok(e.p0_set_state(1,1n,220,1));
++  const h=webAudioLowpassCoefficients(sr,2400,1),v=legacy323Envelope(sr,.18,false);
++  ok(e.p0_program_set_header(1,1,P0_PROGRAM_STEPS.length,120000,h.b0,h.b1,h.b2,h.a1,h.a2,v.attackFrames,v.releaseStartFrames,v.stopFrames,v.releaseCoef));
++  for(let i=0;i<P0_PROGRAM_STEPS.length;i++){const s=P0_PROGRAM_STEPS[i],a=s[0]??[1,0],b=s[1]??[1,0],c=s[2]??[1,0];ok(e.p0_program_set_step(1,i,s.length,...a,...b,...c));}
++  ok(e.p0_program_start(1,BigInt(relativeStart)));
++  const data=new Float32Array(frameCount*2),view=new Float32Array(e.memory.buffer,e.p0_output_ptr(),e.p0_max_block()*2);
++  for(let frame=0;frame<frameCount;){const n=Math.min(128,frameCount-frame);ok(e.p0_renew_lease(1,BigInt(frame+Math.round(sr*1.5))));e.p0_render(n);data.set(view.subarray(0,n*2),frame*2);frame+=n;}
++  return data;
++}
++const exact=c=>c?.lengthEqual===true&&c.finite===true&&c.samplesCompared>0&&c.maxAbs===0&&c.rms===0;
++const audible=m=>m?.finite===true&&m.peak>0.001&&Number.isFinite(m.rms)&&m.rms>0;
++function common(t){return !!t&&t.wasmSha256===AUDITED_WASM_SHA256&&t.validation?.integrity===true&&audible(t.metrics)&&exact(t.oracleCompare)
++  &&t.programReceipt?.op==='program-start'&&t.programReceipt.result===1&&t.proof?.ownerClosed===0&&t.proof.programRunning===1&&t.proof.startedProgram>0&&t.proof.fault===false
++  &&t.proof.frame>=t.captureStartFrame+t.frameCount&&t.proof.armedOwnerEpoch===t.ownerEpoch
++  &&t.proof.sessionId===t.sessionId&&t.proof.engineEpoch===t.engineEpoch
++  &&t.programReceipt.sessionId===t.sessionId&&t.programReceipt.engineEpoch===t.engineEpoch&&t.programReceipt.ownerEpoch===t.ownerEpoch
++  &&Array.isArray(t.faults)&&t.faults.length===0;}
++export function hasStallTrace(t){return t?.traceSupported===true&&Array.isArray(t.longTasks)&&t.longTasks.some(e=>Number.isFinite(e.startTime)&&Number.isFinite(e.duration)&&e.startTime<=t.stallPerfStart+5&&e.startTime+e.duration>=t.stallPerfEnd-5);}
++export function assessCaptureSuite(report){
++  const b=report.takes?.baseline;
++  const baselinePass=common(b)&&b.validation.frameExact===true;
++  const normal=baselinePass&&[100,250,500].every(ms=>{const t=report.takes['stall'+ms];return common(t)&&t.validation.frameExact===true&&exact(t.compare)
++    &&t.sampleRate===b.sampleRate&&t.frameCount===b.frameCount&&t.relativeProgramStartFrame===b.relativeProgramStartFrame
++    &&t.stallRequestedMs===ms&&t.stallActualMs>=ms*.95&&t.audioFrameAfter-t.audioFrameBefore>=ms*.90*t.sampleRate/1000;});
++  const o=report.takes?.overflowReturns;
++  const recorderOverflowPass=common(o)&&o.faultInjection==='withheld-buffer-returns'&&o.validation.frameExact===false
++    &&o.validation.gapFrames>0&&o.end?.poolDroppedFrames===o.validation.gapFrames&&o.end.timelineGapFrames===0
++    &&audible(o.recoveryMetrics)&&o.holdActualMs>=o.holdRequestedMs*.95&&o.proof.frame>o.returnReleaseFrame;
++  const tracePass=normal&&[100,250,500].every(ms=>hasStallTrace(report.takes['stall'+ms]));
++  const provenancePass=report.protocol==='p0-w/325-audit1'&&report.tapProtocol===P0_TAP_PROTOCOL&&report.wasmSha256===AUDITED_WASM_SHA256
++    &&report.wg1?.pass===true&&report.wg1.wasmSha256===report.wasmSha256;
++  return {baselinePass:!!baselinePass,sampleContinuityPass:!!normal,recorderOverflowPass:!!recorderOverflowPass,tracePass:!!tracePass,provenancePass:!!provenancePass,
++    pass:!!(baselinePass&&normal&&recorderOverflowPass&&tracePass&&provenancePass),physicalOutputProven:false};
++}
+--- /dev/null
++++ b/tools/realtime-p0/web/p0-pcm-contract.js
+@@ -0,0 +1,10 @@
++// Recording-only protocol. The audited p0-w/325-audit1 control protocol is unchanged.
++export const P0_TAP_PROTOCOL='p0-pcm-tap/326-audit1';
++export const P0_TAP_POOL_BUFFERS=16;
++export const P0_TAP_FRAMES_PER_BUFFER=4096;
++export const P0_TAP_CHANNELS=2;
++export const P0_TAP_BYTES=P0_TAP_FRAMES_PER_BUFFER*P0_TAP_CHANNELS*4;
++export const P0_TAP_MAX_SECONDS=10;
++export const safeInteger=(v,min=0,max=Number.MAX_SAFE_INTEGER)=>Number.isSafeInteger(v)&&v>=min&&v<=max;
++export const validRate=v=>safeInteger(v,8000,96000);
++export const maxChunks=frames=>Math.ceil(frames/P0_TAP_FRAMES_PER_BUFFER)+P0_TAP_POOL_BUFFERS+2;
+--- a/tools/realtime-p0/web/p0-pcm-tap-client.js
++++ b/tools/realtime-p0/web/p0-pcm-tap-client.js
+@@ -1,62 +1,92 @@
+-export const P0_TAP_PROTOCOL='p0-pcm-tap/326-v1';
+-export const P0_TAP_POOL_BUFFERS=16;
+-export const P0_TAP_FRAMES_PER_BUFFER=4096;
+-export const P0_TAP_CHANNELS=2;
+-export const P0_TAP_BYTES=P0_TAP_FRAMES_PER_BUFFER*P0_TAP_CHANNELS*4;
+-
++import {P0_TAP_PROTOCOL,P0_TAP_POOL_BUFFERS,P0_TAP_FRAMES_PER_BUFFER,P0_TAP_BYTES,P0_TAP_MAX_SECONDS,safeInteger,validRate,maxChunks} from './p0-pcm-contract.js';
++export * from './p0-pcm-contract.js';
+ export class P0PcmTapClient {
+-  constructor(port,scope,onEvent=()=>{}) {
+-    this.port=port;this.scope=Object.freeze({...scope});this.onEvent=onEvent;this.nextCaptureId=1;this.takes=new Map();this.ready=false;this.poolAvailable=0;
+-    port.onmessage=(ev)=>this.handle(ev.data);
+-    const buffers=Array.from({length:P0_TAP_POOL_BUFFERS},()=>new ArrayBuffer(P0_TAP_BYTES));
+-    this.send({kind:'pool-init',buffers},buffers);
++  constructor(port,scope,onEvent=()=>{}){
++    this.port=port;this.scope=Object.freeze({...scope});this.onEvent=onEvent;this.nextCaptureId=1;
++    this.takes=new Map();this.ready=false;this.poolReady=false;this.sampleRate=0;this.closed=false;this.drainingId=null;
++    this.seenGeneration=Array(P0_TAP_POOL_BUFFERS).fill(0);this.heldReturns=Array(P0_TAP_POOL_BUFFERS).fill(null);this.holdingReturns=false;
++    port.onmessage=ev=>this.handle(ev.data);
++    const buffers=Array.from({length:P0_TAP_POOL_BUFFERS},(_,bufferId)=>({bufferId,buffer:new ArrayBuffer(P0_TAP_BYTES)}));
++    this.send({kind:'pool-init',buffers},buffers.map(x=>x.buffer));
+   }
+-  send(message,transfer=[]) { this.port.postMessage({...message,...this.scope,protocol:P0_TAP_PROTOCOL},transfer); }
+-  matches(m) { return m?.protocol===P0_TAP_PROTOCOL&&m.sessionId===this.scope.sessionId&&m.engineEpoch===this.scope.engineEpoch&&m.ownerEpoch===this.scope.ownerEpoch; }
+-  handle(m) {
+-    if(!this.matches(m))return;
+-    if(m.kind==='tap-ready')this.ready=true;
+-    if(m.kind==='pool-status')this.poolAvailable=m.available;
+-    if(m.kind==='pcm-chunk') {
+-      const take=this.takes.get(m.captureId);
+-      if(take&&m.buffer instanceof ArrayBuffer&&Number.isSafeInteger(m.firstFrame)&&Number.isSafeInteger(m.frames)&&m.frames>0&&m.frames<=P0_TAP_FRAMES_PER_BUFFER) {
+-        const offset=m.firstFrame-take.startFrame;
+-        if(offset>=0&&offset+m.frames<=take.frameCount) {
+-          const source=new Float32Array(m.buffer,0,m.frames*P0_TAP_CHANNELS);
+-          take.data.set(source,offset*P0_TAP_CHANNELS);
+-          take.chunks.push({sequence:m.sequence,firstFrame:m.firstFrame,frames:m.frames});
+-          take.receivedFrames+=m.frames;
+-        } else take.invalidChunks++;
++  send(m,transfer=[]){if(!this.closed)this.port.postMessage({...m,...this.scope,protocol:P0_TAP_PROTOCOL},transfer);}
++  matches(m){return m?.protocol===P0_TAP_PROTOCOL&&m.sessionId===this.scope.sessionId&&m.engineEpoch===this.scope.engineEpoch&&m.ownerEpoch===this.scope.ownerEpoch;}
++  invalid(take){if(take)take.invalidChunks++;}
++  returnBuffer(m){
++    const r={kind:'buffer-return',bufferId:m.bufferId,bufferGeneration:m.bufferGeneration,buffer:m.buffer};
++    if(this.holdingReturns)this.heldReturns[m.bufferId]=r;else this.send(r,[r.buffer]);
++  }
++  holdBufferReturns(hold){
++    this.holdingReturns=!!hold;
++    if(!hold)for(let i=0;i<this.heldReturns.length;i++){const r=this.heldReturns[i];if(r){this.heldReturns[i]=null;this.send(r,[r.buffer]);}}
++  }
++  handle(m){
++    if(this.closed)return;
++    const active=this.takes.values().next().value;
++    if(!this.matches(m)){this.invalid(active);return;}
++    if(m.kind==='tap-ready'){
++      if(validRate(m.sampleRate)&&m.poolBuffers===P0_TAP_POOL_BUFFERS&&m.framesPerBuffer===P0_TAP_FRAMES_PER_BUFFER){this.ready=true;this.sampleRate=m.sampleRate;}
++    }else if(m.kind==='pool-status')this.poolReady=m.initialized===true&&m.poolSize===P0_TAP_POOL_BUFFERS&&m.available===P0_TAP_POOL_BUFFERS;
++    else if(m.kind==='capture-armed'){
++      const t=this.takes.get(m.captureId);
++      if(t){t.armed=m.startFrame===t.startFrame&&m.endFrame===t.startFrame+t.frameCount&&m.expectedFrames===t.frameCount&&m.sampleRate===this.sampleRate&&m.channels===2&&m.poolSize===P0_TAP_POOL_BUFFERS;if(!t.armed)this.invalid(t);}
++    }else if(m.kind==='capture-rejected'){
++      const t=this.takes.get(m.captureId);if(t)this.finish(t,null,m.reason??'capture-rejected');
++    }else if(m.kind==='pcm-chunk'){
++      const t=this.takes.get(m.captureId);
++      const validLoan=safeInteger(m.bufferId,0,P0_TAP_POOL_BUFFERS-1)&&safeInteger(m.bufferGeneration,1)
++        &&m.bufferGeneration===this.seenGeneration[m.bufferId]+1&&m.buffer instanceof ArrayBuffer&&m.buffer.byteLength===P0_TAP_BYTES;
++      if(!validLoan){this.invalid(t??active);return;}
++      this.seenGeneration[m.bufferId]=m.bufferGeneration;
++      if(t){
++        const valid=t.armed&&m.sampleRate===this.sampleRate&&m.channels===2&&safeInteger(m.sequence,1)&&m.sequence===t.lastSequence+1
++          &&safeInteger(m.firstFrame,t.startFrame)&&safeInteger(m.frames,1,P0_TAP_FRAMES_PER_BUFFER)
++          &&m.firstFrame+m.frames<=t.startFrame+t.frameCount&&m.firstFrame>=t.cursor&&t.chunks.length<maxChunks(t.frameCount);
++        if(valid){
++          const values=new Float32Array(m.buffer,0,m.frames*2);for(let i=0;i<values.length;i++)if(!Number.isFinite(values[i]))t.nonfiniteSamples++;
++          t.data.set(values,(m.firstFrame-t.startFrame)*2);t.gapFrames+=m.firstFrame-t.cursor;t.cursor=m.firstFrame+m.frames;
++          t.receivedFrames+=m.frames;t.lastSequence=m.sequence;t.chunks.push({sequence:m.sequence,firstFrame:m.firstFrame,frames:m.frames,bufferId:m.bufferId,bufferGeneration:m.bufferGeneration});
++        }else this.invalid(t);
+       }
+-      if(m.buffer instanceof ArrayBuffer)this.send({kind:'buffer-return',buffer:m.buffer},[m.buffer]);
+-    } else if(m.kind==='capture-end') {
+-      const take=this.takes.get(m.captureId);
+-      if(take) {
+-        take.end=m;
+-        take.complete=true;
+-        const validation=this.validate(take);
+-        take.resolve?.({...take,validation});take.resolve=null;take.reject=null;
+-      }
++      this.returnBuffer(m);
++    }else if(m.kind==='capture-end'){
++      if(this.drainingId===m.captureId)this.drainingId=null;
++      const t=this.takes.get(m.captureId);if(t)this.finish(t,m,null);
+     }
+-    this.onEvent(m);
++    // Raw transferred buffers are not retained by diagnostic listeners.
++    const {buffer,buffers,...metadata}=m;this.onEvent(metadata);
+   }
+-  startCapture(startFrame,frameCount) {
+-    if(!Number.isSafeInteger(startFrame)||startFrame<0||!Number.isSafeInteger(frameCount)||frameCount<1)throw new Error('invalid capture range');
++  startCapture(startFrame,frameCount){
++    if(this.closed||!this.ready||!this.poolReady)throw new Error('tap is not ready');
++    if(this.takes.size||this.drainingId!==null||this.holdingReturns)throw new Error('one active capture only');
++    if(!safeInteger(startFrame)||!safeInteger(frameCount,1,this.sampleRate*P0_TAP_MAX_SECONDS)||!safeInteger(startFrame+frameCount)||!safeInteger(this.nextCaptureId,1))throw new Error('invalid capture range');
+     const captureId=this.nextCaptureId++;
+-    const take={captureId,startFrame,frameCount,data:new Float32Array(frameCount*P0_TAP_CHANNELS),chunks:[],receivedFrames:0,invalidChunks:0,complete:false,end:null,resolve:null,reject:null};
+-    take.done=new Promise((resolve,reject)=>{take.resolve=resolve;take.reject=reject;});
+-    this.takes.set(captureId,take);
+-    this.send({kind:'capture-start',captureId,startFrame,frameCount});
+-    return take;
++    const t={captureId,startFrame,frameCount,data:new Float32Array(frameCount*2),chunks:[],receivedFrames:0,invalidChunks:0,nonfiniteSamples:0,armed:false,lastSequence:0,cursor:startFrame,gapFrames:0};
++    t.done=new Promise(resolve=>{t.resolve=resolve;});this.takes.set(captureId,t);this.send({kind:'capture-start',captureId,startFrame,frameCount});return t;
+   }
+-  validate(take) {
+-    const chunks=take.chunks.slice().sort((a,b)=>a.firstFrame-b.firstFrame||a.sequence-b.sequence);
+-    let cursor=take.startFrame,gaps=0,overlap=0;
+-    for(const c of chunks){if(c.firstFrame>cursor)gaps+=c.firstFrame-cursor;else if(c.firstFrame<cursor)overlap+=cursor-c.firstFrame;cursor=Math.max(cursor,c.firstFrame+c.frames);}
+-    if(cursor<take.startFrame+take.frameCount)gaps+=take.startFrame+take.frameCount-cursor;
+-    const end=take.end;
+-    return {complete:!!take.complete,receivedFrames:take.receivedFrames,expectedFrames:take.frameCount,gapFrames:gaps,overlapFrames:overlap,
+-      invalidChunks:take.invalidChunks,droppedFrames:end?.droppedFrames??null,capturedFrames:end?.capturedFrames??null,chunkCount:chunks.length,
+-      frameExact:gaps===0&&overlap===0&&take.invalidChunks===0&&take.receivedFrames===take.frameCount&&(end?.droppedFrames??1)===0};
++  validate(t,end=null,reason=null){
++    const gapFrames=t.gapFrames+Math.max(0,t.startFrame+t.frameCount-t.cursor);
++    const counters=['capturedFrames','droppedFrames','poolDroppedFrames','timelineGapFrames','timelineOverlapFrames','formatErrorFrames','nonfiniteFrames','chunks'];
++    const endMatches=!!end&&end.captureId===t.captureId&&end.startFrame===t.startFrame&&end.endFrame===t.startFrame+t.frameCount
++      &&end.expectedFrames===t.frameCount&&end.sampleRate===this.sampleRate&&end.channels===2&&end.aborted===false
++      &&counters.every(k=>safeInteger(end[k]))&&end.capturedFrames===t.receivedFrames&&end.chunks===t.chunks.length
++      &&end.capturedFrames+end.droppedFrames===t.frameCount&&end.droppedFrames===gapFrames
++      &&end.droppedFrames===end.poolDroppedFrames+end.timelineGapFrames;
++    const integrity=!!t.armed&&!reason&&endMatches&&t.invalidChunks===0&&t.nonfiniteSamples===0
++      &&end.timelineGapFrames===0&&end.timelineOverlapFrames===0&&end.formatErrorFrames===0&&end.nonfiniteFrames===0;
++    return {complete:!!end&&!reason,armed:t.armed,endMatches,reason,receivedFrames:t.receivedFrames,expectedFrames:t.frameCount,
++      gapFrames,overlapFrames:end?.timelineOverlapFrames??0,invalidChunks:t.invalidChunks,nonfiniteSamples:t.nonfiniteSamples,
++      droppedFrames:end?.droppedFrames??null,poolDroppedFrames:end?.poolDroppedFrames??null,capturedFrames:end?.capturedFrames??null,chunkCount:t.chunks.length,
++      integrity,frameExact:integrity&&gapFrames===0&&t.receivedFrames===t.frameCount};
+   }
++  finish(t,end,reason){
++    const validation=this.validate(t,end,reason);this.takes.delete(t.captureId);
++    const result={captureId:t.captureId,startFrame:t.startFrame,frameCount:t.frameCount,sampleRate:this.sampleRate,channels:2,data:t.data,chunks:t.chunks,validation,end};
++    t.resolve(result);t.resolve=null;
++  }
++  cancel(reason='capture-cancelled'){
++    const t=this.takes.values().next().value;if(!t)return;
++    this.drainingId=t.captureId;this.send({kind:'capture-stop',captureId:t.captureId});this.finish(t,null,reason);this.holdBufferReturns(false);
++  }
++  close(){this.cancel('context-closed');this.closed=true;this.port.onmessage=null;this.heldReturns.fill(null);}
+ }
+--- a/tools/realtime-p0/worklet/p0-pcm-tap.js
++++ b/tools/realtime-p0/worklet/p0-pcm-tap.js
+@@ -1,99 +1,95 @@
+-const TAP_PROTOCOL='p0-pcm-tap/326-v1';
+-const POOL_BUFFERS=16;
+-const FRAMES_PER_BUFFER=4096;
+-const CHANNELS=2;
+-const BYTES_PER_BUFFER=FRAMES_PER_BUFFER*CHANNELS*4;
+-const safeInt=(v,min=0,max=Number.MAX_SAFE_INTEGER)=>Number.isSafeInteger(v)&&v>=min&&v<=max;
+-
++import {P0_TAP_PROTOCOL as PROTOCOL,P0_TAP_POOL_BUFFERS as CAPACITY,P0_TAP_FRAMES_PER_BUFFER as BLOCK,P0_TAP_BYTES as BYTES,P0_TAP_MAX_SECONDS,safeInteger,validRate} from '../web/p0-pcm-contract.js';
++// Slots are unavailable, available, current, or in flight. Only a matching loan
++// can return an in-flight slot. No allocation of PCM/views occurs in process().
++const AVAILABLE=1,CURRENT=2,IN_FLIGHT=3;
+ class XensonarP0PcmTapProcessor extends AudioWorkletProcessor {
+-  constructor(options) {
+-    super();
+-    const o=options?.processorOptions??{};
+-    if(typeof o.sessionId!=='string'||typeof o.engineEpoch!=='string'||!safeInt(o.ownerEpoch,1,0xffffffff))throw new Error('PCM tap missing scope');
++  constructor(options){
++    super();const o=options?.processorOptions??{};
++    if(typeof o.sessionId!=='string'||typeof o.engineEpoch!=='string'||!safeInteger(o.ownerEpoch,1,0xffffffff)||!validRate(sampleRate))throw new Error('PCM tap scope/rate unsupported');
+     this.scope={sessionId:o.sessionId,engineEpoch:o.engineEpoch,ownerEpoch:o.ownerEpoch};
+-    this.pool=[];
+-    this.capture=null;
+-    this.currentBuffer=null;
+-    this.currentView=null;
+-    this.currentFirstFrame=0;
+-    this.writeFrames=0;
+-    this.chunkSequence=0;
+-    this.totalTransferred=0;
+-    this.totalDropped=0;
+-    this.port.onmessage=(ev)=>this.onMessage(ev.data);
+-    this.post({kind:'tap-ready',frame:currentFrame,sampleRate,poolBuffers:POOL_BUFFERS,framesPerBuffer:FRAMES_PER_BUFFER});
++    this.monitorOnly=o.monitorOnly===true;
++    this.slots=Array(CAPACITY).fill(null);this.initialized=false;this.poolSize=0;this.current=-1;this.capture=null;this.lastCaptureId=0;
++    this.port.onmessage=ev=>this.onMessage(ev.data);
++    this.post({kind:'tap-ready',frame:currentFrame,sampleRate,poolBuffers:CAPACITY,framesPerBuffer:BLOCK});
+   }
+-  post(message,transfer=[]) { this.port.postMessage({...message,...this.scope,protocol:TAP_PROTOCOL},transfer); }
+-  scopeMatches(m) { return m?.protocol===TAP_PROTOCOL&&m.sessionId===this.scope.sessionId&&m.engineEpoch===this.scope.engineEpoch&&m.ownerEpoch===this.scope.ownerEpoch; }
+-  acceptBuffer(buffer) {
+-    if(!(buffer instanceof ArrayBuffer)||buffer.byteLength!==BYTES_PER_BUFFER||this.pool.length>=POOL_BUFFERS)return false;
+-    this.pool.push(buffer);return true;
++  packet(m){return {...m,...this.scope,protocol:PROTOCOL};}
++  post(m){this.port.postMessage(this.packet(m));}
++  matches(m){return m?.protocol===PROTOCOL&&m.sessionId===this.scope.sessionId&&m.engineEpoch===this.scope.engineEpoch&&m.ownerEpoch===this.scope.ownerEpoch;}
++  available(){let n=0;for(let i=0;i<this.poolSize;i++)if(this.slots[i].state===AVAILABLE)n++;return n;}
++  onMessage(m){
++    if(!this.matches(m))return;
++    if(m.kind==='pool-init'){
++      if(this.initialized||!Array.isArray(m.buffers)||m.buffers.length<1||m.buffers.length>CAPACITY)return;
++      for(let i=0;i<m.buffers.length;i++){
++        const x=m.buffers[i];if(x?.bufferId!==i||!(x.buffer instanceof ArrayBuffer)||x.buffer.byteLength!==BYTES)return;
++        for(let j=0;j<i;j++)if(m.buffers[j].buffer===x.buffer)return;
++      }
++      this.poolSize=m.buffers.length;
++      for(let i=0;i<this.poolSize;i++){
++        const b=m.buffers[i].buffer;
++        this.slots[i]={state:AVAILABLE,generation:0,view:new Float32Array(b),writeFrames:0,firstFrame:0,transfer:[b],message:this.packet({kind:'pcm-chunk',bufferId:i,bufferGeneration:0,captureId:0,sequence:0,firstFrame:0,frames:0,sampleRate,channels:2,buffer:b})};
++      }
++      this.initialized=true;this.post({kind:'pool-status',initialized:true,poolSize:this.poolSize,available:this.available(),frame:currentFrame});return;
++    }
++    if(m.kind==='buffer-return'){
++      if(!safeInteger(m.bufferId,0,this.poolSize-1)||!safeInteger(m.bufferGeneration,1))return;
++      const s=this.slots[m.bufferId];
++      if(s.state!==IN_FLIGHT||s.generation!==m.bufferGeneration||!(m.buffer instanceof ArrayBuffer)||m.buffer.byteLength!==BYTES)return;
++      s.view=new Float32Array(m.buffer);s.transfer[0]=m.buffer;s.message.buffer=m.buffer;s.state=AVAILABLE;return;
++    }
++    if(m.kind==='capture-start'){
++      let reason=null;
++      if(!this.initialized)reason='pool-not-ready';else if(this.capture)reason='capture-busy';
++      else if(!safeInteger(m.captureId,1)||m.captureId<=this.lastCaptureId)reason='capture-id';
++      else if(!safeInteger(m.startFrame,currentFrame,currentFrame+sampleRate*2)||!safeInteger(m.frameCount,1,sampleRate*P0_TAP_MAX_SECONDS)||!safeInteger(m.startFrame+m.frameCount))reason='capture-range';
++      if(reason){this.post({kind:'capture-rejected',captureId:m.captureId,reason,frame:currentFrame});return;}
++      this.lastCaptureId=m.captureId;
++      this.capture={captureId:m.captureId,startFrame:m.startFrame,endFrame:m.startFrame+m.frameCount,expectedFrames:m.frameCount,nextFrame:m.startFrame,
++        capturedFrames:0,poolDroppedFrames:0,timelineGapFrames:0,timelineOverlapFrames:0,formatErrorFrames:0,nonfiniteFrames:0,chunks:0,aborted:false,
++        endMessage:this.packet({kind:'capture-end',captureId:m.captureId,startFrame:m.startFrame,endFrame:m.startFrame+m.frameCount,expectedFrames:m.frameCount,sampleRate,channels:2})};
++      this.current=-1;this.post({kind:'capture-armed',captureId:m.captureId,startFrame:m.startFrame,endFrame:m.startFrame+m.frameCount,expectedFrames:m.frameCount,sampleRate,channels:2,poolSize:this.poolSize,available:this.available(),frame:currentFrame});return;
++    }
++    if(m.kind==='capture-stop'&&this.capture?.captureId===m.captureId){this.capture.aborted=true;this.finishCapture();}
+   }
+-  onMessage(m) {
+-    if(!this.scopeMatches(m))return;
+-    if(m.kind==='pool-init') {
+-      if(!Array.isArray(m.buffers)||m.buffers.length>POOL_BUFFERS)return;
+-      for(const b of m.buffers)this.acceptBuffer(b);
+-      this.post({kind:'pool-status',available:this.pool.length,frame:currentFrame});
+-      return;
++  acquire(frame){
++    if(this.current>=0)return true;
++    for(let i=0;i<this.poolSize;i++)if(this.slots[i].state===AVAILABLE){const s=this.slots[i];s.state=CURRENT;s.writeFrames=0;s.firstFrame=frame;this.current=i;return true;}
++    return false;
++  }
++  flushChunk(){
++    if(this.current<0||!this.capture)return;
++    const s=this.slots[this.current],c=this.capture;this.current=-1;
++    if(!s.writeFrames){s.state=AVAILABLE;return;}
++    c.chunks++;c.capturedFrames+=s.writeFrames;s.generation++;s.state=IN_FLIGHT;
++    const m=s.message;m.bufferGeneration=s.generation;m.captureId=c.captureId;m.sequence=c.chunks;m.firstFrame=s.firstFrame;m.frames=s.writeFrames;
++    this.port.postMessage(m,s.transfer);s.view=null;
++  }
++  finishCapture(){
++    const c=this.capture;if(!c)return;this.flushChunk();this.capture=null;
++    const m=c.endMessage;m.capturedFrames=c.capturedFrames;m.poolDroppedFrames=c.poolDroppedFrames;m.timelineGapFrames=c.timelineGapFrames;
++    m.droppedFrames=c.poolDroppedFrames+c.timelineGapFrames;m.timelineOverlapFrames=c.timelineOverlapFrames;m.formatErrorFrames=c.formatErrorFrames;m.nonfiniteFrames=c.nonfiniteFrames;
++    m.chunks=c.chunks;m.aborted=c.aborted;m.frame=currentFrame;this.port.postMessage(m);
++  }
++  process(inputs,outputs){
++    const input=inputs[0],output=outputs[0];const frames=output?.[0]?.length??input?.[0]?.length??0;
++    if(output)for(let c=0;c<output.length;c++){const source=input?.[Math.min(c,(input?.length??1)-1)];if(!this.monitorOnly&&source?.length===frames)output[c].set(source);else output[c].fill(0);}
++    const cap=this.capture;if(!cap||!frames)return true;
++    const blockEnd=currentFrame+frames;
++    if(blockEnd<=cap.startFrame)return true;
++    if(currentFrame>cap.nextFrame){this.flushChunk();const gap=Math.max(0,Math.min(currentFrame,cap.endFrame)-cap.nextFrame);cap.timelineGapFrames+=gap;cap.nextFrame+=gap;}
++    if(currentFrame<cap.nextFrame&&currentFrame>=cap.startFrame)cap.timelineOverlapFrames+=Math.max(0,Math.min(blockEnd,cap.nextFrame)-currentFrame);
++    const first=Math.max(currentFrame,cap.nextFrame,cap.startFrame),last=Math.min(blockEnd,cap.endFrame);
++    const formatOk=input?.length===2&&input[0].length===frames&&input[1].length===frames;
++    for(let frame=first;frame<last;frame++){
++      const i=frame-currentFrame,l=input?.[0]?.[i]??0,r=input?.[1]?.[i]??l;
++      if(!formatOk)cap.formatErrorFrames++;
++      if(!Number.isFinite(l)||!Number.isFinite(r))cap.nonfiniteFrames++;
++      if(!this.acquire(frame)){cap.poolDroppedFrames++;continue;}
++      const s=this.slots[this.current],j=s.writeFrames*2;s.view[j]=l;s.view[j+1]=r;s.writeFrames++;
++      if(s.writeFrames===BLOCK)this.flushChunk();
+     }
+-    if(m.kind==='buffer-return') { this.acceptBuffer(m.buffer); return; }
+-    if(m.kind==='capture-start') {
+-      if(this.capture||!safeInt(m.captureId,1)||!safeInt(m.startFrame)||!safeInt(m.frameCount,1,Math.round(sampleRate*10)))return;
+-      const endFrame=m.startFrame+m.frameCount;
+-      if(!safeInt(endFrame,m.startFrame+1))return;
+-      this.capture={captureId:m.captureId,startFrame:m.startFrame,endFrame,expectedFrames:m.frameCount,capturedFrames:0,droppedFrames:0,chunks:0};
+-      this.currentBuffer=null;this.currentView=null;this.writeFrames=0;this.currentFirstFrame=0;this.chunkSequence=0;
+-      this.post({kind:'capture-armed',captureId:m.captureId,startFrame:m.startFrame,endFrame,available:this.pool.length,frame:currentFrame});
+-      return;
+-    }
+-    if(m.kind==='capture-stop'&&this.capture&&m.captureId===this.capture.captureId) {
+-      this.capture.endFrame=Math.min(this.capture.endFrame,Math.max(Number(currentFrame),this.capture.startFrame));
+-    }
+-  }
+-  acquire(frame) {
+-    if(this.currentBuffer)return true;
+-    const buffer=this.pool.pop();
+-    if(!buffer)return false;
+-    this.currentBuffer=buffer;this.currentView=new Float32Array(buffer);this.currentFirstFrame=frame;this.writeFrames=0;
+-    return true;
+-  }
+-  flushChunk() {
+-    if(!this.currentBuffer||this.writeFrames<=0)return;
+-    const buffer=this.currentBuffer,frames=this.writeFrames,firstFrame=this.currentFirstFrame,captureId=this.capture?.captureId??0;
+-    this.currentBuffer=null;this.currentView=null;this.writeFrames=0;this.currentFirstFrame=0;
+-    if(this.capture){this.capture.chunks++;this.capture.capturedFrames+=frames;}
+-    this.totalTransferred+=frames;
+-    this.post({kind:'pcm-chunk',captureId,sequence:++this.chunkSequence,firstFrame,frames,sampleRate,channels:CHANNELS,buffer},[buffer]);
+-  }
+-  finishCapture() {
+-    const c=this.capture;if(!c)return;
+-    this.flushChunk();
+-    this.capture=null;
+-    this.totalDropped+=c.droppedFrames;
+-    this.post({kind:'capture-end',captureId:c.captureId,startFrame:c.startFrame,endFrame:c.endFrame,expectedFrames:c.expectedFrames,
+-      capturedFrames:c.capturedFrames,droppedFrames:c.droppedFrames,chunks:c.chunks,totalTransferred:this.totalTransferred,totalDropped:this.totalDropped,frame:Number(currentFrame)});
+-  }
+-  process(inputs,outputs) {
+-    const input=inputs[0]??[],output=outputs[0]??[];
+-    const frames=output[0]?.length??input[0]?.length??0;
+-    for(let c=0;c<output.length;c++) {
+-      const src=input[Math.min(c,Math.max(0,input.length-1))];
+-      if(src)output[c].set(src);else output[c].fill(0);
+-    }
+-    const cap=this.capture;
+-    if(!cap||frames===0)return true;
+-    for(let i=0;i<frames;i++) {
+-      const frame=Number(currentFrame)+i;
+-      if(frame<cap.startFrame)continue;
+-      if(frame>=cap.endFrame){this.finishCapture();break;}
+-      if(!this.acquire(frame)){cap.droppedFrames++;continue;}
+-      const l=input[0]?.[i]??0,r=input[1]?.[i]??l;
+-      const j=this.writeFrames*2;this.currentView[j]=l;this.currentView[j+1]=r;this.writeFrames++;
+-      if(this.writeFrames===FRAMES_PER_BUFFER)this.flushChunk();
+-    }
+-    if(this.capture&&Number(currentFrame)+frames>=this.capture.endFrame)this.finishCapture();
+-    return true;
++    cap.nextFrame=Math.max(cap.nextFrame,last);
++    if(blockEnd>=cap.endFrame)this.finishCapture();return true;
+   }
+ }
+ registerProcessor('xensonar-p0-pcm-tap',XensonarP0PcmTapProcessor);

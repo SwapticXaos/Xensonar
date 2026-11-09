@@ -1,0 +1,12 @@
+import fs from 'node:fs';
+const src=fs.readFileSync('src/features/xensonar/browserImplant/useBrowserWaveStarterImplant.ts','utf8');
+const assert=(c,m)=>{if(!c)throw new Error(m);};
+assert(src.includes("import { TonePlanRecordEncoder } from './protocol/tonePlanRecord';"),'encoder import missing');
+assert(src.includes('const tonePlanEncoderRef = useRef<TonePlanRecordEncoder | null>(null);'),'encoder lifetime ref missing');
+assert(src.includes('tonePlanEncoderRef.current = new TonePlanRecordEncoder();'),'encoder not created with host session');
+assert(src.includes('tonePlanEncoderRef.current = null;'),'encoder not released');
+const attack=src.slice(src.indexOf('const tryAttack = useCallback'),src.indexOf('const noteLegacyBypass'));
+assert(!attack.includes('new TonePlanRecordEncoder()'),'attack path allocates encoder');
+assert(attack.includes('encoder,'),'existing encoder not passed to transport encoder');
+for(const anchor of ['const leadFrames = 256;','const targetFrame = host.currentContextFrame() + leadFrames + ageOffsetFrames;','const sent = host.trySubmitTonePlan(record);']) assert(attack.includes(anchor),`scheduling anchor changed: ${anchor}`);
+console.log(JSON.stringify({pass:true,checks:8},null,2));

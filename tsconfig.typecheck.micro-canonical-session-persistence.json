@@ -1,0 +1,16 @@
+{
+  "extends": "./tsconfig.typecheck.browser.json",
+  "compilerOptions": {
+    "noEmit": true
+  },
+  "include": [
+    "src/features/l3lab/canonicalForge/session.ts",
+    "src/features/l3lab/canonicalForge/projectLibrary.ts",
+    "src/features/l3lab/canonicalForge/projectHydrationActions.ts",
+    "src/features/l3lab/canonicalForge/useCanonicalForgeSessionSync.ts",
+    "src/features/l3lab/canonicalForge/loopDrumDomain.ts",
+    "src/features/l3lab/canonicalForge/loopDrumDomainTypes.ts",
+    "src/features/l3lab/canonicalForge/spectralWorkspaceUtils.ts",
+    "src/vite-env.d.ts"
+  ]
+}

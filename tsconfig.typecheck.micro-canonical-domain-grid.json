@@ -1,0 +1,18 @@
+{
+  "extends": "./tsconfig.typecheck.browser.json",
+  "compilerOptions": {
+    "noEmit": true
+  },
+  "include": [
+    "src/features/l3lab/canonicalForge/loopGridKernel.ts",
+    "src/features/l3lab/canonicalForge/loopDrumDomain.ts",
+    "src/features/l3lab/canonicalForge/loopSnap.ts",
+    "src/features/l3lab/canonicalForge/viewportMath.ts",
+    "src/features/l3lab/canonicalForge/drumMachineState.ts",
+    "src/features/l3lab/canonicalForge/drumProgram.ts",
+    "src/features/l3lab/contracts/**/*",
+    "src/core/**/*",
+    "src/utils/**/*",
+    "src/vite-env.d.ts"
+  ]
+}

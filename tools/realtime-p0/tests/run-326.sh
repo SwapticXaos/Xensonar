@@ -1,0 +1,26 @@
+#!/usr/bin/env bash
+set -euo pipefail
+HERE="$(cd "$(dirname "$0")/.." && pwd)"
+# Patch 326 is measurement-only. Preserve Astra audit1's exact DSP binaries.
+EXPECTED_WASM="8add51d3875c0b4c5187b4ce8a581f03f3bc238b29b2f3277f05608e62809aa0"
+ACTUAL_WASM="$(sha256sum "$HERE/artifacts/p0_core.wasm" | awk '{print $1}')"
+[[ "$ACTUAL_WASM" == "$EXPECTED_WASM" ]] || { echo "audited WASM hash mismatch: $ACTUAL_WASM" >&2; exit 1; }
+node "$HERE/tests/test-reference323.mjs" > "$HERE/artifacts/REFERENCE_323_TRACE_TEST.json"
+node "$HERE/tests/test-wasm-core.mjs" > "$HERE/artifacts/WASM_CORE_TEST.json"
+node "$HERE/tests/test-worklet-adapter.mjs" > "$HERE/artifacts/WORKLET_ADAPTER_MODEL_TEST.json"
+node "$HERE/tests/test-audit-regressions.mjs" > "$HERE/artifacts/ASTRA_REGRESSION_TEST.json"
+node "$HERE/tests/test-transport-safety.mjs" > "$HERE/artifacts/TRANSPORT_SAFETY_MODEL_TEST.json"
+node "$HERE/tests/test-pcm-tap.mjs" > "$HERE/artifacts/PCM_TAP_MODEL_TEST.json"
+node "$HERE/tests/test-pcm-tap-client.mjs" > "$HERE/artifacts/PCM_TAP_CLIENT_TEST.json"
+node "$HERE/tests/test-capture-oracle.mjs" > "$HERE/artifacts/CAPTURE_ORACLE_MODEL_TEST.json"
+"$HERE/artifacts/p0_native_core_smoke" > "$HERE/artifacts/NATIVE_CORE_SMOKE.json"
+node --check "$HERE/worklet/p0-worklet.js"
+node --check "$HERE/worklet/p0-pcm-tap.js"
+node --check "$HERE/web/main.js"
+node --check "$HERE/web/p0-client.js"
+node --check "$HERE/web/p0-pcm-tap-client.js"
+node --check "$HERE/web/p0-pcm-contract.js"
+node --check "$HERE/web/p0-capture-oracle.js"
+node --check "$HERE/harness/unpack-pcm-evidence.mjs"
+node --check "$HERE/web/p0-fixtures.js"
+echo "P0 325-audit1 + 326-audit1 PCM source/model and evidence-recomputation suite PASS; browser/device gates remain open"

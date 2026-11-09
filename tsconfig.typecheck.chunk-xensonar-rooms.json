@@ -1,0 +1,20 @@
+{
+  "extends": "./tsconfig.typecheck.browser.json",
+  "compilerOptions": {
+    "noEmit": true
+  },
+  "include": [
+    "src/components/**/*",
+    "src/features/xensonar/layout/**/*",
+    "src/features/xensonar/rooms/**/*",
+    "src/features/xensonar/domain/**/*",
+    "src/features/xensonar/audio/**/*",
+    "src/features/xensonar/material/**/*",
+    "src/features/xensonar/recording/**/*",
+    "src/features/xensonar/rootFollow/**/*",
+    "src/core/**/*",
+    "src/data/**/*",
+    "src/utils/**/*",
+    "src/vite-env.d.ts"
+  ]
+}

@@ -1,0 +1,18 @@
+import fs from 'node:fs';
+import path from 'node:path';
+const root = process.cwd();
+const read = (file) => fs.readFileSync(path.join(root, file), 'utf8');
+const fail = (message) => { console.error(`[stable-music-lane-beat-worklet-only] FAIL: ${message}`); process.exit(1); };
+const app = read('src/App.tsx');
+const loop = read('src/features/xensonar/input/appStableRhythmLaneSchedulerLoopProbe.ts');
+const runner = read('src/features/xensonar/input/appStableRhythmLaneStepExecutionRunnerProbe.ts');
+if (!app.includes('stableMusicLaneBeatWorkletOnlyRef')) fail('App must keep explicit worklet-only beat ref');
+if (!app.includes('readStableMusicLaneBeatWorkletOnly')) fail('App must expose worklet-only beat reader to legacy scheduler');
+if (!app.includes('stableMusicLaneBeatWorkletOnlyRef.current = !!nParamsUI.drumActive')) fail('legacy beat suppression must be tied to beat intent, not worklet ack');
+if (app.includes('readStableMusicLaneBeatRunning')) fail('old fail-open beat-running reader must not control legacy beat suppression');
+if (!loop.includes('readStableMusicLaneBeatWorkletOnly?.() === true')) fail('scheduler loop must suppress legacy drums from worklet-only reader');
+const scheduleIdx = runner.indexOf('scheduleDrumStep: () => {');
+const suppressIdx = runner.indexOf('if (args.suppressLegacyDrumWhenStableMusicLaneBeatRunning === true) return;', scheduleIdx);
+const drumIdx = runner.indexOf('runAppStableRhythmLaneDrumStepProbe', scheduleIdx);
+if (!(scheduleIdx > 0 && suppressIdx > scheduleIdx && suppressIdx < drumIdx)) fail('legacy drum suppression must still happen before legacy drum step');
+console.log('[stable-music-lane-beat-worklet-only] PASS legacy beat fallback is disabled: worklet beat or silence');

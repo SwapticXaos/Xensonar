@@ -1,0 +1,83 @@
+{
+  "schemaVersion": 1,
+  "patch": 210,
+  "purpose": "Retire package-script aliases that executed an already-canonical check command without adding evidence.",
+  "retiredAliases": [
+    {
+      "name": "xensonar:check-root-follow-sample-elastic-plan-boundary",
+      "replacement": "xensonar:check-root-follow-infrastructure"
+    },
+    {
+      "name": "xensonar:check-root-follow-direct-note-render-body-boundary",
+      "replacement": "xensonar:check-root-follow-infrastructure"
+    },
+    {
+      "name": "xensonar:check-root-follow-direct-note-resolve-boundary",
+      "replacement": "xensonar:check-root-follow-infrastructure"
+    },
+    {
+      "name": "xensonar:check-root-follow-synth-window-coordinator-boundary",
+      "replacement": "xensonar:check-root-follow-infrastructure"
+    },
+    {
+      "name": "xensonar:check-app-burst-diagnostics-panel-callsite-cleanup-probe",
+      "replacement": "xensonar:check-burst-diagnostics-source-audit-sediment-boundary"
+    },
+    {
+      "name": "xensonar:check-app-burst-diagnostics-panel-source-normalization",
+      "replacement": "xensonar:check-burst-diagnostics-source-audit-sediment-boundary"
+    },
+    {
+      "name": "xensonar:check-granular-manager-drag-hud",
+      "replacement": "xensonar:check-granular-manager-professionalization"
+    },
+    {
+      "name": "xensonar:check-app-particle-system-panel-boundary-refactor",
+      "replacement": "xensonar:check-app-particle-system-panel-catalog-source-cleanup"
+    },
+    {
+      "name": "xensonar:probe-browser-sab-readiness",
+      "replacement": "xensonar:check-stable-lane-browser-sab-readiness"
+    },
+    {
+      "name": "xensonar:probe-browser-responsibility-readout",
+      "replacement": "xensonar:check-stable-lane-browser-responsibility-readout"
+    },
+    {
+      "name": "xensonar:check-harmonic-xplore-root-follow-runtime-boundary",
+      "replacement": "xensonar:check-root-follow-material-impulse-raster-runtime-boundary"
+    },
+    {
+      "name": "xensonar:check-spectralforge-auto-render-debounce-7747",
+      "replacement": "xensonar:check-spectralforge-after-paint-serial-preview-render"
+    },
+    {
+      "name": "xensonar:codex:digital-commons-provenance",
+      "replacement": "xensonar:check-digital-commons-provenance-ledger"
+    },
+    {
+      "name": "xensonar:check-pitch-axis-truth-probe-7744",
+      "replacement": "xensonar:check-pitch-axis-truth-probe-7745"
+    },
+    {
+      "name": "xensonar:check-spectralforge-carrier-hearing-variance-restore-7773",
+      "replacement": "xensonar:check-spectralforge-antonia-branch-a-single-surface-7775"
+    },
+    {
+      "name": "xensonar:check-spectralforge-single-antonia-surface-7774",
+      "replacement": "xensonar:check-spectralforge-antonia-branch-a-single-surface-7775"
+    }
+  ],
+  "retiredPhysicalChecks": [
+    {
+      "path": "tools/check-harmonic-xplore-root-follow-runtime-boundary.mjs",
+      "replacement": "tools/run-spectralforge-carrier-integral-sanity.mjs + tools/check-root-follow-material-impulse-raster-runtime-boundary.mjs",
+      "reason": "orphaned historical source-shape check; package alias never executed this file and its current semantics are covered by the consolidated Carrier Integral and Root-Follow checks"
+    },
+    {
+      "path": "tools/check-spectralforge-carrier-hearing-variance-restore-7773.mjs",
+      "replacement": "xensonar:check-spectralforge-antonia-branch-a-single-surface-7775 + current Carrier Integral sanity",
+      "reason": "orphaned historical 7.7.73 snapshot; the active package alias already delegated to the later consolidated surface check"
+    }
+  ]
+}

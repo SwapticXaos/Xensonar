@@ -1,0 +1,13 @@
+{
+  "schemaVersion": 1,
+  "patch": 214,
+  "canonicalSuite": "xensonar:sanity:carrier-melodic-import",
+  "buildSuite": "xensonar:sanity:carrier-melodic-import:build",
+  "retiredPackageAliases": [
+    "xensonar:check-carrier-melodic-import-menu-routing-7734",
+    "xensonar:check-carrier-melodic-import-source-contract-7737",
+    "xensonar:check-carrier-melodic-import-ui-liveness-sanity-7738",
+    "xensonar:check-carrier-melodic-import-executor-unification-7739"
+  ],
+  "note": "The runner still supports --only menu-routing|source-contract|ui-liveness|executor-unification for targeted diagnostics; only redundant package aliases are retired."
+}

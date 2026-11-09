@@ -1,0 +1,77 @@
+@import "tailwindcss" source(none);
+@source "./";
+/* Core HTML: Tailwind must not scan archived/extras-only sources. Full builds keep src/index.css. */
+@source not "./external/**";
+@source not "./features/xenpolar/**";
+@source not "./features/xensonar/family/**";
+@source not "./features/xensonar/XensonarApp.tsx";
+@source not "./features/xensonar/rooms/XenpolarRoom.tsx";
+@source not "./features/xensonar/rooms/IrrlichtArenaPanel.tsx";
+@source not "./features/xensonar/rooms/GameRoom.tsx";
+@source not "./features/xensonar/rooms/MainRoom.tsx";
+@source "../index.html";
+
+html, body, #root {
+  height: 100%;
+}
+
+html, body {
+  overflow-x: hidden;
+  overflow-y: scroll;
+  overscroll-behavior: none;
+  scrollbar-gutter: stable;
+}
+
+body {
+  min-height: 100%;
+  touch-action: manipulation;
+}
+
+/* Xensonar slider style: magenta-violet rail with golden thumb */
+input[type="range"] {
+  appearance: none;
+  -webkit-appearance: none;
+  height: 6px;
+  border-radius: 9999px;
+  background: linear-gradient(90deg, #7c3aed 0%, #d946ef 100%);
+}
+
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 14px;
+  height: 14px;
+  border-radius: 9999px;
+  background:
+    radial-gradient(circle at 30% 30%, #fff6cf 0%, #f2d27b 22%, #c79a40 52%, #8a6524 100%);
+  border: 1px solid #f2d486;
+  box-shadow:
+    0 0 0 1px rgba(28, 18, 4, 0.75),
+    0 0 10px rgba(245, 205, 115, 0.38),
+    inset 0 1px 1px rgba(255, 248, 224, 0.7),
+    inset 0 -1px 1px rgba(93, 63, 20, 0.55);
+}
+
+input[type="range"]::-moz-range-thumb {
+  width: 14px;
+  height: 14px;
+  border-radius: 9999px;
+  background:
+    radial-gradient(circle at 30% 30%, #fff6cf 0%, #f2d27b 22%, #c79a40 52%, #8a6524 100%);
+  border: 1px solid #f2d486;
+  box-shadow:
+    0 0 0 1px rgba(28, 18, 4, 0.75),
+    0 0 10px rgba(245, 205, 115, 0.38),
+    inset 0 1px 1px rgba(255, 248, 224, 0.7),
+    inset 0 -1px 1px rgba(93, 63, 20, 0.55);
+}
+
+input[type="range"]::-moz-range-track {
+  height: 6px;
+  border-radius: 9999px;
+  background: linear-gradient(90deg, #7c3aed 0%, #d946ef 100%);
+}
+
+input[type="checkbox"] {
+  accent-color: #c79a40;
+}
+

@@ -1,0 +1,16 @@
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "noUnusedLocals": false,
+    "noUnusedParameters": false
+  },
+  "include": [
+    "../../src/vite-env.d.ts",
+    "../../src/features/xensonar/browserImplant/worklet/*.ts",
+    "../../src/features/xensonar/browserImplant/protocol/*.ts",
+    "../../src/features/xensonar/browserImplant/useBrowserWaveStarterImplant.ts",
+    "../../src/features/xensonar/browserImplant/useBrowserEntrophonImplant.ts",
+    "../../src/features/xensonar/audio/waveStarterLaneRuntime.ts",
+    "../../src/features/xensonar/audio/scheduledTonePlaybackBoundary.ts"
+  ]
+}
