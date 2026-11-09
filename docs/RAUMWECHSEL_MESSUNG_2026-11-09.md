@@ -76,3 +76,10 @@ Beide Drone-Schleifen laufen nur bei Power an (Effekt-Bedingung `if(!t||!n)retur
 - Gemessener Nutzen ist klein: Forge mit Power an, alles zusammen 2–3 % Hauptthread.
 
 **Entscheidung:** kein Einzelpatch. Mit „Live-Bereich verlassen = Power aus“ enden beide Schleifen ohnehin, weil die Effekte von Power abhängen. Laut Heiß/Kalt-Vertrag werden bewährte heiße Pfade nur bei reproduziertem Problem geändert.
+
+
+## Umgesetzt
+
+- LIVEZONE-01 (`docs/PATCH_LIVEZONE-01.md`): Wechsel in die Forge schaltet Live-Power und Myzel aus, Formation bleibt.
+- LIVEZONE-02 (`docs/PATCH_LIVEZONE-02.md`): Rückfrage bei laufender Aufnahme vor dem Wechsel; Live-AudioContext wird in der Forge angehalten (K2) und beim Zurückwechseln wieder gestartet.
+- K1 (Drone-rAF) entfällt: Die Schleifen enden mit Power aus.
