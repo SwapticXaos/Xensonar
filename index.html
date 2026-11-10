@@ -62,12 +62,11 @@
 .xen-grid-period-dialog .xen-period-zero-label{display:none}
 .xen-grid-period-dialog .xen-native-period-rack .min-w-0{min-width:0}
 </style>
-<script id="xen-thunder-hpm01-owner">
-/* XenSonar THUNDER-HPM01 · named Hold Pattern Memory, separate IndexedDB owner.
+<script type="application/x-xensonar-function" id="xen-function-__xenHoldPatternMemoryFactory">/* XenSonar THUNDER-HPM01 · named Hold Pattern Memory, separate IndexedDB owner.
+   Function island: evaluated on first use of the Pattern Memory control, never at boot and never in the audio path.
    No realtime audio, Q, song or Package Station mutations. */
-(function(){
+function __xenHoldPatternMemoryFactory(){
 'use strict';
-if(globalThis.__XenHoldPatternMemory)return;
 const DB='xensonar-thunder-hold-patterns-v1', STORE='patterns', SCHEMA=1;
 let opening=null;
 const copy=v=>JSON.parse(JSON.stringify(v));
@@ -161,9 +160,8 @@ async function duplicate(patternId,expectedRevision){return run('readwrite',(row
 async function remove(patternId,expectedRevision){return run('readwrite',(rows,store)=>{
  const row=find(rows,patternId);revision(row,expectedRevision);store.delete(patternId);return {id:row.id,name:row.name};
 })}
-globalThis.__XenHoldPatternMemory=Object.freeze({version:'HPM01',dbName:DB,validate:payload,list,get,saveAs,rename,duplicate,remove});
-})();
-
+return Object.freeze({version:'HPM01',dbName:DB,validate:payload,list,get,saveAs,rename,duplicate,remove});
+}
 </script>
 <style id="xen-thunder-hpm01-styles">
 /* HPM01: compact in-panel controls, no new overlay or Thunder header buttons. */
@@ -2084,7 +2082,7 @@ const __XenPackageSelection41=(()=>{
    ['sessions','Sessions & Quick Rack'],['melodicProjects','Melodic-Projekte'],['figureProjects','Figure-Projekte'],
    ['currentEditor','Aktueller Forge- / Melodic-Stand'],['multitrack','Multitrack-Arrangement'],['currentMain','Aktueller Hauptraum'],['dualDonor','Dual-Donor-Arbeitsstand'],['fractaliaExperiments','Fractalia-Materialexperimente']]},
   {id:'audio',label:'Audio & Material',items:[['samples','Samples & Uploads'],['materials','Materialspuren & Root Follow'],['donors','Donor-Bibliothek']]},
-  {id:'music',label:'Instrumente & Vorlagen',items:[['drums','Drum-Patterns & Playlists'],['bass','Bass-Patterns'],['grids','Raster & Stimmungen'],['instruments','Nodal- & Entrophon-Instrumente'],['stamps','Stempel & eigene Vorlagen'],['emilia','Emilia-Konfigurationen'],['fractalia','Fractalia-Instrumente & Einstellungen'],['customMelodic','Eigene Melodic-Instrumente']]},
+  {id:'music',label:'Instrumente & Vorlagen',items:[['drums','Drum-Patterns & Playlists'],['bass','Bass-Patterns'],['grids','Raster & Stimmungen'],['instruments','Nodal- & Entrophon-Instrumente'],['holdPatterns','Thunder Hold-Patterns'],['stamps','Stempel & eigene Vorlagen'],['emilia','Emilia-Konfigurationen'],['fractalia','Fractalia-Instrumente & Einstellungen'],['customMelodic','Eigene Melodic-Instrumente']]},
   {id:'preferences',label:'Einstellungen & Sammlungen',items:[['mixer','EQ, Pan & Klangregler'],['settings','Bedienung, Ansichten & Hörweisen'],['favorites','Favoriten, Notizen & Wheel']]},
   {id:'internal',label:'Interne Sicherungen & Altbestände',items:[['recovery','Letzte Sicherungsstände & History'],['unusedAssets','Forge-Assets (Verwendung prüfen)'],['sampleMirror','Sample-Metadaten-Spiegel'],['sessionMirror','Session-Spiegel'],['otherDatabases','Weitere XenSonar-Datenbanken']]}
  ];
@@ -2119,6 +2117,7 @@ const __XenPackageSelection41=(()=>{
    if(store==='instruments')return 'instruments';
    if(store==='control')return key==='working'?'currentEditor':'melodicProjects';
   }
+  if(db==='xensonar-thunder-hold-patterns-v1')return'holdPatterns';// named Thunder Hold Pattern Memory (HPM01)
   if(db==='xensonar-multitrack-v1')return'multitrack';// ROOM4-05: arrangement + not yet placed inbox; materials follow via the reference closure
   if(db==='xensonar-melodic-samples')return'samples';
   if(db==='xensonar-material-library')return'materials';
@@ -32537,21 +32536,22 @@ function k1(e){if(typeof __XenSampleClock04!=="undefined"){
 if(!e.lane||e.lane==="klaviatur")__XenNodalSurfaces.releaseFallbackHold?.("keyboard",e.keyId||null);if(!e.lane||e.lane==="wellenstart")__XenNodalSurfaces.releaseFallbackHold?.("wave",e.keyId||null);}if(typeof __XenNodalHoldPCM!=="undefined")__XenNodalHoldPCM.release(e.lane==="klaviatur"?"keyboard":"wave",e.keyId||null);const t=e.lane?[e.lane]:["wellenstart","klaviatur"];for(const n of t){if(e.keyId){const a=lT(e.keyId);e.state.gestures[n][a]?.active&&(e.state.releaseCount+=1),delete e.state.gestures[n][a];continue}const r=Object.values(e.state.gestures[n]).filter(a=>a.active).length;e.state.releaseCount+=r,e.state.gestures[n]={}}}function C2(e){return(e.lane?[e.lane]:["wellenstart","klaviatur"]).some(n=>Object.values(e.state.gestures[n]).some(r=>r.active?e.requireSustainExtend?r.sustainExtendActive||r.sustainExtendLatched||r.extendPolicy==="apostrophe-safe-extend":!0:!1))}const eu=e=>Math.max(1,Math.min(256,Math.round(Number.isFinite(e)?e:24)));function Pw(e){return Array.from({length:eu(e)},()=>1)}function Oie(e){return Pw(e).map((t,n)=>n>=1&&n<=4?0:t)}function _ie(e){return Array.from({length:eu(e)},(_,i)=>i===0?1:0)}function zie(e){return Pw(e).map((t,n)=>{const r=n%6;return r===0||r===2||r===3?1:0})}function jie(e){return Pw(e).map((t,n)=>n%2===1?1:0)}/* THUNDER-HPM01: small, non-destructive named-memory controls inside each existing R4 Hold editor. */
 function __XenHPM01Controls({lane,slots,referenceBars,muteSteps,pitchCents,slotVolumes,microtiming,tuningOrigin,onLoad}){
  const [rows,setRows]=P.useState([]),[selected,setSelected]=P.useState(''),[name,setName]=P.useState(''),[baseline,setBaseline]=P.useState(null),[busy,setBusy]=P.useState(false),[message,setMessage]=P.useState('');
- const owner=globalThis.__XenHoldPatternMemory;
+ /* ROOM4 cleanup: the storage owner is a lazy function island. It is evaluated (and its IndexedDB opened) on the first touch of this control, never at boot and never in the audio path. */
+ const real=()=>{const o=globalThis.__XenHoldPatternMemory??(globalThis.__XenHoldPatternMemory=__xenGetDeferredFn('__xenHoldPatternMemoryFactory')());if(!o)throw Error('Hold Pattern Memory storage is unavailable');return o};
+ const owner=P.useMemo(()=>({list:(...a)=>real().list(...a),get:(...a)=>real().get(...a),saveAs:(...a)=>real().saveAs(...a),rename:(...a)=>real().rename(...a),duplicate:(...a)=>real().duplicate(...a),remove:(...a)=>real().remove(...a)}),[]);
  const current=()=>({sourceLane:lane,slots,referenceBars,muteSteps:l0(muteSteps,slots),pitchCents:__xenHoldPitchVector(pitchCents,slots),slotVolumes:__xenHoldVolumeVector(slotVolumes,slots),microtiming:__xenHoldMicroVector(microtiming,slots)});
  const currentRow=rows.find(r=>r.id===selected);
  const dirty=baseline?.id===selected&&JSON.stringify({sourceLane:baseline.sourceLane,slots:baseline.slots,referenceBars:baseline.referenceBars,muteSteps:baseline.muteSteps,pitchCents:baseline.pitchCents,slotVolumes:baseline.slotVolumes,microtiming:baseline.microtiming})!==JSON.stringify(current());
  const refresh=async()=>{if(!owner)throw Error('Hold Pattern Memory storage is unavailable');const all=await owner.list();setRows(all.filter(x=>x.sourceLane===lane));return all};
- P.useEffect(()=>{let alive=true;if(!owner){setMessage('Pattern memory unavailable');return}
-  owner.list().then(all=>{if(alive)setRows(all.filter(x=>x.sourceLane===lane))}).catch(e=>{if(alive)setMessage('Storage error: '+e.message)});
-  return()=>{alive=false};
- },[lane]);
- const perform=async fn=>{if(busy||!owner)return;setBusy(true);setMessage('');try{await fn()}catch(e){setMessage('Not saved: '+(e?.message||e))}finally{setBusy(false)}};
+ const warmed=P.useRef(false),alive=P.useRef(true);
+ P.useEffect(()=>{alive.current=true;warmed.current=false;setRows([]);return()=>{alive.current=false}},[lane]);
+ const warm=()=>{if(warmed.current)return;warmed.current=true;try{owner.list().then(all=>{if(alive.current)setRows(all.filter(x=>x.sourceLane===lane))}).catch(e=>{warmed.current=false;if(alive.current)setMessage('Storage error: '+e.message)})}catch(e){warmed.current=false;setMessage('Pattern memory unavailable')}};
+ const perform=async fn=>{if(busy)return;setBusy(true);setMessage('');try{await fn()}catch(e){setMessage('Not saved: '+(e?.message||e))}finally{setBusy(false)}};
  const snap=()=>({...current(),tuningOrigin});
  const tuningText=x=>x?.tuningId?x.tuningId+' · '+x.modeId+(x.mainStepOffsets?.some(v=>v!==0)?' · fine-tuned':'')+(x.mainMutedDegrees?.length?' · grid mutes saved':''):'No grid metadata';
  const select=id=>{setSelected(id);setBaseline(null);const row=rows.find(r=>r.id===id);setName(row?.name||'');setMessage('')};
  const button=(label,action,disabled=false,title='')=>u.jsx('button',{type:'button',disabled:busy||disabled,title,className:'xen-hpm01-button',onClick:()=>perform(action),children:label},label);
- return u.jsxs('div',{className:'xen-hpm01','data-xen-hpm01':lane,children:[
+ return u.jsxs('div',{className:'xen-hpm01','data-xen-hpm01':lane,onPointerEnter:warm,onFocusCapture:warm,children:[
   u.jsxs('div',{className:'xen-hpm01-head',children:[u.jsx('strong',{children:'Pattern Memory'}),u.jsx('span',{className:'xen-hpm01-hint',children:dirty?'Edited working copy · saved pattern unchanged':baseline?.id===selected?'Saved pattern loaded':'Named patterns · independent of song'})]}),
   u.jsx('div',{className:'xen-hpm01-hint',title:'Tuning origin is descriptive only for individual patterns. A future Hold Pattern Plan will store and restore the full native Grid.',children:'Tuned on: '+tuningText(currentRow?.tuningOrigin||tuningOrigin)}),
   u.jsxs('div',{className:'xen-hpm01-fields',children:[

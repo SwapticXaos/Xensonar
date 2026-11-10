@@ -19,3 +19,11 @@ Die HTML enthielt meine Stände ROOM4-03d bis 06 bereits (alle Marker und Funkti
 - Die neue Datenbank `xensonar-thunder-hold-patterns-v1` fällt in der Package Station unter „Weitere XenSonar-Datenbanken“; vollständige Exporte enthalten sie, Teil-Exporte nur mit dieser Rubrik. Eine eigene Rubrik wäre sinnvoll.
 - Seitentitel trägt weiter „W31 AF01+ML01+KH04 … QA“.
 Rollback: Commit `f6bfb5e` (ROOM4-06).
+
+## Nachtrag CLEAN02: Hold-Pattern-Speicher lazy, eigene Package-Rubrik
+Basis `index.html` 8 812 442 B, jetzt 8 813 567 B (+1 125 B; die Funktion liegt jetzt als Insel, die Steuerung ist etwas größer).
+
+- **Lazy-Laden (Zone KALT):** Der Hold-Pattern-Speicher (HPM01) steht nicht mehr fest im Seitenkopf, sondern als Funktionsinsel `__xenHoldPatternMemoryFactory` (`src/factories/xenHoldPatternMemoryFactory.js`, gleiches Muster wie M12). Er wird bei der ersten Berührung der Pattern-Memory-Steuerung geladen (Hover oder Fokus), erst dann öffnet sich die Datenbank. Der Speicher liegt nie im Klangpfad: Das Abspielen nutzt die Hold-Hilfen im Hauptbündel. Gemessen in der echten App (`tools/probes/hold_pattern_lazy_probe.js`): beim Start Modul `undefined`, Datenbank nicht angelegt; nach Hover geladen; Speichern und Auflisten funktionieren, keine Fehler.
+- **Package Station:** neue Rubrik „Thunder Hold-Patterns“ (28 Rubriken) für `xensonar-thunder-hold-patterns-v1`. Teil-Exporte können sie jetzt gezielt wählen; vollständige Exporte enthielten sie schon. Zählertests auf 28 angepasst.
+- 99 Regressionstests grün.
+Nicht geprüft: Laden eines gespeicherten Patterns in die Lane nach Neustart, Hören. Rollback: Commit `0dbab5c`.

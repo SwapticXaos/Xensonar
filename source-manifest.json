@@ -953,6 +953,12 @@
    ]
   },
   {
+   "id": "js-023b-xen-function-__xenHoldPatternMemoryFactory",
+   "files": [
+    "src/factories/xenHoldPatternMemoryFactory.js"
+   ]
+  },
+  {
    "id": "js-024-xen-function-__xenM11HydrationFactory",
    "oct28_section": "@@XENSONAR_COMPONENT_056@@",
    "files": [
