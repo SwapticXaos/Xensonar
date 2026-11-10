@@ -936,6 +936,13 @@
    ]
   },
   {
+   "id": "js-020b-xen-room-multitrack",
+   "oct28_section": null,
+   "files": [
+    "src/post-oct/032-xen-room-multitrack.js"
+   ]
+  },
+  {
    "id": "js-021-xen-function-__ForgeTransportRack",
    "oct28_section": "@@XENSONAR_COMPONENT_053@@",
    "files": [

@@ -174,3 +174,9 @@ Raum IV:    Zeitleisten-Scheduler ───┘        (MaterialPhase, TimeStable
 4. **Neue Klang-Ebene:** getrennt planen und messen (siehe Abschnitt 2).
 
 Jeder Schritt mit Zone, Größenzuwachs der HTML, Test im echten Layout, und Rückweg (Rollback) über die vorherige `index.html`.
+
+---
+
+## Umsetzung: ROOM4-01 (10.11.2026)
+
+Erste nutzbare Fassung: `docs/PATCH_ROOM4-01.md`. Raumkennung `MULTITRACK`, Anzeige „IV“. **Nummerierung (Nutzerhinweis 10.11.):** Im Full-Modus gibt es zusätzlich den optionalen Spiele-Raum. Wird er wieder eingebunden, erscheint er als **V**. Kennung und Ziffer sind getrennt, daher keine Doppelbelegung von „4“. Fokus bleibt die Audio Workstation.

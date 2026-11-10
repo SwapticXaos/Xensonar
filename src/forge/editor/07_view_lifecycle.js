@@ -9,10 +9,12 @@ function __deactivateForgeWorkspace(){
  if(typeof __f449ReleaseForgeDerivedCaches==='function')__f449ReleaseForgeDerivedCaches();
 }
 /* LIVEZONE-01: rooms outside the live zone (Live Room + Nodal Center). */
-function __xenIsColdRoom(room){return room==="L3LAB"}
+function __xenIsColdRoom(room){return room==="L3LAB"||room==="MULTITRACK"}
 /* R3: cold rooms that still play through the live AudioContext (e.g. a future
    multitrack room). The live-zone sleep never suspends the context for them. */
-const __xenRoomsUsingLiveContext=new Set();
+const __xenRoomsUsingLiveContext=new Set(["MULTITRACK"]);
+/* ROOM4-01: services the lazy Multitrack room needs from the shell (set by REe). */
+const __xenMultitrackBridge={current:null};
 function __xenRoomUsesLiveContext(room){return __xenRoomsUsingLiveContext.has(room)}
 function __setForgeWorkspaceVisible(visible){
  if(visible===__forgeWorkspaceVisible)return;

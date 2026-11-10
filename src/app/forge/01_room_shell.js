@@ -243,6 +243,7 @@ const{activeMyzelRootHz:$R,selectedResidentNode:xv,residentBaseHz:Yg,residentAdd
    (Cancel = stay). While the cold room is shown and nothing records, the live
    AudioContext is suspended after 1.5 s (tails finish first) and resumed on return. */
 const __xenLiveZoneRecording=()=>!!Ea.recordingActive||['arming','armed','recording','finishing','saving'].includes(__XenLoopRec.snapshot?.().phase);
+__xenMultitrackBridge.current={ensureAudioReady:Bs,getMasterInput:ctx=>hi(ctx,"main"),getLiveBpm:()=>Number(Tt.current?.quantizeBpm)||null};
 __xenRoomLeaveGuard.current=next=>{
  if(!__xenIsColdRoom(next)||__xenIsColdRoom(e))return true;
  if(!Gr&&!(xe||installationSoundEnabled))return true;
