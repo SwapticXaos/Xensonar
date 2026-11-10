@@ -12,7 +12,7 @@ Der Patch kommt von außen (`XenSonar_THUNDER-Q01_isolated.patch`, Handoff, Mani
 | CSS `.xen-thunder-quantize` | `styles/areas/028_inline-028.css` |
 | Meta-Tag | `src/index.template.html` (der alte Meta-Text „isolated test candidate“ des Patches wurde nicht übernommen) |
 
-Prüfung der Übertragung: alle 31 hinzugefügten Patchzeilen stehen wörtlich im Build; 4 weitere (Q-Knopf, Meta) wurden als eigene Zeilen eingefügt. Einzige Abweichung: Die alte Thunder-Mode-Zeile trug im Patch einen Kommentar-Rest, den die Quelle auf eine eigene Zeile legt, und wurde deshalb unverändert gelassen.
+Prüfung der Übertragung: 32 der 35 hinzugefügten Patchzeilen stehen wörtlich im Build. Die drei anderen: die beiden Meta-Zeilen (Roundtrip-Text bewusst nicht übernommen, Thunder-Meta mit eigenem Text) und die Thunder-Mode-Zeile, deren Patchfassung einen Kommentar-Rest trug, den die Quelle auf eine eigene Zeile legt. Diese Zeile blieb unverändert, der Q-Knopf wurde davor eingefügt.
 
 ## Prüfung
 - Mitgelieferte Tests `Thunder_Q01.tests.cjs` gegen den Build: **10 von 10 grün** (jetzt `tests/thunder_q01_gesture_quantize.cjs`, in `GREEN_NODE_TESTS.txt`; 99 Regressionstests grün).
