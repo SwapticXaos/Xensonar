@@ -25,7 +25,7 @@ function sanitize(raw,liveBpm){
  const loop=raw.loop||{};const ls=Math.max(0,num(loop.start,0)),le=Math.max(ls+1/64,num(loop.end,ls+16));
  return {format:FORMAT,version:VERSION,id:KEY,name:String(raw.name||'Untitled Arrangement').slice(0,100),bpm:clamp(num(raw.bpm,108),20,400),
   beatsPerBar:clamp(num(raw.beatsPerBar,4),.5,64),grid:{div:clamp(Math.round(num(raw.grid?.div,4)),1,64),snap:raw.grid?.snap!==false},
-  zoom:clamp(num(raw.zoom,28),4,240),trackHeight:clamp(num(raw.trackHeight,64),36,220),loop:{on:!!loop.on,start:ls,end:le},master:{volume:clamp(num(raw.master?.volume,.9),0,1.5)},
+  zoom:clamp(num(raw.zoom,28),.05,4000),trackHeight:clamp(num(raw.trackHeight,64),3,4000),loop:{on:!!loop.on,start:ls,end:le},master:{volume:clamp(num(raw.master?.volume,.9),0,1.5)},
   tracks:tracks.length?tracks:[blankTrack(0)],updatedAt:num(raw.updatedAt,Date.now())};
 }
 /* ---------- persistence (cold) ---------- */
@@ -145,16 +145,25 @@ const CSS=`.xmt{color:#e7e5e4;font:13px/1.35 system-ui,sans-serif;max-width:1500
 .xmt button:focus-visible,.xmt input:focus-visible,.xmt select:focus-visible,.xmt-menu button:focus-visible{outline:2px solid #fbbf24;outline-offset:1px}
 .xmt input,.xmt select{background:#111113;color:#e7e5e4;border:1px solid #3f3f46;border-radius:6px;padding:3px 6px;font:inherit}
 .xmt input[type=number]{width:66px}.xmt label{display:inline-flex;gap:6px;align-items:center;color:#a8a29e}
-.xmt .twrap{display:flex;gap:6px;align-items:stretch}.xmt .tracks{position:relative;flex:1;min-width:0;overflow:auto;max-height:max(260px,calc(100vh - 330px));border:1px solid #2b2b31;border-radius:10px;background:#09090b}
-.xmt .trk.rr{position:sticky;top:0;z-index:6;background:#09090b}
-.xmt .rail{position:relative;flex:0 0 20px;border:1px solid #2b2b31;border-radius:8px;background:#0b0b0d;cursor:pointer;touch-action:none;overflow:hidden}
-.xmt .rail i{position:absolute;left:4px;right:4px;border-radius:2px;opacity:.28;pointer-events:none}.xmt .rail i.full{opacity:.85}
-.xmt .thumb{position:absolute;left:0;right:0;min-height:16px;border:1px solid #fde68a;background:rgba(253,230,138,.14);border-radius:6px;cursor:grab}
-.xmt .thumb b{position:absolute;left:0;right:0;height:7px;cursor:ns-resize;background:rgba(253,230,138,.35)}.xmt .thumb b.t{top:0}.xmt .thumb b.e{bottom:0}
-.xmt .trk{display:grid;grid-template-columns:240px 1fr;border-bottom:1px solid #1f1f23;min-height:64px}.xmt .trk.rr{min-height:28px}
+.xmt .twrap{display:grid;grid-template-columns:minmax(0,1fr) 20px;grid-template-rows:auto 24px;gap:6px}
+.xmt .tracks{position:relative;grid-column:1;grid-row:1;min-width:0;overflow:auto;height:max(240px,calc(100vh - 360px));border:1px solid #2b2b31;border-radius:10px;background:#09090b;scrollbar-width:none}
+.xmt .tracks::-webkit-scrollbar{display:none}
+.xmt .trk.rr{position:sticky;top:0;z-index:6;background:#09090b;height:29px}
+.xmt .rail{position:relative;border:1px solid #2b2b31;border-radius:8px;background:#0b0b0d;cursor:pointer;touch-action:none;overflow:hidden;box-sizing:border-box}
+.xmt .rail.v{grid-column:2;grid-row:1;margin:30px 0 1px}.xmt .rail.h{grid-column:1;grid-row:2;margin-left:241px}
+.xmt .rail i{position:absolute;border-radius:2px;opacity:.28;pointer-events:none}.xmt .rail.v i{left:4px;right:4px}.xmt .rail.v i.full{opacity:.85}.xmt .rail.h i{opacity:.8}
+.xmt .rail.h s{position:absolute;top:0;bottom:0;width:1px;background:#3f3f46;pointer-events:none}.xmt .rail.h em{position:absolute;top:0;bottom:0;background:rgba(56,189,248,.14);pointer-events:none}
+.xmt .thumb{position:absolute;border:1px solid #fde68a;background:rgba(253,230,138,.14);border-radius:6px;cursor:grab;box-sizing:border-box}
+.xmt .rail.v .thumb{left:0;right:0;min-height:14px}.xmt .rail.h .thumb{top:0;bottom:0;min-width:14px}
+.xmt .thumb b{position:absolute;background:rgba(253,230,138,.35)}.xmt .thumb b.t,.xmt .thumb b.e{left:0;right:0;height:6px;cursor:ns-resize}.xmt .thumb b.t{top:0}.xmt .thumb b.e{bottom:0}
+.xmt .thumb b.l,.xmt .thumb b.r{top:0;bottom:0;width:6px;cursor:ew-resize}.xmt .thumb b.l{left:0}.xmt .thumb b.r{right:0}
+.xmt .trk{display:grid;grid-template-columns:240px max-content;width:max-content;min-width:100%;border-bottom:1px solid #1f1f23;box-sizing:border-box;overflow:clip}
+.xmt .hdr .tn{display:none}.xmt .trk.mini .hdr{padding:0 8px;justify-content:center;gap:0}.xmt .trk.mini .hdr .row{display:none}
+.xmt .trk.mini .hdr .tn{display:block;font-size:10px;line-height:1.1;color:#d6d3d1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.xmt .trk.mini .clip{top:1px;bottom:1px;border-radius:3px}.xmt .trk.mini .clip .nm{display:none}.xmt .trk.mini .clip canvas{top:0;height:100%}
 .xmt .hdr{padding:6px 8px;background:#0f0f12;border-right:1px solid #26262b;display:flex;flex-direction:column;gap:4px;position:sticky;left:0;z-index:4}
 .xmt .hdr .row{flex-wrap:nowrap;gap:4px}.xmt .hdr input[type=text]{width:104px}.xmt .hdr input[type=range]{width:78px}.xmt .hdr button{padding:2px 7px}.xmt .trk.compact .hdr{padding:3px 8px;justify-content:center}.xmt .trk.compact .hdr .row+.row{display:none}
-.xmt .lane{position:relative;min-height:64px}.xmt .lane.drop{background:#1c1917}.xmt .ruler{position:relative;height:28px;cursor:pointer;border-bottom:1px solid #2b2b31}
+.xmt .lane{position:relative}.xmt .lane.drop{background:#1c1917}.xmt .ruler{position:relative;height:28px;cursor:pointer;border-bottom:1px solid #2b2b31}
 .xmt .tick{position:absolute;top:0;bottom:0;border-left:1px solid #2a2a30}.xmt .tick.barl{border-left:1px solid #57534e}.xmt .tick span{position:absolute;top:4px;left:3px;font-size:10px;color:#a8a29e}
 .xmt .loopr{position:absolute;top:0;height:6px;background:rgba(56,189,248,.25);border:1px solid #38bdf8;border-top:0}.xmt .loopr.off{background:rgba(120,113,108,.15);border-color:#57534e}
 .xmt .clip{position:absolute;top:5px;bottom:5px;border-radius:6px;border:1px solid var(--c);background:color-mix(in srgb,var(--c) 28%,#0c0a09);
@@ -197,9 +206,15 @@ function XenMultitrackRoom(){
  const [exportFormat,setExportFormat]=P.useState('pcm16'),[busy,setBusy]=P.useState(false);
  const rootRef=P.useRef(null),keyRef=P.useRef(null),hist=P.useRef({past:[],future:[]}),saveTimer=P.useRef(null),phRef=P.useRef(null),meterRef=P.useRef(null),rafRef=P.useRef(0),drag=P.useRef(null),projectRef=P.useRef(null),libRef=P.useRef(new Map());
  projectRef.current=project;
- const scrollRef=P.useRef(null),railRef=P.useRef(null),thumbRef=P.useRef(null),railDrag=P.useRef(null),pendingScroll=P.useRef(null),consumeRef=P.useRef(null),importRef=P.useRef(null),inboxWaiting=P.useRef(false);
- const updateRail=()=>{const el=scrollRef.current,th=thumbRef.current,rl=railRef.current;if(!el||!th||!rl)return;const H=Math.max(1,el.scrollHeight),R=rl.clientHeight;th.style.top=(el.scrollTop/H*R)+'px';th.style.height=Math.max(16,Math.min(R,el.clientHeight/H*R))+'px'};
- P.useLayoutEffect(()=>{const el=scrollRef.current;if(el&&pendingScroll.current!==null){el.scrollTop=pendingScroll.current;pendingScroll.current=null}updateRail()});
+ const scrollRef=P.useRef(null),railRef=P.useRef(null),thumbRef=P.useRef(null),hrailRef=P.useRef(null),hthumbRef=P.useRef(null),rulerRef=P.useRef(null),totalRef=P.useRef(64),railDrag=P.useRef(null),pendingScroll=P.useRef(null),consumeRef=P.useRef(null),importRef=P.useRef(null),inboxWaiting=P.useRef(false);
+ /* One overview bar per axis (Melodic Loop model, shared __xenViewportRail math): the bar IS the scrollbar
+    and the zoom. Native scrollbars are hidden; wheel and trackpad scrolling still work and move the bars. */
+ const viewGeo=()=>{const el=scrollRef.current,rr=rulerRef.current?.offsetHeight??29;return {el,uh:Math.max(20,(el?.clientHeight??300)-rr),uw:Math.max(40,(el?.clientWidth??800)-240)}};
+ const vView=()=>{const p=projectRef.current,{el,uh}=viewGeo(),n=Math.max(1,p.tracks.length),h=p.trackHeight,vis=Math.min(n,uh/h);return {start:Math.min(Math.max(0,n-vis),(el?.scrollTop??0)/h),visible:vis,total:n,minVisible:Math.min(1,n)}};
+ const hView=()=>{const p=projectRef.current,{el,uw}=viewGeo(),T=Math.max(1,totalRef.current),vis=Math.min(T,uw/p.zoom);return {start:Math.min(Math.max(0,T-vis),(el?.scrollLeft??0)/p.zoom),visible:vis,total:T,minVisible:Math.min(1,T)}};
+ const setThumb=(th,v,x)=>{if(!th)return;const a=v.start/v.total*100,b=Math.min(100-a,v.visible/v.total*100);if(x){th.style.left=a+'%';th.style.width=b+'%'}else{th.style.top=a+'%';th.style.height=b+'%'}};
+ const updateRail=()=>{if(!projectRef.current)return;setThumb(thumbRef.current,vView(),false);setThumb(hthumbRef.current,hView(),true)};
+ P.useLayoutEffect(()=>{const el=scrollRef.current,ps=pendingScroll.current;if(el&&ps){if(ps.top!=null)el.scrollTop=ps.top;if(ps.left!=null)el.scrollLeft=ps.left;pendingScroll.current=null}updateRail()});
  P.useEffect(()=>{if(project)consumeRef.current?.()},[!!project]);
  const announce=t=>{setSay('');setTimeout(()=>setSay(t),20)};
  P.useEffect(()=>{let live=true;loadProject().then(raw=>{if(live)setProject(sanitize(raw,bridge?.getLiveBpm?.()))}).catch(()=>{if(live){setProject(blankProject(bridge?.getLiveBpm?.()));setStatus('Browser storage unavailable: this arrangement will not be kept after reload.')}});
@@ -234,17 +249,29 @@ function XenMultitrackRoom(){
  const importFiles=async files=>{const list=[...(files||[])].filter(f=>f&&f.size);if(!list.length)return;setBusy(true);
   try{for(let i=0;i<list.length;i++){setStatus('Importing '+(i+1)+'/'+list.length+': '+list[i].name+' (tempo detection) …');await __XenMultitrackInbox.sendBlob({blob:list[i],name:list[i].name,origin:'multitrack-import'})}}
   catch(e){setStatus('Import failed: '+(e?.message||e))}finally{setBusy(false)}};
- /* Vertical overview rail (shared __xenViewportRail math, Melodic Loop interaction model). Unit = tracks. */
- const railView=()=>{const el=scrollRef.current,n=Math.max(1,projectRef.current.tracks.length),h=projectRef.current.trackHeight,usable=Math.max(40,(el?.clientHeight??300)-28);
-  return {start:(el?.scrollTop??0)/h,visible:Math.min(n,usable/h),total:n,minVisible:1,usable}};
- const applyRail=v=>{const p=projectRef.current,el=scrollRef.current;if(!el)return;const usable=Math.max(40,el.clientHeight-28),h=clamp(usable/Math.max(.5,v.visible),36,220);
-  if(Math.abs(h-p.trackHeight)>.5){pendingScroll.current=v.start*h;apply({...p,trackHeight:Math.round(h)})}else{el.scrollTop=v.start*h;updateRail()}};
- const railDown=(e,mode)=>{if(e.button!==0)return;e.preventDefault();e.stopPropagation();const rect=railRef.current.getBoundingClientRect();let view=railView();
-  if(mode==='jump'){const j=__xenViewportRail.jump(rect,e.clientY,view);applyRail(j);view={...view,start:j.start};mode='move'}
-  railDrag.current=__xenViewportRail.begin(rect,mode,e.clientY,view);railRef.current.setPointerCapture?.(e.pointerId)};
- const railMove=e=>{const st=railDrag.current;if(st)applyRail(__xenViewportRail.move(st,e.clientY))};
+ /* View changes (track height, zoom) are not edits: no undo entry, no audio re-sync, saved at rest. */
+ const applyView=(next,label)=>{setProject(next);projectRef.current=next;persist(next);if(label)announce(label)};
+ const applyAxis=(axis,v)=>{const p=projectRef.current,{el,uh,uw}=viewGeo();if(!el||!p)return;
+  if(axis==='x'){const T=Math.max(1,totalRef.current),vis=clamp(v.visible,Math.min(1,T),T),z=uw/vis,left=v.start*z;
+   if(Math.abs(z-p.zoom)>1e-6*z){pendingScroll.current={left};applyView({...p,zoom:z})}else{el.scrollLeft=left;updateRail()}return}
+  const n=Math.max(1,p.tracks.length),vis=clamp(v.visible,Math.min(1,n),n),h=uh/vis,top=v.start*h;
+  if(Math.abs(h-p.trackHeight)>1e-6*h){pendingScroll.current={top};applyView({...p,trackHeight:h})}else{el.scrollTop=top;updateRail()}};
+ const railDown=(e,axis,mode)=>{if(e.button!==0)return;e.preventDefault();e.stopPropagation();const r=(axis==='x'?hrailRef:railRef).current,rect=r.getBoundingClientRect(),c=axis==='x'?e.clientX:e.clientY;let view=axis==='x'?hView():vView();
+  if(mode==='jump'){const j=__xenViewportRail.jump(rect,c,view,axis);applyAxis(axis,j);view={...view,start:j.start};mode='move'}
+  railDrag.current={axis,st:__xenViewportRail.begin(rect,mode,c,view,axis)};r.setPointerCapture?.(e.pointerId)};
+ const railMove=e=>{const d=railDrag.current;if(d)applyAxis(d.axis,__xenViewportRail.move(d.st,d.axis==='x'?e.clientX:e.clientY))};
  const railUp=()=>{railDrag.current=null};
- const railFit=()=>{const el=scrollRef.current;if(!el)return;const n=Math.max(1,project.tracks.length),h=clamp((el.clientHeight-28)/n,36,220);pendingScroll.current=0;apply({...project,trackHeight:Math.round(h)},'Showing all tracks')};
+ const railFit=axis=>{const v=axis==='x'?hView():vView();applyAxis(axis,{start:0,visible:v.total});announce(axis==='x'?'Whole arrangement in view':'All tracks in view')};
+ /* Keyboard for the bars (they replace the zoom slider): arrows scroll, Shift+arrows or +/- zoom, Home/End, Enter = show all. */
+ const railKey=(e,axis)=>{const v=axis==='x'?hView():vView(),unit=axis==='x'?projectRef.current.beatsPerBar:1,k=e.key,back=axis==='x'?'ArrowLeft':'ArrowUp',fwd=axis==='x'?'ArrowRight':'ArrowDown';let nv=null;
+  if((k===back||k===fwd)&&!e.shiftKey)nv={start:clamp(v.start+(k===fwd?unit:-unit),0,Math.max(0,v.total-v.visible)),visible:v.visible};
+  else if(k==='+'||k==='='||(e.shiftKey&&k===back)){const vis=Math.max(v.minVisible,v.visible/1.25);nv={start:v.start+(v.visible-vis)/2,visible:vis}}
+  else if(k==='-'||k==='_'||(e.shiftKey&&k===fwd)){const vis=Math.min(v.total,v.visible*1.25);nv={start:clamp(v.start-(vis-v.visible)/2,0,Math.max(0,v.total-vis)),visible:vis}}
+  else if(k==='Home')nv={start:0,visible:v.visible};else if(k==='End')nv={start:Math.max(0,v.total-v.visible),visible:v.visible};else if(k==='Enter'){e.preventDefault();e.stopPropagation();railFit(axis);return}
+  if(!nv)return;e.preventDefault();e.stopPropagation();applyAxis(axis,nv)};
+ /* Ctrl/Cmd + wheel over the timeline zooms horizontally around the pointer (non-passive listener, room open only). */
+ P.useEffect(()=>{const el=scrollRef.current;if(!el)return;const wheel=e=>{if(!(e.ctrlKey||e.metaKey))return;e.preventDefault();const v=hView(),{uw}=viewGeo(),r=el.getBoundingClientRect(),f=clamp((e.clientX-r.left-240)/uw,0,1),at=v.start+f*v.visible,vis=clamp(v.visible*Math.exp(e.deltaY*.0015),v.minVisible,v.total);
+  applyAxis('x',{start:clamp(at-f*vis,0,Math.max(0,v.total-vis)),visible:vis})};el.addEventListener('wheel',wheel,{passive:false});return()=>el.removeEventListener('wheel',wheel)},[!!project]);
  if(!project)return u.jsx('div',{className:'xmt',children:'Loading arrangement …'});
  const bpb=project.beatsPerBar,ppb=project.zoom,step=1/project.grid.div;
  const snap=b=>project.grid.snap?Math.round(b/step)*step:Math.round(b*1000)/1000;
@@ -358,8 +385,13 @@ function XenMultitrackRoom(){
  const pointerUp=()=>{const d=drag.current;drag.current=null;setDropTrack(null);if(!d||!d.moved)return;const p=projectRef.current;projectRef.current=d.base;
   const f=findClip(d.copy?d.cid:d.id,p);commit(p,d.mode!=='move'?'Clip length '+(f?len(f.c):0)+' beats':(d.copy?'Clip copied to ':'Clip moved to ')+fmtPos(f?.c.startBeat??0,bpb)+(f&&f.t.id!==d.from?' on '+f.t.name:''));if(d.copy&&f)setSel(f.c.id)};
  /* ---- render ---- */
- const ticks=[];for(let b=0;b<=totalBeats;b+=1){const isBar=Math.abs(b/bpb-Math.round(b/bpb))<1e-9;if(!isBar&&ppb<10)continue;
+ totalRef.current=totalBeats;
+ /* Ruler: beats when there is room, otherwise every k-th bar (labels never collide when zoomed far out). */
+ const barEvery=Math.max(1,Math.ceil(26/Math.max(1e-6,bpb*ppb))),barStarts=[];for(let k=0;k*bpb<=totalBeats+1e-9;k++)barStarts.push(k*bpb);
+ const ticks=[];for(let b=0;b<=totalBeats;b+=1){const isBar=Math.abs(b/bpb-Math.round(b/bpb))<1e-9;if(!isBar&&ppb<10)continue;if(isBar&&Math.round(b/bpb)%barEvery)continue;
   ticks.push(u.jsx('div',{className:'tick'+(isBar?' barl':''),style:{left:b*ppb},children:isBar?u.jsx('span',{children:Math.round(b/bpb)+1}):null},'t'+b))}
+ if(!Number.isInteger(bpb))for(const b of barStarts){if(Math.abs(b-Math.round(b))<1e-9)continue;const k=Math.round(b/bpb);if(k%barEvery)continue;ticks.push(u.jsx('div',{className:'tick barl',style:{left:b*ppb},children:u.jsx('span',{children:k+1})},'tb'+k))}
+ const th=project.trackHeight,tier=th>=58?'':th>=34?' compact':' mini',nT=project.tracks.length;
  const laneWidth=totalBeats*ppb,selF=sel?findClip(sel):null;
  const clipView=(t,ti,c)=>{const e=libMap.get(c.materialId),a=e?audio.get(e.id):null,L=len(c),mb=cyc(c),w=Math.max(10,L*ppb);
   const bad=!e||a?.status==='error',state=!e?'source missing in library':a?.status==='error'?'cannot decode: '+a.error:a?.status==='ready'?'':'loading audio';
@@ -391,8 +423,7 @@ function XenMultitrackRoom(){
    u.jsxs('label',{title:'Free: 3, 5, 7, 3.5 … beats per bar',children:['Beats/bar',u.jsx('input',{type:'number',min:.5,max:64,step:.5,value:bpb,onChange:e=>commit({...project,beatsPerBar:clamp(num(e.target.value,bpb),.5,64)})})]}),
    u.jsxs('label',{title:'Grid = 1/N beat, N free (2, 3, 5, 7 …)',children:['Grid 1/',u.jsx('input',{type:'number',min:1,max:64,step:1,value:project.grid.div,onChange:e=>commit({...project,grid:{...project.grid,div:clamp(Math.round(num(e.target.value,4)),1,64)}})}),'beat']}),
    u.jsx('button',{type:'button','aria-pressed':project.grid.snap,title:'Snap clips, cursor and edges to the grid',onClick:()=>commit({...project,grid:{...project.grid,snap:!project.grid.snap}},project.grid.snap?'Snap off':'Snap on'),children:'Snap'}),
-   u.jsxs('label',{children:['Zoom',u.jsx('input',{type:'range',min:4,max:240,value:ppb,title:'Horizontal zoom (pixels per beat)',onChange:e=>apply({...project,zoom:num(e.target.value,ppb)})})]}),
-   u.jsx('button',{type:'button',onClick:undo,title:'Undo · Ctrl+Z','aria-label':'Undo (Ctrl+Z)',children:'↶'}),u.jsx('button',{type:'button',onClick:redo,title:'Redo · Ctrl+Shift+Z','aria-label':'Redo (Ctrl+Shift+Z)',children:'↷'}),
+      u.jsx('button',{type:'button',onClick:undo,title:'Undo · Ctrl+Z','aria-label':'Undo (Ctrl+Z)',children:'↶'}),u.jsx('button',{type:'button',onClick:redo,title:'Redo · Ctrl+Shift+Z','aria-label':'Redo (Ctrl+Shift+Z)',children:'↷'}),
    u.jsx('button',{type:'button','aria-pressed':listView,title:'Show all clips as an editable table (keyboard and screen reader friendly)',onClick:()=>setListView(v=>!v),children:'List view'})]}),
   u.jsxs('div',{className:'bar row',children:[
    u.jsxs('label',{children:['Material',u.jsxs('select',{value:pick,onChange:e=>setPick(e.target.value),title:'Material from the library to place · double-click a track to insert it there','aria-label':'Material from the library',children:[
@@ -419,25 +450,33 @@ function XenMultitrackRoom(){
     u.jsx('td',{children:u.jsx('input',{type:'number',min:0,step,'aria-label':'Fade out (beats)',value:c.fadeOut,onChange:e=>updClip(c.id,{fadeOut:Math.max(0,num(e.target.value,0))})})}),
     u.jsx('td',{children:u.jsx('button',{type:'button','aria-pressed':c.muted,onClick:()=>updClip(c.id,{muted:!c.muted}),title:'Mute this clip · M',children:'Mute'})}),
     u.jsx('td',{children:u.jsx('button',{type:'button',onClick:()=>removeClip(c.id),title:'Remove this clip (the material stays in the library) · Delete','aria-label':'Remove clip',children:'Remove'})})]},c.id)))]})})}):null,
-  u.jsxs('div',{className:'twrap',children:[u.jsxs('div',{className:'tracks',ref:scrollRef,onScroll:updateRail,role:'listbox','aria-label':'Arrangement timeline. Arrows move the selected clip (Shift: a bar, Up/Down: other track); S split; Ctrl+D duplicate; Ctrl+C/V copy and paste; M mute; Delete removes; +/- loop length; L loop; Space plays; context menu key opens options.',children:[
-   u.jsxs('div',{className:'trk rr',children:[u.jsx('div',{className:'hdr',children:u.jsx('span',{className:'muted',children:'Bars · click = cursor · right-click = loop & export'})}),
+  u.jsxs('div',{className:'twrap',children:[u.jsxs('div',{className:'tracks',id:'xmt-tracks',ref:scrollRef,onScroll:updateRail,role:'listbox','aria-label':'Arrangement timeline. Arrows move the selected clip (Shift: a bar, Up/Down: other track); S split; Ctrl+D duplicate; Ctrl+C/V copy and paste; M mute; Delete removes; +/- loop length; L loop; Space plays; context menu key opens options.',children:[
+   u.jsxs('div',{className:'trk rr',ref:rulerRef,children:[u.jsx('div',{className:'hdr',title:'Bars · click the ruler to set the cursor · right-click it for loop and export',children:u.jsx('span',{className:'muted',children:'Bars · right-click: loop, export'})}),
     u.jsxs('div',{className:'ruler',title:'Click: set the cursor · right-click: play from here, loop start/end, mixdown',style:{width:laneWidth},onClick:e=>{const b=snap(beatFromEvent(e,e.currentTarget));setCursor(b);announce('Cursor '+fmtPos(b,bpb))},onContextMenu:rulerMenu,children:[...ticks,
      u.jsx('div',{className:'loopr'+(project.loop.on?'':' off'),style:{left:project.loop.start*ppb,width:Math.max(2,(project.loop.end-project.loop.start)*ppb)},title:'Loop region'}),u.jsx('div',{className:'cur',style:{left:cursor*ppb}})]})]}),
-   ...project.tracks.map((t,ti)=>u.jsxs('div',{className:'trk'+(project.trackHeight<58?' compact':''),style:{minHeight:project.trackHeight},onClick:()=>setTrackSel(t.id),children:[
-    u.jsxs('div',{className:'hdr',onContextMenu:e=>trackMenu(e,t),style:{boxShadow:'inset 3px 0 0 '+(trackSel===t.id?'#fde68a':COLORS[ti%COLORS.length]+'55')},children:[
+   ...project.tracks.map((t,ti)=>u.jsxs('div',{className:'trk'+tier,style:{height:th},onClick:()=>setTrackSel(t.id),children:[
+    u.jsxs('div',{className:'hdr',onContextMenu:e=>trackMenu(e,t),style:{boxShadow:'inset 3px 0 0 '+(trackSel===t.id?'#fde68a':COLORS[ti%COLORS.length]+'55')},children:[u.jsx('span',{className:'tn',children:t.name}),
      u.jsxs('div',{className:'row',children:[u.jsx('input',{type:'text','aria-label':'Track name',title:'Track name',value:t.name,onChange:e=>updTrack(t.id,{name:e.target.value.slice(0,60)})}),
       u.jsx('button',{type:'button','aria-pressed':t.mute,title:'Mute track','aria-label':'Mute '+t.name,onClick:()=>updTrack(t.id,{mute:!t.mute},(t.mute?'Unmuted ':'Muted ')+t.name),children:'M'}),
       u.jsx('button',{type:'button','aria-pressed':t.solo,title:'Solo track','aria-label':'Solo '+t.name,onClick:()=>updTrack(t.id,{solo:!t.solo},(t.solo?'Solo off ':'Solo ')+t.name),children:'S'}),
       u.jsx('button',{type:'button','aria-label':'Track options for '+t.name,title:'Track options (also: right-click the track header)',onClick:e=>trackMenu(e,t),children:'⋯'})]}),
      u.jsxs('div',{className:'row',children:[u.jsxs('label',{children:['Vol',u.jsx('input',{type:'range',min:0,max:1.5,step:.01,value:t.volume,title:'Track volume','aria-label':'Volume '+t.name,onChange:e=>updTrack(t.id,{volume:num(e.target.value,t.volume)})})]}),
       u.jsxs('label',{children:['Pan',u.jsx('input',{type:'range',min:-1,max:1,step:.01,value:t.pan,title:'Track pan, left to right (Reset mixer: right-click the header)','aria-label':'Pan '+t.name,onChange:e=>updTrack(t.id,{pan:num(e.target.value,t.pan)})})]})]})]}),
-    u.jsx('div',{className:'lane'+(dropTrack===t.id?' drop':''),'data-lane':t.id,style:{width:laneWidth,minHeight:project.trackHeight},onContextMenu:e=>laneMenu(e,t),
+    u.jsx('div',{className:'lane'+(dropTrack===t.id?' drop':''),'data-lane':t.id,style:{width:laneWidth},onContextMenu:e=>laneMenu(e,t),
      onDoubleClick:e=>{if(e.target===e.currentTarget)addClipAt(t.id,beatFromEvent(e,e.currentTarget))},children:t.clips.map(c=>clipView(t,ti,c))})]},t.id)),
    u.jsx('div',{className:'ph',ref:phRef})]}),
-   u.jsxs('div',{className:'rail',ref:railRef,role:'scrollbar','aria-orientation':'vertical','aria-label':'Track overview: drag the window to scroll, drag its top or bottom edge to zoom the track height, click to jump, double-click to show all tracks',
-    title:'Track overview · drag = scroll · drag top/bottom edge = zoom · click = jump · double-click = show all',onPointerDown:e=>railDown(e,'jump'),onPointerMove:railMove,onPointerUp:railUp,onPointerCancel:railUp,onDoubleClick:railFit,children:[
-    ...project.tracks.map((t,i,a)=>u.jsx('i',{className:t.clips.length?'full':'',style:{top:(i/a.length*100)+'%',height:'calc('+(100/a.length)+'% - 2px)',background:COLORS[i%COLORS.length]}},t.id)),
-    u.jsxs('div',{className:'thumb',ref:thumbRef,onPointerDown:e=>railDown(e,'move'),children:[u.jsx('b',{className:'t',onPointerDown:e=>railDown(e,'resize-start')}),u.jsx('b',{className:'e',onPointerDown:e=>railDown(e,'resize-end')})]})]})]}),
+   u.jsxs('div',{className:'rail v',ref:railRef,role:'scrollbar',tabIndex:0,'aria-orientation':'vertical','aria-controls':'xmt-tracks','aria-valuemin':0,'aria-valuemax':nT,'aria-valuenow':Math.round((scrollRef.current?.scrollTop??0)/th),
+    'aria-label':'Track overview: drag the window to scroll, drag its top or bottom edge to change how many tracks are in view, click to jump, double-click shows all tracks. Keys: arrows scroll, Shift+arrows or plus/minus zoom, Enter shows all.',
+    title:'Tracks · drag = scroll · drag top/bottom edge = how many tracks are in view (all … one) · click = jump · double-click = all tracks',onPointerDown:e=>railDown(e,'y','jump'),onPointerMove:railMove,onPointerUp:railUp,onPointerCancel:railUp,onDoubleClick:()=>railFit('y'),onKeyDown:e=>railKey(e,'y'),children:[
+    ...project.tracks.map((t,i,a)=>u.jsx('i',{className:t.clips.length?'full':'',style:{top:(i/a.length*100)+'%',height:'calc('+(100/a.length)+'% - '+(a.length>40?0:2)+'px)',background:COLORS[i%COLORS.length]}},t.id)),
+    u.jsxs('div',{className:'thumb',ref:thumbRef,onPointerDown:e=>railDown(e,'y','move'),children:[u.jsx('b',{className:'t',onPointerDown:e=>railDown(e,'y','resize-start')}),u.jsx('b',{className:'e',onPointerDown:e=>railDown(e,'y','resize-end')})]})]}),
+   u.jsxs('div',{className:'rail h',ref:hrailRef,role:'scrollbar',tabIndex:0,'aria-orientation':'horizontal','aria-controls':'xmt-tracks','aria-valuemin':0,'aria-valuemax':Math.round(totalBeats),'aria-valuenow':Math.round((scrollRef.current?.scrollLeft??0)/ppb),
+    'aria-label':'Timeline overview: drag the window to scroll, drag its left or right edge to zoom, click to jump, double-click shows the whole arrangement. Keys: arrows scroll by a bar, Shift+arrows or plus/minus zoom, Enter shows all.',
+    title:'Timeline · drag = scroll · drag left/right edge = zoom · click = jump · double-click = whole arrangement · Ctrl+wheel over the tracks = zoom',onPointerDown:e=>railDown(e,'x','jump'),onPointerMove:railMove,onPointerUp:railUp,onPointerCancel:railUp,onDoubleClick:()=>railFit('x'),onKeyDown:e=>railKey(e,'x'),children:[
+    ...barStarts.filter((b,k)=>k%Math.max(1,Math.ceil(barStarts.length/64))===0).map(b=>u.jsx('s',{style:{left:(b/totalBeats*100)+'%'}},'b'+b)),
+    project.loop.on?u.jsx('em',{style:{left:(project.loop.start/totalBeats*100)+'%',width:((project.loop.end-project.loop.start)/totalBeats*100)+'%'}}):null,
+    ...project.tracks.flatMap((t,ti)=>t.clips.slice(0,64).map(c=>u.jsx('i',{style:{left:(c.startBeat/totalBeats*100)+'%',width:'max(2px,'+(len(c)/totalBeats*100)+'%)',top:'calc(3px + '+(ti/nT)+' * (100% - 6px))',height:'max(2px,calc((100% - 6px) / '+nT+' - 1px))',background:COLORS[ti%COLORS.length]}},c.id))),
+    u.jsxs('div',{className:'thumb',ref:hthumbRef,onPointerDown:e=>railDown(e,'x','move'),children:[u.jsx('b',{className:'l',onPointerDown:e=>railDown(e,'x','resize-start')}),u.jsx('b',{className:'r',onPointerDown:e=>railDown(e,'x','resize-end')})]})]})]}),
   selF?u.jsxs('div',{className:'bar row',children:[u.jsx('strong',{children:libMap.get(selF.c.materialId)?.name||'missing material'}),
    u.jsx('span',{className:'muted',children:'on '+selF.t.name+' · starts '+fmtPos(selF.c.startBeat,bpb)}),
    numIn('Length',len(selF.c),step,1e5,step,v=>updClip(selF.c.id,{lenBeats:Math.max(step,v),repeats:undefined}),70),

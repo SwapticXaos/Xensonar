@@ -50,17 +50,24 @@ log('arrived',{inboxLeft:await inboxCount(),tracks:await tracks(),status:await p
 {const before=(await tracks()).length;await p.setInputFiles('.xmt input[type=file]',loopFile);let n=before;for(let i=0;i<60&&n===before;i++){await p.waitForTimeout(250);n=(await tracks()).length}
  const last=p.locator('.xmt .clip').last();await last.click();await p.waitForTimeout(300);
  const ins=await p.evaluate(()=>[...document.querySelectorAll('.xmt .bar .muted')].map(x=>x.innerText).find(t=>/Tempo|speed|Tape/.test(t))||'');
- const c=(await clips()).slice(-1)[0];const ppb=await p.evaluate(()=>parseFloat(document.querySelector('.xmt input[type=range]')?.value)||28);
+ const c=(await clips()).slice(-1)[0];const ppb=28;
  log('raw import',{tracksBefore:before,tracksAfter:n,clip:c.label,widthBeats:+(c.width/ppb).toFixed(2),expectedBeats:'16 − 0.74 offset = 15.26 (source beats, played at 108/120 rate)',inspector:ins})}
-// 6 · overview rail: add tracks until scrolling is needed, then drag/resize the window
+// 6 · one overview bar per axis: drag = scroll, edges = zoom; full = everything visible, no native scrollbars
 for(let i=0;i<22;i++)await clk('+ Track');await p.waitForTimeout(400);
-const geo=()=>p.evaluate(()=>{const sc=document.querySelector('.xmt .tracks'),th=document.querySelector('.xmt .thumb'),rail=document.querySelector('.xmt .rail'),ru=document.querySelector('.xmt .trk.rr');const r=th.getBoundingClientRect(),rr=rail.getBoundingClientRect();return {scrollTop:Math.round(sc.scrollTop),scrollMax:sc.scrollHeight-sc.clientHeight,thumbTop:Math.round(r.top-rr.top),thumbH:Math.round(r.height),railH:Math.round(rr.height),trackH:Math.round(document.querySelector('.xmt .lane').getBoundingClientRect().height),rulerTop:Math.round(ru.getBoundingClientRect().top-sc.getBoundingClientRect().top),rows:rail.querySelectorAll('i').length}});
-{const g0=await geo();const th=await p.locator('.xmt .thumb').boundingBox();
- await p.mouse.move(th.x+th.width/2,th.y+th.height/2);await p.mouse.down();await p.mouse.move(th.x+th.width/2,th.y+th.height/2+60,{steps:6});await p.mouse.up();await p.waitForTimeout(200);const g1=await geo();
- const eb=await p.locator('.xmt .thumb b.e').boundingBox();await p.mouse.move(eb.x+eb.width/2,eb.y+eb.height/2);await p.mouse.down();await p.mouse.move(eb.x+eb.width/2,eb.y+eb.height/2+90,{steps:6});await p.mouse.up();await p.waitForTimeout(300);const g2=await geo();
- await p.locator('.xmt .rail').dblclick();await p.waitForTimeout(300);const g3=await geo();const compact=await p.evaluate(()=>document.querySelectorAll('.xmt .trk.compact').length);
+const geo=()=>p.evaluate(()=>{const sc=document.querySelector('.xmt .tracks'),row=document.querySelector('.xmt .trk:not(.rr)'),rr=document.querySelector('.xmt .trk.rr');return {nativeScrollbars:(sc.offsetWidth-sc.clientWidth-2)+(sc.offsetHeight-sc.clientHeight-2),scrollTop:Math.round(sc.scrollTop),vScrollMax:sc.scrollHeight-sc.clientHeight,hScrollMax:sc.scrollWidth-sc.clientWidth,trackH:+row.getBoundingClientRect().height.toFixed(1),viewH:sc.clientHeight-rr.offsetHeight,tier:row.className.replace('trk','').trim()||'full',laneW:Math.round(document.querySelector('.xmt .lane').getBoundingClientRect().width),viewW:sc.clientWidth-240,rulerStaysTop:Math.round(rr.getBoundingClientRect().top-sc.getBoundingClientRect().top),zoomSlider:[...document.querySelectorAll('.xmt label')].some(l=>/^Zoom/.test(l.innerText))}});
+const dragBy=async(sel,dx,dy)=>{const bb=await p.locator(sel).boundingBox();const x=bb.x+bb.width/2,y=bb.y+bb.height/2;await p.mouse.move(x,y);await p.mouse.down();await p.mouse.move(x+dx,y+dy,{steps:8});await p.mouse.up();await p.waitForTimeout(250)};
+{const g0=await geo();
+ await dragBy('.xmt .rail.v .thumb',0,60);const g1=await geo();
+ await dragBy('.xmt .rail.v .thumb b.e',0,2000);const g2=await geo();
+ await dragBy('.xmt .rail.v .thumb b.e',0,-2000);const g3=await geo();
+ await p.locator('.xmt .rail.v').dblclick({position:{x:10,y:5}});await p.waitForTimeout(300);const g4=await geo();
+ log('vertical bar',{start:g0,afterMove:g1,bottomEdgeToEnd_allTracks:g2,bottomEdgeToTop_oneTrack:g3,doubleClick:g4})}
+{await p.locator('.xmt .rail.h').dblclick({position:{x:5,y:10}});await p.waitForTimeout(300);const h0=await geo();
+ await dragBy('.xmt .rail.h .thumb b.r',-500,0);const h1=await geo();
+ await dragBy('.xmt .rail.h .thumb',150,0);const h2=await geo();const sl=await p.evaluate(()=>document.querySelector('.xmt .tracks').scrollLeft);
+ await p.locator('.xmt .rail.h').focus();await p.keyboard.press('Shift+ArrowRight');await p.waitForTimeout(200);const h3=await geo();
  if(SHOT)await p.locator('.xmt').screenshot({path:path.join(SHOT,'room4.png')});
- log('rail',{start:g0,afterDrag:g1,afterResizeBottom:g2,afterDoubleClick:g3,compactRows:compact})}
+ log('horizontal bar',{doubleClick_whole:{laneW:h0.laneW,viewW:h0.viewW,hScrollMax:h0.hScrollMax},rightEdgeIn_zoom:{laneW:h1.laneW},move:{scrollLeft:Math.round(sl),hScrollMax:h2.hScrollMax},keyZoomOut:{laneW:h3.laneW},zoomSliderLeft:h3.zoomSlider})}
 log('tooltips',await p.evaluate(()=>{const el=[...document.querySelectorAll('.xmt button,.xmt input:not([type=file]),.xmt select')];const miss=el.filter(e=>!e.title&&!e.closest('[title]')&&!e.closest('table')&&e.getAttribute('role')!=='menuitem');return {controls:el.length,withoutTooltip:miss.length,examples:miss.slice(0,5).map(e=>e.outerHTML.slice(0,80))}}));
 // 7 · persistence: reload, tracks still there, inbox empty
 const t0=await tracks();await p.reload();await p.waitForTimeout(6000);await clk('MULTITRACK');await p.waitForTimeout(3500);

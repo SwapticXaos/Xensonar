@@ -58,11 +58,12 @@ const __XenMultitrackInbox=(()=>{
  return api;
 })();
 const __xenViewportRail=Object.freeze({
- // view = {start, visible, total, minVisible} in any unit (tracks, lines, beats …)
- begin(rect,mode,clientY,view){return {mode,y0:clientY,start:view.start,visible:view.visible,total:view.total,minVisible:Math.max(1e-6,view.minVisible??1),h:Math.max(1,rect.height)}},
- jump(rect,clientY,view){const h=Math.max(1,rect.height),s=(clientY-rect.top)/h*view.total-view.visible/2;return {start:Math.max(0,Math.min(Math.max(0,view.total-view.visible),s)),visible:view.visible}},
- move(st,clientY){const d=(clientY-st.y0)/st.h*st.total,maxStart=Math.max(0,st.total-st.visible);
+ // view = {start, visible, total, minVisible} in any unit (tracks, lines, beats …); axis 'y' (default) or 'x'
+ begin(rect,mode,client,view,axis='y'){const x=axis==='x';return {mode,y0:client,start:view.start,visible:view.visible,total:view.total,minVisible:Math.max(1e-6,view.minVisible??1),h:Math.max(1,x?rect.width:rect.height)}},
+ jump(rect,client,view,axis='y'){const x=axis==='x',h=Math.max(1,x?rect.width:rect.height),s=(client-(x?rect.left:rect.top))/h*view.total-view.visible/2;return {start:Math.max(0,Math.min(Math.max(0,view.total-view.visible),s)),visible:view.visible}},
+ move(st,client){const d=(client-st.y0)/st.h*st.total,maxStart=Math.max(0,st.total-st.visible);
   if(st.mode==='move')return {start:Math.max(0,Math.min(maxStart,st.start+d)),visible:st.visible};
-  if(st.mode==='resize-start'){const end=st.start+st.visible,s=Math.max(0,Math.min(end-st.minVisible,st.start+d));return {start:s,visible:end-s}}
-  const end=Math.max(st.start+st.minVisible,Math.min(st.total,st.start+st.visible+d));return {start:st.start,visible:end-st.start}}
+  // Pulling an edge past its end takes the other edge along, so a fully pulled window always shows everything.
+  if(st.mode==='resize-start'){let end=st.start+st.visible,s=st.start+d;if(s<0){end=Math.min(st.total,end-s);s=0}s=Math.min(end-st.minVisible,s);return {start:s,visible:end-s}}
+  let s=st.start,end=st.start+st.visible+d;if(end>st.total){s=Math.max(0,s-(end-st.total));end=st.total}end=Math.max(s+st.minVisible,end);return {start:s,visible:end-s}}
 });
