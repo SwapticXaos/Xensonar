@@ -68,3 +68,37 @@ test('ROOM4-05: deleting a Material used by Multitrack clips forces the visible 
   r=await run(async()=>({clips:0,inbox:0}),marker);assert.strictEqual(r.calls[0],marker,'unused material: caller ask untouched');assert.strictEqual(r.dialogs.length,0);
   r=await run(async()=>{throw Error('idb down')});assert.strictEqual(r.ok,true,'inspection failure never blocks deletion');
 });
+
+test('ROOM4-05: Original-speed clips keep their real length when the tempo changes',()=>{
+  const num=(v,d)=>Number.isFinite(Number(v))?Number(v):d;
+  const retempo=new Function('return '+cut(mt,'function retempo(','/* ---------- decoded audio').trim().replace(/^function retempo/,'function'))();
+  const P={bpm:120,tracks:[{clips:[{id:'n',fit:'natural',lenBeats:8,inBeat:2},{id:'t',fit:'tempo',lenBeats:8,inBeat:2},{id:'b',fit:'bpm',sourceBpm:120,lenBeats:8,inBeat:2},{id:'r',fit:'natural',repeats:2,inBeat:0}]}]};
+  const Q=retempo(P,60),c=id=>Q.tracks[0].clips.find(x=>x.id===id);
+  assert.strictEqual(Q.bpm,60);
+  assert.strictEqual(c('n').lenBeats,4,'4 s of audio = 4 beats at 60 BPM'); assert.strictEqual(c('n').inBeat,1);
+  assert.strictEqual(c('t').lenBeats,8); assert.strictEqual(c('b').lenBeats,8,'beat-bound fits are unchanged');
+  assert.strictEqual(c('r').lenBeats,undefined,'clips without explicit length stay derived');
+  const back=retempo(Q,120);assert.strictEqual(back.tracks[0].clips[0].lenBeats,8);
+  assert.strictEqual(retempo(P,120).tracks,P.tracks);
+});
+
+test('ROOM4-05: source info line',()=>{
+  const fn=cut(mt,'function sourceInfo(','function regionOf(');const sourceInfo=new Function(fn+';return sourceInfo')();
+  assert.strictEqual(sourceInfo({numberOfChannels:2,sampleRate:48000,duration:12.84}),'Stereo · 48 kHz · 00:12.8');
+  assert.strictEqual(sourceInfo({numberOfChannels:1,sampleRate:44100,duration:3.44}),'Mono · 44,1 kHz · 00:03.4');
+  assert.strictEqual(sourceInfo(null),'decoding source …');
+});
+
+test('ROOM4-05: looping for hours does not accumulate planned-voice keys; leaving the room frees decoded audio',()=>{
+  const Engine=new Function(cut(mt,'class Engine{','const engine=new Engine();')+';return Engine')();
+  const e=new Engine();e.playing=true;e.ctx={currentTime:0};
+  e.project={bpm:120,loop:{on:true,start:0,end:4},master:{volume:1},tracks:[]};
+  e.segs=[{i:1,a:0,b:4,t:0}];
+  for(let sec=0;sec<7200;sec+=.2){e.ctx.currentTime=sec;e.extendSegments(sec+1.5);for(const s of e.segs)for(const c of ['c1','c2','c3'])e.keys.add(s.i+'|'+c)}
+  assert(e.keys.size<100,'keys '+e.keys.size);
+  assert(e.segs.length<8);
+  const fn=cut(mt,'function releaseDecoded(','function regionOf(');
+  const audio=new Map([['a',{status:'ready'}],['b',{status:'error'}],['c',{status:'loading'}]]);
+  new Function('audio',fn+';releaseDecoded()')(audio);
+  assert.deepStrictEqual([...audio.keys()],['c']);
+});
