@@ -229,7 +229,8 @@ function __ForgeTransportRack(e){
      h(__ForgeSendToEditorButton),
      destination('material'),destination('root'),destination('pink'),sendPanel),
     h('div',{'data-forge-project-corner':'true',className:'f33-rack-project-corner'},
-     h(jHe,{compact:true,onOpenInSpectralForge:()=>window.setTimeout(()=>{const anchor=document.querySelector('[data-xensonar-spectralforge-workmode-header]');anchor?.scrollIntoView({behavior:'smooth',block:'start'})},80)})))),
+     h('div',{'data-forge-figure-slot':'true',className:'f33-rack-figure-slot'},h(jHe,{compact:true,onOpenInSpectralForge:()=>window.setTimeout(()=>{const anchor=document.querySelector('[data-xensonar-spectralforge-workmode-header]');anchor?.scrollIntoView({behavior:'smooth',block:'start'})},80)})),
+     h(__ForgeSendToMultitrackButton)))),
   h('input',{ref:e.fileInputRef,type:'file',accept:'image/*,.png,.jpg,.jpeg,.webp,.bmp,.gif',style:{display:'none'},onChange:e.handleImportFile}),
   e.pendingImageImport&&h(w6e,{pendingImageImport:e.pendingImageImport,imagePreviewCanvasRef:e.imagePreviewCanvasRef,spectralWidth:e.spectralWidth,spectralHeight:e.spectralHeight,rendering:busy,closeImageImport:e.closeImageImport,updatePendingImageImport:e.updatePendingImageImport,handleConfirmImageImport:e.handleConfirmImageImport}));
 }

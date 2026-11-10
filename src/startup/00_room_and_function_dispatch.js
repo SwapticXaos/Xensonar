@@ -4,7 +4,7 @@ const __xenLoadDeferred=(()=>{
  const __xenLoadedRooms=Object.create(null);
  function load(kind){
   if(Object.hasOwn(__xenLoadedRooms,kind))return __xenLoadedRooms[kind];
-  if(kind!=="lab"&&kind!=="canonical"&&kind!=="nodal")throw Error("Unknown deferred XenSonar room: "+kind);
+  if(kind!=="lab"&&kind!=="canonical"&&kind!=="nodal"&&kind!=="multitrack")throw Error("Unknown deferred XenSonar room: "+kind);
   const __xenDeferredElement=document.getElementById("xen-room-"+kind);
   if(!__xenDeferredElement)throw Error("Missing offline XenSonar chunk: "+kind);
   const __xenDeferredSource=__xenDeferredElement.textContent;
@@ -15,7 +15,7 @@ const __xenLoadDeferred=(()=>{
   __xenDeferredElement.textContent="";
   return __xenDeferredExports;
  }
- load.status=()=>({lab:Object.hasOwn(__xenLoadedRooms,"lab"),canonical:Object.hasOwn(__xenLoadedRooms,"canonical"),nodal:Object.hasOwn(__xenLoadedRooms,"nodal")});
+ load.status=()=>({lab:Object.hasOwn(__xenLoadedRooms,"lab"),canonical:Object.hasOwn(__xenLoadedRooms,"canonical"),nodal:Object.hasOwn(__xenLoadedRooms,"nodal"),multitrack:Object.hasOwn(__xenLoadedRooms,"multitrack")});
  return load;
 })();
 window.__XenRoomChunks=Object.freeze({load:__xenLoadDeferred,status:__xenLoadDeferred.status});

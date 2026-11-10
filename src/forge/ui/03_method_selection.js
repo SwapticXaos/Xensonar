@@ -35,6 +35,8 @@ function eVe({compact=false}={}){
  const createSnapshot=pe(st=>st.createProjectSnapshot),projectName=pe(st=>st.materialExport.name);
  const [name,setName]=P.useState(projectName||"spectral-forge-project"),[saving,setSaving]=P.useState(false),[success,setSuccess]=P.useState(null),[error,setError]=P.useState(null);
  P.useEffect(()=>{projectName&&setName(projectName)},[projectName]);
+ // ROOM4-03: in the rack the confirmation floats over Figure Projects, so it fades after 5 s (errors stay).
+ P.useEffect(()=>{if(!compact||!success)return;const t=setTimeout(()=>setSuccess(null),5000);return()=>clearTimeout(t)},[compact,success]);
  const save=async()=>{setSaving(true);setSuccess(null);setError(null);try{const entry=await X7({name,snapshot:createSnapshot()});setName(entry.name);setSuccess("Gesichert · "+entry.name)}catch(e){setError(e instanceof Error?e.message:"Project could not be saved")}finally{setSaving(false)}};
  return u.jsxs("section",{
   className:compact?"f33-project-save":"space-y-2 rounded border border-neutral-800 bg-black/20 p-2",
