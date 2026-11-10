@@ -7,7 +7,7 @@ function stereo(file){const sr=48000,n=sr*4,buf=Buffer.alloc(44+n*4);buf.write('
 const f=path.join(os.tmpdir(),'xen_rt_stereo.wav');stereo(f);const SHOT=process.env.SHOT_DIR;
 const log=(k,v)=>console.log(JSON.stringify({step:k,...v}));
 (async()=>{const b=await chromium.launch({args:['--autoplay-policy=no-user-gesture-required']});const p=await (await b.newContext({viewport:{width:1600,height:1000}})).newPage();
-const errors=[];p.on('pageerror',e=>errors.push(String(e).slice(0,200)));p.on('dialog',d=>d.accept());
+const errors=[];p.on('pageerror',e=>errors.push(String(e).slice(0,200)));const dialogs=[];let dialogMode='accept';p.on('dialog',d=>{dialogs.push(d.message().slice(0,60));dialogMode==='dismiss'?d.dismiss():d.accept()});
 await p.goto(target);await p.waitForTimeout(6000);
 const clk=(t,s)=>p.evaluate(([t,s])=>{const n=x=>(x||'').replace(/\s+/g,' ').trim();const b=[...document.querySelectorAll('button')].find(b=>b.offsetParent&&!b.disabled&&(s?n(b.innerText).startsWith(t):(n(b.innerText)===t||n(b.innerText).endsWith(' '+t))));if(b){b.scrollIntoView();b.click()}return !!b},[t,!!s]);
 const proj=()=>p.evaluate(()=>new Promise(r=>{const q=indexedDB.open('xensonar-multitrack-v1');q.onsuccess=()=>{const g=q.result.transaction('projects').objectStore('projects').get('current');g.onsuccess=()=>r(g.result)}}));
@@ -37,4 +37,19 @@ const t=A.find(c=>c.id===target0.id)||A.find(c=>c.start===target0.start&&c.track
 log('apply & return',{inRoomIV:!!(await p.$('.xmt')),tracks:after.tracks.length,targetMaterialChanged:t&&t.mat!==target0.mat,targetStartKept:t&&t.start===target0.start,targetTrackKept:t&&t.track===target0.track,otherClipsUnchanged:cl(before).slice(1).every(o=>A.some(c=>c.id===o.id&&c.mat===o.mat&&c.start===o.start))});
 await p.locator('.xmt').click({position:{x:5,y:5}});await p.keyboard.press('Control+z');await p.waitForTimeout(900);const u=cl(await proj()).find(c=>c.id===target0.id);
 log('undo',{materialRestored:u?.mat===target0.mat});
+// ROOM4-03d: work that was returned is "clean" (no prompt); fresh unsaved edits are protected.
+const openClip=async()=>{await p.locator('[data-clip="'+target0.id+'"]').click({button:'right'});await p.waitForTimeout(200);await clk('Open in WAV Editor…');let b2=null;for(let i=0;i<60&&!b2;i++){await p.waitForTimeout(250);b2=await p.$('[data-xwe-apply-return]');if(dialogs.length>d0&&!b2)break}await p.waitForTimeout(500);return !!b2};
+let d0=dialogs.length;const reopenClean=await openClip();
+log('reopen after return',{opened:reopenClean,promptsShown:dialogs.length-d0,label:await p.evaluate(()=>document.querySelector('[data-xwe-roundtrip-label]')?.textContent||null)});
+await p.evaluate(()=>{const b=[...document.querySelectorAll('.xwe-dialog button')].find(x=>/^Reverse$/.test(x.innerText.trim()));b?.click()});await p.waitForTimeout(800);
+await clk('MULTITRACK');await p.waitForTimeout(1500);
+// parked edit: reopening any clip explains instead of silently doing nothing
+await p.locator('[data-clip="'+target0.id+'"]').click({button:'right'});await p.waitForTimeout(200);await clk('Open in WAV Editor…');await p.waitForTimeout(600);
+log('parked edit, open again',{status:await p.evaluate(()=>document.querySelector('.xmt .warn')?.innerText||null),rtActive:await p.evaluate(()=>__XenMultitrackRoundTrip.status().active)});
+// the link is dropped (as if the Wave Editor was closed) while the edits are still unsaved -> opening a clip must ask
+await p.evaluate(()=>{const w=__XenWaveUIW01;[...document.querySelectorAll('canvas')].map(c=>w.getEditor(c)).filter(e=>e&&e.doc).forEach(e=>{e.cleanRevision=-1})}); // simulate edits made after the last return
+await p.evaluate(()=>__XenMultitrackRoundTrip.cancel('probe'));
+dialogMode='dismiss';d0=dialogs.length;await openClip();
+const stillMT=!!(await p.$('.xmt'));
+log('unsaved edit, user cancels',{promptsShown:dialogs.length-d0,message:dialogs[dialogs.length-1],backInRoomIV:stillMT});
 log('errors',{errors});await b.close()})();

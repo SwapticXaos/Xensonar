@@ -67,7 +67,7 @@ const __XenMultitrackRoundTrip=(()=>{
  const uuid=()=>globalThis.crypto?.randomUUID?.()??'rt-'+Date.now()+'-'+Math.random().toString(36).slice(2);
  const clipIdentity=c=>JSON.stringify(['materialId','startBeat','inBeat','lenBeats','repeats','fit','sourceBpm','gain','fadeIn','fadeOut','muted'].map(k=>c?.[k]??null));
  const emit=()=>window.dispatchEvent(new CustomEvent('xensonar:multitrack:roundtrip-state',{detail:status()}));
- const status=()=>Object.freeze({active:!!active,phase:active?.phase??'idle',clipId:active?.clipId??null,trackId:active?.trackId??null,error:lastError});
+ const status=()=>Object.freeze({active:!!active,phase:active?.phase??'idle',clipId:active?.clipId??null,trackId:active?.trackId??null,label:active?.label??'',error:lastError});
  const navigate=room=>window.dispatchEvent(new CustomEvent('xensonar:multitrack:roundtrip-navigate',{detail:{room}}));
  const cancel=(reason='',token=null)=>{if(token&&active?.token!==token)return false;active=null;if(reason)lastError=reason;emit();return true};
  const bound=editor=>!!(active&&active.phase==='editing'&&editor?.doc?.id===active.editorDocId&&editor.activeWorkspace==='project');
@@ -126,6 +126,7 @@ const __XenMultitrackRoundTrip=(()=>{
     tx.oncomplete=()=>resolve();tx.onabort=()=>reject(req.error||tx.error||Error('Clip replacement was rejected.'));
     tx.onerror=()=>{};
    });
+   try{editor.cleanRevision=doc.revision}catch{}
    receipt={before,clipId:current.clipId,trackId:current.trackId,startBeat:current.startBeat,newMaterialId:result.entry.id};
    active=null;lastError='';emit();navigate('MULTITRACK');
    return {materialId:result.entry.id,clipId:current.clipId};

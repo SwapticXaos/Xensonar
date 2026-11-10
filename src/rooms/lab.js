@@ -1630,6 +1630,8 @@ function __CGeHydrated({sourceAdapters:e,targetAdapter:t,rawTargetAdapter:n,rawR
     if(!wave?.getEditor)throw Error('Stereo Wave Editor is unavailable.');
     const editors=()=>[...(I.current?.querySelectorAll('canvas')||[])].map(node=>wave.getEditor(node)).filter(Boolean);
     const previousIds=new Set(editors().map(instance=>instance.doc?.id));
+    /* ROOM4-03d: never silently replace unsaved Wave Editor work with a Multitrack clip. */
+    if(request.roundTripToken&&editors().some(instance=>instance.hasUnsavedWork?.())&&!globalThis.confirm('The Wave Editor holds unsaved edits. Opening this Multitrack clip replaces them.\n\nOK = replace them and open the clip\nCancel = keep your work'))throw Error('Clip edit cancelled: your unsaved Wave Editor work was kept.');
     const success=await U(request.file,{fromEditor:true});
     if(!success)throw Error('Material Intake could not decode the editor audio. The previous source was preserved.');
     await new Promise((resolve,reject)=>{

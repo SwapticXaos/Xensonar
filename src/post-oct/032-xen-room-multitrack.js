@@ -323,7 +323,7 @@ function XenMultitrackRoom(){
      arrangement placement, edit only the chosen clip, never mutate shared source. */
   const openClipInWave=async (track,clip)=>{
    if(busy){setStatus('Finish the current import or export before opening the Wave Editor.');return}
-   if(__XenMultitrackRoundTrip.status().active){setStatus('Finish the previous clip edit first.');return}
+   if(__XenMultitrackRoundTrip.status().active){setStatus('A clip is still open in the Wave Editor ('+(__XenMultitrackRoundTrip.status().label||'Multitrack clip')+'). Return to the Forge and Apply & Return, or close the Wave Editor, first.');return}
    setBusy(true);
    try{
     const projectNow=projectRef.current,liveTrack=projectNow.tracks.find(t=>t.id===track.id);
@@ -347,7 +347,7 @@ function XenMultitrackRoom(){
     const file=new File([bytes],name.replace(/[\\/:*?"<>|]/g,'_')+' · Multitrack edit.wav',{type:'audio/wav'});
     clearTimeout(saveTimer.current);await saveProject(projectNow);
     engine.stop();setPlaying(false);
-    await __XenMultitrackRoundTrip.open(file,{clipId:liveClip.id,trackId:liveTrack.id,materialId:liveClip.materialId,identity:__XenMultitrackRoundTrip.clipIdentity(liveClip),startBeat:liveClip.startBeat,bpm:projectNow.bpm,name});
+    await __XenMultitrackRoundTrip.open(file,{clipId:liveClip.id,trackId:liveTrack.id,materialId:liveClip.materialId,identity:__XenMultitrackRoundTrip.clipIdentity(liveClip),startBeat:liveClip.startBeat,bpm:projectNow.bpm,name,label:'\u2702 Multitrack Clip \u00b7 Track '+(projectNow.tracks.indexOf(liveTrack)+1)+' \u00b7 Bar '+(Math.floor(liveClip.startBeat/Math.max(.5,projectNow.beatsPerBar||4))+1)});
    }catch(error){setStatus('Wave Editor handoff failed: '+String(error?.message||error));}
    finally{setBusy(false)}
   };
@@ -366,7 +366,7 @@ function XenMultitrackRoom(){
   {label:'Duplicate',key:'Ctrl+D',run:()=>duplicateClip(c.id)},{label:'Split at cursor',key:'S',run:()=>splitClip(c.id),disabled:!(cursor>c.startBeat&&cursor<c.startBeat+len(c))},
    {label:'Copy',key:'Ctrl+C',run:()=>copyClip(c.id)},
    {label:'Move to now (cursor)',run:()=>updClip(c.id,{startBeat:Math.max(0,snap(cursor))},'Clip moved to '+fmtPos(Math.max(0,snap(cursor)),bpb))},
-   {label:'Open in WAV Editor…',icon:'wave-editor',run:()=>void openClipInWave(t,c),disabled:busy||__XenMultitrackRoundTrip.status().active},
+   {label:'Open in WAV Editor…',icon:'wave-editor',run:()=>void openClipInWave(t,c),disabled:busy},
    {label:c.muted?'Unmute clip':'Mute clip',key:'M',run:()=>updClip(c.id,{muted:!c.muted},c.muted?'Clip unmuted':'Clip muted')},'-',
   {label:'Loop material ×2',run:()=>updClip(c.id,{lenBeats:len(c)*2,repeats:undefined},'Length '+len(c)*2+' beats')},{label:'Length = one material cycle',run:()=>updClip(c.id,{lenBeats:cyc(c),repeats:undefined},'Length reset')},
   ...fitItems(c),
