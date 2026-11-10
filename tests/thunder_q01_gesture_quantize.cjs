@@ -18,7 +18,7 @@ function func(name){
 const code = `
  const lT=e=>e.trim()||'unknown-hold-key', Ux=(a,b)=>a||b?'sustain-extend':'normal', Kx=(a,b)=>a||b?'apostrophe-safe-extend':'none';
  const __XenSampleClock04={ cancelKey(){} }, __XenNodalSurfaces={muteFallbackHold(){}}, __XenC20C={pulse(){}};
- ${func('l0')}\n${func('tG')}\n${func('nG')}\n${func('rG')}\n${func('Die')}\n${func('w4')}\n${func('Nie')}\n${html.includes('function __xenThunderQ01AttackAtMs(')?func('__xenThunderQ01AttackAtMs'):''}
+ ${func('l0')}\n${func('tG')}\n${func('nG')}\n${func('rG')}\n${['__xenHoldMicroRatio','__xenHoldMicroVector','__xenHoldSlotDueMs','__xenHoldSlotGain','__xenHoldVolumeVector'].filter(n=>html.includes('function '+n+'(')).map(n=>func(n)).join('\n')}\n${func('Die')}\n${func('w4')}\n${func('Nie')}\n${html.includes('function __xenThunderQ01AttackAtMs(')?func('__xenThunderQ01AttackAtMs'):''}
  ;({Die,w4,Nie,quantize:typeof __xenThunderQ01AttackAtMs==='function'?__xenThunderQ01AttackAtMs:null,nG})
 `;
 const context = vm.createContext({Math,Number,Array,Object,globalThis:{},console});

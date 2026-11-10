@@ -24,11 +24,40 @@ function __XenHotkeysPanel({mode,onChange}){
  ]});
 }
 function iie({nParamsUI:e,updateNParams:t,onLockCursorToGridChange:n,onQuantizeToggle:r,onQuantizeBpmChange:a,quantizeGrid:o,particleQuantizeReferenceBars:i,quantizeStepMs:s,onQuantizeGridChange:c,onQuantizeReferenceBarsChange:d}){return u.jsxs(u.Fragment,{children:[u.jsxs("div",{className:"xen-hotkeys-controls-pair",children:[u.jsxs("div",{className:"flex flex-col gap-3 border border-neutral-800 bg-neutral-900/50 p-4",children:[u.jsx("h3",{className:"mb-1 border-b border-neutral-800 pb-1 text-[10px] uppercase tracking-widest text-neutral-500",children:"Controls & Space"}),u.jsxs("div",{children:[u.jsxs("label",{className:"mb-1 block text-xs text-neutral-400",children:["Cursor Speed (Arrows):",e.cursorSpeed.toFixed(1)]}),u.jsx(__XenRange,{type:"range",min:"1",max:"14",step:"0.5",value:e.cursorSpeed,onChange:f=>t({cursorSpeed:parseFloat(f.target.value)}),className:"w-full cursor-pointer"})]}),u.jsxs("label",{className:"mt-2 flex cursor-pointer items-center gap-2 text-sm text-neutral-300",children:[u.jsx("input",{type:"checkbox",checked:e.gridOn,onChange:f=>t({gridOn:f.target.checked})}),"Show Tuning Grid"]}),u.jsxs("label",{className:"flex cursor-pointer items-center gap-2 text-sm text-neutral-300",children:[u.jsx("input",{type:"checkbox",checked:e.lockCursorToGrid,onChange:f=>n(f.target.checked)}),"Snap Cursor to Grid"]})]}),u.jsx(__XenHotkeysPanel,{mode:e.resonanceHotkeyMode,onChange:mode=>t({resonanceHotkeyMode:mode})})]}),u.jsxs("div",{className:"xen-time-echo-with-touchpad flex flex-col gap-3 border border-neutral-800 bg-neutral-900/50 p-4",children:[u.jsx("h3",{className:"mb-1 border-b border-neutral-800 pb-1 text-[10px] uppercase tracking-widest text-neutral-500",children:"Time & Echo"}),u.jsxs("label",{className:"flex cursor-pointer items-center gap-2 text-sm text-neutral-300",children:[u.jsx("input",{type:"checkbox",checked:e.quantizeOn,onChange:f=>r(f.target.checked)}),"Particle Quantization"]}),u.jsxs("div",{children:[u.jsxs("label",{className:"mb-1 block text-xs text-neutral-400",children:["Live Room Tempo: ",e.quantizeBpm," BPM"]}),u.jsx(__XenRange,{type:"range",min:"40",max:"240",step:"1",value:e.quantizeBpm,onChange:f=>a(parseInt(f.target.value,10)),"aria-label":"Live Room Tempo","data-xen-main-room-tempo":"true",title:"Shared BPM for the main room; particle grid and loop lengths remain independent.",className:"w-full cursor-pointer"})]}),u.jsxs("div",{className:"grid grid-cols-2 gap-2","data-particle-quantization-in-time-echo":"true",children:[u.jsxs("div",{children:[u.jsxs("label",{className:"mb-1 flex items-center justify-between text-xs text-neutral-400",children:[u.jsx("span",{children:"Particle Grid"}),u.jsx("span",{className:"text-emerald-300",children:"(Tab)"})]}),u.jsxs("select",{value:aie(o)?String(R2(o)):"other",onChange:f=>{f.target.value!=="other"&&c(parseInt(f.target.value,10))},className:"w-full border border-neutral-700 bg-neutral-950 p-1 text-sm text-neutral-300",children:[s0.map(f=>u.jsxs("option",{value:f,children:[f,"tel"]},f)),u.jsx("option",{value:"other",children:"other"})]}),u.jsx("input",{type:"number",min:1,max:256,step:1,value:R2(o),onChange:f=>c(R2(parseInt(f.target.value||"16",10))),className:"mt-2 w-full border border-neutral-800 bg-neutral-950 p-1 text-xs text-neutral-300","aria-label":"Particle Grid other segments"})]}),u.jsxs("div",{children:[u.jsxs("label",{className:"mb-1 block text-xs text-neutral-400",children:["Particle Reference: ",i," bars"]}),u.jsx("input",{type:"number",min:.125,max:16,step:.125,value:i,onChange:f=>d(Math.max(.125,Math.min(16,parseFloat(f.target.value||"1")))),className:"w-full border border-neutral-800 bg-neutral-950 p-1 text-xs text-neutral-300",title:"Reference span: slots are distributed across this number of bars"}),u.jsxs("div",{className:"mt-2 rounded border border-neutral-800 bg-neutral-950/50 px-2 py-1 text-xs text-neutral-500",children:["Step: ",s,"ms · Collisions select the active slots; without quantization, movement rhythm may still remain ordered."]})]})]}),u.jsx("hr",{className:"my-1 border-neutral-800"}),u.jsxs("label",{className:"flex cursor-pointer items-center gap-2 text-sm text-neutral-300",children:[u.jsx("input",{type:"checkbox",checked:e.echoOn,onChange:f=>t({echoOn:f.target.checked})}),"Particle Echo Enabled"]}),u.jsxs("div",{children:[u.jsxs("label",{className:"mb-1 block text-xs text-neutral-400",children:["Echo Tempo: ",e.echoTempo,"ms"]}),u.jsx(__XenRange,{type:"range",min:"100",max:"1000",step:"10",value:e.echoTempo,onChange:f=>t({echoTempo:parseInt(f.target.value,10)}),className:"w-full cursor-pointer"})]}),u.jsxs("div",{children:[u.jsxs("label",{className:"mb-1 block text-xs text-neutral-400",children:["Echo Decay: ",(oie(e.echoDecay??.6,0,.96)*100).toFixed(0),"%"]}),u.jsx(__XenRange,{type:"range",min:"0",max:"0.96",step:"0.01",value:e.echoDecay??.6,onChange:f=>t({echoDecay:parseFloat(f.target.value)}),className:"w-full cursor-pointer"})]}),u.jsx(__XenTouchpadDock,{})]})]})}const sie=40,lie=240,cie=[{mode:"Off",label:"Aus",description:"Continuously Open"},{mode:"Puls 1/4",label:"Slow Pulse",description:"One Impulse per Beat"},{mode:"Puls 1/8",label:"Driving Pulse",description:"Two Pulses per Beat"},{mode:"Puls 1/16",label:"Stutter",description:"Four Pulses per Beat"},{mode:"Synkope",label:"Syncopation",description:"Offset 1/16 pattern"},{mode:"Custom",label:"Custom",description:"Custom 16th-Note Pattern"}],K6=[1,0,0,1,0,0,1,0,0,1,0,1,0,0,1,0];function Sy(e){const t=Array.from({length:16},(n,r)=>e?.[r]?1:0);return t.some(Boolean)?t:[1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]}function $6(e,t){return e==="Off"?Array.from({length:16},()=>1):e==="Puls 1/4"?[1,0,0,0,1,0,0,0,1,0,0,0,1,0,0,0]:e==="Puls 1/8"?[1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0]:e==="Puls 1/16"?Array.from({length:16},()=>1):e==="Synkope"?Array.from(K6):e==="Custom"?Sy(t):Array.from({length:16},()=>1)}function uie(e){return e==="Puls 1/4"?"1/4":e==="Puls 1/8"?"1/8":e==="Puls 1/16"||e==="Synkope"||e==="Custom"?"1/16":"durchgehend"}function die(e,t,n){return Math.min(n,Math.max(t,e))}function mie(e,t,n,r){if(e==="Off")return 1;const o=60/die(t,sie,lie),i=o/4;if(e==="Puls 1/4")return Math.max(0,1-Math.pow(n%o/o,1.5));if(e==="Puls 1/8"){const s=o/2;return Math.max(0,1-Math.pow(n%s/s,1.2))}if(e==="Puls 1/16")return Math.max(0,1-n%i/i);if(e==="Synkope"||e==="Custom"){const s=e==="Custom"?Sy(r):Array.from(K6),c=Math.floor(n/i)%16,d=n%i/i;return(s[c]??0)*Math.max(0,1-Math.pow(d,.7))}return 1}function pie(e,t){return{mode:e,steps:$6(e,t),subdivisionLabel:uie(e)}}function X6({title:e,open:t,onToggle:n,children:r,tabMode:i=false}){return u.jsxs("div",{className:"rounded border border-violet-800/70 bg-violet-950/20 p-2",children:[u.jsxs("button",{type:"button",onClick:n,role:i?"tab":void 0,"aria-selected":i?t:void 0,className:"flex w-full items-center justify-between rounded border border-violet-700 bg-violet-900/40 px-3 py-2 text-left text-sm text-violet-100 transition hover:bg-violet-900/60",children:[u.jsx("span",{children:e}),u.jsx("span",{className:"text-xs text-violet-300",children:t?"−":"+"})]}),t?u.jsx("div",{className:"mt-2",role:i?"tabpanel":void 0,children:r}):null]})}function U0(e,t=1){const n=typeof e=="number"&&Number.isFinite(e)?e:typeof e=="string"&&e.trim()!==""&&Number.isFinite(Number(e))?Number(e):t;return Math.max(1,Math.min(64,Math.round(n)))}function kw(e,t,n=!0){const r=U0(t,1),a=Array.isArray(e)?e:[];return Array.from({length:r},(o,i)=>{const s=a[i];return s===0?0:s===1||n?1:0})}function hie(e,t){const n=U0(e,1),r=U0(t,1);return n<=1?Array.from({length:r},()=>1):Array.from({length:r},(a,o)=>(o+1)%n===0?1:0)}function fie(e,t,n){const r=U0(t,1),a=kw(e,r);if(a.length<=0)return!0;const i=(Math.max(1,Math.round(Number(n)||1))-1)%a.length;return a[i]!==0}function gie(e,t){return kw(e,t).reduce((n,r)=>n+(r===0?0:1),0)}function x4(e,t){const n=U0(t,1),r=Array.isArray(e)?e:[];return Array.from({length:n},(a,o)=>r[o]===1?1:0)}const bie={neutral:{on:"border-emerald-500 bg-emerald-800/60 text-emerald-100",off:"border-neutral-800 bg-neutral-900 text-neutral-500 hover:bg-neutral-800"},violet:{on:"border-violet-400 bg-violet-700/55 text-violet-50",off:"border-violet-900/70 bg-violet-950/35 text-violet-300/45 hover:bg-violet-900/45"}};/* THUNDER_PITCH01: optional per-slot shift; neutral path retains original PCM and scheduler. */
+/* THUNDER-HPM02-DYNAMICS01-BEGIN */
+/* Neutral defaults preserve HPM01/legacy patterns. Slot microtiming is a
+   fraction of this gesture's slot duration, NOT a global/grid rephase. */
+function __xenHoldSlotGain(values,index){
+ const value=Array.isArray(values)&&values.length?values[((Math.round(index)%values.length)+values.length)%values.length]:undefined;
+ return typeof value==='number'&&Number.isFinite(value)?Math.max(0,Math.min(1.5,value)):1;
+}
+function __xenHoldMicroRatio(values,index){
+ const value=Array.isArray(values)&&values.length?values[((Math.round(index)%values.length)+values.length)%values.length]:undefined;
+ return typeof value==='number'&&Number.isFinite(value)?Math.max(-.45,Math.min(.45,value)):0;
+}
+function __xenHoldVolumeVector(values,count){
+ const n=Math.max(1,Math.min(256,Math.round(Number(count)||1)));
+ return Array.from({length:n},(_,index)=>__xenHoldSlotGain(values,index));
+}
+function __xenHoldMicroVector(values,count){
+ const n=Math.max(1,Math.min(256,Math.round(Number(count)||1)));
+ return Array.from({length:n},(_,index)=>__xenHoldMicroRatio(values,index));
+}
+function __xenHoldSlotDueMs(start,index,interval,ratios){
+ const i=Math.max(0,Math.round(index));
+ const delta=__xenHoldMicroRatio(ratios,i);
+ return start+(i+Math.max(i===0?0:-.45,delta))*interval;
+}
+function __xenHoldExpressive(volumes,micro){
+ return (Array.isArray(volumes)&&volumes.some((_,i)=>Math.abs(__xenHoldSlotGain(volumes,i)-1)>1e-6))||
+        (Array.isArray(micro)&&micro.some((_,i)=>Math.abs(__xenHoldMicroRatio(micro,i))>1e-6));
+}
+/* THUNDER-HPM02-DYNAMICS01-END */
 const __xenHoldPitchCache=new WeakMap();
 function __xenHoldPitchValue(values,index){
  if(!Array.isArray(values)||index<0||index>=values.length)return 0;
  const raw=values[index];
- return typeof raw==='number'&&Number.isFinite(raw)?Math.max(-1200,Math.min(1200,Math.round(raw))):0;
+ return typeof raw==='number'&&Number.isFinite(raw)?Math.max(-1200,Math.min(1200,Math.round(raw*1000)/1000)):0;
 }
 function __xenHoldPitchVector(values,count){
  const n=Math.max(1,Math.min(256,Math.round(Number(count)||1)));
@@ -301,7 +330,8 @@ function Die(e){const t=lT(e.keyId),n=e.state.gestures[e.lane],r=n[t],a=Number.i
   const previous=lastStart[t],quantized=Number.isFinite(e.quantizedAttackAtMs);
   const started=quantized?Math.max(e.quantizedAttackAtMs,Number.isFinite(previous)?previous+.01:-Infinity):Number.isFinite(previous)?Math.max(e.nowMs,previous+.01):e.nowMs;
   lastStart[t]=started;
-  const i={lane:e.lane,keyId:t,active:!0,startedAtMs:started,lastUpdatedAtMs:e.nowMs,lastPulseAtMs:e.nowMs,nextPulseAtMs:quantized?started:e.nowMs+e.intervalMs,quantizedAttackPending:quantized,segmentsPerBar:e.segmentsPerBar,intervalMs:e.intervalMs,referenceBars:e.referenceBars,targetHz:a,sustainExtendActive:o,sustainExtendLatched:o,sustainExtendSinceMs:o?e.nowMs:null,articulation:Ux(o,o),extendPolicy:Kx(o,o),pulseCount:0,visualUpdateCount:1,repeatUpdateCount:0};return n[t]=i,i}function w4(e){const t=nG({bpm:e.bpm,segmentsPerBar:e.segmentsPerBar,referenceBars:e.referenceBars}),n=Math.max(1,Math.min(256,Math.round(e.segmentsPerBar))),r=lT(e.keyId);if(!Number.isFinite(e.nowMs)||!Number.isFinite(t))return{allowImmediateAudio:!1,visualRipple:!0,intervalMs:t,referenceBars:Math.max(.125,Math.min(16,Number.isFinite(e.referenceBars??NaN)?Number(e.referenceBars):1)),segmentsPerBar:n,lane:e.lane,keyId:r,targetHz:Number.isFinite(e.targetHz??NaN)?e.targetHz:null,sustainExtendActive:e.sustainExtendActive===!0,articulation:Ux(e.sustainExtendActive),extendPolicy:Kx(e.sustainExtendActive),reason:"gesture-invalid-clock"};const a=!!e.state.gestures[e.lane][r]?.active,o=Die({state:e.state,lane:e.lane,keyId:r,nowMs:e.nowMs,segmentsPerBar:n,intervalMs:t,referenceBars:Math.max(.125,Math.min(16,Number.isFinite(e.referenceBars??NaN)?Number(e.referenceBars):1)),targetHz:e.targetHz,sustainExtendActive:e.sustainExtendActive,quantizedAttackAtMs:e.quantizedAttackAtMs});return e.isRepeat&&a?(o.repeatUpdateCount+=1,e.state.repeatAbsorbedCount+=1,{allowImmediateAudio:!1,visualRipple:!0,intervalMs:t,referenceBars:o.referenceBars,segmentsPerBar:n,lane:e.lane,keyId:r,targetHz:o.targetHz,sustainExtendActive:o.sustainExtendActive,articulation:o.articulation,extendPolicy:o.extendPolicy,reason:"gesture-loop-owned-repeat"}):o.quantizedAttackPending&&!a?{
+  const i={lane:e.lane,keyId:t,active:!0,startedAtMs:started,lastUpdatedAtMs:e.nowMs,lastPulseAtMs:e.nowMs,nextPulseAtMs:quantized?started:e.nowMs+e.intervalMs,quantizedAttackPending:quantized,segmentsPerBar:e.segmentsPerBar,intervalMs:e.intervalMs,referenceBars:e.referenceBars,targetHz:a,sustainExtendActive:o,sustainExtendLatched:o,sustainExtendSinceMs:o?e.nowMs:null,articulation:Ux(o,o),extendPolicy:Kx(o,o),pulseCount:0,visualUpdateCount:1,repeatUpdateCount:0};return n[t]=i,i}function w4(e){const t=nG({bpm:e.bpm,segmentsPerBar:e.segmentsPerBar,referenceBars:e.referenceBars}),n=Math.max(1,Math.min(256,Math.round(e.segmentsPerBar))),r=lT(e.keyId);if(!Number.isFinite(e.nowMs)||!Number.isFinite(t))return{allowImmediateAudio:!1,visualRipple:!0,intervalMs:t,referenceBars:Math.max(.125,Math.min(16,Number.isFinite(e.referenceBars??NaN)?Number(e.referenceBars):1)),segmentsPerBar:n,lane:e.lane,keyId:r,targetHz:Number.isFinite(e.targetHz??NaN)?e.targetHz:null,sustainExtendActive:e.sustainExtendActive===!0,articulation:Ux(e.sustainExtendActive),extendPolicy:Kx(e.sustainExtendActive),reason:"gesture-invalid-clock"};const a=!!e.state.gestures[e.lane][r]?.active,o=Die({state:e.state,lane:e.lane,keyId:r,nowMs:e.nowMs,segmentsPerBar:n,intervalMs:t,referenceBars:Math.max(.125,Math.min(16,Number.isFinite(e.referenceBars??NaN)?Number(e.referenceBars):1)),targetHz:e.targetHz,sustainExtendActive:e.sustainExtendActive,quantizedAttackAtMs:e.quantizedAttackAtMs});if(e.deferFirstPulse&&!a&&!o.quantizedAttackPending){o.quantizedAttackPending=true;o.pulseCount=0;o.nextPulseAtMs=o.startedAtMs}
+ return e.isRepeat&&a?(o.repeatUpdateCount+=1,e.state.repeatAbsorbedCount+=1,{allowImmediateAudio:!1,visualRipple:!0,intervalMs:t,referenceBars:o.referenceBars,segmentsPerBar:n,lane:e.lane,keyId:r,targetHz:o.targetHz,sustainExtendActive:o.sustainExtendActive,articulation:o.articulation,extendPolicy:o.extendPolicy,reason:"gesture-loop-owned-repeat"}):o.quantizedAttackPending&&!a?{
  allowImmediateAudio:false,visualRipple:true,intervalMs:t,referenceBars:o.referenceBars,segmentsPerBar:n,
  lane:e.lane,keyId:r,targetHz:o.targetHz,sustainExtendActive:o.sustainExtendActive,
  articulation:o.articulation,extendPolicy:o.extendPolicy,reason:"gesture-quantized-attack-pending"
@@ -361,23 +391,41 @@ function Nie(e){
     if(gesture.sampleClock04Signature!==signature){
      if(gesture.sampleClock04Signature!==undefined)__XenSampleClock04.cancelKey(ctx,lane,gesture.keyId,gesture.startedAtMs,false);
      gesture.sampleClock04Signature=signature;
-     gesture.pulseCount=gesture.quantizedAttackPending?0:Math.max(0,Math.floor((e.nowMs-gesture.startedAtMs+.001)/interval));
-     gesture.nextPulseAtMs=gesture.quantizedAttackPending?gesture.startedAtMs:gesture.startedAtMs+(gesture.pulseCount+1)*interval;
+     gesture.pulseCount=gesture.quantizedAttackPending?0:Math.max(1,Math.floor((e.nowMs-gesture.startedAtMs+.001)/interval)+1);
+     gesture.nextPulseAtMs=gesture.startedAtMs+gesture.pulseCount*interval;
     }
     let planned=0;
-    while(gesture.nextPulseAtMs<=e.nowMs+horizon&&planned<32&&out.length<96){
-     const due=gesture.nextPulseAtMs,pulseIndex=gesture.pulseCount++;
+    while(gesture.nextPulseAtMs-interval*.45<=e.nowMs+horizon&&planned<32&&out.length<96){
+     const pulseIndex=gesture.pulseCount++,wasPending=pulseIndex===0&&gesture.quantizedAttackPending;let due=__xenHoldSlotDueMs(gesture.startedAtMs,pulseIndex,interval,e.microByLane?.[lane]);
      if(pulseIndex===0&&gesture.quantizedAttackPending)gesture.quantizedAttackPending=false;
      gesture.nextPulseAtMs+=interval;planned++;
-     if(due<e.nowMs+8){e.state.skippedCatchupCount++;continue}
+     if(due<e.nowMs+8){if(wasPending&&due>=e.nowMs-70)due=e.nowMs+14;else{e.state.skippedCatchupCount++;continue}}
      const active=tG(e.activeStepsByLane?.[lane],segments,pulseIndex);
-     if(!active){e.state.patternMutedPulseCount++;continue}
-     out.push({lane,keyId:gesture.keyId,targetHz:gesture.targetHz,intervalMs:interval,segmentsPerBar:segments,referenceBars:bars,pulseIndex,sustainExtendActive:false,articulation:gesture.articulation,extendPolicy:gesture.extendPolicy,reason:'sample-audio-timeline-lookahead',sampleClock04:true,dueAtMs:due});
+     if(!active||__xenHoldSlotGain(e.volumesByLane?.[lane],pulseIndex)===0){e.state.patternMutedPulseCount++;continue}
+     out.push({lane,keyId:gesture.keyId,targetHz:gesture.targetHz,intervalMs:interval,segmentsPerBar:segments,referenceBars:bars,pulseIndex,sustainExtendActive:false,articulation:gesture.articulation,extendPolicy:gesture.extendPolicy,reason:'sample-audio-timeline-lookahead',sampleClock04:true,dueAtMs:due,slotGain:__xenHoldSlotGain(e.volumesByLane?.[lane],pulseIndex)});
      e.state.loopPulseCount++;
     }
     continue;
    }
    if(!Number.isFinite(gesture.nextPulseAtMs)){gesture.nextPulseAtMs=e.nowMs+interval;continue}
+   if(e.expressiveByLane?.[lane]){
+    // Schedule each dynamic gesture with its own epoch and phase. Never create
+    // early first attacks; future pulses are deferred and key-up checks the owner.
+    const horizon=Math.max(300,Math.min(580,Number(e.sampleLookaheadMs)||550));
+    let planned=0;
+    while(gesture.nextPulseAtMs-interval*.45<=e.nowMs+horizon&&planned<32&&out.length<96){
+     const index=gesture.pulseCount++,wasPending=index===0&&gesture.quantizedAttackPending;let due=__xenHoldSlotDueMs(gesture.startedAtMs,index,interval,e.microByLane?.[lane]);
+     gesture.nextPulseAtMs+=interval;planned++;
+     if(due<e.nowMs+6){if(wasPending&&due>=e.nowMs-70)due=e.nowMs+12;else{e.state.skippedCatchupCount++;continue}}
+     if(!tG(e.activeStepsByLane?.[lane],segments,index)||__xenHoldSlotGain(e.volumesByLane?.[lane],index)===0){e.state.patternMutedPulseCount++;continue}
+     if(index===0&&gesture.quantizedAttackPending)gesture.quantizedAttackPending=false;
+     out.push({lane,keyId:gesture.keyId,targetHz:gesture.targetHz,intervalMs:interval,segmentsPerBar:segments,referenceBars:bars,pulseIndex:index,
+      sustainExtendActive:gesture.sustainExtendActive,articulation:gesture.articulation,extendPolicy:gesture.extendPolicy,
+      reason:'dynamic-slot-ahead',expressive:true,dueAtMs:due,slotGain:__xenHoldSlotGain(e.volumesByLane?.[lane],index)});
+     e.state.loopPulseCount++;
+    }
+    continue;
+   }
    if(e.nowMs+.5<gesture.nextPulseAtMs)continue;
    // Keep musical phase anchored to the original start, not the latest RAF time.
    // If more than one step elapsed, discard stale steps, preserving pattern index.

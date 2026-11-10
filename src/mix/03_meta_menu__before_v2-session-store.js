@@ -273,9 +273,9 @@ function __xenStarterSourceSettings(){
    waveVolumeGradientEnabled:false,waveVolumeGradientX:'none',waveOvertonesEnabled:false,waveOvertoneWaveform:'triangle',waveOvertoneMode:'arp',
    waveOvertoneArpRate:64,waveOvertoneArpPattern:'updown',waveOvertoneArpSteps:8,waveOvertoneGlobalLevel:1,
    waveStarterHoldSegments:24,waveStarterHoldCustomSegments:48,waveStarterHoldReferenceBars:1,
-   waveStarterHoldPatternSteps:Array.from({length:24},()=>1),waveStarterHoldSoundPreset:__XenFactoryStartSounds.waveStarter},
+   waveStarterHoldPatternSteps:Array.from({length:24},()=>1),waveStarterHoldSlotVolumes:[],waveStarterHoldMicrotiming:[],waveStarterHoldSoundPreset:__XenFactoryStartSounds.waveStarter},
   keyboard:{keyboardHoldSegments:__XenKeyboardHoldStartupDemo.segments,keyboardHoldCustomSegments:48,keyboardHoldReferenceBars:__XenKeyboardHoldStartupDemo.bars,
-   keyboardHoldPatternSteps:__XenKeyboardHoldStartupDemo.steps.slice(),keyboardHoldPitchCents:__XenKeyboardHoldStartupDemo.cents.slice(),keyboardHoldSoundPreset:__XenFactoryStartSounds.keyboard},
+   keyboardHoldPatternSteps:__XenKeyboardHoldStartupDemo.steps.slice(),keyboardHoldPitchCents:__XenKeyboardHoldStartupDemo.cents.slice(),keyboardHoldSlotVolumes:[],keyboardHoldMicrotiming:[],keyboardHoldSoundPreset:__XenFactoryStartSounds.keyboard},
   octaves:{particle:0,wave:0,keyboard:0},pan:Object.fromEntries(['particle','wave','keyboard',...Array.from({length:32},(_,i)=>'particle:'+i)].map(k=>[k,0]))};
 }
 function __xenStarterPresetRecords(){
