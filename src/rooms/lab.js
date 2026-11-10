@@ -1636,7 +1636,10 @@ function __CGeHydrated({sourceAdapters:e,targetAdapter:t,rawTargetAdapter:n,rawR
      let frames=0;
      const find=()=>{
       const editor=editors().find(instance=>instance.doc&&!previousIds.has(instance.doc.id));
-      if(editor){editor.open();if(editor.overlay){resolve();return}
+      if(editor){editor.open();if(editor.overlay){if(request.roundTripToken&&!globalThis.__XenMultitrackRoundTrip?.bind(editor,request.roundTripToken)){reject(Error('The Wave Editor source did not match the requested Multitrack clip.'));return}
+       // ROOM4-03c: arrive with the blue mask bar at the top edge (the 'Wave Editor / Source options' row scrolls out).
+       if(request.roundTripToken){const top=()=>{const c=editor.options?.overviewCanvas||editor.options?.detailCanvas;if(!c?.isConnected)return;window.scrollBy({top:c.getBoundingClientRect().top-2,behavior:'auto'})};requestAnimationFrame(()=>requestAnimationFrame(top));setTimeout(top,350)}
+       resolve();return}
        reject(Error('Stereo Wave Editor could not be opened.'));return}
       if(++frames>=180){reject(Error('Wave Editor did not attach to the newly loaded audio.'));return}
       requestAnimationFrame(find);

@@ -2,7 +2,8 @@
 /* W06.1 — shared, font-independent, offline scissors; does not own layout or audio. */
 .f31-play-rack .f35-rack-send-editor::before,
 .xwe-launch::before,
-.xwe-head h2::before{
+.xwe-head h2::before,
+.xmt-menu .xmt-open-wave::before{
  content:"";display:inline-block;width:15px;height:15px;vertical-align:-3px;
  margin-right:5px;background-image:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%23e2e8f0%22%20stroke-width%3D%221.9%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%20aria-hidden%3D%22true%22%3E%3Ccircle%20cx%3D%226%22%20cy%3D%226%22%20r%3D%222.8%22%20stroke%3D%22%2365d9ff%22%20fill%3D%22%23264968%22%2F%3E%3Ccircle%20cx%3D%226%22%20cy%3D%2218%22%20r%3D%222.8%22%20stroke%3D%22%23fb7185%22%20fill%3D%22%235a283f%22%2F%3E%3Cpath%20d%3D%22M8.1%208.1%2012%2012M20%204%208.1%2015.9M14.8%2014.8%2020%2020%22%2F%3E%3C%2Fsvg%3E");
  background-position:center;background-size:15px 15px;background-repeat:no-repeat;

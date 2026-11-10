@@ -1008,6 +1008,13 @@ function Oce({nexusActive:e,resonanceInputIndicator:t,nexusCanvasRef:n,gameWidth
  const __xenForgeWasOpened=P.useRef(e.room==="L3LAB");
  const [__xenPendingForgeIntent,__xenSetPendingForgeIntent]=P.useState(null);
  if(e.room==="L3LAB")__xenForgeWasOpened.current=true;
+  P.useEffect(()=>{const jump=event=>{const room=event.detail?.room;
+   if(room!=='L3LAB'&&room!=='MULTITRACK')return;
+   e.setRoom(room);
+   if(room==='L3LAB')window.dispatchEvent(new Event('xensonar:open-carrier-integral-editor'));
+  };window.addEventListener('xensonar:multitrack:roundtrip-navigate',jump);
+  return()=>window.removeEventListener('xensonar:multitrack:roundtrip-navigate',jump);
+  },[e.setRoom]);
  P.useEffect(()=>{
   const intents=[
    ["xensonar:open-canonical-melodic-loop","canonical","melodic"],

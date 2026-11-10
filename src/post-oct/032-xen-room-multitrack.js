@@ -195,7 +195,7 @@ function Menu({menu,close}){const ref=P.useRef(null);
   setTimeout(()=>document.addEventListener('pointerdown',away,true),0);el?.addEventListener('keydown',key);return()=>{document.removeEventListener('pointerdown',away,true);el?.removeEventListener('keydown',key)}},[menu]);
  if(!menu)return null;const x=Math.min(menu.x,innerWidth-240),y=Math.min(menu.y,innerHeight-28*menu.items.length-16);
  return u.jsx('div',{className:'xmt-menu',role:'menu','aria-label':menu.label,ref,style:{left:Math.max(4,x),top:Math.max(4,y)},children:menu.items.map((it,i)=>it==='-'?u.jsx('hr',{},'s'+i):
-  u.jsxs('button',{type:'button',role:'menuitem',disabled:!!it.disabled,onClick:()=>{close();it.run()},children:[u.jsx('span',{children:it.label}),it.key?u.jsx('small',{children:it.key}):null]},'m'+i))})}
+  u.jsxs('button',{type:'button',role:'menuitem',disabled:!!it.disabled,onClick:()=>{close();it.run()},children:[u.jsx('span',{className:it.icon==='wave-editor'?'xmt-open-wave':undefined,children:it.label}),it.key?u.jsx('small',{children:it.key}):null]},'m'+i))})}
 /* ---------- room component ---------- */
 function XenMultitrackRoom(){
  useStyle();
@@ -217,7 +217,12 @@ function XenMultitrackRoom(){
  P.useLayoutEffect(()=>{const el=scrollRef.current,ps=pendingScroll.current;if(el&&ps){if(ps.top!=null)el.scrollTop=ps.top;if(ps.left!=null)el.scrollLeft=ps.left;pendingScroll.current=null}updateRail()});
  P.useEffect(()=>{if(project)consumeRef.current?.()},[!!project]);
  const announce=t=>{setSay('');setTimeout(()=>setSay(t),20)};
- P.useEffect(()=>{let live=true;loadProject().then(raw=>{if(live)setProject(sanitize(raw,bridge?.getLiveBpm?.()))}).catch(()=>{if(live){setProject(blankProject(bridge?.getLiveBpm?.()));setStatus('Browser storage unavailable: this arrangement will not be kept after reload.')}});
+ P.useEffect(()=>{let live=true;loadProject().then(raw=>{if(!live)return;
+  const result=sanitize(raw,bridge?.getLiveBpm?.()),returned=__XenMultitrackRoundTrip.takeReceipt();
+  setProject(result);if(returned){const source=result.tracks.find(t=>t.id===returned.trackId)?.clips.find(c=>c.id===returned.clipId);
+   if(source?.materialId===returned.newMaterialId){hist.current.past.push(returned.before);hist.current.future=[];setSel(returned.clipId);setTrackSel(returned.trackId);setCursor(returned.startBeat);setStatus('Returned from WAV Editor · originating clip updated · Undo available.');}}
+  else{const error=__XenMultitrackRoundTrip.takeError();if(error)setStatus(error)}
+ }).catch(()=>{if(live){setProject(blankProject(bridge?.getLiveBpm?.()));setStatus('Browser storage unavailable: this arrangement will not be kept after reload.')}});
   const off=typeof mV==='function'?mV(()=>{setLibRev(v=>v+1);if(inboxWaiting.current){inboxWaiting.current=false;consumeRef.current?.()}}):null;const onAudio=()=>setAudioRev(v=>v+1);audioListeners.add(onAudio);
   const keys=e=>{const t=e.target;if(t!==document.body&&!rootRef.current?.contains(t))return;keyRef.current?.(e)};document.addEventListener('keydown',keys);
   const inbox=()=>consumeRef.current?.();window.addEventListener('xensonar:multitrack-inbox',inbox);const resize=()=>updateRail();window.addEventListener('resize',resize);
@@ -314,6 +319,38 @@ function XenMultitrackRoom(){
    document.body.appendChild(link);link.click();link.remove();setTimeout(()=>URL.revokeObjectURL(url),4000);
    setStatus('Mixdown ready: '+r.seconds.toFixed(1)+' s, peak '+(r.peak>0?(20*Math.log10(r.peak)).toFixed(1)+' dBFS':'silent')+(r.peak>1?' (clipped: lower Master or 32-bit float)':''));announce('Mixdown exported')}
   catch(e){setStatus('Mixdown failed: '+(e?.message||e))}finally{setBusy(false)}};
+  /* EDIT-RETURN-01: immutable clip render for the existing Wave Editor. Preserve
+     arrangement placement, edit only the chosen clip, never mutate shared source. */
+  const openClipInWave=async (track,clip)=>{
+   if(busy){setStatus('Finish the current import or export before opening the Wave Editor.');return}
+   if(__XenMultitrackRoundTrip.status().active){setStatus('Finish the previous clip edit first.');return}
+   setBusy(true);
+   try{
+    const projectNow=projectRef.current,liveTrack=projectNow.tracks.find(t=>t.id===track.id);
+    const liveClip=liveTrack?.clips.find(c=>c.id===clip.id);
+    if(!liveClip)throw Error('Selected clip is no longer available.');
+    const entry=libRef.current.get(liveClip.materialId);
+    if(!entry)throw Error('Selected clip has no source material.');
+    const decoder=requestAudio(entry);await decoder?.promise;
+    if(decoder?.status!=='ready'||!decoder.buffer)throw Error('Source audio could not be decoded.');
+    const duration=clipLen(liveClip,libRef.current,projectNow.bpm)*60/projectNow.bpm;
+    if(!Number.isFinite(duration)||duration<.004||duration>300)throw Error('Clip edit needs between 4 ms and 5 minutes of audio.');
+    const sr=48000,frames=Math.ceil(duration*sr),count=Math.max(1,Math.min(2,decoder.buffer.numberOfChannels));
+    const Offline=globalThis.OfflineAudioContext||globalThis.webkitOfflineAudioContext;
+    const ctx=new Offline(count,frames,sr),clean={...liveClip,gain:1,fadeIn:0,fadeOut:0,muted:false};
+    planVoice(ctx,ctx.destination,clean,entry,decoder.buffer,liveClip.startBeat,liveClip.startBeat+clipLen(liveClip,libRef.current,projectNow.bpm),0,duration,60/projectNow.bpm,true,true);
+    const rendered=await ctx.startRendering();
+    const channels=Array.from({length:count},(_,i)=>rendered.getChannelData(i));
+    const encoder=globalThis.__XenWaveCoreW01;if(!encoder?.encodeWav)throw Error('Wave Editor WAV encoder unavailable.');
+    const bytes=encoder.encodeWav({channels,sampleRate:sr,frames:rendered.length},{format:'float32'});
+    const name=String(entry.name||'Multitrack clip');
+    const file=new File([bytes],name.replace(/[\\/:*?"<>|]/g,'_')+' · Multitrack edit.wav',{type:'audio/wav'});
+    clearTimeout(saveTimer.current);await saveProject(projectNow);
+    engine.stop();setPlaying(false);
+    await __XenMultitrackRoundTrip.open(file,{clipId:liveClip.id,trackId:liveTrack.id,materialId:liveClip.materialId,identity:__XenMultitrackRoundTrip.clipIdentity(liveClip),startBeat:liveClip.startBeat,bpm:projectNow.bpm,name});
+   }catch(error){setStatus('Wave Editor handoff failed: '+String(error?.message||error));}
+   finally{setBusy(false)}
+  };
  /* ---- context menus ---- */
  const openMenu=(e,label,items)=>{e.preventDefault();e.stopPropagation();const r=e.currentTarget?.getBoundingClientRect?.();setMenu({x:e.clientX||r?.left||40,y:e.clientY||r?.bottom||40,label,items})};
  const beatFromEvent=(e,el)=>{const r=el.getBoundingClientRect();return Math.max(0,(e.clientX-r.left)/ppb)};
@@ -327,7 +364,10 @@ function XenMultitrackRoom(){
   {label:'Set source tempo …',run:()=>{const v=Number(window.prompt('Source tempo of this audio (BPM):',String(c.sourceBpm||project.bpm)));if(v>10&&v<999)setFit(c,'bpm',v,'Source tempo '+v)}}].filter(Boolean);
  const clipMenu=(e,t,c)=>{setSel(c.id);setTrackSel(t.id);const others=project.tracks.filter(x=>x.id!==t.id);openMenu(e,'Clip',[
   {label:'Duplicate',key:'Ctrl+D',run:()=>duplicateClip(c.id)},{label:'Split at cursor',key:'S',run:()=>splitClip(c.id),disabled:!(cursor>c.startBeat&&cursor<c.startBeat+len(c))},
-  {label:'Copy',key:'Ctrl+C',run:()=>copyClip(c.id)},{label:c.muted?'Unmute clip':'Mute clip',key:'M',run:()=>updClip(c.id,{muted:!c.muted},c.muted?'Clip unmuted':'Clip muted')},'-',
+   {label:'Copy',key:'Ctrl+C',run:()=>copyClip(c.id)},
+   {label:'Move to now (cursor)',run:()=>updClip(c.id,{startBeat:Math.max(0,snap(cursor))},'Clip moved to '+fmtPos(Math.max(0,snap(cursor)),bpb))},
+   {label:'Open in WAV Editor…',icon:'wave-editor',run:()=>void openClipInWave(t,c),disabled:busy||__XenMultitrackRoundTrip.status().active},
+   {label:c.muted?'Unmute clip':'Mute clip',key:'M',run:()=>updClip(c.id,{muted:!c.muted},c.muted?'Clip unmuted':'Clip muted')},'-',
   {label:'Loop material ×2',run:()=>updClip(c.id,{lenBeats:len(c)*2,repeats:undefined},'Length '+len(c)*2+' beats')},{label:'Length = one material cycle',run:()=>updClip(c.id,{lenBeats:cyc(c),repeats:undefined},'Length reset')},
   ...fitItems(c),
   {label:'Fade in/out: 1 beat',run:()=>updClip(c.id,{fadeIn:1,fadeOut:1},'Fades 1 beat')},{label:'Fades off',run:()=>updClip(c.id,{fadeIn:0,fadeOut:0},'Fades off')},

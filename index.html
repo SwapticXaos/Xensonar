@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="xensonar-package-station" content="P4.1-selective-package-content+beat-references+working-flush;QA-pending" />
     <meta name="xensonar-drum-beat-owner" content="ED1-BEAT-OWNER-01;beat-EQ-priority+beat-style-snapshot+package-working-flush;QA-pending" />
-    <meta name="xensonar-mainline" content="W30C+LEGACY-COLD-OFF02+MIXPASTE-LIVE-TARGET01+DRUM-EXPANSION-A+B+C+ED1;consolidated;full-app-and-audio-qa-pending" />
+    <meta name="xensonar-room4-roundtrip" content="ROOM4-03c EDIT-RETURN-01; browser-and-audio-QA-pending" /><meta name="xensonar-mainline" content="W30C+LEGACY-COLD-OFF02+MIXPASTE-LIVE-TARGET01+DRUM-EXPANSION-A+B+C+ED1;consolidated;full-app-and-audio-qa-pending" />
     <meta name="xensonar-mainline-parent-sha256" content="2c55de094d3e56f761e41a33b88af64626a78bf842efe9feb109fc635d761605" />
     <meta name="xensonar-drum-expansion" content="W30C-PHASE-A+B+C+ED1;18-kits;modal+fm+analog-kick;native-audio-QA-pending" />
     <meta name="xensonar-ed1-parent-sha256" content="9b1813229d9bb77df457cbb848619b8bece7c131515d72d788d672d0438684aa" />
@@ -35470,6 +35470,13 @@ function Oce({nexusActive:e,resonanceInputIndicator:t,nexusCanvasRef:n,gameWidth
  const __xenForgeWasOpened=P.useRef(e.room==="L3LAB");
  const [__xenPendingForgeIntent,__xenSetPendingForgeIntent]=P.useState(null);
  if(e.room==="L3LAB")__xenForgeWasOpened.current=true;
+  P.useEffect(()=>{const jump=event=>{const room=event.detail?.room;
+   if(room!=='L3LAB'&&room!=='MULTITRACK')return;
+   e.setRoom(room);
+   if(room==='L3LAB')window.dispatchEvent(new Event('xensonar:open-carrier-integral-editor'));
+  };window.addEventListener('xensonar:multitrack:roundtrip-navigate',jump);
+  return()=>window.removeEventListener('xensonar:multitrack:roundtrip-navigate',jump);
+  },[e.setRoom]);
  P.useEffect(()=>{
   const intents=[
    ["xensonar:open-canonical-melodic-loop","canonical","melodic"],
@@ -46459,16 +46466,16 @@ const __XenMultitrackInbox=(()=>{
  async function decode(blob){const Offline=globalThis.OfflineAudioContext||globalThis.webkitOfflineAudioContext;const ctx=new Offline(1,1,48000);return ctx.decodeAudioData((await blob.arrayBuffer()).slice(0))}
  function monoOf(buffer){const n=buffer.length,c=buffer.numberOfChannels,out=new Float32Array(n);for(let ch=0;ch<c;ch++){const d=buffer.getChannelData(ch);for(let i=0;i<n;i++)out[i]+=d[i]/c}return out}
  /* blob: the audio as it should be kept (never re-encoded). bpm: known source tempo (wins over detection). */
- async function sendBlob({blob,name,origin='external',bpm=null}){
+ async function sendBlob({blob,name,origin='external',bpm=null,enqueue=true}){
   if(!(blob instanceof Blob)||!blob.size)throw Error('No audio to send.');
   const buffer=await decode(blob),dur=buffer.duration;if(!(dur>.02))throw Error('Audio is too short.');
-  const det=detectTempo(monoOf(buffer),buffer.sampleRate),known=Number(bpm)>0?Number(bpm):null,useDet=!known&&det.bpm&&det.confidence>=.2;
+  const det=enqueue?detectTempo(monoOf(buffer),buffer.sampleRate):{bpm:null,confidence:0,offsetSec:0},known=Number(bpm)>0?Number(bpm):null,useDet=!known&&det.bpm&&det.confidence>=.2;
   const sourceBpm=known??(useDet?det.bpm:null),pkgBpm=sourceBpm??108,clean=String(name||'Audio').replace(/\.[a-z0-9]{2,5}$/i,'').slice(0,80)||'Audio';
   const pkg={schemaVersion:qT,id:'mt-'+uid(),name:clean,role:'loop',audio:{kind:'audio',mimeType:blob.type||'audio/wav',blob,durationSec:dur,channels:buffer.numberOfChannels,sampleRate:buffer.sampleRate},
    timing:{bpm:pkgBpm,bars:Math.max(.25,Math.round(dur*pkgBpm/240*100)/100),beatsPerBar:4,loopStartSec:0,loopEndSec:dur,intendedLoopDurationSec:dur},
    renderInfo:{sourceVersion:'Send to Multitrack',renderMode:'raw-pcm',workspaceOrigin:origin},provenance:{createdAt:new Date().toISOString()}};
   const entry=await __registerDurableMaterial(pkg,{selectOnRegister:false});
-  await add({materialId:entry.id,name:clean,origin,sourceBpm,tempoSource:known?'known':useDet?'detected':'none',tempoConfidence:det.confidence,offsetSec:useDet?det.offsetSec:0});
+  if(enqueue)await add({materialId:entry.id,name:clean,origin,sourceBpm,tempoSource:known?'known':useDet?'detected':'none',tempoConfidence:det.confidence,offsetSec:useDet?det.offsetSec:0});
   return {entry,sourceBpm,detected:det}}
  /* PCM channels (e.g. the Wave Editor document): stored as Float32 WAV, bit-exact. */
  async function send({channels,sampleRate,name,origin='external',bpm=null}){
@@ -46476,6 +46483,86 @@ const __XenMultitrackInbox=(()=>{
   const blob=await __xenRecorderFloatWav(channels[0],channels[1]||channels[0],sampleRate);return sendBlob({blob,name,origin,bpm})}
  const api=Object.freeze({db,add,take,count,send,sendBlob,detectTempo});
  try{globalThis.__XenMultitrackInbox=api}catch{}
+ return api;
+})();
+/* ROOM4-03c · EDIT-RETURN-01: scoped Multitrack -> existing Forge Wave Editor ->
+   exactly one original clip. No existing audio is overwritten, no new track is queued.
+   RAM-only session; IDB commit is atomic and refuses a changed source clip.
+   The previous project snapshot is handed to the remounted Room IV for Undo. */
+const __XenMultitrackRoundTrip=(()=>{
+ 'use strict';
+ let active=null,receipt=null,lastError='';
+ const uuid=()=>globalThis.crypto?.randomUUID?.()??'rt-'+Date.now()+'-'+Math.random().toString(36).slice(2);
+ const clipIdentity=c=>JSON.stringify(['materialId','startBeat','inBeat','lenBeats','repeats','fit','sourceBpm','gain','fadeIn','fadeOut','muted'].map(k=>c?.[k]??null));
+ const emit=()=>window.dispatchEvent(new CustomEvent('xensonar:multitrack:roundtrip-state',{detail:status()}));
+ const status=()=>Object.freeze({active:!!active,phase:active?.phase??'idle',clipId:active?.clipId??null,trackId:active?.trackId??null,error:lastError});
+ const navigate=room=>window.dispatchEvent(new CustomEvent('xensonar:multitrack:roundtrip-navigate',{detail:{room}}));
+ const cancel=(reason='',token=null)=>{if(token&&active?.token!==token)return false;active=null;if(reason)lastError=reason;emit();return true};
+ const bound=editor=>!!(active&&active.phase==='editing'&&editor?.doc?.id===active.editorDocId&&editor.activeWorkspace==='project');
+ const pending=()=>!!(active&&active.phase==='opening');
+ function bind(editor,token){if(!active||active.token!==token||active.phase!=='opening'||!editor?.doc?.id)return false;
+  active.editorDocId=editor.doc.id;active.phase='editing';lastError='';emit();editor.refreshRoundTripButton?.();return true}
+ async function open(file,meta){
+  if(active)throw Error('A Multitrack-to-Wave-Editor edit is already open. Apply or close it first.');
+  if(!file||!meta?.clipId||!meta?.trackId||!meta?.materialId)throw Error('Missing clip edit context.');
+  const token=uuid();active={...meta,token,phase:'opening',editorDocId:null};lastError='';emit();navigate('L3LAB');
+  try{
+   // The Forge is lazily mounted. Reuse its canonical decoded-file handoff; never
+   // create an alternate Wave Editor or hidden scratch document.
+   for(let attempt=0;attempt<180;attempt++){
+    if(!active||active.token!==token)throw Error('Clip edit was cancelled.');
+    let resolve,reject;const accepted=new Promise((yes,no)=>{resolve=yes;reject=no});
+    const request={file,claimed:false,roundTripToken:token,resolve,reject};
+    window.dispatchEvent(new CustomEvent('xensonar:forge:send-to-editor-file',{detail:request}));
+    if(request.claimed){await accepted;if(active?.token!==token||active.phase!=='editing')throw Error('Wave Editor did not bind to the selected clip.');return true}
+    await new Promise(ok=>setTimeout(ok,80));
+   }
+   throw Error('The Wave Editor did not become ready. Open Material Forge / Spectral Forge and retry.');
+  }catch(error){cancel(String(error?.message||error),token);navigate('MULTITRACK');throw error}
+ }
+ async function apply(editor){
+  if(!bound(editor))throw Error('The current Wave Editor document is not linked to the Multitrack clip.');
+  const current=active;
+  if(!editor.doc?.frames)throw Error('Wave Editor document is empty.');
+  if(editor.nodes.length){await editor.applyChain();if(editor.nodes.length)throw Error('Effect rendering did not complete. No clip was replaced.');}
+  if(!active||active.token!==current.token||!editor.doc?.frames)throw Error('Clip edit was cancelled.');
+  const doc=editor.doc,expectedDoc=doc;
+  current.phase='saving';emit();
+  try{
+   const core=globalThis.__XenWaveCoreW01;if(!core?.encodeWav)throw Error('Wave WAV encoder unavailable.');
+   const bytes=core.encodeWav(doc,{format:'float32'}),blob=new Blob([bytes],{type:'audio/wav'});
+   const result=await __XenMultitrackInbox.sendBlob({blob,name:current.name+' · edited',origin:'multitrack-wave-return',bpm:current.bpm,enqueue:false});
+   if(active!==current||editor.doc!==expectedDoc)throw Error('Wave document changed while saving; the clip was not replaced.');
+   const db=await __XenMultitrackInbox.db();let before=null,after=null;
+   await new Promise((resolve,reject)=>{
+    const tx=db.transaction('projects','readwrite'),store=tx.objectStore('projects');
+    const req=store.get('current');
+    req.onsuccess=()=>{try{
+     const project=req.result;
+     if(project?.format!=='xensonar.multitrack'||project?.id!=='current')throw Error('Arrangement record is unavailable.');
+     if(project.bpm!==current.bpm)throw Error('Arrangement tempo changed during editing. Return without applying and try again.');
+     const track=project.tracks?.find(t=>t.id===current.trackId),clip=track?.clips?.find(c=>c.id===current.clipId);
+     if(!clip||clipIdentity(clip)!==current.identity)throw Error('Target clip changed or was removed while editing. Nothing was overwritten.');
+     before=project;
+     const beats=doc.frames/doc.sampleRate*project.bpm/60;
+     const replacement={...clip,materialId:result.entry.id,inBeat:0,fit:'bpm',sourceBpm:project.bpm,lenBeats:Math.max(1/64,beats)};
+     delete replacement.repeats;
+     after={...project,updatedAt:Date.now(),tracks:project.tracks.map(t=>t.id!==current.trackId?t:{...t,clips:t.clips.map(c=>c.id!==current.clipId?c:replacement)})};
+     store.put(after,'current');
+    }catch(error){try{tx.abort()}catch{};reject(error)}};
+    req.onerror=()=>reject(req.error||Error('Could not read arrangement.'));
+    tx.oncomplete=()=>resolve();tx.onabort=()=>reject(req.error||tx.error||Error('Clip replacement was rejected.'));
+    tx.onerror=()=>{};
+   });
+   receipt={before,clipId:current.clipId,trackId:current.trackId,startBeat:current.startBeat,newMaterialId:result.entry.id};
+   active=null;lastError='';emit();navigate('MULTITRACK');
+   return {materialId:result.entry.id,clipId:current.clipId};
+  }catch(error){if(active===current){current.phase='editing';emit()}throw error}
+ }
+ function takeReceipt(){const r=receipt;receipt=null;return r}
+ function takeError(){const e=lastError;lastError='';return e}
+ const api=Object.freeze({status,pending,bound,bind,open,apply,cancel,takeReceipt,takeError,clipIdentity});
+ try{globalThis.__XenMultitrackRoundTrip=api}catch{}
  return api;
 })();
 const __xenViewportRail=Object.freeze({
@@ -59592,7 +59679,8 @@ class Editor{
   this.dialog.querySelector('button')?.focus({preventScroll:true});
  }
  close(){
-  this.goldenMoveArmed=false;this.goldenGesture=null;this.stopBluePan();this.clearP5Warning();this.abort();this.stopAudio();this.cancelEditGesture?.();this.closeMixPane();
+  if(globalThis.__XenMultitrackRoundTrip?.bound(this)){globalThis.__XenMultitrackRoundTrip.cancel('Wave Editor closed without applying the linked Multitrack edit.');window.dispatchEvent(new CustomEvent('xensonar:multitrack:roundtrip-navigate',{detail:{room:'MULTITRACK'}}));}
+   this.goldenMoveArmed=false;this.goldenGesture=null;this.stopBluePan();this.clearP5Warning();this.abort();this.stopAudio();this.cancelEditGesture?.();this.closeMixPane();
   const wasOpen=!!this.overlay;
   if(this.activeWorkspace==='scratch')this.changeWorkspace('project');
   this.overlay?.remove();this.overlay=null;this.dialog=null;for(const canvas of [this.options.overviewCanvas,this.options.detailCanvas])if(canvas)delete canvas.dataset.xweHoverHit;this.hoverChannelLabel=null;
@@ -59757,7 +59845,10 @@ class Editor{
  fxHeader.append(scratchHeader);
  this.scratchRoot.append(scratchWorkspace);
  fx.append(this.scratchRoot);
- this.tailSelect=$('select',{'aria-label':'Effect Tail',onchange:()=>this.invalidate()});for(const [v,l] of [['extend','Tail · Overlay and extend project if needed (default)'],['overlay','Tail · Overlay existing project, truncate at its end'],['truncate','Tail · Truncate at selection end (intentional)']])this.tailSelect.append($('option',{value:v},l));const tail=$('div',{class:'xwe-field'});tail.append($('label',{},'Delay / Reverb'),this.tailSelect);this.tailSelect.style.maxWidth='260px';fx.append(tail);const presets=$('div',{class:'xwe-toolbar',style:'padding:8px 0;border:0'});presets.append(button('Save Chain',()=>this.savePreset()),button('Load Chain',()=>this.loadPreset()));this.presetInput=$('input',{type:'file',accept:'.json,application/json',class:'xwe-hidden',onchange:e=>this.readPreset(e.target.files[0])});presets.append(this.presetInput,button('Save Project',()=>this.saveProject()),button('Load Project',()=>this.projectInput.click()));this.projectInput=$('input',{type:'file',accept:'.xwe,application/x-xensonar-wave-project',class:'xwe-hidden',onchange:e=>this.readProject(e.target.files[0])});presets.append(this.projectInput);/* ROOM4-03: Send to Multitrack sits in the editor's bottom-right corner; the toolbar reserves its width. */this.multitrackButton=button('➜ Send to Multitrack',()=>this.sendToMultitrack(),{class:'xwe-primary','data-xwe-send-multitrack':'true',style:'position:absolute;right:8px;bottom:8px',title:'Send the edited project to Room IV · Multitrack as a new track (lossless Float32 WAV; tempo is detected and fitted at playback only)'});presets.style.paddingRight='176px';fx.style.position='relative';fx.append(presets,this.multitrackButton);body.append(fx);dialog.append(body);
+ this.tailSelect=$('select',{'aria-label':'Effect Tail',onchange:()=>this.invalidate()});for(const [v,l] of [['extend','Tail · Overlay and extend project if needed (default)'],['overlay','Tail · Overlay existing project, truncate at its end'],['truncate','Tail · Truncate at selection end (intentional)']])this.tailSelect.append($('option',{value:v},l));const tail=$('div',{class:'xwe-field'});tail.append($('label',{},'Delay / Reverb'),this.tailSelect);this.tailSelect.style.maxWidth='260px';fx.append(tail);const presets=$('div',{class:'xwe-toolbar',style:'padding:8px 0;border:0'});presets.append(button('Save Chain',()=>this.savePreset()),button('Load Chain',()=>this.loadPreset()));this.presetInput=$('input',{type:'file',accept:'.json,application/json',class:'xwe-hidden',onchange:e=>this.readPreset(e.target.files[0])});presets.append(this.presetInput,button('Save Project',()=>this.saveProject()),button('Load Project',()=>this.projectInput.click()));this.projectInput=$('input',{type:'file',accept:'.xwe,application/x-xensonar-wave-project',class:'xwe-hidden',onchange:e=>this.readProject(e.target.files[0])});presets.append(this.projectInput);/* ROOM4-03: Send to Multitrack sits in the editor's bottom-right corner; the toolbar reserves its width. */this.multitrackButton=button('➜ Send to Multitrack',()=>this.sendToMultitrack(),{class:'xwe-primary','data-xwe-send-multitrack':'true',title:'Create a new track in Room IV from this Wave Editor document (existing behavior).'});
+  this.roundTripButton=button('✓ Apply & Return to Multitrack',()=>this.applyAndReturnToMultitrack(),{class:'xwe-primary','data-xwe-apply-return':'true',title:'Bake pending FX, then replace ONLY the selected originating Multitrack clip at the same start position.'});
+  const handoffActions=$('div',{class:'xwe-roundtrip-actions',style:'display:flex;flex-wrap:wrap;justify-content:flex-end;gap:6px;padding:6px 0'});
+  handoffActions.append(this.multitrackButton,this.roundTripButton);fx.style.position='relative';fx.append(presets,handoffActions);this.refreshRoundTripButton();body.append(fx);dialog.append(body);
 }
  field(parent,label,type,value,attrs={}){const row=$('label',{class:'xwe-field'},label),input=$('input',{type,'aria-label':label,...attrs});if(type==='checkbox')input.checked=value;else input.value=value;row.append(input);parent.append(row);return input}
  refresh(rebuild=true){if(!this.overlay)return;this.drawScratchpad();
@@ -60065,6 +60156,15 @@ class Editor{
    const tailEnd=Math.max(range.end,...(result.metrics?.effects||[]).map(effect=>(effect.end??range.end)+(effect.tailFrames||0)));
    range={start:range.start,end:Math.min(result.frames,tailEnd)};
   }else if(mode==='original'){cs=this.doc.original.channels;sr=this.doc.original.sampleRate||sr;range={start:Math.min(range.start,cs[0].length-1),end:Math.min(range.end,cs[0].length)}}this.options.stopSourcePreview?.();const AC=root.AudioContext||root.webkitAudioContext;this.audioContext||=new AC();await this.audioContext.resume();if(!this.overlay)return;const buffer=this.audioContext.createBuffer(cs.length,cs[0].length,sr);cs.forEach((c,i)=>buffer.copyToChannel(c,i));const node=this.audioContext.createBufferSource();node.buffer=buffer;node.connect(this.audioContext.destination);const start=clamp(range.start/sr,0,buffer.duration-.00001),duration=Math.max(1/sr,Math.min(range.end/sr,buffer.duration)-start);node.start(0,start,duration);this.audioNode=node;this.startPlayhead(mode,range,sr,cs[0].length);node.onended=()=>{if(this.audioNode===node){this.audioNode=null;this.clearPlayheads();this.setStatus('Preview finished.')}};this.setStatus((mode==='original'?'A · Original':mode==='document'?(this.activeWorkspace==='scratch'?'B · Scratchpad':'B · Edited Project'):'Effect Chain')+' · real '+cs.length+'-channel preview (original floating-point level).')}catch(error){if(error.name!=='AbortError')this.setStatus(error.message)}}
+  refreshRoundTripButton(){if(this.roundTripButton){const linked=!!globalThis.__XenMultitrackRoundTrip?.bound(this);
+   this.roundTripButton.hidden=!linked;this.roundTripButton.style.display=linked?'':'none';}}
+  async applyAndReturnToMultitrack(){const flow=globalThis.__XenMultitrackRoundTrip;
+   if(!flow?.bound(this)){this.setStatus('This Wave document is not linked to a Multitrack clip.');return}
+   const btn=this.roundTripButton;if(btn)btn.disabled=true;
+   this.setStatus('Applying effects and returning to the original Multitrack clip…');
+   try{const result=await flow.apply(this);this.setStatus('Clip '+result.clipId+' updated. Returning to Multitrack.');this.close();}
+   catch(error){this.setStatus('Return failed: '+String(error?.message||error));}
+   finally{if(btn)btn.disabled=false;this.refreshRoundTripButton()}}
  async sendToMultitrack(){const inbox=globalThis.__XenMultitrackInbox;if(!inbox){this.setStatus('Multitrack is not available in this build.');return}if(!this.doc?.frames){this.setStatus('No audio to send.');return}const btn=this.multitrackButton;if(btn)btn.disabled=true;this.setStatus('Sending to Multitrack…');try{const name=(this.activeWorkspace==='scratch'?'Scratchpad':(this.source?.label||'Wave Editor'));const r=await inbox.send({channels:this.doc.channels,sampleRate:this.doc.sampleRate,name,origin:'wave-editor'});this.setStatus('Sent to Multitrack as a new track'+(r.sourceBpm?' · '+r.sourceBpm+' BPM detected':' · original speed')+'. Open Room IV to see it.'+(this.nodes.length?' Unapplied FX chain was not included: use Apply / Bake first.':''))}catch(error){this.setStatus('Send to Multitrack failed: '+error.message)}finally{if(btn)btn.disabled=false}}
  downloadWav(){try{const format=this.formatSelect?.value||'float32',data=core().encodeWav(this.doc,{format}),blob=data instanceof Blob?data:new Blob([data],{type:'audio/wav'});this.download(blob,(this.activeWorkspace==='scratch'?'XenSonar_Scratchpad':(this.source.label||'XenSonar')).replace(/[^\p{L}\p{N}_.-]/gu,'_')+'_W01_'+format+'.wav');this.setStatus('Edited project exported as '+format+' WAV. '+(this.nodes.length?'Unapplied FX chain: use Apply / Bake first.':''))}catch(error){this.setStatus(error.message)}}
  download(blob,name){const url=URL.createObjectURL(blob),a=$('a',{href:url,download:name});a.click();setTimeout(()=>URL.revokeObjectURL(url),30000)}
@@ -60337,7 +60437,8 @@ root.__XenWaveUIW01=Object.freeze({attach,drawStereo,enabled(canvas){const e=ins
 /* W06.1 — shared, font-independent, offline scissors; does not own layout or audio. */
 .f31-play-rack .f35-rack-send-editor::before,
 .xwe-launch::before,
-.xwe-head h2::before{
+.xwe-head h2::before,
+.xmt-menu .xmt-open-wave::before{
  content:"";display:inline-block;width:15px;height:15px;vertical-align:-3px;
  margin-right:5px;background-image:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%23e2e8f0%22%20stroke-width%3D%221.9%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%20aria-hidden%3D%22true%22%3E%3Ccircle%20cx%3D%226%22%20cy%3D%226%22%20r%3D%222.8%22%20stroke%3D%22%2365d9ff%22%20fill%3D%22%23264968%22%2F%3E%3Ccircle%20cx%3D%226%22%20cy%3D%2218%22%20r%3D%222.8%22%20stroke%3D%22%23fb7185%22%20fill%3D%22%235a283f%22%2F%3E%3Cpath%20d%3D%22M8.1%208.1%2012%2012M20%204%208.1%2015.9M14.8%2014.8%2020%2020%22%2F%3E%3C%2Fsvg%3E");
  background-position:center;background-size:15px 15px;background-repeat:no-repeat;
@@ -64578,7 +64679,10 @@ function __CGeHydrated({sourceAdapters:e,targetAdapter:t,rawTargetAdapter:n,rawR
      let frames=0;
      const find=()=>{
       const editor=editors().find(instance=>instance.doc&&!previousIds.has(instance.doc.id));
-      if(editor){editor.open();if(editor.overlay){resolve();return}
+      if(editor){editor.open();if(editor.overlay){if(request.roundTripToken&&!globalThis.__XenMultitrackRoundTrip?.bind(editor,request.roundTripToken)){reject(Error('The Wave Editor source did not match the requested Multitrack clip.'));return}
+       // ROOM4-03c: arrive with the blue mask bar at the top edge (the 'Wave Editor / Source options' row scrolls out).
+       if(request.roundTripToken){const top=()=>{const c=editor.options?.overviewCanvas||editor.options?.detailCanvas;if(!c?.isConnected)return;window.scrollBy({top:c.getBoundingClientRect().top-2,behavior:'auto'})};requestAnimationFrame(()=>requestAnimationFrame(top));setTimeout(top,350)}
+       resolve();return}
        reject(Error('Stereo Wave Editor could not be opened.'));return}
       if(++frames>=180){reject(Error('Wave Editor did not attach to the newly loaded audio.'));return}
       requestAnimationFrame(find);
@@ -67239,7 +67343,7 @@ function Menu({menu,close}){const ref=P.useRef(null);
   setTimeout(()=>document.addEventListener('pointerdown',away,true),0);el?.addEventListener('keydown',key);return()=>{document.removeEventListener('pointerdown',away,true);el?.removeEventListener('keydown',key)}},[menu]);
  if(!menu)return null;const x=Math.min(menu.x,innerWidth-240),y=Math.min(menu.y,innerHeight-28*menu.items.length-16);
  return u.jsx('div',{className:'xmt-menu',role:'menu','aria-label':menu.label,ref,style:{left:Math.max(4,x),top:Math.max(4,y)},children:menu.items.map((it,i)=>it==='-'?u.jsx('hr',{},'s'+i):
-  u.jsxs('button',{type:'button',role:'menuitem',disabled:!!it.disabled,onClick:()=>{close();it.run()},children:[u.jsx('span',{children:it.label}),it.key?u.jsx('small',{children:it.key}):null]},'m'+i))})}
+  u.jsxs('button',{type:'button',role:'menuitem',disabled:!!it.disabled,onClick:()=>{close();it.run()},children:[u.jsx('span',{className:it.icon==='wave-editor'?'xmt-open-wave':undefined,children:it.label}),it.key?u.jsx('small',{children:it.key}):null]},'m'+i))})}
 /* ---------- room component ---------- */
 function XenMultitrackRoom(){
  useStyle();
@@ -67261,7 +67365,12 @@ function XenMultitrackRoom(){
  P.useLayoutEffect(()=>{const el=scrollRef.current,ps=pendingScroll.current;if(el&&ps){if(ps.top!=null)el.scrollTop=ps.top;if(ps.left!=null)el.scrollLeft=ps.left;pendingScroll.current=null}updateRail()});
  P.useEffect(()=>{if(project)consumeRef.current?.()},[!!project]);
  const announce=t=>{setSay('');setTimeout(()=>setSay(t),20)};
- P.useEffect(()=>{let live=true;loadProject().then(raw=>{if(live)setProject(sanitize(raw,bridge?.getLiveBpm?.()))}).catch(()=>{if(live){setProject(blankProject(bridge?.getLiveBpm?.()));setStatus('Browser storage unavailable: this arrangement will not be kept after reload.')}});
+ P.useEffect(()=>{let live=true;loadProject().then(raw=>{if(!live)return;
+  const result=sanitize(raw,bridge?.getLiveBpm?.()),returned=__XenMultitrackRoundTrip.takeReceipt();
+  setProject(result);if(returned){const source=result.tracks.find(t=>t.id===returned.trackId)?.clips.find(c=>c.id===returned.clipId);
+   if(source?.materialId===returned.newMaterialId){hist.current.past.push(returned.before);hist.current.future=[];setSel(returned.clipId);setTrackSel(returned.trackId);setCursor(returned.startBeat);setStatus('Returned from WAV Editor · originating clip updated · Undo available.');}}
+  else{const error=__XenMultitrackRoundTrip.takeError();if(error)setStatus(error)}
+ }).catch(()=>{if(live){setProject(blankProject(bridge?.getLiveBpm?.()));setStatus('Browser storage unavailable: this arrangement will not be kept after reload.')}});
   const off=typeof mV==='function'?mV(()=>{setLibRev(v=>v+1);if(inboxWaiting.current){inboxWaiting.current=false;consumeRef.current?.()}}):null;const onAudio=()=>setAudioRev(v=>v+1);audioListeners.add(onAudio);
   const keys=e=>{const t=e.target;if(t!==document.body&&!rootRef.current?.contains(t))return;keyRef.current?.(e)};document.addEventListener('keydown',keys);
   const inbox=()=>consumeRef.current?.();window.addEventListener('xensonar:multitrack-inbox',inbox);const resize=()=>updateRail();window.addEventListener('resize',resize);
@@ -67358,6 +67467,38 @@ function XenMultitrackRoom(){
    document.body.appendChild(link);link.click();link.remove();setTimeout(()=>URL.revokeObjectURL(url),4000);
    setStatus('Mixdown ready: '+r.seconds.toFixed(1)+' s, peak '+(r.peak>0?(20*Math.log10(r.peak)).toFixed(1)+' dBFS':'silent')+(r.peak>1?' (clipped: lower Master or 32-bit float)':''));announce('Mixdown exported')}
   catch(e){setStatus('Mixdown failed: '+(e?.message||e))}finally{setBusy(false)}};
+  /* EDIT-RETURN-01: immutable clip render for the existing Wave Editor. Preserve
+     arrangement placement, edit only the chosen clip, never mutate shared source. */
+  const openClipInWave=async (track,clip)=>{
+   if(busy){setStatus('Finish the current import or export before opening the Wave Editor.');return}
+   if(__XenMultitrackRoundTrip.status().active){setStatus('Finish the previous clip edit first.');return}
+   setBusy(true);
+   try{
+    const projectNow=projectRef.current,liveTrack=projectNow.tracks.find(t=>t.id===track.id);
+    const liveClip=liveTrack?.clips.find(c=>c.id===clip.id);
+    if(!liveClip)throw Error('Selected clip is no longer available.');
+    const entry=libRef.current.get(liveClip.materialId);
+    if(!entry)throw Error('Selected clip has no source material.');
+    const decoder=requestAudio(entry);await decoder?.promise;
+    if(decoder?.status!=='ready'||!decoder.buffer)throw Error('Source audio could not be decoded.');
+    const duration=clipLen(liveClip,libRef.current,projectNow.bpm)*60/projectNow.bpm;
+    if(!Number.isFinite(duration)||duration<.004||duration>300)throw Error('Clip edit needs between 4 ms and 5 minutes of audio.');
+    const sr=48000,frames=Math.ceil(duration*sr),count=Math.max(1,Math.min(2,decoder.buffer.numberOfChannels));
+    const Offline=globalThis.OfflineAudioContext||globalThis.webkitOfflineAudioContext;
+    const ctx=new Offline(count,frames,sr),clean={...liveClip,gain:1,fadeIn:0,fadeOut:0,muted:false};
+    planVoice(ctx,ctx.destination,clean,entry,decoder.buffer,liveClip.startBeat,liveClip.startBeat+clipLen(liveClip,libRef.current,projectNow.bpm),0,duration,60/projectNow.bpm,true,true);
+    const rendered=await ctx.startRendering();
+    const channels=Array.from({length:count},(_,i)=>rendered.getChannelData(i));
+    const encoder=globalThis.__XenWaveCoreW01;if(!encoder?.encodeWav)throw Error('Wave Editor WAV encoder unavailable.');
+    const bytes=encoder.encodeWav({channels,sampleRate:sr,frames:rendered.length},{format:'float32'});
+    const name=String(entry.name||'Multitrack clip');
+    const file=new File([bytes],name.replace(/[\\/:*?"<>|]/g,'_')+' · Multitrack edit.wav',{type:'audio/wav'});
+    clearTimeout(saveTimer.current);await saveProject(projectNow);
+    engine.stop();setPlaying(false);
+    await __XenMultitrackRoundTrip.open(file,{clipId:liveClip.id,trackId:liveTrack.id,materialId:liveClip.materialId,identity:__XenMultitrackRoundTrip.clipIdentity(liveClip),startBeat:liveClip.startBeat,bpm:projectNow.bpm,name});
+   }catch(error){setStatus('Wave Editor handoff failed: '+String(error?.message||error));}
+   finally{setBusy(false)}
+  };
  /* ---- context menus ---- */
  const openMenu=(e,label,items)=>{e.preventDefault();e.stopPropagation();const r=e.currentTarget?.getBoundingClientRect?.();setMenu({x:e.clientX||r?.left||40,y:e.clientY||r?.bottom||40,label,items})};
  const beatFromEvent=(e,el)=>{const r=el.getBoundingClientRect();return Math.max(0,(e.clientX-r.left)/ppb)};
@@ -67371,7 +67512,10 @@ function XenMultitrackRoom(){
   {label:'Set source tempo …',run:()=>{const v=Number(window.prompt('Source tempo of this audio (BPM):',String(c.sourceBpm||project.bpm)));if(v>10&&v<999)setFit(c,'bpm',v,'Source tempo '+v)}}].filter(Boolean);
  const clipMenu=(e,t,c)=>{setSel(c.id);setTrackSel(t.id);const others=project.tracks.filter(x=>x.id!==t.id);openMenu(e,'Clip',[
   {label:'Duplicate',key:'Ctrl+D',run:()=>duplicateClip(c.id)},{label:'Split at cursor',key:'S',run:()=>splitClip(c.id),disabled:!(cursor>c.startBeat&&cursor<c.startBeat+len(c))},
-  {label:'Copy',key:'Ctrl+C',run:()=>copyClip(c.id)},{label:c.muted?'Unmute clip':'Mute clip',key:'M',run:()=>updClip(c.id,{muted:!c.muted},c.muted?'Clip unmuted':'Clip muted')},'-',
+   {label:'Copy',key:'Ctrl+C',run:()=>copyClip(c.id)},
+   {label:'Move to now (cursor)',run:()=>updClip(c.id,{startBeat:Math.max(0,snap(cursor))},'Clip moved to '+fmtPos(Math.max(0,snap(cursor)),bpb))},
+   {label:'Open in WAV Editor…',icon:'wave-editor',run:()=>void openClipInWave(t,c),disabled:busy||__XenMultitrackRoundTrip.status().active},
+   {label:c.muted?'Unmute clip':'Mute clip',key:'M',run:()=>updClip(c.id,{muted:!c.muted},c.muted?'Clip unmuted':'Clip muted')},'-',
   {label:'Loop material ×2',run:()=>updClip(c.id,{lenBeats:len(c)*2,repeats:undefined},'Length '+len(c)*2+' beats')},{label:'Length = one material cycle',run:()=>updClip(c.id,{lenBeats:cyc(c),repeats:undefined},'Length reset')},
   ...fitItems(c),
   {label:'Fade in/out: 1 beat',run:()=>updClip(c.id,{fadeIn:1,fadeOut:1},'Fades 1 beat')},{label:'Fades off',run:()=>updClip(c.id,{fadeIn:0,fadeOut:0},'Fades off')},
