@@ -28,6 +28,8 @@ const __XenMultitrackInbox=(()=>{
   const e=new Float32Array(n);for(let i=0;i<n;i++){let s=0;for(let j=i*hop,z=j+hop;j<z;j++)s+=x[j]*x[j];e[i]=Math.log1p(1000*s/hop)}
   const o=new Float32Array(n);for(let i=1;i<n;i++)o[i]=Math.max(0,e[i]-e[i-1]);
   const w=50;let acc=0;const m=new Float32Array(n);for(let i=0;i<n;i++){acc+=o[i];if(i>=w)acc-=o[i-w];m[i]=acc/Math.min(i+1,w)}for(let i=0;i<n;i++)o[i]=Math.max(0,o[i]-m[i]);
+  /* ROOM4-04: a sound that starts at frame 0 is an onset (silence before the file); without this the first beat was never counted. Capped so it cannot outvote real onsets. */
+  {let mx=0;for(let i=1;i<n;i++)if(o[i]>mx)mx=o[i];o[0]=e[0]>0?mx*Math.min(1,e[0]/Math.max(1e-9,Math.max(...e.subarray(0,Math.min(n,200)))*0.5)):0}
   let mean=0;for(const v of o)mean+=v;mean/=n;for(let i=0;i<n;i++)o[i]-=mean;
   const ac=l=>{let s=0;for(let i=0;i+l<n;i++)s+=o[i]*o[i+l];return s/(n-l)};const a0=ac(0)||1e-12;
   let best=null;for(let l=30;l<=100;l++){const v=ac(l)/a0,v2=2*l<n/2?ac(2*l)/a0:0,bpm=6000/l,pref=Math.exp(-.5*Math.pow(Math.log2(bpm/120)/.9,2));const score=(v+.5*v2)*(.6+.4*pref);if(!best||score>best.score)best={l,score,v}}

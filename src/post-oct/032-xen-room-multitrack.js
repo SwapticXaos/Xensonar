@@ -10,6 +10,8 @@ const DB='xensonar-multitrack-v1',STORE='projects',KEY='current',FORMAT='xensona
 const uid=p=>p+'-'+(globalThis.crypto?.randomUUID?.()??(Date.now().toString(36)+Math.random().toString(36).slice(2,8)));
 const clamp=(v,lo,hi)=>Math.max(lo,Math.min(hi,v));
 const num=(v,d)=>Number.isFinite(Number(v))?Number(v):d;
+/* ROOM4-04: these are corruption guards only, far above any real arrangement. The old limits (64 tracks / 1024 clips) silently cut a bigger saved arrangement on the next load and then saved the cut version. */
+const MAX_TRACKS=512,MAX_CLIPS=20000;
 const COLORS=['#f59e0b','#38bdf8','#a78bfa','#34d399','#f472b6','#facc15','#fb7185','#60a5fa'];
 function blankTrack(i){return {id:uid('track'),name:'Track '+(i+1),volume:.8,pan:0,mute:false,solo:false,clips:[]}}
 function blankProject(liveBpm){return {format:FORMAT,version:VERSION,id:KEY,name:'Untitled Arrangement',bpm:clamp(num(liveBpm,108),20,400),beatsPerBar:4,
@@ -20,8 +22,8 @@ function sanitizeClip(c){const out={id:String(c.id||uid('clip')),materialId:Stri
  return out}
 function sanitize(raw,liveBpm){
  if(!raw||raw.format!==FORMAT||!Array.isArray(raw.tracks))return blankProject(liveBpm);
- const tracks=raw.tracks.slice(0,64).map((t,i)=>({id:String(t.id||uid('track')),name:String(t.name||('Track '+(i+1))).slice(0,60),volume:clamp(num(t.volume,.8),0,1.5),pan:clamp(num(t.pan,0),-1,1),
-  mute:!!t.mute,solo:!!t.solo,clips:(Array.isArray(t.clips)?t.clips:[]).slice(0,1024).map(sanitizeClip).filter(c=>c.materialId)}));
+ const tracks=raw.tracks.slice(0,MAX_TRACKS).map((t,i)=>({id:String(t.id||uid('track')),name:String(t.name||('Track '+(i+1))).slice(0,60),volume:clamp(num(t.volume,.8),0,1.5),pan:clamp(num(t.pan,0),-1,1),
+  mute:!!t.mute,solo:!!t.solo,clips:(Array.isArray(t.clips)?t.clips:[]).slice(0,MAX_CLIPS).map(sanitizeClip).filter(c=>c.materialId)}));
  const loop=raw.loop||{};const ls=Math.max(0,num(loop.start,0)),le=Math.max(ls+1/64,num(loop.end,ls+16));
  return {format:FORMAT,version:VERSION,id:KEY,name:String(raw.name||'Untitled Arrangement').slice(0,100),bpm:clamp(num(raw.bpm,108),20,400),
   beatsPerBar:clamp(num(raw.beatsPerBar,4),.5,64),grid:{div:clamp(Math.round(num(raw.grid?.div,4)),1,64),snap:raw.grid?.snap!==false},
@@ -101,8 +103,8 @@ class Engine{
      this.keys.add(key);const v=planVoice(ctx,ch.input,c,entry,au.buffer,pa,pb,tA,tB,spb,start&&tA===s.t+(cs-s.a)*spb,pb===ce);
      const voice={...v,clipId:c.id,sig:this.sigs.get(c.id)};this.voices.add(voice);v.src.onended=()=>{this.voices.delete(voice);try{v.g.disconnect()}catch{}}}}}}
  /* Edits while playing: mixer as AudioParam moves; changed/removed clips fade out and are re-planned from now. */
- update(project,lib){if(!this.playing){this.project=project;this.lib=lib;return false}const old=this.project;this.project=project;this.lib=lib;const ctx=this.ctx,now=ctx.currentTime;
-  if(old.bpm!==project.bpm||old.loop.on!==project.loop.on||old.loop.start!==project.loop.start||old.loop.end!==project.loop.end)return true;// caller restarts at the current beat
+ update(project,lib){if(!this.playing){this.project=project;this.lib=lib;return false}const old=this.project,posBefore=this.position();/* ROOM4-04: read the beat position with the OLD tempo before swapping the project */this.project=project;this.lib=lib;const ctx=this.ctx,now=ctx.currentTime;
+  if(old.bpm!==project.bpm||old.loop.on!==project.loop.on||old.loop.start!==project.loop.start||old.loop.end!==project.loop.end){this.restartBeat=posBefore;return true}// caller restarts at the current beat
   this.master.gain.setTargetAtTime(project.master.volume,now,.02);
   for(const t of project.tracks){const ch=this.chainFor(t);ch.gain.gain.setTargetAtTime(this.gainFor(t),now,.02);ch.pan?.pan.setTargetAtTime(t.pan,now,.02)}
   for(const id of [...this.chains.keys()])if(!project.tracks.some(t=>t.id===id))this.dropChain(id);
@@ -232,7 +234,7 @@ function XenMultitrackRoom(){
  // Cold preparation: decode what the arrangement uses (once per material) for waveforms and instant play.
  P.useEffect(()=>{if(!project)return;for(const t of project.tracks)for(const c of t.clips){const e=libMap.get(c.materialId);if(e)requestAudio(e)}},[project,libMap]);
  const persist=next=>{clearTimeout(saveTimer.current);saveTimer.current=setTimeout(()=>saveProject(next).catch(()=>setStatus('Saving failed; keep this tab open and export a mixdown.')),600)};
- const apply=(next,label)=>{setProject(next);projectRef.current=next;if(engine.update(next,libRef.current)){const b=engine.position()??cursor;void play(b,next)}persist(next);if(label)announce(label)};
+ const apply=(next,label)=>{setProject(next);projectRef.current=next;if(engine.update(next,libRef.current)){const b=engine.restartBeat??engine.position()??cursor;engine.restartBeat=null;void play(b,next)}persist(next);if(label)announce(label)};
  const commit=(next,label)=>{const prev=projectRef.current;if(prev){hist.current.past.push(prev);if(hist.current.past.length>100)hist.current.past.shift();hist.current.future=[]}apply(next,label)};
  const undo=()=>{const h=hist.current;if(!h.past.length)return;h.future.push(projectRef.current);apply(h.past.pop(),'Undo')};
  const redo=()=>{const h=hist.current;if(!h.future.length)return;h.past.push(projectRef.current);apply(h.future.pop(),'Redo')};
