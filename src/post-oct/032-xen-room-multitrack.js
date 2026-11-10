@@ -1,5 +1,5 @@
 (()=>{"use strict";
-/* ROOM4-02 · Room IV · Multitrack (deferred chunk, evaluated on first open only).
+/* ROOM4-03 · Room IV · Multitrack (deferred chunk, evaluated on first open only).
  * Cold by contract: no timers, listeners or audio nodes while the room is closed.
  * Time is counted in BEATS (free beats per bar, free grid 1/N beat), never 4/4 by default.
  * Tracks reuse the shared Material lane chain (__xenMaterialLaneChain) with their own EQ key and
@@ -13,9 +13,9 @@ const num=(v,d)=>Number.isFinite(Number(v))?Number(v):d;
 const COLORS=['#f59e0b','#38bdf8','#a78bfa','#34d399','#f472b6','#facc15','#fb7185','#60a5fa'];
 function blankTrack(i){return {id:uid('track'),name:'Track '+(i+1),volume:.8,pan:0,mute:false,solo:false,clips:[]}}
 function blankProject(liveBpm){return {format:FORMAT,version:VERSION,id:KEY,name:'Untitled Arrangement',bpm:clamp(num(liveBpm,108),20,400),beatsPerBar:4,
- grid:{div:4,snap:true},zoom:28,loop:{on:false,start:0,end:16},master:{volume:.9},tracks:[blankTrack(0)],updatedAt:Date.now()}}
+ grid:{div:4,snap:true},zoom:28,trackHeight:64,loop:{on:false,start:0,end:16},master:{volume:.9},tracks:[blankTrack(0)],updatedAt:Date.now()}}
 function sanitizeClip(c){const out={id:String(c.id||uid('clip')),materialId:String(c.materialId||''),startBeat:Math.max(0,num(c.startBeat,0)),
- inBeat:Math.max(0,num(c.inBeat,0)),gain:clamp(num(c.gain,1),0,2),fadeIn:clamp(num(c.fadeIn,0),0,256),fadeOut:clamp(num(c.fadeOut,0),0,256),muted:!!c.muted,fit:c.fit==='natural'?'natural':'tempo'};
+ inBeat:Math.max(0,num(c.inBeat,0)),gain:clamp(num(c.gain,1),0,2),fadeIn:clamp(num(c.fadeIn,0),0,256),fadeOut:clamp(num(c.fadeOut,0),0,256),muted:!!c.muted,fit:['natural','bpm'].includes(c.fit)?c.fit:'tempo'};if(num(c.sourceBpm,0)>0)out.sourceBpm=clamp(Number(c.sourceBpm),10,999);if(out.fit==='bpm'&&!out.sourceBpm)out.fit='natural';
  if(Number.isFinite(Number(c.lenBeats))&&Number(c.lenBeats)>0)out.lenBeats=clamp(Number(c.lenBeats),1/64,1e5);else out.repeats=clamp(Math.round(num(c.repeats,1)),1,256);
  return out}
 function sanitize(raw,liveBpm){
@@ -25,14 +25,11 @@ function sanitize(raw,liveBpm){
  const loop=raw.loop||{};const ls=Math.max(0,num(loop.start,0)),le=Math.max(ls+1/64,num(loop.end,ls+16));
  return {format:FORMAT,version:VERSION,id:KEY,name:String(raw.name||'Untitled Arrangement').slice(0,100),bpm:clamp(num(raw.bpm,108),20,400),
   beatsPerBar:clamp(num(raw.beatsPerBar,4),.5,64),grid:{div:clamp(Math.round(num(raw.grid?.div,4)),1,64),snap:raw.grid?.snap!==false},
-  zoom:clamp(num(raw.zoom,28),4,240),loop:{on:!!loop.on,start:ls,end:le},master:{volume:clamp(num(raw.master?.volume,.9),0,1.5)},
+  zoom:clamp(num(raw.zoom,28),4,240),trackHeight:clamp(num(raw.trackHeight,64),36,220),loop:{on:!!loop.on,start:ls,end:le},master:{volume:clamp(num(raw.master?.volume,.9),0,1.5)},
   tracks:tracks.length?tracks:[blankTrack(0)],updatedAt:num(raw.updatedAt,Date.now())};
 }
 /* ---------- persistence (cold) ---------- */
-let dbTask=null;
-function db(){if(dbTask)return dbTask;dbTask=new Promise((ok,bad)=>{if(typeof indexedDB==='undefined'){bad(Error('IndexedDB unavailable'));return}
- const r=indexedDB.open(DB,1);r.onupgradeneeded=()=>{if(!r.result.objectStoreNames.contains(STORE))r.result.createObjectStore(STORE)};
- r.onsuccess=()=>{r.result.onversionchange=()=>r.result.close();ok(r.result)};r.onerror=()=>bad(r.error||Error('Cannot open multitrack storage'))}).catch(e=>{dbTask=null;throw e});return dbTask}
+const db=()=>__XenMultitrackInbox.db();// one database owner, shared with the Send-to-Multitrack inbox
 async function loadProject(){const d=await db();return new Promise((ok,bad)=>{const q=d.transaction(STORE,'readonly').objectStore(STORE).get(KEY);q.onsuccess=()=>ok(q.result??null);q.onerror=()=>bad(q.error)})}
 async function saveProject(p){const d=await db();return new Promise((ok,bad)=>{const tx=d.transaction(STORE,'readwrite');tx.objectStore(STORE).put({...p,updatedAt:Date.now()},KEY);tx.oncomplete=()=>ok(true);tx.onerror=()=>bad(tx.error)})}
 /* ---------- material library (read-only consumer) ---------- */
@@ -41,7 +38,7 @@ function matBeats(entry){const bars=num(entry?.bars,1),bpb=num(entry?.beatsPerBa
 /* Two conversions per clip: 'tempo' = bars x beats of the material (as the Live Room does);
    'natural' = real audio length at the project tempo, original speed (takes, free material). */
 function naturalSec(entry){const a=num(entry?.loopStartSec,0),b=num(entry?.loopEndSec,num(entry?.durationSec,0));return Math.max(.01,b-a>0?b-a:num(entry?.durationSec,1))}
-function cycleBeats(entry,clip,bpm){return clip?.fit==='natural'?Math.max(1/64,naturalSec(entry)*bpm/60):matBeats(entry)}
+function cycleBeats(entry,clip,bpm){if(clip?.fit==='natural')return Math.max(1/64,naturalSec(entry)*bpm/60);if(clip?.fit==='bpm'&&clip.sourceBpm>0)return Math.max(1/64,naturalSec(entry)*clip.sourceBpm/60);return matBeats(entry)}
 function clipLen(c,lib,bpm){return c.lenBeats>0?c.lenBeats:cycleBeats(lib.get(c.materialId),c,bpm)*(c.repeats||1)}
 /* ---------- decoded audio: once per material, context-independent ---------- */
 const audio=new Map();// materialId -> {status,buffer,peaks,error,size}
@@ -72,7 +69,7 @@ class Engine{
  constructor(){this.ctx=null;this.playing=false;this.voices=new Set();this.chains=new Map();this.timer=null;this.keys=new Set();this.segs=[];this.segSerial=0;this.project=null;this.lib=new Map();this.master=null;this.meter=null;this.sigs=new Map()}
  spb(){return 60/this.project.bpm}
  gainFor(t){const any=this.project.tracks.some(x=>x.solo);return (t.mute||(any&&!t.solo))?0:t.volume}
- sigOf(t,c){return t.id+'|'+c.materialId+'|'+c.startBeat+'|'+c.inBeat+'|'+clipLen(c,this.lib,this.project.bpm)+'|'+c.gain+'|'+c.fadeIn+'|'+c.fadeOut+'|'+c.muted+'|'+c.fit}
+ sigOf(t,c){return t.id+'|'+c.materialId+'|'+c.startBeat+'|'+c.inBeat+'|'+clipLen(c,this.lib,this.project.bpm)+'|'+c.gain+'|'+c.fadeIn+'|'+c.fadeOut+'|'+c.muted+'|'+c.fit+'|'+(c.sourceBpm||0)}
  chainFor(t){let ch=this.chains.get(t.id);if(ch)return ch;const ctx=this.ctx,input=ctx.createGain(),gain=ctx.createGain();gain.gain.value=this.gainFor(t);
   const chain=__xenMaterialLaneChain(ctx,{source:input,gain,panValue:t.pan,eqKey:__XenEQ.keyFor('arrangement',t.id),route:out=>out.connect(this.master)});
   ch={input,gain,pan:chain.pan,eq:chain.eq,output:chain.output};this.chains.set(t.id,ch);return ch}
@@ -148,10 +145,15 @@ const CSS=`.xmt{color:#e7e5e4;font:13px/1.35 system-ui,sans-serif;max-width:1500
 .xmt button:focus-visible,.xmt input:focus-visible,.xmt select:focus-visible,.xmt-menu button:focus-visible{outline:2px solid #fbbf24;outline-offset:1px}
 .xmt input,.xmt select{background:#111113;color:#e7e5e4;border:1px solid #3f3f46;border-radius:6px;padding:3px 6px;font:inherit}
 .xmt input[type=number]{width:66px}.xmt label{display:inline-flex;gap:6px;align-items:center;color:#a8a29e}
-.xmt .tracks{position:relative;overflow-x:auto;border:1px solid #2b2b31;border-radius:10px;background:#09090b}
+.xmt .twrap{display:flex;gap:6px;align-items:stretch}.xmt .tracks{position:relative;flex:1;min-width:0;overflow:auto;max-height:max(260px,calc(100vh - 330px));border:1px solid #2b2b31;border-radius:10px;background:#09090b}
+.xmt .trk.rr{position:sticky;top:0;z-index:6;background:#09090b}
+.xmt .rail{position:relative;flex:0 0 20px;border:1px solid #2b2b31;border-radius:8px;background:#0b0b0d;cursor:pointer;touch-action:none;overflow:hidden}
+.xmt .rail i{position:absolute;left:4px;right:4px;border-radius:2px;opacity:.28;pointer-events:none}.xmt .rail i.full{opacity:.85}
+.xmt .thumb{position:absolute;left:0;right:0;min-height:16px;border:1px solid #fde68a;background:rgba(253,230,138,.14);border-radius:6px;cursor:grab}
+.xmt .thumb b{position:absolute;left:0;right:0;height:7px;cursor:ns-resize;background:rgba(253,230,138,.35)}.xmt .thumb b.t{top:0}.xmt .thumb b.e{bottom:0}
 .xmt .trk{display:grid;grid-template-columns:240px 1fr;border-bottom:1px solid #1f1f23;min-height:64px}.xmt .trk.rr{min-height:28px}
 .xmt .hdr{padding:6px 8px;background:#0f0f12;border-right:1px solid #26262b;display:flex;flex-direction:column;gap:4px;position:sticky;left:0;z-index:4}
-.xmt .hdr .row{flex-wrap:nowrap;gap:4px}.xmt .hdr input[type=text]{width:104px}.xmt .hdr input[type=range]{width:78px}.xmt .hdr button{padding:2px 7px}
+.xmt .hdr .row{flex-wrap:nowrap;gap:4px}.xmt .hdr input[type=text]{width:104px}.xmt .hdr input[type=range]{width:78px}.xmt .hdr button{padding:2px 7px}.xmt .trk.compact .hdr{padding:3px 8px;justify-content:center}.xmt .trk.compact .hdr .row+.row{display:none}
 .xmt .lane{position:relative;min-height:64px}.xmt .lane.drop{background:#1c1917}.xmt .ruler{position:relative;height:28px;cursor:pointer;border-bottom:1px solid #2b2b31}
 .xmt .tick{position:absolute;top:0;bottom:0;border-left:1px solid #2a2a30}.xmt .tick.barl{border-left:1px solid #57534e}.xmt .tick span{position:absolute;top:4px;left:3px;font-size:10px;color:#a8a29e}
 .xmt .loopr{position:absolute;top:0;height:6px;background:rgba(56,189,248,.25);border:1px solid #38bdf8;border-top:0}.xmt .loopr.off{background:rgba(120,113,108,.15);border-color:#57534e}
@@ -195,11 +197,16 @@ function XenMultitrackRoom(){
  const [exportFormat,setExportFormat]=P.useState('pcm16'),[busy,setBusy]=P.useState(false);
  const rootRef=P.useRef(null),keyRef=P.useRef(null),hist=P.useRef({past:[],future:[]}),saveTimer=P.useRef(null),phRef=P.useRef(null),meterRef=P.useRef(null),rafRef=P.useRef(0),drag=P.useRef(null),projectRef=P.useRef(null),libRef=P.useRef(new Map());
  projectRef.current=project;
+ const scrollRef=P.useRef(null),railRef=P.useRef(null),thumbRef=P.useRef(null),railDrag=P.useRef(null),pendingScroll=P.useRef(null),consumeRef=P.useRef(null),importRef=P.useRef(null),inboxWaiting=P.useRef(false);
+ const updateRail=()=>{const el=scrollRef.current,th=thumbRef.current,rl=railRef.current;if(!el||!th||!rl)return;const H=Math.max(1,el.scrollHeight),R=rl.clientHeight;th.style.top=(el.scrollTop/H*R)+'px';th.style.height=Math.max(16,Math.min(R,el.clientHeight/H*R))+'px'};
+ P.useLayoutEffect(()=>{const el=scrollRef.current;if(el&&pendingScroll.current!==null){el.scrollTop=pendingScroll.current;pendingScroll.current=null}updateRail()});
+ P.useEffect(()=>{if(project)consumeRef.current?.()},[!!project]);
  const announce=t=>{setSay('');setTimeout(()=>setSay(t),20)};
  P.useEffect(()=>{let live=true;loadProject().then(raw=>{if(live)setProject(sanitize(raw,bridge?.getLiveBpm?.()))}).catch(()=>{if(live){setProject(blankProject(bridge?.getLiveBpm?.()));setStatus('Browser storage unavailable: this arrangement will not be kept after reload.')}});
-  const off=typeof mV==='function'?mV(()=>setLibRev(v=>v+1)):null;const onAudio=()=>setAudioRev(v=>v+1);audioListeners.add(onAudio);
+  const off=typeof mV==='function'?mV(()=>{setLibRev(v=>v+1);if(inboxWaiting.current){inboxWaiting.current=false;consumeRef.current?.()}}):null;const onAudio=()=>setAudioRev(v=>v+1);audioListeners.add(onAudio);
   const keys=e=>{const t=e.target;if(t!==document.body&&!rootRef.current?.contains(t))return;keyRef.current?.(e)};document.addEventListener('keydown',keys);
-  return()=>{live=false;off?.();audioListeners.delete(onAudio);document.removeEventListener('keydown',keys);engine.stop();cancelAnimationFrame(rafRef.current);clearTimeout(saveTimer.current);const p=projectRef.current;if(p)saveProject(p).catch(()=>{})}},[]);
+  const inbox=()=>consumeRef.current?.();window.addEventListener('xensonar:multitrack-inbox',inbox);const resize=()=>updateRail();window.addEventListener('resize',resize);
+  return()=>{live=false;off?.();audioListeners.delete(onAudio);document.removeEventListener('keydown',keys);window.removeEventListener('xensonar:multitrack-inbox',inbox);window.removeEventListener('resize',resize);engine.stop();cancelAnimationFrame(rafRef.current);clearTimeout(saveTimer.current);const p=projectRef.current;if(p)saveProject(p).catch(()=>{})}},[]);
  const lib=P.useMemo(()=>materials(),[libRev]);const libMap=P.useMemo(()=>new Map(lib.map(e=>[e.id,e])),[lib]);libRef.current=libMap;
  P.useEffect(()=>{if(!pick&&lib[0])setPick(lib[0].id)},[lib,pick]);
  // Cold preparation: decode what the arrangement uses (once per material) for waveforms and instant play.
@@ -209,6 +216,35 @@ function XenMultitrackRoom(){
  const commit=(next,label)=>{const prev=projectRef.current;if(prev){hist.current.past.push(prev);if(hist.current.past.length>100)hist.current.past.shift();hist.current.future=[]}apply(next,label)};
  const undo=()=>{const h=hist.current;if(!h.past.length)return;h.future.push(projectRef.current);apply(h.past.pop(),'Undo')};
  const redo=()=>{const h=hist.current;if(!h.future.length)return;h.past.push(projectRef.current);apply(h.future.pop(),'Redo')};
+ /* Inbox: every Send to Multitrack lands on a new track below the existing ones (an empty last track is reused). */
+ consumeRef.current=async()=>{let items;try{items=await __XenMultitrackInbox.take()}catch{return}if(!items?.length)return;
+  let p=projectRef.current;if(!p){for(const it of items)__XenMultitrackInbox.add(it,{quiet:true}).catch(()=>{});return}
+  const lib=new Map(materials().map(e=>[e.id,e])),names=[],later=[];
+  for(const it of items){const e=lib.get(it.materialId);if(!e){if((it.tries||0)<40)later.push({...it,tries:(it.tries||0)+1});continue}requestAudio(e);
+   const last=p.tracks[p.tracks.length-1],reuse=!!last&&!last.clips.length;
+   const fit=it.sourceBpm>0?'bpm':'natural',base={fit,sourceBpm:it.sourceBpm>0?it.sourceBpm:undefined},cycle=cycleBeats(e,base,p.bpm);
+   const inBeat=it.sourceBpm>0?Math.max(0,num(it.offsetSec,0)*it.sourceBpm/60):0;
+   const clip={id:uid('clip'),materialId:e.id,startBeat:0,inBeat,lenBeats:Math.max(1/16,cycle-inBeat),gain:1,fadeIn:0,fadeOut:0,muted:false,...base};
+   const label=String(it.name||e.name||'Audio').slice(0,60),t={...(reuse?last:blankTrack(p.tracks.length)),name:label,clips:[clip]};
+   p={...p,tracks:reuse?p.tracks.map(x=>x.id===last.id?t:x):[...p.tracks,t]};
+   names.push(label+(it.sourceBpm>0?' · '+it.sourceBpm+' BPM'+(it.tempoSource==='detected'?' (detected, beat-aligned)':''):' · original speed'))}
+  /* Material not in the library yet: put it back quietly; the next library change retries (no event loop). */
+  inboxWaiting.current=later.length>0;for(const it of later)await __XenMultitrackInbox.add(it,{quiet:true}).catch(()=>{});
+  if(names.length){commit(p,names.length+' new track(s) arrived');setStatus('Arrived on new tracks: '+names.join(' | '))}};
+ const importFiles=async files=>{const list=[...(files||[])].filter(f=>f&&f.size);if(!list.length)return;setBusy(true);
+  try{for(let i=0;i<list.length;i++){setStatus('Importing '+(i+1)+'/'+list.length+': '+list[i].name+' (tempo detection) …');await __XenMultitrackInbox.sendBlob({blob:list[i],name:list[i].name,origin:'multitrack-import'})}}
+  catch(e){setStatus('Import failed: '+(e?.message||e))}finally{setBusy(false)}};
+ /* Vertical overview rail (shared __xenViewportRail math, Melodic Loop interaction model). Unit = tracks. */
+ const railView=()=>{const el=scrollRef.current,n=Math.max(1,projectRef.current.tracks.length),h=projectRef.current.trackHeight,usable=Math.max(40,(el?.clientHeight??300)-28);
+  return {start:(el?.scrollTop??0)/h,visible:Math.min(n,usable/h),total:n,minVisible:1,usable}};
+ const applyRail=v=>{const p=projectRef.current,el=scrollRef.current;if(!el)return;const usable=Math.max(40,el.clientHeight-28),h=clamp(usable/Math.max(.5,v.visible),36,220);
+  if(Math.abs(h-p.trackHeight)>.5){pendingScroll.current=v.start*h;apply({...p,trackHeight:Math.round(h)})}else{el.scrollTop=v.start*h;updateRail()}};
+ const railDown=(e,mode)=>{if(e.button!==0)return;e.preventDefault();e.stopPropagation();const rect=railRef.current.getBoundingClientRect();let view=railView();
+  if(mode==='jump'){const j=__xenViewportRail.jump(rect,e.clientY,view);applyRail(j);view={...view,start:j.start};mode='move'}
+  railDrag.current=__xenViewportRail.begin(rect,mode,e.clientY,view);railRef.current.setPointerCapture?.(e.pointerId)};
+ const railMove=e=>{const st=railDrag.current;if(st)applyRail(__xenViewportRail.move(st,e.clientY))};
+ const railUp=()=>{railDrag.current=null};
+ const railFit=()=>{const el=scrollRef.current;if(!el)return;const n=Math.max(1,project.tracks.length),h=clamp((el.clientHeight-28)/n,36,220);pendingScroll.current=0;apply({...project,trackHeight:Math.round(h)},'Showing all tracks')};
  if(!project)return u.jsx('div',{className:'xmt',children:'Loading arrangement …'});
  const bpb=project.beatsPerBar,ppb=project.zoom,step=1/project.grid.div;
  const snap=b=>project.grid.snap?Math.round(b/step)*step:Math.round(b*1000)/1000;
@@ -254,11 +290,19 @@ function XenMultitrackRoom(){
  /* ---- context menus ---- */
  const openMenu=(e,label,items)=>{e.preventDefault();e.stopPropagation();const r=e.currentTarget?.getBoundingClientRect?.();setMenu({x:e.clientX||r?.left||40,y:e.clientY||r?.bottom||40,label,items})};
  const beatFromEvent=(e,el)=>{const r=el.getBoundingClientRect();return Math.max(0,(e.clientX-r.left)/ppb)};
+ const setFit=(c,fit,sourceBpm=c.sourceBpm,label)=>{const nc={...c,fit,sourceBpm};updClip(c.id,{fit,sourceBpm,lenBeats:cycleBeats(libMap.get(c.materialId),nc,project.bpm),repeats:undefined},label)};
+ const fitItems=c=>[
+  {label:'Original speed (real audio length)'+(c.fit==='natural'?' ✓':''),run:()=>setFit(c,'natural',c.sourceBpm,'Original speed')},
+  {label:'Fit bars × beats to tempo'+(c.fit==='tempo'?' ✓':''),run:()=>setFit(c,'tempo',c.sourceBpm,'Fitted to tempo')},
+  c.sourceBpm?{label:'Fit source tempo '+c.sourceBpm+' BPM'+(c.fit==='bpm'?' ✓':''),run:()=>setFit(c,'bpm',c.sourceBpm,'Source tempo '+c.sourceBpm)}:null,
+  c.sourceBpm?{label:'Source tempo ×2 (octave)',run:()=>setFit(c,'bpm',Math.round(c.sourceBpm*200)/100,'Source tempo '+Math.round(c.sourceBpm*200)/100)}:null,
+  c.sourceBpm?{label:'Source tempo ÷2 (octave)',run:()=>setFit(c,'bpm',Math.round(c.sourceBpm*50)/100,'Source tempo '+Math.round(c.sourceBpm*50)/100)}:null,
+  {label:'Set source tempo …',run:()=>{const v=Number(window.prompt('Source tempo of this audio (BPM):',String(c.sourceBpm||project.bpm)));if(v>10&&v<999)setFit(c,'bpm',v,'Source tempo '+v)}}].filter(Boolean);
  const clipMenu=(e,t,c)=>{setSel(c.id);setTrackSel(t.id);const others=project.tracks.filter(x=>x.id!==t.id);openMenu(e,'Clip',[
   {label:'Duplicate',key:'Ctrl+D',run:()=>duplicateClip(c.id)},{label:'Split at cursor',key:'S',run:()=>splitClip(c.id),disabled:!(cursor>c.startBeat&&cursor<c.startBeat+len(c))},
   {label:'Copy',key:'Ctrl+C',run:()=>copyClip(c.id)},{label:c.muted?'Unmute clip':'Mute clip',key:'M',run:()=>updClip(c.id,{muted:!c.muted},c.muted?'Clip unmuted':'Clip muted')},'-',
   {label:'Loop material ×2',run:()=>updClip(c.id,{lenBeats:len(c)*2,repeats:undefined},'Length '+len(c)*2+' beats')},{label:'Length = one material cycle',run:()=>updClip(c.id,{lenBeats:cyc(c),repeats:undefined},'Length reset')},
-  {label:c.fit==='natural'?'Fit to project tempo (bars × beats)':'Original speed (real audio length)',run:()=>{const fit=c.fit==='natural'?'tempo':'natural';updClip(c.id,{fit,lenBeats:cycleBeats(libMap.get(c.materialId),{fit},project.bpm),repeats:undefined},fit==='natural'?'Original speed':'Fitted to tempo')}},
+  ...fitItems(c),
   {label:'Fade in/out: 1 beat',run:()=>updClip(c.id,{fadeIn:1,fadeOut:1},'Fades 1 beat')},{label:'Fades off',run:()=>updClip(c.id,{fadeIn:0,fadeOut:0},'Fades off')},
   {label:'Set loop to this clip',run:()=>setLoop({start:c.startBeat,end:c.startBeat+len(c),on:true})},'-',
   ...others.slice(0,8).map(o=>({label:'Move to '+o.name,run:()=>moveClipToTrack(c.id,o.id)})),others.length?'-':null,
@@ -322,41 +366,46 @@ function XenMultitrackRoom(){
   const reps=[];for(let k=Math.ceil((c.inBeat+1e-9)/mb);(k*mb-c.inBeat)<L-1e-9&&reps.length<64;k++){const x=(k*mb-c.inBeat)*ppb;if(x>0)reps.push(u.jsx('span',{className:'rep',style:{left:x}},'r'+k))}
   const name=e?(e.name||'material'):'missing material',color=COLORS[ti%COLORS.length];
   return u.jsxs('button',{type:'button','data-clip':c.id,className:'clip'+(bad?' bad':'')+(c.muted?' muted':''),role:'option','aria-selected':sel===c.id,style:{left:c.startBeat*ppb,width:w,'--c':color},
-   title:name+(state?' — '+state:''),'aria-label':name+', '+t.name+', starts at '+fmtPos(c.startBeat,bpb)+', '+L+' beats'+(c.muted?', muted':'')+(state?', '+state:''),
+   title:name+(state?' — '+state:'')+'\nDrag: move (also to another track) · Alt+drag: copy · edges: trim · right-click: options','aria-label':name+', '+t.name+', starts at '+fmtPos(c.startBeat,bpb)+', '+L+' beats'+(c.muted?', muted':'')+(state?', '+state:''),
    onPointerDown:ev=>pointerDown(ev,t,c),onPointerMove:pointerMove,onPointerUp:pointerUp,onPointerCancel:pointerUp,onContextMenu:ev=>clipMenu(ev,t,c),onFocus:()=>{setSel(c.id);setTrackSel(t.id)},
    children:[u.jsx(ClipWave,{peaks:a?.peaks??null,inBeat:c.inBeat,len:L,mb,ppb,color}),u.jsx('span',{className:'nm',children:name+(state?' · '+state:'')}),reps,
     u.jsx('span',{className:'eg l','data-edge':'l','aria-hidden':'true'}),u.jsx('span',{className:'eg r','data-edge':'r','aria-hidden':'true'})]},c.id)};
- const tapeInfo=c=>{const e=libMap.get(c.materialId),a=e?audio.get(e.id):null;if(!a?.buffer)return a?.status==='error'?'Cannot decode: '+a.error:'';if(c.fit==='natural')return 'Original speed · real length '+naturalSec(e).toFixed(2)+' s';const r=regionOf(e,a.buffer),rate=r.len/(matBeats(e)*60/project.bpm);
+ const tapeInfo=c=>{const e=libMap.get(c.materialId),a=e?audio.get(e.id):null;if(!a?.buffer)return a?.status==='error'?'Cannot decode: '+a.error:'';if(c.fit==='natural')return 'Original speed · real length '+naturalSec(e).toFixed(2)+' s';if(c.fit==='bpm')return 'Tempo '+c.sourceBpm+' → '+project.bpm+' BPM · tape ×'+(project.bpm/c.sourceBpm).toFixed(3)+' at playback (stored audio unchanged, lossless)';const r=regionOf(e,a.buffer),rate=r.len/(matBeats(e)*60/project.bpm);
   return Math.abs(rate-1)>.01?'Tape ×'+rate.toFixed(3)+' (material '+(Number(e.bpm)||'?')+' BPM fitted to '+project.bpm+' BPM; pitch follows)':'Original speed'};
- const numIn=(label,value,min,max,stepv,onv,w)=>u.jsxs('label',{children:[label,u.jsx('input',{type:'number',min,max,step:stepv,value:Math.round(value*1000)/1000,style:w?{width:w}:null,onChange:e=>onv(num(e.target.value,value))})]});
+ const numIn=(label,value,min,max,stepv,onv,w)=>u.jsxs('label',{title:TIP[label],children:[label,u.jsx('input',{type:'number',min,max,step:stepv,value:Math.round(value*1000)/1000,style:w?{width:w}:null,onChange:e=>onv(num(e.target.value,value))})]});
+ const TIP={Tempo:'Project tempo in BPM (20–400). Clips in tempo-fit or source-tempo mode follow it by playback rate only.',
+  Length:'Clip length in beats. Longer than the material: the material loops.',In:'Offset into the material in beats (where the clip starts reading).',
+  Gain:'Clip gain (0–2, 1 = unchanged).','Fade in':'Fade-in length in beats.','Fade out':'Fade-out length in beats.'};
  return u.jsxs('div',{className:'xmt',ref:rootRef,tabIndex:-1,children:[
   u.jsx('div',{className:'sr','aria-live':'polite',role:'status',children:say}),
   u.jsx(Menu,{menu,close:()=>{setMenu(null);rootRef.current?.querySelector('[data-clip="'+sel+'"]')?.focus({preventScroll:true})}}),
   u.jsxs('div',{className:'row',style:{justifyContent:'space-between'},children:[
    u.jsxs('div',{children:[u.jsx('h2',{children:'IV · MULTITRACK'}),u.jsx('div',{className:'muted',children:'Arrange harvested material on tracks. Live Room and Mycelium sleep while you are here. Right-click anything for options.'})]}),
-   u.jsx('input',{type:'text','aria-label':'Arrangement name',value:project.name,onChange:e=>commit({...project,name:e.target.value.slice(0,100)})})]}),
+   u.jsx('input',{type:'text','aria-label':'Arrangement name',title:'Name of this arrangement (used for the mixdown file name)',value:project.name,onChange:e=>commit({...project,name:e.target.value.slice(0,100)})})]}),
   u.jsxs('div',{className:'bar row',children:[
-   u.jsx('button',{type:'button',onClick:playing?stop:()=>void play(),'aria-label':playing?'Stop (Space)':'Play from cursor (Space)',children:playing?'■ Stop':'▶ Play'}),
-   u.jsx('button',{type:'button',onClick:()=>{setCursor(0);announce('Cursor to start')},'aria-label':'Cursor to start (Home)',children:'⏮'}),
+   u.jsx('button',{type:'button',onClick:playing?stop:()=>void play(),title:'Play from the cursor / stop · Space','aria-label':playing?'Stop (Space)':'Play from cursor (Space)',children:playing?'■ Stop':'▶ Play'}),
+   u.jsx('button',{type:'button',onClick:()=>{setCursor(0);announce('Cursor to start')},title:'Cursor to the start · Home','aria-label':'Cursor to start (Home)',children:'⏮'}),
    u.jsx('button',{type:'button','aria-pressed':project.loop.on,onClick:()=>setLoop({on:!project.loop.on}),title:'Loop '+fmtPos(project.loop.start,bpb)+' – '+fmtPos(project.loop.end,bpb)+' (right-click the ruler to set it)',children:'⟳ Loop'}),
    u.jsx('span',{className:'muted',children:'Cursor '+fmtPos(cursor,bpb)}),
    numIn('Tempo',project.bpm,20,400,.1,v=>commit({...project,bpm:clamp(v,20,400)})),
    u.jsxs('label',{title:'Free: 3, 5, 7, 3.5 … beats per bar',children:['Beats/bar',u.jsx('input',{type:'number',min:.5,max:64,step:.5,value:bpb,onChange:e=>commit({...project,beatsPerBar:clamp(num(e.target.value,bpb),.5,64)})})]}),
    u.jsxs('label',{title:'Grid = 1/N beat, N free (2, 3, 5, 7 …)',children:['Grid 1/',u.jsx('input',{type:'number',min:1,max:64,step:1,value:project.grid.div,onChange:e=>commit({...project,grid:{...project.grid,div:clamp(Math.round(num(e.target.value,4)),1,64)}})}),'beat']}),
-   u.jsx('button',{type:'button','aria-pressed':project.grid.snap,onClick:()=>commit({...project,grid:{...project.grid,snap:!project.grid.snap}},project.grid.snap?'Snap off':'Snap on'),children:'Snap'}),
-   u.jsxs('label',{children:['Zoom',u.jsx('input',{type:'range',min:4,max:240,value:ppb,onChange:e=>apply({...project,zoom:num(e.target.value,ppb)})})]}),
-   u.jsx('button',{type:'button',onClick:undo,'aria-label':'Undo (Ctrl+Z)',children:'↶'}),u.jsx('button',{type:'button',onClick:redo,'aria-label':'Redo (Ctrl+Shift+Z)',children:'↷'}),
-   u.jsx('button',{type:'button','aria-pressed':listView,onClick:()=>setListView(v=>!v),children:'List view'})]}),
+   u.jsx('button',{type:'button','aria-pressed':project.grid.snap,title:'Snap clips, cursor and edges to the grid',onClick:()=>commit({...project,grid:{...project.grid,snap:!project.grid.snap}},project.grid.snap?'Snap off':'Snap on'),children:'Snap'}),
+   u.jsxs('label',{children:['Zoom',u.jsx('input',{type:'range',min:4,max:240,value:ppb,title:'Horizontal zoom (pixels per beat)',onChange:e=>apply({...project,zoom:num(e.target.value,ppb)})})]}),
+   u.jsx('button',{type:'button',onClick:undo,title:'Undo · Ctrl+Z','aria-label':'Undo (Ctrl+Z)',children:'↶'}),u.jsx('button',{type:'button',onClick:redo,title:'Redo · Ctrl+Shift+Z','aria-label':'Redo (Ctrl+Shift+Z)',children:'↷'}),
+   u.jsx('button',{type:'button','aria-pressed':listView,title:'Show all clips as an editable table (keyboard and screen reader friendly)',onClick:()=>setListView(v=>!v),children:'List view'})]}),
   u.jsxs('div',{className:'bar row',children:[
-   u.jsxs('label',{children:['Material',u.jsxs('select',{value:pick,onChange:e=>setPick(e.target.value),'aria-label':'Material from the library',children:[
+   u.jsxs('label',{children:['Material',u.jsxs('select',{value:pick,onChange:e=>setPick(e.target.value),title:'Material from the library to place · double-click a track to insert it there','aria-label':'Material from the library',children:[
     lib.length?null:u.jsx('option',{value:'',children:'Library empty: send material from the Forge or Loop-Rec first'}),
     ...lib.map(e=>u.jsx('option',{value:e.id,children:(e.name||e.id)+' · '+matBeats(e)+' beats'+(e.bpm?' · '+e.bpm+' BPM':'')+(e.sessionTake?' · take':'')},e.id))]})]}),
-   u.jsx('button',{type:'button',onClick:()=>addClipAt(trackSel,cursor),disabled:!lib.length,children:'+ Clip at cursor'}),u.jsx('button',{type:'button',onClick:()=>addTrack(trackSel),children:'+ Track'}),
+   u.jsx('button',{type:'button',onClick:()=>addClipAt(trackSel,cursor),title:'Place the chosen material on the selected track at the cursor',disabled:!lib.length,children:'+ Clip at cursor'}),u.jsx('button',{type:'button',onClick:()=>addTrack(trackSel),title:'Add an empty track below the selected one',children:'+ Track'}),
+   u.jsx('button',{type:'button',disabled:busy,onClick:()=>importRef.current?.click(),title:'Import audio files: each becomes a new track; tempo is detected and the clip is beat-aligned and fitted to the session tempo by playback rate (the file itself is kept unchanged).',children:'⤒ Import audio'}),
+   u.jsx('input',{type:'file',ref:importRef,accept:'audio/*,.wav,.mp3,.ogg,.flac,.m4a,.aac',multiple:true,style:{display:'none'},onChange:e=>{const f=e.target.files;void importFiles(f);e.target.value=''}}),
    u.jsx('span',{style:{flex:1}}),
-   u.jsxs('label',{children:['Master',u.jsx('input',{type:'range',min:0,max:1.5,step:.01,value:project.master.volume,'aria-label':'Master volume',onChange:e=>commit({...project,master:{volume:num(e.target.value,.9)}})})]}),
+   u.jsxs('label',{children:['Master',u.jsx('input',{type:'range',min:0,max:1.5,step:.01,value:project.master.volume,title:'Master volume of the arrangement','aria-label':'Master volume',onChange:e=>commit({...project,master:{volume:num(e.target.value,.9)}})})]}),
    u.jsx('div',{className:'meter','aria-hidden':'true',children:u.jsx('i',{ref:meterRef})}),
-   u.jsxs('select',{value:exportFormat,onChange:e=>setExportFormat(e.target.value),'aria-label':'Mixdown format',children:[u.jsx('option',{value:'pcm16',children:'WAV 16-bit (dither)'}),u.jsx('option',{value:'float32',children:'WAV 32-bit float'})]}),
-   u.jsx('button',{type:'button',disabled:busy||!songEnd,onClick:()=>exportMix(project.loop.on?'loop':'song'),children:busy?'Rendering …':'⤓ Mixdown'+(project.loop.on?' (loop)':'')})]}),
+   u.jsxs('select',{value:exportFormat,title:'Mixdown format: 16-bit with TPDF dither, or 32-bit float (lossless headroom)',onChange:e=>setExportFormat(e.target.value),'aria-label':'Mixdown format',children:[u.jsx('option',{value:'pcm16',children:'WAV 16-bit (dither)'}),u.jsx('option',{value:'float32',children:'WAV 32-bit float'})]}),
+   u.jsx('button',{type:'button',disabled:busy||!songEnd,title:'Render the song (or the loop range when Loop is on) offline to a 48 kHz WAV file',onClick:()=>exportMix(project.loop.on?'loop':'song'),children:busy?'Rendering …':'⤓ Mixdown'+(project.loop.on?' (loop)':'')})]}),
   status?u.jsx('div',{className:'warn',role:'alert',style:{margin:'4px 2px'},children:status}):null,
   listView?u.jsx('div',{className:'bar',children:u.jsx('table',{children:u.jsxs('tbody',{children:[
    u.jsxs('tr',{children:['Track','Material','Start (beat)','Position','Length','In','Gain','Fade in','Fade out','',''].map((h,i)=>u.jsx('th',{children:h},i))}),
@@ -368,23 +417,27 @@ function XenMultitrackRoom(){
     u.jsx('td',{children:u.jsx('input',{type:'number',min:0,max:2,step:.05,'aria-label':'Clip gain',value:c.gain,onChange:e=>updClip(c.id,{gain:clamp(num(e.target.value,1),0,2)})})}),
     u.jsx('td',{children:u.jsx('input',{type:'number',min:0,step,'aria-label':'Fade in (beats)',value:c.fadeIn,onChange:e=>updClip(c.id,{fadeIn:Math.max(0,num(e.target.value,0))})})}),
     u.jsx('td',{children:u.jsx('input',{type:'number',min:0,step,'aria-label':'Fade out (beats)',value:c.fadeOut,onChange:e=>updClip(c.id,{fadeOut:Math.max(0,num(e.target.value,0))})})}),
-    u.jsx('td',{children:u.jsx('button',{type:'button','aria-pressed':c.muted,onClick:()=>updClip(c.id,{muted:!c.muted}),children:'Mute'})}),
-    u.jsx('td',{children:u.jsx('button',{type:'button',onClick:()=>removeClip(c.id),'aria-label':'Remove clip',children:'Remove'})})]},c.id)))]})})}):null,
-  u.jsxs('div',{className:'tracks',role:'listbox','aria-label':'Arrangement timeline. Arrows move the selected clip (Shift: a bar, Up/Down: other track); S split; Ctrl+D duplicate; Ctrl+C/V copy and paste; M mute; Delete removes; +/- loop length; L loop; Space plays; context menu key opens options.',children:[
+    u.jsx('td',{children:u.jsx('button',{type:'button','aria-pressed':c.muted,onClick:()=>updClip(c.id,{muted:!c.muted}),title:'Mute this clip · M',children:'Mute'})}),
+    u.jsx('td',{children:u.jsx('button',{type:'button',onClick:()=>removeClip(c.id),title:'Remove this clip (the material stays in the library) · Delete','aria-label':'Remove clip',children:'Remove'})})]},c.id)))]})})}):null,
+  u.jsxs('div',{className:'twrap',children:[u.jsxs('div',{className:'tracks',ref:scrollRef,onScroll:updateRail,role:'listbox','aria-label':'Arrangement timeline. Arrows move the selected clip (Shift: a bar, Up/Down: other track); S split; Ctrl+D duplicate; Ctrl+C/V copy and paste; M mute; Delete removes; +/- loop length; L loop; Space plays; context menu key opens options.',children:[
    u.jsxs('div',{className:'trk rr',children:[u.jsx('div',{className:'hdr',children:u.jsx('span',{className:'muted',children:'Bars · click = cursor · right-click = loop & export'})}),
-    u.jsxs('div',{className:'ruler',style:{width:laneWidth},onClick:e=>{const b=snap(beatFromEvent(e,e.currentTarget));setCursor(b);announce('Cursor '+fmtPos(b,bpb))},onContextMenu:rulerMenu,children:[...ticks,
+    u.jsxs('div',{className:'ruler',title:'Click: set the cursor · right-click: play from here, loop start/end, mixdown',style:{width:laneWidth},onClick:e=>{const b=snap(beatFromEvent(e,e.currentTarget));setCursor(b);announce('Cursor '+fmtPos(b,bpb))},onContextMenu:rulerMenu,children:[...ticks,
      u.jsx('div',{className:'loopr'+(project.loop.on?'':' off'),style:{left:project.loop.start*ppb,width:Math.max(2,(project.loop.end-project.loop.start)*ppb)},title:'Loop region'}),u.jsx('div',{className:'cur',style:{left:cursor*ppb}})]})]}),
-   ...project.tracks.map((t,ti)=>u.jsxs('div',{className:'trk',onClick:()=>setTrackSel(t.id),children:[
+   ...project.tracks.map((t,ti)=>u.jsxs('div',{className:'trk'+(project.trackHeight<58?' compact':''),style:{minHeight:project.trackHeight},onClick:()=>setTrackSel(t.id),children:[
     u.jsxs('div',{className:'hdr',onContextMenu:e=>trackMenu(e,t),style:{boxShadow:'inset 3px 0 0 '+(trackSel===t.id?'#fde68a':COLORS[ti%COLORS.length]+'55')},children:[
-     u.jsxs('div',{className:'row',children:[u.jsx('input',{type:'text','aria-label':'Track name',value:t.name,onChange:e=>updTrack(t.id,{name:e.target.value.slice(0,60)})}),
-      u.jsx('button',{type:'button','aria-pressed':t.mute,'aria-label':'Mute '+t.name,onClick:()=>updTrack(t.id,{mute:!t.mute},(t.mute?'Unmuted ':'Muted ')+t.name),children:'M'}),
-      u.jsx('button',{type:'button','aria-pressed':t.solo,'aria-label':'Solo '+t.name,onClick:()=>updTrack(t.id,{solo:!t.solo},(t.solo?'Solo off ':'Solo ')+t.name),children:'S'}),
-      u.jsx('button',{type:'button','aria-label':'Track options for '+t.name,onClick:e=>trackMenu(e,t),children:'⋯'})]}),
-     u.jsxs('div',{className:'row',children:[u.jsxs('label',{children:['Vol',u.jsx('input',{type:'range',min:0,max:1.5,step:.01,value:t.volume,'aria-label':'Volume '+t.name,onChange:e=>updTrack(t.id,{volume:num(e.target.value,t.volume)})})]}),
-      u.jsxs('label',{children:['Pan',u.jsx('input',{type:'range',min:-1,max:1,step:.01,value:t.pan,'aria-label':'Pan '+t.name,onChange:e=>updTrack(t.id,{pan:num(e.target.value,t.pan)})})]})]})]}),
-    u.jsx('div',{className:'lane'+(dropTrack===t.id?' drop':''),'data-lane':t.id,style:{width:laneWidth},onContextMenu:e=>laneMenu(e,t),
+     u.jsxs('div',{className:'row',children:[u.jsx('input',{type:'text','aria-label':'Track name',title:'Track name',value:t.name,onChange:e=>updTrack(t.id,{name:e.target.value.slice(0,60)})}),
+      u.jsx('button',{type:'button','aria-pressed':t.mute,title:'Mute track','aria-label':'Mute '+t.name,onClick:()=>updTrack(t.id,{mute:!t.mute},(t.mute?'Unmuted ':'Muted ')+t.name),children:'M'}),
+      u.jsx('button',{type:'button','aria-pressed':t.solo,title:'Solo track','aria-label':'Solo '+t.name,onClick:()=>updTrack(t.id,{solo:!t.solo},(t.solo?'Solo off ':'Solo ')+t.name),children:'S'}),
+      u.jsx('button',{type:'button','aria-label':'Track options for '+t.name,title:'Track options (also: right-click the track header)',onClick:e=>trackMenu(e,t),children:'⋯'})]}),
+     u.jsxs('div',{className:'row',children:[u.jsxs('label',{children:['Vol',u.jsx('input',{type:'range',min:0,max:1.5,step:.01,value:t.volume,title:'Track volume','aria-label':'Volume '+t.name,onChange:e=>updTrack(t.id,{volume:num(e.target.value,t.volume)})})]}),
+      u.jsxs('label',{children:['Pan',u.jsx('input',{type:'range',min:-1,max:1,step:.01,value:t.pan,title:'Track pan, left to right (Reset mixer: right-click the header)','aria-label':'Pan '+t.name,onChange:e=>updTrack(t.id,{pan:num(e.target.value,t.pan)})})]})]})]}),
+    u.jsx('div',{className:'lane'+(dropTrack===t.id?' drop':''),'data-lane':t.id,style:{width:laneWidth,minHeight:project.trackHeight},onContextMenu:e=>laneMenu(e,t),
      onDoubleClick:e=>{if(e.target===e.currentTarget)addClipAt(t.id,beatFromEvent(e,e.currentTarget))},children:t.clips.map(c=>clipView(t,ti,c))})]},t.id)),
    u.jsx('div',{className:'ph',ref:phRef})]}),
+   u.jsxs('div',{className:'rail',ref:railRef,role:'scrollbar','aria-orientation':'vertical','aria-label':'Track overview: drag the window to scroll, drag its top or bottom edge to zoom the track height, click to jump, double-click to show all tracks',
+    title:'Track overview · drag = scroll · drag top/bottom edge = zoom · click = jump · double-click = show all',onPointerDown:e=>railDown(e,'jump'),onPointerMove:railMove,onPointerUp:railUp,onPointerCancel:railUp,onDoubleClick:railFit,children:[
+    ...project.tracks.map((t,i,a)=>u.jsx('i',{className:t.clips.length?'full':'',style:{top:(i/a.length*100)+'%',height:'calc('+(100/a.length)+'% - 2px)',background:COLORS[i%COLORS.length]}},t.id)),
+    u.jsxs('div',{className:'thumb',ref:thumbRef,onPointerDown:e=>railDown(e,'move'),children:[u.jsx('b',{className:'t',onPointerDown:e=>railDown(e,'resize-start')}),u.jsx('b',{className:'e',onPointerDown:e=>railDown(e,'resize-end')})]})]})]}),
   selF?u.jsxs('div',{className:'bar row',children:[u.jsx('strong',{children:libMap.get(selF.c.materialId)?.name||'missing material'}),
    u.jsx('span',{className:'muted',children:'on '+selF.t.name+' · starts '+fmtPos(selF.c.startBeat,bpb)}),
    numIn('Length',len(selF.c),step,1e5,step,v=>updClip(selF.c.id,{lenBeats:Math.max(step,v),repeats:undefined}),70),
@@ -392,10 +445,11 @@ function XenMultitrackRoom(){
    numIn('Gain',selF.c.gain,0,2,.05,v=>updClip(selF.c.id,{gain:clamp(v,0,2)})),
    numIn('Fade in',selF.c.fadeIn,0,256,step,v=>updClip(selF.c.id,{fadeIn:Math.max(0,v)})),
    numIn('Fade out',selF.c.fadeOut,0,256,step,v=>updClip(selF.c.id,{fadeOut:Math.max(0,v)})),
-   u.jsx('button',{type:'button','aria-pressed':selF.c.muted,onClick:()=>updClip(selF.c.id,{muted:!selF.c.muted}),children:'Mute'}),
-   u.jsx('button',{type:'button','aria-pressed':selF.c.fit==='natural',title:'Original speed uses the real audio length; off = fit bars × beats to the project tempo (pitch follows).',onClick:()=>{const fit=selF.c.fit==='natural'?'tempo':'natural';updClip(selF.c.id,{fit,lenBeats:cycleBeats(libMap.get(selF.c.materialId),{fit},project.bpm),repeats:undefined},fit==='natural'?'Original speed':'Fitted to tempo')},children:'Original speed'}),
+   u.jsx('button',{type:'button','aria-pressed':selF.c.muted,title:'Mute this clip · M',onClick:()=>updClip(selF.c.id,{muted:!selF.c.muted}),children:'Mute'}),
+   u.jsxs('label',{title:'How the clip is brought to the project tempo. All modes only change the playback rate (tape); the stored audio stays untouched, so the way back is lossless.',children:['Fit',u.jsxs('select',{value:selF.c.fit,onChange:e=>setFit(selF.c,e.target.value,selF.c.sourceBpm,'Fit changed'),children:[
+    u.jsx('option',{value:'natural',children:'Original speed'}),u.jsx('option',{value:'tempo',children:'Bars × beats'}),selF.c.sourceBpm?u.jsx('option',{value:'bpm',children:'Source tempo '+selF.c.sourceBpm+' BPM'}):null]})]}),
    u.jsx('span',{className:'muted',children:tapeInfo(selF.c)}),
-   u.jsx('button',{type:'button',onClick:()=>removeClip(selF.c.id),children:'Remove clip'})]}):null,
+   u.jsx('button',{type:'button',onClick:()=>removeClip(selF.c.id),title:'Remove this clip (the material stays in the library) · Delete',children:'Remove clip'})]}):null,
   u.jsx('div',{className:'muted',style:{marginTop:6},children:'Drag clips anywhere (also onto another track; Alt = copy), drag clip edges to trim, double-click a lane to add the chosen material. Keys: Space play/stop · L loop · S split · Ctrl+D duplicate · Ctrl+C/V · M mute · ↑/↓ other track · Delete · Ctrl+Z undo.'})]});
 }
 return Object.freeze({XenMultitrackRoom});

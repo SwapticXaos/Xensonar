@@ -105,6 +105,12 @@
  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-align:center;
 }
 .f31-play-rack .f33-rack-destinations .f35-rack-send-editor:focus-visible{outline:2px solid #f0abfc;outline-offset:2px;}
+/* ROOM4-03: Send to Multitrack closes the project corner, level with the Send-to row; Figure Projects sits one row higher. */
+.f33-rack-project-corner .f35-rack-send-multitrack{box-sizing:border-box;width:100%;height:34px;min-height:34px;padding:3px 7px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-align:center;}
+.f33-rack-project-corner .f35-rack-send-multitrack:focus-visible{outline:2px solid #fcd34d;outline-offset:2px;}
+/* The extra row grows upward into the free space under Project Name (ends exactly below its feedback line); where the Send-to row is taller than the corner nothing moves. */
+.f31-play-rack .f33-rack-project-corner{margin-top:-18px;}
+@media (max-width:760px){.f31-play-rack .f33-rack-project-corner{margin-top:0;}}
 
 
 

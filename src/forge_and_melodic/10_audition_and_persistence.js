@@ -515,7 +515,7 @@ function __f333NavigatorName(projectName){
   document.querySelector('[data-forge-project-save-in-rack="true"] input[aria-label="Project Name"]')?.value:null;
  return __f333NavigatorTypedName()||String(draft||projectName||'Forge').trim().slice(0,74)||'Forge';
 }
-async function __f333RenderNavigatorClip(selected,{oneShot=false,maxSeconds=null}={}){
+async function __f333RenderNavigatorClip(selected,{oneShot=false,maxSeconds=null,float=false}={}){
  if(!selected||__ForgeNavigatorSample.current()!==selected)throw Error('Navigator selection is no longer valid.');
  const state=pe.getState(),revision=state.renderVersion,source=state.sourceAsset,
        route=__f333Route(state),masterRevision=__F3564Master.getSnapshot().revision,
@@ -551,17 +551,21 @@ async function __f333RenderNavigatorClip(selected,{oneShot=false,maxSeconds=null
   }channels.push(pcm);
  }
  if(peak<1e-8)throw Error('The selected region is silent. Nothing was exported.');
- const wav=channels.length===1?xt.encodeSamplesToWAV(channels[0],buffer.sampleRate):gU(channels,buffer.sampleRate);
+ const wav=float?await __xenRecorderFloatWav(channels[0],channels[1]||channels[0],buffer.sampleRate):channels.length===1?xt.encodeSamplesToWAV(channels[0],buffer.sampleRate):gU(channels,buffer.sampleRate);
  return {blob:wav instanceof Blob?wav:new Blob([wav],{type:'audio/wav'}),durationSec:seconds};
 }
 /* W06 — direct audition-to-editor bridge. No sample store and no parallel DSP.
    The Wave Editor receives the same rendered listening mode as Play, limited to
    the Navigator's complete mask if selected (not Save as Sample's 5 s cap). */
-async function __f333SendToEditor(){
+/* ROOM4-03: target 'multitrack' shares the render and the stale-checks; it keeps the
+   whole figure as Float32 WAV (lossless) and hands it to __XenMultitrackInbox. */
+async function __f333SendToEditor(target='editor'){
+ const toMultitrack=target==='multitrack',where=toMultitrack?'Multitrack':'Editor';
+ if(toMultitrack&&!globalThis.__XenMultitrackInbox){__ForgeNavigatorSample.update({message:'Multitrack is not available in this build.'});return false}
  const selection=__ForgeNavigatorSample.current(),sampleState=__ForgeNavigatorSample.snapshot();
  if(sampleState.busy)return false;
  const name=__f333NavigatorName(pe.getState().materialExport?.name);
- __ForgeNavigatorSample.update({busy:true,message:'Preparing current listening mode for Editor …'});
+ __ForgeNavigatorSample.update({busy:true,message:'Preparing current listening mode for '+where+' …'});
  try{
   let state=pe.getState();
   // Match Play's donor preflight, including an already selected library donor.
@@ -579,7 +583,7 @@ async function __f333SendToEditor(){
   if(selection){
    // The canonical Navigator renderer already checks mask, route, revisions and
    // volume. No extra trim, no 5-second safety cap for an editor transfer.
-   const clip=await __f333RenderNavigatorClip(selection,{maxSeconds:null});
+   const clip=await __f333RenderNavigatorClip(selection,{maxSeconds:null,float:toMultitrack});
    blob=clip.blob;
   }else{
    const rendered=await __f333RenderCurrent(state,{flacBuffer:true});
@@ -587,7 +591,7 @@ async function __f333SendToEditor(){
    if(!buffer?.length||!buffer.sampleRate||!__f333AudiblePCM(rendered.signalBuffer??buffer))
     throw Error('The selected listening mode has no audible audio to edit.');
    const channels=Array.from({length:Math.min(2,buffer.numberOfChannels||1)},(_,ch)=>buffer.getChannelData(ch));
-   const wav=channels.length===1?xt.encodeSamplesToWAV(channels[0],buffer.sampleRate):gU(channels,buffer.sampleRate);
+   const wav=toMultitrack?await __xenRecorderFloatWav(channels[0],channels[1]||channels[0],buffer.sampleRate):channels.length===1?xt.encodeSamplesToWAV(channels[0],buffer.sampleRate):gU(channels,buffer.sampleRate);
    blob=wav instanceof Blob?wav:new Blob([wav],{type:'audio/wav'});
   }
   if(epoch!==__f333Epoch||pe.getState().renderVersion!==revision||pe.getState().sourceAsset!==asset||
@@ -597,6 +601,11 @@ async function __f333SendToEditor(){
       (selection&&__ForgeNavigatorSample.current()!==selection))
    throw new DOMException('Selection or listening mode changed. Nothing was sent.','AbortError');
   const safe=name.replace(/[\\/<>:"|?*]/g,' ').trim()||'Forge';
+  if(toMultitrack){
+   const sent=await globalThis.__XenMultitrackInbox.sendBlob({blob,name:safe+(selection?' · Selection':''),origin:'spectral-forge',bpm:Number(state.materialExport?.bpm)||null});
+   __ForgeNavigatorSample.update({message:'🎚 Sent to Multitrack · new track'+(sent.sourceBpm?' · '+sent.sourceBpm+' BPM':'')+' · '+(selection?'Navigator selection':'Whole figure')});
+   return true;
+  }
   const file=new File([blob],safe+(selection?' · Selection':' · Whole Figure')+'.wav',{type:'audio/wav',lastModified:Date.now()});
   await new Promise((resolve,reject)=>{
    const request={file,claimed:false,resolve,reject};
@@ -606,7 +615,7 @@ async function __f333SendToEditor(){
   __ForgeNavigatorSample.update({message:'✂ Sent to Editor · '+(selection?'Navigator selection':'Whole figure')+' · '+__f333CurrentLabel(state)});
   return true;
  }catch(error){
-  __ForgeNavigatorSample.update({message:'Editor transfer failed · '+(error?.message||'Unknown error')});
+  __ForgeNavigatorSample.update({message:where+' transfer failed · '+(error?.message||'Unknown error')});
   return false;
  }finally{__ForgeNavigatorSample.update({busy:false});}
 }
@@ -618,6 +627,15 @@ function __ForgeSendToEditorButton(){
   disabled:snapshot.busy,onClick:()=>void __f333SendToEditor(),
   className:'f35-rack-send-editor rounded border border-fuchsia-700 bg-fuchsia-950/45 text-xs font-semibold text-fuchsia-100 hover:bg-fuchsia-900 disabled:opacity-50'},
   snapshot.busy?'Preparing …':'Send to Editor');
+}
+function __ForgeSendToMultitrackButton(){
+ const snapshot=P.useSyncExternalStore(__ForgeNavigatorSample.subscribe,__ForgeNavigatorSample.snapshot,__ForgeNavigatorSample.snapshot);
+ return P.createElement('button',{type:'button','data-forge-send-to-multitrack':true,
+  'aria-label':'Send currently audible listening mode to Multitrack',
+  title:'🎚 Send the current listening mode to Room IV · Multitrack as a new track · purple Navigator mask if selected, otherwise whole figure · lossless Float32, Forge tempo is kept as source tempo',
+  disabled:snapshot.busy,onClick:()=>void __f333SendToEditor('multitrack'),
+  className:'f35-rack-send-multitrack rounded border border-amber-600/70 bg-amber-950/40 text-xs font-semibold text-amber-100 hover:bg-amber-900/40 disabled:opacity-50'},
+  snapshot.busy?'Preparing …':'🎚 Send to Multitrack');
 }
 // Forge Navigator one-shots reuse the canonical IndexedDB sample registry.
 // They deliberately do not change room, transport or active sample selection.

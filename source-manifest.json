@@ -306,6 +306,7 @@
     "src/app/forge/07_preview_cache_and_controls.js",
     "src/forge/editor/06_pcm_spectrum_view.js",
     "src/forge/editor/07_view_lifecycle.js",
+    "src/post-oct/033-xen-multitrack-shared.js",
     "src/forge/editor/01_display_and_canvas.js",
     "src/forge/editor/02_tools_and_audio_inputs.js",
     "src/forge/editor/03_synthetic_sound_engines.js",

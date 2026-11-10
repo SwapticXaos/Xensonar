@@ -46419,6 +46419,74 @@ function __setForgeWorkspaceVisible(visible){
  if(visible){if(typeof __F352Runtime!=='undefined')__F352Runtime.attach()}
  else __deactivateForgeWorkspace();
 }
+/* ROOM4-03 · shared Multitrack services in the main bundle (cold: nothing runs until used).
+ *
+ * __XenMultitrackInbox — ONE "Send to Multitrack" path for every room (Wave Editor, Spectral Forge,
+ * Melodic Loop, raw import inside Room IV). Audio becomes a durable Material through the existing
+ * owner (__registerDurableMaterial), losslessly: the original WAV blob, or a Float32 WAV of PCM.
+ * A small inbox (IndexedDB "xensonar-multitrack-v1", key "inbox") tells Room IV to lay each item on
+ * a new track below the existing ones. The same database holds the Room IV project ("current").
+ * Tempo fitting happens at playback only (tape rate); the stored material is never re-timed.
+ *
+ * __xenViewportRail — neutral math for a draggable/resizable overview rail (the Melodic Loop's
+ * interaction model: drag the window, drag its edges to zoom, click to jump), reusable by any room.
+ */
+const __XenMultitrackInbox=(()=>{
+ const DB='xensonar-multitrack-v1',STORE='projects',INBOX='inbox';let task=null;
+ const uid=()=>globalThis.crypto?.randomUUID?.()??(Date.now().toString(36)+Math.random().toString(36).slice(2,8));
+ function db(){if(task)return task;task=new Promise((ok,bad)=>{if(typeof indexedDB==='undefined'){bad(Error('IndexedDB unavailable'));return}
+  const r=indexedDB.open(DB,1);r.onupgradeneeded=()=>{if(!r.result.objectStoreNames.contains(STORE))r.result.createObjectStore(STORE)};
+  r.onsuccess=()=>{r.result.onversionchange=()=>r.result.close();ok(r.result)};r.onerror=()=>bad(r.error||Error('Cannot open multitrack storage'))}).catch(e=>{task=null;throw e});return task}
+ async function tx(mode,fn){const d=await db();return new Promise((ok,bad)=>{const t=d.transaction(STORE,mode),s=t.objectStore(STORE);let out;Promise.resolve(fn(s,v=>{out=v})).catch(bad);t.oncomplete=()=>ok(out);t.onerror=()=>bad(t.error);t.onabort=()=>bad(t.error||Error('Inbox transaction aborted'))})}
+ const notify=count=>{try{window.dispatchEvent(new CustomEvent('xensonar:multitrack-inbox',{detail:{count}}))}catch{}};
+ async function add(item,{quiet=false}={}){if(!item?.materialId)throw Error('Inbox item needs a materialId.');let count=0;
+  await tx('readwrite',s=>{const q=s.get(INBOX);q.onsuccess=()=>{const list=Array.isArray(q.result)?q.result:[];list.push({...item,id:item.id||uid(),at:item.at||Date.now()});count=list.length;s.put(list,INBOX)}});if(!quiet)notify(count);return count}
+ async function take(){return tx('readwrite',(s,out)=>{const q=s.get(INBOX);q.onsuccess=()=>{const list=Array.isArray(q.result)?q.result:[];out(list);if(list.length)s.put([],INBOX)}})}
+ async function count(){return tx('readonly',(s,out)=>{const q=s.get(INBOX);q.onsuccess=()=>out(Array.isArray(q.result)?q.result.length:0)})}
+ /* Tempo from an onset envelope (10 ms hops): autocorrelation over 60–200 BPM with a mild
+    preference for 80–160 BPM, beat phase from the strongest comb alignment. Cold, offline. */
+ function detectTempo(x,rate){const hop=Math.max(1,Math.round(rate*.01)),n=Math.floor(x.length/hop);if(n<250)return {bpm:null,confidence:0,offsetSec:0};
+  const e=new Float32Array(n);for(let i=0;i<n;i++){let s=0;for(let j=i*hop,z=j+hop;j<z;j++)s+=x[j]*x[j];e[i]=Math.log1p(1000*s/hop)}
+  const o=new Float32Array(n);for(let i=1;i<n;i++)o[i]=Math.max(0,e[i]-e[i-1]);
+  const w=50;let acc=0;const m=new Float32Array(n);for(let i=0;i<n;i++){acc+=o[i];if(i>=w)acc-=o[i-w];m[i]=acc/Math.min(i+1,w)}for(let i=0;i<n;i++)o[i]=Math.max(0,o[i]-m[i]);
+  let mean=0;for(const v of o)mean+=v;mean/=n;for(let i=0;i<n;i++)o[i]-=mean;
+  const ac=l=>{let s=0;for(let i=0;i+l<n;i++)s+=o[i]*o[i+l];return s/(n-l)};const a0=ac(0)||1e-12;
+  let best=null;for(let l=30;l<=100;l++){const v=ac(l)/a0,v2=2*l<n/2?ac(2*l)/a0:0,bpm=6000/l,pref=Math.exp(-.5*Math.pow(Math.log2(bpm/120)/.9,2));const score=(v+.5*v2)*(.6+.4*pref);if(!best||score>best.score)best={l,score,v}}
+  if(!best||best.v<=0)return {bpm:null,confidence:0,offsetSec:0};
+  const y0=ac(best.l-1)/a0,y1=best.v,y2=ac(best.l+1)/a0,den=y0-2*y1+y2,d=Math.abs(den)>1e-9?Math.max(-.5,Math.min(.5,.5*(y0-y2)/den)):0,lag=best.l+d;
+  let phase=0,ps=-Infinity;for(let p=0;p<Math.ceil(lag);p++){let s=0;for(let k=p;k<n;k+=lag)s+=o[Math.round(k)]||0;if(s>ps){ps=s;phase=p}}
+  return {bpm:Math.round(60/(lag*.01)*100)/100,confidence:Math.max(0,Math.min(1,best.v)),offsetSec:phase*.01}}
+ async function decode(blob){const Offline=globalThis.OfflineAudioContext||globalThis.webkitOfflineAudioContext;const ctx=new Offline(1,1,48000);return ctx.decodeAudioData((await blob.arrayBuffer()).slice(0))}
+ function monoOf(buffer){const n=buffer.length,c=buffer.numberOfChannels,out=new Float32Array(n);for(let ch=0;ch<c;ch++){const d=buffer.getChannelData(ch);for(let i=0;i<n;i++)out[i]+=d[i]/c}return out}
+ /* blob: the audio as it should be kept (never re-encoded). bpm: known source tempo (wins over detection). */
+ async function sendBlob({blob,name,origin='external',bpm=null}){
+  if(!(blob instanceof Blob)||!blob.size)throw Error('No audio to send.');
+  const buffer=await decode(blob),dur=buffer.duration;if(!(dur>.02))throw Error('Audio is too short.');
+  const det=detectTempo(monoOf(buffer),buffer.sampleRate),known=Number(bpm)>0?Number(bpm):null,useDet=!known&&det.bpm&&det.confidence>=.2;
+  const sourceBpm=known??(useDet?det.bpm:null),pkgBpm=sourceBpm??108,clean=String(name||'Audio').replace(/\.[a-z0-9]{2,5}$/i,'').slice(0,80)||'Audio';
+  const pkg={schemaVersion:qT,id:'mt-'+uid(),name:clean,role:'loop',audio:{kind:'audio',mimeType:blob.type||'audio/wav',blob,durationSec:dur,channels:buffer.numberOfChannels,sampleRate:buffer.sampleRate},
+   timing:{bpm:pkgBpm,bars:Math.max(.25,Math.round(dur*pkgBpm/240*100)/100),beatsPerBar:4,loopStartSec:0,loopEndSec:dur,intendedLoopDurationSec:dur},
+   renderInfo:{sourceVersion:'Send to Multitrack',renderMode:'raw-pcm',workspaceOrigin:origin},provenance:{createdAt:new Date().toISOString()}};
+  const entry=await __registerDurableMaterial(pkg,{selectOnRegister:false});
+  await add({materialId:entry.id,name:clean,origin,sourceBpm,tempoSource:known?'known':useDet?'detected':'none',tempoConfidence:det.confidence,offsetSec:useDet?det.offsetSec:0});
+  return {entry,sourceBpm,detected:det}}
+ /* PCM channels (e.g. the Wave Editor document): stored as Float32 WAV, bit-exact. */
+ async function send({channels,sampleRate,name,origin='external',bpm=null}){
+  if(!Array.isArray(channels)||!channels[0]?.length)throw Error('No audio to send.');
+  const blob=await __xenRecorderFloatWav(channels[0],channels[1]||channels[0],sampleRate);return sendBlob({blob,name,origin,bpm})}
+ const api=Object.freeze({db,add,take,count,send,sendBlob,detectTempo});
+ try{globalThis.__XenMultitrackInbox=api}catch{}
+ return api;
+})();
+const __xenViewportRail=Object.freeze({
+ // view = {start, visible, total, minVisible} in any unit (tracks, lines, beats …)
+ begin(rect,mode,clientY,view){return {mode,y0:clientY,start:view.start,visible:view.visible,total:view.total,minVisible:Math.max(1e-6,view.minVisible??1),h:Math.max(1,rect.height)}},
+ jump(rect,clientY,view){const h=Math.max(1,rect.height),s=(clientY-rect.top)/h*view.total-view.visible/2;return {start:Math.max(0,Math.min(Math.max(0,view.total-view.visible),s)),visible:view.visible}},
+ move(st,clientY){const d=(clientY-st.y0)/st.h*st.total,maxStart=Math.max(0,st.total-st.visible);
+  if(st.mode==='move')return {start:Math.max(0,Math.min(maxStart,st.start+d)),visible:st.visible};
+  if(st.mode==='resize-start'){const end=st.start+st.visible,s=Math.max(0,Math.min(end-st.minVisible,st.start+d));return {start:s,visible:end-s}}
+  const end=Math.max(st.start+st.minVisible,Math.min(st.total,st.start+st.visible+d));return {start:st.start,visible:end-st.start}}
+});
 function __forgeRestoreViewport(view={}){const valid=Number.isFinite(view.spanX)&&view.spanX>0&&view.spanX<=1;return {...view,autoFitX:valid?view.spanX>=.999999:true,spanX:valid?view.spanX:1,startX:valid?Math.max(0,Math.min(1-view.spanX,view.startX||0)):0}}
 
 // Display-only, data-resolution raster cache. Audio/Carrier fields are never resampled in place.
@@ -50474,7 +50542,7 @@ function __f333NavigatorName(projectName){
   document.querySelector('[data-forge-project-save-in-rack="true"] input[aria-label="Project Name"]')?.value:null;
  return __f333NavigatorTypedName()||String(draft||projectName||'Forge').trim().slice(0,74)||'Forge';
 }
-async function __f333RenderNavigatorClip(selected,{oneShot=false,maxSeconds=null}={}){
+async function __f333RenderNavigatorClip(selected,{oneShot=false,maxSeconds=null,float=false}={}){
  if(!selected||__ForgeNavigatorSample.current()!==selected)throw Error('Navigator selection is no longer valid.');
  const state=pe.getState(),revision=state.renderVersion,source=state.sourceAsset,
        route=__f333Route(state),masterRevision=__F3564Master.getSnapshot().revision,
@@ -50510,17 +50578,21 @@ async function __f333RenderNavigatorClip(selected,{oneShot=false,maxSeconds=null
   }channels.push(pcm);
  }
  if(peak<1e-8)throw Error('The selected region is silent. Nothing was exported.');
- const wav=channels.length===1?xt.encodeSamplesToWAV(channels[0],buffer.sampleRate):gU(channels,buffer.sampleRate);
+ const wav=float?await __xenRecorderFloatWav(channels[0],channels[1]||channels[0],buffer.sampleRate):channels.length===1?xt.encodeSamplesToWAV(channels[0],buffer.sampleRate):gU(channels,buffer.sampleRate);
  return {blob:wav instanceof Blob?wav:new Blob([wav],{type:'audio/wav'}),durationSec:seconds};
 }
 /* W06 — direct audition-to-editor bridge. No sample store and no parallel DSP.
    The Wave Editor receives the same rendered listening mode as Play, limited to
    the Navigator's complete mask if selected (not Save as Sample's 5 s cap). */
-async function __f333SendToEditor(){
+/* ROOM4-03: target 'multitrack' shares the render and the stale-checks; it keeps the
+   whole figure as Float32 WAV (lossless) and hands it to __XenMultitrackInbox. */
+async function __f333SendToEditor(target='editor'){
+ const toMultitrack=target==='multitrack',where=toMultitrack?'Multitrack':'Editor';
+ if(toMultitrack&&!globalThis.__XenMultitrackInbox){__ForgeNavigatorSample.update({message:'Multitrack is not available in this build.'});return false}
  const selection=__ForgeNavigatorSample.current(),sampleState=__ForgeNavigatorSample.snapshot();
  if(sampleState.busy)return false;
  const name=__f333NavigatorName(pe.getState().materialExport?.name);
- __ForgeNavigatorSample.update({busy:true,message:'Preparing current listening mode for Editor …'});
+ __ForgeNavigatorSample.update({busy:true,message:'Preparing current listening mode for '+where+' …'});
  try{
   let state=pe.getState();
   // Match Play's donor preflight, including an already selected library donor.
@@ -50538,7 +50610,7 @@ async function __f333SendToEditor(){
   if(selection){
    // The canonical Navigator renderer already checks mask, route, revisions and
    // volume. No extra trim, no 5-second safety cap for an editor transfer.
-   const clip=await __f333RenderNavigatorClip(selection,{maxSeconds:null});
+   const clip=await __f333RenderNavigatorClip(selection,{maxSeconds:null,float:toMultitrack});
    blob=clip.blob;
   }else{
    const rendered=await __f333RenderCurrent(state,{flacBuffer:true});
@@ -50546,7 +50618,7 @@ async function __f333SendToEditor(){
    if(!buffer?.length||!buffer.sampleRate||!__f333AudiblePCM(rendered.signalBuffer??buffer))
     throw Error('The selected listening mode has no audible audio to edit.');
    const channels=Array.from({length:Math.min(2,buffer.numberOfChannels||1)},(_,ch)=>buffer.getChannelData(ch));
-   const wav=channels.length===1?xt.encodeSamplesToWAV(channels[0],buffer.sampleRate):gU(channels,buffer.sampleRate);
+   const wav=toMultitrack?await __xenRecorderFloatWav(channels[0],channels[1]||channels[0],buffer.sampleRate):channels.length===1?xt.encodeSamplesToWAV(channels[0],buffer.sampleRate):gU(channels,buffer.sampleRate);
    blob=wav instanceof Blob?wav:new Blob([wav],{type:'audio/wav'});
   }
   if(epoch!==__f333Epoch||pe.getState().renderVersion!==revision||pe.getState().sourceAsset!==asset||
@@ -50556,6 +50628,11 @@ async function __f333SendToEditor(){
       (selection&&__ForgeNavigatorSample.current()!==selection))
    throw new DOMException('Selection or listening mode changed. Nothing was sent.','AbortError');
   const safe=name.replace(/[\\/<>:"|?*]/g,' ').trim()||'Forge';
+  if(toMultitrack){
+   const sent=await globalThis.__XenMultitrackInbox.sendBlob({blob,name:safe+(selection?' · Selection':''),origin:'spectral-forge',bpm:Number(state.materialExport?.bpm)||null});
+   __ForgeNavigatorSample.update({message:'🎚 Sent to Multitrack · new track'+(sent.sourceBpm?' · '+sent.sourceBpm+' BPM':'')+' · '+(selection?'Navigator selection':'Whole figure')});
+   return true;
+  }
   const file=new File([blob],safe+(selection?' · Selection':' · Whole Figure')+'.wav',{type:'audio/wav',lastModified:Date.now()});
   await new Promise((resolve,reject)=>{
    const request={file,claimed:false,resolve,reject};
@@ -50565,7 +50642,7 @@ async function __f333SendToEditor(){
   __ForgeNavigatorSample.update({message:'✂ Sent to Editor · '+(selection?'Navigator selection':'Whole figure')+' · '+__f333CurrentLabel(state)});
   return true;
  }catch(error){
-  __ForgeNavigatorSample.update({message:'Editor transfer failed · '+(error?.message||'Unknown error')});
+  __ForgeNavigatorSample.update({message:where+' transfer failed · '+(error?.message||'Unknown error')});
   return false;
  }finally{__ForgeNavigatorSample.update({busy:false});}
 }
@@ -50577,6 +50654,15 @@ function __ForgeSendToEditorButton(){
   disabled:snapshot.busy,onClick:()=>void __f333SendToEditor(),
   className:'f35-rack-send-editor rounded border border-fuchsia-700 bg-fuchsia-950/45 text-xs font-semibold text-fuchsia-100 hover:bg-fuchsia-900 disabled:opacity-50'},
   snapshot.busy?'Preparing …':'Send to Editor');
+}
+function __ForgeSendToMultitrackButton(){
+ const snapshot=P.useSyncExternalStore(__ForgeNavigatorSample.subscribe,__ForgeNavigatorSample.snapshot,__ForgeNavigatorSample.snapshot);
+ return P.createElement('button',{type:'button','data-forge-send-to-multitrack':true,
+  'aria-label':'Send currently audible listening mode to Multitrack',
+  title:'🎚 Send the current listening mode to Room IV · Multitrack as a new track · purple Navigator mask if selected, otherwise whole figure · lossless Float32, Forge tempo is kept as source tempo',
+  disabled:snapshot.busy,onClick:()=>void __f333SendToEditor('multitrack'),
+  className:'f35-rack-send-multitrack rounded border border-amber-600/70 bg-amber-950/40 text-xs font-semibold text-amber-100 hover:bg-amber-900/40 disabled:opacity-50'},
+  snapshot.busy?'Preparing …':'🎚 Send to Multitrack');
 }
 // Forge Navigator one-shots reuse the canonical IndexedDB sample registry.
 // They deliberately do not change room, transport or active sample selection.
@@ -53308,6 +53394,12 @@ body[data-nodal-sounddesign="true"] [data-xensonar-performance-strip] {display:n
  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-align:center;
 }
 .f31-play-rack .f33-rack-destinations .f35-rack-send-editor:focus-visible{outline:2px solid #f0abfc;outline-offset:2px;}
+/* ROOM4-03: Send to Multitrack closes the project corner, level with the Send-to row; Figure Projects sits one row higher. */
+.f33-rack-project-corner .f35-rack-send-multitrack{box-sizing:border-box;width:100%;height:34px;min-height:34px;padding:3px 7px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-align:center;}
+.f33-rack-project-corner .f35-rack-send-multitrack:focus-visible{outline:2px solid #fcd34d;outline-offset:2px;}
+/* The extra row grows upward into the free space under Project Name (ends exactly below its feedback line); where the Send-to row is taller than the corner nothing moves. */
+.f31-play-rack .f33-rack-project-corner{margin-top:-18px;}
+@media (max-width:760px){.f31-play-rack .f33-rack-project-corner{margin-top:0;}}
 
 
 
@@ -59652,7 +59744,7 @@ class Editor{
  fxHeader.append(scratchHeader);
  this.scratchRoot.append(scratchWorkspace);
  fx.append(this.scratchRoot);
- this.tailSelect=$('select',{'aria-label':'Effect Tail',onchange:()=>this.invalidate()});for(const [v,l] of [['extend','Tail · Overlay and extend project if needed (default)'],['overlay','Tail · Overlay existing project, truncate at its end'],['truncate','Tail · Truncate at selection end (intentional)']])this.tailSelect.append($('option',{value:v},l));const tail=$('div',{class:'xwe-field'});tail.append($('label',{},'Delay / Reverb'),this.tailSelect);this.tailSelect.style.maxWidth='260px';fx.append(tail);const presets=$('div',{class:'xwe-toolbar',style:'padding:8px 0;border:0'});presets.append(button('Save Chain',()=>this.savePreset()),button('Load Chain',()=>this.loadPreset()));this.presetInput=$('input',{type:'file',accept:'.json,application/json',class:'xwe-hidden',onchange:e=>this.readPreset(e.target.files[0])});presets.append(this.presetInput,button('Save Project',()=>this.saveProject()),button('Load Project',()=>this.projectInput.click()));this.projectInput=$('input',{type:'file',accept:'.xwe,application/x-xensonar-wave-project',class:'xwe-hidden',onchange:e=>this.readProject(e.target.files[0])});presets.append(this.projectInput);fx.append(presets);body.append(fx);dialog.append(body);
+ this.tailSelect=$('select',{'aria-label':'Effect Tail',onchange:()=>this.invalidate()});for(const [v,l] of [['extend','Tail · Overlay and extend project if needed (default)'],['overlay','Tail · Overlay existing project, truncate at its end'],['truncate','Tail · Truncate at selection end (intentional)']])this.tailSelect.append($('option',{value:v},l));const tail=$('div',{class:'xwe-field'});tail.append($('label',{},'Delay / Reverb'),this.tailSelect);this.tailSelect.style.maxWidth='260px';fx.append(tail);const presets=$('div',{class:'xwe-toolbar',style:'padding:8px 0;border:0'});presets.append(button('Save Chain',()=>this.savePreset()),button('Load Chain',()=>this.loadPreset()));this.presetInput=$('input',{type:'file',accept:'.json,application/json',class:'xwe-hidden',onchange:e=>this.readPreset(e.target.files[0])});presets.append(this.presetInput,button('Save Project',()=>this.saveProject()),button('Load Project',()=>this.projectInput.click()));this.projectInput=$('input',{type:'file',accept:'.xwe,application/x-xensonar-wave-project',class:'xwe-hidden',onchange:e=>this.readProject(e.target.files[0])});presets.append(this.projectInput);/* ROOM4-03: Send to Multitrack sits in the editor's bottom-right corner; the toolbar reserves its width. */this.multitrackButton=button('➜ Send to Multitrack',()=>this.sendToMultitrack(),{class:'xwe-primary','data-xwe-send-multitrack':'true',style:'position:absolute;right:8px;bottom:8px',title:'Send the edited project to Room IV · Multitrack as a new track (lossless Float32 WAV; tempo is detected and fitted at playback only)'});presets.style.paddingRight='176px';fx.style.position='relative';fx.append(presets,this.multitrackButton);body.append(fx);dialog.append(body);
 }
  field(parent,label,type,value,attrs={}){const row=$('label',{class:'xwe-field'},label),input=$('input',{type,'aria-label':label,...attrs});if(type==='checkbox')input.checked=value;else input.value=value;row.append(input);parent.append(row);return input}
  refresh(rebuild=true){if(!this.overlay)return;this.drawScratchpad();
@@ -59960,6 +60052,7 @@ class Editor{
    const tailEnd=Math.max(range.end,...(result.metrics?.effects||[]).map(effect=>(effect.end??range.end)+(effect.tailFrames||0)));
    range={start:range.start,end:Math.min(result.frames,tailEnd)};
   }else if(mode==='original'){cs=this.doc.original.channels;sr=this.doc.original.sampleRate||sr;range={start:Math.min(range.start,cs[0].length-1),end:Math.min(range.end,cs[0].length)}}this.options.stopSourcePreview?.();const AC=root.AudioContext||root.webkitAudioContext;this.audioContext||=new AC();await this.audioContext.resume();if(!this.overlay)return;const buffer=this.audioContext.createBuffer(cs.length,cs[0].length,sr);cs.forEach((c,i)=>buffer.copyToChannel(c,i));const node=this.audioContext.createBufferSource();node.buffer=buffer;node.connect(this.audioContext.destination);const start=clamp(range.start/sr,0,buffer.duration-.00001),duration=Math.max(1/sr,Math.min(range.end/sr,buffer.duration)-start);node.start(0,start,duration);this.audioNode=node;this.startPlayhead(mode,range,sr,cs[0].length);node.onended=()=>{if(this.audioNode===node){this.audioNode=null;this.clearPlayheads();this.setStatus('Preview finished.')}};this.setStatus((mode==='original'?'A · Original':mode==='document'?(this.activeWorkspace==='scratch'?'B · Scratchpad':'B · Edited Project'):'Effect Chain')+' · real '+cs.length+'-channel preview (original floating-point level).')}catch(error){if(error.name!=='AbortError')this.setStatus(error.message)}}
+ async sendToMultitrack(){const inbox=globalThis.__XenMultitrackInbox;if(!inbox){this.setStatus('Multitrack is not available in this build.');return}if(!this.doc?.frames){this.setStatus('No audio to send.');return}const btn=this.multitrackButton;if(btn)btn.disabled=true;this.setStatus('Sending to Multitrack…');try{const name=(this.activeWorkspace==='scratch'?'Scratchpad':(this.source?.label||'Wave Editor'));const r=await inbox.send({channels:this.doc.channels,sampleRate:this.doc.sampleRate,name,origin:'wave-editor'});this.setStatus('Sent to Multitrack as a new track'+(r.sourceBpm?' · '+r.sourceBpm+' BPM detected':' · original speed')+'. Open Room IV to see it.'+(this.nodes.length?' Unapplied FX chain was not included: use Apply / Bake first.':''))}catch(error){this.setStatus('Send to Multitrack failed: '+error.message)}finally{if(btn)btn.disabled=false}}
  downloadWav(){try{const format=this.formatSelect?.value||'float32',data=core().encodeWav(this.doc,{format}),blob=data instanceof Blob?data:new Blob([data],{type:'audio/wav'});this.download(blob,(this.activeWorkspace==='scratch'?'XenSonar_Scratchpad':(this.source.label||'XenSonar')).replace(/[^\p{L}\p{N}_.-]/gu,'_')+'_W01_'+format+'.wav');this.setStatus('Edited project exported as '+format+' WAV. '+(this.nodes.length?'Unapplied FX chain: use Apply / Bake first.':''))}catch(error){this.setStatus(error.message)}}
  download(blob,name){const url=URL.createObjectURL(blob),a=$('a',{href:url,download:name});a.click();setTimeout(()=>URL.revokeObjectURL(url),30000)}
  analyze(){const range=this.range(),rows=[];for(const [index,samples] of this.doc.channels.entries()){let peak=0,sum=0,dc=0,clips=0;for(let f=range.start;f<range.end;f++){const v=samples[f];peak=Math.max(peak,Math.abs(v));sum+=v*v;dc+=v;if(Math.abs(v)>1)clips++}const count=Math.max(1,range.end-range.start);rows.push(`${this.doc.channels.length>1?index?'R':'L':'Mono'}  Peak ${peak?fmt(20*Math.log10(peak),2):'−∞'} dBFS · RMS ${sum?fmt(10*Math.log10(sum/count),2):'−∞'} dBFS\nDC ${fmt(dc/count,6)} · >0 dBFS ${clips} Frames`)}this.analysisElement.classList.remove('xwe-hidden');this.analysisElement.textContent=`Selection: ${range.end-range.start} Frames\n`+rows.join('\n\n');this.setStatus('Analysis of the edited selection.');this.analysisElement.scrollIntoView({block:'nearest'})}
@@ -60961,7 +61054,7 @@ async function B9e(e){ULe("legacy");const t=await VR(e),n=I9e({material:{name:e.
 // before its Root Follow membership (a localStorage reference) can be published.
 a=await __registerDurableMaterial(r);
 }catch(error){e.setStatus("Melodic Loop snapshot NOT saved ["+(error?.stage??"export")+"/"+(error?.name??"Error")+"]: "+String(error?.message??error)+" · Root Follow assignment cancelled.");throw error;}
-e.materialExport.rootFollowPreferred&&ri("rootFollowBankMembership",{entryId:a.id,enabled:!0,config:__mlNodalRflConfig(e.loopComposer)}),e.setStatus(e.materialExport.rootFollowPreferred?`Melodic Loop sent to Xensonar via ${e.selectedAdapterName} · ${__mlContainsNodalTracks(e.loopComposer)?"rendered audio assigned to Root Follow (no direct Nodal RFL synth yet)":"marked as Root Follow Loop"}.`:`Melodic Loop sent to Xensonar via ${e.selectedAdapterName}.`)}
+e.materialExport.rootFollowPreferred&&ri("rootFollowBankMembership",{entryId:a.id,enabled:!0,config:__mlNodalRflConfig(e.loopComposer)}),e.setStatus(e.materialExport.rootFollowPreferred?`Melodic Loop sent to Xensonar via ${e.selectedAdapterName} · ${__mlContainsNodalTracks(e.loopComposer)?"rendered audio assigned to Root Follow (no direct Nodal RFL synth yet)":"marked as Root Follow Loop"}.`:`Melodic Loop sent to Xensonar via ${e.selectedAdapterName}.`);/* ROOM4-03: the same durable material, laid on a new Multitrack track at the render tempo. */if(e.materialExport.toMultitrack){const bpm=Number(e.materialExport.bpm)||null;await globalThis.__XenMultitrackInbox.add({materialId:a.id,name:a.name||e.materialExport.name,origin:"melodic-loop",sourceBpm:bpm,tempoSource:bpm?"known":"none",tempoConfidence:1,offsetSec:0});e.setStatus("Melodic Loop sent to Multitrack · new track"+(bpm?" · "+bpm+" BPM":"")+" · open Room IV.")}}
 async function D9e(e){
  const transfer=__f334CreateTransfer(e.loopComposer,e.materialExport);
  QLe(transfer);e.onRequestModeChange?.('experimental');
@@ -60984,7 +61077,7 @@ async function K9e(e){e.setBusy(!0),e.setStatus("Rendering Melodic Loop for Xens
 async function $9e(e){e.setBusy(!0),e.setStatus("Preparing Melodic carrier figure for Spectral Forge …");try{await D9e({loopComposer:e.loopComposer,materialExport:e.materialExport,onRequestModeChange:e.onRequestModeChange,setStatus:e.setStatus})}catch(t){console.error("[xensonar][melodic-loop][forge1-export]",t),e.setStatus(`Melodic Loop handoff to SpectralForge failed: ${t instanceof Error?t.message:String(t)}`)}finally{e.setBusy(!1)}}
 async function X9e(e){e.setBusy(!0),e.setStatus("Rendering Melodic Loop inside SyntheticForge ...");try{if(e.destination==="spectral"){await __mlSendRenderedAudioToSpectral(e);return}if(e.destination==="audio-import"){await __mlSendRawToAudioImport(e);return}await N9e({loopComposer:e.loopComposer,materialExport:e.materialExport,stopAllForge2Preview:e.stopAllForge2Preview,setPendingImageImport:e.setPendingImageImport,setRawSourceAsset:e.setRawSourceAsset,setSelectionStartSec:e.setSelectionStartSec,setSelectionDurationSec:e.setSelectionDurationSec,setMaterialExport:e.setMaterialExport,setLastAutoCorrect:e.setLastAutoCorrect,setSourceView:e.setSourceView,setSecondaryView:e.setSecondaryView,setViewBlend:e.setViewBlend,applySelection:e.applySelection,setActiveWorkspace:e.setActiveWorkspace,setStatus:e.setStatus}),e.setSourcePreviewMode("sourceWindow")}catch(t){console.error("[xensonar][melodic-loop][forge2-export]",t),e.setStatus(`Melodic Loop handoff inside SyntheticForge failed: ${t instanceof Error?t.message:String(t)}`)}finally{e.setBusy(!1)}}
 async function Y9e(e){try{e.stopAllForge2Preview("Starte Clip-Vorschau ...");const t=e.mode==="selected-note"&&e.noteOverride?{...e.loopComposer,selectedNoteId:e.noteOverride.id,selectedTrackId:e.noteOverride.trackId,notes:e.loopComposer.notes.map(o=>o.id===e.noteOverride?.id?{...e.noteOverride}:o)}:e.loopComposer,r=(e.mode==="selected-track"?[t.selectedTrackId]:e.mode==="visible-tracks"?t.activeTrackIds:t.tracks.filter(o=>o.enabled).map(o=>o.id)).filter(o=>Bo(t,o)?.enabled),a=e.mode==="selected-note"?t.selectedNoteId:null;if(e.mode==="selected-note"&&!a){e.setStatus("No note selected.");return}if(e.mode!=="selected-note"&&r.length===0){e.setStatus("No active track for preview.");return}e.setClipPreviewStep(null),await hh({composer:t,bpm:e.materialExport.bpm,bars:t.bars,trackIds:r,noteId:a,onPlayhead:o=>e.setClipPreviewStep(o),onEnded:()=>{e.setClipPreviewStep(null),e.setStatus("Clip preview stopped.")}}),e.setStatus(e.mode==="selected-note"?"Selected note previewed.":e.mode==="selected-track"?"Active track previewed.":e.mode==="visible-tracks"?"Visible tracks previewed.":"All active tracks previewed.")}catch(t){console.error("[xensonar][forge2][clip-preview]",t),e.setClipPreviewStep(null),e.setStatus(`Clip preview failed: ${t instanceof Error?t.message:String(t)}`)}}
-function J9e(e){const t=(f="Preview stopped.")=>H9e(e.forge2PreviewActions,f),audioHandoff=(destination="canonical")=>X9e({destination,onRequestModeChange:e.onRequestModeChange,loopComposer:e.loopComposer,materialExport:e.materialExport,stopAllForge2Preview:t,setPendingImageImport:e.setPendingImageImport,setRawSourceAsset:e.setRawSourceAsset,setSelectionStartSec:e.setSelectionStartSec,setSelectionDurationSec:e.setSelectionDurationSec,setMaterialExport:e.setMaterialExport,setLastAutoCorrect:e.setLastAutoCorrect,setSourceView:e.setSourceView,setSecondaryView:e.setSecondaryView,setViewBlend:e.setViewBlend,applySelection:e.applySelection,setActiveWorkspace:e.setActiveWorkspace,setSourcePreviewMode:e.setSourcePreviewMode,setBusy:e.setBusy,setStatus:e.setStatus});return{stopAllForge2Preview:t,startMaterialGroovePreview:async(f,b="visible")=>V9e({withDrums:f,trackMode:b,spectralData:e.spectralData,synthMode:e.synthMode,waveformMix:e.waveformMix,loopDurationSec:e.loopDurationSec,materialExport:e.materialExport,loopComposer:e.loopComposer,grooveMachine:e.grooveMachine,drumComputer:e.drumComputer,actions:e.forge2PreviewActions}),startDrumPreview:async(f="none")=>W9e({withTracks:f,loopComposer:e.loopComposer,materialExport:e.materialExport,grooveMachine:e.grooveMachine,drumComputer:e.drumComputer,actions:e.forge2PreviewActions}),startSpecificTrackPreview:async f=>q9e({trackId:f,loopComposer:e.loopComposer,materialExport:e.materialExport,actions:e.forge2PreviewActions}),previewTrackInstrumentSelection:async(f,b)=>Q9e({trackId:f,presetId:b,loopComposer:e.loopComposer,materialExport:e.materialExport,actions:e.forge2PreviewActions}),startEnabledTracksPreview:async()=>U9e({loopComposer:e.loopComposer,materialExport:e.materialExport,grooveMachine:e.grooveMachine,drumComputer:e.drumComputer,actions:e.forge2PreviewActions}),getMelodicLoopRenderPayload:async()=>VR({loopComposer:e.loopComposer,materialExport:e.materialExport}),handleLoopComposerExport:async(preferRoot)=>K9e({loopComposer:e.loopComposer,materialExport:{...e.materialExport,rootFollowPreferred:preferRoot===true},activeHandoffProfile:e.activeHandoffProfile,referenceBpm:e.referenceBpm,selectedAdapterName:e.selectedAdapterName,canonicalProducer:e.canonicalProducer,setBusy:e.setBusy,setStatus:e.setStatus}),handleLoopComposerExportToForge1:async()=>__mlContainsNodalTracks(e.loopComposer)
+function J9e(e){const t=(f="Preview stopped.")=>H9e(e.forge2PreviewActions,f),audioHandoff=(destination="canonical")=>X9e({destination,onRequestModeChange:e.onRequestModeChange,loopComposer:e.loopComposer,materialExport:e.materialExport,stopAllForge2Preview:t,setPendingImageImport:e.setPendingImageImport,setRawSourceAsset:e.setRawSourceAsset,setSelectionStartSec:e.setSelectionStartSec,setSelectionDurationSec:e.setSelectionDurationSec,setMaterialExport:e.setMaterialExport,setLastAutoCorrect:e.setLastAutoCorrect,setSourceView:e.setSourceView,setSecondaryView:e.setSecondaryView,setViewBlend:e.setViewBlend,applySelection:e.applySelection,setActiveWorkspace:e.setActiveWorkspace,setSourcePreviewMode:e.setSourcePreviewMode,setBusy:e.setBusy,setStatus:e.setStatus});return{stopAllForge2Preview:t,startMaterialGroovePreview:async(f,b="visible")=>V9e({withDrums:f,trackMode:b,spectralData:e.spectralData,synthMode:e.synthMode,waveformMix:e.waveformMix,loopDurationSec:e.loopDurationSec,materialExport:e.materialExport,loopComposer:e.loopComposer,grooveMachine:e.grooveMachine,drumComputer:e.drumComputer,actions:e.forge2PreviewActions}),startDrumPreview:async(f="none")=>W9e({withTracks:f,loopComposer:e.loopComposer,materialExport:e.materialExport,grooveMachine:e.grooveMachine,drumComputer:e.drumComputer,actions:e.forge2PreviewActions}),startSpecificTrackPreview:async f=>q9e({trackId:f,loopComposer:e.loopComposer,materialExport:e.materialExport,actions:e.forge2PreviewActions}),previewTrackInstrumentSelection:async(f,b)=>Q9e({trackId:f,presetId:b,loopComposer:e.loopComposer,materialExport:e.materialExport,actions:e.forge2PreviewActions}),startEnabledTracksPreview:async()=>U9e({loopComposer:e.loopComposer,materialExport:e.materialExport,grooveMachine:e.grooveMachine,drumComputer:e.drumComputer,actions:e.forge2PreviewActions}),getMelodicLoopRenderPayload:async()=>VR({loopComposer:e.loopComposer,materialExport:e.materialExport}),handleLoopComposerExport:async(preferRoot)=>K9e({loopComposer:e.loopComposer,materialExport:{...e.materialExport,rootFollowPreferred:preferRoot===true,toMultitrack:preferRoot==="multitrack"},activeHandoffProfile:e.activeHandoffProfile,referenceBpm:e.referenceBpm,selectedAdapterName:e.selectedAdapterName,canonicalProducer:e.canonicalProducer,setBusy:e.setBusy,setStatus:e.setStatus}),handleLoopComposerExportToForge1:async()=>__mlContainsNodalTracks(e.loopComposer)
   ?audioHandoff("spectral")
   :$9e({loopComposer:e.loopComposer,materialExport:e.materialExport,onRequestModeChange:e.onRequestModeChange,setBusy:e.setBusy,setStatus:e.setStatus}),handleLoopComposerSendRawToAudioImport:()=>audioHandoff("audio-import"),handleLoopComposerExportToForge2:audioHandoff,startComposerPreviewMode:async(f,b)=>Y9e({mode:f,noteOverride:b?.noteOverride,loopComposer:e.loopComposer,materialExport:e.materialExport,stopAllForge2Preview:t,setClipPreviewStep:e.forge2PreviewActions.setClipPreviewStep,setStatus:e.setStatus})}}
 /* ML-SAVE-01: project titles belong to project records, independently of material/composition names. */
@@ -61590,6 +61683,7 @@ function vQe({stacked:__mlStacked=!1,materialName:e,materialRole:t,materialBpm:n
   u.jsxs("div",{className:__mlStacked?"mt-2 grid grid-cols-1 gap-2":"mt-2 flex flex-wrap gap-2",children:[
    u.jsx("button",{type:"button",onClick:()=>A(false),disabled:o,className:"rounded border border-cyan-600/70 bg-cyan-950/40 px-3 py-2 text-cyan-100 hover:bg-cyan-900/40 disabled:opacity-40",title:"Send rendered Melodic Loop to Xensonar as a material entry, without Root Follow assignment.",children:"📀 Send to Material Track"}),
    u.jsx("button",{type:"button",onClick:()=>A(true),disabled:o,className:"rounded border border-violet-600/70 bg-violet-950/40 px-3 py-2 text-violet-100 hover:bg-violet-900/40 disabled:opacity-40",title:"Save Melodic Loop as a material entry and assign it to the Root Follow Loop bank.",children:"🎼 Send to Root Follow Loop"}),
+   globalThis.__XenMultitrackInbox&&u.jsx("button",{type:"button",onClick:()=>A("multitrack"),disabled:o,"data-ml-send-multitrack":"true",className:"rounded border border-amber-600/70 bg-amber-950/40 px-3 py-2 text-amber-100 hover:bg-amber-900/40 disabled:opacity-40",title:"Render the Melodic Loop, save it as material and lay it on a new track in Room IV · Multitrack (render tempo kept as source tempo, lossless).",children:"🎚 Send to Multitrack"}),
    u.jsx("button",{type:"button",onClick:M,disabled:o,title:"Nodal compositions are sent to Spectral Forge as a full audio mix; other compositions use an editable carrier melody.",className:"rounded border border-sky-700/70 bg-sky-950/30 px-3 py-2 text-sky-100 hover:bg-sky-900/30 disabled:opacity-40",children:"Send to Spectral Forge"}),
    u.jsx("button",{type:"button",onClick:__mlRawAudioImport,disabled:o,title:"Render this Melodic Loop mix directly to Spectral Forge Audio Import for Extract Timbre.",className:"rounded border border-emerald-700/70 bg-emerald-950/30 px-3 py-2 text-emerald-100 hover:bg-emerald-900/30 disabled:opacity-40",children:"Send Raw to Audio Import"}),
    u.jsx("button",{type:"button",onClick:Fje,className:"rounded border border-fuchsia-700/70 px-3 py-2 text-fuchsia-100 hover:bg-fuchsia-950/30",children:"Import Material Track"})]}),
@@ -66936,7 +67030,7 @@ function koeLegacy({mode:e,onModeChange:t,myzelEnabled:n,onToggleMyzel:r,onReset
 return Object.freeze({"koe":koe});
 })()</script>
 <script type="application/x-xensonar-room" id="xen-room-multitrack">(()=>{"use strict";
-/* ROOM4-02 · Room IV · Multitrack (deferred chunk, evaluated on first open only).
+/* ROOM4-03 · Room IV · Multitrack (deferred chunk, evaluated on first open only).
  * Cold by contract: no timers, listeners or audio nodes while the room is closed.
  * Time is counted in BEATS (free beats per bar, free grid 1/N beat), never 4/4 by default.
  * Tracks reuse the shared Material lane chain (__xenMaterialLaneChain) with their own EQ key and
@@ -66950,9 +67044,9 @@ const num=(v,d)=>Number.isFinite(Number(v))?Number(v):d;
 const COLORS=['#f59e0b','#38bdf8','#a78bfa','#34d399','#f472b6','#facc15','#fb7185','#60a5fa'];
 function blankTrack(i){return {id:uid('track'),name:'Track '+(i+1),volume:.8,pan:0,mute:false,solo:false,clips:[]}}
 function blankProject(liveBpm){return {format:FORMAT,version:VERSION,id:KEY,name:'Untitled Arrangement',bpm:clamp(num(liveBpm,108),20,400),beatsPerBar:4,
- grid:{div:4,snap:true},zoom:28,loop:{on:false,start:0,end:16},master:{volume:.9},tracks:[blankTrack(0)],updatedAt:Date.now()}}
+ grid:{div:4,snap:true},zoom:28,trackHeight:64,loop:{on:false,start:0,end:16},master:{volume:.9},tracks:[blankTrack(0)],updatedAt:Date.now()}}
 function sanitizeClip(c){const out={id:String(c.id||uid('clip')),materialId:String(c.materialId||''),startBeat:Math.max(0,num(c.startBeat,0)),
- inBeat:Math.max(0,num(c.inBeat,0)),gain:clamp(num(c.gain,1),0,2),fadeIn:clamp(num(c.fadeIn,0),0,256),fadeOut:clamp(num(c.fadeOut,0),0,256),muted:!!c.muted,fit:c.fit==='natural'?'natural':'tempo'};
+ inBeat:Math.max(0,num(c.inBeat,0)),gain:clamp(num(c.gain,1),0,2),fadeIn:clamp(num(c.fadeIn,0),0,256),fadeOut:clamp(num(c.fadeOut,0),0,256),muted:!!c.muted,fit:['natural','bpm'].includes(c.fit)?c.fit:'tempo'};if(num(c.sourceBpm,0)>0)out.sourceBpm=clamp(Number(c.sourceBpm),10,999);if(out.fit==='bpm'&&!out.sourceBpm)out.fit='natural';
  if(Number.isFinite(Number(c.lenBeats))&&Number(c.lenBeats)>0)out.lenBeats=clamp(Number(c.lenBeats),1/64,1e5);else out.repeats=clamp(Math.round(num(c.repeats,1)),1,256);
  return out}
 function sanitize(raw,liveBpm){
@@ -66962,14 +67056,11 @@ function sanitize(raw,liveBpm){
  const loop=raw.loop||{};const ls=Math.max(0,num(loop.start,0)),le=Math.max(ls+1/64,num(loop.end,ls+16));
  return {format:FORMAT,version:VERSION,id:KEY,name:String(raw.name||'Untitled Arrangement').slice(0,100),bpm:clamp(num(raw.bpm,108),20,400),
   beatsPerBar:clamp(num(raw.beatsPerBar,4),.5,64),grid:{div:clamp(Math.round(num(raw.grid?.div,4)),1,64),snap:raw.grid?.snap!==false},
-  zoom:clamp(num(raw.zoom,28),4,240),loop:{on:!!loop.on,start:ls,end:le},master:{volume:clamp(num(raw.master?.volume,.9),0,1.5)},
+  zoom:clamp(num(raw.zoom,28),4,240),trackHeight:clamp(num(raw.trackHeight,64),36,220),loop:{on:!!loop.on,start:ls,end:le},master:{volume:clamp(num(raw.master?.volume,.9),0,1.5)},
   tracks:tracks.length?tracks:[blankTrack(0)],updatedAt:num(raw.updatedAt,Date.now())};
 }
 /* ---------- persistence (cold) ---------- */
-let dbTask=null;
-function db(){if(dbTask)return dbTask;dbTask=new Promise((ok,bad)=>{if(typeof indexedDB==='undefined'){bad(Error('IndexedDB unavailable'));return}
- const r=indexedDB.open(DB,1);r.onupgradeneeded=()=>{if(!r.result.objectStoreNames.contains(STORE))r.result.createObjectStore(STORE)};
- r.onsuccess=()=>{r.result.onversionchange=()=>r.result.close();ok(r.result)};r.onerror=()=>bad(r.error||Error('Cannot open multitrack storage'))}).catch(e=>{dbTask=null;throw e});return dbTask}
+const db=()=>__XenMultitrackInbox.db();// one database owner, shared with the Send-to-Multitrack inbox
 async function loadProject(){const d=await db();return new Promise((ok,bad)=>{const q=d.transaction(STORE,'readonly').objectStore(STORE).get(KEY);q.onsuccess=()=>ok(q.result??null);q.onerror=()=>bad(q.error)})}
 async function saveProject(p){const d=await db();return new Promise((ok,bad)=>{const tx=d.transaction(STORE,'readwrite');tx.objectStore(STORE).put({...p,updatedAt:Date.now()},KEY);tx.oncomplete=()=>ok(true);tx.onerror=()=>bad(tx.error)})}
 /* ---------- material library (read-only consumer) ---------- */
@@ -66978,7 +67069,7 @@ function matBeats(entry){const bars=num(entry?.bars,1),bpb=num(entry?.beatsPerBa
 /* Two conversions per clip: 'tempo' = bars x beats of the material (as the Live Room does);
    'natural' = real audio length at the project tempo, original speed (takes, free material). */
 function naturalSec(entry){const a=num(entry?.loopStartSec,0),b=num(entry?.loopEndSec,num(entry?.durationSec,0));return Math.max(.01,b-a>0?b-a:num(entry?.durationSec,1))}
-function cycleBeats(entry,clip,bpm){return clip?.fit==='natural'?Math.max(1/64,naturalSec(entry)*bpm/60):matBeats(entry)}
+function cycleBeats(entry,clip,bpm){if(clip?.fit==='natural')return Math.max(1/64,naturalSec(entry)*bpm/60);if(clip?.fit==='bpm'&&clip.sourceBpm>0)return Math.max(1/64,naturalSec(entry)*clip.sourceBpm/60);return matBeats(entry)}
 function clipLen(c,lib,bpm){return c.lenBeats>0?c.lenBeats:cycleBeats(lib.get(c.materialId),c,bpm)*(c.repeats||1)}
 /* ---------- decoded audio: once per material, context-independent ---------- */
 const audio=new Map();// materialId -> {status,buffer,peaks,error,size}
@@ -67009,7 +67100,7 @@ class Engine{
  constructor(){this.ctx=null;this.playing=false;this.voices=new Set();this.chains=new Map();this.timer=null;this.keys=new Set();this.segs=[];this.segSerial=0;this.project=null;this.lib=new Map();this.master=null;this.meter=null;this.sigs=new Map()}
  spb(){return 60/this.project.bpm}
  gainFor(t){const any=this.project.tracks.some(x=>x.solo);return (t.mute||(any&&!t.solo))?0:t.volume}
- sigOf(t,c){return t.id+'|'+c.materialId+'|'+c.startBeat+'|'+c.inBeat+'|'+clipLen(c,this.lib,this.project.bpm)+'|'+c.gain+'|'+c.fadeIn+'|'+c.fadeOut+'|'+c.muted+'|'+c.fit}
+ sigOf(t,c){return t.id+'|'+c.materialId+'|'+c.startBeat+'|'+c.inBeat+'|'+clipLen(c,this.lib,this.project.bpm)+'|'+c.gain+'|'+c.fadeIn+'|'+c.fadeOut+'|'+c.muted+'|'+c.fit+'|'+(c.sourceBpm||0)}
  chainFor(t){let ch=this.chains.get(t.id);if(ch)return ch;const ctx=this.ctx,input=ctx.createGain(),gain=ctx.createGain();gain.gain.value=this.gainFor(t);
   const chain=__xenMaterialLaneChain(ctx,{source:input,gain,panValue:t.pan,eqKey:__XenEQ.keyFor('arrangement',t.id),route:out=>out.connect(this.master)});
   ch={input,gain,pan:chain.pan,eq:chain.eq,output:chain.output};this.chains.set(t.id,ch);return ch}
@@ -67085,10 +67176,15 @@ const CSS=`.xmt{color:#e7e5e4;font:13px/1.35 system-ui,sans-serif;max-width:1500
 .xmt button:focus-visible,.xmt input:focus-visible,.xmt select:focus-visible,.xmt-menu button:focus-visible{outline:2px solid #fbbf24;outline-offset:1px}
 .xmt input,.xmt select{background:#111113;color:#e7e5e4;border:1px solid #3f3f46;border-radius:6px;padding:3px 6px;font:inherit}
 .xmt input[type=number]{width:66px}.xmt label{display:inline-flex;gap:6px;align-items:center;color:#a8a29e}
-.xmt .tracks{position:relative;overflow-x:auto;border:1px solid #2b2b31;border-radius:10px;background:#09090b}
+.xmt .twrap{display:flex;gap:6px;align-items:stretch}.xmt .tracks{position:relative;flex:1;min-width:0;overflow:auto;max-height:max(260px,calc(100vh - 330px));border:1px solid #2b2b31;border-radius:10px;background:#09090b}
+.xmt .trk.rr{position:sticky;top:0;z-index:6;background:#09090b}
+.xmt .rail{position:relative;flex:0 0 20px;border:1px solid #2b2b31;border-radius:8px;background:#0b0b0d;cursor:pointer;touch-action:none;overflow:hidden}
+.xmt .rail i{position:absolute;left:4px;right:4px;border-radius:2px;opacity:.28;pointer-events:none}.xmt .rail i.full{opacity:.85}
+.xmt .thumb{position:absolute;left:0;right:0;min-height:16px;border:1px solid #fde68a;background:rgba(253,230,138,.14);border-radius:6px;cursor:grab}
+.xmt .thumb b{position:absolute;left:0;right:0;height:7px;cursor:ns-resize;background:rgba(253,230,138,.35)}.xmt .thumb b.t{top:0}.xmt .thumb b.e{bottom:0}
 .xmt .trk{display:grid;grid-template-columns:240px 1fr;border-bottom:1px solid #1f1f23;min-height:64px}.xmt .trk.rr{min-height:28px}
 .xmt .hdr{padding:6px 8px;background:#0f0f12;border-right:1px solid #26262b;display:flex;flex-direction:column;gap:4px;position:sticky;left:0;z-index:4}
-.xmt .hdr .row{flex-wrap:nowrap;gap:4px}.xmt .hdr input[type=text]{width:104px}.xmt .hdr input[type=range]{width:78px}.xmt .hdr button{padding:2px 7px}
+.xmt .hdr .row{flex-wrap:nowrap;gap:4px}.xmt .hdr input[type=text]{width:104px}.xmt .hdr input[type=range]{width:78px}.xmt .hdr button{padding:2px 7px}.xmt .trk.compact .hdr{padding:3px 8px;justify-content:center}.xmt .trk.compact .hdr .row+.row{display:none}
 .xmt .lane{position:relative;min-height:64px}.xmt .lane.drop{background:#1c1917}.xmt .ruler{position:relative;height:28px;cursor:pointer;border-bottom:1px solid #2b2b31}
 .xmt .tick{position:absolute;top:0;bottom:0;border-left:1px solid #2a2a30}.xmt .tick.barl{border-left:1px solid #57534e}.xmt .tick span{position:absolute;top:4px;left:3px;font-size:10px;color:#a8a29e}
 .xmt .loopr{position:absolute;top:0;height:6px;background:rgba(56,189,248,.25);border:1px solid #38bdf8;border-top:0}.xmt .loopr.off{background:rgba(120,113,108,.15);border-color:#57534e}
@@ -67132,11 +67228,16 @@ function XenMultitrackRoom(){
  const [exportFormat,setExportFormat]=P.useState('pcm16'),[busy,setBusy]=P.useState(false);
  const rootRef=P.useRef(null),keyRef=P.useRef(null),hist=P.useRef({past:[],future:[]}),saveTimer=P.useRef(null),phRef=P.useRef(null),meterRef=P.useRef(null),rafRef=P.useRef(0),drag=P.useRef(null),projectRef=P.useRef(null),libRef=P.useRef(new Map());
  projectRef.current=project;
+ const scrollRef=P.useRef(null),railRef=P.useRef(null),thumbRef=P.useRef(null),railDrag=P.useRef(null),pendingScroll=P.useRef(null),consumeRef=P.useRef(null),importRef=P.useRef(null),inboxWaiting=P.useRef(false);
+ const updateRail=()=>{const el=scrollRef.current,th=thumbRef.current,rl=railRef.current;if(!el||!th||!rl)return;const H=Math.max(1,el.scrollHeight),R=rl.clientHeight;th.style.top=(el.scrollTop/H*R)+'px';th.style.height=Math.max(16,Math.min(R,el.clientHeight/H*R))+'px'};
+ P.useLayoutEffect(()=>{const el=scrollRef.current;if(el&&pendingScroll.current!==null){el.scrollTop=pendingScroll.current;pendingScroll.current=null}updateRail()});
+ P.useEffect(()=>{if(project)consumeRef.current?.()},[!!project]);
  const announce=t=>{setSay('');setTimeout(()=>setSay(t),20)};
  P.useEffect(()=>{let live=true;loadProject().then(raw=>{if(live)setProject(sanitize(raw,bridge?.getLiveBpm?.()))}).catch(()=>{if(live){setProject(blankProject(bridge?.getLiveBpm?.()));setStatus('Browser storage unavailable: this arrangement will not be kept after reload.')}});
-  const off=typeof mV==='function'?mV(()=>setLibRev(v=>v+1)):null;const onAudio=()=>setAudioRev(v=>v+1);audioListeners.add(onAudio);
+  const off=typeof mV==='function'?mV(()=>{setLibRev(v=>v+1);if(inboxWaiting.current){inboxWaiting.current=false;consumeRef.current?.()}}):null;const onAudio=()=>setAudioRev(v=>v+1);audioListeners.add(onAudio);
   const keys=e=>{const t=e.target;if(t!==document.body&&!rootRef.current?.contains(t))return;keyRef.current?.(e)};document.addEventListener('keydown',keys);
-  return()=>{live=false;off?.();audioListeners.delete(onAudio);document.removeEventListener('keydown',keys);engine.stop();cancelAnimationFrame(rafRef.current);clearTimeout(saveTimer.current);const p=projectRef.current;if(p)saveProject(p).catch(()=>{})}},[]);
+  const inbox=()=>consumeRef.current?.();window.addEventListener('xensonar:multitrack-inbox',inbox);const resize=()=>updateRail();window.addEventListener('resize',resize);
+  return()=>{live=false;off?.();audioListeners.delete(onAudio);document.removeEventListener('keydown',keys);window.removeEventListener('xensonar:multitrack-inbox',inbox);window.removeEventListener('resize',resize);engine.stop();cancelAnimationFrame(rafRef.current);clearTimeout(saveTimer.current);const p=projectRef.current;if(p)saveProject(p).catch(()=>{})}},[]);
  const lib=P.useMemo(()=>materials(),[libRev]);const libMap=P.useMemo(()=>new Map(lib.map(e=>[e.id,e])),[lib]);libRef.current=libMap;
  P.useEffect(()=>{if(!pick&&lib[0])setPick(lib[0].id)},[lib,pick]);
  // Cold preparation: decode what the arrangement uses (once per material) for waveforms and instant play.
@@ -67146,6 +67247,35 @@ function XenMultitrackRoom(){
  const commit=(next,label)=>{const prev=projectRef.current;if(prev){hist.current.past.push(prev);if(hist.current.past.length>100)hist.current.past.shift();hist.current.future=[]}apply(next,label)};
  const undo=()=>{const h=hist.current;if(!h.past.length)return;h.future.push(projectRef.current);apply(h.past.pop(),'Undo')};
  const redo=()=>{const h=hist.current;if(!h.future.length)return;h.past.push(projectRef.current);apply(h.future.pop(),'Redo')};
+ /* Inbox: every Send to Multitrack lands on a new track below the existing ones (an empty last track is reused). */
+ consumeRef.current=async()=>{let items;try{items=await __XenMultitrackInbox.take()}catch{return}if(!items?.length)return;
+  let p=projectRef.current;if(!p){for(const it of items)__XenMultitrackInbox.add(it,{quiet:true}).catch(()=>{});return}
+  const lib=new Map(materials().map(e=>[e.id,e])),names=[],later=[];
+  for(const it of items){const e=lib.get(it.materialId);if(!e){if((it.tries||0)<40)later.push({...it,tries:(it.tries||0)+1});continue}requestAudio(e);
+   const last=p.tracks[p.tracks.length-1],reuse=!!last&&!last.clips.length;
+   const fit=it.sourceBpm>0?'bpm':'natural',base={fit,sourceBpm:it.sourceBpm>0?it.sourceBpm:undefined},cycle=cycleBeats(e,base,p.bpm);
+   const inBeat=it.sourceBpm>0?Math.max(0,num(it.offsetSec,0)*it.sourceBpm/60):0;
+   const clip={id:uid('clip'),materialId:e.id,startBeat:0,inBeat,lenBeats:Math.max(1/16,cycle-inBeat),gain:1,fadeIn:0,fadeOut:0,muted:false,...base};
+   const label=String(it.name||e.name||'Audio').slice(0,60),t={...(reuse?last:blankTrack(p.tracks.length)),name:label,clips:[clip]};
+   p={...p,tracks:reuse?p.tracks.map(x=>x.id===last.id?t:x):[...p.tracks,t]};
+   names.push(label+(it.sourceBpm>0?' · '+it.sourceBpm+' BPM'+(it.tempoSource==='detected'?' (detected, beat-aligned)':''):' · original speed'))}
+  /* Material not in the library yet: put it back quietly; the next library change retries (no event loop). */
+  inboxWaiting.current=later.length>0;for(const it of later)await __XenMultitrackInbox.add(it,{quiet:true}).catch(()=>{});
+  if(names.length){commit(p,names.length+' new track(s) arrived');setStatus('Arrived on new tracks: '+names.join(' | '))}};
+ const importFiles=async files=>{const list=[...(files||[])].filter(f=>f&&f.size);if(!list.length)return;setBusy(true);
+  try{for(let i=0;i<list.length;i++){setStatus('Importing '+(i+1)+'/'+list.length+': '+list[i].name+' (tempo detection) …');await __XenMultitrackInbox.sendBlob({blob:list[i],name:list[i].name,origin:'multitrack-import'})}}
+  catch(e){setStatus('Import failed: '+(e?.message||e))}finally{setBusy(false)}};
+ /* Vertical overview rail (shared __xenViewportRail math, Melodic Loop interaction model). Unit = tracks. */
+ const railView=()=>{const el=scrollRef.current,n=Math.max(1,projectRef.current.tracks.length),h=projectRef.current.trackHeight,usable=Math.max(40,(el?.clientHeight??300)-28);
+  return {start:(el?.scrollTop??0)/h,visible:Math.min(n,usable/h),total:n,minVisible:1,usable}};
+ const applyRail=v=>{const p=projectRef.current,el=scrollRef.current;if(!el)return;const usable=Math.max(40,el.clientHeight-28),h=clamp(usable/Math.max(.5,v.visible),36,220);
+  if(Math.abs(h-p.trackHeight)>.5){pendingScroll.current=v.start*h;apply({...p,trackHeight:Math.round(h)})}else{el.scrollTop=v.start*h;updateRail()}};
+ const railDown=(e,mode)=>{if(e.button!==0)return;e.preventDefault();e.stopPropagation();const rect=railRef.current.getBoundingClientRect();let view=railView();
+  if(mode==='jump'){const j=__xenViewportRail.jump(rect,e.clientY,view);applyRail(j);view={...view,start:j.start};mode='move'}
+  railDrag.current=__xenViewportRail.begin(rect,mode,e.clientY,view);railRef.current.setPointerCapture?.(e.pointerId)};
+ const railMove=e=>{const st=railDrag.current;if(st)applyRail(__xenViewportRail.move(st,e.clientY))};
+ const railUp=()=>{railDrag.current=null};
+ const railFit=()=>{const el=scrollRef.current;if(!el)return;const n=Math.max(1,project.tracks.length),h=clamp((el.clientHeight-28)/n,36,220);pendingScroll.current=0;apply({...project,trackHeight:Math.round(h)},'Showing all tracks')};
  if(!project)return u.jsx('div',{className:'xmt',children:'Loading arrangement …'});
  const bpb=project.beatsPerBar,ppb=project.zoom,step=1/project.grid.div;
  const snap=b=>project.grid.snap?Math.round(b/step)*step:Math.round(b*1000)/1000;
@@ -67191,11 +67321,19 @@ function XenMultitrackRoom(){
  /* ---- context menus ---- */
  const openMenu=(e,label,items)=>{e.preventDefault();e.stopPropagation();const r=e.currentTarget?.getBoundingClientRect?.();setMenu({x:e.clientX||r?.left||40,y:e.clientY||r?.bottom||40,label,items})};
  const beatFromEvent=(e,el)=>{const r=el.getBoundingClientRect();return Math.max(0,(e.clientX-r.left)/ppb)};
+ const setFit=(c,fit,sourceBpm=c.sourceBpm,label)=>{const nc={...c,fit,sourceBpm};updClip(c.id,{fit,sourceBpm,lenBeats:cycleBeats(libMap.get(c.materialId),nc,project.bpm),repeats:undefined},label)};
+ const fitItems=c=>[
+  {label:'Original speed (real audio length)'+(c.fit==='natural'?' ✓':''),run:()=>setFit(c,'natural',c.sourceBpm,'Original speed')},
+  {label:'Fit bars × beats to tempo'+(c.fit==='tempo'?' ✓':''),run:()=>setFit(c,'tempo',c.sourceBpm,'Fitted to tempo')},
+  c.sourceBpm?{label:'Fit source tempo '+c.sourceBpm+' BPM'+(c.fit==='bpm'?' ✓':''),run:()=>setFit(c,'bpm',c.sourceBpm,'Source tempo '+c.sourceBpm)}:null,
+  c.sourceBpm?{label:'Source tempo ×2 (octave)',run:()=>setFit(c,'bpm',Math.round(c.sourceBpm*200)/100,'Source tempo '+Math.round(c.sourceBpm*200)/100)}:null,
+  c.sourceBpm?{label:'Source tempo ÷2 (octave)',run:()=>setFit(c,'bpm',Math.round(c.sourceBpm*50)/100,'Source tempo '+Math.round(c.sourceBpm*50)/100)}:null,
+  {label:'Set source tempo …',run:()=>{const v=Number(window.prompt('Source tempo of this audio (BPM):',String(c.sourceBpm||project.bpm)));if(v>10&&v<999)setFit(c,'bpm',v,'Source tempo '+v)}}].filter(Boolean);
  const clipMenu=(e,t,c)=>{setSel(c.id);setTrackSel(t.id);const others=project.tracks.filter(x=>x.id!==t.id);openMenu(e,'Clip',[
   {label:'Duplicate',key:'Ctrl+D',run:()=>duplicateClip(c.id)},{label:'Split at cursor',key:'S',run:()=>splitClip(c.id),disabled:!(cursor>c.startBeat&&cursor<c.startBeat+len(c))},
   {label:'Copy',key:'Ctrl+C',run:()=>copyClip(c.id)},{label:c.muted?'Unmute clip':'Mute clip',key:'M',run:()=>updClip(c.id,{muted:!c.muted},c.muted?'Clip unmuted':'Clip muted')},'-',
   {label:'Loop material ×2',run:()=>updClip(c.id,{lenBeats:len(c)*2,repeats:undefined},'Length '+len(c)*2+' beats')},{label:'Length = one material cycle',run:()=>updClip(c.id,{lenBeats:cyc(c),repeats:undefined},'Length reset')},
-  {label:c.fit==='natural'?'Fit to project tempo (bars × beats)':'Original speed (real audio length)',run:()=>{const fit=c.fit==='natural'?'tempo':'natural';updClip(c.id,{fit,lenBeats:cycleBeats(libMap.get(c.materialId),{fit},project.bpm),repeats:undefined},fit==='natural'?'Original speed':'Fitted to tempo')}},
+  ...fitItems(c),
   {label:'Fade in/out: 1 beat',run:()=>updClip(c.id,{fadeIn:1,fadeOut:1},'Fades 1 beat')},{label:'Fades off',run:()=>updClip(c.id,{fadeIn:0,fadeOut:0},'Fades off')},
   {label:'Set loop to this clip',run:()=>setLoop({start:c.startBeat,end:c.startBeat+len(c),on:true})},'-',
   ...others.slice(0,8).map(o=>({label:'Move to '+o.name,run:()=>moveClipToTrack(c.id,o.id)})),others.length?'-':null,
@@ -67259,41 +67397,46 @@ function XenMultitrackRoom(){
   const reps=[];for(let k=Math.ceil((c.inBeat+1e-9)/mb);(k*mb-c.inBeat)<L-1e-9&&reps.length<64;k++){const x=(k*mb-c.inBeat)*ppb;if(x>0)reps.push(u.jsx('span',{className:'rep',style:{left:x}},'r'+k))}
   const name=e?(e.name||'material'):'missing material',color=COLORS[ti%COLORS.length];
   return u.jsxs('button',{type:'button','data-clip':c.id,className:'clip'+(bad?' bad':'')+(c.muted?' muted':''),role:'option','aria-selected':sel===c.id,style:{left:c.startBeat*ppb,width:w,'--c':color},
-   title:name+(state?' — '+state:''),'aria-label':name+', '+t.name+', starts at '+fmtPos(c.startBeat,bpb)+', '+L+' beats'+(c.muted?', muted':'')+(state?', '+state:''),
+   title:name+(state?' — '+state:'')+'\nDrag: move (also to another track) · Alt+drag: copy · edges: trim · right-click: options','aria-label':name+', '+t.name+', starts at '+fmtPos(c.startBeat,bpb)+', '+L+' beats'+(c.muted?', muted':'')+(state?', '+state:''),
    onPointerDown:ev=>pointerDown(ev,t,c),onPointerMove:pointerMove,onPointerUp:pointerUp,onPointerCancel:pointerUp,onContextMenu:ev=>clipMenu(ev,t,c),onFocus:()=>{setSel(c.id);setTrackSel(t.id)},
    children:[u.jsx(ClipWave,{peaks:a?.peaks??null,inBeat:c.inBeat,len:L,mb,ppb,color}),u.jsx('span',{className:'nm',children:name+(state?' · '+state:'')}),reps,
     u.jsx('span',{className:'eg l','data-edge':'l','aria-hidden':'true'}),u.jsx('span',{className:'eg r','data-edge':'r','aria-hidden':'true'})]},c.id)};
- const tapeInfo=c=>{const e=libMap.get(c.materialId),a=e?audio.get(e.id):null;if(!a?.buffer)return a?.status==='error'?'Cannot decode: '+a.error:'';if(c.fit==='natural')return 'Original speed · real length '+naturalSec(e).toFixed(2)+' s';const r=regionOf(e,a.buffer),rate=r.len/(matBeats(e)*60/project.bpm);
+ const tapeInfo=c=>{const e=libMap.get(c.materialId),a=e?audio.get(e.id):null;if(!a?.buffer)return a?.status==='error'?'Cannot decode: '+a.error:'';if(c.fit==='natural')return 'Original speed · real length '+naturalSec(e).toFixed(2)+' s';if(c.fit==='bpm')return 'Tempo '+c.sourceBpm+' → '+project.bpm+' BPM · tape ×'+(project.bpm/c.sourceBpm).toFixed(3)+' at playback (stored audio unchanged, lossless)';const r=regionOf(e,a.buffer),rate=r.len/(matBeats(e)*60/project.bpm);
   return Math.abs(rate-1)>.01?'Tape ×'+rate.toFixed(3)+' (material '+(Number(e.bpm)||'?')+' BPM fitted to '+project.bpm+' BPM; pitch follows)':'Original speed'};
- const numIn=(label,value,min,max,stepv,onv,w)=>u.jsxs('label',{children:[label,u.jsx('input',{type:'number',min,max,step:stepv,value:Math.round(value*1000)/1000,style:w?{width:w}:null,onChange:e=>onv(num(e.target.value,value))})]});
+ const numIn=(label,value,min,max,stepv,onv,w)=>u.jsxs('label',{title:TIP[label],children:[label,u.jsx('input',{type:'number',min,max,step:stepv,value:Math.round(value*1000)/1000,style:w?{width:w}:null,onChange:e=>onv(num(e.target.value,value))})]});
+ const TIP={Tempo:'Project tempo in BPM (20–400). Clips in tempo-fit or source-tempo mode follow it by playback rate only.',
+  Length:'Clip length in beats. Longer than the material: the material loops.',In:'Offset into the material in beats (where the clip starts reading).',
+  Gain:'Clip gain (0–2, 1 = unchanged).','Fade in':'Fade-in length in beats.','Fade out':'Fade-out length in beats.'};
  return u.jsxs('div',{className:'xmt',ref:rootRef,tabIndex:-1,children:[
   u.jsx('div',{className:'sr','aria-live':'polite',role:'status',children:say}),
   u.jsx(Menu,{menu,close:()=>{setMenu(null);rootRef.current?.querySelector('[data-clip="'+sel+'"]')?.focus({preventScroll:true})}}),
   u.jsxs('div',{className:'row',style:{justifyContent:'space-between'},children:[
    u.jsxs('div',{children:[u.jsx('h2',{children:'IV · MULTITRACK'}),u.jsx('div',{className:'muted',children:'Arrange harvested material on tracks. Live Room and Mycelium sleep while you are here. Right-click anything for options.'})]}),
-   u.jsx('input',{type:'text','aria-label':'Arrangement name',value:project.name,onChange:e=>commit({...project,name:e.target.value.slice(0,100)})})]}),
+   u.jsx('input',{type:'text','aria-label':'Arrangement name',title:'Name of this arrangement (used for the mixdown file name)',value:project.name,onChange:e=>commit({...project,name:e.target.value.slice(0,100)})})]}),
   u.jsxs('div',{className:'bar row',children:[
-   u.jsx('button',{type:'button',onClick:playing?stop:()=>void play(),'aria-label':playing?'Stop (Space)':'Play from cursor (Space)',children:playing?'■ Stop':'▶ Play'}),
-   u.jsx('button',{type:'button',onClick:()=>{setCursor(0);announce('Cursor to start')},'aria-label':'Cursor to start (Home)',children:'⏮'}),
+   u.jsx('button',{type:'button',onClick:playing?stop:()=>void play(),title:'Play from the cursor / stop · Space','aria-label':playing?'Stop (Space)':'Play from cursor (Space)',children:playing?'■ Stop':'▶ Play'}),
+   u.jsx('button',{type:'button',onClick:()=>{setCursor(0);announce('Cursor to start')},title:'Cursor to the start · Home','aria-label':'Cursor to start (Home)',children:'⏮'}),
    u.jsx('button',{type:'button','aria-pressed':project.loop.on,onClick:()=>setLoop({on:!project.loop.on}),title:'Loop '+fmtPos(project.loop.start,bpb)+' – '+fmtPos(project.loop.end,bpb)+' (right-click the ruler to set it)',children:'⟳ Loop'}),
    u.jsx('span',{className:'muted',children:'Cursor '+fmtPos(cursor,bpb)}),
    numIn('Tempo',project.bpm,20,400,.1,v=>commit({...project,bpm:clamp(v,20,400)})),
    u.jsxs('label',{title:'Free: 3, 5, 7, 3.5 … beats per bar',children:['Beats/bar',u.jsx('input',{type:'number',min:.5,max:64,step:.5,value:bpb,onChange:e=>commit({...project,beatsPerBar:clamp(num(e.target.value,bpb),.5,64)})})]}),
    u.jsxs('label',{title:'Grid = 1/N beat, N free (2, 3, 5, 7 …)',children:['Grid 1/',u.jsx('input',{type:'number',min:1,max:64,step:1,value:project.grid.div,onChange:e=>commit({...project,grid:{...project.grid,div:clamp(Math.round(num(e.target.value,4)),1,64)}})}),'beat']}),
-   u.jsx('button',{type:'button','aria-pressed':project.grid.snap,onClick:()=>commit({...project,grid:{...project.grid,snap:!project.grid.snap}},project.grid.snap?'Snap off':'Snap on'),children:'Snap'}),
-   u.jsxs('label',{children:['Zoom',u.jsx('input',{type:'range',min:4,max:240,value:ppb,onChange:e=>apply({...project,zoom:num(e.target.value,ppb)})})]}),
-   u.jsx('button',{type:'button',onClick:undo,'aria-label':'Undo (Ctrl+Z)',children:'↶'}),u.jsx('button',{type:'button',onClick:redo,'aria-label':'Redo (Ctrl+Shift+Z)',children:'↷'}),
-   u.jsx('button',{type:'button','aria-pressed':listView,onClick:()=>setListView(v=>!v),children:'List view'})]}),
+   u.jsx('button',{type:'button','aria-pressed':project.grid.snap,title:'Snap clips, cursor and edges to the grid',onClick:()=>commit({...project,grid:{...project.grid,snap:!project.grid.snap}},project.grid.snap?'Snap off':'Snap on'),children:'Snap'}),
+   u.jsxs('label',{children:['Zoom',u.jsx('input',{type:'range',min:4,max:240,value:ppb,title:'Horizontal zoom (pixels per beat)',onChange:e=>apply({...project,zoom:num(e.target.value,ppb)})})]}),
+   u.jsx('button',{type:'button',onClick:undo,title:'Undo · Ctrl+Z','aria-label':'Undo (Ctrl+Z)',children:'↶'}),u.jsx('button',{type:'button',onClick:redo,title:'Redo · Ctrl+Shift+Z','aria-label':'Redo (Ctrl+Shift+Z)',children:'↷'}),
+   u.jsx('button',{type:'button','aria-pressed':listView,title:'Show all clips as an editable table (keyboard and screen reader friendly)',onClick:()=>setListView(v=>!v),children:'List view'})]}),
   u.jsxs('div',{className:'bar row',children:[
-   u.jsxs('label',{children:['Material',u.jsxs('select',{value:pick,onChange:e=>setPick(e.target.value),'aria-label':'Material from the library',children:[
+   u.jsxs('label',{children:['Material',u.jsxs('select',{value:pick,onChange:e=>setPick(e.target.value),title:'Material from the library to place · double-click a track to insert it there','aria-label':'Material from the library',children:[
     lib.length?null:u.jsx('option',{value:'',children:'Library empty: send material from the Forge or Loop-Rec first'}),
     ...lib.map(e=>u.jsx('option',{value:e.id,children:(e.name||e.id)+' · '+matBeats(e)+' beats'+(e.bpm?' · '+e.bpm+' BPM':'')+(e.sessionTake?' · take':'')},e.id))]})]}),
-   u.jsx('button',{type:'button',onClick:()=>addClipAt(trackSel,cursor),disabled:!lib.length,children:'+ Clip at cursor'}),u.jsx('button',{type:'button',onClick:()=>addTrack(trackSel),children:'+ Track'}),
+   u.jsx('button',{type:'button',onClick:()=>addClipAt(trackSel,cursor),title:'Place the chosen material on the selected track at the cursor',disabled:!lib.length,children:'+ Clip at cursor'}),u.jsx('button',{type:'button',onClick:()=>addTrack(trackSel),title:'Add an empty track below the selected one',children:'+ Track'}),
+   u.jsx('button',{type:'button',disabled:busy,onClick:()=>importRef.current?.click(),title:'Import audio files: each becomes a new track; tempo is detected and the clip is beat-aligned and fitted to the session tempo by playback rate (the file itself is kept unchanged).',children:'⤒ Import audio'}),
+   u.jsx('input',{type:'file',ref:importRef,accept:'audio/*,.wav,.mp3,.ogg,.flac,.m4a,.aac',multiple:true,style:{display:'none'},onChange:e=>{const f=e.target.files;void importFiles(f);e.target.value=''}}),
    u.jsx('span',{style:{flex:1}}),
-   u.jsxs('label',{children:['Master',u.jsx('input',{type:'range',min:0,max:1.5,step:.01,value:project.master.volume,'aria-label':'Master volume',onChange:e=>commit({...project,master:{volume:num(e.target.value,.9)}})})]}),
+   u.jsxs('label',{children:['Master',u.jsx('input',{type:'range',min:0,max:1.5,step:.01,value:project.master.volume,title:'Master volume of the arrangement','aria-label':'Master volume',onChange:e=>commit({...project,master:{volume:num(e.target.value,.9)}})})]}),
    u.jsx('div',{className:'meter','aria-hidden':'true',children:u.jsx('i',{ref:meterRef})}),
-   u.jsxs('select',{value:exportFormat,onChange:e=>setExportFormat(e.target.value),'aria-label':'Mixdown format',children:[u.jsx('option',{value:'pcm16',children:'WAV 16-bit (dither)'}),u.jsx('option',{value:'float32',children:'WAV 32-bit float'})]}),
-   u.jsx('button',{type:'button',disabled:busy||!songEnd,onClick:()=>exportMix(project.loop.on?'loop':'song'),children:busy?'Rendering …':'⤓ Mixdown'+(project.loop.on?' (loop)':'')})]}),
+   u.jsxs('select',{value:exportFormat,title:'Mixdown format: 16-bit with TPDF dither, or 32-bit float (lossless headroom)',onChange:e=>setExportFormat(e.target.value),'aria-label':'Mixdown format',children:[u.jsx('option',{value:'pcm16',children:'WAV 16-bit (dither)'}),u.jsx('option',{value:'float32',children:'WAV 32-bit float'})]}),
+   u.jsx('button',{type:'button',disabled:busy||!songEnd,title:'Render the song (or the loop range when Loop is on) offline to a 48 kHz WAV file',onClick:()=>exportMix(project.loop.on?'loop':'song'),children:busy?'Rendering …':'⤓ Mixdown'+(project.loop.on?' (loop)':'')})]}),
   status?u.jsx('div',{className:'warn',role:'alert',style:{margin:'4px 2px'},children:status}):null,
   listView?u.jsx('div',{className:'bar',children:u.jsx('table',{children:u.jsxs('tbody',{children:[
    u.jsxs('tr',{children:['Track','Material','Start (beat)','Position','Length','In','Gain','Fade in','Fade out','',''].map((h,i)=>u.jsx('th',{children:h},i))}),
@@ -67305,23 +67448,27 @@ function XenMultitrackRoom(){
     u.jsx('td',{children:u.jsx('input',{type:'number',min:0,max:2,step:.05,'aria-label':'Clip gain',value:c.gain,onChange:e=>updClip(c.id,{gain:clamp(num(e.target.value,1),0,2)})})}),
     u.jsx('td',{children:u.jsx('input',{type:'number',min:0,step,'aria-label':'Fade in (beats)',value:c.fadeIn,onChange:e=>updClip(c.id,{fadeIn:Math.max(0,num(e.target.value,0))})})}),
     u.jsx('td',{children:u.jsx('input',{type:'number',min:0,step,'aria-label':'Fade out (beats)',value:c.fadeOut,onChange:e=>updClip(c.id,{fadeOut:Math.max(0,num(e.target.value,0))})})}),
-    u.jsx('td',{children:u.jsx('button',{type:'button','aria-pressed':c.muted,onClick:()=>updClip(c.id,{muted:!c.muted}),children:'Mute'})}),
-    u.jsx('td',{children:u.jsx('button',{type:'button',onClick:()=>removeClip(c.id),'aria-label':'Remove clip',children:'Remove'})})]},c.id)))]})})}):null,
-  u.jsxs('div',{className:'tracks',role:'listbox','aria-label':'Arrangement timeline. Arrows move the selected clip (Shift: a bar, Up/Down: other track); S split; Ctrl+D duplicate; Ctrl+C/V copy and paste; M mute; Delete removes; +/- loop length; L loop; Space plays; context menu key opens options.',children:[
+    u.jsx('td',{children:u.jsx('button',{type:'button','aria-pressed':c.muted,onClick:()=>updClip(c.id,{muted:!c.muted}),title:'Mute this clip · M',children:'Mute'})}),
+    u.jsx('td',{children:u.jsx('button',{type:'button',onClick:()=>removeClip(c.id),title:'Remove this clip (the material stays in the library) · Delete','aria-label':'Remove clip',children:'Remove'})})]},c.id)))]})})}):null,
+  u.jsxs('div',{className:'twrap',children:[u.jsxs('div',{className:'tracks',ref:scrollRef,onScroll:updateRail,role:'listbox','aria-label':'Arrangement timeline. Arrows move the selected clip (Shift: a bar, Up/Down: other track); S split; Ctrl+D duplicate; Ctrl+C/V copy and paste; M mute; Delete removes; +/- loop length; L loop; Space plays; context menu key opens options.',children:[
    u.jsxs('div',{className:'trk rr',children:[u.jsx('div',{className:'hdr',children:u.jsx('span',{className:'muted',children:'Bars · click = cursor · right-click = loop & export'})}),
-    u.jsxs('div',{className:'ruler',style:{width:laneWidth},onClick:e=>{const b=snap(beatFromEvent(e,e.currentTarget));setCursor(b);announce('Cursor '+fmtPos(b,bpb))},onContextMenu:rulerMenu,children:[...ticks,
+    u.jsxs('div',{className:'ruler',title:'Click: set the cursor · right-click: play from here, loop start/end, mixdown',style:{width:laneWidth},onClick:e=>{const b=snap(beatFromEvent(e,e.currentTarget));setCursor(b);announce('Cursor '+fmtPos(b,bpb))},onContextMenu:rulerMenu,children:[...ticks,
      u.jsx('div',{className:'loopr'+(project.loop.on?'':' off'),style:{left:project.loop.start*ppb,width:Math.max(2,(project.loop.end-project.loop.start)*ppb)},title:'Loop region'}),u.jsx('div',{className:'cur',style:{left:cursor*ppb}})]})]}),
-   ...project.tracks.map((t,ti)=>u.jsxs('div',{className:'trk',onClick:()=>setTrackSel(t.id),children:[
+   ...project.tracks.map((t,ti)=>u.jsxs('div',{className:'trk'+(project.trackHeight<58?' compact':''),style:{minHeight:project.trackHeight},onClick:()=>setTrackSel(t.id),children:[
     u.jsxs('div',{className:'hdr',onContextMenu:e=>trackMenu(e,t),style:{boxShadow:'inset 3px 0 0 '+(trackSel===t.id?'#fde68a':COLORS[ti%COLORS.length]+'55')},children:[
-     u.jsxs('div',{className:'row',children:[u.jsx('input',{type:'text','aria-label':'Track name',value:t.name,onChange:e=>updTrack(t.id,{name:e.target.value.slice(0,60)})}),
-      u.jsx('button',{type:'button','aria-pressed':t.mute,'aria-label':'Mute '+t.name,onClick:()=>updTrack(t.id,{mute:!t.mute},(t.mute?'Unmuted ':'Muted ')+t.name),children:'M'}),
-      u.jsx('button',{type:'button','aria-pressed':t.solo,'aria-label':'Solo '+t.name,onClick:()=>updTrack(t.id,{solo:!t.solo},(t.solo?'Solo off ':'Solo ')+t.name),children:'S'}),
-      u.jsx('button',{type:'button','aria-label':'Track options for '+t.name,onClick:e=>trackMenu(e,t),children:'⋯'})]}),
-     u.jsxs('div',{className:'row',children:[u.jsxs('label',{children:['Vol',u.jsx('input',{type:'range',min:0,max:1.5,step:.01,value:t.volume,'aria-label':'Volume '+t.name,onChange:e=>updTrack(t.id,{volume:num(e.target.value,t.volume)})})]}),
-      u.jsxs('label',{children:['Pan',u.jsx('input',{type:'range',min:-1,max:1,step:.01,value:t.pan,'aria-label':'Pan '+t.name,onChange:e=>updTrack(t.id,{pan:num(e.target.value,t.pan)})})]})]})]}),
-    u.jsx('div',{className:'lane'+(dropTrack===t.id?' drop':''),'data-lane':t.id,style:{width:laneWidth},onContextMenu:e=>laneMenu(e,t),
+     u.jsxs('div',{className:'row',children:[u.jsx('input',{type:'text','aria-label':'Track name',title:'Track name',value:t.name,onChange:e=>updTrack(t.id,{name:e.target.value.slice(0,60)})}),
+      u.jsx('button',{type:'button','aria-pressed':t.mute,title:'Mute track','aria-label':'Mute '+t.name,onClick:()=>updTrack(t.id,{mute:!t.mute},(t.mute?'Unmuted ':'Muted ')+t.name),children:'M'}),
+      u.jsx('button',{type:'button','aria-pressed':t.solo,title:'Solo track','aria-label':'Solo '+t.name,onClick:()=>updTrack(t.id,{solo:!t.solo},(t.solo?'Solo off ':'Solo ')+t.name),children:'S'}),
+      u.jsx('button',{type:'button','aria-label':'Track options for '+t.name,title:'Track options (also: right-click the track header)',onClick:e=>trackMenu(e,t),children:'⋯'})]}),
+     u.jsxs('div',{className:'row',children:[u.jsxs('label',{children:['Vol',u.jsx('input',{type:'range',min:0,max:1.5,step:.01,value:t.volume,title:'Track volume','aria-label':'Volume '+t.name,onChange:e=>updTrack(t.id,{volume:num(e.target.value,t.volume)})})]}),
+      u.jsxs('label',{children:['Pan',u.jsx('input',{type:'range',min:-1,max:1,step:.01,value:t.pan,title:'Track pan, left to right (Reset mixer: right-click the header)','aria-label':'Pan '+t.name,onChange:e=>updTrack(t.id,{pan:num(e.target.value,t.pan)})})]})]})]}),
+    u.jsx('div',{className:'lane'+(dropTrack===t.id?' drop':''),'data-lane':t.id,style:{width:laneWidth,minHeight:project.trackHeight},onContextMenu:e=>laneMenu(e,t),
      onDoubleClick:e=>{if(e.target===e.currentTarget)addClipAt(t.id,beatFromEvent(e,e.currentTarget))},children:t.clips.map(c=>clipView(t,ti,c))})]},t.id)),
    u.jsx('div',{className:'ph',ref:phRef})]}),
+   u.jsxs('div',{className:'rail',ref:railRef,role:'scrollbar','aria-orientation':'vertical','aria-label':'Track overview: drag the window to scroll, drag its top or bottom edge to zoom the track height, click to jump, double-click to show all tracks',
+    title:'Track overview · drag = scroll · drag top/bottom edge = zoom · click = jump · double-click = show all',onPointerDown:e=>railDown(e,'jump'),onPointerMove:railMove,onPointerUp:railUp,onPointerCancel:railUp,onDoubleClick:railFit,children:[
+    ...project.tracks.map((t,i,a)=>u.jsx('i',{className:t.clips.length?'full':'',style:{top:(i/a.length*100)+'%',height:'calc('+(100/a.length)+'% - 2px)',background:COLORS[i%COLORS.length]}},t.id)),
+    u.jsxs('div',{className:'thumb',ref:thumbRef,onPointerDown:e=>railDown(e,'move'),children:[u.jsx('b',{className:'t',onPointerDown:e=>railDown(e,'resize-start')}),u.jsx('b',{className:'e',onPointerDown:e=>railDown(e,'resize-end')})]})]})]}),
   selF?u.jsxs('div',{className:'bar row',children:[u.jsx('strong',{children:libMap.get(selF.c.materialId)?.name||'missing material'}),
    u.jsx('span',{className:'muted',children:'on '+selF.t.name+' · starts '+fmtPos(selF.c.startBeat,bpb)}),
    numIn('Length',len(selF.c),step,1e5,step,v=>updClip(selF.c.id,{lenBeats:Math.max(step,v),repeats:undefined}),70),
@@ -67329,10 +67476,11 @@ function XenMultitrackRoom(){
    numIn('Gain',selF.c.gain,0,2,.05,v=>updClip(selF.c.id,{gain:clamp(v,0,2)})),
    numIn('Fade in',selF.c.fadeIn,0,256,step,v=>updClip(selF.c.id,{fadeIn:Math.max(0,v)})),
    numIn('Fade out',selF.c.fadeOut,0,256,step,v=>updClip(selF.c.id,{fadeOut:Math.max(0,v)})),
-   u.jsx('button',{type:'button','aria-pressed':selF.c.muted,onClick:()=>updClip(selF.c.id,{muted:!selF.c.muted}),children:'Mute'}),
-   u.jsx('button',{type:'button','aria-pressed':selF.c.fit==='natural',title:'Original speed uses the real audio length; off = fit bars × beats to the project tempo (pitch follows).',onClick:()=>{const fit=selF.c.fit==='natural'?'tempo':'natural';updClip(selF.c.id,{fit,lenBeats:cycleBeats(libMap.get(selF.c.materialId),{fit},project.bpm),repeats:undefined},fit==='natural'?'Original speed':'Fitted to tempo')},children:'Original speed'}),
+   u.jsx('button',{type:'button','aria-pressed':selF.c.muted,title:'Mute this clip · M',onClick:()=>updClip(selF.c.id,{muted:!selF.c.muted}),children:'Mute'}),
+   u.jsxs('label',{title:'How the clip is brought to the project tempo. All modes only change the playback rate (tape); the stored audio stays untouched, so the way back is lossless.',children:['Fit',u.jsxs('select',{value:selF.c.fit,onChange:e=>setFit(selF.c,e.target.value,selF.c.sourceBpm,'Fit changed'),children:[
+    u.jsx('option',{value:'natural',children:'Original speed'}),u.jsx('option',{value:'tempo',children:'Bars × beats'}),selF.c.sourceBpm?u.jsx('option',{value:'bpm',children:'Source tempo '+selF.c.sourceBpm+' BPM'}):null]})]}),
    u.jsx('span',{className:'muted',children:tapeInfo(selF.c)}),
-   u.jsx('button',{type:'button',onClick:()=>removeClip(selF.c.id),children:'Remove clip'})]}):null,
+   u.jsx('button',{type:'button',onClick:()=>removeClip(selF.c.id),title:'Remove this clip (the material stays in the library) · Delete',children:'Remove clip'})]}):null,
   u.jsx('div',{className:'muted',style:{marginTop:6},children:'Drag clips anywhere (also onto another track; Alt = copy), drag clip edges to trim, double-click a lane to add the chosen material. Keys: Space play/stop · L loop · S split · Ctrl+D duplicate · Ctrl+C/V · M mute · ↑/↓ other track · Delete · Ctrl+Z undo.'})]});
 }
 return Object.freeze({XenMultitrackRoom});
@@ -67571,7 +67719,8 @@ function __ForgeTransportRack(e){
      h(__ForgeSendToEditorButton),
      destination('material'),destination('root'),destination('pink'),sendPanel),
     h('div',{'data-forge-project-corner':'true',className:'f33-rack-project-corner'},
-     h(jHe,{compact:true,onOpenInSpectralForge:()=>window.setTimeout(()=>{const anchor=document.querySelector('[data-xensonar-spectralforge-workmode-header]');anchor?.scrollIntoView({behavior:'smooth',block:'start'})},80)})))),
+     h(jHe,{compact:true,onOpenInSpectralForge:()=>window.setTimeout(()=>{const anchor=document.querySelector('[data-xensonar-spectralforge-workmode-header]');anchor?.scrollIntoView({behavior:'smooth',block:'start'})},80)}),
+     h(__ForgeSendToMultitrackButton)))),
   h('input',{ref:e.fileInputRef,type:'file',accept:'image/*,.png,.jpg,.jpeg,.webp,.bmp,.gif',style:{display:'none'},onChange:e.handleImportFile}),
   e.pendingImageImport&&h(w6e,{pendingImageImport:e.pendingImageImport,imagePreviewCanvasRef:e.imagePreviewCanvasRef,spectralWidth:e.spectralWidth,spectralHeight:e.spectralHeight,rendering:busy,closeImageImport:e.closeImageImport,updatePendingImageImport:e.updatePendingImageImport,handleConfirmImageImport:e.handleConfirmImageImport}));
 }
