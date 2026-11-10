@@ -131,3 +131,28 @@ test('ROOM4-07: warp is additive data (old projects unchanged) and the variant p
   assert.match(plan.variantPlan(nat({stretch:8,warp:'grain'}),t,entry,buffer,120).error,/granular range/);
   assert.match(plan.variantPlan(nat({stretch:3,warp:'grain'}),t,{id:'m',durationSec:20},{duration:20,sampleRate:48000,length:960000,numberOfChannels:2},120).error,/too long/);
 });
+
+test('ROOM4-09: effect data is additive, tails are bounded, the reverb impulse is deterministic',()=>{
+  const src=cut(mt,'const DB=','/* ---------- persistence');
+  const m=new Function(src.replace(/^const DB=[^\n]*\n/,"const KEY='current',FORMAT='xensonar.multitrack',VERSION=2;\n")+';return {sanitize,fxShape,fxOf,sanitizeFx}')();
+  const raw={format:'xensonar.multitrack',tracks:[{id:'a',clips:[]},{id:'b',fx:{lowCut:120,echoBeats:.75,echoFb:5,reverb:.2},clips:[{id:'c',materialId:'m',startBeat:0,lenBeats:4,reverse:1}]},{id:'c',fx:{echoBeats:0,drive:0},clips:[]}]};
+  const out=m.sanitize(raw,100);
+  assert.strictEqual('fx' in out.tracks[0],false,'a track without effects stores nothing');
+  assert.deepStrictEqual(out.tracks[1].fx,{lowCut:120,highCut:20000,drive:0,echoBeats:.75,echoFb:.92,echoMix:.3,reverb:.2});
+  assert.strictEqual('fx' in out.tracks[2],false,'all-default effects are dropped');
+  assert.strictEqual(out.tracks[1].clips[0].reverse,true);
+  assert.strictEqual(m.fxShape(m.fxOf(out.tracks[1])),'her');assert.strictEqual(m.fxShape(m.fxOf(out.tracks[0])),'');
+  assert.strictEqual(out.master.reverbSize,2.2);
+  const fxsrc=cut(mt,'function driveCurve(','function buildTrackFx(');
+  const f=new Function('clamp','num','fxOf','fxShape',fxsrc+';return {reverbIR,fxTailSec,driveCurve}')((v,lo,hi)=>Math.max(lo,Math.min(hi,v)),(v,d)=>Number.isFinite(Number(v))?Number(v):d,m.fxOf,m.fxShape);
+  const ctx={sampleRate:48000,createBuffer:(c,n)=>{const d=[new Float32Array(n),new Float32Array(n)];return {length:n,getChannelData:i=>d[i]}}};
+  const a=f.reverbIR(ctx,1),b=f.reverbIR(ctx,1);
+  assert.deepStrictEqual(Array.from(a.getChannelData(0).subarray(600,640)),Array.from(b.getChannelData(0).subarray(600,640)),'same impulse every time');
+  assert.notDeepStrictEqual(Array.from(a.getChannelData(0).subarray(600,640)),Array.from(a.getChannelData(1).subarray(600,640)),'left and right differ');
+  let e=0;for(const v of a.getChannelData(0))e+=v*v;assert(Math.abs(Math.sqrt(e)-.5)<1e-3,'normalised energy');
+  assert.strictEqual(f.fxTailSec({bpm:120,master:{},tracks:[{volume:1,clips:[]}]}),0,'no effects: no extra tail');
+  assert(f.fxTailSec({bpm:120,master:{reverbSize:3},tracks:[{volume:1,fx:{reverb:.3}}]})===3);
+  assert(f.fxTailSec({bpm:120,master:{},tracks:[{volume:1,fx:{echoBeats:1,echoFb:.92,echoMix:.5}}]})<=12);
+  assert.strictEqual(f.fxTailSec({bpm:120,master:{},tracks:[{volume:1,mute:true,fx:{reverb:.3}}]}),0,'muted tracks add no tail');
+  const c=f.driveCurve(.5);assert(Math.abs(c[0]+1)<1e-6&&Math.abs(c[1023]-1)<1e-6&&Math.abs(c[511]+c[512])<1e-6);
+});

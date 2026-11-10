@@ -71,7 +71,7 @@ const __XenMultitrackRoundTrip=(()=>{
  'use strict';
  let active=null,receipt=null,lastError='';
  const uuid=()=>globalThis.crypto?.randomUUID?.()??'rt-'+Date.now()+'-'+Math.random().toString(36).slice(2);
- const clipIdentity=c=>JSON.stringify(['materialId','startBeat','inBeat','lenBeats','repeats','fit','sourceBpm','gain','fadeIn','fadeOut','muted','stretch','warp','pitch'].map(k=>c?.[k]??null));
+ const clipIdentity=c=>JSON.stringify(['materialId','startBeat','inBeat','lenBeats','repeats','fit','sourceBpm','gain','fadeIn','fadeOut','muted','stretch','warp','pitch','reverse'].map(k=>c?.[k]??null));
  const emit=()=>window.dispatchEvent(new CustomEvent('xensonar:multitrack:roundtrip-state',{detail:status()}));
  const status=()=>Object.freeze({active:!!active,phase:active?.phase??'idle',clipId:active?.clipId??null,trackId:active?.trackId??null,label:active?.label??'',error:lastError});
  const navigate=room=>window.dispatchEvent(new CustomEvent('xensonar:multitrack:roundtrip-navigate',{detail:{room}}));
@@ -124,7 +124,7 @@ const __XenMultitrackRoundTrip=(()=>{
      before=project;
      const beats=doc.frames/doc.sampleRate*project.bpm/60;
      const replacement={...clip,materialId:result.entry.id,inBeat:0,fit:'bpm',sourceBpm:project.bpm,lenBeats:Math.max(1/64,beats)};
-     delete replacement.repeats;delete replacement.stretch;delete replacement.warp;delete replacement.pitch;// ROOM4-07: the edited audio has the clip's warp baked in
+     delete replacement.repeats;delete replacement.stretch;delete replacement.warp;delete replacement.pitch;delete replacement.reverse;// ROOM4-07: the edited audio has the clip's warp baked in
      after={...project,updatedAt:Date.now(),tracks:project.tracks.map(t=>t.id!==current.trackId?t:{...t,clips:t.clips.map(c=>c.id!==current.clipId?c:replacement)})};
      store.put(after,'current');
     }catch(error){try{tx.abort()}catch{};reject(error)}};

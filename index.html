@@ -47181,7 +47181,7 @@ const __XenMultitrackRoundTrip=(()=>{
  'use strict';
  let active=null,receipt=null,lastError='';
  const uuid=()=>globalThis.crypto?.randomUUID?.()??'rt-'+Date.now()+'-'+Math.random().toString(36).slice(2);
- const clipIdentity=c=>JSON.stringify(['materialId','startBeat','inBeat','lenBeats','repeats','fit','sourceBpm','gain','fadeIn','fadeOut','muted','stretch','warp','pitch'].map(k=>c?.[k]??null));
+ const clipIdentity=c=>JSON.stringify(['materialId','startBeat','inBeat','lenBeats','repeats','fit','sourceBpm','gain','fadeIn','fadeOut','muted','stretch','warp','pitch','reverse'].map(k=>c?.[k]??null));
  const emit=()=>window.dispatchEvent(new CustomEvent('xensonar:multitrack:roundtrip-state',{detail:status()}));
  const status=()=>Object.freeze({active:!!active,phase:active?.phase??'idle',clipId:active?.clipId??null,trackId:active?.trackId??null,label:active?.label??'',error:lastError});
  const navigate=room=>window.dispatchEvent(new CustomEvent('xensonar:multitrack:roundtrip-navigate',{detail:{room}}));
@@ -47234,7 +47234,7 @@ const __XenMultitrackRoundTrip=(()=>{
      before=project;
      const beats=doc.frames/doc.sampleRate*project.bpm/60;
      const replacement={...clip,materialId:result.entry.id,inBeat:0,fit:'bpm',sourceBpm:project.bpm,lenBeats:Math.max(1/64,beats)};
-     delete replacement.repeats;delete replacement.stretch;delete replacement.warp;delete replacement.pitch;// ROOM4-07: the edited audio has the clip's warp baked in
+     delete replacement.repeats;delete replacement.stretch;delete replacement.warp;delete replacement.pitch;delete replacement.reverse;// ROOM4-07: the edited audio has the clip's warp baked in
      after={...project,updatedAt:Date.now(),tracks:project.tracks.map(t=>t.id!==current.trackId?t:{...t,clips:t.clips.map(c=>c.id!==current.clipId?c:replacement)})};
      store.put(after,'current');
     }catch(error){try{tx.abort()}catch{};reject(error)}};
@@ -68488,20 +68488,26 @@ const COLORS=['#f59e0b','#38bdf8','#a78bfa','#34d399','#f472b6','#facc15','#fb71
 function blankTrack(i){return {id:uid('track'),name:'Track '+(i+1),volume:.8,pan:0,mute:false,solo:false,pitch:0,clips:[]}}
 function blankProject(liveBpm){return {format:FORMAT,version:VERSION,id:KEY,name:'Untitled Arrangement',bpm:clamp(num(liveBpm,108),20,400),beatsPerBar:4,
  grid:{div:4,snap:true},zoom:28,trackHeight:64,loop:{on:false,start:0,end:16},master:{volume:.9},tracks:[blankTrack(0)],updatedAt:Date.now()}}
+/* ROOM4-09 track effect data (the audio builder is further down) */
+const FX0=Object.freeze({lowCut:0,highCut:20000,drive:0,echoBeats:0,echoFb:.35,echoMix:.3,reverb:0});
+const fxOf=t=>({...FX0,...(t?.fx||{})});
+const fxShape=f=>(f.lowCut>0?'h':'')+(f.highCut<20000?'l':'')+(f.drive>0?'d':'')+(f.echoBeats>0&&f.echoMix>0?'e':'')+(f.reverb>0?'r':'');
+function sanitizeFx(f){if(!f||typeof f!=='object')return undefined;const o={lowCut:clamp(num(f.lowCut,0),0,8000),highCut:clamp(num(f.highCut,20000),200,20000),drive:clamp(num(f.drive,0),0,1),
+ echoBeats:clamp(num(f.echoBeats,0),0,16),echoFb:clamp(num(f.echoFb,.35),0,.92),echoMix:clamp(num(f.echoMix,.3),0,1),reverb:clamp(num(f.reverb,0),0,1)};return fxShape(o)?o:undefined}
 function sanitizeClip(c){const out={id:String(c.id||uid('clip')),materialId:String(c.materialId||''),startBeat:Math.max(0,num(c.startBeat,0)),
  inBeat:Math.max(0,num(c.inBeat,0)),gain:clamp(num(c.gain,1),0,2),fadeIn:clamp(num(c.fadeIn,0),0,256),fadeOut:clamp(num(c.fadeOut,0),0,256),muted:!!c.muted,fit:['natural','bpm'].includes(c.fit)?c.fit:'tempo'};if(num(c.sourceBpm,0)>0)out.sourceBpm=clamp(Number(c.sourceBpm),10,999);if(out.fit==='bpm'&&!out.sourceBpm)out.fit='natural';
  /* ROOM4-07: non-destructive warp. stretch multiplies the material cycle, warp 'grain' keeps the pitch, pitch is a granular offset in cents. Absent = original. */
- if(num(c.stretch,1)>0&&Math.abs(num(c.stretch,1)-1)>1e-9)out.stretch=clamp(Number(c.stretch),.05,20);if(c.warp==='grain')out.warp='grain';if(Math.abs(num(c.pitch,0))>=.5)out.pitch=clamp(Number(c.pitch),-2400,2400);
+ if(num(c.stretch,1)>0&&Math.abs(num(c.stretch,1)-1)>1e-9)out.stretch=clamp(Number(c.stretch),.05,20);if(c.warp==='grain')out.warp='grain';if(c.reverse)out.reverse=true;if(Math.abs(num(c.pitch,0))>=.5)out.pitch=clamp(Number(c.pitch),-2400,2400);
  if(Number.isFinite(Number(c.lenBeats))&&Number(c.lenBeats)>0)out.lenBeats=clamp(Number(c.lenBeats),1/64,1e5);else out.repeats=clamp(Math.round(num(c.repeats,1)),1,256);
  return out}
 function sanitize(raw,liveBpm){
  if(!raw||raw.format!==FORMAT||!Array.isArray(raw.tracks))return blankProject(liveBpm);
  const tracks=raw.tracks.slice(0,MAX_TRACKS).map((t,i)=>({id:String(t.id||uid('track')),name:String(t.name||('Track '+(i+1))).slice(0,60),volume:clamp(num(t.volume,.8),0,1.5),pan:clamp(num(t.pan,0),-1,1),
-  mute:!!t.mute,solo:!!t.solo,pitch:clamp(num(t.pitch,0),-2400,2400),clips:(Array.isArray(t.clips)?t.clips:[]).slice(0,MAX_CLIPS).map(sanitizeClip).filter(c=>c.materialId)}));
+  mute:!!t.mute,solo:!!t.solo,pitch:clamp(num(t.pitch,0),-2400,2400),...(sanitizeFx(t.fx)?{fx:sanitizeFx(t.fx)}:{}),clips:(Array.isArray(t.clips)?t.clips:[]).slice(0,MAX_CLIPS).map(sanitizeClip).filter(c=>c.materialId)}));
  const loop=raw.loop||{};const ls=Math.max(0,num(loop.start,0)),le=Math.max(ls+1/64,num(loop.end,ls+16));
  return {format:FORMAT,version:VERSION,id:KEY,name:String(raw.name||'Untitled Arrangement').slice(0,100),bpm:clamp(num(raw.bpm,108),20,400),
   beatsPerBar:clamp(num(raw.beatsPerBar,4),.5,64),grid:{div:clamp(Math.round(num(raw.grid?.div,4)),1,64),snap:raw.grid?.snap!==false},
-  zoom:clamp(num(raw.zoom,28),.05,4000),trackHeight:clamp(num(raw.trackHeight,64),3,4000),loop:{on:!!loop.on,start:ls,end:le},master:{volume:clamp(num(raw.master?.volume,.9),0,1.5)},
+  zoom:clamp(num(raw.zoom,28),.05,4000),trackHeight:clamp(num(raw.trackHeight,64),3,4000),loop:{on:!!loop.on,start:ls,end:le},master:{volume:clamp(num(raw.master?.volume,.9),0,1.5),reverbSize:clamp(num(raw.master?.reverbSize,2.2),.2,8)},
   tracks:tracks.length?tracks:[blankTrack(0)],updatedAt:num(raw.updatedAt,Date.now())};
 }
 /* ---------- persistence (cold) ---------- */
@@ -68554,20 +68560,20 @@ const variants=new Map();// key -> {status,buffer,error,promise,last}
 const variantListeners=new Set();
 const pitchCentsOf=(c,t)=>num(c?.pitch,0)+num(t?.pitch,0);
 function variantPlan(c,t,entry,buffer,bpm){
- const cents=pitchCentsOf(c,t),grain=c.warp==='grain';if(!grain&&Math.abs(cents)<.5)return null;if(!entry||!buffer)return null;
+ const cents=pitchCentsOf(c,t),grain=c.warp==='grain',rev=!!c.reverse;if(!grain&&Math.abs(cents)<.5&&!rev)return null;if(!entry||!buffer)return null;
  const r=regionOf(entry,buffer),spb=60/bpm,R=clamp(r.len/(cycleBeats(entry,c,bpm)*spb),.0625,16),p=Math.pow(2,cents/1200);
- const shift=grain?p/R:p,up=grain&&R<1?1/R:1;if(Math.abs(shift-1)<1e-4&&Math.abs(up-1)<1e-4)return null;
+ const shift=grain?p/R:p,up=grain&&R<1?1/R:1;if(Math.abs(shift-1)<1e-4&&Math.abs(up-1)<1e-4&&!rev)return null;
  if(shift<.25||shift>4)return {error:'outside the granular range (¼× to 4×): playing tape-style'};
  const sr=buffer.sampleRate,a=Math.max(0,Math.round(r.a*sr)),b=Math.min(buffer.length,Math.max(a+1,Math.round(r.b*sr))),L=b-a,out=Math.round(L*up),ch=Math.min(2,buffer.numberOfChannels);
- if(L<Math.round(.03*sr))return {error:'too short for granular rendering: playing tape-style'};
+ if(L<Math.round(.03*sr)&&(Math.abs(shift-1)>=1e-4||Math.abs(up-1)>=1e-4))return {error:'too short for granular rendering: playing tape-style'};
  if(2*(2*out*ch*4)+1048576>48*1024*1024)return {error:'too long for granular rendering (about '+Math.floor(23.5e6/(ch*4*2)/sr)+' s after stretching): playing tape-style'};
- return {key:entry.id+'|'+a+'|'+b+'|'+shift.toFixed(5)+'|'+up.toFixed(5),a,b,L,out,ch,sr,shift,up};
+ return {key:entry.id+'|'+a+'|'+b+'|'+shift.toFixed(5)+'|'+up.toFixed(5)+(rev?'|rev':''),a,b,L,out,ch,sr,shift,up,rev};
 }
 function requestVariant(plan,buffer){
  if(!plan||plan.error)return null;let row=variants.get(plan.key);if(row&&row.status!=='error'){row.last=Date.now();return row}
  row={status:'loading',buffer:null,error:'',last:Date.now()};variants.set(plan.key,row);
  row.promise=(async()=>{try{
-   let channels=[];for(let i=0;i<plan.ch;i++)channels.push(buffer.getChannelData(i).slice(plan.a,plan.b));
+   let channels=[];for(let i=0;i<plan.ch;i++){const d=buffer.getChannelData(i).slice(plan.a,plan.b);if(plan.rev)d.reverse();channels.push(d)}
    if(plan.up>1+1e-6){// lengthen by plain resampling (cyclic, so the loop seam stays continuous)
     const Offline=globalThis.OfflineAudioContext||globalThis.webkitOfflineAudioContext,octx=new Offline(plan.ch,plan.out,plan.sr),region=octx.createBuffer(plan.ch,plan.L,plan.sr);
     channels.forEach((d,i)=>region.copyToChannel(d,i));const src=octx.createBufferSource();src.buffer=region;src.loop=true;src.playbackRate.value=1/plan.up;src.connect(octx.destination);src.start(0);
@@ -68590,7 +68596,7 @@ function voiceSource(c,t,entry,buffer,bpm){const plan=variantPlan(c,t,entry,buff
  if(!plan)return {buffer,region:regionOf(entry,buffer),state:'',key:''};
  if(plan.error)return {buffer,region:regionOf(entry,buffer),state:plan.error,key:'!'};
  const row=variants.get(plan.key);if(row?.status==='ready'){row.last=Date.now();return {buffer:row.buffer,region:{a:0,b:row.buffer.duration,len:row.buffer.duration},state:'granular',key:plan.key}}
- return {buffer,region:regionOf(entry,buffer),state:row?.status==='error'?'granular render failed ('+row.error+'): playing tape-style':'rendering granular …',key:plan.key+'?'+(row?.status||'none')}}
+ return {buffer,region:regionOf(entry,buffer),state:row?.status==='error'?'render failed ('+row.error+'): playing the plain source':'rendering …',key:plan.key+'?'+(row?.status||'none')}}
 function prepareVariants(project,lib,wait){const jobs=[];for(const t of project.tracks)for(const c of t.clips){const e=lib.get(c.materialId),au=e?audio.get(e.id):null;if(!au||au.status!=='ready')continue;const row=requestVariant(variantPlan(c,t,e,au.buffer,project.bpm),au.buffer);if(row?.promise&&row.status==='loading')jobs.push(row.promise)}return wait?Promise.all(jobs):null}
 function planVoice(ctx,dest,clip,entry,sourceBuffer,pa,pb,tA,tB,spb,isStart,isEnd,track){
  const vs=voiceSource(clip,track,entry,sourceBuffer,60/spb),buffer=vs.buffer;
@@ -68600,18 +68606,55 @@ function planVoice(ctx,dest,clip,entry,sourceBuffer,pa,pb,tA,tB,spb,isStart,isEn
  const src=ctx.createBufferSource(),g=ctx.createGain();src.buffer=buffer;src.loop=true;src.loopStart=r.a;src.loopEnd=r.b;src.playbackRate.value=rate;
  g.gain.setValueAtTime(0,tA);g.gain.linearRampToValueAtTime(lvl,tA+fi);g.gain.setValueAtTime(lvl,tB-fo);g.gain.linearRampToValueAtTime(0,tB);
  src.connect(g);g.connect(dest);src.start(tA,offset);src.stop(tB+.01);return {src,g,rate}}
+/* ---------- ROOM4-09 · track effects: one builder for live play and for the mixdown (native nodes only) ----------
+   Chain after the track EQ: low cut -> high cut -> drive -> master, plus a tempo-synced echo and a send into one shared
+   reverb. A track without effects gets NO extra node (the signal path, and so the exported PCM, is exactly as before). */
+function driveCurve(a){const n=1024,c=new Float32Array(n),k=1+a*8,norm=Math.tanh(k);for(let i=0;i<n;i++)c[i]=Math.tanh(k*(i/(n-1)*2-1))/norm;return c}
+const driveMakeup=a=>1/Math.pow(1+a*8,.7);
+/* Deterministic stereo impulse response (seeded noise, exponential decay, darker towards the end): the same tail live and in every export. */
+function reverbIR(ctx,size){const sr=ctx.sampleRate,n=Math.max(64,Math.round(clamp(size,.2,8)*sr)),buf=ctx.createBuffer(2,n,sr);
+ for(let ch=0;ch<2;ch++){const d=buf.getChannelData(ch);let seed=(0x9e3779b9^(ch*0x85ebca6b)^n)>>>0,lp=0,energy=0;const pre=Math.round(.012*sr);
+  for(let i=pre;i<n;i++){seed=(seed+0x6d2b79f5)>>>0;let x=Math.imul(seed^(seed>>>15),1|seed);x=(x+Math.imul(x^(x>>>7),61|x))^x;const w=(((x^(x>>>14))>>>0)/4294967296)*2-1;
+   const u=(i-pre)/(n-pre),k=.25+.7*u;lp+=(w-lp)*(1-k);const v=lp*Math.pow(1-u,2)*Math.exp(-3.2*u);d[i]=v;energy+=v*v}
+  const g=energy>0?.5/Math.sqrt(energy):0;for(let i=pre;i<n;i++)d[i]*=g}
+ return buf}
+const echoTime=(f,spb)=>clamp(f.echoBeats*spb,.005,4);
+function fxTailSec(project){let tail=0;const any=project.tracks.some(t=>t.solo),spb=60/project.bpm;
+ for(const t of project.tracks){if(t.mute||(any&&!t.solo)||!(t.volume>0))continue;const f=fxOf(t),sh=fxShape(f);
+  if(sh.includes('e')){const fb=clamp(f.echoFb,0,.92);tail=Math.max(tail,echoTime(f,spb)*(fb>0?Math.min(40,Math.ceil(Math.log(.001)/Math.log(fb))):1))}
+  if(sh.includes('r'))tail=Math.max(tail,clamp(num(project.master.reverbSize,2.2),.2,8))}
+ return Math.min(12,tail)}
+function buildTrackFx(ctx,f,spb,out,master,getReverb){
+ const shape=fxShape(f),nodes=[];let tail=out,hp=null,lp=null,ws=null,post=null,dl=null,fb=null,wet=null,send=null;const add=n=>{tail.connect(n);nodes.push(n);tail=n;return n};
+ if(shape.includes('h')){hp=add(ctx.createBiquadFilter());hp.type='highpass';hp.Q.value=.707;hp.frequency.value=f.lowCut}
+ if(shape.includes('l')){lp=add(ctx.createBiquadFilter());lp.type='lowpass';lp.Q.value=.707;lp.frequency.value=f.highCut}
+ if(shape.includes('d')){ws=add(ctx.createWaveShaper());ws.curve=driveCurve(f.drive);ws.oversample='2x';post=add(ctx.createGain());post.gain.value=driveMakeup(f.drive)}
+ tail.connect(master);
+ if(shape.includes('e')){dl=ctx.createDelay(4);dl.delayTime.value=echoTime(f,spb);fb=ctx.createGain();fb.gain.value=clamp(f.echoFb,0,.92);wet=ctx.createGain();wet.gain.value=f.echoMix;
+  const tone=ctx.createBiquadFilter();tone.type='lowpass';tone.frequency.value=4800;const body=ctx.createBiquadFilter();body.type='highpass';body.frequency.value=140;
+  tail.connect(dl);dl.connect(tone);tone.connect(body);body.connect(fb);fb.connect(dl);body.connect(wet);wet.connect(master);nodes.push(dl,fb,wet,tone,body)}
+ if(shape.includes('r')){send=ctx.createGain();send.gain.value=f.reverb;tail.connect(send);send.connect(getReverb());nodes.push(send)}
+ let drive=f.drive;
+ return {shape,
+  set(g,spb2,now){// smoothed moves while playing (same shape only; a new shape rebuilds the chain)
+   hp?.frequency.setTargetAtTime(g.lowCut,now,.02);lp?.frequency.setTargetAtTime(g.highCut,now,.02);
+   if(ws&&g.drive!==drive){drive=g.drive;ws.curve=driveCurve(drive);post.gain.setTargetAtTime(driveMakeup(drive),now,.02)}
+   if(dl){dl.delayTime.setTargetAtTime(echoTime(g,spb2),now,.05);fb.gain.setTargetAtTime(clamp(g.echoFb,0,.92),now,.02);wet.gain.setTargetAtTime(g.echoMix,now,.02)}
+   send?.gain.setTargetAtTime(g.reverb,now,.02)},
+  dispose(){try{tail.disconnect()}catch{}for(const n of nodes){try{n.disconnect()}catch{}}}}}
 /* ---------- live engine (hot only while playing) ---------- */
 class Engine{
  constructor(){this.ctx=null;this.playing=false;this.voices=new Set();this.chains=new Map();this.timer=null;this.keys=new Set();this.segs=[];this.segSerial=0;this.project=null;this.lib=new Map();this.master=null;this.meter=null;this.sigs=new Map()}
  spb(){return 60/this.project.bpm}
  gainFor(t){const any=this.project.tracks.some(x=>x.solo);return (t.mute||(any&&!t.solo))?0:t.volume}
- sigOf(t,c){return t.id+'|'+c.materialId+'|'+c.startBeat+'|'+c.inBeat+'|'+clipLen(c,this.lib,this.project.bpm)+'|'+c.gain+'|'+c.fadeIn+'|'+c.fadeOut+'|'+c.muted+'|'+c.fit+'|'+(c.sourceBpm||0)+'|'+(c.stretch||1)+'|'+(c.warp||'')+'|'+pitchCentsOf(c,t)+'|'+this.vkey(t,c)}
+ sigOf(t,c){return t.id+'|'+c.materialId+'|'+c.startBeat+'|'+c.inBeat+'|'+clipLen(c,this.lib,this.project.bpm)+'|'+c.gain+'|'+c.fadeIn+'|'+c.fadeOut+'|'+c.muted+'|'+c.fit+'|'+(c.sourceBpm||0)+'|'+(c.stretch||1)+'|'+(c.warp||'')+'|'+pitchCentsOf(c,t)+'|'+this.vkey(t,c)+'|'+fxShape(fxOf(t))}
  vkey(t,c){const e=this.lib.get(c.materialId),au=e?audio.get(e.id):null;return au?.status==='ready'?voiceSource(c,t,e,au.buffer,this.project.bpm).key:''}
  chainFor(t){let ch=this.chains.get(t.id);if(ch)return ch;const ctx=this.ctx,input=ctx.createGain(),gain=ctx.createGain();gain.gain.value=this.gainFor(t);
-  const chain=__xenMaterialLaneChain(ctx,{source:input,gain,panValue:t.pan,eqKey:__XenEQ.keyFor('arrangement',t.id),route:out=>out.connect(this.master)});
-  ch={input,gain,pan:chain.pan,eq:chain.eq,output:chain.output};this.chains.set(t.id,ch);return ch}
+  let fx=null;const chain=__xenMaterialLaneChain(ctx,{source:input,gain,panValue:t.pan,eqKey:__XenEQ.keyFor('arrangement',t.id),route:out=>{fx=buildTrackFx(ctx,fxOf(t),this.spb(),out,this.master,()=>this.reverbIn())}});
+  ch={input,gain,pan:chain.pan,eq:chain.eq,output:chain.output,fx};this.chains.set(t.id,ch);return ch}
+ reverbIn(){if(this.rev)return this.rev.input;const ctx=this.ctx,input=ctx.createGain(),conv=ctx.createConvolver();conv.buffer=reverbIR(ctx,num(this.project.master.reverbSize,2.2));input.connect(conv);conv.connect(this.master);this.rev={input,conv,size:num(this.project.master.reverbSize,2.2)};return input}
  dropChain(id){const ch=this.chains.get(id);if(!ch)return;this.chains.delete(id);const now=this.ctx.currentTime;ch.gain.gain.setTargetAtTime(0,now,.01);
-  setTimeout(()=>{try{ch.input.disconnect();ch.output.disconnect()}catch{}try{ch.eq?.dispose?.()}catch{}},120)}
+  setTimeout(()=>{try{ch.input.disconnect();ch.output.disconnect()}catch{}try{ch.fx?.dispose()}catch{}try{ch.eq?.dispose?.()}catch{}},120)}
  async play(project,fromBeat,lib){this.stop();this.project=project;this.lib=lib;const bridge=__xenMultitrackBridge.current;
   if(!bridge)throw Error('Audio bridge is not ready yet; open the Live Room once and come back.');
   const ctx=await bridge.ensureAudioReady();this.ctx=ctx;
@@ -68643,7 +68686,9 @@ class Engine{
  update(project,lib){if(!this.playing){this.project=project;this.lib=lib;return false}const old=this.project,posBefore=this.position();/* ROOM4-04: read the beat position with the OLD tempo before swapping the project */this.project=project;this.lib=lib;const ctx=this.ctx,now=ctx.currentTime;
   if(old.bpm!==project.bpm||old.loop.on!==project.loop.on||old.loop.start!==project.loop.start||old.loop.end!==project.loop.end){this.restartBeat=posBefore;return true}// caller restarts at the current beat
   this.master.gain.setTargetAtTime(project.master.volume,now,.02);
-  for(const t of project.tracks){const ch=this.chainFor(t);ch.gain.gain.setTargetAtTime(this.gainFor(t),now,.02);ch.pan?.pan.setTargetAtTime(t.pan,now,.02)}
+  if(this.rev&&this.rev.size!==num(project.master.reverbSize,2.2)){this.rev.size=num(project.master.reverbSize,2.2);this.rev.conv.buffer=reverbIR(ctx,this.rev.size)}
+  for(const t of project.tracks){const f=fxOf(t);let ch=this.chains.get(t.id);if(ch&&ch.fx&&ch.fx.shape!==fxShape(f)){this.dropChain(t.id);ch=null}// another set of effects: rebuild this track (its clips re-plan through their signature)
+   ch=ch||this.chainFor(t);ch.gain.gain.setTargetAtTime(this.gainFor(t),now,.02);ch.pan?.pan.setTargetAtTime(t.pan,now,.02);ch.fx?.set(f,this.spb(),now)}
   for(const id of [...this.chains.keys()])if(!project.tracks.some(t=>t.id===id))this.dropChain(id);
   const sigs=new Map();for(const t of project.tracks)for(const c of t.clips){sigs.set(c.id,this.sigOf(t,c));const e=lib.get(c.materialId);if(e)requestAudio(e)}
   const changed=new Set();for(const [id,s] of this.sigs)if(sigs.get(id)!==s)changed.add(id);for(const id of sigs.keys())if(!this.sigs.has(id))changed.add(id);
@@ -68656,8 +68701,8 @@ class Engine{
  level(){if(!this.meter)return 0;const b=new Float32Array(this.meter.fftSize);this.meter.getFloatTimeDomainData(b);let m=0;for(const v of b){const a=v<0?-v:v;if(a>m)m=a}return m}
  stop(){this.playing=false;clearTimeout(this.timer);this.timer=null;const ctx=this.ctx;
   if(ctx){const now=ctx.currentTime;for(const v of this.voices){try{v.g.gain.cancelScheduledValues(now);v.g.gain.setTargetAtTime(0,now,.008);v.src.stop(now+.06)}catch{}}}this.voices.clear();
-  const chains=[...this.chains.values()],master=this.master,meter=this.meter;this.chains.clear();this.master=null;this.meter=null;
-  setTimeout(()=>{for(const c of chains){try{c.input.disconnect();c.output.disconnect()}catch{}try{c.eq?.dispose?.()}catch{}}try{master?.disconnect();meter?.disconnect()}catch{}},120);this.keys.clear();this.segs=[]}
+  const chains=[...this.chains.values()],master=this.master,meter=this.meter,rev=this.rev;this.chains.clear();this.master=null;this.meter=null;this.rev=null;
+  setTimeout(()=>{for(const c of chains){try{c.input.disconnect();c.output.disconnect()}catch{}try{c.fx?.dispose()}catch{}try{c.eq?.dispose?.()}catch{}}try{rev?.input.disconnect();rev?.conv.disconnect()}catch{}try{master?.disconnect();meter?.disconnect()}catch{}},120);this.keys.clear();this.segs=[]}
 }
 const engine=new Engine();
 /* ---------- mixdown (cold, offline) ---------- */
@@ -68674,14 +68719,14 @@ async function mixdown(project,lib,fromBeat,toBeat,format){
  await prepareVariants(project,lib,true);// ROOM4-07: export the same granular variants the arrangement plays
  const missing=mixdownMissing(project,lib,fromBeat,toBeat);
  if(missing.length)throw Error('Export stopped, nothing was written: '+missing.length+' clip'+(missing.length>1?'s have':' has')+' no usable audio ('+missing.slice(0,3).map(m=>m.name+' on '+m.track+(m.reason?': '+m.reason:'')).join('; ')+(missing.length>3?'; …':'')+'). Re-import the material or delete those clips.');
- const sr=48000,spb=60/project.bpm,dur=(toBeat-fromBeat)*spb,tail=.05,frames=Math.ceil((dur+tail)*sr);
+ const sr=48000,spb=60/project.bpm,dur=(toBeat-fromBeat)*spb,tail=.05+fxTailSec(project),frames=Math.ceil((dur+tail)*sr);
  if(!(frames>0)||frames>sr*60*30)throw Error('Mixdown range must be between 0 and 30 minutes.');
  const Offline=globalThis.OfflineAudioContext||globalThis.webkitOfflineAudioContext;const ctx=new Offline(2,frames,sr);
  const master=ctx.createGain();master.gain.value=project.master.volume;master.connect(ctx.destination);const any=project.tracks.some(t=>t.solo);
  /* ROOM4-05: same lane chain as live play (gain -> pan -> track EQ), so the export matches what is heard. */
- const lanes=[];
+ const lanes=[];let revIn=null;const getReverb=()=>{if(revIn)return revIn;revIn=ctx.createGain();const conv=ctx.createConvolver();conv.buffer=reverbIR(ctx,num(project.master.reverbSize,2.2));revIn.connect(conv);conv.connect(master);return revIn};
  for(const t of project.tracks){const g=ctx.createGain(),input=ctx.createGain();g.gain.value=(t.mute||(any&&!t.solo))?0:t.volume;
-  lanes.push(__xenMaterialLaneChain(ctx,{source:input,gain:g,panValue:t.pan,eqKey:__XenEQ.keyFor('arrangement',t.id),route:out=>out.connect(master)}));
+  lanes.push(__xenMaterialLaneChain(ctx,{source:input,gain:g,panValue:t.pan,eqKey:__XenEQ.keyFor('arrangement',t.id),route:out=>{buildTrackFx(ctx,fxOf(t),spb,out,master,getReverb)}}));
   for(const c of t.clips){const e=lib.get(c.materialId),au=e?audio.get(e.id):null;if(!au||au.status!=='ready')continue;const cs=c.startBeat,ce=cs+clipLen(c,lib,project.bpm);
    const pa=Math.max(cs,fromBeat),pb=Math.min(ce,toBeat);if(pb<=pa)continue;planVoice(ctx,input,c,e,au.buffer,pa,pb,(pa-fromBeat)*spb,(pb-fromBeat)*spb,spb,pa===cs,pb===ce,t)}}
  let out;try{out=await ctx.startRendering()}finally{for(const l of lanes){try{l.eq?.dispose?.()}catch{}}}
@@ -68739,9 +68784,9 @@ const CSS=`.xmt{color:#e7e5e4;font:13px/1.35 system-ui,sans-serif;max-width:1500
 function useStyle(){P.useEffect(()=>{if(document.getElementById('xen-multitrack-style'))return;const s=document.createElement('style');s.id='xen-multitrack-style';s.textContent=CSS;document.head.appendChild(s)},[])}
 const fmtPos=(beat,bpb)=>{const bar=Math.floor(beat/bpb+1e-9)+1,b=beat-(bar-1)*bpb;return bar+'.'+(Math.round(b*100)/100+1)};
 let clipboard=null;
-function ClipWave({peaks,inBeat,len,mb,ppb,color}){const ref=P.useRef(null);
+function ClipWave({peaks,inBeat,len,mb,ppb,color,rev}){const ref=P.useRef(null);
  P.useEffect(()=>{const cv=ref.current;if(!cv||!peaks)return;const w=Math.max(1,Math.min(4096,Math.round(len*ppb))),h=48;cv.width=w;cv.height=h;const g=cv.getContext('2d');g.clearRect(0,0,w,h);g.fillStyle=color;
-  const n=peaks.length;for(let x=0;x<w;x++){const beat=inBeat+(x/w)*len,f=((beat/mb)%1+1)%1,v=peaks[Math.min(n-1,Math.floor(f*n))]||0,y=Math.max(1,v*h*.95);g.fillRect(x,(h-y)/2,1,y)}},[peaks,inBeat,len,mb,ppb,color]);
+  const n=peaks.length;for(let x=0;x<w;x++){const beat=inBeat+(x/w)*len,f0=((beat/mb)%1+1)%1,f=rev?1-f0:f0,v=peaks[Math.max(0,Math.min(n-1,Math.floor(f*n)))]||0,y=Math.max(1,v*h*.95);g.fillRect(x,(h-y)/2,1,y)}},[peaks,inBeat,len,mb,ppb,color,rev]);
  return peaks?u.jsx('canvas',{ref,'aria-hidden':'true'}):null}
 function Menu({menu,close}){const ref=P.useRef(null);
  P.useEffect(()=>{if(!menu)return;const el=ref.current;el?.querySelector('button:not([disabled])')?.focus();
@@ -68861,10 +68906,10 @@ function XenMultitrackRoom(){
  /* ROOM4-07 warp edits: one factor scales cycle, length and in-point together, so the clip keeps its content. */
  const warpPatch=(c,stretch)=>{const cur=c.stretch>0?c.stretch:1,next=clamp(stretch,.05,20),f=next/cur;return {stretch:Math.abs(next-1)<1e-9?undefined:next,lenBeats:Math.max(1/64,len(c)*f),inBeat:c.inBeat*f,repeats:undefined}};
  const setStretch=(c,stretch,label)=>updClip(c.id,warpPatch(c,stretch),label||('Stretch ×'+(Math.round(clamp(stretch,.05,20)*1000)/1000)));
- const resetWarp=c=>updClip(c.id,{...warpPatch(c,1),warp:undefined,pitch:undefined},'Original speed and pitch restored');
+ const resetWarp=c=>updClip(c.id,{...warpPatch(c,1),warp:undefined,pitch:undefined,reverse:undefined},'Original speed, pitch and direction restored');
  const magnet=b=>{const s=snap(b),bar=Math.round(b/bpb)*bpb;return Math.abs(bar-b)*ppb<=8?Math.max(0,bar):s};
  const warpInfo=(c,t)=>{const e=libMap.get(c.materialId),a=e?audio.get(e.id):null;if(!a?.buffer)return '';const st=c.stretch>0?c.stretch:1,ct=pitchCentsOf(c,t),vs=voiceSource(c,t,e,a.buffer,project.bpm);
-  const parts=[];if(Math.abs(st-1)>1e-9)parts.push((st>1?'stretched':'compressed')+' ×'+(Math.round(st*1000)/1000));if(c.warp==='grain')parts.push('pitch kept');if(Math.abs(ct)>=.5)parts.push((ct>0?'+':'')+Math.round(ct)+' ct');if(vs.state&&vs.state!=='granular')parts.push(vs.state);else if(vs.state==='granular')parts.push('granular ready');return parts.join(' · ')};
+  const parts=[];if(Math.abs(st-1)>1e-9)parts.push((st>1?'stretched':'compressed')+' ×'+(Math.round(st*1000)/1000));if(c.reverse)parts.push('reversed');if(c.warp==='grain')parts.push('pitch kept');if(Math.abs(ct)>=.5)parts.push((ct>0?'+':'')+Math.round(ct)+' ct');if(vs.state&&vs.state!=='granular')parts.push(vs.state);else if(vs.state==='granular')parts.push('granular ready');return parts.join(' · ')};
  const duplicateClip=cid=>{const f=findClip(cid);if(!f)return;const n={...fixedLen(f.c),id:uid('clip'),startBeat:f.c.startBeat+len(f.c)};insertClip(f.t.id,n,'Clip duplicated to '+fmtPos(n.startBeat,bpb))};
  const splitClip=cid=>{const f=findClip(cid);if(!f)return;const c=fixedLen(f.c),at=cursor;if(!(at>c.startBeat+1e-9&&at<c.startBeat+c.lenBeats-1e-9)){announce('Place the cursor inside the clip to split');return}
   const a={...c,lenBeats:at-c.startBeat,fadeOut:0},b={...c,id:uid('clip'),startBeat:at,inBeat:c.inBeat+(at-c.startBeat),lenBeats:c.startBeat+c.lenBeats-at,fadeIn:0};
@@ -68951,7 +68996,9 @@ function XenMultitrackRoom(){
   {label:'Stretch ×2 (twice as long)',run:()=>setStretch(c,(c.stretch||1)*2)},{label:'Compress ×½ (half as long)',run:()=>setStretch(c,(c.stretch||1)/2)},
   {label:'Stretch to whole bars',run:()=>{const L=len(c),bars=Math.max(1,Math.round(L/bpb));setStretch(c,(c.stretch||1)*bars*bpb/L,'Stretched to '+bars+' bar'+(bars>1?'s':''))},disabled:Math.abs(len(c)/bpb-Math.round(len(c)/bpb))<1e-6},
   {label:c.warp==='grain'?'Warp: tape (pitch follows speed)':'Warp: granular (keep the pitch)',run:()=>updClip(c.id,{warp:c.warp==='grain'?undefined:'grain'},c.warp==='grain'?'Tape warp':'Granular warp: pitch kept')},
-  {label:'Reset stretch and pitch (original)',run:()=>resetWarp(c),disabled:!(c.stretch||c.warp||c.pitch)},'-',
+  {label:c.reverse?'Play forwards again':'Reverse (play backwards)',run:()=>updClip(c.id,{reverse:c.reverse?undefined:true},c.reverse?'Clip plays forwards':'Clip reversed')},
+  {label:'Normalize gain (peak to −1 dB)',run:()=>{const pk=audio.get(c.materialId)?.peaks;let m=0;if(pk)for(const v of pk)if(v>m)m=v;if(!(m>0)){setStatus('Nothing to normalize yet (audio still loading or silent).');return}const g=clamp(.891/m,0,2);updClip(c.id,{gain:g},'Clip gain '+g.toFixed(2)+(g>=2?' (limit reached)':''))}},
+  {label:'Reset stretch, pitch and direction (original)',run:()=>resetWarp(c),disabled:!(c.stretch||c.warp||c.pitch||c.reverse)},'-',
   {label:'Fade in/out: 1 beat',run:()=>updClip(c.id,{fadeIn:1,fadeOut:1},'Fades 1 beat')},{label:'Fades off',run:()=>updClip(c.id,{fadeIn:0,fadeOut:0},'Fades off')},
   {label:'Set loop to this clip',run:()=>setLoop({start:c.startBeat,end:c.startBeat+len(c),on:true})},'-',
   ...others.slice(0,8).map(o=>({label:'Move to '+o.name,run:()=>moveClipToTrack(c.id,o.id)})),others.length?'-':null,
@@ -69018,15 +69065,15 @@ function XenMultitrackRoom(){
   ticks.push(u.jsx('div',{className:'tick'+(isBar?' barl':''),style:{left:b*ppb},children:isBar?u.jsx('span',{children:Math.round(b/bpb)+1}):null},'t'+b))}
  if(!Number.isInteger(bpb))for(const b of barStarts){if(Math.abs(b-Math.round(b))<1e-9)continue;const k=Math.round(b/bpb);if(k%barEvery)continue;ticks.push(u.jsx('div',{className:'tick barl',style:{left:b*ppb},children:u.jsx('span',{children:k+1})},'tb'+k))}
  const th=project.trackHeight,tier=th>=58?'':th>=34?' compact':' mini',nT=project.tracks.length;
- const laneWidth=totalBeats*ppb,selF=sel?findClip(sel):null;
+ const laneWidth=totalBeats*ppb,selF=sel?findClip(sel):null,selT=project.tracks.find(t=>t.id===trackSel)||null;
  const clipView=(t,ti,c)=>{const e=libMap.get(c.materialId),a=e?audio.get(e.id):null,L=len(c),mb=cyc(c),w=Math.max(10,L*ppb);
   const bad=!e||a?.status==='error',state=!e?'source missing in library':a?.status==='error'?'cannot decode: '+a.error:a?.status==='ready'?'':'loading audio';
   const reps=[];for(let k=Math.ceil((c.inBeat+1e-9)/mb);(k*mb-c.inBeat)<L-1e-9&&reps.length<64;k++){const x=(k*mb-c.inBeat)*ppb;if(x>0)reps.push(u.jsx('span',{className:'rep',style:{left:x}},'r'+k))}
-  const name=e?(e.name||'material'):'missing material',color=COLORS[ti%COLORS.length],wi=warpInfo(c,t),st=c.stretch>0?c.stretch:1,tag=(Math.abs(st-1)>1e-9?' ⇔×'+(Math.round(st*100)/100):'')+(c.warp==='grain'?' ≈':'')+(Math.abs(pitchCentsOf(c,t))>=.5?' ♪':'');
+  const name=e?(e.name||'material'):'missing material',color=COLORS[ti%COLORS.length],wi=warpInfo(c,t),st=c.stretch>0?c.stretch:1,tag=(Math.abs(st-1)>1e-9?' ⇔×'+(Math.round(st*100)/100):'')+(c.warp==='grain'?' ≈':'')+(Math.abs(pitchCentsOf(c,t))>=.5?' ♪':'')+(c.reverse?' ◀':'');
   return u.jsxs('button',{type:'button','data-clip':c.id,className:'clip'+(bad?' bad':'')+(c.muted?' muted':''),role:'option','aria-selected':sel===c.id,style:{left:c.startBeat*ppb,width:w,'--c':color},
    title:name+(state?' — '+state:'')+(wi?'\n'+wi:'')+'\nDrag: move (also to another track) · Alt+drag: copy · upper half of an edge: trim / loop · lower half of an edge: stretch / compress · right-click: options','aria-label':name+', '+t.name+', starts at '+fmtPos(c.startBeat,bpb)+', '+L+' beats'+(c.muted?', muted':'')+(state?', '+state:''),
    onPointerDown:ev=>pointerDown(ev,t,c),onPointerMove:pointerMove,onPointerUp:pointerUp,onPointerCancel:pointerUp,onContextMenu:ev=>clipMenu(ev,t,c),onFocus:()=>{setSel(c.id);setTrackSel(t.id)},
-   children:[u.jsx(ClipWave,{peaks:a?.peaks??null,inBeat:c.inBeat,len:L,mb,ppb,color}),u.jsx('span',{className:'nm',children:name+tag+(state?' · '+state:'')}),reps,
+   children:[u.jsx(ClipWave,{peaks:a?.peaks??null,inBeat:c.inBeat,len:L,mb,ppb,color,rev:!!c.reverse}),u.jsx('span',{className:'nm',children:name+tag+(state?' · '+state:'')}),reps,
     u.jsx('span',{className:'eg l','data-edge':'l','aria-hidden':'true'}),u.jsx('span',{className:'eg r','data-edge':'r','aria-hidden':'true'}),
     u.jsx('span',{className:'eg s l','data-edge':'sl','aria-hidden':'true'}),u.jsx('span',{className:'eg s r','data-edge':'sr','aria-hidden':'true'})]},c.id)};
  const tapeInfo=c=>{const e=libMap.get(c.materialId),a=e?audio.get(e.id):null;if(!a?.buffer)return a?.status==='error'?'Cannot decode: '+a.error:'';
@@ -69037,7 +69084,7 @@ function XenMultitrackRoom(){
  const TIP={Tempo:'Project tempo in BPM (20–400). Clips in tempo-fit or source-tempo mode follow it by playback rate only.',
   Length:'Clip length in beats. Longer than the material: the material loops.',In:'Offset into the material in beats (where the clip starts reading).',
   Gain:'Clip gain (0–2, 1 = unchanged).',Stretch:'Stretch (>1) or compress (<1) this clip. 1 = original. Same as dragging the lower half of a clip edge. Nothing is rewritten: reset brings the original back.',
-  'Pitch ct':'Granular pitch offset of this clip in cents (100 = one 12-EDO semitone, any value in between is fine). Independent of the speed.','Track pitch ct':'Granular pitch offset for every clip on this track, in cents.','Fade in':'Fade-in length in beats.','Fade out':'Fade-out length in beats.'};
+  'Pitch ct':'Granular pitch offset of this clip in cents (100 = one 12-EDO semitone, any value in between is fine). Independent of the speed.','Track pitch ct':'Granular pitch offset for every clip on this track, in cents.','Echo beats':'Echo time in beats (0 = off). Any value works: 0.5 = eighth, 0.75 = dotted eighth, 0.333 = triplet. It follows the project tempo.','Room s':'Length of the shared reverb room in seconds (one room for all tracks).','Fade in':'Fade-in length in beats.','Fade out':'Fade-out length in beats.'};
  return u.jsxs('div',{className:'xmt',ref:rootRef,tabIndex:-1,children:[
   u.jsx('div',{className:'sr','aria-live':'polite',role:'status',children:say}),
   u.jsx(Menu,{menu,close:()=>{setMenu(null);rootRef.current?.querySelector('[data-clip="'+sel+'"]')?.focus({preventScroll:true})}}),
@@ -69126,9 +69173,23 @@ function XenMultitrackRoom(){
    numIn('Stretch',selF.c.stretch>0?selF.c.stretch:1,.05,20,.01,v=>{if(v>0)setStretch(selF.c,v)},64),
    u.jsxs('label',{title:'Tape: speed and pitch move together (like a tape machine). Granular: the pitch stays where it is while the clip is stretched, compressed or fitted to the tempo; rendered in the background, the stored audio is never changed.',children:['Warp',u.jsxs('select',{value:selF.c.warp==='grain'?'grain':'tape','aria-label':'Warp mode',onChange:e=>updClip(selF.c.id,{warp:e.target.value==='grain'?'grain':undefined},e.target.value==='grain'?'Granular warp: pitch kept':'Tape warp'),children:[u.jsx('option',{value:'tape',children:'Tape'}),u.jsx('option',{value:'grain',children:'Granular (keep pitch)'})]})]}),
    numIn('Pitch ct',num(selF.c.pitch,0),-2400,2400,1,v=>updClip(selF.c.id,{pitch:Math.abs(v)<.5?undefined:clamp(v,-2400,2400)}),64),
-   u.jsx('button',{type:'button',disabled:!(selF.c.stretch||selF.c.warp||selF.c.pitch),onClick:()=>resetWarp(selF.c),title:'Back to the original: stretch 1, tape, pitch 0. The source audio was never changed.',children:'Reset warp'}),
+   u.jsx('button',{type:'button',disabled:!(selF.c.stretch||selF.c.warp||selF.c.pitch||selF.c.reverse),onClick:()=>resetWarp(selF.c),title:'Back to the original: stretch 1, tape, pitch 0, forwards. The source audio was never changed.',children:'Reset warp'}),
    u.jsx('span',{className:'muted','data-clip-warp-info':'true',children:[tapeInfo(selF.c),warpInfo(selF.c,selF.t)].filter(Boolean).join(' — ')}),
    u.jsx('button',{type:'button',onClick:()=>removeClip(selF.c.id),title:'Remove this clip (the material stays in the library) · Delete',children:'Remove clip'})]}):null,
+  /* ROOM4-09: effects of the selected track */
+  selT?(()=>{const f=fxOf(selT),sh=fxShape(f),set=patch=>updTrack(selT.id,{fx:sanitizeFx({...f,...patch})});
+   const sl=(label,title,value,min,max,stepv,on,show)=>u.jsxs('label',{title,children:[label,u.jsx('input',{type:'range',min,max,step:stepv,value,'aria-label':label+' of '+selT.name,style:{width:86},onChange:e=>on(num(e.target.value,value))}),u.jsx('span',{className:'muted',style:{minWidth:46},children:show})]});
+   const lcV=f.lowCut>0?Math.log(f.lowCut/20)/Math.log(100):0,hcV=Math.log(f.highCut/200)/Math.log(100);
+   return u.jsxs('div',{className:'bar row','data-xmt-fx':selT.id,children:[u.jsx('strong',{title:'Effects of the selected track, after its volume, pan and EQ. Playback and mixdown use the same chain.',children:'FX · '+selT.name}),
+    sl('Low cut','Removes everything below this frequency (off at the left end).',lcV,0,1,.005,v=>set({lowCut:v<=.004?0:Math.round(20*Math.pow(100,v))}),f.lowCut>0?f.lowCut+' Hz':'off'),
+    sl('High cut','Removes everything above this frequency (off at the right end).',hcV,0,1,.005,v=>set({highCut:v>=.996?20000:Math.round(200*Math.pow(100,v))}),f.highCut<20000?(f.highCut>=1000?(f.highCut/1000).toFixed(1)+' kHz':f.highCut+' Hz'):'off'),
+    sl('Drive','Soft saturation. More drive is denser and a little louder.',f.drive,0,1,.01,v=>set({drive:v}),f.drive>0?Math.round(f.drive*100)+'%':'off'),
+    numIn('Echo beats',f.echoBeats,0,16,.125,v=>set({echoBeats:Math.max(0,v)}),60),
+    sl('Feedback','How long the echo repeats.',f.echoFb,0,.92,.01,v=>set({echoFb:v}),Math.round(f.echoFb*100)+'%'),
+    sl('Echo mix','Level of the echo.',f.echoMix,0,1,.01,v=>set({echoMix:v}),Math.round(f.echoMix*100)+'%'),
+    sl('Reverb','Send into the shared room.',f.reverb,0,1,.01,v=>set({reverb:v}),f.reverb>0?Math.round(f.reverb*100)+'%':'off'),
+    numIn('Room s',num(project.master.reverbSize,2.2),.2,8,.1,v=>commit({...project,master:{...project.master,reverbSize:clamp(v,.2,8)}}),56),
+    u.jsx('button',{type:'button',disabled:!sh,onClick:()=>updTrack(selT.id,{fx:undefined},'Effects off on '+selT.name),title:'Remove all effects from this track',children:'FX off'})]})})():null,
   u.jsx('div',{className:'muted',style:{marginTop:6},children:'Drag clips anywhere (also onto another track; Alt = copy), drag clip edges to trim, double-click a lane to add the chosen material. Keys: Space play/stop · L loop · S split · Ctrl+D duplicate · Ctrl+C/V · M mute · ↑/↓ other track · Delete · Ctrl+Z undo.'})]});
 }
 return Object.freeze({XenMultitrackRoom});
