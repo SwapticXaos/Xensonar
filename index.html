@@ -10745,7 +10745,9 @@ function __xenConfirmLibraryDeletion(_legacyPrompt,entry,impact,options={}){
   if(impact?.savedProjectCount)places.push(impact.savedProjectCount+' gespeicherte'+(impact.savedProjectCount===1?'s Session-Projekt':' Session-Projekte'));
   if(impact?.draftReferenceCount||impact?.liveReferenceCount||impact?.workingReferenceCount)places.push('aktuelle Session');
   if(impact?.quickReferenceCount)places.push('Quick Access');
+  if(impact?.multitrackClipCount)places.push('Multitrack · '+impact.multitrackClipCount+(impact.multitrackClipCount===1?' Clip':' Clips'));
   makeParagraph(places.length?'Verwendet in: '+places.join(' · ')+'.':'Dieser Eintrag wird dauerhaft aus der Bibliothek entfernt.');
+  if(impact?.multitrackClipCount)makeParagraph('Multitrack-Clips behalten ihren Platz, haben danach aber kein Audio mehr; der Mixdown meldet sie dann.');
   makeParagraph('Zugehörige Session-Variationen werden ebenfalls entfernt. Andere, unabhängige Bibliothekseinträge bleiben erhalten.');
   if(options.trash&&entry.kind==='drum')makeParagraph('Drum-Patterns werden aus der sichtbaren Bibliothek ausgeblendet; Factory-Klangdaten werden nicht physisch gelöscht.');
   if(options.trash&&entry.kind==='rootFollow')makeParagraph('Root Follow wird aus der Bank entfernt; das zugrunde liegende Material bleibt erhalten.');
@@ -10782,6 +10784,16 @@ function __xenConfirmLibraryDeletion(_legacyPrompt,entry,impact,options={}){
 
 // Shared owner boundary: cancelled means no asset, cache, UI or selection changes.
 async function __xenDeleteLibraryEntry(entry,commit,ask){
+ /* ROOM4-05: Room IV (Multitrack) clips reference Materials by id. Deleting such a Material needs an explicit, informed
+    confirmation; the clips keep their place but lose their audio (the mixdown then reports them). Inspection failure never blocks. */
+ if(entry?.kind==='material'){
+  let used=null;try{used=await globalThis.__XenMultitrackInbox?.usage?.(entry.id)}catch{}
+  const n=(used?.clips||0)+(used?.inbox||0);
+  if(n>0){
+   /* always the visible dialog: a remembered 'do not ask again' must never skip this warning */const wrapped=(prompt,e,impact)=>__xenConfirmLibraryDeletion(prompt,e,{...impact,multitrackClipCount:n});
+   wrapped.alwaysConfirm=true;ask=wrapped;
+  }
+ }
  const result=await __XenSessionLibraryDeleteGuard.remove(entry,commit,ask);
  if(result.status==='deleted')return true;
  if(result.status==='cancelled')return false;
@@ -46512,7 +46524,11 @@ const __XenMultitrackInbox=(()=>{
  async function send({channels,sampleRate,name,origin='external',bpm=null}){
   if(!Array.isArray(channels)||!channels[0]?.length)throw Error('No audio to send.');
   const blob=await __xenRecorderFloatWav(channels[0],channels[1]||channels[0],sampleRate);return sendBlob({blob,name,origin,bpm})}
- const api=Object.freeze({db,add,take,count,send,sendBlob,detectTempo});
+  /* ROOM4-05: read-only usage of a Material in the arrangement (clips) and in the not yet placed inbox. Cold; used by the library delete guard. */
+ async function usage(materialId){return tx('readonly',(s,out)=>{const r={clips:0,inbox:0};let left=2;const done=()=>{if(--left===0)out(r)};
+  const a=s.get('current');a.onsuccess=()=>{const p=a.result;if(p&&Array.isArray(p.tracks))for(const t of p.tracks)for(const c of (t?.clips||[]))if(c?.materialId===materialId)r.clips++;done()};
+  const b=s.get(INBOX);b.onsuccess=()=>{if(Array.isArray(b.result))r.inbox=b.result.filter(x=>x?.materialId===materialId).length;done()}})}
+ const api=Object.freeze({db,add,take,count,send,sendBlob,detectTempo,usage});
  try{globalThis.__XenMultitrackInbox=api}catch{}
  return api;
 })();
@@ -67308,17 +67324,30 @@ class Engine{
 }
 const engine=new Engine();
 /* ---------- mixdown (cold, offline) ---------- */
+/* ROOM4-05: every audible clip inside the range must have decoded audio; otherwise the export would silently omit it. */
+function mixdownMissing(project,lib,fromBeat,toBeat){
+ const out=[],any=project.tracks.some(t=>t.solo);
+ for(const t of project.tracks){if(t.mute||(any&&!t.solo)||!(t.volume>0))continue;
+  for(const c of t.clips){if(c.muted||!(c.gain>0))continue;const e=lib.get(c.materialId),cs=c.startBeat,ce=cs+clipLen(c,lib,project.bpm);if(Math.min(ce,toBeat)<=Math.max(cs,fromBeat))continue;
+   const au=e?audio.get(e.id):null;if(!e||!au||au.status!=='ready')out.push({name:String(e?.name||c.materialId).slice(0,40),track:t.name,reason:e?(au?.error||au?.status||''):'material not found in the library'})}}
+ return out}
 async function mixdown(project,lib,fromBeat,toBeat,format){
  const used=new Set();for(const t of project.tracks)for(const c of t.clips)used.add(c.materialId);
  await Promise.all([...used].map(id=>requestAudio(lib.get(id))?.promise));
+ const missing=mixdownMissing(project,lib,fromBeat,toBeat);
+ if(missing.length)throw Error('Export stopped, nothing was written: '+missing.length+' clip'+(missing.length>1?'s have':' has')+' no usable audio ('+missing.slice(0,3).map(m=>m.name+' on '+m.track+(m.reason?': '+m.reason:'')).join('; ')+(missing.length>3?'; …':'')+'). Re-import the material or delete those clips.');
  const sr=48000,spb=60/project.bpm,dur=(toBeat-fromBeat)*spb,tail=.05,frames=Math.ceil((dur+tail)*sr);
  if(!(frames>0)||frames>sr*60*30)throw Error('Mixdown range must be between 0 and 30 minutes.');
  const Offline=globalThis.OfflineAudioContext||globalThis.webkitOfflineAudioContext;const ctx=new Offline(2,frames,sr);
  const master=ctx.createGain();master.gain.value=project.master.volume;master.connect(ctx.destination);const any=project.tracks.some(t=>t.solo);
- for(const t of project.tracks){const g=ctx.createGain(),pan=ctx.createStereoPanner();g.gain.value=(t.mute||(any&&!t.solo))?0:t.volume;pan.pan.value=t.pan;g.connect(pan);pan.connect(master);
+ /* ROOM4-05: same lane chain as live play (gain -> pan -> track EQ), so the export matches what is heard. */
+ const lanes=[];
+ for(const t of project.tracks){const g=ctx.createGain(),input=ctx.createGain();g.gain.value=(t.mute||(any&&!t.solo))?0:t.volume;
+  lanes.push(__xenMaterialLaneChain(ctx,{source:input,gain:g,panValue:t.pan,eqKey:__XenEQ.keyFor('arrangement',t.id),route:out=>out.connect(master)}));
   for(const c of t.clips){const e=lib.get(c.materialId),au=e?audio.get(e.id):null;if(!au||au.status!=='ready')continue;const cs=c.startBeat,ce=cs+clipLen(c,lib,project.bpm);
-   const pa=Math.max(cs,fromBeat),pb=Math.min(ce,toBeat);if(pb<=pa)continue;planVoice(ctx,g,c,e,au.buffer,pa,pb,(pa-fromBeat)*spb,(pb-fromBeat)*spb,spb,pa===cs,pb===ce)}}
- const out=await ctx.startRendering();const channels=[out.getChannelData(0),out.getChannelData(1)];let peak=0;for(const ch of channels)for(const v of ch){const a=v<0?-v:v;if(a>peak)peak=a}
+   const pa=Math.max(cs,fromBeat),pb=Math.min(ce,toBeat);if(pb<=pa)continue;planVoice(ctx,input,c,e,au.buffer,pa,pb,(pa-fromBeat)*spb,(pb-fromBeat)*spb,spb,pa===cs,pb===ce)}}
+ let out;try{out=await ctx.startRendering()}finally{for(const l of lanes){try{l.eq?.dispose?.()}catch{}}}
+ const channels=[out.getChannelData(0),out.getChannelData(1)];let peak=0;for(const ch of channels)for(const v of ch){const a=v<0?-v:v;if(a>peak)peak=a}
  const core=globalThis.__XenWaveCoreW01;if(!core?.encodeWav)throw Error('WAV encoder unavailable.');
  const bytes=core.encodeWav({channels,sampleRate:sr,frames:channels[0].length},{format,dither:format==='pcm16'});
  return {blob:new Blob([bytes],{type:'audio/wav'}),peak,seconds:dur}}

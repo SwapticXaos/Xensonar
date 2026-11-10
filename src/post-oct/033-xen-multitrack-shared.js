@@ -55,7 +55,11 @@ const __XenMultitrackInbox=(()=>{
  async function send({channels,sampleRate,name,origin='external',bpm=null}){
   if(!Array.isArray(channels)||!channels[0]?.length)throw Error('No audio to send.');
   const blob=await __xenRecorderFloatWav(channels[0],channels[1]||channels[0],sampleRate);return sendBlob({blob,name,origin,bpm})}
- const api=Object.freeze({db,add,take,count,send,sendBlob,detectTempo});
+  /* ROOM4-05: read-only usage of a Material in the arrangement (clips) and in the not yet placed inbox. Cold; used by the library delete guard. */
+ async function usage(materialId){return tx('readonly',(s,out)=>{const r={clips:0,inbox:0};let left=2;const done=()=>{if(--left===0)out(r)};
+  const a=s.get('current');a.onsuccess=()=>{const p=a.result;if(p&&Array.isArray(p.tracks))for(const t of p.tracks)for(const c of (t?.clips||[]))if(c?.materialId===materialId)r.clips++;done()};
+  const b=s.get(INBOX);b.onsuccess=()=>{if(Array.isArray(b.result))r.inbox=b.result.filter(x=>x?.materialId===materialId).length;done()}})}
+ const api=Object.freeze({db,add,take,count,send,sendBlob,detectTempo,usage});
  try{globalThis.__XenMultitrackInbox=api}catch{}
  return api;
 })();

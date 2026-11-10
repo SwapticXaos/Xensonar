@@ -36,3 +36,35 @@ test('loading an arrangement with >64 tracks / >1024 clips does not silently cut
   assert.strictEqual(out.tracks.length,100);
   assert.strictEqual(out.tracks[0].clips.length,3000);
 });
+
+test('ROOM4-05: mixdown refuses to silently omit audible clips without usable audio',()=>{
+  const fn=cut(mt,'function mixdownMissing(','async function mixdown(');
+  const make=audio=>new Function('audio','clipLen',fn+';return mixdownMissing')(audio,c=>c.lenBeats);
+  const ready={status:'ready'},audio=new Map([['a',ready],['b',{status:'error',error:'decode failed'}],['c',{status:'loading'}]]);
+  const lib=new Map([['a',{id:'a',name:'Good'}],['b',{id:'b',name:'Broken'}],['c',{id:'c',name:'Slow'}]]);
+  const clip=(m,o={})=>({materialId:m,startBeat:0,lenBeats:4,gain:1,...o});
+  const P=tracks=>({bpm:100,tracks});const T=(clips,o={})=>({name:'T',volume:.8,mute:false,solo:false,clips,...o});
+  const missing=make(audio);
+  assert.deepStrictEqual(missing(P([T([clip('a')])]),lib,0,8),[]);
+  assert.strictEqual(missing(P([T([clip('a'),clip('b'),clip('c'),clip('gone')])]),lib,0,8).length,3);
+  assert.strictEqual(missing(P([T([clip('b',{startBeat:20})])]),lib,0,8).length,0,'outside the range');
+  assert.strictEqual(missing(P([T([clip('b',{muted:true})]),T([clip('b')],{mute:true})]),lib,0,8).length,0,'silent clips/tracks never sound');
+  assert.match(missing(P([T([clip('b')])]),lib,0,8)[0].reason,/decode failed/);
+});
+
+test('ROOM4-05: deleting a Material used by Multitrack clips forces the visible confirmation with the clip count',async()=>{
+  const mix=fs.readFileSync(path.join(root,'src/mix/03_meta_menu__after_v2-session-store.js'),'utf8');
+  const body=cut(mix,'async function __xenDeleteLibraryEntry(','\nwindow.__XenM13BootStatus');
+  const run=async(usage,ask)=>{
+    const calls=[];const dialogs=[];
+    const g={__XenMultitrackInbox:{usage}};
+    const f=new Function('globalThis','__XenSessionLibraryDeleteGuard','__xenConfirmLibraryDeletion',body+';return __xenDeleteLibraryEntry');
+    const del=f(g,{remove:async(entry,commit,a)=>{calls.push(a);if(a)await a('p',entry,{savedProjectCount:0});return {status:'deleted'}}},async(p,e,i)=>{dialogs.push(i);return true});
+    const ok=await del({kind:'material',id:'m1'},()=>true,ask);return {ok,calls,dialogs};
+  };
+  let r=await run(async()=>({clips:3,inbox:1}));
+  assert.strictEqual(r.ok,true);assert.strictEqual(r.calls[0].alwaysConfirm,true);assert.strictEqual(r.dialogs[0].multitrackClipCount,4);
+  const marker=async()=>true;
+  r=await run(async()=>({clips:0,inbox:0}),marker);assert.strictEqual(r.calls[0],marker,'unused material: caller ask untouched');assert.strictEqual(r.dialogs.length,0);
+  r=await run(async()=>{throw Error('idb down')});assert.strictEqual(r.ok,true,'inspection failure never blocks deletion');
+});

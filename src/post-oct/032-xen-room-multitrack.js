@@ -124,17 +124,30 @@ class Engine{
 }
 const engine=new Engine();
 /* ---------- mixdown (cold, offline) ---------- */
+/* ROOM4-05: every audible clip inside the range must have decoded audio; otherwise the export would silently omit it. */
+function mixdownMissing(project,lib,fromBeat,toBeat){
+ const out=[],any=project.tracks.some(t=>t.solo);
+ for(const t of project.tracks){if(t.mute||(any&&!t.solo)||!(t.volume>0))continue;
+  for(const c of t.clips){if(c.muted||!(c.gain>0))continue;const e=lib.get(c.materialId),cs=c.startBeat,ce=cs+clipLen(c,lib,project.bpm);if(Math.min(ce,toBeat)<=Math.max(cs,fromBeat))continue;
+   const au=e?audio.get(e.id):null;if(!e||!au||au.status!=='ready')out.push({name:String(e?.name||c.materialId).slice(0,40),track:t.name,reason:e?(au?.error||au?.status||''):'material not found in the library'})}}
+ return out}
 async function mixdown(project,lib,fromBeat,toBeat,format){
  const used=new Set();for(const t of project.tracks)for(const c of t.clips)used.add(c.materialId);
  await Promise.all([...used].map(id=>requestAudio(lib.get(id))?.promise));
+ const missing=mixdownMissing(project,lib,fromBeat,toBeat);
+ if(missing.length)throw Error('Export stopped, nothing was written: '+missing.length+' clip'+(missing.length>1?'s have':' has')+' no usable audio ('+missing.slice(0,3).map(m=>m.name+' on '+m.track+(m.reason?': '+m.reason:'')).join('; ')+(missing.length>3?'; …':'')+'). Re-import the material or delete those clips.');
  const sr=48000,spb=60/project.bpm,dur=(toBeat-fromBeat)*spb,tail=.05,frames=Math.ceil((dur+tail)*sr);
  if(!(frames>0)||frames>sr*60*30)throw Error('Mixdown range must be between 0 and 30 minutes.');
  const Offline=globalThis.OfflineAudioContext||globalThis.webkitOfflineAudioContext;const ctx=new Offline(2,frames,sr);
  const master=ctx.createGain();master.gain.value=project.master.volume;master.connect(ctx.destination);const any=project.tracks.some(t=>t.solo);
- for(const t of project.tracks){const g=ctx.createGain(),pan=ctx.createStereoPanner();g.gain.value=(t.mute||(any&&!t.solo))?0:t.volume;pan.pan.value=t.pan;g.connect(pan);pan.connect(master);
+ /* ROOM4-05: same lane chain as live play (gain -> pan -> track EQ), so the export matches what is heard. */
+ const lanes=[];
+ for(const t of project.tracks){const g=ctx.createGain(),input=ctx.createGain();g.gain.value=(t.mute||(any&&!t.solo))?0:t.volume;
+  lanes.push(__xenMaterialLaneChain(ctx,{source:input,gain:g,panValue:t.pan,eqKey:__XenEQ.keyFor('arrangement',t.id),route:out=>out.connect(master)}));
   for(const c of t.clips){const e=lib.get(c.materialId),au=e?audio.get(e.id):null;if(!au||au.status!=='ready')continue;const cs=c.startBeat,ce=cs+clipLen(c,lib,project.bpm);
-   const pa=Math.max(cs,fromBeat),pb=Math.min(ce,toBeat);if(pb<=pa)continue;planVoice(ctx,g,c,e,au.buffer,pa,pb,(pa-fromBeat)*spb,(pb-fromBeat)*spb,spb,pa===cs,pb===ce)}}
- const out=await ctx.startRendering();const channels=[out.getChannelData(0),out.getChannelData(1)];let peak=0;for(const ch of channels)for(const v of ch){const a=v<0?-v:v;if(a>peak)peak=a}
+   const pa=Math.max(cs,fromBeat),pb=Math.min(ce,toBeat);if(pb<=pa)continue;planVoice(ctx,input,c,e,au.buffer,pa,pb,(pa-fromBeat)*spb,(pb-fromBeat)*spb,spb,pa===cs,pb===ce)}}
+ let out;try{out=await ctx.startRendering()}finally{for(const l of lanes){try{l.eq?.dispose?.()}catch{}}}
+ const channels=[out.getChannelData(0),out.getChannelData(1)];let peak=0;for(const ch of channels)for(const v of ch){const a=v<0?-v:v;if(a>peak)peak=a}
  const core=globalThis.__XenWaveCoreW01;if(!core?.encodeWav)throw Error('WAV encoder unavailable.');
  const bytes=core.encodeWav({channels,sampleRate:sr,frames:channels[0].length},{format,dither:format==='pcm16'});
  return {blob:new Blob([bytes],{type:'audio/wav'}),peak,seconds:dur}}
