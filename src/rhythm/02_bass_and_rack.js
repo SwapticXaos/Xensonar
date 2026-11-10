@@ -731,7 +731,7 @@ P.useEffect(()=>{if(typeof window>"u")return;const ee=()=>s(Yl()),ie=()=>{ee();_
  const [,__setBassPresetOrderRevision]=P.useState(0);
  P.useEffect(()=>{const onOrder=()=>__setBassPresetOrderRevision(n=>n+1);window.addEventListener('xensonar:bass-preset-order-changed',onOrder);return()=>window.removeEventListener('xensonar:bass-preset-order-changed',onOrder)},[]);
  const i=__xenBassPresetCanonicalOrder(__bassPatterns);
- const c=Lce({nParamsUI:e,updateNParams:t,exportedDrumConfigs:r,drumPatterns:a,bassPatterns:i});__useSessionRhythmAuditions({params:e,drumEntries:c.drumPlaylistEntries,exportedDrums:r,bassPatterns:i,bassContext:s});
+ const c=Lce({nParamsUI:e,updateNParams:t,exportedDrumConfigs:r,drumPatterns:a,bassPatterns:i});__useSessionRhythmAuditions({params:e,drumEntries:c.drumPlaylistEntries,exportedDrums:r,bassPatterns:i,bassContext:s,bassClips:c.bassClipEntries});
 /* M2b: Meta Edit selects a VERIFIED source, never the nearest surviving preset.
    This opens the existing LIVE Bass editor; no Meta draft/library writer is called. */
 const [__bassFocus,__setBassFocus]=P.useState(null),__bassFocusNonce=P.useRef(0),__bassFocusContext=P.useRef(null);

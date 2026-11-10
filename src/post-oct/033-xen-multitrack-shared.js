@@ -40,21 +40,21 @@ const __XenMultitrackInbox=(()=>{
  async function decode(blob){const Offline=globalThis.OfflineAudioContext||globalThis.webkitOfflineAudioContext;const ctx=new Offline(1,1,48000);return ctx.decodeAudioData((await blob.arrayBuffer()).slice(0))}
  function monoOf(buffer){const n=buffer.length,c=buffer.numberOfChannels,out=new Float32Array(n);for(let ch=0;ch<c;ch++){const d=buffer.getChannelData(ch);for(let i=0;i<n;i++)out[i]+=d[i]/c}return out}
  /* blob: the audio as it should be kept (never re-encoded). bpm: known source tempo (wins over detection). */
- async function sendBlob({blob,name,origin='external',bpm=null,enqueue=true}){
+ async function sendBlob({blob,name,origin='external',bpm=null,enqueue=true,startBeat=0,bars=null}){
   if(!(blob instanceof Blob)||!blob.size)throw Error('No audio to send.');
   const buffer=await decode(blob),dur=buffer.duration;if(!(dur>.02))throw Error('Audio is too short.');
   const det=enqueue?detectTempo(monoOf(buffer),buffer.sampleRate):{bpm:null,confidence:0,offsetSec:0},known=Number(bpm)>0?Number(bpm):null,useDet=!known&&det.bpm&&det.confidence>=.2;
   const sourceBpm=known??(useDet?det.bpm:null),pkgBpm=sourceBpm??108,clean=String(name||'Audio').replace(/\.[a-z0-9]{2,5}$/i,'').slice(0,80)||'Audio';
   const pkg={schemaVersion:qT,id:'mt-'+uid(),name:clean,role:'loop',audio:{kind:'audio',mimeType:blob.type||'audio/wav',blob,durationSec:dur,channels:buffer.numberOfChannels,sampleRate:buffer.sampleRate},
-   timing:{bpm:pkgBpm,bars:Math.max(.25,Math.round(dur*pkgBpm/240*100)/100),beatsPerBar:4,loopStartSec:0,loopEndSec:dur,intendedLoopDurationSec:dur},
+   timing:{bpm:pkgBpm,bars:Number(bars)>0?Number(bars):Math.max(.25,Math.round(dur*pkgBpm/240*100)/100),beatsPerBar:4,loopStartSec:0,loopEndSec:dur,intendedLoopDurationSec:dur},
    renderInfo:{sourceVersion:'Send to Multitrack',renderMode:'raw-pcm',workspaceOrigin:origin},provenance:{createdAt:new Date().toISOString()}};
   const entry=await __registerDurableMaterial(pkg,{selectOnRegister:false});
-  if(enqueue)await add({materialId:entry.id,name:clean,origin,sourceBpm,tempoSource:known?'known':useDet?'detected':'none',tempoConfidence:det.confidence,offsetSec:useDet?det.offsetSec:0});
+  if(enqueue)await add({materialId:entry.id,name:clean,origin,sourceBpm,tempoSource:known?'known':useDet?'detected':'none',tempoConfidence:det.confidence,offsetSec:useDet?det.offsetSec:0,startBeat:Number(startBeat)>0?Number(startBeat):0,...(Number(bars)>0?{fit:'tempo'}:{})});/* bars known exactly (rhythm patterns): bar-bound fit, so the clip sits on the grid to the sample */
   return {entry,sourceBpm,detected:det}}
  /* PCM channels (e.g. the Wave Editor document): stored as Float32 WAV, bit-exact. */
- async function send({channels,sampleRate,name,origin='external',bpm=null}){
+ async function send({channels,sampleRate,name,origin='external',bpm=null,startBeat=0,bars=null}){
   if(!Array.isArray(channels)||!channels[0]?.length)throw Error('No audio to send.');
-  const blob=await __xenRecorderFloatWav(channels[0],channels[1]||channels[0],sampleRate);return sendBlob({blob,name,origin,bpm})}
+  const blob=await __xenRecorderFloatWav(channels[0],channels[1]||channels[0],sampleRate);return sendBlob({blob,name,origin,bpm,startBeat,bars})}
   /* ROOM4-05: read-only usage of a Material in the arrangement (clips) and in the not yet placed inbox. Cold; used by the library delete guard. */
  async function usage(materialId){return tx('readonly',(s,out)=>{const r={clips:0,inbox:0};let left=2;const done=()=>{if(--left===0)out(r)};
   const a=s.get('current');a.onsuccess=()=>{const p=a.result;if(p&&Array.isArray(p.tracks))for(const t of p.tracks)for(const c of (t?.clips||[]))if(c?.materialId===materialId)r.clips++;done()};
@@ -71,7 +71,7 @@ const __XenMultitrackRoundTrip=(()=>{
  'use strict';
  let active=null,receipt=null,lastError='';
  const uuid=()=>globalThis.crypto?.randomUUID?.()??'rt-'+Date.now()+'-'+Math.random().toString(36).slice(2);
- const clipIdentity=c=>JSON.stringify(['materialId','startBeat','inBeat','lenBeats','repeats','fit','sourceBpm','gain','fadeIn','fadeOut','muted'].map(k=>c?.[k]??null));
+ const clipIdentity=c=>JSON.stringify(['materialId','startBeat','inBeat','lenBeats','repeats','fit','sourceBpm','gain','fadeIn','fadeOut','muted','stretch','warp','pitch'].map(k=>c?.[k]??null));
  const emit=()=>window.dispatchEvent(new CustomEvent('xensonar:multitrack:roundtrip-state',{detail:status()}));
  const status=()=>Object.freeze({active:!!active,phase:active?.phase??'idle',clipId:active?.clipId??null,trackId:active?.trackId??null,label:active?.label??'',error:lastError});
  const navigate=room=>window.dispatchEvent(new CustomEvent('xensonar:multitrack:roundtrip-navigate',{detail:{room}}));
@@ -124,7 +124,7 @@ const __XenMultitrackRoundTrip=(()=>{
      before=project;
      const beats=doc.frames/doc.sampleRate*project.bpm/60;
      const replacement={...clip,materialId:result.entry.id,inBeat:0,fit:'bpm',sourceBpm:project.bpm,lenBeats:Math.max(1/64,beats)};
-     delete replacement.repeats;
+     delete replacement.repeats;delete replacement.stretch;delete replacement.warp;delete replacement.pitch;// ROOM4-07: the edited audio has the clip's warp baked in
      after={...project,updatedAt:Date.now(),tracks:project.tracks.map(t=>t.id!==current.trackId?t:{...t,clips:t.clips.map(c=>c.id!==current.clipId?c:replacement)})};
      store.put(after,'current');
     }catch(error){try{tx.abort()}catch{};reject(error)}};

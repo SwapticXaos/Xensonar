@@ -99,6 +99,35 @@ test('ROOM4-05: looping for hours does not accumulate planned-voice keys; leavin
   assert(e.segs.length<8);
   const fn=cut(mt,'function releaseDecoded(','function regionOf(');
   const audio=new Map([['a',{status:'ready'}],['b',{status:'error'}],['c',{status:'loading'}]]);
-  new Function('audio',fn+';releaseDecoded()')(audio);
-  assert.deepStrictEqual([...audio.keys()],['c']);
+  const variants=new Map([['v1',{status:'ready'}],['v2',{status:'loading'}]]);
+  new Function('audio','variants',fn+';releaseDecoded()')(audio,variants);
+  assert.deepStrictEqual([...audio.keys()],['c']);assert.deepStrictEqual([...variants.keys()],['v2']);
+});
+
+test('ROOM4-07: warp is additive data (old projects unchanged) and the variant plan matches the mode',()=>{
+  const src=cut(mt,'const DB=','/* ---------- persistence');
+  const sanitize=new Function(src.replace(/^const DB=[^\n]*\n/,"const KEY='current',FORMAT='xensonar.multitrack',VERSION=2;\n")+';return sanitize')();
+  const raw={format:'xensonar.multitrack',tracks:[{id:'t',clips:[{id:'a',materialId:'m',startBeat:0,lenBeats:4},{id:'b',materialId:'m',startBeat:4,lenBeats:6,stretch:1.5,warp:'grain',pitch:-350},{id:'c',materialId:'m',startBeat:9,lenBeats:1,stretch:999,warp:'x',pitch:0.2}]},{id:'u',pitch:700,clips:[]}]};
+  const out=sanitize(raw,108),[a,b,c]=out.tracks[0].clips;
+  assert.deepStrictEqual([a.stretch,a.warp,a.pitch],[undefined,undefined,undefined],'a clip without warp gains no fields');
+  assert.deepStrictEqual([b.stretch,b.warp,b.pitch],[1.5,'grain',-350]);
+  assert.deepStrictEqual([c.stretch,c.warp,c.pitch],[20,undefined,undefined],'clamped / dropped');
+  assert.strictEqual(out.tracks[0].pitch,0);assert.strictEqual(out.tracks[1].pitch,700);
+
+  const lib=cut(mt,'function matBeats(','function clipLen(');
+  const plan=new Function('clamp','num','regionOf',lib+cut(mt,'const variants=new Map()','function requestVariant(')+';return {variantPlan,cycleBeats}')(
+    (v,lo,hi)=>Math.max(lo,Math.min(hi,v)),(v,d)=>Number.isFinite(Number(v))?Number(v):d,(e,b)=>({a:0,b:b.duration,len:b.duration}));
+  const entry={id:'m',durationSec:4},buffer={duration:4,sampleRate:48000,length:192000,numberOfChannels:2},t={pitch:0};
+  const nat=o=>({fit:'natural',...o});
+  assert.strictEqual(plan.cycleBeats(entry,nat({stretch:2}),120),16,'4 s at 120 BPM = 8 beats, stretched ×2 = 16');
+  assert.strictEqual(plan.variantPlan(nat({}),t,entry,buffer,120),null,'untouched clip: no variant');
+  assert.strictEqual(plan.variantPlan(nat({stretch:2}),t,entry,buffer,120),null,'tape stretch: no variant (playback rate only)');
+  const g2=plan.variantPlan(nat({stretch:2,warp:'grain'}),t,entry,buffer,120);
+  assert(Math.abs(g2.up-2)<1e-9&&Math.abs(g2.shift-2)<1e-9&&g2.out===384000,'stretch x2 granular: lengthen x2, then shift x2');
+  const gh=plan.variantPlan(nat({stretch:.5,warp:'grain'}),t,entry,buffer,120);
+  assert(Math.abs(gh.up-1)<1e-9&&Math.abs(gh.shift-.5)<1e-9&&gh.out===192000,'compress x0.5 granular: shift x0.5 at equal length, played twice as fast');
+  const pt=plan.variantPlan(nat({pitch:1200}),t,entry,buffer,120);assert(Math.abs(pt.shift-2)<1e-9&&pt.up===1,'pitch only');
+  const tr=plan.variantPlan(nat({}),{pitch:-1200},entry,buffer,120);assert(Math.abs(tr.shift-.5)<1e-9,'track pitch applies to its clips');
+  assert.match(plan.variantPlan(nat({stretch:8,warp:'grain'}),t,entry,buffer,120).error,/granular range/);
+  assert.match(plan.variantPlan(nat({stretch:3,warp:'grain'}),t,{id:'m',durationSec:20},{duration:20,sampleRate:48000,length:960000,numberOfChannels:2},120).error,/too long/);
 });
