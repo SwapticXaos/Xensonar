@@ -20,7 +20,7 @@ const proj=p=>p.evaluate(()=>new Promise(r=>{const q=indexedDB.open('xensonar-mu
   out.A.checked=await panel.locator('[data-xen-package-category] input:checked').count();
   await p.getByRole('button',{name:'Prepare Workspace Package',exact:true}).click();const save=p.getByRole('link',{name:'Save Now',exact:true});await save.waitFor({timeout:60000}).catch(async e=>{out.A.stuck=await p.evaluate(()=>document.body.innerText.split('\n').filter(l=>/Paket|package|Package|Fehler|error|Vorbereit|Prepar|sicher|abgebrochen/i.test(l)).slice(0,12));console.log(JSON.stringify(out,null,1));process.exit(2)});
   const [dl]=await Promise.all([p.waitForEvent('download'),save.click()]);await dl.saveAs(pkg);out.A.pkgBytes=fs.statSync(pkg).size;out.A.errors=errors}
- {const cx2=await b.newContext({viewport:{width:1600,height:1000}});await cx2.addInitScript(()=>{window.showSaveFilePicker=undefined});const p=await cx2.newPage();const errors=[];p.on('pageerror',e=>errors.push(String(e).slice(0,200)));
+ {const cx2=await b.newContext({viewport:{width:1600,height:1000}});await cx2.addInitScript(()=>{window.showSaveFilePicker=undefined});const p=await cx2.newPage();const errors=[];const dialogs=[];p.on('dialog',d=>{dialogs.push(d.message().slice(0,160));d.accept()});out.dialogs=dialogs;p.on('pageerror',e=>errors.push(String(e).slice(0,200)));
   await p.goto(target);await p.waitForTimeout(6000);
   out.B={before:await p.evaluate(async()=>(await indexedDB.databases()).map(d=>d.name).filter(n=>/multitrack/.test(n)))};
   await p.getByRole('button',{name:'Open Package Station',exact:true}).click();await p.locator('input[type=file][multiple]').setInputFiles(pkg);
