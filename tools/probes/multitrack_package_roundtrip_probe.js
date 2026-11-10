@@ -8,7 +8,7 @@ const pkg=path.join(os.tmpdir(),'xen_multitrack_only.xenpack');
 const goMT=async p=>{await p.evaluate(()=>{const n=x=>(x||'').replace(/\s+/g,' ').trim();[...document.querySelectorAll('button')].find(b=>b.offsetParent&&n(b.innerText).endsWith('MULTITRACK'))?.click()});await p.waitForTimeout(3000)};
 const proj=p=>p.evaluate(()=>new Promise(r=>{const q=indexedDB.open('xensonar-multitrack-v1');q.onsuccess=()=>{const g=q.result.transaction('projects').objectStore('projects').get('current');g.onsuccess=()=>r(g.result)}}));
 (async()=>{const b=await chromium.launch();const out={};
- {const p=await (await b.newContext({viewport:{width:1600,height:1000},acceptDownloads:true})).newPage();const errors=[];p.on('pageerror',e=>errors.push(String(e).slice(0,200)));
+ {const cx=await b.newContext({viewport:{width:1600,height:1000},acceptDownloads:true});await cx.addInitScript(()=>{window.showSaveFilePicker=undefined});const p=await cx.newPage();const errors=[];p.on('pageerror',e=>errors.push(String(e).slice(0,200)));
   await p.goto(target);await p.waitForTimeout(6000);await goMT(p);
   await p.setInputFiles('.xmt input[type=file]',f);for(let i=0;i<40&&!(await p.$('.xmt .clip'));i++)await p.waitForTimeout(250);await p.waitForTimeout(1500);
   await p.locator('.xmt .clip').first().click();await p.keyboard.press('Control+d');await p.waitForTimeout(1500);
@@ -18,14 +18,14 @@ const proj=p=>p.evaluate(()=>new Promise(r=>{const q=indexedDB.open('xensonar-mu
   await panel.getByRole('button',{name:'Alle Rubriken abwählen',exact:true}).click();
   await panel.getByRole('checkbox',{name:'Multitrack-Arrangement',exact:true}).check();
   out.A.checked=await panel.locator('[data-xen-package-category] input:checked').count();
-  await p.getByRole('button',{name:'Prepare Workspace Package',exact:true}).click();const save=p.getByRole('link',{name:'Save Now',exact:true});await save.waitFor({timeout:180000});
+  await p.getByRole('button',{name:'Prepare Workspace Package',exact:true}).click();const save=p.getByRole('link',{name:'Save Now',exact:true});await save.waitFor({timeout:60000}).catch(async e=>{out.A.stuck=await p.evaluate(()=>document.body.innerText.split('\n').filter(l=>/Paket|package|Package|Fehler|error|Vorbereit|Prepar|sicher|abgebrochen/i.test(l)).slice(0,12));console.log(JSON.stringify(out,null,1));process.exit(2)});
   const [dl]=await Promise.all([p.waitForEvent('download'),save.click()]);await dl.saveAs(pkg);out.A.pkgBytes=fs.statSync(pkg).size;out.A.errors=errors}
- {const p=await (await b.newContext({viewport:{width:1600,height:1000}})).newPage();const errors=[];p.on('pageerror',e=>errors.push(String(e).slice(0,200)));
+ {const cx2=await b.newContext({viewport:{width:1600,height:1000}});await cx2.addInitScript(()=>{window.showSaveFilePicker=undefined});const p=await cx2.newPage();const errors=[];p.on('pageerror',e=>errors.push(String(e).slice(0,200)));
   await p.goto(target);await p.waitForTimeout(6000);
   out.B={before:await p.evaluate(async()=>(await indexedDB.databases()).map(d=>d.name).filter(n=>/multitrack/.test(n)))};
   await p.getByRole('button',{name:'Open Package Station',exact:true}).click();await p.locator('input[type=file][multiple]').setInputFiles(pkg);
-  await p.waitForFunction(()=>indexedDB.databases().then(d=>d.some(x=>x.name==='xensonar-multitrack-v1')),{},{timeout:120000}).catch(()=>{});await p.waitForTimeout(4000);
-  const msg=await p.evaluate(()=>document.body.innerText.match(/(Workspace package[^\n]*|Paket[^\n]*|import[^\n]*)/i)?.[0]||null);out.B.message=msg;
+  for(let i=0;i<30;i++){await p.waitForTimeout(2000);const n=await p.evaluate(async()=>(await indexedDB.databases()).map(d=>d.name));if(n.includes('xensonar-multitrack-v1')){out.B.foundAfterS=(i+1)*2;break}out.B.names=n}
+const msg=await p.evaluate(()=>document.body.innerText.match(/(Workspace package[^\n]*|Paket[^\n]*|import[^\n]*)/i)?.[0]||null);out.B.message=msg;out.B.diag=await p.evaluate(()=>{const d=window.__XenPackageStation4?.diagnostics();return d?{stats:d.stats,events:d.events.slice(-6)}:null});out.B.text=await p.evaluate(()=>document.body.innerText.split('\n').map(l=>l.trim()).filter(l=>l&&l.length<200).slice(0,60));
   out.B.dbs=await p.evaluate(async()=>(await indexedDB.databases()).map(d=>d.name).filter(n=>/multitrack|material/.test(n)));
   await p.reload();await p.waitForTimeout(6000);await goMT(p);for(let i=0;i<40&&!(await p.$('.xmt .clip'));i++)await p.waitForTimeout(250);await p.waitForTimeout(2500);
   const r=await proj(p);out.B.clips=r?r.tracks.flatMap(t=>t.clips).length:null;out.B.bpm=r?.bpm;out.B.sameMaterialId=r?.tracks[0]?.clips[0]?.materialId===out.A.material;
