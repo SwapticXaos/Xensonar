@@ -36,7 +36,7 @@ const __XenStampFigureAudition=(()=>{
    synthMode:state.synthMode,waveformMix:{...state.waveformMix},
    carrierIntegralSelection:state.carrierIntegralSelection,carrierIntegralSynthLab:state.carrierIntegralSynthLab,
    carrierIntegralHarmonicXplore:state.carrierIntegralHarmonicXplore,
-   emiliaInstrument:__Emilia.snapshot(),fractaliaInstrument:__Fractalia.snapshot()};
+   emiliaInstrument:__Emilia.snapshot(),fractaliaInstrument:__Fractalia.snapshot(),forgeVoices:__ForgeVoices.snapshot()};
   const request=OB({projectName:preset.name,snapshot,machineId:state.carrierIntegralSelection.machineId,
    valueSource:'right-override',selection:state.carrierIntegralSelection,synthLab:state.carrierIntegralSynthLab,
    harmonicXplore:state.carrierIntegralHarmonicXplore,previewBpm:state.materialExport.bpm,

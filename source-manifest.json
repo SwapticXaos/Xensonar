@@ -154,6 +154,8 @@
     "src/forge/fractalia/13_spectral_view.js",
     "src/forge/fractalia/14_live_transfer.js",
     "src/forge/fractalia/03_instrument.js",
+    "src/forge/voices/00_spec.js",
+    "src/forge/voices/02_owner.js",
     "src/forge/editor/09_workflow_controls.js",
     "src/forge/dsp/08_pure_dieter_worker.js",
     "src/forge/emilia/02_lab_ui.js",
@@ -913,6 +915,9 @@
     "src/rooms/00_idle_wave_donor_p33.js",
     "src/rooms/00_forge_rack_presentation.js",
     "src/rooms/00_empty_audio_p32.js",
+    "src/forge/voices/01_dsp.js",
+    "src/forge/voices/03_runtime.js",
+    "src/forge/voices/04_lab_ui.js",
     "src/rooms/lab.js"
    ]
   },

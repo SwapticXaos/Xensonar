@@ -4,7 +4,7 @@ const __ForgeListeningMode=(()=>{
  const listeners=new Set();let error='';
  const emit=()=>{for(const fn of listeners)fn()};
  const value=()=>{const machine=pe.getState().carrierIntegralSelection.machineId,donor=Vt.getSnapshot().selected;
-  return __F35611DonorIntent||donor&&!['emilia-nodal-carrier','fractalia-self-carrier'].includes(machine)?'donor':LGe.find(x=>x.machineId===machine)?.id||'pure-dieter'};
+  return __F35611DonorIntent||donor&&!__forgeSelfMachine(machine)?'donor':LGe.find(x=>x.machineId===machine)?.id||'pure-dieter'};
  function choose(id,{prepare=true}={}){error='';__f333Stop();pe.setState(__f333Idle());
   if(id==='donor'){__F35611DonorIntent=true;emit();if(prepare)void __f3562EnsureDonor().catch(e=>{if(value()==='donor'){error=e.message;emit()}})}
   else{const option=LGe.find(x=>x.id===id);if(!option)return;__F35611DonorIntent=false;Vt.selectCarrier();const s=pe.getState();if(option.harmonicXploreProfileId)s.setCarrierIntegralHarmonicXplore({profileId:option.harmonicXploreProfileId,source:'user'});s.setCarrierIntegralSelection({machineId:option.machineId,source:'user'});
@@ -16,7 +16,7 @@ const __ForgeListeningMode=(()=>{
  return {value,choose,subscribe,error:()=>error};
 })();
 function __useForgeListeningMode(){const value=P.useSyncExternalStore(__ForgeListeningMode.subscribe,__ForgeListeningMode.value,__ForgeListeningMode.value),error=P.useSyncExternalStore(__ForgeListeningMode.subscribe,__ForgeListeningMode.error,__ForgeListeningMode.error);return{value,error,choose:__ForgeListeningMode.choose,label:value==='donor'?'Donor':LGe.find(x=>x.id===value)?.label||'Pure Dieter'}}
-function __ForgeListeningPicker({label='Listening mode',compact=false}){const choice=__useForgeListeningMode();return P.createElement('select',{'aria-label':label,'data-forge-shared-listening-picker':true,value:choice.value,onChange:e=>choice.choose(e.target.value),className:'min-w-0 w-full rounded border border-fuchsia-700/60 bg-neutral-900 px-2 py-2 text-xs text-neutral-100',style:compact?{maxWidth:210}:undefined},...LGe.filter(x=>!['emilia','fractalia'].includes(x.id)).map(x=>P.createElement('option',{key:x.id,value:x.id},x.label)),P.createElement('option',{value:'donor'},'Donor'),...LGe.filter(x=>['emilia','fractalia'].includes(x.id)).map(x=>P.createElement('option',{key:x.id,value:x.id},x.label)))}
+function __ForgeListeningPicker({label='Listening mode',compact=false}){const choice=__useForgeListeningMode();return P.createElement('select',{'aria-label':label,'data-forge-shared-listening-picker':true,value:choice.value,onChange:e=>choice.choose(e.target.value),className:'min-w-0 w-full rounded border border-fuchsia-700/60 bg-neutral-900 px-2 py-2 text-xs text-neutral-100',style:compact?{maxWidth:210}:undefined},...LGe.filter(x=>!__forgeSelfMachine(x.machineId)).map(x=>P.createElement('option',{key:x.id,value:x.id},x.label)),P.createElement('option',{value:'donor'},'Donor'),...LGe.filter(x=>__forgeSelfMachine(x.machineId)).map(x=>P.createElement('option',{key:x.id,value:x.id},x.label)))}
 const __ForgeTransportAccess=(()=>{
  let owner=null,state=Object.freeze({phase:'idle',progress:0,available:false,ready:false});const listeners=new Set();
  const emit=()=>{for(const fn of listeners)fn()};

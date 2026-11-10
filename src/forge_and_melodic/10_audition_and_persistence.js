@@ -82,6 +82,7 @@ function __f333HearingCacheKey(request,context){
     fractaliaDonor:request.machineId==='fractalia-self-carrier'&&(request.snapshot.fractaliaInstrument??__Fractalia.snapshot()).donor?fractaliaDonorSnapshot().key:null,
     fractalia:request.machineId==='fractalia-self-carrier'?__Fractalia.semanticKey(request.snapshot.fractaliaInstrument??__Fractalia.snapshot()):null,
     emilia:request.machineId==='emilia-nodal-carrier'?__Emilia.semanticKey(request.snapshot.emiliaInstrument??__Emilia.snapshot()):null,
+    ...(__ForgeVoices.is(request.machineId)?{forgeVoice:__ForgeVoices.semanticKey(request.machineId,request.snapshot.forgeVoices)}:null),
     duration:context.durationSec,pitch:context.previewPitchRatio,sampleRate:xt.getContext().sampleRate});
  }
 // These are the same sound inputs as the full cache key. Store fields and
@@ -96,7 +97,7 @@ function __f333ReadyInputs(state,route){
   state.materialExport.bars,state.materialExport.bpm,state.materialExport.beatsPerBar,
   __f3565PitchSemis(),xt.getContext().sampleRate,fractalia,
   fractalia?.donor?fractaliaDonorSnapshot().key:null,
-  machine==='emilia-nodal-carrier'?__Emilia.snapshot():null,__f333CacheReadyRevision];
+  machine==='emilia-nodal-carrier'?__Emilia.snapshot():null,__ForgeVoices.is(machine)?__ForgeVoices.snapshot():null,__f333CacheReadyRevision];
 }
 function __f333CachedPreviewReady(state){
  const route=__f333Route(state);
@@ -240,6 +241,9 @@ async function __f333SynthesizeHearing(request,context,{check=()=>{},signal,prep
   } else if(request.machineId==='emilia-nodal-carrier') {
     buffer=await __Emilia.renderCarrier({grid,durationSec:duration,previewPitchRatio:context.previewPitchRatio,
       instrument:request.snapshot.emiliaInstrument,onProgress:request.onRenderProgress,signal});
+  } else if(__ForgeVoices.is(request.machineId)) {
+    buffer=await __ForgeVoices.renderCarrier({machineId:request.machineId,grid,durationSec:duration,previewPitchRatio:context.previewPitchRatio,
+      instrument:request.snapshot.forgeVoices,onProgress:request.onRenderProgress,signal});
   } else if(branch) {
     const carrier=DR({request,context,spectralData:grid}).rootFollowBuild;
     if(!carrier.summary.eligible) throw new Error(carrier.summary.reason||"The figure is empty.");
@@ -274,6 +278,8 @@ async function __f333RenderHearing(request) {
     request={...request,snapshot:{...request.snapshot,fractaliaInstrument:__Fractalia.snapshot()}};
   if(machine==='emilia-nodal-carrier'&&!request.snapshot.emiliaInstrument)
     request={...request,snapshot:{...request.snapshot,emiliaInstrument:__Emilia.snapshot()}};
+  if(__ForgeVoices.is(machine)&&!request.snapshot.forgeVoices)
+    request={...request,snapshot:{...request.snapshot,forgeVoices:__ForgeVoices.snapshot()}};
   // A Fractalia material recipe uses the selected purple mask as its Donor.
   // Prepare it before constructing the exact PCM cache key, not after a cache lookup.
   if(machine==='fractalia-self-carrier'&&request.snapshot.fractaliaInstrument.donor)
@@ -428,7 +434,7 @@ function __f333Route(state) {
     return __f352Enabled()?'hybrid':'donor';
   }
   // When no explicit choice exists, stored machine choices retain their earlier semantics.
-  if(['emilia-nodal-carrier','fractalia-self-carrier'].includes(state.carrierIntegralSelection?.machineId))return 'hearing';
+  if(__forgeSelfMachine(state.carrierIntegralSelection?.machineId))return 'hearing';
   if(Vt.getSnapshot().selected&&__f352Enabled()) return 'hybrid';
   if(Vt.getSnapshot().selected) return 'donor';
   if(state.sourceAsset&&state.sourcePreviewMode!=='forge') return 'reference';
@@ -482,7 +488,7 @@ async function __f333PlayCurrent(state,options={}) {
   // Transport Play and "Listen to Figure with Donor" share the exact same lazy
   // mask resolution. Never require the user to press "Extract Timbre" first.
   const requestedEpoch=__f333Epoch;
-  if(__F35611DonorIntent||(!['emilia-nodal-carrier','fractalia-self-carrier'].includes(state.carrierIntegralSelection?.machineId)&&Vt.getSnapshot().selected)){
+  if(__F35611DonorIntent||(!__forgeSelfMachine(state.carrierIntegralSelection?.machineId)&&Vt.getSnapshot().selected)){
     await __f3562EnsureDonor();
     if(__f333Epoch!==requestedEpoch)return false; // Stop/cancel during analysis
     if(!Vt.selectDonor())throw Error("The selected donor mask could not be prepared.");
@@ -565,7 +571,7 @@ async function __f333SendToEditor(){
  try{
   let state=pe.getState();
   // Match Play's donor preflight, including an already selected library donor.
-  if(__F35611DonorIntent||(!['emilia-nodal-carrier','fractalia-self-carrier'].includes(state.carrierIntegralSelection?.machineId)&&Vt.getSnapshot().selected)){
+  if(__F35611DonorIntent||(!__forgeSelfMachine(state.carrierIntegralSelection?.machineId)&&Vt.getSnapshot().selected)){
    const before=__f333Epoch,asset=state.sourceAsset;
    await __f3562EnsureDonor();
    if(before!==__f333Epoch||pe.getState().sourceAsset!==asset)throw new DOMException('Sound changed during donor preparation.','AbortError');
@@ -640,8 +646,12 @@ async function __f333ExportCurrent(state,options={}) {
   const epoch=__f333Epoch,revision=state.renderVersion,masterRevision=__F3564Master.getSnapshot().revision,hybridIdentity=__f333Route(state)==='hybrid'?__F352Runtime.identity(state):null;
   const result=await __f333RenderCurrent(state,options);
   if(epoch!==__f333Epoch||pe.getState().renderVersion!==revision||__F3564Master.getSnapshot().revision!==masterRevision||(hybridIdentity&&__F352Runtime.identity()!==hybridIdentity))throw new DOMException("The figure changed during export.",'AbortError');
+  // Gaia, Hildegard and Isolde are stereo instruments: their file keeps both channels.
+  if(!result.blob&&__f333StereoVoice(state,result.buffer))return gU([result.buffer.getChannelData(0),result.buffer.getChannelData(1)],result.buffer.sampleRate);
   return result.blob??xt.encodeSamplesToWAV(result.buffer.getChannelData(0),result.buffer.sampleRate);
 }
+// Only the Forge Voices export two channels; every earlier listening mode keeps its channel-zero file.
+function __f333StereoVoice(state,buffer){return buffer?.numberOfChannels===2&&__f333Route(state)==='hearing'&&__ForgeVoices.is(state.carrierIntegralSelection?.machineId)}
 // F3_45: download-format adapter. Preserve the original PCM-16 WAV source channel;
 // F3.19.1 recorder FLAC worker writes an identical first channel and duplicates mono to stereo.
 // It does not change the Forge hearing, re-render for format conversion, or attach a new DSP path.
@@ -654,7 +664,7 @@ async function __f345ExportFlacCurrent(state,options={}) {
   if(!rendered.buffer)throw new Error("No audio buffer available for FLAC export.");
   const pcm=rendered.buffer;
   // Ordinary Forge WAV uses channel zero. Do not introduce an implicit stereo remix.
-  const sourceBuffer={sampleRate:pcm.sampleRate,duration:pcm.duration,numberOfChannels:1,
+  const sourceBuffer=__f333StereoVoice(state,pcm)?pcm:{sampleRate:pcm.sampleRate,duration:pcm.duration,numberOfChannels:1,
     getChannelData:(channel)=>{if(channel!==0)throw new RangeError('Unbekannter Audiokanal');return pcm.getChannelData(0);}};
   const blob=await f319RecorderFlacEncode(sourceBuffer,null,options.onEncodeProgress);
   if(!valid())throw new DOMException("Listening mode changed during FLAC encoding.",'AbortError');

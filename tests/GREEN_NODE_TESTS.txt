@@ -95,3 +95,5 @@ test_workspace_result_projection_p3_2.cjs
 test_workspace_roundtrip_p3_11.cjs
 ui_m1_p1.cjs
 ui_m1_p2_carrier_play.cjs
+forge_voices_dsp.test.cjs
+forge_voices_owner.test.cjs

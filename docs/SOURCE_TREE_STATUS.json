@@ -433,8 +433,8 @@
 },
 {
 "file": "src/forge/fractalia/14_live_transfer.js",
-"status": "oct-identical",
-"bytes": 4095,
+"status": "oct-evolved",
+"bytes": 4807,
 "oct28_bytes": 4095
 },
 {
@@ -444,9 +444,21 @@
 "oct28_bytes": 15428
 },
 {
+"file": "src/forge/voices/00_spec.js",
+"status": "post-oct",
+"bytes": 6238,
+"oct28_bytes": 0
+},
+{
+"file": "src/forge/voices/02_owner.js",
+"status": "post-oct",
+"bytes": 3652,
+"oct28_bytes": 0
+},
+{
 "file": "src/forge/editor/09_workflow_controls.js",
 "status": "oct-evolved",
-"bytes": 17480,
+"bytes": 17428,
 "oct28_bytes": 15752
 },
 {
@@ -476,7 +488,7 @@
 {
 "file": "src/storage/05_project_snapshots.js",
 "status": "oct-evolved",
-"bytes": 7965,
+"bytes": 8075,
 "oct28_bytes": 7945
 },
 {
@@ -1243,8 +1255,8 @@
 },
 {
 "file": "src/forge/stamps/02_atlas_audition.js",
-"status": "oct-identical",
-"bytes": 10561,
+"status": "oct-evolved",
+"bytes": 10598,
 "oct28_bytes": 10561
 },
 {
@@ -1255,8 +1267,8 @@
 },
 {
 "file": "src/app/forge/04_profiles_and_body_models.js",
-"status": "oct-identical",
-"bytes": 78307,
+"status": "oct-evolved",
+"bytes": 78746,
 "oct28_bytes": 78307
 },
 {
@@ -1328,7 +1340,7 @@
 {
 "file": "src/forge/editor/06_output_routing.js",
 "status": "oct-evolved",
-"bytes": 23971,
+"bytes": 23968,
 "oct28_bytes": 23779
 },
 {
@@ -1340,7 +1352,7 @@
 {
 "file": "src/forge/editor/07_composition_and_preview_ui.js",
 "status": "oct-evolved",
-"bytes": 128332,
+"bytes": 128320,
 "oct28_bytes": 110055
 },
 {
@@ -1370,7 +1382,7 @@
 {
 "file": "src/forge/ui/02_donor_routing_and_hearing.js",
 "status": "oct-evolved",
-"bytes": 92010,
+"bytes": 92909,
 "oct28_bytes": 86664
 },
 {
@@ -1400,7 +1412,7 @@
 {
 "file": "src/forge_and_melodic/10_audition_and_persistence.js",
 "status": "oct-evolved",
-"bytes": 49629,
+"bytes": 50705,
 "oct28_bytes": 44713
 },
 {
@@ -2082,9 +2094,27 @@
 "oct28_bytes": 12770
 },
 {
+"file": "src/forge/voices/01_dsp.js",
+"status": "post-oct",
+"bytes": 22733,
+"oct28_bytes": 0
+},
+{
+"file": "src/forge/voices/03_runtime.js",
+"status": "post-oct",
+"bytes": 3766,
+"oct28_bytes": 0
+},
+{
+"file": "src/forge/voices/04_lab_ui.js",
+"status": "post-oct",
+"bytes": 18178,
+"oct28_bytes": 0
+},
+{
 "file": "src/rooms/lab.js",
 "status": "oct-evolved",
-"bytes": 587254,
+"bytes": 587358,
 "oct28_bytes": 565054
 },
 {

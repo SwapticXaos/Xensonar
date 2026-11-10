@@ -15,7 +15,7 @@ Zeitleiste: dieselben Tests gegen Quellbäume von 28.10., 05.11. (Stage05) und W
 **Keine einzige Regression durch die Arbeiten seit der Übergabe** (DUB-ECHO-04, LIVEPATH-01/02, Quellbaum).
 
 ## Automatisch geprüft
-97 grüne Tests ohne Browser laufen in der GitHub-Action (`tools/run_tests.sh`, Liste `tests/GREEN_NODE_TESTS.txt`, ca. 15 s). 4 grüne Browser-Tests (`mix_audio_browser`, `ui_visual_restore`, `power_browser_smoke`, `test_stamp_full_browser_p37`) laufen lokal mit Playwright.
+Seit 10.11. (FORGE-VOICES-01, siehe `docs/FORGE_VOICES_2026-11-10.md`) sind es 99: dazu kamen `forge_voices_dsp.test.cjs` und `forge_voices_owner.test.cjs`, außerdem der Browser-Test `tests/e2e/forge_voices.cjs`. Stand 09.11.: 97 grüne Tests ohne Browser laufen in der GitHub-Action (`tools/run_tests.sh`, Liste `tests/GREEN_NODE_TESTS.txt`, ca. 15 s). 4 grüne Browser-Tests (`mix_audio_browser`, `ui_visual_restore`, `power_browser_smoke`, `test_stamp_full_browser_p37`) laufen lokal mit Playwright.
 
 ## Rote Tests: vorläufige Einordnung (nur aus der Fehlermeldung, nicht einzeln untersucht)
 
