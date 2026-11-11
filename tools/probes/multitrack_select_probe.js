@@ -2,7 +2,7 @@
 const {chromium}=require('playwright');const path=require('path'),fs=require('fs'),os=require('os');
 const f=path.join(os.tmpdir(),'xen_sel_tone.wav');{const sr=48000,n=sr*2,buf=Buffer.alloc(44+n*4);buf.write('RIFF',0);buf.writeUInt32LE(36+n*4,4);buf.write('WAVEfmt ',8);buf.writeUInt32LE(16,16);buf.writeUInt16LE(1,20);buf.writeUInt16LE(2,22);buf.writeUInt32LE(sr,24);buf.writeUInt32LE(sr*4,28);buf.writeUInt16LE(4,32);buf.writeUInt16LE(16,34);buf.write('data',36);buf.writeUInt32LE(n*4,40);for(let i=0;i<n;i++){const v=Math.round(6000*Math.sin(2*Math.PI*220*i/sr));buf.writeInt16LE(v,44+i*4);buf.writeInt16LE(v,46+i*4)}fs.writeFileSync(f,buf)}
 (async()=>{const b=await chromium.launch({args:['--autoplay-policy=no-user-gesture-required']});const cx=await b.newContext({viewport:{width:1700,height:1000}});
-await cx.addInitScript(()=>{window.__osc=0;const o=AudioContext.prototype.createOscillator;AudioContext.prototype.createOscillator=function(){window.__osc++;return o.call(this)}});
+await cx.addInitScript(()=>{window.__osc=0;const o=AudioContext.prototype.createOscillator;AudioContext.prototype.createOscillator=function(){const n=o.call(this),st=n.start.bind(n);n.start=function(t){const f=n.frequency.value;if(f===1000||f===1600)window.__osc++;return st(t)};return n}});
 const p=await cx.newPage();const errors=[];p.on('pageerror',e=>errors.push(String(e).slice(0,200)));p.on('dialog',d=>d.accept('Verse'));
 await p.goto('file://'+path.resolve(process.argv[2]||path.join(__dirname,'../../index.html')));await p.waitForTimeout(6000);
 await p.evaluate(()=>{const n=x=>(x||'').replace(/\s+/g,' ').trim();[...document.querySelectorAll('button')].find(b=>b.offsetParent&&n(b.innerText).endsWith('MULTITRACK'))?.click()});await p.waitForTimeout(3000);
@@ -14,8 +14,8 @@ const log=o=>console.log(JSON.stringify(o));
 await p.locator('.xmt .clip').first().click();await p.keyboard.press('Control+d');await p.waitForTimeout(300);await p.keyboard.press('Control+d');await p.waitForTimeout(500);
 log({step:'three clips',clips:(await clips()).length});
 // rubber band over the whole first lane
-const lane=p.locator('.xmt .lane').first();const lb=await lane.boundingBox();
-await p.mouse.move(lb.x+lb.width-40,lb.y+lb.height-2);await p.mouse.down();await p.mouse.move(lb.x+5,lb.y+2,{steps:8});await p.mouse.up();await p.waitForTimeout(500);
+const lane=p.locator('.xmt .lane').first();const lb=await lane.boundingBox(),vb=await p.locator('#xmt-tracks').boundingBox();const x1=Math.min(lb.x+lb.width,vb.x+vb.width)-30,x0=Math.max(lb.x,vb.x+250);
+await p.mouse.move(x1,lb.y+2);await p.mouse.down();await p.mouse.move(x0,lb.y+58,{steps:8});await p.mouse.up();await p.waitForTimeout(500);
 log({step:'rubber band',groupBar:await p.locator('[data-xmt-group]').getAttribute('data-xmt-group').catch(()=>null),selected:await p.locator('.xmt .clip[aria-selected=true]').count()});
 const before=await clips();
 // drag one selected clip: all move together
@@ -38,7 +38,7 @@ await p.locator('.xmt .mk').last().click({button:'right'});await p.waitForTimeou
 await p.keyboard.press('Home');
 const osc=async()=>p.evaluate(()=>window.__osc);
 let o0=await osc();await p.keyboard.press('Space');await p.waitForTimeout(3200);await p.keyboard.press('Space');await p.waitForTimeout(400);const o1=await osc();
-log({step:'play, metronome OFF',clicks:o1-o0});
+log({step:'play, metronome OFF (clicks counted by pitch)',clicks:o1-o0});
 await p.locator('[data-xmt-metro]').click();await p.waitForTimeout(200);o0=await osc();await p.locator('.xmt').click({position:{x:5,y:5}});await p.keyboard.press('Space');await p.waitForTimeout(3200);await p.keyboard.press('Space');await p.waitForTimeout(400);const o2=await osc();
 log({step:'play, metronome ON (108 BPM, ~3.2 s)',clicks:o2-o0});
 await p.locator('[data-xmt-countin]').click();o0=await osc();await p.locator('.xmt').click({position:{x:5,y:5}});await p.keyboard.press('Space');await p.waitForTimeout(500);const o3=await osc();await p.keyboard.press('Space');
