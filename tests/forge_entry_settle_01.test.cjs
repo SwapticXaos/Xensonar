@@ -19,5 +19,5 @@ test('listening modes carry the new names; stable ids are unchanged',()=>{
   for(const id of ["gaia-terrain-carrier","hildegard-mirror-carrier","isolde-spiral-carrier"])assert.ok(html.includes(id),id);
 });
 test('ML-NOTECLIP-01: copy/paste reuses the pending-group drag',()=>{
-  for(const k of ['const __mlNoteClip=','data-ml-noteclip','pendingGroup=group','__mlGK(w)!==g.pitchAnchorTrackId'])assert.ok(html.includes(k),k);
+  for(const k of ['const __mlNoteClip=','data-ml-noteclip','pendingPitchAnchor=true','__mlNoteClip.hover'])assert.ok(html.includes(k),k);
 });

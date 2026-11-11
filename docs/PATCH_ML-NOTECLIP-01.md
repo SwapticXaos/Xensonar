@@ -4,6 +4,7 @@ Zone: WARM (nur Oberfläche, kein Audio-Pfad, kein Storage). Status: CODE_PRESEN
 
 - Zwei Knöpfe neben Play/+ Drums/›: **⧉ Copy** und **⎘ Paste · n** (`__MelodicNoteClipButtons` in `src/rooms/canonical.js`).
 - Copy: Rechteck ziehen → Noten sind geladen und der Modus springt sofort auf Paste. Dann genügt ein Klick aufs Raster. Esc beendet, Rechtsklick auf Paste leert die Ablage, Klick auf Paste schaltet den Modus um. Die Ablage bleibt nach dem Einfügen (mehrfach stempeln).
-- Reuse statt Neubau: Einfügen erzeugt die Kopien als „pending“-Gruppe. Diese nutzt denselben Zieh- und Anker-Mechanismus wie die Scattered-Rasterprojektion (Zeit und Tonhöhe der ganzen Figur, Loslassen setzt). Gruppenschlüssel `__mlGK` = `pendingGroup || trackId`, damit auch mehrere Spuren zusammen wandern. Das Rechteck nutzt das vorhandene Box-Select (`T7`).
+- **Stand v2:** Nach dem Kopieren hängt die Figur unter dem Zeiger, springt dabei auf das Raster (Zeit-Snap wie beim Malen, Tonhöhenlinie ganzzahlig) und blinkt dort, wo sie landen würde. Ein Klick legt sie ab (kein Zwischenschritt, keine Kopie der Kopie). Die Vorschau ist nur ein Zeichen-Overlay, nichts wird dafür im Composer gespeichert.
+- Reuse statt Neubau: Die Vorschau nutzt die vorhandene Darstellung für „pending“ Rasterprojektions-Noten (leuchtend, blinkend). Das Rechteck nutzt das vorhandene Box-Select (`T7`). Der Gruppenschlüssel `__mlGK` aus v1 bleibt als harmlose Verallgemeinerung des Scattered-Zugs stehen.
 - Ein Undo-Schritt pro Einfügen. Import-/Material-Noten werden nicht kopiert (Statusmeldung). Alte Daten/Sessions unverändert (`pendingGroup` wird beim Loslassen entfernt).
 - Rollback: `git revert`.

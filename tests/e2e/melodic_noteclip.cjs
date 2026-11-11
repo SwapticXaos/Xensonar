@@ -1,5 +1,5 @@
 'use strict';
-// ML-NOTECLIP-01 (Chromium): Copy rectangle -> clipboard loaded -> click pastes pending group -> release anchors; Esc leaves paste mode.
+// ML-NOTECLIP-01 (Chromium): Copy rectangle -> clipboard loaded -> figure blinks under the pointer on the grid -> one click lays it down; Esc leaves paste mode.
 // Usage: node tests/e2e/melodic_noteclip.cjs [html]
 const {chromium}=require('playwright');const assert=require('node:assert/strict');const path=require('node:path');
 const html=path.resolve(process.argv[2]||'index.html');
@@ -16,7 +16,10 @@ await p.mouse.move(r.x+300,r.y+190);await p.mouse.down();await p.mouse.move(r.x+
 assert.match(await paste.innerText(),/Paste · \d+/,'rectangle loaded notes');assert.equal(await paste.getAttribute('aria-pressed'),'true','paste mode follows copy directly');
 const n=+(await paste.innerText()).match(/\d+/)[0];assert.ok(n>=1);
 const undoBefore=await p.getByRole('button',{name:'Undo',exact:true}).first().isDisabled();
-await p.mouse.move(r.x+800,r.y+520);await p.mouse.down();await p.mouse.move(r.x+840,r.y+540,{steps:5});await p.mouse.up();await p.waitForTimeout(400);
+await p.mouse.move(r.x+700,r.y+500,{steps:4});await p.mouse.move(r.x+800,r.y+520,{steps:4});await p.waitForTimeout(250);
+if(process.env.SHOT)await p.screenshot({path:process.env.SHOT+'/hover.png'});
+await p.mouse.down();await p.mouse.up();await p.waitForTimeout(400);
+if(process.env.SHOT)await p.screenshot({path:process.env.SHOT+'/placed.png'});
 assert.equal(await p.getByRole('button',{name:'Undo',exact:true}).first().isDisabled(),false,'paste is one undo step');
 assert.match(await paste.innerText(),new RegExp('Paste · '+n),'clipboard survives pasting (stamp-like)');
 await p.keyboard.press('Escape');assert.equal(await paste.getAttribute('aria-pressed'),'false');
