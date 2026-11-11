@@ -170,7 +170,7 @@ const vGe=[120,260,520,880,1320,1880],AGe=6,tP=8;
 
 
 /* xen-lazy:lab */
-function IGe(e){switch(e){case"raw_oscillator":return"Raw Oscillator";case"harmonic_xplore":return"HarmonicXplorE Direct";case"spektral_synthese":return"Spectral Synthesis";case"neutral_pigment":return"Neutral-Pigment";case"audio_donor":return"Audio-Donor";case"legacy_direct":return"5.69 Legacy";default:return"Archivquelle"}}const EGe={"raw-darkpsy-oscillator":{glyph:"◉",pulse:"Dieter",chip:"border-rose-600/55 text-rose-100 bg-rose-950/18",active:"border-rose-400 bg-rose-500/14 shadow-[0_0_18px_rgba(244,63,94,0.08)]",label:"Raw Oscillator"},"harmonic-xplore-direct-carrier":{glyph:"✶",pulse:"HarmonicXplorE",chip:"border-lime-600/55 text-lime-100 bg-lime-950/18",active:"border-lime-400 bg-lime-500/14 shadow-[0_0_18px_rgba(163,230,53,0.08)]",label:"Ratio-Engine"},"spektral-synthese-body":{glyph:"✦",pulse:"Spectral Synthesis",chip:"border-indigo-600/55 text-indigo-100 bg-indigo-950/18",active:"border-indigo-400 bg-indigo-500/14 shadow-[0_0_18px_rgba(129,140,248,0.08)]",label:"Image Body"},"legacy-supernote-5.69":{glyph:"5·69",pulse:"Legacy",chip:"border-amber-600/55 text-amber-100 bg-amber-950/18",active:"border-amber-400 bg-amber-500/14 shadow-[0_0_18px_rgba(245,158,11,0.08)]",label:"5.69 Legacy"},"branch-a-line-traffic":{glyph:"A",pulse:"Antonia",chip:"border-cyan-600/55 text-cyan-100 bg-cyan-950/18",active:"border-cyan-400 bg-cyan-500/14 shadow-[0_0_18px_rgba(34,211,238,0.08)]",label:"Antonia"},"branch-b573-synth-window":{glyph:"▥",pulse:"Bert",chip:"border-violet-600/55 text-violet-100 bg-violet-950/18",active:"border-violet-400 bg-violet-500/14 shadow-[0_0_18px_rgba(167,139,250,0.08)]",label:"Window / Prism"},"fractalia-self-carrier":{glyph:"❧",pulse:"Fractalia",chip:"border-teal-600/55 text-teal-100 bg-teal-950/18",active:"border-teal-400 bg-teal-500/14",label:"Relational Instruments"},"emilia-nodal-carrier":{glyph:"⬡",pulse:"Emilia",chip:"border-teal-600/55 text-teal-100 bg-teal-950/18",active:"border-teal-400 bg-teal-500/14 shadow-[0_0_18px_rgba(45,212,191,0.10)]",label:"Nodal Timbre"},"branch-c-interval-body":{glyph:"◒",pulse:"Cecilia",chip:"border-emerald-600/55 text-emerald-100 bg-emerald-950/18",active:"border-emerald-400 bg-emerald-500/14 shadow-[0_0_18px_rgba(16,185,129,0.08)]",label:"Vocal / Polytrace"}};function l$(e){return EGe[e]??{glyph:"◇",pulse:"Device",chip:"border-neutral-700 text-neutral-200 bg-neutral-950/40",active:"border-neutral-500 bg-neutral-800/60",label:"Integral Device"}}function X_(e){switch(e){case"raw-darkpsy-oscillator":return"Pure Dieter";case"harmonic-xplore-direct-carrier":return"HarmonicXplorE";case"spektral-synthese-body":return"Spectral Synthesis";case"legacy-supernote-5.69":return"5.69 Legacy";case"branch-a-line-traffic":return"Antonia";case"branch-b573-synth-window":return"Bert";case"branch-c-interval-body":return"Cecilia";default:return mo(e).shortLabel}}function c$(e,t){return t}function FGe(e){return e==="harmonic-xplore-direct-carrier"?"HarmonicXplorE · direct ratio engine":e==="spektral-synthese-body"?"Spectral Synthesis · Descriptor Body":e==="branch-a-line-traffic"||e==="branch-b573-synth-window"||e==="branch-c-interval-body"?"Core listening mode: do not expose timbre selection":"Body Source"}function TGe(e,t){return Math.max(.04,Math.min(1,t*(e==="raw-darkpsy-oscillator"?.16:e==="harmonic-xplore-direct-carrier"?.64:e==="spektral-synthese-body"?.72:.92)))}const LGe=[{id:"pure-dieter",label:"Pure Dieter",machineId:"raw-darkpsy-oscillator"},{id:"harmonic-xplore",label:"HarmonicXplorE",machineId:"harmonic-xplore-direct-carrier",summary:"HX Profile from the Structure Rack"},{id:"spektral-synthese",label:"Spectral Synthesis",machineId:"spektral-synthese-body",summary:"Descriptor-Modulated HX Body"},{id:"antonia",label:"Antonia",machineId:"branch-a-line-traffic",summary:"Line-Body Reading"},{id:"bert",label:"Bert",machineId:"branch-b573-synth-window",summary:"Window Prism"},{id:"cecilia",label:"Cecilia",machineId:"branch-c-interval-body",summary:"Vocal-Polytrace"},{id:"emilia",label:"Emilia",machineId:"emilia-nodal-carrier",summary:"Nodal Timbre for Carrier"},{id:"fractalia",label:"Fractalia",machineId:"fractalia-self-carrier",summary:"Drawn Relational Instrument · F4"}],BGe="Direct renderer as a quick reference: immediate spectrogram preview/WAV without listening-mode orchestration. Intentionally retained, but not the same Play interpretation as the modes above.",DGe=[{id:"additive",label:"Additive",desc:"Sinus direkt"},{id:"ifft",label:"IFFT",desc:"Spektrum direkt"},{id:"granular",label:"Granular",desc:"Direct Granularity"},{id:"glyph",label:"Glyph",desc:"Ereignis direkt"}];
+function IGe(e){switch(e){case"raw_oscillator":return"Raw Oscillator";case"harmonic_xplore":return"HarmonicXplorE Direct";case"spektral_synthese":return"Spectral Synthesis";case"neutral_pigment":return"Neutral-Pigment";case"audio_donor":return"Audio-Donor";case"legacy_direct":return"5.69 Legacy";default:return"Archivquelle"}}const EGe={"raw-darkpsy-oscillator":{glyph:"◉",pulse:"Dieter",chip:"border-rose-600/55 text-rose-100 bg-rose-950/18",active:"border-rose-400 bg-rose-500/14 shadow-[0_0_18px_rgba(244,63,94,0.08)]",label:"Raw Oscillator"},"harmonic-xplore-direct-carrier":{glyph:"✶",pulse:"HarmonicXplorE",chip:"border-lime-600/55 text-lime-100 bg-lime-950/18",active:"border-lime-400 bg-lime-500/14 shadow-[0_0_18px_rgba(163,230,53,0.08)]",label:"Ratio-Engine"},"spektral-synthese-body":{glyph:"✦",pulse:"Spectral Synthesis",chip:"border-indigo-600/55 text-indigo-100 bg-indigo-950/18",active:"border-indigo-400 bg-indigo-500/14 shadow-[0_0_18px_rgba(129,140,248,0.08)]",label:"Image Body"},"legacy-supernote-5.69":{glyph:"5·69",pulse:"Legacy",chip:"border-amber-600/55 text-amber-100 bg-amber-950/18",active:"border-amber-400 bg-amber-500/14 shadow-[0_0_18px_rgba(245,158,11,0.08)]",label:"5.69 Legacy"},"branch-a-line-traffic":{glyph:"A",pulse:"Antonia",chip:"border-cyan-600/55 text-cyan-100 bg-cyan-950/18",active:"border-cyan-400 bg-cyan-500/14 shadow-[0_0_18px_rgba(34,211,238,0.08)]",label:"Antonia"},"branch-b573-synth-window":{glyph:"▥",pulse:"Bert",chip:"border-violet-600/55 text-violet-100 bg-violet-950/18",active:"border-violet-400 bg-violet-500/14 shadow-[0_0_18px_rgba(167,139,250,0.08)]",label:"Window / Prism"},"fractalia-self-carrier":{glyph:"❧",pulse:"Fractalia",chip:"border-teal-600/55 text-teal-100 bg-teal-950/18",active:"border-teal-400 bg-teal-500/14",label:"Relational Instruments"},"gaia-terrain-carrier":{glyph:"◍",pulse:"Gahjer",chip:"border-emerald-600/55 text-emerald-100 bg-emerald-950/18",active:"border-emerald-400 bg-emerald-500/14",label:"Terrain Orbit"},"hildegard-mirror-carrier":{glyph:"♁",pulse:"Holgriot",chip:"border-amber-600/55 text-amber-100 bg-amber-950/18",active:"border-amber-400 bg-amber-500/14",label:"Mirror Spectrum"},"isolde-spiral-carrier":{glyph:"꩜",pulse:"Ingor",chip:"border-sky-600/55 text-sky-100 bg-sky-950/18",active:"border-sky-400 bg-sky-500/14",label:"Endless Spiral"},"emilia-nodal-carrier":{glyph:"⬡",pulse:"Emilia",chip:"border-teal-600/55 text-teal-100 bg-teal-950/18",active:"border-teal-400 bg-teal-500/14 shadow-[0_0_18px_rgba(45,212,191,0.10)]",label:"Nodal Timbre"},"branch-c-interval-body":{glyph:"◒",pulse:"Cecilia",chip:"border-emerald-600/55 text-emerald-100 bg-emerald-950/18",active:"border-emerald-400 bg-emerald-500/14 shadow-[0_0_18px_rgba(16,185,129,0.08)]",label:"Vocal / Polytrace"}};function l$(e){return EGe[e]??{glyph:"◇",pulse:"Device",chip:"border-neutral-700 text-neutral-200 bg-neutral-950/40",active:"border-neutral-500 bg-neutral-800/60",label:"Integral Device"}}function X_(e){switch(e){case"raw-darkpsy-oscillator":return"Pure Dieter";case"harmonic-xplore-direct-carrier":return"HarmonicXplorE";case"spektral-synthese-body":return"Spectral Synthesis";case"legacy-supernote-5.69":return"5.69 Legacy";case"branch-a-line-traffic":return"Antonia";case"branch-b573-synth-window":return"Bert";case"branch-c-interval-body":return"Cecilia";default:return mo(e).shortLabel}}function c$(e,t){return t}function FGe(e){return e==="harmonic-xplore-direct-carrier"?"HarmonicXplorE · direct ratio engine":e==="spektral-synthese-body"?"Spectral Synthesis · Descriptor Body":e==="branch-a-line-traffic"||e==="branch-b573-synth-window"||e==="branch-c-interval-body"?"Core listening mode: do not expose timbre selection":"Body Source"}function TGe(e,t){return Math.max(.04,Math.min(1,t*(e==="raw-darkpsy-oscillator"?.16:e==="harmonic-xplore-direct-carrier"?.64:e==="spektral-synthese-body"?.72:.92)))}const LGe=[{id:"pure-dieter",label:"Pure Dieter",machineId:"raw-darkpsy-oscillator"},{id:"harmonic-xplore",label:"HarmonicXplorE",machineId:"harmonic-xplore-direct-carrier",summary:"HX Profile from the Structure Rack"},{id:"spektral-synthese",label:"Spectral Synthesis",machineId:"spektral-synthese-body",summary:"Descriptor-Modulated HX Body"},{id:"antonia",label:"Antonia",machineId:"branch-a-line-traffic",summary:"Line-Body Reading"},{id:"bert",label:"Bert",machineId:"branch-b573-synth-window",summary:"Window Prism"},{id:"cecilia",label:"Cecilia",machineId:"branch-c-interval-body",summary:"Vocal-Polytrace"},{id:"emilia",label:"Emilia",machineId:"emilia-nodal-carrier",summary:"Nodal Timbre for Carrier"},{id:"fractalia",label:"Fractalia",machineId:"fractalia-self-carrier",summary:"Drawn Relational Instrument · F4"},{id:"gaia",label:"Gahjer",machineId:"gaia-terrain-carrier",summary:"Terrain Orbit · the drawing as landscape"},{id:"hildegard",label:"Holgriot",machineId:"hildegard-mirror-carrier",summary:"Mirror Spectrum · overtones from the figure's intervals"},{id:"isolde",label:"Ingor",machineId:"isolde-spiral-carrier",summary:"Endless Spiral · self-similar tone and pulse"}],BGe="Direct renderer as a quick reference: immediate spectrogram preview/WAV without listening-mode orchestration. Intentionally retained, but not the same Play interpretation as the modes above.",DGe=[{id:"additive",label:"Additive",desc:"Sinus direkt"},{id:"ifft",label:"IFFT",desc:"Spektrum direkt"},{id:"granular",label:"Granular",desc:"Direct Granularity"},{id:"glyph",label:"Glyph",desc:"Ereignis direkt"}];
 /* xen-lazy:lab */
 
 /* xen-lazy:lab */
@@ -285,6 +285,106 @@ async function __xenSendSavedFigureProject(projectId,expectedUpdatedAt){
  try{return await operation}finally{__xenSavedFigureInFlight.delete(projectId)}
 }
 /* END ML-FIGURE-SEND-P1 */
+/* BEGIN SFPNG01 */
+/* Spectral Forge PNG roundtrip: an ordinary viewable PNG with one ancillary
+ * private, unsafe-to-copy xsNP chunk containing a validated, compressed Forge
+ * project snapshot. The selected saved Figure is the source; never mutate it.
+ */
+const __XenSFPNG01=(()=>{
+ const signature=Uint8Array.of(137,80,78,71,13,10,26,10), type=Uint8Array.of(120,115,78,80); // xsNP
+ const magic=Uint8Array.of(88,83,70,80,78,71,48,49); // XSFPNG01
+ const maxPNG=128*1024*1024,maxJSON=384*1024*1024,maxCells=2048*512;
+ const table=Uint32Array.from({length:256},(_,i)=>{let x=i;for(let k=0;k<8;k++)x=(x&1)?(0xedb88320^(x>>>1)):(x>>>1);return x>>>0;});
+ const same=(a,b)=>a.length===b.length&&a.every((v,i)=>v===b[i]);
+ const u32=(b,o)=>((b[o]*16777216)+(b[o+1]<<16)+(b[o+2]<<8)+b[o+3])>>>0;
+ const put32=(b,o,n)=>{b[o]=(n>>>24)&255;b[o+1]=(n>>>16)&255;b[o+2]=(n>>>8)&255;b[o+3]=n&255;};
+ const crc=bytes=>{let x=0xffffffff;for(const b of bytes)x=table[(x^b)&255]^(x>>>8);return (x^0xffffffff)>>>0;};
+ function chunk(kind,data){const bytes=new Uint8Array(12+data.length);put32(bytes,0,data.length);bytes.set(kind,4);bytes.set(data,8);put32(bytes,bytes.length-4,crc(bytes.subarray(4,bytes.length-4)));return bytes;}
+ function findEnd(bytes){if(bytes.length<20||!same([...bytes.subarray(0,8)],[...signature]))throw Error('Not a PNG file.');
+  let cursor=8,found=null,last=null;
+  while(cursor+12<=bytes.length){const length=u32(bytes,cursor),end=cursor+12+length;
+   if(length>maxPNG||end>bytes.length)throw Error('Invalid PNG chunk boundaries.');
+   const name=bytes.subarray(cursor+4,cursor+8);
+   if(same([...name],[...type])){
+    if(found)throw Error('Duplicate XenSonar PNG project chunk.');
+    found={data:bytes.subarray(cursor+8,cursor+8+length),crcExpected:u32(bytes,end-4),crcInput:bytes.subarray(cursor+4,end-4)};
+   }
+   if(name[0]===73&&name[1]===69&&name[2]===78&&name[3]===68){last=cursor;break;}
+   cursor=end;
+  }
+  if(last===null)throw Error('PNG has no IEND chunk.');
+  return {last,found};
+ }
+ async function gzip(bytes){if(typeof CompressionStream!=='function')throw Error('This browser does not support lossless PNG project compression.');
+  return new Uint8Array(await new Response(new Blob([bytes]).stream().pipeThrough(new CompressionStream('gzip'))).arrayBuffer());}
+ async function gunzip(bytes,expected){if(typeof DecompressionStream!=='function')throw Error('This browser does not support lossless PNG project decompression.');
+  const reader=new Blob([bytes]).stream().pipeThrough(new DecompressionStream('gzip')).getReader(),pieces=[];
+  let total=0;
+  try{while(true){const {done,value}=await reader.read();if(done)break;total+=value.length;
+   if(total>maxJSON||total>expected){await reader.cancel();throw Error('XenSonar PNG project payload exceeds declared size.');}
+   pieces.push(value);
+  }}finally{reader.releaseLock();}
+  if(total!==expected)throw Error('XenSonar PNG project payload size mismatch.');
+  const out=new Uint8Array(total);let at=0;for(const piece of pieces){out.set(piece,at);at+=piece.length;}return out;
+ }
+ async function embedPNG(pngBlob,snapshot){
+  const raw=new TextEncoder().encode(JSON.stringify({format:'xensonar-spectral-png-v1',snapshot:__ForgeProjectSnapshot.encode(snapshot)}));
+  if(raw.length>maxJSON)throw Error('Figure snapshot is too large for Spectral PNG.');
+  const compressed=await gzip(raw),payload=new Uint8Array(13+compressed.length);
+  payload.set(magic);payload[8]=1;put32(payload,9,raw.length);payload.set(compressed,13);
+  const original=new Uint8Array(await pngBlob.arrayBuffer()),{last}=findEnd(original);
+  const out=new Blob([original.subarray(0,last),chunk(type,payload),original.subarray(last)],{type:'image/png'});
+  if(out.size>maxPNG)throw Error('Spectral PNG exceeds the 128 MiB export limit.');
+  return out;
+ }
+ async function read(file){
+  if(!file||(!/\.png$/i.test(file.name||'')&&file.type!=='image/png'))return null;
+  if(file.size>maxPNG)throw Error('PNG exceeds the 128 MiB import limit.');
+  const bytes=new Uint8Array(await file.arrayBuffer());
+  if(!same([...bytes.subarray(0,8)],[...signature]))return null;
+  const {found}=findEnd(bytes);if(!found)return null;
+  if(crc(found.crcInput)!==found.crcExpected)throw Error('XenSonar PNG project CRC invalid: file is corrupt.');
+  const payload=found.data;
+  if(payload.length<14||!same([...payload.subarray(0,8)],[...magic])||payload[8]!==1)throw Error('Unsupported XenSonar PNG project format.');
+  const expected=u32(payload,9);
+  if(expected<1||expected>maxJSON)throw Error('Invalid XenSonar PNG project payload length.');
+  const decoded=await gunzip(payload.subarray(13),expected);
+  let info;
+  try{info=JSON.parse(new TextDecoder('utf-8',{fatal:true}).decode(decoded));}
+  catch{throw Error('XenSonar PNG project metadata is corrupt.');}
+  if(info?.format!=='xensonar-spectral-png-v1'||!info.snapshot)throw Error('Unsupported XenSonar PNG project version.');
+  // Decode original float arrays, then perform existing all-or-nothing snapshot
+  // validation before exposing the state to the importer.
+  const snapshot=__ForgeProjectSnapshot.decode(info.snapshot);
+  __ForgeProjectSnapshot.prepare(snapshot,pe.getState());
+  return snapshot;
+ }
+ async function exportFigure(snapshot,name){
+  // Exactly the saved project's native 2048 x 512 raster, not a screenshot of
+  // the mini preview. Its two spectral float planes remain in the PNG payload.
+  __ForgeProjectSnapshot.prepare(snapshot,pe.getState());
+  const width=2048,height=512,cells=width*height,values=snapshot?.spectralSnapshot;
+  if(!values||![cells,2*cells].includes(values.length))throw Error('Saved Figure does not contain a full-size raster.');
+  const canvas=document.createElement('canvas');canvas.width=width;canvas.height=height;
+  const ctx=canvas.getContext('2d');if(!ctx)throw Error('PNG canvas could not be created.');
+  const pixels=ctx.createImageData(width,height);
+  for(let i=0;i<cells;i++){const level=Math.sqrt(Math.max(0,Math.min(1,Number(values[i])||0))),j=i*4;
+   pixels.data[j]=Math.round(18+level*150);pixels.data[j+1]=Math.round(10+level*62);
+   pixels.data[j+2]=Math.round(32+level*210);pixels.data[j+3]=255;
+  }
+  ctx.putImageData(pixels,0,0);
+  const image=await new Promise((resolve,reject)=>canvas.toBlob(blob=>blob?resolve(blob):reject(Error('PNG encoding failed.')),'image/png'));
+  const output=await embedPNG(image,snapshot);
+  const safe=(String(name||'Figure').trim().replace(/[\\/:*?"<>|\x00-\x1f]/g,'_').slice(0,120)||'Figure');
+  const url=URL.createObjectURL(output),a=document.createElement('a');
+  a.href=url;a.download=safe+'-SpectralForge.png';a.style.display='none';document.body.appendChild(a);a.click();
+  window.setTimeout(()=>{URL.revokeObjectURL(url);a.remove()},30000);
+  return {name:a.download,size:output.size};
+ }
+ return Object.freeze({embedPNG,read,export:exportFigure});
+})();
+/* END SFPNG01 */
+
 function __F34CompactLibrary({onClose}) {
  const entries=cB(s=>s.entries),loadProjectSnapshot=pe(s=>s.loadProjectSnapshot);
  const [selectedId,setSelectedId]=P.useState(null),[previewRecord,setPreviewRecord]=P.useState(null),[busy,setBusy]=P.useState(false),[message,setMessage]=P.useState('');
@@ -304,6 +404,18 @@ function __F34CompactLibrary({onClose}) {
    if(patch.harmonicXplorePatch)state.setCarrierIntegralHarmonicXplore(patch.harmonicXplorePatch);
    onClose();
   }catch(e){setMessage(e instanceof Error?e.message:String(e))}finally{setBusy(false)}};
+ const [exportStatus,setExportStatus]=P.useState('');
+ const exportPNG=async()=>{if(!selected||busy)return;
+  setBusy(true);setMessage('');setExportStatus('');
+  try{
+   const saved=await Y7(selected.id);
+   if(saved.updatedAt!==selected.updatedAt)throw Error('Saved Figure changed since selection. Select it again before exporting.');
+   if(!saved.snapshot?.spectralSnapshot)throw Error('Selected Figure has no saved raster.');
+   const result=await __XenSFPNG01.export(saved.snapshot,saved.name);
+   setExportStatus('Exported '+result.name);
+  }catch(error){setMessage('PNG export failed: '+(error instanceof Error?error.message:String(error)))}
+  finally{setBusy(false)}
+ };
  const remove=async()=>{if(!selected||busy)return;
   if(!window.confirm('Delete saved carrier "'+selected.name+'"? This cannot be undone.'))return;
   setBusy(true);setMessage('');try{
@@ -317,6 +429,15 @@ function __F34CompactLibrary({onClose}) {
   sorted.length?u.jsxs('div',{className:'f34-library-grid',children:[
    u.jsx('div',{className:'f34-library-list',role:'listbox','aria-label':'Saved Carrier Projects',children:sorted.map(entry=>u.jsxs('button',{type:'button',role:'option','aria-selected':entry.id===selectedId,'data-f34-library-entry':entry.id,className:entry.id===selectedId?'f34-library-entry selected':'f34-library-entry',onClick:()=>setSelectedId(entry.id),onDoubleClick:()=>void load(entry),children:[u.jsx('span',{className:'f37-library-entry-name',children:entry.name}),u.jsx('span',{className:'f37-library-entry-modified',children:'Modified '+modified(entry)})]},entry.id))}),
    u.jsxs('div',{className:'f34-library-preview',children:[u.jsx('div',{className:'f34-library-current-name',title:selected?.name||'',children:selected?.name||''}),u.jsx(__F34LibrarySmallView,{snapshot:previewRecord?.id===selectedId?previewRecord.snapshot:null}),u.jsx('div',{className:'f37-library-modified',children:selected?'Modified: '+modified(selected):''}),u.jsxs('div',{className:'f37-library-actions',children:[u.jsx('button',{type:'button',className:'f34-library-load',onClick:()=>void load(),disabled:busy||!selected,'aria-label':busy?'Loading carrier':'Load Carrier',children:u.jsxs(P.Fragment,{children:[u.jsx('span',{'aria-hidden':true,className:'f34-library-load-arrow',children:u.jsx('svg',{viewBox:'0 0 24 24',focusable:'false',children:u.jsx('path',{d:'M12 2L23 13H17V23H7V13H1Z'})})}),u.jsx('span',{className:'f34-library-load-label',children:busy?'Working…':'Load Carrier'}),u.jsx('span',{'aria-hidden':true,className:'f34-library-load-arrow',children:u.jsx('svg',{viewBox:'0 0 24 24',focusable:'false',children:u.jsx('path',{d:'M12 2L23 13H17V23H7V13H1Z'})})})]})}),u.jsx('button',{type:'button','aria-label':'Delete selected carrier',title:'Delete selected carrier',className:'f37-library-delete',onClick:()=>void remove(),disabled:busy||!selected,children:'×'})]}),
+   u.jsx('button',{type:'button','data-f34-export-png':'true',
+    'aria-label':'Export PNG',title:'Export selected saved Figure as a portable, lossless Spectral Forge PNG',
+    className:'f34-library-load f34-library-export-png',disabled:busy||!selected,
+    onClick:()=>void exportPNG(),
+    children:u.jsxs(P.Fragment,{children:[
+     u.jsx('span',{'aria-hidden':true,className:'f34-library-load-arrow',children:u.jsx('svg',{viewBox:'0 0 24 24',focusable:'false',children:u.jsx('path',{d:'M12 22L1 11H7V1H17V11H23Z'})})}),
+     u.jsx('span',{className:'f34-library-load-label',children:busy?'Working…':'Export PNG'}),
+     u.jsx('span',{'aria-hidden':true,className:'f34-library-load-arrow',children:u.jsx('svg',{viewBox:'0 0 24 24',focusable:'false',children:u.jsx('path',{d:'M12 22L1 11H7V1H17V11H23Z'})})})
+    ]})}),
    u.jsx('button',{type:'button','data-f34-send-to-melodic':'true',disabled:busy||!selected,
     'aria-label':'Send to Melodic Loop',title:'Send selected saved Figure Project to Melodic Loop',
     className:'f34-library-load f34-library-send-to-melodic',
@@ -327,6 +448,7 @@ function __F34CompactLibrary({onClose}) {
       .finally(()=>setBusy(false))},
     children:u.jsxs(P.Fragment,{children:[u.jsx('span',{'aria-hidden':true,children:'→'}),u.jsx('span',{children:busy?'Sending…':'Send to Melodic Loop'})]})})]})
   ]}):u.jsx('div',{className:'f34-library-empty',children:'No saved carriers yet. Enter a project name and use Save.'}),
+  exportStatus?u.jsx('div',{role:'status',className:'f34-library-export-status',children:exportStatus}):null,
   message?u.jsx('div',{role:'alert',className:'f34-library-error',children:message}):null
  ]});
 }

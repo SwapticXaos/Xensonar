@@ -1046,7 +1046,7 @@
 {
 "file": "src/rhythm/02_bass_and_rack.js",
 "status": "oct-evolved",
-"bytes": 233016,
+"bytes": 233876,
 "oct28_bytes": 167938
 },
 {
@@ -1376,7 +1376,7 @@
 {
 "file": "src/forge/ui/03_method_selection.js",
 "status": "oct-evolved",
-"bytes": 10414,
+"bytes": 10663,
 "oct28_bytes": 10092
 },
 {
@@ -1400,7 +1400,7 @@
 {
 "file": "src/forge_and_melodic/10_audition_and_persistence.js",
 "status": "oct-evolved",
-"bytes": 49629,
+"bytes": 51529,
 "oct28_bytes": 44713
 },
 {
@@ -1682,7 +1682,7 @@
 {
 "file": "styles/areas/028_inline-028.css",
 "status": "oct-evolved",
-"bytes": 74155,
+"bytes": 76085,
 "oct28_bytes": 70902
 },
 {
@@ -2030,7 +2030,7 @@
 {
 "file": "src/post-oct/015-xen-wave-editor-w01-modules.js",
 "status": "post-oct",
-"bytes": 200735,
+"bytes": 203616,
 "oct28_bytes": 0
 },
 {
@@ -2048,7 +2048,7 @@
 {
 "file": "styles/post-oct/072-xen-scissors-offline-ui.css",
 "status": "post-oct",
-"bytes": 992,
+"bytes": 1026,
 "oct28_bytes": 0
 },
 {
@@ -2060,7 +2060,7 @@
 {
 "file": "src/rooms/canonical.js",
 "status": "oct-evolved",
-"bytes": 447845,
+"bytes": 448815,
 "oct28_bytes": 406431
 },
 {
@@ -2084,7 +2084,7 @@
 {
 "file": "src/rooms/lab.js",
 "status": "oct-evolved",
-"bytes": 587254,
+"bytes": 587868,
 "oct28_bytes": 565054
 },
 {
@@ -2096,7 +2096,7 @@
 {
 "file": "src/factories/ForgeTransportRack.js",
 "status": "oct-evolved",
-"bytes": 22725,
+"bytes": 22840,
 "oct28_bytes": 11593
 },
 {
@@ -2169,6 +2169,18 @@
 "file": "src/post-oct/031-xen-sound-recipe-export-ui.js",
 "status": "post-oct",
 "bytes": 11451,
+"oct28_bytes": 0
+},
+{
+"file": "src/post-oct/032-xen-room-multitrack.js",
+"status": "post-oct",
+"bytes": 74427,
+"oct28_bytes": 0
+},
+{
+"file": "src/post-oct/033-xen-multitrack-shared.js",
+"status": "post-oct",
+"bytes": 14261,
 "oct28_bytes": 0
 }
 ]

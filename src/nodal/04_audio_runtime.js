@@ -68,12 +68,12 @@ function nodalWorkletProcessorFactory(createKernel, register, Base, rate, frameN
   // Worklet owner (never another scheduler, AudioNode, route or admission gate).
   function pcmHoldVoice(template,initial={}){
     const l=template.left,r=template.right??l;
-    let pos=0,ended=false,released=false,releasePos=0,releaseSamples=1,releaseFromSilentGap=false,playbackRatio=1;
+    let pos=0,ended=false,released=false,releasePos=0,releaseSamples=1,releaseFromSilentGap=false,playbackRatio=1,slotGain=1;
     const handoverFrames=initial.nodalPcmHandoverFrames===128?128:0;
     const stepFrames=Number.isFinite(initial.nodalHoldIntervalMs)&&initial.nodalHoldIntervalMs>=15&&initial.nodalHoldIntervalMs<=5000
       ?Math.round(rate*initial.nodalHoldIntervalMs/1000):Infinity;
     const gateFrames=Number.isFinite(stepFrames)?Math.min(Math.round(rate*.006),Math.floor(stepFrames*.35)):0;
-    function reset(options){playbackRatio=Number.isFinite(options?.holdPitchRatio)?options.holdPitchRatio:1;pos=0;ended=false;released=false;releasePos=0;releaseFromSilentGap=false;}
+    function reset(options){const sourceGain=Number.isFinite(initial.gain)?initial.gain:template.renderIdentity?.gain;slotGain=Number.isFinite(sourceGain)&&sourceGain>0?Math.max(0,Math.min(4,(options?.gain??sourceGain)/sourceGain)):1;playbackRatio=Number.isFinite(options?.holdPitchRatio)?options.holdPitchRatio:1;pos=0;ended=false;released=false;releasePos=0;releaseFromSilentGap=false;}
     function noteOff(){if(!released){released=true;releasePos=0;releaseFromSilentGap=Number.isFinite(stepFrames)&&pos>=stepFrames;
       releaseSamples=Math.max(64,Math.min(Math.round(rate*3),Math.round(rate*(initial.releaseSec??.18))));}}
     return {reset,noteOff,setFrequency(){return false;},get released(){return released;},
@@ -91,6 +91,7 @@ function nodalWorkletProcessorFactory(createKernel, register, Base, rate, frameN
               vl*=t;vr*=t;
             }
             if(handoverFrames&&pos<handoverFrames){const t=pos/(handoverFrames-1);vl*=t;vr*=t;}
+            if(slotGain!==1){vl*=slotGain;vr*=slotGain;}
             if(add){left[i]+=vl;if(right!==left)right[i]+=vr;}
             else{left[i]=vl;if(right!==left)right[i]=vr;}
             pos+=playbackRatio;
@@ -111,7 +112,8 @@ function nodalWorkletProcessorFactory(createKernel, register, Base, rate, frameN
             vl*=t;vr*=t;
           }
           if(handoverFrames&&pos<handoverFrames){const t=pos/(handoverFrames-1);vl*=t;vr*=t;}
-          if(add){left[i]+=vl;if(right!==left)right[i]+=vr;}
+          if(slotGain!==1){vl*=slotGain;vr*=slotGain;}
+            if(add){left[i]+=vl;if(right!==left)right[i]+=vr;}
           else{left[i]=vl;if(right!==left)right[i]=vr;}
           pos++;
           if(pos>=l.length||(released&&releasePos>=releaseSamples))ended=true;
@@ -418,7 +420,12 @@ function nodalWorkletProcessorFactory(createKernel, register, Base, rate, frameN
         (config.pitchRatios!=null&&(!Array.isArray(config.pitchRatios)||config.pitchRatios.length!==config.pattern.length||
         config.pitchRatios.some(x=>!Number.isFinite(x)||x<.5||x>2))))return false;
       const pitched=config.pitchRatios?.some(r=>r!==1)??false;
-      const stepOptions=pitched?config.pitchRatios.map(r=>r===1?options:{...options,frequency:options.frequency*r,holdPitchRatio:r}):null;
+      const gains=Array.isArray(config.slotVolumes)&&config.slotVolumes.length===config.pattern.length?config.slotVolumes:null;
+      const micros=Array.isArray(config.slotMicrotiming)&&config.slotMicrotiming.length===config.pattern.length?config.slotMicrotiming:null;
+      if((gains&&gains.some(x=>!Number.isFinite(x)||x<0||x>1.5))||(micros&&micros.some(x=>!Number.isFinite(x)||x<-.45||x>.45)))return false;
+      const stepOptions=(pitched||gains?.some(x=>x!==1))?config.pattern.map((_,i)=>({ ...options,
+        ...(pitched?{frequency:options.frequency*config.pitchRatios[i],holdPitchRatio:config.pitchRatios[i]}:{}),
+        ...(gains?{gain:Math.max(0,Math.min(1,options.gain*gains[i]))}:{})})):null;
       const interval=config.intervalMs*rate/1000;
       if(interval<128)return false;
       const now=frameNow(),old=s.holdClock;
@@ -429,7 +436,7 @@ function nodalWorkletProcessorFactory(createKernel, register, Base, rate, frameN
           const next=Math.max(now,Math.round(old.start+old.index*old.interval));
           old.start=next-old.index*interval;old.interval=interval;
         }
-        old.pattern=config.pattern.slice();old.options=options;old.pcmId=pcmId;old.stepOptions=stepOptions;
+        old.pattern=config.pattern.slice();old.options=options;old.pcmId=pcmId;old.stepOptions=stepOptions;old.slotMicrotiming=micros?.slice()??null;
         if(pcmId!=null&&pcmId!==s.holdPCMId&&old.nextPcmId!==pcmId){
           const template=this.pcmHoldBank.get(pcmId);
           old.nextPcmVoice=template?pcmHoldVoice(template,{...options,nodalHoldIntervalMs:undefined,
@@ -439,7 +446,7 @@ function nodalWorkletProcessorFactory(createKernel, register, Base, rate, frameN
       }else{
         const start=config.startSec*rate;
         const index=Math.max(0,Math.ceil((s.start-start-.5)/interval));
-        s.holdClock={start,interval,index,pattern:config.pattern.slice(),options,pcmId,stepOptions,
+        s.holdClock={start,interval,index,pattern:config.pattern.slice(),options,pcmId,stepOptions,slotMicrotiming:micros?.slice()??null,
           sounding:false,attackFrame:0,endFrame:0};
         // Initial admission may arrive late. Align the first actual attack to
         // the next future grid point rather than inserting an off-grid pulse.
@@ -449,10 +456,16 @@ function nodalWorkletProcessorFactory(createKernel, register, Base, rate, frameN
     }
     renderHoldClock(s,left,right,now,frames){
       const c=s.holdClock;let cursor=0;
+      const stepFrame=i=>Math.round(c.start+(i+Math.max(i===0?0:-.45,c.slotMicrotiming?.[i%c.pattern.length]??0))*c.interval);
       while(cursor<frames){
         const absolute=now+cursor;
-        let next=Math.round(c.start+c.index*c.interval);
-        if(next<absolute){c.index=Math.max(c.index,Math.ceil((absolute-c.start)/c.interval));next=Math.round(c.start+c.index*c.interval);}
+        let next=stepFrame(c.index);
+        if(next<absolute){
+          // Bound the catch-up cost for long sessions, then preserve every due step.
+          c.index=Math.max(c.index,Math.floor((absolute-c.start)/c.interval)-1);
+          next=stepFrame(c.index);
+          while(next<absolute){next=stepFrame(++c.index)}
+        }
         if(next===absolute){
           const slotIndex=c.index%c.pattern.length,active=c.pattern[slotIndex]===1;
           c.index++;c.sounding=false;
@@ -473,13 +486,13 @@ function nodalWorkletProcessorFactory(createKernel, register, Base, rate, frameN
                 if(s.cost>1){const old=s.cost;s.cost=1;this.cost-=old-1;this.port.postMessage({type:'cost',id:s.id,cost:1});}
               }else s.voice.reset(c.stepOptions?c.stepOptions[slotIndex]:c.options);
               s.holdPCMFrequency=c.options.frequency;
-              c.sounding=true;c.attackFrame=absolute;c.endFrame=Math.round(c.start+c.index*c.interval);
+              c.sounding=true;c.attackFrame=absolute;c.endFrame=stepFrame(c.index);
               this.holdRetriggers++;if(s.holdPCM)this.pcmHoldRetriggers++;
               // Test capture is opt-in; normal rolls send no per-step messages.
               if(this.__c20c?.enabled)this.port.postMessage({type:'c2-hold-clock-tick',id:s.id,frame:absolute,index:c.index-1});
             }
           }
-          next=Math.round(c.start+c.index*c.interval);
+          next=stepFrame(c.index);
         }
         let end=Math.min(frames,next-now);
         if(c.sounding)end=Math.min(end,c.endFrame-now);
@@ -1425,12 +1438,14 @@ function createNodalLiveRuntime({model, kernelFactory}) {
         c.pitchCurve!==options.pitchCurve||c.attackSec!==options.attackSec||c.releaseSec!==options.releaseSec||
         !Array.isArray(clock.pattern)||c.pattern.length!==clock.pattern.length||
         (!!c.pitchRatios)!==(!!clock.pitchRatios)||
-        (clock.pitchRatios&&(c.pitchRatios.length!==clock.pitchRatios.length||c.pitchRatios.some((r,i)=>r!==clock.pitchRatios[i]))))return false;
+        (clock.pitchRatios&&(c.pitchRatios.length!==clock.pitchRatios.length||c.pitchRatios.some((r,i)=>r!==clock.pitchRatios[i])))||
+        JSON.stringify(c.slotVolumes??null)!==JSON.stringify(clock.slotVolumes??null)||
+        JSON.stringify(c.slotMicrotiming??null)!==JSON.stringify(clock.slotMicrotiming??null))return false;
       for(let i=0;i<c.pattern.length;i++)if(c.pattern[i]!==clock.pattern[i])return false;
       return true;
     }
     function rememberClockControl(clock,options,frequency,velocity,gain,duration,seed,pcmId){
-      return {interval:clock.intervalMs,pattern:clock.pattern.slice(),pitchRatios:clock.pitchRatios?.slice()??null,frequency,velocity,gain,duration,seed,pcmId,
+      return {interval:clock.intervalMs,pattern:clock.pattern.slice(),pitchRatios:clock.pitchRatios?.slice()??null,slotVolumes:clock.slotVolumes?.slice()??null,slotMicrotiming:clock.slotMicrotiming?.slice()??null,frequency,velocity,gain,duration,seed,pcmId,
         volumeCurve:options.volumeCurve,pitchCurve:options.pitchCurve,attackSec:options.attackSec,releaseSec:options.releaseSec};
     }
     function noteOn(instrument, options = {}, startSec = context.currentTime) {

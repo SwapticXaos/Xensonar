@@ -295,6 +295,7 @@
     "src/app/forge/07_preview_cache_and_controls.js",
     "src/forge/editor/06_pcm_spectrum_view.js",
     "src/forge/editor/07_view_lifecycle.js",
+    "src/post-oct/033-xen-multitrack-shared.js",
     "src/forge/editor/01_display_and_canvas.js",
     "src/forge/editor/02_tools_and_audio_inputs.js",
     "src/forge/editor/03_synthetic_sound_engines.js",
@@ -924,6 +925,13 @@
    ]
   },
   {
+   "id": "js-020b-xen-room-multitrack",
+   "oct28_section": null,
+   "files": [
+    "src/post-oct/032-xen-room-multitrack.js"
+   ]
+  },
+  {
    "id": "js-021-xen-function-__ForgeTransportRack",
    "oct28_section": "@@XENSONAR_COMPONENT_053@@",
    "files": [
@@ -942,6 +950,18 @@
    "oct28_section": "@@XENSONAR_COMPONENT_055@@",
    "files": [
     "src/factories/xenM12InventoryFactory.js"
+   ]
+  },
+  {
+   "id": "js-023b-xen-function-__xenHoldPatternMemoryFactory",
+   "files": [
+    "src/factories/xenHoldPatternMemoryFactory.js"
+   ]
+  },
+  {
+   "id": "js-023c-xen-function-__xenHoldPatternPlanFactory",
+   "files": [
+    "src/factories/xenHoldPatternPlanFactory.js"
    ]
   },
   {

@@ -520,11 +520,11 @@ function createNodalSurfaceRuntime({library,live,model}) {
       durationSec:Math.max(.02,Math.min(2,options.durationSec??.25)),seed:instrument.seed},context.currentTime+.008);
   }
   function note(lane,id,options={},context){
-    const slot=lanes.get(lane),hold=options.nodalHoldKeyId?holdReady.get(lane):null;
+    const slot=lanes.get(lane),hold=(options.nodalHoldKeyId||options.nodalExpressiveHoldOneShot===true)?holdReady.get(lane):null;
     const preparedHold=hold?.id===id&&hold.context===context&&hold.pinned?hold:null;
     const ready=slot?.ready?.id===id?slot.ready:preparedHold;
     if(disposed||!isNodal(id)||!ready||ready.id!==id||(!preparedHold&&(slot.id!==id||slot.phase!=='ready'))||ready.context!==context||context?.state!=='running'||owner?.player!==ready.player){
-      if(options.nodalHoldKeyId&&isNodal(id)&&!disposed)void prepareHold(lane,id);
+      if((options.nodalHoldKeyId||options.nodalExpressiveHoldOneShot===true)&&isNodal(id)&&!disposed)void prepareHold(lane,id);
       traceNodalNote(lane,id,options,ready,null,'pre-dispatch-rejected',!ready?'not-ready':'selection-context');if(typeof __XenAudioProbe!=='undefined'&&__XenAudioProbe.enabled)__XenAudioProbe.record('nodal-surface',lane,!ready?'not-ready':'selection-context',options.startSec,options.traceId);return null;
     }
     const now=context.currentTime;
@@ -547,14 +547,14 @@ function createNodalSurfaceRuntime({library,live,model}) {
     }
     if(typeof __XenAudioProbe!=='undefined'&&__XenAudioProbe.enabled)__XenAudioProbe.record('nodal-surface',lane,'bound',start,options.traceId,{desired:id,active:ready.id});
     const holdKey=options.nodalHoldKeyId&&(lane==='keyboard'||lane==='wave')?lane+':'+options.nodalHoldKeyId:null;
-    if(holdKey&&clock)holdClockControls.set(holdKey,{id,options:{...options,gain},signature:[id,options.nodalHoldGestureEpochMs,clock.intervalMs,clock.pattern.join(''),hz].join('|')+(clock.pitchSignature?'|'+clock.pitchSignature:'')});
+    if(holdKey&&clock)holdClockControls.set(holdKey,{id,options:{...options,gain},signature:[id,options.nodalHoldGestureEpochMs,clock.intervalMs,clock.pattern.join(''),hz].join('|')+(clock.pitchSignature?'|'+clock.pitchSignature:'')+'|v:'+JSON.stringify(clock.slotVolumes??null)+'|m:'+JSON.stringify(clock.slotMicrotiming??null)});
     const resident=__XenNodalHoldPCM.play(lane,String(ready.programKey),ready.instrument,{...options,startSec:start,frequency:hz,gain},context);
     if(resident){traceNodalNote(lane,id,options,ready,resident,'nh01-resident');if(holdKey)retireFallbackHold(holdKey);return resident;}
     // Nodal PCM integration, limited to actually selected native Wave Starter presets.
     // No shadow instruments: source identity and revisions are owned by the existing library.
     // Keyboard Hold, particles, pitch/expression gestures and other dynamic voices stay DSP.
     const fixedDuration=Number.isFinite(options.durationSec)?Math.max(.02,Math.min(30,options.durationSec)):ready.instrument.articulation.durationSec;
-    const pcmEligible=lane==='wave'&&options.held!==true&&!options.nodalHoldKeyId&&
+    const pcmEligible=lane==='wave'&&options.held!==true&&!options.nodalHoldKeyId&&!options.nodalExpressiveHoldOneShot&&
       !options.pitchCurve&&!options.volumeCurve&&!options.forceLiveDSP&&
       Number.isFinite(fixedDuration)&&fixedDuration>=.02&&fixedDuration<=1.5&&
       Number.isSafeInteger(ready.instrument.seed)&&ready.instrument.seed>=0&&ready.instrument.seed<=2147483647;
@@ -585,24 +585,24 @@ function createNodalSurfaceRuntime({library,live,model}) {
     return count;
   }
   function stopHoldClocks(){for(const [key,voice]of fallbackHoldVoices)if(voice.isHoldClock){voice.noteOff();fallbackHoldVoices.delete(key);holdClockControls.delete(key);liveVoices.delete(voice.id);}}
-  function syncHoldClock(lane,gesture,pattern,id,ctx,hz,pitchState){
+  function syncHoldClock(lane,gesture,pattern,id,ctx,hz,pitchState,slotVolumes,slotMicrotiming){
     const key=lane+':'+gesture.keyId,voice=fallbackHoldVoices.get(key);
     if(!voice?.isHoldClock)return;
     // Key-up/blur uses the existing release path. Sustain/preset changes retire
     // this clock so the existing non-clock gesture path can take ownership.
-    if(gesture.sustainExtendActive||gesture.sustainExtendLatched||!gesture.active){retireFallbackHold(key);return;}
+    if(gesture.hpm02Expressive||gesture.sustainExtendActive||gesture.sustainExtendLatched||!gesture.active){retireFallbackHold(key);return;}
     const slot=lanes.get(lane),hold=holdReady.get(lane),ready=slot?.ready?.id===id?slot.ready:hold?.id===id?hold:null;
     if(!ready||ready.context!==ctx){retireFallbackHold(key);return;}
     const control=holdClockControls.get(key);if(!control||control.id!==id){retireFallbackHold(key);return;}
     // PRECISION03: gesture Hz is BEFORE zhe's octave/sector transform. Only
     // the normal note path owns resolved playback Hz (and live retargeting).
     // A rhythm update preserves that exact Hz, gain, lane and render identity.
-    const signature=[id,gesture.startedAtMs,gesture.intervalMs,pattern.join(''),control.options.frequency].join('|')+(pitchState?'|'+pitchState.signature:'');
+    const signature=[id,gesture.startedAtMs,gesture.intervalMs,pattern.join(''),control.options.frequency].join('|')+(pitchState?'|'+pitchState.signature:'')+'|v:'+JSON.stringify(slotVolumes??null)+'|m:'+JSON.stringify(slotMicrotiming??null);
     if(control.signature===signature)return;
     note(lane,id,{...control.options,requestedAtMs:undefined,traceId:undefined,nodalHoldKeyId:gesture.keyId,nodalHoldGestureEpochMs:gesture.startedAtMs,
       nodalHoldIntervalMs:gesture.intervalMs,held:true,
       nodalHoldClock:{startSec:ctx.currentTime+(gesture.startedAtMs-performance.now())/1000+.008,
-        intervalMs:gesture.intervalMs,pattern,...(pitchState?{pitchRatios:pitchState.ratios,pitchSignature:pitchState.signature}: {})}},ctx);
+        intervalMs:gesture.intervalMs,pattern,slotVolumes,slotMicrotiming,...(pitchState?{pitchRatios:pitchState.ratios,pitchSignature:pitchState.signature}: {})}},ctx);
   }
   function warmParticleField(agents,root,context,prediction,baseSpeed,sectorAngle){
     const slot=lanes.get('particle'),ready=slot?.ready;

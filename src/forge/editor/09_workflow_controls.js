@@ -1,10 +1,105 @@
+/* Forge Voices · G/H/I listening modes (Gahjer, Holgriot, Ingor).
+   This file is the single owner of their parameter ranges, defaults and presets.
+   It is plain data: no audio, no DOM, no storage. The DSP lives in the lazy Forge chunk. */
+function createForgeVoiceSpec(){
+ const P=(min,max,def,step=.01)=>({min,max,def,step});
+ // Shared by all three: envelope, stereo and the loop-aware room.
+ const common={attack:P(.002,.6,.012,.001),release:P(.02,6,.35,.01),width:P(0,1,.7),space:P(0,1,.22),size:P(0,1,.45),tailWrap:P(0,1,1,1),level:P(.1,1.5,1)};
+ const engines={
+  gaia:{machineId:'gaia-terrain-carrier',label:'Gahjer',title:'Gahjer · Terrain Orbit',glyph:'◍',
+   summary:'The drawing is a landscape. Every note circles its own surroundings and sounds what it finds there.',
+   params:{...common,reachPitch:P(.25,24,5,.05),reachTime:P(0,.6,.06,.005),lift:P(-1.5,1.5,.8),lobes:P(1,7,1,1),relief:P(0,1,.4),
+    drift:P(0,1,.25),dynamics:P(0,1,.5),anchor:P(0,1,.35),richness:P(8,64,40,1)},
+   presets:[
+    {id:'glass-ridge',name:'Glass Ridge',params:{reachPitch:3.5,reachTime:.03,lift:.9,lobes:1,relief:.3,drift:.15,dynamics:.4,anchor:.45,richness:36,space:.3,size:.55,width:.8}},
+    {id:'canyon',name:'Canyon Choir',params:{reachPitch:12,reachTime:.14,lift:.35,lobes:2,relief:.55,drift:.4,dynamics:.6,anchor:.3,richness:48,space:.38,size:.7,width:.9,attack:.04,release:.9}},
+    {id:'needle',name:'Needle Path',params:{reachPitch:1.2,reachTime:.012,lift:1,lobes:3,relief:.1,drift:.05,dynamics:.7,anchor:.8,richness:64,space:.12,size:.3,width:.5,attack:.003,release:.12}},
+    {id:'tide',name:'Tide Organ',params:{reachPitch:7,reachTime:.3,lift:0,lobes:1,relief:.8,drift:.7,dynamics:.3,anchor:.6,richness:24,space:.45,size:.85,width:1,attack:.12,release:1.6}},
+    {id:'fold',name:'Fold Engine',params:{reachPitch:19,reachTime:.05,lift:-.6,lobes:5,relief:.2,drift:.55,dynamics:.8,anchor:.9,richness:64,space:.18,size:.4,width:.75}}]},
+  hildegard:{machineId:'hildegard-mirror-carrier',label:'Holgriot',title:'Holgriot · Mirror Spectrum',glyph:'♁',
+   summary:'The intervals of the figure become the overtones of every note. Any tuning gets a timbre made for it.',
+   params:{...common,mirror:P(0,1,1),partials:P(4,32,20,1),tilt:P(0,1,.5),bow:P(0,1,.25),decay:P(.08,12,2.2,.01),hardness:P(0,1,.55),
+    dynamics:P(0,1,.5),halo:P(0,1,.35),haloDecay:P(.3,10,3,.05),shimmer:P(0,1,.3),equave:P(1.1,4,2,.0001)},
+   presets:[
+    {id:'bell-garden',name:'Bell Garden',params:{mirror:1,partials:20,tilt:.55,bow:.05,decay:3.4,hardness:.7,dynamics:.5,halo:.45,haloDecay:4.5,shimmer:.35,space:.3,size:.6,attack:.003,release:1.8}},
+    {id:'bowed-glass',name:'Bowed Glass',params:{mirror:1,partials:16,tilt:.4,bow:1,decay:2,hardness:.3,dynamics:.7,halo:.5,haloDecay:6,shimmer:.5,attack:.09,release:.8,space:.35,size:.7,width:.9}},
+    {id:'marimba',name:'Tuned Wood',params:{mirror:.85,partials:10,tilt:.75,bow:0,decay:.7,hardness:.45,dynamics:.6,halo:.2,haloDecay:1.5,shimmer:.1,space:.15,size:.3,attack:.003,release:.4}},
+    {id:'sympathy',name:'Sympathetic Strings',params:{mirror:.6,partials:28,tilt:.35,bow:.3,decay:4,hardness:.85,dynamics:.45,halo:.9,haloDecay:8,shimmer:.25,space:.25,size:.5,width:1,attack:.004,release:2.5}},
+    {id:'pure-harmonic',name:'Harmonic Reference',params:{mirror:0,partials:24,tilt:.5,bow:.6,decay:2.5,hardness:.5,dynamics:.5,halo:0,shimmer:0,space:.1,size:.3}}]},
+  isolde:{machineId:'isolde-spiral-carrier',label:'Ingor',title:'Ingor · Endless Spiral',glyph:'꩜',
+   summary:'A self-similar tone: the same sound in every register. Lines can rise forever, and the rhythm repeats at every scale.',
+   params:{...common,equave:P(1.1,4,2,.0001),density:P(1,4,1,1),body:P(1,4,1,1),center:P(120,2400,520,1),span:P(1.5,7,4.5,.05),
+    spiral:P(-12,12,0,1),pulse:P(0,1,0),pulseRate:P(1,32,4,.0001),pulseRatio:P(1,4,2,.0001),sharp:P(0,1,.4),swirl:P(0,1,.6)},
+   presets:[
+    {id:'shepard',name:'Endless Stair',params:{equave:2,density:1,body:1,center:520,span:5,spiral:0,pulse:0,swirl:.5,space:.25,size:.5}},
+    {id:'risset-rise',name:'Rising Forever',params:{equave:2,density:1,body:2,center:440,span:5.5,spiral:2,pulse:0,swirl:.9,space:.4,size:.75,attack:.08,release:1.2,width:1}},
+    {id:'pulse-fractal',name:'Fractal Pulse',params:{equave:2,density:1,body:1,center:600,span:5,spiral:0,pulse:.85,pulseRate:2,pulseRatio:2,sharp:.6,swirl:.7,space:.2,size:.4}},
+    {id:'tritave',name:'Tritave Glass',params:{equave:3,density:2,body:1,center:700,span:6,spiral:0,pulse:.35,pulseRate:3,pulseRatio:3,sharp:.3,swirl:.6,space:.35,size:.65}},
+    {id:'golden',name:'Golden Swarm',params:{equave:1.6180339887,density:1,body:1,center:480,span:5.5,spiral:-3,pulse:.6,pulseRate:5,pulseRatio:1.5,sharp:.5,swirl:1,space:.3,size:.6,width:1}}]}};
+ const ids=Object.keys(engines),byMachine=Object.fromEntries(ids.map(id=>[engines[id].machineId,id]));
+ const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+ function params(engine,input={}){
+  const spec=engines[engine];if(!spec)throw Error('Unknown Forge voice: '+engine);
+  const out={};for(const [key,p] of Object.entries(spec.params)){let v=Number(input?.[key]);if(!Number.isFinite(v))v=p.def;v=clamp(v,p.min,p.max);if(p.step===1)v=Math.round(v);out[key]=v}
+  return out;
+ }
+ function recipe(engine,input){
+  if(input&&input.schema!=null&&input.schema!=='xensonar.forge-voice')throw Error('This is not a Forge voice recipe');
+  if(input&&input.version!=null&&input.version!==1)throw Error('Unsupported Forge voice recipe version');
+  if(input&&input.engine!=null&&input.engine!==engine)throw Error('Recipe belongs to another listening mode');
+  const preset=typeof input?.preset==='string'&&engines[engine]?.presets.some(p=>p.id===input.preset)?input.preset:null;
+  return Object.freeze({schema:'xensonar.forge-voice',version:1,engine,preset,params:Object.freeze(params(engine,input?.params))});
+ }
+ const preset=(engine,id)=>{const p=engines[engine]?.presets.find(x=>x.id===id);if(!p)throw Error('Unknown preset');return recipe(engine,{preset:id,params:p.params})};
+ return Object.freeze({engines,ids,byMachine,params,recipe,preset,engineOf:machineId=>byMachine[machineId]??null});
+}
+if(typeof module!=='undefined'&&module.exports)module.exports=createForgeVoiceSpec;
+/* Forge Voices · state owner for the G/H/I listening modes (Gahjer, Holgriot, Ingor).
+   KALT: this small owner holds recipes only. DSP, Worker and Synth Lab panels live in
+   the lazy Forge room chunk and register themselves here when that chunk is opened.
+   One recipe per mode; the draft is kept in localStorage and inside each Forge project. */
+const __ForgeVoices=(()=>{
+ const spec=createForgeVoiceSpec(),STORAGE='xensonar.forge.voices.v1',listeners=new Set();
+ let recipes={},revision=0,lastError=null,lastReport=null,runtime=null;
+ for(const id of spec.ids)recipes[id]=spec.recipe(id);
+ try{const raw=JSON.parse(localStorage.getItem(STORAGE)||'null');if(raw&&typeof raw==='object')for(const id of spec.ids)if(raw[id])try{recipes[id]=spec.recipe(id,raw[id])}catch{}}catch{}
+ recipes=Object.freeze(recipes);
+ const engineOf=spec.engineOf,is=machineId=>engineOf(machineId)!==null,snapshot=()=>recipes;
+ const notify=()=>{for(const fn of listeners)try{fn()}catch(error){console.warn('[Forge Voices] View update',error)}};
+ // A project without (or with a damaged) recipe for a mode keeps the current draft of that mode.
+ function normalizeProject(input){if(!input||typeof input!=='object')return null;const out={};for(const id of spec.ids)if(input[id])try{out[id]=spec.recipe(id,input[id])}catch{}return Object.keys(out).length?out:null}
+ // Only the parameters are sound. The preset name is a label.
+ const semanticKey=(machineId,input)=>{const id=engineOf(machineId);return id+':'+JSON.stringify(spec.recipe(id,(input??recipes)[id]??recipes[id]).params)};
+ function set(engine,input,{invalidate=true}={}){
+  const next=spec.recipe(engine,input),previous=recipes[engine];if(JSON.stringify(next)===JSON.stringify(previous))return previous;
+  const sound=JSON.stringify(next.params)!==JSON.stringify(previous.params);recipes=Object.freeze({...recipes,[engine]:next});
+  try{localStorage.setItem(STORAGE,JSON.stringify(recipes))}catch{}
+  if(sound){revision++;lastError=null;
+   if(invalidate&&typeof pe!=='undefined'&&pe.getState){const state=pe.getState();if(engineOf(state.carrierIntegralSelection?.machineId)===engine){__f333Stop();pe.setState({...__f333Idle(),renderVersion:(state.renderVersion??0)+1,audioBufferDirty:true})}}}
+  if(invalidate&&typeof __f333Persistence!=='undefined')__f333Persistence?.scheduleSave?.();
+  notify();return next;
+ }
+ function loadProject(input){const next=normalizeProject(input);if(!next)return;for(const id of Object.keys(next))set(id,next[id],{invalidate:false})}
+ function lab(){if(!runtime)__xenLoadDeferred('lab');if(!runtime)throw Error('This listening mode could not be loaded.');return runtime}
+ async function renderCarrier(args){
+  try{lastError=null;const result=await lab().renderCarrier(args);lastReport=result.report;notify();return result.buffer}
+  catch(error){if(error?.name!=='AbortError'){lastError=String(error?.message||error);notify()}throw error}
+ }
+ return Object.freeze({spec,is,engineOf,snapshot,semanticKey,set,loadProject,normalizeProject,renderCarrier,
+  subscribe:fn=>(listeners.add(fn),()=>listeners.delete(fn)),revision:()=>revision,lastError:()=>lastError,lastReport:()=>lastReport,
+  register(next){runtime=next},preset:(engine,id)=>set(engine,spec.preset(engine,id))});
+})();
+/* Listening modes that render themselves from the Carrier and are never replaced by a selected Donor. */
+const __forgeSelfMachine=id=>id==='emilia-nodal-carrier'||id==='fractalia-self-carrier'||__ForgeVoices.is(id);
+/* Modes whose heard PCM (not a generic carrier pattern) is what live destinations receive. */
+const __forgeRenderedMachine=id=>id==='fractalia-self-carrier'||__ForgeVoices.is(id);
 /* Shared access to one listening selection and one mounted transport owner.
    Duplicate controls subscribe to the same state; no duplicate audio engine. */
 const __ForgeListeningMode=(()=>{
  const listeners=new Set();let error='';
  const emit=()=>{for(const fn of listeners)fn()};
  const value=()=>{const machine=pe.getState().carrierIntegralSelection.machineId,donor=Vt.getSnapshot().selected;
-  return __F35611DonorIntent||donor&&!['emilia-nodal-carrier','fractalia-self-carrier'].includes(machine)?'donor':LGe.find(x=>x.machineId===machine)?.id||'pure-dieter'};
+  return __F35611DonorIntent||donor&&!__forgeSelfMachine(machine)?'donor':LGe.find(x=>x.machineId===machine)?.id||'pure-dieter'};
  function choose(id,{prepare=true}={}){error='';__f333Stop();pe.setState(__f333Idle());
   if(id==='donor'){__F35611DonorIntent=true;emit();if(prepare)void __f3562EnsureDonor().catch(e=>{if(value()==='donor'){error=e.message;emit()}})}
   else{const option=LGe.find(x=>x.id===id);if(!option)return;__F35611DonorIntent=false;Vt.selectCarrier();const s=pe.getState();if(option.harmonicXploreProfileId)s.setCarrierIntegralHarmonicXplore({profileId:option.harmonicXploreProfileId,source:'user'});s.setCarrierIntegralSelection({machineId:option.machineId,source:'user'});
@@ -16,7 +111,7 @@ const __ForgeListeningMode=(()=>{
  return {value,choose,subscribe,error:()=>error};
 })();
 function __useForgeListeningMode(){const value=P.useSyncExternalStore(__ForgeListeningMode.subscribe,__ForgeListeningMode.value,__ForgeListeningMode.value),error=P.useSyncExternalStore(__ForgeListeningMode.subscribe,__ForgeListeningMode.error,__ForgeListeningMode.error);return{value,error,choose:__ForgeListeningMode.choose,label:value==='donor'?'Donor':LGe.find(x=>x.id===value)?.label||'Pure Dieter'}}
-function __ForgeListeningPicker({label='Listening mode',compact=false}){const choice=__useForgeListeningMode();return P.createElement('select',{'aria-label':label,'data-forge-shared-listening-picker':true,value:choice.value,onChange:e=>choice.choose(e.target.value),className:'min-w-0 w-full rounded border border-fuchsia-700/60 bg-neutral-900 px-2 py-2 text-xs text-neutral-100',style:compact?{maxWidth:210}:undefined},...LGe.filter(x=>!['emilia','fractalia'].includes(x.id)).map(x=>P.createElement('option',{key:x.id,value:x.id},x.label)),P.createElement('option',{value:'donor'},'Donor'),...LGe.filter(x=>['emilia','fractalia'].includes(x.id)).map(x=>P.createElement('option',{key:x.id,value:x.id},x.label)))}
+function __ForgeListeningPicker({label='Listening mode',compact=false}){const choice=__useForgeListeningMode();return P.createElement('select',{'aria-label':label,'data-forge-shared-listening-picker':true,value:choice.value,onChange:e=>choice.choose(e.target.value),className:'min-w-0 w-full rounded border border-fuchsia-700/60 bg-neutral-900 px-2 py-2 text-xs text-neutral-100',style:compact?{maxWidth:210}:undefined},...LGe.filter(x=>!__forgeSelfMachine(x.machineId)).map(x=>P.createElement('option',{key:x.id,value:x.id},x.label)),P.createElement('option',{value:'donor'},'Donor'),...LGe.filter(x=>__forgeSelfMachine(x.machineId)).map(x=>P.createElement('option',{key:x.id,value:x.id},x.label)))}
 const __ForgeTransportAccess=(()=>{
  let owner=null,state=Object.freeze({phase:'idle',progress:0,available:false,ready:false});const listeners=new Set();
  const emit=()=>{for(const fn of listeners)fn()};

@@ -473,17 +473,35 @@ function __xenLRF5MaterialStop(refs){
  if(refs.__xenLRF5DisposeTimer!==undefined){clearTimeout(refs.__xenLRF5DisposeTimer);delete refs.__xenLRF5DisposeTimer}
  __xenLRF5MaterialCancelPending(refs);cV(refs);
 }
+/* R1 (MT-CHAIN-01): shared Material lane chain, timing-free.
+   source -> [pitch] -> gain -> [pan] -> EQ -> route(output). Order and start values
+   are exactly those of the Live Material Track ($fe); Room IV clips reuse it with
+   their own EQ key, pan binding and output route. */
+function __xenMaterialLaneChain(ctx,{source,pitchNode=null,gain,panValue=0,onPan,eqKey,route}){
+ source.connect(pitchNode??gain);if(pitchNode)pitchNode.connect(gain);
+ const pan=typeof ctx.createStereoPanner==='function'?ctx.createStereoPanner():null;
+ if(pan){pan.pan.value=panValue;gain.connect(pan);onPan?.(pan)}
+ const eq=__XenEQ.create(ctx,eqKey);
+ (pan??gain).connect(eq.input);gain.__xenEQDevice=eq;
+ route(eq.output);
+ return {pan,eq,output:eq.output};
+}
 function Kfe(e){const{entries:t,currentId:n,currentActive:r,pendingRegisteredId:a}=e;if(e.preserveCurrentId&&!a)return{patch:null,clearPendingRegisteredId:!1};if(!t.length)return n?{patch:{materialLoopId:"",materialLoopActive:!1},clearPendingRegisteredId:!0}:{patch:null,clearPendingRegisteredId:!0};if(n&&t.some(i=>i.id===n))return{patch:null,clearPendingRegisteredId:!1};const o=a?t.find(i=>i.id===a)?.id??"":"";return{patch:{materialLoopId:o||t[0].id,materialLoopActive:r||!!o},clearPendingRegisteredId:!!o}}async function $fe(e){const{ctx:t,entry:original,quantizeBpm:r,timeMode:a,volume:o,syncToBeat:i,refs:published}=e,
  l=published.tokenRef.current;let s=published;
  // Defer this voice until the Session-specific edited PCM is ready.
  const restoring=__XenRackLiveBarEdits.pendingFor(original.id);
  if(restoring){await restoring;if(published.tokenRef.current!==l||t.state==='closed')return false}
- const edit=__XenRackLiveBarEdits.get(original.id),
+ let edit=__XenRackLiveBarEdits.get(original.id),
  n=edit?{...original,bars:edit.bars,loopStartSec:0,loopEndSec:edit.duration}:original;
  // Prepared PCM is copied to the live AudioContext on the control thread.
  // The durable/original decoded-buffer cache is never replaced by an edit.
  let c=edit?__XenRackLiveBarEdits.bufferFor(t,edit):s.cacheRef.current.get(n.id);
  if(!c)try{const g=await __materialAudioBlob(n,"material-decode").arrayBuffer();if(s.tokenRef.current!==l||t.state==="closed")return false;c=await t.decodeAudioData(g.slice(0));if(s.tokenRef.current!==l||t.state==="closed")return false;s.cacheRef.current.set(n.id,c),Hfe(n,c)}catch(g){if(s.tokenRef.current!==l||t.state==="closed")return false;throw Ufe(n,g instanceof Error?g.message:"decode-or-cache-failed"),g}if(s.tokenRef.current!==l)return!1;
+// PITCH-HQ-01: a resting pitch plays its pre-rendered loop variant; the lane
+// shifter then only covers the difference (zero at rest = exact bypass).
+const pitchVariant=__XenMaterialPitchVariants.resolve(t,c,n,n.id,__XenMaterialVoiceMix.get(n.id).pitch);
+const pitchBase=pitchVariant?pitchVariant.cents:0;
+if(pitchVariant){c=pitchVariant.buffer;n=pitchVariant.entry}
 // Load processor only at source activation. The native zero-pitch bypass is exact.
 const pitchReady=await __XenTimeStablePitch.ensure(t);
 if(s.tokenRef.current!==l)return!1;
@@ -531,10 +549,10 @@ if(e.liveBarEdit&&hasOld&&previousTimeline?.entryId===n.id){
 }
 const transportOrigin=liveHandoff?d.startAtSec-liveHandoff.offset:(preservePhase?previousTimeline.originSec:liveOrigin??d.startAtSec);
 const attackPhase=liveHandoff?liveHandoff.offset*d.playbackRate:(preservePhase||liveOrigin!==null?(d.startAtSec-transportOrigin)*d.playbackRate:0);
-const pitchNode=pitchReady?__XenTimeStablePitch.createMaterial(t,currentVoice.pitch,d.startAtSec):null;
-if(pitchNode)__xenBindMaterialPitch(pitchNode,n.id);
+const pitchNode=pitchReady?__XenTimeStablePitch.createMaterial(t,currentVoice.pitch-pitchBase,d.startAtSec):null;
+if(pitchNode){pitchNode.__xenPitchBaseCents=pitchBase;__xenBindMaterialPitch(pitchNode,n.id)}
 if(__XenTimeStablePitch.ensure&&typeof globalThis!=='undefined'&&globalThis.__XEN_LANE_PITCH_DIAGNOSTICS__){
- globalThis.__XEN_LANE_PITCH_DIAGNOSTICS__.material[n.id]={state:pitchNode?'connected':'dry-fallback',pitchCents:currentVoice.pitch,reason:pitchNode?'':globalThis.__XEN_LANE_PITCH_DIAGNOSTICS__.reason||'worklet node creation failed',at:Date.now()};
+ globalThis.__XEN_LANE_PITCH_DIAGNOSTICS__.material[n.id]={state:pitchNode?'connected':'dry-fallback',pitchCents:currentVoice.pitch-pitchBase,renderedCents:pitchBase,reason:pitchNode?'':globalThis.__XEN_LANE_PITCH_DIAGNOSTICS__.reason||'worklet node creation failed',at:Date.now()};
  if(!pitchNode)console.warn('[xensonar][material-pitch] DRY FALLBACK, Pitch has no audible effect for material',n.id);
  else if(typeof pitchNode.addEventListener==='function')pitchNode.addEventListener('processorerror',()=>{
   const item=globalThis.__XEN_LANE_PITCH_DIAGNOSTICS__?.material?.[n.id];
@@ -554,15 +572,13 @@ f.__f49StartAt=d.startAtSec;
 f.gain.setValueAtTime(0,d.sharedTime.audioNowSec);
 // First start is a separate case; it MUST accept figures that begin in silence.
 if(!hasOld){f.gain.setValueAtTime(0,xfadeAt);f.gain.linearRampToValueAtTime(d.gainValue,xfadeAt+.008)}
-p.connect(pitchNode??f);if(pitchNode)pitchNode.connect(f);
 const voice=__XenMaterialVoiceMix.get(s.__xenMaterialVoiceId);
 const initialMaterialPan=s.__xenMaterialPrimary===true?__XenPan.snapshot().material:voice.pan;
-const localPan=typeof t.createStereoPanner==='function'?t.createStereoPanner():null;
-if(localPan){localPan.pan.value=initialMaterialPan;f.connect(localPan);s.panRef.current=localPan;__xenBindMaterialPan(localPan,s.__xenMaterialVoiceId,s.__xenMaterialPrimary===true)}
-const eqDevice=__XenEQ.create(t,__XenEQ.keyFor('material',n.id));
-(localPan??f).connect(eqDevice.input);f.__xenEQDevice=eqDevice;
-const localOutput=eqDevice.output;
-localOutput.connect(e.getRhythmBus(t)),e.ensureMyzelPostFxRouter(t);const b=e.getForgeSend();b&&localOutput.connect(b),s.sourceRef.current=p,s.gainRef.current=f,qfe({entry:n,loopStart:d.loopStartSec,loopEnd:d.loopEndSec,playbackRate:d.playbackRate,startAt:preflightAt,syncToBeat:d.syncToBeat}),Qfe(n,o),p.onended=()=>{p.__xenMaterialTransportOff?.();p.__xenMaterialTransportOff=null;if(pitchNode){pitchNode.__xenMaterialPitchOff?.();pitchNode.__xenMaterialPitchOff=null}if(s.panRef?.current===localPan){localPan?.__xenMaterialPanOff?.();if(localPan)localPan.__xenMaterialPanOff=null;s.panRef.current=null;if(published.panRef?.current===localPan)published.panRef.current=null;try{localPan?.disconnect()}catch{}}if(s.sourceRef.current===p){try{p.disconnect()}catch{}s.sourceRef.current=null;if(published.sourceRef.current===p)published.sourceRef.current=null;sV("material-track-source-ended")}f.__xenEQDevice?.dispose();if(s.gainRef.current===f){try{f.disconnect()}catch{}s.gainRef.current=null;if(published.gainRef.current===f)published.gainRef.current=null;lV("material-track-gain-ended")}};
+const {pan:localPan,eq:eqDevice,output:localOutput}=__xenMaterialLaneChain(t,{source:p,pitchNode,gain:f,panValue:initialMaterialPan,
+ onPan:pan=>{s.panRef.current=pan;__xenBindMaterialPan(pan,s.__xenMaterialVoiceId,s.__xenMaterialPrimary===true)},
+ eqKey:__XenEQ.keyFor('material',n.id),
+ route:out=>{out.connect(e.getRhythmBus(t)),e.ensureMyzelPostFxRouter(t);const b=e.getForgeSend();b&&out.connect(b)}});
+s.sourceRef.current=p,s.gainRef.current=f,qfe({entry:n,loopStart:d.loopStartSec,loopEnd:d.loopEndSec,playbackRate:d.playbackRate,startAt:preflightAt,syncToBeat:d.syncToBeat}),Qfe(n,o),p.onended=()=>{p.__xenMaterialTransportOff?.();p.__xenMaterialTransportOff=null;if(pitchNode){pitchNode.__xenMaterialPitchOff?.();pitchNode.__xenMaterialPitchOff=null}if(s.panRef?.current===localPan){localPan?.__xenMaterialPanOff?.();if(localPan)localPan.__xenMaterialPanOff=null;s.panRef.current=null;if(published.panRef?.current===localPan)published.panRef.current=null;try{localPan?.disconnect()}catch{}}if(s.sourceRef.current===p){try{p.disconnect()}catch{}s.sourceRef.current=null;if(published.sourceRef.current===p)published.sourceRef.current=null;sV("material-track-source-ended")}f.__xenEQDevice?.dispose();if(s.gainRef.current===f){try{f.disconnect()}catch{}s.gainRef.current=null;if(published.gainRef.current===f)published.gainRef.current=null;lV("material-track-gain-ended")}};
 if(phasePlayer){
  p.__xenLRF5PhaseDispose=()=>phasePlayer.dispose();
  phasePlayer.onFault=()=>{if(s.tokenRef.current!==l||s.sourceRef.current!==p)return;s.tokenRef.current++;qA(s);$fe({...e,forceNativePhase:true}).catch(error=>console.error('[xensonar][material-phase] fallback',error));};
@@ -619,19 +635,19 @@ if(!hasOld){
 }
 return true}function Xfe(){const e=P.useRef(new Map),t=P.useRef(null),n=P.useRef(null),r=P.useRef(0),p=P.useRef(null),pitch=P.useRef(null);return{cacheRef:e,sourceRef:t,gainRef:n,panRef:p,pitchRef:pitch,tokenRef:r}}function qA(e){__xenLRF5MaterialStop(e)}function Yfe(e){e.tokenRef.current+=1,qA(e),Wfe(e.cacheRef.current,"material-loop-runtime-boundary-cache-cleared"),e.cacheRef.current.clear()}/* Material Pitch P1: each live graph follows its stable material ID directly.
    A knob gesture changes only the processor, never the source/clock/ATT. */
-function __xenBindMaterialPitch(node,id){
+function __xenBindMaterialPitch(node,id,mix=__XenMaterialVoiceMix){
  node.__xenMaterialPitchOff?.();
  let applied=NaN;
- const apply=()=>{const cents=__XenMaterialVoiceMix.get(id).pitch;if(cents===applied&&node.__xenPitchCents===cents)return;__XenTimeStablePitch.tune(node,cents);if(node.__xenPitchCents===cents)applied=cents;
+ const apply=()=>{const cents=mix.get(id).pitch-(node.__xenPitchBaseCents||0);if(cents===applied&&node.__xenPitchCents===cents)return;__XenTimeStablePitch.tune(node,cents);if(node.__xenPitchCents===cents)applied=cents;
   const record=globalThis.__XEN_LANE_PITCH_DIAGNOSTICS__?.material?.[id];
   if(record&&record.state==='connected'){
    if(node.__xenPitchCents===cents){record.pitchCents=cents;record.commandCount=(record.commandCount||0)+1}
    else{record.state='command-failed';record.reason='pitch message was not accepted';console.warn('[xensonar][material-pitch] pitch command failed',id)}
   }
  };
- node.__xenMaterialPitchOff=__XenMaterialVoiceMix.subscribe(apply);apply();
+ node.__xenMaterialPitchOff=mix.subscribe(apply);apply();
 }
-function __xenMaterialSetVoicePitch(refs,value){__XenTimeStablePitch.tune(refs.pitchRef?.current,value)}
+function __xenMaterialSetVoicePitch(refs,value){const node=refs.pitchRef?.current;__XenTimeStablePitch.tune(node,value-(node?.__xenPitchBaseCents||0))}
 function __xenMaterialSetVoicePan(refs,ctx,value){
  const node=refs.panRef?.current;if(!node||node.context!==ctx||ctx?.state==='closed')return;
  const pan=Math.max(-1,Math.min(1,Number.isFinite(value)?value:0)),now=ctx.currentTime;
@@ -640,13 +656,13 @@ function __xenMaterialSetVoicePan(refs,ctx,value){
 /* N3.5: connect each existing material StereoPanner to its own stable voice ID.
    Direct AudioParam automation does not depend on a deferred React repaint and
    does not restart, merge or re-route one of the three independent sources. */
-function __xenBindMaterialPan(node,id,isPrimary=false){
+function __xenBindMaterialPan(node,id,isPrimary=false,mix=__XenMaterialVoiceMix){
  node.__xenMaterialPanOff?.();
  // Primary Material is controlled by the original menu's Pan owner;
  // auxiliary Material voices use their own existing VoiceMix owners.
  const apply=()=>__xenMaterialSetVoicePan({panRef:{current:node}},node.context,
-  isPrimary?__XenPan.snapshot().material:__XenMaterialVoiceMix.get(id).pan);
- node.__xenMaterialPanOff=isPrimary?__XenPan.subscribeLive(apply):__XenMaterialVoiceMix.subscribe(apply);
+  isPrimary?__XenPan.snapshot().material:mix.get(id).pan);
+ node.__xenMaterialPanOff=isPrimary?__XenPan.subscribeLive(apply):mix.subscribe(apply);
  apply();
 }
 /* LRF5.2: one published Material Track owner per AudioContext.
@@ -682,6 +698,7 @@ function Jfe({audioCtx:e,nexusActive:t,materialLoopActive:n,selectedLoopMaterial
   // Update synchronously so an asynchronous decoder takes the newest target.
   const voice=__XenMaterialVoiceMix.get(r?.id,voiceMix);
   const editVersion=__XenRackLiveBarEdits.version(r?.id);
+  const pitchVersion=__XenMaterialPitchVariants.version(r?.id);
   const value=muted?0:i*headroom;
   l.__xenMaterialPrimary=true;
   l.__xenMaterialVoiceId=r?.id;
@@ -714,7 +731,7 @@ function Jfe({audioCtx:e,nexusActive:t,materialLoopActive:n,selectedLoopMaterial
       // unmount/Power OFF without a successor still retires on the next task.
       l.__xenLRF5DisposeTimer=setTimeout(()=>{delete l.__xenLRF5DisposeTimer;qA(l)},0);
     };
-  },[e,t,n,r,a,o,s,voice.attApplied,editVersion]);
+  },[e,t,n,r,a,o,s,voice.attApplied,editVersion,pitchVersion]);
 }const __XenMaterialStandalonePreview=(()=>{
   let active=null,generation=0;
   const listeners=new Set();
@@ -1026,7 +1043,7 @@ P.useEffect(()=>{const pending=A.current;if(!pending)return;if(pending.pending&&
 P.useEffect(()=>()=>{w()},[w]),P.useEffect(()=>{l(L=>V0e({followForgeHandoff:s,materialLoopActive:e.materialLoopActive,effectiveLoopMyzelGroup:b.effectiveLoopMyzelGroup,currentGroup:L})??L)},[b.effectiveLoopMyzelGroup,s,e.materialLoopActive,l]);const k=L=>{if(__xenStarterNativePending(L)){__xenStarterNativeRun('rootFollow',entries=>{const row=entries.find(entry=>entry.id===L);if(row){v.current=false;r({rootFollowLoopId:row.id,rootFollowLoopActive:true})}},null,L);return;}__xenStarterNativeCancel('rootFollow');const B=g.rootFollowLoopEntries.find(O=>O.id===L);B&&(v.current=!1,r({rootFollowLoopId:B.id,rootFollowLoopActive:!0}))},I=()=>{if(A.current?.pending){w();r({rootFollowLoopActive:false});return;}if(__xenStarterNativeWaiting.rootFollow){__xenStarterNativeCancel('rootFollow');w();r({rootFollowLoopActive:false});return;}if(!M.current.rootFollowLoopActive&&__xenStarterNativePending()){__xenStarterNativeRun('rootFollow',entries=>{const row=entries.find(entry=>entry.id===M.current.rootFollowLoopId)??entries[0];if(row){v.current=false;r({rootFollowLoopId:row.id,rootFollowLoopActive:!M.current.rootFollowLoopActive})}});return;}__xenStarterNativeCancel('rootFollow');v.current=!1,r({rootFollowLoopActive:!e.rootFollowLoopActive})},E=L=>{if(__xenStarterNativePending()){__xenStarterNativeRun('rootFollow',entries=>{const index=pV({entries,currentId:M.current.rootFollowLoopId,browseArmed:v.current,key:L,directCount:o}),row=entries[index];if(row){v.current=true;r({rootFollowLoopId:row.id,rootFollowLoopActive:true})}},null,L);return;}__xenStarterNativeCancel('rootFollow');const B=g.rootFollowLoopEntries;if(!B.length)return;const O=pV({entries:B,currentId:e.rootFollowLoopId,browseArmed:v.current,key:L,directCount:o});if(O<0)return;const T=B[O];T&&(v.current=!0,r({rootFollowLoopId:T.id,rootFollowLoopActive:!0}))},F=dge({nParamsUI:e,controller:{exportedLoopMaterials:b.exportedLoopMaterials,recentLoopHotkeyEntries:b.recentLoopHotkeyEntries,rootFollowLoopEntries:g.rootFollowLoopEntries,recentRootFollowHotkeyEntries:g.recentRootFollowHotkeyEntries,selectedLoopMaterial:b.selectedLoopMaterial,selectedRootFollowLoop:g.selectedRootFollowLoop,managedLoopMaterial:b.managedLoopMaterial,managedLoopIndex:b.managedLoopIndex,managedRootFollowLoopMaterial:g.managedRootFollowLoopMaterial,managedRootFollowLoopIndex:g.managedRootFollowLoopIndex,managedLoopInRootFollowBank:b.managedLoopMaterial?g.isEntryInRootFollowLoopBank(b.managedLoopMaterial.id):!1,selectedLoopHandoffProfile:b.selectedLoopHandoffProfile,effectiveLoopMyzelGroup:b.effectiveLoopMyzelGroup,materialLoopUiStatus:b.materialLoopUiStatus,rootFollowLoopUiStatus:g.rootFollowLoopUiStatus,rootFollowPreviewActive:y,toggleRootFollowPreview:R,stopRootFollowPreview:w,setRootFollowAuditionPitchHz:f,materialLoopRenameDraft:b.materialLoopRenameDraft,materialLoopDragId:b.materialLoopDragId,materialLoopDropId:b.materialLoopDropId,rootFollowLoopRenameDraft:g.rootFollowLoopRenameDraft,rootFollowLoopDragId:g.rootFollowLoopDragId,rootFollowLoopDropId:g.rootFollowLoopDropId,setMaterialLoopRenameDraft:b.setMaterialLoopRenameDraft,setRootFollowLoopRenameDraft:g.setRootFollowLoopRenameDraft,selectMaterialLoopDirect:b.selectMaterialLoopDirect,closeMaterialLoopManager:b.closeMaterialLoopManager,openMaterialLoopManager:b.openMaterialLoopManager,activateManagedMaterialLoop:b.activateManagedMaterialLoop,saveMaterialLoopRename:()=>{b.saveMaterialLoopRename()},browseManagedMaterialLoop:b.browseManagedMaterialLoop,shiftMaterialLoopOrder:L=>{b.shiftMaterialLoopOrder(L)},deleteMaterialLoopDirect:L=>{b.deleteMaterialLoopDirect(L)},handleMaterialLoopDragStart:b.handleMaterialLoopDragStart,handleMaterialLoopDragOver:b.handleMaterialLoopDragOver,handleMaterialLoopDrop:(L,B,O,T,_)=>{b.handleMaterialLoopDrop(L,B,O,T,_)},handleMaterialLoopDragEnd:b.handleMaterialLoopDragEnd,uploadMaterialLoopFile:b.uploadMaterialLoopFile,uploadRootFollowLoopFile:g.uploadRootFollowLoopFile,setRootFollowLoopAnchor:g.setRootFollowLoopAnchor,stampCurrentRootFollowLoopAnchor:g.stampCurrentRootFollowLoopAnchor,closeRootFollowLoopManager:g.closeRootFollowLoopManager,openRootFollowLoopManager:g.openRootFollowLoopManager,activateManagedRootFollowLoop:g.activateManagedRootFollowLoop,saveRootFollowLoopRename:g.saveRootFollowLoopRename,browseManagedRootFollowLoop:g.browseManagedRootFollowLoop,shiftRootFollowLoopOrder:g.shiftRootFollowLoopOrder,deleteManagedRootFollowLoop:g.deleteManagedRootFollowLoop,handleRootFollowLoopDragStart:g.handleRootFollowLoopDragStart,handleRootFollowLoopDragOver:g.handleRootFollowLoopDragOver,handleRootFollowLoopDrop:g.handleRootFollowLoopDrop,handleRootFollowLoopDragEnd:g.handleRootFollowLoopDragEnd,sendManagedMaterialLoopToRootFollow:L=>g.addToRootFollowLoopBank(L)},myzelGroups:i,updateNParams:r,hotkeyLabels:c,referenceBpm:Bfe(),formatMaterialLoopBars:Dfe,getEffectiveMaterialLoopBars:Hw});return{recentLoopHotkeyEntries:b.recentLoopHotkeyEntries,recentRootFollowHotkeyEntries:g.recentRootFollowHotkeyEntries,selectedLoopMaterial:b.selectedLoopMaterial,selectedRootFollowLoop:g.selectedRootFollowLoop,selectedRootFollowLoopConfig:g.selectedRootFollowLoopConfig,managedLoopMaterial:b.managedLoopMaterial,selectedLoopHandoffProfile:b.selectedLoopHandoffProfile,rootFollowPreviewActive:y,materialLoopPanelProps:F,selectMaterialLoopDirect:b.selectMaterialLoopDirect,toggleMaterialLoopDirect:b.toggleMaterialLoopDirect,browseMaterialLoopWithUmlaut:b.browseMaterialLoopWithUmlaut,selectRootFollowLoopDirect:k,toggleRootFollowLoopDirect:I,browseRootFollowLoopWithUmlaut:E}}function yge(e){return bge(e)}/* Material Track polyphony: independent sources, independent interpretedBars.
    Reconcile by material ID: adding/removing one layer never restarts other layers.
    The existing primary lane retains its original owner and timing. */
-function __xenParallelMaterialRuntime({audioCtx,active,masterEnabled,primaryEntry,bpm,timeMode,volume,syncToBeat,getRhythmBus,ensureMyzelPostFxRouter,getForgeSend,voiceMix,editRevision},secondaryIds){
+function __xenParallelMaterialRuntime({audioCtx,active,masterEnabled,primaryEntry,bpm,timeMode,volume,syncToBeat,getRhythmBus,ensureMyzelPostFxRouter,getForgeSend,voiceMix,editRevision,pitchRevision},secondaryIds){
  const voices=P.useRef(new Map());
  const list=secondaryIds.length?__xenMaterialPolyPlan(bs().entries,primaryEntry?.id,secondaryIds):[];
  const keyed=list.map(row=>row.id).join('\0');
@@ -1051,6 +1068,17 @@ function __xenParallelMaterialRuntime({audioCtx,active,masterEnabled,primaryEntr
      syncToBeat,refs:record.refs,liveBarEdit:true,getRhythmBus,ensureMyzelPostFxRouter,getForgeSend})
      .catch(err=>console.warn('[xensonar][parallel-material] live edit deferred',id,err));
    }
+   // PITCH-HQ-01: a newly rendered (or released) pitch variant swaps in with phase preserved.
+   const pitchVersion=__XenMaterialPitchVariants.version(id);
+   if(wanted.has(id)&&record.ctx===ctx&&record.bpm===bpm&&record.timeMode===timeMode&&record.syncToBeat===syncToBeat&&
+      record.att===__XenMaterialVoiceMix.get(id,voiceMix).attApplied&&record.editRevision===revision&&record.pitchVersion!==pitchVersion){
+    record.pitchVersion=pitchVersion;record.refs.tokenRef.current++;
+    __xenLRF5MaterialCancelPending(record.refs);
+    $fe({ctx,entry:wanted.get(id).entry,quantizeBpm:bpm,timeMode,
+     volume:headroom*__XenMaterialVoiceMix.get(id,voiceMix).volume,
+     syncToBeat,refs:record.refs,getRhythmBus,ensureMyzelPostFxRouter,getForgeSend})
+     .catch(err=>console.warn('[xensonar][parallel-material] pitch variant deferred',id,err));
+   }
    if(!wanted.has(id)||record.ctx!==ctx||record.bpm!==bpm||record.timeMode!==timeMode||record.syncToBeat!==syncToBeat||record.att!==__XenMaterialVoiceMix.get(id,voiceMix).attApplied){
     if(record.att!==__XenMaterialVoiceMix.get(id,voiceMix).attApplied&&
        record.ctx===ctx&&record.bpm===bpm&&record.timeMode===timeMode&&record.syncToBeat===syncToBeat){
@@ -1064,7 +1092,7 @@ function __xenParallelMaterialRuntime({audioCtx,active,masterEnabled,primaryEntr
    const refs={cacheRef:{current:new Map()},sourceRef:{current:null},gainRef:{current:null},panRef:{current:null},pitchRef:{current:null},tokenRef:{current:1},__xenMaterialVoiceId:id,__xenMaterialTimeline:preservedTimelines.get(id)??null};
    preservedTimelines.delete(id);
    refs.__f35639MaterialVolume=headroom*__XenMaterialVoiceMix.get(id,voiceMix).volume;
-   const record={ctx,bpm,timeMode,syncToBeat,att:__XenMaterialVoiceMix.get(id,voiceMix).attApplied,editRevision:__XenRackLiveBarEdits.version(id),refs};voices.current.set(id,record);
+   const record={ctx,bpm,timeMode,syncToBeat,att:__XenMaterialVoiceMix.get(id,voiceMix).attApplied,editRevision:__XenRackLiveBarEdits.version(id),pitchVersion:__XenMaterialPitchVariants.version(id),refs};voices.current.set(id,record);
    $fe({ctx,entry:row.entry,quantizeBpm:bpm,timeMode,volume:headroom*__XenMaterialVoiceMix.get(id,voiceMix).volume,syncToBeat,refs,getRhythmBus,ensureMyzelPostFxRouter,getForgeSend})
     .catch(err=>{if(voices.current.get(id)!==record)return;console.warn('[xensonar][parallel-material] dropped',id,err);refs.tokenRef.current++;qA(refs);voices.current.delete(id)});
   }
@@ -1076,17 +1104,18 @@ function __xenParallelMaterialRuntime({audioCtx,active,masterEnabled,primaryEntr
    __xenMaterialSetVoicePan(record.refs,ctx,voice.pan);
    __xenMaterialSetVoicePitch(record.refs,voice.pitch);
   }
- },[audioCtx,active,masterEnabled,primaryEntry?.id,bpm,timeMode,syncToBeat,keyed,volume,voiceMix,editRevision]);
+ },[audioCtx,active,masterEnabled,primaryEntry?.id,bpm,timeMode,syncToBeat,keyed,volume,voiceMix,editRevision,pitchRevision]);
 }
 function Sge(e){
  const editRevision=P.useSyncExternalStore(__XenRackLiveBarEdits.subscribe,__XenRackLiveBarEdits.revision,__XenRackLiveBarEdits.revision);
+ const pitchRevision=P.useSyncExternalStore(__XenMaterialPitchVariants.subscribe,__XenMaterialPitchVariants.revision,__XenMaterialPitchVariants.revision);
  const voiceMix=P.useSyncExternalStore(__XenMaterialVoiceMix.subscribe,__XenMaterialVoiceMix.snapshot,__XenMaterialVoiceMix.snapshot);
  const primaryOff=P.useSyncExternalStore(__XenMaterialPrimarySwitch.subscribe,__XenMaterialPrimarySwitch.snapshot,__XenMaterialPrimarySwitch.snapshot);
  const extras=P.useSyncExternalStore(__XenMaterialLayers.subscribe,__XenMaterialLayers.snapshot,__XenMaterialLayers.snapshot);
  const valid=extras.length?__xenMaterialPolyPlan(bs().entries,e.selectedLoopMaterial?.id,extras):[];
  const headroom=1/Math.sqrt(1+valid.length);
  Jfe({...e,parallelHeadroom:headroom,primaryMuted:primaryOff,voiceMix});
- __xenParallelMaterialRuntime({audioCtx:e.audioCtx,active:e.nexusActive,masterEnabled:e.materialLoopActive,primaryEntry:e.selectedLoopMaterial,bpm:e.quantizeBpm,timeMode:e.materialLoopTimeMode,volume:e.materialLoopVolume,syncToBeat:e.materialLoopSyncToBeat,getRhythmBus:e.getRhythmBus,ensureMyzelPostFxRouter:e.ensureMyzelPostFxRouter,getForgeSend:e.getForgeSend,voiceMix,editRevision},extras);
+ __xenParallelMaterialRuntime({audioCtx:e.audioCtx,active:e.nexusActive,masterEnabled:e.materialLoopActive,primaryEntry:e.selectedLoopMaterial,bpm:e.quantizeBpm,timeMode:e.materialLoopTimeMode,volume:e.materialLoopVolume,syncToBeat:e.materialLoopSyncToBeat,getRhythmBus:e.getRhythmBus,ensureMyzelPostFxRouter:e.ensureMyzelPostFxRouter,getForgeSend:e.getForgeSend,voiceMix,editRevision,pitchRevision},extras);
 }const ZT="recording:media-recorder",IV="recording:max-duration-timeout",vge="recording:duration-display-second-tick",Age="recording:preview-playhead-raf",xge="recording:marker-hotkey-listener";function EV(e){return`recording:object-url:${e}`}function FV(e){return`recording:download-object-url:${e}`}function Mge(e,t){return Ya({id:EV(e),kind:"object-url",subsystem:"recording",label:"recording.preview.object-url",owner:"recording/recordingDisposalRegistry.registerRecordingPreviewObjectUrl",meta:{size:t.size,type:t.type||"unknown"}})}function wge(e,t="recording-preview-object-url-revoked"){return e?si(EV(e),t):!1}function Rge(e,t,n,r){return Ya({id:FV(e),kind:"object-url",subsystem:"recording",label:"recording.download.object-url",owner:"recording/recordingDisposalRegistry.registerRecordingDownloadObjectUrl",meta:{filename:n,size:t.size,type:t.type||"unknown",revokeDelayMs:r}})}function Cge(e,t="recording-download-object-url-revoked"){return e?si(FV(e),t):!1}function kge(){return Ya({id:vge,kind:"interval",subsystem:"recording",label:"recording.duration.display-second-tick",owner:"recording/recordingDisposalRegistry.registerRecordingDurationDisplaySecondTick",meta:{visibleResolutionMs:1e3,pollIntervalMs:1e3}})}function Pge(e){return Ya({id:Age,kind:"animation-frame",subsystem:"recording",label:"recording.preview.playhead-raf",owner:"recording/recordingDisposalRegistry.registerRecordingPreviewPlayheadRaf",meta:{hasPreviewUrl:e}})}function Ige(){return Ya({id:xge,kind:"event-listener",subsystem:"recording",label:"recording.marker.hotkey-listener",owner:"recording/recordingDisposalRegistry.registerRecordingMarkerHotkeyListener",meta:{event:"keydown"}})}function Ege(e,t){return Ya({id:ZT,kind:"media-recorder",subsystem:"recording",label:"recording.media-recorder",owner:"recording/recordingDisposalRegistry.registerRecordingMediaRecorder",meta:{sourceMode:e,mimeType:t}})}function eL(e="recording-media-recorder-released"){return si(ZT,e)}function f3(e="recording-media-recorder-failed"){tH({id:`${ZT}:failed`,kind:"media-recorder",subsystem:"recording",label:"recording.media-recorder",owner:"recording/recordingDisposalRegistry.markRecordingMediaRecorderFailed",reason:e})}function Fge(e){return Ya({id:IV,kind:"timeout",subsystem:"recording",label:"recording.max-duration-timeout",owner:"recording/recordingDisposalRegistry.registerRecordingMaxDurationTimeout",meta:{maxRecordingMs:e}})}function TV(e="recording-max-duration-timeout-released"){return si(IV,e)}const Tge=8,Lge=.35,Bge=.0015;function Dge(){return{active:!1,continuity:"idle",currentSessionId:null,currentToken:null,currentLoopId:null,currentLoopName:null,sessionStarts:0,sessionStops:0,schedulerTicks:0,retuneSamples:0,retuneSamplesWithoutRestart:0,rootHzChangesWithinSession:0,sameLoopRestartSuspicions:0,tokenMismatchWarnings:0,transportAnchorWarnings:0,lastRootHz:null,lastRootDeltaCents:null,lastTransportAnchorSec:null,lastNextSliceStartSec:null,lastStage:null,warnings:[],currentSession:null,sequence:0}}const Zt=Dge();function vy(e){Zt.warnings=[e,...Zt.warnings.filter(t=>t!==e)].slice(0,Tge),Zt.continuity="suspect"}function Nge(e,t){return!Number.isFinite(e??NaN)||!Number.isFinite(t??NaN)||!e||!t||e<=0||t<=0?null:1200*Math.log2(t/e)}function Oge(e,t){return Zt.sequence+=1,`root-follow:${t??"unknown"}:${e}:${Zt.sequence}`}function tL(e){Zt.active=!!e&&e.closedAtAudioSec===null,Zt.currentSessionId=e?.id??null,Zt.currentToken=e?.token??null,Zt.currentLoopId=e?.loopId??null,Zt.currentLoopName=e?.loopName??null,Zt.lastRootHz=e?.lastRootHz??Zt.lastRootHz,Zt.lastTransportAnchorSec=e?.lastTransportAnchorSec??Zt.lastTransportAnchorSec,Zt.lastNextSliceStartSec=e?.lastNextSliceStartSec??Zt.lastNextSliceStartSec,Zt.continuity!=="suspect"&&(Zt.continuity=Zt.active?"open":"idle")}function _ge(e){Zt.currentSession&&Zt.currentSession.closedAtAudioSec===null&&Zt.currentSession.loopId===e.loopId&&Zt.currentSession.token!==e.token&&(Zt.sameLoopRestartSuspicions+=1,vy("Root Follow session was reopened for the same loop before the previous session was visibly closed."));const t={id:Oge(e.token,e.loopId),token:e.token,loopId:e.loopId,loopName:e.loopName,sourceKind:e.sourceKind,renderMode:e.renderMode,openedAtAudioSec:e.audioNowSec,closedAtAudioSec:null,lastAudioSec:e.audioNowSec,lastRootHz:e.rootHz,lastTransportAnchorSec:null,lastNextSliceStartSec:null,retuneSamples:0,rootHzChanges:0,schedulerTicks:0};Zt.sessionStarts+=1,Zt.currentSession=t,Zt.lastStage="gate-open",Zt.continuity!=="suspect"&&(Zt.continuity="open"),tL(t)}function j2(e){const t=Zt.currentSession;t&&t.closedAtAudioSec===null&&(e.token!==null&&t.token!==e.token&&(Zt.tokenMismatchWarnings+=1,vy("Root Follow cleanup reported a token different from the active session.")),t.closedAtAudioSec=e.audioNowSec,t.lastAudioSec=e.audioNowSec,Zt.sessionStops+=1),Zt.lastStage=e.stage,Zt.continuity!=="suspect"&&(Zt.continuity="idle"),tL(t??null)}function zge(e){Zt.schedulerTicks+=1;const t=Zt.currentSession;if(!t||t.closedAtAudioSec!==null){Zt.tokenMismatchWarnings+=1,vy("Root Follow scheduler ticked without an open lifecycle session."),Zt.lastStage=e.stage;return}t.token!==e.token&&(Zt.tokenMismatchWarnings+=1,vy("Root Follow scheduler ticked with a token different from the active session.")),t.schedulerTicks+=1,t.lastAudioSec=e.audioNowSec;const n=Nge(t.lastRootHz,e.rootHz);Zt.lastRootDeltaCents=n,n!==null&&Math.abs(n)>Lge&&(t.rootHzChanges+=1,Zt.rootHzChangesWithinSession+=1,Zt.retuneSamples+=1,Zt.retuneSamplesWithoutRestart+=1,t.retuneSamples+=1,Zt.continuity!=="suspect"&&(Zt.continuity="intact")),Number.isFinite(e.rootHz??NaN)&&e.rootHz!==null&&(t.lastRootHz=e.rootHz),Number.isFinite(e.transportAnchorSec??NaN)&&e.transportAnchorSec!==null&&(t.lastTransportAnchorSec!==null&&Math.abs(t.lastTransportAnchorSec-e.transportAnchorSec+(e.attackAppliedSec??0)-(t.lastAttackAppliedSec??0))>Bge&&(Zt.transportAnchorWarnings+=1,vy("Root-Follow-Transportanker driftete innerhalb derselben Session.")),t.lastTransportAnchorSec=e.transportAnchorSec,t.lastAttackAppliedSec=e.attackAppliedSec??0),Number.isFinite(e.nextSliceStartSec??NaN)&&e.nextSliceStartSec!==null&&(t.lastNextSliceStartSec=e.nextSliceStartSec),Zt.lastStage=e.stage,tL(t)}function Bb(){const{currentSession:e,sequence:t,...n}=Zt;return{...n,warnings:[...n.warnings]}}const jge="spectral-forge:source-asset:main",Gge="spectral-forge:source-asset:embodiment",LV="spectral-forge:preview-audio-source",BV="spectral-forge:preview-position-raf",Hge="spectral-forge.source-asset",Vge="spectral-forge.preview.audio-source",Wge="spectral-forge.preview.position-raf",qge="spectral-forge.download.object-url",Qge="spectral-forge.image.object-url";function Ay(e,t=4){return Number.isFinite(e)?Number(e.toFixed(t)):null}
 /* xen-lazy:lab */
 

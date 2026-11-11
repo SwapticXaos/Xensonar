@@ -1053,6 +1053,16 @@ function __createXenPackageStation4(env=globalThis) {
   const chosen=new Set((plan?.rows??[]).map(row=>JSON.stringify([row.db,row.store,row.key])));
   const chosenLocal=new Set(Object.entries(plan?.local??{}).flatMap(([storage,list])=>list.map(([key])=>storage+':'+key)));
   const complete=plan?.scope.complete??true;
+  /* ROOM4-05: read-only. How many Multitrack clips (and unplaced inbox items) use each Material; shown as 'Used in' and as the basis of the delete warning. */
+  const mtUse=new Map();
+  try{if((await inventory()).some(e=>e.name==='xensonar-multitrack-v1')){const mdb=await open('xensonar-multitrack-v1');try{
+   if(mdb.objectStoreNames.contains('projects')){
+    const project=await tx(mdb,'projects','readonly',(s,set)=>{const q=s.get('current');q.onsuccess=()=>set(q.result)});
+    for(const t of (Array.isArray(project?.tracks)?project.tracks:[]))for(const c of (Array.isArray(t?.clips)?t.clips:[]))if(typeof c?.materialId==='string')mtUse.set(c.materialId,(mtUse.get(c.materialId)||0)+1);
+    const inbox=await tx(mdb,'projects','readonly',(s,set)=>{const q=s.get('inbox');q.onsuccess=()=>set(q.result)});
+    for(const it of (Array.isArray(inbox)?inbox:[]))if(typeof it?.materialId==='string')mtUse.set(it.materialId,(mtUse.get(it.materialId)||0)+1);
+   }}finally{mdb.close()}}}catch{}
+  const usedIn=id=>{const n=typeof id==='string'?mtUse.get(id):0;return n?'Multitrack · '+n+(n===1?' Clip':' Clips'):null};
   for(const [storage,owner] of [['local',env.localStorage],['session',env.sessionStorage]])for(const [key,text]of localRows(owner)){
    let value;try{value=JSON.parse(text)}catch{value=text}
    const category=__XenPackageSelection41.keyCategory(key),items=catalogueItems(value);
@@ -1062,14 +1072,14 @@ function __createXenPackageStation4(env=globalThis) {
      key==='xensonar.nodal.instruments.v1'?'nodal':key==='xensonar.entrophon.instruments.v1'?'entrophon':
      category==='melodicProjects'&&item.composer?'melodicProject':null;
     const native=owner==='bass'?{kind:'bass',id:'clip:'+item.id,name:catalogueTitle(item,item.id)}:null;
-    rows.push({id:storage+':'+key+':'+index,source:storage,key,itemId:typeof item?.id==='string'?item.id:null,name:catalogueTitle(item,__XenPackageSelection41.groups.flatMap(group=>group.items).find(pair=>pair[0]===category)?.[1]??'Saved settings'),category,inPackage:complete||chosenLocal.has(storage+':'+key),previewable:false,managed:!!owner,owner,revision:Number.isInteger(item?.revision)?item.revision:null,native});
+    rows.push({usedIn:usedIn(item?.id),id:storage+':'+key+':'+index,source:storage,key,itemId:typeof item?.id==='string'?item.id:null,name:catalogueTitle(item,__XenPackageSelection41.groups.flatMap(group=>group.items).find(pair=>pair[0]===category)?.[1]??'Saved settings'),category,inPackage:complete||chosenLocal.has(storage+':'+key),previewable:false,managed:!!owner,owner,revision:Number.isInteger(item?.revision)?item.revision:null,native});
    });
   }
   for(const entry of await inventory()){
    const db=await open(entry.name);try{for(const store of db.objectStoreNames){let after,first=true;
     while(true){const row=await nextRecord(db,store,after,first);if(!row)break;after=row.key;first=false;
      const category=__XenPackageSelection41.recordCategory(entry.name,store,row.key),blob=catalogueBlob(row.value),id=JSON.stringify([entry.name,store,row.key]);
-     rows.push({id:'db:'+id,source:'database',db:entry.name,store,key:row.key,name:catalogueTitle(row.value,row.key),category,inPackage:complete||chosen.has(id),previewable:!!blob,bytes:blob?.size??null,managed:entry.name==='xensonar-material-library'&&store==='materials',materialId:entry.name==='xensonar-material-library'&&store==='materials'?String(row.value?.id??row.key):null});
+     rows.push({usedIn:entry.name==='xensonar-material-library'&&store==='materials'?usedIn(String(row.value?.id??row.key)):null,id:'db:'+id,source:'database',db:entry.name,store,key:row.key,name:catalogueTitle(row.value,row.key),category,inPackage:complete||chosen.has(id),previewable:!!blob,bytes:blob?.size??null,managed:entry.name==='xensonar-material-library'&&store==='materials',materialId:entry.name==='xensonar-material-library'&&store==='materials'?String(row.value?.id??row.key):null});
      if(rows.length%32===0)await yieldUI();
     }
    }}finally{db.close()}

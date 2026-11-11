@@ -23,8 +23,9 @@ const __XenHoldResident=(()=>{
   failed.set(s.key,{signature:s.signature,gestureStartAtMs:s.gestureStartAtMs,ctx:s.ctx,until:performance.now()+400});
   stop(s);s.unsupported=true;}
  function clear(){__XenNodalSurfaces.stopHoldClocks?.();failed.clear();for(const s of [...sessions.values()])stop(s)}
- function session(key,gesture,ctx,pattern,preset,hz,pitchState,gradientState){
-  __XenNodalSurfaces.syncHoldClock?.(key.startsWith('klaviatur:')?'keyboard':'wave',gesture,pattern,preset,ctx,hz,pitchState);
+ function session(key,gesture,ctx,pattern,preset,hz,pitchState,gradientState,slotVolumes,slotMicrotiming){
+  __XenNodalSurfaces.syncHoldClock?.(key.startsWith('klaviatur:')?'keyboard':'wave',gesture,pattern,preset,ctx,hz,pitchState,__xenHoldVolumeVector(slotVolumes,pattern.length),__xenHoldMicroVector(slotMicrotiming,pattern.length));
+  if(gesture.hpm02Expressive||gesture.hpm02NativeNodalDynamics){stop(sessions.get(key));return null;}
   if(gesture.intervalMs<4||!ctx||ctx.state!=='running'||gesture.sustainExtendActive||gesture.sustainExtendLatched){stop(sessions.get(key));return null}
   if(typeof __XenAvalanche!=='undefined')__XenAvalanche.observe(key,gesture,ctx);
   // A prepared bank belongs to the enable/mode settings that encoded it.

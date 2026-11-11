@@ -453,7 +453,10 @@ function __xenCreateControlPersistence(commit,keys){
   cancel();commit(state);
  };
 }
-const __XenMaterialVoiceMix=(()=>{
+/* R2: VoiceMix as a factory. The Live Room keeps its single instance
+   (__XenMaterialVoiceMix, keyed by material ID, persisted by Song Save);
+   Room IV creates its own instance keyed by clip/track ID. */
+function __xenCreateMaterialVoiceMix(){
  const neutral=Object.freeze({volume:1,pan:0,pitch:0,att:0,attApplied:0,nudgeMode:'granular',nudgeFeel:'soft'});
  let state=Object.freeze({}),listeners=new Set(),attTimers=new Map(),transports=new Map(),revisions=new Map(),pending=new Map(),gestures=new Set();
  const invalidate=id=>{revisions.set(id,(revisions.get(id)??0)+1);for(const key of pending.keys())if(key.id===id)pending.delete(key);};
@@ -526,7 +529,8 @@ const __XenMaterialVoiceMix=(()=>{
   state=Object.freeze(next);notify();
  }
  return Object.freeze({get,snapshot,subscribe,subscribeUi,set,setMode,setFeel,beginGesture,endGesture,registerTransport,restoreSession,isSettling});
-})();
+}
+const __XenMaterialVoiceMix=__xenCreateMaterialVoiceMix();
 /* P9-N3: material PCM phase owner. No UI/render timer owns audio motion. */
 const __XenMaterialPhase=(()=>{
  const code="/* Material phase transport. Audio-time motion, bounded forward rates, per-lane PCM.\n * User pitch remains downstream. Idle and Vinyl use the direct PCM reader;\n * Granular motion uses two overlapping, phase-aligned Hann readers.\n */\nclass XenHardPhaseMotion {\n constructor(attack=0){this.phase=-attack;this.target=-attack;this.rate=1;this.velocity=0;this.lastGesture=-1;this.lastTime=0;this.active=false;this.dragging=false;this.clicking=false;}\n targetAttack(attack,time,interaction){\n  const target=interaction==='restore'?-attack:-Math.max(-2,Math.min(2,attack));\n  if(interaction==='drag'){\n   // Follow the thumb's absolute position, not a second lagging transport.\n   this.dragging=true;this.clicking=false;this.phase=this.target=target;\n   this.rate=1;this.velocity=0;this.active=true;this.lastGesture=time;return;\n  }\n  if(interaction==='click'){\n   this.dragging=false;this.clicking=true;this.target=target;\n   this.active=Math.abs(this.target-this.phase)>1e-9;this.lastGesture=time;\n   return;\n  }\n  this.dragging=false;this.clicking=false;\n  if(target===this.target)return;\n  const dt=this.lastGesture<0?.08:Math.max(.012,Math.min(.5,time-this.lastGesture));\n  this.velocity=Math.max(-16,Math.min(16,(target-this.target)/dt));\n  this.target=target;this.lastGesture=time;this.active=true;\n }\n step(dt,bpm,time){\n  if(!this.active)return 1;\n  if(this.dragging){this.rate=1;return 1;}\n  const beat=60/Math.max(40,Math.min(240,bpm));\n  if(this.clicking){\n   // One fixed, bounded travel velocity for a rail click, independent of distance.\n   const remain=this.target-this.phase;\n   if(Math.abs(remain)<1e-12){this.phase=this.target;this.active=this.clicking=false;this.rate=1;return 1;}\n   const signedSpeed=remain>0?.5:-.5;\n   const delta=Math.sign(remain)*Math.min(Math.abs(remain),Math.abs(signedSpeed)*dt/beat);\n   this.phase+=delta;this.rate=1+delta*beat/dt;\n   if(Math.abs(this.target-this.phase)<1e-12){this.phase=this.target;this.active=this.clicking=false;}\n   this.lastTime=time;return this.rate;\n  }\n  const error=(this.target-this.phase)*beat;\n  const speed=Math.min(1,Math.abs(this.velocity)/8),accel=8+speed*12;\n  const feed=this.velocity*beat*.22*Math.exp(-Math.max(0,time-this.lastGesture)/.07);\n  const brake=Math.sqrt(Math.max(0,2*accel*Math.abs(error)));\n  let desired=Math.max(-brake,Math.min(brake,error*10+feed));\n  desired=Math.max(-.5,Math.min(1,desired));\n  const delta=Math.max(-accel*dt,Math.min(accel*dt,1+desired-this.rate));this.rate+=delta;\n  const movement=(this.rate-1)*dt/beat;\n  if(Math.sign(movement)===Math.sign(this.target-this.phase)&&Math.abs(movement)>=Math.abs(this.target-this.phase)){\n   this.phase=this.target;this.rate=1;this.active=false;\n  }else{\n   this.phase+=movement;\n   if(Math.abs(this.target-this.phase)<1e-7&&Math.abs(this.rate-1)<1e-4){this.phase=this.target;this.rate=1;this.active=false;}\n  }\n  this.lastTime=time;return this.rate;\n }\n}\n\n/* Hard Vinyl: continuous sample-rate playback follows thumb velocity.\n * The user supplies a live phase-offset target. Every audio sample advances\n * the ONE PCM playhead by the signed rate, including reverse movement.\n * No pointer-message phase teleport and no second competing PCM reader.\n */\nclass XenVinylScratchMotion extends XenHardPhaseMotion {\n beginDrag(time){\n  this.dragging=true;this.clicking=false;this.active=true;\n  this.target=this.phase;this.rate=1;this.velocity=0;this.lastGesture=time;\n }\n targetAttack(attack,time,interaction){\n  if(interaction==='drag'){\n   this.dragging=true;this.clicking=false;this.active=true;\n   this.target=-Math.max(-2,Math.min(2,attack));this.lastGesture=time;\n   return;\n  }\n  super.targetAttack(attack,time,interaction);\n }\n endDrag(){\n  this.dragging=false;this.clicking=false;this.active=false;\n  // Let go of the record: resume base speed at its *reached* PCM position.\n  this.target=this.phase;this.rate=1;this.velocity=0;\n }\n step(dt,bpm,time){\n  if(!this.dragging)return super.step(dt,bpm,time);\n  const beat=60/Math.max(40,Math.min(240,bpm));\n  const error=this.target-this.phase;\n  if(Math.abs(error)<1e-10){this.phase=this.target;this.rate=1;return 1;}\n  // 8 ms hand-following time scale. Pitch deviation includes reverse playback;\n  // the bounded slew avoids instantaneous rate changes within one audio sample.\n  const desired=1+Math.max(-4,Math.min(4,error*beat/.008));\n  const nextRate=this.rate+Math.max(-1500*dt,Math.min(1500*dt,desired-this.rate));\n  let movement=(this.rate+nextRate-2)*.5*dt/beat;\n  const arrived=Math.abs(movement)>=Math.abs(error)&&Math.sign(movement)===Math.sign(error);\n  if(arrived)movement=error;\n  this.phase+=movement;\n  const actualRate=1+movement*beat/dt;\n  this.rate=arrived?1:nextRate;\n  this.lastTime=time;\n  return actualRate;\n }\n}\n\n/* N3: finite C2 strokes. Phase is in beats; velocity is the rate deviation.\n * Replanning keeps phase, velocity and acceleration. Infeasible reversals first\n * use a bounded braking segment, then travel to the latest target from rest.\n */\nclass XenPhaseMotion {\n constructor(attack=0){this.phase=-attack;this.target=-attack;this.rate=1;this.velocity=0;this.acceleration=0;this.active=false;this.dirty=false;this.curve=null;this.beat=60/108;this.lastBpm=NaN;}\n targetAttack(attack,time,interaction){const target=interaction==='restore'?-attack:-Math.max(-2,Math.min(2,attack));if(target===this.target)return;this.target=target;this.active=true;this.dirty=true;}\n within(a,b,c,d,e,depth=0){\n  const lo=Math.min(a,b,c,d,e),hi=Math.max(a,b,c,d,e);\n  if(lo>=-.5-1e-12&&hi<=1+1e-12)return true;\n  if(a<-.5-1e-12||a>1+1e-12||e<-.5-1e-12||e>1+1e-12||depth===5)return false;\n  // Bernstein subdivision bounds the entire rate curve, including between samples.\n  const ab=(a+b)/2,bc=(b+c)/2,cd=(c+d)/2,de=(d+e)/2;\n  const abc=(ab+bc)/2,bcd=(bc+cd)/2,cde=(cd+de)/2;\n  const abcd=(abc+bcd)/2,bcde=(bcd+cde)/2,mid=(abcd+bcde)/2;\n  return this.within(a,ab,abc,abcd,mid,depth+1)&&this.within(mid,bcde,cde,de,e,depth+1);\n }\n install(duration,c1,c2,c3,c4,c5,end,stage){this.curve={duration,elapsed:0,c0:this.phase,c1,c2,c3,c4,c5,beat:this.beat,end,stage};this.dirty=false;}\n plan(){\n  const D=this.target-this.phase,v=this.velocity,a=this.acceleration,beat=this.beat;\n  let T=.18+2.1*Math.abs(D)*beat/(D<0?.46:.92);\n  for(let attempt=0;attempt<10;attempt++,T*=1.18){\n   const b0=v,b1=v+a*T/4,b2=5*D*beat/T-2*v-a*T/4;\n   const a0=a,a1=4*(b2-b1)/T,a2=-4*b2/T;\n   const accelOK=Math.max(Math.abs(a0),Math.abs(a1),Math.abs(a2))<=12;\n   const jerkOK=Math.max(Math.abs(3*(a1-a0)/T),Math.abs(3*(a2-a1)/T),Math.abs(3*a2/T))<=500;\n   if(accelOK&&jerkOK&&this.within(b0,b1,b2,0,0)){\n    const vt=v*T/beat,at=a*T*T/beat;\n    this.install(T,vt,at/2,10*D-6*vt-1.5*at,-15*D+8*vt+1.5*at,6*D-3*vt-.5*at,this.target,'travel');return;\n   }\n  }\n  // A single polynomial cannot satisfy every abrupt reversal within rate limits.\n  // Complete a short continuous brake rather than clipping its speed or position.\n  if(this.curve?.stage==='brake'){this.dirty=false;return;}\n  T=.26;\n  for(let attempt=0;attempt<24;attempt++,T*=.7){\n   const b1=v+a*T/3;\n   if(this.within(v,(v+3*b1)/4,b1/2,0,0))break;\n  }\n  const vt=v*T/beat,at=a*T*T/beat,end=this.phase+vt/2+at/12;\n  this.install(T,vt,at/2,-vt-2*at/3,vt/2+at/4,0,end,'brake');\n }\n step(dt,bpm){\n  if(!this.active)return 1;\n  if(this.lastBpm!==bpm){const beat=60/Math.max(40,Math.min(240,bpm));this.lastBpm=bpm;if(beat!==this.beat){this.beat=beat;this.dirty=true;}}\n  const beat=this.beat;\n  if(this.dirty||!this.curve)this.plan();\n  const k=this.curve,previous=this.phase;k.elapsed=Math.min(k.duration,k.elapsed+dt);\n  const u=k.elapsed/k.duration;\n  this.phase=k.c0+u*(k.c1+u*(k.c2+u*(k.c3+u*(k.c4+u*k.c5))));\n  this.velocity=beat/k.duration*(k.c1+u*(2*k.c2+u*(3*k.c3+u*(4*k.c4+5*u*k.c5))));\n  this.acceleration=beat/(k.duration*k.duration)*(2*k.c2+u*(6*k.c3+u*(12*k.c4+20*u*k.c5)));\n  if(k.elapsed===k.duration){\n   this.phase=k.end;this.velocity=this.acceleration=0;\n   if(k.stage==='brake'){this.curve=null;this.plan();}else{this.active=false;this.curve=null;}\n  }\n  const outputRate=1+(this.phase-previous)*beat/dt;\n  this.rate=this.active?outputRate:1;\n  return outputRate;\n }\n}\n\n/* XPERF-12B: immutable PCM bank residence in this AudioWorkletGlobalScope.\n * No extra clone: these are already transferred player source arrays.  Entries\n * are LRU-bounded; live players retain their source even after cache eviction.\n * The bank contains ONLY source PCM, never per-voice motion or DSP state. */\nconst XEN_PHASE_BANK_LIMIT=16*1024*1024,XEN_PHASE_BANK_MAX=2;\nconst XEN_PHASE_BANKS=new Map();let XEN_PHASE_BANK_BYTES=0;\nfunction xenPhaseBankFind(id,sr,length,nch){\n const row=XEN_PHASE_BANKS.get(id);\n if(!row||row.sampleRate!==sr||row.length!==length||row.nch!==nch)return null;\n XEN_PHASE_BANKS.delete(id);XEN_PHASE_BANKS.set(id,row);return row;\n}\nfunction xenPhaseBankStore(id,sr,channels){\n if(typeof id!=='string'||!channels||!channels.length)return;\n const size=channels.reduce((n,ch)=>n+ch.byteLength,0);\n if(size>XEN_PHASE_BANK_LIMIT)return;\n const old=XEN_PHASE_BANKS.get(id);\n if(old){XEN_PHASE_BANK_BYTES-=old.bytes;XEN_PHASE_BANKS.delete(id);}\n const row={sampleRate:sr,channels,nch:channels.length,length:channels[0].length,bytes:size};\n XEN_PHASE_BANKS.set(id,row);XEN_PHASE_BANK_BYTES+=size;\n while(XEN_PHASE_BANKS.size>XEN_PHASE_BANK_MAX||XEN_PHASE_BANK_BYTES>XEN_PHASE_BANK_LIMIT){\n  const oldest=XEN_PHASE_BANKS.keys().next().value,evicted=XEN_PHASE_BANKS.get(oldest);\n  XEN_PHASE_BANKS.delete(oldest);XEN_PHASE_BANK_BYTES-=evicted.bytes;\n }\n}\nconst XEN_PHASE_HANN=new Float32Array(1025);\nfor(let i=0;i<XEN_PHASE_HANN.length;i++)XEN_PHASE_HANN[i]=.5-.5*Math.cos(2*Math.PI*i/1024);\nclass XenMaterialPhase extends AudioWorkletProcessor {\n constructor(){super();this.channels=null;this.sourceRate=48000;this.started=false;this.ended=false;this.stopFrame=Infinity;this.startFrame=Infinity;this.motion=new XenPhaseMotion();this.mode='granular';this.feel='soft';this.motionAcceleration=0;this.wet=0;this.head0=0;this.head1=0;this.grainPhase=0;this.frameSpan=Math.max(512,Math.min(8192,Math.round(sampleRate*.048)));this.position=0;this.baseRate=1;this.bpm=108;this.cropStart=0;this.cropEnd=0;this.lastActive=false;this.nextReportFrame=0;this.reportedActive=false;this.reportPending=false;this.wetCoefficient=1-Math.exp(-1/(sampleRate*.012));this.dragFadeFrames=Math.max(1,Math.round(sampleRate*.004));this.dragFadeLeft=0;this.dragFadeFrom=0;this.alignReference=new Float64Array(32);this.li=new Int32Array(4);this.lj=new Int32Array(4);this.lf=new Float64Array(4);\n  this.port.onmessage=event=>{const m=event.data;if(!m)return;\n   if(m.type==='bank-probe'&&!this.channels){\n    const row=xenPhaseBankFind(m.bankId,m.sampleRate,m.length,m.nch);\n    if(row){this.channels=row.channels;this.sourceRate=row.sampleRate;this.port.postMessage({type:'ready',cacheHit:true});}\n    else this.port.postMessage({type:'bank-miss'});\n   }\n   else if(m.type==='load'&&!this.channels){this.channels=m.channels;this.sourceRate=m.sampleRate;\n    xenPhaseBankStore(m.bankId,m.sampleRate,m.channels);\n    this.port.postMessage({type:'ready',cacheHit:false});}\n   else if(m.type==='start'&&this.channels){this.cropStart=m.loopStart*this.sourceRate;this.cropEnd=Math.min(this.channels[0].length,m.loopEnd*this.sourceRate);this.position=m.offset*this.sourceRate;this.baseRate=m.baseRate;this.bpm=m.bpm;this.configure(m.mode,m.feel,m.attack);this.startFrame=Math.ceil(m.when*sampleRate);this.head0=this.head1=this.position;this.started=true;this.reportPending=true;}\n   else if(m.type==='gesture-begin'&&m.interaction==='drag'&&this.mode==='vinyl'&&this.feel==='hard'){\n    this.motion.beginDrag(currentFrame/sampleRate);this.reportPending=true;\n   }\n   else if(m.type==='target'&&Number.isFinite(m.attack)){\n    const before=this.motion.phase;\n    this.motion.targetAttack(m.attack,Number.isFinite(m.time)?m.time:currentFrame/sampleRate,m.interaction);\n    if(this.feel==='hard'&&this.mode==='granular'&&m.interaction==='drag'){\n     // The audible PCM pointer must follow the thumb too, not only the display.\n     const delta=this.motion.phase-before;\n     if(delta!==0&&this.channels){\n      const previousPosition=this.position;\n      this.position=this.wrap(this.position+delta*(60/this.bpm)*this.baseRate*this.sourceRate);\n      this.dragFadeFrom=previousPosition;this.dragFadeLeft=this.dragFadeFrames;\n      // Keep granular grains aligned to the newly selected source position.\n      this.head0=this.head1=this.position;this.grainPhase=0;\n     }\n     this.reportPending=true;\n    }\n   }\n   else if(m.type==='gesture-end'&&m.interaction==='drag'&&this.feel==='hard'){\n    if(this.mode==='vinyl')this.motion.endDrag();\n    else{this.motion.dragging=false;this.motion.active=false;this.motion.rate=1;}\n    this.reportPending=true;\n    if(m.token!==undefined)this.port.postMessage({type:'gesture-settled',token:m.token,attack:-this.motion.phase});\n   }\n   else if(m.type==='mode'){this.configure(m.mode,m.feel);this.reportPending=true;}\n   else if(m.type==='stop'){this.stopFrame=Math.ceil(Math.max(0,m.when??currentFrame/sampleRate)*sampleRate);}\n  };\n }\n configure(mode,feel,initialAttack=null){\n  const nextMode=mode==='vinyl'?'vinyl':'granular',nextFeel=feel==='hard'?'hard':'soft';\n  const Motion=nextFeel==='soft'?XenPhaseMotion:nextMode==='vinyl'?XenVinylScratchMotion:XenHardPhaseMotion;\n  if(initialAttack!==null||this.motion.constructor!==Motion){\n   const previous=this.motion;\n   const next=new Motion(initialAttack??0);\n   if(initialAttack===null){\n    next.phase=previous.phase;next.target=previous.target;next.rate=previous.rate;next.active=previous.active||Math.abs(previous.rate-1)>1e-9;\n    if(nextFeel==='soft'){next.velocity=previous.rate-1;next.acceleration=0;next.dirty=next.active;}\n   }\n   this.motion=next;this.dragFadeLeft=0;\n  }\n  this.mode=nextMode;this.feel=nextFeel;\n }\n wrap(position){const span=this.cropEnd-this.cropStart;return this.cropStart+((position-this.cropStart)%span+span)%span;}\n read(channel,position){const p=this.wrap(position),i=Math.floor(p),f=p-i,buffer=this.channels[Math.min(channel,this.channels.length-1)];const j=i+1<this.cropEnd?i+1:Math.floor(this.cropStart);return buffer[i]+(buffer[j]-buffer[i])*f;}\n // GA1: exact float64-equivalent wrap for samples strictly inside the crop.\n // The original wrap uses ((t % span) + span) % span; in 0 <= t < span,\n // the first remainder is t. The second is (t+span)-span except when\n // addition rounds to exactly 2*span, where the remainder is zero.\n // All boundary/outside-crop positions use the original wrap untouched.\n readAlign0(position){\n  const start=this.cropStart,span=this.cropEnd-start,t=position-start;\n  let p;\n  if(t>=0&&t<span){const y=t+span;p=start+(y>=span+span?0:y-span);}\n  else p=this.wrap(position);\n  const i=Math.floor(p),f=p-i,buffer=this.channels[0];\n  const j=i+1<this.cropEnd?i+1:Math.floor(start);\n  return buffer[i]+(buffer[j]-buffer[i])*f;\n }\n loc(position,k){const p=this.wrap(position),i=Math.floor(p);this.li[k]=i;this.lj[k]=i+1<this.cropEnd?i+1:Math.floor(this.cropStart);this.lf[k]=p-i;}\n at(channel,k){const buffer=this.channels[Math.min(channel,this.channels.length-1)],i=this.li[k];return buffer[i]+(buffer[this.lj[k]]-buffer[i])*this.lf[k];}\n align(desired,reference,step){\n  // Bounded waveform match once per half grain, independent of output channels.\n  const stride=Math.max(1,Math.round(this.sourceRate/6000)),radius=this.sourceRate*.008;\n  const ref=reference,center=desired;let best=center,bestScore=-2,energy=0;\n  for(let i=0;i<32;i++){const x=this.readAlign0(ref+i*stride*step);this.alignReference[i]=x;energy+=x*x;}\n  if(energy<1e-9)return center;\n  for(let shift=-radius;shift<=radius;shift+=stride){let dot=0,power=0;for(let i=0;i<32;i++){const x=this.readAlign0(center+shift+i*stride*step),y=this.alignReference[i];dot+=x*y;power+=x*x;}const score=dot/Math.sqrt(Math.max(1e-20,energy*power))-.006*Math.abs(shift)/Math.max(1,radius);if(score>bestScore){bestScore=score;best=center+shift;}}\n  return best;\n }\n process(inputs,outputs){const out=outputs[0]??[];if(!out.length)return !this.ended;\n  // A full running quantum overwrites every output sample. Preserve zero-fill\n  // for pre-start, stopped, missing-source and partial boundary quanta.\n  if(this.ended||!this.started||!this.channels||currentFrame<this.startFrame||currentFrame+out[0].length>this.stopFrame)\n   for(let ch=0;ch<out.length;ch++)out[ch].fill(0);\n  if(this.ended)return false;\n  const frames=out[0].length;if(currentFrame>=this.stopFrame){this.ended=true;this.port.postMessage({type:'ended'});return false;}if(!this.started||!this.channels)return true;\n  const baseStep=this.baseRate*this.sourceRate/sampleRate,dt=1/sampleRate;\n  // A plain loop is the common instrument path. Keep exact source arithmetic,\n  // crop wrapping and frame boundaries, without running dormant motion/grains.\n  // A gesture or residual crossfade takes the original complete path below.\n  if((!this.motion.active||(this.mode==='granular'&&this.feel==='hard'&&this.motion.dragging))&&this.motion.rate===1&&this.wet===0&&this.dragFadeLeft===0){\n   {const nch=out.length,channels=this.channels,left=channels[0],right=channels[Math.min(1,channels.length-1)];\n    const cropEnd=this.cropEnd,cropStartFloor=Math.floor(this.cropStart),stopFrame=this.stopFrame,startFrame=this.startFrame;\n    const hasRenderedFrames=Math.max(currentFrame,startFrame)<Math.min(currentFrame+frames,stopFrame);\n    if(hasRenderedFrames){this.lastActive=this.motion.active;this.motionAcceleration=this.feel==='soft'?this.motion.acceleration:0;}\n    let pos=this.position;\n    // Whole-frame PCM within 32-bit source bounds has exact integer wrap math.\n    // pos is already canonical after the prior advance; retain the original\n    // interpolation expression, including signed-zero/NaN behavior.\n    const wholeFrames=Number.isInteger(cropEnd)&&Number.isInteger(this.cropStart)&&Number.isInteger(pos)&&Number.isInteger(baseStep)&&Math.abs(baseStep)<=4294967296&&this.cropStart>=0&&cropEnd<=4294967296&&pos>=this.cropStart&&pos<cropEnd;\n    for(let i=0;i<frames;i++){\n     const frame=currentFrame+i;if(frame>=stopFrame){if(hasRenderedFrames){this.position=pos;this.head0=this.head1=pos;this.grainPhase=0;}this.ended=true;this.port.postMessage({type:'ended'});return false;}if(frame<startFrame)continue;\n     const position=wholeFrames?pos:this.wrap(pos),index=Math.floor(position),fraction=position-index;\n     const next=index+1<cropEnd?index+1:cropStartFloor;\n     out[0][i]=left[index]+(left[next]-left[index])*fraction;\n     if(nch>1)out[1][i]=right[index]+(right[next]-right[index])*fraction;\n     for(let ch=2;ch<nch;ch++){const buffer=channels[Math.min(ch,channels.length-1)];out[ch][i]=buffer[index]+(buffer[next]-buffer[index])*fraction;}\n     pos=this.wrap(pos+baseStep);\n    }\n    if(hasRenderedFrames){this.position=pos;this.head0=this.head1=pos;this.grainPhase=0;}}\n  }else{\n  for(let i=0;i<frames;i++){\n   const frame=currentFrame+i;if(frame>=this.stopFrame){this.ended=true;this.port.postMessage({type:'ended'});return false;}if(frame<this.startFrame)continue;\n   const previousRate=this.motion.rate,rate=this.motion.step(dt,this.bpm,frame/sampleRate),active=this.motion.active;this.motionAcceleration=this.feel==='soft'?this.motion.acceleration:(rate-previousRate)/dt;\n   if(active&&!this.lastActive&&this.wet<.0001){this.head0=this.head1=this.position;this.grainPhase=0;}\n   this.lastActive=active;\n   const wanted=this.mode==='granular'&&active&&!this.motion.dragging?1:0;this.wet+=(wanted-this.wet)*this.wetCoefficient;if(this.wet<.00001&&wanted===0)this.wet=0;\n   // GA2: no grains are audible in the strictly dry motion path.\n   // Preserve motion, dry interpolation, sample clock and state, but\n   // bypass unused Hann lookup and wet/grain readers.\n   if(this.wet===0&&this.dragFadeLeft===0){\n    this.loc(this.position,0);\n    for(let ch=0;ch<out.length;ch++)out[ch][i]=this.at(ch,0);\n    this.position=this.wrap(this.position+baseStep*rate);\n    this.head0=this.head1=this.position;this.grainPhase=0;\n    continue;\n   }\n   const phase=this.grainPhase/this.frameSpan,wi=phase*1024,index=Math.floor(wi),fraction=wi-index,w0=XEN_PHASE_HANN[index]+(XEN_PHASE_HANN[index+1]-XEN_PHASE_HANN[index])*fraction;\n   for(let ch=0;ch<out.length;ch++){\n    if(ch===0){this.loc(this.position,0);if(this.wet!==0){this.loc(this.head0,1);this.loc(this.head1,2);}if(this.dragFadeLeft>0)this.loc(this.dragFadeFrom,3);}const dry=this.at(ch,0);\n    let output=this.wet===0?dry:dry*(1-this.wet)+(this.at(ch,1)*w0+this.at(ch,2)*(1-w0))*this.wet;\n    // Very short, allocation-free de-click after discrete browser pointer events.\n    if(this.dragFadeLeft>0){const fade=1-this.dragFadeLeft/this.dragFadeFrames;output=this.at(ch,3)*(1-fade)+output*fade;}\n    out[ch][i]=output;\n   }\n   if(this.dragFadeLeft>0){this.dragFadeFrom=this.wrap(this.dragFadeFrom+baseStep);this.dragFadeLeft--;}\n   this.position=this.wrap(this.position+baseStep*rate);\n   if(this.wet>0){this.head0=this.wrap(this.head0+baseStep);this.head1=this.wrap(this.head1+baseStep);this.grainPhase++;\n    if(this.grainPhase===Math.floor(this.frameSpan/2))this.head1=this.align(this.position,this.head0,baseStep);\n    if(this.grainPhase>=this.frameSpan){this.grainPhase=0;this.head0=this.align(this.position,this.head1,baseStep);}\n   }else{this.head0=this.head1=this.position;this.grainPhase=0;}\n  }\n  }\n  const reportFrame=currentFrame+frames;\n  if(reportFrame>this.startFrame&&(((this.reportPending||this.motion.active)&&reportFrame>=this.nextReportFrame)||(!this.motion.active&&this.reportedActive))){\n   this.port.postMessage({type:'motion',phase:this.motion.phase,target:this.motion.target,rate:this.motion.rate,acceleration:this.motionAcceleration,active:this.motion.active,mode:this.mode,feel:this.feel,curve:this.feel==='soft'&&this.motion.curve?{...this.motion.curve}:null,audioTime:reportFrame/sampleRate});\n   this.nextReportFrame=reportFrame+Math.ceil(sampleRate/30);this.reportedActive=this.motion.active;this.reportPending=false;\n  }\n  return true;\n }\n}\nregisterProcessor('xen-material-phase-v1',XenMaterialPhase);\n";
@@ -816,6 +820,9 @@ const __XenOneShotLivePort=(()=>{
 
 /* One-Shot audio renderer: source-format dispatch, free-phase bar timing, bounded voices.
    The original library and live transport owners are never taken over. */
+/* PITCH-HQ-01: the One-Shot offline PCM worker queue is shared with the
+   Material Track pitch variants (same worker, same budget). Set once below. */
+let __xenSharedOfflinePCMWorker=null;
 const __XenOneShotAudio=(()=>{
  const prepared=new Map(),voices=new Set(),decodedSources=new Map();let drumOwner=null,previewVoice=null,previewTicket=0;
  // OSQR-PCMR-01: cold decoded source and hot rendered variants have distinct, bounded lifetimes.
@@ -861,9 +868,93 @@ const __xenOSQRWorkerCode=String.raw`"use strict";
 // PCMR-04: Quality-bounded offline ONE-SHOT renderer. This runs only in a
 // dedicated Worker, never in AudioWorklet's time-critical audio quantum.
 // Windowed-sinc interpolation is polyphase-tabulated and bandlimited for pitch>1.
+// PITCH-HQ-01: time-preserving, seamless LOOP render (Material Track pitch).
+// Same kernel and registration principle as the one-shot path below, but the
+// source and the output are cyclic: no edge fades, no boundary reflection,
+// unity level. The one-shot path is untouched.
+function xenRenderLoop(d){
+ const {id,rate,pitch,channels}=d;
+ if(!Number.isFinite(rate)||rate<8000||!Number.isFinite(pitch)||pitch<.24||pitch>4.01||
+    !Array.isArray(channels)||!channels.length||channels.length>2||
+    channels.some(c=>!(c instanceof Float32Array)||c.length!==channels[0].length))
+  throw Error('Invalid loop render parameters');
+ const L=channels[0].length;
+ if(L<Math.round(.03*rate)||L>rate*600)throw Error('Loop length outside renderable range');
+ for(const ch of channels)for(let i=0;i<L;i++)if(!Number.isFinite(ch[i]))throw Error('Non-finite input PCM cannot be rendered safely');
+ const outputs=channels.map(()=>new Float32Array(L)),weights=new Float32Array(L);
+ if(Math.abs(pitch-1)<1e-9){
+  for(let c=0;c<channels.length;c++)outputs[c].set(channels[c]);
+  self.postMessage({id,channels:outputs,grainCount:0,renderer:'pitchhq-loop-direct'},outputs.map(c=>c.buffer));return;
+ }
+ const nG=Math.max(2,Math.round(L/(.06*rate))),hop=L/nG;
+ const taps=80,half=taps/2,phases=1024,cutoff=.47/Math.max(1,pitch);
+ const kernels=new Float32Array(taps*(phases+1));
+ for(let phase=0;phase<=phases;phase++){
+  const fraction=phase/phases,off=phase*taps;let norm=0;
+  for(let k=0;k<taps;k++){
+   const x=k-(half-1)-fraction,angle=2*Math.PI*cutoff*x;
+   const sinc=Math.abs(angle)<1e-9?1:Math.sin(angle)/angle;
+   const win=.42-.5*Math.cos(2*Math.PI*k/(taps-1))+.08*Math.cos(4*Math.PI*k/(taps-1));
+   const value=2*cutoff*sinc*win;kernels[off+k]=value;norm+=value;
+  }
+  if(Math.abs(norm)<1e-12)throw Error('Invalid sinc kernel');
+  for(let k=0;k<taps;k++)kernels[off+k]/=norm;
+ }
+ const wrap=i=>{i%=L;return i<0?i+L:i};
+ const sample=(channel,pos)=>{
+  const base=Math.floor(pos),phase=Math.min(phases,Math.max(0,Math.round((pos-base)*phases)));
+  const off=phase*taps,input=channels[channel],s0=base-half+1;let value=0;
+  if(s0>=0&&s0+taps<=L)for(let i=0;i<taps;i++)value+=input[s0+i]*kernels[off+i];
+  else for(let i=0;i<taps;i++)value+=input[wrap(s0+i)]*kernels[off+i];
+  return value;
+ };
+ const linear=(channel,pos)=>{const i=Math.floor(pos),f=pos-i;return channels[channel][wrap(i)]*(1-f)+channels[channel][wrap(i+1)]*f};
+ const transientMaterial=channels.some(input=>{
+  const block=Math.max(64,Math.round(.012*rate));
+  for(let i=0;i<L;i+=block){
+   const end=Math.min(L,i+block);let sum2=0,peak=0,n=0;
+   for(let j=i;j<end;j+=2){const v=Math.abs(input[j]);sum2+=v*v;peak=Math.max(peak,v);n++;}
+   if(n>=12&&peak>.03&&peak*peak>18*sum2/n)return true;
+  }
+  return false;
+ });
+ const maxShift=Math.round(.006*rate),searchStep=Math.max(2,Math.floor(rate/8000)),checkStep=Math.max(2,Math.floor(rate/6000));
+ for(let k=0;k<nG;k++){
+  const center=k*hop,j0=Math.ceil(center-hop),j1=Math.ceil(center+hop);
+  let shift=0;
+  if(k>0&&!transientMaterial){
+   // One source-time offset for the whole stereo signal, aligned against the
+   // output already accumulated (previous grain; for the last grain also grain 0).
+   const check=at=>{const scores=[];
+    for(let ch=0;ch<outputs.length;ch++){let xy=0,xx=0,yy=0,n=0;
+     for(let j=j0;j<j1;j+=checkStep){const dst=wrap(j),w=weights[dst];if(w<.2)continue;
+      const x=outputs[ch][dst]/w,y=linear(ch,center+at+(j-center)*pitch);xy+=x*y;xx+=x*x;yy+=y*y;n++;}
+     scores.push(n>=16&&xx>1e-7&&yy>1e-7?xy/Math.sqrt(xx*yy):null);}
+    return scores;};
+   const base=check(0),active=base.map((v,i)=>v!==null?i:-1).filter(i=>i>=0);
+   if(active.length){
+    const average=scores=>active.reduce((v,i)=>v+scores[i],0)/active.length;
+    const baseScore=average(base);let bestScore=-2,bestAt=0;
+    for(let at=-maxShift;at<=maxShift;at+=searchStep){const scores=check(at);
+     if(active.some(i=>scores[i]===null||scores[i]<base[i]-.025))continue;
+     const score=average(scores)-.008*Math.abs(at)/maxShift;if(score>bestScore){bestScore=score;bestAt=at;}}
+    if(bestScore>.78&&bestScore>baseScore+.08)shift=bestAt;
+   }
+  }
+  for(let j=j0;j<j1;j++){
+   const w=.5-.5*Math.cos(Math.PI*(j-center+hop)/hop);if(w<1e-10)continue;
+   const dst=wrap(j);weights[dst]+=w;const pos=center+shift+(j-center)*pitch;
+   for(let ch=0;ch<outputs.length;ch++)outputs[ch][dst]+=sample(ch,pos)*w;
+  }
+ }
+ for(let i=0;i<L;i++){const norm=weights[i]>1e-9?1/weights[i]:0;
+  for(let ch=0;ch<outputs.length;ch++){const v=outputs[ch][i]*norm;if(!Number.isFinite(v))throw Error('Invalid offline PCM output');outputs[ch][i]=v;}}
+ self.postMessage({id,channels:outputs,grainCount:nG,renderer:'pitchhq-loop-sinc80'},outputs.map(c=>c.buffer));
+}
 self.onmessage=e=>{
  const d=e.data;
  if(!d||d.type!=="render")return;
+ if(d.loop===true){try{xenRenderLoop(d)}catch(error){self.postMessage({id:d.id,error:String(error?.message||error)})}return;}
  try{
   const {id,rate,sourceRate,frames,pitch,start,span,regionEnd,channels}=d;
   if(!Number.isFinite(rate)||rate<8000||!Number.isFinite(sourceRate)||sourceRate<8000||
@@ -1096,6 +1187,7 @@ const __xenOSQRPCMWorker=(()=>{
   });
  },pending:()=>waiting.size,budget:()=>({jobs:waiting.size,bytesReserved,maxJobs:MAX_JOBS,maxBytes:MAX_RESERVED})});
 })();
+__xenSharedOfflinePCMWorker=__xenOSQRPCMWorker;
 async function renderMaterialPCM(item,t,data){
  const source=data.buffer,rate=source?.sampleRate;
  if(!source||!(data.sourceSeconds>.002)||!(t.seconds>.002)||!(rate>=8000))
@@ -1450,6 +1542,79 @@ async function renderMaterialPCM(item,t,data){
    prepared:()=>[...prepared].map(([key,value])=>({key,status:value.status,bytes:pcmBytes(value.value?.buffer)})),
    cachedSourceCount:()=>decodedSources.size,activeVoices:()=>voices.size,
    renderBudget:()=>__xenOSQRPCMWorker.budget()});
+})();
+/* PITCH-HQ-01: a resting Material Track pitch plays a pre-rendered,
+   time-preserving loop variant from the shared offline PCM worker (80-tap
+   windowed-sinc granular, cyclic). The realtime lane shifter only bridges the
+   difference while the hand moves. Variants live with the decoded source buffer
+   (WeakMap), at most the active and the newest per source; nothing is persisted.
+   Loops whose render would exceed the worker job budget keep the realtime path. */
+const __XenMaterialPitchVariants=(()=>{
+ const REST_MS=350,JOB_LIMIT=48*1024*1024;
+ const bySource=new WeakMap(),sources=new Map(),active=new Map(),versions=new Map(),timers=new Map(),lastPitch=new Map(),listeners=new Set();
+ let revision=0;
+ const emit=()=>{for(const fn of listeners)fn()};
+ const bump=id=>{versions.set(id,(versions.get(id)??0)+1);revision++;emit()};
+ const regionOf=(buffer,entry)=>{const sr=buffer.sampleRate,len=buffer.length;
+  const a=Math.max(0,Math.min(len-1,Math.round((Number(entry?.loopStartSec)||0)*sr)));
+  const end=Number.isFinite(entry?.loopEndSec)?entry.loopEndSec:buffer.duration;
+  const b=Math.max(a+1,Math.min(len,Math.round(end*sr)));return {a,b}};
+ const keyOf=(cents,r)=>cents+'|'+r.a+'|'+r.b;
+ const isActive=row=>{for(const v of active.values())if(v.row===row)return true;return false};
+ function rowFor(buffer,key,create){
+  let map=bySource.get(buffer);if(!map){if(!create)return null;map=new Map();bySource.set(buffer,map)}
+  let row=map.get(key);if(!row&&create){row={status:'idle',buffer:null,map,key};map.set(key,row)}return row||null;
+ }
+ function schedule(id,ms=REST_MS){clearTimeout(timers.get(id));timers.set(id,setTimeout(()=>{timers.delete(id);void render(id)},ms))}
+ async function render(id){
+  const src=sources.get(id),buffer=src?.buffer.deref(),ctx=src?.ctx.deref();
+  if(!buffer||!ctx||ctx.state==='closed')return;
+  const cents=__XenMaterialVoiceMix.get(id).pitch,current=active.get(id)?.cents??0;
+  if(Math.abs(cents)<.05){if(Math.abs(current)>=.05)bump(id);return}
+  const r=regionOf(buffer,src.entry),len=r.b-r.a,count=Math.min(2,buffer.numberOfChannels);
+  if(len<Math.round(.03*buffer.sampleRate)||2*(2*len*count*4)+1048576>JOB_LIMIT)return;
+  const row=rowFor(buffer,keyOf(cents,r),true);
+  if(row.status==='ready'){if(current!==cents)bump(id);return}
+  if(row.status!=='idle')return;
+  row.status='pending';
+  try{
+   const channels=[];for(let c=0;c<count;c++)channels.push(buffer.getChannelData(c).slice(r.a,r.b));
+   const result=await __xenSharedOfflinePCMWorker.render({loop:true,rate:buffer.sampleRate,sourceRate:buffer.sampleRate,frames:len,pitch:Math.pow(2,cents/1200),channels});
+   try{
+    if(ctx.state==='closed'){row.status='idle';return}
+    const out=ctx.createBuffer(result.channels.length,len,buffer.sampleRate);
+    result.channels.forEach((data,i)=>out.copyToChannel(data,i));
+    row.buffer=out;row.status='ready';
+   }finally{result.release()}
+   for(const [key,other] of row.map)if(other!==row&&other.status==='ready'&&!isActive(other))row.map.delete(key);
+   if(sources.get(id)?.buffer.deref()===buffer&&__XenMaterialVoiceMix.get(id).pitch===cents&&(active.get(id)?.cents??0)!==cents)bump(id);
+  }catch(error){
+   const busy=/capacity busy/i.test(String(error?.message||''));
+   row.status=busy?'idle':'failed';
+   if(busy)schedule(id,1200);
+   else console.warn('[xensonar][material-pitch-hq] realtime pitch stays active',id,String(error?.message||error));
+  }
+ }
+ __XenMaterialVoiceMix.subscribe(()=>{for(const id of sources.keys()){const pitch=__XenMaterialVoiceMix.get(id).pitch;if(lastPitch.get(id)!==pitch){lastPitch.set(id,pitch);schedule(id)}}});
+ /* Called once per voice start by $fe. Returns the ready variant or null and
+    asks for one when a pitch is set. Never blocks the start. */
+ function resolve(ctx,buffer,entry,id,cents){
+  if(!id||!buffer||typeof WeakRef!=='function')return null;
+  sources.set(id,{ctx:new WeakRef(ctx),buffer:new WeakRef(buffer),entry});lastPitch.set(id,cents);
+  if(Math.abs(cents)>=.05){
+   const row=rowFor(buffer,keyOf(cents,regionOf(buffer,entry)),false);
+   if(row?.status==='ready'&&row.buffer&&row.buffer.sampleRate===ctx.sampleRate){
+    active.set(id,{cents,row});
+    return {buffer:row.buffer,cents,entry:{...entry,loopStartSec:0,loopEndSec:row.buffer.duration}};
+   }
+   schedule(id,0);
+  }
+  active.delete(id);return null;
+ }
+ if(typeof globalThis!=='undefined')globalThis.__XEN_MATERIAL_PITCH_HQ__={get state(){return {revision,active:Object.fromEntries([...active].map(([id,v])=>[id,v.cents]))}}};
+ return Object.freeze({resolve,version:id=>versions.get(id)??0,revision:()=>revision,
+  subscribe:fn=>(listeners.add(fn),()=>listeners.delete(fn)),
+  diagnostics:()=>({revision,active:Object.fromEntries([...active].map(([id,v])=>[id,v.cents]))})});
 })();
 globalThis.__XenOneShotDebug=Object.freeze({assignments:__XenOneShotAssignments,audio:__XenOneShotAudio,
  silentEdits:()=>__XenOSQRSilentEdit.pending()});

@@ -103,6 +103,7 @@ const __ForgeProjectSnapshot = (() => {
       carrierIntegralSynthLab:Rg(snapshot.carrierIntegralSynthLab??null,state.carrierIntegralSynthLab),
       carrierIntegralHarmonicXplore:snapshot.carrierIntegralHarmonicXplore?oi(snapshot.carrierIntegralHarmonicXplore,state.carrierIntegralHarmonicXplore):NM(snapshot.carrierIntegralSynthLab??null,state.carrierIntegralHarmonicXplore)};
     if(snapshot.fractaliaInstrument!=null) snapshot.fractaliaInstrument=__Fractalia.core.settings(snapshot.fractaliaInstrument);
+    if(snapshot.forgeVoices!=null) snapshot.forgeVoices=__ForgeVoices.normalizeProject(snapshot.forgeVoices);
     return {snapshot,body,fields};
   }
   return Object.freeze({encode:value=>codec(value,true),decode:value=>codec(value,false),prepare});

@@ -4,9 +4,9 @@ const __XenPackageSelection41=(()=>{
  const groups=[
   {id:'projects',label:'Projekte & Arbeitsstände',items:[
    ['sessions','Sessions & Quick Rack'],['melodicProjects','Melodic-Projekte'],['figureProjects','Figure-Projekte'],
-   ['currentEditor','Aktueller Forge- / Melodic-Stand'],['currentMain','Aktueller Hauptraum'],['dualDonor','Dual-Donor-Arbeitsstand'],['fractaliaExperiments','Fractalia-Materialexperimente']]},
+   ['currentEditor','Aktueller Forge- / Melodic-Stand'],['multitrack','Multitrack-Arrangement'],['currentMain','Aktueller Hauptraum'],['dualDonor','Dual-Donor-Arbeitsstand'],['fractaliaExperiments','Fractalia-Materialexperimente']]},
   {id:'audio',label:'Audio & Material',items:[['samples','Samples & Uploads'],['materials','Materialspuren & Root Follow'],['donors','Donor-Bibliothek']]},
-  {id:'music',label:'Instrumente & Vorlagen',items:[['drums','Drum-Patterns & Playlists'],['bass','Bass-Patterns'],['grids','Raster & Stimmungen'],['instruments','Nodal- & Entrophon-Instrumente'],['stamps','Stempel & eigene Vorlagen'],['emilia','Emilia-Konfigurationen'],['fractalia','Fractalia-Instrumente & Einstellungen'],['customMelodic','Eigene Melodic-Instrumente']]},
+  {id:'music',label:'Instrumente & Vorlagen',items:[['drums','Drum-Patterns & Playlists'],['bass','Bass-Patterns'],['grids','Raster & Stimmungen'],['instruments','Nodal- & Entrophon-Instrumente'],['holdPatterns','Thunder Hold-Patterns & Pläne'],['stamps','Stempel & eigene Vorlagen'],['emilia','Emilia-Konfigurationen'],['fractalia','Fractalia-Instrumente & Einstellungen'],['customMelodic','Eigene Melodic-Instrumente']]},
   {id:'preferences',label:'Einstellungen & Sammlungen',items:[['mixer','EQ, Pan & Klangregler'],['settings','Bedienung, Ansichten & Hörweisen'],['favorites','Favoriten, Notizen & Wheel']]},
   {id:'internal',label:'Interne Sicherungen & Altbestände',items:[['recovery','Letzte Sicherungsstände & History'],['unusedAssets','Forge-Assets (Verwendung prüfen)'],['sampleMirror','Sample-Metadaten-Spiegel'],['sessionMirror','Session-Spiegel'],['otherDatabases','Weitere XenSonar-Datenbanken']]}
  ];
@@ -41,6 +41,8 @@ const __XenPackageSelection41=(()=>{
    if(store==='instruments')return 'instruments';
    if(store==='control')return key==='working'?'currentEditor':'melodicProjects';
   }
+  if(db==='xensonar-thunder-hold-patterns-v1'||db==='xensonar-thunder-hold-pattern-plans-v1')return'holdPatterns';// named Thunder Hold Pattern Memory (HPM01)
+  if(db==='xensonar-multitrack-v1')return'multitrack';// ROOM4-05: arrangement + not yet placed inbox; materials follow via the reference closure
   if(db==='xensonar-melodic-samples')return'samples';
   if(db==='xensonar-material-library')return'materials';
   if(db==='xensonar-drum-config-library')return'drums';

@@ -209,7 +209,8 @@ const __XenMainRoomSessionBridge=(()=>{
    if(!owner||typeof owner.updateNParams!=='function')throw Error('Main Room controls cannot be restored right now.');
    const p=owner;
    // The real Main Room state setter owns grid, drum, drone, RFL and source IDs.
-   p.updateNParams(clone(cfg.nParamsUI));
+   // THUNDER-HPP01: snapshots from before Hold Pattern Plans had no plan; restoring one must not keep a later plan active.
+   p.updateNParams({keyboardHoldPlan:null,...clone(cfg.nParamsUI)});
    if(cfg.wave){
     if(cfg.wave.preset&&typeof p.setWaveSoundPreset==='function')p.setWaveSoundPreset(cfg.wave.preset);
     if(typeof p.setWaveSoundEnabled==='function')p.setWaveSoundEnabled(!!cfg.wave.enabled);
@@ -273,9 +274,9 @@ function __xenStarterSourceSettings(){
    waveVolumeGradientEnabled:false,waveVolumeGradientX:'none',waveOvertonesEnabled:false,waveOvertoneWaveform:'triangle',waveOvertoneMode:'arp',
    waveOvertoneArpRate:64,waveOvertoneArpPattern:'updown',waveOvertoneArpSteps:8,waveOvertoneGlobalLevel:1,
    waveStarterHoldSegments:24,waveStarterHoldCustomSegments:48,waveStarterHoldReferenceBars:1,
-   waveStarterHoldPatternSteps:Array.from({length:24},()=>1),waveStarterHoldSoundPreset:__XenFactoryStartSounds.waveStarter},
+   waveStarterHoldPatternSteps:Array.from({length:24},()=>1),waveStarterHoldSlotVolumes:[],waveStarterHoldMicrotiming:[],waveStarterHoldSoundPreset:__XenFactoryStartSounds.waveStarter},
   keyboard:{keyboardHoldSegments:__XenKeyboardHoldStartupDemo.segments,keyboardHoldCustomSegments:48,keyboardHoldReferenceBars:__XenKeyboardHoldStartupDemo.bars,
-   keyboardHoldPatternSteps:__XenKeyboardHoldStartupDemo.steps.slice(),keyboardHoldPitchCents:__XenKeyboardHoldStartupDemo.cents.slice(),keyboardHoldSoundPreset:__XenFactoryStartSounds.keyboard},
+   keyboardHoldPatternSteps:__XenKeyboardHoldStartupDemo.steps.slice(),keyboardHoldPitchCents:__XenKeyboardHoldStartupDemo.cents.slice(),keyboardHoldSlotVolumes:[],keyboardHoldMicrotiming:[],keyboardHoldSoundPreset:__XenFactoryStartSounds.keyboard},
   octaves:{particle:0,wave:0,keyboard:0},pan:Object.fromEntries(['particle','wave','keyboard',...Array.from({length:32},(_,i)=>'particle:'+i)].map(k=>[k,0]))};
 }
 function __xenStarterPresetRecords(){

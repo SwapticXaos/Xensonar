@@ -32,7 +32,9 @@ function __xenConfirmLibraryDeletion(_legacyPrompt,entry,impact,options={}){
   if(impact?.savedProjectCount)places.push(impact.savedProjectCount+' gespeicherte'+(impact.savedProjectCount===1?'s Session-Projekt':' Session-Projekte'));
   if(impact?.draftReferenceCount||impact?.liveReferenceCount||impact?.workingReferenceCount)places.push('aktuelle Session');
   if(impact?.quickReferenceCount)places.push('Quick Access');
+  if(impact?.multitrackClipCount)places.push('Multitrack · '+impact.multitrackClipCount+(impact.multitrackClipCount===1?' Clip':' Clips'));
   makeParagraph(places.length?'Verwendet in: '+places.join(' · ')+'.':'Dieser Eintrag wird dauerhaft aus der Bibliothek entfernt.');
+  if(impact?.multitrackClipCount)makeParagraph('Multitrack-Clips behalten ihren Platz, haben danach aber kein Audio mehr; der Mixdown meldet sie dann.');
   makeParagraph('Zugehörige Session-Variationen werden ebenfalls entfernt. Andere, unabhängige Bibliothekseinträge bleiben erhalten.');
   if(options.trash&&entry.kind==='drum')makeParagraph('Drum-Patterns werden aus der sichtbaren Bibliothek ausgeblendet; Factory-Klangdaten werden nicht physisch gelöscht.');
   if(options.trash&&entry.kind==='rootFollow')makeParagraph('Root Follow wird aus der Bank entfernt; das zugrunde liegende Material bleibt erhalten.');
@@ -69,6 +71,16 @@ function __xenConfirmLibraryDeletion(_legacyPrompt,entry,impact,options={}){
 
 // Shared owner boundary: cancelled means no asset, cache, UI or selection changes.
 async function __xenDeleteLibraryEntry(entry,commit,ask){
+ /* ROOM4-05: Room IV (Multitrack) clips reference Materials by id. Deleting such a Material needs an explicit, informed
+    confirmation; the clips keep their place but lose their audio (the mixdown then reports them). Inspection failure never blocks. */
+ if(entry?.kind==='material'){
+  let used=null;try{used=await globalThis.__XenMultitrackInbox?.usage?.(entry.id)}catch{}
+  const n=(used?.clips||0)+(used?.inbox||0);
+  if(n>0){
+   /* always the visible dialog: a remembered 'do not ask again' must never skip this warning */const wrapped=(prompt,e,impact)=>__xenConfirmLibraryDeletion(prompt,e,{...impact,multitrackClipCount:n});
+   wrapped.alwaysConfirm=true;ask=wrapped;
+  }
+ }
  const result=await __XenSessionLibraryDeleteGuard.remove(entry,commit,ask);
  if(result.status==='deleted')return true;
  if(result.status==='cancelled')return false;
