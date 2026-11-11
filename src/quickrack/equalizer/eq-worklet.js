@@ -102,64 +102,88 @@ function __xenEqLiveModule(){
     }else this.stats.deferredQuanta++;
    }
    const a=this.banks[this.active],b=this.phase?this.banks[this.next]:null;
+   // LIVE-GF-01: the three render paths are call-free block loops. The former
+   // per-sample run helper returned a boxed double whenever V8 did not inline it
+   // (garbage on the audio thread); per-sample stats stores are block-local now.
+   // Same arithmetic in the same order: output and counters stay bit-identical.
+   const st=this.stats;let inPk=st.inputPeak,outPk=st.outputPeak,pk=st.peak,inOver=0,outOver=0,bad=0;
    if(!b&&a.count===0&&a.gain===1){
     // A settled identity curve owns no IIR work. Preserve input sanitation,
     // peak/sleep accounting and sample identity; transitions keep both banks.
     for(let ch=0;ch<output.length;ch++){
      const source=input?.[ch]||input?.[0],target=output[ch];
+     if(!source){target.fill(0);continue}
      for(let i=0;i<n;i++){
-      const raw=source?source[i]:0,value=Number.isFinite(raw)?raw:0;
-      target[i]=value;const magnitude=Math.abs(value);
+      const raw=source[i],value=raw-raw===0?raw:0;
+      target[i]=value;const magnitude=value<0?-value:value;
       // Diagnostic counters only: float amplitude > 1 is a headroom risk,
       // not itself proof that a downstream output actually clipped.
-      if(magnitude>this.stats.inputPeak)this.stats.inputPeak=magnitude;
-      if(magnitude>this.stats.outputPeak)this.stats.outputPeak=magnitude;
-      if(magnitude>1){this.stats.inputOverUnity++;this.stats.outputOverUnity++;}
-      if(magnitude>this.stats.peak)this.stats.peak=magnitude;
+      if(magnitude>inPk)inPk=magnitude;
+      if(magnitude>outPk)outPk=magnitude;
+      if(magnitude>1){inOver++;outOver++}
+      if(magnitude>pk)pk=magnitude;
       if(magnitude>blockPeak)blockPeak=magnitude;
      }
     }
    }else if(!b){
     // Stable bank: channel-major processing avoids transition bookkeeping
     // and repeated channel/source lookup for every individual sample.
+    const c=a.c,z=a.z,count=a.count,gain=a.gain;
     for(let ch=0;ch<output.length;ch++){
-     const source=input?.[ch]||input?.[0],target=output[ch];
+     const source=input?.[ch]||input?.[0],target=output[ch],base=ch*48;
      for(let i=0;i<n;i++){
-      const raw=source?source[i]:0,safe=Number.isFinite(raw)?raw:0;
-      const inputMagnitude=Math.abs(safe);
-      if(inputMagnitude>this.stats.inputPeak)this.stats.inputPeak=inputMagnitude;
-      if(inputMagnitude>1)this.stats.inputOverUnity++;
-      const value=this.run(a,safe,ch);
-      target[i]=value;const magnitude=Math.abs(value);
-      if(magnitude>this.stats.outputPeak)this.stats.outputPeak=magnitude;
-      if(magnitude>1)this.stats.outputOverUnity++;
-      if(magnitude>this.stats.peak)this.stats.peak=magnitude;
+      const raw=source?source[i]:0,safe=raw-raw===0?raw:0;
+      const inputMagnitude=safe<0?-safe:safe;
+      if(inputMagnitude>inPk)inPk=inputMagnitude;
+      if(inputMagnitude>1)inOver++;
+      let v=safe*gain;
+      for(let j=0,s=base,k=0;j<count;j++,s+=2,k+=5){const y=c[k]*v+z[s];
+       z[s]=c[k+1]*v-c[k+3]*y+z[s+1];z[s+1]=c[k+2]*v-c[k+4]*y;v=y;
+      }
+      if(v-v!==0){z.fill(0);bad++;v=0}
+      target[i]=v;const magnitude=v<0?-v:v;
+      if(magnitude>outPk)outPk=magnitude;
+      if(magnitude>1)outOver++;
+      if(magnitude>pk)pk=magnitude;
       if(magnitude>blockPeak)blockPeak=magnitude;
      }
     }
    }else{
+   const ca=a.c,za=a.z,na=a.count,ga=a.gain,cb=b.c,zb=b.z,nb=b.count,gb=b.gain;
    for(let i=0;i<n;i++){
     let mix=0;
     if(this.phase===2)mix=Math.min(1,this.elapsed/this.transitionFade);
     for(let ch=0;ch<output.length;ch++){
-     const source=input?.[ch]||input?.[0],raw=source?source[i]:0;
-     const x=Number.isFinite(raw)?raw:0;
-     const inputMagnitude=Math.abs(x);
-     if(inputMagnitude>this.stats.inputPeak)this.stats.inputPeak=inputMagnitude;
-     if(inputMagnitude>1)this.stats.inputOverUnity++;
-     const old=this.run(a,x,ch),fresh=b?this.run(b,x,ch):old;
+     const source=input?.[ch]||input?.[0],raw=source?source[i]:0,base=ch*48;
+     const x=raw-raw===0?raw:0;
+     const inputMagnitude=x<0?-x:x;
+     if(inputMagnitude>inPk)inPk=inputMagnitude;
+     if(inputMagnitude>1)inOver++;
+     let old=x*ga;
+     for(let j=0,s=base,k=0;j<na;j++,s+=2,k+=5){const y=ca[k]*old+za[s];
+      za[s]=ca[k+1]*old-ca[k+3]*y+za[s+1];za[s+1]=ca[k+2]*old-ca[k+4]*y;old=y;
+     }
+     if(old-old!==0){za.fill(0);bad++;old=0}
+     let fresh=x*gb;
+     for(let j=0,s=base,k=0;j<nb;j++,s+=2,k+=5){const y=cb[k]*fresh+zb[s];
+      zb[s]=cb[k+1]*fresh-cb[k+3]*y+zb[s+1];zb[s+1]=cb[k+2]*fresh-cb[k+4]*y;fresh=y;
+     }
+     if(fresh-fresh!==0){zb.fill(0);bad++;fresh=0}
      const value=old+(fresh-old)*mix;output[ch][i]=value;
-     const magnitude=Math.abs(value);
-     if(magnitude>this.stats.outputPeak)this.stats.outputPeak=magnitude;
-     if(magnitude>1)this.stats.outputOverUnity++;
-     if(magnitude>this.stats.peak)this.stats.peak=magnitude;
+     const magnitude=value<0?-value:value;
+     if(magnitude>outPk)outPk=magnitude;
+     if(magnitude>1)outOver++;
+     if(magnitude>pk)pk=magnitude;
      if(magnitude>blockPeak)blockPeak=magnitude;
     }
-    if(this.phase){this.stats.dualFrames++;this.elapsed++;
+    if(this.phase){st.dualFrames++;this.elapsed++;
      if(this.phase===1&&this.elapsed>=this.transitionWarm){this.phase=2;this.elapsed=0}
     }
    }
    }
+   // Store only on a new maximum (as before): an unconditional double store may box per block.
+   if(inPk>st.inputPeak)st.inputPeak=inPk;if(outPk>st.outputPeak)st.outputPeak=outPk;if(pk>st.peak)st.peak=pk;
+   if(inOver)st.inputOverUnity+=inOver;if(outOver)st.outputOverUnity+=outOver;if(bad)st.nonfinite+=bad;
    // Finish only at a quantum boundary; the next pending bank starts next call.
    if(this.phase===2&&this.elapsed>=this.transitionFade){this.active=this.next;this.next=null;this.phase=0;this.elapsed=0;release(this,n);}
    this.quietFrames=!inputActive&&blockPeak<1e-12&&!this.phase?this.quietFrames+n:0;
