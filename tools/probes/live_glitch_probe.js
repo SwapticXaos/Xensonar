@@ -53,12 +53,24 @@ function wav(f32,sr){const n=f32.length;const b=Buffer.alloc(44+n*2);b.write('RI
         await p.waitForTimeout(16)}
       await p.waitForTimeout(1500)},
   };
+  S.heavy=async()=>{ // dense playing: Enter-Hold pattern held, fast reference keys (chords), ripples, directed waves
+    const bx=await canvasBox();const keys='1234567890qwertzuiop';const t0=Date.now();let k=0,c=0,w=0;
+    await p.mouse.move(bx.x+bx.width*.5,bx.y+bx.height*.5);await p.keyboard.down('Enter');
+    while(Date.now()-t0<14000){const t=(Date.now()-t0)/1000;
+      await p.mouse.move(bx.x+bx.width*(0.5+0.45*Math.sin(t*2.9)),bx.y+bx.height*(0.5+0.45*Math.sin(t*3.7+1)));
+      if(t>c*0.2){c++;await p.mouse.down();await p.mouse.up()}
+      if(t>k*0.09){for(const off of[0,4,7]){const key=keys[(k+off)%keys.length];await p.keyboard.down(key);setTimeout(()=>p.keyboard.up(key).catch(()=>{}),160)}k++}
+      if(t>w*0.35+0.3){const key='yxcv'[w%4];w++;await p.keyboard.press(key)}
+      await p.waitForTimeout(12)}
+    await p.keyboard.up('Enter');await p.waitForTimeout(1500)};
   const extra=arg('--scenarios-file');if(extra)Object.assign(S,require(path.resolve(extra))({p,canvasBox,clickText}));
   await p.getByRole('button',{name:'Power'}).click();await p.waitForTimeout(3000);
   // --select "Drone sound=warm_pad;Grid System=22edo": set <select aria-label|label text> before measuring
   for(const pair of String(arg('--select')||'').split(';').filter(Boolean)){const[label,value]=pair.split('=');
     const ok=await p.evaluate(([label,value])=>{const s=[...document.querySelectorAll('select')].find(s=>(s.getAttribute('aria-label')||s.closest('label,div')?.innerText||'').replace(/\s+/g,' ').startsWith(label));if(!s)return false;const set=Object.getOwnPropertyDescriptor(HTMLSelectElement.prototype,'value').set;set.call(s,value);s.dispatchEvent(new Event('change',{bubbles:true}));return s.value===value},[label,value]);
     if(!ok)throw Error('select failed: '+pair);await p.waitForTimeout(2500)}
+  // --check "Drone On;..." : switch on checkboxes by aria-label before measuring
+  for(const label of String(arg('--check')||'').split(';').filter(Boolean)){const ok=await p.evaluate(l=>{const c=document.querySelector('input[type=checkbox][aria-label="'+l+'"]');if(!c)return false;if(!c.checked)c.click();return true},label);if(!ok)throw Error('checkbox not found: '+label);await p.waitForTimeout(1500)}
   const results=[];
   for(const name of WANT){
     if(!S[name])throw Error('unknown scenario '+name);
