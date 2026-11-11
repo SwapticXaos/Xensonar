@@ -1,10 +1,11 @@
 /* Probe only (not shipped): ROOM4-15 the synthetic plan: a drum pattern clip follows a tempo change by being played again by the drum engine
- * (brightness stays), versus tape (everything slows down and gets darker). Brightness = zero-crossing rate of the exported mixdown. */
+ * (brightness stays), versus tape (everything slows down and gets darker). Brightness = loudness-weighted zero-crossing rate measured only in the loud 10 ms frames (a per-second rate would halve with the longer pauses alone). */
 const {chromium}=require('playwright');const path=require('path'),fs=require('fs'),os=require('os');
 const target='file://'+path.resolve(process.argv[2]||path.join(__dirname,'../../index.html'));
-function analyse(file){const buf=fs.readFileSync(file),hdr=buf.indexOf('data')+8,fl=new Float32Array(buf.buffer.slice(buf.byteOffset+hdr,buf.byteOffset+buf.length-((buf.length-hdr)%4)));const n=fl.length/2,sr=48000;
- let last=n-1;while(last>0&&Math.abs(fl[2*last])<1e-3)last--;let zc=0,ss=0;for(let i=1;i<=last;i++){if((fl[2*(i-1)]<0)!==(fl[2*i]<0))zc++;ss+=fl[2*i]*fl[2*i]}
- return {soundingSec:+(last/sr).toFixed(2),zcr:Math.round(zc/(last/sr)),rms:+Math.sqrt(ss/last).toFixed(4)}}
+function analyse(file){const buf=fs.readFileSync(file),hdr=buf.indexOf('data')+8,fl=new Float32Array(buf.buffer.slice(buf.byteOffset+hdr,buf.byteOffset+buf.length-((buf.length-hdr)%4)));const n=fl.length/2,sr=48000,F=Math.round(sr*.01);
+ let mx=0;const rms=[];for(let f=0;f+F<=n;f+=F){let q=0;for(let i=f;i<f+F;i++)q+=fl[2*i]*fl[2*i];const r=Math.sqrt(q/F);rms.push(r);mx=Math.max(mx,r)}
+ let zs=0,w=0,act=0;rms.forEach((r,k)=>{if(r>.03*mx){let z=0;for(let i=k*F+1;i<(k+1)*F;i++)if((fl[2*(i-1)]<0)!==(fl[2*i]<0))z++;zs+=z*r;w+=r;act++}});
+ return {zcr:Math.round(zs/w/(F/sr)),activeSec:+(act*.01).toFixed(2),soundingSec:+(n/sr).toFixed(2)}}
 (async()=>{const b=await chromium.launch({args:['--autoplay-policy=no-user-gesture-required']});const cx=await b.newContext({viewport:{width:1700,height:1000},acceptDownloads:true});const p=await cx.newPage();
 const errors=[];p.on('pageerror',e=>errors.push(String(e).slice(0,200)));p.on('dialog',d=>d.accept());const log=o=>console.log(JSON.stringify(o));
 await p.goto(target);await p.waitForTimeout(7000);
