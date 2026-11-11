@@ -22,12 +22,14 @@ const np=p=>p.evaluate(()=>__xenProbe.bridge.capture().nParamsUI);
   await open.click();await p.waitForTimeout(300);
   await p.getByRole('tab',{name:/^Plan/}).click();await p.waitForTimeout(500);
   assert.equal(await p.evaluate(()=>window.__XenDeferredFunctionStatus().includes('__xenHoldPatternPlanFactory')),true,'plan island loads on first use');
-  await p.locator('.xen-hpm02-dialog select[aria-label="Plan preset"]').selectOption('odd');
+  await p.locator('.xen-hpm02-dialog select[aria-label="Plan preset"]').selectOption('polymeter');
   await p.getByRole('button',{name:'Generate from preset'}).click();await p.waitForTimeout(500);
   const n=await np(p),plan=n.keyboardHoldPlan,N=plan.nativeGrid.audible.length;
   assert.equal(await p.locator('.xen-hpp-step').count(),N,'one ladder step per audible Grid step');
   assert.equal(plan.entries.length,N);assert.equal(plan.nativeGrid.tuningId,n.gridTuning);
-  assert.deepEqual(plan.entries.map(e=>e.pattern.slots).slice(0,4),[5,7,3,4],'odd-meter preset gives each step its own subdivision');
+  assert.deepEqual(plan.entries.map(e=>e.pattern.slots).slice(0,4),[3,4,5,6],'polymeter preset gives each step its own subdivision');
+  assert.match(await p.locator('[data-xen-hpp-basis]').innerText(),/Basis · Main Room Grid/);
+  assert.doesNotMatch(await p.locator('.xen-hpm02-dialog').innerText(),/Tonic|Subdominant|Dominant|Mediant/,'no tonal functions are inferred');
   // Resolver: every audible step in several periods maps to its plan position; off-grid → lane pattern.
   const res=await p.evaluate(N=>{const prm=__xenProbe.bridge.capture().nParamsUI,h=__xenProbe.holdPlan,t=h.gridTable(prm),out=[];
     for(let k=-2;k<=2;k++)for(let i=0;i<N;i++){const hz=t.base*Math.pow(2,(t.audible[i].cents+k*t.period)/1200);out.push([i,h.position(t,hz),h.forHz(prm,hz)?.slots])}
@@ -37,7 +39,7 @@ const np=p=>p.evaluate(()=>__xenProbe.bridge.capture().nParamsUI);
   // Real key attacks resolve through the plan (live highlight in the ladder).
   await p.evaluate(()=>document.activeElement?.blur());
   const serial0=await p.evaluate(()=>__xenProbe.holdPlan.last.serial);
-  const seen=[];
+  const seen=[],counts=[];
   for(const k of ['1','2','3','4']){await p.keyboard.down(k);await p.waitForTimeout(220);seen.push(await p.evaluate(()=>__xenProbe.holdPlan.last.position));await p.keyboard.up(k);await p.waitForTimeout(80)}
   const serial1=await p.evaluate(()=>__xenProbe.holdPlan.last.serial);
   assert.ok(serial1>serial0,'key attacks consult the plan');
@@ -59,6 +61,16 @@ const np=p=>p.evaluate(()=>__xenProbe.bridge.capture().nParamsUI);
   const after=await np(p);
   assert.ok(after.keyboardHoldPlan.entries.some(e=>e?.source?.kind==='edited'),'stored step is marked edited');
   assert.deepEqual(after.keyboardHoldPatternSteps,laneBefore,'lane working pattern restored after step edit');
+  // The step count is the room Grid's audible step count, not a fixed scale size.
+  for(const [tuning,mode,mutes,expect] of [['19edo','chromatic',[],19],['bp','chromatic',[],13],['31edo','chromatic',[],31]]){
+    await p.evaluate(([t,m,mu])=>__xenProbe.bridge.patch({keyboardHoldPlan:null,gridTuning:t,gridMode:m,manualGridMutedSteps:mu,manualGridStepOffsets:[]}),[tuning,mode,mutes]);await p.waitForTimeout(400);
+    await p.getByRole('button',{name:'＋ Empty plan for current Grid'}).click();await p.waitForTimeout(300);
+    const got=await p.locator('.xen-hpp-step').count();
+    assert.equal(got,expect,tuning+' chromatic → '+expect+' plan steps');counts.push(tuning+':'+got);
+  }
+  await p.evaluate(g=>__xenProbe.bridge.patch({gridTuning:g.tuningId,gridMode:g.modeId,manualGridMutedSteps:g.mainMutedDegrees,manualGridStepOffsets:g.mainStepOffsets,keyboardHoldPlan:null}),plan.nativeGrid);await p.waitForTimeout(400);
+  await p.locator('.xen-hpm02-dialog select[aria-label="Plan preset"]').selectOption('polymeter');
+  await p.getByRole('button',{name:'Generate from preset'}).click();await p.waitForTimeout(400);
   // Plan library: Save As survives a reload.
   const name='E2E plan '+Date.now();
   await p.locator('.xen-hpp input[placeholder^="e.g."]').fill(name);
@@ -72,6 +84,6 @@ const np=p=>p.evaluate(()=>__xenProbe.bridge.capture().nParamsUI);
   await p.getByText('Keyboard-Hold Pattern').first().click();await p.locator('button.xen-hpm02-open').click();await p.getByRole('tab',{name:/^Plan/}).click();await p.waitForTimeout(800);
   assert.ok((await p.locator('.xen-hpp select[aria-label="Saved plans"] option').allInnerTexts()).includes(name),'saved plan listed after reload');
   assert.deepEqual(errors,[],'no page errors');
-  console.log('PASS hold_pattern_plan ('+N+' steps, keys→positions '+seen.join(',')+')');
+  console.log('PASS hold_pattern_plan ('+N+' steps, keys→positions '+seen.join(',')+', '+counts.join(' ')+')');
   await b.close();
 })().catch(e=>{console.error('FAIL',e.message);process.exit(1)});

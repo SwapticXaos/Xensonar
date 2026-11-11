@@ -7,7 +7,7 @@
    the hot path only reads it through __XenHoldPlanRuntime.forHz at key attack. */
 function __xenHoldPatternPlanFactory(){
 'use strict';
-const DB='xensonar-thunder-hold-pattern-plans-v1',STORE='plans',SCHEMA=1,MAX_POSITIONS=64,MAX_JSON=200000;
+const DB='xensonar-thunder-hold-pattern-plans-v1',STORE='plans',SCHEMA=1,MAX_POSITIONS=256,MAX_JSON=200000;
 const fail=s=>{throw Error('Hold Pattern Plan: '+s)};
 const copy=v=>JSON.parse(JSON.stringify(v));
 const stamp=()=>new Date().toISOString();
@@ -32,17 +32,14 @@ function nativeGrid(origin){
  audible.sort((a,b)=>a.cents-b.cents||a.degree-b.degree);
  return {tuningId,modeId,gridBaseHz,mainMutedDegrees,mainStepOffsets,periodCents,audible:audible.slice(0,MAX_POSITIONS)};
 }
-const ROMAN=['I','II','III','IV','V','VI','VII','VIII','IX','X','XI','XII'];
-function roman(i){return i<ROMAN.length?ROMAN[i]:String(i+1)}
-function functionName(grid,i){
- if(grid.audible.length!==7)return '';
- const names=['Tonic','Supertonic','Mediant','Subdominant','Dominant','Submediant',''];
- if(i<6)return names[i];
- return grid.periodCents-grid.audible[6].cents<150?'Leading tone':'Subtonic';
-}
-function gridTitle(g){return tuningLabel(g.tuningId)+' '+modeLabel(g.modeId)}
-function positionLabel(g,i){const f=functionName(g,i);return roman(i)+(f?' '+f:'')}
-function suggestName(g,i){return (gridTitle(g)+' · '+positionLabel(g,i)).slice(0,80)}
+/* Steps are named neutrally: index within the period, Grid degree, cents. No tonal function is
+   inferred from the step count. A user may give any step its own label (e.g. a function name
+   where it fits); labels belong to the plan and never change pitch or playback. */
+function gridTitle(g){const m=modeLabel(g.modeId);return tuningLabel(g.tuningId)+(m?' '+m:'')}
+const labelOf=(plan,i)=>{const l=plan?.labels?.[i];return typeof l==='string'?l.trim():''};
+function positionLabel(g,i,plan){const l=labelOf(plan,i);return 'step '+(i+1)+'/'+g.audible.length+(l?' “'+l+'”':'')}
+function suggestName(g,i,plan){const l=labelOf(plan,i);
+ return (gridTitle(g)+' · step '+(i+1)+'/'+g.audible.length+' · '+Math.round(g.audible[i].cents)+'¢'+(l?' · '+l:'')).slice(0,80)}
 /* Deviation never blocks playing; it explains how the plan is projected. */
 function deviation(plan,origin){
  if(!plan?.nativeGrid)return {level:'none',text:''};
@@ -71,43 +68,46 @@ function validatePlan(raw){
   nativeGrid:{tuningId:g.tuningId.slice(0,1024),modeId:String(g.modeId||'').slice(0,160),gridBaseHz:Number(g.gridBaseHz),
    mainMutedDegrees:(g.mainMutedDegrees||[]).filter(Number.isInteger).slice(0,256),mainStepOffsets:(g.mainStepOffsets||[]).map(v=>Number(v)||0).slice(0,256),
    periodCents:Number(g.periodCents),audible:g.audible.map(x=>({degree:x.degree|0,cents:Number(x.cents)||0}))},
-  entries:raw.entries.map(e=>e?{pattern:patternOnly(e.pattern),source:{kind:String(e.source?.kind||'copy').slice(0,20),name:String(e.source?.name||'').slice(0,80)}}:null)};
+  entries:raw.entries.map(e=>e?{pattern:patternOnly(e.pattern),source:{kind:String(e.source?.kind||'copy').slice(0,20),name:String(e.source?.name||'').slice(0,80)}}:null),
+  labels:g.audible.map((_,i)=>typeof raw.labels?.[i]==='string'?raw.labels[i].trim().slice(0,40):'')};
  if(JSON.stringify(plan).length>MAX_JSON)fail('Plan is too large (max 200 KB)');
  return plan;
 }
 function createPlan(origin,name=''){const g=nativeGrid(origin);if(!g.audible.length)fail('The current Grid has no audible steps');
- return {version:1,name,enabled:true,nativeGrid:g,entries:g.audible.map(()=>null)}}
+ return {version:1,name,enabled:true,nativeGrid:g,entries:g.audible.map(()=>null),labels:g.audible.map(()=>'')}}
+function setLabel(plan,pos,text){const labels=plan.nativeGrid.audible.map((_,i)=>labelOf(plan,i));labels[pos]=String(text||'').slice(0,40);return {...plan,labels}}
 const withEntries=(plan,fn)=>{const entries=plan.entries.slice();fn(entries);return {...plan,entries}};
 function assign(plan,pos,pattern,source){return withEntries(plan,e=>{e[pos]={pattern:patternOnly(pattern),source:{kind:source?.kind||'copy',name:String(source?.name||'').slice(0,80)}}})}
 function clearPosition(plan,pos){return withEntries(plan,e=>{e[pos]=null})}
 function reanchor(plan,origin){const g=nativeGrid(origin),n=plan.entries.length;
- return {...plan,nativeGrid:g,entries:g.audible.map((_,i)=>plan.entries[i%n]??null)}}
+ return {...plan,nativeGrid:g,entries:g.audible.map((_,i)=>plan.entries[i%n]??null),labels:g.audible.map((_,i)=>labelOf(plan,i%n))}}
 
-/* ---------- Presets: generators in SCALE STEPS, resolved against the plan's native Grid ---------- */
+/* ---------- Presets: neutral figures in GRID STEPS of the plan's own Grid ----------
+   An offset of +1 means "the next audible step of this Grid", whatever its size (19-EDO chromatic,
+   Bohlen-Pierce, a sparse mode). Nothing assumes 7 steps, an octave or a tonal function.
+   Pattern pitches are limited to ±1200 cents (Hold Pattern range); larger leaps fold by the period. */
 function stepCents(g,pos,k){const n=g.audible.length,t=pos+k,wrap=Math.floor(t/n),i=((t%n)+n)%n;
  let c=g.audible[i].cents+wrap*g.periodCents-g.audible[pos].cents;
  while(c>1200)c-=g.periodCents;while(c<-1200)c+=g.periodCents;return Math.round(c*1000)/1000}
-function stepsPattern(g,pos,offsets,{bars=1,mute=null,volumes=null}={}){
- const slots=offsets.length;return {slots,referenceBars:bars,muteSteps:mute||offsets.map(()=>1),
-  pitchCents:offsets.map(k=>stepCents(g,pos,k)),slotVolumes:volumes||offsets.map((_,i)=>i===0?1:.82),microtiming:offsets.map(()=>0)}}
-const scaled=(g,x)=>Math.max(1,Math.round(x*g.audible.length/7));
+function stepsPattern(g,pos,offsets,{bars=1}={}){
+ const slots=offsets.length;return {slots,referenceBars:bars,muteSteps:offsets.map(()=>1),
+  pitchCents:offsets.map(k=>stepCents(g,pos,k)),slotVolumes:offsets.map((_,i)=>i===0?1:.82),microtiming:offsets.map(()=>0)}}
+const split=(n,m)=>Array.from({length:m},(_,i)=>Math.round(i*n/m));
 const PRESETS=[
- {id:'triads',label:'Scale triads ↑↓',info:'Every step plays its own in-scale triad up and down.',
-  make:(g,p)=>{const t=scaled(g,2),f=scaled(g,4),o=g.audible.length;return stepsPattern(g,p,[0,t,f,o,f,t])}},
- {id:'sevenths',label:'Seventh arpeggios',info:'Stacked scale thirds to the seventh and back.',
-  make:(g,p)=>{const t=scaled(g,2),f=scaled(g,4),s=scaled(g,6),o=g.audible.length;return stepsPattern(g,p,[0,t,f,s,o,s,f,t])}},
- {id:'cadence',label:'Cadence colours',info:'Tonic, subdominant and dominant arpeggiate; the other steps only pulse their root.',
-  make:(g,p)=>{const n=g.audible.length,strong=[0,scaled(g,3)%n,scaled(g,4)%n];const t=scaled(g,2),f=scaled(g,4);
-   return strong.includes(p)?stepsPattern(g,p,[0,t,f,n,f,t,0,t]):stepsPattern(g,p,[0,0,0,0,0,0,0,0],{mute:[1,0,0,0,1,0,0,0],volumes:[.9,.7,.7,.7,.7,.7,.7,.7]})}},
- {id:'alberti',label:'Alberti figure',info:'Root – fifth – third – fifth, classical broken chord.',
-  make:(g,p)=>{const t=scaled(g,2),f=scaled(g,4);return stepsPattern(g,p,[0,f,t,f,0,f,t,f])}},
- {id:'power',label:'Fifth & period',info:'Open root – fifth – period pulse; works on any period.',
-  make:(g,p)=>{const f=scaled(g,4),o=g.audible.length;return stepsPattern(g,p,[0,f,o,f])}},
- {id:'neighbour',label:'Neighbour shimmer',info:'Upper and lower scale neighbours around each step.',
-  make:(g,p)=>stepsPattern(g,p,[0,1,0,-1,0,1,0,-1])},
- {id:'odd',label:'Odd-meter walk',info:'Each step gets its own subdivision: 3, 5, 7, 4, 6, 5, 7 … (polyrhythm across keys).',
-  make:(g,p)=>{const sizes=[5,7,3,4,6,5,7],n=sizes[p%sizes.length],t=scaled(g,2),f=scaled(g,4),cyc=[0,t,f,g.audible.length,f,t,0];
-   return stepsPattern(g,p,Array.from({length:n},(_,i)=>cyc[i%cyc.length]))}}
+ {id:'pulse',label:'Pulse · 0',info:'Every step repeats only itself (4 slots). A neutral start to paint over.',
+  make:(g,p)=>stepsPattern(g,p,[0,0,0,0])},
+ {id:'neighbours',label:'Neighbours · 0 +1 0 −1',info:'Each step alternates with its upper and lower audible neighbour in this Grid.',
+  make:(g,p)=>stepsPattern(g,p,[0,1,0,-1])},
+ {id:'run',label:'Run · 0 +1 +2 +3 +2 +1',info:'Three consecutive audible steps up and back.',
+  make:(g,p)=>stepsPattern(g,p,[0,1,2,3,2,1])},
+ {id:'mirror',label:'Mirror · 0 +1 +2 +1 0 −1 −2 −1',info:'Symmetric figure around each step.',
+  make:(g,p)=>stepsPattern(g,p,[0,1,2,1,0,-1,-2,-1])},
+ {id:'split3',label:'Period ÷ 3',info:'Divides this Grid’s audible steps into 3 equal step counts (e.g. 19 steps → 0 +6 +13).',
+  make:(g,p)=>stepsPattern(g,p,split(g.audible.length,3))},
+ {id:'split4',label:'Period ÷ 4',info:'Divides this Grid’s audible steps into 4 equal step counts (e.g. 13 steps → 0 +3 +7 +10).',
+  make:(g,p)=>stepsPattern(g,p,split(g.audible.length,4))},
+ {id:'polymeter',label:'Polymeter · 3 4 5 6 7 …',info:'Step k gets 3 + (k mod 5) slots of a 0 +1 +2 +1 figure: different subdivisions across the keys.',
+  make:(g,p)=>{const len=3+(p%5),fig=[0,1,2,1];return stepsPattern(g,p,Array.from({length:len},(_,i)=>fig[i%fig.length]))}}
 ];
 function fromPreset(id,origin,name){const pr=PRESETS.find(x=>x.id===id);if(!pr)fail('Unknown preset');
  const plan=createPlan(origin,name||pr.label+' · '+gridTitle(nativeGrid(origin)));
@@ -157,7 +157,8 @@ if(typeof document!=='undefined'&&!document.getElementById('xen-hpp01-styles')){
 .xen-hpp-step b{font-size:13px;color:#f3e6ff}.xen-hpp-step small{display:block;font-size:10px;color:#9d8fb2}
 .xen-hpp-step .empty{font-size:11px;color:#7d728f;font-style:italic}.xen-hpp-step .name{font-size:11px;color:#e8e1f2;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .xen-hpp-step-actions{display:flex;gap:3px}.xen-hpp-step-actions button{padding:2px 6px!important;font-size:11px}
-.xen-hpp-mute-line{height:0;border-top:1px dashed #3a3448;margin:0 10px}
+.xen-hpp-basis{display:flex;flex-direction:column;gap:5px;padding:7px;border:1px solid #3d5a4c;border-radius:6px;background:#111d18}.xen-hpp-basis strong{color:#bfeed6!important}
+.xen-hpp-degrees{display:flex;flex-wrap:wrap;gap:2px}.xen-hpp-degrees i{width:9px;height:9px;border-radius:2px;background:#2b2a38}.xen-hpp-degrees i.on{background:#8fd9b6}
 .xen-hpp-dev{font-size:11px;border-radius:6px;padding:6px;border:1px solid #3d5a4c;background:#132219;color:#bfeed6}
 .xen-hpp-dev.deviation{border-color:#c79a4a;background:#2a2112;color:#f7e0b0}.xen-hpp-dev.retuned,.xen-hpp-dev.transposed{border-color:#5a6ec7;background:#151b33;color:#c8d3ff}
 .xen-hpp-row{display:flex;flex-wrap:wrap;gap:5px;align-items:center}.xen-hpp label{display:flex;flex-direction:column;gap:3px;font-size:11px;color:#e7d3f4}
@@ -170,7 +171,19 @@ if(typeof document!=='undefined'&&!document.getElementById('xen-hpp01-styles')){
 /* ---------- Plan view ---------- */
 const DND_PATTERN='application/x-xen-hold-pattern',DND_POS='application/x-xen-hpp-position';
 function Dots({pattern}){const m=(pattern?.muteSteps||[]).slice(0,32);return u.jsx('span',{className:'xen-hpp-dots','aria-hidden':'true',children:m.map((v,i)=>u.jsx('i',{className:v?'on':''},i))})}
-function PlanView({plan,origin,workingPattern,onPlanChange,onRestoreGrid,onEditPosition,onAudition,armedPosition}){
+/* The plan has no tuning model of its own: its steps ARE the audible steps of the Main Room Grid.
+   This card shows that basis and links to the room's own Grid tools instead of duplicating them. */
+function GridBasis({origin,onOpenGridWorkbench}){
+ const g=nativeGrid(origin);let total=0;try{total=(Kp(g.tuningId)||[]).length}catch{}
+ const muted=new Set(g.mainMutedDegrees);
+ return u.jsxs('div',{className:'xen-hpp-basis','data-xen-hpp-basis':'true',children:[
+  u.jsxs('div',{className:'xen-hpp-row',style:{justifyContent:'space-between'},children:[u.jsx('strong',{children:'Basis · Main Room Grid'}),
+   onOpenGridWorkbench?u.jsx('button',{type:'button',onClick:onOpenGridWorkbench,title:'Close the studio and open the Main Room Grid Workbench (tunings, periods, steps).',children:'Grid Workbench…'}):null]}),
+  u.jsx('p',{children:gridTitle(g)+' · period '+Math.round(g.periodCents*1000)/1000+' ¢ ('+periodName(g.periodCents)+') · '+g.audible.length+' of '+total+' steps audible · root '+g.gridBaseHz.toFixed(2)+' Hz'}),
+  u.jsx('span',{className:'xen-hpp-degrees','aria-label':'Grid degrees of one period; dim = muted',children:Array.from({length:Math.min(total,256)},(_,d)=>u.jsx('i',{className:muted.has(d)?'':'on',title:'degree '+d+(muted.has(d)?' · muted':'')},d))}),
+  u.jsx('p',{children:'Tuning, period, mode and mutes are set in the Main Room (Grid System, Grid Mode, Grid Workbench). Every audible step becomes one plan step.'})]});
+}
+function PlanView({plan,origin,workingPattern,onPlanChange,onRestoreGrid,onEditPosition,onAudition,armedPosition,onOpenGridWorkbench}){
  const [library,setLibrary]=P.useState([]),[plans,setPlans]=P.useState([]),[armed,setArmed]=P.useState(null);
  const [selected,setSelected]=P.useState(armedPosition??0),[dropAt,setDropAt]=P.useState(-1),[message,setMessage]=P.useState('');
  const [planName,setPlanName]=P.useState(plan?.name||''),[savedId,setSavedId]=P.useState(''),[preset,setPreset]=P.useState(PRESETS[0].id);
@@ -183,7 +196,10 @@ function PlanView({plan,origin,workingPattern,onPlanChange,onRestoreGrid,onEditP
  const dev=P.useMemo(()=>deviation(plan,origin),[plan,origin]);
  const grid=plan?.nativeGrid,current=P.useMemo(()=>nativeGrid(origin),[origin]);
  const n=grid?.audible.length||0,idx=Math.min(selected,Math.max(0,n-1));
- P.useEffect(()=>{if(grid)setPatternName(suggestName(grid,idx))},[grid,idx]);
+ const [labelDraft,setLabelDraft]=P.useState('');
+ P.useEffect(()=>{if(grid){setPatternName(suggestName(grid,idx,plan));setLabelDraft(labelOf(plan,idx))}},[grid,idx,plan?.labels]);
+ // A plan without any assigned step simply follows the Main Room Grid (nothing to lose).
+ P.useEffect(()=>{if(plan&&!plan.entries.some(Boolean)&&!labelOf(plan,0)&&!(plan.labels||[]).some(Boolean)&&(dev.level==='deviation'||dev.level==='retuned'||dev.level==='transposed'))onPlanChange(reanchor(plan,origin))},[dev.level]);
  P.useEffect(()=>{if(plan?.name)setPlanName(plan.name)},[plan?.name]);
  const change=(next,msg)=>{onPlanChange(next);if(msg)setMessage(msg)};
  const patternFrom=id=>id==='working'?{pattern:workingPattern,name:'Working pattern',kind:'working'}:(()=>{const r=library.find(x=>x.id===id);return r?{pattern:r,name:r.name,kind:'library'}:null})();
@@ -194,7 +210,7 @@ function PlanView({plan,origin,workingPattern,onPlanChange,onRestoreGrid,onEditP
  const hzFor=pos=>{const g=current.audible.length?current:grid;if(!g?.audible.length)return 220;const a=g.audible[pos%g.audible.length];
   let hz=g.gridBaseHz*Math.pow(2,a.cents/1200);const r=Math.pow(2,g.periodCents/1200);while(hz>520)hz/=r;while(hz<130)hz*=r;return hz};
  if(!plan)return u.jsxs('div',{className:'xen-hpp',children:[
-  u.jsxs('div',{style:{gridColumn:'1 / -1'},children:[u.jsx('strong',{children:'Hold Pattern Plan · Keyboard'}),
+  u.jsxs('div',{style:{gridColumn:'1 / -1'},children:[u.jsx(GridBasis,{origin,onOpenGridWorkbench}),u.jsx('strong',{children:'Hold Pattern Plan · Keyboard'}),
    u.jsx('p',{children:'A plan gives every audible step of the period ('+current.audible.length+' steps of '+gridTitle(current)+' per '+periodName(current.periodCents)+') its own Hold Pattern. It is projected onto all keyboard rows and follows the movable key window.'}),
    u.jsxs('div',{className:'xen-hpp-row',children:[
     u.jsx('button',{type:'button',onClick:()=>perform(async()=>change(createPlan(origin),'Empty plan created for '+gridTitle(current)+'.')),children:'＋ Empty plan for current Grid'}),
@@ -217,7 +233,7 @@ function PlanView({plan,origin,workingPattern,onPlanChange,onRestoreGrid,onEditP
     children:[u.jsx('span',{children:r.name+(r.sourceLane==='enter'?' · Enter':'')}),u.jsx(Dots,{pattern:r})]},r.id)),
    armed?u.jsx('button',{type:'button',onClick:()=>{const src=patternFrom(armed);change(withEntries(plan,e=>{for(let i=0;i<e.length;i++)if(!e[i])e[i]={pattern:patternOnly(src.pattern),source:{kind:src.kind,name:src.name}}}),'Filled empty steps with '+src.name+'.')},children:'Fill empty steps with armed'}):null]}),
   /* Ladder */
-  u.jsxs('div',{children:[u.jsx('strong',{children:plan.name||'Untitled plan'}),u.jsx('p',{children:'Made for '+gridTitle(grid)+' · '+n+' audible steps per '+periodName(grid.periodCents)+' · root '+grid.gridBaseHz.toFixed(2)+' Hz'}),
+  u.jsxs('div',{children:[u.jsx(GridBasis,{origin,onOpenGridWorkbench}),u.jsx('strong',{children:plan.name||'Untitled plan'}),u.jsx('p',{children:'Made for '+gridTitle(grid)+' · '+n+' audible steps per '+periodName(grid.periodCents)+' · root '+grid.gridBaseHz.toFixed(2)+' Hz'}),
    u.jsx('div',{className:'xen-hpp-ladder',role:'listbox','aria-label':'Plan steps, root at the bottom',children:grid.audible.map((a,i)=>{const en=plan.entries[i];
     return u.jsxs('div',{role:'option','aria-selected':i===idx,tabIndex:0,draggable:!!en,
      className:'xen-hpp-step'+(i===idx?' selected':'')+(dropAt===i?' drop':'')+(livePos>=0&&livePos%n===i?' live':'')+(i>=current.audible.length&&dev.level==='deviation'?' unreachable':''),
@@ -225,9 +241,9 @@ function PlanView({plan,origin,workingPattern,onPlanChange,onRestoreGrid,onEditP
      onKeyDown:ev=>{if(ev.key==='Enter'||ev.key===' '){ev.preventDefault();setSelected(i);if(armed)assignTo(i,patternFrom(armed))}},
      onDragStart:ev=>{ev.dataTransfer.setData(DND_POS,String(i));ev.dataTransfer.effectAllowed='copy'},
      onDragOver:ev=>{ev.preventDefault();ev.dataTransfer.dropEffect='copy';setDropAt(i)},onDragLeave:()=>setDropAt(d=>d===i?-1:d),onDrop:ev=>onDrop(ev,i),
-     children:[u.jsxs('span',{children:[u.jsx('b',{children:roman(i)}),u.jsx('small',{children:'deg '+a.degree+' · '+Math.round(a.cents)+'¢'})]}),
+     children:[u.jsxs('span',{children:[u.jsx('b',{children:String(i+1)}),u.jsx('small',{children:'deg '+a.degree+' · '+Math.round(a.cents)+'¢'})]}),
       u.jsxs('span',{style:{minWidth:0},children:[en?u.jsx('span',{className:'name',children:en.source?.name||'Pattern'}):u.jsx('span',{className:'empty',children:'lane pattern'}),
-       functionName(grid,i)?u.jsx('small',{children:functionName(grid,i)}):null,en?u.jsx(Dots,{pattern:en.pattern}):null]}),
+       labelOf(plan,i)?u.jsx('small',{children:labelOf(plan,i)}):null,en?u.jsx(Dots,{pattern:en.pattern}):null]}),
       u.jsxs('span',{className:'xen-hpp-step-actions',children:[
        u.jsx('button',{type:'button','aria-label':'Audition '+positionLabel(grid,i),title:'Audition at this step',onClick:ev=>{ev.stopPropagation();onAudition(en?en.pattern:workingPattern,hzFor(i))},children:'▶'}),
        en?u.jsx('button',{type:'button','aria-label':'Clear '+positionLabel(grid,i),title:'Clear: this step uses the lane pattern',onClick:ev=>{ev.stopPropagation();change(clearPosition(plan,i))},children:'✕'}):null]})]},i)})}),
@@ -239,14 +255,17 @@ function PlanView({plan,origin,workingPattern,onPlanChange,onRestoreGrid,onEditP
     dev.level!=='match'?u.jsxs('div',{className:'xen-hpp-row',style:{marginTop:5},children:[
      u.jsx('button',{type:'button',onClick:()=>{onRestoreGrid(plan.nativeGrid);setMessage('Live Room Grid restored to '+gridTitle(plan.nativeGrid)+'.')},title:'Switch the Live Room Grid back to the plan’s tuning, mode, mutes, fine tuning and root.',children:'Restore plan Grid'}),
      u.jsx('button',{type:'button',onClick:()=>change(reanchor(plan,origin),'Plan re-anchored to '+gridTitle(current)+'.'),title:'Keep the patterns, but make the current Grid the plan’s native Grid.',children:'Adopt current Grid'})]}):null]}):null,
-   u.jsx('strong',{children:'Selected · '+positionLabel(grid,idx)}),
+   u.jsx('strong',{children:'Selected · '+positionLabel(grid,idx,plan)}),
    u.jsxs('label',{children:['Pattern name (technical suggestion, editable)',u.jsx('input',{type:'text',maxLength:80,value:patternName,onChange:e=>setPatternName(e.target.value),onKeyDown:e=>e.stopPropagation()})]}),
    u.jsxs('div',{className:'xen-hpp-row',children:[
-    u.jsx('button',{type:'button',onClick:()=>onEditPosition(idx,entry?entry.pattern:null,positionLabel(grid,idx),hzFor(idx)),title:'Load this step’s pattern into the Pattern view and tune it by ear on this step.',children:'✎ Edit in Pattern view'}),
+    u.jsx('button',{type:'button',onClick:()=>onEditPosition(idx,entry?entry.pattern:null,positionLabel(grid,idx,plan),hzFor(idx)),title:'Load this step’s pattern into the Pattern view and tune it by ear on this step.',children:'✎ Edit in Pattern view'}),
     u.jsx('button',{type:'button',disabled:!entry||busy,onClick:()=>perform(async()=>{await memory().saveAs(patternName,{...entry.pattern,sourceLane:'keyboard',tuningOrigin:{tuningId:grid.tuningId,modeId:grid.modeId||'chromatic',gridBaseHz:grid.gridBaseHz,mainMutedDegrees:grid.mainMutedDegrees,mainStepOffsets:grid.mainStepOffsets}});await refresh();setMessage('Saved “'+patternName+'” to the pattern library.')}),children:'Save to library'}),
-    u.jsx('button',{type:'button',disabled:!entry,onClick:()=>{const e2=entry;change(assign(plan,idx,e2.pattern,{kind:e2.source?.kind,name:patternName}),'Step renamed.')},children:'Rename step'})]}),
+   ]}),
+   u.jsxs('label',{children:['Step label (optional, your own name, e.g. a function where it fits)',u.jsx('input',{type:'text',maxLength:40,value:labelDraft,placeholder:'no label',
+    onChange:e=>setLabelDraft(e.target.value),onBlur:()=>{if(labelDraft.trim()!==labelOf(plan,idx))change(setLabel(plan,idx,labelDraft.trim()))},
+    onKeyDown:e=>{e.stopPropagation();if(e.key==='Enter')e.currentTarget.blur()}})]}),
    u.jsx('strong',{children:'Plan library'}),
-   u.jsxs('label',{children:['Plan name',u.jsx('input',{type:'text',maxLength:80,value:planName,placeholder:'e.g. 22 EDO Phrygian · night arps',onChange:e=>setPlanName(e.target.value),onKeyDown:e=>e.stopPropagation()})]}),
+   u.jsxs('label',{children:['Plan name',u.jsx('input',{type:'text',maxLength:80,value:planName,placeholder:'e.g. 19 EDO chromatic · evening',onChange:e=>setPlanName(e.target.value),onKeyDown:e=>e.stopPropagation()})]}),
    u.jsx('select',{'aria-label':'Saved plans',value:savedId,onChange:e=>setSavedId(e.target.value),children:[u.jsx('option',{value:'',children:plans.length?'Saved plans…':'No saved plans yet'}),...plans.map(r=>u.jsx('option',{value:r.id,children:r.name},r.id))]}),
    u.jsxs('div',{className:'xen-hpp-row',children:[
     u.jsx('button',{type:'button',disabled:busy||!planName.trim(),onClick:()=>perform(async()=>{const row=await store.saveAs(planName,plan);change({...plan,name:row.name});await refresh();setSavedId(row.id);setMessage('Plan saved as '+row.name+'.')}),children:'Save As'}),
@@ -261,5 +280,5 @@ function PlanView({plan,origin,workingPattern,onPlanChange,onRestoreGrid,onEditP
 }
 
 return Object.freeze({version:'HPP01',dbName:DB,nativeGrid,deviation,validatePlan,createPlan,assign,clearPosition,reanchor,fromPreset,presets:PRESETS.map(p=>({id:p.id,label:p.label,info:p.info})),
- suggestName,positionLabel,gridTitle,store,PlanView,patternOnly});
+ suggestName,positionLabel,setLabel,gridTitle,store,PlanView,patternOnly});
 }
