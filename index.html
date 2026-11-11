@@ -348,6 +348,10 @@ function GridBasis({origin,onOpenGridWorkbench}){
   u.jsx('span',{className:'xen-hpp-degrees','aria-label':'Grid degrees of one period; dim = muted',children:Array.from({length:Math.min(total,256)},(_,d)=>u.jsx('i',{className:muted.has(d)?'':'on',title:'degree '+d+(muted.has(d)?' · muted':'')},d))}),
   u.jsx('p',{children:'Tuning, period, mode and mutes are set in the Main Room (Grid System, Grid Mode, Grid Workbench). Every audible step becomes one plan step.'})]});
 }
+function PresetPicker({value,onChange,children}){
+ return u.jsxs('div',{className:'xen-hpp-row',children:[
+  u.jsx('select',{'aria-label':'Plan preset',value,onChange:e=>onChange(e.target.value),children:PRESETS.map(p=>u.jsx('option',{value:p.id,title:p.info,children:p.label},p.id))}),children]});
+}
 function PlanView({plan,origin,workingPattern,onPlanChange,onRestoreGrid,onEditPosition,onAudition,armedPosition,onOpenGridWorkbench}){
  const [library,setLibrary]=P.useState([]),[plans,setPlans]=P.useState([]),[armed,setArmed]=P.useState(null);
  const [selected,setSelected]=P.useState(armedPosition??0),[dropAt,setDropAt]=P.useState(-1),[message,setMessage]=P.useState('');
@@ -364,23 +368,21 @@ function PlanView({plan,origin,workingPattern,onPlanChange,onRestoreGrid,onEditP
  const [labelDraft,setLabelDraft]=P.useState('');
  P.useEffect(()=>{if(grid){setPatternName(suggestName(grid,idx,plan));setLabelDraft(labelOf(plan,idx))}},[grid,idx,plan?.labels]);
  // A plan without any assigned step simply follows the Main Room Grid (nothing to lose).
- P.useEffect(()=>{if(plan&&!plan.entries.some(Boolean)&&!labelOf(plan,0)&&!(plan.labels||[]).some(Boolean)&&(dev.level==='deviation'||dev.level==='retuned'||dev.level==='transposed'))onPlanChange(reanchor(plan,origin))},[dev.level]);
+ P.useEffect(()=>{if(plan&&dev.level!=='match'&&dev.level!=='none'&&!plan.entries.some(Boolean)&&!(plan.labels||[]).some(Boolean))onPlanChange(reanchor(plan,origin))},[dev.level]);
  P.useEffect(()=>{if(plan?.name)setPlanName(plan.name)},[plan?.name]);
  const change=(next,msg)=>{onPlanChange(next);if(msg)setMessage(msg)};
  const patternFrom=id=>id==='working'?{pattern:workingPattern,name:'Working pattern',kind:'working'}:(()=>{const r=library.find(x=>x.id===id);return r?{pattern:r,name:r.name,kind:'library'}:null})();
- const assignTo=(pos,src)=>{if(!plan||!src)return;change(assign(plan,pos,src.pattern,{kind:src.kind,name:src.name}),positionLabel(grid,pos)+' ← '+src.name)};
+ const assignTo=(pos,src)=>{if(!plan||!src)return;change(assign(plan,pos,src.pattern,{kind:src.kind,name:src.name}),positionLabel(grid,pos,plan)+' ← '+src.name)};
  const onDrop=(ev,pos)=>{ev.preventDefault();setDropAt(-1);const dt=ev.dataTransfer;
-  const from=dt.getData(DND_POS);if(from!==''&&plan){const f=Number(from);if(plan.entries[f]){change(withEntries(plan,e=>{e[pos]=plan.entries[f]}),positionLabel(grid,pos)+' ← copy of '+positionLabel(grid,f))}return}
+  const from=dt.getData(DND_POS);if(from!==''&&plan){const f=Number(from);if(plan.entries[f]){change(withEntries(plan,e=>{e[pos]=plan.entries[f]}),positionLabel(grid,pos,plan)+' ← copy of '+positionLabel(grid,f,plan))}return}
   perform(async()=>assignTo(pos,patternFrom(dt.getData(DND_PATTERN))))};
  const hzFor=pos=>{const g=current.audible.length?current:grid;if(!g?.audible.length)return 220;const a=g.audible[pos%g.audible.length];
   let hz=g.gridBaseHz*Math.pow(2,a.cents/1200);const r=Math.pow(2,g.periodCents/1200);while(hz>520)hz/=r;while(hz<130)hz*=r;return hz};
  if(!plan)return u.jsxs('div',{className:'xen-hpp',children:[
   u.jsxs('div',{style:{gridColumn:'1 / -1'},children:[u.jsx(GridBasis,{origin,onOpenGridWorkbench}),u.jsx('strong',{children:'Hold Pattern Plan · Keyboard'}),
    u.jsx('p',{children:'A plan gives every audible step of the period ('+current.audible.length+' steps of '+gridTitle(current)+' per '+periodName(current.periodCents)+') its own Hold Pattern. It is projected onto all keyboard rows and follows the movable key window.'}),
-   u.jsxs('div',{className:'xen-hpp-row',children:[
-    u.jsx('button',{type:'button',onClick:()=>perform(async()=>change(createPlan(origin),'Empty plan created for '+gridTitle(current)+'.')),children:'＋ Empty plan for current Grid'}),
-    u.jsx('select',{'aria-label':'Plan preset',value:preset,onChange:e=>setPreset(e.target.value),children:PRESETS.map(p=>u.jsx('option',{value:p.id,title:p.info,children:p.label},p.id))}),
-    u.jsx('button',{type:'button',onClick:()=>perform(async()=>change(fromPreset(preset,origin),'Preset generated for '+gridTitle(current)+'.')),children:'Generate from preset'})]}),
+   u.jsx('button',{type:'button',onClick:()=>change(createPlan(origin),'Empty plan created for '+gridTitle(current)+'.'),children:'＋ Empty plan for current Grid'}),
+   u.jsx(PresetPicker,{value:preset,onChange:setPreset,children:u.jsx('button',{type:'button',onClick:()=>change(fromPreset(preset,origin),'Preset generated for '+gridTitle(current)+'.'),children:'Generate from preset'})}),
    u.jsx('p',{children:PRESETS.find(p=>p.id===preset)?.info}),
    u.jsxs('label',{children:['Load saved plan',u.jsx('select',{'aria-label':'Saved plans',value:'',onChange:e=>{const r=plans.find(x=>x.id===e.target.value);if(r){setSavedId(r.id);change(validatePlan(r.plan),'Loaded '+r.name+'.')}},
     children:[u.jsx('option',{value:'',children:plans.length?'Choose…':'No saved plans yet'}),...plans.map(r=>u.jsx('option',{value:r.id,children:r.name},r.id))]})]}),
@@ -410,8 +412,8 @@ function PlanView({plan,origin,workingPattern,onPlanChange,onRestoreGrid,onEditP
       u.jsxs('span',{style:{minWidth:0},children:[en?u.jsx('span',{className:'name',children:en.source?.name||'Pattern'}):u.jsx('span',{className:'empty',children:'lane pattern'}),
        labelOf(plan,i)?u.jsx('small',{children:labelOf(plan,i)}):null,en?u.jsx(Dots,{pattern:en.pattern}):null]}),
       u.jsxs('span',{className:'xen-hpp-step-actions',children:[
-       u.jsx('button',{type:'button','aria-label':'Audition '+positionLabel(grid,i),title:'Audition at this step',onClick:ev=>{ev.stopPropagation();onAudition(en?en.pattern:workingPattern,hzFor(i))},children:'▶'}),
-       en?u.jsx('button',{type:'button','aria-label':'Clear '+positionLabel(grid,i),title:'Clear: this step uses the lane pattern',onClick:ev=>{ev.stopPropagation();change(clearPosition(plan,i))},children:'✕'}):null]})]},i)})}),
+       u.jsx('button',{type:'button','aria-label':'Audition '+positionLabel(grid,i,plan),title:'Audition at this step',onClick:ev=>{ev.stopPropagation();onAudition(en?en.pattern:workingPattern,hzFor(i))},children:'▶'}),
+       en?u.jsx('button',{type:'button','aria-label':'Clear '+positionLabel(grid,i,plan),title:'Clear: this step uses the lane pattern',onClick:ev=>{ev.stopPropagation();change(clearPosition(plan,i))},children:'✕'}):null]})]},i)})}),
    u.jsx('p',{children:'Root at the bottom. Muted Grid steps are not part of the plan. Empty steps play the lane’s working pattern. Pattern pitches are cents relative to the pressed key.'})]}),
   /* Plan + selected step */
   u.jsxs('div',{children:[
@@ -437,9 +439,7 @@ function PlanView({plan,origin,workingPattern,onPlanChange,onRestoreGrid,onEditP
     u.jsx('button',{type:'button',disabled:busy||!savedRow,onClick:()=>perform(async()=>{if(!globalThis.confirm('Overwrite saved plan “'+savedRow.name+'” with the current plan?'))return;await store.overwrite(savedRow.id,plan,savedRow.revision);await refresh();setMessage('Updated '+savedRow.name+'.')}),children:'Overwrite'}),
     u.jsx('button',{type:'button',disabled:busy||!savedRow,onClick:()=>{change(validatePlan(savedRow.plan),'Loaded '+savedRow.name+'.')},children:'Load'}),
     u.jsx('button',{type:'button',disabled:busy||!savedRow,onClick:()=>perform(async()=>{if(!globalThis.confirm('Delete saved plan “'+savedRow.name+'”? The active plan stays.'))return;await store.remove(savedRow.id);setSavedId('');await refresh();setMessage('Saved plan deleted.')}),children:'Delete'})]}),
-   u.jsxs('div',{className:'xen-hpp-row',children:[
-    u.jsx('select',{'aria-label':'Plan preset',value:preset,onChange:e=>setPreset(e.target.value),children:PRESETS.map(p=>u.jsx('option',{value:p.id,title:p.info,children:p.label},p.id))}),
-    u.jsx('button',{type:'button',onClick:()=>{if(plan.entries.some(Boolean)&&!globalThis.confirm('Replace the active plan with the preset “'+PRESETS.find(p=>p.id===preset).label+'”? Saved plans are not changed.'))return;change(fromPreset(preset,origin),'Preset generated for '+gridTitle(current)+'.')},children:'New from preset'})]}),
+   u.jsx(PresetPicker,{value:preset,onChange:setPreset,children:u.jsx('button',{type:'button',onClick:()=>{if(plan.entries.some(Boolean)&&!globalThis.confirm('Replace the active plan with the preset “'+PRESETS.find(p=>p.id===preset).label+'”? Saved plans are not changed.'))return;change(fromPreset(preset,origin),'Preset generated for '+gridTitle(current)+'.')},children:'New from preset'})}),
    u.jsx('button',{type:'button',onClick:()=>{if(globalThis.confirm('Remove the plan from the Keyboard? Saved plans stay in the library.'))change(null,'')},children:'Remove plan from Keyboard'}),
    message?u.jsx('p',{role:'status',className:'xen-hpp-message',children:message}):null]})]});
 }
@@ -32501,6 +32501,14 @@ function __xenHoldPitchPointerCents(rect,y){
  if(!rect||!Number.isFinite(rect.height)||rect.height<=0||!Number.isFinite(y))return 0;
  return Math.round(Math.max(-1200,Math.min(1200,1200*(rect.top+rect.height/2-y)/(rect.height/2))));
 }
+/* One slot face for the Main Room cards and the Hold Pattern Studio: slot number over a red pitch line.
+   The line sits at the slot's pitch inside the card (+1 period-octave = top edge, -1 = bottom edge, 0 = middle). */
+function __xenHoldPitchSlotFace(index,cents){
+ return u.jsxs(P.Fragment,{children:[
+  u.jsx('span',{className:'xen-hold-pitch-preview','aria-hidden':'true',style:{top:__xenHoldPitchVisualPct(cents)+'%'}}),
+  u.jsx('span',{className:'xen-hold-slot-number',children:index+1})
+ ]});
+}
 function iT({label:e,steps:t,tone:n="neutral",maxColumns:r=16,onChange:a,pitches:Q,onPitchChange:W}){
  const o=kw(t,t.length||1),i=bie[n],s=Math.min(r,Math.max(1,o.length)),l=o.length<=4?"h-8":o.length<=8?"h-7":"h-6";
  const [popup,setPopup]=P.useState(null);
@@ -32552,10 +32560,6 @@ function iT({label:e,steps:t,tone:n="neutral",maxColumns:r=16,onChange:a,pitches
   setPopup({index,centerY,left,top:centerY-arm,height:arm*2,width:button.width,slotHeight:button.height,
    tooltipSide:left+button.width+240<vw?'right':'left'});
  };
- const preview=(index,cents)=>u.jsxs(P.Fragment,{children:[
-  u.jsx('span',{className:'xen-hold-pitch-preview','aria-hidden':'true',style:{top:__xenHoldPitchVisualPct(cents)+'%'}}),
-  u.jsx('span',{className:'xen-hold-slot-number',children:index+1})
- ]});
  const current=popup?__xenHoldPitchValue(Q,popup.index):0;
  const move=(ev)=>setCents(popup.index,__xenHoldPitchPointerCents(ev.currentTarget.getBoundingClientRect(),ev.clientY));
  return u.jsxs(P.Fragment,{children:[
@@ -32576,7 +32580,7 @@ function iT({label:e,steps:t,tone:n="neutral",maxColumns:r=16,onChange:a,pitches
     className:`${l} rounded border text-center text-[10px] leading-none transition flex items-center justify-center ${c!==0?i.on:i.off} ${W?'xen-hold-pitch-slot':''}`,
     'aria-label':`${e} segment ${d+1}: ${c!==0?'on':'off'}`,
     title:`Segment ${d+1} ${c!==0?'deactivate':'activate'}${W?' · Right-click: fretless ±1 octave':''}`,
-    children:W?preview(d,__xenHoldPitchValue(Q,d)):d+1},`${e}-${o.length}-${d}`))}),
+    children:W?__xenHoldPitchSlotFace(d,__xenHoldPitchValue(Q,d)):d+1},`${e}-${o.length}-${d}`))}),
   popup&&W&&typeof document!=='undefined'&&ao.createPortal(u.jsxs('div',{
    'data-xen-hold-pitch-popup':'true',className:'xen-thunder-pitch-slider',
    role:'slider',tabIndex:0,'aria-orientation':'vertical','aria-valuemin':-1200,'aria-valuemax':1200,'aria-valuenow':current,
@@ -32913,7 +32917,7 @@ function __xenHoldDetailReferences(mode,origin){
    for(let i=-edo;i<=edo;i++)add(1200*i/edo,(i<0?'−':'+')+Math.abs(i)+' / '+edo+' EDO');
   }
  }
- return out.sort((a,b)=>a.cents-b.cents||a.label.localeCompare(b.label));
+ return out.sort((a,b)=>b.cents-a.cents||a.label.localeCompare(b.label));// high pitch on top, like the pitch rail
 }
 /* HPM02-TUNINGPREVIEW01: reference preview is explicitly an audition, not a live gesture.
    WebAudio timeline owns pattern timing; all created voices are scoped to this dialog. */
@@ -33103,8 +33107,8 @@ function __XenHoldDetailEditor({lane,slots,referenceBars,muteSteps,pitches,volum
    view==='pattern'?u.jsxs('div',{className:'xen-hpm02-layout',children:[
     u.jsxs('div',{className:'xen-hpm02-slots',children:[u.jsx('strong',{children:'Select slot'}),
      u.jsx('div',{className:'xen-hpm02-slot-grid',children:Array.from({length:n},(_,i)=>u.jsx('button',{type:'button',
-      'aria-label':'Select slot '+(i+1),'aria-pressed':idx===i,className:(idx===i?' selected':'')+((muteSteps?.[i]===0)?' muted':''),onClick:()=>setSelected(i),
-      title:'Slot '+(i+1)+(muteSteps?.[i]===0?' · muted':'')+' · '+__xenHoldPitchValue(pitches,i)+' cents · '+Math.round(__xenHoldSlotGain(volumes,i)*100)+'% volume · '+Math.round(__xenHoldMicroRatio(microtiming,i)*100)+'% microtiming',children:i+1},i))}),
+      'aria-label':'Select slot '+(i+1),'aria-pressed':idx===i,className:'xen-hold-pitch-slot '+(muteSteps?.[i]===0?'muted':'on')+(idx===i?' selected':''),onClick:()=>setSelected(i),
+      title:'Slot '+(i+1)+(muteSteps?.[i]===0?' · muted':'')+' · '+__xenHoldPitchValue(pitches,i)+' cents · '+Math.round(__xenHoldSlotGain(volumes,i)*100)+'% volume · '+Math.round(__xenHoldMicroRatio(microtiming,i)*100)+'% microtiming',children:__xenHoldPitchSlotFace(i,__xenHoldPitchValue(pitches,i))},i))}),
      u.jsx('button',{type:'button',onClick:()=>{const next=Array.from({length:n},(_,i)=>muteSteps?.[i]===0?0:1);next[idx]=next[idx]===0?1:0;onMute(next)},'aria-pressed':muteSteps?.[idx]!==0,children:'Slot '+(idx+1)+': '+(muteSteps?.[idx]===0?'Muted · unmute':'Active · mute')}),
      u.jsxs('div',{className:'xen-hpm03-preview',children:[
       u.jsx('strong',{children:'Audition · '+lane}),
@@ -33155,12 +33159,15 @@ function R4({holdPlan:__holdPlan,onHoldPlanChange:__onHoldPlan,onRestoreGrid:__o
    the audible-step table is rebuilt only when the Grid changes; resolved overrides are cached
    per plan entry object. No React, storage or allocation per scheduler tick. */
 const __XenHoldPlanRuntime=(()=>{
- let tableKey='',table=null;
+ let tableKey='',table=null,seenId=null,seenBase=0,seenMutes=null,seenOffs=null;
  const overrides=new WeakMap();
  const last={position:-1,serial:0};
  function gridTable(p){
   const id=String(p?.gridTuning||'12edo'),base=Number(p?.gridBase)||0;
   const mutes=Array.isArray(p?.manualGridMutedSteps)?p.manualGridMutedSteps:[],offs=Array.isArray(p?.manualGridStepOffsets)?p.manualGridStepOffsets:[];
+  // Fast path: nothing changed by identity (the normal case, once per key attack, no string building).
+  if(table&&id===seenId&&base===seenBase&&mutes===seenMutes&&offs===seenOffs)return table;
+  seenId=id;seenBase=base;seenMutes=mutes;seenOffs=offs;
   const key=id+'|'+base+'|'+mutes.join(',')+'|'+offs.join(',');
   if(key===tableKey&&table)return table;
   let steps=[],period=1200;
@@ -61405,7 +61412,11 @@ root.__XenWaveUIW01=Object.freeze({attach,drawStereo,enabled(canvas){const e=ins
 .xen-hpm02-settings{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:5px 0 9px;padding:7px;background:#19182a;border-radius:7px;flex-shrink:0}.xen-hpm02-settings label{display:flex;gap:6px;align-items:center}.xen-hpm02-settings input{width:62px}.xen-hpm02-settings select,.xen-hpm02-settings input,.xen-hpm03-finetune input,.xen-hpm03-preview input,.xen-hpm03-preview select{background:#0c0d16;border:1px solid #625577;border-radius:4px;color:#eee4fa;padding:5px}.xen-hpm02-summary{color:#a4a9bc;font-size:11px}
 .xen-hpm02-layout{display:grid;flex:1;min-height:0;grid-template-columns:minmax(185px,1fr) minmax(120px,175px) minmax(380px,1.9fr);gap:9px}
 .xen-hpm02-layout>div{min-width:0;min-height:0;background:#151422;border:1px solid #403551;border-radius:7px;padding:9px;display:flex;flex-direction:column;gap:7px}.xen-hpm02-layout strong{font-size:12px;color:#dfd0f4}
-.xen-hpm02-slots{overflow:auto}.xen-hpm02-slot-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(34px,1fr));gap:5px;max-height:36vh;overflow:auto;align-content:start}.xen-hpm02-slot-grid button{min-height:28px;padding:3px;font-size:12px}.xen-hpm02-slot-grid button.selected,.xen-hpm02-ref-list button.selected{border-color:#e9bd6c;background:#553e28}.xen-hpm02-slot-grid button.muted,.xen-hpm02-ref-list button.muted{opacity:.55}
+.xen-hpm02-slots{overflow:auto}.xen-hpm02-slot-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(34px,1fr));gap:5px;max-height:36vh;overflow:auto;align-content:start}.xen-hpm02-slot-grid button{min-height:40px;padding:3px;font-size:12px}.xen-hpm02-ref-list button.selected{border-color:#e9bd6c;background:#553e28}.xen-hpm02-ref-list button.muted{opacity:.55}
+/* Slot cards follow the Main Room look: green = active, dark = muted, gold ring = selection, red pitch line behind the number. */
+.xen-hpm02-slot-grid button.on{background:rgba(19,92,67,.48)!important;border-color:#36a976!important;color:#d9f9e7!important}
+.xen-hpm02-slot-grid button.muted{background:rgba(24,28,33,.55)!important;border-color:#383f4a!important;color:#8b9ba3!important}
+.xen-hpm02-slot-grid button.selected{border-color:#e9bd6c!important;box-shadow:0 0 0 1px #e9bd6c inset,0 0 6px #e9bd6c66}
 .xen-hpm02-pitch{overflow:hidden}.xen-hpm02-value{margin:0;text-align:center;font-size:17px;font-weight:700;color:#f7d18a}
 .xen-hpm02-rail{position:relative;touch-action:none;min-height:180px;flex:1;height:auto;width:100%;border:1px solid #796492;background:linear-gradient(90deg,#1c1d2c,#2b263a);cursor:ns-resize;border-radius:6px;overflow:hidden}
 .xen-hpm02-tick{position:absolute;left:0;right:0;height:1px;background:#6b7f8b;opacity:.55;pointer-events:none}.xen-hpm02-tick.muted{opacity:.16}.xen-hpm02-zero{position:absolute;left:0;right:0;height:2px;background:#d9b889;pointer-events:none}.xen-hpm02-current{position:absolute;left:2px;right:2px;height:5px;border-radius:2px;background:#eaa940;transform:translateY(-50%);box-shadow:0 0 10px #eaab6e;pointer-events:none}

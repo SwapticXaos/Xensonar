@@ -71,6 +71,14 @@ const np=p=>p.evaluate(()=>__xenProbe.bridge.capture().nParamsUI);
   await p.evaluate(g=>__xenProbe.bridge.patch({gridTuning:g.tuningId,gridMode:g.modeId,manualGridMutedSteps:g.mainMutedDegrees,manualGridStepOffsets:g.mainStepOffsets,keyboardHoldPlan:null}),plan.nativeGrid);await p.waitForTimeout(400);
   await p.locator('.xen-hpm02-dialog select[aria-label="Plan preset"]').selectOption('polymeter');
   await p.getByRole('button',{name:'Generate from preset'}).click();await p.waitForTimeout(400);
+  // Studio slot cards: red pitch line inside each card (+period = top edge, 0 = middle, -period = bottom), high refs first.
+  await p.evaluate(()=>{const c=Array.from({length:16},(_,i)=>[0,1200,-1200,600][i%4]);__xenProbe.bridge.patch({keyboardHoldSegments:16,keyboardHoldPitchCents:c,keyboardHoldPatternSteps:c.map(()=>1)})});await p.waitForTimeout(300);
+  await p.getByRole('button',{name:/Close detailed/}).click();await p.locator('button.xen-hpm02-open').click();await p.waitForTimeout(300);
+  const lines=await p.evaluate(()=>[...document.querySelectorAll('.xen-hpm02-slot-grid .xen-hold-pitch-preview')].slice(0,4).map(e=>e.style.top));
+  assert.deepEqual(lines,['50%','0%','100%','25%'],'slot cards show the pitch line (octave up = top edge)');
+  const refCents=await p.evaluate(()=>[...document.querySelectorAll('.xen-hpm02-ref-list button')].map(b=>Number(b.getAttribute('aria-label').match(/(-?[\d.]+) cents$/)[1])));
+  assert.ok(refCents.every((v,i)=>i===0||refCents[i-1]>=v),'reference list runs high to low like the pitch rail');
+  await p.getByRole('tab',{name:/^Plan/}).click();await p.waitForTimeout(300);
   // Plan library: Save As survives a reload.
   const name='E2E plan '+Date.now();
   await p.locator('.xen-hpp input[placeholder^="e.g."]').fill(name);

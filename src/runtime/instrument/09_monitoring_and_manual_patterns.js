@@ -124,6 +124,14 @@ function __xenHoldPitchPointerCents(rect,y){
  if(!rect||!Number.isFinite(rect.height)||rect.height<=0||!Number.isFinite(y))return 0;
  return Math.round(Math.max(-1200,Math.min(1200,1200*(rect.top+rect.height/2-y)/(rect.height/2))));
 }
+/* One slot face for the Main Room cards and the Hold Pattern Studio: slot number over a red pitch line.
+   The line sits at the slot's pitch inside the card (+1 period-octave = top edge, -1 = bottom edge, 0 = middle). */
+function __xenHoldPitchSlotFace(index,cents){
+ return u.jsxs(P.Fragment,{children:[
+  u.jsx('span',{className:'xen-hold-pitch-preview','aria-hidden':'true',style:{top:__xenHoldPitchVisualPct(cents)+'%'}}),
+  u.jsx('span',{className:'xen-hold-slot-number',children:index+1})
+ ]});
+}
 function iT({label:e,steps:t,tone:n="neutral",maxColumns:r=16,onChange:a,pitches:Q,onPitchChange:W}){
  const o=kw(t,t.length||1),i=bie[n],s=Math.min(r,Math.max(1,o.length)),l=o.length<=4?"h-8":o.length<=8?"h-7":"h-6";
  const [popup,setPopup]=P.useState(null);
@@ -175,10 +183,6 @@ function iT({label:e,steps:t,tone:n="neutral",maxColumns:r=16,onChange:a,pitches
   setPopup({index,centerY,left,top:centerY-arm,height:arm*2,width:button.width,slotHeight:button.height,
    tooltipSide:left+button.width+240<vw?'right':'left'});
  };
- const preview=(index,cents)=>u.jsxs(P.Fragment,{children:[
-  u.jsx('span',{className:'xen-hold-pitch-preview','aria-hidden':'true',style:{top:__xenHoldPitchVisualPct(cents)+'%'}}),
-  u.jsx('span',{className:'xen-hold-slot-number',children:index+1})
- ]});
  const current=popup?__xenHoldPitchValue(Q,popup.index):0;
  const move=(ev)=>setCents(popup.index,__xenHoldPitchPointerCents(ev.currentTarget.getBoundingClientRect(),ev.clientY));
  return u.jsxs(P.Fragment,{children:[
@@ -199,7 +203,7 @@ function iT({label:e,steps:t,tone:n="neutral",maxColumns:r=16,onChange:a,pitches
     className:`${l} rounded border text-center text-[10px] leading-none transition flex items-center justify-center ${c!==0?i.on:i.off} ${W?'xen-hold-pitch-slot':''}`,
     'aria-label':`${e} segment ${d+1}: ${c!==0?'on':'off'}`,
     title:`Segment ${d+1} ${c!==0?'deactivate':'activate'}${W?' · Right-click: fretless ±1 octave':''}`,
-    children:W?preview(d,__xenHoldPitchValue(Q,d)):d+1},`${e}-${o.length}-${d}`))}),
+    children:W?__xenHoldPitchSlotFace(d,__xenHoldPitchValue(Q,d)):d+1},`${e}-${o.length}-${d}`))}),
   popup&&W&&typeof document!=='undefined'&&ao.createPortal(u.jsxs('div',{
    'data-xen-hold-pitch-popup':'true',className:'xen-thunder-pitch-slider',
    role:'slider',tabIndex:0,'aria-orientation':'vertical','aria-valuemin':-1200,'aria-valuemax':1200,'aria-valuenow':current,

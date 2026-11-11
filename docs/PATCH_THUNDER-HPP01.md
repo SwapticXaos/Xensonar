@@ -59,3 +59,9 @@ Geändert (nur KALT, Funktionsinsel + Studio):
 
 Unverändert: Laufzeit/HEISS-Pfad. Der Pattern-Editor bietet weiter „JI ratios“ als Start-Referenz und eine EDO-Liste als Hilfslinien (Bestand aus HPM02, nicht Teil dieses Patches).
 Prüfungen: 101/101 Regressionstests, alle E2E grün (hold_pattern_plan erweitert: 19/13/31 Stufen, keine Funktionsnamen, Basis-Karte). `index.html` 8 929 514 B, SHA-256 `bdaa880eda1eac5815868322d4ad0a15719dc405a167c9d5b0c3acb007c1473d` (+2 992 B ggü. HPP01, +40 569 B ggü. Parent).
+
+## Nachtrag HPP01c (11.11.2026): Kacheln wie im Hauptraum, Referenzliste gedreht, Konsolidierung
+- **Slot-Kacheln im Studio** (Pattern-Ansicht): grün = aktiv, dunkel = gemutet, goldener Ring = Auswahl (Innenfläche bleibt grün), **roter Strich hinter der Nummer auf der Tonhöhe des Slots** (Mitte = Ausgangston, Oktave/Periode hoch = oberer Rand, runter = unterer Rand; folgt dem Ziehen auf der Leiste live). Kachelhöhe 28 → 40 px für mehr Auflösung des Strichs. Die Darstellung ist jetzt **ein Baustein** (`__xenHoldPitchSlotFace`), den Hauptraum-Kacheln und Studio gemeinsam nutzen (vorher lokale Kopie im Hauptraum).
+- **„Exact reference steps“ gespiegelt behoben**: Liste läuft jetzt wie die Tonhöhenleiste von **hoch (oben) nach tief (unten)**.
+- **Konsolidiert/effizienter**: Stufentabelle des Plan-Laufzeitpfads prüft pro Tastenanschlag zuerst Objektidentität (Stimmung, Grundton, Mute-/Offset-Arrays) statt einen Schlüsselstring zu bauen; doppelter Preset-Auswahlcode in der Plan-Ansicht zu einer Komponente zusammengefasst; Stufenbeschriftungen überall plan-bewusst (eigene Labels in Tooltips/Aria); Auto-Folge des leeren Plans vereinfacht.
+- Prüfung: 101/101, alle E2E grün (hold_pattern_plan prüft zusätzlich Strichpositionen 50/0/100/25 % und absteigende Referenzliste). `index.html` 8 930 506 B, SHA-256 `92ed0fea4c0eec05918fbcbb3a8b64faa63de98907d19e7a0ff2164956a752b1`. Nicht gehört, nicht im Firefox geprüft.

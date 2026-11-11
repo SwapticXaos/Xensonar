@@ -80,7 +80,7 @@ function __xenHoldDetailReferences(mode,origin){
    for(let i=-edo;i<=edo;i++)add(1200*i/edo,(i<0?'−':'+')+Math.abs(i)+' / '+edo+' EDO');
   }
  }
- return out.sort((a,b)=>a.cents-b.cents||a.label.localeCompare(b.label));
+ return out.sort((a,b)=>b.cents-a.cents||a.label.localeCompare(b.label));// high pitch on top, like the pitch rail
 }
 /* HPM02-TUNINGPREVIEW01: reference preview is explicitly an audition, not a live gesture.
    WebAudio timeline owns pattern timing; all created voices are scoped to this dialog. */
@@ -270,8 +270,8 @@ function __XenHoldDetailEditor({lane,slots,referenceBars,muteSteps,pitches,volum
    view==='pattern'?u.jsxs('div',{className:'xen-hpm02-layout',children:[
     u.jsxs('div',{className:'xen-hpm02-slots',children:[u.jsx('strong',{children:'Select slot'}),
      u.jsx('div',{className:'xen-hpm02-slot-grid',children:Array.from({length:n},(_,i)=>u.jsx('button',{type:'button',
-      'aria-label':'Select slot '+(i+1),'aria-pressed':idx===i,className:(idx===i?' selected':'')+((muteSteps?.[i]===0)?' muted':''),onClick:()=>setSelected(i),
-      title:'Slot '+(i+1)+(muteSteps?.[i]===0?' · muted':'')+' · '+__xenHoldPitchValue(pitches,i)+' cents · '+Math.round(__xenHoldSlotGain(volumes,i)*100)+'% volume · '+Math.round(__xenHoldMicroRatio(microtiming,i)*100)+'% microtiming',children:i+1},i))}),
+      'aria-label':'Select slot '+(i+1),'aria-pressed':idx===i,className:'xen-hold-pitch-slot '+(muteSteps?.[i]===0?'muted':'on')+(idx===i?' selected':''),onClick:()=>setSelected(i),
+      title:'Slot '+(i+1)+(muteSteps?.[i]===0?' · muted':'')+' · '+__xenHoldPitchValue(pitches,i)+' cents · '+Math.round(__xenHoldSlotGain(volumes,i)*100)+'% volume · '+Math.round(__xenHoldMicroRatio(microtiming,i)*100)+'% microtiming',children:__xenHoldPitchSlotFace(i,__xenHoldPitchValue(pitches,i))},i))}),
      u.jsx('button',{type:'button',onClick:()=>{const next=Array.from({length:n},(_,i)=>muteSteps?.[i]===0?0:1);next[idx]=next[idx]===0?1:0;onMute(next)},'aria-pressed':muteSteps?.[idx]!==0,children:'Slot '+(idx+1)+': '+(muteSteps?.[idx]===0?'Muted · unmute':'Active · mute')}),
      u.jsxs('div',{className:'xen-hpm03-preview',children:[
       u.jsx('strong',{children:'Audition · '+lane}),
@@ -322,12 +322,15 @@ function R4({holdPlan:__holdPlan,onHoldPlanChange:__onHoldPlan,onRestoreGrid:__o
    the audible-step table is rebuilt only when the Grid changes; resolved overrides are cached
    per plan entry object. No React, storage or allocation per scheduler tick. */
 const __XenHoldPlanRuntime=(()=>{
- let tableKey='',table=null;
+ let tableKey='',table=null,seenId=null,seenBase=0,seenMutes=null,seenOffs=null;
  const overrides=new WeakMap();
  const last={position:-1,serial:0};
  function gridTable(p){
   const id=String(p?.gridTuning||'12edo'),base=Number(p?.gridBase)||0;
   const mutes=Array.isArray(p?.manualGridMutedSteps)?p.manualGridMutedSteps:[],offs=Array.isArray(p?.manualGridStepOffsets)?p.manualGridStepOffsets:[];
+  // Fast path: nothing changed by identity (the normal case, once per key attack, no string building).
+  if(table&&id===seenId&&base===seenBase&&mutes===seenMutes&&offs===seenOffs)return table;
+  seenId=id;seenBase=base;seenMutes=mutes;seenOffs=offs;
   const key=id+'|'+base+'|'+mutes.join(',')+'|'+offs.join(',');
   if(key===tableKey&&table)return table;
   let steps=[],period=1200;
