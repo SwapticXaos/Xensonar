@@ -20,7 +20,7 @@ const base=await exp();log({step:'no automation',export:base});
 // lane: Volume x. Point at beat 0 (value 1) and beat 5 (value 0)
 await p.selectOption('[data-xmt-auto-select]','volume');await p.waitForTimeout(500);
 const svg=p.locator('[data-xmt-auto-svg]');const bb=await svg.boundingBox();log({step:'lane',visible:await svg.count(),width:Math.round(bb.width),height:Math.round(bb.height)});
-const ppb=await p.evaluate(()=>{const c=document.querySelector('.xmt .clip');return c?parseFloat(c.style.width)/7.2:28});
+const ppb=await p.evaluate(()=>{const c=document.querySelector('.xmt .clip'),L=parseFloat(c.style.width);return L/5.4});
 const yAt=v=>bb.y+9+(1-v/2)*(bb.height-18);
 await p.mouse.click(bb.x+1,yAt(1));await p.waitForTimeout(300);await p.mouse.click(bb.x+5*ppb,yAt(0));await p.waitForTimeout(900);
 const pj=await proj();log({step:'curve drawn',volume:pj.tracks[0].auto?.volume?.map(q=>[+q.b.toFixed(2),+q.v.toFixed(2)])});
