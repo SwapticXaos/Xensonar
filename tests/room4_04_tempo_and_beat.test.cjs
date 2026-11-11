@@ -39,7 +39,7 @@ test('loading an arrangement with >64 tracks / >1024 clips does not silently cut
 
 test('ROOM4-05: mixdown refuses to silently omit audible clips without usable audio',()=>{
   const fn=cut(mt,'function mixdownMissing(','async function mixdown(');
-  const make=audio=>new Function('audio','clipLen',fn+';return mixdownMissing')(audio,c=>c.lenBeats);
+  const make=audio=>new Function('audio','clipLen','isFrozen',fn+';return mixdownMissing')(audio,c=>c.lenBeats,(project,t)=>!!t?.frozenBy&&project.tracks.some(x=>x.id===t.frozenBy));
   const ready={status:'ready'},audio=new Map([['a',ready],['b',{status:'error',error:'decode failed'}],['c',{status:'loading'}]]);
   const lib=new Map([['a',{id:'a',name:'Good'}],['b',{id:'b',name:'Broken'}],['c',{id:'c',name:'Slow'}]]);
   const clip=(m,o={})=>({materialId:m,startBeat:0,lenBeats:4,gain:1,...o});
@@ -144,7 +144,7 @@ test('ROOM4-09: effect data is additive, tails are bounded, the reverb impulse i
   assert.strictEqual(m.fxShape(m.fxOf(out.tracks[1])),'her');assert.strictEqual(m.fxShape(m.fxOf(out.tracks[0])),'');
   assert.strictEqual(out.master.reverbSize,2.2);
   const fxsrc=cut(mt,'function driveCurve(','function buildTrackFx(');
-  const f=new Function('clamp','num','fxOf','fxShape',fxsrc+';return {reverbIR,fxTailSec,driveCurve}')((v,lo,hi)=>Math.max(lo,Math.min(hi,v)),(v,d)=>Number.isFinite(Number(v))?Number(v):d,m.fxOf,m.fxShape);
+  const f=new Function('clamp','num','fxOf','fxShape','isFrozen',fxsrc+';return {reverbIR,fxTailSec,driveCurve}')((v,lo,hi)=>Math.max(lo,Math.min(hi,v)),(v,d)=>Number.isFinite(Number(v))?Number(v):d,m.fxOf,m.fxShape,(project,t)=>!!t?.frozenBy&&project.tracks.some(x=>x.id===t.frozenBy));
   const ctx={sampleRate:48000,createBuffer:(c,n)=>{const d=[new Float32Array(n),new Float32Array(n)];return {length:n,getChannelData:i=>d[i]}}};
   const a=f.reverbIR(ctx,1),b=f.reverbIR(ctx,1);
   assert.deepStrictEqual(Array.from(a.getChannelData(0).subarray(600,640)),Array.from(b.getChannelData(0).subarray(600,640)),'same impulse every time');
@@ -189,4 +189,21 @@ test('ROOM4-11: track EQ is stored in the project, a flat EQ never is, junk is c
   assert.strictEqual('eq' in out.tracks[0],false);assert.strictEqual(out.tracks[1].eq.morph,.5);assert.strictEqual('eq' in out.tracks[2],false);
   const pick=m.eqPick({a:new Float32Array([0,.5]),b:[0],morph:.2,bands:12,mode:'raster',low:-30,high:6,enabled:true,manualCenters:new Float32Array([1])});
   assert.deepStrictEqual(pick.a,[0,.5]);assert(Array.isArray(pick.a)&&Array.isArray(pick.manualCenters),'plain JSON-able arrays');
+});
+
+test('ROOM4-12: freeze data is additive; a freeze without its bounce track is no freeze; frozen tracks do not sound or export',()=>{
+  const src=cut(mt,'const DB=','/* ---------- persistence');
+  const m=new Function(src.replace(/^const DB=[^\n]*\n/,"const KEY='current',FORMAT='xensonar.multitrack',VERSION=2;\n")+';return {sanitize,isFrozen}')();
+  const ok=m.sanitize({format:'xensonar.multitrack',tracks:[{id:'a',frozenBy:'b',clips:[]},{id:'b',bounceOf:'a',clips:[]}]},100);
+  assert.strictEqual(ok.tracks[0].frozenBy,'b');assert.strictEqual(ok.tracks[1].bounceOf,'a');assert(m.isFrozen(ok,ok.tracks[0]));assert(!m.isFrozen(ok,ok.tracks[1]));
+  const orphan=m.sanitize({format:'xensonar.multitrack',tracks:[{id:'a',frozenBy:'gone',clips:[]},{id:'s',frozenBy:'s',clips:[]}]},100);
+  assert.strictEqual('frozenBy' in orphan.tracks[0],false,'bounce track gone -> awake again');assert.strictEqual('frozenBy' in orphan.tracks[1],false,'a track cannot freeze itself');
+  assert.strictEqual('frozenBy' in m.sanitize({format:'xensonar.multitrack',tracks:[{id:'a',clips:[]}]},100).tracks[0],false,'old projects unchanged');
+  const lib=cut(mt,'function matBeats(','function clipLen(');
+  const mm=new Function('audio','clipLen','isFrozen',cut(mt,'function mixdownMissing(','async function mixdown(')+';return mixdownMissing')(new Map([['x',{status:'error',error:'e'}]]),c=>c.lenBeats,m.isFrozen);
+  const tr=(id,o)=>({id,name:id,volume:1,mute:false,solo:false,clips:[{materialId:'x',startBeat:0,lenBeats:4,gain:1}],...o});
+  const frozen={bpm:100,tracks:[tr('a',{frozenBy:'b'}),tr('b',{clips:[]})]};
+  assert.strictEqual(mm(frozen,new Map([['x',{id:'x',name:'x'}]]),0,8).length,0,'a frozen track is not checked, it does not sound');
+  const awake={bpm:100,tracks:[tr('a',{}),tr('b',{clips:[]})]};
+  assert.strictEqual(mm(awake,new Map([['x',{id:'x',name:'x'}]]),0,8).length,1);
 });

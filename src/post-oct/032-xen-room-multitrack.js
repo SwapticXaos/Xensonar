@@ -25,6 +25,8 @@ function sanitizeEq(e){if(!e||typeof e!=='object'||!Array.isArray(e.a)||!Array.i
  const arr=a=>a.map(v=>Number.isFinite(Number(v))?clamp(Number(v),-1,1):0);const o={a:arr(e.a),b:arr(e.b),morph:clamp(num(e.morph,0),0,1),bands:Math.round(clamp(num(e.bands,12),4,24)),mode:e.mode==='raster'?'raster':'adaptive',low:clamp(num(e.low,-36),-60,-6),high:clamp(num(e.high,12),0,12),enabled:e.enabled!==false,manualCenters:(Array.isArray(e.manualCenters)?e.manualCenters:[]).slice(0,24).map(Number).filter(Number.isFinite)};
  return eqFlat(o)?undefined:o}
 const eqPick=c=>({a:Array.from(c.a),b:Array.from(c.b),morph:c.morph,bands:c.bands,mode:c.mode,low:c.low,high:c.high,enabled:c.enabled!==false,manualCenters:Array.from(c.manualCenters||[])});
+/* ROOM4-12 freeze: a frozen track is replaced by its bounce track (track.frozenBy = id of that track) and stays untouched but silent and free of DSP; unfreezing removes the bounce and wakes it up again. */
+const isFrozen=(project,t)=>!!t?.frozenBy&&project.tracks.some(x=>x.id===t.frozenBy);
 /* ROOM4-09 track effect data (the audio builder is further down) */
 const FX0=Object.freeze({lowCut:0,highCut:20000,drive:0,echoBeats:0,echoFb:.35,echoMix:.3,reverb:0});
 const fxOf=t=>({...FX0,...(t?.fx||{})});
@@ -40,7 +42,8 @@ function sanitizeClip(c){const out={id:String(c.id||uid('clip')),materialId:Stri
 function sanitize(raw,liveBpm){
  if(!raw||raw.format!==FORMAT||!Array.isArray(raw.tracks))return blankProject(liveBpm);
  const tracks=raw.tracks.slice(0,MAX_TRACKS).map((t,i)=>({id:String(t.id||uid('track')),name:String(t.name||('Track '+(i+1))).slice(0,60),volume:clamp(num(t.volume,.8),0,1.5),pan:clamp(num(t.pan,0),-1,1),
-  mute:!!t.mute,solo:!!t.solo,pitch:clamp(num(t.pitch,0),-2400,2400),...(sanitizeFx(t.fx)?{fx:sanitizeFx(t.fx)}:{}),...(sanitizeEq(t.eq)?{eq:sanitizeEq(t.eq)}:{}),clips:(Array.isArray(t.clips)?t.clips:[]).slice(0,MAX_CLIPS).map(sanitizeClip).filter(c=>c.materialId)}));
+  mute:!!t.mute,solo:!!t.solo,pitch:clamp(num(t.pitch,0),-2400,2400),...(t.frozenBy?{frozenBy:String(t.frozenBy)}:{}),...(t.bounceOf?{bounceOf:String(t.bounceOf)}:{}),...(sanitizeFx(t.fx)?{fx:sanitizeFx(t.fx)}:{}),...(sanitizeEq(t.eq)?{eq:sanitizeEq(t.eq)}:{}),clips:(Array.isArray(t.clips)?t.clips:[]).slice(0,MAX_CLIPS).map(sanitizeClip).filter(c=>c.materialId)}));
+ for(const t of tracks){if(t.frozenBy&&!tracks.some(x=>x.id===t.frozenBy&&x.id!==t.id))delete t.frozenBy}/* a freeze whose bounce track is gone is no freeze */
  const loop=raw.loop||{};const ls=Math.max(0,num(loop.start,0)),le=Math.max(ls+1/64,num(loop.end,ls+16));
  return {format:FORMAT,version:VERSION,id:KEY,name:String(raw.name||'Untitled Arrangement').slice(0,100),bpm:clamp(num(raw.bpm,108),20,400),
   beatsPerBar:clamp(num(raw.beatsPerBar,4),.5,64),grid:{div:clamp(Math.round(num(raw.grid?.div,4)),1,64),snap:raw.grid?.snap!==false},
@@ -135,7 +138,7 @@ function voiceSource(c,t,entry,buffer,bpm){const plan=variantPlan(c,t,entry,buff
  if(plan.error)return {buffer,region:regionOf(entry,buffer),state:plan.error,key:'!'};
  const row=variants.get(plan.key);if(row?.status==='ready'){row.last=Date.now();return {buffer:row.buffer,region:{a:0,b:row.buffer.duration,len:row.buffer.duration},state:'granular',key:plan.key}}
  return {buffer,region:regionOf(entry,buffer),state:row?.status==='error'?'render failed ('+row.error+'): playing the plain source':'rendering …',key:plan.key+'?'+(row?.status||'none')}}
-function prepareVariants(project,lib,wait){const jobs=[];for(const t of project.tracks)for(const c of t.clips){const e=lib.get(c.materialId),au=e?audio.get(e.id):null;if(!au||au.status!=='ready')continue;const row=requestVariant(variantPlan(c,t,e,au.buffer,project.bpm),au.buffer);if(row?.promise&&row.status==='loading')jobs.push(row.promise)}return wait?Promise.all(jobs):null}
+function prepareVariants(project,lib,wait){const jobs=[];for(const t of project.tracks){if(isFrozen(project,t))continue;for(const c of t.clips){const e=lib.get(c.materialId),au=e?audio.get(e.id):null;if(!au||au.status!=='ready')continue;const row=requestVariant(variantPlan(c,t,e,au.buffer,project.bpm),au.buffer);if(row?.promise&&row.status==='loading')jobs.push(row.promise)}}return wait?Promise.all(jobs):null}
 function planVoice(ctx,dest,clip,entry,sourceBuffer,pa,pb,tA,tB,spb,isStart,isEnd,track){
  const vs=voiceSource(clip,track,entry,sourceBuffer,60/spb),buffer=vs.buffer;
  const mb=cycleBeats(entry,clip,60/spb),r=vs.region,rate=clamp(r.len/(mb*spb),.0625,16),off=pa-clip.startBeat+clip.inBeat;
@@ -158,7 +161,7 @@ function reverbIR(ctx,size){const sr=ctx.sampleRate,n=Math.max(64,Math.round(cla
  return buf}
 const echoTime=(f,spb)=>clamp(f.echoBeats*spb,.005,4);
 function fxTailSec(project){let tail=0;const any=project.tracks.some(t=>t.solo),spb=60/project.bpm;
- for(const t of project.tracks){if(t.mute||(any&&!t.solo)||!(t.volume>0))continue;const f=fxOf(t),sh=fxShape(f);
+ for(const t of project.tracks){if(t.mute||(any&&!t.solo)||!(t.volume>0)||isFrozen(project,t))continue;const f=fxOf(t),sh=fxShape(f);
   if(sh.includes('e')){const fb=clamp(f.echoFb,0,.92);tail=Math.max(tail,echoTime(f,spb)*(fb>0?Math.min(40,Math.ceil(Math.log(.001)/Math.log(fb))):1))}
   if(sh.includes('r'))tail=Math.max(tail,clamp(num(project.master.reverbSize,2.2),.2,8))}
  return Math.min(12,tail)}
@@ -185,7 +188,7 @@ class Engine{
  constructor(){this.ctx=null;this.playing=false;this.voices=new Set();this.chains=new Map();this.timer=null;this.keys=new Set();this.segs=[];this.segSerial=0;this.project=null;this.lib=new Map();this.master=null;this.meter=null;this.sigs=new Map()}
  spb(){return 60/this.project.bpm}
  gainFor(t){const any=this.project.tracks.some(x=>x.solo);return (t.mute||(any&&!t.solo))?0:t.volume}
- sigOf(t,c){return t.id+'|'+c.materialId+'|'+c.startBeat+'|'+c.inBeat+'|'+clipLen(c,this.lib,this.project.bpm)+'|'+c.gain+'|'+c.fadeIn+'|'+c.fadeOut+'|'+c.muted+'|'+c.fit+'|'+(c.sourceBpm||0)+'|'+(c.stretch||1)+'|'+(c.warp||'')+'|'+pitchCentsOf(c,t)+'|'+this.vkey(t,c)+'|'+fxShape(fxOf(t))}
+ sigOf(t,c){return t.id+'|'+c.materialId+'|'+c.startBeat+'|'+c.inBeat+'|'+clipLen(c,this.lib,this.project.bpm)+'|'+c.gain+'|'+c.fadeIn+'|'+c.fadeOut+'|'+c.muted+'|'+c.fit+'|'+(c.sourceBpm||0)+'|'+(c.stretch||1)+'|'+(c.warp||'')+'|'+pitchCentsOf(c,t)+'|'+this.vkey(t,c)+'|'+fxShape(fxOf(t))+(isFrozen(this.project,t)?'|z':'')}
  vkey(t,c){const e=this.lib.get(c.materialId),au=e?audio.get(e.id):null;return au?.status==='ready'?voiceSource(c,t,e,au.buffer,this.project.bpm).key:''}
  chainFor(t){let ch=this.chains.get(t.id);if(ch)return ch;const ctx=this.ctx,input=ctx.createGain(),gain=ctx.createGain();gain.gain.value=this.gainFor(t);
   let fx=null;const chain=__xenMaterialLaneChain(ctx,{source:input,gain,panValue:t.pan,eqKey:__XenEQ.keyFor('arrangement',t.id),route:out=>{fx=buildTrackFx(ctx,fxOf(t),this.spb(),out,this.master,()=>this.reverbIn())}});
@@ -217,7 +220,7 @@ class Engine{
   if(this.keys.size>64){const live=new Set(this.segs.map(s=>String(s.i)));for(const k of this.keys)if(!live.has(k.slice(0,k.indexOf('|'))))this.keys.delete(k)}}
  schedule(){const ctx=this.ctx,now=ctx.currentTime,horizon=now+1.5,spb=this.spb();this.extendSegments(horizon);
   for(const s of this.segs){if(s.t>horizon)continue;
-   for(const t of this.project.tracks){const ch=this.chainFor(t);
+   for(const t of this.project.tracks){if(isFrozen(this.project,t))continue;const ch=this.chainFor(t);
     for(const c of t.clips){const key=s.i+'|'+c.id;if(this.keys.has(key))continue;const entry=this.lib.get(c.materialId),au=entry?audio.get(entry.id):null;
      const cs=c.startBeat,ce=cs+clipLen(c,this.lib,this.project.bpm);let pa=Math.max(cs,s.a);const pb=Math.min(ce,s.b);if(pb<=pa){this.keys.add(key);continue}
      let tA=s.t+(pa-s.a)*spb;const tB=s.t+(pb-s.a)*spb;if(tA>horizon)continue;if(tB<=now+.02){this.keys.add(key);continue}
@@ -253,28 +256,31 @@ const engine=new Engine();
 /* ROOM4-05: every audible clip inside the range must have decoded audio; otherwise the export would silently omit it. */
 function mixdownMissing(project,lib,fromBeat,toBeat){
  const out=[],any=project.tracks.some(t=>t.solo);
- for(const t of project.tracks){if(t.mute||(any&&!t.solo)||!(t.volume>0))continue;
+ for(const t of project.tracks){if(t.mute||(any&&!t.solo)||!(t.volume>0)||isFrozen(project,t))continue;
   for(const c of t.clips){if(c.muted||!(c.gain>0))continue;const e=lib.get(c.materialId),cs=c.startBeat,ce=cs+clipLen(c,lib,project.bpm);if(Math.min(ce,toBeat)<=Math.max(cs,fromBeat))continue;
    const au=e?audio.get(e.id):null;if(!e||!au||au.status!=='ready')out.push({name:String(e?.name||c.materialId).slice(0,40),track:t.name,reason:e?(au?.error||au?.status||''):'material not found in the library'})}}
  return out}
-async function mixdown(project,lib,fromBeat,toBeat,format){
+async function mixdown(project0,lib,fromBeat,toBeat,format,opts={}){
+ /* ROOM4-12: opts.only = render just that track, unity = at neutral volume/pan/master (what a bounce stores: the new track brings its own volume and pan), raw = PCM instead of a WAV file */
+ const project=opts.only?{...project0,tracks:project0.tracks.filter(t=>t.id===opts.only)}:project0;
  const used=new Set();for(const t of project.tracks)for(const c of t.clips)used.add(c.materialId);
  await Promise.all([...used].map(id=>requestAudio(lib.get(id))?.promise));
  await prepareVariants(project,lib,true);// ROOM4-07: export the same granular variants the arrangement plays
- const missing=mixdownMissing(project,lib,fromBeat,toBeat);
+ const missing=opts.unity?mixdownMissing({...project,tracks:project.tracks.map(t=>({...t,mute:false,solo:false,volume:1}))},lib,fromBeat,toBeat):mixdownMissing(project,lib,fromBeat,toBeat);
  if(missing.length)throw Error('Export stopped, nothing was written: '+missing.length+' clip'+(missing.length>1?'s have':' has')+' no usable audio ('+missing.slice(0,3).map(m=>m.name+' on '+m.track+(m.reason?': '+m.reason:'')).join('; ')+(missing.length>3?'; …':'')+'). Re-import the material or delete those clips.');
- const sr=48000,spb=60/project.bpm,dur=(toBeat-fromBeat)*spb,tail=.05+fxTailSec(project),frames=Math.ceil((dur+tail)*sr);
+ const sr=48000,spb=60/project.bpm,dur=(toBeat-fromBeat)*spb,tail=.05+fxTailSec(opts.unity?{...project,tracks:project.tracks.map(t=>({...t,mute:false,solo:false,volume:1}))}:project),frames=Math.ceil((dur+tail)*sr);
  if(!(frames>0)||frames>sr*60*30)throw Error('Mixdown range must be between 0 and 30 minutes.');
  const Offline=globalThis.OfflineAudioContext||globalThis.webkitOfflineAudioContext;const ctx=new Offline(2,frames,sr);
- const master=ctx.createGain();master.gain.value=project.master.volume;master.connect(ctx.destination);const any=project.tracks.some(t=>t.solo);
+ const master=ctx.createGain();master.gain.value=opts.unity?1:project.master.volume;master.connect(ctx.destination);const any=!opts.unity&&project.tracks.some(t=>t.solo);
  /* ROOM4-05: same lane chain as live play (gain -> pan -> track EQ), so the export matches what is heard. */
  const lanes=[];let revIn=null;const getReverb=()=>{if(revIn)return revIn;revIn=ctx.createGain();const conv=ctx.createConvolver();conv.buffer=reverbIR(ctx,num(project.master.reverbSize,2.2));revIn.connect(conv);conv.connect(master);return revIn};
- for(const t of project.tracks){const g=ctx.createGain(),input=ctx.createGain();g.gain.value=(t.mute||(any&&!t.solo))?0:t.volume;
-  lanes.push(__xenMaterialLaneChain(ctx,{source:input,gain:g,panValue:t.pan,eqKey:__XenEQ.keyFor('arrangement',t.id),route:out=>{buildTrackFx(ctx,fxOf(t),spb,out,master,getReverb)}}));
+ for(const t of project.tracks){if(isFrozen(project,t))continue;const g=ctx.createGain(),input=ctx.createGain();g.gain.value=opts.unity?1:(t.mute||(any&&!t.solo))?0:t.volume;
+  lanes.push(__xenMaterialLaneChain(ctx,{source:input,gain:g,panValue:opts.unity?0:t.pan,eqKey:__XenEQ.keyFor('arrangement',t.id),route:out=>{buildTrackFx(ctx,fxOf(t),spb,out,master,getReverb)}}));
   for(const c of t.clips){const e=lib.get(c.materialId),au=e?audio.get(e.id):null;if(!au||au.status!=='ready')continue;const cs=c.startBeat,ce=cs+clipLen(c,lib,project.bpm);
    const pa=Math.max(cs,fromBeat),pb=Math.min(ce,toBeat);if(pb<=pa)continue;planVoice(ctx,input,c,e,au.buffer,pa,pb,(pa-fromBeat)*spb,(pb-fromBeat)*spb,spb,pa===cs,pb===ce,t)}}
  let out;try{out=await ctx.startRendering()}finally{for(const l of lanes){try{l.eq?.dispose?.()}catch{}}}
  const channels=[out.getChannelData(0),out.getChannelData(1)];let peak=0;for(const ch of channels)for(const v of ch){const a=v<0?-v:v;if(a>peak)peak=a}
+ if(opts.raw)return {channels:channels.map(c=>c.slice()),sampleRate:sr,peak,seconds:dur+tail};
  const core=globalThis.__XenWaveCoreW01;if(!core?.encodeWav)throw Error('WAV encoder unavailable.');
  const bytes=core.encodeWav({channels,sampleRate:sr,frames:channels[0].length},{format,dither:format==='pcm16'});
  return {blob:new Blob([bytes],{type:'audio/wav'}),peak,seconds:dur}}
@@ -319,6 +325,7 @@ const CSS=`.xmt{color:#e7e5e4;font:13px/1.35 system-ui,sans-serif;max-width:1500
 .xmt .clip .rep{position:absolute;top:0;bottom:0;border-left:1px dashed rgba(253,230,138,.5);pointer-events:none}
 .xmt .ph{position:absolute;top:0;bottom:0;width:2px;background:#fbbf24;pointer-events:none;z-index:5;display:none}
 .xmt .mk{position:absolute;top:0;height:28px;width:0;padding:0;border:0;border-left:2px solid #f472b6;background:transparent;cursor:pointer;z-index:2;color:#f9a8d4;font-size:10px;text-align:left}.xmt .mk span{position:absolute;bottom:0;left:2px;white-space:nowrap;background:rgba(17,17,19,.8);padding:0 3px;border-radius:0 3px 3px 0;max-width:110px;overflow:hidden;text-overflow:ellipsis}.xmt .mk::before{content:'';position:absolute;top:0;left:0;border:5px solid transparent;border-top-color:#f472b6;border-left-color:#f472b6}
+.xmt .trk.frozen .lane{opacity:.42;filter:saturate(.3)}.xmt .trk.frozen .clip{pointer-events:none}
 .xmt .band{position:fixed;border:1px solid #fde68a;background:rgba(253,230,138,.12);pointer-events:none;z-index:50}
 .xmt .cur{position:absolute;top:0;bottom:0;width:1px;background:#38bdf8;pointer-events:none;z-index:1}
 .xmt .meter{width:120px;height:8px;background:#1c1917;border-radius:4px;overflow:hidden}.xmt .meter i{display:block;height:100%;width:0;background:linear-gradient(90deg,#22c55e,#facc15 70%,#ef4444)}
@@ -502,6 +509,24 @@ function XenMultitrackRoom(){
  const ends=project.tracks.flatMap(t=>t.clips.map(c=>c.startBeat+len(c)));const songEnd=ends.length?Math.max(...ends):0;
  const totalBeats=Math.max(bpb*16,songEnd+bpb*4,project.loop.end+bpb);
  const addTrack=(after)=>{const t=blankTrack(project.tracks.length);const i=after?project.tracks.findIndex(x=>x.id===after)+1:project.tracks.length;const tracks=[...project.tracks];tracks.splice(i,0,t);commit({...project,tracks},'Track added');setTrackSel(t.id);return t.id};
+ /* ROOM4-12 bounce / freeze: the track (clips with warp, pitch, EQ and effects) is rendered once at neutral volume and pan; the new track brings its own volume and pan.
+    Bounce keeps the original active. Freeze also puts it to sleep (no voices, no DSP) until Unfreeze removes the bounce and wakes it. Nothing is overwritten. */
+ const bounceTrack=async(tid,freeze)=>{if(busy)return;const t=project.tracks.find(x=>x.id===tid);if(!t)return;if(isFrozen(project,t)){setStatus('This track is already frozen.');return}
+  const live=t.clips.filter(c=>!c.muted&&c.gain>0);if(!live.length){setStatus('Nothing to bounce: the track has no audible clips.');return}
+  const from=Math.min(...live.map(c=>c.startBeat)),to=Math.max(...live.map(c=>c.startBeat+len(c)));if(!(to>from)){setStatus('Nothing to bounce.');return}
+  if(playing)stop();setBusy(true);setStatus((freeze?'Freezing ':'Bouncing ')+t.name+' …');
+  try{const base=projectRef.current,r=await mixdown(base,libMap,from,to,'float32',{only:tid,unity:true,raw:true});if(!(r.peak>1e-5))throw Error('the track renders silent');
+   const cur=projectRef.current;if(!cur.tracks.some(x=>x.id===tid))throw Error('the track was removed meanwhile');
+   const done=await __XenMultitrackInbox.send({channels:r.channels,sampleRate:r.sampleRate,name:t.name+(freeze?' · frozen':' · bounce'),origin:'multitrack-bounce',bpm:cur.bpm,enqueue:false});
+   requestAudio(done.entry);const beats=r.channels[0].length/r.sampleRate*cur.bpm/60,nid=uid('track');
+   const clip={id:uid('clip'),materialId:done.entry.id,startBeat:from,inBeat:0,lenBeats:Math.max(1/16,beats),gain:1,fadeIn:0,fadeOut:0,muted:false,fit:'bpm',sourceBpm:cur.bpm};
+   const nt={id:nid,name:t.name+(freeze?' ❄':' · bounce'),volume:t.volume,pan:t.pan,mute:freeze?t.mute:false,solo:freeze?t.solo:false,pitch:0,bounceOf:t.id,clips:[clip]};
+   const tracks=[];for(const x of cur.tracks){tracks.push(x.id===tid&&freeze?{...x,frozenBy:nid,solo:false}:x);if(x.id===tid)tracks.push(nt)}
+   commit({...cur,tracks},(freeze?'Track frozen: ':'Track bounced: ')+t.name+' · '+(Math.round(beats*100)/100)+' beats');setTrackSel(nid);setSel(clip.id);setGroup([])}
+  catch(e){setStatus((freeze?'Freeze':'Bounce')+' failed, nothing was changed: '+String(e?.message||e))}finally{setBusy(false)}};
+ const unfreezeTrack=tid=>{const orig=project.tracks.find(x=>x.id===tid&&isFrozen(project,x))||project.tracks.find(x=>isFrozen(project,x)&&x.frozenBy===tid);if(!orig)return;const bn=project.tracks.find(x=>x.id===orig.frozenBy);
+  if(bn&&!window.confirm('Remove the frozen audio track "'+bn.name+'" and wake up "'+orig.name+'"? Its volume and pan stay.'))return;
+  commit({...project,tracks:project.tracks.filter(x=>x.id!==bn?.id).map(x=>{if(x.id!==orig.id)return x;const n={...x,volume:bn?bn.volume:x.volume,pan:bn?bn.pan:x.pan,mute:bn?bn.mute:x.mute,solo:bn?bn.solo:x.solo};delete n.frozenBy;return n})},'Track unfrozen: '+orig.name);setTrackSel(orig.id)};
  const removeTrack=id=>{const t=project.tracks.find(x=>x.id===id);if(t?.clips.length&&!window.confirm('Remove "'+t.name+'" with '+t.clips.length+' clip(s)? Material in the library is not touched.'))return;
   commit({...project,tracks:project.tracks.filter(x=>x.id!==id)},'Track removed')};
  const duplicateTrack=id=>{const i=project.tracks.findIndex(t=>t.id===id);if(i<0)return;const s=project.tracks[i],t={...s,id:uid('track'),name:(s.name+' copy').slice(0,60),solo:false,clips:s.clips.map(c=>({...c,id:uid('clip')}))};
@@ -596,6 +621,8 @@ function XenMultitrackRoom(){
  const trackMenu=(e,t)=>{setTrackSel(t.id);openMenu(e,'Track',[
   {label:t.mute?'Unmute':'Mute',run:()=>updTrack(t.id,{mute:!t.mute},(t.mute?'Unmuted ':'Muted ')+t.name)},{label:t.solo?'Solo off':'Solo',run:()=>updTrack(t.id,{solo:!t.solo},(t.solo?'Solo off ':'Solo ')+t.name)},
   {label:'Reset volume and pan',run:()=>updTrack(t.id,{volume:.8,pan:0},'Mixer reset')},'-',
+  isFrozen(project,t)||project.tracks.some(x=>isFrozen(project,x)&&x.frozenBy===t.id)?{label:'Unfreeze track (restore the original)',run:()=>unfreezeTrack(t.id)}:{label:'Freeze track (render it, put it to sleep)',run:()=>void bounceTrack(t.id,true),disabled:busy||!t.clips.length},
+  {label:'Bounce to a new track (keep the original)',run:()=>void bounceTrack(t.id,false),disabled:busy||!t.clips.length||isFrozen(project,t)},'-',
   {label:'Duplicate track',run:()=>duplicateTrack(t.id)},{label:'Move up',run:()=>moveTrack(t.id,-1)},{label:'Move down',run:()=>moveTrack(t.id,1)},{label:'Add track below',run:()=>addTrack(t.id)},'-',
   {label:'Delete track',run:()=>removeTrack(t.id)}])};
  const rulerMenu=e=>{const beat=snap(beatFromEvent(e,e.currentTarget));openMenu(e,'Timeline',[
@@ -745,8 +772,8 @@ function XenMultitrackRoom(){
    u.jsxs('div',{className:'trk rr',ref:rulerRef,children:[u.jsx('div',{className:'hdr',title:'Bars · click the ruler to set the cursor · right-click it for loop and export',children:u.jsx('span',{className:'muted',children:'Bars · right-click: loop, export'})}),
     u.jsxs('div',{className:'ruler',title:'Click: set the cursor · right-click: play from here, loop start/end, mixdown',style:{width:laneWidth},onClick:e=>{const b=snap(beatFromEvent(e,e.currentTarget));setCursor(b);announce('Cursor '+fmtPos(b,bpb))},onContextMenu:rulerMenu,children:[...ticks,...markers.map(m=>u.jsx('button',{type:'button',className:'mk',style:{left:m.beat*ppb},title:(m.name||'Marker')+' · '+fmtPos(m.beat,bpb)+'\nClick: cursor here · double-click: rename · right-click: options · keys [ and ] jump, B adds',onClick:ev=>{ev.stopPropagation();setCursor(m.beat);announce('Marker '+(m.name||fmtPos(m.beat,bpb)))},onDoubleClick:ev=>{ev.stopPropagation();renameMarker(m)},onContextMenu:ev=>{ev.stopPropagation();markerMenu(ev,m)},children:u.jsx('span',{children:m.name||''})},m.id)),
      u.jsx('div',{className:'loopr'+(project.loop.on?'':' off'),style:{left:project.loop.start*ppb,width:Math.max(2,(project.loop.end-project.loop.start)*ppb)},title:'Loop region'}),u.jsx('div',{className:'cur',style:{left:cursor*ppb}})]})]}),
-   ...project.tracks.map((t,ti)=>u.jsxs('div',{className:'trk'+tier,style:{height:th},onClick:()=>setTrackSel(t.id),children:[
-    u.jsxs('div',{className:'hdr',onContextMenu:e=>trackMenu(e,t),style:{boxShadow:'inset 3px 0 0 '+(trackSel===t.id?'#fde68a':COLORS[ti%COLORS.length]+'55')},children:[u.jsx('span',{className:'tn',children:t.name+(t.eq?' · EQ':'')}),
+   ...project.tracks.map((t,ti)=>u.jsxs('div',{className:'trk'+tier+(isFrozen(project,t)?' frozen':''),style:{height:th},onClick:()=>setTrackSel(t.id),children:[
+    u.jsxs('div',{className:'hdr',onContextMenu:e=>trackMenu(e,t),style:{boxShadow:'inset 3px 0 0 '+(trackSel===t.id?'#fde68a':COLORS[ti%COLORS.length]+'55')},children:[u.jsx('span',{className:'tn',children:t.name+(t.eq?' · EQ':'')+(isFrozen(project,t)?' · ❄ frozen':'')}),
      u.jsxs('div',{className:'row',children:[u.jsx('input',{type:'text','aria-label':'Track name',title:'Track name',value:t.name,onChange:e=>updTrack(t.id,{name:e.target.value.slice(0,60)})}),
       u.jsx('button',{type:'button','aria-pressed':t.mute,title:'Mute track','aria-label':'Mute '+t.name,onClick:()=>updTrack(t.id,{mute:!t.mute},(t.mute?'Unmuted ':'Muted ')+t.name),children:'M'}),
       u.jsx('button',{type:'button','aria-pressed':t.solo,title:'Solo track','aria-label':'Solo '+t.name,onClick:()=>updTrack(t.id,{solo:!t.solo},(t.solo?'Solo off ':'Solo ')+t.name),children:'S'}),
