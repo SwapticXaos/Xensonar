@@ -70,7 +70,7 @@ function __useSessionRhythmAuditions(value){
   const detachFill=__XenOneShotAudio.attachDrumOwner(()=>current.current);
   /* ROOM4-08: the render halves of both auditions are shared with other rooms (__XenRhythmSources), so a drum
      pattern or bass pattern becomes PCM through its authentic owner without being recorded first. */
-  const renderDrum=async(entry,task)=>{
+  const renderDrum=async(entry,task,opts)=>{
     const input=current.current,params=JSON.parse(JSON.stringify(input.params));
     const selected=input.drumEntries.find(source=>source.id===entry.id);
     if(!selected)throw Error('Drum pattern is missing.');
@@ -79,7 +79,7 @@ function __useSessionRhythmAuditions(value){
     const grid=saved?im({...JSON.parse(JSON.stringify(saved)),useCustom:true}):null;
     // Presets use precisely their library owner's two-bar marked grid.
     const bars=grid?.bars??__mlGridFromSelection({pattern:selected.value}).bars;
-    const bpm=Number(saved?.bpm??params.quantizeBpm);
+    const bpm=Number(opts?.bpm>0?opts.bpm:(saved?.bpm??params.quantizeBpm));/* ROOM4-15: Room IV re-renders the pattern at another tempo (the synthetic plan) */
     if(!(bpm>0))throw Error('Drum tempo is unavailable.');
     const request={composer:{bars,beatsPerBar:4,stepsPerBar:16,notes:[],tracks:[],activeTrackIds:[]},
      bars,bpm,trackIds:[],drumCycleBars:bars,customDrumPattern:grid,
@@ -99,7 +99,7 @@ function __useSessionRhythmAuditions(value){
     const r=await renderDrum(entry,task);
     return __XenSessionPCM.play(r.buffer,finished,task,{drumRack:__f48CleanRack(r.params)});
    }};
-  const renderBass=async(entry,task)=>{
+  const renderBass=async(entry,task,opts)=>{
     const input=current.current,params=JSON.parse(JSON.stringify(input.params));
     let clip;
     if(entry.previewClip){clip=Pr(JSON.parse(JSON.stringify(entry.previewClip)))}
@@ -107,7 +107,7 @@ function __useSessionRhythmAuditions(value){
     else {const pattern=entry.id.slice(7);if(!input.bassPatterns.some(source=>source.value===pattern))throw Error('Bass preset is missing.');clip=Gle({pattern,rootHz:params.bassRootHz,swing:params.grooveSwing,bassGrit:params.bassGrit,seed:input.bassContext?.seed,barIndex:input.bassContext?.barIndex,descriptors:input.bassContext?.descriptors,pitchMode:params.psyBassPitchMode,tuningId:params.gridTuning})}
     // A library audition owns a local sound snapshot, never the live workbench.
     Object.assign(params,__xenBassTimbrePatch(clip.timbre)??{});
-    const bpm=Number(clip.generatorMeta?.bpm??params.quantizeBpm);
+    const bpm=Number(opts?.bpm>0?opts.bpm:(clip.generatorMeta?.bpm??params.quantizeBpm));
     if(!(bpm>0))throw Error('Bass tempo is unavailable.');
     const stepSec=60/Math.max(40,bpm)/4,steps=clip.bars*16,notes=[];
     const free=clip.generatorMeta?.rootBinding==='free';
@@ -138,7 +138,7 @@ function __useSessionRhythmAuditions(value){
    list:()=>{const input=current.current;return {
     drums:(input.drumEntries||[]).map(x=>({id:x.id,name:String(x.name||x.value||x.id)})),
     bass:[...(input.bassClips||[]).map(x=>({id:'clip:'+x.id,name:String(x.name||x.id)})),...(input.bassPatterns||[]).map(x=>({id:'preset:'+x.value,name:String(x.label||x.name||x.value)}))]}},
-   renderDrum:id=>renderDrum({id},freeTask()),renderBass:id=>renderBass({id},freeTask())};
+   renderDrum:(id,o)=>renderDrum({id},freeTask(),o),renderBass:(id,o)=>renderBass({id},freeTask(),o)};
   const offDrum=__XenMetaAudition.register('drum',drum),offBass=__XenMetaAudition.register('bass',bass);
   return()=>{offDrum();offBass();detachFill()};
  },[]);

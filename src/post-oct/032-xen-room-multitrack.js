@@ -51,7 +51,8 @@ const hasAuto=(t,name)=>!!t?.auto?.[name]?.length;
 function sanitizeClip(c){const out={id:String(c.id||uid('clip')),materialId:String(c.materialId||''),startBeat:Math.max(0,num(c.startBeat,0)),
  inBeat:Math.max(0,num(c.inBeat,0)),gain:clamp(num(c.gain,1),0,2),fadeIn:clamp(num(c.fadeIn,0),0,256),fadeOut:clamp(num(c.fadeOut,0),0,256),muted:!!c.muted,fit:['natural','bpm'].includes(c.fit)?c.fit:'tempo'};if(num(c.sourceBpm,0)>0)out.sourceBpm=clamp(Number(c.sourceBpm),10,999);if(out.fit==='bpm'&&!out.sourceBpm)out.fit='natural';
  /* ROOM4-07: non-destructive warp. stretch multiplies the material cycle, warp 'grain' keeps the pitch, pitch is a granular offset in cents. Absent = original. */
- if(num(c.stretch,1)>0&&Math.abs(num(c.stretch,1)-1)>1e-9)out.stretch=clamp(Number(c.stretch),.05,20);if(c.warp==='grain')out.warp='grain';if(c.reverse)out.reverse=true;if(Math.abs(num(c.pitch,0))>=.5)out.pitch=clamp(Number(c.pitch),-2400,2400);
+ if(num(c.stretch,1)>0&&Math.abs(num(c.stretch,1)-1)>1e-9)out.stretch=clamp(Number(c.stretch),.05,20);if(c.warp==='grain')out.warp='grain';if(c.reverse)out.reverse=true;
+ if(c.synth&&(c.synth.kind==='drum'||c.synth.kind==='bass')&&typeof c.synth.id==='string'&&c.synth.id){out.synth={kind:c.synth.kind,id:c.synth.id.slice(0,200),name:String(c.synth.name||'').slice(0,60)};if(c.warp==='synth')out.warp='synth'}if(Math.abs(num(c.pitch,0))>=.5)out.pitch=clamp(Number(c.pitch),-2400,2400);
  if(Number.isFinite(Number(c.lenBeats))&&Number(c.lenBeats)>0)out.lenBeats=clamp(Number(c.lenBeats),1/64,1e5);else out.repeats=clamp(Math.round(num(c.repeats,1)),1,256);
  return out}
 function sanitize(raw,liveBpm){
@@ -102,7 +103,7 @@ function requestAudio(entry){if(!entry)return null;const size=entry.blob?.size??
 function sourceInfo(b){if(!b)return 'decoding source …';const s=b.duration,m=Math.floor(s/60),r=(s-m*60).toFixed(1).padStart(4,'0'),ch=b.numberOfChannels;
  const hz=b.sampleRate/1000;return (ch===1?'Mono':ch===2?'Stereo':ch+' channels')+' · '+(Number.isInteger(hz)?hz:hz.toFixed(1).replace('.',','))+' kHz · '+String(m).padStart(2,'0')+':'+r}
 /* ROOM4-05: decoded PCM is only needed while Room IV is open (cold-room contract); finished buffers are dropped on leaving, in-flight decodes are left alone. */
-function releaseDecoded(){for(const [id,r] of [...audio])if(r.status!=='loading')audio.delete(id);for(const [k,v] of [...variants])if(v.status!=='loading')variants.delete(k)}
+function releaseDecoded(){for(const [id,r] of [...audio])if(r.status!=='loading')audio.delete(id);for(const [k,v] of [...variants])if(v.status!=='loading')variants.delete(k);for(const [k,v] of [...synthVars])if(v.status!=='loading')synthVars.delete(k)}
 function regionOf(entry,buffer){const d=buffer.duration,a=clamp(num(entry?.loopStartSec,0),0,Math.max(0,d-.01)),b=clamp(num(entry?.loopEndSec,d),a+.01,d);return {a,b,len:b-a}}
 /* One voice: a portion [pa,pb) of a clip, in beats, starting at audio time tA. Shared by live play and mixdown. */
 /* ---------- ROOM4-07 · warp: stretch / compress, granular (pitch-keeping) fit and granular pitch ----------
@@ -147,13 +148,35 @@ function requestVariant(plan,buffer){
    if(variants.size>24){const old=[...variants].filter(([,v])=>v.status!=='loading'&&v!==row).sort((x,y)=>x[1].last-y[1].last);for(const [k] of old.slice(0,variants.size-24))variants.delete(k)}
   }catch(e){row.status='error';row.error=String(e?.message||e).slice(0,160)}finally{audioNotify();for(const f of variantListeners)f()}})();
  return row}
+/* ---------- ROOM4-15 · the synthetic plan for drum and bass pattern clips ----------
+   A clip that came from a drum or bass pattern remembers its source (clip.synth = {kind,id,name}). With warp 'synth' a tempo change or a stretch does NOT stretch the audio:
+   the pattern is synthesised again by its own engine at the tempo the clip needs (project tempo divided by the stretch), so a snare stays a snare. One cycle is rendered
+   (RAM only, like the granular variants) and then plays like any material at rate 1. Until it is ready, or when the engine cannot render it, the recorded audio plays (tape). */
+const synthVars=new Map();
+function synthPlan(c,bpm){if(c?.warp!=='synth'||!c.synth)return null;const st=c.stretch>0?c.stretch:1,bt=bpm/st;
+ if(!(bt>=20&&bt<=400))return {error:'pattern tempo '+Math.round(bt)+' BPM is outside 20 to 400: playing the recorded audio'};
+ return {key:'syn|'+c.synth.kind+'|'+c.synth.id+'|'+bt.toFixed(3),kind:c.synth.kind,id:c.synth.id,bpm:bt}}
+function requestSynth(plan){if(!plan||plan.error)return null;let row=synthVars.get(plan.key);if(row&&row.status!=='error'){row.last=Date.now();return row}
+ row={status:'loading',buffer:null,error:'',last:Date.now(),bpm:plan.bpm};synthVars.set(plan.key,row);
+ row.promise=(async()=>{try{const owner=__XenRhythmSources.current;if(!owner)throw Error('open the Live Room once so that the pattern library is available');
+   const r=await (plan.kind==='drum'?owner.renderDrum(plan.id,{bpm:plan.bpm}):owner.renderBass(plan.id,{bpm:plan.bpm})),sr=r.buffer.sampleRate;
+   const n=Math.max(1,Math.min(r.buffer.length,Math.round(r.bars*r.beatsPerBar*60/r.bpm*sr))),fade=Math.min(n,Math.round(.003*sr)),out=new AudioBuffer({numberOfChannels:2,length:n,sampleRate:sr});
+   for(let i=0;i<2;i++){const d=r.buffer.getChannelData(Math.min(i,r.buffer.numberOfChannels-1)).slice(0,n);for(let k=0;k<fade;k++)d[n-1-k]*=k/fade;out.copyToChannel(d,i)}
+   row.buffer=out;row.status='ready';
+   if(synthVars.size>16){const old=[...synthVars].filter(([,v])=>v.status!=='loading'&&v!==row).sort((x,y)=>x[1].last-y[1].last);for(const [k] of old.slice(0,synthVars.size-16))synthVars.delete(k)}
+  }catch(e){row.status='error';row.error=String(e?.message||e).slice(0,160)}finally{audioNotify();for(const f of variantListeners)f()}})();
+ return row}
 /* What a voice really plays: the ready variant (whole buffer = one material cycle) or the source region (tape). */
-function voiceSource(c,t,entry,buffer,bpm){const plan=variantPlan(c,t,entry,buffer,bpm);
+function voiceSource(c,t,entry,buffer,bpm){const sp=synthPlan(c,bpm);let buf=buffer,ent=entry,pre='',note='',ready=false;
+ if(sp){if(sp.error){note=sp.error;pre='s!|'}else{const row=synthVars.get(sp.key);if(row?.status==='ready'){row.last=Date.now();buf=row.buffer;ent={...entry,loopStartSec:0,loopEndSec:row.buffer.duration};pre='s:'+sp.key+'|';ready=true}
+  else{note=row?.status==='error'?'pattern render failed ('+row.error+'): playing the recorded audio':'rendering the pattern …';pre='s?'+(row?.status||'none')+'|'}}}
+ const v=voiceSourceBase(c,t,ent,buf,bpm);return {...v,key:pre+v.key,state:v.state&&v.state!=='granular'?v.state:ready?'pattern '+Math.round(sp.bpm)+' BPM':(note||v.state)}}
+function voiceSourceBase(c,t,entry,buffer,bpm){const plan=variantPlan(c,t,entry,buffer,bpm);
  if(!plan)return {buffer,region:regionOf(entry,buffer),state:'',key:''};
  if(plan.error)return {buffer,region:regionOf(entry,buffer),state:plan.error,key:'!'};
  const row=variants.get(plan.key);if(row?.status==='ready'){row.last=Date.now();return {buffer:row.buffer,region:{a:0,b:row.buffer.duration,len:row.buffer.duration},state:'granular',key:plan.key}}
  return {buffer,region:regionOf(entry,buffer),state:row?.status==='error'?'render failed ('+row.error+'): playing the plain source':'rendering …',key:plan.key+'?'+(row?.status||'none')}}
-function prepareVariants(project,lib,wait){const jobs=[];for(const t of project.tracks){if(isFrozen(project,t))continue;for(const c of t.clips){const e=lib.get(c.materialId),au=e?audio.get(e.id):null;if(!au||au.status!=='ready')continue;const row=requestVariant(variantPlan(c,t,e,au.buffer,project.bpm),au.buffer);if(row?.promise&&row.status==='loading')jobs.push(row.promise)}}return wait?Promise.all(jobs):null}
+function prepareVariants(project,lib,wait){const jobs=[];for(const t of project.tracks){if(isFrozen(project,t))continue;for(const c of t.clips){const sy=requestSynth(synthPlan(c,project.bpm));if(sy?.promise&&sy.status==='loading')jobs.push(sy.promise);const e=lib.get(c.materialId),au=e?audio.get(e.id):null;if(!au||au.status!=='ready')continue;const row=requestVariant(variantPlan(c,t,e,au.buffer,project.bpm),au.buffer);if(row?.promise&&row.status==='loading')jobs.push(row.promise)}}return wait?Promise.all(jobs):null}
 function planVoice(ctx,dest,clip,entry,sourceBuffer,pa,pb,tA,tB,spb,isStart,isEnd,track){
  const vs=voiceSource(clip,track,entry,sourceBuffer,60/spb),buffer=vs.buffer;
  const mb=cycleBeats(entry,clip,60/spb),r=vs.region,rate=clamp(r.len/(mb*spb),.0625,16),off=pa-clip.startBeat+clip.inBeat;
@@ -490,7 +513,7 @@ function XenMultitrackRoom(){
    const last=p.tracks[p.tracks.length-1],reuse=!!last&&!last.clips.length;
    const fit=it.fit==='tempo'?'tempo':it.sourceBpm>0?'bpm':'natural',base={fit,sourceBpm:fit==='bpm'?it.sourceBpm:undefined},cycle=cycleBeats(e,base,p.bpm);
    const inBeat=fit==='bpm'?Math.max(0,num(it.offsetSec,0)*it.sourceBpm/60):0;
-   const clip={id:uid('clip'),materialId:e.id,startBeat:Math.max(0,num(it.startBeat,0)),inBeat,lenBeats:Math.max(1/16,cycle-inBeat),gain:1,fadeIn:0,fadeOut:0,muted:false,...base};
+   const clip={id:uid('clip'),materialId:e.id,startBeat:Math.max(0,num(it.startBeat,0)),inBeat,lenBeats:Math.max(1/16,cycle-inBeat),gain:1,fadeIn:0,fadeOut:0,muted:false,...base,...(it.synth?{synth:it.synth,warp:'synth'}:{})};
    const label=String(it.name||e.name||'Audio').slice(0,60),t={...(reuse?last:blankTrack(p.tracks.length)),name:label,clips:[clip]};
    p={...p,tracks:reuse?p.tracks.map(x=>x.id===last.id?t:x):[...p.tracks,t]};
    names.push(label+(it.sourceBpm>0?' · '+it.sourceBpm+' BPM'+(it.tempoSource==='detected'?' (detected, beat-aligned)':''):' · original speed'))}
@@ -570,13 +593,13 @@ function XenMultitrackRoom(){
    const n=Math.max(1,Math.min(r.buffer.length,Math.round(loopSec*sr))),fade=Math.min(n,Math.round(.003*sr));
    const channels=[0,1].map(i=>{const d=r.buffer.getChannelData(Math.min(i,r.buffer.numberOfChannels-1)).slice(0,n);for(let k=0;k<fade;k++)d[n-1-k]*=k/fade;return d});
    let peak=0;for(const d of channels)for(let k=0;k<n;k+=4){const a=d[k]<0?-d[k]:d[k];if(a>peak)peak=a}if(!(peak>1e-5))throw Error('the pattern rendered silent');
-   await __XenMultitrackInbox.send({channels,sampleRate:sr,name:(kind==='drum'?'Drums · ':'Bass · ')+r.name,origin:kind==='drum'?'drum-pattern':'bass-pattern',bpm:r.bpm,bars:r.bars*r.beatsPerBar/4,startBeat:snap(cursor)});
+   await __XenMultitrackInbox.send({channels,sampleRate:sr,name:(kind==='drum'?'Drums · ':'Bass · ')+r.name,origin:kind==='drum'?'drum-pattern':'bass-pattern',bpm:r.bpm,bars:r.bars*r.beatsPerBar/4,startBeat:snap(cursor),synth:{kind,id,name:r.name}});
    announce((kind==='drum'?'Drum pattern ':'Bass pattern ')+r.name+' added')}
   catch(e){setStatus('Could not add the '+(kind==='drum'?'drum':'bass')+' pattern: '+String(e?.message||e))}finally{setBusy(false)}};
  /* ROOM4-07 warp edits: one factor scales cycle, length and in-point together, so the clip keeps its content. */
  const warpPatch=(c,stretch)=>{const cur=c.stretch>0?c.stretch:1,next=clamp(stretch,.05,20),f=next/cur;return {stretch:Math.abs(next-1)<1e-9?undefined:next,lenBeats:Math.max(1/64,len(c)*f),inBeat:c.inBeat*f,repeats:undefined}};
  const setStretch=(c,stretch,label)=>updClip(c.id,warpPatch(c,stretch),label||('Stretch ×'+(Math.round(clamp(stretch,.05,20)*1000)/1000)));
- const resetWarp=c=>updClip(c.id,{...warpPatch(c,1),warp:undefined,pitch:undefined,reverse:undefined},'Original speed, pitch and direction restored');
+ const resetWarp=c=>updClip(c.id,{...warpPatch(c,1),warp:c.synth?'synth':undefined,pitch:undefined,reverse:undefined},'Original speed, pitch and direction restored');
  const startBand=e=>{if(e.button!==0||e.target!==e.currentTarget)return;const x0=e.clientX,y0=e.clientY,additive=e.shiftKey||e.ctrlKey||e.metaKey,base=additive?(group.length>1?group:(sel?[sel]:[])):[];let moved=false,r=null;
   const rect=ev=>({l:Math.min(x0,ev.clientX),t:Math.min(y0,ev.clientY),r:Math.max(x0,ev.clientX),b:Math.max(y0,ev.clientY)});
   const move=ev=>{if(!moved&&Math.hypot(ev.clientX-x0,ev.clientY-y0)<4)return;moved=true;r=rect(ev);setBand(r)};
@@ -587,7 +610,7 @@ function XenMultitrackRoom(){
   window.addEventListener('pointermove',move);window.addEventListener('pointerup',up);window.addEventListener('pointercancel',up)};
  const magnet=b=>{const s=snap(b),bar=Math.round(b/bpb)*bpb;return Math.abs(bar-b)*ppb<=8?Math.max(0,bar):s};
  const warpInfo=(c,t)=>{const e=libMap.get(c.materialId),a=e?audio.get(e.id):null;if(!a?.buffer)return '';const st=c.stretch>0?c.stretch:1,ct=pitchCentsOf(c,t),vs=voiceSource(c,t,e,a.buffer,project.bpm);
-  const parts=[];if(Math.abs(st-1)>1e-9)parts.push((st>1?'stretched':'compressed')+' ×'+(Math.round(st*1000)/1000));if(c.reverse)parts.push('reversed');if(c.warp==='grain')parts.push('pitch kept');if(Math.abs(ct)>=.5)parts.push((ct>0?'+':'')+Math.round(ct)+' ct');if(vs.state&&vs.state!=='granular')parts.push(vs.state);else if(vs.state==='granular')parts.push('granular ready');return parts.join(' · ')};
+  const parts=[];if(Math.abs(st-1)>1e-9)parts.push((st>1?'stretched':'compressed')+' ×'+(Math.round(st*1000)/1000));if(c.reverse)parts.push('reversed');if(c.warp==='grain')parts.push('pitch kept');if(Math.abs(ct)>=.5)parts.push((ct>0?'+':'')+Math.round(ct)+' ct');if(vs.state==='granular')parts.push('granular ready');else if(vs.state&&vs.state!=='')parts.push(vs.state);return parts.join(' · ')};
  const duplicateClip=cid=>{const f=findClip(cid);if(!f)return;const n={...fixedLen(f.c),id:uid('clip'),startBeat:f.c.startBeat+len(f.c)};insertClip(f.t.id,n,'Clip duplicated to '+fmtPos(n.startBeat,bpb))};
  const splitClip=cid=>{const f=findClip(cid);if(!f)return;const c=fixedLen(f.c),at=cursor;if(!(at>c.startBeat+1e-9&&at<c.startBeat+c.lenBeats-1e-9)){announce('Place the cursor inside the clip to split');return}
   const a={...c,lenBeats:at-c.startBeat,fadeOut:0},b={...c,id:uid('clip'),startBeat:at,inBeat:c.inBeat+(at-c.startBeat),lenBeats:c.startBeat+c.lenBeats-at,fadeIn:0};
@@ -707,7 +730,7 @@ function XenMultitrackRoom(){
   c.sourceBpm?{label:'Source tempo ÷2 (octave)',run:()=>setFit(c,'bpm',Math.round(c.sourceBpm*50)/100,'Source tempo '+Math.round(c.sourceBpm*50)/100)}:null,
   {label:'Set source tempo …',run:()=>{const v=Number(window.prompt('Source tempo of this audio (BPM):',String(c.sourceBpm||project.bpm)));if(v>10&&v<999)setFit(c,'bpm',v,'Source tempo '+v)}}].filter(Boolean);
  const clipMenu=(e,t,c)=>{if(inGroup(c.id)){const ids=selIds();openMenu(e,ids.length+' clips',[{label:'Duplicate '+ids.length+' clips',key:'Ctrl+D',run:()=>duplicateClips(ids)},{label:'Copy '+ids.length+' clips',key:'Ctrl+C',run:()=>copyClips(ids)},{label:'Mute / unmute all',key:'M',run:()=>{const all=ids.every(id=>findClip(id)?.c.muted);patchClips(ids,()=>({muted:!all}),all?'Clips unmuted':'Clips muted')}},
-   {label:'Stretch all ×2',run:()=>patchClips(ids,c=>warpPatch(c,(c.stretch||1)*2),'Stretched ×2')},{label:'Compress all ×½',run:()=>patchClips(ids,c=>warpPatch(c,(c.stretch||1)/2),'Compressed ×½')},{label:'Reset warp on all',run:()=>patchClips(ids,c=>({...warpPatch(c,1),warp:undefined,pitch:undefined,reverse:undefined}),'Warp reset')},'-',
+   {label:'Stretch all ×2',run:()=>patchClips(ids,c=>warpPatch(c,(c.stretch||1)*2),'Stretched ×2')},{label:'Compress all ×½',run:()=>patchClips(ids,c=>warpPatch(c,(c.stretch||1)/2),'Compressed ×½')},{label:'Reset warp on all',run:()=>patchClips(ids,c=>({...warpPatch(c,1),warp:c.synth?'synth':undefined,pitch:undefined,reverse:undefined}),'Warp reset')},'-',
    {label:'Set loop to the selection',run:()=>{const {a,b}=groupBounds(ids);setLoop({start:a,end:b,on:true})}},{label:'Select none',run:()=>setGroup([])},'-',{label:'Delete '+ids.length+' clips',key:'Del',run:()=>removeClips(ids)}]);return}
   setSel(c.id);setTrackSel(t.id);const others=project.tracks.filter(x=>x.id!==t.id);openMenu(e,'Clip',[
   {label:'Duplicate',key:'Ctrl+D',run:()=>duplicateClip(c.id)},{label:'Split at cursor',key:'S',run:()=>splitClip(c.id),disabled:!(cursor>c.startBeat&&cursor<c.startBeat+len(c))},
@@ -720,6 +743,7 @@ function XenMultitrackRoom(){
   {label:'Stretch ×2 (twice as long)',run:()=>setStretch(c,(c.stretch||1)*2)},{label:'Compress ×½ (half as long)',run:()=>setStretch(c,(c.stretch||1)/2)},
   {label:'Stretch to whole bars',run:()=>{const L=len(c),bars=Math.max(1,Math.round(L/bpb));setStretch(c,(c.stretch||1)*bars*bpb/L,'Stretched to '+bars+' bar'+(bars>1?'s':''))},disabled:Math.abs(len(c)/bpb-Math.round(len(c)/bpb))<1e-6},
   {label:c.warp==='grain'?'Warp: tape (pitch follows speed)':'Warp: granular (keep the pitch)',run:()=>updClip(c.id,{warp:c.warp==='grain'?undefined:'grain'},c.warp==='grain'?'Tape warp':'Granular warp: pitch kept')},
+  c.synth?{label:c.warp==='synth'?'Warp: tape (stretch the recorded audio)':'Warp: pattern (play it again at the new tempo)',run:()=>updClip(c.id,{warp:c.warp==='synth'?undefined:'synth'},c.warp==='synth'?'Tape warp':'Pattern warp: the '+(c.synth.kind==='drum'?'drums':'bass')+' engine renders it at the new tempo')}:null,
   {label:c.reverse?'Play forwards again':'Reverse (play backwards)',run:()=>updClip(c.id,{reverse:c.reverse?undefined:true},c.reverse?'Clip plays forwards':'Clip reversed')},
   {label:'Normalize gain (peak to −1 dB)',run:()=>{const pk=audio.get(c.materialId)?.peaks;let m=0;if(pk)for(const v of pk)if(v>m)m=v;if(!(m>0)){setStatus('Nothing to normalize yet (audio still loading or silent).');return}const g=clamp(.891/m,0,2);updClip(c.id,{gain:g},'Clip gain '+g.toFixed(2)+(g>=2?' (limit reached)':''))}},
   {label:'Reset stretch, pitch and direction (original)',run:()=>resetWarp(c),disabled:!(c.stretch||c.warp||c.pitch||c.reverse)},'-',
@@ -816,7 +840,7 @@ function XenMultitrackRoom(){
  const clipView=(t,ti,c)=>{const e=libMap.get(c.materialId),a=e?audio.get(e.id):null,L=len(c),mb=cyc(c),w=Math.max(10,L*ppb);
   const bad=!e||a?.status==='error',state=!e?'source missing in library':a?.status==='error'?'cannot decode: '+a.error:a?.status==='ready'?'':'loading audio';
   const reps=[];for(let k=Math.ceil((c.inBeat+1e-9)/mb);(k*mb-c.inBeat)<L-1e-9&&reps.length<64;k++){const x=(k*mb-c.inBeat)*ppb;if(x>0)reps.push(u.jsx('span',{className:'rep',style:{left:x}},'r'+k))}
-  const name=e?(e.name||'material'):'missing material',color=COLORS[ti%COLORS.length],wi=warpInfo(c,t),st=c.stretch>0?c.stretch:1,tag=(Math.abs(st-1)>1e-9?' ⇔×'+(Math.round(st*100)/100):'')+(c.warp==='grain'?' ≈':'')+(Math.abs(pitchCentsOf(c,t))>=.5?' ♪':'')+(c.reverse?' ◀':'');
+  const name=e?(e.name||'material'):'missing material',color=COLORS[ti%COLORS.length],wi=warpInfo(c,t),st=c.stretch>0?c.stretch:1,tag=(Math.abs(st-1)>1e-9?' ⇔×'+(Math.round(st*100)/100):'')+(c.warp==='grain'?' ≈':'')+(c.warp==='synth'?' ♬':'')+(Math.abs(pitchCentsOf(c,t))>=.5?' ♪':'')+(c.reverse?' ◀':'');
   return u.jsxs('button',{type:'button','data-clip':c.id,className:'clip'+(bad?' bad':'')+(c.muted?' muted':''),role:'option','aria-selected':group.length>1?group.includes(c.id):sel===c.id,style:{left:c.startBeat*ppb,width:w,'--c':color},
    title:name+(state?' — '+state:'')+(wi?'\n'+wi:'')+'\nDrag: move (also to another track) · Alt+drag: copy · upper half of an edge: trim / loop · lower half of an edge: stretch / compress · right-click: options','aria-label':name+', '+t.name+', starts at '+fmtPos(c.startBeat,bpb)+', '+L+' beats'+(c.muted?', muted':'')+(state?', '+state:''),
    onPointerDown:ev=>pointerDown(ev,t,c),onPointerMove:pointerMove,onPointerUp:pointerUp,onPointerCancel:pointerUp,onContextMenu:ev=>clipMenu(ev,t,c),onFocus:()=>{setSel(c.id);setTrackSel(t.id)},
@@ -941,9 +965,9 @@ function XenMultitrackRoom(){
    u.jsxs('label',{title:'How the clip is brought to the project tempo. All modes only change the playback rate (tape); the stored audio stays untouched, so the way back is lossless.',children:['Fit',u.jsxs('select',{value:selF.c.fit,onChange:e=>setFit(selF.c,e.target.value,selF.c.sourceBpm,'Fit changed'),children:[
     u.jsx('option',{value:'natural',children:'Original speed'}),u.jsx('option',{value:'tempo',children:'Bars × beats'}),selF.c.sourceBpm?u.jsx('option',{value:'bpm',children:'Source tempo '+selF.c.sourceBpm+' BPM'}):null]})]}),
    numIn('Stretch',selF.c.stretch>0?selF.c.stretch:1,.05,20,.01,v=>{if(v>0)setStretch(selF.c,v)},64),
-   u.jsxs('label',{title:'Tape: speed and pitch move together (like a tape machine). Granular: the pitch stays where it is while the clip is stretched, compressed or fitted to the tempo; rendered in the background, the stored audio is never changed.',children:['Warp',u.jsxs('select',{value:selF.c.warp==='grain'?'grain':'tape','aria-label':'Warp mode',onChange:e=>updClip(selF.c.id,{warp:e.target.value==='grain'?'grain':undefined},e.target.value==='grain'?'Granular warp: pitch kept':'Tape warp'),children:[u.jsx('option',{value:'tape',children:'Tape'}),u.jsx('option',{value:'grain',children:'Granular (keep pitch)'})]})]}),
+   u.jsxs('label',{title:'Tape: speed and pitch move together (like a tape machine). Granular: the pitch stays where it is while the clip is stretched, compressed or fitted to the tempo; rendered in the background, the stored audio is never changed. Pattern (drum and bass clips): the engine plays the pattern again at the new tempo, like the Live Room, so hits keep their sound.',children:['Warp',u.jsxs('select',{value:selF.c.warp==='grain'?'grain':selF.c.warp==='synth'?'synth':'tape','aria-label':'Warp mode',onChange:e=>updClip(selF.c.id,{warp:e.target.value==='grain'?'grain':e.target.value==='synth'?'synth':undefined},e.target.value==='grain'?'Granular warp: pitch kept':e.target.value==='synth'?'Pattern warp: rendered again at the new tempo':'Tape warp'),children:[u.jsx('option',{value:'tape',children:'Tape'}),u.jsx('option',{value:'grain',children:'Granular (keep pitch)'}),selF.c.synth?u.jsx('option',{value:'synth',children:'Pattern (synthetic, '+(selF.c.synth.kind==='drum'?'drum':'bass')+' engine)'}):null]})]}),
    numIn('Pitch ct',num(selF.c.pitch,0),-2400,2400,1,v=>updClip(selF.c.id,{pitch:Math.abs(v)<.5?undefined:clamp(v,-2400,2400)}),64),
-   u.jsx('button',{type:'button',disabled:!(selF.c.stretch||selF.c.warp||selF.c.pitch||selF.c.reverse),onClick:()=>resetWarp(selF.c),title:'Back to the original: stretch 1, tape, pitch 0, forwards. The source audio was never changed.',children:'Reset warp'}),
+   u.jsx('button',{type:'button',disabled:!(selF.c.stretch||(selF.c.warp&&!(selF.c.synth&&selF.c.warp==='synth'))||selF.c.pitch||selF.c.reverse),onClick:()=>resetWarp(selF.c),title:'Back to the original: stretch 1, tape, pitch 0, forwards. The source audio was never changed.',children:'Reset warp'}),
    u.jsx('span',{className:'muted','data-clip-warp-info':'true',children:[tapeInfo(selF.c),warpInfo(selF.c,selF.t)].filter(Boolean).join(' — ')}),
    u.jsx('button',{type:'button',onClick:()=>removeClip(selF.c.id),title:'Remove this clip (the material stays in the library) · Delete',children:'Remove clip'})]}):null,
   /* ROOM4-09: effects of the selected track */

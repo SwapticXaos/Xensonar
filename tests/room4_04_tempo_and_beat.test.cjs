@@ -100,7 +100,7 @@ test('ROOM4-05: looping for hours does not accumulate planned-voice keys; leavin
   const fn=cut(mt,'function releaseDecoded(','function regionOf(');
   const audio=new Map([['a',{status:'ready'}],['b',{status:'error'}],['c',{status:'loading'}]]);
   const variants=new Map([['v1',{status:'ready'}],['v2',{status:'loading'}]]);
-  new Function('audio','variants',fn+';releaseDecoded()')(audio,variants);
+  new Function('audio','variants','synthVars',fn+';releaseDecoded()')(audio,variants,new Map());
   assert.deepStrictEqual([...audio.keys()],['c']);assert.deepStrictEqual([...variants.keys()],['v2']);
 });
 
@@ -249,4 +249,33 @@ test('Room IV: no React hook is declared after the early return that waits for t
   const i=mt.indexOf("if(!project)return u.jsx('div'");assert(i>0);
   const after=mt.slice(i),hooks=after.match(/\bP\.use[A-Z]\w*\(/g)||[];
   assert.deepStrictEqual(hooks,[],'hooks after the early return: '+hooks.join(','));
+});
+
+test('ROOM4-15: pattern clips keep their source; the synthetic plan asks the engine for project tempo / stretch',async()=>{
+  const src=cut(mt,'const DB=','/* ---------- persistence');
+  const m=new Function(src.replace(/^const DB=[^\n]*\n/,"const KEY='current',FORMAT='xensonar.multitrack',VERSION=2;\n")+';return {sanitize}')();
+  const raw=c=>({format:'xensonar.multitrack',tracks:[{id:'t',clips:[{id:'a',materialId:'m',startBeat:0,lenBeats:8,...c}]}]});
+  let c=m.sanitize(raw({synth:{kind:'drum',id:'d1',name:'Rooted'},warp:'synth'}),100).tracks[0].clips[0];
+  assert.deepStrictEqual(c.synth,{kind:'drum',id:'d1',name:'Rooted'});assert.strictEqual(c.warp,'synth');
+  c=m.sanitize(raw({warp:'synth'}),100).tracks[0].clips[0];assert.strictEqual(c.warp,undefined,'warp pattern without a source is meaningless');assert.strictEqual(c.synth,undefined);
+  c=m.sanitize(raw({synth:{kind:'guitar',id:'x'}}),100).tracks[0].clips[0];assert.strictEqual(c.synth,undefined,'only drum and bass');
+  c=m.sanitize(raw({}),100).tracks[0].clips[0];assert.strictEqual('synth' in c,false,'old clips unchanged');
+
+  const plan=new Function('audioNotify','variantListeners','__XenRhythmSources','AudioBuffer',cut(mt,'const synthVars=new Map();','/* What a voice really plays')+';return {synthPlan,requestSynth,synthVars}');
+  const calls=[],owner={renderDrum:async(id,o)=>{calls.push(['drum',id,+o.bpm.toFixed(3)]);const n=44100*10,l=new Float32Array(n).fill(.5);return {buffer:{sampleRate:44100,length:n,numberOfChannels:1,getChannelData:()=>l},bpm:o.bpm,bars:2,beatsPerBar:4,name:'x'}},renderBass:async()=>{throw Error('no bass')}};
+  class AB{constructor(o){this.length=o.length;this.sampleRate=o.sampleRate;this.d=[new Float32Array(o.length),new Float32Array(o.length)]}get duration(){return this.length/this.sampleRate}copyToChannel(a,i){this.d[i].set(a)}}
+  const P=plan(()=>{},new Set(),{current:owner},AB);
+  const syn={kind:'drum',id:'d1'};
+  assert.strictEqual(P.synthPlan({synth:syn},120),null,'warp is not pattern: no plan');
+  assert.strictEqual(P.synthPlan({synth:syn,warp:'synth'},120).bpm,120);
+  assert.strictEqual(P.synthPlan({synth:syn,warp:'synth',stretch:2},120).bpm,60,'stretched x2 = the pattern plays at half the tempo');
+  assert.match(P.synthPlan({synth:syn,warp:'synth',stretch:.25},120).error,/outside 20 to 400/);
+  const pl=P.synthPlan({synth:syn,warp:'synth',stretch:2},120),row=P.requestSynth(pl);assert.strictEqual(row.status,'loading');
+  assert.strictEqual(P.requestSynth(pl),row,'one render per key');await row.promise;
+  assert.strictEqual(row.status,'ready');assert.deepStrictEqual(calls,[['drum','d1',60]],'the engine was asked for the tempo the clip needs');
+  assert.strictEqual(row.buffer.length,Math.round(2*4*60/60*44100),'exactly one loop at that tempo (2 bars at 60 BPM = 8 s)');
+  assert(row.buffer.d[0][row.buffer.length-1]<.5,'ends with a short fade');
+  const bad=P.requestSynth(P.synthPlan({synth:{kind:'bass',id:'b'},warp:'synth'},100));await bad.promise;assert.strictEqual(bad.status,'error');assert.match(bad.error,/no bass/,'an engine failure is kept as a message, the clip falls back to the recorded audio');
+  const none=new Function('audioNotify','variantListeners','__XenRhythmSources','AudioBuffer',cut(mt,'const synthVars=new Map();','/* What a voice really plays')+';return {requestSynth,synthPlan}')(()=>{},new Set(),{current:null},AB);
+  const r2=none.requestSynth(none.synthPlan({synth:syn,warp:'synth'},100));await r2.promise;assert.match(r2.error,/Live Room/,'without the Live Room the user is told what to do');
 });
