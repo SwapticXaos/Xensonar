@@ -156,3 +156,21 @@ test('ROOM4-09: effect data is additive, tails are bounded, the reverb impulse i
   assert.strictEqual(f.fxTailSec({bpm:120,master:{},tracks:[{volume:1,mute:true,fx:{reverb:.3}}]}),0,'muted tracks add no tail');
   const c=f.driveCurve(.5);assert(Math.abs(c[0]+1)<1e-6&&Math.abs(c[1023]-1)<1e-6&&Math.abs(c[511]+c[512])<1e-6);
 });
+
+test('ROOM4-10: markers are additive data; the metronome plans every beat once, with an accent on the bar line',()=>{
+  const src=cut(mt,'const DB=','/* ---------- persistence');
+  const m=new Function(src.replace(/^const DB=[^\n]*\n/,"const KEY='current',FORMAT='xensonar.multitrack',VERSION=2;\n")+';return {sanitize}')();
+  const out=m.sanitize({format:'xensonar.multitrack',tracks:[{id:'a',clips:[]}],markers:[{id:'x',beat:8,name:'B'},{beat:'4',name:'A'},{beat:'nope'},null,{beat:-3}]},100);
+  assert.deepStrictEqual(out.markers.map(k=>[k.name,k.beat]),[['',0],['A',4],['B',8]],'sorted, junk dropped, negatives clamped');
+  assert.deepStrictEqual(m.sanitize({format:'xensonar.multitrack',tracks:[{id:'a',clips:[]}]},100).markers,[],'old projects: no markers');
+
+  const Engine=new Function(cut(mt,'class Engine{','const engine=new Engine();')+';return Engine')();
+  const e=new Engine(),clicks=[];e.playing=true;e.metro=true;e.ctx={currentTime:0};e.metroGain={};e.click=(t,acc)=>clicks.push([+t.toFixed(3),acc]);
+  e.project={bpm:120,beatsPerBar:4,loop:{on:false,start:0,end:4},master:{volume:1},tracks:[]};e.lib=new Map();
+  e.segs=[{i:1,a:0,b:Infinity,t:.1}];
+  e.schedule();e.schedule();// twice: nothing is planned twice
+  assert.deepStrictEqual(clicks.map(c=>c[0]),[.1,.6,1.1],'a click every beat inside the 1.5 s horizon, at 120 BPM');
+  assert.deepStrictEqual(clicks.map(c=>c[1]),[true,false,false],'accent on the bar line only');
+  e.ctx.currentTime=1.0;e.schedule();assert.deepStrictEqual(clicks.slice(3).map(c=>c[0]),[1.6,2.1],'later beats follow, still no duplicates');
+  e.metro=false;e.ctx.currentTime=3;const n=clicks.length;e.schedule();assert.strictEqual(clicks.length,n,'metronome off: no clicks');
+});
