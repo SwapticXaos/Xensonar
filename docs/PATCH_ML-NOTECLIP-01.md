@@ -8,3 +8,4 @@ Zone: WARM (nur Oberfläche, kein Audio-Pfad, kein Storage). Status: CODE_PRESEN
 - Reuse statt Neubau: Die Vorschau nutzt die vorhandene Darstellung für „pending“ Rasterprojektions-Noten (leuchtend, blinkend). Das Rechteck nutzt das vorhandene Box-Select (`T7`). Der Gruppenschlüssel `__mlGK` aus v1 bleibt als harmlose Verallgemeinerung des Scattered-Zugs stehen.
 - Ein Undo-Schritt pro Einfügen. Import-/Material-Noten werden nicht kopiert (Statusmeldung). Alte Daten/Sessions unverändert (`pendingGroup` wird beim Loslassen entfernt).
 - Rollback: `git revert`.
+- **v3:** Rechtsklick aufs Raster (oder auf Paste) im Paste-Modus leert die Ablage und wechselt zurück zu Copy. Copy erneut klicken = Copy aus = normales Notensetzen.
