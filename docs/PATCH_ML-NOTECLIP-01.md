@@ -9,3 +9,4 @@ Zone: WARM (nur Oberfläche, kein Audio-Pfad, kein Storage). Status: CODE_PRESEN
 - Ein Undo-Schritt pro Einfügen. Import-/Material-Noten werden nicht kopiert (Statusmeldung). Alte Daten/Sessions unverändert (`pendingGroup` wird beim Loslassen entfernt).
 - Rollback: `git revert`.
 - **v3:** Rechtsklick aufs Raster (oder auf Paste) im Paste-Modus leert die Ablage und wechselt zurück zu Copy. Copy erneut klicken = Copy aus = normales Notensetzen.
+- **v4:** Zwei Spiegel-Knöpfe neben Paste: ⇆ horizontal (zeitlich rückwärts, Fades getauscht) und ⇅ vertikal (Tonhöhenreihenfolge invertiert). Ausgegraut, solange nichts geladen ist. Wirken auf die geladene Figur und die Vorschau; zweimal klicken stellt sie wieder her.

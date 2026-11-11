@@ -61742,6 +61742,14 @@ const __mlNoteClip=(()=>{
   subscribe:f=>(subs.add(f),()=>subs.delete(f)),snapshot:()=>snap,mode:()=>mode,
   setMode(next){if(next==='paste'&&!clip)next='off';if(mode===next)return;mode=next;if(mode!=='paste')ghost=null;refresh()},
   clear(){clip=null;ghost=null;if(mode==='paste')mode='off';refresh()},
+  /* Mirror the loaded figure: time reversed (fades swap) or pitch inverted around its own range. */
+  flip(axis){
+   if(!clip)return;
+   clip={...clip,notes:clip.notes.map(c=>{
+    if(axis==='h'){const n=c.note,fi=n.fadeInUnits;return {...c,note:{...n,fadeInUnits:n.fadeOutUnits,fadeOutUnits:fi},dStart:clip.span-(c.dStart+c.dur)}}
+    return {...c,dChan:clip.maxRel-c.dChan}})};
+   refresh();
+  },
   capture(comp,box){
    if(!box)return {count:0,skipped:0};
    const hit=comp.notes.filter(n=>T7(comp,n,box)),picked=hit.filter(n=>!ps(n)),skipped=hit.length-picked.length;
@@ -61787,7 +61795,9 @@ function __MelodicNoteClipButtons(){
   u.jsx('button',{type:'button','data-ml-noteclip':'paste','aria-pressed':s.mode==='paste',disabled:!s.count,onClick:()=>__mlNoteClip.setMode(s.mode==='paste'?'off':'paste'),
    onContextMenu:ev=>{ev.preventDefault();__mlNoteClip.clear();__mlNoteClip.setMode('select')},
    title:s.count?'Paste: click on the grid to place the loaded notes, drag to move, release to set. Right-click empties it and returns to Copy.':'Nothing loaded yet. Use Copy first.','aria-label':'Paste loaded note blocks onto the grid',
-   className:s.mode==='paste'?on:off+(s.count?'':' opacity-40'),children:s.count?'⎘ Paste · '+s.count:'⎘ Paste'})]});
+   className:s.mode==='paste'?on:off+(s.count?'':' opacity-40'),children:s.count?'⎘ Paste · '+s.count:'⎘ Paste'}),
+  u.jsx('button',{type:'button','data-ml-noteclip':'flip-h',disabled:!s.count,onClick:()=>__mlNoteClip.flip('h'),title:s.count?'Mirror the loaded figure horizontally (reverse in time)':'Load a figure with Copy first','aria-label':'Mirror loaded figure horizontally',className:off+(s.count?'':' opacity-40'),children:'⇆'}),
+  u.jsx('button',{type:'button','data-ml-noteclip':'flip-v',disabled:!s.count,onClick:()=>__mlNoteClip.flip('v'),title:s.count?'Mirror the loaded figure vertically (invert the pitch order)':'Load a figure with Copy first','aria-label':'Mirror loaded figure vertically',className:off+(s.count?'':' opacity-40'),children:'⇅'})]});
 }
 function __MelodicTransportControls({phase, drums, pattern, onPlay, onStop, onDrums, onNext, placement='editor'}) {
   const idle=phase==='idle'||phase==='failed';
