@@ -32,9 +32,9 @@ function createForgeVoicesDSP(){
   return {n0,len,total:last>1e-7?len+rel:len,gain,logHz,peak,startSec:start,minHz:Math.exp(lo),maxHz:Math.exp(hi),sr,frames,wrap:p.tailWrap>=.5};
  }
 
- /* ---------- G · Gaia: wave terrain, read as a stream of band-limited wavetables ---------- */
+ /* ---------- G · Gahjer: wave terrain, read as a stream of band-limited wavetables ---------- */
  function prepareTerrain(input,relief){
-  if(!input||!(input.width>0)||!(input.height>1)||input.data?.length!==input.width*input.height)throw Error('Gaia needs a drawing as terrain');
+  if(!input||!(input.width>0)||!(input.height>1)||input.data?.length!==input.width*input.height)throw Error('Gahjer needs a drawing as terrain');
   // Columns are averaged to at most 1024: the orbit reads neighbourhoods, not single pixels.
   const fx=Math.max(1,Math.ceil(input.width/1024)),w=Math.floor(input.width/fx),h=input.height;let a=new Float32Array(w*h),max=0;
   for(let y=0;y<h;y++)for(let x=0;x<w;x++){let s=0;for(let k=0;k<fx;k++)s+=input.data[y*input.width+x*fx+k]||0;a[y*w+x]=s/fx}
@@ -43,7 +43,7 @@ function createForgeVoicesDSP(){
   let b=new Float32Array(w*h);
   for(let y=0;y<h;y++)for(let x=0;x<w;x++){let s=0;for(let k=-radius;k<=radius;k++){let xx=x+k;xx=xx<0?xx+w:xx>=w?xx-w:xx;s+=a[y*w+xx]*kernel[k+radius]}b[y*w+x]=s} // time wraps: the figure is a loop
   for(let y=0;y<h;y++)for(let x=0;x<w;x++){let s=0;for(let k=-radius;k<=radius;k++){const yy=y+k;if(yy>=0&&yy<h)s+=b[yy*w+x]*kernel[k+radius]}a[y*w+x]=s;if(s>max)max=s}
-  if(max<=1e-9)throw Error('The drawing is empty: Gaia has no terrain to read');
+  if(max<=1e-9)throw Error('The drawing is empty: Gahjer has no terrain to read');
   for(let i=0;i<a.length;i++)a[i]/=max;return {w,h,data:a};
  }
  async function gaia(job,L,R,io){
@@ -89,7 +89,7 @@ function createForgeVoicesDSP(){
   return {terrain:[w,h]};
  }
 
- /* ---------- H · Hildegard: the figure's own intervals as overtone spectrum ---------- */
+ /* ---------- H · Holgriot: the figure's own intervals as overtone spectrum ---------- */
  /* The tones of the figure, weighted by duration and loudness. A steady note (even a
     slightly shaky hand-drawn one) is one tone at its mean pitch; a real glide counts
     with where it starts and where it arrives. Tones closer than 12 cents are one tone. */
@@ -154,7 +154,7 @@ function createForgeVoicesDSP(){
   return {tones:tones.map(t=>t.hz),ratios:ratio,resonators};
  }
 
- /* ---------- I · Isolde: a spectrum that is the same at every scale ---------- */
+ /* ---------- I · Ingor: a spectrum that is the same at every scale ---------- */
  async function isolde(job,L,R,io){
   const p=job.params,sr=job.sampleRate,frames=job.frames,dur=job.durationSec,BL=64,E=p.equave;
   const D=Math.max(1,Math.min(Math.round(p.density),Math.floor(Math.log(E)/Math.log(1.07)))),step=Math.log(E)/D,lc=Math.log(p.center),top=.45*sr;
@@ -294,7 +294,7 @@ const dsp=createForgeVoicesDSP();onmessage=async e=>{try{const r=await dsp.rende
  }
  const api={renderCarrier,figure,dsp:local,terrainOf};__ForgeVoices.register(api);return api;
 })();
-/* Forge Voices · Synth Lab panels for Gaia, Hildegard and Isolde (lazy, Forge room only).
+/* Forge Voices · Synth Lab panels for Gahjer, Holgriot and Ingor (lazy, Forge room only).
    KALT: no timers or animation loops. Pictures are redrawn only when the recipe or the
    drawing changes. Sliders answer immediately on screen; the recipe (and with it the
    render) is committed once the hand rests, and a running preview restarts by itself. */

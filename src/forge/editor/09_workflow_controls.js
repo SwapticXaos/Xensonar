@@ -1,4 +1,4 @@
-/* Forge Voices · G/H/I listening modes (Gaia, Hildegard, Isolde).
+/* Forge Voices · G/H/I listening modes (Gahjer, Holgriot, Ingor).
    This file is the single owner of their parameter ranges, defaults and presets.
    It is plain data: no audio, no DOM, no storage. The DSP lives in the lazy Forge chunk. */
 function createForgeVoiceSpec(){
@@ -6,7 +6,7 @@ function createForgeVoiceSpec(){
  // Shared by all three: envelope, stereo and the loop-aware room.
  const common={attack:P(.002,.6,.012,.001),release:P(.02,6,.35,.01),width:P(0,1,.7),space:P(0,1,.22),size:P(0,1,.45),tailWrap:P(0,1,1,1),level:P(.1,1.5,1)};
  const engines={
-  gaia:{machineId:'gaia-terrain-carrier',label:'Gaia',title:'Gaia · Terrain Orbit',glyph:'◍',
+  gaia:{machineId:'gaia-terrain-carrier',label:'Gahjer',title:'Gahjer · Terrain Orbit',glyph:'◍',
    summary:'The drawing is a landscape. Every note circles its own surroundings and sounds what it finds there.',
    params:{...common,reachPitch:P(.25,24,5,.05),reachTime:P(0,.6,.06,.005),lift:P(-1.5,1.5,.8),lobes:P(1,7,1,1),relief:P(0,1,.4),
     drift:P(0,1,.25),dynamics:P(0,1,.5),anchor:P(0,1,.35),richness:P(8,64,40,1)},
@@ -16,7 +16,7 @@ function createForgeVoiceSpec(){
     {id:'needle',name:'Needle Path',params:{reachPitch:1.2,reachTime:.012,lift:1,lobes:3,relief:.1,drift:.05,dynamics:.7,anchor:.8,richness:64,space:.12,size:.3,width:.5,attack:.003,release:.12}},
     {id:'tide',name:'Tide Organ',params:{reachPitch:7,reachTime:.3,lift:0,lobes:1,relief:.8,drift:.7,dynamics:.3,anchor:.6,richness:24,space:.45,size:.85,width:1,attack:.12,release:1.6}},
     {id:'fold',name:'Fold Engine',params:{reachPitch:19,reachTime:.05,lift:-.6,lobes:5,relief:.2,drift:.55,dynamics:.8,anchor:.9,richness:64,space:.18,size:.4,width:.75}}]},
-  hildegard:{machineId:'hildegard-mirror-carrier',label:'Hildegard',title:'Hildegard · Mirror Spectrum',glyph:'♁',
+  hildegard:{machineId:'hildegard-mirror-carrier',label:'Holgriot',title:'Holgriot · Mirror Spectrum',glyph:'♁',
    summary:'The intervals of the figure become the overtones of every note. Any tuning gets a timbre made for it.',
    params:{...common,mirror:P(0,1,1),partials:P(4,32,20,1),tilt:P(0,1,.5),bow:P(0,1,.25),decay:P(.08,12,2.2,.01),hardness:P(0,1,.55),
     dynamics:P(0,1,.5),halo:P(0,1,.35),haloDecay:P(.3,10,3,.05),shimmer:P(0,1,.3),equave:P(1.1,4,2,.0001)},
@@ -26,7 +26,7 @@ function createForgeVoiceSpec(){
     {id:'marimba',name:'Tuned Wood',params:{mirror:.85,partials:10,tilt:.75,bow:0,decay:.7,hardness:.45,dynamics:.6,halo:.2,haloDecay:1.5,shimmer:.1,space:.15,size:.3,attack:.003,release:.4}},
     {id:'sympathy',name:'Sympathetic Strings',params:{mirror:.6,partials:28,tilt:.35,bow:.3,decay:4,hardness:.85,dynamics:.45,halo:.9,haloDecay:8,shimmer:.25,space:.25,size:.5,width:1,attack:.004,release:2.5}},
     {id:'pure-harmonic',name:'Harmonic Reference',params:{mirror:0,partials:24,tilt:.5,bow:.6,decay:2.5,hardness:.5,dynamics:.5,halo:0,shimmer:0,space:.1,size:.3}}]},
-  isolde:{machineId:'isolde-spiral-carrier',label:'Isolde',title:'Isolde · Endless Spiral',glyph:'꩜',
+  isolde:{machineId:'isolde-spiral-carrier',label:'Ingor',title:'Ingor · Endless Spiral',glyph:'꩜',
    summary:'A self-similar tone: the same sound in every register. Lines can rise forever, and the rhythm repeats at every scale.',
    params:{...common,equave:P(1.1,4,2,.0001),density:P(1,4,1,1),body:P(1,4,1,1),center:P(120,2400,520,1),span:P(1.5,7,4.5,.05),
     spiral:P(-12,12,0,1),pulse:P(0,1,0),pulseRate:P(1,32,4,.0001),pulseRatio:P(1,4,2,.0001),sharp:P(0,1,.4),swirl:P(0,1,.6)},
@@ -54,7 +54,7 @@ function createForgeVoiceSpec(){
  return Object.freeze({engines,ids,byMachine,params,recipe,preset,engineOf:machineId=>byMachine[machineId]??null});
 }
 if(typeof module!=='undefined'&&module.exports)module.exports=createForgeVoiceSpec;
-/* Forge Voices · state owner for the G/H/I listening modes (Gaia, Hildegard, Isolde).
+/* Forge Voices · state owner for the G/H/I listening modes (Gahjer, Holgriot, Ingor).
    KALT: this small owner holds recipes only. DSP, Worker and Synth Lab panels live in
    the lazy Forge room chunk and register themselves here when that chunk is opened.
    One recipe per mode; the draft is kept in localStorage and inside each Forge project. */

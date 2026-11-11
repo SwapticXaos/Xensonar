@@ -664,7 +664,7 @@ async function __f333ExportCurrent(state,options={}) {
   const epoch=__f333Epoch,revision=state.renderVersion,masterRevision=__F3564Master.getSnapshot().revision,hybridIdentity=__f333Route(state)==='hybrid'?__F352Runtime.identity(state):null;
   const result=await __f333RenderCurrent(state,options);
   if(epoch!==__f333Epoch||pe.getState().renderVersion!==revision||__F3564Master.getSnapshot().revision!==masterRevision||(hybridIdentity&&__F352Runtime.identity()!==hybridIdentity))throw new DOMException("The figure changed during export.",'AbortError');
-  // Gaia, Hildegard and Isolde are stereo instruments: their file keeps both channels.
+  // Gahjer, Holgriot and Ingor are stereo instruments: their file keeps both channels.
   if(!result.blob&&__f333StereoVoice(state,result.buffer))return gU([result.buffer.getChannelData(0),result.buffer.getChannelData(1)],result.buffer.sampleRate);
   return result.blob??xt.encodeSamplesToWAV(result.buffer.getChannelData(0),result.buffer.sampleRate);
 }

@@ -1,8 +1,8 @@
-const MDe=new xDe;function ys(){return MDe}function wDe(e){e.spectralData.clear();e.spectralData.melodicCarrier=null;ys().clear();return {
+const MDe=new xDe;function ys(){return MDe}function wDe(e,keepStamp){e.spectralData.clear();e.spectralData.melodicCarrier=null;ys().clear();return {
  ...__f333Idle(),
  viewPort:{...e.viewPort,offsetY:0,zoomY:1,autoFitY:true},sourceAssetContext:e.sourceAsset?'forge3_reference':'none',sourcePreviewMode:'forge',
- lastCommitDomain:'none',melodicCarrier:null,stampData:null,stampPhase:'idle',stampSelStart:null,lineStart:null,
- renderVersion:e.renderVersion+1,audioBufferDirty:true};}function RDe(e){return {...wDe(e),sourceAsset:null,sourceAssetContext:'none'};}function CDe(e,t){const clear=reset=>{t().pushUndo();++__f333RestoreBarrier;__f333Stop();e(n=>reset?RDe(n):wDe(n));__f333PersistNow();};return {clearCanvas:()=>clear(false),resetForgeMainPath:()=>clear(true)};}function Dk(e,previous){return {carrierDetune:__forgeDetuneAmount(e.spectralData.carrierDetune),historyData:__ForgeHistorySnapshots.capture(e.spectralData,ys(),previous?.historyData),
+ lastCommitDomain:'none',melodicCarrier:null,stampData:keepStamp?e.stampData:null,stampPhase:keepStamp&&e.stampData?e.stampPhase:'idle',stampSelStart:null,lineStart:null,
+ renderVersion:e.renderVersion+1,audioBufferDirty:true};}function RDe(e){return {...wDe(e),sourceAsset:null,sourceAssetContext:'none'};}function CDe(e,t){const clear=reset=>{t().pushUndo();++__f333RestoreBarrier;__f333Stop();e(n=>reset?RDe(n):wDe(n,true));__f333PersistNow();};return {clearCanvas:()=>clear(false),resetForgeMainPath:()=>clear(true)};}function Dk(e,previous){return {carrierDetune:__forgeDetuneAmount(e.spectralData.carrierDetune),historyData:__ForgeHistorySnapshots.capture(e.spectralData,ys(),previous?.historyData),
  sourceAsset:e.sourceAsset,sourceAssetContext:e.sourceAssetContext,sourcePreviewMode:e.sourcePreviewMode,
  lastCommitDomain:e.lastCommitDomain,activeMediatedBody:e.activeMediatedBody,melodicCarrier:__f333ReadCarrier(e.spectralData),
  materialExport:{...e.materialExport,guideMarkers:[...e.materialExport.guideMarkers]},

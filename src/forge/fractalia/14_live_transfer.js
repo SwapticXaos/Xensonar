@@ -2,7 +2,7 @@
    never a generic carrier pattern pretending to reproduce the hybrid sound. */
 const __FractaliaLiveTransfer=(()=>{
  const FRACTALIA='fractalia-self-carrier';
- // The same contract carries the Forge Voices (Gaia, Hildegard, Isolde): their heard PCM is the material.
+ // The same contract carries the Forge Voices (Gahjer, Holgriot, Ingor): their heard PCM is the material.
  const naming=machineId=>machineId===FRACTALIA||!__ForgeVoices.is(machineId)?{label:'Fractalia',slug:'fractalia',revision:'f432',renderSource:'fractalia-rendered-pcm',audioSource:'fractalia-workshop-pcm'}
   :{label:mo(machineId).shortLabel,slug:'forge-voice-'+__ForgeVoices.engineOf(machineId),revision:'v1',renderSource:'forge-voice-rendered-pcm',audioSource:'forge-voice-workshop-pcm'};
  function plan({targetId,machineId=FRACTALIA}){
