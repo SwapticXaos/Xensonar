@@ -5,7 +5,7 @@ const f=path.join(os.tmpdir(),'xen_eq_tone.wav');{const sr=48000,n=sr*3,buf=Buff
  // two tones: 220 Hz and 3520 Hz, equal level
  for(let i=0;i<n;i++){const v=Math.round(4500*(Math.sin(2*Math.PI*220*i/sr)+Math.sin(2*Math.PI*3520*i/sr)));buf.writeInt16LE(v,44+i*4);buf.writeInt16LE(v,46+i*4)}fs.writeFileSync(f,buf)}
 function tones(file){const buf=fs.readFileSync(file),hdr=buf.indexOf('data')+8,fl=new Float32Array(buf.buffer.slice(buf.byteOffset+hdr,buf.byteOffset+buf.length-((buf.length-hdr)%4)));const sr=48000,a=sr,b=sr*2;
- const mag=hz=>{let re=0,im=0;for(let i=a;i<b;i++){const x=fl[2*i],w=2*Math.PI*hz*i/sr;re+=x*Math.cos(w);im+=x*Math.sin(w)}return +(2*Math.sqrt(re*re+im*im)/(b-a)).toFixed(4)};return {low220:mag(220),high3520:mag(3520)}}
+ let rms=0;for(let i=0;i<fl.length;i+=2)rms+=fl[i]*fl[i];rms=Math.sqrt(rms/(fl.length/2));const mag=hz=>{let re=0,im=0;for(let i=a;i<b;i++){const x=fl[2*i],w=2*Math.PI*hz*i/sr;re+=x*Math.cos(w);im+=x*Math.sin(w)}return +(2*Math.sqrt(re*re+im*im)/(b-a)).toFixed(4)};return {low220:mag(220),high3520:mag(3520),rms:+rms.toFixed(4),seconds:+(fl.length/2/sr).toFixed(2),hdr}}
 (async()=>{const b=await chromium.launch({args:['--autoplay-policy=no-user-gesture-required']});const cx=await b.newContext({viewport:{width:1700,height:1000},acceptDownloads:true});const p=await cx.newPage();
 const errors=[];p.on('pageerror',e=>errors.push(String(e).slice(0,200)));p.on('dialog',d=>d.accept());
 const log=o=>console.log(JSON.stringify(o));
@@ -17,7 +17,7 @@ const proj=()=>p.evaluate(()=>new Promise(r=>{const q=indexedDB.open('xensonar-m
 let k=0;const exp=async()=>{await p.waitForTimeout(700);await p.locator('.xmt .ruler').first().click({button:'right',position:{x:5,y:5}});await p.waitForTimeout(250);
  const [dl]=await Promise.all([p.waitForEvent('download',{timeout:90000}),p.evaluate(()=>{const n=x=>(x||'').replace(/\s+/g,' ').trim();[...document.querySelectorAll('.xmt-menu [role=menuitem]')].find(x=>n(x.innerText).startsWith('Export mixdown (song)'))?.click()})]);
  const file=path.join(os.tmpdir(),'xen_eq_'+(k++)+'.wav');await dl.saveAs(file);return tones(file)};
-await p.locator('.xmt .clip').first().click();await p.waitForTimeout(400);
+await p.locator('.xmt .clip').first().click();await p.waitForTimeout(400);await p.selectOption('.xmt label[title^="How the clip"] select','natural');await p.waitForTimeout(600);
 const base=await exp();log({step:'no EQ',export:base,project:(await proj()).tracks[0].eq?'has eq':'no eq'});
 await p.locator('[data-xmt-eq]').click();await p.waitForTimeout(1200);
 const panel=p.locator('[data-xmt-eq-panel]');log({step:'EQ panel',open:await panel.count(),canvases:await panel.locator('canvas').count()});
