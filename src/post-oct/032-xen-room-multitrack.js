@@ -33,6 +33,21 @@ const fxOf=t=>({...FX0,...(t?.fx||{})});
 const fxShape=f=>(f.lowCut>0?'h':'')+(f.highCut<20000?'l':'')+(f.drive>0?'d':'')+(f.echoBeats>0&&f.echoMix>0?'e':'')+(f.reverb>0?'r':'');
 function sanitizeFx(f){if(!f||typeof f!=='object')return undefined;const o={lowCut:clamp(num(f.lowCut,0),0,8000),highCut:clamp(num(f.highCut,20000),200,20000),drive:clamp(num(f.drive,0),0,1),
  echoBeats:clamp(num(f.echoBeats,0),0,16),echoFb:clamp(num(f.echoFb,.35),0,.92),echoMix:clamp(num(f.echoMix,.3),0,1),reverb:clamp(num(f.reverb,0),0,1)};return fxShape(o)?o:undefined}
+/* ROOM4-13 automation: piecewise-linear curves over beats, per track and parameter. Volume is a MULTIPLIER on the track fader (1 = fader unchanged), the others
+   take over their knob while a curve exists. Log parameters (filter frequencies) are interpolated geometrically. Points are plain {b,v}; no curve = no extra node. */
+const AUTO=Object.freeze({volume:{label:'Volume ×',min:0,max:2,def:1},pan:{label:'Pan',min:-1,max:1,def:0},reverb:{label:'Reverb send',min:0,max:1,def:0},echoMix:{label:'Echo mix',min:0,max:1,def:.3},
+ lowCut:{label:'Low cut Hz',min:20,max:8000,def:20,log:true},highCut:{label:'High cut Hz',min:200,max:20000,def:20000,log:true}});
+function sanitizeAuto(a){if(!a||typeof a!=='object')return undefined;const out={};
+ for(const name of Object.keys(AUTO)){const sp=AUTO[name],src=Array.isArray(a[name])?a[name]:null;if(!src)continue;
+  const m=new Map();for(const q of src.slice(0,512)){if(!q||!Number.isFinite(Number(q.b))||!Number.isFinite(Number(q.v)))continue;m.set(Math.round(Math.max(0,Number(q.b))*1000)/1000,clamp(Number(q.v),sp.min,sp.max))}
+  const pts=[...m].sort((x,y)=>x[0]-y[0]).map(([b,v])=>({b,v}));if(pts.length)out[name]=pts}
+ return Object.keys(out).length?out:undefined}
+function autoValue(pts,sp,b){if(!pts.length)return sp.def;if(b<=pts[0].b)return pts[0].v;const n=pts.length;if(b>=pts[n-1].b)return pts[n-1].v;
+ let i=1;while(i<n&&pts[i].b<b)i++;const a=pts[i-1],c=pts[i],f=(b-a.b)/Math.max(1e-9,c.b-a.b);return sp.log?a.v*Math.pow(c.v/a.v,f):a.v+(c.v-a.v)*f}
+/* ramp targets after `from` up to and including `to` (log parameters are cut into short geometric steps) */
+function autoEvents(pts,sp,from,to){const marks=[from,...pts.map(q=>q.b).filter(x=>x>from+1e-9&&x<to-1e-9),to],out=[];
+ for(let i=1;i<marks.length;i++){const x=marks[i-1],y=marks[i];if(!(y>x+1e-9))continue;const n=sp.log?clamp(Math.ceil((y-x)*4),1,32):1;for(let k=1;k<=n;k++){const bb=x+(y-x)*k/n;out.push({b:bb,v:autoValue(pts,sp,bb)})}}return out}
+const hasAuto=(t,name)=>!!t?.auto?.[name]?.length;
 function sanitizeClip(c){const out={id:String(c.id||uid('clip')),materialId:String(c.materialId||''),startBeat:Math.max(0,num(c.startBeat,0)),
  inBeat:Math.max(0,num(c.inBeat,0)),gain:clamp(num(c.gain,1),0,2),fadeIn:clamp(num(c.fadeIn,0),0,256),fadeOut:clamp(num(c.fadeOut,0),0,256),muted:!!c.muted,fit:['natural','bpm'].includes(c.fit)?c.fit:'tempo'};if(num(c.sourceBpm,0)>0)out.sourceBpm=clamp(Number(c.sourceBpm),10,999);if(out.fit==='bpm'&&!out.sourceBpm)out.fit='natural';
  /* ROOM4-07: non-destructive warp. stretch multiplies the material cycle, warp 'grain' keeps the pitch, pitch is a granular offset in cents. Absent = original. */
@@ -42,7 +57,7 @@ function sanitizeClip(c){const out={id:String(c.id||uid('clip')),materialId:Stri
 function sanitize(raw,liveBpm){
  if(!raw||raw.format!==FORMAT||!Array.isArray(raw.tracks))return blankProject(liveBpm);
  const tracks=raw.tracks.slice(0,MAX_TRACKS).map((t,i)=>({id:String(t.id||uid('track')),name:String(t.name||('Track '+(i+1))).slice(0,60),volume:clamp(num(t.volume,.8),0,1.5),pan:clamp(num(t.pan,0),-1,1),
-  mute:!!t.mute,solo:!!t.solo,pitch:clamp(num(t.pitch,0),-2400,2400),...(t.frozenBy?{frozenBy:String(t.frozenBy)}:{}),...(t.bounceOf?{bounceOf:String(t.bounceOf)}:{}),...(sanitizeFx(t.fx)?{fx:sanitizeFx(t.fx)}:{}),...(sanitizeEq(t.eq)?{eq:sanitizeEq(t.eq)}:{}),clips:(Array.isArray(t.clips)?t.clips:[]).slice(0,MAX_CLIPS).map(sanitizeClip).filter(c=>c.materialId)}));
+  mute:!!t.mute,solo:!!t.solo,pitch:clamp(num(t.pitch,0),-2400,2400),...(t.frozenBy?{frozenBy:String(t.frozenBy)}:{}),...(t.bounceOf?{bounceOf:String(t.bounceOf)}:{}),...(sanitizeFx(t.fx)?{fx:sanitizeFx(t.fx)}:{}),...(sanitizeEq(t.eq)?{eq:sanitizeEq(t.eq)}:{}),...(sanitizeAuto(t.auto)?{auto:sanitizeAuto(t.auto)}:{}),clips:(Array.isArray(t.clips)?t.clips:[]).slice(0,MAX_CLIPS).map(sanitizeClip).filter(c=>c.materialId)}));
  for(const t of tracks){if(t.frozenBy&&!tracks.some(x=>x.id===t.frozenBy&&x.id!==t.id))delete t.frozenBy}/* a freeze whose bounce track is gone is no freeze */
  const loop=raw.loop||{};const ls=Math.max(0,num(loop.start,0)),le=Math.max(ls+1/64,num(loop.end,ls+16));
  return {format:FORMAT,version:VERSION,id:KEY,name:String(raw.name||'Untitled Arrangement').slice(0,100),bpm:clamp(num(raw.bpm,108),20,400),
@@ -150,6 +165,9 @@ function planVoice(ctx,dest,clip,entry,sourceBuffer,pa,pb,tA,tB,spb,isStart,isEn
 /* ---------- ROOM4-09 · track effects: one builder for live play and for the mixdown (native nodes only) ----------
    Chain after the track EQ: low cut -> high cut -> drive -> master, plus a tempo-synced echo and a send into one shared
    reverb. A track without effects gets NO extra node (the signal path, and so the exported PCM, is exactly as before). */
+/* effective effect settings: a parameter with a curve forces its stage to exist (its knob value is only the starting point) */
+function fxEff(t){const f=fxOf(t),a=t?.auto;if(a){if(a.lowCut&&f.lowCut<=0)f.lowCut=AUTO.lowCut.min;if(a.highCut&&f.highCut>=20000)f.highCut=19999;if(a.reverb&&f.reverb<=0)f.reverb=.0001;if(a.echoMix&&f.echoBeats>0&&f.echoMix<=0)f.echoMix=.0001}return f}
+const chainSig=t=>fxShape(fxEff(t))+(hasAuto(t,'volume')?'v':'');
 function driveCurve(a){const n=1024,c=new Float32Array(n),k=1+a*8,norm=Math.tanh(k);for(let i=0;i<n;i++)c[i]=Math.tanh(k*(i/(n-1)*2-1))/norm;return c}
 const driveMakeup=a=>1/Math.pow(1+a*8,.7);
 /* Deterministic stereo impulse response (seeded noise, exponential decay, darker towards the end): the same tail live and in every export. */
@@ -161,7 +179,7 @@ function reverbIR(ctx,size){const sr=ctx.sampleRate,n=Math.max(64,Math.round(cla
  return buf}
 const echoTime=(f,spb)=>clamp(f.echoBeats*spb,.005,4);
 function fxTailSec(project){let tail=0;const any=project.tracks.some(t=>t.solo),spb=60/project.bpm;
- for(const t of project.tracks){if(t.mute||(any&&!t.solo)||!(t.volume>0)||isFrozen(project,t))continue;const f=fxOf(t),sh=fxShape(f);
+ for(const t of project.tracks){if(t.mute||(any&&!t.solo)||!(t.volume>0)||isFrozen(project,t))continue;const f=fxEff(t),sh=fxShape(f);
   if(sh.includes('e')){const fb=clamp(f.echoFb,0,.92);tail=Math.max(tail,echoTime(f,spb)*(fb>0?Math.min(40,Math.ceil(Math.log(.001)/Math.log(fb))):1))}
   if(sh.includes('r'))tail=Math.max(tail,clamp(num(project.master.reverbSize,2.2),.2,8))}
  return Math.min(12,tail)}
@@ -177,11 +195,12 @@ function buildTrackFx(ctx,f,spb,out,master,getReverb){
  if(shape.includes('r')){send=ctx.createGain();send.gain.value=f.reverb;tail.connect(send);send.connect(getReverb());nodes.push(send)}
  let drive=f.drive;
  return {shape,
-  set(g,spb2,now){// smoothed moves while playing (same shape only; a new shape rebuilds the chain)
-   hp?.frequency.setTargetAtTime(g.lowCut,now,.02);lp?.frequency.setTargetAtTime(g.highCut,now,.02);
+  params:{hp:hp?.frequency||null,lp:lp?.frequency||null,send:send?.gain||null,wet:wet?.gain||null},
+  set(g,spb2,now,skip){skip=skip||{};// smoothed moves while playing (same shape only; a new shape rebuilds the chain). A parameter with a curve is never touched here.
+   if(!skip.lowCut)hp?.frequency.setTargetAtTime(g.lowCut,now,.02);if(!skip.highCut)lp?.frequency.setTargetAtTime(g.highCut,now,.02);
    if(ws&&g.drive!==drive){drive=g.drive;ws.curve=driveCurve(drive);post.gain.setTargetAtTime(driveMakeup(drive),now,.02)}
-   if(dl){dl.delayTime.setTargetAtTime(echoTime(g,spb2),now,.05);fb.gain.setTargetAtTime(clamp(g.echoFb,0,.92),now,.02);wet.gain.setTargetAtTime(g.echoMix,now,.02)}
-   send?.gain.setTargetAtTime(g.reverb,now,.02)},
+   if(dl){dl.delayTime.setTargetAtTime(echoTime(g,spb2),now,.05);fb.gain.setTargetAtTime(clamp(g.echoFb,0,.92),now,.02);if(!skip.echoMix)wet.gain.setTargetAtTime(g.echoMix,now,.02)}
+   if(!skip.reverb)send?.gain.setTargetAtTime(g.reverb,now,.02)},
   dispose(){try{tail.disconnect()}catch{}for(const n of nodes){try{n.disconnect()}catch{}}}}}
 /* ---------- live engine (hot only while playing) ---------- */
 class Engine{
@@ -191,8 +210,17 @@ class Engine{
  sigOf(t,c){return t.id+'|'+c.materialId+'|'+c.startBeat+'|'+c.inBeat+'|'+clipLen(c,this.lib,this.project.bpm)+'|'+c.gain+'|'+c.fadeIn+'|'+c.fadeOut+'|'+c.muted+'|'+c.fit+'|'+(c.sourceBpm||0)+'|'+(c.stretch||1)+'|'+(c.warp||'')+'|'+pitchCentsOf(c,t)+'|'+this.vkey(t,c)+'|'+fxShape(fxOf(t))+(isFrozen(this.project,t)?'|z':'')}
  vkey(t,c){const e=this.lib.get(c.materialId),au=e?audio.get(e.id):null;return au?.status==='ready'?voiceSource(c,t,e,au.buffer,this.project.bpm).key:''}
  chainFor(t){let ch=this.chains.get(t.id);if(ch)return ch;const ctx=this.ctx,input=ctx.createGain(),gain=ctx.createGain();gain.gain.value=this.gainFor(t);
-  let fx=null;const chain=__xenMaterialLaneChain(ctx,{source:input,gain,panValue:t.pan,eqKey:__XenEQ.keyFor('arrangement',t.id),route:out=>{fx=buildTrackFx(ctx,fxOf(t),this.spb(),out,this.master,()=>this.reverbIn())}});
-  ch={input,gain,pan:chain.pan,eq:chain.eq,output:chain.output,fx};this.chains.set(t.id,ch);return ch}
+  let src=input,ag=null;if(hasAuto(t,'volume')){ag=ctx.createGain();ag.gain.value=1;input.connect(ag);src=ag}
+  let fx=null;const chain=__xenMaterialLaneChain(ctx,{source:src,gain,panValue:t.pan,eqKey:__XenEQ.keyFor('arrangement',t.id),route:out=>{fx=buildTrackFx(ctx,fxEff(t),this.spb(),out,this.master,()=>this.reverbIn())}});
+  ch={input,ag,gain,pan:chain.pan,eq:chain.eq,output:chain.output,fx,sig:chainSig(t),asig:JSON.stringify(t.auto||null)};this.chains.set(t.id,ch);return ch}
+ autoParam(ch,name){return name==='volume'?ch.ag?.gain:name==='pan'?ch.pan?.pan:name==='reverb'?ch.fx?.params.send:name==='echoMix'?ch.fx?.params.wet:name==='lowCut'?ch.fx?.params.hp:name==='highCut'?ch.fx?.params.lp:null}
+ /* automation: exact linear ramps per scheduling window (no setTargetAtTime on automated parameters: they never mix, which Firefox does not like) */
+ scheduleAuto(s,now,horizon,spb){const tOf=b=>s.t+(b-s.a)*spb,cur=Math.max(s.a,s.a+(now-s.t)/spb),end=Math.min(s.b,s.a+(horizon-s.t)/spb);
+  for(const t of this.project.tracks){const au=t.auto;if(!au||isFrozen(this.project,t))continue;const ch=this.chains.get(t.id);if(!ch)continue;
+   for(const name of Object.keys(au)){const pts=au[name],sp=AUTO[name],prm=sp&&this.autoParam(ch,name);if(!prm||!pts.length)continue;const key='a|'+t.id+'|'+name,rec=this.autoPos.get(key),first=!rec||rec.seg!==s.i,from=first?cur:rec.beat;
+    if(!(end>from+1e-6))continue;if(first){prm.cancelScheduledValues(Math.max(now,tOf(from)));prm.setValueAtTime(autoValue(pts,sp,from),Math.max(now,tOf(from)))}
+    for(const e of autoEvents(pts,sp,from,end))prm.linearRampToValueAtTime(e.v,tOf(e.b));this.autoPos.set(key,{seg:s.i,beat:end})}}}
+
  reverbIn(){if(this.rev)return this.rev.input;const ctx=this.ctx,input=ctx.createGain(),conv=ctx.createConvolver();conv.buffer=reverbIR(ctx,num(this.project.master.reverbSize,2.2));input.connect(conv);conv.connect(this.master);this.rev={input,conv,size:num(this.project.master.reverbSize,2.2)};return input}
  dropChain(id){const ch=this.chains.get(id);if(!ch)return;this.chains.delete(id);const now=this.ctx.currentTime;ch.gain.gain.setTargetAtTime(0,now,.01);
   setTimeout(()=>{try{ch.input.disconnect();ch.output.disconnect()}catch{}try{ch.fx?.dispose()}catch{}try{ch.eq?.dispose?.()}catch{}},120)}
@@ -208,7 +236,7 @@ class Engine{
   for(const t of project.tracks)this.chainFor(t);
   const pre=this.metro&&this.countIn?project.beatsPerBar*60/project.bpm:0,t0=ctx.currentTime+.08+pre,from=Math.max(0,fromBeat),L=project.loop;
   if(pre>0){const spb0=60/project.bpm;for(let k=0;k<Math.round(project.beatsPerBar);k++)this.click(t0-pre+k*spb0,k===0)}
-  this.segs=[{i:++this.segSerial,a:from,b:L.on&&from<L.end?L.end:Infinity,t:t0}];this.playing=true;this.keys.clear();this.sigs=new Map();
+  this.autoPos=new Map();this.segs=[{i:++this.segSerial,a:from,b:L.on&&from<L.end?L.end:Infinity,t:t0}];this.playing=true;this.keys.clear();this.sigs=new Map();
   for(const t of project.tracks)for(const c of t.clips)this.sigs.set(c.id,this.sigOf(t,c));
   const tick=()=>{if(!this.playing)return;this.schedule();this.timer=setTimeout(tick,200)};tick()}
  click(t,accent){const ctx=this.ctx;if(!ctx||!this.metroGain||t<ctx.currentTime-.02)return;const o=ctx.createOscillator(),g=ctx.createGain();o.type='sine';o.frequency.value=accent?1600:1000;
@@ -228,14 +256,19 @@ class Engine{
      const start=pa===cs;if(tA<now+.02){pa+=(now+.02-tA)/spb;tA=now+.02}
      this.keys.add(key);const v=planVoice(ctx,ch.input,c,entry,au.buffer,pa,pb,tA,tB,spb,start&&tA===s.t+(cs-s.a)*spb,pb===ce,t);
      const voice={...v,clipId:c.id,sig:this.sigs.get(c.id)};this.voices.add(voice);v.src.onended=()=>{this.voices.delete(voice);try{v.g.disconnect()}catch{}}}}
+   this.scheduleAuto(s,now,horizon,spb);
    if(this.metro&&this.metroGain){const bpbN=this.project.beatsPerBar;for(let k=Math.ceil(s.a-1e-9);;k++){const tk=s.t+(k-s.a)*spb;if(k>=s.b-1e-9||tk>horizon)break;const key=s.i+'|m'+k;if(this.keys.has(key))continue;this.keys.add(key);if(tk>=now-.01)this.click(tk,Math.abs(k/bpbN-Math.round(k/bpbN))<1e-9)}}}}
  /* Edits while playing: mixer as AudioParam moves; changed/removed clips fade out and are re-planned from now. */
  update(project,lib){if(!this.playing){this.project=project;this.lib=lib;return false}const old=this.project,posBefore=this.position();/* ROOM4-04: read the beat position with the OLD tempo before swapping the project */this.project=project;this.lib=lib;const ctx=this.ctx,now=ctx.currentTime;
   if(old.bpm!==project.bpm||old.loop.on!==project.loop.on||old.loop.start!==project.loop.start||old.loop.end!==project.loop.end){this.restartBeat=posBefore;return true}// caller restarts at the current beat
   this.master.gain.setTargetAtTime(project.master.volume,now,.02);
   if(this.rev&&this.rev.size!==num(project.master.reverbSize,2.2)){this.rev.size=num(project.master.reverbSize,2.2);this.rev.conv.buffer=reverbIR(ctx,this.rev.size)}
-  for(const t of project.tracks){const f=fxOf(t);let ch=this.chains.get(t.id);if(ch&&ch.fx&&ch.fx.shape!==fxShape(f)){this.dropChain(t.id);ch=null}// another set of effects: rebuild this track (its clips re-plan through their signature)
-   ch=ch||this.chainFor(t);ch.gain.gain.setTargetAtTime(this.gainFor(t),now,.02);ch.pan?.pan.setTargetAtTime(t.pan,now,.02);ch.fx?.set(f,this.spb(),now)}
+  for(const t of project.tracks){const f=fxEff(t);let ch=this.chains.get(t.id);if(ch&&ch.sig!==chainSig(t)){this.dropChain(t.id);ch=null}// another set of effects or a new volume curve: rebuild this track (its clips re-plan through their signature)
+   ch=ch||this.chainFor(t);const skip={};for(const k of Object.keys(t.auto||{}))skip[k]=true;
+   const asig=JSON.stringify(t.auto||null);if(ch.asig!==asig){const old=ch.asig&&ch.asig!=='null'?Object.keys(JSON.parse(ch.asig)):[];ch.asig=asig;
+    for(const name of new Set([...old,...Object.keys(t.auto||{})])){const prm=this.autoParam(ch,name);if(prm){prm.cancelScheduledValues(now);if(!skip[name])prm.setValueAtTime(name==='volume'?1:name==='pan'?t.pan:name==='reverb'?f.reverb:name==='echoMix'?f.echoMix:name==='lowCut'?f.lowCut:f.highCut,now)}}
+    for(const k of [...this.autoPos.keys()])if(k.startsWith('a|'+t.id+'|'))this.autoPos.delete(k)}
+   ch.gain.gain.setTargetAtTime(this.gainFor(t),now,.02);if(!skip.pan)ch.pan?.pan.setTargetAtTime(t.pan,now,.02);ch.fx?.set(f,this.spb(),now,skip)}
   for(const id of [...this.chains.keys()])if(!project.tracks.some(t=>t.id===id))this.dropChain(id);
   const sigs=new Map();for(const t of project.tracks)for(const c of t.clips){sigs.set(c.id,this.sigOf(t,c));const e=lib.get(c.materialId);if(e)requestAudio(e)}
   const changed=new Set();for(const [id,s] of this.sigs)if(sigs.get(id)!==s)changed.add(id);for(const id of sigs.keys())if(!this.sigs.has(id))changed.add(id);
@@ -275,7 +308,10 @@ async function mixdown(project0,lib,fromBeat,toBeat,format,opts={}){
  /* ROOM4-05: same lane chain as live play (gain -> pan -> track EQ), so the export matches what is heard. */
  const lanes=[];let revIn=null;const getReverb=()=>{if(revIn)return revIn;revIn=ctx.createGain();const conv=ctx.createConvolver();conv.buffer=reverbIR(ctx,num(project.master.reverbSize,2.2));revIn.connect(conv);conv.connect(master);return revIn};
  for(const t of project.tracks){if(isFrozen(project,t))continue;const g=ctx.createGain(),input=ctx.createGain();g.gain.value=opts.unity?1:(t.mute||(any&&!t.solo))?0:t.volume;
-  lanes.push(__xenMaterialLaneChain(ctx,{source:input,gain:g,panValue:opts.unity?0:t.pan,eqKey:__XenEQ.keyFor('arrangement',t.id),route:out=>{buildTrackFx(ctx,fxOf(t),spb,out,master,getReverb)}}));
+  let src=input,ag=null;if(hasAuto(t,'volume')){ag=ctx.createGain();ag.gain.value=1;input.connect(ag);src=ag}
+  let fxo=null;const lane=__xenMaterialLaneChain(ctx,{source:src,gain:g,panValue:opts.unity?0:t.pan,eqKey:__XenEQ.keyFor('arrangement',t.id),route:out=>{fxo=buildTrackFx(ctx,fxEff(t),spb,out,master,getReverb)}});lanes.push(lane);
+  for(const name of Object.keys(t.auto||{})){const pts=t.auto[name],sp=AUTO[name],prm=name==='volume'?ag?.gain:name==='pan'?lane.pan?.pan:name==='reverb'?fxo?.params.send:name==='echoMix'?fxo?.params.wet:name==='lowCut'?fxo?.params.hp:fxo?.params.lp;if(!prm||!pts.length||!sp)continue;
+   prm.setValueAtTime(autoValue(pts,sp,fromBeat),0);for(const e of autoEvents(pts,sp,fromBeat,toBeat))prm.linearRampToValueAtTime(e.v,(e.b-fromBeat)*spb)}
   for(const c of t.clips){const e=lib.get(c.materialId),au=e?audio.get(e.id):null;if(!au||au.status!=='ready')continue;const cs=c.startBeat,ce=cs+clipLen(c,lib,project.bpm);
    const pa=Math.max(cs,fromBeat),pb=Math.min(ce,toBeat);if(pb<=pa)continue;planVoice(ctx,input,c,e,au.buffer,pa,pb,(pa-fromBeat)*spb,(pb-fromBeat)*spb,spb,pa===cs,pb===ce,t)}}
  let out;try{out=await ctx.startRendering()}finally{for(const l of lanes){try{l.eq?.dispose?.()}catch{}}}
@@ -357,7 +393,8 @@ function XenMultitrackRoom(){
  const [libRev,setLibRev]=P.useState(0),[audioRev,setAudioRev]=P.useState(0),[pick,setPick]=P.useState(''),[cursor,setCursor]=P.useState(0),[playing,setPlaying]=P.useState(false);
  const [status,setStatus]=P.useState(''),[say,setSay]=P.useState(''),[listView,setListView]=P.useState(false),[menu,setMenu]=P.useState(null),[dropTrack,setDropTrack]=P.useState(null);
  /* ROOM4-10: multi-selection (group = every selected clip id, empty = single selection by `sel`), metronome (UI preference only), rubber band */
- const [group,setGroup]=P.useState([]),[band,setBand]=P.useState(null),[eqOpen,setEqOpen]=P.useState(null),[eqWide,setEqWide]=P.useState(true);
+ const [group,setGroup]=P.useState([]),[band,setBand]=P.useState(null),[eqOpen,setEqOpen]=P.useState(null),[eqWide,setEqWide]=P.useState(true),[autoLane,setAutoLane]=P.useState(null);
+ const autoDrag=P.useRef(null);
  const [metro,setMetro]=P.useState(()=>{try{return localStorage.getItem('xensonar.mt.metro')==='1'}catch{return false}}),[countIn,setCountIn]=P.useState(()=>{try{return localStorage.getItem('xensonar.mt.countin')==='1'}catch{return false}});
  engine.metro=metro;engine.countIn=countIn;
  const toggleMetro=()=>{const v=!metro;setMetro(v);try{localStorage.setItem('xensonar.mt.metro',v?'1':'0')}catch{}announce(v?'Metronome on':'Metronome off')};
@@ -464,6 +501,20 @@ function XenMultitrackRoom(){
  const addMarker=beat=>{const b=Math.max(0,Math.round(beat*1000)/1000);if(markers.some(m=>Math.abs(m.beat-b)<1e-6)){announce('There is already a marker here');return}if(markers.length>=256){announce('Marker limit reached');return}setMarkers([...markers,{id:uid('mk'),beat:b,name:'Marker '+(markers.length+1)}],'Marker added at '+fmtPos(b,bpb))};
  const renameMarker=m=>{const n=window.prompt('Marker name',m.name||'');if(n==null)return;setMarkers(markers.map(x=>x.id===m.id?{...x,name:String(n).slice(0,40)}:x),'Marker renamed')};
  const markerMenu=(e,m)=>{const i=markers.findIndex(x=>x.id===m.id),next=markers[i+1];openMenu(e,m.name||'Marker',[{label:'Cursor here',run:()=>setCursor(m.beat)},{label:'Play from here',run:()=>{setCursor(m.beat);void play(m.beat)}},{label:'Loop to the next marker',run:()=>setLoop({start:m.beat,end:next.beat,on:true}),disabled:!next},{label:'Loop from the previous marker',run:()=>setLoop({start:markers[i-1].beat,end:m.beat,on:true}),disabled:i<1},'-',{label:'Rename …',run:()=>renameMarker(m)},{label:'Move to the cursor',run:()=>setMarkers(markers.map(x=>x.id===m.id?{...x,beat:Math.max(0,cursor)}:x),'Marker moved')},{label:'Delete marker',run:()=>setMarkers(markers.filter(x=>x.id!==m.id),'Marker deleted')}])};
+/* ROOM4-13 automation lanes: click an empty place to add a point, drag to move it, double-click or right-click a point to delete it */
+ const setAutoPts=(p,tid,name,pts)=>({...p,tracks:p.tracks.map(t=>{if(t.id!==tid)return t;const n={...t},a={...(t.auto||{})};if(pts&&pts.length)a[name]=pts;else delete a[name];const clean=sanitizeAuto(a);if(clean)n.auto=clean;else delete n.auto;return n})});
+ const autoGeo=(name,w,h)=>{const sp=AUTO[name],lo=sp.log?Math.log(sp.min):sp.min,hi=sp.log?Math.log(sp.max):sp.max,pad=9;
+  return {yOf:v=>pad+(1-((sp.log?Math.log(clamp(v,sp.min,sp.max)):clamp(v,sp.min,sp.max))-lo)/(hi-lo))*(h-2*pad),vOf:y=>{const f=clamp(1-(y-pad)/(h-2*pad),0,1),x=lo+f*(hi-lo);return clamp(sp.log?Math.exp(x):x,sp.min,sp.max)}}};
+ const autoPointerDown=(e,t,name)=>{if(e.button!==0)return;e.preventDefault();const svg=e.currentTarget,r=svg.getBoundingClientRect(),g=autoGeo(name,r.width,r.height),pts=[...(t.auto?.[name]||[])];
+  let idx=e.target.dataset?.i!==undefined?Number(e.target.dataset.i):-1;
+  if(idx<0){const b=Math.max(0,snap((e.clientX-r.left)/ppb)),v=g.vOf(e.clientY-r.top);if(pts.some(q=>Math.abs(q.b-b)<1e-6)){idx=pts.findIndex(q=>Math.abs(q.b-b)<1e-6)}else{pts.push({b,v});pts.sort((x,y)=>x.b-y.b);idx=pts.findIndex(q=>q.b===b);const next=setAutoPts(projectRef.current,t.id,name,pts);setProject(next);projectRef.current=next}}
+  svg.setPointerCapture(e.pointerId);autoDrag.current={tid:t.id,name,idx,rect:r,base:projectRef.current,start:{x:e.clientX,y:e.clientY},moved:idx>=0&&e.target.dataset?.i===undefined,g}};
+ const autoPointerMove=e=>{const d=autoDrag.current;if(!d)return;if(!d.moved&&Math.hypot(e.clientX-d.start.x,e.clientY-d.start.y)<3)return;d.moved=true;
+  const base=projectRef.current,tr=base.tracks.find(x=>x.id===d.tid),pts=[...(tr?.auto?.[d.name]||[])];if(!pts[d.idx])return;
+  const lo=pts[d.idx-1]?pts[d.idx-1].b+.001:0,hi=pts[d.idx+1]?pts[d.idx+1].b-.001:Infinity,b=clamp(snap((e.clientX-d.rect.left)/ppb),lo,hi);
+  pts[d.idx]={b,v:d.g.vOf(e.clientY-d.rect.top)};const next=setAutoPts(base,d.tid,d.name,pts);setProject(next);projectRef.current=next};
+ const autoPointerUp=()=>{const d=autoDrag.current;autoDrag.current=null;if(!d)return;const p=projectRef.current;if(p===d.base&&!d.moved)return;projectRef.current=d.base;commit(p,AUTO[d.name].label+' curve edited')};
+ const autoDelete=(t,name,i)=>{const pts=[...(t.auto?.[name]||[])];pts.splice(i,1);commit(setAutoPts(project,t.id,name,pts),pts.length?'Point deleted':AUTO[name].label+' curve removed')};
  const removeClips=ids=>{const set=new Set(ids);commit({...project,tracks:project.tracks.map(t=>({...t,clips:t.clips.filter(c=>!set.has(c.id))}))},ids.length+' clips removed');setSel(null);setGroup([]);rootRef.current?.focus({preventScroll:true})};
  const patchClips=(ids,fn,label)=>{const set=new Set(ids);commit(mapClips(project,c=>set.has(c.id)?{...c,...fn(c)}:c),label)};
  const groupBounds=ids=>{let a=Infinity,b=0;for(const id of ids){const f=findClip(id);if(!f)continue;a=Math.min(a,f.c.startBeat);b=Math.max(b,f.c.startBeat+len(f.c))}return {a:a===Infinity?0:a,b}};
@@ -772,7 +823,7 @@ function XenMultitrackRoom(){
    u.jsxs('div',{className:'trk rr',ref:rulerRef,children:[u.jsx('div',{className:'hdr',title:'Bars · click the ruler to set the cursor · right-click it for loop and export',children:u.jsx('span',{className:'muted',children:'Bars · right-click: loop, export'})}),
     u.jsxs('div',{className:'ruler',title:'Click: set the cursor · right-click: play from here, loop start/end, mixdown',style:{width:laneWidth},onClick:e=>{const b=snap(beatFromEvent(e,e.currentTarget));setCursor(b);announce('Cursor '+fmtPos(b,bpb))},onContextMenu:rulerMenu,children:[...ticks,...markers.map(m=>u.jsx('button',{type:'button',className:'mk',style:{left:m.beat*ppb},title:(m.name||'Marker')+' · '+fmtPos(m.beat,bpb)+'\nClick: cursor here · double-click: rename · right-click: options · keys [ and ] jump, B adds',onClick:ev=>{ev.stopPropagation();setCursor(m.beat);announce('Marker '+(m.name||fmtPos(m.beat,bpb)))},onDoubleClick:ev=>{ev.stopPropagation();renameMarker(m)},onContextMenu:ev=>{ev.stopPropagation();markerMenu(ev,m)},children:u.jsx('span',{children:m.name||''})},m.id)),
      u.jsx('div',{className:'loopr'+(project.loop.on?'':' off'),style:{left:project.loop.start*ppb,width:Math.max(2,(project.loop.end-project.loop.start)*ppb)},title:'Loop region'}),u.jsx('div',{className:'cur',style:{left:cursor*ppb}})]})]}),
-   ...project.tracks.map((t,ti)=>u.jsxs('div',{className:'trk'+tier+(isFrozen(project,t)?' frozen':''),style:{height:th},onClick:()=>setTrackSel(t.id),children:[
+   ...project.tracks.flatMap((t,ti)=>[u.jsxs('div',{className:'trk'+tier+(isFrozen(project,t)?' frozen':''),style:{height:th},onClick:()=>setTrackSel(t.id),children:[
     u.jsxs('div',{className:'hdr',onContextMenu:e=>trackMenu(e,t),style:{boxShadow:'inset 3px 0 0 '+(trackSel===t.id?'#fde68a':COLORS[ti%COLORS.length]+'55')},children:[u.jsx('span',{className:'tn',children:t.name+(t.eq?' · EQ':'')+(isFrozen(project,t)?' · ❄ frozen':'')}),
      u.jsxs('div',{className:'row',children:[u.jsx('input',{type:'text','aria-label':'Track name',title:'Track name',value:t.name,onChange:e=>updTrack(t.id,{name:e.target.value.slice(0,60)})}),
       u.jsx('button',{type:'button','aria-pressed':t.mute,title:'Mute track','aria-label':'Mute '+t.name,onClick:()=>updTrack(t.id,{mute:!t.mute},(t.mute?'Unmuted ':'Muted ')+t.name),children:'M'}),
@@ -782,7 +833,16 @@ function XenMultitrackRoom(){
       u.jsxs('label',{children:['Pan',u.jsx('input',{type:'range',min:-1,max:1,step:.01,value:t.pan,title:'Track pan, left to right (Reset mixer: right-click the header)','aria-label':'Pan '+t.name,onChange:e=>updTrack(t.id,{pan:num(e.target.value,t.pan)})})]}),
       u.jsxs('label',{title:TIP['Track pitch ct'],children:['Pitch',u.jsx('input',{type:'number',min:-2400,max:2400,step:1,value:Math.round(num(t.pitch,0)),style:{width:54},'aria-label':'Pitch of '+t.name+' in cents',onChange:e=>updTrack(t.id,{pitch:clamp(num(e.target.value,0),-2400,2400)})})]})]})]}),
     u.jsx('div',{className:'lane'+(dropTrack===t.id?' drop':''),'data-lane':t.id,style:{width:laneWidth},onContextMenu:e=>laneMenu(e,t),onPointerDown:startBand,
-     onDoubleClick:e=>{if(e.target===e.currentTarget)addClipAt(t.id,beatFromEvent(e,e.currentTarget))},children:t.clips.map(c=>clipView(t,ti,c))})]},t.id)),
+     onDoubleClick:e=>{if(e.target===e.currentTarget)addClipAt(t.id,beatFromEvent(e,e.currentTarget))},children:t.clips.map(c=>clipView(t,ti,c))})]},t.id),
+    autoLane&&autoLane.tid===t.id?(()=>{const name=autoLane.name,sp=AUTO[name],pts=t.auto?.[name]||[],H=96,g=autoGeo(name,laneWidth,H),W=Math.max(1,laneWidth);
+     const line=pts.length?[`0,${g.yOf(pts[0].v)}`,...pts.map(q=>`${q.b*ppb},${g.yOf(q.v)}`),`${W},${g.yOf(pts[pts.length-1].v)}`].join(' '):'';
+     const readout=v=>sp.log?Math.round(v)+' Hz':(Math.round(v*100)/100)+(name==='volume'?' ×':'');
+     return u.jsxs('div',{className:'trk auto',style:{height:H},'data-xmt-auto-row':t.id+'|'+name,children:[
+      u.jsxs('div',{className:'hdr',children:[u.jsx('span',{className:'tn',children:t.name+' · '+sp.label}),u.jsxs('div',{className:'row',children:[u.jsx('span',{className:'muted',children:'at cursor '+readout(autoValue(pts,sp,cursor))}),
+       u.jsx('button',{type:'button',disabled:!pts.length,onClick:()=>commit(setAutoPts(project,t.id,name,[]),sp.label+' curve removed'),title:'Remove this curve; the knob is in charge again',children:'Clear'}),u.jsx('button',{type:'button',onClick:()=>setAutoLane(null),title:'Hide the lane (the curve stays)',children:'Hide'})]})]}),
+      u.jsxs('svg',{className:'autol','data-xmt-auto-svg':'true',width:W,height:H,style:{width:laneWidth,height:H,display:'block',touchAction:'none',cursor:'crosshair'},onPointerDown:ev=>autoPointerDown(ev,t,name),onPointerMove:autoPointerMove,onPointerUp:autoPointerUp,onPointerCancel:autoPointerUp,children:[
+       u.jsx('line',{x1:0,x2:W,y1:g.yOf(sp.def),y2:g.yOf(sp.def),stroke:'#57534e','stroke-dasharray':'4 4'}),pts.length?u.jsx('polyline',{points:line,fill:'none',stroke:'#38bdf8','stroke-width':2}):u.jsx('text',{x:10,y:H/2,fill:'#78716c','font-size':12,children:'Click here to add the first point · drag to move · double-click a point to delete'}),
+       ...pts.map((q,i)=>u.jsx('circle',{cx:q.b*ppb,cy:g.yOf(q.v),r:5,fill:'#fde68a',stroke:'#0c0a09','data-i':i,style:{cursor:'grab'},onDoubleClick:ev=>{ev.stopPropagation();autoDelete(t,name,i)},onContextMenu:ev=>{ev.preventDefault();ev.stopPropagation();autoDelete(t,name,i)},children:u.jsx('title',{children:'beat '+(Math.round(q.b*100)/100)+' · '+readout(q.v)})},i))]})]},t.id+'|auto')})():null]).filter(Boolean),
    u.jsx('div',{className:'ph',ref:phRef})]}),
    u.jsxs('div',{className:'rail v',ref:railRef,role:'scrollbar',tabIndex:0,'aria-orientation':'vertical','aria-controls':'xmt-tracks','aria-valuemin':0,'aria-valuemax':nT,'aria-valuenow':Math.round((scrollRef.current?.scrollTop??0)/th),
     'aria-label':'Track overview: drag the window to scroll, drag its top or bottom edge to change how many tracks are in view, click to jump, double-click shows all tracks. Keys: arrows scroll, Shift+arrows or plus/minus zoom, Enter shows all.',
@@ -834,6 +894,7 @@ function XenMultitrackRoom(){
     sl('Reverb','Send into the shared room.',f.reverb,0,1,.01,v=>set({reverb:v}),f.reverb>0?Math.round(f.reverb*100)+'%':'off'),
     numIn('Room s',num(project.master.reverbSize,2.2),.2,8,.1,v=>commit({...project,master:{...project.master,reverbSize:clamp(v,.2,8)}}),56),
     u.jsx('button',{type:'button',disabled:!sh,onClick:()=>updTrack(selT.id,{fx:undefined},'Effects off on '+selT.name),title:'Remove all effects from this track',children:'FX off'}),
+    u.jsxs('label',{title:'Draw a curve over time for one parameter of this track. Volume is a multiplier on the fader; the other parameters take over their knob while a curve exists. Click the lane to add points.',children:['Automate',u.jsxs('select',{'data-xmt-auto-select':'true','aria-label':'Automation parameter of '+selT.name,value:autoLane&&autoLane.tid===selT.id?autoLane.name:'',onChange:e=>setAutoLane(e.target.value?{tid:selT.id,name:e.target.value}:null),children:[u.jsx('option',{value:'',children:'—'}),...Object.keys(AUTO).map(k=>u.jsx('option',{value:k,children:AUTO[k].label+(hasAuto(selT,k)?' ●':'')},k))]})]}),
     u.jsx('button',{type:'button','data-xmt-eq':selT.id,'aria-pressed':eqOpen===selT.id,onClick:()=>setEqOpen(eqOpen===selT.id?null:selT.id),title:'Open the XenSonar EQ for this track: draw two curves (A/B), morph between them, adaptive or raster bands. It is saved in the arrangement.',children:'EQ'+(selT.eq?' ●':'')})]})})():null,
   eqOpen&&project.tracks.some(t=>t.id===eqOpen)?ao.createPortal(u.jsx('div',{className:'xen-eq-flyout','data-xmt-eq-panel':eqOpen,style:{left:Math.max(12,window.innerWidth-(eqWide?732:392)),top:90,width:Math.min(eqWide?720:380,window.innerWidth-24),maxHeight:window.innerHeight-110,'--xen-eq-canvas-height':'150px'},children:u.jsx(__XenEQPanel,{sourceKey:eqKey(eqOpen),owner:project.tracks.find(t=>t.id===eqOpen)?.name||'Track',onClose:()=>setEqOpen(null),expanded:eqWide,setExpanded:setEqWide},eqKey(eqOpen))}),document.body):null,
   u.jsx('div',{className:'muted',style:{marginTop:6},children:'Drag clips anywhere (also onto another track; Alt = copy), drag clip edges to trim, double-click a lane to add the chosen material. Keys: Space play/stop · L loop · S split · Ctrl+D duplicate · Ctrl+C/V · M mute · ↑/↓ other track · Delete · Ctrl+Z undo.'})]});

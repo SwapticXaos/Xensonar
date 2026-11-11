@@ -134,7 +134,7 @@ test('ROOM4-07: warp is additive data (old projects unchanged) and the variant p
 
 test('ROOM4-09: effect data is additive, tails are bounded, the reverb impulse is deterministic',()=>{
   const src=cut(mt,'const DB=','/* ---------- persistence');
-  const m=new Function(src.replace(/^const DB=[^\n]*\n/,"const KEY='current',FORMAT='xensonar.multitrack',VERSION=2;\n")+';return {sanitize,fxShape,fxOf,sanitizeFx}')();
+  const m=new Function(src.replace(/^const DB=[^\n]*\n/,"const KEY='current',FORMAT='xensonar.multitrack',VERSION=2;\n")+';return {sanitize,fxShape,fxOf,sanitizeFx,AUTO,hasAuto}')();
   const raw={format:'xensonar.multitrack',tracks:[{id:'a',clips:[]},{id:'b',fx:{lowCut:120,echoBeats:.75,echoFb:5,reverb:.2},clips:[{id:'c',materialId:'m',startBeat:0,lenBeats:4,reverse:1}]},{id:'c',fx:{echoBeats:0,drive:0},clips:[]}]};
   const out=m.sanitize(raw,100);
   assert.strictEqual('fx' in out.tracks[0],false,'a track without effects stores nothing');
@@ -143,8 +143,8 @@ test('ROOM4-09: effect data is additive, tails are bounded, the reverb impulse i
   assert.strictEqual(out.tracks[1].clips[0].reverse,true);
   assert.strictEqual(m.fxShape(m.fxOf(out.tracks[1])),'her');assert.strictEqual(m.fxShape(m.fxOf(out.tracks[0])),'');
   assert.strictEqual(out.master.reverbSize,2.2);
-  const fxsrc=cut(mt,'function driveCurve(','function buildTrackFx(');
-  const f=new Function('clamp','num','fxOf','fxShape','isFrozen',fxsrc+';return {reverbIR,fxTailSec,driveCurve}')((v,lo,hi)=>Math.max(lo,Math.min(hi,v)),(v,d)=>Number.isFinite(Number(v))?Number(v):d,m.fxOf,m.fxShape,(project,t)=>!!t?.frozenBy&&project.tracks.some(x=>x.id===t.frozenBy));
+  const fxsrc=cut(mt,'function fxEff(','function buildTrackFx(');
+  const f=new Function('clamp','num','fxOf','fxShape','AUTO','hasAuto','isFrozen',fxsrc+';return {reverbIR,fxTailSec,driveCurve}')((v,lo,hi)=>Math.max(lo,Math.min(hi,v)),(v,d)=>Number.isFinite(Number(v))?Number(v):d,m.fxOf,m.fxShape,m.AUTO,m.hasAuto,(project,t)=>!!t?.frozenBy&&project.tracks.some(x=>x.id===t.frozenBy));
   const ctx={sampleRate:48000,createBuffer:(c,n)=>{const d=[new Float32Array(n),new Float32Array(n)];return {length:n,getChannelData:i=>d[i]}}};
   const a=f.reverbIR(ctx,1),b=f.reverbIR(ctx,1);
   assert.deepStrictEqual(Array.from(a.getChannelData(0).subarray(600,640)),Array.from(b.getChannelData(0).subarray(600,640)),'same impulse every time');
@@ -206,4 +206,30 @@ test('ROOM4-12: freeze data is additive; a freeze without its bounce track is no
   assert.strictEqual(mm(frozen,new Map([['x',{id:'x',name:'x'}]]),0,8).length,0,'a frozen track is not checked, it does not sound');
   const awake={bpm:100,tracks:[tr('a',{}),tr('b',{clips:[]})]};
   assert.strictEqual(mm(awake,new Map([['x',{id:'x',name:'x'}]]),0,8).length,1);
+});
+
+test('ROOM4-13: automation data, curve values, ramps and the live scheduler',()=>{
+  const src=cut(mt,'const DB=','/* ---------- persistence');
+  const m=new Function(src.replace(/^const DB=[^\n]*\n/,"const KEY='current',FORMAT='xensonar.multitrack',VERSION=2;\n")+';return {sanitize,sanitizeAuto,autoValue,autoEvents,AUTO,hasAuto}')();
+  assert.strictEqual(m.sanitizeAuto(null),undefined);assert.strictEqual(m.sanitizeAuto({volume:[],pan:'x',nope:[{b:1,v:1}]}),undefined,'empty / unknown dropped');
+  const a=m.sanitizeAuto({volume:[{b:8,v:5},{b:2,v:.5},{b:2,v:.7},{b:'x',v:1},null,{b:-3,v:1}],lowCut:[{b:0,v:1},{b:4,v:99999}]});
+  assert.deepStrictEqual(a.volume,[{b:0,v:1},{b:2,v:.7},{b:8,v:2}],'sorted, same beat keeps the last, negatives to 0, values clamped');
+  assert.deepStrictEqual(a.lowCut.map(p=>p.v),[20,8000]);
+  assert.strictEqual('auto' in m.sanitize({format:'xensonar.multitrack',tracks:[{id:'t',clips:[]}]},100).tracks[0],false,'old projects: no automation');
+  const keep=m.sanitize({format:'xensonar.multitrack',tracks:[{id:'t',auto:{pan:[{b:0,v:-1},{b:4,v:1}]},clips:[]}]},100).tracks[0];assert.strictEqual(keep.auto.pan.length,2);assert(m.hasAuto(keep,'pan')&&!m.hasAuto(keep,'volume'));
+  const sp=m.AUTO.pan,pts=[{b:0,v:-1},{b:4,v:1}];
+  assert.strictEqual(m.autoValue(pts,sp,-5),-1);assert.strictEqual(m.autoValue(pts,sp,2),0);assert.strictEqual(m.autoValue(pts,sp,9),1);assert.strictEqual(m.autoValue([],sp,3),0,'no curve = the knob default');
+  const lg=m.AUTO.lowCut,lp=[{b:0,v:100},{b:4,v:400}];assert(Math.abs(m.autoValue(lp,lg,2)-200)<1e-6,'log parameters interpolate geometrically (halfway between 100 and 400 is 200)');
+  const ev=m.autoEvents([{b:0,v:0},{b:2,v:1},{b:6,v:0}],m.AUTO.reverb,1,5);assert.deepStrictEqual(ev.map(e=>[e.b,+e.v.toFixed(3)]),[[2,1],[5,.25]],'linear: one target per breakpoint plus the end');
+  const evl=m.autoEvents(lp,lg,0,4);assert(evl.length>=8&&Math.abs(evl[evl.length-1].v-400)<1e-6&&evl.every((e,i,l)=>i===0||e.b>l[i-1].b),'log: short geometric steps, ascending, ending exactly on the target');
+
+  const Engine=new Function('AUTO','autoValue','autoEvents','isFrozen',cut(mt,'class Engine{','const engine=new Engine();')+';return Engine')(m.AUTO,m.autoValue,m.autoEvents,()=>false);
+  const calls=[],prm={cancelScheduledValues:t=>calls.push(['cancel',+t.toFixed(3)]),setValueAtTime:(v,t)=>calls.push(['set',+v.toFixed(3),+t.toFixed(3)]),linearRampToValueAtTime:(v,t)=>calls.push(['ramp',+v.toFixed(3),+t.toFixed(3)])};
+  const e=new Engine();e.autoPos=new Map();e.project={bpm:120,beatsPerBar:4,tracks:[{id:'t',auto:{pan:[{b:0,v:-1},{b:8,v:1}]}}]};e.chains=new Map([['t',{pan:{pan:prm}}]]);
+  const seg={i:1,a:0,b:Infinity,t:1};e.scheduleAuto(seg,1,2.5,.5);// 120 BPM: a beat is .5 s; window beats 0..3
+  assert.deepStrictEqual(calls,[['cancel',1],['set',-1,1],['ramp',-.25,2.5]].slice(0,2).concat([['ramp',-.25,2.5]]).filter((c,i)=>i<3),'first window: start value, then a ramp to the window end');
+  const n=calls.length;e.scheduleAuto(seg,1.2,3.5,.5);// next window continues from beat 3 to 5: only a ramp, no restart
+  assert.deepStrictEqual(calls.slice(n),[['ramp',.25,3.5]],'continuing window: a single linear ramp, no cancel, no set');
+  const m2=calls.length;e.scheduleAuto(seg,1.2,3.5,.5);assert.strictEqual(calls.length,m2,'nothing is scheduled twice');
+  e.scheduleAuto({i:2,a:0,b:Infinity,t:5},5,6,.5);assert.deepStrictEqual(calls.slice(m2).slice(0,2),[['cancel',5],['set',-1,5]],'a new loop pass starts again from the curve value');
 });
