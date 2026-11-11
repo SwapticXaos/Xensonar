@@ -233,3 +233,14 @@ test('ROOM4-13: automation data, curve values, ramps and the live scheduler',()=
   const m2=calls.length;e.scheduleAuto(seg,1.2,3.5,.5);assert.strictEqual(calls.length,m2,'nothing is scheduled twice');
   e.scheduleAuto({i:2,a:0,b:Infinity,t:5},5,6,.5);assert.deepStrictEqual(calls.slice(m2).slice(0,2),[['cancel',5],['set',-1,5]],'a new loop pass starts again from the curve value');
 });
+
+test('ROOM4-14: a capture is cut to the timeline by sample frame and shifted by the latency',()=>{
+  const recSlice=new Function(cut(mt,'function recSlice(','/* ---------- live engine')+';return recSlice')();
+  const ramp=n=>Float32Array.from({length:n},(_,i)=>i);
+  const cap={sampleRate:1000,first:5000,channels:[ramp(4000),ramp(4000)]};// capture frames 5000..8999
+  let out=recSlice(cap,5.5,0);// playback started at 5.5 s = frame 5500: 500 frames after the first captured frame
+  assert.strictEqual(out[0].length,3500);assert.strictEqual(out[0][0],500);assert.strictEqual(out[1][0],500);
+  out=recSlice(cap,5.5,100);assert.strictEqual(out[0][0],600,'100 ms latency (100 frames at 1 kHz): the recording starts 100 frames later in the capture');assert.strictEqual(out[0].length,3400);
+  out=recSlice(cap,4.8,0);assert.strictEqual(out[0].length,4200,'capture started after playback: the gap is filled with silence');assert.strictEqual(out[0][199],0);assert.strictEqual(out[0][200],0);assert.strictEqual(out[0][201],1);
+  assert.strictEqual(recSlice(cap,5,-50)[0][0],0,'negative latency is ignored');
+});

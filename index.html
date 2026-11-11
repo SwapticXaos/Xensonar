@@ -68674,6 +68674,37 @@ function buildTrackFx(ctx,f,spb,out,master,getReverb){
    if(dl){dl.delayTime.setTargetAtTime(echoTime(g,spb2),now,.05);fb.gain.setTargetAtTime(clamp(g.echoFb,0,.92),now,.02);if(!skip.echoMix)wet.gain.setTargetAtTime(g.echoMix,now,.02)}
    if(!skip.reverb)send?.gain.setTargetAtTime(g.reverb,now,.02)},
   dispose(){try{tail.disconnect()}catch{}for(const n of nodes){try{n.disconnect()}catch{}}}}}
+/* ---------- ROOM4-14 · recording from an audio input (microphone / line in) straight onto a track ----------
+   Cold: nothing exists until the user presses Rec. Capture is lossless 32-bit float PCM taken in an AudioWorklet on the SAME AudioContext as the playback,
+   so the recording is placed by the shared sample clock (not by wall-clock guessing). Everything already on the tracks plays while recording (overdub);
+   the input itself is not monitored (no feedback). Round-trip latency is compensated by the user's value. */
+const MT_CAPTURE_WORKLET=`class C extends AudioWorkletProcessor{constructor(){super();this.b=[[],[]];this.n=0;this.s=-1;this.run=true;
+ this.port.onmessage=e=>{if(e.data==='stop'){this.flush();this.run=false;this.port.postMessage({kind:'done'})}}}
+ flush(){if(!this.n)return;const a=new Float32Array(this.n),b=new Float32Array(this.n);let o=0;for(let i=0;i<this.b[0].length;i++){a.set(this.b[0][i],o);b.set(this.b[1][i],o);o+=this.b[0][i].length}this.port.postMessage({kind:'chunk',frame:this.s,l:a,r:b},[a.buffer,b.buffer]);this.b=[[],[]];this.n=0;this.s=-1}
+ process(inputs){if(!this.run)return false;const i=inputs[0];if(this.s<0)this.s=currentFrame;const l=i&&i[0]?i[0]:new Float32Array(128),r=i&&i[1]?i[1]:l;this.b[0].push(new Float32Array(l));this.b[1].push(new Float32Array(r));this.n+=l.length;if(this.n>=4096)this.flush();return true}}
+registerProcessor('xen-mt-capture',C);`;
+const capReg=new WeakSet();
+const recorder={
+ async start(deviceId){const bridge=__xenMultitrackBridge.current;if(!bridge)throw Error('The audio bridge is not ready: open the Live Room once.');
+  if(!navigator.mediaDevices?.getUserMedia)throw Error('This page cannot use an audio input (it needs HTTPS or localhost and a browser with microphone access).');
+  const ctx=await bridge.ensureAudioReady();
+  const stream=await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:false,noiseSuppression:false,autoGainControl:false,channelCount:2,...(deviceId?{deviceId:{exact:deviceId}}:{})}});
+  try{const src=ctx.createMediaStreamSource(stream),sink=ctx.createGain();sink.gain.value=0;sink.connect(ctx.destination);const chunks=[];let node,done=null;const h={ctx,stream,src,sink,chunks,mode:'worklet',doneP:null};
+   try{if(!ctx.audioWorklet)throw 0;if(!capReg.has(ctx)){const url=URL.createObjectURL(new Blob([MT_CAPTURE_WORKLET],{type:'text/javascript'}));try{await ctx.audioWorklet.addModule(url)}finally{URL.revokeObjectURL(url)}capReg.add(ctx)}
+    node=new AudioWorkletNode(ctx,'xen-mt-capture',{numberOfInputs:1,numberOfOutputs:1,channelCount:2,channelCountMode:'explicit',outputChannelCount:[2]});
+    h.doneP=new Promise(ok=>{done=ok});node.port.onmessage=ev=>{if(ev.data.kind==='chunk')chunks.push(ev.data);else if(ev.data.kind==='done')done()}}
+   catch{h.mode='script';node=ctx.createScriptProcessor(4096,2,2);h.doneP=Promise.resolve();node.onaudioprocess=ev=>{const l=ev.inputBuffer.getChannelData(0),r=ev.inputBuffer.numberOfChannels>1?ev.inputBuffer.getChannelData(1):l;chunks.push({frame:Math.round(ev.playbackTime*ctx.sampleRate)-l.length+Math.round((ctx.baseLatency||0)*ctx.sampleRate),l:new Float32Array(l),r:new Float32Array(r)})}}
+   src.connect(node);node.connect(sink);h.node=node;return h}
+  catch(e){stream.getTracks().forEach(t=>t.stop());throw e}},
+ async finish(h){try{if(h.mode==='worklet'){h.node.port.postMessage('stop');await Promise.race([h.doneP,new Promise(ok=>setTimeout(ok,700))])}}catch{}
+  try{h.stream.getTracks().forEach(t=>t.stop())}catch{}for(const n of [h.src,h.node,h.sink]){try{n.disconnect()}catch{}}
+  const cs=h.chunks.slice().sort((a,b)=>a.frame-b.frame);if(!cs.length)return {channels:[new Float32Array(0),new Float32Array(0)],first:0,sampleRate:h.ctx.sampleRate};
+  const first=cs[0].frame,last=cs[cs.length-1],total=last.frame+last.l.length-first,L=new Float32Array(total),R=new Float32Array(total);
+  for(const c of cs){const o=c.frame-first;if(o<0||o+c.l.length>total)continue;L.set(c.l,o);R.set(c.r,o)}
+  return {channels:[L,R],first,sampleRate:h.ctx.sampleRate}}};
+/* the part of a capture that belongs to the timeline: it starts at the sample frame where playback started, shifted by the round-trip latency */
+function recSlice(cap,t0,latencyMs){const sr=cap.sampleRate,start=Math.round(t0*sr)+Math.round(Math.max(0,latencyMs||0)/1000*sr)-cap.first,n=cap.channels[0].length;
+ return cap.channels.map(c=>{if(start>=0)return c.slice(start);const o=new Float32Array(Math.max(0,n-start));o.set(c,-start);return o})}
 /* ---------- live engine (hot only while playing) ---------- */
 class Engine{
  constructor(){this.ctx=null;this.playing=false;this.voices=new Set();this.chains=new Map();this.timer=null;this.keys=new Set();this.segs=[];this.segSerial=0;this.project=null;this.lib=new Map();this.master=null;this.meter=null;this.sigs=new Map()}
@@ -68895,7 +68926,7 @@ function XenMultitrackRoom(){
   const off=typeof mV==='function'?mV(()=>{setLibRev(v=>v+1);if(inboxWaiting.current){inboxWaiting.current=false;consumeRef.current?.()}}):null;const onAudio=()=>setAudioRev(v=>v+1);audioListeners.add(onAudio);
   const keys=e=>{const t=e.target;if(t!==document.body&&!rootRef.current?.contains(t))return;keyRef.current?.(e)};document.addEventListener('keydown',keys);
   const inbox=()=>consumeRef.current?.();window.addEventListener('xensonar:multitrack-inbox',inbox);const resize=()=>updateRail();window.addEventListener('resize',resize);
-  return()=>{live=false;off?.();audioListeners.delete(onAudio);releaseDecoded();document.removeEventListener('keydown',keys);window.removeEventListener('xensonar:multitrack-inbox',inbox);window.removeEventListener('resize',resize);engine.stop();cancelAnimationFrame(rafRef.current);clearTimeout(saveTimer.current);const p=projectRef.current;if(p)saveProject(p).catch(()=>{})}},[]);
+  return()=>{live=false;off?.();audioListeners.delete(onAudio);releaseDecoded();document.removeEventListener('keydown',keys);window.removeEventListener('xensonar:multitrack-inbox',inbox);window.removeEventListener('resize',resize);engine.stop();recFinishRef.current?.(true);/* a running recording is kept: it arrives on a new track the next time the room opens */cancelAnimationFrame(rafRef.current);clearTimeout(saveTimer.current);const p=projectRef.current;if(p)saveProject(p).catch(()=>{})}},[]);
  const lib=P.useMemo(()=>materials(),[libRev]);const libMap=P.useMemo(()=>new Map(lib.map(e=>[e.id,e])),[lib]);libRef.current=libMap;
  P.useEffect(()=>{if(!pick&&lib[0])setPick(lib[0].id)},[lib,pick]);
  // Cold preparation: decode what the arrangement uses (once per material) for waveforms and instant play.
@@ -69067,7 +69098,34 @@ function XenMultitrackRoom(){
    const bad=[];for(const t of p.tracks)for(const c of t.clips){const e=libRef.current.get(c.materialId),a=e?audio.get(e.id):null;if(!e||a?.status==='error')bad.push(c)}
    setStatus(bad.length?bad.length+' clip(s) cannot sound (missing or undecodable material; see the red clips).':'');announce('Playing from '+fmtPos(from,bpb))}
   catch(e){setStatus('Playback failed: '+(e?.message||e));setPlaying(false)}}
- const stop=()=>{const b=engine.position();engine.stop();setPlaying(false);cancelAnimationFrame(rafRef.current);if(phRef.current)phRef.current.style.display='none';if(meterRef.current)meterRef.current.style.width='0';announce('Stopped'+(b!==null?' at '+fmtPos(b,bpb):''))};
+ const stopPlayback=()=>{const b=engine.position();engine.stop();setPlaying(false);cancelAnimationFrame(rafRef.current);if(phRef.current)phRef.current.style.display='none';if(meterRef.current)meterRef.current.style.width='0';announce('Stopped'+(b!==null?' at '+fmtPos(b,bpb):''))};
+
+ /* ROOM4-14 recording */
+ const [recording,setRecording]=P.useState(false),[inputs,setInputs]=P.useState([]);
+ const [recDevice,setRecDevice]=P.useState(()=>{try{return localStorage.getItem('xensonar.mt.recdev')||''}catch{return ''}}),[recLat,setRecLat]=P.useState(()=>{try{const v=localStorage.getItem('xensonar.mt.reclat');return v==null?null:Number(v)}catch{return null}});
+ const recRef=P.useRef(null),recFinishRef=P.useRef(null);
+ const defaultLatency=()=>{const c=__xenMultitrackBridge.current&&engine.ctx;return c?Math.round(((c.baseLatency||0)+(c.outputLatency||0))*1000):0};
+ const latencyMs=recLat==null?defaultLatency():recLat;
+ const startRec=async()=>{if(busy||recRef.current)return;if(playing)stopPlayback();setStatus('Opening the audio input …');let h=null;
+  try{h=await recorder.start(recDevice);recRef.current={h,startBeat:cursor,t0:null};await play(cursor);const t0=engine.segs[0]?.t;if(!(t0>0))throw Error('playback did not start');recRef.current.t0=t0;setRecording(true);setStatus('');announce('Recording from '+fmtPos(cursor,bpb));
+   navigator.mediaDevices.enumerateDevices().then(l=>setInputs(l.filter(d=>d.kind==='audioinput'))).catch(()=>{})}
+  catch(e){const r=recRef.current;recRef.current=null;if(h)await recorder.finish(h).catch(()=>{});engine.stop();setPlaying(false);setRecording(false);setStatus('Recording could not start: '+String(e?.name==='NotAllowedError'?'microphone access was refused':(e?.message||e)))}};
+ const finishRec=async(viaInbox)=>{const r=recRef.current;if(!r)return;recRef.current=null;const pj=projectRef.current;
+  try{if(!viaInbox){stopPlayback();setRecording(false)}else engine.stop();
+   const cap=await recorder.finish(r.h),ch=recSlice(cap,r.t0||0,latencyMs),secs=ch[0].length/cap.sampleRate;
+   if(secs<.05){if(!viaInbox)setStatus('Nothing was recorded.');return}
+   let peak=0;for(const d of ch)for(let i=0;i<d.length;i+=8){const a=d[i]<0?-d[i]:d[i];if(a>peak)peak=a}
+   const name='Recording '+new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit',second:'2-digit'});
+   if(viaInbox){await __XenMultitrackInbox.send({channels:ch,sampleRate:cap.sampleRate,name,origin:'multitrack-recording',bpm:pj?.bpm,startBeat:r.startBeat});return}
+   const done=await __XenMultitrackInbox.send({channels:ch,sampleRate:cap.sampleRate,name,origin:'multitrack-recording',bpm:pj.bpm,enqueue:false});requestAudio(done.entry);
+   const cur=projectRef.current,beats=secs*cur.bpm/60,clip={id:uid('clip'),materialId:done.entry.id,startBeat:r.startBeat,inBeat:0,lenBeats:Math.max(1/16,beats),gain:1,fadeIn:0,fadeOut:0,muted:false,fit:'bpm',sourceBpm:cur.bpm};
+   const nt={...blankTrack(cur.tracks.length),name:'Rec '+(cur.tracks.filter(t=>/^Rec \d+/.test(t.name)).length+1),clips:[clip]};
+   const at=cur.tracks.findIndex(t=>t.id===trackSel),tracks=[...cur.tracks];tracks.splice(at>=0?at+1:tracks.length,0,nt);
+   commit({...cur,tracks},'Recorded '+secs.toFixed(1)+' s on '+nt.name+(peak<1e-4?' (the input was silent)':peak>=.999?' (the input clipped)':''));setTrackSel(nt.id);setSel(clip.id);setGroup([]);setStatus(peak<1e-4?'The input was silent: check the input device and its level.':'')}
+  catch(e){if(!viaInbox)setStatus('Saving the recording failed: '+String(e?.message||e))}};
+ recFinishRef.current=finishRec;
+ const stop=()=>{if(recRef.current){void finishRec(false);return}stopPlayback()};
+
  const exportMix=async(range)=>{setBusy(true);setStatus('Rendering mixdown …');try{const [a,b]=range==='loop'?[project.loop.start,project.loop.end]:[0,songEnd];if(!(b>a))throw Error('Nothing to render.');
    const r=await mixdown(project,libMap,a,b,exportFormat);const url=URL.createObjectURL(r.blob),link=document.createElement('a');link.href=url;link.download=(project.name||'arrangement').replace(/[^\w\- .]+/g,'_')+(range==='loop'?'-loop':'')+'.wav';
    document.body.appendChild(link);link.click();link.remove();setTimeout(()=>URL.revokeObjectURL(url),4000);
@@ -69257,6 +69315,9 @@ function XenMultitrackRoom(){
    u.jsx('button',{type:'button','aria-pressed':countIn,disabled:!metro,onClick:toggleCountIn,title:'Count-in: one bar of clicks before playback starts (needs the metronome)','data-xmt-countin':'true',children:'1-bar count-in'}),
    u.jsx('button',{type:'button',onClick:()=>addMarker(cursor),title:'Add a marker at the cursor · B','data-xmt-addmarker':'true',children:'⚑ Marker'}),
    u.jsx('button',{type:'button','aria-pressed':project.loop.on,onClick:()=>setLoop({on:!project.loop.on}),title:'Loop '+fmtPos(project.loop.start,bpb)+' – '+fmtPos(project.loop.end,bpb)+' (right-click the ruler to set it)',children:'⟳ Loop'}),
+   u.jsx('button',{type:'button','aria-pressed':recording,onClick:recording?stop:()=>void startRec(),title:recording?'Stop recording and put it on a new track':'Record from an audio input (microphone or line in) from the cursor while the arrangement plays. Use headphones: the input is not monitored. The recording is kept as lossless float audio.','data-xmt-rec':'true',style:recording?{background:'#dc2626',borderColor:'#dc2626',color:'#fff'}:null,disabled:!recording&&busy,children:recording?'■ Stop rec':'● Rec'}),
+   u.jsxs('select',{value:recDevice,disabled:recording,'aria-label':'Recording input',title:'Audio input for recording (names appear after the first permission)','data-xmt-rec-input':'true',onChange:e=>{setRecDevice(e.target.value);try{localStorage.setItem('xensonar.mt.recdev',e.target.value)}catch{}},children:[u.jsx('option',{value:'',children:'Default input'}),...inputs.filter(d=>d.deviceId&&d.deviceId!=='default').map(d=>u.jsx('option',{value:d.deviceId,children:d.label||'Input '+d.deviceId.slice(0,6)},d.deviceId))]}),
+   u.jsxs('label',{title:'Round-trip latency in milliseconds (output + input). The recording is moved earlier by this amount so that it lines up with what you heard. Start with the preset and nudge it by ear.',children:['Latency ms',u.jsx('input',{type:'number',min:0,max:500,step:1,value:latencyMs,'data-xmt-rec-latency':'true',onChange:e=>{const v=clamp(num(e.target.value,0),0,500);setRecLat(v);try{localStorage.setItem('xensonar.mt.reclat',String(v))}catch{}}})]}),
    u.jsx('span',{className:'muted',children:'Cursor '+fmtPos(cursor,bpb)}),
    numIn('Tempo',project.bpm,20,400,.1,v=>commit(retempo(project,clamp(v,20,400)))),
    u.jsxs('label',{title:'Free: 3, 5, 7, 3.5 … beats per bar',children:['Beats/bar',u.jsx('input',{type:'number',min:.5,max:64,step:.5,value:bpb,onChange:e=>commit({...project,beatsPerBar:clamp(num(e.target.value,bpb),.5,64)})})]}),
