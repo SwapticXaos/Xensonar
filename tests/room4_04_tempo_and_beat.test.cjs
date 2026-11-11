@@ -174,3 +174,19 @@ test('ROOM4-10: markers are additive data; the metronome plans every beat once, 
   e.ctx.currentTime=1.0;e.schedule();assert.deepStrictEqual(clicks.slice(3).map(c=>c[0]),[1.6,2.1],'later beats follow, still no duplicates');
   e.metro=false;e.ctx.currentTime=3;const n=clicks.length;e.schedule();assert.strictEqual(clicks.length,n,'metronome off: no clicks');
 });
+
+test('ROOM4-11: track EQ is stored in the project, a flat EQ never is, junk is cleaned',()=>{
+  const src=cut(mt,'const DB=','/* ---------- persistence');
+  const m=new Function(src.replace(/^const DB=[^\n]*\n/,"const KEY='current',FORMAT='xensonar.multitrack',VERSION=2;\n")+';return {sanitize,eqFlat,eqPick,sanitizeEq,eqKey}')();
+  const flat=()=>Array(360).fill(0),cutc=Array(360).fill(0).map((_,i)=>i>200?-.8:0);
+  assert.strictEqual(m.eqKey('t1'),'arrangement:t1');
+  assert.strictEqual(m.sanitizeEq({a:flat(),b:flat(),morph:0}),undefined,'flat: nothing stored');
+  assert.strictEqual(m.sanitizeEq(null),undefined);assert.strictEqual(m.sanitizeEq({a:'x',b:[]}),undefined);assert.strictEqual(m.sanitizeEq({a:Array(5000).fill(1),b:flat()}),undefined,'oversized');
+  const e=m.sanitizeEq({a:cutc,b:flat(),morph:2,bands:99,mode:'weird',low:-999,high:99,enabled:false,manualCenters:[100,'x',200]});
+  assert.strictEqual(e.morph,1);assert.strictEqual(e.bands,24);assert.strictEqual(e.mode,'adaptive');assert.strictEqual(e.low,-60);assert.strictEqual(e.high,12);assert.strictEqual(e.enabled,false);assert.deepStrictEqual(e.manualCenters,[100,200]);
+  assert.strictEqual(m.sanitizeEq({a:flat(),b:flat(),enabled:false})?.enabled,false,'a switched-off flat EQ is still a statement the user made');
+  const out=m.sanitize({format:'xensonar.multitrack',tracks:[{id:'a',clips:[]},{id:'b',eq:{a:cutc,b:flat(),morph:.5},clips:[]},{id:'c',eq:{a:flat(),b:flat()},clips:[]}]},100);
+  assert.strictEqual('eq' in out.tracks[0],false);assert.strictEqual(out.tracks[1].eq.morph,.5);assert.strictEqual('eq' in out.tracks[2],false);
+  const pick=m.eqPick({a:new Float32Array([0,.5]),b:[0],morph:.2,bands:12,mode:'raster',low:-30,high:6,enabled:true,manualCenters:new Float32Array([1])});
+  assert.deepStrictEqual(pick.a,[0,.5]);assert(Array.isArray(pick.a)&&Array.isArray(pick.manualCenters),'plain JSON-able arrays');
+});

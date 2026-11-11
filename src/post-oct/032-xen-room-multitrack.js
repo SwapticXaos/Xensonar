@@ -16,6 +16,15 @@ const COLORS=['#f59e0b','#38bdf8','#a78bfa','#34d399','#f472b6','#facc15','#fb71
 function blankTrack(i){return {id:uid('track'),name:'Track '+(i+1),volume:.8,pan:0,mute:false,solo:false,pitch:0,clips:[]}}
 function blankProject(liveBpm){return {format:FORMAT,version:VERSION,id:KEY,name:'Untitled Arrangement',bpm:clamp(num(liveBpm,108),20,400),beatsPerBar:4,
  grid:{div:4,snap:true},zoom:28,trackHeight:64,loop:{on:false,start:0,end:16},master:{volume:.9},tracks:[blankTrack(0)],updatedAt:Date.now()}}
+/* ROOM4-11 track EQ: the XenSonar EQ (A/B curves, morph, adaptive bands) is edited with the shared EQ panel under the key 'arrangement:<trackId>'.
+   The PROJECT is the owner of the saved curve (track.eq), the shared EQ state is only the live copy: it is filled from the project and written back into it.
+   Keeping it in the project makes it survive reload, Package Station export/import and a new browser profile. A flat EQ is never stored. */
+const eqKey=id=>'arrangement:'+id;
+const eqFlat=c=>!c||(c.enabled!==false&&!(c.a||[]).some(v=>v)&&!(c.b||[]).some(v=>v));
+function sanitizeEq(e){if(!e||typeof e!=='object'||!Array.isArray(e.a)||!Array.isArray(e.b)||e.a.length>400||e.b.length>400)return undefined;
+ const arr=a=>a.map(v=>Number.isFinite(Number(v))?clamp(Number(v),-1,1):0);const o={a:arr(e.a),b:arr(e.b),morph:clamp(num(e.morph,0),0,1),bands:Math.round(clamp(num(e.bands,12),4,24)),mode:e.mode==='raster'?'raster':'adaptive',low:clamp(num(e.low,-36),-60,-6),high:clamp(num(e.high,12),0,12),enabled:e.enabled!==false,manualCenters:(Array.isArray(e.manualCenters)?e.manualCenters:[]).slice(0,24).map(Number).filter(Number.isFinite)};
+ return eqFlat(o)?undefined:o}
+const eqPick=c=>({a:Array.from(c.a),b:Array.from(c.b),morph:c.morph,bands:c.bands,mode:c.mode,low:c.low,high:c.high,enabled:c.enabled!==false,manualCenters:Array.from(c.manualCenters||[])});
 /* ROOM4-09 track effect data (the audio builder is further down) */
 const FX0=Object.freeze({lowCut:0,highCut:20000,drive:0,echoBeats:0,echoFb:.35,echoMix:.3,reverb:0});
 const fxOf=t=>({...FX0,...(t?.fx||{})});
@@ -31,7 +40,7 @@ function sanitizeClip(c){const out={id:String(c.id||uid('clip')),materialId:Stri
 function sanitize(raw,liveBpm){
  if(!raw||raw.format!==FORMAT||!Array.isArray(raw.tracks))return blankProject(liveBpm);
  const tracks=raw.tracks.slice(0,MAX_TRACKS).map((t,i)=>({id:String(t.id||uid('track')),name:String(t.name||('Track '+(i+1))).slice(0,60),volume:clamp(num(t.volume,.8),0,1.5),pan:clamp(num(t.pan,0),-1,1),
-  mute:!!t.mute,solo:!!t.solo,pitch:clamp(num(t.pitch,0),-2400,2400),...(sanitizeFx(t.fx)?{fx:sanitizeFx(t.fx)}:{}),clips:(Array.isArray(t.clips)?t.clips:[]).slice(0,MAX_CLIPS).map(sanitizeClip).filter(c=>c.materialId)}));
+  mute:!!t.mute,solo:!!t.solo,pitch:clamp(num(t.pitch,0),-2400,2400),...(sanitizeFx(t.fx)?{fx:sanitizeFx(t.fx)}:{}),...(sanitizeEq(t.eq)?{eq:sanitizeEq(t.eq)}:{}),clips:(Array.isArray(t.clips)?t.clips:[]).slice(0,MAX_CLIPS).map(sanitizeClip).filter(c=>c.materialId)}));
  const loop=raw.loop||{};const ls=Math.max(0,num(loop.start,0)),le=Math.max(ls+1/64,num(loop.end,ls+16));
  return {format:FORMAT,version:VERSION,id:KEY,name:String(raw.name||'Untitled Arrangement').slice(0,100),bpm:clamp(num(raw.bpm,108),20,400),
   beatsPerBar:clamp(num(raw.beatsPerBar,4),.5,64),grid:{div:clamp(Math.round(num(raw.grid?.div,4)),1,64),snap:raw.grid?.snap!==false},
@@ -341,7 +350,7 @@ function XenMultitrackRoom(){
  const [libRev,setLibRev]=P.useState(0),[audioRev,setAudioRev]=P.useState(0),[pick,setPick]=P.useState(''),[cursor,setCursor]=P.useState(0),[playing,setPlaying]=P.useState(false);
  const [status,setStatus]=P.useState(''),[say,setSay]=P.useState(''),[listView,setListView]=P.useState(false),[menu,setMenu]=P.useState(null),[dropTrack,setDropTrack]=P.useState(null);
  /* ROOM4-10: multi-selection (group = every selected clip id, empty = single selection by `sel`), metronome (UI preference only), rubber band */
- const [group,setGroup]=P.useState([]),[band,setBand]=P.useState(null);
+ const [group,setGroup]=P.useState([]),[band,setBand]=P.useState(null),[eqOpen,setEqOpen]=P.useState(null),[eqWide,setEqWide]=P.useState(true);
  const [metro,setMetro]=P.useState(()=>{try{return localStorage.getItem('xensonar.mt.metro')==='1'}catch{return false}}),[countIn,setCountIn]=P.useState(()=>{try{return localStorage.getItem('xensonar.mt.countin')==='1'}catch{return false}});
  engine.metro=metro;engine.countIn=countIn;
  const toggleMetro=()=>{const v=!metro;setMetro(v);try{localStorage.setItem('xensonar.mt.metro',v?'1':'0')}catch{}announce(v?'Metronome on':'Metronome off')};
@@ -363,7 +372,7 @@ function XenMultitrackRoom(){
  const announce=t=>{setSay('');setTimeout(()=>setSay(t),20)};
  P.useEffect(()=>{let live=true;loadProject().then(raw=>{if(!live)return;
   const result=sanitize(raw,bridge?.getLiveBpm?.()),returned=__XenMultitrackRoundTrip.takeReceipt();
-  setProject(result);if(returned){const source=result.tracks.find(t=>t.id===returned.trackId)?.clips.find(c=>c.id===returned.clipId);
+  pushEq(result);setProject(result);if(returned){const source=result.tracks.find(t=>t.id===returned.trackId)?.clips.find(c=>c.id===returned.clipId);
    if(source?.materialId===returned.newMaterialId){hist.current.past.push(returned.before);hist.current.future=[];setSel(returned.clipId);setTrackSel(returned.trackId);setCursor(returned.startBeat);setStatus('Returned from WAV Editor · originating clip updated · Undo available.');}}
   else{const error=__XenMultitrackRoundTrip.takeError();if(error)setStatus(error)}
  }).catch(()=>{if(live){setProject(blankProject(bridge?.getLiveBpm?.()));setStatus('Browser storage unavailable: this arrangement will not be kept after reload.')}});
@@ -379,10 +388,19 @@ function XenMultitrackRoom(){
  P.useEffect(()=>{if(!project)return;const id=setTimeout(()=>prepareVariants(projectRef.current||project,libRef.current,false),320);return()=>clearTimeout(id)},[project,libMap,audioRev]);
  P.useEffect(()=>{const f=()=>{if(engine.playing&&engine.project)engine.update(engine.project,engine.lib)};variantListeners.add(f);return()=>variantListeners.delete(f)},[]);
  const persist=next=>{clearTimeout(saveTimer.current);saveTimer.current=setTimeout(()=>saveProject(next).catch(()=>setStatus('Saving failed; keep this tab open and export a mixdown.')),600)};
- const apply=(next,label)=>{setProject(next);projectRef.current=next;if(engine.update(next,libRef.current)){const b=engine.restartBeat??engine.position()??cursor;engine.restartBeat=null;void play(b,next)}persist(next);if(label)announce(label)};
+ /* ROOM4-11: project <-> shared EQ state. pushEq: project -> live EQ (identity compare, so an unchanged curve costs nothing). The subscription below writes edits back (debounced). */
+ const eqSeen=P.useRef(new Map());
+ const eqFlatCurve=()=>({a:Array(360).fill(0),b:Array(360).fill(0),morph:0,enabled:true,manualCenters:[]});
+ const pushEq=p=>{const seen=eqSeen.current;for(const t of p.tracks){const key=eqKey(t.id);if(t.eq){if(seen.get(key+'p')!==t.eq){__XenEQ.set(key,t.eq);seen.set(key+'p',t.eq);seen.set(key,__XenEQ.get(key))}}else if(seen.get(key+'p')){__XenEQ.set(key,eqFlatCurve());seen.delete(key+'p');seen.set(key,__XenEQ.get(key))}}};
+ const keepEq=(target,cur)=>({...target,tracks:target.tracks.map(t=>{const c=cur.tracks.find(x=>x.id===t.id);if(!c)return t;const n={...t};if(c.eq)n.eq=c.eq;else delete n.eq;return n})});// EQ edits are not history steps: undoing something else must not roll them back
+ const apply=(next,label)=>{pushEq(next);setProject(next);projectRef.current=next;if(engine.update(next,libRef.current)){const b=engine.restartBeat??engine.position()??cursor;engine.restartBeat=null;void play(b,next)}persist(next);if(label)announce(label)};
  const commit=(next,label)=>{const prev=projectRef.current;if(prev){hist.current.past.push(prev);if(hist.current.past.length>100)hist.current.past.shift();hist.current.future=[]}apply(next,label)};
- const undo=()=>{const h=hist.current;if(!h.past.length)return;h.future.push(projectRef.current);apply(h.past.pop(),'Undo')};
- const redo=()=>{const h=hist.current;if(!h.future.length)return;h.past.push(projectRef.current);apply(h.future.pop(),'Redo')};
+ const undo=()=>{const h=hist.current;if(!h.past.length)return;h.future.push(projectRef.current);apply(keepEq(h.past.pop(),projectRef.current),'Undo')};
+ const redo=()=>{const h=hist.current;if(!h.future.length)return;h.past.push(projectRef.current);apply(keepEq(h.future.pop(),projectRef.current),'Redo')};
+ P.useEffect(()=>{let timer=null;const sync=()=>{timer=null;const p=projectRef.current;if(!p)return;let changed=false;const seen=eqSeen.current;
+  const tracks=p.tracks.map(t=>{const key=eqKey(t.id),cfg=__XenEQ.get(key);if(cfg===seen.get(key))return t;seen.set(key,cfg);const e=eqFlat(cfg)?undefined:eqPick(cfg);if(!e&&!t.eq)return t;changed=true;seen.set(key+'p',e);const nt={...t};if(e)nt.eq=e;else delete nt.eq;return nt});
+  if(changed){const next={...p,tracks};setProject(next);projectRef.current=next;persist(next)}};
+  const off=__XenEQ.subscribe(()=>{clearTimeout(timer);timer=setTimeout(sync,250)});return()=>{off();clearTimeout(timer)}},[]);
  /* Inbox: every Send to Multitrack lands on a new track below the existing ones (an empty last track is reused). */
  consumeRef.current=async()=>{let items;try{items=await __XenMultitrackInbox.take()}catch{return}if(!items?.length)return;
   let p=projectRef.current;if(!p){for(const it of items)__XenMultitrackInbox.add(it,{quiet:true}).catch(()=>{});return}
@@ -728,7 +746,7 @@ function XenMultitrackRoom(){
     u.jsxs('div',{className:'ruler',title:'Click: set the cursor · right-click: play from here, loop start/end, mixdown',style:{width:laneWidth},onClick:e=>{const b=snap(beatFromEvent(e,e.currentTarget));setCursor(b);announce('Cursor '+fmtPos(b,bpb))},onContextMenu:rulerMenu,children:[...ticks,...markers.map(m=>u.jsx('button',{type:'button',className:'mk',style:{left:m.beat*ppb},title:(m.name||'Marker')+' · '+fmtPos(m.beat,bpb)+'\nClick: cursor here · double-click: rename · right-click: options · keys [ and ] jump, B adds',onClick:ev=>{ev.stopPropagation();setCursor(m.beat);announce('Marker '+(m.name||fmtPos(m.beat,bpb)))},onDoubleClick:ev=>{ev.stopPropagation();renameMarker(m)},onContextMenu:ev=>{ev.stopPropagation();markerMenu(ev,m)},children:u.jsx('span',{children:m.name||''})},m.id)),
      u.jsx('div',{className:'loopr'+(project.loop.on?'':' off'),style:{left:project.loop.start*ppb,width:Math.max(2,(project.loop.end-project.loop.start)*ppb)},title:'Loop region'}),u.jsx('div',{className:'cur',style:{left:cursor*ppb}})]})]}),
    ...project.tracks.map((t,ti)=>u.jsxs('div',{className:'trk'+tier,style:{height:th},onClick:()=>setTrackSel(t.id),children:[
-    u.jsxs('div',{className:'hdr',onContextMenu:e=>trackMenu(e,t),style:{boxShadow:'inset 3px 0 0 '+(trackSel===t.id?'#fde68a':COLORS[ti%COLORS.length]+'55')},children:[u.jsx('span',{className:'tn',children:t.name}),
+    u.jsxs('div',{className:'hdr',onContextMenu:e=>trackMenu(e,t),style:{boxShadow:'inset 3px 0 0 '+(trackSel===t.id?'#fde68a':COLORS[ti%COLORS.length]+'55')},children:[u.jsx('span',{className:'tn',children:t.name+(t.eq?' · EQ':'')}),
      u.jsxs('div',{className:'row',children:[u.jsx('input',{type:'text','aria-label':'Track name',title:'Track name',value:t.name,onChange:e=>updTrack(t.id,{name:e.target.value.slice(0,60)})}),
       u.jsx('button',{type:'button','aria-pressed':t.mute,title:'Mute track','aria-label':'Mute '+t.name,onClick:()=>updTrack(t.id,{mute:!t.mute},(t.mute?'Unmuted ':'Muted ')+t.name),children:'M'}),
       u.jsx('button',{type:'button','aria-pressed':t.solo,title:'Solo track','aria-label':'Solo '+t.name,onClick:()=>updTrack(t.id,{solo:!t.solo},(t.solo?'Solo off ':'Solo ')+t.name),children:'S'}),
@@ -788,7 +806,9 @@ function XenMultitrackRoom(){
     sl('Echo mix','Level of the echo.',f.echoMix,0,1,.01,v=>set({echoMix:v}),Math.round(f.echoMix*100)+'%'),
     sl('Reverb','Send into the shared room.',f.reverb,0,1,.01,v=>set({reverb:v}),f.reverb>0?Math.round(f.reverb*100)+'%':'off'),
     numIn('Room s',num(project.master.reverbSize,2.2),.2,8,.1,v=>commit({...project,master:{...project.master,reverbSize:clamp(v,.2,8)}}),56),
-    u.jsx('button',{type:'button',disabled:!sh,onClick:()=>updTrack(selT.id,{fx:undefined},'Effects off on '+selT.name),title:'Remove all effects from this track',children:'FX off'})]})})():null,
+    u.jsx('button',{type:'button',disabled:!sh,onClick:()=>updTrack(selT.id,{fx:undefined},'Effects off on '+selT.name),title:'Remove all effects from this track',children:'FX off'}),
+    u.jsx('button',{type:'button','data-xmt-eq':selT.id,'aria-pressed':eqOpen===selT.id,onClick:()=>setEqOpen(eqOpen===selT.id?null:selT.id),title:'Open the XenSonar EQ for this track: draw two curves (A/B), morph between them, adaptive or raster bands. It is saved in the arrangement.',children:'EQ'+(selT.eq?' ●':'')})]})})():null,
+  eqOpen&&project.tracks.some(t=>t.id===eqOpen)?ao.createPortal(u.jsx('div',{className:'xen-eq-flyout','data-xmt-eq-panel':eqOpen,style:{left:Math.max(12,window.innerWidth-(eqWide?732:392)),top:90,width:Math.min(eqWide?720:380,window.innerWidth-24),maxHeight:window.innerHeight-110,'--xen-eq-canvas-height':'150px'},children:u.jsx(__XenEQPanel,{sourceKey:eqKey(eqOpen),owner:project.tracks.find(t=>t.id===eqOpen)?.name||'Track',onClose:()=>setEqOpen(null),expanded:eqWide,setExpanded:setEqWide},eqKey(eqOpen))}),document.body):null,
   u.jsx('div',{className:'muted',style:{marginTop:6},children:'Drag clips anywhere (also onto another track; Alt = copy), drag clip edges to trim, double-click a lane to add the chosen material. Keys: Space play/stop · L loop · S split · Ctrl+D duplicate · Ctrl+C/V · M mute · ↑/↓ other track · Delete · Ctrl+Z undo.'})]});
 }
 return Object.freeze({XenMultitrackRoom});
