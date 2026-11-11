@@ -11,11 +11,11 @@ await p.setInputFiles('.xmt input[type=file]',f);for(let i=0;i<40&&!(await p.$('
 const proj=()=>p.evaluate(()=>new Promise(r=>{const q=indexedDB.open('xensonar-multitrack-v1');q.onsuccess=()=>{const g=q.result.transaction('projects').objectStore('projects').get('current');g.onsuccess=()=>r(g.result)}}));
 log({step:'controls',rec:await p.locator('[data-xmt-rec]').count(),input:await p.locator('[data-xmt-rec-input]').count(),latencyDefault:await p.locator('[data-xmt-rec-latency]').inputValue()});
 await p.locator('[data-xmt-rec]').click();await p.waitForTimeout(1500);
-log({step:'recording',buttonText:await p.locator('[data-xmt-rec]').innerText(),status:await p.locator('.xmt .warn').first().innerText().catch(()=>null)});
+log({step:'recording',buttonText:await p.locator('[data-xmt-rec]').innerText(),status:await p.evaluate(()=>document.querySelector('.xmt .warn')?.innerText||null)});
 await p.waitForTimeout(2500);await p.locator('[data-xmt-rec]').click();
 for(let i=0;i<60&&(await proj()).tracks.length<2;i++)await p.waitForTimeout(500);await p.waitForTimeout(2000);
 const pj=await proj();const nt=pj.tracks[pj.tracks.length-1];
-log({step:'result',tracks:pj.tracks.map(t=>t.name),clip:nt.clips[0]?{start:nt.clips[0].startBeat,lenBeats:+nt.clips[0].lenBeats.toFixed(2),fit:nt.clips[0].fit,bpm:nt.clips[0].sourceBpm}:null,expectedLenBeatsAbout:+(4*pj.bpm/60).toFixed(2),status:await p.locator('.xmt .warn').first().innerText().catch(()=>'')});
+log({step:'result',tracks:pj.tracks.map(t=>t.name),clip:nt.clips[0]?{start:nt.clips[0].startBeat,lenBeats:+nt.clips[0].lenBeats.toFixed(2),fit:nt.clips[0].fit,bpm:nt.clips[0].sourceBpm}:null,expectedLenBeatsAbout:+(4*pj.bpm/60).toFixed(2),status:await p.evaluate(()=>document.querySelector('.xmt .warn')?.innerText||'')});
 await p.locator('.xmt .clip').last().click();await p.waitForTimeout(800);
 log({step:'inspector for the recording',info:await p.locator('[data-clip-source-info]').first().innerText().catch(()=>null)});
 // the recording itself must contain sound: silence the first track and export

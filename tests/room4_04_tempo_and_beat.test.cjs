@@ -244,3 +244,9 @@ test('ROOM4-14: a capture is cut to the timeline by sample frame and shifted by 
   out=recSlice(cap,4.8,0);assert.strictEqual(out[0].length,4200,'capture started after playback: the gap is filled with silence');assert.strictEqual(out[0][199],0);assert.strictEqual(out[0][200],0);assert.strictEqual(out[0][201],1);
   assert.strictEqual(recSlice(cap,5,-50)[0][0],0,'negative latency is ignored');
 });
+
+test('Room IV: no React hook is declared after the early return that waits for the project (would crash with error 310 when the project arrives)',()=>{
+  const i=mt.indexOf("if(!project)return u.jsx('div'");assert(i>0);
+  const after=mt.slice(i),hooks=after.match(/\bP\.use[A-Z]\w*\(/g)||[];
+  assert.deepStrictEqual(hooks,[],'hooks after the early return: '+hooks.join(','));
+});
