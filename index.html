@@ -44705,8 +44705,18 @@ function __xenRefucktorSync(e){
   const cursorFreq=55+(1-n.cursorY/ir)*385;
   const on=__xenDroneIsPilot(r.dronePreset);
   if(n.__xenLegacyDroneGate&&n.__xenLegacyDroneGateValue!==on){
+    // LIVE-GF-03: reopen the parked legacy voice graph before its gate fades in.
+    if(!on&&n.__xenLegacyDroneGateParkedBus){try{n.__xenLegacyDroneGate.connect(n.__xenLegacyDroneGateParkedBus)}catch{}n.__xenLegacyDroneGateParkedBus=null}
     n.__xenLegacyDroneGate.gain.setTargetAtTime(on?0:1,ctx.currentTime,.013);
     n.__xenLegacyDroneGateValue=on;
+    n.__xenLegacyDroneGateParkAt=on?ctx.currentTime+.25:0;
+  }else if(on&&n.__xenLegacyDroneGateParkAt&&ctx.currentTime>=n.__xenLegacyDroneGateParkAt&&n.__xenLegacyDroneGate){
+    // LIVE-GF-03: a Refucktor preset keeps the whole legacy drone voice (about 25 oscillators) behind
+    // a closed gate. Once the gate is silent, unhook it so the audio thread stops rendering that graph.
+    n.__xenLegacyDroneGateParkAt=0;
+    if(n.droneGroupBus&&!n.__xenLegacyDroneGateParkedBus&&n.__xenLegacyDroneGate.gain.value<1e-4){
+      try{n.__xenLegacyDroneGate.disconnect(n.droneGroupBus);n.__xenLegacyDroneGateParkedBus=n.droneGroupBus}catch{}
+    }
   }
   if(!on){if(n.__xenRefucktorSubmix)__xenRefucktorDispose(n);return cursorFreq;}
   // The regular routing boundary installs the shared volume bus once per ctx.
