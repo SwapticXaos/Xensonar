@@ -2182,5 +2182,11 @@
 "status": "post-oct",
 "bytes": 14261,
 "oct28_bytes": 0
+},
+{
+"file": "src/post-oct/034-xen-room-psylab.js",
+"status": "post-oct",
+"bytes": 51600,
+"oct28_bytes": 0
 }
 ]

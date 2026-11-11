@@ -932,6 +932,13 @@
    ]
   },
   {
+   "id": "js-020c-xen-room-psylab",
+   "oct28_section": null,
+   "files": [
+    "src/post-oct/034-xen-room-psylab.js"
+   ]
+  },
+  {
    "id": "js-021-xen-function-__ForgeTransportRack",
    "oct28_section": "@@XENSONAR_COMPONENT_053@@",
    "files": [
