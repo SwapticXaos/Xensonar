@@ -103,3 +103,4 @@ forge_entry_settle_01.test.cjs
 live_gf01_eq_block_identity.cjs
 live_gf01_particle_resident_identity.cjs
 live_gf01_c11_block_fields.cjs
+live_gf02_param_target.cjs

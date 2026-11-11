@@ -55,6 +55,10 @@ function wav(f32,sr){const n=f32.length;const b=Buffer.alloc(44+n*2);b.write('RI
   };
   const extra=arg('--scenarios-file');if(extra)Object.assign(S,require(path.resolve(extra))({p,canvasBox,clickText}));
   await p.getByRole('button',{name:'Power'}).click();await p.waitForTimeout(3000);
+  // --select "Drone sound=warm_pad;Grid System=22edo": set <select aria-label|label text> before measuring
+  for(const pair of String(arg('--select')||'').split(';').filter(Boolean)){const[label,value]=pair.split('=');
+    const ok=await p.evaluate(([label,value])=>{const s=[...document.querySelectorAll('select')].find(s=>(s.getAttribute('aria-label')||s.closest('label,div')?.innerText||'').replace(/\s+/g,' ').startsWith(label));if(!s)return false;const set=Object.getOwnPropertyDescriptor(HTMLSelectElement.prototype,'value').set;set.call(s,value);s.dispatchEvent(new Event('change',{bubbles:true}));return s.value===value},[label,value]);
+    if(!ok)throw Error('select failed: '+pair);await p.waitForTimeout(2500)}
   const results=[];
   for(const name of WANT){
     if(!S[name])throw Error('unknown scenario '+name);

@@ -34,6 +34,8 @@ const snip=s=>{const m=/(\d+):(\d+)$/.exec(s);if(!m)return'';const t=lines[+m[1]
   await p.goto('http://127.0.0.1:'+srv.address().port+'/');await p.waitForTimeout(4000);
   await p.getByRole('button',{name:'Power'}).click();await p.waitForTimeout(6000);
   console.log(await p.evaluate(()=>{const o=__census.nodes.filter(r=>/Oscill/.test(r.kind));return JSON.stringify({n:o.length,started:o.filter(r=>r.started).length,ended:o.filter(r=>r.ended).length,outs:o.slice(0,5).map(r=>r.out.size+':'+!!r.unknownParam)})}));
+  console.log('shapers',await p.evaluate(()=>JSON.stringify(__census.nodes.filter(r=>/WaveShaper/.test(r.kind)).map(r=>{const n=r.ref.deref();return [r.site.split(' < ')[0],n.oversample,n.curve?n.curve.length:0,r.out.size]}))));
+  console.log('misc',await p.evaluate(()=>JSON.stringify(__census.nodes.filter(r=>/Compressor|Delay|Analyser/.test(r.kind)).map(r=>{const n=r.ref.deref();return [r.kind,r.site.split(' < ')[0],r.out.size,n.fftSize||'']}))));
   const r=await p.evaluate(()=>__census.report());
   console.log(JSON.stringify({state:r.state,created:r.created,aliveJs:r.aliveJs,pulled:r.pulled}));
   const kinds=new Map();for(const[k,n]of r.groups){const kind=k.split(' @ ')[0];kinds.set(kind,(kinds.get(kind)||0)+n)}
