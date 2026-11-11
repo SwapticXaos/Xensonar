@@ -60,3 +60,13 @@ GF-01 ist bitgleich belegt (PCM, Filterzustand, Zähler gegen Vor-Patch-Fixtures
 5. Transient-Drive-Gerät bleibt nach dem Ausschalten verbunden.
 6. Canvas-Zeichnen dominiert den Hauptthread (headless per Software gerastert, daher hier nicht bewertbar).
 7. Befund ohne Änderung: Frequenz der Manual-JI-Oszillatoren hat zwei Schreiber (Cursor- und Drone-Tonhöhe); wer gewinnt, hängt von der Reihenfolge der Bildschleifen ab.
+
+## Nachtrag: GF-05 und Entscheidung zu den C11-Hosts
+
+| Patch | Zone | Ursache (belegt) | Änderung |
+|---|---|---|---|
+| **GF-05** | HEISS Knotengraph | Vier Mix-Busse (`$Y`) rechnen je Low-Shelf, Peak und High-Shelf mit 0 dB, solange Live Mastering aus ist: 12 Biquads ohne Wirkung | Kette geparkt erzeugt (Analyser speist den Rollen-Gain direkt, Kette an beiden Enden getrennt); `YY` (Mastering an) verbindet sie vor der ersten Gain-Änderung, `XY` (aus) trennt sie, sobald alle Gains < 0,02 dB sind |
+
+Messung (Grundzustand, A/B im Wechsel, Blockzeit Mittel): 385/345 µs → 305/315 µs (etwa −16 %), Biquads im Render 18 → 6. Offline-Render der geparkten gegen die verbundene 0-dB-Kette: maximale Abweichung 0 (bitgleich). Browser-Test `tests/e2e/live_gf05_mix_bus_eq_park.cjs`: aus → 0 gerendert, an → alle 4 Busse verbunden und Gains bewegen sich, aus → nach Ausblenden wieder geparkt, erneut an → wieder verbunden.
+
+**C11-Hosts (Punkt 3): bewusst nicht umgesetzt.** Messung im Worklet-Thread (Leerlauf): Hosts inkl. WASM-Kernel zusammen ≈ 1,1 % der Wandzeit (~30 µs je Block); der Rest der ~45 µs Ablationsdifferenz ist Chromes Overhead für die 9 Ausgänge je Knoten und ist ohne Änderung des Ausgangslayouts nicht zu holen. Die WASM-Kernel-Uhr (`renderedFrames`, Reservierungen, `rebasePendingEntrophon`) hängt am Rendern jedes Blocks: ein Überspringen im Leerlauf würde die Kernel-Zeit von der Kontext-Zeit trennen und bräuchte einen Rebase beim Aufwachen ohne Quelltext des Kernels und ohne Stille-Nachweis. Gewinn nur im Leerlauf (≈ 6 % der Grundlast), nicht in den Spitzen, in denen Aussetzer entstehen. Verhältnis Risiko zu Nutzen spricht dagegen.
