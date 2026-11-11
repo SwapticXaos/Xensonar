@@ -54,8 +54,8 @@ const np=p=>p.evaluate(()=>__xenProbe.bridge.capture().nParamsUI);
   // Edit a step in the Pattern view and store it back; the lane working pattern returns.
   const laneBefore=(await np(p)).keyboardHoldPatternSteps;
   await p.locator('.xen-hpp-step').nth(N-1).click();await p.waitForTimeout(150);// top of ladder = highest position? ladder is reversed
-  await p.getByRole('button',{name:'✎ Edit in Pattern view'}).click();await p.waitForTimeout(300);
-  const editing=await p.locator('.xen-hpp-banner').innerText();assert.match(editing,/Editing plan step/);
+  await p.getByRole('button',{name:'✎ Edit in Arpeggio Pattern view'}).click();await p.waitForTimeout(300);
+  const editing=await p.locator('.xen-hpp-banner').innerText();assert.match(editing,/Editing the Arpeggio Pattern of step/);
   await p.getByRole('button',{name:'All'}).count();// pattern view is visible
   await p.getByRole('button',{name:/^Store into/}).click();await p.waitForTimeout(400);
   const after=await np(p);
@@ -78,7 +78,16 @@ const np=p=>p.evaluate(()=>__xenProbe.bridge.capture().nParamsUI);
   assert.deepEqual(lines,['50%','0%','100%','25%'],'slot cards show the pitch line (octave up = top edge)');
   const refCents=await p.evaluate(()=>[...document.querySelectorAll('.xen-hpm02-ref-list button')].map(b=>Number(b.getAttribute('aria-label').match(/(-?[\d.]+) cents$/)[1])));
   assert.ok(refCents.every((v,i)=>i===0||refCents[i-1]>=v),'reference list runs high to low like the pitch rail');
-  await p.getByRole('tab',{name:/^Plan/}).click();await p.waitForTimeout(300);
+  // Save an Arpeggio Pattern in the studio (middle column) -> it shows up in the Plan view's library.
+  const apName='E2E arp '+Date.now();
+  const dlg=p.locator('.xen-hpm02-dialog');
+  assert.match(await dlg.locator('.xen-hpm03-finetune .xen-hpm01').innerText(),/Arpeggio Patterns/);
+  await dlg.locator('.xen-hpm03-finetune input[type=text]').fill(apName);
+  await dlg.locator('.xen-hpm03-finetune').getByRole('button',{name:'Save As'}).click();await p.waitForTimeout(700);
+  await p.getByRole('tab',{name:/^Plan/}).click();await p.waitForTimeout(500);
+  assert.match(await dlg.locator('.xen-hpp').innerText(),/Arpeggio Pattern Library/);
+  assert.ok((await dlg.locator('.xen-hpp-lib-row').allInnerTexts()).some(t=>t.includes(apName)),'saved Arpeggio Pattern is listed in the Plan view');
+  assert.match(await dlg.locator('header').innerText(),/Hold Pattern Studio \(Thunder Mode\)/);
   // Plan library: Save As survives a reload.
   const name='E2E plan '+Date.now();
   await p.locator('.xen-hpp input[placeholder^="e.g."]').fill(name);

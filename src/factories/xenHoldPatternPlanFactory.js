@@ -226,9 +226,9 @@ function PlanView({plan,origin,workingPattern,onPlanChange,onRestoreGrid,onEditP
  const savedRow=plans.find(r=>r.id===savedId);
  return u.jsxs('div',{className:'xen-hpp','data-xen-hpp':'true',children:[
   /* Library */
-  u.jsxs('div',{children:[u.jsx('strong',{children:'Pattern library'}),
-   u.jsx('p',{children:'Drag onto a step, or click to arm and then click steps to paint.'}),
-   ...[{...workingPattern,id:'working',name:'◉ Current working pattern',sourceLane:'keyboard'},...library].map(r=>u.jsxs('button',{type:'button',draggable:true,
+  u.jsxs('div',{children:[u.jsx('strong',{children:'Arpeggio Pattern Library'}),
+   u.jsx('p',{children:library.length?'Drag onto a step, or click to arm and then click steps to paint.':'No saved Arpeggio Patterns yet. Set one in the Arpeggio Pattern tab and save it there; it appears here.'}),
+   ...[{...workingPattern,id:'working',name:'◉ Current Arpeggio Pattern',sourceLane:'keyboard'},...library].map(r=>u.jsxs('button',{type:'button',draggable:true,
     className:'xen-hpp-lib-row'+(armed===r.id?' armed':''),'aria-pressed':armed===r.id,
     onDragStart:ev=>{ev.dataTransfer.setData(DND_PATTERN,r.id);ev.dataTransfer.effectAllowed='copy'},
     onClick:()=>setArmed(a=>a===r.id?null:r.id),title:r.slots+' slots · '+r.referenceBars+' bars'+(r.sourceLane==='enter'?' · Enter lane':''),
@@ -260,7 +260,7 @@ function PlanView({plan,origin,workingPattern,onPlanChange,onRestoreGrid,onEditP
    u.jsx('strong',{children:'Selected · '+positionLabel(grid,idx,plan)}),
    u.jsxs('label',{children:['Pattern name (technical suggestion, editable)',u.jsx('input',{type:'text',maxLength:80,value:patternName,onChange:e=>setPatternName(e.target.value),onKeyDown:e=>e.stopPropagation()})]}),
    u.jsxs('div',{className:'xen-hpp-row',children:[
-    u.jsx('button',{type:'button',onClick:()=>onEditPosition(idx,entry?entry.pattern:null,positionLabel(grid,idx,plan),hzFor(idx)),title:'Load this step’s pattern into the Pattern view and tune it by ear on this step.',children:'✎ Edit in Pattern view'}),
+    u.jsx('button',{type:'button',onClick:()=>onEditPosition(idx,entry?entry.pattern:null,positionLabel(grid,idx,plan),hzFor(idx)),title:'Load this step’s pattern into the Pattern view and tune it by ear on this step.',children:'✎ Edit in Arpeggio Pattern view'}),
     u.jsx('button',{type:'button',disabled:!entry||busy,onClick:()=>perform(async()=>{await memory().saveAs(patternName,{...entry.pattern,sourceLane:'keyboard',tuningOrigin:{tuningId:grid.tuningId,modeId:grid.modeId||'chromatic',gridBaseHz:grid.gridBaseHz,mainMutedDegrees:grid.mainMutedDegrees,mainStepOffsets:grid.mainStepOffsets}});await refresh();setMessage('Saved “'+patternName+'” to the pattern library.')}),children:'Save to library'}),
    ]}),
    u.jsxs('label',{children:['Step label (optional, your own name, e.g. a function where it fits)',u.jsx('input',{type:'text',maxLength:40,value:labelDraft,placeholder:'no label',

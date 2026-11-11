@@ -391,9 +391,9 @@ function PlanView({plan,origin,workingPattern,onPlanChange,onRestoreGrid,onEditP
  const savedRow=plans.find(r=>r.id===savedId);
  return u.jsxs('div',{className:'xen-hpp','data-xen-hpp':'true',children:[
   /* Library */
-  u.jsxs('div',{children:[u.jsx('strong',{children:'Pattern library'}),
-   u.jsx('p',{children:'Drag onto a step, or click to arm and then click steps to paint.'}),
-   ...[{...workingPattern,id:'working',name:'◉ Current working pattern',sourceLane:'keyboard'},...library].map(r=>u.jsxs('button',{type:'button',draggable:true,
+  u.jsxs('div',{children:[u.jsx('strong',{children:'Arpeggio Pattern Library'}),
+   u.jsx('p',{children:library.length?'Drag onto a step, or click to arm and then click steps to paint.':'No saved Arpeggio Patterns yet. Set one in the Arpeggio Pattern tab and save it there; it appears here.'}),
+   ...[{...workingPattern,id:'working',name:'◉ Current Arpeggio Pattern',sourceLane:'keyboard'},...library].map(r=>u.jsxs('button',{type:'button',draggable:true,
     className:'xen-hpp-lib-row'+(armed===r.id?' armed':''),'aria-pressed':armed===r.id,
     onDragStart:ev=>{ev.dataTransfer.setData(DND_PATTERN,r.id);ev.dataTransfer.effectAllowed='copy'},
     onClick:()=>setArmed(a=>a===r.id?null:r.id),title:r.slots+' slots · '+r.referenceBars+' bars'+(r.sourceLane==='enter'?' · Enter lane':''),
@@ -425,7 +425,7 @@ function PlanView({plan,origin,workingPattern,onPlanChange,onRestoreGrid,onEditP
    u.jsx('strong',{children:'Selected · '+positionLabel(grid,idx,plan)}),
    u.jsxs('label',{children:['Pattern name (technical suggestion, editable)',u.jsx('input',{type:'text',maxLength:80,value:patternName,onChange:e=>setPatternName(e.target.value),onKeyDown:e=>e.stopPropagation()})]}),
    u.jsxs('div',{className:'xen-hpp-row',children:[
-    u.jsx('button',{type:'button',onClick:()=>onEditPosition(idx,entry?entry.pattern:null,positionLabel(grid,idx,plan),hzFor(idx)),title:'Load this step’s pattern into the Pattern view and tune it by ear on this step.',children:'✎ Edit in Pattern view'}),
+    u.jsx('button',{type:'button',onClick:()=>onEditPosition(idx,entry?entry.pattern:null,positionLabel(grid,idx,plan),hzFor(idx)),title:'Load this step’s pattern into the Pattern view and tune it by ear on this step.',children:'✎ Edit in Arpeggio Pattern view'}),
     u.jsx('button',{type:'button',disabled:!entry||busy,onClick:()=>perform(async()=>{await memory().saveAs(patternName,{...entry.pattern,sourceLane:'keyboard',tuningOrigin:{tuningId:grid.tuningId,modeId:grid.modeId||'chromatic',gridBaseHz:grid.gridBaseHz,mainMutedDegrees:grid.mainMutedDegrees,mainStepOffsets:grid.mainStepOffsets}});await refresh();setMessage('Saved “'+patternName+'” to the pattern library.')}),children:'Save to library'}),
    ]}),
    u.jsxs('label',{children:['Step label (optional, your own name, e.g. a function where it fits)',u.jsx('input',{type:'text',maxLength:40,value:labelDraft,placeholder:'no label',
@@ -32866,11 +32866,11 @@ function __XenHPM01Controls({lane,slots,referenceBars,muteSteps,pitchCents,slotV
  const select=id=>{setSelected(id);setBaseline(null);const row=rows.find(r=>r.id===id);setName(row?.name||'');setMessage('')};
  const button=(label,action,disabled=false,title='')=>u.jsx('button',{type:'button',disabled:busy||disabled,title,className:'xen-hpm01-button',onClick:()=>perform(action),children:label},label);
  return u.jsxs('div',{className:'xen-hpm01','data-xen-hpm01':lane,onPointerEnter:warm,onFocusCapture:warm,children:[
-  u.jsxs('div',{className:'xen-hpm01-head',children:[u.jsx('strong',{children:'Pattern Memory'}),u.jsx('span',{className:'xen-hpm01-hint',children:dirty?'Edited working copy · saved pattern unchanged':baseline?.id===selected?'Saved pattern loaded':'Named patterns · independent of song'})]}),
+  u.jsxs('div',{className:'xen-hpm01-head',children:[u.jsx('strong',{children:'Arpeggio Patterns'}),u.jsx('span',{className:'xen-hpm01-hint',children:dirty?'Edited working copy · saved pattern unchanged':baseline?.id===selected?'Saved pattern loaded':'Named patterns · independent of song'})]}),
   u.jsx('div',{className:'xen-hpm01-hint',title:'Tuning origin is descriptive only for individual patterns. A future Hold Pattern Plan will store and restore the full native Grid.',children:'Tuned on: '+tuningText(currentRow?.tuningOrigin||tuningOrigin)}),
   u.jsxs('div',{className:'xen-hpm01-fields',children:[
-   u.jsx('select',{'aria-label':lane+' saved Hold Patterns',value:selected,disabled:busy,onFocus:()=>{refresh().catch(e=>setMessage('Storage error: '+e.message))},onChange:e=>select(e.target.value),children:[u.jsx('option',{value:'',children:'Choose saved '+lane+' pattern…'}),...rows.map(r=>u.jsx('option',{value:r.id,children:r.name+' · '+r.slots+' slots'},r.id))]}),
-   u.jsx('input',{type:'text',maxLength:80,placeholder:'New pattern name',value:name,'aria-label':lane+' pattern name',onChange:e=>setName(e.target.value),onKeyDown:e=>e.stopPropagation(),onKeyUp:e=>e.stopPropagation()})
+   u.jsx('select',{'aria-label':lane+' saved Arpeggio Patterns',value:selected,disabled:busy,onFocus:()=>{refresh().catch(e=>setMessage('Storage error: '+e.message))},onChange:e=>select(e.target.value),children:[u.jsx('option',{value:'',children:'Choose saved '+lane+' Arpeggio Pattern…'}),...rows.map(r=>u.jsx('option',{value:r.id,children:r.name+' · '+r.slots+' slots'},r.id))]}),
+   u.jsx('input',{type:'text',maxLength:80,placeholder:'Arpeggio Pattern name',value:name,'aria-label':lane+' pattern name',onChange:e=>setName(e.target.value),onKeyDown:e=>e.stopPropagation(),onKeyUp:e=>e.stopPropagation()})
   ]}),
   u.jsxs('div',{className:'xen-hpm01-actions',children:[
    button('Save As',async()=>{const row=await owner.saveAs(name,snap());await refresh();setSelected(row.id);setName(row.name);setBaseline(row);setMessage('Saved '+row.name+'.')},!name.trim(),'Save the current Hold Pattern under a new name; never overwrites a previously saved pattern.'),
@@ -33093,12 +33093,12 @@ function __XenHoldDetailEditor({lane,slots,referenceBars,muteSteps,pitches,volum
  const closeOnBackdrop=ev=>{if(ev.target===ev.currentTarget)onClose()};
  return ao.createPortal(u.jsx('div',{'data-xen-hold-detail-dialog':'true',className:'xen-hpm02-backdrop',onPointerDown:closeOnBackdrop,
   children:u.jsxs('section',{ref:panel,className:'xen-hpm02-dialog',role:'dialog','aria-modal':'true','aria-label':lane+' detailed Hold Pattern editor',onKeyDown:ev=>ev.stopPropagation(),onKeyUp:ev=>ev.stopPropagation(),children:[
-   u.jsxs('header',{className:'xen-hpm02-header',children:[u.jsxs('div',{children:[u.jsx('strong',{children:lane+' · Hold Pattern Studio'}),u.jsx('p',{children:view==='plan'?'Plan: give every audible step of the period its own Hold Pattern. Drag patterns onto steps; the keyboard projects them onto every row and window position.':'Tune by ear: drag the full-height pitch axis, use ±1 cent or type an exact frequency. Preview never changes held Live Room gestures.'})]}),
-    planCapable?u.jsxs('div',{className:'xen-hpp-tabs',role:'tablist','aria-label':'Studio view',children:[u.jsx('button',{type:'button',role:'tab','aria-selected':view==='pattern',onClick:()=>setView('pattern'),children:'Pattern'}),u.jsx('button',{type:'button',role:'tab','aria-selected':view==='plan',disabled:!!planEdit,title:planEdit?'Store or cancel the step edit first':'Hold Pattern Plan: one pattern per scale step',onClick:openPlan,children:'Plan'+(holdPlan&&holdPlan.enabled!==false?' ●':'')})]}):null,
+   u.jsxs('header',{className:'xen-hpm02-header',children:[u.jsxs('div',{children:[u.jsx('strong',{children:lane+' · Hold Pattern Studio (Thunder Mode)'}),u.jsx('p',{children:view==='plan'?'Plan: give every audible step of the period its own Arpeggio Pattern. Drag patterns onto steps; the keyboard projects them onto every row and window position.':'Tune by ear: drag the full-height pitch axis, use ±1 cent or type an exact frequency. Preview never changes held Live Room gestures.'})]}),
+    planCapable?u.jsxs('div',{className:'xen-hpp-tabs',role:'tablist','aria-label':'Studio view',children:[u.jsx('button',{type:'button',role:'tab','aria-selected':view==='pattern',onClick:()=>setView('pattern'),children:'Arpeggio Pattern'}),u.jsx('button',{type:'button',role:'tab','aria-selected':view==='plan',disabled:!!planEdit,title:planEdit?'Store or cancel the step edit first':'Hold Pattern Plan: one Arpeggio Pattern per Grid step',onClick:openPlan,children:'Plan'+(holdPlan&&holdPlan.enabled!==false?' ●':'')})]}):null,
     u.jsx('button',{type:'button',onClick:onClose,'aria-label':'Close detailed Hold Pattern editor',children:'✕ Close'})]}),
    planError?u.jsx('div',{className:'xen-hpp-banner',role:'alert',children:planError}):null,
    view==='plan'&&planApi?u.jsx(planApi.PlanView,{plan:holdPlan||null,origin:tuningOrigin,workingPattern:working(),onPlanChange:onHoldPlanChange,onRestoreGrid,onEditPosition:editPlanStep,onAudition:(pat,hz)=>void playPattern(pat,hz),armedPosition:planEdit?.pos,onOpenGridWorkbench:typeof globalThis.__XenOpenGridWorkbench==='function'?()=>{onClose();globalThis.__XenOpenGridWorkbench()}:null}):null,
-   view==='pattern'&&planEdit?u.jsxs('div',{className:'xen-hpp-banner',role:'status',children:[u.jsx('span',{children:'Editing plan step '+planEdit.label+'. Keys keep playing the stored step until you store it; your lane pattern returns afterwards.'}),u.jsx('button',{type:'button',onClick:()=>finishPlanEdit(true),children:'Store into '+planEdit.label}),u.jsx('button',{type:'button',onClick:()=>finishPlanEdit(false),children:'Cancel'})]}):null,
+   view==='pattern'&&planEdit?u.jsxs('div',{className:'xen-hpp-banner',role:'status',children:[u.jsx('span',{children:'Editing the Arpeggio Pattern of '+planEdit.label+'. Keys keep playing the stored step until you store it; your lane pattern returns afterwards.'}),u.jsx('button',{type:'button',onClick:()=>finishPlanEdit(true),children:'Store into '+planEdit.label}),u.jsx('button',{type:'button',onClick:()=>finishPlanEdit(false),children:'Cancel'})]}):null,
    view==='pattern'?u.jsxs('div',{className:'xen-hpm02-settings',children:[
     u.jsxs('label',{children:['Slots ',u.jsx('input',{type:'number',min:1,max:256,step:1,value:n,onChange:e=>onSlots(Math.max(1,Math.min(256,Math.round(Number(e.target.value)||1))))})]}),
     u.jsxs('label',{children:['Bars ',u.jsx('input',{type:'number',min:.125,max:16,step:.125,value:referenceBars,onChange:e=>onBars(Math.max(.125,Math.min(16,Number(e.target.value)||1)))})]}),
@@ -33139,7 +33139,8 @@ function __XenHoldDetailEditor({lane,slots,referenceBars,muteSteps,pitches,volum
        u.jsx('button',{type:'button',onClick:()=>setVolume(1),children:'Reset volume · 100%'}),
        u.jsxs('label',{children:['Microtiming · '+Math.round(slotMicro*100)+'% of slot',u.jsx('input',{type:'range',min:-45,max:45,step:1,value:Math.round(slotMicro*100),'aria-label':'Slot '+(idx+1)+' microtiming percent',onChange:ev=>setMicro(Number(ev.target.value)/100)})]}),
        u.jsx('button',{type:'button',onClick:()=>setMicro(0),children:'Reset timing · 0%'}),
-       u.jsx('p',{className:'xen-hpm02-info',children:'Negative = earlier, positive = later. First attack never moves before the gesture starts. Muting preserves these values.'})]}),
+       u.jsx('p',{className:'xen-hpm02-info',children:'Negative = earlier, positive = later. First attack never moves before the gesture starts. Muting preserves these values.'}),
+       u.jsx(__XenHPM01Controls,{lane:lane==='Keyboard'?'keyboard':'enter',slots:n,referenceBars,muteSteps,pitchCents:pitches,slotVolumes:volumes,microtiming,tuningOrigin,onLoad:onLoadPattern})]}),
      u.jsxs('div',{className:'xen-hpm02-refs',children:[u.jsx('strong',{children:'Exact reference steps'}),
        refs.length?u.jsx('div',{className:'xen-hpm02-ref-list',children:refs.map((reference,i)=>u.jsx('button',{type:'button',
         'aria-label':'Set pitch to '+reference.label+' '+reference.cents+' cents',onClick:()=>{putPitch(reference.cents);void playSingle(rootHz*Math.pow(2,reference.cents/1200),'Reference step')},
@@ -61423,7 +61424,7 @@ root.__XenWaveUIW01=Object.freeze({attach,drawStereo,enabled(canvas){const e=ins
 .xen-hpm03-side{display:grid!important;grid-template-columns:minmax(190px,1fr) minmax(180px,1fr);gap:9px!important;background:transparent!important;border:0!important;padding:0!important;overflow:hidden;align-items:stretch}
 .xen-hpm03-side>div{min-width:0;min-height:0;background:#151422;border:1px solid #403551;border-radius:7px;padding:9px;display:flex;flex-direction:column;gap:8px}
 .xen-hpm03-finetune{overflow:auto}.xen-hpm03-finetune label,.xen-hpm03-preview label{display:flex;flex-direction:column;gap:4px;font-size:11px;color:#e7d3f4}.xen-hpm03-finetune input,.xen-hpm03-preview input,.xen-hpm03-preview select{width:100%;box-sizing:border-box}
-.xen-hpm03-finetune input[type=range]{accent-color:#c9a5f5}.xen-hpm03-finetune button{font-size:11px;padding:5px 6px}.xen-hpm03-cent-row{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:4px}.xen-hpm03-cent-row button{white-space:nowrap}
+.xen-hpm03-finetune .xen-hpm01{margin-top:auto}.xen-hpm03-finetune input[type=range]{accent-color:#c9a5f5}.xen-hpm03-finetune button{font-size:11px;padding:5px 6px}.xen-hpm03-cent-row{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:4px}.xen-hpm03-cent-row button{white-space:nowrap}
 .xen-hpm02-refs{overflow:hidden}.xen-hpm02-ref-list{overflow:auto;min-height:0;flex:1;display:flex;flex-direction:column;gap:4px}.xen-hpm02-ref-list button{text-align:left;font-size:11px;flex-shrink:0}.xen-hpm02-info{font-size:11px;color:#a9a2b6;margin:4px 0}
 .xen-hpm03-preview{display:grid;gap:7px;margin-top:auto;border-top:1px solid #5d486d;padding-top:9px}.xen-hpm03-play-row{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:5px}.xen-hpm03-play-row button{font-size:11px;min-height:30px;padding:5px 3px}.xen-hpm03-preview-state{font-size:11px;line-height:1.3;color:#b4a4c9;margin:0;min-height:2.5em}
 @media(max-width:930px){.xen-hpm02-layout{grid-template-columns:minmax(130px,1fr) minmax(105px,150px) minmax(220px,1.4fr)}.xen-hpm03-side{grid-template-columns:minmax(0,1fr);overflow:auto}.xen-hpm03-side>div{overflow:visible;min-height:auto}.xen-hpm02-refs .xen-hpm02-ref-list{max-height:240px;flex:none}.xen-hpm02-header p{max-width:52ch}}

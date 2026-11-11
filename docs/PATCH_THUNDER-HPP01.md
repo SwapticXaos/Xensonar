@@ -65,3 +65,10 @@ Prüfungen: 101/101 Regressionstests, alle E2E grün (hold_pattern_plan erweiter
 - **„Exact reference steps“ gespiegelt behoben**: Liste läuft jetzt wie die Tonhöhenleiste von **hoch (oben) nach tief (unten)**.
 - **Konsolidiert/effizienter**: Stufentabelle des Plan-Laufzeitpfads prüft pro Tastenanschlag zuerst Objektidentität (Stimmung, Grundton, Mute-/Offset-Arrays) statt einen Schlüsselstring zu bauen; doppelter Preset-Auswahlcode in der Plan-Ansicht zu einer Komponente zusammengefasst; Stufenbeschriftungen überall plan-bewusst (eigene Labels in Tooltips/Aria); Auto-Folge des leeren Plans vereinfacht.
 - Prüfung: 101/101, alle E2E grün (hold_pattern_plan prüft zusätzlich Strichpositionen 50/0/100/25 % und absteigende Referenzliste). `index.html` 8 930 506 B, SHA-256 `92ed0fea4c0eec05918fbcbb3a8b64faa63de98907d19e7a0ff2164956a752b1`. Nicht gehört, nicht im Firefox geprüft.
+
+## Nachtrag HPP01d (11.11.2026): Arpeggio Patterns speichern im Studio
+- **Speichern direkt im Pattern-Bereich**: in der mittleren Spalte unten (unter „Precise tuning / Slot dynamics“) sitzt jetzt die Steuerung „Arpeggio Patterns“ (Name, Save As, Load, Duplicate, Rename, Delete). Es ist dieselbe Komponente wie im Hold-Pattern-Panel des Hauptraums (`__XenHPM01Controls`, gleicher Speicher-Owner), nur im Studio eingebettet; kein zweiter Speicherweg.
+- **Plan-Ansicht**: linke Spalte heißt „Arpeggio Pattern Library“; ein im Studio gespeichertes Arpeggio steht dort sofort (Liste lädt beim Wechsel auf „Plan“). Leere Bibliothek erklärt den Weg dorthin.
+- **Begriff „Arpeggio Pattern“** statt „Pattern“: Tab „Arpeggio Pattern“, „Edit in Arpeggio Pattern view“, „Current Arpeggio Pattern“, Panel-Titel/Platzhalter/Auswahlfeld.
+- Titel: „Keyboard · Hold Pattern Studio (Thunder Mode)“.
+- Prüfung: 101/101, alle E2E grün (hold_pattern_plan: im Studio speichern → in Plan-Bibliothek sichtbar, Titel). Keine Änderung am Klangpfad.
