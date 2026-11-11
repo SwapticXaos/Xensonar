@@ -98,3 +98,4 @@ ui_m1_p2_carrier_play.cjs
 room4_04_tempo_and_beat.test.cjs
 thunder_q01_gesture_quantize.cjs
 room_chunks_syntax.cjs
+thunder_hpp01_plan.cjs

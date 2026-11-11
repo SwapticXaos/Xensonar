@@ -131,14 +131,21 @@ function __xenHPM04WarmVoice(ctx,hz,at,duration,gain,destination,{continuous=fal
   stop(){if(stopped)return;stopped=true;const now=ctx.currentTime;try{amp.gain.cancelScheduledValues(now);amp.gain.setTargetAtTime(.00001,now,.035);osc.stop(now+.16)}catch{}}};
 }
 const __XenHPM03LivePreviewBridge={current:null};
-function __XenHoldDetailEditor({lane,slots,referenceBars,muteSteps,pitches,volumes,microtiming,tuningOrigin,previewRuntime,onMute,onPitch,onVolume,onMicrotiming,onSlots,onBars,onClose}){
+function __XenHoldDetailEditor({lane,slots,referenceBars,muteSteps,pitches,volumes,microtiming,tuningOrigin,previewRuntime,onMute,onPitch,onVolume,onMicrotiming,onSlots,onBars,onClose,holdPlan,onHoldPlanChange,onRestoreGrid,onLoadPattern}){
  const [selected,setSelected]=P.useState(0),[refMode,setRefMode]=P.useState('ji');
+ /* THUNDER-HPP01: one studio, two views. Plan view is a lazy function island (Keyboard lane only). */
+ const planCapable=lane==='Keyboard'&&typeof onHoldPlanChange==='function';
+ const [view,setView]=P.useState('pattern'),[planEdit,setPlanEdit]=P.useState(null),[planApi,setPlanApi]=P.useState(null),[planError,setPlanError]=P.useState('');
+ const openPlan=()=>{try{setPlanApi(a=>a??(globalThis.__XenHoldPatternPlan??(globalThis.__XenHoldPatternPlan=__xenGetDeferredFn('__xenHoldPatternPlanFactory')())));setView('plan')}catch(e){setPlanError('Plan view unavailable: '+(e?.message||e))}};
  const [rootHz,setRootHz]=P.useState(()=>Math.max(5,Number(tuningOrigin?.gridBaseHz)||220));
  const [hzDraft,setHzDraft]=P.useState(''),[previewMessage,setPreviewMessage]=P.useState(''),[previewPlaying,setPreviewPlaying]=P.useState(false);
  const drag=P.useRef(null),panel=P.useRef(null),returnFocus=P.useRef(null),hzInput=P.useRef(null);
  const preview=P.useRef({token:0,nodes:[],timer:null,dragTone:null}),rootRef=P.useRef(rootHz);rootRef.current=rootHz;
  const n=Math.max(1,Math.min(256,Math.round(Number(slots)||1))),idx=Math.min(selected,n-1);
  const current=__xenHoldPitchValue(pitches,idx),slotGain=__xenHoldSlotGain(volumes,idx),slotMicro=__xenHoldMicroRatio(microtiming,idx);
+ const working=()=>({slots:n,referenceBars,muteSteps:l0(muteSteps,n),pitchCents:__xenHoldPitchVector(pitches,n),slotVolumes:__xenHoldVolumeVector(volumes,n),microtiming:__xenHoldMicroVector(microtiming,n)});
+ const editPlanStep=(pos,pattern,label,hz)=>{const stash=working();if(pattern)onLoadPattern?.(pattern);setRootHz(hz);setSelected(0);setPlanEdit({pos,label,stash});setView('pattern');setPreviewMessage('Editing plan step '+label+' · preview root '+hz.toFixed(2)+' Hz')};
+ const finishPlanEdit=store=>{const e=planEdit;if(!e)return;try{if(store&&holdPlan&&planApi)onHoldPlanChange(planApi.assign(holdPlan,e.pos,working(),{kind:'edited',name:holdPlan.entries[e.pos]?.source?.name||planApi.suggestName(holdPlan.nativeGrid,e.pos)}));onLoadPattern?.(e.stash);setPlanEdit(null);setView('plan')}catch(err){setPreviewMessage('Not stored: '+(err?.message||err))}};
  const refs=P.useMemo(()=>__xenHoldDetailReferences(refMode,tuningOrigin),[refMode,tuningOrigin]);
  const options=[['ji','JI ratios'],['current','Current Grid'],...([12,17,19,22,24,31,53].map(edo=>[edo+'edo',edo+' EDO']))];
  const noteHz=rootHz*Math.pow(2,current/1200),formatC=v=>(v>0?'+':'')+Number(v.toFixed(3))+' ¢';
@@ -216,16 +223,17 @@ function __XenHoldDetailEditor({lane,slots,referenceBars,muteSteps,pitches,volum
    preview.current.timer=setTimeout(()=>{if(token===preview.current.token)setPreviewPlaying(false)},900);
   }catch(e){if(token===preview.current.token){setPreviewPlaying(false);setPreviewMessage('Preview unavailable: '+(e?.message||e))}}
  };
- const playPattern=async()=>{
+ const playPattern=async(other=null,otherRootHz=null)=>{
   stopPreview(false);const token=preview.current.token;setPreviewPlaying(true);setPreviewMessage('Preparing Pattern preview…');
   try{const ctx=await requireContext();if(token!==preview.current.token)return;
-   const clock=__XenMainRoomSessionBridge.liveClock(),events=__xenHPM03PreviewPatternEvents({slots:n,referenceBars,
-    bpm:clock.bpm,beatsPerBar:clock.beatsPerBar,muteSteps,pitches,volumes,microtiming});
+   const pat=other?{slots:other.slots,referenceBars:other.referenceBars,muteSteps:other.muteSteps,pitches:other.pitchCents,volumes:other.slotVolumes,microtiming:other.microtiming}:{slots:n,referenceBars,muteSteps,pitches,volumes,microtiming};
+   const root=otherRootHz>0?otherRootHz:rootHz;
+   const clock=__XenMainRoomSessionBridge.liveClock(),events=__xenHPM03PreviewPatternEvents({...pat,bpm:clock.bpm,beatsPerBar:clock.beatsPerBar});
    const preset=source();let loaded=null;
    if(preset.startsWith('sample:'))loaded=await bw(preset.slice(7),ctx);
    if(token!==preview.current.token)return;
-   const start=ctx.currentTime+.06,cycle=referenceBars*clock.beatsPerBar*60/clock.bpm;
-   for(const step of events){const hz=rootHz*Math.pow(2,step.pitchCents/1200),when=start+step.atSec;
+   const start=ctx.currentTime+.06,cycle=pat.referenceBars*clock.beatsPerBar*60/clock.bpm;
+   for(const step of events){const hz=root*Math.pow(2,step.pitchCents/1200),when=start+step.atSec;
     preview.current.nodes.push(loaded?.buffer?scheduleSample(ctx,loaded,hz,when,step.durationSec,step.gain):scheduleOsc(ctx,hz,when,step.durationSec,step.gain));}
    setPreviewMessage(events.length+' active attacks · '+(loaded?.buffer?'selected sample':'warm reference')+' · '+clock.bpm+' BPM');
    preview.current.timer=setTimeout(()=>{if(token===preview.current.token){setPreviewPlaying(false);setPreviewMessage('Pattern preview finished.')}},Math.min(60000,(cycle+.2)*1000));
@@ -248,13 +256,18 @@ function __XenHoldDetailEditor({lane,slots,referenceBars,muteSteps,pitches,volum
  const closeOnBackdrop=ev=>{if(ev.target===ev.currentTarget)onClose()};
  return ao.createPortal(u.jsx('div',{'data-xen-hold-detail-dialog':'true',className:'xen-hpm02-backdrop',onPointerDown:closeOnBackdrop,
   children:u.jsxs('section',{ref:panel,className:'xen-hpm02-dialog',role:'dialog','aria-modal':'true','aria-label':lane+' detailed Hold Pattern editor',onKeyDown:ev=>ev.stopPropagation(),onKeyUp:ev=>ev.stopPropagation(),children:[
-   u.jsxs('header',{className:'xen-hpm02-header',children:[u.jsxs('div',{children:[u.jsx('strong',{children:lane+' · Hold Pattern'}),u.jsx('p',{children:'Tune by ear: drag the full-height pitch axis, use ±1 cent or type an exact frequency. Preview never changes held Live Room gestures.'})]}),u.jsx('button',{type:'button',onClick:onClose,'aria-label':'Close detailed Hold Pattern editor',children:'✕ Close'})]}),
-   u.jsxs('div',{className:'xen-hpm02-settings',children:[
+   u.jsxs('header',{className:'xen-hpm02-header',children:[u.jsxs('div',{children:[u.jsx('strong',{children:lane+' · Hold Pattern Studio'}),u.jsx('p',{children:view==='plan'?'Plan: give every audible step of the period its own Hold Pattern. Drag patterns onto steps; the keyboard projects them onto every row and window position.':'Tune by ear: drag the full-height pitch axis, use ±1 cent or type an exact frequency. Preview never changes held Live Room gestures.'})]}),
+    planCapable?u.jsxs('div',{className:'xen-hpp-tabs',role:'tablist','aria-label':'Studio view',children:[u.jsx('button',{type:'button',role:'tab','aria-selected':view==='pattern',onClick:()=>setView('pattern'),children:'Pattern'}),u.jsx('button',{type:'button',role:'tab','aria-selected':view==='plan',disabled:!!planEdit,title:planEdit?'Store or cancel the step edit first':'Hold Pattern Plan: one pattern per scale step',onClick:openPlan,children:'Plan'+(holdPlan&&holdPlan.enabled!==false?' ●':'')})]}):null,
+    u.jsx('button',{type:'button',onClick:onClose,'aria-label':'Close detailed Hold Pattern editor',children:'✕ Close'})]}),
+   planError?u.jsx('div',{className:'xen-hpp-banner',role:'alert',children:planError}):null,
+   view==='plan'&&planApi?u.jsx(planApi.PlanView,{plan:holdPlan||null,origin:tuningOrigin,workingPattern:working(),onPlanChange:onHoldPlanChange,onRestoreGrid,onEditPosition:editPlanStep,onAudition:(pat,hz)=>void playPattern(pat,hz),armedPosition:planEdit?.pos}):null,
+   view==='pattern'&&planEdit?u.jsxs('div',{className:'xen-hpp-banner',role:'status',children:[u.jsx('span',{children:'Editing plan step '+planEdit.label+'. Keys keep playing the stored step until you store it; your lane pattern returns afterwards.'}),u.jsx('button',{type:'button',onClick:()=>finishPlanEdit(true),children:'Store into '+planEdit.label}),u.jsx('button',{type:'button',onClick:()=>finishPlanEdit(false),children:'Cancel'})]}):null,
+   view==='pattern'?u.jsxs('div',{className:'xen-hpm02-settings',children:[
     u.jsxs('label',{children:['Slots ',u.jsx('input',{type:'number',min:1,max:256,step:1,value:n,onChange:e=>onSlots(Math.max(1,Math.min(256,Math.round(Number(e.target.value)||1))))})]}),
     u.jsxs('label',{children:['Bars ',u.jsx('input',{type:'number',min:.125,max:16,step:.125,value:referenceBars,onChange:e=>onBars(Math.max(.125,Math.min(16,Number(e.target.value)||1)))})]}),
     u.jsxs('label',{children:['Pitch reference ',u.jsx('select',{'aria-label':'Pitch reference grid',value:refMode,onChange:e=>setRefMode(e.target.value),children:options.map(([id,label])=>u.jsx('option',{value:id,children:label},id))})]}),
-    u.jsx('span',{className:'xen-hpm02-summary',children:n+' slots · '+referenceBars+' bars · '+(tuningOrigin?.tuningId||'no native Grid metadata')})]}),
-   u.jsxs('div',{className:'xen-hpm02-layout',children:[
+    u.jsx('span',{className:'xen-hpm02-summary',children:n+' slots · '+referenceBars+' bars · '+(tuningOrigin?.tuningId||'no native Grid metadata')})]}):null,
+   view==='pattern'?u.jsxs('div',{className:'xen-hpm02-layout',children:[
     u.jsxs('div',{className:'xen-hpm02-slots',children:[u.jsx('strong',{children:'Select slot'}),
      u.jsx('div',{className:'xen-hpm02-slot-grid',children:Array.from({length:n},(_,i)=>u.jsx('button',{type:'button',
       'aria-label':'Select slot '+(i+1),'aria-pressed':idx===i,className:(idx===i?' selected':'')+((muteSteps?.[i]===0)?' muted':''),onClick:()=>setSelected(i),
@@ -295,10 +308,69 @@ function __XenHoldDetailEditor({lane,slots,referenceBars,muteSteps,pitches,volum
         'aria-label':'Set pitch to '+reference.label+' '+reference.cents+' cents',onClick:()=>{putPitch(reference.cents);void playSingle(rootHz*Math.pow(2,reference.cents/1200),'Reference step')},
         className:(reference.muted?' muted':'')+(Math.abs(current-reference.cents)<.0005?' selected':''),
         children:[reference.label,' · ',formatC(reference.cents)]},i))}):u.jsx('p',{children:'No reference steps. Free tuning is available.'}),
-       u.jsx('p',{className:'xen-hpm02-info',children:'References guide pitch only; they never switch the Live Room Grid or change its mutes.'})]})]})]})]})
+       u.jsx('p',{className:'xen-hpm02-info',children:'References guide pitch only; they never switch the Live Room Grid or change its mutes.'})]})]})]}):null]})
  }),document.body);
 }
 
-function R4({title:e,laneLabel:t,segments:n,customSegments:r,referenceBars:a,patternSteps:o,pitchCents:Q,slotVolumes:V,microtiming:Y,onPitchChange:W,onVolumeChange:WV,onMicrotimingChange:WY,onMemoryLoad:H,tuningOrigin:T,previewRuntime:__holdPreviewRuntime,open:i,onToggle:s,onSegmentsChange:l,onCustomSegmentsChange:c,onReferenceBarsChange:d,onPatternChange:p}){const[f,b]=P.useState(eu(n)),[g,y]=P.useState(eu(r)),[x,A]=P.useState(()=>Math.max(.125,Math.min(16,Number.isFinite(a)?a:1))),[M,v]=P.useState(()=>l0(o,eu(n)));const [detailOpen,setDetailOpen]=P.useState(false);P.useEffect(()=>{if(!i)setDetailOpen(false)},[i]);const qRef=P.useRef(Q);qRef.current=Q;const qChange=B=>{qRef.current=B;W?.(B)};
+function R4({holdPlan:__holdPlan,onHoldPlanChange:__onHoldPlan,onRestoreGrid:__onRestoreGrid,title:e,laneLabel:t,segments:n,customSegments:r,referenceBars:a,patternSteps:o,pitchCents:Q,slotVolumes:V,microtiming:Y,onPitchChange:W,onVolumeChange:WV,onMicrotimingChange:WY,onMemoryLoad:H,tuningOrigin:T,previewRuntime:__holdPreviewRuntime,open:i,onToggle:s,onSegmentsChange:l,onCustomSegmentsChange:c,onReferenceBarsChange:d,onPatternChange:p}){const[f,b]=P.useState(eu(n)),[g,y]=P.useState(eu(r)),[x,A]=P.useState(()=>Math.max(.125,Math.min(16,Number.isFinite(a)?a:1))),[M,v]=P.useState(()=>l0(o,eu(n)));const [detailOpen,setDetailOpen]=P.useState(false);P.useEffect(()=>{if(!i)setDetailOpen(false)},[i]);const qRef=P.useRef(Q);qRef.current=Q;const qChange=B=>{qRef.current=B;W?.(B)};
  const vRef=P.useRef(V);vRef.current=V;const vChange=B=>{vRef.current=B;WV?.(B)};
- const mRef=P.useRef(Y);mRef.current=Y;const mChange=B=>{mRef.current=B;WY?.(B)};P.useEffect(()=>{const B=eu(n);b(B),v(l0(o,B))},[n,o]),P.useEffect(()=>{y(eu(r))},[r]),P.useEffect(()=>{A(Math.max(.125,Math.min(16,Number.isFinite(a)?a:1)))},[a]);const w=P.useMemo(()=>M.reduce((B,O)=>B+(O===0?0:1),0),[M]),k=eG(f)?String(f):"other",I=B=>{const O=l0(B,f);v(O),p(O)},E=B=>{const O=eu(B);b(O);const T=l0(M,O);v(T),l(O),p(T),W&&qChange(__xenHoldPitchVector(qRef.current,O)),WV&&vChange(__xenHoldVolumeVector(vRef.current,O)),WY&&mChange(__xenHoldMicroVector(mRef.current,O))},F=B=>{const O=eu(B);y(O),c(O),E(O)},L=B=>{const O=Math.max(.125,Math.min(16,Number.isFinite(B)?B:1));A(O),d(O)},loadMemory=B=>{b(B.slots);v(B.muteSteps.slice());A(B.referenceBars);qRef.current=B.pitchCents.slice();vRef.current=__xenHoldVolumeVector(B.slotVolumes,B.slots);mRef.current=__xenHoldMicroVector(B.microtiming,B.slots);if(!eG(B.slots))y(B.slots);H?.(B)};return u.jsx("div",{className:"xen-hold-pattern-panel",children:u.jsx(X6,{title:e,open:i,onToggle:s,tabMode:true,children:u.jsxs("div",{className:"xen-hold-pattern flex flex-col gap-2",children:[u.jsx(__XenHPM01Controls,{lane:t==="Keyboard"?"keyboard":"enter",slots:f,referenceBars:x,muteSteps:M,pitchCents:qRef.current,slotVolumes:vRef.current,microtiming:mRef.current,tuningOrigin:T,onLoad:loadMemory}),u.jsx("button",{type:"button",title:"Open detailed Hold Pattern editor",onClick:()=>setDetailOpen(true),className:"xen-hpm02-open",children:"↗ Detailed Editor · reference grids"}),detailOpen?u.jsx(__XenHoldDetailEditor,{lane:t,slots:f,referenceBars:x,muteSteps:M,pitches:Q,volumes:V,microtiming:Y,tuningOrigin:T,previewRuntime:__holdPreviewRuntime,onMute:I,onPitch:qChange,onVolume:vChange,onMicrotiming:mChange,onSlots:E,onBars:L,onClose:()=>setDetailOpen(false)}):null,u.jsxs("div",{className:"grid grid-cols-2 gap-2 sm:grid-cols-5",children:[u.jsx("button",{type:"button",onClick:()=>I(Pw(f)),className:"rounded border border-emerald-700 bg-emerald-950/30 px-2 py-2 text-xs text-emerald-100 hover:bg-emerald-900/40",children:"All"}),u.jsx("button",{type:"button",onClick:()=>I(_ie(f)),className:"rounded border border-neutral-700 bg-neutral-950 px-2 py-2 text-xs text-neutral-300 hover:bg-neutral-900",children:"Only 1"}),u.jsx("button",{type:"button",onClick:()=>I(Oie(f)),className:"rounded border border-neutral-700 bg-neutral-950 px-2 py-2 text-xs text-neutral-300 hover:bg-neutral-900",children:"delayed"}),u.jsx("button",{type:"button",onClick:()=>I(zie(f)),className:"rounded border border-neutral-700 bg-neutral-950 px-2 py-2 text-xs text-neutral-300 hover:bg-neutral-900",children:"Gallopp"}),u.jsx("button",{type:"button",onClick:()=>I(jie(f)),className:"rounded border border-neutral-700 bg-neutral-950 px-2 py-2 text-xs text-neutral-300 hover:bg-neutral-900",children:"Nachschlag"})]}),u.jsxs("div",{className:"grid grid-cols-3 gap-2",children:[u.jsxs("div",{children:[u.jsx("label",{className:"mb-1 block text-[10px] uppercase tracking-widest text-neutral-500",children:"Slots"}),u.jsxs("select",{value:k,onChange:B=>{if(B.target.value==="other"){E(g||48);return}E(parseInt(B.target.value,10))},className:"w-full border border-neutral-700 bg-neutral-950 p-1 text-xs text-neutral-300",children:[Z6.map(B=>u.jsx("option",{value:B,children:B},`${t}-${B}`)),u.jsx("option",{value:"other",children:"other"})]})]}),u.jsxs("div",{children:[u.jsx("label",{className:"mb-1 block text-[10px] uppercase tracking-widest text-neutral-500",children:"Other"}),u.jsx("input",{type:"number",min:1,max:256,step:1,value:g,onChange:B=>F(parseInt(B.target.value||"1",10)),className:"w-full border border-neutral-700 bg-neutral-950 p-1 text-xs text-neutral-300"})]}),u.jsxs("div",{children:[u.jsx("label",{className:"mb-1 block text-[10px] uppercase tracking-widest text-neutral-500",children:"Bars"}),u.jsx("input",{type:"number",min:.125,max:16,step:.125,value:x,onChange:B=>L(parseFloat(B.target.value||"1")),className:"w-full border border-neutral-700 bg-neutral-950 p-1 text-xs text-neutral-300",title:"Reference Duration in Bars"})]})]}),u.jsxs("div",{className:"flex items-center justify-between text-[11px] text-neutral-400",children:[u.jsx("span",{children:t}),u.jsxs("span",{children:[w,"/",M.length," active ·",x," T."]})]}),u.jsx(iT,{label:t,steps:M,tone:"neutral",onChange:B=>I(B),pitches:Q,onPitchChange:qChange})]})})})}
+ const mRef=P.useRef(Y);mRef.current=Y;const mChange=B=>{mRef.current=B;WY?.(B)};P.useEffect(()=>{const B=eu(n);b(B),v(l0(o,B))},[n,o]),P.useEffect(()=>{y(eu(r))},[r]),P.useEffect(()=>{A(Math.max(.125,Math.min(16,Number.isFinite(a)?a:1)))},[a]);const w=P.useMemo(()=>M.reduce((B,O)=>B+(O===0?0:1),0),[M]),k=eG(f)?String(f):"other",I=B=>{const O=l0(B,f);v(O),p(O)},E=B=>{const O=eu(B);b(O);const T=l0(M,O);v(T),l(O),p(T),W&&qChange(__xenHoldPitchVector(qRef.current,O)),WV&&vChange(__xenHoldVolumeVector(vRef.current,O)),WY&&mChange(__xenHoldMicroVector(mRef.current,O))},F=B=>{const O=eu(B);y(O),c(O),E(O)},L=B=>{const O=Math.max(.125,Math.min(16,Number.isFinite(B)?B:1));A(O),d(O)},loadMemory=B=>{b(B.slots);v(B.muteSteps.slice());A(B.referenceBars);qRef.current=B.pitchCents.slice();vRef.current=__xenHoldVolumeVector(B.slotVolumes,B.slots);mRef.current=__xenHoldMicroVector(B.microtiming,B.slots);if(!eG(B.slots))y(B.slots);H?.(B)};return u.jsx("div",{className:"xen-hold-pattern-panel",children:u.jsx(X6,{title:e,open:i,onToggle:s,tabMode:true,children:u.jsxs("div",{className:"xen-hold-pattern flex flex-col gap-2",children:[u.jsx(__XenHPM01Controls,{lane:t==="Keyboard"?"keyboard":"enter",slots:f,referenceBars:x,muteSteps:M,pitchCents:qRef.current,slotVolumes:vRef.current,microtiming:mRef.current,tuningOrigin:T,onLoad:loadMemory}),u.jsx("button",{type:"button",title:"Open detailed Hold Pattern editor",onClick:()=>setDetailOpen(true),className:"xen-hpm02-open",children:__onHoldPlan?(__holdPlan&&__holdPlan.enabled!==false?"↗ Hold Pattern Studio · Plan active ("+(__holdPlan.entries||[]).filter(Boolean).length+"/"+(__holdPlan.entries||[]).length+" steps)":"↗ Hold Pattern Studio · Pattern & Plan"):"↗ Detailed Editor · reference grids"}),detailOpen?u.jsx(__XenHoldDetailEditor,{lane:t,slots:f,referenceBars:x,muteSteps:M,pitches:Q,volumes:V,microtiming:Y,tuningOrigin:T,previewRuntime:__holdPreviewRuntime,onMute:I,onPitch:qChange,onVolume:vChange,onMicrotiming:mChange,onSlots:E,onBars:L,onClose:()=>setDetailOpen(false),holdPlan:__holdPlan,onHoldPlanChange:__onHoldPlan,onRestoreGrid:__onRestoreGrid,onLoadPattern:B=>loadMemory({...B,slots:eu(B.slots),muteSteps:l0(B.muteSteps,eu(B.slots)),pitchCents:__xenHoldPitchVector(B.pitchCents,eu(B.slots))})}):null,u.jsxs("div",{className:"grid grid-cols-2 gap-2 sm:grid-cols-5",children:[u.jsx("button",{type:"button",onClick:()=>I(Pw(f)),className:"rounded border border-emerald-700 bg-emerald-950/30 px-2 py-2 text-xs text-emerald-100 hover:bg-emerald-900/40",children:"All"}),u.jsx("button",{type:"button",onClick:()=>I(_ie(f)),className:"rounded border border-neutral-700 bg-neutral-950 px-2 py-2 text-xs text-neutral-300 hover:bg-neutral-900",children:"Only 1"}),u.jsx("button",{type:"button",onClick:()=>I(Oie(f)),className:"rounded border border-neutral-700 bg-neutral-950 px-2 py-2 text-xs text-neutral-300 hover:bg-neutral-900",children:"delayed"}),u.jsx("button",{type:"button",onClick:()=>I(zie(f)),className:"rounded border border-neutral-700 bg-neutral-950 px-2 py-2 text-xs text-neutral-300 hover:bg-neutral-900",children:"Gallopp"}),u.jsx("button",{type:"button",onClick:()=>I(jie(f)),className:"rounded border border-neutral-700 bg-neutral-950 px-2 py-2 text-xs text-neutral-300 hover:bg-neutral-900",children:"Nachschlag"})]}),u.jsxs("div",{className:"grid grid-cols-3 gap-2",children:[u.jsxs("div",{children:[u.jsx("label",{className:"mb-1 block text-[10px] uppercase tracking-widest text-neutral-500",children:"Slots"}),u.jsxs("select",{value:k,onChange:B=>{if(B.target.value==="other"){E(g||48);return}E(parseInt(B.target.value,10))},className:"w-full border border-neutral-700 bg-neutral-950 p-1 text-xs text-neutral-300",children:[Z6.map(B=>u.jsx("option",{value:B,children:B},`${t}-${B}`)),u.jsx("option",{value:"other",children:"other"})]})]}),u.jsxs("div",{children:[u.jsx("label",{className:"mb-1 block text-[10px] uppercase tracking-widest text-neutral-500",children:"Other"}),u.jsx("input",{type:"number",min:1,max:256,step:1,value:g,onChange:B=>F(parseInt(B.target.value||"1",10)),className:"w-full border border-neutral-700 bg-neutral-950 p-1 text-xs text-neutral-300"})]}),u.jsxs("div",{children:[u.jsx("label",{className:"mb-1 block text-[10px] uppercase tracking-widest text-neutral-500",children:"Bars"}),u.jsx("input",{type:"number",min:.125,max:16,step:.125,value:x,onChange:B=>L(parseFloat(B.target.value||"1")),className:"w-full border border-neutral-700 bg-neutral-950 p-1 text-xs text-neutral-300",title:"Reference Duration in Bars"})]})]}),u.jsxs("div",{className:"flex items-center justify-between text-[11px] text-neutral-400",children:[u.jsx("span",{children:t}),u.jsxs("span",{children:[w,"/",M.length," active ·",x," T."]})]}),u.jsx(iT,{label:t,steps:M,tone:"neutral",onChange:B=>I(B),pitches:Q,onPitchChange:qChange})]})})})}
+/* THUNDER-HPP01: Hold Pattern Plan runtime. A plan assigns one Hold Pattern to each AUDIBLE
+   step of one tuning period (octave, tritave, ...), not to physical keys. A key's position is
+   derived from its own frequency, so it follows any number of keyboard rows, the movable
+   window and octave shifts. HOT ZONE contract: resolved once per key attack (never per pulse);
+   the audible-step table is rebuilt only when the Grid changes; resolved overrides are cached
+   per plan entry object. No React, storage or allocation per scheduler tick. */
+const __XenHoldPlanRuntime=(()=>{
+ let tableKey='',table=null;
+ const overrides=new WeakMap();
+ const last={position:-1,serial:0};
+ function gridTable(p){
+  const id=String(p?.gridTuning||'12edo'),base=Number(p?.gridBase)||0;
+  const mutes=Array.isArray(p?.manualGridMutedSteps)?p.manualGridMutedSteps:[],offs=Array.isArray(p?.manualGridStepOffsets)?p.manualGridStepOffsets:[];
+  const key=id+'|'+base+'|'+mutes.join(',')+'|'+offs.join(',');
+  if(key===tableKey&&table)return table;
+  let steps=[],period=1200;
+  try{steps=Kp(id)||[];period=Number(vF(id))||1200}catch{steps=[]}
+  if(!(period>1))period=1200;
+  const muted=new Set(mutes),audible=[];
+  for(let degree=0;degree<steps.length;degree++){
+   if(muted.has(degree))continue;
+   const raw=Number(steps[degree])+(Number(offs[degree])||0)*10;
+   if(!Number.isFinite(raw))continue;
+   audible.push({degree,cents:((raw%period)+period)%period});
+  }
+  audible.sort((a,b)=>a.cents-b.cents||a.degree-b.degree);
+  let spacing=period;
+  for(let i=0;i<audible.length;i++){const next=i+1<audible.length?audible[i+1].cents:audible[0].cents+period;spacing=Math.min(spacing,next-audible[i].cents||period)}
+  tableKey=key;table={tuningId:id,base,period,audible,tolerance:Math.max(3,Math.min(45,spacing*.45))};
+  return table;
+ }
+ function position(t,hz){
+  if(!t||!(hz>0)||!(t.base>0)||!t.audible.length)return -1;
+  const P=t.period;let c=1200*Math.log2(hz/t.base);c=((c%P)+P)%P;
+  let best=-1,dist=Infinity;
+  for(let i=0;i<t.audible.length;i++){const d0=Math.abs(c-t.audible[i].cents),d=Math.min(d0,P-d0);if(d<dist){dist=d;best=i}}
+  return dist<=t.tolerance?best:-1;
+ }
+ function override(entry){
+  let o=overrides.get(entry);if(o)return o;
+  const p=entry.pattern,slots=eu(p.slots),bars=Math.max(.125,Math.min(16,Number.isFinite(p.referenceBars)?p.referenceBars:1));
+  const steps=l0(p.muteSteps,slots),pitch=__xenHoldPitchVector(p.pitchCents,slots);
+  const pitchState=__xenHoldPitchState(pitch),volumes=__xenHoldVolumeVector(p.slotVolumes,slots),micro=__xenHoldMicroVector(p.microtiming,slots);
+  o=Object.freeze({slots,bars,steps,pitches:pitch,pitchState,volumes,micro,
+   signature:['hpp',slots,bars,steps.join(''),pitchState?.signature??'',volumes.join(','),micro.join(',')].join('|')});
+  overrides.set(entry,o);return o;
+ }
+ /* Returns the frozen override for this key frequency, or null = lane working pattern. */
+ function forHz(params,hz){
+  const plan=params?.keyboardHoldPlan;
+  if(!plan||plan.enabled===false||!Array.isArray(plan.entries)||!plan.entries.length)return null;
+  const pos=position(gridTable(__xenLiveGridParams(params)),hz);
+  if(pos<0)return null;
+  last.position=pos;last.serial++;
+  const entry=plan.entries[pos%plan.entries.length];
+  return entry&&entry.pattern&&typeof entry.pattern==='object'?override(entry):null;
+ }
+ return Object.freeze({forHz,gridTable,position,last});
+})();

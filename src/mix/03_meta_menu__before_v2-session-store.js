@@ -209,7 +209,8 @@ const __XenMainRoomSessionBridge=(()=>{
    if(!owner||typeof owner.updateNParams!=='function')throw Error('Main Room controls cannot be restored right now.');
    const p=owner;
    // The real Main Room state setter owns grid, drum, drone, RFL and source IDs.
-   p.updateNParams(clone(cfg.nParamsUI));
+   // THUNDER-HPP01: snapshots from before Hold Pattern Plans had no plan; restoring one must not keep a later plan active.
+   p.updateNParams({keyboardHoldPlan:null,...clone(cfg.nParamsUI)});
    if(cfg.wave){
     if(cfg.wave.preset&&typeof p.setWaveSoundPreset==='function')p.setWaveSoundPreset(cfg.wave.preset);
     if(typeof p.setWaveSoundEnabled==='function')p.setWaveSoundEnabled(!!cfg.wave.enabled);

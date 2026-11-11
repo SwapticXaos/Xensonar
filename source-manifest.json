@@ -959,6 +959,12 @@
    ]
   },
   {
+   "id": "js-023c-xen-function-__xenHoldPatternPlanFactory",
+   "files": [
+    "src/factories/xenHoldPatternPlanFactory.js"
+   ]
+  },
+  {
    "id": "js-024-xen-function-__xenM11HydrationFactory",
    "oct28_section": "@@XENSONAR_COMPONENT_056@@",
    "files": [

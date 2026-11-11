@@ -368,11 +368,16 @@ function Nie(e){
  const limit=Math.max(1,Math.min(12,Math.round(e.maxPulses))),out=[];
  for(const lane of ["wellenstart","klaviatur"]){
   const gestures=e.state.gestures[lane];
-  const segments=Math.max(1,Math.min(256,Math.round(e.segmentsByLane[lane]??sT)));
-  const bars=Math.max(.125,Math.min(16,Number.isFinite(e.referenceBarsByLane?.[lane]??NaN)?Number(e.referenceBarsByLane?.[lane]):1));
-  const interval=nG({bpm:e.bpm,segmentsPerBar:segments,referenceBars:bars});
+  const laneSegments=Math.max(1,Math.min(256,Math.round(e.segmentsByLane[lane]??sT)));
+  const laneBars=Math.max(.125,Math.min(16,Number.isFinite(e.referenceBarsByLane?.[lane]??NaN)?Number(e.referenceBarsByLane?.[lane]):1));
+  const laneInterval=nG({bpm:e.bpm,segmentsPerBar:laneSegments,referenceBars:laneBars});
   for(const gesture of Object.values(gestures)){
    if(!gesture.active)continue;
+   // THUNDER-HPP01: a Hold Pattern Plan gesture carries its own frozen pattern (resolved at attack).
+   const ov=gesture.hpp,segments=ov?ov.slots:laneSegments,bars=ov?ov.bars:laneBars;
+   const interval=ov?nG({bpm:e.bpm,segmentsPerBar:segments,referenceBars:bars}):laneInterval;
+   const steps=ov?ov.steps:e.activeStepsByLane?.[lane],micro=ov?ov.micro:e.microByLane?.[lane],vols=ov?ov.volumes:e.volumesByLane?.[lane];
+   const expressive=ov?gesture.hpm02Expressive===true:e.expressiveByLane?.[lane];
    gesture.segmentsPerBar=segments;gesture.intervalMs=interval;gesture.referenceBars=bars;
    const sustain=e.sustainExtendActive===true;
    rG(gesture,sustain,e.nowMs);
@@ -387,7 +392,7 @@ function Nie(e){
    }
    if(e.sampleLanes?.[lane]===true&&e.sampleAudioCtx?.state==='running'&&!gesture.sustainExtendActive){
     const ctx=e.sampleAudioCtx;gesture.sampleClock04Ctx=ctx;
-    const signature=(e.sampleSignatures?.[lane]??'')+'|'+gesture.targetHz,horizon=Math.max(400,Math.min(650,Number(e.sampleLookaheadMs)||550));
+    const signature=(e.sampleSignatures?.[lane]??'')+(ov?'|'+ov.signature:'')+'|'+gesture.targetHz,horizon=Math.max(400,Math.min(650,Number(e.sampleLookaheadMs)||550));
     if(gesture.sampleClock04Signature!==signature){
      if(gesture.sampleClock04Signature!==undefined)__XenSampleClock04.cancelKey(ctx,lane,gesture.keyId,gesture.startedAtMs,false);
      gesture.sampleClock04Signature=signature;
@@ -396,32 +401,32 @@ function Nie(e){
     }
     let planned=0;
     while(gesture.nextPulseAtMs-interval*.45<=e.nowMs+horizon&&planned<32&&out.length<96){
-     const pulseIndex=gesture.pulseCount++,wasPending=pulseIndex===0&&gesture.quantizedAttackPending;let due=__xenHoldSlotDueMs(gesture.startedAtMs,pulseIndex,interval,e.microByLane?.[lane]);
+     const pulseIndex=gesture.pulseCount++,wasPending=pulseIndex===0&&gesture.quantizedAttackPending;let due=__xenHoldSlotDueMs(gesture.startedAtMs,pulseIndex,interval,micro);
      if(pulseIndex===0&&gesture.quantizedAttackPending)gesture.quantizedAttackPending=false;
      gesture.nextPulseAtMs+=interval;planned++;
      if(due<e.nowMs+8){if(wasPending&&due>=e.nowMs-70)due=e.nowMs+14;else{e.state.skippedCatchupCount++;continue}}
-     const active=tG(e.activeStepsByLane?.[lane],segments,pulseIndex);
-     if(!active||__xenHoldSlotGain(e.volumesByLane?.[lane],pulseIndex)===0){e.state.patternMutedPulseCount++;continue}
-     out.push({lane,keyId:gesture.keyId,targetHz:gesture.targetHz,intervalMs:interval,segmentsPerBar:segments,referenceBars:bars,pulseIndex,sustainExtendActive:false,articulation:gesture.articulation,extendPolicy:gesture.extendPolicy,reason:'sample-audio-timeline-lookahead',sampleClock04:true,dueAtMs:due,slotGain:__xenHoldSlotGain(e.volumesByLane?.[lane],pulseIndex)});
+     const active=tG(steps,segments,pulseIndex);
+     if(!active||__xenHoldSlotGain(vols,pulseIndex)===0){e.state.patternMutedPulseCount++;continue}
+     out.push({lane,keyId:gesture.keyId,targetHz:gesture.targetHz,intervalMs:interval,segmentsPerBar:segments,referenceBars:bars,pulseIndex,sustainExtendActive:false,articulation:gesture.articulation,extendPolicy:gesture.extendPolicy,reason:'sample-audio-timeline-lookahead',sampleClock04:true,dueAtMs:due,slotGain:__xenHoldSlotGain(vols,pulseIndex)});
      e.state.loopPulseCount++;
     }
     continue;
    }
    if(!Number.isFinite(gesture.nextPulseAtMs)){gesture.nextPulseAtMs=e.nowMs+interval;continue}
-   if(e.expressiveByLane?.[lane]){
+   if(expressive){
     // Schedule each dynamic gesture with its own epoch and phase. Never create
     // early first attacks; future pulses are deferred and key-up checks the owner.
     const horizon=Math.max(300,Math.min(580,Number(e.sampleLookaheadMs)||550));
     let planned=0;
     while(gesture.nextPulseAtMs-interval*.45<=e.nowMs+horizon&&planned<32&&out.length<96){
-     const index=gesture.pulseCount++,wasPending=index===0&&gesture.quantizedAttackPending;let due=__xenHoldSlotDueMs(gesture.startedAtMs,index,interval,e.microByLane?.[lane]);
+     const index=gesture.pulseCount++,wasPending=index===0&&gesture.quantizedAttackPending;let due=__xenHoldSlotDueMs(gesture.startedAtMs,index,interval,micro);
      gesture.nextPulseAtMs+=interval;planned++;
      if(due<e.nowMs+6){if(wasPending&&due>=e.nowMs-70)due=e.nowMs+12;else{e.state.skippedCatchupCount++;continue}}
-     if(!tG(e.activeStepsByLane?.[lane],segments,index)||__xenHoldSlotGain(e.volumesByLane?.[lane],index)===0){e.state.patternMutedPulseCount++;continue}
+     if(!tG(steps,segments,index)||__xenHoldSlotGain(vols,index)===0){e.state.patternMutedPulseCount++;continue}
      if(index===0&&gesture.quantizedAttackPending)gesture.quantizedAttackPending=false;
      out.push({lane,keyId:gesture.keyId,targetHz:gesture.targetHz,intervalMs:interval,segmentsPerBar:segments,referenceBars:bars,pulseIndex:index,
       sustainExtendActive:gesture.sustainExtendActive,articulation:gesture.articulation,extendPolicy:gesture.extendPolicy,
-      reason:'dynamic-slot-ahead',expressive:true,dueAtMs:due,slotGain:__xenHoldSlotGain(e.volumesByLane?.[lane],index)});
+      reason:'dynamic-slot-ahead',expressive:true,dueAtMs:due,slotGain:__xenHoldSlotGain(vols,index)});
      e.state.loopPulseCount++;
     }
     continue;
@@ -437,7 +442,7 @@ function Nie(e){
    gesture.nextPulseAtMs+=(skipped+1)*interval;
    if(out.length>=limit){e.state.skippedCatchupCount++;continue}
    gesture.lastPulseAtMs=e.nowMs;
-   const __c20cActive=tG(e.activeStepsByLane?.[lane],segments,pulseIndex);
+   const __c20cActive=tG(steps,segments,pulseIndex);
    globalThis.__XenC20C?.pulse({lane,keyId:gesture.keyId,epoch:gesture.startedAtMs,pulseIndex,
       active:__c20cActive,dueMs:gesture.nextPulseAtMs-(skipped+1)*interval,
       observedMs:e.nowMs,intervalMs:interval,segments,targetHz:gesture.targetHz});
