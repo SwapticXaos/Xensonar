@@ -31,4 +31,4 @@ Neu/erweitert in `room5_psylab`: Ansicht ändert Tasten nicht; Richtung umdrehen
 - Nicht geprüft: Firefox, Safari, Netlify, kein Abhörtest.
 
 ## Nachtrag Gesamtlauf
-(offen bei Commit: wird nach Ende von `run_e2e.sh` ergänzt)
+`run_e2e.sh` auf Stand `562a48f`: 19 Läufe grün, kein Fehler, Exit 0 (u. a. `room5_psylab`, `room5_grid_layer_equivalence`, `room5_metronome_not_recorded`, `live_grid_handles`, Bass-, Session- und Package-Läufe, P37).
