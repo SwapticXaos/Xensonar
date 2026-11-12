@@ -120,7 +120,7 @@ if(typeof window!=='undefined')window.__XenLoopRecForensics=Object.freeze({
 
 /* Loop-Rec LR1: separate take owner; no Master Recording state or second synth. */
 const __XenLoopRec=(()=>{
- const destinations=new WeakSet(),routes=new WeakMap(),captured=new WeakSet(),nodes=new Map(),origins=new Map(),listeners=new Set();
+ const destinations=new WeakSet(),tapWatchers=new Set(),routes=new WeakMap(),captured=new WeakSet(),nodes=new Map(),origins=new Map(),listeners=new Set();
  let owner=null,take=null,last=null,captureReport=null,rootRouteAttempts=0,rootRouteAccepted=0,rootWanted=false,state=Object.freeze({phase:'idle',message:''});
  const history=[],pending=new Map();let sequence=0,recoveryBusy=false;
  const note=(event,details={})=>{history.push({seq:++sequence,at:Date.now(),event,...details});if(history.length>96)history.shift()};
@@ -140,7 +140,7 @@ const __XenLoopRec=(()=>{
   const instrument=['particle','wave','keyboard'].includes(kind);
   const input=instrument?__XenEQ.route(ctx,kind,node,'instrument'):node;
   map.set(kind,input);captured.add(input);
-  const record={ctx,node,kind};nodes.set(node,record);
+  const record={ctx,node,kind,destination};nodes.set(node,record);for(const w of tapWatchers)if(w.ctx===ctx)try{w.fn(record)}catch{}
   const closed=()=>{if(ctx.state!=='closed')return;nodes.delete(node);map.delete(kind);ctx.removeEventListener?.('statechange',closed)};
   ctx.addEventListener?.('statechange',closed);
   if(take?.ctx===ctx&&take.bus&&(kind!=='rootFollow'||take.owner.params().rootFollowLoopActive))connectCapture(take,node);
@@ -320,7 +320,7 @@ const __XenLoopRec=(()=>{
   publish('idle','Loop-Rec recording discarded.');
   return true;
  }
- return {observe:(event,details={})=>note(event,details),diagnostics:()=>({state,witness:__XenLoopRecWitness.snapshot(),pending:[...new Set([...pending.keys(),...bs().entries.filter(e=>e.sessionTake&&e.loopRecIntent?.state==='pending').map(e=>e.id)])],history:history.slice(),captureReport,rootRouteAttempts,rootRouteAccepted,rootWanted,liveRoutes:Object.fromEntries(['wave','keyboard','particle','rootFollow'].map(kind=>[kind,[...nodes.values()].filter(n=>n.kind===kind).length])),take:take?{start:take.start,end:take.end,frames:take.rec?.frames??0,session:take.session,assetWritten:!!take.entry,sessionCommitted:!!take.committed}:null}),rootActive(active){rootWanted=!!active;if(!take?.bus)return;for(const {node,kind,ctx}of nodes.values())if(kind==='rootFollow'&&ctx===take.ctx){try{active?connectCapture(take,node):disconnectCapture(take,node)}catch{}}},route,mark,isDestination:node=>destinations.has(node),rootDestination,boundary,capturedInput:node=>captured.add(node),origin:(id,ctx)=>origins.get(id)?.ctx===ctx?origins.get(id).origin:null,snapshot:()=>state,subscribe:fn=>(listeners.add(fn),()=>listeners.delete(fn)),bind(value){owner=value;return()=>{if(owner===value)owner=null}},toggle,retryPending,stop,cancel:discard};
+ return {observe:(event,details={})=>note(event,details),diagnostics:()=>({state,witness:__XenLoopRecWitness.snapshot(),pending:[...new Set([...pending.keys(),...bs().entries.filter(e=>e.sessionTake&&e.loopRecIntent?.state==='pending').map(e=>e.id)])],history:history.slice(),captureReport,rootRouteAttempts,rootRouteAccepted,rootWanted,liveRoutes:Object.fromEntries(['wave','keyboard','particle','rootFollow'].map(kind=>[kind,[...nodes.values()].filter(n=>n.kind===kind).length])),take:take?{start:take.start,end:take.end,frames:take.rec?.frames??0,session:take.session,assetWritten:!!take.entry,sessionCommitted:!!take.committed}:null}),rootActive(active){rootWanted=!!active;if(!take?.bus)return;for(const {node,kind,ctx}of nodes.values())if(kind==='rootFollow'&&ctx===take.ctx){try{active?connectCapture(take,node):disconnectCapture(take,node)}catch{}}},route,mark,isDestination:node=>destinations.has(node),rootDestination,boundary,capturedInput:node=>captured.add(node),/* STEMS-03: the per-kind Loop-Rec gain nodes that already exist in the live path (read-only view; used as extra outputs by the stem recorder) */watchKindTaps:(ctx,fn)=>{const w={ctx,fn};tapWatchers.add(w);return()=>tapWatchers.delete(w)},kindTaps:ctx=>{const out=[];for(const r of nodes.values())if(r.ctx===ctx)out.push({kind:r.kind,node:r.node,destination:r.destination});return out},origin:(id,ctx)=>origins.get(id)?.ctx===ctx?origins.get(id).origin:null,snapshot:()=>state,subscribe:fn=>(listeners.add(fn),()=>listeners.delete(fn)),bind(value){owner=value;return()=>{if(owner===value)owner=null}},toggle,retryPending,stop,cancel:discard};
 })();
 if(typeof window!=='undefined')Object.defineProperty(window,'__XenLoopRecDiagnostics',{configurable:true,get:()=>__XenLoopRec.diagnostics()});
 function __XenLoopRecButton(){

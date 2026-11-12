@@ -14,7 +14,7 @@ const html=path.resolve(process.argv[2]||'dist/XenSonar_PROBE.html');
   for(const id of['main','drone','rhythm','space'])assert.equal(await chip(id).getAttribute('aria-pressed'),'true',id+' is recorded by default');
   assert.equal(await tap.getAttribute('data-xen-stem-tap'),'after-eq');
   await chip('rhythm').click();await chip('space').click();
-  assert.deepEqual(await p.evaluate(()=>__XenStemRecorder.snapshot().setup),{roles:['main','drone'],tap:'after-eq'});
+  {const st=await p.evaluate(()=>__XenStemRecorder.snapshot().setup);assert.deepEqual([st.roles,st.tap],[['main','drone'],'after-eq'])}
   assert.equal(await chip('rhythm').getAttribute('aria-pressed'),'false');
   await tap.click();assert.equal(await tap.getAttribute('data-xen-stem-tap'),'before-eq');assert.match(await tap.innerText(),/Before EQ/);
   // ---- a recording with the chosen setup contains exactly the chosen stems, tapped before the role level ----

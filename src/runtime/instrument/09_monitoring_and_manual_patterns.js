@@ -45,7 +45,7 @@ function iie({nParamsUI:e,updateNParams:t,onLockCursorToGridChange:n,onQuantizeT
 /* STEMS-01: "Record stems → Multitrack" in the Master Recording panel. State lives in __XenStemRecorder; this control only starts / stops it and shows its message. */
 function __XenStemRecorderControls({masterRecording,name}){
  const st=P.useSyncExternalStore(__XenStemRecorder.subscribe,__XenStemRecorder.snapshot,__XenStemRecorder.snapshot);
- const rec=st.phase==='recording',busy=st.phase==='starting'||st.phase==='finalizing'||st.phase==='sending';
+ const inst=st.setup.mode==='instruments',rec=st.phase==='recording',busy=st.phase==='starting'||st.phase==='finalizing'||st.phase==='sending';
  P.useEffect(()=>{if(st.phase!=='done'&&st.phase!=='error')return;const t=setTimeout(()=>__XenStemRecorder.reset(),20000);return()=>clearTimeout(t)},[st.phase,st.message]);
  const fmt=ms=>{const s=Math.floor(ms/1000);return Math.floor(s/60)+':'+String(s%60).padStart(2,'0')};
  const go=()=>{void __XenStemRecorder.start({name}).catch(()=>{})};
@@ -55,10 +55,14 @@ function __XenStemRecorderControls({masterRecording,name}){
    title:"Record the Live Room as separate stems (Instruments, Drone, Rhythm, Space) for up to 5 minutes and send them to the Multitrack as new tracks. The stems are taken before the master chain; the stereo take is not affected.",
    children:rec?"■ Stop stems · "+fmt(st.ms)+" / "+fmt(st.maxMs):busy?"Stems…":"● Record stems → Multitrack"}),
   u.jsxs("span",{className:"flex gap-1 items-center flex-wrap","data-xen-stems-setup":"true",role:"group","aria-label":"Stems to record",children:[
-   ...__XenStemRecorder.roles.map(r=>{const on=st.setup.roles.includes(r.id);return u.jsx("button",{type:"button","data-xen-stem-role":r.id,"aria-pressed":on,disabled:rec||busy,title:r.hint+(on?" - recorded":" - not recorded"),
-    onClick:()=>__XenStemRecorder.configure({roles:on?st.setup.roles.filter(x=>x!==r.id):[...st.setup.roles,r.id]}),
+   u.jsx("button",{type:"button","data-xen-stem-mode":st.setup.mode,"aria-pressed":inst,disabled:rec||busy,
+    title:inst?"By instrument: the sound engines (particle, wave, keyboard lane), Drone, Rhythm and the rest, as raw signals before the role EQ and level. Click for the four mixer roles.":"By role: the four mixer roles (Instruments, Drone, Rhythm, Space). Click to split the instruments into their sound engines (particle, wave, keyboard lane) as own tracks.",
+    onClick:()=>__XenStemRecorder.configure({mode:inst?"roles":"instruments"}),
+    className:`px-2 py-1 border text-[11px] ${inst?"border-emerald-600 text-emerald-100 bg-emerald-950/30":"border-neutral-700 text-neutral-400"} disabled:opacity-60`,children:inst?"By instrument":"By role"}),
+   ...(inst?__XenStemRecorder.parts:__XenStemRecorder.roles).map(r=>{const list=inst?st.setup.parts:st.setup.roles,on=list.includes(r.id);return u.jsx("button",{type:"button","data-xen-stem-role":r.id,"aria-pressed":on,disabled:rec||busy,title:r.hint+(on?" - recorded":" - not recorded"),
+    onClick:()=>__XenStemRecorder.configure(inst?{parts:on?list.filter(x=>x!==r.id):[...list,r.id]}:{roles:on?list.filter(x=>x!==r.id):[...list,r.id]}),
     className:`px-2 py-1 border text-[11px] ${on?"border-amber-600 text-amber-100 bg-amber-950/30":"border-neutral-700 text-neutral-500"} disabled:opacity-60`,children:r.name},r.id)}),
-   u.jsx("button",{type:"button","data-xen-stem-tap":st.setup.tap,"aria-pressed":st.setup.tap==="before-eq",disabled:rec||busy,
+   inst?null:u.jsx("button",{type:"button","data-xen-stem-tap":st.setup.tap,"aria-pressed":st.setup.tap==="before-eq",disabled:rec||busy,
     title:"Where the stems are taken: after the role EQ and level (default, the sum equals what enters the master chain) or before them (the raw role signal; EQ and automatic level are not in the stems).",
     onClick:()=>__XenStemRecorder.configure({tap:st.setup.tap==="before-eq"?"after-eq":"before-eq"}),
     className:`px-2 py-1 border text-[11px] ${st.setup.tap==="before-eq"?"border-sky-600 text-sky-100 bg-sky-950/30":"border-neutral-700 text-neutral-400"} disabled:opacity-60`,children:st.setup.tap==="before-eq"?"Before EQ":"After EQ"})]}),

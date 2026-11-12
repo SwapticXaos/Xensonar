@@ -80,15 +80,25 @@ const __XenStemRecorder=(()=>{
     {id:'space',name:'Space',hint:'Echo and space returns'}]);
   const MAX_SECONDS=300,listeners=new Set(),moduleByContext=new WeakMap();
   /* STEMS-02: which stems are recorded and where they are tapped (kept for the session; not saved with songs) */
-  let setup={roles:ROLES.map(r=>r.id),tap:'after-eq'};
+  /* STEMS-03: 'instruments' mode splits the Instruments / Space buses into Particles / Waves / Keyboard (the per-kind Loop-Rec gain nodes that already exist in the live path) and the remainder */
+  const PARTS=Object.freeze([
+    {id:'particle',name:'Particle sound',kind:'particle',hint:'Everything played by the particle sound engine (the default sound of Enter and of the particles)'},
+    {id:'wave',name:'Wave sound',kind:'wave',hint:'Everything played by the wave sound engine (in the default setup the keyboard keys and mouse clicks)'},
+    {id:'keyboard',name:'Keyboard lane',kind:'keyboard',hint:'Voices on the keyboard lane (carries sound only when a sound is routed there)'},
+    {id:'drone',name:'Drone',role:'drone',hint:'The drone layer'},
+    {id:'rhythm',name:'Rhythm',role:'rhythm',hint:'Drums, loops and root-follow impulses'},
+    {id:'rest',name:'Other',rest:true,hint:'Everything else on the Instruments and Space buses (e.g. Nodal, Psy Lab, echo returns) plus every instrument stem that is switched off'}]);
+  let setup={mode:'roles',roles:ROLES.map(r=>r.id),parts:PARTS.map(p=>p.id),tap:'after-eq'};
   let state={phase:'idle',ms:0,message:'',stems:[],maxMs:MAX_SECONDS*1000,setup};
   let session=null,timer=0,lastKept=null;
   const emit=patch=>{state={...state,...patch};for(const fn of listeners)try{fn(state)}catch{}};
   function configure(patch={}){
     if(session||state.phase==='recording'||state.phase==='starting'||state.phase==='finalizing'||state.phase==='sending')return state.setup;
     const roles=Array.isArray(patch.roles)?ROLES.map(r=>r.id).filter(id=>patch.roles.includes(id)):setup.roles;
+    const parts=Array.isArray(patch.parts)?PARTS.map(p=>p.id).filter(id=>patch.parts.includes(id)):setup.parts;
+    const mode=patch.mode==='roles'||patch.mode==='instruments'?patch.mode:setup.mode;
     const tap=patch.tap==='before-eq'||patch.tap==='after-eq'?patch.tap:setup.tap;
-    setup={roles,tap};emit({setup});return setup;
+    setup={mode,roles,parts,tap};emit({setup});return setup;
   }
   const source=()=>{try{return globalThis.__XenLiveStemSource?.get?.()||null}catch{return null}};
   function ready(ctx){
@@ -107,7 +117,9 @@ const __XenStemRecorder=(()=>{
     if(timer){clearInterval(timer);timer=0}
     if(!s)return;
     try{s.ctx.removeEventListener('statechange',s.onState)}catch{}
-    for(const k of s.connected){try{k.from.disconnect(k.node,0,k.input)}catch{}}
+    try{s.unwatch?.()}catch{}
+    for(const k of s.connected){try{k.from.disconnect(k.to,0,k.input)}catch{}}
+    try{s.neg?.disconnect()}catch{}
     try{s.node.port.postMessage({kind:'dispose'})}catch{}
     try{s.node.disconnect();s.node.port.onmessage=null}catch{}
   }
@@ -119,13 +131,23 @@ const __XenStemRecorder=(()=>{
     if(!src?.ctx||!src.roleGains)refuse('Start the Live Room audio (Power) before recording stems.');
     const ctx=src.ctx;if(ctx.state!=='running')refuse('The audio engine is not running.');
     const extra=Array.isArray(options.extra)?options.extra:[];
-    const want=Array.isArray(options.roles)?options.roles:setup.roles,chosen=ROLES.filter(r=>want.includes(r.id));
-    if(!chosen.length)refuse('Select at least one stem to record.');
-    const pre=(options.tap||setup.tap)==='before-eq';
-    if(pre&&!src.splices)refuse('The Live Room mixer is not ready.');
-    const taps=chosen.map(r=>({id:r.id,name:r.name+(pre?' (pre-EQ)':''),node:pre?src.splices[r.id]:src.roleGains[r.id],pre}));
-    for(const id of extra)if(id==='premaster'&&src.premaster)taps.push({id:'premaster',name:'Premaster (diagnostic)',node:src.premaster,diagnostic:true});
-    if(taps.slice(0,chosen.length).some(t=>!t.node))refuse('The Live Room mixer is not ready.');
+    const mode=(options.mode||setup.mode)==='instruments'?'instruments':'roles';
+    let taps,chosen;
+    if(mode==='roles'){
+      const want=Array.isArray(options.roles)?options.roles:setup.roles;chosen=ROLES.filter(r=>want.includes(r.id));
+      if(!chosen.length)refuse('Select at least one stem to record.');
+      const pre=(options.tap||setup.tap)==='before-eq';
+      if(pre&&!src.splices)refuse('The Live Room mixer is not ready.');
+      taps=chosen.map(r=>({id:r.id,name:r.name+(pre?' (pre-EQ)':''),node:pre?src.splices[r.id]:src.roleGains[r.id],pre}));
+      for(const id of extra)if(id==='premaster'&&src.premaster)taps.push({id:'premaster',name:'Premaster (diagnostic)',node:src.premaster,diagnostic:true});
+      if(taps.slice(0,chosen.length).some(t=>!t.node))refuse('The Live Room mixer is not ready.');
+    }else{
+      const want=Array.isArray(options.parts)?options.parts:setup.parts;chosen=PARTS.filter(p=>want.includes(p.id));
+      if(!chosen.length)refuse('Select at least one stem to record.');
+      if(!src.splices||!src.inputs||typeof __XenLoopRec==='undefined')refuse('The Live Room mixer is not ready.');
+      taps=chosen.map(p=>({id:p.id,name:p.name,part:p}));
+      if(extra.includes('presum'))taps.push({id:'presum',name:'Pre-EQ sum (diagnostic)',part:{presum:true},diagnostic:true});
+    }
     emit({phase:'starting',ms:0,message:'Preparing stems…',stems:[]});
     const sinks=[];let node=null;const connected=[];
     try{
@@ -148,13 +170,28 @@ const __XenStemRecorder=(()=>{
       }else if(m.kind==='done'){s.done=m;doneResolve(m);if(state.phase==='recording')finish().catch(()=>{})}
       else if(m.kind==='error'){s.error=s.error||Error(m.message);doneResolve(null);if(state.phase==='recording')finish().catch(()=>{})}
     };
-    taps.forEach((t,i)=>{t.node.connect(node,0,i);connected.push({from:t.node,node,input:i})});
+    const link=(from,to,input)=>{from.connect(to,0,input);connected.push({from,to,input})};
+    if(mode==='roles')taps.forEach((t,i)=>link(t.node,node,i));
+    else{
+      const idx=id=>taps.findIndex(t=>t.id===id),kindIdx=new Map();
+      for(const t of taps)if(t.part.kind)kindIdx.set(t.part.kind,idx(t.id));
+      const restI=idx('rest');
+      /* "Other" = main + space inputs - the instrument stems that have their own track: the kind nodes feed a -1 gain into the same input, Web Audio sums the connections (no worklet change) */
+      if(restI>=0){s.neg=ctx.createGain();s.neg.gain.value=-1;s.neg.connect(node,0,restI)}
+      const bus=d=>d===src.inputs.main||d===src.inputs.space;
+      const wire=rec=>{const i=kindIdx.get(rec.kind);if(i===undefined)return;link(rec.node,node,i);if(s.neg&&bus(rec.destination))link(rec.node,s.neg,0)};
+      for(const rec of __XenLoopRec.kindTaps(ctx))wire(rec);
+      for(const t of taps){const i=idx(t.id);if(t.part.role)link(src.splices[t.part.role],node,i);if(t.part.presum)for(const role of['main','drone','rhythm','space'])link(src.splices[role],node,i)}
+      if(restI>=0){link(src.splices.main,node,restI);link(src.splices.space,node,restI)}
+      /* a kind node that appears while recording (e.g. the first particle) is wired the moment it is created */
+      s.unwatch=__XenLoopRec.watchKindTaps(ctx,rec=>{if(session===s)wire(rec)});
+    }
     /* Power off / engine suspended while recording: keep what was captured and hand it over */
     s.onState=()=>{if(session===s&&ctx.state!=='running'&&state.phase==='recording')finish().catch(()=>{})};try{ctx.addEventListener('statechange',s.onState)}catch{}
     node.port.postMessage({kind:'start',startFrame:Math.round((ctx.currentTime+.05)*ctx.sampleRate)});
     s.startedAt=performance.now();
     timer=setInterval(()=>{if(session===s&&state.phase==='recording')emit({ms:Math.min(state.maxMs,Math.round(performance.now()-s.startedAt))})},250);
-    emit({phase:'recording',ms:0,message:'Recording stems…',stems:taps.filter(t=>!t.diagnostic).map(t=>({id:t.id,name:t.name,peak:null}))});
+    emit({phase:'recording',ms:0,message:'Recording stems…',mode,stems:taps.filter(t=>!t.diagnostic).map(t=>({id:t.id,name:t.name,peak:null}))});
     return s;
   }
   function frameNow(s){return Math.round((s.ctx.currentTime+.02)*s.ctx.sampleRate)}
@@ -209,7 +246,7 @@ const __XenStemRecorder=(()=>{
     emit({phase:'idle',ms:0,message:'',stems:[]});
   }
   function reset(){if(!session)emit({phase:'idle',ms:0,message:'',stems:[]})}
-  const api={roles:ROLES,maxSeconds:MAX_SECONDS,configure,start,stop:()=>finish(),cancel,reset,snapshot:()=>state,subscribe:fn=>{listeners.add(fn);return()=>listeners.delete(fn)},
+  const api={roles:ROLES,parts:PARTS,maxSeconds:MAX_SECONDS,configure,start,stop:()=>finish(),cancel,reset,snapshot:()=>state,subscribe:fn=>{listeners.add(fn);return()=>listeners.delete(fn)},
    /* test access (read-only views of the finished session; the archives of a kept session are readable through __xenLongMasterPCM) */
    __session:()=>session,__lastKept:()=>lastKept};
   try{globalThis.__XenStemRecorder=api}catch{}
