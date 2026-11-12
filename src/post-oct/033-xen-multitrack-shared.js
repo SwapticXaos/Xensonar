@@ -10,6 +10,28 @@
  * __xenViewportRail — neutral math for a draggable/resizable overview rail (the Melodic Loop's
  * interaction model: drag the window, drag its edges to zoom, click to jump), reusable by any room.
  */
+/* SEND-WAVE: ONE hand-off of an audio file to the Wave Editor of the Material Forge for rooms that are not the Forge (the Live Room recording rack).
+   Opens the room, waits until the Forge has mounted its editor (it is lazy), lets the editor's own file receiver load the audio (same path as "Send to Editor"
+   in the Forge and the Multitrack clip edit) and scrolls to the editor. Cold: nothing runs until used. */
+const __XenSendToWaveEditor=(()=>{
+ const navigate=room=>window.dispatchEvent(new CustomEvent('xensonar:multitrack:roundtrip-navigate',{detail:{room}}));
+ async function send(file){
+  if(!(file instanceof Blob)||!file.size)throw Error('No audio to send.');
+  navigate('L3LAB');
+  for(let attempt=0;attempt<180;attempt++){
+   let resolve,reject;const accepted=new Promise((yes,no)=>{resolve=yes;reject=no});
+   const request={file,claimed:false,scrollToEditor:true,confirmUnsaved:true,resolve,reject};
+   window.dispatchEvent(new CustomEvent('xensonar:forge:send-to-editor-file',{detail:request}));
+   if(request.claimed){await accepted;return true}
+   await new Promise(ok=>setTimeout(ok,80));
+  }
+  navigate('RESONANCE');
+  throw Error('The Wave Editor did not become ready. Open Material Forge / Spectral Forge and retry.');
+ }
+ const api=Object.freeze({send,navigate});
+ try{globalThis.__XenSendToWaveEditor=api}catch{}
+ return api;
+})();
 const __XenMultitrackInbox=(()=>{
  const DB='xensonar-multitrack-v1',STORE='projects',INBOX='inbox';let task=null;
  const uid=()=>globalThis.crypto?.randomUUID?.()??(Date.now().toString(36)+Math.random().toString(36).slice(2,8));

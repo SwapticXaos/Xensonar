@@ -2083,6 +2083,7 @@ function __CGeHydrated({sourceAdapters:e,targetAdapter:t,rawTargetAdapter:n,rawR
     const editors=()=>[...(I.current?.querySelectorAll('canvas')||[])].map(node=>wave.getEditor(node)).filter(Boolean);
     const previousIds=new Set(editors().map(instance=>instance.doc?.id));
     /* ROOM4-03d: never silently replace unsaved Wave Editor work with a Multitrack clip. */
+    if(request.confirmUnsaved&&!request.roundTripToken&&editors().some(instance=>instance.hasUnsavedWork?.())&&!globalThis.confirm('The Wave Editor holds unsaved edits. Sending this recording replaces them.\n\nOK = replace them and open the recording\nCancel = keep your work'))throw Error('Send cancelled: your unsaved Wave Editor edits were kept.');
     if(request.roundTripToken&&editors().some(instance=>instance.hasUnsavedWork?.())&&!globalThis.confirm('The Wave Editor holds unsaved edits. Opening this Multitrack clip replaces them.\n\nOK = replace them and open the clip\nCancel = keep your work'))throw Error('Clip edit cancelled: your unsaved Wave Editor work was kept.');
     const success=await U(request.file,{fromEditor:true});
     if(!success)throw Error('Material Intake could not decode the editor audio. The previous source was preserved.');
@@ -2092,7 +2093,7 @@ function __CGeHydrated({sourceAdapters:e,targetAdapter:t,rawTargetAdapter:n,rawR
       const editor=editors().find(instance=>instance.doc&&!previousIds.has(instance.doc.id));
       if(editor){editor.open();if(editor.overlay){if(request.roundTripToken&&!globalThis.__XenMultitrackRoundTrip?.bind(editor,request.roundTripToken)){reject(Error('The Wave Editor source did not match the requested Multitrack clip.'));return}
        // ROOM4-03c: arrive with the blue mask bar at the top edge (the 'Wave Editor / Source options' row scrolls out).
-       if(request.roundTripToken){const top=()=>{const c=editor.options?.overviewCanvas||editor.options?.detailCanvas;if(!c?.isConnected)return;window.scrollBy({top:c.getBoundingClientRect().top-2,behavior:'auto'})};requestAnimationFrame(()=>requestAnimationFrame(top));setTimeout(top,350)}
+       if(request.roundTripToken||request.scrollToEditor){const top=()=>{const c=editor.options?.overviewCanvas||editor.options?.detailCanvas;if(!c?.isConnected)return;window.scrollBy({top:c.getBoundingClientRect().top-2,behavior:'auto'})};requestAnimationFrame(()=>requestAnimationFrame(top));setTimeout(top,350)}
        resolve();return}
        reject(Error('Stereo Wave Editor could not be opened.'));return}
       if(++frames>=180){reject(Error('Wave Editor did not attach to the newly loaded audio.'));return}
