@@ -3,8 +3,8 @@
  * Cold by contract: no timers, listeners or audio nodes while the room is closed.
  * One AudioWorklet engine (xen-psylab-v1) on the LIVE AudioContext, routed into the live master
  * input "main" through the shell bridge, so Rec, Loop-Rec and Live Mastering hear it.
- * Tuning is free: root in Hz plus a scale of ratios / cents / N-EDO of any period; nothing assumes 12-EDO.
- * Data owner: localStorage "xensonar.psylab.instruments.v1" (working patch + user patches).
+ * Tuning is the Main Room's grid (any system, mode, base, muted steps, offsets): nothing assumes 12-EDO.
+ * Data owner: localStorage "xensonar.psylab.instruments.v1" (working patch + user patches, view and metronome preferences). The grid is owned by the Main Room.
  * Bounce renders the same engine offline and hands the PCM to __XenMultitrackInbox (durable Material). */
 const STORE_KEY='xensonar.psylab.instruments.v1',FORMAT='xensonar.psylab',VERSION=1;
 const clamp=(v,lo,hi)=>Math.max(lo,Math.min(hi,v));
@@ -40,7 +40,7 @@ const GROUPS=[['hydra','HYDRA','Three operators in a feedback ring: A is heard, 
  ['escher','ESCHER','Endless staircase: a stack of partials that rises or falls forever. The stack interval is free (2 = octaves, 3 = tritaves …).'],
  ['shape','SHAPE','Wavefolder, morphing filter and sample dust.'],['env','ENVELOPE','How notes appear, vanish and slide.'],
  ['spiral','SPIRAL','Frequency shifter and an echo whose repeats are shifted again and again: barber-pole spirals.'],
- ['crystal','CRYSTAL','Resonators tuned to the current scale ring along with the sound.'],
+ ['crystal','CRYSTAL','Resonators tuned to the Main Room grid ring along with the sound.'],
  ['chaos','CHAOS','A Lorenz attractor moves the sound. It never repeats.'],['out','OUT','']];
 function toUnit(p,v){const[, , ,lo,hi, ,curve]=p;v=clamp(v,lo,hi);if(curve==='exp')return Math.log(v/lo)/Math.log(hi/lo);if(curve==='cube'){const m=Math.max(Math.abs(lo),Math.abs(hi));return .5+.5*Math.cbrt(v/m)}return(v-lo)/(hi-lo)}
 function fromUnit(p,t){const[, , ,lo,hi, ,curve]=p;t=clamp(t,0,1);if(curve==='exp')return lo*Math.pow(hi/lo,t);if(curve==='cube'){const m=Math.max(Math.abs(lo),Math.abs(hi)),x=2*t-1;return clamp(m*x*x*x,lo,hi)}return lo+(hi-lo)*t}
@@ -48,26 +48,13 @@ function fmt(p,v){const unit=p[7],a=Math.abs(v);const n=a>=1000?v.toFixed(0):a>=
 function defaultParams(){return RANGES.def.slice()}
 function sanitizeParams(a){const out=defaultParams();if(Array.isArray(a))for(const p of PARAMS){const v=Number(a[p[0]]);if(Number.isFinite(v))out[p[0]]=clamp(v,p[3],p[4])}out[37]=0;return out}
 
-/* Scale text → ratios within one period. Tokens: "19edo", "13ed3" (N equal steps of a period), ratios "3/2" or "1.5",
-   cents "386c", and "@3/1" to set the period for a list. Always sorted, unique, starting at 1. */
-function parseScale(text){
- const src=String(text??'').trim().toLowerCase();let period=2;const out=[];let error='';
- const ratio=tok=>{if(/^\d+(\.\d+)?\/\d+(\.\d+)?$/.test(tok)){const[a,b]=tok.split('/').map(Number);return b>0?a/b:NaN}if(/^-?\d+(\.\d+)?c$/.test(tok))return Math.pow(2,parseFloat(tok)/1200);if(/^\d+(\.\d+)?$/.test(tok))return Number(tok);return NaN};
- const ed=/^(\d{1,3})\s*-?\s*ed\s*(o|t|\d+(?:\.\d+)?(?:\/\d+(?:\.\d+)?)?)$/.exec(src.replace(/\s+/g,' '));
- if(ed){const n=clamp(parseInt(ed[1],10),1,200),per=ed[2]==='o'?2:ed[2]==='t'?3:ratio(ed[2]);if(!(per>1.0001)||per>16)return{ratios:[1],period:2,error:'Period must be between 1 and 16.'};
-  for(let i=0;i<n;i++)out.push(Math.pow(per,i/n));return{ratios:out,period:per,error:''}}
- for(const tok of src.split(/[\s,;]+/).filter(Boolean)){
-  if(tok[0]==='@'){const p=ratio(tok.slice(1));if(p>1.0001&&p<=16)period=p;else error='Bad period "'+tok+'".';continue}
-  const r=ratio(tok);if(!(r>0)||!Number.isFinite(r)){error='Cannot read "'+tok+'".';continue}out.push(r)}
- if(!out.length)return{ratios:[1],period,error:error||'Empty scale.'};
- const folded=out.map(r=>{const x=Math.log(r)/Math.log(period);return Math.pow(period,x-Math.floor(x))}).sort((a,b)=>a-b);
- const uniq=[];for(const r of folded)if(!uniq.length||Math.abs(1200*Math.log2(r/uniq[uniq.length-1]))>.5)uniq.push(r);
- if(Math.abs(1200*Math.log2(uniq[0]))>.5)uniq.unshift(1);else uniq[0]=1;
- return{ratios:uniq.slice(0,200),period,error}}
-/* degree may be any integer: steps below 0 and above the scale size continue through the periods */
-function degreeHz(root,scale,degree){const n=scale.ratios.length,o=Math.floor(degree/n),i=degree-o*n;return root*Math.pow(scale.period,o)*scale.ratios[i]}
-function resonatorHz(root,scale){const n=scale.ratios.length,out=[];const step=Math.max(1,Math.round(n/7));for(let d=0;out.length<8&&d<n*3;d+=step){const hz=degreeHz(root,scale,d);if(hz>30&&hz<12000)out.push(hz)}return out.length?out:[root]}
-
+/* Pitch comes from the Main Room grid (ROOM5-02): the Live Room owns tuning, mode, base Hz, muted steps and offsets; this room reads and
+   edits them through __NodalBallGrid, draws them with the Live Room's own grid layer and plays the Live Room's keys. There is no second scale here. */
+const liveGridParams=()=>{const p=__NodalBallGrid.params();return p?__xenLiveGridParams(p):null};
+function gridNotes(p){return uw(p.gridBase,p.gridTuning,p.manualGridMutedSteps??[],p.manualGridStepOffsets??[])}
+/* up to eight resonator frequencies, spread over the audible grid degrees (the grid lists them from high to low) */
+function gridResonators(p,oct){const notes=p?gridNotes(p):[];if(!notes.length)return[220];const out=[],step=Math.max(1,Math.floor(notes.length/8));
+ for(let i=notes.length-1;i>=0&&out.length<8;i-=step)out.push(notes[i]*Math.pow(2,oct));return out}
 /*PSY-WORKLET-BEGIN*/
 function psyLabWorkletModule(RANGE_LO,RANGE_HI,RANGE_DEF){
  /* Rules of this processor: no allocation, no closures and no function calls with number arguments inside process()
@@ -321,41 +308,72 @@ async function bounce({params,res,notes,seconds,sampleRate}){
  return{left:L,right:R,sampleRate,peak}}
 
 /* ---------- patches ---------- */
-const patch=(name,scale,root,over)=>{const params=defaultParams();for(const k in over)params[BY_KEY[k][0]]=over[k];return{id:'factory:'+name,name,scale,root,params}};
+/* A patch is a sound (the 39 numbers), not a tuning. `grid` is only a suggestion shown next to the patch. */
+const patch=(name,grid,over)=>{const params=defaultParams();for(const k in over)params[BY_KEY[k][0]]=over[k];return{id:'factory:'+name,name,grid,params}};
 const FACTORY=[
- patch('Liquid Bell','1/1 9/8 5/4 11/8 3/2 13/8 7/4',220,{ratioB:3.5,ratioC:7.07,fmAB:2.2,fmBC:.7,fmCA:.1,opMix:.05,fold:.05,attack:.004,release:2.6,delayTime:.33,delayFb:.5,delayMix:.32,loopShift:.4,detune:6,cPan:.35}),
- patch('Escher Staircase','1/1 9/8 5/4 3/2 5/3',110,{shepMix:1,shepRate:.12,shepInterval:2,ratioB:1.5,ratioC:2,fmAB:.5,fmBC:.3,fmCA:.2,fold:.1,attack:.4,release:3,delayTime:.5,delayFb:.4,delayMix:.25,cutoff:6000,detune:12}),
- patch('Barber Spiral','12edo',146.83,{ratioB:1,ratioC:2,fmAB:.6,fmBC:.2,fmCA:0,fold:.12,attack:.01,release:.9,delayTime:.27,delayFb:.86,delayMix:.5,loopShift:7,spread:.8,cutoff:5200,reso:.2}),
- patch('Chaos Insect','22edo',330,{ratioB:2.76,ratioC:.51,fmAB:4.5,fmBC:3.2,fmCA:2.4,selfFb:.6,fold:.35,crush:.25,attack:.003,release:.35,chaosRate:6,cFm:.8,cPan:.9,cFold:.5,delayTime:.11,delayFb:.6,delayMix:.25,loopShift:-14}),
- patch('Crystal Cave','1/1 8/7 4/3 3/2 12/7 7/4',196,{ratioB:2,ratioC:5,fmAB:.9,fmBC:.4,fold:.05,attack:.002,release:.25,resMix:.6,resQ:320,delayTime:.62,delayFb:.55,delayMix:.35,loopShift:.25,cutoff:9000}),
- patch('Deep Fold Drone','1/1 7/6 4/3 3/2 7/4',55,{ratioB:.5,ratioC:1.5,fmAB:.8,fmBC:.5,fmCA:.4,fold:.7,opMix:.25,attack:1.6,release:6,cutoff:1400,reso:.35,chaosRate:.12,cFold:.7,cCut:.6,cPan:.5,delayTime:.9,delayFb:.6,delayMix:.3,loopShift:-.3,detune:18,drive:.4}),
- patch('Tritave Ghost','13ed3',130,{shepMix:.8,shepRate:-.07,shepInterval:3,ratioB:3,ratioC:1.6667,fmAB:1.1,fmBC:.6,fmCA:.5,fold:.2,attack:.25,release:4,shiftHz:5,shiftMix:.35,delayTime:.74,delayFb:.7,delayMix:.4,loopShift:2.2,cShift:.4,chaosRate:.25}),
- patch('Alien Choir','1/1 16/15 6/5 4/3 3/2 8/5 9/5',174.6,{ratioB:1.005,ratioC:2.99,fmAB:1.6,fmBC:.9,fmCA:.7,opMix:.4,fold:.25,morph:.45,cutoff:1800,reso:.55,shiftHz:11,shiftMix:.5,detune:28,attack:.3,release:2.2,cCut:.5,cShift:.6,chaosRate:.8,delayTime:.42,delayFb:.5,delayMix:.3,loopShift:-3})];
-function sanitizePatch(p,fallbackName){const scaleText=typeof p?.scale==='string'&&p.scale.trim()?p.scale.slice(0,2000):'12edo';const root=Number(p?.root);
- return{id:typeof p?.id==='string'?p.id:'user:'+uid(),name:String(p?.name||fallbackName||'Patch').slice(0,60),scale:scaleText,root:root>=8&&root<=8000?root:220,params:sanitizeParams(p?.params)}}
+ patch('Liquid Bell','ji',{ratioB:3.5,ratioC:7.07,fmAB:2.2,fmBC:.7,fmCA:.1,opMix:.05,fold:.05,attack:.004,release:2.6,delayTime:.33,delayFb:.5,delayMix:.32,loopShift:.4,detune:6,cPan:.35}),
+ patch('Escher Staircase','12edo',{shepMix:1,shepRate:.12,shepInterval:2,ratioB:1.5,ratioC:2,fmAB:.5,fmBC:.3,fmCA:.2,fold:.1,attack:.4,release:3,delayTime:.5,delayFb:.4,delayMix:.25,cutoff:6000,detune:12}),
+ patch('Barber Spiral','12edo',{ratioB:1,ratioC:2,fmAB:.6,fmBC:.2,fmCA:0,fold:.12,attack:.01,release:.9,delayTime:.27,delayFb:.86,delayMix:.5,loopShift:7,spread:.8,cutoff:5200,reso:.2}),
+ patch('Chaos Insect','22edo',{ratioB:2.76,ratioC:.51,fmAB:4.5,fmBC:3.2,fmCA:2.4,selfFb:.6,fold:.35,crush:.25,attack:.003,release:.35,chaosRate:6,cFm:.8,cPan:.9,cFold:.5,delayTime:.11,delayFb:.6,delayMix:.25,loopShift:-14}),
+ patch('Crystal Cave','ji',{ratioB:2,ratioC:5,fmAB:.9,fmBC:.4,fold:.05,attack:.002,release:.25,resMix:.6,resQ:320,delayTime:.62,delayFb:.55,delayMix:.35,loopShift:.25,cutoff:9000}),
+ patch('Deep Fold Drone','ji',{ratioB:.5,ratioC:1.5,fmAB:.8,fmBC:.5,fmCA:.4,fold:.7,opMix:.25,attack:1.6,release:6,cutoff:1400,reso:.35,chaosRate:.12,cFold:.7,cCut:.6,cPan:.5,delayTime:.9,delayFb:.6,delayMix:.3,loopShift:-.3,detune:18,drive:.4}),
+ patch('Tritave Ghost','bp',{shepMix:.8,shepRate:-.07,shepInterval:3,ratioB:3,ratioC:1.6667,fmAB:1.1,fmBC:.6,fmCA:.5,fold:.2,attack:.25,release:4,shiftHz:5,shiftMix:.35,delayTime:.74,delayFb:.7,delayMix:.4,loopShift:2.2,cShift:.4,chaosRate:.25}),
+ patch('Alien Choir','ji',{ratioB:1.005,ratioC:2.99,fmAB:1.6,fmBC:.9,fmCA:.7,opMix:.4,fold:.25,morph:.45,cutoff:1800,reso:.55,shiftHz:11,shiftMix:.5,detune:28,attack:.3,release:2.2,cCut:.5,cShift:.6,chaosRate:.8,delayTime:.42,delayFb:.5,delayMix:.3,loopShift:-3})];
+/* `scale` / `root` of patches saved by the first version of this room are kept untouched (never deleted), but no longer used. */
+function sanitizePatch(p,fallbackName){const out={id:typeof p?.id==='string'?p.id:'user:'+uid(),name:String(p?.name||fallbackName||'Patch').slice(0,60),params:sanitizeParams(p?.params)};
+ if(typeof p?.grid==='string')out.grid=p.grid.slice(0,80);if(typeof p?.scale==='string')out.scale=p.scale.slice(0,2000);const root=Number(p?.root);if(root>=8&&root<=8000)out.root=root;return out}
+const METRO_DEFAULT={bpm:108,beats:4,vol:.5};
+function sanitizeMetro(m){return{bpm:clamp(Number(m?.bpm)||METRO_DEFAULT.bpm,20,400),beats:clamp(Number(m?.beats)||METRO_DEFAULT.beats,.5,64),vol:clamp(Number.isFinite(Number(m?.vol))?Number(m.vol):METRO_DEFAULT.vol,0,1)}}
 function loadStore(){try{const raw=localStorage.getItem(STORE_KEY);if(!raw)return null;const data=JSON.parse(raw);if(data?.format!==FORMAT)return null;
-  return{working:sanitizePatch(data.working,'Working patch'),user:Array.isArray(data.user)?data.user.slice(0,500).map(p=>sanitizePatch(p)):[],hold:data.hold===true,snap:data.snap!==false,bounceSec:clamp(Number(data.bounceSec)||8,.5,120)}}catch{return null}}
-function saveStore(state){try{localStorage.setItem(STORE_KEY,JSON.stringify({format:FORMAT,version:VERSION,working:state.working,user:state.user,hold:state.hold,snap:state.snap,bounceSec:state.bounceSec,updatedAt:Date.now()}));return true}catch{return false}}
+  return{working:sanitizePatch(data.working,'Working patch'),user:Array.isArray(data.user)?data.user.slice(0,500).map(p=>sanitizePatch(p)):[],hold:data.hold===true,snap:data.snap!==false,bounceSec:clamp(Number(data.bounceSec)||8,.5,120),
+   orient:data.orient==='piano'?'piano':'live',oct:clamp(Math.round(Number(data.oct)||0),-3,4),metro:sanitizeMetro(data.metro)}}catch{return null}}
+function saveStore(state){try{localStorage.setItem(STORE_KEY,JSON.stringify({format:FORMAT,version:VERSION,working:state.working,user:state.user,hold:state.hold,snap:state.snap,bounceSec:state.bounceSec,orient:state.orient,oct:state.oct,metro:state.metro,updatedAt:Date.now()}));return true}catch{return false}}
+
+/* ---------- metronome: for the player only ---------- */
+/* Clicks go straight to the speakers (ctx.destination), NOT into the live master input: Rec, Loop-Rec, Live Mastering and the bounce never hear them.
+   A 25 ms timer schedules every click 120 ms ahead on the audio clock; it exists only while the metronome runs. */
+class Metronome{
+ constructor(){this.ctx=null;this.out=null;this.timer=0;this.running=false;this.bpm=108;this.beats=4;this.vol=.5;this.k=0;this.next=0;this.onBeat=null;this.starting=false}
+ async start(){if(this.running||this.starting)return;this.starting=true;
+  try{const bridge=__xenMultitrackBridge.current;if(!bridge)throw Error('The audio bridge is not ready: open the Live Room once.');const ctx=await bridge.ensureAudioReady();
+   this.ctx=ctx;this.out=ctx.createGain();this.out.gain.value=this.vol;this.out.connect(ctx.destination);this.k=0;this.next=ctx.currentTime+.08;this.running=true;this.tick()}
+  finally{this.starting=false}}
+ stop(){this.running=false;clearTimeout(this.timer);this.timer=0;const out=this.out;this.out=null;if(out){try{out.gain.setTargetAtTime(0,this.ctx.currentTime,.01)}catch{}setTimeout(()=>{try{out.disconnect()}catch{}},120)}}
+ setVolume(v){this.vol=v;if(this.out)this.out.gain.setTargetAtTime(v,this.ctx.currentTime,.01)}
+ accent(k){const b=this.beats;return k===0||Math.floor(k/b+1e-9)!==Math.floor((k-1)/b+1e-9)}
+ tick(){if(!this.running)return;const ctx=this.ctx,spb=60/this.bpm;
+  while(this.next<ctx.currentTime+.12){const t=this.next,hi=this.accent(this.k);this.click(t,hi);if(this.onBeat){const wait=Math.max(0,(t-ctx.currentTime)*1000);const cb=this.onBeat;setTimeout(()=>cb(hi),wait)}this.k++;this.next+=spb}
+  this.timer=setTimeout(()=>this.tick(),25)}
+ click(t,hi){const ctx=this.ctx,o=ctx.createOscillator(),g=ctx.createGain();o.type='sine';o.frequency.value=hi?1600:1000;
+  g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(hi?.9:.6,t+.002);g.gain.exponentialRampToValueAtTime(.0008,t+.045);o.connect(g);g.connect(this.out);o.start(t);o.stop(t+.06);o.onended=()=>{try{g.disconnect()}catch{}}}
+}
 
 const CSS=`
 .xpl{color:#e9e4ff;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12px;padding:14px 16px 28px;max-width:1500px;margin:0 auto}
 .xpl h2{font-size:20px;letter-spacing:.18em;margin:0;background:linear-gradient(90deg,#ff5ecb,#ffd166,#5ef2ff,#b28dff);-webkit-background-clip:text;background-clip:text;color:transparent}
 .xpl-sub{color:#9f96c4;font-size:11px;margin:4px 0 12px;max-width:900px;line-height:1.5}
-.xpl-bar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:12px}
+.xpl-bar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:10px}
 .xpl button,.xpl select,.xpl input[type=text],.xpl input[type=number]{background:#120d24;color:#efe9ff;border:1px solid #4b3d7a;border-radius:6px;padding:6px 10px;font:inherit;min-height:30px}
 .xpl button{cursor:pointer}.xpl button:hover:not(:disabled){background:#22184a;border-color:#8f7bff}.xpl button:disabled{opacity:.45;cursor:default}
 .xpl button[aria-pressed=true]{background:#3b1d5e;border-color:#ff7ad9;color:#ffd6f3}
 .xpl :focus-visible{outline:2px solid #5ef2ff;outline-offset:2px}
 .xpl-main{display:grid;grid-template-columns:minmax(320px,1.15fr) minmax(320px,1fr);gap:14px;align-items:start}
 @media(max-width:980px){.xpl-main{grid-template-columns:minmax(0,1fr)}}
-.xpl-pad{position:relative;border:1px solid #4b3d7a;border-radius:10px;overflow:hidden;background:#05030c;touch-action:none;cursor:crosshair;aspect-ratio:16/10;min-height:260px}
+.xpl-pad{position:relative;border:1px solid #4b3d7a;border-radius:10px;overflow:hidden;background:#05030c;touch-action:none;aspect-ratio:1100/580;min-height:220px}
 .xpl-pad canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
-.xpl-pad-hint{position:absolute;left:10px;bottom:8px;color:#b9b0e0;font-size:10px;pointer-events:none;text-shadow:0 0 6px #000}
+.xpl-pad canvas.xpl-scope{opacity:.3;pointer-events:none}
+.xpl-pad-hint{position:absolute;left:150px;bottom:8px;right:10px;color:#b9b0e0;font-size:10px;pointer-events:none;text-shadow:0 0 6px #000}
 .xpl-readout{position:absolute;right:10px;top:8px;color:#ffe9a8;font-size:11px;pointer-events:none;text-shadow:0 0 6px #000;text-align:right}
-.xpl-tune{display:grid;grid-template-columns:auto minmax(0,1fr);gap:6px 10px;align-items:center;margin-top:10px}
-.xpl-tune input[type=text]{width:100%;box-sizing:border-box}
+.xpl-gridbox{margin-top:10px;border:1px solid #33285c;border-radius:8px;padding:8px 10px;background:rgba(18,13,36,.6)}
+.xpl-gridbox .xen-gridctl{font-size:11px;color:#cfc6f2}
+.xpl-gridbox .xen-gridctl button{border-color:#4b3d7a!important}
+.xpl-gridbox .xen-gridctl-note{color:#ff9aa8}
+.xpl-gridsub{margin-top:6px;color:#9f96c4;font-size:10px;line-height:1.45}
+.xpl-metro{display:flex;flex-wrap:wrap;gap:6px 8px;align-items:center;margin:0 0 10px;padding:6px 8px;border:1px solid #33285c;border-radius:8px;background:rgba(18,13,36,.5)}
+.xpl-metro label{color:#cfc6f2;font-size:11px;display:flex;align-items:center;gap:5px}
+.xpl-beat{width:11px;height:11px;border-radius:50%;background:#2a2150;display:inline-block;transition:background .08s,box-shadow .08s}
+.xpl-beat.on{background:#ffd166;box-shadow:0 0 8px #ffd166}.xpl-beat.hi{background:#ff7ad9;box-shadow:0 0 10px #ff7ad9}
 .xpl-note{color:#9f96c4;font-size:10px;line-height:1.45}
-.xpl-err{color:#ff9aa8}
 .xpl-panels{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:10px}
 .xpl-panel{border:1px solid #33285c;border-radius:8px;padding:9px 10px 10px;background:linear-gradient(160deg,rgba(40,22,78,.55),rgba(10,8,24,.75))}
 .xpl-panel h3{margin:0 0 2px;font-size:11px;letter-spacing:.2em;color:#ffd166}
@@ -379,29 +397,57 @@ function PsySlider({p,patchRef,engine,onTouched}){
   u.jsx('input',{id,type:'range',min:0,max:1000,step:1,value:Math.round(toUnit(p,value)*1000),'data-psy-param':p[1],'aria-valuetext':fmt(p,value),
    onChange:e=>apply(fromUnit(p,Number(e.target.value)/1000)),onDoubleClick:()=>apply(p[5])})]})}
 
-const KEY_ROWS=['KeyZ','KeyX','KeyC','KeyV','KeyB','KeyN','KeyM','KeyA','KeyS','KeyD','KeyF','KeyG','KeyH','KeyJ','KeyK','KeyL','KeyQ','KeyW','KeyE','KeyR','KeyT','KeyY','KeyU','KeyI','KeyO','KeyP','Digit1','Digit2','Digit3','Digit4','Digit5','Digit6','Digit7','Digit8','Digit9','Digit0'];
-const PAD_PERIODS=3;
+/* ---------- the pad: the Main Room's own pitch space ---------- */
+/* Same canvas size (1100 x 580), same frequency range (gj) and the same grid layer as the Live Room. 'live': pitch runs up the page, the blue
+   triangles sit at the left edge, the horizontal axis is intensity. 'piano': pitch runs left (low) to right (high), triangles on top, vertical axis is
+   intensity. In piano view the layer is drawn through a 90 degree transform, so it is still the very same drawing code. */
+const PAD_W=1100,PAD_H=580,SCOPE_W=275,SCOPE_H=145;
+function padGeometry(orient){const{min,max}=gj(),piano=orient==='piano',ext=piano?PAD_W:PAD_H,len=piano?PAD_H:PAD_W;
+ return{piano,ext,len,min,max,yOf:f=>{const y=(1-(f-min)/(max-min))*ext;return y<0?0:y>ext?ext:y},freqOf:y=>min+(1-(y<0?0:y>ext?ext:y)/ext)*(max-min)}}
+/* pointer (client) to the layer's own coordinates */
+function padLocal(canvas,e,geo){const r=canvas.getBoundingClientRect(),sx=(e.clientX-r.left)/Math.max(1,r.width)*PAD_W,sy=(e.clientY-r.top)/Math.max(1,r.height)*PAD_H;
+ return geo.piano?{x:sy,y:PAD_W-sx}:{x:sx,y:sy}}
+/* ball target: the nearest un-muted grid line when "Snap" (lockCursorToGrid) is on, else the free pitch */
+function padTarget(p,geo,rows,y){if(p&&p.lockCursorToGrid&&rows.length){let best=null,bd=Infinity;for(const row of rows){if(row.manualMuted||row.modeMuted||!Number.isFinite(row.freq))continue;const d=Math.abs(geo.yOf(row.freq)-y);if(d<bd){bd=d;best=row}}if(best)return{y:geo.yOf(best.freq),freq:best.freq}}
+ return{y,freq:geo.freqOf(y)}}
+/* intensity from the free axis: 'live' left to right, 'piano' bottom to top */
+const padIntensity=(geo,x)=>clamp(geo.piano?1-x/geo.len:x/geo.len,0,1);
+
+const useGrid=()=>{P.useSyncExternalStore(__NodalBallGrid.subscribe,__NodalBallGrid.snapshot,__NodalBallGrid.snapshot);return __NodalBallGrid.params()};
 
 function XenPsyLabRoom(){
  useStyle();
- const initial=P.useMemo(()=>loadStore()||{working:{...sanitizePatch(FACTORY[0]),id:'working'},user:[],hold:false,snap:true,bounceSec:8},[]);
- const patchRef=P.useRef(initial.working),engineRef=P.useRef(null);if(!engineRef.current)engineRef.current=new PsyEngine();const engine=engineRef.current;
+ const gridParams=useGrid();
+ const initial=P.useMemo(()=>loadStore()||{working:{...sanitizePatch(FACTORY[0]),id:'working'},user:[],hold:false,snap:true,bounceSec:8,orient:'live',oct:0,metro:{...METRO_DEFAULT}},[]);
+ const patchRef=P.useRef(initial.working),engineRef=P.useRef(null),metroRef=P.useRef(null);if(!engineRef.current)engineRef.current=new PsyEngine();if(!metroRef.current)metroRef.current=new Metronome();
+ const engine=engineRef.current,metro=metroRef.current;
  const[user,setUser]=P.useState(initial.user),[selected,setSelected]=P.useState(''),[epoch,setEpoch]=P.useState(0);
- const[scaleText,setScaleText]=P.useState(initial.working.scale),[rootText,setRootText]=P.useState(String(initial.working.root));
- const[hold,setHold]=P.useState(initial.hold),[snap,setSnap]=P.useState(initial.snap),[bounceSec,setBounceSec]=P.useState(initial.bounceSec);
+ const[hold,setHold]=P.useState(initial.hold),[bounceSec,setBounceSec]=P.useState(initial.bounceSec),[orient,setOrient]=P.useState(initial.orient),[oct,setOct]=P.useState(initial.oct);
+ const[metroOn,setMetroOn]=P.useState(false),[metroCfg,setMetroCfg]=P.useState(initial.metro);
  const[status,setStatus]=P.useState(''),[busy,setBusy]=P.useState(false),[mutate,setMutate]=P.useState(.25);
- const scale=P.useMemo(()=>parseScale(scaleText),[scaleText]);
- const root=P.useMemo(()=>{const v=Number(String(rootText).replace(',','.'));return v>=8&&v<=8000?v:patchRef.current.root},[rootText]);
- const live=P.useRef({scale,root,hold,snap,user,bounceSec});live.current={scale,root,hold,snap,user,bounceSec};
- const padRef=P.useRef(null),canvasRef=P.useRef(null),readoutRef=P.useRef(null),rootRef=P.useRef(null);
- const held=P.useRef(new Map()),latched=P.useRef(new Map()),saveTimer=P.useRef(0),noteSeq=P.useRef(100);
+ const live=P.useRef({hold,user,bounceSec,orient,oct,metro:metroCfg});live.current={hold,user,bounceSec,orient,oct,metro:metroCfg};
+ const padRef=P.useRef(null),canvasRef=P.useRef(null),scopeRef=P.useRef(null),readoutRef=P.useRef(null),rootRef=P.useRef(null),beatRef=P.useRef(null);
+ const held=P.useRef(new Map()),latched=P.useRef(new Map()),saveTimer=P.useRef(0),noteSeq=P.useRef(100),tapTimes=P.useRef([]);
+ const focus=P.useRef({x:PAD_W*.5,y:PAD_H*.5,inside:false}),ball=P.useRef({cursorX:PAD_W*.5,cursorY:PAD_H*.5,freq:0});
+ const gridRef=P.useRef(null);gridRef.current=gridParams;
 
- const persist=P.useCallback(()=>{clearTimeout(saveTimer.current);saveTimer.current=setTimeout(()=>{const l=live.current;saveStore({working:{...patchRef.current,id:'working'},user:l.user,hold:l.hold,snap:l.snap,bounceSec:l.bounceSec})},600)},[]);
- const flush=P.useCallback(()=>{clearTimeout(saveTimer.current);const l=live.current;saveStore({working:{...patchRef.current,id:'working'},user:l.user,hold:l.hold,snap:l.snap,bounceSec:l.bounceSec})},[]);
- P.useEffect(()=>{patchRef.current.scale=scaleText;patchRef.current.root=root;engine.setRes(resonatorHz(root,scale));persist()},[scaleText,root,scale,engine,persist]);
- P.useEffect(()=>{persist()},[hold,snap,user,bounceSec,persist]);
+ const snapshot=()=>{const l=live.current;return{working:{...patchRef.current,id:'working'},user:l.user,hold:l.hold,snap:true,bounceSec:l.bounceSec,orient:l.orient,oct:l.oct,metro:l.metro}};
+ const persist=P.useCallback(()=>{clearTimeout(saveTimer.current);saveTimer.current=setTimeout(()=>saveStore(snapshot()),600)},[]);
+ const flush=P.useCallback(()=>{clearTimeout(saveTimer.current);saveStore(snapshot())},[]);
+ P.useEffect(()=>{persist()},[hold,user,bounceSec,orient,oct,metroCfg,persist]);
+ /* the crystal resonators follow the Main Room grid (and the octave shift) */
+ P.useEffect(()=>{engine.setRes(gridResonators(gridParams,oct))},[gridParams,oct,engine]);
  P.useEffect(()=>{engine.setAll(patchRef.current.params);const onHide=()=>flush();window.addEventListener('pagehide',onHide);
-  return()=>{window.removeEventListener('pagehide',onHide);flush();engine.dispose()}},[engine,flush]);
+  return()=>{window.removeEventListener('pagehide',onHide);flush();engine.dispose();metro.onBeat=null;metro.stop()}},[engine,metro,flush]);
+
+ /* metronome: its own clock, its own output, never recorded */
+ P.useEffect(()=>{metro.bpm=metroCfg.bpm;metro.beats=metroCfg.beats;metro.setVolume(metroCfg.vol)},[metroCfg,metro]);
+ P.useEffect(()=>{metro.onBeat=hi=>{const el=beatRef.current;if(!el)return;el.className='xpl-beat '+(hi?'hi':'on');clearTimeout(el.__off);el.__off=setTimeout(()=>{if(el)el.className='xpl-beat'},90)};
+  if(metroOn)void metro.start().catch(e=>{setMetroOn(false);setStatus('Metronome: '+String(e?.message||e))});else metro.stop();return()=>{metro.onBeat=null}},[metroOn,metro]);
+ const setMetro=patch=>setMetroCfg(c=>sanitizeMetro({...c,...patch}));
+ const tapTempo=()=>{const now=performance.now(),t=tapTimes.current;if(t.length&&now-t[t.length-1]>2000)t.length=0;t.push(now);if(t.length>6)t.shift();
+  if(t.length>=2){const bpm=60000/((t[t.length-1]-t[0])/(t.length-1));setMetro({bpm:Math.round(bpm*10)/10})}};
+ const useLiveTempo=()=>{const bpm=__xenMultitrackBridge.current?.getLiveBpm?.();if(bpm>0){setMetro({bpm:Math.round(bpm*10)/10});setStatus('Metronome tempo taken from the Live Room: '+Math.round(bpm*10)/10+' BPM.')}else setStatus('The Live Room has no tempo yet.')};
 
  const release=P.useCallback(id=>{engine.noteOff(id)},[engine]);
  const panic=P.useCallback(()=>{held.current.clear();latched.current.clear();engine.allOff();setStatus('All notes off.')},[engine]);
@@ -413,101 +459,140 @@ function XenPsyLabRoom(){
  const stop=P.useCallback(source=>{const id=held.current.get(source);if(id===undefined)return;held.current.delete(source);release(id)},[release]);
  P.useEffect(()=>{if(!hold&&latched.current.size){for(const id of latched.current.values())release(id);latched.current.clear()}},[hold,release]);
 
- /* pad geometry: X = pitch over PAD_PERIODS periods starting one period below the root, Y = intensity (Pad Y) */
- const padHz=P.useCallback((nx)=>{const l=live.current,per=l.scale.period,n=l.scale.ratios.length;const pos=clamp(nx,0,1)*PAD_PERIODS-1; // in periods relative to root
-  if(!l.snap)return l.root*Math.pow(per,pos);
-  let best=0,bestD=1/0;const base=Math.floor(pos);for(let o=base-1;o<=base+1;o++)for(let i=0;i<n;i++){const x=o+Math.log(l.scale.ratios[i])/Math.log(per),d=Math.abs(x-pos);if(d<bestD){bestD=d;best=x}}
-  return l.root*Math.pow(per,best)},[]);
- const setMacro=P.useCallback(ny=>{const v=clamp(1-ny,0,1);patchRef.current.params[37]=0;engine.setParam(37,v)},[engine]);
- P.useEffect(()=>{const pad=padRef.current;if(!pad)return;
-  const at=e=>{const r=pad.getBoundingClientRect();return[(e.clientX-r.left)/Math.max(1,r.width),(e.clientY-r.top)/Math.max(1,r.height)]};
-  const show=hz=>{if(readoutRef.current)readoutRef.current.textContent=hz.toFixed(2)+' Hz · '+(1200*Math.log2(hz/live.current.root)).toFixed(0)+' ct'};
-  const down=e=>{if(e.button!==undefined&&e.button!==0)return;e.preventDefault();try{pad.setPointerCapture(e.pointerId)}catch{}const[nx,ny]=at(e),hz=padHz(nx);setMacro(ny);start('pad:'+e.pointerId,hz,.9);show(hz)};
-  const move=e=>{const id=held.current.get('pad:'+e.pointerId);if(id===undefined)return;const[nx,ny]=at(e),hz=padHz(nx);engine.bend(id,hz);setMacro(ny);show(hz)};
-  const up=e=>{stop('pad:'+e.pointerId)};
-  pad.addEventListener('pointerdown',down);pad.addEventListener('pointermove',move);pad.addEventListener('pointerup',up);pad.addEventListener('pointercancel',up);pad.addEventListener('lostpointercapture',up);
-  return()=>{pad.removeEventListener('pointerdown',down);pad.removeEventListener('pointermove',move);pad.removeEventListener('pointerup',up);pad.removeEventListener('pointercancel',up);pad.removeEventListener('lostpointercapture',up)}},[engine,padHz,setMacro,start,stop]);
+ /* pad: pointer. The blue triangles work exactly like in the Live Room (click = mute/unmute, drag = fine tune, right click = new base). */
+ const handle=P.useRef(null),setMacro=P.useCallback(v=>{patchRef.current.params[37]=0;engine.setParam(37,v)},[engine]);
+ P.useEffect(()=>{const canvas=canvasRef.current;if(!canvas)return;
+  const show=(hz,label)=>{if(readoutRef.current)readoutRef.current.textContent=hz.toFixed(2)+' Hz · '+(1200*Math.log2(hz/(gridRef.current?.gridBase||440))).toFixed(0)+' ct vs base'+(label||'')};
+  const down=e=>{if(e.button!==0)return;e.preventDefault();try{canvas.setPointerCapture(e.pointerId)}catch{};const p=liveGridParams();if(!p)return;
+   const geo=padGeometry(live.current.orient),pt=padLocal(canvas,e,geo),rows=__NodalBallGrid.rows(),hit=__XenGridHandles.hit(rows,geo.yOf,pt.x,pt.y);
+   focus.current={x:pt.x,y:pt.y,inside:true};
+   if(hit){handle.current={step:hit.stepIndex,startY:pt.y,base:p.manualGridStepOffsets?.[hit.stepIndex]??0,moved:false,pointer:e.pointerId};return}
+   const tg=padTarget(p,geo,rows,pt.y),hz=tg.freq*Math.pow(2,live.current.oct);setMacro(padIntensity(geo,pt.x));start('pad:'+e.pointerId,hz,.9);show(hz)};
+  const move=e=>{const p=liveGridParams(),geo=padGeometry(live.current.orient),pt=padLocal(canvas,e,geo),rows=__NodalBallGrid.rows();focus.current={x:pt.x,y:pt.y,inside:true};
+   const h=handle.current;
+   if(h&&h.pointer===e.pointerId){h.moved=true;__NodalBallGrid.setOffset(h.step,__XenGridHandles.dragOffset(h.base,h.startY,pt.y));return}
+   canvas.style.cursor=__XenGridHandles.near(rows,geo.yOf,pt.x,pt.y)?(geo.piano?'ew-resize':'ns-resize'):'crosshair';
+   const id=held.current.get('pad:'+e.pointerId);if(id===undefined||!p)return;
+   const tg=padTarget(p,geo,rows,pt.y),hz=tg.freq*Math.pow(2,live.current.oct);engine.bend(id,hz);setMacro(padIntensity(geo,pt.x));show(hz)};
+  const up=e=>{const h=handle.current;if(h&&h.pointer===e.pointerId){handle.current=null;if(!h.moved)__NodalBallGrid.toggleMute(h.step)}stop('pad:'+e.pointerId)};
+  const leave=()=>{focus.current.inside=false};
+  const menu=e=>{e.preventDefault();const geo=padGeometry(live.current.orient),pt=padLocal(canvas,e,geo),hit=__XenGridHandles.hit(__NodalBallGrid.rows(),geo.yOf,pt.x,pt.y);
+   if(hit){const ref=__xenMainRootFromGridLine(hit),p=liveGridParams();if(ref!==null&&p&&Math.abs(ref-p.gridBase)>1e-7){__NodalBallGrid.update({gridBase:ref});setStatus('Grid base set to '+ref.toFixed(2)+' Hz.')}}};
+  canvas.addEventListener('pointerdown',down);canvas.addEventListener('pointermove',move);canvas.addEventListener('pointerup',up);canvas.addEventListener('pointercancel',up);canvas.addEventListener('lostpointercapture',up);canvas.addEventListener('pointerleave',leave);canvas.addEventListener('contextmenu',menu);
+  return()=>{canvas.removeEventListener('pointerdown',down);canvas.removeEventListener('pointermove',move);canvas.removeEventListener('pointerup',up);canvas.removeEventListener('pointercancel',up);canvas.removeEventListener('lostpointercapture',up);canvas.removeEventListener('pointerleave',leave);canvas.removeEventListener('contextmenu',menu)}},[engine,setMacro,start,stop]);
 
- /* computer keyboard: four rows walk through the scale degrees, whatever the tuning is */
+ /* keyboard: the Live Room's own keys. 1-0 and Q-P play the grid, , ; . : switch the grid system, AltGr / right Ctrl the mode, [ and - shift the key window. */
  P.useEffect(()=>{
   const typing=t=>{const tag=t?.tagName?.toLowerCase?.();return tag==='textarea'||tag==='select'||t?.isContentEditable||(tag==='input'&&!['range','checkbox','button'].includes((t.type||'text').toLowerCase()))};
   const inside=t=>t===document.body||!!rootRef.current?.contains(t);
-  const down=e=>{if(e.ctrlKey||e.metaKey||e.altKey||typing(e.target)||!inside(e.target))return;
+  const down=e=>{if(typing(e.target)||!inside(e.target))return;
+   const p=liveGridParams();
+   if(p&&!e.metaKey&&pPe({event:e,params:__NodalBallGrid.params(),runWithAudio:fn=>fn(),changeGridTuning:__NodalBallGrid.changeTuning,setGridMode:__NodalBallGrid.changeMode,resetKeyboardWindow:__NodalBallGrid.resetWindow})){e.preventDefault();e.stopPropagation();return}
+   if(e.ctrlKey||e.metaKey||e.altKey)return;
    if(e.code==='Escape'){e.preventDefault();panic();return}
    if(e.code==='Space'){e.preventDefault();e.stopPropagation();if(!e.repeat)setHold(h=>!h);return}
-   const k=KEY_ROWS.indexOf(e.code);if(k<0)return;e.preventDefault();e.stopPropagation();if(e.repeat)return;
-   const l=live.current,hz=degreeHz(l.root,l.scale,k-7);start('key:'+e.code,hz,e.shiftKey?1:.8);if(readoutRef.current)readoutRef.current.textContent=hz.toFixed(2)+' Hz · step '+(k-7)};
-  const up=e=>{if(KEY_ROWS.includes(e.code))stop('key:'+e.code)};
+   if(dJ(e.code)){const d=mJ(e.code);if(d!==null){e.preventDefault();e.stopPropagation();__NodalBallGrid.shiftWindow(d)}return}
+   let idx=AJ(e,HJ,VJ);if(idx<0||!p)return;e.preventDefault();e.stopPropagation();if(e.repeat)return;
+   if(live.current.orient==='piano')idx=yJ(idx,iw.length); // piano view: the left key is the lowest, as on the screen
+   const hz0=wF(p.gridBase,p.gridTuning,__NodalBallGrid.windowOffset(),idx,p.manualGridMutedSteps,p.manualGridStepOffsets);
+   if(hz0===null||!Number.isFinite(hz0)||hz0<=0){if(readoutRef.current)readoutRef.current.textContent='muted step';return}
+   const hz=hz0*Math.pow(2,live.current.oct);start('key:'+e.code,hz,e.shiftKey?1:.8);if(readoutRef.current)readoutRef.current.textContent=hz.toFixed(2)+' Hz'};
+  const up=e=>{stop('key:'+e.code)};
   const blur=()=>{for(const source of[...held.current.keys()])stop(source)};
   document.addEventListener('keydown',down,true);document.addEventListener('keyup',up,true);window.addEventListener('blur',blur);
   return()=>{document.removeEventListener('keydown',down,true);document.removeEventListener('keyup',up,true);window.removeEventListener('blur',blur)}},[panic,start,stop]);
 
- /* scope: kaleidoscopic left/right figure plus the scale grid. Runs only while this room is mounted and the tab is visible. */
- P.useEffect(()=>{const canvas=canvasRef.current;if(!canvas)return;const g=canvas.getContext('2d');let raf=0,hue=0,bufL=null,bufR=null,idle=0;
-  const draw=()=>{raf=requestAnimationFrame(draw);if(document.hidden)return;
-   const w=canvas.clientWidth|0,h=canvas.clientHeight|0;if(!w||!h)return;if(canvas.width!==w||canvas.height!==h){canvas.width=w;canvas.height=h;idle=0}
-   const an=engine.anL,playing=!!an&&(held.current.size>0||latched.current.size>0);
-   let peak=0;if(an){if(!bufL||bufL.length!==an.fftSize){bufL=new Float32Array(an.fftSize);bufR=new Float32Array(an.fftSize)}an.getFloatTimeDomainData(bufL);engine.anR.getFloatTimeDomainData(bufR);for(let i=0;i<bufL.length;i+=8){const a=Math.abs(bufL[i]);if(a>peak)peak=a}}
-   if(!playing&&peak<.002){if(idle++>2)return}else idle=0; // nothing to show: keep the last frame, spend nothing
-   g.globalCompositeOperation='source-over';g.fillStyle='rgba(5,3,12,.3)';g.fillRect(0,0,w,h);
-   // scale grid
-   const l=live.current,per=l.scale.period,n=l.scale.ratios.length;g.lineWidth=1;
-   for(let o=-1;o<PAD_PERIODS-1;o++)for(let i=0;i<n;i++){const x=(o+1+Math.log(l.scale.ratios[i])/Math.log(per))/PAD_PERIODS*w;g.strokeStyle=i===0?'rgba(255,209,102,.5)':n>40?'rgba(140,120,220,.10)':'rgba(140,120,220,.22)';g.beginPath();g.moveTo(x,0);g.lineTo(x,h);g.stroke()}
-   if(an&&peak>.001){hue=(hue+.7)%360;const cx=w/2,cy=h/2,rad=Math.min(w,h)*.42,arms=6;g.globalCompositeOperation='lighter';g.lineWidth=1;const gain=rad/Math.max(.25,peak*1.15);
-    for(let a=0;a<arms;a++){const rot=a*Math.PI*2/arms+hue*.004,cs=Math.cos(rot),sn=Math.sin(rot);g.strokeStyle='hsla('+((hue+a*60)%360)+',95%,60%,.16)';g.beginPath();
-     for(let i=0;i<bufL.length;i+=2){const x=bufL[i]*gain,y=bufR[i]*gain,px=cx+x*cs-y*sn,py=cy+x*sn+y*cs;if(i)g.lineTo(px,py);else g.moveTo(px,py)}g.stroke()}}};
+ /* drawing: the Live Room's grid layer (lines, green snapped line, blue triangles, cursor, ball) plus a scope figure behind it.
+    Runs only while this room is mounted and the tab is visible. */
+ P.useEffect(()=>{const canvas=canvasRef.current;if(!canvas)return;const g=canvas.getContext('2d');let raf=0,hue=0,bufL=null,bufR=null,last=performance.now(),sg=scopeRef.current?scopeRef.current.getContext('2d'):null,frame=0,scopeBlank=true;
+  const trk={s:{current:null},l:{current:0},c:{current:null},d:{current:0}},winRef={current:0},layer={ctx:g,state:ball.current,params:null,t:0,focusCursorRef:focus,getVisibleGridLines:()=>__NodalBallGrid.rows(),
+   activeGridLineFreqRef:trk.s,activeGridLineSinceRef:trk.l,previousGridLineFreqRef:trk.c,previousGridLineAtRef:trk.d,keyboardWindowOffsetRef:winRef};
+  const draw=now=>{raf=requestAnimationFrame(draw);if(document.hidden)return;const dt=Math.min(.1,Math.max(0,(now-last)/1000));last=now;
+   const p=liveGridParams(),geo=padGeometry(live.current.orient);if(canvas.width!==PAD_W)canvas.width=PAD_W;if(canvas.height!==PAD_H)canvas.height=PAD_H;
+   g.setTransform(1,0,0,1,0,0);g.globalCompositeOperation='source-over';g.clearRect(0,0,PAD_W,PAD_H);
+   // scope figure: its own small canvas BEHIND the pad (the browser scales and blends it on the compositor), redrawn every second frame
+   const an=engine.anL;let peak=0;if(an){if(!bufL||bufL.length!==an.fftSize){bufL=new Float32Array(an.fftSize);bufR=new Float32Array(an.fftSize)}an.getFloatTimeDomainData(bufL);engine.anR.getFloatTimeDomainData(bufR);for(let i=0;i<bufL.length;i+=8){const a=Math.abs(bufL[i]);if(a>peak)peak=a}}
+   if(sg){frame++;
+    if(an&&peak>.001){if(frame&1){hue=(hue+1.4)%360;sg.clearRect(0,0,SCOPE_W,SCOPE_H);const cx=SCOPE_W/2,cy=SCOPE_H/2,rad=Math.min(SCOPE_W,SCOPE_H)*.42,gain=rad/Math.max(.25,peak*1.15),arms=5;sg.globalCompositeOperation='lighter';sg.lineWidth=1;
+      for(let a=0;a<arms;a++){const rot=a*Math.PI*2/arms+hue*.004,cs=Math.cos(rot),sn=Math.sin(rot);sg.strokeStyle='hsla('+((hue+a*72)%360)+',95%,62%,.5)';sg.beginPath();
+       for(let i=0;i<bufL.length;i+=4){const x=bufL[i]*gain,y=bufR[i]*gain,px=cx+x*cs-y*sn,py=cy+x*sn+y*cs;if(i)sg.lineTo(px,py);else sg.moveTo(px,py)}sg.stroke()}scopeBlank=false}}
+    else if(!scopeBlank){sg.clearRect(0,0,SCOPE_W,SCOPE_H);scopeBlank=true}}
+   if(!p)return;
+   // ball follows the pointer; with Snap on it sits on the nearest grid line
+   const rows=__NodalBallGrid.rows(),f=focus.current,tg=padTarget(p,geo,rows,f.y),k=1-Math.pow(.65,dt*60),b=ball.current;b.cursorX+=(f.x-b.cursorX)*k;b.cursorY+=(tg.y-b.cursorY)*k;b.freq=tg.freq;
+   winRef.current=__NodalBallGrid.windowOffset();layer.params=p;layer.t=now/1000;
+   g.save();if(geo.piano)g.setTransform(0,1,-1,0,PAD_W,0);
+   __xenDrawMainGridLayer(layer,geo.len,geo.yOf,geo.freqOf);
+   g.restore();
+   // frequency label next to the ball
+   if(f.inside&&readoutRef.current&&!held.current.size)readoutRef.current.textContent=(tg.freq*Math.pow(2,live.current.oct)).toFixed(2)+' Hz'};
   raf=requestAnimationFrame(draw);return()=>cancelAnimationFrame(raf)},[engine]);
 
  const touched=P.useCallback(()=>{persist()},[persist]);
- const loadPatch=P.useCallback((p,note)=>{const clean=sanitizePatch(p);patchRef.current={...clean,id:'working'};setScaleText(clean.scale);setRootText(String(clean.root));engine.setAll(clean.params);setEpoch(e=>e+1);setStatus(note||('Loaded “'+clean.name+'”.'));persist()},[engine,persist]);
+ const loadPatch=P.useCallback((p,note)=>{const clean=sanitizePatch(p);patchRef.current={...clean,id:'working'};engine.setAll(clean.params);setEpoch(e=>e+1);setStatus(note||('Loaded “'+clean.name+'”.'));persist()},[engine,persist]);
  const all=P.useMemo(()=>[...FACTORY,...user],[user]);
  const onSelect=id=>{setSelected(id);const p=all.find(x=>x.id===id);if(p)loadPatch(p)};
+ const selectedPatch=all.find(x=>x.id===selected),suggestion=selectedPatch?.grid,suggestionLabel=suggestion?ti(j0,suggestion):'';
  const saveAs=()=>{const current=all.find(x=>x.id===selected);const name=window.prompt('Name for this patch',current&&!current.id.startsWith('factory:')?current.name:'My patch');if(!name||!name.trim())return;
   const existing=user.find(x=>x.name===name.trim());if(existing&&!window.confirm('Overwrite the saved patch “'+existing.name+'”?'))return;
-  const saved={...sanitizePatch({...patchRef.current,name:name.trim(),id:existing?existing.id:'user:'+uid()})};setUser(list=>existing?list.map(x=>x.id===existing.id?saved:x):[...list,saved]);setSelected(saved.id);setStatus('Saved “'+saved.name+'”.')};
+  const saved=sanitizePatch({...patchRef.current,name:name.trim(),id:existing?existing.id:'user:'+uid(),grid:gridRef.current?.gridTuning});setUser(list=>existing?list.map(x=>x.id===existing.id?saved:x):[...list,saved]);setSelected(saved.id);setStatus('Saved “'+saved.name+'” (with the current grid system as a suggestion).')};
  const remove=()=>{const p=user.find(x=>x.id===selected);if(!p||!window.confirm('Delete the saved patch “'+p.name+'”? The sound you hear stays as working patch.'))return;setUser(list=>list.filter(x=>x.id!==p.id));setSelected('');setStatus('Deleted “'+p.name+'”.')};
  const doMutate=()=>{const params=patchRef.current.params.slice();for(const p of PARAMS){if(p[8]==='hidden'||p[1]==='level')continue;if(Math.random()<.55){const t=clamp(toUnit(p,params[p[0]])+(Math.random()-.5)*2*mutate*.6,0,1);params[p[0]]=fromUnit(p,t)}}
   params[BY_KEY.delayFb[0]]=Math.min(params[BY_KEY.delayFb[0]],.95);loadPatch({...patchRef.current,params},'Mutated by '+Math.round(mutate*100)+' %. Not happy? Load a patch or mutate again.')};
- const notesForBounce=()=>{const l=live.current,out=[];for(const key of latched.current.keys())out.push(Math.pow(2,key/1200));return out.length?out.slice(0,6):[l.root]};
+ const notesForBounce=()=>{const out=[];for(const key of latched.current.keys())out.push(Math.pow(2,key/1200));if(out.length)return out.slice(0,6);const p=liveGridParams();return[(p?p.gridBase:220)*Math.pow(2,live.current.oct-1)]};
  const doBounce=async target=>{if(busy)return;setBusy(true);setStatus('Rendering '+bounceSec+' s offline …');
-  try{const l=live.current,rate=engine.ctx?.sampleRate||48000,r=await bounce({params:patchRef.current.params.map((v,i)=>i===37?0:v),res:resonatorHz(l.root,l.scale),notes:notesForBounce(),seconds:bounceSec,sampleRate:rate});
+  try{const rate=engine.ctx?.sampleRate||48000,r=await bounce({params:patchRef.current.params.map((v,i)=>i===37?0:v),res:gridResonators(liveGridParams(),live.current.oct),notes:notesForBounce(),seconds:bounceSec,sampleRate:rate});
    if(!(r.peak>1e-4))throw Error('The render is silent (level, envelope or cutoff?).');
    const name='PsyLab · '+(all.find(x=>x.id===selected)?.name||'patch')+' · '+new Date().toISOString().slice(11,19).replace(/:/g,'');
    if(target==='multitrack'){await __XenMultitrackInbox.send({channels:[r.left,r.right],sampleRate:r.sampleRate,name,origin:'psylab'});setStatus('Sent “'+name+'” ('+bounceSec+' s, peak '+r.peak.toFixed(2)+'): it is now a Material and waits in Room IV · Multitrack.')}
    else{const blob=await __xenRecorderFloatWav(r.left,r.right,r.sampleRate),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=name.replace(/[^\w.-]+/g,'_')+'.wav';document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),4000);setStatus('Downloaded “'+a.download+'” (32-bit float WAV, peak '+r.peak.toFixed(2)+').')}}
   catch(e){setStatus('Bounce failed: '+String(e?.message||e))}finally{setBusy(false)}};
+ const gridExtra=u.jsxs(u.Fragment,{children:[
+  u.jsxs('label',{className:'xpl-note',children:[u.jsx('input',{type:'checkbox','aria-label':'Show grid lines',checked:gridParams?.gridOn!==false,onChange:e=>__NodalBallGrid.update({gridOn:e.target.checked})}),' Grid lines']}),
+  u.jsxs('label',{className:'xpl-note',children:[u.jsx('input',{type:'checkbox','aria-label':'Snap ball to grid',checked:!!gridParams?.lockCursorToGrid,onChange:e=>__NodalBallGrid.update({lockCursorToGrid:e.target.checked})}),' Snap ball to grid']}),
+  u.jsx('button',{type:'button',onClick:()=>{const n=Zd(gridParams.gridTuning);__NodalBallGrid.update({manualGridMutedSteps:[],manualGridStepOffsets:Array.from({length:n},()=>0)});setStatus('Grid reset: all steps on, offsets 0.')},children:'Grid reset'})]});
 
  const panels=GROUPS.map(([id,title,text])=>u.jsxs('section',{className:'xpl-panel','aria-label':title,children:[u.jsx('h3',{children:title}),text?u.jsx('p',{children:text}):null,
   PARAMS.filter(p=>p[8]===id).map(p=>u.jsx(PsySlider,{p,patchRef,engine,onTouched:touched},p[1]+':'+epoch))]},id));
+ const piano=orient==='piano';
  return u.jsxs('div',{className:'xpl',ref:rootRef,'data-xen-psylab':'true',children:[
   u.jsx('h2',{children:'PSYCHEDELIC LAB'}),
-  u.jsx('p',{className:'xpl-sub',children:'Room V. A feedback-FM hydra, an endless Escher staircase, a spiral echo that shifts every repeat, scale-tuned crystals and a Lorenz attractor that never repeats itself. Play the pad or the keyboard, shape the sound, then bounce it into your material.'}),
+  u.jsx('p',{className:'xpl-sub',children:'Room V. A feedback-FM hydra, an endless Escher staircase, a spiral echo that shifts every repeat, grid-tuned crystals and a Lorenz attractor that never repeats itself. It plays on the Main Room grid: same lines, same blue triangles, same keys.'}),
   u.jsxs('div',{className:'xpl-bar',children:[
    u.jsxs('select',{'aria-label':'Patch',value:selected,onChange:e=>onSelect(e.target.value),children:[u.jsx('option',{value:'',children:'Working patch'}),
     u.jsx('optgroup',{label:'Factory',children:FACTORY.map(p=>u.jsx('option',{value:p.id,children:p.name},p.id))}),
     user.length?u.jsx('optgroup',{label:'Saved',children:user.map(p=>u.jsx('option',{value:p.id,children:p.name},p.id))}):null]}),
+   suggestion&&gridParams&&gridParams.gridTuning!==suggestion?u.jsx('button',{type:'button',title:'This patch was made for another grid system. Switching changes the Main Room grid too.',onClick:()=>__NodalBallGrid.changeTuning(suggestion),children:'Grid → '+suggestionLabel}):null,
    u.jsx('button',{type:'button',onClick:saveAs,children:'Save as …'}),
    u.jsx('button',{type:'button',onClick:remove,disabled:!user.some(x=>x.id===selected),children:'Delete'}),
    u.jsx('button',{type:'button',onClick:doMutate,title:'Move a random half of the controls by the chosen amount',children:'Mutate'}),
    u.jsx('input',{type:'range','aria-label':'Mutation amount',min:.02,max:1,step:.01,value:mutate,onChange:e=>setMutate(Number(e.target.value)),style:{width:90,accentColor:'#ff7ad9'}}),
    u.jsx('button',{type:'button','aria-pressed':hold,onClick:()=>setHold(h=>!h),title:'Notes keep sounding until you play them again (Space)',children:hold?'Hold: on':'Hold: off'}),
    u.jsx('button',{type:'button',onClick:panic,title:'Esc',children:'All notes off'}),
+   u.jsx('button',{type:'button','aria-pressed':piano,onClick:()=>{panic();setOrient(piano?'live':'piano')},title:'Live view: pitch runs up the page like in the Main Room. Piano view: low notes left, high notes right (and the keys follow).','data-psy-orient':orient,children:piano?'View: piano ↔':'View: Main Room ↕'}),
+   u.jsxs('span',{className:'xpl-note',children:['Octave ',u.jsx('button',{type:'button','aria-label':'Octave down',onClick:()=>{panic();setOct(o=>clamp(o-1,-3,4))},children:'−'}),' ',oct>0?'+'+oct:oct,' ',u.jsx('button',{type:'button','aria-label':'Octave up',onClick:()=>{panic();setOct(o=>clamp(o+1,-3,4))},children:'+'})]}),
    u.jsx('span',{style:{flex:'1 1 20px'}}),
    u.jsxs('label',{className:'xpl-note',children:['Bounce ',u.jsx('input',{type:'number','aria-label':'Bounce length in seconds',min:.5,max:120,step:.5,value:bounceSec,onChange:e=>setBounceSec(clamp(Number(e.target.value)||8,.5,120)),style:{width:64}}),' s']}),
-   u.jsx('button',{type:'button',disabled:busy,onClick:()=>void doBounce('multitrack'),title:'Render the held notes (or the root) offline and store the result as Material; it appears in Room IV',children:'→ Multitrack'}),
+   u.jsx('button',{type:'button',disabled:busy,onClick:()=>void doBounce('multitrack'),title:'Render the held notes (or the grid base) offline and store the result as Material; it appears in Room IV',children:'→ Multitrack'}),
    u.jsx('button',{type:'button',disabled:busy,onClick:()=>void doBounce('wav'),children:'⤓ WAV'})]}),
+  u.jsxs('div',{className:'xpl-metro','data-psy-metro':'true',children:[
+   u.jsx('button',{type:'button','aria-pressed':metroOn,onClick:()=>setMetroOn(v=>!v),title:'A click for you only: it goes straight to the speakers and is never recorded, mixed or bounced.',children:metroOn?'♩ Metronome: on':'♩ Metronome: off'}),
+   u.jsx('span',{className:'xpl-beat',ref:beatRef,'aria-hidden':'true'}),
+   u.jsxs('label',{children:['BPM ',u.jsx('input',{type:'number','aria-label':'Metronome BPM',min:20,max:400,step:.1,value:metroCfg.bpm,onChange:e=>setMetro({bpm:e.target.value}),style:{width:78}})]}),
+   u.jsxs('label',{children:['Beats per bar ',u.jsx('input',{type:'number','aria-label':'Beats per bar',min:.5,max:64,step:.5,value:metroCfg.beats,onChange:e=>setMetro({beats:e.target.value}),style:{width:64}})]}),
+   u.jsxs('label',{children:['Volume ',u.jsx('input',{type:'range','aria-label':'Metronome volume',min:0,max:1,step:.01,value:metroCfg.vol,onChange:e=>setMetro({vol:e.target.value}),style:{width:90,accentColor:'#ffd166'}})]}),
+   u.jsx('button',{type:'button',onClick:tapTempo,title:'Tap the beat',children:'Tap'}),
+   u.jsx('button',{type:'button',onClick:useLiveTempo,title:'Take the tempo of the Live Room',children:'= Live BPM'}),
+   u.jsx('span',{className:'xpl-note',children:'Not in the recording.'})]}),
   u.jsxs('div',{className:'xpl-main',children:[
    u.jsxs('div',{children:[
-    u.jsxs('div',{className:'xpl-pad',ref:padRef,role:'application','aria-label':'Play pad: horizontal pitch, vertical intensity',children:[u.jsx('canvas',{ref:canvasRef}),u.jsx('div',{className:'xpl-readout',ref:readoutRef}),
-     u.jsx('div',{className:'xpl-pad-hint',children:'← lower · pitch · higher →   ↑ intensity (Pad Y)   gold line = root'})]}),
-    u.jsxs('div',{className:'xpl-tune',children:[
-     u.jsx('label',{htmlFor:'xpl-root',children:'Root Hz'}),u.jsx('input',{id:'xpl-root',type:'text',inputMode:'decimal',value:rootText,onChange:e=>setRootText(e.target.value),onKeyDown:e=>{if(e.key==='Enter')e.target.blur()}}),
-     u.jsx('label',{htmlFor:'xpl-scale',children:'Scale'}),u.jsx('input',{id:'xpl-scale',type:'text',value:scaleText,onChange:e=>setScaleText(e.target.value),onKeyDown:e=>{if(e.key==='Enter')e.target.blur()},spellCheck:false}),
-     u.jsx('span',{}),u.jsxs('div',{className:'xpl-note',children:[scale.error?u.jsx('span',{className:'xpl-err',children:scale.error+' '}):null,scale.ratios.length+' steps per period '+(+scale.period.toFixed(4))+'. Write “19edo”, “13ed3”, ratios “1/1 9/8 5/4 3/2”, cents “386c”, or add “@3/1” for another period. ',
-      u.jsxs('label',{children:[u.jsx('input',{type:'checkbox',checked:snap,onChange:e=>setSnap(e.target.checked)}),' Pad snaps to the scale']})]})]}),
+    u.jsxs('div',{className:'xpl-pad',ref:padRef,children:[u.jsx('canvas',{ref:scopeRef,className:'xpl-scope',width:SCOPE_W,height:SCOPE_H,'aria-hidden':'true'}),u.jsx('canvas',{ref:canvasRef,width:PAD_W,height:PAD_H,role:'application','aria-label':piano?'Play pad: horizontal pitch, vertical intensity':'Play pad: vertical pitch, horizontal intensity',style:{cursor:'crosshair'}}),u.jsx('div',{className:'xpl-readout',ref:readoutRef}),
+     u.jsx('div',{className:'xpl-pad-hint',children:piano?'← low · pitch · high →   ↑ intensity   triangles on top: click = mute, drag = tune, right click = base':'↑ high · pitch · low ↓   → intensity   blue triangles: click = mute, drag = tune, right click = base'})]}),
+    u.jsxs('div',{className:'xpl-gridbox',children:[u.jsx(__XenGridControls,{extra:gridExtra}),
+     u.jsx('div',{className:'xpl-gridsub',children:'This is the Main Room grid: changes here change it there. Keys 1–0 and Q–P play it, “, ;” and “. :” switch the system, AltGr / right Ctrl the mode, “[” and “-” shift the key window.'})]}),
     u.jsx('div',{className:'xpl-status',role:'status','aria-live':'polite',children:status}),
-    u.jsx('div',{className:'xpl-keys',children:'Keyboard: Y/Z-row, A-row, Q-row and number row walk upwards through the scale (36 steps), Shift = louder. Space = Hold. Esc = all notes off. After typing a root or scale press Enter to play again. Click a value to type it exactly, double-click a slider to reset it. The header Rec records this room too.'})]}),
+    u.jsx('div',{className:'xpl-keys',children:'Space = Hold. Esc = all notes off. Shift = louder. Click a value to type it exactly, double-click a slider to reset it. The header Rec records this room (not the metronome).'})]}),
    u.jsx('div',{className:'xpl-panels',children:panels})]})]});
 }
-return Object.freeze({XenPsyLabRoom,__test:Object.freeze({PARAMS,RANGES,FACTORY,parseScale,degreeHz,resonatorHz,toUnit,fromUnit,sanitizePatch,moduleCode,STORE_KEY})});
+return Object.freeze({XenPsyLabRoom,__test:Object.freeze({PARAMS,RANGES,FACTORY,toUnit,fromUnit,sanitizePatch,sanitizeMetro,moduleCode,STORE_KEY,Metronome})});
 })()

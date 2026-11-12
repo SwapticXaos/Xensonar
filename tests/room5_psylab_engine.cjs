@@ -14,32 +14,27 @@ function makeProcessor(options,sr=44100){const scope={sampleRate:sr,currentFrame
   return{p,scope,out,block(){out[0][0].fill(0);out[0][1].fill(0);/* the browser hands in zeroed outputs */const r=p.process(noInputs,out);scope.currentFrame+=128;return r},send:m=>p.port.onmessage({data:m})}}
 const stats=(e,blocks)=>{let peak=0,sum=0,finite=true;for(let b=0;b<blocks;b++){assert.equal(e.block(),true);for(const ch of e.out[0])for(let i=0;i<128;i++){const v=ch[i];if(!(v===v)||Math.abs(v)===Infinity)finite=false;const a=Math.abs(v);if(a>peak)peak=a;sum+=v*v}}return{peak,rms:Math.sqrt(sum/(blocks*256)),finite}};
 // --- helpers ---
-{const edo=T.parseScale('19edo');assert.equal(edo.ratios.length,19);assert.equal(edo.period,2);assert(Math.abs(edo.ratios[1]-Math.pow(2,1/19))<1e-12);
- const bp=T.parseScale('13ed3');assert.equal(bp.ratios.length,13);assert.equal(bp.period,3);assert.equal(T.parseScale('13 edt').period,3);
- const ji=T.parseScale('3/2, 5/4 1/1 9/8 2/1 7/4');assert.equal(JSON.stringify(ji.ratios.map(r=>+r.toFixed(6))),'[1,1.125,1.25,1.5,1.75]','sorted, folded into the period, octave duplicate removed');
- const cents=T.parseScale('0c 386.3c 702c');assert(Math.abs(cents.ratios[2]-Math.pow(2,702/1200))<1e-12);
- const tri=T.parseScale('1/1 9/7 5/3 @3/1');assert.equal(tri.period,3);assert.equal(tri.ratios.length,3);
- assert(T.parseScale('foo').error&&T.parseScale('foo').ratios.length===1,'a broken scale still plays its root');assert(T.parseScale('').error);
- assert.equal(T.degreeHz(100,ji,0),100);assert.equal(T.degreeHz(100,ji,5),200);assert.equal(T.degreeHz(100,ji,-5),50);assert(Math.abs(T.degreeHz(100,bp,13)-300)<1e-9,'the period is the tritave, not the octave');
- assert(T.resonatorHz(220,edo).length>=5&&T.resonatorHz(220,edo).every(h=>h>30&&h<12000));
- for(const p of T.PARAMS){for(const t of[0,.13,.5,.87,1]){const v=T.fromUnit(p,t);assert(v>=p[3]-1e-9&&v<=p[4]+1e-9,p[1]);assert(Math.abs(T.toUnit(p,v)-t)<1e-6,p[1]+' slider mapping is invertible')}
+{for(const p of T.PARAMS){for(const t of[0,.13,.5,.87,1]){const v=T.fromUnit(p,t);assert(v>=p[3]-1e-9&&v<=p[4]+1e-9,p[1]);assert(Math.abs(T.toUnit(p,v)-t)<1e-6,p[1]+' slider mapping is invertible')}
   assert(p[5]>=p[3]&&p[5]<=p[4],p[1]+' default inside range')}
  assert.equal(new Set(T.PARAMS.map(p=>p[0])).size,T.PARAMS.length);
- const bad=T.sanitizePatch({name:7,root:-3,scale:'',params:['x',1e9,NaN]});assert.equal(bad.root,220);assert.equal(bad.scale,'12edo');assert(bad.params.every((v,i)=>v>=T.RANGES.lo[i]&&v<=T.RANGES.hi[i]));
- assert(/instruments/.test(T.STORE_KEY)&&/^xensonar[.:-]/.test(T.STORE_KEY),'storage key lands in the Package Station instrument category')}
+ const bad=T.sanitizePatch({name:7,root:-3,scale:'',params:['x',1e9,NaN]});assert.equal(bad.root,undefined,'an invalid legacy root is dropped');assert(bad.params.every((v,i)=>v>=T.RANGES.lo[i]&&v<=T.RANGES.hi[i]));
+ // patches saved by the first version keep their scale / root untouched (never deleted), they are just not used any more
+ const legacy=T.sanitizePatch({id:'user:1',name:'old',scale:'1/1 9/8 5/4',root:196,params:T.RANGES.def});assert.equal(legacy.scale,'1/1 9/8 5/4');assert.equal(legacy.root,196);
+ assert(/instruments/.test(T.STORE_KEY)&&/^xensonar[.:-]/.test(T.STORE_KEY),'storage key lands in the Package Station instrument category');
+ const m=T.sanitizeMetro({bpm:'x',beats:-3,vol:7});assert.equal(m.bpm,108);assert.equal(m.beats,.5);assert.equal(m.vol,1);assert.equal(JSON.stringify(T.sanitizeMetro({bpm:'140.5',beats:7,vol:.25})),JSON.stringify({bpm:140.5,beats:7,vol:.25}));
+ for(const f of T.FACTORY)assert(typeof f.grid==='string'&&f.grid.length,f.name+' has a grid suggestion');}
 // --- silence and sleep ---
 {const e=makeProcessor({});const s=stats(e,700);assert.equal(s.peak,0,'no notes: exact silence');assert(e.p.quiet>=e.p.sleepBlocks,'engine sleeps');}
 // --- every factory patch: sounds, stays finite and bounded, falls silent and sleeps after release ---
 assert(T.FACTORY.length>=8);
-for(const patch of T.FACTORY){const scale=T.parseScale(patch.scale);assert.equal(scale.error,'',patch.name+' scale parses');
- const e=makeProcessor({params:patch.params,res:T.resonatorHz(patch.root,scale)});
- e.send({t:'on',id:1,hz:patch.root,vel:1});e.send({t:'on',id:2,hz:T.degreeHz(patch.root,scale,2),vel:.8});
+for(const patch of T.FACTORY){const root=220;const e=makeProcessor({params:patch.params,res:[110,220,330,440,660]});
+ e.send({t:'on',id:1,hz:root,vel:1});e.send({t:'on',id:2,hz:root*Math.pow(2,5/12),vel:.8});
  const on=stats(e,500);assert(on.finite,patch.name+' finite');assert(on.rms>.004,patch.name+' is audible (rms '+on.rms+')');assert(on.peak<=1.0001,patch.name+' bounded (peak '+on.peak+')');
- e.send({t:'bend',id:1,hz:patch.root*1.5});e.send({t:'p',i:36,v:99});assert(e.p.target[36]<=1,'parameters are clamped inside the engine');
+ e.send({t:'bend',id:1,hz:root*1.5});e.send({t:'p',i:36,v:99});assert(e.p.target[36]<=1,'parameters are clamped inside the engine');
  // shorten the tail (release, echo feedback) so the sleep check stays fast; the sleep logic itself is patch independent
  e.send({t:'p',i:17,v:.05});e.send({t:'p',i:22,v:.2});e.send({t:'p',i:27,v:20});e.send({t:'alloff'});let slept=false;for(let k=0;k<40&&!slept;k++){const tail=stats(e,345);assert(tail.finite);if(e.p.active===0&&e.p.quiet>=e.p.sleepBlocks)slept=true}
  assert(slept,patch.name+' falls silent and sleeps after release');assert.equal(stats(e,20).peak,0);
- e.send({t:'on',id:9,hz:patch.root,vel:1});assert(stats(e,200).rms>.001,patch.name+' wakes up again');}
+ e.send({t:'on',id:9,hz:root,vel:1});assert(stats(e,200).rms>.001,patch.name+' wakes up again');}
 // --- fuzz: random settings incl. extremes never produce non-finite or runaway output ---
 {let seed=12345;const rnd=()=>{seed=(seed*1664525+1013904223)>>>0;return seed/4294967296};let worst=0;
  for(let round=0;round<45;round++){const params=T.RANGES.def.slice();for(const p of T.PARAMS)params[p[0]]=rnd()<.25?(rnd()<.5?p[3]:p[4]):T.fromUnit(p,rnd());

@@ -106,3 +106,4 @@ live_gf01_c11_block_fields.cjs
 live_gf02_param_target.cjs
 live_gf04_drive_wet_park.cjs
 room5_psylab_engine.cjs
+room5_metronome.cjs

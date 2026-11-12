@@ -1,5 +1,6 @@
 /* A control bridge, not a second grid bank. The Main Room owns tuning,
-   manual offsets/mutes and presets; Installation reads their canonical lines. */
+   manual offsets/mutes and presets; Installation (Room III) and the Psychedelic Lab (Room V) read and edit them here.
+   ROOM5-02: rows (all lines incl. muted, for the triangles), toggleMute, setOffset, windowOffset, resetWindow added for Room V. */
 const __NodalBallGrid=(()=>{
  let binding=null,revision=0,cache=null;const listeners=new Set(),empty=Object.freeze([]);
  const params=()=>binding?.paramsRef.current;
@@ -41,8 +42,29 @@ const __NodalBallGrid=(()=>{
  return Object.freeze({bind:value=>{binding=value},params,lines,control,draw,
   subscribe:fn=>(listeners.add(fn),()=>listeners.delete(fn)),snapshot:()=>revision,
   publish(){revision++;for(const fn of listeners)fn()},
-  changeTuning:id=>binding?.changeTuning(id),changeMode:id=>binding?.changeMode(id),mix:()=>binding?.mixRef.current,shift:cents=>binding?.shiftGridOffsets(cents),update:patch=>binding?.updateParams(patch)});
+  changeTuning:id=>binding?.changeTuning(id),changeMode:id=>binding?.changeMode(id),mix:()=>binding?.mixRef.current,shift:cents=>binding?.shiftGridOffsets(cents),update:patch=>binding?.updateParams(patch),
+  rows:()=>binding?binding.rows():empty,toggleMute:step=>binding?.toggleMute(step),setOffset:(step,value)=>binding?.setOffset(step,value),windowOffset:()=>binding?.windowOffsetRef.current??0,resetWindow:()=>binding?.resetWindow(),shiftWindow:direction=>binding?.shiftWindow(direction),bound:()=>binding!==null});
 })();
+
+/* ROOM5-02: the Main Room grid controls (system, mode, base Hz, shift, workbench) as ONE component for Room III and Room V.
+   They edit the Main Room's own grid through __NodalBallGrid; nothing is stored here. */
+function __XenGridControls({extra}){
+ P.useSyncExternalStore(__NodalBallGrid.subscribe,__NodalBallGrid.snapshot,__NodalBallGrid.snapshot);
+ const h=P.createElement,params=__NodalBallGrid.params(),rack=Y6(),[open,setOpen]=P.useState(false);
+ const [base,setBase]=P.useState(()=>String(params?.gridBase??440));
+ P.useEffect(()=>setBase(String(params?.gridBase??440)),[params?.gridBase]);
+ if(!params)return h('div',{className:'xen-gridctl-note'},'The Main Room grid is not ready yet: open the Live Room once.');
+ const label=(text,child)=>h('label',{className:'xen-gridctl-field',style:{display:'flex',flexDirection:'column',gap:4,minWidth:120}},h('span',null,text),child);
+ const commitBase=()=>{const value=Number(base.replace(',','.'));if(Number.isFinite(value)&&value>=400&&value<=1760)__NodalBallGrid.update({gridBase:Math.round(value*10)/10});else setBase(String(params?.gridBase??440));};
+ return h('div',{className:'xen-gridctl','data-xen-grid-controls':true,style:{display:'flex',flexWrap:'wrap',alignItems:'end',gap:12}},
+  label('Main Room grid',h('select',{'aria-label':'Grid tuning',value:params.gridTuning,onChange:event=>__NodalBallGrid.changeTuning(event.currentTarget.value)},...rack.libraryOptions.map(item=>h('option',{key:item.value,value:item.value},item.label)))),
+  label('Modus',h('select',{'aria-label':'Grid mode',value:params.gridMode,onChange:event=>__NodalBallGrid.changeMode(event.currentTarget.value)},h('option',{value:'chromatic'},'All steps'),...Ka(params.gridTuning).filter(item=>item.value!=='chromatic').map(item=>h('option',{key:item.value,value:item.value},item.label)))),
+  label('Rasterbasis · Hz',h('input',{'aria-label':'Grid base Hz',type:'number',min:400,max:1760,step:.1,value:base,onChange:event=>setBase(event.currentTarget.value),onBlur:commitBase,onKeyDown:event=>{if(event.key==='Enter')event.currentTarget.blur()},style:{width:100}})),
+  label('Shift grid · cents',h('input',{type:'range',min:-500,max:500,step:1,value:__xenGridShiftCents(params.gridTuning,params.manualGridStepOffsets),'aria-label':'Grid shift cents',onChange:event=>__NodalBallGrid.shift(Number(event.currentTarget.value))})),
+  h('button',{type:'button',onClick:()=>setOpen(true),style:{border:'1px solid #44747d',padding:'5px 9px',borderRadius:4}},'Edit grid / step count'),
+  extra||null,
+  h(U6,{open,currentTuning:params.gridTuning??'12edo',activeRack:rack.activeGridRack,onClose:()=>setOpen(false),onRackChange:rack.setStoredActiveGridRack,onActivateTuning:__NodalBallGrid.changeTuning,onResetRack:rack.resetStoredActiveGridRack}));
+}
 
 /* xen-lazy:nodal */
 

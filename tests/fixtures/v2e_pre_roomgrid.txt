@@ -1,0 +1,46 @@
+function V2e(e){const{ctx:t,state:n,params:r,t:a,focusCursorRef:o,getVisibleGridLines:i,activeGridLineFreqRef:s,activeGridLineSinceRef:l,previousGridLineFreqRef:c,previousGridLineAtRef:d,keyboardWindowOffsetRef:p}=e,f=o.current,b=f.x-n.cursorX,g=f.y-n.cursorY,y=Math.hypot(b,g),x=t.createRadialGradient(n.cursorX,n.cursorY,0,n.cursorX,n.cursorY,120);if(x.addColorStop(0,"rgba(220, 180, 255, 0.15)"),x.addColorStop(1,"rgba(220, 180, 255, 0)"),t.fillStyle=x,t.beginPath(),t.arc(n.cursorX,n.cursorY,120,0,Math.PI*2),t.fill(),y>2.5&&(t.save(),t.strokeStyle=`rgba(150, 210, 255, ${Me(.14+y/180,.16,.34)})`,t.lineWidth=1,t.setLineDash([4,4]),t.beginPath(),t.moveTo(f.x,f.y),t.lineTo(n.cursorX,n.cursorY),t.stroke(),t.restore()),t.fillStyle="rgba(6, 8, 12, 0.98)",t.strokeStyle="rgba(214, 226, 242, 0.58)",t.lineWidth=1.1,t.beginPath(),t.arc(n.cursorX,n.cursorY,4.5+Math.sin(a*5)*1.0,0,Math.PI*2),t.fill(),t.stroke(),!r.gridOn){s.current=null;l.current=0;c.current=null;d.current=0;return;}t.lineWidth=3;t.fillStyle="rgba(255, 255, 255, 0.35)",t.font="10px monospace",t.textAlign="left";const A=i(),M=performance.now(),mainLineFade=t.createLinearGradient(0,0,vr,0);mainLineFade.addColorStop(0,"rgba(255,255,255,.12)"),mainLineFade.addColorStop(.72,"rgba(255,255,255,.12)"),mainLineFade.addColorStop(1,"rgba(255,255,255,.065)");if(r.lockCursorToGrid){const W=Qa(n.cursorY),V=Zs(W);let U=null,H=Number.POSITIVE_INFINITY;for(const q of A){const K=Zs(q.freq),Y=Math.abs(K-V);Y<H&&(H=Y,U=q.freq)}if(U!==null){const q=s.current;(q===null||Math.abs(q-U)>.001)&&(q!==null&&(c.current=q,d.current=M),s.current=U,l.current=M)}}else s.current!==null&&(c.current=s.current,d.current=M),s.current=null,l.current=0;const v=s.current,w=l.current,R=c.current,k=d.current,I=v!==null?Zs(v):null,E=w>0?Me((M-w)/1e3,0,1):0,F=R!==null?Zs(R):null,L=k>0?Me(1-(M-k)/135,0,1):0,B=Me(n.cursorX/vr,0,1),O=.92+.08*(.5+.5*Math.sin(M*.007)),T=uw(r.gridBase,r.gridTuning,r.manualGridMutedSteps,r.manualGridStepOffsets),_=Math.max(0,Math.min(Math.round(p.current),Math.max(0,T.length-1))),G=Math.max(_,Math.min(T.length-1,_+__xenMainKeyboardWindowSize(r.resonanceHotkeyMode)-1)),j=T.slice(_,G+1),N=W=>j.some(V=>Math.abs(V-W)<.12);A.forEach(W=>{const V=Zs(W.freq);t.beginPath(),t.moveTo(0,V),t.lineTo(vr,V);const U=W.manualMuted||W.modeMuted,H=r.lockCursorToGrid&&I!==null&&Math.abs(V-I)<=1.4,q=v===null&&F!==null&&L>0&&Math.abs(V-F)<=1.4;if(U)t.strokeStyle="rgba(255, 255, 255, 0.03)";else if(H){const Y=E*O,J=`rgba(165, 255, 190, ${.30+.44*Y})`,Z=`rgba(145, 235, 165, ${.22+.20*Y})`,te=t.createLinearGradient(0,V,vr,V),X=Me(B-.16,0,1),Q=Me(B+.16,0,1);te.addColorStop(0,Z),te.addColorStop(X,Z),te.addColorStop(B,J),te.addColorStop(Q,Z),te.addColorStop(1,Z),t.strokeStyle=te}else if(q){const Y=.18+.22*L;t.strokeStyle=`rgba(165, 255, 190, ${Y})`}else t.strokeStyle=mainLineFade;t.stroke();const K=N(W.freq);t.fillStyle=U?K?"rgba(255, 196, 196, 0.22)":"rgba(255, 160, 160, 0.1)":K?"rgba(235, 245, 255, 0.48)":"rgba(255, 255, 255, 0.24)",t.fillText(W.label,20,V-4),W.stepIndex!==void 0&&(t.beginPath(),t.moveTo(15,V),t.lineTo(0,V-5),t.lineTo(0,V+5),t.closePath(),U?t.fillStyle=K?"rgba(255, 110, 110, 0.42)":"rgba(110, 44, 44, 0.32)":H?t.fillStyle="rgba(78, 164, 98, 0.92)":K?t.fillStyle="rgba(132, 200, 255, 0.96)":t.fillStyle="rgba(86, 126, 168, 0.38)",t.fill())});
+ // Bass Grid runs in the opposite visual direction to Main: strongest at its
+ // right-hand degree triangle, monotone fade to the left within the final quarter.
+ // This is an independent fade, never a second pass through the Main-line gradient.
+ const bassRows=__XenBassGrid.visualRows();
+ if(bassRows.length){
+  // One shared cursor reference. Space freezes only the Bass-Grid foundation;
+  // on release the right marker immediately rejoins the cursor's current pitch.
+  const heldRoot=__xenKeyboardFoundationDetach.rootHz();
+  const mainHz=Qa(n.cursorY);
+  const foundationHz=heldRoot??mainHz;
+  const playedBass=__XenBassGrid.activeGrid(r,{
+   foundationHz,foundationHeld:__xenKeyboardFoundationDetach.isHeld(),
+   droneHz:__xenDroneIsPilot(r.dronePreset)?n.__xenRefucktorTargetHz:foundationHz,
+   droneAudible:r.droneEnabled!==false&&e.droneVolume>0.003 && (!!n.__xenRefucktorVoice||!!n.gain),
+   rflAudible:!!r.rootFollowLoopActive&&!!r.rootFollowLoopId&&Number(r.rootFollowLoopVolume??.5)>0
+  });
+  const playedRow=__XenBassGrid.projectPlayedRow(bassRows,playedBass,foundationHz);
+  const bassLine=t.createLinearGradient(vr*.74,0,vr,0);
+  bassLine.addColorStop(0,'rgba(151,74,103,0)');
+  bassLine.addColorStop(.44,'rgba(151,74,103,.075)');
+  bassLine.addColorStop(1,'rgba(151,74,103,.27)');
+  const bassMutedLine=t.createLinearGradient(vr*.74,0,vr,0);
+  bassMutedLine.addColorStop(0,'rgba(130,120,127,0)');
+  bassMutedLine.addColorStop(1,'rgba(130,120,127,.075)');
+  const bassPlayedLine=t.createLinearGradient(vr*.74,0,vr,0);
+  bassPlayedLine.addColorStop(0,'rgba(183,70,119,0)');
+  bassPlayedLine.addColorStop(.44,'rgba(183,70,119,.17)');
+  bassPlayedLine.addColorStop(1,'rgba(183,70,119,.62)');
+  t.save();t.lineWidth=1.35;
+  for(const row of bassRows){
+   const by=Zs(row.freq);if(!Number.isFinite(by)||by<6||by>ir-6)continue;
+   // Compare the snapped ROOT degree, never a sequenced Bass Pattern note.
+   const isPlayedBass=!row.muted&&playedRow===row&&playedBass!==null&&playedBass.strength>0;
+   t.globalAlpha=isPlayedBass?playedBass.strength:1;
+   t.strokeStyle=isPlayedBass?bassPlayedLine:(row.muted?bassMutedLine:bassLine);
+   t.beginPath();t.moveTo(vr*.74,by);t.lineTo(vr,by);t.stroke();
+   t.beginPath();t.moveTo(vr-15,by);t.lineTo(vr,by-5.5);t.lineTo(vr,by+5.5);t.closePath();
+   // Dark aubergine at rest; saturated plum when one Bass/Drone/RFL grid user is active.
+   t.fillStyle=row.muted?'rgba(112,105,114,.65)':isPlayedBass?
+    `rgba(183,70,119,${.74+.24*playedBass.strength})`:'rgba(96,44,122,.82)';
+   t.fill();t.globalAlpha=1;
+  }
+  t.restore();
+ }
+}

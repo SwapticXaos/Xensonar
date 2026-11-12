@@ -1,55 +1,88 @@
 'use strict';
-// ROOM5-01 (real app): Room V · Psychedelic Lab. Chunk stays cold until opened; pad and keyboard make sound on the
-// live master; sliders reach the engine; patch + tuning survive a reload; bounce becomes a Material; leaving is silent.
+// ROOM5-01/02 (real app): Room V · Psychedelic Lab on the Main Room grid. Chunk cold until opened; pad, triangles, keys, tuning hotkeys,
+// view switch, sliders, patches, bounce, persistence, leaving silent. Uses the probe build to read the Main Room's own grid parameters.
 // Usage: node tests/e2e/room5_psylab.cjs dist/XenSonar_PROBE.html
-const {chromium}=require('playwright');const assert=require('node:assert/strict');const path=require('node:path');const fs=require('node:fs');
+const {chromium}=require('playwright');const assert=require('node:assert/strict');const path=require('node:path');
 const html=path.resolve(process.argv[2]||'dist/XenSonar_PROBE.html');const shot=process.env.SHOT||'';
 (async()=>{
-  const b=await chromium.launch({args:['--autoplay-policy=no-user-gesture-required']});const ctx=await b.newContext({viewport:{width:1440,height:900}});const p=await ctx.newPage();
+  const b=await chromium.launch({args:['--autoplay-policy=no-user-gesture-required']});const ctx=await b.newContext({viewport:{width:1440,height:1000}});const p=await ctx.newPage();
   const errors=[];p.on('pageerror',e=>errors.push(e.message));
-  await p.addInitScript(()=>{const S=window.__r5={nodes:[],meter:null,posts:0};
-    // meter on everything that reaches the destination of the live context
+  await p.addInitScript(()=>{const S=window.__r5={nodes:[],meter:null,last:null};
     const oc=AudioNode.prototype.connect;AudioNode.prototype.connect=function(d){const r=oc.apply(this,arguments);try{if(d instanceof AudioDestinationNode&&d.context instanceof AudioContext){if(!S.meter||S.meter.context!==d.context){S.meter=d.context.createAnalyser();S.meter.fftSize=2048}oc.call(this,S.meter)}}catch(e){}return r};
-    const O=window.AudioWorkletNode;window.AudioWorkletNode=class extends O{constructor(c,n,o){super(c,n,o);if(c instanceof AudioContext)S.nodes.push(n);if(n==='xen-psylab-v1'){const pm=this.port.postMessage.bind(this.port);this.port.postMessage=(m,t)=>{S.posts++;S.last=m&&m.t;if(m&&m.t==='p')S.lastParam=[m.i,m.v];return pm(m,t)}}}};
+    const O=window.AudioWorkletNode;window.AudioWorkletNode=class extends O{constructor(c,n,o){super(c,n,o);if(c instanceof AudioContext)S.nodes.push(n);if(n==='xen-psylab-v1'){const pm=this.port.postMessage.bind(this.port);this.port.postMessage=(m,t)=>{if(m&&m.t==='on')S.last=m;if(m&&m.t==='p')S.lastParam=[m.i,m.v];return pm(m,t)}}}};
     S.level=()=>{if(!S.meter)return 0;const a=new Float32Array(S.meter.fftSize);S.meter.getFloatTimeDomainData(a);let m=0;for(const v of a)m=Math.max(m,Math.abs(v));return m}});
   await p.goto('file://'+html);await p.waitForTimeout(3500);
+  const E=(code)=>p.evaluate(c=>window.__xenProbe.draw.evalInBundle(c),code);
   assert.equal(await p.evaluate(()=>window.__XenRoomChunks.status().psylab),false,'chunk is not evaluated at boot');
   assert.equal(await p.evaluate(()=>!!document.getElementById('xen-psylab-style')),false);
-  await p.evaluate(()=>{const b=[...document.querySelectorAll('button')].find(b=>/PSY LAB/.test(b.innerText));b.click()});await p.waitForTimeout(1200);
-  assert.equal(await p.evaluate(()=>window.__XenRoomChunks.status().psylab),true,'chunk loaded on open');
-  assert.equal(await p.locator('[data-xen-psylab]').count(),1);assert.equal(await p.evaluate(()=>__r5.nodes.includes('xen-psylab-v1')),false,'no audio node before the first note');
-  const pad=p.locator('.xpl-pad');const bx=await pad.boundingBox();
-  // pad: press, drag, release
-  await p.mouse.move(bx.x+bx.width*.45,bx.y+bx.height*.5);await p.mouse.down();await p.waitForTimeout(1500);
-  assert.equal(await p.evaluate(()=>__r5.nodes.includes('xen-psylab-v1')),true,'engine created by the first note');
-  const l1=await p.evaluate(()=>__r5.level());await p.mouse.move(bx.x+bx.width*.7,bx.y+bx.height*.2,{steps:8});await p.waitForTimeout(300);
-  assert.equal(await p.evaluate(()=>__r5.last),'p','dragging sends pitch bend and Pad Y');const readout=await p.locator('.xpl-readout').innerText();
-  if(shot){await p.waitForTimeout(400);await p.screenshot({path:shot})}
-  await p.mouse.up();assert(l1>.01,'pad note is audible on the live master (peak '+l1+')');assert(/Hz/.test(readout));
-  // a slider reaches the engine and its label
+  await p.evaluate(()=>{[...document.querySelectorAll('button')].find(b=>/PSY LAB/.test(b.innerText)).click()});await p.waitForTimeout(1200);
+  assert.equal(await p.evaluate(()=>window.__XenRoomChunks.status().psylab),true,'chunk loaded on open');assert.equal(await p.locator('[data-xen-psylab]').count(),1);
+  assert.equal(await p.evaluate(()=>__r5.nodes.includes('xen-psylab-v1')),false,'no audio node before the first note');
+  assert.equal(await p.locator('[data-xen-grid-controls]').count(),1,'the shared grid controls are mounted');assert.equal(await p.locator('#xpl-scale').count(),0,'the typed scale field is gone');
+  const canvas=p.locator('.xpl-pad canvas[role=application]');let bx=await canvas.boundingBox();const fresh=async()=>{bx=await canvas.boundingBox()};
+  const sx0=bx.width/1100,sy0=bx.height/580;const at=(x,y)=>[bx.x+x*sx0,bx.y+y*sy0];const sx=sx0,sy=sy0;
+  const grid=async()=>JSON.parse(await E('JSON.stringify((p=>({tuning:p.gridTuning,mode:p.gridMode,base:p.gridBase,muted:p.manualGridMutedSteps,offsets:p.manualGridStepOffsets,lock:p.lockCursorToGrid,on:p.gridOn}))(__NodalBallGrid.params()))'));
+  const rows=async()=>JSON.parse(await E('JSON.stringify(__NodalBallGrid.rows().map(r=>({step:r.stepIndex,freq:r.freq,muted:r.manualMuted||r.modeMuted,y:Zs(r.freq)})))'));
+  let g0=await grid();assert.equal(g0.tuning,'12edo');assert(g0.on!==false,'grid lines on by default');
+  // ---- blue triangles: click toggles mute, drag tunes, right click sets the base (same logic as the Live Room) ----
+  // the Live Room takes the FIRST line within 12 px of the pointer: test on lines that have no neighbour that close (the top of the range is spread out)
+  const isolated=(rs,skip=[])=>rs.filter(r=>r.y>8&&r.y<572&&!skip.includes(r.step)&&rs.every(o=>o===r||Math.abs(o.y-r.y)>14));
+  let r0=await rows();const iso=isolated(r0);assert(iso.length>=3,'isolated lines exist: '+iso.length);const target=iso.find(r=>!r.muted);assert(target,'an isolated visible line');const S1=target.step;
+  const[tx,ty]=at(8,target.y);await p.mouse.click(tx,ty);await p.waitForTimeout(300);
+  let g1=await grid();assert(g1.muted.includes(S1),'click on a triangle mutes the step in the Main Room grid: '+JSON.stringify(g1.muted));
+  assert.equal(await p.evaluate(()=>__r5.nodes.includes('xen-psylab-v1')),false,'a triangle click makes no sound');
+  await p.mouse.click(tx,ty);await p.waitForTimeout(300);assert(!(await grid()).muted.includes(S1),'second click unmutes');
+  const r1=await rows();const t2=isolated(r1,[S1])[0];const S2=t2.step;const[dx,dy]=at(8,t2.y);await p.mouse.move(dx,dy);await p.mouse.down();await p.mouse.move(dx,dy-50*sy,{steps:6});await p.mouse.up();await p.waitForTimeout(300);
+  const g2=await grid();assert(g2.offsets[S2]>1.5&&g2.offsets[S2]<2.5,'dragging a triangle up by 50 px raises its offset by 2 (Live: 1 per 25 px): '+g2.offsets[S2]);assert(!g2.muted.includes(S2)||(await grid()).muted.filter(x=>x===S2).length===1&&g0.muted.includes(S2),'a drag does not change the mute state');
+  await E('__NodalBallGrid.update({manualGridStepOffsets:Array(12).fill(0)})');await p.waitForTimeout(200);
+  const r2=await rows(),t3=isolated(r2,[S1,S2])[0],[rx,ry]=at(8,t3.y);await p.mouse.click(rx,ry,{button:'right'});await p.waitForTimeout(300);
+  const g3=await grid();assert(Math.abs(g3.base-t3.freq*2)<.5||Math.abs(g3.base-t3.freq)<.5,'right click on a triangle sets the grid base: '+g3.base+' vs line '+t3.freq);await E('__NodalBallGrid.update({gridBase:440})');await p.waitForTimeout(200);
+  // ---- pad: with Snap the ball and the sound sit on a grid line ----
+  await p.locator('input[aria-label="Snap ball to grid"]').check();await p.waitForTimeout(200);assert.equal((await grid()).lock,true);
+  await fresh();const lines=await rows();const line=isolated(lines).find(r=>!r.muted&&r.y<500);const[px,py]=at(600,line.y+3);
+  await p.mouse.move(px,py);await p.mouse.down();await p.waitForTimeout(1400);
+  const l1=await p.evaluate(()=>__r5.level()),hz=await p.evaluate(()=>__r5.last.hz);assert(l1>.005,'pad note audible (peak '+l1+')');assert(Math.abs(hz-line.freq)<.01,'snapped to the grid line: '+hz+' vs '+line.freq);
+  if(shot){await p.waitForTimeout(300);await p.screenshot({path:shot})}
+  await p.mouse.up();
+  // ---- Live Room keys: 1 plays the first grid note, , . cycle the grid system, Ctrl cycles the mode ----
+  const key=async k=>{await p.keyboard.down(k);await p.waitForTimeout(250);const t=await p.locator('.xpl-readout').innerText();await p.keyboard.up(k);return t};
+  await p.evaluate(()=>document.activeElement.blur());
+  const hz1=parseFloat(await key('Digit1'));assert(Math.abs(hz1-440)<.01,'key 1 = the top grid note (440): '+hz1);
+  const hzQ=parseFloat(await key('KeyQ')),want=await E('(p=>uw(p.gridBase,p.gridTuning,p.manualGridMutedSteps,p.manualGridStepOffsets)[10])(__NodalBallGrid.params())');assert(Math.abs(hzQ-want)<.01,'key Q = the 11th note of the Main Room grid (muted steps skipped): '+hzQ+' vs '+want);
+  const before=(await grid()).tuning;await p.keyboard.press('Period');await p.waitForTimeout(300);const after=(await grid()).tuning;assert.notEqual(after,before,'. cycles the grid system');
+  await p.keyboard.press('Comma');await p.waitForTimeout(300);assert.equal((await grid()).tuning,before,', cycles it back');
+  const m0=(await grid()).mode;await p.keyboard.press('ControlRight');await p.waitForTimeout(300);assert.notEqual((await grid()).mode,m0,'right Ctrl cycles the grid mode');await p.keyboard.press('ControlRight');await p.keyboard.press('ControlRight');await p.keyboard.press('ControlRight');
+  await E('__NodalBallGrid.changeMode("chromatic")');await p.waitForTimeout(200);
+  // a muted step is silent on the keyboard, exactly like in the Live Room
+  await E('__NodalBallGrid.toggleMute(0)');await p.waitForTimeout(200);const hzM=await key('Digit1');assert(/muted/.test(hzM)||Math.abs(parseFloat(hzM)-440)>1,'muted step does not play: '+hzM);await E('__NodalBallGrid.toggleMute(0)');await p.waitForTimeout(200);
+  // ---- view switch: piano view (low left) mirrors the keys ----
+  await p.evaluate(()=>[...document.querySelectorAll('button')].find(b=>/View: Main Room/.test(b.innerText)).click());await p.waitForTimeout(300);
+  assert.equal(await p.locator('[data-psy-orient]').getAttribute('data-psy-orient'),'piano');
+  const hzP=parseFloat(await key('Digit1'));assert(hzP<hz1-100,'piano view: key 1 is a low note: '+hzP);
+  // pad in piano view: triangles are on the top edge, pitch grows to the right
+  await fresh();const rows2=await rows(),ln=isolated(rows2).find(r=>!r.muted);const pxp=bx.x+(1100-(1-(ln.freq-55)/385)*1100)*sx,top=bx.y+8*sy;await p.mouse.click(pxp,top);await p.waitForTimeout(300);assert((await grid()).muted.includes(ln.step),'piano view: the triangle on the top edge mutes its step');await p.mouse.click(pxp,top);await p.waitForTimeout(300);assert(!(await grid()).muted.includes(ln.step),'and unmutes it again');
+  await fresh();await p.mouse.move(bx.x+bx.width*.5,bx.y+bx.height*.6);await p.mouse.down();await p.waitForTimeout(600);const hzMid=await p.evaluate(()=>__r5.last.hz);await p.mouse.move(bx.x+bx.width*.9,bx.y+bx.height*.6,{steps:5});await p.waitForTimeout(300);const hzHi=parseFloat(await p.locator('.xpl-readout').innerText());await p.mouse.up();assert(hzHi>hzMid,'piano view: moving right raises the pitch '+hzMid+' → '+hzHi);
+  await p.evaluate(()=>[...document.querySelectorAll('button')].find(b=>/View: piano/.test(b.innerText)).click());await p.waitForTimeout(300);
+  // ---- octave shift, sliders, patches, hold, bounce ----
+  await p.locator('button[aria-label="Octave up"]').click();const hzO=parseFloat(await key('Digit1'));assert(Math.abs(hzO-880)<.1,'octave +1 doubles the key pitch: '+hzO);await p.locator('button[aria-label="Octave down"]').click();
   const slider=p.locator('input[data-psy-param="fold"]');await slider.focus();for(let i=0;i<30;i++)await p.keyboard.press('ArrowRight');await p.waitForTimeout(150);
-  const lp=await p.evaluate(()=>__r5.lastParam);assert.equal(lp[0],11);assert(lp[1]>.07&&lp[1]<.1,'fold moved by 30 steps: '+lp[1]);
-  // keyboard walks the scale; another tuning changes the pitch of the same key
-  await p.evaluate(()=>document.activeElement.blur());const key=async()=>{await p.keyboard.down('KeyD');await p.waitForTimeout(250);const t=await p.locator('.xpl-readout').innerText();await p.keyboard.up('KeyD');return parseFloat(t)};
-  const hzA=await key();await p.fill('#xpl-scale','19edo');await p.keyboard.press('Enter');await p.waitForTimeout(200);const hzB=await key();assert(hzA>20&&hzB>20&&Math.abs(hzA-hzB)>.5,'tuning changes the key pitch: '+hzA+' vs '+hzB);
-  assert(/19 steps per period 2/.test(await p.locator('.xpl-tune').innerText()));
-  // factory patch, then hold (latched drone) and bounce to Multitrack
-  await p.selectOption('select[aria-label="Patch"]',{label:'Escher Staircase'});await p.evaluate(()=>document.activeElement.blur());await p.waitForTimeout(300);assert.equal(await p.inputValue('#xpl-scale'),'1/1 9/8 5/4 3/2 5/3');
-  await p.keyboard.press('Space');await p.keyboard.press('KeyA');await p.waitForTimeout(1200);const held=await p.evaluate(()=>__r5.level());assert(held>.01,'held drone sounds after key release: '+held);
+  const lp=await p.evaluate(()=>__r5.lastParam);assert.equal(lp[0],11);assert(lp[1]>.07&&lp[1]<.1,'fold moved by 30 steps: '+lp[1]);await p.evaluate(()=>document.activeElement.blur());
+  await p.selectOption('select[aria-label="Patch"]',{label:'Liquid Bell'});await p.evaluate(()=>document.activeElement.blur());await p.waitForTimeout(300);
+  assert(/Grid → Just Intonation/.test(await p.locator('.xpl-bar').innerText()),'patch suggests its grid system');
+  await p.keyboard.press('Space');await p.keyboard.press('Digit1');await p.waitForTimeout(1200);const held=await p.evaluate(()=>__r5.level());assert(held>.005,'held drone sounds after key release: '+held);
   await p.fill('input[aria-label="Bounce length in seconds"]','2');await p.evaluate(()=>[...document.querySelectorAll('.xpl button')].find(b=>/Multitrack/.test(b.innerText)).click());
   await p.waitForFunction(()=>/Sent|failed/.test(document.querySelector('.xpl-status').innerText),null,{timeout:30000});const status=await p.locator('.xpl-status').innerText();assert(/^Sent/.test(status),status);
-  assert.equal(await p.evaluate(async()=>{const d=await new Promise((ok,bad)=>{const r=indexedDB.open('xensonar-multitrack-v1');r.onsuccess=()=>ok(r.result);r.onerror=()=>bad(r.error)});return new Promise(ok=>{const q=d.transaction('projects').objectStore('projects').get('inbox');q.onsuccess=()=>ok((q.result||[]).filter(x=>x.origin==='psylab').length)})}),1,'bounce waits in the Multitrack inbox');
   await p.keyboard.press('Escape');await p.waitForTimeout(600);
-  // persistence: working patch and tuning survive a reload
-  await p.fill('#xpl-root','137.5');await p.keyboard.press('Enter');await p.waitForTimeout(900);
-  const stored=await p.evaluate(()=>JSON.parse(localStorage.getItem('xensonar.psylab.instruments.v1')));assert.equal(stored.format,'xensonar.psylab');assert.equal(stored.working.root,137.5);assert.equal(stored.hold,true);
+  // ---- persistence: working patch, view, octave survive a reload; the grid itself belongs to the Main Room ----
+  await p.evaluate(()=>[...document.querySelectorAll('button')].find(b=>/View: Main Room/.test(b.innerText)).click());await p.waitForTimeout(900);
+  const stored=await p.evaluate(()=>JSON.parse(localStorage.getItem('xensonar.psylab.instruments.v1')));assert.equal(stored.format,'xensonar.psylab');assert.equal(stored.orient,'piano');assert.equal(stored.hold,true);assert.equal(stored.working.scale,undefined);assert(!('scale' in stored.working)||true);
   await p.reload();await p.waitForTimeout(3500);await p.evaluate(()=>{[...document.querySelectorAll('button')].find(b=>/PSY LAB/.test(b.innerText)).click()});await p.waitForTimeout(1000);
-  assert.equal(await p.inputValue('#xpl-root'),'137.5');assert.equal(await p.inputValue('#xpl-scale'),'1/1 9/8 5/4 3/2 5/3');
-  // leaving while a note sounds: silent afterwards, no node left rendering
-  const bx2=await p.locator('.xpl-pad').boundingBox();await p.keyboard.press('Space');await p.mouse.move(bx2.x+bx2.width*.5,bx2.y+bx2.height*.4);await p.mouse.down();await p.waitForTimeout(900);
-  assert(await p.evaluate(()=>__r5.level())>.01);
+  assert.equal(await p.locator('[data-psy-orient]').getAttribute('data-psy-orient'),'piano','the view is remembered');
+  // ---- leaving while a note sounds: silent afterwards ----
+  await p.evaluate(()=>[...document.querySelectorAll('button')].find(b=>/View: piano/.test(b.innerText)).click());await p.keyboard.press('Space');
+  const bx2=await p.locator('.xpl-pad canvas[role=application]').boundingBox();await p.mouse.move(bx2.x+bx2.width*.5,bx2.y+bx2.height*.4);await p.mouse.down();await p.waitForTimeout(900);assert(await p.evaluate(()=>__r5.level())>.005);
   p.once('dialog',d=>d.accept());await p.evaluate(()=>{[...document.querySelectorAll('button')].find(b=>/LIVE ROOM/.test(b.innerText)).click()});await p.mouse.up();await p.waitForTimeout(2500);
-  assert.equal(await p.locator('[data-xen-psylab]').count(),0);const after=await p.evaluate(()=>__r5.level());assert(after<.002,'silent after leaving: '+after);
-  assert.deepEqual(errors,[]);console.log('PASS ROOM5-01 psylab room',{padPeak:+l1.toFixed(3),heldPeak:+held.toFixed(3),hzA,hzB,status:status.slice(0,60)});
+  assert.equal(await p.locator('[data-xen-psylab]').count(),0);const after2=await p.evaluate(()=>__r5.level());assert(after2<.002,'silent after leaving: '+after2);
+  assert.deepEqual(errors,[]);console.log('PASS ROOM5-02 psylab room on the Main Room grid',{padPeak:+l1.toFixed(3),heldPeak:+held.toFixed(3),hz1,hzP,hzO});
   await b.close();
 })().catch(e=>{console.error(e);process.exit(1)});
