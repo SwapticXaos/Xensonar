@@ -79,9 +79,17 @@ const __XenStemRecorder=(()=>{
     {id:'rhythm',name:'Rhythm',hint:'Drums, loops and root-follow impulses'},
     {id:'space',name:'Space',hint:'Echo and space returns'}]);
   const MAX_SECONDS=300,listeners=new Set(),moduleByContext=new WeakMap();
-  let state={phase:'idle',ms:0,message:'',stems:[],maxMs:MAX_SECONDS*1000};
+  /* STEMS-02: which stems are recorded and where they are tapped (kept for the session; not saved with songs) */
+  let setup={roles:ROLES.map(r=>r.id),tap:'after-eq'};
+  let state={phase:'idle',ms:0,message:'',stems:[],maxMs:MAX_SECONDS*1000,setup};
   let session=null,timer=0,lastKept=null;
   const emit=patch=>{state={...state,...patch};for(const fn of listeners)try{fn(state)}catch{}};
+  function configure(patch={}){
+    if(session||state.phase==='recording'||state.phase==='starting'||state.phase==='finalizing'||state.phase==='sending')return state.setup;
+    const roles=Array.isArray(patch.roles)?ROLES.map(r=>r.id).filter(id=>patch.roles.includes(id)):setup.roles;
+    const tap=patch.tap==='before-eq'||patch.tap==='after-eq'?patch.tap:setup.tap;
+    setup={roles,tap};emit({setup});return setup;
+  }
   const source=()=>{try{return globalThis.__XenLiveStemSource?.get?.()||null}catch{return null}};
   function ready(ctx){
     let p=moduleByContext.get(ctx);if(p)return p;
@@ -111,9 +119,13 @@ const __XenStemRecorder=(()=>{
     if(!src?.ctx||!src.roleGains)refuse('Start the Live Room audio (Power) before recording stems.');
     const ctx=src.ctx;if(ctx.state!=='running')refuse('The audio engine is not running.');
     const extra=Array.isArray(options.extra)?options.extra:[];
-    const taps=ROLES.map(r=>({id:r.id,name:r.name,node:src.roleGains[r.id]}));
+    const want=Array.isArray(options.roles)?options.roles:setup.roles,chosen=ROLES.filter(r=>want.includes(r.id));
+    if(!chosen.length)refuse('Select at least one stem to record.');
+    const pre=(options.tap||setup.tap)==='before-eq';
+    if(pre&&!src.splices)refuse('The Live Room mixer is not ready.');
+    const taps=chosen.map(r=>({id:r.id,name:r.name+(pre?' (pre-EQ)':''),node:pre?src.splices[r.id]:src.roleGains[r.id],pre}));
     for(const id of extra)if(id==='premaster'&&src.premaster)taps.push({id:'premaster',name:'Premaster (diagnostic)',node:src.premaster,diagnostic:true});
-    if(taps.slice(0,ROLES.length).some(t=>!t.node))refuse('The Live Room mixer is not ready.');
+    if(taps.slice(0,chosen.length).some(t=>!t.node))refuse('The Live Room mixer is not ready.');
     emit({phase:'starting',ms:0,message:'Preparing stems…',stems:[]});
     const sinks=[];let node=null;const connected=[];
     try{
@@ -197,7 +209,7 @@ const __XenStemRecorder=(()=>{
     emit({phase:'idle',ms:0,message:'',stems:[]});
   }
   function reset(){if(!session)emit({phase:'idle',ms:0,message:'',stems:[]})}
-  const api={roles:ROLES,maxSeconds:MAX_SECONDS,start,stop:()=>finish(),cancel,reset,snapshot:()=>state,subscribe:fn=>{listeners.add(fn);return()=>listeners.delete(fn)},
+  const api={roles:ROLES,maxSeconds:MAX_SECONDS,configure,start,stop:()=>finish(),cancel,reset,snapshot:()=>state,subscribe:fn=>{listeners.add(fn);return()=>listeners.delete(fn)},
    /* test access (read-only views of the finished session; the archives of a kept session are readable through __xenLongMasterPCM) */
    __session:()=>session,__lastKept:()=>lastKept};
   try{globalThis.__XenStemRecorder=api}catch{}

@@ -32673,6 +32673,14 @@ function __XenStemRecorderControls({masterRecording,name}){
    className:`px-3 py-1.5 border text-xs ${rec?"border-rose-500 bg-rose-950/50 text-rose-100":"border-amber-700/80 text-amber-100 hover:bg-amber-950/35"} disabled:text-neutral-600 disabled:border-neutral-800`,
    title:"Record the Live Room as separate stems (Instruments, Drone, Rhythm, Space) for up to 5 minutes and send them to the Multitrack as new tracks. The stems are taken before the master chain; the stereo take is not affected.",
    children:rec?"■ Stop stems · "+fmt(st.ms)+" / "+fmt(st.maxMs):busy?"Stems…":"● Record stems → Multitrack"}),
+  u.jsxs("span",{className:"flex gap-1 items-center flex-wrap","data-xen-stems-setup":"true",role:"group","aria-label":"Stems to record",children:[
+   ...__XenStemRecorder.roles.map(r=>{const on=st.setup.roles.includes(r.id);return u.jsx("button",{type:"button","data-xen-stem-role":r.id,"aria-pressed":on,disabled:rec||busy,title:r.hint+(on?" - recorded":" - not recorded"),
+    onClick:()=>__XenStemRecorder.configure({roles:on?st.setup.roles.filter(x=>x!==r.id):[...st.setup.roles,r.id]}),
+    className:`px-2 py-1 border text-[11px] ${on?"border-amber-600 text-amber-100 bg-amber-950/30":"border-neutral-700 text-neutral-500"} disabled:opacity-60`,children:r.name},r.id)}),
+   u.jsx("button",{type:"button","data-xen-stem-tap":st.setup.tap,"aria-pressed":st.setup.tap==="before-eq",disabled:rec||busy,
+    title:"Where the stems are taken: after the role EQ and level (default, the sum equals what enters the master chain) or before them (the raw role signal; EQ and automatic level are not in the stems).",
+    onClick:()=>__XenStemRecorder.configure({tap:st.setup.tap==="before-eq"?"after-eq":"before-eq"}),
+    className:`px-2 py-1 border text-[11px] ${st.setup.tap==="before-eq"?"border-sky-600 text-sky-100 bg-sky-950/30":"border-neutral-700 text-neutral-400"} disabled:opacity-60`,children:st.setup.tap==="before-eq"?"Before EQ":"After EQ"})]}),
   st.message?u.jsx("span",{role:"status",className:`text-[11px] ${st.phase==="error"?"text-rose-300":"text-neutral-400"}`,children:st.message}):null]});
 }
 function __xenHoldSlotGain(values,index){
@@ -46698,7 +46706,7 @@ if(i?.state==="running"){
 if(et.keyboardHoldSoundPreset?.startsWith("sample:")&&i?.state==="running")bw(et.keyboardHoldSoundPreset.slice(7),i).catch(()=>{});
 /* ROOM5-10: a restored / chosen Psy Lab sound gets its engine as soon as audio runs (the first note must not wait for the module); a lane that left Psy Lab gives it back */
 for(const[__lane,__snd]of[["wave",Ou],["keyboard",et.keyboardHoldSoundPreset]]){if(__XenPsyLab.isId(__snd)){if(i?.state==="running")__XenPsyLab.warm(__lane,__snd)}else __XenPsyLab.drop(__lane)}
-return()=>{__xenColdCancel?.()}},[i,et.particlePreset,Ou,et.keyboardHoldSoundPreset,et.waveStarterHoldSoundPreset,__nodalLibraryEpochState[0]]);/* STEMS-01: where the stem recorder finds the Live Room mixer (role gains before the master chain); read on demand, nothing runs while idle */P.useEffect(()=>{globalThis.__XenLiveStemSource={get:()=>Gr?{ctx:Lr.current??i,roleGains:y.current?.roleGains,premaster:y.current?.premaster}:null};return()=>{try{delete globalThis.__XenLiveStemSource}catch{}}},[i,Gr]);/* ROOM5-12: the cursor of the Live Room drives Psy Lab glissando */P.useEffect(()=>{__XenPsyLab.bindCursor({hz:()=>Qa(dO(xn).cursorY),arrows:()=>bh.current,
+return()=>{__xenColdCancel?.()}},[i,et.particlePreset,Ou,et.keyboardHoldSoundPreset,et.waveStarterHoldSoundPreset,__nodalLibraryEpochState[0]]);/* STEMS-01: where the stem recorder finds the Live Room mixer (role gains before the master chain); read on demand, nothing runs while idle */P.useEffect(()=>{globalThis.__XenLiveStemSource={get:()=>Gr?{ctx:Lr.current??i,roleGains:y.current?.roleGains,splices:y.current?.splices,premaster:y.current?.premaster}:null};return()=>{try{delete globalThis.__XenLiveStemSource}catch{}}},[i,Gr]);/* ROOM5-12: the cursor of the Live Room drives Psy Lab glissando */P.useEffect(()=>{__XenPsyLab.bindCursor({hz:()=>Qa(dO(xn).cursorY),arrows:()=>bh.current,
  /* the pointer's pitch right now: the focus cursor (no smoothing lag), on the nearest Grid line while Snap is on */
  focusHz:()=>{const y=Sn.current?.y;if(!Number.isFinite(y))return 0;let hz=Qa(y);if(Tt.current.lockCursorToGrid){let best=0,bd=1e9;for(const r of Xn()){const d=Math.abs(Zs(r.freq)-y);if(d<bd){bd=d;best=r.freq}}if(best>0)hz=best}return hz}});return()=>__XenPsyLab.bindCursor(null)},[]);/* ROOM5-11: Power off (and leaving the shell) silences every Psy Lab voice and tail at once */P.useEffect(()=>{if(!Gr){__XenPsyLab.panic();/* STEMS-01: Power off ends a running stem recording and hands over what was captured */if(__XenStemRecorder.snapshot().phase==='recording')void __XenStemRecorder.stop()}return()=>{if(Gr)__XenPsyLab.panic()}},[Gr]);P.useEffect(()=>{__XenNodalSurfaces.warmWaveField(Lr.current??i)},[i,et.gridBase,et.gridTuning,et.manualGridMutedSteps,et.manualGridStepOffsets,et.particleSystem,et.rootFollowImpulsRasterMuted]);P.useEffect(()=>()=>__XenNodalSurfaces.dispose(),[]);const Qg=Qwe({audioCtx:i,longToneHoldRef:Sm,allowSecondaryStart:(ct,traceId)=>kc(ct,"particle",traceId),getAudioCtx:()=>Lr.current??i,activeScheduledTonesRef:eo,transientRuntimeRef:hl,getNoiseBuffer:()=>xn.current.noiseBuffer,refucktorAudioGuardRef:X,particleRuntime:{getParticlePreset:()=>Tt.current.particlePreset,getParticleSourceGeneration:()=>Tt.current.__xenParticleSourceRevision??0,getParticleGradientX:()=>Tt.current.particleGradientX,getParticleGradientY:()=>Tt.current.particleGradientY,getParticleSampleProfileMode:()=>Tt.current.particleSampleProfileMode},particleFx:{ensureCollectiveMemoryFx:Cl,ensurePsychedelicSpiralDevice:fi,ensureTransientDriveDevice:Vi,ensureEnterHoldPsyFxDevice:Qu,ensureSchwarmdeuterDevice:Uu,ensureMyzelPostFxRouter:Fc},particleAuxTargets:{getTransientDriveParticles:()=>fo.current.particles,getPsychedelicSpiralParticles:()=>Cs.current.particles,getCollectiveMemoryParticles:()=>Br?_memoryPortsRef.current.particles:null,getSchwarmdeuterParticles:()=>go.current.particles,getMyzelPostFxParticles:()=>er.current.particles},room3BodyRuntime:{getEnabled:()=>xe,getBodyEnabled:()=>ot.current,getTopologyMode:()=>Ke.current,getDestination:()=>xn.current.room3BodyExciterGain,getModal:()=>Na.current,getControls:()=>kt.current},beginTransientEvent:Ec,ensureFinalMixBus:Hh,getParticleOutput:(ctx,index)=>Number.isInteger(index)&&index>=0&&index<32?__XenPan.route(ctx,"particle:"+index,__XenPan.route(ctx,"particle",Hh(ctx))):__XenPan.route(ctx,"particle",Hh(ctx)),recordAudioPressureCount:ea,recordAudioPressureAdaptiveAction:fr,silentHotPathSources:{wave:!0},noWaveStarterPolicyOwnedHere:!0,noRootFollowPolicyOwnedHere:!0}),{playScheduledTone:Hm,triggerRoom3BodyExciter:bv,releaseHeldScheduledTones:Zh,playNexusAgentTone:Vm}=Qg,{activeParticleNodes:ef,toggleNexusAgent:tf,setAllNexusAgents:__setAllNexusAgents,setNexusAgentVolume:Ug}=fEe({particleSystem:et.particleSystem,audioCtx:i,audioCtxRef:Lr,nexusParamsRef:Tt,nexusRefs:xn,updateNParams:Mr,playNexusAgentTone:Vm}),{previewWavePresetSelection:za,previewParticlePresetSelectionAction:Or}=AEe({initAudio:Ls,waveSoundRuntimeRef:fa,nexusParamsRef:Tt,waveOvertoneArpQueueRef:ra,playWaveStartSound:zo,playNexusAgentTone:Vm,gameWidth:vr,gameHeight:ir}),{enterArenaWorkspace:nf,startGameRun:Wm}=IY({room:e,setRoom:t,gameCanvasRef:qt,gameRefs:Kr,gameActive:_i,setGameActive:wu,setGameHud:As,keyRef:Ia,arenaInterpreterRef:sm,getArenaInterpreterSnapshot:ku,setArenaSeedStatus:zi,initAudio:async()=>{await Ls()},playScheduledTone:Hm,clampValue:Me}),{shouldEmitWellenstartHoldAudio:rf,shouldEmitKeyboardHoldWavePreview:Kg,releaseWaveStarterHoldGestureForKey:_s,resolveKeyboardWaveStarterSoundPreset:af,resolveNodalInitialHoldIdentity:mh}=Jxe({resonanceInputActive:bl,thunderModeEnabled:__xenThunderLane(et,"wellenstart")||__xenThunderLane(et,"klaviatur"),audioCtx:i,audioCtxRef:Lr,activeScheduledTonesRef:eo,longToneHoldRef:Sm,nexusParamsRef:Tt,nexusRefs:xn,gridTempoBpm:J,waveSoundPreset:Ou,freqFromY:Qa,playWaveStartSound:zo,recordAudioPressureAdaptiveAction:fr}),qm=(ct=!0,_t)=>(__flushResonancePointerMotion(xn),{nexusActive:Gr,refs:xn.current,params:Tt.current,baseWaveMaxRadius:UJ,clampValue:Me,freqFromY:Qa,markWaveLaunch:_g,playWaveStartSound:zo,playAudio:ct,resolvePlayAudio:_t}),$g=(ct,cursorAtEvent)=>{Y2e(qm(),ct,cursorAtEvent)},yv=ct=>{J2e(qm(),ct)};Kwe({audioCtx:i,nexusActive:Gr,nexusRefs:xn,nexusParamsRef:Tt,getLiveMasterBus:hi}),MPe({resonanceInputActive:bl,audioCtx:i,myzelEnabled:xe,managedLoopMaterial:dv,paramsRef:Tt,arrowStateRef:bh,nexusRefs:xn,keyboardMirrorRef:Eg,keyboardWindowOffsetRef:ha,pitchLaneStateRef:Tg,exportedDrumConfigs:So,recentLoopHotkeyEntries:Ku,recentRootFollowHotkeyEntries:Hg,rootFollowInputTargetHzRef:Sc,rootFollowLoopActive:!!et.rootFollowLoopActive,actions:{freqFromY:Qa,setSustainHoldActive:ct=>{const previous=vm(ct);__xenSetSampleHold(Lr.current??i,ct);return previous},setSwellHoldActive:Cc,setDampHoldActive:__xenSetDamp,setOctaveHoldActive:Am,setEnterHoldActive:Bh,releaseHeldScheduledTones:Zh,ensureAudioReady:Bs,reportAudioReadyFailure:(ct,_t)=>hr("audio","resonance-hotkey-audio-ready",ct,_t),ensureKeyboardPitchAudioReadyOnce:Vg,cycleQuantizeGrid:no,runEnterWaveGesture:ct=>nEe({...qm(!0,({freq:_t})=>rf(!!ct?.isRepeat,_t)),playWaveStartSound:(hz,sector,opts)=>zo(__xenThunderLane(et,"wellenstart")&&!String(Tt.current.waveStarterHoldSoundPreset||Ou).startsWith("nodal:")?__xenHoldPitchHz(hz,Tt.current.waveStarterHoldPitchCents,0):hz,sector,{...opts,holdSlotGain:__xenHoldSlotGain(Tt.current.waveStarterHoldSlotVolumes,0),holdSession:__XenHoldResident.peek("wellenstart:Enter"),waveStarterPresetOverride:Tt.current.waveStarterHoldSoundPreset||Ou,
   ...((Tt.current.waveStarterHoldSoundPreset||Ou)?.startsWith?.("nodal:")?mh("wellenstart","Enter"):{})})}),shouldEmitKeyboardHoldWavePreview:Kg,resolveKeyboardWaveStarterSoundPreset:af,resolveKeyboardHoldResidentSession:event=>__XenHoldResident.peek("klaviatur:"+(event.code||event.key)),
@@ -48151,9 +48159,17 @@ const __XenStemRecorder=(()=>{
     {id:'rhythm',name:'Rhythm',hint:'Drums, loops and root-follow impulses'},
     {id:'space',name:'Space',hint:'Echo and space returns'}]);
   const MAX_SECONDS=300,listeners=new Set(),moduleByContext=new WeakMap();
-  let state={phase:'idle',ms:0,message:'',stems:[],maxMs:MAX_SECONDS*1000};
+  /* STEMS-02: which stems are recorded and where they are tapped (kept for the session; not saved with songs) */
+  let setup={roles:ROLES.map(r=>r.id),tap:'after-eq'};
+  let state={phase:'idle',ms:0,message:'',stems:[],maxMs:MAX_SECONDS*1000,setup};
   let session=null,timer=0,lastKept=null;
   const emit=patch=>{state={...state,...patch};for(const fn of listeners)try{fn(state)}catch{}};
+  function configure(patch={}){
+    if(session||state.phase==='recording'||state.phase==='starting'||state.phase==='finalizing'||state.phase==='sending')return state.setup;
+    const roles=Array.isArray(patch.roles)?ROLES.map(r=>r.id).filter(id=>patch.roles.includes(id)):setup.roles;
+    const tap=patch.tap==='before-eq'||patch.tap==='after-eq'?patch.tap:setup.tap;
+    setup={roles,tap};emit({setup});return setup;
+  }
   const source=()=>{try{return globalThis.__XenLiveStemSource?.get?.()||null}catch{return null}};
   function ready(ctx){
     let p=moduleByContext.get(ctx);if(p)return p;
@@ -48183,9 +48199,13 @@ const __XenStemRecorder=(()=>{
     if(!src?.ctx||!src.roleGains)refuse('Start the Live Room audio (Power) before recording stems.');
     const ctx=src.ctx;if(ctx.state!=='running')refuse('The audio engine is not running.');
     const extra=Array.isArray(options.extra)?options.extra:[];
-    const taps=ROLES.map(r=>({id:r.id,name:r.name,node:src.roleGains[r.id]}));
+    const want=Array.isArray(options.roles)?options.roles:setup.roles,chosen=ROLES.filter(r=>want.includes(r.id));
+    if(!chosen.length)refuse('Select at least one stem to record.');
+    const pre=(options.tap||setup.tap)==='before-eq';
+    if(pre&&!src.splices)refuse('The Live Room mixer is not ready.');
+    const taps=chosen.map(r=>({id:r.id,name:r.name+(pre?' (pre-EQ)':''),node:pre?src.splices[r.id]:src.roleGains[r.id],pre}));
     for(const id of extra)if(id==='premaster'&&src.premaster)taps.push({id:'premaster',name:'Premaster (diagnostic)',node:src.premaster,diagnostic:true});
-    if(taps.slice(0,ROLES.length).some(t=>!t.node))refuse('The Live Room mixer is not ready.');
+    if(taps.slice(0,chosen.length).some(t=>!t.node))refuse('The Live Room mixer is not ready.');
     emit({phase:'starting',ms:0,message:'Preparing stems…',stems:[]});
     const sinks=[];let node=null;const connected=[];
     try{
@@ -48269,7 +48289,7 @@ const __XenStemRecorder=(()=>{
     emit({phase:'idle',ms:0,message:'',stems:[]});
   }
   function reset(){if(!session)emit({phase:'idle',ms:0,message:'',stems:[]})}
-  const api={roles:ROLES,maxSeconds:MAX_SECONDS,start,stop:()=>finish(),cancel,reset,snapshot:()=>state,subscribe:fn=>{listeners.add(fn);return()=>listeners.delete(fn)},
+  const api={roles:ROLES,maxSeconds:MAX_SECONDS,configure,start,stop:()=>finish(),cancel,reset,snapshot:()=>state,subscribe:fn=>{listeners.add(fn);return()=>listeners.delete(fn)},
    /* test access (read-only views of the finished session; the archives of a kept session are readable through __xenLongMasterPCM) */
    __session:()=>session,__lastKept:()=>lastKept};
   try{globalThis.__XenStemRecorder=api}catch{}

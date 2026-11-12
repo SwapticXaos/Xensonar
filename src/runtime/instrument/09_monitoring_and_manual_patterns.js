@@ -54,6 +54,14 @@ function __XenStemRecorderControls({masterRecording,name}){
    className:`px-3 py-1.5 border text-xs ${rec?"border-rose-500 bg-rose-950/50 text-rose-100":"border-amber-700/80 text-amber-100 hover:bg-amber-950/35"} disabled:text-neutral-600 disabled:border-neutral-800`,
    title:"Record the Live Room as separate stems (Instruments, Drone, Rhythm, Space) for up to 5 minutes and send them to the Multitrack as new tracks. The stems are taken before the master chain; the stereo take is not affected.",
    children:rec?"■ Stop stems · "+fmt(st.ms)+" / "+fmt(st.maxMs):busy?"Stems…":"● Record stems → Multitrack"}),
+  u.jsxs("span",{className:"flex gap-1 items-center flex-wrap","data-xen-stems-setup":"true",role:"group","aria-label":"Stems to record",children:[
+   ...__XenStemRecorder.roles.map(r=>{const on=st.setup.roles.includes(r.id);return u.jsx("button",{type:"button","data-xen-stem-role":r.id,"aria-pressed":on,disabled:rec||busy,title:r.hint+(on?" - recorded":" - not recorded"),
+    onClick:()=>__XenStemRecorder.configure({roles:on?st.setup.roles.filter(x=>x!==r.id):[...st.setup.roles,r.id]}),
+    className:`px-2 py-1 border text-[11px] ${on?"border-amber-600 text-amber-100 bg-amber-950/30":"border-neutral-700 text-neutral-500"} disabled:opacity-60`,children:r.name},r.id)}),
+   u.jsx("button",{type:"button","data-xen-stem-tap":st.setup.tap,"aria-pressed":st.setup.tap==="before-eq",disabled:rec||busy,
+    title:"Where the stems are taken: after the role EQ and level (default, the sum equals what enters the master chain) or before them (the raw role signal; EQ and automatic level are not in the stems).",
+    onClick:()=>__XenStemRecorder.configure({tap:st.setup.tap==="before-eq"?"after-eq":"before-eq"}),
+    className:`px-2 py-1 border text-[11px] ${st.setup.tap==="before-eq"?"border-sky-600 text-sky-100 bg-sky-950/30":"border-neutral-700 text-neutral-400"} disabled:opacity-60`,children:st.setup.tap==="before-eq"?"Before EQ":"After EQ"})]}),
   st.message?u.jsx("span",{role:"status",className:`text-[11px] ${st.phase==="error"?"text-rose-300":"text-neutral-400"}`,children:st.message}):null]});
 }
 function __xenHoldSlotGain(values,index){
