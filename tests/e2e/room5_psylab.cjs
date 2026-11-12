@@ -44,11 +44,23 @@ const html=path.resolve(process.argv[2]||'dist/XenSonar_PROBE.html');const shot=
   const l1=await p.evaluate(()=>__r5.level()),hz=await p.evaluate(()=>__r5.last.hz);assert(l1>.005,'pad note audible (peak '+l1+')');assert(Math.abs(hz-line.freq)<.01,'snapped to the grid line: '+hz+' vs '+line.freq);
   if(shot){await p.waitForTimeout(300);await p.screenshot({path:shot})}
   await p.mouse.up();
+  // ---- the mandala: own canvas at full resolution, fine hairlines, fades out after the sound ----
+  const scopeInfo=async()=>p.evaluate(()=>{const c=document.querySelector('canvas.xpl-scope'),d=c.getContext('2d').getImageData(0,0,c.width,c.height).data;let n=0;for(let i=3;i<d.length;i+=4)if(d[i]>24)n++;return{w:c.width,h:c.height,lit:n,quality:c.dataset.quality??null}});
+  await fresh();await p.mouse.move(bx.x+bx.width*.6,bx.y+bx.height*.4);await p.mouse.down();await p.waitForTimeout(1800);const sc=await scopeInfo();assert.equal(sc.w,1100,'the mandala canvas has the full pad resolution (not 1/4)');assert.equal(sc.h,580);assert(sc.lit>4000,'the mandala is painted while a note sounds: '+sc.lit+' pixels');
+  await p.mouse.up();let sc2=await scopeInfo();for(let i=0;i<40&&sc2.lit>=sc.lit*.05;i++){await p.waitForTimeout(500);sc2=await scopeInfo()} // the echo tail keeps the picture alive for a few seconds
+  assert(sc2.lit<sc.lit*.05,'the mandala fades away after the sound (echo tail included): '+sc2.lit+' vs '+sc.lit);
   // ---- Live Room keys: 1 plays the first grid note, , . cycle the grid system, Ctrl cycles the mode ----
   const key=async k=>{await p.keyboard.down(k);await p.waitForTimeout(250);const t=await p.locator('.xpl-readout').innerText();await p.keyboard.up(k);return t};
   await p.evaluate(()=>document.activeElement.blur());
   const hz1=parseFloat(await key('Digit1'));assert(Math.abs(hz1-440)<.01,'key 1 = the top grid note (440): '+hz1);
   const hzQ=parseFloat(await key('KeyQ')),want=await E('(p=>uw(p.gridBase,p.gridTuning,p.manualGridMutedSteps,p.manualGridStepOffsets)[10])(__NodalBallGrid.params())');assert(Math.abs(hzQ-want)<.01,'key Q = the 11th note of the Main Room grid (muted steps skipped): '+hzQ+' vs '+want);
+  // third row (home row) continues the notes: A = 21st note ... L = 29th, # = 32nd (DE layout default)
+  for(const[code,i]of[['KeyA',20],['KeyL',28],['Backslash',31]]){const hzK=parseFloat(await key(code)),wantK=await E('(p=>uw(p.gridBase,p.gridTuning,p.manualGridMutedSteps,p.manualGridStepOffsets)[0]&&wF(p.gridBase,p.gridTuning,0,'+i+',p.manualGridMutedSteps,p.manualGridStepOffsets))(__NodalBallGrid.params())');assert(Math.abs(hzK-wantK)<.01,code+' = key '+(i+1)+' of the extended keyboard: '+hzK+' vs '+wantK)}
+  // the grid hotkeys work while a drop-down still has the focus (the Live Room does not block them either)
+  await p.locator('select[aria-label="Grid mode"]').focus();const tBefore=(await grid()).tuning;await p.keyboard.press('Period');await p.waitForTimeout(350);assert.notEqual((await grid()).tuning,tBefore,'. cycles the grid system while a drop-down has the focus');
+  assert(/^Grid: /.test(await p.locator('.xpl-status').innerText()),'the new grid is announced: '+await p.locator('.xpl-status').innerText());await p.keyboard.press('Comma');await p.waitForTimeout(350);assert.equal((await grid()).tuning,tBefore);
+  // a click on the pad takes the focus away from the control, so that keys play again
+  await p.locator('select[aria-label="Grid mode"]').focus();await fresh();await p.mouse.click(bx.x+bx.width*.6,bx.y+bx.height*.3);assert.equal(await p.evaluate(()=>document.activeElement===document.body||!document.activeElement.matches('select,input')),true,'the pad blurs the focused control');
   const before=(await grid()).tuning;await p.keyboard.press('Period');await p.waitForTimeout(300);const after=(await grid()).tuning;assert.notEqual(after,before,'. cycles the grid system');
   await p.keyboard.press('Comma');await p.waitForTimeout(300);assert.equal((await grid()).tuning,before,', cycles it back');
   const m0=(await grid()).mode;await p.keyboard.press('ControlRight');await p.waitForTimeout(300);assert.notEqual((await grid()).mode,m0,'right Ctrl cycles the grid mode');await p.keyboard.press('ControlRight');await p.keyboard.press('ControlRight');await p.keyboard.press('ControlRight');

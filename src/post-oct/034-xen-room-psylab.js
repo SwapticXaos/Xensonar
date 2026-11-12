@@ -274,13 +274,15 @@ function loadModule(ctx){let job=moduleReady.get(ctx);if(job)return job;
 
 /* Live engine: created on the first note, removed when the room closes. Slider moves are coalesced to one message per frame. */
 class PsyEngine{
- constructor(){this.ctx=null;this.node=null;this.out=null;this.anL=null;this.anR=null;this.starting=null;this.pending=new Map();this.raf=0;this.queue=[];this.params=defaultParams();this.res=[220];this.closed=false}
+ constructor(options){this.visual=!options||options.visual!==false;this.ctx=null;this.node=null;this.out=null;this.anL=null;this.anR=null;this.split=null;this.starting=null;this.pending=new Map();this.raf=0;this.queue=[];this.params=defaultParams();this.res=[220];this.closed=false}
  async ensure(){if(this.node)return this.node;if(this.starting)return this.starting;
   this.starting=(async()=>{const bridge=__xenMultitrackBridge.current;if(!bridge)throw Error('The audio bridge is not ready: open the Live Room once.');
    const ctx=await bridge.ensureAudioReady();await loadModule(ctx);if(this.closed)throw Error('Room closed.');
    const node=new AudioWorkletNode(ctx,'xen-psylab-v1',{numberOfInputs:0,numberOfOutputs:1,outputChannelCount:[2],processorOptions:{params:this.params.slice(),res:this.res.slice()}});
    const out=ctx.createGain();out.gain.value=1;node.connect(out);out.connect(bridge.getMasterInput(ctx));
-   const split=ctx.createChannelSplitter(2),anL=ctx.createAnalyser(),anR=ctx.createAnalyser();anL.fftSize=anR.fftSize=1024;node.connect(split);split.connect(anL,0);split.connect(anR,1);
+   // The picture (scope + spectrum) needs two analysers; a host that shows no picture (options.visual=false) creates none of them.
+   let split=null,anL=null,anR=null;
+   if(this.visual){split=ctx.createChannelSplitter(2);anL=ctx.createAnalyser();anR=ctx.createAnalyser();anL.fftSize=anR.fftSize=1024;anL.smoothingTimeConstant=.6;node.connect(split);split.connect(anL,0);split.connect(anR,1)}
    this.ctx=ctx;this.node=node;this.out=out;this.split=split;this.anL=anL;this.anR=anR;
    for(const m of this.queue)node.port.postMessage(m);this.queue.length=0;return node})();
   try{return await this.starting}finally{this.starting=null}}
@@ -294,7 +296,7 @@ class PsyEngine{
  allOff(){this.queue.length=0;if(this.node)this.node.port.postMessage({t:'alloff'})}
  dispose(){this.closed=true;if(this.raf){cancelAnimationFrame(this.raf);this.raf=0}const{node,out,split,anL,anR,ctx}=this;this.node=null;this.queue.length=0;if(!node)return;
   try{node.port.postMessage({t:'alloff'});out.gain.setTargetAtTime(0,ctx.currentTime,.04)}catch{}
-  setTimeout(()=>{try{node.port.postMessage({t:'dispose'});node.disconnect();out.disconnect();split.disconnect();anL.disconnect();anR.disconnect()}catch{}},400)}
+  setTimeout(()=>{try{node.port.postMessage({t:'dispose'});node.disconnect();out.disconnect();split?.disconnect();anL?.disconnect();anR?.disconnect()}catch{}},400)}
 }
 /* Offline render of the same processor: deterministic, no realtime capture. */
 async function bounce({params,res,notes,seconds,sampleRate}){
@@ -397,11 +399,58 @@ function PsySlider({p,patchRef,engine,onTouched}){
   u.jsx('input',{id,type:'range',min:0,max:1000,step:1,value:Math.round(toUnit(p,value)*1000),'data-psy-param':p[1],'aria-valuetext':fmt(p,value),
    onChange:e=>apply(fromUnit(p,Number(e.target.value)/1000)),onDoubleClick:()=>apply(p[5])})]})}
 
+
+/* ---------- the mandala: full resolution, own canvas behind the pad ---------- */
+/* Kaleidoscope (up to twelve arms, each mirrored) of two things at once: the stereo scope figure (left against right channel) and a ring of
+   petals from the spectrum (log-spaced bins, loud partials grow outwards). Strokes fade out slowly (destination-out) so moving sound leaves a trail.
+   It draws only into its own canvas, never into the pad. It belongs to this room: a host that plays the engine without a picture creates no analysers. */
+const TAU=Math.PI*2;
+/* Hairlines (lineWidth exactly 1) take the browser's fast path: about 25 times cheaper than a 1.1 px stroke in software-drawn canvases, and plain
+   "source-over" is about 6 times cheaper than additive blending there. So the picture is made of one hairline path per colour band, not of dozens of strokes.
+   Quality levels: the picture may lose frames, the sound never. The draw loop watches its own frame rate and steps down when the machine cannot keep
+   about 40 frames per second while something sounds, and back up when there is plenty of room. */
+const MANDALA_LEVELS=[{arms:4,step:16,petals:24,every:2},{arms:6,step:8,petals:48,every:1},{arms:6,step:4,petals:72,every:1},{arms:12,step:4,petals:96,every:1}];
+const BANDS=3;
+let fadeFrames=0;/* frames of fading after the last sound: about 70 frames leave nothing visible */
+function faded(sg){if(++fadeFrames<70)return false;fadeFrames=0;sg.setTransform(1,0,0,1,0,0);sg.globalCompositeOperation='source-over';sg.clearRect(0,0,SCOPE_W,SCOPE_H);return true}
+function paintMandala(sg,st,bufL,bufR,spec,peak,pitchHue){
+ const W=SCOPE_W,H=SCOPE_H,lv=MANDALA_LEVELS[st.level];
+ st.tick=(st.tick+1)%lv.every;if(st.tick!==0)return peak>.001; // skipped frame: keep what is on the canvas
+ sg.setTransform(1,0,0,1,0,0);sg.globalCompositeOperation='destination-out';sg.fillStyle='rgba(0,0,0,'+((peak>.001?.2:.09)*lv.every)+')';sg.fillRect(0,0,W,H);
+ if(!(peak>.001))return false;
+ fadeFrames=0;
+ const cx=W/2,cy=H/2,rad=Math.min(W,H)*.45,gain=rad*.62/Math.max(.2,peak*1.1),arms=lv.arms,step=lv.step,P=lv.petals,n=bufL.length,bins=spec.length,loud=st.loud+=(Math.min(1,peak*2.4+.15)-st.loud)*.1;
+ st.hue=(st.hue+.9*lv.every)%360;const hue=(pitchHue+st.hue)%360,wedge=TAU/(arms*2);
+ sg.globalCompositeOperation='source-over';sg.lineWidth=1;sg.lineJoin='miter';
+ // petal heights: spectrum on a log-like axis, interpolated between bins and smoothed over time, so the ring flows instead of jittering
+ const sm=st.petal;for(let j=0;j<=P;j++){const pos=1+Math.pow(j/P,1.7)*(bins*.62),i0=pos|0,fr=pos-i0,v=(spec[i0]*(1-fr)+spec[Math.min(bins-1,i0+1)]*fr)/255;sm[j]+=(v-sm[j])*.18}
+ for(let band=0;band<BANDS;band++){
+  const fig=new Path2D(),pet=new Path2D();
+  for(let k=band;k<arms;k+=BANDS){
+   const a0=k*TAU/arms+st.hue*.004;
+   for(let mir=0;mir<2;mir++){const m=mir?-1:1;
+    // the stereo figure: left against right channel, rotated and mirrored by hand (so that one path holds every arm)
+    {const cs=Math.cos(a0),sn=Math.sin(a0);for(let i=0;i<n;i+=step){const x=bufL[i]*gain,y=bufR[i]*gain*m,px=cx+x*cs-y*sn,py=cy+x*sn+y*cs;if(i)fig.lineTo(px,py);else fig.moveTo(px,py)}}
+    // the petals: one wedge of the spectrum ring, loud partials grow outwards
+    for(let j=0;j<=P;j++){const r=rad*(.72+sm[j]*.17*loud),a=a0+m*(j/P*wedge),px=cx+Math.cos(a)*r,py=cy+Math.sin(a)*r;if(j)pet.lineTo(px,py);else pet.moveTo(px,py)}
+   }}
+  const h=(hue+band*120)%360;
+  sg.strokeStyle='hsla('+h+',92%,64%,.62)';sg.stroke(fig);
+  sg.strokeStyle='hsla('+((h+45)%360)+',96%,72%,.5)';sg.stroke(pet);
+ }
+ return true}
+/* frame-rate watcher: called once per drawn frame while the mandala is active */
+function watchMandala(st,dtMs,now){
+ st.dt+=(dtMs-st.dt)*.08;
+ const since=now-st.changed;
+ if(st.dt>27&&st.level>0&&since>1200){st.level--;st.changed=now;if(now-st.upAt<8000)st.holdUp=now+30000;if(st.el)st.el.dataset.quality=st.level}
+ else if(st.dt<17.5&&st.level<MANDALA_LEVELS.length-1&&since>4000&&now>st.holdUp){st.level++;st.changed=now;st.upAt=now;if(st.el)st.el.dataset.quality=st.level}}
+
 /* ---------- the pad: the Main Room's own pitch space ---------- */
 /* Same canvas size (1100 x 580), same frequency range (gj) and the same grid layer as the Live Room. 'live': pitch runs up the page, the blue
    triangles sit at the left edge, the horizontal axis is intensity. 'piano': pitch runs left (low) to right (high), triangles on top, vertical axis is
    intensity. In piano view the layer is drawn through a 90 degree transform, so it is still the very same drawing code. */
-const PAD_W=1100,PAD_H=580,SCOPE_W=275,SCOPE_H=145;
+const PAD_W=1100,PAD_H=580,SCOPE_W=1100,SCOPE_H=580;
 function padGeometry(orient){const{min,max}=gj(),piano=orient==='piano',ext=piano?PAD_W:PAD_H,len=piano?PAD_H:PAD_W;
  return{piano,ext,len,min,max,yOf:f=>{const y=(1-(f-min)/(max-min))*ext;return y<0?0:y>ext?ext:y},freqOf:y=>min+(1-(y<0?0:y>ext?ext:y)/ext)*(max-min)}}
 /* pointer (client) to the layer's own coordinates */
@@ -413,6 +462,9 @@ function padTarget(p,geo,rows,y){if(p&&p.lockCursorToGrid&&rows.length){let best
 /* intensity from the free axis: 'live' left to right, 'piano' bottom to top */
 const padIntensity=(geo,x)=>clamp(geo.piano?1-x/geo.len:x/geo.len,0,1);
 
+/* the keys always include the third row, so the highlighted key window of the grid layer is the extended one (20 + 12 keys) */
+const extendedViews=new WeakMap();
+function extended(p){let v=extendedViews.get(p);if(!v){v=Object.create(p,{resonanceHotkeyMode:{value:'keyboard-extension',enumerable:true}});extendedViews.set(p,v)}return v}
 const useGrid=()=>{P.useSyncExternalStore(__NodalBallGrid.subscribe,__NodalBallGrid.snapshot,__NodalBallGrid.snapshot);return __NodalBallGrid.params()};
 
 function XenPsyLabRoom(){
@@ -463,7 +515,7 @@ function XenPsyLabRoom(){
  const handle=P.useRef(null),setMacro=P.useCallback(v=>{patchRef.current.params[37]=0;engine.setParam(37,v)},[engine]);
  P.useEffect(()=>{const canvas=canvasRef.current;if(!canvas)return;
   const show=(hz,label)=>{if(readoutRef.current)readoutRef.current.textContent=hz.toFixed(2)+' Hz · '+(1200*Math.log2(hz/(gridRef.current?.gridBase||440))).toFixed(0)+' ct vs base'+(label||'')};
-  const down=e=>{if(e.button!==0)return;e.preventDefault();try{canvas.setPointerCapture(e.pointerId)}catch{};const p=liveGridParams();if(!p)return;
+  const down=e=>{if(e.button!==0)return;e.preventDefault();document.activeElement?.blur?.();try{canvas.setPointerCapture(e.pointerId)}catch{};const p=liveGridParams();if(!p)return;
    const geo=padGeometry(live.current.orient),pt=padLocal(canvas,e,geo),rows=__NodalBallGrid.rows(),hit=__XenGridHandles.hit(rows,geo.yOf,pt.x,pt.y);
    focus.current={x:pt.x,y:pt.y,inside:true};
    if(hit){handle.current={step:hit.stepIndex,startY:pt.y,base:p.manualGridStepOffsets?.[hit.stepIndex]??0,moved:false,pointer:e.pointerId};return}
@@ -481,19 +533,22 @@ function XenPsyLabRoom(){
   canvas.addEventListener('pointerdown',down);canvas.addEventListener('pointermove',move);canvas.addEventListener('pointerup',up);canvas.addEventListener('pointercancel',up);canvas.addEventListener('lostpointercapture',up);canvas.addEventListener('pointerleave',leave);canvas.addEventListener('contextmenu',menu);
   return()=>{canvas.removeEventListener('pointerdown',down);canvas.removeEventListener('pointermove',move);canvas.removeEventListener('pointerup',up);canvas.removeEventListener('pointercancel',up);canvas.removeEventListener('lostpointercapture',up);canvas.removeEventListener('pointerleave',leave);canvas.removeEventListener('contextmenu',menu)}},[engine,setMacro,start,stop]);
 
- /* keyboard: the Live Room's own keys. 1-0 and Q-P play the grid, , ; . : switch the grid system, AltGr / right Ctrl the mode, [ and - shift the key window. */
+ /* keyboard: the Live Room's own keys, with the third row on by default ("keyboard extension"): 1-0, Q-P and A-# play 32 grid steps, one key after the other
+    (the third row follows the DE / EN keyboard layout of the Main Room). , ; . : switch the grid system, AltGr / right Ctrl the mode, [ and - shift the key window.
+    Same guards as the Live Room: text fields keep their keys, a drop-down or a button never swallows a note. */
  P.useEffect(()=>{
-  const typing=t=>{const tag=t?.tagName?.toLowerCase?.();return tag==='textarea'||tag==='select'||t?.isContentEditable||(tag==='input'&&!['range','checkbox','button'].includes((t.type||'text').toLowerCase()))};
   const inside=t=>t===document.body||!!rootRef.current?.contains(t);
-  const down=e=>{if(typing(e.target)||!inside(e.target))return;
-   const p=liveGridParams();
-   if(p&&!e.metaKey&&pPe({event:e,params:__NodalBallGrid.params(),runWithAudio:fn=>fn(),changeGridTuning:__NodalBallGrid.changeTuning,setGridMode:__NodalBallGrid.changeMode,resetKeyboardWindow:__NodalBallGrid.resetWindow})){e.preventDefault();e.stopPropagation();return}
+  const announceGrid=()=>setTimeout(()=>{const q=__NodalBallGrid.params();if(q)setStatus('Grid: '+ti(j0,q.gridTuning)+' · '+ti(Ka(q.gridTuning),q.gridMode))},120);
+  const down=e=>{if(Qp(e.target)||!inside(e.target))return;
+   const p=liveGridParams(),third=__xenThirdKeyboardRowIndex(e);
+   // a third-row key is a note first (as in the Live Room's extension mode); only the other keys may switch the grid
+   if(p&&third<0&&!e.metaKey&&pPe({event:e,params:__NodalBallGrid.params(),runWithAudio:fn=>fn(),changeGridTuning:__NodalBallGrid.changeTuning,setGridMode:__NodalBallGrid.changeMode,resetKeyboardWindow:__NodalBallGrid.resetWindow})){e.preventDefault();e.stopPropagation();announceGrid();return}
    if(e.ctrlKey||e.metaKey||e.altKey)return;
    if(e.code==='Escape'){e.preventDefault();panic();return}
    if(e.code==='Space'){e.preventDefault();e.stopPropagation();if(!e.repeat)setHold(h=>!h);return}
    if(dJ(e.code)){const d=mJ(e.code);if(d!==null){e.preventDefault();e.stopPropagation();__NodalBallGrid.shiftWindow(d)}return}
-   let idx=AJ(e,HJ,VJ);if(idx<0||!p)return;e.preventDefault();e.stopPropagation();if(e.repeat)return;
-   if(live.current.orient==='piano')idx=yJ(idx,iw.length); // piano view: the left key is the lowest, as on the screen
+   let idx=third>=0?iw.length+third:AJ(e,HJ,VJ);if(idx<0||!p)return;e.preventDefault();e.stopPropagation();if(e.repeat)return;
+   if(live.current.orient==='piano')idx=yJ(idx,iw.length+12); // piano view: the left key is the lowest, as on the screen
    const hz0=wF(p.gridBase,p.gridTuning,__NodalBallGrid.windowOffset(),idx,p.manualGridMutedSteps,p.manualGridStepOffsets);
    if(hz0===null||!Number.isFinite(hz0)||hz0<=0){if(readoutRef.current)readoutRef.current.textContent='muted step';return}
    const hz=hz0*Math.pow(2,live.current.oct);start('key:'+e.code,hz,e.shiftKey?1:.8);if(readoutRef.current)readoutRef.current.textContent=hz.toFixed(2)+' Hz'};
@@ -504,23 +559,23 @@ function XenPsyLabRoom(){
 
  /* drawing: the Live Room's grid layer (lines, green snapped line, blue triangles, cursor, ball) plus a scope figure behind it.
     Runs only while this room is mounted and the tab is visible. */
- P.useEffect(()=>{const canvas=canvasRef.current;if(!canvas)return;const g=canvas.getContext('2d');let raf=0,hue=0,bufL=null,bufR=null,last=performance.now(),sg=scopeRef.current?scopeRef.current.getContext('2d'):null,frame=0,scopeBlank=true;
+ P.useEffect(()=>{const canvas=canvasRef.current;if(!canvas)return;const g=canvas.getContext('2d');let raf=0,bufL=null,bufR=null,spec=null,last=performance.now(),sg=scopeRef.current?scopeRef.current.getContext('2d'):null,scopeBlank=true;const mandala={el:scopeRef.current,petal:new Float32Array(128),loud:.3,hue:0,level:MANDALA_LEVELS.length-2,tick:0,dt:16.7,changed:0,upAt:0,holdUp:0};
   const trk={s:{current:null},l:{current:0},c:{current:null},d:{current:0}},winRef={current:0},layer={ctx:g,state:ball.current,params:null,t:0,focusCursorRef:focus,getVisibleGridLines:()=>__NodalBallGrid.rows(),
    activeGridLineFreqRef:trk.s,activeGridLineSinceRef:trk.l,previousGridLineFreqRef:trk.c,previousGridLineAtRef:trk.d,keyboardWindowOffsetRef:winRef};
   const draw=now=>{raf=requestAnimationFrame(draw);if(document.hidden)return;const dt=Math.min(.1,Math.max(0,(now-last)/1000));last=now;
    const p=liveGridParams(),geo=padGeometry(live.current.orient);if(canvas.width!==PAD_W)canvas.width=PAD_W;if(canvas.height!==PAD_H)canvas.height=PAD_H;
    g.setTransform(1,0,0,1,0,0);g.globalCompositeOperation='source-over';g.clearRect(0,0,PAD_W,PAD_H);
-   // scope figure: its own small canvas BEHIND the pad (the browser scales and blends it on the compositor), redrawn every second frame
-   const an=engine.anL;let peak=0;if(an){if(!bufL||bufL.length!==an.fftSize){bufL=new Float32Array(an.fftSize);bufR=new Float32Array(an.fftSize)}an.getFloatTimeDomainData(bufL);engine.anR.getFloatTimeDomainData(bufR);for(let i=0;i<bufL.length;i+=8){const a=Math.abs(bufL[i]);if(a>peak)peak=a}}
-   if(sg){frame++;
-    if(an&&peak>.001){if(frame&1){hue=(hue+1.4)%360;sg.clearRect(0,0,SCOPE_W,SCOPE_H);const cx=SCOPE_W/2,cy=SCOPE_H/2,rad=Math.min(SCOPE_W,SCOPE_H)*.42,gain=rad/Math.max(.25,peak*1.15),arms=5;sg.globalCompositeOperation='lighter';sg.lineWidth=1;
-      for(let a=0;a<arms;a++){const rot=a*Math.PI*2/arms+hue*.004,cs=Math.cos(rot),sn=Math.sin(rot);sg.strokeStyle='hsla('+((hue+a*72)%360)+',95%,62%,.5)';sg.beginPath();
-       for(let i=0;i<bufL.length;i+=4){const x=bufL[i]*gain,y=bufR[i]*gain,px=cx+x*cs-y*sn,py=cy+x*sn+y*cs;if(i)sg.lineTo(px,py);else sg.moveTo(px,py)}sg.stroke()}scopeBlank=false}}
-    else if(!scopeBlank){sg.clearRect(0,0,SCOPE_W,SCOPE_H);scopeBlank=true}}
+   // mandala: its own canvas BEHIND the pad, full resolution, redrawn every frame while something sounds (fading trails), then left alone
+   const an=engine.anL;
+   if(sg&&an){if(!bufL||bufL.length!==an.fftSize){bufL=new Float32Array(an.fftSize);bufR=new Float32Array(an.fftSize);spec=new Uint8Array(an.frequencyBinCount)}
+    an.getFloatTimeDomainData(bufL);engine.anR.getFloatTimeDomainData(bufR);an.getByteFrequencyData(spec);let peak=0;for(let i=0;i<bufL.length;i+=8){const a=Math.abs(bufL[i]);if(a>peak)peak=a}
+    // the colour follows the pitch of the ball: one turn per octave
+    const pitchHue=(Math.log2(Math.max(20,ball.current.freq||220))%1)*360;
+    if(peak>.001||!scopeBlank){scopeBlank=!paintMandala(sg,mandala,bufL,bufR,spec,peak,pitchHue)&&faded(sg);if(peak>.001)watchMandala(mandala,dt*1000,now)}else mandala.dt=16.7}
    if(!p)return;
    // ball follows the pointer; with Snap on it sits on the nearest grid line
    const rows=__NodalBallGrid.rows(),f=focus.current,tg=padTarget(p,geo,rows,f.y),k=1-Math.pow(.65,dt*60),b=ball.current;b.cursorX+=(f.x-b.cursorX)*k;b.cursorY+=(tg.y-b.cursorY)*k;b.freq=tg.freq;
-   winRef.current=__NodalBallGrid.windowOffset();layer.params=p;layer.t=now/1000;
+   winRef.current=__NodalBallGrid.windowOffset();layer.params=extended(p);layer.t=now/1000;
    g.save();if(geo.piano)g.setTransform(0,1,-1,0,PAD_W,0);
    __xenDrawMainGridLayer(layer,geo.len,geo.yOf,geo.freqOf);
    g.restore();
@@ -589,10 +644,12 @@ function XenPsyLabRoom(){
     u.jsxs('div',{className:'xpl-pad',ref:padRef,children:[u.jsx('canvas',{ref:scopeRef,className:'xpl-scope',width:SCOPE_W,height:SCOPE_H,'aria-hidden':'true'}),u.jsx('canvas',{ref:canvasRef,width:PAD_W,height:PAD_H,role:'application','aria-label':piano?'Play pad: horizontal pitch, vertical intensity':'Play pad: vertical pitch, horizontal intensity',style:{cursor:'crosshair'}}),u.jsx('div',{className:'xpl-readout',ref:readoutRef}),
      u.jsx('div',{className:'xpl-pad-hint',children:piano?'← low · pitch · high →   ↑ intensity   triangles on top: click = mute, drag = tune, right click = base':'↑ high · pitch · low ↓   → intensity   blue triangles: click = mute, drag = tune, right click = base'})]}),
     u.jsxs('div',{className:'xpl-gridbox',children:[u.jsx(__XenGridControls,{extra:gridExtra}),
-     u.jsx('div',{className:'xpl-gridsub',children:'This is the Main Room grid: changes here change it there. Keys 1–0 and Q–P play it, “, ;” and “. :” switch the system, AltGr / right Ctrl the mode, “[” and “-” shift the key window.'})]}),
+     u.jsx('div',{className:'xpl-gridsub',children:'This is the Main Room grid: changes here change it there. The keys play it row by row: 1–0, Q–P, then the home row; “, ;” and “. :” switch the system, AltGr / right Ctrl the mode, “[” and “-” shift the key window.'})]}),
     u.jsx('div',{className:'xpl-status',role:'status','aria-live':'polite',children:status}),
     u.jsx('div',{className:'xpl-keys',children:'Space = Hold. Esc = all notes off. Shift = louder. Click a value to type it exactly, double-click a slider to reset it. The header Rec records this room (not the metronome).'})]}),
    u.jsx('div',{className:'xpl-panels',children:panels})]})]});
 }
-return Object.freeze({XenPsyLabRoom,__test:Object.freeze({PARAMS,RANGES,FACTORY,toUnit,fromUnit,sanitizePatch,sanitizeMetro,moduleCode,STORE_KEY,Metronome})});
+/* PsyEngine is exported on purpose: a host without a picture (a later Live Room hook-up: Enter / left mouse button / keyboard) loads this chunk on first use and
+   creates new PsyEngine({visual:false}); no analyser, no canvas, no room UI. */
+return Object.freeze({XenPsyLabRoom,PsyEngine,__test:Object.freeze({PARAMS,RANGES,FACTORY,toUnit,fromUnit,sanitizePatch,sanitizeMetro,moduleCode,STORE_KEY,Metronome})});
 })()
