@@ -132,7 +132,8 @@ function __xenHoldPitchSlotFace(index,cents){
   u.jsx('span',{className:'xen-hold-slot-number',children:index+1})
  ]});
 }
-function iT({label:e,steps:t,tone:n="neutral",maxColumns:r=16,onChange:a,pitches:Q,onPitchChange:W}){
+/* HPP-LIVEVIEW: readOnly shows a figure that is not the lane's working pattern (a plan step) on the same cards: faces with the pitch line, no editing. */
+function iT({label:e,steps:t,tone:n="neutral",maxColumns:r=16,onChange:a,pitches:Q,onPitchChange:W,readOnly:RO=false}){
  const o=kw(t,t.length||1),i=bie[n],s=Math.min(r,Math.max(1,o.length)),l=o.length<=4?"h-8":o.length<=8?"h-7":"h-6";
  const [popup,setPopup]=P.useState(null);
  const [hoveredTick,setHoveredTick]=P.useState(null);
@@ -193,17 +194,17 @@ function iT({label:e,steps:t,tone:n="neutral",maxColumns:r=16,onChange:a,pitches
      if(popup&&ev.button===0){skipSlotClick.current=true;setPopup(null);setHoveredTick(null);
       window.setTimeout(()=>{skipSlotClick.current=false},350)}
     },
-    onClick:()=>{if(skipSlotClick.current){skipSlotClick.current=false;return}
+    onClick:()=>{if(RO)return;if(skipSlotClick.current){skipSlotClick.current=false;return}
      if(popup){setPopup(null);setHoveredTick(null);return}
      const p=o.map((f,b)=>b===d?f===0?1:0:f);a(p)},
-    onContextMenu:W?event=>{
+    onContextMenu:W&&!RO?event=>{
      if(popup?.index===d){event.preventDefault();event.stopPropagation();setCents(d,0);setHoveredTick(null)}
      else showPitch(event,d);
     }:undefined,
-    className:`${l} rounded border text-center text-[10px] leading-none transition flex items-center justify-center ${c!==0?i.on:i.off} ${W?'xen-hold-pitch-slot':''}`,
+    className:`${l} rounded border text-center text-[10px] leading-none transition flex items-center justify-center ${c!==0?i.on:i.off} ${W||RO?'xen-hold-pitch-slot':''}${RO?' cursor-default':''}`,
     'aria-label':`${e} segment ${d+1}: ${c!==0?'on':'off'}`,
-    title:`Segment ${d+1} ${c!==0?'deactivate':'activate'}${W?' · Right-click: fretless ±1 octave':''}`,
-    children:W?__xenHoldPitchSlotFace(d,__xenHoldPitchValue(Q,d)):d+1},`${e}-${o.length}-${d}`))}),
+    title:RO?`Segment ${d+1} · ${c!==0?'on':'rest'} · ${__xenHoldPitchValue(Q,d)} ¢ (plan step, edit it in the Hold Pattern Studio)`:`Segment ${d+1} ${c!==0?'deactivate':'activate'}${W?' · Right-click: fretless ±1 octave':''}`,
+    children:W||RO?__xenHoldPitchSlotFace(d,__xenHoldPitchValue(Q,d)):d+1},`${e}-${o.length}-${d}`))}),
   popup&&W&&typeof document!=='undefined'&&ao.createPortal(u.jsxs('div',{
    'data-xen-hold-pitch-popup':'true',className:'xen-thunder-pitch-slider',
    role:'slider',tabIndex:0,'aria-orientation':'vertical','aria-valuemin':-1200,'aria-valuemax':1200,'aria-valuenow':current,

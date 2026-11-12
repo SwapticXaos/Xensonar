@@ -28,10 +28,13 @@ Neu u. a.: Kirchentonarten-Läufe (Dorian, Phrygian, Lydian, Mixolydian, Locrian
 - Nach dem Laden ist es ein gewöhnlicher Plan: Stufen umbelegen, speichern („Save As“), Labels ändern.
 - Test: `tests/e2e/hold_plan_factory.cjs` (jede Stufe ein Factory-Arpeggio, ≥ 3 verschiedene Figuren pro Plan, Dur-Akkordqualitäten I/ii/IV/V7/vi/vii°, jede Stufe ihr Modus, Laden in der echten Plan-Ansicht inkl. „Restore plan Grid“, Resolver liefert pro Stufe eine andere Figur).
 
-## HPP-LIVEVIEW: sehen, was gerade spielt (WARM)
-Bei aktivem Plan zeigt der Keyboard-Hold-Tab unter dem Studio-Knopf einen Kasten **„Plan playing“**: Stufen-Chips (die gespielte leuchtet), Name des Arpeggios, Notenzahl und Tempo, Tonhöhenstreifen der Slots.
-HEISS-Anteil: der Plan-Resolver merkt sich beim Anschlag Position und Eintrag (zwei Zuweisungen). Der Kasten liest das alle 90 ms, nur solange er sichtbar und ein Plan aktiv ist.
-Test: echte Tasten 1–4 → leuchtender Chip = gespielte Stufe, Name = Arpeggio der Stufe, Streifen = Slotzahl; ohne aktiven Plan kein Kasten.
+## HPP-LIVEVIEW: sehen, was gerade spielt (WARM) · Nachtrag HPP-LIVEVIEW-02
+Erste Fassung (Kasten „Plan playing“ mit eigenem Balkendiagramm) war eine **Doppelstruktur** zu den vorhandenen Slot-Karten (rote Tonhöhenlinie, `iT` / `__xenHoldPitchSlotFace`) und ist zurückgebaut.
+Jetzt zeigen die **vorhandenen Slot-Karten** und die **vorhandene Infozeile** („6/6 active · 0.25 T.“) bei aktivem Plan die Figur der Stufe, die der letzte Anschlag spielt (nur lesend, `iT` bekam dafür `readOnly`).
+Darüber steht nur eine Zeile mit den Stufen-Nummern/-Labels (gespielte leuchtet) und „Lane“: Klick auf eine Nummer zeigt diese Stufe, „Lane“ (oder jede Berührung der Lane-Einstellungen Slots/Bars/Rhythmus) zurück zum editierbaren Lane-Pattern, das auf leeren und Off-Grid-Stufen spielt.
+Während eine Plan-Stufe gezeigt wird, sind die Lane-Einstellungen abgeblendet, damit „Slots 16“ neben einer 6-Slot-Figur nicht widersprüchlich wirkt.
+HEISS-Anteil: der Plan-Resolver merkt sich die Position (Off-Grid = −1). Das Panel liest sie alle 90 ms, nur bei offenem Tab und aktivem Plan.
+Test (`tests/e2e/hold_plan_factory.cjs`): echte Tasten 1–4 → leuchtende Nummer = Stufe, Infozeile nennt das Arpeggio, **Kartenzahl = Slots der Figur, rote Linie jeder Karte = Tonhöhe des Slots**; kein zweiter Grafik-Kasten im DOM; Karten nur lesend; „Lane“ zeigt das editierbare Lane-Pattern; Berührung der Lane-Einstellungen schaltet zurück; ohne aktiven Plan keine Nummernzeile.
 
 ## Offen
 - Hörtest: Tempo-Gefühl (32tel bei hohem BPM), Pegel der Slots, Psy-Lab-Releases der Werksklänge (Delay-Fahnen bis mehrere Sekunden sind Klangdesign).
