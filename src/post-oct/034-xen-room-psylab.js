@@ -331,6 +331,27 @@ function loadStore(){try{const raw=localStorage.getItem(STORE_KEY);if(!raw)retur
    orient:data.orient==='piano'?'piano':'live',flip:data.flip===true,mirror:data.mirror===true,large:data.large===true,log:data.log===true,edges:data.edges!==false,oct:clamp(Math.round(Number(data.oct)||0),-3,4),metro:sanitizeMetro(data.metro)}}catch{return null}}
 function saveStore(state){try{localStorage.setItem(STORE_KEY,JSON.stringify({format:FORMAT,version:VERSION,working:state.working,user:state.user,hold:state.hold,snap:state.snap,bounceSec:state.bounceSec,orient:state.orient,flip:state.flip,mirror:state.mirror,large:state.large,log:state.log,edges:state.edges,oct:state.oct,metro:state.metro,updatedAt:Date.now()}));return true}catch{return false}}
 
+/* ---------- ROOM5-08: host for the Live Room (preparation, not wired to any control yet) ----------
+   One headless engine per lane ("keyboard", "wave"), so keyboard and Wave Starter may use different patches at the same time.
+   No analysers, no mandala, no metronome: nothing is drawn in the Live Room. Sound ids are "psylab:<patch id>" (same pattern as "sample:" / "nodal:").
+   The engine is created on the first note of a lane, not before; reading the patch list costs one localStorage read. */
+const LiveHost=(()=>{
+ const engines=new Map(),active=new Map(),PREFIX='psylab:';
+ const patches=()=>{const st=loadStore();return FACTORY.concat(st?st.user:[])};
+ const isId=v=>typeof v==='string'&&v.startsWith(PREFIX);
+ const find=id=>{const pid=isId(id)?id.slice(PREFIX.length):id;return patches().find(q=>q.id===pid)||null};
+ const entries=()=>patches().map(q=>({value:PREFIX+q.id,label:q.name,hint:'Psy Lab'+(q.grid?' · '+q.grid:''),originLabel:'Psy Lab'}));
+ function engineFor(lane,id){let rec=engines.get(lane);const pt=find(id);if(!pt)return null;
+  if(!rec){rec={engine:new PsyEngine({visual:false}),patch:null};engines.set(lane,rec)}
+  if(rec.patch!==pt.id){rec.patch=pt.id;rec.engine.setAll(pt.params)}return rec.engine}
+ return{isId,find,entries,
+  start(lane,keyId,id,hz,vel){const e=engineFor(lane,id);if(!e)return false;const k=lane+':'+keyId;if(active.has(k))e.noteOff(k);active.set(k,e);e.noteOn(k,hz,vel==null?.8:vel);return true},
+  bend(lane,keyId,hz){const k=lane+':'+keyId;active.get(k)?.bend(k,hz)},
+  stop(lane,keyId){const k=lane+':'+keyId,e=active.get(k);if(e){e.noteOff(k);active.delete(k)}},
+  allOff(lane){for(const[k,e]of active)if(!lane||k.startsWith(lane+':')){e.noteOff(k);active.delete(k)}},
+  dispose(){for(const rec of engines.values())rec.engine.dispose();engines.clear();active.clear()},
+  status(){return{lanes:[...engines.keys()],active:active.size,visual:[...engines.values()].map(r=>r.engine.visual)}}}})();
+
 /* ---------- metronome: for the player only ---------- */
 /* Clicks go straight to the speakers (ctx.destination), NOT into the live master input: Rec, Loop-Rec, Live Mastering and the bounce never hear them.
    A 25 ms timer schedules every click 120 ms ahead on the audio clock; it exists only while the metronome runs. */
@@ -711,5 +732,5 @@ function XenPsyLabRoom(){
 }
 /* PsyEngine is exported on purpose: a host without a picture (a later Live Room hook-up: Enter / left mouse button / keyboard) loads this chunk on first use and
    creates new PsyEngine({visual:false}); no analyser, no canvas, no room UI. */
-return Object.freeze({XenPsyLabRoom,PsyEngine,__test:Object.freeze({PARAMS,RANGES,FACTORY,toUnit,fromUnit,sanitizePatch,sanitizeMetro,moduleCode,STORE_KEY,Metronome})});
+return Object.freeze({XenPsyLabRoom,PsyEngine,LiveHost,__test:Object.freeze({PARAMS,RANGES,FACTORY,toUnit,fromUnit,sanitizePatch,sanitizeMetro,moduleCode,STORE_KEY,Metronome})});
 })()
