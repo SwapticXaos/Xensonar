@@ -16,6 +16,18 @@ const html=path.resolve(process.argv[2]||'dist/XenSonar_PROBE.html');
    assert.equal(await sys(),sysBefore,layout.name+': moving the window does not cycle the particle systems');
    for(let i=0;i<40;i++)await press(...layout.up);assert.equal(await win(),0,layout.name+': all the way back to the top');
   }
+  // a browser that reports no physical key code (empty / "Unidentified"; reported for Opera) is matched by the typed character of the same keys
+  for(const code of['','Unidentified']){
+   for(let i=0;i<40;i++)await press(code,'Ü');const bottom=await win();assert(bottom>=10,'no code ('+(code||'empty')+'): Ü moves the window down: '+bottom);
+   await press(code,'ß');assert.equal(await win(),bottom-1,'no code: ß moves it back');await press(code,'?',true);assert.equal(await win(),bottom-2,'no code: ? (Shift+ß) moves it back');
+   for(let i=0;i<40;i++)await press(code,'ß');assert.equal(await win(),0);
+  }
+  // buttons beside the keys (Hotkeys panel): the window can always be moved without any key
+  const panel=p.locator('[data-xen-keyboard-window]');await panel.scrollIntoViewIfNeeded();assert.match(await panel.innerText(),/Keyboard window · row 1 of \d+/);
+  await panel.getByRole('button',{name:'Keyboard window down'}).click();await panel.getByRole('button',{name:'Keyboard window down'}).click();await p.waitForTimeout(500);
+  assert.equal(await win(),2,'the ▼ button moves the window down');assert.match(await panel.innerText(),/row 3 of/);
+  await panel.getByRole('button',{name:'Keyboard window up'}).click();await p.waitForTimeout(300);assert.equal(await win(),1,'the ▲ button moves it back');
+  await panel.getByRole('button',{name:'Keyboard window to the start'}).click();await p.waitForTimeout(300);assert.equal(await win(),0,'⟲ start returns to the lowest Grid step');
   // the character hotkeys keep working where they are not the window key: Shift+Minus ("_") and the German "-" key (physical Slash)
   const s0=await sys();await press('Minus','_',true);const s1=await sys();assert.notEqual(s1,s0,'Shift+Minus ("_") still cycles the particle systems');
   await press('Slash','-');const s2=await sys();assert.notEqual(s2,s1,'the German "-" key (physical Slash) still cycles the particle systems');
