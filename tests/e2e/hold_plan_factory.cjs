@@ -79,6 +79,47 @@ const np=p=>p.evaluate(()=>__xenProbe.bridge.capture().nParamsUI);
   await panel.getByRole('button',{name:'All',exact:true}).click();await p.waitForTimeout(200);assert.equal(await panel.getAttribute('data-xen-plan-step'),null,'lane control touched: back to the lane view');
   // a number selects a step by hand
   await panel.locator('.xen-hpp-steps>button').nth(3).click();await p.waitForTimeout(200);assert.equal(await cards.count(),(await np(p)).keyboardHoldPlan.entries[2].pattern.slots,'step 3 shown by hand');
+  // ---- labels are degree names only; the plan's name is visible in the Hold panel; replacing an arpeggio never leaves a stale chord name ----
+  const lp0=(await np(p)).keyboardHoldPlan;assert(lp0.labels.every(l=>/^[IVX]{1,4}$/.test(l)),'step labels = degree names only: '+lp0.labels);
+  assert.match(await p.locator('button.xen-hpm02-open').innerText(),/Plan: Jazz · sevenths & bebop \(major key\)/,'the Hold panel names the active plan');
+  const legacy=JSON.parse(await E("JSON.stringify((()=>{const pl=__hpp.factoryPlan('jazz-major',"+JSON.stringify(ionian)+");pl.labels[4]='V bebop';pl.labels[1]='my label';const a=__hpp.assign(pl,4,pl.entries[0].pattern,{kind:'library',name:'My phrygian run'}),b=__hpp.assign(pl,1,pl.entries[0].pattern,{kind:'library',name:'x'});return {l4:a.labels[4],l1:b.labels[1],n4:a.entries[4].source.name}})())"));
+  assert.deepEqual(legacy,{l4:'',l1:'my label',n4:'My phrygian run'},'a stale arpeggio description of an older plan is dropped when its step gets another arpeggio; your own label stays');
+  // ---- HOLD-PLAYHEAD: the card that plays right now gets a golden border and it moves along the figure ----
+  await p.evaluate(()=>document.activeElement?.blur());
+  await panel.getByRole('button',{name:/^II|^2$/}).first().click().catch(()=>{});await p.waitForTimeout(100);await p.evaluate(()=>document.activeElement?.blur());
+  const seenSlots=new Set();await p.keyboard.down('2');
+  for(let k=0;k<30;k++){await p.waitForTimeout(60);const idx=await cards.evaluateAll(bs=>bs.map((b,i)=>b.classList.contains('xen-hold-playing')?i:-1).filter(i=>i>=0));assert(idx.length<=1,'at most one card is lit');if(idx.length)seenSlots.add(idx[0])}
+  await p.keyboard.up('2');await p.waitForTimeout(900);
+  assert(seenSlots.size>=3,'the golden border runs along the figure: '+[...seenSlots]);
+  assert.equal(await cards.evaluateAll(bs=>bs.filter(b=>b.classList.contains('xen-hold-playing')).length),0,'no card stays lit when nothing plays');
+  // ---- Studio: audition in context (stacked from one root) and "Save changes to …?" ----
+  await p.getByRole('button',{name:'Power',exact:true}).first().isVisible();
+  await E("window.__voices=[];globalThis.__origWarm=__xenHPM04WarmVoice;__xenHPM04WarmVoice=function(ctx,hz,at,dur,gain,out,opt){window.__voices.push([Math.round(at*1000)/1000,hz]);return globalThis.__origWarm.apply(this,arguments)};0");
+  await p.locator('button.xen-hpm02-open').click();await p.waitForTimeout(400);await p.getByRole('tab',{name:/^Plan/}).click();await p.waitForTimeout(500);
+  const rootIn=p.locator('input[aria-label="Audition root in Hz"]');assert.equal(+await rootIn.inputValue(),+lp0.nativeGrid.gridBaseHz.toFixed(2),'audition root defaults to the plan root');
+  await rootIn.fill('110');await rootIn.blur();await p.waitForTimeout(150);
+  const plA=(await np(p)).keyboardHoldPlan,firstHz=(i)=>{const pt=plA.entries[i].pattern,k=pt.muteSteps.findIndex(v=>v===1);return 110*Math.pow(2,(plA.nativeGrid.audible[i].cents+pt.pitchCents[k])/1200)};
+  await p.getByRole('button',{name:/Audition step 5/}).click();await p.waitForTimeout(900);
+  const v5=(await p.evaluate(()=>window.__voices)).map(x=>x[1]);assert(v5.length>0&&Math.abs(v5[0]/firstHz(4)-1)<.002,'step V sounds from its own pitch above the chosen root: '+v5[0]+' vs '+firstHz(4));
+  await p.evaluate(()=>{window.__voices.length=0});await p.getByRole('button',{name:/All steps/}).click();await p.waitForTimeout(19000);
+  const vs=await p.evaluate(()=>window.__voices.slice());
+  const counts=plA.entries.map(e=>e.pattern.muteSteps.filter(v=>v===1).length),starts=[];let acc=0;for(const c of counts){starts.push(acc);acc+=c}
+  assert.equal(vs.length,acc,'every active attack of the 7 figures was scheduled once: '+vs.length+' of '+acc);
+  const got=starts.map(k=>vs[k][1]),want=[0,1,2,3,4,5,6].map(firstHz);
+  got.forEach((h,i)=>assert(Math.abs(h/want[i]-1)<.002,'step '+(i+1)+' starts from its own pitch (stacked): '+h+' vs '+want[i]));assert(got[6]>got[0]*1.7,'the steps climb the key: '+got.map(x=>Math.round(x)).join(' '));
+  await E('__xenHPM04WarmVoice=globalThis.__origWarm;0');
+  // Save changes?
+  const beforeEd=(await np(p)).keyboardHoldPlan;const edited={...beforeEd,entries:beforeEd.entries.map((e,i)=>i===0?{...e,source:{kind:'library',name:'My phrygian run'}}:e)};
+  await E('__NodalBallGrid.update({keyboardHoldPlan:'+JSON.stringify(edited)+'})');await p.waitForTimeout(400);
+  const sel2=p.locator('.xen-hpm02-dialog select[aria-label="Saved plans"]');await sel2.selectOption({label:'Baroque · running lines (each degree its mode)'});await p.locator('.xen-hpm02-dialog').getByRole('button',{name:'Load',exact:true}).click();await p.waitForTimeout(400);
+  const banner=p.locator('[role=alertdialog][aria-label="Save changes?"]');assert.match(await banner.innerText(),/Save changes to “Jazz · sevenths & bebop \(major key\)”\?/,'unsaved changes ask before the plan is replaced');
+  await banner.getByRole('button',{name:'Cancel'}).click();await p.waitForTimeout(200);assert.equal((await np(p)).keyboardHoldPlan.name,'Jazz · sevenths & bebop (major key)','Cancel keeps the active plan');assert.equal(await banner.count(),0);
+  await p.locator('.xen-hpm02-dialog').getByRole('button',{name:'Load',exact:true}).click();await p.waitForTimeout(300);await banner.getByRole('button',{name:'Discard changes'}).click();await p.waitForTimeout(500);assert.equal((await np(p)).keyboardHoldPlan.name,'Baroque · running lines (each degree its mode)','Discard loads the other plan');
+  const bq=(await np(p)).keyboardHoldPlan;await E('__NodalBallGrid.update({keyboardHoldPlan:'+JSON.stringify({...bq,labels:bq.labels.map((l,i)=>i===2?'mine':l)})+'})');await p.waitForTimeout(400);
+  await sel2.selectOption({label:'Pop · pentatonic & sus (major key)'});await p.locator('.xen-hpm02-dialog').getByRole('button',{name:'Load',exact:true}).click();await p.waitForTimeout(300);await banner.getByRole('button',{name:'Save',exact:true}).click();await p.waitForTimeout(900);
+  assert.equal((await np(p)).keyboardHoldPlan.name,'Pop · pentatonic & sus (major key)','Save, then the other plan is loaded');
+  const saved=JSON.parse(await p.evaluate(async()=>JSON.stringify((await window.__xenProbe.draw.evalInBundle('__hpp.store.list()')).map(r=>[r.name,r.plan.labels[2]]))));assert(saved.some(([nm,l])=>/Baroque · running lines.*\(edited\)/.test(nm)&&l==='mine'),'the edited factory plan was saved under its own (edited) name: '+JSON.stringify(saved));
+  await p.locator('.xen-hpm02-dialog').getByRole('button',{name:/Close/}).click();await p.waitForTimeout(300);
   // the view disappears when the plan is switched off
   const pl=(await np(p)).keyboardHoldPlan;await E('__NodalBallGrid.update({keyboardHoldPlan:'+JSON.stringify({...pl,enabled:false})+'})');await p.waitForTimeout(300);assert.equal(await p.locator('.xen-hpp-steps').count(),0,'no step numbers without an active plan');
   assert.deepEqual(errors,[]);console.log('PASS HPP-FACTORY plans: every degree its own fast arpeggio; listed and loaded in the Plan view; HPP-LIVEVIEW shows the played figure');await b.close();

@@ -77,7 +77,9 @@ function createPlan(origin,name=''){const g=nativeGrid(origin);if(!g.audible.len
  return {version:1,name,enabled:true,nativeGrid:g,entries:g.audible.map(()=>null),labels:g.audible.map(()=>'')}}
 function setLabel(plan,pos,text){const labels=plan.nativeGrid.audible.map((_,i)=>labelOf(plan,i));labels[pos]=String(text||'').slice(0,40);return {...plan,labels}}
 const withEntries=(plan,fn)=>{const entries=plan.entries.slice();fn(entries);return {...plan,entries}};
-function assign(plan,pos,pattern,source){return withEntries(plan,e=>{e[pos]={pattern:patternOnly(pattern),source:{kind:source?.kind||'copy',name:String(source?.name||'').slice(0,80)}}})}
+function assign(plan,pos,pattern,source){const old=plan.entries[pos],lab=labelOf(plan,pos);
+ const next=withEntries(plan,e=>{e[pos]={pattern:patternOnly(pattern),source:{kind:source?.kind||'copy',name:String(source?.name||'').slice(0,80)}}});
+ return old&&LEGACY_FACTORY_LABELS.has(lab)?setLabel(next,pos,''):next}
 function clearPosition(plan,pos){return withEntries(plan,e=>{e[pos]=null})}
 function reanchor(plan,origin){const g=nativeGrid(origin),n=plan.entries.length;
  return {...plan,nativeGrid:g,entries:g.audible.map((_,i)=>plan.entries[i%n]??null),labels:g.audible.map((_,i)=>labelOf(plan,i%n))}}
@@ -112,34 +114,37 @@ const PRESETS=[
 for(const q of PRESETS)q.group??='Same figure on every step';
 /* HPP-FACTORY: real plans. A plan is NOT one figure copied onto every step: every degree of the key gets its OWN arpeggio from the factory library (by name),
    chosen so that the pressed degree plays its chord of the key (or its mode, its idiom). Made for 12-EDO in a 7-step mode on the current root; on another Grid
-   the plan view shows the deviation and offers "Restore plan Grid". Labels name the degree's function; patterns and labels are an ordinary plan afterwards. */
+   the plan view shows the deviation and offers "Restore plan Grid". Step labels are only degree names (I … VII); the arpeggio of a step is named by the step's own arpeggio. After loading it is an ordinary plan. */
 const MAJ=['I','ii','iii','IV','V','vi','vii°'],MIN=['i','ii°','III','iv','v','VI','VII'];
+const ROMAN=['I','II','III','IV','V','VI','VII'];/* degree names only: they say WHERE the step is, never WHICH arpeggio plays there (that is the step's own arpeggio name) */
+/* labels of plans made by the first version of the factory plans described the arpeggio ("V bebop", "I major"); they went stale as soon as a step got another arpeggio */
+const LEGACY_FACTORY_LABELS=new Set(['I 4:5:6', 'I Alberti', 'I Ionian', 'I major', 'I pentatonic', 'III major', 'IIImaj7', 'IV 4:5:6', 'IV Lydian', 'IV add9', 'IV major', 'IV roll', 'Imaj7', 'V 4:5:6', 'V Mixolydian', 'V bebop', 'V dominant 7', 'V sus4', 'V7 (harmonic)', 'V7 sweep', 'VI Alberti', 'VI Lydian', 'VI major', 'VII Mixolydian', 'VII falling', 'VII major', 'i m(maj7)', 'i minor', 'i pedal shred', 'ii 10:12:15', 'ii Dorian', 'ii m7', 'ii minor', 'ii roll', 'ii sus2', 'iii 10:12:15', 'iii Phrygian', 'iii falling', 'iii minor', 'iii pentatonic', 'ii° half-dim.', 'ii° m7♭5', 'iv m7', 'iv minor', 'v minor', 'vi 10:12:15', 'vi Aeolian', 'vi Alberti', 'vi m7', 'vi minor', 'vi pentatonic', 'vii 6:7:9', 'vii Locrian', 'vii enclosure', 'vii octaves', 'vii° dim7', 'vii° half-dim.']);
 const FACTORY_PLANS=[
- {id:'sweeps-major',name:'Diatonic sweeps · major key',mode:'ionian',labels:['I major','ii minor','iii minor','IV major','V dominant 7','vi minor','vii° half-dim.'],
+ {id:'sweeps-major',name:'Diatonic sweeps · major key',mode:'ionian',labels:ROMAN,
   info:'Every degree sweeps its own chord of the major key: major on I IV, minor on ii iii vi, dominant seventh on V, half-diminished on vii°.',
   degrees:['Major · triad sweep ↑↓','Minor · triad sweep ↑↓','Minor · triad sweep ↑↓','Major · triad sweep ↑↓','Major · dominant 7 sweep ↑↓','Minor · triad sweep ↑↓','Diminished · half-diminished m7♭5 sweep ↑↓']},
- {id:'jazz-major',name:'Jazz · sevenths & bebop (major key)',mode:'ionian',labels:['Imaj7','ii m7','iii pentatonic','IV Lydian','V bebop','vi m7','vii enclosure'],
+ {id:'jazz-major',name:'Jazz · sevenths & bebop (major key)',mode:'ionian',labels:ROMAN,
   info:'ii–V–I material: maj7 / m7 sweeps, minor pentatonic on iii, Lydian run on IV, bebop dominant line on V, chromatic enclosure on vii.',
   degrees:['Major · maj7 sweep ↑↓','Minor · m7 sweep ↑↓','Minor · pentatonic run ↑↓','Mode · Lydian run ↑','Jazz · bebop dominant run ↓','Minor · m7 sweep ↑↓','Jazz · enclosure into the root']},
- {id:'baroque-runs',name:'Baroque · running lines (each degree its mode)',mode:'ionian',labels:['I Ionian','ii Dorian','iii Phrygian','IV Lydian','V Mixolydian','vi Aeolian','vii Locrian'],
+ {id:'baroque-runs',name:'Baroque · running lines (each degree its mode)',mode:'ionian',labels:ROMAN,
   info:'Every degree runs up its own mode, so all keys stay inside one key: Ionian, Dorian, Phrygian, Lydian, Mixolydian, Aeolian, Locrian.',
   degrees:['Major · scale run ↑ (Ionian)','Mode · Dorian run ↑','Mode · Phrygian run ↑','Mode · Lydian run ↑','Mode · Mixolydian run ↑','Minor · scale run ↑ (Aeolian)','Mode · Locrian run ↑']},
- {id:'baroque-figures',name:'Baroque · figured accompaniment (major key)',mode:'ionian',labels:['I Alberti','ii roll','iii falling','IV roll','V7 sweep','vi Alberti','vii° dim7'],
+ {id:'baroque-figures',name:'Baroque · figured accompaniment (major key)',mode:'ionian',labels:ROMAN,
   info:'Alberti basses on I and vi, broken-chord rolls on ii and IV, falling triad on iii, dominant seventh on V, diminished seventh on vii°.',
   degrees:['Major · Alberti 1-5-3-5','Minor · triad roll (sextuplets)','Minor · triad sweep ↓','Major · triad roll (sextuplets)','Major · dominant 7 sweep ↑↓','Minor · Alberti 1-5-3-5','Diminished · dim7 sweep ↑↓']},
- {id:'pop-major',name:'Pop · pentatonic & sus (major key)',mode:'ionian',labels:['I pentatonic','ii sus2','iii pentatonic','IV add9','V sus4','vi pentatonic','vii octaves'],
+ {id:'pop-major',name:'Pop · pentatonic & sus (major key)',mode:'ionian',labels:ROMAN,
   info:'Open, consonant colours: pentatonic runs on I iii vi, sus2 on ii, add9 on IV, sus4 on V, octave tremolo on vii.',
   degrees:['Major · pentatonic run ↑↓','Sus2 · sweep ↑','Minor · pentatonic run ↑↓','Major · add9 ↑↓','Sus4 · sweep ↑','Minor · pentatonic run ↑↓','Octaves · tremolo']},
- {id:'sweeps-minor',name:'Diatonic sweeps · minor key',mode:'aeolian',labels:['i minor','ii° half-dim.','III major','iv minor','v minor','VI major','VII major'],
+ {id:'sweeps-minor',name:'Diatonic sweeps · minor key',mode:'aeolian',labels:ROMAN,
   info:'Every degree sweeps its own chord of the natural minor key: minor on i iv v, major on III VI VII, half-diminished on ii°.',
   degrees:['Minor · triad sweep ↑↓','Diminished · half-diminished m7♭5 sweep ↑↓','Major · triad sweep ↑↓','Minor · triad sweep ↑↓','Minor · triad sweep ↑↓','Major · triad sweep ↑↓','Major · triad sweep ↑↓']},
- {id:'neoclassic-minor',name:'Neo-classical shred (minor key)',mode:'aeolian',labels:['i pedal shred','ii° half-dim.','III major','iv minor','V7 (harmonic)','VI Alberti','VII falling'],
+ {id:'neoclassic-minor',name:'Neo-classical shred (minor key)',mode:'aeolian',labels:ROMAN,
   info:'Harmonic-minor shred: pedal-point figure on i, dominant seventh with the raised leading tone on v, sweeps and an Alberti on the other degrees.',
   degrees:['Minor · pedal point shred','Diminished · half-diminished m7♭5 sweep ↑↓','Major · triad sweep ↑↓','Minor · triad sweep ↑↓','Major · dominant 7 sweep ↑↓','Major · Alberti 1-5-3-5','Major · triad sweep ↓']},
- {id:'jazz-minor',name:'Jazz · minor ii–V–i',mode:'aeolian',labels:['i m(maj7)','ii° m7♭5','IIImaj7','iv m7','V bebop','VI Lydian','VII Mixolydian'],
+ {id:'jazz-minor',name:'Jazz · minor ii–V–i',mode:'aeolian',labels:ROMAN,
   info:'Minor-key jazz: minor-major seventh on i, half-diminished ii°, bebop dominant on v, maj7 / m7 sweeps, Lydian and Mixolydian runs on VI and VII.',
   degrees:['Minor · minor-major 7 sweep ↑↓','Diminished · half-diminished m7♭5 sweep ↑↓','Major · maj7 sweep ↑↓','Minor · m7 sweep ↑↓','Jazz · bebop dominant run ↓','Mode · Lydian run ↑','Mode · Mixolydian run ↑']},
- {id:'just-major',name:'Just intonation · pure triads (major key)',mode:'ionian',labels:['I 4:5:6','ii 10:12:15','iii 10:12:15','IV 4:5:6','V 4:5:6','vi 10:12:15','vii 6:7:9'],
+ {id:'just-major',name:'Just intonation · pure triads (major key)',mode:'ionian',labels:ROMAN,
   info:'The chords of the key as pure (just) triads above each pressed degree: 4:5:6 major, 10:12:15 minor, a septimal 6:7:9 colour on vii.',
   degrees:['Just major · 4:5:6 sweep ↑↓','Just minor · 10:12:15 sweep ↑↓','Just minor · 10:12:15 sweep ↑↓','Just major · 4:5:6 sweep ↑↓','Just major · 4:5:6 sweep ↑↓','Just minor · 10:12:15 sweep ↑↓','Septimal minor · 6:7:9 sweep ↑↓']}
 ];
@@ -150,7 +155,7 @@ function factoryPlan(id,origin){
  if(g.audible.length!==fp.degrees.length)fail('Factory plan needs '+fp.degrees.length+' steps');
  const lib=memory().factory('keyboard');
  const entries=fp.degrees.map(name=>{const r=lib.find(x=>x.name===name);if(!r)fail('Missing factory arpeggio: '+name);return {pattern:patternOnly(r),source:{kind:'factory',name}}});
- return validatePlan({version:1,name:fp.name,enabled:true,nativeGrid:g,entries,labels:fp.labels.slice()});
+ return validatePlan({version:1,name:fp.name,enabled:true,nativeGrid:g,entries,labels:ROMAN.slice()});
 }
 const factoryPlanOptions=()=>u.jsx('optgroup',{label:'Factory plans · every degree its own arpeggio',children:FACTORY_PLANS.map(fp=>u.jsx('option',{value:'factory:'+fp.id,title:fp.info,children:fp.name},fp.id))},'factory-plans');
 function fromPreset(id,origin,name){const pr=PRESETS.find(x=>x.id===id);if(!pr)fail('Unknown preset');
@@ -231,6 +236,11 @@ function PresetPicker({value,onChange,children}){
  return u.jsxs('div',{className:'xen-hpp-row',children:[
   u.jsx('select',{'aria-label':'Plan preset',value,onChange:e=>onChange(e.target.value),children:[...new Set(PRESETS.map(p=>p.group))].map(gr=>u.jsx('optgroup',{label:gr,children:PRESETS.filter(p=>p.group===gr).map(p=>u.jsx('option',{value:p.id,title:p.info,children:p.label},p.id))},gr))}),children]});
 }
+/* Unsaved-work guard: what the active plan looked like when it was loaded / created / saved. Switching to another plan while the active one differs asks to save it. */
+let baseline=null;
+const planCore=pl=>JSON.stringify({g:pl.nativeGrid,e:pl.entries.map(e=>e&&[e.pattern,e.source?.name]),l:pl.labels});
+const markBaseline=pl=>{baseline=pl?{name:pl.name||'',core:planCore(pl)}:null};
+const planDirty=pl=>!!(pl&&baseline&&baseline.name===(pl.name||'')&&baseline.core!==planCore(pl));
 function PlanView({plan,origin,workingPattern,onPlanChange,onRestoreGrid,onEditPosition,onAudition,armedPosition,onOpenGridWorkbench}){
  const [library,setLibrary]=P.useState([]),[plans,setPlans]=P.useState([]),[armed,setArmed]=P.useState(null);
  const [selected,setSelected]=P.useState(armedPosition??0),[dropAt,setDropAt]=P.useState(-1),[message,setMessage]=P.useState('');
@@ -250,20 +260,39 @@ function PlanView({plan,origin,workingPattern,onPlanChange,onRestoreGrid,onEditP
  P.useEffect(()=>{if(plan&&dev.level!=='match'&&dev.level!=='none'&&!plan.entries.some(Boolean)&&!(plan.labels||[]).some(Boolean))onPlanChange(reanchor(plan,origin))},[dev.level]);
  P.useEffect(()=>{if(plan?.name)setPlanName(plan.name)},[plan?.name]);
  const change=(next,msg)=>{onPlanChange(next);if(msg)setMessage(msg)};
+ const [pending,setPending]=P.useState(null);
+ /* every action that would replace the active plan goes through guard(): unsaved changes ask "Save changes to …?" (Save / Discard / Cancel) */
+ const guard=fn=>{if(plan&&planDirty(plan)){setPending({fn});return}fn()};
+ const savePending=()=>perform(async()=>{const row0=plans.find(r=>r.id===savedId&&r.name===plan.name);
+  if(row0){await store.overwrite(row0.id,plan,row0.revision)}
+  else{let nm=(plan.name||'Untitled plan').trim();const norm=x=>x.normalize('NFKC').toLowerCase();if(plans.some(r=>norm(r.name)===norm(nm))||FACTORY_PLANS.some(f=>norm(f.name)===norm(nm)))nm=(nm+' (edited)').slice(0,80);await store.saveAs(nm,{...plan,name:nm})}
+  await refresh();const fn=pending.fn;setPending(null);fn()});
  const patternFrom=id=>id==='working'?{pattern:workingPattern,name:'Working pattern',kind:'working'}:(()=>{const r=library.find(x=>x.id===id);return r?{pattern:r,name:r.name,kind:'library'}:null})();
  const assignTo=(pos,src)=>{if(!plan||!src)return;change(assign(plan,pos,src.pattern,{kind:src.kind,name:src.name}),positionLabel(grid,pos,plan)+' ← '+src.name)};
  const onDrop=(ev,pos)=>{ev.preventDefault();setDropAt(-1);const dt=ev.dataTransfer;
   const from=dt.getData(DND_POS);if(from!==''&&plan){const f=Number(from);if(plan.entries[f]){change(withEntries(plan,e=>{e[pos]=plan.entries[f]}),positionLabel(grid,pos,plan)+' ← copy of '+positionLabel(grid,f,plan))}return}
   perform(async()=>assignTo(pos,patternFrom(dt.getData(DND_PATTERN))))};
- const hzFor=pos=>{const g=current.audible.length?current:grid;if(!g?.audible.length)return 220;const a=g.audible[pos%g.audible.length];
-  let hz=g.gridBaseHz*Math.pow(2,a.cents/1200);const r=Math.pow(2,g.periodCents/1200);while(hz>520)hz/=r;while(hz<130)hz*=r;return hz};
+ /* Audition context: every step plays from ITS OWN pitch above one chosen root (stacked: step k sits at root × 2^(cents_k/1200), exactly where the key sounds in the Live Room).
+    The root defaults to the plan's native Grid root and can be set here; it never changes the plan. */
+ const [auditionRoot,setAuditionRoot]=P.useState(null);
+ const rootHz=auditionRoot>0?auditionRoot:(grid?.gridBaseHz||220);
+ const hzFor=pos=>{const g=grid;if(!g?.audible.length)return rootHz;return rootHz*Math.pow(2,g.audible[pos%g.audible.length].cents/1200)};
+ const chain=P.useRef({token:0,timer:0});
+ P.useEffect(()=>()=>{chain.current.token++;clearTimeout(chain.current.timer)},[]);
+ const playAll=()=>{const c=chain.current,tk=++c.token;clearTimeout(c.timer);if(!plan||!n)return;
+  const clock=(()=>{try{return __XenMainRoomSessionBridge.liveClock()}catch{return {bpm:108,beatsPerBar:4}}})();
+  const step=i=>{if(c.token!==tk||i>=n){if(c.token===tk)setLiveStep(-1);return}
+   const en=plan.entries[i],pat=en?en.pattern:workingPattern;setLiveStep(i);setSelected(i);onAudition(pat,hzFor(i));
+   const cycle=(Number(pat.referenceBars)||1)*(clock.beatsPerBar||4)*60/(clock.bpm||108);c.timer=setTimeout(()=>step(i+1),Math.min(8000,cycle*1000+120))};
+  step(0)};
+ const [liveStep,setLiveStep]=P.useState(-1);
  if(!plan)return u.jsxs('div',{className:'xen-hpp',children:[
   u.jsxs('div',{style:{gridColumn:'1 / -1'},children:[u.jsx(GridBasis,{origin,onOpenGridWorkbench}),u.jsx('strong',{children:'Hold Pattern Plan · Keyboard'}),
    u.jsx('p',{children:'A plan gives every audible step of the period ('+current.audible.length+' steps of '+gridTitle(current)+' per '+periodName(current.periodCents)+') its own Hold Pattern. It is projected onto all keyboard rows and follows the movable key window.'}),
-   u.jsxs('label',{children:['Load a plan (factory or saved)',u.jsx('select',{'aria-label':'Saved plans',value:'',onChange:e=>{const v=e.target.value;if(v.startsWith('factory:')){perform(async()=>{const fpn=factoryPlan(v.slice(8),origin);setSavedId('');change(fpn,'Loaded factory plan “'+fpn.name+'”.')});return}const r=plans.find(x=>x.id===v);if(r){setSavedId(r.id);change(validatePlan(r.plan),'Loaded '+r.name+'.')}},
+   u.jsxs('label',{children:['Load a plan (factory or saved)',u.jsx('select',{'aria-label':'Saved plans',value:'',onChange:e=>{const v=e.target.value;if(v.startsWith('factory:')){perform(async()=>{const fpn=factoryPlan(v.slice(8),origin);setSavedId('');markBaseline(fpn);change(fpn,'Loaded factory plan “'+fpn.name+'”.')});return}const r=plans.find(x=>x.id===v);if(r){setSavedId(r.id);const lp=validatePlan(r.plan);markBaseline(lp);change(lp,'Loaded '+r.name+'.')}},
     children:[u.jsx('option',{value:'',children:'Choose a plan…'}),factoryPlanOptions(),plans.length?u.jsx('optgroup',{label:'Saved plans',children:plans.map(r=>u.jsx('option',{value:r.id,children:r.name},r.id))},'saved'):null]})]}),
-   u.jsx('button',{type:'button',onClick:()=>change(createPlan(origin),'Empty plan created for '+gridTitle(current)+'.'),children:'＋ Empty plan for current Grid'}),
-   u.jsx(PresetPicker,{value:preset,onChange:setPreset,children:u.jsx('button',{type:'button',onClick:()=>change(fromPreset(preset,origin),'Figure placed on every step of '+gridTitle(current)+'.'),children:'Fill every step with one figure'})}),
+   u.jsx('button',{type:'button',onClick:()=>{const np=createPlan(origin);markBaseline(np);change(np,'Empty plan created for '+gridTitle(current)+'.')},children:'＋ Empty plan for current Grid'}),
+   u.jsx(PresetPicker,{value:preset,onChange:setPreset,children:u.jsx('button',{type:'button',onClick:()=>{const np=fromPreset(preset,origin);markBaseline(np);change(np,'Figure placed on every step of '+gridTitle(current)+'.')},children:'Fill every step with one figure'})}),
    u.jsx('p',{children:PRESETS.find(p=>p.id===preset)?.info}),
    message?u.jsx('p',{role:'status',children:message}):null]})]});
  const entry=plan.entries[idx];
@@ -280,9 +309,13 @@ function PlanView({plan,origin,workingPattern,onPlanChange,onRestoreGrid,onEditP
    armed?u.jsx('button',{type:'button',onClick:()=>{const src=patternFrom(armed);change(withEntries(plan,e=>{for(let i=0;i<e.length;i++)if(!e[i])e[i]={pattern:patternOnly(src.pattern),source:{kind:src.kind,name:src.name}}}),'Filled empty steps with '+src.name+'.')},children:'Fill empty steps with armed'}):null]}),
   /* Ladder */
   u.jsxs('div',{children:[u.jsx(GridBasis,{origin,onOpenGridWorkbench}),u.jsx('strong',{children:plan.name||'Untitled plan'}),u.jsx('p',{children:'Made for '+gridTitle(grid)+' · '+n+' audible steps per '+periodName(grid.periodCents)+' · root '+grid.gridBaseHz.toFixed(2)+' Hz'}),
+   u.jsxs('div',{className:'xen-hpp-row','data-xen-hpp-audition':'',style:{alignItems:'end'},children:[
+    u.jsxs('label',{children:['Audition root (Hz)',u.jsx('input',{type:'number',min:20,max:2000,step:.01,value:+rootHz.toFixed(2),'aria-label':'Audition root in Hz',onChange:e=>{const v=parseFloat(e.target.value);setAuditionRoot(v>0?v:null)},onKeyDown:e=>e.stopPropagation(),onKeyUp:e=>e.stopPropagation()})]}),
+    u.jsx('button',{type:'button',disabled:auditionRoot===null,onClick:()=>setAuditionRoot(null),title:'Use the plan’s own root again',children:'Plan root'}),
+    u.jsx('button',{type:'button',onClick:playAll,title:'Hear every step’s figure one after the other, each from its own pitch above the root (stacked, like the keys of the Live Room)',children:'▶ All steps'})]}),
    u.jsx('div',{className:'xen-hpp-ladder',role:'listbox','aria-label':'Plan steps, root at the bottom',children:grid.audible.map((a,i)=>{const en=plan.entries[i];
     return u.jsxs('div',{role:'option','aria-selected':i===idx,tabIndex:0,draggable:!!en,
-     className:'xen-hpp-step'+(i===idx?' selected':'')+(dropAt===i?' drop':'')+(livePos>=0&&livePos%n===i?' live':'')+(i>=current.audible.length&&dev.level==='deviation'?' unreachable':''),
+     className:'xen-hpp-step'+(i===idx?' selected':'')+(dropAt===i?' drop':'')+(livePos>=0&&livePos%n===i||liveStep===i?' live':'')+(i>=current.audible.length&&dev.level==='deviation'?' unreachable':''),
      onClick:()=>{setSelected(i);if(armed){assignTo(i,patternFrom(armed))}},
      onKeyDown:ev=>{if(ev.key==='Enter'||ev.key===' '){ev.preventDefault();setSelected(i);if(armed)assignTo(i,patternFrom(armed))}},
      onDragStart:ev=>{ev.dataTransfer.setData(DND_POS,String(i));ev.dataTransfer.effectAllowed='copy'},
@@ -296,6 +329,8 @@ function PlanView({plan,origin,workingPattern,onPlanChange,onRestoreGrid,onEditP
    u.jsx('p',{children:'Root at the bottom. Muted Grid steps are not part of the plan. Empty steps play the lane’s working pattern. Pattern pitches are cents relative to the pressed key.'})]}),
   /* Plan + selected step */
   u.jsxs('div',{children:[
+   pending?u.jsxs('div',{className:'xen-hpp-dev deviation',role:'alertdialog','aria-label':'Save changes?',children:[u.jsx('strong',{children:'Save changes to “'+(plan.name||'Untitled plan')+'”?'}),u.jsx('div',{children:'The active plan was changed since it was loaded.'}),
+    u.jsxs('div',{className:'xen-hpp-row',style:{marginTop:5},children:[u.jsx('button',{type:'button',disabled:busy,onClick:savePending,children:'Save'}),u.jsx('button',{type:'button',disabled:busy,onClick:()=>{const fn=pending.fn;setPending(null);fn()},children:'Discard changes'}),u.jsx('button',{type:'button',onClick:()=>setPending(null),children:'Cancel'})]})]}):null,
    u.jsxs('label',{className:'xen-hpp-toggle',children:[u.jsx('input',{type:'checkbox',checked:plan.enabled!==false,onChange:e=>change({...plan,enabled:e.target.checked})}),'Plan active on Keyboard Hold']}),
    dev.text?u.jsxs('div',{className:'xen-hpp-dev '+dev.level,role:'status',children:[dev.text,
     dev.level!=='match'?u.jsxs('div',{className:'xen-hpp-row',style:{marginTop:5},children:[
@@ -314,15 +349,15 @@ function PlanView({plan,origin,workingPattern,onPlanChange,onRestoreGrid,onEditP
    u.jsxs('label',{children:['Plan name',u.jsx('input',{type:'text',maxLength:80,value:planName,placeholder:'e.g. 19 EDO chromatic · evening',onChange:e=>setPlanName(e.target.value),onKeyDown:e=>e.stopPropagation()})]}),
    u.jsx('select',{'aria-label':'Saved plans',value:savedId,onChange:e=>setSavedId(e.target.value),children:[u.jsx('option',{value:'',children:'Choose a plan…'}),factoryPlanOptions(),plans.length?u.jsx('optgroup',{label:'Saved plans',children:plans.map(r=>u.jsx('option',{value:r.id,children:r.name},r.id))},'saved'):null]}),
    u.jsxs('div',{className:'xen-hpp-row',children:[
-    u.jsx('button',{type:'button',disabled:busy||!planName.trim(),onClick:()=>perform(async()=>{const row=await store.saveAs(planName,plan);change({...plan,name:row.name});await refresh();setSavedId(row.id);setMessage('Plan saved as '+row.name+'.')}),children:'Save As'}),
-    u.jsx('button',{type:'button',disabled:busy||!savedRow,onClick:()=>perform(async()=>{if(!globalThis.confirm('Overwrite saved plan “'+savedRow.name+'” with the current plan?'))return;await store.overwrite(savedRow.id,plan,savedRow.revision);await refresh();setMessage('Updated '+savedRow.name+'.')}),children:'Overwrite'}),
-    u.jsx('button',{type:'button',disabled:busy||!(savedRow||savedId.startsWith('factory:')),onClick:()=>{if(savedId.startsWith('factory:')){if(plan.entries.some(Boolean)&&!globalThis.confirm('Replace the active plan with this factory plan? Saved plans are not changed.'))return;perform(async()=>{const fpn=factoryPlan(savedId.slice(8),origin);change(fpn,'Loaded factory plan “'+fpn.name+'”.')});return}change(validatePlan(savedRow.plan),'Loaded '+savedRow.name+'.')},children:'Load'}),
+    u.jsx('button',{type:'button',disabled:busy||!planName.trim(),onClick:()=>perform(async()=>{const row=await store.saveAs(planName,plan);const sp={...plan,name:row.name};markBaseline(sp);change(sp);await refresh();setSavedId(row.id);setMessage('Plan saved as '+row.name+'.')}),children:'Save As'}),
+    u.jsx('button',{type:'button',disabled:busy||!savedRow,onClick:()=>perform(async()=>{if(!globalThis.confirm('Overwrite saved plan “'+savedRow.name+'” with the current plan?'))return;await store.overwrite(savedRow.id,plan,savedRow.revision);markBaseline(plan);await refresh();setMessage('Updated '+savedRow.name+'.')}),children:'Overwrite'}),
+    u.jsx('button',{type:'button',disabled:busy||!(savedRow||savedId.startsWith('factory:')),onClick:()=>guard(()=>{if(savedId.startsWith('factory:')){perform(async()=>{const fpn=factoryPlan(savedId.slice(8),origin);markBaseline(fpn);change(fpn,'Loaded factory plan “'+fpn.name+'”.')});return}const lp=validatePlan(savedRow.plan);markBaseline(lp);change(lp,'Loaded '+savedRow.name+'.')}),children:'Load'}),
     u.jsx('button',{type:'button',disabled:busy||!savedRow,onClick:()=>perform(async()=>{if(!globalThis.confirm('Delete saved plan “'+savedRow.name+'”? The active plan stays.'))return;await store.remove(savedRow.id);setSavedId('');await refresh();setMessage('Saved plan deleted.')}),children:'Delete'})]}),
-   u.jsx(PresetPicker,{value:preset,onChange:setPreset,children:u.jsx('button',{type:'button',onClick:()=>{if(plan.entries.some(Boolean)&&!globalThis.confirm('Replace the active plan with the preset “'+PRESETS.find(p=>p.id===preset).label+'”? Saved plans are not changed.'))return;change(fromPreset(preset,origin),'Figure placed on every step of '+gridTitle(current)+'.')},children:'Fill every step with one figure'})}),
-   u.jsx('button',{type:'button',onClick:()=>{if(globalThis.confirm('Remove the plan from the Keyboard? Saved plans stay in the library.'))change(null,'')},children:'Remove plan from Keyboard'}),
+   u.jsx(PresetPicker,{value:preset,onChange:setPreset,children:u.jsx('button',{type:'button',onClick:()=>guard(()=>{const np=fromPreset(preset,origin);markBaseline(np);change(np,'Figure placed on every step of '+gridTitle(current)+'.')}),children:'Fill every step with one figure'})}),
+   u.jsx('button',{type:'button',onClick:()=>guard(()=>{if(globalThis.confirm('Remove the plan from the Keyboard? Saved plans stay in the library.')){markBaseline(null);change(null,'')}}),children:'Remove plan from Keyboard'}),
    message?u.jsx('p',{role:'status',className:'xen-hpp-message',children:message}):null]})]});
 }
 
-return Object.freeze({version:'HPP01',dbName:DB,nativeGrid,deviation,validatePlan,createPlan,assign,clearPosition,reanchor,fromPreset,presets:PRESETS.map(p=>({id:p.id,label:p.label,info:p.info,group:p.group})),factoryPlan,factoryPlans:FACTORY_PLANS.map(fp=>({id:fp.id,name:fp.name,mode:fp.mode,info:fp.info,degrees:fp.degrees.slice(),labels:fp.labels.slice()})),
+return Object.freeze({version:'HPP01',dbName:DB,nativeGrid,deviation,validatePlan,createPlan,assign,clearPosition,reanchor,fromPreset,presets:PRESETS.map(p=>({id:p.id,label:p.label,info:p.info,group:p.group})),factoryPlan,factoryPlans:FACTORY_PLANS.map(fp=>({id:fp.id,name:fp.name,mode:fp.mode,info:fp.info,degrees:fp.degrees.slice(),labels:ROMAN.slice()})),LEGACY_FACTORY_LABELS,
  suggestName,positionLabel,setLabel,gridTitle,store,PlanView,patternOnly});
 }

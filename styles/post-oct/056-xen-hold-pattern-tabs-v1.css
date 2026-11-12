@@ -21,3 +21,5 @@
 .xen-hpp-steps>button{font:600 10px/1 system-ui,sans-serif;padding:4px 6px;border-radius:4px;border:1px solid rgba(167,139,250,.35);color:#b8acdf;background:rgba(10,8,20,.6);cursor:pointer}
 .xen-hpp-steps>button.empty{opacity:.5}
 .xen-hpp-steps>button.on{background:#7c5cd6;color:#fff;border-color:#c7b4ff}
+/* HOLD-PLAYHEAD: the slot card that plays right now */
+.xen-hold-pattern [data-xensonar-shared-segment-pattern-grid]>button.xen-hold-playing{border-color:#f5c542!important;box-shadow:0 0 0 1px #f5c542,0 0 9px rgba(245,197,66,.7);position:relative;z-index:1}

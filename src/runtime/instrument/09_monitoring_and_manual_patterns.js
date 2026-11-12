@@ -113,6 +113,8 @@ const __xenHoldPitchJITicks=Object.freeze([
   return [{cents,ratio,name},{cents:-cents,ratio:denominator+'/'+numerator,name:name+' descending'}];
  })
 ]);
+/* HOLD-PLAYHEAD: the slot of the figure that was played last (set once per delivered pulse by the Hold scheduler: plain assignments). The Hold panel reads it to give the slot card a golden border. */
+const __XenHoldPlayhead={lane:'',slot:-1,slots:0,plan:false,at:0,gap:450,serial:0};
 function __xenHoldPitchTickText(tick){
  return tick.ratio+' · '+tick.name+' · '+(tick.cents>0?'+':'')+Math.round(tick.cents)+' cents';
 }
