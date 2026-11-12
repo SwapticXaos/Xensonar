@@ -37,6 +37,12 @@ const html=path.resolve(process.argv[2]||'dist/XenSonar_PROBE.html');const shot=
   await E('__NodalBallGrid.update({manualGridStepOffsets:Array(12).fill(0)})');await p.waitForTimeout(200);
   const r2=await rows(),t3=isolated(r2,[S1,S2])[0],[rx,ry]=at(8,t3.y);await p.mouse.click(rx,ry,{button:'right'});await p.waitForTimeout(300);
   const g3=await grid();assert(Math.abs(g3.base-t3.freq*2)<.5||Math.abs(g3.base-t3.freq)<.5,'right click on a triangle sets the grid base: '+g3.base+' vs line '+t3.freq);await E('__NodalBallGrid.update({gridBase:440})');await p.waitForTimeout(200);
+  // ROOM5-06: the muted triangle under the cursor is highlighted (guide line to x=64 at its y), away from it nothing is drawn
+  {await p.evaluate(()=>{const o=CanvasRenderingContext2D.prototype.lineTo;window.__hov=[];CanvasRenderingContext2D.prototype.lineTo=function(x,y){if(x===64)window.__hov.push(y);return o.apply(this,arguments)}});
+   const rh=await rows(),th=isolated(rh,[S1,S2,t3.step]).find(r=>!r.muted);assert(th,'an isolated line for the hover check');const[hx,hy]=at(8,th.y);await p.mouse.click(hx,hy);await p.waitForTimeout(300);assert((await grid()).muted.includes(th.step),'triangle muted for the hover check');
+   await p.mouse.move(...at(550,290));await p.waitForTimeout(300);await p.evaluate(()=>{window.__hov.length=0});await p.waitForTimeout(300);assert.equal(await p.evaluate(()=>window.__hov.length),0,'no highlight while the cursor is away');
+   await p.mouse.move(hx,hy);await p.waitForTimeout(500);const hv=await p.evaluate(()=>window.__hov.slice());assert(hv.length>0&&hv.every(y=>Math.abs(y-th.y)<1),'muted triangle under the cursor is highlighted at its own line: '+hv.slice(0,3)+' vs '+th.y);
+   await p.mouse.click(hx,hy);await p.waitForTimeout(300);assert(!(await grid()).muted.includes(th.step),'clicking again unmutes it');await p.mouse.move(...at(550,290));await p.waitForTimeout(200)}
   // ---- pad: with Snap the ball and the sound sit on a grid line ----
   await p.locator('input[aria-label="Snap ball to grid"]').check();await p.waitForTimeout(200);assert.equal((await grid()).lock,true);
   await fresh();const lines=await rows();const line=isolated(lines).find(r=>!r.muted&&r.y<500);const[px,py]=at(600,line.y+3);

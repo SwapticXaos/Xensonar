@@ -21,5 +21,11 @@ const html=path.resolve(process.argv[2]||'dist/XenSonar_PROBE.html');
   await p.mouse.click(bx.x+8*sx,bx.y+iso[0].y*sy,{button:'right'});await p.waitForTimeout(300);const g3=await grid();assert(Math.abs(g3.base-440)>1e-6,'right click on a triangle takes the line as base: '+g3.base);
   // hovering a triangle shows the resize cursor
   await p.mouse.move(bx.x+bx.width*.5,bx.y+bx.height*.5);await p.mouse.move(bx.x+8*sx,bx.y+iso[1].y*sy);await p.waitForTimeout(100);assert.equal(await handle.evaluate(c=>c.style.cursor),'ns-resize','resize cursor over a triangle');
-  assert.deepEqual(errors,[]);console.log('PASS ROOM5-02 Live Room grid triangles unchanged (click, drag, right click, cursor)');await b.close();
+  // ROOM5-06: the triangle under the cursor is drawn highlighted (a guide line to x=64 at its y), also when it is muted; away from it nothing is drawn
+  await p.evaluate(()=>{const o=CanvasRenderingContext2D.prototype.lineTo;window.__hov=[];CanvasRenderingContext2D.prototype.lineTo=function(x,y){if(x===64)window.__hov.push(y);return o.apply(this,arguments)}});
+  const M=iso[1];const mutedNow=(await grid()).muted.includes(M.step);if(!mutedNow){await p.mouse.click(bx.x+8*sx,bx.y+M.y*sy);await p.waitForTimeout(300)}
+  assert((await grid()).muted.includes(M.step),'triangle is muted');
+  await p.mouse.move(bx.x+bx.width*.5,bx.y+bx.height*.5);await p.waitForTimeout(200);await p.evaluate(()=>{window.__hov.length=0});await p.waitForTimeout(300);assert.equal(await p.evaluate(()=>window.__hov.length),0,'no highlight while the cursor is away');
+  await p.mouse.move(bx.x+8*sx,bx.y+M.y*sy);await p.waitForTimeout(400);const hov=await p.evaluate(()=>window.__hov.slice());assert(hov.length>0&&hov.every(y=>Math.abs(y-M.y)<1),'muted triangle under the cursor is highlighted at its own line: '+hov.slice(0,3));
+  assert.deepEqual(errors,[]);console.log('PASS ROOM5-02/06 Live Room grid triangles unchanged (click, drag, right click, cursor) + hover highlight');await b.close();
 })().catch(e=>{console.error(e);process.exit(1)});

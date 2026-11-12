@@ -1073,7 +1073,7 @@ function rue(e){return u.jsxs("div",{className:"min-h-screen bg-neutral-950 text
 /* ROOM5-02: thresholds of the Main Room grid handles (the blue triangles at the left edge) in ONE place, shared with Room V.
    Triangle zone = the first 30 px of a line, reach = 12 px around a line, drag = 1 offset unit per 25 px (up raises). */
 const __XenGridHandles=Object.freeze({zone:30,reach:12,perPixel:25,
- hit(rows,yOf,x,y){if(x<0||x>=30)return null;return rows.find(row=>row.stepIndex!==undefined&&Math.abs(yOf(row.freq)-y)<12)||null},
+ hit(rows,yOf,x,y){if(x<0||x>=30)return null;let best=null,bd=12;for(const row of rows){if(row.stepIndex===undefined)continue;const d=Math.abs(yOf(row.freq)-y);if(d<bd){bd=d;best=row}}return best},
  near(rows,yOf,x,y){return x>=0&&x<30&&rows.some(row=>row.stepIndex!==undefined&&Math.abs(yOf(row.freq)-y)<12)},
  dragOffset(baseOffset,startY,y){return baseOffset+-(y-startY)/25}});
 function __xenMainRootHit(e,event){
