@@ -1,3 +1,26 @@
+/* ROOM5-10: Psy Lab sounds ("psylab:<patch id>") for the Wave Starter (Enter / left click) and the Keyboard. This eager part only lists the patches and forwards to the lazy
+   Room V chunk (LiveHost); the chunk is loaded when a Psy Lab sound is chosen or restored, never when a menu is built. Factory names are listed here so no chunk load is needed
+   to open the menu; tests/room5_live_catalog.cjs keeps this list identical to the chunk's FACTORY patches. */
+const __XenPsyLab=(()=>{
+ const KEY='xensonar.psylab.instruments.v1',PREFIX='psylab:';
+ const FACTORY_NAMES=['Liquid Bell','Escher Staircase','Barber Spiral','Chaos Insect','Crystal Cave','Deep Fold Drone','Tritave Ghost','Alien Choir'];
+ let raw=null,cache=[],readAt=0;
+ const isId=id=>typeof id==='string'&&id.startsWith(PREFIX);
+ /* menus are rebuilt on many renders: storage is read at most once per second */
+ function entries(){const now=Date.now();if(cache.length&&now-readAt<1000)return cache;readAt=now;let s=null;try{s=localStorage.getItem(KEY)}catch{}
+  if(s!==raw||!cache.length){raw=s;cache=FACTORY_NAMES.map(n=>({value:PREFIX+'factory:'+n,label:n,hint:'Psy Lab · factory',originLabel:'Psy Lab'}));
+   try{const d=s?JSON.parse(s):null;if(d?.format==='xensonar.psylab'&&Array.isArray(d.user))for(const q of d.user.slice(0,500))if(q&&typeof q.id==='string'&&typeof q.name==='string'&&q.id)cache.push({value:PREFIX+q.id,label:String(q.name).slice(0,60),hint:'Psy Lab · saved',originLabel:'Psy Lab'})}catch{}}
+  return cache}
+ let loaded=null;const host=(create=true)=>{if(loaded||!create)return loaded;try{loaded=__xenLoadDeferred('psylab').LiveHost}catch(e){loaded=null}return loaded};
+ return Object.freeze({PREFIX,isId,entries,host,FACTORY_NAMES,
+  /* the first Psy Lab note must not wait for the module: load and create the lane's engine as soon as the sound is chosen */
+  warm(lane,id){const h=host();if(h&&isId(id))h.prepare(lane,id)},
+  start(lane,keyId,id,hz,vel){const h=host();return !!h&&h.start(lane,keyId,id,hz,vel)},
+  stop(lane,keyId){host(false)?.stop(lane,keyId)},
+  allOff(lane){host(false)?.allOff(lane)},
+  /* a lane that leaves Psy Lab gives its engine back (the chunk is not loaded just to do that) */
+  drop(lane){host(false)?.drop(lane)}});
+})();
 /* Performance shortcuts read the canonical catalog. History stores IDs only. */
 const __XenPerformanceCatalog=(()=>{
  const key='xensonar-performance-recent-sounds-v1',lanes=['particle','wave','keyboard'],listeners=new Set();
@@ -10,14 +33,16 @@ const __XenPerformanceCatalog=(()=>{
  function groups(entries=[],includeCurrent=false,latest=[]){
   const catalog=new Map();for(const item of entries)if(valid(item?.value)&&!catalog.has(item.value))catalog.set(item.value,item);
   if(includeCurrent&&!catalog.has('entrophon'))catalog.set('entrophon',{value:'entrophon',label:'Current Sound'});
-  const family=item=>item.groupId==='samples'||item.value.startsWith('sample:')?'Samples':item.value.startsWith('nodal:')?'Nodal':item.value==='entrophon'||item.value.startsWith('entrophon:')?'Entrophon':'Classic';
+  /* wave / keyboard lanes (includeCurrent) only: the particle lane has no Psy Lab voice */
+  if(includeCurrent)for(const item of __XenPsyLab.entries())if(!catalog.has(item.value))catalog.set(item.value,item);
+  const family=item=>item.groupId==='samples'||item.value.startsWith('sample:')?'Samples':item.value.startsWith('nodal:')?'Nodal':item.value.startsWith('psylab:')?'Psy Lab':item.value==='entrophon'||item.value.startsWith('entrophon:')?'Entrophon':'Classic';
   const result=[],recent=[...new Set(latest)].map(id=>catalog.get(id)).filter(Boolean).slice(0,7);
   if(recent.length)result.push({label:'Latest',entries:recent});
-  for(const label of ['Classic','Nodal','Entrophon','Samples']){const list=[...catalog.values()].filter(x=>family(x)===label).sort((a,b)=>String(a.label).localeCompare(String(b.label)));if(list.length||label==='Nodal')result.push({label,entries:list})}return result;
+  for(const label of ['Classic','Nodal','Entrophon','Psy Lab','Samples']){const list=[...catalog.values()].filter(x=>family(x)===label).sort((a,b)=>String(a.label).localeCompare(String(b.label)));if(list.length||label==='Nodal')result.push({label,entries:list})}return result;
  }
  // C11 Entrophon and Wave main outputs currently aggregate voices. Do not
  // route that whole mix to the last triggering particle's private panner.
- function canPan(lane,id){if(typeof id!=='string'||id==='entrophon'||id.startsWith('entrophon:'))return false;return id.startsWith('nodal:')||id.startsWith('sample:')||lane==='particle'}
+ function canPan(lane,id){if(typeof id!=='string'||id==='entrophon'||id.startsWith('entrophon:')||id.startsWith('psylab:'))return false;return id.startsWith('nodal:')||id.startsWith('sample:')||lane==='particle'}
  return {key,snapshot:()=>state,subscribe:fn=>(listeners.add(fn),()=>listeners.delete(fn)),remember,groups,canPan};
 })();
 

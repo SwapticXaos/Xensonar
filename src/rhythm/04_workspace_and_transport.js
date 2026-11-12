@@ -558,6 +558,8 @@ ${t.lastError??"unknown"}`:`MASTER OUTPUT · ${t.state.toUpperCase()}`}function 
   // the focused element changed before keyup.
   const released={key:entry.key,code:entry.code,target:event.target,
    preventDefault:()=>event.preventDefault?.()};
+  /* ROOM5-10: a held Psy Lab keyboard note ends with its key; with the last key up nothing may keep sounding */
+  __XenPsyLab.stop("keyboard",id);if(owner.keys.size===0)__XenPsyLab.allOff("keyboard");
   try{current.actions.releaseWaveStarterHoldGestureForKey?.(released)}
   finally{if(entry.control)vPe({event:released,arrowState:current.arrowStateRef.current,
    holdActions:holdActions(),owned:true})}
@@ -567,7 +569,7 @@ ${t.lastError??"unknown"}`:`MASTER OUTPUT · ${t.state.toUpperCase()}`}function 
   const owner=ownership.current;
   for(const entry of [...owner.keys.values()])releaseOwned({key:entry.key,code:entry.code});
   const arrows=latest.current.arrowStateRef.current;
-  arrows.left=false;arrows.right=false;arrows.up=false;arrows.down=false;
+  arrows.left=false;arrows.right=false;arrows.up=false;arrows.down=false;__XenPsyLab.allOff("keyboard");
  };
  P.useEffect(()=>{
   const owner=ownership.current;owner.enabled=e.resonanceInputActive;
@@ -592,7 +594,7 @@ P.useEffect(()=>{if(!e.resonanceInputActive){__xenKeyboardFoundationDetach.resum
    latest.current.actions.runEnterWaveGesture(options);
  };
  n===null?(n={event:i,managedLoopMaterial:e.managedLoopMaterial,params:e.paramsRef.current,arrowState:e.arrowStateRef.current,cursorY:e.nexusRefs.current.cursorY,keyboardMirrorActive:e.keyboardMirrorRef.current,keyboardWindowOffset:e.keyboardWindowOffsetRef.current,pitchLaneState:e.pitchLaneStateRef.current,exportedDrumConfigs:e.exportedDrumConfigs,recentLoopHotkeyEntries:e.recentLoopHotkeyEntries,recentRootFollowHotkeyEntries:e.recentRootFollowHotkeyEntries,rootFollowLoopActive:e.rootFollowLoopActive===!0},r={runtime:n,actions:t}):(n.event=i,n.params=e.paramsRef.current,n.arrowState=e.arrowStateRef.current,n.cursorY=e.nexusRefs.current.cursorY,n.keyboardMirrorActive=e.keyboardMirrorRef.current,n.keyboardWindowOffset=e.keyboardWindowOffsetRef.current,n.pitchLaneState=e.pitchLaneStateRef.current );
- const result=APe(r);
+ __xenPsyLabKeyCtx.code=id;let result;try{result=APe(r)}finally{__xenPsyLabKeyCtx.code=null}
  if(result.handled&&!previous)owner.keys.set(id,{token,key:i.key,code:i.code,
   control:['arrow-keydown','momentary-hold-keydown','enter-wave-hotkey'].includes(result.route)});
  },o=i=>{releaseOwned(i)};return window.addEventListener("keydown",a),window.addEventListener("keyup",o),()=>{window.removeEventListener("keydown",a),window.removeEventListener("keyup",o);__xenKeyboardFoundationDetach.resume()}},[e.resonanceInputActive,e.audioCtx,e.myzelEnabled,e.managedLoopMaterial,e.exportedDrumConfigs,e.recentLoopHotkeyEntries,e.recentRootFollowHotkeyEntries,e.rootFollowLoopActive])}const wPe=["kick","snare","hatClosed","hatOpen","clap","perc"];function RPe(e,t){const n=Math.max(1,e.bars||1);return{presetSource:e.presetSource,globalKit:e.drumKit,bars:n,segmentsPerBar:e.segmentsPerBar,segmentMarkers:e.segmentMarkers,stepCount:e.stepCount,laneOrder:e.laneOrder?.length?e.laneOrder:[...wPe],laneSteps:e.laneSteps,laneKitOverrides:e.laneKitOverrides,laneSettings:e.laneSettings??t,stepPrograms:e.stepPrograms}}function CPe(e=jT){const t=new WeakMap;let n=0,r=0;return{resolve:(i,s)=>{const l=t.get(i);if(l&&l.laneSettings===s)return n+=1,l.program;r+=1;const c=e(RPe(i,s));return t.set(i,{laneSettings:s,program:c}),c},stats:()=>({hits:n,misses:r})}}const kPe=CPe(),Rp=(e,t,n)=>Math.min(n,Math.max(t,e));function PPe(e){const t=OT({laneId:e.laneId,laneSettings:e.laneSettings});return{...e.drumStyle,edge:e.laneId==="hatClosed"||e.laneId==="hatOpen"?Math.max(e.drumStyle.edge,.58):e.drumStyle.edge,air:e.laneId==="hatOpen"||e.laneId==="clap"?Math.max(e.drumStyle.air,.54):e.drumStyle.air,snap:(e.value??0)>=.95?Math.max(e.drumStyle.snap,.68):e.drumStyle.snap,softness:e.laneId==="kick"?Math.min(e.drumStyle.softness,.42):e.drumStyle.softness,pan:t.pan,decayScale:t.decay*(e.drumStyle.decayScale??1),chokeGroup:t.chokeGroup}}function IPe(e){

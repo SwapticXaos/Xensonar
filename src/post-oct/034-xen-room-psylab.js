@@ -341,13 +341,16 @@ const LiveHost=(()=>{
  const isId=v=>typeof v==='string'&&v.startsWith(PREFIX);
  const find=id=>{const pid=isId(id)?id.slice(PREFIX.length):id;return patches().find(q=>q.id===pid)||null};
  const entries=()=>patches().map(q=>({value:PREFIX+q.id,label:q.name,hint:'Psy Lab'+(q.grid?' · '+q.grid:''),originLabel:'Psy Lab'}));
- function engineFor(lane,id){let rec=engines.get(lane);const pt=find(id);if(!pt)return null;
-  if(!rec){rec={engine:new PsyEngine({visual:false}),patch:null};engines.set(lane,rec)}
-  if(rec.patch!==pt.id){rec.patch=pt.id;rec.engine.setAll(pt.params)}return rec.engine}
- return{isId,find,entries,
+ /* HOT path rule: a note-on never reads storage. The patch of a lane is looked up when the sound id changes (or on prepare(), i.e. when it is chosen / restored). */
+ function engineFor(lane,id,reload){let rec=engines.get(lane);if(rec&&rec.id===id&&!reload)return rec.engine;const pt=find(id);if(!pt)return null;
+  if(!rec){rec={engine:new PsyEngine({visual:false}),id:null};engines.set(lane,rec)}
+  rec.id=id;rec.engine.setAll(pt.params);return rec.engine}
+ return{isId,find,entries,factoryNames:()=>FACTORY.map(q=>q.name),
+  prepare(lane,id){const e=engineFor(lane,id,true);if(e)e.ensure().catch(()=>{});return !!e},
   start(lane,keyId,id,hz,vel){const e=engineFor(lane,id);if(!e)return false;const k=lane+':'+keyId;if(active.has(k))e.noteOff(k);active.set(k,e);e.noteOn(k,hz,vel==null?.8:vel);return true},
   bend(lane,keyId,hz){const k=lane+':'+keyId;active.get(k)?.bend(k,hz)},
   stop(lane,keyId){const k=lane+':'+keyId,e=active.get(k);if(e){e.noteOff(k);active.delete(k)}},
+  drop(lane){this.allOff(lane);const rec=engines.get(lane);if(rec){rec.engine.dispose();engines.delete(lane)}},
   allOff(lane){for(const[k,e]of active)if(!lane||k.startsWith(lane+':')){e.noteOff(k);active.delete(k)}},
   dispose(){for(const rec of engines.values())rec.engine.dispose();engines.clear();active.clear()},
   status(){return{lanes:[...engines.keys()],active:active.size,visual:[...engines.values()].map(r=>r.engine.visual)}}}})();

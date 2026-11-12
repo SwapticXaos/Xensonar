@@ -724,6 +724,9 @@ button.xen-enough-finish::before,button.xen-enough-finish::after{content:none!im
 .xen-mainroom-hold-zone .xen-thunder-switch{border:1px solid #4298a4;color:#a4bdc6;background:#102127;border-radius:4px;padding:4px 13px;font:800 11px/1 system-ui,sans-serif;min-height:26px;cursor:pointer}
 /* ROOM5-09: one switch for the open tab; the width is fixed (sized for "OFF (K)") so the neighbours never move when it toggles */
 .xen-mainroom-hold-zone .xen-thunder-lane-switch{box-sizing:border-box;flex:0 0 auto;width:58px;min-width:58px;padding:4px 0;text-align:center;white-space:nowrap}
+.xen-mainroom-hold-zone .xen-thunder-lane-wrap{position:relative;display:inline-flex;flex:0 0 auto}
+.xen-mainroom-hold-zone .xen-thunder-lane-switch.is-locked{opacity:.62;cursor:not-allowed}
+.xen-mainroom-hold-zone .xen-thunder-note{position:absolute;top:calc(100% + 4px);right:0;z-index:30;white-space:nowrap;padding:4px 8px;border:1px solid #8a6ab8;border-radius:4px;background:#1c1530;color:#e4d6ff;font:600 10.5px/1.2 system-ui,sans-serif;pointer-events:none;box-shadow:0 4px 14px rgba(0,0,0,.45)}
 .xen-mainroom-hold-zone .xen-thunder-switch.is-on{color:#b4fff4;background:#0c5048;border-color:#60d8c2}
 .xen-mainroom-hold-zone .xen-thunder-switch.is-off{color:#f0b9bd;background:#3b2027;border-color:#ae6578}
 .xen-mainroom-hold-zone .xen-thunder-quantize{padding:4px 10px;min-width:27px}
