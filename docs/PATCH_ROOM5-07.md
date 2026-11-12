@@ -15,3 +15,6 @@ Zone: HEISS-Steuerung (Hold-Planer), aber nur Gating-Bedingung; keine Änderung 
 ## Offen
 - Eine Spur, die mitten im Halten ausgeschaltet wird, beendet laufende Gesten nicht sofort (wie bisher beim gemeinsamen Schalter für die Spur-Handler); neue Anschläge sind betroffen.
 - Rollback: Commit davor (352c310).
+
+## Nachtrag (ROOM5-09)
+Die UI mit zwei Schaltern „Enter“ / „Key“ war zu breit und verschob Nachbarn. Sie wurde durch **einen** Schalter ersetzt, der sich auf den offenen Tab bezieht („ON (E)“ / „OFF (K)“, feste Breite). Parameter und Logik (`thunderModeEnabled`, `thunderKeyboardEnabled`) sind unverändert; siehe `docs/PATCH_ROOM5-09.md`.
