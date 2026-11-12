@@ -25,6 +25,12 @@ const html=path.resolve(process.argv[2]||'dist/XenSonar_PROBE.html');const oldSr
         const arg={ctx,state:{...state,cursorX:state.cursorX,cursorY:state.cursorY},params:r,t:1.5,focusCursorRef:{current:{x:state.cursorX+30,y:state.cursorY-20}},getVisibleGridLines:get,activeGridLineFreqRef:trackers.s,activeGridLineSinceRef:trackers.l,previousGridLineFreqRef:trackers.c,previousGridLineAtRef:trackers.d,keyboardWindowOffsetRef:{current:off},droneVolume:.5};
         clock=1000;fn(arg);clock=1090;fn(arg);return log};
       const a=run(oldV2e),c=run(newV2e);out.push({name,ops:a.length,same:a.length===c.length&&a.every((x,i)=>x===c[i]),firstDiff:a.findIndex((x,i)=>x!==c[i]),sample:[a[0],c[0]]})}
+    // Room V's option: edgeLines changes only the gradient of the plain lines; without it (or false) the ops are the same as the old code's
+    {const {Zs,Qa}=D.geometry(),layer=D.layer(),r=params({lockCursorToGrid:true}),get=D.evalInBundle('(p=>()=>pEe(p))')(r);
+     const run=edge=>{const{ctx,log}=record();clock=1000;layer({ctx,state:{cursorX:300,cursorY:200},params:r,t:1.5,focusCursorRef:{current:{x:330,y:180}},getVisibleGridLines:get,activeGridLineFreqRef:{current:null},activeGridLineSinceRef:{current:0},previousGridLineFreqRef:{current:null},previousGridLineAtRef:{current:0},keyboardWindowOffsetRef:{current:0},edgeLines:edge},vr,Zs,Qa);return log};
+     const plain=run(undefined),off=run(false),on=run(true);
+     out.push({name:'edgeLines undefined = false',ops:plain.length,same:plain.length===off.length&&plain.every((x,i)=>x===off[i]),firstDiff:-1,sample:[]});
+     out.push({name:'edgeLines true changes the line gradient only',ops:on.length,same:(a=>a.length>0&&a.length===on.filter(x=>!/stop#/.test(x)).length&&a.every((x,i)=>x===on.filter(y=>!/stop#/.test(y))[i]))(plain.filter(x=>!/stop#/.test(x)))&&on.filter(x=>/stop#/.test(x)).length===plain.filter(x=>/stop#/.test(x)).length+3,firstDiff:-1,sample:[]})}
     performance.now=nowReal;return out});
   console.table(result.map(r=>({case:r.name,ops:r.ops,same:r.same})));
   for(const r of result){assert(r.same,'canvas ops differ in case "'+r.name+'" at op '+r.firstDiff);assert(r.ops>10||r.name==='grid off')}

@@ -51,6 +51,29 @@ const html=path.resolve(process.argv[2]||'dist/XenSonar_PROBE.html');const shot=
   assert(sc2.lit<sc.lit*.05,'the mandala fades away after the sound (echo tail included): '+sc2.lit+' vs '+sc.lit);
   // ---- Live Room keys: 1 plays the first grid note, , . cycle the grid system, Ctrl cycles the mode ----
   const key=async k=>{await p.keyboard.down(k);await p.waitForTimeout(250);const t=await p.locator('.xpl-readout').innerText();await p.keyboard.up(k);return t};
+  // ---- arrow keys: the Live Room's logic (one grid step at the cursor with Snap), not the page scroll ----
+  await E('__NodalBallGrid.update({manualGridMutedSteps:[],manualGridStepOffsets:Array(12).fill(0),lockCursorToGrid:true})');await p.waitForTimeout(200);await p.evaluate(()=>{document.activeElement.blur();window.scrollTo(0,40)});await fresh();
+  await p.mouse.move(bx.x+bx.width*.6,bx.y+bx.height*.5);await p.mouse.down();await p.waitForTimeout(500);await p.mouse.up();const baseHz=await p.evaluate(()=>__r5.last.hz);
+  const nextHz=d=>E('(p=>Qa(uZ(Zs('+baseHz+'),'+d+',p.gridBase,p.gridTuning,p.manualGridMutedSteps,p.manualGridStepOffsets)))(__NodalBallGrid.params())');
+  const scrollBefore=await p.evaluate(()=>scrollY);await p.keyboard.down('ArrowUp');await p.waitForTimeout(250);const hzUp=await p.evaluate(()=>__r5.last.hz);await p.keyboard.up('ArrowUp');
+  assert(Math.abs(hzUp-await nextHz(1))<.01&&hzUp>baseHz,'ArrowUp = one grid step higher at the cursor: '+baseHz+' → '+hzUp);
+  await p.keyboard.down('ArrowDown');await p.waitForTimeout(250);const hzDown=await p.evaluate(()=>__r5.last.hz);await p.keyboard.up('ArrowDown');assert(Math.abs(hzDown-baseHz)<.01,'ArrowDown goes back one step: '+hzDown);
+  await p.keyboard.down('ArrowDown');await p.waitForTimeout(250);const hzDown2=await p.evaluate(()=>__r5.last.hz);await p.keyboard.up('ArrowDown');assert(Math.abs(hzDown2-await nextHz(-1))<.01&&hzDown2<baseHz,'and one more step lower: '+hzDown2);
+  assert.equal(await p.evaluate(()=>scrollY),scrollBefore,'the arrow keys do not scroll the page');
+  // ---- spacing: linear (the Main Room) or logarithmic; the keys and the sound do not care ----
+  await E('__NodalBallGrid.update({lockCursorToGrid:false})');await p.waitForTimeout(200);await fresh();
+  const pressAt=async fy=>{await p.mouse.move(bx.x+bx.width*.6,bx.y+bx.height*fy);await p.mouse.down();await p.waitForTimeout(300);const h=await p.evaluate(()=>__r5.last.hz);await p.mouse.up();return h};
+  const lin1=await pressAt(.25),lin2=await pressAt(.5),lin3=await pressAt(.75);assert(Math.abs(lin2-(lin1+lin3)/2)<.5,'linear: equal steps in Hz ('+lin1+' '+lin2+' '+lin3+')');
+  await p.locator('[data-psy-log]').click();await p.waitForTimeout(200);await fresh();const lg1=await pressAt(.25),lg2=await pressAt(.5),lg3=await pressAt(.75);assert(Math.abs(lg2*lg2-lg1*lg3)/(lg2*lg2)<.01,'logarithmic: equal ratios ('+lg1+' '+lg2+' '+lg3+')');assert(Math.abs(lg2-lin2)>5,'and the scale really changed');
+  {const k1=parseFloat(await key('Digit1')),w1=await E('(p=>wF(p.gridBase,p.gridTuning,0,0,p.manualGridMutedSteps,p.manualGridStepOffsets))(__NodalBallGrid.params())');assert(Math.abs(k1-w1)<.01,'the keys ignore the spacing: '+k1+' vs '+w1)}
+  await p.locator('[data-psy-log]').click();await p.waitForTimeout(200);await fresh();
+  // ---- lines at the edges only; the notes that sound are drawn in pink over the full width ----
+  const pixel=(fx,freq)=>p.evaluate(([fx,freq])=>{const c=document.querySelector('.xpl-pad canvas[role=application]'),k=c.width/1100,y=(1-(freq-55)/385)*580*k,d=c.getContext('2d').getImageData(Math.round(c.width*fx),Math.round(y),1,1).data;return[d[0],d[1],d[2],d[3]]},[fx,freq]);
+  const hzQb=await E('(p=>uw(p.gridBase,p.gridTuning,p.manualGridMutedSteps,p.manualGridStepOffsets)[10])(__NodalBallGrid.params())');
+  await p.locator('input[aria-label="Snap ball to grid"]').uncheck();await E('__NodalBallGrid.update({lockCursorToGrid:false})');
+  const quiet=await pixel(.5,hzQb);assert(quiet[3]<10,'edges only: no grid line in the middle, the mandala has the room: '+quiet);const edge=await pixel(.04,hzQb);assert(edge[3]>8,'but the line is there at the outer end: '+edge);
+  await p.keyboard.down('KeyQ');await p.waitForTimeout(500);const lit=await pixel(.5,hzQb);await p.keyboard.up('KeyQ');assert(lit[3]>80&&lit[0]>150&&lit[2]>200&&lit[1]<170,'a sounding note is a pink line over the full width: '+lit);
+  await p.locator('[data-psy-edges]').click();await p.waitForTimeout(300);const full=await pixel(.5,hzQb);assert(full[3]>8,'full lines: the grid line crosses the middle again: '+full);await p.locator('[data-psy-edges]').click();await p.waitForTimeout(300);
   await p.evaluate(()=>document.activeElement.blur());
   const hz1=parseFloat(await key('Digit1'));assert(Math.abs(hz1-440)<.01,'key 1 = the top grid note (440): '+hz1);
   const hzQ=parseFloat(await key('KeyQ')),want=await E('(p=>uw(p.gridBase,p.gridTuning,p.manualGridMutedSteps,p.manualGridStepOffsets)[10])(__NodalBallGrid.params())');assert(Math.abs(hzQ-want)<.01,'key Q = the 11th note of the Main Room grid (muted steps skipped): '+hzQ+' vs '+want);

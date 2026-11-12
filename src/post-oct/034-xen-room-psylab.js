@@ -328,8 +328,8 @@ const METRO_DEFAULT={bpm:108,beats:4,vol:.5};
 function sanitizeMetro(m){return{bpm:clamp(Number(m?.bpm)||METRO_DEFAULT.bpm,20,400),beats:clamp(Number(m?.beats)||METRO_DEFAULT.beats,.5,64),vol:clamp(Number.isFinite(Number(m?.vol))?Number(m.vol):METRO_DEFAULT.vol,0,1)}}
 function loadStore(){try{const raw=localStorage.getItem(STORE_KEY);if(!raw)return null;const data=JSON.parse(raw);if(data?.format!==FORMAT)return null;
   return{working:sanitizePatch(data.working,'Working patch'),user:Array.isArray(data.user)?data.user.slice(0,500).map(p=>sanitizePatch(p)):[],hold:data.hold===true,snap:data.snap!==false,bounceSec:clamp(Number(data.bounceSec)||8,.5,120),
-   orient:data.orient==='piano'?'piano':'live',flip:data.flip===true,mirror:data.mirror===true,large:data.large===true,oct:clamp(Math.round(Number(data.oct)||0),-3,4),metro:sanitizeMetro(data.metro)}}catch{return null}}
-function saveStore(state){try{localStorage.setItem(STORE_KEY,JSON.stringify({format:FORMAT,version:VERSION,working:state.working,user:state.user,hold:state.hold,snap:state.snap,bounceSec:state.bounceSec,orient:state.orient,flip:state.flip,mirror:state.mirror,large:state.large,oct:state.oct,metro:state.metro,updatedAt:Date.now()}));return true}catch{return false}}
+   orient:data.orient==='piano'?'piano':'live',flip:data.flip===true,mirror:data.mirror===true,large:data.large===true,log:data.log===true,edges:data.edges!==false,oct:clamp(Math.round(Number(data.oct)||0),-3,4),metro:sanitizeMetro(data.metro)}}catch{return null}}
+function saveStore(state){try{localStorage.setItem(STORE_KEY,JSON.stringify({format:FORMAT,version:VERSION,working:state.working,user:state.user,hold:state.hold,snap:state.snap,bounceSec:state.bounceSec,orient:state.orient,flip:state.flip,mirror:state.mirror,large:state.large,log:state.log,edges:state.edges,oct:state.oct,metro:state.metro,updatedAt:Date.now()}));return true}catch{return false}}
 
 /* ---------- metronome: for the player only ---------- */
 /* Clicks go straight to the speakers (ctx.destination), NOT into the live master input: Rec, Loop-Rec, Live Mastering and the bounce never hear them.
@@ -457,11 +457,12 @@ function watchMandala(st,dtMs,now){
 const PAD_W=1100,PAD_H=580,SCOPE_W=1100,SCOPE_H=580;
 /* orient: 'live' = pitch runs up the page, 'piano' = along the page. flip turns the direction of the pitch axis round (live: low on top, piano: high on the left).
    The view and the direction only change the picture and the pointer: the keys never depend on them. */
-function padGeometry(orient,flip){const{min,max}=gj(),piano=orient==='piano',ext=piano?PAD_W:PAD_H,len=piano?PAD_H:PAD_W,sign=flip?-1:1;
- // t: 0 at the low end of the range, 1 at the high end. default: high end at y = 0 (top of the page / right end of the piano)
- return{piano,flip:!!flip,ext,len,min,max,
-  yOf:f=>{const t=(f-min)/(max-min),y=(flip?t:1-t)*ext;return y<0?0:y>ext?ext:y},
-  freqOf:y=>{const c=y<0?0:y>ext?ext:y,t=flip?c/ext:1-c/ext;return min+t*(max-min)}}}
+function padGeometry(orient,flip,log){const{min,max}=gj(),piano=orient==='piano',ext=piano?PAD_W:PAD_H,len=piano?PAD_H:PAD_W,span=max-min,lspan=Math.log(max/min);
+ // t: 0 at the low end of the range, 1 at the high end. Linear = the Main Room's own scale (higher intervals are wider). Logarithmic = every octave is the same width.
+ // default direction: high end at y = 0 (top of the page / right end of the piano view)
+ return{piano,flip:!!flip,log:!!log,ext,len,min,max,
+  yOf:f=>{const t=log?Math.log(Math.max(f,min*.01)/min)/lspan:(f-min)/span,y=(flip?t:1-t)*ext;return y<0?0:y>ext?ext:y},
+  freqOf:y=>{const c=y<0?0:y>ext?ext:y,t=flip?c/ext:1-c/ext;return log?min*Math.pow(max/min,t):min+t*span}}}
 /* pointer (client) to the layer's own coordinates */
 function padLocal(canvas,e,geo){const r=canvas.getBoundingClientRect(),sx=(e.clientX-r.left)/Math.max(1,r.width)*PAD_W,sy=(e.clientY-r.top)/Math.max(1,r.height)*PAD_H;
  return geo.piano?{x:sy,y:PAD_W-sx}:{x:sx,y:sy}}
@@ -474,28 +475,48 @@ const padIntensity=(geo,x)=>clamp(geo.piano?1-x/geo.len:x/geo.len,0,1);
 /* this room has no loops or slots on the letter keys: all three rows are pitch keys (32 positions), so the highlighted key window of the grid layer is the 32-key one */
 const keyWindowViews=new WeakMap();
 function keyWindowView(p){let v=keyWindowViews.get(p);if(!v){v=Object.create(p,{resonanceHotkeyMode:{value:'keyboard-extension',enumerable:true}});keyWindowViews.set(p,v)}return v}
+
+/* One grid step up or down from a pitch, with the Live Room's own function (arrow keys with "Snap"): muted steps are skipped, the range ends are kept. */
+function stepGridHz(p,hz,dir){return Qa(uZ(Zs(hz),dir,p.gridBase,p.gridTuning,p.manualGridMutedSteps,p.manualGridStepOffsets))}
+/* Notes that sound right now, drawn over the grid in pink/violet: the green line stays "the last one moved", these are all the others that are active (Hold, chords, several keys). */
+function paintActiveNotes(g,geo,notesHz,ballY){
+ if(!notesHz.size)return;const len=geo.len;
+ g.save();g.lineWidth=2;
+ for(const hz of notesHz.values()){const y=geo.yOf(hz);
+  const gr=g.createLinearGradient(0,0,len,0);gr.addColorStop(0,'rgba(255,115,220,.9)');gr.addColorStop(.5,'rgba(200,120,255,.5)');gr.addColorStop(1,'rgba(255,115,220,.9)');
+  g.strokeStyle=gr;g.beginPath();g.moveTo(0,y);g.lineTo(len,y);g.stroke();
+  if(Math.abs(y-ballY)>2){g.fillStyle='rgba(255,130,225,.95)';g.beginPath();g.moveTo(15,y);g.lineTo(0,y-5.5);g.lineTo(0,y+5.5);g.closePath();g.fill()}}
+ g.restore()}
+/* Which key plays which grid line, written at the right end of the line (the Live Room's key window: 20 or, with the third row, 32 keys). Cached until the grid, the window or the view changes. */
+const KEYCAPS_FIRST=['1','2','3','4','5','6','7','8','9','0','Q','W','E','R','T','Z','U','I','O','P'];
+function keyLabelLines(p,geo,windowOffset,mirror){
+ const caps=KEYCAPS_FIRST.concat(__XenKeyboardLayout.keycaps()),n=caps.length,out=[];
+ for(let k=0;k<n;k++){const idx=mirror?n-1-k:k,hz=wF(p.gridBase,p.gridTuning,windowOffset,idx,p.manualGridMutedSteps,p.manualGridStepOffsets);if(hz===null||!Number.isFinite(hz)||hz<=0)continue;out.push({y:geo.yOf(hz),hz,cap:caps[k]})}
+ out.sort((a,b)=>a.y-b.y);const kept=[];let lastY=-99;for(const e of out){if(e.y-lastY<9.5)continue;kept.push(e);lastY=e.y}
+ return kept}
+function paintKeyLabels(g,geo,lines){if(!lines.length)return;g.save();g.font='9px monospace';g.textAlign='right';g.fillStyle='rgba(215,195,255,.62)';for(const e of lines)g.fillText(e.cap,geo.len-5,e.y-3);g.restore()}
 const useGrid=()=>{P.useSyncExternalStore(__NodalBallGrid.subscribe,__NodalBallGrid.snapshot,__NodalBallGrid.snapshot);return __NodalBallGrid.params()};
 
 function XenPsyLabRoom(){
  useStyle();
  const gridParams=useGrid(),keyboardLayout=P.useSyncExternalStore(__XenKeyboardLayout.subscribe,__XenKeyboardLayout.getSnapshot,__XenKeyboardLayout.getSnapshot);
- const initial=P.useMemo(()=>loadStore()||{working:{...sanitizePatch(FACTORY[0]),id:'working'},user:[],hold:false,snap:true,bounceSec:8,orient:'live',flip:false,mirror:false,large:false,oct:0,metro:{...METRO_DEFAULT}},[]);
+ const initial=P.useMemo(()=>loadStore()||{working:{...sanitizePatch(FACTORY[0]),id:'working'},user:[],hold:false,snap:true,bounceSec:8,orient:'live',flip:false,mirror:false,large:false,log:false,edges:true,oct:0,metro:{...METRO_DEFAULT}},[]);
  const patchRef=P.useRef(initial.working),engineRef=P.useRef(null),metroRef=P.useRef(null);if(!engineRef.current)engineRef.current=new PsyEngine();if(!metroRef.current)metroRef.current=new Metronome();
  const engine=engineRef.current,metro=metroRef.current;
  const[user,setUser]=P.useState(initial.user),[selected,setSelected]=P.useState(''),[epoch,setEpoch]=P.useState(0);
- const[hold,setHold]=P.useState(initial.hold),[bounceSec,setBounceSec]=P.useState(initial.bounceSec),[orient,setOrient]=P.useState(initial.orient),[oct,setOct]=P.useState(initial.oct),[flip,setFlip]=P.useState(initial.flip),[mirror,setMirror]=P.useState(initial.mirror),[large,setLarge]=P.useState(initial.large);
+ const[hold,setHold]=P.useState(initial.hold),[bounceSec,setBounceSec]=P.useState(initial.bounceSec),[orient,setOrient]=P.useState(initial.orient),[oct,setOct]=P.useState(initial.oct),[flip,setFlip]=P.useState(initial.flip),[mirror,setMirror]=P.useState(initial.mirror),[large,setLarge]=P.useState(initial.large),[logAxis,setLogAxis]=P.useState(initial.log),[edges,setEdges]=P.useState(initial.edges);
  const[metroOn,setMetroOn]=P.useState(false),[metroCfg,setMetroCfg]=P.useState(initial.metro);
  const[status,setStatus]=P.useState(''),[busy,setBusy]=P.useState(false),[mutate,setMutate]=P.useState(.25);
- const live=P.useRef({hold,user,bounceSec,orient,flip,mirror,large,oct,metro:metroCfg});live.current={hold,user,bounceSec,orient,flip,mirror,large,oct,metro:metroCfg};
+ const live=P.useRef({hold,user,bounceSec,orient,flip,mirror,large,log:logAxis,edges,oct,metro:metroCfg});live.current={hold,user,bounceSec,orient,flip,mirror,large,log:logAxis,edges,oct,metro:metroCfg};
  const padRef=P.useRef(null),canvasRef=P.useRef(null),scopeRef=P.useRef(null),readoutRef=P.useRef(null),rootRef=P.useRef(null),beatRef=P.useRef(null);
- const held=P.useRef(new Map()),latched=P.useRef(new Map()),saveTimer=P.useRef(0),noteSeq=P.useRef(100),tapTimes=P.useRef([]);
+ const held=P.useRef(new Map()),latched=P.useRef(new Map()),notesHz=P.useRef(new Map()),arrow=P.useRef({up:false,down:false,left:false,right:false,id:null}),intensity=P.useRef(.5),keyLines=P.useRef({sig:'',lines:[]}),saveTimer=P.useRef(0),noteSeq=P.useRef(100),tapTimes=P.useRef([]);
  const focus=P.useRef({x:PAD_W*.5,y:PAD_H*.5,inside:false}),ball=P.useRef({cursorX:PAD_W*.5,cursorY:PAD_H*.5,freq:0});
  const gridRef=P.useRef(null);gridRef.current=gridParams;
 
- const snapshot=()=>{const l=live.current;return{working:{...patchRef.current,id:'working'},user:l.user,hold:l.hold,snap:true,bounceSec:l.bounceSec,orient:l.orient,flip:l.flip,mirror:l.mirror,large:l.large,oct:l.oct,metro:l.metro}};
+ const snapshot=()=>{const l=live.current;return{working:{...patchRef.current,id:'working'},user:l.user,hold:l.hold,snap:true,bounceSec:l.bounceSec,orient:l.orient,flip:l.flip,mirror:l.mirror,large:l.large,log:l.log,edges:l.edges,oct:l.oct,metro:l.metro}};
  const persist=P.useCallback(()=>{clearTimeout(saveTimer.current);saveTimer.current=setTimeout(()=>saveStore(snapshot()),600)},[]);
  const flush=P.useCallback(()=>{clearTimeout(saveTimer.current);saveStore(snapshot())},[]);
- P.useEffect(()=>{persist()},[hold,user,bounceSec,orient,flip,mirror,large,oct,metroCfg,persist]);
+ P.useEffect(()=>{persist()},[hold,user,bounceSec,orient,flip,mirror,large,logAxis,edges,oct,metroCfg,persist]);
  /* the crystal resonators follow the Main Room grid (and the octave shift) */
  P.useEffect(()=>{engine.setRes(gridResonators(gridParams,oct))},[gridParams,oct,engine]);
  P.useEffect(()=>{engine.setAll(patchRef.current.params);const onHide=()=>flush();window.addEventListener('pagehide',onHide);
@@ -510,13 +531,13 @@ function XenPsyLabRoom(){
   if(t.length>=2){const bpm=60000/((t[t.length-1]-t[0])/(t.length-1));setMetro({bpm:Math.round(bpm*10)/10})}};
  const useLiveTempo=()=>{const bpm=__xenMultitrackBridge.current?.getLiveBpm?.();if(bpm>0){setMetro({bpm:Math.round(bpm*10)/10});setStatus('Metronome tempo taken from the Live Room: '+Math.round(bpm*10)/10+' BPM.')}else setStatus('The Live Room has no tempo yet.')};
 
- const release=P.useCallback(id=>{engine.noteOff(id)},[engine]);
- const panic=P.useCallback(()=>{held.current.clear();latched.current.clear();engine.allOff();setStatus('All notes off.')},[engine]);
+ const release=P.useCallback(id=>{notesHz.current.delete(id);engine.noteOff(id)},[engine]);
+ const panic=P.useCallback(()=>{held.current.clear();latched.current.clear();notesHz.current.clear();arrow.current.up=arrow.current.down=arrow.current.left=arrow.current.right=false;engine.allOff();setStatus('All notes off.')},[engine]);
  /* A note started by key or pad. With Hold on it keeps sounding until it is played again or Hold is switched off. */
  const start=P.useCallback((source,hz,vel)=>{const l=live.current;
   if(l.hold){const key=Math.round(1200*Math.log2(hz));const old=latched.current.get(key);if(old!==undefined){latched.current.delete(key);release(old);return null}
-   const id=++noteSeq.current;latched.current.set(key,id);engine.noteOn(id,hz,vel);return null}
-  const id=++noteSeq.current;held.current.set(source,id);engine.noteOn(id,hz,vel);return id},[engine,release]);
+   const id=++noteSeq.current;latched.current.set(key,id);notesHz.current.set(id,hz/Math.pow(2,l.oct));engine.noteOn(id,hz,vel);return null}
+  const id=++noteSeq.current;held.current.set(source,id);notesHz.current.set(id,hz/Math.pow(2,l.oct));engine.noteOn(id,hz,vel);return id},[engine,release]);
  const stop=P.useCallback(source=>{const id=held.current.get(source);if(id===undefined)return;held.current.delete(source);release(id)},[release]);
  P.useEffect(()=>{if(!hold&&latched.current.size){for(const id of latched.current.values())release(id);latched.current.clear()}},[hold,release]);
 
@@ -525,19 +546,19 @@ function XenPsyLabRoom(){
  P.useEffect(()=>{const canvas=canvasRef.current;if(!canvas)return;
   const show=(hz,label)=>{if(readoutRef.current)readoutRef.current.textContent=hz.toFixed(2)+' Hz · '+(1200*Math.log2(hz/(gridRef.current?.gridBase||440))).toFixed(0)+' ct vs base'+(label||'')};
   const down=e=>{if(e.button!==0)return;e.preventDefault();document.activeElement?.blur?.();try{canvas.setPointerCapture(e.pointerId)}catch{};const p=liveGridParams();if(!p)return;
-   const geo=padGeometry(live.current.orient,live.current.flip),pt=padLocal(canvas,e,geo),rows=__NodalBallGrid.rows(),hit=__XenGridHandles.hit(rows,geo.yOf,pt.x,pt.y);
+   const geo=padGeometry(live.current.orient,live.current.flip,live.current.log),pt=padLocal(canvas,e,geo),rows=__NodalBallGrid.rows(),hit=__XenGridHandles.hit(rows,geo.yOf,pt.x,pt.y);
    focus.current={x:pt.x,y:pt.y,inside:true};
    if(hit){handle.current={step:hit.stepIndex,startY:pt.y,base:p.manualGridStepOffsets?.[hit.stepIndex]??0,moved:false,pointer:e.pointerId};return}
-   const tg=padTarget(p,geo,rows,pt.y),hz=tg.freq*Math.pow(2,live.current.oct);setMacro(padIntensity(geo,pt.x));start('pad:'+e.pointerId,hz,.9);show(hz)};
-  const move=e=>{const p=liveGridParams(),geo=padGeometry(live.current.orient,live.current.flip),pt=padLocal(canvas,e,geo),rows=__NodalBallGrid.rows();focus.current={x:pt.x,y:pt.y,inside:true};
+   const tg=padTarget(p,geo,rows,pt.y),hz=tg.freq*Math.pow(2,live.current.oct);intensity.current=padIntensity(geo,pt.x);setMacro(intensity.current);start('pad:'+e.pointerId,hz,.9);show(hz)};
+  const move=e=>{const p=liveGridParams(),geo=padGeometry(live.current.orient,live.current.flip,live.current.log),pt=padLocal(canvas,e,geo),rows=__NodalBallGrid.rows();focus.current={x:pt.x,y:pt.y,inside:true};
    const h=handle.current;
    if(h&&h.pointer===e.pointerId){h.moved=true;__NodalBallGrid.setOffset(h.step,__XenGridHandles.dragOffset(h.base,h.startY,pt.y));return}
    canvas.style.cursor=__XenGridHandles.near(rows,geo.yOf,pt.x,pt.y)?(geo.piano?'ew-resize':'ns-resize'):'crosshair';
    const id=held.current.get('pad:'+e.pointerId);if(id===undefined||!p)return;
-   const tg=padTarget(p,geo,rows,pt.y),hz=tg.freq*Math.pow(2,live.current.oct);engine.bend(id,hz);setMacro(padIntensity(geo,pt.x));show(hz)};
+   const tg=padTarget(p,geo,rows,pt.y),hz=tg.freq*Math.pow(2,live.current.oct);engine.bend(id,hz);notesHz.current.set(id,tg.freq);intensity.current=padIntensity(geo,pt.x);setMacro(intensity.current);show(hz)};
   const up=e=>{const h=handle.current;if(h&&h.pointer===e.pointerId){handle.current=null;if(!h.moved)__NodalBallGrid.toggleMute(h.step)}stop('pad:'+e.pointerId)};
   const leave=()=>{focus.current.inside=false};
-  const menu=e=>{e.preventDefault();const geo=padGeometry(live.current.orient,live.current.flip),pt=padLocal(canvas,e,geo),hit=__XenGridHandles.hit(__NodalBallGrid.rows(),geo.yOf,pt.x,pt.y);
+  const menu=e=>{e.preventDefault();const geo=padGeometry(live.current.orient,live.current.flip,live.current.log),pt=padLocal(canvas,e,geo),hit=__XenGridHandles.hit(__NodalBallGrid.rows(),geo.yOf,pt.x,pt.y);
    if(hit){const ref=__xenMainRootFromGridLine(hit),p=liveGridParams();if(ref!==null&&p&&Math.abs(ref-p.gridBase)>1e-7){__NodalBallGrid.update({gridBase:ref});setStatus('Grid base set to '+ref.toFixed(2)+' Hz.')}}};
   canvas.addEventListener('pointerdown',down);canvas.addEventListener('pointermove',move);canvas.addEventListener('pointerup',up);canvas.addEventListener('pointercancel',up);canvas.addEventListener('lostpointercapture',up);canvas.addEventListener('pointerleave',leave);canvas.addEventListener('contextmenu',menu);
   return()=>{canvas.removeEventListener('pointerdown',down);canvas.removeEventListener('pointermove',move);canvas.removeEventListener('pointerup',up);canvas.removeEventListener('pointercancel',up);canvas.removeEventListener('lostpointercapture',up);canvas.removeEventListener('pointerleave',leave);canvas.removeEventListener('contextmenu',menu)}},[engine,setMacro,start,stop]);
@@ -548,7 +569,21 @@ function XenPsyLabRoom(){
  P.useEffect(()=>{
   const inside=t=>t===document.body||!!rootRef.current?.contains(t);
   const announceGrid=()=>setTimeout(()=>{const q=__NodalBallGrid.params();if(q)setStatus('Grid: '+ti(j0,q.gridTuning)+' · '+ti(Ka(q.gridTuning),q.gridMode))},120);
+  const goTo=(p,geo,newHz,code)=>{ // move the cursor to a pitch; a held pad note follows, else the arrow key sounds the new pitch while it is held
+   const f=focus.current;f.y=geo.yOf(newHz);let bent=false;
+   for(const[source,id]of held.current)if(source.startsWith('pad:')){engine.bend(id,newHz*Math.pow(2,live.current.oct));notesHz.current.set(id,newHz);bent=true}
+   if(!bent)start('key:'+code,newHz*Math.pow(2,live.current.oct),.8);
+   if(readoutRef.current)readoutRef.current.textContent=(newHz*Math.pow(2,live.current.oct)).toFixed(2)+' Hz'};
+  const arrowDown=e=>{const p=liveGridParams(),ar=arrow.current;if(!p)return;
+   if(e.key==='ArrowLeft'||e.key==='ArrowRight'){ar[e.key==='ArrowLeft'?'left':'right']=true;return}
+   const dir=e.key==='ArrowUp'?1:-1,geo=padGeometry(live.current.orient,live.current.flip,live.current.log);
+   if(p.lockCursorToGrid){ // Snap: one grid step per press (the Live Room's own uZ), skipping muted steps
+    if(e.repeat)return;const from=ball.current.freq||geo.freqOf(focus.current.y),to=stepGridHz(p,from,dir);if(to>0&&Number.isFinite(to))goTo(p,geo,to,e.code);return}
+   // no Snap: the cursor glides while the key is held (moved in the draw loop)
+   if(e.repeat)return;ar[dir>0?'up':'down']=true;start('key:'+e.code,geo.freqOf(focus.current.y)*Math.pow(2,live.current.oct),.8)};
   const down=e=>{if(Qp(e.target)||!inside(e.target))return;
+   // Arrow keys belong to the cursor, not to the page scroll (sliders and drop-downs that have the focus keep theirs)
+   if(e.key.startsWith('Arrow')&&!e.ctrlKey&&!e.metaKey&&!e.altKey&&!(e.target?.matches?.('input[type=range],select'))){e.preventDefault();e.stopPropagation();arrowDown(e);return}
    const p=liveGridParams(),third=__xenThirdKeyboardRowIndex(e);
    // a key of the third row is a note first; only the other keys may switch the grid
    if(p&&third<0&&!e.metaKey&&pPe({event:e,params:__NodalBallGrid.params(),runWithAudio:fn=>fn(),changeGridTuning:__NodalBallGrid.changeTuning,setGridMode:__NodalBallGrid.changeMode,resetKeyboardWindow:__NodalBallGrid.resetWindow})){e.preventDefault();e.stopPropagation();announceGrid();return}
@@ -560,8 +595,8 @@ function XenPsyLabRoom(){
    if(live.current.mirror)idx=yJ(idx,iw.length+12); // keys low → high instead of high → low (the Live Room's keyboard mirror): independent of the view
    const hz0=wF(p.gridBase,p.gridTuning,__NodalBallGrid.windowOffset(),idx,p.manualGridMutedSteps,p.manualGridStepOffsets);
    if(hz0===null||!Number.isFinite(hz0)||hz0<=0){if(readoutRef.current)readoutRef.current.textContent='muted step';return}
-   const hz=hz0*Math.pow(2,live.current.oct);start('key:'+e.code,hz,e.shiftKey?1:.8);if(readoutRef.current)readoutRef.current.textContent=hz.toFixed(2)+' Hz'};
-  const up=e=>{stop('key:'+e.code)};
+   const hz=hz0*Math.pow(2,live.current.oct);focus.current.y=padGeometry(live.current.orient,live.current.flip,live.current.log).yOf(hz0);start('key:'+e.code,hz,e.shiftKey?1:.8);if(readoutRef.current)readoutRef.current.textContent=hz.toFixed(2)+' Hz'};
+  const up=e=>{if(e.key.startsWith('Arrow')){const ar=arrow.current;ar[e.key==='ArrowUp'?'up':e.key==='ArrowDown'?'down':e.key==='ArrowLeft'?'left':'right']=false}stop('key:'+e.code)};
   const blur=()=>{for(const source of[...held.current.keys()])stop(source)};
   document.addEventListener('keydown',down,true);document.addEventListener('keyup',up,true);window.addEventListener('blur',blur);
   return()=>{document.removeEventListener('keydown',down,true);document.removeEventListener('keyup',up,true);window.removeEventListener('blur',blur)}},[panic,start,stop]);
@@ -572,7 +607,7 @@ function XenPsyLabRoom(){
   const trk={s:{current:null},l:{current:0},c:{current:null},d:{current:0}},winRef={current:0},layer={ctx:g,state:ball.current,params:null,t:0,focusCursorRef:focus,getVisibleGridLines:()=>__NodalBallGrid.rows(),
    activeGridLineFreqRef:trk.s,activeGridLineSinceRef:trk.l,previousGridLineFreqRef:trk.c,previousGridLineAtRef:trk.d,keyboardWindowOffsetRef:winRef};
   const draw=now=>{raf=requestAnimationFrame(draw);if(document.hidden)return;const dt=Math.min(.1,Math.max(0,(now-last)/1000));last=now;
-   const p=liveGridParams(),geo=padGeometry(live.current.orient,live.current.flip);
+   const p=liveGridParams(),geo=padGeometry(live.current.orient,live.current.flip,live.current.log);
    // backing store: 1, 1.25 or 1.5 times the pad's own 1100 x 580 units, following the displayed size and the screen density (large view, high-density screens stay crisp)
    const want=Math.max(1,Math.min(1.5,Math.round((canvas.clientWidth||PAD_W)*Math.min(2,window.devicePixelRatio||1)/PAD_W*4)/4)),bw=Math.round(PAD_W*want),bh=Math.round(PAD_H*want);
    if(canvas.width!==bw||canvas.height!==bh){canvas.width=bw;canvas.height=bh;if(scopeRef.current){scopeRef.current.width=bw;scopeRef.current.height=bh;scopeBlank=true}scale=want}
@@ -585,11 +620,18 @@ function XenPsyLabRoom(){
     const pitchHue=(Math.log2(Math.max(20,ball.current.freq||220))%1)*360;
     if(peak>.001||!scopeBlank){scopeBlank=!paintMandala(sg,mandala,bufL,bufR,spec,peak,pitchHue)&&faded(sg);if(peak>.001)watchMandala(mandala,dt*1000,now)}else mandala.dt=16.7}
    if(!p)return;
+   // arrow keys without Snap: the cursor glides in pitch (up = higher, whatever the view), left / right move the intensity
+   {const ar=arrow.current,f0=focus.current;
+    if(ar.up||ar.down){const dir=(ar.up?1:0)-(ar.down?1:0);f0.y=Math.max(0,Math.min(geo.ext,f0.y+dir*(geo.flip?1:-1)*150*dt));const id=held.current.get(ar.up?'key:ArrowUp':'key:ArrowDown');if(id!==undefined){const hz=geo.freqOf(f0.y);engine.bend(id,hz*Math.pow(2,live.current.oct));notesHz.current.set(id,hz)}}
+    if(ar.left||ar.right){intensity.current=Math.max(0,Math.min(1,intensity.current+((ar.right?1:0)-(ar.left?1:0))*.6*dt));setMacro(intensity.current)}}
    // ball follows the pointer; with Snap on it sits on the nearest grid line
    const rows=__NodalBallGrid.rows(),f=focus.current,tg=padTarget(p,geo,rows,f.y),k=1-Math.pow(.65,dt*60),b=ball.current;b.cursorX+=(f.x-b.cursorX)*k;b.cursorY+=(tg.y-b.cursorY)*k;b.freq=tg.freq;
-   winRef.current=__NodalBallGrid.windowOffset();layer.params=keyWindowView(p);layer.t=now/1000;
+   winRef.current=__NodalBallGrid.windowOffset();layer.params=keyWindowView(p);layer.edgeLines=live.current.edges;layer.t=now/1000;
    g.save();if(geo.piano)g.setTransform(0,scale,-scale,0,PAD_W*scale,0);else g.setTransform(scale,0,0,scale,0,0);
    __xenDrawMainGridLayer(layer,geo.len,geo.yOf,geo.freqOf);
+   if(p.gridOn!==false){const lc=live.current,sig=p.gridTuning+'|'+p.gridBase+'|'+(p.manualGridMutedSteps||[]).join()+'|'+(p.manualGridStepOffsets||[]).join()+'|'+winRef.current+'|'+lc.mirror+'|'+lc.orient+'|'+lc.flip+'|'+lc.log+'|'+__XenKeyboardLayout.getSnapshot();
+    if(keyLines.current.sig!==sig)keyLines.current={sig,lines:keyLabelLines(p,geo,winRef.current,lc.mirror)};paintKeyLabels(g,geo,keyLines.current.lines)}
+   paintActiveNotes(g,geo,notesHz.current,b.cursorY);
    g.restore();
    // frequency label next to the ball
    if(f.inside&&readoutRef.current&&!held.current.size)readoutRef.current.textContent=(tg.freq*Math.pow(2,live.current.oct)).toFixed(2)+' Hz'};
@@ -638,6 +680,8 @@ function XenPsyLabRoom(){
    u.jsx('button',{type:'button',onClick:panic,title:'Esc',children:'All notes off'}),
    u.jsx('button',{type:'button','aria-pressed':piano,onClick:()=>setOrient(piano?'live':'piano'),title:'Main Room view: pitch runs up the page, like in the Live Room. Piano view: pitch runs along the page. Only the picture changes, never the keys.','data-psy-orient':orient,children:piano?'View: piano ↔':'View: Main Room ↕'}),
    u.jsx('button',{type:'button','aria-pressed':flip,onClick:()=>setFlip(v=>!v),title:'Turn the direction of the pitch axis round. Only the picture and the pointer change, never the keys.','data-psy-flip':flip?'1':'0',children:piano?(flip?'Pitch: high on the left':'Pitch: low on the left'):(flip?'Pitch: low on top':'Pitch: high on top')}),
+   u.jsx('button',{type:'button','aria-pressed':logAxis,onClick:()=>setLogAxis(v=>!v),title:'Linear: the Main Room\'s own spacing, higher intervals are wider. Logarithmic: every octave is equally wide, like the keys of a piano. Only the picture and the pointer change.','data-psy-log':logAxis?'1':'0',children:logAxis?'Spacing: logarithmic':'Spacing: linear'}),
+   u.jsx('button',{type:'button','aria-pressed':edges,onClick:()=>setEdges(v=>!v),title:'Edges only: the grid lines are drawn at the two outer ends, the middle belongs to the mandala (the line of the ball and the notes that sound stay visible). Full: as in the Main Room.','data-psy-edges':edges?'1':'0',children:edges?'Grid lines: edges only':'Grid lines: full'}),
    u.jsx('button',{type:'button','aria-pressed':mirror,onClick:()=>{panic();setMirror(v=>!v)},title:'Which way the keys are tuned along the keyboard (the Live Room\'s keyboard mirror). High → low: key 1 plays the highest note of the key window, as in the Main Room. Low → high: key 1 plays the lowest, like a piano. Independent of the picture.','data-psy-mirror':mirror?'1':'0',children:mirror?'Keys: low → high':'Keys: high → low'}),
    u.jsx('button',{type:'button','aria-pressed':large,onClick:()=>setLarge(v=>!v),title:'A big play surface: the pad takes the full width and all controls move below it.','data-psy-large':large?'1':'0',children:large?'Large view: on':'Large view: off'}),
    u.jsxs('span',{className:'xpl-note',children:['Octave ',u.jsx('button',{type:'button','aria-label':'Octave down',onClick:()=>{panic();setOct(o=>clamp(o-1,-3,4))},children:'−'}),' ',oct>0?'+'+oct:oct,' ',u.jsx('button',{type:'button','aria-label':'Octave up',onClick:()=>{panic();setOct(o=>clamp(o+1,-3,4))},children:'+'})]}),
