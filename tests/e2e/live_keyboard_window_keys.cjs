@@ -5,6 +5,7 @@ const {chromium}=require('playwright');const assert=require('node:assert/strict'
 const html=path.resolve(process.argv[2]||'dist/XenSonar_PROBE.html');
 (async()=>{
   const b=await chromium.launch({args:['--autoplay-policy=no-user-gesture-required']});const p=await b.newPage({viewport:{width:1440,height:900}});const errors=[];p.on('pageerror',e=>errors.push(e.message));
+  await p.addInitScript(()=>{window.__ctxs=[];const A=window.AudioContext;window.AudioContext=class extends A{constructor(...a){super(...a);window.__ctxs.push(this)}}});
   await p.goto('file://'+html);await p.waitForTimeout(3500);await p.getByRole('button',{name:'Power'}).click();await p.waitForTimeout(2500);
   const E=c=>p.evaluate(x=>window.__xenProbe.draw.evalInBundle(x),c);const win=()=>E('__NodalBallGrid.windowOffset()'),sys=()=>E('__NodalBallGrid.params().particleSystem');
   const press=async(code,key,shift=false)=>{await p.evaluate(([c,k,s])=>{const o={code:c,key:k,shiftKey:s,bubbles:true,cancelable:true};window.dispatchEvent(new KeyboardEvent('keydown',o));window.dispatchEvent(new KeyboardEvent('keyup',o))},[code,key,shift]);await p.waitForTimeout(70)};
@@ -31,5 +32,10 @@ const html=path.resolve(process.argv[2]||'dist/XenSonar_PROBE.html');
   // the character hotkeys keep working where they are not the window key: Shift+Minus ("_") and the German "-" key (physical Slash)
   const s0=await sys();await press('Minus','_',true);const s1=await sys();assert.notEqual(s1,s0,'Shift+Minus ("_") still cycles the particle systems');
   await press('Slash','-');const s2=await sys();assert.notEqual(s2,s1,'the German "-" key (physical Slash) still cycles the particle systems');
+  // KBD-WINDOW-03: moving the window is state, not sound. A suspended AudioContext whose resume() never settles (reported browsers pause audio for background / sleeping tabs) used to swallow the window keys completely.
+  assert.equal(await win(),0);
+  await p.evaluate(async()=>{for(const c of window.__ctxs){await c.suspend();c.resume=()=>new Promise(()=>{})}});
+  for(let i=0;i<4;i++)await press('BracketLeft','ü');assert.equal(await win(),4,'suspended audio: the window still moves down');
+  for(let i=0;i<3;i++)await press('Minus','ß');assert.equal(await win(),1,'suspended audio: the window still moves back up');
   assert.deepEqual(errors,[]);console.log('PASS KBD-WINDOW the keyboard window moves down and back up on US/EN and German keyboards');await b.close();
 })().catch(e=>{console.error(e);process.exit(1)});
