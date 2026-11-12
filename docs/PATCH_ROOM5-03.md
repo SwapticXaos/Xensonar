@@ -3,6 +3,7 @@
 Parent: ROOM5-02 (`d30092c`), `index.html` 9 013 788 B, SHA-256 `25d7a2d39b518da43dbdc0c4df3edcf71689abeb88c7dee4380d70b24a39435d`.
 Ergebnis: `index.html` 9019102 B, SHA-256 `2e6c1d15322fd4fca4db88d3a1b7cfadf528ec61f8d73ce33677bfb940759491` (+5314 B, alles im Raum-Chunk).
 Rollback: Parent-Commit `d30092c`.
+Korrektur (ROOM5-04): Der Begriff „Home Row“ bzw. „Grundreihe“ war von mir erfunden. Im Programm heißt das **Keyboard Extension** („Three pitch rows: 1–0 · Q–P · A S D F … · 32 positions“). Siehe `docs/PATCH_ROOM5-04.md`.
 Status: CODE_PRESENT, UNIT_VERIFIED, BROWSER_CHECKED (Headless-Chromium). **Nicht:** abgehört, USER_ACCEPTED, Firefox/Safari, Netlify.
 
 ## 1. Mandala: Ursache und Neubau
@@ -16,13 +17,13 @@ Farbe folgt der Tonhöhe des Balls (eine Umdrehung je Oktave), Nachleuchten übe
 **Automatische Stufen:** Das Bild darf Bilder verlieren, der Ton nie. Der Zeichner beobachtet seine Bildrate (nur solange etwas klingt) und schaltet bei weniger als etwa 40 Bildern/s eine von 4 Stufen herunter (4 Arme, jedes zweite Bild), bei Luft wieder hinauf (frühestens nach 4 s, mit Sperre gegen Pendeln). Aktuelle Stufe: `data-quality` am Canvas.
 
 ## 2. Tastatur wie im Hauptraum, so viele Tasten wie nötig
-- Reihen: **1–0, Q–P und die Grundreihe (A … Ö Ä # bzw. A … ; ' /)**: 32 Tasten laufen nacheinander durch das Raster. Die dritte Reihe folgt der DE/EN-Tastaturwahl des Hauptraums (`__XenKeyboardLayout`, `__xenThirdKeyboardRowIndex`), also dieselbe Logik wie im „Keyboard Extension“-Modus des Live-Raums, hier immer an.
+- Reihen: **1–0, Q–P und die dritte Reihe (A … Ö Ä # bzw. A … ; ' /)**: 32 Tasten laufen nacheinander durch das Raster. Die dritte Reihe folgt der DE/EN-Tastaturwahl des Hauptraums (`__XenKeyboardLayout`, `__xenThirdKeyboardRowIndex`), also dieselbe Logik wie im „Keyboard Extension“-Modus des Live-Raums, hier immer an.
 - Das hervorgehobene Tastenfenster im Pad (hellere Linien) umfasst entsprechend 32 Stufen (ansichtsweise Erweiterung der Parameter, nichts davon wird gespeichert).
 - Wie im Live-Raum: gesperrte Stufen bleiben still, `[` / `-` verschiebt das Fenster, Shift = lauter; Piano-Ansicht spiegelt über alle 32 Tasten (links = tief).
 - **Hotkey-Schutz wie im Live-Raum:** Textfelder behalten ihre Tasten (`Qp`, die Funktion des Live-Raums), Auswahlfelder und Knöpfe schlucken keine Töne mehr. Vorher blockierte ein fokussiertes Auswahlfeld (z. B. „Grid mode“) alle Tasten. Ein Klick aufs Pad nimmt den Fokus vom Steuerelement (wie im Live-Raum).
 
 ## 3. Umschalt-Logik (Hotkeys)
-Unverändert dieselbe Funktion wie im Live-Raum (`pPe`): `, ;` / `. :` Rastersystem, AltGr oder rechte Strg Modus. Neu: Die Hotkeys greifen auch bei fokussiertem Auswahlfeld, die Third-Row-Priorität gilt wie dort (eine Taste der Grundreihe ist zuerst eine Note), und eine Statuszeile meldet das neue Raster („Grid: 19 EDO · Dorian“). Getestet mit Fokus auf einem Auswahlfeld und nach einem Padklick.
+Unverändert dieselbe Funktion wie im Live-Raum (`pPe`): `, ;` / `. :` Rastersystem, AltGr oder rechte Strg Modus. Neu: Die Hotkeys greifen auch bei fokussiertem Auswahlfeld, die Third-Row-Priorität gilt wie dort (eine Taste der dritten Reihe ist zuerst eine Note), und eine Statuszeile meldet das neue Raster („Grid: 19 EDO · Dorian“). Getestet mit Fokus auf einem Auswahlfeld und nach einem Padklick.
 Falls es dir bei den Hotkeys um etwas anderes ging (z. B. weitere Tasten aus dem Live-Raum wie M/N für Modi der Partikel oder Tab fürs Quantisieren), sag es: die gehören zu Partikeln/Quantisierung, die Raum V nicht hat.
 
 ## 4. Basis für die spätere Verschaltung mit dem Live-Raum (nur vorbereitet, nichts verschaltet)

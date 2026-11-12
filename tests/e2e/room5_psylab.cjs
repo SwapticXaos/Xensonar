@@ -54,7 +54,7 @@ const html=path.resolve(process.argv[2]||'dist/XenSonar_PROBE.html');const shot=
   await p.evaluate(()=>document.activeElement.blur());
   const hz1=parseFloat(await key('Digit1'));assert(Math.abs(hz1-440)<.01,'key 1 = the top grid note (440): '+hz1);
   const hzQ=parseFloat(await key('KeyQ')),want=await E('(p=>uw(p.gridBase,p.gridTuning,p.manualGridMutedSteps,p.manualGridStepOffsets)[10])(__NodalBallGrid.params())');assert(Math.abs(hzQ-want)<.01,'key Q = the 11th note of the Main Room grid (muted steps skipped): '+hzQ+' vs '+want);
-  // third row (home row) continues the notes: A = 21st note ... L = 29th, # = 32nd (DE layout default)
+  // third row (A–#, the Live Room's Keyboard Extension) continues the notes: A = 21st note ... L = 29th, # = 32nd (DE layout default)
   for(const[code,i]of[['KeyA',20],['KeyL',28],['Backslash',31]]){const hzK=parseFloat(await key(code)),wantK=await E('(p=>uw(p.gridBase,p.gridTuning,p.manualGridMutedSteps,p.manualGridStepOffsets)[0]&&wF(p.gridBase,p.gridTuning,0,'+i+',p.manualGridMutedSteps,p.manualGridStepOffsets))(__NodalBallGrid.params())');assert(Math.abs(hzK-wantK)<.01,code+' = key '+(i+1)+' of the extended keyboard: '+hzK+' vs '+wantK)}
   // the grid hotkeys work while a drop-down still has the focus (the Live Room does not block them either)
   await p.locator('select[aria-label="Grid mode"]').focus();const tBefore=(await grid()).tuning;await p.keyboard.press('Period');await p.waitForTimeout(350);assert.notEqual((await grid()).tuning,tBefore,'. cycles the grid system while a drop-down has the focus');
@@ -67,14 +67,39 @@ const html=path.resolve(process.argv[2]||'dist/XenSonar_PROBE.html');const shot=
   await E('__NodalBallGrid.changeMode("chromatic")');await p.waitForTimeout(200);
   // a muted step is silent on the keyboard, exactly like in the Live Room
   await E('__NodalBallGrid.toggleMute(0)');await p.waitForTimeout(200);const hzM=await key('Digit1');assert(/muted/.test(hzM)||Math.abs(parseFloat(hzM)-440)>1,'muted step does not play: '+hzM);await E('__NodalBallGrid.toggleMute(0)');await p.waitForTimeout(200);
-  // ---- view switch: piano view (low left) mirrors the keys ----
+  // ---- view switch: only the picture changes, never the keys ----
   await p.evaluate(()=>[...document.querySelectorAll('button')].find(b=>/View: Main Room/.test(b.innerText)).click());await p.waitForTimeout(300);
   assert.equal(await p.locator('[data-psy-orient]').getAttribute('data-psy-orient'),'piano');
-  const hzP=parseFloat(await key('Digit1'));assert(hzP<hz1-100,'piano view: key 1 is a low note: '+hzP);
+  const hzP=parseFloat(await key('Digit1'));assert(Math.abs(hzP-hz1)<.01,'the view does not touch the keys: key 1 is still '+hz1+' in piano view, got '+hzP);
   // pad in piano view: triangles are on the top edge, pitch grows to the right
   await fresh();const rows2=await rows(),ln=isolated(rows2).find(r=>!r.muted);const pxp=bx.x+(1100-(1-(ln.freq-55)/385)*1100)*sx,top=bx.y+8*sy;await p.mouse.click(pxp,top);await p.waitForTimeout(300);assert((await grid()).muted.includes(ln.step),'piano view: the triangle on the top edge mutes its step');await p.mouse.click(pxp,top);await p.waitForTimeout(300);assert(!(await grid()).muted.includes(ln.step),'and unmutes it again');
   await fresh();await p.mouse.move(bx.x+bx.width*.5,bx.y+bx.height*.6);await p.mouse.down();await p.waitForTimeout(600);const hzMid=await p.evaluate(()=>__r5.last.hz);await p.mouse.move(bx.x+bx.width*.9,bx.y+bx.height*.6,{steps:5});await p.waitForTimeout(300);const hzHi=parseFloat(await p.locator('.xpl-readout').innerText());await p.mouse.up();assert(hzHi>hzMid,'piano view: moving right raises the pitch '+hzMid+' → '+hzHi);
+  // direction: turning the pitch axis round makes the right side the low side (piano view)
+  await p.locator('[data-psy-flip]').click();await p.waitForTimeout(200);await fresh();await p.mouse.move(bx.x+bx.width*.5,bx.y+bx.height*.6);await p.mouse.down();await p.waitForTimeout(500);
+  await p.mouse.move(bx.x+bx.width*.9,bx.y+bx.height*.6,{steps:5});await p.waitForTimeout(300);const hzFlipR=parseFloat(await p.locator('.xpl-readout').innerText());await p.mouse.move(bx.x+bx.width*.1,bx.y+bx.height*.6,{steps:5});await p.waitForTimeout(300);const hzFlipL=parseFloat(await p.locator('.xpl-readout').innerText());await p.mouse.up();
+  assert(hzFlipL>hzFlipR,'flipped piano view: left is high, right is low: '+hzFlipL+' / '+hzFlipR);assert.equal(parseFloat(await key('Digit1')),hz1,'the keys ignore the direction');
+  await p.locator('[data-psy-flip]').click();await p.waitForTimeout(200);
   await p.evaluate(()=>[...document.querySelectorAll('button')].find(b=>/View: piano/.test(b.innerText)).click());await p.waitForTimeout(300);
+  // Main Room view, flipped: low on top
+  await p.locator('[data-psy-flip]').click();await p.waitForTimeout(200);await fresh();await p.mouse.move(bx.x+bx.width*.6,bx.y+bx.height*.1);await p.mouse.down();await p.waitForTimeout(500);const hzTopFlip=parseFloat(await p.locator('.xpl-readout').innerText());await p.mouse.up();
+  await p.locator('[data-psy-flip]').click();await p.waitForTimeout(200);await p.mouse.move(bx.x+bx.width*.6,bx.y+bx.height*.1);await p.mouse.down();await p.waitForTimeout(500);const hzTop=parseFloat(await p.locator('.xpl-readout').innerText());await p.mouse.up();
+  assert(hzTop>hzTopFlip+100,'Main Room view: high on top by default, low on top when flipped: '+hzTop+' vs '+hzTopFlip);
+  // keys mirrored: its own switch (the Live Room's mirror)
+  await p.locator('[data-psy-mirror]').click();await p.evaluate(()=>document.activeElement.blur());const hzMir=parseFloat(await key('Digit1')),wantMir=await E('(p=>wF(p.gridBase,p.gridTuning,0,31,p.manualGridMutedSteps,p.manualGridStepOffsets))(__NodalBallGrid.params())');assert(Math.abs(hzMir-wantMir)<.01,'keys low → high: key 1 plays the 32nd position: '+hzMir+' vs '+wantMir);
+  await p.locator('[data-psy-mirror]').click();await p.evaluate(()=>document.activeElement.blur());assert.equal(parseFloat(await key('Digit1')),hz1,'mirror off again');
+  // German / English keyboard: the same setting as the Live Room, it only changes the third row (A–# or A–/); the notes stay 1–0, Q–P, third row = 32 positions
+  assert(/Three pitch rows: 1–0 · Q–P · A S D F G H J K L Ö Ä # · 32 positions/.test(await p.locator('.xpl-gridsub').innerText()),'default German layout, the hint uses the Live Room\'s own wording');assert.equal(await p.locator('input[aria-label="Keyboard Extension"]').count(),0,'no extra Keyboard Extension switch: all three rows always play');
+  await p.locator('[data-psy-layout="en"]').click();await p.evaluate(()=>document.activeElement.blur());assert(/A S D F G H J K L ; ' \/ · 32 positions/.test(await p.locator('.xpl-gridsub').innerText()),'English layout: A–/');
+  assert.equal(await E('__XenKeyboardLayout.getSnapshot()'),'en','the Live Room\'s own layout setting changed');
+  const hzSlash=parseFloat(await key('Slash')),want32=await E('(p=>wF(p.gridBase,p.gridTuning,0,31,p.manualGridMutedSteps,p.manualGridStepOffsets))(__NodalBallGrid.params())');assert(Math.abs(hzSlash-want32)<.01,'English layout: the / key is the 32nd position: '+hzSlash+' vs '+want32);
+  await p.locator('[data-psy-layout="de"]').click();await p.evaluate(()=>document.activeElement.blur());const hzHash=parseFloat(await key('Backslash'));assert(Math.abs(hzHash-want32)<.01,'German layout: the # key is the 32nd position');
+  // large view: the pad takes the full width, controls and sliders move below it
+  const smallW=(await canvas.boundingBox()).width;await p.locator('[data-psy-large]').click();await p.waitForTimeout(600);await fresh();assert(bx.width>smallW*1.5,'large view: the pad is much wider: '+smallW+' -> '+bx.width);
+  const panelsTop=await p.evaluate(()=>document.querySelector('.xpl-panels').getBoundingClientRect().top),padBottom=bx.y+bx.height;assert(panelsTop>=padBottom-1,'large view: the sliders sit below the pad: '+panelsTop+' vs '+padBottom);
+  const sc3=await scopeInfo();assert(sc3.w>1100&&sc3.w===(await p.evaluate(()=>document.querySelector('.xpl-pad canvas[role=application]').width)),'the picture follows the displayed size (crisp in the large view): '+sc3.w);
+  await p.mouse.move(bx.x+bx.width*.5,bx.y+bx.height*.5);await p.mouse.down();await p.waitForTimeout(500);assert(parseFloat(await p.locator('.xpl-readout').innerText())>0,'the large pad plays');await p.mouse.up();
+  const stored2=await p.evaluate(()=>JSON.parse(localStorage.getItem('xensonar.psylab.instruments.v1')));await p.waitForTimeout(800);const st3=await p.evaluate(()=>JSON.parse(localStorage.getItem('xensonar.psylab.instruments.v1')));assert.equal(st3.large,true);assert.equal(st3.mirror,false);
+  await p.locator('[data-psy-large]').click();await p.waitForTimeout(400);await fresh();
   // ---- octave shift, sliders, patches, hold, bounce ----
   await p.locator('button[aria-label="Octave up"]').click();const hzO=parseFloat(await key('Digit1'));assert(Math.abs(hzO-880)<.1,'octave +1 doubles the key pitch: '+hzO);await p.locator('button[aria-label="Octave down"]').click();
   const slider=p.locator('input[data-psy-param="fold"]');await slider.focus();for(let i=0;i<30;i++)await p.keyboard.press('ArrowRight');await p.waitForTimeout(150);
