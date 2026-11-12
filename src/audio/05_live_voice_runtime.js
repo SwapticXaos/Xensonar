@@ -439,11 +439,18 @@ const Vq="__XENSONAR_WAVE_STARTER_GESTURE_LOOP_WORKLET_BRIDGE__",Wq={wellenstart
 const __xenPsyLabLane=(p,lane)=>{const snd=lane==="klaviatur"?p?.keyboardHoldSoundPreset:p?.waveStarterHoldSoundPreset;return typeof snd==="string"&&snd.startsWith("psylab:")};
 /* ROOM5-10: one Psy Lab note for the Wave Starter (Enter / left click: a short gate, the patch's own release does the rest) or the Keyboard (held until the key is released).
    The key identity of a keyboard note comes from the keydown handler (__xenPsyLabKeyCtx); the release goes through the key ownership map. */
-const __xenPsyLabKeyCtx={code:null,seq:0};
+const __xenPsyLabKeyCtx={code:null,seq:0,pointer:false};
 const __XEN_PSYLAB_GATE_MS=600;
 function __xenPsyLabNote(keyboard,hz,sound,volume){
  const vel=Math.max(.05,Math.min(1.2,.8*((Number.isFinite(volume)?volume:.3)/.3)));
- if(keyboard)return __XenPsyLab.start("keyboard",__xenPsyLabKeyCtx.code||"hz"+Math.round(hz*100),sound,hz,vel);
+ if(keyboard){const id=__xenPsyLabKeyCtx.code||"hz"+Math.round(hz*100),ok=__XenPsyLab.start("keyboard",id,sound,hz,vel);
+  /* ROOM5-12: held keyboard notes glide with the arrow keys (pitch wheel) */
+  if(ok)__XenPsyLab.glide("keyboard",id,hz,"wheel");return ok}
+ /* left mouse button: the note is held until the button is released and its pitch follows the cursor (drag / arrow keys) = glissando.
+    Enter (no Hold for Psy Lab yet): one note with a short gate. */
+ if(__xenPsyLabKeyCtx.pointer){const ok=__XenPsyLab.start("wave","mouse",sound,hz,vel);
+  if(ok){__XenPsyLab.glide("wave","mouse",hz,"cursor");const end=()=>{window.removeEventListener("mouseup",end,true);window.removeEventListener("blur",end);__XenPsyLab.stop("wave","mouse")};window.addEventListener("mouseup",end,true);window.addEventListener("blur",end)}
+  return ok}
  const id="w"+(++__xenPsyLabKeyCtx.seq),ok=__XenPsyLab.start("wave",id,sound,hz,vel);
  if(ok)setTimeout(()=>__XenPsyLab.stop("wave",id),__XEN_PSYLAB_GATE_MS);return ok}
 function __xenThunderLane(p,lane){if(__xenPsyLabLane(p,lane))return false;return lane==="klaviatur"?(p?.thunderKeyboardEnabled??p?.thunderModeEnabled)!==false:p?.thunderModeEnabled!==false}

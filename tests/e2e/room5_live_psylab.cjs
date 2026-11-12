@@ -9,7 +9,7 @@ const html=path.resolve(process.argv[2]||'dist/XenSonar_PROBE.html');
   const errors=[];p.on('pageerror',e=>errors.push(e.message));
   await p.addInitScript(()=>{const S=window.__ps={msgs:[],nodes:0,meter:null};
     const oc=AudioNode.prototype.connect;AudioNode.prototype.connect=function(d){const r=oc.apply(this,arguments);try{if(d instanceof AudioDestinationNode&&d.context instanceof AudioContext){if(!S.meter||S.meter.context!==d.context){S.meter=d.context.createAnalyser();S.meter.fftSize=2048}oc.call(this,S.meter)}}catch(e){}return r};
-    const O=window.AudioWorkletNode;window.AudioWorkletNode=class extends O{constructor(c,n,o){super(c,n,o);if(n==='xen-psylab-v1'){S.nodes++;try{const an=c.createAnalyser();an.fftSize=2048;super.connect(an);(S.psy=S.psy||[]).push(an)}catch(e){}const pm=this.port.postMessage.bind(this.port);this.port.postMessage=(m,t)=>{if(m&&(m.t==='on'||m.t==='off'||m.t==='alloff'||m.t==='dispose'))S.msgs.push({t:m.t,id:m.id,hz:m.hz,at:performance.now()});return pm(m,t)}}}};
+    const O=window.AudioWorkletNode;window.AudioWorkletNode=class extends O{constructor(c,n,o){super(c,n,o);if(n==='xen-psylab-v1'){S.nodes++;try{const an=c.createAnalyser();an.fftSize=2048;super.connect(an);(S.psy=S.psy||[]).push(an)}catch(e){}const pm=this.port.postMessage.bind(this.port);this.port.postMessage=(m,t)=>{if(m&&(m.t==='on'||m.t==='off'||m.t==='alloff'||m.t==='dispose'||m.t==='bend'))S.msgs.push({t:m.t,id:m.id,hz:m.hz,at:performance.now()});return pm(m,t)}}}};
     S.psyLevel=()=>{let m=0;for(const an of S.psy||[]){const a=new Float32Array(an.fftSize);an.getFloatTimeDomainData(a);for(const v of a)m=Math.max(m,Math.abs(v))}return m};
     S.level=()=>{if(!S.meter)return 0;const a=new Float32Array(S.meter.fftSize);S.meter.getFloatTimeDomainData(a);let m=0;for(const v of a)m=Math.max(m,Math.abs(v));return m}});
   await p.goto('file://'+html);await p.waitForTimeout(3500);await p.getByRole('button',{name:'Power'}).click();await p.waitForTimeout(2000);
@@ -41,6 +41,21 @@ const html=path.resolve(process.argv[2]||'dist/XenSonar_PROBE.html');
   // ---- Enter: one note (no Hold pulses even when held) ----
   await clear();await p.keyboard.down('Enter');await p.waitForTimeout(1500);await p.keyboard.up('Enter');await p.waitForTimeout(300);
   m=await msgs();assert.equal(m.filter(x=>x.t==='on').length,1,'Enter-Hold off: one note per press, no repeating pulses: '+JSON.stringify(m.filter(x=>x.t==='on').length));
+  // ---- ROOM5-12 glissando, Wave Starter: left mouse held = note held, pitch follows the cursor (drag); release ends it ----
+  await h.evaluate(c=>c.scrollIntoView({block:'center'}));await p.waitForTimeout(300);const g0=await h.boundingBox();
+  await p.mouse.move(g0.x+g0.width*.5,g0.y+g0.height*.62);await p.waitForTimeout(200);await clear();
+  await p.mouse.down();await p.waitForTimeout(900);
+  m=await msgs();const mOn=m.filter(x=>x.t==='on');assert.equal(mOn.length,1,'one note for the held mouse button');assert(!m.some(x=>x.t==='off'),'no gate while the button is held (longer than the 600 ms click gate)');
+  const hz0=mOn[0].hz;await clear();
+  for(let k=1;k<=8;k++){await p.mouse.move(g0.x+g0.width*.5,g0.y+g0.height*(.62-.04*k));await p.waitForTimeout(40)}await p.waitForTimeout(250);
+  m=await msgs();const bends=m.filter(x=>x.t==='bend'&&x.id===mOn[0].id);assert(bends.length>=3,'dragging bends the held note ('+bends.length+' bend messages)');
+  assert(bends[bends.length-1].hz>hz0*1.2,'dragging UP raises the pitch: '+hz0+' → '+bends[bends.length-1].hz);
+  for(let i=1;i<bends.length;i++)assert(bends[i].hz>=bends[i-1].hz*.999,'a glide: monotone while dragging up');
+  // dragging back DOWN lowers it again (a real glissando in both directions)
+  await clear();for(let k=1;k<=8;k++){await p.mouse.move(g0.x+g0.width*.5,g0.y+g0.height*(.30+.04*k));await p.waitForTimeout(40)}await p.waitForTimeout(300);
+  m=await msgs();const dn=m.filter(x=>x.t==='bend'&&x.id===mOn[0].id);assert(dn.length>=3&&dn[dn.length-1].hz<bends[bends.length-1].hz*.85,'dragging DOWN lowers the pitch: '+bends[bends.length-1].hz+' → '+dn[dn.length-1]?.hz);
+  await clear();await p.mouse.up();await p.waitForTimeout(250);m=await msgs();assert(m.some(x=>x.t==='off'&&x.id===mOn[0].id),'releasing the button ends the note');
+  await clear();await p.mouse.move(g0.x+g0.width*.4,g0.y+g0.height*.5);await p.waitForTimeout(300);assert(!(await msgs()).some(x=>x.t==='bend'),'after the release nothing follows the cursor any more');
   // ---- Keyboard lane: held until keyup ----
   await pick('Keyboard','Escher','Escher Staircase');s=await prm();assert.equal(s.k,'psylab:factory:Escher Staircase');await p.waitForTimeout(600);
   await tabK.click();await p.waitForTimeout(200);assert.equal((await sw.innerText()).trim(),'OFF (K)');
@@ -49,6 +64,13 @@ const html=path.resolve(process.argv[2]||'dist/XenSonar_PROBE.html');
   await p.keyboard.down('KeyS');await p.waitForTimeout(300);const sOn=(await msgs()).filter(x=>x.t==='on')[1];assert(sOn&&sOn.id!==on[0].id);await p.keyboard.up('KeyA');await p.waitForTimeout(250);m=await msgs();assert(m.some(x=>x.t==='off'&&x.id===on[0].id),'keyup releases that key');assert(!m.some(x=>x.t==='off'&&x.id===sOn.id),'the other key keeps sounding');
   await p.keyboard.up('KeyS');await p.waitForTimeout(250);m=await msgs();assert(m.some(x=>x.t==='off'&&x.id===sOn.id));
   assert.notEqual(on[0].hz,sOn.hz,'different keys, different pitches');
+  // ---- ROOM5-12 glissando, Keyboard: Up / Down arrow = pitch wheel for the held keyboard notes; resets when all keys are up ----
+  await clear();await p.keyboard.down('KeyA');await p.waitForTimeout(500);const kA=(await msgs()).find(x=>x.t==='on');await clear();
+  await p.keyboard.down('ArrowUp');await p.waitForTimeout(500);await p.keyboard.up('ArrowUp');await p.waitForTimeout(200);
+  m=await msgs();const kb2=m.filter(x=>x.t==='bend'&&x.id===kA.id);assert(kb2.length>=1&&kb2[kb2.length-1].hz>kA.hz*1.03,'arrow up glides the held keyboard note up: '+kA.hz+' → '+(kb2[kb2.length-1]?.hz));
+  await clear();await p.waitForTimeout(300);assert(!(await msgs()).some(x=>x.t==='bend'),'the pitch holds where the glide stopped (no drift without an arrow key)');
+  await p.keyboard.up('KeyA');await p.waitForTimeout(300);await clear();await p.keyboard.down('KeyA');await p.waitForTimeout(400);m=await msgs();const kA2=m.find(x=>x.t==='on');
+  assert(Math.abs(kA2.hz/kA.hz-1)<.001&&!m.some(x=>x.t==='bend'),'a new note after all keys were up starts at its key pitch again (wheel reset)');await p.keyboard.up('KeyA');await p.waitForTimeout(300);
   // ---- ROOM5-11: the note really ENDS (PCM at the engine output), and Power off silences at once ----
   const lvl=()=>p.evaluate(()=>window.__ps.psyLevel());
   await pick('Keyboard','Crystal','Crystal Cave');await p.waitForTimeout(800);

@@ -4,7 +4,18 @@
 const __XenPsyLab=(()=>{
  const KEY='xensonar.psylab.instruments.v1',PREFIX='psylab:';
  const FACTORY_NAMES=['Liquid Bell','Escher Staircase','Barber Spiral','Chaos Insect','Crystal Cave','Deep Fold Drone','Tritave Ghost','Alien Choir'];
- let raw=null,cache=[],readAt=0;
+ let raw=null,cache=[],readAt=0,cursor=null,raf=0,wheel=1,prevHz=0,arrowAt=-1e9,lastTick=0;const followers=new Map();
+ function tick(){raf=0;if(!followers.size||!cursor){prevHz=0;return}
+  const h=host(false),now=performance.now(),dt=Math.min(.1,Math.max(.001,(now-lastTick)/1000||.016));lastTick=now;
+  const hz=cursor.hz(),arrows=cursor.arrows(),focus=cursor.focusHz?cursor.focusHz():0;
+  /* pitch wheel: the cursor's pitch change counts only from an arrow press until the cursor has settled (free: continuous, Snap: one Grid line per press) */
+  if(hz>0&&prevHz>0&&((arrows&&(arrows.up||arrows.down))||now-arrowAt<900))wheel*=hz/prevHz;prevHz=hz>0?hz:prevHz;wheel=Math.max(.25,Math.min(4,wheel));
+  const k=1-Math.pow(.65,dt*60);/* the same glide time as the ball of Room V */
+  if(h)for(const f of followers.values()){let target;
+   if(f.mode==='cursor'){if(!(focus>0))continue;f.pos+=(Math.log2(focus)-f.pos)*k;target=Math.pow(2,f.pos)}/* glide in the log-frequency domain */
+   else target=f.base*wheel;
+   if(target>0&&Math.abs(1200*Math.log2(target/f.last))>.4){f.last=target;h.bend(f.lane,f.keyId,target)}}
+  raf=requestAnimationFrame(tick)}
  const isId=id=>typeof id==='string'&&id.startsWith(PREFIX);
  /* menus are rebuilt on many renders: storage is read at most once per second */
  function entries(){const now=Date.now();if(cache.length&&now-readAt<1000)return cache;readAt=now;let s=null;try{s=localStorage.getItem(KEY)}catch{}
@@ -15,13 +26,22 @@ const __XenPsyLab=(()=>{
  return Object.freeze({PREFIX,isId,entries,host,FACTORY_NAMES,
   /* the first Psy Lab note must not wait for the module: load and create the lane's engine as soon as the sound is chosen */
   warm(lane,id){const h=host();if(h&&isId(id))h.prepare(lane,id)},
+  /* ROOM5-12: glissando. The shell registers the cursor of the Live Room (frequency of the cursor, arrow keys held); a held Psy Lab note then glides with the cursor:
+     Wave Starter note (left mouse held) = the cursor's pitch (drag, or arrow keys); Keyboard notes = their key pitch x the arrow-key glide (a pitch wheel driven by Up / Down).
+     The loop runs only while such a note exists (WARM: one requestAnimationFrame per frame, nothing per audio block). */
+  bindCursor(api){cursor=api},cursorHz(){return cursor?cursor.hz():0},
+  arrowKey(){arrowAt=performance.now()},
+  glide(lane,keyId,baseHz,mode){
+   const f={lane,keyId,base:baseHz,mode,last:baseHz,pos:Math.log2(baseHz)};followers.set(lane+':'+keyId,f);
+   if(!raf)raf=requestAnimationFrame(tick)},
+  unglide(lane,keyId){followers.delete(lane+':'+keyId);if(!followers.size)wheel=1},
   start(lane,keyId,id,hz,vel){const h=host();return !!h&&h.start(lane,keyId,id,hz,vel)},
-  stop(lane,keyId){host(false)?.stop(lane,keyId)},
-  allOff(lane){host(false)?.allOff(lane)},
+  stop(lane,keyId){followers.delete(lane+':'+keyId);if(!followers.size)wheel=1;host(false)?.stop(lane,keyId)},
+  allOff(lane){for(const k of[...followers.keys()])if(!lane||k.startsWith(lane+':'))followers.delete(k);if(!followers.size)wheel=1;host(false)?.allOff(lane)},
   /* a lane that leaves Psy Lab gives its engine back (the chunk is not loaded just to do that) */
-  drop(lane){host(false)?.drop(lane)},
+  drop(lane){for(const k of[...followers.keys()])if(!lane||k.startsWith(lane+':'))followers.delete(k);host(false)?.drop(lane)},
   /* Power off: every Psy Lab voice and tail stops at once */
-  panic(){host(false)?.panic()}});
+  panic(){followers.clear();wheel=1;host(false)?.panic()}});
 })();
 /* Performance shortcuts read the canonical catalog. History stores IDs only. */
 const __XenPerformanceCatalog=(()=>{

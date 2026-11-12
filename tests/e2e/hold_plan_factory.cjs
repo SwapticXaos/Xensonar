@@ -69,10 +69,14 @@ const np=p=>p.evaluate(()=>__xenProbe.bridge.capture().nParamsUI);
   await panel.getByRole('button',{name:'Lane',exact:true}).click();await p.waitForTimeout(200);
   const ln=await np(p);assert.equal(await cards.count(),ln.keyboardHoldPatternSteps.length,'Lane shows the lane pattern again');
   await cards.nth(1).click();await p.waitForTimeout(200);assert.notEqual((await np(p)).keyboardHoldPatternSteps[1],ln.keyboardHoldPatternSteps[1],'the lane pattern is editable');await cards.nth(1).click();await p.waitForTimeout(150);
-  // touching a lane setting (Slots) while a plan step is shown returns to the lane view
-  await panel.locator('.xen-hpp-steps>button').nth(2).click();await p.waitForTimeout(200);assert.equal(await panel.getAttribute('data-xen-plan-step'),'','plan step marked (lane settings dimmed)');
-  await panel.locator('select').filter({hasText:'other'}).first().click({force:true}).catch(()=>{});await p.keyboard.press('Escape');await p.waitForTimeout(200);
-  assert.equal(await panel.getAttribute('data-xen-plan-step'),null,'lane settings touched: back to the lane view');
+  // the Slots / Other / Bars controls stay visible and show the shown step's own values (slots = notes of the bar, Bars = 1); not dimmed away
+  await panel.locator('.xen-hpp-steps>button').nth(2).click();await p.waitForTimeout(200);assert.equal(await panel.getAttribute('data-xen-plan-step'),'','plan step marked');
+  const st2=(await np(p)).keyboardHoldPlan.entries[1].pattern;
+  assert.equal(await panel.locator('input[type=number]').nth(0).inputValue(),String(st2.slots),'Other = slots of the step');assert.equal(await panel.locator('input[type=number]').nth(1).inputValue(),String(st2.referenceBars),'Bars of the step');
+  assert([24,32].includes(st2.slots)&&st2.referenceBars===1,'factory plan steps are slots-per-bar figures: '+st2.slots+' / '+st2.referenceBars);
+  assert.equal(await panel.locator('select[disabled]').first().inputValue(),String(st2.slots),'Slots select shows the step (disabled while a plan step is shown)');
+  // touching the lane's rhythm buttons returns to the editable lane pattern
+  await panel.getByRole('button',{name:'All',exact:true}).click();await p.waitForTimeout(200);assert.equal(await panel.getAttribute('data-xen-plan-step'),null,'lane control touched: back to the lane view');
   // a number selects a step by hand
   await panel.locator('.xen-hpp-steps>button').nth(3).click();await p.waitForTimeout(200);assert.equal(await cards.count(),(await np(p)).keyboardHoldPlan.entries[2].pattern.slots,'step 3 shown by hand');
   // the view disappears when the plan is switched off

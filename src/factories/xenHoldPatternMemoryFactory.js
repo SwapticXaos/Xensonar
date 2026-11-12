@@ -97,18 +97,19 @@ async function remove(patternId,expectedRevision){return run('readwrite',(rows,s
  const row=find(rows,patternId);revision(row,expectedRevision);store.delete(patternId);return {id:row.id,name:row.name};
 })}
 /* HOLD-LIB-02 / THUNDER-SPEED: read-only factory arpeggios for Thunder Mode, i.e. for SHREDDING: figures faster than hands can play on a computer keyboard.
-   Pitches are cents above the held key (the same in every Grid; major / minor are unambiguous). A Hold pattern spans at most ±1200 ¢.
-   Speed = notes per 4/4 bar at the Thunder tempo: 32 = 32nd notes, 24 = sextuplet 16ths, 20 = quintuplet 16ths (at 108 BPM: 69 / 93 / 111 ms per note).
-   Rows are generated, never stored: they can be loaded (Bars / slots stay editable), never renamed, duplicated or deleted. Factory plans refer to them by name. */
+   They use the editor's own model: SLOTS are the notes of the bar (Bars = 1), the arpeggio is repeated over the whole row of slot cards (32 = 32nd notes,
+   24 = sextuplets / triplet figures), so "Slots" in the Hold panel means exactly what it always meant, and every card carries its own pitch (right-click as usual).
+   Pitches are cents above the held key (the same in every Grid; major / minor are unambiguous); a Hold pattern spans at most ±1200 ¢.
+   Rows are generated, never stored: they can be loaded (then Slots / Bars / every card stay editable), never renamed, duplicated or deleted. Factory plans refer to them by name. */
 const J=(a,b)=>1200*Math.log2(a/b),R3=n=>Math.round(n*1000)/1000;
 const JM3=R3(J(5,4)),Jm3=R3(J(6,5)),J5=R3(J(3,2)),H7=R3(J(7,4)),S3=R3(J(7,6));
-const T32=32,SEXT=24,QUINT=20;
+const T32=32,SEXT=24;
 const FACTORY=[
- // [name, cents per note, notes per bar, {mute:'1/0 per slot'}]
+ // [name, the figure (cents per note), slots of the bar it is repeated over, {mute:'1/0 per note of the figure'}]
  ['Major · triad sweep ↑',[0,400,700,1200],T32],['Major · triad sweep ↓',[1200,700,400,0],T32],['Major · triad sweep ↑↓',[0,400,700,1200,700,400],SEXT],
  ['Major · triad roll (sextuplets)',[0,400,700],SEXT],['Major · Alberti 1-5-3-5',[0,700,400,700,0,700,400,700],T32],
  ['Major · maj7 sweep ↑↓',[0,400,700,1100,1200,1100,700,400],T32],['Major · dominant 7 sweep ↑↓',[0,400,700,1000,1200,1000,700,400],T32],
- ['Major · add9 ↑ (quintuplets)',[0,200,400,700,1200],QUINT],['Major · pentatonic run ↑↓',[0,200,400,700,900,700,400,200],T32],
+ ['Major · add9 ↑↓',[0,200,400,700,1200,700],SEXT],['Major · pentatonic run ↑↓',[0,200,400,700,900,700,400,200],T32],
  ['Major · scale run ↑ (Ionian)',[0,200,400,500,700,900,1100,1200],T32],['Major · scale run ↓ (Ionian)',[1200,1100,900,700,500,400,200,0],T32],
  ['Major · offbeat sparkle',[0,0,0,400,0,700,0,1200],T32,{mute:'01010101'}],
  ['Minor · triad sweep ↑',[0,300,700,1200],T32],['Minor · triad sweep ↓',[1200,700,300,0],T32],['Minor · triad sweep ↑↓',[0,300,700,1200,700,300],SEXT],
@@ -131,9 +132,10 @@ const FACTORY=[
 ];
 function factory(lane){
  const sourceLane=lane==='enter'?'enter':'keyboard';
- return FACTORY.map(([name,cents,perBar,o],i)=>{const n=cents.length,mute=o?.mute?o.mute.split('').map(Number):cents.map(()=>1);
-  return {schemaVersion:SCHEMA,id:'factory:'+i,factory:true,revision:0,name,sourceLane,slots:n,referenceBars:n/perBar,notesPerBar:perBar,muteSteps:mute,pitchCents:cents.slice(),
-   slotVolumes:cents.map((_,k)=>k===0?1:.86),microtiming:cents.map(()=>0),tuningOrigin:null}});
+ return FACTORY.map(([name,figure,slots,o],i)=>{const n=figure.length,mute0=o?.mute?o.mute.split('').map(Number):figure.map(()=>1),at=k=>k%n;
+  const cents=Array.from({length:slots},(_,k)=>figure[at(k)]),mute=Array.from({length:slots},(_,k)=>mute0[at(k)]);
+  return {schemaVersion:SCHEMA,id:'factory:'+i,factory:true,revision:0,name,sourceLane,slots,referenceBars:1,muteSteps:mute,pitchCents:cents,
+   slotVolumes:cents.map((_,k)=>at(k)===0?1:.86),microtiming:cents.map(()=>0),tuningOrigin:null}});
 }
 return Object.freeze({version:'HPM01',dbName:DB,validate:payload,list,get,saveAs,rename,duplicate,remove,factory});
 }

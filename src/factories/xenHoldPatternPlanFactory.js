@@ -129,7 +129,7 @@ const FACTORY_PLANS=[
   degrees:['Major · Alberti 1-5-3-5','Minor · triad roll (sextuplets)','Minor · triad sweep ↓','Major · triad roll (sextuplets)','Major · dominant 7 sweep ↑↓','Minor · Alberti 1-5-3-5','Diminished · dim7 sweep ↑↓']},
  {id:'pop-major',name:'Pop · pentatonic & sus (major key)',mode:'ionian',labels:['I pentatonic','ii sus2','iii pentatonic','IV add9','V sus4','vi pentatonic','vii octaves'],
   info:'Open, consonant colours: pentatonic runs on I iii vi, sus2 on ii, add9 on IV, sus4 on V, octave tremolo on vii.',
-  degrees:['Major · pentatonic run ↑↓','Sus2 · sweep ↑','Minor · pentatonic run ↑↓','Major · add9 ↑ (quintuplets)','Sus4 · sweep ↑','Minor · pentatonic run ↑↓','Octaves · tremolo']},
+  degrees:['Major · pentatonic run ↑↓','Sus2 · sweep ↑','Minor · pentatonic run ↑↓','Major · add9 ↑↓','Sus4 · sweep ↑','Minor · pentatonic run ↑↓','Octaves · tremolo']},
  {id:'sweeps-minor',name:'Diatonic sweeps · minor key',mode:'aeolian',labels:['i minor','ii° half-dim.','III major','iv minor','v minor','VI major','VII major'],
   info:'Every degree sweeps its own chord of the natural minor key: minor on i iv v, major on III VI VII, half-diminished on ii°.',
   degrees:['Minor · triad sweep ↑↓','Diminished · half-diminished m7♭5 sweep ↑↓','Major · triad sweep ↑↓','Minor · triad sweep ↑↓','Minor · triad sweep ↑↓','Major · triad sweep ↑↓','Major · triad sweep ↑↓']},

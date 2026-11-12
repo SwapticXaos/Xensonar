@@ -18,6 +18,8 @@ for(const lane of['keyboard','enter']){
  const near=(arr,c,tol=2)=>arr.some(x=>Math.abs(x-c)<=tol);
  for(const r of rows.filter(x=>/^Major · (triad|Alberti|maj7|dominant|offbeat)/.test(x.name))){const a=active(r);assert(near(a,400)&&near(a,700)&&!near(a,300),'major triad tones: '+r.name)}
  for(const r of rows.filter(x=>/^Minor · (triad|Alberti|m7|offbeat)/.test(x.name))){const a=active(r);assert(near(a,300)&&near(a,700)&&!near(a,400),'minor triad tones: '+r.name)}
+ // the editor's own model: slots = notes of the bar, Bars = 1, the figure repeats over the whole row
+ for(const r of rows){assert.equal(r.referenceBars,1,r.name);assert([24,32].includes(r.slots),'slots of the bar: '+r.name+' '+r.slots)}
  // THUNDER-SPEED: Thunder Mode is for shredding: every factory figure runs at 20 notes per bar or faster (≤ 111 ms per note at 108 BPM)
  for(const r of rows)assert(r.slots/r.referenceBars>=20-1e-9,'fast enough: '+r.name+' '+r.slots/r.referenceBars+' per bar');
  assert(rows.filter(r=>r.slots/r.referenceBars>=32-1e-9).length>=20,'most figures in 32nds');

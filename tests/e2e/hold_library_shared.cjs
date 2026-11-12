@@ -17,14 +17,14 @@ const html=path.resolve(process.argv[2]||'dist/XenSonar_PROBE.html');
   await sel('keyboard').selectOption({label:facK.find(t=>t.startsWith('Major · triad sweep ↑ ·'))});await p.waitForTimeout(150);
   assert(await p.getByRole('button',{name:'Delete'}).first().isDisabled(),'factory pattern cannot be deleted');
   await p.getByRole('button',{name:'Load',exact:true}).first().click();await p.waitForTimeout(400);
-  let s=await params();assert.deepEqual(s.k.slice(0,4),[0,400,700,1200],'keyboard lane carries the major triad');assert.equal(s.ks,4);assert.equal(s.kb,.125,'32nd notes: 4 notes in 1/8 bar');
+  let s=await params();assert.deepEqual(s.k.slice(0,4),[0,400,700,1200],'keyboard lane carries the major triad');assert.equal(s.ks,32,'Slots = the notes of the bar: 32nd notes');assert.equal(s.kb,1,'Bars stays 1: the figure is repeated over the 32 slot cards');assert.deepEqual(s.k.slice(4,8),[0,400,700,1200],'the arpeggio repeats over the whole row');
   // save a pattern from the keyboard lane; the Enter lane sees it (one shared library)
   const nm='Shared test '+Date.now();await p.locator('input[aria-label="keyboard pattern name"]').fill(nm);await p.getByRole('button',{name:'Save As'}).first().click();await p.waitForTimeout(600);
   await tabE.click();await p.waitForTimeout(400);await sel('enter').focus();await p.waitForTimeout(700);
   const saved=await sel('enter').locator('optgroup[label^="Saved"] option').allInnerTexts();assert(saved.some(t=>t.startsWith(nm)&&t.includes('from Keyboard')),'Enter lane lists the keyboard pattern: '+JSON.stringify(saved));
   await sel('enter').selectOption({label:saved.find(t=>t.startsWith(nm))});await p.waitForTimeout(150);
   await p.getByRole('button',{name:'Load',exact:true}).first().click();await p.waitForTimeout(400);
-  s=await params();assert.deepEqual(s.e.slice(0,4),[0,400,700,1200],'Enter lane loaded the keyboard pattern');assert.equal(s.es,4);assert.deepEqual(s.k.slice(0,4),[0,400,700,1200],'keyboard lane unchanged');
+  s=await params();assert.deepEqual(s.e.slice(0,4),[0,400,700,1200],'Enter lane loaded the keyboard pattern');assert.equal(s.es,32);assert.deepEqual(s.k.slice(0,4),[0,400,700,1200],'keyboard lane unchanged');
   // a factory minor pattern into Enter only
   const facE=await sel('enter').locator('optgroup[label="Factory"] option').allInnerTexts();await sel('enter').selectOption({label:facE.find(t=>t.startsWith('Minor · triad sweep ↑ ·'))});await p.getByRole('button',{name:'Load',exact:true}).first().click();await p.waitForTimeout(400);
   s=await params();assert.deepEqual(s.e.slice(0,4),[0,300,700,1200]);assert.deepEqual(s.k.slice(0,4),[0,400,700,1200],'keyboard still major');
