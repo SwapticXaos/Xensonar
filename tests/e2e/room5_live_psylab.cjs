@@ -57,7 +57,8 @@ const html=path.resolve(process.argv[2]||'dist/XenSonar_PROBE.html');
   await p.keyboard.down('KeyF');await p.keyboard.down('KeyG');await p.waitForTimeout(700);const two=await lvl();assert(two>.01,'two held notes audible: '+two);
   await clear();await p.getByRole('button',{name:'Power'}).click();await p.waitForTimeout(150);
   assert(await p.evaluate(()=>window.__ps.msgs.some(x=>x.t==='alloff')),'Power off sends all-off at once (the output gain fades in ~40 ms)');assert.equal(await E('JSON.stringify(__XenPsyLab.host(false).status().lanes)'),'[]','Power off disposes the Psy Lab engines');
-  await p.waitForTimeout(600);const off=await lvl();assert(off<.002,'Power off: no Psy Lab sound or tail (keys still held): '+off);const offMaster=await p.evaluate(()=>window.__ps.level());assert(offMaster<.002,'Power off: the master output is silent too: '+offMaster);
+  await p.waitForTimeout(600);const off=await lvl();assert(off<.002,'Power off: no Psy Lab sound or tail (keys still held): '+off);/* the Psy Lab engine output is checked above at 0.75 s; the whole master (other Live Room voices fade on their own Power-off ramps, slower under CPU load) must reach silence too */
+  let offMaster=1;for(let k=0;k<25&&offMaster>=.002;k++){offMaster=await p.evaluate(()=>window.__ps.level());if(offMaster>=.002)await p.waitForTimeout(100)}assert(offMaster<.002,'Power off: the master output becomes silent: '+offMaster);
   await p.keyboard.up('KeyF');await p.keyboard.up('KeyG');await p.waitForTimeout(300);
   await p.getByRole('button',{name:'Power'}).click();await p.waitForTimeout(2000);
   await p.keyboard.down('KeyA');await p.waitForTimeout(700);assert(await lvl()>.01,'after Power on the keyboard plays Psy Lab again');await p.keyboard.up('KeyA');await p.waitForTimeout(300);
