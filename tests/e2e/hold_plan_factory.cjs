@@ -49,13 +49,13 @@ const np=p=>p.evaluate(()=>__xenProbe.bridge.capture().nParamsUI);
   await p.keyboard.press('Escape');await p.waitForTimeout(300);if(await p.locator('.xen-hpm02-dialog').count())await p.locator('.xen-hpm02-dialog button',{hasText:/Close|✕/}).first().click().catch(()=>{});await p.waitForTimeout(300);
   // the played figure is shown on the EXISTING slot cards (red pitch line) and info line; above them only the step numbers. No second graphic.
   const panel=p.locator('.xen-hold-pattern',{has:p.locator('.xen-hpp-steps')});assert.equal(await panel.count(),1,'step numbers in the Keyboard-Hold tab');
-  assert.equal(await panel.locator('.xen-hpp-steps>button').count(),8,'"Lane" + one number per degree');
+  assert.equal(await panel.locator('.xen-hpp-steps>button:not(.xen-hpp-steps-toggle)').count(),8,'"Lane" + one number per degree');
   assert.equal(await p.locator('.xen-hpp-live,.xen-hpp-live-strip,[data-xen-hpp-live]').count(),0,'no separate live box / bar chart');
   const cards=panel.locator('[data-xensonar-shared-segment-pattern-grid] > button');
   await p.evaluate(()=>document.activeElement?.blur());
   const shown=[];
   for(const k of['1','2','3','4']){await p.keyboard.down(k);await p.waitForTimeout(260);
-   const pos=await p.evaluate(()=>__xenProbe.holdPlan.last.position),chip=await panel.locator('.xen-hpp-steps>button.on').innerText(),name=await panel.locator('[data-xen-hpp-live-name]').innerText();
+   const pos=await p.evaluate(()=>__xenProbe.holdPlan.last.position),chip=await panel.locator('.xen-hpp-steps>button.on:not(.xen-hpp-steps-toggle)').innerText(),name=await panel.locator('[data-xen-hpp-live-name]').innerText();
    const tops=await cards.evaluateAll(bs=>bs.map(b=>parseFloat(b.querySelector('.xen-hold-pitch-preview')?.style.top)));
    await p.keyboard.up(k);await p.waitForTimeout(120);
    const lp=(await np(p)).keyboardHoldPlan,en=lp.entries[pos%7];assert(pos>=0,'key '+k+' is on the plan Grid');
@@ -64,13 +64,16 @@ const np=p=>p.evaluate(()=>__xenProbe.bridge.capture().nParamsUI);
    tops.forEach((t,q)=>assert(Math.abs(t-(50-en.pattern.pitchCents[q]/24))<.01,'red pitch line of slot '+(q+1)+' = figure pitch'));
    shown.push(name)}
   assert(new Set(shown).size>=3,'different keys show different figures: '+shown.join(' | '));
-  // read-only: a click on a card does not change the plan; "Lane" returns to the editable lane pattern
-  const before=JSON.stringify((await np(p)).keyboardHoldPlan);await cards.first().click();await p.waitForTimeout(200);assert.equal(JSON.stringify((await np(p)).keyboardHoldPlan),before,'plan figure cards are read-only');
+  // the cards of a shown plan step are editable (click = rest / sound); the step is then named "(edited)"; a second click restores the slot
+  const before=(await np(p)).keyboardHoldPlan;await cards.first().click();await p.waitForTimeout(200);const mid1=(await np(p)).keyboardHoldPlan;
+  const stepIdx=(await p.evaluate(()=>__xenProbe.holdPlan.last.position))%7;assert.notEqual(mid1.entries[stepIdx].pattern.muteSteps[0],before.entries[stepIdx].pattern.muteSteps[0],'a click on a card of the plan step edits that step');assert(/ \(edited\)$/.test(mid1.entries[stepIdx].source.name));
+  await cards.first().click();await p.waitForTimeout(200);assert.equal((await np(p)).keyboardHoldPlan.entries[stepIdx].pattern.muteSteps[0],before.entries[stepIdx].pattern.muteSteps[0]);
+  await E('__NodalBallGrid.update({keyboardHoldPlan:'+JSON.stringify(before)+'})');await p.waitForTimeout(300);
   await panel.getByRole('button',{name:'Lane',exact:true}).click();await p.waitForTimeout(200);
   const ln=await np(p);assert.equal(await cards.count(),ln.keyboardHoldPatternSteps.length,'Lane shows the lane pattern again');
   await cards.nth(1).click();await p.waitForTimeout(200);assert.notEqual((await np(p)).keyboardHoldPatternSteps[1],ln.keyboardHoldPatternSteps[1],'the lane pattern is editable');await cards.nth(1).click();await p.waitForTimeout(150);
   // the Slots / Other / Bars controls stay visible and show the shown step's own values (slots = notes of the bar, Bars = 1); not dimmed away
-  await panel.locator('.xen-hpp-steps>button').nth(2).click();await p.waitForTimeout(200);assert.equal(await panel.getAttribute('data-xen-plan-step'),'','plan step marked');
+  await panel.locator('.xen-hpp-steps>button:not(.xen-hpp-steps-toggle)').nth(2).click();await p.waitForTimeout(200);assert.equal(await panel.getAttribute('data-xen-plan-step'),'','plan step marked');
   const st2=(await np(p)).keyboardHoldPlan.entries[1].pattern;
   assert.equal(await panel.locator('input[type=number]').nth(0).inputValue(),String(st2.slots),'Other = slots of the step');assert.equal(await panel.locator('input[type=number]').nth(1).inputValue(),String(st2.referenceBars),'Bars of the step');
   assert([24,32].includes(st2.slots)&&st2.referenceBars===1,'factory plan steps are slots-per-bar figures: '+st2.slots+' / '+st2.referenceBars);
@@ -78,7 +81,7 @@ const np=p=>p.evaluate(()=>__xenProbe.bridge.capture().nParamsUI);
   // touching the lane's rhythm buttons returns to the editable lane pattern
   await panel.getByRole('button',{name:'All',exact:true}).click();await p.waitForTimeout(200);assert.equal(await panel.getAttribute('data-xen-plan-step'),null,'lane control touched: back to the lane view');
   // a number selects a step by hand
-  await panel.locator('.xen-hpp-steps>button').nth(3).click();await p.waitForTimeout(200);assert.equal(await cards.count(),(await np(p)).keyboardHoldPlan.entries[2].pattern.slots,'step 3 shown by hand');
+  await panel.locator('.xen-hpp-steps>button:not(.xen-hpp-steps-toggle)').nth(3).click();await p.waitForTimeout(200);assert.equal(await cards.count(),(await np(p)).keyboardHoldPlan.entries[2].pattern.slots,'step 3 shown by hand');
   // ---- labels are degree names only; the plan's name is visible in the Hold panel; replacing an arpeggio never leaves a stale chord name ----
   const lp0=(await np(p)).keyboardHoldPlan;assert(lp0.labels.every(l=>/^[IVX]{1,4}$/.test(l)),'step labels = degree names only: '+lp0.labels);
   assert.match(await p.locator('button.xen-hpm02-open').innerText(),/Plan: Jazz · sevenths & bebop \(major key\)/,'the Hold panel names the active plan');
@@ -121,6 +124,6 @@ const np=p=>p.evaluate(()=>__xenProbe.bridge.capture().nParamsUI);
   const saved=JSON.parse(await p.evaluate(async()=>JSON.stringify((await window.__xenProbe.draw.evalInBundle('__hpp.store.list()')).map(r=>[r.name,r.plan.labels[2]]))));assert(saved.some(([nm,l])=>/Baroque · running lines.*\(edited\)/.test(nm)&&l==='mine'),'the edited factory plan was saved under its own (edited) name: '+JSON.stringify(saved));
   await p.locator('.xen-hpm02-dialog').getByRole('button',{name:/Close/}).click();await p.waitForTimeout(300);
   // the view disappears when the plan is switched off
-  const pl=(await np(p)).keyboardHoldPlan;await E('__NodalBallGrid.update({keyboardHoldPlan:'+JSON.stringify({...pl,enabled:false})+'})');await p.waitForTimeout(300);assert.equal(await p.locator('.xen-hpp-steps').count(),0,'no step numbers without an active plan');
+  const pl=(await np(p)).keyboardHoldPlan;await E('__NodalBallGrid.update({keyboardHoldPlan:'+JSON.stringify({...pl,enabled:false})+'})');await p.waitForTimeout(300);assert.equal(await p.locator('.xen-hpp-steps>button:not(.xen-hpp-steps-toggle)').count(),0,'no step numbers without an active plan');assert.equal((await p.locator('.xen-hpp-steps-toggle').innerText()).trim(),'Plan OFF','the ON/OFF switch stays so the plan can be switched on again');
   assert.deepEqual(errors,[]);console.log('PASS HPP-FACTORY plans: every degree its own fast arpeggio; listed and loaded in the Plan view; HPP-LIVEVIEW shows the played figure');await b.close();
 })().catch(e=>{console.error(e);process.exit(1)});
