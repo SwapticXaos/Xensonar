@@ -109,6 +109,41 @@ const PRESETS=[
  {id:'polymeter',label:'Polymeter · 3 4 5 6 7 …',info:'Step k gets 3 + (k mod 5) slots of a 0 +1 +2 +1 figure: different subdivisions across the keys.',
   make:(g,p)=>{const len=3+(p%5),fig=[0,1,2,1];return stepsPattern(g,p,Array.from({length:len},(_,i)=>fig[i%fig.length]))}}
 ];
+/* HOLD-LIB-03: plans from music theory. Figures are built from GRID STEPS of the plan's own Grid: +2 steps = a third, +4 = a fifth, +6 = a seventh, +n = the period
+   (n = audible steps). In a 7-step major mode this gives major triads on I IV V and minor ones on II III VI, in a minor mode the minor-key harmony; in other Grids
+   the same step arithmetic gives the corresponding "skip-a-step" stacks. Roles (tonic / subdominant / dominant, subject / answer / episode) look at the position
+   as a degree of a 7-step view (position × 7 ÷ steps), so they stay meaningful when the Grid has another size. Hold patterns span at most ±1200 cents. */
+const degree7=(g,pos)=>{const n=g.audible.length;return n<2?0:Math.min(6,Math.floor(pos*7/n))};
+const rich=(g,pos,offs,o={})=>({slots:offs.length,referenceBars:o.bars||1,muteSteps:o.mute?o.mute.split('').map(Number):offs.map(()=>1),
+ pitchCents:offs.map(k=>stepCents(g,pos,k)),slotVolumes:o.vol||offs.map((_,i)=>i===0?1:.82),microtiming:o.micro||offs.map(()=>0)});
+const swing=(len,d=.25)=>Array.from({length:len},(_,i)=>i%2?d:0);
+const accent=(len,every=4)=>Array.from({length:len},(_,i)=>i===0?1:i%every===0?.92:.72);
+PRESETS.push(
+ {group:'Theory · basics',id:'triads',label:'Triads · 1 3 5 8 5 3',info:'Every step arpeggiates its own triad (root, third, fifth, octave, back). Major or minor follows the Grid mode: major triads on I IV V in a major mode, minor in a minor mode.',
+  make:(g,p)=>rich(g,p,[0,2,4,g.audible.length,4,2],{vol:accent(6,3)})},
+ {group:'Theory · basics',id:'sevenths',label:'Sevenths · 1 3 5 7 5 3',info:'Seventh chords on every step (root, third, fifth, seventh, back): maj7 / m7 / dominant 7 / half-diminished, decided by the Grid mode.',
+  make:(g,p)=>rich(g,p,[0,2,4,6,4,2],{vol:accent(6,3)})},
+ {group:'Theory · Jazz',id:'jazz-walk',label:'Jazz · walking line',info:'Quarter-note walking bass over two bars: root, third, fifth, third | root, second, third, approach from below. Every step walks from itself.',
+  make:(g,p)=>rich(g,p,[0,2,4,2,0,1,2,-1],{bars:2,vol:[1,.7,.85,.7,.95,.7,.85,.7]})},
+ {group:'Theory · Jazz',id:'jazz-shells',label:'Jazz · Charleston shells (3 7 5)',info:'Comping with guide tones: third on the 1, seventh on the "and" of 2, fifth on the "and" of 3, swung eighths. Rests are real muted steps.',
+  make:(g,p)=>rich(g,p,[2,0,0,6,0,4,0,0],{mute:'10010100',vol:[1,.6,.6,.85,.6,.8,.6,.6],micro:swing(8,.28)})},
+ {group:'Theory · Jazz',id:'jazz-func',label:'Jazz · functional colours (T S D)',info:'Different figures by harmonic function (in a 7-step view): tonic I III VI = slow seventh arpeggio, subdominant II IV = flowing sextuplet seventh run, dominant V VII = swung eighth line with a leading-tone approach.',
+  make:(g,p)=>{const d=degree7(g,p);
+   if(d===0||d===2||d===5)return rich(g,p,[0,2,4,6],{vol:[1,.7,.75,.8]});
+   if(d===1||d===3)return rich(g,p,[0,2,4,6,4,2],{vol:accent(6,3)});
+   return rich(g,p,[0,2,4,6,4,2,1,-1],{vol:accent(8,2),micro:swing(8,.22)})}},
+ {group:'Theory · Baroque',id:'alberti',label:'Baroque · Alberti bass',info:'Root, fifth, third, fifth, repeated: the classical accompaniment figure on every step.',
+  make:(g,p)=>rich(g,p,[0,4,2,4,0,4,2,4],{vol:[1,.7,.85,.7,.95,.7,.85,.7]})},
+ {group:'Theory · Baroque',id:'prelude',label:'Baroque · prelude figure',info:'Broken-chord prelude figure within one octave: 1 3 5 8 5 3 5 8 (after the well-known C major prelude pattern).',
+  make:(g,p)=>rich(g,p,[0,2,4,g.audible.length,4,2,4,g.audible.length],{vol:accent(8,4)})},
+ {group:'Theory · Baroque',id:'fugue',label:'Baroque · fugue voices',info:'Voices by degree (7-step view): I = subject (scale run 1 2 3 4 5 4 3 2), V = answer (same subject, entering one slot later), II and VI = episode (rising sequence in thirds), III IV VII = countersubject (syncopated, with rests).',
+  make:(g,p)=>{const d=degree7(g,p);
+   if(d===0)return rich(g,p,[0,1,2,3,4,3,2,1],{vol:accent(8,4)});
+   if(d===4)return rich(g,p,[0,1,2,3,4,3,2,1],{mute:'01111111',vol:accent(8,4)});
+   if(d===1||d===5)return rich(g,p,[0,2,1,3,2,4,3,5],{vol:accent(8,2)});
+   return rich(g,p,[0,-1,0,2,0,-1,0,2],{mute:'10110101',vol:[1,.6,.8,.9,.6,.7,.6,.85]})}}
+);
+for(const q of PRESETS)q.group??='Neutral figures';
 function fromPreset(id,origin,name){const pr=PRESETS.find(x=>x.id===id);if(!pr)fail('Unknown preset');
  const plan=createPlan(origin,name||pr.label+' · '+gridTitle(nativeGrid(origin)));
  return {...plan,entries:plan.nativeGrid.audible.map((_,i)=>({pattern:patternOnly(pr.make(plan.nativeGrid,i)),source:{kind:'preset',name:pr.label}}))}}
@@ -185,7 +220,7 @@ function GridBasis({origin,onOpenGridWorkbench}){
 }
 function PresetPicker({value,onChange,children}){
  return u.jsxs('div',{className:'xen-hpp-row',children:[
-  u.jsx('select',{'aria-label':'Plan preset',value,onChange:e=>onChange(e.target.value),children:PRESETS.map(p=>u.jsx('option',{value:p.id,title:p.info,children:p.label},p.id))}),children]});
+  u.jsx('select',{'aria-label':'Plan preset',value,onChange:e=>onChange(e.target.value),children:[...new Set(PRESETS.map(p=>p.group))].map(gr=>u.jsx('optgroup',{label:gr,children:PRESETS.filter(p=>p.group===gr).map(p=>u.jsx('option',{value:p.id,title:p.info,children:p.label},p.id))},gr))}),children]});
 }
 function PlanView({plan,origin,workingPattern,onPlanChange,onRestoreGrid,onEditPosition,onAudition,armedPosition,onOpenGridWorkbench}){
  const [library,setLibrary]=P.useState([]),[plans,setPlans]=P.useState([]),[armed,setArmed]=P.useState(null);
@@ -193,7 +228,7 @@ function PlanView({plan,origin,workingPattern,onPlanChange,onRestoreGrid,onEditP
  const [planName,setPlanName]=P.useState(plan?.name||''),[savedId,setSavedId]=P.useState(''),[preset,setPreset]=P.useState(PRESETS[0].id);
  const [patternName,setPatternName]=P.useState(''),[livePos,setLivePos]=P.useState(-1),[busy,setBusy]=P.useState(false);
  const perform=async(fn)=>{if(busy)return;setBusy(true);setMessage('');try{await fn()}catch(e){setMessage(String(e?.message||e))}finally{setBusy(false)}};
- const refresh=async()=>{const [a,b]=await Promise.all([memory().list(),store.list()]);setLibrary(a);setPlans(b)};
+ const refresh=async()=>{const [a,b]=await Promise.all([memory().list(),store.list()]);setLibrary([...a,...memory().factory('keyboard')]);setPlans(b)};
  P.useEffect(()=>{refresh().catch(e=>setMessage('Library unavailable: '+e.message))},[]);
  // Live feedback while the dialog is open: which plan position the last key attack used.
  P.useEffect(()=>{let seen=__XenHoldPlanRuntime.last.serial;const t=setInterval(()=>{const l=__XenHoldPlanRuntime.last;if(l.serial!==seen){seen=l.serial;setLivePos(l.position)}},150);return()=>clearInterval(t)},[]);
@@ -226,12 +261,12 @@ function PlanView({plan,origin,workingPattern,onPlanChange,onRestoreGrid,onEditP
  const savedRow=plans.find(r=>r.id===savedId);
  return u.jsxs('div',{className:'xen-hpp','data-xen-hpp':'true',children:[
   /* Library */
-  u.jsxs('div',{children:[u.jsx('strong',{children:'Arpeggio Pattern Library'}),
-   u.jsx('p',{children:library.length?'Drag onto a step, or click to arm and then click steps to paint.':'No saved Arpeggio Patterns yet. Set one in the Arpeggio Pattern tab and save it there; it appears here.'}),
+  u.jsxs('div',{style:{maxHeight:'34em',overflowY:'auto'},children:[u.jsx('strong',{children:'Arpeggio Pattern Library'}),
+   u.jsx('p',{children:'Drag onto a step, or click to arm and then click steps to paint. Factory arpeggios are listed after your saved ones.'}),
    ...[{...workingPattern,id:'working',name:'◉ Current Arpeggio Pattern',sourceLane:'keyboard'},...library].map(r=>u.jsxs('button',{type:'button',draggable:true,
     className:'xen-hpp-lib-row'+(armed===r.id?' armed':''),'aria-pressed':armed===r.id,
     onDragStart:ev=>{ev.dataTransfer.setData(DND_PATTERN,r.id);ev.dataTransfer.effectAllowed='copy'},
-    onClick:()=>setArmed(a=>a===r.id?null:r.id),title:r.slots+' slots · '+r.referenceBars+' bars'+(r.sourceLane==='enter'?' · Enter lane':''),
+    onClick:()=>setArmed(a=>a===r.id?null:r.id),title:r.slots+' slots · '+r.referenceBars+' bars'+(r.factory?' · factory':r.sourceLane==='enter'?' · Enter lane':''),
     children:[u.jsx('span',{children:r.name+(r.sourceLane==='enter'?' · Enter':'')}),u.jsx(Dots,{pattern:r})]},r.id)),
    armed?u.jsx('button',{type:'button',onClick:()=>{const src=patternFrom(armed);change(withEntries(plan,e=>{for(let i=0;i<e.length;i++)if(!e[i])e[i]={pattern:patternOnly(src.pattern),source:{kind:src.kind,name:src.name}}}),'Filled empty steps with '+src.name+'.')},children:'Fill empty steps with armed'}):null]}),
   /* Ladder */
@@ -279,6 +314,6 @@ function PlanView({plan,origin,workingPattern,onPlanChange,onRestoreGrid,onEditP
    message?u.jsx('p',{role:'status',className:'xen-hpp-message',children:message}):null]})]});
 }
 
-return Object.freeze({version:'HPP01',dbName:DB,nativeGrid,deviation,validatePlan,createPlan,assign,clearPosition,reanchor,fromPreset,presets:PRESETS.map(p=>({id:p.id,label:p.label,info:p.info})),
+return Object.freeze({version:'HPP01',dbName:DB,nativeGrid,deviation,validatePlan,createPlan,assign,clearPosition,reanchor,fromPreset,presets:PRESETS.map(p=>({id:p.id,label:p.label,info:p.info,group:p.group})),
  suggestName,positionLabel,setLabel,gridTitle,store,PlanView,patternOnly});
 }

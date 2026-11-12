@@ -96,5 +96,30 @@ async function duplicate(patternId,expectedRevision){return run('readwrite',(row
 async function remove(patternId,expectedRevision){return run('readwrite',(rows,store)=>{
  const row=find(rows,patternId);revision(row,expectedRevision);store.delete(patternId);return {id:row.id,name:row.name};
 })}
-return Object.freeze({version:'HPM01',dbName:DB,validate:payload,list,get,saveAs,rename,duplicate,remove});
+/* HOLD-LIB-02: read-only factory arpeggios. Pitches are cents above the held key, so they sound the same in every Grid (major / minor are unambiguous);
+   a Hold pattern spans at most one octave (±1200 ¢). Rows are generated, never stored: they can be loaded, never renamed, duplicated or deleted. */
+const J=(a,b)=>1200*Math.log2(a/b),R3=n=>Math.round(n*1000)/1000;
+const FACTORY=[
+ // [name, cents per slot, {mute:'1/0 per slot', vol:[…]}]
+ ['Major · triad ↑',[0,400,700,1200]],['Major · triad ↓',[1200,700,400,0]],['Major · triad ↑↓',[0,400,700,1200,700,400]],
+ ['Major · Alberti (1-5-3-5)',[0,700,400,700,0,700,400,700]],['Major · maj7 ↑',[0,400,700,1100]],['Major · dominant 7 ↑',[0,400,700,1000]],
+ ['Major · add9 ↑',[0,200,400,700,1200]],['Major · pentatonic ↑↓',[0,200,400,700,900,700,400,200]],
+ ['Major · offbeat arpeggio',[0,0,0,400,0,700,0,1200],{mute:'01010101'}],
+ ['Minor · triad ↑',[0,300,700,1200]],['Minor · triad ↓',[1200,700,300,0]],['Minor · triad ↑↓',[0,300,700,1200,700,300]],
+ ['Minor · Alberti (1-5-3-5)',[0,700,300,700,0,700,300,700]],['Minor · m7 ↑',[0,300,700,1000]],
+ ['Minor · pentatonic ↑↓',[0,300,500,700,1000,700,500,300]],['Minor · harmonic minor run',[0,200,300,500,700,800,1100,1200]],
+ ['Minor · offbeat arpeggio',[0,0,0,300,0,700,0,1200],{mute:'01010101'}],
+ ['Diminished · 7th ↑',[0,300,600,900]],['Augmented · triad ↑↓',[0,400,800,1200,800,400]],
+ ['Sus4 · ↑',[0,500,700,1200]],['Sus2 · ↑',[0,200,700,1200]],
+ ['Fifths · pulse',[0,700,0,700]],['Open fifth · ↑↓',[0,700,1200,700]],['Octaves · pulse',[0,1200,0,1200]],['Whole-tone · run ↑',[0,200,400,600,800,1000]],
+ ['Just major · 4:5:6',[0,R3(J(5,4)),R3(J(3,2)),1200]],['Just minor · 10:12:15',[0,R3(J(6,5)),R3(J(3,2)),1200]],
+ ['Harmonic 4:5:6:7',[0,R3(J(5,4)),R3(J(3,2)),R3(J(7,4))]],['Neutral triad (350 ¢)',[0,350,700,1200]],['Septimal minor · 6:7:9',[0,R3(J(7,6)),R3(J(3,2)),1200]]
+];
+function factory(lane){
+ const sourceLane=lane==='enter'?'enter':'keyboard';
+ return FACTORY.map(([name,cents,o],i)=>{const n=cents.length,mute=o?.mute?o.mute.split('').map(Number):cents.map(()=>1);
+  return {schemaVersion:SCHEMA,id:'factory:'+i,factory:true,revision:0,name,sourceLane,slots:n,referenceBars:1,muteSteps:mute,pitchCents:cents.slice(),
+   slotVolumes:cents.map((_,k)=>k===0?1:.82),microtiming:cents.map(()=>0),tuningOrigin:null}});
+}
+return Object.freeze({version:'HPM01',dbName:DB,validate:payload,list,get,saveAs,rename,duplicate,remove,factory});
 }
