@@ -19,7 +19,9 @@ const __XenPsyLab=(()=>{
   stop(lane,keyId){host(false)?.stop(lane,keyId)},
   allOff(lane){host(false)?.allOff(lane)},
   /* a lane that leaves Psy Lab gives its engine back (the chunk is not loaded just to do that) */
-  drop(lane){host(false)?.drop(lane)}});
+  drop(lane){host(false)?.drop(lane)},
+  /* Power off: every Psy Lab voice and tail stops at once */
+  panic(){host(false)?.panic()}});
 })();
 /* Performance shortcuts read the canonical catalog. History stores IDs only. */
 const __XenPerformanceCatalog=(()=>{

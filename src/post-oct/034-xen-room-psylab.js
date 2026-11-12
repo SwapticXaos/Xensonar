@@ -345,14 +345,22 @@ const LiveHost=(()=>{
  function engineFor(lane,id,reload){let rec=engines.get(lane);if(rec&&rec.id===id&&!reload)return rec.engine;const pt=find(id);if(!pt)return null;
   if(!rec){rec={engine:new PsyEngine({visual:false}),id:null};engines.set(lane,rec)}
   rec.id=id;rec.engine.setAll(pt.params);return rec.engine}
+ /* ROOM5-11: the processor keeps voice ids in a typed array (numbers only). ROOM5-10 sent string ids ("keyboard:KeyA"), so +id was NaN, no note-off ever matched
+    and every Live note sounded until the voices were stolen. Each live note now gets its own number; the string key only lives here. */
+ let serial=0;
+ const voice=(lane,keyId)=>lane+':'+keyId;
+ function silence(lane){for(const[k,v]of active)if(!lane||k.startsWith(lane+':')){v.e.noteOff(v.n);active.delete(k)}}
+ function drop(lane){silence(lane);const rec=engines.get(lane);if(rec){rec.engine.dispose();engines.delete(lane)}}
  return{isId,find,entries,factoryNames:()=>FACTORY.map(q=>q.name),
   prepare(lane,id){const e=engineFor(lane,id,true);if(e)e.ensure().catch(()=>{});return !!e},
-  start(lane,keyId,id,hz,vel){const e=engineFor(lane,id);if(!e)return false;const k=lane+':'+keyId;if(active.has(k))e.noteOff(k);active.set(k,e);e.noteOn(k,hz,vel==null?.8:vel);return true},
-  bend(lane,keyId,hz){const k=lane+':'+keyId;active.get(k)?.bend(k,hz)},
-  stop(lane,keyId){const k=lane+':'+keyId,e=active.get(k);if(e){e.noteOff(k);active.delete(k)}},
-  drop(lane){this.allOff(lane);const rec=engines.get(lane);if(rec){rec.engine.dispose();engines.delete(lane)}},
-  allOff(lane){for(const[k,e]of active)if(!lane||k.startsWith(lane+':')){e.noteOff(k);active.delete(k)}},
-  dispose(){for(const rec of engines.values())rec.engine.dispose();engines.clear();active.clear()},
+  start(lane,keyId,id,hz,vel){const e=engineFor(lane,id);if(!e)return false;const k=voice(lane,keyId),old=active.get(k);if(old)old.e.noteOff(old.n);
+   const n=++serial;active.set(k,{e,n});e.noteOn(n,hz,vel==null?.8:vel);return true},
+  bend(lane,keyId,hz){const v=active.get(voice(lane,keyId));if(v)v.e.bend(v.n,hz)},
+  stop(lane,keyId){const k=voice(lane,keyId),v=active.get(k);if(v){v.e.noteOff(v.n);active.delete(k)}},
+  allOff:silence,drop,
+  /* Power off / leaving: no tails at all. Each engine fades its output in ~40 ms and is rebuilt on the next note (prepare() on a restored sound). */
+  panic(){for(const lane of[...engines.keys()])drop(lane)},
+  dispose(){for(const lane of[...engines.keys()])drop(lane);active.clear()},
   status(){return{lanes:[...engines.keys()],active:active.size,visual:[...engines.values()].map(r=>r.engine.visual)}}}})();
 
 /* ---------- metronome: for the player only ---------- */

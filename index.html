@@ -160,30 +160,44 @@ async function duplicate(patternId,expectedRevision){return run('readwrite',(row
 async function remove(patternId,expectedRevision){return run('readwrite',(rows,store)=>{
  const row=find(rows,patternId);revision(row,expectedRevision);store.delete(patternId);return {id:row.id,name:row.name};
 })}
-/* HOLD-LIB-02: read-only factory arpeggios. Pitches are cents above the held key, so they sound the same in every Grid (major / minor are unambiguous);
-   a Hold pattern spans at most one octave (±1200 ¢). Rows are generated, never stored: they can be loaded, never renamed, duplicated or deleted. */
+/* HOLD-LIB-02 / THUNDER-SPEED: read-only factory arpeggios for Thunder Mode, i.e. for SHREDDING: figures faster than hands can play on a computer keyboard.
+   Pitches are cents above the held key (the same in every Grid; major / minor are unambiguous). A Hold pattern spans at most ±1200 ¢.
+   Speed = notes per 4/4 bar at the Thunder tempo: 32 = 32nd notes, 24 = sextuplet 16ths, 20 = quintuplet 16ths (at 108 BPM: 69 / 93 / 111 ms per note).
+   Rows are generated, never stored: they can be loaded (Bars / slots stay editable), never renamed, duplicated or deleted. Factory plans refer to them by name. */
 const J=(a,b)=>1200*Math.log2(a/b),R3=n=>Math.round(n*1000)/1000;
+const JM3=R3(J(5,4)),Jm3=R3(J(6,5)),J5=R3(J(3,2)),H7=R3(J(7,4)),S3=R3(J(7,6));
+const T32=32,SEXT=24,QUINT=20;
 const FACTORY=[
- // [name, cents per slot, {mute:'1/0 per slot', vol:[…]}]
- ['Major · triad ↑',[0,400,700,1200]],['Major · triad ↓',[1200,700,400,0]],['Major · triad ↑↓',[0,400,700,1200,700,400]],
- ['Major · Alberti (1-5-3-5)',[0,700,400,700,0,700,400,700]],['Major · maj7 ↑',[0,400,700,1100]],['Major · dominant 7 ↑',[0,400,700,1000]],
- ['Major · add9 ↑',[0,200,400,700,1200]],['Major · pentatonic ↑↓',[0,200,400,700,900,700,400,200]],
- ['Major · offbeat arpeggio',[0,0,0,400,0,700,0,1200],{mute:'01010101'}],
- ['Minor · triad ↑',[0,300,700,1200]],['Minor · triad ↓',[1200,700,300,0]],['Minor · triad ↑↓',[0,300,700,1200,700,300]],
- ['Minor · Alberti (1-5-3-5)',[0,700,300,700,0,700,300,700]],['Minor · m7 ↑',[0,300,700,1000]],
- ['Minor · pentatonic ↑↓',[0,300,500,700,1000,700,500,300]],['Minor · harmonic minor run',[0,200,300,500,700,800,1100,1200]],
- ['Minor · offbeat arpeggio',[0,0,0,300,0,700,0,1200],{mute:'01010101'}],
- ['Diminished · 7th ↑',[0,300,600,900]],['Augmented · triad ↑↓',[0,400,800,1200,800,400]],
- ['Sus4 · ↑',[0,500,700,1200]],['Sus2 · ↑',[0,200,700,1200]],
- ['Fifths · pulse',[0,700,0,700]],['Open fifth · ↑↓',[0,700,1200,700]],['Octaves · pulse',[0,1200,0,1200]],['Whole-tone · run ↑',[0,200,400,600,800,1000]],
- ['Just major · 4:5:6',[0,R3(J(5,4)),R3(J(3,2)),1200]],['Just minor · 10:12:15',[0,R3(J(6,5)),R3(J(3,2)),1200]],
- ['Harmonic 4:5:6:7',[0,R3(J(5,4)),R3(J(3,2)),R3(J(7,4))]],['Neutral triad (350 ¢)',[0,350,700,1200]],['Septimal minor · 6:7:9',[0,R3(J(7,6)),R3(J(3,2)),1200]]
+ // [name, cents per note, notes per bar, {mute:'1/0 per slot'}]
+ ['Major · triad sweep ↑',[0,400,700,1200],T32],['Major · triad sweep ↓',[1200,700,400,0],T32],['Major · triad sweep ↑↓',[0,400,700,1200,700,400],SEXT],
+ ['Major · triad roll (sextuplets)',[0,400,700],SEXT],['Major · Alberti 1-5-3-5',[0,700,400,700,0,700,400,700],T32],
+ ['Major · maj7 sweep ↑↓',[0,400,700,1100,1200,1100,700,400],T32],['Major · dominant 7 sweep ↑↓',[0,400,700,1000,1200,1000,700,400],T32],
+ ['Major · add9 ↑ (quintuplets)',[0,200,400,700,1200],QUINT],['Major · pentatonic run ↑↓',[0,200,400,700,900,700,400,200],T32],
+ ['Major · scale run ↑ (Ionian)',[0,200,400,500,700,900,1100,1200],T32],['Major · scale run ↓ (Ionian)',[1200,1100,900,700,500,400,200,0],T32],
+ ['Major · offbeat sparkle',[0,0,0,400,0,700,0,1200],T32,{mute:'01010101'}],
+ ['Minor · triad sweep ↑',[0,300,700,1200],T32],['Minor · triad sweep ↓',[1200,700,300,0],T32],['Minor · triad sweep ↑↓',[0,300,700,1200,700,300],SEXT],
+ ['Minor · triad roll (sextuplets)',[0,300,700],SEXT],['Minor · Alberti 1-5-3-5',[0,700,300,700,0,700,300,700],T32],
+ ['Minor · m7 sweep ↑↓',[0,300,700,1000,1200,1000,700,300],T32],['Minor · minor-major 7 sweep ↑↓',[0,300,700,1100,1200,1100,700,300],T32],
+ ['Minor · pentatonic run ↑↓',[0,300,500,700,1000,700,500,300],T32],
+ ['Minor · scale run ↑ (Aeolian)',[0,200,300,500,700,800,1000,1200],T32],['Minor · scale run ↓ (Aeolian)',[1200,1000,800,700,500,300,200,0],T32],
+ ['Minor · harmonic minor run ↑',[0,200,300,500,700,800,1100,1200],T32],['Minor · pedal point shred',[1200,1100,1200,800,1200,700,1200,300],T32],
+ ['Minor · offbeat sparkle',[0,0,0,300,0,700,0,1200],T32,{mute:'01010101'}],
+ ['Mode · Dorian run ↑',[0,200,300,500,700,900,1000,1200],T32],['Mode · Phrygian run ↑',[0,100,300,500,700,800,1000,1200],T32],
+ ['Mode · Lydian run ↑',[0,200,400,600,700,900,1100,1200],T32],['Mode · Mixolydian run ↑',[0,200,400,500,700,900,1000,1200],T32],
+ ['Mode · Locrian run ↑',[0,100,300,500,600,800,1000,1200],T32],
+ ['Jazz · bebop dominant run ↓',[1200,1100,1000,900,700,500,400,200],T32],['Jazz · enclosure into the root',[200,-100,0,0],T32,{mute:'1110'}],
+ ['Diminished · half-diminished m7♭5 sweep ↑↓',[0,300,600,1000,1200,1000,600,300],T32],['Diminished · dim7 sweep ↑↓',[0,300,600,900,1200,900,600,300],T32],
+ ['Augmented · triad sweep ↑↓',[0,400,800,1200,800,400],SEXT],['Sus4 · sweep ↑',[0,500,700,1200],T32],['Sus2 · sweep ↑',[0,200,700,1200],T32],
+ ['Fifths · tremolo',[0,700,0,700],T32],['Octaves · tremolo',[0,1200,0,1200],T32],['Whole-tone · run ↑',[0,200,400,600,800,1000],SEXT],
+ ['Just major · 4:5:6 sweep ↑↓',[0,JM3,J5,1200,J5,JM3],SEXT],['Just minor · 10:12:15 sweep ↑↓',[0,Jm3,J5,1200,J5,Jm3],SEXT],
+ ['Harmonic 4:5:6:7 sweep ↑↓',[0,JM3,J5,H7,1200,H7,J5,JM3],T32],['Neutral triad (350 ¢) sweep ↑↓',[0,350,700,1200,700,350],SEXT],
+ ['Septimal minor · 6:7:9 sweep ↑↓',[0,S3,J5,1200,J5,S3],SEXT]
 ];
 function factory(lane){
  const sourceLane=lane==='enter'?'enter':'keyboard';
- return FACTORY.map(([name,cents,o],i)=>{const n=cents.length,mute=o?.mute?o.mute.split('').map(Number):cents.map(()=>1);
-  return {schemaVersion:SCHEMA,id:'factory:'+i,factory:true,revision:0,name,sourceLane,slots:n,referenceBars:1,muteSteps:mute,pitchCents:cents.slice(),
-   slotVolumes:cents.map((_,k)=>k===0?1:.82),microtiming:cents.map(()=>0),tuningOrigin:null}});
+ return FACTORY.map(([name,cents,perBar,o],i)=>{const n=cents.length,mute=o?.mute?o.mute.split('').map(Number):cents.map(()=>1);
+  return {schemaVersion:SCHEMA,id:'factory:'+i,factory:true,revision:0,name,sourceLane,slots:n,referenceBars:n/perBar,notesPerBar:perBar,muteSteps:mute,pitchCents:cents.slice(),
+   slotVolumes:cents.map((_,k)=>k===0?1:.86),microtiming:cents.map(()=>0),tuningOrigin:null}});
 }
 return Object.freeze({version:'HPM01',dbName:DB,validate:payload,list,get,saveAs,rename,duplicate,remove,factory});
 }
@@ -299,41 +313,50 @@ const PRESETS=[
  {id:'polymeter',label:'Polymeter · 3 4 5 6 7 …',info:'Step k gets 3 + (k mod 5) slots of a 0 +1 +2 +1 figure: different subdivisions across the keys.',
   make:(g,p)=>{const len=3+(p%5),fig=[0,1,2,1];return stepsPattern(g,p,Array.from({length:len},(_,i)=>fig[i%fig.length]))}}
 ];
-/* HOLD-LIB-03: plans from music theory. Figures are built from GRID STEPS of the plan's own Grid: +2 steps = a third, +4 = a fifth, +6 = a seventh, +n = the period
-   (n = audible steps). In a 7-step major mode this gives major triads on I IV V and minor ones on II III VI, in a minor mode the minor-key harmony; in other Grids
-   the same step arithmetic gives the corresponding "skip-a-step" stacks. Roles (tonic / subdominant / dominant, subject / answer / episode) look at the position
-   as a degree of a 7-step view (position × 7 ÷ steps), so they stay meaningful when the Grid has another size. Hold patterns span at most ±1200 cents. */
-const degree7=(g,pos)=>{const n=g.audible.length;return n<2?0:Math.min(6,Math.floor(pos*7/n))};
-const rich=(g,pos,offs,o={})=>({slots:offs.length,referenceBars:o.bars||1,muteSteps:o.mute?o.mute.split('').map(Number):offs.map(()=>1),
- pitchCents:offs.map(k=>stepCents(g,pos,k)),slotVolumes:o.vol||offs.map((_,i)=>i===0?1:.82),microtiming:o.micro||offs.map(()=>0)});
-const swing=(len,d=.25)=>Array.from({length:len},(_,i)=>i%2?d:0);
-const accent=(len,every=4)=>Array.from({length:len},(_,i)=>i===0?1:i%every===0?.92:.72);
-PRESETS.push(
- {group:'Theory · basics',id:'triads',label:'Triads · 1 3 5 8 5 3',info:'Every step arpeggiates its own triad (root, third, fifth, octave, back). Major or minor follows the Grid mode: major triads on I IV V in a major mode, minor in a minor mode.',
-  make:(g,p)=>rich(g,p,[0,2,4,g.audible.length,4,2],{vol:accent(6,3)})},
- {group:'Theory · basics',id:'sevenths',label:'Sevenths · 1 3 5 7 5 3',info:'Seventh chords on every step (root, third, fifth, seventh, back): maj7 / m7 / dominant 7 / half-diminished, decided by the Grid mode.',
-  make:(g,p)=>rich(g,p,[0,2,4,6,4,2],{vol:accent(6,3)})},
- {group:'Theory · Jazz',id:'jazz-walk',label:'Jazz · walking line',info:'Quarter-note walking bass over two bars: root, third, fifth, third | root, second, third, approach from below. Every step walks from itself.',
-  make:(g,p)=>rich(g,p,[0,2,4,2,0,1,2,-1],{bars:2,vol:[1,.7,.85,.7,.95,.7,.85,.7]})},
- {group:'Theory · Jazz',id:'jazz-shells',label:'Jazz · Charleston shells (3 7 5)',info:'Comping with guide tones: third on the 1, seventh on the "and" of 2, fifth on the "and" of 3, swung eighths. Rests are real muted steps.',
-  make:(g,p)=>rich(g,p,[2,0,0,6,0,4,0,0],{mute:'10010100',vol:[1,.6,.6,.85,.6,.8,.6,.6],micro:swing(8,.28)})},
- {group:'Theory · Jazz',id:'jazz-func',label:'Jazz · functional colours (T S D)',info:'Different figures by harmonic function (in a 7-step view): tonic I III VI = slow seventh arpeggio, subdominant II IV = flowing sextuplet seventh run, dominant V VII = swung eighth line with a leading-tone approach.',
-  make:(g,p)=>{const d=degree7(g,p);
-   if(d===0||d===2||d===5)return rich(g,p,[0,2,4,6],{vol:[1,.7,.75,.8]});
-   if(d===1||d===3)return rich(g,p,[0,2,4,6,4,2],{vol:accent(6,3)});
-   return rich(g,p,[0,2,4,6,4,2,1,-1],{vol:accent(8,2),micro:swing(8,.22)})}},
- {group:'Theory · Baroque',id:'alberti',label:'Baroque · Alberti bass',info:'Root, fifth, third, fifth, repeated: the classical accompaniment figure on every step.',
-  make:(g,p)=>rich(g,p,[0,4,2,4,0,4,2,4],{vol:[1,.7,.85,.7,.95,.7,.85,.7]})},
- {group:'Theory · Baroque',id:'prelude',label:'Baroque · prelude figure',info:'Broken-chord prelude figure within one octave: 1 3 5 8 5 3 5 8 (after the well-known C major prelude pattern).',
-  make:(g,p)=>rich(g,p,[0,2,4,g.audible.length,4,2,4,g.audible.length],{vol:accent(8,4)})},
- {group:'Theory · Baroque',id:'fugue',label:'Baroque · fugue voices',info:'Voices by degree (7-step view): I = subject (scale run 1 2 3 4 5 4 3 2), V = answer (same subject, entering one slot later), II and VI = episode (rising sequence in thirds), III IV VII = countersubject (syncopated, with rests).',
-  make:(g,p)=>{const d=degree7(g,p);
-   if(d===0)return rich(g,p,[0,1,2,3,4,3,2,1],{vol:accent(8,4)});
-   if(d===4)return rich(g,p,[0,1,2,3,4,3,2,1],{mute:'01111111',vol:accent(8,4)});
-   if(d===1||d===5)return rich(g,p,[0,2,1,3,2,4,3,5],{vol:accent(8,2)});
-   return rich(g,p,[0,-1,0,2,0,-1,0,2],{mute:'10110101',vol:[1,.6,.8,.9,.6,.7,.6,.85]})}}
-);
-for(const q of PRESETS)q.group??='Neutral figures';
+for(const q of PRESETS)q.group??='Same figure on every step';
+/* HPP-FACTORY: real plans. A plan is NOT one figure copied onto every step: every degree of the key gets its OWN arpeggio from the factory library (by name),
+   chosen so that the pressed degree plays its chord of the key (or its mode, its idiom). Made for 12-EDO in a 7-step mode on the current root; on another Grid
+   the plan view shows the deviation and offers "Restore plan Grid". Labels name the degree's function; patterns and labels are an ordinary plan afterwards. */
+const MAJ=['I','ii','iii','IV','V','vi','vii°'],MIN=['i','ii°','III','iv','v','VI','VII'];
+const FACTORY_PLANS=[
+ {id:'sweeps-major',name:'Diatonic sweeps · major key',mode:'ionian',labels:['I major','ii minor','iii minor','IV major','V dominant 7','vi minor','vii° half-dim.'],
+  info:'Every degree sweeps its own chord of the major key: major on I IV, minor on ii iii vi, dominant seventh on V, half-diminished on vii°.',
+  degrees:['Major · triad sweep ↑↓','Minor · triad sweep ↑↓','Minor · triad sweep ↑↓','Major · triad sweep ↑↓','Major · dominant 7 sweep ↑↓','Minor · triad sweep ↑↓','Diminished · half-diminished m7♭5 sweep ↑↓']},
+ {id:'jazz-major',name:'Jazz · sevenths & bebop (major key)',mode:'ionian',labels:['Imaj7','ii m7','iii pentatonic','IV Lydian','V bebop','vi m7','vii enclosure'],
+  info:'ii–V–I material: maj7 / m7 sweeps, minor pentatonic on iii, Lydian run on IV, bebop dominant line on V, chromatic enclosure on vii.',
+  degrees:['Major · maj7 sweep ↑↓','Minor · m7 sweep ↑↓','Minor · pentatonic run ↑↓','Mode · Lydian run ↑','Jazz · bebop dominant run ↓','Minor · m7 sweep ↑↓','Jazz · enclosure into the root']},
+ {id:'baroque-runs',name:'Baroque · running lines (each degree its mode)',mode:'ionian',labels:['I Ionian','ii Dorian','iii Phrygian','IV Lydian','V Mixolydian','vi Aeolian','vii Locrian'],
+  info:'Every degree runs up its own mode, so all keys stay inside one key: Ionian, Dorian, Phrygian, Lydian, Mixolydian, Aeolian, Locrian.',
+  degrees:['Major · scale run ↑ (Ionian)','Mode · Dorian run ↑','Mode · Phrygian run ↑','Mode · Lydian run ↑','Mode · Mixolydian run ↑','Minor · scale run ↑ (Aeolian)','Mode · Locrian run ↑']},
+ {id:'baroque-figures',name:'Baroque · figured accompaniment (major key)',mode:'ionian',labels:['I Alberti','ii roll','iii falling','IV roll','V7 sweep','vi Alberti','vii° dim7'],
+  info:'Alberti basses on I and vi, broken-chord rolls on ii and IV, falling triad on iii, dominant seventh on V, diminished seventh on vii°.',
+  degrees:['Major · Alberti 1-5-3-5','Minor · triad roll (sextuplets)','Minor · triad sweep ↓','Major · triad roll (sextuplets)','Major · dominant 7 sweep ↑↓','Minor · Alberti 1-5-3-5','Diminished · dim7 sweep ↑↓']},
+ {id:'pop-major',name:'Pop · pentatonic & sus (major key)',mode:'ionian',labels:['I pentatonic','ii sus2','iii pentatonic','IV add9','V sus4','vi pentatonic','vii octaves'],
+  info:'Open, consonant colours: pentatonic runs on I iii vi, sus2 on ii, add9 on IV, sus4 on V, octave tremolo on vii.',
+  degrees:['Major · pentatonic run ↑↓','Sus2 · sweep ↑','Minor · pentatonic run ↑↓','Major · add9 ↑ (quintuplets)','Sus4 · sweep ↑','Minor · pentatonic run ↑↓','Octaves · tremolo']},
+ {id:'sweeps-minor',name:'Diatonic sweeps · minor key',mode:'aeolian',labels:['i minor','ii° half-dim.','III major','iv minor','v minor','VI major','VII major'],
+  info:'Every degree sweeps its own chord of the natural minor key: minor on i iv v, major on III VI VII, half-diminished on ii°.',
+  degrees:['Minor · triad sweep ↑↓','Diminished · half-diminished m7♭5 sweep ↑↓','Major · triad sweep ↑↓','Minor · triad sweep ↑↓','Minor · triad sweep ↑↓','Major · triad sweep ↑↓','Major · triad sweep ↑↓']},
+ {id:'neoclassic-minor',name:'Neo-classical shred (minor key)',mode:'aeolian',labels:['i pedal shred','ii° half-dim.','III major','iv minor','V7 (harmonic)','VI Alberti','VII falling'],
+  info:'Harmonic-minor shred: pedal-point figure on i, dominant seventh with the raised leading tone on v, sweeps and an Alberti on the other degrees.',
+  degrees:['Minor · pedal point shred','Diminished · half-diminished m7♭5 sweep ↑↓','Major · triad sweep ↑↓','Minor · triad sweep ↑↓','Major · dominant 7 sweep ↑↓','Major · Alberti 1-5-3-5','Major · triad sweep ↓']},
+ {id:'jazz-minor',name:'Jazz · minor ii–V–i',mode:'aeolian',labels:['i m(maj7)','ii° m7♭5','IIImaj7','iv m7','V bebop','VI Lydian','VII Mixolydian'],
+  info:'Minor-key jazz: minor-major seventh on i, half-diminished ii°, bebop dominant on v, maj7 / m7 sweeps, Lydian and Mixolydian runs on VI and VII.',
+  degrees:['Minor · minor-major 7 sweep ↑↓','Diminished · half-diminished m7♭5 sweep ↑↓','Major · maj7 sweep ↑↓','Minor · m7 sweep ↑↓','Jazz · bebop dominant run ↓','Mode · Lydian run ↑','Mode · Mixolydian run ↑']},
+ {id:'just-major',name:'Just intonation · pure triads (major key)',mode:'ionian',labels:['I 4:5:6','ii 10:12:15','iii 10:12:15','IV 4:5:6','V 4:5:6','vi 10:12:15','vii 6:7:9'],
+  info:'The chords of the key as pure (just) triads above each pressed degree: 4:5:6 major, 10:12:15 minor, a septimal 6:7:9 colour on vii.',
+  degrees:['Just major · 4:5:6 sweep ↑↓','Just minor · 10:12:15 sweep ↑↓','Just minor · 10:12:15 sweep ↑↓','Just major · 4:5:6 sweep ↑↓','Just major · 4:5:6 sweep ↑↓','Just minor · 10:12:15 sweep ↑↓','Septimal minor · 6:7:9 sweep ↑↓']}
+];
+function factoryPlan(id,origin){
+ const fp=FACTORY_PLANS.find(x=>x.id===id);if(!fp)fail('Unknown factory plan');
+ let mask;try{mask=xF(fp.mode,'12edo')}catch{mask=fp.mode==='aeolian'?[1,4,6,9,11]:[1,3,6,8,10]}
+ const g=nativeGrid({tuningId:'12edo',modeId:fp.mode,gridBaseHz:Number(origin?.gridBaseHz)>0?Number(origin.gridBaseHz):220,mainMutedDegrees:mask,mainStepOffsets:[]});
+ if(g.audible.length!==fp.degrees.length)fail('Factory plan needs '+fp.degrees.length+' steps');
+ const lib=memory().factory('keyboard');
+ const entries=fp.degrees.map(name=>{const r=lib.find(x=>x.name===name);if(!r)fail('Missing factory arpeggio: '+name);return {pattern:patternOnly(r),source:{kind:'factory',name}}});
+ return validatePlan({version:1,name:fp.name,enabled:true,nativeGrid:g,entries,labels:fp.labels.slice()});
+}
+const factoryPlanOptions=()=>u.jsx('optgroup',{label:'Factory plans · every degree its own arpeggio',children:FACTORY_PLANS.map(fp=>u.jsx('option',{value:'factory:'+fp.id,title:fp.info,children:fp.name},fp.id))},'factory-plans');
 function fromPreset(id,origin,name){const pr=PRESETS.find(x=>x.id===id);if(!pr)fail('Unknown preset');
  const plan=createPlan(origin,name||pr.label+' · '+gridTitle(nativeGrid(origin)));
  return {...plan,entries:plan.nativeGrid.audible.map((_,i)=>({pattern:patternOnly(pr.make(plan.nativeGrid,i)),source:{kind:'preset',name:pr.label}}))}}
@@ -441,11 +464,11 @@ function PlanView({plan,origin,workingPattern,onPlanChange,onRestoreGrid,onEditP
  if(!plan)return u.jsxs('div',{className:'xen-hpp',children:[
   u.jsxs('div',{style:{gridColumn:'1 / -1'},children:[u.jsx(GridBasis,{origin,onOpenGridWorkbench}),u.jsx('strong',{children:'Hold Pattern Plan · Keyboard'}),
    u.jsx('p',{children:'A plan gives every audible step of the period ('+current.audible.length+' steps of '+gridTitle(current)+' per '+periodName(current.periodCents)+') its own Hold Pattern. It is projected onto all keyboard rows and follows the movable key window.'}),
+   u.jsxs('label',{children:['Load a plan (factory or saved)',u.jsx('select',{'aria-label':'Saved plans',value:'',onChange:e=>{const v=e.target.value;if(v.startsWith('factory:')){perform(async()=>{const fpn=factoryPlan(v.slice(8),origin);setSavedId('');change(fpn,'Loaded factory plan “'+fpn.name+'”.')});return}const r=plans.find(x=>x.id===v);if(r){setSavedId(r.id);change(validatePlan(r.plan),'Loaded '+r.name+'.')}},
+    children:[u.jsx('option',{value:'',children:'Choose a plan…'}),factoryPlanOptions(),plans.length?u.jsx('optgroup',{label:'Saved plans',children:plans.map(r=>u.jsx('option',{value:r.id,children:r.name},r.id))},'saved'):null]})]}),
    u.jsx('button',{type:'button',onClick:()=>change(createPlan(origin),'Empty plan created for '+gridTitle(current)+'.'),children:'＋ Empty plan for current Grid'}),
-   u.jsx(PresetPicker,{value:preset,onChange:setPreset,children:u.jsx('button',{type:'button',onClick:()=>change(fromPreset(preset,origin),'Preset generated for '+gridTitle(current)+'.'),children:'Generate from preset'})}),
+   u.jsx(PresetPicker,{value:preset,onChange:setPreset,children:u.jsx('button',{type:'button',onClick:()=>change(fromPreset(preset,origin),'Figure placed on every step of '+gridTitle(current)+'.'),children:'Fill every step with one figure'})}),
    u.jsx('p',{children:PRESETS.find(p=>p.id===preset)?.info}),
-   u.jsxs('label',{children:['Load saved plan',u.jsx('select',{'aria-label':'Saved plans',value:'',onChange:e=>{const r=plans.find(x=>x.id===e.target.value);if(r){setSavedId(r.id);change(validatePlan(r.plan),'Loaded '+r.name+'.')}},
-    children:[u.jsx('option',{value:'',children:plans.length?'Choose…':'No saved plans yet'}),...plans.map(r=>u.jsx('option',{value:r.id,children:r.name},r.id))]})]}),
    message?u.jsx('p',{role:'status',children:message}):null]})]});
  const entry=plan.entries[idx];
  const savedRow=plans.find(r=>r.id===savedId);
@@ -493,18 +516,18 @@ function PlanView({plan,origin,workingPattern,onPlanChange,onRestoreGrid,onEditP
     onKeyDown:e=>{e.stopPropagation();if(e.key==='Enter')e.currentTarget.blur()}})]}),
    u.jsx('strong',{children:'Plan library'}),
    u.jsxs('label',{children:['Plan name',u.jsx('input',{type:'text',maxLength:80,value:planName,placeholder:'e.g. 19 EDO chromatic · evening',onChange:e=>setPlanName(e.target.value),onKeyDown:e=>e.stopPropagation()})]}),
-   u.jsx('select',{'aria-label':'Saved plans',value:savedId,onChange:e=>setSavedId(e.target.value),children:[u.jsx('option',{value:'',children:plans.length?'Saved plans…':'No saved plans yet'}),...plans.map(r=>u.jsx('option',{value:r.id,children:r.name},r.id))]}),
+   u.jsx('select',{'aria-label':'Saved plans',value:savedId,onChange:e=>setSavedId(e.target.value),children:[u.jsx('option',{value:'',children:'Choose a plan…'}),factoryPlanOptions(),plans.length?u.jsx('optgroup',{label:'Saved plans',children:plans.map(r=>u.jsx('option',{value:r.id,children:r.name},r.id))},'saved'):null]}),
    u.jsxs('div',{className:'xen-hpp-row',children:[
     u.jsx('button',{type:'button',disabled:busy||!planName.trim(),onClick:()=>perform(async()=>{const row=await store.saveAs(planName,plan);change({...plan,name:row.name});await refresh();setSavedId(row.id);setMessage('Plan saved as '+row.name+'.')}),children:'Save As'}),
     u.jsx('button',{type:'button',disabled:busy||!savedRow,onClick:()=>perform(async()=>{if(!globalThis.confirm('Overwrite saved plan “'+savedRow.name+'” with the current plan?'))return;await store.overwrite(savedRow.id,plan,savedRow.revision);await refresh();setMessage('Updated '+savedRow.name+'.')}),children:'Overwrite'}),
-    u.jsx('button',{type:'button',disabled:busy||!savedRow,onClick:()=>{change(validatePlan(savedRow.plan),'Loaded '+savedRow.name+'.')},children:'Load'}),
+    u.jsx('button',{type:'button',disabled:busy||!(savedRow||savedId.startsWith('factory:')),onClick:()=>{if(savedId.startsWith('factory:')){if(plan.entries.some(Boolean)&&!globalThis.confirm('Replace the active plan with this factory plan? Saved plans are not changed.'))return;perform(async()=>{const fpn=factoryPlan(savedId.slice(8),origin);change(fpn,'Loaded factory plan “'+fpn.name+'”.')});return}change(validatePlan(savedRow.plan),'Loaded '+savedRow.name+'.')},children:'Load'}),
     u.jsx('button',{type:'button',disabled:busy||!savedRow,onClick:()=>perform(async()=>{if(!globalThis.confirm('Delete saved plan “'+savedRow.name+'”? The active plan stays.'))return;await store.remove(savedRow.id);setSavedId('');await refresh();setMessage('Saved plan deleted.')}),children:'Delete'})]}),
-   u.jsx(PresetPicker,{value:preset,onChange:setPreset,children:u.jsx('button',{type:'button',onClick:()=>{if(plan.entries.some(Boolean)&&!globalThis.confirm('Replace the active plan with the preset “'+PRESETS.find(p=>p.id===preset).label+'”? Saved plans are not changed.'))return;change(fromPreset(preset,origin),'Preset generated for '+gridTitle(current)+'.')},children:'New from preset'})}),
+   u.jsx(PresetPicker,{value:preset,onChange:setPreset,children:u.jsx('button',{type:'button',onClick:()=>{if(plan.entries.some(Boolean)&&!globalThis.confirm('Replace the active plan with the preset “'+PRESETS.find(p=>p.id===preset).label+'”? Saved plans are not changed.'))return;change(fromPreset(preset,origin),'Figure placed on every step of '+gridTitle(current)+'.')},children:'Fill every step with one figure'})}),
    u.jsx('button',{type:'button',onClick:()=>{if(globalThis.confirm('Remove the plan from the Keyboard? Saved plans stay in the library.'))change(null,'')},children:'Remove plan from Keyboard'}),
    message?u.jsx('p',{role:'status',className:'xen-hpp-message',children:message}):null]})]});
 }
 
-return Object.freeze({version:'HPP01',dbName:DB,nativeGrid,deviation,validatePlan,createPlan,assign,clearPosition,reanchor,fromPreset,presets:PRESETS.map(p=>({id:p.id,label:p.label,info:p.info,group:p.group})),
+return Object.freeze({version:'HPP01',dbName:DB,nativeGrid,deviation,validatePlan,createPlan,assign,clearPosition,reanchor,fromPreset,presets:PRESETS.map(p=>({id:p.id,label:p.label,info:p.info,group:p.group})),factoryPlan,factoryPlans:FACTORY_PLANS.map(fp=>({id:fp.id,name:fp.name,mode:fp.mode,info:fp.info,degrees:fp.degrees.slice(),labels:fp.labels.slice()})),
  suggestName,positionLabel,setLabel,gridTitle,store,PlanView,patternOnly});
 }
 </script>
@@ -13332,7 +13355,9 @@ const __XenPsyLab=(()=>{
   stop(lane,keyId){host(false)?.stop(lane,keyId)},
   allOff(lane){host(false)?.allOff(lane)},
   /* a lane that leaves Psy Lab gives its engine back (the chunk is not loaded just to do that) */
-  drop(lane){host(false)?.drop(lane)}});
+  drop(lane){host(false)?.drop(lane)},
+  /* Power off: every Psy Lab voice and tail stops at once */
+  panic(){host(false)?.panic()}});
 })();
 /* Performance shortcuts read the canonical catalog. History stores IDs only. */
 const __XenPerformanceCatalog=(()=>{
@@ -33044,6 +33069,24 @@ function __XenHPM01Controls({lane,slots,referenceBars,muteSteps,pitchCents,slotV
 }
 
 
+/* HPP-LIVEVIEW: with an active Hold Pattern Plan the Keyboard-Hold tab shows which figure the last key attack plays: the plan's degrees as chips (the played one lit),
+   the arpeggio's name, its speed and its slots as a pitch strip. WARM: polls __XenHoldPlanRuntime.last (plain fields set by the key path) every 90 ms only while
+   this panel is mounted and a plan is active; nothing is computed per audio block. */
+function __XenHoldPlanLive({plan}){
+ const [view,setView]=P.useState(()=>({serial:-1,pos:-1,flash:false}));
+ P.useEffect(()=>{let seen=__XenHoldPlanRuntime.last.serial,off=0;
+  const t=setInterval(()=>{const l=__XenHoldPlanRuntime.last;if(l.serial===seen)return;seen=l.serial;setView({serial:seen,pos:l.position,flash:true});clearTimeout(off);off=setTimeout(()=>setView(v=>({...v,flash:false})),240)},90);
+  return()=>{clearInterval(t);clearTimeout(off)}},[]);
+ const entries=Array.isArray(plan?.entries)?plan.entries:[],n=entries.length||1,at=view.pos>=0?view.pos%n:-1,entry=at>=0?entries[at]:null,label=i=>(plan?.labels?.[i]||'').trim();
+ const pat=entry?.pattern,slots=pat?Math.max(1,pat.slots|0):0,bars=pat?Number(pat.referenceBars)||1:1;
+ const text=at<0?(view.serial<0?'Press a key: its degree’s figure is shown here.':'Off the plan’s Grid: the lane pattern below plays.'):entry?(entry.source?.name||'Pattern')+' · '+slots+' notes in '+(+bars.toFixed(3))+' bar ('+Math.round(slots/bars)+' per bar)':'Empty step: the lane pattern below plays.';
+ return u.jsxs('div',{className:'xen-hpp-live'+(view.flash?' flash':''),'data-xen-hpp-live':'',role:'status','aria-live':'polite',children:[
+  u.jsxs('div',{className:'xen-hpp-live-head',children:[u.jsx('strong',{children:'Plan playing'}),u.jsx('span',{children:plan?.name||'Untitled plan'})]}),
+  u.jsx('div',{className:'xen-hpp-live-chips',children:entries.map((e,i)=>u.jsx('span',{className:'xen-hpp-live-chip'+(i===at?' on':'')+(e?'':' empty'),title:(e?.source?.name||'lane pattern'),children:label(i)||String(i+1)},i))}),
+  u.jsx('div',{className:'xen-hpp-live-name','data-xen-hpp-live-name':'',children:(at>=0?(label(at)||'step '+(at+1))+' · ':'')+text}),
+  pat?u.jsx('div',{className:'xen-hpp-live-strip','aria-hidden':true,children:Array.from({length:slots},(_,k)=>{const c=Number(pat.pitchCents?.[k])||0,on=pat.muteSteps?.[k]!==0;
+   return u.jsx('span',{className:on?'':'off',style:{height:(4+Math.max(0,Math.min(1,(c+1200)/2400))*22)+'px'},title:on?Math.round(c)+' ¢':'rest'},k)})}):null]});
+}
 /* THUNDER-HPM02-EDITOR01: a large, optional editing surface backed by the canonical
    R4 patterns. Reference pitches are guides, never an enforced tuning or Grid reset.
    For non-octave custom tunings, show only their real degrees within +/-1200 cents. */
@@ -33312,7 +33355,7 @@ function __XenHoldDetailEditor({lane,slots,referenceBars,muteSteps,pitches,volum
 
 function R4({holdPlan:__holdPlan,onHoldPlanChange:__onHoldPlan,onRestoreGrid:__onRestoreGrid,title:e,laneLabel:t,segments:n,customSegments:r,referenceBars:a,patternSteps:o,pitchCents:Q,slotVolumes:V,microtiming:Y,onPitchChange:W,onVolumeChange:WV,onMicrotimingChange:WY,onMemoryLoad:H,tuningOrigin:T,previewRuntime:__holdPreviewRuntime,open:i,onToggle:s,onSegmentsChange:l,onCustomSegmentsChange:c,onReferenceBarsChange:d,onPatternChange:p}){const[f,b]=P.useState(eu(n)),[g,y]=P.useState(eu(r)),[x,A]=P.useState(()=>Math.max(.125,Math.min(16,Number.isFinite(a)?a:1))),[M,v]=P.useState(()=>l0(o,eu(n)));const [detailOpen,setDetailOpen]=P.useState(false);P.useEffect(()=>{if(!i)setDetailOpen(false)},[i]);const qRef=P.useRef(Q);qRef.current=Q;const qChange=B=>{qRef.current=B;W?.(B)};
  const vRef=P.useRef(V);vRef.current=V;const vChange=B=>{vRef.current=B;WV?.(B)};
- const mRef=P.useRef(Y);mRef.current=Y;const mChange=B=>{mRef.current=B;WY?.(B)};P.useEffect(()=>{const B=eu(n);b(B),v(l0(o,B))},[n,o]),P.useEffect(()=>{y(eu(r))},[r]),P.useEffect(()=>{A(Math.max(.125,Math.min(16,Number.isFinite(a)?a:1)))},[a]);const w=P.useMemo(()=>M.reduce((B,O)=>B+(O===0?0:1),0),[M]),k=eG(f)?String(f):"other",I=B=>{const O=l0(B,f);v(O),p(O)},E=B=>{const O=eu(B);b(O);const T=l0(M,O);v(T),l(O),p(T),W&&qChange(__xenHoldPitchVector(qRef.current,O)),WV&&vChange(__xenHoldVolumeVector(vRef.current,O)),WY&&mChange(__xenHoldMicroVector(mRef.current,O))},F=B=>{const O=eu(B);y(O),c(O),E(O)},L=B=>{const O=Math.max(.125,Math.min(16,Number.isFinite(B)?B:1));A(O),d(O)},loadMemory=B=>{b(B.slots);v(B.muteSteps.slice());A(B.referenceBars);qRef.current=B.pitchCents.slice();vRef.current=__xenHoldVolumeVector(B.slotVolumes,B.slots);mRef.current=__xenHoldMicroVector(B.microtiming,B.slots);if(!eG(B.slots))y(B.slots);H?.(B)};return u.jsx("div",{className:"xen-hold-pattern-panel",children:u.jsx(X6,{title:e,open:i,onToggle:s,tabMode:true,children:u.jsxs("div",{className:"xen-hold-pattern flex flex-col gap-2",children:[u.jsx(__XenHPM01Controls,{lane:t==="Keyboard"?"keyboard":"enter",slots:f,referenceBars:x,muteSteps:M,pitchCents:qRef.current,slotVolumes:vRef.current,microtiming:mRef.current,tuningOrigin:T,onLoad:loadMemory}),u.jsx("button",{type:"button",title:"Open detailed Hold Pattern editor",onClick:()=>setDetailOpen(true),className:"xen-hpm02-open",children:__onHoldPlan?(__holdPlan&&__holdPlan.enabled!==false?"↗ Hold Pattern Studio · Plan active ("+(__holdPlan.entries||[]).filter(Boolean).length+"/"+(__holdPlan.entries||[]).length+" steps)":"↗ Hold Pattern Studio · Pattern & Plan"):"↗ Detailed Editor · reference grids"}),detailOpen?u.jsx(__XenHoldDetailEditor,{lane:t,slots:f,referenceBars:x,muteSteps:M,pitches:Q,volumes:V,microtiming:Y,tuningOrigin:T,previewRuntime:__holdPreviewRuntime,onMute:I,onPitch:qChange,onVolume:vChange,onMicrotiming:mChange,onSlots:E,onBars:L,onClose:()=>setDetailOpen(false),holdPlan:__holdPlan,onHoldPlanChange:__onHoldPlan,onRestoreGrid:__onRestoreGrid,onLoadPattern:B=>loadMemory({...B,slots:eu(B.slots),muteSteps:l0(B.muteSteps,eu(B.slots)),pitchCents:__xenHoldPitchVector(B.pitchCents,eu(B.slots))})}):null,u.jsxs("div",{className:"grid grid-cols-2 gap-2 sm:grid-cols-5",children:[u.jsx("button",{type:"button",onClick:()=>I(Pw(f)),className:"rounded border border-emerald-700 bg-emerald-950/30 px-2 py-2 text-xs text-emerald-100 hover:bg-emerald-900/40",children:"All"}),u.jsx("button",{type:"button",onClick:()=>I(_ie(f)),className:"rounded border border-neutral-700 bg-neutral-950 px-2 py-2 text-xs text-neutral-300 hover:bg-neutral-900",children:"Only 1"}),u.jsx("button",{type:"button",onClick:()=>I(Oie(f)),className:"rounded border border-neutral-700 bg-neutral-950 px-2 py-2 text-xs text-neutral-300 hover:bg-neutral-900",children:"delayed"}),u.jsx("button",{type:"button",onClick:()=>I(zie(f)),className:"rounded border border-neutral-700 bg-neutral-950 px-2 py-2 text-xs text-neutral-300 hover:bg-neutral-900",children:"Gallopp"}),u.jsx("button",{type:"button",onClick:()=>I(jie(f)),className:"rounded border border-neutral-700 bg-neutral-950 px-2 py-2 text-xs text-neutral-300 hover:bg-neutral-900",children:"Nachschlag"})]}),u.jsxs("div",{className:"grid grid-cols-3 gap-2",children:[u.jsxs("div",{children:[u.jsx("label",{className:"mb-1 block text-[10px] uppercase tracking-widest text-neutral-500",children:"Slots"}),u.jsxs("select",{value:k,onChange:B=>{if(B.target.value==="other"){E(g||48);return}E(parseInt(B.target.value,10))},className:"w-full border border-neutral-700 bg-neutral-950 p-1 text-xs text-neutral-300",children:[Z6.map(B=>u.jsx("option",{value:B,children:B},`${t}-${B}`)),u.jsx("option",{value:"other",children:"other"})]})]}),u.jsxs("div",{children:[u.jsx("label",{className:"mb-1 block text-[10px] uppercase tracking-widest text-neutral-500",children:"Other"}),u.jsx("input",{type:"number",min:1,max:256,step:1,value:g,onChange:B=>F(parseInt(B.target.value||"1",10)),className:"w-full border border-neutral-700 bg-neutral-950 p-1 text-xs text-neutral-300"})]}),u.jsxs("div",{children:[u.jsx("label",{className:"mb-1 block text-[10px] uppercase tracking-widest text-neutral-500",children:"Bars"}),u.jsx("input",{type:"number",min:.125,max:16,step:.125,value:x,onChange:B=>L(parseFloat(B.target.value||"1")),className:"w-full border border-neutral-700 bg-neutral-950 p-1 text-xs text-neutral-300",title:"Reference Duration in Bars"})]})]}),u.jsxs("div",{className:"flex items-center justify-between text-[11px] text-neutral-400",children:[u.jsx("span",{children:t}),u.jsxs("span",{children:[w,"/",M.length," active ·",x," T."]})]}),u.jsx(iT,{label:t,steps:M,tone:"neutral",onChange:B=>I(B),pitches:Q,onPitchChange:qChange})]})})})}
+ const mRef=P.useRef(Y);mRef.current=Y;const mChange=B=>{mRef.current=B;WY?.(B)};P.useEffect(()=>{const B=eu(n);b(B),v(l0(o,B))},[n,o]),P.useEffect(()=>{y(eu(r))},[r]),P.useEffect(()=>{A(Math.max(.125,Math.min(16,Number.isFinite(a)?a:1)))},[a]);const w=P.useMemo(()=>M.reduce((B,O)=>B+(O===0?0:1),0),[M]),k=eG(f)?String(f):"other",I=B=>{const O=l0(B,f);v(O),p(O)},E=B=>{const O=eu(B);b(O);const T=l0(M,O);v(T),l(O),p(T),W&&qChange(__xenHoldPitchVector(qRef.current,O)),WV&&vChange(__xenHoldVolumeVector(vRef.current,O)),WY&&mChange(__xenHoldMicroVector(mRef.current,O))},F=B=>{const O=eu(B);y(O),c(O),E(O)},L=B=>{const O=Math.max(.125,Math.min(16,Number.isFinite(B)?B:1));A(O),d(O)},loadMemory=B=>{b(B.slots);v(B.muteSteps.slice());A(B.referenceBars);qRef.current=B.pitchCents.slice();vRef.current=__xenHoldVolumeVector(B.slotVolumes,B.slots);mRef.current=__xenHoldMicroVector(B.microtiming,B.slots);if(!eG(B.slots))y(B.slots);H?.(B)};return u.jsx("div",{className:"xen-hold-pattern-panel",children:u.jsx(X6,{title:e,open:i,onToggle:s,tabMode:true,children:u.jsxs("div",{className:"xen-hold-pattern flex flex-col gap-2",children:[u.jsx(__XenHPM01Controls,{lane:t==="Keyboard"?"keyboard":"enter",slots:f,referenceBars:x,muteSteps:M,pitchCents:qRef.current,slotVolumes:vRef.current,microtiming:mRef.current,tuningOrigin:T,onLoad:loadMemory}),u.jsx("button",{type:"button",title:"Open detailed Hold Pattern editor",onClick:()=>setDetailOpen(true),className:"xen-hpm02-open",children:__onHoldPlan?(__holdPlan&&__holdPlan.enabled!==false?"↗ Hold Pattern Studio · Plan active ("+(__holdPlan.entries||[]).filter(Boolean).length+"/"+(__holdPlan.entries||[]).length+" steps)":"↗ Hold Pattern Studio · Pattern & Plan"):"↗ Detailed Editor · reference grids"}),__onHoldPlan&&__holdPlan&&__holdPlan.enabled!==false?u.jsx(__XenHoldPlanLive,{plan:__holdPlan}):null,detailOpen?u.jsx(__XenHoldDetailEditor,{lane:t,slots:f,referenceBars:x,muteSteps:M,pitches:Q,volumes:V,microtiming:Y,tuningOrigin:T,previewRuntime:__holdPreviewRuntime,onMute:I,onPitch:qChange,onVolume:vChange,onMicrotiming:mChange,onSlots:E,onBars:L,onClose:()=>setDetailOpen(false),holdPlan:__holdPlan,onHoldPlanChange:__onHoldPlan,onRestoreGrid:__onRestoreGrid,onLoadPattern:B=>loadMemory({...B,slots:eu(B.slots),muteSteps:l0(B.muteSteps,eu(B.slots)),pitchCents:__xenHoldPitchVector(B.pitchCents,eu(B.slots))})}):null,u.jsxs("div",{className:"grid grid-cols-2 gap-2 sm:grid-cols-5",children:[u.jsx("button",{type:"button",onClick:()=>I(Pw(f)),className:"rounded border border-emerald-700 bg-emerald-950/30 px-2 py-2 text-xs text-emerald-100 hover:bg-emerald-900/40",children:"All"}),u.jsx("button",{type:"button",onClick:()=>I(_ie(f)),className:"rounded border border-neutral-700 bg-neutral-950 px-2 py-2 text-xs text-neutral-300 hover:bg-neutral-900",children:"Only 1"}),u.jsx("button",{type:"button",onClick:()=>I(Oie(f)),className:"rounded border border-neutral-700 bg-neutral-950 px-2 py-2 text-xs text-neutral-300 hover:bg-neutral-900",children:"delayed"}),u.jsx("button",{type:"button",onClick:()=>I(zie(f)),className:"rounded border border-neutral-700 bg-neutral-950 px-2 py-2 text-xs text-neutral-300 hover:bg-neutral-900",children:"Gallopp"}),u.jsx("button",{type:"button",onClick:()=>I(jie(f)),className:"rounded border border-neutral-700 bg-neutral-950 px-2 py-2 text-xs text-neutral-300 hover:bg-neutral-900",children:"Nachschlag"})]}),u.jsxs("div",{className:"grid grid-cols-3 gap-2",children:[u.jsxs("div",{children:[u.jsx("label",{className:"mb-1 block text-[10px] uppercase tracking-widest text-neutral-500",children:"Slots"}),u.jsxs("select",{value:k,onChange:B=>{if(B.target.value==="other"){E(g||48);return}E(parseInt(B.target.value,10))},className:"w-full border border-neutral-700 bg-neutral-950 p-1 text-xs text-neutral-300",children:[Z6.map(B=>u.jsx("option",{value:B,children:B},`${t}-${B}`)),u.jsx("option",{value:"other",children:"other"})]})]}),u.jsxs("div",{children:[u.jsx("label",{className:"mb-1 block text-[10px] uppercase tracking-widest text-neutral-500",children:"Other"}),u.jsx("input",{type:"number",min:1,max:256,step:1,value:g,onChange:B=>F(parseInt(B.target.value||"1",10)),className:"w-full border border-neutral-700 bg-neutral-950 p-1 text-xs text-neutral-300"})]}),u.jsxs("div",{children:[u.jsx("label",{className:"mb-1 block text-[10px] uppercase tracking-widest text-neutral-500",children:"Bars"}),u.jsx("input",{type:"number",min:.125,max:16,step:.125,value:x,onChange:B=>L(parseFloat(B.target.value||"1")),className:"w-full border border-neutral-700 bg-neutral-950 p-1 text-xs text-neutral-300",title:"Reference Duration in Bars"})]})]}),u.jsxs("div",{className:"flex items-center justify-between text-[11px] text-neutral-400",children:[u.jsx("span",{children:t}),u.jsxs("span",{children:[w,"/",M.length," active ·",x," T."]})]}),u.jsx(iT,{label:t,steps:M,tone:"neutral",onChange:B=>I(B),pitches:Q,onPitchChange:qChange})]})})})}
 /* THUNDER-HPP01: Hold Pattern Plan runtime. A plan assigns one Hold Pattern to each AUDIBLE
    step of one tuning period (octave, tritave, ...), not to physical keys. A key's position is
    derived from its own frequency, so it follows any number of keyboard rows, the movable
@@ -33322,7 +33365,7 @@ function R4({holdPlan:__holdPlan,onHoldPlanChange:__onHoldPlan,onRestoreGrid:__o
 const __XenHoldPlanRuntime=(()=>{
  let tableKey='',table=null,seenId=null,seenBase=0,seenMutes=null,seenOffs=null;
  const overrides=new WeakMap();
- const last={position:-1,serial:0};
+ const last={position:-1,serial:0,entry:null};
  function gridTable(p){
   const id=String(p?.gridTuning||'12edo'),base=Number(p?.gridBase)||0;
   const mutes=Array.isArray(p?.manualGridMutedSteps)?p.manualGridMutedSteps:[],offs=Array.isArray(p?.manualGridStepOffsets)?p.manualGridStepOffsets:[];
@@ -33368,9 +33411,10 @@ const __XenHoldPlanRuntime=(()=>{
   const plan=params?.keyboardHoldPlan;
   if(!plan||plan.enabled===false||!Array.isArray(plan.entries)||!plan.entries.length)return null;
   const pos=position(gridTable(__xenLiveGridParams(params)),hz);
-  if(pos<0)return null;
-  last.position=pos;last.serial++;
+  /* HPP-LIVEVIEW: remember what this attack plays (plain assignments; the panel reads them while it is open) */
+  if(pos<0){last.position=-1;last.entry=null;last.serial++;return null}
   const entry=plan.entries[pos%plan.entries.length];
+  last.position=pos;last.entry=entry||null;last.serial++;
   return entry&&entry.pattern&&typeof entry.pattern==='object'?override(entry):null;
  }
  return Object.freeze({forHz,gridTable,position,last});
@@ -46521,7 +46565,7 @@ if(i?.state==="running"){
 if(et.keyboardHoldSoundPreset?.startsWith("sample:")&&i?.state==="running")bw(et.keyboardHoldSoundPreset.slice(7),i).catch(()=>{});
 /* ROOM5-10: a restored / chosen Psy Lab sound gets its engine as soon as audio runs (the first note must not wait for the module); a lane that left Psy Lab gives it back */
 for(const[__lane,__snd]of[["wave",Ou],["keyboard",et.keyboardHoldSoundPreset]]){if(__XenPsyLab.isId(__snd)){if(i?.state==="running")__XenPsyLab.warm(__lane,__snd)}else __XenPsyLab.drop(__lane)}
-return()=>{__xenColdCancel?.()}},[i,et.particlePreset,Ou,et.keyboardHoldSoundPreset,et.waveStarterHoldSoundPreset,__nodalLibraryEpochState[0]]);P.useEffect(()=>{__XenNodalSurfaces.warmWaveField(Lr.current??i)},[i,et.gridBase,et.gridTuning,et.manualGridMutedSteps,et.manualGridStepOffsets,et.particleSystem,et.rootFollowImpulsRasterMuted]);P.useEffect(()=>()=>__XenNodalSurfaces.dispose(),[]);const Qg=Qwe({audioCtx:i,longToneHoldRef:Sm,allowSecondaryStart:(ct,traceId)=>kc(ct,"particle",traceId),getAudioCtx:()=>Lr.current??i,activeScheduledTonesRef:eo,transientRuntimeRef:hl,getNoiseBuffer:()=>xn.current.noiseBuffer,refucktorAudioGuardRef:X,particleRuntime:{getParticlePreset:()=>Tt.current.particlePreset,getParticleSourceGeneration:()=>Tt.current.__xenParticleSourceRevision??0,getParticleGradientX:()=>Tt.current.particleGradientX,getParticleGradientY:()=>Tt.current.particleGradientY,getParticleSampleProfileMode:()=>Tt.current.particleSampleProfileMode},particleFx:{ensureCollectiveMemoryFx:Cl,ensurePsychedelicSpiralDevice:fi,ensureTransientDriveDevice:Vi,ensureEnterHoldPsyFxDevice:Qu,ensureSchwarmdeuterDevice:Uu,ensureMyzelPostFxRouter:Fc},particleAuxTargets:{getTransientDriveParticles:()=>fo.current.particles,getPsychedelicSpiralParticles:()=>Cs.current.particles,getCollectiveMemoryParticles:()=>Br?_memoryPortsRef.current.particles:null,getSchwarmdeuterParticles:()=>go.current.particles,getMyzelPostFxParticles:()=>er.current.particles},room3BodyRuntime:{getEnabled:()=>xe,getBodyEnabled:()=>ot.current,getTopologyMode:()=>Ke.current,getDestination:()=>xn.current.room3BodyExciterGain,getModal:()=>Na.current,getControls:()=>kt.current},beginTransientEvent:Ec,ensureFinalMixBus:Hh,getParticleOutput:(ctx,index)=>Number.isInteger(index)&&index>=0&&index<32?__XenPan.route(ctx,"particle:"+index,__XenPan.route(ctx,"particle",Hh(ctx))):__XenPan.route(ctx,"particle",Hh(ctx)),recordAudioPressureCount:ea,recordAudioPressureAdaptiveAction:fr,silentHotPathSources:{wave:!0},noWaveStarterPolicyOwnedHere:!0,noRootFollowPolicyOwnedHere:!0}),{playScheduledTone:Hm,triggerRoom3BodyExciter:bv,releaseHeldScheduledTones:Zh,playNexusAgentTone:Vm}=Qg,{activeParticleNodes:ef,toggleNexusAgent:tf,setAllNexusAgents:__setAllNexusAgents,setNexusAgentVolume:Ug}=fEe({particleSystem:et.particleSystem,audioCtx:i,audioCtxRef:Lr,nexusParamsRef:Tt,nexusRefs:xn,updateNParams:Mr,playNexusAgentTone:Vm}),{previewWavePresetSelection:za,previewParticlePresetSelectionAction:Or}=AEe({initAudio:Ls,waveSoundRuntimeRef:fa,nexusParamsRef:Tt,waveOvertoneArpQueueRef:ra,playWaveStartSound:zo,playNexusAgentTone:Vm,gameWidth:vr,gameHeight:ir}),{enterArenaWorkspace:nf,startGameRun:Wm}=IY({room:e,setRoom:t,gameCanvasRef:qt,gameRefs:Kr,gameActive:_i,setGameActive:wu,setGameHud:As,keyRef:Ia,arenaInterpreterRef:sm,getArenaInterpreterSnapshot:ku,setArenaSeedStatus:zi,initAudio:async()=>{await Ls()},playScheduledTone:Hm,clampValue:Me}),{shouldEmitWellenstartHoldAudio:rf,shouldEmitKeyboardHoldWavePreview:Kg,releaseWaveStarterHoldGestureForKey:_s,resolveKeyboardWaveStarterSoundPreset:af,resolveNodalInitialHoldIdentity:mh}=Jxe({resonanceInputActive:bl,thunderModeEnabled:__xenThunderLane(et,"wellenstart")||__xenThunderLane(et,"klaviatur"),audioCtx:i,audioCtxRef:Lr,activeScheduledTonesRef:eo,longToneHoldRef:Sm,nexusParamsRef:Tt,nexusRefs:xn,gridTempoBpm:J,waveSoundPreset:Ou,freqFromY:Qa,playWaveStartSound:zo,recordAudioPressureAdaptiveAction:fr}),qm=(ct=!0,_t)=>(__flushResonancePointerMotion(xn),{nexusActive:Gr,refs:xn.current,params:Tt.current,baseWaveMaxRadius:UJ,clampValue:Me,freqFromY:Qa,markWaveLaunch:_g,playWaveStartSound:zo,playAudio:ct,resolvePlayAudio:_t}),$g=(ct,cursorAtEvent)=>{Y2e(qm(),ct,cursorAtEvent)},yv=ct=>{J2e(qm(),ct)};Kwe({audioCtx:i,nexusActive:Gr,nexusRefs:xn,nexusParamsRef:Tt,getLiveMasterBus:hi}),MPe({resonanceInputActive:bl,audioCtx:i,myzelEnabled:xe,managedLoopMaterial:dv,paramsRef:Tt,arrowStateRef:bh,nexusRefs:xn,keyboardMirrorRef:Eg,keyboardWindowOffsetRef:ha,pitchLaneStateRef:Tg,exportedDrumConfigs:So,recentLoopHotkeyEntries:Ku,recentRootFollowHotkeyEntries:Hg,rootFollowInputTargetHzRef:Sc,rootFollowLoopActive:!!et.rootFollowLoopActive,actions:{freqFromY:Qa,setSustainHoldActive:ct=>{const previous=vm(ct);__xenSetSampleHold(Lr.current??i,ct);return previous},setSwellHoldActive:Cc,setDampHoldActive:__xenSetDamp,setOctaveHoldActive:Am,setEnterHoldActive:Bh,releaseHeldScheduledTones:Zh,ensureAudioReady:Bs,reportAudioReadyFailure:(ct,_t)=>hr("audio","resonance-hotkey-audio-ready",ct,_t),ensureKeyboardPitchAudioReadyOnce:Vg,cycleQuantizeGrid:no,runEnterWaveGesture:ct=>nEe({...qm(!0,({freq:_t})=>rf(!!ct?.isRepeat,_t)),playWaveStartSound:(hz,sector,opts)=>zo(__xenThunderLane(et,"wellenstart")&&!String(Tt.current.waveStarterHoldSoundPreset||Ou).startsWith("nodal:")?__xenHoldPitchHz(hz,Tt.current.waveStarterHoldPitchCents,0):hz,sector,{...opts,holdSlotGain:__xenHoldSlotGain(Tt.current.waveStarterHoldSlotVolumes,0),holdSession:__XenHoldResident.peek("wellenstart:Enter"),waveStarterPresetOverride:Tt.current.waveStarterHoldSoundPreset||Ou,
+return()=>{__xenColdCancel?.()}},[i,et.particlePreset,Ou,et.keyboardHoldSoundPreset,et.waveStarterHoldSoundPreset,__nodalLibraryEpochState[0]]);/* ROOM5-11: Power off (and leaving the shell) silences every Psy Lab voice and tail at once */P.useEffect(()=>{if(!Gr)__XenPsyLab.panic();return()=>{if(Gr)__XenPsyLab.panic()}},[Gr]);P.useEffect(()=>{__XenNodalSurfaces.warmWaveField(Lr.current??i)},[i,et.gridBase,et.gridTuning,et.manualGridMutedSteps,et.manualGridStepOffsets,et.particleSystem,et.rootFollowImpulsRasterMuted]);P.useEffect(()=>()=>__XenNodalSurfaces.dispose(),[]);const Qg=Qwe({audioCtx:i,longToneHoldRef:Sm,allowSecondaryStart:(ct,traceId)=>kc(ct,"particle",traceId),getAudioCtx:()=>Lr.current??i,activeScheduledTonesRef:eo,transientRuntimeRef:hl,getNoiseBuffer:()=>xn.current.noiseBuffer,refucktorAudioGuardRef:X,particleRuntime:{getParticlePreset:()=>Tt.current.particlePreset,getParticleSourceGeneration:()=>Tt.current.__xenParticleSourceRevision??0,getParticleGradientX:()=>Tt.current.particleGradientX,getParticleGradientY:()=>Tt.current.particleGradientY,getParticleSampleProfileMode:()=>Tt.current.particleSampleProfileMode},particleFx:{ensureCollectiveMemoryFx:Cl,ensurePsychedelicSpiralDevice:fi,ensureTransientDriveDevice:Vi,ensureEnterHoldPsyFxDevice:Qu,ensureSchwarmdeuterDevice:Uu,ensureMyzelPostFxRouter:Fc},particleAuxTargets:{getTransientDriveParticles:()=>fo.current.particles,getPsychedelicSpiralParticles:()=>Cs.current.particles,getCollectiveMemoryParticles:()=>Br?_memoryPortsRef.current.particles:null,getSchwarmdeuterParticles:()=>go.current.particles,getMyzelPostFxParticles:()=>er.current.particles},room3BodyRuntime:{getEnabled:()=>xe,getBodyEnabled:()=>ot.current,getTopologyMode:()=>Ke.current,getDestination:()=>xn.current.room3BodyExciterGain,getModal:()=>Na.current,getControls:()=>kt.current},beginTransientEvent:Ec,ensureFinalMixBus:Hh,getParticleOutput:(ctx,index)=>Number.isInteger(index)&&index>=0&&index<32?__XenPan.route(ctx,"particle:"+index,__XenPan.route(ctx,"particle",Hh(ctx))):__XenPan.route(ctx,"particle",Hh(ctx)),recordAudioPressureCount:ea,recordAudioPressureAdaptiveAction:fr,silentHotPathSources:{wave:!0},noWaveStarterPolicyOwnedHere:!0,noRootFollowPolicyOwnedHere:!0}),{playScheduledTone:Hm,triggerRoom3BodyExciter:bv,releaseHeldScheduledTones:Zh,playNexusAgentTone:Vm}=Qg,{activeParticleNodes:ef,toggleNexusAgent:tf,setAllNexusAgents:__setAllNexusAgents,setNexusAgentVolume:Ug}=fEe({particleSystem:et.particleSystem,audioCtx:i,audioCtxRef:Lr,nexusParamsRef:Tt,nexusRefs:xn,updateNParams:Mr,playNexusAgentTone:Vm}),{previewWavePresetSelection:za,previewParticlePresetSelectionAction:Or}=AEe({initAudio:Ls,waveSoundRuntimeRef:fa,nexusParamsRef:Tt,waveOvertoneArpQueueRef:ra,playWaveStartSound:zo,playNexusAgentTone:Vm,gameWidth:vr,gameHeight:ir}),{enterArenaWorkspace:nf,startGameRun:Wm}=IY({room:e,setRoom:t,gameCanvasRef:qt,gameRefs:Kr,gameActive:_i,setGameActive:wu,setGameHud:As,keyRef:Ia,arenaInterpreterRef:sm,getArenaInterpreterSnapshot:ku,setArenaSeedStatus:zi,initAudio:async()=>{await Ls()},playScheduledTone:Hm,clampValue:Me}),{shouldEmitWellenstartHoldAudio:rf,shouldEmitKeyboardHoldWavePreview:Kg,releaseWaveStarterHoldGestureForKey:_s,resolveKeyboardWaveStarterSoundPreset:af,resolveNodalInitialHoldIdentity:mh}=Jxe({resonanceInputActive:bl,thunderModeEnabled:__xenThunderLane(et,"wellenstart")||__xenThunderLane(et,"klaviatur"),audioCtx:i,audioCtxRef:Lr,activeScheduledTonesRef:eo,longToneHoldRef:Sm,nexusParamsRef:Tt,nexusRefs:xn,gridTempoBpm:J,waveSoundPreset:Ou,freqFromY:Qa,playWaveStartSound:zo,recordAudioPressureAdaptiveAction:fr}),qm=(ct=!0,_t)=>(__flushResonancePointerMotion(xn),{nexusActive:Gr,refs:xn.current,params:Tt.current,baseWaveMaxRadius:UJ,clampValue:Me,freqFromY:Qa,markWaveLaunch:_g,playWaveStartSound:zo,playAudio:ct,resolvePlayAudio:_t}),$g=(ct,cursorAtEvent)=>{Y2e(qm(),ct,cursorAtEvent)},yv=ct=>{J2e(qm(),ct)};Kwe({audioCtx:i,nexusActive:Gr,nexusRefs:xn,nexusParamsRef:Tt,getLiveMasterBus:hi}),MPe({resonanceInputActive:bl,audioCtx:i,myzelEnabled:xe,managedLoopMaterial:dv,paramsRef:Tt,arrowStateRef:bh,nexusRefs:xn,keyboardMirrorRef:Eg,keyboardWindowOffsetRef:ha,pitchLaneStateRef:Tg,exportedDrumConfigs:So,recentLoopHotkeyEntries:Ku,recentRootFollowHotkeyEntries:Hg,rootFollowInputTargetHzRef:Sc,rootFollowLoopActive:!!et.rootFollowLoopActive,actions:{freqFromY:Qa,setSustainHoldActive:ct=>{const previous=vm(ct);__xenSetSampleHold(Lr.current??i,ct);return previous},setSwellHoldActive:Cc,setDampHoldActive:__xenSetDamp,setOctaveHoldActive:Am,setEnterHoldActive:Bh,releaseHeldScheduledTones:Zh,ensureAudioReady:Bs,reportAudioReadyFailure:(ct,_t)=>hr("audio","resonance-hotkey-audio-ready",ct,_t),ensureKeyboardPitchAudioReadyOnce:Vg,cycleQuantizeGrid:no,runEnterWaveGesture:ct=>nEe({...qm(!0,({freq:_t})=>rf(!!ct?.isRepeat,_t)),playWaveStartSound:(hz,sector,opts)=>zo(__xenThunderLane(et,"wellenstart")&&!String(Tt.current.waveStarterHoldSoundPreset||Ou).startsWith("nodal:")?__xenHoldPitchHz(hz,Tt.current.waveStarterHoldPitchCents,0):hz,sector,{...opts,holdSlotGain:__xenHoldSlotGain(Tt.current.waveStarterHoldSlotVolumes,0),holdSession:__XenHoldResident.peek("wellenstart:Enter"),waveStarterPresetOverride:Tt.current.waveStarterHoldSoundPreset||Ou,
   ...((Tt.current.waveStarterHoldSoundPreset||Ou)?.startsWith?.("nodal:")?mh("wellenstart","Enter"):{})})}),shouldEmitKeyboardHoldWavePreview:Kg,resolveKeyboardWaveStarterSoundPreset:af,resolveKeyboardHoldResidentSession:event=>__XenHoldResident.peek("klaviatur:"+(event.code||event.key)),
   resolveKeyboardInitialNodalHoldOptions:event=>String(af()||'').startsWith('nodal:')?mh('klaviatur',event.code||event.key):{},
   releaseWaveStarterHoldGestureForKey:_s,updateNParams:Mr,triggerDirectedPulse:yv,previewKeyboardWindowShift:Nh,changeGridTuning:on,setGridMode:Os,setChurchMode:Ll,cycleParticleSystem:Yh,selectMaterialLoopDirect:mv,selectRootFollowLoopDirect:Qh,toggleMaterialLoopDirect:Xu,toggleRootFollowLoopDirect:Om,browseMaterialLoopWithUmlaut:Nm,browseRootFollowLoopWithUmlaut:Uh,toggleNexusAgent:tf,setAllNexusAgents:__setAllNexusAgents,setKeyboardWindowStamp:gt,getAudioPressureBias:wk,getActiveScheduledToneCount:()=>eo.current.length,recordAdaptiveAction:fr,commitCursorY:mi,fastReconnectRootPitch:__xenP7389FastRootReconnect}}),DRe({myzelEnabled:xe&&installationSoundEnabled,room:e,tParams:Ie,bassRootMode:et.bassRootMode,selectedResidentId:Xt,topologyCanvasRef:Ca,topologyDragRef:ta,topologyRefs:Ir,myceliumSnapshotRef:ma,constellationStateRef:Oo,topologyLoopErrorRef:ui,topologyLastStatusRef:vs,myzelPrimedYRef:yn,setSystemState:Ja,resetMyzelTopologyNodes:ro,primeMyzelFromY:Sl}),Jke(Gi),oPe({resonanceInputActive:bl,myzelEnabled:xe,bassRootMode:et.bassRootMode,nexusParamsRef:Tt,nexusArrowRef:bh,nexusRefs:xn,focusCursorLastInputRef:na,gameWidth:vr,clampValue:Me,commitCursorY:mi,audioCtx:i,nexusActive:Gr});const{installationSharedFieldActive:of,installAttractCursor:UR,installAttractOscillatorBall:KR}=Oi;v2e({audioCtx:i,nexusActive:Gr,resonanceInputActive:bl,myzelEnabled:xe&&installationSoundEnabled,tParams:Ie,nParamsUI:et,myzelBallMode:St,myzelNodeMode:Et,myzelDriveEnabled:tt,myzelInterpreterMix:Ne,installationSharedFieldActive:of,myceliumSnapshotRef:ma,myceliumDroneAmountRef:cl,myceliumDroneModRef:ka,myzelGateRef:nr,myzelLayerModRef:po,installationSharedFieldActiveRef:_e,keyboardWindowOffsetRef:ha,setKeyboardWindowStamp:gt,commitResonanceCursorY:mi,nexusRefs:xn,nexusParamsRef:Tt,impactDecayOn:ml,waveLaunchAtRef:Fu,waveImpactDecayRef:Tu,resetResonanceActionHolds:ks,releaseHeldScheduledTones:Zh}),Xwe({room:e,nexusActive:Gr,audioCtx:i,nexusRefs:xn}),q2e({room:e,nexusActive:Gr,audioCtx:i,getLiveMasterBus:hi,ensureDroneGraphRouting:El,nexusRefs:xn,nexusParamsRef:Tt,applyRealtimeDroneOvertones:Yu,nexusCanvasRef:dl,myceliumDroneModRef:ka,myzelEnabled:xe,myzelLayerModRef:po,myzelGateRef:nr,room3BodyEnabled:Je,room3TimbreStateRef:ci,droneVolume:ji,resonanceFieldStepClockRef:le,installationSharedFieldActive:of,topologyRefs:Ir,installationFieldConfigRef:un,performanceCrisisRuntimePolicy:ga,audioCtxRef:Lr,playNexusAgentTone:Vm,gridTempoBpm:J,quantizeGrid:H,particleQuantizeReferenceBars:K,quantizeAnchorRef:Pc,waveCollisionQueueRef:Hu,focusCursorRef:Sn,getVisibleGridLines:Xn,activeGridLineFreqRef:Sh,activeGridLineSinceRef:vh,previousGridLineFreqRef:dm,previousGridLineAtRef:Fg,keyboardWindowOffsetRef:ha}),$we({audioCtx:i,nexusActive:Gr,nexusRefs:xn,droneVolume:ji,nParamsUI:et,myzelEnabled:xe,myzelGateRef:nr,myzelLayerModRef:po,myceliumDroneModRef:ka,room3BodyEnabled:Je,room3BodyControls:Xe,room3TimbreStateRef:ci,room3ModalStateRef:Na});const Sv=P.useCallback(()=>kl.ownsBeatRef.current,[kl.ownsBeatRef]);xIe({audioCtx:i,nexusActive:Gr,ensureDrumMixBus:qR,freqFromY:Qa,myceliumSnapshotRef:ma,bassNoteAction:{nexusParamsRef:Tt,ensureFinalMixBus:Hh,enterHoldPsyFxEnabled:Ao,enterHoldRef:_o,ensureEnterHoldPsyFxDevice:Qu,enterHoldPsyFxSendsRef:Ac},myzelLayerStepAction:{nexusRefs:xn,myzelEnabled:xe,myzelTopologyModeRef:Ke,bassRootMode:et.bassRootMode,bassRootHz:et.bassRootHz,readInterpreterMyzelBaseHz:wm,ensureMyzelSynth:zm,myceliumSnapshotRef:ma,myzelStep16ths:be,myzelLayerModRef:po,myzelGateRef:nr,intensityGlobal:Ie.intensityGlobal,myzelBallMode:St,myzelNodeMode:Et,myzelPattern:Ge,myzelInterpreterMix:Ne,readActiveDroneOvertoneMix:Gh},boundaryPorts:{rhythmForgeDrumPatternRef:Lg,rhythmForgeBassPatternRef:Bg,rhythmForgeDrumBarIndexRef:Dg,rhythmForgeBassBarIndexRef:Ng,rhythmForgeSeedRef:wh,psyBassPatternRef:Og,psyBassBarIndexRef:Rh,bassClipPlaybackCacheRef:mm,bassClipBarRootRef:Bu,readBassClipById:eH,scheduleStableRhythmMetronomePulse:ce},schedulerLoop:{nexusParamsRef:Tt,nexusRefs:xn,selectedExportedDrumConfig:wl,clearStableRhythmMetronomeTimeouts:ge},stableRhythmLaneSchedulerEffectExtractedFromAppTsx:!0,reactLifecycleNowHookOwned:!0,appStillSuppliesEffectInputs:!0,schedulerLoopStillProbeOwned:!0,hotPathAddsNoPerStepBuilder:!0,browserFunctionalSanityRequiredAfterThisCut:!0,readStableMusicLaneBeatWorkletOnly:Sv}),Tpe({installationAudible:xe&&installationSoundEnabled,audioCtx:i,nexusActive:Gr,nexusRefs:xn,myzelEnabled:xe,myzelTopologyMode:Ze,myzelTopologyModeRef:Ke,nParamsUI:{bassRootMode:et.bassRootMode,bassRootHz:et.bassRootHz},getInterpreterMyzelBaseHz:wm,getLiveMasterBus:hi,ensureMyzelSynth:zm,refs:{myceliumSnapshotRef:ma,myzelCentralColorMixerRef:an,nodalDeviceMatrixRef:Pt,myzelAudioFieldEnvelopeRef:li,semanticInteractionEnvelopeRef:xr,topologicalResonatorEnvelopeRef:pa,myzelLayerModRef:po,myzelInterpreterMixRef:pt,myzelGateRef:nr,myzelFieldSpaceBoostRef:Ss,myzelLegacyAudioRef:Fe,myzelInstallationMixRef:Mt,installationSharedFieldActiveRef:_e,installationFieldConfigRef:un},policies:{myzelDriveEnabled:tt,droneMinFreq:kx,droneMaxFreq:Up,isInstallationResidentBallCouplingActive:yte}}),NRe({audioCtx:i,nexusActive:Gr,nexusRefs:xn,room3BodyEnabled:Je,myzelTopologyMode:Ze,myzelEnabled:xe&&installationSoundEnabled,nParamsUI:{bassRootMode:et.bassRootMode,bassRootHz:et.bassRootHz,dronePreset:et.dronePreset},myceliumSnapshotRef:ma,myzelGateRef:nr,room3BodyControlsRef:kt,myzelInterpreterMixRef:pt,myzelPrimedYRef:yn,room3ModFieldRef:Ni,room3TimbreStateRef:ci,room3ModalStateRef:Na,room3BodyEnabledRef:ot,myzelTopologyModeRef:Ke,room3BodyCurveRef:ul,getLiveMasterBus:hi}),p2e({setDronePreset:$h,updateNParams:Mr,setDroneVolume:Du,setWaveSoundVolume:gl,setWaveSoundPreset:_u});
@@ -58377,6 +58421,20 @@ header:has(> .xen-h1-room-nav) {
 .xen-hold-pattern-tabs [role="tabpanel"] [data-xensonar-shared-segment-pattern-grid]>button{min-width:0;max-width:100%;padding:0 1px!important;white-space:nowrap;overflow-wrap:normal;font-size:10px;line-height:1}
 .xen-hold-pattern-tabs [role="tabpanel"] .xen-hold-pattern input,
 .xen-hold-pattern-tabs [role="tabpanel"] .xen-hold-pattern select{min-width:0;max-width:100%}
+
+/* HPP-LIVEVIEW: which plan figure the last key attack plays */
+.xen-hpp-live{border:1px solid rgba(167,139,250,.45);border-radius:6px;background:rgba(30,22,52,.55);padding:6px 8px;display:flex;flex-direction:column;gap:5px;min-width:0;transition:border-color .2s,box-shadow .2s}
+.xen-hpp-live.flash{border-color:rgba(214,190,255,.95);box-shadow:0 0 0 1px rgba(214,190,255,.35)}
+.xen-hpp-live-head{display:flex;gap:8px;align-items:baseline;font:600 11px/1.2 system-ui,sans-serif;color:#d8ccff;min-width:0}
+.xen-hpp-live-head span{color:#a99bd6;font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.xen-hpp-live-chips{display:flex;flex-wrap:wrap;gap:3px}
+.xen-hpp-live-chip{font:600 10px/1 system-ui,sans-serif;padding:3px 5px;border-radius:4px;border:1px solid rgba(167,139,250,.35);color:#b8acdf;background:rgba(10,8,20,.6)}
+.xen-hpp-live-chip.empty{opacity:.5}
+.xen-hpp-live-chip.on{background:#7c5cd6;color:#fff;border-color:#c7b4ff}
+.xen-hpp-live-name{font:500 11px/1.3 system-ui,sans-serif;color:#e6ddff;min-width:0;overflow-wrap:anywhere}
+.xen-hpp-live-strip{display:flex;align-items:flex-end;gap:2px;height:28px}
+.xen-hpp-live-strip>span{flex:1 1 0;max-width:14px;min-width:3px;background:#b9a3ff;border-radius:2px 2px 0 0}
+.xen-hpp-live-strip>span.off{background:rgba(185,163,255,.18)}
 </style>
 <style id="xen-thunder-hold-tabs-v3-geometry-safe">
 /* Only selected-state color and the flush tab/panel seam change. The native
@@ -70497,14 +70555,22 @@ const LiveHost=(()=>{
  function engineFor(lane,id,reload){let rec=engines.get(lane);if(rec&&rec.id===id&&!reload)return rec.engine;const pt=find(id);if(!pt)return null;
   if(!rec){rec={engine:new PsyEngine({visual:false}),id:null};engines.set(lane,rec)}
   rec.id=id;rec.engine.setAll(pt.params);return rec.engine}
+ /* ROOM5-11: the processor keeps voice ids in a typed array (numbers only). ROOM5-10 sent string ids ("keyboard:KeyA"), so +id was NaN, no note-off ever matched
+    and every Live note sounded until the voices were stolen. Each live note now gets its own number; the string key only lives here. */
+ let serial=0;
+ const voice=(lane,keyId)=>lane+':'+keyId;
+ function silence(lane){for(const[k,v]of active)if(!lane||k.startsWith(lane+':')){v.e.noteOff(v.n);active.delete(k)}}
+ function drop(lane){silence(lane);const rec=engines.get(lane);if(rec){rec.engine.dispose();engines.delete(lane)}}
  return{isId,find,entries,factoryNames:()=>FACTORY.map(q=>q.name),
   prepare(lane,id){const e=engineFor(lane,id,true);if(e)e.ensure().catch(()=>{});return !!e},
-  start(lane,keyId,id,hz,vel){const e=engineFor(lane,id);if(!e)return false;const k=lane+':'+keyId;if(active.has(k))e.noteOff(k);active.set(k,e);e.noteOn(k,hz,vel==null?.8:vel);return true},
-  bend(lane,keyId,hz){const k=lane+':'+keyId;active.get(k)?.bend(k,hz)},
-  stop(lane,keyId){const k=lane+':'+keyId,e=active.get(k);if(e){e.noteOff(k);active.delete(k)}},
-  drop(lane){this.allOff(lane);const rec=engines.get(lane);if(rec){rec.engine.dispose();engines.delete(lane)}},
-  allOff(lane){for(const[k,e]of active)if(!lane||k.startsWith(lane+':')){e.noteOff(k);active.delete(k)}},
-  dispose(){for(const rec of engines.values())rec.engine.dispose();engines.clear();active.clear()},
+  start(lane,keyId,id,hz,vel){const e=engineFor(lane,id);if(!e)return false;const k=voice(lane,keyId),old=active.get(k);if(old)old.e.noteOff(old.n);
+   const n=++serial;active.set(k,{e,n});e.noteOn(n,hz,vel==null?.8:vel);return true},
+  bend(lane,keyId,hz){const v=active.get(voice(lane,keyId));if(v)v.e.bend(v.n,hz)},
+  stop(lane,keyId){const k=voice(lane,keyId),v=active.get(k);if(v){v.e.noteOff(v.n);active.delete(k)}},
+  allOff:silence,drop,
+  /* Power off / leaving: no tails at all. Each engine fades its output in ~40 ms and is rebuilt on the next note (prepare() on a restored sound). */
+  panic(){for(const lane of[...engines.keys()])drop(lane)},
+  dispose(){for(const lane of[...engines.keys()])drop(lane);active.clear()},
   status(){return{lanes:[...engines.keys()],active:active.size,visual:[...engines.values()].map(r=>r.engine.visual)}}}})();
 
 /* ---------- metronome: for the player only ---------- */

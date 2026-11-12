@@ -30,12 +30,21 @@ box.globalThis=box;vm.createContext(box);
  const kb=nodes[0],wv=nodes[1];
  const params=(n)=>n.opts.processorOptions.params;assert.notDeepEqual(Array.from(params(kb)),Array.from(params(wv)),'the two lanes carry different patches');
  const on=n=>[...n.msgs].filter(m=>m.t==='on');
- assert.deepEqual(JSON.parse(JSON.stringify(on(kb))),[{t:'on',id:'keyboard:KeyA',hz:440,vel:.7}]);assert.deepEqual(JSON.parse(JSON.stringify(on(wv))),[{t:'on',id:'wave:Enter',hz:330,vel:.8}]);
- H.bend('keyboard','KeyA',466);assert(kb.msgs.some(m=>m.t==='bend'&&m.id==='keyboard:KeyA'&&m.hz===466));
- H.stop('keyboard','KeyA');assert(kb.msgs.some(m=>m.t==='off'&&m.id==='keyboard:KeyA'));assert.equal(H.status().active,1);
+ // ROOM5-11: the processor compares ids as NUMBERS (typed array): every id on the wire must be a finite number, and the off must carry the on's number
+ const kOn=on(kb),wOn=on(wv);assert.equal(kOn.length,1);assert.equal(wOn.length,1);
+ for(const m of[...kOn,...wOn])assert(typeof m.id==='number'&&Number.isFinite(m.id),'numeric voice id on the wire: '+JSON.stringify(m));
+ assert.equal(kOn[0].hz,440);assert.equal(kOn[0].vel,.7);assert.equal(wOn[0].hz,330);assert.equal(wOn[0].vel,.8);assert.notEqual(kOn[0].id,wOn[0].id);
+ H.bend('keyboard','KeyA',466);assert(kb.msgs.some(m=>m.t==='bend'&&m.id===kOn[0].id&&m.hz===466));
+ H.stop('keyboard','KeyA');assert(kb.msgs.some(m=>m.t==='off'&&m.id===kOn[0].id),'note-off carries the same number');assert.equal(H.status().active,1);
+ // re-press of the same key: the old voice is released, the new one has a new number
+ H.start('keyboard','KeyA','psylab:factory:Liquid Bell',440);H.start('keyboard','KeyA','psylab:factory:Liquid Bell',494);
+ const k2=on(kb).slice(-2);assert.notEqual(k2[0].id,k2[1].id);assert(kb.msgs.some(m=>m.t==='off'&&m.id===k2[0].id),'re-press releases the previous voice');H.stop('keyboard','KeyA');
  // unknown id: refuses, makes no sound
  assert.equal(H.start('keyboard','KeyB','psylab:missing',440),false);
- H.allOff('wave');assert(wv.msgs.some(m=>m.t==='off'&&m.id==='wave:Enter'));assert.equal(H.status().active,0);
+ H.allOff('wave');assert(wv.msgs.some(m=>m.t==='off'&&m.id===wOn[0].id));assert.equal(H.status().active,0);
+ // panic (Power off): every engine of every lane is disposed (output faded, then disconnected)
+ H.start('keyboard','KeyC','psylab:factory:Liquid Bell',440);await new Promise(r=>setImmediate(r));H.panic();
+ assert.deepEqual(JSON.parse(JSON.stringify(H.status().lanes)),[]);assert.equal(H.status().active,0);assert(nodes.every(n=>n.msgs.some(m=>m.t==='alloff')),'every engine got all-off');
  H.dispose();assert.deepEqual(JSON.parse(JSON.stringify(H.status().lanes)),[]);
  console.log('PASS ROOM5-08 live host contract');
 })().catch(e=>{console.error(e);process.exit(1)});

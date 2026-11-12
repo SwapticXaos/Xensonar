@@ -6,7 +6,7 @@ const src=fs.readFileSync(path.resolve(__dirname,'../src/factories/xenHoldPatter
 const ctx=vm.createContext({Math,JSON,Object,Array,Number,String,Date,Error,Set,Promise,globalThis:{}});
 const memory=vm.runInContext(src+';__xenHoldPatternMemoryFactory()',ctx);
 for(const lane of['keyboard','enter']){
- const rows=memory.factory(lane);assert(rows.length>=28,'factory set size: '+rows.length);
+ const rows=memory.factory(lane);assert(rows.length>=40,'factory set size: '+rows.length);
  const names=new Set();
  for(const r of rows){
   assert.equal(r.factory,true);assert.equal(r.sourceLane,lane);assert(!names.has(r.name),'unique name '+r.name);names.add(r.name);
@@ -18,6 +18,9 @@ for(const lane of['keyboard','enter']){
  const near=(arr,c,tol=2)=>arr.some(x=>Math.abs(x-c)<=tol);
  for(const r of rows.filter(x=>/^Major · (triad|Alberti|maj7|dominant|offbeat)/.test(x.name))){const a=active(r);assert(near(a,400)&&near(a,700)&&!near(a,300),'major triad tones: '+r.name)}
  for(const r of rows.filter(x=>/^Minor · (triad|Alberti|m7|offbeat)/.test(x.name))){const a=active(r);assert(near(a,300)&&near(a,700)&&!near(a,400),'minor triad tones: '+r.name)}
+ // THUNDER-SPEED: Thunder Mode is for shredding: every factory figure runs at 20 notes per bar or faster (≤ 111 ms per note at 108 BPM)
+ for(const r of rows)assert(r.slots/r.referenceBars>=20-1e-9,'fast enough: '+r.name+' '+r.slots/r.referenceBars+' per bar');
+ assert(rows.filter(r=>r.slots/r.referenceBars>=32-1e-9).length>=20,'most figures in 32nds');
  const just=rows.find(x=>x.name.startsWith('Just major'));assert(Math.abs(just.pitchCents[1]-386.314)<.01&&Math.abs(just.pitchCents[2]-701.955)<.01);
 }
 assert(memory.factory('bogus')[0].sourceLane==='keyboard','unknown lane falls back to keyboard');
