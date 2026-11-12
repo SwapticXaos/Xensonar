@@ -112,3 +112,4 @@ thunder_lane_split.cjs
 room5_live_host.cjs
 hold_factory_patterns.cjs
 room5_live_catalog.cjs
+stems_worklet.cjs

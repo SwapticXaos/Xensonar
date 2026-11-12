@@ -1,0 +1,23 @@
+'use strict';
+// KBD-WINDOW (real app): the Keyboard Window can be moved down AND back up with its two keys on every keyboard layout. On layouts whose physical Minus key types "-"
+// (US / EN) the particle-system hotkey used to swallow the "up" key, so a window pushed to the bottom stayed there. Usage: node tests/e2e/live_keyboard_window_keys.cjs dist/XenSonar_PROBE.html
+const {chromium}=require('playwright');const assert=require('node:assert/strict');const path=require('node:path');
+const html=path.resolve(process.argv[2]||'dist/XenSonar_PROBE.html');
+(async()=>{
+  const b=await chromium.launch({args:['--autoplay-policy=no-user-gesture-required']});const p=await b.newPage({viewport:{width:1440,height:900}});const errors=[];p.on('pageerror',e=>errors.push(e.message));
+  await p.goto('file://'+html);await p.waitForTimeout(3500);await p.getByRole('button',{name:'Power'}).click();await p.waitForTimeout(2500);
+  const E=c=>p.evaluate(x=>window.__xenProbe.draw.evalInBundle(x),c);const win=()=>E('__NodalBallGrid.windowOffset()'),sys=()=>E('__NodalBallGrid.params().particleSystem');
+  const press=async(code,key,shift=false)=>{await p.evaluate(([c,k,s])=>{const o={code:c,key:k,shiftKey:s,bubbles:true,cancelable:true};window.dispatchEvent(new KeyboardEvent('keydown',o));window.dispatchEvent(new KeyboardEvent('keyup',o))},[code,key,shift]);await p.waitForTimeout(70)};
+  await p.evaluate(()=>document.activeElement?.blur());
+  for(const layout of[{name:'US / EN keyboard',down:['BracketLeft','['],up:['Minus','-']},{name:'German keyboard',down:['BracketLeft','ü'],up:['Minus','ß']}]){
+   for(let i=0;i<40;i++)await press(...layout.down);const bottom=await win();assert(bottom>=10,layout.name+': the window went down: '+bottom);
+   const sysBefore=await sys();
+   for(let i=0;i<3;i++)await press(...layout.up);const moved=await win();assert.equal(moved,bottom-3,layout.name+': the "up" key moves the window back: '+bottom+' → '+moved);
+   assert.equal(await sys(),sysBefore,layout.name+': moving the window does not cycle the particle systems');
+   for(let i=0;i<40;i++)await press(...layout.up);assert.equal(await win(),0,layout.name+': all the way back to the top');
+  }
+  // the character hotkeys keep working where they are not the window key: Shift+Minus ("_") and the German "-" key (physical Slash)
+  const s0=await sys();await press('Minus','_',true);const s1=await sys();assert.notEqual(s1,s0,'Shift+Minus ("_") still cycles the particle systems');
+  await press('Slash','-');const s2=await sys();assert.notEqual(s2,s1,'the German "-" key (physical Slash) still cycles the particle systems');
+  assert.deepEqual(errors,[]);console.log('PASS KBD-WINDOW the keyboard window moves down and back up on US/EN and German keyboards');await b.close();
+})().catch(e=>{console.error(e);process.exit(1)});

@@ -66,7 +66,8 @@ const __xenLongMasterPCM=(()=>{
       throw Error('Long-session recording is incomplete or corrupt.');
     return meta;
   }
-  async function create(sampleRate){
+  /* extra: marks a different kind of archive (STEMS-01: {kind:'stem',stem}); such archives never appear in the master archive list (list()) */
+  async function create(sampleRate,extra=null){
     const db=await database();
     if(!Number.isInteger(sampleRate)||sampleRate<=0)throw Error('Invalid session sample rate.');
     // Conservative check for two PCM batches, not an arbitrary 10-minute recording.
@@ -80,7 +81,7 @@ const __xenLongMasterPCM=(()=>{
     const id='lm-'+Date.now().toString(36)+'-'+Math.random().toString(36).slice(2,12);
     let pending=[],pendingBytes=0,queuedBytes=0,parts=0,frames=0,committedFrames=0,writeError=null;
     let writing=Promise.resolve(),closed=false;
-    const base={id,schemaVersion:2,format:'float32-le-interleaved',channels:2,sampleRate,createdAt:Date.now(),status:'recording',frames:0,committedFrames:0,parts:0,chunkBytes:BATCH_BYTES,updatedAt:Date.now()};
+    const base={id,schemaVersion:2,format:'float32-le-interleaved',channels:2,sampleRate,createdAt:Date.now(),status:'recording',frames:0,committedFrames:0,parts:0,chunkBytes:BATCH_BYTES,updatedAt:Date.now(),...(extra&&typeof extra==='object'?extra:{})};
     await requestValue(TAKES,'put',base);
     function flush(){
       if(!pendingBytes)return;
@@ -155,10 +156,16 @@ const __xenLongMasterPCM=(()=>{
   }
   async function list(){
     const records=await requestValue(TAKES,'getAll');
-    return records.filter(x=>x.frames>0&&(x.status==='ready'||x.status==='partial'))
+    return records.filter(x=>x.kind!=='stem'&&x.frames>0&&(x.status==='ready'||x.status==='partial'))
       .sort((a,b)=>b.createdAt-a.createdAt);
   }
   async function latest(){return (await list())[0]||null;}
+  /* STEMS-01: remove stem archives (left over from a crash or a failed hand-over) older than maxAgeMs */
+  async function purgeStems(maxAgeMs=0){
+    const records=await requestValue(TAKES,'getAll'),now=Date.now();let removed=0;
+    for(const r of records)if(r.kind==='stem'&&now-(r.createdAt||0)>=maxAgeMs){await remove(r.id,r.parts);removed++}
+    return removed;
+  }
   function numberOfSegments(meta){return Math.ceil(validateMeta(meta).frames/(meta.sampleRate*SEGMENT_SECONDS));}
   async function exportPart(meta,index){
     validateMeta(meta);
@@ -266,6 +273,6 @@ const __xenLongMasterPCM=(()=>{
     }
     return values;
   }
-  return {create,latest,list,remove,streamFrames,readFrames,exportWhole,exportRange,getPeaks,exportPart,numberOfSegments,BATCH_BYTES,SEGMENT_SECONDS};
+  return {create,latest,list,remove,purgeStems,streamFrames,readFrames,exportWhole,exportRange,getPeaks,exportPart,numberOfSegments,BATCH_BYTES,SEGMENT_SECONDS};
 })();
 

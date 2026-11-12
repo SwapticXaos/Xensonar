@@ -32646,6 +32646,20 @@ function iie({nParamsUI:e,updateNParams:t,onLockCursorToGridChange:n,onQuantizeT
 /* THUNDER-HPM02-DYNAMICS01-BEGIN */
 /* Neutral defaults preserve HPM01/legacy patterns. Slot microtiming is a
    fraction of this gesture's slot duration, NOT a global/grid rephase. */
+/* STEMS-01: "Record stems → Multitrack" in the Master Recording panel. State lives in __XenStemRecorder; this control only starts / stops it and shows its message. */
+function __XenStemRecorderControls({masterRecording,name}){
+ const st=P.useSyncExternalStore(__XenStemRecorder.subscribe,__XenStemRecorder.snapshot,__XenStemRecorder.snapshot);
+ const rec=st.phase==='recording',busy=st.phase==='starting'||st.phase==='finalizing'||st.phase==='sending';
+ P.useEffect(()=>{if(st.phase!=='done'&&st.phase!=='error')return;const t=setTimeout(()=>__XenStemRecorder.reset(),20000);return()=>clearTimeout(t)},[st.phase,st.message]);
+ const fmt=ms=>{const s=Math.floor(ms/1000);return Math.floor(s/60)+':'+String(s%60).padStart(2,'0')};
+ const go=()=>{void __XenStemRecorder.start({name}).catch(()=>{})};
+ return u.jsxs("div",{className:"xen-stems flex gap-2 items-center flex-wrap",role:"group","aria-label":"Record stems for the Multitrack",children:[
+  u.jsx("button",{type:"button","data-xen-stems-rec":"true","aria-pressed":rec,disabled:busy||(masterRecording&&!rec),onClick:()=>rec?void __XenStemRecorder.stop():go(),
+   className:`px-3 py-1.5 border text-xs ${rec?"border-rose-500 bg-rose-950/50 text-rose-100":"border-amber-700/80 text-amber-100 hover:bg-amber-950/35"} disabled:text-neutral-600 disabled:border-neutral-800`,
+   title:"Record the Live Room as separate stems (Instruments, Drone, Rhythm, Space) for up to 5 minutes and send them to the Multitrack as new tracks. The stems are taken before the master chain; the stereo take is not affected.",
+   children:rec?"■ Stop stems · "+fmt(st.ms)+" / "+fmt(st.maxMs):busy?"Stems…":"● Record stems → Multitrack"}),
+  st.message?u.jsx("span",{role:"status",className:`text-[11px] ${st.phase==="error"?"text-rose-300":"text-neutral-400"}`,children:st.message}):null]});
+}
 function __xenHoldSlotGain(values,index){
  const value=Array.isArray(values)&&values.length?values[((Math.round(index)%values.length)+values.length)%values.length]:undefined;
  return typeof value==='number'&&Number.isFinite(value)?Math.max(0,Math.min(1.5,value)):1;
@@ -32930,7 +32944,7 @@ function vie({onDronePresetChange:__chooseDrone,nParamsUI:e,droneVolume:t,setDro
 const Y6=()=>{const[e,t]=P.useState(()=>xp()),[n,r]=P.useState(0),a=P.useCallback(()=>{t(xp())},[]),o=P.useCallback(()=>{r(p=>p+1),t(xp())},[]);P.useEffect(()=>{const p=()=>{a(),o()};return window.addEventListener(xP,a),window.addEventListener(AP,o),window.addEventListener("storage",p),()=>{window.removeEventListener(xP,a),window.removeEventListener(AP,o),window.removeEventListener("storage",p)}},[o,a]);const i=P.useMemo(()=>cj(),[n]),s=P.useCallback(p=>{lj(p),t(xp())},[]),l=P.useCallback(()=>{OJ(),t(xp())},[]),c=P.useCallback(p=>ti(i,p),[i]),d=P.useCallback(p=>(p&&!e.includes(p)?[...e,p]:e).map(b=>({value:b,label:ti(i,b)})),[e,i]);return{activeGridRack:e,libraryOptions:i,setStoredActiveGridRack:s,resetStoredActiveGridRack:l,getLabel:c,getActiveOptions:d}},Aie=(e,t,n)=>Math.min(n,Math.max(t,e)),xie=400,Mie=1760;function wie(e){const{gridBase:t,gridTuning:n,updateNParams:r}=e,[a,o]=P.useState(()=>t.toFixed(1)),[i,s]=P.useState(!1),[l,c]=P.useState(!1),{activeGridRack:d,libraryOptions:p,setStoredActiveGridRack:f,resetStoredActiveGridRack:b,getActiveOptions:g}=Y6();P.useEffect(()=>{if(typeof window>"u")return;const x=()=>s(!0);return window.addEventListener(uI,x),()=>window.removeEventListener(uI,x)},[]),P.useEffect(()=>{o(t.toFixed(1))},[t]);const y=x=>{const A=Number(x.replace(",",".")),M=Number.isFinite(A)?Aie(A,xie,Mie):t,v=Math.round(M*10)/10;r({gridBase:v}),o(v.toFixed(1))};return{gridBaseInput:a,setGridBaseInput:o,gridRackDialogOpen:i,setGridRackDialogOpen:s,droneEditorOpen:l,setDroneEditorOpen:c,activeGridRack:d,gridTuningLibraryOptions:p,activeGridTuningOptions:g(n),commitGridBase:y,handleActiveRackChange:x=>f(x),handleResetActiveRack:()=>b()}}function Rie(e){const{nParamsUI:t,updateNParams:n,changeGridTuning:r}=e,a=wie({gridBase:t.gridBase,gridTuning:t.gridTuning,updateNParams:n});__useQuickAdapter('grid',a.gridTuningLibraryOptions.map(x=>({id:x.value,name:x.label})),t.gridTuning,id=>{__XenBassGrid.clearLiveOverride();__XenQuick.setSelected('grid',id);r(id)});return u.jsxs(u.Fragment,{children:[u.jsxs("div",{className:"xen-mainroom-control-triptych",children:[u.jsx(nie,{...e,gridBaseInput:a.gridBaseInput,setGridBaseInput:a.setGridBaseInput,commitGridBase:a.commitGridBase,activeGridRack:a.activeGridRack,activeGridTuningOptions:a.activeGridTuningOptions,gridTuningLibraryOptions:a.gridTuningLibraryOptions,openGridRack:()=>a.setGridRackDialogOpen(!0)}),u.jsx(iie,{...e}),u.jsx(vie,{...e,droneEditorOpen:a.droneEditorOpen,setDroneEditorOpen:a.setDroneEditorOpen})]}),(globalThis.__XenOpenGridWorkbench=()=>a.setGridRackDialogOpen(!0),u.jsx(U6,{open:a.gridRackDialogOpen,currentTuning:t.gridTuning,activeRack:a.activeGridRack,onClose:()=>a.setGridRackDialogOpen(!1),onRackChange:a.handleActiveRackChange,onActivateTuning:r,onResetRack:a.handleResetActiveRack}))]})}const J6="data-xensonar-master-recording-rack",Cie=`[${J6}="true"]`;function kie(e="smooth"){if(typeof document>"u")return!1;const t=document.querySelector(Cie);return t?(t.scrollIntoView({behavior:e,block:"start",inline:"nearest"}),!0):!1}function Pie(e="smooth"){if(typeof window>"u")return;const t=()=>kie(e);window.requestAnimationFrame(()=>{window.requestAnimationFrame(t)}),window.setTimeout(t,180)}function Iie({recordingSourceMode:e,setRecordingSourceMode:t,recordingState:n,stopRecording:r,startRecording:a,formatDuration:o,addRecordingMarker:i,setRecordingState:s,recordingMarkers:l,maxRecordingMs:c,downloadRecordingWav:d,downloadRecordingCropWav:p,downloadRecordingFlac:f319DownloadFlac,flacBusy:f319FlacBusy,sendRecordingToMaterialForge:f,recordingCrop:b,recordingPreviewUrl:g,recordingPreviewAudioRef:y,recordingTimelineRef:x,handleTimelinePointerDown:A,recordingWaveform:M,recordingCropDraft:v,recordingPlayheadMs:w,longSessionMode,setLongSessionMode,downloadLongSessionPart,downloadLongSessionMarkers,deleteLongSessionTake,longArchiveList,selectLongArchive,onLongPreviewEnded}){const[R,k]=P.useState("full"),[format,setFormat]=P.useState("wav"),[syncTones,setSyncTones]=P.useState(false),I=!!b,E=n.hasTake&&(R==="full"||I);P.useEffect(()=>{R==="crop"&&!I&&k("full")},[I,R]);const F=()=>{if(f319FlacBusy)return;if(format.startsWith("flac")){
     f319DownloadFlac(R,{syncTones:!n.longSessionTake&&syncTones,bitDepth:format==="flac24"?24:16});return;
   }if(n.longSessionTake){downloadLongSessionPart(R==="crop"?b:null);return;}if(R==="crop"){if(!I)return;p();return}d()},L=()=>{R==="crop"&&!I||f(R,"editor")},L2=()=>{R==="crop"&&!I||f(R,"multitrack")};return u.jsxs("div",{[J6]:"true",className:"mt-4 bg-neutral-900/50 p-4 border border-neutral-800",children:[u.jsxs("div",{className:"flex flex-col md:flex-row md:items-center md:justify-between gap-3 mb-3 border-b border-neutral-800 pb-1",children:[u.jsxs("div",{children:[u.jsx("div",{className:"text-[10px] text-neutral-500 uppercase tracking-widest",children:"Master Recording · WAV / FLAC"}),u.jsx("div",{className:"text-sm text-neutral-400",children:longSessionMode?"Lossless disk-backed long session: up to 2 hours. WAV Float32 / FLAC 24/16; preview loads a 20-second window.":"Records the current full mix (max. 15 minutes). During recording, press F9, click the logo or use the area to the right to add a marker."}),u.jsx("div",{className:"mt-2 text-[11px] text-neutral-500",children:e==="without_drums"?"Recording source: mix without drums; live drums remain audible.":"Recording source: full mix including drums."})]}),u.jsxs("div",{className:"xen-master-rec-controls",children:[
-u.jsxs("div",{className:"flex gap-1 items-center flex-wrap",role:"group","aria-label":"Master Recording length",children:[u.jsx("button",{type:"button",disabled:n.isRecording,onClick:()=>setLongSessionMode(false),"aria-pressed":!longSessionMode,className:`px-2 py-1 text-xs border ${!longSessionMode?"border-cyan-500 bg-cyan-950/40 text-cyan-100":"border-neutral-700 text-neutral-400"}`,children:"Take · 15 min"}),u.jsx("button",{type:"button",disabled:n.isRecording,onClick:()=>setLongSessionMode(true),"aria-pressed":!!longSessionMode,className:`px-2 py-1 text-xs border ${longSessionMode?"border-emerald-500 bg-emerald-950/40 text-emerald-100":"border-neutral-700 text-neutral-400"}`,children:"Long Session · 2 h"})]}),
+u.jsxs("div",{className:"flex gap-1 items-center flex-wrap",role:"group","aria-label":"Master Recording length",children:[u.jsx("button",{type:"button",disabled:n.isRecording,onClick:()=>setLongSessionMode(false),"aria-pressed":!longSessionMode,className:`px-2 py-1 text-xs border ${!longSessionMode?"border-cyan-500 bg-cyan-950/40 text-cyan-100":"border-neutral-700 text-neutral-400"}`,children:"Take · 15 min"}),u.jsx("button",{type:"button",disabled:n.isRecording,onClick:()=>setLongSessionMode(true),"aria-pressed":!!longSessionMode,className:`px-2 py-1 text-xs border ${longSessionMode?"border-emerald-500 bg-emerald-950/40 text-emerald-100":"border-neutral-700 text-neutral-400"}`,children:"Long Session · 2 h"})]}),u.jsx(__XenStemRecorderControls,{masterRecording:n.isRecording,name:n.filenameBase}),
  u.jsxs("div",{className:"xen-master-take-drums",role:"group","aria-label":"Drums in Take",children:[u.jsx("span",{className:"xen-master-take-drums-label",children:"Drums in Take"}),u.jsx("button",{type:"button",onClick:()=>t("with_drums"),disabled:n.isRecording,"aria-pressed":e==="with_drums",className:`px-2 py-1 text-xs border ${e==="with_drums"?"border-fuchsia-500 bg-fuchsia-950/40 text-fuchsia-100":"border-neutral-800 text-neutral-400"} ${n.isRecording?"opacity-60 cursor-not-allowed":""}`,children:"with"}),u.jsx("button",{type:"button",onClick:()=>t("without_drums"),disabled:n.isRecording,"aria-pressed":e==="without_drums",className:`px-2 py-1 text-xs border ${e==="without_drums"?"border-emerald-500 bg-emerald-950/40 text-emerald-100":"border-neutral-800 text-neutral-400"} ${n.isRecording?"opacity-60 cursor-not-allowed":""}`,children:"without"})]}),
  u.jsx(__XenRecordEnoughButton,{recordingActive:n.isRecording,recordingDurationLabel:o(n.durationMs),onActivate:()=>{n.isRecording?r():a()},placement:'rack'}),
  u.jsx("button",{type:"button",onClick:()=>i("logo"),disabled:!n.isRecording,className:`xen-master-rec-marker px-3 py-1.5 border text-sm ${n.isRecording?"border-emerald-500 bg-emerald-950/40 text-emerald-100":"border-neutral-800 text-neutral-600 cursor-not-allowed"}`,children:"Add Marker"}),
@@ -38950,7 +38964,8 @@ const __xenLongMasterPCM=(()=>{
       throw Error('Long-session recording is incomplete or corrupt.');
     return meta;
   }
-  async function create(sampleRate){
+  /* extra: marks a different kind of archive (STEMS-01: {kind:'stem',stem}); such archives never appear in the master archive list (list()) */
+  async function create(sampleRate,extra=null){
     const db=await database();
     if(!Number.isInteger(sampleRate)||sampleRate<=0)throw Error('Invalid session sample rate.');
     // Conservative check for two PCM batches, not an arbitrary 10-minute recording.
@@ -38964,7 +38979,7 @@ const __xenLongMasterPCM=(()=>{
     const id='lm-'+Date.now().toString(36)+'-'+Math.random().toString(36).slice(2,12);
     let pending=[],pendingBytes=0,queuedBytes=0,parts=0,frames=0,committedFrames=0,writeError=null;
     let writing=Promise.resolve(),closed=false;
-    const base={id,schemaVersion:2,format:'float32-le-interleaved',channels:2,sampleRate,createdAt:Date.now(),status:'recording',frames:0,committedFrames:0,parts:0,chunkBytes:BATCH_BYTES,updatedAt:Date.now()};
+    const base={id,schemaVersion:2,format:'float32-le-interleaved',channels:2,sampleRate,createdAt:Date.now(),status:'recording',frames:0,committedFrames:0,parts:0,chunkBytes:BATCH_BYTES,updatedAt:Date.now(),...(extra&&typeof extra==='object'?extra:{})};
     await requestValue(TAKES,'put',base);
     function flush(){
       if(!pendingBytes)return;
@@ -39039,10 +39054,16 @@ const __xenLongMasterPCM=(()=>{
   }
   async function list(){
     const records=await requestValue(TAKES,'getAll');
-    return records.filter(x=>x.frames>0&&(x.status==='ready'||x.status==='partial'))
+    return records.filter(x=>x.kind!=='stem'&&x.frames>0&&(x.status==='ready'||x.status==='partial'))
       .sort((a,b)=>b.createdAt-a.createdAt);
   }
   async function latest(){return (await list())[0]||null;}
+  /* STEMS-01: remove stem archives (left over from a crash or a failed hand-over) older than maxAgeMs */
+  async function purgeStems(maxAgeMs=0){
+    const records=await requestValue(TAKES,'getAll'),now=Date.now();let removed=0;
+    for(const r of records)if(r.kind==='stem'&&now-(r.createdAt||0)>=maxAgeMs){await remove(r.id,r.parts);removed++}
+    return removed;
+  }
   function numberOfSegments(meta){return Math.ceil(validateMeta(meta).frames/(meta.sampleRate*SEGMENT_SECONDS));}
   async function exportPart(meta,index){
     validateMeta(meta);
@@ -39150,7 +39171,7 @@ const __xenLongMasterPCM=(()=>{
     }
     return values;
   }
-  return {create,latest,list,remove,streamFrames,readFrames,exportWhole,exportRange,getPeaks,exportPart,numberOfSegments,BATCH_BYTES,SEGMENT_SECONDS};
+  return {create,latest,list,remove,purgeStems,streamFrames,readFrames,exportWhole,exportRange,getPeaks,exportPart,numberOfSegments,BATCH_BYTES,SEGMENT_SECONDS};
 })();
 
 /* UVO-EQ-Live2 / PCM2 | Master Recorder: codec-free sidechain capture.
@@ -45832,7 +45853,7 @@ ${t.lastError??"unknown"}`:`MASTER OUTPUT · ${t.state.toUpperCase()}`}function 
  // P7.4: OS key-repeat of the SAME held note is not a new root gesture.
  // Do not steal the latest pending pointer update from mouse navigation.
  const A=i1e({state:o,params:a,pitchIdx:y,keyboardWindowOffset:r,nowMs:i,isRepeat:t.repeat});if(A.kind==="muted-pitch")return!0;
- if(t.repeat&&o.lastPitchIdx===y)return d("keyboard-input-hold-repeat-coalesced"),p(A.targetY,{keyboardHoldRepeat:true,keyboardFoundationGesture:true,previewWave:!1,syncHud:!1,syncRootFollowInput:!1}),!0;if(A.kind==="continuous-gliss-target"&&t.repeat)return d("keyboard-input-gliss-coalesced"),d("keyboard-input-wave-preview-suppressed"),p(A.targetY,{keyboardFoundationGesture:true,previewWave:!1,syncHud:!0,syncRootFollowInput:s}),!0;const M=c(),v=f?.(t,{targetY:A.targetY,targetHz:A.targetHz})??!0;v||d("keyboard-input-hold-repeat-coalesced");const w=M&&v&&!t.repeat,preset=b?.(),hpp=w&&__xenThunderLane(a,"klaviatur")?__XenHoldPlanRuntime.forHz(a,A.targetHz):null;return w||d("keyboard-input-wave-preview-suppressed"),p(A.targetY,{keyboardFoundationGesture:true,previewWave:w,syncHud:!0,syncRootFollowInput:s,waveStarterOptions:{requestedAtMs:t.timeStamp,keyboardGestureSource:"keyboard-direct",holdSlotGain:__xenHoldSlotGain(hpp?hpp.volumes:a.keyboardHoldSlotVolumes,0),keyboardExactPitchHz:a.thunderModeEnabled!==false&&!String(preset||"").startsWith("nodal:")?(hpp?__xenHoldPitchStateHz(A.targetHz,hpp.pitchState,0):__xenHoldPitchHz(A.targetHz,a.keyboardHoldPitchCents,0)):A.targetHz,holdSession:z?.(t),...Z?.(t),...b?{waveStarterPresetOverride:preset,entrophonWaveActive:preset==="entrophon"||(typeof preset==="string"&&preset.startsWith("entrophon:"))}:{}}}),!0}function yPe({event:e,params:t,arrowState:n,cursorY:r,preventDefault:a,commitCursorY:o}){t=__xenLiveGridParams(t);if(e.key==="ArrowLeft"||e.key==="ArrowRight")return XI(n,e.key,!0),a(),!0;if(e.key!=="ArrowUp"&&e.key!=="ArrowDown")return!1;if(a(),t.lockCursorToGrid){if(e.repeat)return!0;const i=e.key==="ArrowUp"?1:-1,s=uZ(r,i,t.gridBase,t.gridTuning,t.manualGridMutedSteps,t.manualGridStepOffsets);return s!==r&&o(s),!0}return XI(n,e.key,!0),!0}function SPe(e,t,n){return Yw(e)&&e.repeat?(e.preventDefault(),n?.("keyboard-input-hold-repeat-coalesced"),!0):Xxe(e,t)}function vPe({event:e,arrowState:t,holdActions:n,owned:r=false}){return !r&&$q(e)?!1:(XI(t,e.key,!1),Yxe(e,n),!0)}function APe({runtime:e,actions:t}){const{event:n,managedLoopMaterial:r,params:a,arrowState:o,cursorY:i,keyboardMirrorActive:s,keyboardWindowOffset:l,pitchLaneState:c,exportedDrumConfigs:d,recentLoopHotkeyEntries:p,recentRootFollowHotkeyEntries:f,rootFollowLoopActive:b}=e,{holdActions:g,ensureAudioReady:y,reportAudioReadyFailure:x,ensureKeyboardPitchAudioReadyOnce:A,cycleQuantizeGrid:M,runEnterWaveGesture:v,updateNParams:w,toggleKeyboardMirror:R,triggerDirectedPulse:k,previewKeyboardWindowShift:I,changeGridTuning:E,setGridMode:F,resetKeyboardWindow:L,setChurchMode:B,cycleParticleSystem:O,selectMaterialLoopDirect:T,selectRootFollowLoopDirect:_,toggleMaterialLoopDirect:G,toggleRootFollowLoopDirect:j,browseMaterialLoopWithUmlaut:N,browseRootFollowLoopWithUmlaut:W,toggleNexusAgent:V,nowMs:U,recordAdaptiveAction:H,commitCursorY:q}=t;if(Kxe(n,r))return{handled:!1,route:"ignored"};const K=__xenNormalizeResonanceKey(n),Y=()=>n.preventDefault(),J=(te,X={})=>{$xe({event:n,key:K,ensureAudioReady:y,command:te,failureContext:X,reportFailure:x})};if(yPe({event:n,params:a,arrowState:o,cursorY:i,preventDefault:Y,commitCursorY:te=>q(te,{previewWave:!0})}))return{handled:!0,route:"arrow-keydown"};if(SPe(n,g,H))return{handled:!0,route:"momentary-hold-keydown"};if(n.code==="Tab"&&a.quantizeOn)return Y(),M(),{handled:!0,route:"quantize-grid-cycle"};if(n.key==="Enter")return g.setEnterHoldActive(!0),J(()=>v({isRepeat:n.repeat})),{handled:!0,route:"enter-wave-hotkey"};const Z=lPe(a);if(cPe({event:n,currentMode:Z,updateNParams:w,preventDefault:Y}))return{handled:!0,route:"hotkey-mode-toggle"};if(!n.repeat&&(K==="-"||K==="_")&&fPe({event:n,params:a,setChurchMode:B,cycleParticleSystem:O,preventDefault:Y}))return{handled:!0,route:"particle-system-hotkey"};if(dPe({event:n,key:K,runWithAudio:J,triggerDirectedPulse:k,previewKeyboardWindowShift:I}))return{handled:!0,route:"auxiliary-hotkey"};if(!(Z==="keyboard-extension"&&__xenThirdKeyboardRowIndex(n)>=0)&&pPe({event:n,params:a,runWithAudio:J,changeGridTuning:E,setGridMode:F,resetKeyboardWindow:L}))return{handled:!0,route:"grid-hotkey"};if(!n.repeat){if(fPe({event:n,params:a,setChurchMode:B,cycleParticleSystem:O,preventDefault:Y}))return{handled:!0,route:"particle-system-hotkey"};if(uPe({key:K,currentMode:Z,recentLoopHotkeyEntries:p,recentRootFollowHotkeyEntries:f,selectMaterialLoopDirect:T,selectRootFollowLoopDirect:_,toggleMaterialLoopDirect:G,toggleRootFollowLoopDirect:j,browseMaterialLoopWithUmlaut:N,browseRootFollowLoopWithUmlaut:W,preventDefault:Y}))return{handled:!0,route:"loop-hotkey-mode"};if(mPe({event:n,key:K,params:a,exportedDrumConfigs:d,updateNParams:w,toggleNexusAgent:V,runWithAudio:J,preventDefault:Y}))return{handled:!0,route:"non-repeat-auxiliary-hotkey"}}return bPe({event:n,keyboardMirrorActive:s,keyboardWindowOffset:l,params:a,pitchLaneState:c,nowMs:U(),rootFollowLoopActive:b,preventDefault:Y,ensureKeyboardPitchAudioReadyOnce:A,recordAdaptiveAction:H,commitCursorY:q,shouldEmitKeyboardHoldWavePreview:t.shouldEmitKeyboardHoldWavePreview,resolveKeyboardWaveStarterSoundPreset:t.resolveKeyboardWaveStarterSoundPreset,resolveKeyboardInitialNodalHoldOptions:t.resolveKeyboardInitialNodalHoldOptions})?{handled:!0,route:"keyboard-pitch-command"}:{handled:!1,route:"unhandled"}}function xPe({runtime:e,actions:t}){const{event:n,arrowState:r}=e,{holdActions:a}=t;return vPe({event:n,arrowState:r,holdActions:a})?{handled:!0,route:"arrow-hold-release"}:{handled:!1,route:"ignored"}}function MPe(e){
+ if(t.repeat&&o.lastPitchIdx===y)return d("keyboard-input-hold-repeat-coalesced"),p(A.targetY,{keyboardHoldRepeat:true,keyboardFoundationGesture:true,previewWave:!1,syncHud:!1,syncRootFollowInput:!1}),!0;if(A.kind==="continuous-gliss-target"&&t.repeat)return d("keyboard-input-gliss-coalesced"),d("keyboard-input-wave-preview-suppressed"),p(A.targetY,{keyboardFoundationGesture:true,previewWave:!1,syncHud:!0,syncRootFollowInput:s}),!0;const M=c(),v=f?.(t,{targetY:A.targetY,targetHz:A.targetHz})??!0;v||d("keyboard-input-hold-repeat-coalesced");const w=M&&v&&!t.repeat,preset=b?.(),hpp=w&&__xenThunderLane(a,"klaviatur")?__XenHoldPlanRuntime.forHz(a,A.targetHz):null;return w||d("keyboard-input-wave-preview-suppressed"),p(A.targetY,{keyboardFoundationGesture:true,previewWave:w,syncHud:!0,syncRootFollowInput:s,waveStarterOptions:{requestedAtMs:t.timeStamp,keyboardGestureSource:"keyboard-direct",holdSlotGain:__xenHoldSlotGain(hpp?hpp.volumes:a.keyboardHoldSlotVolumes,0),keyboardExactPitchHz:a.thunderModeEnabled!==false&&!String(preset||"").startsWith("nodal:")?(hpp?__xenHoldPitchStateHz(A.targetHz,hpp.pitchState,0):__xenHoldPitchHz(A.targetHz,a.keyboardHoldPitchCents,0)):A.targetHz,holdSession:z?.(t),...Z?.(t),...b?{waveStarterPresetOverride:preset,entrophonWaveActive:preset==="entrophon"||(typeof preset==="string"&&preset.startsWith("entrophon:"))}:{}}}),!0}function yPe({event:e,params:t,arrowState:n,cursorY:r,preventDefault:a,commitCursorY:o}){t=__xenLiveGridParams(t);if(e.key==="ArrowLeft"||e.key==="ArrowRight")return XI(n,e.key,!0),a(),!0;if(e.key!=="ArrowUp"&&e.key!=="ArrowDown")return!1;if(a(),t.lockCursorToGrid){if(e.repeat)return!0;const i=e.key==="ArrowUp"?1:-1,s=uZ(r,i,t.gridBase,t.gridTuning,t.manualGridMutedSteps,t.manualGridStepOffsets);return s!==r&&o(s),!0}return XI(n,e.key,!0),!0}function SPe(e,t,n){return Yw(e)&&e.repeat?(e.preventDefault(),n?.("keyboard-input-hold-repeat-coalesced"),!0):Xxe(e,t)}function vPe({event:e,arrowState:t,holdActions:n,owned:r=false}){return !r&&$q(e)?!1:(XI(t,e.key,!1),Yxe(e,n),!0)}function APe({runtime:e,actions:t}){const{event:n,managedLoopMaterial:r,params:a,arrowState:o,cursorY:i,keyboardMirrorActive:s,keyboardWindowOffset:l,pitchLaneState:c,exportedDrumConfigs:d,recentLoopHotkeyEntries:p,recentRootFollowHotkeyEntries:f,rootFollowLoopActive:b}=e,{holdActions:g,ensureAudioReady:y,reportAudioReadyFailure:x,ensureKeyboardPitchAudioReadyOnce:A,cycleQuantizeGrid:M,runEnterWaveGesture:v,updateNParams:w,toggleKeyboardMirror:R,triggerDirectedPulse:k,previewKeyboardWindowShift:I,changeGridTuning:E,setGridMode:F,resetKeyboardWindow:L,setChurchMode:B,cycleParticleSystem:O,selectMaterialLoopDirect:T,selectRootFollowLoopDirect:_,toggleMaterialLoopDirect:G,toggleRootFollowLoopDirect:j,browseMaterialLoopWithUmlaut:N,browseRootFollowLoopWithUmlaut:W,toggleNexusAgent:V,nowMs:U,recordAdaptiveAction:H,commitCursorY:q}=t;if(Kxe(n,r))return{handled:!1,route:"ignored"};const K=__xenNormalizeResonanceKey(n),Y=()=>n.preventDefault(),J=(te,X={})=>{$xe({event:n,key:K,ensureAudioReady:y,command:te,failureContext:X,reportFailure:x})};if(yPe({event:n,params:a,arrowState:o,cursorY:i,preventDefault:Y,commitCursorY:te=>q(te,{previewWave:!0})}))return{handled:!0,route:"arrow-keydown"};if(SPe(n,g,H))return{handled:!0,route:"momentary-hold-keydown"};if(n.code==="Tab"&&a.quantizeOn)return Y(),M(),{handled:!0,route:"quantize-grid-cycle"};if(n.key==="Enter")return g.setEnterHoldActive(!0),J(()=>v({isRepeat:n.repeat})),{handled:!0,route:"enter-wave-hotkey"};const Z=lPe(a);if(cPe({event:n,currentMode:Z,updateNParams:w,preventDefault:Y}))return{handled:!0,route:"hotkey-mode-toggle"};/* KBD-WINDOW: on layouts where the physical Minus key types "-" (US / EN keyboards) this character hotkey shadowed the Keyboard-Window "up" key, so a window pushed to the bottom could not be moved back. The physical window key wins; Shift+Minus ("_") still cycles the particle systems backwards. */if(!n.repeat&&(K==="-"||K==="_")&&!(dJ(n.code)&&!n.shiftKey)&&fPe({event:n,params:a,setChurchMode:B,cycleParticleSystem:O,preventDefault:Y}))return{handled:!0,route:"particle-system-hotkey"};if(dPe({event:n,key:K,runWithAudio:J,triggerDirectedPulse:k,previewKeyboardWindowShift:I}))return{handled:!0,route:"auxiliary-hotkey"};if(!(Z==="keyboard-extension"&&__xenThirdKeyboardRowIndex(n)>=0)&&pPe({event:n,params:a,runWithAudio:J,changeGridTuning:E,setGridMode:F,resetKeyboardWindow:L}))return{handled:!0,route:"grid-hotkey"};if(!n.repeat){if(fPe({event:n,params:a,setChurchMode:B,cycleParticleSystem:O,preventDefault:Y}))return{handled:!0,route:"particle-system-hotkey"};if(uPe({key:K,currentMode:Z,recentLoopHotkeyEntries:p,recentRootFollowHotkeyEntries:f,selectMaterialLoopDirect:T,selectRootFollowLoopDirect:_,toggleMaterialLoopDirect:G,toggleRootFollowLoopDirect:j,browseMaterialLoopWithUmlaut:N,browseRootFollowLoopWithUmlaut:W,preventDefault:Y}))return{handled:!0,route:"loop-hotkey-mode"};if(mPe({event:n,key:K,params:a,exportedDrumConfigs:d,updateNParams:w,toggleNexusAgent:V,runWithAudio:J,preventDefault:Y}))return{handled:!0,route:"non-repeat-auxiliary-hotkey"}}return bPe({event:n,keyboardMirrorActive:s,keyboardWindowOffset:l,params:a,pitchLaneState:c,nowMs:U(),rootFollowLoopActive:b,preventDefault:Y,ensureKeyboardPitchAudioReadyOnce:A,recordAdaptiveAction:H,commitCursorY:q,shouldEmitKeyboardHoldWavePreview:t.shouldEmitKeyboardHoldWavePreview,resolveKeyboardWaveStarterSoundPreset:t.resolveKeyboardWaveStarterSoundPreset,resolveKeyboardInitialNodalHoldOptions:t.resolveKeyboardInitialNodalHoldOptions})?{handled:!0,route:"keyboard-pitch-command"}:{handled:!1,route:"unhandled"}}function xPe({runtime:e,actions:t}){const{event:n,arrowState:r}=e,{holdActions:a}=t;return vPe({event:n,arrowState:r,holdActions:a})?{handled:!0,route:"arrow-hold-release"}:{handled:!1,route:"ignored"}}function MPe(e){
  // Physical key ownership outlives audio-context listener reattachment. The
  // dedicated lifecycle below owns terminal boundaries, not the routing effect.
  const ownership=P.useRef({keys:new Map(),serial:0,enabled:e.resonanceInputActive});
@@ -46662,9 +46683,9 @@ if(i?.state==="running"){
 if(et.keyboardHoldSoundPreset?.startsWith("sample:")&&i?.state==="running")bw(et.keyboardHoldSoundPreset.slice(7),i).catch(()=>{});
 /* ROOM5-10: a restored / chosen Psy Lab sound gets its engine as soon as audio runs (the first note must not wait for the module); a lane that left Psy Lab gives it back */
 for(const[__lane,__snd]of[["wave",Ou],["keyboard",et.keyboardHoldSoundPreset]]){if(__XenPsyLab.isId(__snd)){if(i?.state==="running")__XenPsyLab.warm(__lane,__snd)}else __XenPsyLab.drop(__lane)}
-return()=>{__xenColdCancel?.()}},[i,et.particlePreset,Ou,et.keyboardHoldSoundPreset,et.waveStarterHoldSoundPreset,__nodalLibraryEpochState[0]]);/* ROOM5-12: the cursor of the Live Room drives Psy Lab glissando */P.useEffect(()=>{__XenPsyLab.bindCursor({hz:()=>Qa(dO(xn).cursorY),arrows:()=>bh.current,
+return()=>{__xenColdCancel?.()}},[i,et.particlePreset,Ou,et.keyboardHoldSoundPreset,et.waveStarterHoldSoundPreset,__nodalLibraryEpochState[0]]);/* STEMS-01: where the stem recorder finds the Live Room mixer (role gains before the master chain); read on demand, nothing runs while idle */P.useEffect(()=>{globalThis.__XenLiveStemSource={get:()=>Gr?{ctx:Lr.current??i,roleGains:y.current?.roleGains,premaster:y.current?.premaster}:null};return()=>{try{delete globalThis.__XenLiveStemSource}catch{}}},[i,Gr]);/* ROOM5-12: the cursor of the Live Room drives Psy Lab glissando */P.useEffect(()=>{__XenPsyLab.bindCursor({hz:()=>Qa(dO(xn).cursorY),arrows:()=>bh.current,
  /* the pointer's pitch right now: the focus cursor (no smoothing lag), on the nearest Grid line while Snap is on */
- focusHz:()=>{const y=Sn.current?.y;if(!Number.isFinite(y))return 0;let hz=Qa(y);if(Tt.current.lockCursorToGrid){let best=0,bd=1e9;for(const r of Xn()){const d=Math.abs(Zs(r.freq)-y);if(d<bd){bd=d;best=r.freq}}if(best>0)hz=best}return hz}});return()=>__XenPsyLab.bindCursor(null)},[]);/* ROOM5-11: Power off (and leaving the shell) silences every Psy Lab voice and tail at once */P.useEffect(()=>{if(!Gr)__XenPsyLab.panic();return()=>{if(Gr)__XenPsyLab.panic()}},[Gr]);P.useEffect(()=>{__XenNodalSurfaces.warmWaveField(Lr.current??i)},[i,et.gridBase,et.gridTuning,et.manualGridMutedSteps,et.manualGridStepOffsets,et.particleSystem,et.rootFollowImpulsRasterMuted]);P.useEffect(()=>()=>__XenNodalSurfaces.dispose(),[]);const Qg=Qwe({audioCtx:i,longToneHoldRef:Sm,allowSecondaryStart:(ct,traceId)=>kc(ct,"particle",traceId),getAudioCtx:()=>Lr.current??i,activeScheduledTonesRef:eo,transientRuntimeRef:hl,getNoiseBuffer:()=>xn.current.noiseBuffer,refucktorAudioGuardRef:X,particleRuntime:{getParticlePreset:()=>Tt.current.particlePreset,getParticleSourceGeneration:()=>Tt.current.__xenParticleSourceRevision??0,getParticleGradientX:()=>Tt.current.particleGradientX,getParticleGradientY:()=>Tt.current.particleGradientY,getParticleSampleProfileMode:()=>Tt.current.particleSampleProfileMode},particleFx:{ensureCollectiveMemoryFx:Cl,ensurePsychedelicSpiralDevice:fi,ensureTransientDriveDevice:Vi,ensureEnterHoldPsyFxDevice:Qu,ensureSchwarmdeuterDevice:Uu,ensureMyzelPostFxRouter:Fc},particleAuxTargets:{getTransientDriveParticles:()=>fo.current.particles,getPsychedelicSpiralParticles:()=>Cs.current.particles,getCollectiveMemoryParticles:()=>Br?_memoryPortsRef.current.particles:null,getSchwarmdeuterParticles:()=>go.current.particles,getMyzelPostFxParticles:()=>er.current.particles},room3BodyRuntime:{getEnabled:()=>xe,getBodyEnabled:()=>ot.current,getTopologyMode:()=>Ke.current,getDestination:()=>xn.current.room3BodyExciterGain,getModal:()=>Na.current,getControls:()=>kt.current},beginTransientEvent:Ec,ensureFinalMixBus:Hh,getParticleOutput:(ctx,index)=>Number.isInteger(index)&&index>=0&&index<32?__XenPan.route(ctx,"particle:"+index,__XenPan.route(ctx,"particle",Hh(ctx))):__XenPan.route(ctx,"particle",Hh(ctx)),recordAudioPressureCount:ea,recordAudioPressureAdaptiveAction:fr,silentHotPathSources:{wave:!0},noWaveStarterPolicyOwnedHere:!0,noRootFollowPolicyOwnedHere:!0}),{playScheduledTone:Hm,triggerRoom3BodyExciter:bv,releaseHeldScheduledTones:Zh,playNexusAgentTone:Vm}=Qg,{activeParticleNodes:ef,toggleNexusAgent:tf,setAllNexusAgents:__setAllNexusAgents,setNexusAgentVolume:Ug}=fEe({particleSystem:et.particleSystem,audioCtx:i,audioCtxRef:Lr,nexusParamsRef:Tt,nexusRefs:xn,updateNParams:Mr,playNexusAgentTone:Vm}),{previewWavePresetSelection:za,previewParticlePresetSelectionAction:Or}=AEe({initAudio:Ls,waveSoundRuntimeRef:fa,nexusParamsRef:Tt,waveOvertoneArpQueueRef:ra,playWaveStartSound:zo,playNexusAgentTone:Vm,gameWidth:vr,gameHeight:ir}),{enterArenaWorkspace:nf,startGameRun:Wm}=IY({room:e,setRoom:t,gameCanvasRef:qt,gameRefs:Kr,gameActive:_i,setGameActive:wu,setGameHud:As,keyRef:Ia,arenaInterpreterRef:sm,getArenaInterpreterSnapshot:ku,setArenaSeedStatus:zi,initAudio:async()=>{await Ls()},playScheduledTone:Hm,clampValue:Me}),{shouldEmitWellenstartHoldAudio:rf,shouldEmitKeyboardHoldWavePreview:Kg,releaseWaveStarterHoldGestureForKey:_s,resolveKeyboardWaveStarterSoundPreset:af,resolveNodalInitialHoldIdentity:mh}=Jxe({resonanceInputActive:bl,thunderModeEnabled:__xenThunderLane(et,"wellenstart")||__xenThunderLane(et,"klaviatur"),audioCtx:i,audioCtxRef:Lr,activeScheduledTonesRef:eo,longToneHoldRef:Sm,nexusParamsRef:Tt,nexusRefs:xn,gridTempoBpm:J,waveSoundPreset:Ou,freqFromY:Qa,playWaveStartSound:zo,recordAudioPressureAdaptiveAction:fr}),qm=(ct=!0,_t)=>(__flushResonancePointerMotion(xn),{nexusActive:Gr,refs:xn.current,params:Tt.current,baseWaveMaxRadius:UJ,clampValue:Me,freqFromY:Qa,markWaveLaunch:_g,playWaveStartSound:zo,playAudio:ct,resolvePlayAudio:_t}),$g=(ct,cursorAtEvent)=>{Y2e(qm(),ct,cursorAtEvent)},yv=ct=>{J2e(qm(),ct)};Kwe({audioCtx:i,nexusActive:Gr,nexusRefs:xn,nexusParamsRef:Tt,getLiveMasterBus:hi}),MPe({resonanceInputActive:bl,audioCtx:i,myzelEnabled:xe,managedLoopMaterial:dv,paramsRef:Tt,arrowStateRef:bh,nexusRefs:xn,keyboardMirrorRef:Eg,keyboardWindowOffsetRef:ha,pitchLaneStateRef:Tg,exportedDrumConfigs:So,recentLoopHotkeyEntries:Ku,recentRootFollowHotkeyEntries:Hg,rootFollowInputTargetHzRef:Sc,rootFollowLoopActive:!!et.rootFollowLoopActive,actions:{freqFromY:Qa,setSustainHoldActive:ct=>{const previous=vm(ct);__xenSetSampleHold(Lr.current??i,ct);return previous},setSwellHoldActive:Cc,setDampHoldActive:__xenSetDamp,setOctaveHoldActive:Am,setEnterHoldActive:Bh,releaseHeldScheduledTones:Zh,ensureAudioReady:Bs,reportAudioReadyFailure:(ct,_t)=>hr("audio","resonance-hotkey-audio-ready",ct,_t),ensureKeyboardPitchAudioReadyOnce:Vg,cycleQuantizeGrid:no,runEnterWaveGesture:ct=>nEe({...qm(!0,({freq:_t})=>rf(!!ct?.isRepeat,_t)),playWaveStartSound:(hz,sector,opts)=>zo(__xenThunderLane(et,"wellenstart")&&!String(Tt.current.waveStarterHoldSoundPreset||Ou).startsWith("nodal:")?__xenHoldPitchHz(hz,Tt.current.waveStarterHoldPitchCents,0):hz,sector,{...opts,holdSlotGain:__xenHoldSlotGain(Tt.current.waveStarterHoldSlotVolumes,0),holdSession:__XenHoldResident.peek("wellenstart:Enter"),waveStarterPresetOverride:Tt.current.waveStarterHoldSoundPreset||Ou,
+ focusHz:()=>{const y=Sn.current?.y;if(!Number.isFinite(y))return 0;let hz=Qa(y);if(Tt.current.lockCursorToGrid){let best=0,bd=1e9;for(const r of Xn()){const d=Math.abs(Zs(r.freq)-y);if(d<bd){bd=d;best=r.freq}}if(best>0)hz=best}return hz}});return()=>__XenPsyLab.bindCursor(null)},[]);/* ROOM5-11: Power off (and leaving the shell) silences every Psy Lab voice and tail at once */P.useEffect(()=>{if(!Gr){__XenPsyLab.panic();/* STEMS-01: Power off ends a running stem recording and hands over what was captured */if(__XenStemRecorder.snapshot().phase==='recording')void __XenStemRecorder.stop()}return()=>{if(Gr)__XenPsyLab.panic()}},[Gr]);P.useEffect(()=>{__XenNodalSurfaces.warmWaveField(Lr.current??i)},[i,et.gridBase,et.gridTuning,et.manualGridMutedSteps,et.manualGridStepOffsets,et.particleSystem,et.rootFollowImpulsRasterMuted]);P.useEffect(()=>()=>__XenNodalSurfaces.dispose(),[]);const Qg=Qwe({audioCtx:i,longToneHoldRef:Sm,allowSecondaryStart:(ct,traceId)=>kc(ct,"particle",traceId),getAudioCtx:()=>Lr.current??i,activeScheduledTonesRef:eo,transientRuntimeRef:hl,getNoiseBuffer:()=>xn.current.noiseBuffer,refucktorAudioGuardRef:X,particleRuntime:{getParticlePreset:()=>Tt.current.particlePreset,getParticleSourceGeneration:()=>Tt.current.__xenParticleSourceRevision??0,getParticleGradientX:()=>Tt.current.particleGradientX,getParticleGradientY:()=>Tt.current.particleGradientY,getParticleSampleProfileMode:()=>Tt.current.particleSampleProfileMode},particleFx:{ensureCollectiveMemoryFx:Cl,ensurePsychedelicSpiralDevice:fi,ensureTransientDriveDevice:Vi,ensureEnterHoldPsyFxDevice:Qu,ensureSchwarmdeuterDevice:Uu,ensureMyzelPostFxRouter:Fc},particleAuxTargets:{getTransientDriveParticles:()=>fo.current.particles,getPsychedelicSpiralParticles:()=>Cs.current.particles,getCollectiveMemoryParticles:()=>Br?_memoryPortsRef.current.particles:null,getSchwarmdeuterParticles:()=>go.current.particles,getMyzelPostFxParticles:()=>er.current.particles},room3BodyRuntime:{getEnabled:()=>xe,getBodyEnabled:()=>ot.current,getTopologyMode:()=>Ke.current,getDestination:()=>xn.current.room3BodyExciterGain,getModal:()=>Na.current,getControls:()=>kt.current},beginTransientEvent:Ec,ensureFinalMixBus:Hh,getParticleOutput:(ctx,index)=>Number.isInteger(index)&&index>=0&&index<32?__XenPan.route(ctx,"particle:"+index,__XenPan.route(ctx,"particle",Hh(ctx))):__XenPan.route(ctx,"particle",Hh(ctx)),recordAudioPressureCount:ea,recordAudioPressureAdaptiveAction:fr,silentHotPathSources:{wave:!0},noWaveStarterPolicyOwnedHere:!0,noRootFollowPolicyOwnedHere:!0}),{playScheduledTone:Hm,triggerRoom3BodyExciter:bv,releaseHeldScheduledTones:Zh,playNexusAgentTone:Vm}=Qg,{activeParticleNodes:ef,toggleNexusAgent:tf,setAllNexusAgents:__setAllNexusAgents,setNexusAgentVolume:Ug}=fEe({particleSystem:et.particleSystem,audioCtx:i,audioCtxRef:Lr,nexusParamsRef:Tt,nexusRefs:xn,updateNParams:Mr,playNexusAgentTone:Vm}),{previewWavePresetSelection:za,previewParticlePresetSelectionAction:Or}=AEe({initAudio:Ls,waveSoundRuntimeRef:fa,nexusParamsRef:Tt,waveOvertoneArpQueueRef:ra,playWaveStartSound:zo,playNexusAgentTone:Vm,gameWidth:vr,gameHeight:ir}),{enterArenaWorkspace:nf,startGameRun:Wm}=IY({room:e,setRoom:t,gameCanvasRef:qt,gameRefs:Kr,gameActive:_i,setGameActive:wu,setGameHud:As,keyRef:Ia,arenaInterpreterRef:sm,getArenaInterpreterSnapshot:ku,setArenaSeedStatus:zi,initAudio:async()=>{await Ls()},playScheduledTone:Hm,clampValue:Me}),{shouldEmitWellenstartHoldAudio:rf,shouldEmitKeyboardHoldWavePreview:Kg,releaseWaveStarterHoldGestureForKey:_s,resolveKeyboardWaveStarterSoundPreset:af,resolveNodalInitialHoldIdentity:mh}=Jxe({resonanceInputActive:bl,thunderModeEnabled:__xenThunderLane(et,"wellenstart")||__xenThunderLane(et,"klaviatur"),audioCtx:i,audioCtxRef:Lr,activeScheduledTonesRef:eo,longToneHoldRef:Sm,nexusParamsRef:Tt,nexusRefs:xn,gridTempoBpm:J,waveSoundPreset:Ou,freqFromY:Qa,playWaveStartSound:zo,recordAudioPressureAdaptiveAction:fr}),qm=(ct=!0,_t)=>(__flushResonancePointerMotion(xn),{nexusActive:Gr,refs:xn.current,params:Tt.current,baseWaveMaxRadius:UJ,clampValue:Me,freqFromY:Qa,markWaveLaunch:_g,playWaveStartSound:zo,playAudio:ct,resolvePlayAudio:_t}),$g=(ct,cursorAtEvent)=>{Y2e(qm(),ct,cursorAtEvent)},yv=ct=>{J2e(qm(),ct)};Kwe({audioCtx:i,nexusActive:Gr,nexusRefs:xn,nexusParamsRef:Tt,getLiveMasterBus:hi}),MPe({resonanceInputActive:bl,audioCtx:i,myzelEnabled:xe,managedLoopMaterial:dv,paramsRef:Tt,arrowStateRef:bh,nexusRefs:xn,keyboardMirrorRef:Eg,keyboardWindowOffsetRef:ha,pitchLaneStateRef:Tg,exportedDrumConfigs:So,recentLoopHotkeyEntries:Ku,recentRootFollowHotkeyEntries:Hg,rootFollowInputTargetHzRef:Sc,rootFollowLoopActive:!!et.rootFollowLoopActive,actions:{freqFromY:Qa,setSustainHoldActive:ct=>{const previous=vm(ct);__xenSetSampleHold(Lr.current??i,ct);return previous},setSwellHoldActive:Cc,setDampHoldActive:__xenSetDamp,setOctaveHoldActive:Am,setEnterHoldActive:Bh,releaseHeldScheduledTones:Zh,ensureAudioReady:Bs,reportAudioReadyFailure:(ct,_t)=>hr("audio","resonance-hotkey-audio-ready",ct,_t),ensureKeyboardPitchAudioReadyOnce:Vg,cycleQuantizeGrid:no,runEnterWaveGesture:ct=>nEe({...qm(!0,({freq:_t})=>rf(!!ct?.isRepeat,_t)),playWaveStartSound:(hz,sector,opts)=>zo(__xenThunderLane(et,"wellenstart")&&!String(Tt.current.waveStarterHoldSoundPreset||Ou).startsWith("nodal:")?__xenHoldPitchHz(hz,Tt.current.waveStarterHoldPitchCents,0):hz,sector,{...opts,holdSlotGain:__xenHoldSlotGain(Tt.current.waveStarterHoldSlotVolumes,0),holdSession:__XenHoldResident.peek("wellenstart:Enter"),waveStarterPresetOverride:Tt.current.waveStarterHoldSoundPreset||Ou,
   ...((Tt.current.waveStarterHoldSoundPreset||Ou)?.startsWith?.("nodal:")?mh("wellenstart","Enter"):{})})}),shouldEmitKeyboardHoldWavePreview:Kg,resolveKeyboardWaveStarterSoundPreset:af,resolveKeyboardHoldResidentSession:event=>__XenHoldResident.peek("klaviatur:"+(event.code||event.key)),
   resolveKeyboardInitialNodalHoldOptions:event=>String(af()||'').startsWith('nodal:')?mh('klaviatur',event.code||event.key):{},
   releaseWaveStarterHoldGestureForKey:_s,updateNParams:Mr,triggerDirectedPulse:yv,previewKeyboardWindowShift:Nh,changeGridTuning:on,setGridMode:Os,setChurchMode:Ll,cycleParticleSystem:Yh,selectMaterialLoopDirect:mv,selectRootFollowLoopDirect:Qh,toggleMaterialLoopDirect:Xu,toggleRootFollowLoopDirect:Om,browseMaterialLoopWithUmlaut:Nm,browseRootFollowLoopWithUmlaut:Uh,toggleNexusAgent:tf,setAllNexusAgents:__setAllNexusAgents,setKeyboardWindowStamp:gt,getAudioPressureBias:wk,getActiveScheduledToneCount:()=>eo.current.length,recordAdaptiveAction:fr,commitCursorY:mi,fastReconnectRootPitch:__xenP7389FastRootReconnect}}),DRe({myzelEnabled:xe&&installationSoundEnabled,room:e,tParams:Ie,bassRootMode:et.bassRootMode,selectedResidentId:Xt,topologyCanvasRef:Ca,topologyDragRef:ta,topologyRefs:Ir,myceliumSnapshotRef:ma,constellationStateRef:Oo,topologyLoopErrorRef:ui,topologyLastStatusRef:vs,myzelPrimedYRef:yn,setSystemState:Ja,resetMyzelTopologyNodes:ro,primeMyzelFromY:Sl}),Jke(Gi),oPe({resonanceInputActive:bl,myzelEnabled:xe,bassRootMode:et.bassRootMode,nexusParamsRef:Tt,nexusArrowRef:bh,nexusRefs:xn,focusCursorLastInputRef:na,gameWidth:vr,clampValue:Me,commitCursorY:mi,audioCtx:i,nexusActive:Gr});const{installationSharedFieldActive:of,installAttractCursor:UR,installAttractOscillatorBall:KR}=Oi;v2e({audioCtx:i,nexusActive:Gr,resonanceInputActive:bl,myzelEnabled:xe&&installationSoundEnabled,tParams:Ie,nParamsUI:et,myzelBallMode:St,myzelNodeMode:Et,myzelDriveEnabled:tt,myzelInterpreterMix:Ne,installationSharedFieldActive:of,myceliumSnapshotRef:ma,myceliumDroneAmountRef:cl,myceliumDroneModRef:ka,myzelGateRef:nr,myzelLayerModRef:po,installationSharedFieldActiveRef:_e,keyboardWindowOffsetRef:ha,setKeyboardWindowStamp:gt,commitResonanceCursorY:mi,nexusRefs:xn,nexusParamsRef:Tt,impactDecayOn:ml,waveLaunchAtRef:Fu,waveImpactDecayRef:Tu,resetResonanceActionHolds:ks,releaseHeldScheduledTones:Zh}),Xwe({room:e,nexusActive:Gr,audioCtx:i,nexusRefs:xn}),q2e({room:e,nexusActive:Gr,audioCtx:i,getLiveMasterBus:hi,ensureDroneGraphRouting:El,nexusRefs:xn,nexusParamsRef:Tt,applyRealtimeDroneOvertones:Yu,nexusCanvasRef:dl,myceliumDroneModRef:ka,myzelEnabled:xe,myzelLayerModRef:po,myzelGateRef:nr,room3BodyEnabled:Je,room3TimbreStateRef:ci,droneVolume:ji,resonanceFieldStepClockRef:le,installationSharedFieldActive:of,topologyRefs:Ir,installationFieldConfigRef:un,performanceCrisisRuntimePolicy:ga,audioCtxRef:Lr,playNexusAgentTone:Vm,gridTempoBpm:J,quantizeGrid:H,particleQuantizeReferenceBars:K,quantizeAnchorRef:Pc,waveCollisionQueueRef:Hu,focusCursorRef:Sn,getVisibleGridLines:Xn,activeGridLineFreqRef:Sh,activeGridLineSinceRef:vh,previousGridLineFreqRef:dm,previousGridLineAtRef:Fg,keyboardWindowOffsetRef:ha}),$we({audioCtx:i,nexusActive:Gr,nexusRefs:xn,droneVolume:ji,nParamsUI:et,myzelEnabled:xe,myzelGateRef:nr,myzelLayerModRef:po,myceliumDroneModRef:ka,room3BodyEnabled:Je,room3BodyControls:Xe,room3TimbreStateRef:ci,room3ModalStateRef:Na});const Sv=P.useCallback(()=>kl.ownsBeatRef.current,[kl.ownsBeatRef]);xIe({audioCtx:i,nexusActive:Gr,ensureDrumMixBus:qR,freqFromY:Qa,myceliumSnapshotRef:ma,bassNoteAction:{nexusParamsRef:Tt,ensureFinalMixBus:Hh,enterHoldPsyFxEnabled:Ao,enterHoldRef:_o,ensureEnterHoldPsyFxDevice:Qu,enterHoldPsyFxSendsRef:Ac},myzelLayerStepAction:{nexusRefs:xn,myzelEnabled:xe,myzelTopologyModeRef:Ke,bassRootMode:et.bassRootMode,bassRootHz:et.bassRootHz,readInterpreterMyzelBaseHz:wm,ensureMyzelSynth:zm,myceliumSnapshotRef:ma,myzelStep16ths:be,myzelLayerModRef:po,myzelGateRef:nr,intensityGlobal:Ie.intensityGlobal,myzelBallMode:St,myzelNodeMode:Et,myzelPattern:Ge,myzelInterpreterMix:Ne,readActiveDroneOvertoneMix:Gh},boundaryPorts:{rhythmForgeDrumPatternRef:Lg,rhythmForgeBassPatternRef:Bg,rhythmForgeDrumBarIndexRef:Dg,rhythmForgeBassBarIndexRef:Ng,rhythmForgeSeedRef:wh,psyBassPatternRef:Og,psyBassBarIndexRef:Rh,bassClipPlaybackCacheRef:mm,bassClipBarRootRef:Bu,readBassClipById:eH,scheduleStableRhythmMetronomePulse:ce},schedulerLoop:{nexusParamsRef:Tt,nexusRefs:xn,selectedExportedDrumConfig:wl,clearStableRhythmMetronomeTimeouts:ge},stableRhythmLaneSchedulerEffectExtractedFromAppTsx:!0,reactLifecycleNowHookOwned:!0,appStillSuppliesEffectInputs:!0,schedulerLoopStillProbeOwned:!0,hotPathAddsNoPerStepBuilder:!0,browserFunctionalSanityRequiredAfterThisCut:!0,readStableMusicLaneBeatWorkletOnly:Sv}),Tpe({installationAudible:xe&&installationSoundEnabled,audioCtx:i,nexusActive:Gr,nexusRefs:xn,myzelEnabled:xe,myzelTopologyMode:Ze,myzelTopologyModeRef:Ke,nParamsUI:{bassRootMode:et.bassRootMode,bassRootHz:et.bassRootHz},getInterpreterMyzelBaseHz:wm,getLiveMasterBus:hi,ensureMyzelSynth:zm,refs:{myceliumSnapshotRef:ma,myzelCentralColorMixerRef:an,nodalDeviceMatrixRef:Pt,myzelAudioFieldEnvelopeRef:li,semanticInteractionEnvelopeRef:xr,topologicalResonatorEnvelopeRef:pa,myzelLayerModRef:po,myzelInterpreterMixRef:pt,myzelGateRef:nr,myzelFieldSpaceBoostRef:Ss,myzelLegacyAudioRef:Fe,myzelInstallationMixRef:Mt,installationSharedFieldActiveRef:_e,installationFieldConfigRef:un},policies:{myzelDriveEnabled:tt,droneMinFreq:kx,droneMaxFreq:Up,isInstallationResidentBallCouplingActive:yte}}),NRe({audioCtx:i,nexusActive:Gr,nexusRefs:xn,room3BodyEnabled:Je,myzelTopologyMode:Ze,myzelEnabled:xe&&installationSoundEnabled,nParamsUI:{bassRootMode:et.bassRootMode,bassRootHz:et.bassRootHz,dronePreset:et.dronePreset},myceliumSnapshotRef:ma,myzelGateRef:nr,room3BodyControlsRef:kt,myzelInterpreterMixRef:pt,myzelPrimedYRef:yn,room3ModFieldRef:Ni,room3TimbreStateRef:ci,room3ModalStateRef:Na,room3BodyEnabledRef:ot,myzelTopologyModeRef:Ke,room3BodyCurveRef:ul,getLiveMasterBus:hi}),p2e({setDronePreset:$h,updateNParams:Mr,setDroneVolume:Du,setWaveSoundVolume:gl,setWaveSoundPreset:_u});
@@ -48034,6 +48055,211 @@ const __xenViewportRail=Object.freeze({
   if(st.mode==='resize-start'){let end=st.start+st.visible,s=st.start+d;if(s<0){end=Math.min(st.total,end-s);s=0}s=Math.min(end-st.minVisible,s);return {start:s,visible:end-s}}
   let s=st.start,end=st.start+st.visible+d;if(end>st.total){s=Math.max(0,s-(end-st.total));end=st.total}end=Math.max(s+st.minVisible,end);return {start:s,visible:end-s}}
 });
+/* STEMS-01 · record the Live Room as STEMS (not as one mixed take) and hand them to the Multitrack.
+ *
+ * What is captured: the four role buses of the Live Room mixer (Instruments = "main", Drone, Rhythm = drums / loops / root-follow impulses, Space = echo returns),
+ * taken AFTER each role's own EQ / level and BEFORE the master chain (premaster, glue, clipper, limiter, trim). The sum of the four stems is exactly what enters the master chain.
+ * The taps are extra connections out of the existing role gains (fan-out); no existing connection is changed, no node is inserted into the live path.
+ *
+ * Architecture (HOT / WARM / COLD):
+ *  - HOT   one AudioWorklet with N stereo inputs, sample-aligned, typed arrays and a buffer pool (no allocation per block); exists only while recording.
+ *  - WARM  the main thread only moves 8192-frame blocks (4 stems ≈ 1.4 MB/s) into the existing disk-backed PCM sink (IndexedDB, 4 MiB batches). No React state per block.
+ *  - COLD  everything else (UI, finishing, sending to the Multitrack) runs on press / stop. Nothing is loaded or running when not recording.
+ * Limit: 5 minutes per stem recording (the worklet stops by itself). Silent stems are not sent. Stem archives are deleted once the Multitrack has them.
+ */
+function __xenStemsWorkletModule(){
+  class XenStemsCapture extends AudioWorkletProcessor{
+    constructor(options){
+      super();
+      const op=options.processorOptions||{};
+      this.n=Math.max(1,op.stems|0);this.fpc=8192;this.max=op.maxFrames>0?op.maxFrames:Infinity;
+      this.pools=[];this.blocks=[];
+      for(let s=0;s<this.n;s++){const a=[];for(let k=0;k<8;k++)a.push(new Float32Array(this.fpc*2));this.blocks.push(a.pop());this.pools.push(a)}
+      this.peaks=new Float32Array(this.n);
+      this.pos=0;this.running=false;this.start=0;this.end=Infinity;this.captured=0;this.first=-1;this.expected=-1;this.gaps=0;this.missing=0;this.dead=false;
+      this.port.onmessage=e=>{
+        const m=e.data;if(!m)return;
+        if(m.kind==='recycle'){const p=this.pools[m.stem|0];if(p&&m.data instanceof ArrayBuffer&&m.data.byteLength===this.fpc*8)p.push(new Float32Array(m.data));return}
+        if(m.kind==='start'){if(this.first<0&&!this.running){this.start=Number.isFinite(m.startFrame)?Math.max(0,m.startFrame|0):0;this.running=true}return}
+        if(m.kind==='stopAt'){if(this.running)this.end=m.frame;return}
+        if(m.kind==='stop'){if(this.running)this.finish('stop');return}
+        if(m.kind==='dispose'){this.running=false;this.dead=true}
+      };
+    }
+    refill(){
+      for(let s=0;s<this.n;s++)if(!this.blocks[s]){this.blocks[s]=this.pools[s].pop()||null;if(!this.blocks[s])return false}
+      return true;
+    }
+    emit(){
+      if(!this.pos)return true;
+      for(let s=0;s<this.n;s++){const d=this.blocks[s].buffer;this.port.postMessage({kind:'chunk',stem:s,frames:this.pos,data:d},[d]);this.blocks[s]=null}
+      this.pos=0;
+      return this.refill();
+    }
+    finish(reason){
+      this.running=false;this.emit();
+      this.port.postMessage({kind:'done',reason,first:this.first,frames:this.captured,gaps:this.gaps,missing:this.missing,peaks:Array.from(this.peaks)});
+    }
+    process(inputs){
+      if(this.dead)return false;
+      if(!this.running)return true;
+      const cf=currentFrame,frames=(inputs[0]&&inputs[0][0]&&inputs[0][0].length)||128;
+      if(cf+frames<=this.start)return true;
+      const begin=cf>this.start?cf:this.start,i0=begin-cf;
+      if(this.first<0)this.first=begin;
+      if(this.expected>=0&&this.expected!==begin){this.gaps++;if(begin>this.expected)this.missing+=begin-this.expected}
+      if(!this.refill()){this.running=false;this.port.postMessage({kind:'error',message:'Stem transfer pool exhausted; recording stopped without concealing missing frames.'});return true}
+      for(let i=i0;i<frames;i++){
+        if(cf+i>=this.end||this.captured>=this.max){this.finish(this.captured>=this.max?'limit':'stopAt');return true}
+        const at=this.pos*2;
+        for(let s=0;s<this.n;s++){
+          const inp=inputs[s],L=inp&&inp[0],R=inp&&(inp[1]||inp[0]);
+          let l=L?L[i]:0,r=R?R[i]:0;
+          if(l!==l)l=0;if(r!==r)r=0;
+          const blk=this.blocks[s];blk[at]=l;blk[at+1]=r;
+          const al=l<0?-l:l,ar=r<0?-r:r,pk=al>ar?al:ar;if(pk>this.peaks[s])this.peaks[s]=pk;
+        }
+        this.pos++;this.captured++;
+        if(this.pos===this.fpc&&!this.emit()){this.running=false;this.port.postMessage({kind:'error',message:'Stem transfer pool exhausted; recording stopped without concealing missing frames.'});return true}
+      }
+      this.expected=cf+frames;
+      return true;
+    }
+  }
+  registerProcessor('xensonar-stems-pcm-v1',XenStemsCapture);
+}
+
+const __XenStemRecorder=(()=>{
+  const ROLES=Object.freeze([
+    {id:'main',name:'Instruments',hint:'Particles, waves, keyboard, Entrophon and the other instrument voices'},
+    {id:'drone',name:'Drone',hint:'The drone layer'},
+    {id:'rhythm',name:'Rhythm',hint:'Drums, loops and root-follow impulses'},
+    {id:'space',name:'Space',hint:'Echo and space returns'}]);
+  const MAX_SECONDS=300,listeners=new Set(),moduleByContext=new WeakMap();
+  let state={phase:'idle',ms:0,message:'',stems:[],maxMs:MAX_SECONDS*1000};
+  let session=null,timer=0,lastKept=null;
+  const emit=patch=>{state={...state,...patch};for(const fn of listeners)try{fn(state)}catch{}};
+  const source=()=>{try{return globalThis.__XenLiveStemSource?.get?.()||null}catch{return null}};
+  function ready(ctx){
+    let p=moduleByContext.get(ctx);if(p)return p;
+    p=(async()=>{
+      const code='('+__xenStemsWorkletModule.toString()+')();';let error=null;
+      for(const mode of ['blob','data']){let url=null;
+        try{url=mode==='blob'?URL.createObjectURL(new Blob([code],{type:'application/javascript'})):'data:application/javascript;charset=utf-8,'+encodeURIComponent(code);await ctx.audioWorklet.addModule(url);return}
+        catch(cause){error=cause}finally{if(mode==='blob'&&url)URL.revokeObjectURL(url)}}
+      throw error??Error('Stem recorder worklet could not be loaded.');
+    })();
+    moduleByContext.set(ctx,p);p.catch(()=>{if(moduleByContext.get(ctx)===p)moduleByContext.delete(ctx)});
+    return p;
+  }
+  function teardown(s){
+    if(timer){clearInterval(timer);timer=0}
+    if(!s)return;
+    try{s.ctx.removeEventListener('statechange',s.onState)}catch{}
+    for(const k of s.connected){try{k.from.disconnect(k.node,0,k.input)}catch{}}
+    try{s.node.port.postMessage({kind:'dispose'})}catch{}
+    try{s.node.disconnect();s.node.port.onmessage=null}catch{}
+  }
+  /* options.extra: ['premaster'] adds the premaster sum as an additional stem (diagnostics / null test only; never sent to the Multitrack). */
+  async function start(options={}){
+    if(session||state.phase==='recording'||state.phase==='finalizing')throw Error('A stem recording is already running.');
+    const refuse=message=>{emit({phase:'error',message});throw Error(message)};
+    const src=source();
+    if(!src?.ctx||!src.roleGains)refuse('Start the Live Room audio (Power) before recording stems.');
+    const ctx=src.ctx;if(ctx.state!=='running')refuse('The audio engine is not running.');
+    const extra=Array.isArray(options.extra)?options.extra:[];
+    const taps=ROLES.map(r=>({id:r.id,name:r.name,node:src.roleGains[r.id]}));
+    for(const id of extra)if(id==='premaster'&&src.premaster)taps.push({id:'premaster',name:'Premaster (diagnostic)',node:src.premaster,diagnostic:true});
+    if(taps.slice(0,ROLES.length).some(t=>!t.node))refuse('The Live Room mixer is not ready.');
+    emit({phase:'starting',ms:0,message:'Preparing stems…',stems:[]});
+    const sinks=[];let node=null;const connected=[];
+    try{
+      /* leftovers of a crashed stem recording (never listed as master archives) are removed first */
+      try{await __xenLongMasterPCM.purgeStems(0)}catch{}
+      await ready(ctx);
+      for(const t of taps)sinks.push(await __xenLongMasterPCM.create(ctx.sampleRate,{kind:'stem',stem:t.id}));
+      node=new AudioWorkletNode(ctx,'xensonar-stems-pcm-v1',{numberOfInputs:taps.length,numberOfOutputs:0,channelCount:2,channelCountMode:'explicit',channelInterpretation:'speakers',
+        processorOptions:{stems:taps.length,maxFrames:Math.round(MAX_SECONDS*ctx.sampleRate)}});
+    }catch(error){for(const s of sinks)await s.discard().catch(()=>{});try{node?.disconnect()}catch{}emit({phase:'error',message:String(error?.message||error)});throw error}
+    const s=session={ctx,node,taps,sinks,connected,peaks:null,done:null,startedAt:0,bpm:null,name:String(options.name||'').trim()||'xensonar-stems',silent:[],error:null,sent:[],finishing:null,keep:!!options.keep};
+    try{const live=Number(__XenMainRoomSessionBridge.liveClock().bpm);s.bpm=live>0?live:null}catch{}
+    let doneResolve;s.doneP=new Promise(r=>{doneResolve=r});
+    node.port.onmessage=e=>{
+      const m=e.data;if(!m)return;
+      if(m.kind==='chunk'){
+        const sink=sinks[m.stem];
+        try{sink.append(m.data.slice(0,m.frames*8),m.frames)}catch(error){s.error=s.error||error;try{node.port.postMessage({kind:'stop'})}catch{}}
+        try{node.port.postMessage({kind:'recycle',stem:m.stem,data:m.data},[m.data])}catch{}
+      }else if(m.kind==='done'){s.done=m;doneResolve(m);if(state.phase==='recording')finish().catch(()=>{})}
+      else if(m.kind==='error'){s.error=s.error||Error(m.message);doneResolve(null);if(state.phase==='recording')finish().catch(()=>{})}
+    };
+    taps.forEach((t,i)=>{t.node.connect(node,0,i);connected.push({from:t.node,node,input:i})});
+    /* Power off / engine suspended while recording: keep what was captured and hand it over */
+    s.onState=()=>{if(session===s&&ctx.state!=='running'&&state.phase==='recording')finish().catch(()=>{})};try{ctx.addEventListener('statechange',s.onState)}catch{}
+    node.port.postMessage({kind:'start',startFrame:Math.round((ctx.currentTime+.05)*ctx.sampleRate)});
+    s.startedAt=performance.now();
+    timer=setInterval(()=>{if(session===s&&state.phase==='recording')emit({ms:Math.min(state.maxMs,Math.round(performance.now()-s.startedAt))})},250);
+    emit({phase:'recording',ms:0,message:'Recording stems…',stems:taps.filter(t=>!t.diagnostic).map(t=>({id:t.id,name:t.name,peak:null}))});
+    return s;
+  }
+  function frameNow(s){return Math.round((s.ctx.currentTime+.02)*s.ctx.sampleRate)}
+  /* stop at one sample-exact frame for every stem, write the archives, then (unless keep) send the audible stems to the Multitrack */
+  async function finish(){
+    const s=session;if(!s)return null;
+    if(s.finishing)return s.finishing;
+    s.finishing=(async()=>{
+      emit({phase:'finalizing',message:'Writing stems…'});
+      /* a running engine stops every stem at one sample-exact frame; a suspended / closed engine cannot advance its clock, so the worklet is told to stop where it is */
+      if(!s.done){try{s.node.port.postMessage(s.ctx.state==='running'?{kind:'stopAt',frame:frameNow(s)}:{kind:'stop'})}catch{}}
+      await Promise.race([s.doneP,new Promise(r=>setTimeout(()=>r(null),3000))]);
+      teardown(s);
+      const metas=[];
+      try{for(const sink of s.sinks)metas.push(await sink.finish())}catch(error){s.error=s.error||error}
+      const peaks=s.done?.peaks||[];
+      s.metas=metas;s.peaks=peaks;
+      if(s.error||!s.done||!(s.done.frames>0)){
+        for(const sink of s.sinks)await sink.discard().catch(()=>{});
+        const msg=s.error?String(s.error.message||s.error):'Nothing was recorded.';
+        session=null;emit({phase:'error',message:'Stem recording failed: '+msg,stems:[]});return null;
+      }
+      const seconds=s.done.frames/s.ctx.sampleRate;
+      const stems=s.taps.map((t,i)=>({id:t.id,name:t.name,peak:peaks[i]??0,diagnostic:!!t.diagnostic,meta:metas[i]}));
+      if(s.keep){lastKept=s;session=null;emit({phase:'kept',ms:Math.round(seconds*1000),message:'Stems kept (no send).',stems:stems.map(x=>({id:x.id,name:x.name,peak:x.peak}))});return {session:s,stems,seconds};}
+      emit({phase:'sending',ms:Math.round(seconds*1000),message:'Sending stems to the Multitrack…',stems:stems.filter(x=>!x.diagnostic).map(x=>({id:x.id,name:x.name,peak:x.peak}))});
+      try{
+        const inbox=globalThis.__XenMultitrackInbox;if(!inbox)throw Error('Multitrack is not available in this build.');
+        const audible=stems.filter(x=>!x.diagnostic&&x.peak>1e-5),silent=stems.filter(x=>!x.diagnostic&&!(x.peak>1e-5));
+        if(!audible.length)throw Error('All stems are silent: nothing was sent.');
+        for(const x of audible){
+          const blob=await __xenLongMasterPCM.exportWhole(x.meta);
+          await inbox.sendBlob({blob,name:s.name+' · '+x.name,origin:'live-room-stems',bpm:s.bpm,startBeat:0});
+          s.sent.push(x.id);
+        }
+        for(const x of stems){try{await __xenLongMasterPCM.remove(x.meta.id,x.meta.parts)}catch{}}
+        window.dispatchEvent(new CustomEvent('xensonar:multitrack:roundtrip-navigate',{detail:{room:'MULTITRACK'}}));
+        const mm=Math.floor(seconds/60),ss=String(Math.round(seconds%60)).padStart(2,'0');
+        session=null;emit({phase:'done',message:`${audible.length} stems (${mm}:${ss}) sent to the Multitrack as new tracks`+(silent.length?` · silent, not sent: ${silent.map(x=>x.name).join(', ')}`:'')+(s.bpm?` · ${Math.round(s.bpm*100)/100} BPM`:'')+'.',stems:stems.filter(x=>!x.diagnostic).map(x=>({id:x.id,name:x.name,peak:x.peak}))});
+        return {sent:audible.map(x=>x.id),silent:silent.map(x=>x.id),seconds};
+      }catch(error){
+        /* the stems stay safe in the browser archive; nothing is deleted when the hand-over failed */
+        session=null;emit({phase:'error',message:'Sending stems failed: '+String(error?.message||error)+' The stems are kept in the browser archive.'});return null;
+      }
+    })();
+    return s.finishing;
+  }
+  async function cancel(){
+    const s=session;if(!s)return;
+    session=null;teardown(s);
+    for(const sink of s.sinks)await sink.discard().catch(()=>{});
+    emit({phase:'idle',ms:0,message:'',stems:[]});
+  }
+  function reset(){if(!session)emit({phase:'idle',ms:0,message:'',stems:[]})}
+  const api={roles:ROLES,maxSeconds:MAX_SECONDS,start,stop:()=>finish(),cancel,reset,snapshot:()=>state,subscribe:fn=>{listeners.add(fn);return()=>listeners.delete(fn)},
+   /* test access (read-only views of the finished session; the archives of a kept session are readable through __xenLongMasterPCM) */
+   __session:()=>session,__lastKept:()=>lastKept};
+  try{globalThis.__XenStemRecorder=api}catch{}
+  return api;
+})();
 function __forgeRestoreViewport(view={}){const valid=Number.isFinite(view.spanX)&&view.spanX>0&&view.spanX<=1;return {...view,autoFitX:valid?view.spanX>=.999999:true,spanX:valid?view.spanX:1,startX:valid?Math.max(0,Math.min(1-view.spanX,view.startX||0)):0}}
 
 // Display-only, data-resolution raster cache. Audio/Carrier fields are never resampled in place.
