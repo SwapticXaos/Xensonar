@@ -43,4 +43,4 @@ Last Headless (Software-Raster) mit aktiven Noten und Beschriftung: Hauptthread 
 - Nicht geprüft: Firefox, Safari, Netlify; kein Abhörtest.
 
 ## Nachtrag Gesamtlauf
-(offen bei Commit)
+`run_e2e.sh` auf Stand `eb6885c`: 19 Läufe grün, kein Fehler, Exit 0 (u. a. `room5_psylab`, `room5_grid_layer_equivalence`, `room5_metronome_not_recorded`, `live_grid_handles`, Bass-, Session- und Package-Läufe, P37).
