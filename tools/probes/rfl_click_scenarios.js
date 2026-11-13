@@ -12,6 +12,11 @@ module.exports=({p,canvasBox})=>{
     entryId=await E(`(async()=>{const sr=48000,n=sr*2,L=new Float32Array(n);for(let i=0;i<n;i++){const t=i/sr;L[i]=.4*(Math.sin(2*Math.PI*220*t)+.5*Math.sin(2*Math.PI*330*t)+.25*Math.sin(2*Math.PI*440*t))*(0.6+0.4*Math.sin(2*Math.PI*2*t))}
       const d=await __XenMultitrackInbox.send({channels:[L,L],sampleRate:sr,name:'rfl-probe-loop',origin:'probe',bpm:120,bars:1,enqueue:false});return d.entry.id})()`);
     await E(`ri('rootFollowBankMembership',{entryId:'${entryId}',enabled:true,activate:true})`);
+    // RFL_VARIANT (ablation): base = old behaviour (no grace, 22 ms, bus only) | hyst = 150 ms grace only | fade = 60 ms fade of bus + parallel paths only | both = the shipped defaults
+    const v=process.env.RFL_VARIANT||'both',cfg={base:[0,.022,false],hyst:[150,.022,false],fade:[0,.06,true],both:[150,.06,true]}[v];
+    if(!cfg)throw Error('unknown RFL_VARIANT '+v);
+    await E(`__xenRflLeaveGraceMs=()=>${cfg[0]};__xenRflStopFadeSec=()=>${cfg[1]};__xenRflFadeParallel=()=>${cfg[2]}`);
+    console.log('RFL-VARIANT '+v+' '+JSON.stringify(cfg));
   }
   const rfl=async on=>{await setup();await E(`__NodalBallGrid.update({rootFollowLoopActive:${on?'true':'false'},rootFollowLoopId:'${on?entryId:''}'})`);await p.waitForTimeout(1200)};
   const mark=l=>p.evaluate(l=>{try{__glitch.mark(l)}catch{}},l);

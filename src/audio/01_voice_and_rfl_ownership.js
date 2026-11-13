@@ -1156,6 +1156,10 @@ function __f49AllowRFLProbe(refs,ctx,kind){
  const last=slots[kind];if(last!==undefined&&now>=last&&now-last<.25)return false;
  slots[kind]=now;return true;
 }
+/* RFL-SOFT: tunables of the soft stop (functions, so that probe builds can override them): grace before the gate closes, fade length, and whether the parallel paths (beds, Forge send) fade with the bus */
+function __xenRflLeaveGraceMs(){return 150}
+function __xenRflStopFadeSec(){return .06}
+function __xenRflFadeParallel(){return true}
 function __f49FadeAndRelease(bus,seconds,release){
  const ctx=bus?.context;if(!bus||ctx.state!=='running'){release();return}
  const at=ctx.currentTime;
@@ -1197,7 +1201,10 @@ function __f49StopRFL(refs){
   try{bus?.__f49DCGuard?.disconnect()}catch{}try{bus?.disconnect()}catch{}
  };
  // A timer delay is a resource-release deadline, not an audio fade. Web Audio owns the ramp.
- __f49FadeAndRelease(bus,.022,retire);
+ const fadeSec=__xenRflStopFadeSec();
+ /* RFL-SOFT: beds and the Forge send are parallel to the bus; they used to be cut by disconnect() when the 22 ms bus fade had ended. They now fade over the same time. */
+ if(ctx&&bus&&__xenRflFadeParallel()){const at=ctx.currentTime,gains=[];for(const bed of beds)gains.push(bed.outputBus.gain);for(const send of sends){gains.push(send.gain.gain);gains.push(send.walze.outputBus.gain)}for(const g of gains){try{__f49HoldParam(g,at);g.linearRampToValueAtTime(0,at+fadeSec)}catch{}}}
+ __f49FadeAndRelease(bus,fadeSec,retire);
 }
 function __f49RegisterRFLNode({refs,node,cleanupDelayMs=2000}){
  const owner=refs.activeNodesRef.current;owner.add(node);
