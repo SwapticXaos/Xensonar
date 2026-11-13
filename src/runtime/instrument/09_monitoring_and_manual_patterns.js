@@ -55,6 +55,10 @@ function __XenStemRecorderControls({masterRecording,name}){
    title:"Record the Live Room as separate stems (Instruments, Drone, Rhythm, Space) for up to 5 minutes and send them to the Multitrack as new tracks. The stems are taken before the master chain; the stereo take is not affected.",
    children:rec?"■ Stop stems · "+fmt(st.ms)+" / "+fmt(st.maxMs):busy?"Stems…":"● Record stems → Multitrack"}),
   u.jsxs("span",{className:"flex gap-1 items-center flex-wrap","data-xen-stems-setup":"true",role:"group","aria-label":"Stems to record",children:[
+   u.jsx("button",{type:"button","data-xen-stems-withtake":st.setup.withTake?"on":"off","aria-pressed":!!st.setup.withTake,disabled:rec||busy||masterRecording,
+    title:"On: the Rec / Enough! button also records the stems chosen here (up to 5 minutes); \"Send to Multitrack\" of that take then sends them as separate tracks. Off: Rec records only the stereo take and Send to Multitrack sends it as ONE track.",
+    onClick:()=>__XenStemRecorder.configure({withTake:!st.setup.withTake}),
+    className:`px-2 py-1 border text-[11px] ${st.setup.withTake?"border-rose-600 text-rose-100 bg-rose-950/30":"border-neutral-700 text-neutral-400"} disabled:opacity-60`,children:st.setup.withTake?"Rec also records stems: on":"Rec also records stems: off"}),
    u.jsx("button",{type:"button","data-xen-stem-mode":st.setup.mode,"aria-pressed":inst,disabled:rec||busy,
     title:inst?"By instrument: the sound engines (particle, wave, keyboard lane), Drone, Rhythm and the rest, as raw signals before the role EQ and level. Click for the four mixer roles.":"By role: the four mixer roles (Instruments, Drone, Rhythm, Space). Click to split the instruments into their sound engines (particle, wave, keyboard lane) as own tracks.",
     onClick:()=>__XenStemRecorder.configure({mode:inst?"roles":"instruments"}),

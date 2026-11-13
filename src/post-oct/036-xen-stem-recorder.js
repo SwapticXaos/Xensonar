@@ -96,7 +96,7 @@ const __XenStemRecorder=(()=>{
     /* a classic / sample sound of the Wave Starter and Entrophon on the Keyboard travel through the same Loop-Rec lane: they cannot be told apart */
     if((w==='Classic'||w==='Samples')&&k==='Entrophon')return 'Wave Starter: '+w+' · Keyboard: Entrophon: both land in one track (same signal path).';
     return 'Wave Starter: '+w+' · Keyboard: '+k+': separate tracks.'}
-  let setup={mode:'roles',roles:ROLES.map(r=>r.id),parts:PARTS.map(p=>p.id),tap:'after-eq'};
+  let setup={mode:'roles',roles:ROLES.map(r=>r.id),parts:PARTS.map(p=>p.id),tap:'after-eq',withTake:false};
   let state={phase:'idle',ms:0,message:'',stems:[],maxMs:MAX_SECONDS*1000,setup};
   let session=null,timer=0,lastKept=null;
   const emit=patch=>{state={...state,...patch};for(const fn of listeners)try{fn(state)}catch{}};
@@ -106,7 +106,7 @@ const __XenStemRecorder=(()=>{
     const parts=Array.isArray(patch.parts)?PARTS.map(p=>p.id).filter(id=>patch.parts.includes(id)):setup.parts;
     const mode=patch.mode==='roles'||patch.mode==='instruments'?patch.mode:setup.mode;
     const tap=patch.tap==='before-eq'||patch.tap==='after-eq'?patch.tap:setup.tap;
-    setup={mode,roles,parts,tap};emit({setup});return setup;
+    setup={mode,roles,parts,tap,withTake:patch.withTake===true||patch.withTake===false?patch.withTake:setup.withTake};emit({setup});return setup;
   }
   const source=()=>{try{return globalThis.__XenLiveStemSource?.get?.()||null}catch{return null}};
   function ready(ctx){
@@ -166,7 +166,7 @@ const __XenStemRecorder=(()=>{
       node=new AudioWorkletNode(ctx,'xensonar-stems-pcm-v1',{numberOfInputs:taps.length,numberOfOutputs:0,channelCount:2,channelCountMode:'explicit',channelInterpretation:'speakers',
         processorOptions:{stems:taps.length,maxFrames:Math.round(MAX_SECONDS*ctx.sampleRate)}});
     }catch(error){for(const s of sinks)await s.discard().catch(()=>{});try{node?.disconnect()}catch{}emit({phase:'error',message:String(error?.message||error)});throw error}
-    const s=session={ctx,node,taps,sinks,connected,peaks:null,done:null,startedAt:0,bpm:null,name:String(options.name||'').trim()||'xensonar-stems',silent:[],error:null,sent:[],finishing:null,keep:!!options.keep};
+    const s=session={ctx,node,taps,sinks,connected,peaks:null,done:null,startedAt:0,bpm:null,name:String(options.name||'').trim()||'xensonar-stems',silent:[],error:null,sent:[],finishing:null,keep:!!options.keep,forTake:!!options.forTake};
     try{const live=Number(__XenMainRoomSessionBridge.liveClock().bpm);s.bpm=live>0?live:null}catch{}
     let doneResolve;s.doneP=new Promise(r=>{doneResolve=r});
     node.port.onmessage=e=>{
@@ -212,6 +212,28 @@ const __XenStemRecorder=(()=>{
   }
   function frameNow(s){return Math.round((s.ctx.currentTime+.02)*s.ctx.sampleRate)}
   /* stop at one sample-exact frame for every stem, write the archives, then (unless keep) send the audible stems to the Multitrack */
+  /* hand the audible stems to the Multitrack (one track each), delete the archives, report; shared by the Stems button and "Send to Multitrack" of a take recorded with stems */
+  async function deliver(s,stems,seconds){
+    emit({phase:'sending',ms:Math.round(seconds*1000),message:'Sending stems to the Multitrack…',stems:stems.filter(x=>!x.diagnostic).map(x=>({id:x.id,name:x.name,peak:x.peak}))});
+    try{
+      const inbox=globalThis.__XenMultitrackInbox;if(!inbox)throw Error('Multitrack is not available in this build.');
+      const audible=stems.filter(x=>!x.diagnostic&&x.peak>1e-5),silent=stems.filter(x=>!x.diagnostic&&!(x.peak>1e-5));
+      if(!audible.length)throw Error('All stems are silent: nothing was sent.');
+      for(const x of audible){
+        const blob=await __xenLongMasterPCM.exportWhole(x.meta);
+        await inbox.sendBlob({blob,name:s.name+' · '+x.name,origin:'live-room-stems',bpm:s.bpm,startBeat:0});
+        s.sent.push(x.id);
+      }
+      for(const x of stems){try{await __xenLongMasterPCM.remove(x.meta.id,x.meta.parts)}catch{}}
+      window.dispatchEvent(new CustomEvent('xensonar:multitrack:roundtrip-navigate',{detail:{room:'MULTITRACK'}}));
+      const mm=Math.floor(seconds/60),ss=String(Math.round(seconds%60)).padStart(2,'0');
+      session=null;emit({phase:'done',message:`${audible.length} stems (${mm}:${ss}) sent to the Multitrack as new tracks`+(silent.length?` · silent, not sent: ${silent.map(x=>x.name).join(', ')}`:'')+(audible.length===1?' · only this stem carried sound (a track exists only for a stem that is not silent; one synth shared by Wave Starter and Keyboard is one track)':'')+(s.bpm?` · ${Math.round(s.bpm*100)/100} BPM`:'')+'.',stems:stems.filter(x=>!x.diagnostic).map(x=>({id:x.id,name:x.name,peak:x.peak}))});
+      return {sent:audible.map(x=>x.id),silent:silent.map(x=>x.id),seconds,message:state.message};
+    }catch(error){
+      /* the stems stay safe in the browser archive; nothing is deleted when the hand-over failed */
+      session=null;emit({phase:'error',message:'Sending stems failed: '+String(error?.message||error)+' The stems are kept in the browser archive.'});return null;
+    }
+  }
   async function finish(){
     const s=session;if(!s)return null;
     if(s.finishing)return s.finishing;
@@ -232,28 +254,26 @@ const __XenStemRecorder=(()=>{
       }
       const seconds=s.done.frames/s.ctx.sampleRate;
       const stems=s.taps.map((t,i)=>({id:t.id,name:t.name,peak:peaks[i]??0,diagnostic:!!t.diagnostic,meta:metas[i]}));
-      if(s.keep){lastKept=s;session=null;emit({phase:'kept',ms:Math.round(seconds*1000),message:'Stems kept (no send).',stems:stems.map(x=>({id:x.id,name:x.name,peak:x.peak}))});return {session:s,stems,seconds};}
-      emit({phase:'sending',ms:Math.round(seconds*1000),message:'Sending stems to the Multitrack…',stems:stems.filter(x=>!x.diagnostic).map(x=>({id:x.id,name:x.name,peak:x.peak}))});
-      try{
-        const inbox=globalThis.__XenMultitrackInbox;if(!inbox)throw Error('Multitrack is not available in this build.');
-        const audible=stems.filter(x=>!x.diagnostic&&x.peak>1e-5),silent=stems.filter(x=>!x.diagnostic&&!(x.peak>1e-5));
-        if(!audible.length)throw Error('All stems are silent: nothing was sent.');
-        for(const x of audible){
-          const blob=await __xenLongMasterPCM.exportWhole(x.meta);
-          await inbox.sendBlob({blob,name:s.name+' · '+x.name,origin:'live-room-stems',bpm:s.bpm,startBeat:0});
-          s.sent.push(x.id);
-        }
-        for(const x of stems){try{await __xenLongMasterPCM.remove(x.meta.id,x.meta.parts)}catch{}}
-        window.dispatchEvent(new CustomEvent('xensonar:multitrack:roundtrip-navigate',{detail:{room:'MULTITRACK'}}));
-        const mm=Math.floor(seconds/60),ss=String(Math.round(seconds%60)).padStart(2,'0');
-        session=null;emit({phase:'done',message:`${audible.length} stems (${mm}:${ss}) sent to the Multitrack as new tracks`+(silent.length?` · silent, not sent: ${silent.map(x=>x.name).join(', ')}`:'')+(audible.length===1?' · only this stem carried sound (a track exists only for a stem that is not silent; one synth shared by Wave Starter and Keyboard is one track)':'')+(s.bpm?` · ${Math.round(s.bpm*100)/100} BPM`:'')+'.',stems:stems.filter(x=>!x.diagnostic).map(x=>({id:x.id,name:x.name,peak:x.peak}))});
-        return {sent:audible.map(x=>x.id),silent:silent.map(x=>x.id),seconds};
-      }catch(error){
-        /* the stems stay safe in the browser archive; nothing is deleted when the hand-over failed */
-        session=null;emit({phase:'error',message:'Sending stems failed: '+String(error?.message||error)+' The stems are kept in the browser archive.'});return null;
-      }
+      if(s.keep){lastKept=s;session=null;emit({phase:'kept',ms:Math.round(seconds*1000),message:s.forTake?'Stems of the take kept: "Send to Multitrack" sends them as separate tracks.':'Stems kept (no send).',stems:stems.map(x=>({id:x.id,name:x.name,peak:x.peak}))});return {session:s,stems,seconds};}
+      return deliver(s,stems,seconds);
     })();
     return s.finishing;
+  }
+  /* STEMS-05: the Rec / Enough! button of the Master Recording. With "Rec also records stems" on, the stems run along with the take and are kept; "Send to Multitrack" of that take then sends
+     the stems (separate tracks) instead of the one stereo file. A new take always drops stems of an earlier one first. */
+  let takeLive=false;
+  async function discardKept(){const s=lastKept;lastKept=null;if(!s)return;for(const m of s.metas||[]){try{await __xenLongMasterPCM.remove(m.id,m.parts)}catch{}}}
+  function followTake(active){
+    if(active===takeLive)return;takeLive=active;
+    if(active){void discardKept();if(!setup.withTake)return;if(session||state.phase==='starting'||state.phase==='finalizing'||state.phase==='sending')return;start({keep:true,forTake:true}).catch(()=>{});return}
+    if(session&&session.forTake&&(state.phase==='recording'||state.phase==='starting'))finish().catch(()=>{});
+  }
+  const hasKept=()=>!!lastKept&&!!lastKept.forTake&&!session;
+  async function sendKept(opts={}){
+    const s=lastKept;if(!s||!s.forTake||session)return null;lastKept=null;
+    if(opts.name)s.name=String(opts.name).slice(0,80);
+    const stems=s.taps.map((t,i)=>({id:t.id,name:t.name,peak:s.peaks?.[i]??0,diagnostic:!!t.diagnostic,meta:s.metas[i]})),seconds=s.done.frames/s.ctx.sampleRate;
+    session=s;const r=await deliver(s,stems,seconds);if(!r){session=null;lastKept=s}return r||null;
   }
   async function cancel(){
     const s=session;if(!s)return;
@@ -262,7 +282,7 @@ const __XenStemRecorder=(()=>{
     emit({phase:'idle',ms:0,message:'',stems:[]});
   }
   function reset(){if(!session)emit({phase:'idle',ms:0,message:'',stems:[]})}
-  const api={roles:ROLES,parts:PARTS,describe,maxSeconds:MAX_SECONDS,configure,start,stop:()=>finish(),cancel,reset,snapshot:()=>state,subscribe:fn=>{listeners.add(fn);return()=>listeners.delete(fn)},
+  const api={roles:ROLES,parts:PARTS,describe,followTake,hasKept,sendKept,maxSeconds:MAX_SECONDS,configure,start,stop:()=>finish(),cancel,reset,snapshot:()=>state,subscribe:fn=>{listeners.add(fn);return()=>listeners.delete(fn)},
    /* test access (read-only views of the finished session; the archives of a kept session are readable through __xenLongMasterPCM) */
    __session:()=>session,__lastKept:()=>lastKept};
   try{globalThis.__XenStemRecorder=api}catch{}
