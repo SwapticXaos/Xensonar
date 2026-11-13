@@ -1,0 +1,39 @@
+# Root-Follow-Loop: Messaufbau, Erstmessung und Bedienlogik (RFL-MESS)
+
+Stand: 2026-11-13. Folgt auf `docs/RFL_CLICKS_ANALYSE_2026-11-13.md`. **Kein Eingriff in den Audiopfad**; nur Test-Werkzeug (`tools/probes/`, nie in `index.html`). Status: BROWSER_CHECKED (headless Chromium, synthetischer Testloop) – **nicht gehört, nicht am echten Gerät/Opera gemessen**.
+
+## 1 · Messaufbau
+- `tools/probes/live_glitch_probe.js` (vorhanden: Master-PCM-Tap im Worklet, geseedetes `Math.random`, Klick-Detektor über Ausreißer der zweiten Differenz, Marker, Audio-Last) + neu **`tools/probes/rfl_click_scenarios.js`** (Szenarien) und **`tools/probes/rfl_click_report.js`** (Wiederholung und Klassifikation; die Klicks sind nicht deterministisch).
+- Testloop: synthetischer 1-Takt-Loop (Klangfolge 220/330/440 Hz mit Amplitudenmodulation), per Multitrack-Posteingang als Bibliothekseintrag angelegt und in die Root-Follow-Bank aufgenommen (`rootFollowBankMembership`); keine Nutzerdaten.
+- Szenarien: `rflControlLeave` (**Kontrolle: dasselbe Rausgehen mit Loop AUS**), `rflSteady` (12 s Spielen im Feld), `rflLeaveSlow` (6× langsam raus/rein), `rflLeaveFast` (10× sprunghaft raus/rein), `rflEdgeWiggle` (6 s Zittern über den Spielfeldrand, ≈ 7 Hz). Je Szenario Gate-Zähler (`__XenRFLPitchReentryProbe`) und Marker `leave`/`enter`.
+- Aufruf: `node tools/probes/rfl_click_report.js dist/XenSonar_PROBE.html --runs 3` (Probe-Build: `python3 tools/build.py --probe`).
+- Klassifikation: **near-leave** = Klick ≤ 1,3 s nach Beginn des Hinausfahrens; **near-enter** = ≤ 1,0 s nach Beginn des Hineinfahrens; sonst **steady**. (Zeitauflösung der Marker ≈ 170 ms.) *Achtung:* In `rflSteady` markiert jede Mausbewegung „enter“, daher steht dort alles unter near-enter; gemeint ist „sporadisch im Spiel“.
+
+## 2 · Messwerte (3 Durchgänge, derselbe Build `XenSonar_PROBE`)
+| Szenario | Dauer | Wechsel | Klick-Ereignisse | near-leave | near-enter | sonst | größter Sprung |
+|---|---|---|---|---|---|---|---|
+| Kontrolle (Loop aus) | 63 s | 18 raus / 24 rein | **0** | 0 | 0 | 0 | – |
+| Spielen im Feld | 48 s | – | **3** (≈ 1 je 16 s) | – | (3) | – | 0,098 |
+| Langsam raus/rein | 87 s | 18 / 24 | **13** | **10** | 0 | 3 | 0,130 |
+| Sprunghaft raus/rein | 57 s | 30 / 36 | **9** | **7** | 1 | 1 | 0,075 |
+| Randzittern | 32 s | ≈ 120 Wechsel je Durchgang | 3 | – | – | 3 | 0,150 |
+Ein Ereignis = ein Klick (beide Kanäle gezählt als eines); „größter Sprung“ = Sample-Differenz (volle Skala 1,0), also hörbar (≈ −17 bis −16 dBFS). Der Nachbarpegel vor dem Klick liegt meist bei 10⁻⁴: die Klicks fallen in **leise Stellen** (Ende des Ausblendens / Neustart), nicht ins laufende Material.
+**Gate-Zähler:** 6 Wechsel (Randzittern ≈ 7 Hz) bis 119 Wechsel in 6 s – ohne Hysterese baut jede Überquerung den Loop vollständig ab und neu auf.
+
+## 3 · Was die Zahlen belegen – und was nicht
+- **Belegt (in dieser Umgebung):** (1) Ohne Loop 0 Klicks → das Knacken beim Rausgehen kommt **vom Root-Follow-Loop**, nicht vom Cursor oder der Bedienung allgemein. (2) **Ungefähr 0,5 Klicks je langsames Hinausfahren** (10 von 18) und ≈ 0,25 je sprunghaftem (7 von 30). (3) **Sporadisch im Spielen:** ≈ 1 Klick je 16 s. Das deckt Ihr Muster („vor allem beim Rausgehen, aber auch zwischendurch“).
+- **Nicht belegt:** *welcher* Pfad klickt (Haupt-Bus-Fade, Bett/Send, Neustart, Cursor-Sprung – H1–H5 der Analyse) – dafür fehlt der PCM-Tap *innerhalb* des RFL-Pfades und die Ablation. Die Messung ist headless, mit synthetischem Material, ohne Hören; der Klick-Detektor liefert „Kandidaten“, kein Gehörbeweis.
+- Wiederholbarkeit: Die Anzahl schwankt von Lauf zu Lauf (Zeitjitter) – daher Mittelung über Durchgänge; der Unterschied **Loop an/aus** ist eindeutig.
+
+## 4 · Bedienlogik des Root-Follow-Loops (aus dem Quelltext; Benennung in der Oberfläche bitte gegenprüfen)
+**Auslösung (Gate):** Der Loop spielt nur, wenn **alle** gelten: Power an, Root-Follow-Loop aktiv, ein Eintrag gewählt, und der Cursor im Spielfeld (`playfieldCursorInside`) **oder** Vorschau aktiv (`rootFollowPreviewActive`). Wird eine Bedingung falsch, **schließt das Gate sofort** (`gate-close`): Stopp (22-ms-Blende des Busses), Zustand zurückgesetzt (`transportAnchor`, `sessionAnchorHz`, geglättete Root-Tonhöhe, Slotzähler). Beim Öffnen beginnt der Plan **neu** (neues Token, neuer Bus).
+**Zwei Wiedereintritts-Logiken** (Eintragskonfiguration `anchorGridStep`):
+1. **Kein fester Anker** (`anchorGridStep = null`): der Loop beginnt **dort, wo der Cursor eintritt**. Die Tonhöhe des **ersten Fensters** nach dem Eintritt wird zum Sitzungs-Anker (`sessionAnchorHz`); danach folgt der Loop dem Cursor **relativ** dazu (Verhältnis `Ziel-Hz / Anker`).
+2. **Fester Anker** (`anchorGridStep` gesetzt → `rootHz` des Eintrags): das Verhältnis wird immer zum festen Raster-Schritt gebildet – tritt der Cursor an einer anderen Tonhöhe ein, setzt der Loop **sofort mit dem passenden Tonhöhenverhältnis** ein (kein Gleiten vom Alten).
+**Weitere Stellgrößen:** Wiedergabeart des Eintrags (`flowing` / `grainy` / `direct` bei Synth), Granulierungsmodus (`rootFollowLoopGranulationMode`, `rootFollowGranularSettings`: Preset, Leistungsmodus, Fensterlänge ms …), Zeitmodus (`rootFollowLoopTimeMode`), Lautstärke, Raster-Impuls (`every`, `cycleDiv`, `clockMode`, Muster, Stummschaltung), Bank-Mitgliedschaft/Reihenfolge (Tasten A–L für die obersten neun Einträge), Schnellverbindung bei Tastenwechsel (`__xenP7389FastReconnect`, Zeitkonstante 6/9 ms), Pitch-Regler/RFL-Pitch-Worklet (Cents), Pan/EQ-Weg. Die Cursor-Tonhöhe wird auf das Bass-Raster gerastet (`quantizeRFL`) und mit ca. 32 ms Zeitkonstante je 24-ms-Schritt geglättet.
+**Konsequenz für „weicheres Raus/Rein“:** (a) *Hinaus:* kurze **Verzögerung** (Hysterese) und **längere, musikalische Ausblendung** statt Sofort-Stopp, dabei **alle** parallelen Pfade mit ausblenden; (b) *Hinein:* kurzer **Einblend**-Anstieg und – wo möglich – **Loop-Phase weiterlaufen lassen**, solange der Wiedereintritt innerhalb einer Haltezeit liegt; (c) die Wiedereintritts-Logik muss erhalten bleiben: bei „kein fester Anker“ soll der Anker weiterhin am Eintrittsort entstehen (sonst ändert sich das Instrument), bei „fester Anker“ darf der Wiedereintritt nicht ins Gleiten geraten. Diese Verhaltensänderungen (Zeiten, ob die Loop-Phase weiterläuft) sollte der Nutzer vorab festlegen.
+
+## 5 · Nächste Schritte
+1. **Pfad-Zuordnung** (Sonnet): PCM-Tap innerhalb des RFL-Pfades (nach Bett/Send, vor Master) und Ablationen (Sends/Betten aus, Hysterese 120 ms, Abräumen mit Blende) mit denselben Szenarien; Ziel: genau sagen, welche Änderung welchen Anteil beseitigt.
+2. **Fix nach Zahlen** (Opus empfohlen, siehe Analyse §7), PCM vorher/nachher plus Abhörtest durch den Nutzer; Zielwert: 0 Klick-Ereignisse in `rflLeaveSlow/Fast` und ≤ Kontrolle im Spielen, ohne Verhaltensänderung der beiden Wiedereintritts-Logiken.
+3. Messung am echten Gerät (Opera, Nutzer-Material): Diagnose-ZIP mit gesetzten Hör-Markern.

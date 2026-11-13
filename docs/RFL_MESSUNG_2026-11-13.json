@@ -1,0 +1,61 @@
+{
+ "html": "/home/user/Xensonar/dist/XenSonar_PROBE.html",
+ "runs": 3,
+ "agg": {
+  "rflControlLeave": {
+   "runs": 3,
+   "seconds": 62.699999999999996,
+   "events": 0,
+   "nearLeave": 0,
+   "nearEnter": 0,
+   "steady": 0,
+   "maxStep": 0,
+   "leaves": 18,
+   "enters": 24
+  },
+  "rflSteady": {
+   "runs": 3,
+   "seconds": 47.8,
+   "events": 3,
+   "nearLeave": 0,
+   "nearEnter": 3,
+   "steady": 0,
+   "maxStep": 0.0982,
+   "leaves": 0,
+   "enters": 1082
+  },
+  "rflLeaveSlow": {
+   "runs": 3,
+   "seconds": 86.5,
+   "events": 13,
+   "nearLeave": 10,
+   "nearEnter": 0,
+   "steady": 3,
+   "maxStep": 0.1302,
+   "leaves": 18,
+   "enters": 24
+  },
+  "rflLeaveFast": {
+   "runs": 3,
+   "seconds": 57,
+   "events": 9,
+   "nearLeave": 7,
+   "nearEnter": 1,
+   "steady": 1,
+   "maxStep": 0.0754,
+   "leaves": 30,
+   "enters": 36
+  },
+  "rflEdgeWiggle": {
+   "runs": 3,
+   "seconds": 31.6,
+   "events": 3,
+   "nearLeave": 0,
+   "nearEnter": 0,
+   "steady": 3,
+   "maxStep": 0.1499,
+   "leaves": 0,
+   "enters": 6
+  }
+ }
+}
