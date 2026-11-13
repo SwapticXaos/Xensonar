@@ -13395,8 +13395,11 @@ const __XenPsyLab=(()=>{
   if(s!==raw||!cache.length){raw=s;cache=FACTORY_NAMES.map(n=>({value:PREFIX+'factory:'+n,label:n,hint:'Psy Lab · factory',originLabel:'Psy Lab'}));
    try{const d=s?JSON.parse(s):null;if(d?.format==='xensonar.psylab'&&Array.isArray(d.user))for(const q of d.user.slice(0,500))if(q&&typeof q.id==='string'&&typeof q.name==='string'&&q.id)cache.push({value:PREFIX+q.id,label:String(q.name).slice(0,60),hint:'Psy Lab · saved',originLabel:'Psy Lab'})}catch{}}
   return cache}
- let loaded=null;const host=(create=true)=>{if(loaded||!create)return loaded;try{loaded=__xenLoadDeferred('psylab').LiveHost}catch(e){loaded=null}return loaded};
+ /* STEMS-04: watchers of the stem recorder; forwarded to the chunk as soon as it exists (a Psy Lab sound chosen while recording) */
+ const outWatch=new Set();let forwarding=false;
+ let loaded=null;const host=(create=true)=>{if(loaded||!create)return loaded;try{loaded=__xenLoadDeferred('psylab').LiveHost}catch(e){loaded=null}if(loaded&&!forwarding){forwarding=true;loaded.watch(rec=>{for(const fn of outWatch)try{fn(rec)}catch{}})}return loaded};
  return Object.freeze({PREFIX,isId,entries,host,FACTORY_NAMES,
+  outputs(ctx){return host(false)?.outputs(ctx)||[]},watch(fn){outWatch.add(fn);return()=>outWatch.delete(fn)},
   /* the first Psy Lab note must not wait for the module: load and create the lane's engine as soon as the sound is chosen */
   warm(lane,id){const h=host();if(h&&isId(id))h.prepare(lane,id)},
   /* ROOM5-12: glissando. The shell registers the cursor of the Live Room (frequency of the cursor, arrow keys held); a held Psy Lab note then glides with the cursor:
@@ -32685,6 +32688,7 @@ function __XenStemRecorderControls({masterRecording,name}){
     title:"Where the stems are taken: after the role EQ and level (default, the sum equals what enters the master chain) or before them (the raw role signal; EQ and automatic level are not in the stems).",
     onClick:()=>__XenStemRecorder.configure({tap:st.setup.tap==="before-eq"?"after-eq":"before-eq"}),
     className:`px-2 py-1 border text-[11px] ${st.setup.tap==="before-eq"?"border-sky-600 text-sky-100 bg-sky-950/30":"border-neutral-700 text-neutral-400"} disabled:opacity-60`,children:st.setup.tap==="before-eq"?"Before EQ":"After EQ"})]}),
+  inst&&!rec&&!busy?u.jsx("span",{"data-xen-stems-synths":"true",className:"text-[11px] text-neutral-500",children:__XenStemRecorder.describe()}):null,
   st.message?u.jsx("span",{role:"status",className:`text-[11px] ${st.phase==="error"?"text-rose-300":"text-neutral-400"}`,children:st.message}):null]});
 }
 function __xenHoldSlotGain(values,index){
@@ -46711,7 +46715,7 @@ if(i?.state==="running"){
 if(et.keyboardHoldSoundPreset?.startsWith("sample:")&&i?.state==="running")bw(et.keyboardHoldSoundPreset.slice(7),i).catch(()=>{});
 /* ROOM5-10: a restored / chosen Psy Lab sound gets its engine as soon as audio runs (the first note must not wait for the module); a lane that left Psy Lab gives it back */
 for(const[__lane,__snd]of[["wave",Ou],["keyboard",et.keyboardHoldSoundPreset]]){if(__XenPsyLab.isId(__snd)){if(i?.state==="running")__XenPsyLab.warm(__lane,__snd)}else __XenPsyLab.drop(__lane)}
-return()=>{__xenColdCancel?.()}},[i,et.particlePreset,Ou,et.keyboardHoldSoundPreset,et.waveStarterHoldSoundPreset,__nodalLibraryEpochState[0]]);/* STEMS-01: where the stem recorder finds the Live Room mixer (role gains before the master chain); read on demand, nothing runs while idle */P.useEffect(()=>{globalThis.__XenLiveStemSource={get:()=>Gr?{ctx:Lr.current??i,roleGains:y.current?.roleGains,splices:y.current?.splices,inputs:y.current?.inputs,premaster:y.current?.premaster}:null};return()=>{try{delete globalThis.__XenLiveStemSource}catch{}}},[i,Gr]);/* ROOM5-12: the cursor of the Live Room drives Psy Lab glissando */P.useEffect(()=>{__XenPsyLab.bindCursor({hz:()=>Qa(dO(xn).cursorY),arrows:()=>bh.current,
+return()=>{__xenColdCancel?.()}},[i,et.particlePreset,Ou,et.keyboardHoldSoundPreset,et.waveStarterHoldSoundPreset,__nodalLibraryEpochState[0]]);/* STEMS-01: where the stem recorder finds the Live Room mixer (role gains before the master chain); read on demand, nothing runs while idle */P.useEffect(()=>{globalThis.__XenLiveStemSource={get:()=>Gr?{ctx:Lr.current??i,roleGains:y.current?.roleGains,splices:y.current?.splices,inputs:y.current?.inputs,premaster:y.current?.premaster,sounds:{waveStarter:Tt.current?.waveStarterHoldSoundPreset||fa.current?.preset,keyboard:Tt.current?.keyboardHoldSoundPreset}}:null};return()=>{try{delete globalThis.__XenLiveStemSource}catch{}}},[i,Gr]);/* ROOM5-12: the cursor of the Live Room drives Psy Lab glissando */P.useEffect(()=>{__XenPsyLab.bindCursor({hz:()=>Qa(dO(xn).cursorY),arrows:()=>bh.current,
  /* the pointer's pitch right now: the focus cursor (no smoothing lag), on the nearest Grid line while Snap is on */
  focusHz:()=>{const y=Sn.current?.y;if(!Number.isFinite(y))return 0;let hz=Qa(y);if(Tt.current.lockCursorToGrid){let best=0,bd=1e9;for(const r of Xn()){const d=Math.abs(Zs(r.freq)-y);if(d<bd){bd=d;best=r.freq}}if(best>0)hz=best}return hz}});return()=>__XenPsyLab.bindCursor(null)},[]);/* ROOM5-11: Power off (and leaving the shell) silences every Psy Lab voice and tail at once */P.useEffect(()=>{if(!Gr){__XenPsyLab.panic();/* STEMS-01: Power off ends a running stem recording and hands over what was captured */if(__XenStemRecorder.snapshot().phase==='recording')void __XenStemRecorder.stop()}return()=>{if(Gr)__XenPsyLab.panic()}},[Gr]);P.useEffect(()=>{__XenNodalSurfaces.warmWaveField(Lr.current??i)},[i,et.gridBase,et.gridTuning,et.manualGridMutedSteps,et.manualGridStepOffsets,et.particleSystem,et.rootFollowImpulsRasterMuted]);P.useEffect(()=>()=>__XenNodalSurfaces.dispose(),[]);const Qg=Qwe({audioCtx:i,longToneHoldRef:Sm,allowSecondaryStart:(ct,traceId)=>kc(ct,"particle",traceId),getAudioCtx:()=>Lr.current??i,activeScheduledTonesRef:eo,transientRuntimeRef:hl,getNoiseBuffer:()=>xn.current.noiseBuffer,refucktorAudioGuardRef:X,particleRuntime:{getParticlePreset:()=>Tt.current.particlePreset,getParticleSourceGeneration:()=>Tt.current.__xenParticleSourceRevision??0,getParticleGradientX:()=>Tt.current.particleGradientX,getParticleGradientY:()=>Tt.current.particleGradientY,getParticleSampleProfileMode:()=>Tt.current.particleSampleProfileMode},particleFx:{ensureCollectiveMemoryFx:Cl,ensurePsychedelicSpiralDevice:fi,ensureTransientDriveDevice:Vi,ensureEnterHoldPsyFxDevice:Qu,ensureSchwarmdeuterDevice:Uu,ensureMyzelPostFxRouter:Fc},particleAuxTargets:{getTransientDriveParticles:()=>fo.current.particles,getPsychedelicSpiralParticles:()=>Cs.current.particles,getCollectiveMemoryParticles:()=>Br?_memoryPortsRef.current.particles:null,getSchwarmdeuterParticles:()=>go.current.particles,getMyzelPostFxParticles:()=>er.current.particles},room3BodyRuntime:{getEnabled:()=>xe,getBodyEnabled:()=>ot.current,getTopologyMode:()=>Ke.current,getDestination:()=>xn.current.room3BodyExciterGain,getModal:()=>Na.current,getControls:()=>kt.current},beginTransientEvent:Ec,ensureFinalMixBus:Hh,getParticleOutput:(ctx,index)=>Number.isInteger(index)&&index>=0&&index<32?__XenPan.route(ctx,"particle:"+index,__XenPan.route(ctx,"particle",Hh(ctx))):__XenPan.route(ctx,"particle",Hh(ctx)),recordAudioPressureCount:ea,recordAudioPressureAdaptiveAction:fr,silentHotPathSources:{wave:!0},noWaveStarterPolicyOwnedHere:!0,noRootFollowPolicyOwnedHere:!0}),{playScheduledTone:Hm,triggerRoom3BodyExciter:bv,releaseHeldScheduledTones:Zh,playNexusAgentTone:Vm}=Qg,{activeParticleNodes:ef,toggleNexusAgent:tf,setAllNexusAgents:__setAllNexusAgents,setNexusAgentVolume:Ug}=fEe({particleSystem:et.particleSystem,audioCtx:i,audioCtxRef:Lr,nexusParamsRef:Tt,nexusRefs:xn,updateNParams:Mr,playNexusAgentTone:Vm}),{previewWavePresetSelection:za,previewParticlePresetSelectionAction:Or}=AEe({initAudio:Ls,waveSoundRuntimeRef:fa,nexusParamsRef:Tt,waveOvertoneArpQueueRef:ra,playWaveStartSound:zo,playNexusAgentTone:Vm,gameWidth:vr,gameHeight:ir}),{enterArenaWorkspace:nf,startGameRun:Wm}=IY({room:e,setRoom:t,gameCanvasRef:qt,gameRefs:Kr,gameActive:_i,setGameActive:wu,setGameHud:As,keyRef:Ia,arenaInterpreterRef:sm,getArenaInterpreterSnapshot:ku,setArenaSeedStatus:zi,initAudio:async()=>{await Ls()},playScheduledTone:Hm,clampValue:Me}),{shouldEmitWellenstartHoldAudio:rf,shouldEmitKeyboardHoldWavePreview:Kg,releaseWaveStarterHoldGestureForKey:_s,resolveKeyboardWaveStarterSoundPreset:af,resolveNodalInitialHoldIdentity:mh}=Jxe({resonanceInputActive:bl,thunderModeEnabled:__xenThunderLane(et,"wellenstart")||__xenThunderLane(et,"klaviatur"),audioCtx:i,audioCtxRef:Lr,activeScheduledTonesRef:eo,longToneHoldRef:Sm,nexusParamsRef:Tt,nexusRefs:xn,gridTempoBpm:J,waveSoundPreset:Ou,freqFromY:Qa,playWaveStartSound:zo,recordAudioPressureAdaptiveAction:fr}),qm=(ct=!0,_t)=>(__flushResonancePointerMotion(xn),{nexusActive:Gr,refs:xn.current,params:Tt.current,baseWaveMaxRadius:UJ,clampValue:Me,freqFromY:Qa,markWaveLaunch:_g,playWaveStartSound:zo,playAudio:ct,resolvePlayAudio:_t}),$g=(ct,cursorAtEvent)=>{Y2e(qm(),ct,cursorAtEvent)},yv=ct=>{J2e(qm(),ct)};Kwe({audioCtx:i,nexusActive:Gr,nexusRefs:xn,nexusParamsRef:Tt,getLiveMasterBus:hi}),MPe({resonanceInputActive:bl,audioCtx:i,myzelEnabled:xe,managedLoopMaterial:dv,paramsRef:Tt,arrowStateRef:bh,nexusRefs:xn,keyboardMirrorRef:Eg,keyboardWindowOffsetRef:ha,pitchLaneStateRef:Tg,exportedDrumConfigs:So,recentLoopHotkeyEntries:Ku,recentRootFollowHotkeyEntries:Hg,rootFollowInputTargetHzRef:Sc,rootFollowLoopActive:!!et.rootFollowLoopActive,actions:{freqFromY:Qa,setSustainHoldActive:ct=>{const previous=vm(ct);__xenSetSampleHold(Lr.current??i,ct);return previous},setSwellHoldActive:Cc,setDampHoldActive:__xenSetDamp,setOctaveHoldActive:Am,setEnterHoldActive:Bh,releaseHeldScheduledTones:Zh,ensureAudioReady:Bs,reportAudioReadyFailure:(ct,_t)=>hr("audio","resonance-hotkey-audio-ready",ct,_t),ensureKeyboardPitchAudioReadyOnce:Vg,cycleQuantizeGrid:no,runEnterWaveGesture:ct=>nEe({...qm(!0,({freq:_t})=>rf(!!ct?.isRepeat,_t)),playWaveStartSound:(hz,sector,opts)=>zo(__xenThunderLane(et,"wellenstart")&&!String(Tt.current.waveStarterHoldSoundPreset||Ou).startsWith("nodal:")?__xenHoldPitchHz(hz,Tt.current.waveStarterHoldPitchCents,0):hz,sector,{...opts,holdSlotGain:__xenHoldSlotGain(Tt.current.waveStarterHoldSlotVolumes,0),holdSession:__XenHoldResident.peek("wellenstart:Enter"),waveStarterPresetOverride:Tt.current.waveStarterHoldSoundPreset||Ou,
   ...((Tt.current.waveStarterHoldSoundPreset||Ou)?.startsWith?.("nodal:")?mh("wellenstart","Enter"):{})})}),shouldEmitKeyboardHoldWavePreview:Kg,resolveKeyboardWaveStarterSoundPreset:af,resolveKeyboardHoldResidentSession:event=>__XenHoldResident.peek("klaviatur:"+(event.code||event.key)),
@@ -48167,12 +48171,20 @@ const __XenStemRecorder=(()=>{
   /* STEMS-02: which stems are recorded and where they are tapped (kept for the session; not saved with songs) */
   /* STEMS-03: 'instruments' mode splits the Instruments / Space buses into Particles / Waves / Keyboard (the per-kind Loop-Rec gain nodes that already exist in the live path) and the remainder */
   const PARTS=Object.freeze([
-    {id:'particle',name:'Particle sound',kind:'particle',hint:'Everything played by the particle sound engine (the default sound of Enter and of the particles)'},
-    {id:'wave',name:'Wave sound',kind:'wave',hint:'Everything played by the wave sound engine (in the default setup the keyboard keys and mouse clicks)'},
-    {id:'keyboard',name:'Keyboard lane',kind:'keyboard',hint:'Voices on the keyboard lane (carries sound only when a sound is routed there)'},
+    {id:'particle',name:'Particle sounds',kind:'particle',hint:'Everything played by the particle sound engine (in the default setup Enter and the particles)'},
+    {id:'wave',name:'Entrophon / wave sounds',kind:'wave',hint:'Entrophon (Wave Starter and Keyboard share it) and the classic wave sounds and samples of the Wave Starter'},
+    {id:'keyboard',name:'Keyboard wave sounds',kind:'keyboard',hint:'Classic wave sounds and samples played by the Keyboard (carries sound only when the Keyboard uses one)'},
+    {id:'psylab',name:'Psy Lab',psy:true,hint:'Psy Lab, whether played by the Wave Starter or the Keyboard'},
     {id:'drone',name:'Drone',role:'drone',hint:'The drone layer'},
     {id:'rhythm',name:'Rhythm',role:'rhythm',hint:'Drums, loops and root-follow impulses'},
-    {id:'rest',name:'Other',rest:true,hint:'Everything else on the Instruments and Space buses (e.g. Nodal, Psy Lab, echo returns) plus every instrument stem that is switched off'}]);
+    {id:'rest',name:'Other',rest:true,hint:'Everything else on the Instruments and Space buses (e.g. Nodal, echo returns) plus every instrument stem that is switched off'}]);
+  /* STEMS-04: the synth family of a sound id. Wave Starter and Keyboard on the same synth share one track; different synths get their own tracks wherever the signal path keeps them apart. */
+  const family=id=>typeof id!=='string'||!id?'Classic':id==='entrophon'||id.startsWith('entrophon:')?'Entrophon':id.startsWith('psylab:')?'Psy Lab':id.startsWith('nodal:')?'Nodal':id.startsWith('sample:')?'Samples':'Classic';
+  function describe(){const s=source();if(!s?.sounds)return '';const w=family(s.sounds.waveStarter),k=family(s.sounds.keyboard);
+    if(w===k)return 'Wave Starter and Keyboard both use '+w+': one track.';
+    /* a classic / sample sound of the Wave Starter and Entrophon on the Keyboard travel through the same Loop-Rec lane: they cannot be told apart */
+    if((w==='Classic'||w==='Samples')&&k==='Entrophon')return 'Wave Starter: '+w+' · Keyboard: Entrophon: both land in one track (same signal path).';
+    return 'Wave Starter: '+w+' · Keyboard: '+k+': separate tracks.'}
   let setup={mode:'roles',roles:ROLES.map(r=>r.id),parts:PARTS.map(p=>p.id),tap:'after-eq'};
   let state={phase:'idle',ms:0,message:'',stems:[],maxMs:MAX_SECONDS*1000,setup};
   let session=null,timer=0,lastKept=null;
@@ -48260,16 +48272,24 @@ const __XenStemRecorder=(()=>{
     else{
       const idx=id=>taps.findIndex(t=>t.id===id),kindIdx=new Map();
       for(const t of taps)if(t.part.kind)kindIdx.set(t.part.kind,idx(t.id));
-      const restI=idx('rest');
+      const restI=idx('rest'),psyI=idx('psylab');
+      /* same synth family on the Wave Starter and the Keyboard (classic sounds / samples): one track, the keyboard lane joins the wave track */
+      const fw=family(src.sounds?.waveStarter),fk=family(src.sounds?.keyboard),classic=f=>f==='Classic'||f==='Samples';
+      if(kindIdx.has('keyboard')&&kindIdx.has('wave')&&classic(fw)&&classic(fk))kindIdx.set('keyboard',kindIdx.get('wave'));
       /* "Other" = main + space inputs - the instrument stems that have their own track: the kind nodes feed a -1 gain into the same input, Web Audio sums the connections (no worklet change) */
       if(restI>=0){s.neg=ctx.createGain();s.neg.gain.value=-1;s.neg.connect(node,0,restI)}
       const bus=d=>d===src.inputs.main||d===src.inputs.space;
       const wire=rec=>{const i=kindIdx.get(rec.kind);if(i===undefined)return;link(rec.node,node,i);if(s.neg&&bus(rec.destination))link(rec.node,s.neg,0)};
       for(const rec of __XenLoopRec.kindTaps(ctx))wire(rec);
+      /* Psy Lab: the output gain of each Live lane engine (Wave Starter lane and Keyboard lane share one track) */
+      const wirePsy=rec=>{if(psyI<0)return;link(rec.node,node,psyI);if(s.neg&&bus(src.inputs.main))link(rec.node,s.neg,0)};
+      if(typeof __XenPsyLab!=='undefined')for(const rec of __XenPsyLab.outputs(ctx))wirePsy(rec);
       for(const t of taps){const i=idx(t.id);if(t.part.role)link(src.splices[t.part.role],node,i);if(t.part.presum)for(const role of['main','drone','rhythm','space'])link(src.splices[role],node,i)}
       if(restI>=0){link(src.splices.main,node,restI);link(src.splices.space,node,restI)}
       /* a kind node that appears while recording (e.g. the first particle) is wired the moment it is created */
-      s.unwatch=__XenLoopRec.watchKindTaps(ctx,rec=>{if(session===s)wire(rec)});
+      const offKinds=__XenLoopRec.watchKindTaps(ctx,rec=>{if(session===s)wire(rec)});
+      const offPsy=typeof __XenPsyLab!=='undefined'?__XenPsyLab.watch(rec=>{if(session===s&&rec.ctx===ctx)wirePsy(rec)}):()=>{};
+      s.unwatch=()=>{offKinds();offPsy()};
     }
     /* Power off / engine suspended while recording: keep what was captured and hand it over */
     s.onState=()=>{if(session===s&&ctx.state!=='running'&&state.phase==='recording')finish().catch(()=>{})};try{ctx.addEventListener('statechange',s.onState)}catch{}
@@ -48331,7 +48351,7 @@ const __XenStemRecorder=(()=>{
     emit({phase:'idle',ms:0,message:'',stems:[]});
   }
   function reset(){if(!session)emit({phase:'idle',ms:0,message:'',stems:[]})}
-  const api={roles:ROLES,parts:PARTS,maxSeconds:MAX_SECONDS,configure,start,stop:()=>finish(),cancel,reset,snapshot:()=>state,subscribe:fn=>{listeners.add(fn);return()=>listeners.delete(fn)},
+  const api={roles:ROLES,parts:PARTS,describe,maxSeconds:MAX_SECONDS,configure,start,stop:()=>finish(),cancel,reset,snapshot:()=>state,subscribe:fn=>{listeners.add(fn);return()=>listeners.delete(fn)},
    /* test access (read-only views of the finished session; the archives of a kept session are readable through __xenLongMasterPCM) */
    __session:()=>session,__lastKept:()=>lastKept};
   try{globalThis.__XenStemRecorder=api}catch{}
@@ -70903,6 +70923,8 @@ function loadModule(ctx){let job=moduleReady.get(ctx);if(job)return job;
   throw error??Error('Psychedelic Lab engine could not be loaded.')})();
  moduleReady.set(ctx,job);job.catch(()=>{if(moduleReady.get(ctx)===job)moduleReady.delete(ctx)});return job}
 
+/* STEMS-04: the output gain of each Live lane engine ("keyboard" / "wave") is announced to the stem recorder (an extra output, nothing in the signal path changes) */
+const __psyOutWatchers=new Set();
 /* Live engine: created on the first note, removed when the room closes. Slider moves are coalesced to one message per frame. */
 class PsyEngine{
  constructor(options){this.visual=!options||options.visual!==false;this.ctx=null;this.node=null;this.out=null;this.anL=null;this.anR=null;this.split=null;this.starting=null;this.pending=new Map();this.raf=0;this.queue=[];this.params=defaultParams();this.res=[220];this.closed=false}
@@ -70915,6 +70937,7 @@ class PsyEngine{
    let split=null,anL=null,anR=null;
    if(this.visual){split=ctx.createChannelSplitter(2);anL=ctx.createAnalyser();anR=ctx.createAnalyser();anL.fftSize=anR.fftSize=1024;anL.smoothingTimeConstant=.6;node.connect(split);split.connect(anL,0);split.connect(anR,1)}
    this.ctx=ctx;this.node=node;this.out=out;this.split=split;this.anL=anL;this.anR=anR;
+   if(this.lane)for(const w of __psyOutWatchers)try{w({lane:this.lane,node:out,ctx})}catch{}
    for(const m of this.queue)node.port.postMessage(m);this.queue.length=0;return node})();
   try{return await this.starting}finally{this.starting=null}}
  send(m){if(this.node)this.node.port.postMessage(m);else{this.queue.push(m);if(this.queue.length>64)this.queue.shift();void this.ensure().catch(()=>{})}}
@@ -70974,7 +70997,7 @@ const LiveHost=(()=>{
  const entries=()=>patches().map(q=>({value:PREFIX+q.id,label:q.name,hint:'Psy Lab'+(q.grid?' · '+q.grid:''),originLabel:'Psy Lab'}));
  /* HOT path rule: a note-on never reads storage. The patch of a lane is looked up when the sound id changes (or on prepare(), i.e. when it is chosen / restored). */
  function engineFor(lane,id,reload){let rec=engines.get(lane);if(rec&&rec.id===id&&!reload)return rec.engine;const pt=find(id);if(!pt)return null;
-  if(!rec){rec={engine:new PsyEngine({visual:false}),id:null};engines.set(lane,rec)}
+  if(!rec){rec={engine:new PsyEngine({visual:false}),id:null};rec.engine.lane=lane;engines.set(lane,rec)}
   rec.id=id;rec.engine.setAll(pt.params);return rec.engine}
  /* ROOM5-11: the processor keeps voice ids in a typed array (numbers only). ROOM5-10 sent string ids ("keyboard:KeyA"), so +id was NaN, no note-off ever matched
     and every Live note sounded until the voices were stolen. Each live note now gets its own number; the string key only lives here. */
@@ -70989,6 +71012,9 @@ const LiveHost=(()=>{
   bend(lane,keyId,hz){const v=active.get(voice(lane,keyId));if(v)v.e.bend(v.n,hz)},
   stop(lane,keyId){const k=voice(lane,keyId),v=active.get(k);if(v){v.e.noteOff(v.n);active.delete(k)}},
   allOff:silence,drop,
+  /* STEMS-04: read-only view of the lane engines' output gains, and a watcher for engines that are created later */
+  outputs(ctx){const out=[];for(const[lane,r]of engines)if(r.engine.out&&r.engine.ctx===ctx)out.push({lane,node:r.engine.out,ctx});return out},
+  watch(fn){__psyOutWatchers.add(fn);return()=>__psyOutWatchers.delete(fn)},
   /* Power off / leaving: no tails at all. Each engine fades its output in ~40 ms and is rebuilt on the next note (prepare() on a restored sound). */
   panic(){for(const lane of[...engines.keys()])drop(lane)},
   dispose(){for(const lane of[...engines.keys()])drop(lane);active.clear()},

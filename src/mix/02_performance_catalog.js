@@ -22,8 +22,11 @@ const __XenPsyLab=(()=>{
   if(s!==raw||!cache.length){raw=s;cache=FACTORY_NAMES.map(n=>({value:PREFIX+'factory:'+n,label:n,hint:'Psy Lab · factory',originLabel:'Psy Lab'}));
    try{const d=s?JSON.parse(s):null;if(d?.format==='xensonar.psylab'&&Array.isArray(d.user))for(const q of d.user.slice(0,500))if(q&&typeof q.id==='string'&&typeof q.name==='string'&&q.id)cache.push({value:PREFIX+q.id,label:String(q.name).slice(0,60),hint:'Psy Lab · saved',originLabel:'Psy Lab'})}catch{}}
   return cache}
- let loaded=null;const host=(create=true)=>{if(loaded||!create)return loaded;try{loaded=__xenLoadDeferred('psylab').LiveHost}catch(e){loaded=null}return loaded};
+ /* STEMS-04: watchers of the stem recorder; forwarded to the chunk as soon as it exists (a Psy Lab sound chosen while recording) */
+ const outWatch=new Set();let forwarding=false;
+ let loaded=null;const host=(create=true)=>{if(loaded||!create)return loaded;try{loaded=__xenLoadDeferred('psylab').LiveHost}catch(e){loaded=null}if(loaded&&!forwarding){forwarding=true;loaded.watch(rec=>{for(const fn of outWatch)try{fn(rec)}catch{}})}return loaded};
  return Object.freeze({PREFIX,isId,entries,host,FACTORY_NAMES,
+  outputs(ctx){return host(false)?.outputs(ctx)||[]},watch(fn){outWatch.add(fn);return()=>outWatch.delete(fn)},
   /* the first Psy Lab note must not wait for the module: load and create the lane's engine as soon as the sound is chosen */
   warm(lane,id){const h=host();if(h&&isId(id))h.prepare(lane,id)},
   /* ROOM5-12: glissando. The shell registers the cursor of the Live Room (frequency of the cursor, arrow keys held); a held Psy Lab note then glides with the cursor:

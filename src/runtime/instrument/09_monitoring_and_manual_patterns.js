@@ -66,6 +66,7 @@ function __XenStemRecorderControls({masterRecording,name}){
     title:"Where the stems are taken: after the role EQ and level (default, the sum equals what enters the master chain) or before them (the raw role signal; EQ and automatic level are not in the stems).",
     onClick:()=>__XenStemRecorder.configure({tap:st.setup.tap==="before-eq"?"after-eq":"before-eq"}),
     className:`px-2 py-1 border text-[11px] ${st.setup.tap==="before-eq"?"border-sky-600 text-sky-100 bg-sky-950/30":"border-neutral-700 text-neutral-400"} disabled:opacity-60`,children:st.setup.tap==="before-eq"?"Before EQ":"After EQ"})]}),
+  inst&&!rec&&!busy?u.jsx("span",{"data-xen-stems-synths":"true",className:"text-[11px] text-neutral-500",children:__XenStemRecorder.describe()}):null,
   st.message?u.jsx("span",{role:"status",className:`text-[11px] ${st.phase==="error"?"text-rose-300":"text-neutral-400"}`,children:st.message}):null]});
 }
 function __xenHoldSlotGain(values,index){

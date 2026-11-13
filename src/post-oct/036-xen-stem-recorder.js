@@ -82,12 +82,20 @@ const __XenStemRecorder=(()=>{
   /* STEMS-02: which stems are recorded and where they are tapped (kept for the session; not saved with songs) */
   /* STEMS-03: 'instruments' mode splits the Instruments / Space buses into Particles / Waves / Keyboard (the per-kind Loop-Rec gain nodes that already exist in the live path) and the remainder */
   const PARTS=Object.freeze([
-    {id:'particle',name:'Particle sound',kind:'particle',hint:'Everything played by the particle sound engine (the default sound of Enter and of the particles)'},
-    {id:'wave',name:'Wave sound',kind:'wave',hint:'Everything played by the wave sound engine (in the default setup the keyboard keys and mouse clicks)'},
-    {id:'keyboard',name:'Keyboard lane',kind:'keyboard',hint:'Voices on the keyboard lane (carries sound only when a sound is routed there)'},
+    {id:'particle',name:'Particle sounds',kind:'particle',hint:'Everything played by the particle sound engine (in the default setup Enter and the particles)'},
+    {id:'wave',name:'Entrophon / wave sounds',kind:'wave',hint:'Entrophon (Wave Starter and Keyboard share it) and the classic wave sounds and samples of the Wave Starter'},
+    {id:'keyboard',name:'Keyboard wave sounds',kind:'keyboard',hint:'Classic wave sounds and samples played by the Keyboard (carries sound only when the Keyboard uses one)'},
+    {id:'psylab',name:'Psy Lab',psy:true,hint:'Psy Lab, whether played by the Wave Starter or the Keyboard'},
     {id:'drone',name:'Drone',role:'drone',hint:'The drone layer'},
     {id:'rhythm',name:'Rhythm',role:'rhythm',hint:'Drums, loops and root-follow impulses'},
-    {id:'rest',name:'Other',rest:true,hint:'Everything else on the Instruments and Space buses (e.g. Nodal, Psy Lab, echo returns) plus every instrument stem that is switched off'}]);
+    {id:'rest',name:'Other',rest:true,hint:'Everything else on the Instruments and Space buses (e.g. Nodal, echo returns) plus every instrument stem that is switched off'}]);
+  /* STEMS-04: the synth family of a sound id. Wave Starter and Keyboard on the same synth share one track; different synths get their own tracks wherever the signal path keeps them apart. */
+  const family=id=>typeof id!=='string'||!id?'Classic':id==='entrophon'||id.startsWith('entrophon:')?'Entrophon':id.startsWith('psylab:')?'Psy Lab':id.startsWith('nodal:')?'Nodal':id.startsWith('sample:')?'Samples':'Classic';
+  function describe(){const s=source();if(!s?.sounds)return '';const w=family(s.sounds.waveStarter),k=family(s.sounds.keyboard);
+    if(w===k)return 'Wave Starter and Keyboard both use '+w+': one track.';
+    /* a classic / sample sound of the Wave Starter and Entrophon on the Keyboard travel through the same Loop-Rec lane: they cannot be told apart */
+    if((w==='Classic'||w==='Samples')&&k==='Entrophon')return 'Wave Starter: '+w+' · Keyboard: Entrophon: both land in one track (same signal path).';
+    return 'Wave Starter: '+w+' · Keyboard: '+k+': separate tracks.'}
   let setup={mode:'roles',roles:ROLES.map(r=>r.id),parts:PARTS.map(p=>p.id),tap:'after-eq'};
   let state={phase:'idle',ms:0,message:'',stems:[],maxMs:MAX_SECONDS*1000,setup};
   let session=null,timer=0,lastKept=null;
@@ -175,16 +183,24 @@ const __XenStemRecorder=(()=>{
     else{
       const idx=id=>taps.findIndex(t=>t.id===id),kindIdx=new Map();
       for(const t of taps)if(t.part.kind)kindIdx.set(t.part.kind,idx(t.id));
-      const restI=idx('rest');
+      const restI=idx('rest'),psyI=idx('psylab');
+      /* same synth family on the Wave Starter and the Keyboard (classic sounds / samples): one track, the keyboard lane joins the wave track */
+      const fw=family(src.sounds?.waveStarter),fk=family(src.sounds?.keyboard),classic=f=>f==='Classic'||f==='Samples';
+      if(kindIdx.has('keyboard')&&kindIdx.has('wave')&&classic(fw)&&classic(fk))kindIdx.set('keyboard',kindIdx.get('wave'));
       /* "Other" = main + space inputs - the instrument stems that have their own track: the kind nodes feed a -1 gain into the same input, Web Audio sums the connections (no worklet change) */
       if(restI>=0){s.neg=ctx.createGain();s.neg.gain.value=-1;s.neg.connect(node,0,restI)}
       const bus=d=>d===src.inputs.main||d===src.inputs.space;
       const wire=rec=>{const i=kindIdx.get(rec.kind);if(i===undefined)return;link(rec.node,node,i);if(s.neg&&bus(rec.destination))link(rec.node,s.neg,0)};
       for(const rec of __XenLoopRec.kindTaps(ctx))wire(rec);
+      /* Psy Lab: the output gain of each Live lane engine (Wave Starter lane and Keyboard lane share one track) */
+      const wirePsy=rec=>{if(psyI<0)return;link(rec.node,node,psyI);if(s.neg&&bus(src.inputs.main))link(rec.node,s.neg,0)};
+      if(typeof __XenPsyLab!=='undefined')for(const rec of __XenPsyLab.outputs(ctx))wirePsy(rec);
       for(const t of taps){const i=idx(t.id);if(t.part.role)link(src.splices[t.part.role],node,i);if(t.part.presum)for(const role of['main','drone','rhythm','space'])link(src.splices[role],node,i)}
       if(restI>=0){link(src.splices.main,node,restI);link(src.splices.space,node,restI)}
       /* a kind node that appears while recording (e.g. the first particle) is wired the moment it is created */
-      s.unwatch=__XenLoopRec.watchKindTaps(ctx,rec=>{if(session===s)wire(rec)});
+      const offKinds=__XenLoopRec.watchKindTaps(ctx,rec=>{if(session===s)wire(rec)});
+      const offPsy=typeof __XenPsyLab!=='undefined'?__XenPsyLab.watch(rec=>{if(session===s&&rec.ctx===ctx)wirePsy(rec)}):()=>{};
+      s.unwatch=()=>{offKinds();offPsy()};
     }
     /* Power off / engine suspended while recording: keep what was captured and hand it over */
     s.onState=()=>{if(session===s&&ctx.state!=='running'&&state.phase==='recording')finish().catch(()=>{})};try{ctx.addEventListener('statechange',s.onState)}catch{}
@@ -246,7 +262,7 @@ const __XenStemRecorder=(()=>{
     emit({phase:'idle',ms:0,message:'',stems:[]});
   }
   function reset(){if(!session)emit({phase:'idle',ms:0,message:'',stems:[]})}
-  const api={roles:ROLES,parts:PARTS,maxSeconds:MAX_SECONDS,configure,start,stop:()=>finish(),cancel,reset,snapshot:()=>state,subscribe:fn=>{listeners.add(fn);return()=>listeners.delete(fn)},
+  const api={roles:ROLES,parts:PARTS,describe,maxSeconds:MAX_SECONDS,configure,start,stop:()=>finish(),cancel,reset,snapshot:()=>state,subscribe:fn=>{listeners.add(fn);return()=>listeners.delete(fn)},
    /* test access (read-only views of the finished session; the archives of a kept session are readable through __xenLongMasterPCM) */
    __session:()=>session,__lastKept:()=>lastKept};
   try{globalThis.__XenStemRecorder=api}catch{}

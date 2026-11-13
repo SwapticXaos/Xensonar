@@ -272,6 +272,8 @@ function loadModule(ctx){let job=moduleReady.get(ctx);if(job)return job;
   throw error??Error('Psychedelic Lab engine could not be loaded.')})();
  moduleReady.set(ctx,job);job.catch(()=>{if(moduleReady.get(ctx)===job)moduleReady.delete(ctx)});return job}
 
+/* STEMS-04: the output gain of each Live lane engine ("keyboard" / "wave") is announced to the stem recorder (an extra output, nothing in the signal path changes) */
+const __psyOutWatchers=new Set();
 /* Live engine: created on the first note, removed when the room closes. Slider moves are coalesced to one message per frame. */
 class PsyEngine{
  constructor(options){this.visual=!options||options.visual!==false;this.ctx=null;this.node=null;this.out=null;this.anL=null;this.anR=null;this.split=null;this.starting=null;this.pending=new Map();this.raf=0;this.queue=[];this.params=defaultParams();this.res=[220];this.closed=false}
@@ -284,6 +286,7 @@ class PsyEngine{
    let split=null,anL=null,anR=null;
    if(this.visual){split=ctx.createChannelSplitter(2);anL=ctx.createAnalyser();anR=ctx.createAnalyser();anL.fftSize=anR.fftSize=1024;anL.smoothingTimeConstant=.6;node.connect(split);split.connect(anL,0);split.connect(anR,1)}
    this.ctx=ctx;this.node=node;this.out=out;this.split=split;this.anL=anL;this.anR=anR;
+   if(this.lane)for(const w of __psyOutWatchers)try{w({lane:this.lane,node:out,ctx})}catch{}
    for(const m of this.queue)node.port.postMessage(m);this.queue.length=0;return node})();
   try{return await this.starting}finally{this.starting=null}}
  send(m){if(this.node)this.node.port.postMessage(m);else{this.queue.push(m);if(this.queue.length>64)this.queue.shift();void this.ensure().catch(()=>{})}}
@@ -343,7 +346,7 @@ const LiveHost=(()=>{
  const entries=()=>patches().map(q=>({value:PREFIX+q.id,label:q.name,hint:'Psy Lab'+(q.grid?' · '+q.grid:''),originLabel:'Psy Lab'}));
  /* HOT path rule: a note-on never reads storage. The patch of a lane is looked up when the sound id changes (or on prepare(), i.e. when it is chosen / restored). */
  function engineFor(lane,id,reload){let rec=engines.get(lane);if(rec&&rec.id===id&&!reload)return rec.engine;const pt=find(id);if(!pt)return null;
-  if(!rec){rec={engine:new PsyEngine({visual:false}),id:null};engines.set(lane,rec)}
+  if(!rec){rec={engine:new PsyEngine({visual:false}),id:null};rec.engine.lane=lane;engines.set(lane,rec)}
   rec.id=id;rec.engine.setAll(pt.params);return rec.engine}
  /* ROOM5-11: the processor keeps voice ids in a typed array (numbers only). ROOM5-10 sent string ids ("keyboard:KeyA"), so +id was NaN, no note-off ever matched
     and every Live note sounded until the voices were stolen. Each live note now gets its own number; the string key only lives here. */
@@ -358,6 +361,9 @@ const LiveHost=(()=>{
   bend(lane,keyId,hz){const v=active.get(voice(lane,keyId));if(v)v.e.bend(v.n,hz)},
   stop(lane,keyId){const k=voice(lane,keyId),v=active.get(k);if(v){v.e.noteOff(v.n);active.delete(k)}},
   allOff:silence,drop,
+  /* STEMS-04: read-only view of the lane engines' output gains, and a watcher for engines that are created later */
+  outputs(ctx){const out=[];for(const[lane,r]of engines)if(r.engine.out&&r.engine.ctx===ctx)out.push({lane,node:r.engine.out,ctx});return out},
+  watch(fn){__psyOutWatchers.add(fn);return()=>__psyOutWatchers.delete(fn)},
   /* Power off / leaving: no tails at all. Each engine fades its output in ~40 ms and is rebuilt on the next note (prepare() on a restored sound). */
   panic(){for(const lane of[...engines.keys()])drop(lane)},
   dispose(){for(const lane of[...engines.keys()])drop(lane);active.clear()},
