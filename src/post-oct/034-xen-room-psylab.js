@@ -580,7 +580,7 @@ function XenPsyLabRoom(){
   const down=e=>{if(e.button!==0)return;e.preventDefault();document.activeElement?.blur?.();try{canvas.setPointerCapture(e.pointerId)}catch{};const p=liveGridParams();if(!p)return;
    const geo=padGeometry(live.current.orient,live.current.flip,live.current.log),pt=padLocal(canvas,e,geo),rows=__NodalBallGrid.rows(),hit=__XenGridHandles.hit(rows,geo.yOf,pt.x,pt.y);
    focus.current={x:pt.x,y:pt.y,inside:true};
-   if(hit){handle.current={step:hit.stepIndex,startY:pt.y,base:p.manualGridStepOffsets?.[hit.stepIndex]??0,moved:false,pointer:e.pointerId};return}
+   if(hit){handle.current={step:hit.stepIndex,startY:pt.y,base:p.manualGridStepOffsets?.[hit.stepIndex]??0,moved:false,pointer:e.pointerId};__XenGridHandles.drag.step=hit.stepIndex;return}
    const tg=padTarget(p,geo,rows,pt.y),hz=tg.freq*Math.pow(2,live.current.oct);intensity.current=padIntensity(geo,pt.x);setMacro(intensity.current);start('pad:'+e.pointerId,hz,.9);show(hz)};
   const move=e=>{const p=liveGridParams(),geo=padGeometry(live.current.orient,live.current.flip,live.current.log),pt=padLocal(canvas,e,geo),rows=__NodalBallGrid.rows();focus.current={x:pt.x,y:pt.y,inside:true};
    const h=handle.current;
@@ -588,7 +588,7 @@ function XenPsyLabRoom(){
    canvas.style.cursor=__XenGridHandles.near(rows,geo.yOf,pt.x,pt.y)?(geo.piano?'ew-resize':'ns-resize'):'crosshair';
    const id=held.current.get('pad:'+e.pointerId);if(id===undefined||!p)return;
    const tg=padTarget(p,geo,rows,pt.y),hz=tg.freq*Math.pow(2,live.current.oct);engine.bend(id,hz);notesHz.current.set(id,tg.freq);intensity.current=padIntensity(geo,pt.x);setMacro(intensity.current);show(hz)};
-  const up=e=>{const h=handle.current;if(h&&h.pointer===e.pointerId){handle.current=null;if(!h.moved)__NodalBallGrid.toggleMute(h.step)}stop('pad:'+e.pointerId)};
+  const up=e=>{const h=handle.current;if(h&&h.pointer===e.pointerId){handle.current=null;__XenGridHandles.drag.step=null;if(!h.moved)__NodalBallGrid.toggleMute(h.step)}stop('pad:'+e.pointerId)};
   const leave=()=>{focus.current.inside=false};
   const menu=e=>{e.preventDefault();const geo=padGeometry(live.current.orient,live.current.flip,live.current.log),pt=padLocal(canvas,e,geo),hit=__XenGridHandles.hit(__NodalBallGrid.rows(),geo.yOf,pt.x,pt.y);
    if(hit){const ref=__xenMainRootFromGridLine(hit),p=liveGridParams();if(ref!==null&&p&&Math.abs(ref-p.gridBase)>1e-7){__NodalBallGrid.update({gridBase:ref});setStatus('Grid base set to '+ref.toFixed(2)+' Hz.')}}};
