@@ -16,3 +16,13 @@ Parent: STEMS-04-Stand. Status: CODE_PRESENT, BROWSER_CHECKED (`tests/e2e/room5_
 3. **Keine Effekt-Sends / keine Instrumenten-EQ:** Der Psy-Lab-Ausgang geht direkt in den Hauptbus (`getMasterInput`), nicht durch die Parallel-Effekt-Sends (Drive, Spiral, Memory …) und die Instrumenten-EQ der Wave-/Keyboard-Stimmen (nach Code-Lesung, nicht eigens gemessen).
 4. **Hold-Gradient-Morph** (Avalanche) betrifft nur Hold und damit nicht Psy Lab.
 Rollback: der Commit davor (STEMS-04).
+
+## PSY-X-02: Feinheit (kein Qualitätsverlust gegenüber Raum V)
+Frage: Ist der native Gradient von Psy Lab (Raum V) feiner als der Timbre-Gradient des Live-Raums, und wird beim Übernehmen etwas gröber?
+**Befund aus dem Code:**
+- *Psy Lab nativ (Raum V):* X → Regler (Param 37) **stufenlos linear** (`x / Länge`, Fließkomma), bei jeder Zeigerbewegung gesetzt; im Prozessor zusätzlich je Parameter 20-ms-Glättung (`pk = 1 − e^(−n/(sr·0,02))`) in Float64 → kein Zipper, die Note folgt dem Zeiger **laufend**.
+- *Live-Raum nativ (`__wave39MakeGradient`):* sechs feste Formen, wirkt **nur beim Anschlag** der Stimme (Startwerte der Filter/Jawari/Vokal-Stufen, 16-Einträge-Cache nach exaktem X); eine klingende Note ändert sich nicht mehr mit X.
+- *Übernahme in PSY-X:* Der Live-Gradient liefert **nur die Form** (aufsteigend / fallend / Mitte / Ränder), die Auflösung bleibt die von Psy Lab: stetiges Float-X (1 100 logische Pixel), ohne Quantisierung und ohne den Live-Cache. Damit ist nichts gröber als in Raum V; feiner als der Live-Gradient selbst.
+**Nachgebessert:** Klingende Psy-Lab-Noten folgen dem Cursor-X jetzt **auch auf der Tastatur-Lane** (vorher nur Maus-gehaltene Noten), wie das Pad in Raum V. Update je Frame (nur bei Änderung > 0,004).
+**Test:** Langsamer Zug über das Feld → 60 verschiedene Reglerwerte, größter Sprung 0,015 (1,5 % des Bereichs), danach 20-ms-Glättung im Prozessor; gehaltene Tastatur-Note folgt (Endwert > 0,85).
+**Offen / Entscheidung bei Ihnen:** Wollen Sie, dass Psy Lab **immer** nach seinem eigenen X-Gesetz klingt (wie in Raum V, unabhängig vom Gradient-Schalter), statt nur bei eingeschaltetem Timbre-Gradient? Aktuell gilt: Gradient aus = kein X-Einfluss.

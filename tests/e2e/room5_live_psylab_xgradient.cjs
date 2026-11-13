@@ -25,6 +25,13 @@ const html=path.resolve(process.argv[2]||'dist/XenSonar_PROBE.html');
   await clear();let q=at(.1);await p.mouse.move(q.x,q.y);await p.waitForTimeout(80);await p.mouse.down();await p.waitForTimeout(200);
   for(let k=1;k<=8;k++){const r=at(.1+k*.1);await p.mouse.move(r.x,r.y);await p.waitForTimeout(80)}await p.waitForTimeout(200);const held=macroOf(await msgs());await p.mouse.up();await p.waitForTimeout(500);
   assert(held!==null&&held>.8,'a held note follows the cursor to the right: '+held);
+  // resolution: a slow sweep over the field produces a fine, unquantised sequence of regulator values (no coarse steps); a held KEYBOARD note follows the cursor too
+  await clear();q=at(.05);await p.mouse.move(q.x,q.y);await p.keyboard.down('KeyQ');await p.waitForTimeout(300);await clear();
+  for(let k=0;k<=60;k++){const r=at(.05+k*.015);await p.mouse.move(r.x,r.y);await p.waitForTimeout(30)}await p.waitForTimeout(300);
+  const seq=(await msgs()).filter(x=>x.t==='p'&&x.i===37).map(x=>x.v);await p.keyboard.up('KeyQ');await p.waitForTimeout(500);
+  const distinct=new Set(seq.map(v=>v.toFixed(4))).size,maxStep=Math.max(...seq.slice(1).map((v,i)=>Math.abs(v-seq[i])));
+  assert(distinct>=35&&maxStep<.04,'fine resolution: '+distinct+' distinct values, largest step '+maxStep.toFixed(4));
+  assert(seq.length>0&&seq[seq.length-1]>.85,'a held keyboard note follows the cursor X: '+seq[seq.length-1]);
   // the shape follows the gradient setting: falls to the right with "psy_to_wire"
   await E("__NodalBallGrid.update({waveTimbreGradientX:'psy_to_wire'})");await p.waitForTimeout(300);m=await click(.92);assert(macroOf(m)<.15,'psy_to_wire: right edge ~0: '+macroOf(m));
   // gradient off: no push
@@ -35,5 +42,5 @@ const html=path.resolve(process.argv[2]||'dist/XenSonar_PROBE.html');
   // volume gradient: left quiet / right loud scales the velocity
   await E("__NodalBallGrid.update({waveVolumeGradientEnabled:true,waveVolumeGradientX:'left_quiet_right_loud'})");await p.waitForTimeout(300);
   const vl=vel(await click(.05)),vr=vel(await click(.95));assert(vl>0&&vr>vl*1.8,'volume gradient: right is louder than left: '+vl+' vs '+vr);
-  assert.deepEqual(errors,[]);console.log('PASS PSY-X Psy Lab follows the X gradients (macro left '+left+', right '+right+', held '+held+'; velocity '+vl.toFixed(2)+' → '+vr.toFixed(2)+')');await b.close();
+  assert.deepEqual(errors,[]);console.log('PASS PSY-X Psy Lab follows the X gradients (macro left '+left+', right '+right+', held '+held+', sweep '+distinct+' distinct values, max step '+maxStep.toFixed(4)+'; velocity '+vl.toFixed(2)+' → '+vr.toFixed(2)+')');await b.close();
 })().catch(e=>{console.error(e);process.exit(1)});

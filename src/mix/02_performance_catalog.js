@@ -15,8 +15,8 @@ const __XenPsyLab=(()=>{
    if(f.mode==='cursor'){if(!(focus>0))continue;f.pos+=(Math.log2(focus)-f.pos)*k;target=Math.pow(2,f.pos)}/* glide in the log-frequency domain */
    else target=f.base*wheel;
    if(target>0&&Math.abs(1200*Math.log2(target/f.last))>.4){f.last=target;h.bend(f.lane,f.keyId,target)}
-   /* PSY-X: a held Wave Starter note also follows the cursor's X (timbre gradient) */
-   if(f.mode==='cursor'&&cursor.grad){const g=cursor.grad(),m=law(g.tOn,g.tMode,g.x/g.width);if(Math.abs(m-(f.macro??-1))>.004){f.macro=m;h.macro(f.lane,m)}}}
+   /* PSY-X: every held Psy Lab note (mouse or keyboard) follows the cursor's X continuously, like the pad of Room V */
+   if(cursor.grad){const g=cursor.grad(),m=law(g.tOn,g.tMode,g.x/g.width);if(Math.abs(m-(f.macro??-1))>.004){f.macro=m;h.macro(f.lane,m)}}}
   raf=requestAnimationFrame(tick)}
  const isId=id=>typeof id==='string'&&id.startsWith(PREFIX);
  /* PSY-X: how far the Live Room's X position (0 left .. 1 right) pushes the Psy Lab pad regulator, following the shape the timbre gradient is set to (rises to the right, falls, peaks in the middle, peaks at the edges); disabled / none = 0 (no push) */
