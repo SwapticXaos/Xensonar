@@ -16,7 +16,12 @@ module.exports=({p,canvasBox})=>{
     const v=process.env.RFL_VARIANT||'both',cfg={base:[0,.022,false],hyst:[150,.022,false],fade:[0,.06,true],both:[150,.06,true],long:[0,.4,true]}[v];
     if(!cfg)throw Error('unknown RFL_VARIANT '+v);
     await E(`__xenRflLeaveGraceMs=()=>${cfg[0]};__xenRflStopFadeSec=()=>${cfg[1]};__xenRflFadeParallel=()=>${cfg[2]}`);
-    console.log('RFL-VARIANT '+v+' '+JSON.stringify(cfg));
+    // experimental overrides of the stop path (PROBE only): nohold = plain setValueAtTime instead of cancelAndHold | instant = no fade, release at once | target = exponential approach instead of the linear ramp
+    const x=process.env.RFL_STOPX;
+    if(x==='nohold')await E(`__f49HoldParam=(p,t)=>{const v=p.value;p.cancelScheduledValues(t);p.setValueAtTime(v,t)}`);
+    if(x==='instant')await E(`__f49FadeAndRelease=(bus,sec,rel)=>rel()`);
+    if(x==='target')await E(`__f49FadeAndRelease=(bus,sec,rel)=>{const ctx=bus?.context;if(!bus||ctx.state!=='running'){rel();return}const at=ctx.currentTime;bus.gain.cancelScheduledValues(at);bus.gain.setTargetAtTime(0,at,.012);setTimeout(rel,Math.ceil((sec+.05)*1000))}`);
+    console.log('RFL-VARIANT '+v+' '+JSON.stringify(cfg)+' stopx='+(x||''));
   }
   const rfl=async on=>{await setup();await E(`__NodalBallGrid.update({rootFollowLoopActive:${on?'true':'false'},rootFollowLoopId:'${on?entryId:''}'})`);await p.waitForTimeout(1200)};
   const mark=l=>p.evaluate(l=>{try{__glitch.mark(l)}catch{}},l);
