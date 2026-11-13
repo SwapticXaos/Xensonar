@@ -71,6 +71,32 @@ function sanitize(raw,liveBpm){
 const db=()=>__XenMultitrackInbox.db();// one database owner, shared with the Send-to-Multitrack inbox
 async function loadProject(){const d=await db();return new Promise((ok,bad)=>{const q=d.transaction(STORE,'readonly').objectStore(STORE).get(KEY);q.onsuccess=()=>ok(q.result??null);q.onerror=()=>bad(q.error)})}
 async function saveProject(p){const d=await db();return new Promise((ok,bad)=>{const tx=d.transaction(STORE,'readwrite');tx.objectStore(STORE).put({...p,updatedAt:Date.now()},KEY);tx.oncomplete=()=>ok(true);tx.onerror=()=>bad(tx.error)})}
+/* MT-PROJECTS: more than one project. "current" stays the working project (every existing path keeps reading and writing it); the others are kept under "proj:<id>" in the same store.
+   Starting a new project or opening another one puts the working project away under a new key first; nothing is deleted except by the explicit Delete of a project record
+   (never the audio material: clips only reference the library). */
+const ARCH='proj:';
+const archTx=(mode,fn)=>db().then(d=>new Promise((ok,bad)=>{const tx=d.transaction(STORE,mode),r=fn(tx.objectStore(STORE));tx.oncomplete=()=>ok(r);tx.onerror=()=>bad(tx.error);tx.onabort=()=>bad(tx.error)}));
+const archiveList=async()=>{const r=await archTx('readonly',st=>({k:st.getAllKeys(),v:st.getAll()}));const out=[];r.k.result.forEach((key,i)=>{if(typeof key==='string'&&key.startsWith(ARCH)){const x=r.v.result[i]||{};out.push({key,name:String(x.name||'Untitled').slice(0,100),bpm:num(x.bpm,0),tracks:(x.tracks||[]).length,clips:(x.tracks||[]).reduce((n,t)=>n+(t.clips?.length||0),0),updatedAt:num(x.updatedAt,0)})}});return out.sort((a,b)=>b.updatedAt-a.updatedAt)};
+const archiveGet=async key=>(await archTx('readonly',st=>st.get(key))).result??null;
+const archivePut=async(p,key)=>{const k=key||ARCH+uid('p');await archTx('readwrite',st=>st.put({...p,id:k,updatedAt:Date.now()},k));return k};
+const archiveDelete=key=>typeof key==='string'&&key.startsWith(ARCH)?archTx('readwrite',st=>st.delete(key)):Promise.reject(Error('Not a saved project.'));
+function XmtProjects({name,rev,actions}){
+ const[open,setOpen]=P.useState(false),[items,setItems]=P.useState(null),[err,setErr]=P.useState('');
+ P.useEffect(()=>{if(!open)return;let live=true;setErr('');setItems(null);archiveList().then(l=>{if(live)setItems(l)}).catch(()=>{if(live)setErr('Saved projects could not be read.')});return()=>{live=false}},[open,rev]);
+ const date=t=>t?new Date(t).toLocaleString(undefined,{dateStyle:'short',timeStyle:'short'}):'';
+ const btn=(label,run,extra={})=>u.jsx('button',{type:'button',onClick:run,...extra,children:label});
+ return u.jsxs('span',{className:'xmt-projects','data-xmt-projects':'true',style:{position:'relative',display:'inline-flex',gap:6,alignItems:'center'},children:[
+  btn('+ New project',()=>{setOpen(false);actions.create()},{title:'Start a new, empty project. The current project is kept in the project list.','data-xmt-new-project':'true'}),
+  btn('Projects ▾',()=>setOpen(o=>!o),{'aria-expanded':open,title:'Your saved projects: open, copy, rename, delete','data-xmt-open-projects':'true'}),
+  open?u.jsxs('div',{role:'dialog','aria-label':'Projects','data-xmt-project-list':'true',onKeyDown:e=>{if(e.key==='Escape'){e.stopPropagation();setOpen(false)}},style:{position:'absolute',right:0,top:'100%',zIndex:40,minWidth:360,maxHeight:380,overflow:'auto',background:'#0b0f14',border:'1px solid #3a4756',padding:8,display:'flex',flexDirection:'column',gap:6},children:[
+   u.jsx('div',{style:{fontWeight:600},children:'Working project: '+name}),
+   btn('Save a copy of the working project',()=>actions.copyCurrent().then(()=>setOpen(false)),{'data-xmt-copy-current':'true'}),
+   err?u.jsx('div',{className:'muted',children:err}):null,
+   items===null?u.jsx('div',{className:'muted',children:err||'Loading…'}):items.length?items.map(it=>u.jsxs('div',{'data-xmt-project':it.key,style:{display:'flex',flexDirection:'column',gap:2,borderTop:'1px solid #26303b',paddingTop:6},children:[
+    u.jsx('div',{children:it.name}),u.jsx('div',{className:'muted',children:(it.bpm?Math.round(it.bpm*100)/100+' BPM · ':'')+it.tracks+' tracks · '+it.clips+' clips · '+date(it.updatedAt)}),
+    u.jsxs('div',{style:{display:'flex',gap:6},children:[btn('Open',()=>actions.open(it.key).then(()=>setOpen(false)),{'data-xmt-project-open':it.key}),btn('Copy',()=>actions.copy(it.key).then(()=>actions.refresh()),{'data-xmt-project-copy':it.key}),btn('Rename',()=>actions.rename(it.key,it.name).then(()=>actions.refresh()),{'data-xmt-project-rename':it.key}),btn('Delete',()=>actions.remove(it.key,it.name).then(()=>actions.refresh()),{'data-xmt-project-delete':it.key})]})]},it.key))
+    :u.jsx('div',{className:'muted',children:'No other saved projects yet. "+ New project" puts the current one here.'})]}):null]});
+}
 /* ---------- material library (read-only consumer) ---------- */
 function materials(){try{return (bs().entries||[]).filter(e=>e&&e.id)}catch{return []}}
 function matBeats(entry){const bars=num(entry?.bars,1),bpb=num(entry?.beatsPerBar,4);return Math.max(1/16,(bars>0?bars:1)*(bpb>0?bpb:4))}
@@ -82,6 +108,18 @@ function cycleBeats(entry,clip,bpm){return Math.max(1/64,baseCycleBeats(entry,cl
 function clipLen(c,lib,bpm){return c.lenBeats>0?c.lenBeats:cycleBeats(lib.get(c.materialId),c,bpm)*(c.repeats||1)}
 /* ROOM4-05: 'Original speed' clips keep their REAL length and in-point when the project tempo changes. Their stored length/in-point are in
    beats at the old tempo; without this a 4 s clip of 8 beats at 120 BPM became 8 s (looped twice) at 60 BPM. Other fits are beat-bound by design. */
+/* MT-TEMPO: the tempo box used to commit on EVERY keystroke (typing 120 passed through 20 and re-timed every clip each time). The field keeps a draft and commits once (Enter / leaving the field /
+   releasing the slider); the slider is logarithmic (20-400 BPM) so that a normal tempo is easy to hit, the box takes any value (comma or point), Up / Down = 1 BPM, Shift 10, Alt 0.1; Escape cancels. */
+function XmtTempo({value,onCommit}){
+ const[draft,setDraft]=P.useState(null);const shown=draft===null?String(Math.round(value*100)/100):draft;
+ const done=raw=>{setDraft(null);const n=clamp(num(String(raw).replace(',','.'),value),20,400);if(Math.abs(n-value)>1e-6)onCommit(Math.round(n*100)/100)};
+ const toPos=b=>Math.log(clamp(b,20,400)/20)/Math.log(20),fromPos=x=>20*Math.pow(20,x);
+ return u.jsxs('label',{title:'Project tempo in BPM (20-400). Type a value and press Enter, or drag the slider. Clips in tempo-fit or source-tempo mode follow it by playback rate only.','data-xmt-tempo':'true',style:{display:'inline-flex',gap:4,alignItems:'center'},children:['Tempo',
+  u.jsx('input',{type:'range',min:0,max:1000,step:1,'aria-label':'Tempo slider',value:Math.round(toPos(num(shown,value))*1000),style:{width:110},
+   onChange:e=>setDraft(String(Math.round(fromPos(e.target.value/1000)*10)/10)),onPointerUp:()=>draft!==null&&done(shown),onKeyUp:()=>draft!==null&&done(shown),onBlur:()=>draft!==null&&done(shown)}),
+  u.jsx('input',{type:'text',inputMode:'decimal','aria-label':'Tempo BPM',size:6,value:shown,onChange:e=>setDraft(e.target.value),onFocus:e=>e.target.select(),onBlur:e=>draft!==null&&done(e.target.value),
+   onKeyDown:e=>{if(e.key==='Enter'){e.preventDefault();done(e.target.value);e.target.blur()}else if(e.key==='Escape'){setDraft(null);e.target.blur()}else if(e.key==='ArrowUp'||e.key==='ArrowDown'){e.preventDefault();const d=(e.shiftKey?10:e.altKey?.1:1)*(e.key==='ArrowUp'?1:-1);done(String(num(String(shown).replace(',','.'),value)+d))}}}),'BPM']});
+}
 function retempo(project,bpm){const f=project.bpm/bpm;if(!(f>0)||f===1)return {...project,bpm};const r=v=>Math.round(v*1e9)/1e9;
  return {...project,bpm,tracks:project.tracks.map(t=>t.clips.some(c=>c.fit==='natural')?{...t,clips:t.clips.map(c=>c.fit!=='natural'?c:{...c,...(c.lenBeats>0?{lenBeats:Math.max(1/64,r(c.lenBeats/f))}:{}),inBeat:r(c.inBeat/f)})}:t)}}
 /* ---------- decoded audio: once per material, context-independent ---------- */
@@ -492,6 +530,20 @@ function XenMultitrackRoom(){
  P.useEffect(()=>{if(!project)return;const id=setTimeout(()=>prepareVariants(projectRef.current||project,libRef.current,false),320);return()=>clearTimeout(id)},[project,libMap,audioRev]);
  P.useEffect(()=>{const f=()=>{if(engine.playing&&engine.project)engine.update(engine.project,engine.lib)};variantListeners.add(f);return()=>variantListeners.delete(f)},[]);
  const persist=next=>{clearTimeout(saveTimer.current);saveTimer.current=setTimeout(()=>saveProject(next).catch(()=>setStatus('Saving failed; keep this tab open and export a mixdown.')),600)};
+ /* MT-PROJECTS: switching projects. The working project is put away first (unless it is untouched); if that fails nothing changes. */
+ const [projRev,setProjRev]=P.useState(0);
+ const projectActions=(()=>{const untouched=p=>!p.tracks.some(t=>t.clips.length)&&(p.name||'')==='Untitled Arrangement';
+  const switchTo=async(next,label)=>{const cur=projectRef.current;clearTimeout(saveTimer.current);
+   try{if(cur&&!untouched(cur))await archivePut(cur)}catch{setStatus('The current project could not be put away; nothing was changed.');return false}
+   stopPlayback();hist.current={past:[],future:[]};setSel(null);setTrackSel(null);setCursor(0);pushEq(next);setProject(next);projectRef.current=next;
+   try{await saveProject(next)}catch{setStatus('Saving failed; keep this tab open and export a mixdown.')}setProjRev(v=>v+1);announce(label);setStatus(label);return true};
+  return{refresh:()=>setProjRev(v=>v+1),
+   create:async()=>{await switchTo(blankProject(bridge?.getLiveBpm?.()),'New project started; the previous one is in Projects.')},
+   open:async key=>{let raw;try{raw=await archiveGet(key)}catch{raw=null}if(!raw){setStatus('That project could not be read.');return}const next=sanitize(raw,null);if(await switchTo(next,'Opened: '+next.name)){try{await archiveDelete(key)}catch{}}},
+   copy:async key=>{try{const raw=await archiveGet(key);if(raw)await archivePut({...raw,name:String(raw.name||'Untitled').slice(0,92)+' (copy)'});setStatus('Copied.')}catch{setStatus('Copy failed.')}},
+   copyCurrent:async()=>{const cur=projectRef.current;try{await archivePut({...cur,name:String(cur.name||'Untitled').slice(0,92)+' (copy)'});setProjRev(v=>v+1);setStatus('A copy of the working project was saved in Projects.')}catch{setStatus('Copy failed.')}},
+   rename:async(key,old)=>{const v=window.prompt('Project name:',old);if(v===null)return;const name=String(v).trim().slice(0,100);if(!name)return;try{const raw=await archiveGet(key);if(raw)await archivePut({...raw,name},key)}catch{setStatus('Rename failed.')}},
+   remove:async(key,name)=>{if(!window.confirm('Delete the project "'+name+'"? Your audio material in the library is not touched.'))return;try{await archiveDelete(key);setStatus('Project deleted.')}catch{setStatus('Delete failed.')}}}})();
  /* ROOM4-11: project <-> shared EQ state. pushEq: project -> live EQ (identity compare, so an unchanged curve costs nothing). The subscription below writes edits back (debounced). */
  const eqSeen=P.useRef(new Map());
  const eqFlatCurve=()=>({a:Array(360).fill(0),b:Array(360).fill(0),morph:0,enabled:true,manualCenters:[]});
@@ -862,7 +914,8 @@ function XenMultitrackRoom(){
   u.jsx(Menu,{menu,close:()=>{setMenu(null);rootRef.current?.querySelector('[data-clip="'+sel+'"]')?.focus({preventScroll:true})}}),
   u.jsxs('div',{className:'row',style:{justifyContent:'space-between'},children:[
    u.jsxs('div',{children:[u.jsx('h2',{children:'IV · MULTITRACK'}),u.jsx('div',{className:'muted',children:'Arrange harvested material on tracks. Live Room and Mycelium sleep while you are here. Right-click anything for options.'})]}),
-   u.jsx('input',{type:'text','aria-label':'Arrangement name',title:'Name of this arrangement (used for the mixdown file name)',value:project.name,onChange:e=>commit({...project,name:e.target.value.slice(0,100)})})]}),
+   u.jsxs('div',{className:'row',style:{gap:8,alignItems:'center'},children:[u.jsx(XmtProjects,{name:project.name,rev:projRev,actions:projectActions}),
+   u.jsx('input',{type:'text','aria-label':'Arrangement name',title:'Name of this arrangement (used for the mixdown file name)',value:project.name,onChange:e=>commit({...project,name:e.target.value.slice(0,100)})})]})]}),
   u.jsxs('div',{className:'bar row',children:[
    u.jsx('button',{type:'button',onClick:playing?stop:()=>void play(),title:'Play from the cursor / stop · Space','aria-label':playing?'Stop (Space)':'Play from cursor (Space)',children:playing?'■ Stop':'▶ Play'}),
    u.jsx('button',{type:'button',onClick:()=>{setCursor(0);announce('Cursor to start')},title:'Cursor to the start · Home','aria-label':'Cursor to start (Home)',children:'⏮'}),
@@ -874,7 +927,7 @@ function XenMultitrackRoom(){
    u.jsxs('select',{value:recDevice,disabled:recording,'aria-label':'Recording input',title:'Audio input for recording (names appear after the first permission)','data-xmt-rec-input':'true',onChange:e=>{setRecDevice(e.target.value);try{localStorage.setItem('xensonar.mt.recdev',e.target.value)}catch{}},children:[u.jsx('option',{value:'',children:'Default input'}),...inputs.filter(d=>d.deviceId&&d.deviceId!=='default').map(d=>u.jsx('option',{value:d.deviceId,children:d.label||'Input '+d.deviceId.slice(0,6)},d.deviceId))]}),
    u.jsxs('label',{title:'Round-trip latency in milliseconds (output + input). The recording is moved earlier by this amount so that it lines up with what you heard. Start with the preset and nudge it by ear.',children:['Latency ms',u.jsx('input',{type:'number',min:0,max:500,step:1,value:latencyMs,'data-xmt-rec-latency':'true',onChange:e=>{const v=clamp(num(e.target.value,0),0,500);setRecLat(v);try{localStorage.setItem('xensonar.mt.reclat',String(v))}catch{}}})]}),
    u.jsx('span',{className:'muted',children:'Cursor '+fmtPos(cursor,bpb)}),
-   numIn('Tempo',project.bpm,20,400,.1,v=>commit(retempo(project,clamp(v,20,400)))),
+   u.jsx(XmtTempo,{value:project.bpm,onCommit:v=>commit(retempo(project,clamp(v,20,400)))}),
    u.jsxs('label',{title:'Free: 3, 5, 7, 3.5 … beats per bar',children:['Beats/bar',u.jsx('input',{type:'number',min:.5,max:64,step:.5,value:bpb,onChange:e=>commit({...project,beatsPerBar:clamp(num(e.target.value,bpb),.5,64)})})]}),
    u.jsxs('label',{title:'Grid = 1/N beat, N free (2, 3, 5, 7 …)',children:['Grid 1/',u.jsx('input',{type:'number',min:1,max:64,step:1,value:project.grid.div,onChange:e=>commit({...project,grid:{...project.grid,div:clamp(Math.round(num(e.target.value,4)),1,64)}})}),'beat']}),
    u.jsx('button',{type:'button','aria-pressed':project.grid.snap,title:'Snap clips, cursor and edges to the grid',onClick:()=>commit({...project,grid:{...project.grid,snap:!project.grid.snap}},project.grid.snap?'Snap off':'Snap on'),children:'Snap'}),

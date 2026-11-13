@@ -246,7 +246,7 @@ const __XenStemRecorder=(()=>{
         for(const x of stems){try{await __xenLongMasterPCM.remove(x.meta.id,x.meta.parts)}catch{}}
         window.dispatchEvent(new CustomEvent('xensonar:multitrack:roundtrip-navigate',{detail:{room:'MULTITRACK'}}));
         const mm=Math.floor(seconds/60),ss=String(Math.round(seconds%60)).padStart(2,'0');
-        session=null;emit({phase:'done',message:`${audible.length} stems (${mm}:${ss}) sent to the Multitrack as new tracks`+(silent.length?` · silent, not sent: ${silent.map(x=>x.name).join(', ')}`:'')+(s.bpm?` · ${Math.round(s.bpm*100)/100} BPM`:'')+'.',stems:stems.filter(x=>!x.diagnostic).map(x=>({id:x.id,name:x.name,peak:x.peak}))});
+        session=null;emit({phase:'done',message:`${audible.length} stems (${mm}:${ss}) sent to the Multitrack as new tracks`+(silent.length?` · silent, not sent: ${silent.map(x=>x.name).join(', ')}`:'')+(audible.length===1?' · only this stem carried sound (a track exists only for a stem that is not silent; one synth shared by Wave Starter and Keyboard is one track)':'')+(s.bpm?` · ${Math.round(s.bpm*100)/100} BPM`:'')+'.',stems:stems.filter(x=>!x.diagnostic).map(x=>({id:x.id,name:x.name,peak:x.peak}))});
         return {sent:audible.map(x=>x.id),silent:silent.map(x=>x.id),seconds};
       }catch(error){
         /* the stems stay safe in the browser archive; nothing is deleted when the hand-over failed */

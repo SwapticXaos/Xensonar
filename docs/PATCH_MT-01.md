@@ -1,0 +1,22 @@
+# MT-01 · Multitrack: Tempo-Eingabe · mehrere Projekte · Stem-Übernahme
+
+Parent: PSY-X-02-Stand. Status: CODE_PRESENT, BROWSER_CHECKED (`tests/e2e/multitrack_projects_tempo.cjs`, `tests/e2e/stems_record.cjs` verschärft; Chromium headless). **Nicht von Hand bedient, nicht USER_ACCEPTED.** Zone: KALT (Raum IV schläft, bis er geöffnet wird; Projektliste lädt nur beim Öffnen des Menüs). HTML-Zuwachs: ca. +9 KB (9 111 399 → 9 120 232 Bytes).
+
+## 1 · Tempo (MT-TEMPO)
+**Befund:** Das Tempofeld war ein Zahlenfeld, das bei **jedem Tastendruck** committete (`retempo` auf alle Clips): Wer „120“ tippte, lief über 1 → 20, 12 → 20, 120 und zeitskalierte die Clips dreimal (Undo-Einträge inklusive). Daher das „Rumtricksen“.
+**Jetzt:** Zahlenfeld mit Entwurf (Komma oder Punkt), **Enter** oder Verlassen des Feldes setzt das Tempo einmal; Esc verwirft; **↑/↓ = ±1 BPM** (Shift ±10, Alt ±0,1); dazu ein **logarithmischer Schieberegler** (20–400 BPM, Mitte ≈ 89 BPM), der erst beim Loslassen committet. Bereich 20–400 unverändert.
+Test: Tippen löst keinen Commit aus; Enter/Tab/↑/Slider/Bereichsgrenze.
+
+## 2 · Mehrere Projekte (MT-PROJECTS)
+**Befund:** Es gab genau ein Projekt (IndexedDB `xensonar-multitrack-v1` / `projects` / Schlüssel `current`), keine Liste, kein „Neu“.
+**Jetzt (oben rechts in Raum IV):** **„+ New project“** und **„Projects ▾“**. `current` bleibt das **Arbeitsprojekt** (alle bestehenden Wege – Inbox, Stems, Round-Trip, Export – lesen/schreiben es unverändert; **Retrokompatibilität**: vorhandene Projekte sind sofort das Arbeitsprojekt). Weitere Projekte liegen im selben Store unter `proj:<id>`.
+- *Neu / Öffnen:* Das Arbeitsprojekt wird zuerst unter einem neuen Schlüssel **weggelegt** (ein unberührtes leeres „Untitled Arrangement“ nicht); schlägt das fehl, ändert sich **nichts**. Verlauf (Undo) wird beim Wechsel geleert, Wiedergabe gestoppt, Spurauswahl zurückgesetzt.
+- *Liste:* Name, Tempo, Spuren, Clips, Datum; **Open · Copy · Rename · Delete**; „Save a copy of the working project“.
+- *Löschen* entfernt **nur den Projekteintrag** nach Rückfrage; das Audiomaterial der Bibliothek bleibt (Clips verweisen nur darauf).
+Test: Neu legt das alte weg; Liste mit Tempo; Open tauscht (das bisherige Arbeitsprojekt landet in der Liste); Copy, Rename (Dialog), Delete (abgelehnt = nichts gelöscht; bestätigt = nur dieser Eintrag).
+**Offen:** Kein Export/Import einzelner Projekte als Datei, keine Projekt-Vorschau, EQ-Zustand je Spur-ID wird beim Öffnen aus dem Projekt gesetzt (Kopien teilen Spur-IDs, aber jeweils nur das geöffnete Projekt schreibt zurück).
+
+## 3 · Stem-Übernahme „nur eine Spur“ (MT-STEMS-VIEW)
+**Befund (gemessen):** Bei zwei Stems mit Klang entstehen **zwei Spuren** (neu mit Test belegt: genau zwei Clips auf zwei Spuren). Eine Spur entsteht nur für Stems **mit Klang**; stille werden übersprungen, und laufen Wave Starter und Keyboard auf **demselben Synthesizer**, ist das nach der vereinbarten Regel **eine** Spur (STEMS-04). Sah man nur eine Spur, hatte vermutlich genau eine Spur Klang.
+**Jetzt:** Die Meldung sagt es ausdrücklich: „… only this stem carried sound (a track exists only for a stem that is not silent; one synth shared by Wave Starter and Keyboard is one track)“. Die Spurzahl-Prüfung in `stems_record.cjs` ist verschärft (zuvor ließ sie 1–4 zu).
+Rollback: Commit davor (PSY-X-02).
