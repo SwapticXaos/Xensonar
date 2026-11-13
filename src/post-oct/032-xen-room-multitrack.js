@@ -583,6 +583,8 @@ function XenMultitrackRoom(){
   const n=Math.max(1,p.tracks.length),vis=clamp(v.visible,Math.min(1,n),n),h=uh/vis,top=v.start*h;
   if(Math.abs(h-p.trackHeight)>1e-6*h){pendingScroll.current={top};applyView({...p,trackHeight:h})}else{el.scrollTop=top;updateRail()}};
  const railDown=(e,axis,mode)=>{if(e.button!==0)return;e.preventDefault();e.stopPropagation();const r=(axis==='x'?hrailRef:railRef).current,rect=r.getBoundingClientRect(),c=axis==='x'?e.clientX:e.clientY;let view=axis==='x'?hView():vView();
+  /* MT-NAV-SEEK: while the arrangement plays, a click in the timeline navigator also moves the play position there and keeps playing from that point (like the overview of the Wave Editor) */
+  if(mode==='jump'&&axis==='x'&&engine.playing&&rect.width>0){const beat=snap(clamp((c-rect.left)/rect.width,0,1)*Math.max(1,totalRef.current));setCursor(beat);void play(beat)}
   if(mode==='jump'){const j=__xenViewportRail.jump(rect,c,view,axis);applyAxis(axis,j);view={...view,start:j.start};mode='move'}
   railDrag.current={axis,st:__xenViewportRail.begin(rect,mode,c,view,axis)};r.setPointerCapture?.(e.pointerId)};
  const railMove=e=>{const d=railDrag.current;if(d)applyAxis(d.axis,__xenViewportRail.move(d.st,d.axis==='x'?e.clientX:e.clientY))};
@@ -701,7 +703,7 @@ function XenMultitrackRoom(){
   requestAudio(e);const fit=e.sessionTake?'natural':'tempo';insertClip(target,{id:uid('clip'),materialId:e.id,startBeat:snap(beat),inBeat:0,lenBeats:cycleBeats(e,{fit},project.bpm),gain:1,fadeIn:0,fadeOut:0,muted:false,fit},'Clip "'+(e.name||'material')+'" added at '+fmtPos(snap(beat),bpb))};
  const setLoop=patch=>commit({...project,loop:{...project.loop,...patch}},patch.on===undefined?'Loop '+fmtPos(patch.start??project.loop.start,bpb)+' – '+fmtPos(patch.end??project.loop.end,bpb):(patch.on?'Loop on':'Loop off'));
  const startMeters=()=>{const loop=()=>{const b=engine.position();if(b===null){if(phRef.current)phRef.current.style.display='none';if(meterRef.current)meterRef.current.style.width='0';return}
-  if(phRef.current){phRef.current.style.display='block';phRef.current.style.left=(240+b*projectRef.current.zoom)+'px'}if(meterRef.current)meterRef.current.style.width=Math.min(100,engine.level()*100).toFixed(1)+'%';rafRef.current=requestAnimationFrame(loop)};
+  if(phRef.current){const ph=phRef.current,sc=scrollRef.current;ph.style.display='block';ph.style.left=(240+b*projectRef.current.zoom)+'px';/* MT-PLAYHEAD: the line spans the whole scrollable height (it used to end at the visible height, so it stopped over the first screenful of tracks) */if(sc){const h=sc.scrollHeight+'px';if(ph.style.height!==h){ph.style.height=h;ph.style.bottom='auto'}}}if(meterRef.current)meterRef.current.style.width=Math.min(100,engine.level()*100).toFixed(1)+'%';rafRef.current=requestAnimationFrame(loop)};
   cancelAnimationFrame(rafRef.current);rafRef.current=requestAnimationFrame(loop)};
  async function play(from=cursor,p=projectRef.current){try{setStatus('Preparing audio …');await engine.play(p,from,libRef.current);setPlaying(true);startMeters();
    const bad=[];for(const t of p.tracks)for(const c of t.clips){const e=libRef.current.get(c.materialId),a=e?audio.get(e.id):null;if(!e||a?.status==='error')bad.push(c)}

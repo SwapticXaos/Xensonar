@@ -49,7 +49,9 @@ function __XenStemRecorderControls({masterRecording,name}){
  P.useEffect(()=>{if(st.phase!=='done'&&st.phase!=='error')return;const t=setTimeout(()=>__XenStemRecorder.reset(),20000);return()=>clearTimeout(t)},[st.phase,st.message]);
  const fmt=ms=>{const s=Math.floor(ms/1000);return Math.floor(s/60)+':'+String(s%60).padStart(2,'0')};
  const go=()=>{void __XenStemRecorder.start({name}).catch(()=>{})};
- return u.jsxs("div",{className:"xen-stems flex gap-2 items-center flex-wrap",role:"group","aria-label":"Record stems for the Multitrack",children:[
+ return u.jsxs("div",{className:"xen-stems flex gap-2 items-center flex-wrap rounded border border-amber-900/60 bg-neutral-950/45 p-2",role:"group","aria-label":"Record stems for the Multitrack",children:[
+  /* the Rec / Enough! button of the Master Recording makes ONE stereo take; this box is the stem setup (separate tracks) */
+  u.jsx("span",{className:"px-1 text-[10px] uppercase tracking-widest text-amber-300/70",title:"Rec / Enough! below records the stereo take. This box is for stems: separate tracks in the Multitrack.",children:"Stems · separate tracks:"}),
   u.jsx("button",{type:"button","data-xen-stems-rec":"true","aria-pressed":rec,disabled:busy||(masterRecording&&!rec),onClick:()=>rec?void __XenStemRecorder.stop():go(),
    className:`px-3 py-1.5 border text-xs ${rec?"border-rose-500 bg-rose-950/50 text-rose-100":"border-amber-700/80 text-amber-100 hover:bg-amber-950/35"} disabled:text-neutral-600 disabled:border-neutral-800`,
    title:"Record the Live Room as separate stems (Instruments, Drone, Rhythm, Space) for up to 5 minutes and send them to the Multitrack as new tracks. The stems are taken before the master chain; the stereo take is not affected.",
