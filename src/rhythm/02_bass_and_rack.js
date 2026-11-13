@@ -533,7 +533,7 @@ function __f48DrumGlobalEQ(){
     display:'inline-flex',flexDirection:'row',alignItems:'center',justifyContent:'center',alignSelf:'start',justifySelf:'center',
     whiteSpace:'nowrap',margin:'0 0 8px',border:'1px solid #655071',borderRadius:4,
     background:'#25192d',color:'#e3d5e9',textAlign:'center',fontSize:11,lineHeight:'16px',cursor:'pointer'},
-   'aria-label':'Drum Global EQ','aria-expanded':open,title:'Globaler Drum-EQ mit A/B-Morphing',onClick:()=>setOpen(v=>!v),children:'Drum EQ · A/B'}),
+   'aria-label':'Drum Global EQ','aria-expanded':open,title:'Global drum EQ with A/B morphing',onClick:()=>setOpen(v=>!v),children:'Drum EQ · A/B'}),
   open&&geometry?ao.createPortal(u.jsx('div',{className:'xen-eq-flyout','data-drum-global-eq-flyout':true,style:geometry,
    children:u.jsx(__XenEQPanel,{sourceKey,owner:'Drums',onClose:()=>setOpen(false),expanded,setExpanded},sourceKey)}),document.body):null
  ]});
