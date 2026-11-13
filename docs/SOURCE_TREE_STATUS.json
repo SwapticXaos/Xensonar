@@ -912,9 +912,15 @@
 "oct28_bytes": 4975
 },
 {
+"file": "src/audio/rfl/03_repeat_guard_worklet.js",
+"status": "post-oct",
+"bytes": 7250,
+"oct28_bytes": 0
+},
+{
 "file": "src/runtime/instrument/05_timing_and_admission.js",
 "status": "oct-evolved",
-"bytes": 112259,
+"bytes": 113963,
 "oct28_bytes": 89619
 },
 {

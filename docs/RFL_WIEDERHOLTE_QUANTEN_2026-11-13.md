@@ -1,5 +1,7 @@
 # Root-Follow-Loop: sporadische Klicks im Spielen = wiederholte Render-Quanten (RFL-TAP, Stand 2026-11-13)
 
+> **Umgesetzt:** Option §6.3 (Verdecken) als Wiederholungswache direkt am RFL-Erzeuger, siehe `docs/PATCH_RFL-GUARD-01.md`: in der App 0 Klicks hinter der Wache, am Bus und am Master bei Schlagzeug + Bass + schneller Maus (headless, nicht gehört). Vorbeugung (§6.1) bleibt offen.
+
 **Nur Messung, kein Eingriff in `src/` oder `index.html`.** Basis: `claude/keen-goldberg-uzk32g` @ 6c84255 (enthält `main` + RFL-SOFT-Fix), `index.html` sha256 `2562c44b…2c82`, 116/116 Tests grün.
 Status aller Aussagen: **BROWSER_CHECKED (headless Chromium 153.0.8010.12, Playwright, synthetischer 1-Takt-Testloop)** – nicht gehört, nicht auf Opera 140 / Chromium 157 / Firefox geprüft.
 Folgt auf `docs/RFL_MESSUNG_2026-11-13.md` §7 („weiterhin offen: sporadische Klicks im Spielen, ≈ 1 je 15 s“).

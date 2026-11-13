@@ -64,9 +64,9 @@ module.exports=({p,canvasBox})=>{
   // plus every AudioBufferSourceNode.start / stop with the audio-clock time, and the bus gain automation calls; clicks are related to the nearest grain edge.
   S.rflTap=async()=>{
     await E(`(()=>{if(window.__rflTap)return;const T=window.__rflTap={chunks:{},grains:[],stops:[],busCalls:[],taps:{},ready:{},buses:0};
-      const src="class P extends AudioWorkletProcessor{constructor(o){super();this.l=o.processorOptions.l;this.n=0;this.b=new Float32Array(128*64);this.f0=currentFrame}process(i){const a=i[0]&&i[0][0];const o=this.n*128;if(a)this.b.set(a,o);else this.b.fill(0,o,o+128);if(++this.n===64){this.port.postMessage({l:this.l,f:this.f0,b:this.b},[this.b.buffer]);this.b=new Float32Array(128*64);this.n=0;this.f0=currentFrame+128}return true}}registerProcessor('xen-rfl-tap',P)";
+      const src="class P extends AudioWorkletProcessor{constructor(o){super();this.l=o.processorOptions.l;this.n=0;this.b=new Float32Array(128*64);this.fr=new Float64Array(64)}process(i){const a=i[0]&&i[0][0];const o=this.n*128;if(a)this.b.set(a,o);else this.b.fill(0,o,o+128);this.fr[this.n]=currentFrame;if(++this.n===64){this.port.postMessage({l:this.l,fr:this.fr,b:this.b},[this.b.buffer,this.fr.buffer]);this.b=new Float32Array(128*64);this.fr=new Float64Array(64);this.n=0}return true}}registerProcessor('xen-rfl-tap',P)";
       const oc=AudioNode.prototype.connect;
-      const tap=(node,label)=>{const ctx=node.context;const go=()=>{const w=new AudioWorkletNode(ctx,'xen-rfl-tap',{numberOfInputs:1,numberOfOutputs:0,channelCount:1,channelCountMode:'explicit',processorOptions:{l:label}});w.port.onmessage=e=>{if(T.on)(T.chunks[label]||(T.chunks[label]=[])).push({f:e.data.f,b:e.data.b})};oc.call(node,w);T.taps[label]=(T.taps[label]||0)+1};
+      const tap=(node,label)=>{T.nodeCount=T.nodeCount||{};T.nodeCount[label]=(T.nodeCount[label]||0)+1;if(T.nodeCount[label]>1)label=label+'#'+T.nodeCount[label];const ctx=node.context;const go=()=>{const w=new AudioWorkletNode(ctx,'xen-rfl-tap',{numberOfInputs:1,numberOfOutputs:0,channelCount:1,channelCountMode:'explicit',processorOptions:{l:label}});w.port.onmessage=e=>{if(!T.on)return;const L=T.chunks[label]||(T.chunks[label]=[]),fr=e.data.fr,b=e.data.b;for(let k=0;k<64;k++)L.push({f:fr[k],b:b.subarray(k*128,k*128+128)})};oc.call(node,w);T.taps[label]=(T.taps[label]||0)+1};
         if(T.ready[ctx.sampleRate])go();else ctx.audioWorklet.addModule('data:application/javascript;charset=utf-8,'+encodeURIComponent(src)).then(()=>{T.ready[ctx.sampleRate]=1;go()})};
       // PROBE ONLY: rewrite the resident worklet module on load so that each process() call records currentFrame continuity and whether render ran.
       T.frameLog=[];const OB=window.Blob;
@@ -82,6 +82,7 @@ module.exports=({p,canvasBox})=>{
       const odc=AudioNode.prototype.disconnect;AudioNode.prototype.disconnect=function(){try{if(T.on){T.ops.push(this.context.currentTime);site('disconnect '+this.constructor.name)}}catch{}return odc.apply(this,arguments)};
       AudioNode.prototype.connect=function(dest){const r=oc.apply(this,arguments);try{if(T.on){T.ops.push(this.context.currentTime);site('connect '+this.constructor.name+'->'+(dest&&dest.constructor?dest.constructor.name:'param'))}
         if(T.bus&&dest===T.bus){const k=feederName(this);T.feeders[k]=(T.feeders[k]||0)+1}
+        if(T.wnames.get(this)==='xensonar-rfl-repeat-guard-v1'&&!this.__rflTapped){this.__rflTapped=1;tap(this,'guard');(T.guards||(T.guards=[])).push(this);this.port.addEventListener('message',e=>{if(e.data&&e.data.type==='rfl-guard-report')T.guardReport=e.data});this.port.start&&this.port.start()}
         if(T.wnames.get(this)==='xensonar-raw-resident-v1'&&!this.__rflTapped){this.__rflTapped=1;tap(this,'resident');const port=this.port,pm=port.postMessage,cx=this.context;T.msgs=[];
           port.postMessage=function(m){try{if(T.on)T.msgs.push([+cx.currentTime.toFixed(4),m&&(m.type||m.kind||m.op||Object.keys(m).slice(0,3).join('+'))])}catch{}return pm.apply(this,arguments)}}
         if(dest instanceof DynamicsCompressorNode&&!dest.__rflTapped){dest.__rflTapped=1;tap(dest,'comp')}
@@ -100,7 +101,7 @@ module.exports=({p,canvasBox})=>{
     await E(`__rflTap.on=true;__rflTap.t0=(__rflTap.bus&&__rflTap.bus.context.currentTime)||0`);
     const sec=+(process.env.RFL_SEC||60),t0=Date.now();
     while(Date.now()-t0<sec*1000){const t=process.env.RFL_STILL?0:(Date.now()-t0)/1000,sp=process.env.RFL_FAST?6:1;await p.mouse.move(bx.x+bx.width*(.5+.42*Math.sin(t*.7*sp)),bx.y+bx.height*(.5+.42*Math.sin(t*.45*sp+1)));await p.waitForTimeout(process.env.RFL_FAST?8:30)}
-    await E(`__rflTap.on=false`);await p.waitForTimeout(300);
+    await E(`__rflTap.on=false;for(const g of __rflTap.guards||[])g.port.postMessage({type:'report'})`);await p.waitForTimeout(400);
     const r=await E(`(()=>{const T=__rflTap,detect=${detect.toString()},sr=T.bus?T.bus.context.sampleRate:48000,out={sr,taps:T.taps,buses:T.buses,grains:T.grains.length,stops:T.stops.length,clicks:{},late:0};
       for(const [l,cs] of Object.entries(T.chunks)){cs.sort((a,b)=>a.f-b.f);const f0=cs[0].f,n=cs[cs.length-1].f+cs[cs.length-1].b.length-f0,m=new Float32Array(n);for(const c of cs)m.set(c.b,c.f-f0);
         out.clicks[l]=detect(m,sr).map(c=>({t:+(f0/sr+c.at).toFixed(4),step:+c.step.toFixed(3)}))}
@@ -113,7 +114,20 @@ module.exports=({p,canvasBox})=>{
       if(T.chunks.bus){const cs=T.chunks.bus,f0=cs[0].f,n=cs[cs.length-1].f+cs[cs.length-1].b.length-f0,m=new Float32Array(n);for(const c of cs)m.set(c.b,c.f-f0);
         const rms=(a,b)=>{let q=0;for(let i=Math.max(0,a);i<Math.min(n,b);i++)q+=m[i]*m[i];return +Math.sqrt(q/Math.max(1,b-a)).toFixed(4)};const W=Math.round(sr*.005);
         for(const c of out.clicks.bus){const i=Math.round((c.t-f0/sr)*sr);c.wave=Array.from(m.subarray(i-6,i+6)).map(x=>+x.toFixed(4));c.rmsBefore=rms(i-W,i-1);c.rmsAfter=rms(i+1,i+W);c.zerosAfter=(()=>{let k=0;while(i+k<n&&Math.abs(m[i+k])<1e-5)k++;return k})()}}
-      out.patchedResident=T.patchedResident||0;out.patchErr=T.patchErr||null;out.frameAnomalies=T.frameLog.map(a=>({prev:a[0],cur:a[1],delta:a[1]-a[0],tPrev:+(a[0]/sr).toFixed(4)}));
+      out.guardReport=T.guardReport||null;
+      {const pcm=l=>{const cs=(T.chunks[l]||[]).slice().sort((a,b)=>a.f-b.f);if(!cs.length)return null;const f0=cs[0].f,n=cs[cs.length-1].f+cs[cs.length-1].b.length-f0,m=new Float32Array(n);for(const c of cs)m.set(c.b,c.f-f0);return{f0,m}};
+       const reps=l=>{const x=pcm(l);if(!x)return[];const r=[];for(let q=(128-(x.f0%128))%128+128;q+128<=x.m.length;q+=128){let same=true,v=false;for(let k=0;k<128;k++){if(x.m[q+k]!==x.m[q+k-128]){same=false;break}if(x.m[q+k]!==x.m[q])v=true}if(same&&v)r.push(+((x.f0+q)/sr).toFixed(4))}return r};
+       out.repeatAt={resident:reps('resident'),guard:reps('guard')};
+       // tap holes: quanta a tap worklet was not called for (the browser skipped the TAP); they read as zeros, a click there is a measurement artefact
+       out.tapHoles={};for(const l of Object.keys(T.chunks)){const cs=T.chunks[l].slice().sort((a,b)=>a.f-b.f);const h=[];for(let i=1;i<cs.length;i++)if(cs[i].f!==cs[i-1].f+128)h.push(+((cs[i-1].f+128)/sr).toFixed(4));if(h.length)out.tapHoles[l]=h}
+       for(const [l,cl] of Object.entries(out.clicks)){const h=out.tapHoles[l]||[];for(const c of cl)c.tapArtefact=h.some(t=>Math.abs(c.t-t)<=4*128/sr)}
+       {const cs=(T.chunks.guard||T.chunks.bus||[]).slice();out.frameSeqAtHoles=[];for(let i=1;i<cs.length&&out.frameSeqAtHoles.length<6;i++)if(cs[i].f!==cs[i-1].f+128)out.frameSeqAtHoles.push(cs.slice(Math.max(0,i-2),i+3).map(c=>c.f))}
+       out.realClicks={};for(const [l,cl] of Object.entries(out.clicks))out.realClicks[l]=cl.filter(c=>!c.tapArtefact).length;
+       // repeats at the guard output, checked at the block boundaries where the resident repeated (tap framing may be offset)
+       {const g=pcm('guard'),r=pcm('resident');out.guardRepeatAtResidentRepeat=[];if(g&&r)for(const t of out.repeatAt.resident){const i=Math.round(t*sr)-g.f0;if(i<128||i+128>g.m.length)continue;let same=true;for(let k=0;k<128;k++)if(g.m[i+k]!==g.m[i+k-128]){same=false;break}if(same)out.guardRepeatAtResidentRepeat.push(t)}}
+       const g=pcm('guard'),res=pcm('resident');
+       if(g&&out.clicks.guard)for(const c of out.clicks.guard){const i=Math.round(c.t*sr)-g.f0;c.inQuantum=(g.f0+i)%128;c.wave=Array.from(g.m.subarray(i-4,i+4),x=>+x.toFixed(4));if(res){const j=Math.round(c.t*sr)-res.f0;c.residentWave=Array.from(res.m.subarray(j-4,j+4),x=>+x.toFixed(4))}
+         const near=out.repeatAt.resident.map(t=>+(c.t-t).toFixed(4)).sort((a,b)=>Math.abs(a)-Math.abs(b))[0];c.dtToResidentRepeat=near??null}}out.patchedResident=T.patchedResident||0;out.patchErr=T.patchErr||null;out.frameAnomalies=T.frameLog.map(a=>({prev:a[0],cur:a[1],delta:a[1]-a[0],tPrev:+(a[0]/sr).toFixed(4)}));
       {const ops=T.ops,dur=ops.length?ops[ops.length-1]-ops[0]:1,rate=ops.length/Math.max(1,dur);out.graphOps={n:ops.length,perSec:+rate.toFixed(1)};
        const cnt=(t,w)=>ops.filter(x=>Math.abs(x-t)<=w).length;if(out.clicks.resident)for(const c of out.clicks.resident){c.opsWithin20ms=cnt(c.t,.02);c.opsWithin50ms=cnt(c.t,.05)}
        out.opSites=[...T.opSites].sort((a,b)=>b[1]-a[1]).slice(0,25);out.graphOps.expectedWithin20ms=+(rate*.04).toFixed(2);out.graphOps.expectedWithin50ms=+(rate*.1).toFixed(2)}
@@ -121,6 +135,7 @@ module.exports=({p,canvasBox})=>{
       if(out.clicks.resident)for(const c of out.clicks.resident){let b=null;for(const m of T.msgs||[]){const d=c.t-m[0];if(d>=-0.05&&(!b||Math.abs(d)<Math.abs(b.dt)))b={type:m[1],dt:+d.toFixed(4)}}c.nearestMsg=b}
       out.busCalls=T.busCalls.length;out.grainSample=T.grains.slice(0,6);out.offsets={min:Math.min(...T.grains.map(g=>g[1])),max:Math.max(...T.grains.map(g=>g[1]+(g[2]||0)))};
       return out})()`);
+    if(process.env.RFL_CAPTURE_PCM){const raw=await E(`(()=>{const o={};for(const [l,cs] of Object.entries(__rflTap.chunks)){if(!/^(resident|guard)/.test(l))continue;const a=cs.slice().sort((x,y)=>x.f-y.f);o[l]=a.map(c=>{const u=new Uint8Array(c.b.buffer.slice(0));let s='';for(let i=0;i<u.length;i+=32768)s+=String.fromCharCode.apply(null,u.subarray(i,i+32768));return{f:c.f,b:btoa(s)}})}return JSON.stringify(o)})()`);require('fs').writeFileSync(process.env.RFL_CAPTURE_PCM,raw)}
     if(process.env.RFL_CAPTURE){const cap=await E(`JSON.stringify({capture:__rflTap.capture||[],residentPcm:(()=>{const cs=(__rflTap.chunks.resident||[]).slice().sort((a,b)=>a.f-b.f);return cs.map(c=>({f:c.f,b:Array.from(c.b,x=>Math.round(x*1e6)/1e6)}))})()})`);require('fs').writeFileSync(process.env.RFL_CAPTURE,JSON.stringify({...JSON.parse(cap),clicksResident:r.clicks.resident||[],clicksBus:r.clicks.bus||[]}));console.log('RFL-CAPTURE written '+process.env.RFL_CAPTURE)}
     console.log('RFL-TAP '+JSON.stringify(r));
     await counters('rflTap')};

@@ -232,6 +232,7 @@
     "src/runtime/instrument/04_performance_and_output_profiles.js",
     "src/audio/rfl/01_resident_worklet.js",
     "src/audio/rfl/02_fragment_preparation.js",
+    "src/audio/rfl/03_repeat_guard_worklet.js",
     "src/runtime/instrument/05_timing_and_admission.js",
     "src/runtime/instrument/06_rooms_and_lifecycle.js",
     "src/runtime/instrument/07_interpreters_and_installation.js",
