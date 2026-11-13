@@ -2,7 +2,7 @@
 
 ## Form der Anwendung
 
-XenSonar wird als **eine vollständige, offline nutzbare `index.html`** ausgeliefert. Aktuell sind **32 `<script>`-Blöcke** und **77 `<style>`-Blöcke** enthalten; **keine externen `<script src>`**. Scriptblock `10` (0-basiert) ist ca. **6,08 MB** groß und beherbergt große Teile der Audio-, UI-, Timing- und Persistence-Logik. Es gibt eingebettete React-/JSX-Runtime-Konstrukte (`P.useState`, `u.jsx`), PCM-/Web-Audio-Subsysteme und für Teilräume eigens registrierte Code-Payloads (`application/x-xensonar-room` u. ä.).
+XenSonar wird als **eine vollständige, offline nutzbare `index.html`** ausgeliefert. Stand 13.11.2026: **36 `<script>`-Blöcke** und **78 `<style>`-Blöcke** (früher 32/77) enthalten; **keine externen `<script src>`**. Das Hauptmodul (`type="module"`, 0-basiert Block `12`; bis Oktober Block `10`) ist ca. **6,3 MB** groß und beherbergt große Teile der Audio-, UI-, Timing- und Persistence-Logik. Es gibt eingebettete React-/JSX-Runtime-Konstrukte (`P.useState`, `u.jsx`), PCM-/Web-Audio-Subsysteme und für Teilräume eigens registrierte Code-Payloads (`application/x-xensonar-room` u. ä.).
 
 **Warnung:** Die Browser-HTML ist das ausführbare Build-Artefakt. Der ursprüngliche vollautomatische, editierbare Source-Rebuild ist durch dieses Paket **nicht nachgewiesen**. Die nach Script-/Style-Blöcken extrahierten Dateien sind ausdrücklich eine **Lesekarte**, keine neue Runtime-Modulstruktur.
 
@@ -19,7 +19,7 @@ XenSonar wird als **eine vollständige, offline nutzbare `index.html`** ausgelie
 
 ## Praktische Suche
 
-`source_reference/READING_ORDER.md`, `source_reference/HOTSPOTS.json` und `source_reference/source_map.json` liefern Einstiegspunkte mit HTML-Zeilen. Verwende `rg -n` und zeilenbasierte Schnitte. Vor einer Änderung am großen Script 10 die Aufruf- und Consumer-Kette verfolgen; viele Parameter oder React-Hooks sind über die Datei verteilt.
+`docs/HOTSPOTS.json` (Einstiegspunkte mit HTML-Zeilen) und `docs/SOURCE_TREE_STATUS.json` (Herkunft je Quelldatei) sind die Lesekarten; die frühere `source_reference/`-Ablage gibt es nicht mehr. Verwende `rg -n` und zeilenbasierte Schnitte. Vor einer Änderung am großen Script 10 die Aufruf- und Consumer-Kette verfolgen; viele Parameter oder React-Hooks sind über die Datei verteilt.
 
 ## Audio-Lifecycle und Runtime
 

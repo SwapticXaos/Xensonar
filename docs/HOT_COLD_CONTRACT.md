@@ -25,6 +25,8 @@ Jede Änderung wird deshalb **zuerst einer Zone zugeordnet**, und der Patchberic
 8. **Bedienung wie ein Instrument.** Kurze Wege, Tastenkürzel, Undo, keine Einbahn-Klickstraßen, keine Bevormundung.
 9. **Ehrlich über Grenzen.** Audio-Thread-Last, Hardware und Klang kann Claude im Headless-Browser nicht abschließend beurteilen. Das wird so benannt; der Nutzer hört ab.
 
+> **Nachtrag 13.11.2026** (Audit, `docs/AUDIT_2026-11-13.md`): Ein Original-Quellbaum existiert inzwischen (`src/`, reproduzierbarer Build). Beim Start wird kein WebSocket mehr geöffnet (nur mit `?xnc…`-Parametern). Der Live Room erzeugt im Spiel keine Storage-Schreibzugriffe und keine langen Tasks. Die Zahlen darunter sind der Stand vom 09.11.
+
 ## Bekannte Fakten (Stand 09.11.2026, gemessen in Headless-Chromium)
 
 - **Drum-Scheduler:** ca. 0,2 % CPU im Live Room; 16 Planungsticks pro Takt, Schläge sample-genau über Bar-Ratio. Kein Optimierungsbedarf.

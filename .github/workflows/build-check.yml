@@ -23,3 +23,17 @@ jobs:
         run: npm install --no-save playwright@1.63.0 && npx playwright install --with-deps chromium
       - name: browser end-to-end tests (probe build)
         run: ./tools/run_e2e.sh
+  # Firefox is a known risk for the audio code (AudioParam automation) but no other test runs in it.
+  # Informational until the first results are known: a red step here does not block the other jobs.
+  firefox-smoke:
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: install Playwright Firefox (test only)
+        run: npm install --no-save playwright@1.63.0 && npx playwright install --with-deps firefox
+      - name: start, Power on, all five rooms, no page errors (Firefox)
+        run: XEN_BROWSER=firefox node tests/browsers/engine_smoke.cjs index.html

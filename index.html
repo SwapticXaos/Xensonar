@@ -31619,12 +31619,21 @@ const __XenArchiveOwnerActions=Object.freeze({
   return removed;
  }
 });
+/* STORAGE-PERSIST-01: one line in the inventory header, tells whether the browser may delete this data on its own */
+function __XenStorageSafetyLine({safety,retry}){
+ if(!safety)return null;
+ const mb=n=>n==null?null:n<1024*1024*1024?(n/1048576).toFixed(0)+' MB':(n/1073741824).toFixed(1)+' GB';
+ const used=safety.usage!=null&&safety.quota!=null?' · '+mb(safety.usage)+' of '+mb(safety.quota)+' used':'';
+ if(safety.persisted)return u.jsx('p',{className:'mt-1 text-xs text-emerald-300/90','data-xen-storage-safety':'persistent',children:'Browser storage is protected: the browser will not delete it on its own'+used+'.'});
+ if(!safety.supported)return u.jsx('p',{className:'mt-1 text-xs text-amber-300/90','data-xen-storage-safety':'unsupported',children:'This browser cannot protect storage. Export a Workspace Package now and then to keep a copy'+used+'.'});
+ return u.jsxs('p',{className:'mt-1 text-xs text-amber-300/90','data-xen-storage-safety':'temporary',children:['Browser storage is not protected: the browser may delete it when disk space runs low. Export a Workspace Package to keep a copy'+used+'. ',u.jsx('button',{type:'button',onClick:retry,className:'underline hover:text-amber-100',children:'Ask the browser to protect it'})]});
+}
 function __XenArchiveInventory({open,onClose,selection}){
  const ref=P.useRef(null),player=P.useRef(null),url=P.useRef(null),generation=P.useRef(0),ownerPreview=P.useRef(null),ownerAbort=P.useRef(null),ownerTimer=P.useRef(null),nativeOwner=P.useRef(null);
- const [rows,setRows]=P.useState([]),[loading,setLoading]=P.useState(false),[error,setError]=P.useState(null),[selected,setSelected]=P.useState([]),[query,setQuery]=P.useState(''),[playing,setPlaying]=P.useState(null),[details,setDetails]=P.useState(null),inspectGeneration=P.useRef(0);
+ const [rows,setRows]=P.useState([]),[loading,setLoading]=P.useState(false),[error,setError]=P.useState(null),[selected,setSelected]=P.useState([]),[query,setQuery]=P.useState(''),[playing,setPlaying]=P.useState(null),[details,setDetails]=P.useState(null),[safety,setSafety]=P.useState(null),inspectGeneration=P.useRef(0);
  const stop=()=>{generation.current++;ownerAbort.current?.abort();ownerAbort.current=null;ownerPreview.current?.noteOff?.();ownerPreview.current=null;if(ownerTimer.current!==null)clearTimeout(ownerTimer.current);ownerTimer.current=null;if(nativeOwner.current&&__XenMetaAudition.snapshot()===nativeOwner.current)__XenMetaAudition.stop();nativeOwner.current=null;if(player.current){player.current.pause();player.current.src='';player.current=null}if(url.current){URL.revokeObjectURL(url.current);url.current=null}setPlaying(null)};
  const load=async()=>{setLoading(true);setError(null);try{const station=__xenPackageStation4();station.configure({trace:__XenPackageExportTraceP315,flush:__xenFlushWorkspace4,capture:__xenCaptureWorkspace4});setRows(await station.catalogue(selection));setSelected([]);inspectGeneration.current++;setDetails(null)}catch(reason){setError(reason.message??String(reason))}finally{setLoading(false)}};
- P.useEffect(()=>{if(!open)return;ref.current?.showModal();void load();return()=>{inspectGeneration.current++;stop();ref.current?.close()}},[open]);
+ P.useEffect(()=>{if(!open)return;ref.current?.showModal();void load();let alive=true;__xenStoragePersistence.ask().then(s=>{if(alive)setSafety(s)});return()=>{alive=false;inspectGeneration.current++;stop();ref.current?.close()}},[open]);
  const inspect=async row=>{
   if(details?.id===row.id){inspectGeneration.current++;setDetails(null);return}
   const ticket=++inspectGeneration.current;setDetails({id:row.id,pending:true});
@@ -31636,7 +31645,7 @@ function __XenArchiveInventory({open,onClose,selection}){
  if(!open)return null;
  const labels=Object.fromEntries(__XenPackageSelection41.groups.flatMap(group=>group.items)),visible=rows.filter(row=>(row.name+' '+(labels[row.category]??row.category)).toLowerCase().includes(query.toLowerCase()));
  return u.jsxs('dialog',{ref,className:'xen-archive-inventory',onCancel:event=>{event.preventDefault();stop();onClose()},onKeyDown:event=>event.stopPropagation(),style:{width:'min(1000px,calc(100vw - 24px))',maxHeight:'calc(100dvh - 24px)',padding:'16px',border:'1px solid #155e75',borderRadius:'16px',background:'#0a0a0a',color:'#dff7ff',overflow:'auto'},'aria-labelledby':'xen-archive-title',children:[
-  u.jsxs('header',{className:'flex items-start justify-between gap-3',children:[u.jsxs('div',{children:[u.jsx('h2',{id:'xen-archive-title',className:'text-lg font-semibold',children:'Saved content · Package Station'}),u.jsx('p',{className:'mt-1 text-xs text-neutral-400',children:rows.length+' entries · Export badges show the next package selection, including required dependencies.'})]}),u.jsx('button',{type:'button',onClick:()=>{stop();onClose()},'aria-label':'Close archive inventory',className:'h-8 w-8 rounded border border-cyan-800 text-xl',children:'×'})]}),
+  u.jsxs('header',{className:'flex items-start justify-between gap-3',children:[u.jsxs('div',{children:[u.jsx('h2',{id:'xen-archive-title',className:'text-lg font-semibold',children:'Saved content · Package Station'}),u.jsx('p',{className:'mt-1 text-xs text-neutral-400',children:rows.length+' entries · Export badges show the next package selection, including required dependencies.'}),u.jsx(__XenStorageSafetyLine,{safety,retry:()=>{setSafety(null);__xenStoragePersistence.ask(true).then(setSafety)}})]}),u.jsx('button',{type:'button',onClick:()=>{stop();onClose()},'aria-label':'Close archive inventory',className:'h-8 w-8 rounded border border-cyan-800 text-xl',children:'×'})]}),
   u.jsxs('div',{className:'my-3 flex flex-wrap items-center gap-2',children:[u.jsx('input',{type:'search',value:query,onChange:event=>setQuery(event.target.value),placeholder:'Find a name or content type','aria-label':'Search archive',className:'min-w-0 flex-1 rounded border border-cyan-800 bg-neutral-900 px-2 py-2 text-sm'}),u.jsx('button',{type:'button',disabled:loading,onClick:()=>void load(),className:'rounded border border-cyan-800 px-3 py-2 text-xs',children:'Refresh'}),u.jsx('button',{type:'button',disabled:loading||!selected.length,onClick:()=>void remove(),className:'rounded border border-red-700 px-3 py-2 text-xs text-red-200',children:'Delete Selected ('+selected.length+')'})]}),
   u.jsx('p',{className:'mb-3 text-xs text-neutral-400',children:'Details öffnet jeden gespeicherten Eintrag ohne Änderung. Nicht jeder Eintrag enthält eine abspielbare Audiodatei. Löschen ist nur über geprüfte Bibliotheks-Owner möglich. Export ✓ zeigt lediglich die Paket-Rubrik: Paketinhalt wird separat gewählt, keine Einzelauswahl pro Zeile. Bei Material / Bass werden bekannte Session-Verweise nach Auswahl angezeigt.'}),
   u.jsx('button',{type:'button',disabled:loading,onClick:()=>{localStorage.removeItem('xensonar:melodic-import-hidden:v1');window.dispatchEvent(new CustomEvent('xensonar:import-slots-restore'));setError('Removed import slots are visible again.');},className:'mb-3 rounded border border-fuchsia-800 px-2 py-1 text-xs',children:'Restore removed import slots'}),
@@ -38972,6 +38981,28 @@ registerProcessor('${iL}', XensonarRootFollowWorkletShadowBridge);
  * MRU01 P1–P3: atomic PCM checkpoints, sample-exact range access, continuous WAV.
  * Legacy part export retained only as recovery helper; no forced musical split.
  */
+/* STORAGE-PERSIST-01 (KALT): without this request the browser may delete localStorage/IndexedDB of this origin when disk space runs low
+ * (sessions, samples, takes). ask() is only called from a user action (opening the Package Station inventory, starting a long recording);
+ * it never writes to storage, never throws, and asks the browser at most once per page load. */
+const __xenStoragePersistence=(()=>{
+  let asking=null;
+  async function status(){
+    const out={supported:false,persisted:null,usage:null,quota:null};
+    try{const s=navigator.storage;if(!s)return out;out.supported=typeof s.persist==='function';
+      if(typeof s.persisted==='function')out.persisted=await s.persisted();
+      if(typeof s.estimate==='function'){const e=await s.estimate();out.usage=Number.isFinite(e?.usage)?e.usage:null;out.quota=Number.isFinite(e?.quota)?e.quota:null}}catch{}
+    return out;
+  }
+  function ask(force=false){
+    if(asking&&!force)return asking;
+    asking=(async()=>{
+      try{const s=navigator.storage;if(s&&typeof s.persist==='function'&&!(typeof s.persisted==='function'&&await s.persisted()))await s.persist()}catch{}
+      return status();
+    })();
+    return asking;
+  }
+  return {status,ask};
+})();
 const __xenLongMasterPCM=(()=>{
   const DB='xensonar-master-long-sessions-v1', STORE='pcm', TAKES='takes';
   const BATCH_BYTES=4194304, MAX_QUEUED_BYTES=33554432, SEGMENT_SECONDS=600;
@@ -39038,6 +39069,7 @@ const __xenLongMasterPCM=(()=>{
   async function create(sampleRate,extra=null){
     const db=await database();
     if(!Number.isInteger(sampleRate)||sampleRate<=0)throw Error('Invalid session sample rate.');
+    void __xenStoragePersistence.ask();
     // Conservative check for two PCM batches, not an arbitrary 10-minute recording.
     if(navigator.storage?.estimate){
       try{

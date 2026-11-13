@@ -1,0 +1,16 @@
+{
+ "sha256": "a2464c9f20d3b7e7cb3e76b7a7942ba9a724b19caf8c9dda863ba0e7393dc47b",
+ "bytes": 9749882,
+ "sessions": [
+  {
+   "name": "FIXTURE A",
+   "bass": "hollow",
+   "droneHz": 55
+  },
+  {
+   "name": "FIXTURE B",
+   "bass": "sub",
+   "droneHz": 110
+  }
+ ]
+}

@@ -32,7 +32,7 @@ XenSonar ist ein kreatives Instrument und experimentelles Musiksystem: mikrotona
 1. Exakte Parent-Datei + SHA-256 fixieren; aktuellen Problemablauf reproduzieren.
 2. Existierende Funktion nach Namen und UI-Aktion auflösen; ggf. RED-Test auf Parent.
 3. Kleinsten wirksamen Patch mit gezieltem Regressionstest umsetzen.
-4. Änderungen gegen Parent diffen; 32 Scripts/77 Styles und die übrigen unveränderten Bereiche verifizieren.
+4. Änderungen gegen Parent diffen; Script-/Style-Blöcke (Stand 13.11.: 36 Scripts/78 Styles; `index.html` aus den Quellen gebaut) und die übrigen unveränderten Bereiche verifizieren.
 5. Relevante Syntax-, Unit-, DOM-, Browser-, Audio- und Persistence-Checks, plus negativen Test dokumentieren. Fehlende Umgebung offen benennen.
 6. **Separat lieferbare Standalone-HTML** und ZIP mit exakt identischen HTML-Bytes; SHA-256, Größe, ZIP-CRC und Inhalt prüfen.
 7. Eindeutigen Namen + Patchnotes + Daten-Owner + offene Risiken + Rollback-Datei übergeben. Nicht Netlify-Production-Publish behaupten, wenn nicht geprüft.

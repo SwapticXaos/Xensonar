@@ -4,6 +4,28 @@
  * MRU01 P1–P3: atomic PCM checkpoints, sample-exact range access, continuous WAV.
  * Legacy part export retained only as recovery helper; no forced musical split.
  */
+/* STORAGE-PERSIST-01 (KALT): without this request the browser may delete localStorage/IndexedDB of this origin when disk space runs low
+ * (sessions, samples, takes). ask() is only called from a user action (opening the Package Station inventory, starting a long recording);
+ * it never writes to storage, never throws, and asks the browser at most once per page load. */
+const __xenStoragePersistence=(()=>{
+  let asking=null;
+  async function status(){
+    const out={supported:false,persisted:null,usage:null,quota:null};
+    try{const s=navigator.storage;if(!s)return out;out.supported=typeof s.persist==='function';
+      if(typeof s.persisted==='function')out.persisted=await s.persisted();
+      if(typeof s.estimate==='function'){const e=await s.estimate();out.usage=Number.isFinite(e?.usage)?e.usage:null;out.quota=Number.isFinite(e?.quota)?e.quota:null}}catch{}
+    return out;
+  }
+  function ask(force=false){
+    if(asking&&!force)return asking;
+    asking=(async()=>{
+      try{const s=navigator.storage;if(s&&typeof s.persist==='function'&&!(typeof s.persisted==='function'&&await s.persisted()))await s.persist()}catch{}
+      return status();
+    })();
+    return asking;
+  }
+  return {status,ask};
+})();
 const __xenLongMasterPCM=(()=>{
   const DB='xensonar-master-long-sessions-v1', STORE='pcm', TAKES='takes';
   const BATCH_BYTES=4194304, MAX_QUEUED_BYTES=33554432, SEGMENT_SECONDS=600;
@@ -70,6 +92,7 @@ const __xenLongMasterPCM=(()=>{
   async function create(sampleRate,extra=null){
     const db=await database();
     if(!Number.isInteger(sampleRate)||sampleRate<=0)throw Error('Invalid session sample rate.');
+    void __xenStoragePersistence.ask();
     // Conservative check for two PCM batches, not an arbitrary 10-minute recording.
     if(navigator.storage?.estimate){
       try{
