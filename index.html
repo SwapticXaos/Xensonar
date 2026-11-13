@@ -66862,9 +66862,22 @@ function __ForgeDetuneControl(){
  const last=P.useRef(.5),drag=P.useRef(false);if(amount!==0)last.current=amount;
  if(mode.value==='donor'||!['carrier','hearing'].includes(route))return null;
  const update=(next,undo=true)=>{const state=pe.getState();if(undo)state.pushUndo();state.spectralData.carrierDetune=__forgeDetuneAmount(next);state.triggerRender();if(!drag.current)__f333PersistNow();};
- return u.jsxs('div',{'data-forge-detune':true,style:{display:'flex',alignItems:'center',gap:7,flexWrap:'wrap'},children:[
-  u.jsx('button',{type:'button','aria-pressed':amount!==0,onClick:()=>update(amount!==0?0:last.current),title:'Detune · bends the frequency space around the middle: right = compress, left = spread. The Hz numbers on the left show what each row will sound like. Off: fixed Hz mapping; the drawing stays unchanged.',className:'h-8 rounded border px-2 text-xs '+(amount!==0?'border-amber-400 bg-amber-900 text-amber-100':'border-neutral-700 bg-neutral-900 text-neutral-300'),children:'Detune'}),
-  amount!==0&&u.jsxs('label',{style:{display:'flex',gap:5,alignItems:'center',fontSize:10},children:[u.jsx('input',{type:'range',min:-100,max:100,step:1,value:Math.round(amount*100),'aria-label':'Detune amount (left spread, right compress)',title:'Left: spread the frequency space wider · right: compress it',style:{width:100},onPointerDown:()=>{pe.getState().pushUndo();drag.current=true;},onPointerUp:()=>{drag.current=false;__f333PersistNow();},onPointerCancel:()=>{drag.current=false;__f333PersistNow();},onBlur:()=>{drag.current=false;__f333PersistNow();},onChange:event=>{const v=Number(event.currentTarget.value);update(v===0?(amount<0?.01:-.01):v/100,!drag.current)}}),u.jsx('output',{children:(amount<0?'spread ':'compress ')+Math.abs(Math.round(amount*100))+' %'})]})
+ /* FORGE-DETUNE-02: the slider is always there; its middle (0) is the melody as it really sounds, with its correct intervals. A marker sits on the middle and the control turns green there;
+    clicking the marker or double-clicking the slider returns to 0 at once. A tiny detune stays possible: the slider has 0.1 % steps and only a hair's breadth around 0 (0.3 %) is magnetic. */
+ const zero=amount===0,SNAP=.3,pct=Math.round(amount*1000)/10,shown=Math.abs(pct);
+ return u.jsxs('div',{'data-forge-detune':true,style:{display:'flex',alignItems:'center',gap:10,flexWrap:'wrap'},children:[
+  u.jsx('button',{type:'button','aria-pressed':!zero,onClick:()=>update(zero?last.current:0),title:'Detune · bends the frequency space around the middle: right = compress, left = spread. The Hz numbers on the left show what each row will sound like. 0 = the melody as drawn, with its correct intervals.',className:'h-8 rounded border px-2 text-xs '+(!zero?'border-amber-400 bg-amber-900 text-amber-100':'border-neutral-700 bg-neutral-900 text-neutral-300'),children:'Detune'}),
+  u.jsxs('label',{style:{display:'flex',gap:6,alignItems:'center',flexWrap:'wrap',fontSize:10,flex:'1 1 100%',minWidth:0},children:[
+   u.jsx('span',{style:{color:'#a3a3a3'},children:'spread'}),
+   u.jsxs('span',{style:{position:'relative',flex:'1 1 150px',display:'flex',alignItems:'center'},children:[
+    u.jsx('input',{type:'range',min:-100,max:100,step:.1,value:pct,'aria-label':'Detune amount (left spread, right compress, middle = original tuning)',title:'Left: spread the frequency space wider · right: compress it · the middle (0) is the original tuning · double-click or the marker returns to 0 · 0.1 % steps for a subtle detune',style:{width:'100%',accentColor:zero?'#34d399':'#fbbf24'},
+     onPointerDown:()=>{pe.getState().pushUndo();drag.current=true;},onPointerUp:()=>{drag.current=false;__f333PersistNow();},onPointerCancel:()=>{drag.current=false;__f333PersistNow();},onBlur:()=>{drag.current=false;__f333PersistNow();},
+     onDoubleClick:()=>update(0,true),
+     onChange:event=>{let v=Number(event.currentTarget.value);if(Math.abs(v)<=SNAP)v=0;if(Math.abs(v/100-amount)>1e-9)update(v/100,!drag.current)}}),
+    u.jsx('button',{type:'button','data-forge-detune-zero':zero?'on':'off','aria-label':'Detune 0: original tuning',title:zero?'0 · the melody as it really sounds':'Back to 0 · the original tuning',onClick:()=>update(0),
+     style:{position:'absolute',left:'50%',top:-9,transform:'translateX(-50%)',width:14,height:8,padding:0,border:0,background:'transparent',cursor:'pointer',color:zero?'#34d399':'#a3a3a3',fontSize:9,lineHeight:'8px'},children:zero?'▼':'▽'})]}),
+   u.jsx('span',{style:{color:'#a3a3a3'},children:'compress'}),
+   u.jsx('output',{'data-forge-detune-readout':zero?'zero':amount<0?'spread':'compress',style:{flex:'1 1 100%',textAlign:'center',color:zero?'#34d399':'#fbbf24',fontWeight:zero?600:400},children:zero?'0 % · original tuning ✓':(amount<0?'spread ':'compress ')+shown+' %'})]})
  ]});
 }
 function __AudioToCarrierControls({source,range,disabled=false,onBusyChange}) {

@@ -15,3 +15,11 @@ Parent: TAKT-SEEK-Stand. Status: CODE_PRESENT, BROWSER_CHECKED (`tests/e2e/forge
 Fester Bestand deutscher `title`/`aria-label`/`placeholder`-Texte übersetzt (Taktometer, Drum-EQ, EQ-Fenster/Bänder/Statuszeile) und per `tests/tooltips_english.cjs` abgesichert (scannt alle Quelldateien).
 **Noch deutsch, bewusst nicht angefasst (sichtbare Beschriftungen, von Tests festgeschrieben bzw. größerer Umfang) – Entscheidung offen:** Paketstation (Rubriken „Projekte & Arbeitsstände“ …, Knöpfe „Alle / Keine / Invertieren / Nur / Außer“ samt Tooltips, Fehlermeldungen „Paketstation: …“), Bibliothek-Löschdialog („Überall löschen“), Wave-Editor-Effektparameter („Frequenz“, „Resonanz Q“, „Effektanteil“, „LFO-Frequenz“ …) und einzelne Fehlertexte.
 Rollback: Commit davor (TAKT-SEEK).
+
+## FORGE-DETUNE-02: Nullpunkt leicht treffen, feine Verstimmung bleibt möglich
+**Rückmeldung:** Der Nullpunkt (die Melodie, wie sie wirklich klingt, mit korrekten Intervallen) muss leicht wieder erreichbar und sichtbar „belohnt“ sein – aber eine **kleine** Verstimmung muss weiter möglich bleiben (kein grobes Einrasten).
+**Jetzt:**
+- Der Regler ist **immer da** (Detune-Knopf schaltet wie bisher zwischen 0 und dem letzten Wert). **Marker ▽ auf der Mitte**; bei 0 leuchtet er grün (▼), der Regler wird grün, die Anzeige sagt „**0 % · original tuning ✓**“. Der Marker-Klick und der **Doppelklick** auf den Regler springen sofort auf 0.
+- **Kein grobes Snap:** nur ein Haar breit um 0 (±0,3 %) ist magnetisch; **0,1-%-Schritte** (zuvor 1 %) erlauben dezentes Detune (getestet: 0,5 % und 1 % bleiben stehen).
+- **Platz:** Der Regler belegt die volle Breite des Panels (eigene Zeile, „spread“ links, „compress“ rechts, Anzeige darunter); zuvor ca. 86 px, jetzt ≥ 220 px (Test).
+Test: `forge_detune_bipolar.cjs` (Snap bei ±0,2/0,3 %, 0,5 %/1 % bleiben, Marker, Doppelklick, Achse bei 0 identisch). Rollback: Commit davor.
