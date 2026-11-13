@@ -133,8 +133,13 @@ function xenNodalHoldProcessorFactory(){
       const keyboard=outputs[0],wave=outputs[1],left=keyboard?.[0],right=keyboard?.[1];if(!left)return true;
       const wLeft=wave?.[0],wRight=wave?.[1];const n=left.length;
       // Use the AudioWorklet's authoritative frame clock, never an invented bar clock.
+      // NODAL-CLOCK: Chromium sometimes hands process() the previous quantum's currentFrame under main-thread graph changes
+      // (F, F+128, F+128, F+384); gates, fades and releases would then jump by a block. The render clock never stands still
+      // or runs backwards; otherwise it is currentFrame.
+      const base=this.clockFrame===undefined?currentFrame:Math.max(currentFrame,this.clockFrame+this.clockLength);
+      this.clockFrame=base;this.clockLength=n;
       for(let i=0;i<n;i++){
-        const at=currentFrame+i;this.advance(at);
+        const at=base+i;this.advance(at);
         let l=0,r=0,wl=0,wr=0;
         for(const [key,v]of this.voices){
           if(v.pos>=v.tpl.frames){this.voices.delete(key);this.counts.retired++;continue;}

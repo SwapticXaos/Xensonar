@@ -2,7 +2,7 @@
 
 Parent: `7b52dba` (`index.html` sha256 `2562c44bbff993fab2c301bfca0f609b0cba4c1f52e15f095dffd79206ef2c82`, 9 131 746 Bytes). Rollback: `7b52dba` bzw. dessen `index.html`.
 Neu: `index.html` sha256 `4fe50e6aa1959870c98ba2013757579fd3a8cbaeb4aacbf8b8f715728f975378`, 9 132 497 Bytes, **HTML-Zuwachs +751 Bytes**.
-Status: CODE_PRESENT, UNIT_VERIFIED (`tests/rfl_resident_clock.cjs`, auf dem Parent rot), BROWSER_CHECKED (`tests/e2e/rfl_resident_clock_live.cjs`, auf dem Parent rot; Messreihen unten; headless Chromium 153). **Nicht gehört, nicht auf Opera 140 / Chromium 157 / Firefox geprüft, nicht USER_ACCEPTED.**
+Status: CODE_PRESENT, UNIT_VERIFIED (`tests/rfl_resident_clock.cjs`, auf dem Parent rot), BROWSER_CHECKED (`tests/e2e/rfl_resident_clock_live.cjs`, auf dem Parent rot; Messreihen unten; headless Chromium 153), **USER_ACCEPTED (2026-11-13: Nutzer-Hörtest, kein Knistern mehr; Browser des Nutzers).** Firefox nicht geprüft.
 Zone: **HEISS** (Audio-Thread, `process()` des residenten RFL-Worklets). Eine Zuweisung und ein `Math.max` pro Render-Quantum, keine Allokation, keine Nachricht.
 Daten-Owner: keine Daten, keine Persistenz. Geänderte Quelle: nur `src/audio/rfl/01_resident_worklet.js` (+10 Zeilen).
 

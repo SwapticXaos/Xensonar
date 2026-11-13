@@ -12,7 +12,7 @@ function __xenMasterPcmWorkletModule() {
       this.pool=Array.from({length:8},()=>new Float32Array(this.framesPerChunk*2));
       this.block=this.pool.pop();
       this.position = 0;
-      this.startFrame=0;this.endFrame=Infinity;this.running = false;this.firstFrame=null;this.expectedFrame=null;this.frameGaps=0;this.missingFrames=0;this.overlapFrames=0;this.firstGapFrame=null;this.gaps=[];this.timelineEvents=[];this.timelineOverflow=false;this.capturedFrames=0;
+      this.startFrame=0;this.endFrame=Infinity;this.running = false;this.clockFrame=null;this.clockLength=0;this.firstFrame=null;this.expectedFrame=null;this.frameGaps=0;this.missingFrames=0;this.overlapFrames=0;this.firstGapFrame=null;this.gaps=[];this.timelineEvents=[];this.timelineOverflow=false;this.capturedFrames=0;
       this.port.onmessage = event => {
         if(event.data?.kind==='recycle'){if(event.data.data instanceof ArrayBuffer&&event.data.data.byteLength===this.framesPerChunk*8)this.pool.push(new Float32Array(event.data.data));return}
         if(event.data?.kind==='start'&&this.firstFrame===null){this.startFrame=Number.isFinite(event.data.startFrame)?Math.max(0,Math.round(event.data.startFrame)):0;this.running=true;return;}
@@ -39,8 +39,14 @@ function __xenMasterPcmWorkletModule() {
       // retain their position on the same audio timeline. No buffer allocation.
       const left = channels?.[0], right = channels?.[1] ?? left;
       const frames = outputs?.[0]?.[0]?.length || left?.length || 128;
-      if(currentFrame+frames<=this.startFrame)return true;
-      const beginFrame=Math.max(currentFrame,this.startFrame);
+      // PCM-CLOCK: under main-thread graph changes Chromium sometimes calls process() with the previous quantum's currentFrame
+      // (F, F+128, F+128, F+384) although the input is the next real quantum. Read that way it looked like an overlap and a gap,
+      // and the Loop-Rec projection dropped one real block and left silence instead. The capture clock therefore never stands
+      // still or runs backwards; a real jump of currentFrame (frames really missing) is still followed and reported.
+      const now=this.clockFrame===null?currentFrame:Math.max(currentFrame,this.clockFrame+this.clockLength);
+      this.clockFrame=now;this.clockLength=frames;
+      if(now+frames<=this.startFrame)return true;
+      const beginFrame=Math.max(now,this.startFrame);
       if(this.firstFrame===null)this.firstFrame=beginFrame;
       if(this.expectedFrame!==null&&this.expectedFrame!==beginFrame){
         this.frameGaps++;if(this.firstGapFrame===null)this.firstGapFrame=Math.min(this.expectedFrame,beginFrame);
@@ -53,9 +59,9 @@ function __xenMasterPcmWorkletModule() {
         if(this.timelineEvents.length<4096)this.timelineEvents.push({sampleIndex:this.capturedFrames,delta,actualFrame:beginFrame});
         else this.timelineOverflow=true;
       }
-      this.expectedFrame=Math.min(currentFrame+frames,this.endFrame);
-      for (let i = beginFrame-currentFrame; i < frames; i++) {
-        if(currentFrame+i>=this.endFrame){this.running=false;this.emit();this.port.postMessage({kind:'done',firstFrame:this.firstFrame,lastFrame:this.expectedFrame,frameGaps:this.frameGaps,firstGapFrame:this.firstGapFrame,gaps:this.gaps,missingFrames:this.missingFrames,overlapFrames:this.overlapFrames,timelineEvents:this.timelineEvents,timelineOverflow:this.timelineOverflow});return true;}
+      this.expectedFrame=Math.min(now+frames,this.endFrame);
+      for (let i = beginFrame-now; i < frames; i++) {
+        if(now+i>=this.endFrame){this.running=false;this.emit();this.port.postMessage({kind:'done',firstFrame:this.firstFrame,lastFrame:this.expectedFrame,frameGaps:this.frameGaps,firstGapFrame:this.firstGapFrame,gaps:this.gaps,missingFrames:this.missingFrames,overlapFrames:this.overlapFrames,timelineEvents:this.timelineEvents,timelineOverflow:this.timelineOverflow});return true;}
         if(!this.block){
           // A returned transfer buffer can arrive after emit() exhausted the
           // pool but before this quantum. Reuse it without allocating or losing frames.
