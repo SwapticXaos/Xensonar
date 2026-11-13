@@ -1,0 +1,10 @@
+# TAKT-SEEK · Taktometer: Linksklick spult, Rechtsklick = Takte/Segmente
+
+Parent: MT-02-Stand. Status: CODE_PRESENT, BROWSER_CHECKED (`tests/e2e/wave_taktometer_seek.cjs`, Chromium headless, Wave-Editor-Pfad). **Nicht von Hand bedient, nicht USER_ACCEPTED.** Zone: KALT/WARM (Klick im Wave-Editor-Bereich; Audio-Pfad unverändert, nur der Startpunkt des bestehenden Previews). HTML-Zuwachs: ca. +1,3 KB.
+
+**Berichtigung:** Ich hatte den Multitrack-Navigator als „wie im Wave Editor“ beschrieben – das stimmte nicht. Das vorhandene Spul-Verhalten gibt es beim **Spectral Forge** (Navigator, `__f340SeekFromNavigator`); im Wave Editor reagierte das Taktometer bisher auf Links- **und** Rechtsklick gleich mit dem Fenster „Number of Bars / Number of Segments“.
+**Jetzt:** Das Taktometer (`__XenWaveTaktometer`, ein Bauteil für den Import-/Wave-Editor-Bereich und die Detailansicht des Wave Editors – im geöffneten Editor gibt es genau ein Taktometer):
+- **Rechtsklick:** öffnet „Number of Bars / Number of Segments“ (wie bisher, nur noch hier).
+- **Linksklick:** spult die **laufende** Wiedergabe an die angeklickte Stelle und spielt von dort weiter. Die Stelle = Position im Taktometer-Fenster (Detail-Viewport, dieselbe Zeitachse wie die Wellenform darüber). Im geöffneten **Wave Editor** startet der laufende Preview am angeklickten Frame neu (gleicher Modus, gleiches Ende; `seekToSec` / `preview(mode,{from,to})`); in der Import-Ansicht ohne Editor wird der Import-Preview verschoben (`scrubPreviewAt`, derselbe Weg wie beim Klick in die Übersicht). Steht keine Wiedergabe, tut der Linksklick nichts.
+**Test (Wave-Editor-Pfad):** Linksklick öffnet das Fenster nicht; Rechtsklick öffnet es (Number of Bars / Segments), Esc schließt; ohne Wiedergabe startet der Linksklick nichts; bei laufender Wiedergabe springt der Start von Frame 0 auf 234 369 (70 % des Fensters, Toleranz 3 %) und die Wiedergabe läuft weiter. **Nicht eigens getestet:** der Pfad der Import-Vorschau ohne geöffneten Editor (`scrubPreviewAt`).
+Rollback: Commit davor (MT-02).
