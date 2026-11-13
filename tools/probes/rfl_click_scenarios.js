@@ -29,7 +29,7 @@ module.exports=({p,canvasBox})=>{
   const inside=async(bx,fx=.5,fy=.5,steps=1)=>{await mark('enter');return p.mouse.move(bx.x+bx.width*fx,bx.y+bx.height*fy,{steps})};
   const outside=async(bx,steps=1)=>{await mark('leave');return p.mouse.move(bx.x-60,bx.y+bx.height*.5,{steps})};
   const counters=async(label,t0)=>{const r=await E(`(()=>{const d=__XenRFLPitchReentryProbe.read();const c={};for(const e of d.events)c[e.type]=(c[e.type]||0)+1;return{gate:d.events.filter(e=>e.type==='rfl-playfield-gate').length,counts:c}})()`);console.log('RFL-COUNTERS '+JSON.stringify({scenario:label,...r}));const tl=await p.evaluate(()=>({f0:__glitch.chunks.length?__glitch.chunks[0].f:null,sr:__glitch.sampleRate,marks:__glitch.marks.map(m=>[m.l,m.frame])}));console.log('RFL-TIMELINE '+JSON.stringify({scenario:label,...tl}))};
-  const begin=async(on)=>{await rfl(on);if(process.env.RFL_QUIET){await E(`__NodalBallGrid.update({drumVolume:0,bassVolume:0})`);await p.waitForTimeout(600)}await p.evaluate(()=>{__glitch.marks.length=0});await E(`__XenRFLPitchReentryProbe.setEnabled(false);__XenRFLPitchReentryProbe.setEnabled(true)`);const bx=await canvasBox();await inside(bx);await p.waitForTimeout(1500);return bx};
+  const begin=async(on)=>{await rfl(on);if(process.env.RFL_QUIET){await E(`__NodalBallGrid.update({drumVolume:0,bassVolume:0})`);await p.waitForTimeout(600)}if(process.env.RFL_NODRUMS){await E(`__NodalBallGrid.update(${process.env.RFL_NODRUMS==="drums"?"{drumActive:false}":"{drumActive:false,bassActive:false}"})`);await p.waitForTimeout(600)}await p.evaluate(()=>{__glitch.marks.length=0});await E(`__XenRFLPitchReentryProbe.setEnabled(false);__XenRFLPitchReentryProbe.setEnabled(true)`);const bx=await canvasBox();await inside(bx);await p.waitForTimeout(1500);return bx};
   const S={};
   // control: the same leaving pattern with the loop OFF (what else clicks when the cursor leaves?)
   S.rflControlLeave=async()=>{const bx=await begin(false);for(let k=0;k<6;k++){await inside(bx,.5,.5,30);await p.waitForTimeout(900);await outside(bx,30);await p.waitForTimeout(900)}await inside(bx);await p.waitForTimeout(800);await counters('rflControlLeave')};
@@ -99,7 +99,7 @@ module.exports=({p,canvasBox})=>{
     const bx=await begin(true);
     await E(`__rflTap.on=true;__rflTap.t0=(__rflTap.bus&&__rflTap.bus.context.currentTime)||0`);
     const sec=+(process.env.RFL_SEC||60),t0=Date.now();
-    while(Date.now()-t0<sec*1000){const t=process.env.RFL_STILL?0:(Date.now()-t0)/1000;await p.mouse.move(bx.x+bx.width*(.5+.38*Math.sin(t*.7)),bx.y+bx.height*(.5+.38*Math.sin(t*.45+1)));await p.waitForTimeout(30)}
+    while(Date.now()-t0<sec*1000){const t=process.env.RFL_STILL?0:(Date.now()-t0)/1000,sp=process.env.RFL_FAST?6:1;await p.mouse.move(bx.x+bx.width*(.5+.42*Math.sin(t*.7*sp)),bx.y+bx.height*(.5+.42*Math.sin(t*.45*sp+1)));await p.waitForTimeout(process.env.RFL_FAST?8:30)}
     await E(`__rflTap.on=false`);await p.waitForTimeout(300);
     const r=await E(`(()=>{const T=__rflTap,detect=${detect.toString()},sr=T.bus?T.bus.context.sampleRate:48000,out={sr,taps:T.taps,buses:T.buses,grains:T.grains.length,stops:T.stops.length,clicks:{},late:0};
       for(const [l,cs] of Object.entries(T.chunks)){cs.sort((a,b)=>a.f-b.f);const f0=cs[0].f,n=cs[cs.length-1].f+cs[cs.length-1].b.length-f0,m=new Float32Array(n);for(const c of cs)m.set(c.b,c.f-f0);

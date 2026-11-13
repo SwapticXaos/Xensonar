@@ -1785,5 +1785,54 @@
   "bufsrc_36": [
    34
   ]
+ },
+ "countertests_90s": {
+  "drums_bass_on_still": {
+   "opsPerSec": 63,
+   "resident": 19,
+   "bus": 13
+  },
+  "drums_bass_off_still": {
+   "opsPerSec": 0,
+   "resident": [
+    0,
+    0
+   ],
+   "bus": [
+    0,
+    0
+   ]
+  },
+  "drums_off_bass_on_still": {
+   "opsPerSec": 25.5,
+   "resident": 5,
+   "bus": 4
+  },
+  "drums_bass_on_moving": {
+   "opsPerSec": 63,
+   "msgs": 183,
+   "resident": 23,
+   "bus": 13
+  },
+  "drums_bass_off_moving": {
+   "opsPerSec": 0,
+   "msgs": 183,
+   "resident": 0,
+   "bus": 0
+  },
+  "drums_bass_on_fastmouse": {
+   "opsPerSec": 63,
+   "msgs": 1158,
+   "resident": 9,
+   "bus": 7,
+   "residentClicksWith3OpsIn20ms": 9
+  },
+  "drums_bass_off_fastmouse": {
+   "opsPerSec": 0,
+   "msgs": 1158,
+   "resident": 0,
+   "bus": 0
+  },
+  "not_measured": "material lane playing (user full-load case)"
  }
 }

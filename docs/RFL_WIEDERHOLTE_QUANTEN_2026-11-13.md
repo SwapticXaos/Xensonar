@@ -40,6 +40,18 @@ Programm: `mode base`, Loop 2,222 s, `stepSec` 0,04, `windowSec` 0,07, 16 Körne
 | Drum-ähnlich: Source→Gain→Sink, disconnect bei `ended` | 36 | 34 |
 Hinweis: Im Minimal-Repro bleibt nach einer Wiederholung teils ein Versatz von 128 Frames bestehen; in XenSonar lief das Signal danach mit Lag 0 weiter. Mechanismus im Chromium-Kern **nicht** untersucht (kein Quelltext-Beleg), nur das Verhalten.
 
+### 2.6 Gegenproben: Schlagzeug/Bass aus, schnelle Maus (90 s je Lauf, `RFL_NODRUMS`, `RFL_FAST`)
+| Lauf | Graph-Ops/s | Nachrichten an Worklet | Klicks Worklet-Ausgang | Klicks Bus |
+|---|---|---|---|---|
+| Drums+Bass an, Cursor still | 63 | 1 | 19 | 13 |
+| Drums+Bass **aus**, Cursor still (2 Läufe) | **0** | 1 | **0 · 0** | **0 · 0** |
+| nur Drums aus, Bass an, still | 25,5 | 1 | 5 | 4 |
+| Drums+Bass an, Cursor bewegt | 63 | 183 | 23 | 13 |
+| Drums+Bass **aus**, Cursor bewegt | **0** | 183 | **0** | **0** |
+| Drums+Bass an, **schnelle Maus** (6×) | 63 | 1158 | 9 (alle ≥3 Ops in ±20 ms) | 7 |
+| Drums+Bass **aus**, **schnelle Maus** | **0** | 1158 | **0** | **0** |
+→ Ohne Graph-Änderungen ist der Root-Follow-Loop in dieser Umgebung klickfrei, auch bei schneller Maus. Auch der Bass erzeugt Graph-Ops (≈ 25/s), nicht nur das Schlagzeug. **Nicht gemessen:** volle Last mit laufender Materialspur (Nutzerschilderung: Materialspur + Bass + Schlagzeug + schnelle Maus) – erster Messschritt für Opus. Nutzerbeobachtung (gehört, Gerät): Knistern wandert mit dem RFL-Pan auf die gepannte Seite → Quelle RFL-Pfad, deckt sich mit 2.1.
+
 ## 3 · Was das bedeutet – und was nicht
 - **Belegt (headless Chromium 153):** Klick = wiederholtes Quantum am RFL-Erzeuger; Auslöser = Knoten-Erzeugung/-Verbindung auf dem Hauptthread, im RFL-Spiel nur die Drum-Bodies.
 - **Nicht belegt:** dass Opera 140 / Chromium 157 / Firefox dasselbe zeigen; dass die vom Nutzer gehörten sporadischen Klicks dieselben sind (plausibel, Muster „≈ 1 je 10–15 s“ passt); ob dieselbe Ursache den Rest-Klick beim Gate-Schluss (2 in 16 Austritten nach dem RFL-SOFT-Fix) erklärt – beim Stopp passieren ebenfalls viele Graph-Ops (Hypothese).
@@ -53,8 +65,17 @@ Zone: **HEISS** (Drum-Scheduler, Audio-Graph). Vorher/nachher PCM mit `rflTap` u
 4. Nicht tun: Resident-Worklet-Kornmathematik ändern (offline klickfrei), Bus-Fades verlängern, Pitch-/EQ-Pfad anfassen – die Messung entlastet diese Stellen.
 
 ## 5 · Werkzeuge (nur Test, nie in `index.html`)
-- `tools/probes/rfl_click_scenarios.js` → neues Szenario **`rflTap`**: Taps `resident`, `comp`, `bus`, `pan`, `pitch` (sample-genau über `currentFrame`), Graph des Busses aufwärts (`upstream`), BufferSource-Starts, Bus-Automationsaufrufe, Nachrichten an den Resident-Port, Graph-Ops je Klick. Schalter: `RFL_SEC`, `RFL_STILL=1` (Cursor still), `RFL_QUIET=1`, `RFL_SITES=1` (Aufrufstellen der Graph-Ops), `RFL_CAPTURE=datei.json` (load/arm/state + Resident-PCM für den Offline-Vergleich), `RFL_FRAMECHECK=1` (experimentell, greift derzeit nicht: Modul-Blob entsteht vor dem Hook).
+- `tools/probes/rfl_click_scenarios.js` → neues Szenario **`rflTap`**: Taps `resident`, `comp`, `bus`, `pan`, `pitch` (sample-genau über `currentFrame`), Graph des Busses aufwärts (`upstream`), BufferSource-Starts, Bus-Automationsaufrufe, Nachrichten an den Resident-Port, Graph-Ops je Klick. Schalter: `RFL_SEC`, `RFL_STILL=1` (Cursor still), `RFL_FAST=1` (schnelle Maus), `RFL_NODRUMS=1|drums` (Drums+Bass bzw. nur Drums deaktivieren), `RFL_QUIET=1`, `RFL_SITES=1` (Aufrufstellen der Graph-Ops), `RFL_CAPTURE=datei.json` (load/arm/state + Resident-PCM für den Offline-Vergleich), `RFL_FRAMECHECK=1` (experimentell, greift derzeit nicht: Modul-Blob entsteht vor dem Hook).
   Aufruf: `RFL_STILL=1 RFL_SEC=60 node tools/probes/live_glitch_probe.js dist/XenSonar_PROBE.html --scenarios-file tools/probes/rfl_click_scenarios.js --scenario rflTap --json out.json` → Zeile `RFL-TAP {...}`.
 - `tools/probes/rfl_resident_offline.cjs capture.json [--sec 40]`: rechnet den Resident-Kern aus `src/audio/rfl/01_resident_worklet.js` offline nach (Node, kein Browser), Klickliste + Kornkanten je Klick.
 - `tools/probes/rfl_stale_quantum_minimal.cjs [--mode none|param|startonly|absonly|churn|bufsrc] [--ops N --burst K --sec S]`: Browser-Minimal-Repro ohne XenSonar.
 - **Fallen:** `addModule`-Umschreiben verschiebt das Timing und lässt die App auf den alten BufferSource-Kornpfad zurückfallen (dann kein `resident`-Tap) – nicht verwenden. Detektor-Schwelle: am Bus erscheinen nur die größeren Ereignisse. Klickzahl schwankt je Lauf; mitteln.
+
+## 6 · Umgang mit dem Abriss (Wunsch des Nutzers: nicht nur *wann* es knistert, sondern *wie* geglättet wird und *was im Moment des Abrisses* passiert)
+**Wann kommt der Abriss (gemessen):** in genau dem Render-Quantum, in dem der Hauptthread den Audio-Graphen ändert (Knoten erzeugen/verbinden/trennen). Je mehr solche Änderungen pro Sekunde (Schlagzeug ≈ 38/s, Bass ≈ 25/s, vermutlich Materialspur und weitere Live-Stimmen), desto häufiger; daher „unter Volllast“. Mausbewegung, Tonhöhenwechsel und Nachrichten an den Worklet lösen es in der Messung **nicht** aus.
+**Was heute im Moment des Abrisses passiert:** nichts. Die vorhandenen Glättungen sitzen alle *vor* der Stelle, an der der Fehler entsteht, und können ihn nicht sehen: Hann-Fenster je Korn, Root-Glättung (≈ 32 ms je Fenster), Lautstärke-Ziel (18 ms), Gate-Blenden. Der Worklet rechnet korrekt (Offline-Gleichheit); der Browser liefert für 128 Frames den alten Block erneut aus → zwei harte Sprünge (hinein und hinaus), 2,9 ms auseinander = das Knistern. Der alte BufferSource-Pfad verwirft zusätzlich verspätete Körner (`c6`, `late-grain-dropped`) ohne Ersatz; der Resident-Worklet setzt nach verpassten Fenstern auf dem Zeitraster fort, ohne nachzuspielen (`render`, Kommentar „Never replay missed windows“) – beide Fälle traten in den Läufen nicht als Klickursache auf, sind aber unter echter Last nicht gemessen.
+**Was man tun kann (Optionen für Opus, Reihenfolge = Empfehlung):**
+1. **Verhindern (Ursache):** keine Graph-Änderungen pro Ereignis im heißen Pfad – Schlagzeug *und* Bass (und ggf. Materialspur) auf dauerhafte Knoten bzw. residente Sampler-Worklets umstellen (§4.1/4.2). Laut 2.6 ist das der einzige Weg auf 0.
+2. **Erkennen (Probe/Diagnose):** Ein wiederholter Block ist exakt erkennbar (128 Samples = vorheriger Block, bitgleich). Zähler „repeated quanta am RFL-Ausgang“ im Probe-Build bzw. in der Diagnose-ZIP des Nutzers → Gerätebeleg auf Opera/Chromium 157. Nicht in den ausgelieferten Live-Pfad (Heiß/Kalt-Vertrag), außer als nachweislich kostenfreie Zählung.
+3. **Verdecken (nur falls 1 nicht reicht oder Fremdquellen bleiben):** kleiner Entknister-Worklet direkt hinter dem RFL-Erzeuger: erkennt den bitgleichen Block und ersetzt ihn durch eine Überblendung (z. B. Vorquantum ausblenden → Folgequantum einblenden). Kostet 1 Quantum Latenz (2,9 ms) für symmetrisches Glätten oder arbeitet ohne Latenz nur einseitig. **Ungeprüft:** ob dieser Knoten selbst von der Wiederholung betroffen ist (dann wirkungslos) – vor jedem Bau im Minimal-Repro prüfen. Kein „sicherer neuer Audio-Graph“ ohne PCM- und Abhörtest (CLAUDE.md).
+4. **Nicht:** längere Korn-Fenster, mehr Root-Glättung, längere Blenden oder Drosselung der Maus – das ändert das Instrument und trifft die Ursache nicht.
