@@ -18,6 +18,7 @@ module.exports=({p,canvasBox})=>{
     await E(`__xenRflLeaveGraceMs=()=>${cfg[0]};__xenRflStopFadeSec=()=>${cfg[1]};__xenRflFadeParallel=()=>${cfg[2]}`);
     // experimental overrides of the stop path (PROBE only): nohold = plain setValueAtTime instead of cancelAndHold | instant = no fade, release at once | target = exponential approach instead of the linear ramp
     const x=process.env.RFL_STOPX;
+    if(process.env.RFL_SMOOTHX==='value')await E(`__xenSmoothMixParam=(param,value,ctx)=>{if(!param||!Number.isFinite(value)||ctx?.state==='closed'||__XenMixTargets.get(param)===value)return;__XenMixTargets.set(param,value);const at=ctx.currentTime,held=param.value;param.cancelScheduledValues(at);param.setValueAtTime(held,at);param.setTargetAtTime(value,at,.03)}`);
     if(x==='nohold')await E(`__f49HoldParam=(p,t)=>{const v=p.value;p.cancelScheduledValues(t);p.setValueAtTime(v,t)}`);
     if(x==='instant')await E(`__f49FadeAndRelease=(bus,sec,rel)=>rel()`);
     if(x==='target')await E(`__f49FadeAndRelease=(bus,sec,rel)=>{const ctx=bus?.context;if(!bus||ctx.state!=='running'){rel();return}const at=ctx.currentTime;bus.gain.cancelScheduledValues(at);bus.gain.setTargetAtTime(0,at,.012);setTimeout(rel,Math.ceil((sec+.05)*1000))}`);
@@ -34,6 +35,8 @@ module.exports=({p,canvasBox})=>{
   S.rflControlLeave=async()=>{const bx=await begin(false);for(let k=0;k<6;k++){await inside(bx,.5,.5,30);await p.waitForTimeout(900);await outside(bx,30);await p.waitForTimeout(900)}await inside(bx);await p.waitForTimeout(800);await counters('rflControlLeave')};
   // steady: playing inside the field, loop on
   S.rflSteady=async()=>{const bx=await begin(true);const t0=Date.now();while(Date.now()-t0<12000){const t=(Date.now()-t0)/1000;await inside(bx,.5+.4*Math.sin(t*1.3),.5+.4*Math.sin(t*1.9+1));if(Math.floor(t/1.5)!==Math.floor((t-.05)/1.5)){await p.mouse.down();await p.mouse.up()}await p.waitForTimeout(16)}await p.waitForTimeout(800);await counters('rflSteady')};
+  // long steady play inside the field (sporadic clicks): the cursor wanders slowly for RFL_SEC seconds
+  S.rflLong=async()=>{const bx=await begin(true);const sec=+(process.env.RFL_SEC||90),t0=Date.now();while(Date.now()-t0<sec*1000){const t=(Date.now()-t0)/1000;await p.mouse.move(bx.x+bx.width*(.5+.38*Math.sin(t*.7)),bx.y+bx.height*(.5+.38*Math.sin(t*.45+1)));await p.waitForTimeout(30)}await counters('rflLong')};
   // leave slowly / re-enter slowly (6 cycles)
   S.rflLeaveSlow=async()=>{const bx=await begin(true);for(let k=0;k<6;k++){await inside(bx,.5,.5,30);await p.waitForTimeout(1500);await outside(bx,40);await p.waitForTimeout(1200);}await inside(bx,.5,.5,40);await p.waitForTimeout(1500);await counters('rflLeaveSlow')};
   // jump out and in at once (10 cycles)

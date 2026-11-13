@@ -1,0 +1,21 @@
+# Arbeitsbasis für Opus – Root-Follow-Loop: restliche Klicks (Stand 2026-11-13)
+
+**Ziel des Nutzers:** Root-Follow-Loop soll beim Rein-/Rausgehen und im Spielen **nicht knacken**; weiches Rein/Raus (Verzögerung ~150 ms, Wiedereintritts-Logik erhalten). Antworten auf Deutsch, UI/Tooltips Englisch, kleine präzise Patches, Heiß/Warm/Kalt-Vertrag (CLAUDE.md), keine Big-Bang-Refactors, Status ehrlich (BROWSER_CHECKED ≠ gehört), Lieferung: Standalone-HTML + ZIP (nur `index.html`) + Quellcode-ZIP (`git archive`), `python3 tools/build.py`, `--check`, `./tools/run_tests.sh` (116 Tests), `./tools/run_e2e.sh`, **nur ein E2E-Lauf gleichzeitig**.
+
+## Erledigt (committed auf `claude/keen-goldberg-uzk32g`)
+- **Ursache Klick beim Gate-Schluss behoben:** `__f49HoldParam` (`src/audio/01_voice_and_rfl_ownership.js`) – `cancelAndHoldAtTime(currentTime)` spulte eine laufende Rampe zurück. Jetzt wertbasiert. Messung: 8–10 → 0 Klicks je 16 Austritte (Stem-Aufnahme), Ablation und Zahlen in `docs/RFL_MESSUNG_2026-11-13.md` §6–7.
+- **150 ms Verzögerung** beim Verlassen: `__xenRflPlayfieldLeave/Enter` in `src/rhythm/02_bass_and_rack.js`; Wiedereintritt innerhalb der Zeit = kein Stopp. **60-ms-Blende** von Bus + Betten + Forge-Send in `__f49StopRFL` (`__xenRflStopFadeSec`, `__xenRflFadeParallel`, `__xenRflLeaveGraceMs` sind überschreibbare Funktionen für die Probe).
+- Beide verändern **nicht** die zwei Wiedereintritts-Logiken (kein fester Anker = Anker am Eintrittsort `sessionAnchorHz`; fester Anker `anchorGridStep` → `entryRootHz`).
+
+## Offen (dein Arbeitspaket)
+1. **Sporadische Klicks im Spielen** ≈ 1 je 15 s, nur Rhythm-Bus (RFL), Schritt 0,01–0,07; **unabhängig** vom Fix. **Nicht** `__xenSmoothMixParam` (getestet, 19 vs 19). Kandidaten: verworfene späte Körner (`c6` in `src/runtime/instrument/05_timing_and_admission.js`, Telemetrie `late-grain-dropped`), Korn-Schnitte (`XP`, `microCutSafety`), Loop-Wrap (synthetischer 1-Takt-Loop = 2 s), Pfad hinter dem Bus (Pan → EQ → RFL-Pitch-Worklet `__XenTimeStablePitch`, DC-Guard-Highpass `dc` am Bus). Nächster Messschritt: Tap am Bus und hinter Pan/EQ/Pitch, Klickzeiten gegen Loop-Phase (`transportAnchor`) und Korn-Start legen.
+2. **Andere Stellen mit `cancelAndHoldAtTime(currentTime)`** (`05_live_voice_runtime.js:51`, `05_sample_granular_hold.js:144`, `10_entrophon_and_voice_control.js:88`, `01_pan.js:32` …) – nur ändern, wenn gemessen (Muster: PCM-Klick am Stellen der Rampe).
+3. **Hörtest durch den Nutzer** und echtes Gerät (Opera 140 / Chromium 157, Linux). Firefox: der alte Fallback-Pfad ist jetzt der einzige.
+
+## Messwerkzeug (nur Test, `tools/probes/`)
+- `live_glitch_probe.js` (Master-PCM-Tap, Klick-Detektor, Marker) + `rfl_click_scenarios.js` (Szenarien `rflControlLeave|rflSteady|rflLeaveSlow|rflLeaveFast|rflEdgeWiggle|rflAttrib|rflLong`; Umgebungsvariablen `RFL_VARIANT=base|hyst|fade|both|long`, `RFL_STOPX=nohold|instant|target`, `RFL_SMOOTHX=value`, `RFL_QUIET=1` (Drums/Bass aus), `RFL_CYCLES`, `RFL_SEC`) + `rfl_click_report.js` (Wiederholung/Klassifikation).
+- Aufruf: `python3 tools/build.py --probe` dann `node tools/probes/rfl_click_report.js dist/XenSonar_PROBE.html --runs 3` bzw. `RFL_CYCLES=16 node tools/probes/live_glitch_probe.js dist/XenSonar_PROBE.html --scenarios-file tools/probes/rfl_click_scenarios.js --scenario rflAttrib` (Stem-Zuordnung je Bus; Zeiten relativ zu „leave“-Marken).
+- **Fallen:** `readFrames` liefert **interleaved** Stereo (Zeit sonst verdoppelt); Klassifikationsfenster „near-leave/near-enter“ sind unscharf, `rflAttrib` ist verbindlich; Klickzahlen schwanken, mehrere Durchgänge mitteln; Messung headless, synthetischer Loop, ohne Hören.
+
+## Was in dieser Sitzung sonst gebaut wurde (alles committed, Docs in `docs/PATCH_*.md`)
+Stems (Rollen/Instrument/Synthesizer, Rec-mit-Stems, `src/post-oct/036-xen-stem-recorder.js`), Multitrack (Tempo-Feld, Projekte, Playhead, Navigator-Spulen), Taktometer-Linksklick-Spulen, Detune bipolar + Nullpunkt-Marker, Psy-Lab-X-Gradienten, Tooltips Englisch (Test `tests/tooltips_english.cjs`), Auswahl-Markierung beim Dreieck-Ziehen. Offene Entscheidung des Nutzers: übrige deutsche sichtbare Texte (Paketstation, Löschdialog, Wave-Editor-Effektparameter) auf Englisch? Psy Lab Live: Hold/Effekt-Sends/Pro-Stimme-Regler fehlen (`docs/PATCH_PSY-X.md`).
