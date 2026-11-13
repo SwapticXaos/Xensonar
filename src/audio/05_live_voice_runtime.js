@@ -441,17 +441,19 @@ const __xenPsyLabLane=(p,lane)=>{const snd=lane==="klaviatur"?p?.keyboardHoldSou
    The key identity of a keyboard note comes from the keydown handler (__xenPsyLabKeyCtx); the release goes through the key ownership map. */
 const __xenPsyLabKeyCtx={code:null,seq:0,pointer:false};
 const __XEN_PSYLAB_GATE_MS=600;
-function __xenPsyLabNote(keyboard,hz,sound,volume){
- const vel=Math.max(.05,Math.min(1.2,.8*((Number.isFinite(volume)?volume:.3)/.3)));
- if(keyboard){const id=__xenPsyLabKeyCtx.code||"hz"+Math.round(hz*100),ok=__XenPsyLab.start("keyboard",id,sound,hz,vel);
+/* PSY-X: the X gradients of the Live Room also shape a Psy Lab note: the timbre gradient pushes the pad regulator (by the shape it is set to), the volume gradient scales the velocity like every other Wave Starter / Keyboard voice. shape = {x (logical px), width, tOn, tMode, vOn, vMode} */
+function __xenPsyLabNote(keyboard,hz,sound,volume,shape){
+ const gv=shape?iZ(shape.x,shape.vOn,shape.vMode):1,macro=shape?__XenPsyLab.law(shape.tOn,shape.tMode,shape.x/shape.width):null;
+ const vel=Math.max(.05,Math.min(1.2,.8*((Number.isFinite(volume)?volume:.3)/.3)*gv));
+ if(keyboard){const id=__xenPsyLabKeyCtx.code||"hz"+Math.round(hz*100),ok=__XenPsyLab.start("keyboard",id,sound,hz,vel,macro);
   /* ROOM5-12: held keyboard notes glide with the arrow keys (pitch wheel) */
   if(ok)__XenPsyLab.glide("keyboard",id,hz,"wheel");return ok}
  /* left mouse button: the note is held until the button is released and its pitch follows the cursor (drag / arrow keys) = glissando.
     Enter (no Hold for Psy Lab yet): one note with a short gate. */
- if(__xenPsyLabKeyCtx.pointer){const ok=__XenPsyLab.start("wave","mouse",sound,hz,vel);
+ if(__xenPsyLabKeyCtx.pointer){const ok=__XenPsyLab.start("wave","mouse",sound,hz,vel,macro);
   if(ok){__XenPsyLab.glide("wave","mouse",hz,"cursor");const end=()=>{window.removeEventListener("mouseup",end,true);window.removeEventListener("blur",end);__XenPsyLab.stop("wave","mouse")};window.addEventListener("mouseup",end,true);window.addEventListener("blur",end)}
   return ok}
- const id="w"+(++__xenPsyLabKeyCtx.seq),ok=__XenPsyLab.start("wave",id,sound,hz,vel);
+ const id="w"+(++__xenPsyLabKeyCtx.seq),ok=__XenPsyLab.start("wave",id,sound,hz,vel,macro);
  if(ok)setTimeout(()=>__XenPsyLab.stop("wave",id),__XEN_PSYLAB_GATE_MS);return ok}
 function __xenThunderLane(p,lane){if(__xenPsyLabLane(p,lane))return false;return lane==="klaviatur"?(p?.thunderKeyboardEnabled??p?.thunderModeEnabled)!==false:p?.thunderModeEnabled!==false}
 function Jxe({resonanceInputActive:e,thunderModeEnabled:__thunderEnabled,audioCtx:t,audioCtxRef:n,activeScheduledTonesRef:r,longToneHoldRef:a,nexusParamsRef:o,nexusRefs:i,gridTempoBpm:s,waveSoundPreset:l,freqFromY:c,playWaveStartSound:d,recordAudioPressureAdaptiveAction:p}){const f=P.useRef(Bie());i.__f35640HoldState=f;const thunderOn=lane=>lane?__xenThunderLane(o.current,lane):__xenThunderLane(o.current,"wellenstart")||__xenThunderLane(o.current,"klaviatur");const b=P.useRef(null),g=P.useRef(!1),y=P.useRef(()=>{}),x=()=>{!thunderOn()||!g.current||b.current!==null||C2({state:f.current})&&(b.current=requestAnimationFrame(()=>{b.current=null,y.current()}))},A=()=>{C2({state:f.current})||(b.current!==null&&cancelAnimationFrame(b.current),b.current=null)},M=()=>Math.max(40,o.current.quantizeBpm||s||108),v=()=>M4(o.current.waveStarterHoldSegments,o.current.waveStarterHoldCustomSegments,24),w=g=>g?.hpp?g.hpp.slots:M4(o.current.keyboardHoldSegments,o.current.keyboardHoldCustomSegments,24),R=(T,_=1)=>{const G=typeof T=="number"?T:Number(T);return Math.max(.125,Math.min(16,Number.isFinite(G)?G:_))},k=()=>R(o.current.waveStarterHoldReferenceBars,1),I=g=>g?.hpp?g.hpp.bars:R(o.current.keyboardHoldReferenceBars,1),E=(T,g)=>{if(g?.hpp)return g.hpp.steps;const _=T==="klaviatur"?w():v();return l0(T==="klaviatur"?o.current.keyboardHoldPatternSteps:o.current.waveStarterHoldPatternSteps,_)},H=(T,g)=>g?.hpp?g.hpp.pitchState:__xenHoldPitchState(T==="klaviatur"?o.current.keyboardHoldPitchCents:o.current.waveStarterHoldPitchCents),

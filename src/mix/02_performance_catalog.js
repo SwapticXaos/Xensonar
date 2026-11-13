@@ -14,13 +14,17 @@ const __XenPsyLab=(()=>{
   if(h)for(const f of followers.values()){let target;
    if(f.mode==='cursor'){if(!(focus>0))continue;f.pos+=(Math.log2(focus)-f.pos)*k;target=Math.pow(2,f.pos)}/* glide in the log-frequency domain */
    else target=f.base*wheel;
-   if(target>0&&Math.abs(1200*Math.log2(target/f.last))>.4){f.last=target;h.bend(f.lane,f.keyId,target)}}
+   if(target>0&&Math.abs(1200*Math.log2(target/f.last))>.4){f.last=target;h.bend(f.lane,f.keyId,target)}
+   /* PSY-X: a held Wave Starter note also follows the cursor's X (timbre gradient) */
+   if(f.mode==='cursor'&&cursor.grad){const g=cursor.grad(),m=law(g.tOn,g.tMode,g.x/g.width);if(Math.abs(m-(f.macro??-1))>.004){f.macro=m;h.macro(f.lane,m)}}}
   raf=requestAnimationFrame(tick)}
  const isId=id=>typeof id==='string'&&id.startsWith(PREFIX);
+ /* PSY-X: how far the Live Room's X position (0 left .. 1 right) pushes the Psy Lab pad regulator, following the shape the timbre gradient is set to (rises to the right, falls, peaks in the middle, peaks at the edges); disabled / none = 0 (no push) */
+ const law=(on,mode,u)=>{if(!on)return 0;u=Number.isFinite(u)?Math.max(0,Math.min(1,u)):0;switch(mode){case'sitar_rise':case'psy_rise':case'wire_to_psy':return u;case'psy_to_wire':return 1-u;case'center_shine':return 1-Math.abs(2*u-1);case'edge_tension':return Math.abs(2*u-1);default:return 0}};
  /* menus are rebuilt on many renders: storage is read at most once per second */
  function entries(){const now=Date.now();if(cache.length&&now-readAt<1000)return cache;readAt=now;let s=null;try{s=localStorage.getItem(KEY)}catch{}
-  if(s!==raw||!cache.length){raw=s;cache=FACTORY_NAMES.map(n=>({value:PREFIX+'factory:'+n,label:n,hint:'Psy Lab · factory',originLabel:'Psy Lab'}));
-   try{const d=s?JSON.parse(s):null;if(d?.format==='xensonar.psylab'&&Array.isArray(d.user))for(const q of d.user.slice(0,500))if(q&&typeof q.id==='string'&&typeof q.name==='string'&&q.id)cache.push({value:PREFIX+q.id,label:String(q.name).slice(0,60),hint:'Psy Lab · saved',originLabel:'Psy Lab'})}catch{}}
+  if(s!==raw||!cache.length){raw=s;cache=FACTORY_NAMES.map(n=>({value:PREFIX+'factory:'+n,label:n,hint:'Psy Lab · factory · Live: no Hold, no effect sends yet',originLabel:'Psy Lab'}));
+   try{const d=s?JSON.parse(s):null;if(d?.format==='xensonar.psylab'&&Array.isArray(d.user))for(const q of d.user.slice(0,500))if(q&&typeof q.id==='string'&&typeof q.name==='string'&&q.id)cache.push({value:PREFIX+q.id,label:String(q.name).slice(0,60),hint:'Psy Lab · saved · Live: no Hold, no effect sends yet',originLabel:'Psy Lab'})}catch{}}
   return cache}
  /* STEMS-04: watchers of the stem recorder; forwarded to the chunk as soon as it exists (a Psy Lab sound chosen while recording) */
  const outWatch=new Set();let forwarding=false;
@@ -38,7 +42,8 @@ const __XenPsyLab=(()=>{
    const f={lane,keyId,base:baseHz,mode,last:baseHz,pos:Math.log2(baseHz)};followers.set(lane+':'+keyId,f);
    if(!raf)raf=requestAnimationFrame(tick)},
   unglide(lane,keyId){followers.delete(lane+':'+keyId);if(!followers.size)wheel=1},
-  start(lane,keyId,id,hz,vel){const h=host();return !!h&&h.start(lane,keyId,id,hz,vel)},
+  law,
+  start(lane,keyId,id,hz,vel,macro){const h=host();return !!h&&h.start(lane,keyId,id,hz,vel,macro)},
   stop(lane,keyId){followers.delete(lane+':'+keyId);if(!followers.size)wheel=1;host(false)?.stop(lane,keyId)},
   allOff(lane){for(const k of[...followers.keys()])if(!lane||k.startsWith(lane+':'))followers.delete(k);if(!followers.size)wheel=1;host(false)?.allOff(lane)},
   /* a lane that leaves Psy Lab gives its engine back (the chunk is not loaded just to do that) */

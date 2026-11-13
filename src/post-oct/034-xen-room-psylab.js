@@ -343,7 +343,7 @@ const LiveHost=(()=>{
  const patches=()=>{const st=loadStore();return FACTORY.concat(st?st.user:[])};
  const isId=v=>typeof v==='string'&&v.startsWith(PREFIX);
  const find=id=>{const pid=isId(id)?id.slice(PREFIX.length):id;return patches().find(q=>q.id===pid)||null};
- const entries=()=>patches().map(q=>({value:PREFIX+q.id,label:q.name,hint:'Psy Lab'+(q.grid?' · '+q.grid:''),originLabel:'Psy Lab'}));
+ const entries=()=>patches().map(q=>({value:PREFIX+q.id,label:q.name,hint:'Psy Lab'+(q.grid?' · '+q.grid:'')+' · Live: no Hold, no effect sends yet',originLabel:'Psy Lab'}));
  /* HOT path rule: a note-on never reads storage. The patch of a lane is looked up when the sound id changes (or on prepare(), i.e. when it is chosen / restored). */
  function engineFor(lane,id,reload){let rec=engines.get(lane);if(rec&&rec.id===id&&!reload)return rec.engine;const pt=find(id);if(!pt)return null;
   if(!rec){rec={engine:new PsyEngine({visual:false}),id:null};rec.engine.lane=lane;engines.set(lane,rec)}
@@ -356,7 +356,9 @@ const LiveHost=(()=>{
  function drop(lane){silence(lane);const rec=engines.get(lane);if(rec){rec.engine.dispose();engines.delete(lane)}}
  return{isId,find,entries,factoryNames:()=>FACTORY.map(q=>q.name),
   prepare(lane,id){const e=engineFor(lane,id,true);if(e)e.ensure().catch(()=>{});return !!e},
-  start(lane,keyId,id,hz,vel){const e=engineFor(lane,id);if(!e)return false;const k=voice(lane,keyId),old=active.get(k);if(old)old.e.noteOff(old.n);
+  /* PSY-X: the Live Room's X gradient drives the pad regulator of Room V (param 37, scaled by the patch's own "Pad Y depth"); one value per lane engine, like Room V's single pad */
+  macro(lane,v){const r=engines.get(lane);if(r&&Number.isFinite(v)&&r.engine.params[37]!==v)r.engine.setParam(37,v)},
+  start(lane,keyId,id,hz,vel,macro){const e=engineFor(lane,id);if(!e)return false;if(Number.isFinite(macro)&&e.params[37]!==macro)e.setParam(37,macro);const k=voice(lane,keyId),old=active.get(k);if(old)old.e.noteOff(old.n);
    const n=++serial;active.set(k,{e,n});e.noteOn(n,hz,vel==null?.8:vel);return true},
   bend(lane,keyId,hz){const v=active.get(voice(lane,keyId));if(v)v.e.bend(v.n,hz)},
   stop(lane,keyId){const k=voice(lane,keyId),v=active.get(k);if(v){v.e.noteOff(v.n);active.delete(k)}},
