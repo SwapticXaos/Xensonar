@@ -339,13 +339,22 @@ var RAW_RESIDENT_PROCESSOR_NAME = "xensonar-raw-resident-v1", RAW_RESIDENT_MAX_P
             }
         };
     }
+    // RFL-CLOCK: under main-thread graph changes Chromium sometimes calls process() with the previous quantum's currentFrame
+    // (sequence F, F+128, F+128, F+384: measured, docs/PATCH_RFL-CLOCK-01.md). Rendering from that stale frame repeated the
+    // previous block and then skipped one: the crackle of the Root-Follow loop. The render clock therefore never runs backwards
+    // or stands still: it is at least the previous frame plus the previous quantum length, and follows currentFrame otherwise.
+    renderFrame(n) {
+        const f = currentFrame, next = this.lastFrame === void 0 ? f : Math.max(f, this.lastFrame + this.lastLength);
+        this.lastFrame = next, this.lastLength = n;
+        return next;
+    }
     process(e, s) {
         if (this.stopped) return !1;
         let r = s[0];
         if (r?.[0]?.length > 512) {
             this.core.fault = "unsupported-quantum", this.core.generating = !1;
             for (let o = 0; o < r.length; o++) r[o].fill(0);
-        } else r && this.core.render(currentFrame, r);
+        } else r && this.core.render(this.renderFrame(r[0]?.length ?? 128), r);
         return this.core.fault && !this.faultSent && (this.faultSent = !0, this.port.postMessage({
             type: "fault",
             session: this.session,

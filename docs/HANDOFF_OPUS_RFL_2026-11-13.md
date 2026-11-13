@@ -1,6 +1,6 @@
 # Arbeitsbasis für Opus – Root-Follow-Loop: restliche Klicks (Stand 2026-11-13, Vorbereitung aktualisiert)
 
-> **Stand nach RFL-GUARD-01 (gleicher Tag):** Fix für das Knistern im Spielen umgesetzt, `docs/PATCH_RFL-GUARD-01.md`. Offen: Hörtest/Gerät, Vorbeugung (Drum-/Bass-Knoten-Churn).
+> **Stand nach RFL-CLOCK-01 (gleicher Tag):** Ursache des Knisterns im Spielen gefunden und behoben (veraltete `currentFrame` im residenten RFL-Worklet), `docs/PATCH_RFL-CLOCK-01.md`. Offen: Hörtest/Gerät; andere Worklets mit derselben Abhängigkeit von `currentFrame`.
 >
 > **Aktualisierung (Vorbereitungssitzung, gleicher Tag):** Basis ist `claude/relaxed-bardeen-1xxhhr` = `claude/keen-goldberg-uzk32g` @ 6c84255 + nur Mess-Werkzeug/Doku (kein `src/`, `index.html` unverändert, sha256 `2562c44b…2c82`, 116/116 Tests grün). **Offen 1 ist lokalisiert**, siehe `docs/RFL_WIEDERHOLTE_QUANTEN_2026-11-13.md`: Die sporadischen Klicks sind **wiederholte Render-Quanten** (exakte Kopie der vorherigen 128 Frames) am Ausgang des RFL-Erzeugers, ausgelöst durch **Graph-Änderungen pro Drum-Schlag** (`src/rhythm/03_live_drum_bodies.js` `trigger`/`retire`), in einer Minimalseite ohne XenSonar reproduzierbar (Chromium-Verhalten). Kornmathematik, Pitch/EQ/Pan, Bus-Automation sind entlastet. Startprompt: `docs/PROMPT_OPUS_RFL_FIX_2026-11-13.md`.
 

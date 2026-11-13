@@ -901,8 +901,8 @@
 },
 {
 "file": "src/audio/rfl/01_resident_worklet.js",
-"status": "oct-identical",
-"bytes": 23329,
+"status": "oct-evolved",
+"bytes": 24080,
 "oct28_bytes": 23329
 },
 {
@@ -912,15 +912,9 @@
 "oct28_bytes": 4975
 },
 {
-"file": "src/audio/rfl/03_repeat_guard_worklet.js",
-"status": "post-oct",
-"bytes": 7250,
-"oct28_bytes": 0
-},
-{
 "file": "src/runtime/instrument/05_timing_and_admission.js",
 "status": "oct-evolved",
-"bytes": 113963,
+"bytes": 113596,
 "oct28_bytes": 89619
 },
 {
