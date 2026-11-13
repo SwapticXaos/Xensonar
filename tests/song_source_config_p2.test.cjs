@@ -12,8 +12,8 @@ function loadFactoryDependencies(context,meta){
  if(bassStart>=0)vm.runInContext(addons.slice(bassStart,addons.indexOf('})();',bassStart)+5),context);
 }
 const holdDefaults=true;
-const factoryWave=holdDefaults?'entrophon:factory:glas-zerrbild@1':'tape_halo';
-const factoryKeyboard=holdDefaults?'entrophon:factory:marimba-holz@1':'tape_halo';
+const factoryWave=holdDefaults?'psylab:factory:Barber Spiral':'tape_halo';
+const factoryKeyboard=holdDefaults?'nodal:factory:troodle':'tape_halo';
 
 function setup(){
  const disk=new Map(),prepared=[],patches=[];let notes=0,timer=0;
