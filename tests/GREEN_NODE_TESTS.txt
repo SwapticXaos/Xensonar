@@ -117,3 +117,4 @@ tooltips_english.cjs
 rfl_resident_clock.cjs
 pcm_recorder_stale_clock.cjs
 nodal_hold_stale_clock.cjs
+song_factory_nodal_capture.test.cjs

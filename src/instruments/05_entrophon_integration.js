@@ -27,6 +27,7 @@ const __XenSongInstrumentDefinitions=(()=>{
     const result={version:1,nodal:Object.create(null),entrophon:Object.create(null)};
     for(const id of new Set(ids)){
       const type=kind(id);
+      if(id==='nodal:factory:troodle')continue;/* built-in, read-only, resolved by key; never part of the song bank */
       if(typeof id==='string'&&/^(nodal|entrophon):/.test(id)&&!type)throw new Error('Invalid song instrument source');
       if(!type||id.startsWith('entrophon:factory:'))continue;
       let recipe=find(id);
