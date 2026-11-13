@@ -9890,6 +9890,29 @@ function __createXenMetaSessionStore(storage,quick){
   if(saved.some(x=>!x)||new Set(saved.map(x=>x.id)).size!==saved.length)throw Error('Invalid saved sessions');
   return {...next,name:typeof found.name==='string'&&found.name.length<=100?(found.name==='Freie Session'&&!found.loadedId?'Untitled Session':found.name):'Untitled Session',items,colors:__xenMetaValidateColors(items,found.colors),roomSettings:__XenMainRoomSessionBridge.safe(found.roomSettings),songPerformance:__xenSongPerformanceSafe(found.songPerformance,items),saved,sessionTakes:__xenLoopRecSafeTakes(found.sessionTakes),loopBarEdits:__xenLoopBarEditsSafe(found.loopBarEdits,items),drumWorkspace:__xenDrumWorkspaceSafe(found.drumWorkspace),loopRecOwnerKey:found.loopRecOwnerKey??null,loadedId:found.loadedId??null,activePalette:found.activePalette?{...validate({id:'active',name:'Active',items:found.activePalette.items,colors:found.activePalette.colors,sessionTakes:found.activePalette.sessionTakes,loopBarEdits:found.activePalette.loopBarEdits,loopRecOwnerKey:found.activePalette.loopRecOwnerKey}),id:found.activePalette.id??null,name:found.activePalette.name??null}:null,dirty:!!found.dirty};
  }
+ /* STARTER-SOUNDS-V2 (once): the saved "Three Minor Worlds" row carries the Troodle / Barber Spiral / 24-slot Hold defaults.
+    Only rows whose instrument fields are still EXACTLY the earlier factory values are patched, field by field;
+    anything the user chose or edited stays. Marker: xensonar.starter-factory-sounds.v2. */
+ function __xenUpgradeStarterSoundsV2(){
+  const marker='xensonar.starter-factory-sounds.v2';
+  try{if(storage.getItem(marker)==='ready')return false}catch{}
+  const factory=__xenStarterPresetRecords().primary,fresh=factory.songPerformance?.sources;
+  if(!fresh)return false;
+  const same=(a,b)=>JSON.stringify(a)===JSON.stringify(b),oldCents=[0,386,702,1200,702,386,0,702,1200,702,386,0,702,386,1200,702];
+  const isOld=src=>{const w=src?.waveStarter,k=src?.keyboard;return !!w&&!!k&&w.preset==='entrophon:factory:glas-zerrbild@1'&&
+   (w.waveStarterHoldSoundPreset===undefined||w.waveStarterHoldSoundPreset==='entrophon:factory:glas-zerrbild@1')&&
+   k.keyboardHoldSoundPreset==='entrophon:factory:marimba-holz@1'&&k.keyboardHoldSegments===16&&k.keyboardHoldReferenceBars===1&&
+   same(k.keyboardHoldPatternSteps,Array(16).fill(1))&&same(k.keyboardHoldPitchCents,oldCents)};
+  const patch=src=>{src.waveStarter.preset=fresh.waveStarter.preset;if(src.waveStarter.waveStarterHoldSoundPreset!==undefined)src.waveStarter.waveStarterHoldSoundPreset=fresh.waveStarter.waveStarterHoldSoundPreset;
+   for(const key of ['keyboardHoldSoundPreset','keyboardHoldSegments','keyboardHoldReferenceBars','keyboardHoldPatternSteps','keyboardHoldPitchCents'])src.keyboard[key]=clone(fresh.keyboard[key])};
+  const rows=state.saved.filter(row=>row.id===factory.id&&row.name===factory.name&&!row.legacyOrigin&&isOld(row.songPerformance?.sources));
+  let changed=false;
+  if(rows.length){changed=!!update(n=>{for(const row of n.saved)if(row.id===factory.id&&row.name===factory.name&&!row.legacyOrigin&&isOld(row.songPerformance?.sources))patch(row.songPerformance.sources);
+   if(n.loadedId===factory.id&&!n.dirty&&isOld(n.songPerformance?.sources))patch(n.songPerformance.sources)});
+   if(!changed)return false}
+  try{storage.setItem(marker,'ready')}catch(error){console.warn('[xensonar][factory-sounds-v2] Marker unavailable:',error)}
+  return changed;
+ }
  function activeSongSources(source){
   const row=source.saved.find(row=>row.id===source.activePalette?.id);
   if(row?.songPerformance?.sources)return clone(row.songPerformance.sources);
@@ -10471,7 +10494,7 @@ function __createXenMetaSessionStore(storage,quick){
   upgradeStarterFactorySounds:()=>{
    if(dormant||!ensureHydrated())return false;
    const marker='xensonar.starter-factory-sounds.v1';
-   if(storage.getItem(marker)==='ready')return false;
+   if(storage.getItem(marker)==='ready')return __xenUpgradeStarterSoundsV2();
    const factory=__xenStarterPresetRecords().primary;
    const isPristine=row=>row?.id===factory.id&&row.name===factory.name&&!row.legacyOrigin&&
      row.songPerformance==null&&row.roomSettings==null&&Array.isArray(row.items)&&
@@ -10490,7 +10513,7 @@ function __createXenMetaSessionStore(storage,quick){
     }))return false;
    }
    try{storage.setItem(marker,'ready')}catch(error){console.warn('[xensonar][factory-sounds] Marker unavailable:',error)}
-   return hasOld;
+   return __xenUpgradeStarterSoundsV2()||hasOld;
   },
   /* Installer is private in intent, but uses exactly the same validation and
      transaction boundary as manually saved sessions. It never starts playback. */
