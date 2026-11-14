@@ -1,10 +1,12 @@
 'use strict';
-// DIAG-01: index.html (delivery) is the diagnostic build minus exactly the sections marked "diag" (each with its <script> element).
+// DIAG-01: the delivery is the diagnostic build minus exactly the sections marked "diag" (each with its <script> element).
+// Compared on the uncompacted builds (--plain); MIN-01: index.html must equal the compaction of the plain delivery (build.py --check).
 const assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path'),{execFileSync}=require('node:child_process');
 const root=path.join(__dirname,'..');
-execFileSync('python3',[path.join(root,'tools/build.py'),'--diag'],{cwd:root});
+for(const args of [['--plain'],['--diag','--plain']])execFileSync('python3',[path.join(root,'tools/build.py'),...args],{cwd:root});
+execFileSync('python3',[path.join(root,'tools/build.py'),'--check'],{cwd:root}); // index.html = compaction of the plain delivery
 const man=JSON.parse(fs.readFileSync(path.join(root,'source-manifest.json'),'utf8'));
-const lean=fs.readFileSync(path.join(root,'index.html'),'utf8'),full=fs.readFileSync(path.join(root,'dist/XenSonar_DIAG.html'),'utf8');
+const lean=fs.readFileSync(path.join(root,'dist/XenSonar_PLAIN.html'),'utf8'),full=fs.readFileSync(path.join(root,'dist/XenSonar_DIAG_PLAIN.html'),'utf8');
 const diag=man.sources.filter(s=>s.diag);assert(diag.length>=1,'some sections are marked diag');
 let rebuilt=full;
 for(const s of diag){

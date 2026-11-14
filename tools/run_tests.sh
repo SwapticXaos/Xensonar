@@ -1,9 +1,10 @@
 #!/bin/bash
 # Runs the regression tests that are known green (tests/GREEN_NODE_TESTS.txt) against the current tree.
-# Tests come from the Oct-28 source tree; some read dist/XenSonar_Standalone.html, which is a copy of index.html.
+# Tests come from the Oct-28 source tree; some read dist/XenSonar_Standalone.html. Since MIN-01 index.html is compacted, so these
+# source-reading tests get the uncompacted delivery (build.py --plain: same code before compaction).
 set -u
 cd "$(dirname "$0")/.."
-mkdir -p dist && cp index.html dist/XenSonar_Standalone.html
+mkdir -p dist && python3 tools/build.py --plain >/dev/null && cp dist/XenSonar_PLAIN.html dist/XenSonar_Standalone.html
 pass=0; fail=0; failed=()
 while read -r t; do
   [ -z "$t" ] && continue

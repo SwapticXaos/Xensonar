@@ -2,7 +2,7 @@
 
 Experimentelles, offlinefähiges Musikinstrument im Browser: mikrotonal, frei in Tuning und Zeit.
 
-- `index.html`: die komplette App. Diese eine Datei wird auf Netlify veröffentlicht oder direkt im Browser geöffnet. Sie wird aus `src/` gebaut: `python3 tools/build.py`.
+- `index.html`: die komplette App. Diese eine Datei wird auf Netlify veröffentlicht oder direkt im Browser geöffnet. Sie wird aus `src/` gebaut: einmalig `npm ci --prefix tools/slim`, dann `python3 tools/build.py` (verdichtet, ohne Diagnoseschichten; `--diag` baut `dist/XenSonar_DIAG.html` mit Diagnose).
 - `source-manifest.json`, `src/`, `styles/`: die App in 368 Quelldateien, gegliedert nach dem Oktober-Quellbaum; `src/post-oct/` enthält, was seither neu ist.
 - `CLAUDE.md` und `docs/`: Arbeitsregeln, Philosophie, Architektur, Heiß/Kalt-Vertrag.
 - `evidence/`: Prüfberichte früherer Stände.

@@ -1,6 +1,6 @@
 // FORGE-ENTRY-SETTLE-01: static regression guards on the built index.html.
 const test=require('node:test'),assert=require('node:assert'),fs=require('fs');
-const html=fs.readFileSync(__dirname+'/../index.html','utf8');
+const html=fs.readFileSync(require('fs').existsSync(__dirname+'/../dist/XenSonar_PLAIN.html')?__dirname+'/../dist/XenSonar_PLAIN.html':__dirname+'/../index.html','utf8') /* MIN-01: source text = uncompacted build */;
 test('automatic Forge preview waits for an entry settle window',()=>{
   assert.ok(html.includes('const __FORGE_ENTRY_SETTLE_MS=2500;'));
   assert.ok(html.includes('s6e(__forgeVisible)'));

@@ -8,10 +8,10 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
+      - name: build and analysis tools (esbuild for compaction, acorn, eslint-scope)
+        run: npm ci --prefix tools/slim
       - name: index.html must equal a fresh build of the sources
         run: python3 tools/build.py --check
-      - name: analysis tools for the slimming gates (acorn, eslint-scope)
-        run: npm ci --prefix tools/slim
       - name: regression tests known green (Oct-28 suite, no browser)
         run: ./tools/run_tests.sh
   e2e:
@@ -23,6 +23,8 @@ jobs:
           node-version: 22
       - name: install Playwright Chromium (test only)
         run: npm install --no-save playwright@1.63.0 && npx playwright install --with-deps chromium
+      - name: build tools (compaction of the probe build)
+        run: npm ci --prefix tools/slim
       - name: browser end-to-end tests (probe build)
         run: ./tools/run_e2e.sh
   # Firefox is a known risk for the audio code (AudioParam automation) but no other test runs in it.

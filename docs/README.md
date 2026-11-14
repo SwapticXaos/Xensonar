@@ -16,6 +16,7 @@ Zuerst lesen (in dieser Reihenfolge): `../CLAUDE.md` (Arbeitsregeln) → `PRODUC
 | Mehrspur-Raum (Planung und Bestand) | `MEHRSPURRAUM_BESTANDSAUFNAHME_2026-11-09.md`, `MEHRSPURRAUM_SPURKETTE_STUDIE_2026-11-09.md`, `PATCH_MT-01.md` |
 | Was wurde bewusst nicht übernommen? | `HISTORY_AND_EXCLUSIONS.md` |
 | Wie ist das CSS geschichtet? | `CSS_LAYERS_2026-11-09.md` |
+| Wie wird gebaut (verdichtet, mit/ohne Diagnose)? | `PATCH_MIN-01.md`, `PATCH_DIAG-01.md`, `../tools/build.py` |
 | Wie viel Ballast steckt im Code, wo geht die Rechenzeit hin, was bringt Verschlanken? | `SLIM_BEFUND_2026-11-14.md`, Werkzeuge in `../tools/slim/` |
 | Was ist als Nächstes denkbar? | `NEXT_STEPS.md`, `AUDIT_2026-11-13.md` (Abschnitt „Empfohlene Reihenfolge“) |
 

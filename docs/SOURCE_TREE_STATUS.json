@@ -116,7 +116,7 @@
 {
 "file": "src/mix/03_quick_menu__before_eq-core.js",
 "status": "oct-evolved",
-"bytes": 154579,
+"bytes": 154525,
 "oct28_bytes": 67350
 },
 {
@@ -164,7 +164,7 @@
 {
 "file": "src/sessions/v2-session-store.js",
 "status": "oct-evolved",
-"bytes": 158620,
+"bytes": 156724,
 "oct28_bytes": 77859
 },
 {
@@ -182,7 +182,7 @@
 {
 "file": "src/mix/03_legacy_song_import.js",
 "status": "oct-identical",
-"bytes": 3734,
+"bytes": 0,
 "oct28_bytes": 3734
 },
 {
@@ -212,7 +212,7 @@
 {
 "file": "src/instruments/00_diagnostics.js",
 "status": "oct-evolved",
-"bytes": 8637,
+"bytes": 8568,
 "oct28_bytes": 8406
 },
 {
@@ -236,7 +236,7 @@
 {
 "file": "src/nodal/02_synthesis_kernel.js",
 "status": "oct-evolved",
-"bytes": 68742,
+"bytes": 68714,
 "oct28_bytes": 64852
 },
 {
@@ -278,7 +278,7 @@
 {
 "file": "src/nodal/09_melodic_session.js",
 "status": "oct-evolved",
-"bytes": 2485,
+"bytes": 2453,
 "oct28_bytes": 2275
 },
 {
@@ -368,7 +368,7 @@
 {
 "file": "src/forge/fractalia/02_mantle.js",
 "status": "oct-identical",
-"bytes": 2047,
+"bytes": 1448,
 "oct28_bytes": 2047
 },
 {
@@ -872,7 +872,7 @@
 {
 "file": "src/runtime/01_instrument_state.js",
 "status": "oct-evolved",
-"bytes": 74255,
+"bytes": 73899,
 "oct28_bytes": 69885
 },
 {
@@ -884,7 +884,7 @@
 {
 "file": "src/runtime/instrument/02_observation_and_sample_storage.js",
 "status": "oct-evolved",
-"bytes": 42881,
+"bytes": 42730,
 "oct28_bytes": 32335
 },
 {
@@ -914,7 +914,7 @@
 {
 "file": "src/runtime/instrument/05_timing_and_admission.js",
 "status": "oct-evolved",
-"bytes": 115090,
+"bytes": 114602,
 "oct28_bytes": 89619
 },
 {
@@ -926,7 +926,7 @@
 {
 "file": "src/runtime/instrument/07_interpreters_and_installation.js",
 "status": "oct-identical",
-"bytes": 11281,
+"bytes": 11128,
 "oct28_bytes": 11281
 },
 {
@@ -950,13 +950,13 @@
 {
 "file": "src/runtime/instrument/10_entrophon_and_voice_control.js",
 "status": "oct-evolved",
-"bytes": 67984,
+"bytes": 64887,
 "oct28_bytes": 63914
 },
 {
 "file": "src/instruments/01_entrophon_definition.js",
 "status": "oct-identical",
-"bytes": 4205,
+"bytes": 3992,
 "oct28_bytes": 4205
 },
 {
@@ -1034,7 +1034,7 @@
 {
 "file": "src/audio/08_myzel_g_live.js",
 "status": "oct-evolved",
-"bytes": 12886,
+"bytes": 12672,
 "oct28_bytes": 9164
 },
 {
@@ -1046,7 +1046,7 @@
 {
 "file": "src/rhythm/02_bass_and_rack.js",
 "status": "oct-evolved",
-"bytes": 236893,
+"bytes": 231910,
 "oct28_bytes": 167938
 },
 {
@@ -1058,7 +1058,7 @@
 {
 "file": "src/audio/01_voice_and_rfl_ownership.js",
 "status": "oct-evolved",
-"bytes": 244028,
+"bytes": 243500,
 "oct28_bytes": 201760
 },
 {
@@ -1094,7 +1094,7 @@
 {
 "file": "src/audio/03_rfl_transport_legacy.js",
 "status": "oct-evolved",
-"bytes": 107154,
+"bytes": 105927,
 "oct28_bytes": 103216
 },
 {
@@ -1172,7 +1172,7 @@
 {
 "file": "src/audio/05_live_voice_runtime.js",
 "status": "oct-evolved",
-"bytes": 191497,
+"bytes": 191220,
 "oct28_bytes": 166106
 },
 {
@@ -1184,25 +1184,31 @@
 {
 "file": "src/audio/entrophon/02_worklet_and_voice_backend.js",
 "status": "oct-evolved",
-"bytes": 197691,
+"bytes": 197597,
 "oct28_bytes": 171558
 },
 {
 "file": "src/audio/entrophon/03_native_bridge.js",
 "status": "oct-evolved",
-"bytes": 13260,
+"bytes": 7777,
 "oct28_bytes": 11881
 },
 {
 "file": "src/audio/07_governor_and_drums.js",
 "status": "oct-evolved",
-"bytes": 102842,
+"bytes": 34049,
 "oct28_bytes": 93683
+},
+{
+"file": "src/post-oct/gaps/010-main-bundle__16_live_voice_host.js",
+"status": "post-oct-gap",
+"bytes": 20002,
+"oct28_bytes": 0
 },
 {
 "file": "src/rhythm/03_live_drum_bodies.js",
 "status": "oct-evolved",
-"bytes": 79160,
+"bytes": 81537,
 "oct28_bytes": 71472
 },
 {
@@ -1214,7 +1220,7 @@
 {
 "file": "src/rhythm/04_workspace_and_transport.js",
 "status": "oct-evolved",
-"bytes": 169688,
+"bytes": 126641,
 "oct28_bytes": 157797
 },
 {
@@ -1226,13 +1232,13 @@
 {
 "file": "src/app/forge/01_room_shell.js",
 "status": "oct-evolved",
-"bytes": 77840,
+"bytes": 75621,
 "oct28_bytes": 68185
 },
 {
 "file": "src/app/forge/02_boot_and_workspace_tools.js",
 "status": "oct-evolved",
-"bytes": 87993,
+"bytes": 87317,
 "oct28_bytes": 80311
 },
 {
@@ -1304,7 +1310,7 @@
 {
 "file": "src/forge/editor/01_display_and_canvas.js",
 "status": "oct-evolved",
-"bytes": 9452,
+"bytes": 7911,
 "oct28_bytes": 9487
 },
 {
@@ -1382,7 +1388,7 @@
 {
 "file": "src/forge/ui/02_donor_routing_and_hearing.js",
 "status": "oct-evolved",
-"bytes": 101396,
+"bytes": 101378,
 "oct28_bytes": 86664
 },
 {
@@ -1400,7 +1406,7 @@
 {
 "file": "src/forge_and_melodic/04_render_cache_and_stems.js",
 "status": "oct-evolved",
-"bytes": 73129,
+"bytes": 71122,
 "oct28_bytes": 66791
 },
 {
@@ -2042,7 +2048,7 @@
 {
 "file": "src/post-oct/015-xen-wave-editor-w01-modules.js",
 "status": "post-oct",
-"bytes": 204652,
+"bytes": 204536,
 "oct28_bytes": 0
 },
 {
@@ -2054,7 +2060,7 @@
 {
 "file": "src/integrations/XEN_WISSENSRAUM_BRIDGE_D_INTEGRATION.js",
 "status": "oct-identical",
-"bytes": 13487,
+"bytes": 13462,
 "oct28_bytes": 13487
 },
 {
@@ -2096,7 +2102,7 @@
 {
 "file": "src/rooms/lab.js",
 "status": "oct-evolved",
-"bytes": 636869,
+"bytes": 636732,
 "oct28_bytes": 565054
 },
 {
@@ -2144,7 +2150,7 @@
 {
 "file": "src/factories/xenHoldPatternPlanFactory.js",
 "status": "post-oct",
-"bytes": 43450,
+"bytes": 43357,
 "oct28_bytes": 0
 },
 {
@@ -2192,7 +2198,7 @@
 {
 "file": "src/post-oct/029-xno-original-cycle-runtime.js",
 "status": "post-oct",
-"bytes": 23566,
+"bytes": 23154,
 "oct28_bytes": 0
 },
 {
