@@ -177,7 +177,7 @@ function Cke(){const[e,t]=P.useState(!1),[n,r]=P.useState(.68),[a,o]=P.useState(
  const swellHeld=P.useRef(!1),dampHeld=P.useRef(!1),expression=P.useRef(0);
  const mode=P.useRef('pedal'),comboConsumed=P.useRef(!1);
  const octave=P.useRef(!1),sustain=P.useRef(!1),enter=P.useRef(!1);
- const setSustain=P.useCallback(held=>{const was=sustain.current;sustain.current=held;n(v=>v.sustain===held?v:{...v,sustain:held});return was},[]);
+ const setSustain=P.useCallback(held=>{const was=sustain.current;sustain.current=held;/* PSY-SUS-01 */typeof __XenPsyLab!=='undefined'&&__XenPsyLab.sustain(held);n(v=>v.sustain===held?v:{...v,sustain:held});return was},[]);
  const updateExpressionHold=P.useCallback((which,held)=>{
   const ref=which==='swell'?swellHeld:dampHeld;
   const changed=ref.current!==held;ref.current=held;
@@ -193,7 +193,7 @@ function Cke(){const[e,t]=P.useState(!1),[n,r]=P.useState(.68),[a,o]=P.useState(
  const setDamp=P.useCallback(held=>updateExpressionHold('damp',held),[updateExpressionHold]);
  const setOctave=P.useCallback(held=>{octave.current=held;n(v=>v.octave===held?v:{...v,octave:held})},[]);
  const setEnter=P.useCallback(held=>{enter.current=held},[]);
- const reset=P.useCallback(()=>{swellHeld.current=!1;dampHeld.current=!1;comboConsumed.current=!1;expression.current=0;octave.current=!1;sustain.current=!1;enter.current=!1;n({octave:!1,sustain:!1,swell:!1,damp:!1,expressionMode:mode.current})},[]);
+ const reset=P.useCallback(()=>{swellHeld.current=!1;dampHeld.current=!1;comboConsumed.current=!1;expression.current=0;octave.current=!1;sustain.current=!1;typeof __XenPsyLab!=='undefined'&&__XenPsyLab.sustain(false);enter.current=!1;n({octave:!1,sustain:!1,swell:!1,damp:!1,expressionMode:mode.current})},[]);
  P.useEffect(()=>{
   if(!e){swellHeld.current=!1;dampHeld.current=!1;comboConsumed.current=!1;expression.current=0;return}
   // The physical chord does not produce a volume gesture, and a latched knob

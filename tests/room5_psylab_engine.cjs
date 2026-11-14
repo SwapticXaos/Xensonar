@@ -51,7 +51,7 @@ for(const patch of T.FACTORY){const root=220;const e=makeProcessor({params:patch
  const a=run(),b=run();assert(a.some(x=>x!==0));assert(a.equals(b),'same script → same PCM');}
 // --- no allocation per block once warm (measured in a child process with a large young generation) ---
 if(process.argv[2]==='--alloc'){const e=makeProcessor({params:T.FACTORY[3].params,res:[110,220,330,440]});for(let v=0;v<6;v++)e.send({t:'on',id:v+1,hz:110*(v+1)});
- for(let b=0;b<30000;b++)e.block();const before=process.memoryUsage().heapUsed;const N=30000;for(let b=0;b<N;b++)e.block();const per=(process.memoryUsage().heapUsed-before)/N;
+ for(let b=0;b<30000;b++)e.block();const before=process.memoryUsage().heapUsed;const N=300000;/* PSY-SUS-01: 10x longer - the heap statistic moves in ~32-byte steps (35.6 / 67.6 measured on the same code), which a short run cannot average out; real boxing would stay at kilobytes per block */for(let b=0;b<N;b++)e.block();const per=(process.memoryUsage().heapUsed-before)/N;
  console.log('ALLOC '+per.toFixed(2));process.exit(0)}
 {const outText=execFileSync(process.execPath,['--max-semi-space-size=256',__filename,'--alloc'],{encoding:'utf8'});const per=Number(/ALLOC (-?[\d.]+)/.exec(outText)[1]);
  // Per-sample boxing would show as kilobytes per block. A few bytes are noise of this harness (vm context, heap statistics);

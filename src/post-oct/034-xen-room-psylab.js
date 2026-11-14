@@ -73,7 +73,7 @@ function psyLabWorkletModule(RANGE_LO,RANGE_HI,RANGE_DEF){
    this.target=new Float64Array(RANGE_DEF);this.cur=new Float64Array(RANGE_DEF);
    if(Array.isArray(o.params))for(let i=0;i<NPAR&&i<o.params.length;i++){const v=+o.params[i];if(v===v){const c=v<this.lo[i]?this.lo[i]:v>this.hi[i]?this.hi[i]:v;this.target[i]=c;this.cur[i]=c}}
    // voices
-   this.vAct=new Uint8Array(NV);this.vGate=new Uint8Array(NV);this.vId=new Float64Array(NV).fill(-1);this.vAge=new Float64Array(NV);
+   this.vAct=new Uint8Array(NV);this.vGate=new Uint8Array(NV);this.vFast=new Uint8Array(NV);this.vId=new Float64Array(NV).fill(-1);this.vAge=new Float64Array(NV);
    this.vHz=new Float64Array(NV);this.vF=new Float64Array(NV);this.vVel=new Float64Array(NV);this.vEnv=new Float64Array(NV);this.vPan=new Float64Array(NV);
    this.vPh=new Float64Array(NV*4);this.vPrev=new Float64Array(NV);this.vSh=new Float64Array(NV*NP*2);
    this.active=0;this.clock=0;
@@ -100,7 +100,7 @@ function psyLabWorkletModule(RANGE_LO,RANGE_HI,RANGE_DEF){
    if(t==='p'){const i=m.i|0;if(i>=0&&i<NPAR){const v=+m.v;if(v===v)this.target[i]=v<this.lo[i]?this.lo[i]:v>this.hi[i]?this.hi[i]:v}}
    else if(t==='all'){const a=m.v;if(a)for(let i=0;i<NPAR&&i<a.length;i++){const v=+a[i];if(v===v)this.target[i]=v<this.lo[i]?this.lo[i]:v>this.hi[i]?this.hi[i]:v}}
    else if(t==='on')this.noteOn(+m.id,+m.hz,m.vel===undefined?1:+m.vel);
-   else if(t==='off'){for(let v=0;v<NV;v++)if(this.vAct[v]&&this.vId[v]===+m.id)this.vGate[v]=0}
+   else if(t==='off'){for(let v=0;v<NV;v++)if(this.vAct[v]&&this.vId[v]===+m.id){this.vGate[v]=0;if(m.fast)this.vFast[v]=1}}
    else if(t==='bend'){const hz=+m.hz;if(hz>0)for(let v=0;v<NV;v++)if(this.vAct[v]&&this.vId[v]===+m.id)this.vHz[v]=hz<8?8:hz>this.sr*.45?this.sr*.45:hz}
    else if(t==='alloff'){for(let v=0;v<NV;v++)this.vGate[v]=0}
    else if(t==='res'){if(Array.isArray(m.hz))this.setRes(m.hz)}
@@ -112,7 +112,7 @@ function psyLabWorkletModule(RANGE_LO,RANGE_HI,RANGE_DEF){
    if(v<0){let best=1/0;for(let i=0;i<NV;i++){const score=this.vAge[i]+(this.vGate[i]?1e12:0);if(score<best){best=score;v=i}}} // steal: released first, then oldest
    const fresh=!this.vAct[v];
    if(fresh){this.active++;this.vF[v]=hz;this.vEnv[v]=0;this.vPrev[v]=0;for(let k=0;k<4;k++)this.vPh[v*4+k]=0;for(let k=0;k<NP*2;k++)this.vSh[v*NP*2+k]=0}
-   this.vAct[v]=1;this.vGate[v]=1;this.vId[v]=id;this.vHz[v]=hz;this.vVel[v]=vel<0?0:vel>1?1:vel;this.vAge[v]=++this.clock;this.vPan[v]=((v*0.6180339887)%1)*2-1;
+   this.vAct[v]=1;this.vGate[v]=1;this.vFast[v]=0;this.vId[v]=id;this.vHz[v]=hz;this.vVel[v]=vel<0?0:vel>1?1:vel;this.vAge[v]=++this.clock;this.vPan[v]=((v*0.6180339887)%1)*2-1;
    this.quiet=0;
   }
   process(inputs,outputs){
@@ -144,7 +144,7 @@ function psyLabWorkletModule(RANGE_LO,RANGE_HI,RANGE_DEF){
    const iAB=cur[2]*fmScale*.159154943,iBC=cur[3]*fmScale*.159154943,iCA=cur[4]*.159154943,iSelf=cur[5]*.159154943; // radians → cycles
    const rB=cur[0],rC=cur[1],opMix=cur[6],det=cur[7]*.00028881; // cents/2 → relative
    const foldG=(1+fold*7)*.25,foldMix=fold*5>1?1:fold*5;
-   const atkK=1-Math.exp(-isr/cur[16]),relK=1-Math.exp(-isr/cur[17]),gk=cur[18]<.001?1:1-Math.exp(-isr/cur[18]);
+   const atkK=1-Math.exp(-isr/cur[16]),relK=1-Math.exp(-isr/cur[17]),fastK=1-Math.exp(-isr/.045)/* PSY-SUS-01: quick damp when the Sustain key is released */,gk=cur[18]<.001?1:1-Math.exp(-isr/cur[18]);
    // ---- Shepard stack positions for this block ----
    const shepMix=cur[8],shepOn=shepMix>.0005;
    if(shepOn){const shU=this.shU,shR=this.shR,shW=this.shW,du=cur[9]*n*isr/NP,lnI=Math.log(cur[10]);let sum=0;
@@ -155,7 +155,7 @@ function psyLabWorkletModule(RANGE_LO,RANGE_HI,RANGE_DEF){
    const panMod=cur[33]*m1;
    for(let v=0;v<NV;v++){if(!this.vAct[v])continue;
     const vPh=this.vPh,q=v*4;let pa=vPh[q],pr=vPh[q+1],pb=vPh[q+2],pc=vPh[q+3],prev=this.vPrev[v],f=this.vF[v],env=this.vEnv[v];
-    const ft=this.vHz[v],gate=this.vGate[v],vel=this.vVel[v];
+    const ft=this.vHz[v],gate=this.vGate[v],vel=this.vVel[v],rk=this.vFast[v]&&fastK>relK?fastK:relK;
     let pan=this.vPan[v]*.55+panMod*(v&1?-1:1);pan=pan<-1?-1:pan>1?1:pan;const gl=Math.cos((pan+1)*.7853981634)*vel*.26,gr=Math.sin((pan+1)*.7853981634)*vel*.26; // headroom: six voices plus echo stay below the soft clipper
     const sh=this.vSh,so=v*NP*2,shR=this.shR,shW=this.shW;
     for(let i=0;i<n;i++){
@@ -177,7 +177,7 @@ function psyLabWorkletModule(RANGE_LO,RANGE_HI,RANGE_DEF){
      let yL=aL+(bOut-aL)*opMix,yR=aR+(bOut-aR)*opMix;
      if(foldMix>0){p=yL*foldG;p-=p|0;if(p<0)p+=1;x=p*TS;k=x|0;yL+=((SIN[k]+(SIN[k+1]-SIN[k])*(x-k))-yL)*foldMix;
       p=yR*foldG;p-=p|0;if(p<0)p+=1;x=p*TS;k=x|0;yR+=((SIN[k]+(SIN[k+1]-SIN[k])*(x-k))-yR)*foldMix}
-     if(gate)env+=(1-env)*atkK;else env-=env*relK;
+     if(gate)env+=(1-env)*atkK;else env-=env*rk;
      bL[i]+=yL*env*gl;bR[i]+=yR*env*gr;
     }
     vPh[q]=pa;vPh[q+1]=pr;vPh[q+2]=pb;vPh[q+3]=pc;this.vPrev[v]=prev;this.vF[v]=f;this.vEnv[v]=env;
@@ -281,12 +281,14 @@ class PsyEngine{
   this.starting=(async()=>{const bridge=__xenMultitrackBridge.current;if(!bridge)throw Error('The audio bridge is not ready: open the Live Room once.');
    const ctx=await bridge.ensureAudioReady();await loadModule(ctx);if(this.closed)throw Error('Room closed.');
    const node=new AudioWorkletNode(ctx,'xen-psylab-v1',{numberOfInputs:0,numberOfOutputs:1,outputChannelCount:[2],processorOptions:{params:this.params.slice(),res:this.res.slice()}});
-   const out=ctx.createGain();out.gain.value=1;node.connect(out);out.connect(bridge.getMasterInput(ctx));
+   const out=ctx.createGain();out.gain.value=this.laneGain??1;node.connect(out);
+   /* PSY-EQ-01: a Live Room lane (Wave Starter / Keyboard) goes through the SAME instrument EQ as the classic sounds of that lane (key keyFor(kind,'instrument'), own device per engine); Room V (no lane) stays direct */
+   let tap=null,eqKind=null;if(this.lane){eqKind=this.lane==='keyboard'?'keyboard':'wave';tap=ctx.createGain();tap.connect(bridge.getMasterInput(ctx));let eqIn=tap;try{if(typeof __XenEQ!=='undefined')eqIn=__XenEQ.route(ctx,eqKind,tap,'instrument')||tap}catch{eqIn=tap}out.connect(eqIn);this.tap=tap;this.eqKind=eqKind}else out.connect(bridge.getMasterInput(ctx));
    // The picture (scope + spectrum) needs two analysers; a host that shows no picture (options.visual=false) creates none of them.
    let split=null,anL=null,anR=null;
    if(this.visual){split=ctx.createChannelSplitter(2);anL=ctx.createAnalyser();anR=ctx.createAnalyser();anL.fftSize=anR.fftSize=1024;anL.smoothingTimeConstant=.6;node.connect(split);split.connect(anL,0);split.connect(anR,1)}
    this.ctx=ctx;this.node=node;this.out=out;this.split=split;this.anL=anL;this.anR=anR;
-   if(this.lane)for(const w of __psyOutWatchers)try{w({lane:this.lane,node:out,ctx})}catch{}
+   if(this.lane)for(const w of __psyOutWatchers)try{w({lane:this.lane,node:this.tap||out,ctx})}catch{}/* stems hear the EQ'd signal */
    for(const m of this.queue)node.port.postMessage(m);this.queue.length=0;return node})();
   try{return await this.starting}finally{this.starting=null}}
  send(m){if(this.node)this.node.port.postMessage(m);else{this.queue.push(m);if(this.queue.length>64)this.queue.shift();void this.ensure().catch(()=>{})}}
@@ -294,12 +296,13 @@ class PsyEngine{
  setAll(params){this.params=params.slice();this.pending.clear();if(this.node)this.node.port.postMessage({t:'all',v:this.params})}
  setRes(hz){this.res=hz.slice();if(this.node)this.node.port.postMessage({t:'res',hz:this.res})}
  noteOn(id,hz,vel){this.send({t:'on',id,hz,vel})}
- noteOff(id){if(this.node)this.node.port.postMessage({t:'off',id});else this.queue=this.queue.filter(m=>!(m.t==='on'&&m.id===id))}
+ noteOff(id,fast){if(this.node)this.node.port.postMessage(fast?{t:'off',id,fast:1}:{t:'off',id});else this.queue=this.queue.filter(m=>!(m.t==='on'&&m.id===id))}
  bend(id,hz){if(this.node)this.node.port.postMessage({t:'bend',id,hz})}
  allOff(){this.queue.length=0;if(this.node)this.node.port.postMessage({t:'alloff'})}
  dispose(){this.closed=true;if(this.raf){cancelAnimationFrame(this.raf);this.raf=0}const{node,out,split,anL,anR,ctx}=this;this.node=null;this.queue.length=0;if(!node)return;
   try{node.port.postMessage({t:'alloff'});out.gain.setTargetAtTime(0,ctx.currentTime,.04)}catch{}
-  setTimeout(()=>{try{node.port.postMessage({t:'dispose'});node.disconnect();out.disconnect();split?.disconnect();anL?.disconnect();anR?.disconnect()}catch{}},400)}
+  const tap=this.tap,eqKind=this.eqKind;this.tap=null;setTimeout(()=>{try{node.port.postMessage({t:'dispose'});node.disconnect();out.disconnect();split?.disconnect();anL?.disconnect();anR?.disconnect();if(tap){try{__XenEQ.releaseRoute(ctx,eqKind,tap,'instrument')}catch{}tap.disconnect()}}catch{}},400)}
+ setLaneGain(g,now){this.laneGain=g;const o=this.out,c=this.ctx;if(!o||!c)return;try{if(now){o.gain.cancelScheduledValues(c.currentTime);o.gain.setValueAtTime(g,c.currentTime)}else o.gain.setTargetAtTime(g,c.currentTime,.02)}catch{}}
 }
 /* Offline render of the same processor: deterministic, no realtime capture. */
 async function bounce({params,res,notes,seconds,sampleRate}){
@@ -361,15 +364,19 @@ const LiveHost=(()=>{
   start(lane,keyId,id,hz,vel,macro){const e=engineFor(lane,id);if(!e)return false;if(Number.isFinite(macro)&&e.params[37]!==macro)e.setParam(37,macro);const k=voice(lane,keyId),old=active.get(k);if(old)old.e.noteOff(old.n);
    const n=++serial;active.set(k,{e,n});e.noteOn(n,hz,vel==null?.8:vel);return true},
   bend(lane,keyId,hz){const v=active.get(voice(lane,keyId));if(v)v.e.bend(v.n,hz)},
-  stop(lane,keyId){const k=voice(lane,keyId),v=active.get(k);if(v){v.e.noteOff(v.n);active.delete(k)}},
+  stop(lane,keyId,fast){const k=voice(lane,keyId),v=active.get(k);if(v){v.e.noteOff(v.n,fast);active.delete(k)}},
+  /* PSY-EXPR-01: B / Left Alt (keyboard expression) = the output gain of the lane; set before the engine exists = applied when it is created */
+  gain(lane,g,now){const r=engines.get(lane);if(r)r.engine.setLaneGain(g,now)},
+  has(lane,keyId){return active.has(voice(lane,keyId))},
+  keys(lane){const o=[];for(const k of active.keys())if(!lane||k.startsWith(lane+':'))o.push(k);return o},
   allOff:silence,drop,
   /* STEMS-04: read-only view of the lane engines' output gains, and a watcher for engines that are created later */
-  outputs(ctx){const out=[];for(const[lane,r]of engines)if(r.engine.out&&r.engine.ctx===ctx)out.push({lane,node:r.engine.out,ctx});return out},
+  outputs(ctx){const out=[];for(const[lane,r]of engines)if(r.engine.out&&r.engine.ctx===ctx)out.push({lane,node:r.engine.tap||r.engine.out,ctx});return out},
   watch(fn){__psyOutWatchers.add(fn);return()=>__psyOutWatchers.delete(fn)},
   /* Power off / leaving: no tails at all. Each engine fades its output in ~40 ms and is rebuilt on the next note (prepare() on a restored sound). */
   panic(){for(const lane of[...engines.keys()])drop(lane)},
   dispose(){for(const lane of[...engines.keys()])drop(lane);active.clear()},
-  status(){return{lanes:[...engines.keys()],active:active.size,visual:[...engines.values()].map(r=>r.engine.visual)}}}})();
+  status(){return{lanes:[...engines.keys()],active:active.size,visual:[...engines.values()].map(r=>r.engine.visual),gains:Object.fromEntries([...engines].map(([l,r])=>[l,r.engine.laneGain??1])),eq:Object.fromEntries([...engines].map(([l,r])=>[l,r.engine.eqKind||null]))}}}})();
 
 /* ---------- metronome: for the player only ---------- */
 /* Clicks go straight to the speakers (ctx.destination), NOT into the live master input: Rec, Loop-Rec, Live Mastering and the bounce never hear them.

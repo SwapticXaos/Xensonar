@@ -4,7 +4,7 @@
 const __XenPsyLab=(()=>{
  const KEY='xensonar.psylab.instruments.v1',PREFIX='psylab:';
  const FACTORY_NAMES=['Liquid Bell','Escher Staircase','Barber Spiral','Chaos Insect','Crystal Cave','Deep Fold Drone','Tritave Ghost','Alien Choir'];
- let raw=null,cache=[],readAt=0,cursor=null,raf=0,wheel=1,prevHz=0,arrowAt=-1e9,lastTick=0,octPos=0;/* PSY-OCT-01: Backspace (octave hold) as a fast glide, 0 = played pitch .. 1 = one octave up */const followers=new Map();
+ let raw=null,cache=[],readAt=0,cursor=null,raf=0,wheel=1,prevHz=0,arrowAt=-1e9,lastTick=0,octPos=0,sustaining=false,exprLast=1;const deferred=new Set();/* PSY-SUS-01: notes whose key / mouse / gate ended while the Sustain key (´) is held: they keep sounding until it is released *//* PSY-OCT-01: Backspace (octave hold) as a fast glide, 0 = played pitch .. 1 = one octave up */const followers=new Map();
  function tick(){raf=0;if(!followers.size||!cursor){prevHz=0;return}
   const h=host(false),now=performance.now(),dt=Math.min(.1,Math.max(.001,(now-lastTick)/1000||.016));lastTick=now;
   const hz=cursor.hz(),arrows=cursor.arrows(),focus=cursor.focusHz?cursor.focusHz():0;
@@ -13,6 +13,8 @@ const __XenPsyLab=(()=>{
   const k=1-Math.pow(.65,dt*60);/* the same glide time as the ball of Room V */
   /* PSY-OCT-01: Backspace held = every held Psy Lab note (mouse and keys) glides one octave up fast (~40 ms), released = back; one shared factor, no extra node */
   const oTarget=cursor.octave?.()===true?1:0;octPos+=(oTarget-octPos)*(1-Math.exp(-dt/.04));if(Math.abs(oTarget-octPos)<.002)octPos=oTarget;const oct=Math.pow(2,octPos);
+  /* PSY-EXPR-01: B / Left Alt (keyboard expression, Pedal or Knob) = output gain of the Keyboard lane, same mapping as the classic keyboard sound (1 + expression x 2.35), capped at x2 because a Psy Lab voice has less headroom */
+  const eg=exprGain();if(h&&Math.abs(eg-exprLast)>.003){exprLast=eg;h.gain('keyboard',eg)}
   if(h)for(const f of followers.values()){let target;
    if(f.mode==='cursor'){if(!(focus>0))continue;
     /* PSY-GRID-01: with Snap the note sits on the Grid tone the screen shows (direct step, like the pad of Room V); free (no Snap) it glides in the log-frequency domain */
@@ -23,6 +25,9 @@ const __XenPsyLab=(()=>{
    if(cursor.grad){const g=cursor.grad(),m=law(g.tOn,g.tMode,g.x/g.width);if(Math.abs(m-(f.macro??-1))>.004){f.macro=m;h.macro(f.lane,m)}}}
   raf=requestAnimationFrame(tick)}
  const isId=id=>typeof id==='string'&&id.startsWith(PREFIX);
+ const exprGain=()=>{const e=cursor?.expression?.();return Number.isFinite(e)?Math.max(.12,Math.min(2,1+e*2.35)):1};
+ if(typeof window!=='undefined')window.addEventListener('blur',()=>sustain(false));
+ function sustain(on){on=!!on;if(on===sustaining)return;sustaining=on;if(!on){const h=host(false);for(const k of deferred){const i=k.indexOf(':');h?.stop(k.slice(0,i),k.slice(i+1),true)}deferred.clear()}}
  /* PSY-X: how far the Live Room's X position (0 left .. 1 right) pushes the Psy Lab pad regulator, following the shape the timbre gradient is set to (rises to the right, falls, peaks in the middle, peaks at the edges); disabled / none = 0 (no push) */
  const law=(on,mode,u)=>{if(!on)return 0;u=Number.isFinite(u)?Math.max(0,Math.min(1,u)):0;switch(mode){case'sitar_rise':case'psy_rise':case'wire_to_psy':return u;case'psy_to_wire':return 1-u;case'center_shine':return 1-Math.abs(2*u-1);case'edge_tension':return Math.abs(2*u-1);default:return 0}};
  /* menus are rebuilt on many renders: storage is read at most once per second */
@@ -48,13 +53,14 @@ const __XenPsyLab=(()=>{
    if(!raf)raf=requestAnimationFrame(tick)},
   unglide(lane,keyId){followers.delete(lane+':'+keyId);if(!followers.size)wheel=1},
   law,
-  start(lane,keyId,id,hz,vel,macro){const h=host();return !!h&&h.start(lane,keyId,id,followers.size?hz*Math.pow(2,octPos):cursor?.octave?.()===true?hz*2:hz,vel,macro)},
-  stop(lane,keyId){followers.delete(lane+':'+keyId);if(!followers.size)wheel=1;host(false)?.stop(lane,keyId)},
-  allOff(lane){for(const k of[...followers.keys()])if(!lane||k.startsWith(lane+':'))followers.delete(k);if(!followers.size)wheel=1;host(false)?.allOff(lane)},
+  sustain,
+  start(lane,keyId,id,hz,vel,macro){const h=host();deferred.delete(lane+':'+keyId);if(h&&lane==='keyboard'){exprLast=exprGain();h.gain(lane,exprLast,true)}return !!h&&h.start(lane,keyId,id,followers.size?hz*Math.pow(2,octPos):cursor?.octave?.()===true?hz*2:hz,vel,macro)},
+  stop(lane,keyId){const key=lane+':'+keyId;followers.delete(key);if(!followers.size)wheel=1;const h=host(false);if(sustaining&&h?.has(lane,keyId)){deferred.add(key);return}deferred.delete(key);h?.stop(lane,keyId)},
+  allOff(lane){for(const k of[...followers.keys()])if(!lane||k.startsWith(lane+':'))followers.delete(k);if(!followers.size)wheel=1;const h=host(false);if(sustaining&&h){for(const k of h.keys(lane))deferred.add(k);return}for(const k of[...deferred])if(!lane||k.startsWith(lane+':'))deferred.delete(k);h?.allOff(lane)},
   /* a lane that leaves Psy Lab gives its engine back (the chunk is not loaded just to do that) */
-  drop(lane){for(const k of[...followers.keys()])if(!lane||k.startsWith(lane+':'))followers.delete(k);host(false)?.drop(lane)},
+  drop(lane){for(const k of[...followers.keys()])if(!lane||k.startsWith(lane+':'))followers.delete(k);for(const k of[...deferred])if(!lane||k.startsWith(lane+':'))deferred.delete(k);host(false)?.drop(lane)},
   /* Power off: every Psy Lab voice and tail stops at once */
-  panic(){followers.clear();wheel=1;host(false)?.panic()}});
+  panic(){followers.clear();deferred.clear();wheel=1;host(false)?.panic()}});
 })();
 /* Performance shortcuts read the canonical catalog. History stores IDs only. */
 const __XenPerformanceCatalog=(()=>{
