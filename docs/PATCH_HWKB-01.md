@@ -49,3 +49,9 @@ Was dadurch nicht gelöst wird: Läuft der MIDI-Dienst des Systems nicht, kann X
 - Opera: „InvalidStateError: Platform dependent initialization failed." mit der neuen Anzeige „MIDI could not start": bestätigt die Einordnung (MIDI-Dienst des Systems, nicht die Berechtigung). Ob `sudo modprobe snd-seq` es behebt, ist offen (vom Nutzer zu probieren).
 - Firefox: „Not available in this browser", ohne den Hinweis auf eine unsichere Seite: die Seite ist also kein unsicherer Kontext, die Funktion fehlt aus anderem Grund. Die Anzeige nennt jetzt bei Firefox die Version (unter 108: „braucht 108 oder neuer") und sonst die Einstellung `about:config → dom.webmidi.enabled` sowie den ALSA-Sequencer unter Linux. Das ist eine Vermutung nach Code-Lage; bestätigt ist bisher nur, dass `navigator.requestMIDIAccess` dort keine Funktion ist.
 - index.html 8 100 540 → 8 100 890 Bytes (+350). Rollback: `a78e2be`. Test `hwkeyboard_core` ergänzt (alte und aktuelle Firefox-Version).
+
+## Nachtrag HWKB-01d · Firefox-Bericht des Nutzers
+Bericht: Firefox 158.0, Ubuntu / Linux x86_64, Seite `file:`, „secure context: true", `requestMIDIAccess` fehlt („Web MIDI: not available").
+Einordnung (Vermutung, nicht belegt): Firefox bindet Web MIDI an eine Website-Berechtigung (Add-on-Abfrage); für lokal geöffnete Dateien gibt es keine Website, daher wird die Funktion dort wahrscheinlich gar nicht angeboten. Chromium / Opera stellen die Funktion für `file:` bereit (dort kommt die Berechtigungsabfrage). Prüfbar durch den Nutzer: dieselbe Seite über `https:` (Netlify) oder `http://localhost` öffnen.
+Änderung: der Hinweis bei Firefox + `file:` nennt genau das. Test `hwkeyboard_core` ergänzt.
+index.html 8 100 890 → 8 101 103 Bytes (+213), sha256 `a5c7dcc394d943d82de43b7bc3bac1cfb412fe8f08fcf7a17052a9a48cf8c36f`. Rollback: `6085573`.
