@@ -395,7 +395,7 @@ async function mixdown(project0,lib,fromBeat,toBeat,format,opts={}){
  await prepareVariants(project,lib,true);// ROOM4-07: export the same granular variants the arrangement plays
  const missing=opts.unity?mixdownMissing({...project,tracks:project.tracks.map(t=>({...t,mute:false,solo:false,volume:1}))},lib,fromBeat,toBeat):mixdownMissing(project,lib,fromBeat,toBeat);
  if(missing.length)throw Error('Export stopped, nothing was written: '+missing.length+' clip'+(missing.length>1?'s have':' has')+' no usable audio ('+missing.slice(0,3).map(m=>m.name+' on '+m.track+(m.reason?': '+m.reason:'')).join('; ')+(missing.length>3?'; …':'')+'). Re-import the material or delete those clips.');
- const sr=48000,spb=60/project.bpm,dur=(toBeat-fromBeat)*spb,tail=.05+fxTailSec(opts.unity?{...project,tracks:project.tracks.map(t=>({...t,mute:false,solo:false,volume:1}))}:project),frames=Math.ceil((dur+tail)*sr);
+ const sr=48000,spb=60/project.bpm,dur=(toBeat-fromBeat)*spb,tail=.05+(opts.tailSec!=null?opts.tailSec:fxTailSec(opts.unity?{...project,tracks:project.tracks.map(t=>({...t,mute:false,solo:false,volume:1}))}:project)),frames=Math.ceil((dur+tail)*sr);
  if(!(frames>0)||frames>sr*60*30)throw Error('Mixdown range must be between 0 and 30 minutes.');
  const Offline=globalThis.OfflineAudioContext||globalThis.webkitOfflineAudioContext;const ctx=new Offline(2,frames,sr);
  const master=ctx.createGain();master.gain.value=opts.unity?1:project.master.volume;master.connect(ctx.destination);const any=!opts.unity&&project.tracks.some(t=>t.solo);
@@ -409,11 +409,36 @@ async function mixdown(project0,lib,fromBeat,toBeat,format,opts={}){
   for(const c of t.clips){const e=lib.get(c.materialId),au=e?audio.get(e.id):null;if(!au||au.status!=='ready')continue;const cs=c.startBeat,ce=cs+clipLen(c,lib,project.bpm);
    const pa=Math.max(cs,fromBeat),pb=Math.min(ce,toBeat);if(pb<=pa)continue;planVoice(ctx,input,c,e,au.buffer,pa,pb,(pa-fromBeat)*spb,(pb-fromBeat)*spb,spb,pa===cs,pb===ce,t)}}
  let out;try{out=await ctx.startRendering()}finally{for(const l of lanes){try{l.eq?.dispose?.()}catch{}}}
- const channels=[out.getChannelData(0),out.getChannelData(1)];let peak=0;for(const ch of channels)for(const v of ch){const a=v<0?-v:v;if(a>peak)peak=a}
+ let channels=[out.getChannelData(0),out.getChannelData(1)],peak=0;for(const ch of channels)for(const v of ch){const a=v<0?-v:v;if(a>peak)peak=a}
  if(opts.raw)return {channels:channels.map(c=>c.slice()),sampleRate:sr,peak,seconds:dur+tail};
  const core=globalThis.__XenWaveCoreW01;if(!core?.encodeWav)throw Error('WAV encoder unavailable.');
+ /* MTW-01: without a delivery step the rendered PCM goes to the encoder untouched (the export is byte-identical to before); measuring is read-only */
+ let report=null;if(opts.finish||opts.measure){const fin=await finishMix(channels,sr,opts.finish||null);channels=fin.channels;report=fin;peak=fin.after.samplePeak}
  const bytes=core.encodeWav({channels,sampleRate:sr,frames:channels[0].length},{format,dither:format==='pcm16'});
- return {blob:new Blob([bytes],{type:'audio/wav'}),peak,seconds:dur}}
+ return {blob:new Blob([bytes],{type:'audio/wav'}),bytes,peak,seconds:dur,report}}
+/* MTW-01 delivery step, one measuring owner (the Wave Editor core: BS.1770 loudness, true peak) and one limiter (the Wave Editor's look-ahead limiter in its worker).
+   finish = {lufs:target} brings the mix to the loudness target with one gain; only when the true peak would pass the ceiling (-1 dBTP) the limiter takes the peaks,
+   and a last trim keeps the true peak at the ceiling. The report says what was measured before and what was reached. finish = null only measures. */
+const FINISH=Object.freeze({'':null,'lufs-14':{lufs:-14,label:'-14 LUFS'},'lufs-16':{lufs:-16,label:'-16 LUFS'},'lufs-23':{lufs:-23,label:'-23 LUFS'}});
+async function finishMix(channels,sr,finish){const core=globalThis.__XenWaveCoreW01,before=core.loudness(channels,sr);
+ if(!finish||!Number.isFinite(before.integrated))return {channels,before,after:before,gainDb:0,limited:false};
+ const ceiling=-1,scale=(list,db)=>{const k=Math.pow(10,db/20);return list.map(c=>{const o=new Float32Array(c.length);for(let i=0;i<c.length;i++)o[i]=c[i]*k;return o})};
+ const gainDb=finish.lufs-before.integrated;let work=scale(channels,gainDb),limited=false,after=null;
+ if(before.truePeakDb+gainDb>ceiling){const dsp=globalThis.__XenWaveDSPW01,n=work[0].length;if(!dsp?.render)throw Error('The limiter of the Wave Editor is not available.');
+  const r=await dsp.render({sampleRate:sr,channels:work,range:{start:0,end:n},tailMode:'truncate',nodes:[{id:'mt-limit',type:'limiter',enabled:true,version:1,channels:'all',targetRange:{start:0,end:n},automation:{},params:{ceilingDb:ceiling-.3,releaseMs:120,lookaheadMs:5}}]});
+  work=r.channels;limited=true;after=core.loudness(work,sr);if(after.truePeakDb>ceiling){work=scale(work,ceiling-after.truePeakDb);after=null}}
+ after=after||core.loudness(work,sr);return {channels:work,before,after,gainDb,limited,target:finish.lufs}}
+const fmtDb=(v,unit)=>Number.isFinite(v)?v.toFixed(1)+' '+unit:'silent';
+/* MTW-01: all stems in ONE file: a store-only ZIP (WAV does not shrink, so no compression code is needed) */
+function zipStore(files){let crcT=zipStore.t;if(!crcT){crcT=zipStore.t=new Uint32Array(256);for(let i=0;i<256;i++){let c=i;for(let k=0;k<8;k++)c=c&1?0xedb88320^(c>>>1):c>>>1;crcT[i]=c>>>0}}
+ const enc=new TextEncoder(),now=new Date(),dt=((now.getFullYear()-1980)<<9|(now.getMonth()+1)<<5|now.getDate()),tm=(now.getHours()<<11|now.getMinutes()<<5|now.getSeconds()>>1),parts=[],central=[];let at=0;
+ for(const f of files){const name=enc.encode(f.name),data=f.bytes instanceof Uint8Array?f.bytes:new Uint8Array(f.bytes);let c=0xffffffff;for(let i=0;i<data.length;i++)c=crcT[(c^data[i])&255]^(c>>>8);c=(c^0xffffffff)>>>0;
+  if(at+data.length+name.length+30>0xfff00000)throw Error('The stems are larger than 4 GB together: export fewer tracks or a shorter range.');
+  const head=new DataView(new ArrayBuffer(30));head.setUint32(0,0x04034b50,true);head.setUint16(4,20,true);head.setUint16(6,0x800,true);head.setUint16(8,0,true);head.setUint16(10,tm,true);head.setUint16(12,dt,true);head.setUint32(14,c,true);head.setUint32(18,data.length,true);head.setUint32(22,data.length,true);head.setUint16(26,name.length,true);
+  const cen=new DataView(new ArrayBuffer(46));cen.setUint32(0,0x02014b50,true);cen.setUint16(4,20,true);cen.setUint16(6,20,true);cen.setUint16(8,0x800,true);cen.setUint16(12,tm,true);cen.setUint16(14,dt,true);cen.setUint32(16,c,true);cen.setUint32(20,data.length,true);cen.setUint32(24,data.length,true);cen.setUint16(28,name.length,true);cen.setUint32(42,at,true);
+  parts.push(head.buffer,name,data);central.push(cen.buffer,name);at+=30+name.length+data.length}
+ let size=0;for(const c of central)size+=c.byteLength;const end=new DataView(new ArrayBuffer(22));end.setUint32(0,0x06054b50,true);end.setUint16(8,files.length,true);end.setUint16(10,files.length,true);end.setUint32(12,size,true);end.setUint32(16,at,true);
+ return new Blob([...parts,...central,end.buffer],{type:'application/zip'})}
 /* ---------- view ---------- */
 const CSS=`.xmt{color:#e7e5e4;font:13px/1.35 system-ui,sans-serif;max-width:1500px;margin:0 auto;outline:none}
 .xmt h2{font-size:20px;letter-spacing:.12em;margin:0;color:#fde68a}.xmt .row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
@@ -498,7 +523,7 @@ function XenMultitrackRoom(){
  const toggleMetro=()=>{const v=!metro;setMetro(v);try{localStorage.setItem('xensonar.mt.metro',v?'1':'0')}catch{}announce(v?'Metronome on':'Metronome off')};
  const toggleCountIn=()=>{const v=!countIn;setCountIn(v);try{localStorage.setItem('xensonar.mt.countin',v?'1':'0')}catch{}announce(v?'Count-in on':'Count-in off')};
  const inGroup=id=>group.length>1&&group.includes(id);const selIds=()=>group.length>1?group.filter(id=>findClip(id)):(sel?[sel]:[]);
- const [exportFormat,setExportFormat]=P.useState('pcm16'),[busy,setBusy]=P.useState(false);
+ const [exportFormat,setExportFormat]=P.useState('pcm16'),[exportFinish,setExportFinish]=P.useState(''),[busy,setBusy]=P.useState(false);
  const rootRef=P.useRef(null),keyRef=P.useRef(null),hist=P.useRef({past:[],future:[]}),saveTimer=P.useRef(null),phRef=P.useRef(null),meterRef=P.useRef(null),rafRef=P.useRef(0),drag=P.useRef(null),projectRef=P.useRef(null),libRef=P.useRef(new Map());
  projectRef.current=project;
  const scrollRef=P.useRef(null),railRef=P.useRef(null),thumbRef=P.useRef(null),hrailRef=P.useRef(null),hthumbRef=P.useRef(null),rulerRef=P.useRef(null),totalRef=P.useRef(64),railDrag=P.useRef(null),pendingScroll=P.useRef(null),consumeRef=P.useRef(null),importRef=P.useRef(null),inboxWaiting=P.useRef(false);
@@ -734,11 +759,39 @@ function XenMultitrackRoom(){
  recFinishRef.current=finishRec;
  const stop=()=>{if(recRef.current){void finishRec(false);return}stopPlayback()};
 
- const exportMix=async(range)=>{setBusy(true);setStatus('Rendering mixdown …');try{const [a,b]=range==='loop'?[project.loop.start,project.loop.end]:[0,songEnd];if(!(b>a))throw Error('Nothing to render.');
-   const r=await mixdown(project,libMap,a,b,exportFormat);const url=URL.createObjectURL(r.blob),link=document.createElement('a');link.href=url;link.download=(project.name||'arrangement').replace(/[^\w\- .]+/g,'_')+(range==='loop'?'-loop':'')+'.wav';
-   document.body.appendChild(link);link.click();link.remove();setTimeout(()=>URL.revokeObjectURL(url),4000);
-   setStatus('Mixdown ready: '+r.seconds.toFixed(1)+' s, peak '+(r.peak>0?(20*Math.log10(r.peak)).toFixed(1)+' dBFS':'silent')+(r.peak>1?' (clipped: lower Master or 32-bit float)':''));announce('Mixdown exported')}
+ const saveFile=(blob,name)=>{const url=URL.createObjectURL(blob),link=document.createElement('a');link.href=url;link.download=name;document.body.appendChild(link);link.click();link.remove();setTimeout(()=>URL.revokeObjectURL(url),4000)};
+ const fileBase=()=>(project.name||'arrangement').replace(/[^\w\- .]+/g,'_');
+ const exportRange=range=>{const [a,b]=range==='loop'?[project.loop.start,project.loop.end]:[0,songEnd];if(!(b>a))throw Error('Nothing to render.');return [a,b]};
+ /* MTW-01: the status line reports what was delivered: length, programme loudness (BS.1770), true peak; with a loudness target also what was measured before */
+ const exportMix=async(range)=>{setBusy(true);setStatus('Rendering mixdown …');try{const [a,b]=exportRange(range),fin=FINISH[exportFinish]||null;
+   const r=await mixdown(project,libMap,a,b,exportFormat,{measure:true,finish:fin});saveFile(r.blob,fileBase()+(range==='loop'?'-loop':'')+(fin?' '+fin.label.replace(/\s+/g,''):'')+'.wav');
+   const m=r.report,af=m.after,clipped=af.truePeakDb>0&&exportFormat!=='float32';
+   setStatus('Mixdown ready: '+r.seconds.toFixed(1)+' s · '+fmtDb(af.integrated,'LUFS')+' · true peak '+fmtDb(af.truePeakDb,'dBTP')+(af.range>0?' · range '+af.range.toFixed(1)+' LU':'')
+    +(fin&&Number.isFinite(m.before.integrated)?' · brought from '+fmtDb(m.before.integrated,'LUFS')+' to the target '+fin.label+(m.limited?' with the Wave Editor limiter (peaks held at −1 dBTP'+(Math.abs(af.integrated-fin.lufs)>.3?', so the result is '+fmtDb(af.integrated,'LUFS'):'')+')':' by gain only ('+(m.gainDb>=0?'+':'')+m.gainDb.toFixed(1)+' dB)'):'')
+    +(clipped?' · CLIPPED in this format: lower Master, choose a loudness target or export 32-bit float':af.truePeakDb>-1&&!fin?' · less than 1 dB of headroom':''));announce('Mixdown exported')}
   catch(e){setStatus('Mixdown failed: '+(e?.message||e))}finally{setBusy(false)}};
+ /* MTW-01 stems: every audible track alone through its own volume, pan, EQ, effects and the master volume, all with the same start and length, in ONE zip.
+    The shared room is linear, so the stems add up to the mixdown (as mixed, without a loudness target). Frozen tracks are represented by their bounce track. */
+ const exportStems=async(range)=>{if(busy)return;setBusy(true);try{const [a,b]=exportRange(range),p=projectRef.current,any=p.tracks.some(t=>t.solo);
+   const list=p.tracks.filter(t=>!t.mute&&(!any||t.solo)&&t.volume>0&&!isFrozen(p,t)&&t.clips.some(c=>!c.muted&&c.gain>0&&Math.min(c.startBeat+len(c),b)>Math.max(c.startBeat,a)));
+   if(!list.length)throw Error('no audible track in this range');const tailSec=fxTailSec(p),files=[],quiet=[];
+   for(let i=0;i<list.length;i++){const t=list[i];setStatus('Rendering stem '+(i+1)+' of '+list.length+': '+t.name+' …');const r=await mixdown(p,libMap,a,b,exportFormat,{only:t.id,tailSec});if(!(r.peak>1e-6))quiet.push(t.name);
+    files.push({name:String(p.tracks.indexOf(t)+1).padStart(2,'0')+' '+(t.name||'Track').replace(/[^\w\- .]+/g,'_')+'.wav',bytes:r.bytes})}
+   saveFile(zipStore(files),fileBase()+(range==='loop'?'-loop':'')+' stems.zip');
+   setStatus(files.length+' stems exported in one zip ('+exportFormat.replace('pcm','').replace('float32','32-bit float')+(exportFormat==='float32'?'':'-bit')+', same start and length; together they are the mixdown as mixed).'+(quiet.length?' Silent in this range: '+quiet.join(', ')+'.':''));announce('Stems exported')}
+  catch(e){setStatus('Stem export failed, nothing was written: '+(e?.message||e))}finally{setBusy(false)}};
+ /* MTW-01 mastering path: the mixdown (32-bit float, as mixed) goes to the Wave Editor through the one hand-off every room uses (SEND-WAVE). There the whole
+    effect chain (EQ, compressor, limiter, automation), loudness analysis and the export wait; "Send to Multitrack" brings a master back as a track. */
+ const masterInWave=async(range)=>{if(busy)return;if(__XenMultitrackRoundTrip.status().active){setStatus('A clip is still open in the Wave Editor. Apply & Return or close it first.');return}
+  setBusy(true);setStatus('Rendering the mixdown for the Wave Editor …');let left=false;
+  try{const [a,b]=exportRange(range),p=projectRef.current,r=await mixdown(p,libMap,a,b,'float32');if(!(r.peak>1e-6))throw Error('the mixdown is silent');
+   clearTimeout(saveTimer.current);await saveProject(p);engine.stop();setPlaying(false);
+   left=true;await __XenSendToWaveEditor.send(new File([r.blob],fileBase()+' · mixdown.wav',{type:'audio/wav'}))}
+  catch(e){if(left)window.dispatchEvent(new CustomEvent('xensonar:multitrack:roundtrip-navigate',{detail:{room:'MULTITRACK'}}));setStatus('Could not open the mixdown in the Wave Editor: '+(e?.message||e))}finally{setBusy(false)}};
+ const exportMenu=e=>{const r=project.loop.on?'loop':'song',what=project.loop.on?' (loop range)':' (whole song)';openMenu(e,'Export',[
+  {label:'Mixdown'+what,run:()=>exportMix(r),disabled:busy||!songEnd},
+  {label:'Stems: one file per track, zipped'+what,run:()=>void exportStems(r),disabled:busy||!songEnd},'-',
+  {label:'Master in the Wave Editor'+what,icon:'wave-editor',run:()=>void masterInWave(r),disabled:busy||!songEnd}])};
   /* EDIT-RETURN-01: immutable clip render for the existing Wave Editor. Preserve
      arrangement placement, edit only the chosen clip, never mutate shared source. */
   const openClipInWave=async (track,clip)=>{
@@ -821,7 +874,7 @@ function XenMultitrackRoom(){
   {label:'Set cursor here',run:()=>setCursor(beat)},{label:'Play from here',run:()=>{setCursor(beat);void play(beat)}},{label:'Add marker here',key:'B',run:()=>addMarker(beat)},'-',
   {label:'Loop start here',run:()=>setLoop({start:beat,end:Math.max(beat+step,project.loop.end)})},{label:'Loop end here',run:()=>setLoop({end:Math.max(project.loop.start+step,beat)})},
   {label:project.loop.on?'Loop off':'Loop on',key:'L',run:()=>setLoop({on:!project.loop.on})},'-',
-  {label:'Export mixdown (song)',run:()=>exportMix('song'),disabled:busy||!songEnd},{label:'Export mixdown (loop)',run:()=>exportMix('loop'),disabled:busy}])};
+  {label:'Export mixdown (song)',run:()=>exportMix('song'),disabled:busy||!songEnd},{label:'Export mixdown (loop)',run:()=>exportMix('loop'),disabled:busy},{label:'Export stems (loop range), zipped',run:()=>void exportStems('loop'),disabled:busy},{label:'Master the loop range in the Wave Editor',icon:'wave-editor',run:()=>void masterInWave('loop'),disabled:busy}])};
  /* ---- keyboard ---- */
  const onKey=e=>{if(e.target.closest?.('input,select,textarea,.xmt-menu'))return;const mod=e.ctrlKey||e.metaKey,k=e.key.toLowerCase();
   if(mod&&k==='z'){e.preventDefault();e.shiftKey?redo():undo();return}
@@ -947,10 +1000,12 @@ function XenMultitrackRoom(){
    u.jsx('button',{type:'button',disabled:busy,onClick:()=>importRef.current?.click(),title:'Import audio files: each becomes a new track; tempo is detected and the clip is beat-aligned and fitted to the session tempo by playback rate (the file itself is kept unchanged).',children:'⤒ Import audio'}),
    u.jsx('input',{type:'file',ref:importRef,accept:'audio/*,.wav,.mp3,.ogg,.flac,.m4a,.aac',multiple:true,style:{display:'none'},onChange:e=>{const f=e.target.files;void importFiles(f);e.target.value=''}}),
    u.jsx('span',{style:{flex:1}}),
-   u.jsxs('label',{children:['Master',u.jsx('input',{type:'range',min:0,max:1.5,step:.01,value:project.master.volume,title:'Master volume of the arrangement','aria-label':'Master volume',onChange:e=>commit({...project,master:{volume:num(e.target.value,.9)}})})]}),
+   u.jsxs('label',{children:['Master',u.jsx('input',{type:'range',min:0,max:1.5,step:.01,value:project.master.volume,title:'Master volume of the arrangement','aria-label':'Master volume',onChange:e=>commit({...project,master:{...project.master,volume:num(e.target.value,.9)}})})]}),
    u.jsx('div',{className:'meter','aria-hidden':'true',children:u.jsx('i',{ref:meterRef})}),
-   u.jsxs('select',{value:exportFormat,title:'Mixdown format: 16-bit with TPDF dither, or 32-bit float (lossless headroom)',onChange:e=>setExportFormat(e.target.value),'aria-label':'Mixdown format',children:[u.jsx('option',{value:'pcm16',children:'WAV 16-bit (dither)'}),u.jsx('option',{value:'float32',children:'WAV 32-bit float'})]}),
-   u.jsx('button',{type:'button',disabled:busy||!songEnd,title:'Render the song (or the loop range when Loop is on) offline to a 48 kHz WAV file',onClick:()=>exportMix(project.loop.on?'loop':'song'),children:busy?'Rendering …':'⤓ Mixdown'+(project.loop.on?' (loop)':'')})]}),
+   u.jsxs('select',{value:exportFormat,title:'Export format (mixdown and stems): 16-bit with TPDF dither, 24-bit, or 32-bit float (lossless headroom)',onChange:e=>setExportFormat(e.target.value),'aria-label':'Mixdown format','data-xmt-export-format':'true',children:[u.jsx('option',{value:'pcm16',children:'WAV 16-bit (dither)'}),u.jsx('option',{value:'pcm24',children:'WAV 24-bit'}),u.jsx('option',{value:'float32',children:'WAV 32-bit float'})]}),
+   u.jsxs('select',{value:exportFinish,title:'Loudness of the mixdown file (ITU-R BS.1770 / EBU R128). As mixed: nothing is changed, the status line only reports loudness and true peak. With a target the file is brought there by gain; if the peaks would pass −1 dBTP, the Wave Editor limiter holds them. Playback is not changed.',onChange:e=>setExportFinish(e.target.value),'aria-label':'Mixdown loudness','data-xmt-export-finish':'true',children:[u.jsx('option',{value:'',children:'As mixed'}),u.jsx('option',{value:'lufs-14',children:'−14 LUFS (streaming)'}),u.jsx('option',{value:'lufs-16',children:'−16 LUFS (podcast)'}),u.jsx('option',{value:'lufs-23',children:'−23 LUFS (EBU R128)'})]}),
+   u.jsx('button',{type:'button',disabled:busy||!songEnd,title:'Render the song (or the loop range when Loop is on) offline to a 48 kHz WAV file',onClick:()=>exportMix(project.loop.on?'loop':'song'),children:busy?'Rendering …':'⤓ Mixdown'+(project.loop.on?' (loop)':'')}),
+   u.jsx('button',{type:'button',disabled:busy||!songEnd,'aria-label':'More export options','data-xmt-export-more':'true',title:'More: stems (one file per track, zipped) · open the mixdown in the Wave Editor for mastering',onClick:exportMenu,children:'⋯'})]}),
   status?u.jsx('div',{className:'warn',role:'alert',style:{margin:'4px 2px'},children:status}):null,
   listView?u.jsx('div',{className:'bar',children:u.jsx('table',{children:u.jsxs('tbody',{children:[
    u.jsxs('tr',{children:['Track','Material','Start (beat)','Position','Length','In','Gain','Fade in','Fade out','',''].map((h,i)=>u.jsx('th',{children:h},i))}),

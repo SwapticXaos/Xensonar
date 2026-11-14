@@ -119,3 +119,4 @@ pcm_recorder_stale_clock.cjs
 nodal_hold_stale_clock.cjs
 slim_undefined_names.cjs
 build_flavours.cjs
+mtw_01_loudness_and_wav.test.cjs
