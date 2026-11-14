@@ -44,3 +44,8 @@ Einordnung: „Platform dependent initialization failed" kommt vom MIDI-Dienst d
 Tests: `hwkeyboard_core` (Einordnung, Linux-Hinweis nur unter Linux, unsichere Seite, Firefox-Add-on, Bericht), `hwkeyboard_live` (Fehlerpfade `denied`, `platform`, `none`: Schalter, Zeile, Dialog, Alert).
 index.html 8 098 296 → 8 100 540 Bytes (+2 244). Rollback: `bc22eef`.
 Was dadurch nicht gelöst wird: Läuft der MIDI-Dienst des Systems nicht, kann XenSonar das nicht beheben; die Anzeige sagt nur genau, woran es hängt.
+
+## Nachtrag HWKB-01c · Rückmeldung Opera / Firefox (Linux, echte Browser)
+- Opera: „InvalidStateError: Platform dependent initialization failed." mit der neuen Anzeige „MIDI could not start": bestätigt die Einordnung (MIDI-Dienst des Systems, nicht die Berechtigung). Ob `sudo modprobe snd-seq` es behebt, ist offen (vom Nutzer zu probieren).
+- Firefox: „Not available in this browser", ohne den Hinweis auf eine unsichere Seite: die Seite ist also kein unsicherer Kontext, die Funktion fehlt aus anderem Grund. Die Anzeige nennt jetzt bei Firefox die Version (unter 108: „braucht 108 oder neuer") und sonst die Einstellung `about:config → dom.webmidi.enabled` sowie den ALSA-Sequencer unter Linux. Das ist eine Vermutung nach Code-Lage; bestätigt ist bisher nur, dass `navigator.requestMIDIAccess` dort keine Funktion ist.
+- index.html 8 100 540 → 8 100 890 Bytes (+350). Rollback: `a78e2be`. Test `hwkeyboard_core` ergänzt (alte und aktuelle Firefox-Version).

@@ -147,7 +147,9 @@ const __xenHwStatus={off:'Off',asking:'Waiting for the browser…',ready:'Ready'
 function __xenHwExplain(s){
  const env=s.env||{},err=s.lastErr?(' ('+s.lastErr.name+': '+s.lastErr.message+')'):'';
  switch(s.status){
-  case 'unsupported':return (env.secure===false?'This page is not a secure context ('+(env.proto||'?')+'): the browser switches Web MIDI off here. Open the HTTPS version. ':'')+'Web MIDI exists in Chrome, Edge, Opera and Firefox 108+; Safari has none.';
+  case 'unsupported':{const fv=env.firefox?+((/Firefox\/(\d+)/.exec(env.ua||'')||[])[1]):0;
+   return (env.secure===false?'This page is not a secure context ('+(env.proto||'?')+'): the browser switches Web MIDI off here. Open the HTTPS version. ':'')+'Web MIDI exists in Chrome, Edge, Opera and Firefox 108+; Safari has none.'+
+    (env.firefox?(fv&&fv<108?' This Firefox is version '+fv+': Web MIDI needs 108 or newer.':' This is Firefox'+(fv?' '+fv:'')+': it does not offer Web MIDI here. Check about:config → dom.webmidi.enabled (should be true); on Linux Firefox also needs the ALSA sequencer (snd-seq).'):'');}
   case 'denied':return 'The browser did not give permission'+err+'. Check the site settings of this page (lock symbol) and switch on again.'+(env.firefox?' Firefox: accept the small “install add-on” prompt next to the address bar.':'');
   case 'failed':return 'The browser accepted, but the system MIDI service could not start'+err+'. '+(env.linux?'On Linux the browser needs the ALSA sequencer (kernel module snd-seq): try “sudo modprobe snd-seq”; a Snap or Flatpak browser may also need access to it. ':'')+'Plug the keyboard in, switch on again, and copy the device report if it keeps failing.';
   case 'asking':return env.firefox?'Firefox may show a small “install add-on” prompt next to the address bar: accept it.':'Waiting for the browser permission prompt.';
