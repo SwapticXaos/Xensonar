@@ -23,6 +23,20 @@ const np=p=>p.evaluate(()=>__xenProbe.bridge.capture().nParamsUI);
   let n1=await np(p);assert(n1.keyboardHoldPitchCents[2]>(n0.keyboardHoldPitchCents[2]||0)+100,'the slider raised the pitch of slot 3: '+(n0.keyboardHoldPitchCents[2]||0)+' → '+n1.keyboardHoldPitchCents[2]);
   assert.deepEqual(n1.keyboardHoldPitchCents.filter((v,k)=>k!==2),n0.keyboardHoldPitchCents.filter((v,k)=>k!==2),'only that slot changed');await p.keyboard.press('Escape');await p.mouse.click(5,5);await p.waitForTimeout(250);
   await cards.nth(4).click();await p.waitForTimeout(200);n1=await np(p);assert.notEqual(n1.keyboardHoldPatternSteps[4],n0.keyboardHoldPatternSteps[4],'left click toggles the slot');await cards.nth(4).click();await p.waitForTimeout(150);
+  // ---- PITCH05 quick tuning: with one ruler open, a LEFT click on the next card opens ITS ruler at once; the first value is kept ----
+  await cards.first().evaluate(e=>e.scrollIntoView({block:'center'}));await p.waitForTimeout(250);
+  await cards.nth(1).click({button:'right'});await p.waitForTimeout(200);assert.equal(await popup.count(),1,'ruler open on slot 2');
+  let pq0=await np(p);let kb1=await popup.boundingBox();await p.mouse.click(kb1.x+kb1.width/2,kb1.y+kb1.height*.1);await p.waitForTimeout(250);
+  const pq1=await np(p),v2=pq1.keyboardHoldPitchCents[1];assert(v2>(pq0.keyboardHoldPitchCents[1]||0)+100,'slot 2 tuned up: '+v2);
+  const s2=pq1.keyboardHoldPatternSteps.slice();
+  await cards.nth(3).click();await p.waitForTimeout(250);
+  assert.equal(await popup.count(),1,'the left click on slot 4 opened a ruler (no extra right click needed)');
+  let kb2=await popup.boundingBox();const c3=await cards.nth(3).boundingBox();assert(Math.abs(kb2.x-c3.x)<8,'the ruler sits on slot 4, not on slot 2');
+  const pq2=await np(p);assert.equal(pq2.keyboardHoldPitchCents[1],v2,'the value of slot 2 is kept');assert.deepEqual(pq2.keyboardHoldPatternSteps,s2,'the click did not toggle slot 4');
+  await p.mouse.click(kb2.x+kb2.width/2,kb2.y+kb2.height*.9);await p.waitForTimeout(250);
+  const pq3=await np(p);assert(pq3.keyboardHoldPitchCents[3]<-100,'slot 4 tuned down: '+pq3.keyboardHoldPitchCents[3]+' (was '+pq2.keyboardHoldPitchCents[3]+', ruler '+JSON.stringify(kb2)+')');assert.equal(pq3.keyboardHoldPitchCents[1],v2,'slot 2 still kept');
+  await cards.nth(3).click();await p.waitForTimeout(250);assert.equal(await popup.count(),0,'a left click on the open slot closes its ruler');
+  await cards.nth(1).click({button:'right'});await p.waitForTimeout(200);await p.keyboard.press('Escape');await p.mouse.click(5,5);await p.waitForTimeout(250);assert.equal(await popup.count(),0,'a click outside still closes');
   // ---- Save changes to …? also for the lane arpeggio: edit the cards, then load another pattern ----
   const sel=panel.locator('select[aria-label="keyboard saved Arpeggio Patterns"]'),hpm=panel.locator('.xen-hpm01'),loadBtn=hpm.getByRole('button',{name:'Load',exact:true});
   await sel.focus();await p.waitForTimeout(500);

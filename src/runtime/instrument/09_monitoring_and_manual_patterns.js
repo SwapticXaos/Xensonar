@@ -187,11 +187,12 @@ function iT({label:e,steps:t,tone:n="neutral",maxColumns:r=16,onChange:a,pitches
  const [popup,setPopup]=P.useState(null);
  const [hoveredTick,setHoveredTick]=P.useState(null);
  const dragPointer=P.useRef(null);
+ const gridRef=P.useRef(null);/* PITCH05: quick tuning - a left click on ANOTHER slot of this ruler while one is open opens that slot's ruler at once */
  const skipSlotClick=P.useRef(false);
  const pitchesRef=P.useRef(Q);pitchesRef.current=Q;
  P.useEffect(()=>{
   if(!popup)return;
-  const close=ev=>{if(ev.button===0&&!ev.target.closest?.('[data-xen-hold-pitch-popup]'))setPopup(null)};
+  const close=ev=>{if(ev.button===0&&!ev.target.closest?.('[data-xen-hold-pitch-popup]')&&!gridRef.current?.contains(ev.target))setPopup(null)};
   const key=ev=>{if(ev.key==='Escape')setPopup(null)};
   const hide=()=>{setPopup(null);setHoveredTick(null)};
   // PITCH04: while this ruler is open, any in-app right click resets this active slot.
@@ -236,11 +237,13 @@ function iT({label:e,steps:t,tone:n="neutral",maxColumns:r=16,onChange:a,pitches
  const current=popup?__xenHoldPitchValue(Q,popup.index):0;
  const move=(ev)=>setCents(popup.index,__xenHoldPitchPointerCents(ev.currentTarget.getBoundingClientRect(),ev.clientY));
  return u.jsxs(P.Fragment,{children:[
-  u.jsx('div',{'data-xensonar-shared-segment-pattern-grid':'true',className:'grid min-w-0 max-w-full gap-1 rounded border border-neutral-800 bg-neutral-950/60 p-2',
+  u.jsx('div',{ref:gridRef,'data-xensonar-shared-segment-pattern-grid':'true',className:'grid min-w-0 max-w-full gap-1 rounded border border-neutral-800 bg-neutral-950/60 p-2',
    style:{gridTemplateColumns:`repeat(${s}, minmax(0, 1fr))`},
    children:o.map((c,d)=>u.jsx('button',{type:'button',
     onPointerDown:ev=>{
-     if(popup&&ev.button===0){skipSlotClick.current=true;setPopup(null);setHoveredTick(null);
+     if(popup&&ev.button===0){skipSlotClick.current=true;
+      if(W&&popup.index!==d)showPitch(ev,d);/* the value of the slot just tuned stays; the next slot's ruler opens */
+      else{setPopup(null);setHoveredTick(null)}
       window.setTimeout(()=>{skipSlotClick.current=false},350)}
     },
     onClick:()=>{if(skipSlotClick.current){skipSlotClick.current=false;return}
