@@ -37,6 +37,23 @@ const np=p=>p.evaluate(()=>__xenProbe.bridge.capture().nParamsUI);
   const pq3=await np(p);assert(pq3.keyboardHoldPitchCents[3]<-100,'slot 4 tuned down: '+pq3.keyboardHoldPitchCents[3]+' (was '+pq2.keyboardHoldPitchCents[3]+', ruler '+JSON.stringify(kb2)+')');assert.equal(pq3.keyboardHoldPitchCents[1],v2,'slot 2 still kept');
   await cards.nth(3).click();await p.waitForTimeout(250);assert.equal(await popup.count(),0,'a left click on the open slot closes its ruler');
   await cards.nth(1).click({button:'right'});await p.waitForTimeout(200);await p.keyboard.press('Escape');await p.mouse.click(5,5);await p.waitForTimeout(250);assert.equal(await popup.count(),0,'a click outside still closes');
+  // ---- PITCH05 right click chain: a right click on ANOTHER card opens ITS ruler and keeps the tuning of the open one (repeatedly); on the open card itself it resets to 0 ----
+  {const cents=async()=>(await np(p)).keyboardHoldPitchCents.slice();const tune=async frac=>{const b=await popup.boundingBox();await p.mouse.click(b.x+b.width/2,b.y+b.height*frac);await p.waitForTimeout(220)};
+   await p.keyboard.press('Escape');await p.mouse.click(5,5);await p.waitForTimeout(250);
+   await cards.first().evaluate(e=>e.scrollIntoView({block:'center'}));await p.waitForTimeout(250);
+   const seq=[[0,.1],[2,.9],[4,.1],[1,.9],[3,.1]];const want={};
+   for(const [k,frac] of seq){await cards.nth(k).click({button:'right'});await p.waitForTimeout(250);assert.equal(await popup.count(),1,'ruler open on card '+(k+1));
+    const bb=await popup.boundingBox(),cb=await cards.nth(k).boundingBox();assert(Math.abs(bb.x-cb.x)<8,'the ruler sits on card '+(k+1));
+    for(const [kk,vv] of Object.entries(want))assert.equal((await cents())[kk],vv,'right click on card '+(k+1)+' kept the tuning of card '+(+kk+1));
+    await tune(frac);const c=await cents();want[k]=c[k];assert.notEqual(c[k],0,'card '+(k+1)+' tuned')}
+   // right click on the open card itself = 0, the others stay
+   /* real mouse coordinates: a locator click would scroll first, and a scroll closes the ruler by design */
+   const cb3=await cards.nth(3).boundingBox();await p.mouse.click(cb3.x+cb3.width/2,cb3.y+cb3.height/2,{button:'right'});await p.waitForTimeout(250);
+   let cc=await cents();assert.equal(cc[3],0,'right click on the open card resets it to 0');assert.equal(await popup.count(),1,'its ruler stays open');for(const [kk,vv] of Object.entries(want))if(+kk!==3)assert.equal(cc[kk],vv,'the other cards keep their tuning');
+   // left click outside closes; right click outside may reset the open card (accepted)
+   await cards.nth(1).click({button:'right'});await p.waitForTimeout(250);await p.mouse.click(5,5);await p.waitForTimeout(250);assert.equal(await popup.count(),0,'left click outside closes');
+   assert.equal((await cents())[1],want[1],'closing keeps the tuning');
+  }
   // ---- Save changes to …? also for the lane arpeggio: edit the cards, then load another pattern ----
   const sel=panel.locator('select[aria-label="keyboard saved Arpeggio Patterns"]'),hpm=panel.locator('.xen-hpm01'),loadBtn=hpm.getByRole('button',{name:'Load',exact:true});
   await sel.focus();await p.waitForTimeout(500);

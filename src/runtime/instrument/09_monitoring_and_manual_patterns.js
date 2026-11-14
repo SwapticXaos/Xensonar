@@ -199,6 +199,10 @@ function iT({label:e,steps:t,tone:n="neutral",maxColumns:r=16,onChange:a,pitches
   // Capture prevents other context-menu handlers from changing a different slot.
   const resetOnContextMenu=ev=>{
    if(!ev.target.closest?.('#root,[data-xen-hold-pitch-popup]'))return;
+   /* PITCH05: a right click on ANOTHER slot of this row opens that slot's ruler (its own handler) and leaves the tuning of this one alone;
+      on the open slot itself, on its ruler or anywhere else it still resets this slot to 0 */
+   const hit=gridRef.current&&!ev.target.closest?.('[data-xen-hold-pitch-popup]')?ev.target.closest?.('button'):null;
+   if(hit&&gridRef.current.contains(hit)){const at=[...gridRef.current.children].indexOf(hit);if(at>=0&&at!==popup.index)return}
    ev.preventDefault();ev.stopImmediatePropagation();
    setCents(popup.index,0);setHoveredTick(null);
   };

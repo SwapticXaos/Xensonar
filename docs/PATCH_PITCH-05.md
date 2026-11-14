@@ -18,3 +18,11 @@ In der Schnellansicht der Hold-Karten (Rechtsklick = fretless ±1 Oktave) schlos
 ## Offen
 - Nur eine Karten-Reihe zurzeit: Ein Linksklick auf eine Karte einer anderen Reihe (z. B. anderer Lane) schließt den offenen Regler und schaltet die Karte wie üblich.
 - Auf dem Parent nicht gesondert rot gefahren (das Alt-Verhalten war das Schließen per Linksklick).
+
+## Nachtrag PITCH-05b · Rechtsklick auf ein anderes Kärtchen
+Gemeldet: Nach ein paar Schritten setzte ein Rechtsklick auf das nächste Kärtchen den offenen Regler auf 0, statt den neuen zu öffnen.
+Ursache: der Fenster-Handler `resetOnContextMenu` (PITCH04) fing jeden Rechtsklick in der App ab, setzte den offenen Slot auf 0 und stoppte das Ereignis, bevor das neue Kärtchen reagieren konnte.
+Jetzt: Rechtsklick auf ein ANDERES Kärtchen derselben Reihe öffnet dessen Regler und lässt die Stimmung des offenen Slots stehen (beliebig oft hintereinander). Rechtsklick auf das offene Kärtchen, auf seinen Regler oder irgendwo außerhalb setzt weiter diesen Slot auf 0; Linksklick außerhalb schließt und behält den Wert.
+Test (`hold_cards_live_edit`): Kette über 5 Kärtchen (Regler sitzt jeweils auf dem Kärtchen, alle früheren Werte bleiben), Rechtsklick auf das offene = 0 bei offenem Regler, Linksklick außerhalb schließt. Auf dem Stand davor rot (Regler wandert nicht auf das neue Kärtchen).
+index.html 8 082 594 → 8 082 843 Bytes (+249 gegenüber PITCH-05, sha256 `7c8d2dd6fe22120e5bf989ccf7093c4a4a1b6b2fc979ca3b6af1b89aa1459cfa`). Rollback: `862481a`.
+Hinweis zum Test: Locator-Klicks scrollen vorher, und ein Scroll schließt das Lineal per Design; deshalb klickt der Test mit Mauskoordinaten.
