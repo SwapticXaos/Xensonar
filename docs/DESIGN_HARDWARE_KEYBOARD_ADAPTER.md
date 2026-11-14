@@ -50,6 +50,18 @@ Weil kein Gerät zum Prüfen da ist, wird die Schicht defensiv und selbsterklär
 - **Status ehrlich:** bis eine Person mit echtem Gerät es bestätigt, bleibt die Schicht als „CODE_PRESENT / UNIT_VERIFIED, nicht an Hardware geprüft" gekennzeichnet; im UI ein kurzer Hinweis „Neu · mit Ihrem Keyboard noch ungetestet, Rückmeldung willkommen".
 - **Tests:** simuliertes `requestMIDIAccess` mit Geräten verschiedener Eigenheiten (mit/ohne Stärke, Note On 0 als Off, Ein-/Ausstecken, 25 und 88 Tasten, Pedal, Bend) und ein Fehlerpfad je Berechtigung. Browser-Verfügbarkeit (Chromium sicher; Firefox und Safari sowie lokal geöffnete Datei sind zu prüfen) wird vor dem Bau recherchiert, nicht angenommen.
 
+## Browser-Verfügbarkeit (Recherche 14.11., Quellen siehe unten; nicht selbst im Browser geprüft)
+- Chrome / Edge: Web MIDI seit Version 43; seit Chrome 124 schrittweise hinter einer Berechtigungsabfrage.
+- Firefox: seit Version 108, hinter einer Berechtigung, die an die Installation eines Website-Berechtigungs-Add-ons gekoppelt ist; sichere Seite nötig.
+- Safari: laut den gefundenen Tabellen nicht unterstützt (Quellen teils älter; keine neuere Bestätigung gefunden).
+- Sichere Seite (HTTPS) ist Voraussetzung: die Netlify-Auslieferung erfüllt das. Wie sich eine lokal geöffnete `file://`-Datei verhält, konnte ich nicht klären; als „nicht zugesagt" behandeln.
+- Folge für die Schicht: nur die ausgelieferte HTTPS-Seite zusagen, den Hinweis „in diesem Browser nicht verfügbar" an der Einschaltstelle anzeigen, die Computertastatur nie beeinträchtigen.
+- Quellen: https://developer.chrome.com/blog/web-midi-permission-prompt · https://docs.w3cub.com/dom/web_midi_api · https://bugzilla.mozilla.org/show_bug.cgi?id=1752906
+
+## Rückmeldung von Testpersonen ohne Zutun der Entwicklung (Auslieferung: Netlify, Rückmeldung von Freunden mit Gerät)
+- Ein Knopf „Gerätebericht kopieren" im Monitor-Feld erzeugt einen kurzen Text: Browser und Version, Gerätename und Hersteller, Anzahl der eingegangenen Nachrichten je Typ (Note On/Off, kleinster und größter Stärkewert, Pedal, Bend, Aftertouch, Sonstiges), eingestellte Kennlinie und Grundtaste, aufgetretene Fehler. Keine Namen, keine Sitzungsdaten, nichts wird gesendet; die Person fügt den Text selbst in eine Nachricht ein.
+- So kann jemand Rückmeldung geben, ohne etwas beschreiben zu müssen; die Entwicklung sieht sofort, ob Stärke, Pedal oder Bend ankommen.
+
 ## Offen
 - Welche Klangfamilien nehmen heute eine Stärke an? Psy Lab ja (`vel`); klassische Stimmen, Entrophon und Hold-Muster: zu prüfen (`holdSlotGain` ist der wahrscheinliche Haken).
 - Browser: Web MIDI ist nicht überall gleich verfügbar; Verhalten bei lokal geöffneter Datei zu prüfen.
