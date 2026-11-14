@@ -2,6 +2,17 @@
    Space holds the last foundation pitch. While held, keyboard still performs its original
    note/glissando/preview path but cannot retune Bass, Drone or RFL. After keyup the
    foundation stays latched until the next intentional pitch gesture, avoiding catchup. */
+/* PSY-SNAP-02: the Keyboard keys physically held down right now (code -> Hz), only for the pink lines of the Live Room. No listeners/React state:
+   the draw loop reads it; keyup/blur release. */
+const __xenHeldKeys=(()=>{
+ const m=new Map();
+ if(typeof window!=='undefined'){
+  window.addEventListener('keyup',e=>{m.delete(e.code)},true);
+  window.addEventListener('blur',()=>m.clear());
+  document.addEventListener('visibilitychange',()=>{if(document.hidden)m.clear()});
+ }
+ return {press:(code,hz)=>{if(code&&Number.isFinite(hz)&&hz>0)m.set(code,hz)},hz:()=>m.size?[...m.values()]:[],clear:()=>m.clear()};
+})();
 const __xenKeyboardFoundationDetach=(()=>{
  let state=Object.freeze({held:false,pending:false,rootHz:null,cursorY:null});
  const listeners=new Set(),emit=()=>{for(const cb of listeners)cb()};

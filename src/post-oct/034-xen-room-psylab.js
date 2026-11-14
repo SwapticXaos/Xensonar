@@ -507,7 +507,7 @@ function padGeometry(orient,flip,log){const{min,max}=gj(),piano=orient==='piano'
 function padLocal(canvas,e,geo){const r=canvas.getBoundingClientRect(),sx=(e.clientX-r.left)/Math.max(1,r.width)*PAD_W,sy=(e.clientY-r.top)/Math.max(1,r.height)*PAD_H;
  return geo.piano?{x:sy,y:PAD_W-sx}:{x:sx,y:sy}}
 /* ball target: the nearest un-muted grid line when "Snap" (lockCursorToGrid) is on, else the free pitch */
-function padTarget(p,geo,rows,y){if(p&&p.lockCursorToGrid&&rows.length){let best=null,bd=Infinity;for(const row of rows){if(row.manualMuted||row.modeMuted||!Number.isFinite(row.freq))continue;const d=Math.abs(geo.yOf(row.freq)-y);if(d<bd){bd=d;best=row}}if(best)return{y:geo.yOf(best.freq),freq:best.freq}}
+function padTarget(p,geo,rows,y){if(p&&p.lockCursorToGrid&&rows.length){let best=null,bd=Infinity;for(const row of rows){if(!Number.isFinite(row.freq)||(p.cursorSnapAll!==true&&(row.manualMuted||row.modeMuted)))continue;const d=Math.abs(geo.yOf(row.freq)-y);if(d<bd){bd=d;best=row}}if(best)return{y:geo.yOf(best.freq),freq:best.freq}}
  return{y,freq:geo.freqOf(y)}}
 /* intensity from the free axis: 'live' left to right, 'piano' bottom to top */
 const padIntensity=(geo,x)=>clamp(geo.piano?1-x/geo.len:x/geo.len,0,1);
@@ -517,16 +517,7 @@ const keyWindowViews=new WeakMap();
 function keyWindowView(p){let v=keyWindowViews.get(p);if(!v){v=Object.create(p,{resonanceHotkeyMode:{value:'keyboard-extension',enumerable:true}});keyWindowViews.set(p,v)}return v}
 
 /* One grid step up or down from a pitch, with the Live Room's own function (arrow keys with "Snap"): muted steps are skipped, the range ends are kept. */
-function stepGridHz(p,hz,dir){return Qa(uZ(Zs(hz),dir,p.gridBase,p.gridTuning,p.manualGridMutedSteps,p.manualGridStepOffsets))}
-/* Notes that sound right now, drawn over the grid in pink/violet: the green line stays "the last one moved", these are all the others that are active (Hold, chords, several keys). */
-function paintActiveNotes(g,geo,notesHz,ballY){
- if(!notesHz.size)return;const len=geo.len;
- g.save();g.lineWidth=2;
- for(const hz of notesHz.values()){const y=geo.yOf(hz);
-  const gr=g.createLinearGradient(0,0,len,0);gr.addColorStop(0,'rgba(255,115,220,.9)');gr.addColorStop(.5,'rgba(200,120,255,.5)');gr.addColorStop(1,'rgba(255,115,220,.9)');
-  g.strokeStyle=gr;g.beginPath();g.moveTo(0,y);g.lineTo(len,y);g.stroke();
-  if(Math.abs(y-ballY)>2){g.fillStyle='rgba(255,130,225,.95)';g.beginPath();g.moveTo(15,y);g.lineTo(0,y-5.5);g.lineTo(0,y+5.5);g.closePath();g.fill()}}
- g.restore()}
+function stepGridHz(p,hz,dir){return Qa(uZ(Zs(hz),dir,p.gridBase,p.gridTuning,__xenSnapMutedSteps(p),p.manualGridStepOffsets))}
 /* Which key plays which grid line, written at the right end of the line (the Live Room's key window: 20 or, with the third row, 32 keys). Cached until the grid, the window or the view changes. */
 const KEYCAPS_FIRST=['1','2','3','4','5','6','7','8','9','0','Q','W','E','R','T','Z','U','I','O','P'];
 function keyLabelLines(p,geo,windowOffset,mirror){
@@ -671,7 +662,7 @@ function XenPsyLabRoom(){
    __xenDrawMainGridLayer(layer,geo.len,geo.yOf,geo.freqOf);
    if(p.gridOn!==false){const lc=live.current,sig=p.gridTuning+'|'+p.gridBase+'|'+(p.manualGridMutedSteps||[]).join()+'|'+(p.manualGridStepOffsets||[]).join()+'|'+winRef.current+'|'+lc.mirror+'|'+lc.orient+'|'+lc.flip+'|'+lc.log+'|'+__XenKeyboardLayout.getSnapshot();
     if(keyLines.current.sig!==sig)keyLines.current={sig,lines:keyLabelLines(p,geo,winRef.current,lc.mirror)};paintKeyLabels(g,geo,keyLines.current.lines)}
-   paintActiveNotes(g,geo,notesHz.current,b.cursorY);
+   __xenPaintActiveNotes(g,geo,notesHz.current.values(),b.cursorY);
    g.restore();
    // frequency label next to the ball
    if(f.inside&&readoutRef.current&&!held.current.size)readoutRef.current.textContent=(tg.freq*Math.pow(2,live.current.oct)).toFixed(2)+' Hz'};
@@ -698,7 +689,7 @@ function XenPsyLabRoom(){
   catch(e){setStatus('Bounce failed: '+String(e?.message||e))}finally{setBusy(false)}};
  const gridExtra=u.jsxs(u.Fragment,{children:[
   u.jsxs('label',{className:'xpl-note',children:[u.jsx('input',{type:'checkbox','aria-label':'Show grid lines',checked:gridParams?.gridOn!==false,onChange:e=>__NodalBallGrid.update({gridOn:e.target.checked})}),' Grid lines']}),
-  u.jsxs('label',{className:'xpl-note',title:'On: the pad lands on the open Grid tones (muted steps are skipped). Off: the pad glides freely while the keys still play the open Grid tones (chords on the keys, a glissando lead on the pad).',children:[u.jsx('input',{type:'checkbox','aria-label':'Snap ball to grid',checked:!!gridParams?.lockCursorToGrid,onChange:e=>__NodalBallGrid.update({lockCursorToGrid:e.target.checked})}),' Snap ball to grid']}),
+  u.jsxs('div',{className:'xpl-note',role:'radiogroup','aria-label':'Snap ball to grid',children:[' Snap ball: ',...[['scale','Scale','The pad lands on the open Grid tones; muted steps of the scale are skipped.'],['grid','Grid','The pad lands on every Grid line, muted steps included (chromatic).'],['free','Free','The pad glides freely, no Snap. The keys still play the open Grid tones (chords on the keys, a glissando lead on the pad).']].map(([m,l,tt])=>u.jsx('button',{key:m,type:'button',role:'radio','aria-checked':__xenCursorSnapMode(gridParams)===m,title:tt,style:{marginLeft:4,fontWeight:__xenCursorSnapMode(gridParams)===m?700:400,color:__xenCursorSnapMode(gridParams)===m?'#9fe8b0':undefined},onClick:()=>__NodalBallGrid.update({lockCursorToGrid:m!=='free',cursorSnapAll:m==='grid'}),children:l},m))]}),
   u.jsx('button',{type:'button',onClick:()=>{const n=Zd(gridParams.gridTuning);__NodalBallGrid.update({manualGridMutedSteps:[],manualGridStepOffsets:Array.from({length:n},()=>0)});setStatus('Grid reset: all steps on, offsets 0.')},children:'Grid reset'})]});
 
  const panels=GROUPS.map(([id,title,text])=>u.jsxs('section',{className:'xpl-panel','aria-label':title,children:[u.jsx('h3',{children:title}),text?u.jsx('p',{children:text}):null,

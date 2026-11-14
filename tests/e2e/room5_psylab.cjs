@@ -44,7 +44,7 @@ const html=path.resolve(process.argv[2]||'dist/XenSonar_PROBE.html');const shot=
    await p.mouse.move(hx,hy);await p.waitForTimeout(500);const hv=await p.evaluate(()=>window.__hov.slice());assert(hv.length>0&&hv.every(y=>Math.abs(y-th.y)<1),'muted triangle under the cursor is highlighted at its own line: '+hv.slice(0,3)+' vs '+th.y);
    await p.mouse.click(hx,hy);await p.waitForTimeout(300);assert(!(await grid()).muted.includes(th.step),'clicking again unmutes it');await p.mouse.move(...at(550,290));await p.waitForTimeout(200)}
   // ---- pad: with Snap the ball and the sound sit on a grid line ----
-  await p.locator('input[aria-label="Snap ball to grid"]').check();await p.waitForTimeout(200);assert.equal((await grid()).lock,true);
+  await p.locator('[aria-label="Snap ball to grid"]').getByRole('radio',{name:'Scale'}).click();await p.waitForTimeout(200);assert.equal((await grid()).lock,true);
   await fresh();const lines=await rows();const line=isolated(lines).find(r=>!r.muted&&r.y<500);const[px,py]=at(600,line.y+3);
   await p.mouse.move(px,py);await p.mouse.down();await p.waitForTimeout(1400);
   const l1=await p.evaluate(()=>__r5.level()),hz=await p.evaluate(()=>__r5.last.hz);assert(l1>.005,'pad note audible (peak '+l1+')');assert(Math.abs(hz-line.freq)<.01,'snapped to the grid line: '+hz+' vs '+line.freq);
@@ -76,7 +76,7 @@ const html=path.resolve(process.argv[2]||'dist/XenSonar_PROBE.html');const shot=
   // ---- lines at the edges only; the notes that sound are drawn in pink over the full width ----
   const pixel=(fx,freq)=>p.evaluate(([fx,freq])=>{const c=document.querySelector('.xpl-pad canvas[role=application]'),k=c.width/1100,y=(1-(freq-55)/385)*580*k,d=c.getContext('2d').getImageData(Math.round(c.width*fx),Math.round(y),1,1).data;return[d[0],d[1],d[2],d[3]]},[fx,freq]);
   const hzQb=await E('(p=>uw(p.gridBase,p.gridTuning,p.manualGridMutedSteps,p.manualGridStepOffsets)[10])(__NodalBallGrid.params())');
-  await p.locator('input[aria-label="Snap ball to grid"]').uncheck();await E('__NodalBallGrid.update({lockCursorToGrid:false})');
+  await p.locator('[aria-label="Snap ball to grid"]').getByRole('radio',{name:'Free'}).click();await E('__NodalBallGrid.update({lockCursorToGrid:false})');
   const quiet=await pixel(.5,hzQb);assert(quiet[3]<10,'edges only: no grid line in the middle, the mandala has the room: '+quiet);const edge=await pixel(.04,hzQb);assert(edge[3]>8,'but the line is there at the outer end: '+edge);
   await p.keyboard.down('KeyQ');await p.waitForTimeout(500);const lit=await pixel(.5,hzQb);await p.keyboard.up('KeyQ');assert(lit[3]>80&&lit[0]>150&&lit[2]>200&&lit[1]<170,'a sounding note is a pink line over the full width: '+lit);
   await p.locator('[data-psy-edges]').click();await p.waitForTimeout(300);const full=await pixel(.5,hzQb);assert(full[3]>8,'full lines: the grid line crosses the middle again: '+full);await p.locator('[data-psy-edges]').click();await p.waitForTimeout(300);

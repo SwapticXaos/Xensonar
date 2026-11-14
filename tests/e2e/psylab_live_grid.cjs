@@ -61,8 +61,23 @@ const cents=(a,b)=>1200*Math.log2(a/b),near=(f,l)=>l.reduce((m,g)=>Math.min(m,Ma
  assert(keys&&lead,'Keyboard and Wave Starter each have their own Psy Lab engine ('+per.map(l=>l.length).join('/')+' messages)');
  assert(keys.every(m=>near(m.hz,open)<1),'the chord on the keys sounds only open Grid tones: '+keys.map(m=>m.hz.toFixed(1)));
  assert(lead.filter(m=>near(m.hz,all)>5).length>=3,'meanwhile the mouse lead glides between the lines');
+ // ---- 6. PSY-SNAP-02: level 'Grid' (Snap on + cursorSnapAll): the mouse tone also lands on MUTED lines; keys stay open; held keys are drawn pink ----
+ await p.evaluate(()=>{const S=window.__pk={pink:[]};const ac=CanvasGradient.prototype.addColorStop;CanvasGradient.prototype.addColorStop=function(o,c){if(c==='rgba(255,115,220,.9)'&&o===0)S.pink.push(1);return ac.apply(this,arguments)}});
+ await p.evaluate(()=>__xenProbe.bridge.patch({lockCursorToGrid:true,cursorSnapAll:true}));await p.waitForTimeout(800);
+ await clear();await p.mouse.move(x,toClient(yGame+30));await p.mouse.down();await p.waitForTimeout(200);await p.mouse.move(x,toClient(yGame),{steps:3});await p.waitForTimeout(300);
+ const gridLvl=(await msgs()).pop();await p.mouse.up();await p.waitForTimeout(300);
+ assert(near(gridLvl.hz,[target])<1,'Grid level: the pointer on the muted line sounds exactly that line ('+gridLvl.hz.toFixed(2)+' vs '+target.toFixed(2)+')');
+ await p.evaluate(()=>{window.__pk.pink.length=0});await p.keyboard.down('a');await p.waitForTimeout(500);const pink=await p.evaluate(()=>window.__pk.pink.slice());await p.keyboard.up('a');await p.waitForTimeout(200);
+ assert(pink.length>0,'a held Keyboard key is drawn as a pink line in the Live Room');
+ await p.evaluate(()=>{window.__pk.pink.length=0});await p.waitForTimeout(400);assert.equal(await p.evaluate(()=>window.__pk.pink.length),0,'no pink line after the key is released');
+ await p.evaluate(()=>__xenProbe.bridge.patch({lockCursorToGrid:true,cursorSnapAll:false}));await p.waitForTimeout(500);
+ assert.equal(await E('__xenCursorSnapMode(__NodalBallGrid.params())'),'scale','without cursorSnapAll (old data) Snap means Scale');
+ await p.getByRole('radio',{name:'Grid'}).first().click();await p.waitForTimeout(300);
+ assert.equal(await E('__xenCursorSnapMode(__NodalBallGrid.params())'),'grid','the Grid button switches the level');
+ await p.getByRole('radio',{name:'Free'}).first().click();await p.waitForTimeout(300);
+ assert.equal(await E('__xenCursorSnapMode(__NodalBallGrid.params())'),'free','the Free button switches Snap off');
  // ---- 5. the switch says so ----
- const hint=await p.getByText('Off: the mouse glides freely, the Keyboard stays on the open Grid tones',{exact:false}).count();
+ const hint=await p.getByText('Free: the mouse glides',{exact:false}).count();
  assert(hint>=1,'the Snap switch explains the decoupling');
  assert.deepEqual(errors,[],'no page errors');
  console.log(`PASS PSY-GRID-01: Snap on ${held.length} pitches all on open lines, none on muted steps, = Wave Starter snap at rest; muted line → open neighbour; Snap off glides (${between.length} pitches between lines) while a Keyboard chord stays on open lines; the switch explains it`);

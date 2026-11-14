@@ -9,6 +9,15 @@ const __xenMutedGridProperties = Object.fromEntries(Object.entries({
 function __xenGridMuted(params) {
   return params?.rootFollowImpulsRasterMuted === true;
 }
+/* PSY-SNAP-02: the lead voice (mouse, Wave Starter, Psy Lab note, arrows) has three levels: Scale (Snap on = open Grid tones, the muted
+   steps of the scale are skipped), Grid (cursorSnapAll: Snap on, EVERY Grid line incl. muted ones) and Free (Snap off). The Keyboard stays on the
+   open tones. Data owner: lockCursorToGrid (unchanged) + the optional boolean cursorSnapAll; old data without it = Scale. */
+function __xenSnapMutedSteps(params) {
+  return params?.cursorSnapAll === true ? __xenEmptyGrid : (params?.manualGridMutedSteps ?? __xenEmptyGrid);
+}
+function __xenCursorSnapMode(params) {
+  return params?.lockCursorToGrid !== true ? 'free' : params.cursorSnapAll === true ? 'grid' : 'scale';
+}
 function __xenLiveGridParams(params) {
   if (!__xenGridMuted(params)) return params;
   let view = __xenMutedGridViews.get(params);
