@@ -40,6 +40,7 @@ function D9(ctx,bus){
   facade[method]=(...args)=>{const node=ctx[method](...args);if(group&&method!=="createBuffer")group.push(node);return node};
  }
  const legacy=__drumLegacySynth(facade,bus,noise,true,ctx);
+ void __XenLiveVoiceHost.prepare(ctx);
  const retire=(nodes,voice)=>{
   diagnostics.activeVoices++;diagnostics.peakVoices=Math.max(diagnostics.peakVoices,diagnostics.activeVoices);
   const sources=nodes.filter(node=>typeof node.start==="function"&&typeof node.stop==="function");
@@ -64,7 +65,7 @@ function D9(ctx,bus){
     const bytes=buffer.length*4;
     cache.set(key,{buffer,recipe});diagnostics.cacheBytes+=bytes;diagnostics.compiled++;pending.delete(key);
     while(cache.size>128||diagnostics.cacheBytes>12*1024*1024){const oldest=cache.keys().next().value;
-     diagnostics.cacheBytes-=cache.get(oldest).buffer.length*4;cache.delete(oldest)}
+     diagnostics.cacheBytes-=cache.get(oldest).buffer.length*4;__XenLiveVoiceHost.drums(ctx,bus)?.drop(cache.get(oldest).buffer);cache.delete(oldest)}
    }};
   // Discard only obsolete preparation requests, never an audible event.
   if(__drumBodyQueue.size>=64){const first=__drumBodyQueue.keys().next().value;__drumBodyQueue.get(first).cancel();__drumBodyQueue.delete(first)}
@@ -78,6 +79,22 @@ function D9(ctx,bus){
   let output,nodes=[],hat={gain:null,cached:!!entry};
   if(entry){
    diagnostics.hits++;cache.delete(key);cache.set(key,entry);
+   /* VOICE-HOST-01: prepared bodies play in the resident drum voice worklet; no node is created, connected or disconnected per hit */
+   const host=typeof ctx.createStereoPanner==="function"?__XenLiveVoiceHost.drums(ctx,bus):null;
+   if(host){
+    const voiceEqBus=eqRef?__f52DrumEQBus(ctx,bus,eqRef.lane,eqRef.config,time):bus,out=host.output(eqRef?"lane:"+eqRef.lane:"bus",voiceEqBus);
+    if(out>=0){
+     const env=entry.recipe.kind==="hat"?entry.recipe.outputEnvelope:null,choke=style.chokeGroup==="hat";
+     const chokeOpen=choke&&voice==="hat_closed"&&openHat;
+     if(chokeOpen&&openHat.gain){openHat.gain.gain.cancelScheduledValues(time);openHat.gain.gain.setTargetAtTime(1e-4,time,.01)}
+     else if(chokeOpen&&openHat.host&&openHat.host!==host)openHat.host.choke(time);
+     host.play({b:host.id(entry.buffer),o:out,s:time,p:style.pan,
+      g:env?[[0,time,env.initialGain],[1,time+env.attackSec,env.peakGain],[3,time+env.attackSec,env.targetGain,env.targetTimeConstantSec]]:null,
+      ck:!!(chokeOpen&&openHat.host===host),oh:choke&&voice==="hat_open"});
+     if(choke&&voice==="hat_open")openHat={host};
+     return;
+    }
+   }
    const source=ctx.createBufferSource(),gain=ctx.createGain();nodes.push(source,gain);
    source.buffer=entry.buffer;source.connect(gain);
    if(entry.recipe.kind==="hat")xk(gain,time,entry.recipe.outputEnvelope);else gain.gain.setValueAtTime(1,time);
@@ -91,6 +108,7 @@ function D9(ctx,bus){
   }
   if(style.chokeGroup==="hat"){
    if(voice==="hat_closed"&&openHat?.gain){openHat.gain.gain.cancelScheduledValues(time);openHat.gain.gain.setTargetAtTime(1e-4,time,.01)}
+   else if(voice==="hat_closed"&&openHat?.host)openHat.host.choke(time);
    if(voice==="hat_open"){hat.gain=output;openHat=hat}
   }
   retire(nodes,hat);
@@ -103,7 +121,7 @@ function D9(ctx,bus){
   if(ctx.state==='closed')return Promise.resolve([]);
   const ids=[...new Set(__f52SampleLanes.map(lane=>grid?.sampleSlots?.[lane]?.id).filter(Boolean))];
   wantedSampleIds=new Set(ids);
-  for(const old of sampleBuffers.keys())if(!wantedSampleIds.has(old))sampleBuffers.delete(old);
+  for(const [old,buffer] of sampleBuffers)if(!wantedSampleIds.has(old)){__XenLiveVoiceHost.drums(ctx,bus)?.drop(buffer);sampleBuffers.delete(old)}
   sampleStats.ready=sampleBuffers.size;
   return Promise.all(ids.map(id=>{
    if(sampleBuffers.has(id))return Promise.resolve(sampleBuffers.get(id));
@@ -121,21 +139,34 @@ function D9(ctx,bus){
  const triggerSample=(id,time,level,options={})=>{
   const audio=sampleBuffers.get(id);
   if(!audio||ctx.state==='closed'){sampleStats.misses++;return false}
+  for(const v of sampleVoices)if(v.end!==undefined&&v.end<ctx.currentTime)sampleVoices.delete(v);
   if(sampleVoices.size>=24){sampleStats.dropped++;return false}
   if(!Number.isFinite(time)||!Number.isFinite(level)||level<=0)return false;
   const at=Math.max(ctx.currentTime,time),duration=audio.duration;
   const decay=Math.max(.2,Math.min(2,options.decayLock??1));
   const playSec=decay>=1?duration:duration*decay;
   if(playSec<.003)return false;
-  const source=ctx.createBufferSource(),gain=ctx.createGain(),nodes=[source,gain];
   const when=Math.min(playSec,.008),release=Math.min(.015,playSec*.2);
+  const tone=Math.max(0,Math.min(1,options.toneLock??1)),pan=Math.max(-1,Math.min(1,options.pan??0));
+  /* VOICE-HOST-01: the same envelope, low-pass and pan, played by the resident drum voice worklet */
+  const host=typeof ctx.createStereoPanner==='function'?__XenLiveVoiceHost.drums(ctx,bus):null;
+  if(host){
+   const sampleEqBus=options.lane?__f52DrumEQBus(ctx,bus,options.lane,options.eq,at):bus,out=host.output(options.lane?'lane:'+options.lane:'bus',sampleEqBus);
+   if(out>=0){
+    const peak=Math.min(1.8,level),g=[[0,at,0],[1,at+when,peak]];
+    if(decay<1)g.push([0,Math.max(at+when,at+playSec-release),peak],[1,at+playSec,0]);
+    host.play({b:host.id(audio),o:out,s:at,p:pan,g,f:tone<.995?Math.min(ctx.sampleRate*.47,500*Math.pow(40,tone)):0,e:decay<1?at+playSec:0});
+    sampleVoices.add({end:at+(decay<1?playSec:duration)});sampleStats.played++;sampleStats.active=sampleVoices.size;
+    return true;
+   }
+  }
+  const source=ctx.createBufferSource(),gain=ctx.createGain(),nodes=[source,gain];
   source.buffer=audio;source.connect(gain);
   gain.gain.setValueAtTime(0,at);
   gain.gain.linearRampToValueAtTime(Math.min(1.8,level),at+when);
   if(decay<1){gain.gain.setValueAtTime(Math.min(1.8,level),Math.max(at+when,at+playSec-release));gain.gain.linearRampToValueAtTime(0,at+playSec)}
-  const tone=Math.max(0,Math.min(1,options.toneLock??1));let output=gain;
+  let output=gain;
   if(tone<.995){const filter=ctx.createBiquadFilter();filter.type='lowpass';filter.frequency.setValueAtTime(Math.min(ctx.sampleRate*.47,500*Math.pow(40,tone)),at);gain.connect(filter);output=filter;nodes.push(filter)}
-  const pan=Math.max(-1,Math.min(1,options.pan??0));
   const sampleEqBus=options.lane?__f52DrumEQBus(ctx,bus,options.lane,options.eq,at):bus;
   if(typeof ctx.createStereoPanner==='function'){
    const panner=ctx.createStereoPanner();panner.pan.setValueAtTime(pan,at);output.connect(panner);panner.connect(sampleEqBus);nodes.push(panner);
@@ -148,7 +179,7 @@ function D9(ctx,bus){
   source.start(at);if(decay<1)source.stop(at+playSec);
   return true;
  };
- const machine={__visualClock:ctx,mixLevel:bus.__xenDrumMix?value=>{bus.__xenDrumMix.setVolume(value);return __XenDrumMixReference}:null,trigger,triggerSample,prepareSamples,invalidateSample:(id)=>{if(id)sampleBuffers.delete(id);else sampleBuffers.clear();sampleStats.ready=sampleBuffers.size},schedulePattern:(pattern,step,time,level,kit,inputStyle,overrides)=>{
+ const machine={__visualClock:ctx,mixLevel:bus.__xenDrumMix?value=>{bus.__xenDrumMix.setVolume(value);return __XenDrumMixReference}:null,trigger,triggerSample,prepareSamples,invalidateSample:(id)=>{const host=__XenLiveVoiceHost.drums(ctx,bus);for(const [key,buffer] of sampleBuffers)if(!id||key===id)host?.drop(buffer);if(id)sampleBuffers.delete(id);else sampleBuffers.clear();sampleStats.ready=sampleBuffers.size},schedulePattern:(pattern,step,time,level,kit,inputStyle,overrides)=>{
   const style=tO(inputStyle),delay=.004+style.swing*.018;
   for(const event of PL(pattern,step))trigger(event.laneId==="hatClosed"?"hat_closed":event.laneId==="hatOpen"?"hat_open":event.laneId,
    event.timing==="late"?time+delay:event.timing==="early"?Math.max(0,time-delay*.45):time,

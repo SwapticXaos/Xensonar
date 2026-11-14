@@ -34,7 +34,7 @@ function wav(f32,sr){const n=f32.length;const b=Buffer.alloc(44+n*2);b.write('RI
   const p=await b.newPage({viewport:{width:1440,height:900}});
   await p.addInitScript({path:path.join(__dirname,'live_glitch_init.js')});
   const errs=[];p.on('pageerror',e=>errs.push(String(e.message).slice(0,200)));p.on('console',m=>{if(m.type()==='error')errs.push('console: '+m.text().slice(0,200))});
-  let URL_='file://'+HTML;
+  let URL_='file://'+HTML+(process.env.XEN_QUERY?'?'+process.env.XEN_QUERY:''); // e.g. XEN_QUERY=xenVoiceHost=0
   if(arg('--http')){const http=require('http');const srv=http.createServer((q,r)=>{r.writeHead(200,{'content-type':'text/html; charset=utf-8'});fs.createReadStream(HTML).pipe(r)});await new Promise(k=>srv.listen(0,'127.0.0.1',k));URL_='http://127.0.0.1:'+srv.address().port+'/';process.on('exit',()=>srv.close())}
   await p.goto(URL_);await p.waitForTimeout(4000);
   const cdp=await p.context().newCDPSession(p);await cdp.send('Performance.enable');

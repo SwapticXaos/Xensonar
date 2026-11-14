@@ -11,6 +11,7 @@ Zuerst lesen (in dieser Reihenfolge): `../CLAUDE.md` (Arbeitsregeln) → `PRODUC
 | Welche Tests gibt es, welche sind rot? | `../tests/README.md`, `TEST_STATUS_2026-11-09.md`, `QA_AND_TEST_MATRIX.md` |
 | Wie sicher sind Nutzerdaten, Pakete, Sessions? | `PERSISTENCE_SAFETY.md`, `PATCH_STORAGE-PERSIST-01.md` |
 | Messungen zum Live-Pfad und zu Raumwechseln | `LIVE_PATH_AUDIT_2026-11-09.md`, `RAUMWECHSEL_MESSUNG_2026-11-09.md`, `PROMPT_LIVE_AUDIO_PERF_2026-11-11.md` |
+| Drum- und Bass-Stimmen ohne Graph-Änderungen (Ursache des Knisterns) | `PATCH_VOICE-HOST-01.md` |
 | Knistern im Root-Follow-Loop (gelöst, Hörtest bestanden) | `RFL_CLICKS_ANALYSE_2026-11-13.md` → `RFL_WIEDERHOLTE_QUANTEN_2026-11-13.md` → `PATCH_RFL-CLOCK-01.md`, `PATCH_WORKLET-CLOCK-02.md`; Rohmessungen `RFL_MESSUNG_*`, Aufgabenstellungen `HANDOFF_OPUS_RFL_*`, `PROMPT_OPUS_RFL_*` |
 | Mehrspur-Raum (Planung und Bestand) | `MEHRSPURRAUM_BESTANDSAUFNAHME_2026-11-09.md`, `MEHRSPURRAUM_SPURKETTE_STUDIE_2026-11-09.md`, `PATCH_MT-01.md` |
 | Was wurde bewusst nicht übernommen? | `HISTORY_AND_EXCLUSIONS.md` |

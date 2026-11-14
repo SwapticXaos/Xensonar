@@ -280,6 +280,7 @@
     "src/audio/entrophon/02_worklet_and_voice_backend.js",
     "src/audio/entrophon/03_native_bridge.js",
     "src/audio/07_governor_and_drums.js",
+    "src/post-oct/gaps/010-main-bundle__16_live_voice_host.js",
     "src/rhythm/03_live_drum_bodies.js",
     "src/post-oct/gaps/010-main-bundle__21_after_03_live_drum_bodies.js",
     "src/rhythm/04_workspace_and_transport.js",

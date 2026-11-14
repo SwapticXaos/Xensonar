@@ -628,6 +628,29 @@ function FPe(e){const{drumMachine:t,entry:n,stepIndex:r,time:a,stepDurationSec:o
   const length=Me(duration*(params.bassDecay??1),.025,8),at=time+(e.applyLiveAttack===false?0:__XenAttackLanes.seconds('bass',params.quantizeBpm));
   // P9-C1: never collapse missed ATT-shifted notes onto now. Gate before graph work.
   if(at<ctx.currentTime)return null;
+  /* VOICE-HOST-01: the same synth voice, rendered by the resident bass worklet (one node for all notes, no graph change per note) */
+  {
+   const waveA=classic?(grit>.56?'square':'sawtooth'):voice.wave,waveB=voice.second?(ghost?'sine':voice.second):null;
+   const dest=e.bassDestination||__XenPan.route(ctx,"bass",e.ensureFinalMixBus(ctx));
+   const host=['sine','square','sawtooth','triangle'].includes(waveA)&&(!waveB||['sine','square','sawtooth','triangle'].includes(waveB))?__XenLiveVoiceHost.bass(ctx,dest):null;
+   if(host){
+    let send=false;
+    if(e.enterHoldPsyFxEnabled&&e.enterHoldRef.current){e.ensureEnterHoldPsyFxDevice(ctx);const target=e.enterHoldPsyFxSendsRef.current.bass;if(target){host.send(__XenPan.route(ctx,"bass",target));send=true}}
+    const glideEnd=options?.glideToNext?Math.min(at+length*.42,at+.08):0,osc=[];
+    osc.push({type:waveA,w:1,freq:glideEnd?[[0,at,hz],[2,glideEnd,hz*1.122]]:[[0,at,hz]]});
+    if(waveB){const hzB=hz*(classic&&ghost?1.0015:voice.detune);osc.push({type:waveB,w:1,freq:glideEnd?[[0,at,hzB],[2,glideEnd,hz*voice.detune*1.118/1.004]]:[[0,at,hzB]]})}
+    const sub=Me(params.bassSub??1,0,1.5)*voice.sub;
+    if(sub>.001)osc.push({type:'sine',w:Math.fround(sub),freq:[[0,at,hz/2]]});
+    const envelope=Me(params.bassEnvelope??1,0,2),low=Me(hz*(.95+tone*1.4)*voice.color,80,2200),high=Me(hz*(1.8+tone*3.8)*(.9+accent*.25)*voice.color,120,4200);
+    const id=host.note({at,stop:at+length,osc,mix:Math.fround(((ghost?.46:.7)+grit*.16)*voice.gain),grit:classic||grit>.001?grit:null,send,
+     detuneFixed:e.bassVoiceAudition===true?__XenBassPitch.snapshot():null,
+     filterFreq:[[0,at,Me(low+(high-low)*envelope,80,7000)],[2,at+length*.58,low]],
+     filterQ:[[0,at,(ghost?.35:.55)+grit*1.1+accent*.22+Me(params.bassResonance??0,0,1)*4]],
+     gain:[[0,at,Math.max(1e-4,level*(ghost?.42:.72+accent*.5))],[3,at+length*.76,1e-4,(ghost?.016:.024)+(1-tone)*.02]]});
+    const playedVisualToken=e.bassVoiceAudition===true?0:__XenBassGrid.recordPlayedBass(hz,at,length,ctx);
+    return {startTime:at,cancel(){if(at<ctx.currentTime+.015)return false;__XenBassGrid.cancelPlayedBass(playedVisualToken);host.cancel(id,ctx.currentTime);return true},nodeCount:0};
+   }
+  }
   const nodes=[],sources=[],pitchDisposers=[];
   const own=node=>(nodes.push(node),node),mix=own(ctx.createGain()),filter=own(ctx.createBiquadFilter()),output=own(ctx.createGain());
   let shaper=null;

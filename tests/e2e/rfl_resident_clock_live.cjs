@@ -3,12 +3,14 @@
 // the main thread). The browser hands AudioWorklets a stale currentFrame now and then (measured by the frame-exact probe taps);
 // the resident RFL worklet must nevertheless never deliver a repeated block, and no click may reach the RFL bus.
 // Runs the rflTap scenario of tools/probes/rfl_click_scenarios.js (synthetic 1-bar test loop, no user data).
+// Since VOICE-HOST-01 drums and bass no longer change the graph; this test therefore runs the previous native drum/bass path
+// (?xenVoiceHost=0) as a deliberate source of graph churn, to keep proving the RFL clock guard under that stress.
 // Usage: node tests/e2e/rfl_resident_clock_live.cjs dist/XenSonar_PROBE.html
 const {spawnSync}=require('node:child_process');const assert=require('node:assert/strict');const path=require('node:path');const fs=require('node:fs');const os=require('node:os');
 const html=path.resolve(process.argv[2]||'dist/XenSonar_PROBE.html');const root=path.join(__dirname,'..','..');
 const out=path.join(os.tmpdir(),'rfl_clock_live_'+process.pid+'.json');
 const r=spawnSync('node',[path.join(root,'tools/probes/live_glitch_probe.js'),html,'--scenarios-file',path.join(root,'tools/probes/rfl_click_scenarios.js'),'--scenario','rflTap','--json',out],
-  {encoding:'utf8',maxBuffer:1<<28,env:{...process.env,RFL_SEC:process.env.RFL_SEC||'60',RFL_STILL:'1'},timeout:400000});
+  {encoding:'utf8',maxBuffer:1<<28,env:{...process.env,RFL_SEC:process.env.RFL_SEC||'60',RFL_STILL:'1',XEN_QUERY:'xenVoiceHost=0'},timeout:400000});
 const line=(r.stdout||'').split('\n').find(l=>l.startsWith('RFL-TAP '));
 assert.ok(line,'rflTap ran: '+(r.stderr||'').slice(-400));
 const d=JSON.parse(line.slice(8));

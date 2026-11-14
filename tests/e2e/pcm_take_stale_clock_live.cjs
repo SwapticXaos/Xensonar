@@ -2,6 +2,8 @@
 // PCM-CLOCK (real app, probe build): a take recorded in the Live Room while drums/bass change the audio graph on the main thread.
 // The browser then hands AudioWorklets a stale currentFrame now and then; the PCM recorder must not log that as overlap/gap
 // (which made the Loop-Rec projection drop real blocks and leave silence). Real recording continuity: frameGaps 0.
+// Since VOICE-HOST-01 drums and bass no longer change the graph; the take therefore uses the previous native drum/bass path
+// (?xenVoiceHost=0) as a deliberate source of graph churn, to keep proving the recorder's clock guard under that stress.
 // Usage: node tests/e2e/pcm_take_stale_clock_live.cjs dist/XenSonar_PROBE.html
 const {chromium}=require('playwright');const assert=require('node:assert/strict');const path=require('node:path');
 const html=path.resolve(process.argv[2]||'dist/XenSonar_PROBE.html');const SEC=+(process.env.TAKE_SEC||30);
@@ -11,7 +13,7 @@ const html=path.resolve(process.argv[2]||'dist/XenSonar_PROBE.html');const SEC=+
   // count main-thread graph changes and stale worklet clock observations (a tiny worklet that only compares currentFrame)
   await p.addInitScript(()=>{const S=window.__clk={ops:0};const oc=AudioNode.prototype.connect,od=AudioNode.prototype.disconnect;
     AudioNode.prototype.connect=function(){S.ops++;return oc.apply(this,arguments)};AudioNode.prototype.disconnect=function(){S.ops++;return od.apply(this,arguments)}});
-  await p.goto('file://'+html);await p.waitForTimeout(3500);await p.getByRole('button',{name:'Power'}).click();await p.waitForTimeout(2500);
+  await p.goto('file://'+html+'?xenVoiceHost=0');await p.waitForTimeout(3500);await p.getByRole('button',{name:'Power'}).click();await p.waitForTimeout(2500);
   const E=code=>p.evaluate(c=>window.__xenProbe.draw.evalInBundle(c),code);
   await E(`__NodalBallGrid.update({drumActive:true,bassActive:true})`);await p.waitForTimeout(1500);
   const watch=await E(`(async()=>{const ctx=__XenLiveStemSource.get().ctx;const src="class C extends AudioWorkletProcessor{constructor(){super();this.l=-1;this.s=0;this.port.onmessage=()=>this.port.postMessage(this.s)}process(){const f=currentFrame;if(this.l>=0&&f!==this.l+128)this.s++;this.l=this.l<0?f:Math.max(f,this.l+128);return true}}registerProcessor('xen-clock-watch',C)";
