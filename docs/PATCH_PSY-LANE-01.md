@@ -24,3 +24,8 @@ Der Ausdruckswert der Hotkeys (−0,26 … 1, Pedal kehrt zurück, Knob rastet) 
 - Nicht gehört. Insbesondere Pegel von B (×2) und das Abdämpfen (45 ms) bitte abhören.
 - Der Worklet-Pfad ohne `fast` wurde nicht per PCM-Vergleich vor/nachher geprüft, nur per Konstruktion (identische Konstante) und Tests.
 - Wave Starter hat keinen Ausdruck (wie klassisch). Pan und Loop-Rec für Psy Lab weiter nicht angeschlossen.
+
+## Nachtrag: EQ-Prüfung für beide Lanes (Rückfrage: gilt der EQ auch für Keyboard-Psy-Lab?)
+Der erste EQ-Test nutzte `__XenEQ.rasterStroke`, das im Standardmodus (`adaptive`) nichts tut, und maß nur den zuerst gelisteten Tap. Damit war „ein EQ-Schnitt senkt den Pegel" nicht belastbar (die Note klingt auch von selbst ab).
+Neu gemessen (`tools/probes/psylab_lane_eq_probe.cjs`, EQ-Zustand wie ihn das Dock schreibt: `__XenEQ.set(key,{a:Array(360).fill(-1),enabled:true})`): Keyboard-Lane 0,078 → 0,0011, Wave-Starter-Lane 0,071 → 0,0012 (je Lane eigener Tap, nach dem EQ). Beide Lanes sind also im EQ.
+`tests/e2e/psylab_sustain_expression_eq.cjs` prüft das jetzt je Lane mit dieser Kurve. Kein Quelltext geändert (index.html unverändert 8 082 843 Bytes).

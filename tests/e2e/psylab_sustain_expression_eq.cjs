@@ -21,14 +21,14 @@ const html=path.resolve(process.argv[2]||'dist/XenSonar_PROBE.html');
  // ---- EQ ----
  await p.keyboard.down('a');await p.waitForTimeout(500);await p.keyboard.up('a');await p.waitForTimeout(600);
  const st0=await status();assert.equal(st0.eq.keyboard,'keyboard','the Keyboard lane engine is routed through the instrument EQ of its lane');
- // the EQ really acts: a hard cut on the Keyboard instrument EQ lowers the signal at the tap the stems hear; restored afterwards
- await E('(()=>{const ctx=window.__pgCtx,t=__XenPsyLab.outputs(ctx)[0].node,a=ctx.createAnalyser();a.fftSize=2048;t.connect(a);window.__tapA=a;return 1})()');
- const level=()=>p.evaluate(()=>new Promise(res=>{const a=window.__tapA,b=new Float32Array(a.fftSize);let acc=0,n=0,i=0;const id=setInterval(()=>{a.getFloatTimeDomainData(b);for(const x of b)acc+=x*x;n+=b.length;if(++i>=10){clearInterval(id);res(Math.sqrt(acc/n))}},40)}));
- await p.keyboard.down('a');await p.waitForTimeout(500);const flat=await level();
- await E("(()=>{const k=__XenEQ.keyFor('keyboard','instrument');__XenEQ.rasterStroke(k,'a',0,23,-1,-1);return 1})()");await p.waitForTimeout(1500);const cut=await level();
- await E("(()=>{const k=__XenEQ.keyFor('keyboard','instrument');__XenEQ.rasterStroke(k,'a',0,23,0,0);return 1})()");await p.waitForTimeout(1500);
- await p.keyboard.up('a');await p.waitForTimeout(500);
- assert(flat>.001,'the held Psy Lab note is audible at the lane tap ('+flat.toFixed(4)+')');assert(cut<flat*.5,'a hard cut on the Keyboard instrument EQ lowers it ('+flat.toFixed(4)+' -> '+cut.toFixed(4)+')');
+ // the EQ really acts on BOTH lanes: a full-range cut on the lane's instrument EQ (the real EQ state, as the dock writes it) lowers the signal at that lane's tap; restored afterwards
+ const meas=lane=>E(`(async()=>{const ctx=window.__pgCtx,o=__XenPsyLab.outputs(ctx).find(x=>x.lane==='${lane}');if(!o)return -2;const a=ctx.createAnalyser();a.fftSize=2048;o.node.connect(a);const b=new Float32Array(2048);let acc=0,n=0;for(let i=0;i<10;i++){await new Promise(r=>setTimeout(r,40));a.getFloatTimeDomainData(b);for(const x of b)acc+=x*x;n+=2048}o.node.disconnect(a);return Math.sqrt(acc/n)})()`);
+ const eqSet=(kind,v)=>E(`(()=>{__XenEQ.set(__XenEQ.keyFor('${kind}','instrument'),{a:Array(360).fill(${v}),enabled:true});return 1})()`);
+ const lane=async(name,kind,down,up)=>{await down();await p.waitForTimeout(500);const flat=await meas(name);await eqSet(kind,-1);await p.waitForTimeout(1500);const cut=await meas(name);await eqSet(kind,0);await p.waitForTimeout(1200);await up();await p.waitForTimeout(500);
+  assert(flat>.01,name+' lane: the held note is audible at its tap ('+flat.toFixed(4)+')');assert(cut<flat*.2,name+' lane: a cut on its instrument EQ lowers it ('+flat.toFixed(4)+' -> '+cut.toFixed(4)+')');return[flat,cut]};
+ const kbd=await lane('keyboard','keyboard',()=>p.keyboard.down('a'),()=>p.keyboard.up('a'));
+ const hh=await p.evaluateHandle(()=>[...document.querySelectorAll('canvas')].filter(c=>c.offsetParent).sort((a,b)=>b.clientWidth*b.clientHeight-a.clientWidth*a.clientHeight)[0]);await hh.evaluate(c=>c.scrollIntoView({block:'center'}));const hb=await hh.boundingBox();
+ const wav=await lane('wave','wave',async()=>{await p.mouse.move(hb.x+hb.width/2,hb.y+hb.height*.6);await p.mouse.down()},()=>p.mouse.up());
  // ---- Sustain ----
  await clear();await p.keyboard.down('Equal');await p.keyboard.down('a');await p.waitForTimeout(300);await p.keyboard.up('a');await p.waitForTimeout(500);
  let m=await msgs();assert(m.some(x=>x.t==='on'),'the note started');assert(!m.some(x=>x.t==='off'),'Sustain held: the released key does not end the note');
