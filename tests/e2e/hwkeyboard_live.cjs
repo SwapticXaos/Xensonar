@@ -91,7 +91,7 @@ async function open(b,mode){const p=await (await b.newContext({viewport:{width:1
   if(mode==='none'){assert(await box.isDisabled(),'none: the switch is disabled (nothing can be switched on) instead of silently staying empty')}
   else{await box.check({timeout:3000}).catch(()=>{});await p.waitForTimeout(600);assert.equal(await box.isChecked(),false,mode+': the switch is off again after the failure')}
   const text=await p.getByRole('dialog').innerText(),rowText=await p.locator('[data-xen-hw-keyboard]').first().innerText();
-  const want={denied:[/did not give permission/,/Permission denied/],platform:[/system MIDI service could not start.*Platform dependent initialization failed/s,/MIDI could not start/],none:[/Web MIDI exists in Chrome/,/Not available/]}[mode];
+  const want={denied:[/did not give permission/,/Permission denied/],platform:[/system MIDI service could not start.*Platform dependent initialization failed/s,/MIDI could not start/],none:[/Web MIDI is not offered here/,/Not available/]}[mode];
   assert(want[0].test(text),mode+': the dialog explains it: '+text.slice(0,300));assert(want[1].test(rowText),mode+': the row shows it too: '+rowText);
   assert(await p.getByRole('alert').count()>=1,mode+': the reason is an alert, not only a status line');
   if(mode==='platform')assert(!/Permission denied/.test(rowText+text),'platform: a failing system service is not reported as a refused permission');

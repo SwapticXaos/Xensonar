@@ -143,17 +143,15 @@ const __xenHwStyle={
  mon:{margin:0,maxHeight:130,overflow:'auto',background:'#07070b',border:'1px solid #24242d',borderRadius:4,padding:6,fontSize:10,lineHeight:1.35,color:'#9a9aa8',whiteSpace:'pre-wrap'},
  note:{margin:0,fontSize:11,lineHeight:1.4,color:'#8a8a98'}};
 const __xenHwStatus={off:'Off',asking:'Waiting for the browser…',ready:'Ready','no-device':'On · no keyboard found',unsupported:'Not available in this browser',denied:'Permission denied',failed:'MIDI could not start'};
-/* what happened and what to try, in plain words (the raw browser message stays visible) */
+/* what happened and what to try, in plain words: by CATEGORY of problem, not by browser (the raw browser message stays visible).
+   Typical causes are listed because the layer must work on any browser / system, with hardware nobody on the team can test. */
 function __xenHwExplain(s){
  const env=s.env||{},err=s.lastErr?(' ('+s.lastErr.name+': '+s.lastErr.message+')'):'';
  switch(s.status){
-  case 'unsupported':{const fv=env.firefox?+((/Firefox\/(\d+)/.exec(env.ua||'')||[])[1]):0;
-   return (env.secure===false?'This page is not a secure context ('+(env.proto||'?')+'): the browser switches Web MIDI off here. Open the HTTPS version. ':'')+'Web MIDI exists in Chrome, Edge, Opera and Firefox 108+; Safari has none.'+
-    (env.firefox&&env.proto==='file:'?' This page is a local file (file:): Firefox most likely does not offer Web MIDI to local files. Try the online (https) page, or serve the folder locally (http://localhost).':'')+
-    (env.firefox?(fv&&fv<108?' This Firefox is version '+fv+': Web MIDI needs 108 or newer.':' This is Firefox'+(fv?' '+fv:'')+': it does not offer Web MIDI here. Check about:config → dom.webmidi.enabled (should be true); on Linux Firefox also needs the ALSA sequencer (snd-seq).'):'');}
-  case 'denied':return 'The browser did not give permission'+err+'. Check the site settings of this page (lock symbol) and switch on again.'+(env.firefox?' Firefox: accept the small “install add-on” prompt next to the address bar.':'');
-  case 'failed':return 'The browser accepted, but the system MIDI service could not start'+err+'. '+(env.linux?'On Linux the browser needs the ALSA sequencer (kernel module snd-seq): try “sudo modprobe snd-seq”; a Snap or Flatpak browser may also need access to it. ':'')+'Plug the keyboard in, switch on again, and copy the device report if it keeps failing.';
-  case 'asking':return env.firefox?'Firefox may show a small “install add-on” prompt next to the address bar: accept it.':'Waiting for the browser permission prompt.';
+  case 'unsupported':return 'Web MIDI is not offered here. Typical causes: the browser does not implement it (e.g. Safari, older versions); the page is not a secure page or is opened as a local file'+(env.secure===false||env.proto==='file:'?' (this one: '+(env.proto||'?')+(env.secure===false?', not secure':'')+')':'')+', and some browsers only offer Web MIDI on https pages; a browser setting or policy has switched it off. Try the https version of XenSonar or another browser (Chrome, Edge and Opera offer it).';
+  case 'denied':return 'The browser did not give permission'+err+'. Check the site settings of this page (lock symbol), allow MIDI devices, and switch on again. Some browsers show an extra prompt (for example to install a small add-on): accept it.';
+  case 'failed':return 'The browser accepted, but the system MIDI service could not start'+err+'. '+(env.linux?'On Linux the browser needs the ALSA sequencer (kernel module snd-seq): try “sudo modprobe snd-seq”. ':'')+'A sandboxed browser (Snap, Flatpak) may need extra access to MIDI devices. Plug the keyboard in, switch on again, and copy the device report if it keeps failing.';
+  case 'asking':return 'Waiting for the browser: it may show a permission prompt, or an extra prompt (for example to install a small add-on). Accept it.';
   case 'no-device':return 'Switched on, but no keyboard was found: plug it in.';
   default:return '';}
 }
