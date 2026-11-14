@@ -40,8 +40,18 @@ Gerät ──Web MIDI──▶ Adapter (kalt, lazy) ──▶ Eingabe-Ereignis {
 - Negativ: Gerät abgezogen, Berechtigung verweigert, kein Web MIDI im Browser: die Computertastatur arbeitet unverändert.
 - Echte Hardware, Latenz und Spielgefühl: nur mit dem Keyboard der Nutzerin / des Nutzers (hier nicht testbar).
 
+## Entwicklung ohne Hardware (Nutzer, 14.11.: es gibt kein Keyboard; Ziel ist Bedienbarkeit für alle, die eins haben)
+Weil kein Gerät zum Prüfen da ist, wird die Schicht defensiv und selbsterklärend gebaut, nicht auf ein Modell zugeschnitten:
+- **Allgemeine MIDI-Regeln statt Gerätewissen:** alle Kanäle annehmen; Note On mit Stärke 0 gilt als Note Off; unbekannte Nachrichten still ignorieren; Pitch Bend als 14 Bit; Aftertouch (Kanal und Taste) optional; Gerät abziehen oder neu einstecken mitten im Spiel darf nichts hängen lassen (alle Töne dieses Geräts aus).
+- **Anzeige statt Raten:** ein kleines Monitor-Feld (nur wenn die Schicht an ist) zeigt Gerätename und die zuletzt angekommenen Nachrichten (Taste, Stärke, Pedal). So sieht jemand sofort, ob und was sein Keyboard schickt, auch ohne dass ich das Modell kenne.
+- **Kennlinie am Gerät einstellen:** Auswahl weich / linear / hart, dazu „Stärke fest" für Keyboards ohne Anschlagsdynamik (alle Tasten gleich laut) und optional ein kurzes Einmessen („einmal leise, einmal hart spielen"). Pro Gerät gemerkt.
+- **Grundtaste lernen:** „Diese Taste ist Position 1" per Tastendruck statt Zahleneingabe.
+- **Kein Zwang:** Standardmäßig aus. Verweigerte Berechtigung, fehlendes Web MIDI oder Fehler stören die Computertastatur nicht; der Hinweis steht an der Stelle, an der man die Schicht einschaltet.
+- **Status ehrlich:** bis eine Person mit echtem Gerät es bestätigt, bleibt die Schicht als „CODE_PRESENT / UNIT_VERIFIED, nicht an Hardware geprüft" gekennzeichnet; im UI ein kurzer Hinweis „Neu · mit Ihrem Keyboard noch ungetestet, Rückmeldung willkommen".
+- **Tests:** simuliertes `requestMIDIAccess` mit Geräten verschiedener Eigenheiten (mit/ohne Stärke, Note On 0 als Off, Ein-/Ausstecken, 25 und 88 Tasten, Pedal, Bend) und ein Fehlerpfad je Berechtigung. Browser-Verfügbarkeit (Chromium sicher; Firefox und Safari sowie lokal geöffnete Datei sind zu prüfen) wird vor dem Bau recherchiert, nicht angenommen.
+
 ## Offen
 - Welche Klangfamilien nehmen heute eine Stärke an? Psy Lab ja (`vel`); klassische Stimmen, Entrophon und Hold-Muster: zu prüfen (`holdSlotGain` ist der wahrscheinliche Haken).
 - Browser: Web MIDI ist nicht überall gleich verfügbar; Verhalten bei lokal geöffneter Datei zu prüfen.
-- Welches Keyboard (Tastenzahl, Pads, Regler, Aftertouch, MPE)? Davon hängt ab, ob Pads und Regler eine Rolle spielen.
+- Pads, Drehregler und MPE: bewusst nicht in der ersten Stufe (kein Gerät zum Prüfen); als spätere Stufe vorgemerkt.
 - Sollen Positionen jenseits des Fensters das Fenster mitnehmen (folgen) oder nur absolut abgebildet werden?
