@@ -93,7 +93,7 @@ const __XenMultitrackRoundTrip=(()=>{
  'use strict';
  let active=null,receipt=null,lastError='';
  const uuid=()=>globalThis.crypto?.randomUUID?.()??'rt-'+Date.now()+'-'+Math.random().toString(36).slice(2);
- const clipIdentity=c=>JSON.stringify(['materialId','startBeat','inBeat','lenBeats','repeats','fit','sourceBpm','gain','fadeIn','fadeOut','muted','stretch','warp','pitch','reverse','synth'].map(k=>c?.[k]??null));
+ const clipIdentity=c=>JSON.stringify(['materialId','startBeat','inBeat','lenBeats','repeats','fit','sourceBpm','gain','fadeIn','fadeOut','fadeInShape','fadeOutShape','muted','stretch','warp','pitch','reverse','synth'].map(k=>c?.[k]??null));
  const emit=()=>window.dispatchEvent(new CustomEvent('xensonar:multitrack:roundtrip-state',{detail:status()}));
  const status=()=>Object.freeze({active:!!active,phase:active?.phase??'idle',clipId:active?.clipId??null,trackId:active?.trackId??null,label:active?.label??'',error:lastError});
  const navigate=room=>window.dispatchEvent(new CustomEvent('xensonar:multitrack:roundtrip-navigate',{detail:{room}}));
