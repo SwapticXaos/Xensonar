@@ -15,6 +15,7 @@ Zuerst lesen (in dieser Reihenfolge): `../CLAUDE.md` (Arbeitsregeln) → `PRODUC
 | Mehrspur-Raum (Planung und Bestand) | `MEHRSPURRAUM_BESTANDSAUFNAHME_2026-11-09.md`, `MEHRSPURRAUM_SPURKETTE_STUDIE_2026-11-09.md`, `PATCH_MT-01.md` |
 | Was wurde bewusst nicht übernommen? | `HISTORY_AND_EXCLUSIONS.md` |
 | Wie ist das CSS geschichtet? | `CSS_LAYERS_2026-11-09.md` |
+| Wie viel Ballast steckt im Code, wo geht die Rechenzeit hin, was bringt Verschlanken? | `SLIM_BEFUND_2026-11-14.md`, Werkzeuge in `../tools/slim/` |
 | Was ist als Nächstes denkbar? | `NEXT_STEPS.md`, `AUDIT_2026-11-13.md` (Abschnitt „Empfohlene Reihenfolge“) |
 
 Datierte Dokumente sind Momentaufnahmen: Zahlen darin gelten für den genannten Tag (siehe die Nachträge in `ARCHITECTURE.md` und `HOT_COLD_CONTRACT.md`).

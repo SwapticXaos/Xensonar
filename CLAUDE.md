@@ -8,7 +8,7 @@ Du arbeitest am bestehenden **XenSonar**, nicht an einem neuen DAW-Prototyp. Die
 2. **`index.html` im Repo-Hauptverzeichnis** ist die einzige ausgelieferte Datei (Netlify, offline). Nie direkt bearbeiten. Pro Release zusätzlich eine ZIP mit byteidentischer `index.html`.
 3. Versionen liegen als Zweige `version/...` (siehe README). Der alte Quellcode 3.1.6 (`version/xensonar-3.1.6-maerz`) ist Herkunft, keine Arbeitsbasis.
 4. `docs/` und `evidence/` sind Begleitdokumente. Sätze in alten Patchplänen sind keine Beweise für aktiv implementierte Features (`QA_PENDING`, `REVERTED`, `ISOLATED`, `NOT_MERGED`).
-5. Nicht neu formatieren oder vollständig generieren, wenn ein kleiner präziser Patch reicht. Ein Teil des Codes (v. a. 46 große Bereiche, z. B. `src/audio/…`, `src/rhythm/…`) ist minifizierter React-Kern aus dem September-TypeScript-Baum; lesbare Herkunft siehe Zweig `reference/ts-400.2` und `docs/TS_ORIGIN_MAP.json`.
+5. Bei Fehlerbehebungen und neuen Funktionen gilt weiter: kleiner präziser Patch statt Neuformatieren. Für die Verschlankung (siehe Arbeitsregeln) dürfen Dateien umgebaut, zusammengelegt oder entfernt werden. Ein Teil des Codes (v. a. 46 große Bereiche, z. B. `src/audio/…`, `src/rhythm/…`) ist minifizierter React-Kern aus dem September-TypeScript-Baum; lesbare Herkunft siehe Zweig `reference/ts-400.2` und `docs/TS_ORIGIN_MAP.json`.
 
 ## Zielbild
 
@@ -16,7 +16,7 @@ XenSonar ist ein kreatives Instrument und experimentelles Musiksystem: mikrotona
 
 ## Arbeitsregeln
 
-- **Keine ungefragten Big Bang Refactors.** Eine tatsächlich besser wartbare Architektur muss mit vertretbarer Änderung, Testbarkeit und Herkunft verifizierbar sein.
+- **Umbau ist erlaubt und erwünscht (Nutzerentscheidung 13.11.2026).** Die frühere Regel „keine Big Bang Refactors“ stammte aus einem GPT-Handoff für eine Ein-Wochen-Frist und gilt nicht mehr. Ziel: bei genau gleicher Funktion (alles, was im UI erreichbar ist) und gleicher oder besserer Live-Performance deutlich schlankerer, effizienterer Code. Bedingungen: in überprüfbaren Stufen arbeiten, jede Stufe mit `build.py --check`, `run_tests.sh` und `run_e2e.sh` grün, Größe und Messwerte vorher/nachher nennen, Rollback-Commit angeben. Was nur Ohren beurteilen können (Klang, Pegel, Timing), bleibt als „nicht gehört“ gekennzeichnet.
 - **Feature-Ort und Daten-Owner bestimmen.** Nicht über parallele, heimliche Persistence-Adapter, Audiokontexte oder redundante UI-Steuerungen integrieren.
 - **Retrokompatibilität:** vorhandene Songs, Presets, EQs, Session-Drafts, Drumbeats, Browserdaten und `.xenpack` schützen. Keine Migration, Löschung oder unverbindliche Überschreibung ohne spezifische Tests.
 - **UI-Integrität:** Funktion muss *auffindbar → bedienbar → unmittelbar nachvollziehbar* sein. Benutzeraktion im echten Layout testbar machen, nicht nur seltene Grenzfälle prüfen. Eine UI-Funktion ohne erwarteten Effekt ist nicht fertig.
@@ -47,4 +47,4 @@ XenSonar ist ein Musikinstrument, auch wo es wie Verwaltungssoftware aussieht. V
 - **WARM (Oberfläche des Hauptraums):** Audio zuerst, App-State und Persistenz erst bei Ruhe; Visuals dürfen Frames verlieren, Audio nie.
 - **KALT (Forge, Package Station, Archiv, Export, Diagnose):** schläft, solange der Hauptraum spielt; lädt und rechnet erst bei Gebrauch.
 
-Messlogik nur in Probe-/Test-Builds; nachweislich optimierte Bereiche ohne Messcode ausliefern. Optimierung nie auf Kosten des musikalischen Möglichkeitsraums. Bewährte Pfade nur bei reproduziertem Problem oder ausdrücklichem Wunsch ändern. Jeder Patch nennt seinen HTML-Größenzuwachs; Neues wird lazy geladen.
+Messlogik nur in Probe-/Test-Builds; nachweislich optimierte Bereiche ohne Messcode ausliefern. Optimierung nie auf Kosten des musikalischen Möglichkeitsraums. Bewährte Pfade nur bei reproduziertem Problem oder ausdrücklichem Wunsch ändern (der Wunsch „schlanker und effizienter bei gleicher Funktion“ liegt seit 13.11.2026 vor; Audiopfade trotzdem nur mit PCM-Vergleich vorher/nachher). Jeder Patch nennt seinen HTML-Größenzuwachs; Neues wird lazy geladen.

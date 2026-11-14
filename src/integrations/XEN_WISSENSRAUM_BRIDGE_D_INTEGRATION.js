@@ -21,7 +21,7 @@
   const mesh = new Float32Array(widthCount);
   let canvas=null,gl=null,program=null,buffer=null,loc={},fallback=null;
   let hovered=false, focused=false, visible=false, scheduled=false, time=0,last=0;
-  let frame=0, phaseBase=0, phaseAge=0, anchor=null;
+  let frame=0, anchor=null;
   let bounds={left:0,top:0,w:0,h:0}, webglReady=false;
 
   const style=document.createElement('style');style.id=STYLE_ID;

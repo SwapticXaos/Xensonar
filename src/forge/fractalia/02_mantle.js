@@ -21,17 +21,5 @@ async function fractaliaOutputMantle(samples,sampleRate,check=()=>{}) {
   }
   return {width,height,values,maximum};
 }
-function fractaliaMantleCanvas(mantle){
-  if(typeof document==='undefined')return null;
-  const c=document.createElement('canvas');c.width=mantle.width;c.height=mantle.height;
-  const ctx=c.getContext('2d');if(!ctx)return null;
-  const img=ctx.createImageData(c.width,c.height);
-  for(let i=0;i<mantle.values.length;i++){
-    const db=20*Math.log10(Math.max(1e-12,mantle.values[i])/Math.max(1e-12,mantle.maximum));
-    img.data[i*4]=34;img.data[i*4+1]=203;img.data[i*4+2]=193;
-    img.data[i*4+3]=Math.round(Math.max(0,Math.min(1,(db+52)/52))**1.35*207);
-  }
-  ctx.putImageData(img,0,0);return c;
-}
 if(typeof module!=='undefined'&&module.exports)module.exports={fractaliaOutputMantle};
 

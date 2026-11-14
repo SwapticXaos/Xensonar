@@ -11,7 +11,6 @@ let __NodalTransferSequence = 0;
 /* ML-WORKCOPY-P1: the pre-existing Nodal session key is the single Melodic
    working-copy owner. A regular or deliberately empty composer is not an
    absent Nodal instrument. Never erase the last valid state on restore error. */
-let __NodalSessionWrite = null;
 let __mlWorkingCopyProtected = false;
 function nodalPersistComposerSession(session) {
  if(!session?.loopComposer||__mlWorkingCopyProtected)return;

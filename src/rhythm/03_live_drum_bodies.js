@@ -457,7 +457,6 @@ function __xenRefucktorScheduleMute(fx,params){
     return;
   }
   const steps=mode==='Custom'?Sy(params.droneRhythmCustomSteps):$6(mode,params.droneRhythmCustomSteps);
-  const stepDuration=60/bpm/4;
   const key=mode+'|'+bpm+'|'+steps.join('')+'|'+stepTypes.join(',');
   if(fx.patternKey!==key){
     if(fx.patternTimer!=null){clearInterval(fx.patternTimer);fx.patternTimer=null;}

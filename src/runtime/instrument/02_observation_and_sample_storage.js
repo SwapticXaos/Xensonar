@@ -12,7 +12,7 @@ class LZ{memory={previousTime:null,previousCount:0,previousCenter:null,previousE
 // no PCM stored. Existing taps are INSIDE the browser, not the OS output.
 const __XenLCR1A=(()=>{
  const capacity=256,periodMs=200;
- let refs=null,ctx=null,prevCtx=null,generation=0,graphRevision=0,prevGraph=null;
+ let refs=null,ctx=null,generation=0,graphRevision=0,prevGraph=null;
  let on=false,timer=null,sequence=0,total=0,failed=0;
  const records=[];
  const windows=Object.create(null);const sharedTaps=Object.create(null);

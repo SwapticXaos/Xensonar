@@ -5,7 +5,7 @@
    folded back into the start of the cycle instead of being cut.
    Carrier events supply pitch, timing and dynamics; the engines supply timbre. */
 function createForgeVoicesDSP(){
- const TAU=Math.PI*2,LN2=Math.LN2,clamp=(v,a,b)=>Math.max(a,Math.min(b,v)),lerp=(a,b,t)=>a+(b-a)*t;
+ const TAU=Math.PI*2,LN2=Math.LN2,clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
  const SN=8192,SINE=new Float32Array(SN+1);for(let i=0;i<=SN;i++)SINE[i]=Math.sin(TAU*i/SN);
  // phase in cycles; linear interpolation of an 8192-point table (error below -90 dB)
  const sin1=p=>{p-=Math.floor(p);const x=p*SN,i=x|0;return SINE[i]+(SINE[i+1]-SINE[i])*(x-i)};
@@ -1286,7 +1286,6 @@ else{y({freq:Math.round(Xe*10)/10,time:Math.round(it*1e3)/1e3,note:NFe(Xe)});x&&
 function o4e(e){return`${e.label} (${e.shortcut})`}
 function i4e(e,t,n){return["w-9 h-9 flex items-center justify-center rounded text-lg","transition-all duration-100",e===t?(n&&__XenForgeEraseTools.has(t)?"bg-red-600 shadow-lg shadow-red-500/30 scale-105 text-white":"bg-purple-600 shadow-lg shadow-purple-500/30 scale-105"):"bg-gray-800 hover:bg-gray-700"].join(" ")}
 function s4e(e){return`Eraser Mode (X) ${e?"ON":"OFF"}`}
-function l4e(e){return e?"⊖":"⊕"}
 function c4e(e){return["w-9 h-9 flex items-center justify-center rounded text-sm font-bold","transition-all duration-100",e?"bg-red-600 shadow-lg shadow-red-500/40 text-white animate-pulse":"bg-gray-800 hover:bg-gray-700 text-gray-400"].join(" ")}
 function qU(e){return Array.from(new Set(e.map(t=>t.category)))}
 function u4e(e,t){return qU(e).filter(n=>t==="all"||t===n)}
@@ -2283,7 +2282,7 @@ function ZHe({hearingPanel: __hearingPanel = null, donorSelected: __donorSelecte
         source: "user"
     });
     P.useEffect(()=>{const open=()=>{__setLabExpanded(true);M('synth')};window.addEventListener('xensonar:forge:listening-choice',open);return()=>window.removeEventListener('xensonar:forge:listening-choice',open)},[]);
-    const __selectedDonor=__mode.value==='donor',__choose=choice=>{__mode.choose(choice);__setLabExpanded(true);M('synth')};
+    const __selectedDonor=__mode.value==='donor';
     return u.jsxs("section", {
         className: "rounded border border-fuchsia-900/60 bg-fuchsia-950/10 p-2",
         "data-xensonar-spectralforge-inline-synth-lab": "true",

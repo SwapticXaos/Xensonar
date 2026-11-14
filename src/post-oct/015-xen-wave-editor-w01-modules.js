@@ -1522,9 +1522,7 @@ class Editor{
   const stereo=this.doc.channels.length===2,half=rect.height/2;
   const laneTop=stereo&&this.channel==='R'?half:0;
   const laneBottom=stereo&&this.channel!=='all'?laneTop+half:rect.height;
-  const inLane=localY>=laneTop&&localY<=laneBottom;
   const viewSpan=Math.max(1,view.end-view.start);
-  const frameX=f=>rect.left+(f-view.start)/viewSpan*rect.width;
   const px=event.clientX;
   const hasRange=prior.start<prior.end;
   // Same region classifier drives cursor feedback and actual pointer gesture.

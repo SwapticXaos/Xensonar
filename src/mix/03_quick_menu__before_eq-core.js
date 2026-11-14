@@ -1310,7 +1310,6 @@ async function renderMaterialPCM(item,t,data){
   const seconds=__XenOneShotAssignments.barSeconds(bpm,beatsPerBar);
   return {bpm,beatsPerBar,seconds};
  }
- const audioContext=()=>__XenSessionPCM.getContext();
  function attachDrumOwner(read){
   drumOwner=read;
   queueMicrotask(()=>{if(drumOwner!==read)return;const snapshot=__XenMetaSessions.snapshot();

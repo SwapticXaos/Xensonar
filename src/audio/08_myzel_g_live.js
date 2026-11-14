@@ -5,8 +5,6 @@ function myzelGClamp(x,lo=0,hi=1){return Math.max(lo,Math.min(hi,Number.isFinite
 const MYZEL_G_ORGANS=Object.freeze({resonator:'resonator',formant_filter:'formant_filter',spectral_tilt:'spectral_tilt',
   wavefolder:'wavefolder',sub_harmonic:'sub_harmonic',shimmer_delay:'shimmer_delay',comb_filter:'comb_filter',
   grain_blur:'grain_blur',drive:'drive',chorus:'chorus',bitcrusher:'bitcrusher'});
-const MYZEL_G_TAILS=Object.freeze({resonator:2.2,formant_filter:1.35,spectral_tilt:1.15,wavefolder:1.2,
-  sub_harmonic:1.7,shimmer_delay:2.45,comb_filter:2.0,grain_blur:1.65,drive:1.35,chorus:2.1,bitcrusher:1.1});
 function myzelGCreate(ctx,refs,destination){
   if(refs.__myzelG?.ctx===ctx&&!refs.__myzelG.disposed)return refs;
   refs.__myzelG?.dispose();

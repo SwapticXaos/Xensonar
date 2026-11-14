@@ -69,27 +69,6 @@ function __forgeDisplayCarrierLayers(args){
   layer.protection=protection;layer.columnMask=columnMask;return layer;
 }
 let __forgeDonorDisplayCache=new WeakMap();
-function __forgeDisplayDonor(args,record,enabled){
-  // A hidden or not-yet-prepared donor leaves the full original image untouched.
-  if(!enabled||!record?.canvas||!record.mantle)return;
-  const ctx=args.canvas.getContext('2d');if(!ctx)return;
-  const {offsetX,offsetY,zoomX,zoomY}=args.viewPort;
-  if(!(zoomX>0&&zoomY>0))return;
-  const layer=__forgeDisplayCarrierLayers(args),width=args.canvas.width,height=args.canvas.height;
-  let scratch=__forgeDonorDisplayCache.get(args.canvas);
-  if(!scratch){scratch=__forgeDisplayCanvas(width,height);__forgeDonorDisplayCache.set(args.canvas,scratch);}
-  if(scratch.width!==width)scratch.width=width;if(scratch.height!==height)scratch.height=height;
-  const sc=scratch.getContext('2d');sc.save();sc.setTransform(1,0,0,1,0,0);
-  sc.globalCompositeOperation='source-over';sc.globalAlpha=1;sc.clearRect(0,0,width,height);
-  sc.imageSmoothingEnabled=true;sc.imageSmoothingQuality='high';
-  const scaleX=record.canvas.width/args.spectralData.width,scaleY=record.canvas.height/args.spectralData.height;
-  sc.drawImage(record.canvas,offsetX*scaleX,offsetY*scaleY,width/zoomX*scaleX,height/zoomY*scaleY,0,0,width,height);
-  sc.globalCompositeOperation='destination-in';
-  sc.drawImage(layer.columnMask,offsetX,0,width/zoomX,1,0,0,width,height);
-  sc.globalCompositeOperation='destination-out';__forgeDisplayDraw(sc,layer.protection,args);sc.restore();
-  ctx.save();ctx.setTransform(1,0,0,1,0,0);ctx.globalCompositeOperation='source-over';ctx.globalAlpha=.68;
-  ctx.drawImage(scratch,0,0);ctx.restore();
-}
 
 
 /* xen-lazy:lab */

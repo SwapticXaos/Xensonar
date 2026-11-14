@@ -293,7 +293,7 @@ async function __xenSendSavedFigureProject(projectId,expectedUpdatedAt){
 const __XenSFPNG01=(()=>{
  const signature=Uint8Array.of(137,80,78,71,13,10,26,10), type=Uint8Array.of(120,115,78,80); // xsNP
  const magic=Uint8Array.of(88,83,70,80,78,71,48,49); // XSFPNG01
- const maxPNG=128*1024*1024,maxJSON=384*1024*1024,maxCells=2048*512;
+ const maxPNG=128*1024*1024,maxJSON=384*1024*1024;
  const table=Uint32Array.from({length:256},(_,i)=>{let x=i;for(let k=0;k<8;k++)x=(x&1)?(0xedb88320^(x>>>1)):(x>>>1);return x>>>0;});
  const same=(a,b)=>a.length===b.length&&a.every((v,i)=>v===b[i]);
  const u32=(b,o)=>((b[o]*16777216)+(b[o+1]<<16)+(b[o+2]<<8)+b[o+3])>>>0;

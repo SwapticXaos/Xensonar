@@ -30,7 +30,6 @@ const __XenAudioProbe=(()=>{
   return Object.freeze(api);
 })();
 if(typeof globalThis!=='undefined')globalThis.XenSonarAudioTrace=__XenAudioProbe;
-function readInstrumentDiagnostics(){return __XenAudioProbe.read();}
 
 /* P3C-DIAG: bounded control-thread sound selection and routing timeline.
    No AudioWorklet logging, FFT, per-sample instrumentation or graph mutation.

@@ -501,16 +501,6 @@ function shutOff(){
   shuttingDown=false;
  },reduced?0:295);
 }
-function resetDisplay(){
- clearTimeout(offTimer);stop();dismissed=false;shuttingDown=false;
- if(!overlay)return;
- overlay.classList.remove('is-switching','is-black');
- overlay.dataset.phase='baseline';
- overlay.removeAttribute('aria-disabled');
- overlay.setAttribute('aria-label','NO SIGNAL. Click to switch off this display.');
- cacheKey='';started=performance.now();last=0;overlay.hidden=false;
- schedule();
-}
 function attach(target){
  if(overlay&&overlay.parentElement!==target){stop();watcher?.unobserve(overlay);overlay.remove();overlay=null;clearTimeout(offTimer);dismissed=false;shuttingDown=false}
  if(overlay)return;

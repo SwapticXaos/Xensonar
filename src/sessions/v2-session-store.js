@@ -473,31 +473,6 @@ function __xenM6PreviewRemoval(storage,selection){
  if(afterwards.errors.length||afterwards.conflicts.length)throw Error('Proposed repair is incomplete; archive unchanged.');
  return {repairedRaw,changes,removedCount:chosen.size,remainingIssues:0,originalArchive:raw};
 }
-function __xenM6ApplySelectedRemoval(storage,selection,confirmFn){
- const KEY='xensonar.meta-sessions.v2',WORKKEY='xensonar.working-session.v1';
- const plan=__xenM6PreviewRemoval(storage,selection);
- if(typeof confirmFn!=='function'||confirmFn(plan)!==true)return {applied:false};
- // Do not overwrite data that changed after preview or across another tab.
- if(storage.getItem(KEY)!==plan.originalArchive)throw Error('Session archive changed while confirming. Retry.');
- const originalWork=storage.getItem(WORKKEY);
- const stamp=new Date().toISOString().replace(/[:.]/g,'-');
- const backupKey='xensonar.archive-rescue.m6.original.'+stamp+'-'+Math.random().toString(36).slice(2,9);
- const backup=JSON.stringify({version:1,createdAt:new Date().toISOString(),originalArchive:plan.originalArchive,originalWorking:originalWork,changes:plan.changes});
- // Backup MUST succeed and read back exactly before we touch the canonical archive.
- storage.setItem(backupKey,backup);
- if(storage.getItem(backupKey)!==backup)throw Error('Original archive backup verification failed. Nothing was changed.');
- if(storage.getItem(KEY)!==plan.originalArchive||storage.getItem(WORKKEY)!==originalWork)throw Error('Session data changed during backup. No changes applied.');
- try{
-  storage.setItem(KEY,plan.repairedRaw);
-  if(storage.getItem(KEY)!==plan.repairedRaw)throw Error('Archive write verification failed.');
-  const afterwards=__xenM5ArchiveInspection(storage);
-  if(afterwards.errors.length||afterwards.conflicts.length)throw Error('Archive verification detected unresolved conflicts.');
- }catch(error){
-  try{if(storage.getItem(KEY)===plan.repairedRaw)storage.setItem(KEY,plan.originalArchive)}catch(_){/* durable backup key remains */}
-  throw Error('Repair could not finish: '+error.message+'; backup: '+backupKey);
- }
- return {applied:true,removedCount:plan.removedCount,backupKey,changes:plan.changes};
-}
 
 /* M7 quota-safe rescue: verify the exact archive backup by READING a file saved outside
    localStorage. Do not allocate any additional localStorage key or touch IndexedDB. */

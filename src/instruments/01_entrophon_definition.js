@@ -23,10 +23,6 @@ function captureEntrophonInstrument(name,surface='wave') {
   return normalizeEntrophonInstrument({schema:'xensonar.entrophon-instrument',schemaVersion:1,engineVersion:'c11-v1',name,surface,config:Ew(surface)});
 }
 function serializeEntrophonInstrument(value){return JSON.stringify(normalizeEntrophonInstrument(value));}
-function deserializeEntrophonInstrument(text){
-  if(typeof text!=='string'||text.length>20000)throw new Error('Entrophon instrument exceeds size limit');
-  return normalizeEntrophonInstrument(JSON.parse(text));
-}
 function resolveEntrophonInstrument(value,note) {
   const instrument=normalizeEntrophonInstrument(value);
   if(!note||!Number.isFinite(note.freq)||note.freq<10||note.freq>24000)throw new Error('Invalid Entrophon note frequency');

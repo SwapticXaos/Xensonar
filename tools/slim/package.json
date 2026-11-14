@@ -1,0 +1,10 @@
+{
+  "name": "xensonar-slim-tools",
+  "private": true,
+  "description": "Analysis tools for the slimming work (dead code, coverage). Test/analysis only, never part of index.html.",
+  "dependencies": {
+    "acorn": "8.15.0",
+    "acorn-walk": "8.3.4",
+    "eslint-scope": "8.4.0"
+  }
+}

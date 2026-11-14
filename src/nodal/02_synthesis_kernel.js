@@ -232,7 +232,7 @@ function createEmiliaWeaveVoice(plan,options={},sampleRate=48000){
     });emiliaWeaveTableCache.set(plan,banks);
   }
   const phase=new Float64Array(n),step=new Float64Array(n),mask=new Float64Array(n),mip=new Int8Array(n),mipNext=new Int8Array(n),mipMix=new Float64Array(n);
-  const output=new Float64Array(n),previous=new Float64Array(n),bodyLow=new Float64Array(n),load=new Float64Array(n),sourceTransient=new Float64Array(n),transientStep=fixed.transientStep;
+  const output=new Float64Array(n),previous=new Float64Array(n),load=new Float64Array(n),sourceTransient=new Float64Array(n),transientStep=fixed.transientStep;
    // Immutable across *all* voices of this plan+rate; read-only bank.
    const combDamping=fixed.combDamping,combWetAmount=fixed.combWetAmount,linkTotal=fixed.linkTotal;
   const random=new Uint32Array(n),noiseLow=new Float64Array(n),noiseHigh=new Float64Array(n);
