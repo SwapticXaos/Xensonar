@@ -3,7 +3,7 @@
 const test=require('node:test'),assert=require('node:assert'),fs=require('fs'),path=require('path'),vm=require('vm');
 const root=path.join(__dirname,'..');
 const src=fs.readFileSync(path.join(root,'src/post-oct/015-xen-wave-editor-w01-modules.js'),'utf8');
-const sandbox={console,Float32Array,Float64Array,Int32Array,Uint8Array,Uint32Array,ArrayBuffer,DataView,Math,Number,Object,Array,JSON,Map,Set,WeakMap,Promise,Error,RangeError,TypeError,Date,setTimeout,clearTimeout};
+const sandbox={String,RegExp,console,Float32Array,Float64Array,Int32Array,Uint8Array,Uint32Array,ArrayBuffer,DataView,Math,Number,Object,Array,JSON,Map,Set,WeakMap,Promise,Error,RangeError,TypeError,Date,setTimeout,clearTimeout};
 sandbox.globalThis=sandbox;vm.createContext(sandbox);vm.runInContext(src,sandbox,{filename:'015-xen-wave-editor-w01-modules.js'});
 const core=sandbox.__XenWaveCoreW01;
 const sine=(fs,sec,hz,db,phase=0)=>{const n=Math.round(fs*sec),a=Math.pow(10,db/20),x=new Float32Array(n);for(let i=0;i<n;i++)x[i]=a*Math.sin(2*Math.PI*hz*i/fs+phase);return x};
@@ -67,4 +67,23 @@ test('encodeWav writes 24-bit PCM (three bytes, word aligned) and keeps 16-bit a
   const p16=new DataView(core.encodeWav(doc,{format:'pcm16'}));assert.strictEqual(p16.getUint16(34,true),16);assert.strictEqual(p16.getInt16(44+2,true),16384);assert.strictEqual(p16.byteLength,44+10);
   const f=new DataView(core.encodeWav(doc,{format:'float32'}));assert.strictEqual(f.getUint16(20,true),3);assert.strictEqual(f.getFloat32(56+4,true),.5);
   assert.throws(()=>core.encodeWav(doc,{format:'pcm8'}));
+});
+
+// ---- MTW-03: zero crossings and typed intervals ----
+test('zeroCrossing: nearest cut point where the signal changes sign; ends always count; quietest boundary without a crossing',()=>{
+  const x=new Float32Array(200);for(let i=0;i<200;i++)x[i]=Math.sin(2*Math.PI*i/40+.3);/* crossings between 18|19 → boundary 19 … every 20 frames */
+  const z=f=>core.zeroCrossing([x],f,12);
+  for(const f of [15,19,24,60,100]){const i=z(f);assert(i>0&&i<200&&(x[i-1]<0)!==(x[i]<0),'frame '+f+' → boundary '+i+' is a sign change');assert(Math.abs(i-f)<=10,'nearest crossing within half a period')}
+  assert.strictEqual(z(0),0);assert.strictEqual(z(200),200);assert.strictEqual(z(3),0,'the start of the audio is a clean cut point');
+  const dc=new Float32Array(100).fill(.5);dc[40]=.01;dc[41]=.02;assert.strictEqual(core.zeroCrossing([dc],45,10),41,'no crossing: the quietest boundary');
+  // stereo: the sum decides
+  const L=x,R=x.map(v=>-v*.5);const i=core.zeroCrossing([L,R],60,12);assert((L[i-1]+R[i-1]<0)!==(L[i]+R[i]<0));
+});
+
+test('parseInterval: ratios and cents the XenSonar way',()=>{
+  const P=sandbox.__XenWaveUIW01.parseInterval,near2=(a,b)=>assert(Math.abs(a-b)<1e-9,a+' vs '+b);
+  near2(P('3/2','pitch'),1.5);near2(P('7:4','pitch'),1.75);near2(P('81/80','pitch'),1.0125);near2(P('1200','pitch'),2);near2(P('-1200','pitch'),.5);near2(P('0','pitch'),1);near2(P('',"pitch"),1);
+  near2(P('50 ct','pitch'),Math.pow(2,50/1200));near2(P('386,3','pitch'),Math.pow(2,386.3/1200));near2(P('1.5x','pitch'),1.5);near2(P('x2','pitch'),2);
+  near2(P('2','time'),2);near2(P('0.5','time'),.5);near2(P('3/2','time'),1.5);near2(P('',"time"),1);near2(P('100c','time'),Math.pow(2,100/1200));
+  for(const bad of ['abc','0/3','3/0','--2','1/2/3'])assert(Number.isNaN(P(bad,'pitch')),bad);assert(Number.isNaN(P('-1','time')));assert(Number.isNaN(P('0','time')));
 });

@@ -512,6 +512,20 @@
     const dB=v=>v>0?20*Math.log10(v):-Infinity;
     return {frames:n,duration:n/fs,integrated,momentaryMax:momentary.length?maxOf(momentary):integrated,shortTermMax:short.length?maxOf(short):null,range,samplePeak,samplePeakDb:dB(samplePeak),truePeak,truePeakDb:dB(truePeak),correlation,gated};
   }
+  /* MTW-03: the cut point nearest to `at` where the signal (sum of the given channels) crosses zero: a boundary index i means "between sample i-1 and i".
+     The ends of the audio always count. Without a crossing in reach, the quietest boundary is taken. */
+  function zeroCrossing(channelsIn, at, radius) {
+    const channels=Array.isArray(channelsIn)?channelsIn:[channelsIn],n=channels[0]?.length||0,f=clamp(Math.round(finite(at)),0,n),r=Math.max(1,Math.round(finite(radius,256)));
+    if(f===0||f===n||!n)return f;
+    const mid=i=>{let s=0;for(const c of channels)s+=c[i];return s;};
+    let quiet=f,quietCost=Infinity;
+    for(let d=0;d<=r;d++)for(const i of d?[f-d,f+d]:[f]) {
+      if(i<=0||i>=n){if(i===0||i===n)return i;continue;}
+      const a=mid(i-1),b=mid(i);if(a===0||b===0||(a<0)!==(b<0))return i;
+      const cost=Math.abs(a)+Math.abs(b);if(cost<quietCost){quietCost=cost;quiet=i;}
+    }
+    return quiet;
+  }
   function metadata(doc) {
     return {version:VERSION,id:doc.id,revision:doc.revision,original:doc.original,selection:doc.selection,viewport:doc.viewport,markers:doc.markers,history:doc.history};
   }
@@ -659,7 +673,7 @@
     if(!persistenceAdapter?.load)fail('The existing Forge persistence adapter is not connected.','WAVE_NO_PERSISTENCE');
     const source=await persistenceAdapter.load(key);return create(source);
   }
-  root.__XenWaveCoreW01=Object.freeze({version:VERSION,operationTypes:OPERATION_TYPES,create,createDocument:create,edit,applyEdit:edit,copy,undo,redo,setSelection,setViewport,materialize,assetFromDocument:(doc,source)=>materialize(doc,source).source,encodeWav,exportWav,commitRender,commitRendered:commitRender,peaks,analyze,loudness,kWeighting,resampleChannel,mapClipboard,encodeProject,decodeProject,serializeProject:encodeProject,deserializeProject:decodeProject,exportProject:doc=>new Blob([encodeProject(doc)],{type:'application/x-xensonar-wave-project'}),setPersistenceAdapter,persist,restore});
+  root.__XenWaveCoreW01=Object.freeze({version:VERSION,operationTypes:OPERATION_TYPES,create,createDocument:create,edit,applyEdit:edit,copy,undo,redo,setSelection,setViewport,materialize,assetFromDocument:(doc,source)=>materialize(doc,source).source,encodeWav,exportWav,commitRender,commitRendered:commitRender,peaks,analyze,loudness,kWeighting,zeroCrossing,resampleChannel,mapClipboard,encodeProject,decodeProject,serializeProject:encodeProject,deserializeProject:decodeProject,exportProject:doc=>new Blob([encodeProject(doc)],{type:'application/x-xensonar-wave-project'}),setPersistenceAdapter,persist,restore});
 })(typeof globalThis!=='undefined'?globalThis:window);
 
 /* XenSonar Wave Editor W01: deterministic offline DSP. No live-audio hooks. */
@@ -1295,7 +1309,7 @@
   function cancel(jobId){const job=jobs.get(jobId);if(job){job.cancel();return true;}return false;}
   function cancelDocument(documentId){for(const job of Array.from(jobs.values()))if(job.documentId===documentId)job.cancel();}
   function dispose(){for(const job of Array.from(jobs.values()))job.cancel();if(workerURL){global.URL.revokeObjectURL(workerURL);workerURL=null;}}
-  global.__XenWaveDSPW01=Object.freeze({version:'W01.1',registry,getRegistry:()=>registry,render,cancel,cancelDocument,dispose,capabilities:Object.freeze({worker:true,stereo:true,automation:true,tailModes:['truncate','overlay','extend'],pitchShift:false,timeStretch:false,noiseReduction:false,declip:false})});
+  global.__XenWaveDSPW01=Object.freeze({version:'W01.1',registry,getRegistry:()=>registry,render,cancel,cancelDocument,dispose,capabilities:Object.freeze({worker:true,stereo:true,automation:true,tailModes:['truncate','overlay','extend'],pitchShift:false,timeStretch:false,/* the effect CHAIN has neither; the editor's Pitch / Time edit (MTW-03) uses the shared offline pitch engine */noiseReduction:false,declip:false})});
 })(typeof window!=='undefined'?window:globalThis);
 
 /* W01 UI: native DOM overlay; source owner remains lGe, PCM authority remains Core. */
@@ -1346,6 +1360,11 @@ const ENGLISH_EFFECT_TEXT=Object.freeze({
  'Kompressor':'Compressor','Algorithmischer Hall':'Reverb','Sättigung / Distortion':'Saturation / Distortion','Stereobreite':'Stereo Width',
  'Frequenz':'Frequency','Resonanz Q':'Resonance Q','Effektanteil':'Wet Mix','LFO-Frequenz':'LFO Rate','Bandverstärkung':'Band Gain','Schwelle':'Threshold','Verhältnis':'Ratio','Knie':'Knee','Aufholverstärkung':'Makeup Gain','Vorausschau':'Lookahead','Expansionsverhältnis':'Expansion Ratio','Delayzeit':'Delay Time','Rückkopplung':'Feedback','Raumgröße':'Room Size','Höhendämpfung':'High-Frequency Damping','Modulationstiefe':'Modulation Depth','Basisdelay':'Base Delay','Balance':'Balance','Kurvenexponent':'Curve Exponent'
 });
+/* MTW-03: an interval typed the XenSonar way: a frequency ratio (3/2, 7:4, 1.5x) or cents (50, -1200, "386.3 ct"). A plain number is cents for pitch and a factor for length. */
+function parseInterval(text,kind){const t=String(text??'').trim().toLowerCase().replace(',','.');if(!t)return kind==='time'?1:1;
+ let m=/^([+-]?\d*\.?\d+)\s*[/:]\s*(\d*\.?\d+)$/.exec(t);if(m){const a=Number(m[1]),b=Number(m[2]);return a>0&&b>0?a/b:NaN}
+ m=/^x?\s*([+-]?\d*\.?\d+)\s*x$|^x\s*([+-]?\d*\.?\d+)$/.exec(t);if(m){const v=Number(m[1]??m[2]);return v>0?v:NaN}
+ m=/^([+-]?\d*\.?\d+)\s*(c|ct|cent|cents)?$/.exec(t);if(!m)return NaN;const v=Number(m[1]);if(kind==='time'&&!m[2])return v>0?v:NaN;return Math.pow(2,v/1200)}
 function displayText(t){return ENGLISH_EFFECT_TEXT[t]||t}
 function displayEffect(effect){return displayText(effect?.label||effect?.type||'Effect')}
 function category(effect){return displayText(effect.category||'Effects')}
@@ -1366,6 +1385,7 @@ class Editor{
   if(input)return;
   if(mod){const key=e.key.toLowerCase();if(['z','y','c','x','v','a'].includes(key)){e.preventDefault();if(key==='z')this.runEdit(e.shiftKey?'redo':'undo');if(key==='y')this.runEdit('redo');if(key==='c')this.runEdit('copy');if(key==='x')this.runEdit('cut');if(key==='v'){if(e.shiftKey)this.openMixPane();else this.runEdit(e.altKey?'overwrite':'insert')}if(key==='a'){this.doc=core().setSelection(this.doc,0,this.doc.frames);this.applySelection();this.refresh(false)}}return}
   if(e.code==='Space'){e.preventDefault();this.preview('chain');return}
+  if(e.key==='z'||e.key==='Z'){e.preventDefault();this.snapZero();return}
   if(['Delete','Backspace'].includes(e.key)){e.preventDefault();this.runEdit('delete');return}
   if(['ArrowLeft','ArrowRight','Home','End'].includes(e.key)){e.preventDefault();let f=this.doc.selection.start;if(e.key==='Home')f=0;else if(e.key==='End')f=this.doc.frames;else f=clamp(f+(e.key==='ArrowLeft'?-1:1)*(e.shiftKey?Math.round(this.doc.sampleRate*.01):1),0,this.doc.frames);this.doc=core().setSelection(this.doc,f,f);this.applySelection();this.refresh(false)}
  }
@@ -2195,9 +2215,13 @@ class Editor{
  this.channelModes=$('div',{class:'xwe-channel-modes',role:'group','aria-label':'Channel Selection'});
  for(const [value,label] of [['L','L'],['R','R'],['all','L+R · Both']])this.channelModes.append(button(label,()=>this.setChannel(value),{'data-xwe-channel-mode':value,'aria-pressed':String(this.channel===value),title:value==='all'?'Edit Both Channels':`Channel ${value} bearbeiten`}));
  if(this.doc.channels.length>1)tool.append(this.channelModes);
- for(const [key,label] of [['start','Start s'],['end','End s']]){const l=$('label',{},label),input=$('input',{type:'number',step:1/this.doc.sampleRate,min:0,'aria-label':label,onchange:()=>this.setRangeFromFields()});this[key+'Input']=input;l.append(input);tool.append(l)}for(const [key,label] of [['start','Start Frame'],['end','End Frame']]){const l=$('label',{},label),input=$('input',{type:'number',step:1,min:0,'aria-label':label,onchange:()=>this.setRangeFromFrames()});this[key+'FrameInput']=input;l.append(input);tool.append(l)}tool.append(button('Cursor ← Start',()=>this.setCursor(this.doc.selection.start)),button('Cursor → End',()=>this.setCursor(this.doc.selection.end)));tool.append(button('Zoom to Selection',()=>{if(this.doc.selection.start===this.doc.selection.end){this.setStatus('Select an audio range before zooming.');return}this.setEditorViewport(this.doc.selection.start,this.doc.selection.end)}),button('Full View',()=>this.setEditorViewport(0,this.doc.frames)));dialog.append(tool);
+ for(const [key,label] of [['start','Start s'],['end','End s']]){const l=$('label',{},label),input=$('input',{type:'number',step:1/this.doc.sampleRate,min:0,'aria-label':label,onchange:()=>this.setRangeFromFields()});this[key+'Input']=input;l.append(input);tool.append(l)}for(const [key,label] of [['start','Start Frame'],['end','End Frame']]){const l=$('label',{},label),input=$('input',{type:'number',step:1,min:0,'aria-label':label,onchange:()=>this.setRangeFromFrames()});this[key+'FrameInput']=input;l.append(input);tool.append(l)}tool.append(button('Cursor ← Start',()=>this.setCursor(this.doc.selection.start)),button('Cursor → End',()=>this.setCursor(this.doc.selection.end)));tool.append(button('Zoom to Selection',()=>{if(this.doc.selection.start===this.doc.selection.end){this.setStatus('Select an audio range before zooming.');return}this.setEditorViewport(this.doc.selection.start,this.doc.selection.end)}),button('Full View',()=>this.setEditorViewport(0,this.doc.frames)),button('Snap to Zero',()=>this.snapZero(),{'data-xwe-snap-zero':'true',title:'Move the caret or both ends of the selection to the nearest zero crossing (within 5 ms): cuts, mutes and pastes then do not click · Z'}));dialog.append(tool);
 
- const body=$('div',{class:'xwe-body'}),edits=$('div',{class:'xwe-panel','data-xwe-edit-panel':'true'});edits.append($('h3',{},'Edit Audio'));const grid=$('div',{class:'xwe-edit-grid'});for(const key of ['copy','cut','insert','overwrite','mix','delete','trim','split','silence','reverse','invert','normalize','dcRemove'])grid.append(chromaticButton(key,this.operationLabel(key),()=>key==='mix'?this.openMixPane():this.runEdit(key),key==='mix'?{'data-xwe-mix-trigger':'true'}:{}));grid.append(chromaticButton('envelope','Envelope',()=>this.openVolumeEnvelope(),{title:'Draw a gain envelope with the original XenSonar Morph/Paint tool.'}));edits.append(grid);this.gainInput=this.field(edits,'Gain dB','number',0,{step:.5,min:-96,max:36});edits.append(chromaticButton('gain','Apply Gain',()=>this.runEdit('gain')));this.silenceInput=this.field(edits,'Silence duration (seconds)','number',1,{step:.1,min:.001,max:3600});edits.append(chromaticButton('insertSilence','Insert Silence',()=>this.runEdit('insertSilence')));this.lufsInput=this.field(edits,'Loudness target (LUFS)','number',this.lufsInput?.value||-14,{step:.5,min:-70,max:-5,title:'Programme loudness target after ITU-R BS.1770 / EBU R128. Typical: -14 streaming, -16 podcasts, -23 broadcast (EBU R128). The true peak is kept at or below -1 dBTP.','data-xwe-lufs-target':'true'});{const b=chromaticButton('normalize','Normalize Loudness',()=>this.normalizeLoudness(),{title:'Measure the selection (or the whole file when nothing is selected) and bring it to the loudness target with one gain step. Undo works as for every edit.'});b.setAttribute('data-xwe-chromatic-action','loudness');edits.append(b)}edits.append($('p',{class:'xwe-small'},'Click to place the gold insertion caret; drag to select. Ctrl+C/X/V: Copy/Cut/Insert. Ctrl+Alt+V: Overwrite. Ctrl+Shift+V: Mix. Stereo timeline stays synchronized; Float32 preserves levels above 0 dBFS. Normalize or limit before PCM16.'),chromaticButton('analyze','Analyze Selection',()=>this.analyze()));this.analysisElement=$('div',{class:'xwe-analysis xwe-hidden'});edits.append(this.analysisElement);body.append(edits);
+ const body=$('div',{class:'xwe-body'}),edits=$('div',{class:'xwe-panel','data-xwe-edit-panel':'true'});edits.append($('h3',{},'Edit Audio'));const grid=$('div',{class:'xwe-edit-grid'});for(const key of ['copy','cut','insert','overwrite','mix','delete','trim','split','silence','reverse','invert','normalize','dcRemove'])grid.append(chromaticButton(key,this.operationLabel(key),()=>key==='mix'?this.openMixPane():this.runEdit(key),key==='mix'?{'data-xwe-mix-trigger':'true'}:{}));grid.append(chromaticButton('envelope','Envelope',()=>this.openVolumeEnvelope(),{title:'Draw a gain envelope with the original XenSonar Morph/Paint tool.'}));edits.append(grid);this.gainInput=this.field(edits,'Gain dB','number',0,{step:.5,min:-96,max:36});edits.append(chromaticButton('gain','Apply Gain',()=>this.runEdit('gain')));this.silenceInput=this.field(edits,'Silence duration (seconds)','number',1,{step:.1,min:.001,max:3600});edits.append(chromaticButton('insertSilence','Insert Silence',()=>this.runEdit('insertSilence')));this.pitchInput=this.field(edits,'Pitch (ratio or cents)','text',this.pitchInput?.value||'0',{'data-xwe-pitch':'true',title:'Retune the selection (or the whole file) without changing its length. A frequency ratio (3/2, 7:4, 81/80) or cents (50, -1200, 386.3). Between ¼ and 4.'});
+ this.timeInput=this.field(edits,'Length × (factor or ratio)','text',this.timeInput?.value||'1',{'data-xwe-time':'true',title:'Make the selection (or the whole file) longer or shorter without changing its pitch. 2 = twice as long, 0.5 = half, 3/2 = one and a half. Between ¼ and 4.'});
+ this.pitchButton=chromaticButton('reverse','Apply Pitch / Time',()=>this.pitchTime(),{title:'Render with the XenSonar pitch engine (the same one the Material Track and the Multitrack use). One undoable edit.'});this.pitchButton.setAttribute('data-xwe-chromatic-action','pitchtime');edits.append(this.pitchButton);
+ this.pitchNotice=$('p',{class:'xwe-small','data-xwe-pitch-notice':'true','aria-live':'polite'},'');edits.append(this.pitchNotice);
+ this.lufsInput=this.field(edits,'Loudness target (LUFS)','number',this.lufsInput?.value||-14,{step:.5,min:-70,max:-5,title:'Programme loudness target after ITU-R BS.1770 / EBU R128. Typical: -14 streaming, -16 podcasts, -23 broadcast (EBU R128). The true peak is kept at or below -1 dBTP.','data-xwe-lufs-target':'true'});{const b=chromaticButton('normalize','Normalize Loudness',()=>this.normalizeLoudness(),{title:'Measure the selection (or the whole file when nothing is selected) and bring it to the loudness target with one gain step. Undo works as for every edit.'});b.setAttribute('data-xwe-chromatic-action','loudness');edits.append(b)}edits.append($('p',{class:'xwe-small'},'Click to place the gold insertion caret; drag to select. Ctrl+C/X/V: Copy/Cut/Insert. Ctrl+Alt+V: Overwrite. Ctrl+Shift+V: Mix. Stereo timeline stays synchronized; Float32 preserves levels above 0 dBFS. Normalize or limit before PCM16.'),chromaticButton('analyze','Analyze Selection',()=>this.analyze()));this.analysisElement=$('div',{class:'xwe-analysis xwe-hidden'});edits.append(this.analysisElement);body.append(edits);
  const fx=$('div',{class:'xwe-panel xwe-fx-layout','data-xwe-fx-focus':this.fxFocus});this.fxLayout=fx;
  const fxHeader=$('div',{class:'xwe-fx-header','data-xwe-fx-header':'true'});
  fxHeader.append($('h3',{},'Offline Effect Chain'));
@@ -2581,6 +2605,51 @@ class Editor{
  async sendToMultitrack(){const inbox=globalThis.__XenMultitrackInbox;if(!inbox){this.setStatus('Multitrack is not available in this build.');return}if(!this.doc?.frames){this.setStatus('No audio to send.');return}const btn=this.multitrackButton;if(btn)btn.disabled=true;this.setStatus('Sending to Multitrack…');try{const name=(this.activeWorkspace==='scratch'?'Scratchpad':(this.source?.label||'Wave Editor'));const r=await inbox.send({channels:this.doc.channels,sampleRate:this.doc.sampleRate,name,origin:'wave-editor'});this.setStatus('Sent to Multitrack as a new track'+(r.sourceBpm?' · '+r.sourceBpm+' BPM detected':' · original speed')+'. Open Room IV to see it.'+(this.nodes.length?' Unapplied FX chain was not included: use Apply / Bake first.':''))}catch(error){this.setStatus('Send to Multitrack failed: '+error.message)}finally{if(btn)btn.disabled=false}}
  downloadWav(){try{const format=this.formatSelect?.value||'float32',data=core().encodeWav(this.doc,{format,dither:format==='pcm16'}),blob=data instanceof Blob?data:new Blob([data],{type:'audio/wav'});this.download(blob,(this.activeWorkspace==='scratch'?'XenSonar_Scratchpad':(this.source.label||'XenSonar')).replace(/[^\p{L}\p{N}_.-]/gu,'_')+'_W01_'+format+'.wav');this.setStatus('Edited project exported as '+format+' WAV. '+(this.nodes.length?'Unapplied FX chain: use Apply / Bake first.':''))}catch(error){this.setStatus(error.message)}}
  download(blob,name){const url=URL.createObjectURL(blob),a=$('a',{href:url,download:name});a.click();setTimeout(()=>URL.revokeObjectURL(url),30000)}
+ /* MTW-03 Pitch / Time for the selection (or the whole file): the SAME offline pitch engine as the Material Track and Room IV (granular, windowed sinc, transient guard), so a
+    material sounds the same wherever it is retuned. Pitch as a ratio or in cents (microtonal: any value); length as a factor, pitch kept. Order as in Room IV, so no band is lost:
+    longer = lengthen by resampling first, then shift up; shorter = shift down first, then shorten by resampling. Resampling uses the browser's own decoder (the audio is declared
+    at another sample rate and decoded at the project rate). One undoable edit; unselected audio stays bit-identical, the seams are blended over 5 ms. */
+ async pitchTime(){if(!this.doc?.frames)return;if(this.warnUnappliedFx('Pitch / Time'))return;const engine=root.__XenOfflinePCM,doc=this.doc,sr=doc.sampleRate;
+  const p=parseInterval(this.pitchInput?.value,'pitch'),s=parseInterval(this.timeInput?.value,'time');
+  if(!Number.isFinite(p)||!Number.isFinite(s)){this.setNotice('Pitch: a ratio (3/2, 7:4) or cents (50, -1200). Length: a factor (2, 0.5) or a ratio (3/2).');return}
+  if(Math.abs(p-1)<1e-6&&Math.abs(s-1)<1e-6){this.setNotice('Pitch 0 cents and length × 1: nothing to do.');return}
+  if(s<.25||s>4||p<.25||p>4||p*s<.25||p*s>4){this.setNotice('Out of range: pitch and length each between ¼ and 4, and pitch × length between ¼ and 4 (two octaves of granular shift).');return}
+  if(!engine?.render){this.setNotice('The pitch engine is not available in this build.');return}
+  const {range,whole}=this.measureRange(),a=range.start,b=range.end,L=b-a;if(L<Math.round(.05*sr)){this.setNotice('Select at least 50 ms for Pitch / Time.');return}
+  const picked=this.channel==='all'||doc.channels.length<2?doc.channels.map((_,i)=>i):[this.channel==='R'?1:0];
+  if(Math.abs(s-1)>=1e-6&&picked.length!==doc.channels.length){this.setNotice('A new length applies to both channels: choose L+R first.');return}
+  const PAD=Math.round(.3*sr),total=L+2*PAD,most=Math.max(total,Math.round(total*s));
+  if(2*(2*most*picked.length*4)+1048576>48*1024*1024){const sec=Math.floor(47e6/(16*picked.length)/sr/Math.max(1,s)-.6);this.setNotice('Pitch / Time takes up to about '+sec+' s of '+(picked.length>1?'stereo':'one channel')+' at this length factor in one pass: select a shorter range.');return}
+  const button=this.pitchButton;if(button)button.disabled=true;this.setNotice('Rendering pitch / time …');
+  try{
+   /* The engine renders cyclically and guards transients, so the piece gets a margin of 0.3 s on both sides that falls away afterwards: the real neighbouring audio, at the ends of
+      the file the audio mirrored (a silent margin would look like a hard attack and switch the phase alignment off), fading out over its outer 0.12 s towards the cyclic seam. */
+   const N=doc.frames,taper=Math.round(.12*sr),mirror=i=>{if(N<2)return 0;const period=2*(N-1);i%=period;if(i<0)i+=period;return i<N?i:period-i};
+   let data=picked.map(c=>{const x=doc.channels[c],o=new Float32Array(total);o.set(x.subarray(a,b),PAD);for(let d=1;d<=PAD;d++){const w=d>PAD-taper?.5+.5*Math.cos(Math.PI*(d-(PAD-taper))/taper):1;o[PAD-d]=x[mirror(a-d)]*w;o[PAD+L-1+d]=x[mirror(b-1+d)]*w}return o});
+   const resample=async chs=>{const want=Math.max(1,Math.round(chs[0].length*s)),fake=Math.round(sr/s),Offline=root.OfflineAudioContext||root.webkitOfflineAudioContext;
+    const bytes=core().encodeWav({channels:chs,sampleRate:fake,frames:chs[0].length},{format:'float32'}),buf=await new Offline(chs.length,1,sr).decodeAudioData(bytes);
+    return chs.map((_,i)=>{const d=buf.getChannelData(Math.min(i,buf.numberOfChannels-1)),o=new Float32Array(want);o.set(d.subarray(0,Math.min(want,d.length)));return o})};
+   const shift=p*s;if(s>1+1e-6)data=await resample(data);
+   if(Math.abs(shift-1)>=1e-6){let r;for(let attempt=0;;attempt++){try{r=await engine.render({loop:true,rate:sr,sourceRate:sr,frames:data[0].length,pitch:shift,channels:data.map(c=>c.slice())});break}catch(e){if(attempt<8&&/capacity busy/i.test(String(e?.message||e))){await new Promise(ok=>setTimeout(ok,600));continue}throw e}}
+    try{data=r.channels.map(c=>c.slice())}finally{r.release?.()}}
+   if(s<1-1e-6)data=await resample(data);
+   if(this.doc!==doc)throw Error('the audio changed while rendering; nothing was applied');
+   const newLen=Math.max(1,Math.round(L*s)),off=Math.round(PAD*s),F=Math.min(Math.round(.005*sr),newLen>>2,L>>2);
+   const channels=doc.channels.map((orig,c)=>{const k=picked.indexOf(c);if(k<0)return orig;const out=new Float32Array(doc.frames-L+newLen),part=data[k].subarray(off,off+newLen);out.set(orig.subarray(0,a));out.set(part,a);out.set(orig.subarray(b),a+newLen);
+    if(a>0)for(let i=0;i<F;i++){const u=(i+.5)/F;out[a+i]=orig[a+i]*(1-u)+out[a+i]*u}
+    if(b<doc.frames)for(let i=0;i<F;i++){const u=(i+.5)/F,at=a+newLen-F+i;out[at]=out[at]*(1-u)+orig[b-F+i]*u}
+    return out});
+   const edited=core().commitRender(doc,{documentId:doc.id,revision:doc.revision,channels,sampleRate:sr,selection:{start:a,end:a+newLen}},{label:'pitch / time'});
+   const cents=1200*Math.log2(p),what=(Math.abs(p-1)>=1e-6?'pitch '+(cents>=0?'+':'')+fmt(cents,1)+' cents (× '+fmt(p,4)+')':'')+(Math.abs(p-1)>=1e-6&&Math.abs(s-1)>=1e-6?', ':'')+(Math.abs(s-1)>=1e-6?'length × '+fmt(s,4)+' ('+fmt(L/sr,2)+' → '+fmt(newLen/sr,2)+' s, pitch kept)':'');
+   await this.publish(edited,'Pitch / Time: '+what);this.setNotice((whole?'Whole file: ':'Selection: ')+what+'. Undo brings the original back.')}
+  catch(error){this.setNotice('Pitch / Time failed, nothing was changed: '+(error?.message||error))}
+  finally{if(button)button.disabled=false}}
+ /* a short visible line under the Pitch / Time controls (the editor status itself is for screen readers) */
+ setNotice(text){this.setStatus(text);if(this.pitchNotice)this.pitchNotice.textContent=text}
+ /* MTW-03: move the caret or both ends of the selection to the nearest zero crossing (within 5 ms), so that cuts, mutes and pastes do not click */
+ snapZero(){const d=this.doc;if(!d?.frames)return;const win=Math.max(8,Math.round(d.sampleRate*.005)),chs=this.channel==='all'||d.channels.length<2?d.channels:[d.channels[this.channel==='R'?1:0]],sel=d.selection;
+  const s=core().zeroCrossing(chs,sel.start,win),e=sel.end>sel.start?Math.max(s,core().zeroCrossing(chs,sel.end,win)):s;
+  this.doc=core().setSelection(d,s,e);this.applySelection();this.refresh(false);this.setStatus(s===sel.start&&e===sel.end?'The selection already sits on zero crossings.':'Selection moved to zero crossings ('+(s-sel.start)+' / '+(e-sel.end)+' frames).')}
  /* MTW-01: what is measured. A caret without a range means the whole file. */
  measureRange(){const r=this.range();return r.end>r.start?{range:r,whole:r.start===0&&r.end===this.doc.frames}:{range:{start:0,end:this.doc.frames},whole:true}}
  analyze(){const {range,whole}=this.measureRange(),rows=[];for(const [index,samples] of this.doc.channels.entries()){let peak=0,sum=0,dc=0,clips=0;for(let f=range.start;f<range.end;f++){const v=samples[f];peak=Math.max(peak,Math.abs(v));sum+=v*v;dc+=v;if(Math.abs(v)>1)clips++}const count=Math.max(1,range.end-range.start);rows.push(`${this.doc.channels.length>1?index?'R':'L':'Mono'}  Peak ${peak?fmt(20*Math.log10(peak),2):'−∞'} dBFS · RMS ${sum?fmt(10*Math.log10(sum/count),2):'−∞'} dBFS\nDC ${fmt(dc/count,6)} · >0 dBFS ${clips} Frames`)}
@@ -2603,7 +2672,7 @@ class Editor{
  loadPreset(){this.presetInput.click()}
  async readPreset(file){if(!file)return;if(this.warnUnappliedFx('Load Chain Preset'))return;try{const p=JSON.parse(await file.text());if(p.version!=='xen-wave-chain-w01'||!Array.isArray(p.nodes))throw Error('Not a W01 effect-chain preset.');const rate=this.doc.sampleRate/(p.sampleRate||this.doc.sampleRate),offset=this.doc.selection.start-(p.origin||0)*rate,allowed=new Set(registry().map(x=>x.type));this.releaseOfflineEQState();this.nodes=p.nodes.filter(n=>allowed.has(n.type)).map(n=>({...n,id:'fx-'+(++serial),targetRange:{start:clamp(Math.round(n.targetRange.start*rate+offset),0,this.doc.frames-1),end:clamp(Math.round(n.targetRange.end*rate+offset),1,this.doc.frames)},automation:Object.fromEntries(Object.entries(n.automation||{}).map(([key,lane])=>[key,{...lane,points:lane.points.map(q=>({...q,frame:Math.round(q.frame*rate+offset)}))}]))}));this.activeNode=this.nodes[0]?.id;this.invalidate();this.refresh();this.setStatus('Chain preset aligned to the current selection.')}catch(error){this.setStatus(error.message)}}
 }
-root.__XenWaveUIW01=Object.freeze({attach,drawStereo,enabled(canvas){const e=instances.get(canvas);return !!(e?.enabled&&e?.overlay)},open(canvas){instances.get(canvas)?.open()},getEditor(canvas){return instances.get(canvas)},drawEditSelection(ctx,canvas,view,width,height){instances.get(canvas)?.drawEditOverlay(ctx,view,width,height)},version:'W15-mixpaste-perchannel-percent'});
+root.__XenWaveUIW01=Object.freeze({attach,drawStereo,parseInterval,enabled(canvas){const e=instances.get(canvas);return !!(e?.enabled&&e?.overlay)},open(canvas){instances.get(canvas)?.open()},getEditor(canvas){return instances.get(canvas)},drawEditSelection(ctx,canvas,view,width,height){instances.get(canvas)?.drawEditOverlay(ctx,view,width,height)},version:'W15-mixpaste-perchannel-percent'});
 })(globalThis);
 
 

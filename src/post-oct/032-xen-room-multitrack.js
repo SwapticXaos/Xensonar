@@ -306,10 +306,13 @@ const recorder={
     node=new AudioWorkletNode(ctx,'xen-mt-capture',{numberOfInputs:1,numberOfOutputs:1,channelCount:2,channelCountMode:'explicit',outputChannelCount:[2]});
     h.doneP=new Promise(ok=>{done=ok});node.port.onmessage=ev=>{if(ev.data.kind==='chunk')chunks.push(ev.data);else if(ev.data.kind==='done')done()}}
    catch{h.mode='script';node=ctx.createScriptProcessor(4096,2,2);h.doneP=Promise.resolve();node.onaudioprocess=ev=>{const l=ev.inputBuffer.getChannelData(0),r=ev.inputBuffer.numberOfChannels>1?ev.inputBuffer.getChannelData(1):l;chunks.push({frame:Math.round(ev.playbackTime*ctx.sampleRate)-l.length+Math.round((ctx.baseLatency||0)*ctx.sampleRate),l:new Float32Array(l),r:new Float32Array(r)})}}
-   src.connect(node);node.connect(sink);h.node=node;return h}
+   src.connect(node);node.connect(sink);h.node=node;
+   /* MTW-04: a level tap on the input (left and right apart), only for the meter beside the Rec button */
+   try{const sp=ctx.createChannelSplitter(2),a=ctx.createAnalyser(),b=ctx.createAnalyser();a.fftSize=b.fftSize=1024;src.connect(sp);sp.connect(a,0);sp.connect(b,1);h.tap={sp,a,b,buf:new Float32Array(1024)}}catch{}
+   return h}
   catch(e){stream.getTracks().forEach(t=>t.stop());throw e}},
  async finish(h){try{if(h.mode==='worklet'){h.node.port.postMessage('stop');await Promise.race([h.doneP,new Promise(ok=>setTimeout(ok,700))])}}catch{}
-  try{h.stream.getTracks().forEach(t=>t.stop())}catch{}for(const n of [h.src,h.node,h.sink]){try{n.disconnect()}catch{}}
+  try{h.stream.getTracks().forEach(t=>t.stop())}catch{}for(const n of [h.src,h.node,h.sink,h.tap?.sp,h.tap?.a,h.tap?.b]){try{n?.disconnect()}catch{}}
   const cs=h.chunks.slice().sort((a,b)=>a.frame-b.frame);if(!cs.length)return {channels:[new Float32Array(0),new Float32Array(0)],first:0,sampleRate:h.ctx.sampleRate};
   const first=cs[0].frame,last=cs[cs.length-1],total=last.frame+last.l.length-first,L=new Float32Array(total),R=new Float32Array(total);
   for(const c of cs){const o=c.frame-first;if(o<0||o+c.l.length>total)continue;L.set(c.l,o);R.set(c.r,o)}
@@ -514,6 +517,7 @@ const CSS=`.xmt{color:#e7e5e4;font:13px/1.35 system-ui,sans-serif;max-width:1500
 .xmt .cur{position:absolute;top:0;bottom:0;width:1px;background:#38bdf8;pointer-events:none;z-index:1}
 .xmt .meter{position:relative;width:132px;height:8px;background:#1c1917;border-radius:4px;overflow:hidden}.xmt .meter i,.xmt .tm i{display:block;height:100%;width:0;background:linear-gradient(90deg,#22c55e,#facc15 70%,#ef4444);background-size:132px 100%}
 .xmt .meter::after{content:'';position:absolute;top:0;bottom:0;left:90.9%;width:1px;background:#a8a29e}
+.xmt .meter.in{width:90px;outline:1px solid #3f3f46}.xmt .meter.in.over{outline:2px solid #ef4444}
 .xmt .pk{min-width:92px;padding:2px 6px;font-variant-numeric:tabular-nums;color:#a8a29e;text-align:left}.xmt .pk.clip{color:#fff;background:#b91c1c;border-color:#b91c1c}
 .xmt .hdr .tm{position:absolute;left:3px;right:0;top:0;height:3px;background:#17171a;overflow:hidden;pointer-events:none}.xmt .hdr .tm i{background-size:240px 100%}
 .xmt .hdr label{gap:3px}.xmt .hdr .row+.row label{flex:1 1 0;min-width:0}.xmt .hdr .row+.row label:last-child{flex:0 0 auto}.xmt .hdr .row input[type=number]{width:46px!important;padding:3px 4px}
@@ -553,7 +557,7 @@ function XenMultitrackRoom(){
  /* ROOM4-14 recording state (hooks live up here, before the early return that waits for the project) */
  const [recording,setRecording]=P.useState(false),[inputs,setInputs]=P.useState([]);
  const [recDevice,setRecDevice]=P.useState(()=>{try{return localStorage.getItem('xensonar.mt.recdev')||''}catch{return ''}}),[recLat,setRecLat]=P.useState(()=>{try{const v=localStorage.getItem('xensonar.mt.reclat');return v==null?null:Number(v)}catch{return null}});
- const recRef=P.useRef(null),recFinishRef=P.useRef(null),trackMeters=P.useRef(new Map()),meterFall=P.useRef(new Map()),peakRef=P.useRef(null),peakHold=P.useRef(0);
+ const recRef=P.useRef(null),recFinishRef=P.useRef(null),trackMeters=P.useRef(new Map()),meterFall=P.useRef(new Map()),peakRef=P.useRef(null),peakHold=P.useRef(0),inMeterRef=P.useRef(null);
  const [metro,setMetro]=P.useState(()=>{try{return localStorage.getItem('xensonar.mt.metro')==='1'}catch{return false}}),[countIn,setCountIn]=P.useState(()=>{try{return localStorage.getItem('xensonar.mt.countin')==='1'}catch{return false}});
  engine.metro=metro;engine.countIn=countIn;
  const toggleMetro=()=>{const v=!metro;setMetro(v);try{localStorage.setItem('xensonar.mt.metro',v?'1':'0')}catch{}announce(v?'Metronome on':'Metronome off')};
@@ -738,6 +742,16 @@ function XenMultitrackRoom(){
    patch.set(first.id,{...(patch.get(first.id)||{}),fadeOut:r,fadeOutShape:'eq'});patch.set(second.id,{...(patch.get(second.id)||{}),fadeIn:r,fadeInShape:'eq'});n++}
   if(!n){announce('No crossfade: this clip does not overlap a neighbour on its track');setStatus('Crossfade: drag the clips on this track so that they overlap, then crossfade the overlap.');return}
   commit(mapClips(project,c=>patch.has(c.id)?{...c,...patch.get(c.id)}:c),'Crossfade over the overlap (equal power)'+(capped?'; a fade is at most half a clip long: shorten the overlap for a full crossfade':''))};
+ /* MTW-04: level clips by ear-related loudness instead of by peak: the source audio of each clip is measured with the shared core (BS.1770) and the CLIP GAIN brings it to
+    one working level (-18 LUFS leaves headroom for the mix). Nothing is rendered or rewritten; the gain stays within 0 … 2 (+6 dB) and the status says when that limit holds a clip back. */
+ const LEVEL=-18;
+ const loudnessGain=c=>{const e=libMap.get(c.materialId),au=e?audio.get(e.id):null;if(!au?.buffer)return null;const core=globalThis.__XenWaveCoreW01;if(!core?.loudness)return null;
+  let row=au.loud;if(!row){const r=regionOf(e,au.buffer),sr=au.buffer.sampleRate,chs=Array.from({length:Math.min(2,au.buffer.numberOfChannels)},(_,i)=>au.buffer.getChannelData(i));row=au.loud=core.loudness(chs,sr,{start:Math.round(r.a*sr),end:Math.round(r.b*sr)})}
+  if(!Number.isFinite(row.integrated))return {silent:true};const want=Math.pow(10,(LEVEL-row.integrated)/20),gain=clamp(want,0,2);return {gain:Math.round(gain*1000)/1000,from:row.integrated,capped:want>2}};
+ const matchLoudness=ids=>{const made=new Map();let capped=0,skipped=0;for(const id of ids){const f=findClip(id);if(!f)continue;const g=loudnessGain(f.c);if(!g||g.silent){skipped++;continue}made.set(id,g);if(g.capped)capped++}
+  if(!made.size){setStatus('Nothing to level yet (audio still loading, or silent).');return}
+  commit(mapClips(project,c=>made.has(c.id)?{...c,gain:made.get(c.id).gain}:c),made.size===1?'Clip gain '+[...made.values()][0].gain.toFixed(2)+': '+[...made.values()][0].from.toFixed(1)+' → '+LEVEL+' LUFS':made.size+' clips levelled to '+LEVEL+' LUFS');
+  setStatus((made.size===1?'Clip levelled: '+[...made.values()][0].from.toFixed(1)+' → '+(capped?(([...made.values()][0].from+6.02).toFixed(1)):LEVEL)+' LUFS (clip gain '+[...made.values()][0].gain.toFixed(2)+')':made.size+' clips levelled to '+LEVEL+' LUFS by their clip gain')+(capped?' · '+capped+' at the +6 dB limit of the clip gain (raise the track fader for more)':'')+(skipped?' · '+skipped+' skipped (silent or still loading)':'')+'.')};
  const copyClip=cid=>{const f=findClip(cid);if(f){clipboard=fixedLen(f.c);announce('Clip copied')}};
  const pasteAt=(tid,beat)=>{if(!clipboard){announce('Clipboard is empty');return}
   if(clipboard.group){const at=snap(beat),made=[];const tracks=project.tracks.map(t=>{const add=clipboard.group.filter(x=>x.tid===t.id||(!project.tracks.some(y=>y.id===x.tid)&&t.id===(tid||project.tracks[0]?.id))).map(x=>{const n={...x.clip,id:uid('clip'),startBeat:Math.max(0,at+x.rel)};made.push(n.id);return n});return add.length?{...t,clips:[...t.clips,...add]}:t});commit({...project,tracks},made.length+' clips pasted at '+fmtPos(at,bpb));setGroup(made);setSel(made[0]||null);return}insertClip(tid,{...clipboard,id:uid('clip'),startBeat:snap(beat)},'Clip pasted at '+fmtPos(snap(beat),bpb))};
@@ -781,6 +795,7 @@ function XenMultitrackRoom(){
   const lv=engine.level();if(meterRef.current)meterShow(meterRef.current,'#master',lv);
   if(lv>peakHold.current+1e-9){peakHold.current=lv;const el=peakRef.current;if(el){el.textContent='peak '+(20*Math.log10(lv)).toFixed(1)+' dB';el.classList.toggle('clip',lv>=1)}}
   for(const [id,el] of trackMeters.current)meterShow(el,id,engine.trackLevel(id));
+  const rt=recRef.current?.h?.tap;if(rt&&inMeterRef.current){const v=engine.peakOf(rt);meterShow(inMeterRef.current,'#input',v);if(v>=.999&&inMeterRef.current.parentNode)inMeterRef.current.parentNode.classList.add('over')}
   rafRef.current=requestAnimationFrame(loop)};
   cancelAnimationFrame(rafRef.current);resetPeak();rafRef.current=requestAnimationFrame(loop)};
  async function play(from=cursor,p=projectRef.current){try{setStatus('Preparing audio …');await engine.play(p,from,libRef.current);setPlaying(true);startMeters();
@@ -890,7 +905,7 @@ function XenMultitrackRoom(){
   c.sourceBpm?{label:'Source tempo ÷2 (octave)',run:()=>setFit(c,'bpm',Math.round(c.sourceBpm*50)/100,'Source tempo '+Math.round(c.sourceBpm*50)/100)}:null,
   {label:'Set source tempo …',run:()=>{const v=Number(window.prompt('Source tempo of this audio (BPM):',String(c.sourceBpm||project.bpm)));if(v>10&&v<999)setFit(c,'bpm',v,'Source tempo '+v)}}].filter(Boolean);
  const clipMenu=(e,t,c)=>{if(inGroup(c.id)){const ids=selIds();openMenu(e,ids.length+' clips',[{label:'Duplicate '+ids.length+' clips',key:'Ctrl+D',run:()=>duplicateClips(ids)},{label:'Copy '+ids.length+' clips',key:'Ctrl+C',run:()=>copyClips(ids)},{label:'Mute / unmute all',key:'M',run:()=>{const all=ids.every(id=>findClip(id)?.c.muted);patchClips(ids,()=>({muted:!all}),all?'Clips unmuted':'Clips muted')}},
-   {label:'Stretch all ×2',run:()=>patchClips(ids,c=>warpPatch(c,(c.stretch||1)*2),'Stretched ×2')},{label:'Compress all ×½',run:()=>patchClips(ids,c=>warpPatch(c,(c.stretch||1)/2),'Compressed ×½')},{label:'Reset warp on all',run:()=>patchClips(ids,c=>({...warpPatch(c,1),warp:c.synth?'synth':undefined,pitch:undefined,reverse:undefined}),'Warp reset')},'-',
+   {label:'Stretch all ×2',run:()=>patchClips(ids,c=>warpPatch(c,(c.stretch||1)*2),'Stretched ×2')},{label:'Compress all ×½',run:()=>patchClips(ids,c=>warpPatch(c,(c.stretch||1)/2),'Compressed ×½')},{label:'Reset warp on all',run:()=>patchClips(ids,c=>({...warpPatch(c,1),warp:c.synth?'synth':undefined,pitch:undefined,reverse:undefined}),'Warp reset')},{label:'Match loudness of all (clip gains to −18 LUFS)',run:()=>matchLoudness(ids)},'-',
    {label:'Set loop to the selection',run:()=>{const {a,b}=groupBounds(ids);setLoop({start:a,end:b,on:true})}},{label:'Select none',run:()=>setGroup([])},'-',{label:'Delete '+ids.length+' clips',key:'Del',run:()=>removeClips(ids)}]);return}
   setSel(c.id);setTrackSel(t.id);const others=project.tracks.filter(x=>x.id!==t.id);openMenu(e,'Clip',[
   {label:'Duplicate',key:'Ctrl+D',run:()=>duplicateClip(c.id)},{label:'Split at cursor',key:'S',run:()=>splitClip(c.id),disabled:!(cursor>c.startBeat&&cursor<c.startBeat+len(c))},
@@ -905,6 +920,7 @@ function XenMultitrackRoom(){
   {label:c.warp==='grain'?'Warp: tape (pitch follows speed)':'Warp: granular (keep the pitch)',run:()=>updClip(c.id,{warp:c.warp==='grain'?undefined:'grain'},c.warp==='grain'?'Tape warp':'Granular warp: pitch kept')},
   c.synth?{label:c.warp==='synth'?'Warp: tape (stretch the recorded audio)':'Warp: pattern (play it again at the new tempo)',run:()=>updClip(c.id,{warp:c.warp==='synth'?undefined:'synth'},c.warp==='synth'?'Tape warp':'Pattern warp: the '+(c.synth.kind==='drum'?'drums':'bass')+' engine renders it at the new tempo')}:null,
   {label:c.reverse?'Play forwards again':'Reverse (play backwards)',run:()=>updClip(c.id,{reverse:c.reverse?undefined:true},c.reverse?'Clip plays forwards':'Clip reversed')},
+  {label:'Match loudness (clip gain to −18 LUFS)',run:()=>matchLoudness([c.id])},
   {label:'Normalize gain (peak to −1 dB)',run:()=>{const pk=audio.get(c.materialId)?.peaks;let m=0;if(pk)for(const v of pk)if(v>m)m=v;if(!(m>0)){setStatus('Nothing to normalize yet (audio still loading or silent).');return}const g=clamp(.891/m,0,2);updClip(c.id,{gain:g},'Clip gain '+g.toFixed(2)+(g>=2?' (limit reached)':''))}},
   {label:'Reset stretch, pitch and direction (original)',run:()=>resetWarp(c),disabled:!(c.stretch||c.warp||c.pitch||c.reverse)},'-',
   {label:'Crossfade with the overlapping clip',key:'X',run:()=>crossfade(c.id)},
@@ -1042,6 +1058,7 @@ function XenMultitrackRoom(){
    u.jsx('button',{type:'button',onClick:()=>addMarker(cursor),title:'Add a marker at the cursor · B','data-xmt-addmarker':'true',children:'⚑ Marker'}),
    u.jsx('button',{type:'button','aria-pressed':project.loop.on,onClick:()=>setLoop({on:!project.loop.on}),title:'Loop '+fmtPos(project.loop.start,bpb)+' – '+fmtPos(project.loop.end,bpb)+' (right-click the ruler to set it)',children:'⟳ Loop'}),
    u.jsx('button',{type:'button','aria-pressed':recording,onClick:recording?stop:()=>void startRec(),title:recording?'Stop recording and put it on a new track':'Record from an audio input (microphone or line in) from the cursor while the arrangement plays. Use headphones: the input is not monitored. The recording is kept as lossless float audio.','data-xmt-rec':'true',style:recording?{background:'#dc2626',borderColor:'#dc2626',color:'#fff'}:null,disabled:!recording&&busy,children:recording?'■ Stop rec':'● Rec'}),
+   recording?u.jsx('div',{className:'meter in','aria-hidden':'true','data-xmt-input-meter':'true',title:'Level of the audio input while recording, −60 to +6 dBFS (the mark is 0 dBFS). The frame turns red once the input has clipped: lower the input gain and record again.',children:u.jsx('i',{ref:inMeterRef})}):null,
    u.jsxs('select',{value:recDevice,disabled:recording,'aria-label':'Recording input',title:'Audio input for recording (names appear after the first permission)','data-xmt-rec-input':'true',onChange:e=>{setRecDevice(e.target.value);try{localStorage.setItem('xensonar.mt.recdev',e.target.value)}catch{}},children:[u.jsx('option',{value:'',children:'Default input'}),...inputs.filter(d=>d.deviceId&&d.deviceId!=='default').map(d=>u.jsx('option',{value:d.deviceId,children:d.label||'Input '+d.deviceId.slice(0,6)},d.deviceId))]}),
    u.jsxs('label',{title:'Round-trip latency in milliseconds (output + input). The recording is moved earlier by this amount so that it lines up with what you heard. Start with the preset and nudge it by ear.',children:['Latency ms',u.jsx('input',{type:'number',min:0,max:500,step:1,value:latencyMs,'data-xmt-rec-latency':'true',onChange:e=>{const v=clamp(num(e.target.value,0),0,500);setRecLat(v);try{localStorage.setItem('xensonar.mt.reclat',String(v))}catch{}}})]}),
    u.jsx('span',{className:'muted',children:'Cursor '+fmtPos(cursor,bpb)}),
@@ -1125,6 +1142,7 @@ function XenMultitrackRoom(){
    u.jsx('button',{type:'button',onClick:()=>{const ids=selIds(),all=ids.every(id=>findClip(id)?.c.muted);patchClips(ids,()=>({muted:!all}),all?'Clips unmuted':'Clips muted')},title:'Mute / unmute all selected · M',children:'Mute'}),
    u.jsx('button',{type:'button',onClick:()=>duplicateClips(selIds()),title:'Duplicate the whole selection after itself · Ctrl+D',children:'Duplicate'}),
    u.jsx('button',{type:'button',onClick:()=>copyClips(selIds()),title:'Copy · Ctrl+C, paste at the cursor with Ctrl+V',children:'Copy'}),
+   u.jsx('button',{type:'button',onClick:()=>matchLoudness(selIds()),'data-xmt-level':'true',title:'Bring every selected clip to the same loudness (−18 LUFS, measured like the mixdown: ITU-R BS.1770) with its clip gain. Nothing is rendered.',children:'Match loudness'}),
    u.jsx('button',{type:'button',onClick:()=>{const {a,b}=groupBounds(selIds());setLoop({start:a,end:b,on:true})},title:'Loop exactly the selected region',children:'Loop it'}),
    u.jsx('button',{type:'button',onClick:()=>removeClips(selIds()),title:'Remove all selected clips (the material stays in the library) · Delete',children:'Remove'}),
    u.jsx('button',{type:'button',onClick:()=>setGroup([]),children:'Select none'})]}):
