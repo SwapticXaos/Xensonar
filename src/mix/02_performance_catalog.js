@@ -12,7 +12,9 @@ const __XenPsyLab=(()=>{
   if(hz>0&&prevHz>0&&((arrows&&(arrows.up||arrows.down))||now-arrowAt<900))wheel*=hz/prevHz;prevHz=hz>0?hz:prevHz;wheel=Math.max(.25,Math.min(4,wheel));
   const k=1-Math.pow(.65,dt*60);/* the same glide time as the ball of Room V */
   if(h)for(const f of followers.values()){let target;
-   if(f.mode==='cursor'){if(!(focus>0))continue;f.pos+=(Math.log2(focus)-f.pos)*k;target=Math.pow(2,f.pos)}/* glide in the log-frequency domain */
+   if(f.mode==='cursor'){if(!(focus>0))continue;
+    /* PSY-GRID-01: with Snap the note sits on the Grid tone the screen shows (direct step, like the pad of Room V); free (no Snap) it glides in the log-frequency domain */
+    if(cursor.snap?.()===true)f.pos=Math.log2(focus);else f.pos+=(Math.log2(focus)-f.pos)*k;target=Math.pow(2,f.pos)}
    else target=f.base*wheel;
    if(target>0&&Math.abs(1200*Math.log2(target/f.last))>.4){f.last=target;h.bend(f.lane,f.keyId,target)}
    /* PSY-X: every held Psy Lab note (mouse or keyboard) follows the cursor's X continuously, like the pad of Room V */

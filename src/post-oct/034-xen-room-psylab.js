@@ -698,7 +698,7 @@ function XenPsyLabRoom(){
   catch(e){setStatus('Bounce failed: '+String(e?.message||e))}finally{setBusy(false)}};
  const gridExtra=u.jsxs(u.Fragment,{children:[
   u.jsxs('label',{className:'xpl-note',children:[u.jsx('input',{type:'checkbox','aria-label':'Show grid lines',checked:gridParams?.gridOn!==false,onChange:e=>__NodalBallGrid.update({gridOn:e.target.checked})}),' Grid lines']}),
-  u.jsxs('label',{className:'xpl-note',children:[u.jsx('input',{type:'checkbox','aria-label':'Snap ball to grid',checked:!!gridParams?.lockCursorToGrid,onChange:e=>__NodalBallGrid.update({lockCursorToGrid:e.target.checked})}),' Snap ball to grid']}),
+  u.jsxs('label',{className:'xpl-note',title:'On: the pad lands on the open Grid tones (muted steps are skipped). Off: the pad glides freely while the keys still play the open Grid tones (chords on the keys, a glissando lead on the pad).',children:[u.jsx('input',{type:'checkbox','aria-label':'Snap ball to grid',checked:!!gridParams?.lockCursorToGrid,onChange:e=>__NodalBallGrid.update({lockCursorToGrid:e.target.checked})}),' Snap ball to grid']}),
   u.jsx('button',{type:'button',onClick:()=>{const n=Zd(gridParams.gridTuning);__NodalBallGrid.update({manualGridMutedSteps:[],manualGridStepOffsets:Array.from({length:n},()=>0)});setStatus('Grid reset: all steps on, offsets 0.')},children:'Grid reset'})]});
 
  const panels=GROUPS.map(([id,title,text])=>u.jsxs('section',{className:'xpl-panel','aria-label':title,children:[u.jsx('h3',{children:title}),text?u.jsx('p',{children:text}):null,
