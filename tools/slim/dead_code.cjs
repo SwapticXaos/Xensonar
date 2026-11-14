@@ -56,6 +56,7 @@ function isPure(n){
  switch(n.type){
   case 'Literal':case 'Identifier':case 'FunctionExpression':case 'ArrowFunctionExpression':case 'ThisExpression':return true;
   case 'TemplateLiteral':return n.expressions.every(isPure);
+  case 'TaggedTemplateExpression':return calleeName(n.tag)==='String.raw'&&n.quasi.expressions.every(isPure);
   case 'ClassExpression':return pureClass(n);
   case 'ObjectExpression':return n.properties.every(p=>p.type==='Property'&&(!p.computed||isPure(p.key))&&isPure(p.value));
   case 'ArrayExpression':return n.elements.every(e=>e===null||(e.type!=='SpreadElement'&&isPure(e)));

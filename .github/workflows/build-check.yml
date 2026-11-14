@@ -10,6 +10,8 @@ jobs:
           node-version: 22
       - name: index.html must equal a fresh build of the sources
         run: python3 tools/build.py --check
+      - name: analysis tools for the slimming gates (acorn, eslint-scope)
+        run: npm ci --prefix tools/slim
       - name: regression tests known green (Oct-28 suite, no browser)
         run: ./tools/run_tests.sh
   e2e:
