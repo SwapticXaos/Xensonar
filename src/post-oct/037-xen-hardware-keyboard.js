@@ -19,7 +19,7 @@ const __XenHwKeyboard=(()=>{
  const clean=v=>({deviceId:typeof v?.deviceId==='string'?v.deviceId.slice(0,200):'',channel:clampInt(v?.channel,0,16,0),root:clampInt(v?.root,0,127,48),offset:clampInt(v?.offset,-64,64,0),
   preset:typeof v?.preset==='string'?v.preset.slice(0,20):'custom'});
  const load=()=>{try{const raw=typeof localStorage!=='undefined'?localStorage.getItem(KEY):null;return raw?clean(JSON.parse(raw)):{...DEFAULTS}}catch{return{...DEFAULTS}}};
- let cfg=load(),enabled=false,status='off',access=null,learning=false,errorText='';
+ let cfg=load(),enabled=false,status='off',access=null,learning=false,errorText='',lastErr=null,permState='';
  const held=new Map(),attached=new Map(),listeners=new Set();
  const stats={messages:0,noteOn:0,noteOff:0,cc:{},bend:0,aftertouch:0,other:0,velMin:null,velMax:null,below:0,above:0,filtered:0,errors:[],first:null};
  let log=[],snap=null,dirty=false,timer=0;
@@ -80,12 +80,16 @@ const __XenHwKeyboard=(()=>{
   if(cfg.deviceId&&!list.some(i=>i.id===cfg.deviceId&&i.state!=='disconnected'))releaseAll();
   status=!enabled?'off':list.length?'ready':'no-device';publish(true);
  }
+ /* a refusal by the browser (denied) is something else than a system MIDI service that cannot start (failed: e.g. Chromium "Platform dependent initialization failed" when the OS backend, on Linux the ALSA sequencer, is not available) */
+ const kindOfError=e=>{const n=String(e&&e.name),m=String(e&&e.message);return (n==='NotAllowedError'||n==='SecurityError')&&!/platform|initiali[sz]ation/i.test(m)?'denied':'failed'};
+ const envInfo=()=>{const ua=typeof navigator!=='undefined'?String(navigator.userAgent||''):'';return{secure:typeof window!=='undefined'?window.isSecureContext:undefined,proto:typeof location!=='undefined'?String(location.protocol):'',linux:/Linux/.test(ua)&&!/Android/.test(ua),firefox:/Firefox\//.test(ua),ua}};
  function enable(){
   if(enabled)return;
   if(typeof navigator==='undefined'||typeof navigator.requestMIDIAccess!=='function'){status='unsupported';publish(true);return}
-  enabled=true;status='asking';publish(true);
+  enabled=true;status='asking';lastErr=null;errorText='';publish(true);
+  try{navigator.permissions?.query({name:'midi'}).then(r=>{permState=r.state},()=>{})}catch{}
   navigator.requestMIDIAccess({sysex:false}).then(a=>{if(!enabled){return}access=a;a.onstatechange=()=>{releaseAllIfGone();refresh()};refresh()})
-   .catch(e=>{enabled=false;status='denied';errorText=String(e&&e.message||e).slice(0,160);if(stats.errors.length<5)stats.errors.push(errorText);publish(true)});
+   .catch(e=>{enabled=false;status=kindOfError(e);lastErr={name:String(e&&e.name||'Error').slice(0,40),message:String(e&&e.message||e).slice(0,160)};errorText=lastErr.message;if(stats.errors.length<5)stats.errors.push(lastErr.name+': '+lastErr.message);publish(true)});
  }
  const releaseAllIfGone=()=>{if(!access)return;const live=new Set([...access.inputs.values()].filter(i=>i.state!=='disconnected').map(i=>i.id));if(![...attached.keys()].some(i=>live.has(i.id)))releaseAll()};
  function disable(){enabled=false;detach();releaseAll();learning=false;status='off';if(access)try{access.onstatechange=null}catch{}access=null;publish(true)}
@@ -101,7 +105,9 @@ const __XenHwKeyboard=(()=>{
   const L=[];const nav=typeof navigator!=='undefined'?navigator:{};
   L.push('XenSonar hardware keyboard report (stage 1)');
   L.push('Browser: '+String(nav.userAgent||'?').slice(0,200));
-  L.push('Web MIDI: '+(typeof nav.requestMIDIAccess==='function'?'available':'not available')+' · status: '+status+(errorText?' ('+errorText+')':''));
+  const env=envInfo();
+  L.push('Web MIDI: '+(typeof nav.requestMIDIAccess==='function'?'available':'not available')+' · status: '+status+(lastErr?' ('+lastErr.name+': '+lastErr.message+')':errorText?' ('+errorText+')':''));
+  L.push('Page: '+(env.proto||'?')+' · secure context: '+(env.secure===undefined?'?':env.secure)+' · permission: '+(permState||'?')+' · platform: '+String(nav.platform||'?').slice(0,40));
   L.push('Devices: '+(inputs().map(d=>(d.manufacturer?d.manufacturer+' ':'')+d.name+' ['+d.state+']').join('; ')||'none'));
   L.push('Settings: first key '+cfg.root+' ('+noteName(cfg.root)+'), offset '+cfg.offset+', channel '+(cfg.channel||'all')+', preset '+cfg.preset+', device '+(cfg.deviceId?'selected':'all'));
   L.push('Messages: '+stats.messages+' · note on '+stats.noteOn+' (velocity '+(stats.velMin===null?'-':stats.velMin+'..'+stats.velMax)+') · note off '+stats.noteOff+' · pitch bend '+stats.bend+' · aftertouch '+stats.aftertouch+' · other '+stats.other);
@@ -113,10 +119,11 @@ const __XenHwKeyboard=(()=>{
  }
  function snapshot(){
   if(snap)return snap;
-  snap=Object.freeze({enabled,status,learning,cfg,devices:inputs(),log:log.slice(),held:held.size,errorText,supported:typeof navigator!=='undefined'&&typeof navigator.requestMIDIAccess==='function',presets:PRESETS});
+  const supported=typeof navigator!=='undefined'&&typeof navigator.requestMIDIAccess==='function';
+  snap=Object.freeze({enabled,status:!supported&&status==='off'?'unsupported':status,learning,cfg,devices:inputs(),log:log.slice(),held:held.size,errorText,lastErr,env:envInfo(),supported,presets:PRESETS});
   return snap;
  }
- return Object.freeze({PRESETS,parse,positionOf,rangeMiss,noteName,enable,disable,setConfig,applyPreset,learn,report,snapshot,
+ return Object.freeze({PRESETS,parse,positionOf,rangeMiss,kindOfError,noteName,enable,disable,setConfig,applyPreset,learn,report,snapshot,
   subscribe:fn=>(listeners.add(fn),()=>listeners.delete(fn)),
   /* test hook: feed a message as if a device sent it (also used by the browser test with a simulated device) */
   _message:(bytes,name)=>note(parse(bytes),name||'test'),_reset:()=>{releaseAll();cfg={...DEFAULTS};held.clear();log=[];snap=null;learning=false}});
@@ -135,18 +142,29 @@ const __xenHwStyle={
  inp:{background:'#14141c',color:'#e9e4ff',border:'1px solid #3b3b4a',borderRadius:4,padding:'3px 6px',font:'inherit'},
  mon:{margin:0,maxHeight:130,overflow:'auto',background:'#07070b',border:'1px solid #24242d',borderRadius:4,padding:6,fontSize:10,lineHeight:1.35,color:'#9a9aa8',whiteSpace:'pre-wrap'},
  note:{margin:0,fontSize:11,lineHeight:1.4,color:'#8a8a98'}};
-const __xenHwStatus={off:'Off',asking:'Waiting for permission…',ready:'Ready','no-device':'On · no keyboard found',unsupported:'Not available in this browser',denied:'Permission denied'};
+const __xenHwStatus={off:'Off',asking:'Waiting for the browser…',ready:'Ready','no-device':'On · no keyboard found',unsupported:'Not available in this browser',denied:'Permission denied',failed:'MIDI could not start'};
+/* what happened and what to try, in plain words (the raw browser message stays visible) */
+function __xenHwExplain(s){
+ const env=s.env||{},err=s.lastErr?(' ('+s.lastErr.name+': '+s.lastErr.message+')'):'';
+ switch(s.status){
+  case 'unsupported':return (env.secure===false?'This page is not a secure context ('+(env.proto||'?')+'): the browser switches Web MIDI off here. Open the HTTPS version. ':'')+'Web MIDI exists in Chrome, Edge, Opera and Firefox 108+; Safari has none.';
+  case 'denied':return 'The browser did not give permission'+err+'. Check the site settings of this page (lock symbol) and switch on again.'+(env.firefox?' Firefox: accept the small “install add-on” prompt next to the address bar.':'');
+  case 'failed':return 'The browser accepted, but the system MIDI service could not start'+err+'. '+(env.linux?'On Linux the browser needs the ALSA sequencer (kernel module snd-seq): try “sudo modprobe snd-seq”; a Snap or Flatpak browser may also need access to it. ':'')+'Plug the keyboard in, switch on again, and copy the device report if it keeps failing.';
+  case 'asking':return env.firefox?'Firefox may show a small “install add-on” prompt next to the address bar: accept it.':'Waiting for the browser permission prompt.';
+  case 'no-device':return 'Switched on, but no keyboard was found: plug it in.';
+  default:return '';}
+}
 function __XenHwKeyboardSettings({onClose}){
  const s=P.useSyncExternalStore(__XenHwKeyboard.subscribe,__XenHwKeyboard.snapshot,__XenHwKeyboard.snapshot);
  const [copied,setCopied]=P.useState('');
  const HW=__XenHwKeyboard,c=s.cfg,S=__xenHwStyle;
- const long={unsupported:'This browser has no Web MIDI (Chrome and Edge work; Firefox asks for an add-on; Safari does not support it).','no-device':'Switched on, but no keyboard was found: plug it in.',denied:'The browser refused access or Web MIDI failed'+(s.errorText?' ('+s.errorText+')':'')+'.'}[s.status]||'';
+ const long=__xenHwExplain(s);
  const copy=()=>{const t=HW.report();(navigator.clipboard?.writeText?navigator.clipboard.writeText(t):Promise.reject()).then(()=>setCopied('Report copied. Paste it into your message.'),()=>setCopied(t))};
  return u.jsxs(P.Fragment,{children:[
   u.jsxs('div',{style:S.head,children:[u.jsx('h2',{id:'xen-hw-title',style:{margin:0,fontSize:15,color:'#f0eaff'},children:'Hardware keyboard (MIDI)'}),u.jsx('button',{type:'button',style:S.btn,onClick:onClose,'data-xen-hw-close':'true',children:'Close'})]}),
   u.jsxs('label',{style:{...S.field,fontSize:13,color:'#e9e4ff',cursor:'pointer'},title:'Each key plays the same slot as the computer key in its place: same Window, tuning, muted steps and Hold slots. Needs the Live Room (Power on); the browser asks for permission.',children:[
-   u.jsx('input',{type:'checkbox','aria-label':'Use a hardware keyboard',checked:s.enabled,onChange:e=>e.target.checked?HW.enable():HW.disable()}),'Use a keyboard connected by USB']}),
-  u.jsx('p',{style:S.note,children:'Status: '+(__xenHwStatus[s.status]||s.status)+(long?' · '+long:'')}),
+   u.jsx('input',{type:'checkbox','aria-label':'Use a hardware keyboard',checked:s.enabled,disabled:!s.supported,onChange:e=>e.target.checked?HW.enable():HW.disable()}),'Use a keyboard connected by USB']}),
+  u.jsx('p',{role:long&&['unsupported','denied','failed'].includes(s.status)?'alert':undefined,style:{...S.note,...(['unsupported','denied','failed'].includes(s.status)?{color:'#f0b46a'}:null)},children:'Status: '+(__xenHwStatus[s.status]||s.status)+(long?' · '+long:'')}),
   u.jsx('p',{style:S.note,children:'Each key plays the same slot as the computer key in its place, with your tuning (a tritave stays a tritave), muted steps and the Keyboard window (ß / Ü). Needs the Live Room (Power on). Stage 1: keys only; velocity, pedal and pitch bend follow. New and not yet tested with real hardware: feedback welcome (copy the device report below).'}),
   u.jsxs('label',{style:S.field,children:['Device',u.jsxs('select',{style:S.inp,'aria-label':'Keyboard device',value:c.deviceId,onChange:e=>HW.setConfig({deviceId:e.target.value}),children:[u.jsx('option',{value:'',children:'All devices'}),...s.devices.map(d=>u.jsx('option',{key:d.id,value:d.id,children:(d.manufacturer?d.manufacturer+' ':'')+d.name+(d.state==='disconnected'?' (disconnected)':'')}))]})]}),
   u.jsxs('label',{style:S.field,children:['Channel',u.jsxs('select',{style:S.inp,'aria-label':'Keyboard channel',value:c.channel,onChange:e=>HW.setConfig({channel:+e.target.value}),children:[u.jsx('option',{value:0,children:'All'}),...Array.from({length:16},(_,i)=>u.jsx('option',{key:i,value:i+1,children:i+1}))]})]}),

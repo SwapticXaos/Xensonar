@@ -9,7 +9,7 @@ function make(opts={}){
  const nav=opts.nav||{userAgent:'TestBrowser/1.0'};
  const box={window:win,navigator:nav,KeyboardEvent,localStorage:{getItem:k=>store[k]??null,setItem:(k,v)=>{store[k]=v}},setTimeout:(f)=>{f();return 0},clearTimeout(){},P:{useState(){},useSyncExternalStore(){}},u:{}};
  vm.createContext(box);
- const api=vm.runInContext(src+'\n;({HW:__XenHwKeyboard})',box);return{HW:api.HW,events,store,nav};
+ const api=vm.runInContext(src+'\n;({HW:__XenHwKeyboard,explain:__xenHwExplain})',box);return{HW:api.HW,explain:api.explain,events,store,nav,win};
 }
 const {HW,events,store}=make();
 // ---- parser ----
@@ -50,10 +50,20 @@ assert.deepEqual(JSON.parse(store['xensonar.hwkeyboard.v1']),{deviceId:'',channe
 {const m=make({store:{'xensonar.hwkeyboard.v1':'{not json'}});assert.equal(m.HW.snapshot().cfg.root,48,'broken storage falls back to the defaults');}
 // ---- unsupported browser: enable() says so and changes nothing ----
 {const m=make({nav:{userAgent:'Safari'}});m.HW.enable();assert.equal(m.HW.snapshot().status,'unsupported');assert.equal(m.HW.snapshot().enabled,false);}
-// ---- denied permission ----
+// ---- denied permission vs a system MIDI service that cannot start (different causes, different advice) ----
 (async()=>{
- const m=make({nav:{userAgent:'X',requestMIDIAccess:()=>Promise.reject(new Error('SecurityError: denied'))}});m.HW.enable();await new Promise(r=>setTimeout(r,5));
- assert.equal(m.HW.snapshot().status,'denied');assert.equal(m.HW.snapshot().enabled,false);
+ const err=(name,msg)=>{const e=new Error(msg);e.name=name;return e};
+ const m=make({nav:{userAgent:'X',requestMIDIAccess:()=>Promise.reject(err('NotAllowedError','Permission to use Web MIDI API was not granted.'))}});m.HW.enable();await new Promise(r=>setTimeout(r,5));
+ assert.equal(m.HW.snapshot().status,'denied');assert.equal(m.HW.snapshot().enabled,false);assert(/did not give permission/.test(m.explain(m.HW.snapshot())));
+ assert.equal(m.HW.kindOfError(err('SecurityError','blocked')),'denied');
+ const f=make({nav:{userAgent:'Mozilla/5.0 (X11; Linux x86_64) Chrome/130',platform:'Linux x86_64',requestMIDIAccess:()=>Promise.reject(err('InvalidStateError','Platform dependent initialization failed.'))}});f.HW.enable();await new Promise(r=>setTimeout(r,5));
+ assert.equal(f.HW.snapshot().status,'failed','the browser said yes but the system service failed: not "denied"');assert.equal(f.HW.snapshot().enabled,false);
+ const ex=f.explain(f.HW.snapshot());assert(/system MIDI service could not start/.test(ex)&&/Platform dependent initialization failed/.test(ex)&&/snd-seq/.test(ex),'Linux advice: '+ex);
+ assert.equal(f.HW.kindOfError(err('NotAllowedError','Platform dependent initialization failed.')),'failed','a platform message wins even under a permission-like name');
+ const fr=f.HW.report();assert(/InvalidStateError: Platform dependent initialization failed/.test(fr)&&/secure context/.test(fr),'the report carries the error and the page facts\n'+fr);
+ const w=make({nav:{userAgent:'Mozilla/5.0 (Windows) Chrome/130',requestMIDIAccess:()=>Promise.reject(err('InvalidStateError','Platform dependent initialization failed.'))}});w.HW.enable();await new Promise(r=>setTimeout(r,5));assert(!/snd-seq/.test(w.explain(w.HW.snapshot())),'no Linux advice off Linux');
+ const ins=make({nav:{userAgent:'Firefox/130'}});ins.win.isSecureContext=false;ins.HW.enable();assert.equal(ins.HW.snapshot().status,'unsupported');assert(/not a secure context/.test(ins.explain(ins.HW.snapshot())),'an insecure page is named as the reason');
+ const ff=make({nav:{userAgent:'Mozilla/5.0 Firefox/130.0',requestMIDIAccess:()=>new Promise(()=>{})}});ff.HW.enable();assert.equal(ff.HW.snapshot().status,'asking');assert(/add-on/.test(ff.explain(ff.HW.snapshot())),'Firefox: the add-on prompt is announced');
  // ---- device attach / detach, running with a simulated device ----
  const input={id:'a',name:'Mini 25',manufacturer:'Acme',state:'connected',onmidimessage:null};const access={inputs:new Map([['a',input]]),onstatechange:null};
  const k=make({nav:{userAgent:'Chrome/130',requestMIDIAccess:async()=>access}});k.HW.enable();await new Promise(r=>setTimeout(r,5));

@@ -32,3 +32,15 @@ Chrome / Edge ja (mit Berechtigung), Firefox ab 108 mit Add-on-gebundener Berech
 - Stufe 2: Anschlagsstärke (Kennlinie weich / linear / hart / fest, Einmessen; Haken wahrscheinlich `holdSlotGain`, je Klangfamilie zu prüfen), Sustain-Pedal (CC64) auf den Sustain-Besitzer, Pitch Bend auf das Psy-Lab-Rad, Modwheel / Aftertouch auf den B/Alt-Ausdruck.
 - Raum V (Psy-Lab-Pad) hat ein eigenes Tastensystem: noch nicht angebunden.
 - Pads, Drehregler, MPE: bewusst später.
+
+## Nachtrag HWKB-01b · Fehleranzeige nach Rückmeldung aus echten Browsern (Linux)
+Beobachtet (Nutzer): Chromium und Opera fragen nach Zulassen; nach „Zulassen" steht trotzdem „Permission denied · … (Platform dependent initialization failed.)". Firefox: das Kästchen bleibt nach dem Klick leer.
+Einordnung: „Platform dependent initialization failed" kommt vom MIDI-Dienst des Systems (unter Linux der ALSA-Sequencer, Kernelmodul `snd-seq`), nicht von der Berechtigung. Die Anzeige „Permission denied" war dafür falsch. Der genaue Chromium-Fehler ließ sich in der Testumgebung nicht nachstellen (dort `NotAllowedError`), und Firefox ist dort nicht installiert: Ursache für Firefox nach Code-Lage vermutet, nicht bestätigt (API fehlt auf unsicherer Seite, oder die Anfrage wird abgelehnt, bevor das Add-on-Angebot erscheint).
+Änderungen:
+- Fehler werden unterschieden: `denied` (Browser verweigert: `NotAllowedError` / `SecurityError`) und `failed` (Systemdienst startet nicht, auch bei Berechtigungs-ähnlichem Namen mit „Platform … initialization"-Text).
+- Wortlaut je Fall, ausdrücklich mit dem Original der Browser-Meldung; Linux-Hinweis (`sudo modprobe snd-seq`, Snap / Flatpak) nur unter Linux; Firefox-Hinweis zum Add-on-Angebot; unsichere Seite (kein HTTPS) wird als Grund genannt.
+- Fehlt Web MIDI ganz, ist der Schalter gesperrt, und der Grund steht sofort sichtbar in der Zeile und im Dialog (vorher blieb er scheinbar „ohne Reaktion" leer). Hinweise bei Fehlern erscheinen als Alert unter dem Schalter.
+- Gerätebericht enthält jetzt Fehlername und -text, Seitenart (`https:` / `file:`), „secure context", Berechtigungsstatus und Plattform.
+Tests: `hwkeyboard_core` (Einordnung, Linux-Hinweis nur unter Linux, unsichere Seite, Firefox-Add-on, Bericht), `hwkeyboard_live` (Fehlerpfade `denied`, `platform`, `none`: Schalter, Zeile, Dialog, Alert).
+index.html 8 098 296 → 8 100 540 Bytes (+2 244). Rollback: `bc22eef`.
+Was dadurch nicht gelöst wird: Läuft der MIDI-Dienst des Systems nicht, kann XenSonar das nicht beheben; die Anzeige sagt nur genau, woran es hängt.

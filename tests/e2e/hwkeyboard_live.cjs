@@ -14,6 +14,7 @@ const mock=(mode)=>{window.__midi={calls:0,state:'connected'};
  window.__midi.unplug=()=>{input.state='disconnected';access.onstatechange&&access.onstatechange({})};window.__midi.plug=()=>{input.state='connected';access.onstatechange&&access.onstatechange({})};
  window.__midi.attached=()=>typeof input.onmidimessage==='function';
  if(mode==='denied')navigator.requestMIDIAccess=()=>{window.__midi.calls++;return Promise.reject(new DOMException('denied','SecurityError'))};
+ else if(mode==='platform')navigator.requestMIDIAccess=()=>{window.__midi.calls++;return Promise.reject(new DOMException('Platform dependent initialization failed.','InvalidStateError'))};
  else if(mode==='none')Object.defineProperty(navigator,'requestMIDIAccess',{value:undefined,configurable:true});
  else navigator.requestMIDIAccess=()=>{window.__midi.calls++;return Promise.resolve(access)}};
 async function open(b,mode){const p=await (await b.newContext({viewport:{width:1500,height:1000},permissions:['clipboard-read','clipboard-write']})).newPage();
@@ -84,11 +85,16 @@ async function open(b,mode){const p=await (await b.newContext({viewport:{width:1
   await p.evaluate(()=>window.__midi.send&&window.__midi.send(0x90,48,100));await p.waitForTimeout(120);assert.equal((await held()).length,0,'no sound when off');
   assert.deepEqual(errors,[]);}
  // ---- failure paths: the computer keyboard keeps working ----
- for(const mode of ['denied','none']){const {p,errors}=await open(b,mode);const E=c=>p.evaluate(x=>window.__xenProbe.draw.evalInBundle(x),c);
+ for(const mode of ['denied','platform','none']){const {p,errors}=await open(b,mode);const E=c=>p.evaluate(x=>window.__xenProbe.draw.evalInBundle(x),c);
   await p.getByRole('button',{name:'Set up hardware keyboard…'}).scrollIntoViewIfNeeded();await p.getByRole('button',{name:'Set up hardware keyboard…'}).click();await p.waitForTimeout(300);
-  await p.getByRole('checkbox',{name:'Use a hardware keyboard'}).check({timeout:3000}).catch(()=>{});await p.waitForTimeout(600);
-  const text=await p.getByRole('dialog').innerText();assert(mode==='denied'?/refused|failed/i.test(text):/no Web MIDI/i.test(text),mode+': the dialog explains it: '+text.slice(0,200));
-  assert(mode==='denied'?/Permission denied/.test(await p.locator('[data-xen-hw-keyboard]').first().innerText()):/Not available/.test(await p.locator('[data-xen-hw-keyboard]').first().innerText()),mode+': the row shows it too');
+  const box=p.getByRole('checkbox',{name:'Use a hardware keyboard'});
+  if(mode==='none'){assert(await box.isDisabled(),'none: the switch is disabled (nothing can be switched on) instead of silently staying empty')}
+  else{await box.check({timeout:3000}).catch(()=>{});await p.waitForTimeout(600);assert.equal(await box.isChecked(),false,mode+': the switch is off again after the failure')}
+  const text=await p.getByRole('dialog').innerText(),rowText=await p.locator('[data-xen-hw-keyboard]').first().innerText();
+  const want={denied:[/did not give permission/,/Permission denied/],platform:[/system MIDI service could not start.*Platform dependent initialization failed/s,/MIDI could not start/],none:[/Web MIDI exists in Chrome/,/Not available/]}[mode];
+  assert(want[0].test(text),mode+': the dialog explains it: '+text.slice(0,300));assert(want[1].test(rowText),mode+': the row shows it too: '+rowText);
+  assert(await p.getByRole('alert').count()>=1,mode+': the reason is an alert, not only a status line');
+  if(mode==='platform')assert(!/Permission denied/.test(rowText+text),'platform: a failing system service is not reported as a refused permission');
   await p.keyboard.press('Escape');await p.waitForTimeout(200);
   await p.keyboard.down('1');await p.waitForTimeout(150);const h=JSON.parse(await E('JSON.stringify(__xenHeldKeys.hz())'));await p.keyboard.up('1');assert.equal(h.length,1,mode+': the computer keyboard still plays');assert.deepEqual(errors,[]);}
  console.log('PASS HWKB-01: simulated keyboard = computer keys in 12-EDO / 31-EDO / tritave (BP), muted steps, beyond 32 keys, release / unplug / channel / learn / preset / monitor / report, failure paths');
