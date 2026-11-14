@@ -121,3 +121,4 @@ slim_undefined_names.cjs
 build_flavours.cjs
 mtw_01_loudness_and_wav.test.cjs
 mtw_02_fades.test.cjs
+hwkeyboard_core.cjs
