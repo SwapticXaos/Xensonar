@@ -13,6 +13,7 @@
   },
   {
    "id": "js-000-xen-render-monitor",
+   "diag": true,
    "oct28_section": null,
    "files": [
     "src/post-oct/000-xen-render-monitor.js"
@@ -20,6 +21,7 @@
   },
   {
    "id": "js-001-xen-startup-observer",
+   "diag": true,
    "oct28_section": "@@XENSONAR_COMPONENT_002@@",
    "files": [
     "src/startup/01_startup_observer.js"
@@ -41,6 +43,7 @@
   },
   {
    "id": "js-003-xen-opera-power-d3-diagnostics",
+   "diag": true,
    "oct28_section": null,
    "files": [
     "src/post-oct/003-xen-opera-power-d3-diagnostics.js"
@@ -48,6 +51,7 @@
   },
   {
    "id": "js-004-xen-xmem-root01-idb-owner",
+   "diag": true,
    "oct28_section": null,
    "files": [
     "src/post-oct/004-xen-xmem-root01-idb-owner.js"
@@ -62,6 +66,7 @@
   },
   {
    "id": "js-006-xen-xmem02-melodic-stage",
+   "diag": true,
    "oct28_section": null,
    "files": [
     "src/post-oct/006-xen-xmem02-melodic-stage.js"
@@ -69,6 +74,7 @@
   },
   {
    "id": "js-007-xen-xmem02b-melodic-repository-pilot",
+   "diag": true,
    "oct28_section": null,
    "files": [
     "src/post-oct/007-xen-xmem02b-melodic-repository-pilot.js"
@@ -76,6 +82,7 @@
   },
   {
    "id": "js-008-xen-xmem02d1-melodic-epoch",
+   "diag": true,
    "oct28_section": null,
    "files": [
     "src/post-oct/008-xen-xmem02d1-melodic-epoch.js"
@@ -83,6 +90,7 @@
   },
   {
    "id": "js-009-xen-xmem02c-melodic-native-adapter",
+   "diag": true,
    "oct28_section": null,
    "files": [
     "src/post-oct/009-xen-xmem02c-melodic-native-adapter.js"
@@ -1031,6 +1039,7 @@
   },
   {
    "id": "js-030-inline",
+   "diag": true,
    "oct28_section": null,
    "files": [
     "src/post-oct/030-inline.js"

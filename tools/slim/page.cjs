@@ -7,11 +7,16 @@ function load(){
  const man=JSON.parse(fs.readFileSync(path.join(ROOT,'source-manifest.json'),'utf8'));
  const tpl=fs.readFileSync(path.join(ROOT,man.template),'utf8');
  const sections=new Map(man.sources.map(s=>[s.id,s.files]));
+ /* like tools/build.py: the delivery leaves out sections marked "diag" together with their <script> element (XEN_DIAG=1 keeps them) */
+ let template=tpl;
+ if(process.env.XEN_DIAG!=='1')for(const s of man.sources)if(s.diag){
+  const re=new RegExp('[ \\t]*<script\\b[^>]*>'+SEP+'XEN-SECTION:'+s.id.replace(/[.*+?^${}()|[\\]\\\\]/g,'\\\\$&')+SEP+'</script>[ \\t]*\\n?');
+  if(!re.test(template))throw Error('diag section not alone in its script element: '+s.id);template=template.replace(re,'');}
  const pieces=[];let out='';
  const re=new RegExp(SEP+'XEN-SECTION:([^'+SEP+']+)'+SEP,'g');let last=0,m;
  const push=(file,text)=>{pieces.push({file,start:out.length,end:out.length+text.length});out+=text};
- while((m=re.exec(tpl))){push(null,tpl.slice(last,m.index));for(const f of sections.get(m[1]))push(f,fs.readFileSync(path.join(ROOT,f),'utf8'));last=m.index+m[0].length}
- push(null,tpl.slice(last));
+ while((m=re.exec(template))){push(null,template.slice(last,m.index));for(const f of sections.get(m[1]))push(f,fs.readFileSync(path.join(ROOT,f),'utf8'));last=m.index+m[0].length}
+ push(null,template.slice(last));
  const fileAt=pos=>{let lo=0,hi=pieces.length-1;while(lo<hi){const mid=(lo+hi+1)>>1;if(pieces[mid].start<=pos)lo=mid;else hi=mid-1}return pieces[lo]};
  const blocks=[];const sre=/<script\b([^>]*)>/gi;
  while((m=sre.exec(out))){const start=m.index+m[0].length,e=out.slice(start).search(/<\/script\s*>/i);if(e<0)break;
