@@ -123,3 +123,4 @@ mtw_01_loudness_and_wav.test.cjs
 mtw_02_fades.test.cjs
 hwkeyboard_core.cjs
 live_lane_01.test.cjs
+thunder_clock_01.test.cjs
