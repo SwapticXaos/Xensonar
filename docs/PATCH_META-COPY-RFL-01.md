@@ -27,3 +27,6 @@ Daten-Owner: Material-Bibliothek (`__registerDurableMaterial`), Root-Follow-Bank
 - Zweimal ziehen erzeugt zwei Kopien (gewollt: jede Kopie ist ein eigener Eintrag).
 - Kopie ohne Bearbeitung übernimmt das Audio byte-gleich; bei Bearbeitung entsteht ein 16-Bit-WAV (wie „Save as New Material“).
 - Nicht geprüft: Abspielen der Kopie im Hauptraum, Kopie mit Fremdformaten (nur synthetische Plan-Einträge ohne Audio melden „Original loop audio is unavailable“).
+
+## 3. Spaltenflächen beim Scrollen (Nachtrag)
+Vorher: Das Board-Grid hielt die Spaltenhöhe auf der sichtbaren Höhe; bei vielen Einträgen ragten die Kacheln unten aus den Spaltenflächen heraus. Jetzt `grid-auto-rows:max-content` und `min-height:auto` an der Spalte: alle fünf Flächen wachsen mit dem längsten Inhalt und scrollen mit (Messung bei 14 Einträgen: Fläche 787 px, scrollHeight 805 px, sichtbar 318 px). Nur CSS.
