@@ -429,30 +429,8 @@ function Die(e){const t=lT(e.keyId),n=e.state.gestures[e.lane],r=n[t],a=Number.i
    (default) the planner places every pulse on the gesture's audio grid a little ahead (microtiming and slot volumes included) and the voice starts at
    that audio time. 'loose' keeps the old main-thread timing on purpose (a selectable "feature bug"). Nodal keeps its own clock, samples their own
    lookahead. A voice with an overtone arpeggio or the Room III body exciter stays loose (those parts have no start time). */
-/* THUNDER-CLOCK-02: 150 ms ahead, so that a main-thread stall of that length (drawing, React, GC on a real device) costs no pulse; a key release
-   cancels every pulse of the gesture that has not started yet (generic: whatever a pulse added to the shared list of live tones). */
-const __XEN_THUNDER_EXACT_AHEAD_MS=150;
-function __xenThunderCutTone(tone,now){try{if(typeof tone.cut==='function'){tone.cut();return}if(typeof tone.release==='function'&&!tone.osc){tone.release();return}
- const g=tone.gain?.gain;if(g){g.cancelScheduledValues(0);g.setValueAtTime(0,now)}if(tone.osc)tone.osc.stop(now+.002)}catch{}}
-/* the tones one pulse created (they were appended to the live tone list during its synchronous start) */
-function __xenThunderTrack(gesture,ctx,at,tones,before){if(!gesture||!ctx||!Number.isFinite(at)||!Array.isArray(tones))return;const added=tones.slice(before);if(!added.length)return;
- const list=gesture.thunderPending??=[],now=ctx.currentTime;for(let i=list.length-1;i>=0;i--)if(list[i].at<now-.01)list.splice(i,1);list.push({at,ctx,tones:added})}
-function __xenThunderCancel(gesture){const list=gesture?.thunderPending;if(!list)return 0;gesture.thunderPending=null;let n=0;
- for(const p of list){const now=p.ctx.currentTime;if(p.at<=now+.002)continue;n++;for(const tone of p.tones)__xenThunderCutTone(tone,now)}return n}
-/* one exact pulse: start it, remember its tones for a later cancel */
-function __xenThunderDeliver(play,tonesRef,gesture,ctx,at,pitch,options){const before=tonesRef?.current?.length??0;const res=play(pitch,!1,options);if(Number.isFinite(at))__xenThunderTrack(gesture,ctx,at,tonesRef?.current,before);return res}
-/* THUNDER-CLOCK-02 · ONE place that says how a synth on the Wave Starter / Keyboard lanes takes part in Thunder Mode (by the prefix of its sound id).
-   'own-clock'  = the synth runs the held pattern on its own audio clock (Nodal) or its own lookahead (samples);
-   'starts-at'  = the synth starts a voice at a given audio time (options.thunderAtSec) and lists its tones in the shared live-tone list:
-                  in Exact mode the central Thunder clock places every pulse on the grid, 150 ms ahead, and cancels what has not started on release;
-   'due-time'   = the synth starts a voice when it is called: it gets the pulses when they are due (the legacy precision), never early.
-   A NEW synth needs no change here to play Thunder (it is 'due-time'); one register() line makes it exact once it honours thunderAtSec.
-   Loop-Rec picks it up through the lane input (__XenLiveLane). */
-const __XenThunderSynths=(()=>{const rules=new Map([['nodal','own-clock'],['sample','own-clock'],['entrophon','starts-at'],['psylab','due-time']]);
- const modeOf=id=>{const s=String(id||'');if(!s)return 'starts-at';const i=s.indexOf(':');const prefix=i<0?s:s.slice(0,i);if(rules.has(prefix))return rules.get(prefix);return i<0?'starts-at'/* classic sounds: plain ids */:'due-time'};
- return Object.freeze({modeOf,register(prefix,mode){if(typeof prefix==='string'&&prefix&&['own-clock','starts-at','due-time'].includes(mode))rules.set(prefix,mode)},rules:()=>Object.fromEntries(rules)})})();
-try{globalThis.__XenThunderSynths=__XenThunderSynths}catch{}
-function __xenThunderExactLanes(p,preset){if(p?.thunderTiming==='loose')return null;const ok=lane=>__XenThunderSynths.modeOf(preset(lane))==='starts-at';return {wellenstart:ok('wellenstart'),klaviatur:ok('klaviatur')}}
+const __XEN_THUNDER_EXACT_AHEAD_MS=35;
+function __xenThunderExactLanes(p,preset){if(p?.thunderTiming==='loose')return null;const ok=lane=>{const id=String(preset(lane)||'');return !id.startsWith('nodal:')&&!id.startsWith('sample:')&&!id.startsWith('psylab:')};return {wellenstart:ok('wellenstart'),klaviatur:ok('klaviatur')}}
 /* the audio time of a planned pulse: the gesture's audio anchor is taken ONCE (like Nodal's clock), every pulse is anchor + its distance on the grid */
 function __xenThunderAtSec(gesture,ctx,dueAtMs){if(!ctx||!Number.isFinite(dueAtMs)||!Number.isFinite(gesture?.startedAtMs))return null;
  if(gesture.thunderAnchorCtx!==ctx||!Number.isFinite(gesture.thunderAnchorSec)){gesture.thunderAnchorCtx=ctx;gesture.thunderAnchorSec=ctx.currentTime+(gesture.startedAtMs-performance.now())/1000}/* no offset: the first attack of the gesture sounds at key-down, the grid starts there */
@@ -480,7 +458,7 @@ function Nie(e){
    gesture.extendPolicy=Kx(sustain,gesture.sustainExtendLatched);
    const exact=e.sampleLanes?.[lane]!==true&&e.exactLanes?.[lane]===true;/* THUNDER-CLOCK-01 */
    if(!((e.sampleLanes?.[lane]===true||exact)&&e.sampleAudioCtx?.state==='running'&&!gesture.sustainExtendActive)&&gesture.sampleClock04Signature!==undefined){
-    __XenSampleClock04.cancelKey(gesture.sampleClock04Ctx,lane,gesture.keyId,gesture.startedAtMs,true);typeof __xenThunderCancel==='function'&&__xenThunderCancel(gesture);
+    __XenSampleClock04.cancelKey(gesture.sampleClock04Ctx,lane,gesture.keyId,gesture.startedAtMs,true);
     delete gesture.sampleClock04Signature;
     gesture.pulseCount=Math.max(0,Math.floor((e.nowMs-gesture.startedAtMs)/interval));
     gesture.nextPulseAtMs=gesture.startedAtMs+(gesture.pulseCount+1)*interval;
@@ -490,7 +468,6 @@ function Nie(e){
     const signature=(exact?'exact|':'')+(e.sampleSignatures?.[lane]??'')+(ov?'|'+ov.signature:'')+'|'+gesture.targetHz,horizon=exact?__XEN_THUNDER_EXACT_AHEAD_MS:Math.max(400,Math.min(650,Number(e.sampleLookaheadMs)||550));
     if(gesture.sampleClock04Signature!==signature){
      if(gesture.sampleClock04Signature!==undefined)__XenSampleClock04.cancelKey(ctx,lane,gesture.keyId,gesture.startedAtMs,false);
-     typeof __xenThunderCancel==='function'&&__xenThunderCancel(gesture);/* THUNDER-CLOCK-02: pattern / sound / pitch changed: the pulses planned ahead from the old plan must not sound */
      gesture.sampleClock04Signature=signature;
      gesture.pulseCount=gesture.quantizedAttackPending?0:Math.max(1,Math.floor((e.nowMs-gesture.startedAtMs+.001)/interval)+1);
      gesture.nextPulseAtMs=gesture.startedAtMs+gesture.pulseCount*interval;
@@ -500,7 +477,7 @@ function Nie(e){
      const pulseIndex=gesture.pulseCount++,wasPending=pulseIndex===0&&gesture.quantizedAttackPending;let due=__xenHoldSlotDueMs(gesture.startedAtMs,pulseIndex,interval,micro);
      if(pulseIndex===0&&gesture.quantizedAttackPending)gesture.quantizedAttackPending=false;
      gesture.nextPulseAtMs+=interval;planned++;
-     if(due<e.nowMs+(exact?-Math.max(25,interval*.5):8)){if(wasPending&&due>=e.nowMs-70)due=e.nowMs+14;else{e.state.skippedCatchupCount++;continue}}/* exact: a pulse up to half an interval late still plays (as soon as possible), it is never silently dropped */
+     if(due<e.nowMs+(exact?-25:8)){if(wasPending&&due>=e.nowMs-70)due=e.nowMs+14;else{e.state.skippedCatchupCount++;continue}}/* exact: a pulse up to 25 ms late still plays (as soon as possible), like the loose path */
      const active=tG(steps,segments,pulseIndex);
      if(!active||__xenHoldSlotGain(vols,pulseIndex)===0){e.state.patternMutedPulseCount++;continue}
      out.push({lane,keyId:gesture.keyId,targetHz:gesture.targetHz,intervalMs:interval,segmentsPerBar:segments,referenceBars:bars,pulseIndex,sustainExtendActive:false,articulation:gesture.articulation,extendPolicy:gesture.extendPolicy,reason:exact?'thunder-exact':'sample-audio-timeline-lookahead',sampleClock04:!exact,thunderExact:exact,dueAtMs:due,slotGain:__xenHoldSlotGain(vols,pulseIndex)});
