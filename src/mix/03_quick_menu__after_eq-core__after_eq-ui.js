@@ -700,7 +700,7 @@ if(typeof document!=='undefined'){
    }
    const board=document.querySelector('.xen-meta-board');board?.classList.toggle('is-drop-hover',!!meta);
    if(typeof __xenMetaRenderDropMarker==='function')__xenMetaRenderDropMarker(meta);
-   for(const lane of document.querySelectorAll('.xen-meta-lane'))lane.classList.toggle('is-drop-lane',!!meta&&!meta.swapWith&&lane===meta.column);
+   for(const lane of document.querySelectorAll('.xen-meta-lane'))lane.classList.toggle('is-drop-lane',!!meta&&!meta.swapWith&&!meta.invalidReason&&lane===meta.column);
     for(const lane of document.querySelectorAll('.xen-meta-lane'))lane.classList.toggle('is-drop-invalid',!!meta?.invalidReason&&lane===meta.column);
     for(const tile of document.querySelectorAll('.xen-meta-tile.is-swap-target'))tile.classList.remove('is-swap-target');
     if(meta?.swapWith){const other=[...document.querySelectorAll('.xen-meta-tile')].find(tile=>tile.dataset.xenQuickKind===meta.swapWith.kind&&tile.dataset.xenQuickId===meta.swapWith.id);other?.classList.add('is-swap-target');}
@@ -714,11 +714,11 @@ if(typeof document!=='undefined'){
     sort.over?.(libraryEvent(e));
    }else leaveSort();
    for(const target of document.querySelectorAll('.xen-quick-dock,.xen-quick-collection.is-right-docked,.xen-quick-left-landing')){const r=target.getBoundingClientRect();target.classList.toggle('xen-quick-pointer-over',inside&&r.width>0&&r.height>0&&e.clientX>=r.left&&e.clientX<r.right&&e.clientY>=r.top&&e.clientY<r.bottom);}
-   ghost.classList.toggle('is-over',inside||!!meta||!!fill||!!trash);
+   ghost.classList.toggle('is-over',inside||(!!meta&&!meta.invalidReason)||!!fill||!!trash);
    ghost.classList.toggle('is-sorting',!!zone);ghost.classList.toggle('is-library-sorting',!!libraryTarget||!!sessionTarget);
    const detail=zone?sort.preview?.():'';
    ghost.textContent=(session.entry.kind==='session'?'🎧':__XenQuick.icons[session.entry.kind]||'')+' '+session.entry.name+
-    (sessionTarget?__xenMetaSessionOrderHud(sessionTarget):libraryTarget?__xenMetaLibraryOrderHud(libraryTarget):trash?' · RELEASE → LIBRARY TRASH':fill?' · '+(fill.valid?'RELEASE → '+fill.role.toUpperCase()+' FILL':'WRONG FILL COLUMN'):meta?' · LOSLASSEN → SESSION':inside?' · RELEASE → LIVE QUICK RACK':session.entry.kind==='session'?' · SORT SESSIONS':session.modal.dataset.xenHeaderMenu==='meta'?' · DRAG TO QUICK RACK':detail?' · '+detail:'');
+    (sessionTarget?__xenMetaSessionOrderHud(sessionTarget):libraryTarget?__xenMetaLibraryOrderHud(libraryTarget):trash?' · RELEASE → LIBRARY TRASH':fill?' · '+(fill.valid?'RELEASE → '+fill.role.toUpperCase()+' FILL':'WRONG FILL COLUMN'):meta?(meta.invalidReason?' · ✕ HIER NICHT ABLEGBAR':meta.copy?' · LOSLASSEN → KOPIE IN ROOT FOLLOW LOOP':' · LOSLASSEN → SESSION'):inside?' · RELEASE → LIVE QUICK RACK':session.entry.kind==='session'?' · SORT SESSIONS':session.modal.dataset.xenHeaderMenu==='meta'?' · DRAG TO QUICK RACK':detail?' · '+detail:'');
    ghost.style.left=Math.max(4,Math.min(e.clientX+14,window.innerWidth-ghost.offsetWidth-4))+'px';
    ghost.style.top=Math.max(4,Math.min(e.clientY-18,window.innerHeight-ghost.offsetHeight-4))+'px';
   }

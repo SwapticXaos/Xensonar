@@ -1085,13 +1085,16 @@ function __xenMetaDropTarget(event,session){
  const sourceKind=session.entry.kind,sourceInSession=session.source.hasAttribute('data-xen-meta-item');
  const desired=hoveredLane?.dataset.xenMetaColumn||sourceKind;
  const cross=desired!==sourceKind;
+ const hoveredTile=element?.closest('[data-xen-meta-item]');
+ // META-COPY-RFL-01: Material Track -> Root Follow Loop COPIES the loop (length as set in
+ // the loop editor); the Material entry stays. Shift + a hovered tile keeps the lane swap.
+ const copy=cross&&sourceInSession&&sourceKind==='material'&&desired==='rootFollow'&&!(event.shiftKey&&hoveredTile);
  // Library rows retain their canonical kind; drag across lanes only for a
  // concrete Session tile with a durable compatible target owner.
  const targetKind=cross&&sourceInSession?desired:sourceKind;
  const lane=board.querySelector('[data-xen-meta-column="'+targetKind+'"]');if(!lane)return null;
- const check=cross?(sourceInSession?__xenMetaLaneCompatibility(session.entry,targetKind):
+ const check=copy?{ok:true}:cross?(sourceInSession?__xenMetaLaneCompatibility(session.entry,targetKind):
   {ok:false,reason:'Add a library source to its own lane before moving it.'}):{ok:true};
- const hoveredTile=element?.closest('[data-xen-meta-item]');
  let swapWith=null,swapReason=null;
  if(cross&&sourceInSession&&event.shiftKey&&hoveredTile){
   const other=__XenMetaSessions.snapshot().items.find(row=>row.kind===targetKind&&(row.instanceId||row.id)===hoveredTile.dataset.xenQuickId);
@@ -1104,7 +1107,7 @@ function __xenMetaDropTarget(event,session){
  const rows=[...lane.querySelectorAll('[data-xen-meta-item]')].filter(row=>!(session.source===row));
  const next=rows.find(row=>event.clientY<row.getBoundingClientRect().top+row.getBoundingClientRect().height/2);
  return{column:lane,beforeId:next?.dataset.xenQuickId??null,kind:targetKind,
-  invalidReason:!check.ok?check.reason:swapReason,blockedCrossLane:cross&&!sourceInSession,swapWith};
+  invalidReason:!check.ok?check.reason:swapReason,blockedCrossLane:cross&&!sourceInSession,swapWith,copy};
 }
 function __xenMetaRenderDropMarker(target){
  let marker=document.querySelector('.xen-meta-insertion-line');
@@ -1135,6 +1138,14 @@ function __xenMetaCommitDrop(session){
    notify(ok?'Swapped '+entry.name+' and '+other.name+' between Material / Root Follow in this Session draft · native sources untouched.':
      __XenMetaSessions.snapshot().error||'Cross-lane swap blocked: incompatible sources.');
    return ok;
+  }
+  if(target.copy){
+   // Async: decode/render/write happen off the pointer path; the result is announced when done.
+   notify('Copying '+entry.name+' to Root Follow Loop …');
+   __xenMetaCopyMaterialToRootFollow(entry,target.beforeId).then(
+    saved=>notify('Copied to Root Follow Loop: '+saved.name+' · '+saved.bars+' bar'+(saved.bars===1?'':'s')+' · Material Track entry kept.'),
+    error=>notify('Copy to Root Follow failed: '+(error?.message||String(error))+' · Nothing changed.'));
+   return true;
   }
   if(target.kind!==entry.kind){
    const ok=__XenMetaSessions.reassignLane(entry,session.metaTarget.kind,session.metaTarget.beforeId);
