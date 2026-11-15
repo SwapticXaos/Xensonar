@@ -763,7 +763,7 @@ const __XenMetaEditE3b=(()=>{
   const p=config.synthPattern;
   if(config.pitchIdentity?.pitchConstraint==='continuous'||!Array.isArray(p.notes)||!Array.isArray(p.tracks)||!p.notes.length||!p.tracks.length)
    return fail('unsupported','XEN_EDIT_SYNTH_NOT_DISCRETE','This source needs a continuous-field adapter or has no editable note pattern.');
-  if(!Number.isInteger(p.bars)||p.bars<1||p.bars>16||!Number.isInteger(p.stepsPerBar)||p.stepsPerBar<1||p.stepsPerBar>128||
+  if(!Number.isInteger(p.bars)||p.bars<1||p.bars>__xenMaxPatternBars||!Number.isInteger(p.stepsPerBar)||p.stepsPerBar<1||p.stepsPerBar>128||
      !Number.isInteger(p.beatsPerBar)||p.beatsPerBar<1||p.beatsPerBar>16||!finite(p.baseHz)||p.baseHz<=0||p.notes.length>1024)
    return fail('unsupported','XEN_EDIT_SYNTH_GEOMETRY','The stored bars, beat grid or note capacity cannot be represented safely by Melodic Loop.');
   const trackIds=new Set();
@@ -853,7 +853,7 @@ const __XenMetaEditE4=(()=>{
  function convertPattern(config,{name='Derived Fretless Field'}={}){
   if(config?.sourceKind!=='synth'||config.renderMode!=='direct'||!config.synthPattern)return fail('unsupported','XEN_EDIT_FIELD_NOT_DIRECT','Not a direct Root Follow synth field.');
   const p=config.synthPattern,total=p.bars*p.beatsPerBar;
-  if(!Number.isInteger(p.bars)||p.bars<1||p.bars>16||!Number.isInteger(p.beatsPerBar)||p.beatsPerBar<1||p.beatsPerBar>16||!finite(p.baseHz)||p.baseHz<=0||!Array.isArray(p.tracks)||!p.tracks.length||!Array.isArray(p.notes)||!p.notes.length||p.notes.length>1024)
+  if(!Number.isInteger(p.bars)||p.bars<1||p.bars>__xenMaxPatternBars||!Number.isInteger(p.beatsPerBar)||p.beatsPerBar<1||p.beatsPerBar>16||!finite(p.baseHz)||p.baseHz<=0||!Array.isArray(p.tracks)||!p.tracks.length||!Array.isArray(p.notes)||!p.notes.length||p.notes.length>1024)
    return fail('unsupported','XEN_EDIT_FIELD_INVALID','Invalid Root Follow field score.');
   const curveNotes=p.notes.filter(n=>n?.compiledPitchSemitones?.length>1||n?.compiledGainCurve?.length>1||n?.localField);
   if(!curveNotes.length)return fail('not-applicable','XEN_EDIT_FIELD_NOT_APPLICABLE','Discrete figure; use Melodic Loop.');
@@ -903,7 +903,7 @@ const __XenMetaEditE4=(()=>{
   const total=field.totalBeats,base=field.sourceBaseHz;
   if(!finite(total)||total<=0||total>256||!finite(base)||base<=0)return bad('XEN_EDIT_INTEGRAL_TIMING','Invalid original field duration or frequency reference.');
   const bars=field.sourceBars,beats=field.sourceBeatsPerBar;
-  if(!Number.isInteger(bars)||bars<1||bars>16||!Number.isInteger(beats)||beats<1||beats>16||Math.abs(bars*beats-total)>1e-5)
+  if(!Number.isInteger(bars)||bars<1||bars>__xenMaxPatternBars||!Number.isInteger(beats)||beats<1||beats>16||Math.abs(bars*beats-total)>1e-5)
    return bad('XEN_EDIT_INTEGRAL_BARS','Unsupported field bar or beat alignment.');
   const ids=new Set(),trackIds=new Set(),notes=[];
   for(const v of field.voices){

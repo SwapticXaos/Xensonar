@@ -764,11 +764,13 @@ function Jfe({audioCtx:e,nexusActive:t,materialLoopActive:n,selectedLoopMaterial
     canPreview:id=>!!bs().entries.find(item=>item.id===id)?.blob?.size||__XenStarterMaterial.requested({kind:'material',id})});
 })();
 const FI={registered:"xensonar:material-registered",updated:"xensonar:material-updated",reordered:"xensonar:material-reordered",deleted:"xensonar:material-deleted"};function Vw(e,t){return typeof window>"u"||typeof window.dispatchEvent!="function"?!1:(window.dispatchEvent(new CustomEvent(FI[e],{detail:t})),!0)}function l3(e,t){if(typeof window>"u")return()=>{};const n=r=>{const a=r;t(a.detail,a)};return window.addEventListener(FI[e],n),()=>window.removeEventListener(FI[e],n)}const qT="xensonar-material-v1";function Zfe(e){return e.trim().toLowerCase().replace(/[^a-z0-9-_]+/g,"-").replace(/^-+|-+$/g,"")||"material"}function e0e(e){return Number.isFinite(e.bpm)&&e.bpm>0?e.bpm:Number.isFinite(e.tempo16)&&(e.tempo16??0)>0?Math.max(1,e.tempo16/4):108}/* FMB01: audio-material span only. Never change the globally integral Da() pattern counter. */
-function __xenAudioMaterialBars(value,max=16){
+/* LONG-BARS-01: ONE ceiling for the bar count of drum patterns, Melodic Loops and loop metadata (was 16 in many separate places) */
+const __xenMaxPatternBars=64;
+function __xenAudioMaterialBars(value,max=__xenMaxPatternBars){
  const n=Number(value);
  return Number.isFinite(n)&&n>0?Math.min(max,Math.max(1/64,n)):1;
 }
-function __xenParseAudioMaterialBars(value,max=16){
+function __xenParseAudioMaterialBars(value,max=__xenMaxPatternBars){
  const source=String(value??'').trim();
  const fraction=/^(\d+)\s*\/\s*(\d+)$/.exec(source);
  const raw=fraction?(Number(fraction[1])/Number(fraction[2])):source!==''?Number(source):NaN;
@@ -776,7 +778,7 @@ function __xenParseAudioMaterialBars(value,max=16){
  return {ok:true,bars:raw};
 }
 /* FMB05: inverse fractional bar stepping, independent from structural pattern bars. */
-function __xenStepAudioMaterialBars(value,direction,max=16){
+function __xenStepAudioMaterialBars(value,direction,max=__xenMaxPatternBars){
  const n=__xenAudioMaterialBars(value,max);
  if(direction>0){
   if(n>=1)return Math.min(max,Math.floor(n+1e-10)+1);
