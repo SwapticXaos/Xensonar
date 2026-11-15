@@ -30,7 +30,7 @@ A new synth that is played in the Live Room on the Wave Starter or the Keyboard 
 - **Unit** `tests/live_lane_01.test.cjs` (now 125 green): factory sounds skipped, own Nodal sound still stored, unknown id refused; one lane input per lane and family, family in the lane tap, every tap feeds the master; Psy Lab uses the lane input, no special path left.
 - **Stems:** `stems_instruments` null test as before (5.8·10⁻⁸), Psy Lab track 0.326 (before 0.326); `stems_record`, `stems_setup`, `stems_with_take` green. Two tests read old internals (Psy Lab's own tap); they now read the lane input.
 - **Psy Lab:** `room5_live_psylab`, `psylab_sustain_expression_eq` (lane EQ acts on both lanes), `psylab_octave_sector` green.
-- Full browser suite: see the commit message.
+- Full browser suite: 53 scripts green (Chromium headless).
 
 ## Limits / open
 - **Not listened to.** The Psy Lab chain is the same as before (+1 unity gain); the Psy Lab track in the stems has the same level within run-to-run variation (0.3259 / 0.3263), but it was **not compared bit for bit**.
