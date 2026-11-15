@@ -77,7 +77,7 @@ const html=path.resolve(process.argv[2]||'dist/XenSonar_PROBE.html');
   const merged=await E(`(async()=>{const real=__XenLiveStemSource.get;const keep=globalThis.__XenLiveStemSource;
     globalThis.__XenLiveStemSource={get:()=>({...real.call(keep),sounds:{waveStarter:'bowed-glass',keyboard:'sample:piano'}})};
     try{await __XenStemRecorder.start({keep:true});const s=__XenStemRecorder.__session();const wi=s.taps.findIndex(t=>t.id==='wave'),ki=s.taps.findIndex(t=>t.id==='keyboard');
-      const kinds=__XenLoopRec.kindTaps(s.ctx).filter(r=>r.kind==='keyboard').map(r=>r.node);const links=s.connected.filter(c=>kinds.includes(c.from)&&c.to===s.node).map(c=>c.input);
+      const kinds=__XenLoopRec.kindTaps(s.ctx).filter(r=>r.kind==='keyboard'&&r.family!=='psylab').map(r=>r.node);/* LIVE-LANE-01: a Psy Lab lane input is a lane tap too; it goes to the Psy Lab track (checked below) */const links=s.connected.filter(c=>kinds.includes(c.from)&&c.to===s.node).map(c=>c.input);
       const r=await __XenStemRecorder.stop().catch(()=>null);if(r)for(const x of r.stems)await __xenLongMasterPCM.remove(x.meta.id,x.meta.parts);__XenStemRecorder.reset();
       return{wi,ki,links}}finally{globalThis.__XenLiveStemSource=keep}})()`);
   assert(merged.links.length>0&&merged.links.every(i=>i===merged.wi),'classic sounds on both: the keyboard lane feeds the wave track: '+JSON.stringify(merged));

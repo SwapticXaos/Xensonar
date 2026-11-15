@@ -14,6 +14,11 @@ Zuerst lesen (in dieser Reihenfolge): `../CLAUDE.md` (Arbeitsregeln) → `PRODUC
 | Drum- und Bass-Stimmen ohne Graph-Änderungen (Ursache des Knisterns) | `PATCH_VOICE-HOST-01.md` |
 | Knistern im Root-Follow-Loop (gelöst, Hörtest bestanden) | `RFL_CLICKS_ANALYSE_2026-11-13.md` → `RFL_WIEDERHOLTE_QUANTEN_2026-11-13.md` → `PATCH_RFL-CLOCK-01.md`, `PATCH_WORKLET-CLOCK-02.md`; Rohmessungen `RFL_MESSUNG_*`, Aufgabenstellungen `HANDOFF_OPUS_RFL_*`, `PROMPT_OPUS_RFL_*` |
 | Mehrspur-Raum (Planung und Bestand) | `MEHRSPURRAUM_BESTANDSAUFNAHME_2026-11-09.md`, `MEHRSPURRAUM_SPURKETTE_STUDIE_2026-11-09.md`, `PATCH_MT-01.md` |
+| Multitrack und Wave Editor auf Profi-Niveau (Lautheit/True Peak, 24 Bit, Stems, Mastering-Weg, Fades/Crossfades, Sample-Raster, Pegelanzeigen, Pitch/Time im Wave Editor, Clip-Lautheit) | `PATCH_MTW-01.md` → `PATCH_MTW-02.md` → `PATCH_MTW-03.md` → `PATCH_MTW-04.md` |
+| Loop-Rec-Takte sehen und Loop-Grenzen ziehen (Loop-Editor, Rechtsklick auf die Take-Kachel) | `PATCH_LOOPREC-BARS-01.md` |
+| Was nimmt Loop-Rec auf, und wie schließt man einen neuen Synth an (ein Spureingang für alles Live-Gespielte) | `PATCH_LIVE-LANE-01.md` |
+| Thunder Mode: ein Hold-Mechanismus (Nodals Uhr) für alle Synths, Exact/Loose, wie ein neuer Synth die Uhr bekommt | `PATCH_THUNDER-ONE.md` |
+| Hardware-Keyboard (MIDI): Tasten = Rasterlinien, Anschlagsdynamik, Lumatone/MPE-Layouts, Pedal und Regler | `DESIGN_HARDWARE_KEYBOARD_ADAPTER.md`, `PATCH_HWKB-01.md` → `PATCH_HWKB-02.md` |
 | Was wurde bewusst nicht übernommen? | `HISTORY_AND_EXCLUSIONS.md` |
 | Wie ist das CSS geschichtet? | `CSS_LAYERS_2026-11-09.md` |
 | Wie wird gebaut (verdichtet, mit/ohne Diagnose)? | `PATCH_MIN-01.md`, `PATCH_DIAG-01.md`, `../tools/build.py` |

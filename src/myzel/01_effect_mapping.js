@@ -109,7 +109,7 @@ function __XenTouchpadDock(){
   ro?.observe(hotkeys);window.addEventListener('resize',align,{passive:true});
   return()=>{ro?.disconnect();window.removeEventListener('resize',align)};
  },[]);
- return u.jsx('section',{ref:dockRef,className:'xen-touchpad-dock','aria-label':'Touchpad disable while typing',children:u.jsx(__XenTouchpadTypingHelp,{})});
+ return u.jsx('section',{ref:dockRef,className:'xen-touchpad-dock','aria-label':'Touchpad disable while typing',children:[u.jsx(__XenTouchpadTypingHelp,{}),u.jsx(__XenHwKeyboardDock,{})]});
 }
 function __xenPrefixFilterGroups(groups,query){
  const prefix=String(query||'').trim().toLowerCase();

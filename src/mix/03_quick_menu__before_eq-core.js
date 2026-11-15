@@ -1188,6 +1188,8 @@ const __xenOSQRPCMWorker=(()=>{
  },pending:()=>waiting.size,budget:()=>({jobs:waiting.size,bytesReserved,maxJobs:MAX_JOBS,maxBytes:MAX_RESERVED})});
 })();
 __xenSharedOfflinePCMWorker=__xenOSQRPCMWorker;
+/* MTW-03: the Wave Editor (its own script, outside this module) uses the same pitch engine for Pitch / Time: one renderer, one queue, one budget. */
+try{globalThis.__XenOfflinePCM=__xenOSQRPCMWorker}catch{}
 async function renderMaterialPCM(item,t,data){
  const source=data.buffer,rate=source?.sampleRate;
  if(!source||!(data.sourceSeconds>.002)||!(t.seconds>.002)||!(rate>=8000))

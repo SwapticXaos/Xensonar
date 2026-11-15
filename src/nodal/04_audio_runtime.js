@@ -42,7 +42,38 @@ function createNodalCapacityLedger({maxCost=16,maxVoices=32,primaryReserve=2}={}
   }
   return Object.freeze({register,snapshot:()=>({activeCost:cost,activeVoices:voices,maxCost,maxVoices,primaryOwners,primaryReserve:reserve(),players:owners.size,rejected})});
 }
-function nodalWorkletProcessorFactory(createKernel, register, Base, rate, frameNow) {
+// PRECISION02 · the one Thunder hold clock. A held key steps on audio frames, never on the main thread. Nodal's worklet and
+// the C11 worklet (Entrophon, classic sounds) both run exactly these three functions (their source is put into both worklets),
+// so a held key keeps the same grid whatever synth plays it. check: the clock description is valid (gives slot volumes and
+// microtiming); time: grid start / interval, a tempo edit keeps the next step number; step: audio frame of step i.
+function xenHoldClockCheck(config){
+  if(!config||!Number.isFinite(config.startSec)||!Number.isFinite(config.intervalMs)||
+    config.intervalMs<4||config.intervalMs>16000||!Array.isArray(config.pattern)||
+    config.pattern.length<1||config.pattern.length>256||config.pattern.some(x=>x!==0&&x!==1)||
+    (config.pitchRatios!=null&&(!Array.isArray(config.pitchRatios)||config.pitchRatios.length!==config.pattern.length||
+    config.pitchRatios.some(x=>!Number.isFinite(x)||x<.25||x>4))))return null;
+  const gains=Array.isArray(config.slotVolumes)&&config.slotVolumes.length===config.pattern.length?config.slotVolumes:null;
+  const micros=Array.isArray(config.slotMicrotiming)&&config.slotMicrotiming.length===config.pattern.length?config.slotMicrotiming:null;
+  if((gains&&gains.some(x=>!Number.isFinite(x)||x<0||x>64))||(micros&&micros.some(x=>!Number.isFinite(x)||x<-.45||x>.45)))return null;
+  return {gains,micros};
+}
+function xenHoldClockTime(old,config,rate,now,first){
+  const interval=config.intervalMs*rate/1000;
+  if(old){
+    // Do not move the timeline or replay a tick on ordinary control updates.
+    // Tempo edits preserve the next not-yet-rendered step number.
+    if(old.interval!==interval){
+      const next=Math.max(now,Math.round(old.start+old.index*old.interval));
+      old.start=next-old.index*interval;old.interval=interval;
+    }
+    return old;
+  }
+  const start=config.startSec*rate;
+  return {start,interval,index:Math.max(0,Math.ceil((first-start-.5)/interval))};
+}
+function xenHoldStepFrame(c,i){return Math.round(c.start+(i+Math.max(i===0?0:-.45,c.slotMicrotiming?.[i%c.pattern.length]??0))*c.interval)}
+const xenHoldClockSource=()=>'{check:'+xenHoldClockCheck+',time:'+xenHoldClockTime+',step:'+xenHoldStepFrame+'}';
+function nodalWorkletProcessorFactory(createKernel, register, Base, rate, frameNow, holdClock) {
   const dsp = createKernel();
   // G1: one explicitly prepared PCM template, no adaptive cache and no new mixer.
   function pcmPocVoice(template) {
@@ -414,15 +445,8 @@ function nodalWorkletProcessorFactory(createKernel, register, Base, rate, frameN
     }
     // PRECISION02: only the audio frame counter clocks a native Nodal roll.
     setHoldClock(s, config, options, pcmId, initial=false){
-      if(!config||!Number.isFinite(config.startSec)||!Number.isFinite(config.intervalMs)||
-        config.intervalMs<4||config.intervalMs>16000||!Array.isArray(config.pattern)||
-        config.pattern.length<1||config.pattern.length>256||config.pattern.some(x=>x!==0&&x!==1)||
-        (config.pitchRatios!=null&&(!Array.isArray(config.pitchRatios)||config.pitchRatios.length!==config.pattern.length||
-        config.pitchRatios.some(x=>!Number.isFinite(x)||x<.5||x>2))))return false;
-      const pitched=config.pitchRatios?.some(r=>r!==1)??false;
-      const gains=Array.isArray(config.slotVolumes)&&config.slotVolumes.length===config.pattern.length?config.slotVolumes:null;
-      const micros=Array.isArray(config.slotMicrotiming)&&config.slotMicrotiming.length===config.pattern.length?config.slotMicrotiming:null;
-      if((gains&&gains.some(x=>!Number.isFinite(x)||x<0||x>1.5))||(micros&&micros.some(x=>!Number.isFinite(x)||x<-.45||x>.45)))return false;
+      const valid=holdClock.check(config);if(!valid)return false;
+      const pitched=config.pitchRatios?.some(r=>r!==1)??false,gains=valid.gains,micros=valid.micros;
       const stepOptions=(pitched||gains?.some(x=>x!==1))?config.pattern.map((_,i)=>({ ...options,
         ...(pitched?{frequency:options.frequency*config.pitchRatios[i],holdPitchRatio:config.pitchRatios[i]}:{}),
         ...(gains?{gain:Math.max(0,Math.min(1,options.gain*gains[i]))}:{})})):null;
@@ -430,12 +454,7 @@ function nodalWorkletProcessorFactory(createKernel, register, Base, rate, frameN
       if(interval<128)return false;
       const now=frameNow(),old=s.holdClock;
       if(old){
-        // Do not move the timeline or replay a tick on ordinary control updates.
-        // Tempo edits preserve the next not-yet-rendered step number.
-        if(old.interval!==interval){
-          const next=Math.max(now,Math.round(old.start+old.index*old.interval));
-          old.start=next-old.index*interval;old.interval=interval;
-        }
+        holdClock.time(old,config,rate,now);
         old.pattern=config.pattern.slice();old.options=options;old.pcmId=pcmId;old.stepOptions=stepOptions;old.slotMicrotiming=micros?.slice()??null;
         if(pcmId!=null&&pcmId!==s.holdPCMId&&old.nextPcmId!==pcmId){
           const template=this.pcmHoldBank.get(pcmId);
@@ -444,8 +463,7 @@ function nodalWorkletProcessorFactory(createKernel, register, Base, rate, frameN
           old.nextPcmId=pcmId;
         }else if(pcmId==null){old.nextPcmVoice=null;old.nextPcmId=null;}
       }else{
-        const start=config.startSec*rate;
-        const index=Math.max(0,Math.ceil((s.start-start-.5)/interval));
+        const {start,index}=holdClock.time(null,config,rate,now,s.start);
         s.holdClock={start,interval,index,pattern:config.pattern.slice(),options,pcmId,stepOptions,slotMicrotiming:micros?.slice()??null,
           sounding:false,attackFrame:0,endFrame:0};
         // Initial admission may arrive late. Align the first actual attack to
@@ -456,7 +474,7 @@ function nodalWorkletProcessorFactory(createKernel, register, Base, rate, frameN
     }
     renderHoldClock(s,left,right,now,frames){
       const c=s.holdClock;let cursor=0;
-      const stepFrame=i=>Math.round(c.start+(i+Math.max(i===0?0:-.45,c.slotMicrotiming?.[i%c.pattern.length]??0))*c.interval);
+      const stepFrame=i=>holdClock.step(c,i);
       while(cursor<frames){
         const absolute=now+cursor;
         let next=stepFrame(c.index);
@@ -825,7 +843,7 @@ function createNodalLiveRuntime({model, kernelFactory}) {
     if (!context || context.state === 'closed' || !context.audioWorklet || !destination || typeof admission?.acquire !== 'function') throw new Error('Nodal audio adapter unavailable');
     let load = modules.get(context);
     if (!load) {
-      const source = '(' + nodalWorkletProcessorFactory.toString() + ')(' + kernelFactory.toString() + ',registerProcessor,AudioWorkletProcessor,sampleRate,()=>currentFrame);';
+      const source = '(' + nodalWorkletProcessorFactory.toString() + ')(' + kernelFactory.toString() + ',registerProcessor,AudioWorkletProcessor,sampleRate,()=>currentFrame,'+xenHoldClockSource()+');';
       // Share the established file:/HTTP loader instead of maintaining a copy.
       load = jF(context, source, 'Nodal instrument');
       modules.set(context, load); load.catch(() => modules.delete(context));
