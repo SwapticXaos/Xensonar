@@ -272,8 +272,6 @@ function loadModule(ctx){let job=moduleReady.get(ctx);if(job)return job;
   throw error??Error('Psychedelic Lab engine could not be loaded.')})();
  moduleReady.set(ctx,job);job.catch(()=>{if(moduleReady.get(ctx)===job)moduleReady.delete(ctx)});return job}
 
-/* STEMS-04: the output gain of each Live lane engine ("keyboard" / "wave") is announced to the stem recorder (an extra output, nothing in the signal path changes) */
-const __psyOutWatchers=new Set();
 /* Live engine: created on the first note, removed when the room closes. Slider moves are coalesced to one message per frame. */
 class PsyEngine{
  constructor(options){this.visual=!options||options.visual!==false;this.ctx=null;this.node=null;this.out=null;this.anL=null;this.anR=null;this.split=null;this.starting=null;this.pending=new Map();this.raf=0;this.queue=[];this.params=defaultParams();this.res=[220];this.closed=false}
@@ -282,13 +280,15 @@ class PsyEngine{
    const ctx=await bridge.ensureAudioReady();await loadModule(ctx);if(this.closed)throw Error('Room closed.');
    const node=new AudioWorkletNode(ctx,'xen-psylab-v1',{numberOfInputs:0,numberOfOutputs:1,outputChannelCount:[2],processorOptions:{params:this.params.slice(),res:this.res.slice()}});
    const out=ctx.createGain();out.gain.value=this.laneGain??1;node.connect(out);
-   /* PSY-EQ-01: a Live Room lane (Wave Starter / Keyboard) goes through the SAME instrument EQ as the classic sounds of that lane (key keyFor(kind,'instrument'), own device per engine); Room V (no lane) stays direct */
-   let tap=null,eqKind=null;if(this.lane){eqKind=this.lane==='keyboard'?'keyboard':'wave';tap=ctx.createGain();tap.connect(bridge.getMasterInput(ctx));let eqIn=tap;try{if(typeof __XenEQ!=='undefined')eqIn=__XenEQ.route(ctx,eqKind,tap,'instrument')||tap}catch{eqIn=tap}out.connect(eqIn);this.tap=tap;this.eqKind=eqKind}else out.connect(bridge.getMasterInput(ctx));
+   /* PSY-EQ-01 / LIVE-LANE-01: a Live Room lane (Wave Starter / Keyboard) enters through the lane input of the Live Room like every other synth: the SAME instrument EQ
+      of that lane (key keyFor(kind,'instrument'), own device for this synth family) and the Loop-Rec tap. Before, Psy Lab went straight to the master and Loop-Rec
+      never heard it. Room V (no lane) stays direct: it is not live playing in the Live Room. */
+   let laneIn=null,eqKind=null;if(this.lane){const kind=this.lane==='keyboard'?'keyboard':'wave';try{laneIn=__XenLiveLane.input(ctx,kind,bridge.getMasterInput(ctx),'psylab');eqKind=kind}catch{laneIn=null}}
+   out.connect(laneIn||bridge.getMasterInput(ctx));this.laneIn=laneIn;this.eqKind=eqKind;
    // The picture (scope + spectrum) needs two analysers; a host that shows no picture (options.visual=false) creates none of them.
    let split=null,anL=null,anR=null;
    if(this.visual){split=ctx.createChannelSplitter(2);anL=ctx.createAnalyser();anR=ctx.createAnalyser();anL.fftSize=anR.fftSize=1024;anL.smoothingTimeConstant=.6;node.connect(split);split.connect(anL,0);split.connect(anR,1)}
    this.ctx=ctx;this.node=node;this.out=out;this.split=split;this.anL=anL;this.anR=anR;
-   if(this.lane)for(const w of __psyOutWatchers)try{w({lane:this.lane,node:this.tap||out,ctx})}catch{}/* stems hear the EQ'd signal */
    for(const m of this.queue)node.port.postMessage(m);this.queue.length=0;return node})();
   try{return await this.starting}finally{this.starting=null}}
  send(m){if(this.node)this.node.port.postMessage(m);else{this.queue.push(m);if(this.queue.length>64)this.queue.shift();void this.ensure().catch(()=>{})}}
@@ -301,7 +301,7 @@ class PsyEngine{
  allOff(){this.queue.length=0;if(this.node)this.node.port.postMessage({t:'alloff'})}
  dispose(){this.closed=true;if(this.raf){cancelAnimationFrame(this.raf);this.raf=0}const{node,out,split,anL,anR,ctx}=this;this.node=null;this.queue.length=0;if(!node)return;
   try{node.port.postMessage({t:'alloff'});out.gain.setTargetAtTime(0,ctx.currentTime,.04)}catch{}
-  const tap=this.tap,eqKind=this.eqKind;this.tap=null;setTimeout(()=>{try{node.port.postMessage({t:'dispose'});node.disconnect();out.disconnect();split?.disconnect();anL?.disconnect();anR?.disconnect();if(tap){try{__XenEQ.releaseRoute(ctx,eqKind,tap,'instrument')}catch{}tap.disconnect()}}catch{}},400)}
+  this.laneIn=null;setTimeout(()=>{try{node.port.postMessage({t:'dispose'});node.disconnect();out.disconnect();split?.disconnect();anL?.disconnect();anR?.disconnect()}catch{}},400)}/* the lane input belongs to the Live Room and stays (the next Psy Lab engine of this lane reuses it) */
  setLaneGain(g,now){this.laneGain=g;const o=this.out,c=this.ctx;if(!o||!c)return;try{if(now){o.gain.cancelScheduledValues(c.currentTime);o.gain.setValueAtTime(g,c.currentTime)}else o.gain.setTargetAtTime(g,c.currentTime,.02)}catch{}}
 }
 /* Offline render of the same processor: deterministic, no realtime capture. */
@@ -370,9 +370,6 @@ const LiveHost=(()=>{
   has(lane,keyId){return active.has(voice(lane,keyId))},
   keys(lane){const o=[];for(const k of active.keys())if(!lane||k.startsWith(lane+':'))o.push(k);return o},
   allOff:silence,drop,
-  /* STEMS-04: read-only view of the lane engines' output gains, and a watcher for engines that are created later */
-  outputs(ctx){const out=[];for(const[lane,r]of engines)if(r.engine.out&&r.engine.ctx===ctx)out.push({lane,node:r.engine.tap||r.engine.out,ctx});return out},
-  watch(fn){__psyOutWatchers.add(fn);return()=>__psyOutWatchers.delete(fn)},
   /* Power off / leaving: no tails at all. Each engine fades its output in ~40 ms and is rebuilt on the next note (prepare() on a restored sound). */
   panic(){for(const lane of[...engines.keys()])drop(lane)},
   dispose(){for(const lane of[...engines.keys()])drop(lane);active.clear()},
