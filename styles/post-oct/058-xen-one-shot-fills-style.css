@@ -54,7 +54,7 @@ body:has(.xen-meta-overlay) .xen-quick-hover-info{display:none!important}
 .xen-fill-tabbar>button.is-active{background:#164454;color:#dbfaff;border-color:#50d7e7;border-bottom-color:#164454}
 .xen-fill-tabbar>button:focus-visible,.xen-fill-slot:focus-visible,.xen-fill-slot button:focus-visible{outline:2px solid #7ce8f5}
 .xen-fill-tab-panel{display:flex;flex:1 1 auto;min-height:0;min-width:0;flex-direction:column;overflow:hidden}
-.xen-meta-one-shot-board{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));min-width:0;gap:7px;padding:9px;background:#09131f;border:1px solid #355169;flex:1;min-height:0;overflow:auto}
+.xen-meta-one-shot-board{display:grid;grid-auto-rows:max-content;align-content:start;grid-template-columns:repeat(3,minmax(0,1fr));min-width:0;gap:7px;padding:9px;background:#09131f;border:1px solid #355169;flex:1;min-height:0;overflow:auto}
 .xen-fill-lane{border:1px solid #284457;background:#0d1c2b;padding:6px;min-width:0;min-height:160px;display:flex;flex-direction:column;gap:9px}
 .xen-fill-lane>header{display:flex;flex-direction:column;text-align:center;align-items:center;gap:4px;min-height:43px}
 .xen-fill-lane>header strong{font:700 11px var(--font-mono);color:#d9edf6}.xen-fill-lane>header small{font:10px var(--font-mono);color:#82a5bb}

@@ -30,3 +30,4 @@ Daten-Owner: Material-Bibliothek (`__registerDurableMaterial`), Root-Follow-Bank
 
 ## 3. Spaltenflächen beim Scrollen (Nachtrag)
 Vorher: Das Board-Grid hielt die Spaltenhöhe auf der sichtbaren Höhe; bei vielen Einträgen ragten die Kacheln unten aus den Spaltenflächen heraus. Jetzt `grid-auto-rows:max-content` und `min-height:auto` an der Spalte: alle fünf Flächen wachsen mit dem längsten Inhalt und scrollen mit (Messung bei 14 Einträgen: Fläche 787 px, scrollHeight 805 px, sichtbar 318 px). Nur CSS.
+Gleicher Fix für das ONE-SHOTS-&-FILLS-Board (`.xen-meta-one-shot-board`, `058-xen-one-shot-fills-style.css`). Messung mit 14 zusätzlichen Zeilen je Spalte: vorher Spalte 356 px bei 978 px Inhalt, jetzt 986 px.
