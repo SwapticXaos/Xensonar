@@ -1,4 +1,6 @@
-function k1(e){if(typeof __XenSampleClock04!=="undefined"){
+function k1(e){/* THUNDER-CLOCK-02: released gestures cancel their exact pulses that have not started yet */
+ for(const lane of (e.lane?[e.lane]:['wellenstart','klaviatur']))for(const [code,g] of Object.entries(e.state.gestures[lane]||{}))if(!e.keyId||e.keyId===code)__xenThunderCancel(g);
+ if(typeof __XenSampleClock04!=="undefined"){
  for(const lane of (e.lane?[e.lane]:['wellenstart','klaviatur']))for(const [code,g] of Object.entries(e.state.gestures[lane]||{})){
   if((!e.keyId||e.keyId===code)&&Number.isFinite(g.startedAtMs))__XenSampleClock04.cancelKey(g.sampleClock04Ctx,lane,code,g.startedAtMs,true);
  }
