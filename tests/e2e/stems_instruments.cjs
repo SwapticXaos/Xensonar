@@ -36,7 +36,7 @@ const html=path.resolve(process.argv[2]||'dist/XenSonar_PROBE.html');
   assert.deepEqual(res.ids,['particle','wave','keyboard','psylab','drone','rhythm','rest']);assert.equal(res.frames.length,1,'every stem has the same length: '+res.frames);
   assert(res.maxSum>.01,'the pre-EQ sum carries sound: '+res.maxSum);
   assert(res.maxDiff<2e-6,'NULL TEST: Σ(instrument stems incl. Other) = pre-EQ sum of the four buses, max difference '+res.maxDiff+' (peak '+res.maxSum+')');
-  assert(res.peaks.wave>.001,'the Wave sound stem carries the played key and click: '+JSON.stringify(res.peaks));
+  assert(res.peaks.wave>.001,'the Wave sound track carries the played key (Wave Starter and Keyboard on Entrophon share it): '+JSON.stringify(res.peaks));
   assert(res.peaks.particle>.05,'a particle-kind source created while recording is wired into the Particles stem: '+JSON.stringify(res.peaks));
   // ---- a switched-off instrument stays inside "Other" (the sum is unchanged) ----
   await p.locator('[data-xen-stem-role="wave"]').click();assert.equal(await p.locator('[data-xen-stem-role="wave"]').getAttribute('aria-pressed'),'false');
@@ -50,7 +50,7 @@ const html=path.resolve(process.argv[2]||'dist/XenSonar_PROBE.html');
   })()`);
   await p.keyboard.up('KeyA');
   assert(!res2.ids.includes('wave'),'no Wave track when switched off: '+res2.ids);assert(res2.maxDiff<2e-6,'sum unchanged without the Wave track: '+res2.maxDiff);
-  assert(res2.peaks.rest>.2,'the Wave sound is part of "Other" when it has no track of its own: '+JSON.stringify(res2.peaks));
+  assert(res2.peaks.keyboard>.2,'LANE-EQ-01: with the shared Wave track switched off, the Keyboard note is in the Keyboard track (its own lane), not lost in "Other": '+JSON.stringify(res2.peaks));
   // ---- STEMS-04: the track layout follows the synths of the Wave Starter and the Keyboard ----
   const note=()=>p.locator('[data-xen-stems-synths]').innerText();
   await p.locator('[data-xen-stem-role="wave"]').click();

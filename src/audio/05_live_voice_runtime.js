@@ -14,7 +14,7 @@ const c=e.entrophonWaveActive===true,c11Timing=c&&rg.get(e.ctx)?.owned;
 if(s&&!(c11Timing?__entTargetIsCurrent(e.ctx,l):Jp(e.ctx,l,.02)))return t("scheduled-tone-oscillator","voice-rejected",1),!1;
 if(!c&&__wave39Owned(e.ctx))return __wave39PlayTone(e,n,l);
 if(n.useScheduledTonePath||c)return e.playScheduledTone(e.toneFreq,e.delay,r,e.waveform,a,o,i,e.waveTargets,{
-source:"wave",holdSession:e.holdSession,admissionResult:true,plan:e.wavePlan,prominence:e.prominence,intendedStartTimeSec:s?l:void 0,heldLong:e.heldLong,waveGradient:e.waveGradient,entrophonWaveActive:c,entrophonDefinition:e.entrophonDefinition}
+source:"wave",lane:e.lane,holdSession:e.holdSession,admissionResult:true,plan:e.wavePlan,prominence:e.prominence,intendedStartTimeSec:s?l:void 0,heldLong:e.heldLong,waveGradient:e.waveGradient,entrophonWaveActive:c,entrophonDefinition:e.entrophonDefinition}
 );
 const d=e.activeScheduledTonesRef.current.length,p=Math.max(l,e.ctx.currentTime+.005);
 let f=null,b=1,g=1,y=e.waveTargets;
@@ -337,7 +337,7 @@ if(n.kind==="nodal"){__XenNodalSurfaces.note(keyboard?"keyboard":"wave",n.id,{fr
  },e.ctx);return}
 const __xenWavePrefixes=d.prefixes?.map(a=>__XenAvalanche.targets(e.ctx,__XenAvalanche.lane(e.options),a));
 const f=n.presetId,b=entrophonActive,g=Math.max(1,__xenWaveCompositeDemand(f,e.nexusSound,e.swellBlend)),y=e.beginTransientEvent("wave",g,o*(e.isSector?1.25:1)),x=(A,M,v,w,R,k,I,E)=>VW({
-ctx:e.ctx,toneFreq:A,delay:M,duration:v,waveform:w,gain:R,resonance:k,cutoffHz:I,prominence:E,waveGradient:i,wavePlan:y,waveTargets:p,waveTargetPrefixes:__xenWavePrefixes,mainOutput:c,heldLong:e.heldLong,activeScheduledTonesRef:e.activeScheduledTonesRef,transientRuntime:e.transientRuntime,playScheduledTone:e.playScheduledTone,entrophonWaveActive:b,entrophonDefinition:n.entrophonDefinition,attackSoftening:1,holdSession:e.options?.holdSession,requestedAtMs:e.options?.requestedAtMs,directAudioTimeSec:e.options?.directAudioTimeSec,silentHotPath:!0}
+ctx:e.ctx,toneFreq:A,delay:M,duration:v,waveform:w,gain:R,resonance:k,cutoffHz:I,prominence:E,waveGradient:i,wavePlan:y,waveTargets:p,waveTargetPrefixes:__xenWavePrefixes,mainOutput:c,lane:keyboard?'keyboard':'wave',heldLong:e.heldLong,activeScheduledTonesRef:e.activeScheduledTonesRef,transientRuntime:e.transientRuntime,playScheduledTone:e.playScheduledTone,entrophonWaveActive:b,entrophonDefinition:n.entrophonDefinition,attackSoftening:1,holdSession:e.options?.holdSession,requestedAtMs:e.options?.requestedAtMs,directAudioTimeSec:e.options?.directAudioTimeSec,silentHotPath:!0}
 );
 nq({
 holdSession:e.options?.holdSession,entrophonWaveActive:b,preset:f,freq:a,volume:o,runtimeVolume:t.volume,isSector:e.isSector,transientBodyScale:y?.bodyScale??1,gradientAmount:i.amount,swellBlend:e.swellBlend,overtonesEnabled:e.nexusSound.waveOvertonesEnabled,overtoneAmounts:e.nexusSound.waveOvertones,overtoneWaveform:e.nexusSound.waveOvertoneWaveform,overtoneMode:e.nexusSound.waveOvertoneMode,overtoneGlobalLevel:e.nexusSound.waveOvertoneGlobalLevel??1,callbacks:{
@@ -417,7 +417,7 @@ if(a.kind==="nodal"){__XenNodalSurfaces.note(keyboard?"keyboard":"wave",a.id,{fr
  },e.ctx);return}
 const __xenWavePrefixes=d.prefixes?.map(a=>__XenAvalanche.targets(e.ctx,__XenAvalanche.lane(e.options),a));
 const f=a.presetId,b=__xenWaveCompositeDemand(f,e.nexusSound,e.swellBlend),g=entrophonActive,y=Math.max(1,Math.ceil(b*s)+CAe(f)),x=e.beginTransientEvent("wave",y,i*(e.isSector?1.25:1)),A=(M,v,w,R,k,I,E,F)=>VW({
-ctx:e.ctx,toneFreq:M,delay:v,duration:w,waveform:R,gain:k,resonance:I,cutoffHz:E,prominence:F,waveGradient:l,wavePlan:x,waveTargets:p,waveTargetPrefixes:__xenWavePrefixes,mainOutput:r,heldLong:e.heldLong,activeScheduledTonesRef:e.activeScheduledTonesRef,transientRuntime:e.transientRuntime,playScheduledTone:e.playScheduledTone,entrophonWaveActive:g,entrophonDefinition:a.entrophonDefinition,attackSoftening:c,holdSession:e.options?.holdSession,requestedAtMs:e.options?.requestedAtMs}
+ctx:e.ctx,toneFreq:M,delay:v,duration:w,waveform:R,gain:k,resonance:I,cutoffHz:E,prominence:F,waveGradient:l,wavePlan:x,waveTargets:p,waveTargetPrefixes:__xenWavePrefixes,mainOutput:r,lane:keyboard?'keyboard':'wave',heldLong:e.heldLong,activeScheduledTonesRef:e.activeScheduledTonesRef,transientRuntime:e.transientRuntime,playScheduledTone:e.playScheduledTone,entrophonWaveActive:g,entrophonDefinition:a.entrophonDefinition,attackSoftening:c,holdSession:e.options?.holdSession,requestedAtMs:e.options?.requestedAtMs}
 );
 nq({
 holdSession:e.options?.holdSession,entrophonWaveActive:g,preset:f,freq:o,volume:i,runtimeVolume:t.volume,isSector:e.isSector,transientBodyScale:x?.bodyScale??1,gradientAmount:l.amount,swellBlend:e.swellBlend,overtonesEnabled:e.nexusSound.waveOvertonesEnabled,overtoneAmounts:e.nexusSound.waveOvertones,overtoneWaveform:e.nexusSound.waveOvertoneWaveform,overtoneMode:e.nexusSound.waveOvertoneMode,overtoneGlobalLevel:e.nexusSound.waveOvertoneGlobalLevel??1,callbacks:{

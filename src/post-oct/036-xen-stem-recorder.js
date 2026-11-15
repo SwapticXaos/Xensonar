@@ -93,8 +93,6 @@ const __XenStemRecorder=(()=>{
   const family=id=>typeof id!=='string'||!id?'Classic':id==='entrophon'||id.startsWith('entrophon:')?'Entrophon':id.startsWith('psylab:')?'Psy Lab':id.startsWith('nodal:')?'Nodal':id.startsWith('sample:')?'Samples':'Classic';
   function describe(){const s=source();if(!s?.sounds)return '';const w=family(s.sounds.waveStarter),k=family(s.sounds.keyboard);
     if(w===k)return 'Wave Starter and Keyboard both use '+w+': one track.';
-    /* a classic / sample sound of the Wave Starter and Entrophon on the Keyboard travel through the same Loop-Rec lane: they cannot be told apart */
-    if((w==='Classic'||w==='Samples')&&k==='Entrophon')return 'Wave Starter: '+w+' · Keyboard: Entrophon: both land in one track (same signal path).';
     return 'Wave Starter: '+w+' · Keyboard: '+k+': separate tracks.'}
   let setup={mode:'roles',roles:ROLES.map(r=>r.id),parts:PARTS.map(p=>p.id),tap:'after-eq',withTake:false};
   let state={phase:'idle',ms:0,message:'',stems:[],maxMs:MAX_SECONDS*1000,setup};
@@ -186,7 +184,7 @@ const __XenStemRecorder=(()=>{
       const restI=idx('rest'),psyI=idx('psylab');
       /* same synth family on the Wave Starter and the Keyboard (classic sounds / samples): one track, the keyboard lane joins the wave track */
       const fw=family(src.sounds?.waveStarter),fk=family(src.sounds?.keyboard),classic=f=>f==='Classic'||f==='Samples';
-      if(kindIdx.has('keyboard')&&kindIdx.has('wave')&&classic(fw)&&classic(fk))kindIdx.set('keyboard',kindIdx.get('wave'));
+      if(kindIdx.has('keyboard')&&kindIdx.has('wave')&&((classic(fw)&&classic(fk))||(fw==='Entrophon'&&fk==='Entrophon')))kindIdx.set('keyboard',kindIdx.get('wave'));/* LANE-EQ-01: Entrophon on the Keyboard now has its own lane, so same-synth sharing is done here, not by the signal path */
       /* "Other" = main + space inputs - the instrument stems that have their own track: the kind nodes feed a -1 gain into the same input, Web Audio sums the connections (no worklet change) */
       if(restI>=0){s.neg=ctx.createGain();s.neg.gain.value=-1;s.neg.connect(node,0,restI)}
       const bus=d=>d===src.inputs.main||d===src.inputs.space;
