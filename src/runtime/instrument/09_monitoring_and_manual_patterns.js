@@ -424,17 +424,6 @@ function Die(e){const t=lT(e.keyId),n=e.state.gestures[e.lane],r=n[t],a=Number.i
  function stats(){return{sessions:sessions.size,pending:[...sessions.values()].reduce((n,s)=>n+s.items.size,0)};}
  return Object.freeze({reserve,attach,finish,live,cancelKey,stopAll,stats,admitShared});
 })();
-/* THUNDER-CLOCK-01: exact Thunder timing for every synth, as Nodal has it. Nodal plays a held gesture on its own audio clock (start + k x interval);
-   the other synths got each pulse from the main thread when it was due (rAF / timer: measured 4.5 ms mean, up to 48 ms off the grid). In 'exact' mode
-   (default) the planner places every pulse on the gesture's audio grid a little ahead (microtiming and slot volumes included) and the voice starts at
-   that audio time. 'loose' keeps the old main-thread timing on purpose (a selectable "feature bug"). Nodal keeps its own clock, samples their own
-   lookahead. A voice with an overtone arpeggio or the Room III body exciter stays loose (those parts have no start time). */
-const __XEN_THUNDER_EXACT_AHEAD_MS=35;
-function __xenThunderExactLanes(p,preset){if(p?.thunderTiming==='loose')return null;const ok=lane=>{const id=String(preset(lane)||'');return !id.startsWith('nodal:')&&!id.startsWith('sample:')&&!id.startsWith('psylab:')};return {wellenstart:ok('wellenstart'),klaviatur:ok('klaviatur')}}
-/* the audio time of a planned pulse: the gesture's audio anchor is taken ONCE (like Nodal's clock), every pulse is anchor + its distance on the grid */
-function __xenThunderAtSec(gesture,ctx,dueAtMs){if(!ctx||!Number.isFinite(dueAtMs)||!Number.isFinite(gesture?.startedAtMs))return null;
- if(gesture.thunderAnchorCtx!==ctx||!Number.isFinite(gesture.thunderAnchorSec)){gesture.thunderAnchorCtx=ctx;gesture.thunderAnchorSec=ctx.currentTime+(gesture.startedAtMs-performance.now())/1000}/* no offset: the first attack of the gesture sounds at key-down, the grid starts there */
- return gesture.thunderAnchorSec+(dueAtMs-gesture.startedAtMs)/1000}
 function Nie(e){
  if(!Number.isFinite(e.nowMs))return[];
  const limit=Math.max(1,Math.min(12,Math.round(e.maxPulses))),out=[];
@@ -456,16 +445,15 @@ function Nie(e){
    gesture.sustainExtendActive=gesture.sustainExtendLatched||sustain;
    gesture.articulation=Ux(sustain,gesture.sustainExtendLatched);
    gesture.extendPolicy=Kx(sustain,gesture.sustainExtendLatched);
-   const exact=e.sampleLanes?.[lane]!==true&&e.exactLanes?.[lane]===true;/* THUNDER-CLOCK-01 */
-   if(!((e.sampleLanes?.[lane]===true||exact)&&e.sampleAudioCtx?.state==='running'&&!gesture.sustainExtendActive)&&gesture.sampleClock04Signature!==undefined){
+   if(!(e.sampleLanes?.[lane]===true&&e.sampleAudioCtx?.state==='running'&&!gesture.sustainExtendActive)&&gesture.sampleClock04Signature!==undefined){
     __XenSampleClock04.cancelKey(gesture.sampleClock04Ctx,lane,gesture.keyId,gesture.startedAtMs,true);
     delete gesture.sampleClock04Signature;
     gesture.pulseCount=Math.max(0,Math.floor((e.nowMs-gesture.startedAtMs)/interval));
     gesture.nextPulseAtMs=gesture.startedAtMs+(gesture.pulseCount+1)*interval;
    }
-   if((e.sampleLanes?.[lane]===true||exact)&&e.sampleAudioCtx?.state==='running'&&!gesture.sustainExtendActive){
+   if(e.sampleLanes?.[lane]===true&&e.sampleAudioCtx?.state==='running'&&!gesture.sustainExtendActive){
     const ctx=e.sampleAudioCtx;gesture.sampleClock04Ctx=ctx;
-    const signature=(exact?'exact|':'')+(e.sampleSignatures?.[lane]??'')+(ov?'|'+ov.signature:'')+'|'+gesture.targetHz,horizon=exact?__XEN_THUNDER_EXACT_AHEAD_MS:Math.max(400,Math.min(650,Number(e.sampleLookaheadMs)||550));
+    const signature=(e.sampleSignatures?.[lane]??'')+(ov?'|'+ov.signature:'')+'|'+gesture.targetHz,horizon=Math.max(400,Math.min(650,Number(e.sampleLookaheadMs)||550));
     if(gesture.sampleClock04Signature!==signature){
      if(gesture.sampleClock04Signature!==undefined)__XenSampleClock04.cancelKey(ctx,lane,gesture.keyId,gesture.startedAtMs,false);
      gesture.sampleClock04Signature=signature;
@@ -473,14 +461,14 @@ function Nie(e){
      gesture.nextPulseAtMs=gesture.startedAtMs+gesture.pulseCount*interval;
     }
     let planned=0;
-    while((exact?gesture.nextPulseAtMs:gesture.nextPulseAtMs-interval*.45)<=e.nowMs+horizon&&planned<32&&out.length<96){/* exact: hand a pulse over at most ~35 ms ahead, so that a key release leaves no pulse behind */
+    while(gesture.nextPulseAtMs-interval*.45<=e.nowMs+horizon&&planned<32&&out.length<96){
      const pulseIndex=gesture.pulseCount++,wasPending=pulseIndex===0&&gesture.quantizedAttackPending;let due=__xenHoldSlotDueMs(gesture.startedAtMs,pulseIndex,interval,micro);
      if(pulseIndex===0&&gesture.quantizedAttackPending)gesture.quantizedAttackPending=false;
      gesture.nextPulseAtMs+=interval;planned++;
-     if(due<e.nowMs+(exact?-25:8)){if(wasPending&&due>=e.nowMs-70)due=e.nowMs+14;else{e.state.skippedCatchupCount++;continue}}/* exact: a pulse up to 25 ms late still plays (as soon as possible), like the loose path */
+     if(due<e.nowMs+8){if(wasPending&&due>=e.nowMs-70)due=e.nowMs+14;else{e.state.skippedCatchupCount++;continue}}
      const active=tG(steps,segments,pulseIndex);
      if(!active||__xenHoldSlotGain(vols,pulseIndex)===0){e.state.patternMutedPulseCount++;continue}
-     out.push({lane,keyId:gesture.keyId,targetHz:gesture.targetHz,intervalMs:interval,segmentsPerBar:segments,referenceBars:bars,pulseIndex,sustainExtendActive:false,articulation:gesture.articulation,extendPolicy:gesture.extendPolicy,reason:exact?'thunder-exact':'sample-audio-timeline-lookahead',sampleClock04:!exact,thunderExact:exact,dueAtMs:due,slotGain:__xenHoldSlotGain(vols,pulseIndex)});
+     out.push({lane,keyId:gesture.keyId,targetHz:gesture.targetHz,intervalMs:interval,segmentsPerBar:segments,referenceBars:bars,pulseIndex,sustainExtendActive:false,articulation:gesture.articulation,extendPolicy:gesture.extendPolicy,reason:'sample-audio-timeline-lookahead',sampleClock04:true,dueAtMs:due,slotGain:__xenHoldSlotGain(vols,pulseIndex)});
      e.state.loopPulseCount++;
     }
     continue;
