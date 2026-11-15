@@ -205,21 +205,26 @@
       const destination=Number(op.position);
       if(!Number.isInteger(destination)||destination<0||destination+n>doc.frames)
         fail('Golden Move target is outside the audio timeline; audio was not changed.');
-      if(destination===r.start)return doc;
+      // GM02: optional targetChannels = where the cut audio is mixed (vertical drag). One source
+      // channel fans out to every target; equal counts pair in order; otherwise each stays in its own.
+      const targets=op.targetChannels==null?chosen:selectedChannels(doc,op.targetChannels);
+      const pairs=chosen.length===targets.length?chosen.map((c,i)=>[c,targets[i]]):chosen.length===1?targets.map(t=>[chosen[0],t]):chosen.map(c=>[c,c]);
+      const touched=[...new Set([...chosen,...pairs.map(x=>x[1])])];
+      if(destination===r.start&&pairs.every(([a,b])=>a===b))return doc;
       const channels=doc.channels.slice();
-      for(const c of chosen){
-        const source=doc.channels[c];
-        const snapshot=source.slice(r.start,r.end);
-        const output=source.slice();
-        output.fill(0,r.start,r.end);
+      const outputs=new Map(touched.map(c=>[c,doc.channels[c].slice()]));
+      const snapshots=new Map(chosen.map(c=>[c,doc.channels[c].slice(r.start,r.end)]));
+      for(const c of chosen)outputs.get(c).fill(0,r.start,r.end);
+      for(const [c,t] of pairs){
+        const output=outputs.get(t),snapshot=snapshots.get(c);
         for(let i=0;i<n;i++){
           const sum=output[destination+i]+snapshot[i];
           if(!Number.isFinite(sum)||Math.abs(sum)>3.4028234663852886e38)
             fail('Golden Move would overflow Float32; audio was not changed.');
           output[destination+i]=sum;
         }
-        channels[c]=output;
       }
+      for(const [c,output] of outputs)channels[c]=output;
       const begin=Math.min(r.start,destination),end=Math.max(r.end,destination+n);
       // A move can cover a large temporal gap. Storing that gap in the undo
       // payload would reject even a one-second move on a long timeline.
@@ -227,7 +232,7 @@
       const spans=destination<=r.end&&destination+n>=r.start
         ? [[begin,end]]
         : [[r.start,r.end],[destination,destination+n]].sort((a,b)=>a[0]-b[0]);
-      const patches=chosen.map(c=>({channel:c,segments:spans.map(([a,b])=>({
+      const patches=touched.map(c=>({channel:c,segments:spans.map(([a,b])=>({
         start:a,before:doc.channels[c].slice(a,b),after:channels[c].slice(a,b)
       }))}));
       const before={frames:doc.frames,selection:{...doc.selection},viewport:{...doc.viewport},
@@ -1495,14 +1500,15 @@ class Editor{
     :'Golden Move cancelled · purple selection moves normally.');
   this.options.onViewChange?.();
  }
- async applyGoldenMove(sourceRange,destination,channel){
+ async applyGoldenMove(sourceRange,destination,channel,targetChannel=channel){
   if(!this.doc||!this.goldenMoveArmed||this.activeWorkspace!=='project')return false;
   if(this.warnUnappliedFx('Golden Move'))return false;
-  if(destination===sourceRange.start)return false;
+  if(destination===sourceRange.start&&targetChannel===channel)return false;
   try{
-   const next=core().edit(this.doc,{type:'moveMix',range:sourceRange,position:destination,channels:channel});
+   const next=core().edit(this.doc,{type:'moveMix',range:sourceRange,position:destination,channels:channel,targetChannels:targetChannel});
    if(next===this.doc)return false;
    await this.publish(next,'Golden Move & Mix');
+   if(targetChannel!==channel&&this.channel!==targetChannel)this.setChannel(targetChannel);
    return true;
   }catch(error){this.setStatus(error.message||String(error));return false}
  }
@@ -1540,8 +1546,11 @@ class Editor{
   const gesture={start:at(event),clientX:event.clientX,clientY:event.clientY,prior,vertical:{...this.maskVertical},priorChannel:this.channel,pointerId:event.pointerId,active:false,mode,golden};
   if(golden){
    if(this.nodes.length){this.warnUnappliedFx('Golden Move');return}
-   this.goldenGesture={sourceStart:prior.start,sourceEnd:prior.end,channels:this.doc.channels};
+   this.goldenGesture={sourceStart:prior.start,sourceEnd:prior.end,channels:this.doc.channels,src:this.channel,dest:this.channel};
   }
+  // GM02: a single-channel Golden Move retargets by vertical drag, like a fresh mask does:
+  // the mask centre above 3/8 = L, 3/8..5/8 = L+R, below 5/8 = R (starting from its own lane).
+  const retarget=golden&&stereo&&this.channel!=='all'&&this.goldenGesture;
   this.selectionGestureActive=true;
   const move=e=>{
    if(e.pointerId!==gesture.pointerId)return;
@@ -1552,6 +1561,12 @@ class Editor{
     const span=gesture.prior.end-gesture.prior.start;
     const shifted=clamp(gesture.prior.start+at(e)-gesture.start,0,this.doc.frames-span);
     this.doc=core().setSelection(this.doc,shifted,shifted+span);
+    if(retarget){
+     const centre=(gesture.priorChannel==='L'?.25:.75)+(e.clientY-gesture.clientY)/Math.max(1,rect.height);
+     const dest=centre<.375?'L':centre>.625?'R':'all';
+     this.goldenGesture.dest=dest;
+     this.maskVertical=dest==='L'?{top:0,bottom:.5}:dest==='R'?{top:.5,bottom:1}:{top:0,bottom:1};
+    }
    }else if(gesture.mode==='resize-left'){
     this.doc=core().setSelection(this.doc,at(e),gesture.prior.end);
    }else if(gesture.mode==='resize-right'){
@@ -1562,11 +1577,11 @@ class Editor{
   const clear=()=>{root.removeEventListener('pointermove',move,true);root.removeEventListener('pointerup',up,true);root.removeEventListener('pointercancel',cancel,true);root.removeEventListener('blur',cancel,true);this.cancelEditGesture=null;this.selectionGestureActive=false};
   const up=e=>{if(e.pointerId!==gesture.pointerId)return;e.stopPropagation();clear();
    if(gesture.golden){
-    const destination=this.doc.selection.start;
+    const destination=this.doc.selection.start,dest=this.goldenGesture?.dest||gesture.priorChannel;
     this.doc=core().setSelection(this.doc,gesture.prior.start,gesture.prior.end);
-    this.goldenGesture=null;
+    this.goldenGesture=null;this.maskVertical=gesture.vertical;
     this.refresh(false);this.options.onViewChange?.();
-    if(gesture.active&&destination!==gesture.prior.start)void this.applyGoldenMove(gesture.prior,destination,gesture.priorChannel);
+    if(gesture.active&&(destination!==gesture.prior.start||dest!==gesture.priorChannel))void this.applyGoldenMove(gesture.prior,destination,gesture.priorChannel,dest);
     return;
    }
    if(gesture.active)this.applySelection();else if(gesture.mode==='select')this.setCursor(gesture.start);else {this.refresh(false);this.options.onViewChange?.()}
@@ -1711,11 +1726,14 @@ class Editor{
     if(ghost&&this.selectionGestureActive){
      const frames=ghost.sourceEnd-ghost.sourceStart;
      const columns=Math.min(1200,Math.max(1,Math.round(end-x)));
-     const selected=this.channel==='all'?ghost.channels.map((_,i)=>i):[this.channel==='R'?1:0];
+     const idx=v=>v==='all'?ghost.channels.map((_,i)=>i):[v==='R'?1:0];
+     const from=idx(ghost.src||this.channel),to=idx(ghost.dest||this.channel);
+     const stereoLanes=ghost.channels.length===2&&to.length===2;
      ctx.fillStyle='rgba(255,215,90,.78)';
-     for(const c of selected){
-      const cy=y+laneH*(ghost.channels.length===2&&this.channel==='all'?(c===0?.25:.75):.5);
-      const hh=laneH*(ghost.channels.length===2&&this.channel==='all'?.24:.46);
+     for(let k=0;k<to.length;k++){
+      const c=from.length===to.length?from[k]:from[0];
+      const cy=y+laneH*(stereoLanes?(k===0?.25:.75):.5);
+      const hh=laneH*(stereoLanes?.24:.46);
       const channel=ghost.channels[c];
       for(let col=0;col<columns;col++){
        const lo=Math.floor(frames*col/columns),hi=Math.max(lo+1,Math.ceil(frames*(col+1)/columns));
