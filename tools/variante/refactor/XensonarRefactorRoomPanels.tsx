@@ -34,8 +34,8 @@ export function XensonarRefactorHeader({
         <div>
           <h1 className="text-3xl font-semibold tracking-wide text-violet-200">{title}</h1>
           <p className="text-sm text-neutral-400 max-w-3xl mt-2">
-            Resonanzraum aus cursor-gelenkter Agentenbewegung, mikrotönigem Raster, Klick-Ripples, gerichteten Pulswellen
-            und Drone-Fundament. V1.1 setzt auf freiere Strömung statt Kessel-Drift und hält die Claims ehrlicher.
+            A resonance space made of cursor-steered agent motion, a microtonal grid, click ripples, directed pulse waves
+            and a drone foundation. V1.1 favours freer flow over cauldron drift and keeps its claims more honest.
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
@@ -68,10 +68,10 @@ export function XensonarRefactorHeader({
               </span>
               <span className="flex min-w-0 flex-col leading-tight">
                 <span className={`text-[10px] uppercase tracking-[0.3em] ${powered ? "text-violet-100/70" : "text-fuchsia-200/70"}`}>
-                  {powered ? "Maschine aktiv" : "Maschine aus"}
+                  {powered ? "Machine on" : "Machine off"}
                 </span>
                 <span className="text-sm font-semibold tracking-[0.08em]">
-                  {powered ? "Power · ON" : "⏻ Zündung starten"}
+                  {powered ? "Power · ON" : "⏻ Start ignition"}
                 </span>
               </span>
             </span>
@@ -145,19 +145,19 @@ export function XensonarRefactorControlPanels({
       <div className="border border-neutral-800 bg-black rounded-2xl p-4 space-y-3">
         <div className="grid grid-cols-2 gap-3 text-sm">
           <div><div className="text-neutral-500">Status</div><div className="text-violet-200">{status}</div></div>
-          <div><div className="text-neutral-500">Letztes Ereignis</div><div className="text-violet-100">{lastEvent}</div></div>
-          <div><div className="text-neutral-500">Aktive Agenten</div><div>{enabledCount}</div></div>
-          <div><div className="text-neutral-500">Cursor-Stufe</div><div>{cursorStepUi}/{getTotalRows(params) - 1}</div></div>
-          <div><div className="text-neutral-500">Cursor-Modus</div><div>{astralActiveUi ? "Astral / Keyboard" : "Maus"}</div></div>
+          <div><div className="text-neutral-500">Last event</div><div className="text-violet-100">{lastEvent}</div></div>
+          <div><div className="text-neutral-500">Active agents</div><div>{enabledCount}</div></div>
+          <div><div className="text-neutral-500">Cursor step</div><div>{cursorStepUi}/{getTotalRows(params) - 1}</div></div>
+          <div><div className="text-neutral-500">Cursor mode</div><div>{astralActiveUi ? "Astral / Keyboard" : "Mouse"}</div></div>
           <div><div className="text-neutral-500">Ripple-Root</div><div>{rootStepUi}/{getTotalRows(params) - 1}</div></div>
-          <div><div className="text-neutral-500">Geist-X</div><div>{Math.round(astralXUi)} px</div></div>
-          <div><div className="text-neutral-500">Key-Fenster</div><div>{params.keyboardWindowStart}–{params.keyboardWindowStart + 19}</div></div>
-          <div><div className="text-neutral-500">Raster-Stufen/Oktave</div><div>{getTuningSteps(params.tuning)}</div></div>
+          <div><div className="text-neutral-500">Ghost X</div><div>{Math.round(astralXUi)} px</div></div>
+          <div><div className="text-neutral-500">Key window</div><div>{params.keyboardWindowStart}–{params.keyboardWindowStart + 19}</div></div>
+          <div><div className="text-neutral-500">Grid steps/octave</div><div>{getTuningSteps(params.tuning)}</div></div>
         </div>
         {recordingUrl && (
           <div className="pt-2">
             <audio controls src={recordingUrl} className="w-full" />
-            <a className="text-sm text-violet-300 underline" href={recordingUrl} download="xensonar-recording.webm">Recording herunterladen</a>
+            <a className="text-sm text-violet-300 underline" href={recordingUrl} download="xensonar-recording.webm">Download recording</a>
           </div>
         )}
       </div>
@@ -225,18 +225,18 @@ export function XensonarRefactorControlPanels({
       </div>
 
       <div className="border border-neutral-800 bg-black rounded-2xl p-4 text-xs text-neutral-300 flex items-center justify-between gap-3">
-        <div>Links auf die Dreiecke klicken = Step mute/unmute. Ziehen = Mikro-Offset pro Rasterstufe.</div>
+        <div>Left-click the triangles = mute/unmute step. Drag = micro offset per grid step.</div>
         <button onClick={() => setParams((prev) => ({ ...prev, manualMutedSteps: [], manualStepOffsets: ensureStepOffsetArray(prev.tuning, []).map(() => 0) }))} className="px-3 py-2 rounded-xl border border-neutral-700 bg-neutral-900 hover:bg-neutral-800">
-          Raster Reset
+          Grid Reset
         </button>
       </div>
 
       <div className="border border-amber-900/40 bg-amber-950/20 rounded-2xl p-4 text-xs text-amber-100/90 space-y-2">
-        <p><strong>Hinweis:</strong> Quantize Grid bleibt in V1.1 bewusst verborgen, solange es noch keinen Drumbeat / Clock-Partner gibt.</p>
-        <p>Natural Grid zeigt Oktaven absichtlich "realer": je tiefer, desto dichter liegen die Schritte. Equalized View entzerrt nur die Darstellung, nicht das Tuning selbst.</p>
-        <p>Tastatur und Pfeile steuern den Astralcursor. Deren Sound ist der Wellenstart: anderes Timbre und etwa eine Oktave unter den Partikelstimmen.</p>
-        <p>Die Maus setzt wieder den physischen Cursor. Sobald sie bewegt wird, kehrt der Geist zurück bzw. verschwindet.</p>
-        <p>19-EDO und 31-EDO sind Klangräume, aber noch keine vollständig ausgearbeiteten eigenen Lehrsysteme. Bohlen-Pierce hat eigene Modi im UI.</p>
+        <p><strong>Note:</strong> Quantize Grid stays hidden in V1.1 on purpose until there is a drum beat / clock partner.</p>
+        <p>Natural Grid deliberately shows octaves more "realistically": the lower, the denser the steps. Equalized View only evens out the display, not the tuning itself.</p>
+        <p>Keyboard and arrows steer the astral cursor. Its sound is the wave start: a different timbre and about an octave below the particle voices.</p>
+        <p>The mouse takes over the physical cursor again. As soon as it moves, the ghost returns or disappears.</p>
+        <p>19-EDO and 31-EDO are sound spaces, but not yet fully worked-out teaching systems of their own. Bohlen-Pierce has its own modes in the UI.</p>
       </div>
     </div>
   );

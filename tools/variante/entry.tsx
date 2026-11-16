@@ -18,7 +18,7 @@ export function XenpolarRoom({ requestedFamilyActive = null, sharedFieldControll
   const back = (
     <button type="button" data-xen-variante-back="true" onClick={() => (open ? setOpen(false) : onEnterResonance?.())}
       className="rounded border border-cyan-700/60 bg-cyan-950/30 px-3 py-1 text-xs uppercase tracking-[0.2em] text-cyan-100 hover:bg-cyan-900/40">
-      {open ? "← Xensonar Familie" : "← Live Room"}
+      {open ? "← Xensonar Family" : "← Live Room"}
     </button>
   );
   if (open) {
@@ -32,12 +32,12 @@ export function XenpolarRoom({ requestedFamilyActive = null, sharedFieldControll
   return (
     <div data-xen-variante-launcher="true" className="mx-auto max-w-3xl space-y-4 p-2">
       <div className="flex items-center justify-between gap-3">
-        <div className="text-[10px] uppercase tracking-[0.34em] text-neutral-500">Xensonar Familie</div>
+        <div className="text-[10px] uppercase tracking-[0.34em] text-neutral-500">Xensonar Family</div>
         {back}
       </div>
       <button type="button" onClick={() => setOpen(true)}
         className="w-full rounded-2xl border border-amber-700/60 bg-amber-950/20 p-6 text-left text-amber-100 hover:bg-amber-900/30">
-        <div className="text-[10px] uppercase tracking-[0.3em] text-neutral-400">Ableger</div>
+        <div className="text-[10px] uppercase tracking-[0.3em] text-neutral-400">Spin-off</div>
         <div className="mt-2 text-2xl font-semibold">{XENSONAR_VARIANTE_LABEL}</div>
         <div className="mt-2 text-sm opacity-90">{XENSONAR_VARIANTE_FAMILY_SUMMARY}</div>
       </button>

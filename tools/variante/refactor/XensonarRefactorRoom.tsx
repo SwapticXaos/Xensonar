@@ -194,7 +194,7 @@ function XensonarRefactorRoom({ embedded = false, title = XENSONAR_VARIANTE_LABE
       openPowerGate(ctx.currentTime);
       poweredRef.current = true;
       setPowered(true);
-      setStatus("Nexus aktiv");
+      setStatus("Nexus active");
       return;
     }
 
@@ -493,15 +493,15 @@ function XensonarRefactorRoom({ embedded = false, title = XENSONAR_VARIANTE_LABE
               />
             </div>
             <div className="mt-3 text-xs text-neutral-400 flex flex-wrap gap-x-4 gap-y-1">
-              <span>Klick-Y = Ripple-Grundton / Root</span>
-              <span>Natural Grid: unten dichter, oben weiter</span>
-              <span>Maus/Touch: setzt echten Wellenursprung</span>
-              <span>Mausbewegung beendet Astralreise</span>
-              <span>Klick/Space: endlicher Ripple</span>
-              <span>Y/X/C/V: Linien- oder Sektorwellen</span>
-              <span>1-0, Q-T, Z-P: 20er Step-Fenster als Astralcursor (QWERTZ)</span>
-              <span>ß / Ü: Fenster verschieben</span>
-              <span>Pfeile: Cursor-Geist frei bewegen, ohne Scrollen</span>
+              <span>Click Y = ripple root</span>
+              <span>Natural Grid: denser at the bottom, wider at the top</span>
+              <span>Mouse/touch: sets the real wave origin</span>
+              <span>Mouse movement ends the astral journey</span>
+              <span>Click/Space: finite ripple</span>
+              <span>Y/X/C/V: line or sector waves</span>
+              <span>1-0, Q-T, Z-P: 20-step window as astral cursor (QWERTZ)</span>
+              <span>ß / Ü: move window</span>
+              <span>Arrows: move the cursor ghost freely, without scrolling</span>
             </div>
           </div>
 

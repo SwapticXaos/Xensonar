@@ -182,6 +182,8 @@ const __XenRackLiveBarEdits=(()=>{
   let ctx=null;
   try{
    await __ensureMaterialLibraryHydrated();if(!active())return;
+   /* LOOP-TRIM-PERSIST: starter/demo materials get their PCM on demand; without this the restored trim found no audio ("Original loop data missing") and the loop came back untrimmed after a reload. */
+   try{await __XenStarterMaterial.ensure({kind:'material',id:spec.id})}catch{}if(!active())return;
    const source=bs().entries.find(e=>e.id===spec.id);
    if(!source?.blob?.size||!(Number(source.bars)>0)||!(Number(source.bpm)>0))throw Error('Original loop data missing');
    // Remove only deterministically impossible edits for a known original length.

@@ -16,7 +16,7 @@ export function useXensonarRecordingRuntime({ setStatus }: RecordingRuntimeOptio
     if (!dest) return;
 
     if (typeof MediaRecorder === "undefined") {
-      setStatus("Recording im Browser nicht unterstützt");
+      setStatus("Recording is not supported in this browser");
       return;
     }
 
@@ -34,11 +34,11 @@ export function useXensonarRecordingRuntime({ setStatus }: RecordingRuntimeOptio
           if (prev) URL.revokeObjectURL(prev);
           return url;
         });
-        setStatus("Recording bereit");
+        setStatus("Recording ready");
       };
       recorder.start();
       setRecording(true);
-      setStatus("Recording läuft");
+      setStatus("Recording");
       return;
     }
 

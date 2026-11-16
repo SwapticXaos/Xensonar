@@ -97,7 +97,7 @@ export function useXensonarRefactorAudioRuntime({
 
       applyRefucktorMixParams(ctx.currentTime, master, echo, paramsRef.current);
 
-      setStatus("Audio initialisiert");
+      setStatus("Audio initialised");
     }
 
     if (ctx.state !== "running") {
