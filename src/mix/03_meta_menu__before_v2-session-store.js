@@ -23,8 +23,8 @@ function __xenMetaValidateColors(items,raw){
    seed genuinely new states; loading a saved session restores its own values. */
 const __XenFactoryStartSounds=Object.freeze({
  particle:'dust_chime',
- waveStarter:'entrophon:factory:glas-zerrbild@1',
- keyboard:'entrophon:factory:marimba-holz@1'
+ waveStarter:'psylab:factory:Barber Spiral',
+ keyboard:'nodal:factory:troodle'
 });
 function __xenFactorySongPerformance(){return {version:1,entries:[],sources:__xenStarterSourceSettings()};}
 const __XenMainRoomSessionBridge=(()=>{
@@ -57,7 +57,7 @@ const __XenMainRoomSessionBridge=(()=>{
    starterFrame=requestAnimationFrame(()=>{starterFrame=null;if(starterInitialized||!owner||!__XenQuick.adapters.has('grid'))return;
     const p=owner.nParamsUI??{};starterInitialized=true;
     if(p.gridTuning==='12edo'&&p.gridMode==='ionian'&&(p.manualGridMutedSteps??[]).join(',')===xF('ionian','12edo').join(',')&&!(p.manualGridStepOffsets??[]).some(x=>x!==0)&&!p.materialLoopActive&&!p.rootFollowLoopActive){
-     const entry=__xenStarterPresetRecords().primary.items[0];
+     const entry=__xenStarterPresetRecords().primary.items.find(item=>item.instanceId==='starter-grid-31-harmonic');
      if(__XenMainRoomSessionBridge.applyGridProfile(entry))__XenQuick.setSelected('grid',entry.instanceId);
     }
    });
@@ -264,8 +264,8 @@ function __XenStarterMaterialStatus(){
 /* KH04: unlabelled first-run Keyboard-Hold demonstration. Normal user/session
    state takes precedence; Root Reset removes its pitches without reapplying it. */
 const __XenKeyboardHoldStartupDemo=Object.freeze({
- segments:16,bars:1,steps:Object.freeze(Array(16).fill(1)),
- cents:Object.freeze([0,386,702,1200,702,386,0,702,1200,702,386,0,702,386,1200,702])
+ segments:24,bars:1,steps:Object.freeze(Array(24).fill(1)),
+ cents:Object.freeze(Array.from({length:4},()=>[0,386,702,1200,702,386]).flat())
 });
 function __xenStarterSourceSettings(){
  return {particle:{particleSystem:'ji',churchMode:'ionian',particlePreset:__XenFactoryStartSounds.particle,particleSampleProfileMode:'current_db_v2',
@@ -285,6 +285,7 @@ function __xenStarterPresetRecords(){
   'ji|harmonic_minor':[3,5,8,9,10],
   'bp|bp_minor':[2,4,7,10],
   '19edo|phrygian':[1,3,4,6,7,9,10,12,14,15,17,18],
+  '31edo|harmonic_minor':[1,2,3,4,6,7,9,10,11,12,14,15,16,17,19,20,22,23,24,25,26,27,29,30],
   '31edo|dorian':[1,2,3,4,6,7,9,10,11,12,14,15,16,17,19,20,21,22,24,25,27,28,29,30]
  };
  const profile=(id,name,instanceId,modeId,bassDegrees=null)=>{
@@ -312,7 +313,8 @@ function __xenStarterPresetRecords(){
   entry('bass','preset:stotter','Stutter Sub · Default'),
   entry('bass','preset:forge_fractured','RhythmForge · Fractured'),
   entry('bass','preset:psy_classic','PsyBass · Classic Offbeat'),
-   ...__xenStarterDemoReferences()];
+   ...__xenStarterDemoReferences(),
+  profile('31edo','31 EDO · Harmonic Minor','starter-grid-31-harmonic','harmonic_minor')];
  const alternate=[
   profile('19edo','19 EDO · Phrygian','starter-grid-19-phrygian','phrygian'),
   profile('31edo','31 EDO · Dorian','starter-grid-31-dorian','dorian'),
@@ -327,7 +329,8 @@ function __xenStarterPresetRecords(){
   ['#f5a167','#3b291e'],['#f0d080','#3b291e'],['#e9a0a5','#3b291e'],
   ['#8bd7ac','#17382d'],['#73d4d7','#17382d'],['#95b7e9','#17382d'],
    ['#69d8df','#1d344a'],['#d2a0e8','#352940'],['#8be7ae','#1d344a'],
-   ['#e6b07a','#352940'],['#8dc4f2','#1d344a'],['#efa5a8','#352940']];
+   ['#e6b07a','#352940'],['#8dc4f2','#1d344a'],['#efa5a8','#352940'],
+   ['#c9b0f5','#2a1d40']];
  const secondaryPairs=[
   ['#e8ab54','#4a1d68'],['#ffb4d5','#115c57'],
   ['#82dbf4','#643016'],['#e2a1ff','#25427b'],

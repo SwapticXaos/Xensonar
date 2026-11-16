@@ -125,3 +125,4 @@ hwkeyboard_core.cjs
 live_lane_01.test.cjs
 audio_analysis.test.cjs
 variante_port.test.cjs
+song_factory_nodal_capture.test.cjs

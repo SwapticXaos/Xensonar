@@ -30,6 +30,7 @@ const __XenSongInstrumentDefinitions=(()=>{
          nothing to store. A Nodal factory sound on the Keyboard used to stop every Loop-Rec take ("Invalid song instrument source"). */
       if(typeof id==='string'&&/^(nodal|entrophon):factory:/.test(id))continue;
       const type=kind(id);
+      if(id==='nodal:factory:troodle')continue;/* built-in, read-only, resolved by key; never part of the song bank */
       if(typeof id==='string'&&/^(nodal|entrophon):/.test(id)&&!type)throw new Error('Invalid song instrument source');
       if(!type||id.startsWith('entrophon:factory:'))continue;
       let recipe=find(id);

@@ -1,0 +1,10 @@
+const test=require("node:test");const assert=require('assert'),fs=require('fs'),vm=require('vm');
+const src=fs.readFileSync(__dirname+'/../src/instruments/05_entrophon_integration.js','utf8');
+const start=src.indexOf('const __XenSongInstrumentDefinitions=');
+const code=src.slice(start,src.indexOf('})();',start)+5);
+const ctx={window:undefined,__EntrophonLiveDefinitions:new Map(),__XenNodalModel:{normalize:x=>x},normalizeEntrophonInstrument:x=>x,entrophonFindInstrument:()=>null,__XenNodalLibrary:{list:()=>[]}};
+vm.createContext(ctx);vm.runInContext(code+';this.D=__XenSongInstrumentDefinitions',ctx);
+test('factory troodle is not captured',()=>{const r=ctx.D.capture(['nodal:factory:troodle','entrophon:factory:marimba-holz@1','psylab:factory:Barber Spiral']);
+assert.deepStrictEqual(Object.keys(r.nodal),[]);assert.deepStrictEqual(Object.keys(r.entrophon),[]);
+assert.throws(()=>ctx.D.capture(['nodal:bogus']),/Invalid song instrument source/);
+});
