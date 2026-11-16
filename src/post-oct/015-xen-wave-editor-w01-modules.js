@@ -2563,7 +2563,8 @@ class Editor{
    const parent=canvas.parentElement;
    if(!parent.classList.contains('xwe-playhead-owner'))parent.classList.add('xwe-playhead-owner');
    const el=$('div',{class:'xwe-playhead','data-active':'false','aria-hidden':'true'});
-   parent.append(el);this.playheadElements.push({canvas,parent,el});
+   const time=canvas===this.options.detailCanvas?$('span',{class:'xwe-playhead-time'}):null;if(time)el.append(time);
+   parent.append(el);this.playheadElements.push({canvas,parent,el,time});
   }
  }
  clearPlayheads(){
@@ -2581,7 +2582,7 @@ class Editor{
   const owner=this.doc;
   if(!owner)return;
   for(const entry of this.playheadElements||[]){
-   const {canvas,parent,el}=entry;
+   const {canvas,parent,el,time}=entry;
    const c=canvas.getBoundingClientRect(),p=parent.getBoundingClientRect();
    if(!c.width||!c.height)continue;
    // Upper wave is the entire source; lower wave is the currently zoomed viewport.
@@ -2592,6 +2593,7 @@ class Editor{
    const visible=ratio>=0&&ratio<=1;
    el.dataset.active=String(visible);el.style.display=visible?'block':'none';
    el.style.left=(c.left-p.left+parent.scrollLeft+c.width*Math.max(0,Math.min(1,ratio)))+'px';
+   if(time&&visible)time.textContent=clockLabel(at/t.sampleRate);
    el.style.top=(c.top-p.top+parent.scrollTop)+'px';el.style.height=c.height+'px';
   }
   this.transportRaf=root.requestAnimationFrame(()=>this.updatePlayheads());
@@ -2603,6 +2605,16 @@ class Editor{
   this.updatePlayheads();
  }
  stopAudio(){if(this.audioNode){try{this.audioNode.stop()}catch{}this.audioNode.disconnect();this.audioNode=null}this.clearPlayheads();this.audioContext?.suspend?.()}
+ /* PLAYHEAD-CLOCK: the running time above the Forge loop playhead (drawn on the canvas) as the same floating label the editor playhead carries */
+ setLoopClock(sec){
+  const canvas=this.options.detailCanvas,doc=this.doc;let el=this.loopClockEl;
+  if(sec==null||!Number.isFinite(sec)||!canvas?.parentElement||!doc?.viewport){if(el){el.remove();this.loopClockEl=null}return}
+  const parent=canvas.parentElement,view=doc.viewport,ratio=(sec*doc.sampleRate-view.start)/Math.max(1,view.end-view.start);
+  if(ratio<0||ratio>1){if(el)el.style.display='none';return}
+  if(!el||!el.isConnected){el=this.loopClockEl=$('span',{class:'xwe-playhead-time xwe-loop-clock','aria-hidden':'true'});parent.classList.add('xwe-playhead-owner');parent.append(el)}
+  const c=canvas.getBoundingClientRect(),pr=parent.getBoundingClientRect();
+  el.style.display='block';el.textContent=clockLabel(sec);el.style.left=(c.left-pr.left+parent.scrollLeft+c.width*ratio)+'px';el.style.top=(c.top-pr.top+parent.scrollTop-22)+'px';el.style.setProperty('--xwe-ph',(c.height+8)+'px');
+ }
  setLoopPlaying(on){if(this.loopButton){this.loopButton.textContent=on?'■ Stop':'▶ Loop';this.loopButton.setAttribute('aria-pressed',String(!!on))}}
  playSelection(){if(this.audioNode){this.stopAudio();this.setStatus('Playback stopped.');return}return this.preview('document')}
  /* TAKT-SEEK: restart the running preview at another point (same mode, same end) */
@@ -2718,7 +2730,9 @@ class Editor{
  loadPreset(){this.presetInput.click()}
  async readPreset(file){if(!file)return;if(this.warnUnappliedFx('Load Chain Preset'))return;try{const p=JSON.parse(await file.text());if(p.version!=='xen-wave-chain-w01'||!Array.isArray(p.nodes))throw Error('Not a W01 effect-chain preset.');const rate=this.doc.sampleRate/(p.sampleRate||this.doc.sampleRate),offset=this.doc.selection.start-(p.origin||0)*rate,allowed=new Set(registry().map(x=>x.type));this.releaseOfflineEQState();this.nodes=p.nodes.filter(n=>allowed.has(n.type)).map(n=>({...n,id:'fx-'+(++serial),targetRange:{start:clamp(Math.round(n.targetRange.start*rate+offset),0,this.doc.frames-1),end:clamp(Math.round(n.targetRange.end*rate+offset),1,this.doc.frames)},automation:Object.fromEntries(Object.entries(n.automation||{}).map(([key,lane])=>[key,{...lane,points:lane.points.map(q=>({...q,frame:Math.round(q.frame*rate+offset)}))}]))}));this.activeNode=this.nodes[0]?.id;this.invalidate();this.refresh();this.setStatus('Chain preset aligned to the current selection.')}catch(error){this.setStatus(error.message)}}
 }
-root.__XenWaveUIW01=Object.freeze({attach,drawStereo,parseInterval,enabled(canvas){const e=instances.get(canvas);return !!(e?.enabled&&e?.overlay)},open(canvas){instances.get(canvas)?.open()},getEditor(canvas){return instances.get(canvas)},drawEditSelection(ctx,canvas,view,width,height){instances.get(canvas)?.drawEditOverlay(ctx,view,width,height)},version:'W15-mixpaste-perchannel-percent'});
+/* PLAYHEAD-CLOCK: the running time above a playhead, e.g. 2:33.4; one formatter for the editor's own playhead and the Forge loop playhead (m:ss.t) */
+function clockLabel(sec){const t=Math.max(0,Number(sec)||0),m=Math.floor(t/60),s=t-m*60,x=s.toFixed(1);return (x==='60.0'?(m+1)+':00.0':m+':'+(s<10?'0':'')+x)}
+root.__XenWaveUIW01=Object.freeze({attach,drawStereo,clockLabel,parseInterval,enabled(canvas){const e=instances.get(canvas);return !!(e?.enabled&&e?.overlay)},open(canvas){instances.get(canvas)?.open()},getEditor(canvas){return instances.get(canvas)},drawEditSelection(ctx,canvas,view,width,height){instances.get(canvas)?.drawEditOverlay(ctx,view,width,height)},version:'W15-mixpaste-perchannel-percent'});
 })(globalThis);
 
 

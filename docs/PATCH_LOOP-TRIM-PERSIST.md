@@ -15,3 +15,6 @@ Befund: Im Wave Editor sprang das Taktometer (Cyan-Rahmen, Takte 1..n) erst beim
 
 ## WAVE-LOOP-01 (Loop-Knopf im Wave-Editor-Kopf)
 `▶ Loop` steht zwischen `▶ Play` (einmal) und `Close ×`. Kein neuer Wiedergabeweg: der Knopf löst dieselbe Vorschau aus wie der große PLAY (Preview Loop, `togglePreview` des Forge-Panels); der große PLAY zeigt währenddessen „Stop“, der Loop-Knopf „■ Stop“. Ein eigener Loop-Code im Editor wurde verworfen (Doppelstruktur). Änderung: 9 Zeilen (`lab.js`, `015-xen-wave-editor-w01-modules.js`). Test `tests/e2e/wave_loop_button.cjs`; `run_tests.sh` 128/128. Nicht gehört.
+
+## PLAYHEAD-CLOCK (laufende Zeit über dem Playhead der Loop Mask)
+Über dem Playhead schwebt in dem freien Streifen oberhalb der Loop Mask die Zeit `m:ss.t` (z. B. 2:33.4) und wandert mit. Ein Label-Stil, eine Formatierung (`__XenWaveUIW01.clockLabel`): (1) Play: Kind des vorhandenen Editor-Playheads, in derselben `updatePlayheads`-Schleife; (2) Loop (Forge-Preview, in der Maske ohne eigenen Playhead): schwebendes Label mit dünner grüner Linie, gespeist aus dem vorhandenen Loop-Offset. Zone WARM, keine Audio-Änderung. Test `tests/e2e/wave_playhead_clock.cjs`; `run_tests.sh` 128/128. Nicht von Hand bedient.
