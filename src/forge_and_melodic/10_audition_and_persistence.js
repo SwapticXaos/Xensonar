@@ -638,7 +638,7 @@ function __ForgeSendToMultitrackButton(){
  const snapshot=P.useSyncExternalStore(__ForgeNavigatorSample.subscribe,__ForgeNavigatorSample.snapshot,__ForgeNavigatorSample.snapshot);
  return P.createElement('button',{type:'button','data-forge-send-to-multitrack':true,
   'aria-label':'Send currently audible listening mode to Multitrack',
-  title:'🎚 Send the current listening mode to Room IV · Multitrack as a new track · purple Navigator mask if selected, otherwise whole figure · lossless Float32, Forge tempo is kept as source tempo',
+  title:'🎚 Send the current listening mode to Room V · Multitrack as a new track · purple Navigator mask if selected, otherwise whole figure · lossless Float32, Forge tempo is kept as source tempo',
   disabled:snapshot.busy,onClick:()=>void __f333SendToEditor('multitrack'),
   className:'f35-rack-send-multitrack rounded border border-amber-600/70 bg-amber-950/40 text-xs font-semibold text-amber-100 hover:bg-amber-900/40 disabled:opacity-50'},
   snapshot.busy?'Preparing …':'🎚 Send to Multitrack');

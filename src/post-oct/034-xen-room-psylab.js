@@ -688,7 +688,7 @@ function XenPsyLabRoom(){
   try{const rate=engine.ctx?.sampleRate||48000,r=await bounce({params:patchRef.current.params.map((v,i)=>i===37?0:v),res:gridResonators(liveGridParams(),live.current.oct),notes:notesForBounce(),seconds:bounceSec,sampleRate:rate});
    if(!(r.peak>1e-4))throw Error('The render is silent (level, envelope or cutoff?).');
    const name='PsyLab · '+(all.find(x=>x.id===selected)?.name||'patch')+' · '+new Date().toISOString().slice(11,19).replace(/:/g,'');
-   if(target==='multitrack'){await __XenMultitrackInbox.send({channels:[r.left,r.right],sampleRate:r.sampleRate,name,origin:'psylab'});setStatus('Sent “'+name+'” ('+bounceSec+' s, peak '+r.peak.toFixed(2)+'): it is now a Material and waits in Room IV · Multitrack.')}
+   if(target==='multitrack'){await __XenMultitrackInbox.send({channels:[r.left,r.right],sampleRate:r.sampleRate,name,origin:'psylab'});setStatus('Sent “'+name+'” ('+bounceSec+' s, peak '+r.peak.toFixed(2)+'): it is now a Material and waits in Room V · Multitrack.')}
    else{const blob=await __xenRecorderFloatWav(r.left,r.right,r.sampleRate),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=name.replace(/[^\w.-]+/g,'_')+'.wav';document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),4000);setStatus('Downloaded “'+a.download+'” (32-bit float WAV, peak '+r.peak.toFixed(2)+').')}}
   catch(e){setStatus('Bounce failed: '+String(e?.message||e))}finally{setBusy(false)}};
  const gridExtra=u.jsxs(u.Fragment,{children:[
@@ -701,7 +701,7 @@ function XenPsyLabRoom(){
  const piano=orient==='piano';
  return u.jsxs('div',{className:'xpl'+(large?' xpl-large':''),ref:rootRef,'data-xen-psylab':'true',children:[
   u.jsx('h2',{children:'PSYCHEDELIC LAB'}),
-  u.jsx('p',{className:'xpl-sub',children:'Room V. A feedback-FM hydra, an endless Escher staircase, a spiral echo that shifts every repeat, grid-tuned crystals and a Lorenz attractor that never repeats itself. It plays on the Main Room grid: same lines, same blue triangles, same keys.'}),
+  u.jsx('p',{className:'xpl-sub',children:'Room IV. A feedback-FM hydra, an endless Escher staircase, a spiral echo that shifts every repeat, grid-tuned crystals and a Lorenz attractor that never repeats itself. It plays on the Main Room grid: same lines, same blue triangles, same keys.'}),
   u.jsxs('div',{className:'xpl-bar',children:[
    u.jsxs('select',{'aria-label':'Patch',value:selected,onChange:e=>onSelect(e.target.value),children:[u.jsx('option',{value:'',children:'Working patch'}),
     u.jsx('optgroup',{label:'Factory',children:FACTORY.map(p=>u.jsx('option',{value:p.id,children:p.name},p.id))}),
@@ -722,7 +722,7 @@ function XenPsyLabRoom(){
    u.jsxs('span',{className:'xpl-note',children:['Octave ',u.jsx('button',{type:'button','aria-label':'Octave down',onClick:()=>{panic();setOct(o=>clamp(o-1,-3,4))},children:'−'}),' ',oct>0?'+'+oct:oct,' ',u.jsx('button',{type:'button','aria-label':'Octave up',onClick:()=>{panic();setOct(o=>clamp(o+1,-3,4))},children:'+'})]}),
    u.jsx('span',{style:{flex:'1 1 20px'}}),
    u.jsxs('label',{className:'xpl-note',children:['Bounce ',u.jsx('input',{type:'number','aria-label':'Bounce length in seconds',min:.5,max:120,step:.5,value:bounceSec,onChange:e=>setBounceSec(clamp(Number(e.target.value)||8,.5,120)),style:{width:64}}),' s']}),
-   u.jsx('button',{type:'button',disabled:busy,onClick:()=>void doBounce('multitrack'),title:'Render the held notes (or the grid base) offline and store the result as Material; it appears in Room IV',children:'→ Multitrack'}),
+   u.jsx('button',{type:'button',disabled:busy,onClick:()=>void doBounce('multitrack'),title:'Render the held notes (or the grid base) offline and store the result as Material; it appears in Room V',children:'→ Multitrack'}),
    u.jsx('button',{type:'button',disabled:busy,onClick:()=>void doBounce('wav'),children:'⤓ WAV'})]}),
   u.jsxs('div',{className:'xpl-metro','data-psy-metro':'true',children:[
    u.jsx('button',{type:'button','aria-pressed':metroOn,onClick:()=>setMetroOn(v=>!v),title:'A click for you only: it goes straight to the speakers and is never recorded, mixed or bounced.',children:metroOn?'♩ Metronome: on':'♩ Metronome: off'}),
