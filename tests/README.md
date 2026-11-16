@@ -2,7 +2,7 @@
 
 | Ort | Was | Wie gestartet | Läuft in der GitHub-Action |
 |---|---|---|---|
-| `tests/GREEN_NODE_TESTS.txt` (126 Einträge) | Regressionstests ohne Browser (nur Dateien direkt in `tests/`) | `./tools/run_tests.sh` (ca. 45 s) | ja, blockierend |
+| `tests/GREEN_NODE_TESTS.txt` (127 Einträge) | Regressionstests ohne Browser (nur Dateien direkt in `tests/`) | `./tools/run_tests.sh` (ca. 45 s) | ja, blockierend |
 | `tests/e2e/*.cjs` | die echte App in Chromium, gegen den Prüf-Build `dist/XenSonar_PROBE.html` | `./tools/run_e2e.sh` (ca. 15 min) | ja, blockierend |
 | fünf Standalone-Browsertests in `tests/` (`ui_side_arrows`, `mix_audio_browser`, `ui_visual_restore`, `power_browser_smoke`, `test_stamp_full_browser_p37`) | gegen die gebaute `index.html` | ebenfalls in `./tools/run_e2e.sh` | ja |
 | `tests/browsers/engine_smoke.cjs` | Start, Power, alle Räume in Chromium/Firefox/WebKit (`XEN_BROWSER=…`) | von Hand oder Job `firefox-smoke` | Firefox-Job, nicht blockierend |

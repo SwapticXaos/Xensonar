@@ -124,3 +124,4 @@ mtw_02_fades.test.cjs
 hwkeyboard_core.cjs
 live_lane_01.test.cjs
 audio_analysis.test.cjs
+variante_port.test.cjs

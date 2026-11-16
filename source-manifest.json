@@ -951,6 +951,13 @@
    ]
   },
   {
+   "id": "js-020d-xen-room-xenpolar",
+   "oct28_section": null,
+   "files": [
+    "src/post-oct/035-xen-room-xenpolar.js"
+   ]
+  },
+  {
    "id": "js-021-xen-function-__ForgeTransportRack",
    "oct28_section": "@@XENSONAR_COMPONENT_053@@",
    "files": [
