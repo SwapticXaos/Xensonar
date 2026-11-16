@@ -9,3 +9,6 @@ Parent: `319d187`. Zone: WARM (Oberfläche, Session-Restore); Variante-Texte KAL
 
 ## ROOM-ORDER-01 (Psy Lab <-> Multitrack)
 Header: IV PSY LAB, V MULTITRACK (vorher IV Multitrack, V Psy Lab), Ziffern, Tooltips, Raumtitel und Verweise („Room IV · Multitrack“ -> „Room V“, Psy-Lab-Text „Room IV“) angepasst. Reihenfolge nur in der Header-Leiste (`05_timing_and_admission.js`); Raum-IDs (`MULTITRACK`, `PSYLAB`) unverändert, keine Daten betroffen. `run_tests.sh` 128/128; Raum-E2E-Tests (Loop-Rec-Lanes, MTW-01/02/04, Playhead) grün. Alte Kommentare/Patchdokumente nennen weiter die alten Raumnummern.
+
+## BAR-METER-LIVE (Taktometer folgt der Loop Mask beim Ziehen)
+Befund: Im Wave Editor sprang das Taktometer (Cyan-Rahmen, Takte 1..n) erst beim Loslassen auf die neue Auswahl; in der Import-Ansicht folgt es live (Messung mitten in der Geste: Import 419/599/719 px, Editor 1199/1199/1199, danach 719). Ursache: die Geste der Loop Mask (`src/post-oct/015-xen-wave-editor-w01-modules.js`, Zeigerhandler mit `gesture.active`) meldete die Auswahl (`applySelection` -> `onSelection`) nur im `up`. Jetzt einmal pro Frame während des Ziehens (wachsen und schrumpfen); Golden Move behält sein Commit beim Loslassen. Zone WARM. Test `tests/e2e/wave_meter_live.cjs` (auf Parent rot). `run_tests.sh` 128/128. Nicht gehört/gedrückt von Hand.

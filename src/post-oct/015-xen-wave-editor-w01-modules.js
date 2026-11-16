@@ -1633,6 +1633,9 @@ class Editor{
   // the mask centre above 3/8 = L, 3/8..5/8 = L+R, below 5/8 = R (starting from its own lane).
   const retarget=golden&&stereo&&this.channel!=='all'&&this.goldenGesture;
   this.selectionGestureActive=true;
+  /* BAR-METER-LIVE: the Taktometer (and the donor selection) follow the mask WHILE it is dragged, once per frame, as in the import view; before, they jumped at release. A Golden Move keeps its own commit at release. */
+  let liveFrame=0;
+  const live=()=>{if(golden||liveFrame)return;liveFrame=root.requestAnimationFrame(()=>{liveFrame=0;if(gesture.active)this.applySelection()})};
   const move=e=>{
    if(e.pointerId!==gesture.pointerId)return;
    e.stopPropagation();
@@ -1653,9 +1656,9 @@ class Editor{
    }else if(gesture.mode==='resize-right'){
     this.doc=core().setSelection(this.doc,gesture.prior.start,at(e));
    }else this.doc=core().setSelection(this.doc,gesture.start,at(e));
-   this.refresh(false);this.options.onViewChange?.();
+   this.refresh(false);this.options.onViewChange?.();live();
   };
-  const clear=()=>{root.removeEventListener('pointermove',move,true);root.removeEventListener('pointerup',up,true);root.removeEventListener('pointercancel',cancel,true);root.removeEventListener('blur',cancel,true);this.cancelEditGesture=null;this.selectionGestureActive=false};
+  const clear=()=>{if(liveFrame){root.cancelAnimationFrame(liveFrame);liveFrame=0}root.removeEventListener('pointermove',move,true);root.removeEventListener('pointerup',up,true);root.removeEventListener('pointercancel',cancel,true);root.removeEventListener('blur',cancel,true);this.cancelEditGesture=null;this.selectionGestureActive=false};
   const up=e=>{if(e.pointerId!==gesture.pointerId)return;e.stopPropagation();clear();
    if(gesture.golden){
     const destination=this.doc.selection.start,dest=this.goldenGesture?.dest||gesture.priorChannel;
