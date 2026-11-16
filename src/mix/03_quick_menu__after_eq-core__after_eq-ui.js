@@ -54,6 +54,8 @@ function __XenLaneControls({params,update,primaryId,extras=[]}={}){
   const queue=()=>{if(!frame)frame=requestAnimationFrame(measure)};
   queue();window.addEventListener('resize',queue);window.addEventListener('scroll',queue,{passive:true});
   const observer=new ResizeObserver(queue);observer.observe(el);const canvas=document.querySelector('[data-xen-play-area]');if(canvas)observer.observe(canvas);
+  /* LANE-FOLLOW-01: when the rack above grows or SHRINKS this panel moves without resizing itself; watch the rack so its height/step are re-measured both ways */
+  const rack=el.closest('.xen-quick-collection');if(rack)observer.observe(rack);
   return()=>{cancelAnimationFrame(frame);observer.disconnect();window.removeEventListener('resize',queue);window.removeEventListener('scroll',queue)};
  },[ids.length,tab,openWindow]);
  const items=__XenQuick.adapters.get('material')?.entries??[];
@@ -248,6 +250,12 @@ function __xenRackBarPlan(meta,front=0,back=0){
  return Object.freeze({bars:result,frames,readStartFrame:framesAt(trimFront),readEndFrame:framesAt(bars-trimBack),padLeftFrames:framesAt(Math.max(0,front)),padRightFrames:framesAt(Math.max(0,back)),originalBars:bars,bpm,beatsPerBar:beats,rate});
 }
 /* XLRBE1 PURE END */
+/* LOOPREC-BARS-01: a compact picture of the loop region of the take (max of both channels), the same region the bar edit reads */
+function __xenLoopBarPeaks(buffer,source,n=720){const rate=buffer.sampleRate,beats=Math.max(1,Math.round(Number(source.beatsPerBar)||4)),start=Math.max(0,Math.round((Number(source.loopStartSec)||0)*rate));
+ const len=Math.max(0,Math.min(buffer.length-start,Math.round(Number(source.bars)*beats*60/Number(source.bpm)*rate)));if(!len)return null;
+ const out=new Float32Array(n),chs=Array.from({length:Math.min(2,buffer.numberOfChannels)},(_,i)=>buffer.getChannelData(i));let top=0;
+ for(let k=0;k<n;k++){const a=start+Math.floor(k*len/n),z=start+Math.floor((k+1)*len/n);let m=0;for(const c of chs)for(let i=a;i<z;i+=2){const v=c[i]<0?-c[i]:c[i];if(v>m)m=v}out[k]=m;if(m>top)top=m}
+ if(top>0)for(let k=0;k<n;k++)out[k]=Math.min(1,out[k]/top);return out}
 async function __xenRackRenderBarEdit(buffer,source,front,back,cancelled=()=>false,onPcmReady=null,pcmOnly=false){
  const rate=buffer.sampleRate,beatsPerBar=Math.max(1,Math.round(Number(source.beatsPerBar)||4));
  const plan=__xenRackBarPlan({bars:Math.max(1,Math.round(Number(source.bars)||1)),bpm:Number(source.bpm),beatsPerBar,rate},front,back);
@@ -374,10 +382,51 @@ function __xenRackCreatePreviewTransport(){
 /* XLRBE1 AUDIO PREVIEW END */
 
 
+/* LOOPREC-BARS-01: the bars of a loop made visible. The original audio is drawn over its bars (bar numbers of the take, beat lines when there is room);
+   two handles mark the beginning and the end of the loop and snap to bar lines while dragged: drag inwards = trim bars, outwards = add silent bars.
+   The handles drive the SAME front / back edit as the − / + buttons (one owner: __XenRackLiveBarEdits), so live play and preview follow at the next bar.
+   The view is frozen while a handle is held, so the grid does not move under the pointer. */
+function __XenLoopBarMap({bars,beatsPerBar,front,back,peaks,disabled,onEdges}){
+ const canvas=P.useRef(null),box=P.useRef(null),drag=P.useRef(null),[frozen,setFrozen]=P.useState(null),[width,setWidth]=P.useState(480);
+ const s=-front,e=bars+back,live={lo:Math.min(0,s)-1,hi:Math.max(bars,e)+1},view=frozen||live,span=Math.max(1,view.hi-view.lo);
+ const xOf=b=>(b-view.lo)/span*100;
+ P.useEffect(()=>{const el=box.current;if(!el)return;const fit=()=>setWidth(Math.max(160,Math.round(el.clientWidth)));fit();
+  if(typeof ResizeObserver==='function'){const ro=new ResizeObserver(fit);ro.observe(el);return()=>ro.disconnect()}window.addEventListener('resize',fit);return()=>window.removeEventListener('resize',fit)},[]);
+ P.useEffect(()=>{const cv=canvas.current;if(!cv)return;const dpr=Math.min(2,window.devicePixelRatio||1),W=width,H=88;cv.width=Math.round(W*dpr);cv.height=Math.round(H*dpr);
+  const g=cv.getContext('2d');g.setTransform(dpr,0,0,dpr,0,0);g.clearRect(0,0,W,H);const X=b=>(b-view.lo)/span*W,top=16,mid=top+(H-top)/2,amp=(H-top)/2-3;
+  // the loop that will play (kept bars + added silence)
+  g.fillStyle='rgba(32,201,179,.12)';g.fillRect(X(s),top,X(e)-X(s),H-top);
+  // silent bars outside the original audio, inside the loop: hatched
+  g.save();g.beginPath();g.rect(X(s),top,X(e)-X(s),H-top);g.clip();g.strokeStyle='rgba(143,206,204,.22)';g.lineWidth=1;
+  for(const [a,b] of [[s,0],[bars,e]])if(b>a)for(let x=X(a)-H;x<X(b);x+=7){g.beginPath();g.moveTo(x,H);g.lineTo(x+H-top,top);g.stroke()}g.restore();
+  // the original audio over its bars: bright inside the loop, dim where it is trimmed
+  if(peaks&&peaks.length){const n=peaks.length;for(let x=Math.max(0,Math.floor(X(0)));x<Math.min(W,Math.ceil(X(bars)));x++){const b=view.lo+(x+.5)/W*span;if(b<0||b>=bars)continue;
+   const v=peaks[Math.min(n-1,Math.floor(b/bars*n))]||0,y=Math.max(.5,v*amp);g.fillStyle=b>=s&&b<e?'#7fe3d6':'rgba(127,227,214,.25)';g.fillRect(x,mid-y,1,2*y)}}
+  else{g.fillStyle='rgba(143,206,204,.18)';g.fillRect(X(0),mid-1,X(bars)-X(0),2)}
+  // grid: bar lines (numbered after the bars of the take), beat lines when there is room
+  const ppb=W/span,beat=ppb/Math.max(1,beatsPerBar)>=7,every=Math.max(1,Math.ceil(22/ppb));g.font='10px ui-monospace,monospace';g.textBaseline='top';
+  for(let k=Math.ceil(view.lo);k<=Math.floor(view.hi);k++){const x=Math.round(X(k))+.5;g.strokeStyle=k>=0&&k<=bars?'rgba(217,245,244,.45)':'rgba(217,245,244,.18)';g.beginPath();g.moveTo(x,top);g.lineTo(x,H);g.stroke();
+   if(beat&&k<view.hi)for(let q=1;q<beatsPerBar;q++){const xb=Math.round(X(k+q/beatsPerBar))+.5;g.strokeStyle='rgba(217,245,244,.08)';g.beginPath();g.moveTo(xb,top);g.lineTo(xb,H);g.stroke()}
+   if(k<view.hi&&((k-Math.ceil(view.lo))%every===0)){g.fillStyle=k>=0&&k<bars?'#a6dad8':'#557a80';g.fillText(k>=0&&k<bars?String(k+1):'·',x+3,2)}}
+  g.strokeStyle='#ffe18d';g.lineWidth=2;g.strokeRect(X(s)+1,top+1,X(e)-X(s)-2,H-top-2);
+ },[width,peaks,bars,beatsPerBar,s,e,view.lo,view.hi]);
+ const toBar=clientX=>{const r=box.current.getBoundingClientRect();return Math.round(view.lo+(clientX-r.left)/Math.max(1,r.width)*span)};
+ const down=(edge,ev)=>{if(disabled)return;ev.preventDefault();ev.stopPropagation();ev.currentTarget.setPointerCapture?.(ev.pointerId);drag.current=edge;setFrozen({...view})};
+ const move=ev=>{const edge=drag.current;if(!edge)return;const b=toBar(ev.clientX);if(edge==='front'){if(b!==s)onEdges(-b,back)}else if(b-bars!==back)onEdges(front,b-bars)};
+ const up=()=>{drag.current=null;setFrozen(null)};
+ const key=(edge,ev)=>{const d=ev.key==='ArrowLeft'?-1:ev.key==='ArrowRight'?1:0;if(!d||disabled)return;ev.preventDefault();ev.stopPropagation();if(edge==='front')onEdges(front-d,back);else onEdges(front,back+d)};
+ const handle=(edge,at,label,value)=>u.jsx('button',{type:'button',className:'xen-loop-bar-handle','data-edge':edge,role:'slider','aria-label':label,'aria-valuenow':value,'aria-valuetext':(value===0?'unchanged':(value>0?'+':'')+value+' bar'+(Math.abs(value)===1?'':'s')),disabled,
+  title:label+' · drag to a bar line (inwards trims, outwards adds silent bars) · arrow keys: one bar',style:{left:'calc('+xOf(at)+'% - 7px)'},onPointerDown:ev=>down(edge,ev),onPointerMove:move,onPointerUp:up,onPointerCancel:up,onKeyDown:ev=>key(edge,ev)});
+ return u.jsxs('div',{className:'xen-loop-bar-map',ref:box,'data-xen-loop-bar-map':'true',children:[
+  u.jsx('canvas',{ref:canvas,style:{width:'100%',height:88},'aria-hidden':true}),
+  handle('front',s,'Loop beginning',front),handle('back',e,'Loop end',back),
+  u.jsx('span',{className:'xen-loop-bar-legend',children:'Take: '+bars+' bar'+(bars===1?'':'s')+' · loop: '+(e-s)+' bar'+(e-s===1?'':'s')+(front||back?' ('+(front?'beginning '+(front>0?'+':'')+front:'')+(front&&back?', ':'')+(back?'end '+(back>0?'+':'')+back:'')+')':'')})]});
+}
+
 function __XenLoopRackBarEditor({entry,onClose,onRemove,onDelete,onSaved,onRenamed}){
  const [source,setSource]=P.useState(null),[front,setFront]=P.useState(0),[back,setBack]=P.useState(0);
  const [draft,setDraft]=P.useState(null),[busy,setBusy]=P.useState(true),[saving,setSaving]=P.useState(false),[error,setError]=P.useState('');
- const [playing,setPlaying]=P.useState(false),[metronome,setMetronome]=P.useState(false),[name,setName]=P.useState('');
+ const [playing,setPlaying]=P.useState(false),[metronome,setMetronome]=P.useState(false),[name,setName]=P.useState(''),[peaks,setPeaks]=P.useState(null);
  const engine=P.useRef(null),decoded=P.useRef(null),job=P.useRef(0),closed=P.useRef(false),scopeAtOpen=P.useRef(__XenRackLiveBarEdits.scopeVersion());
  function stopPreview(){if(engine.current){const old=engine.current;engine.current=null;void old.dispose();}setPlaying(false)}
  P.useEffect(()=>{closed.current=false;scopeAtOpen.current=__XenRackLiveBarEdits.scopeVersion();let dead=false;
@@ -396,7 +445,7 @@ function __XenLoopRackBarEditor({entry,onClose,onRemove,onDelete,onSaved,onRenam
   const timer=setTimeout(async()=>{
    try{
     if(!decoded.current){const AC=window.AudioContext||window.webkitAudioContext;if(!AC)throw Error('Audio decoding is unavailable.');
-     const ctx=new AC();try{const data=await source.blob.arrayBuffer();const decodedBuffer=await ctx.decodeAudioData(data);if(abandoned||version!==job.current)return;decoded.current=decodedBuffer;}finally{await ctx.close().catch(()=>{});} }
+     const ctx=new AC();try{const data=await source.blob.arrayBuffer();const decodedBuffer=await ctx.decodeAudioData(data);if(abandoned||version!==job.current)return;decoded.current=decodedBuffer;setPeaks(__xenLoopBarPeaks(decodedBuffer,source));}finally{await ctx.close().catch(()=>{});} }
     const result=await __xenRackRenderBarEdit(decoded.current,source,front,back,
      ()=>abandoned||version!==job.current||closed.current||scopeVersion!==__XenRackLiveBarEdits.scopeVersion(),
      prepared=>{
@@ -411,6 +460,9 @@ function __XenLoopRackBarEditor({entry,onClose,onRemove,onDelete,onSaved,onRenam
   },120);
   return()=>{abandoned=true;clearTimeout(timer);};
  },[source,front,back]);
+ /* LOOPREC-BARS-01: both edges at once (the bar map); the same checks and the same owner as the − / + buttons */
+ const setEdges=(f,b)=>{if(!source||saving||(f===front&&b===back))return;
+  try{__xenRackBarPlan({bars:source.bars,bpm:source.bpm,beatsPerBar:source.beatsPerBar||4,rate:decoded.current?.sampleRate||48000},f,b);if(!__XenRackLiveBarEdits.setIntent(source.id,f,b,scopeAtOpen.current))throw Error('Session changed; reopen the Loop Editor.');setFront(f);setBack(b);setError('')}catch(e){/* an impossible position (no bar of the take left, more than 128 bars) is simply not taken */}};
  const adjust=(edge,amount)=>{
   if(!source||busy||saving)return;
   const f=front+(edge==='front'?amount:0),b=back+(edge==='back'?amount:0);
@@ -460,8 +512,9 @@ function __XenLoopRackBarEditor({entry,onClose,onRemove,onDelete,onSaved,onRenam
  return ao.createPortal(u.jsx('div',{className:'xen-rack-bar-scrim',onPointerDown:e=>e.stopPropagation(),onClick:e=>{e.stopPropagation();if(e.currentTarget===e.target)onClose()},onKeyDown:e=>{e.stopPropagation();if(e.key==='Escape')onClose()},children:u.jsxs('section',{className:'xen-rack-bar-dialog',role:'dialog','aria-modal':true,'aria-label':'Material Loop Editor',children:[
   u.jsxs('header',{children:[u.jsxs('div',{children:[u.jsx('small',{children:'LOOP RACK · MATERIAL'}),u.jsx('h2',{children:__xenMaterialDisplayName(entry)})]}),u.jsx('button',{type:'button',className:'xen-rack-bar-close',onClick:onClose,'aria-label':'Close editor',children:'×'})]}),
   u.jsxs('div',{className:'xen-rack-bar-total',children:[u.jsx('span',{children:'LOOP LENGTH'}),u.jsxs('strong',{children:[plan?.bars??'—',u.jsx('small',{children:' BARS'})]})]}),
+  source?u.jsx(__XenLoopBarMap,{bars:Math.max(1,Math.round(Number(source.bars)||1)),beatsPerBar:Math.max(1,Math.round(Number(source.beatsPerBar)||4)),front,back,peaks,disabled:saving,onEdges:setEdges}):null,
   u.jsxs('div',{className:'xen-rack-bar-edges',children:[u.jsxs('div',{children:[u.jsx('b',{children:'BEGINNING'}),u.jsxs('div',{className:'xen-rack-bar-ctrl',children:[control('front','Remove one bar at beginning',-1),u.jsx('span',{children:front===0?'0':(front>0?'+':'')+front}),control('front',front<0?'Restore one trimmed original bar at beginning':'Add one silent bar at beginning',1)]})]}),u.jsxs('div',{children:[u.jsx('b',{children:'END'}),u.jsxs('div',{className:'xen-rack-bar-ctrl',children:[control('back','Remove one bar at end',-1),u.jsx('span',{children:back===0?'0':(back>0?'+':'')+back}),control('back',back<0?'Restore one trimmed original bar at end':'Add one silent bar at end',1)]})]})]}),
-  u.jsx('p',{className:'xen-rack-bar-note',children:'− removes a bar · + restores a trimmed bar or adds silence · Live / preview changes at the next bar without restarting the beat clock. Original audio stays intact.'}),
+  u.jsx('p',{className:'xen-rack-bar-note',children:'Drag the yellow handles to a bar line, or use − / +: inwards trims bars, outwards adds silent bars. Live / preview changes at the next bar without restarting the beat clock. Original audio stays intact.'}),
   u.jsxs('div',{className:'xen-rack-bar-preview',children:[u.jsx('button',{type:'button',onClick:preview,disabled:(!playing&&(busy||!draft))||saving,children:playing?'■ Stop loop':'▶ Preview in loop'}),u.jsx('button',{type:'button','aria-pressed':metronome,onClick:toggleMetro,children:metronome?'♩ Metronome ON':'♩ Metronome OFF'}),u.jsx('span',{children:busy?'Preparing next loop…':draft?draft.plan.bars+' bars · '+(draft.plan.frames/draft.plan.rate).toFixed(2)+' s':'No preview'})]}),
   u.jsx('input',{type:'text','aria-label':'Material name for Rename Original or Save as New Material',maxLength:100,value:name,onChange:e=>setName(e.target.value)}),
   error&&u.jsx('p',{className:'xen-rack-bar-error',role:'alert',children:error}),
@@ -540,7 +593,8 @@ function __QuickDock({params={},update=()=>{}}={}){
  },[s.pulse]);
  /* Do not display the provisional left dock before its first geometry measurement. */
  const [layout,setLayout]=P.useState(()=>({leftTop:156,leftHeight:52,ready:false}));
- const universalRows=Math.max(__xenQuickGlobalRows(metaState?.saved,s.items),metaState?.archiveRows??5);
+ /* LANE-FOLLOW-01: the rack is as tall as the LIVE session needs (it used to follow the longest list of every saved session and a stored maximum, so it never shrank back) */
+ const universalRows=__xenQuickGlobalRows(null,s.items);
  const universalGridPx=__xenQuickRowsPx(universalRows);
  const sessionLabel=__XenMetaSessions.liveSessionLabel();
  const needed=collapsed?26:38+universalGridPx+(remove?70:0)+(message?30:0)+(sessionLabel?20:0);
@@ -700,7 +754,7 @@ if(typeof document!=='undefined'){
    }
    const board=document.querySelector('.xen-meta-board');board?.classList.toggle('is-drop-hover',!!meta);
    if(typeof __xenMetaRenderDropMarker==='function')__xenMetaRenderDropMarker(meta);
-   for(const lane of document.querySelectorAll('.xen-meta-lane'))lane.classList.toggle('is-drop-lane',!!meta&&!meta.swapWith&&lane===meta.column);
+   for(const lane of document.querySelectorAll('.xen-meta-lane'))lane.classList.toggle('is-drop-lane',!!meta&&!meta.swapWith&&!meta.invalidReason&&lane===meta.column);
     for(const lane of document.querySelectorAll('.xen-meta-lane'))lane.classList.toggle('is-drop-invalid',!!meta?.invalidReason&&lane===meta.column);
     for(const tile of document.querySelectorAll('.xen-meta-tile.is-swap-target'))tile.classList.remove('is-swap-target');
     if(meta?.swapWith){const other=[...document.querySelectorAll('.xen-meta-tile')].find(tile=>tile.dataset.xenQuickKind===meta.swapWith.kind&&tile.dataset.xenQuickId===meta.swapWith.id);other?.classList.add('is-swap-target');}
@@ -714,11 +768,11 @@ if(typeof document!=='undefined'){
     sort.over?.(libraryEvent(e));
    }else leaveSort();
    for(const target of document.querySelectorAll('.xen-quick-dock,.xen-quick-collection.is-right-docked,.xen-quick-left-landing')){const r=target.getBoundingClientRect();target.classList.toggle('xen-quick-pointer-over',inside&&r.width>0&&r.height>0&&e.clientX>=r.left&&e.clientX<r.right&&e.clientY>=r.top&&e.clientY<r.bottom);}
-   ghost.classList.toggle('is-over',inside||!!meta||!!fill||!!trash);
+   ghost.classList.toggle('is-over',inside||(!!meta&&!meta.invalidReason)||!!fill||!!trash);
    ghost.classList.toggle('is-sorting',!!zone);ghost.classList.toggle('is-library-sorting',!!libraryTarget||!!sessionTarget);
    const detail=zone?sort.preview?.():'';
    ghost.textContent=(session.entry.kind==='session'?'🎧':__XenQuick.icons[session.entry.kind]||'')+' '+session.entry.name+
-    (sessionTarget?__xenMetaSessionOrderHud(sessionTarget):libraryTarget?__xenMetaLibraryOrderHud(libraryTarget):trash?' · RELEASE → LIBRARY TRASH':fill?' · '+(fill.valid?'RELEASE → '+fill.role.toUpperCase()+' FILL':'WRONG FILL COLUMN'):meta?' · LOSLASSEN → SESSION':inside?' · RELEASE → LIVE QUICK RACK':session.entry.kind==='session'?' · SORT SESSIONS':session.modal.dataset.xenHeaderMenu==='meta'?' · DRAG TO QUICK RACK':detail?' · '+detail:'');
+    (sessionTarget?__xenMetaSessionOrderHud(sessionTarget):libraryTarget?__xenMetaLibraryOrderHud(libraryTarget):trash?' · RELEASE → LIBRARY TRASH':fill?' · '+(fill.valid?'RELEASE → '+fill.role.toUpperCase()+' FILL':'WRONG FILL COLUMN'):meta?(meta.invalidReason?' · ✕ HIER NICHT ABLEGBAR':meta.copy?' · LOSLASSEN → KOPIE IN ROOT FOLLOW LOOP':' · LOSLASSEN → SESSION'):inside?' · RELEASE → LIVE QUICK RACK':session.entry.kind==='session'?' · SORT SESSIONS':session.modal.dataset.xenHeaderMenu==='meta'?' · DRAG TO QUICK RACK':detail?' · '+detail:'');
    ghost.style.left=Math.max(4,Math.min(e.clientX+14,window.innerWidth-ghost.offsetWidth-4))+'px';
    ghost.style.top=Math.max(4,Math.min(e.clientY-18,window.innerHeight-ghost.offsetHeight-4))+'px';
   }

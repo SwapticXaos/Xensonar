@@ -6,7 +6,11 @@ const backend=fs.readFileSync(path.join(root,'src/audio/entrophon/02_worklet_and
 const asset=fs.readFileSync(path.join(root,'src/audio/entrophon/01_wasm_asset.js'),'utf8');
 const worklet=backend.match(/T8=("(?:\\.|[^"\\])*")/),wasm=asset.match(/jMe=("(?:\\.|[^"\\])*")/);
 assert(worklet&&wasm,'actual embedded renderer assets must be present');
-const code=JSON.parse(worklet[1]),bytes=Buffer.from(JSON.parse(wasm[1]),'base64');
+// THUNDER-ONE: the C11 worklet gets the shared hold clock (Nodal's three functions) exactly as the app loads it.
+const nodal=fs.readFileSync(path.join(root,'src/nodal/04_audio_runtime.js'),'utf8');
+const clockFns=['xenHoldClockCheck','xenHoldClockTime','xenHoldStepFrame'].map(n=>{const a=nodal.indexOf('function '+n+'(');let i=nodal.indexOf('{',a),d=0;for(;;i++){if(nodal[i]==='{')d++;else if(nodal[i]==='}'&&--d===0)break}return nodal.slice(a,i+1)});
+const clockBox={};vm.createContext(clockBox);vm.runInContext(clockFns.join('\n'),clockBox);
+const code='const __xenHoldClock={check:'+clockFns[0]+',time:'+clockFns[1]+',step:'+clockFns[2]+'};\n'+JSON.parse(worklet[1]),bytes=Buffer.from(JSON.parse(wasm[1]),'base64');
 async function setup(sr,fallback=false){
  const box={sampleRate:sr,currentFrame:0,console,Uint32Array,Float32Array,Float64Array,Int16Array,Int32Array,Uint8Array,ArrayBuffer,WebAssembly,
  AudioWorkletProcessor:class{constructor(){this.port={events:[],postMessage(x){this.events.push(x)},start(){}}}},registerProcessor(n,C){box.Processor=C}};
@@ -31,26 +35,40 @@ async function prepare(ctx,p){const {h}=ctx;h.holdPlans=[p];p.mode='tap';p.prepa
  assert(p.tap);return {elapsedMs:performance.now()-t,quanta:calls,maxPrepCallMs:maxMs,allocatedPCMBytes:p.prep?.ch?.reduce((s,b)=>s+b.byteLength,0)??p.tap.len*40,retainedPCMBytes:p.tap.ch.reduce((s,c)=>s+c.buf.byteLength,0)};}
 (async()=>{
  const results=[];
- // Exercise the actual READY / GO / FIRE barriers with a real initialized kernel.
+ // THUNDER-ONE protocol with a real initialized kernel: PLAN carries the gesture's hold clock, COMMIT is the ownership
+ // (as in Nodal: no READY / GO / FIRE round trips); steps play live until the worklet's own PCM is ready, then from it.
  const protocol=await setup(48000),{h,box}=protocol,epoch=h.bridge.epoch;
- const rec=tone(48000,217.37,.18,63),id=991;
- await h.onMessage({type:'HOLD_PLAN',id,epoch,start:512,interval:4800,pattern:[1,0,1,0],index:0,offset:0,slot:0,record:rec});
+ const rec=tone(48000,217.37,.18,63),id=991,clock={startSec:512/48000,intervalMs:100,pattern:[1,0,1,0]};
+ await h.onMessage({type:'HOLD_PLAN',id,epoch,clock,index:0,offset:0,slot:0,record:rec});
  h.tickHoldPlans(128);assert.equal(h.holdTapStarts||0,0,'uncommitted program cannot play');
  await h.onMessage({type:'HOLD_COMMIT',id,epoch,count:1,mode:'tap'});
- for(let guard=0;!h.holdPlans.find(p=>p?.id===id)?.prepared;guard++){assert(guard<10000);if(!h.holdPlans.find(p=>p?.id===id)?.prep)await new Promise(setImmediate);h.advanceHoldStemPrep();}
- assert(h.port.events.some(e=>e.type==='HOLD_READY'&&e.id===id));
- h.tickHoldPlans(128);assert.equal(h.holdTapStarts||0,0,'READY is not playback ownership');
- await h.onMessage({type:'HOLD_GO',id,epoch,index:0});assert(h.port.events.some(e=>e.type==='HOLD_GO_READY'&&e.id===id));
- h.tickHoldPlans(128);assert.equal(h.holdTapStarts||0,0,'GO_READY is not playback ownership');
- await h.onMessage({type:'HOLD_FIRE',id,epoch,index:0});
- for(let frame=0;frame<19200;frame+=128){box.currentFrame=frame;h.tickHoldPlans(128);}
- assert.equal(h.holdTapStarts,2,'mask has exactly two active due steps');
- box.currentFrame=48512;h.tickHoldPlans(128);assert.equal(h.holdTapStarts,3,'clock gap must not produce catch-up burst');
- await h.onMessage({type:'HOLD_STOP',id});box.currentFrame=57600;h.tickHoldPlans(128);assert.equal(h.holdTapStarts,3);
- await h.onMessage({type:'HOLD_FIRE',id,epoch,index:12});assert(h.holdPlans.every(p=>p?.id!==id),'late FIRE cannot revive STOP');
- await h.onMessage({type:'HOLD_PLAN',id:992,epoch:epoch-1,start:0,interval:4800,pattern:[1],index:0,offset:0,slot:0,record:rec});assert(h.holdPlans.every(p=>p?.id!==992),'stale epoch cannot arm');
+ assert(h.port.events.some(e=>e.type==='HOLD_ACTIVE'&&e.id===id),'the commit is the ownership');
+ assert(!h.port.events.some(e=>/HOLD_READY|HOLD_GO/.test(e.type)),'no READY / GO round trip any more');
+ for(let guard=0;!h.holdPlans.find(p=>p?.id===id)?.prep&&!h.holdPlans.find(p=>p?.id===id)?.tap;guard++){assert(guard<10000);await new Promise(setImmediate);}
+ const played=()=>(h.holdTapStarts||0)+(h.holdCompleteSteps||0);
+ for(let frame=0;frame<19200;frame+=128){box.currentFrame=frame;h.advanceHoldStemPrep();h.tickHoldPlans(128);}
+ assert.equal(played(),2,'mask has exactly two active due steps');assert(h.holdTapStarts>=1,'the PCM of the note is ready after a few quanta');
+ box.currentFrame=48512;h.tickHoldPlans(128);assert.equal(played(),3,'clock gap must not produce catch-up burst');
+ await h.onMessage({type:'HOLD_STOP',id});box.currentFrame=57600;h.tickHoldPlans(128);assert.equal(played(),3);
+ await h.onMessage({type:'HOLD_COMMIT',id,epoch,count:1,mode:'tap'});assert(h.port.events.some(e=>e.type==='HOLD_REJECT'&&e.id===id&&e.reason==='gesture-stopped'),'late COMMIT cannot revive STOP');
+ await h.onMessage({type:'HOLD_PLAN',id:992,epoch:epoch-1,clock,index:0,offset:0,slot:0,record:rec});assert(h.holdPlans.every(p=>p?.id!==992),'stale epoch cannot arm');
+ await h.onMessage({type:'HOLD_PLAN',id:993,epoch,clock:{...clock,pattern:[1,2]},index:0,offset:0,slot:0,record:rec});assert(h.holdPlans.every(p=>p?.id!==993),'an invalid clock cannot arm');
  protocol.h.bridge.destroy();
- results.push({case:'real-kernel-barriers-mask-stop-no-catchup',status:'GREEN'});
+ results.push({case:'real-kernel-commit-ownership-mask-stop-no-catchup',status:'GREEN'});
+
+ // The step frames are Nodal's (the shared step function), microtiming included, and the slot volume scales the step.
+ {const sr=48000,c=await setup(sr),micro=[0,.3,-.3,.45],gains=[1,.5,.25,1],p={...plan([tone(sr,217.37,.18,63)],[0],512,sr*.1,[1,1,1,1]),slotMicrotiming:micro,gains};await prepare(c,p);
+  const starts=[];for(let f=0;f<sr;f+=128){c.box.currentFrame=f;const n=c.h.holdStemReaders?.length??0;c.h.tickHoldPlans(128);for(const d of (c.h.holdStemReaders??[]).slice(n))starts.push([d.start+d.tap.BASE,d.gain??1]);}
+  const want=[];for(let i=0;clockBox.xenHoldStepFrame({start:512,interval:sr*.1,pattern:[1,1,1,1],slotMicrotiming:micro},i)<sr;i++)want.push([clockBox.xenHoldStepFrame({start:512,interval:sr*.1,pattern:[1,1,1,1],slotMicrotiming:micro},i),gains[i%4]]);
+  assert.deepEqual(starts,want,'C11 steps on exactly the frames of the Nodal hold clock, with the slot volume of each step');
+  // two steps inside one render quantum (short interval, strong microtiming) both play, none is skipped
+  const d=await setup(sr),q={...plan([tone(sr,217.37,.1,63)],[0],512,200,[1,1]),slotMicrotiming:[0,-.45]};await prepare(d,q);
+  for(let f=0;f<6400;f+=128){d.box.currentFrame=f;d.h.tickHoldPlans(128);}let due=0;while(clockBox.xenHoldStepFrame({start:512,interval:200,pattern:[1,1],slotMicrotiming:[0,-.45]},due)<6400)due++;assert(due>=30);assert.equal(d.h.holdTapStarts,due,'every due step plays (two in one quantum included)');assert(!d.h.holdMissedSteps);
+  // slot volume is an exact scale of the same PCM
+  const one=await setup(sr),half=await setup(sr),mk=g=>({...plan([tone(sr,217.37,.18,63)],[0],512,sr*.1,[1]),gains:[g]});const a=mk(1),b=mk(.5);await prepare(one,a);await prepare(half,b);
+  const ra=render(one,24064),rb=render(half,24064);let err=0,energy=0;for(let ch=0;ch<18;ch++)for(let i=0;i<ra.pcm[ch].length;i++){err=Math.max(err,Math.abs(ra.pcm[ch][i]*.5-rb.pcm[ch][i]));energy+=rb.pcm[ch][i]**2}
+  assert(energy>0&&err<1e-7,'slot volume 0.5 = half of the same PCM ('+err+')');
+  results.push({case:'shared-nodal-step-function-micro-gain',steps:starts.length,gainError:err});for(const x of [c,d,one,half])x.h.bridge.destroy();}
 
  // Real native overlap oracle, both output paths, 44.1/48k, all six Entrophon sends.
  for(const sr of [44100,48000])for(const fallback of [false,true]){

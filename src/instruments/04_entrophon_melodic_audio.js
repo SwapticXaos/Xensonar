@@ -83,7 +83,7 @@ function __entrophonRenderWorkerMain() {
 function __entrophonCreateRenderWorker(signal) {
   if(typeof Worker==='undefined')throw Error('Entrophon rendering requires Worker support');
   const prelude='globalThis.__entFrame=0;globalThis.sampleRate=48000;globalThis.AudioWorkletProcessor=class{constructor(){this.port={postMessage(){},start(){}}}};globalThis.registerProcessor=(name,processor)=>{globalThis.__entProcessor=processor};\n';
-  const url=URL.createObjectURL(new Blob([prelude,T8.replace(/\bcurrentFrame\b/g,'globalThis.__entFrame'),'\n(',__entrophonRenderWorkerMain.toString(),')();'],{type:'text/javascript'}));
+  const url=URL.createObjectURL(new Blob([prelude,'const __xenHoldClock='+xenHoldClockSource()+';\n',T8.replace(/\bcurrentFrame\b/g,'globalThis.__entFrame'),'\n(',__entrophonRenderWorkerMain.toString(),')();'],{type:'text/javascript'}));
   let worker,revoked=false;const revoke=()=>{if(!revoked){revoked=true;URL.revokeObjectURL(url);}};
   try{worker=new Worker(url);}catch(error){revoke();throw error;}
   let pending=null,closed=false;

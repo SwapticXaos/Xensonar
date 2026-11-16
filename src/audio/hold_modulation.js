@@ -1,8 +1,7 @@
 // Latest-value preparation uses the existing original-kernel Worker factory.
 // No clock or note-on admission lives here. Existing taps own audio until swap.
 const __XenHoldMod=(()=>{
- const workers=new WeakMap(),pending=new Map(),initialQueue=new Map();let serial=0;
- const initialQueueLimit=16,initialWaitMs=6000;
+ const workers=new WeakMap(),pending=new Map();let serial=0;
  const now=()=>performance.now();
  async function prepare(ctx,init){
   if(typeof Worker==='undefined')return;
@@ -13,46 +12,9 @@ const __XenHoldMod=(()=>{
    const close=()=>{if(ctx.state==='closed'){dispose(ctx);ctx.removeEventListener?.('statechange',close)}};ctx.addEventListener?.('statechange',close);
    await state.worker.send({type:'init',wasm:GMe(),holdInit:init});
    if(abort.signal.aborted||ctx.state==='closed')return;state.ready=true;drain(ctx,state);
-  }catch(error){if(state){state.error=String(error);state.abort.abort();for(const [key,p] of [...initialQueue])if(p.s.ctx===ctx){initialQueue.delete(key);clearTimeout(p.timer);if(__XenHoldResident.isCurrent(p.s))__XenHoldResident.reject(p.s);}}}
+  }catch(error){if(state){state.error=String(error);state.abort.abort();}}
  }
- // A busy/starting PCM worker is queued, never replaced by native DSP rerenders.
- // Main remains the audible owner until ALL Worklet PCM installs have ACKed.
- function queueable(ctx){const st=workers.get(ctx);return !!(st?.worker&&!st.abort.signal.aborted&&ctx.state!=='closed');}
- function ready(ctx){const st=workers.get(ctx);return queueable(ctx)&&st.ready&&!st.busy;}
- function cancel(s){const p=initialQueue.get(s.id);if(p?.s===s){initialQueue.delete(s.id);clearTimeout(p.timer);}}
- function initial(s){
-  const st=workers.get(s.ctx);
-  if(!s.initialWorker||!queueable(s.ctx)||initialQueue.size>=initialQueueLimit){__XenHoldResident.reject(s);return;}
-  cancel(s);
-  const timer=setTimeout(()=>{
-   const p=initialQueue.get(s.id);if(p?.s!==s)return;
-   initialQueue.delete(s.id);
-   if(__XenHoldResident.isCurrent(s))__XenHoldResident.reject(s);
-  },initialWaitMs);
-  initialQueue.set(s.id,{s,timer});
-  if(st.ready)drain(s.ctx,st);
- }
- async function renderInitial(s,state){
-  const grouped=new Map();
-  for(const p of s.program){const arr=grouped.get(p.host)||[];arr.push(p);grouped.set(p.host,arr);}
-  try{
-   // Grouped programmes share one session clock, with an individual PCM bank per host.
-   // The worker is serial: no second send while a render or timbre render is running.
-   for(const [host,plans] of grouped){
-    if(!__XenHoldResident.isCurrent(s)||s.ctx.state!=='running'||host.epoch!==s.epochs.get(host)||!host.canSubmit)return;
-    const records=plans.map(p=>Uint32Array.from(p.copy));
-    const offsets=plans.map(p=>p.frame-s.captureFrame);
-    const {tap}=await state.worker.send({type:'hold-program',sampleRate:s.ctx.sampleRate,records,offsets});
-    if(!__XenHoldResident.isCurrent(s)||s.ctx.state!=='running'||host.epoch!==s.epochs.get(host)||!host.canSubmit)return;
-    if(!tap?.complete||!Array.isArray(tap.ch))throw Error('initial-pcm-incomplete');
-    tap.id=s.id;tap.epoch=host.epoch;
-    host.node.port.postMessage({type:'HOLD_TAP_INITIAL',id:s.id,epoch:host.epoch,count:s.hostCounts.get(host),tap},tap.ch.map(c=>c.buf.buffer));
-   }
-  }catch(error){
-   state.error=String(error);
-   if(__XenHoldResident.isCurrent(s))__XenHoldResident.reject(s);
-  }finally{state.busy=false;drain(s.ctx,state);}
- }
+ function ready(ctx){const st=workers.get(ctx);return !!(st?.worker&&!st.abort.signal.aborted&&ctx.state!=='closed')&&st.ready&&!st.busy;}
  function request(session,records,offsets,xNorm){
   if(!__XenHoldResident.isCurrent(session)||records.length>8||!records.length)return;
   if(records.some((r,i)=>offsets[i]+r[26]>session.ctx.sampleRate*12))return;
@@ -63,13 +25,6 @@ const __XenHoldMod=(()=>{
  }
  async function drain(ctx,state){
   if(state.busy||!state.ready||state.abort.signal.aborted)return;
-  // Initial note banks have precedence over background timbre requests.
-  for(const [id,p] of initialQueue){
-   if(p.s.ctx!==ctx)continue;
-   initialQueue.delete(id);clearTimeout(p.timer);
-   if(!__XenHoldResident.isCurrent(p.s))continue;
-   state.busy=true;void renderInitial(p.s,state);return;
-  }
   const entry=[...pending.entries()].find(([,v])=>v.session.ctx===ctx);if(!entry)return;
   // Gradient preparation yields to playback. One newest target per session,
   // one timer per context, no render-completion catch-up chain.
@@ -94,7 +49,7 @@ const __XenHoldMod=(()=>{
    // Keeping the 2x render-time cooldown retains the same <=1/3 Worker duty
    // bound; slow/complex jobs preserve the original protection unchanged.
    const renderMs=now()-started;
-   const light=initialQueue.size===0&&s.program?.length<=4&&renderMs<=32;
+   const light=s.program?.length<=4&&renderMs<=32;
    state.nextAt=now()+Math.max(light?32:64,Math.min(1000,renderMs*2));
    drain(ctx,state);
   }
@@ -104,6 +59,6 @@ const __XenHoldMod=(()=>{
   __XenNodalSurfaces.setHoldX?.(name,u);
  });
  function activate(s){const p=s.pendingTimbre;if(!p||!s.armed||!__XenHoldResident.isCurrent(s)||p.tap.epoch!==p.host.epoch)return;delete s.pendingTimbre;p.host.node.port.postMessage({type:'HOLD_TIMBRE',id:s.id,epoch:p.host.epoch,revision:p.revision,tap:p.tap,xNorm:p.xNorm},p.tap.ch.map(c=>c.buf.buffer));}
- function dispose(ctx){const s=workers.get(ctx);if(s?.timer!==null)clearTimeout(s?.timer);s?.abort.abort();workers.delete(ctx);for(const [key,p] of pending)if(p.session.ctx===ctx)pending.delete(key);for(const [key,p] of [...initialQueue])if(p.s.ctx===ctx){initialQueue.delete(key);clearTimeout(p.timer);}}
- return {prepare,ready,queueable,initial,cancel,request,activate,dispose};
+ function dispose(ctx){const s=workers.get(ctx);if(s?.timer!==null)clearTimeout(s?.timer);s?.abort.abort();workers.delete(ctx);for(const [key,p] of pending)if(p.session.ctx===ctx)pending.delete(key);}
+ return {prepare,ready,request,activate,dispose};
 })();

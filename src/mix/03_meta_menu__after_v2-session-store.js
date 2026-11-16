@@ -763,7 +763,7 @@ const __XenMetaEditE3b=(()=>{
   const p=config.synthPattern;
   if(config.pitchIdentity?.pitchConstraint==='continuous'||!Array.isArray(p.notes)||!Array.isArray(p.tracks)||!p.notes.length||!p.tracks.length)
    return fail('unsupported','XEN_EDIT_SYNTH_NOT_DISCRETE','This source needs a continuous-field adapter or has no editable note pattern.');
-  if(!Number.isInteger(p.bars)||p.bars<1||p.bars>16||!Number.isInteger(p.stepsPerBar)||p.stepsPerBar<1||p.stepsPerBar>128||
+  if(!Number.isInteger(p.bars)||p.bars<1||p.bars>__xenMaxPatternBars||!Number.isInteger(p.stepsPerBar)||p.stepsPerBar<1||p.stepsPerBar>128||
      !Number.isInteger(p.beatsPerBar)||p.beatsPerBar<1||p.beatsPerBar>16||!finite(p.baseHz)||p.baseHz<=0||p.notes.length>1024)
    return fail('unsupported','XEN_EDIT_SYNTH_GEOMETRY','The stored bars, beat grid or note capacity cannot be represented safely by Melodic Loop.');
   const trackIds=new Set();
@@ -853,7 +853,7 @@ const __XenMetaEditE4=(()=>{
  function convertPattern(config,{name='Derived Fretless Field'}={}){
   if(config?.sourceKind!=='synth'||config.renderMode!=='direct'||!config.synthPattern)return fail('unsupported','XEN_EDIT_FIELD_NOT_DIRECT','Not a direct Root Follow synth field.');
   const p=config.synthPattern,total=p.bars*p.beatsPerBar;
-  if(!Number.isInteger(p.bars)||p.bars<1||p.bars>16||!Number.isInteger(p.beatsPerBar)||p.beatsPerBar<1||p.beatsPerBar>16||!finite(p.baseHz)||p.baseHz<=0||!Array.isArray(p.tracks)||!p.tracks.length||!Array.isArray(p.notes)||!p.notes.length||p.notes.length>1024)
+  if(!Number.isInteger(p.bars)||p.bars<1||p.bars>__xenMaxPatternBars||!Number.isInteger(p.beatsPerBar)||p.beatsPerBar<1||p.beatsPerBar>16||!finite(p.baseHz)||p.baseHz<=0||!Array.isArray(p.tracks)||!p.tracks.length||!Array.isArray(p.notes)||!p.notes.length||p.notes.length>1024)
    return fail('unsupported','XEN_EDIT_FIELD_INVALID','Invalid Root Follow field score.');
   const curveNotes=p.notes.filter(n=>n?.compiledPitchSemitones?.length>1||n?.compiledGainCurve?.length>1||n?.localField);
   if(!curveNotes.length)return fail('not-applicable','XEN_EDIT_FIELD_NOT_APPLICABLE','Discrete figure; use Melodic Loop.');
@@ -903,7 +903,7 @@ const __XenMetaEditE4=(()=>{
   const total=field.totalBeats,base=field.sourceBaseHz;
   if(!finite(total)||total<=0||total>256||!finite(base)||base<=0)return bad('XEN_EDIT_INTEGRAL_TIMING','Invalid original field duration or frequency reference.');
   const bars=field.sourceBars,beats=field.sourceBeatsPerBar;
-  if(!Number.isInteger(bars)||bars<1||bars>16||!Number.isInteger(beats)||beats<1||beats>16||Math.abs(bars*beats-total)>1e-5)
+  if(!Number.isInteger(bars)||bars<1||bars>__xenMaxPatternBars||!Number.isInteger(beats)||beats<1||beats>16||Math.abs(bars*beats-total)>1e-5)
    return bad('XEN_EDIT_INTEGRAL_BARS','Unsupported field bar or beat alignment.');
   const ids=new Set(),trackIds=new Set(),notes=[];
   for(const v of field.voices){
@@ -1085,13 +1085,16 @@ function __xenMetaDropTarget(event,session){
  const sourceKind=session.entry.kind,sourceInSession=session.source.hasAttribute('data-xen-meta-item');
  const desired=hoveredLane?.dataset.xenMetaColumn||sourceKind;
  const cross=desired!==sourceKind;
+ const hoveredTile=element?.closest('[data-xen-meta-item]');
+ // META-COPY-RFL-01: Material Track -> Root Follow Loop COPIES the loop (length as set in
+ // the loop editor); the Material entry stays. Shift + a hovered tile keeps the lane swap.
+ const copy=cross&&sourceInSession&&sourceKind==='material'&&desired==='rootFollow'&&!(event.shiftKey&&hoveredTile);
  // Library rows retain their canonical kind; drag across lanes only for a
  // concrete Session tile with a durable compatible target owner.
  const targetKind=cross&&sourceInSession?desired:sourceKind;
  const lane=board.querySelector('[data-xen-meta-column="'+targetKind+'"]');if(!lane)return null;
- const check=cross?(sourceInSession?__xenMetaLaneCompatibility(session.entry,targetKind):
+ const check=copy?{ok:true}:cross?(sourceInSession?__xenMetaLaneCompatibility(session.entry,targetKind):
   {ok:false,reason:'Add a library source to its own lane before moving it.'}):{ok:true};
- const hoveredTile=element?.closest('[data-xen-meta-item]');
  let swapWith=null,swapReason=null;
  if(cross&&sourceInSession&&event.shiftKey&&hoveredTile){
   const other=__XenMetaSessions.snapshot().items.find(row=>row.kind===targetKind&&(row.instanceId||row.id)===hoveredTile.dataset.xenQuickId);
@@ -1104,7 +1107,7 @@ function __xenMetaDropTarget(event,session){
  const rows=[...lane.querySelectorAll('[data-xen-meta-item]')].filter(row=>!(session.source===row));
  const next=rows.find(row=>event.clientY<row.getBoundingClientRect().top+row.getBoundingClientRect().height/2);
  return{column:lane,beforeId:next?.dataset.xenQuickId??null,kind:targetKind,
-  invalidReason:!check.ok?check.reason:swapReason,blockedCrossLane:cross&&!sourceInSession,swapWith};
+  invalidReason:!check.ok?check.reason:swapReason,blockedCrossLane:cross&&!sourceInSession,swapWith,copy};
 }
 function __xenMetaRenderDropMarker(target){
  let marker=document.querySelector('.xen-meta-insertion-line');
@@ -1135,6 +1138,14 @@ function __xenMetaCommitDrop(session){
    notify(ok?'Swapped '+entry.name+' and '+other.name+' between Material / Root Follow in this Session draft · native sources untouched.':
      __XenMetaSessions.snapshot().error||'Cross-lane swap blocked: incompatible sources.');
    return ok;
+  }
+  if(target.copy){
+   // Async: decode/render/write happen off the pointer path; the result is announced when done.
+   notify('Copying '+entry.name+' to Root Follow Loop …');
+   __xenMetaCopyMaterialToRootFollow(entry,target.beforeId).then(
+    saved=>notify('Copied to Root Follow Loop: '+saved.name+' · '+saved.bars+' bar'+(saved.bars===1?'':'s')+' · Material Track entry kept.'),
+    error=>notify('Copy to Root Follow failed: '+(error?.message||String(error))+' · Nothing changed.'));
+   return true;
   }
   if(target.kind!==entry.kind){
    const ok=__XenMetaSessions.reassignLane(entry,session.metaTarget.kind,session.metaTarget.beforeId);

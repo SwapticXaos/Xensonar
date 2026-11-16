@@ -127,21 +127,24 @@ const __XenLoopRec=(()=>{
  const publish=(phase,message='')=>{state=Object.freeze({phase,message});note('phase',{phase,message});for(const fn of listeners)fn()};
  function eligible(kind){return ['wave','keyboard','particle','rootFollow'].includes(kind)}
  function mark(node){if(node)destinations.add(node);return node}
- function route(ctx,kind,destination){
+ /* LIVE-LANE-01: route() is THE lane input of the Live Room. Every voice that is played live on the Wave Starter, the Keyboard, by the particles or the Root Follow Loop
+    enters its lane here, whatever synth makes it: here sit the instrument EQ of the lane and the Loop-Rec tap. A new synth only has to connect to this input
+    (bridge / __XenLiveLane.input) and is recorded at once; it never has to be known by Loop-Rec. `family` (optional) only names the synth for the stems by instrument. */
+ function route(ctx,kind,destination,opts){const family=typeof opts?.family==='string'?opts.family:'',mk=family?kind+'|'+family:kind;
   // ROUTE-STABILITY03: Avalanche inputs already feed an owned LoopRec/instrument EQ chain.
   // Re-routing them here would build a second EQ/recorder tap and oscillate audio graph targets.
   if(!eligible(kind)||!destination||captured.has(destination)||
      (typeof __XenAvalanche!=='undefined'&&__XenAvalanche.isInput?.(ctx,destination)))return destination;
   let map=routes.get(destination);if(!map){map=new Map();routes.set(destination,map)}
-  if(map.has(kind))return map.get(kind);
+  if(map.has(mk))return map.get(mk);
   const node=ctx.createGain();node.gain.value=1;node.connect(destination);captured.add(node);
   // Instrument EQ precedes the existing Loop-Rec tap: live output and captured PCM
   // share one filtered lane. No new synthesis, pan, or recorder owner.
   const instrument=['particle','wave','keyboard'].includes(kind);
   const input=instrument?__XenEQ.route(ctx,kind,node,'instrument'):node;
-  map.set(kind,input);captured.add(input);
-  const record={ctx,node,kind,destination};nodes.set(node,record);for(const w of tapWatchers)if(w.ctx===ctx)try{w.fn(record)}catch{}
-  const closed=()=>{if(ctx.state!=='closed')return;nodes.delete(node);map.delete(kind);ctx.removeEventListener?.('statechange',closed)};
+  map.set(mk,input);captured.add(input);
+  const record={ctx,node,kind,family,destination};nodes.set(node,record);for(const w of tapWatchers)if(w.ctx===ctx)try{w.fn(record)}catch{}
+  const closed=()=>{if(ctx.state!=='closed')return;nodes.delete(node);map.delete(mk);ctx.removeEventListener?.('statechange',closed)};
   ctx.addEventListener?.('statechange',closed);
   if(take?.ctx===ctx&&take.bus&&(kind!=='rootFollow'||take.owner.params().rootFollowLoopActive))connectCapture(take,node);
   return input;
@@ -320,13 +323,20 @@ const __XenLoopRec=(()=>{
   publish('idle','Loop-Rec recording discarded.');
   return true;
  }
- return {observe:(event,details={})=>note(event,details),diagnostics:()=>({state,witness:__XenLoopRecWitness.snapshot(),pending:[...new Set([...pending.keys(),...bs().entries.filter(e=>e.sessionTake&&e.loopRecIntent?.state==='pending').map(e=>e.id)])],history:history.slice(),captureReport,rootRouteAttempts,rootRouteAccepted,rootWanted,liveRoutes:Object.fromEntries(['wave','keyboard','particle','rootFollow'].map(kind=>[kind,[...nodes.values()].filter(n=>n.kind===kind).length])),take:take?{start:take.start,end:take.end,frames:take.rec?.frames??0,session:take.session,assetWritten:!!take.entry,sessionCommitted:!!take.committed}:null}),rootActive(active){rootWanted=!!active;if(!take?.bus)return;for(const {node,kind,ctx}of nodes.values())if(kind==='rootFollow'&&ctx===take.ctx){try{active?connectCapture(take,node):disconnectCapture(take,node)}catch{}}},route,mark,isDestination:node=>destinations.has(node),rootDestination,boundary,capturedInput:node=>captured.add(node),/* STEMS-03: the per-kind Loop-Rec gain nodes that already exist in the live path (read-only view; used as extra outputs by the stem recorder) */watchKindTaps:(ctx,fn)=>{const w={ctx,fn};tapWatchers.add(w);return()=>tapWatchers.delete(w)},kindTaps:ctx=>{const out=[];for(const r of nodes.values())if(r.ctx===ctx)out.push({kind:r.kind,node:r.node,destination:r.destination});return out},origin:(id,ctx)=>origins.get(id)?.ctx===ctx?origins.get(id).origin:null,snapshot:()=>state,subscribe:fn=>(listeners.add(fn),()=>listeners.delete(fn)),bind(value){owner=value;return()=>{if(owner===value)owner=null}},toggle,retryPending,stop,cancel:discard};
+ return {observe:(event,details={})=>note(event,details),diagnostics:()=>({state,witness:__XenLoopRecWitness.snapshot(),pending:[...new Set([...pending.keys(),...bs().entries.filter(e=>e.sessionTake&&e.loopRecIntent?.state==='pending').map(e=>e.id)])],history:history.slice(),captureReport,rootRouteAttempts,rootRouteAccepted,rootWanted,liveRoutes:Object.fromEntries(['wave','keyboard','particle','rootFollow'].map(kind=>[kind,[...nodes.values()].filter(n=>n.kind===kind).length])),take:take?{start:take.start,end:take.end,frames:take.rec?.frames??0,session:take.session,assetWritten:!!take.entry,sessionCommitted:!!take.committed}:null}),/* LOOPREC-BARS-01: where the running take is, in bars (read by the Loop-Rec button while recording; nothing is computed otherwise) */
+ progress(){const t=take;if(!t?.ctx||!Number.isFinite(t.start)||!(t.bar>0))return null;const el=t.ctx.currentTime-t.start;return {phase:state.phase,bar:el<0?0:Math.floor(el/t.bar)+1,beat:el<0?0:Math.floor((el%t.bar)/(t.bar/4))+1,toStart:el<0?-el:0}},
+ rootActive(active){rootWanted=!!active;if(!take?.bus)return;for(const {node,kind,ctx}of nodes.values())if(kind==='rootFollow'&&ctx===take.ctx){try{active?connectCapture(take,node):disconnectCapture(take,node)}catch{}}},route,mark,isDestination:node=>destinations.has(node),rootDestination,boundary,capturedInput:node=>captured.add(node),/* STEMS-03: the per-kind Loop-Rec gain nodes that already exist in the live path (read-only view; used as extra outputs by the stem recorder) */watchKindTaps:(ctx,fn)=>{const w={ctx,fn};tapWatchers.add(w);return()=>tapWatchers.delete(w)},kindTaps:ctx=>{const out=[];for(const r of nodes.values())if(r.ctx===ctx)out.push({kind:r.kind,family:r.family,node:r.node,destination:r.destination});return out},origin:(id,ctx)=>origins.get(id)?.ctx===ctx?origins.get(id).origin:null,snapshot:()=>state,subscribe:fn=>(listeners.add(fn),()=>listeners.delete(fn)),bind(value){owner=value;return()=>{if(owner===value)owner=null}},toggle,retryPending,stop,cancel:discard};
 })();
+/* LIVE-LANE-01: the name a synth uses. lane = 'wave' | 'keyboard' | 'particle' | 'rootFollow'; returns the node to connect the voice output to. */
+const __XenLiveLane=Object.freeze({input:(ctx,lane,destination,family)=>__XenLoopRec.route(ctx,lane,destination,family?{family}:undefined)});
 if(typeof window!=='undefined')Object.defineProperty(window,'__XenLoopRecDiagnostics',{configurable:true,get:()=>__XenLoopRec.diagnostics()});
 function __XenLoopRecButton(){
  const s=P.useSyncExternalStore(__XenLoopRec.subscribe,__XenLoopRec.snapshot,__XenLoopRec.snapshot),active=s.phase==='recording',busy=['arming','finishing','saving'].includes(s.phase);
  const hidden=P.useSyncExternalStore(__XenLoopRecVisibility.subscribe,__XenLoopRecVisibility.snapshot,__XenLoopRecVisibility.snapshot);
  const discardable=['arming','armed','recording'].includes(s.phase);
+ /* LOOPREC-BARS-01: the running bar of the take, written straight into the button 5× a second while recording (no React render per update) */
+ const barRef=P.useRef(null);
+ P.useEffect(()=>{if(s.phase!=='recording')return;const show=()=>{const el=barRef.current,p=__XenLoopRec.progress();if(el&&p&&p.bar>0){const t=' · bar '+p.bar;if(el.textContent!==t)el.textContent=t}};show();const id=setInterval(show,200);return()=>clearInterval(id)},[s.phase]);
  P.useLayoutEffect(()=>{
   const dock=document.querySelector('.xen-power-loop-dock');
   if(dock)dock.dataset.xenLoopRecHidden=String(hidden);
@@ -344,7 +354,7 @@ function __XenLoopRecButton(){
     onClick:trigger,onContextMenu:e=>{e.preventDefault();__XenLoopRecVisibility.hide()},
     title:(s.message?s.message+' · ':'')+'Record Keyboard, Wave Starter, Particles and active Root Follow Loop. Right-click: hide Loop-Rec shape; Shift-click while idle: recover pending Session Takes.',
     'aria-label':active?'Enough! Finish Loop-Rec':s.phase==='failed'?'Rec failed · retry':'Loop-Rec','aria-busy':busy,
-    children:active?u.jsx('span',{className:'xen-enough-legend',children:'Enough!'}):
+    children:active?u.jsxs('span',{className:'xen-enough-legend',children:['Enough!',u.jsx('span',{ref:barRef,className:'xen-loop-rec-bar','data-xen-loop-rec-bar':'true','aria-live':'off'})]}):
       s.phase==='arming'?'Preparing…':s.phase==='armed'?'Armed · next bar':
       busy?s.phase==='finishing'?'Closing…':'Saving…':
       s.phase==='failed'?'Rec failed · retry':'Loop-Rec'},'xen-rec-main'),

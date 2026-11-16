@@ -26,6 +26,9 @@ const __XenSongInstrumentDefinitions=(()=>{
     if(!Array.isArray(ids))throw new Error('Invalid song instrument sources');
     const result={version:1,nodal:Object.create(null),entrophon:Object.create(null)};
     for(const id of new Set(ids)){
+      /* LIVE-LANE-01: built-in factory sounds (entrophon:factory:…, the Nodal factory sound nodal:factory:troodle) ship with XenSonar and carry no revision:
+         nothing to store. A Nodal factory sound on the Keyboard used to stop every Loop-Rec take ("Invalid song instrument source"). */
+      if(typeof id==='string'&&/^(nodal|entrophon):factory:/.test(id))continue;
       const type=kind(id);
       if(typeof id==='string'&&/^(nodal|entrophon):/.test(id)&&!type)throw new Error('Invalid song instrument source');
       if(!type||id.startsWith('entrophon:factory:'))continue;

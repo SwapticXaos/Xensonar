@@ -98,17 +98,19 @@ const __XenAvalanche=(()=>{
   const path={input,dry,destination,eq:null,wet:null,dispose(){path.eq?.dispose();for(const node of [input,dry,path.wet])try{node?.disconnect()}catch{}}};
   l.routes.set(destination,path);l.ownedInputs.add(input);if(wantsEQ(name))ensureEQ(state,name,path,true);return input;
  }
- async function prepareHosts(ctx,main,init,mainDestination,spaceDestination,isCancelled=()=>false){
+ async function prepareHosts(ctx,main,init,mainDestination,spaceDestination,isCancelled=()=>false,rawBuses=null){
   const routes={};hostStates.set(ctx,routes);
   __XenHoldMod.prepare(ctx,init);
   try{for(const name of Object.keys(lanes)){
    if(isCancelled())throw Error('Hold initialization cancelled');
-   const host=new r9(ctx,route(ctx,name,mainDestination),1);host.diagnosticOwner='hold-'+name;host.onFault=error=>YI(ctx,main,error,'hold-worklet-fault');
+   // LANE-EQ-01: the Keyboard's host enters the KEYBOARD lane (its own instrument EQ + Loop-Rec tap), the Wave Starter's the wave lane
+   const laneMain=rawBuses&&name==='klaviatur'?__XenLoopRec.route(ctx,'keyboard',rawBuses.main):mainDestination,laneSpace=rawBuses&&name==='klaviatur'?__XenLoopRec.route(ctx,'keyboard',rawBuses.space):spaceDestination;
+   const host=new r9(ctx,route(ctx,name,laneMain),1);host.diagnosticOwner='hold-'+name;host.onFault=error=>YI(ctx,main,error,'hold-worklet-fault');
    const state=Object.create(main);state.host=host;state.encoder=new xMe();state.waveEncoder=new __wave39Encoder();
    Object.defineProperty(state,'token',{get:()=>main.token,set:v=>{main.token=v;}});
    routes[name]=state;
    try{if(!await host.createNode(init))throw Error('Hold host not ready');if(isCancelled())throw Error('Hold initialization cancelled');
-    host.waveNoiseBuffer=main.host?.waveNoiseBuffer;host.waveMainDestination=route(ctx,name,spaceDestination);
+    host.waveNoiseBuffer=main.host?.waveNoiseBuffer;host.waveMainDestination=route(ctx,name,laneSpace);
     host.node.connect(host.waveMainDestination,8,0);host.unmute();
    }catch(error){host.destroy();delete routes[name];throw error;}
   }}catch(error){for(const state of Object.values(routes))state.host.destroy();hostStates.delete(ctx);throw error;}

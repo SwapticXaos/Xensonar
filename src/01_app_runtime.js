@@ -396,7 +396,7 @@ function __wave39PlayTone(e, shape, intended) {
     const mask=reservation.host.resolveAuxRouteMask(__XenAvalanche.targets(ctx,__XenAvalanche.lane({holdSession:e.holdSession}),targets??[]));
     if(mask<0){reservation.host.cancelUnsubmitted(reservation.token);release();return false;}
     const host=reservation.host;
-    e={...e,mainOutput:(typeof __XenLoopRec!=='undefined'?__XenLoopRec.route(ctx,"wave",__XenAvalanche.route(ctx,__XenAvalanche.lane({holdSession:e.holdSession}),e.mainOutput)):__XenAvalanche.route(ctx,__XenAvalanche.lane({holdSession:e.holdSession}),e.mainOutput))};
+    e={...e,mainOutput:(typeof __XenLoopRec!=='undefined'?__XenLoopRec.route(ctx,e.lane==="keyboard"?"keyboard":"wave",__XenAvalanche.route(ctx,__XenAvalanche.lane({holdSession:e.holdSession}),e.mainOutput)):__XenAvalanche.route(ctx,__XenAvalanche.lane({holdSession:e.holdSession}),e.mainOutput))};
     if(e.mainOutput&&host.waveMainDestination!==e.mainOutput){
       if(host.waveMainDestination)try{host.node.disconnect(host.waveMainDestination,8,0)}catch{}
       host.node.connect(e.mainOutput,8,0);host.waveMainDestination=e.mainOutput;
