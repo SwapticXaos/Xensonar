@@ -54,6 +54,8 @@ function __XenLaneControls({params,update,primaryId,extras=[]}={}){
   const queue=()=>{if(!frame)frame=requestAnimationFrame(measure)};
   queue();window.addEventListener('resize',queue);window.addEventListener('scroll',queue,{passive:true});
   const observer=new ResizeObserver(queue);observer.observe(el);const canvas=document.querySelector('[data-xen-play-area]');if(canvas)observer.observe(canvas);
+  /* LANE-FOLLOW-01: when the rack above grows or SHRINKS this panel moves without resizing itself; watch the rack so its height/step are re-measured both ways */
+  const rack=el.closest('.xen-quick-collection');if(rack)observer.observe(rack);
   return()=>{cancelAnimationFrame(frame);observer.disconnect();window.removeEventListener('resize',queue);window.removeEventListener('scroll',queue)};
  },[ids.length,tab,openWindow]);
  const items=__XenQuick.adapters.get('material')?.entries??[];
@@ -591,7 +593,8 @@ function __QuickDock({params={},update=()=>{}}={}){
  },[s.pulse]);
  /* Do not display the provisional left dock before its first geometry measurement. */
  const [layout,setLayout]=P.useState(()=>({leftTop:156,leftHeight:52,ready:false}));
- const universalRows=Math.max(__xenQuickGlobalRows(metaState?.saved,s.items),metaState?.archiveRows??5);
+ /* LANE-FOLLOW-01: the rack is as tall as the LIVE session needs (it used to follow the longest list of every saved session and a stored maximum, so it never shrank back) */
+ const universalRows=__xenQuickGlobalRows(null,s.items);
  const universalGridPx=__xenQuickRowsPx(universalRows);
  const sessionLabel=__XenMetaSessions.liveSessionLabel();
  const needed=collapsed?26:38+universalGridPx+(remove?70:0)+(message?30:0)+(sessionLabel?20:0);
