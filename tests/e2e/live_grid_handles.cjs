@@ -8,6 +8,8 @@ const html=path.resolve(process.argv[2]||'dist/XenSonar_PROBE.html');
   const b=await chromium.launch({args:['--autoplay-policy=no-user-gesture-required']});const p=await b.newPage({viewport:{width:1440,height:1000}});
   const errors=[];p.on('pageerror',e=>errors.push(e.message));await p.goto('file://'+html);await p.waitForTimeout(3500);await p.getByRole('button',{name:'Power'}).click();await p.waitForTimeout(2500);
   const E=code=>p.evaluate(c=>window.__xenProbe.draw.evalInBundle(c),code);
+  // startup default is 31 EDO (dense): the test needs isolated triangles, so it plays on 12 EDO
+  await E('__NodalBallGrid.changeTuning("12edo")');await p.waitForTimeout(600);
   const canvas=p.locator('canvas').filter({has:p.locator('xpath=self::*')}).first();
   const handle=await p.evaluateHandle(()=>[...document.querySelectorAll('canvas')].filter(c=>c.offsetParent).sort((a,b)=>b.clientWidth*b.clientHeight-a.clientWidth*a.clientHeight)[0]);const bx=await handle.boundingBox();
   const sx=bx.width/1100,sy=bx.height/580;const grid=async()=>JSON.parse(await E('JSON.stringify((p=>({muted:p.manualGridMutedSteps,offsets:p.manualGridStepOffsets,base:p.gridBase}))(__NodalBallGrid.params()))'));

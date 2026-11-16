@@ -9,6 +9,8 @@ const html=path.resolve(process.argv[2]||'dist/XenSonar_PROBE.html');
   const E=code=>p.evaluate(c=>window.__xenProbe.draw.evalInBundle(c),code);
   const handle=await p.evaluateHandle(()=>[...document.querySelectorAll('canvas')].filter(c=>c.offsetParent).sort((a,b)=>b.clientWidth*b.clientHeight-a.clientWidth*a.clientHeight)[0]);const bx=await handle.boundingBox();
   const sx=bx.width/1100,sy=bx.height/580;
+  // startup default is 31 EDO (dense): the test needs isolated triangles, so it plays on 12 EDO
+  await E('__NodalBallGrid.changeTuning("12edo")');await p.waitForTimeout(600);
   const rowsNow=async()=>JSON.parse(await E('JSON.stringify(__NodalBallGrid.rows().map(r=>({step:r.stepIndex,freq:r.freq,y:Zs(r.freq)})))'));
   const rows=await rowsNow();const iso=rows.filter(r=>r.step!==undefined&&r.y>60&&r.y<300&&rows.every(o=>o===r||Math.abs(o.y-r.y)>14));assert(iso.length>=1,'an isolated triangle exists');
   const D=iso[0];
