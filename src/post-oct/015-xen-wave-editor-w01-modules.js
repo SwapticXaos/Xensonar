@@ -2230,7 +2230,9 @@ class Editor{
  this.previewTargetButton=button('B · Project',()=>this.preview('document'));
  actions.append(this.buildBlueViewControls(),button('A · Original',()=>this.preview('original')),this.previewTargetButton,this.previewButton,this.applyButton,this.undoApplyButton,this.formatSelect,button('WAV ↓',()=>this.downloadWav()));
  this.playButton=button('▶ Play',()=>this.playSelection(),{'aria-label':'Play Audio','aria-pressed':'false',title:'Play the selection · from caret to project end when no range is selected'});
- headActions.append(this.playButton,button('Close ×',()=>this.close()));
+ /* WAVE-LOOP-01: a second trigger for the big PLAY (Preview Loop) of the Forge panel: no new playback engine; '▶ Play' stays "once", '▶ Loop' = loop */
+ this.loopButton=button('▶ Loop',()=>{if(this.audioNode)this.stopAudio();this.options.onLoopPlay?.()},{'aria-label':'Loop Audio','aria-pressed':'false',title:'Play the loop mask round and round (the same as the big PLAY below) · click again to stop'});
+ headActions.append(this.playButton,this.loopButton,button('Close ×',()=>this.close()));
  head.append(title,actions,headActions,this.statusElement,this.computeStrip);dialog.append(head);
  const tool=$('div',{class:'xwe-toolbar'});this.redoButton=button('↷ Redo',()=>this.runEdit('redo'),{'data-xwe-document-redo':'true',title:'Redo · Ctrl+Shift+Z'});tool.append(this.redoButton);
  this.channelModes=$('div',{class:'xwe-channel-modes',role:'group','aria-label':'Channel Selection'});
@@ -2601,6 +2603,7 @@ class Editor{
   this.updatePlayheads();
  }
  stopAudio(){if(this.audioNode){try{this.audioNode.stop()}catch{}this.audioNode.disconnect();this.audioNode=null}this.clearPlayheads();this.audioContext?.suspend?.()}
+ setLoopPlaying(on){if(this.loopButton){this.loopButton.textContent=on?'■ Stop':'▶ Loop';this.loopButton.setAttribute('aria-pressed',String(!!on))}}
  playSelection(){if(this.audioNode){this.stopAudio();this.setStatus('Playback stopped.');return}return this.preview('document')}
  /* TAKT-SEEK: restart the running preview at another point (same mode, same end) */
  seekToSec(sec){const t=this.transport;if(!this.audioNode||!t||!Number.isFinite(sec))return false;const from=clamp(Math.round(sec*t.sampleRate),0,Math.max(0,t.sourceFrames-1));void this.preview(t.mode,{from,to:t.endFrame});return true}
