@@ -1729,7 +1729,8 @@ const __commitWaveDocument=P.useCallback(result=>{
  __XenForgeRawGain.bind(result.source);__XenForgeRawGain.setRange(result.source,result.selection.fineLoopRange);__XenForgeRawGain.set(result.source,request);
  l(result.source);d(result.selection);x(null);M(null);k("Wave Editor · edited project revision committed. Preview, donor and export use this source.");return true;
 },[s]);
-const __setWaveSelection=P.useCallback(selection=>{d(selection);},[]);
+/* WAVE-LOOP-LIVE: as in the import view (RGe: i(V),r&&c(V)), a running Preview Loop follows the moved loop mask without restarting */
+const __setWaveSelection=P.useCallback(selection=>{d(selection);if(selection?.fineLoopRange&&Id.isPlaying())Id.updateLoopRangeLive(selection.fineLoopRange)},[]);
 const __loadDonorLibrary=P.useCallback(async(J,apply=false,requestedTicket=null)=>{
  if(!J?.source?.sourceAsset||!J?.selection)throw Error("Incomplete saved donor.");
  if(!apply&&requestedTicket===null&&!J.__keepPreparedHybrid)__ForgeDonorRoutingF317.cancel();
