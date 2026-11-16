@@ -880,7 +880,8 @@
    "id": "js-015-xen-wave-editor-w01-modules",
    "oct28_section": null,
    "files": [
-    "src/post-oct/015-xen-wave-editor-w01-modules.js"
+    "src/post-oct/015-xen-wave-editor-w01-modules.js",
+    "src/post-oct/015b-xen-wave-analysis.js"
    ]
   },
   {

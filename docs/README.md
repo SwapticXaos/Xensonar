@@ -18,6 +18,7 @@ Zuerst lesen (in dieser Reihenfolge): `../CLAUDE.md` (Arbeitsregeln) → `PRODUC
 | Loop-Rec-Takte sehen und Loop-Grenzen ziehen (Loop-Editor, Rechtsklick auf die Take-Kachel) | `PATCH_LOOPREC-BARS-01.md` |
 | Was nimmt Loop-Rec auf, und wie schließt man einen neuen Synth an (ein Spureingang für alles Live-Gespielte) | `PATCH_LIVE-LANE-01.md` |
 | Thunder Mode: ein Hold-Mechanismus (Nodals Uhr) für alle Synths, Exact/Loose, wie ein neuer Synth die Uhr bekommt | `PATCH_THUNDER-ONE.md` |
+| Analyse einer Audioaufnahme im Wave Editor (Tempo, Root in Hz, Stimmung 12/19/31-EDO · Just · Bohlen–Pierce, Skala, Tonart-Abschnitte; lila Auswahl oder ganze Datei, nur lesend) | `PATCH_AUDIO-ANALYSE-01.md` |
 | Hardware-Keyboard (MIDI): Tasten = Rasterlinien, Anschlagsdynamik, Lumatone/MPE-Layouts, Pedal und Regler | `DESIGN_HARDWARE_KEYBOARD_ADAPTER.md`, `PATCH_HWKB-01.md` → `PATCH_HWKB-02.md` |
 | Was wurde bewusst nicht übernommen? | `HISTORY_AND_EXCLUSIONS.md` |
 | Wie ist das CSS geschichtet? | `CSS_LAYERS_2026-11-09.md` |
