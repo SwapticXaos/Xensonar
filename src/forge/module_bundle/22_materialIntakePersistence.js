@@ -226,7 +226,7 @@ const now = Date.now();
 if (assetId && asset) {
 const exists = await recordExists(assetId);
 if (!exists)
-await putRecord({ id: assetId, value: asset, updatedAt: now });
+await (recordStore.putLarge ?? putRecord)({ id: assetId, value: asset, updatedAt: now }); /* PERSIST-OFFTHREAD-01: big PCM off the main thread */
 }
 await putRecord({ id: WORKSPACE_PREFIX + key, value: workspace, updatedAt: now });
 preloadCache.set(key, state);
