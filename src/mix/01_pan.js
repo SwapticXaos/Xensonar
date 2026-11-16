@@ -29,8 +29,9 @@ function __XenRange(props){
 function __xenSmoothMixParam(param,value,ctx){
  if(!param||!Number.isFinite(value)||ctx?.state==='closed'||__XenMixTargets.get(param)===value)return;
  __XenMixTargets.set(param,value);const at=ctx.currentTime;
- if(typeof param.cancelAndHoldAtTime==='function')param.cancelAndHoldAtTime(at);
- else{const held=param.value;param.cancelScheduledValues(at);param.setValueAtTime(held,at)}
+ /* LIVE-SLIDER-SOFT: value-based hold, same as __f49HoldParam (RFL-SOFT). cancelAndHoldAtTime(ctx.currentTime) rewinds a running
+    ramp by the lag of currentTime behind the audio thread; with ~60 slider events/s that is a level step per event. */
+ const held=param.value;param.cancelScheduledValues(at);param.setValueAtTime(held,at);
  param.setTargetAtTime(value,at,.03);
 }
 /* Mixer controls own only placement. Moving pan never restarts a source or clock. */
