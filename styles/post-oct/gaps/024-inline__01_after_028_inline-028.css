@@ -10,3 +10,8 @@
  .xen-mainroom-particle-band .xen-particle-mass-controls button{padding:3px 4px;font-size:9px}
  .xen-mainroom-hold-zone .xen-thunder-header{justify-content:flex-start}
 }
+/* PARTICLE-HEAD-01: Particle Mode / Particle System sit in the header of the Particles band, next to the title. */
+.xen-mainroom-particle-band .xen-particle-tuning{display:flex;flex-wrap:wrap;align-items:center;gap:3px 14px;min-width:0;margin-left:14px;flex:0 1 auto}
+.xen-particle-tuning-field{display:flex;align-items:center;gap:5px;min-width:0;font:600 11px/1.1 system-ui,sans-serif;color:#9fd9cc;white-space:nowrap}
+.xen-particle-tuning-field select{min-width:0;max-width:172px;height:25px;border:1px solid #38766c;border-radius:3px;background:#091c1a;color:#d2eee7;font:600 10px/1.1 system-ui,sans-serif;padding:2px 5px;cursor:pointer}
+.xen-particle-tuning-field select:focus-visible{outline:2px solid #edffff;outline-offset:2px}
