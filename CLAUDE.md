@@ -39,6 +39,17 @@ XenSonar ist ein kreatives Instrument und experimentelles Musiksystem: mikrotona
 
 Ausführliche Dokumentation: `docs/` und `evidence/XenSonar_HTML_FIRST_RELEASE_POLICY_V1.md`.
 
+## Branch- und Arbeitsvertrag (Nutzerentscheidung 17.11.2026)
+
+Standard ist **eine lineare Arbeitslinie**: Es arbeitet immer nur ein Chat, und jeder Chat baut auf dem neuesten Stand auf. Parallelarbeit ist die Ausnahme und wird vom Nutzer ausdrücklich angesagt („ich prompte jetzt 3 Chats parallel“ oder „probiere A und B aus“).
+
+1. **Sitzungsstart:** `git fetch --all`, dann Zweige nach Commit-Datum sortieren (`git branch -a --sort=-committerdate`). Arbeitsbasis ist der **neueste Arbeitsstand**, nicht automatisch `main`. In einem Satz melden: welcher Zweig, welcher Commit, was zuletzt gemacht wurde (`docs/STATUS_…`). Weicht der neueste Stand von dem Zweig ab, auf dem die Sitzung startet, zuerst dessen Commits übernehmen (merge oder fast-forward), dann arbeiten.
+2. **Kein neuer Zweig ohne Auftrag.** Schreibt die Umgebung einen Sitzungszweig vor, wird dieser Zweig vom neuesten Stand aus fortgeführt, nicht aus einem älteren `main`. Weitere Zweige nur auf ausdrücklichen Wunsch des Nutzers (Parallelbetrieb oder echter A/B-Versuch).
+3. **Vor jeder Funktion prüfen, ob sie schon existiert:** `git log --all --grep`/`-S` und `docs/` durchsuchen. Gibt es eine Lösung in einem anderen Zweig, wird sie übernommen oder erweitert, nicht neu gebaut. Nie dieselbe Aufgabe zweimal verschieden lösen.
+4. **Zusammenführen:** Nur bei echter Parallelarbeit. Ein Merge-Auftrag nennt vorher die betroffenen Zweige und Konfliktdateien; bei doppelten Lösungen kurzer Vergleich (Größe, Tests, Risiko) und eine Empfehlung, bevor etwas verworfen wird.
+5. **Sitzungsende:** Stand committen, pushen, in `docs/STATUS_…` eintragen: Zweig, Commit, erledigt, offen, was der nächste Chat zuerst tun soll. So geht der Überblick nicht verloren.
+6. **Kostenregel:** Zweigverwaltung, Doppelarbeit und Merge-Nachlauf sind Tokenverschwendung. Im Zweifel den Nutzer in einer Zeile fragen, statt einen neuen Zweig oder eine zweite Lösung anzulegen.
+
 ## Heiß/Kalt-Vertrag (verbindlich, Details: `docs/HOT_COLD_CONTRACT.md`)
 
 XenSonar ist ein Musikinstrument, auch wo es wie Verwaltungssoftware aussieht. Vor jeder Änderung die Zone bestimmen und im Patchbericht nennen:
