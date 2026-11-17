@@ -35,7 +35,10 @@ Status: CODE_PRESENT, UNIT_VERIFIED, BROWSER_CHECKED (Chromium headless, echte M
 ## Tests
 - Neu: `tests/e2e/forge_sleep_parked.cjs` (Live Room: Backspace/Entf gehören dem Live Room, Datei unverändert; Listener-Zählung; `inert`; 60× Tab; Rückkehr per Kopfzeile: Backspace, Entf, Strg+X schneiden sofort, Strg+Z). Auf `4f92dd6` rot.
 - Übernommen: `tests/e2e/wave_keys_launch_and_rooms.cjs` (WAVE-KEYS-03).
-- `build.py --check` OK, `run_tests.sh` 128/128. Browser-Tests: siehe Commitbericht.
+- `build.py --check` OK, `run_tests.sh` 128/128.
+- Browser (`tests/e2e/*`, 68 Tests einzeln, Probe-Build): 58 grün, 10 rot. Davon 9 auf Parent `4f92dd6` identisch rot (Altlast, siehe KEY-OWNER-01: `grid_drag_selection`, `live_grid_handles`, `room5_live_psylab`, `room5_psylab`, `stems_instruments`, `stems_record`, `thunder_lane_split_ui`, `thunder_one_clock`, `variante_room`). `particle_head_hum` war im Gesamtlauf einmal rot (Pegelprüfung „hum is back“), danach auf diesem Stand 2/2 grün, auf Parent und Stufe 1 grün: Ausreißer, nicht durch diesen Patch.
+- Grün u. a.: `forge_sleep_parked`, `wave_keys_after_click`, `wave_keys_launch_and_rooms`, `live_keyboard_window_keys`, `hwkeyboard_live`, `forge_loop_stereo`.
+- Alt-Tests gegen `index.html`: `ui_side_arrows`, `ui_visual_restore`, `power_browser_smoke`, `test_stamp_full_browser_p37` grün; `mix_audio_browser` rot, auf Parent identisch rot (Befund und Fix: MIX-HOLD-01 auf `claude/zealous-bardeen-srtwvd`).
 
 ## Größe
 index.html 8 266 617 B (`4f92dd6`) → 8 267 312 B (WAVE-KEYS-03, +695) → 8 268 292 B (FORGE-SLEEP-01, +980). Gesamt +1 675 B.
