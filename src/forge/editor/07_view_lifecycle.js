@@ -19,6 +19,9 @@ function __xenRoomUsesLiveContext(room){return __xenRoomsUsingLiveContext.has(ro
 function __setForgeWorkspaceVisible(visible){
  if(visible===__forgeWorkspaceVisible)return;
  __forgeWorkspaceVisible=visible;
+ /* FORGE-SLEEP-01: the parked Forge is a separate, sleeping app. Its Wave Editor drops its document key/pointer
+    listeners (Backspace = octave hold in the Live Room); the focus never stays in the hidden box (also inert, see the keepalive wrapper). */
+ globalThis.__XenWaveUIW01?.setAwake?.(visible);
  if(visible){if(typeof __F352Runtime!=='undefined')__F352Runtime.attach()}
- else __deactivateForgeWorkspace();
+ else{__deactivateForgeWorkspace();const a=document.activeElement;if(a&&a!==document.body&&a.closest?.('[data-package-station-keepalive]'))a.blur?.()}
 }
