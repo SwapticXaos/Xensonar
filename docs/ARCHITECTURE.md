@@ -2,9 +2,7 @@
 
 ## Form der Anwendung
 
-XenSonar wird als **eine vollständige, offline nutzbare `index.html`** ausgeliefert. Stand 13.11.2026: **36 `<script>`-Blöcke** und **78 `<style>`-Blöcke** (früher 32/77) enthalten; **keine externen `<script src>`**. Das Hauptmodul (`type="module"`, 0-basiert Block `12`; bis Oktober Block `10`) ist ca. **6,3 MB** groß und beherbergt große Teile der Audio-, UI-, Timing- und Persistence-Logik. Es gibt eingebettete React-/JSX-Runtime-Konstrukte (`P.useState`, `u.jsx`), PCM-/Web-Audio-Subsysteme und für Teilräume eigens registrierte Code-Payloads (`application/x-xensonar-room` u. ä.).
-
-**Warnung:** Die Browser-HTML ist das ausführbare Build-Artefakt. Der ursprüngliche vollautomatische, editierbare Source-Rebuild ist durch dieses Paket **nicht nachgewiesen**. Die nach Script-/Style-Blöcken extrahierten Dateien sind ausdrücklich eine **Lesekarte**, keine neue Runtime-Modulstruktur.
+XenSonar wird als **eine vollständige, offline nutzbare `index.html`** ausgeliefert, gebaut aus `source-manifest.json` + `src/**` + `styles/**` mit `python3 tools/build.py` (byteidentisch reproduzierbar, `--check` in der GitHub-Action). Stand 17.11.2026: Auslieferung **29 `<script>`-Blöcke** und **78 `<style>`-Blöcke** (ohne Diagnoseschichten, verdichtet); Diagnose-Fassung (`--diag`) 38/78; **keine externen `<script src>`**.
 
 ## Gedankliches Komponentenbild
 

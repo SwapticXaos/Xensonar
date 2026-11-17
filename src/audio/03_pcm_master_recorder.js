@@ -82,6 +82,8 @@ function __xenMasterPcmWorkletModule() {
 }
 const __xenPcmModuleByContext = new WeakMap();
 const __XenPcmCaptureStatus={format:"float32",state:"idle",frames:0,firstFrame:null,lastFrame:null,frameGaps:0,missingFrames:0,overlapFrames:0};
+/* AUDIT-1117 (COLD): closing or reloading the tab while a take is recorded or still being saved asks first (one listener, reads one field). */
+try{addEventListener('beforeunload',e=>{const s=__XenPcmCaptureStatus.state;if(s==='recording'||s==='stopping'||s==='saving'){e.preventDefault();e.returnValue=''}})}catch{}
 function __xenPcmModuleReady(ctx) {
   let ready = __xenPcmModuleByContext.get(ctx);
   if (ready) return ready;

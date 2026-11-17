@@ -288,10 +288,13 @@ function buildTrackFx(ctx,f,spb,out,master,getReverb){
    Cold: nothing exists until the user presses Rec. Capture is lossless 32-bit float PCM taken in an AudioWorklet on the SAME AudioContext as the playback,
    so the recording is placed by the shared sample clock (not by wall-clock guessing). Everything already on the tracks plays while recording (overdub);
    the input itself is not monitored (no feedback). Round-trip latency is compensated by the user's value. */
-const MT_CAPTURE_WORKLET=`class C extends AudioWorkletProcessor{constructor(){super();this.b=[[],[]];this.n=0;this.s=-1;this.run=true;
+/* AUDIT-1117 (HOT while recording): the block is copied straight into one 4096-frame chunk per channel (no copy per render quantum,
+   no allocation per block); a full chunk is transferred and replaced, i.e. one allocation per 4096 frames instead of three per 128. Same chunks, same PCM. */
+const MT_CAPTURE_WORKLET=`class C extends AudioWorkletProcessor{constructor(){super();this.cap=4096;this.L=new Float32Array(this.cap);this.R=new Float32Array(this.cap);this.n=0;this.s=-1;this.run=true;
  this.port.onmessage=e=>{if(e.data==='stop'){this.flush();this.run=false;this.port.postMessage({kind:'done'})}}}
- flush(){if(!this.n)return;const a=new Float32Array(this.n),b=new Float32Array(this.n);let o=0;for(let i=0;i<this.b[0].length;i++){a.set(this.b[0][i],o);b.set(this.b[1][i],o);o+=this.b[0][i].length}this.port.postMessage({kind:'chunk',frame:this.s,l:a,r:b},[a.buffer,b.buffer]);this.b=[[],[]];this.n=0;this.s=-1}
- process(inputs){if(!this.run)return false;const i=inputs[0];if(this.s<0)this.s=currentFrame;const l=i&&i[0]?i[0]:new Float32Array(128),r=i&&i[1]?i[1]:l;this.b[0].push(new Float32Array(l));this.b[1].push(new Float32Array(r));this.n+=l.length;if(this.n>=4096)this.flush();return true}}
+ flush(){if(!this.n)return;const a=this.L.subarray(0,this.n),b=this.R.subarray(0,this.n);this.port.postMessage({kind:'chunk',frame:this.s,l:a,r:b},[a.buffer,b.buffer]);this.L=new Float32Array(this.cap);this.R=new Float32Array(this.cap);this.n=0;this.s=-1}
+ process(inputs){if(!this.run)return false;const i=inputs[0],l=i&&i[0],r=i&&i[1]?i[1]:l,len=l?l.length:128;if(this.n+len>this.cap)this.flush();if(this.s<0)this.s=currentFrame;
+  if(l){this.L.set(l,this.n);this.R.set(r,this.n)}else{this.L.fill(0,this.n,this.n+len);this.R.fill(0,this.n,this.n+len)}this.n+=len;if(this.n>=this.cap)this.flush();return true}}
 registerProcessor('xen-mt-capture',C);`;
 const capReg=new WeakSet();
 const recorder={
@@ -307,11 +310,13 @@ const recorder={
     h.doneP=new Promise(ok=>{done=ok});node.port.onmessage=ev=>{if(ev.data.kind==='chunk')chunks.push(ev.data);else if(ev.data.kind==='done')done()}}
    catch{h.mode='script';node=ctx.createScriptProcessor(4096,2,2);h.doneP=Promise.resolve();node.onaudioprocess=ev=>{const l=ev.inputBuffer.getChannelData(0),r=ev.inputBuffer.numberOfChannels>1?ev.inputBuffer.getChannelData(1):l;chunks.push({frame:Math.round(ev.playbackTime*ctx.sampleRate)-l.length+Math.round((ctx.baseLatency||0)*ctx.sampleRate),l:new Float32Array(l),r:new Float32Array(r)})}}
    src.connect(node);node.connect(sink);h.node=node;
+   /* AUDIT-1117: closing or reloading the tab during a recording asks first; removed in finish() */
+   h.guard=e=>{e.preventDefault();e.returnValue=''};addEventListener('beforeunload',h.guard);
    /* MTW-04: a level tap on the input (left and right apart), only for the meter beside the Rec button */
    try{const sp=ctx.createChannelSplitter(2),a=ctx.createAnalyser(),b=ctx.createAnalyser();a.fftSize=b.fftSize=1024;src.connect(sp);sp.connect(a,0);sp.connect(b,1);h.tap={sp,a,b,buf:new Float32Array(1024)}}catch{}
    return h}
   catch(e){stream.getTracks().forEach(t=>t.stop());throw e}},
- async finish(h){try{if(h.mode==='worklet'){h.node.port.postMessage('stop');await Promise.race([h.doneP,new Promise(ok=>setTimeout(ok,700))])}}catch{}
+ async finish(h){try{removeEventListener('beforeunload',h.guard)}catch{}try{if(h.mode==='worklet'){h.node.port.postMessage('stop');await Promise.race([h.doneP,new Promise(ok=>setTimeout(ok,700))])}}catch{}
   try{h.stream.getTracks().forEach(t=>t.stop())}catch{}for(const n of [h.src,h.node,h.sink,h.tap?.sp,h.tap?.a,h.tap?.b]){try{n?.disconnect()}catch{}}
   const cs=h.chunks.slice().sort((a,b)=>a.frame-b.frame);if(!cs.length)return {channels:[new Float32Array(0),new Float32Array(0)],first:0,sampleRate:h.ctx.sampleRate};
   const first=cs[0].frame,last=cs[cs.length-1],total=last.frame+last.l.length-first,L=new Float32Array(total),R=new Float32Array(total);

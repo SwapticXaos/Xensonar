@@ -789,9 +789,12 @@ function V2e(e){if(!__xenDrawMainGridLayer(e,vr,Zs,Qa))return;const{ctx:t,state:
    never above the logical size. At DPR 1 and a canvas shown 908 px wide that is a third fewer pixels to fill, stroke and composite, and the lines are drawn at the size they
    are shown instead of being scaled down by CSS; at DPR 2 it stays 1100 × 580 (the cost of before). All drawing keeps its logical coordinates (one setTransform per frame);
    pointer maths uses the element's rect, so nothing else changes. Resized only when the layout, zoom or pixel ratio changes (never per frame). Audio is not touched. */
-const __xenLiveCanvasFit=(()=>{const st=new WeakMap();
- function init(c){const rec={dirty:true};try{const ro=new ResizeObserver(()=>{rec.dirty=true});ro.observe(c);rec.ro=ro}catch{}const on=()=>{rec.dirty=true};window.addEventListener("resize",on);rec.off=on;return rec}
+/* AUDIT-1117: ONE window resize listener for all canvases (a counter); a per-canvas listener was never removed and, through its ResizeObserver,
+   kept every replaced Live Room canvas and its backing store alive (one per room change). The ResizeObserver dies with its canvas (WeakMap). */
+const __xenLiveCanvasFit=(()=>{const st=new WeakMap();let resized=0;try{window.addEventListener("resize",()=>{resized++})}catch{}
+ function init(c){const rec={dirty:true,resized};try{const ro=new ResizeObserver(()=>{rec.dirty=true});ro.observe(c);rec.ro=ro}catch{}return rec}
  function fit(c,ctx){let rec=st.get(c);if(!rec){rec=init(c);st.set(c,rec)}
+  if(rec.resized!==resized){rec.resized=resized;rec.dirty=true}
   if(rec.dirty){rec.dirty=false;const r=c.getBoundingClientRect(),dpr=window.devicePixelRatio||1,s=Math.max(.5,Math.min(1,r.width*dpr/vr)),w=Math.max(1,Math.round(vr*s)),h=Math.max(1,Math.round(w*ir/vr));if(r.width>0&&(c.width!==w||c.height!==h)){c.width=w;c.height=h}}
   ctx.setTransform(c.width/vr,0,0,c.height/ir,0,0)}
  return{fit}})();

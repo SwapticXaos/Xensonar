@@ -23,7 +23,7 @@ function __xenStemsWorkletModule(){
       this.port.onmessage=e=>{
         const m=e.data;if(!m)return;
         if(m.kind==='recycle'){const p=this.pools[m.stem|0];if(p&&m.data instanceof ArrayBuffer&&m.data.byteLength===this.fpc*8)p.push(new Float32Array(m.data));return}
-        if(m.kind==='start'){if(this.first<0&&!this.running){this.start=Number.isFinite(m.startFrame)?Math.max(0,m.startFrame|0):0;this.running=true}return}
+        if(m.kind==='start'){if(this.first<0&&!this.running){this.start=Number.isFinite(m.startFrame)?Math.max(0,Math.floor(m.startFrame)):0;/* AUDIT-1117: no 32-bit cut (|0 wrapped after ~12.4 h of AudioContext time at 48 kHz) */this.running=true}return}
         if(m.kind==='stopAt'){if(this.running)this.end=m.frame;return}
         if(m.kind==='stop'){if(this.running)this.finish('stop');return}
         if(m.kind==='dispose'){this.running=false;this.dead=true}
