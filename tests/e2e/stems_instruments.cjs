@@ -10,6 +10,12 @@ const html=path.resolve(process.argv[2]||'dist/XenSonar_PROBE.html');
   await p.goto('file://'+html);await p.waitForTimeout(3500);
   await p.getByRole('button',{name:'Power'}).click();await p.waitForTimeout(2500);
   const E=code=>p.evaluate(c=>window.__xenProbe.draw.evalInBundle(c),code);
+  // start defaults (since 182e933) put Psy Lab on the Wave Starter and Nodal on the Keyboard: this test is about the Entrophon lanes, so it picks the
+  // former defaults (Wave Starter: Distorted Glass = glas-zerrbild via the menu, Keyboard: Marimba Holz)
+  await p.getByRole('button',{name:'Wave Starter sound'}).first().click();await p.waitForTimeout(300);await p.getByLabel('Wave Starter sound search').fill('Distorted Glass');await p.waitForTimeout(300);
+  await p.getByRole('option',{name:/Distorted Glass/}).first().click();await p.waitForTimeout(800);
+  await p.evaluate(()=>__xenProbe.bridge.patch({keyboardHoldSoundPreset:'entrophon:factory:marimba-holz@1'}));await p.waitForTimeout(1200);
+  assert.deepEqual(JSON.parse(await E('JSON.stringify([__NodalBallGrid.params().waveStarterHoldSoundPreset,__NodalBallGrid.params().keyboardHoldSoundPreset])')),['entrophon:factory:glas-zerrbild@1','entrophon:factory:marimba-holz@1']);
   const rec=p.locator('[data-xen-stems-rec]');await rec.scrollIntoViewIfNeeded();
   // ---- UI: the mode switch shows the instrument tracks and hides the EQ tap switch ----
   const mode=p.locator('[data-xen-stem-mode]');assert.equal(await mode.getAttribute('data-xen-stem-mode'),'roles');assert.equal(await p.locator('[data-xen-stem-tap]').count(),1);

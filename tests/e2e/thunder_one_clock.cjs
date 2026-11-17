@@ -27,7 +27,8 @@ const html=path.resolve(process.argv[2]||'dist/XenSonar_PROBE.html');
   const after=await p.evaluate(()=>window.__steps()),main=await p.evaluate(()=>window.__vs.length);
   const seg=patch.keyboardHoldSegments||16,interval=240/bpm/seg*1000;
   return {main,clock:after.taps-before.taps,missed:after.missed-before.missed,silent:after.silent-before.silent,expected:Math.floor(held/interval)+1,res:JSON.parse(await E('JSON.stringify(__XenHoldResident.diagnostics().totals)'))}};
- const base={thunderModeEnabled:true,thunderKeyboardEnabled:true,thunderTiming:'exact',keyboardHoldSegments:16,keyboardHoldCustomSegments:16,keyboardHoldReferenceBars:1,keyboardHoldPatternSteps:Array(16).fill(true),keyboardHoldPitchCents:Array(16).fill(0),keyboardHoldSlotVolumes:[],keyboardHoldMicrotiming:[]};
+ // start defaults (since 182e933) put Nodal troodle on the Keyboard: this test is about the Entrophon factory sound (former default), so it sets it
+ const base={keyboardHoldSoundPreset:'entrophon:factory:marimba-holz@1',thunderModeEnabled:true,thunderKeyboardEnabled:true,thunderTiming:'exact',keyboardHoldSegments:16,keyboardHoldCustomSegments:16,keyboardHoldReferenceBars:1,keyboardHoldPatternSteps:Array(16).fill(true),keyboardHoldPitchCents:Array(16).fill(0),keyboardHoldSlotVolumes:[],keyboardHoldMicrotiming:[]};
  const notes=[];
  // warm-up: right after Power the existing voice admission may refuse a partial of the very first attack; then the plan is
  // deliberately not taken over (an incomplete sound would be repeated) and the main thread keeps the key until the next session
