@@ -98,6 +98,46 @@ function __f35612MaterialFingerprint(asset) {
     probe instanceof Float32Array ? __f35612SparsePcmHash(probe) : 'no-pcm',
   ].join('|');
 }
+// PERSIST-OFFTHREAD-01 (zone COLD): writing a big PCM record with IDBObjectStore.put clones it on the MAIN thread
+// (10 min stereo ~ 0.4-0.5 GB: 1.4-1.9 s frozen UI after every Wave Editor cut). putLarge copies the typed arrays in
+// small slices across tasks, TRANSFERS the copies to one lazily started worker and lets it put the SAME record into the
+// SAME database/store (readers unchanged). Worker missing or broken -> the caller falls back to the old main-thread put.
+let __f35612PutWorker=null,__f35612PutSeq=0,__f35612PutIdle=0;const __f35612PutWaits=new Map();
+function __f35612PutWorkerGet(){
+  if(__f35612PutWorker)return __f35612PutWorker;
+  if(typeof Worker==='undefined'||typeof Blob==='undefined'||typeof URL==='undefined')return null;
+  const src="'use strict';self.onmessage=e=>{const{seq,dbName,row}=e.data;const fail=x=>self.postMessage({seq,error:{name:x&&x.name||'Error',message:String(x&&x.message||x||'put failed')}});"+
+    "if(typeof indexedDB==='undefined'){self.postMessage({seq,infra:'no indexedDB in worker'});return}let q;try{q=indexedDB.open(dbName,1)}catch(x){self.postMessage({seq,infra:String(x)});return}"+
+    "q.onupgradeneeded=()=>{const db=q.result;if(!db.objectStoreNames.contains('records'))db.createObjectStore('records',{keyPath:'id'})};q.onerror=()=>fail(q.error);q.onblocked=()=>{};"+
+    "q.onsuccess=()=>{const db=q.result;let tx;try{tx=db.transaction('records','readwrite');tx.objectStore('records').put(row)}catch(x){db.close();fail(x);return}"+
+    "tx.oncomplete=()=>{db.close();self.postMessage({seq,ok:true})};tx.onabort=()=>{db.close();fail(tx.error||new Error('put aborted'))}}};";
+  let url;
+  try{url=URL.createObjectURL(new Blob([src],{type:'text/javascript'}));__f35612PutWorker=new Worker(url,{name:'xensonar-record-put'})}
+  catch(_){__f35612PutWorker=null;return null}finally{if(url)URL.revokeObjectURL(url)}
+  const broken=reason=>{const w=__f35612PutWorker;__f35612PutWorker=null;try{w?.terminate()}catch(_){}for(const [,wait] of __f35612PutWaits)wait({infra:reason});__f35612PutWaits.clear()};
+  __f35612PutWorker.onerror=e=>{e?.preventDefault?.();broken(e?.message||'worker error')};
+  __f35612PutWorker.onmessageerror=()=>broken('message error');
+  __f35612PutWorker.onmessage=e=>{const d=e.data||{},wait=__f35612PutWaits.get(d.seq);if(!wait)return;__f35612PutWaits.delete(d.seq);wait(d);
+    // the worker sleeps when unused: closed 20 s after the last write
+    clearTimeout(__f35612PutIdle);__f35612PutIdle=setTimeout(()=>{if(!__f35612PutWaits.size&&__f35612PutWorker){__f35612PutWorker.terminate();__f35612PutWorker=null}},20000)};
+  return __f35612PutWorker;
+}
+const __f35612Yield=()=>new Promise(r=>setTimeout(r,0));
+// Mirror of row: every distinct typed array is replaced by its own fresh copy (shared references stay shared, as in a
+// structured clone); everything else is left for postMessage to clone. Returns null when the row carries < 8 MB of PCM.
+async function __f35612DetachedCopy(row){
+  const arrays=new Map();let bytes=0;
+  const scan=(v,d)=>{if(!v||typeof v!=='object'||d>8)return;if(ArrayBuffer.isView(v)){if(!(v instanceof DataView)&&!arrays.has(v)){arrays.set(v,null);bytes+=v.byteLength}return}
+    if(v instanceof ArrayBuffer||(typeof Blob!=='undefined'&&v instanceof Blob))return;if(Array.isArray(v)){for(const x of v)scan(x,d+1);return}for(const k of Object.keys(v))scan(v[k],d+1)};
+  scan(row,0);if(bytes<8*1024*1024)return null;
+  const STEP=1<<21;// 2 Mi elements per slice (8 MB Float32): a few ms each
+  for(const src of arrays.keys()){const copy=new src.constructor(src.length);for(let a=0;a<src.length;a+=STEP){copy.set(src.subarray(a,Math.min(src.length,a+STEP)),a);if(src.length>STEP)await __f35612Yield()}arrays.set(src,copy)}
+  const seen=new Map();
+  const mirror=(v,d)=>{if(!v||typeof v!=='object'||d>8)return v;if(ArrayBuffer.isView(v))return arrays.get(v)||v;if(v instanceof ArrayBuffer||(typeof Blob!=='undefined'&&v instanceof Blob))return v;if(seen.has(v))return seen.get(v);
+    if(Array.isArray(v)){const out=[];seen.set(v,out);for(const x of v)out.push(mirror(x,d+1));return out}
+    if(Object.getPrototypeOf(v)!==Object.prototype&&Object.getPrototypeOf(v)!==null)return v;const out={};seen.set(v,out);for(const k of Object.keys(v))out[k]=mirror(v[k],d+1);return out};
+  return {row:mirror(row,0),transfer:[...new Set([...arrays.values()].map(a=>a.buffer))]};
+}
 function __f35612RecordStore(dbName, errors = {}) {
   const storeName = 'records';
   const failure = (error, key) => error ?? (errors[key] ? new Error(errors[key]) : error);
@@ -268,6 +308,18 @@ function __f35612RecordStore(dbName, errors = {}) {
   return {
     get: id => read(id, false), has: id => read(id, true), listPrefix,
     put: row => write([row], []), delete: id => write([], [id], true),
+    // PERSIST-OFFTHREAD-01: same record, written by the put worker; old main-thread put when the worker cannot run.
+    putLarge: async row => {
+      let packed=null;try{packed=await __f35612DetachedCopy(row)}catch(_){packed=null}
+      const worker=packed&&__f35612PutWorkerGet();
+      if(!worker)return write([row], []);
+      const seq=++__f35612PutSeq;
+      const reply=await new Promise(resolve=>{__f35612PutWaits.set(seq,resolve);try{worker.postMessage({seq,dbName,row:packed.row},packed.transfer)}catch(error){__f35612PutWaits.delete(seq);resolve({infra:String(error)})}});
+      if(reply.ok)return;
+      if(reply.infra)return write([row], []);
+      const error=typeof DOMException!=='undefined'?new DOMException(reply.error?.message||'put failed',reply.error?.name||'Error'):new Error(reply.error?.message);
+      throw failure(error,'put');
+    },
     putMany: (rows, deletes) => write(rows, deletes), importPackage,
   };
 }
