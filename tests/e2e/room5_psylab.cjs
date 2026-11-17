@@ -11,7 +11,14 @@ const html=path.resolve(process.argv[2]||'dist/XenSonar_PROBE.html');const shot=
     const oc=AudioNode.prototype.connect;AudioNode.prototype.connect=function(d){const r=oc.apply(this,arguments);try{if(d instanceof AudioDestinationNode&&d.context instanceof AudioContext){if(!S.meter||S.meter.context!==d.context){S.meter=d.context.createAnalyser();S.meter.fftSize=2048}oc.call(this,S.meter)}}catch(e){}return r};
     const O=window.AudioWorkletNode;window.AudioWorkletNode=class extends O{constructor(c,n,o){super(c,n,o);if(c instanceof AudioContext)S.nodes.push(n);if(n==='xen-psylab-v1'){const pm=this.port.postMessage.bind(this.port);this.port.postMessage=(m,t)=>{if(m&&m.t==='on')S.last=m;if(m&&m.t==='p')S.lastParam=[m.i,m.v];return pm(m,t)}}}};
     S.level=()=>{if(!S.meter)return 0;const a=new Float32Array(S.meter.fftSize);S.meter.getFloatTimeDomainData(a);let m=0;for(const v of a)m=Math.max(m,Math.abs(v));return m}});
+// Startdefaults (since 182e933): a fresh browser starts with the Psy Lab sound Barber Spiral on the Wave Starter, so its chunk loads at boot
+  // by design (ROOM5-10: a chosen Psy Lab sound is warmed as soon as audio runs). The COLD contract is tested for a user who chose another
+  // sound: pick an Entrophon sound in the menu, 12 EDO with all steps (as before the start defaults), reload.
   await p.goto('file://'+html);await p.waitForTimeout(3500);
+  assert.equal(await p.evaluate(()=>window.__XenRoomChunks.status().psylab),true,'fresh browser: the Psy Lab start sound loads its chunk at boot');
+  await p.getByRole('button',{name:'Wave Starter sound'}).first().click();await p.waitForTimeout(300);await p.getByLabel('Wave Starter sound search').fill('Glass Harp');await p.waitForTimeout(300);
+  await p.getByRole('option',{name:'Glass Harp'}).first().click();await p.waitForTimeout(800);
+  await p.evaluate(()=>__xenProbe.bridge.patch({gridTuning:'12edo',gridMode:'chromatic',manualGridMutedSteps:[]}));await p.waitForTimeout(2500);await p.reload();await p.waitForTimeout(3500);
   const E=(code)=>p.evaluate(c=>window.__xenProbe.draw.evalInBundle(c),code);
   assert.equal(await p.evaluate(()=>window.__XenRoomChunks.status().psylab),false,'chunk is not evaluated at boot');
   assert.equal(await p.evaluate(()=>!!document.getElementById('xen-psylab-style')),false);

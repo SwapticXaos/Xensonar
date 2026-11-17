@@ -7,6 +7,10 @@ const html=path.resolve(process.argv[2]||'dist/XenSonar_PROBE.html');
   const b=await chromium.launch({args:['--autoplay-policy=no-user-gesture-required']});const p=await b.newPage({viewport:{width:1440,height:1000}});const errors=[];p.on('pageerror',e=>errors.push(e.message));
   await p.goto('file://'+html);await p.waitForTimeout(3500);await p.getByRole('button',{name:'Power'}).click();await p.waitForTimeout(2000);
   const E=code=>p.evaluate(c=>window.__xenProbe.draw.evalInBundle(c),code);
+  // start defaults (since 182e933) put Psy Lab on the Wave Starter: Psy Lab sounds have no Hold, so Thunder (E) is shown OFF and disabled with a hint.
+  // This test is about the switches: it picks the former Entrophon default (Distorted Glass) for the Wave Starter.
+  await p.getByRole('button',{name:'Wave Starter sound'}).first().click();await p.waitForTimeout(300);await p.getByLabel('Wave Starter sound search').fill('Distorted Glass');await p.waitForTimeout(300);
+  await p.getByRole('option',{name:/Distorted Glass/}).first().click();await p.waitForTimeout(800);
   const st=async()=>JSON.parse(await E('JSON.stringify((q=>({e:q.thunderModeEnabled,k:q.thunderKeyboardEnabled}))(__NodalBallGrid.params()))'));
   // ONE switch, bound to the open tab (Enter-Hold / Keyboard-Hold); fixed width, label "ON (E)" / "OFF (K)"
   const sw=()=>p.locator('button.xen-thunder-lane-switch'),q=p.getByRole('switch',{name:'Quantize Gestural Attack'});
