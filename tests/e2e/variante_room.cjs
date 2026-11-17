@@ -16,10 +16,11 @@ const html=path.resolve(process.argv[2]||'dist/XenSonar_PROBE.html');
  await v.scrollIntoViewIfNeeded();await v.click();await p.waitForSelector('[data-xen-variante-room]',{timeout:20000});
  assert.equal(await p.getByText(/archived in the Core build/).count(),0,'no placeholder');
  assert.equal(await p.evaluate(()=>window.__XenRoomChunks.status().xenpolar),true);
- assert.ok(await p.getByText('Zündung starten').count()>0,'the room is the Variante');
+ // VARIANTE-EN (1cddccd): the UI is English ("Zündung starten" -> "Start ignition")
+ assert.ok(await p.getByText('Start ignition').count()>0,'the room is the Variante');
  const ctxBefore=await p.evaluate(()=>__probe.ctxs.length);
  // play: ignite, click into the field (ripple)
- await p.getByText('Zündung starten').click();await p.waitForTimeout(1500);
+ await p.getByText('Start ignition').click();await p.waitForTimeout(1500);
  const canvas=p.locator('[data-xen-variante-room] canvas').first();const box=await canvas.boundingBox();
  for(let i=0;i<3;i++){await p.mouse.click(box.x+box.width*(.3+.2*i),box.y+box.height*.55);await p.waitForTimeout(500)}
  const rms=async sec=>{await p.evaluate(()=>__probe.reset());let mx=0;for(let k=0;k<sec;k++){await p.waitForTimeout(250);mx=Math.max(mx,...(await p.evaluate(()=>__probe.rms())).map(x=>x.rms))}return mx};

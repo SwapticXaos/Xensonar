@@ -12,7 +12,15 @@ const html=path.resolve(process.argv[2]||'dist/XenSonar_PROBE.html');
     const O=window.AudioWorkletNode;window.AudioWorkletNode=class extends O{constructor(c,n,o){super(c,n,o);if(n==='xen-psylab-v1'){S.nodes++;try{const an=c.createAnalyser();an.fftSize=2048;super.connect(an);(S.psy=S.psy||[]).push(an)}catch(e){}const pm=this.port.postMessage.bind(this.port);this.port.postMessage=(m,t)=>{if(m&&(m.t==='on'||m.t==='off'||m.t==='alloff'||m.t==='dispose'||m.t==='bend'))S.msgs.push({t:m.t,id:m.id,hz:m.hz,at:performance.now()});return pm(m,t)}}}};
     S.psyLevel=()=>{let m=0;for(const an of S.psy||[]){const a=new Float32Array(an.fftSize);an.getFloatTimeDomainData(a);for(const v of a)m=Math.max(m,Math.abs(v))}return m};
     S.level=()=>{if(!S.meter)return 0;const a=new Float32Array(S.meter.fftSize);S.meter.getFloatTimeDomainData(a);let m=0;for(const v of a)m=Math.max(m,Math.abs(v));return m}});
-  await p.goto('file://'+html);await p.waitForTimeout(3500);await p.getByRole('button',{name:'Power'}).click();await p.waitForTimeout(2000);
+// Startdefaults (since 182e933): a fresh browser starts with the Psy Lab sound Barber Spiral on the Wave Starter, so its chunk loads at boot
+  // by design (ROOM5-10: a chosen Psy Lab sound is warmed as soon as audio runs). The COLD contract is tested for a user who chose another
+  // sound: pick an Entrophon sound in the menu, 12 EDO with all steps (as before the start defaults), reload.
+  await p.goto('file://'+html);await p.waitForTimeout(3500);
+  assert.equal(await p.evaluate(()=>window.__XenRoomChunks.status().psylab),true,'fresh browser: the Psy Lab start sound loads its chunk at boot');
+  await p.getByRole('button',{name:'Wave Starter sound'}).first().click();await p.waitForTimeout(300);await p.getByLabel('Wave Starter sound search').fill('Glass Harp');await p.waitForTimeout(300);
+  await p.getByRole('option',{name:'Glass Harp'}).first().click();await p.waitForTimeout(800);
+  await p.evaluate(()=>__xenProbe.bridge.patch({gridTuning:'12edo',gridMode:'chromatic',manualGridMutedSteps:[]}));await p.waitForTimeout(2500);await p.reload();await p.waitForTimeout(3500);
+  await p.getByRole('button',{name:'Power'}).click();await p.waitForTimeout(2000);
   const E=code=>p.evaluate(c=>window.__xenProbe.draw.evalInBundle(c),code);
   const prm=async()=>JSON.parse(await E('JSON.stringify((q=>({w:q.waveStarterHoldSoundPreset,k:q.keyboardHoldSoundPreset,e:q.thunderModeEnabled,ke:q.thunderKeyboardEnabled}))(__NodalBallGrid.params()))'));
   const msgs=()=>p.evaluate(()=>window.__ps.msgs.slice());const clear=()=>p.evaluate(()=>{window.__ps.msgs.length=0});

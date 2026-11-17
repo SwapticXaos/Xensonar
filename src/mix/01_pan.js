@@ -29,9 +29,12 @@ function __XenRange(props){
 function __xenSmoothMixParam(param,value,ctx){
  if(!param||!Number.isFinite(value)||ctx?.state==='closed'||__XenMixTargets.get(param)===value)return;
  __XenMixTargets.set(param,value);const at=ctx.currentTime;
- /* LIVE-SLIDER-SOFT: value-based hold, same as __f49HoldParam (RFL-SOFT). cancelAndHoldAtTime(ctx.currentTime) rewinds a running
-    ramp by the lag of currentTime behind the audio thread; with ~60 slider events/s that is a level step per event. */
- const held=param.value;param.cancelScheduledValues(at);param.setValueAtTime(held,at);
+ /* MIX-HOLD-01 (reverts LIVE-SLIDER-SOFT): hold on the automation timeline. A value-based hold (param.value) jumps whenever the
+    value getter is not current (automation scheduled ahead, offline renders; Firefox has no cancelAndHoldAtTime and keeps this fallback
+    as before); measured offline with suspend/resume at 60 events/s and a simulated currentTime lag of 0-20 ms: no step with
+    cancelAndHoldAtTime, a 0.037 step per event with the value-based hold when scheduled ahead (tests/mix_audio_browser). */
+ if(typeof param.cancelAndHoldAtTime==='function')param.cancelAndHoldAtTime(at);
+ else{const held=param.value;param.cancelScheduledValues(at);param.setValueAtTime(held,at)}
  param.setTargetAtTime(value,at,.03);
 }
 /* Mixer controls own only placement. Moving pan never restarts a source or clock. */
