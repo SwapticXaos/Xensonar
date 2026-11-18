@@ -57,7 +57,9 @@ async function run(nodal){
  const slope=gl.reduce((a,r)=>a+(r[0]-mx)*(r[1]*1000-my),0)/gl.reduce((a,r)=>a+(r[0]-mx)**2,0);
  console.log('within ±12 ms of the clock: before '+(inl('before')*100).toFixed(0)+' % · glide '+(inl('glide')*100).toFixed(0)+' % · after '+(inl('after')*100).toFixed(0)+' % · drift during the glide '+slope.toFixed(2)+' ms/s');
  assert.ok(inl('before')>=.4&&inl('glide')>=.4&&inl('after')>=.4,'most steps within ±12 ms of their clock time in every phase (the detector loses some overlapping marimba attacks at the faster tempo; the same spread shows at a steady 140 BPM)');
- assert.ok(Math.abs(med(by.glide)-D)<3&&Math.abs(med(by.after)-D)<3,'the onsets keep the same distance to the clock before, during and after the glide (< 3 ms)');
+ // < 6 ms: the marimba onset detector misses/doubles 6-8 attacks per run, which moves a phase median by up to ~5.5 ms on any build
+ // (measured 18.11. on 839293a and 817a14b); a hold that did not follow the glide would be off by hundreds of ms
+ assert.ok(Math.abs(med(by.glide)-D)<6&&Math.abs(med(by.after)-D)<6,'the onsets keep the same distance to the clock before, during and after the glide (< 6 ms)');
  assert.ok(Math.abs(slope)<2.5,'no drift against the gliding clock (a hold that ignored the glide would drift by hundreds of ms/s): '+slope.toFixed(2)+' ms/s');
  assert.ok(Math.abs(g[g.length>>1]-60/140/4)<.002,'after the glide the hold steps at 140 BPM');
  assert.deepEqual(errs,[]);await b.close();return 'C11: '+steady.length+' steps on the gliding clock (median residual before/glide/after '+D.toFixed(1)+'/'+med(by.glide).toFixed(1)+'/'+med(by.after).toFixed(1)+' ms, drift '+slope.toFixed(2)+' ms/s), one session, no restart';
