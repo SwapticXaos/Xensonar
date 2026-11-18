@@ -20,3 +20,9 @@ Eine Zeile, +32 Bytes Quelle.
 - Bestehend: `tests/e2e/melodic_noteclip.cjs` grün (Probe-Build und `index.html`).
 
 Rollback: den Commit vor diesem Patch nehmen (siehe `git log`).
+
+## Nachtrag: Noten des Pink Track (Spectral Forge → Scattered/Fretless → Melodic Loop)
+**Nutzerbefund 18.11.:** Eine in der Spectral Forge gemalte Melodie, per Scattered auf den Pink Track projiziert, ließ sich nicht kopieren: Rechteck → nichts geladen, Paste gesperrt.
+**Ursache:** `__mlNoteClip.capture` übersprang alle Carrier- und Material-Noten (`ps`). Die Pink-Track-Noten fielen darunter, obwohl das Einzelkopieren per Klick sie schon erlaubt. Die Lücke bestand seit ML-NOTECLIP-01; bisher gab es keinen Test mit Pink-Track-Noten.
+**Änderung:** Übersprungen wird nur noch der Material-Importkörper (`fs`: material-base/-fragment, Owner des Slicing). Pink-Track-Noten werden kopiert und als normal platzierte Noten eingefügt: neue ID, ohne `pendingPitchAnchor`/`pendingGroup`, Spur bleibt der Pink Track. Liegen nur Importnoten im Rechteck, nennt die Statuszeile den Grund.
+**Test:** `tests/ml_noteclip_pink_02.test.cjs` läuft gegen die echte Zwischenablage aus dem Build: rot auf dem Parent, grün danach. Der Ablauf über das Malen in der Spectral Forge selbst ist nicht automatisiert (BROWSER_CHECKED nur für normale Noten).
