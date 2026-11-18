@@ -250,18 +250,24 @@ const __XenHoldCompositeIntegrity=(()=>{
 function nq(e){
  const t=tq(e);
  if(t.overtoneArp)__XenHoldResident.reject(e.holdSession);
- let n=0,leadRejected=false,firstRejectedIndex=-1,firstRejectionReason='unreported';
+ let n=0,leadRejected=false,firstRejectedIndex=-1,firstRejectionReason='unreported',firstMissing=-1;
  for(let index=0;index<t.tones.length;index++){
   const result=e.callbacks.playGradientTone(t.tones[index]);
   const admitted=__entWasAdmitted(result);
   if(admitted){n++;continue;}
+  if(firstMissing<0)firstMissing=index;
   if(__XenHoldCompositeIntegrity.enabled&&firstRejectedIndex<0){firstRejectedIndex=index;
    if(result&&typeof result==='object'&&typeof result.reason==='string')firstRejectionReason=result.reason;}
   // The first tone is the fundamental/body anchor for both Legacy and Entrophon.
   // Never emit upper partials on their own when the anchor was not admitted.
   if(index===0&&(e.entrophonWaveActive||e.holdSession)){leadRejected=true;break;}
  }
- const incomplete=n!==t.tones.length;
+ // HOLD-QUIET-01: the voice plan of this attack may allow fewer voices than tones (quiet notes below intensity .42: 80 %; load:
+ // fewer). The tones beyond that cap are left out by design, every time, on the main loop as well. An attack that got exactly its
+ // first `cap` tones is complete for that plan, so the hold clock repeats the very note the main loop would play. Any other gap
+ // (a tone inside the cap refused) stays incomplete and keeps the main loop as owner, as before.
+ const cap=Number.isInteger(e.voiceCap)&&e.voiceCap>0?Math.min(t.tones.length,e.voiceCap):t.tones.length;
+ const incomplete=n<cap||(firstMissing>=0&&firstMissing<cap);
  // A resident replay built from a partially admitted attack would repeat an
  // incomplete instrument indefinitely. Leave the fallback as owner instead.
  const residentInvalidated=!!(incomplete||t.overtoneArp)&&!e.holdSession?.sealed;
@@ -340,7 +346,7 @@ const f=n.presetId,b=entrophonActive,g=Math.max(1,__xenWaveCompositeDemand(f,e.n
 ctx:e.ctx,toneFreq:A,delay:M,duration:v,waveform:w,gain:R,resonance:k,cutoffHz:I,prominence:E,waveGradient:i,wavePlan:y,waveTargets:p,waveTargetPrefixes:__xenWavePrefixes,mainOutput:c,lane:keyboard?'keyboard':'wave',heldLong:e.heldLong,activeScheduledTonesRef:e.activeScheduledTonesRef,transientRuntime:e.transientRuntime,playScheduledTone:e.playScheduledTone,entrophonWaveActive:b,entrophonDefinition:n.entrophonDefinition,attackSoftening:1,holdSession:e.options?.holdSession,requestedAtMs:e.options?.requestedAtMs,directAudioTimeSec:e.options?.directAudioTimeSec,silentHotPath:!0}
 );
 nq({
-holdSession:e.options?.holdSession,entrophonWaveActive:b,preset:f,freq:a,volume:o,runtimeVolume:t.volume,isSector:e.isSector,transientBodyScale:y?.bodyScale??1,gradientAmount:i.amount,swellBlend:e.swellBlend,overtonesEnabled:e.nexusSound.waveOvertonesEnabled,overtoneAmounts:e.nexusSound.waveOvertones,overtoneWaveform:e.nexusSound.waveOvertoneWaveform,overtoneMode:e.nexusSound.waveOvertoneMode,overtoneGlobalLevel:e.nexusSound.waveOvertoneGlobalLevel??1,callbacks:{
+holdSession:e.options?.holdSession,entrophonWaveActive:b,preset:f,freq:a,volume:o,runtimeVolume:t.volume,isSector:e.isSector,transientBodyScale:y?.bodyScale??1,voiceCap:y?.maxVoices,gradientAmount:i.amount,swellBlend:e.swellBlend,overtonesEnabled:e.nexusSound.waveOvertonesEnabled,overtoneAmounts:e.nexusSound.waveOvertones,overtoneWaveform:e.nexusSound.waveOvertoneWaveform,overtoneMode:e.nexusSound.waveOvertoneMode,overtoneGlobalLevel:e.nexusSound.waveOvertoneGlobalLevel??1,callbacks:{
 playGradientTone:A=>x(A.toneFreq,A.delay,A.duration,A.waveform,A.gain,A.resonance,A.cutoffHz,A.prominence),triggerBodyExciter:(A,M,v,w)=>e.triggerBodyExciter(A,M,v,{...__wave39Lease(e,A,v,w),holdSession:e.options?.holdSession}),enqueueOvertoneArp:e.enqueueOvertoneArp}
 }
 )}
@@ -420,7 +426,7 @@ const f=a.presetId,b=__xenWaveCompositeDemand(f,e.nexusSound,e.swellBlend),g=ent
 ctx:e.ctx,toneFreq:M,delay:v,duration:w,waveform:R,gain:k,resonance:I,cutoffHz:E,prominence:F,waveGradient:l,wavePlan:x,waveTargets:p,waveTargetPrefixes:__xenWavePrefixes,mainOutput:r,lane:keyboard?'keyboard':'wave',heldLong:e.heldLong,activeScheduledTonesRef:e.activeScheduledTonesRef,transientRuntime:e.transientRuntime,playScheduledTone:e.playScheduledTone,entrophonWaveActive:g,entrophonDefinition:a.entrophonDefinition,attackSoftening:c,holdSession:e.options?.holdSession,requestedAtMs:e.options?.requestedAtMs}
 );
 nq({
-holdSession:e.options?.holdSession,entrophonWaveActive:g,preset:f,freq:o,volume:i,runtimeVolume:t.volume,isSector:e.isSector,transientBodyScale:x?.bodyScale??1,gradientAmount:l.amount,swellBlend:e.swellBlend,overtonesEnabled:e.nexusSound.waveOvertonesEnabled,overtoneAmounts:e.nexusSound.waveOvertones,overtoneWaveform:e.nexusSound.waveOvertoneWaveform,overtoneMode:e.nexusSound.waveOvertoneMode,overtoneGlobalLevel:e.nexusSound.waveOvertoneGlobalLevel??1,callbacks:{
+holdSession:e.options?.holdSession,entrophonWaveActive:g,preset:f,freq:o,volume:i,runtimeVolume:t.volume,isSector:e.isSector,transientBodyScale:x?.bodyScale??1,voiceCap:x?.maxVoices,gradientAmount:l.amount,swellBlend:e.swellBlend,overtonesEnabled:e.nexusSound.waveOvertonesEnabled,overtoneAmounts:e.nexusSound.waveOvertones,overtoneWaveform:e.nexusSound.waveOvertoneWaveform,overtoneMode:e.nexusSound.waveOvertoneMode,overtoneGlobalLevel:e.nexusSound.waveOvertoneGlobalLevel??1,callbacks:{
 playGradientTone:M=>A(M.toneFreq,M.delay,M.duration,M.waveform,M.gain,M.resonance,M.cutoffHz,M.prominence),triggerBodyExciter:(M,v,w,R)=>e.triggerBodyExciter(M,v,w,{
 ...R,holdSession:e.options?.holdSession,acquireVoice:()=>{
 if(!x)return null;
