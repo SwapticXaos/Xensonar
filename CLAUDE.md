@@ -48,7 +48,9 @@ Standard ist **eine lineare Arbeitslinie**: Es arbeitet immer nur ein Chat, und 
 3. **Vor jeder Funktion prüfen, ob sie schon existiert:** `git log --all --grep`/`-S` und `docs/` durchsuchen. Gibt es eine Lösung in einem anderen Zweig, wird sie übernommen oder erweitert, nicht neu gebaut. Nie dieselbe Aufgabe zweimal verschieden lösen.
 4. **Zusammenführen:** Nur bei echter Parallelarbeit. Ein Merge-Auftrag nennt vorher die betroffenen Zweige und Konfliktdateien; bei doppelten Lösungen kurzer Vergleich (Größe, Tests, Risiko) und eine Empfehlung, bevor etwas verworfen wird.
 5. **Sitzungsende:** Stand committen, pushen, in `docs/STATUS_…` eintragen: Zweig, Commit, erledigt, offen, was der nächste Chat zuerst tun soll. So geht der Überblick nicht verloren.
-6. **Kostenregel:** Zweigverwaltung, Doppelarbeit und Merge-Nachlauf sind Tokenverschwendung. Im Zweifel den Nutzer in einer Zeile fragen, statt einen neuen Zweig oder eine zweite Lösung anzulegen.
+6. **`main` ist der neueste Stand (Nutzerentscheidung 18.11.2026).** Am Sitzungsende wird der fertige Stand auf `main` gebracht (fast-forward oder Merge). Ein Zweig, der nicht in `main` landet, gilt als verworfen; mehrere neueste Stände werden zusammengeführt.
+7. **Rückmeldung (Nutzerentscheidung 18.11.2026):** Was der Nutzer nicht als störend meldet, passt. Keine Hörlisten, keine „passt/stört“-Rückfragen, keine Abnahme-Anfragen. „Nicht gehört“ im Patchbericht bleibt als sachlicher Vermerk, ist aber keine offene Aufgabe für den Nutzer.
+8. **Kostenregel:** Zweigverwaltung, Doppelarbeit und Merge-Nachlauf sind Tokenverschwendung. Im Zweifel den Nutzer in einer Zeile fragen, statt einen neuen Zweig oder eine zweite Lösung anzulegen.
 
 ## Heiß/Kalt-Vertrag (verbindlich, Details: `docs/HOT_COLD_CONTRACT.md`)
 
