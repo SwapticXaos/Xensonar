@@ -128,3 +128,4 @@ variante_port.test.cjs
 song_factory_nodal_capture.test.cjs
 audit_1117_capture_pool.test.cjs
 mt_parts_01.test.cjs
+scala_01.test.cjs
