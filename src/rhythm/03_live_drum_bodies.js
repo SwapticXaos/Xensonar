@@ -474,7 +474,8 @@ function __xenRefucktorStopPattern(fx){
   fx.patternUntil=0;fx.patternStep=0;fx.patternLastValue=1;
 }
 function __xenRefucktorScheduleMute(fx,params){
-  const ctx=fx.ctx,bpm=Math.min(260,Math.max(40,Number(params.quantizeBpm)||120));
+  /* LIVE-TEMPO-01: the pattern identity keeps the follower tempo (no restart when a glide lands); the steps take the gliding tempo */
+  const ctx=fx.ctx,bpm=Math.min(260,Math.max(40,Number(__XenLiveTempo.followKey(params.quantizeBpm))||120));
   const mode=params.droneRhythm||'Off';
   if(fx.patternMode===mode&&fx.patternBpm===bpm&&fx.patternStepsRef===params.droneRhythmCustomSteps&&
      fx.patternShapesRef===params.droneStepWobbleShapes&&
@@ -505,7 +506,7 @@ function __xenRefucktorScheduleMute(fx,params){
   __xenRefucktorFillPattern(fx,params);
 }
 function __xenRefucktorFillPattern(fx,params){
-  const ctx=fx.ctx,bpm=Math.min(260,Math.max(40,Number(params.quantizeBpm)||120));
+  const ctx=fx.ctx,bpm=Math.min(260,Math.max(40,Number(__XenLiveTempo.bpmNow(params.quantizeBpm))||120));
   const mode=params.droneRhythm||'Off';
   const stepTypes=Array.isArray(params.droneStepWobbleShapes)?params.droneStepWobbleShapes:[];
   if(mode==='Off'&&!stepTypes.some(v=>v>0))return;
@@ -543,7 +544,7 @@ function __xenRefucktorSyncWorkbench(fx,voice,params){
     fx.wobbleShaper.curve=__xenRefucktorWobbleCurve(shape);fx.shape=shape;}
   const rate=params.droneWobbleRate||'1/8';
   const rateMultiplier=__xenRefucktorRateMultipliers[rate]||2;
-  const bpm=Math.min(260,Math.max(40,Number(params.quantizeBpm)||120));
+  const bpm=Math.min(260,Math.max(40,Number(__XenLiveTempo.bpmNow(params.quantizeBpm))||120));
   const hz=bpm/60*rateMultiplier;
   if(fx.rate!==hz){fx.wobbleOsc.frequency.setTargetAtTime(hz,t,.04);fx.rate=hz;}
   const wobble=Math.max(0,Math.min(1,params.droneWobbleDepth??0));

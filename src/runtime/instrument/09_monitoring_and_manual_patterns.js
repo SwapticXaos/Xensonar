@@ -50,7 +50,7 @@ function __XenTempoRampControl({bpm,commit}){
  const go=()=>__XenLiveTempo.request(num(to,40,240,bpm),num(bars,.25,512,8)*4,commit);
  const field="w-14 border border-neutral-800 bg-neutral-950 px-1 py-0.5 text-xs text-neutral-300";
  const live=run?.bpm;
- return u.jsxs("div",{"data-xen-tempo-ramp":run?"running":"idle",className:"flex flex-wrap items-center gap-1.5 text-xs text-neutral-400",title:"Glide the Live Room tempo: from the current tempo to the target over the given bars (1 bar = 4 beats). Drums, bass and the particle grid follow beat by beat; loops and held patterns take the new tempo at the end. The tempo slider takes over at once.",children:[
+ return u.jsxs("div",{"data-xen-tempo-ramp":run?"running":"idle",className:"flex flex-wrap items-center gap-1.5 text-xs text-neutral-400",title:"Glide the Live Room tempo: from the current tempo to the target over the given bars (1 bar = 4 beats). Drums, bass, particles, Root Follow and Material loops and held Thunder patterns follow beat by beat. The tempo slider takes over at once.",children:[
   u.jsx("span",{children:"Tempo → "}),
   u.jsx("input",{type:"number",min:40,max:240,step:1,value:to,disabled:!!run,onChange:ev=>setTo(ev.target.value),onKeyDown:ev=>{if(ev.key==="Enter")go()},className:field,"aria-label":"Target tempo (BPM)","data-xen-tempo-ramp-to":!0}),
   u.jsx("span",{children:"BPM in"}),

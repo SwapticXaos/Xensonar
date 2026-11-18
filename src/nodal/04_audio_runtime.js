@@ -66,12 +66,22 @@ function xenHoldClockTime(old,config,rate,now,first){
       const next=Math.max(now,Math.round(old.start+old.index*old.interval));
       old.start=next-old.index*interval;old.interval=interval;
     }
+    old.warp=config.warp||null;
     return old;
   }
   const start=config.startSec*rate;
-  return {start,interval,index:Math.max(0,Math.ceil((first-start-.5)/interval))};
+  return {start,interval,index:Math.max(0,Math.ceil((first-start-.5)/interval)),warp:config.warp||null};
 }
-function xenHoldStepFrame(c,i){return Math.round(c.start+(i+Math.max(i===0?0:-.45,c.slotMicrotiming?.[i%c.pattern.length]??0))*c.interval)}
+// LIVE-TEMPO-01: with 'warp' (the Live Room tempo map during/after a glide) step i sits on the gliding beat: the beat of the
+// clock's start plus i steps (a step is a fixed share of a beat at the follower tempo), turned back into an audio frame through
+// the map. No warp: the linear grid as before. No allocation (the start beat is cached on the warp object per start frame).
+function xenHoldStepFrame(c,i){const m=Math.max(i===0?0:-.45,c.slotMicrotiming?.[i%c.pattern.length]??0),w=c.warp;
+  if(!w)return Math.round(c.start+(i+m)*c.interval);
+  const S=w.segs,r=w.rate;let j,s;
+  if(w.s0!==c.start){const t=c.start/r;let b=t*w.base/60;for(j=S.length-1;j>=0;j--){s=S[j];if(t>=s.t0){b=t<s.t1?(s.k===0?s.b0+(t-s.t0)*s.f/60:s.b0+s.f/s.k*(Math.exp(s.k*(t-s.t0)/60)-1)):s.b1+(t-s.t1)*s.to/60;break}}w.s0=c.start;w.sb=b}
+  const beat=w.sb+(i+m)*c.interval/r*w.key/60;let t=beat*60/w.base;
+  for(j=S.length-1;j>=0;j--){s=S[j];if(beat>=s.b0){t=beat<s.b1?(s.k===0?s.t0+(beat-s.b0)*60/s.f:s.t0+60/s.k*Math.log((s.f+s.k*(beat-s.b0))/s.f)):s.t1+(beat-s.b1)*60/s.to;break}}
+  return Math.round(t*r)}
 const xenHoldClockSource=()=>'{check:'+xenHoldClockCheck+',time:'+xenHoldClockTime+',step:'+xenHoldStepFrame+'}';
 function nodalWorkletProcessorFactory(createKernel, register, Base, rate, frameNow, holdClock) {
   const dsp = createKernel();
@@ -464,7 +474,7 @@ function nodalWorkletProcessorFactory(createKernel, register, Base, rate, frameN
         }else if(pcmId==null){old.nextPcmVoice=null;old.nextPcmId=null;}
       }else{
         const {start,index}=holdClock.time(null,config,rate,now,s.start);
-        s.holdClock={start,interval,index,pattern:config.pattern.slice(),options,pcmId,stepOptions,slotMicrotiming:micros?.slice()??null,
+        s.holdClock={start,interval,index,warp:config.warp||null,pattern:config.pattern.slice(),options,pcmId,stepOptions,slotMicrotiming:micros?.slice()??null,
           sounding:false,attackFrame:0,endFrame:0};
         // Initial admission may arrive late. Align the first actual attack to
         // the next future grid point rather than inserting an off-grid pulse.
@@ -480,7 +490,7 @@ function nodalWorkletProcessorFactory(createKernel, register, Base, rate, frameN
         let next=stepFrame(c.index);
         if(next<absolute){
           // Bound the catch-up cost for long sessions, then preserve every due step.
-          c.index=Math.max(c.index,Math.floor((absolute-c.start)/c.interval)-1);
+          if(!c.warp)c.index=Math.max(c.index,Math.floor((absolute-c.start)/c.interval)-1);
           next=stepFrame(c.index);
           while(next<absolute){next=stepFrame(++c.index)}
         }
@@ -1451,7 +1461,7 @@ function createNodalLiveRuntime({model, kernelFactory}) {
       return true;
     }
     function sameClockControl(c,clock,options,frequency,velocity,gain,duration,seed,pcmId){
-      if(!c||c.interval!==clock.intervalMs||c.frequency!==frequency||c.velocity!==velocity||c.gain!==gain||
+      if(!c||c.interval!==clock.intervalMs||(c.warpV??0)!==(clock.warp?.v??0)/* LIVE-TEMPO-01: a new tempo map is a clock update */||c.frequency!==frequency||c.velocity!==velocity||c.gain!==gain||
         c.duration!==duration||c.seed!==seed||c.pcmId!==pcmId||c.volumeCurve!==options.volumeCurve||
         c.pitchCurve!==options.pitchCurve||c.attackSec!==options.attackSec||c.releaseSec!==options.releaseSec||
         !Array.isArray(clock.pattern)||c.pattern.length!==clock.pattern.length||
@@ -1463,7 +1473,7 @@ function createNodalLiveRuntime({model, kernelFactory}) {
       return true;
     }
     function rememberClockControl(clock,options,frequency,velocity,gain,duration,seed,pcmId){
-      return {interval:clock.intervalMs,pattern:clock.pattern.slice(),pitchRatios:clock.pitchRatios?.slice()??null,slotVolumes:clock.slotVolumes?.slice()??null,slotMicrotiming:clock.slotMicrotiming?.slice()??null,frequency,velocity,gain,duration,seed,pcmId,
+      return {interval:clock.intervalMs,warpV:clock.warp?.v??0,pattern:clock.pattern.slice(),pitchRatios:clock.pitchRatios?.slice()??null,slotVolumes:clock.slotVolumes?.slice()??null,slotMicrotiming:clock.slotMicrotiming?.slice()??null,frequency,velocity,gain,duration,seed,pcmId,
         volumeCurve:options.volumeCurve,pitchCurve:options.pitchCurve,attackSec:options.attackSec,releaseSec:options.releaseSec};
     }
     function noteOn(instrument, options = {}, startSec = context.currentTime) {

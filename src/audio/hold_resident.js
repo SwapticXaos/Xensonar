@@ -54,6 +54,8 @@ const __XenHoldResident=(()=>{
    sessions.set(key,s);totals.sessionsCreated++;
   }
   if(s.armed&&[...s.hosts].some(h=>!h.canSubmit||s.epochs.get(h)!==h.epoch)){stop(s);return null}
+  // LIVE-TEMPO-01: a glide that starts (or lands) while the key is held: the running hold plans get the new map, no restart
+  if(s.sealed&&s.clock){const w=__XenLiveTempo.clockWarp(ctx.sampleRate);if((w?.v??0)!==(s.clock.warp?.v??0)){s.clock={...s.clock,warp:w};for(const h of s.hosts){try{h.node?.port?.postMessage({type:'HOLD_WARP',id:s.id,warp:w})}catch{}}}}
   return s;
  }
  function handleReply(s,host,msg){
@@ -90,7 +92,7 @@ const __XenHoldResident=(()=>{
    s.initialX=Number.isFinite(initial)&&initial>=0&&initial<=1?initial:null;
    // The clock of the gesture, exactly as Nodal gets it. Pitch steps and slot volumes are relative to the note that was captured.
    const ps=s.pitchState,ref=ps?ps.ratios[(s.index-1)%ps.ratios.length]||1:1,vol=s.capturedGain>0?s.capturedGain:1;
-   s.clock={startSec:s.startFrame/s.ctx.sampleRate+.008,intervalMs:s.intervalMs,pattern:s.pattern,slotVolumes:s.vols.map(v=>v/vol),slotMicrotiming:s.micros,...(ps?{pitchRatios:ps.ratios.map(r=>r/ref)}:{})};
+   s.clock={warp:__XenLiveTempo.clockWarp(s.ctx.sampleRate),startSec:s.startFrame/s.ctx.sampleRate+.008,intervalMs:s.intervalMs,pattern:s.pattern,slotVolumes:s.vols.map(v=>v/vol),slotMicrotiming:s.micros,...(ps?{pitchRatios:ps.ratios.map(r=>r/ref)}:{})};
    try{for(const c of s.pending)c.host.node.port.postMessage({type:'HOLD_PLAN',id:s.id,epoch:c.epoch,clock:s.clock,index:s.index,offset:c.frame-t0,slot:c.slot,record:c.copy,xInitial:s.initialX});
     s.program=s.pending;s.pending=null;s.sealed=true;
     for(const h of s.hosts)h.node.port.postMessage({type:'HOLD_COMMIT',id:s.id,epoch:h.epoch,count:s.hostCounts.get(h),mode:'tap'});}

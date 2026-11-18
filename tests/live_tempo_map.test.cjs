@@ -30,8 +30,8 @@ test('a ramp: begins at the given 16th, glides evenly per beat, lasts exactly th
 test('slowing down, Stop, Power off, and no scheduler',()=>{
   const L=make(),c=ctx(10);L.sync(140,c);const commits=[];L.request(100,16,v=>commits.push(v));L.begin(Math.ceil(L.beatAt(10.2)*4));
   const mid=L.timeAt(L.beatAt(10.2)+8);assert.ok(L.bpmAt(mid)<140&&L.bpmAt(mid)>100);
-  c.currentTime=mid;L.sync(140,c);L.stop(v=>commits.push(v));assert.ok(L.hasPending());L.begin(Math.ceil(L.beatAt(mid+.1)*4));c.currentTime=mid+.5;L.sync(140,c);
-  assert.strictEqual(commits.length,1);assert.strictEqual(commits[0],Math.round(L.bpmAt(mid+.05)),'stop = the nearest whole BPM, written once');
+  c.currentTime=mid;L.sync(140,c);const want=Math.round(L.bpmAt(mid));L.stop(v=>commits.push(v));assert.ok(L.hasPending());L.begin(Math.ceil(L.beatAt(mid+.1)*4));c.currentTime=mid+.5;L.sync(140,c);
+  assert.strictEqual(commits.length,1);assert.strictEqual(commits[0],want,'stop = the nearest whole BPM, written once');
   const P=make(),cc=ctx(5);P.sync(120,cc);const pc=[];P.request(90,8,v=>pc.push(v));P.begin(Math.ceil(P.beatAt(5.2)*4));P.halt();assert.deepStrictEqual(pc,[90],'Power off mid-glide lands on the target');assert.strictEqual(P.mapped(),false);
   const N=make(),nc=[],off=ctx(1);N.sync(100,off);off.state='suspended';assert.strictEqual(N.request(80,8,v=>nc.push(v)),false);assert.deepStrictEqual(nc,[80],'no running clock: the tempo is set directly');
 });

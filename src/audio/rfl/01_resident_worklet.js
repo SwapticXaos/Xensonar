@@ -147,7 +147,7 @@ var RawResidentCore = class {
     planWindow(n) {
         let e = this.program, s = this.left;
         if (!e || !s) return !1;
-        let r = wrap(n - e.transportAnchorSec, e.desiredLoopDurationSec), o = e.mode === "fragment" ? Math.min(e.windowSec, e.desiredLoopDurationSec) : Math.min(e.windowSec, Math.max(.001, e.desiredLoopDurationSec - r));
+        let r = wrap(e.warp ? __xenLiveTempoElapsed(e.warp, n) : n - e.transportAnchorSec, e.desiredLoopDurationSec), o = e.mode === "fragment" ? Math.min(e.windowSec, e.desiredLoopDurationSec) : Math.min(e.windowSec, Math.max(.001, e.desiredLoopDurationSec - r));
         if (o <= .006) return !0;
         let a = clamp(Number.isFinite(e.rawTargetHz) ? e.rawTargetHz : 110, 27.5, 3520), u = this.smoothedRootHz === null ? a : clamp(this.smoothedRootHz, 27.5, 3520), c = clamp(1 - Math.exp(-Math.max(.001, e.stepSec) / .032), .08, .82), h = u + (a - u) * c, m = e.entryRootHz !== null ? Math.max(1, e.entryRootHz) : this.sessionAnchorHz !== null ? Math.max(1, this.sessionAnchorHz) : Math.max(1, h), w = clamp(clamp(h / m, .125, 8), .16, 9.5), R = e.mode === "fragment";
         if (R && !this.cutMap) return this.fault = "missing-cut-map", this.generating = !1,
@@ -373,6 +373,12 @@ var RAW_RESIDENT_PROCESSOR_NAME = "xensonar-raw-resident-v1", RAW_RESIDENT_MAX_P
     }
 };
 
+/* LIVE-TEMPO-01: during/after a Live Room tempo ramp the main thread adds 'warp' (latest map segment + the anchor's beat) to the
+   program: the loop position comes from the beats since the anchor, in seconds of the loop's own tempo. No warp: n - anchor as before. */
+function __xenLiveTempoElapsed(w, t) {
+    const b = t < w.t0 ? w.b0 + (t - w.t0) * w.f / 60 : t < w.t1 ? (w.k === 0 ? w.b0 + (t - w.t0) * w.f / 60 : w.b0 + w.f / w.k * (Math.exp(w.k * (t - w.t0) / 60) - 1)) : w.b1 + (t - w.t1) * w.to / 60;
+    return (b - w.anchorBeat) * 60 / w.key;
+}
 registerProcessor(RAW_RESIDENT_PROCESSOR_NAME, RawResidentProcessor);
 
 export{ RAW_RESIDENT_MAX_PCM_FRAMES, RAW_RESIDENT_PROCESSOR_NAME, RawResidentProcessor };

@@ -395,38 +395,58 @@ function FPe(e){const{drumMachine:t,entry:n,stepIndex:r,time:a,stepDurationSec:o
    end (commit); no per-step state writes, no traffic reset. Any other tempo change (slider, preset, session) is a jump: the map
    returns to the absolute grid, exactly as before. */
 const __XenLiveTempo=(()=>{
- let ctx=null,nominal=null,seg=null,pending=null,awaiting=null,lastTick=-1;const subs=new Set();
- const emit=()=>{for(const f of subs){try{f()}catch{}}};
- const abs=()=>!seg;
- function beatAt(t){if(!seg)return t*nominal/60;if(t<=seg.t0)return seg.b0+(t-seg.t0)*seg.f/60;
-  if(t<seg.t1)return seg.k===0?seg.b0+(t-seg.t0)*seg.f/60:seg.b0+seg.f/seg.k*(Math.exp(seg.k*(t-seg.t0)/60)-1);return seg.b1+(t-seg.t1)*seg.to/60}
- function timeAt(b){if(!seg)return b*60/nominal;if(b<=seg.b0)return seg.t0+(b-seg.b0)*60/seg.f;
-  if(b<seg.b1)return seg.k===0?seg.t0+(b-seg.b0)*60/seg.f:seg.t0+60/seg.k*Math.log((seg.f+seg.k*(b-seg.b0))/seg.f);return seg.t1+(b-seg.b1)*60/seg.to}
- function bpmAt(t){if(!seg)return nominal;if(t<=seg.t0)return seg.f;if(t>=seg.t1)return seg.to;return seg.k===0?seg.f:seg.f*Math.exp(seg.k*(t-seg.t0)/60)}
- function reset(bpm,c){seg=null;pending=null;awaiting=null;nominal=bpm;ctx=c;emit()}
- // called by the scheduler every tick with the app's tempo state; returns true when the map is in charge (a ramp ran)
+ // segs: every ramp since the last jump, oldest first: {t0,b0,f,k,t1,b1,to}; before segs[0] the classic grid at 'base' BPM.
+ let ctx=null,nominal=null,key=null,base=null,segs=[],pending=null,awaiting=null,lastTick=-1,done=true,version=0,cw=null;const subs=new Set();
+ const emit=()=>{version++;cw=null;for(const f of subs){try{f()}catch{}}};
+ const last=()=>segs.length?segs[segs.length-1]:null;
+ const segAt=t=>{for(let i=segs.length-1;i>=0;i--)if(t>=segs[i].t0)return segs[i];return null};
+ const segAtBeat=b=>{for(let i=segs.length-1;i>=0;i--)if(b>=segs[i].b0)return segs[i];return null};
+ function beatAt(t){const s=segAt(t);if(!s)return t*base/60;
+  if(t<s.t1)return s.k===0?s.b0+(t-s.t0)*s.f/60:s.b0+s.f/s.k*(Math.exp(s.k*(t-s.t0)/60)-1);return s.b1+(t-s.t1)*s.to/60}
+ function timeAt(b){const s=segAtBeat(b);if(!s)return b*60/base;
+  if(b<s.b1)return s.k===0?s.t0+(b-s.b0)*60/s.f:s.t0+60/s.k*Math.log((s.f+s.k*(b-s.b0))/s.f);return s.t1+(b-s.b1)*60/s.to}
+ function bpmAt(t){const s=segAt(t);if(!s)return base;if(t>=s.t1)return s.to;return s.k===0?s.f:s.f*Math.exp(s.k*(t-s.t0)/60)}
+ function reset(bpm,c){segs=[];pending=null;awaiting=null;done=true;nominal=key=base=bpm;ctx=c;emit()}
+ // called by the rhythm clock every tick with the app's tempo state; true = the map is in charge (a ramp has run since the last jump)
  function sync(stateBpm,c){lastTick=c.currentTime;
   if(ctx!==c||nominal===null){reset(stateBpm,c);return false}
   if(awaiting!==null&&stateBpm===awaiting){nominal=awaiting;awaiting=null}
   if(stateBpm!==nominal&&stateBpm!==awaiting){reset(stateBpm,c);return false}// slider/preset/session: a jump, as before
-  if(seg&&awaiting===null&&!seg.done&&c.currentTime>=seg.t1){seg.done=true;awaiting=seg.to;emit();try{seg.commit?.(seg.to)}catch{}}
-  return !!seg}
- // the scheduler begins a requested ramp at absolute 16th 'step' (its first unscheduled step)
+  const s=last();if(s&&!done&&awaiting===null&&c.currentTime>=s.t1){done=true;awaiting=s.to;emit();try{s.commit?.(s.to)}catch{}}
+  return segs.length>0}
+ // the rhythm clock begins a requested ramp at absolute 16th 'step' (its first unscheduled step)
  function begin(step){if(!pending)return false;const p=pending;pending=null;const b0=step/4,t0=timeAt(b0),f=bpmAt(t0),to=p.to,beats=Math.max(0,p.beats),commit=p.commit;
-  if(beats<1e-6||Math.abs(to-f)<1e-9){seg={t0,b0,f:to,k:0,b1:b0,t1:t0,to,done:false,commit};emit();return true}
-  const k=(to-f)/beats,b1=b0+beats;seg={t0,b0,f,k,b1,t1:t0+60/k*Math.log(to/f),to,done:false,commit};emit();return true}
+  while(segs.length&&segs[segs.length-1].t0>=t0)segs.pop();if(segs.length>=64)segs.shift();
+  if(beats<1e-6||Math.abs(to-f)<1e-9)segs.push({t0,b0,f:to,k:0,b1:b0,t1:t0,to,commit});
+  else{const k=(to-f)/beats;segs.push({t0,b0,f,k,b1:b0+beats,t1:t0+60/k*Math.log(to/f),to,commit})}
+  done=false;emit();return true}
  function request(to,beats,commitNow){to=Math.max(40,Math.min(240,Math.round(to)));
-  // no running scheduler (Power off, other room): nothing to glide, set the tempo directly
+  // no running clock (Power off, other room): nothing to glide, set the tempo directly
   if(!ctx||ctx.state!=='running'||ctx.currentTime-lastTick>.3){commitNow(to);return false}
   pending={to,beats,commit:commitNow};emit();return true}
- function stop(commitNow){if(pending){pending=null;emit();return}if(!seg||seg.done||!ctx)return;const now=ctx.currentTime;request(Math.round(bpmAt(now)),0,commitNow)}
- // the scheduler stops (Power off, room left): an unfinished ramp lands on its target; the grid becomes the classic one again
- function halt(){const s0=seg,p0=pending;seg=null;pending=null;
-  const to=s0&&!s0.done?s0.to:p0?p0.to:null,commit=s0&&!s0.done?s0.commit:p0?p0.commit:null;if(to!==null&&to!==nominal){awaiting=to;try{commit?.(to)}catch{}}emit()}
- return Object.freeze({sync,begin,request,stop,halt,beatAt,timeAt,bpmAt,hasPending:()=>!!pending,mapped:()=>!!seg,audioNow:()=>ctx?ctx.currentTime:0,
-  bpmNow:fallback=>!seg||!ctx?fallback:bpmAt(ctx.currentTime),
-  snapshot:()=>{if(pending)return {state:'starting',to:pending.to};if(!seg||seg.done||!ctx)return null;const now=ctx.currentTime;return {state:now<seg.t0?'starting':'running',to:seg.to,bpm:bpmAt(now),beat:Math.max(0,beatAt(now)-seg.b0),beats:seg.b1-seg.b0}},
-  subscribe:f=>(subs.add(f),()=>subs.delete(f)),_reset:()=>{ctx=null;nominal=null;seg=null;pending=null;awaiting=null;lastTick=-1}})})();
+ function stop(commitNow){if(pending){pending=null;emit();return}if(done||!ctx)return;request(Math.round(bpmAt(ctx.currentTime)),0,commitNow)}
+ // the rhythm clock stops (Power off, room left): an unfinished ramp lands on its target, the grid becomes the classic one again
+ function halt(){const s=last(),p0=pending,open=s&&!done;const to=open?s.to:p0?p0.to:null,commit=open?s.commit:p0?p0.commit:null;
+  segs=[];pending=null;done=true;base=key=nominal;if(to!==null&&to!==nominal){awaiting=to;try{commit?.(to)}catch{}}emit()}
+ /* followers (Root Follow Loop): they compute positions linearly from an anchor at the tempo they started with (= key). */
+ const mappedFor=bpm=>segs.length>0&&bpm===key;
+ // the tempo a loop should treat as its own: changes only on a jump, not when a ramp lands (state = ramp target)
+ const followKey=stateBpm=>segs.length>0&&(stateBpm===nominal||stateBpm===awaiting)?key:stateBpm;
+ // elapsed time since 'anchor' as the follower counts it: beats since the anchor, in seconds of its own tempo
+ const warpElapsed=(t,anchor,bpm=key)=>!mappedFor(bpm)?t-anchor:(beatAt(t)-beatAt(anchor))*60/bpm;
+ // follower time <-> audio time (a follower that plans notes in its own constant-tempo time, e.g. the RFL synth pattern)
+ const toFollower=(t,anchor,bpm)=>!mappedFor(bpm)?t:anchor+(beatAt(t)-beatAt(anchor))*60/bpm;
+ const fromFollower=(tau,anchor,bpm)=>!mappedFor(bpm)?tau:timeAt(beatAt(anchor)+(tau-anchor)*bpm/60);
+ // the next bar line at or after t, for a cycle of 'cycleSec' at the follower's tempo (classic formula without a ramp)
+ function alignBar(t,cycleSec,bpm){if(!mappedFor(bpm))return Math.ceil(t/cycleSec)*cycleSec;const cb=cycleSec*bpm/60;return timeAt(Math.ceil(beatAt(t)/cb-1e-9)*cb)}
+ // a compact description for an AudioWorklet (only what it needs near 'now'): the latest segment and the anchor's beat
+ // for the hold clocks in the audio worklets: the whole (short) map, the follower tempo and the sample rate; one object per map version
+ function clockWarp(rate){if(!segs.length||!ctx)return null;if(cw&&cw.rate===rate)return cw;cw={v:version,key,base,rate,segs:segs.map(s=>({t0:s.t0,b0:s.b0,f:s.f,k:s.k,t1:s.t1,b1:s.b1,to:s.to}))};return cw}
+ function warpSpec(anchor,bpm){if(!mappedFor(bpm))return null;const s=last();return {key:bpm,anchorBeat:beatAt(anchor),t0:s.t0,b0:s.b0,f:s.f,k:s.k,t1:s.t1,b1:s.b1,to:s.to}}
+ return Object.freeze({sync,begin,request,stop,halt,beatAt,timeAt,bpmAt,followKey,clockWarp,version:()=>version,warpElapsed,toFollower,fromFollower,mappedFor,alignBar,warpSpec,hasPending:()=>!!pending,mapped:()=>segs.length>0,
+  audioNow:()=>ctx?ctx.currentTime:0,bpmNow:fallback=>!segs.length||!ctx?fallback:bpmAt(ctx.currentTime),
+  snapshot:()=>{if(pending)return {state:'starting',to:pending.to};const s=last();if(!s||done||!ctx)return null;const now=ctx.currentTime;return {state:now<s.t0?'starting':'running',to:s.to,bpm:bpmAt(now),beat:Math.max(0,beatAt(now)-s.b0),beats:s.b1-s.b0}},
+  subscribe:f=>(subs.add(f),()=>subs.delete(f))})})();
 /* LIVE-TEMPO-01: one scheduler tick while the tempo map is in charge. Same window sizes, stale rule, step builder and actions as the
    absolute path; only the time of a 16th comes from the map (and its duration is the distance to the next one). */
 function __xenLiveTempoTick(e,r,pressure,lt){const ctx=e.audioCtx,now=ctx.currentTime,bpm=lt.bpmAt(now),stepAt=n=>lt.timeAt(n/4);

@@ -26,7 +26,28 @@ Bei ~30 Schritten in Folge stolperte der Puls also bei jedem Schritt neu los.
 - Regressionstests 132/132; Browser-Teillauf 34/34 (u. a. Stimmen-Host-PCM-Vergleich, Stem-Nulltests, RFL-Uhr, Thunder, Tasten-Wächter): ohne Übergang unverändert.
 - `tests/live_tempo_map.test.cjs`: Umkehrbarkeit, Stetigkeit an beiden Enden, exakte Dauer `(60/k)·ln(to/from)`, einmaliger Commit, Stop, Power aus, kein laufender Takt.
 
-## Stufe 1: was gleitet, was am Ende umschaltet
+## Stufe 2 (18.11.): alle Tempo-Folger des Live Rooms auf der Tempo-Karte
+
+`index.html` 8 284 759 → 8 290 714 B (**+5 955 B**), sha256 `4e33a0efe957c515a694e3fdbe75a7d06744113fdf6372eca151a1a584ab49e0`. Rollback: `fa1b0f6`-Vorgänger, d. h. Stand vor diesem Commit (`git log`). Tests: `run_tests.sh` 132/132; Browser-Teillauf Audio/Live Room 37/37; voller Lauf davor 83/86 (rot: `grid_drag_selection` bekannt wackelig, zwei Messtests mit zu knappen Erkennungsgrenzen, inzwischen robust: Median/Untergrenze statt Einzelwerte).
+Nutzermeldung nach Stufe 1: Root Follow Loop und Enter-Hold liefen nicht mit, „vielleicht auch andere Funktionen nicht in Harmonie“.
+Ursache: Root Follow, Material-Loop und Drums rechneten ihre Taktgrenzen je für sich ab Audiozeit 0; Loops und Holds liefen während des Übergangs im alten Tempo und starteten beim Landen neu (gemessen: Root Follow danach 0,18 Schläge neben dem Raster).
+
+**Prinzip:** Wer linear ab einem Anker plant, behält sein Starttempo („Folgetempo“, `followKey`) und bekommt die Zeit über die Tempo-Karte verzerrt: Position = Schläge seit dem Anker, in Sekunden des Folgetempos. Ohne Übergang ist die Verzerrung die Identität (alte Rechnung, bitgleich). Ein echter Tempo-Sprung (Regler) setzt wie bisher neu an.
+
+| Teil | Anbindung | Nachweis (Chromium, gemessen) |
+|---|---|---|
+| Drums, Bass, Drum-Echo, Metronom | Stufe 1 | 32 gleitende Sechzehntel, Nachbarabstand ≤ 0,91 % |
+| Partikel-Quantisierung | Stufe 1 | örtliche Schrittdauer < 2 % |
+| **Root Follow Loop** (Worklet-Programm, Schnipsel-Plan `V2`, Fragmente `R3`, Synth-Muster `lSe`) | Anker auf der Taktlinie der Karte (`alignBar`), Positionsrechnung verzerrt (`warpElapsed`, Worklet `warp`), Synth-Noten in Folgezeit geplant und zurückgerechnet, kein Neustart beim Landen | `tests/e2e/live_tempo_rfl.cjs`: Klicks vorher +0,198, nachher +0,251 Schlag (eingeschwungen bei 108 bzw. 140: +0,185 / +0,262), danach stabil, ein Worklet-Knoten. Gegenprobe Stufe-1-Stand: −0,107 neben dem Raster, Neustart, 3 Ausreißer |
+| **Hold/Thunder** (Keyboard und Enter; C11/Entrophon und Nodal) | gemeinsame Hold-Uhr `xenHoldStepFrame` rechnet Schrittzeiten über die Karte; C11 erfährt laufende Übergänge per `HOLD_WARP`, Nodal per `hold-clock-update` (Vergleich um Kartenversion ergänzt); Intervall aus dem Folgetempo | `tests/e2e/live_tempo_hold.cjs`: C11-Anschläge zur Uhr Median vorher/während/nachher 46,7 / 46,3 / 46,2 ms, Drift 0,3 ms/s, eine Sitzung; Nodal erhält die Karte |
+| **Material-Loop** (Phasen-Worklet; Rückfallweg nativ) | Leseschrittweite pro Audioblock × bpm(t)/Folgetempo; nativ exakte exponentielle Raten-Rampe; Einsatz auf Taktlinie der Karte; kein Neustart beim Landen | `tests/e2e/live_tempo_material.cjs`: Abstand Klick–Schlag 46,44 / 46,7 / 46,78 ms (vorher/während/nachher), 140 BPM danach, ein Worklet-Knoten |
+| Drone-Rhythmus, Refucktor-Mute-Muster und -Wobble, Enter-Hold-Psy-FX | Puls aus Kartenschlägen bzw. gleitendem Tempo; Musterschlüssel aus Folgetempo (kein Neuansatz) | gelesen; Drone im Standard aus, nicht gemessen |
+
+Psy-Lab-Klänge auf dem Enter-Hold pulsen nicht (Thunder ist dort aus); sie sind vom Tempo nicht betroffen. Der Melodic Loop folgt seinem eigenen Komponisten-Tempo, nicht dem Live-Room-Tempo.
+
+**Grenzen / offen:** Material-Loop: spätere Phasen-Übergaben (ATT-Änderung, Takt-Bearbeitung) rechnen nach einem Übergang linear ab ihrem Anker (kleiner Versatz möglich, nicht gemessen). Root Follow: Impuls-Raster (Slots pro Zyklus) nicht verzerrt (im Standard aus). Material-Loop klingt beim Gleiten wie Resampling (Tonhöhe folgt dem Tempo, wie bisher bei jeder Tempoänderung). Nicht gehört.
+
+## Stufe 1: was gleitet, was am Ende umschaltet (Stand vor Stufe 2)
 | Teil | während des Übergangs |
 |---|---|
 | Drums, Bass (Rhythmus-Takt), Drum-Echo, Metronom-Puls | **gleitet** Schlag für Schlag |
@@ -34,4 +55,4 @@ Bei ~30 Schritten in Folge stolperte der Puls also bei jedem Schritt neu los.
 | Material-Loop, Root Follow Loop, Melodic Loop | bleiben beim alten Tempo, übernehmen das Ziel **am Ende einmal** (wie eine Reglerbewegung) |
 | gehaltene Hold/Thunder-Muster, Drone-Rhythmus/Wobble | ebenso: Ziel am Ende; neu angeschlagene Hold-Muster nehmen das Tempo des Zustands |
 
-**Stufe 2 (offen):** Loops gleiten mit (stetige Rate im Material-Phasen-Worklet und im RFL-Worklet, Zeitleisten-Buchhaltung über die Karte statt Neustart), gehaltene Hold/Thunder-Uhren und Drone-Rhythmus lesen die Karte. Jeweils mit PCM-Vergleich.
+**Stufe 2:** siehe oben (umgesetzt).

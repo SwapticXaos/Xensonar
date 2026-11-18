@@ -602,11 +602,12 @@ function createNodalSurfaceRuntime({library,live,model}) {
     // PRECISION03: gesture Hz is BEFORE zhe's octave/sector transform. Only
     // the normal note path owns resolved playback Hz (and live retargeting).
     // A rhythm update preserves that exact Hz, gain, lane and render identity.
-    const signature=[id,gesture.startedAtMs,gesture.intervalMs,pattern.join(''),control.options.frequency].join('|')+(pitchState?'|'+pitchState.signature:'')+'|v:'+JSON.stringify(slotVolumes??null)+'|m:'+JSON.stringify(slotMicrotiming??null);
+    const warp=__XenLiveTempo.clockWarp(ctx.sampleRate);/* LIVE-TEMPO-01 */
+    const signature=[id,gesture.startedAtMs,gesture.intervalMs,pattern.join(''),control.options.frequency,warp?.v??0].join('|')+(pitchState?'|'+pitchState.signature:'')+'|v:'+JSON.stringify(slotVolumes??null)+'|m:'+JSON.stringify(slotMicrotiming??null);
     if(control.signature===signature)return;
     note(lane,id,{...control.options,requestedAtMs:undefined,traceId:undefined,nodalHoldKeyId:gesture.keyId,nodalHoldGestureEpochMs:gesture.startedAtMs,
       nodalHoldIntervalMs:gesture.intervalMs,held:true,
-      nodalHoldClock:{startSec:ctx.currentTime+(gesture.startedAtMs-performance.now())/1000+.008,
+      nodalHoldClock:{warp,startSec:ctx.currentTime+(gesture.startedAtMs-performance.now())/1000+.008,
         intervalMs:gesture.intervalMs,pattern,slotVolumes,slotMicrotiming,...(pitchState?{pitchRatios:pitchState.ratios,pitchSignature:pitchState.signature}: {})}},ctx);
   }
   function warmParticleField(agents,root,context,prediction,baseSpeed,sectorAngle){
