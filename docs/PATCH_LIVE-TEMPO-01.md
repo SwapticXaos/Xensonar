@@ -56,3 +56,6 @@ Psy-Lab-Klänge auf dem Enter-Hold pulsen nicht (Thunder ist dort aus); sie sind
 | gehaltene Hold/Thunder-Muster, Drone-Rhythmus/Wobble | ebenso: Ziel am Ende; neu angeschlagene Hold-Muster nehmen das Tempo des Zustands |
 
 **Stufe 2:** siehe oben (umgesetzt).
+
+## Nachtrag 18.11.: Länge in Takten oder Schlägen
+Der Live-Room-Takt ist fest 16 Sechzehntel (Drum-Muster = Takte × 16 Schritte; N-in-M, Triolen usw. liegen in den Segmenten innerhalb des Takts). „In N Takten“ zählt also den Takt von Drums und Loop-Rec. Neu: Einheit wählbar (`bars` / `beats`) in derselben Zeile; in Schlägen beliebige Zahl (z. B. 7). Test `tests/e2e/live_tempo_beats.cjs`: 7 Schläge = 28 gleitende Sechzehntel, 1 Takt = 16; Spalten- und Seitenhöhe bei 1024/1440/1920 px unverändert. `index.html` +561 B.
