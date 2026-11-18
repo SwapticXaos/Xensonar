@@ -5,7 +5,7 @@ Du arbeitest am bestehenden **XenSonar**, nicht an einem neuen DAW-Prototyp. Die
 ## Primärquellen und Priorität
 
 1. **Quelle = `source-manifest.json` + `src/**` + `styles/**`, `index.html` ist das gebaute Ergebnis** (geordneter Concat-Build, kein Bundler; globaler Scope). Dateinamen und -grenzen folgen dem Oktober-Quellbaum (28.10.), wo sie noch passen; Inhalt ist immer der aktuelle Stand. `src/post-oct/` = seit Oktober neu hinzugekommene Blöcke, `src/post-oct/gaps/` bzw. `styles/post-oct/gaps/` = zwischen Oktober-Dateien eingefügter Code. Status je Datei: `docs/SOURCE_TREE_STATUS.json`. Einmalig `npm ci --prefix tools/slim` (esbuild für die Verdichtung, Analysewerkzeuge). Nach jeder Änderung `python3 tools/build.py` (Auslieferung: ohne Diagnoseschichten, verdichtet; `--diag` = mit Diagnose in `dist/`, `--plain` = unverdichtet); `python3 tools/build.py --check` und `./tools/run_tests.sh` (125 Regressionstests, ca. 55 s) müssen vor jedem Commit grün sein (GitHub-Action). Werkzeuge der Verschlankung: `tools/slim/README.md`. Browser-Tests: `./tools/run_e2e.sh` (Prüf-Build `tools/build.py --probe`, nie in `index.html`). Teststatus und rote Alt-Tests: `docs/TEST_STATUS_2026-11-09.md`.
-2. **`index.html` im Repo-Hauptverzeichnis** ist die einzige ausgelieferte Datei (Netlify, offline). Nie direkt bearbeiten. Pro Release zusätzlich eine ZIP mit byteidentischer `index.html`.
+2. **`index.html` im Repo-Hauptverzeichnis** ist die einzige ausgelieferte Datei (offline lauffähig). Wo und wie sie verteilt wird, entscheidet allein der Nutzer: Hosting/Veröffentlichung nicht ansprechen, prüfen oder als offen führen, außer er fragt ausdrücklich danach (Nutzerentscheidung 18.11.2026). Nie direkt bearbeiten. Pro Release zusätzlich eine ZIP mit byteidentischer `index.html`.
 3. Versionen liegen als Zweige `version/...` (siehe README). Der alte Quellcode 3.1.6 (`version/xensonar-3.1.6-maerz`) ist Herkunft, keine Arbeitsbasis.
 4. `docs/` und `evidence/` sind Begleitdokumente. Sätze in alten Patchplänen sind keine Beweise für aktiv implementierte Features (`QA_PENDING`, `REVERTED`, `ISOLATED`, `NOT_MERGED`).
 5. Bei Fehlerbehebungen und neuen Funktionen gilt weiter: kleiner präziser Patch statt Neuformatieren. Für die Verschlankung (siehe Arbeitsregeln) dürfen Dateien umgebaut, zusammengelegt oder entfernt werden. Ein Teil des Codes (v. a. 46 große Bereiche, z. B. `src/audio/…`, `src/rhythm/…`) ist minifizierter React-Kern aus dem September-TypeScript-Baum; lesbare Herkunft siehe Zweig `reference/ts-400.2` und `docs/TS_ORIGIN_MAP.json`.
@@ -35,7 +35,7 @@ XenSonar ist ein kreatives Instrument und experimentelles Musiksystem: mikrotona
 4. Änderungen gegen Parent diffen; Script-/Style-Blöcke (Stand 17.11.: `index.html` 29 Scripts/78 Styles, Diagnose-Fassung `--diag` 38/78; zählen mit `grep -o '<script[ >]' index.html | wc -l`) und die übrigen unveränderten Bereiche verifizieren.
 5. Relevante Syntax-, Unit-, DOM-, Browser-, Audio- und Persistence-Checks, plus negativen Test dokumentieren. Fehlende Umgebung offen benennen.
 6. **Separat lieferbare Standalone-HTML** und ZIP mit exakt identischen HTML-Bytes; SHA-256, Größe, ZIP-CRC und Inhalt prüfen.
-7. Eindeutigen Namen + Patchnotes + Daten-Owner + offene Risiken + Rollback-Datei übergeben. Nicht Netlify-Production-Publish behaupten, wenn nicht geprüft.
+7. Eindeutigen Namen + Patchnotes + Daten-Owner + offene Risiken + Rollback-Datei übergeben.
 
 Ausführliche Dokumentation: `docs/` und `evidence/XenSonar_HTML_FIRST_RELEASE_POLICY_V1.md`.
 
