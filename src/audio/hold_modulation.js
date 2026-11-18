@@ -16,7 +16,7 @@ const __XenHoldMod=(()=>{
  }
  function ready(ctx){const st=workers.get(ctx);return !!(st?.worker&&!st.abort.signal.aborted&&ctx.state!=='closed')&&st.ready&&!st.busy;}
  function request(session,records,offsets,xNorm){
-  if(!__XenHoldResident.isCurrent(session)||records.length>8||!records.length)return;
+  if(!__XenHoldResident.isCurrent(session)||records.length>24||!records.length)return;
   if(records.some((r,i)=>offsets[i]+r[26]>session.ctx.sampleRate*12))return;
   const state=workers.get(session.ctx);if(!state||state.abort.signal.aborted)return;for(const [key,p] of pending)if(!__XenHoldResident.isCurrent(p.session))pending.delete(key);
   const hosts=[...session.hosts];if(hosts.length!==1)return;

@@ -415,9 +415,13 @@ function __wave39FillTone(encoder,reservation,e,shape,start,intended,gainScale,s
         .set(37,p.vowel2Start).set(38,p.vowel2Peak).set(39,p.vowel2End).set(40,p.shineHpStart).set(41,p.shineHpEnd)
         .set(46,Math.min(p.actualDur*.52,.19)*sr).set(47,.92);
     } else {
-      const duration=shape.gradientDuration*(e.heldLong?6:1);
-      const attack=Math.min(.032,Math.max(.005,duration*.18*softening));
-      const release=Math.max(.01,Math.min(.14,Math.max(.03,duration*.42*softening))*.45);
+      const duration0=shape.gradientDuration*(e.heldLong?6:1);
+      const attack=Math.min(.032,Math.max(.005,duration0*.18*softening));
+      // ARP-HOLD-01: an arpeggio tone keeps the timer's ("other") envelope: it decays from max(attack, dur - A) with the time
+      // constant A*.34 (A = the decay length); the C11 release is given the same energy (1.5 time constants).
+      const decayA=Math.min(.14,Math.max(.03,duration0*.42*softening));
+      const duration=e.c11Arp?Math.max(attack+.006,duration0-decayA):duration0;
+      const release=e.c11Arp?1.5*Math.max(.01,decayA*.34):Math.max(.01,decayA*.45);
       // Same safe-start and catch-up calculation as the old scheduled tone.
       const intendedPeak=intended+attack,actualPeak=start>=intendedPeak?start+.0035:intendedPeak;
       encoder.begin(reservation,0,type,e.heldLong,Math.ceil((duration+release+.08)*sr),mask|128)
@@ -465,9 +469,9 @@ function __wave39PlayTone(e, shape, intended) {
   }catch(error){reservation.host.cancelUnsubmitted(reservation.token);if(ticket)release();return false;}
 }
 function __wave39Scheduled(e,t) {
-  const held=t.options?.heldLong===true||e.heldLong===true;
+  const held=t.options?.c11Arp!==true&&(t.options?.heldLong===true||e.heldLong===true);// ARP-HOLD-01: arpeggio tones keep their own length, like on the timer
   const plan=t.options?.plan??e.transientRuntime.beginEvent('wave',1,t.volume);
-  return __wave39PlayTone({ctx:e.ctx,toneFreq:t.freq,waveform:t.type,wavePlan:plan,prominence:t.options?.prominence??1,
+  return __wave39PlayTone({ctx:e.ctx,toneFreq:t.freq,waveform:t.type,wavePlan:plan,prominence:t.options?.prominence??1,c11Arp:t.options?.c11Arp===true,
     holdSession:t.options?.holdSession,mainOutput:e.getMainOutput?.(e.ctx),waveTargets:ZMe(t.targetDestinations),heldLong:held,activeScheduledTonesRef:e.activeScheduledTonesRef,transientRuntime:e.transientRuntime},
     {useScheduledTonePath:true,gradientDuration:t.dur,shapedVolume:t.volume,shapedCutoff:t.cutoff??2400,shapedResonance:t.q??1},
     t.options?.intendedStartTimeSec??e.ctx.currentTime+t.offset);

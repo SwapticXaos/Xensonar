@@ -66,7 +66,7 @@ const __XenHoldResident=(()=>{
  }
  function capture(s,host,record,rebuild){
   if(!s||sessions.get(s.key)!==s||s.unsupported||s.sealed||host.profile!==1||!host.node||!host.canSubmit)return;
-  if(s.count>=8){reject(s);return;}
+  if(s.count>=24){reject(s);return;}/* ARP-HOLD-01: up to 24 records per gesture (tones + body + up to 16 overtone-arpeggio steps) */
   const port=host.node.port;
   if(typeof port.addEventListener!=='function'){reject(s);return;}
   if(!s.listeners.has(host)){
