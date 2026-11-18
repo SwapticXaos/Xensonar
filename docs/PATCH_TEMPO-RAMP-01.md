@@ -1,6 +1,16 @@
 # TEMPO-RAMP-01 · Tempo-Übergang im Live Room (Time & Echo)
 
-Status: CODE_PRESENT, UNIT_VERIFIED, BROWSER_CHECKED (Chromium). Nicht gehört. Zone: WARM (Hauptthread, nur während des Übergangs aktiv).
+Status: **REVERTED** (Nutzer, 18.11.: „musikalisch nicht überzeugend, klingt granular“). Code und Tests entfernt; `index.html` wieder byteidentisch zu `e6bc40b`.
+
+## Ursache
+Der Übergang lief schrittweise über den Tempo-Setter des Reglers (`lhe`). Dieser setzt bei JEDER Tempoänderung das Quantisierungsraster neu an (`_w`: `quantizeAnchorRef=null`, `nextAbsoluteStep=null`, Kollisions-/Arp-Warteschlangen geleert). Für einen einzelnen Sprung ist das richtig; bei einem Schritt alle ~70–150 ms setzt der Puls jedes Mal neu an → stotternder, granularer Eindruck.
+
+## Was ein überzeugender Übergang bräuchte (nicht gebaut)
+Eine Uhr, die die Taktphase über Tempoänderungen mitführt (Tempo als stetige Kurve, Schläge aus dem Integral des Tempos, kein Neuansetzen), dazu Loops/Root Follow mit stetig gleitender Wiedergaberate. Das ist ein Eingriff in die Live-Uhr (Zone HEISS) mit PCM-Vergleich, kein Bedienelement-Patch.
+
+Ursprünglicher Bericht:
+
+Status damals: CODE_PRESENT, UNIT_VERIFIED, BROWSER_CHECKED (Chromium). Nicht gehört. Zone: WARM (Hauptthread, nur während des Übergangs aktiv).
 Parent `e6bc40b`, `index.html` 8 277 542 → 8 280 448 B (+2 906). Rollback: `e6bc40b`.
 
 ## Wunsch (Nutzer, 18.11.)
