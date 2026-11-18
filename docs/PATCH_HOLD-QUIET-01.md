@@ -2,7 +2,7 @@
 
 **Zone:** HEISS (Stimmenzulassung beim ersten Anschlag einer gehaltenen Taste; der Audiopfad selbst ist unverändert).
 **Datei / Owner:** `src/audio/05_live_voice_runtime.js`, `nq` (Teiltöne eines Wave-/Keyboard-Anschlags). Owner der Hold-Übernahme bleibt `__XenHoldResident`.
-**Größe:** `index.html` +310 Bytes.
+**Größe:** `index.html` +217 Bytes (8 291 397 → 8 291 614).
 
 ## Befund (Nutzer 18.11.)
 Klassische Klänge (FM Bell, Steel Pan, Velvet Bloom …) stotterten auch bei Exact wie bei Loose; lokal und über den Deploy verschieden.
