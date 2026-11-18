@@ -1,0 +1,32 @@
+# Measurement tests (P2, 18.11.2026): they judge audio captures, levels, timing or rates, so they run one at a time on a quiet
+# machine and get one repeat when red (a repeat that passes is reported as "flaky", not hidden). Everything else in
+# tests/e2e/*.cjs is a functional test and runs in parallel. One name per line, without .cjs.
+audio_analysis
+bass_drag_livepath
+forge_loop_stereo
+grid_drag_selection
+hold_quiet_classic
+keyboard_lane_eq
+live_gf05_mix_bus_eq_park
+live_tempo_beats
+live_tempo_hold
+live_tempo_material
+live_tempo_ramp
+live_tempo_rfl
+long_bars_play_save
+looprec_live_lanes
+mtw02_fades_meters
+mtw04_level_and_input
+particle_head_hum
+pcm_take_stale_clock_live
+psylab_sustain_expression_eq
+rfl_resident_clock_live
+room5_live_psylab
+room5_metronome_not_recorded
+room5_psylab
+stems_instruments
+stems_record
+stems_with_take
+thunder_one_clock
+voice_host_live
+voice_host_pcm
