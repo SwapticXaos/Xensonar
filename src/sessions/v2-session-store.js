@@ -676,7 +676,8 @@ function __xenDrumWorkspaceSafe(value){
   if(value.playground&&typeof value.playground.source==='string'&&value.playground.source.length<=1024){
    // No runtime Grid normalizer here: Session V2 decodes BEFORE the Drum bundle is initialized.
    const e=value.playground.edit,g=e?.grid;
-   if(!g||!Number.isInteger(g.stepCount)||g.stepCount<1||g.stepCount>768||
+   /* LONG-BARS-02: up to 64 bars x 32 segments (the editor's ceiling __xenMaxPatternBars; literal here, this decodes before the Drum bundle) */
+   if(!g||!Number.isInteger(g.stepCount)||g.stepCount<1||g.stepCount>2048||
       !Array.isArray(g.laneOrder)||g.laneOrder.length>24||!g.laneSteps||typeof g.laneSteps!=='object')
     throw Error('Drum Playground record is invalid; refusing destructive migration.');
    const edit=JSON.parse(JSON.stringify({grid:g,

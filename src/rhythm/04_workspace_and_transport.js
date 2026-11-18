@@ -26,7 +26,7 @@ function __f351DrumSource(snapshot){
 }
 function __f351CleanDrumDraft(input){
  if(!input||typeof input!=='object'||!input.grid)return null;
- try{const grid=im(input.grid);if(!grid||!Array.isArray(grid.laneOrder)||!grid.stepCount||grid.stepCount>768)return null;
+ try{const grid=im(input.grid);if(!grid||!Array.isArray(grid.laneOrder)||!grid.stepCount||grid.stepCount>2048)return null;/* LONG-BARS-02: 64 bars x 32 segments (was 768: a 64-bar draft was dropped) */
   return {grid,kit:typeof input.kit==='string'?input.kit:'standard',
    laneKitOverrides:JSON.parse(JSON.stringify(input.laneKitOverrides||{})),
    laneSettings:JSON.parse(JSON.stringify(input.laneSettings||{})),
