@@ -28,7 +28,7 @@ Bei ~30 Schritten in Folge stolperte der Puls also bei jedem Schritt neu los.
 
 ## Stufe 2 (18.11.): alle Tempo-Folger des Live Rooms auf der Tempo-Karte
 
-`index.html` 8 284 759 → 8 290 714 B (**+5 955 B**), sha256 `4e33a0efe957c515a694e3fdbe75a7d06744113fdf6372eca151a1a584ab49e0`. Rollback: `fa1b0f6`-Vorgänger, d. h. Stand vor diesem Commit (`git log`). Tests: `run_tests.sh` 132/132; Browser-Teillauf Audio/Live Room 37/37; voller Lauf davor 83/86 (rot: `grid_drag_selection` bekannt wackelig, zwei Messtests mit zu knappen Erkennungsgrenzen, inzwischen robust: Median/Untergrenze statt Einzelwerte).
+`index.html` 8 284 759 → 8 290 714 B (**+5 955 B**), sha256 `4e33a0efe957c515a694e3fdbe75a7d06744113fdf6372eca151a1a584ab49e0`. Rollback: `917942a`. Tests: `run_tests.sh` 132/132; Browser-Teillauf Audio/Live Room 37/37; voller Lauf davor 83/86 (rot: `grid_drag_selection` bekannt wackelig, zwei Messtests mit zu knappen Erkennungsgrenzen, inzwischen robust: Median/Untergrenze statt Einzelwerte).
 Nutzermeldung nach Stufe 1: Root Follow Loop und Enter-Hold liefen nicht mit, „vielleicht auch andere Funktionen nicht in Harmonie“.
 Ursache: Root Follow, Material-Loop und Drums rechneten ihre Taktgrenzen je für sich ab Audiozeit 0; Loops und Holds liefen während des Übergangs im alten Tempo und starteten beim Landen neu (gemessen: Root Follow danach 0,18 Schläge neben dem Raster).
 
