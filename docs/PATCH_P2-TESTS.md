@@ -25,3 +25,8 @@
 Ergebnis heute: 1451 Listener / 8807 Knoten in allen drei Runden, sonst ohne Befund. Gegenprobe: Auf `5242ef9` (17.11.) findet der Test das damalige Listener-Leck (+8 je Runde).
 
 Bekannt und unverändert: Das Verlassen des Live Rooms schaltet seine Engine aus, bei der Rückkehr wird Power neu gedrückt (so seit mindestens 11.11.).
+
+## Nachtrag: aktive Nahtstellen (Mess-Tests)
+- ROOM-SEAMS-02 (`room_seams_recording.cjs`): Eine Aufnahme läuft über einen Raumwechsel. Die Live-Engine bleibt an, solange aufgenommen wird; der Take hat keine Lücke (`frameGaps 0`, `missingFrames 0`) und umfasst auch die Zeit im anderen Raum (6,03 s). Nach „Enough!“ ist er fertig und angezeigt. Das Neuladen fragt danach weiter nach, zu Recht: Der Take liegt nur im Speicher, bis er gesendet oder gespeichert ist.
+- ROOM-SEAMS-03 (`room_seams_multitrack.cjs`): Der Mehrspurraum spielt; beim Verlassen verstummt er; zurück steht der Transport auf „▶ Play“ (kein hängendes „Stop“); Play spielt wieder.
+- Beide Abläufe waren schon in Ordnung. Die Tests halten sie fest, damit künftige Patches sie nicht unbemerkt brechen.

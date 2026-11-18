@@ -30,3 +30,5 @@ stems_with_take
 thunder_one_clock
 voice_host_live
 voice_host_pcm
+room_seams_multitrack
+room_seams_recording
