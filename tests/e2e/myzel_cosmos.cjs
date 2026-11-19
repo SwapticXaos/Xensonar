@@ -9,7 +9,7 @@ const {chromium}=require('playwright');const assert=require('node:assert/strict'
 const html=path.resolve(process.argv[2]||'dist/XenSonar_PROBE.html');
 (async()=>{
  const b=await chromium.launch({args:['--autoplay-policy=no-user-gesture-required']});const q=await(await b.newContext({viewport:{width:1440,height:1000}})).newPage();
- const errors=[];q.on('pageerror',e=>errors.push(e.message));
+ const errors=[],fallback=[];q.on('pageerror',e=>errors.push(e.message));q.on('console',m=>{if(/myzel-g2\]/.test(m.text()))fallback.push(m.text());});
  await q.addInitScript({path:path.resolve(__dirname,'../../tools/probes/room_activity_instrument.js')});
  await q.goto('file://'+html);await q.waitForTimeout(3500);
  await q.evaluate(()=>[...document.querySelectorAll('header button')].find(b=>/NODAL/.test(b.innerText)).click());await q.waitForTimeout(2000);
@@ -45,5 +45,6 @@ const html=path.resolve(process.argv[2]||'dist/XenSonar_PROBE.html');
  const muted=await rms(4);assert.ok(muted<.002,'Hum muted silences the web too: '+muted);
  await hum.click();await q.waitForTimeout(1500);
  console.log('RMS web 70 %',on.toFixed(4),'web 0 %',g2.toFixed(4),'hum muted',muted.toFixed(5));
+ assert.deepEqual(fallback,[],'the hum runs in its AudioWorklet (the web does not exist in the native fallback)');
  assert.deepEqual(errors,[]);console.log('PASS MYZEL-COSMOS-01');await b.close();
 })().catch(e=>{console.error(e);process.exit(1)});

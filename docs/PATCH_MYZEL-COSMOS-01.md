@@ -43,15 +43,38 @@ Werkzeug: `node tools/probes/myzel_cosmos_measure.cjs 16 10`.
 
 | Kennwert | G2 (vorher) | Kosmos (nachher) |
 |---|---|---|
-| (wird nach dem Messlauf eingetragen) | | |
+| Spektralneigung (dB/Oktave) | 0,57 | **0,86** |
+| Schwebung/Flattern (Hüllkurve 5–20 Hz) | 0,14 | **0,79** |
+| Stereobreite | 0,34 | **0,56** |
+| Kaskaden (Hüllkurve 1,5–5 Hz) | 0,49 | **0,62** |
+| Hüllkurven-Modulation gesamt | 0,39 | **0,49** |
+| Anschwellen (Hüllkurve 0,3–1,5 Hz) | 0,26 | **0,35** |
+| Klangschwerpunkt | 0,36 | 0,33 |
+| Pegel | 0,33 | 0,23 |
 
-**Spannweite über Würfe** (400 Würfe, 5.–95. Perzentil): siehe Ausgabe unten.
+Sechs von acht Kennwerten hängen jetzt deutlich stärker am Layout; Schwerpunkt und Pegel hängen weiterhin vor allem daran, welche Knoten der Ball gerade trifft.
+
+**Spannweite über Würfe** (400 Würfe, 5.–95. Perzentil):
+
+| Wert | G2 vorher | Kosmos |
+|---|---|---|
+| G2-Farbe density / hollow / bloom (vorher, ohne Verbreiterung) | 0,21–0,36 / 0,39–0,64 / 0,27–0,49 | (bei Web > 0 bis 2,4-fach weiter) |
+| Netz-Rückkopplung | — | 0,26–0,74 |
+| Laufzeit (s je Kurzseiten-Einheit) | — | 0,26–0,96 |
+| Anschlag | — | 9–196 ms |
+| Ausklang (τ) | — | 0,27–1,14 s |
+| Metall (Teiltonlage) | — | 0,12–0,89 |
+| Hohlheit / Helligkeit | — | 0,11–0,80 / 0,17–0,81 |
+| Schwebung | — | 0,2–9,8 Cent |
+| Registerspreizung | — | 0,3–2,9 Oktaven |
+
+Die Kurzbeschreibung („resonant web · glassy · plucked · …“) nimmt 214 verschiedene Formen in 400 Würfen an (grobe Wortklassen; die Parameter selbst sind stetig).
 
 **Pegel:** RMS Kosmos/G2 je Layout (gleicher Ballweg, 16 Layouts): min 0,99, Median 1,09, max 1,41 (Median +0,75 dB). Im Browser (3 Seitenaufrufe, Zufallslayouts): G2 0,090, Kosmos 0,077, Web 0 % 0,087, alles innerhalb der Layout-Streuung.
 
 **Web 0 %:** PCM bit-identisch zum Parent über Brücke und Kernel (max. Abweichung 0, zwei Layouts, mit und ohne Ballkopplung).
 
-**Rechenzeit Kernel** (Node, gleiche V8 wie Chromium, ms pro Audiosekunde): G2 ca. 88–95, Kosmos ca. 110–120, also **+20 bis 28 %** dieses einen Worklets. Läuft nur, wenn Mycelium an ist. Zeiger statt Sinustabelle in Netz und Knotentönen, Schlaf unter −80 dB, Liste wacher Stimmen.
+**Rechenzeit Kernel** (Node, gleiche V8 wie Chromium, ms pro Audiosekunde, Messlauf oben): G2 85,8, Kosmos 104,5, also **+22 %** dieses einen Worklets (Einzelläufe +20 bis 28 %). Läuft nur, wenn Mycelium an ist. Zeiger statt Sinustabelle in Netz und Knotentönen, Schlaf unter −80 dB, Liste wacher Stimmen.
 
 ## Tests
 - `tests/myzel_cosmos_01.test.cjs` (in `GREEN_NODE_TESTS.txt`):
@@ -60,14 +83,15 @@ Werkzeug: `node tools/probes/myzel_cosmos_measure.cjs 16 10`.
   - Ballzupfen → Nachbar setzt genau eine Linien-Laufzeit später ein (±30 ms); Ballung klingt länger nach als eine gestreckte Linie.
   - Extremlayouts endlich und begrenzt; Netz leert sich ohne Kopplung.
   - Neuer Wurf während des Klingens ohne Sprung; Resonator-Partner nur bei Web > 0; Rechenzeit < 1,8× G2.
+- Gates: `build.py --check` OK; `run_tests.sh` 136/136; `run_e2e.sh` 107 grün, 0 rot, 2 flaky (`live_tempo_hold`, `live_tempo_material`: Einsatz-Jitter im Live-Raum, Mycelium dort aus, kein Bezug; bei Wiederholung grün).
 - `tests/e2e/myzel_cosmos.cjs` (Mess-Test, `MEASURE_TESTS.txt`), im echten Layout:
   - Regler in der Mix-Zeile; Anzeige vor/nach Mycelium; Linien werden je Frame gezeichnet.
   - 5 Würfe = 5 Layouts, mindestens 2 verschiedene Welten.
-  - Hum hörbar bei 70 % und 0 %; Hum stumm bringt auch das Netz zum Schweigen.
+  - Hum hörbar bei 70 % und 0 %; Hum stumm bringt auch das Netz zum Schweigen; der Hum läuft im AudioWorklet (keine Fallback-Warnung).
 - Fixtures: `tests/fixtures/myzel_g2_pre_cosmos/` (Parent-Stand der drei Dateien).
 
 ## HTML-Größe
-`index.html` 8 321 267 → (wird eingetragen) Bytes. Audio-Teil im Hauptbündel (der Hum läuft auch außerhalb des Nodal Centers), Oberfläche im Lazy-Chunk `nodal`.
+`index.html` 8 321 267 → 8 341 540 Bytes (**+20 273**; davon Ranglisten-Tabellen und Signatur ca. 7 KB, Kernel ca. 9 KB, Oberfläche ca. 2 KB). Audio-Teil im Hauptbündel (der Hum läuft auch außerhalb des Nodal Centers), Oberfläche im Lazy-Chunk `nodal`.
 
 ## Offen / Risiken
 - **Nicht gehört.** Gewichte (Zupfstärke, Mitklang, Netzpegel 0,2, Ausklangbereich) sind aus Hüllkurven und Pegeln abgeleitet, nicht aus Abhören. Der Test-Ball fliegt schneller als der Ball im Raum; ein langsamer Ball zupft seltener, das Netz wird dann sparsamer.
