@@ -21,7 +21,7 @@ assert.equal(await undo.isDisabled(),true,'with Copy/Paste off the playback clic
 const paste=p.locator('[data-ml-noteclip=paste]').first(),copy=p.locator('[data-ml-noteclip=copy]').first();
 await copy.click();
 await p.mouse.move(r.x+300,r.y+190);await p.mouse.down();await p.mouse.move(r.x+520,r.y+320,{steps:6});await p.mouse.up();await p.waitForTimeout(300);
-assert.match(await paste.innerText(),/Paste · \d+/,'the rectangle loads notes during playback');assert.equal(await paste.getAttribute('aria-pressed'),'true','switches to Paste by itself');
+assert.match(await paste.innerText(),/Paste\s*\d+/,'the rectangle loads notes during playback');assert.equal(await paste.getAttribute('aria-pressed'),'true','switches to Paste by itself');
 const n=+(await paste.innerText()).match(/\d+/)[0];
 await p.mouse.move(r.x+700,r.y+500,{steps:3});await p.mouse.move(r.x+800,r.y+520,{steps:4});await p.waitForTimeout(250);
 await p.mouse.down();await p.mouse.up();await p.waitForTimeout(400);

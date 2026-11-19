@@ -37,20 +37,32 @@ await copy.click();await box();const again=+(await paste.innerText()).match(/\d+
 const mark=p.locator('[data-ml-noteclip=mark]').first(),fh=p.locator('[data-ml-noteclip=flip-h]').first(),fv=p.locator('[data-ml-noteclip=flip-v]').first();
 await p.mouse.click(r.x+800,r.y+520,{button:'right'});await p.waitForTimeout(200);await copy.click();await p.waitForTimeout(100); // stamp emptied, Copy off
 assert.equal(await fh.isDisabled(),true,'mirrors greyed out with nothing marked and nothing loaded');
+const geo=()=>p.evaluate(()=>[...document.querySelectorAll('[data-ml-noteclip]')].map(x=>{const q=x.getBoundingClientRect();return [Math.round(q.left),Math.round(q.width)]}));
+const geoBefore=await geo();
 await mark.click();assert.equal(await mark.getAttribute('aria-pressed'),'true');await box();
-assert.match(await mark.innerText(),new RegExp('Mark · '+n),'the rectangle marked every note inside');
+assert.deepEqual(await geo(),geoBefore,'marking does not move or resize any toolbar button (no wobble)');
+// the page must not change height while the rectangle is dragged (the first hit note changes on the way: it used to rewrite the composer's selected note/track on every move and the whole page jumped)
+await p.evaluate(()=>{window.__h=new Set();window.__hi=setInterval(()=>window.__h.add(document.scrollingElement.scrollHeight+'/'+Math.round(document.scrollingElement.scrollTop)),5)});
+await p.mouse.move(r.x+520,r.y+320);await p.mouse.down();
+for(let i=1;i<=24;i++){await p.mouse.move(r.x+520-i*9,r.y+320-i*5);await p.waitForTimeout(40)}
+for(let i=1;i<=24;i++){await p.mouse.move(r.x+304+i*9,r.y+200+i*5);await p.waitForTimeout(40)}
+await p.mouse.up();await p.waitForTimeout(300);
+const seen=await p.evaluate(()=>{clearInterval(window.__hi);return [...window.__h]});
+assert.equal(seen.length,1,'page height and scroll stay constant while marking: '+JSON.stringify(seen));
+await box();
+assert.match(await mark.innerText(),new RegExp('Mark\\s*'+n),'the rectangle marked every note inside');
 assert.equal(await fh.isDisabled(),false,'mirrors work on the marked notes');
 const undoDisabledBeforeFlip=await undo.isDisabled();
 await fh.click();await p.waitForTimeout(250);await fv.click();await p.waitForTimeout(250);
 assert.equal(await undo.isDisabled(),false,'mirroring in place is an undo step');
-assert.match(await mark.innerText(),new RegExp('Mark · '+n),'marking survives the mirror');
+assert.match(await mark.innerText(),new RegExp('Mark\\s*'+n),'marking survives the mirror');
 // Copy acts on the marked notes without a second rectangle
 await copy.click();await p.waitForTimeout(250);
-assert.match(await paste.innerText(),new RegExp('Paste · '+n),'Copy loaded the marked notes');
+assert.match(await paste.innerText(),new RegExp('Paste\\s*'+n),'Copy loaded the marked notes');
 await p.mouse.click(r.x+800,r.y+520,{button:'right'});await p.waitForTimeout(200); // empties the stamp, back to Copy
 await copy.click();await p.waitForTimeout(100);
 // mark again and Erase them without a second rectangle
-await mark.click();await box();assert.match(await mark.innerText(),new RegExp('Mark · '+n));
+await mark.click();await box();assert.match(await mark.innerText(),new RegExp('Mark\\s*'+n));
 await erase.click();await p.waitForTimeout(300);
 await copy.click();await box();assert.equal(await paste.isDisabled(),true,'Erase on the marking removed the notes');
 await p.mouse.click(r.x+400,r.y+250,{button:'right'});await p.waitForTimeout(200);

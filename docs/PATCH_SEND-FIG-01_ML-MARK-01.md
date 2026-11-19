@@ -20,6 +20,12 @@ Daten-Owner: Sendeplan `__xenForgePinkPlan` (07_composition_and_preview_ui.js); 
 - Grenze (wie beim Stempel-Spiegel): Beim horizontalen Spiegeln wird der Tonhöhenverlauf innerhalb eines Scattered-/Fretless-Blocks nicht mitgedreht, nur Lage und Fades der Blöcke.
 - Tests: `tests/ml_erase_01.test.cjs` (9 Fälle), `tests/e2e/melodic_erase.cjs`; `melodic_noteclip` und `melodic_noteclip_playing` unverändert grün.
 
+## Nachtrag: Wackeln beim Markieren (gleicher Tag)
+- Ursache: Beim Ziehen des Rechtecks lief bei jeder Mausbewegung `refreshSelectionFromBox`, das auch den ausgewählten Ton und die Spur des Composers umschreibt. Panels und Spurkarten renderten ständig um, die Seitenhöhe wechselte (gemessen 2270 ↔ 2286 px) und die ganze Seite sprang auf und ab. Für Mark/Copy/Erase folgt beim Ziehen jetzt nur noch die Hervorhebung (`__mlNoteClip.liveMark`, setzt nur `selectedLoopNoteIds`, ohne Ton/Spur zu ändern); Seitenhöhe danach konstant.
+- Zähler an Mark und Paste sind jetzt Abzeichen ohne Platzbedarf (vorher wuchs der Knopf von 54 auf 80 px und schob die Leiste).
+- Test: `melodic_erase` prüft Knopfgeometrie und konstante Seitenhöhe beim Ziehen (Weg mit wechselnder erster Notentreffer). Nicht in Firefox gemessen.
+- Bekannt: Das Rechteck selbst rendert weiterhin bei jeder Bewegung die Spurkarten neu (viele DOM-Änderungen, aber ohne Höhenänderung); das war schon beim Ctrl-Rechteck so.
+
 ## Größe
-`index.html` 8 313 214 B → 8 318 515 B (+5 301 B). Rollback: `git revert` dieses Commits (Parent `f5b51b4`).
+`index.html` 8 313 214 B → 8 319 014 B (+5 800 B). Rollback: `git revert` dieses Commits (Parent `f5b51b4`).
 Nicht gehört (Klang, Fretless-Wiedergabe ohne Maschinen-Timbre).
