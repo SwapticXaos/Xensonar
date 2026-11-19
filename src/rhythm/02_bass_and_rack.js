@@ -291,8 +291,8 @@ function __f48GetDrumRack(ctx,destination){
  };
  buses.set(destination,device);__f48RackDevices.add(device);ctx.addEventListener?.('statechange',onContextState);device.update(__f48RackParams);return device;
 }
-function __f48Range({label,value,onChange,min=0,max=1,step=.01,suffix=''}){
- return u.jsxs('label',{className:'xen-rhythm-control',children:[u.jsxs('span',{children:[label,' ',Number(value).toFixed(2),suffix]}),u.jsx('input',{'aria-label':label,type:'range',min,max,step,value,onChange:event=>onChange(Number(event.target.value))})]});
+function __f48Range({label,value,onChange,min=0,max=1,step=.01,suffix='',digits=2}){
+ return u.jsxs('label',{className:'xen-rhythm-control',children:[u.jsxs('span',{children:[label,' ',Number(value).toFixed(digits),suffix]}),u.jsx('input',{'aria-label':label,type:'range',min,max,step,value,onChange:event=>onChange(Number(event.target.value))})]});
 }
 /* BVA-02: independent one-shot listening context; OPe is the actual Bass synthesis owner.
  * No rhythm transport, session state, voice-library write or live bus is borrowed. */
@@ -474,6 +474,15 @@ function __f48BassSound({params,update}){
    u.jsxs('label',{className:'xen-bve-classic',children:[
     u.jsx('input',{type:'checkbox','aria-label':'Classic Grit Excitation',checked:recipe.classicMode,onChange:e=>edit('classicMode',e.target.checked)}),
     u.jsx('span',{children:'Classic Grit Excitation (legacy oscillator & glide behavior)'})]}),
+   /* BASS-V2-01: modern shaping. Every control starts at the value that equals the classic behaviour. */
+   u.jsxs('div',{className:'xen-bve-modern','data-xen-bass-v2':true,children:[
+    u.jsx('div',{className:'xen-rhythm-title',children:'Modern shaping'}),
+    u.jsxs('label',{className:'xen-rhythm-control',children:[u.jsx('span',{children:'Filter Slope'}),
+     u.jsx('select',{'aria-label':'Filter Slope',value:String(recipe.poles===4?4:2),onChange:e=>edit('poles',Number(e.target.value)),children:[
+      u.jsx('option',{value:'2',children:'12 dB / octave'},'2'),u.jsx('option',{value:'4',children:'24 dB / octave'},'4')]})]}),
+    ...[['Attack (s)','att',0,.08,.001,0],['Filter Env Depth','fenv',0,2.5,.01,1],['Filter Decay (share of note)','fdec',.04,1.2,.01,.58],['Extra Resonance','res',0,1,.01,0],
+     ['Pitch Drop (start ratio)','pdrop',1,4,.01,1],['Pitch Drop Time (s)','pdec',.005,.25,.001,.04],['Unison Voices','uni',1,3,1,1],['Unison Spread','spread',0,.02,.0005,0],
+     ['Drive','drive',0,1,.01,0],['Glide Time (s)','glide',0,.3,.005,.08]].map(([label,key,min,max,step,def])=>u.jsx(__f48Range,{label,value:recipe[key]??def,min,max,step,digits:step<.01?3:step>=1?0:2,onChange:v=>edit(key,v)},key))]}),
    u.jsxs('div',{className:'xen-bve-save',children:[
     u.jsx('input',{type:'text',value:newName,maxLength:60,placeholder:'Name for a new Voice','aria-label':'New Voice Name',onChange:e=>setNewName(e.target.value)}),
     u.jsx('button',{type:'button',onClick:saveAs,children:'Save Voice As'}),
