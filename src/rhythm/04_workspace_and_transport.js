@@ -319,12 +319,17 @@ function Zke(e){
   const owner=ownership.current;owner.enabled=e.resonanceInputActive;
   if(!e.resonanceInputActive){releaseAll();return;}
   const hidden=()=>{if(document.hidden)releaseAll()};
+  /* KEY-PANIC-01: Escape lets go of every key this room holds (notes and the Backspace / Alt / B / Sustain holds), as it does in Psy Lab. It does nothing when no key is held
+     and is never consumed, so menus and dialogs still close with it. The way out of a key whose release never arrived (the same key pressed again also works). */
+  const panicKey=ev=>{if(ev.code==='Escape'&&!ev.repeat&&owner.keys.size>0)releaseAll()};
   window.addEventListener('blur',releaseAll);
   document.addEventListener('visibilitychange',hidden);
+  window.addEventListener('keydown',panicKey,true);
   return()=>{
    owner.enabled=false;releaseAll();
    window.removeEventListener('blur',releaseAll);
    document.removeEventListener('visibilitychange',hidden);
+   window.removeEventListener('keydown',panicKey,true);
   };
  },[e.resonanceInputActive]);
 P.useEffect(()=>{if(!e.resonanceInputActive){__xenKeyboardFoundationDetach.resume();return;}const t={holdActions:holdActions(),ensureAudioReady:e.actions.ensureAudioReady,reportAudioReadyFailure:e.actions.reportAudioReadyFailure,ensureKeyboardPitchAudioReadyOnce:e.actions.ensureKeyboardPitchAudioReadyOnce,cycleQuantizeGrid:e.actions.cycleQuantizeGrid,runEnterWaveGesture:e.actions.runEnterWaveGesture,updateNParams:e.actions.updateNParams,toggleKeyboardMirror:()=>{e.keyboardMirrorRef.current=!e.keyboardMirrorRef.current},triggerDirectedPulse:e.actions.triggerDirectedPulse,previewKeyboardWindowShift:e.actions.previewKeyboardWindowShift,changeGridTuning:e.actions.changeGridTuning,setGridMode:e.actions.setGridMode,resetKeyboardWindow:()=>{e.keyboardWindowOffsetRef.current=0,e.actions.setKeyboardWindowStamp(i=>i+1)},setChurchMode:e.actions.setChurchMode,cycleParticleSystem:e.actions.cycleParticleSystem,selectMaterialLoopDirect:e.actions.selectMaterialLoopDirect,selectRootFollowLoopDirect:e.actions.selectRootFollowLoopDirect,toggleMaterialLoopDirect:e.actions.toggleMaterialLoopDirect,toggleRootFollowLoopDirect:e.actions.toggleRootFollowLoopDirect,browseMaterialLoopWithUmlaut:e.actions.browseMaterialLoopWithUmlaut,browseRootFollowLoopWithUmlaut:e.actions.browseRootFollowLoopWithUmlaut,toggleNexusAgent:e.actions.toggleNexusAgent,nowMs:()=>performance.now(),setRootFollowInputTargetHz:i=>{e.rootFollowInputTargetHzRef.current=i},getAudioPressureBias:e.actions.getAudioPressureBias,getActiveScheduledToneCount:e.actions.getActiveScheduledToneCount,recordAdaptiveAction:e.actions.recordAdaptiveAction,commitCursorY:e.actions.commitCursorY,shouldEmitKeyboardHoldWavePreview:e.actions.shouldEmitKeyboardHoldWavePreview,resolveKeyboardWaveStarterSoundPreset:e.actions.resolveKeyboardWaveStarterSoundPreset,resolveKeyboardHoldResidentSession:e.actions.resolveKeyboardHoldResidentSession,resolveKeyboardInitialNodalHoldOptions:e.actions.resolveKeyboardInitialNodalHoldOptions};let n=null,r=null;const a=i=>{
