@@ -46,6 +46,43 @@ const __NodalBallGrid=(()=>{
   rows:()=>binding?binding.rows():empty,toggleMute:step=>binding?.toggleMute(step),setOffset:(step,value)=>binding?.setOffset(step,value),windowOffset:()=>binding?.windowOffsetRef.current??0,resetWindow:()=>binding?.resetWindow(),shiftWindow:direction=>binding?.shiftWindow(direction),bound:()=>binding!==null});
 })();
 
+/* BALL-PAINT-01: the ball paints its path. An offscreen layer collects the trail and fades very slowly
+   (about a minute per e-fold, then 1 level per step), so a picture builds up while the ball wanders.
+   WARM zone: canvas only, no audio, no state, no storage. Lower resolution layer (max 960 px wide). */
+const __NodalBallPaint=(()=>{
+ let off=null,octx=null,sc=1,w=0,h=0,lx=NaN,ly=NaN,lt=0,fadeAt=0,hue=190;
+ const STEP=400;
+ function fade(now){
+  if(now-fadeAt<STEP)return;fadeAt=now;if(!octx)return;
+  const img=octx.getImageData(0,0,off.width,off.height),d=img.data;
+  for(let i=3;i<d.length;i+=4){const a=d[i];if(a)d[i]=a-Math.max(1,(a*.006)|0);}
+  octx.putImageData(img,0,0);
+ }
+ function draw(ctx,ball,width,height){
+  if(!(width>0&&height>0)||!ball||!Number.isFinite(ball.x)||!Number.isFinite(ball.y))return;
+  const now=typeof performance!=='undefined'?performance.now():Date.now();
+  if(!off||w!==width||h!==height){
+   sc=Math.min(1,960/width);off=document.createElement('canvas');off.width=Math.max(1,Math.ceil(width*sc));off.height=Math.max(1,Math.ceil(height*sc));
+   octx=off.getContext('2d',{willReadFrequently:true});w=width;h=height;lx=NaN;fadeAt=now;
+  }
+  if(now-lt>1500){lx=NaN;fadeAt=now;}
+  fade(now);
+  if(Number.isFinite(lx)){
+   const dx=ball.x-lx,dy=ball.y-ly,dist=Math.hypot(dx,dy);
+   if(dist>.5&&dist<Math.max(width,height)*.5){
+    hue=(hue+dist*.12)%360;
+    octx.save();octx.scale(sc,sc);octx.globalCompositeOperation='lighter';octx.lineCap='round';
+    octx.strokeStyle=`hsla(${hue.toFixed(0)},85%,62%,${Math.min(.5,.16+dist*.012).toFixed(3)})`;
+    octx.lineWidth=Math.max(1.4,3.4-dist*.05);
+    octx.beginPath();octx.moveTo(lx,ly);octx.lineTo(ball.x,ball.y);octx.stroke();octx.restore();
+   }
+  }
+  lx=ball.x;ly=ball.y;lt=now;
+  ctx.drawImage(off,0,0,width,height);
+ }
+ return Object.freeze({draw,reset(){if(octx)octx.clearRect(0,0,off.width,off.height);lx=NaN}});
+})();
+
 /* ROOM5-02: the Main Room grid controls (system, mode, base Hz, shift, workbench) as ONE component for Room III and Room V.
    They edit the Main Room's own grid through __NodalBallGrid; nothing is stored here. */
 function __XenGridControls({extra}){
