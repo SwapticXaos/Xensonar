@@ -43,3 +43,7 @@ jobs:
         run: sudo apt-get install -y pulseaudio && pulseaudio --start --exit-idle-time=-1 && pactl info | head -3
       - name: start, Power on, all five rooms, no page errors (Firefox)
         run: XEN_BROWSER=firefox node tests/browsers/engine_smoke.cjs index.html
+      - name: build tools and probe build (for the playing test)
+        run: npm ci --prefix tools/slim && python3 tools/build.py --probe
+      - name: playing in Firefox - sound, hold clock (classic, Entrophon, overtone arpeggio), Psy Lab click, tempo glide, room tour
+        run: XEN_BROWSER=firefox node tests/browsers/engine_play.cjs dist/XenSonar_PROBE.html
