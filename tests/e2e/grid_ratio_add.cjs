@@ -22,7 +22,7 @@ const html=path.resolve(process.argv[2]||'dist/XenSonar_PROBE.html');
   // duplicate: no new step
   await input.fill('162/128');await input.press('Enter');await p.waitForTimeout(300);assert.equal(await steps(),s0+2);assert.match(await msg(),/81\/64 \(407\.8c\) is already in the current grid/);
   // folded
-  await input.fill('9/4');await input.press('Enter');await p.waitForTimeout(300);assert.match(await msg(),/9\/4 = 203\.9c added as marker \d+ \(folded into the period from 1403\.9c\)/);
+  await input.fill('9/4');await input.press('Enter');await p.waitForTimeout(300);assert.match(await msg(),/9\/8 = 203\.9c added as marker \d+ \(9\/4 folded into the period from 1403\.9c\)/);
   // bad input / root: refused, nothing added
   const n=await steps();for(const [t,re] of [['2/1',/root or a whole number of periods/],['abc',/not a ratio/],['3/0',/positive/]]){await input.fill(t);await input.press('Enter');await p.waitForTimeout(150);assert.match(await msg(),re);assert.equal(await steps(),n)}
   // saved as a custom grid with the added steps

@@ -24,11 +24,12 @@ test('rejects broken files with a clear message',()=>{
   assert.throws(()=>S.__xenScalaParse('x\n3\n100.0\n'),/lists 3 notes but contains 1/);
   assert.throws(()=>S.__xenScalaParse('x\n1\nabc\n'),/bad pitch/);
 });
-test('import saves ONE custom grid through the library owner (octave → cdo, tritave → cdt)',()=>{
+test('import saves ONE custom grid through the library owner (cents → cdo/cdt, pure ratios → cji)',()=>{
   saved.length=0;const r=S.__xenScalaImport('x\n3\n 9/8\n 3/2\n 2/1\n','pent.scl');
-  assert.strictEqual(saved.length,1);assert.strictEqual(saved[0].family,'cdo');assert.strictEqual(saved[0].periodFamily,'octave');assert.strictEqual(saved[0].divisionKind,'custom');
+  assert.strictEqual(saved.length,1);assert.strictEqual(saved[0].family,'cji','all steps are ratios: custom JI');assert.strictEqual(saved[0].periodFamily,'octave');assert.strictEqual(saved[0].divisionKind,'ratio');assert.deepStrictEqual(saved[0].stepRatios,{'203.9':'9/8','702.0':'3/2'});
   assert.strictEqual(r.id,'custom:test');assert.deepStrictEqual(saved[0].stepCents.map(c=>Math.round(c*10)/10),[0,203.9,702]);
   S.__xenScalaImport('bp\n2\n 950.0\n 3/1\n','bp.scl');assert.strictEqual(saved[1].periodFamily,'tritave');assert.strictEqual(saved[1].family,'cdt');
+  S.__xenScalaImport('mix\n3\n 5/4\n 700.0\n 2/1\n','mix.scl');assert.strictEqual(saved[2].family,'cdo','one step in cents keeps it a custom division');assert.deepStrictEqual(saved[2].stepRatios,{'386.3':'5/4'});
 });
 test('export writes valid Scala and reads back to the same steps (EDO, tritave, JI ratios)',()=>{
   const e=S.__xenScalaWrite('12edo');assert.match(e.text,/^! 12 EDO\.scl\n!\n12 EDO · exported from XenSonar\n 12\n!\n 100\.00000\n/);assert.match(e.text,/\n 2\/1\n$/);

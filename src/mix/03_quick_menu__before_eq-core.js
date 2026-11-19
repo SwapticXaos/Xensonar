@@ -59,8 +59,8 @@ function __xenQuickShortTitle(entry){
   if(id==='ji'||/^just\s+intonation\b/i.test(name)||/^JI(?:$|[\s·:—-])/i.test(name))return 'JI';
   // Respect the Grid Workbench classification: customizing steps converts EDO/EDT
   // into CDO/CDT even if the original tuning ID still refers to equal division.
-  const metric=name.match(/^(\d{1,3})[\s\u2010-\u2015-]*(edo|edt|cdo|cdt)\b/i)
-   ||id.match(/^(\d{1,3})(edo|edt|cdo|cdt)$/i);
+  const metric=name.match(/^(\d{1,3})[\s\u2010-\u2015-]*(edo|edt|cdo|cdt|cji)\b/i)
+   ||id.match(/^(\d{1,3})(edo|edt|cdo|cdt|cji)$/i);
   if(metric){
    const family=metric[2].toLowerCase();
    return metric[1]+family;
