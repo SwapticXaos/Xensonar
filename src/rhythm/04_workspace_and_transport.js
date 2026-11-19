@@ -184,11 +184,31 @@ const __xenKeyHeal=(()=>{
   if(!ev.isTrusted||typeof ev.getModifierState!=='function'||!down.size)return;
   for(const [code,key] of down){if(ev.type==='keydown'&&ev.code===code)continue;if(!ev.getModifierState(key)&&!(code==='AltRight'&&ev.getModifierState('AltGraph')))replay(code)}/* AltGr on Linux reports AltGraph */
  };
- window.addEventListener('keydown',ev=>{check(ev);if(ev.isTrusted&&MOD[ev.code])down.set(ev.code,MOD[ev.code])},true);
- window.addEventListener('keyup',ev=>{if(ev.isTrusted&&MOD[ev.code])down.delete(ev.code);check(ev)},true);
+ /* KEY-PHANTOM-01, the reverse case: a trusted key arrives with a modifier active that was never pressed here (Sticky Keys
+    latch/lock of the OS, or a modifier stuck in the OS). Other programs then see Alt+Backspace etc. and delete nothing, while the
+    Octave hold here ignores modifiers and keeps working; pressing that modifier once ends it. A real hold from before the focus
+    shows itself by a keyup without keydown and is no phantom. Shown as a short note; reads only, changes nothing. */
+ const NAMES=['Alt','Control','Meta','Shift'],cand=new Map(),log=[];let note=null,noteTimer=0;
+ const held=n=>{for(const v of down.values())if(v===n)return true;return false};
+ const say=(text,sticky)=>{try{if(!note?.isConnected){note=document.createElement('div');note.setAttribute('role','status');note.dataset.xenKeyPhantom='';note.style.cssText='position:fixed;left:50%;bottom:18px;transform:translateX(-50%);z-index:2147483000;max-width:min(560px,calc(100vw - 32px));padding:9px 14px;border-radius:8px;background:#2a2410;color:#ffe7a3;border:1px solid #8a6d1e;font:13px/1.4 system-ui,sans-serif;box-shadow:0 4px 18px #0008;cursor:pointer';note.onclick=()=>{note.remove();note=null};document.body.appendChild(note)}note.textContent=text;clearTimeout(noteTimer);if(!sticky)noteTimer=setTimeout(()=>{note?.remove();note=null},9000)}catch{}};
+ const entry=(mod,how,code)=>{log.push({mod,how,key:code,at:Math.round(performance.now())});if(log.length>20)log.shift()};
+ const scan=ev=>{
+  if(!ev.isTrusted||typeof ev.getModifierState!=='function')return;
+  const modName=MOD[ev.code];
+  if(modName){const c=cand.get(modName);if(!c)return;cand.delete(modName);
+   if(ev.type==='keyup'&&!held(modName)){entry(modName,'was really held',ev.code);if(note?.isConnected)say('Key check: '+modName+' was really held, all fine.',false)}// keyup without keydown: a real hold from before the focus
+   else if(ev.type==='keydown'&&!ev.repeat){entry(modName,'released by pressing it',ev.code);say('Key check: the system had '+modName+' switched on without the key being pressed (Sticky Keys or a stuck key, outside XenSonar). Your '+modName+' press released it.',false)}
+   return}
+  if(ev.type!=='keydown'||ev.repeat)return;
+  let shown=null;for(const n of NAMES){if(ev.getModifierState(n)&&!held(n)){const c=cand.get(n)||{hits:0};c.hits++;cand.set(n,c);if(c.hits===1)entry(n,'active, not pressed',ev.code);if(c.hits>=2&&!shown)shown=n}else if(cand.has(n)&&!ev.getModifierState(n)){cand.delete(n);entry(n,'gone',ev.code)}}
+  if(shown)say('Key check: the system reports '+shown+' as held, but no '+shown+' key is pressed. In other programs Backspace then deletes nothing. Press '+shown+' once to release it. (Sticky Keys or a stuck key, outside XenSonar.)',true);
+  else if(note?.isConnected&&!cand.size)say('Key check: no modifier stuck any more.',false);
+ };
+ window.addEventListener('keydown',ev=>{check(ev);scan(ev);if(ev.isTrusted&&MOD[ev.code])down.set(ev.code,MOD[ev.code])},true);
+ window.addEventListener('keyup',ev=>{scan(ev);if(ev.isTrusted&&MOD[ev.code])down.delete(ev.code);check(ev)},true);
  window.addEventListener('pointerdown',check,true);window.addEventListener('pointermove',check,{capture:true,passive:true});
- window.addEventListener('blur',()=>down.clear());// the owners release their keys on blur themselves
- return{diagnostics:()=>({down:[...down.keys()],healed})};
+ window.addEventListener('blur',()=>{down.clear();cand.clear()});// the owners release their keys on blur themselves
+ const api={diagnostics:()=>({down:[...down.keys()],healed,phantom:log.slice(),candidates:[...cand.keys()]})};globalThis.__XenKeyCheck=api;return api;
 })();
 function Zke(e){
  // P7.6: B + LEFT Alt switches the expression gesture between temporary piano
