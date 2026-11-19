@@ -979,9 +979,32 @@ function ForgePCMSpectrumView({frame}) {
  const visible=P.useContext(__ForgeWorkspaceVisibility);
  return visible?u.jsx(ForgePCMSpectrumOwner,{frame}):null;
 }
+/* FORGE-SPEC-TOGGLE-01 (WARM, view only): one switch for the cyan "heard spectrum" silhouette over the carrier. Default on, in memory only.
+   Off = the layer is hidden and no new measurement runs; the last measured image is kept, so switching on shows it again at once. */
+const __ForgeSpectrumShow=(()=>{let on=true;const subs=new Set();
+ return {get:()=>on,subscribe:f=>(subs.add(f),()=>subs.delete(f)),set(v){v=!!v;if(v===on)return;on=v;for(const f of subs)try{f()}catch{}},toggle(){this.set(!on)}}})();
+function __ForgeSpectrumToggle(){
+ const on=P.useSyncExternalStore(__ForgeSpectrumShow.subscribe,__ForgeSpectrumShow.get,__ForgeSpectrumShow.get);
+ const red='#f54c52',cyan='#2dd4bf';
+ /* Miniature of the display: the carrier line in red; the overtone silhouettes (the same line shifted up by octave-like steps) in cyan above it. */
+ const line='M2 17.5C7 17.5 9 12.5 14 11.5S23 12.5 30 8';
+ return u.jsx('button',{type:'button','data-forge-spectrum-toggle':on?'on':'off','aria-pressed':on,onClick:()=>__ForgeSpectrumShow.toggle(),
+  'aria-label':on?'Hide heard overtones (cyan), keep the carrier only':'Show heard overtones (cyan) over the carrier',
+  title:on?'Heard overtones shown (cyan) · click to hide them and keep only the carrier':'Only the carrier is shown · click to show the heard overtones (cyan)',
+  className:'h-7 rounded bg-gray-800 px-1.5 hover:bg-gray-700 '+(on?'':'opacity-80'),
+  children:u.jsxs('svg',{width:32,height:22,viewBox:'0 0 32 22','aria-hidden':true,style:{display:'block'},fill:'none',strokeLinecap:'round',children:[
+   on&&u.jsxs('g',{stroke:cyan,children:[
+    u.jsx('path',{d:line,transform:'translate(0 -4.5)',strokeWidth:3.4,opacity:.55}),
+    u.jsx('path',{d:line,transform:'translate(0 -8.5)',strokeWidth:2.6,opacity:.38}),
+    u.jsx('path',{d:line,transform:'translate(0 -11.5)',strokeWidth:1.9,opacity:.26})]}),
+   /* The carrier like on the canvas: red edge, orange body, yellow core. */
+   u.jsx('path',{d:line,stroke:red,strokeWidth:3}),
+   u.jsx('path',{d:line,stroke:'#fb923c',strokeWidth:1.9}),
+   u.jsx('path',{d:line,stroke:'#fde047',strokeWidth:.9})]})});
+}
 function ForgePCMSpectrumOwner({frame}) {
  const output=P.useRef(null),redOutput=P.useRef(null),latest=P.useRef(frame),image=P.useRef(null);
- const [status,setStatus]=P.useState('Play to measure'),[shown,setShown]=P.useState(true);
+ const [status,setStatus]=P.useState('Play to measure'),shown=P.useSyncExternalStore(__ForgeSpectrumShow.subscribe,__ForgeSpectrumShow.get,__ForgeSpectrumShow.get);
  latest.current=frame;
  function draw() {
   const target=output.current,args={...latest.current,canvas:latest.current.canvasRef.current},base=args.canvas;
@@ -1006,9 +1029,10 @@ function ForgePCMSpectrumOwner({frame}) {
   }
  }
  P.useEffect(()=>{draw()},[frame]);
+ P.useEffect(()=>()=>{image.current=null},[]);
  P.useEffect(()=>{
   if(!shown)return;
-  setStatus('Play to measure');
+  setStatus(image.current?'Previous spectrum · awaiting preview':'Play to measure');
   let alive=true,worker=null,url=null,scheduled=null,sequence=0,buffer=null,animation=null,swapTimer=null;
   const removers=[];
   const identity=()=>{
@@ -1088,7 +1112,7 @@ function ForgePCMSpectrumOwner({frame}) {
   for(const store of [pe,Vt,__ForgeListeningMode,__F3564Master,__Fractalia,__Emilia,__F341Workbench,__F352Session])removers.push(store.subscribe(invalidate));
   const resize=new MutationObserver(draw),base=latest.current.canvasRef.current;
   if(base)resize.observe(base,{attributes:true,attributeFilter:['width','height']});
-  return ()=>{alive=false;cancel();animation?.cancel();animation=null;for(const remove of removers)remove();resize.disconnect();image.current=null;draw()};
+  return ()=>{alive=false;cancel();animation?.cancel();animation=null;for(const remove of removers)remove();resize.disconnect();draw()};
  },[shown]);
  return u.jsxs(u.Fragment,{children:[
   u.jsx('canvas',{ref:output,'data-forge-pcm-spectrum':status,className:'absolute inset-0 pointer-events-none',style:{display:shown?'block':'none',opacity:.88}}),
@@ -2439,7 +2463,7 @@ function __ForgeBottomStatus(){
   title:state.message||undefined,children:state.message||' '});
 }
 window.__ForgeBottomStatusState=__ForgeBottomStatusState;
-function __ForgeF38History(){const undo=pe(z=>z.undo),redo=pe(z=>z.redo),clear=pe(z=>z.clearCanvas),reset=pe(z=>z.resetForgeMainPath),uN=pe(z=>z.undoStack.length),rN=pe(z=>z.redoStack.length),ctx=pe(z=>z.sourceAssetContext);return u.jsxs("div",{className:"flex flex-wrap items-center gap-1.5",role:"group","aria-label":"Werkbankverlauf","data-forge-draw-history":"true",children:[u.jsx("button",{type:"button",onClick:undo,disabled:uN===0,title:ctx==="forge3_main"?"Undo: Hauptpfad (Ctrl+Z)":"Undo: Werkbank (Ctrl+Z)",className:"h-7 rounded bg-gray-800 px-2 text-gray-200 hover:bg-gray-700 disabled:opacity-30",children:"↶ Undo"}),u.jsx("button",{type:"button",onClick:redo,disabled:rN===0,title:"Redo (Ctrl+Y)",className:"h-7 rounded bg-gray-800 px-2 text-gray-200 hover:bg-gray-700 disabled:opacity-30",children:"↷ Redo"}),u.jsx("button",{type:"button",onClick:clear,title:"Clear Workbench",className:"h-7 rounded bg-red-900/50 px-2 text-red-300 hover:bg-red-800","aria-label":"Clear Workbench",children:"🗑️"}),u.jsx("button",{type:"button",onClick:reset,title:"Reset Forge Main Path",className:"h-7 rounded bg-amber-900/50 px-2 text-amber-200 hover:bg-amber-800","aria-label":"Reset Forge Main Path",children:"⟲"})]})}
+function __ForgeF38History(){const undo=pe(z=>z.undo),redo=pe(z=>z.redo),clear=pe(z=>z.clearCanvas),reset=pe(z=>z.resetForgeMainPath),uN=pe(z=>z.undoStack.length),rN=pe(z=>z.redoStack.length),ctx=pe(z=>z.sourceAssetContext);return u.jsxs("div",{className:"flex flex-wrap items-center gap-1.5",role:"group","aria-label":"Werkbankverlauf","data-forge-draw-history":"true",children:[u.jsx(__ForgeSpectrumToggle,{}),u.jsx("button",{type:"button",onClick:undo,disabled:uN===0,title:ctx==="forge3_main"?"Undo: Hauptpfad (Ctrl+Z)":"Undo: Werkbank (Ctrl+Z)",className:"h-7 rounded bg-gray-800 px-2 text-gray-200 hover:bg-gray-700 disabled:opacity-30",children:"↶ Undo"}),u.jsx("button",{type:"button",onClick:redo,disabled:rN===0,title:"Redo (Ctrl+Y)",className:"h-7 rounded bg-gray-800 px-2 text-gray-200 hover:bg-gray-700 disabled:opacity-30",children:"↷ Redo"}),u.jsx("button",{type:"button",onClick:clear,title:"Clear Workbench",className:"h-7 rounded bg-red-900/50 px-2 text-red-300 hover:bg-red-800","aria-label":"Clear Workbench",children:"🗑️"}),u.jsx("button",{type:"button",onClick:reset,title:"Reset Forge Main Path",className:"h-7 rounded bg-amber-900/50 px-2 text-amber-200 hover:bg-amber-800","aria-label":"Reset Forge Main Path",children:"⟲"})]})}
 function BWe({onBack: e, variant: t = "legacy", sidebarTop: n, forge3Lens: r = "hear", footerContent: a, externalAudioUploadFile: o = null, externalAudioUploadOrigin: i = null, entryScrollIntent: s = null, onExternalAudioUploadConsumed: l, onEntryScrollIntentConsumed: c}) {
     const d = P.useRef(null), p = P.useRef(null), [f, b] = P.useState(!0), [__forgeSidebarCollapsed, __setForgeSidebarCollapsed] = P.useState(!1), [__advancedOpen, __setAdvancedOpen] = P.useState(false), [g] = P.useState(!1), [y, x] = P.useState("classic"), [A, M] = P.useState(null), [v, w] = P.useState(!1), [R, k] = P.useState(!1), [I, E] = P.useState(null), F = pe(Se => Se.audioBufferDirty), L = pe(Se => Se.setAudioBufferDirty), B = pe(Se => Se.materialExport), O = pe(Se => Se.updateMaterialExport), T = pe(Se => Se.renderVersion), _ = pe(Se => Se.spectralData), G = pe(Se => Se.sourceAsset), j = pe(Se => Se.synthMode), N = pe(Se => Se.waveformMix), W = pe(Se => Se.embodimentField), V = pe(Se => Se.embodimentStatus), U = pe(Se => Se.embodimentMessage), H = pe(Se => Se.embodimentLayersVisibility), q = pe(Se => Se.setEmbodimentField), K = pe(Se => Se.setEmbodimentStatus), Y = pe(Se => Se.setEmbodimentLayersVisibility), J = pe(Se => Se.carrierDonorV2), Z = pe(Se => Se.carrierIntegralSelection), te = pe(Se => Se.carrierIntegralSynthLab), X = pe(Se => Se.spectralEmbodimentSourceAsset), {donorState: Q, donorReady: ne, donorPhase: ee, donorError: ie, donorRenderProgress: de, donorFigurePrepared: oe, extractionGeneration: ue, donorProofActive: fe, stopDonorAudition: he, handleDonorInputChange: re, handleDonorPreview: le, handleDonorProof: Ae, selectOtherHearing: ce, donorRegisterPolicy: ge, donorRegisterAvailable: Ce, handleDonorRegisterPolicy: Re, donorRenderMethod: se, donorHybridAvailable: xe, handleDonorRenderMethod: Be} = v5e(), Ie = P.useRef(null);
     const __waveAutoCollapseOwned=P.useRef(false),__forgeSidebarNow=P.useRef(__forgeSidebarCollapsed);
