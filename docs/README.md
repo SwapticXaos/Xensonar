@@ -20,6 +20,7 @@ Zuerst lesen (in dieser Reihenfolge): `../CLAUDE.md` (Arbeitsregeln) → `PRODUC
 | Thunder Mode: ein Hold-Mechanismus (Nodals Uhr) für alle Synths, Exact/Loose, wie ein neuer Synth die Uhr bekommt | `PATCH_THUNDER-ONE.md` |
 | Xensonar Variante wieder eingebunden (Knopf in Art Installation → nativer Raum aus dem Full-Build; Port-Werkzeug, Rest des Full-Builds offen) | `PATCH_VARIANTE-ROOM-01.md`, `../tools/port_variante.cjs` |
 | Particle Mode / Particle System in der Particles-Kopfzeile, „More choices here“ → Resident-Regler, Hum der Art Installation stummschalten | `PATCH_PARTICLE-HEAD-01.md` |
+| Art Installation: jedes Rebuild Layout ein eigener Klangkosmos (Sternbild-Linien als Klangnetz, Regler „Constellation Web“, Kosmos-Anzeige; 0 % = bisheriger Klang) | `PATCH_MYZEL-COSMOS-01.md` |
 | Analyse einer Audioaufnahme im Wave Editor (Tempo, Root in Hz, Stimmung 12/19/31-EDO · Just · Bohlen–Pierce, Skala, Tonart-Abschnitte; lila Auswahl oder ganze Datei, nur lesend) | `PATCH_AUDIO-ANALYSE-01.md` |
 | Hardware-Keyboard (MIDI): Tasten = Rasterlinien, Anschlagsdynamik, Lumatone/MPE-Layouts, Pedal und Regler | `DESIGN_HARDWARE_KEYBOARD_ADAPTER.md`, `PATCH_HWKB-01.md` → `PATCH_HWKB-02.md` |
 | Was wurde bewusst nicht übernommen? | `HISTORY_AND_EXCLUSIONS.md` |

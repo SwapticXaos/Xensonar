@@ -13,27 +13,143 @@ function createMyzelGDSP(sampleRate) {
   const channel = () => ({ring:new Float32Array(lag), low:0, env:0, held:0, hold:0, subphase:0,
     filter:new Float64Array(12), dcX:0, dcY:0, aa1:0, aa2:0, previous:0});
   const organ = () => ({id:'',type:'',hz:220,targetHz:220,power:0,goal:0,x:.5,y:.5,targetX:.5,targetY:.5,memory:1.7,coupling:0,
-    cursor:0,lastFrame:0,channels:[channel(),channel()],coeff:new Float64Array(24)});
+    partnerA:0,partnerB:0,cursor:0,lastFrame:0,channels:[channel(),channel()],coeff:new Float64Array(24)});
   const nodes = Array.from({length:12},organ), retiring = Array.from({length:3},organ);
   const route = new Int8Array(3).fill(-1), wanted = new Int8Array(3).fill(-1);
   let routeLength=0,wantedLength=0,retiringLength=0,pending=false,fade=1,clock=0,quietReset=true;
   const params={active:0,root:165,frequency:220,neighbourFrequency:220,presence:.5,neighbour:0,motion:0,
     brightness:.6,tension:.3,body:.6,level:.7,pan:0,roughness:0,rootLevel:.62,ballLevel:.34,nodeLevel:.78,ballToneLevel:1,ballToneHz:0,ballToneGate:1,
-    density:.3,spread:.4,hollow:.4,bloom:.4,openness:.5,retention:.5,gesture:.5};
+    density:.3,spread:.4,hollow:.4,bloom:.4,openness:.5,retention:.5,gesture:.5,webLevel:0,toneMetal:0};
   const defaults={...params}, smooth={...params}, keys=Object.keys(params);
   const movingKeys=new Array(keys.length),sourceEnabled=new Uint8Array(4);
   const frequencies=new Float64Array(4), gains=new Float64Array(4), phases=new Float64Array(4);
   const partials=10, energies=new Float64Array(partials*4), goals=new Float64Array(partials*4);
   const sourceHollow=new Float64Array(partials),sourceBody=new Float64Array(partials),sourceFocus=new Float64Array(partials);
+  // MYZEL-COSMOS-01: the two node tones take the constellation's timbre: their
+  // partials move from harmonic towards free-bar modes (toneMetal). One
+  // rotating phasor per partial (rotation per block), started from the
+  // harmonic phases, so the switch is seamless; unused until toneMetal is
+  // first above 0, before that the G2 arithmetic runs unchanged.
+  const toneBar=[1,2.756,5.404,8.933,13.344,18.638,24.814,31.873,39.814,48.637],toneRatio=new Float64Array(partials);
+  const toneRe=new Float64Array(partials*2),toneIm=new Float64Array(partials*2),toneCos=new Float64Array(partials*2),toneSin=new Float64Array(partials*2);
+  let toneMetalUsed=false;
   const sourceShape={window:NaN,centre:NaN,hollow:NaN,roughness:NaN,body:NaN,spread:NaN,bloom:NaN};
   let preparedStepFrames=-1,preparedRouteStep=0;
   const increments=new Float64Array(4), leftStates=new Float64Array(2), rightStates=new Float64Array(2);
   let stereoClock=0;
   const controlStep=1-Math.exp(-1/(rate*.045)), gainStep=1-Math.exp(-1/(rate*.065));
   const lowCoefficient=1-Math.exp(-TAU*850/rate), fadeStep=1/(rate*.14);
+  // MYZEL-COSMOS-01: the constellation web (payload from myzelGConstellation).
+  // Up to 16 node voices, excited by the ball (entering an aura; crossing a
+  // grid line at a simple ratio to the node) and by each other: an impulse
+  // travels along every link with that link's delay and share. Control tick
+  // every ~2.5 ms. All state is allocated here; without a payload or with
+  // webLevel 0 none of it runs and the output is the G2 output unchanged.
+  const WEB=16,WP=4,webTick=Math.max(32,Math.round(rate*.0025)),webTickSec=webTick/rate,webRing=Math.ceil(1.9/webTickSec)+2;
+  const webIds=new Array(WEB).fill(''),webOn=new Uint8Array(WEB),webFresh=new Uint8Array(WEB),webAwake=new Uint8Array(WEB),webAwakeList=new Int8Array(WEB),webTaken=new Uint8Array(WEB),webSlot=new Int8Array(WEB);
+  const webBase=new Float64Array(WEB),webX=new Float64Array(WEB),webY=new Float64Array(WEB),webRadius=new Float64Array(WEB).fill(.3);
+  const webPanL=new Float64Array(WEB).fill(Math.SQRT1_2),webPanR=new Float64Array(WEB).fill(Math.SQRT1_2),webPanGoalL=new Float64Array(WEB).fill(Math.SQRT1_2),webPanGoalR=new Float64Array(WEB).fill(Math.SQRT1_2),webDecay=new Float64Array(WEB).fill(.99);
+  const webAmp=new Float64Array(WEB),webEnv=new Float64Array(WEB),webTouch=new Float64Array(WEB),webGlow=new Float64Array(WEB),webKick=new Float64Array(WEB),webRing2=new Float64Array(WEB),webRang=new Float64Array(WEB);
+  // Partials are rotating phasors (no table, no floor per sample); rotation
+  // and a one-step renormalisation are updated per tick.
+  const webRe=new Float64Array(WEB*WP).fill(1),webIm=new Float64Array(WEB*WP),webCos=new Float64Array(WEB*WP).fill(1),webSin=new Float64Array(WEB*WP);
+  const webInc=new Float64Array(WEB*WP),webIncGoal=new Float64Array(WEB*WP),webPart=new Float64Array(WEB*WP);
+  const webPending=new Float32Array(WEB*webRing),webFrom=new Int8Array(WEB*4),webTo=new Int8Array(WEB*4),webGain=new Float64Array(WEB*4),webDelay=new Int32Array(WEB*4);
+  const webBar=[1,2.756,5.404,8.933],webRatios=[],webRatioValues=[];
+  for(let q=1;q<=16;q++)for(let p=q;p<2*q&&p<=32;p++){let a=p,b=q;while(b){const t=a%b;a=b;b=t;}
+    if(a!==1)continue;webRatios.push(1200*Math.log2(p/q));webRatioValues.push(1/(1+Math.log2(p*q)/2.6));}
+  let webLinks=0,webQueued=0,webLive=false,webAwakeCount=0,webVoices=0,webCountdown=0,webTickIndex=0,webSx=1,webSy=1,webAttack=1,webRelease=1,webGateBefore=0,webBallHz=0;
+  const web={sympathy:.6,glow:.3};
+  function webAffinity(ratio){
+    if(!(ratio>0)||!Number.isFinite(ratio))return 0;
+    let cents=1200*Math.log2(ratio);cents-=1200*Math.floor(cents/1200);let best=0;
+    for(let i=0;i<webRatios.length;i++){const d=Math.min(Math.abs(cents-webRatios[i]),Math.abs(cents-1200-webRatios[i]));
+      if(d<=14&&webRatioValues[i]>best)best=webRatioValues[i];}
+    return best;
+  }
+  function webClear(){
+    webAmp.fill(0);webEnv.fill(0);webTouch.fill(0);webGlow.fill(0);webKick.fill(0);webRing2.fill(0);webRang.fill(-1e9);webPending.fill(0);webAwake.fill(0);
+    webAwakeCount=0;webVoices=0;webQueued=0;webCountdown=0;webTickIndex=0;webGateBefore=0;webBallHz=0;
+    for(let i=0;i<webInc.length;i++)webInc[i]=webIncGoal[i];
+  }
+  function webConfigure(p){
+    const count=Math.min(WEB,Array.isArray(p?.ids)?p.ids.length:0),num=(list,i,v)=>Number.isFinite(list?.[i])?list[i]:v;
+    webSx=c(num([p?.sx],0,1),.1,20);webSy=c(num([p?.sy],0,1),.1,20);
+    webTaken.fill(0);webSlot.fill(-1);webFresh.fill(0);
+    for(let i=0;i<count;i++){const id=String(p.ids[i]).slice(0,160),slot=webIds.indexOf(id);if(slot>=0&&!webTaken[slot]){webTaken[slot]=1;webSlot[i]=slot;}}
+    for(let i=0;i<count;i++){if(webSlot[i]>=0)continue;
+      let slot=-1,quiet=Infinity;for(let j=0;j<WEB;j++)if(!webTaken[j]){const loud=webIds[j]===''?-1:webEnv[j]+webAmp[j];if(loud<quiet){quiet=loud;slot=j;}}
+      // A slot taken over from another node is released (35 ms) and retuned at once, never glided.
+      if(slot<0)continue;webTaken[slot]=1;webSlot[i]=slot;webIds[slot]=String(p.ids[i]).slice(0,160);webTouch[slot]=0;webAmp[slot]=0;webFresh[slot]=1;}
+    const metal=c(num([p?.metal],0,0)),hollow=c(num([p?.hollow],0,.5)),roll=.18+.55*c(num([p?.bright],0,.5)),cents=c(num([p?.detuneCents],0,0),0,30);
+    for(let j=0;j<WEB;j++)if(!webTaken[j]){webOn[j]=0;webGlow[j]=0;webKick[j]=0;}
+    for(let i=0;i<count;i++){const j=webSlot[i];if(j<0)continue;
+      const base=c(num(p.f,i,220),20,4000),hz=base*2**(c(num(p.detune,i,0),-1,1)*cents/1200),pan=c(num(p.pan,i,0),-1,1),angle=(pan+1)*Math.PI/4;
+      webOn[j]=1;webBase[j]=base;webX[j]=num(p.X,i,.5);webY[j]=num(p.Y,i,.5);webRadius[j]=Math.max(.02,num(p.radius,i,.3));
+      webPanGoalL[j]=Math.cos(angle);webPanGoalR[j]=Math.sin(angle);if(webFresh[j]&&webEnv[j]<1e-4){webPanL[j]=webPanGoalL[j];webPanR[j]=webPanGoalR[j];}webDecay[j]=Math.exp(-webTickSec/c(num(p.tau,i,1),.08,8));
+      let norm=0;
+      for(let k=0;k<WP;k++){const ratio=(k+1)+metal*(webBar[k]-(k+1)),amp=roll**k*(k&1?1-.85*hollow:1)*(hz*ratio<rate*.45?1:0);
+        webIncGoal[j*WP+k]=hz*ratio/rate;webPart[j*WP+k]=amp;norm+=amp;}
+      for(let k=0;k<WP;k++){webPart[j*WP+k]/=Math.max(1e-9,norm);if(webFresh[j]||webEnv[j]+webAmp[j]<1e-4)webInc[j*WP+k]=webIncGoal[j*WP+k];}
+    }
+    webLinks=0;const links=Array.isArray(p?.links)?p.links:[];
+    for(let k=0;k+4<links.length&&webLinks+2<=webFrom.length;k+=5){
+      const a=webSlot[links[k]]??-1,b=webSlot[links[k+1]]??-1;if(a<0||b<0||a===b)continue;
+      const delay=Math.max(1,Math.round(c(num(links,k+2,.1),.005,1.85)/webTickSec));
+      webFrom[webLinks]=a;webTo[webLinks]=b;webGain[webLinks]=c(num(links,k+3,0),0,.95);webDelay[webLinks++]=delay;
+      webFrom[webLinks]=b;webTo[webLinks]=a;webGain[webLinks]=c(num(links,k+4,0),0,.95);webDelay[webLinks++]=delay;
+    }
+    webAttack=1-Math.exp(-1/(rate*c(num([p?.attack],0,.04),.002,1)));webRelease=1-Math.exp(-1/(rate*.035));
+    web.sympathy=c(num([p?.sympathy],0,.6));web.glow=c(num([p?.glow],0,.3));
+    webLive=count>0;
+  }
+  function webBall(data){
+    if(!webLive)return;
+    const couple=c(data.webCouple??1),gesture=c(params.gesture),bx=c(data.ballU??.5)*webSx,by=c(data.ballV??.5)*webSy;
+    // The ball plucks a node once per pass: when it comes close (touch above
+    // .5); the node is armed again only after the ball has moved away (.2).
+    for(let i=0;i<WEB;i++){if(!webOn[i])continue;
+      const d=Math.hypot(bx-webX[i],by-webY[i])/webRadius[i],touch=Math.exp(-d*d*1.4);
+      if(webTouch[i]>=0&&touch>.5){webKick[i]+=couple*(.4+.6*gesture)*.8;webTouch[i]=-1;}
+      else if(webTouch[i]<0&&touch<.2)webTouch[i]=0;
+      webGlow[i]=touch>.08?touch*couple*web.glow*(.3+.7*gesture):0;}
+    // A grid-line crossing of the ball rings the nodes an octave or a fifth
+    // away from it, each node at most every 0.3 s. Sympathetic ringing stays
+    // local: only the ball's pluck travels along the links.
+    const hz=params.ballToneHz,gate=c(params.ballToneGate);
+    if(hz>0&&(gate>webGateBefore+.25||(hz!==webBallHz&&gate>.5)))
+      for(let i=0;i<WEB;i++){if(!webOn[i]||webTickIndex-webRang[i]<.3/webTickSec)continue;const a=webAffinity(hz/webBase[i]);
+        if(a>.45){webRing2[i]+=web.sympathy*a*.22*couple*c(params.ballToneLevel);webRang[i]=webTickIndex;}}
+    webGateBefore=gate;webBallHz=hz;
+  }
+  function webStep(){
+    const at=webTickIndex%webRing;webAwakeCount=0;
+    for(let i=0;i<WEB;i++){
+      const index=i*webRing+at;let kick=webPending[index];
+      if(kick!==0){webPending[index]=0;webQueued--;}
+      kick+=webKick[i];webKick[i]=0;
+      if(webRing2[i]>0){webAmp[i]=Math.min(1.25,webAmp[i]+webRing2[i]);webRing2[i]=0;}
+      if(kick>.002){
+        webAmp[i]=Math.min(1.25,webAmp[i]+kick);
+        for(let k=0;k<webLinks;k++)if(webFrom[k]===i){const pass=kick*webGain[k];
+          if(pass>.003){const to=webTo[k]*webRing+(webTickIndex+webDelay[k])%webRing;if(webPending[to]===0)webQueued++;webPending[to]+=pass;}}
+      }
+      webAmp[i]*=webDecay[i];if(webOn[i]&&webAmp[i]<webGlow[i])webAmp[i]=webGlow[i];
+      // Below -80 dB (and x0.1 gain after it) a voice sleeps and costs nothing.
+      if(webAmp[i]<1e-4&&webEnv[i]<1e-4){webAmp[i]=0;webEnv[i]=0;webAwake[i]=0;}else{webAwake[i]=1;webAwakeList[webAwakeCount++]=i;}
+      webPanL[i]+=(webPanGoalL[i]-webPanL[i])*.12;webPanR[i]+=(webPanGoalR[i]-webPanR[i])*.12;
+      if(webAwake[i])for(let k=0;k<WP;k++){const j=i*WP+k;webInc[j]+=(webIncGoal[j]-webInc[j])*.12;
+        const angle=TAU*webInc[j],re=webRe[j],im=webIm[j],norm=1.5-.5*(re*re+im*im);
+        webCos[j]=Math.cos(angle);webSin[j]=Math.sin(angle);webRe[j]=re*norm;webIm[j]=im*norm;}
+    }
+    webVoices=webAwakeCount;
+    // Impulses still on their way keep the web awake.
+    if(webQueued>0&&!webAwakeCount)webAwakeCount=1;
+    webTickIndex++;
+  }
   function clearNode(n) {
     n.preparedType=null;
-    n.cursor=0;n.power=0;n.goal=0;n.hz=220;n.targetHz=220;n.x=.5;n.y=.5;n.targetX=.5;n.targetY=.5;n.memory=1.7;n.coupling=0;n.lastFrame=clock;
+    n.cursor=0;n.power=0;n.goal=0;n.hz=220;n.targetHz=220;n.x=.5;n.y=.5;n.targetX=.5;n.targetY=.5;n.memory=1.7;n.coupling=0;n.partnerA=0;n.partnerB=0;n.lastFrame=clock;
     for (const ch of n.channels) {ch.ring.fill(0);ch.filter.fill(0);ch.low=0;ch.env=0;ch.held=0;ch.hold=0;
       ch.subphase=0;ch.dcX=0;ch.dcY=0;ch.aa1=0;ch.aa2=0;ch.previous=0;}
   }
@@ -43,10 +159,11 @@ function createMyzelGDSP(sampleRate) {
     for(const n of retiring)clearNode(n);
     route.fill(-1);wanted.fill(-1);routeLength=0;wantedLength=0;retiringLength=0;pending=false;fade=1;
     clock=0;phases.fill(0);energies.fill(0);goals.fill(0);leftStates.fill(0);rightStates.fill(0);stereoClock=0;
+    webClear();toneMetalUsed=false;
   }
   function copyNode(to,from) {
     to.preparedType=null;
-    for(const key of ['id','type','hz','targetHz','power','goal','x','y','targetX','targetY','memory','coupling','cursor','lastFrame'])to[key]=from[key];
+    for(const key of ['id','type','hz','targetHz','power','goal','x','y','targetX','targetY','memory','coupling','partnerA','partnerB','cursor','lastFrame'])to[key]=from[key];
     to.coeff.set(from.coeff);
     for(let k=0;k<2;k++){const a=to.channels[k],b=from.channels[k];a.ring.set(b.ring);a.filter.set(b.filter);
       for(const key of ['low','env','held','hold','subphase','dcX','dcY','aa1','aa2','previous'])a[key]=b[key];}
@@ -59,10 +176,11 @@ function createMyzelGDSP(sampleRate) {
     // Only these roles read the coefficient bank. Retiring nodes keep their
     // own role and run this same preparation throughout their original fade.
     if(n.type==='resonator'){
-      const hz=n.hz, spread=.025+n.coupling*.16;
-      if(n.preparedType===n.type&&n.preparedHz===hz&&n.preparedY===n.y&&n.preparedCoupling===n.coupling)return;
-      for(let j=0;j<3;j++)coefficient(hz*(j===0?1:j===1?2+spread:3-spread*.5),4.5+n.y*6+j,n.coeff,j*4);
-      n.preparedType=n.type;n.preparedHz=hz;n.preparedY=n.y;n.preparedCoupling=n.coupling;
+      // MYZEL-COSMOS-01: with linked neighbours its upper modes ring at their intervals.
+      const hz=n.hz, spread=.025+n.coupling*.16, pa=n.partnerA, pb=n.partnerB;
+      if(n.preparedType===n.type&&n.preparedHz===hz&&n.preparedY===n.y&&n.preparedCoupling===n.coupling&&n.preparedA===pa&&n.preparedB===pb)return;
+      for(let j=0;j<3;j++)coefficient(hz*(j===0?1:j===1?(pa>0?pa:2+spread):(pb>0?pb:3-spread*.5)),4.5+n.y*6+j,n.coeff,j*4);
+      n.preparedType=n.type;n.preparedHz=hz;n.preparedY=n.y;n.preparedCoupling=n.coupling;n.preparedA=pa;n.preparedB=pb;
     }else if(n.type==='formant_filter'){
       const vowel=c(n.x*.65+smooth.brightness*.2+smooth.hollow*.15);
       if(n.preparedType===n.type&&n.preparedVowel===vowel)return;
@@ -133,6 +251,7 @@ function createMyzelGDSP(sampleRate) {
         if(n.id!==id||n.type!==spec.type){clearNode(n);n.id=id;n.type=spec.type;}
         n.targetHz=c(spec.frequency??params.frequency,35,8000);n.goal=c(spec.strength??0);
         n.targetX=c(spec.x??.5);n.targetY=c(spec.y??.5);n.memory=c(spec.memory??(.28+n.targetY*2.8),.2,5);n.coupling=c(spec.coupling??params.density);
+        n.partnerA=c(spec.partnerA??0,0,8);n.partnerB=c(spec.partnerB??0,0,8);
         let duplicate=false;for(let k=0;k<wantedLength;k++)if(wanted[k]===index)duplicate=true;
         if(!duplicate)wanted[wantedLength++]=index;
       }
@@ -140,6 +259,8 @@ function createMyzelGDSP(sampleRate) {
       for(let i=0;i<wantedLength;i++)if(wanted[i]!==route[i])pending=true;
       if(pending&&fade>=1)commitRoute();
     }
+    if(data.web&&typeof data.web==='object')webConfigure(data.web);
+    webBall(data);
     if(quietReset&&params.active>0)for(const key of keys)if(key!=='active')smooth[key]=params[key];
   }
   function read(ch,n,delay) {
@@ -203,13 +324,19 @@ function createMyzelGDSP(sampleRate) {
       }
       sourceShape.window=window;sourceShape.centre=centre;sourceShape.hollow=t.hollow;sourceShape.roughness=t.roughness;sourceShape.body=t.body;sourceShape.spread=t.spread;sourceShape.bloom=t.bloom;
     }
+    if(!toneMetalUsed&&params.toneMetal>0){toneMetalUsed=true;
+      for(let v=2;v<4;v++)for(let k=0;k<partials;k++){const p=phases[v]*(k+1),a=TAU*(p-Math.floor(p)+v*.17);
+        toneRe[(v-2)*partials+k]=Math.cos(a);toneIm[(v-2)*partials+k]=Math.sin(a);}}
+    if(toneMetalUsed)for(let k=0;k<partials;k++){toneRatio[k]=(k+1)+t.toneMetal*(toneBar[k]-(k+1));
+      for(let v=2;v<4;v++){const j=(v-2)*partials+k,a=TAU*frequencies[v]/rate*toneRatio[k],re=toneRe[j],im=toneIm[j],norm=1.5-.5*(re*re+im*im);
+        toneCos[j]=Math.cos(a);toneSin[j]=Math.sin(a);toneRe[j]=re*norm;toneIm[j]=im*norm;}}
     for(let v=0;v<4;v++){
       increments[v]=frequencies[v]/rate;
       let norm=0;
       for(let k=0;k<partials;k++){
         const h=k+1,hollow=sourceHollow[k],body=sourceBody[k],focus=sourceFocus[k];
         const sheen=.65+.35*sin(clock/rate*(.11+v*.03)+(k/partials)*(.3+t.density*.4));
-        const mask=c((rate*.43-frequencies[v]*h)/(rate*.08));
+        const mask=c((rate*.43-frequencies[v]*(toneMetalUsed&&v>1?toneRatio[k]:h))/(rate*.08));
         const energy=(body*hollow+focus)*sheen*mask*(v===0?(k===0?1.25:.55):1);
         goals[v*partials+k]=energy;norm+=energy;
       }
@@ -258,15 +385,34 @@ function createMyzelGDSP(sampleRate) {
       for(let v=0;v<4;v++){
         phases[v]+=increments[v];if(phases[v]>=1)phases[v]-=Math.floor(phases[v]);
         if(!sourceEnabled[v])continue;
+        if(toneMetalUsed&&v>1){const base=(v-2)*partials;
+          for(let k=0;k<partials;k++){const index=v*partials+k,j=base+k,re=toneRe[j],im=toneIm[j];
+            energies[index]+=(goals[index]-energies[index])*gainStep;
+            toneRe[j]=re*toneCos[j]-im*toneSin[j];const next=re*toneSin[j]+im*toneCos[j];toneIm[j]=next;
+            x+=next*energies[index];}
+          continue;}
         for(let k=0;k<partials;k++){const index=v*partials+k;
           energies[index]+=(goals[index]-energies[index])*gainStep;
           x+=sin(phases[v]*(k+1)+v*.17)*energies[index];}
       }
+      // The web sounds before the organs, so a touched organ colours it too.
+      let webL=x,webR=x;
+      if((webLive||webAwakeCount)&&(params.webLevel>0||smooth.webLevel>1e-7)){
+        if(--webCountdown<=0){webStep();webCountdown=webTick;}
+        let l=0,r=0;
+        for(let n=0;n<webVoices;n++){const i=webAwakeList[n];
+          const goal=webAmp[i];webEnv[i]+=(goal-webEnv[i])*(goal>webEnv[i]?webAttack:webRelease);
+          let v=0;for(let k=0;k<WP;k++){const j=i*WP+k,re=webRe[j],im=webIm[j],cs=webCos[j],sn=webSin[j];
+            webRe[j]=re*cs-im*sn;const next=re*sn+im*cs;webIm[j]=next;v+=next*webPart[j];}
+          v*=webEnv[i];l+=v*webPanL[i];r+=v*webPanR[i];}
+        const gain=smooth.webLevel*.2;webL=x+l*gain;webR=x+r*gain;
+      }
       for(let j=0;j<routeLength;j++){const n=nodes[route[j]];n.power+=(n.goal-n.power)*gainStep;}
       fade=Math.min(1,fade+fadeStep);const f=fade*fade*(3-2*fade);
       for(let ch=0;ch<Math.min(2,output.length);ch++){
-        let y=x;for(let j=0;j<routeLength;j++)y=effect(y,nodes[route[j]],ch);
-        if(fade<1){let old=x;for(let j=0;j<retiringLength;j++)old=effect(old,retiring[j],ch);y=old*(1-f)+y*f;}
+        const input=ch?webR:webL;
+        let y=input;for(let j=0;j<routeLength;j++)y=effect(y,nodes[route[j]],ch);
+        if(fade<1){let old=input;for(let j=0;j<retiringLength;j++)old=effect(old,retiring[j],ch);y=old*(1-f)+y*f;}
         const dc=ch?rightStates:leftStates,value=y-dc[0]+.996*dc[1];dc[0]=y;dc[1]=value;
         const pan=ch===0?(smooth.pan>0?1-smooth.pan*.55:1):(smooth.pan<0?1+smooth.pan*.55:1);
         const out=value*smooth.active*smooth.level*pan*.82;
@@ -282,7 +428,9 @@ function createMyzelGDSP(sampleRate) {
   function snapshot() {return {version:'G2',frame:clock,route:Array.from(route).slice(0,routeLength).map(i=>nodes[i].id),
     nodes:nodes.filter(n=>n.id).map(n=>({id:n.id,type:n.type,hz:n.hz,lastFrame:n.lastFrame,
       storedEnergy:n.channels[0].ring.reduce((s,x)=>s+x*x,0)/lag})),fade,
-    sourceFrequencies:Array.from(frequencies),sourceGains:Array.from(gains),memoryBytes:15*lag*2*4};}
+    sourceFrequencies:Array.from(frequencies),sourceGains:Array.from(gains),memoryBytes:15*lag*2*4,
+    web:{live:webLive,awake:webAwakeCount,links:webLinks,ids:webIds.slice(),on:Array.from(webOn),amp:Array.from(webAmp),env:Array.from(webEnv),
+      queued:webQueued}};}
   return {controls,process,snapshot};
 }
 const __MyzelGSource = `const createMyzelGDSP=${createMyzelGDSP.toString()};
