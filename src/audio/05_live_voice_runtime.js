@@ -252,7 +252,7 @@ function nq(e){
  // ARP-HOLD-01: an overtone arpeggio no longer forces the main loop. At the first note of a held key its tones are played at once
  // inside the hold session (captured with the note, repeated by the hold clock); only when that is not possible the old rule holds.
  const arpHold=!!(t.overtoneArp&&hs&&!hs.sealed&&!hs.unsupported&&e.callbacks.playOvertoneArpNow);
- if(t.overtoneArp&&!arpHold&&!hs?.sealed)__XenHoldResident.reject(hs);
+ if(t.overtoneArp&&!arpHold&&!hs?.sealed)__XenHoldResident.reject(hs,'overtone-arp');
  let n=0,leadRejected=false,firstRejectedIndex=-1,firstRejectionReason='unreported',firstMissing=-1;
  for(let index=0;index<t.tones.length;index++){
   const result=e.callbacks.playGradientTone(t.tones[index]);
@@ -275,7 +275,7 @@ function nq(e){
  // incomplete instrument indefinitely. Leave the fallback as owner instead.
  const arpRun=arpHold&&n>0&&!incomplete?e.callbacks.playOvertoneArpNow(t.overtoneArp.baseFreq,t.overtoneArp.volume,[...t.overtoneArp.activeMix],t.overtoneArp.isSector,hs):"none";
  const residentInvalidated=!!(incomplete||(t.overtoneArp&&arpRun!=="all"&&!hs?.sealed))&&!hs?.sealed;
- if(residentInvalidated)__XenHoldResident.reject(e.holdSession);
+ if(residentInvalidated)__XenHoldResident.reject(e.holdSession,incomplete?'incomplete':'overtone-arp');
  if(e.holdSession)__XenHoldCompositeIntegrity.observe(t.tones.length,n,leadRejected,residentInvalidated,
   __XenHoldCompositeIntegrity.enabled?{preset:e.preset,gesture:e.holdSession.key,firstRejectedIndex,reason:firstRejectionReason}:null);
  n<=0||(t.overtoneArp&&arpRun==="none"&&e.callbacks.enqueueOvertoneArp(t.overtoneArp.baseFreq,t.overtoneArp.volume,[...t.overtoneArp.activeMix],t.overtoneArp.isSector),e.callbacks.triggerBodyExciter(t.bodyExciter.profile,t.bodyExciter.freq,t.bodyExciter.gain,t.bodyExciter.options))

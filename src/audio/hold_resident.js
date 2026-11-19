@@ -21,11 +21,15 @@ const __XenHoldResident=(()=>{
   if(sessions.get(s.key)===s)sessions.delete(s.key);
   s.armed=false;
  }
- function reject(s){if(!s)return;totals.rejections++;
+ const lastRejects=[];
+ function reject(s,reason='unknown'){if(!s)return;totals.rejections++;
+  lastRejects.push({reason:String(reason).slice(0,40),key:s.key,index:s.index,count:s.count,at:Math.round(performance.now())});if(lastRejects.length>8)lastRejects.shift();
   // Prevent failed resident takeovers from retrying every 60 Hz RAF frame.
   // This throttles only preparations; the original Main hold loop still plays.
+  // HOLD-RETRY-01: an attack that was only incomplete (a partial refused for a moment) may try again at the gesture's next step;
+  // a lasting reason (e.g. the random arpeggio) keeps the 400 ms block.
   if(failed.size>=32&&!failed.has(s.key))failed.delete(failed.keys().next().value);
-  failed.set(s.key,{signature:s.signature,gestureStartAtMs:s.gestureStartAtMs,ctx:s.ctx,until:performance.now()+400});
+  failed.set(s.key,{signature:s.signature,gestureStartAtMs:s.gestureStartAtMs,ctx:s.ctx,until:performance.now()+400,pulse:reason==='incomplete'?s.index:Infinity});
   stop(s);s.unsupported=true;}
  function clear(){__XenNodalSurfaces.stopHoldClocks?.();failed.clear();for(const s of [...sessions.values()])stop(s)}
  function session(key,gesture,ctx,pattern,preset,hz,pitchState,gradientState,slotVolumes,slotMicrotiming){
@@ -41,7 +45,7 @@ const __XenHoldResident=(()=>{
   const signature=[gesture.intervalMs,pattern.join(''),preset,hz,pitchState?.signature??'',gradientState?.waveTimbreGradientEnabled,gradientState?.waveTimbreGradientX,vols.join(','),micros.join(',')].join('|');
   const block=failed.get(key);
   if(block){
-   if(block.signature===signature&&block.gestureStartAtMs===gesture.startedAtMs&&block.ctx===ctx&&performance.now()<block.until)return null;
+   if(block.signature===signature&&block.gestureStartAtMs===gesture.startedAtMs&&block.ctx===ctx&&performance.now()<block.until&&!((gesture.pulseCount??0)>block.pulse))return null;
    failed.delete(key);
   }
   let s=sessions.get(key);
@@ -61,14 +65,14 @@ const __XenHoldResident=(()=>{
  function handleReply(s,host,msg){
   if(sessions.get(s.key)!==s||s.unsupported||!s.sealed||!msg||msg.id!==s.id||msg.epoch!==s.epochs.get(host))return;
   // A refused plan or a PCM producer that fell behind: the main loop plays this key again from its next pulse.
-  if(msg.type==='HOLD_REJECT'||msg.type==='HOLD_PREFIX_UNDERRUN'){if(msg.type==='HOLD_PREFIX_UNDERRUN')totals.prefixUnderruns++;reject(s);return}
+  if(msg.type==='HOLD_REJECT'||msg.type==='HOLD_PREFIX_UNDERRUN'){if(msg.type==='HOLD_PREFIX_UNDERRUN')totals.prefixUnderruns++;reject(s,'worklet:'+(msg.reason||msg.type));return}
   if(msg.type==='HOLD_ACTIVE'){totals.active++;if(typeof __XenHoldMod!=='undefined')__XenHoldMod.activate(s);}
  }
  function capture(s,host,record,rebuild){
   if(!s||sessions.get(s.key)!==s||s.unsupported||s.sealed||host.profile!==1||!host.node||!host.canSubmit)return;
-  if(s.count>=24){reject(s);return;}/* ARP-HOLD-01: up to 24 records per gesture (tones + body + up to 16 overtone-arpeggio steps) */
+  if(s.count>=24){reject(s,'capture-limit');return;}/* ARP-HOLD-01: up to 24 records per gesture (tones + body + up to 16 overtone-arpeggio steps) */
   const port=host.node.port;
-  if(typeof port.addEventListener!=='function'){reject(s);return;}
+  if(typeof port.addEventListener!=='function'){reject(s,'no-port');return;}
   if(!s.listeners.has(host)){
    const listener=event=>handleReply(s,host,event.data);
    port.addEventListener('message',listener);
@@ -96,7 +100,7 @@ const __XenHoldResident=(()=>{
    try{for(const c of s.pending)c.host.node.port.postMessage({type:'HOLD_PLAN',id:s.id,epoch:c.epoch,clock:s.clock,index:s.index,offset:c.frame-t0,slot:c.slot,record:c.copy,xInitial:s.initialX});
     s.program=s.pending;s.pending=null;s.sealed=true;
     for(const h of s.hosts)h.node.port.postMessage({type:'HOLD_COMMIT',id:s.id,epoch:h.epoch,count:s.hostCounts.get(h),mode:'tap'});}
-   catch{reject(s)}
+   catch{reject(s,'plan-post')}
   });
  }
  function modulate(name,x,xNormalized){
@@ -109,5 +113,5 @@ const __XenHoldResident=(()=>{
   }
  }
  return{modulate,isCurrent:s=>sessions.get(s.key)===s,session,capture,reject,peek:key=>sessions.get(key)||null,stopKey:key=>{failed.delete(key);stop(sessions.get(key))},clear,
-  diagnostics:()=>({sessions:sessions.size,armed:[...sessions.values()].filter(s=>s.armed).length,pending:[...sessions.values()].filter(s=>s.sealed&&!s.armed).length,totals:{...totals}})};
+  diagnostics:()=>({sessions:sessions.size,armed:[...sessions.values()].filter(s=>s.armed).length,pending:[...sessions.values()].filter(s=>s.sealed&&!s.armed).length,totals:{...totals},lastRejects:lastRejects.slice()})};
 })();
