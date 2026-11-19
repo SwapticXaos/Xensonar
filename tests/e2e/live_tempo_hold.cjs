@@ -44,8 +44,13 @@ async function run(nodal){
  const exp=JSON.parse(await E(`JSON.stringify((()=>{const p=${JSON.stringify(plan)},w=${JSON.stringify(warp)},r=w.rate;const c={start:p.startSec*r,interval:p.intervalMs*r/1000,pattern:p.pattern,slotMicrotiming:null,warp:{...w}};const out=[];for(let i=0;i<400;i++)out.push(xenHoldStepFrame(c,i)/r);return out})())`));
  const res=on.map(t=>{let best=1e9,bi=-1;for(let i=0;i<exp.length;i++){const d=t-exp[i];if(Math.abs(d)<Math.abs(best)){best=d;bi=i}}return [t,best,bi]});
  const steady=res.filter(([t])=>t>plan.startSec+1.2);// after the takeover from the main-thread first pulses
- const phase=([t])=>t<win.start?'before':t<=win.end+.2?'glide':'after';const by={before:[],glide:[],after:[]};for(const r of steady)by[phase(r)].push(r[1]*1000);
- const med=a=>{const s=[...a].sort((x,y)=>x-y);return s[s.length>>1]};const D=med(by.before);
+ const phase=([t])=>t<win.start?'before':t<=win.end+.2?'glide':'after';const by={before:[],glide:[],after:[]};
+ const med=a=>{const s=[...a].sort((x,y)=>x-y);return s[s.length>>1]};
+ // the onset sits ~46 ms after its step, close to half a step at 140 BPM (107 ms): an onset can be matched to the neighbouring step.
+ // Fold every residual into +-half a (local) step around the median before the glide, so it always refers to its own step.
+ const D0=med(steady.filter(r=>phase(r)==='before').map(r=>r[1]*1000));
+ for(const r of steady){const i=r[2],st=(exp[Math.min(exp.length-1,i+1)]-exp[Math.max(0,i)])*1000||60/140/4*1000;let x=r[1]*1000;x-=Math.round((x-D0)/st)*st;by[phase(r)].push(x)}
+ const D=med(by.before);
  const worst=k=>Math.max(...by[k].map(x=>Math.abs(x-D)));
  const idx=steady.map(r=>r[2]);const doubles=idx.filter((x,i)=>i&&x===idx[i-1]).length,gaps=idx.filter((x,i)=>i&&x-idx[i-1]>1).length;
  const after=steady.filter(r=>phase(r)==='after').map(r=>r[0]),g=after.slice(1).map((t,i)=>t-after[i]).sort((a,b)=>a-b);
