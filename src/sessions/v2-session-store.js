@@ -1702,8 +1702,8 @@ function __createXenMetaSessionStore(storage,quick){
    if(!Number.isFinite(cents)||cents<400||cents>4000||steps.length<2||steps.length>__xenGridStepLimit||steps[0]!==0||steps.some((c,i)=>!Number.isFinite(c)||c<0||c>=cents||(i>0&&c<=steps[i-1]+.05)))return false;
    const original=x2(entry.id),same=family===original.periodFamily&&Math.abs(cents-original.periodCents)<.05&&steps.length===original.stepCents.length&&steps.every((c,i)=>Math.abs(c-original.stepCents[i])<.05);
    if(same)return true; // no duplicate library record for an unchanged tuning
-   const type=z6(family,cents,steps),id=Voe(),label=typeof periodDraft.name==='string'&&periodDraft.name.trim()?periodDraft.name.trim().slice(0,100):entry.name+' · Tuning Variation';
-   const saved=LJ({id,label,family:type.family,periodFamily:family,divisionKind:type.divisionKind,steps:steps.length,defaultModePolicy:typeof SF==='function'&&SF(entry.id)==='bp_native'?'bp_native':'church_projection',hotkeyCycleEligible:false,description:'Session Grid Profile tuning variation · '+entry.name,periodCents:cents,stepCents:steps,updatedAt:Date.now()});
+   const type=z6(family,cents,steps,periodDraft.jiTrackedCents),id=Voe(),label=typeof periodDraft.name==='string'&&periodDraft.name.trim()?periodDraft.name.trim().slice(0,100):entry.name+' · Tuning Variation';
+   const saved=LJ({id,label,family:type.family,periodFamily:family,divisionKind:type.divisionKind,steps:steps.length,defaultModePolicy:typeof SF==='function'&&SF(entry.id)==='bp_native'?'bp_native':'church_projection',hotkeyCycleEligible:false,description:'Session Grid Profile tuning variation · '+entry.name,periodCents:cents,stepCents:steps,stepRatios:__xenStepRatios(steps,periodDraft.jiTrackedCents),updatedAt:Date.now()});
    if(!saved)return false;
    const result=update(n=>{const target=n.items.find(e=>__xenGridKey(e)===__xenGridKey(entry));if(!target||target.kind!=='grid')throw Error('Original session tile no longer exists.');
     target.id=id;target.name=label;

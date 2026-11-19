@@ -1335,22 +1335,22 @@ function __XenNativePeriodMarkerRack({editor,markers,selectedIndex,onSelect,onDr
     u.jsx('div',{className:'absolute inset-x-8 top-[16px] border-t border-fuchsia-400/40'}),
     u.jsx('div',{className:'absolute inset-x-8 bottom-[16px] border-t border-fuchsia-400/40'}),
     u.jsx('div',{className:'absolute left-8 top-[16px] bottom-[16px] w-px bg-fuchsia-800/50'}),
-    u.jsxs('div',{className:'absolute right-3 top-1 text-[10px] text-fuchsia-300/80',children:[editor.periodCents.toFixed(1),'c']}),
-    u.jsx('div',{className:'absolute right-3 bottom-1 text-[10px] text-fuchsia-300/80 xen-period-zero-label',children:'0.0c'}),
+    u.jsxs('div',{className:'absolute text-[10px] text-fuchsia-300/80',style:{left:4,top:1,zIndex:1,background:'#090611',padding:'0 4px'},children:[editor.periodCents.toFixed(1),'c']}),
+    u.jsx('div',{className:'absolute text-[10px] text-fuchsia-300/80 xen-period-zero-label',style:{left:4,bottom:1,zIndex:1,background:'#090611',padding:'0 4px'},children:'0.0c'}),
     markers.map(marker=>{
      const active=marker.index===selectedIndex,movable=marker.index>0;
      return u.jsx('div',{className:'absolute inset-x-0',style:{top:marker.y-8},children:
       u.jsxs('div',{className:'relative flex items-center gap-2 px-3',children:[
        u.jsx('div',{className:`h-px flex-1 ${active?'bg-fuchsia-300/70':'bg-fuchsia-700/35'}`}),
        u.jsxs('button',{type:'button',disabled:!movable,
-        'aria-label':'Tune marker '+marker.index+' · '+Hoe(marker.cents),
+        'aria-label':'Tune marker '+marker.index+' · '+(marker.ratio?marker.ratio+' · ':'')+Hoe(marker.cents),
         title:movable?'Drag to tune marker '+marker.index:'Marker 0 remains the anchor',
         onPointerDown:event=>{if(movable){event.preventDefault();onSelect(marker.index);onDrag(marker.index)}},
         onClick:()=>onSelect(marker.index),
         className:`flex h-4 min-w-0 items-center gap-2 ${movable?'cursor-ns-resize':'cursor-default'}`,
         children:[
          u.jsx('div',{'aria-hidden':'true',className:`h-0 w-0 border-y-[6px] border-y-transparent border-l-0 border-r-[10px] ${active?'border-r-fuchsia-200':'border-r-sky-300/90'}`}),
-         labelledIndexes.has(marker.index)&&u.jsxs('div',{className:'whitespace-nowrap text-[10px] text-fuchsia-100/85',children:[marker.index,' (',Hoe(marker.cents),')']})
+         labelledIndexes.has(marker.index)&&u.jsxs('div',{className:'whitespace-nowrap text-[10px] text-fuchsia-100/85',children:[marker.index,' (',marker.ratio||Hoe(marker.cents),')']})
         ]})
       ]})},marker.id)
     })

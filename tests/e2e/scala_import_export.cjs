@@ -20,7 +20,7 @@ const html=path.resolve(process.argv[2]||'dist/XenSonar_PROBE.html');
   assert.match(await p.locator('[data-xen-header-menu="grid"]').innerText(),/meanquar imported from Scala: 12 steps, period 1200\.0 c/,'the status says what happened');
   // export the selected (imported) grid and read it back
   const [dl]=await Promise.all([p.waitForEvent('download'),p.locator('[data-xen-scala-export]').click()]);const out=path.join(dir,dl.suggestedFilename());await dl.saveAs(out);
-  const txt=fs.readFileSync(out,'utf8');assert.equal(dl.suggestedFilename(),'meanquar.scl');assert.match(txt,/\n 12\n!\n/);assert.match(txt,/\n 386\.30000\n/);assert.match(txt,/\n 2\/1\n$/);
+  const txt=fs.readFileSync(out,'utf8');assert.equal(dl.suggestedFilename(),'meanquar.scl');assert.match(txt,/\n 12\n!\n/);assert.match(txt,/\n 5\/4\n/,"the imported ratio is written back as a ratio");assert.match(txt,/\n 25\/16\n/);assert.match(txt,/\n 2\/1\n$/);
   // reload: the grid is in the library
   await p.reload();await p.waitForTimeout(3500);assert.ok((await custom()).some(t=>t.label==='meanquar'),'kept after reload');
   // a broken file: clear message, nothing saved
