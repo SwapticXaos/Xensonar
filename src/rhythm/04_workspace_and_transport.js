@@ -361,7 +361,44 @@ function FPe(e){const{drumMachine:t,entry:n,stepIndex:r,time:a,stepDurationSec:o
   const layer=v.layers?.[0];t.triggerSample?.(slot.id,R,w*Math.max(0,Math.min(2,slot.volume??1))*.55* (layer?.levelScale??1),{
     pan:(slot.pan||0)+(layer?.panOffset||0),decayLock:v.decayLock,toneLock:v.toneLock,lane:v.laneId,eq:slot.eq});return;
  }
- const k=v.laneId==="hatClosed"?"hat_closed":v.laneId==="hatOpen"?"hat_open":v.laneId;(v.layers.length?v.layers:[{id:"primary",active:!0,levelScale:1,decayScale:1,panOffset:0,gradient:0}]).forEach(E=>{if(!E.active)return;const F=PPe({laneId:v.laneId,drumStyle:s,laneSettings:M.laneSettings,value:v.value});t.trigger(k,R,w*E.levelScale,C0({laneId:v.laneId,globalKit:l,overrides:c}),{...F,pan:Math.max(-1,Math.min(1,F.pan+E.panOffset)),decayScale:F.decayScale*E.decayScale*v.decayLock,snap:Math.max(0,Math.min(1,(F.snap+E.gradient*.08)*v.toneLock)),air:Math.max(0,Math.min(1,(F.air+Math.max(0,E.gradient)*.06)*v.toneLock)),edge:Math.max(0,Math.min(1,(F.edge+Math.max(0,-E.gradient)*.06)*v.toneLock)),softness:Math.min(1,F.softness+(1-v.toneLock)*.55)},{lane:v.laneId,config:v.laneSettings?.eq})})})}function TPe(e){const{pattern:t,step:n,time:r,bassLevel:a,quantizeBpm:o,rootHz:i,playBassNote:s}=e,l=(t.swing-.5)*.032,c=n%2===1?l:-l*.3,d=Math.max(0,r+c),p=t.bass[n];if(p?.active){const f=60/Math.max(40,o)/4*(.66+t.noteLength),b=p.tie?f*1.55:f,g=i*p.ratio*Math.pow(2,p.octave);s(d,g,a,b,p.accent??.7,{glideToNext:p.glideToNext,ghost:(p.accent??.7)<.45})}}function LPe(e){return{classicOffbeat:.04,rolling:.36,gallop:.62,tripletGhost:.72,darkForest:.9}[e]}function BPe(e){return{barIndex:e.barIndex,seed:e.seed,rootHz:e.rootHz,stepCount:16,baseSwing:.02+e.swing*.08,styleMorph:LPe(e.style),density:Rp(.68+e.bassGrit*.16+e.pressure*.1,0,1),descriptors:e.descriptors,pitchMode:e.pitchMode,tuningId:e.tuningId}}function DPe(e){const{pattern:t,step:n,time:r,bassLevel:a,quantizeBpm:o,playBassNote:i}=e,s=t.swing*.028,l=n%2===1?s:-s*.18,c=Math.max(0,r+l),d=t.steps[n%t.steps.length];if(!d?.active)return;const p=t.rootHz*(d.pitchRatio??Math.pow(2,(d.semitone+d.octave*12)/12)),b=60/Math.max(40,o)/4*Rp(.22+d.length*1.25,.12,1.7);i(c,p,a*(d.ghost?.64:1),b,d.accent,{glideToNext:d.glideToNext,ghost:d.ghost})}const NPe=new ML(64,e=>{const n=new Float32Array(1024),r=.65+e*2.6;for(let a=0;a<1024;a+=1){const o=a/1023*2-1;n[a]=Math.tanh(o*r)}return n}),OPe=e=>{
+ const k=v.laneId==="hatClosed"?"hat_closed":v.laneId==="hatOpen"?"hat_open":v.laneId;(v.layers.length?v.layers:[{id:"primary",active:!0,levelScale:1,decayScale:1,panOffset:0,gradient:0}]).forEach(E=>{if(!E.active)return;const F=PPe({laneId:v.laneId,drumStyle:s,laneSettings:M.laneSettings,value:v.value});t.trigger(k,R,w*E.levelScale,C0({laneId:v.laneId,globalKit:l,overrides:c}),{...F,pan:Math.max(-1,Math.min(1,F.pan+E.panOffset)),decayScale:F.decayScale*E.decayScale*v.decayLock,snap:Math.max(0,Math.min(1,(F.snap+E.gradient*.08)*v.toneLock)),air:Math.max(0,Math.min(1,(F.air+Math.max(0,E.gradient)*.06)*v.toneLock)),edge:Math.max(0,Math.min(1,(F.edge+Math.max(0,-E.gradient)*.06)*v.toneLock)),softness:Math.min(1,F.softness+(1-v.toneLock)*.55)},{lane:v.laneId,config:v.laneSettings?.eq})})})}function TPe(e){const{pattern:t,step:n,time:r,bassLevel:a,quantizeBpm:o,rootHz:i,playBassNote:s}=e,l=(t.swing-.5)*.032,c=n%2===1?l:-l*.3,d=Math.max(0,r+c),p=t.bass[n];if(p?.active){const f=60/Math.max(40,o)/4*(.66+t.noteLength),b=p.tie?f*1.55:f,g=i*p.ratio*Math.pow(2,p.octave);s(d,g,a,b,p.accent??.7,{glideToNext:p.glideToNext,ghost:(p.accent??.7)<.45})}}function LPe(e){return{classicOffbeat:.04,rolling:.36,gallop:.62,tripletGhost:.72,darkForest:.9}[e]}function BPe(e){return{barIndex:e.barIndex,seed:e.seed,rootHz:e.rootHz,stepCount:16,baseSwing:.02+e.swing*.08,styleMorph:LPe(e.style),density:Rp(.68+e.bassGrit*.16+e.pressure*.1,0,1),descriptors:e.descriptors,pitchMode:e.pitchMode,tuningId:e.tuningId}}function DPe(e){const{pattern:t,step:n,time:r,bassLevel:a,quantizeBpm:o,playBassNote:i}=e,s=t.swing*.028,l=n%2===1?s:-s*.18,c=Math.max(0,r+l),d=t.steps[n%t.steps.length];if(!d?.active)return;const p=t.rootHz*(d.pitchRatio??Math.pow(2,(d.semitone+d.octave*12)/12)),b=60/Math.max(40,o)/4*Rp(.22+d.length*1.25,.12,1.7);i(c,p,a*(d.ghost?.64:1),b,d.accent,{glideToNext:d.glideToNext,ghost:d.ghost})}/* BASS-V2-01 (zone HOT, built once per note on the main thread like the classic voice): one description of a modern bass note,
+   played by the resident bass worklet (host.note(plan)) or, where the worklet is not there (offline renders, start-up), by the same
+   timelines on native nodes, so a live note and an export sound alike. Timeline entries: [kind, time, value, tau] with kind
+   0 set · 1 linear ramp · 2 exponential ramp · 3 set target (the AudioParam calls). The classic voices keep their own path. */
+function __xenBassV2Plan({voice,hz,at,length,level,accent,ghost,tone,grit,params,glide}){
+ /* a superset of the classic note: with none of the extra fields this yields exactly the classic voice's message (tests/e2e/bass_v2_voices.cjs) */
+ const classic=voice.classicMode===true,n=Math.max(1,Math.min(3,voice.uni|0||1)),sp=voice.spread||0,drop=voice.pdrop>1?voice.pdrop:1,pdec=voice.pdec||.04;
+ const glideEnd=glide?Math.min(at+length*.42,at+(Number.isFinite(voice.glide)?voice.glide:.08)):0;
+ const fq=(f,to)=>{const l=drop>1?[[0,at,f*drop],[2,at+pdec,f]]:[[0,at,f]];if(glideEnd)l.push([2,drop>1?Math.max(glideEnd,at+pdec+1e-3):glideEnd,to]);return l};
+ const osc=[],waveA=classic?(grit>.56?'square':'sawtooth'):voice.wave,w=Math.fround(1/Math.sqrt(n));
+ for(const r of n===1?[1]:n===2?[1-sp/2,1+sp/2]:[1-sp,1,1+sp])osc.push({type:waveA,w:n===1?1:w,freq:fq(hz*r,hz*r*1.122)});
+ if(voice.second){const hzB=hz*(classic&&ghost?1.0015:voice.detune);osc.push({type:ghost?'sine':voice.second,w:1,freq:fq(hzB,hz*voice.detune*1.118/1.004)})}
+ const sub=Me(params.bassSub??1,0,1.5)*voice.sub;if(sub>.001)osc.push({type:'sine',w:Math.fround(sub),freq:drop>1?[[0,at,hz/2*drop],[2,at+pdec,hz/2]]:[[0,at,hz/2]]});
+ const envelope=Me(params.bassEnvelope??1,0,2)*(Number.isFinite(voice.fenv)?voice.fenv:1);
+ const low=Me(hz*(.95+tone*1.4)*voice.color,80,2200),high=Me(hz*(1.8+tone*3.8)*(.9+accent*.25)*voice.color,120,4200);
+ const poles=voice.poles===4?4:2,q=((ghost?.35:.55)+grit*1.1+accent*.22+Me(params.bassResonance??0,0,1)*4+(voice.res||0)*6)*(poles===4?.6:1);
+ const drive=Me(grit+(voice.drive||0),0,1),att=Math.max(0,voice.att||0),L=Math.max(1e-4,level*(ghost?.42:.72+accent*.5)),tau=(ghost?.016:.024)+(1-tone)*.02;
+ const gain=att>0?[[0,at,1e-4],[1,at+att,L],[3,at+Math.max(att,length*.76),1e-4,tau]]:[[0,at,L],[3,at+length*.76,1e-4,tau]];
+ const m={at,stop:at+length,osc,mix:Math.fround(((ghost?.46:.7)+grit*.16)*voice.gain),grit:classic||drive>.001?drive:null,
+  filterFreq:[[0,at,Me(low+(high-low)*envelope,80,7000)],[2,at+length*(Number.isFinite(voice.fdec)?voice.fdec:.58),low]],filterQ:[[0,at,q]],gain};
+ if(poles===4)m.poles=4;return m;
+}
+function __xenBassV2Native(ctx,plan,dest,send,audition){
+ const nodes=[],sources=[],disposers=[],own=x=>(nodes.push(x),x);
+ const apply=(param,list)=>{for(const [k,t,v,tau] of list){if(k===0)param.setValueAtTime(v,t);else if(k===1)param.linearRampToValueAtTime(v,t);else if(k===2)param.exponentialRampToValueAtTime(v,t);else param.setTargetAtTime(v,t,tau)}};
+ const mix=own(ctx.createGain());mix.gain.value=plan.mix;let into=mix;
+ if(plan.grit!==null){const sh=own(ctx.createWaveShaper());sh.curve=NPe.get(plan.grit);mix.connect(sh);into=sh}
+ const f1=own(ctx.createBiquadFilter());f1.type='lowpass';apply(f1.frequency,plan.filterFreq);apply(f1.Q,plan.filterQ);into.connect(f1);let last=f1;
+ if(plan.poles===4){const f2=own(ctx.createBiquadFilter());f2.type='lowpass';apply(f2.frequency,plan.filterFreq);apply(f2.Q,plan.filterQ);f1.connect(f2);last=f2}
+ const out=own(ctx.createGain());apply(out.gain,plan.gain);last.connect(out);out.connect(dest);if(send)out.connect(send);
+ for(const o of plan.osc){const src=own(ctx.createOscillator());sources.push(src);src.type=o.type;apply(src.frequency,o.freq);
+  if(audition)src.detune.setValueAtTime(__XenBassPitch.snapshot(),plan.at);else disposers.push(__XenBassPitch.register(ctx,src.detune));
+  if(o.w===1)src.connect(mix);else{const g=own(ctx.createGain());g.gain.value=o.w;src.connect(g);g.connect(mix)}}
+ let ended=0,released=false;const release=()=>{if(released)return;released=true;for(const d of disposers)d();for(const x of nodes)try{x.disconnect()}catch{}};
+ for(const src of sources){src.onended=()=>{if(++ended===sources.length)setTimeout(release,120)};src.start(plan.at);src.stop(plan.stop)}
+ return {cancel(){out.gain.cancelScheduledValues(ctx.currentTime);out.gain.setValueAtTime(0,ctx.currentTime);for(const x of sources)try{x.stop(ctx.currentTime)}catch{}release()},nodeCount:nodes.length};
+}
+const NPe=new ML(64,e=>{const n=new Float32Array(1024),r=.65+e*2.6;for(let a=0;a<1024;a+=1){const o=a/1023*2-1;n[a]=Math.tanh(o*r)}return n}),OPe=e=>{
  const ctx=e.audioCtx;
  return {playBassNote:(time,hz,level,duration,accent=.72,options)=>{
   if(!Number.isFinite(time)||!Number.isFinite(hz)||hz<=0||!Number.isFinite(level)||level<=1e-5||ctx.state==='closed')return null;
@@ -372,6 +409,17 @@ function FPe(e){const{drumMachine:t,entry:n,stepIndex:r,time:a,stepDurationSec:o
   const length=Me(duration*(params.bassDecay??1),.025,8),at=time+(e.applyLiveAttack===false?0:__XenAttackLanes.seconds('bass',params.quantizeBpm));
   // P9-C1: never collapse missed ATT-shifted notes onto now. Gate before graph work.
   if(at<ctx.currentTime)return null;
+  /* BASS-V2-01: modern voices (extra recipe fields) share one note description for the worklet and the native fallback */
+  if(__xenBassVoiceV2(voice)){
+   const dest=e.bassDestination||__XenPan.route(ctx,"bass",e.ensureFinalMixBus(ctx));
+   const plan=__xenBassV2Plan({voice,hz,at,length,level,accent,ghost,tone,grit,params,glide:!!options?.glideToNext});
+   let sendTarget=null;if(e.enterHoldPsyFxEnabled&&e.enterHoldRef.current){e.ensureEnterHoldPsyFxDevice(ctx);const t=e.enterHoldPsyFxSendsRef.current.bass;if(t)sendTarget=__XenPan.route(ctx,"bass",t)}
+   const host=__XenLiveVoiceHost.bass(ctx,dest),token=e.bassVoiceAudition===true?0:__XenBassGrid.recordPlayedBass(hz,at,length,ctx);
+   if(host){if(sendTarget)host.send(sendTarget);const id=host.note({...plan,send:!!sendTarget,detuneFixed:e.bassVoiceAudition===true?__XenBassPitch.snapshot():null});
+    return {startTime:at,cancel(){if(at<ctx.currentTime+.015)return false;__XenBassGrid.cancelPlayedBass(token);host.cancel(id,ctx.currentTime);return true},nodeCount:0}}
+   const native=__xenBassV2Native(ctx,plan,dest,sendTarget,e.bassVoiceAudition===true);
+   return {startTime:at,cancel(){if(at<ctx.currentTime+.015)return false;__XenBassGrid.cancelPlayedBass(token);native.cancel();return true},nodeCount:native.nodeCount};
+  }
   /* VOICE-HOST-01: the same synth voice, rendered by the resident bass worklet (one node for all notes, no graph change per note) */
   {
    const waveA=classic?(grit>.56?'square':'sawtooth'):voice.wave,waveB=voice.second?(ghost?'sine':voice.second):null;

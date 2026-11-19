@@ -164,7 +164,8 @@ function __xenVoiceHostModule(){
    const v={id:m.id,start,stop,end:stop+Math.ceil(.15*SR),send:!!m.send,fixed:Number.isFinite(m.detuneFixed)?m.detuneFixed:null,cancelAt:Infinity,
     osc:m.osc.map(o=>({tab:this.tables[o.type],w:o.w,freq:timeline(440,o.freq),vri:0,y:0,hz:NaN,incr:0,hi:null,lo:null,tf:0})),detune:NaN,scale:1,
     mix:m.mix,curve:m.grit===null?null:curveFor(m.grit),freq:timeline(350,m.filterFreq),q:timeline(1,m.filterQ),gain:timeline(1,m.gain),
-    bq:{b0:0,b1:0,b2:0,a1:0,a2:0,x1:0,x2:0,y1:0,y2:0},lastHz:NaN,lastQ:NaN};
+    bq:{b0:0,b1:0,b2:0,a1:0,a2:0,x1:0,x2:0,y1:0,y2:0},lastHz:NaN,lastQ:NaN,
+    bq2:m.poles===4?{x1:0,x2:0,y1:0,y2:0}:null}; // BASS-V2-01: 24 dB = a second stage with the same coefficients (native: two biquads)
    if(this.voices.length>=512)this.voices.shift();
    this.voices.push(v);
   }
@@ -191,7 +192,8 @@ function __xenVoiceHostModule(){
      if(v.curve){const c=v.curve,vi=Math.max(0,Math.min(1023,F(F(s+1)*511.5)));const i1=Math.min(1023,vi|0),i2=Math.min(1023,i1+1);s=F(c[i1]+F(F(vi-i1)*F(c[i2]-c[i1])))}
      const hz=v.freq.at(f,k===0),q=v.q.at(f,k===0),b=v.bq;
      if(hz!==v.lastHz||q!==v.lastQ){lpCoef(b,hz,q);v.lastHz=hz;v.lastQ=q}
-     const y=F(b.b0*s+b.b1*b.x1+b.b2*b.x2-b.a1*b.y1-b.a2*b.y2);b.x2=b.x1;b.x1=s;b.y2=b.y1;b.y1=y;
+     let y=F(b.b0*s+b.b1*b.x1+b.b2*b.x2-b.a1*b.y1-b.a2*b.y2);b.x2=b.x1;b.x1=s;b.y2=b.y1;b.y1=y;
+     const c=v.bq2;if(c){const y2=F(b.b0*y+b.b1*c.x1+b.b2*c.x2-b.a1*c.y1-b.a2*c.y2);c.x2=c.x1;c.x1=y;c.y2=c.y1;c.y1=y2;y=y2}
      const g=v.gain.at(f,k===0),o=F(y*g);
      out0[k]+=o;if(v.send&&out1)out1[k]+=o;
     }
