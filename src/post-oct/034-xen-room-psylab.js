@@ -572,6 +572,9 @@ function XenPsyLabRoom(){
  const start=P.useCallback((source,hz,vel)=>{const l=live.current;
   if(l.hold){const key=Math.round(1200*Math.log2(hz));const old=latched.current.get(key);if(old!==undefined){latched.current.delete(key);release(old);return null}
    const id=++noteSeq.current;latched.current.set(key,id);notesHz.current.set(id,hz/Math.pow(2,l.oct));engine.noteOn(id,hz,vel);return null}
+  /* KEY-ORPHAN-01: a source that is still held means its release (keyup / pointerup) never arrived. The old note ends here; overwriting the entry left it
+     sounding with no handle left (only leaving the room freed it). The same key pressed again is therefore always a way to silence it. */
+  const prev=held.current.get(source);if(prev!==undefined){held.current.delete(source);release(prev)}
   const id=++noteSeq.current;held.current.set(source,id);notesHz.current.set(id,hz/Math.pow(2,l.oct));engine.noteOn(id,hz,vel);return id},[engine,release]);
  const stop=P.useCallback(source=>{const id=held.current.get(source);if(id===undefined)return;held.current.delete(source);release(id)},[release]);
  P.useEffect(()=>{if(!hold&&latched.current.size){for(const id of latched.current.values())release(id);latched.current.clear()}},[hold,release]);
@@ -633,8 +636,9 @@ function XenPsyLabRoom(){
    const hz=hz0*Math.pow(2,live.current.oct);focus.current.y=padGeometry(live.current.orient,live.current.flip,live.current.log).yOf(hz0);start('key:'+e.code,hz,e.shiftKey?1:.8);if(readoutRef.current)readoutRef.current.textContent=hz.toFixed(2)+' Hz'};
   const up=e=>{if(e.key.startsWith('Arrow')){const ar=arrow.current;ar[e.key==='ArrowUp'?'up':e.key==='ArrowDown'?'down':e.key==='ArrowLeft'?'left':'right']=false}stop('key:'+e.code)};
   const blur=()=>{for(const source of[...held.current.keys()])stop(source)};
-  document.addEventListener('keydown',down,true);document.addEventListener('keyup',up,true);window.addEventListener('blur',blur);
-  return()=>{document.removeEventListener('keydown',down,true);document.removeEventListener('keyup',up,true);window.removeEventListener('blur',blur)}},[panic,start,stop]);
+  const hide=()=>{if(document.hidden)blur()};
+  document.addEventListener('keydown',down,true);document.addEventListener('keyup',up,true);window.addEventListener('blur',blur);document.addEventListener('visibilitychange',hide);window.addEventListener('pagehide',blur);
+  return()=>{document.removeEventListener('keydown',down,true);document.removeEventListener('keyup',up,true);window.removeEventListener('blur',blur);document.removeEventListener('visibilitychange',hide);window.removeEventListener('pagehide',blur)}},[panic,start,stop]);
 
  /* drawing: the Live Room's grid layer (lines, green snapped line, blue triangles, cursor, ball) plus a scope figure behind it.
     Runs only while this room is mounted and the tab is visible. */
