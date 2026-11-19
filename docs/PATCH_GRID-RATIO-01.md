@@ -1,7 +1,7 @@
 # GRID-RATIO-01 · Brüche in der Grid Workbench + abgeschnittener unterer Rand
 
 Status: CODE_PRESENT, UNIT_VERIFIED, BROWSER_CHECKED (Chromium, 1600×760 und 1600×900, Screenshots vorher/nachher). Zone: KALT (Grid Workbench, kein Audio berührt).
-Parent `3433523`, `index.html` 8 307 348 B (siehe Commit; Zuwachs ca. +3,3 KB). Rollback: `3433523`.
+Parent `3433523`, `index.html` 8 303 938 → 8 307 348 B (+3 410 B). Rollback: `3433523`.
 
 ## Wunsch (Nutzer, 19.11.)
 1. In der Grid Workbench ist der untere Rand abgeschnitten (Grafik leicht fixen).
