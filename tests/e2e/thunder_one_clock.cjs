@@ -42,7 +42,7 @@ const html=path.resolve(process.argv[2]||'dist/XenSonar_PROBE.html');
  assert(r.main<=2,'volume and microtiming patterns no longer fall back to main-thread pulses: '+r.main);assert(Math.abs(r.main+r.clock-r.expected)<=1);assert.equal(r.missed+r.silent,0);
  // 3. main thread blocked 150 ms every 400 ms: the clock keeps every step
  r=await hold(base,3000,150);notes.push('blocked main thread '+JSON.stringify(r));
- assert(r.main<=2);assert.equal(r.missed+r.silent,0,'no step lost while the main thread is blocked');assert(Math.abs(r.main+r.clock-r.expected)<=1,'all steps: '+(r.main+r.clock)+' of '+r.expected);
+ assert(r.main<=2,'blocked main thread: the main thread starts only the first notes: '+JSON.stringify(r));assert.equal(r.missed+r.silent,0,'no step lost while the main thread is blocked');assert(Math.abs(r.main+r.clock-r.expected)<=1,'all steps: '+(r.main+r.clock)+' of '+r.expected);
  // 4. Loose = the old timing: every pulse from the main thread, the clock plays nothing
  r=await hold({...base,thunderTiming:'loose'},2000);notes.push('loose '+JSON.stringify(r));
  assert.equal(r.clock,0,'Loose: no audio-clock steps');assert(Math.abs(r.main-r.expected)<=2,'Loose: every pulse from the main thread: '+r.main+' of '+r.expected);
