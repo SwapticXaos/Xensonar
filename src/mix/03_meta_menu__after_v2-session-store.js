@@ -1335,8 +1335,8 @@ function __XenNativePeriodMarkerRack({editor,markers,selectedIndex,onSelect,onDr
     u.jsx('div',{className:'absolute inset-x-8 top-[16px] border-t border-fuchsia-400/40'}),
     u.jsx('div',{className:'absolute inset-x-8 bottom-[16px] border-t border-fuchsia-400/40'}),
     u.jsx('div',{className:'absolute left-8 top-[16px] bottom-[16px] w-px bg-fuchsia-800/50'}),
-    u.jsxs('div',{className:'absolute right-3 top-1 text-[10px] text-fuchsia-300/80',children:[editor.periodCents.toFixed(1),'c']}),
-    u.jsx('div',{className:'absolute right-3 bottom-1 text-[10px] text-fuchsia-300/80 xen-period-zero-label',children:'0.0c'}),
+    u.jsxs('div',{className:'absolute text-[10px] text-fuchsia-300/80',style:{left:4,top:1,zIndex:1,background:'#090611',padding:'0 4px'},children:[editor.periodCents.toFixed(1),'c']}),
+    u.jsx('div',{className:'absolute text-[10px] text-fuchsia-300/80 xen-period-zero-label',style:{left:4,bottom:1,zIndex:1,background:'#090611',padding:'0 4px'},children:'0.0c'}),
     markers.map(marker=>{
      const active=marker.index===selectedIndex,movable=marker.index>0;
      return u.jsx('div',{className:'absolute inset-x-0',style:{top:marker.y-8},children:
