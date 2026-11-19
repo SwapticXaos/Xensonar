@@ -115,32 +115,27 @@ function Gje(){return{sourceKind:"material",renderMode:"flowing",anchorGridStep:
  e.setStatusMessage('Spectral PNG imported · original Figure Project restored exactly');
  window.setTimeout(()=>e.setStatusMessage(''),3200);c();return;
  }const v=await JK(M.image,e.spectralData,{fitMode:M.fitMode,shiftX:M.shiftX,shiftY:M.shiftY,contrast:M.hardContrast?HE:M.contrast,readMode:M.readMode},w=>e.setWorkflowProgress(w));e.setSourceAsset(null),e.setSourcePreviewMode("forge"),xt.invalidateBuffer(),e.triggerRender(),e.setPlayheadPosition(0),e.setShowPlayheadMarker(!1),e.setStatusMessage(`Image imported: ${v.imageWidth}×${v.imageHeight} → ${M.readMode==="legacy"?"Legacy":M.readMode==="contour"?"Contour":"Hybrid"} · ${M.fitMode==="crop"?"Crop":M.fitMode==="stretch"?"Stretch":M.fitMode==="containLeft"?"align left":"align right"} · ${M.hardContrast?"hard contrast":`Kontrast ${M.contrast.toFixed(2)}`}`),window.setTimeout(()=>e.setStatusMessage(""),2600),c()}catch(v){console.error("Image import error:",v),e.setStatusMessage("Image import failed"),window.setTimeout(()=>e.setStatusMessage(""),2600)}finally{e.setWorkflowBusy(!1)}}},[e.isPlaying,e.pushUndo,e.setIsPlaying,e.setPlayheadPosition,e.setWorkflowProgress,e.setWorkflowBusy,e.setShowPlayheadMarker,e.setSourceAsset,e.setSourcePreviewMode,e.setStatusMessage,e.spectralData,e.triggerRender,c,t]),x=P.useCallback(M=>{n(v=>v&&{...v,...M})},[]),A=P.useCallback(M=>{a(v=>v&&{...v,...M})},[]);return{pendingImageImport:t,pendingAudioImport:r,fileInputRef:o,imagePreviewCanvasRef:i,audioPreviewCanvasRef:s,closeImageImport:c,closeAudioImport:d,handleImportFile:b,handleConfirmAudioImport:g,handleConfirmImageImport:y,updatePendingImageImport:x,updatePendingAudioImport:A}}function Xk(e){return e.trim().toLowerCase().replace(/[^a-z0-9-_]+/g,"-").replace(/^-+|-+$/g,"")||"spectral-material"}function Yk(e,t,n){const r=URL.createObjectURL(e);DV(r,e,t,n);const a=document.createElement("a");a.href=r,a.download=t,a.click(),URL.revokeObjectURL(r),NV(r,"spectral-forge-transport-download-url-revoked")}const h6e=[{id:"forge",label:"Forge"},{id:"sourceWindow",label:"Original · Window"},{id:"sourceFull",label:"Original · Full"}],f6e={width:42,minWidth:42,height:34,minHeight:34,padding:0};function g6e(e){const t=e.isPlaying&&!e.rendering?"⏸":"▶",n=e.renderFillActive?"border-neutral-300 bg-neutral-700 text-white shadow-inner disabled:cursor-progress":e.isPlaying?"border-red-400/40 bg-red-600 text-white hover:bg-red-500":e.previewReadyForImmediatePlay?"border-green-400/40 bg-green-600 text-white hover:bg-green-500":"border-neutral-500/60 bg-neutral-700 text-neutral-100 hover:bg-neutral-600";return e.renderFillActive?{symbol:t,className:Xb(n),title:`Preparing preview · ${e.renderFillPercent}%`,screenReaderLabel:`Preparing preview · ${e.renderFillPercent} percent`}:e.isPlaying?{symbol:t,className:Xb(n),title:"Pause Preview",screenReaderLabel:"Pause Preview"}:e.previewReadyForImmediatePlay?{symbol:t,className:Xb(n),title:"Preview ready · starts immediately",screenReaderLabel:"Preview ready, starts immediately"}:e.previewRenderRouteKind==="basis-hearing"?{symbol:t,className:Xb(n),title:"Listening mode is rendered automatically",screenReaderLabel:"Listening mode is rendered automatically"}:{symbol:t,className:Xb(n),title:"Preview not rendered yet",screenReaderLabel:"Preview not rendered yet"}}function Xb(e){return`relative inline-flex shrink-0 items-center justify-center overflow-hidden rounded border font-bold text-lg leading-none transition-[border-color,box-shadow,transform] duration-150 ${e}`}function b6e(e,t){const n=e*t,r=Math.floor(n/60),a=n%60;return`${r}:${a.toFixed(2).padStart(5,"0")}`}function S6e(e){if(e.variant==="forge3"&&e.hasSourceAsset&&e.sourcePreviewMode==="forge")return`Preview ${e.previewDurationSec.toFixed(2)}s`;if(e.hasSourceAsset&&e.sourcePreviewMode!=="forge"){if(e.sourcePreviewMode==="sourceFull")return`Source ${(e.sourceOriginalDuration??0).toFixed(2)}s`;const t=e.sourceImportStartSec??0,n=t+(e.sourceImportDurationSec??0);return`Window ${t.toFixed(2)}–${n.toFixed(2)} s`}return`Preview ${e.previewDurationSec.toFixed(2)}s`}function v6e(e){const t=e.routeKind==="basis-hearing"&&e.bridgeRequestKey===e.currentRequestKey&&e.bridgeMachineId===e.currentMachineId&&e.bridgePhase!=="idle",n=t&&e.bridgePhase==="preparing"&&!e.isPlaying,r=n?Math.max(4,Math.min(99,Math.round(e.bridgeProgress*100))):0;return{matchesCurrentRoute:t,fillActive:n,fillPercent:r}}function A6e(e){const t=[{key:"undo-domain",label:e.undoBadgeLabel,title:"Global undo acts on the workbench here.",className:"rounded border border-neutral-700 bg-neutral-950/80 px-2 py-1 text-[10px] text-neutral-300"}];return e.sourceAssetContext==="forge3_main"&&t.push({key:"source-loaded",label:"Source Loaded",title:"An audio source is loaded and available to SpectralForge as material.",className:"rounded border border-neutral-700 bg-neutral-950/80 px-2 py-1 text-[10px] text-neutral-300"}),e.forge3BodyActive&&t.push({key:"source-prepared",label:"Source Prepared",title:"The loaded source is prepared for SpectralForge.",className:"rounded border border-fuchsia-500/40 bg-fuchsia-500/10 px-2 py-1 text-[10px] text-fuchsia-200"}),t.push({key:"body-label",label:e.forge3BodyLabel,title:"Shows whether the coupled body path currently belongs to the Forge preview.",className:"rounded border border-neutral-700 bg-neutral-950/80 px-2 py-1 text-[10px] text-neutral-300"}),t}// Capture the current editor, not a library row or the last auditioned machine.
-/* SFML P8.2: receiver-mode ownership. A drawn score exists independently of the
- * currently selected auditory rendering. Field support is optional and NEVER a
- * precondition for Scattered or Raw Audio. */
+/* SFML P8.2 / SEND-FIG-01: A drawn score exists independently of the selected
+ * auditory rendering. The listening machine is NEVER a precondition for sending
+ * Scattered, Fretless Field or Monotone: only the abstract Carrier figure travels.
+ * If the current machine happens to supply a Fretless timbre it rides along as an
+ * optional extra; otherwise the notes carry none and the receiving track's
+ * instrument plays them (same as Scattered). */
 function __xenSfmlFieldChoice(state,snapshot,options={}){
- const current=state.carrierIntegralSelection?.machineId??null;
- // Known field-capable machine contracts, checked at runtime (not a hard-coded
- // assumption that every donor/body machine can synthesize a Fretless field).
- const candidates=(options.strictMachine?[current]:[current,'branch-b573-synth-window','branch-a-line-traffic',
-  'branch-c-interval-body','raw-darkpsy-oscillator']).filter((id,i,all)=>id&&all.indexOf(id)===i); // SFML-003: exact machine for one-click Send.
- for(const machineId of candidates){
-  try{
-   const policy=oze({machineId,targetId:'melodic-pink-export'});
-   if(!policy?.usesAudioPaintImportDetail)continue;
+ const machineId=state.carrierIntegralSelection?.machineId??null;
+ let timbre=null;
+ if(machineId)try{
+  const policy=oze({machineId,targetId:'melodic-pink-export'});
+  if(policy?.usesAudioPaintImportDetail){
    const request=OB({projectName:state.materialExport.name,snapshot,machineId,
     valueSource:'right-override',selection:{...state.carrierIntegralSelection,machineId,source:'user'},
     synthLab:state.carrierIntegralSynthLab,harmonicXplore:state.carrierIntegralHarmonicXplore,
     previewBpm:state.materialExport.bpm,previewGain:1,previewPitchSemitones:options.pitchSemis??__f3565PitchSemis()});
-   const native=PK(request),timbre=AV(native.config?.synthPatch?.carrierIntegralTimbre);
-   if(!native.config?.synthPattern?.notes?.length||!timbre?.oscillators?.length)continue;
-   return {machineId,timbre,
-    fallback:machineId!==current,reason:machineId!==current?
-     'Selected hearing does not provide a Fretless Field; using '+V$(machineId)+' for the field interpretation.':null};
-  }catch(error){/* A failed native machine may not suppress the painted score. */}
- }
- return {machineId:null,timbre:null,fallback:false,
-  reason:'The selected listening machine cannot supply a Fretless Field for this figure. Choose Scattered, Monotone or a compatible hearing.'};
+   const native=PK(request),candidate=AV(native.config?.synthPatch?.carrierIntegralTimbre);
+   if(native.config?.synthPattern?.notes?.length&&candidate?.oscillators?.length)timbre=candidate;
+  }
+ }catch(error){/* A machine without a field timbre may not suppress the painted score. */}
+ return {machineId:timbre?machineId:null,timbre,fallback:false,reason:null};
 }
 function __xenForgePinkPlan(state,selection,options={}){
  if(selection)return {detail:null,reason:'Navigator selection contains only a rendered audio window; Scattered requires the complete carrier figure.'};
@@ -154,7 +149,7 @@ function __xenForgePinkPlan(state,selection,options={}){
  geometry.config.synthPatch.carrierIntegralTimbre=null;
  return {request:null,detail:{carrierProjectId:state.selectedProjectId??null,carrierRevision:state.renderVersion??null,
   machineId:field.machineId??'carrier-geometry',sourcePrism:label,prism:'Carrier Figure',
-  fieldMachineId:field.machineId,fieldAvailable:!!field.machineId,fieldReason:field.reason,
+  fieldMachineId:field.machineId,fieldAvailable:true,fieldReason:null,
   fieldFallback:field.fallback,fieldTimbre:field.timbre,
   bars:state.materialExport.bars,bpm:state.materialExport.bpm,rootHz:geometry.config.synthPattern.baseHz,
   config:geometry.config,carrierIntegralTimbre:null,geometry:geometry.summary,
@@ -174,10 +169,7 @@ function __xenSfmlDirectAvailability(state,selection){
  const receiverContract=detail?__xenSfmlPreflightContract({...detail,entryId:'sfml-preflight'}):null;
  const geometryReady=!!receiverContract?.ok;
  const structured=geometryReady?on():off(reason||receiverContract?.reason||'No complete transferable Carrier figure is available.');
- const selectedMachine=state?.carrierIntegralSelection?.machineId??null;
- const fieldReady=geometryReady&&detail.fieldAvailable===true&&detail.fieldMachineId===selectedMachine;
- const field=fieldReady?on():off(!geometryReady?structured.reason:
-   detail?.fieldReason||'Current listening machine cannot provide a Fretless Field.');
+ const field=structured; // Fretless Field needs the figure only, never a particular hearing (SEND-FIG-01).
  const hearing=__f333Route(state),donor=Vt.getSnapshot(),routing=__ForgeDonorRoutingF317.getSnapshot();
  const rawBusy=hearing==='donor-pending'||
    (['donor','hybrid'].includes(hearing)&&(!donor.selected||routing.phase!=='idle'||donor.phase==='analyzing'));
@@ -306,9 +298,12 @@ function x6e(e){const __f345BusyRef=P.useRef(false),__f345Transfer=P.useRef(null
    // Raw captures the hearing selected AT Send, even if its Donor is loading.
    // Prepare before freezing state: the legacy guard must not reject its own
    // legitimate asynchronous Donor activation. Scattered stays independent.
+   // SEND-FIG-01: Scattered / Fretless Field / Monotone send the abstract Carrier
+   // figure only. They neither prepare nor render the current hearing.
+   const figureOnly=pink&&['scattered','last-hearing','monotone'].includes(selectedPinkMode);
    const requestedRawRoute=pink?__f333Route(pe.getState()):null;
    let rawPreflightError=null;
-   if(pink){
+   if(pink&&!figureOnly){
     try{await __xenSfmlPrepareRawListeningBeforeGuard(requestedRawRoute)}
     catch(error){rawPreflightError=error instanceof Error?error.message:String(error);}
    }
@@ -325,7 +320,11 @@ function x6e(e){const __f345BusyRef=P.useRef(false),__f345Transfer=P.useRef(null
    let clip=null,rawUnavailable=null,rendered;
    // A failed Donor preflight is NOT permission to render a different hearing.
    // Geometry-only Scattered remains available if a valid figure exists.
-   if(pink&&rawPreflightError){
+   if(figureOnly){
+    if(!pinkPlan?.detail)throw Error('Selected structured mode requires valid full Carrier geometry: '+(pinkPlan?.reason||'unavailable'));
+    rawUnavailable='Only the Carrier figure was sent (no rendered hearing).';
+    rendered={blob:__xenSfmlNoRawPlaceholder(),durationSec:capturedDuration};
+   }else if(pink&&rawPreflightError){
     if(!pinkPlan?.detail)throw Error('Raw Audio unavailable: '+rawPreflightError);
     rawUnavailable=rawPreflightError;
     rendered={blob:__xenSfmlNoRawPlaceholder(),durationSec:capturedDuration};
@@ -342,10 +341,10 @@ function x6e(e){const __f345BusyRef=P.useRef(false),__f345Transfer=P.useRef(null
     }
    }
    if(pink&&selectedPinkMode==='grained'&&rawUnavailable)throw Error('Raw Audio cannot be sent: '+rawUnavailable);
-   if(rawUnavailable)__f345Status('Raw Audio unavailable in '+originalHearing+' hearing · Scattered figure remains transferable · '+rawUnavailable);
+   if(rawUnavailable&&!figureOnly)__f345Status('Raw Audio unavailable in '+originalHearing+' hearing · Scattered figure remains transferable · '+rawUnavailable);
    // In an ordinary export, an async change of listening mode cannot silently
    // replace the active hearing captured by the Send click.
-   if(pink&&!rawUnavailable&&originalHearing!=='donor-pending'&&__f333Route(pe.getState())!==originalHearing)
+   if(pink&&!figureOnly&&!rawUnavailable&&originalHearing!=='donor-pending'&&__f333Route(pe.getState())!==originalHearing)
     throw Error('Listening mode changed during Raw Audio export · retry with the current hearing.');
    if(pink&&!__XenSFMLP8.matches(sourceSnapshot,pe.getState(),__ForgeNavigatorSample.current()))
     throw Error('Carrier source changed during rendering · no material committed; retry with the current figure.');
@@ -369,7 +368,7 @@ function x6e(e){const __f345BusyRef=P.useRef(false),__f345Transfer=P.useRef(null
      directMode:['scattered','last-hearing','monotone','grained'].includes(selectedPinkMode)?selectedPinkMode:null};
     Object.assign(l,{stableId:pinkId,rootHz:detail.rootHz,workspaceOrigin:'spectralforge-carrier-integral',
      renderMode:'carrier-integral-melodic-pink-export',audioPaintImportDetailJson:Aje(detail),
-     ...(rawUnavailable?{routeSummary:'Carrier shape only; Raw hearing was unavailable: '+rawUnavailable}:{})});
+     ...(rawUnavailable?{routeSummary:figureOnly?'Carrier figure only (no rendered hearing)':'Carrier shape only; Raw hearing was unavailable: '+rawUnavailable}:{})});
     pinkPlan.detail=detail;
    }
    // P8: pending pointer preflight, followed by the existing verified durable commit.
@@ -397,7 +396,7 @@ function x6e(e){const __f345BusyRef=P.useRef(false),__f345Transfer=P.useRef(null
     if(pinkPlan.detail){
      if(transferTicket.entryId!==entry.id)throw Error('Carrier pointer/material identity mismatch');
      __f345Transfer.current=transferTicket;
-     __f345Status(rawUnavailable?`Carrier archived · Raw Audio unavailable: ${rawUnavailable} · ${entry.name}`:`Material verified · awaiting Melodic import · ${entry.name}`);
+     __f345Status(figureOnly?`Carrier figure verified · awaiting Melodic import · ${entry.name}`:rawUnavailable?`Carrier archived · Raw Audio unavailable: ${rawUnavailable} · ${entry.name}`:`Material verified · awaiting Melodic import · ${entry.name}`);
      if(!ri('carrierIntegralMelodicPinkExport',transferTicket))throw Error('Carrier event could not be dispatched; verified Material remains saved.');
     }else{
      const intent={entryId:entry.id,rootHz:l.rootHz??55,source:'spectral-forge-rendered-hearing',reason:pinkPlan.reason,hearing:originalHearing};

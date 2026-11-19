@@ -132,3 +132,4 @@ scala_01.test.cjs
 live_tempo_map.test.cjs
 ml_noteclip_pink_02.test.cjs
 grid_ratio_01.test.cjs
+ml_erase_01.test.cjs
