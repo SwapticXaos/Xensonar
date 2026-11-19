@@ -33,6 +33,15 @@ const html=path.resolve(process.argv[2]||'dist/XenSonar_PROBE.html');
   // library package (archive) round trip: fractions and family survive export -> import mapping, and the content hash lets the same grid be recognised (no duplicate)
   const arch=await p.evaluate(()=>window.__xenProbe.draw.evalInBundle(`(()=>{const exp=JSON.parse(JSON.stringify(H6({selectedTuning:null,activeRack:[],customTunings:FJ()})));const pay=V6(exp);const g=pay.customTunings.find(t=>t.label==='15 CJI');const y=Yoe(g,'custom:zz','copy');const r=Q6({payload:pay,mode:'append',fallbackCurrentTuning:'12edo'});return JSON.stringify({fam:g.family,kind:g.divisionKind,ratio:g.stepRatios&&g.stepRatios['407.8'],y:{fam:y.family,kind:y.divisionKind,r:y.stepRatios&&y.stepRatios['407.8']},imported:r.importedCount})})()`)).then(JSON.parse);
   assert.deepEqual(arch,{fam:'cji',kind:'ratio',ratio:'81/64',y:{fam:'cji',kind:'ratio',r:'81/64'},imported:0},'archive keeps the CJI; re-importing the same grid adds no duplicate: '+JSON.stringify(arch));
+  // play field (Live Room grid lines): a grid with fractions is labelled "ratio · cents (Hz)" instead of "CJI n (Hz)"; a mixed grid keeps "CDO n" for steps without a fraction;
+  // re-saving a library grid under the same id refreshes the lines (cache is cleared when the library is written)
+  const lines=await p.evaluate(()=>window.__xenProbe.draw.evalInBundle(`(()=>{const id=LJ({id:'custom:field1',label:'field',family:'cdo',periodFamily:'octave',divisionKind:'custom',steps:4,periodCents:1200,stepCents:[0,386.3,701.9,1000]});
+const a={gridTuning:id,gridBase:220,manualGridMutedSteps:[],manualGridStepOffsets:[]};const pick=()=>$Se(a).filter(x=>x.stepIndex<4&&x.freq>=219&&x.freq<=500||x.freq>=219&&x.freq<=440&&x.stepIndex===3).slice(0,6).map(x=>x.label);const before=$Se(a).slice(0,4).map(x=>x.label);
+const e=DJ(id);LJ({...e,family:'cdo',stepRatios:{'386.3':'5/4','701.9':'3/2'}});const mixed=$Se(a).slice(0,4).map(x=>x.label);
+LJ({...DJ(id),stepCents:[0,386.3,701.9],steps:3,family:'cji',divisionKind:'ratio'});const pure=$Se(a).slice(0,3).map(x=>x.label);BJ(id);return JSON.stringify({before,mixed,pure})})()`)).then(JSON.parse);
+  assert.ok(lines.before.every(x=>/^CDO \d+ \(/.test(x)),'plain custom division: '+JSON.stringify(lines.before));
+  assert.deepEqual(lines.mixed.map(x=>x.replace(/ \(.*$/,'')),['Root','5/4 · 386.3c','3/2 · 701.9c','CDO 4'],'mixed: fractions where known, CDO n elsewhere');
+  assert.deepEqual(lines.pure.map(x=>x.replace(/ \(.*$/,'')),['Root','5/4 · 386.3c','3/2 · 701.9c']);assert.ok(lines.pure.every(x=>/Hz\)$/.test(x)),'frequency stays at the end');
   // Scala export of the saved grid carries the ratios
   const [dl]=await Promise.all([p.waitForEvent('download'),p.locator('[data-xen-scala-export]').click()]);const out=path.join(fs.mkdtempSync(path.join(os.tmpdir(),'xen-cji-')),dl.suggestedFilename());await dl.saveAs(out);
   const scl=fs.readFileSync(out,'utf8');assert.match(scl,/\n 81\/64\n/);assert.match(scl,/\n 1001\/1000\n/);assert.match(scl,/\n 2\/1\n$/);
