@@ -183,3 +183,8 @@ body{height:auto;min-height:100vh;overflow:visible}
 /* TILES-ART-01: with the playhead running only once, the chosen tile is shown by the other one being dimmed (hover brings it back) */
 .grid:has([data-xen-tile][class*="border-cyan-500"],[data-xen-tile][class*="border-violet-500"]) [data-xen-tile]:not([class*="border-cyan-500"]):not([class*="border-violet-500"]){filter:brightness(.58) saturate(.65)}
 .grid:has([data-xen-tile][class*="border-cyan-500"],[data-xen-tile][class*="border-violet-500"]) [data-xen-tile]:not([class*="border-cyan-500"]):not([class*="border-violet-500"]):hover{filter:brightness(.85) saturate(.85)}
+/* TILES-ART-01: the Spectral Forge tile was formatted differently once chosen: the existing rule that makes room for the More button (padding-right 74px on the last text block, only while More is shown)
+   narrowed the description, it wrapped to a 4th line and was cut. Both tiles now have the same padding and the same text width in every state; More sits under the artwork, the text keeps clear of it. */
+[data-xen-workflow-tile="spectral-forge"] [data-xen-workflow-select][data-xen-tile]{padding-top:16px;padding-bottom:16px}
+[data-xen-workflow-tile="spectral-forge"]:has([data-xen-workflow-more]) [data-xen-workflow-select][data-xen-tile]>div:last-child{padding-right:0}
+@media (max-width:1180px){[data-xen-tile]>div:nth-of-type(3){max-width:calc(100% - 70px)}}

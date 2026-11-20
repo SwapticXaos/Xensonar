@@ -21,3 +21,7 @@ Grenzen: Die Grafik ist ein fester Entwurf, gehört wurde/gemessen nichts; in se
 **„More ↗“ auf der Spectral-Forge-Kachel** bleibt (Geschwister-Element der Kachel, unten rechts über der Grafik, öffnet seinen ausklappbaren Text). Test `tests/e2e/tiles_more_button.cjs` sichert Grafik, Sichtbarkeit, Nicht-Überdeckung und das Öffnen.
 
 Rollback: `fe55f44`.
+
+## Nachtrag: Spectral-Forge-Kachel gewählt/nicht gewählt gleich formatiert
+Befund: Eine bestehende Regel (`054-xen-spectral-workflow-style.css`: Platz für den More-Button, `padding-right:74px` auf dem letzten Textblock, nur solange More angezeigt wird = nur im gewählten Zustand) machte die Beschreibung schmaler; sie brach in eine 4. Zeile und wurde von der 3-Zeilen-Grenze bei „to your …“ abgeschnitten. Dazu hatte die Kachel andere Innenabstände (12/2,125 px) als Melodic (16 px).
+Änderung (nur CSS): gleiche Innenabstände, der Zusatzrand entfällt, bei schmalen Fenstern (≤ 1180 px) halten beide Beschreibungen 70 px Abstand zum More-Bereich. Gemessen: Textblock gewählt und nicht gewählt je 3 Zeilen (54 px, kein Abschnitt). Auf Wunsch keine Test-Suite gefahren; nur `build.py --check` (OK) und Screenshot.
