@@ -18,5 +18,7 @@ const html=path.resolve(process.argv[2]||'dist/XenSonar_PROBE.html');
  await box.check();await q.waitForTimeout(800);const on=await cyan();
  console.log('cyan pixels off/on:',off,on);assert.ok(on>off+200,'lines appear when on');
  await box.uncheck();await q.waitForTimeout(800);assert.ok(await cyan()<off+100,'lines gone again');
+ const pt=q.locator('input[data-paint-trail]');assert.equal(await pt.count(),1,'Paint Trail checkbox');assert.equal(await pt.isChecked(),true,'Paint Trail default on');
+ await pt.uncheck();await q.waitForTimeout(500);assert.equal(await pt.isChecked(),false);await pt.check();
  assert.deepEqual(errors,[]);await b.close();console.log('grid_visible OK');
 })().catch(e=>{console.error(e);process.exit(1)});

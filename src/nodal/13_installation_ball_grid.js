@@ -4,10 +4,16 @@
 /* GRID-VISIBLE-01: drawing the grid lines in Art Installation is optional (default off); the grid itself always sounds. */
 let __nodalGridLinesVisible=false;
 const __nodalGridVisibleListeners=new Set();
-function __XenGridVisibleToggle(){
- const on=P.useSyncExternalStore(f=>(__nodalGridVisibleListeners.add(f),()=>__nodalGridVisibleListeners.delete(f)),()=>__nodalGridLinesVisible,()=>false);
+let __nodalPaintTrailOn=true;
+function __XenCanvasToggle(label,attr,get,set){
+ const on=P.useSyncExternalStore(f=>(__nodalGridVisibleListeners.add(f),()=>__nodalGridVisibleListeners.delete(f)),get,()=>false);
  return P.createElement('label',{style:{display:'inline-flex',alignItems:'center',gap:6,cursor:'pointer'}},
-  P.createElement('input',{type:'checkbox','data-grid-visible':true,checked:on,onChange:e=>{__nodalGridLinesVisible=e.currentTarget.checked;__nodalGridVisibleListeners.forEach(f=>f());}}),'Grid Visible');
+  P.createElement('input',{type:'checkbox',[attr]:true,checked:on,onChange:e=>{set(e.currentTarget.checked);__nodalGridVisibleListeners.forEach(f=>f());}}),label);
+}
+function __XenGridVisibleToggle(){
+ return P.createElement(P.Fragment,null,
+  __XenCanvasToggle('Grid Visible','data-grid-visible',()=>__nodalGridLinesVisible,v=>{__nodalGridLinesVisible=v;}),
+  __XenCanvasToggle('Paint Trail','data-paint-trail',()=>__nodalPaintTrailOn,v=>{__nodalPaintTrailOn=v;if(!v)__NodalBallPaint.reset();}));
 }
 
 const __NodalBallGrid=(()=>{
@@ -68,7 +74,7 @@ const __NodalBallPaint=(()=>{
   octx.putImageData(img,0,0);
  }
  function draw(ctx,ball,width,height){
-  if(!(width>0&&height>0)||!ball||!Number.isFinite(ball.x)||!Number.isFinite(ball.y))return;
+  if(!__nodalPaintTrailOn||!(width>0&&height>0)||!ball||!Number.isFinite(ball.x)||!Number.isFinite(ball.y))return;
   const now=typeof performance!=='undefined'?performance.now():Date.now();
   if(!off||w!==width||h!==height){
    sc=Math.min(1,960/width);off=document.createElement('canvas');off.width=Math.max(1,Math.ceil(width*sc));off.height=Math.max(1,Math.ceil(height*sc));
