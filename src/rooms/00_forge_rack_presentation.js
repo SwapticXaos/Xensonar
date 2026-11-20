@@ -215,3 +215,54 @@ function __ForgeRackRows({primary,secondary,extras=[]}){
   h('div',{className:'xen-forge-action-row xen-forge-action-row-secondary'},secondary),
   ...extras);
 }
+
+/* TILES-ART-01: artwork of the two entry tiles of the Material Forge (Spectral Forge / Melodic Loop). One melodic contour, two ways to write it:
+   painted as a flowing, fretless line (Spectral Forge) and stepped into note blocks on pitch lines (Melodic Loop): yin and yang of melody writing.
+   Static SVG strings (no data, no scripts), shown aria-hidden behind the tile text. */
+const __xenTileArtForge='<svg viewBox="0 0 360 150" preserveAspectRatio="xMaxYMid slice" focusable="false" aria-hidden="true">'+
+ '<defs><linearGradient id="xta-f1" x1="0" x2="1"><stop offset="0" stop-color="#22d3ee" stop-opacity=".15"/><stop offset=".35" stop-color="#67e8f9"/><stop offset=".7" stop-color="#e0fbff"/><stop offset="1" stop-color="#a5f3fc" stop-opacity=".5"/></linearGradient>'+
+ '<linearGradient id="xta-f2" x1="0" x2="1"><stop offset="0" stop-color="#2dd4bf" stop-opacity=".1"/><stop offset=".5" stop-color="#5eead4"/><stop offset="1" stop-color="#99f6e4" stop-opacity=".4"/></linearGradient>'+
+ '<linearGradient id="xta-f3" x1="0" x2="1"><stop offset="0" stop-color="#e879f9" stop-opacity=".1"/><stop offset=".55" stop-color="#f0abfc"/><stop offset="1" stop-color="#fbcfe8" stop-opacity=".4"/></linearGradient>'+
+ '<radialGradient id="xta-fg" cx=".7" cy=".5" r=".75"><stop offset="0" stop-color="#0e7490" stop-opacity=".55"/><stop offset=".6" stop-color="#083344" stop-opacity=".25"/><stop offset="1" stop-color="#020617" stop-opacity="0"/></radialGradient>'+
+ '<linearGradient id="xta-ff" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#67e8f9"/><stop offset=".5" stop-color="#0e7490"/><stop offset="1" stop-color="#0c2f5c"/></linearGradient>'+
+ '<filter id="xta-fb" x="-20%" y="-40%" width="140%" height="180%"><feGaussianBlur stdDeviation="3.2"/></filter></defs>'+
+ '<rect width="360" height="150" fill="url(#xta-fg)"/><rect width="360" height="150" fill="url(#xta-ff)" opacity=".85"/>'+
+ /* log-spaced frequency lines and faint spectrogram haze */
+ '<g stroke="#67e8f9" stroke-opacity=".09" stroke-width=".7"><path d="M0 18H360M0 40H360M0 66H360M0 98H360M0 138H360"/></g>'+
+ '<g fill="#67e8f9" fill-opacity=".05"><ellipse cx="250" cy="52" rx="90" ry="9"/><ellipse cx="230" cy="86" rx="110" ry="7"/><ellipse cx="280" cy="112" rx="70" ry="6"/></g>'+
+ /* second and third voice: thinner strokes, other phase (polyphony, fretless) */
+ '<path d="M30 124C74 124 88 84 132 82S182 116 230 104S290 62 332 70" fill="none" stroke="url(#xta-f3)" stroke-width="3.2" stroke-linecap="round" filter="url(#xta-fb)" opacity=".8"/>'+
+ '<path d="M30 124C74 124 88 84 132 82S182 116 230 104S290 62 332 70" fill="none" stroke="url(#xta-f3)" stroke-width="2" stroke-linecap="round"/>'+
+ '<path d="M44 40C80 40 100 22 140 30S196 60 238 52S300 96 340 88" fill="none" stroke="url(#xta-f2)" stroke-width="2.4" stroke-linecap="round" filter="url(#xta-fb)" opacity=".8"/>'+
+ '<path d="M44 40C80 40 100 22 140 30S196 60 238 52S300 96 340 88" fill="none" stroke="url(#xta-f2)" stroke-width="1.6" stroke-linecap="round"/>'+
+ /* the main voice: the shared contour, glowing, with a vibrato wiggle at the end (expressive) */
+ '<path class="xta-main" d="M14 112C50 112 62 58 104 58S150 96 196 84S250 28 290 34C304 36 308 44 318 40S330 30 340 36" fill="none" stroke="url(#xta-f1)" stroke-width="9" stroke-linecap="round" filter="url(#xta-fb)" opacity=".75"/>'+
+ '<path d="M14 112C50 112 62 58 104 58S150 96 196 84S250 28 290 34C304 36 308 44 318 40S330 30 340 36" fill="none" stroke="url(#xta-f1)" stroke-width="4.2" stroke-linecap="round"/>'+
+ '<path d="M14 112C50 112 62 58 104 58S150 96 196 84S250 28 290 34C304 36 308 44 318 40S330 30 340 36" fill="none" stroke="#fff" stroke-opacity=".75" stroke-width="1.1" stroke-linecap="round"/>'+
+ /* brush dabs where the stroke started */
+ '<g fill="#a5f3fc"><circle cx="14" cy="112" r="3.4" fill-opacity=".9"/><circle cx="26" cy="114" r="1.6" fill-opacity=".6"/><circle cx="8" cy="106" r="1.3" fill-opacity=".5"/></g>'+
+ /* playhead */
+ '<g class="xta-head"><rect x="249" y="6" width="1.4" height="138" fill="#e0fbff" fill-opacity=".85"/><rect x="246" y="6" width="7.4" height="138" fill="#67e8f9" fill-opacity=".14"/></g>'+
+ '</svg>';
+const __xenTileArtMelodic='<svg viewBox="0 0 360 150" preserveAspectRatio="xMaxYMid slice" focusable="false" aria-hidden="true">'+
+ '<defs>'+
+ [['b','#7dd3fc','#0369a1'],['p','#d8b4fe','#6b21a8'],['o','#fcd34d','#b45309'],['g','#6ee7b7','#047857']].map(c=>'<linearGradient id="xta-m'+c[0]+'" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="'+c[1]+'"/><stop offset="1" stop-color="'+c[2]+'"/></linearGradient>').join('')+
+ '<radialGradient id="xta-mglow" cx=".7" cy=".5" r=".75"><stop offset="0" stop-color="#6d28d9" stop-opacity=".5"/><stop offset=".6" stop-color="#2e1065" stop-opacity=".25"/><stop offset="1" stop-color="#020617" stop-opacity="0"/></radialGradient></defs>'+
+ '<rect width="360" height="150" fill="url(#xta-mglow)"/><rect width="360" height="150" fill="url(#xta-mg)" opacity=".9"/>'+
+ /* pitch lines (horizontal) and bar lines (vertical) */
+ '<g stroke="#c4b5fd" stroke-opacity=".12" stroke-width=".7"><path d="M0 14H360M0 26H360M0 38H360M0 50H360M0 62H360M0 74H360M0 86H360M0 98H360M0 110H360M0 122H360M0 134H360"/></g>'+
+ '<g stroke="#c4b5fd" stroke-opacity=".2" stroke-width=".9"><path d="M90 6V144M180 6V144M270 6V144"/></g>'+
+ /* the same contour, stepped into blocks (one block = one pitch line, one length) */
+ (()=>{
+  const B=[ /* [x,y,width,gradient] main voice: follows the contour of the Spectral Forge stroke */
+   [14,110,34,'b'],[54,98,18,'b'],[76,62,30,'b'],[110,56,34,'b'],[150,86,26,'b'],[180,86,24,'b'],[208,74,22,'b'],[234,38,26,'b'],[264,32,40,'b'],[308,38,16,'b'],[328,32,22,'b'],
+   /* second voice */
+   [30,122,24,'p'],[60,122,20,'p'],[92,86,36,'p'],[134,80,22,'p'],[162,110,28,'p'],[196,104,34,'p'],[238,98,18,'p'],[262,62,26,'p'],[296,66,22,'p'],[324,70,24,'p'],
+   /* third voice */
+   [44,38,26,'g'],[78,38,16,'g'],[100,26,34,'g'],[142,26,20,'g'],[170,50,36,'g'],[214,50,20,'g'],[242,50,26,'g'],[274,86,30,'g'],[308,90,36,'g'],
+   /* short accents */
+   [58,134,10,'o'],[118,134,10,'o'],[154,122,10,'o'],[226,122,12,'o'],[286,122,10,'o'],[338,110,12,'o'],[190,14,10,'o'],[250,14,12,'o']];
+  return B.map(b=>'<g><rect x="'+b[0]+'" y="'+(b[1]-4.5)+'" width="'+b[2]+'" height="9" rx="2.6" fill="url(#xta-m'+b[3]+')"/><rect x="'+(b[0]+1.5)+'" y="'+(b[1]-3.7)+'" width="'+Math.max(2,b[2]-3)+'" height="2.2" rx="1.1" fill="#fff" fill-opacity=".38"/></g>').join('');
+ })()+
+ '<g class="xta-head"><rect x="249" y="6" width="1.4" height="138" fill="#f3e8ff" fill-opacity=".85"/><rect x="246" y="6" width="7.4" height="138" fill="#c4b5fd" fill-opacity=".14"/></g>'+
+ '</svg>';

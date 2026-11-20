@@ -8,7 +8,7 @@ const emilia = read('styles/areas/027_inline-027.css');
 const main = read('src/rhythm/02_bass_and_rack.js');
 const bassPointer = read('src/handoff/00_chat_feature_addons.js');
 assert.match(lab,/children:"Melodic Loop"\}\),u\.jsx\("div",\{className:"mt-1 text-lg font-semibold",children:"Microtonal Loop Composer"\}\)/,'second title line');
-assert.match(lab,/children:"Compose Ideas, Tune Precisely"/,'third line');
+assert.match(lab,/children:"Write note blocks on freely tuned pitch lines, any scale, any meter, one sound per instrument."/,'third line');
 assert.doesNotMatch(lab,/Older wave\/material implementations remain only as technical references in the archive/,'unhelpful public archival blurb removed');
 assert.match(emilia,/input\[type=checkbox\]:not\(:checked\)\{background:#fff\}/,'white unmuted state');
 assert.match(emilia,/input\[type=checkbox\]:checked\{background:#091c24\}/,'dark muted center');
