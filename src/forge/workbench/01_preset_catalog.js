@@ -89,7 +89,7 @@ const __F341PresetCatalog = Object.freeze({
     },
     presets: [ {
         id: "gestalt-articulation-original",
-        name: "Klanggestalt · Articulation · 1",
+        name: "Sound Form · Articulation · 1",
         description: "Variant 1 of this listening mode · original timbre rendering and preset values (F3.56.40).",
         values: {
             engine: "spectral",
@@ -107,7 +107,7 @@ const __F341PresetCatalog = Object.freeze({
         }
     }, {
         id: "gestalt-articulation",
-        name: "Klanggestalt · Articulation · 2",
+        name: "Sound Form · Articulation · 2",
         description: "Ü · observed onset, typical body and decay follow carrier-owned time.",
         values: {
             engine: "spectral",
@@ -126,7 +126,7 @@ const __F341PresetCatalog = Object.freeze({
         }
     }, {
         id: "gestalt-imprint-original",
-        name: "Klanggestalt · Resonant Imprint · 1",
+        name: "Sound Form · Resonant Imprint · 1",
         description: "Variant 1 of this listening mode · original timbre rendering and preset values (F3.56.40).",
         values: {
             engine: "spectral",
@@ -143,7 +143,7 @@ const __F341PresetCatalog = Object.freeze({
         }
     }, {
         id: "gestalt-imprint",
-        name: "Klanggestalt · Resonant Imprint · 2",
+        name: "Sound Form · Resonant Imprint · 2",
         description: "Ü · coherent phrase transport with a stable absolute resonance envelope.",
         values: {
             engine: "spectral",
@@ -161,7 +161,7 @@ const __F341PresetCatalog = Object.freeze({
         }
     }, {
         id: "gestalt-motion-original",
-        name: "Klanggestalt · Timbre Motion · 1",
+        name: "Sound Form · Timbre Motion · 1",
         description: "Variant 1 of this listening mode · original timbre rendering and preset values (F3.56.40).",
         values: {
             engine: "spectral",
@@ -178,7 +178,7 @@ const __F341PresetCatalog = Object.freeze({
         }
     }, {
         id: "gestalt-motion",
-        name: "Klanggestalt · Timbre Motion · 2",
+        name: "Sound Form · Timbre Motion · 2",
         description: "Ü · signed pitch movement and changing stroke shape drive a reversible source journey.",
         values: {
             engine: "spectral",
@@ -196,7 +196,7 @@ const __F341PresetCatalog = Object.freeze({
         }
     }, {
         id: "gestalt-weave-original",
-        name: "Klanggestalt · Material States · 1",
+        name: "Sound Form · Material States · 1",
         description: "Variant 1 of this listening mode · original timbre rendering and preset values (F3.56.40).",
         values: {
             engine: "spectral",
@@ -213,7 +213,7 @@ const __F341PresetCatalog = Object.freeze({
         }
     }, {
         id: "gestalt-weave",
-        name: "Klanggestalt · Material States · 2",
+        name: "Sound Form · Material States · 2",
         description: "Ü · observed recurring donor states and transitions guide phrase selection.",
         values: {
             engine: "spectral",
@@ -264,7 +264,7 @@ const __F341PresetCatalog = Object.freeze({
         }
     }, {
         id: "signature-pilot-original",
-        name: "Donor-Signatur · Versuch · 1",
+        name: "Donor Signature · Experiment · 1",
         description: "Variant 1 of this listening mode · original timbre rendering and preset values (F3.56.40).",
         values: {
             engine: "spectral",
@@ -281,7 +281,7 @@ const __F341PresetCatalog = Object.freeze({
         }
     }, {
         id: "signature-pilot",
-        name: "Donor-Signatur · Versuch · 2",
+        name: "Donor Signature · Experiment · 2",
         description: "Ü · original spectral deviations and donor motion retain a more direct source character.",
         values: {
             engine: "spectral",
@@ -322,7 +322,7 @@ const __F341PresetCatalog = Object.freeze({
         }
     }, {
         id: "film-original",
-        name: "Spektraler Film · 1",
+        name: "Spectral Film · 1",
         description: "Variant 1 of this listening mode · original timbre rendering and preset values (F3.56.40).",
         values: {
             engine: "spectral",
@@ -334,7 +334,7 @@ const __F341PresetCatalog = Object.freeze({
         }
     }, {
         id: "film",
-        name: "Spektraler Film · 2",
+        name: "Spectral Film · 2",
         description: "Ü · painted width sculpts spectral bandwidth around each carrier voice.",
         values: {
             engine: "spectral",
@@ -353,7 +353,7 @@ const __F341PresetCatalog = Object.freeze({
         }
     }, {
         id: "air-original",
-        name: "Hauch & Reibung · 1",
+        name: "Breath & Friction · 1",
         description: "Variant 1 of this listening mode · original timbre rendering and preset values (F3.56.40).",
         values: {
             engine: "spectral",
@@ -365,7 +365,7 @@ const __F341PresetCatalog = Object.freeze({
         }
     }, {
         id: "air",
-        name: "Hauch & Reibung · 2",
+        name: "Breath & Friction · 2",
         description: "Ü · source-derived spectral texture and irregular components; no generated noise layer.",
         values: {
             engine: "spectral",
@@ -384,7 +384,7 @@ const __F341PresetCatalog = Object.freeze({
         }
     }, {
         id: "freeze-original",
-        name: "Stillbild · 1",
+        name: "Still Image · 1",
         description: "Variant 1 of this listening mode · original timbre rendering and preset values (F3.56.40).",
         values: {
             engine: "spectral",
@@ -396,7 +396,7 @@ const __F341PresetCatalog = Object.freeze({
         }
     }, {
         id: "freeze",
-        name: "Stillbild · 2",
+        name: "Still Image · 2",
         description: "Ü · hold one interior donor frame with continuous phase and carrier pitch.",
         values: {
             engine: "spectral",
@@ -415,7 +415,7 @@ const __F341PresetCatalog = Object.freeze({
         }
     }, {
         id: "wander-original",
-        name: "Wandernd · 1",
+        name: "Wandering · 1",
         description: "Variant 1 of this listening mode · original timbre rendering and preset values (F3.56.40).",
         values: {
             engine: "spectral",
@@ -427,7 +427,7 @@ const __F341PresetCatalog = Object.freeze({
         }
     }, {
         id: "wander",
-        name: "Wandernd · 2",
+        name: "Wandering · 2",
         description: "Ü · visit allowed source regions phrase by phrase and reflect smoothly inside them.",
         values: {
             engine: "spectral",

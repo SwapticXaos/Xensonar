@@ -672,12 +672,6 @@
 "oct28_bytes": 21481
 },
 {
-"file": "src/forge/original/05_dual_donor.js",
-"status": "oct-identical",
-"bytes": 12891,
-"oct28_bytes": 12891
-},
-{
 "file": "src/forge/original/06_cecilia.js",
 "status": "oct-identical",
 "bytes": 8232,
@@ -1520,7 +1514,7 @@
 {
 "file": "src/forge/dual/01_dsp_and_worker.js",
 "status": "oct-identical",
-"bytes": 18272,
+"bytes": 2134,
 "oct28_bytes": 18272
 },
 {
@@ -1550,7 +1544,7 @@
 {
 "file": "styles/bundle/base_02.css",
 "status": "oct-identical",
-"bytes": 8733,
+"bytes": 5778,
 "oct28_bytes": 8733
 },
 {
@@ -1664,14 +1658,8 @@
 {
 "file": "styles/areas/022_f35634-dual-donor-assembly-ui.css",
 "status": "oct-identical",
-"bytes": 14560,
+"bytes": 13179,
 "oct28_bytes": 14560
-},
-{
-"file": "styles/areas/023_inline-023.css",
-"status": "oct-identical",
-"bytes": 5315,
-"oct28_bytes": 5315
 },
 {
 "file": "styles/areas/024_inline-024.css",

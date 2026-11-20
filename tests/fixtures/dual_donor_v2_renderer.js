@@ -1,7 +1,6 @@
-
-
-function __f35636DualDSPFactoryOriginal() {
-  const version='dual-donor-spectral-body-f3.56.36', TAU=Math.PI*2;
+/* Frozen reference: Dual Donor variant 2 (f3.56.41), replaced by variant 3 in DUAL-ALIGN-02. Used only by tests as the before-measurement. */
+function __f35636DualDSPFactory() {
+  const version='dual-donor-spectral-body-f3.56.41', TAU=Math.PI*2;
   const clamp=(x,a,b)=>Math.max(a,Math.min(b,x)), wrap=x=>x-TAU*Math.round(x/TAU);
   function fft(re,im,inverse=false) {
     const n=re.length;
@@ -17,15 +16,17 @@ function __f35636DualDSPFactoryOriginal() {
   const freq=(y,sr)=>35*Math.pow(sr*.46/35,1-y);
   function validate(plan,sources,settings={}) {
     if(plan?.schema!=='xensonar-dual-donor-ui-v2')throw Error('Unsupported Dual Donor blueprint.');
-    for(const slot of ['A','B']){const s=sources?.[slot];if(!s?.samples?.length||!(s.sampleRate>=8000&&s.sampleRate<=192000))throw Error('Load both donor recordings first.');
+    for(const slot of ['A','B']){const s=sources?.[slot];if(!(s?.samples instanceof Float32Array)||!s.samples.length||!(s.sampleRate>=8000&&s.sampleRate<=192000))throw Error('Load both donor recordings first.');
+      if(!Number.isFinite(s.duration)||Math.abs(s.duration-s.samples.length/s.sampleRate)>2/s.sampleRate)throw Error('Donor '+slot+' duration does not match its PCM.');
       if(!s.revision||s.revision!==plan.sources?.[slot]?.revision)throw Error('Confirm the content revision of Donor '+slot+' before synthesis.');
       if(s.samples.byteLength>48*1024*1024)throw Error('Donor '+slot+' exceeds the 48 MiB input limit.');}
     if(!plan.links?.length)throw Error('Connect at least one region from each donor.');
     if(plan.links.length>12)throw Error('This renderer supports up to 12 relationships per body.');
     if(!['linked_only','keep_A','keep_B'].includes(plan.remainder))throw Error('Choose how unlinked material should be treated.');
-    const ids=new Set();
+    const ids=new Set(),linkIds=new Set();
     for(const r of plan.regions??[]){if(ids.has(r.id))throw Error('Region IDs must be unique.');ids.add(r.id);}
     const links=plan.links.map(l=>{
+      if(typeof l.id!=='string'||!l.id||linkIds.has(l.id))throw Error('Every relationship needs a unique ID.');linkIds.add(l.id);
       const a=plan.regions.find(r=>r.id===l.a&&r.slot==='A'),b=plan.regions.find(r=>r.id===l.b&&r.slot==='B');
       if(!a||!b)throw Error('A relationship refers to unavailable marks.');
       if(!['cross','imprint','interlock'].includes(l.mode))throw Error('Unknown relationship operation.');
@@ -39,11 +40,18 @@ function __f35636DualDSPFactoryOriginal() {
     const strength=clamp(Number(settings.strength??.8),0,1);if(!Number.isFinite(strength))throw Error('Invalid relationship strength.');
     return {links,sampleRate,duration,strength,remainder:plan.remainder};
   }
+  const kernels=new Map();
+  function bandlimited(source,pos,step,first=0,last=source.samples.length-1){
+    if(step<=1.02)return sample(source,pos);
+    let table=kernels.get(step);const radius=Math.min(64,Math.ceil(8*step)),phases=512;
+    if(!table){table=Array.from({length:phases},(_,p)=>{const a=new Float64Array(radius*2);let sum=0;for(let j=0;j<a.length;j++){const x=(p/phases-(j-radius+1))/step;const w=Math.abs(x)>=8?0:(Math.abs(x)<1e-9?1:Math.sin(Math.PI*x)/(Math.PI*x))*(.5+.5*Math.cos(Math.PI*x/8))/step;a[j]=w;sum+=w;}for(let j=0;j<a.length;j++)a[j]/=sum;return a;});kernels.set(step,table);}
+    const center=Math.floor(pos),a=table[Math.min(phases-1,Math.floor((pos-center)*phases))];let value=0;for(let j=0;j<a.length;j++){const at=center+j-radius+1;if(at>=first&&at<=last)value+=sample(source,at)*a[j];};return value;
+  }
   function frame(source,r,fraction,n,sr,previous) {
     const re=new Float64Array(n),im=new Float64Array(n), bins=n/2+1;
     const first=r.x0*source.samples.length,last=Math.min(source.samples.length-1,r.x1*source.samples.length-1),center=first+(last-first)*fraction;
     const step=source.sampleRate/sr;
-    for(let j=0;j<n;j++){const at=center+(j-n/2)*step;re[j]=(at>=first&&at<=last?sample(source,at):0)*analysisWindow[j];}
+    for(let j=0;j<n;j++){const at=center+(j-n/2)*step;re[j]=(at>=first&&at<=last?bandlimited(source,at,step,first,last):0)*analysisWindow[j];}
     fft(re,im);const mag=new Float64Array(bins),angle=new Float64Array(bins),inst=new Float64Array(bins),env=new Float64Array(bins);
     const delta=(center-(previous?.center??center))/step;
     for(let k=0;k<bins;k++){mag[k]=Math.hypot(re[k],im[k]);angle[k]=Math.atan2(im[k],re[k]);
@@ -59,7 +67,9 @@ function __f35636DualDSPFactoryOriginal() {
       anchor=(peakBin+clamp(.5*(l-r)/(l-2*m+r||1),-.5,.5))*sr/n;
       if(previous?.anchor&&Math.abs(Math.log(anchor/previous.anchor))<.18)anchor=previous.anchor*.65+anchor*.35;
     }
-    return {mag,angle,inst,env,center,low,high,energy:rms,logEnergy:Math.log(Math.max(rms,1e-10)),frequencyRatio:high/low,anchor,feature:r.feature??'all'};
+    let rise=0,base=0;for(let k=1;k<bins;k++){base+=mag[k];rise+=Math.max(0,mag[k]-(previous?.mag[k]??mag[k]));}
+    const flux=rise/Math.max(1e-8,base);
+    return {mag,angle,inst,env,center,low,high,energy:rms,logEnergy:Math.log(Math.max(rms,1e-10)),frequencyRatio:high/low,anchor,feature:r.feature??'all',flux};
   }
   function at(a,k){const i=clamp(k,0,a.length-1),lo=Math.floor(i),hi=Math.min(a.length-1,lo+1);return a[lo]+(a[hi]-a[lo])*(i-lo);}
   function read(f,u,n,sr) {const hz=f.low*Math.pow(f.frequencyRatio,clamp(u,0,1)),k=hz*n/sr;if(u<0||u>1)return {m:0,e:Math.log(1e-10),p:0,d:0,k};
@@ -75,8 +85,11 @@ function __f35636DualDSPFactoryOriginal() {
   function mapped(f,u,n,sr) {const s=read(f,u,n,sr);s.energy=f.energy;s.logEnergy=f.logEnergy;s.feature=f.feature;return s;}
   function key(plan,sources,settings={}) {validate(plan,sources,settings);return JSON.stringify({version,sources:{A:sources.A.revision,B:sources.B.revision},regions:plan.regions,links:plan.links,remainder:plan.remainder,settings:{duration:settings.duration??null,strength:settings.strength??.8}});}
   async function render(plan,sources,settings={},options={}) {
-    const job=validate(plan,sources,settings),sr=job.sampleRate,length=Math.round(job.duration*sr),n=2048,hop=256,bins=n/2+1;
+    const job=validate(plan,sources,settings);
+    for(const slot of ['A','B'])for(let i=0;i<sources[slot].samples.length;i++){if(!Number.isFinite(sources[slot].samples[i]))throw Error('Donor '+slot+' contains invalid PCM.');if(i%65536===0){if(options.isCancelled?.())throw new DOMException('Hybrid synthesis cancelled.','AbortError');await new Promise(r=>setTimeout(r,0));}}
+    const sr=job.sampleRate,length=Math.round(job.duration*sr),n=2048,hop=256,bins=n/2+1;
     const out=new Float64Array(length),weight=new Float64Array(length),phase=new Float64Array(bins),oldMagnitude=new Float64Array(bins);
+    const lockedPhase=new Float64Array(bins),rawPhase=new Float64Array(bins),magnitudeFrame=new Float64Array(bins);
     const previous=job.links.map(()=>({A:null,B:null})), previousRemainder={frame:null}, region={x0:0,x1:1,y0:0,y1:1,feature:'all'};
     let frames=0;const check=()=>{if(options.isCancelled?.())throw new DOMException('Dual Donor synthesis cancelled.','AbortError');};check();
     for(let center=0;center<length+n/2;center+=hop) {
@@ -90,13 +103,13 @@ function __f35636DualDSPFactoryOriginal() {
       let rest=null;if(job.remainder!=='linked_only'){const src=sources[job.remainder==='keep_A'?'A':'B'];rest=frame(src,region,fraction,n,sr,previousRemainder.frame);previousRemainder.frame=rest;}
       const re=new Float64Array(n),im=new Float64Array(n);
       for(let k=1;k<bins-1;k++) {
-        const hz=k*sr/n;let power=0,parts=0,drift=0,pr=0,pi=0;
-        for(const s of states){if(hz<s.low||hz>s.high)continue;const u=Math.log(hz/s.low)/s.logSpan;
+        const hz=k*sr/n;let power=0,parts=0,drift=0,pr=0,pi=0,covered=false,reset=0;
+        for(const s of states){if(hz<s.low||hz>s.high)continue;covered=true;const u=Math.log(hz/s.low)/s.logSpan;
           const edge=Math.min(1,u/.04,(1-u)/.04),ua=u+s.shiftA,ub=u+s.shiftB,a=mapped(s.a,ua,n,sr),b=mapped(s.b,ub,n,sr);let m,p,d;
           if(s.l.mode==='imprint') {
             const source=s.l.direction==='A_to_B'?a:b,target=s.l.direction==='A_to_B'?b:a;
-            m=property(source,target,job.strength);p=target.p;d=target.d;
-            if(source.feature==='motion')m*=Math.exp(clamp(Math.log((source.energy+1e-8)/(target.energy+1e-8)),-2,2)*job.strength);
+            m=property(source,target,job.strength);p=target.p;d=target.d*k/Math.max(1e-5,target.k);
+            if(source.feature==='motion'){m*=Math.exp(clamp(Math.log((source.energy+1e-8)/(target.energy+1e-8)),-1.2,1.2)*job.strength);d=(1-job.strength)*d+job.strength*source.d*k/Math.max(1e-5,source.k);}
           } else {
             let aa=a,bb=b;
             if(s.l.mode==='interlock') {
@@ -108,18 +121,32 @@ function __f35636DualDSPFactoryOriginal() {
             const meanA=aa.logEnergy,meanB=bb.logEnergy;
             const envelope=ea+eb?(ea*(aa.e-meanA)+eb*(bb.e-meanB))/(ea+eb):((aa.e-meanA)+(bb.e-meanB))*.5;
             const fineA=Math.log(Math.max(aa.m,1e-10))-aa.e,fineB=Math.log(Math.max(bb.m,1e-10))-bb.e;
-            const detail=ta+tb?(ta*fineA+tb*fineB)/(ta+tb):(fineA+fineB)*.5;
-            const joint=envelope+detail+(meanA+meanB)*.5, middle=(Math.log(Math.max(aa.m,1e-10))+Math.log(Math.max(bb.m,1e-10)))*.5;
-            m=Math.exp(middle+(joint-middle)*job.strength);p=Math.atan2(Math.sin(aa.p)+Math.sin(bb.p),Math.cos(aa.p)+Math.cos(bb.p));d=(aa.d*k/Math.max(1,aa.k)+bb.d*k/Math.max(1,bb.k))*.5;
+            const wa=ta+tb?ta/(ta+tb):.5,wb=1-wa;
+            const detail=.5*Math.log(Math.max(1e-20,wa*Math.exp(clamp(2*fineA,-30,30))+wb*Math.exp(clamp(2*fineB,-30,30))));
+            const joint=envelope+detail+(meanA+meanB)*.5, middle=.5*Math.log(Math.max(1e-20,(aa.m*aa.m+bb.m*bb.m)*.5));
+            m=Math.exp(clamp(middle+(joint-middle)*job.strength,-30,20));
+            if(s.l.mode==='interlock') {
+              const difference=Math.log(Math.max(1e-10,aa.m))-aa.e-Math.log(Math.max(1e-10,bb.m))+bb.e;
+              const choice=.5+.45*Math.tanh(difference*job.strength);
+              const interleaved=Math.sqrt(choice*aa.m*aa.m+(1-choice)*bb.m*bb.m);
+              m=m*(1-job.strength*.55)+interleaved*job.strength*.55;
+            }p=Math.atan2(Math.sin(aa.p)+Math.sin(bb.p),Math.cos(aa.p)+Math.cos(bb.p));d=(aa.d*k/Math.max(1,aa.k)+bb.d*k/Math.max(1,bb.k))*.5;
           }
+          reset=Math.max(reset,s.l.mode==='imprint'?(s.l.direction==='A_to_B'?s.b.flux:s.a.flux):Math.max(s.a.flux,s.b.flux));
           power+=m*m*edge*edge;drift+=d*edge;pr+=Math.cos(p)*m*edge;pi+=Math.sin(p)*m*edge;parts+=edge;
         }
         let magnitude=0,angle=0,deviation=0;
         if(parts>1e-9){magnitude=Math.sqrt(power/Math.max(1,parts));angle=Math.atan2(pi,pr);deviation=drift/parts;}
-        else if(rest){magnitude=rest.mag[k];angle=rest.angle[k];deviation=rest.inst[k]-k;}
+        else if(rest&&!covered){magnitude=rest.mag[k];angle=rest.angle[k];deviation=rest.inst[k]-k;}
         // Phase belongs to the single shared output field; spectral joins cannot spawn two voices.
-        phase[k]=frames&&oldMagnitude[k]>1e-8?wrap(phase[k]+TAU*(k+deviation)*hop/n):angle;
-        oldMagnitude[k]=magnitude;re[k]=magnitude*Math.cos(phase[k]);im[k]=magnitude*Math.sin(phase[k]);re[n-k]=re[k];im[n-k]=-im[k];
+        phase[k]=frames&&oldMagnitude[k]>1e-8&&reset<.42?wrap(phase[k]+TAU*(k+deviation)*hop/n):angle;
+        rawPhase[k]=angle;magnitudeFrame[k]=magnitude;
+      }
+      const peaks=[];for(let k=2;k<bins-2;k++)if(magnitudeFrame[k]>1e-8&&magnitudeFrame[k]>magnitudeFrame[k-1]&&magnitudeFrame[k]>=magnitudeFrame[k+1])peaks.push(k);
+      for(let k=1,pi=0;k<bins-1;k++){
+        while(pi+1<peaks.length&&Math.abs(peaks[pi+1]-k)<Math.abs(peaks[pi]-k))pi++;
+        const peak=peaks[pi];lockedPhase[k]=peak!=null&&Math.abs(peak-k)<=8?wrap(phase[peak]+wrap(rawPhase[k]-rawPhase[peak])):phase[k];
+        const m=magnitudeFrame[k];re[k]=m*Math.cos(lockedPhase[k]);im[k]=m*Math.sin(lockedPhase[k]);re[n-k]=re[k];im[n-k]=-im[k];oldMagnitude[k]=m;
       }
       fft(re,im,true);
       for(let j=0;j<n;j++){const i=center+j-n/2;if(i<0||i>=length)continue;const w=analysisWindow[j];out[i]+=re[j]*w;weight[i]+=w*w;}
@@ -132,8 +159,9 @@ function __f35636DualDSPFactoryOriginal() {
     options.onProgress?.(1);
     return {samples:pcm,sampleRate:sr,duration:job.duration,manifest:{schema:'xensonar-dual-donor-result-v1',version,key:key(plan,sources,settings),
       sourceRevisions:{A:sources.A.revision,B:sources.B.revision},recipe:JSON.parse(JSON.stringify(plan)),settings:{duration:job.duration,strength:job.strength},
-      alignment:'relative progress within each linked time window',frequencyMapping:'log-relative; Cross/Interlock geometric middle with confident peak registration, Imprint target band',
+      alignment:'relative progress within each linked time window',frequencyMapping:'log-relative; Cross/Interlock registered shared band, Imprint target coordinates with scaled phase deviation',phasePolicy:'shared-field-local-peak-lock; observed-transient-reset',revision:41,
       remainder:job.remainder,frames,peakBeforeGain:peak,finalGain:gain,rms:Math.sqrt(energy/length)*gain,addedNoise:0,addedOscillators:0,outputBodies:1}};
   }
   return Object.freeze({version,validate,key,render});
 }
+

@@ -200,7 +200,6 @@
     "src/forge/original/02_material.js",
     "src/forge/original/03_gestalt_material.js",
     "src/forge/original/04_gestalt.js",
-    "src/forge/original/05_dual_donor.js",
     "src/forge/original/06_cecilia.js",
     "src/forge/revised/01_material.js",
     "src/forge/revised/02_gestalt.js",
@@ -470,13 +469,6 @@
    "oct28_section": "@@XENSONAR_COMPONENT_022@@",
    "files": [
     "styles/areas/022_f35634-dual-donor-assembly-ui.css"
-   ]
-  },
-  {
-   "id": "css-019-inline",
-   "oct28_section": "@@XENSONAR_COMPONENT_023@@",
-   "files": [
-    "styles/areas/023_inline-023.css"
    ]
   },
   {
