@@ -521,7 +521,7 @@ function MyzelG2EffectEditor({getNodes,onChangeEffect,revision}) {
 /* NODAL-GATE-01: the Art Installation sits behind a closed temple gate. Turning the seal (click) opens it: the seal turns,
    the two halves slide apart and the sound opens from a muffled low-pass to full (myzelGGateSweep). Mycelium OFF closes it.
    WARM zone: CSS transitions only, one timer per phase, no per-frame work; the audio sweep is a single AudioParam ramp. */
-const NODAL_GATE_TURN_MS=1800,NODAL_GATE_OPEN_MS=3400,NODAL_GATE_SWEEP_S=3.6;
+const NODAL_GATE_TURN_MS=1800,NODAL_GATE_HOLE_MS=900,NODAL_GATE_OPEN_MS=2600,NODAL_GATE_SWEEP_S=3.6;
 const __nodalGateRunes=['M0 -1a1 1 0 1 1-1 1a2 2 0 1 1 2 2a3 3 0 1 1-3-3M-0.9 5.5a0.9 0.9 0 1 0 1.8 0a0.9 0.9 0 1 0 -1.8 0', 'M-4 -3Q0 -7 4 -3M-2.9 1a0.9 0.9 0 1 0 1.8 0a0.9 0.9 0 1 0 -1.8 0M1.1 1a0.9 0.9 0 1 0 1.8 0a0.9 0.9 0 1 0 -1.8 0M-0.9 4.5a0.9 0.9 0 1 0 1.8 0a0.9 0.9 0 1 0 -1.8 0', 'M0 -5Q3 -2.5 0 0Q-3 2.5 0 5M-3.9 -3a0.9 0.9 0 1 0 1.8 0a0.9 0.9 0 1 0 -1.8 0M2.1 3a0.9 0.9 0 1 0 1.8 0a0.9 0.9 0 1 0 -1.8 0', 'M-1.5 -1L-3 -5M1.5 -1L3 -5M-2.5 2a2.5 2.5 0 1 0 5 0a2.5 2.5 0 1 0-5 0', 'M-4 -4Q0 0-4 4M4 -4Q0 0 4 4M-0.9 0a0.9 0.9 0 1 0 1.8 0a0.9 0.9 0 1 0 -1.8 0', 'M-3 5Q-3 -5 3 -5Q1 -2 3 0M-1.4 2a0.9 0.9 0 1 0 1.8 0a0.9 0.9 0 1 0 -1.8 0', 'M-4 3A4 4 0 0 1 4 3M-2 3A2 2 0 0 1 2 3M-0.9 5.5a0.9 0.9 0 1 0 1.8 0a0.9 0.9 0 1 0 -1.8 0', 'M-4 -4L0 -1L-3 2L3 5M2.1 -4a0.9 0.9 0 1 0 1.8 0a0.9 0.9 0 1 0 -1.8 0', 'M-4 0Q0 -4 4 0Q0 4-4 0M-0.7 0a0.7 0.7 0 1 0 1.4 0a0.7 0.7 0 1 0 -1.4 0', 'M3 -3A4 4 0 1 0 3 3M3 0H5M-0.9 0a0.9 0.9 0 1 0 1.8 0a0.9 0.9 0 1 0 -1.8 0'];
 // The XenSonar mark (same geometry as the logo in the header, 64-unit box centred), drawn so every part can be pulled outwards.
 function NodalGateSeal(){
@@ -563,13 +563,14 @@ function NodalGate({on,onOpen}){
   P.useEffect(()=>()=>clearTimeout(timer.current),[]);
   P.useEffect(()=>{
     const p=phaseRef.current;
-    if(on&&p==='closed'){myzelGGateSweep(NODAL_GATE_TURN_MS/1000,NODAL_GATE_SWEEP_S);go('turning',NODAL_GATE_TURN_MS,()=>onRef.current?open():setPhase('closed'));}
+    if(on&&p==='closed'){myzelGGateSweep(NODAL_GATE_HOLE_MS/1000,NODAL_GATE_SWEEP_S);go('turning',NODAL_GATE_TURN_MS,()=>onRef.current?open():setPhase('closed'));}
     else if(!on&&p!=='closed'&&p!=='turning')go('closing',1000,()=>setPhase('closed'));
   },[on]);
-  // Click: the mark turns and is drawn into the grooves; then the centre opens (sound starts muffled) and the halves part.
+  // Click: the mark turns; while it unfolds along its rays the centre already opens (sound starts muffled), then the halves part.
   const turn=()=>{
     if(phaseRef.current!=='closed')return;
-    go('turning',NODAL_GATE_TURN_MS,()=>{if(!onRef.current){myzelGGateSweep(0,NODAL_GATE_SWEEP_S);onOpen?.();}open();});
+    go('turning',NODAL_GATE_HOLE_MS,()=>{if(!onRef.current){myzelGGateSweep(0,NODAL_GATE_SWEEP_S);onOpen?.();}
+      timer.current=setTimeout(open,NODAL_GATE_TURN_MS-NODAL_GATE_HOLE_MS);});
   };
   if(phase==='open')return null;
   return h('div',{className:'nd-gate','data-nodal-gate':phase},

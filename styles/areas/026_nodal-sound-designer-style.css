@@ -632,13 +632,13 @@ body[data-nodal-sounddesign="true"] [data-xensonar-performance-strip] {display:n
 /* NODAL-GATE-01: the closed temple gate over the Art Installation stage. Sequence: the XenSonar mark turns, unfolds along
    its eight rays into the grooves, the centre opens, then the halves part. Transforms/opacity only (compositor). */
 @property --nd-hole{syntax:'<length>';inherits:true;initial-value:0px}
-.nd-gate{position:absolute;inset:0;z-index:5;overflow:hidden;pointer-events:none;border-radius:12px;background:#040a0d;--nd-hole:0px}
-.nd-gate[data-nodal-gate=opening],.nd-gate[data-nodal-gate=closing]{background:transparent}
-.nd-gate[data-nodal-gate=opening]{animation:nd-gate-hole .9s cubic-bezier(.3,0,.2,1) forwards}
+.nd-gate{position:absolute;inset:0;z-index:5;overflow:hidden;pointer-events:none;border-radius:12px;--nd-hole:0px}
+.nd-gate[data-nodal-gate=turning]{animation:nd-gate-hole .9s cubic-bezier(.3,0,.2,1) .85s forwards}
+.nd-gate[data-nodal-gate=opening]{--nd-hole:96px}
 @keyframes nd-gate-hole{from{--nd-hole:0px}to{--nd-hole:96px}}
 .nd-gate-light{position:absolute;inset:0;background:radial-gradient(ellipse 50% 100% at 50% 50%,rgba(191,247,238,.38),rgba(120,230,210,.1) 45%,transparent 72%);transform:scaleX(.08);opacity:0}
-.nd-gate[data-nodal-gate=opening] .nd-gate-light{animation:nd-gate-light 3.4s ease-out forwards}
-@keyframes nd-gate-light{0%{opacity:0;transform:scaleX(.08)}15%{opacity:1}40%{opacity:.6}100%{opacity:0;transform:scaleX(1.2)}}
+.nd-gate[data-nodal-gate=opening] .nd-gate-light{animation:nd-gate-light 2.6s ease-out forwards}
+@keyframes nd-gate-light{0%{opacity:.6;transform:scaleX(.08)}10%{opacity:1}40%{opacity:.6}100%{opacity:0;transform:scaleX(1.2)}}
 .nd-gate-door{position:absolute;top:0;bottom:0;width:50%;overflow:hidden;pointer-events:auto;
  background:radial-gradient(ellipse 60% 70% at 100% 50%,rgba(84,190,176,.16),transparent 70%),repeating-linear-gradient(0deg,rgba(255,255,255,.018) 0 2px,transparent 2px 9px),linear-gradient(180deg,#14252a,#0c181c 45%,#0a1417 55%,#122126)}
 .nd-gate-door.is-left{left:0;border-right:1px solid #2f6a66;box-shadow:inset -8px 0 18px rgba(0,0,0,.55);-webkit-mask-image:radial-gradient(circle at 100% 50%,transparent var(--nd-hole),#000 calc(var(--nd-hole) + 1px));mask-image:radial-gradient(circle at 100% 50%,transparent var(--nd-hole),#000 calc(var(--nd-hole) + 1px))}
@@ -681,9 +681,9 @@ body[data-nodal-sounddesign="true"] [data-xensonar-performance-strip] {display:n
 @keyframes nd-gate-petal{0%{transform:scaleY(1)}35%{transform:scale(.7,2.4);opacity:1}100%{transform:scale(.25,7);opacity:0}}
 @keyframes nd-gate-fly{0%{transform:translate(0,0)}100%{transform:translate(var(--dx),var(--dy)) scale(.35);opacity:0}}
 @keyframes nd-gate-ring{0%{transform:scale(1)}100%{transform:scale(1.9);opacity:0}}
-/* 3. centre opens (opening 0-0.9 s), 4. halves part (0.8-3.4 s) */
-.nd-gate[data-nodal-gate=opening] .nd-gate-door.is-left{animation:nd-gate-left 2.6s cubic-bezier(.62,0,.22,1) .8s forwards}
-.nd-gate[data-nodal-gate=opening] .nd-gate-door.is-right{animation:nd-gate-right 2.6s cubic-bezier(.62,0,.22,1) .8s forwards}
+/* 3. the centre opens while the mark unfolds (turning 0.85-1.75 s); 4. the halves part (opening 0-2.6 s) */
+.nd-gate[data-nodal-gate=opening] .nd-gate-door.is-left{animation:nd-gate-left 2.6s cubic-bezier(.62,0,.22,1) forwards}
+.nd-gate[data-nodal-gate=opening] .nd-gate-door.is-right{animation:nd-gate-right 2.6s cubic-bezier(.62,0,.22,1) forwards}
 .nd-gate[data-nodal-gate=closing] .nd-gate-door.is-left{animation:nd-gate-left 1s cubic-bezier(.5,0,.75,0) reverse forwards}
 .nd-gate[data-nodal-gate=closing] .nd-gate-door.is-right{animation:nd-gate-right 1s cubic-bezier(.5,0,.75,0) reverse forwards}
 @keyframes nd-gate-left{0%{transform:translateX(0)}6%{transform:translateX(1px)}100%{transform:translateX(-101%)}}
