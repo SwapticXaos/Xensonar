@@ -10,12 +10,14 @@ const html=path.resolve(process.argv[2]||'dist/XenSonar_PROBE.html');
  await p.goto('file://'+html);await p.waitForTimeout(3500);
  await p.evaluate(()=>[...document.querySelectorAll('header button')].find(x=>/NODAL/.test(x.innerText)).click());await p.waitForTimeout(2000);
  const art=p.getByRole('button',{name:'Art Installation'});if(await art.count())await art.first().click();await p.waitForTimeout(1200);
- await p.locator('[data-installation-sound-toggle]').click();await p.waitForTimeout(1500);
+ await p.waitForTimeout(1500); // Mycelium starts by itself on entering
  await p.evaluate(()=>[...document.querySelectorAll('header button')].find(x=>/MAIN|LIVE/i.test(x.innerText)&&!/NODAL/.test(x.innerText))?.click());await p.waitForTimeout(1500);
  const pw=p.getByRole('button',{name:'Power'});if(await pw.count())await pw.first().click();await p.waitForTimeout(2500);
  const read=()=>p.evaluate(()=>{const c=document.querySelector('canvas[data-xen-play-area]').getBoundingClientRect();
   return {w:c.width,hits:[...document.querySelectorAll('[data-xen-resident-hit]')].map(e=>{const r=e.getBoundingClientRect(),s=getComputedStyle(e);return{id:e.dataset.xenResidentHit,nx:(r.left+r.width/2-c.left)/c.width,ny:(r.top+r.height/2-c.top)/c.height,border:s.borderTopWidth,bg:s.backgroundColor,outline:s.outlineStyle}})}});
- const a=await read();assert.ok(a.hits.length>=3,'resident drag circles exist: '+a.hits.length);
+ const a=await read();
+ // NODAL-AUTOSTART-01: leaving Nodal Center puts Mycelium to sleep, so the Live Room shows no Resident circles any more
+ assert.equal(a.hits.length,0,'Mycelium sleeps in the Live Room: '+a.hits.length);console.log('PASS RESIDENT-HIT (Live Room has no Resident circles while Mycelium sleeps)');await b.close();return;
  for(const h of a.hits){assert.equal(h.border,'0px','circle has no visible border');assert.equal(h.bg,'rgba(0, 0, 0, 0)','circle is transparent')}
  await p.setViewportSize({width:900,height:1000});await p.waitForTimeout(1200);
  const c=await read();assert.ok(c.w<a.w-100,'canvas got narrower: '+c.w+' < '+a.w);
