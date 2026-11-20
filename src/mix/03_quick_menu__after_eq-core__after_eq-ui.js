@@ -258,6 +258,15 @@ function __xenLoopBarPeaks(buffer,source,n=720){const rate=buffer.sampleRate,bea
  const out=new Float32Array(n),chs=Array.from({length:Math.min(2,buffer.numberOfChannels)},(_,i)=>buffer.getChannelData(i));let top=0;
  for(let k=0;k<n;k++){const a=start+Math.floor(k*len/n),z=start+Math.floor((k+1)*len/n);let m=0;for(const c of chs)for(let i=a;i<z;i+=2){const v=c[i]<0?-c[i]:c[i];if(v>m)m=v}out[k]=m;if(m>top)top=m}
  if(top>0)for(let k=0;k<n;k++)out[k]=Math.min(1,out[k]/top);return out}
+/* LOOPREC-SEAM-01: an edited loop (bars trimmed or silent bars added) starts and ends at a cut, not at a place where the music flows on:
+   the wrap of the loop and every audio/silence seam would be a jump = a click. Raised-cosine fade (first / last sample exactly 0) over the copied audio, in place, once per edit (cold, not in the audio thread).
+   Not for an unedited loop (front = back = 0: the original plays as recorded). */
+const __XEN_LOOP_SEAM_SEC=.005;
+function __xenRackSeamFade(left,right,from,length,rate){
+ const f=Math.min(Math.max(2,Math.round(__XEN_LOOP_SEAM_SEC*rate)),length>>1);if(f<2)return 0;
+ for(let i=0;i<f;i++){const g=.5-.5*Math.cos(Math.PI*i/f),a=from+i,z=from+length-1-i;left[a]*=g;right[a]*=g;left[z]*=g;right[z]*=g}
+ return f;
+}
 async function __xenRackRenderBarEdit(buffer,source,front,back,cancelled=()=>false,onPcmReady=null,pcmOnly=false){
  const rate=buffer.sampleRate,beatsPerBar=Math.max(1,Math.round(Number(source.beatsPerBar)||4));
  const plan=__xenRackBarPlan({bars:Math.max(1,Math.round(Number(source.bars)||1)),bpm:Number(source.bpm),beatsPerBar,rate},front,back);
@@ -276,6 +285,7 @@ async function __xenRackRenderBarEdit(buffer,source,front,back,cancelled=()=>fal
   left.set(inputL.subarray(src,src+n),dst);right.set(inputR.subarray(src,src+n),dst);
   if(i+32768<length)await new Promise(resolve=>setTimeout(resolve,0));
  }
+ if(front!==0||back!==0)__xenRackSeamFade(left,right,plan.padLeftFrames,length,rate);
  if(cancelled())throw new DOMException('Superseded bar edit.','AbortError');
  if(onPcmReady)onPcmReady({plan,pcm:{left,right,rate}});
  if(pcmOnly)return {plan,pcm:{left,right,rate}};
