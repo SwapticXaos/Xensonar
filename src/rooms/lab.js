@@ -2022,7 +2022,7 @@ function __CGeHydrated({sourceAdapters:e,targetAdapter:t,rawTargetAdapter:n,rawR
     }
     const current=Vt.getSnapshot();
     if(current.model?.hybrid&&current.source){Vt.selectDonor();return {source:'prepared-runtime'};}
-    throw Error("Please select a donor mask below or load an entry from the Donor Library.");
+    throw Error("Please select a donor mask below or load an entry from the Donor Library. (source: "+(asset?"present":"none")+", mask: "+(mask&&Number.isFinite(mask.durationSec)?mask.durationSec.toFixed(2)+" s":"none")+")");
    }).then(request.resolve,request.reject);
   };
   window.addEventListener('xensonar:forge:resolve-last-donor',resolve);
@@ -2192,7 +2192,9 @@ function __DonorSelectorF315({onAudition}){
    __F341Workbench.preset(id); // applies immediately, just like the workbench picker
  };
  const apply=async(id=selected)=>{if(!id)return !!runtime.model;try{await new Promise((resolve,reject)=>{const req={id,resolve,reject,handled:false};window.dispatchEvent(new CustomEvent('xensonar:forge:apply-library-donor',{detail:req}));if(!req.handled)reject(Error("Material Intake is unavailable."));});return true;}catch(error){if(alive.current&&error?.name!=='AbortError')setMessage("Error: "+String(error?.message??error));return false;}};
- const hear=async(kind)=>{setMessage('');try{const result=await onAudition?.(kind);if(result===false&&!Vt.getSnapshot().model&&runtime.phase!=='rendering')setMessage('Select a purple donor mask in Sound Material or a donor from the library.');}catch(error){setMessage(String(error?.message??error));}};
+ const hear=async(kind)=>{setMessage('');try{const result=await onAudition?.(kind);if(result===false&&!Vt.getSnapshot().model&&runtime.phase!=='rendering'){/* DONOR-MASK-01b: this message used to be shown for EVERY refused audition (cancelled, superseded, busy ...), even with a valid mask. It now names what the donor state was. */
+    const vs=Vt.getSnapshot(),rt=__ForgeDonorRoutingF317.getSnapshot();
+    setMessage('The donor could not be prepared from the current purple mask (source '+(vs.source?'present':'none')+', donor '+(vs.model?'ready':'not extracted')+', state '+(rt.phase||vs.phase||'idle')+'). Click again; if it stays, select the purple mask once or load a donor from the library.');}}catch(error){setMessage(String(error?.message??error));}};
  const active=__ForgeDonorRoutingF317.activeId(),activeName=items.find(x=>x.id===active)?.name??(runtime.model?runtime.source?.fileName??"Current Sound Material Selection":"No active donor yet");
  // Donor selection is valid input; a cached timbre model is NOT a prerequisite for clicking Play.
  const available=true,stoppable=busy||runtime.phase==='rendering'||runtime.phase==='playing';

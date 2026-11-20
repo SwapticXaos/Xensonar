@@ -2600,7 +2600,11 @@ class Editor{
    // Upper wave is the entire source; lower wave is the currently zoomed viewport.
    const overview=canvas===this.options.overviewCanvas;
    const scratch=canvas===this.scratchCanvas;
-   const min=scratch?0:overview?0:owner.viewport.start,max=scratch?t.sourceFrames:overview?t.sourceFrames:owner.viewport.end;
+   /* PLAYHEAD-SCALE-01: the upper (overview) and the Scratchpad canvas show the DOCUMENT (0 .. doc.frames). t.sourceFrames is the length of what is playing: with an effect chain whose
+      echo / reverb tail extends the render it is LONGER than the document, so the playhead ran too early on these canvases (the lower, viewport based one was right). Only the A · Original
+      comparison plays a buffer of another length and keeps its own length. */
+   const docFrames=t.mode==='original'?t.sourceFrames:Math.max(1,owner.frames);
+   const min=scratch?0:overview?0:owner.viewport.start,max=scratch?docFrames:overview?docFrames:owner.viewport.end;
    const ratio=(at-min)/Math.max(1,max-min);
    const visible=ratio>=0&&ratio<=1;
    el.dataset.active=String(visible);el.style.display=visible?'block':'none';
