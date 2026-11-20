@@ -29,8 +29,15 @@ if not diag:
         pattern = r'[ \t]*<script\b[^>]*>' + SEP + 'XEN-SECTION:' + re.escape(sid) + SEP + r'</script>[ \t]*\n?'
         tpl, n = re.subn(pattern, '', tpl)
         assert n == 1, 'diagnostic section must sit alone in its own <script> element: ' + sid
+def src_text(f):
+    # TS-MOD-01: typed modules (src/ts/**.ts) are compiled to one global `__XenTs_<name>` (tools/ts_module.cjs, pinned esbuild)
+    if f.endswith('.ts'):
+        res = subprocess.run(['node', str(root / 'tools/ts_module.cjs'), str(root / f)], capture_output=True)
+        if res.returncode != 0: sys.exit('ts module failed: ' + f + ': ' + res.stderr.decode('utf-8', 'replace'))
+        return res.stdout.decode('utf-8')
+    return (root / f).read_bytes().decode('utf-8')
 def body(m):
-    return ''.join((root / f).read_bytes().decode('utf-8') for f in sec[m.group(1)])
+    return ''.join(src_text(f) for f in sec[m.group(1)])
 out = re.sub(SEP + 'XEN-SECTION:([^' + SEP + ']+)' + SEP, body, tpl)
 assert SEP not in out, 'unresolved template token'
 if not plain:

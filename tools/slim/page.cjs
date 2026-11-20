@@ -15,7 +15,7 @@ function load(){
  const pieces=[];let out='';
  const re=new RegExp(SEP+'XEN-SECTION:([^'+SEP+']+)'+SEP,'g');let last=0,m;
  const push=(file,text)=>{pieces.push({file,start:out.length,end:out.length+text.length});out+=text};
- while((m=re.exec(template))){push(null,template.slice(last,m.index));for(const f of sections.get(m[1]))push(f,fs.readFileSync(path.join(ROOT,f),'utf8'));last=m.index+m[0].length}
+ while((m=re.exec(template))){push(null,template.slice(last,m.index));for(const f of sections.get(m[1]))push(f,f.endsWith('.ts')?require('child_process').execFileSync(process.execPath,[path.join(ROOT,'tools/ts_module.cjs'),path.join(ROOT,f)],{encoding:'utf8'}):fs.readFileSync(path.join(ROOT,f),'utf8'));last=m.index+m[0].length}
  push(null,template.slice(last));
  const fileAt=pos=>{let lo=0,hi=pieces.length-1;while(lo<hi){const mid=(lo+hi+1)>>1;if(pieces[mid].start<=pos)lo=mid;else hi=mid-1}return pieces[lo]};
  const blocks=[];const sre=/<script\b([^>]*)>/gi;
@@ -27,7 +27,7 @@ function load(){
  function applyDeletions(merged){
   for(const d of merged){const a=fileAt(d[0]),b=fileAt(d[1]-1);if(!a.file||!b.file)throw Error('deletion touches the template: '+out.slice(d[0],d[0]+80))}
   const newText=new Map();
-  for(const p of pieces){if(!p.file)continue;let t='',pos=p.start;
+  for(const p of pieces){if(!p.file)continue;if(p.file.endsWith('.ts')&&merged.some(d=>d[1]>p.start&&d[0]<p.end))throw Error('slim deletion inside a typed module, edit the .ts by hand: '+p.file);let t='',pos=p.start;
    for(const d of merged){if(d[1]<=p.start||d[0]>=p.end)continue;const s=Math.max(d[0],p.start),e=Math.min(d[1],p.end);t+=out.slice(pos,s);pos=e}
    t+=out.slice(pos,p.end);newText.set(p.file,(newText.get(p.file)||'')+t)}
   let changed=0;for(const [f,t] of newText){const fp=path.join(ROOT,f);if(fs.readFileSync(fp,'utf8')!==t){fs.writeFileSync(fp,t);changed++}}
