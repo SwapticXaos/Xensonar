@@ -5,6 +5,17 @@ function myzelGClamp(x,lo=0,hi=1){return Math.max(lo,Math.min(hi,Number.isFinite
 const MYZEL_G_ORGANS=Object.freeze({resonator:'resonator',formant_filter:'formant_filter',spectral_tilt:'spectral_tilt',
   wavefolder:'wavefolder',sub_harmonic:'sub_harmonic',shimmer_delay:'shimmer_delay',comb_filter:'comb_filter',
   grain_blur:'grain_blur',drive:'drive',chorus:'chorus',bitcrusher:'bitcrusher'});
+// NODAL-GATE-01: the gate's sound. A sweep asked for before the engine exists waits (briefly) for its creation.
+let myzelGLive=null,myzelGGatePending=null;
+function myzelGGateApply(g,hold,ramp){
+  const f=g.gateLp.frequency,t=g.ctx.currentTime;
+  f.cancelScheduledValues(t);f.setValueAtTime(180,t);if(hold>0)f.setValueAtTime(180,t+hold);
+  f.exponentialRampToValueAtTime(g.ctx.sampleRate/2,t+hold+ramp);
+}
+function myzelGGateSweep(hold=0,ramp=3.4){
+  if(myzelGLive&&!myzelGLive.disposed){myzelGGateApply(myzelGLive,hold,ramp);myzelGGatePending=null;return;}
+  myzelGGatePending={hold,ramp,at:performance.now()};
+}
 function myzelGCreate(ctx,refs,destination){
   if(refs.__myzelG?.ctx===ctx&&!refs.__myzelG.disposed)return refs;
   refs.__myzelG?.dispose();
@@ -15,7 +26,10 @@ function myzelGCreate(ctx,refs,destination){
   const output=gain(0), hp=own(ctx.createBiquadFilter()), compressor=own(ctx.createDynamicsCompressor());
   hp.type='highpass';hp.frequency.value=32;compressor.threshold.value=-12;compressor.knee.value=12;
   compressor.ratio.value=3.1;compressor.attack.value=.008;compressor.release.value=.18;
-  output.connect(hp);hp.connect(compressor);compressor.connect(destination);
+  // NODAL-GATE-01: gate low-pass. At Nyquist a Web Audio low-pass is exactly H(z)=1 (spec), so the open gate is transparent;
+  // only an opening gate sweeps it from muffled to full (myzelGGateSweep).
+  const gateLp=own(ctx.createBiquadFilter());gateLp.type='lowpass';gateLp.Q.value=1.1;gateLp.frequency.value=ctx.sampleRate/2;
+  output.connect(gateLp);gateLp.connect(hp);hp.connect(compressor);compressor.connect(destination);
   // Fixed audible fallback for browsers where loading any AudioWorklet fails.
   const fallbackGain=gain(.54),fallFilter=own(ctx.createBiquadFilter());
   fallFilter.type='lowpass';fallFilter.frequency.value=1900;fallFilter.Q.value=.64;
@@ -23,7 +37,7 @@ function myzelGCreate(ctx,refs,destination){
   const voices=[['triangle',1,0],['triangle',1,0],['triangle',1,0],['sine',1,0]].map(([type,ratio,level])=>{
     const oscillator=osc(type),amp=gain(level);oscillator.connect(amp);amp.connect(fallbackGain);return {type,oscillator,amp,ratio};
   });
-  const engine={ctx,output,fallFilter,fallbackGain,voices,nodes,sources,disposed:false,
+  const engine={ctx,output,gateLp,fallFilter,fallbackGain,voices,nodes,sources,disposed:false,
     history:[],candidate:null,candidateSince:0,lastUpdate:ctx.currentTime,lastMessage:-Infinity,
     worklet:null,lastControls:null,error:null,active:false,
     fallbackRunning:true,fallbackParkTimer:null,fallbackWake:null,workletFailed:false,
@@ -86,7 +100,7 @@ function myzelGCreate(ctx,refs,destination){
       this.fallbackGain.gain.setTargetAtTime(.65,ctx.currentTime,.075);
     },
     dispose(seconds=0){
-      if(this.disposed)return;this.disposed=true;
+      if(this.disposed)return;this.disposed=true;if(myzelGLive===this)myzelGLive=null;
       this.clearFallbackPark();
       const now=ctx.currentTime,fade=ctx.state==='running'?seconds:0;
       if(fade>0)try{output.gain.cancelScheduledValues(now);output.gain.setTargetAtTime(0,now,.06)}catch{}
@@ -94,7 +108,9 @@ function myzelGCreate(ctx,refs,destination){
       const detach=()=>{try{this.worklet?.port.postMessage({type:'dispose'});this.worklet?.port.close()}catch{}for(const n of nodes)try{n.disconnect()}catch{}};
       if(fade>0)setTimeout(detach,Math.ceil(fade*1000)+8);else detach();
     }};
-  refs.__myzelG=engine;
+  refs.__myzelG=engine;myzelGLive=engine;
+  if(myzelGGatePending&&performance.now()-myzelGGatePending.at<4000)myzelGGateApply(engine,myzelGGatePending.hold,myzelGGatePending.ramp);
+  myzelGGatePending=null;
   for(const v of voices)v.oscillator.start();
   engine.ready=myzelGPrepareWorklet(engine).catch(err=>{
     engine.error=String(err?.message??err);console.warn('[myzel-g2] AudioWorklet fallback:',engine.error);return false;

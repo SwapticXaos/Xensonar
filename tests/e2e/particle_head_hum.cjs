@@ -2,7 +2,7 @@
 // PARTICLE-HEAD-01 + INSTALL-HUM-01 (real app):
 //  1. Particle Mode and Particle System sit in the header row of the Particles band (no extra row), work, and are gone from Harmonic System.
 //  2. "More choices here" opens the Nodal Center in Art Installation and brings the Resident controls into view.
-//  3. The Mycelium hum can be muted on its own (button next to "Mycelium · ON/OFF"): Mycelium stays on, the output of the hum goes silent.
+//  3. The Mycelium hum can be muted on its own (button next to "Gate Open/Closed", the Mycelium switch): Mycelium stays on, the output of the hum goes silent.
 // Usage: node tests/e2e/particle_head_hum.cjs dist/XenSonar_PROBE.html
 const {chromium}=require('playwright');const assert=require('node:assert/strict');const path=require('node:path');
 const html=path.resolve(process.argv[2]||'dist/XenSonar_PROBE.html');
@@ -42,17 +42,19 @@ const html=path.resolve(process.argv[2]||'dist/XenSonar_PROBE.html');
  const my=q.locator('[data-installation-sound-toggle]'),hum=q.locator('[data-installation-hum-toggle]');
  assert.equal(await hum.count(),1);assert.equal(await hum.getAttribute('aria-pressed'),'true');assert.match(await hum.innerText(),/Hum · ON/);
  const rms=async sec=>{await q.evaluate(()=>__probe.reset());let sum=0;for(let k=0;k<sec;k++){await q.waitForTimeout(700);sum+=Math.max(0,...(await q.evaluate(()=>__probe.rms())).map(x=>x.rms))}return sum/sec};
- await q.waitForTimeout(3500);assert.equal(await my.getAttribute('aria-pressed'),'true','NODAL-AUTOSTART-01: Mycelium is on without a click');
+ await q.waitForTimeout(1500);assert.equal(await my.getAttribute('aria-pressed'),'false','NODAL-GATE-01: Mycelium is off on entering');
+ assert.ok(await rms(2)<.002,'nothing sounds before Mycelium is on');
+ await my.click();await q.waitForTimeout(6000);assert.equal(await my.getAttribute('aria-pressed'),'true','Mycelium is on');
  const loud=await rms(6);assert.ok(loud>.02,'the hum is audible: '+loud);
  await hum.click();await q.waitForTimeout(2500);
  assert.equal(await hum.getAttribute('aria-pressed'),'false');assert.match(await hum.innerText(),/Hum · muted/);assert.equal(await my.getAttribute('aria-pressed'),'true','muting the hum leaves Mycelium on');
  const quiet=await rms(6);console.log('hum RMS on/muted',loud.toFixed(4),quiet.toFixed(4));assert.ok(quiet<.002,'muted: silent, got '+quiet);
  await hum.click();await q.waitForTimeout(2500);assert.equal(await hum.getAttribute('aria-pressed'),'true');assert.ok(await rms(5)>.02,'the hum is back');
  await q.getByRole('button',{name:'Sound Design'}).click();await q.waitForTimeout(800);assert.equal(await q.locator('[data-installation-hum-toggle]').count(),0,'the hum button belongs to Art Installation only');
- // NODAL-AUTOSTART-01: leaving Nodal Center switches Mycelium off, entering switches it on again
+ // leaving Nodal Center switches Mycelium off; on return the gate is closed again (NODAL-GATE-01)
  await q.evaluate(()=>[...document.querySelectorAll('header button')].find(x=>/LIVE ROOM/i.test(x.innerText)).click());await q.waitForTimeout(2000);
  assert.ok(await rms(3)<.02,'asleep after leaving Nodal Center');
  await q.evaluate(()=>[...document.querySelectorAll('header button')].find(b=>/NODAL/.test(b.innerText)).click());await q.waitForTimeout(1500);{const a2=q.getByRole('button',{name:'Art Installation'});if(await a2.count())await a2.first().click();}await q.waitForTimeout(2000);
- assert.equal(await q.locator('[data-installation-sound-toggle]').getAttribute('aria-pressed'),'true','awake again on return');
+ assert.equal(await q.locator('[data-installation-sound-toggle]').getAttribute('aria-pressed'),'false','still asleep on return');assert.equal(await q.locator('[data-nodal-gate=closed]').count(),1,'the gate is closed on return');
  assert.deepEqual(errors,[]);console.log('PASS PARTICLE-HEAD-01 + INSTALL-HUM-01');await b.close();
 })().catch(e=>{console.error(e);process.exit(1)});

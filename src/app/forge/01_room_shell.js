@@ -274,13 +274,12 @@ __xenRoomLeaveGuard.current=next=>{
  if(!__xenLiveZoneRecording())return true;
  return window.confirm('A recording is running. Switching to the Material Forge turns off the Live Room and Mycelium, so the recording would capture silence from then on.\n\nOK = switch and turn off · Cancel = stay here');
 };
-/* NODAL-AUTOSTART-01: Nodal Center is awake while it is shown and asleep when left. Entering switches Mycelium on through the
-   same primitives as its toggle (no extra click); leaving switches it off again. The Mycelium button stays for muting while inside. */
+/* NODAL-GATE-01 (replaces NODAL-AUTOSTART-01's start on entering): Nodal Center opens with its gate closed and Mycelium off;
+   the seal on the stage (or the Mycelium button) opens it. Leaving still puts Mycelium to sleep, so every visit starts at the gate. */
 const __xenNodalPrev=P.useRef(e);
 P.useEffect(()=>{
  const prev=__xenNodalPrev.current;__xenNodalPrev.current=e;if(prev===e)return;
- if(e==="TOPOLOGY"){ui.current=null;Be(!0);setInstallationSoundEnabled(!0);Ja("Mycelium active");void Bs().catch(error=>hr("audio","nodal-autostart",error))}
- else if(prev==="TOPOLOGY"&&(xe||installationSoundEnabled)){Be(!1);setInstallationSoundEnabled(!1);Ja("Mycelium offline")}
+ if(prev==="TOPOLOGY"&&(xe||installationSoundEnabled)){Be(!1);setInstallationSoundEnabled(!1);Ja("Mycelium offline")}
 },[e]);
 const __xenLiveZonePrev=P.useRef(e),__xenLiveZoneSleep=P.useRef({timer:null,ctx:null});
 P.useEffect(()=>{

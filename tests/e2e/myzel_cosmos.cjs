@@ -16,11 +16,11 @@ const html=path.resolve(process.argv[2]||'dist/XenSonar_PROBE.html');
  const art=q.getByRole('button',{name:'Art Installation'});if(await art.count())await art.first().click();await q.waitForTimeout(1200);
  const line=q.locator('[data-myzel-cosmos-summary]'),slider=q.locator('input[aria-label="Constellation Web"]');
  assert.equal(await slider.count(),1,'one Constellation Web slider');
- 
+ assert.match(await line.innerText(),/open the gate/,'before the gate is open, the line says how to hear it');
  // probe build only: count the canvas calls of the link drawing (bundle scope)
  const inBundle=code=>q.evaluate(c=>window.__xenProbe.draw.evalInBundle(c),code);
  await inBundle('window.__cosmosDraws=0;{const draw=myzelGDrawCosmos;myzelGDrawCosmos=ctx=>{window.__cosmosDraws++;return draw(ctx);};}');
- await q.waitForTimeout(3500); // NODAL-AUTOSTART-01: Mycelium is already on
+ await q.locator('[data-installation-sound-toggle]').click();await q.waitForTimeout(6000); // NODAL-GATE-01: gate closed by default
  // ---- 1. slider, line, links ----
  assert.equal(await slider.inputValue(),'0.7','default 70 %');
  const labels=await q.locator('[data-myzel-web-level]').locator('..').locator('label').allInnerTexts();

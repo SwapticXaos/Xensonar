@@ -11,7 +11,7 @@ const html=path.resolve(process.argv[2]||'dist/XenSonar_PROBE.html');
  await q.evaluate(()=>[...document.querySelectorAll('header button')].find(b=>/NODAL/.test(b.innerText)).click());await q.waitForTimeout(2000);
  const art=q.getByRole('button',{name:'Art Installation'});if(await art.count())await art.first().click();await q.waitForTimeout(1500);
  const lit=()=>q.evaluate(()=>{let best=0;for(const c of document.querySelectorAll('canvas')){if(c.width<300)continue;const d=c.getContext('2d',{willReadFrequently:true}).getImageData(0,0,c.width,c.height).data;let n=0;for(let i=0;i<d.length;i+=16){if(d[i]>60&&d[i+1]>60&&d[i+2]>60)n++;}best=Math.max(best,n);}return best;});
- await q.waitForTimeout(2500);
+ await q.locator('[data-installation-sound-toggle]').click();await q.waitForTimeout(6000); // NODAL-GATE-01: gate closed by default; the button opens it (seal turn + doors)
  const bx=await q.evaluate(()=>{const c=[...document.querySelectorAll('canvas')].find(c=>c.width>300);const r=c.getBoundingClientRect();return {x:r.x,y:r.y,w:r.width,h:r.height};});
  for(let k=0;k<140;k++){const t=k/12;await q.mouse.move(bx.x+bx.w*(.5+.35*Math.cos(t)),bx.y+bx.h*(.5+.35*Math.sin(t*1.3)));await q.waitForTimeout(40);}
  await q.waitForTimeout(500);const a=await lit();await q.screenshot({path:'dist/ball_paint.png'});
