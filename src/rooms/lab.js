@@ -1975,7 +1975,13 @@ function __CGeHydrated({sourceAdapters:e,targetAdapter:t,rawTargetAdapter:n,rawR
    const request=event.detail;if(!request||request.handled)return;
    request.handled=true;
    Promise.resolve().then(async()=>{
-    const asset=E?.sourceAsset,mask=F?.fineLoopRange;
+    const asset=E?.sourceAsset;let mask=F?.fineLoopRange;
+    /* DONOR-MASK-01: whatever lies in the purple mask is the donor, no matter where the audio came from (import, Send to Editor, edited, pasted).
+       A mask without a usable length (0, NaN) is not "no donor": take the beginning of the source, at most the 8 s the donor analysis reads. */
+    if(asset&&!(mask&&Number.isFinite(mask.startSec)&&Number.isFinite(mask.durationSec)&&mask.durationSec>0)){
+     const total=Number(asset.originalDuration)||Number(E?.durationSec)||0;
+     if(total>0)mask={startSec:0,durationSec:Math.min(8,total)};
+    }
     // A completed extraction is an active musical choice, not a draft. Repainting
     // the purple mask must not replace it until the user explicitly Extracts again
     // or chooses Use as Donor in the library. Only bootstrap from the mask when
@@ -1996,7 +2002,7 @@ function __CGeHydrated({sourceAdapters:e,targetAdapter:t,rawTargetAdapter:n,rawR
      }
      const ticket=__ForgeDonorRoutingF317.beginRead('analyzing');
      try{
-      const success=await v({source:E,selection:F,readMode:G,repairResult:L});
+      const success=await v({source:E,selection:mask===F?.fineLoopRange?F:{...F,fineLoopRange:mask,detailViewport:F?.detailViewport??{startSec:0,durationSec:Math.min(4,mask.durationSec)}},readMode:G,repairResult:L});
       if(!__ForgeDonorRoutingF317.current(ticket))return {source:'superseded'};
       if(!success||!__f3562SameMask(Vt.getSnapshot().source,target)||!Vt.selectDonor())
        throw Error("The last donor mask could not be applied.");

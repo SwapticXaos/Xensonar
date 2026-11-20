@@ -21,7 +21,15 @@ function __f3562EnsureDonor(){
   const req={handled:false,resolve,reject};
   window.dispatchEvent(new CustomEvent('xensonar:forge:resolve-last-donor',{detail:req}));
   if(!req.handled){if(Vt.selectDonor())resolve({source:'prepared-runtime'});
-   else reject(Error("Select a purple donor mask in Sound Material or load a donor from the library."));}
+   else{
+    /* DONOR-MASK-01: the Sound Material panel re-registers its resolver whenever its source or mask changes (effect clean-up, then add); a request that falls into that gap
+       was refused although the purple mask was there. Ask again after the panel has re-rendered, then give up. */
+    setTimeout(()=>{
+     const again={handled:false,resolve,reject};
+     window.dispatchEvent(new CustomEvent('xensonar:forge:resolve-last-donor',{detail:again}));
+     if(!again.handled){if(Vt.selectDonor())resolve({source:'prepared-runtime'});else reject(Error("Select a purple donor mask in Sound Material or load a donor from the library."))}
+    },120);
+   }}
  });
  __f3562EnsureDonor.inFlight=pending;
  const release=()=>{if(__f3562EnsureDonor.inFlight===pending)__f3562EnsureDonor.inFlight=null;};
