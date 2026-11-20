@@ -172,11 +172,13 @@ function __f35636DualDSPFactory() {
   return Object.freeze({version,validate,key,render});
 }
 
-const __F35636DualDSPOriginal=__f35636DualDSPFactoryOriginal();
-const __F35636DualDSPUpdated=__f35636DualDSPFactory();
+/* Variants: 1 'original', 2 'revised' (both bit-identical to their first release), 3 'aligned' registers from the lab room. */
+const __F35636DualFactories={original:__f35636DualDSPFactoryOriginal,revised:__f35636DualDSPFactory},__F35636DualInstances=new Map();
 const __F35636DualDSP=Object.freeze({
-  forPlan:plan=>plan?.revision==='original'?__F35636DualDSPOriginal:__F35636DualDSPUpdated,
-  get version(){return 'dual-variant-router-f3.56.42';},
+  register(revision,factory){__F35636DualFactories[revision]=factory;__F35636DualInstances.delete(revision);},
+  factoryFor(plan){const revision=plan?.revision==='original'||plan?.revision==='aligned'?plan.revision:'revised',f=__F35636DualFactories[revision];if(!f)throw Error('Synthesis variant '+revision+' is not loaded.');return [revision,f];},
+  forPlan(plan){const [revision,f]=this.factoryFor(plan);let d=__F35636DualInstances.get(revision);if(!d){d=f();__F35636DualInstances.set(revision,d);}return d;},
+  get version(){return 'dual-variant-router-f3.57.1';},
   validate(plan,sources,settings){return this.forPlan(plan).validate(plan,sources,settings);},
   key(plan,sources,settings){return this.forPlan(plan).key(plan,sources,settings);},
   render(plan,sources,settings,options){return this.forPlan(plan).render(plan,sources,settings,options);}
@@ -184,7 +186,7 @@ const __F35636DualDSP=Object.freeze({
 const __F35636DualWorker=(()=>{
   function render(plan,sources,settings,options={}){
     __F35636DualDSP.validate(plan,sources,settings);
-    const factory=plan?.revision==='original'?__f35636DualDSPFactoryOriginal:__f35636DualDSPFactory;
+    const factory=__F35636DualDSP.factoryFor(plan)[1];
     const script='const dsp=('+factory.toString()+')();self.postMessage({ready:true});self.onmessage=async e=>{try{const r=await dsp.render(e.data.plan,e.data.sources,e.data.settings,{onProgress:p=>self.postMessage({progress:p})});self.postMessage({result:r},[r.samples.buffer]);}catch(error){self.postMessage({error:error.message,name:error.name});}}';
     const copy=s=>({samples:s.samples.slice(),sampleRate:s.sampleRate,duration:s.duration,revision:s.revision});
     return __F35640OfflineJob.run({script,options,label:'Dual Donor',

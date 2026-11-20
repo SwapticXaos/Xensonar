@@ -1,5 +1,5 @@
 
-const __F35634Default=()=>({schema:'xensonar-dual-donor-ui-v2',revision:'revised',name:'Untitled sound crossing',sources:{A:{kind:'active',id:null,label:'Current Forge donor',revision:null},B:null},regions:[],links:[],operation:'cross',imprintDirection:'A_to_B',remainder:'undecided',updatedAt:0});
+const __F35634Default=()=>({schema:'xensonar-dual-donor-ui-v2',revision:'aligned',name:'Untitled sound crossing',sources:{A:{kind:'active',id:null,label:'Current Forge donor',revision:null},B:null},regions:[],links:[],operation:'cross',imprintDirection:'A_to_B',remainder:'undecided',updatedAt:0});
 
 /* xen-lazy:lab */
 
@@ -86,7 +86,7 @@ Object.assign(globalThis.__SpectralForgeF35,{version:"F3-56.40",dualDonor:__F356
 
 Object.assign(globalThis.__SpectralForgeF35,{version:"F3-56.43",donorField:__F35641Field,comparisonRevision:41});
 
-Object.assign(globalThis.__SpectralForgeF35,{variants:{original:{gestalt:__F356GestaltOriginal,material:__F356MaterialOriginal,dual:__F35636DualDSPOriginal},revised:{gestalt:__F356Gestalt,material:__F356Material,dual:__F35636DualDSPUpdated}}});
+Object.assign(globalThis.__SpectralForgeF35,{variants:{original:{gestalt:__F356GestaltOriginal,material:__F356MaterialOriginal,dual:__F35636DualDSP.forPlan({revision:'original'})},revised:{gestalt:__F356Gestalt,material:__F356Material,dual:__F35636DualDSP.forPlan({revision:'revised'})}}});
 
 /* Starter presets retain their existing durable material entries for legacy Material Track
    consumers. Their Root Follow configuration uses the SAME synth descriptor as the

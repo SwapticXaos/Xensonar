@@ -2100,6 +2100,12 @@
 "oct28_bytes": 12770
 },
 {
+"file": "src/rooms/00_dual_aligned_dsp.js",
+"status": "post-oct",
+"bytes": 28236,
+"oct28_bytes": 0
+},
+{
 "file": "src/rooms/lab.js",
 "status": "oct-evolved",
 "bytes": 636732,
