@@ -17,6 +17,7 @@ Zuerst lesen (in dieser Reihenfolge): `../CLAUDE.md` (Arbeitsregeln) → `PRODUC
 | Multitrack und Wave Editor auf Profi-Niveau (Lautheit/True Peak, 24 Bit, Stems, Mastering-Weg, Fades/Crossfades, Sample-Raster, Pegelanzeigen, Pitch/Time im Wave Editor, Clip-Lautheit) | `PATCH_MTW-01.md` → `PATCH_MTW-02.md` → `PATCH_MTW-03.md` → `PATCH_MTW-04.md` |
 | Loop-Rec-Takte sehen und Loop-Grenzen ziehen (Loop-Editor, Rechtsklick auf die Take-Kachel) | `PATCH_LOOPREC-BARS-01.md` |
 | Loop-Rec: weiche Nähte (Fade) beim Zuschneiden eines Loops, keine Knackser an Start/Ende | `PATCH_LOOPREC-SEAM-01.md` |
+| Adaptiver EQ folgt der gemalten Linie (Wave Editor, Live Room): kein starres Raster mehr, Fit-Fallback ohne Worker | `PATCH_EQ-ADAPT-01.md` |
 | Was nimmt Loop-Rec auf, und wie schließt man einen neuen Synth an (ein Spureingang für alles Live-Gespielte) | `PATCH_LIVE-LANE-01.md` |
 | Thunder Mode: ein Hold-Mechanismus (Nodals Uhr) für alle Synths, Exact/Loose, wie ein neuer Synth die Uhr bekommt | `PATCH_THUNDER-ONE.md` |
 | Xensonar Variante wieder eingebunden (Knopf in Art Installation → nativer Raum aus dem Full-Build; Port-Werkzeug, Rest des Full-Builds offen) | `PATCH_VARIANTE-ROOM-01.md`, `../tools/port_variante.cjs` |

@@ -439,8 +439,7 @@ const __XenEQ = (() => {
  // Async EQ planning does not run the expensive sparse optimizer on the audio
  // control thread. The canonical 360-point curves are never altered. A single
  // Worker serializes full fits; each source/rate retains only its latest request.
- // With Worker unavailable, keep the inexpensive provisional response instead
- // of introducing a >100 ms blocking fallback while other tracks are playing.
+ // With Worker unavailable the same fit runs in small slices on the control thread (localFitWorker), never a >100 ms block.
  const liveEntries=new Map(),livePending=new Map(),fitResultCache=new Map();
  // Cache the proof that a curve's effective A/B mix is constant; this is exact
  // against the canonical 360 control samples, not a subjective smoothing rule.
@@ -498,20 +497,41 @@ const __XenEQ = (() => {
   if(pending===null)pending=requestAnimationFrame(refresh);
   version++;for(const fn of listeners)fn();
  }
- function startFitWorker(){
-  if(fitWorker||fitWorkerFailed)return fitWorker;
-  if(typeof Worker!=='function'||typeof Blob!=='function'||typeof URL==='undefined'||!URL.createObjectURL){fitWorkerFailed=true;return null}
-  let url;
-  try{
-   url=URL.createObjectURL(new Blob([workerSource()],{type:'text/javascript'}));
-   fitWorker=new Worker(url);
-   fitWorker.onmessage=event=>{
+ /* EQ-ADAPT-01: the accurate fit must never stay missing. Without a Worker (blocked, failed, not available) the same planSteps run in small slices on the control thread
+    (2 ms per 14 ms, as in the Worker) instead of leaving the provisional plan (one bell per equal slice = the rigid raster) in place for good. */
+ function localFitWorker(){
+  let work=null;const w={onmessage:null,onerror:null};
+  const say=d=>{if(w.onmessage)w.onmessage({data:d})};
+  function step(){
+   if(!work)return;const current=work;
+   if(current.cancelled){work=null;say({id:current.id,cancelled:true});return}
+   const started=performance.now();let next;
+   try{do{next=current.steps.next();if(current.cancelled)break}while(!next.done&&performance.now()-started<2)}
+   catch(error){work=null;say({id:current.id,error:String(error)});return}
+   if(current.cancelled){work=null;say({id:current.id,cancelled:true});return}
+   if(next.done){work=null;say({id:current.id,result:next.value});return}
+   setTimeout(step,12);
+  }
+  w.postMessage=data=>{
+   if(data.cancel!==undefined){if(work&&work.id===data.cancel)work.cancelled=true;return}
+   if(work)return;
+   work={id:data.id,steps:planSteps(data.cfg,data.rate),cancelled:false};setTimeout(step,0);
+  };
+  w.terminate=()=>{if(work)work.cancelled=true;work=null};
+  return w;
+ }
+ // The fit that was running when the Worker failed is not lost: the same job goes again, now on the control thread (localFitWorker).
+ function retryOnControlThread(active){
+  if(active)for(const [name,entry] of liveEntries)if(entry===active.entry&&entry.epoch===active.epoch){livePending.set(name,{entry,epoch:active.epoch,fingerprint:active.fingerprint,cfg:active.cfg,rate:active.rate});break}
+  signalPlans();dispatchFit();
+ }
+ function onFitMessage(event){
     const data=event.data||{},active=fitRunning;
     if(!active||data.id!==active.id)return;
     fitRunning=null;
     const {entry,epoch,fingerprint}=active;
     if(data.cancelled){dispatchFit();return}
-    if(data.error){fitWorkerFailed=true;try{fitWorker?.terminate()}catch{}fitWorker=null;livePending.clear();signalPlans();return}
+    if(data.error){fitWorkerFailed=true;try{fitWorker?.terminate()}catch{}fitWorker=null;retryOnControlThread(active);return}
     const result=data.result;
     if(result&&Array.isArray(result.filters)&&result.filters.length===MAX){
      // The initiating source may have moved on while a second material track
@@ -529,10 +549,20 @@ const __XenEQ = (() => {
      }
     }
     dispatchFit();
-   };
-   fitWorker.onerror=()=>{fitWorkerFailed=true;try{fitWorker.terminate()}catch{}fitWorker=null;fitRunning=null;livePending.clear();signalPlans()};
-  }catch(error){fitWorkerFailed=true;fitWorker=null}
-  finally{if(url)URL.revokeObjectURL(url)}
+ }
+ function startFitWorker(){
+  if(fitWorker)return fitWorker;
+  if(!fitWorkerFailed&&typeof Worker==='function'&&typeof Blob==='function'&&typeof URL!=='undefined'&&URL.createObjectURL){
+   let url;
+   try{
+    url=URL.createObjectURL(new Blob([workerSource()],{type:'text/javascript'}));
+    fitWorker=new Worker(url);
+    fitWorker.onmessage=onFitMessage;
+    fitWorker.onerror=()=>{const active=fitRunning;fitWorkerFailed=true;try{fitWorker.terminate()}catch{}fitWorker=null;fitRunning=null;retryOnControlThread(active)};
+   }catch(error){fitWorkerFailed=true;fitWorker=null}
+   finally{if(url)URL.revokeObjectURL(url)}
+  }
+  if(!fitWorker){fitWorker=localFitWorker();fitWorker.onmessage=onFitMessage}
   return fitWorker;
  }
  function cancelUnusedFit(){
@@ -613,7 +643,7 @@ const __XenEQ = (() => {
    queueMicrotask(signalPlans);
    return cached;
   }
-  if(!fitWorkerFailed){
+  {
    // Paint/settle yield longer to live audio; direct morph and ordinary imports
    // retain their established 125-ms fit latency after finalization.
    const fitDebounce=['paint','settle'].includes(audioIntent(sourceKey))?275:125;
@@ -677,7 +707,11 @@ const __XenEQ = (() => {
   if(owned?.cfg===cfg)return owned.ready||owned.preview;
   const cached=displayPlans.get(cfg);
   if(cached?.rate===rate)return cached.plan;
-  const draft={...cfg};fastCurves.add(draft);
+  /* EQ-ADAPT-01: without an audio owner (Wave Editor offline EQ, a lane that is not playing) nobody delivers the accurate fit: the white line stayed on the
+     provisional plan (one bell per equal slice = the rigid raster) while the bake used the accurate one. At rest (no drawing gesture) compute the accurate
+     plan here, once per curve (cached), ~40 ms; while drawing, the cheap provisional plan as before. */
+  const resting=!activeGestures.has(String(sourceKey))&&!fastCurves.has(cfg);
+  const draft=resting?cfg:{...cfg};if(!resting)fastCurves.add(draft);
   const response=plan(draft,rate);
   displayPlans.set(cfg,{rate,plan:response});
   return response;
