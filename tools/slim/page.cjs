@@ -30,7 +30,7 @@ function load(){
   for(const p of pieces){if(!p.file)continue;if(p.file.endsWith('.ts')&&merged.some(d=>d[1]>p.start&&d[0]<p.end))throw Error('slim deletion inside a typed module, edit the .ts by hand: '+p.file);let t='',pos=p.start;
    for(const d of merged){if(d[1]<=p.start||d[0]>=p.end)continue;const s=Math.max(d[0],p.start),e=Math.min(d[1],p.end);t+=out.slice(pos,s);pos=e}
    t+=out.slice(pos,p.end);newText.set(p.file,(newText.get(p.file)||'')+t)}
-  let changed=0;for(const [f,t] of newText){const fp=path.join(ROOT,f);if(fs.readFileSync(fp,'utf8')!==t){fs.writeFileSync(fp,t);changed++}}
+  let changed=0;for(const [f,t] of newText){if(f.endsWith('.ts'))continue;/* compiled text, never written back over the TS source */const fp=path.join(ROOT,f);if(fs.readFileSync(fp,'utf8')!==t){fs.writeFileSync(fp,t);changed++}}
   return changed;
  }
  return {ROOT,out,pieces,blocks,fileAt,applyDeletions};
