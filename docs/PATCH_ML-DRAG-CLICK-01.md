@@ -27,3 +27,26 @@ Nur Oberfläche; Aufteilung, Größen, Texte und Bedienung unverändert, Farben 
 - Dateien: `styles/areas/035_xen-live-controls.css` (Ende), eine Variable in `src/rooms/canonical.js`. Screenshot-Vergleich nur von mir gesehen.
 
 Rollback: `0e5bc43`.
+
+---
+
+# NODAL-FACTORY-01 + ML-CARDS-01b (gleiche Sitzung, Folgeauftrag)
+
+Parent: `58ff565` (`index.html` 8 338 526 B). Jetzt 8 344 248 B (**+5 722 B**). Zone: WARM/KALT (Menü und Verwaltung des Melodic Loop, kein Audiopfad geändert). Status: CODE_PRESENT, BROWSER_CHECKED. **Nicht gehört.**
+
+## „No saved Entrophon / Nodal“ im Melodic Loop
+Befund: Die Verwaltungen (Nodal · Manage, Entrophon · Manage) zeigen nur selbst gespeicherte Sounds (localStorage-Bibliotheken) und sagten bei 0 Einträgen „No saved …“, obwohl die mitgelieferten Sounds existieren. Im Klangmenü der Instrumentenkästchen waren die 10 Entrophon-Factory-Sounds schon da, bei Nodal aber nur „troodle“; die sechs Nodal-Starter (Prism, Ember, Hollow, Filament, Reed, Obsidian) gab es nur im Nodal-Raum.
+- **Nodal-Factory-Sounds:** `nodal:factory:<id>` (ohne Revision, wie das bestehende `nodal:factory:troodle`): `__xenNodalFactoryInstrument/List` in `src/nodal/07_sound_designer.js` (`nodalOpenStarter` dorthin verschoben, global), Auflösung in `nodalFindInstrument` und im Surface-Resolver, Menü in `nodalInstrumentMenu`. Nicht im Song-Bank gespeichert (bestehende Regel für `…:factory:`), im Referenzgraphen nicht als „extern möglich“ gezählt.
+- **Verwaltungen:** Abschnitt „Built-in sounds“ (nur lesen): Preview und **Save copy** (legt einen editierbaren Eintrag in der Bibliothek an; `Manage (n)` zählt mit). Leertext jetzt „No saved copies yet.“
+- Keine Migration, keine Änderung an gespeicherten Bibliotheken oder Projekten.
+- Nicht gebaut: „vielleicht noch ein paar neue Nodal Sounds“. Die sieben vorhandenen sind jetzt erreichbar; neue Klänge brauchen Gehör, daher nicht auf Verdacht.
+- Test `tests/e2e/melodic_factory_sounds.cjs`: alle 7 Schlüssel lösen auf, Menü bietet sie, Auswahl spielt ohne Fehler, beide Verwaltungen listen Built-ins, Save copy +1 Eintrag je Bibliothek. Grün außerdem: `melodic_drag_preview`, `looprec_live_lanes`, `keyboard_lane_eq`, `nodal_gate`; `run_tests.sh` 139/139, `build.py --check` OK.
+
+## Kästchen-Nachbarn plastischer (ML-CARDS-01b)
+Die zwei Menü-Buttons (Nodal teal, Entrophon violett) und die zwei quadratischen Buttons links (zur Drum Machine) und rechts (Instrument hinzufügen, Violine) im selben Tasten-Stil wie die Kästchen: Verlauf, Lichtkante, Glanz, Schatten, Druck 1 px. Nur CSS (`035_xen-live-controls.css`). Der Drum-Machine-Pfeil gilt global, auch im Drum-Raum (gleiche Klasse).
+
+## Offen aus diesem Auftrag
+- **Donor-Fehler (Spectral Forge, „Quelle nicht angenommen“):** nicht reproduziert. Getestet: Carrier zeichnen, Send to Editor, schneiden, neu markieren, Editor schließen, Import-Dock zuklappen, dreimal Effekt + Apply/Bake: der Donor wurde jedes Mal angenommen. Die Meldung stammt aus `src/rooms/lab.js` (`resolve-last-donor`: fehlende Quelle oder Maske) bzw. `src/forge/ui/03_method_selection.js`. Braucht den genauen Klickweg und Meldungstext.
+- **Playhead blau/lila** (Navigator vs. Loop Mask): noch nicht untersucht (gleiche Frage nach dem Ablauf).
+
+Rollback: `58ff565`.

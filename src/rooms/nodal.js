@@ -54,16 +54,7 @@ function nodalRatioText(node) {
   for(let d=1;d<=32;d++){const n=Math.round(node.ratio*d);if(Math.abs(n/d-node.ratio)<1e-10)return n+'/'+d;}
   return Number(node.ratio.toPrecision(7)).toString();
 }
-function nodalOpenStarter(id='prism') {
-  if(id==='troodle') return __XenNodalModel.normalize(window.__XenNodalBuiltinTroodle);
-  const p=__NodalOpenPresets.find(p=>p.id===id)??__NodalOpenPresets[0],legacy=nodalStarter('glass');
-  return __XenNodalModel.normalize({...__XenNodalModel.upgrade(legacy),name:p.name+' Network',excitation:{kind:p.kind,level:.78},coupling:.18,
-    material:{...p,richness:.85},articulation:{...legacy.articulation,durationSec:1.6,attackSec:.006,releaseSec:.12},
-    nodes:legacy.nodes.map((n,i)=>({...n,role:p.roles[i],label:__NodalOrgans[p.roles[i]].label,ratio:p.ratios[i],radius:.4,
-      x:[.25,.68,.51][i],y:p.kind==='impulse'?[.32,.57,.76][i]:[.31,.5,.7][i],excitationSeed:913+i*71,
-      excitation:id==='filament'?(i===0?1:0):[.9,.5,.3][i],pickup:id==='filament'?(i===0?0:.9):[.85,.7,.55][i],
-      excitationKind:id==='reed'&&i===1?'breath':'inherit'}))});
-}
+/* NODAL-FACTORY-01: nodalOpenStarter moved to src/nodal/07_sound_designer.js (global), the Melodic Loop menu needs it too */
 function NodalModalMap({material,onChange,onGestureStart,onGestureEnd}) {
   const h=P.createElement,ref=P.useRef(null),active=P.useRef(false);
   function move(e){if(!active.current)return;const r=ref.current.getBoundingClientRect();onChange({stretch:Math.max(-1,Math.min(1,(e.clientX-r.left)/r.width*2-1)),balance:Math.max(0,Math.min(1,1-(e.clientY-r.top)/r.height))});}

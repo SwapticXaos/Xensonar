@@ -32,7 +32,7 @@ function nodalComposerSourceFields(composer) {
 }
 function nodalFindInstrument(preset, composer = null) {
   if (typeof preset !== 'string' || !preset.startsWith('nodal:')) return null;
-  if (preset===__XenNodalFactoryTroodleKey) return __XenNodalBuiltinTroodle;
+  const factory = __xenNodalFactoryInstrument(preset); if (factory) return factory;
   const embedded = composer?.nodalInstruments?.[preset];
   if (embedded) return __XenNodalModel.normalize(embedded);
   try { const entry = __XenNodalLibrary.list().find(e => 'nodal:' + e.id + '@' + e.revision === preset); return entry?.instrument ?? null; }

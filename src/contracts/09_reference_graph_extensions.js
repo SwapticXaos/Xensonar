@@ -58,7 +58,7 @@ const __XenReferenceGraphP27 = (() => {
       const embedded=isRecord(composer.nodalInstruments)?composer.nodalInstruments:{};
       composer.tracks.forEach((track,i)=>{
         const preset=track?.instrumentPreset;
-        if(typeof preset!=='string'||!preset.startsWith('nodal:')||preset.length<=6)return;
+        if(typeof preset!=='string'||!preset.startsWith('nodal:')||preset.length<=6||preset.startsWith('nodal:factory:'))return;
         // Runtime resolver looks up composer.nodalInstruments before __XenNodalLibrary.
         const present=Object.prototype.hasOwnProperty.call(embedded,preset)&&embedded[preset]!=null;
         edges.push(edge('composer.nodal',source,'nodal-instrument',preset,

@@ -26,6 +26,30 @@ const __NodalOpenPresets = [
   {id:'obsidian',name:'Obsidian',hint:'Narrow pulse · compressed, dark body',wave:'pulse',kind:'tone',roles:['drive','resonator','fold'],ratios:[1,1.005,1.01],body:.4,stretch:-.68,balance:.84,damping:.23,natural:.35,follow:1,width:.58},
   {id:'troodle',name:'troodle',hint:'Seven-node instrument · original saved sound'}
 ];
+function nodalOpenStarter(id='prism') {
+  if(id==='troodle') return __XenNodalModel.normalize(window.__XenNodalBuiltinTroodle);
+  const p=__NodalOpenPresets.find(p=>p.id===id)??__NodalOpenPresets[0],legacy=nodalStarter('glass');
+  return __XenNodalModel.normalize({...__XenNodalModel.upgrade(legacy),name:p.name+' Network',excitation:{kind:p.kind,level:.78},coupling:.18,
+    material:{...p,richness:.85},articulation:{...legacy.articulation,durationSec:1.6,attackSec:.006,releaseSec:.12},
+    nodes:legacy.nodes.map((n,i)=>({...n,role:p.roles[i],label:__NodalOrgans[p.roles[i]].label,ratio:p.ratios[i],radius:.4,
+      x:[.25,.68,.51][i],y:p.kind==='impulse'?[.32,.57,.76][i]:[.31,.5,.7][i],excitationSeed:913+i*71,
+      excitation:id==='filament'?(i===0?1:0):[.9,.5,.3][i],pickup:id==='filament'?(i===0?0:.9):[.85,.7,.55][i],
+      excitationKind:id==='reed'&&i===1?'breath':'inherit'}))});
+}
+/* NODAL-FACTORY-01: the built-in Nodal starter sounds (Prism, Ember, Hollow, Filament, Reed, Obsidian, troodle) as read-only factory sounds with a key and no revision,
+   like nodal:factory:troodle: resolved by key, never stored in a song bank, available in the Melodic Loop sound menu and the library manager. */
+const __xenNodalFactoryCache = new Map();
+function __xenNodalFactoryInstrument(key) {
+  const match = typeof key === 'string' && /^nodal:factory:([a-z0-9-]+)$/.exec(key);
+  if (!match) return null;
+  if (match[1] === 'troodle') return __XenNodalBuiltinTroodle;
+  if (!__NodalOpenPresets.some(preset => preset.id === match[1])) return null;
+  let value = __xenNodalFactoryCache.get(match[1]);
+  if (!value) { value = nodalOpenStarter(match[1]); __xenNodalFactoryCache.set(match[1], value); }
+  return value;
+}
+function __xenNodalFactoryList() { return __NodalOpenPresets.map(preset => ({key: 'nodal:factory:' + preset.id, id: preset.id, name: preset.name, hint: preset.hint})); }
+
 
 /* xen-lazy:nodal */
 
