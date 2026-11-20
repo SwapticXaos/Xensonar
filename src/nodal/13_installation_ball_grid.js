@@ -1,6 +1,15 @@
 /* A control bridge, not a second grid bank. The Main Room owns tuning,
    manual offsets/mutes and presets; Installation (Room III) and the Psychedelic Lab (Room V) read and edit them here.
    ROOM5-02: rows (all lines incl. muted, for the triangles), toggleMute, setOffset, windowOffset, resetWindow added for Room V. */
+/* GRID-VISIBLE-01: drawing the grid lines in Art Installation is optional (default off); the grid itself always sounds. */
+let __nodalGridLinesVisible=false;
+const __nodalGridVisibleListeners=new Set();
+function __XenGridVisibleToggle(){
+ const on=P.useSyncExternalStore(f=>(__nodalGridVisibleListeners.add(f),()=>__nodalGridVisibleListeners.delete(f)),()=>__nodalGridLinesVisible,()=>false);
+ return P.createElement('label',{style:{display:'inline-flex',alignItems:'center',gap:6,cursor:'pointer'}},
+  P.createElement('input',{type:'checkbox','data-grid-visible':true,checked:on,onChange:e=>{__nodalGridLinesVisible=e.currentTarget.checked;__nodalGridVisibleListeners.forEach(f=>f());}}),'Grid Visible');
+}
+
 const __NodalBallGrid=(()=>{
  let binding=null,revision=0,cache=null;const listeners=new Set(),empty=Object.freeze([]);
  const params=()=>binding?.paramsRef.current;
@@ -31,7 +40,7 @@ const __NodalBallGrid=(()=>{
   return {hz:state.frequency,gate:(mix.rootLevel??.62)>0&&(mix.ballToneLevel??1)>0?gate:0};
  }
  function draw(ctx,width,height){
-  if(binding?.modeRef.current!=='installation'||binding?.mixRef.current?.ballToneMode!=='grid')return;
+  if(!__nodalGridLinesVisible||binding?.modeRef.current!=='installation'||binding?.mixRef.current?.ballToneMode!=='grid')return;
   const rows=lines();if(!rows.length)return;
   ctx.save();ctx.strokeStyle='rgba(80,215,230,.25)';ctx.fillStyle='rgba(140,235,245,.72)';ctx.lineWidth=.75;ctx.font='10px sans-serif';
   let lastLabel=-Infinity,lastRow=-Infinity;ctx.beginPath();
