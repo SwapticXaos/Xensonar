@@ -27,7 +27,9 @@ async function nodalStartMelodic(request) {
   const selected = request.noteId ? composer.notes.filter(n => n.id === request.noteId) : composer.notes.filter(n => request.trackIds.includes(n.trackId));
   const master = ctx.createGain(); master.gain.value = .82; master.__f49PreviewMaster = true; master.connect(bridge.getOutput(ctx)); Mx(master);
   const gains = new Map(), trackPanners = new Map(), players = new Map(), stems = new Map(), events = [];
-  let timer = null, stopped = false, cycle = 0, cursor = 0, startTime = ctx.currentTime + .12, loopOffset = 0;
+  let timer = null, stopped = false, halted = false, cycle = 0, cursor = 0, startTime = ctx.currentTime + .12, loopOffset = 0;
+  /* ML-DRAG-CLICK-01: halt = no more scheduling, the voices keep sounding until the master fade is done (hS); stop = release the voices (after the fade). */
+  const halt = () => { halted = true; if (timer !== null) clearTimeout(timer); };
   const stop = () => { if (stopped) return; stopped = true; if (timer !== null) clearTimeout(timer); for (const player of players.values()) player.stop(); };
   const dispose = () => { stop(); for (const player of players.values()) player.dispose(); };
   Mx({stop, disconnect: dispose});
@@ -85,7 +87,7 @@ async function nodalStartMelodic(request) {
       liveEnabledIds: new Set(composer.tracks.filter(t => t.enabled).map(t => t.id)), drumRenderRequest: JSON.parse(JSON.stringify(request)),
       drumMonitorExplicit: request.drumMonitorEnabled === true,
       playheadCallback: request.onComposerPlayhead ?? request.onPlayhead, globalPlayheadCallback: request.onGlobalPlayheadRatio,
-      nodalTransport: {stop, seek(unit) {
+      nodalTransport: {stop, halt, seek(unit) {
         for (const player of players.values()) player.stop();
         for (const source of session.stemSources) { try { source.stop(); source.disconnect(); } catch {} }
         loopOffset = ((unit % steps + steps) % steps) * stepSec; session.loopOffsetSec = loopOffset;
@@ -102,7 +104,7 @@ async function nodalStartMelodic(request) {
     const firstStarts = [];
     let initialAttempts = 0, initialAccepted = 0;
     function tick() {
-      if (stopped || !uP(token)) return;
+      if (stopped || halted || !uP(token)) return;
       const now = ctx.currentTime, horizon = now + .12;
       if (request.loop) {
         const presentCycle = Math.max(0, Math.floor((now - startTime + loopOffset) / duration));

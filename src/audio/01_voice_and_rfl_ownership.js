@@ -1179,13 +1179,15 @@ function __f49AllowRFLProbe(refs,ctx,kind){
 function __xenRflLeaveGraceMs(){return 150}
 function __xenRflStopFadeSec(){return .06}
 function __xenRflFadeParallel(){return true}
-function __f49FadeAndRelease(bus,seconds,release){
+function __f49FadeAndRelease(bus,seconds,release,lead=0){
  const ctx=bus?.context;if(!bus||ctx.state!=='running'){release();return}
- const at=ctx.currentTime;
+ /* ML-DRAG-CLICK-01 (lead): ctx.currentTime is BEHIND the audio thread's render position; a ramp that starts "now" has already run for that difference when it is rendered = a gain step (click).
+    Callers that fade a bus that is sounding loudly pass a lead so that the ramp starts in the future. Default 0 = unchanged for every other caller. */
+ const at=ctx.currentTime+lead;
  try{__f49HoldParam(bus.gain,at);bus.gain.linearRampToValueAtTime(0,at+seconds)}catch{release();return}
  const wallDeadline=Date.now()+300;
  const afterFade=()=>{if(ctx.state==='running'&&ctx.currentTime<at+seconds&&Date.now()<wallDeadline){setTimeout(afterFade,12);return}release()};
- setTimeout(afterFade,Math.ceil((seconds+.012)*1000));
+ setTimeout(afterFade,Math.ceil((seconds+lead+.012)*1000));
 }
 function __f49MaterialLevel(gain,ctx,value){
  if(gain.context!==ctx||ctx.state==='closed')return;
