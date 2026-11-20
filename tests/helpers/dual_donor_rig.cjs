@@ -3,7 +3,7 @@
 // builds synthetic donors with known answers and measures the properties a hybrid must have.
 const fs=require('fs'),path=require('path'),extract=require('./extract_function.cjs');
 const src=p=>fs.readFileSync(path.join(__dirname,'..','..',p),'utf8');
-const revised=new Function(extract(src('src/forge/dual/01_dsp_and_worker.js'),'__f35636DualDSPFactory')+';return __f35636DualDSPFactory();')();
+const revised=new Function(src('tests/fixtures/dual_donor_v2_renderer.js')+';return __f35636DualDSPFactory();')(); // frozen variant 2 = the before-measurement
 const aligned=new Function(extract(src('src/rooms/00_dual_aligned_dsp.js'),'__f35636DualDSPFactoryAligned')+';return __f35636DualDSPFactoryAligned();')();
 function rng(seed){let s=seed>>>0||1;return()=>{s^=s<<13;s>>>=0;s^=s>>17;s^=s<<5;s>>>=0;return s/4294967296;};}
 // Harmonic tone with a formant envelope (Gaussian bumps in log-frequency), optional onset, vibrato and noise.

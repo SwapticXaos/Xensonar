@@ -57,7 +57,7 @@ function __createF341WorkbenchStore({recipe: recipe, selection: selection, resto
         presets: presets,
         layers: [ {
             id: "material",
-            label: "Materialfenster",
+            label: "Material window",
             color: "#2dd4bf"
         }, {
             id: "noise",

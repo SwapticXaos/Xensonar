@@ -86,7 +86,7 @@ Object.assign(globalThis.__SpectralForgeF35,{version:"F3-56.40",dualDonor:__F356
 
 Object.assign(globalThis.__SpectralForgeF35,{version:"F3-56.43",donorField:__F35641Field,comparisonRevision:41});
 
-Object.assign(globalThis.__SpectralForgeF35,{variants:{original:{gestalt:__F356GestaltOriginal,material:__F356MaterialOriginal,dual:__F35636DualDSP.forPlan({revision:'original'})},revised:{gestalt:__F356Gestalt,material:__F356Material,dual:__F35636DualDSP.forPlan({revision:'revised'})}}});
+Object.assign(globalThis.__SpectralForgeF35,{variants:{original:{gestalt:__F356GestaltOriginal,material:__F356MaterialOriginal,get dual(){return __F35636DualDSP.forPlan()}},revised:{gestalt:__F356Gestalt,material:__F356Material,get dual(){return __F35636DualDSP.forPlan()}}}});
 
 /* Starter presets retain their existing durable material entries for legacy Material Track
    consumers. Their Root Follow configuration uses the SAME synth descriptor as the

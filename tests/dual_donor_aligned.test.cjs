@@ -63,16 +63,12 @@ test('44.1 kHz and 96 kHz donors, tone x noise, determinism, cancellation, manif
  let n=0;await assert.rejects(R.aligned.render({...R.plan(),revision:'aligned'},{A:{...A,revision:'ra'},B:{...N,revision:'rb'}},{duration:2},{isCancelled:()=>++n>3}),e=>e.name==='AbortError');
  assert.throws(()=>R.aligned.validate({...R.plan(),links:[]},{A:{...A,revision:'ra'},B:{...N,revision:'rb'}},{}),/Connect at least one region/);
 });
-test('router: variants 1 and 2 unchanged and still selected by their blueprints; 3 registers from the lab room',()=>{
+test('router: every blueprint (also old revisions) renders with variant 3, which registers from the lab room; variants 1/2 are gone from the page',()=>{
  const src=p=>fs.readFileSync(path.join(__dirname,'..',p),'utf8');
- const D=new Function(src('src/forge/original/05_dual_donor.js')+src('src/forge/dual/01_dsp_and_worker.js')+src('src/rooms/00_dual_aligned_dsp.js')+';return __F35636DualDSP;')();
- assert.equal(D.forPlan({revision:'original'}).version,'dual-donor-spectral-body-f3.56.36');
- assert.equal(D.forPlan({revision:'revised'}).version,'dual-donor-spectral-body-f3.56.41');
- assert.equal(D.forPlan({}).version,'dual-donor-spectral-body-f3.56.41','missing revision stays variant 2');
- assert.equal(D.forPlan({revision:'aligned'}).version,R.aligned.version);
- const d2=new Function(src('src/forge/original/05_dual_donor.js')+src('src/forge/dual/01_dsp_and_worker.js')+';return __F35636DualDSP;')();
- assert.throws(()=>d2.forPlan({revision:'aligned'}),/not loaded/);
- // Variant 2 is byte-for-byte the September/November renderer (its factory text is unchanged by DUAL-ALIGN-01).
- const crypto=require('crypto'),body=require('./helpers/extract_function.cjs')(src('src/forge/dual/01_dsp_and_worker.js'),'__f35636DualDSPFactory');
- assert.equal(crypto.createHash('sha256').update(body).digest('hex').slice(0,16),'168e8319ff8b5f69');
+ const D=new Function(src('src/forge/dual/01_dsp_and_worker.js')+src('src/rooms/00_dual_aligned_dsp.js')+';return __F35636DualDSP;')();
+ for(const revision of ['original','revised','aligned',undefined])assert.equal(D.forPlan({revision}).version,R.aligned.version,String(revision));
+ const bare=new Function(src('src/forge/dual/01_dsp_and_worker.js')+';return __F35636DualDSP;')();
+ assert.throws(()=>bare.forPlan({}),/not loaded/);
+ assert.ok(!fs.existsSync(path.join(__dirname,'..','src/forge/original/05_dual_donor.js')),'the variant 1 renderer is removed');
+ assert.ok(!/__f35636DualDSPFactoryOriginal/.test(src('src/rooms/lab.js')+src('src/forge/dual/01_dsp_and_worker.js')));
 });
