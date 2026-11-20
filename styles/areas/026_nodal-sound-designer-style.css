@@ -629,3 +629,64 @@ body[data-nodal-sounddesign="true"] [data-xensonar-performance-strip] {display:n
 .nd-toolbar .nd-auto-switch{display:flex;align-items:center;justify-content:center;gap:7px;min-height:20px;color:#b7d6cf;font-size:10px;cursor:pointer;user-select:none}
 .nd-toolbar .nd-auto-switch input[type=checkbox]{margin:0;width:14px;height:14px;min-height:0;padding:0;accent-color:#8bd9bc;cursor:pointer}
 @media(max-width:760px){.nd-open-workshop .nd-toolbar .nd-preview-control{grid-column:3;grid-row:1}}
+/* NODAL-GATE-01: the closed temple gate over the Art Installation stage. Sequence: the XenSonar mark turns, unfolds along
+   its eight rays into the grooves, the centre opens, then the halves part. Transforms/opacity only (compositor). */
+@property --nd-hole{syntax:'<length>';inherits:true;initial-value:0px}
+.nd-gate{position:absolute;inset:0;z-index:5;overflow:hidden;pointer-events:none;border-radius:12px;background:#040a0d;--nd-hole:0px}
+.nd-gate[data-nodal-gate=opening],.nd-gate[data-nodal-gate=closing]{background:transparent}
+.nd-gate[data-nodal-gate=opening]{animation:nd-gate-hole .9s cubic-bezier(.3,0,.2,1) forwards}
+@keyframes nd-gate-hole{from{--nd-hole:0px}to{--nd-hole:96px}}
+.nd-gate-light{position:absolute;inset:0;background:radial-gradient(ellipse 50% 100% at 50% 50%,rgba(191,247,238,.38),rgba(120,230,210,.1) 45%,transparent 72%);transform:scaleX(.08);opacity:0}
+.nd-gate[data-nodal-gate=opening] .nd-gate-light{animation:nd-gate-light 3.4s ease-out forwards}
+@keyframes nd-gate-light{0%{opacity:0;transform:scaleX(.08)}15%{opacity:1}40%{opacity:.6}100%{opacity:0;transform:scaleX(1.2)}}
+.nd-gate-door{position:absolute;top:0;bottom:0;width:50%;overflow:hidden;pointer-events:auto;
+ background:radial-gradient(ellipse 60% 70% at 100% 50%,rgba(84,190,176,.16),transparent 70%),repeating-linear-gradient(0deg,rgba(255,255,255,.018) 0 2px,transparent 2px 9px),linear-gradient(180deg,#14252a,#0c181c 45%,#0a1417 55%,#122126)}
+.nd-gate-door.is-left{left:0;border-right:1px solid #2f6a66;box-shadow:inset -8px 0 18px rgba(0,0,0,.55);-webkit-mask-image:radial-gradient(circle at 100% 50%,transparent var(--nd-hole),#000 calc(var(--nd-hole) + 1px));mask-image:radial-gradient(circle at 100% 50%,transparent var(--nd-hole),#000 calc(var(--nd-hole) + 1px))}
+.nd-gate-door.is-right{right:0;border-left:1px solid #2f6a66;box-shadow:inset 8px 0 18px rgba(0,0,0,.55);-webkit-mask-image:radial-gradient(circle at 0 50%,transparent var(--nd-hole),#000 calc(var(--nd-hole) + 1px));mask-image:radial-gradient(circle at 0 50%,transparent var(--nd-hole),#000 calc(var(--nd-hole) + 1px))}
+.nd-gate-door.is-right .nd-gate-relief{transform:scaleX(-1)}
+.nd-gate-relief{position:absolute;inset:0;width:100%;height:100%;fill:none;stroke:#3f8a84;stroke-width:1.4;opacity:.8}
+.nd-gate-relief rect{stroke:#24484b}
+.nd-gate-relief .is-faint{stroke:#2a5658;opacity:.7}
+.nd-gate-relief .is-dash{stroke-dasharray:2 7;stroke:#5fb7ad}
+.nd-gate-trace{stroke:#4aa59a;stroke-width:1.1;stroke-dasharray:640;stroke-dashoffset:0}
+.nd-gate-node{fill:#0b1a1e;stroke:#7fe0d2}
+.nd-gate-glyph{stroke:#c49a52;stroke-width:1.3;stroke-linecap:round;opacity:.75}
+.nd-gate[data-nodal-gate=turning] .nd-gate-trace{animation:nd-gate-trace 1s ease-in .8s both}
+.nd-gate[data-nodal-gate=turning] .nd-gate-node{animation:nd-gate-node 1s ease-in .9s both}
+@keyframes nd-gate-trace{from{stroke-dashoffset:640;stroke:#bff7ee}to{stroke-dashoffset:0;stroke:#9ff0e2}}
+@keyframes nd-gate-node{from{fill:#0b1a1e}to{fill:#bff7ee}}
+.nd-gate-seal-slot{position:absolute;left:50%;top:50%;width:190px;height:190px;margin:-95px 0 0 -95px;z-index:1}
+.nd-gate-seal{width:100%;height:100%;overflow:visible;fill:none;stroke:#d9ad62;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round;transition:transform .8s cubic-bezier(.55,-.25,.3,1.35),filter .4s;filter:drop-shadow(0 0 4px rgba(217,173,98,.35))}
+.nd-gate-seal-disc{fill:#101d21;stroke:#6a5530;stroke-width:3}
+.nd-gate-seal-ring>circle{stroke:#8f7242}
+.nd-gate-seal-ring line{stroke:#a3844c;stroke-width:1.2}
+.nd-gate-seal-runes{stroke:#e2bb72;stroke-width:1.6}
+.nd-gate-seal-ring{transform-box:fill-box;transform-origin:50% 50%}
+.nd-gate-mark{stroke:#bff7ee;stroke-width:4.6}
+.nd-gate-mark-dot{fill:#bff7ee;stroke:none}
+.nd-gate-petal,.nd-gate-fly{transform-box:fill-box;transform-origin:50% 50%}
+.nd-gate .nd-gate-seal-btn{position:absolute;left:50%;top:50%;width:190px!important;height:190px!important;min-height:0!important;margin:-95px 0 0 -95px;padding:0!important;border-radius:50%!important;border:0!important;background:transparent!important;box-shadow:none!important;opacity:1!important;cursor:pointer;pointer-events:auto;z-index:2}
+.nd-gate .nd-gate-seal-btn:disabled{cursor:default}
+.nd-gate .nd-gate-seal-btn:focus-visible{outline:2px solid #7fe0d2;outline-offset:4px}
+.nd-gate:has(.nd-gate-seal-btn:not(:disabled):hover) .nd-gate-seal,.nd-gate:has(.nd-gate-seal-btn:focus-visible) .nd-gate-seal{filter:drop-shadow(0 0 10px rgba(226,187,114,.7))}
+.nd-gate:has(.nd-gate-seal-btn:not(:disabled):hover) .nd-gate-seal{transform:rotate(-6deg)}
+/* 1. turn (0-0.8 s) */
+.nd-gate:not([data-nodal-gate=closed]) .nd-gate-seal{transform:rotate(112.5deg);filter:drop-shadow(0 0 14px rgba(226,187,114,.85))}
+.nd-gate[data-nodal-gate=closing] .nd-gate-seal{transition:none;transform:none}
+/* 2. unfold along the eight rays (0.75-1.75 s): petals stretch along their axis, the rest travels out on its ray */
+.nd-gate[data-nodal-gate=turning] .nd-gate-petal{animation:nd-gate-petal 1s cubic-bezier(.5,0,.3,1) .75s forwards}
+.nd-gate[data-nodal-gate=turning] .nd-gate-fly{animation:nd-gate-fly 1s cubic-bezier(.5,0,.3,1) .75s forwards}
+.nd-gate[data-nodal-gate=turning] .nd-gate-seal-ring{animation:nd-gate-ring 1s cubic-bezier(.5,0,.3,1) .85s forwards}
+.nd-gate[data-nodal-gate=opening] :is(.nd-gate-petal,.nd-gate-fly,.nd-gate-seal-ring){opacity:0}
+@keyframes nd-gate-petal{0%{transform:scaleY(1)}35%{transform:scale(.7,2.4);opacity:1}100%{transform:scale(.25,7);opacity:0}}
+@keyframes nd-gate-fly{0%{transform:translate(0,0)}100%{transform:translate(var(--dx),var(--dy)) scale(.35);opacity:0}}
+@keyframes nd-gate-ring{0%{transform:scale(1)}100%{transform:scale(1.9);opacity:0}}
+/* 3. centre opens (opening 0-0.9 s), 4. halves part (0.8-3.4 s) */
+.nd-gate[data-nodal-gate=opening] .nd-gate-door.is-left{animation:nd-gate-left 2.6s cubic-bezier(.62,0,.22,1) .8s forwards}
+.nd-gate[data-nodal-gate=opening] .nd-gate-door.is-right{animation:nd-gate-right 2.6s cubic-bezier(.62,0,.22,1) .8s forwards}
+.nd-gate[data-nodal-gate=closing] .nd-gate-door.is-left{animation:nd-gate-left 1s cubic-bezier(.5,0,.75,0) reverse forwards}
+.nd-gate[data-nodal-gate=closing] .nd-gate-door.is-right{animation:nd-gate-right 1s cubic-bezier(.5,0,.75,0) reverse forwards}
+@keyframes nd-gate-left{0%{transform:translateX(0)}6%{transform:translateX(1px)}100%{transform:translateX(-101%)}}
+@keyframes nd-gate-right{0%{transform:translateX(0)}6%{transform:translateX(-1px)}100%{transform:translateX(101%)}}
+@media (prefers-reduced-motion:reduce){.nd-gate-seal{transition-duration:.3s}}
+@media (max-width:640px){.nd-gate-seal-slot,.nd-gate .nd-gate-seal-btn{width:140px!important;height:140px!important;margin:-70px 0 0 -70px}}

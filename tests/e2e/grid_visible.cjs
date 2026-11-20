@@ -9,7 +9,7 @@ const html=path.resolve(process.argv[2]||'dist/XenSonar_PROBE.html');
  await q.goto('file://'+html);await q.waitForTimeout(3500);
  await q.evaluate(()=>[...document.querySelectorAll('header button')].find(b=>/NODAL/.test(b.innerText)).click());await q.waitForTimeout(2000);
  const art=q.getByRole('button',{name:'Art Installation'});if(await art.count())await art.first().click();await q.waitForTimeout(1500);
- await q.waitForTimeout(2500);
+ await q.locator('[data-installation-sound-toggle]').click();await q.waitForTimeout(6000); // NODAL-GATE-01: gate closed by default; the button opens it (seal turn + doors)
  const box=q.locator('input[data-grid-visible]');assert.equal(await box.count(),1,'one checkbox');
  assert.equal(await box.isChecked(),false,'default off');
  assert.ok(await q.getByText('Grid Visible').count(),'titled Grid Visible');
