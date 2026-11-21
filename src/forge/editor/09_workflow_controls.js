@@ -304,6 +304,18 @@ function __ForgeRackVerticalAlign(rack){
    const available=edge-left-4;
    if(available>0)importButton.style.setProperty('--forge-import-width',Math.min(43,available)+'px');
   }
+  /* MT-ALIGN-01: Send to Multitrack hangs at the right edge of the Import Audio tab and runs to the end of the row: one line with the other Send-to keys. With a wide window the gap then
+     opens between Project Name / Figure Projects and the Import Audio tab (above), not in front of Multitrack. Only while both are in the same line; otherwise (narrow, wrapped) no shift. */
+  {
+   const corner=rack.querySelector('.f33-rack-project-corner'),multi=corner?.querySelector('.f35-rack-send-multitrack');
+   if(corner&&multi){
+    const tab=importButton.getBoundingClientRect(),cr=corner.getBoundingClientRect(),mr=multi.getBoundingClientRect();
+    const sameLine=tab.width>0&&tab.bottom>mr.top+4&&tab.top<mr.bottom;
+    const grow=cr.left-(tab.right+5);
+    if(sameLine&&grow>1&&grow<700)corner.style.setProperty('--xen-mt-shift',(-grow).toFixed(2)+'px');
+    else corner.style.removeProperty('--xen-mt-shift');
+   }
+  }
   const topY=top.getBoundingClientRect().top;
   const bottomY=bottom.getBoundingClientRect().bottom;
   const height=bottomY-topY;

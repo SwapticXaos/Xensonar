@@ -235,3 +235,6 @@ body{height:auto;min-height:100vh;overflow:visible}
 [data-xen-tile="forge"][class*="border-cyan-500"]{filter:brightness(1.1)}
 [data-xen-tile="melodic"][class*="border-violet-500"]{filter:brightness(1.1)}
 [data-xen-tile][class*="border-cyan-500"],[data-xen-tile][class*="border-violet-500"]{outline:2px solid rgba(255,255,255,.55);outline-offset:-2px}
+
+/* MT-ALIGN-01: Send to Multitrack grows to the left up to the Import Audio tab (measured, --xen-mt-shift is negative); without the variable nothing changes */
+.f33-rack-project-corner .f35-rack-send-multitrack{margin-left:var(--xen-mt-shift,0px);width:calc(100% - var(--xen-mt-shift,0px))}
