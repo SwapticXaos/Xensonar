@@ -100,10 +100,11 @@
    "id": "js-010-main-bundle",
    "oct28_section": "@@XENSONAR_COMPONENT_005@@",
    "files": [
-    "src/package_station/02_export_selection.js",
-    "src/package_station/01_binary_archive.js",
-    "src/post-oct/gaps/010-main-bundle__01_after_01_binary_archive.js",
     "src/startup/00_room_and_function_dispatch.js",
+    "src/package_station/02_export_selection.js",
+    "src/package_station/00_lazy_boot.js",
+    "src/post-oct/gaps/010-main-bundle__01_after_01_binary_archive.js",
+    "src/startup/01_cold_browser_check.js",
     "src/contracts/01_asset_contract.js",
     "src/contracts/02_asset_resolution.js",
     "src/handoff/00_chat_feature_addons.js",
@@ -895,6 +896,13 @@
    "oct28_section": null,
    "files": [
     "src/post-oct/015b-xen-wave-analysis.js"
+   ]
+  },
+  {
+   "id": "js-015e-xen-chunk-package-station",
+   "oct28_section": null,
+   "files": [
+    "src/package_station/01_binary_archive.js"
    ]
   },
   {

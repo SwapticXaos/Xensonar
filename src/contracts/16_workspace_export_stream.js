@@ -133,7 +133,7 @@ const __XenPackageExportTraceP315=(()=>{
     current.status='error';checkpoint();
   }
   function finish(detail){record('download-created',detail);if(current){current.status='download-ready';checkpoint();}}
-  function read(){return{schemaVersion:1,binaryArchive:typeof __xenPackageStation4==='function'?__xenPackageStation4().diagnostics():null,recording:'bounded metadata-only export stages',runs:runs.map(r=>({
+  function read(){return{schemaVersion:1,binaryArchive:typeof __xenPackageStation4==='function'&&(!globalThis.__XenLazyLoader||globalThis.__XenLazyLoader.isLoaded('chunk','package-station'))?__xenPackageStation4().diagnostics():null,recording:'bounded metadata-only export stages',runs:runs.map(r=>({
     run:r.run,startedIso:r.startedIso,status:r.status,events:r.events.map(e=>({...e})),error:r.error??null
   }))};}
   return Object.freeze({begin,step,fail,finish,read});

@@ -1095,8 +1095,4 @@ function __createXenPackageStation4(env=globalThis) {
   inspect:file=>walk(source(file)),catalogueInspect,stats:()=>({...stats}),diagnostics:()=>({schemaVersion:4,events:[...events],limits:{chunkBytes:CHUNK,recordAtATime:true},stats:{...stats}}),_test:env.__XEN_PACKAGE_STATION_TEST__===true?{encode,decode,writer,reader,source,walk,spool,exportSpool,applyArchive,inventory,localRows,crc,resetStats,JOURNAL,RUNTIME,TRANSPORT,selectionPlan,writeArchive,xmemWitness}:undefined});
 }
 let __xenPackageStation4Instance;
-function __xenPackageStation4(){return __xenPackageStation4Instance??=(globalThis.__XenPackageStation4=__createXenPackageStation4())}
-// Stop before ANY application initializer during restore. Normal boot performs only two key reads.
-let __xenRestoredWorkspace4=null;
-if(localStorage.getItem('xensonar:package-station:v4:recovery')||localStorage.getItem('xensonar:package-station:v4:runtime'))
- __xenRestoredWorkspace4=await __xenPackageStation4().boot();
+(__xenPackageStation4Instance=__createXenPackageStation4);

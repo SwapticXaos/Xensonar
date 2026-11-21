@@ -143,9 +143,9 @@ window.__XenLazyLoader=Object.freeze({
  report:__xenLazyRuntime.report
 });
 window.__XenDeferredFunctionStatus=()=>__xenGetDeferredFn.status();
+window.__xenOpenForgeWorkflow=function(trigger){__xenLoadChunk('forge-workflow');return window.__xenOpenForgeWorkflow(trigger)};
+window.__XenSoundRecipeExportUI={
+ open(...args){__xenLoadChunk('sound-recipe-export');return window.__XenSoundRecipeExportUI.open(...args)},
+ close(){if(__xenLazyRuntime.isLoaded('chunk','sound-recipe-export'))window.__XenSoundRecipeExportUI.close()}
+};
 
-window.__XenBoot?.mark("module-entered");
-const __XenStarterColdBrowser=(()=>{
- try{return !Object.keys(localStorage).some(key=>/^xensonar(?:[.:-]|$)/i.test(key))}
- catch{return false}
-})();
