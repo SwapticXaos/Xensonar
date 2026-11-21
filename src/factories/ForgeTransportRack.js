@@ -160,7 +160,7 @@ function __ForgeTransportRack(e){
    'aria-haspopup':id==='pink'?'dialog':undefined,
    'aria-expanded':id==='pink'?(sendFlyout?.id==='pink'?true:false):undefined,
    onClick:event=>id==='pink'?showQuickSend(id,event):e.handleSendCurrentPreviewToXensonar(id),
-   title:id==='pink'?'Choose transfer interpretation':navigatorSelection?'Send only the purple Navigator selection · '+effectiveBars+' bars':'Send the entire Forge figure',
+   title:id==='pink'?'Send to Melodic Loop · choose the interpretation: Scattered, Fretless Field and Monotone send the carrier drawing without specific timbre; Raw Audio sends the sound including the currently chosen timbre':(navigatorSelection?'Send only the purple Navigator selection · '+effectiveBars+' bars':'Send the entire Forge figure')+' · including the currently chosen timbre (listening mode)',
    // A translucent purple sheen marks selection routing but keeps every
    // destination's native cyan / violet / pink background and border.
    style:navigatorSelection?{
@@ -193,9 +193,9 @@ function __ForgeTransportRack(e){
      h('button',{...button,onClick:e.handleStop,'aria-label':'Stop preview',title:'Stop preview'},'⏹')),
     null),
     h('div',{className:'flex flex-wrap items-center gap-1'},
-     h('button',{...button,'data-f345-export-format':'wav','aria-label':'Download Listening Mode as WAV',disabled:busy,onClick:()=>e.handleDownloadCurrentPreview('wav')},'⬇ WAV'),
-     h('button',{...button,'data-f345-export-format':'flac','aria-label':'Download Listening Mode as FLAC',disabled:busy,onClick:()=>e.handleDownloadCurrentPreview('flac')},'⬇ FLAC'),
-     h('button',{...button,disabled:busy,onClick:e.handleExport},'💾 Canvas + JSON')),
+     h('button',{...button,'data-f345-export-format':'wav','aria-label':'Download Listening Mode as WAV',title:'Download the current listening mode as WAV · including the currently chosen timbre',disabled:busy,onClick:()=>e.handleDownloadCurrentPreview('wav')},'⬇ WAV'),
+     h('button',{...button,'data-f345-export-format':'flac','aria-label':'Download Listening Mode as FLAC',title:'Download the current listening mode as FLAC · including the currently chosen timbre',disabled:busy,onClick:()=>e.handleDownloadCurrentPreview('flac')},'⬇ FLAC'),
+     h('button',{...button,title:'Exports the current listening mode (including the currently chosen timbre) as WAV plus JSON metadata and saves the loop in the material database',disabled:busy,onClick:e.handleExport},'💾 Canvas + JSON')),
     h('div',{className:'f35-tempo-save'},
      h('div',{className:'flex items-center gap-2'},
      h('label',{className:'flex items-center gap-1 text-xs text-neutral-300'},'Tempo',
