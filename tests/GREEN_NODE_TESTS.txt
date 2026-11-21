@@ -137,3 +137,4 @@ myzel_cosmos_01.test.cjs
 ts_mod01_parity.test.cjs
 ts_typecheck.cjs
 dual_donor_aligned.test.cjs
+lazy_architecture.test.cjs

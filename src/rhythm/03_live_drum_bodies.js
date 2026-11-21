@@ -729,11 +729,11 @@ function __xenDrawGridHandleHover(t,y,muted){t.save();t.lineWidth=1.5;t.strokeSt
 /* Notes that sound right now, drawn over the grid in pink/violet: the green line stays "the last one moved", these are all the others that are active
    (Hold, chords, several keys). ONE painter for the Live Room (keys held down) and Room V (its active notes); geo = {len, yOf(hz)}, notesHz = iterable of Hz. */
 const __xenGridGradCache=new WeakMap(),__xenGridWinCache={sig:'',j:[]};
-function __xenGridGrads(ctx){let c=__xenGridGradCache.get(ctx);if(!c){c={mainKey:'',mainGrad:null,activeLen:0,activeGrad:null};__xenGridGradCache.set(ctx,c)}return c}
+function __xenGridGrads(ctx){let c=__xenGridGradCache.get(ctx);if(!c){c={mainKey:'',mainGrad:null};__xenGridGradCache.set(ctx,c)}return c}
 function __xenPaintActiveNotes(g,geo,notesHz,markY){
- const len=geo.len;let on=false,gr=null;
+ const len=geo.len;let on=false;
  for(const hz of notesHz){const y=geo.yOf(hz);if(!Number.isFinite(y))continue;
-  if(!on){g.save();g.lineWidth=2;on=true;const c=__xenGridGrads(g);if(c.activeLen!==len||!c.activeGrad){const ng=g.createLinearGradient(0,0,len,0);ng.addColorStop(0,'rgba(255,115,220,.9)');ng.addColorStop(.5,'rgba(200,120,255,.5)');ng.addColorStop(1,'rgba(255,115,220,.9)');c.activeLen=len;c.activeGrad=ng}gr=c.activeGrad;g.strokeStyle=gr;g.fillStyle='rgba(255,130,225,.95)'}
+  if(!on){g.save();g.lineWidth=2;on=true;const gr=g.createLinearGradient(0,0,len,0);gr.addColorStop(0,'rgba(255,115,220,.9)');gr.addColorStop(.5,'rgba(200,120,255,.5)');gr.addColorStop(1,'rgba(255,115,220,.9)');g.strokeStyle=gr;g.fillStyle='rgba(255,130,225,.95)'}
   g.beginPath();g.moveTo(0,y);g.lineTo(len,y);g.stroke();
   if(Math.abs(y-markY)>2){g.beginPath();g.moveTo(15,y);g.lineTo(0,y-5.5);g.lineTo(0,y+5.5);g.closePath();g.fill()}}
  if(on)g.restore()}

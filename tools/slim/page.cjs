@@ -21,7 +21,7 @@ function load(){
  const blocks=[];const sre=/<script\b([^>]*)>/gi;
  while((m=sre.exec(out))){const start=m.index+m[0].length,e=out.slice(start).search(/<\/script\s*>/i);if(e<0)break;
   const attrs=m[1],type=(attrs.match(/type="([^"]*)"/)||[])[1]||'';
-  const kind=type==='module'?'module':type==='application/x-xensonar-room'?'room':type==='application/x-xensonar-function'?'island':type===''||/javascript/.test(type)?'classic':'other';
+  const kind=type==='module'?'module':type==='application/x-xensonar-room'?'room':type==='application/x-xensonar-chunk'?'chunk':type==='application/x-xensonar-function'?'island':type===''||/javascript/.test(type)?'classic':'other';
   blocks.push({kind,id:(attrs.match(/id="([^"]*)"/)||[])[1]||'',start,end:start+e});sre.lastIndex=start+e}
  /* rewrite source files after deleting [start,end) ranges of the page (sorted, non-overlapping) */
  function applyDeletions(merged){

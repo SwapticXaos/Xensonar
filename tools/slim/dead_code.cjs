@@ -87,8 +87,8 @@ function analyse(block){
  const shift=block.kind==='island'?1:0;
  const src=block.kind==='island'?'('+out.slice(block.start,block.end)+'\n)':out.slice(block.start,block.end);
  const comments=[];
- const ast=acorn.parse(src,{ecmaVersion:'latest',sourceType:block.kind==='module'?'module':'script',allowReturnOutsideFunction:block.kind==='room',allowAwaitOutsideFunction:block.kind==='room',ranges:true,onComment:comments});
- const sm=eslintScope.analyze(ast,{ecmaVersion:2022,sourceType:block.kind==='module'?'module':'script',impliedStrict:block.kind!=='classic',ignoreEval:true,nodejsScope:block.kind==='room'||block.kind==='island'});
+ const ast=acorn.parse(src,{ecmaVersion:'latest',sourceType:block.kind==='module'?'module':'script',allowReturnOutsideFunction:block.kind==='room'||block.kind==='chunk',allowAwaitOutsideFunction:block.kind==='room'||block.kind==='chunk',ranges:true,onComment:comments});
+ const sm=eslintScope.analyze(ast,{ecmaVersion:2022,sourceType:block.kind==='module'?'module':'script',impliedStrict:block.kind!=='classic',ignoreEval:true,nodejsScope:block.kind==='room'||block.kind==='chunk'||block.kind==='island'});
  // items + owner of every identifier
  const items=[];const itemOf=new Map();
  const mk=(node,decl,kind)=>{const it={node,decl,kind,live:false,refs:new Set(),variable:null};items.push(it);itemOf.set(node,it);return it};
@@ -104,7 +104,7 @@ function analyse(block){
  // fullAncestor is post-order, so the owner of every identifier is resolved in a second pass, once all items are known
  walk.fullAncestor(ast,(node,_s,anc)=>{if(node.type!=='Identifier')return;let o=null;for(let i=anc.length-2;i>=0;i--){const it=itemOf.get(anc[i]);if(it){o=it;break}}owner.set(node,o)});
  // variables
- const topScope=block.kind==='module'?sm.globalScope.childScopes[0]:(block.kind==='room'||block.kind==='island')?sm.globalScope.childScopes[0]:sm.globalScope;
+ const topScope=block.kind==='module'?sm.globalScope.childScopes[0]:(block.kind==='room'||block.kind==='chunk'||block.kind==='island')?sm.globalScope.childScopes[0]:sm.globalScope;
  const vars=[];const varOfItem=new Map();
  for(const scope of sm.scopes){
   const protectedScope=block.kind==='classic'&&scope===sm.globalScope;
@@ -127,7 +127,7 @@ function analyse(block){
 const results=blocks.filter(b=>b.kind!=='other').map(b=>{try{return analyse(b)}catch(e){console.error('PARSE/ANALYSIS FAILED for block',b.id||b.kind,e.message);process.exit(2)}});
 const moduleRes=results.find(r=>r.block.kind==='module');
 const externalIntoModule=new Set();
-for(const r of results)if(r.block.kind==='room'||r.block.kind==='island')for(const n of r.free)externalIntoModule.add(n);
+for(const r of results)if(r.block.kind==='room'||r.block.kind==='chunk'||r.block.kind==='island')for(const n of r.free)externalIntoModule.add(n);
 
 /* ---------- liveness ---------- */
 let keptForTests=[];

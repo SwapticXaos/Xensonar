@@ -21,7 +21,7 @@ const input=require('fs').readFileSync(0,'utf8');
    if(tag==='style')out=(await esbuild.transform(body,{loader:'css',minify:true,charset:'utf8',legalComments:'none'})).code.trim();
    else{
     const type=(attrs.match(/type="([^"]*)"/)||[])[1]||'';
-    const room=type==='application/x-xensonar-room',island=type==='application/x-xensonar-function';
+    const room=type==='application/x-xensonar-room'||type==='application/x-xensonar-chunk',island=type==='application/x-xensonar-function';
     if(type===''||type==='module'||/javascript/.test(type)||room||island){
      const code=island?'__xenIsland=(\n'+body+'\n);':body; // a function payload is an expression: minify it as the right side of an assignment
      let r=(await esbuild.transform(code,{loader:'js',charset:'utf8',legalComments:'none',target:'es2022',treeShaking:false,
