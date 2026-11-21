@@ -13,7 +13,7 @@ assert(view.includes('NO SIGNAL')&&view.includes('NO SOUND'));
 assert(view.includes('data-p33-animated-canvas'), 'original P32 static placeholder must be replaced by donor canvas');
 assert(view.includes('data-p33-seven-bars')&&view.includes('Seven Bars'), 'seven dummy bars');
 assert(view.includes('data-p33-inactive-rack'), 'full faded export rack should be visible before audio');
-assert(view.includes('inert:true') && view.includes('},controls);'), 'same real controls must be inert in first-contact state');
+assert(view.includes('el.inert=true') && view.includes('},controls);'), 'same real controls must be inert in first-contact state (all but UP / UPPER, NOAUDIO-NAV-01)');
 assert(!view.includes('const waveBars='),'static pseudo-waveform should no longer render');
 const manifest=JSON.parse(read('source-manifest.json'));
 const files=manifest.sources.flatMap(s=>s.files);

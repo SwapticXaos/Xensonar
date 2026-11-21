@@ -13,7 +13,10 @@ assert.match(idle,/controls\);/,'idle stage renders supplied controls');
 assert.doesNotMatch(idle,/__ForgeRackInactivePreview|xen-p33-name-dummy|xen-forge-name-word|xen-forge-quick-field/,'idle stage must not recreate NAME and rack markup');
 assert.doesNotMatch(rack,/__ForgeRackInactivePreview|xen-p33-inactive-tile/,'no second independent button representation');
 assert.doesNotMatch(css,/\.xen-p33-name-dummy|\.xen-p33-inactive-tile/,'no abandoned dummy geometry overrides');
-assert.match(idle,/inert:true/,'idle rack must be inert even if new actions are added');
+/* NOAUDIO-NAV-01: not the whole rack but every control except UP / UPPER (they only scroll) is made inert, also controls added later (MutationObserver) */
+assert.match(idle,/el\.inert=true/,'idle rack controls must be inert even if new actions are added');
+assert.match(idle,/MutationObserver/,'controls added later are made inert too');
+assert.match(idle,/xen-forge-upper-triangle,\.xen-forge-up-triangle/,'only the scroll helpers UP / UPPER stay active');
 assert.match(lab,/disabled:!E\|\|T\|\|__micBusy/,'carrier cannot activate without source');
 assert.match(lab,/disabled:!E\|\|!F\|\|T/,'export action cannot activate without source');
 assert.match(lab,/value:oe,onChange:qe=>ue\(qe\.target\.value\),disabled:!E/,'shared input is disabled in no-audio mode');
@@ -34,6 +37,7 @@ function traverse(node){if(!node||typeof node!=='object')return;if(node===contro
 traverse(tree);
 assert.equal(seen.length,1,'idle stage includes exactly one copy of caller-owned actual rack');
 const inertRack=tree.children.find(x=>x&&x.props&&x.props['data-p33-inactive-rack']);
-assert(inertRack&&inertRack.props.inert===true,'whole shared rack is genuinely inert in DOM');
+/* NOAUDIO-NAV-01: the wrapper itself is no longer inert (UP / UPPER must work); the controls inside are made inert one by one in an effect, verified in the browser by tests/e2e/forge_noaudio_nav.cjs */
+assert(inertRack&&inertRack.props.inert===undefined&&inertRack.props.ref,'the shared rack wrapper carries a ref for the per-control inert pass, not a blanket inert');
 assert.strictEqual(inertRack.children[0],controls,'not a recreated/dummy rack tree');
 console.log('PASS R14 actual first-contact component renders the identical controls instance once');

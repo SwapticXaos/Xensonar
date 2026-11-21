@@ -146,8 +146,18 @@ function __XenForgeNoAudioP32({onImport,disabled=false,controls}){
  },[]);
  // Identical controls are supplied by the active Material Intake owner.
  // Inert disables keyboard/pointer focus and prevents any first-contact side effects.
- const inactiveRack=h('div',{'data-p33-inactive-rack':'true',className:'xen-p33-inactive-rack',
-  inert:true,'aria-label':'Forge actions available after audio import'},controls);
+ /* NOAUDIO-NAV-01: the rack is no longer inert as a whole: UP and UPPER only scroll and work without audio. Every OTHER control is made inert one by one (no focus, no click, no first-contact side effect),
+    also when the owner re-renders it, and keeps its normal look (see 040 css) instead of looking disabled. */
+ const inactiveRef=P.useRef(null);
+ P.useEffect(()=>{
+  const root=inactiveRef.current;if(!root)return;
+  const keep='.xen-forge-upper-triangle,.xen-forge-up-triangle';
+  const apply=()=>{for(const el of root.querySelectorAll('button,input,select,textarea,a,[tabindex],[role="button"]')){if(el.matches(keep)||el.closest(keep)){if(el.inert)el.inert=false;continue}if(!el.inert)el.inert=true}};
+  apply();const observer=new MutationObserver(apply);observer.observe(root,{childList:true,subtree:true,attributes:true,attributeFilter:['disabled','tabindex','class']});
+  return()=>observer.disconnect();
+ },[]);
+ const inactiveRack=h('div',{ref:inactiveRef,'data-p33-inactive-rack':'true',className:'xen-p33-inactive-rack',
+  'aria-label':'Forge actions available after audio import'},controls);
 
  const upper=h('div',{className:'xen-p32-upper'},
   h('svg',{viewBox:'0 0 1200 102',preserveAspectRatio:'none',

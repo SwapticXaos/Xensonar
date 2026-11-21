@@ -448,7 +448,8 @@
 .xen-p33-meter-label{display:flex;align-items:center;justify-content:flex-start;gap:12px;}
 .xen-p33-meter-label span{color:#d5b6ff;font-weight:700;letter-spacing:.09em;white-space:nowrap;}
 /* Same Forge controls visible but inert without a real source. */
-.xen-p33-inactive-rack{opacity:.83;filter:saturate(.82);pointer-events:none;
+/* NOAUDIO-NAV-01: normal look (no greying); everything but UP/UPPER is inert and takes no pointer events, UP/UPPER work */
+.xen-p33-inactive-rack{opacity:1;filter:none;pointer-events:none;
   display:flex;flex-direction:column;gap:8px;margin-top:2px;}
 /* First-contact uses the real controls, never a recreated dummy rack.
    The parent is inert, dimmed, and has no activation/click behaviour. */
@@ -488,3 +489,7 @@
 /* Coarse pointers get a usable 44px activation area; desktop geometry is unchanged. */
 @media (pointer: coarse){.xen-forge-draw-play{height:44px;min-height:44px}}
 @media (prefers-reduced-motion: reduce){.xen-forge-draw-play{transition:none}}
+
+.xen-p33-inactive-rack .xen-forge-upper-triangle,.xen-p33-inactive-rack .xen-forge-up-triangle{pointer-events:auto}
+.xen-p33-inactive-rack :is(button,input,select,textarea):disabled,.xen-p33-inactive-rack [disabled]{opacity:1!important;filter:none!important;cursor:default}
+.xen-p33-inactive-rack button:not(.xen-forge-upper-triangle):not(.xen-forge-up-triangle){cursor:default}

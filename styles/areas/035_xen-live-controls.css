@@ -178,8 +178,8 @@ body{height:auto;min-height:100vh;overflow:visible}
 [data-xen-tile]>div:nth-of-type(3){display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:3;line-clamp:3;overflow:hidden}
 @media (max-width:1180px){[data-xen-tile]>div:nth-of-type(3){font-size:10.5px;line-height:1.4}}
 /* TILES-ART-01: with the playhead running only once, the chosen tile is shown by the other one being dimmed (hover brings it back) */
-.grid:has([data-xen-tile][class*="border-cyan-500"],[data-xen-tile][class*="border-violet-500"]) [data-xen-tile]:not([class*="border-cyan-500"]):not([class*="border-violet-500"]){filter:brightness(.58) saturate(.65)}
-.grid:has([data-xen-tile][class*="border-cyan-500"],[data-xen-tile][class*="border-violet-500"]) [data-xen-tile]:not([class*="border-cyan-500"]):not([class*="border-violet-500"]):hover{filter:brightness(.85) saturate(.85)}
+.grid:has([data-xen-tile][class*="border-cyan-500"],[data-xen-tile][class*="border-violet-500"]) [data-xen-tile]:not([class*="border-cyan-500"]):not([class*="border-violet-500"]){filter:brightness(.8) saturate(.82)}
+.grid:has([data-xen-tile][class*="border-cyan-500"],[data-xen-tile][class*="border-violet-500"]) [data-xen-tile]:not([class*="border-cyan-500"]):not([class*="border-violet-500"]):hover{filter:brightness(.95) saturate(.95)}
 /* TILES-ART-01: the Spectral Forge tile was formatted differently once chosen: the existing rule that makes room for the More button (padding-right 74px on the last text block, only while More is shown)
    narrowed the description, it wrapped to a 4th line and was cut. Both tiles now have the same padding and the same text width in every state; More sits under the artwork, the text keeps clear of it. */
 [data-xen-workflow-tile="spectral-forge"] [data-xen-workflow-select][data-xen-tile]{padding-top:16px;padding-bottom:16px}
@@ -231,3 +231,7 @@ body{height:auto;min-height:100vh;overflow:visible}
 .f31-play-rack .f33-rack-figure-slot .f33-figure-projects .xen-figure-projects-mark{width:27px;height:18px;margin:0}
 .f31-play-rack .f33-rack-figure-slot .f33-figure-projects{padding-left:6px;padding-right:6px;gap:6px}
 .f31-play-rack .f33-rack-figure-slot .f33-figure-projects .block{white-space:nowrap}
+/* the chosen tile: clearly outlined and a little brighter than before (the other one is only slightly dimmed) */
+[data-xen-tile="forge"][class*="border-cyan-500"]{filter:brightness(1.1)}
+[data-xen-tile="melodic"][class*="border-violet-500"]{filter:brightness(1.1)}
+[data-xen-tile][class*="border-cyan-500"],[data-xen-tile][class*="border-violet-500"]{outline:2px solid rgba(255,255,255,.55);outline-offset:-2px}
