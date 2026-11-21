@@ -244,5 +244,7 @@ body{height:auto;min-height:100vh;overflow:visible}
 .melodic-transport-dock>.ml-noteclip-break{flex:0 0 100%;height:0;margin:0;padding:0}
 @media(min-width:768px){.melodic-transport-dock{width:520px}}
 .melodic-transport-dock{row-gap:2px}
-.melodic-transport-dock>.ml-noteclip-break~button{padding-top:3px!important;padding-bottom:3px!important;min-width:30px}
+.melodic-transport-dock>.ml-noteclip-break~button{min-width:50px;height:37px;margin-top:-11px;font-size:21px;line-height:1;padding-left:4px!important;padding-right:4px!important}/* row 2 rises into the gap under the (shorter) buttons of row 1; the 44px play key sets that row's height */
 .melodic-transport-dock>.ml-noteclip-break+button{margin-left:var(--ml-mark-x,0px)}
+.melodic-transport-dock>[data-ml-noteclip="mark"]{margin-left:18px}
+@media(min-width:768px){.melodic-transport-dock{margin-top:5px!important}}
