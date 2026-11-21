@@ -726,7 +726,7 @@ function XenPsyLabRoom(){
    u.jsxs('span',{className:'xpl-note',children:['Octave ',u.jsx('button',{type:'button','aria-label':'Octave down',onClick:()=>{panic();setOct(o=>clamp(o-1,-3,4))},children:'−'}),' ',oct>0?'+'+oct:oct,' ',u.jsx('button',{type:'button','aria-label':'Octave up',onClick:()=>{panic();setOct(o=>clamp(o+1,-3,4))},children:'+'})]}),
    u.jsx('span',{style:{flex:'1 1 20px'}}),
    u.jsxs('label',{className:'xpl-note',children:['Bounce ',u.jsx('input',{type:'number','aria-label':'Bounce length in seconds',min:.5,max:120,step:.5,value:bounceSec,onChange:e=>setBounceSec(clamp(Number(e.target.value)||8,.5,120)),style:{width:64}}),' s']}),
-   u.jsx('button',{type:'button',disabled:busy,onClick:()=>void doBounce('multitrack'),title:'Render the held notes (or the grid base) offline and store the result as Material; it appears in Room V',children:'→ Multitrack'}),
+   u.jsx('button',{type:'button','data-psy-send-multitrack':'true',disabled:busy,onClick:()=>void doBounce('multitrack'),title:'Render the held notes (or the grid base) offline and store the result as Material; it appears in Room V',children:'Multitrack'}),
    u.jsx('button',{type:'button',disabled:busy,onClick:()=>void doBounce('wav'),children:'⤓ WAV'})]}),
   u.jsxs('div',{className:'xpl-metro','data-psy-metro':'true',children:[
    u.jsx('button',{type:'button','aria-pressed':metroOn,onClick:()=>setMetroOn(v=>!v),title:'A click for you only: it goes straight to the speakers and is never recorded, mixed or bounced.',children:metroOn?'♩ Metronome: on':'♩ Metronome: off'}),

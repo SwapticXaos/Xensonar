@@ -446,7 +446,7 @@ function __F34CompactLibrary({onClose}) {
      void __xenSendSavedFigureProject(selected.id,selected.updatedAt)
       .then(()=>onClose()).catch(error=>setMessage('Send to Melodic Loop failed: '+(error instanceof Error?error.message:String(error))))
       .finally(()=>setBusy(false))},
-    children:u.jsxs(P.Fragment,{children:[u.jsx('span',{'aria-hidden':true,children:'→'}),u.jsx('span',{children:busy?'Sending…':'Send to Melodic Loop'})]})})]})
+    children:u.jsx('span',{children:busy?'Sending…':'Send to Melodic Loop'})})]})
   ]}):u.jsx('div',{className:'f34-library-empty',children:'No saved carriers yet. Enter a project name and use Save.'}),
   exportStatus?u.jsx('div',{role:'status',className:'f34-library-export-status',children:exportStatus}):null,
   message?u.jsx('div',{role:'alert',className:'f34-library-error',children:message}):null
