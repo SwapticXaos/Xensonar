@@ -245,3 +245,4 @@ body{height:auto;min-height:100vh;overflow:visible}
 @media(min-width:768px){.melodic-transport-dock{width:520px}}
 .melodic-transport-dock{row-gap:2px}
 .melodic-transport-dock>.ml-noteclip-break~button{padding-top:3px!important;padding-bottom:3px!important;min-width:30px}
+.melodic-transport-dock>.ml-noteclip-break+button{margin-left:var(--ml-mark-x,0px)}

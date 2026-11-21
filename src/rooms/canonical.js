@@ -191,12 +191,15 @@ function __MelodicNoteClipButtons(){
  const on='rounded border border-emerald-500 bg-emerald-950/60 px-1.5 py-2 text-[11px] font-semibold text-emerald-100',off='rounded border border-neutral-700 bg-neutral-900/55 px-1.5 py-2 text-[11px] text-neutral-300 hover:bg-neutral-800';
  /* Counts are badges that take no layout space: a growing label would push every button to its right (the toolbar wobbled while marking). */
  const badge=(n,c)=>n?u.jsx('span',{'aria-hidden':true,className:'pointer-events-none absolute -right-1 -top-1.5 rounded-full px-1 text-[9px] font-semibold leading-[14px] text-white '+c,children:n}):null;
+ const markRef=P.useRef(null);
+ /* the second row starts flush under Mark (its meaning belongs together): measure Mark's left edge in the dock */
+ P.useLayoutEffect(()=>{const mk=markRef.current,dock=mk&&mk.parentElement;if(!dock)return;const put=()=>{const x=Math.round(mk.getBoundingClientRect().left-dock.getBoundingClientRect().left);if(x>0)dock.style.setProperty('--ml-mark-x',x+'px')};put();window.addEventListener('resize',put);return()=>window.removeEventListener('resize',put)});
  const m=s.marked>0,stamp=s.mode==='paste'&&s.count>0,flipOn=m||s.count>0,scaleOn=stamp||m;
  /* Mirrors: the stamp while it is loaded in Paste, else the marked notes in place, else a loaded stamp. */
  const flip=axis=>{if(stamp||!m)__mlNoteClip.flip(axis);else __mlNoteClip.flipMarked(axis)};
  const flipTitle=h=>stamp?'Mirror the loaded figure '+h+' (Paste)':m?'Mirror the marked notes '+h+' in place':'Mark notes or load a figure with Copy first';
  return u.jsxs(u.Fragment,{children:[
-  u.jsx('button',{type:'button','data-ml-noteclip':'mark','aria-pressed':s.mode==='mark',onClick:()=>__mlNoteClip.setMode(s.mode==='mark'?'off':'mark'),
+  u.jsx('button',{ref:markRef,type:'button','data-ml-noteclip':'mark','aria-pressed':s.mode==='mark',onClick:()=>__mlNoteClip.setMode(s.mode==='mark'?'off':'mark'),
    title:'Mark: drag a rectangle over note blocks, then Copy, Erase or mirror them · right-click cancels','aria-label':'Mark note blocks with a rectangle'+(s.marked?', '+s.marked+' marked':''),'data-count':s.marked,className:(s.mode==='mark'?on:off)+' relative',children:['▭ Mark',badge(s.marked,'bg-emerald-600')]}),
   u.jsx('button',{type:'button','data-ml-noteclip':'copy','aria-pressed':s.mode==='select',onClick:()=>{if(m&&s.mode!=='paste')__mlNoteClip.copyMarked();else __mlNoteClip.setMode(s.mode==='select'?'off':'select')},
    title:m?'Copy the marked notes':'Copy: drag a rectangle over note blocks to load them · right-click cancels','aria-label':'Copy note blocks',className:s.mode==='select'?on:off,children:'⧉ Copy'}),
