@@ -255,4 +255,4 @@ body{height:auto;min-height:100vh;overflow:visible}
 .melodic-transport-dock>.ml-noteclip-grid{grid-template-columns:repeat(6,1fr);gap:2px}
 .melodic-transport-dock>.ml-noteclip-grid>button{height:31px;font-size:17px}
 .melodic-transport-dock>.ml-noteclip-grid>button svg{width:22px;height:14px}
-@media(min-width:768px){.melodic-bars-controls{min-height:170px}}
+@media(min-width:768px){.melodic-bars-controls{min-height:154px}}
