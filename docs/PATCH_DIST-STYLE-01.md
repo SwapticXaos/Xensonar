@@ -10,4 +10,6 @@ Befund (Nutzer): im Bereich „Distribution · Melodic Loop“ hatten einige But
 - JSX nur: `data-ml-dist`-Attribute an den acht Buttons, Emoji aus den Texten entfernt (Tooltips, Reihenfolge, Verhalten unverändert); Rest CSS (`styles/areas/035_xen-live-controls.css`).
 - Gezielt geprüft: `build.py --check` OK, `melodic_erase` (nutzt Undo) grün. Keine Suite (Nutzerwunsch). Kein Test referenzierte die Emoji-Texte.
 
+- **Bündig:** Bei allen Sende-/Import-Tasten sitzt das Symbol links am Rand (alle in einer Linie), der Text bleibt in der Mitte (Symbol absolut positioniert, Text mit 40 px Rand je Seite); Undo/Redo bleiben zentriert.
+
 Rollback: `0852bd3`.

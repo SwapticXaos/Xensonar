@@ -207,3 +207,7 @@ body{height:auto;min-height:100vh;overflow:visible}
 [data-ml-dist="forge"]{--k:#38bdf8}[data-ml-dist="wave"]{--k:#34d399}[data-ml-dist="import"]{--k:#e879f9}
 @media (prefers-reduced-motion:reduce){[data-ml-dist]{transition:none!important}}
 [data-ml-dist="wave"]::before{margin-right:0;width:17px;height:17px;background-size:17px 17px;vertical-align:middle}
+/* DIST-STYLE-01: the symbol of every send/import key sits flush at the left edge (all symbols in one line), the text stays centred */
+[data-ml-dist]:not([data-ml-dist="undo"]):not([data-ml-dist="redo"]){padding-left:40px!important;padding-right:40px!important;text-align:center}
+[data-ml-dist]>.xen-dist-ic,[data-ml-dist]>svg,[data-ml-dist]>[data-xensonar-root-follow-icon-slot],[data-ml-dist="wave"]::before{position:absolute!important;left:13px;top:50%;transform:translateY(-50%);margin:0!important}
+[data-ml-dist]>.xen-dist-ic{display:inline-flex;align-items:center;justify-content:center;width:22px;height:20px;font-size:14px;line-height:1}
