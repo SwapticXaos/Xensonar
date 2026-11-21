@@ -24,8 +24,8 @@ const msg=await p.evaluate(()=>document.body.innerText);
 assert.ok(Math.abs(span(n1)/span(n0)-1.1)<.01,'stretched in time by a tenth: '+span(n0)+' -> '+span(n1));assert.equal(Math.min(...n1.map(x=>x.s)),Math.min(...n0.map(x=>x.s)),'the start of the marking stays');
 await q('sh-m').click();await p.waitForTimeout(300);let n2=await info();assert.ok(Math.abs(span(n2)-span(n0))<1e-6,'compress undoes the stretch');
 // pitch: stretch (if there is spread), compress
-if(spread(n0)>0){await q('sv-p').click();await p.waitForTimeout(300);const n3=await info();assert.ok(spread(n3)>spread(n0),'spread grows: '+spread(n0)+' -> '+spread(n3));assert.equal(Math.min(...n3.map(x=>x.c)),Math.min(...n0.map(x=>x.c)),'the lowest line stays');
- await q('sv-m').click();await p.waitForTimeout(300);assert.ok(spread(await info())<=spread(n3)-1,'spread shrinks again');}
+if(spread(n0)>0){await q('sv-p').click();await p.waitForTimeout(300);const n3=await info();assert.ok(spread(n3)>spread(n0),'spread grows: '+spread(n0)+' -> '+spread(n3));assert.ok(Math.min(...n3.map(x=>x.c))<Math.min(...n0.map(x=>x.c))&&Math.max(...n3.map(x=>x.c))>Math.max(...n0.map(x=>x.c)),'top AND bottom move outwards (even stretch around the middle): '+[Math.min(...n0.map(x=>x.c)),Math.max(...n0.map(x=>x.c))]+' -> '+[Math.min(...n3.map(x=>x.c)),Math.max(...n3.map(x=>x.c))]);
+ await q('sv-m').click();await p.waitForTimeout(300);const n4=await info();assert.ok(spread(n4)<=spread(n3)-2,'spread shrinks again');assert.ok(Math.min(...n4.map(x=>x.c))>Math.min(...n3.map(x=>x.c))&&Math.max(...n4.map(x=>x.c))<Math.max(...n3.map(x=>x.c)),'compress pulls both ends in');}
 // arrow keys
 await p.mouse.move(r.x+5,r.y+5);const a0=await info();await p.keyboard.press('ArrowRight');await p.waitForTimeout(250);const a1=await info();assert.ok(span(a1)>span(a0)+1e-6,'ArrowRight stretches in time');
 await p.keyboard.press('ArrowLeft');await p.waitForTimeout(250);assert.ok(Math.abs(span(await info())-span(a0))<1e-6,'ArrowLeft compresses');

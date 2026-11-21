@@ -42,13 +42,14 @@ const __mlNoteClip=(()=>{
   return {start:Math.max(0,Math.min(Math.max(0,total-clip.span),Ed(comp,y.rawUnit,y.geometry.cellW))),base:Math.max(0,Math.min(Math.max(0,maxCh-clip.maxRel),y.channelIndex))}};
 
  /* the same stretch for the loaded stamp (Paste) */
+ const pitchStep=spread=>2*Math.max(1,Math.round(spread*.05));
  const scaleStamp=(axis,dir)=>{
   if(axis==='h'){const f=dir>0?1.1:1/1.1;if(f<1&&clip.notes.some(c=>c.dur*f<.125)){say('Too short: the shortest note cannot get any shorter.');return {count:0}}
    clip={...clip,notes:clip.notes.map(c=>({...c,dStart:c.dStart*f,dur:c.dur*f,note:{...c.note,fadeInUnits:(c.note.fadeInUnits||0)*f,fadeOutUnits:(c.note.fadeOutUnits||0)*f}}))};
    clip.span=Math.max(...clip.notes.map(c=>c.dStart+c.dur));}
   else{const spread=clip.maxRel;if(!spread){say('The loaded figure sits on one pitch line.');return {count:0}}
-   const ns=Math.max(0,spread+dir*Math.max(1,Math.round(spread*.1)));
-   clip={...clip,notes:clip.notes.map(c=>({...c,dChan:Math.round(c.dChan*ns/spread)}))};clip.maxRel=Math.max(...clip.notes.map(c=>c.dChan));}
+   const ns=Math.max(0,spread+dir*pitchStep(spread)),mid=spread/2,f=ns/spread,low=Math.min(...clip.notes.map(c=>Math.round(mid+(c.dChan-mid)*f)));
+   clip={...clip,notes:clip.notes.map(c=>({...c,dChan:Math.round(mid+(c.dChan-mid)*f)-low}))};clip.maxRel=Math.max(...clip.notes.map(c=>c.dChan));}
   refresh();return {count:clip.notes.length};
  };
  /* Put these notes on the clipboard (import body excluded) and switch to Paste. */
@@ -128,7 +129,7 @@ const __mlNoteClip=(()=>{
    return {count:picked.length};
   },
   /* ML-MARK-02: stretch / compress the marked notes (or the loaded stamp in Paste), like the arrow keys of the Spectral Forge stamp. axis 'h' = time (positions and lengths, fades with them) around the start of the marking,
-     axis 'v' = pitch spread (pitch lines are whole steps: each press widens or narrows the spread by about a tenth, at least one line) around the lowest marked line. dir +1 stretch, -1 compress. One undo step. */
+     axis 'v' = pitch spread around the middle of the marking (pitch lines are whole steps: each press widens or narrows the spread by about a tenth, at least one line on each side, so top and bottom move evenly). dir +1 stretch, -1 compress. One undo step. */
   scale(axis,dir){
    const stamp=mode==='paste'&&clip;if(stamp)return scaleStamp(axis,dir);
    if(!host)return {count:0};
@@ -145,9 +146,9 @@ const __mlNoteClip=(()=>{
    }
    const ch=picked.map(n=>wa(comp,n)),minC=Math.min(...ch),maxC=Math.max(...ch),spread=maxC-minC,maxCh=Ra(comp)-1;
    if(spread===0){say(dir>0?'All marked notes sit on one pitch line: nothing to stretch.':'All marked notes already sit on one pitch line.');return {count:0}}
-   const ns=Math.max(0,spread+dir*Math.max(1,Math.round(spread*.1)));
-   if(minC+ns>maxCh){say('No room above: the marked notes would leave the pitch lines.');return {count:0}}
-   host.mutateLoopComposer(A=>{for(const n of A.notes){if(!pick.has(n.id))continue;const c=minC+Math.round((wa(A,n)-minC)*ns/spread);n.channelIndex=c;n.lineId=A.pitchLines[c]?.id??n.lineId;pr(A,n)}},dir>0?'Marked notes stretched in pitch.':'Marked notes compressed in pitch.');
+   const ns=Math.max(0,spread+dir*pitchStep(spread)),mid=(minC+maxC)/2,f=ns/spread,at=c=>Math.round(mid+(c-mid)*f);
+   if(at(minC)<0||at(maxC)>maxCh){say('No room: the marked notes would leave the pitch lines.');return {count:0}}
+   host.mutateLoopComposer(A=>{for(const n of A.notes){if(!pick.has(n.id))continue;const c=at(wa(A,n));n.channelIndex=c;n.lineId=A.pitchLines[c]?.id??n.lineId;pr(A,n)}},dir>0?'Marked notes stretched in pitch.':'Marked notes compressed in pitch.');
    say(picked.length+' marked notes '+(dir>0?'stretched':'compressed')+' in pitch.');return {count:picked.length};
   },
   /* ML-ERASE-01: Erase shares the Copy rectangle; release deletes the notes inside (one undo step). The material import body stays, as in Copy. */
