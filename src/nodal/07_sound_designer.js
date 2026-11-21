@@ -48,7 +48,6 @@ function __xenNodalFactoryInstrument(key) {
   if (!value) { value = nodalOpenStarter(match[1]); __xenNodalFactoryCache.set(match[1], value); }
   return value;
 }
-function __xenNodalFactoryList() { return __NodalOpenPresets.map(preset => ({key: 'nodal:factory:' + preset.id, id: preset.id, name: preset.name, hint: preset.hint})); }
 
 /* BUILTIN-SEED-01: the built-in Nodal starter sounds (Prism, Ember, Hollow, Filament, Reed, Obsidian) and the built-in Entrophon sounds become ORDINARY library entries, once,
    when the Melodic Loop import managers open: from then on they are in the instrument menu and in the managers like every saved sound (Preview, Edit, Rename, Remove).

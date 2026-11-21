@@ -169,6 +169,7 @@ function __xenSampleLibraryBrowse(rows,query,letter,mode) {
   return alpha&&term;
  }).sort((a,b)=>collator.compare(String(a.name??''),String(b.name??''))||String(a.id??'').localeCompare(String(b.id??'')));
 }
+exports.sampleBrowse=Object.freeze({letters:__xenSampleLetters,bucket:__xenSampleBucket,browse:__xenSampleLibraryBrowse});
 function DonorLibraryPanel({ React: P, jsx, source, selection, readMode, sourceAdapterId, disabled, onLoad, onActivate, onLoadSelection, onPreview, onPreviewSelection, onStopPreview, externalOpen, onClose, refreshToken }) {
     const {open,items,name,setName,tags,setTags,filter,setFilter,working,message,setMessage,sampleMode,setSampleMode,sampleRows,run}=__F36UsePanelController({React:P,source,externalOpen,disabled,refreshToken});
     const button = (label, action, off = false, title) => jsx.jsx('button', { type: 'button', onClick: action, disabled: off || ((working || disabled) && label !== 'Stop preview'), title, style: { background: '#113336', color: '#b6f4eb', border: '1px solid #346966', padding: '4px 8px', borderRadius: 5, opacity: off ? .5 : 1, cursor: off ? 'default' : 'pointer' }, children: label });

@@ -210,13 +210,7 @@ async function __xenSfmlPrepareRawListeningBeforeGuard(requestedRoute){
 function __xenSfmlNoRawPlaceholder(){
  // The durable Material API requires a WAV body. Mark it explicitly unavailable
  // to the Raw importer; it is NEVER played or advertised as actual audio.
- const bytes=new ArrayBuffer(46),v=new DataView(bytes);
- const str=(offset,value)=>{for(let i=0;i<value.length;i++)v.setUint8(offset+i,value.charCodeAt(i))};
- str(0,'RIFF');v.setUint32(4,38,true);str(8,'WAVE');str(12,'fmt ');
- v.setUint32(16,16,true);v.setUint16(20,1,true);v.setUint16(22,1,true);
- v.setUint32(24,44100,true);v.setUint32(28,88200,true);
- v.setUint16(32,2,true);v.setUint16(34,16,true);str(36,'data');v.setUint32(40,2,true);
- return new Blob([bytes],{type:'audio/wav'});
+ return globalThis.__XenWaveCoreW01.exportWav({channels:[new Float32Array(1)],sampleRate:44100,frames:1},{format:'pcm16',dither:false});
 }
 /* SFML-P8: revision-pinned, compact transfer pointer; original Carrier geometry lives
    solely in the IndexedDB Material archive with a verified blob commit. */

@@ -740,7 +740,7 @@ function qp(e,t){if(yje(t)){const r=!!e?.rawAudioReady;return{mode:t,kind:"raw-a
   e?.structuredCarrierModesReason??"Scattered and monotone require a valid carrier-field contract with pattern voices."}}
 function vje(e){return Object.fromEntries(gje.map(t=>[t,qp(e,t)]))}
 function zE(e){if(!e||typeof e!="object")return null;const t=e;return t.entryId?t:null}
-function qK(e){if(!e)return{ok:!1,reason:"Audio Paint contract missing. Resend from Shape Projects."};if(!e.entryId)return{ok:!1,reason:"Audio Paint contract has no material ID."};if(!e.config)return{ok:!1,reason:"Audio Paint contract has no lab configuration."};const t=e.config.synthPattern??null;if(!t||!Array.isArray(t.notes))return{ok:!1,reason:"Audio Paint contract has no synthetic pattern plan."};if(!t.notes.filter(l=>Number.isFinite(l?.durationBeats??NaN)&&Number(l.durationBeats)>0).length)return{ok:!1,reason:"Audio Paint pattern contains no sounding voices."};const r=Number(e.bars??t.bars??1);if(!Number.isFinite(r)||r<=0)return{ok:!1,reason:"Audio Paint contract has no valid bar length."};const a=Number(e.bpm??0);if(e.bpm!==void 0&&(!Number.isFinite(a)||a<=0))return{ok:!1,reason:"Audio Paint contract has no valid tempo."};const o=e.rootHz;if(o!=null&&(!Number.isFinite(Number(o))||Number(o)<=0))return{ok:!1,reason:"Audio Paint contract has no valid pitch anchor."};const i=qB(e.projectionMode),s=VM.find(l=>l.id===i);return s?.enabled?{ok:!0,normalized:{...e,bars:Math.max(1,Math.round(r)),bpm:Number.isFinite(a)&&a>0?a:e.bpm,projectionMode:i}}:{ok:!1,reason:s?`${s.label} is prepared but not rendered yet.`:"Audio Paint variant is unavailable."}}
+const qK=__xenSfmlPreflightContract;
 function xje(e){return qK(e).ok}
 function Mje(e){if(!e?.audioPaintImportDetailJson)return null;try{const t=JSON.parse(e.audioPaintImportDetailJson),n=zE(t);return n?{...n,entryId:e.id,materialName:n.materialName||e.name}:null}catch{return null}}
 function Rje(e){const t=QK(),n=zE(t[e]);if(n?.entryId)return n;if(_R())try{const r=window.sessionStorage.getItem(WK);if(r){const a=zE(JSON.parse(r));if(a?.entryId===e)return a}}catch{}return null}
@@ -1298,22 +1298,7 @@ function __XenSampleRackRays({open}) {
 }
 
 /* SAMPLE-BROWSE-03: derived read-only view. Does not mutate the Sample Database. */
-const __xenSampleLetters=['All',...'0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ','#'];
-function __xenSampleBucket(name) {
- const first=String(name??'').trim().normalize('NFD').replace(/[\u0300-\u036f]/g,'').charAt(0).toUpperCase();
- return /^[A-Z0-9]$/.test(first)?first:'#';
-}
-function __xenSampleLibraryBrowse(rows,query,letter,mode) {
- const q=String(query??'').trim().toLocaleLowerCase('de');
- const collator=new Intl.Collator('de',{sensitivity:'base',numeric:true});
- return [...rows].filter(row=>{
-  const name=String(row.name??'');
-  const alpha=letter==='All'||__xenSampleBucket(name)===letter;
-  const hay=mode==='donor'?`${name} ${row.id??''}`:name;
-  const term=!q||(mode==='donor'?hay.toLocaleLowerCase('de').includes(q):name.toLocaleLowerCase('de').startsWith(q));
-  return alpha&&term;
- }).sort((a,b)=>collator.compare(String(a.name??''),String(b.name??''))||String(a.id??'').localeCompare(String(b.id??'')));
-}
+const {letters:__xenSampleLetters,bucket:__xenSampleBucket,browse:__xenSampleLibraryBrowse}=__DonorLibraryF36.sampleBrowse;
 function lQe({samplePlaybackSettings:__mlPlaybackSettings,onMutateLoopComposer:__mlMutateComposer,open:te,onOpenChange:X,deleteMode:J,onDeleteModeChange:Z,melodicSampleEntries:e,showSpectralSampleHelp:t,onToggleSpectralSampleHelp:n,spectralSamplePathAvailable:r,onUploadMelodicSamples:a,onDeleteMelodicSample:o,onRenameMelodicSample:i,onUpdateMelodicSampleBaseHz:s,onPreviewMelodicSampleReferencePitch:l,onSetMelodicSampleTempoProfile:c,onPreviewMelodicSampleTempoProfile:d,onUpdateMelodicSampleEnvelope:p,sampleContextMenuRef:f,sampleContextMenu:b,onOpenSampleContextMenu:g,onCloseSampleContextMenu:y,selectedContextSample:x,sampleBaseHzDraft:A,onSampleBaseHzDraftChange:M,sampleDurationDraft:v,onSampleDurationDraftChange:w,sampleTempoModeDraft:R,onSampleTempoModeDraftChange:k,showMaterialImportMenu:I,onOpenMaterialImportMenu:E,onCloseMaterialImportMenu:F,materialEntries:L,selectedMaterialImportId:B,onSelectMaterialImportId:O,materialAnchorHzDraft:T,onMaterialAnchorHzDraftChange:_,roundedAnchorPreview:G,materialImportBusy:j,audioPaintVariant:N,onAudioPaintVariantChange:W,onConfirmMaterialImport:V,onRepairAudioPaintEntry:U,onEditAudioPaintEntry:H,materialImportActionMessage:q,onSampleCardDragStart:K,onSampleCardDragEnd:Y}){
  const __mlState=__mlNormalizeSamplePlaybackSettings(__mlPlaybackSettings);
  const [__mlCurrentRole,__mlSetCurrentRole]=P.useState('melodic');

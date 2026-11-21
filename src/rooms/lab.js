@@ -2156,15 +2156,6 @@ function __f35645PresetItems(allRecipes,group){
  if(group===2)return allRecipes.filter(item=>item.id.startsWith('user-'));
  return allRecipes.filter(item=>!item.id.startsWith('user-')&&!paired(item)&&item.values?.engine==='spectral');
 }
-function __f35645Methods(recipe){
- const links=recipe?.links??[];
- const names=[];
- for(const link of links){
-   const mode=link.mode==='imprint'?'Imprint'+(link.direction==='A_to_B'?' A→B':link.direction==='B_to_A'?' B→A':''):link.mode==='cross'?'Cross':link.mode==='interlock'?'Interlock':null;
-   if(mode&&!names.includes(mode))names.push(mode);
- }
- return names.length?names.join(' + '):'No connection';
-}
 function __DonorSelectorF315({onAudition}){
  const runtime=cU(),routing=P.useSyncExternalStore(__ForgeDonorRoutingF317.subscribe,__ForgeDonorRoutingF317.getSnapshot,__ForgeDonorRoutingF317.getSnapshot);
  // Same recipe store as the full workbench: no duplicate preset state or browser storage.
@@ -3596,11 +3587,7 @@ function __f35636Asset(result,name) {
     durationSec:duration,originalDuration:duration,importStartSec:0,importDurationSec:duration,
     dualDonorManifest:result.manifest,contentRevision:result.revision};
 }
-function __f35636Wav(source){const samples=source.samples,buffer=new ArrayBuffer(44+samples.length*4),v=new DataView(buffer);const str=(at,s)=>{for(let i=0;i<s.length;i++)v.setUint8(at+i,s.charCodeAt(i));};
-  str(0,'RIFF');v.setUint32(4,36+samples.length*4,true);str(8,'WAVE');str(12,'fmt ');v.setUint32(16,16,true);v.setUint16(20,3,true);v.setUint16(22,1,true);
-  v.setUint32(24,source.sampleRate,true);v.setUint32(28,source.sampleRate*4,true);v.setUint16(32,4,true);v.setUint16(34,32,true);str(36,'data');v.setUint32(40,samples.length*4,true);
-  for(let i=0;i<samples.length;i++)v.setFloat32(44+i*4,samples[i],true);return new Blob([buffer],{type:'audio/wav'});
-}
+function __f35636Wav(source){return globalThis.__XenWaveCoreW01.exportWav({channels:[source.samples],sampleRate:source.sampleRate,frames:source.samples.length},{format:'float32'});}
 function __f35636Download(blob,name){const url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=name.replace(/[^a-z0-9._ -]/gi,'_');a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);}
 function __f35636PortableRevision(bytes){let a=2166136261,b=2246822519;for(let i=0;i<bytes.length;i++){a=Math.imul(a^bytes[i],16777619);b=Math.imul(b^bytes[i],3266489917);}return 'pcm64:'+bytes.length+':'+(a>>>0).toString(16)+':'+(b>>>0).toString(16);}
 async function __f35636RevisionMatches(bytes,expected,sr=null,count=null){
@@ -3649,7 +3636,6 @@ async function __f35636ReadSession(file){
       {...result.manifest,key:'last-render:'+(result.manifest?.key??result.revision)};}
   return {plan,sources,result,settings:h.settings,carrier:h.carrier,workbench:h.workbench,combination:h.combination,renderContext:h.renderContext??null};
 }
-const __f35657VariantLabel=r=>r==='original'?'1':r==='aligned'?'3':'2';
 // DUAL-ALIGN-01: what the variant-3 analysis heard, in one line per connection (pitch, attacks, alignment).
 function __f35657AnalysisText(body){const a=body?.manifest?.analysis;if(!Array.isArray(a)||!a.length)return '';
  const pitch=x=>x?.f0?Math.round(x.f0)+' Hz':'no stable pitch';
