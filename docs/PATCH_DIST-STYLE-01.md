@@ -12,4 +12,6 @@ Befund (Nutzer): im Bereich „Distribution · Melodic Loop“ hatten einige But
 
 - **Bündig:** Bei allen Sende-/Import-Tasten sitzt das Symbol links am Rand (alle in einer Linie), der Text bleibt in der Mitte (Symbol absolut positioniert, Text mit 40 px Rand je Seite); Undo/Redo bleiben zentriert.
 
+- **Richtung sichtbar:** „Send to Material Track“ zeigt einen Pfeil nach rechts vor der Schallplatte (→ 📀), „Import Material Track“ einen Pfeil nach links (← 📀). Der Text hat dafür 54 px Rand je Seite.
+
 Rollback: `0852bd3`.
