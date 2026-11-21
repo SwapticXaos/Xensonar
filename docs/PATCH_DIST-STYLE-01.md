@@ -14,6 +14,6 @@ Befund (Nutzer): im Bereich „Distribution · Melodic Loop“ hatten einige But
 
 - **Richtung sichtbar:** „Send to Material Track“ zeigt einen Pfeil nach rechts vor der Schallplatte (→ 📀), „Import Material Track“ einen Pfeil nach links (← 📀). Der Text hat dafür 54 px Rand je Seite.
 
-- **Root-Follow-Symbol größer:** weißer Kreis 27 px (vorher 16 px) mit der Notenzeile in 18 px: Schlüssel und Linien sind klar zu erkennen; absolut positioniert, die Taste bleibt 34 px hoch. Gemessen/gesehen bei 3-facher Auflösung.
+- **Root-Follow-Symbol größer:** weißer Kreis 23 px (vorher 16 px, ein Zwischenstand mit 27 px war zu wuchtig neben den anderen Symbolen) mit der Notenzeile in 16 px: Schlüssel und Linien sind klar zu erkennen; absolut positioniert, die Taste bleibt 34 px hoch. Gemessen/gesehen bei 3-facher Auflösung.
 
 Rollback: `0852bd3`.
