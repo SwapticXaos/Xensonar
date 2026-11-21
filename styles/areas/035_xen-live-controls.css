@@ -212,3 +212,6 @@ body{height:auto;min-height:100vh;overflow:visible}
 [data-ml-dist]>.xen-dist-ic,[data-ml-dist]>svg,[data-ml-dist]>[data-xensonar-root-follow-icon-slot],[data-ml-dist="wave"]::before{position:absolute!important;left:13px;top:50%;transform:translateY(-50%);margin:0!important}
 [data-ml-dist]>.xen-dist-ic{display:inline-flex;align-items:center;justify-content:flex-start;gap:4px;min-width:22px;height:20px;font-size:14px;line-height:1}
 .xen-dist-arrow{font-size:17px;font-weight:700;color:#fff;text-shadow:0 1px 1px rgba(0,0,0,.6)}
+/* DIST-STYLE-01: the Root Follow symbol (the white circle with the score) is drawn larger so that the clef and the staff lines are clear; it is positioned absolutely, the key keeps its height */
+[data-ml-dist]>[data-xensonar-root-follow-icon-slot]{width:27px!important;height:27px!important;font-size:18px!important;left:10px!important}
+[data-ml-dist]>[data-xensonar-root-follow-icon-slot]>span:first-child{width:27px!important;height:27px!important}
