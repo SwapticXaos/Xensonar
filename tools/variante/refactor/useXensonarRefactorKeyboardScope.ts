@@ -151,11 +151,23 @@ export function useXensonarRefactorKeyboardScope({
       pressedKeysRef.current.delete(ev.key.toLowerCase());
     };
 
+    const release = () => {
+      pressedKeysRef.current.clear();
+    };
+    const hidden = () => {
+      if (document.hidden) release();
+    };
+
     window.addEventListener("keydown", down, { passive: false });
     window.addEventListener("keyup", up);
+    window.addEventListener("blur", release);
+    document.addEventListener("visibilitychange", hidden);
     return () => {
       window.removeEventListener("keydown", down);
       window.removeEventListener("keyup", up);
+      window.removeEventListener("blur", release);
+      document.removeEventListener("visibilitychange", hidden);
+      release();
     };
   }, [astralCursorRef, cursorRef, paramsRef, pressedKeysRef, setAstralActiveUi, setAstralXUi, setCursorStepUi, setParams, spawnDirectedPulse, spawnRipple, triggerWaveStart]);
 }

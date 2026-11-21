@@ -1,40 +1,12 @@
-# CLAUDE.md — XenSonar
+# XenSonar — Kurzsteckbrief
 
-XenSonar ist ein **kreatives Instrument und experimentelles Musiksystem** (kein DAW-Prototyp, keine Verwaltungssoftware): mikrotonal, frei in Tuning und Zeit, modular, offlinefähig. Räume: Live Room (Main Room), Material Forge (Spectral Forge, Melodic Loop), Nodal Center, Psy Lab, Multitrack; dazu Root Follow, Nodal, Entrophon, Drums, Wave Editor, Loop-Rec, Sessions, Package Station. 12-EDO und 4/4 sind Optionen, keine Grenze. Schnelles, verständliches musikalisches Feedback zählt genauso wie korrekte Audiomathematik.
+XenSonar ist ein offlinefähiges, mikrotonales und rhythmisch freies Musikinstrument im Browser (12-EDO und 4/4 sind Optionen, keine Grenze).
 
-Diese Datei wurde ursprünglich aus einem GPT-Handoff übernommen und am 20.11.2026 auf Wunsch des Nutzers neu geschrieben: Sie beschreibt das Projekt und die Entscheidungen des Nutzers, sie ist kein Regelwerk. Wo etwas hier nicht (mehr) zur Arbeit passt, den Nutzer in einer Zeile fragen und die Datei anpassen.
-
-## Aufbau und Werkzeuge
-
-- **Quelle:** `source-manifest.json` + `src/**` + `styles/**`. **`index.html` ist das gebaute Ergebnis**, die einzige ausgelieferte Datei (offline lauffähig), nie von Hand bearbeiten. Concat-Build ohne Bundler, **ein globaler Scope**: Funktionen und Konstanten aus jeder Datei sind überall sichtbar (die Kommentare `xen-lazy:…` sind nur Markierungen, kein Lade-Mechanismus). Teile des Codes (v. a. `src/audio/…`, `src/rhythm/…`, `src/rooms/canonical.js`, `lab.js`) sind minifizierter React-Kern mit kurzen Namen; lesbare Herkunft: Zweig `reference/ts-400.2`, `docs/TS_ORIGIN_MAP.json`. `src/post-oct/` = seit Oktober dazugekommen. Status je Datei: `docs/SOURCE_TREE_STATUS.json`.
-- **Einmalig:** `npm ci --prefix tools/slim` (esbuild). Danach `python3 tools/build.py` (Auslieferung, verdichtet), `--check` (Gegenprobe), `--probe` (Prüf-Build mit Messzugang nach `dist/XenSonar_PROBE.html`, nie in `index.html`), `--plain` (unverdichtet), `--diag`.
-- **Browser prüfen:** Tests in `tests/e2e/*.cjs`, einzeln mit `node tests/e2e/<name>.cjs dist/XenSonar_PROBE.html`. Im Probe-Build erreicht `window.__xenProbe.draw.evalInBundle('<Ausdruck>')` jede globale Funktion und jeden Zustand (z. B. `pe.getState()`, `Vt.getSnapshot()`, `__XenEQ`): damit lässt sich ein Fehler nachstellen und der Zustand messen, ohne durch die ganze UI zu klicken. Audio lässt sich mit einem AudioWorklet-Abgriff am `destination` framegenau aufnehmen (ScriptProcessor erzeugt selbst Aussetzer, nicht verwenden). Playwright und Chromium sind vorhanden. Tests, die Audio, Pegel, Timing oder Raten messen, gehören in `tests/e2e/MEASURE_TESTS.txt`.
-- **Tests gezielt und sparsam (Nutzerentscheidung 20.11.2026):** Getestet wird der **Bereich, in dem gearbeitet wurde**: die ein bis drei passenden Tests (`grep -l <Stichwort> tests/e2e/*.cjs tests/*.cjs`, z. B. nach Funktionsname, Raum oder `data-`-Attribut) plus `build.py --check`. Der Code ist inzwischen gesund und kaum noch durch versteckte Abhängigkeiten verkettet, deshalb ist die ganze Suite kein Pflichtlauf. **Die volle Suite** (`./tools/run_tests.sh`, ca. 2 min, Liste `tests/GREEN_NODE_TESTS.txt`; `./tools/run_e2e.sh`, ca. 26 min, `--fast` ca. 10 min) ist für **Audit, Gesamtinventur, breiten Umbau quer durch viele Bereiche oder einen ausdrücklichen Wunsch** da. Bei kleinen Patches (Text, CSS, eine Zeile Logik) genügen `build.py --check` und Messung oder Screenshot; bei Verhaltensänderung der eine passende Test. Ein Test, der einen festen UI-Text prüft (manche Regressionstests tun das), wird bei gewollter Textänderung mit angepasst. Ressourcen mit Verstand einsetzen: lange Läufe nur starten, wenn sie etwas Neues sagen.
-- **Dokumentation:** `docs/` (Patchdokumente `PATCH_*.md`, Tagesstatus `STATUS_*.md`, Verzeichnis `docs/README.md`) und `evidence/`. Sätze in alten Patchplänen sind keine Beweise für aktive Funktionen (`QA_PENDING`, `REVERTED`, `ISOLATED`, `NOT_MERGED`); maßgeblich ist der Code. Versionen liegen als Zweige `version/…`; 3.1.6 (`version/xensonar-3.1.6-maerz`) ist Herkunft, keine Arbeitsbasis. Pro Release zusätzlich eine ZIP mit byteidentischer `index.html`.
-
-## Wie wir arbeiten
-
-- **Erst reproduzieren, dann ändern.** Den gemeldeten Ablauf nachstellen (Probe-Build, Messung). Gelingt das nicht, offen sagen und Diagnose einbauen oder den Nutzer nach dem genauen Ablauf fragen, statt auf Verdacht zu „reparieren“. Bei Fehlern, die sich messen lassen, einen Test schreiben, der auf dem alten Stand rot ist (`git stash -- src`, Probe-Build, Test) und mit dem Fix grün.
-- **Kleiner, gezielter Patch.** Umbau ist ausdrücklich erlaubt und erwünscht (Nutzerentscheidung 13.11.2026), wenn die Funktion gleich bleibt und der Code schlanker oder schneller wird: in überprüfbaren Stufen, mit Größe und Messwerten vorher/nachher und einem Rollback-Commit. Vorher nachsehen, ob es die Funktion schon gibt (`git log --all --grep`, `docs/`), und sie erweitern, nicht ein zweites Mal bauen.
-- **Eine Sache, ein Besitzer.** Funktionen dort einbauen, wo ihre Daten wohnen; keine heimlichen zweiten Speicher, Audiokontexte oder doppelten Bedienelemente.
-- **Ehrlich berichten.** Sagen, was gemessen, im Browser gesehen oder nur gelesen ist. Klang, Pegel und Timing können nur Ohren beurteilen: dann „nicht gehört“ (sachlicher Vermerk, keine Aufgabe für den Nutzer). Ein bestandener Build ist kein Gerätetest. Gescheiterte Reproduktion, Annahmen und offene Punkte nennen.
-- **UI muss auffindbar, bedienbar und nachvollziehbar sein.** Eine Funktion ohne erkennbaren Effekt ist nicht fertig. Im echten Layout prüfen (Screenshot), auch bei schmalen Fenstern; vorhandene Bedienelemente (z. B. „More ↗“) nicht verdecken oder verlieren.
-- **Berichte kurz.** Was war die Ursache, was ist geändert, was ist belegt, was offen, HTML-Größenzuwachs, Rollback. Dazu bei größeren Patches ein `docs/PATCH_*.md` und ein Eintrag in `docs/STATUS_*.md`. Antworten auf Deutsch, in einfacher Sprache.
-
-## Was das Projekt verlangt
-
-- **Retrokompatibilität:** Songs, Presets, EQs, Session-Drafts, Drumbeats, Browserdaten und `.xenpack` bleiben lesbar. Keine Migration, Löschung oder Überschreibung ohne eigenen Test.
-- **Audio nur mit Evidenz ändern:** Stop-/Start-/Retiming-Grenzen, Firefox-`AudioParam`-Automation, Crossfades, Pegel. Kein neuer Audio-Graph ohne vorher/nachher-Vergleich der PCM-Daten. Bekannte Falle: `ctx.currentTime` liegt hinter der Render-Position des Audio-Threads; eine Rampe, die „jetzt“ startet, springt (Fades mit Vorlauf starten).
-- **Heiß/Kalt** (Details `docs/HOT_COLD_CONTRACT.md`): HEISS (Audio-Thread, Scheduler, Regler → `AudioParam`): schlank, vorgeplant, keine Allokation oder React/Storage/JSON pro Tick, Parameter geglättet. WARM (Oberfläche des Hauptraums): Audio zuerst, Persistenz bei Ruhe, Visuals dürfen Frames verlieren, Audio nie. KALT (Forge, Package Station, Archiv, Export, Diagnose): rechnet und lädt erst bei Gebrauch. Messcode nur in Probe-Builds. Im Bericht die Zone nennen und den Größenzuwachs von `index.html`.
-- **Musikalische Offenheit:** freie Zahlenverhältnisse, ungerade Takte, Triolen bis Septolen, Polyrhythmen, flexible Temperierung; nie 4/4 oder 12-EDO still voraussetzen.
-- **Datensicherheit:** Die Paketstation ist Bestandsverwaltung. Löschen nur über die kanonischen Besitzer mit Referenz- und Shared-Asset-Schutz; Exportauswahl und Löschauswahl strikt trennen.
-- **Verworfene Arbeit:** Der Bass-Workshop-Click-Delete/Undo-Patch wurde vom Nutzer verworfen (Delete und Undo gibt es schon). Nicht wieder einbauen.
-
-## Zweige und Sitzungen (Nutzerentscheidungen 17./18.11.2026)
-
-- **Eine lineare Arbeitslinie:** Immer nur ein Chat, jeder baut auf dem neuesten Stand auf. Parallelarbeit sagt der Nutzer ausdrücklich an. Gibt die Umgebung einen Sitzungszweig vor, wird er vom neuesten Stand aus fortgeführt. Weitere Zweige nur auf Wunsch.
-- **Sitzungsstart:** `git fetch --all`, Zweige nach Commit-Datum (`git branch -a --sort=-committerdate`); Arbeitsbasis ist der neueste Stand, nicht automatisch `main`. In einem Satz melden, auf welchem Zweig und Commit man steht und was zuletzt gemacht wurde (`docs/STATUS_…`).
-- **Sitzungsende:** committen, pushen, `docs/STATUS_…` ergänzen (Zweig, Commit, erledigt, offen, was zuerst zu tun ist). **`main` ist der neueste Stand:** der fertige Stand kommt am Ende auf `main`, sofern der Nutzer nichts anderes sagt; ein Zweig, der nicht in `main` landet, gilt als verworfen.
-- **Rückmeldung:** Was der Nutzer nicht als störend meldet, passt. Keine Hörlisten, keine „passt/stört“-Rückfragen, keine Abnahme-Anfragen.
-- **Veröffentlichung:** Wo und wie `index.html` verteilt wird, entscheidet allein der Nutzer. Hosting nicht ansprechen, prüfen oder als offen führen, außer er fragt danach.
-- **Sparsam arbeiten:** Zweigverwaltung, Doppelarbeit und Merge-Nachlauf sind Verschwendung; im Zweifel eine Zeile Rückfrage statt eines neuen Zweigs oder einer zweiten Lösung.
+- **Aktiver Arbeits- und Deploy-Branch:** `claude/stoic-knuth-a6nx6f` (Einzelarbeit, linear).
+- **Build:** einmalig `npm ci --prefix tools/slim`, danach `python3 tools/build.py` (Prüfung: `--check`, Probe-Build für Browser-Tests: `--probe`).
+- **Generierte Dateien (nie von Hand editieren):**
+  - `index.html` ← gebaut aus `source-manifest.json`, `src/**`, `styles/**` (`python3 tools/build.py`).
+  - `src/post-oct/035-xen-room-xenpolar.js` ← generiert aus `tools/variante/` (`node tools/port_variante.cjs`).
+- **Tests gezielt halten:** `python3 tools/build.py --check` plus die 1–3 zum geänderten Bereich passenden Tests (`tests/*.cjs`, `tests/e2e/*.cjs`). Volle Suiten (`./tools/run_tests.sh`, `./tools/run_e2e.sh`) nur bei breitem Umbau oder ausdrücklichem Wunsch.
+- **Nachschlagewerk für den minifizierten Alt-Kern:** Read-only-Branch `reference/ts-400.2` + Zuordnung in `docs/TS_ORIGIN_MAP.json`.
+- **Sprache:** Antworten auf Deutsch, knapp und sachlich.

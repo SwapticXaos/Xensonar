@@ -915,9 +915,12 @@ var __xenVariante = (() => {
       const up = (ev) => {
         pressedKeysRef.current.delete(ev.key.toLowerCase());
       };
-      // a keyup that never arrives (focus left the window while a key was down) must not leave the key "held": clear on blur and when the tab is hidden
-      const release = () => { pressedKeysRef.current.clear(); };
-      const hidden = () => { if (document.hidden) release(); };
+      const release = () => {
+        pressedKeysRef.current.clear();
+      };
+      const hidden = () => {
+        if (document.hidden) release();
+      };
       window.addEventListener("keydown", down, { passive: false });
       window.addEventListener("keyup", up);
       window.addEventListener("blur", release);
