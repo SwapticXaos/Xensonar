@@ -25,7 +25,7 @@
 :is(.melodic-track-level,.xen-performance,.xen-particle-mix-row) input[type=range]::-moz-range-progress{height:2px;background:currentColor}
 :is(.melodic-track-level,.xen-performance,.xen-particle-mix-row) input[type=range]::-moz-range-thumb{width:8px;height:8px;border:0;border-radius:50%;background:currentColor;box-shadow:none}
 :is(.melodic-track-level,.xen-performance,.xen-particle-mix-row) input[type=range]:focus-visible{outline:1px solid currentColor;outline-offset:2px}
-@media(min-width:768px){.melodic-bars-controls>div:nth-child(2){margin-bottom:0!important}.melodic-transport-dock{position:absolute;top:80px;left:0;margin-top:8px!important}}
+@media(min-width:768px){.melodic-bars-controls>div:nth-child(2){margin-bottom:0!important}.melodic-transport-dock{position:absolute;top:80px;left:0;margin-top:5px!important}}
 /* In the existing two-column layout the third card already occupies a new
    row at 160px. Keep that size and the rack size, using the empty second
    column so the original first-column space can house transport safely. */
@@ -141,13 +141,13 @@ body{height:auto;min-height:100vh;overflow:visible}
 
 /* TILES-ART-01: the two entry tiles of the Material Forge (Spectral Forge, Melodic Loop). Same key look as the instrument cards, artwork on the right (one melodic contour, painted vs. stepped into blocks).
    The text keeps its place; the artwork is decoration (aria-hidden), fades out under the text and never takes a click. */
-[data-xen-tile]{position:relative;overflow:hidden;isolation:isolate;min-height:132px;border-radius:18px;
+[data-xen-tile]{position:relative;overflow:hidden;isolation:isolate;border-radius:18px;
  transition:box-shadow .2s ease,filter .15s ease,transform .12s ease,border-color .2s ease}
 [data-xen-tile]>*{position:relative;z-index:1}
 [data-xen-tile]>.xen-tile-art{position:absolute;z-index:0;right:0;top:0;bottom:0;width:60%;pointer-events:none;
  -webkit-mask-image:linear-gradient(90deg,transparent 0,#000 55%);mask-image:linear-gradient(90deg,transparent 0,#000 55%);opacity:.82;transition:opacity .25s ease}
 .xen-tile-art svg{display:block;width:100%;height:100%}
-[data-xen-tile]:hover>.xen-tile-art,[data-xen-tile][class*="border-cyan-500"]>.xen-tile-art,[data-xen-tile][class*="border-violet-500"]>.xen-tile-art{opacity:1}
+[data-xen-tile]:hover>.xen-tile-art,[data-xen-tile]:is([class*="border-cyan-500"],[class*="border-violet-500"])>.xen-tile-art{opacity:1}
 [data-xen-tile]::before{content:"";position:absolute;z-index:0;left:1px;right:1px;top:1px;height:42%;border-radius:17px 17px 50% 50%/17px 17px 26px 26px;pointer-events:none;
  background:linear-gradient(180deg,rgba(255,255,255,.12),rgba(255,255,255,.02) 80%,transparent)}
 [data-xen-tile="forge"]{background:linear-gradient(165deg,#0f3a4a 0%,#08202c 52%,#04101a 100%)!important;border-color:#2a8aa3!important;
@@ -159,32 +159,31 @@ body{height:auto;min-height:100vh;overflow:visible}
 [data-xen-tile="melodic"][class*="border-violet-500"]{border-color:#c4b5fd!important;
  box-shadow:inset 0 1px 0 rgba(255,255,255,.3),inset 0 0 36px rgba(167,139,250,.2),inset 0 -14px 22px -12px rgba(0,0,0,.55),0 0 0 1px rgba(196,181,253,.55),0 0 26px rgba(167,139,250,.45),0 10px 22px -10px rgba(0,0,0,.8)!important}
 [data-xen-tile]:hover{filter:brightness(1.1)}
+/* the chosen tile: clearly outlined and a little brighter (the other one is only slightly dimmed, below) */
+[data-xen-tile]:is([class*="border-cyan-500"],[class*="border-violet-500"]){filter:brightness(1.1);outline:2px solid rgba(255,255,255,.55);outline-offset:-2px}
 [data-xen-tile]:active{transform:translateY(1px)}
 [data-xen-tile]>div:first-of-type{display:flex;align-items:center;gap:.55em;text-shadow:0 1px 2px rgba(0,0,0,.7)}
 [data-xen-tile]>div:first-of-type::before{content:"";flex:0 0 auto;width:1.4em;height:1.4em;background:center/contain no-repeat;filter:drop-shadow(0 0 5px rgba(160,220,255,.6))}
 [data-xen-tile="forge"]>div:first-of-type::before{width:2em;height:1.4em;background-image:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2032%2022%22%20fill%3D%22none%22%20stroke-linecap%3D%22round%22%3E%3Cg%20stroke%3D%22%232dd4bf%22%3E%3Cpath%20d%3D%22M2%2017.5C7%2017.5%209%2012.5%2014%2011.5S23%2012.5%2030%208%22%20transform%3D%22translate%280%20-4.5%29%22%20stroke-width%3D%223.4%22%20opacity%3D%22.55%22%2F%3E%3Cpath%20d%3D%22M2%2017.5C7%2017.5%209%2012.5%2014%2011.5S23%2012.5%2030%208%22%20transform%3D%22translate%280%20-8.5%29%22%20stroke-width%3D%222.6%22%20opacity%3D%22.38%22%2F%3E%3C%2Fg%3E%3Cpath%20d%3D%22M2%2017.5C7%2017.5%209%2012.5%2014%2011.5S23%2012.5%2030%208%22%20stroke%3D%22%23f54c52%22%20stroke-width%3D%223%22%2F%3E%3Cpath%20d%3D%22M2%2017.5C7%2017.5%209%2012.5%2014%2011.5S23%2012.5%2030%208%22%20stroke%3D%22%23fb923c%22%20stroke-width%3D%221.9%22%2F%3E%3Cpath%20d%3D%22M2%2017.5C7%2017.5%209%2012.5%2014%2011.5S23%2012.5%2030%208%22%20stroke%3D%22%23fde047%22%20stroke-width%3D%22.9%22%2F%3E%3C%2Fsvg%3E")}
 [data-xen-tile="melodic"]>div:first-of-type::before{background-image:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2028%2028%22%20focusable%3D%22false%22%20aria-hidden%3D%22true%22%3E%3Cdefs%3E%3ClinearGradient%20id%3D%22xti-m1%22%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%220%22%20y2%3D%221%22%3E%3Cstop%20offset%3D%220%22%20stop-color%3D%22%23e9d5ff%22%2F%3E%3Cstop%20offset%3D%221%22%20stop-color%3D%22%237e22ce%22%2F%3E%3C%2FlinearGradient%3E%3C%2Fdefs%3E%3Crect%20x%3D%222%22%20y%3D%2217%22%20width%3D%228%22%20height%3D%224.4%22%20rx%3D%221.6%22%20fill%3D%22url%28%23xti-m1%29%22%2F%3E%3Crect%20x%3D%229%22%20y%3D%2211%22%20width%3D%229%22%20height%3D%224.4%22%20rx%3D%221.6%22%20fill%3D%22url%28%23xti-m1%29%22%2F%3E%3Crect%20x%3D%2217%22%20y%3D%225%22%20width%3D%229%22%20height%3D%224.4%22%20rx%3D%221.6%22%20fill%3D%22url%28%23xti-m1%29%22%2F%3E%3Crect%20x%3D%225%22%20y%3D%2223%22%20width%3D%2212%22%20height%3D%223%22%20rx%3D%221.3%22%20fill%3D%22%23c4b5fd%22%20fill-opacity%3D%22.6%22%2F%3E%3C%2Fsvg%3E")}
 [data-xen-tile]>div:nth-of-type(2){text-shadow:0 1px 2px rgba(0,0,0,.7)}
-/* (see below) */
 /* once, when the tile is chosen: the playhead crosses the picture and fades out (no permanent motion) */
 @keyframes xen-tile-sweep{0%{transform:translateX(-170px);opacity:0}10%{opacity:1}85%{opacity:1}100%{transform:translateX(90px);opacity:0}}
 [data-xen-tile] .xta-head{opacity:0}
-[data-xen-tile][class*="border-cyan-500"] .xta-head,[data-xen-tile][class*="border-violet-500"] .xta-head{animation:xen-tile-sweep 3.4s ease-in-out 1 forwards}
+[data-xen-tile]:is([class*="border-cyan-500"],[class*="border-violet-500"]) .xta-head{animation:xen-tile-sweep 3.4s ease-in-out 1 forwards}
 @media (prefers-reduced-motion:reduce){[data-xen-tile],[data-xen-tile] .xta-head{animation:none!important;transition:none!important}}
 /* TILES-ART-01: the description wraps inside the left part of the tile, the artwork keeps the right part */
-[data-xen-tile]>div:nth-of-type(3){max-width:min(100%,25rem)}
 /* TILES-ART-01: both tiles always have the same, fixed height (the narrow one is big enough), whichever is chosen and however long the text wraps */
 [data-xen-workflow-tile="spectral-forge"],[data-xen-tile]{height:152px;min-height:152px;max-height:152px}
-[data-xen-tile]>div:nth-of-type(3){display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:3;line-clamp:3;overflow:hidden}
-@media (max-width:1180px){[data-xen-tile]>div:nth-of-type(3){font-size:10.5px;line-height:1.4}}
+[data-xen-tile]>div:nth-of-type(3){max-width:min(100%,25rem);display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:3;line-clamp:3;overflow:hidden}
+@media (max-width:1180px){[data-xen-tile]>div:nth-of-type(3){max-width:calc(100% - 70px);font-size:10.5px;line-height:1.4}}
 /* TILES-ART-01: with the playhead running only once, the chosen tile is shown by the other one being dimmed (hover brings it back) */
-.grid:has([data-xen-tile][class*="border-cyan-500"],[data-xen-tile][class*="border-violet-500"]) [data-xen-tile]:not([class*="border-cyan-500"]):not([class*="border-violet-500"]){filter:brightness(.8) saturate(.82)}
-.grid:has([data-xen-tile][class*="border-cyan-500"],[data-xen-tile][class*="border-violet-500"]) [data-xen-tile]:not([class*="border-cyan-500"]):not([class*="border-violet-500"]):hover{filter:brightness(.95) saturate(.95)}
+.grid:has([data-xen-tile]:is([class*="border-cyan-500"],[class*="border-violet-500"])) [data-xen-tile]:not(:is([class*="border-cyan-500"],[class*="border-violet-500"])){filter:brightness(.8) saturate(.82)}
+.grid:has([data-xen-tile]:is([class*="border-cyan-500"],[class*="border-violet-500"])) [data-xen-tile]:not(:is([class*="border-cyan-500"],[class*="border-violet-500"])):hover{filter:brightness(.95) saturate(.95)}
 /* TILES-ART-01: the Spectral Forge tile was formatted differently once chosen: the existing rule that makes room for the More button (padding-right 74px on the last text block, only while More is shown)
    narrowed the description, it wrapped to a 4th line and was cut. Both tiles now have the same padding and the same text width in every state; More sits under the artwork, the text keeps clear of it. */
 [data-xen-workflow-tile="spectral-forge"] [data-xen-workflow-select][data-xen-tile]{padding-top:16px;padding-bottom:16px}
 [data-xen-workflow-tile="spectral-forge"]:has([data-xen-workflow-more]) [data-xen-workflow-select][data-xen-tile]>div:last-child{padding-right:0}
-@media (max-width:1180px){[data-xen-tile]>div:nth-of-type(3){max-width:calc(100% - 70px)}}
 
 /* DIST-STYLE-01: the Distribution area of the Melodic Loop room: every button carries an existing symbol (before: three emoji, five without), and the keys are raised and glossy like the instrument cards.
    The symbols are the ones already used elsewhere in the program (📀 🎼 🎚 ↶ ↷, the carrier/overtone miniature of the Forge and the shared scissors of the Wave Editor from 072-xen-scissors-offline-ui.css); the colour of a key comes from --k. Text, titles, behaviour unchanged. */
@@ -206,10 +205,10 @@ body{height:auto;min-height:100vh;overflow:visible}
 [data-ml-dist="material"]{--k:#22d3ee}[data-ml-dist="rootfollow"]{--k:#a78bfa}[data-ml-dist="multitrack"]{--k:#f59e0b}
 [data-ml-dist="forge"]{--k:#38bdf8}[data-ml-dist="wave"]{--k:#34d399}[data-ml-dist="import"]{--k:#e879f9}
 @media (prefers-reduced-motion:reduce){[data-ml-dist]{transition:none!important}}
-[data-ml-dist="wave"]::before{margin-right:0;width:17px;height:17px;background-size:17px 17px;vertical-align:middle}
 /* DIST-STYLE-01: the symbol of every send/import key sits flush at the left edge (all symbols in one line), the text stays centred */
 [data-ml-dist]:not([data-ml-dist="undo"]):not([data-ml-dist="redo"]){padding-left:54px!important;padding-right:54px!important;text-align:center}
 [data-ml-dist]>.xen-dist-ic,[data-ml-dist]>svg,[data-ml-dist]>[data-xensonar-root-follow-icon-slot],[data-ml-dist="wave"]::before{position:absolute!important;left:13px;top:50%;transform:translateY(-50%);margin:0!important}
+[data-ml-dist="wave"]::before{width:17px;height:17px;background-size:17px 17px}
 [data-ml-dist]>.xen-dist-ic{display:inline-flex;align-items:center;justify-content:flex-start;gap:4px;min-width:22px;height:20px;font-size:14px;line-height:1}
 .xen-dist-arrow{font-size:17px;font-weight:700;color:#fff;text-shadow:0 1px 1px rgba(0,0,0,.6)}
 /* DIST-STYLE-01: the Root Follow symbol (the white circle with the score) is drawn larger so that the clef and the staff lines are clear; it is positioned absolutely, the key keeps its height */
@@ -231,28 +230,13 @@ body{height:auto;min-height:100vh;overflow:visible}
 .f31-play-rack .f33-rack-figure-slot .f33-figure-projects .xen-figure-projects-mark{width:27px;height:18px;margin:0}
 .f31-play-rack .f33-rack-figure-slot .f33-figure-projects{padding-left:6px;padding-right:6px;gap:6px}
 .f31-play-rack .f33-rack-figure-slot .f33-figure-projects .block{white-space:nowrap}
-/* the chosen tile: clearly outlined and a little brighter than before (the other one is only slightly dimmed) */
-[data-xen-tile="forge"][class*="border-cyan-500"]{filter:brightness(1.1)}
-[data-xen-tile="melodic"][class*="border-violet-500"]{filter:brightness(1.1)}
-[data-xen-tile][class*="border-cyan-500"],[data-xen-tile][class*="border-violet-500"]{outline:2px solid rgba(255,255,255,.55);outline-offset:-2px}
-
 /* MT-ALIGN-01: Send to Multitrack grows to the left up to the Import Audio tab (measured, --xen-mt-shift is negative); without the variable nothing changes */
 .f33-rack-project-corner .f35-rack-send-multitrack{margin-left:var(--xen-mt-shift,0px);width:calc(100% - var(--xen-mt-shift,0px))}
 
-/* ML-MARK-02: the transport dock has two rows: play, drums, Mark, Copy, Erase, Paste on the first; mirrors and the four stretch/compress keys on the second (they used to run under the slice panel). */
-.melodic-transport-dock{flex-wrap:wrap}
-.melodic-transport-dock>.ml-noteclip-break{flex:0 0 100%;height:0;margin:0;padding:0}
-@media(min-width:768px){.melodic-transport-dock{width:520px}}
-.melodic-transport-dock{row-gap:2px}
-.melodic-transport-dock>[data-ml-noteclip="mark"]{margin-left:18px}
-@media(min-width:768px){.melodic-transport-dock{margin-top:5px!important}}
-/* ML-MARK-02: mirrors and the four stretch/compress keys form a 3 x 2 block exactly as wide as Mark..Paste above, flush under Mark; the frame grows by the second row */
-.melodic-transport-dock>.ml-noteclip-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:3px;margin:-3px 0 0 var(--ml-mark-x,0px);width:var(--ml-tools-w,240px)}
-.melodic-transport-dock>.ml-noteclip-grid>button{height:27px;padding:0!important;font-size:19px;line-height:1;display:flex;align-items:center;justify-content:center}
-@media(min-width:768px){.melodic-bars-controls{min-height:196px}}
-/* ML-MARK-02: 3 x 2 by meaning: top row everything horizontal (mirror, stretch, compress in time), bottom row everything vertical (pitch) */
-/* ML-MARK-02 (correction): the six keys form ONE row, together exactly as wide as the four above (Mark..Paste), flush under Mark */
-.melodic-transport-dock>.ml-noteclip-grid{grid-template-columns:repeat(6,1fr);gap:2px}
-.melodic-transport-dock>.ml-noteclip-grid>button{height:31px;font-size:17px}
-.melodic-transport-dock>.ml-noteclip-grid>button svg{width:22px;height:14px}
+/* ML-MARK-02: Mark/Copy/Erase/Paste and, in the row under them, the six mirror / stretch / compress keys stand in one column (the keys have exactly the width of the row above, flush under Mark).
+   The dock is positioned absolutely, so the frame gets its height from the room it needs (dock top 85 px + the two rows). */
+.ml-noteclip-tools{display:flex;flex-direction:column;gap:2px;margin:6px 0 -27px 18px;align-self:flex-start}/* the negative bottom margin lets the second row hang below the dock, so Play, Drums and Mark keep their line */
+.ml-noteclip-row{display:flex;gap:4px}
+.ml-noteclip-grid{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:2px;width:0;min-width:100%}
+.ml-noteclip-grid>button{height:31px;font-size:17px;line-height:1;display:flex;align-items:center;justify-content:center}
 @media(min-width:768px){.melodic-bars-controls{min-height:154px}}

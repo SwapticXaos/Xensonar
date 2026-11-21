@@ -447,12 +447,12 @@
 .xen-p33-wave-canvas-lower{left:17.333%;top:1.6%;width:69.5%;height:96.77%;}
 .xen-p33-meter-label{display:flex;align-items:center;justify-content:flex-start;gap:12px;}
 .xen-p33-meter-label span{color:#d5b6ff;font-weight:700;letter-spacing:.09em;white-space:nowrap;}
-/* Same Forge controls visible but inert without a real source. */
-/* NOAUDIO-NAV-01: normal look (no greying); everything but UP/UPPER is inert and takes no pointer events, UP/UPPER work */
-.xen-p33-inactive-rack{opacity:1;filter:none;pointer-events:none;
-  display:flex;flex-direction:column;gap:8px;margin-top:2px;}
-/* First-contact uses the real controls, never a recreated dummy rack.
-   The parent is inert, dimmed, and has no activation/click behaviour. */
+/* Without a real source the Forge controls are shown in their normal look (no greying), never as a recreated dummy rack (NOAUDIO-NAV-01):
+   everything is inert and takes no pointer events, only UP/UPPER work. */
+.xen-p33-inactive-rack{pointer-events:none;display:flex;flex-direction:column;gap:8px;margin-top:2px;}
+.xen-p33-inactive-rack .xen-forge-upper-triangle,.xen-p33-inactive-rack .xen-forge-up-triangle{pointer-events:auto}
+.xen-p33-inactive-rack :is(button,input,select,textarea):disabled,.xen-p33-inactive-rack [disabled]{opacity:1!important;filter:none!important;cursor:default}
+.xen-p33-inactive-rack button:not(.xen-forge-upper-triangle):not(.xen-forge-up-triangle){cursor:default}
 /* P34: red import glyph replaces the donor waveform A, positioned from its
  * real text-mask ink extents. Until measured, do not show a displaced cue. */
 
@@ -490,9 +490,6 @@
 @media (pointer: coarse){.xen-forge-draw-play{height:44px;min-height:44px}}
 @media (prefers-reduced-motion: reduce){.xen-forge-draw-play{transition:none}}
 
-.xen-p33-inactive-rack .xen-forge-upper-triangle,.xen-p33-inactive-rack .xen-forge-up-triangle{pointer-events:auto}
-.xen-p33-inactive-rack :is(button,input,select,textarea):disabled,.xen-p33-inactive-rack [disabled]{opacity:1!important;filter:none!important;cursor:default}
-.xen-p33-inactive-rack button:not(.xen-forge-upper-triangle):not(.xen-forge-up-triangle){cursor:default}
 /* SYMBOL-01: larger symbols on the lower Forge tiles (Pink Track blocks, Root Follow clef) */
 .xen-forge-tile-pink .xen-forge-export-icon{flex-basis:34px}
 .xen-forge-tile-root .xen-forge-export-icon{font-size:32px;flex-basis:34px}

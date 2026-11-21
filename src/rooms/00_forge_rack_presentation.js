@@ -2,6 +2,16 @@
  * Material Intake constructs the actual controls and NAME band once.
  * The no-audio stage receives that tree inert/disabled, never a parallel dummy.
  */
+/* SYMBOL-01: the Spectral Forge symbol (the carrier line in red/orange/yellow with its overtones in teal above it), one drawing for every place that shows it
+   (Distribution key of the Melodic Loop, Figure Projects, the floppy label of Save). `print` = the darker colours for the white floppy label. */
+globalThis.__xenSymForgeLines=function(overtones,print){
+ const h=P.createElement,L='M2 17.5C7 17.5 9 12.5 14 11.5S23 12.5 30 8',
+  over=print?[[-4.5,3.2,.7],[-8.5,2.6,.5]]:[[-4.5,3.4,.55],[-8.5,2.6,.38],[-11.5,1.9,.26]],
+  main=print?[['#e11d48',3.1],['#fb923c',1.9],['#facc15',.9]]:[['#f54c52',3],['#fb923c',1.9],['#fde047',.9]];
+ return h(P.Fragment,null,
+  h('g',{stroke:print?'#14b8a6':'#2dd4bf'},...over.slice(0,overtones).map(([dy,w,o],i)=>h('path',{key:i,d:L,transform:'translate(0 '+dy+')',strokeWidth:w,opacity:o}))),
+  ...main.map(([c,w],i)=>h('path',{key:'m'+i,d:L,stroke:c,strokeWidth:w})));
+};
 /* SYMBOL-01: shared symbol (global, other modules call globalThis.__xenSymMelodic). Melodic Loop = the stepped note blocks (as on its tile), used wherever something leads to the Melodic Loop. */
 globalThis.__xenSymMelodic=function(size,key){
  const h=P.createElement,id='xsm-'+(key||'a'),r=(x,y,w)=>h('rect',{key:x+'_'+y,x,y,width:w,height:4.4,rx:1.6,fill:'url(#'+id+')'});
@@ -260,8 +270,9 @@ const __xenTileArtForge='<svg viewBox="0 0 360 150" preserveAspectRatio="xMaxYMi
 const __xenTileArtMelodic='<svg viewBox="0 0 360 150" preserveAspectRatio="xMaxYMid slice" focusable="false" aria-hidden="true">'+
  '<defs>'+
  [['b','#7dd3fc','#0369a1'],['p','#d8b4fe','#6b21a8'],['o','#fcd34d','#b45309'],['g','#6ee7b7','#047857']].map(c=>'<linearGradient id="xta-m'+c[0]+'" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="'+c[1]+'"/><stop offset="1" stop-color="'+c[2]+'"/></linearGradient>').join('')+
+ '<linearGradient id="xta-mbg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#6ee7b7"/><stop offset="1" stop-color="#047857"/></linearGradient>'+
  '<radialGradient id="xta-mglow" cx=".7" cy=".5" r=".75"><stop offset="0" stop-color="#6d28d9" stop-opacity=".5"/><stop offset=".6" stop-color="#2e1065" stop-opacity=".25"/><stop offset="1" stop-color="#020617" stop-opacity="0"/></radialGradient></defs>'+
- '<rect width="360" height="150" fill="url(#xta-mglow)"/><rect width="360" height="150" fill="url(#xta-mg)" opacity=".9"/>'+
+ '<rect width="360" height="150" fill="url(#xta-mglow)"/><rect width="360" height="150" fill="url(#xta-mbg)" opacity=".9"/>'+
  /* pitch lines (horizontal) and bar lines (vertical) */
  '<g stroke="#c4b5fd" stroke-opacity=".12" stroke-width=".7"><path d="M0 14H360M0 26H360M0 38H360M0 50H360M0 62H360M0 74H360M0 86H360M0 98H360M0 110H360M0 122H360M0 134H360"/></g>'+
  '<g stroke="#c4b5fd" stroke-opacity=".2" stroke-width=".9"><path d="M90 6V144M180 6V144M270 6V144"/></g>'+
