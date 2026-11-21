@@ -67,7 +67,7 @@
                 <p><strong>Even your own voice works:</strong> Record it with your microphone and use it as a donor.</p>
                 <p><strong>Take it live:</strong> Bring the result into the <strong>Live Room</strong>, as a <strong>Material Track</strong> or material for the <strong>Root Follow Loop</strong>.</p>
               </div>
-              <p class="xen-wf-mantra"><strong>Paint it. Shape it. Arrange it. Give it a voice. Take it live.</strong></p>
+              <p class="xen-wf-mantra"><strong>Paint. Shape. Arrange. Give it a voice. Take it live.</strong></p>
             </div>
             <footer class="xen-wf-footer"><span>YOUR DRAWING · YOUR SOUND · YOUR LOOP</span><button type="button" data-xen-wf-back>Back to Spectral Forge →</button></footer>
           </article>
