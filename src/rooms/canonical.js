@@ -40,6 +40,17 @@ const __mlNoteClip=(()=>{
  /* Snapped target position of the figure for a pointer hit (same rule for the blinking preview and for placing). */
  const pos=(comp,y)=>{const total=Xa(comp),maxCh=Ra(comp)-1;
   return {start:Math.max(0,Math.min(Math.max(0,total-clip.span),Ed(comp,y.rawUnit,y.geometry.cellW))),base:Math.max(0,Math.min(Math.max(0,maxCh-clip.maxRel),y.channelIndex))}};
+
+ /* the same stretch for the loaded stamp (Paste) */
+ const scaleStamp=(axis,dir)=>{
+  if(axis==='h'){const f=dir>0?1.1:1/1.1;if(f<1&&clip.notes.some(c=>c.dur*f<.125)){say('Too short: the shortest note cannot get any shorter.');return {count:0}}
+   clip={...clip,notes:clip.notes.map(c=>({...c,dStart:c.dStart*f,dur:c.dur*f,note:{...c.note,fadeInUnits:(c.note.fadeInUnits||0)*f,fadeOutUnits:(c.note.fadeOutUnits||0)*f}}))};
+   clip.span=Math.max(...clip.notes.map(c=>c.dStart+c.dur));}
+  else{const spread=clip.maxRel;if(!spread){say('The loaded figure sits on one pitch line.');return {count:0}}
+   const ns=Math.max(0,spread+dir*Math.max(1,Math.round(spread*.1)));
+   clip={...clip,notes:clip.notes.map(c=>({...c,dChan:Math.round(c.dChan*ns/spread)}))};clip.maxRel=Math.max(...clip.notes.map(c=>c.dChan));}
+  refresh();return {count:clip.notes.length};
+ };
  /* Put these notes on the clipboard (import body excluded) and switch to Paste. */
  const load=(comp,hit)=>{
   const picked=hit.filter(n=>!fs(n)),skipped=hit.length-picked.length;
@@ -68,6 +79,8 @@ const __mlNoteClip=(()=>{
   /* While a Mark/Copy/Erase rectangle is dragged only the highlight follows. refreshSelectionFromBox also rewrites the composer's selected note/track on every pointer move, which re-rendered the panels and made the whole page scroll jump up and down. */
   liveMark(e,box){const ids=e.loopComposer.notes.filter(n=>T7(e.loopComposer,n,box)).map(n=>n.id);
    e.setSelectedLoopNoteIds(prev=>prev.length===ids.length&&prev.every((v,i)=>v===ids[i])?prev:ids)},
+  /* read-only: start, length and pitch line of the marked notes (tests, diagnosis) */
+  inspectMarked(){if(!host)return [];const c=host.loopComposer;return markedNotes(c).map(n=>({s:cn(c,n),d:yr(c,n),c:wa(c,n)}))},
   setMarked(ids){markIds=ids.slice();markedCount=markIds.length;refresh()},
   setMode(next){if(next==='paste'&&!clip)next='off';if(mode===next)return;mode=next;if(mode!=='paste')ghost=null;refresh()},
   clear(){clip=null;ghost=null;if(mode==='paste')mode='off';refresh()},
@@ -114,6 +127,29 @@ const __mlNoteClip=(()=>{
    say(picked.length+' marked notes mirrored '+(axis==='h'?'in time':'in pitch')+'.');
    return {count:picked.length};
   },
+  /* ML-MARK-02: stretch / compress the marked notes (or the loaded stamp in Paste), like the arrow keys of the Spectral Forge stamp. axis 'h' = time (positions and lengths, fades with them) around the start of the marking,
+     axis 'v' = pitch spread (pitch lines are whole steps: each press widens or narrows the spread by about a tenth, at least one line) around the lowest marked line. dir +1 stretch, -1 compress. One undo step. */
+  scale(axis,dir){
+   const stamp=mode==='paste'&&clip;if(stamp)return scaleStamp(axis,dir);
+   if(!host)return {count:0};
+   const comp=host.loopComposer,marked=markedNotes(comp),picked=marked.filter(n=>!fs(n));
+   if(!picked.length){say(marked.length?'Only material import notes are marked; the import body is not changed.':'Nothing marked.');return {count:0}}
+   const pick=new Set(picked.map(n=>n.id));
+   if(axis==='h'){
+    const f=dir>0?1.1:1/1.1,minS=Math.min(...picked.map(n=>cn(comp,n))),maxE=Math.max(...picked.map(n=>cn(comp,n)+yr(comp,n)));
+    if(minS+(maxE-minS)*f>Xa(comp)+1e-9){say('No room to the right: the marked notes would leave the loop.');return {count:0}}
+    if(f<1&&picked.some(n=>yr(comp,n)*f<.125)){say('Too short: the shortest marked note cannot get any shorter.');return {count:0}}
+    host.mutateLoopComposer(A=>{for(const n of A.notes){if(!pick.has(n.id))continue;const st=cn(A,n),d=yr(A,n);
+     n.startUnit=minS+(st-minS)*f;n.durationUnits=d*f;n.fadeInUnits=(n.fadeInUnits||0)*f;n.fadeOutUnits=(n.fadeOutUnits||0)*f;pr(A,n)}},dir>0?'Marked notes stretched in time.':'Marked notes compressed in time.');
+    say(picked.length+' marked notes '+(dir>0?'stretched':'compressed')+' in time.');return {count:picked.length};
+   }
+   const ch=picked.map(n=>wa(comp,n)),minC=Math.min(...ch),maxC=Math.max(...ch),spread=maxC-minC,maxCh=Ra(comp)-1;
+   if(spread===0){say(dir>0?'All marked notes sit on one pitch line: nothing to stretch.':'All marked notes already sit on one pitch line.');return {count:0}}
+   const ns=Math.max(0,spread+dir*Math.max(1,Math.round(spread*.1)));
+   if(minC+ns>maxCh){say('No room above: the marked notes would leave the pitch lines.');return {count:0}}
+   host.mutateLoopComposer(A=>{for(const n of A.notes){if(!pick.has(n.id))continue;const c=minC+Math.round((wa(A,n)-minC)*ns/spread);n.channelIndex=c;n.lineId=A.pitchLines[c]?.id??n.lineId;pr(A,n)}},dir>0?'Marked notes stretched in pitch.':'Marked notes compressed in pitch.');
+   say(picked.length+' marked notes '+(dir>0?'stretched':'compressed')+' in pitch.');return {count:picked.length};
+  },
   /* ML-ERASE-01: Erase shares the Copy rectangle; release deletes the notes inside (one undo step). The material import body stays, as in Copy. */
   erase(e,box){
    if(!box)return {count:0,skipped:0};
@@ -145,13 +181,17 @@ const __mlNoteClip=(()=>{
   }
  };
 })();
+globalThis.__xenMlNoteClip=__mlNoteClip;
 function __MelodicNoteClipButtons(){
  const s=P.useSyncExternalStore(__mlNoteClip.subscribe,__mlNoteClip.snapshot,__mlNoteClip.snapshot);
  P.useEffect(()=>{if(s.mode==='off')return;const k=ev=>{if(ev.key==='Escape')__mlNoteClip.setMode('off')};window.addEventListener('keydown',k);return()=>window.removeEventListener('keydown',k)},[s.mode]);
+ /* ML-MARK-02: with something marked (or a figure in Paste) the arrow keys stretch/compress, like the Spectral Forge stamp: left/right in time, up/down in pitch. */
+ P.useEffect(()=>{if(!(s.marked>0||(s.mode==='paste'&&s.count>0)))return;const k=ev=>{const t=ev.target,tag=t&&t.tagName;if(ev.altKey||ev.ctrlKey||ev.metaKey||ev.shiftKey||tag==='INPUT'||tag==='TEXTAREA'||tag==='SELECT'||(t&&t.isContentEditable))return;
+  const m={ArrowRight:['h',1],ArrowLeft:['h',-1],ArrowUp:['v',1],ArrowDown:['v',-1]}[ev.key];if(!m)return;ev.preventDefault();__mlNoteClip.scale(m[0],m[1])};window.addEventListener('keydown',k);return()=>window.removeEventListener('keydown',k)},[s.marked,s.mode,s.count]);
  const on='rounded border border-emerald-500 bg-emerald-950/60 px-1.5 py-2 text-[11px] font-semibold text-emerald-100',off='rounded border border-neutral-700 bg-neutral-900/55 px-1.5 py-2 text-[11px] text-neutral-300 hover:bg-neutral-800';
  /* Counts are badges that take no layout space: a growing label would push every button to its right (the toolbar wobbled while marking). */
  const badge=(n,c)=>n?u.jsx('span',{'aria-hidden':true,className:'pointer-events-none absolute -right-1 -top-1.5 rounded-full px-1 text-[9px] font-semibold leading-[14px] text-white '+c,children:n}):null;
- const m=s.marked>0,stamp=s.mode==='paste'&&s.count>0,flipOn=m||s.count>0;
+ const m=s.marked>0,stamp=s.mode==='paste'&&s.count>0,flipOn=m||s.count>0,scaleOn=stamp||m;
  /* Mirrors: the stamp while it is loaded in Paste, else the marked notes in place, else a loaded stamp. */
  const flip=axis=>{if(stamp||!m)__mlNoteClip.flip(axis);else __mlNoteClip.flipMarked(axis)};
  const flipTitle=h=>stamp?'Mirror the loaded figure '+h+' (Paste)':m?'Mirror the marked notes '+h+' in place':'Mark notes or load a figure with Copy first';
@@ -166,8 +206,11 @@ function __MelodicNoteClipButtons(){
    onContextMenu:ev=>{ev.preventDefault();__mlNoteClip.clear();__mlNoteClip.setMode('select')},
    title:s.count?'Paste: click on the grid to place the loaded notes, drag to move, release to set. Right-click empties it and returns to Copy.':'Nothing loaded yet. Use Copy first.','aria-label':'Paste loaded note blocks onto the grid',
    'data-count':s.count,className:(s.mode==='paste'?on:off+(s.count?'':' opacity-40'))+' relative',children:['⎘ Paste',badge(s.count,'bg-sky-600')]}),
+  u.jsx('span',{'aria-hidden':true,className:'ml-noteclip-break'}),
   u.jsx('button',{type:'button','data-ml-noteclip':'flip-h',disabled:!flipOn,onClick:()=>flip('h'),title:flipTitle('horizontally (reverse in time)'),'aria-label':'Mirror horizontally',className:off+(flipOn?'':' opacity-40'),children:'⇆'}),
-  u.jsx('button',{type:'button','data-ml-noteclip':'flip-v',disabled:!flipOn,onClick:()=>flip('v'),title:flipTitle('vertically (invert the pitch order)'),'aria-label':'Mirror vertically',className:off+(flipOn?'':' opacity-40'),children:'⇅'})]});
+  u.jsx('button',{type:'button','data-ml-noteclip':'flip-v',disabled:!flipOn,onClick:()=>flip('v'),title:flipTitle('vertically (invert the pitch order)'),'aria-label':'Mirror vertically',className:off+(flipOn?'':' opacity-40'),children:'⇅'}),
+  ...[['sh-p','h',1,'↔+','Stretch','in time'],['sh-m','h',-1,'↔−','Compress','in time'],['sv-p','v',1,'↕+','Stretch','in pitch'],['sv-m','v',-1,'↕−','Compress','in pitch']].map(([k,ax,d,lab,verb,what])=>
+   u.jsx('button',{key:k,type:'button','data-ml-noteclip':k,disabled:!scaleOn,onClick:()=>__mlNoteClip.scale(ax,d),title:scaleOn?verb+' '+(stamp?'the loaded figure ':'the marked notes ')+what+' (arrow keys: '+(ax==='h'?(d>0?'→':'←'):(d>0?'↑':'↓'))+')':'Mark notes first (or load a figure with Copy)','aria-label':verb+' '+what,className:off+(scaleOn?'':' opacity-40'),children:lab}))]});
 }
 function __MelodicTransportControls({phase, drums, pattern, onPlay, onStop, onDrums, onNext, placement='editor'}) {
   const idle=phase==='idle'||phase==='failed';

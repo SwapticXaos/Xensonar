@@ -238,3 +238,10 @@ body{height:auto;min-height:100vh;overflow:visible}
 
 /* MT-ALIGN-01: Send to Multitrack grows to the left up to the Import Audio tab (measured, --xen-mt-shift is negative); without the variable nothing changes */
 .f33-rack-project-corner .f35-rack-send-multitrack{margin-left:var(--xen-mt-shift,0px);width:calc(100% - var(--xen-mt-shift,0px))}
+
+/* ML-MARK-02: the transport dock has two rows: play, drums, Mark, Copy, Erase, Paste on the first; mirrors and the four stretch/compress keys on the second (they used to run under the slice panel). */
+.melodic-transport-dock{flex-wrap:wrap}
+.melodic-transport-dock>.ml-noteclip-break{flex:0 0 100%;height:0;margin:0;padding:0}
+@media(min-width:768px){.melodic-transport-dock{width:520px}}
+.melodic-transport-dock{row-gap:2px}
+.melodic-transport-dock>.ml-noteclip-break~button{padding-top:3px!important;padding-bottom:3px!important;min-width:30px}
