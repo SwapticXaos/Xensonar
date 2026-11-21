@@ -1,6 +1,6 @@
 # ML-MARK-02 · Melodic Loop: Markiertes strecken und stauchen
 
-- Sechs Tasten in EINER Zeile unter Mark, zusammen genau so breit wie Mark..Paste (gemessen): Spiegeln, Strecken, Stauchen in der Zeit, dann dasselbe in der Tonhöhe; Strecken/Stauchen als Pfeile nach außen/innen. Ausgegraut ohne Markierung; „+ Drums“ ist „+“ mit Trommelsymbol.
+- Sechs Tasten in EINER Zeile unter Mark, zusammen genau so breit wie Mark..Paste (gemessen): die beiden Spiegel nebeneinander (⇆ ⇅), dann Strecken/Stauchen in der Zeit, dann in der Tonhöhe; Strecken/Stauchen als Pfeile nach außen/innen. Ausgegraut ohne Markierung; „+ Drums“ ist „+“ mit Trommelsymbol.
 - Pfeiltasten: solange etwas markiert ist (oder eine Figur in Paste liegt), strecken/stauchen sie wie der Stempel der Spectral Forge: rechts/links = Zeit, hoch/runter = Tonhöhe. In Eingabefeldern und mit Strg/Alt/Umschalt greifen sie nicht.
 - Zeit: Faktor 1,1 je Schritt um den Anfang der Markierung, Längen und Fades skalieren mit; verweigert, wenn die Noten aus dem Loop ragen würden oder die kürzeste Note unter die Mindestlänge fiele (Statuszeile sagt es).
 - Tonhöhe: Tonlinien sind ganze Schritte, also je Druck etwa ein Zehntel mehr/weniger Abstand, mindestens eine Linie, um die tiefste markierte Linie; verweigert am Rand oder wenn alles auf einer Linie liegt.

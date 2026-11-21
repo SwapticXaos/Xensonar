@@ -251,13 +251,8 @@ body{height:auto;min-height:100vh;overflow:visible}
 .melodic-transport-dock>.ml-noteclip-grid>button{height:27px;padding:0!important;font-size:19px;line-height:1;display:flex;align-items:center;justify-content:center}
 @media(min-width:768px){.melodic-bars-controls{min-height:196px}}
 /* ML-MARK-02: 3 x 2 by meaning: top row everything horizontal (mirror, stretch, compress in time), bottom row everything vertical (pitch) */
-.ml-noteclip-grid>[data-ml-noteclip="flip-h"]{order:1}.ml-noteclip-grid>[data-ml-noteclip="sh-p"]{order:2}.ml-noteclip-grid>[data-ml-noteclip="sh-m"]{order:3}
-.ml-noteclip-grid>[data-ml-noteclip="flip-v"]{order:4}.ml-noteclip-grid>[data-ml-noteclip="sv-p"]{order:5}.ml-noteclip-grid>[data-ml-noteclip="sv-m"]{order:6}
 /* ML-MARK-02 (correction): the six keys form ONE row, together exactly as wide as the four above (Mark..Paste), flush under Mark */
 .melodic-transport-dock>.ml-noteclip-grid{grid-template-columns:repeat(6,1fr);gap:2px}
 .melodic-transport-dock>.ml-noteclip-grid>button{height:31px;font-size:17px}
 .melodic-transport-dock>.ml-noteclip-grid>button svg{width:22px;height:14px}
-.ml-noteclip-grid>[data-ml-noteclip]{order:0!important}
-.ml-noteclip-grid>[data-ml-noteclip="flip-h"]{order:1!important}.ml-noteclip-grid>[data-ml-noteclip="sh-p"]{order:2!important}.ml-noteclip-grid>[data-ml-noteclip="sh-m"]{order:3!important}
-.ml-noteclip-grid>[data-ml-noteclip="flip-v"]{order:4!important}.ml-noteclip-grid>[data-ml-noteclip="sv-p"]{order:5!important}.ml-noteclip-grid>[data-ml-noteclip="sv-m"]{order:6!important}
 @media(min-width:768px){.melodic-bars-controls{min-height:170px}}
