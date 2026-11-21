@@ -24,6 +24,20 @@ function myzelGGateClose(total=3.8){
   if(g.gateGain){const a=g.gateGain.gain;a.cancelScheduledValues(t);a.setValueAtTime(1,t+2.7*k);a.linearRampToValueAtTime(0,t+3.7*k);}
   return true;
 }
+/* NODAL-GATE-03: closing again while the gate is still opening: the gate "goes mad". The low-pass jumps between muffled and bright, the level stutters (short gaps, 5 ms edges),
+   at the end it drops to dull and silent. Times in seconds for total=2.4 (scaled with `total`); the table is fixed (no random), so it can be tested and tuned. */
+const __myzelGlitchLp=[[0,1800],[.12,9000],[.2,400],[.3,5200],[.42,260],[.5,7000],[.66,600],[.8,3000],[.9,220],[1.1,8000],[1.2,500],[1.4,2400],[1.55,180],[1.7,4000],[1.85,300],[2,200]];
+const __myzelGlitchGaps=[[.2,.26],[.42,.5],[.9,1],[1.2,1.28],[1.55,1.7],[1.85,1.9]];
+function myzelGGateGlitch(total=2.4){
+  const g=myzelGLive;if(!g||g.disposed)return false;
+  const k=total/2.4,f=g.gateLp.frequency,t=g.ctx.currentTime+.03,ny=g.ctx.sampleRate/2;
+  f.cancelScheduledValues(t);f.setValueAtTime(Math.max(180,Math.min(ny,f.value)),t);
+  for(const [at,hz] of __myzelGlitchLp)f.setValueAtTime(Math.min(ny,hz),t+.01+at*k);
+  if(g.gateGain){const a=g.gateGain.gain;a.cancelScheduledValues(t);a.setValueAtTime(1,t);
+    for(const [s,e] of __myzelGlitchGaps){a.setValueAtTime(1,t+s*k-.005);a.linearRampToValueAtTime(0,t+s*k);a.setValueAtTime(0,t+e*k-.005);a.linearRampToValueAtTime(1,t+e*k);}
+    a.setValueAtTime(1,t+2*k);a.linearRampToValueAtTime(0,t+2.3*k);}
+  return true;
+}
 function myzelGGateSweep(hold=0,ramp=3.4){
   if(myzelGLive&&!myzelGLive.disposed){myzelGGateApply(myzelGLive,hold,ramp);myzelGGatePending=null;return;}
   myzelGGatePending={hold,ramp,at:performance.now()};

@@ -518,7 +518,7 @@ const NODAL_GATE_TURN_MS=1800,NODAL_GATE_HOLE_MS=900,NODAL_GATE_OPEN_MS=2600,NOD
 /* NODAL-GATE-02: closing is its own choreography (not the opening played backwards): the mandala grows from a point in the middle (point, circle, the mark inside), then the two halves
    slide in from the sides with their half-circle openings still open, then the centre closes (0 - 1.7 s build, 1.45 - 2.95 s halves, 2.95 - 3.75 s centre). The low-pass glides down at the same time
    (louder to muffled), and only at the end Mycelium is really switched off (audio released). The real switch-off waits for the end: that is what __nodalGateCtl.close(finish) does. */
-const NODAL_GATE_SEAL_MS=3800;
+const NODAL_GATE_SEAL_MS=3800,NODAL_GATE_GLITCH_MS=2400;
 const __nodalGateCtl={close:null};
 const __nodalGateRunes=['M0 -1a1 1 0 1 1-1 1a2 2 0 1 1 2 2a3 3 0 1 1-3-3M-0.9 5.5a0.9 0.9 0 1 0 1.8 0a0.9 0.9 0 1 0 -1.8 0', 'M-4 -3Q0 -7 4 -3M-2.9 1a0.9 0.9 0 1 0 1.8 0a0.9 0.9 0 1 0 -1.8 0M1.1 1a0.9 0.9 0 1 0 1.8 0a0.9 0.9 0 1 0 -1.8 0M-0.9 4.5a0.9 0.9 0 1 0 1.8 0a0.9 0.9 0 1 0 -1.8 0', 'M0 -5Q3 -2.5 0 0Q-3 2.5 0 5M-3.9 -3a0.9 0.9 0 1 0 1.8 0a0.9 0.9 0 1 0 -1.8 0M2.1 3a0.9 0.9 0 1 0 1.8 0a0.9 0.9 0 1 0 -1.8 0', 'M-1.5 -1L-3 -5M1.5 -1L3 -5M-2.5 2a2.5 2.5 0 1 0 5 0a2.5 2.5 0 1 0-5 0', 'M-4 -4Q0 0-4 4M4 -4Q0 0 4 4M-0.9 0a0.9 0.9 0 1 0 1.8 0a0.9 0.9 0 1 0 -1.8 0', 'M-3 5Q-3 -5 3 -5Q1 -2 3 0M-1.4 2a0.9 0.9 0 1 0 1.8 0a0.9 0.9 0 1 0 -1.8 0', 'M-4 3A4 4 0 0 1 4 3M-2 3A2 2 0 0 1 2 3M-0.9 5.5a0.9 0.9 0 1 0 1.8 0a0.9 0.9 0 1 0 -1.8 0', 'M-4 -4L0 -1L-3 2L3 5M2.1 -4a0.9 0.9 0 1 0 1.8 0a0.9 0.9 0 1 0 -1.8 0', 'M-4 0Q0 -4 4 0Q0 4-4 0M-0.7 0a0.7 0.7 0 1 0 1.4 0a0.7 0.7 0 1 0 -1.4 0', 'M3 -3A4 4 0 1 0 3 3M3 0H5M-0.9 0a0.9 0.9 0 1 0 1.8 0a0.9 0.9 0 1 0 -1.8 0'];
 // The XenSonar mark (same geometry as the logo in the header, 64-unit box centred), drawn so every part can be pulled outwards.
@@ -566,8 +566,14 @@ function NodalGate({on,onOpen}){
     __nodalGateCtl.close=finish=>{
       const p=phaseRef.current;
       if(p==='sealing')return true;            // already closing: the click is swallowed
-      if(p!=='open')return false;              // mid-opening or closed: the plain switch applies
+      if(p==='glitch')return true;
       const quick=!!window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+      if(p==='turning'||p==='opening'){        // NODAL-GATE-03: shut again before it is fully open: the gate goes mad, then closes
+        myzelGGateGlitch(quick?.4:NODAL_GATE_GLITCH_MS/1000);
+        go('glitch',quick?450:NODAL_GATE_GLITCH_MS,()=>{setPhase('closed');finish();});
+        return true;
+      }
+      if(p!=='open')return false;              // closed: the plain switch applies
       myzelGGateClose(quick?.4:3.8);
       go('sealing',quick?450:NODAL_GATE_SEAL_MS,()=>{setPhase('closed');finish();});
       return true;
@@ -577,7 +583,7 @@ function NodalGate({on,onOpen}){
   P.useEffect(()=>{
     const p=phaseRef.current;
     if(on&&p==='closed'){myzelGGateSweep(NODAL_GATE_HOLE_MS/1000,NODAL_GATE_SWEEP_S);go('turning',NODAL_GATE_TURN_MS,()=>onRef.current?open():setPhase('closed'));}
-    else if(!on&&p!=='closed'&&p!=='turning'&&p!=='sealing')go('closing',1000,()=>setPhase('closed'));
+    else if(!on&&p!=='closed'&&p!=='turning'&&p!=='sealing'&&p!=='glitch')go('closing',1000,()=>setPhase('closed'));
   },[on]);
   // Click: the mark turns; while it unfolds along its rays the centre already opens (sound starts muffled), then the halves part.
   const turn=()=>{

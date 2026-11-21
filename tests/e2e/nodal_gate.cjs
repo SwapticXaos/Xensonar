@@ -61,5 +61,16 @@ const html=path.resolve(process.argv[2]||'dist/XenSonar_PROBE.html');
  await my.click();await q.waitForTimeout(300);assert.equal(await gate.getAttribute('data-nodal-gate'),'turning','the button turns the seal as well');
  await q.waitForTimeout(1300);const held=await lp();assert.ok(held&&held.f<1500,'muffled while the button opens the gate: '+JSON.stringify(held));
  await q.waitForTimeout(4200);assert.equal(await gate.count(),0);assert.match(await my.innerText(),/Gate Open/);const late2=await lp();assert.ok(late2&&late2.f===late2.ny,'open again: '+JSON.stringify(late2));
+ // ---- 4. NODAL-GATE-03: open, and shut again before it is fully open: the gate glitches, then it is closed ----
+ await my.click();await q.waitForTimeout(3950);assert.equal(await gate.getAttribute('data-nodal-gate'),'closed');
+ await my.click();await q.waitForTimeout(2300);assert.equal(await gate.getAttribute('data-nodal-gate'),'opening','still opening');
+ await my.click();await q.waitForTimeout(150);assert.equal(await gate.getAttribute('data-nodal-gate'),'glitch','closing during the opening: the gate goes mad');
+ assert.equal(await my.getAttribute('aria-pressed'),'true','Mycelium stays on during the glitch');
+ const lows=new Set(),gains=new Set();const t0=Date.now();
+ while(Date.now()-t0<2000){const s=await q.evaluate(()=>window.__xenProbe.draw.evalInBundle('myzelGLive&&!myzelGLive.disposed?{f:myzelGLive.gateLp.frequency.value,g:myzelGLive.gateGain.gain.value}:null'));if(s){lows.add(Math.round(s.f/200));gains.add(s.g<.05?0:1)}await q.waitForTimeout(40)}
+ assert.ok(lows.size>=6,'the low-pass jumps about: '+[...lows]);assert.ok(gains.has(0)&&gains.has(1),'the level stutters: '+[...gains]);
+ const holes=new Set();for(let i=0;i<8;i++){holes.add(Math.round(parseFloat(await gate.evaluate(e=>getComputedStyle(e).getPropertyValue('--nd-hole')))/10));await q.waitForTimeout(30)}
+ await q.waitForTimeout(500);assert.equal(await gate.getAttribute('data-nodal-gate'),'closed');assert.equal(await my.getAttribute('aria-pressed'),'false','Mycelium is switched off after the glitch');
+ assert.ok(Math.abs(await doorX()-x0)<2,'shut after the glitch');assert.ok(await rms(2)<.002,'silent after the glitch');
  assert.deepEqual(errors,[]);console.log('PASS NODAL-GATE-01 (closed '+x0+', LP early '+Math.round(early.f)+' Hz, held '+Math.round(held.f)+' Hz, open '+late.ny+' Hz, RMS '+loud.toFixed(4)+')');await b.close();
 })().catch(e=>{console.error(e);process.exit(1)});

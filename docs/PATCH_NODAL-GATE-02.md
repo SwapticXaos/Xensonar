@@ -24,3 +24,11 @@ Nicht geprüft: PCM-Vergleich des Abwärts-Sweeps (nur die Frequenz-Rampe gemess
 - Test `tests/e2e/nodal_gate.cjs` ergänzt um die Prüfung „nahe am Ende dumpf (unter 500 Hz) und im Ausblenden“, grün.
 
 Rollback: `637df4b`.
+
+## NODAL-GATE-03: Glitch beim Zumachen während des Öffnens
+
+- Auslöser: "Gate Open" wird gedrückt, solange das Tor noch aufgeht (Phase `turning` nach dem Start des Klangs oder `opening`). Neue Phase `glitch`, 2,4 s (`NODAL_GATE_GLITCH_MS`), danach `closed` und Mycelium aus.
+- Bild (nur CSS, harte `steps(1)`-Sprünge): Mittelöffnung und beide Türhälften springen unabhängig voneinander, Siegel flackert mit Farbversatz/Schräglage/Blitz, Licht blitzt; ab ca. 2,0 s ist alles zu. Zeiten stehen am Ende von `styles/areas/026_nodal-sound-designer-style.css`.
+- Klang: `myzelGGateGlitch` (src/audio/08_myzel_g_live.js), feste Tabellen `__myzelGlitchLp` (Tiefpass springt zwischen 180 Hz und 9 kHz) und `__myzelGlitchGaps` (Pegel-Aussetzer mit 5-ms-Kanten), am Ende dumpf und Pegel auf 0. Kein Zufall, also abstimm- und testbar.
+- Zone: WARM (CSS + eine Handvoll AudioParam-Ereignisse, keine Per-Frame-Arbeit). Reduced-Motion: 0,4 s.
+- Test: `tests/e2e/nodal_gate.cjs` Abschnitt 4 (Phase, Tiefpass springt ≥ 6 Stufen, Pegel stottert, am Ende zu, still). Gehört: nicht.
