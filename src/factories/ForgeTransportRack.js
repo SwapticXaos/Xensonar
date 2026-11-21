@@ -17,7 +17,7 @@ function __ForgeTransportRack(e){
  const routing={
   material:{label:'Send to Material Track',color:'border-cyan-400 bg-cyan-800 hover:bg-cyan-700',sheen:'rgba(8,145,178,.18)',icon:'📀'},
   root:{label:'Use as Root Follow Loop',color:'border-violet-400 bg-violet-800 hover:bg-violet-700',sheen:'rgba(139,92,246,.08)',icon:'🎼'},
-  pink:{label:'Send to Pink Track (Melodic Loop)',color:'border-pink-400 bg-pink-800 hover:bg-pink-700',sheen:'rgba(236,72,153,.16)',icon:globalThis.__xenSymMelodic?.(15,'rack')??'🎶'}
+  pink:{label:'Send to Pink Track (Melodic Loop)',color:'border-pink-400 bg-pink-800 hover:bg-pink-700',sheen:'rgba(236,72,153,.16)',icon:globalThis.__xenSymMelodic?.(24,'rack')??'🎶'}
  };
  // Re-use Material Intake's existing file input. No second importer or state.
  const importAudio=()=>{
@@ -168,8 +168,8 @@ function __ForgeTransportRack(e){
     boxShadow:'inset 0 0 0 1px rgba(196,181,253,.19), 0 0 7px rgba(139,92,246,.11)'
    }:undefined,
    className:'h-9 inline-flex items-center gap-2 rounded border text-xs font-semibold text-white shadow-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-white disabled:opacity-50 '+(id==='pink'?'f35-pink-destination ':'px-3 ')+routing[id].color
-  },id==='material'?
-   h('span',{'aria-hidden':true,className:'text-base leading-none'},routing[id].icon):
+  },id==='material'||id==='pink'?
+   h('span',{'aria-hidden':true,className:id==='pink'?'inline-flex shrink-0 items-center justify-center':'text-base leading-none'},routing[id].icon):
    h('span',{'aria-hidden':true,className:'relative inline-flex h-5 w-5 shrink-0 items-center justify-center'},
     h('span',{className:'absolute h-4 w-4 rounded-full bg-white shadow-sm'}),
     h('span',{className:'relative z-10 text-[17px] leading-none'},routing[id].icon)),
