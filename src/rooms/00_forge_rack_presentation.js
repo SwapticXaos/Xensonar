@@ -9,6 +9,12 @@ globalThis.__xenSymMelodic=function(size,key){
   h('defs',null,h('linearGradient',{id,x1:0,y1:0,x2:0,y2:1},h('stop',{offset:0,stopColor:'#e9d5ff'}),h('stop',{offset:1,stopColor:'#7e22ce'}))),
   r(2,17,8),r(9,11,9),r(17,5,9),h('rect',{x:5,y:23,width:12,height:3,rx:1.3,fill:'#c4b5fd',fillOpacity:.6}));
 };
+/* SYMBOL-01: the Multitrack symbol (six coloured clips with the playhead, as on the Melodic Loop's Send to Multitrack key). */
+globalThis.__xenSymMultitrack=function(w,hgt){
+ const h=P.createElement,c=[[1,2,11,'#22d3ee'],[15,2,9,'#a78bfa'],[4,9,9,'#fbbf24'],[16,9,12,'#34d399'],[1,16,13,'#f472b6'],[17,16,8,'#38bdf8']];
+ return h('svg',{width:w,height:hgt,viewBox:'0 0 30 22','aria-hidden':'true',style:{display:'inline-block',flex:'0 0 auto'}},
+  ...c.map((r,i)=>h('rect',{key:i,x:r[0],y:r[1],width:r[2],height:4,rx:1.5,fill:r[3]})),h('rect',{x:13.6,y:0,width:1.6,height:22,rx:.8,fill:'#fff',opacity:.9}));
+};
 const __ForgeRackCopy=Object.freeze({
  load:{className:'xen-forge-tile-load',label:'Load Selection'},
  repair:{className:'xen-forge-tile-repair',label:'Loop korrigieren'},
@@ -16,7 +22,7 @@ const __ForgeRackCopy=Object.freeze({
  extract:{className:'xen-forge-tile-extract',icon:'🧬',first:'Extract Timbre',second:'(Donor Workshop)'},
  play:{className:'xen-forge-tile-play',label:'PLAY'},
  material:{className:'xen-forge-tile-material',icon:'📀',first:'Send raw as a loop to Material Track',second:'(Live Room)'},
- pink:{className:'xen-forge-tile-pink',icon:globalThis.__xenSymMelodic(20,'tile'),first:'Send as Pink Track',second:'to Melodic Loop'},
+ pink:{className:'xen-forge-tile-pink',icon:globalThis.__xenSymMelodic(32,'tile'),first:'Send as Pink Track',second:'to Melodic Loop'},
  root:{className:'xen-forge-tile-root',icon:'🎼',first:'Use as',second:'Root Follow Loop'},
  sample:{className:'xen-forge-tile-sample',label:'Save as Sample'},
  donor:{className:'xen-forge-tile-donor',label:'Add to Donor Library'},

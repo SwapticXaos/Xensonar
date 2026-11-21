@@ -641,7 +641,7 @@ function __ForgeSendToMultitrackButton(){
   title:'🎚 Send the current listening mode, including the currently chosen timbre, to Room V · Multitrack as a new track · purple Navigator mask if selected, otherwise whole figure · lossless Float32, Forge tempo is kept as source tempo',
   disabled:snapshot.busy,onClick:()=>void __f333SendToEditor('multitrack'),
   className:'f35-rack-send-multitrack rounded border border-amber-600/70 bg-amber-950/40 text-xs font-semibold text-amber-100 hover:bg-amber-900/40 disabled:opacity-50'},
-  snapshot.busy?'Preparing …':'🎚 Send to Multitrack');
+  snapshot.busy?'Preparing …':P.createElement(P.Fragment,null,globalThis.__xenSymMultitrack?.(26,19)??'🎚',P.createElement('span',{style:{marginLeft:6}},'Send to Multitrack')));
 }
 // Forge Navigator one-shots reuse the canonical IndexedDB sample registry.
 // They deliberately do not change room, transport or active sample selection.

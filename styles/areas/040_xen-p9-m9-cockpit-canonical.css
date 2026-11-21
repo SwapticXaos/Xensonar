@@ -493,3 +493,6 @@
 .xen-p33-inactive-rack .xen-forge-upper-triangle,.xen-p33-inactive-rack .xen-forge-up-triangle{pointer-events:auto}
 .xen-p33-inactive-rack :is(button,input,select,textarea):disabled,.xen-p33-inactive-rack [disabled]{opacity:1!important;filter:none!important;cursor:default}
 .xen-p33-inactive-rack button:not(.xen-forge-upper-triangle):not(.xen-forge-up-triangle){cursor:default}
+/* SYMBOL-01: larger symbols on the lower Forge tiles (Pink Track blocks, Root Follow clef) */
+.xen-forge-tile-pink .xen-forge-export-icon{flex-basis:34px}
+.xen-forge-tile-root .xen-forge-export-icon{font-size:32px;flex-basis:34px}

@@ -168,8 +168,8 @@ function __ForgeTransportRack(e){
     boxShadow:'inset 0 0 0 1px rgba(196,181,253,.19), 0 0 7px rgba(139,92,246,.11)'
    }:undefined,
    className:'h-9 inline-flex items-center gap-2 rounded border text-xs font-semibold text-white shadow-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-white disabled:opacity-50 '+(id==='pink'?'f35-pink-destination ':'px-3 ')+routing[id].color
-  },id==='material'||id==='pink'?
-   h('span',{'aria-hidden':true,className:id==='pink'?'inline-flex shrink-0 items-center justify-center':'text-base leading-none'},routing[id].icon):
+  },id==='material'||id==='pink'||id==='root'?
+   h('span',{'aria-hidden':true,style:id==='root'?{fontSize:22,lineHeight:1,filter:'brightness(0) drop-shadow(0 0 1.5px rgba(255,255,255,.55))'}:undefined,className:id==='pink'?'inline-flex shrink-0 items-center justify-center':'text-base leading-none'},routing[id].icon):
    h('span',{'aria-hidden':true,className:'relative inline-flex h-5 w-5 shrink-0 items-center justify-center'},
     h('span',{className:'absolute h-4 w-4 rounded-full bg-white shadow-sm'}),
     h('span',{className:'relative z-10 text-[17px] leading-none'},routing[id].icon)),
