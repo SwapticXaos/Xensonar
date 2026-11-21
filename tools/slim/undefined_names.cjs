@@ -17,7 +17,7 @@ for(const k of ['currentFrame','sampleRate','currentTime','registerProcessor','A
 const defined=new Set(),uses=[];
 for(const b of blocks){if(b.kind==='other')continue;let src=out.slice(b.start,b.end),shift=0;if(b.kind==='island'){src='('+src+'\n)';shift=1}
  const ast=acorn.parse(src,{ecmaVersion:'latest',sourceType:b.kind==='module'?'module':'script',allowReturnOutsideFunction:true,allowAwaitOutsideFunction:true,ranges:true});
- const sm=es.analyze(ast,{ecmaVersion:2022,sourceType:b.kind==='module'?'module':'script',ignoreEval:true});
+ const sm=es.analyze(ast,{ecmaVersion:2022,sourceType:b.kind==='module'?'module':'script',ignoreEval:true,nodejsScope:b.kind==='room'||b.kind==='chunk'||b.kind==='island'});
  const top=b.kind==='module'?sm.globalScope.childScopes[0]:sm.globalScope;
  if(b.kind==='classic'||b.kind==='module')for(const v of (b.kind==='module'?top:sm.globalScope).variables)defined.add(v.name);
  for(const m of src.matchAll(/(?:window|globalThis|self)\.([A-Za-z_$][\w$]*)\s*(?:=(?!=)|\?\?=)/g))defined.add(m[1]);

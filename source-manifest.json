@@ -873,7 +873,27 @@
    "id": "js-015-xen-wave-editor-w01-modules",
    "oct28_section": null,
    "files": [
-    "src/post-oct/015-xen-wave-editor-w01-modules.js",
+    "src/post-oct/015-xen-wave-editor-w01-modules.js"
+   ]
+  },
+  {
+   "id": "js-015c-xen-chunk-wave-editor-dsp",
+   "oct28_section": null,
+   "files": [
+    "src/post-oct/015c-xen-wave-dsp-w01.js"
+   ]
+  },
+  {
+   "id": "js-015d-xen-chunk-wave-editor-ui",
+   "oct28_section": null,
+   "files": [
+    "src/post-oct/015d-xen-wave-ui-w01.js"
+   ]
+  },
+  {
+   "id": "js-015b-xen-chunk-wave-analysis",
+   "oct28_section": null,
+   "files": [
     "src/post-oct/015b-xen-wave-analysis.js"
    ]
   },

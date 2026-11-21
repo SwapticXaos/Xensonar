@@ -161,11 +161,16 @@
 <style id="xen-troodle-preset-layout06">⁣XEN-SECTION:css-073-xen-troodle-preset-layout06⁣</style>
 <!-- Inert offline room source: deliberately not JavaScript-executed or parsed during startup. -->
 <script type="application/x-xensonar-room" id="xen-room-canonical">⁣XEN-SECTION:js-018-xen-room-canonical⁣</script>
-<script type="application/x-xensonar-room" id="xen-room-lab">⁣XEN-SECTION:js-019-xen-room-lab⁣</script>
+<script type="application/x-xensonar-room" id="xen-room-lab" data-xen-deps="wave-editor-ui">⁣XEN-SECTION:js-019-xen-room-lab⁣</script>
 <script type="application/x-xensonar-room" id="xen-room-nodal">⁣XEN-SECTION:js-020-xen-room-nodal⁣</script>
-<script type="application/x-xensonar-room" id="xen-room-multitrack">⁣XEN-SECTION:js-020b-xen-room-multitrack⁣</script>
+<script type="application/x-xensonar-room" id="xen-room-multitrack" data-xen-deps="wave-editor-dsp">⁣XEN-SECTION:js-020b-xen-room-multitrack⁣</script>
 <script type="application/x-xensonar-room" id="xen-room-psylab">⁣XEN-SECTION:js-020c-xen-room-psylab⁣</script>
 <script type="application/x-xensonar-room" id="xen-room-xenpolar">⁣XEN-SECTION:js-020d-xen-room-xenpolar⁣</script>
+
+<!-- Inert on-demand subsystem chunks: loaded only when a room or feature triggers them. -->
+<script type="application/x-xensonar-chunk" id="xen-chunk-wave-editor-dsp">⁣XEN-SECTION:js-015c-xen-chunk-wave-editor-dsp⁣</script>
+<script type="application/x-xensonar-chunk" id="xen-chunk-wave-editor-ui" data-xen-deps="wave-editor-dsp">⁣XEN-SECTION:js-015d-xen-chunk-wave-editor-ui⁣</script>
+<script type="application/x-xensonar-chunk" id="xen-chunk-wave-analysis">⁣XEN-SECTION:js-015b-xen-chunk-wave-analysis⁣</script>
 
 <!-- M4: inert on-demand function-source chunks -->
 <script type="application/x-xensonar-function" id="xen-function-__ForgeTransportRack">⁣XEN-SECTION:js-021-xen-function-__ForgeTransportRack⁣</script>

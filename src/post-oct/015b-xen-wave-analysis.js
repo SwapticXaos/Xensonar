@@ -301,3 +301,5 @@ function __xenAudioAnalysisRun(samples,sampleRate,{signal,onProgress=()=>{}}={})
     }catch(error){done(error);}
   });
 }
+globalThis.__audioCarrierAnalysisFactory=__audioCarrierAnalysisFactory;
+Object.freeze({MAX_SEC:__XEN_AUDIO_ANALYSIS_MAX_SEC,run:__xenAudioAnalysisRun,time:__analysisTime,text:__analysisText,carrierAnalysisFactory:__audioCarrierAnalysisFactory});

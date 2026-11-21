@@ -1635,7 +1635,8 @@ function __audioCarrierAnalyze(source,range,options,{signal,onProgress=()=>{}}={
     const done=(error,result)=>{if(settled)return;settled=true;clearTimeout(timer);signal?.removeEventListener('abort',abort);worker?.terminate();if(url)URL.revokeObjectURL(url);error?reject(error):resolve(result);};
     const abort=()=>done(new DOMException('Abgebrochen','AbortError'));
     try{
-      const code=[__forgeGestaltToolsFactory.toString(),__audioCarrierAnalysisFactory.toString(),'('+__audioCarrierWorkerMain.toString()+')();'].join('\n');
+      const __carrierFactory=__xenLoadChunk('wave-analysis').carrierAnalysisFactory;
+      const code=[__forgeGestaltToolsFactory.toString(),__carrierFactory.toString(),'('+__audioCarrierWorkerMain.toString()+')();'].join('\n');
       url=URL.createObjectURL(new Blob([code],{type:'text/javascript'}));worker=new Worker(url);
       worker.onmessage=({data})=>{if(data.error)done(Error(data.error));else if(data.result)done(null,data.result);else if(Number.isFinite(data.progress))onProgress(data.progress);};
       worker.onerror=event=>done(Error(event.message||'Audioanalyse fehlgeschlagen.'));

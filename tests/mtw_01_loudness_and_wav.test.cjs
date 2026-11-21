@@ -3,8 +3,9 @@
 const test=require('node:test'),assert=require('node:assert'),fs=require('fs'),path=require('path'),vm=require('vm');
 const root=path.join(__dirname,'..');
 const src=fs.readFileSync(path.join(root,'src/post-oct/015-xen-wave-editor-w01-modules.js'),'utf8');
+const uiSrc=fs.readFileSync(path.join(root,'src/post-oct/015d-xen-wave-ui-w01.js'),'utf8');
 const sandbox={String,RegExp,console,Float32Array,Float64Array,Int32Array,Uint8Array,Uint32Array,ArrayBuffer,DataView,Math,Number,Object,Array,JSON,Map,Set,WeakMap,Promise,Error,RangeError,TypeError,Date,setTimeout,clearTimeout};
-sandbox.globalThis=sandbox;vm.createContext(sandbox);vm.runInContext(src,sandbox,{filename:'015-xen-wave-editor-w01-modules.js'});
+sandbox.globalThis=sandbox;vm.createContext(sandbox);vm.runInContext(src,sandbox,{filename:'015-xen-wave-editor-w01-modules.js'});vm.runInContext(uiSrc,sandbox,{filename:'015d-xen-wave-ui-w01.js'});
 const core=sandbox.__XenWaveCoreW01;
 const sine=(fs,sec,hz,db,phase=0)=>{const n=Math.round(fs*sec),a=Math.pow(10,db/20),x=new Float32Array(n);for(let i=0;i<n;i++)x[i]=a*Math.sin(2*Math.PI*hz*i/fs+phase);return x};
 const concat=parts=>{const n=parts.reduce((s,p)=>s+p.length,0),o=new Float32Array(n);let at=0;for(const p of parts){o.set(p,at);at+=p.length}return o};
