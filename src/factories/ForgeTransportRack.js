@@ -17,7 +17,7 @@ function __ForgeTransportRack(e){
  const routing={
   material:{label:'Send to Material Track',color:'border-cyan-400 bg-cyan-800 hover:bg-cyan-700',sheen:'rgba(8,145,178,.18)',icon:'📀'},
   root:{label:'Use as Root Follow Loop',color:'border-violet-400 bg-violet-800 hover:bg-violet-700',sheen:'rgba(139,92,246,.08)',icon:'🎼'},
-  pink:{label:'Send to Pink Track (Melodic Loop)',color:'border-pink-400 bg-pink-800 hover:bg-pink-700',sheen:'rgba(236,72,153,.16)',icon:'🎶'}
+  pink:{label:'Send to Pink Track (Melodic Loop)',color:'border-pink-400 bg-pink-800 hover:bg-pink-700',sheen:'rgba(236,72,153,.16)',icon:globalThis.__xenSymMelodic?.(15,'rack')??'🎶'}
  };
  // Re-use Material Intake's existing file input. No second importer or state.
  const importAudio=()=>{

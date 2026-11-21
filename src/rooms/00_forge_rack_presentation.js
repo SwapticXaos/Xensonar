@@ -2,6 +2,13 @@
  * Material Intake constructs the actual controls and NAME band once.
  * The no-audio stage receives that tree inert/disabled, never a parallel dummy.
  */
+/* SYMBOL-01: shared symbol (global, other modules call globalThis.__xenSymMelodic). Melodic Loop = the stepped note blocks (as on its tile), used wherever something leads to the Melodic Loop. */
+globalThis.__xenSymMelodic=function(size,key){
+ const h=P.createElement,id='xsm-'+(key||'a'),r=(x,y,w)=>h('rect',{key:x+'_'+y,x,y,width:w,height:4.4,rx:1.6,fill:'url(#'+id+')'});
+ return h('svg',{viewBox:'0 0 28 28',width:size,height:size,focusable:'false','aria-hidden':'true',style:{display:'block',flex:'0 0 auto'}},
+  h('defs',null,h('linearGradient',{id,x1:0,y1:0,x2:0,y2:1},h('stop',{offset:0,stopColor:'#e9d5ff'}),h('stop',{offset:1,stopColor:'#7e22ce'}))),
+  r(2,17,8),r(9,11,9),r(17,5,9),h('rect',{x:5,y:23,width:12,height:3,rx:1.3,fill:'#c4b5fd',fillOpacity:.6}));
+};
 const __ForgeRackCopy=Object.freeze({
  load:{className:'xen-forge-tile-load',label:'Load Selection'},
  repair:{className:'xen-forge-tile-repair',label:'Loop korrigieren'},
@@ -9,7 +16,7 @@ const __ForgeRackCopy=Object.freeze({
  extract:{className:'xen-forge-tile-extract',icon:'🧬',first:'Extract Timbre',second:'(Donor Workshop)'},
  play:{className:'xen-forge-tile-play',label:'PLAY'},
  material:{className:'xen-forge-tile-material',icon:'📀',first:'Send raw as a loop to Material Track',second:'(Live Room)'},
- pink:{className:'xen-forge-tile-pink',icon:'🎵',first:'Send as Pink Track',second:'to Melodic Loop'},
+ pink:{className:'xen-forge-tile-pink',icon:globalThis.__xenSymMelodic(20,'tile'),first:'Send as Pink Track',second:'to Melodic Loop'},
  root:{className:'xen-forge-tile-root',icon:'🎼',first:'Use as',second:'Root Follow Loop'},
  sample:{className:'xen-forge-tile-sample',label:'Save as Sample'},
  donor:{className:'xen-forge-tile-donor',label:'Add to Donor Library'},
