@@ -5,7 +5,7 @@
 //  2. Clicking the seal turns it, unfolds it along its eight rays (Mycelium still off), then the centre opens, Mycelium
 //     switches on, the halves part, and the sound starts muffled (gate low-pass far below Nyquist) and opens to full
 //     (low-pass exactly at Nyquist = transparent).
-//  3. "Gate Open" in the header closes the gate again; "Gate Closed" opens it the same way (turn, unfold, doors, muffled -> full).
+//  3. "Gate Open" in the header closes the gate again (NODAL-GATE-02: mandala grows from a point, the halves slide in, the centre closes, the sound glides to muffled first); "Gate Closed" opens it the same way (turn, unfold, doors, muffled -> full).
 // Usage: node tests/e2e/nodal_gate.cjs dist/XenSonar_PROBE.html
 const {chromium}=require('playwright');const assert=require('node:assert/strict');const path=require('node:path');
 const html=path.resolve(process.argv[2]||'dist/XenSonar_PROBE.html');
@@ -46,8 +46,15 @@ const html=path.resolve(process.argv[2]||'dist/XenSonar_PROBE.html');
  const late=await lp();assert.ok(late&&late.f===late.ny,'fully open: low-pass exactly at Nyquist (transparent): '+JSON.stringify(late));
  const loud=await rms(4);assert.ok(loud>.02,'the installation is audible: '+loud);
  // ---- 3. close with the button, open with the button ----
- await my.click();await q.waitForTimeout(200);assert.equal(await gate.getAttribute('data-nodal-gate'),'closing');
- await q.waitForTimeout(1300);assert.equal(await gate.getAttribute('data-nodal-gate'),'closed');assert.ok(await rms(2)<.002,'silent again');
+ // NODAL-GATE-02: closing is its own choreography (mandala from a point, halves slide in, centre closes), the sound glides to muffled and goes at the end
+ await my.click();await q.waitForTimeout(200);assert.equal(await gate.getAttribute('data-nodal-gate'),'sealing');
+ assert.equal(await my.getAttribute('aria-pressed'),'true','Mycelium stays on while the gate closes');assert.equal(await stage.locator('canvas').count(),1,'the installation stays visible while the gate closes');
+ const d1=await lp();await q.waitForTimeout(1500);const d2=await lp();
+ assert.ok(d1&&d2&&d2.f<d1.f/2&&d2.f<5000,'the low-pass glides down while the gate closes (muffled): '+JSON.stringify([d1,d2]));
+ const dxMid=await doorX();assert.ok(dxMid<x0-5,'the halves are on their way in (not yet shut): '+dxMid+' vs '+x0);
+ await my.click();await q.waitForTimeout(100);assert.equal(await gate.getAttribute('data-nodal-gate'),'sealing','a click while closing is ignored');
+ await q.waitForTimeout(2500);assert.equal(await gate.getAttribute('data-nodal-gate'),'closed');assert.equal(await my.getAttribute('aria-pressed'),'false','Mycelium is switched off at the end');
+ assert.ok(Math.abs(await doorX()-x0)<2,'the halves are shut again');assert.ok(await rms(2)<.002,'silent again');
  await my.click();await q.waitForTimeout(300);assert.equal(await gate.getAttribute('data-nodal-gate'),'turning','the button turns the seal as well');
  await q.waitForTimeout(1300);const held=await lp();assert.ok(held&&held.f<1500,'muffled while the button opens the gate: '+JSON.stringify(held));
  await q.waitForTimeout(4200);assert.equal(await gate.count(),0);assert.match(await my.innerText(),/Gate Open/);const late2=await lp();assert.ok(late2&&late2.f===late2.ny,'open again: '+JSON.stringify(late2));

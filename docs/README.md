@@ -18,6 +18,7 @@ Zuerst lesen (in dieser Reihenfolge): `../CLAUDE.md` (Arbeitsregeln) → `PRODUC
 | Loop-Rec-Takte sehen und Loop-Grenzen ziehen (Loop-Editor, Rechtsklick auf die Take-Kachel) | `PATCH_LOOPREC-BARS-01.md` |
 | Loop-Rec: weiche Nähte (Fade) beim Zuschneiden eines Loops, keine Knackser an Start/Ende | `PATCH_LOOPREC-SEAM-01.md` |
 | Adaptiver EQ folgt der gemalten Linie (Wave Editor, Live Room): kein starres Raster mehr, Fit-Fallback ohne Worker | `PATCH_EQ-ADAPT-01.md` |
+| Nodal Center: Tor schließt mit eigener Choreografie (Mandala von innen, Hälften gleiten ein, Tiefpass abwärts) | `PATCH_NODAL-GATE-02.md` |
 | Spectral Forge ohne Audio: UP/UPPER aktiv, keine Ausgrauung; Kachel-Auswahl milder | `PATCH_NOAUDIO-NAV-01.md` |
 | Material-Forge-Kacheln Spectral Forge / Melodic Loop: Grafik, Tasten-Look, neue Texte | `PATCH_TILES-ART-01.md` |
 | Spectral Forge: Donor nimmt, was in der lila Maske liegt (kein Refuse bei Maske ohne Länge) | `PATCH_DONOR-MASK-01.md` |

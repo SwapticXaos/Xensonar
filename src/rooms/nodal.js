@@ -446,12 +446,14 @@ function koe(props) {
   // A project saved with the historic Enhancer view opens its living installation instead.
   P.useEffect(() => { if (props.mode === 'enhancer') props.onModeChange('installation'); }, [props.mode, props.onModeChange]);
   const activeMode = props.mode === 'enhancer' ? 'installation' : props.mode;
+  // NODAL-GATE-02: switching an OPEN gate off (header switch, "Gate open" in the tools row) first plays the closing; Mycelium goes off at its end.
+  const guard = fn => typeof fn !== 'function' ? fn : (...args) => { if (props.myzelEnabled && __nodalGateCtl.close && __nodalGateCtl.close(() => fn(...args))) return; return fn(...args); };
   return P.createElement('section', {className: 'nd-room nd-room-shell', 'data-nodal-mode': activeMode},
     P.createElement(NodalRoomHeader, {mode: activeMode, onModeChange: props.onModeChange,
-      installationSoundEnabled: props.installationSoundEnabled, onToggleInstallationSound: props.onToggleInstallationSound}),
+      installationSoundEnabled: props.installationSoundEnabled, onToggleInstallationSound: guard(props.onToggleInstallationSound)}),
     activeMode === 'sounddesign'
       ? P.createElement(NodalSoundDesigner, props)
-      : P.createElement('div', {className: 'nd-legacy-body nd-legacy-' + activeMode}, P.createElement(koeLegacy, {...props, mode: activeMode})));
+      : P.createElement('div', {className: 'nd-legacy-body nd-legacy-' + activeMode}, P.createElement(koeLegacy, {...props, mode: activeMode, onToggleMyzel: guard(props.onToggleMyzel)})));
 }
 function __NodalBallControls({mix,onMix}){
  P.useSyncExternalStore(__NodalBallGrid.subscribe,__NodalBallGrid.snapshot,__NodalBallGrid.snapshot);
@@ -513,6 +515,11 @@ function MyzelG2EffectEditor({getNodes,onChangeEffect,revision}) {
    the two halves slide apart and the sound opens from a muffled low-pass to full (myzelGGateSweep). Mycelium OFF closes it.
    WARM zone: CSS transitions only, one timer per phase, no per-frame work; the audio sweep is a single AudioParam ramp. */
 const NODAL_GATE_TURN_MS=1800,NODAL_GATE_HOLE_MS=900,NODAL_GATE_OPEN_MS=2600,NODAL_GATE_SWEEP_S=3.6;
+/* NODAL-GATE-02: closing is its own choreography (not the opening played backwards): the mandala grows from a point in the middle (point, circle, the mark inside), then the two halves
+   slide in from the sides with their half-circle openings still open, then the centre closes (0 - 1.7 s build, 1.45 - 2.95 s halves, 2.95 - 3.75 s centre). The low-pass glides down at the same time
+   (louder to muffled), and only at the end Mycelium is really switched off (audio released). The real switch-off waits for the end: that is what __nodalGateCtl.close(finish) does. */
+const NODAL_GATE_SEAL_MS=3800,NODAL_GATE_SWEEP_DOWN_S=3.4;
+const __nodalGateCtl={close:null};
 const __nodalGateRunes=['M0 -1a1 1 0 1 1-1 1a2 2 0 1 1 2 2a3 3 0 1 1-3-3M-0.9 5.5a0.9 0.9 0 1 0 1.8 0a0.9 0.9 0 1 0 -1.8 0', 'M-4 -3Q0 -7 4 -3M-2.9 1a0.9 0.9 0 1 0 1.8 0a0.9 0.9 0 1 0 -1.8 0M1.1 1a0.9 0.9 0 1 0 1.8 0a0.9 0.9 0 1 0 -1.8 0M-0.9 4.5a0.9 0.9 0 1 0 1.8 0a0.9 0.9 0 1 0 -1.8 0', 'M0 -5Q3 -2.5 0 0Q-3 2.5 0 5M-3.9 -3a0.9 0.9 0 1 0 1.8 0a0.9 0.9 0 1 0 -1.8 0M2.1 3a0.9 0.9 0 1 0 1.8 0a0.9 0.9 0 1 0 -1.8 0', 'M-1.5 -1L-3 -5M1.5 -1L3 -5M-2.5 2a2.5 2.5 0 1 0 5 0a2.5 2.5 0 1 0-5 0', 'M-4 -4Q0 0-4 4M4 -4Q0 0 4 4M-0.9 0a0.9 0.9 0 1 0 1.8 0a0.9 0.9 0 1 0 -1.8 0', 'M-3 5Q-3 -5 3 -5Q1 -2 3 0M-1.4 2a0.9 0.9 0 1 0 1.8 0a0.9 0.9 0 1 0 -1.8 0', 'M-4 3A4 4 0 0 1 4 3M-2 3A2 2 0 0 1 2 3M-0.9 5.5a0.9 0.9 0 1 0 1.8 0a0.9 0.9 0 1 0 -1.8 0', 'M-4 -4L0 -1L-3 2L3 5M2.1 -4a0.9 0.9 0 1 0 1.8 0a0.9 0.9 0 1 0 -1.8 0', 'M-4 0Q0 -4 4 0Q0 4-4 0M-0.7 0a0.7 0.7 0 1 0 1.4 0a0.7 0.7 0 1 0 -1.4 0', 'M3 -3A4 4 0 1 0 3 3M3 0H5M-0.9 0a0.9 0.9 0 1 0 1.8 0a0.9 0.9 0 1 0 -1.8 0'];
 // The XenSonar mark (same geometry as the logo in the header, 64-unit box centred), drawn so every part can be pulled outwards.
 function NodalGateSeal(){
@@ -524,6 +531,7 @@ function NodalGateSeal(){
     ['13.1,13.1 21.1,13.1 13.1,21.1'],['50.9,13.1 42.9,13.1 50.9,21.1'],['13.1,50.9 21.1,50.9 13.1,42.9'],['50.9,50.9 42.9,50.9 50.9,42.9']];
   const dots=[[32,14],[44.7,19.3],[50,32],[44.7,44.7],[32,50],[19.3,44.7],[14,32],[19.3,19.3]];
   return h('svg',{className:'nd-gate-seal',viewBox:'-100 -100 200 200','aria-hidden':'true'},
+    h('circle',{className:'nd-gate-seed',r:5}),
     h('g',{className:'nd-gate-seal-ring'},h('circle',{className:'nd-gate-seal-disc',r:98}),h('circle',{r:72}),ticks,h('g',{className:'nd-gate-seal-runes'},runes)),
     h('g',{className:'nd-gate-mark'},
       ...[0,45,90,135].map(r=>h('g',{key:'e'+r,transform:`rotate(${r})`},h('ellipse',{className:'nd-gate-petal',rx:(3.4*k).toFixed(1),ry:(12.2*k).toFixed(1)}))),
@@ -553,9 +561,21 @@ function NodalGate({on,onOpen}){
   const open=()=>go('opening',NODAL_GATE_OPEN_MS,()=>setPhase('open'));
   P.useEffect(()=>()=>clearTimeout(timer.current),[]);
   P.useEffect(()=>{
+    __nodalGateCtl.close=finish=>{
+      const p=phaseRef.current;
+      if(p==='sealing')return true;            // already closing: the click is swallowed
+      if(p!=='open')return false;              // mid-opening or closed: the plain switch applies
+      const quick=!!window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+      myzelGGateClose(quick?.4:NODAL_GATE_SWEEP_DOWN_S);
+      go('sealing',quick?450:NODAL_GATE_SEAL_MS,()=>{setPhase('closed');finish();});
+      return true;
+    };
+    return()=>{__nodalGateCtl.close=null};
+  },[]);
+  P.useEffect(()=>{
     const p=phaseRef.current;
     if(on&&p==='closed'){myzelGGateSweep(NODAL_GATE_HOLE_MS/1000,NODAL_GATE_SWEEP_S);go('turning',NODAL_GATE_TURN_MS,()=>onRef.current?open():setPhase('closed'));}
-    else if(!on&&p!=='closed'&&p!=='turning')go('closing',1000,()=>setPhase('closed'));
+    else if(!on&&p!=='closed'&&p!=='turning'&&p!=='sealing')go('closing',1000,()=>setPhase('closed'));
   },[on]);
   // Click: the mark turns; while it unfolds along its rays the centre already opens (sound starts muffled), then the halves part.
   const turn=()=>{

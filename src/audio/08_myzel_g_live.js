@@ -12,6 +12,14 @@ function myzelGGateApply(g,hold,ramp){
   f.cancelScheduledValues(t);f.setValueAtTime(180,t);if(hold>0)f.setValueAtTime(180,t+hold);
   f.exponentialRampToValueAtTime(g.ctx.sampleRate/2,t+hold+ramp);
 }
+/* NODAL-GATE-02: the closing gate's sound: the low-pass glides from where it is (open = Nyquist) down to 180 Hz (muffled) before Mycelium is switched off.
+   Starts slightly ahead of ctx.currentTime (it is behind the render position, a ramp starting "now" would jump). */
+function myzelGGateClose(ramp=3.3){
+  const g=myzelGLive;if(!g||g.disposed)return false;
+  const f=g.gateLp.frequency,t=g.ctx.currentTime+.03,v=Math.max(180,Math.min(g.ctx.sampleRate/2,f.value));
+  f.cancelScheduledValues(t);f.setValueAtTime(v,t);f.exponentialRampToValueAtTime(180,t+ramp);
+  return true;
+}
 function myzelGGateSweep(hold=0,ramp=3.4){
   if(myzelGLive&&!myzelGLive.disposed){myzelGGateApply(myzelGLive,hold,ramp);myzelGGatePending=null;return;}
   myzelGGatePending={hold,ramp,at:performance.now()};
