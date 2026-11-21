@@ -23,9 +23,19 @@ await q('sh-p').click();await p.waitForTimeout(300);let n1=await info();
 const msg=await p.evaluate(()=>document.body.innerText);
 assert.ok(Math.abs(span(n1)/span(n0)-1.1)<.01,'stretched in time by a tenth: '+span(n0)+' -> '+span(n1));assert.equal(Math.min(...n1.map(x=>x.s)),Math.min(...n0.map(x=>x.s)),'the start of the marking stays');
 await q('sh-m').click();await p.waitForTimeout(300);let n2=await info();assert.ok(Math.abs(span(n2)-span(n0))<1e-6,'compress undoes the stretch');
-// pitch: stretch (if there is spread), compress
-if(spread(n0)>0){await q('sv-p').click();await p.waitForTimeout(300);const n3=await info();assert.ok(spread(n3)>spread(n0),'spread grows: '+spread(n0)+' -> '+spread(n3));assert.ok(Math.min(...n3.map(x=>x.c))<Math.min(...n0.map(x=>x.c))&&Math.max(...n3.map(x=>x.c))>Math.max(...n0.map(x=>x.c)),'top AND bottom move outwards (even stretch around the middle): '+[Math.min(...n0.map(x=>x.c)),Math.max(...n0.map(x=>x.c))]+' -> '+[Math.min(...n3.map(x=>x.c)),Math.max(...n3.map(x=>x.c))]);
- await q('sv-m').click();await p.waitForTimeout(300);const n4=await info();assert.ok(spread(n4)<=spread(n3)-2,'spread shrinks again');assert.ok(Math.min(...n4.map(x=>x.c))>Math.min(...n3.map(x=>x.c))&&Math.max(...n4.map(x=>x.c))<Math.max(...n3.map(x=>x.c)),'compress pulls both ends in');}
+// pitch: a real stretch, projected from the original pitches: ends move outwards, the middle stays, and stretching then compressing gives the original figure back
+if(spread(n0)>0){const key=a=>JSON.stringify(a.map(x=>x.c)),mid=a=>(Math.min(...a.map(x=>x.c))+Math.max(...a.map(x=>x.c)))/2;
+ await q('sv-p').click();await p.waitForTimeout(300);const n3=await info();assert.ok(spread(n3)>spread(n0),'spread grows: '+spread(n0)+' -> '+spread(n3));
+ assert.ok(Math.min(...n3.map(x=>x.c))<=Math.min(...n0.map(x=>x.c))&&Math.max(...n3.map(x=>x.c))>=Math.max(...n0.map(x=>x.c)),'both ends move outwards');
+ // proportional: the new pitches (cents) lie on a straight line through the old ones (slope = the stretch factor), up to the snap to the nearest pitch line
+ { const x=n0.map(v=>v.p),y=n3.map(v=>v.p),mx=x.reduce((a,b)=>a+b)/x.length,my=y.reduce((a,b)=>a+b)/y.length,sxx=x.reduce((a,v)=>a+(v-mx)**2,0),sxy=x.reduce((a,v,i)=>a+(v-mx)*(y[i]-my),0),sl=sxy/sxx,res=Math.max(...x.map((v,i)=>Math.abs(y[i]-(my+sl*(v-mx)))));
+  const maxGap=Math.max(...[...new Set(n0.concat(n3).map(v=>v.p))].sort((a,b)=>a-b).map((v,i,a)=>i?v-a[i-1]:0));
+  assert.ok(sl>1,'the stretch factor is above 1: '+sl.toFixed(3));assert.ok(res<=maxGap*.75+1e-6,'every note lies on the stretched line within the snap to the nearest pitch line: max deviation '+res.toFixed(0)+' ct, largest line gap '+maxGap.toFixed(0)+' ct'); }
+ await q('sv-p').click();await p.waitForTimeout(300);const n3b=await info();assert.ok(spread(n3b)>=spread(n3),'a second press stretches further');
+ await q('sv-m').click();await p.waitForTimeout(300);await q('sv-m').click();await p.waitForTimeout(300);
+ assert.equal(key(await info()),key(n0),'stretch, stretch, compress, compress: the original figure comes back exactly (no rounding drift)');
+ await q('sv-m').click();await p.waitForTimeout(300);const n5=await info();assert.ok(spread(n5)<spread(n0),'compressing below the original narrows the spread');
+ await q('sv-p').click();await p.waitForTimeout(300);assert.equal(key(await info()),key(n0),'and one stretch brings it back');}
 // arrow keys
 await p.mouse.move(r.x+5,r.y+5);const a0=await info();await p.keyboard.press('ArrowRight');await p.waitForTimeout(250);const a1=await info();assert.ok(span(a1)>span(a0)+1e-6,'ArrowRight stretches in time');
 await p.keyboard.press('ArrowLeft');await p.waitForTimeout(250);assert.ok(Math.abs(span(await info())-span(a0))<1e-6,'ArrowLeft compresses');
