@@ -580,9 +580,10 @@ function XenPsyLabRoom(){
  P.useEffect(()=>{if(!hold&&latched.current.size){for(const id of latched.current.values())release(id);latched.current.clear()}},[hold,release]);
 
  /* pad: pointer. The blue triangles work exactly like in the Live Room (click = mute/unmute, drag = fine tune, right click = new base). */
+ const fmtReadout=(hz,extra='')=>{const p=gridRef.current,base=p?.gridBase||440;if(!(hz>0))return'';const ct=1200*Math.log2(hz/base);let rTxt='';if(p){const per=vF(p.gridTuning)||1200,f=((ct%per)+per)%per,near=f>per-1.5?0:f;if(near<1.5)rTxt=' · 1/1';else if(p.gridTuning==='ji'){const hit=fc.find(x=>Math.abs(x.cents-near)<=1.5);if(hit&&hit.label!=='Root')rTxt=' · '+hit.label}else{const sr=hc(p.gridTuning)?.stepRatios;if(sr){let best=null,bd=1.5;for(const[k,v]of Object.entries(sr)){const d=Math.abs(Number(k)-near);if(d<=bd){bd=d;best=v}}if(best)rTxt=' · '+best}}}return hz.toFixed(2)+' Hz'+rTxt+' · '+(ct>=0?'+':'')+ct.toFixed(0)+' ct'+extra};
  const handle=P.useRef(null),setMacro=P.useCallback(v=>{patchRef.current.params[37]=0;engine.setParam(37,v)},[engine]);
  P.useEffect(()=>{const canvas=canvasRef.current;if(!canvas)return;
-  const show=(hz,label)=>{if(readoutRef.current)readoutRef.current.textContent=hz.toFixed(2)+' Hz · '+(1200*Math.log2(hz/(gridRef.current?.gridBase||440))).toFixed(0)+' ct vs base'+(label||'')};
+  const show=(hz,label)=>{if(readoutRef.current)readoutRef.current.textContent=fmtReadout(hz,label||'')};
   const down=e=>{if(e.button!==0)return;e.preventDefault();document.activeElement?.blur?.();try{canvas.setPointerCapture(e.pointerId)}catch{};const p=liveGridParams();if(!p)return;
    const geo=padGeometry(live.current.orient,live.current.flip,live.current.log),pt=padLocal(canvas,e,geo),rows=__NodalBallGrid.rows(),hit=__XenGridHandles.hit(rows,geo.yOf,pt.x,pt.y);
    focus.current={x:pt.x,y:pt.y,inside:true};
@@ -611,7 +612,7 @@ function XenPsyLabRoom(){
    const f=focus.current;f.y=geo.yOf(newHz);let bent=false;
    for(const[source,id]of held.current)if(source.startsWith('pad:')){engine.bend(id,newHz*Math.pow(2,live.current.oct));notesHz.current.set(id,newHz);bent=true}
    if(!bent)start('key:'+code,newHz*Math.pow(2,live.current.oct),.8);
-   if(readoutRef.current)readoutRef.current.textContent=(newHz*Math.pow(2,live.current.oct)).toFixed(2)+' Hz'};
+   if(readoutRef.current)readoutRef.current.textContent=fmtReadout(newHz*Math.pow(2,live.current.oct))};
   const arrowDown=e=>{const p=liveGridParams(),ar=arrow.current;if(!p)return;
    if(e.key==='ArrowLeft'||e.key==='ArrowRight'){ar[e.key==='ArrowLeft'?'left':'right']=true;return}
    const dir=e.key==='ArrowUp'?1:-1,geo=padGeometry(live.current.orient,live.current.flip,live.current.log);
@@ -633,7 +634,7 @@ function XenPsyLabRoom(){
    if(live.current.mirror)idx=yJ(idx,iw.length+12); // keys low → high instead of high → low (the Live Room's keyboard mirror): independent of the view
    const hz0=wF(p.gridBase,p.gridTuning,__NodalBallGrid.windowOffset(),idx,p.manualGridMutedSteps,p.manualGridStepOffsets);
    if(hz0===null||!Number.isFinite(hz0)||hz0<=0){if(readoutRef.current)readoutRef.current.textContent='muted step';return}
-   const hz=hz0*Math.pow(2,live.current.oct);focus.current.y=padGeometry(live.current.orient,live.current.flip,live.current.log).yOf(hz0);start('key:'+e.code,hz,e.shiftKey?1:.8);if(readoutRef.current)readoutRef.current.textContent=hz.toFixed(2)+' Hz'};
+   const hz=hz0*Math.pow(2,live.current.oct);focus.current.y=padGeometry(live.current.orient,live.current.flip,live.current.log).yOf(hz0);start('key:'+e.code,hz,e.shiftKey?1:.8);if(readoutRef.current)readoutRef.current.textContent=fmtReadout(hz)};
   const up=e=>{if(e.key.startsWith('Arrow')){const ar=arrow.current;ar[e.key==='ArrowUp'?'up':e.key==='ArrowDown'?'down':e.key==='ArrowLeft'?'left':'right']=false}stop('key:'+e.code)};
   const blur=()=>{for(const source of[...held.current.keys()])stop(source)};
   const hide=()=>{if(document.hidden)blur()};
@@ -673,7 +674,7 @@ function XenPsyLabRoom(){
    __xenPaintActiveNotes(g,geo,notesHz.current.values(),b.cursorY);
    g.restore();
    // frequency label next to the ball
-   if(f.inside&&readoutRef.current&&!held.current.size)readoutRef.current.textContent=(tg.freq*Math.pow(2,live.current.oct)).toFixed(2)+' Hz'};
+   if(f.inside&&readoutRef.current&&!held.current.size)readoutRef.current.textContent=fmtReadout(tg.freq*Math.pow(2,live.current.oct))};
   raf=requestAnimationFrame(draw);return()=>cancelAnimationFrame(raf)},[engine]);
 
  const touched=P.useCallback(()=>{persist()},[persist]);
