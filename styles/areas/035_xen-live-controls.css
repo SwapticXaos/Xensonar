@@ -244,7 +244,12 @@ body{height:auto;min-height:100vh;overflow:visible}
 .melodic-transport-dock>.ml-noteclip-break{flex:0 0 100%;height:0;margin:0;padding:0}
 @media(min-width:768px){.melodic-transport-dock{width:520px}}
 .melodic-transport-dock{row-gap:2px}
-.melodic-transport-dock>.ml-noteclip-break~button{min-width:50px;height:37px;margin-top:-11px;font-size:21px;line-height:1;padding-left:4px!important;padding-right:4px!important}/* row 2 rises into the gap under the (shorter) buttons of row 1; the 44px play key sets that row's height */
-.melodic-transport-dock>.ml-noteclip-break+button{margin-left:var(--ml-mark-x,0px)}
 .melodic-transport-dock>[data-ml-noteclip="mark"]{margin-left:18px}
 @media(min-width:768px){.melodic-transport-dock{margin-top:5px!important}}
+/* ML-MARK-02: mirrors and the four stretch/compress keys form a 3 x 2 block exactly as wide as Mark..Paste above, flush under Mark; the frame grows by the second row */
+.melodic-transport-dock>.ml-noteclip-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:3px;margin:-3px 0 0 var(--ml-mark-x,0px);width:var(--ml-tools-w,240px)}
+.melodic-transport-dock>.ml-noteclip-grid>button{height:27px;padding:0!important;font-size:19px;line-height:1;display:flex;align-items:center;justify-content:center}
+@media(min-width:768px){.melodic-bars-controls{min-height:196px}}
+/* ML-MARK-02: 3 x 2 by meaning: top row everything horizontal (mirror, stretch, compress in time), bottom row everything vertical (pitch) */
+.ml-noteclip-grid>[data-ml-noteclip="flip-h"]{order:1}.ml-noteclip-grid>[data-ml-noteclip="sh-p"]{order:2}.ml-noteclip-grid>[data-ml-noteclip="sh-m"]{order:3}
+.ml-noteclip-grid>[data-ml-noteclip="flip-v"]{order:4}.ml-noteclip-grid>[data-ml-noteclip="sv-p"]{order:5}.ml-noteclip-grid>[data-ml-noteclip="sv-m"]{order:6}

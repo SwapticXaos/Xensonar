@@ -193,7 +193,7 @@ function __MelodicNoteClipButtons(){
  const badge=(n,c)=>n?u.jsx('span',{'aria-hidden':true,className:'pointer-events-none absolute -right-1 -top-1.5 rounded-full px-1 text-[9px] font-semibold leading-[14px] text-white '+c,children:n}):null;
  const markRef=P.useRef(null);
  /* the second row starts flush under Mark (its meaning belongs together): measure Mark's left edge in the dock */
- P.useLayoutEffect(()=>{const mk=markRef.current,dock=mk&&mk.parentElement;if(!dock)return;const put=()=>{const x=Math.round(mk.getBoundingClientRect().left-dock.getBoundingClientRect().left);if(x>0)dock.style.setProperty('--ml-mark-x',x+'px')};put();window.addEventListener('resize',put);return()=>window.removeEventListener('resize',put)});
+ P.useLayoutEffect(()=>{const mk=markRef.current,dock=mk&&mk.parentElement;if(!dock)return;const put=()=>{const x=Math.round(mk.getBoundingClientRect().left-dock.getBoundingClientRect().left),ps=dock.querySelector('[data-ml-noteclip="paste"]'),w=ps?Math.round(ps.getBoundingClientRect().right-mk.getBoundingClientRect().left):0;if(x>0)dock.style.setProperty('--ml-mark-x',x+'px');if(w>0)dock.style.setProperty('--ml-tools-w',w+'px')};put();window.addEventListener('resize',put);return()=>window.removeEventListener('resize',put)});
  const m=s.marked>0,stamp=s.mode==='paste'&&s.count>0,flipOn=m||s.count>0,scaleOn=stamp||m;
  /* Mirrors: the stamp while it is loaded in Paste, else the marked notes in place, else a loaded stamp. */
  const flip=axis=>{if(stamp||!m)__mlNoteClip.flip(axis);else __mlNoteClip.flipMarked(axis)};
@@ -210,10 +210,11 @@ function __MelodicNoteClipButtons(){
    title:s.count?'Paste: click on the grid to place the loaded notes, drag to move, release to set. Right-click empties it and returns to Copy.':'Nothing loaded yet. Use Copy first.','aria-label':'Paste loaded note blocks onto the grid',
    'data-count':s.count,className:(s.mode==='paste'?on:off+(s.count?'':' opacity-40'))+' relative',children:['⎘ Paste',badge(s.count,'bg-sky-600')]}),
   u.jsx('span',{'aria-hidden':true,className:'ml-noteclip-break'}),
+  u.jsx('span',{className:'ml-noteclip-grid',children:[
   u.jsx('button',{type:'button','data-ml-noteclip':'flip-h',disabled:!flipOn,onClick:()=>flip('h'),title:flipTitle('horizontally (reverse in time)'),'aria-label':'Mirror horizontally',className:off+(flipOn?'':' opacity-40'),children:'⇆'}),
   u.jsx('button',{type:'button','data-ml-noteclip':'flip-v',disabled:!flipOn,onClick:()=>flip('v'),title:flipTitle('vertically (invert the pitch order)'),'aria-label':'Mirror vertically',className:off+(flipOn?'':' opacity-40'),children:'⇅'}),
-  ...[['sh-p','h',1,'↔+','Stretch','in time'],['sh-m','h',-1,'↔−','Compress','in time'],['sv-p','v',1,'↕+','Stretch','in pitch'],['sv-m','v',-1,'↕−','Compress','in pitch']].map(([k,ax,d,lab,verb,what])=>
-   u.jsx('button',{key:k,type:'button','data-ml-noteclip':k,disabled:!scaleOn,onClick:()=>__mlNoteClip.scale(ax,d),title:scaleOn?verb+' '+(stamp?'the loaded figure ':'the marked notes ')+what+' (arrow keys: '+(ax==='h'?(d>0?'→':'←'):(d>0?'↑':'↓'))+')':'Mark notes first (or load a figure with Copy)','aria-label':verb+' '+what,className:off+(scaleOn?'':' opacity-40'),children:lab}))]});
+  ...[['sh-p','h',1,0,'Stretch','in time'],['sh-m','h',-1,0,'Compress','in time'],['sv-p','v',1,0,'Stretch','in pitch'],['sv-m','v',-1,0,'Compress','in pitch']].map(([k,ax,d,lab,verb,what])=>
+   u.jsx('button',{key:k,type:'button','data-ml-noteclip':k,disabled:!scaleOn,onClick:()=>__mlNoteClip.scale(ax,d),title:scaleOn?verb+' '+(stamp?'the loaded figure ':'the marked notes ')+what+' (arrow keys: '+(ax==='h'?(d>0?'→':'←'):(d>0?'↑':'↓'))+')':'Mark notes first (or load a figure with Copy)','aria-label':verb+' '+what,className:off+(scaleOn?'':' opacity-40'),children:P.createElement('svg',{width:30,height:18,viewBox:'0 0 30 18','aria-hidden':'true',fill:'none',stroke:'currentColor',strokeWidth:2,strokeLinecap:'round',strokeLinejoin:'round',style:{display:'block',transform:ax==='v'?'rotate(90deg)':undefined}},d>0?P.createElement('path',{d:'M14 9H3M7 5L3 9L7 13M16 9H27M23 5L27 9L23 13'}):P.createElement('path',{d:'M3 9H12M8 5L12 9L8 13M27 9H18M22 5L18 9L22 13'}))}))]})]});
 }
 function __MelodicTransportControls({phase, drums, pattern, onPlay, onStop, onDrums, onNext, placement='editor'}) {
   const idle=phase==='idle'||phase==='failed';
