@@ -206,9 +206,9 @@ function __MelodicNoteClipButtons(){
    onContextMenu:ev=>{ev.preventDefault();__mlNoteClip.clear();__mlNoteClip.setMode('select')},
    title:s.count?'Paste: click on the grid to place the loaded notes, drag to move, release to set. Right-click empties it and returns to Copy.':'Nothing loaded yet. Use Copy first.','aria-label':'Paste loaded note blocks onto the grid',
    'data-count':s.count,className:(s.mode==='paste'?on:off+(s.count?'':' opacity-40'))+' relative',children:['⎘ Paste',badge(s.count,'bg-sky-600')]}),
-  u.jsx('span',{'aria-hidden':true,className:'ml-noteclip-break'}),
   u.jsx('button',{type:'button','data-ml-noteclip':'flip-h',disabled:!flipOn,onClick:()=>flip('h'),title:flipTitle('horizontally (reverse in time)'),'aria-label':'Mirror horizontally',className:off+(flipOn?'':' opacity-40'),children:'⇆'}),
   u.jsx('button',{type:'button','data-ml-noteclip':'flip-v',disabled:!flipOn,onClick:()=>flip('v'),title:flipTitle('vertically (invert the pitch order)'),'aria-label':'Mirror vertically',className:off+(flipOn?'':' opacity-40'),children:'⇅'}),
+  u.jsx('span',{'aria-hidden':true,className:'ml-noteclip-break'}),
   ...[['sh-p','h',1,'↔+','Stretch','in time'],['sh-m','h',-1,'↔−','Compress','in time'],['sv-p','v',1,'↕+','Stretch','in pitch'],['sv-m','v',-1,'↕−','Compress','in pitch']].map(([k,ax,d,lab,verb,what])=>
    u.jsx('button',{key:k,type:'button','data-ml-noteclip':k,disabled:!scaleOn,onClick:()=>__mlNoteClip.scale(ax,d),title:scaleOn?verb+' '+(stamp?'the loaded figure ':'the marked notes ')+what+' (arrow keys: '+(ax==='h'?(d>0?'→':'←'):(d>0?'↑':'↓'))+')':'Mark notes first (or load a figure with Copy)','aria-label':verb+' '+what,className:off+(scaleOn?'':' opacity-40'),children:lab}))]});
 }
@@ -220,7 +220,7 @@ function __MelodicTransportControls({phase, drums, pattern, onPlay, onStop, onDr
       title:idle?'▶ Listen to All Active Instruments':phase==='preparing'?'■ Cancel preparation':'■ Stop loop',
       className:'flex h-11 w-11 shrink-0 items-center justify-center rounded-md border border-violet-600/75 bg-violet-950/40 font-semibold text-violet-100 hover:bg-violet-900/50',children:idle?'▶':'■'}),
     u.jsx('button',{type:'button','aria-pressed':drums,onClick:onDrums,title:(drums?'Hide drums':'Enable current Drum Machine pattern')+' · '+(pattern||'Drums'),
-      className:drums?'rounded border border-cyan-500 bg-cyan-950/65 px-1.5 py-2 text-[11px] font-semibold text-cyan-100':'rounded border border-neutral-700 bg-neutral-900/55 px-1.5 py-2 text-[11px] text-neutral-500 hover:text-neutral-200',children:'+ Drums'}),
+      className:drums?'rounded border border-cyan-500 bg-cyan-950/65 px-1.5 py-2 text-[11px] font-semibold text-cyan-100':'rounded border border-neutral-700 bg-neutral-900/55 px-1.5 py-2 text-[11px] text-neutral-500 hover:text-neutral-200',children:u.jsxs(P.Fragment,{children:['+ ',u.jsx('span',{'aria-hidden':true,children:'🥁'})]}),'aria-label':'Drums'}),
     u.jsx('button',{type:'button',onClick:onNext,title:'Load next pattern in the shared Drum Machine','aria-label':'Drum Machine: Next Pattern',className:'rounded border border-neutral-700 px-1.5 py-2 text-xs text-neutral-300 hover:bg-neutral-800',children:'›'}),u.jsx(__MelodicNoteClipButtons,{})]});
 }
 function __mlNoteFields(note) {
