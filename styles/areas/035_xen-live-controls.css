@@ -137,9 +137,6 @@ body{height:auto;min-height:100vh;overflow:visible}
  box-shadow:inset 0 1px 0 rgba(255,255,255,.38),inset 0 -5px 8px -4px rgba(0,0,0,.55),0 1px 0 #1d1030,0 5px 10px -4px rgba(0,0,0,.75),0 6px 14px -8px rgba(167,139,250,.55)}
 .melodic-import-sounds-stack .nd-library-manager>button:hover{filter:brightness(1.12)}
 .melodic-import-sounds-stack .nd-library-manager>button:active{transform:translateY(1px);box-shadow:inset 0 3px 7px rgba(0,0,0,.7)}
-/* the built-in rows of the library managers: Save copy is not a destructive key (the last-child rule of the rows is for Remove) */
-.nd-library-manager-factory>button:last-child,.melodic-import-sounds-stack .entrophon-library-manager .nd-library-manager-factory>button:last-child{border-color:#527c72;color:#dfebe6}
-.nd-library-manager-factory .nd-library-manager-name>span{padding-bottom:0;color:#cfe3e0;font-size:11px}
 @media (prefers-reduced-motion:reduce){.n20-forge-nav-tile,.melodic-instrument-plus,.melodic-import-sounds-stack .nd-library-manager>button{transition:none!important}}
 
 /* TILES-ART-01: the two entry tiles of the Material Forge (Spectral Forge, Melodic Loop). Same key look as the instrument cards, artwork on the right (one melodic contour, painted vs. stepped into blocks).

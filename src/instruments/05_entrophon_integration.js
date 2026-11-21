@@ -64,7 +64,9 @@ function entrophonSoundOptions(existing=[]){
   let entries=[];try{entries=__XenEntrophonLibrary.list();}catch{}
   const factory=Yx.map(profile=>({value:'entrophon:factory:'+profile.id+'@1',label:profile.label+' · Entrophon',originLabel:'Entrophon',hint:profile.hint}));
   const owned=__XenSongInstrumentDefinitions.options('entrophon');
-  return [...existing,...factory,...owned,...entries.filter(entry=>!owned.some(option=>option.value==='entrophon:'+entry.id+'@'+entry.revision)).map(entry=>({value:'entrophon:'+entry.id+'@'+entry.revision,label:entry.instrument.name+' · Entrophon',originLabel:'Entrophon',hint:'Saved synthetic instrument'}))];
+  /* BUILTIN-SEED-01: an unchanged copy of a built-in sound (seeded into the library) is not listed a second time next to the built-in one */
+  const builtinForms=new Set(Yx.map(profile=>{try{return serializeEntrophonInstrument(__xenEntrophonFactoryDefinition('entrophon:factory:'+profile.id+'@1'))}catch{return null}}));
+  return [...existing,...factory,...owned,...entries.filter(entry=>!owned.some(option=>option.value==='entrophon:'+entry.id+'@'+entry.revision)&&!builtinForms.has(serializeEntrophonInstrument(entry.instrument))).map(entry=>({value:'entrophon:'+entry.id+'@'+entry.revision,label:entry.instrument.name+' · Entrophon',originLabel:'Entrophon',hint:'Saved synthetic instrument'}))];
 }
 function entrophonComposerSourceFields(composer){
   const bank=Object.create(null),stored=composer.entrophonInstruments??{};

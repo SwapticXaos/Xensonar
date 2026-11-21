@@ -341,7 +341,8 @@ function createNodalSurfaceRuntime({library,live,model}) {
   function surfaceCost(plan,rate=48000){return nodalLivePlanCosts(plan,rate).attack;}
   function find(id){
     if(!isNodal(id))return null;
-    {const factory=__xenNodalFactoryInstrument(id);if(factory)return factory}
+    if(id===__XenNodalFactoryTroodleKey)return __XenNodalBuiltinTroodle;
+    {const factory=typeof __xenNodalFactoryInstrument==='function'?__xenNodalFactoryInstrument(id):null;if(factory)return factory}
     const owned=typeof __XenSongInstrumentDefinitions!=='undefined'?__XenSongInstrumentDefinitions.find(id):null;if(owned)return owned;
     try{return library.list().find(entry=>'nodal:'+entry.id+'@'+entry.revision===id)?.instrument??null;}
     catch{return null;}

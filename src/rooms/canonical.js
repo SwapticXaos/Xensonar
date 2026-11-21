@@ -240,7 +240,6 @@ function nodalInstrumentMenu(composer) {
     }
   }
   choices.set(__XenNodalFactoryTroodleKey, {instrument:__XenNodalBuiltinTroodle,kind:'factory'});
-  for (const factory of __xenNodalFactoryList()) if (factory.id !== 'troodle') choices.set(factory.key, {instrument: __xenNodalFactoryInstrument(factory.key), kind: 'factory'}); /* NODAL-FACTORY-01 */
   for (const entry of entries) choices.set('nodal:' + entry.id + '@' + entry.revision, {instrument: entry.instrument, kind: 'library', entry});
   for (const [id, instrument] of Object.entries(composer?.nodalInstruments ?? {})) if (referenced.has(id)) {
     const stored = choices.get(id);
@@ -306,6 +305,7 @@ function NodalLibraryManager({composer, onMutateLoopComposer, compact = false}) 
   const h = P.createElement;
   const [open, setOpen] = P.useState(false);
   const [entries, setEntries] = P.useState(() => { try { return __XenNodalLibrary.list(); } catch { return []; } });
+  P.useEffect(() => { try { __xenSeedBuiltinSounds(); } catch {} }, []); /* BUILTIN-SEED-01 */
   const [drafts, setDrafts] = P.useState({});
   const [message, setMessage] = P.useState('');
   const [previewId, setPreviewId] = P.useState(null);
@@ -399,18 +399,7 @@ function NodalLibraryManager({composer, onMutateLoopComposer, compact = false}) 
       setOpen(!open);
     }}, (compact ? 'Nodal · Manage (' : 'Manage (') + entries.length + ')' + (open ? ' ▴' : ' ▾')),
     open ? h('div', {className: 'nd-library-manager-content'},
-      h('div', {className: 'nd-library-manager-help'}, 'Preview, edit, rename or remove saved instruments. Editing opens the selected instrument in Sound Design.'),
-      /* NODAL-FACTORY-01: the built-in sounds are listed too (read-only): preview, or save a copy that can be edited and renamed */
-      h('div', {className: 'nd-library-manager-help'}, 'Built-in sounds (always available in the instrument menu). Preview, or save a copy to edit and rename it.'),
-      ...__xenNodalFactoryList().map(factory => {
-        const instrument = __xenNodalFactoryInstrument(factory.key), entry = {id: 'factory:' + factory.id, revision: 0, instrument};
-        return h('div', {key: entry.id, className: 'nd-library-manager-row nd-library-manager-factory', title: factory.hint},
-          h('span', {className: 'nd-library-manager-name'}, h('span', null, instrument.name + ' · ' + instrument.nodes.length + ' nodes · built-in')),
-          h('button', {type: 'button', onClick: () => previewEntry(entry), 'aria-label': (previewId === entry.id ? 'Stop preview for ' : 'Preview ') + instrument.name}, previewId === entry.id ? 'Stop' : 'Preview'),
-          h('button', {type: 'button', 'aria-label': 'Save a copy of ' + instrument.name + ' to the library', onClick: () => {
-            try { const saved = __XenNodalLibrary.save(instrument); setMessage('Saved to library: ' + saved.instrument.name); } catch (error) { setMessage('Save copy: ' + error.message); }
-          }}, 'Save copy'));
-      }),
+      h('div', {className: 'nd-library-manager-help'}, 'Preview, edit, rename or remove instruments. Editing opens the selected instrument in Sound Design.'),
       entries.length ? entries.map(entry => h('div', {key: entry.id, className: 'nd-library-manager-row'},
         h('label', {className: 'nd-library-manager-name'},
           h('span', null, nodalLibraryEntryLabel(entry, entries)),
@@ -424,7 +413,7 @@ function NodalLibraryManager({composer, onMutateLoopComposer, compact = false}) 
         h('button', {type: 'button', disabled: (drafts[entry.id] ?? entry.instrument.name).trim() === entry.instrument.name,
           onClick: () => renameEntry(entry)}, 'Rename'),
         h('button', {type: 'button', onClick: () => {stopLibraryPreview();removeEntry(entry);}, 'aria-label': nodalLibraryEntryLabel(entry, entries) + ' remove'}, 'Remove')
-      )) : h('div', {className: 'nd-library-manager-help'}, 'No saved copies yet.'),
+      )) : h('div', {className: 'nd-library-manager-help'}, 'No saved Nodal instruments.'),
       h('div', {className: 'nd-library-manager-help'}, 'Instruments removed from the library remain playable in existing Melodic projects and are labeled “in project”.'),
       message ? h('div', {className: 'nd-library-manager-message', role: 'status'}, message) : null
     ) : null);
@@ -442,6 +431,7 @@ function EntrophonLibraryManager({composer, onMutateLoopComposer, compact = fals
   const h = P.createElement;
   const [open, setOpen] = P.useState(false);
   const [entries, setEntries] = P.useState(() => { try { return __XenEntrophonLibrary.list(); } catch { return []; } });
+  P.useEffect(() => { try { __xenSeedBuiltinSounds(); } catch {} }, []); /* BUILTIN-SEED-01 */
   const [drafts, setDrafts] = P.useState({}), [message, setMessage] = P.useState('');
   const [previewId, setPreviewId] = P.useState(null);
   const sequence = P.useRef(0), active = P.useRef(null), timer = P.useRef(null), preparation = P.useRef(null);
@@ -517,17 +507,6 @@ function EntrophonLibraryManager({composer, onMutateLoopComposer, compact = fals
     }}, (compact ? 'Entrophon · Manage (' : 'Manage (') + entries.length + ')' + (open ? ' ▴' : ' ▾')),
     open ? h('div', {className: 'nd-library-manager-content', style: {borderColor: '#a78bfa'}},
       h('div', {className: 'nd-library-manager-help'}, 'Preview, edit, rename or remove saved Entrophon sounds. Editing opens the original sound surface.'),
-      /* NODAL-FACTORY-01: built-in Entrophon sounds (read-only), preview or save a copy */
-      h('div', {className: 'nd-library-manager-help'}, 'Built-in sounds (always available in the instrument menu). Preview, or save a copy to edit and rename it.'),
-      ...Yx.map(profile => {
-        const instrument = __xenEntrophonFactoryDefinition('entrophon:factory:' + profile.id + '@1'), entry = {id: 'factory:' + profile.id, revision: 0, instrument};
-        return instrument ? h('div', {key: entry.id, className: 'nd-library-manager-row nd-library-manager-factory', title: profile.hint},
-          h('span', {className: 'nd-library-manager-name'}, h('span', null, instrument.name + ' · ' + instrument.surface + ' · built-in')),
-          h('button', {type: 'button', 'aria-label': (previewId === entry.id ? 'Stop preview for ' : 'Preview ') + instrument.name, onClick: () => preview(entry)}, previewId === entry.id ? 'Stop' : 'Preview'),
-          h('button', {type: 'button', 'aria-label': 'Save a copy of ' + instrument.name + ' to the library', onClick: () => {
-            try { const saved = __XenEntrophonLibrary.save(instrument); setMessage('Saved to library: ' + saved.instrument.name); } catch (error) { setMessage('Save copy: ' + error.message); }
-          }}, 'Save copy')) : null;
-      }),
       entries.length ? entries.map(entry => h('div', {key: entry.id, className: 'nd-library-manager-row'},
         h('label', {className: 'nd-library-manager-name'}, h('span', null, entrophonLibraryEntryLabel(entry, entries)),
           h('input', {'aria-label': 'Name for ' + entrophonLibraryEntryLabel(entry, entries), value: drafts[entry.id] ?? entry.instrument.name, maxLength: 100,
@@ -538,7 +517,7 @@ function EntrophonLibraryManager({composer, onMutateLoopComposer, compact = fals
         }}, 'Edit'),
         h('button', {type: 'button', disabled: (drafts[entry.id] ?? entry.instrument.name).trim() === entry.instrument.name, onClick: () => rename(entry)}, 'Rename'),
         h('button', {type: 'button', 'aria-label': entrophonLibraryEntryLabel(entry, entries) + ' remove', onClick: () => { stopPreview(); remove(entry); }}, 'Remove')
-      )) : h('div', {className: 'nd-library-manager-help'}, 'No saved copies yet. Use Save copy above, or Save Sound on a sound surface.'),
+      )) : h('div', {className: 'nd-library-manager-help'}, 'No saved Entrophon sounds. Use Save Sound on a sound surface.'),
       h('div', {className: 'nd-library-manager-help'}, 'Removing a library sound preserves its immutable copies in existing Melodic projects.'),
       message ? h('div', {className: 'nd-library-manager-message', role: 'status'}, message) : null
     ) : null);

@@ -50,6 +50,25 @@ function __xenNodalFactoryInstrument(key) {
 }
 function __xenNodalFactoryList() { return __NodalOpenPresets.map(preset => ({key: 'nodal:factory:' + preset.id, id: preset.id, name: preset.name, hint: preset.hint})); }
 
+/* BUILTIN-SEED-01: the built-in Nodal starter sounds (Prism, Ember, Hollow, Filament, Reed, Obsidian) and the built-in Entrophon sounds become ORDINARY library entries, once,
+   when the Melodic Loop import managers open: from then on they are in the instrument menu and in the managers like every saved sound (Preview, Edit, Rename, Remove).
+   A flag per library keeps a removed sound from coming back; an identical saved sound is not duplicated (the library de-duplicates); a full library stops the seeding for that library.
+   troodle (with its factory EQ) stays a built-in key. Existing entries and projects are not touched. */
+function __xenSeedBuiltinSounds() {
+  const storage = typeof localStorage === 'undefined' ? null : localStorage; if (!storage) return {nodal: 0, entrophon: 0};
+  const result = {nodal: 0, entrophon: 0};
+  const run = (flag, library, items, key) => {
+    let done = null; try { done = storage.getItem(flag); } catch { return; }
+    if (done) return;
+    for (const make of items) { try { library.save(make()); result[key]++; } catch (error) { if (/full/i.test(String(error && error.message))) break; } }
+    try { storage.setItem(flag, '1'); } catch {}
+  };
+  run('xensonar.nodal.builtinSeed.v1', __XenNodalLibrary, __NodalOpenPresets.filter(p => p.id !== 'troodle').map(p => () => nodalOpenStarter(p.id)), 'nodal');
+  if (typeof Yx !== 'undefined' && typeof __XenEntrophonLibrary !== 'undefined' && typeof __xenEntrophonFactoryDefinition === 'function')
+    run('xensonar.entrophon.builtinSeed.v1', __XenEntrophonLibrary, Yx.map(profile => () => __xenEntrophonFactoryDefinition('entrophon:factory:' + profile.id + '@1')), 'entrophon');
+  return result;
+}
+
 
 /* xen-lazy:nodal */
 

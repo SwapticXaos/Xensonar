@@ -50,3 +50,23 @@ Die zwei Menü-Buttons (Nodal teal, Entrophon violett) und die zwei quadratische
 - **Playhead blau/lila** (Navigator vs. Loop Mask): noch nicht untersucht (gleiche Frage nach dem Ablauf).
 
 Rollback: `58ff565`.
+
+---
+
+# BUILTIN-SEED-01 (Korrektur zu NODAL-FACTORY-01, 21.11.)
+
+Parent: `86cfa35` (`index.html` 8 357 464 B laut Build davor). Jetzt 8 356 417 B (**−1 047 B** gegenüber dem Stand mit den Sonderzeilen). Zone: KALT (einmalig beim Öffnen des Melodic Loop). Status: CODE_PRESENT, BROWSER_CHECKED. **Nicht gehört.**
+
+## Rückmeldung und Fehler
+NODAL-FACTORY-01 hatte für die mitgelieferten Sounds eine **Sonderregel**: Sonderzeilen in den Verwaltungen (nur Preview und „Save copy“, später „Edit“ = Kopie), Nodal-Starter nur als eigene „Factory“-Einträge im Menü. Das war eine Klickstraße und ungleich zu den gespeicherten Sounds. Im Melodic Loop standen die Entrophon-Sounds außerdem gar nicht im Menü (die Factory-Liste gibt es nur im Live Room); meine Aussage dazu im ersten Bericht war falsch. Nutzerbild: Entrophon erschien erst nach „Save copy“/„Edit“, Nodal doppelt („Ember Network 1/2, 2/2“).
+
+## Lösung: sie sind ganz normale Bibliothekseinträge
+- Beim ersten Öffnen der Import-Verwaltungen im Melodic Loop (`__xenSeedBuiltinSounds`, `src/nodal/07_sound_designer.js`) werden **einmal** die sechs Nodal-Starter (Prism, Ember, Hollow, Filament, Reed, Obsidian) und die zehn mitgelieferten Entrophon-Sounds in die jeweilige Bibliothek geschrieben. Ab dann sind sie in den Verwaltungen mit **Preview, Edit, Rename, Remove** und im Instrumentenmenü der Kästchen wie jeder gespeicherte Sound. Kein Zwischenschritt.
+- Ein Flag je Bibliothek (`xensonar.nodal.builtinSeed.v1`, `xensonar.entrophon.builtinSeed.v1`) verhindert, dass ein entfernter Sound wiederkommt. Identische Sounds werden nicht verdoppelt (die Bibliothek entdoppelt); bei voller Bibliothek (48) stoppt das Seeding. Bestehende Einträge und Projekte bleiben unberührt. troodle (mit Werks-EQ) bleibt ein eingebauter Schlüssel.
+- Entfernt: die Sonderzeilen in den Verwaltungen, die zusätzlichen Nodal-Factory-Einträge im Melodic-Loop-Menü und in der Live-Room-Nodal-Liste (die Bibliothekseinträge decken sie ab).
+- Live Room, Entrophon-Liste: ein ungeänderter, gesäter Entrophon-Eintrag wird dort nicht zusätzlich neben dem eingebauten gelistet (die eingebaute Liste bleibt, u. a. wegen des Standard-Presets `entrophon:factory:glas-zerrbild@1`).
+- Auflösung über `nodal:factory:<id>` bleibt (harmlos), jetzt abgesichert (`typeof`), weil `tests/song_instrument_definitions.test.cjs` die Surface-Datei allein lädt: der Aufruf war seit NODAL-FACTORY-01 unabgesichert und ließ diesen Test mit `ReferenceError` abbrechen. Der Test ist weiter rot, jetzt wegen eines älteren, nicht damit zusammenhängenden Fehlers (`__XenNodalHoldPCM`); er steht nicht in `tests/GREEN_NODE_TESTS.txt` und war auf dem Stand davor schon rot.
+
+Test `tests/e2e/melodic_factory_sounds.cjs` neu geschrieben: vor dem Öffnen nichts geschrieben; danach 6 Nodal- und 10 Entrophon-Einträge; Zeilen mit Preview/Edit/Rename/Remove, alle aktiv; Menü bietet sie an, ein Nodal-Sound spielt ohne Fehler; Remove bleibt weg; Live-Room-Liste ohne Doppelung. Gezielt grün außerdem: `song_factory_nodal_capture`, `live_lane_01`, `looprec_live_lanes`. Keine Suite gestartet (Nutzerwunsch). Nicht geprüft: das Paketstations-Inventar-Verhalten mit gesäten Einträgen (sie werden wie gespeicherte Sounds exportiert).
+
+Rollback: `86cfa35`.
