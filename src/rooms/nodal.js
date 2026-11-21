@@ -518,7 +518,7 @@ const NODAL_GATE_TURN_MS=1800,NODAL_GATE_HOLE_MS=900,NODAL_GATE_OPEN_MS=2600,NOD
 /* NODAL-GATE-02: closing is its own choreography (not the opening played backwards): the mandala grows from a point in the middle (point, circle, the mark inside), then the two halves
    slide in from the sides with their half-circle openings still open, then the centre closes (0 - 1.7 s build, 1.45 - 2.95 s halves, 2.95 - 3.75 s centre). The low-pass glides down at the same time
    (louder to muffled), and only at the end Mycelium is really switched off (audio released). The real switch-off waits for the end: that is what __nodalGateCtl.close(finish) does. */
-const NODAL_GATE_SEAL_MS=3800,NODAL_GATE_SWEEP_DOWN_S=3.4;
+const NODAL_GATE_SEAL_MS=3800;
 const __nodalGateCtl={close:null};
 const __nodalGateRunes=['M0 -1a1 1 0 1 1-1 1a2 2 0 1 1 2 2a3 3 0 1 1-3-3M-0.9 5.5a0.9 0.9 0 1 0 1.8 0a0.9 0.9 0 1 0 -1.8 0', 'M-4 -3Q0 -7 4 -3M-2.9 1a0.9 0.9 0 1 0 1.8 0a0.9 0.9 0 1 0 -1.8 0M1.1 1a0.9 0.9 0 1 0 1.8 0a0.9 0.9 0 1 0 -1.8 0M-0.9 4.5a0.9 0.9 0 1 0 1.8 0a0.9 0.9 0 1 0 -1.8 0', 'M0 -5Q3 -2.5 0 0Q-3 2.5 0 5M-3.9 -3a0.9 0.9 0 1 0 1.8 0a0.9 0.9 0 1 0 -1.8 0M2.1 3a0.9 0.9 0 1 0 1.8 0a0.9 0.9 0 1 0 -1.8 0', 'M-1.5 -1L-3 -5M1.5 -1L3 -5M-2.5 2a2.5 2.5 0 1 0 5 0a2.5 2.5 0 1 0-5 0', 'M-4 -4Q0 0-4 4M4 -4Q0 0 4 4M-0.9 0a0.9 0.9 0 1 0 1.8 0a0.9 0.9 0 1 0 -1.8 0', 'M-3 5Q-3 -5 3 -5Q1 -2 3 0M-1.4 2a0.9 0.9 0 1 0 1.8 0a0.9 0.9 0 1 0 -1.8 0', 'M-4 3A4 4 0 0 1 4 3M-2 3A2 2 0 0 1 2 3M-0.9 5.5a0.9 0.9 0 1 0 1.8 0a0.9 0.9 0 1 0 -1.8 0', 'M-4 -4L0 -1L-3 2L3 5M2.1 -4a0.9 0.9 0 1 0 1.8 0a0.9 0.9 0 1 0 -1.8 0', 'M-4 0Q0 -4 4 0Q0 4-4 0M-0.7 0a0.7 0.7 0 1 0 1.4 0a0.7 0.7 0 1 0 -1.4 0', 'M3 -3A4 4 0 1 0 3 3M3 0H5M-0.9 0a0.9 0.9 0 1 0 1.8 0a0.9 0.9 0 1 0 -1.8 0'];
 // The XenSonar mark (same geometry as the logo in the header, 64-unit box centred), drawn so every part can be pulled outwards.
@@ -527,6 +527,8 @@ function NodalGateSeal(){
   const runes=Array.from({length:24},(_,i)=>h('path',{key:i,d:__nodalGateRunes[(i*7)%10],transform:`rotate(${i*15}) translate(0 -80)`}));
   const ticks=Array.from({length:48},(_,i)=>h('line',{key:i,x1:0,y1:-94,x2:0,y2:i%4?-90:-86,transform:`rotate(${i*7.5})`}));
   const out=(x,y,f=150)=>{const dx=x-32,dy=y-32,l=Math.hypot(dx,dy)||1;return fly(dx/l*f,dy/l*f);};
+  // NODAL-GATE-02: while the gate closes every part grows out of the middle to its place, the inner ones first (--bx/--by: from the middle, --bd: delay by distance).
+  const grow=(x,y)=>({'--bx':(-(x-32)*k).toFixed(1)+'px','--by':(-(y-32)*k).toFixed(1)+'px','--bd':(.62+Math.hypot(x-32,y-32)*.03).toFixed(2)+'s'});
   const tri=[['32,4.4 38.0,10.5 26.0,10.5'],['59.6,32 53.5,38.0 53.5,26.0'],['32,59.6 26.0,53.5 38.0,53.5'],['4.4,32 10.5,26.0 10.5,38.0'],
     ['13.1,13.1 21.1,13.1 13.1,21.1'],['50.9,13.1 42.9,13.1 50.9,21.1'],['13.1,50.9 21.1,50.9 13.1,42.9'],['50.9,50.9 42.9,50.9 50.9,42.9']];
   const dots=[[32,14],[44.7,19.3],[50,32],[44.7,44.7],[32,50],[19.3,44.7],[14,32],[19.3,19.3]];
@@ -535,10 +537,10 @@ function NodalGateSeal(){
     h('g',{className:'nd-gate-seal-ring'},h('circle',{className:'nd-gate-seal-disc',r:98}),h('circle',{r:72}),ticks,h('g',{className:'nd-gate-seal-runes'},runes)),
     h('g',{className:'nd-gate-mark'},
       ...[0,45,90,135].map(r=>h('g',{key:'e'+r,transform:`rotate(${r})`},h('ellipse',{className:'nd-gate-petal',rx:(3.4*k).toFixed(1),ry:(12.2*k).toFixed(1)}))),
-      ...[[32,23],[41,32],[32,41],[23,32]].map(([x,y],i)=>h('circle',{key:'c'+i,className:'nd-gate-fly',style:out(x,y),cx:m(x),cy:m(y),r:(9.2*k).toFixed(1)})),
+      ...[[32,23],[41,32],[32,41],[23,32]].map(([x,y],i)=>h('circle',{key:'c'+i,className:'nd-gate-fly',style:{...out(x,y),...grow(x,y)},cx:m(x),cy:m(y),r:(9.2*k).toFixed(1)})),
       ...tri.map(([pts],i)=>{const q=pts.split(' ').map(v=>v.split(',').map(Number)),cx=(q[0][0]+q[1][0]+q[2][0])/3,cy=(q[0][1]+q[1][1]+q[2][1])/3;
-        return h('polygon',{key:'t'+i,className:'nd-gate-fly',style:out(cx,cy,170),points:q.map(([x,y])=>m(x)+','+m(y)).join(' ')});}),
-      ...dots.map(([x,y],i)=>h('circle',{key:'d'+i,className:'nd-gate-fly nd-gate-mark-dot',style:out(x,y,190),cx:m(x),cy:m(y),r:3.4}))));
+        return h('polygon',{key:'t'+i,className:'nd-gate-fly',style:{...out(cx,cy,170),...grow(cx,cy)},points:q.map(([x,y])=>m(x)+','+m(y)).join(' ')});}),
+      ...dots.map(([x,y],i)=>h('circle',{key:'d'+i,className:'nd-gate-fly nd-gate-mark-dot',style:{...out(x,y,190),...grow(x,y)},cx:m(x),cy:m(y),r:3.4}))));
 }
 function NodalGateDoor({side}){
   const h=P.createElement;
@@ -566,7 +568,7 @@ function NodalGate({on,onOpen}){
       if(p==='sealing')return true;            // already closing: the click is swallowed
       if(p!=='open')return false;              // mid-opening or closed: the plain switch applies
       const quick=!!window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
-      myzelGGateClose(quick?.4:NODAL_GATE_SWEEP_DOWN_S);
+      myzelGGateClose(quick?.4:3.8);
       go('sealing',quick?450:NODAL_GATE_SEAL_MS,()=>{setPhase('closed');finish();});
       return true;
     };

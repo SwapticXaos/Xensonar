@@ -12,12 +12,16 @@ function myzelGGateApply(g,hold,ramp){
   f.cancelScheduledValues(t);f.setValueAtTime(180,t);if(hold>0)f.setValueAtTime(180,t+hold);
   f.exponentialRampToValueAtTime(g.ctx.sampleRate/2,t+hold+ramp);
 }
-/* NODAL-GATE-02: the closing gate's sound: the low-pass glides from where it is (open = Nyquist) down to 180 Hz (muffled) before Mycelium is switched off.
-   Starts slightly ahead of ctx.currentTime (it is behind the render position, a ramp starting "now" would jump). */
-function myzelGGateClose(ramp=3.3){
+/* NODAL-GATE-02: the closing gate's sound, laid on the movement of the gate so that it "runs together" with it (times for the 3.8 s closing, scaled with `total`):
+   0 - 0.5 s hardly anything (the mandala is growing), 0.5 - 1.5 s the high end goes (9 kHz to 2.6 kHz), 1.5 - 2.5 s (the halves slide in) 2.6 kHz to 650 Hz, 2.5 - 3.2 s to 230 Hz;
+   from 2.7 s the level fades to zero, gone exactly when the centre closes (3.7 s). Starts slightly ahead of ctx.currentTime (it is behind the render position, a ramp "now" would jump). */
+function myzelGGateClose(total=3.8){
   const g=myzelGLive;if(!g||g.disposed)return false;
-  const f=g.gateLp.frequency,t=g.ctx.currentTime+.03,v=Math.max(180,Math.min(g.ctx.sampleRate/2,f.value));
-  f.cancelScheduledValues(t);f.setValueAtTime(v,t);f.exponentialRampToValueAtTime(180,t+ramp);
+  const k=total/3.8,f=g.gateLp.frequency,t=g.ctx.currentTime+.03,ny=g.ctx.sampleRate/2,v=Math.max(180,Math.min(ny,f.value));
+  f.cancelScheduledValues(t);f.setValueAtTime(v,t);
+  let last=v;
+  for(const [at,hz] of [[.5,9000],[1.5,2600],[2.5,650],[3.2,230],[3.7,150]]){const target=Math.min(last,hz);f.exponentialRampToValueAtTime(Math.max(100,target),t+at*k);last=target;}
+  if(g.gateGain){const a=g.gateGain.gain;a.cancelScheduledValues(t);a.setValueAtTime(1,t+2.7*k);a.linearRampToValueAtTime(0,t+3.7*k);}
   return true;
 }
 function myzelGGateSweep(hold=0,ramp=3.4){
@@ -37,7 +41,9 @@ function myzelGCreate(ctx,refs,destination){
   // NODAL-GATE-01: gate low-pass. At Nyquist a Web Audio low-pass is exactly H(z)=1 (spec), so the open gate is transparent;
   // only an opening gate sweeps it from muffled to full (myzelGGateSweep).
   const gateLp=own(ctx.createBiquadFilter());gateLp.type='lowpass';gateLp.Q.value=1.1;gateLp.frequency.value=ctx.sampleRate/2;
-  output.connect(gateLp);gateLp.connect(hp);hp.connect(compressor);compressor.connect(destination);
+  // NODAL-GATE-02: a unity gain after the low-pass (x1 is bit-exact) lets the closing gate fade the sound out exactly when the centre of the gate closes.
+  const gateGain=gain(1);
+  output.connect(gateLp);gateLp.connect(gateGain);gateGain.connect(hp);hp.connect(compressor);compressor.connect(destination);
   // Fixed audible fallback for browsers where loading any AudioWorklet fails.
   const fallbackGain=gain(.54),fallFilter=own(ctx.createBiquadFilter());
   fallFilter.type='lowpass';fallFilter.frequency.value=1900;fallFilter.Q.value=.64;
@@ -45,7 +51,7 @@ function myzelGCreate(ctx,refs,destination){
   const voices=[['triangle',1,0],['triangle',1,0],['triangle',1,0],['sine',1,0]].map(([type,ratio,level])=>{
     const oscillator=osc(type),amp=gain(level);oscillator.connect(amp);amp.connect(fallbackGain);return {type,oscillator,amp,ratio};
   });
-  const engine={ctx,output,gateLp,fallFilter,fallbackGain,voices,nodes,sources,disposed:false,
+  const engine={ctx,output,gateLp,gateGain,fallFilter,fallbackGain,voices,nodes,sources,disposed:false,
     history:[],candidate:null,candidateSince:0,lastUpdate:ctx.currentTime,lastMessage:-Infinity,
     worklet:null,lastControls:null,error:null,active:false,
     fallbackRunning:true,fallbackParkTimer:null,fallbackWake:null,workletFailed:false,

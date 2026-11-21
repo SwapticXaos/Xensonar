@@ -692,7 +692,7 @@ body[data-nodal-sounddesign="true"] [data-xensonar-performance-strip] {display:n
 @media (max-width:640px){.nd-gate-seal-slot,.nd-gate .nd-gate-seal-btn{width:140px!important;height:140px!important;margin:-70px 0 0 -70px}}
 
 /* NODAL-GATE-02: the closing choreography (data-nodal-gate=sealing, 3.8 s, one phase, CSS only):
-   0 - 1.7 s  the mandala grows from a point in the middle: point, circle (the ring), then the mark inside blossoms from the centre outwards;
+   0 - 1.3 s  the circle grows from a point in the middle (the ring), then every part of the mark grows out of the middle to its place, the inner ones first (to about 2.2 s);
    1.45 - 2.95 s  the two halves slide in from the sides onto the circle, their half-circle openings still open (the circle stays visible);
    2.95 - 3.75 s  the centre closes. The sound glides to muffled meanwhile (myzelGGateClose) and goes at the end. */
 .nd-gate[data-nodal-gate=sealing]{--nd-hole:96px;animation:nd-gate-shut .8s cubic-bezier(.3,0,.2,1) 2.95s forwards}
@@ -701,13 +701,14 @@ body[data-nodal-sounddesign="true"] [data-xensonar-performance-strip] {display:n
 .nd-gate[data-nodal-gate=sealing] .nd-gate-seal{transition:none;transform:none;filter:drop-shadow(0 0 10px rgba(226,187,114,.6))}
 .nd-gate[data-nodal-gate=sealing] .nd-gate-seed{animation:nd-gate-seed 1.1s ease-out both}
 .nd-gate[data-nodal-gate=sealing] .nd-gate-seal-ring{animation:nd-gate-ring-in 1.1s cubic-bezier(.25,.7,.25,1) .2s both}
-.nd-gate-mark{transform-box:view-box;transform-origin:50% 50%}
-.nd-gate[data-nodal-gate=sealing] .nd-gate-mark{animation:nd-gate-mark-in 1s cubic-bezier(.3,.8,.3,1) .7s both}
+.nd-gate[data-nodal-gate=sealing] .nd-gate-petal{animation:nd-gate-petal-in .8s cubic-bezier(.3,.8,.3,1) .6s both}
+.nd-gate[data-nodal-gate=sealing] .nd-gate-fly{animation:nd-gate-fly-in .85s cubic-bezier(.25,.8,.3,1) var(--bd,.8s) both}
 .nd-gate[data-nodal-gate=sealing] .nd-gate-door.is-left{animation:nd-gate-left-in 1.5s cubic-bezier(.3,.1,.2,1) 1.45s both}
 .nd-gate[data-nodal-gate=sealing] .nd-gate-door.is-right{animation:nd-gate-right-in 1.5s cubic-bezier(.3,.1,.2,1) 1.45s both}
 @keyframes nd-gate-seed{0%{transform:scale(0);opacity:0}14%{transform:scale(1.8);opacity:1}55%{transform:scale(1.2);opacity:1}100%{transform:scale(.3);opacity:0}}
 @keyframes nd-gate-ring-in{0%{transform:scale(.02);opacity:0}16%{opacity:1}100%{transform:scale(1);opacity:1}}
-@keyframes nd-gate-mark-in{0%{transform:scale(0);opacity:0}25%{opacity:1}100%{transform:scale(1);opacity:1}}
+@keyframes nd-gate-petal-in{0%{transform:scale(0);opacity:0}30%{opacity:1}100%{transform:scale(1);opacity:1}}
+@keyframes nd-gate-fly-in{0%{transform:translate(var(--bx),var(--by)) scale(.15);opacity:0}25%{opacity:1}100%{transform:translate(0,0) scale(1);opacity:1}}
 @keyframes nd-gate-left-in{from{transform:translateX(-101%)}to{transform:translateX(0)}}
 @keyframes nd-gate-right-in{from{transform:translateX(101%)}to{transform:translateX(0)}}
-@media (prefers-reduced-motion:reduce){.nd-gate[data-nodal-gate=sealing],.nd-gate[data-nodal-gate=sealing] :is(.nd-gate-seed,.nd-gate-seal-ring,.nd-gate-mark,.nd-gate-door){animation-duration:.01s!important;animation-delay:0s!important}}
+@media (prefers-reduced-motion:reduce){.nd-gate[data-nodal-gate=sealing],.nd-gate[data-nodal-gate=sealing] :is(.nd-gate-seed,.nd-gate-seal-ring,.nd-gate-petal,.nd-gate-fly,.nd-gate-door){animation-duration:.01s!important;animation-delay:0s!important}}

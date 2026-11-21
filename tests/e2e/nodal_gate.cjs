@@ -53,7 +53,10 @@ const html=path.resolve(process.argv[2]||'dist/XenSonar_PROBE.html');
  assert.ok(d1&&d2&&d2.f<d1.f/2&&d2.f<5000,'the low-pass glides down while the gate closes (muffled): '+JSON.stringify([d1,d2]));
  const dxMid=await doorX();assert.ok(dxMid<x0-5,'the halves are on their way in (not yet shut): '+dxMid+' vs '+x0);
  await my.click();await q.waitForTimeout(100);assert.equal(await gate.getAttribute('data-nodal-gate'),'sealing','a click while closing is ignored');
- await q.waitForTimeout(2500);assert.equal(await gate.getAttribute('data-nodal-gate'),'closed');assert.equal(await my.getAttribute('aria-pressed'),'false','Mycelium is switched off at the end');
+ // the sound runs together with the closing: still full level while the halves slide in, muffled and fading as the centre closes, gone when it is shut
+ await q.waitForTimeout(1400);const d3=await q.evaluate(()=>window.__xenProbe.draw.evalInBundle('myzelGLive&&!myzelGLive.disposed?{f:myzelGLive.gateLp.frequency.value,g:myzelGLive.gateGain.gain.value}:null'));
+ assert.ok(d3&&d3.f<500&&d3.g<.8&&d3.g>0,'near the end: dull (below 500 Hz) and fading while the centre closes: '+JSON.stringify(d3));
+ await q.waitForTimeout(1050);assert.equal(await gate.getAttribute('data-nodal-gate'),'closed');assert.equal(await my.getAttribute('aria-pressed'),'false','Mycelium is switched off at the end');
  assert.ok(Math.abs(await doorX()-x0)<2,'the halves are shut again');assert.ok(await rms(2)<.002,'silent again');
  await my.click();await q.waitForTimeout(300);assert.equal(await gate.getAttribute('data-nodal-gate'),'turning','the button turns the seal as well');
  await q.waitForTimeout(1300);const held=await lp();assert.ok(held&&held.f<1500,'muffled while the button opens the gate: '+JSON.stringify(held));

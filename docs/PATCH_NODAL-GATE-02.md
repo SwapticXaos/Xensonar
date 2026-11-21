@@ -18,4 +18,9 @@ Der Öffnungsablauf ist unverändert.
 Test: `tests/e2e/nodal_gate.cjs` (MEASURE) angepasst: Phase `sealing`, Mycelium bleibt an, Installation sichtbar, Tiefpass gleitet nach unten (unter die Hälfte und unter 5 kHz nach 1,5 s), Hälften auf dem Weg, Klick währenddessen ignoriert, am Ende `closed`, Mycelium aus, Hälften zu, still. Grün. Die anderen Nodal-Tests nutzen das Tor nur zum Öffnen.
 Nicht geprüft: PCM-Vergleich des Abwärts-Sweeps (nur die Frequenz-Rampe gemessen), Hören des Übergangs.
 
+## Nacharbeit (Nutzerrückmeldung: Mandala muss aus der Mitte wachsen, Klang muss mit dem Schließen zusammenlaufen)
+- **Mandala:** Statt das ganze Zeichen als Gruppe zu skalieren, wächst jetzt **jedes Teil einzeln aus der Mitte an seinen Platz** (`--bx/--by`: Startpunkt = Mitte, `--bd`: Verzögerung nach Abstand): zuerst die Blütenblätter (ab 0,6 s), dann die inneren Kreise, zuletzt Dreiecke und Punkte am Rand (bis etwa 2,2 s). Der Kreis (Ring) entsteht wie vorher aus einem Punkt. Bildfolge bei 0,35 / 0,7 / 1,05 / 1,4 / 1,9 s gesehen.
+- **Klang:** Die Filterkurve liegt jetzt auf der Tür-Bewegung: 0 bis 0,5 s fast nichts, bis 1,5 s von 9 kHz auf 2,6 kHz, bis 2,5 s (die Hälften gleiten ein) auf 650 Hz, bis 3,2 s auf 230 Hz, dazu **fadet der Pegel ab 2,7 s auf 0 und ist exakt weg, wenn sich die Mitte schließt (3,7 s)**; die Abschaltung von Mycelium folgt bei 3,8 s, es gibt keinen abrupten Schnitt mehr. Dafür ein zusätzlicher Verstärkungsknoten (`gateGain`, Faktor 1) hinter dem Tiefpass. **PCM-Vergleich Offline (Chromium, 2 s Rauschen+Sinus, 48 kHz): Maximalabweichung mit und ohne den Knoten = 0.** Gemessen (1 s = Zeit nach Klick): Tiefpass 11,6 kHz / 6,9 kHz / 4,5 kHz / 2,9 kHz / 1,5 kHz / 561 Hz / 211 Hz bei 0,35 / 0,7 / 1,05 / 1,4 / 1,9 / 2,6 / 3,3 s; Pegel 1,0 bis 2,6 s, 0,40 bei 3,3 s, 0,00 bei 3,65 s.
+- Test `tests/e2e/nodal_gate.cjs` ergänzt um die Prüfung „nahe am Ende dumpf (unter 500 Hz) und im Ausblenden“, grün.
+
 Rollback: `637df4b`.
