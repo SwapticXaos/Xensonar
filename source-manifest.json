@@ -142,27 +142,8 @@
     "src/audio/lifecycle/00_voice_lease.js",
     "src/nodal/12_surface_runtime.js",
     "src/post-oct/gaps/010-main-bundle__06_after_12_surface_runtime.js",
-    "src/forge/emilia/04_source_materials.js",
-    "src/forge/emilia/05_hx_reciprocal.js",
-    "src/forge/emilia/03_network_color.js",
-    "src/forge/analysis/04_painted_voices.js",
-    "src/forge/emilia/06_preview_worker.js",
-    "src/forge/emilia/01_nodal_carrier.js",
-    "src/forge/fractalia/00_legacy_f2.js",
-    "src/forge/fractalia/01_core.js",
-    "src/forge/fractalia/02_mantle.js",
-    "src/forge/fractalia/04_relations.js",
-    "src/forge/fractalia/06_relational_render.js",
-    "src/forge/fractalia/05_relational_core.js",
-    "src/forge/fractalia/07_compile_jobs.js",
-    "src/forge/fractalia/08_donor_ecology.js",
-    "src/forge/fractalia/09_material_atlas.js",
-    "src/forge/fractalia/10_material_render.js",
-    "src/forge/fractalia/11_material_runtime.js",
-    "src/forge/fractalia/12_material_experiments.js",
-    "src/forge/fractalia/13_spectral_view.js",
-    "src/forge/fractalia/14_live_transfer.js",
-    "src/forge/fractalia/03_instrument.js",
+    "src/forge/emilia/00_emilia_lazy_proxy.js",
+    "src/forge/fractalia/00_fractalia_lazy_proxy.js",
     "src/forge/editor/09_workflow_controls.js",
     "src/forge/dsp/08_pure_dieter_worker.js",
     "src/forge/emilia/02_lab_ui.js",
@@ -296,7 +277,7 @@
     "src/rhythm/05_canonical_selection.js",
     "src/app/forge/01_room_shell.js",
     "src/app/forge/02_boot_and_workspace_tools.js",
-    "src/forge/stamps/01_atlas_2026_bridge.js",
+    "src/forge/stamps/00_atlas_lazy_proxy.js",
     "src/forge/stamps/02_atlas_audition.js",
     "src/app/forge/03_spectral_grid_and_archives.js",
     "src/app/forge/04_profiles_and_body_models.js",
@@ -903,6 +884,49 @@
    "oct28_section": null,
    "files": [
     "src/package_station/01_binary_archive.js"
+   ]
+  },
+  {
+   "id": "js-019a-xen-chunk-forge-stamps",
+   "oct28_section": null,
+   "files": [
+    "src/forge/stamps/01_atlas_2026_bridge.js",
+    "src/forge/stamps/99_chunk_export.js"
+   ]
+  },
+  {
+   "id": "js-019b-xen-chunk-forge-emilia",
+   "oct28_section": null,
+   "files": [
+    "src/forge/emilia/04_source_materials.js",
+    "src/forge/emilia/05_hx_reciprocal.js",
+    "src/forge/emilia/03_network_color.js",
+    "src/forge/analysis/04_painted_voices.js",
+    "src/forge/emilia/06_preview_worker.js",
+    "src/forge/emilia/01_nodal_carrier.js",
+    "src/forge/emilia/99_chunk_export.js"
+   ]
+  },
+  {
+   "id": "js-019c-xen-chunk-forge-fractalia",
+   "oct28_section": null,
+   "files": [
+    "src/forge/fractalia/00_legacy_f2.js",
+    "src/forge/fractalia/01_core.js",
+    "src/forge/fractalia/02_mantle.js",
+    "src/forge/fractalia/04_relations.js",
+    "src/forge/fractalia/06_relational_render.js",
+    "src/forge/fractalia/05_relational_core.js",
+    "src/forge/fractalia/07_compile_jobs.js",
+    "src/forge/fractalia/08_donor_ecology.js",
+    "src/forge/fractalia/09_material_atlas.js",
+    "src/forge/fractalia/10_material_render.js",
+    "src/forge/fractalia/11_material_runtime.js",
+    "src/forge/fractalia/12_material_experiments.js",
+    "src/forge/fractalia/13_spectral_view.js",
+    "src/forge/fractalia/14_live_transfer.js",
+    "src/forge/fractalia/03_instrument.js",
+    "src/forge/fractalia/99_chunk_export.js"
    ]
   },
   {
