@@ -480,7 +480,7 @@ function MyzelCosmosReadout({revision}) {
   const read=()=>{const view=typeof __myzelCosmosView!=='undefined'?__myzelCosmosView:null;
     return view&&Date.now()-(view.wall??0)<1500?view.cosmos.summary:null;};
   const [summary,setSummary]=P.useState(read);
-  P.useEffect(()=>{setSummary(read());const id=setInterval(()=>setSummary(read()),500);return ()=>clearInterval(id);},[revision]);
+  P.useEffect(()=>{setSummary(read());const id=setInterval(()=>{if(!document.hidden)setSummary(read());},500);return ()=>clearInterval(id);},[revision]);
   return u.jsxs("div",{"data-myzel-cosmos":true,className:"rounded border border-sky-900/50 bg-sky-950/10 px-3 py-2 text-xs text-sky-100",
     title:"Each Rebuild Layout makes a new constellation and with it a new sound world: how far impulses travel along the lines, how long they ring, plucked or swelling, glassy or metallic, registers and islands.",
     children:[u.jsx("span",{className:"mr-2 uppercase tracking-[0.2em] text-sky-300/80",children:"Constellation cosmos"}),

@@ -912,11 +912,14 @@ function __F347Library(){
  return __f35622LibraryView({runtime,route,items,loaded,filter,setFilter,name,setName,message,saving,busy,active,apply,save,favorite,matches,pageCount,safePage,visible,setPage});
 }
 function __F347Memory(){
+ const hostRef=P.useRef(null);
  const [state,setState]=P.useState(()=>__ForgeF33.experimentStatePersistenceStatus());
- P.useEffect(()=>{const refresh=()=>setState(__ForgeF33.experimentStatePersistenceStatus());refresh();const timer=setInterval(refresh,800);return()=>clearInterval(timer);},[]);
+ P.useEffect(()=>{const same=(a,b)=>a&&b&&a.restoring===b.restoring&&a.lastError===b.lastError&&a.protectingSavedState===b.protectingSavedState&&a.lastSavedAt===b.lastSavedAt&&a.lastRestoredAt===b.lastRestoredAt&&a.restoreComplete===b.restoreComplete;
+  const refresh=()=>{if(document.hidden||(hostRef.current&&hostRef.current.offsetParent===null))return;const next=__ForgeF33.experimentStatePersistenceStatus();setState(prev=>same(prev,next)?prev:next)};
+  refresh();const timer=setInterval(refresh,800);return()=>clearInterval(timer);},[]);
  const time=state.lastSavedAt||state.lastRestoredAt;
  const text=state.restoring?"Browser storage: loading saved state …":state.lastError?"Browser storage: "+state.lastError+(state.protectingSavedState?" · existing state remains protected.":''):state.lastSavedAt?"Browser storage: state saved · "+new Date(time).toLocaleTimeString():state.lastRestoredAt?"Browser storage: state restored":state.restoreComplete?"Browser storage: autosave enabled":"Checking browser storage …";
- return u.jsxs('div',{className:'f347-memory',role:'status','data-f347-memory':'true',children:[u.jsx('span',{children:text}),u.jsx('button',{type:'button',disabled:state.restoring||!state.restoreComplete||state.protectingSavedState,onClick:async()=>{await __f333Persistence?.saveNow();setState(__ForgeF33.experimentStatePersistenceStatus());},children:"Save Current State"}),state.protectingSavedState?u.jsx('button',{type:'button',disabled:state.restoring,onClick:async()=>{await __f333Persistence?.restore();setState(__ForgeF33.experimentStatePersistenceStatus());},children:"Reload Saved State"}):null]});
+ return u.jsxs('div',{ref:hostRef,className:'f347-memory',role:'status','data-f347-memory':'true',children:[u.jsx('span',{children:text}),u.jsx('button',{type:'button',disabled:state.restoring||!state.restoreComplete||state.protectingSavedState,onClick:async()=>{await __f333Persistence?.saveNow();setState(__ForgeF33.experimentStatePersistenceStatus());},children:"Save Current State"}),state.protectingSavedState?u.jsx('button',{type:'button',disabled:state.restoring,onClick:async()=>{await __f333Persistence?.restore();setState(__ForgeF33.experimentStatePersistenceStatus());},children:"Reload Saved State"}):null]});
 }
 function xse(e){return bG(e.samples,e.sampleRate,e)}
 function Gse(e){if(e)return JSON.stringify({durationSec:e.durationSec,rmsMean:e.rmsMean,rmsVariance:e.rmsVariance,transientScore:e.transientScore,brightnessScore:e.brightnessScore,sustainScore:e.sustainScore,fitRoute:e.fitRoute,bridgeProfile:e.bridgeProfile,materialProfile:e.materialProfile,recommendedSettings:e.recommendedSettings,summary:e.summary})}
