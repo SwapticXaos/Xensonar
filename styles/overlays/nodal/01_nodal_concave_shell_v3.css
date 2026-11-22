@@ -10,6 +10,13 @@
 }
 .nd-room.nd-room-shell[data-nodal-mode="installation"] {
   --nd-frame-arc:clamp(0px,calc((100vw - 1420px) / 2),170px);
+  padding-top:24px;
+}
+@media (min-width:1381px) {
+  .nd-room.nd-room-shell[data-nodal-mode="installation"] {
+    max-width:min(1420px,calc(100vw - 140px));
+    --nd-frame-arc:clamp(0px,calc((100vw - min(1420px,calc(100vw - 140px))) / 2),170px);
+  }
 }
 /* The existing ::before/::after represent side gutters, NOT content columns.
    A nine-slice SVG keeps top and bottom curvatures round on taller art installations.
@@ -43,10 +50,13 @@ main:has(> .nd-room.nd-room-shell) {padding-bottom:0 !important;}
 }
 .nd-room.nd-room-shell::before { left:calc(50% - 50vw) !important;right:auto !important; transform:none !important; }
 .nd-room.nd-room-shell::after  { right:calc(50% - 50vw) !important;left:auto !important; transform:scaleX(-1) !important; }
-/* The installation is a different matte. Both wings share its underlying fill. */
+/* The installation is a different matte. Both wings share its underlying fill
+   and carry an unstretched 1px top hairline seamlessly into the room crown. */
 .nd-room.nd-room-shell[data-nodal-mode="installation"]::before,
 .nd-room.nd-room-shell[data-nodal-mode="installation"]::after {
   background-color:#10191f !important;
+  background-image:linear-gradient(to bottom,rgba(95,154,150,0.52) 0 1px,transparent 1px) !important;
+  background-repeat:no-repeat !important;
 }
 /* Preserve the source's bottom ruler as a background, inside *existing* lower
    breathing room: zero changes to padding, columns, heights or scroll ownership. */
@@ -58,12 +68,16 @@ main:has(> .nd-room.nd-room-shell) {padding-bottom:0 !important;}
   background-repeat:no-repeat,no-repeat;
 }
 .nd-room.nd-room-shell[data-nodal-mode="installation"] {
-  background-image:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%20928%201440%2032%22%20preserveAspectRatio%3D%22none%22%20fill%3D%22none%22%20stroke-width%3D%221%22%3E%3Cline%20stroke%3D%22%234a7a78%22%20x1%3D%22216%22%20x2%3D%221224%22%20y1%3D%22946%22%20y2%3D%22946%22%3E%3C%2Fline%3E%3Cline%20stroke%3D%22%2383d5c9%22%20x1%3D%22216.0%22%20x2%3D%22216.0%22%20y1%3D%22946%22%20y2%3D%22930%22%3E%3C%2Fline%3E%3Cline%20stroke%3D%22%234a7a78%22%20x1%3D%22387.3%22%20x2%3D%22387.3%22%20y1%3D%22946%22%20y2%3D%22938%22%3E%3C%2Fline%3E%3Cline%20stroke%3D%22%234a7a78%22%20x1%3D%22481.1%22%20x2%3D%22481.1%22%20y1%3D%22946%22%20y2%3D%22938%22%3E%3C%2Fline%3E%3Cline%20stroke%3D%22%234a7a78%22%20x1%3D%22540.5%22%20x2%3D%22540.5%22%20y1%3D%22946%22%20y2%3D%22938%22%3E%3C%2Fline%3E%3Cline%20stroke%3D%22%234a7a78%22%20x1%3D%22634.4%22%20x2%3D%22634.4%22%20y1%3D%22946%22%20y2%3D%22938%22%3E%3C%2Fline%3E%3Cline%20stroke%3D%22%234a7a78%22%20x1%3D%22679.1%22%20x2%3D%22679.1%22%20y1%3D%22946%22%20y2%3D%22938%22%3E%3C%2Fline%3E%3Cline%20stroke%3D%22%2383d5c9%22%20x1%3D%22805.6%22%20x2%3D%22805.6%22%20y1%3D%22946%22%20y2%3D%22930%22%3E%3C%2Fline%3E%3Cline%20stroke%3D%22%234a7a78%22%20x1%3D%22899.5%22%20x2%3D%22899.5%22%20y1%3D%22946%22%20y2%3D%22938%22%3E%3C%2Fline%3E%3Cline%20stroke%3D%22%234a7a78%22%20x1%3D%22922.0%22%20x2%3D%22922.0%22%20y1%3D%22946%22%20y2%3D%22938%22%3E%3C%2Fline%3E%3Cline%20stroke%3D%22%234a7a78%22%20x1%3D%22958.9%22%20x2%3D%22958.9%22%20y1%3D%22946%22%20y2%3D%22938%22%3E%3C%2Fline%3E%3Cline%20stroke%3D%22%234a7a78%22%20x1%3D%221029.8%22%20x2%3D%221029.8%22%20y1%3D%22946%22%20y2%3D%22938%22%3E%3C%2Fline%3E%3Cline%20stroke%3D%22%234a7a78%22%20x1%3D%221130.1%22%20x2%3D%221130.1%22%20y1%3D%22946%22%20y2%3D%22938%22%3E%3C%2Fline%3E%3Cline%20stroke%3D%22%2383d5c9%22%20x1%3D%221224.0%22%20x2%3D%221224.0%22%20y1%3D%22946%22%20y2%3D%22930%22%3E%3C%2Fline%3E%3C%2Fsvg%3E"),radial-gradient(ellipse 40% 66% at 45% 26%,#102129b0 0%,transparent 100%),
-     radial-gradient(ellipse 26% 60% at 71% 77%,#18242abc 0%,transparent 100%);
+  background-image:
+    linear-gradient(to bottom,rgba(95,154,150,0.52) 0 1px,transparent 1px),
+    url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%201440%2022%22%20preserveAspectRatio%3D%22none%22%20fill%3D%22none%22%20stroke-width%3D%221%22%3E%3Cdefs%3E%3ClinearGradient%20id%3D%22g%22%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%221%22%20y2%3D%220%22%3E%3Cstop%20offset%3D%220%25%22%20stop-color%3D%22%235f9a96%22%20stop-opacity%3D%220%22%2F%3E%3Cstop%20offset%3D%2212%25%22%20stop-color%3D%22%235f9a96%22%20stop-opacity%3D%220.42%22%2F%3E%3Cstop%20offset%3D%2250%25%22%20stop-color%3D%22%2383d5c9%22%20stop-opacity%3D%220.52%22%2F%3E%3Cstop%20offset%3D%2288%25%22%20stop-color%3D%22%235f9a96%22%20stop-opacity%3D%220.42%22%2F%3E%3Cstop%20offset%3D%22100%25%22%20stop-color%3D%22%235f9a96%22%20stop-opacity%3D%220%22%2F%3E%3C%2FlinearGradient%3E%3C%2Fdefs%3E%3Cline%20x1%3D%2230%22%20y1%3D%229%22%20x2%3D%221410%22%20y2%3D%229%22%20stroke%3D%22url(%23g)%22%2F%3E%3Cline%20x1%3D%22216%22%20y1%3D%229%22%20x2%3D%22216%22%20y2%3D%2217%22%20stroke%3D%22%2383d5c9%22%20stroke-opacity%3D%220.55%22%2F%3E%3Cline%20x1%3D%22387.3%22%20y1%3D%229%22%20x2%3D%22387.3%22%20y2%3D%2214%22%20stroke%3D%22%234a7a78%22%20stroke-opacity%3D%220.75%22%2F%3E%3Cline%20x1%3D%22481.1%22%20y1%3D%229%22%20x2%3D%22481.1%22%20y2%3D%2214%22%20stroke%3D%22%234a7a78%22%20stroke-opacity%3D%220.75%22%2F%3E%3Cline%20x1%3D%22540.5%22%20y1%3D%229%22%20x2%3D%22540.5%22%20y2%3D%2214%22%20stroke%3D%22%234a7a78%22%20stroke-opacity%3D%220.75%22%2F%3E%3Cline%20x1%3D%22634.4%22%20y1%3D%229%22%20x2%3D%22634.4%22%20y2%3D%2215%22%20stroke%3D%22%235f9a96%22%20stroke-opacity%3D%220.7%22%2F%3E%3Cline%20x1%3D%22805.6%22%20y1%3D%229%22%20x2%3D%22805.6%22%20y2%3D%2215%22%20stroke%3D%22%235f9a96%22%20stroke-opacity%3D%220.7%22%2F%3E%3Cline%20x1%3D%22899.5%22%20y1%3D%229%22%20x2%3D%22899.5%22%20y2%3D%2214%22%20stroke%3D%22%234a7a78%22%20stroke-opacity%3D%220.75%22%2F%3E%3Cline%20x1%3D%22958.9%22%20y1%3D%229%22%20x2%3D%22958.9%22%20y2%3D%2214%22%20stroke%3D%22%234a7a78%22%20stroke-opacity%3D%220.75%22%2F%3E%3Cline%20x1%3D%221052.7%22%20y1%3D%229%22%20x2%3D%221052.7%22%20y2%3D%2214%22%20stroke%3D%22%234a7a78%22%20stroke-opacity%3D%220.75%22%2F%3E%3Cline%20x1%3D%221224%22%20y1%3D%229%22%20x2%3D%221224%22%20y2%3D%2217%22%20stroke%3D%22%2383d5c9%22%20stroke-opacity%3D%220.55%22%2F%3E%3Cpath%20d%3D%22M704%209%20L720%203.5%20L736%209%20L720%2016.5%20Z%22%20fill%3D%22%2310191f%22%20stroke%3D%22%2378cfc3%22%20stroke-opacity%3D%220.68%22%2F%3E%3Ccircle%20cx%3D%22720%22%20cy%3D%229.5%22%20r%3D%222.2%22%20fill%3D%22%23d9ad62%22%20fill-opacity%3D%220.78%22%2F%3E%3C%2Fsvg%3E"),
+    url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%20928%201440%2032%22%20preserveAspectRatio%3D%22none%22%20fill%3D%22none%22%20stroke-width%3D%221%22%3E%3Cline%20stroke%3D%22%234a7a78%22%20x1%3D%22216%22%20x2%3D%221224%22%20y1%3D%22946%22%20y2%3D%22946%22%3E%3C%2Fline%3E%3Cline%20stroke%3D%22%2383d5c9%22%20x1%3D%22216.0%22%20x2%3D%22216.0%22%20y1%3D%22946%22%20y2%3D%22930%22%3E%3C%2Fline%3E%3Cline%20stroke%3D%22%234a7a78%22%20x1%3D%22387.3%22%20x2%3D%22387.3%22%20y1%3D%22946%22%20y2%3D%22938%22%3E%3C%2Fline%3E%3Cline%20stroke%3D%22%234a7a78%22%20x1%3D%22481.1%22%20x2%3D%22481.1%22%20y1%3D%22946%22%20y2%3D%22938%22%3E%3C%2Fline%3E%3Cline%20stroke%3D%22%234a7a78%22%20x1%3D%22540.5%22%20x2%3D%22540.5%22%20y1%3D%22946%22%20y2%3D%22938%22%3E%3C%2Fline%3E%3Cline%20stroke%3D%22%234a7a78%22%20x1%3D%22634.4%22%20x2%3D%22634.4%22%20y1%3D%22946%22%20y2%3D%22938%22%3E%3C%2Fline%3E%3Cline%20stroke%3D%22%234a7a78%22%20x1%3D%22679.1%22%20x2%3D%22679.1%22%20y1%3D%22946%22%20y2%3D%22938%22%3E%3C%2Fline%3E%3Cline%20stroke%3D%22%2383d5c9%22%20x1%3D%22805.6%22%20x2%3D%22805.6%22%20y1%3D%22946%22%20y2%3D%22930%22%3E%3C%2Fline%3E%3Cline%20stroke%3D%22%234a7a78%22%20x1%3D%22899.5%22%20x2%3D%22899.5%22%20y1%3D%22946%22%20y2%3D%22938%22%3E%3C%2Fline%3E%3Cline%20stroke%3D%22%234a7a78%22%20x1%3D%22922.0%22%20x2%3D%22922.0%22%20y1%3D%22946%22%20y2%3D%22938%22%3E%3C%2Fline%3E%3Cline%20stroke%3D%22%234a7a78%22%20x1%3D%22958.9%22%20x2%3D%22958.9%22%20y1%3D%22946%22%20y2%3D%22938%22%3E%3C%2Fline%3E%3Cline%20stroke%3D%22%234a7a78%22%20x1%3D%221029.8%22%20x2%3D%221029.8%22%20y1%3D%22946%22%20y2%3D%22938%22%3E%3C%2Fline%3E%3Cline%20stroke%3D%22%234a7a78%22%20x1%3D%221130.1%22%20x2%3D%221130.1%22%20y1%3D%22946%22%20y2%3D%22938%22%3E%3C%2Fline%3E%3Cline%20stroke%3D%22%2383d5c9%22%20x1%3D%221224.0%22%20x2%3D%221224.0%22%20y1%3D%22946%22%20y2%3D%22930%22%3E%3C%2Fline%3E%3C%2Fsvg%3E"),
+    radial-gradient(ellipse 44% 18% at 50% 8%,rgba(23,54,62,0.52) 0%,rgba(16,25,31,0) 76%),
+    radial-gradient(ellipse 36% 42% at 50% 68%,rgba(24,38,46,0.52) 0%,rgba(16,25,31,0) 78%);
   background-color:#10191f;
-  background-position:center bottom,center center;
-  background-size:100% 16px,auto;
-  background-repeat:no-repeat,no-repeat;
+  background-position:center top,center top,center bottom,center top,center center;
+  background-size:100% 1px,100% 22px,100% 16px,auto,auto;
+  background-repeat:no-repeat,no-repeat,no-repeat,no-repeat,no-repeat;
 }
 /* Responsive fallback never reserves inner layout space. */
 /* Narrow screens: when a reference-original arc would have less than the
@@ -87,7 +101,7 @@ main:has(> .nd-room.nd-room-shell) {padding-bottom:0 !important;}
       #31444a calc(100% - .4px),#101d25 calc(100% + .65px)) !important;
   }
 }
-@media (max-width:1420px) {
+@media (max-width:1380px) {
   .nd-room.nd-room-shell[data-nodal-mode="installation"]::before,
   .nd-room.nd-room-shell[data-nodal-mode="installation"]::after {
     height:auto !important; aspect-ratio:1 !important;
@@ -97,7 +111,7 @@ main:has(> .nd-room.nd-room-shell) {padding-bottom:0 !important;}
   .nd-room.nd-room-shell[data-nodal-mode="installation"]::before {
     background-image:linear-gradient(to bottom,#31444a 0 1px,transparent 1px),
       radial-gradient(circle farthest-side at 0 100%,transparent calc(100% - 1.5px),
-      #31444a calc(100% - .4px),#102129 calc(100% + .65px)) !important;
+      #31444a calc(100% - .4px),#10191f calc(100% + .65px)) !important;
   }
   .nd-room.nd-room-shell[data-nodal-mode="installation"]::after {
     background-image:linear-gradient(to bottom,#31444a 0 1px,transparent 1px),

@@ -11,30 +11,31 @@
     ball:'[data-nodal-ball-controls]',
     advanced:'.nd-legacy-card > .mt-5 > section:has(> button[aria-expanded])'
   };
-  const REF = Object.freeze({svgWidth:198,svgHeight:960,outerRadius:170,arcEnd:170});
-  // Visible glyphs/controls must stay inside the decorative polygon.
-  // Preserve the rectangular content/hitboxes: only cap the inherited T2 transforms.
+  const REF = Object.freeze({svgWidth:198,svgHeight:960,outerRadius:170,echoRadius:198,arcEnd:170});
+  // Visible glyphs/controls must stay inside the decorative polygon and clear of
+  // all three outer cyan column echo lines (R=178, 186, 198).
+  // Preserve rectangular content/hitboxes: only compute safe T2/T4 panel bounds & shifts.
   const GLYPH_CLEARANCE = 14;
   const finite = (v,lo=0,hi=1e5) => Number.isFinite(v) ? Math.max(lo,Math.min(hi,v)) : 0;
   let scheduled=false, frame=0, observer=null, attachedRoom=null, resizeObs=null, lastGeometry=[];
   function geometry(room) {
-    // The nine-slice SVG uses viewBox 0 0 198 960 and an arc from
-    // M0 0 to A170 170 ... 170 170, followed by L170 790 (vertical).
-    // The CSS border-image paints this source across the full wing-height;
-    // horizontal/vertical scaling are different, as in the approved V3.
+    // The nine-slice SVG uses viewBox 0 0 198 960. Its black recess arc uses R=170,
+    // and its outermost visible cyan echo arc uses R=198 (M101.5 0 A198 198 ... 198 170).
+    // Sampling R=198 keeps every panel border and glyph cleanly parallel to — and
+    // never crossing — the outermost visible column line.
     const css=getComputedStyle(room,'::before');
     const source=css.borderImageSource || '';
     if (!source.includes('data:image/svg+xml') || !source.includes('170')) return null;
     const width=finite(parseFloat(css.width),0,1000);
     const rect=room.getBoundingClientRect();
     if (!width || rect.height<=0) return null;
-    const fullX=REF.arcEnd * width / REF.svgWidth;
     const sample=(screenY)=>{
       const sy=finite((screenY-rect.y)/rect.height*REF.svgHeight,0,REF.arcEnd);
-      const sx=Math.sqrt(Math.max(0,2*REF.outerRadius*sy-sy*sy));
-      return finite(fullX - width*sx/REF.svgWidth,0,fullX);
+      const dy=REF.arcEnd-sy;
+      const sx=Math.sqrt(Math.max(0,REF.echoRadius*REF.echoRadius-dy*dy));
+      return finite(width*(REF.svgWidth-sx)/REF.svgWidth,0,width);
     };
-    return {rect,width,fullX,sample};
+    return {rect,width,sample};
   }
   function setPx(node,name,value) {
     const val=(Math.round(value*100)/100)+'px';
@@ -46,11 +47,11 @@
     for (const selector of [SEL.root,SEL.ball,SEL.advanced]) {
       const panel=room.querySelector(selector);
       if (!panel) continue;
-      for (const name of ['--nd-geo-top','--nd-geo-bottom','--nd-geo-info-shift','--nd-geo-tool-shift','--nd-geo-row-shift']) panel.style.removeProperty(name);
+      for (const name of ['--nd-geo-top','--nd-geo-bottom','--nd-geo-info-shift','--nd-geo-tool-shift','--nd-geo-row-shift','--nd-geo-ball-shift']) panel.style.removeProperty(name);
     }
     const heading=room.querySelector(':scope > .nd-shared-heading');
     if (heading) {
-      heading.style.removeProperty('--nd-geo-heading-edge');
+      for (const name of ['--nd-geo-top','--nd-geo-bottom','--nd-geo-heading-edge','--nd-geo-nav-shift']) heading.style.removeProperty(name);
       for (const item of heading.querySelectorAll('.nd-heading-copy > .nd-eyebrow,.nd-heading-copy > h2,.nd-heading-copy > p')) item.style.removeProperty('--nd-geo-heading-shift');
     }
     lastGeometry=[];
@@ -83,18 +84,30 @@
     const info=meta.querySelector('.nd-legacy-info');
     const tools=meta.querySelector('.nd-legacy-tools');
     const row=meta.querySelector(':scope > div:last-child');
-    if(info) setPx(meta,'--nd-geo-info-shift',enabled?Math.max(0,geo.sample(info.getBoundingClientRect().top)-GLYPH_CLEARANCE):0);
-    if(tools) setPx(meta,'--nd-geo-tool-shift',enabled?Math.max(0,geo.sample(tools.getBoundingClientRect().top)-GLYPH_CLEARANCE):0);
-    if(row) setPx(meta,'--nd-geo-row-shift',enabled?Math.max(0,geo.sample(row.getBoundingClientRect().top)-GLYPH_CLEARANCE):0);
+    // Sample each control row at its bottom edge (the narrowest part of the
+    // slanted trapezoid) so corners like Rebuild Layout never breach the border.
+    if(info) setPx(meta,'--nd-geo-info-shift',enabled?Math.max(0,geo.sample(info.getBoundingClientRect().bottom)-GLYPH_CLEARANCE):0);
+    if(tools) setPx(meta,'--nd-geo-tool-shift',enabled?Math.max(0,geo.sample(tools.getBoundingClientRect().bottom)-GLYPH_CLEARANCE):0);
+    if(row) setPx(meta,'--nd-geo-row-shift',enabled?Math.max(0,geo.sample(row.getBoundingClientRect().bottom)-GLYPH_CLEARANCE):0);
+    const ball=panels[1][1];
+    if(ball) setPx(ball,'--nd-geo-ball-shift',enabled?Math.max(0,geo.sample(ball.getBoundingClientRect().bottom)-GLYPH_CLEARANCE):0);
     const heading=room.querySelector(':scope > .nd-shared-heading');
     if(heading){
-      setPx(heading,'--nd-geo-heading-edge',enabled?geo.sample(heading.getBoundingClientRect().bottom):0);
+      const hr=heading.getBoundingClientRect();
+      const headTop=enabled?geo.sample(hr.top):0;
+      const headBottom=enabled?geo.sample(hr.bottom):0;
+      setPx(heading,'--nd-geo-top',headTop);
+      setPx(heading,'--nd-geo-bottom',headBottom);
+      setPx(heading,'--nd-geo-heading-edge',headBottom);
+      // Align all three header copy lines onto a single crisp vertical editorial
+      // spine anchored safely inside the slanted frieze wall.
+      const copyShift=enabled?Math.max(0,headBottom-GLYPH_CLEARANCE):0;
       for(const item of heading.querySelectorAll('.nd-heading-copy > .nd-eyebrow,.nd-heading-copy > h2,.nd-heading-copy > p')) {
-        // getBoundingClientRect includes our own transform. offsetTop tracks
-        // the original normal-flow position instead, preventing feedback.
-        const y=heading.getBoundingClientRect().top+item.offsetTop;
-        setPx(item,'--nd-geo-heading-shift',enabled?geo.sample(y):0);
+        setPx(item,'--nd-geo-heading-shift',copyShift);
       }
+      const nav=heading.querySelector('.nd-modes');
+      const navY=nav?nav.getBoundingClientRect().bottom:hr.bottom;
+      setPx(heading,'--nd-geo-nav-shift',enabled?Math.max(0,geo.sample(navY)-GLYPH_CLEARANCE):0);
     }
   }
   function schedule(){if(!scheduled&&!document.hidden){scheduled=true;frame=requestAnimationFrame(apply)}}

@@ -106,3 +106,80 @@ test('retained room DOM cannot restore stale geometry after changing mode at nar
   h.refresh(1050, 'installation'); h.assertDisabled();
   h.enableWide();
 });
+
+test('wide geometry stays clear of the R=198 outer echo arc and resets header/nav/ball vars', () => {
+  const pending = [];
+  const classes = new Set();
+  const makeStyle = () => {
+    const values = new Map();
+    return {
+      getPropertyValue: key => values.get(key) || '',
+      setProperty: (key, value) => values.set(key, String(value)),
+      removeProperty(key) { const old = values.get(key) || ''; values.delete(key); return old; }
+    };
+  };
+  const makeNode = (top, height = 30, offsetTop = 0) => ({
+    style: makeStyle(), offsetTop,
+    getBoundingClientRect: () => ({ x: 265, y: top, top, bottom: top + height, width: 1374, height }),
+    querySelector: () => null, querySelectorAll: () => []
+  });
+  const info = makeNode(200, 34), tools = makeNode(200, 34), row = makeNode(242, 20);
+  const root = makeNode(190, 82);
+  root.querySelector = sel => ({ '.nd-legacy-info': info, '.nd-legacy-tools': tools, ':scope > div:last-child': row }[sel] || null);
+  const ball = makeNode(295, 96), advanced = makeNode(780, 50);
+  const heading = makeNode(106, 92);
+  const headingItems = [makeNode(119, 15, 13), makeNode(137, 27, 31), makeNode(168, 16, 62)];
+  const nav = makeNode(135, 34);
+  heading.querySelectorAll = () => headingItems;
+  heading.querySelector = sel => sel === '.nd-modes' ? nav : null;
+  const room = {
+    classList: {
+      toggle(key, on) { if (on) classes.add(key); else classes.delete(key); },
+      remove: key => classes.delete(key), contains: key => classes.has(key)
+    },
+    getBoundingClientRect: () => ({ x: 242, y: 82, top: 82, bottom: 3122, width: 1420, height: 3040 }),
+    querySelector: sel => ({
+      '.nd-legacy-meta': root,
+      '[data-nodal-ball-controls]': ball,
+      '.nd-legacy-card > .mt-5 > section:has(> button[aria-expanded])': advanced,
+      ':scope > .nd-shared-heading': heading
+    }[sel] || null)
+  };
+  const window = { innerWidth: 1920 };
+  const context = {
+    window,
+    document: { readyState: 'loading', addEventListener() {}, querySelector: () => room },
+    getComputedStyle: () => ({
+      borderImageSource: window.innerWidth > 1380 ? 'url("data:image/svg+xml,%3Cpath%20d%3D%22M0%200%20A170%20170%22%3E")' : 'none',
+      width: window.innerWidth > 1380 ? '252px' : '34px'
+    }),
+    requestAnimationFrame(fn) { pending.push(fn); return pending.length; }
+  };
+  vm.runInNewContext(source, context, { filename: scriptPath });
+  const run = w => { window.innerWidth = w; window.__xenNodalShellGeometryT2.refresh(); while (pending.length) pending.shift()(); };
+
+  run(1920);
+  assert.equal(classes.has('nd-geo-t2'), true);
+  const headTop = parseFloat(heading.style.getPropertyValue('--nd-geo-top'));
+  const headBot = parseFloat(heading.style.getPropertyValue('--nd-geo-bottom'));
+  const navShift = parseFloat(heading.style.getPropertyValue('--nd-geo-nav-shift'));
+  const copyShifts = headingItems.map(el => parseFloat(el.style.getPropertyValue('--nd-geo-heading-shift')));
+  const toolShift = parseFloat(root.style.getPropertyValue('--nd-geo-tool-shift'));
+  const ballShift = parseFloat(ball.style.getPropertyValue('--nd-geo-ball-shift'));
+  // At y=106 (dy=24 in 3040px tall room), the R=198 echo arc leaves ~109px open (well below old 157px R=170 over-shift).
+  assert.ok(headTop > 80 && headTop < 120, `expected R=198 headTop in (80,120), got ${headTop}`);
+  assert.ok(headBot > 50 && headBot < headTop, `expected headBot < headTop, got ${headBot} vs ${headTop}`);
+  assert.equal(copyShifts[0], copyShifts[1], 'all header copy lines share one vertical editorial spine');
+  assert.equal(copyShifts[1], copyShifts[2], 'all header copy lines share one vertical editorial spine');
+  assert.ok(copyShifts[0] <= headBot - 13, 'header copy must stay cleanly inside frieze bottom clearance');
+  assert.ok(navShift > 40 && navShift < headTop, `nav must align symmetrically inside right frieze, got ${navShift}`);
+  assert.ok(toolShift <= parseFloat(root.style.getPropertyValue('--nd-geo-top')) - 14, 'tools must stay inside slanted border');
+  assert.ok(ballShift > 0 && ballShift < parseFloat(ball.style.getPropertyValue('--nd-geo-bottom')), 'ball shift stays inside trapezoid');
+
+  run(1280);
+  assert.equal(classes.has('nd-geo-t2'), false);
+  for (const prop of ['--nd-geo-top', '--nd-geo-bottom', '--nd-geo-heading-edge', '--nd-geo-nav-shift']) {
+    assert.equal(heading.style.getPropertyValue(prop), '', `heading ${prop} must reset`);
+  }
+  assert.equal(ball.style.getPropertyValue('--nd-geo-ball-shift'), '', 'ball shift must reset');
+});
