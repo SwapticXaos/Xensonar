@@ -33,13 +33,28 @@ const PARAMS=[
  [32,'cDelay','→ Echo time',0,1,0,'lin','','chaos'],[33,'cPan','→ Pan',0,1,.2,'lin','','chaos'],
  [34,'cCut','→ Cutoff',0,1,0,'lin','','chaos'],
  [35,'drive','Drive',0,1,.1,'lin','','out'],[36,'level','Level',0,1,.7,'lin','','out'],
- [37,'macro','Pad Y',0,1,0,'lin','','hidden'],[38,'macroDepth','Pad Y depth',0,1,.6,'lin','','out']];
-const NPAR=40,BY_KEY=Object.fromEntries(PARAMS.map(p=>[p[1],p]));
+ [37,'macro','Pad Y',0,1,0,'lin','','hidden'],[38,'macroDepth','Pad Y depth',0,1,.6,'lin','','out'],
+ /* PSY-STAGE1: additive parameters (indices 39..55), all neutral at default so existing patches remain bit-exact */
+ [39,'waveMorph','Wave character',0,1,0,'lin','','organic'],[40,'subMix','Sub −1 oct',0,1,0,'lin','','organic'],
+ [41,'ringMix','Ring mod (A×B)',0,1,0,'lin','','organic'],[42,'noiseMix','Breath / Noise',0,1,0,'lin','','organic'],
+ [43,'noiseTone','Noise color',0,1,.55,'lin','','organic'],[44,'noiseBurst','Breath → Burst',0,1,0,'lin','','organic'],
+ [45,'sustain','Sustain',0,1,1,'lin','','env'],
+ [46,'modDecay','Decay / Pluck',.01,6,.35,'exp','s','modenv'],[47,'envFm','Env → FM & Fold',0,1,0,'lin','','modenv'],
+ [48,'envCut','Env → Cutoff',-1,1,0,'cube','','modenv'],[49,'envPitch','Env → Pitch zap',-24,24,0,'cube','st','modenv'],
+ [50,'keyTrack','Filter keytrack',0,1,0,'lin','','shape'],
+ [51,'formantMix','Vocal mix',0,1,0,'lin','','space'],[52,'vowel','Vowel (U·O·A·E·I)',0,1,.5,'lin','','space'],
+ [53,'echoDamp','Echo damping',0,1,0,'lin','','spiral'],[54,'spaceMix','Space cloud',0,1,0,'lin','','space'],
+ [55,'macroCut','Pad Y → Cut/Vowel',-1,1,0,'cube','','out']];
+const NPAR=56,BY_KEY=Object.fromEntries(PARAMS.map(p=>[p[1],p]));
 const RANGES=(()=>{const lo=new Array(NPAR).fill(0),hi=new Array(NPAR).fill(1),def=new Array(NPAR).fill(0);for(const p of PARAMS){lo[p[0]]=p[3];hi[p[0]]=p[4];def[p[0]]=p[5]}return{lo,hi,def}})();
 const GROUPS=[['hydra','HYDRA','Three operators in a feedback ring: A is heard, B bends A, C bends B, A bends C.'],
+ ['organic','ORGANIC · WAVE & BREATH','Harmonic warmth, sub-octave, ring modulation and shaped breath / percussive attack noise.',true],
  ['escher','ESCHER','Endless staircase: a stack of partials that rises or falls forever. The stack interval is free (2 = octaves, 3 = tritaves …).'],
- ['shape','SHAPE','Wavefolder, morphing filter and sample dust.'],['env','ENVELOPE','How notes appear, vanish and slide.'],
- ['spiral','SPIRAL','Frequency shifter and an echo whose repeats are shifted again and again: barber-pole spirals.'],
+ ['shape','SHAPE','Wavefolder, morphing filter, keytracking and sample dust.'],
+ ['env','ENVELOPE','How notes appear, sustain, vanish and slide.'],
+ ['modenv','MOD ENVELOPE · PLUCK & SWEEP','Fast per-note decay envelope onto FM, wavefold, filter cutoff and pitch zap.',true],
+ ['space','VOCAL & SPACE','Three-band vocal formant morph (U–O–A–E–I) and lush allpass cloud diffuser.',true],
+ ['spiral','SPIRAL','Frequency shifter and a damped echo whose repeats spiral in pitch.'],
  ['crystal','CRYSTAL','Resonators tuned to the Main Room grid ring along with the sound.'],
  ['chaos','CHAOS','A Lorenz attractor moves the sound. It never repeats.'],['out','OUT','']];
 function toUnit(p,v){const[, , ,lo,hi, ,curve]=p;v=clamp(v,lo,hi);if(curve==='exp')return Math.log(v/lo)/Math.log(hi/lo);if(curve==='cube'){const m=Math.max(Math.abs(lo),Math.abs(hi));return .5+.5*Math.cbrt(v/m)}return(v-lo)/(hi-lo)}
@@ -61,10 +76,17 @@ function psyLabWorkletModule(RANGE_LO,RANGE_HI,RANGE_DEF){
     (a boxed double is garbage on the audio thread). Everything per sample is inlined on typed arrays.
     Phases wrap by integer truncation (x-=x|0), not by Math.floor: no call per sample in any engine. */
  const TS=4096,SIN=new Float32Array(TS+2);for(let i=0;i<TS+2;i++)SIN[i]=Math.sin(2*Math.PI*i/TS); // two guard points: a wrapped phase may be exactly 1
- const NV=6,NP=6,NPAR=40,NRES=8,BLOCK=128;
+ // Band-limited warm analog saw/brass mip-tables (16 / 8 / 4 / 2 harmonics, Lanczos-smoothed, normalized to unit peak)
+ const mkRich=M=>{const t=new Float32Array(TS+2);let pk=0;for(let i=0;i<TS;i++){let s=0;for(let h=1;h<=M;h++){const x=Math.PI*h/(M+1),sig=Math.sin(x)/x;s+=(sig/h)*Math.sin(2*Math.PI*h*i/TS)}t[i]=s;const a=s<0?-s:s;if(a>pk)pk=a}const g=pk>1e-6?1/pk:1;for(let i=0;i<TS;i++)t[i]*=g;t[TS]=t[0];t[TS+1]=t[1];return t};
+ const R0=mkRich(16),R1=mkRich(8),R2=mkRich(4),R3=mkRich(2);
+ const NV=6,NP=6,NPAR=56,NRES=8,BLOCK=128;
  // Hilbert pair (two 4-section allpass chains, 90 degrees apart), coefficients squared
  const HA=new Float64Array([0.6923878*0.6923878,0.9360654322959*0.9360654322959,0.9882295226860*0.9882295226860,0.9987488452737*0.9987488452737]);
  const HB=new Float64Array([0.4021921162426*0.4021921162426,0.8561710882420*0.8561710882420,0.9722909545651*0.9722909545651,0.9952884791278*0.9952884791278]);
+ // Vocal formant centers (U, O, A, E, I) in Hz
+ const VF1=new Float64Array([320,450,730,530,270]);
+ const VF2=new Float64Array([800,820,1090,1840,2290]);
+ const VF3=new Float64Array([2240,2400,2440,2480,3010]);
  const HSIZE=34;
  class XenPsyLabProcessor extends AudioWorkletProcessor{
   constructor(options){super();const o=options?.processorOptions||{};
@@ -73,22 +95,28 @@ function psyLabWorkletModule(RANGE_LO,RANGE_HI,RANGE_DEF){
    this.target=new Float64Array(RANGE_DEF);this.cur=new Float64Array(RANGE_DEF);
    if(Array.isArray(o.params))for(let i=0;i<NPAR&&i<o.params.length;i++){const v=+o.params[i];if(v===v){const c=v<this.lo[i]?this.lo[i]:v>this.hi[i]?this.hi[i]:v;this.target[i]=c;this.cur[i]=c}}
    // voices
-   this.vAct=new Uint8Array(NV);this.vGate=new Uint8Array(NV);this.vFast=new Uint8Array(NV);this.vId=new Float64Array(NV).fill(-1);this.vAge=new Float64Array(NV);
-   this.vHz=new Float64Array(NV);this.vF=new Float64Array(NV);this.vVel=new Float64Array(NV);this.vEnv=new Float64Array(NV);this.vPan=new Float64Array(NV);
-   this.vPh=new Float64Array(NV*4);this.vPrev=new Float64Array(NV);this.vSh=new Float64Array(NV*NP*2);
+   this.vAct=new Uint8Array(NV);this.vGate=new Uint8Array(NV);this.vFast=new Uint8Array(NV);this.vStage=new Uint8Array(NV);this.vId=new Float64Array(NV).fill(-1);this.vAge=new Float64Array(NV);
+   this.vHz=new Float64Array(NV);this.vF=new Float64Array(NV);this.vVel=new Float64Array(NV);this.vEnv=new Float64Array(NV);this.vMod=new Float64Array(NV);this.vZap=new Float64Array(NV);this.vPan=new Float64Array(NV);
+   this.vPh=new Float64Array(NV*5);this.vPrev=new Float64Array(NV);this.vNSt=new Float64Array(NV);this.vSh=new Float64Array(NV*NP*2);
    this.active=0;this.clock=0;
    // Shepard stack (shared by all voices so they climb together)
    this.shU=new Float64Array(NP);for(let j=0;j<NP;j++)this.shU[j]=j/NP;this.shR=new Float64Array(NP);this.shW=new Float64Array(NP);
    // block buffers
    this.bL=new Float32Array(BLOCK);this.bR=new Float32Array(BLOCK);
-   // filter, crush, resonators, shifters, delay, output
-   this.svf=new Float64Array(4);
+   // filter, formant, crush, resonators, shifters, delay, space cloud, output
+   this.svf=new Float64Array(4);this.fmS=new Float64Array(12);
    // scalar state lives in a typed array: a double stored into an object field is boxed (garbage per block)
-   this.st=new Float64Array(8);this.st[7]=-1;
+   this.st=new Float64Array(16);this.st[7]=-1;this.st[8]=2463534242;this.st[10]=220;
    this.rHz=new Float64Array(NRES);this.rA1=new Float64Array(NRES);this.rA2=new Float64Array(NRES);this.rG=new Float64Array(NRES);this.rY=new Float64Array(NRES*2);this.rN=0;this.rDirty=true;
    if(Array.isArray(o.res))this.setRes(o.res);
    this.H=new Float64Array(HSIZE*4);
    let size=1;while(size<this.sr*2.7)size<<=1;this.dSize=size;this.dMask=size-1;this.dL=new Float32Array(size);this.dR=new Float32Array(size);this.dW=0;this.st[5]=this.cur[21]*this.sr;
+   // Space cloud diffuser (4 stereo allpasses + 2 cross-coupled damped tanks, prime lengths scaled to sr)
+   const sc=this.sr/44100;
+   this.spAL1=new Float32Array(Math.max(16,Math.round(347*sc)));this.spAL2=new Float32Array(Math.max(16,Math.round(773*sc)));
+   this.spAR1=new Float32Array(Math.max(16,Math.round(419*sc)));this.spAR2=new Float32Array(Math.max(16,Math.round(881*sc)));
+   this.spTL=new Float32Array(Math.max(32,Math.round(2689*sc)));this.spTR=new Float32Array(Math.max(32,Math.round(3491*sc)));
+   this.spPos=new Float64Array(6);this.spLp=new Float64Array(2);
    this.dc=new Float64Array(4);this.lz=new Float64Array([.1,0,20]);this.mod=new Float64Array(4);
    this.quiet=0;this.sleepBlocks=Math.ceil(this.sr*1.5/BLOCK);
    // offline bounce: a fixed list of events by frame, no port traffic needed
@@ -111,8 +139,8 @@ function psyLabWorkletModule(RANGE_LO,RANGE_HI,RANGE_DEF){
    if(v<0)for(let i=0;i<NV;i++)if(!this.vAct[i]){v=i;break}
    if(v<0){let best=1/0;for(let i=0;i<NV;i++){const score=this.vAge[i]+(this.vGate[i]?1e12:0);if(score<best){best=score;v=i}}} // steal: released first, then oldest
    const fresh=!this.vAct[v];
-   if(fresh){this.active++;this.vF[v]=hz;this.vEnv[v]=0;this.vPrev[v]=0;for(let k=0;k<4;k++)this.vPh[v*4+k]=0;for(let k=0;k<NP*2;k++)this.vSh[v*NP*2+k]=0}
-   this.vAct[v]=1;this.vGate[v]=1;this.vFast[v]=0;this.vId[v]=id;this.vHz[v]=hz;this.vVel[v]=vel<0?0:vel>1?1:vel;this.vAge[v]=++this.clock;this.vPan[v]=((v*0.6180339887)%1)*2-1;
+   if(fresh){this.active++;this.vF[v]=hz;this.vEnv[v]=0;this.vPrev[v]=0;this.vNSt[v]=0;for(let k=0;k<5;k++)this.vPh[v*5+k]=0;for(let k=0;k<NP*2;k++)this.vSh[v*NP*2+k]=0}
+   this.vAct[v]=1;this.vGate[v]=1;this.vFast[v]=0;this.vStage[v]=0;this.vMod[v]=1;this.vZap[v]=1;this.vId[v]=id;this.vHz[v]=hz;this.vVel[v]=vel<0?0:vel>1?1:vel;this.vAge[v]=++this.clock;this.vPan[v]=((v*0.6180339887)%1)*2-1;
    this.quiet=0;
   }
   process(inputs,outputs){
@@ -122,7 +150,7 @@ function psyLabWorkletModule(RANGE_LO,RANGE_HI,RANGE_DEF){
    if(this.script){const sc=this.script;while(this.scriptAt<sc.length&&sc[this.scriptAt].f<currentFrame+n){this.handle(sc[this.scriptAt].m);this.scriptAt++}}
    if(this.active===0&&this.quiet>=this.sleepBlocks)return true; // asleep: outputs are already zero
    if(n>this.bL.length){this.bL=new Float32Array(n);this.bR=new Float32Array(n)} // only if a host ever changes the quantum
-   this.control(n);this.voices(n);this.shape(n);this.crystal(n);this.shifter(n);this.echo(n);this.output(n,oL,oR);
+   this.control(n);this.voices(n);this.shape(n);this.formant(n);this.crystal(n);this.shifter(n);this.echo(n);this.space(n);this.output(n,oL,oR);
    return true;
   }
   /* Stage methods take only the block length: number arguments or results would be boxed. Small functions are
@@ -138,12 +166,16 @@ function psyLabWorkletModule(RANGE_LO,RANGE_HI,RANGE_DEF){
    mod[3]=cur[37]*cur[38];
   }
   voices(n){
-   const bL=this.bL,bR=this.bR,cur=this.cur,sr=this.sr,isr=this.isr,mod=this.mod,m0=mod[0],m1=mod[1],m2=mod[2],macro=mod[3];
-   let fold=cur[11]+cur[29]*m0*.6+macro*.5;fold=fold<0?0:fold>1?1:fold;
+   const bL=this.bL,bR=this.bR,cur=this.cur,isr=this.isr,mod=this.mod,m0=mod[0],m1=mod[1],macro=mod[3];
+   let baseFold=cur[11]+cur[29]*m0*.6+macro*.5;baseFold=baseFold<0?0:baseFold>1?1:baseFold;
    let fmScale=1+cur[30]*m1*1.2+macro*1.5;if(fmScale<0)fmScale=0;
-   const iAB=cur[2]*fmScale*.159154943,iBC=cur[3]*fmScale*.159154943,iCA=cur[4]*.159154943,iSelf=cur[5]*.159154943; // radians → cycles
+   const baseAB=cur[2]*fmScale*.159154943,baseBC=cur[3]*fmScale*.159154943,iCA=cur[4]*.159154943,iSelf=cur[5]*.159154943; // radians → cycles
    const rB=cur[0],rC=cur[1],opMix=cur[6],det=cur[7]*.00028881; // cents/2 → relative
-   const foldG=(1+fold*7)*.25,foldMix=fold*5>1?1:fold*5;
+   const wm=cur[39],hasWm=wm>.0005,subMix=cur[40],hasSub=subMix>.0005,ringMix=cur[41],hasRing=ringMix>.0005;
+   const noiseMix=cur[42],hasNoise=noiseMix>.0005,noiseBurst=cur[44];
+   const noiseK=hasNoise?1-Math.exp(-6.283185307*(350*Math.pow(36,cur[43]))*isr):0;
+   const sus=cur[45],hasSus=sus<.999,modDec=cur[46],decK=1-Math.exp(-isr/modDec),zapTau=modDec*.28<.004?.004:modDec*.28,zapK=1-Math.exp(-isr/zapTau);
+   const envFm=cur[47],hasEnvFm=envFm>.0005,envPitch=cur[49],hasPitch=envPitch>.01||envPitch<-.01;
    const atkK=1-Math.exp(-isr/cur[16]),relK=1-Math.exp(-isr/cur[17]),fastK=1-Math.exp(-isr/.045)/* PSY-SUS-01: quick damp when the Sustain key is released */,gk=cur[18]<.001?1:1-Math.exp(-isr/cur[18]);
    // ---- Shepard stack positions for this block ----
    const shepMix=cur[8],shepOn=shepMix>.0005;
@@ -153,13 +185,24 @@ function psyLabWorkletModule(RANGE_LO,RANGE_HI,RANGE_DEF){
    // ---- voices ----
    for(let i=0;i<n;i++){bL[i]=0;bR[i]=0}
    const panMod=cur[33]*m1;
+   let peakMod=0,hzSum=0,hzCnt=0,rng=this.st[8]|0;
    for(let v=0;v<NV;v++){if(!this.vAct[v])continue;
-    const vPh=this.vPh,q=v*4;let pa=vPh[q],pr=vPh[q+1],pb=vPh[q+2],pc=vPh[q+3],prev=this.vPrev[v],f=this.vF[v],env=this.vEnv[v];
+    const vPh=this.vPh,q=v*5;let pa=vPh[q],pr=vPh[q+1],pb=vPh[q+2],pc=vPh[q+3],ps=vPh[q+4],prev=this.vPrev[v],f=this.vF[v],env=this.vEnv[v],modE=this.vMod[v],zapE=this.vZap[v],nst=this.vNSt[v],stage=this.vStage[v];
     const ft=this.vHz[v],gate=this.vGate[v],vel=this.vVel[v],rk=this.vFast[v]&&fastK>relK?fastK:relK;
     let pan=this.vPan[v]*.55+panMod*(v&1?-1:1);pan=pan<-1?-1:pan>1?1:pan;const gl=Math.cos((pan+1)*.7853981634)*vel*.26,gr=Math.sin((pan+1)*.7853981634)*vel*.26; // headroom: six voices plus echo stay below the soft clipper
     const sh=this.vSh,so=v*NP*2,shR=this.shR,shW=this.shW;
+    // Per-block smooth pitch-zap multiplier (avoids Math.pow per sample)
+    let pMul=1,pStep=1;
+    if(hasPitch&&zapE>1e-5){const zEnd=zapE*Math.exp(-n*isr/zapTau);pMul=Math.pow(2,envPitch*zapE*.083333333333);const pEnd=Math.pow(2,envPitch*zEnd*.083333333333);pStep=Math.pow(pEnd/pMul,1/n)}
+    const blkInc=f*pMul*isr;
+    const rich=blkInc<.028?R0:blkInc<.056?R1:blkInc<.112?R2:blkInc<.225?R3:SIN;
+    // Effective FM / fold scaling from per-voice modEnv (computed cleanly per block when envFm > 0)
+    const fmMul=hasEnvFm?(1-envFm*.82+envFm*1.45*modE):1;
+    const iAB=baseAB*fmMul,iBC=baseBC*fmMul;
+    let fold=hasEnvFm?baseFold+envFm*modE*.45:baseFold;if(fold>1)fold=1;
+    const foldG=(1+fold*7)*.25,foldMix=fold*5>1?1:fold*5;
     for(let i=0;i<n;i++){
-     f+=(ft-f)*gk;const inc=f*isr;
+     f+=(ft-f)*gk;pMul*=pStep;const inc=f*pMul*isr;
      // C ← A, B ← C
      pc+=inc*rC;pc-=pc|0;if(pc<0)pc+=1;let p=pc+iCA*prev;p-=p|0;if(p<0)p+=1;let x=p*TS,k=x|0;const cOut=inc*rC<.47?SIN[k]+(SIN[k+1]-SIN[k])*(x-k):0;
      pb+=inc*rB;pb-=pb|0;if(pb<0)pb+=1;p=pb+iBC*cOut;p-=p|0;if(p<0)p+=1;x=p*TS;k=x|0;const bOut=inc*rB<.47?SIN[k]+(SIN[k+1]-SIN[k])*(x-k):0;
@@ -167,7 +210,9 @@ function psyLabWorkletModule(RANGE_LO,RANGE_HI,RANGE_DEF){
      // A, twice (left / right slightly detuned)
      pa+=inc*(1+det);pa-=pa|0;if(pa<0)pa+=1;pr+=inc*(1-det);pr-=pr|0;if(pr<0)pr+=1;
      p=pa+pm;p-=p|0;if(p<0)p+=1;x=p*TS;k=x|0;let aL=SIN[k]+(SIN[k+1]-SIN[k])*(x-k);
+     if(hasWm)aL+=((rich[k]+(rich[k+1]-rich[k])*(x-k))-aL)*wm;
      p=pr+pm;p-=p|0;if(p<0)p+=1;x=p*TS;k=x|0;let aR=SIN[k]+(SIN[k+1]-SIN[k])*(x-k);
+     if(hasWm)aR+=((rich[k]+(rich[k+1]-rich[k])*(x-k))-aR)*wm;
      if(shepOn){let sL=0,sR=0;
       for(let j=0;j<NP;j++){const fi=inc*shR[j];if(fi>.47||fi<.00018)continue;const w=shW[j],s2=so+j*2;
        let ph=sh[s2]+fi*(1+det);ph-=ph|0;if(ph<0)ph+=1;sh[s2]=ph;p=ph+pm;p-=p|0;if(p<0)p+=1;x=p*TS;k=x|0;sL+=w*(SIN[k]+(SIN[k+1]-SIN[k])*(x-k));
@@ -175,30 +220,71 @@ function psyLabWorkletModule(RANGE_LO,RANGE_HI,RANGE_DEF){
       aL+=(sL-aL)*shepMix;aR+=(sR-aR)*shepMix}
      prev=(aL+aR)*.5;
      let yL=aL+(bOut-aL)*opMix,yR=aR+(bOut-aR)*opMix;
+     if(hasRing){yL+=(aL*bOut-yL)*ringMix;yR+=(aR*bOut-yR)*ringMix}
+     if(hasSub){ps+=inc*.5;ps-=ps|0;if(ps<0)ps+=1;x=ps*TS;k=x|0;const sv=(SIN[k]+(SIN[k+1]-SIN[k])*(x-k))*subMix*.65;yL+=sv;yR+=sv}
      if(foldMix>0){p=yL*foldG;p-=p|0;if(p<0)p+=1;x=p*TS;k=x|0;yL+=((SIN[k]+(SIN[k+1]-SIN[k])*(x-k))-yL)*foldMix;
       p=yR*foldG;p-=p|0;if(p<0)p+=1;x=p*TS;k=x|0;yR+=((SIN[k]+(SIN[k+1]-SIN[k])*(x-k))-yR)*foldMix}
-     if(gate)env+=(1-env)*atkK;else env-=env*rk;
+     if(hasNoise){rng^=rng<<13;rng^=rng>>>17;rng^=rng<<5;const wn=rng*4.656612875245797e-10;nst+=(wn-nst)*noiseK;const nEnv=(1-noiseBurst)+noiseBurst*modE*modE;const nv=nst*noiseMix*nEnv*.75;yL+=nv;yR+=nv}
+     if(gate){if(!hasSus){env+=(1-env)*atkK}else if(stage===0){env+=(1-env)*atkK;if(env>=.992)stage=1}else{env+=(sus-env)*decK}}
+     else env-=env*rk;
+     if(modE>1e-6)modE-=modE*decK;else modE=0;
+     if(zapE>1e-6)zapE-=zapE*zapK;else zapE=0;
      bL[i]+=yL*env*gl;bR[i]+=yR*env*gr;
     }
-    vPh[q]=pa;vPh[q+1]=pr;vPh[q+2]=pb;vPh[q+3]=pc;this.vPrev[v]=prev;this.vF[v]=f;this.vEnv[v]=env;
+    vPh[q]=pa;vPh[q+1]=pr;vPh[q+2]=pb;vPh[q+3]=pc;vPh[q+4]=ps;this.vPrev[v]=prev;this.vF[v]=f;this.vEnv[v]=env;this.vMod[v]=modE;this.vZap[v]=zapE;this.vNSt[v]=nst;this.vStage[v]=stage;
+    const mEff=modE*(gate?1:env);if(mEff>peakMod)peakMod=mEff;
+    hzSum+=f;hzCnt++;
     if(!gate&&env<2e-5){this.vAct[v]=0;this.vId[v]=-1;this.active--}
    }
+   this.st[8]=rng;this.st[9]=peakMod;if(hzCnt>0)this.st[10]=hzSum/hzCnt;
   }
   shape(n){
-   const bL=this.bL,bR=this.bR,cur=this.cur,sr=this.sr,isr=this.isr,mod=this.mod,m0=mod[0],m1=mod[1],m2=mod[2],macro=mod[3];
+   const bL=this.bL,bR=this.bR,cur=this.cur,sr=this.sr,isr=this.isr,mod=this.mod,m2=mod[2],macro=mod[3];
    // ---- dust (sample and hold) ----
    if(cur[15]>.002){const period=1+cur[15]*cur[15]*60;let ph=this.st[0],hl=this.st[1],hr=this.st[2];
     for(let i=0;i<n;i++){ph+=1;if(ph>=period){ph-=period;hl=bL[i];hr=bR[i]}bL[i]=hl;bR[i]=hr}this.st[0]=ph;this.st[1]=hl;this.st[2]=hr}
-   // ---- morphing state variable filter (TPT) ----
-   {let fc=cur[12]*Math.pow(2,cur[34]*m2*3+macro*0);fc=fc<25?25:fc>sr*.45?sr*.45:fc;
+   // ---- morphing state variable filter (TPT) with keytracking, mod envelope & Pad Y routing ----
+   {let fc=cur[12]*Math.pow(2,cur[34]*m2*3+cur[55]*macro*3+cur[48]*this.st[9]*4);
+    if(cur[50]>.001&&this.st[10]>20)fc*=Math.pow(this.st[10]/220,cur[50]);
+    fc=fc<25?25:fc>sr*.45?sr*.45:fc;
     if(fc<19000||cur[14]>.001||cur[13]>.12){const g=Math.tan(Math.PI*fc*isr),kq=1/(.5+cur[13]*cur[13]*24.5),a1=1/(1+g*(g+kq)),a2=g*a1,a3=g*a2,mo=cur[14];
      const wl=mo<.5?1-mo*2:0,wb=mo<.5?mo*2:2-mo*2,wh=mo<.5?0:mo*2-1,s=this.svf;
      for(let c=0;c<2;c++){const b=c?bR:bL;let i1=s[c*2],i2=s[c*2+1];
       for(let i=0;i<n;i++){const x=b[i],v3=x-i2,v1=a1*i1+a2*v3,v2=i2+a2*i1+a3*v3;i1=2*v1-i1;i2=2*v2-i2;b[i]=wl*v2+wb*v1+wh*(x-kq*v1-v2)}
       s[c*2]=i1<1e-20&&i1>-1e-20?0:i1;s[c*2+1]=i2<1e-20&&i2>-1e-20?0:i2}}}
   }
+  formant(n){
+   const cur=this.cur,mix=cur[51];if(mix<=.001)return;
+   const bL=this.bL,bR=this.bR,sr=this.sr,isr=this.isr,mod=this.mod,fmS=this.fmS;
+   let vow=cur[52]+cur[55]*mod[3]*.45+cur[34]*mod[1]*.3;vow=vow<0?0:vow>1?1:vow;
+   const pos=vow*4;let idx=pos|0;if(idx>3)idx=3;const fr=pos-idx,maxF=sr*.42;
+   let f1=VF1[idx]+(VF1[idx+1]-VF1[idx])*fr;if(f1>maxF)f1=maxF;
+   let f2=VF2[idx]+(VF2[idx+1]-VF2[idx])*fr;if(f2>maxF)f2=maxF;
+   let f3=VF3[idx]+(VF3[idx+1]-VF3[idx])*fr;if(f3>maxF)f3=maxF;
+   const kq1=.18,kq2=.10,kq3=.085;
+   const g1=Math.tan(Math.PI*f1*isr),a11=1/(1+g1*(g1+kq1)),a12=g1*a11,a13=g1*a12;
+   const g2=Math.tan(Math.PI*f2*isr),a21=1/(1+g2*(g2+kq2)),a22=g2*a21,a23=g2*a22;
+   const g3=Math.tan(Math.PI*f3*isr),a31=1/(1+g3*(g3+kq3)),a32=g3*a31,a33=g3*a32;
+   // Unity-peak bandpass normalization (v1 * kq) with vocal 1/f spectral tilt compensation
+   const w1=kq1*.85,w2=kq2*2.2,w3=kq3*2.4;
+   for(let c=0;c<2;c++){
+    const b=c?bR:bL,o=c*6;
+    let s11=fmS[o],s12=fmS[o+1],s21=fmS[o+2],s22=fmS[o+3],s31=fmS[o+4],s32=fmS[o+5];
+    for(let i=0;i<n;i++){
+     const x=b[i];
+     const v13=x-s12,v11=a11*s11+a12*v13,v12=s12+a12*s11+a13*v13;s11=2*v11-s11;s12=2*v12-s12;
+     const v23=x-s22,v21=a21*s21+a22*v23,v22=s22+a22*s21+a23*v23;s21=2*v21-s21;s22=2*v22-s22;
+     const v33=x-s32,v31=a31*s31+a32*v33,v32=s32+a32*s31+a33*v33;s31=2*v31-s31;s32=2*v32-s32;
+     const wet=v11*w1+v21*w2+v31*w3;
+     b[i]=x+(wet-x)*mix;
+    }
+    fmS[o]=s11<1e-20&&s11>-1e-20?0:s11;fmS[o+1]=s12<1e-20&&s12>-1e-20?0:s12;
+    fmS[o+2]=s21<1e-20&&s21>-1e-20?0:s21;fmS[o+3]=s22<1e-20&&s22>-1e-20?0:s22;
+    fmS[o+4]=s31<1e-20&&s31>-1e-20?0:s31;fmS[o+5]=s32<1e-20&&s32>-1e-20?0:s32;
+   }
+  }
   crystal(n){
-   const bL=this.bL,bR=this.bR,cur=this.cur,sr=this.sr,isr=this.isr,mod=this.mod,m0=mod[0],m1=mod[1],m2=mod[2],macro=mod[3];
+   const bL=this.bL,bR=this.bR,cur=this.cur,isr=this.isr;
    // ---- crystal: resonators tuned to the scale ----
    if(cur[26]>.001&&this.rN>0){if(this.rDirty||this.st[7]!==cur[27]){this.st[7]=cur[27];this.rDirty=false;
      for(let r=0;r<this.rN;r++){const w=6.283185307*this.rHz[r]*isr,R=Math.exp(-w/(2*this.st[7]));this.rA1[r]=2*R*Math.cos(w);this.rA2[r]=R*R;this.rG[r]=(1-R*R)*.5}}
@@ -209,7 +295,7 @@ function psyLabWorkletModule(RANGE_LO,RANGE_HI,RANGE_DEF){
      rY[r*2]=y1<1e-20&&y1>-1e-20?0:y1;rY[r*2+1]=y2<1e-20&&y2>-1e-20?0:y2}}
   }
   shifter(n){
-   const bL=this.bL,bR=this.bR,cur=this.cur,sr=this.sr,isr=this.isr,mod=this.mod,m0=mod[0],m1=mod[1],m2=mod[2],macro=mod[3];
+   const bL=this.bL,bR=this.bR,cur=this.cur,isr=this.isr,mod=this.mod,m0=mod[0];
    // ---- direct frequency shifter (left up, right up; the echo loop spins both ways) ----
    const H=this.H;
    if(cur[20]>.001){const hz=cur[19]+cur[31]*m0*220,inc=hz*isr,mix=cur[20];let ph=this.st[3];
@@ -222,12 +308,14 @@ function psyLabWorkletModule(RANGE_LO,RANGE_HI,RANGE_DEF){
     this.st[3]=ph}
   }
   echo(n){
-   const bL=this.bL,bR=this.bR,cur=this.cur,sr=this.sr,isr=this.isr,mod=this.mod,m0=mod[0],m1=mod[1],m2=mod[2],macro=mod[3];
+   const bL=this.bL,bR=this.bR,cur=this.cur,sr=this.sr,isr=this.isr,mod=this.mod,m2=mod[2];
    const H=this.H;
-   // ---- spiral echo: feedback runs through a second shifter, opposite directions left and right ----
+   // ---- spiral echo: feedback runs through optional damping LP + a second shifter, opposite directions left and right ----
    {const dL=this.dL,dR=this.dR,mask=this.dMask,size=this.dSize,fb=cur[22],mix=cur[23],cross=cur[25]*.5,rightRatio=1+cur[25]*.5;
     let target=cur[21]*(1+cur[32]*m2*.35)*sr;const maxD=(this.dSize-4)/rightRatio;target=target<8?8:target>maxD?maxD:target;
-    const inc=cur[24]*isr,spin=inc!==0;let w=this.dW,dCur=this.st[5],ph=this.st[4];
+    const inc=cur[24]*isr,spin=inc!==0,damp=cur[53],hasDamp=damp>.001;
+    const dampK=hasDamp?1-Math.exp(-6.283185307*(18000*Math.pow(700/18000,damp))*isr):1;
+    let w=this.dW,dCur=this.st[5],ph=this.st[4],edL=this.st[11],edR=this.st[12];
     for(let i=0;i<n;i++){dCur+=(target-dCur)*.00025; // tape-like glide when the time moves
      let pos=w-dCur+size;let i0=pos|0;let fr=pos-i0;i0&=mask;const eL=dL[i0]+(dL[(i0+1)&mask]-dL[i0])*fr;
      pos=w-dCur*rightRatio+size;i0=pos|0;fr=pos-i0;i0&=mask;const eR=dR[i0]+(dR[(i0+1)&mask]-dR[i0])*fr;
@@ -238,14 +326,39 @@ function psyLabWorkletModule(RANGE_LO,RANGE_HI,RANGE_DEF){
        const I=H[o+32];H[o+32]=v;v=inp;
        for(let s=0;s<4;s++){const q=o+16+s*4,y=HB[s]*(v+H[q+3])-H[q+1];H[q+1]=H[q];H[q]=v;H[q+3]=H[q+2];H[q+2]=y;v=y}
        if(c)fR=I*cs+v*sn;else fL=I*cs-v*sn}}
+     if(hasDamp){edL+=(fL-edL)*dampK;edR+=(fR-edR)*dampK;fL=edL;fR=edR}
      // soft saturation keeps feedback above 1 musical instead of exploding
      fL*=fb;fR*=fb;fL=fL>3?1:fL<-3?-1:fL*(27+fL*fL)/(27+9*fL*fL);fR=fR>3?1:fR<-3?-1:fR*(27+fR*fR)/(27+9*fR*fR);
      dL[w]=bL[i]+fL;dR[w]=bR[i]+fR;w=(w+1)&mask;
      bL[i]+=eL*mix;bR[i]+=eR*mix}
-    this.dW=w;this.st[5]=dCur;this.st[4]=ph}
+    this.dW=w;this.st[5]=dCur;this.st[4]=ph;this.st[11]=edL<1e-20&&edL>-1e-20?0:edL;this.st[12]=edR<1e-20&&edR>-1e-20?0:edR}
+  }
+  space(n){
+   const cur=this.cur,spMix=cur[54];if(spMix<=.001)return;
+   const bL=this.bL,bR=this.bR,isr=this.isr;
+   const al1=this.spAL1,al2=this.spAL2,ar1=this.spAR1,ar2=this.spAR2,tl=this.spTL,tr=this.spTR,pos=this.spPos,lp=this.spLp;
+   const lAL1=al1.length,lAL2=al2.length,lAR1=ar1.length,lAR2=ar2.length,lTL=tl.length,lTR=tr.length;
+   let p0=pos[0]|0,p1=pos[1]|0,p2=pos[2]|0,p3=pos[3]|0,p4=pos[4]|0,p5=pos[5]|0,lpL=lp[0],lpR=lp[1];
+   const g=.54,fb=.30+spMix*.54,wet=spMix*.75,dk=1-Math.exp(-6.283185307*4200*isr);
+   for(let i=0;i<n;i++){
+    let xL=bL[i],xR=bR[i];
+    // 2 cascaded Schroeder allpasses per channel
+    let d=al1[p0],w=xL+g*d;al1[p0]=w;xL=d-g*w;if(++p0>=lAL1)p0=0;
+    d=al2[p1];w=xL+g*d;al2[p1]=w;xL=d-g*w;if(++p1>=lAL2)p1=0;
+    d=ar1[p2];w=xR+g*d;ar1[p2]=w;xR=d-g*w;if(++p2>=lAR1)p2=0;
+    d=ar2[p3];w=xR+g*d;ar2[p3]=w;xR=d-g*w;if(++p3>=lAR2)p3=0;
+    // cross-coupled damped stereo cloud tank
+    const oL=tl[p4],oR=tr[p5];
+    lpL+=(oL-lpL)*dk;lpR+=(oR-lpR)*dk;
+    tl[p4]=xL+lpR*fb;tr[p5]=xR-lpL*fb;
+    if(++p4>=lTL)p4=0;if(++p5>=lTR)p5=0;
+    bL[i]+=lpL*wet;bR[i]+=lpR*wet;
+   }
+   pos[0]=p0;pos[1]=p1;pos[2]=p2;pos[3]=p3;pos[4]=p4;pos[5]=p5;
+   lp[0]=lpL<1e-20&&lpL>-1e-20?0:lpL;lp[1]=lpR<1e-20&&lpR>-1e-20?0:lpR;
   }
   output(n,oL,oR){
-   const bL=this.bL,bR=this.bR,cur=this.cur,sr=this.sr,isr=this.isr,mod=this.mod,m0=mod[0],m1=mod[1],m2=mod[2],macro=mod[3];
+   const bL=this.bL,bR=this.bR,cur=this.cur;
    // ---- drive, DC blocker, level ----
    {const dg=1+cur[35]*7,lvl=cur[36]/(1+cur[35]*.6),dc=this.dc;let peak=0,x1=dc[0],y1=dc[1],x2=dc[2],y2=dc[3];
     // DC blocker first, soft clipper last: the output can never exceed the level setting
@@ -253,9 +366,9 @@ function psyLabWorkletModule(RANGE_LO,RANGE_HI,RANGE_DEF){
      x=bR[i];y=x-x2+.9995*y2;x2=x;y2=y;a=y*dg;a=a>3?1:a<-3?-1:a*(27+a*a)/(27+9*a*a);a*=lvl;if(oR!==oL)oR[i]=a;if(a>peak)peak=a;else if(-a>peak)peak=-a}
     dc[0]=x1;dc[1]=y1<1e-20&&y1>-1e-20?0:y1;dc[2]=x2;dc[3]=y2<1e-20&&y2>-1e-20?0:y2;
     if(!(peak<=1.5)||!(y1===y1)||!(y2===y2)){ // a non-finite state must never reach the master: silence this block and reset every memory
-     for(let i=0;i<n;i++){oL[i]=0;if(oR!==oL)oR[i]=0}this.svf.fill(0);this.rY.fill(0);this.H.fill(0);this.dL.fill(0);this.dR.fill(0);this.dc.fill(0);this.vPrev.fill(0);peak=0}
+     for(let i=0;i<n;i++){oL[i]=0;if(oR!==oL)oR[i]=0}this.svf.fill(0);this.fmS.fill(0);this.rY.fill(0);this.H.fill(0);this.dL.fill(0);this.dR.fill(0);this.spAL1.fill(0);this.spAL2.fill(0);this.spAR1.fill(0);this.spAR2.fill(0);this.spTL.fill(0);this.spTR.fill(0);this.spLp.fill(0);this.dc.fill(0);this.vPrev.fill(0);this.vNSt.fill(0);this.st[11]=0;this.st[12]=0;peak=0}
     this.st[6]=peak;this.quiet=this.active===0&&peak<1e-5?this.quiet+1:0;
-    if(this.active===0&&this.quiet===this.sleepBlocks){this.dL.fill(0);this.dR.fill(0);this.H.fill(0);this.rY.fill(0);this.svf.fill(0);this.dc.fill(0)} // going to sleep with clean memories
+    if(this.active===0&&this.quiet===this.sleepBlocks){this.dL.fill(0);this.dR.fill(0);this.H.fill(0);this.rY.fill(0);this.svf.fill(0);this.fmS.fill(0);this.spAL1.fill(0);this.spAL2.fill(0);this.spAR1.fill(0);this.spAR2.fill(0);this.spTL.fill(0);this.spTR.fill(0);this.spLp.fill(0);this.dc.fill(0);this.st[11]=0;this.st[12]=0} // going to sleep with clean memories
    }
   }
  }
@@ -327,7 +440,13 @@ const FACTORY=[
  patch('Crystal Cave','ji',{ratioB:2,ratioC:5,fmAB:.9,fmBC:.4,fold:.05,attack:.002,release:.25,resMix:.6,resQ:320,delayTime:.62,delayFb:.55,delayMix:.35,loopShift:.25,cutoff:9000}),
  patch('Deep Fold Drone','ji',{ratioB:.5,ratioC:1.5,fmAB:.8,fmBC:.5,fmCA:.4,fold:.7,opMix:.25,attack:1.6,release:6,cutoff:1400,reso:.35,chaosRate:.12,cFold:.7,cCut:.6,cPan:.5,delayTime:.9,delayFb:.6,delayMix:.3,loopShift:-.3,detune:18,drive:.4}),
  patch('Tritave Ghost','bp',{shepMix:.8,shepRate:-.07,shepInterval:3,ratioB:3,ratioC:1.6667,fmAB:1.1,fmBC:.6,fmCA:.5,fold:.2,attack:.25,release:4,shiftHz:5,shiftMix:.35,delayTime:.74,delayFb:.7,delayMix:.4,loopShift:2.2,cShift:.4,chaosRate:.25}),
- patch('Alien Choir','ji',{ratioB:1.005,ratioC:2.99,fmAB:1.6,fmBC:.9,fmCA:.7,opMix:.4,fold:.25,morph:.45,cutoff:1800,reso:.55,shiftHz:11,shiftMix:.5,detune:28,attack:.3,release:2.2,cCut:.5,cShift:.6,chaosRate:.8,delayTime:.42,delayFb:.5,delayMix:.3,loopShift:-3})];
+ patch('Alien Choir','ji',{ratioB:1.005,ratioC:2.99,fmAB:1.6,fmBC:.9,fmCA:.7,opMix:.4,fold:.25,morph:.45,cutoff:1800,reso:.55,shiftHz:11,shiftMix:.5,detune:28,attack:.3,release:2.2,cCut:.5,cShift:.6,chaosRate:.8,delayTime:.42,delayFb:.5,delayMix:.3,loopShift:-3}),
+ patch('Velvet Choir','ji',{ratioB:1.004,ratioC:2,fmAB:.35,fmBC:.15,fmCA:.05,opMix:.12,detune:22,waveMorph:.48,subMix:.28,formantMix:.78,vowel:.42,cutoff:4800,keyTrack:.4,attack:.55,release:3.4,chaosRate:.22,cCut:.35,cPan:.45,delayTime:.48,delayFb:.52,delayMix:.28,echoDamp:.55,spaceMix:.6,macroCut:.65}),
+ patch('Glass Kalimba','ji',{ratioB:2.756,ratioC:5.4,fmAB:2.1,fmBC:.6,fmCA:.05,opMix:.08,detune:4,ringMix:.24,noiseMix:.32,noiseTone:.72,noiseBurst:.95,sustain:0,modDecay:.42,envFm:.74,envCut:.45,cutoff:2600,keyTrack:.5,attack:.002,release:1.2,resMix:.44,resQ:180,delayTime:.31,delayFb:.42,delayMix:.28,echoDamp:.42,spaceMix:.36}),
+ patch('Analog Brass Pad','12edo',{ratioB:1,ratioC:2,fmAB:.25,fmBC:.1,fmCA:0,opMix:.08,detune:18,waveMorph:.86,subMix:.44,sustain:.76,modDecay:.85,envCut:.58,cutoff:880,reso:.22,keyTrack:.55,fold:.08,attack:.12,release:2.4,chaosRate:.18,cCut:.2,cPan:.35,delayTime:.44,delayFb:.4,delayMix:.22,echoDamp:.52,spaceMix:.46,drive:.18,macroCut:.55}),
+ patch('Breath Flute','ji',{ratioB:2,ratioC:3,fmAB:.3,fmBC:.1,fmCA:0,opMix:.05,detune:5,waveMorph:.18,noiseMix:.34,noiseTone:.28,noiseBurst:.16,formantMix:.38,vowel:.22,cutoff:3200,reso:.14,keyTrack:.65,attack:.09,release:1.4,chaosRate:.35,cPan:.3,delayTime:.38,delayFb:.44,delayMix:.26,echoDamp:.52,spaceMix:.48,macroCut:.45}),
+ patch('Acid Zap Pluck','12edo',{ratioB:1,ratioC:2,fmAB:1.1,fmBC:.4,fmCA:.1,opMix:.12,detune:6,waveMorph:.74,subMix:.32,sustain:.14,modDecay:.24,envFm:.52,envCut:.78,envPitch:7,cutoff:420,reso:.62,keyTrack:.5,fold:.24,attack:.002,release:.45,delayTime:.24,delayFb:.52,delayMix:.34,echoDamp:.46,spaceMix:.22,drive:.26,macroCut:.5}),
+ patch('Nebula Cloud','bp',{shepMix:.45,shepRate:.06,shepInterval:3,ratioB:1.5,ratioC:3,fmAB:.55,fmBC:.3,fmCA:.15,opMix:.18,detune:24,waveMorph:.35,subMix:.36,formantMix:.44,vowel:.64,cutoff:3600,reso:.18,attack:1.1,release:4.5,chaosRate:.16,cCut:.32,cPan:.6,delayTime:.68,delayFb:.7,delayMix:.42,loopShift:1.8,echoDamp:.64,spaceMix:.82,macroCut:.55})];
 /* `scale` / `root` of patches saved by the first version of this room are kept untouched (never deleted), but no longer used. */
 function sanitizePatch(p,fallbackName){const out={id:typeof p?.id==='string'?p.id:'user:'+uid(),name:String(p?.name||fallbackName||'Patch').slice(0,60),params:sanitizeParams(p?.params)};
  if(typeof p?.grid==='string')out.grid=p.grid.slice(0,80);if(typeof p?.scale==='string')out.scale=p.scale.slice(0,2000);const root=Number(p?.root);if(root>=8&&root<=8000)out.root=root;return out}
@@ -427,8 +546,22 @@ const CSS=`
 .xpl-note{color:#9f96c4;font-size:10px;line-height:1.45}
 .xpl-panels{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:10px}
 .xpl-panel{border:1px solid #33285c;border-radius:8px;padding:9px 10px 10px;background:linear-gradient(160deg,rgba(40,22,78,.55),rgba(10,8,24,.75))}
+.xpl-panel.is-ext{border-color:#44527a;background:linear-gradient(160deg,rgba(24,42,84,.58),rgba(10,12,28,.78))}
+.xpl-panel.is-collapsed{padding:7px 10px}
+.xpl-panel.is-locked{border-color:#7c5b2b}
+.xpl-panel-head{display:flex;align-items:center;justify-content:space-between;gap:6px;margin:0 0 2px}
+.xpl-panel.is-collapsed .xpl-panel-head{margin-bottom:0}
+.xpl-panel-toggle{display:inline-flex;align-items:center;gap:5px;flex:1 1 auto;min-width:0;text-align:left;background:none!important;border:none!important;padding:0!important;min-height:20px!important;font-size:11px;letter-spacing:.16em;color:#ffd166;font-weight:700}
+.xpl-panel.is-ext .xpl-panel-toggle{color:#7eeeff}
+.xpl-panel-toggle:hover{color:#fff!important}
+.xpl-panel-dot{width:7px;height:7px;border-radius:50%;background:#5ef2ff;box-shadow:0 0 7px #5ef2ff;flex:0 0 auto}
+.xpl-lock-btn{padding:2px 6px!important;min-height:22px!important;font-size:10px!important;border-color:#3e3268!important;color:#a79bc9!important}
+.xpl-lock-btn[aria-pressed=true]{background:#4a3517!important;border-color:#f59e0b!important;color:#fde68a!important}
 .xpl-panel h3{margin:0 0 2px;font-size:11px;letter-spacing:.2em;color:#ffd166}
-.xpl-panel p{margin:0 0 7px;color:#8f86b4;font-size:10px;line-height:1.4}
+.xpl-panel p{margin:4px 0 7px;color:#8f86b4;font-size:10px;line-height:1.4}
+.xpl-morph{display:flex;flex-wrap:wrap;gap:6px 8px;align-items:center;margin:0 0 10px;padding:7px 10px;border:1px solid #44527a;border-radius:8px;background:rgba(16,22,48,.65)}
+.xpl-morph label{color:#cfc6f2;font-size:11px;display:inline-flex;align-items:center;gap:5px}
+.xpl-morph input[type=range]{width:170px;accent-color:#5ef2ff;cursor:pointer}
 .xpl-row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:2px 8px;align-items:center;margin-top:5px}
 .xpl-row label{color:#cfc6f2;font-size:11px}
 .xpl-val{color:#5ef2ff;font-size:11px;cursor:text;background:none!important;border:none!important;padding:0!important;min-height:0!important;text-align:right}
@@ -543,6 +676,10 @@ function XenPsyLabRoom(){
  const[hold,setHold]=P.useState(initial.hold),[bounceSec,setBounceSec]=P.useState(initial.bounceSec),[orient,setOrient]=P.useState(initial.orient),[oct,setOct]=P.useState(initial.oct),[flip,setFlip]=P.useState(initial.flip),[mirror,setMirror]=P.useState(initial.mirror),[large,setLarge]=P.useState(initial.large),[logAxis,setLogAxis]=P.useState(initial.log),[edges,setEdges]=P.useState(initial.edges);
  const[metroOn,setMetroOn]=P.useState(false),[metroCfg,setMetroCfg]=P.useState(initial.metro);
  const[status,setStatus]=P.useState(''),[busy,setBusy]=P.useState(false),[mutate,setMutate]=P.useState(.25);
+ const[collapsed,setCollapsed]=P.useState(()=>({organic:true,modenv:true,space:true}));
+ const[locked,setLocked]=P.useState(()=>({}));
+ const[morphOpen,setMorphOpen]=P.useState(false),[morphA,setMorphA]=P.useState(FACTORY[0].id),[morphB,setMorphB]=P.useState(FACTORY[8]?.id||FACTORY[1].id),[morphAmt,setMorphAmt]=P.useState(0);
+ const undoRef=P.useRef([]),[undoCount,setUndoCount]=P.useState(0),morphSnapshotRef=P.useRef(null);
  const live=P.useRef({hold,user,bounceSec,orient,flip,mirror,large,log:logAxis,edges,oct,metro:metroCfg});live.current={hold,user,bounceSec,orient,flip,mirror,large,log:logAxis,edges,oct,metro:metroCfg};
  const padRef=P.useRef(null),canvasRef=P.useRef(null),scopeRef=P.useRef(null),readoutRef=P.useRef(null),rootRef=P.useRef(null),beatRef=P.useRef(null);
  const held=P.useRef(new Map()),latched=P.useRef(new Map()),notesHz=P.useRef(new Map()),arrow=P.useRef({up:false,down:false,left:false,right:false,id:null}),intensity=P.useRef(.5),keyLines=P.useRef({sig:'',lines:[]}),saveTimer=P.useRef(0),noteSeq=P.useRef(100),tapTimes=P.useRef([]);
@@ -679,16 +816,28 @@ function XenPsyLabRoom(){
   raf=requestAnimationFrame(draw);return()=>cancelAnimationFrame(raf)},[engine]);
 
  const touched=P.useCallback(()=>{persist()},[persist]);
- const loadPatch=P.useCallback((p,note)=>{const clean=sanitizePatch(p);patchRef.current={...clean,id:'working'};engine.setAll(clean.params);setEpoch(e=>e+1);setStatus(note||('Loaded “'+clean.name+'”.'));persist()},[engine,persist]);
+ const pushUndo=P.useCallback(params=>{undoRef.current.push(params.slice());if(undoRef.current.length>24)undoRef.current.shift();setUndoCount(undoRef.current.length)},[]);
+ const loadPatch=P.useCallback((p,note,recordUndo=true)=>{if(recordUndo)pushUndo(patchRef.current.params);const clean=sanitizePatch(p);patchRef.current={...clean,id:'working'};engine.setAll(clean.params);setEpoch(e=>e+1);setStatus(note||('Loaded “'+clean.name+'”.'));persist()},[engine,persist,pushUndo]);
+ const doUndo=()=>{const prev=undoRef.current.pop();if(!prev)return;setUndoCount(undoRef.current.length);loadPatch({...patchRef.current,params:prev},'Undid last patch change.',false)};
  const all=P.useMemo(()=>[...FACTORY,...user],[user]);
- const onSelect=id=>{setSelected(id);const p=all.find(x=>x.id===id);if(p)loadPatch(p)};
+ const onSelect=id=>{setSelected(id);const p=all.find(x=>x.id===id);if(p){loadPatch(p);setMorphA(p.id);setMorphAmt(0);morphSnapshotRef.current=null}};
  const selectedPatch=all.find(x=>x.id===selected),suggestion=selectedPatch?.grid,suggestionLabel=suggestion?ti(j0,suggestion):'';
  const saveAs=()=>{const current=all.find(x=>x.id===selected);const name=window.prompt('Name for this patch',current&&!current.id.startsWith('factory:')?current.name:'My patch');if(!name||!name.trim())return;
   const existing=user.find(x=>x.name===name.trim());if(existing&&!window.confirm('Overwrite the saved patch “'+existing.name+'”?'))return;
   const saved=sanitizePatch({...patchRef.current,name:name.trim(),id:existing?existing.id:'user:'+uid(),grid:gridRef.current?.gridTuning});setUser(list=>existing?list.map(x=>x.id===existing.id?saved:x):[...list,saved]);setSelected(saved.id);setStatus('Saved “'+saved.name+'” (with the current grid system as a suggestion).')};
  const remove=()=>{const p=user.find(x=>x.id===selected);if(!p||!window.confirm('Delete the saved patch “'+p.name+'”? The sound you hear stays as working patch.'))return;setUser(list=>list.filter(x=>x.id!==p.id));setSelected('');setStatus('Deleted “'+p.name+'”.')};
- const doMutate=()=>{const params=patchRef.current.params.slice();for(const p of PARAMS){if(p[8]==='hidden'||p[1]==='level')continue;if(Math.random()<.55){const t=clamp(toUnit(p,params[p[0]])+(Math.random()-.5)*2*mutate*.6,0,1);params[p[0]]=fromUnit(p,t)}}
-  params[BY_KEY.delayFb[0]]=Math.min(params[BY_KEY.delayFb[0]],.95);loadPatch({...patchRef.current,params},'Mutated by '+Math.round(mutate*100)+' %. Not happy? Load a patch or mutate again.')};
+ const doMutate=()=>{const params=patchRef.current.params.slice();let moved=0;for(const p of PARAMS){if(p[8]==='hidden'||p[1]==='level'||locked[p[8]])continue;if(Math.random()<.55){const t=clamp(toUnit(p,params[p[0]])+(Math.random()-.5)*2*mutate*.6,0,1);params[p[0]]=fromUnit(p,t);moved++}}
+  if(!moved){setStatus('All mutable sections are locked — unlock a module to mutate.');return}
+  params[BY_KEY.delayFb[0]]=Math.min(params[BY_KEY.delayFb[0]],.95);loadPatch({...patchRef.current,params},'Mutated by '+Math.round(mutate*100)+' %. Use Undo to revert or Lock modules to protect them.')};
+ const applyMorph=(amt,aId=morphA,bId=morphB)=>{
+  const pA=all.find(x=>x.id===aId)||FACTORY[0],pB=all.find(x=>x.id===bId)||FACTORY[1];
+  if(!morphSnapshotRef.current){morphSnapshotRef.current=patchRef.current.params.slice();pushUndo(morphSnapshotRef.current)}
+  const t=clamp(amt,0,1),out=defaultParams();
+  for(const p of PARAMS){if(p[8]==='hidden')continue;if(locked[p[8]]){out[p[0]]=patchRef.current.params[p[0]];continue}
+   const uA=toUnit(p,pA.params[p[0]]),uB=toUnit(p,pB.params[p[0]]);out[p[0]]=fromUnit(p,uA+(uB-uA)*t)}
+  setMorphAmt(t);patchRef.current={...patchRef.current,name:pA.name+' ↔ '+pB.name,params:out};engine.setAll(out);setEpoch(e=>e+1);persist();
+  setStatus(`Morph ${Math.round((1-t)*100)}% ${pA.name} / ${Math.round(t*100)}% ${pB.name}`);
+ };
  const notesForBounce=()=>{const out=[];for(const key of latched.current.keys())out.push(Math.pow(2,key/1200));if(out.length)return out.slice(0,6);const p=liveGridParams();return[(p?p.gridBase:220)*Math.pow(2,live.current.oct-1)]};
  const doBounce=async target=>{if(busy)return;setBusy(true);setStatus('Rendering '+bounceSec+' s offline …');
   try{const rate=engine.ctx?.sampleRate||48000,r=await bounce({params:patchRef.current.params.map((v,i)=>i===37?0:v),res:gridResonators(liveGridParams(),live.current.oct),notes:notesForBounce(),seconds:bounceSec,sampleRate:rate});
@@ -702,12 +851,32 @@ function XenPsyLabRoom(){
   u.jsxs('div',{className:'xpl-note',role:'radiogroup','aria-label':'Snap ball to grid',children:[' Snap ball: ',...[['scale','Scale','The pad lands on the open Grid tones; muted steps of the scale are skipped.'],['grid','Grid','The pad lands on every Grid line, muted steps included (chromatic).'],['free','Free','The pad glides freely, no Snap. The keys still play the open Grid tones (chords on the keys, a glissando lead on the pad).']].map(([m,l,tt])=>u.jsx('button',{key:m,type:'button',role:'radio','aria-checked':__xenCursorSnapMode(gridParams)===m,title:tt,style:{marginLeft:4,fontWeight:__xenCursorSnapMode(gridParams)===m?700:400,color:__xenCursorSnapMode(gridParams)===m?'#9fe8b0':undefined},onClick:()=>__NodalBallGrid.update({lockCursorToGrid:m!=='free',cursorSnapAll:m==='grid'}),children:l},m))]}),
   u.jsx('button',{type:'button',onClick:()=>{const n=Zd(gridParams.gridTuning);__NodalBallGrid.update({manualGridMutedSteps:[],manualGridStepOffsets:Array.from({length:n},()=>0)});setStatus('Grid reset: all steps on, offsets 0.')},children:'Grid reset'})]});
 
- const panels=GROUPS.map(([id,title,text])=>u.jsxs('section',{className:'xpl-panel','aria-label':title,children:[u.jsx('h3',{children:title}),text?u.jsx('p',{children:text}):null,
-  PARAMS.filter(p=>p[8]===id).map(p=>u.jsx(PsySlider,{p,patchRef,engine,onTouched:touched},p[1]+':'+epoch))]},id));
+ const panels=GROUPS.map(([id,title,text,isExt])=>{
+  const groupParams=PARAMS.filter(p=>p[8]===id);
+  const isClosed=!!collapsed[id],isLocked=!!locked[id];
+  const isActive=isExt&&groupParams.some(p=>Math.abs(patchRef.current.params[p[0]]-p[5])>1e-3);
+  return u.jsxs('section',{className:'xpl-panel'+(isExt?' is-ext':'')+(isClosed?' is-collapsed':'')+(isLocked?' is-locked':''),'aria-label':title,'data-psy-panel':id,children:[
+   u.jsxs('div',{className:'xpl-panel-head',children:[
+    u.jsxs('button',{type:'button',className:'xpl-panel-toggle','data-psy-panel-toggle':id,'aria-expanded':!isClosed,
+     onClick:()=>setCollapsed(c=>({...c,[id]:!c[id]})),children:[
+      u.jsx('span',{'aria-hidden':'true',children:isClosed?'▸':'▾'}),
+      u.jsx('span',{children:title}),
+      isActive?u.jsx('span',{className:'xpl-panel-dot',title:'Active in current patch'}):null
+    ]}),
+    u.jsx('button',{type:'button',className:'xpl-lock-btn','data-psy-lock':id,'aria-pressed':isLocked,
+     title:isLocked?'Unlock module (allow Mutate & Morph)':'Lock module (protect from Mutate & Morph)',
+     onClick:()=>setLocked(l=>({...l,[id]:!l[id]})),children:isLocked?'🔒':'🔓'})
+   ]}),
+   !isClosed?u.jsxs(u.Fragment,{children:[
+    text?u.jsx('p',{children:text}):null,
+    groupParams.map(p=>u.jsx(PsySlider,{p,patchRef,engine,onTouched:touched},p[1]+':'+epoch))
+   ]}):null
+  ]},id);
+ });
  const piano=orient==='piano';
  return u.jsxs('div',{className:'xpl'+(large?' xpl-large':''),ref:rootRef,'data-xen-psylab':'true',children:[
   u.jsx('h2',{children:'PSYCHEDELIC LAB'}),
-  u.jsx('p',{className:'xpl-sub',children:'Room IV. A feedback-FM hydra, an endless Escher staircase, a spiral echo that shifts every repeat, grid-tuned crystals and a Lorenz attractor that never repeats itself. It plays on the Main Room grid: same lines, same blue triangles, same keys.'}),
+  u.jsx('p',{className:'xpl-sub',children:'Room IV. Feedback-FM hydra, organic breath/wave sources, pluck & sweep envelopes, vocal formants, endless Escher staircase, spiral echo, space cloud, grid crystals and Lorenz chaos — all on the Main Room grid.'}),
   u.jsxs('div',{className:'xpl-bar',children:[
    u.jsxs('select',{'aria-label':'Patch',value:selected,onChange:e=>onSelect(e.target.value),children:[u.jsx('option',{value:'',children:'Working patch'}),
     u.jsx('optgroup',{label:'Factory',children:FACTORY.map(p=>u.jsx('option',{value:p.id,children:p.name},p.id))}),
@@ -715,8 +884,10 @@ function XenPsyLabRoom(){
    suggestion&&gridParams&&gridParams.gridTuning!==suggestion?u.jsx('button',{type:'button',title:'This patch was made for another grid system. Switching changes the Main Room grid too.',onClick:()=>__NodalBallGrid.changeTuning(suggestion),children:'Grid → '+suggestionLabel}):null,
    u.jsx('button',{type:'button',onClick:saveAs,children:'Save as …'}),
    u.jsx('button',{type:'button',onClick:remove,disabled:!user.some(x=>x.id===selected),children:'Delete'}),
-   u.jsx('button',{type:'button',onClick:doMutate,title:'Move a random half of the controls by the chosen amount',children:'Mutate'}),
+   u.jsx('button',{type:'button',onClick:doMutate,title:'Move a random half of unlocked controls by the chosen amount',children:'Mutate'}),
    u.jsx('input',{type:'range','aria-label':'Mutation amount',min:.02,max:1,step:.01,value:mutate,onChange:e=>setMutate(Number(e.target.value)),style:{width:90,accentColor:'#ff7ad9'}}),
+   u.jsx('button',{type:'button','data-psy-undo':true,disabled:undoCount===0,onClick:doUndo,title:'Revert last patch load, mutation or morph',children:'↶ Undo'}),
+   u.jsx('button',{type:'button','data-psy-morph-toggle':true,'aria-pressed':morphOpen,onClick:()=>{setMorphOpen(v=>!v);morphSnapshotRef.current=null},title:'Morph smoothly between any two patches (A ↔ B)',children:'Morph A↔B'}),
    u.jsx('button',{type:'button','aria-pressed':hold,onClick:()=>setHold(h=>!h),title:'Notes keep sounding until you play them again (Space)',children:hold?'Hold: on':'Hold: off'}),
    u.jsx('button',{type:'button',onClick:panic,title:'Esc',children:'All notes off'}),
    u.jsx('button',{type:'button','aria-pressed':piano,onClick:()=>setOrient(piano?'live':'piano'),title:'Main Room view: pitch runs up the page, like in the Live Room. Piano view: pitch runs along the page. Only the picture changes, never the keys.','data-psy-orient':orient,children:piano?'View: piano ↔':'View: Main Room ↕'}),
@@ -730,6 +901,14 @@ function XenPsyLabRoom(){
    u.jsxs('label',{className:'xpl-note',children:['Bounce ',u.jsx('input',{type:'number','aria-label':'Bounce length in seconds',min:.5,max:120,step:.5,value:bounceSec,onChange:e=>setBounceSec(clamp(Number(e.target.value)||8,.5,120)),style:{width:64}}),' s']}),
    u.jsx('button',{type:'button','data-psy-send-multitrack':'true',disabled:busy,onClick:()=>void doBounce('multitrack'),title:'Render the held notes (or the grid base) offline and store the result as Material; it appears in Room V',children:'Multitrack'}),
    u.jsx('button',{type:'button',disabled:busy,onClick:()=>void doBounce('wav'),children:'⤓ WAV'})]}),
+  morphOpen?u.jsxs('div',{className:'xpl-morph','data-psy-morph-bar':true,children:[
+   u.jsxs('label',{children:['A ',u.jsx('select',{'aria-label':'Morph Patch A',value:morphA,onChange:e=>{const v=e.target.value;setMorphA(v);applyMorph(morphAmt,v,morphB)},children:all.map(p=>u.jsx('option',{value:p.id,children:p.name},p.id))})]}),
+   u.jsx('input',{type:'range','aria-label':'Morph A to B','data-psy-morph-slider':true,min:0,max:100,step:1,value:Math.round(morphAmt*100),onChange:e=>applyMorph(Number(e.target.value)/100)}),
+   u.jsx('span',{className:'xpl-val',style:{minWidth:36},children:Math.round(morphAmt*100)+'%'}),
+   u.jsxs('label',{children:['B ',u.jsx('select',{'aria-label':'Morph Patch B',value:morphB,onChange:e=>{const v=e.target.value;setMorphB(v);applyMorph(morphAmt,morphA,v)},children:all.map(p=>u.jsx('option',{value:p.id,children:p.name},p.id))})]}),
+   u.jsx('button',{type:'button',onClick:()=>{const a=morphB,b=morphA;setMorphA(a);setMorphB(b);applyMorph(1-morphAmt,a,b)},children:'⇄ Swap'}),
+   u.jsx('span',{className:'xpl-note',children:'Blends all unlocked modules smoothly in real time. Save as … to keep.'})
+  ]}):null,
   u.jsxs('div',{className:'xpl-metro','data-psy-metro':'true',children:[
    u.jsx('button',{type:'button','aria-pressed':metroOn,onClick:()=>setMetroOn(v=>!v),title:'A click for you only: it goes straight to the speakers and is never recorded, mixed or bounced.',children:metroOn?'♩ Metronome: on':'♩ Metronome: off'}),
    u.jsx('span',{className:'xpl-beat',ref:beatRef,'aria-hidden':'true'}),

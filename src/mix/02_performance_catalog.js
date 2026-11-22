@@ -3,7 +3,7 @@
    to open the menu; tests/room5_live_catalog.cjs keeps this list identical to the chunk's FACTORY patches. */
 const __XenPsyLab=(()=>{
  const KEY='xensonar.psylab.instruments.v1',PREFIX='psylab:';
- const FACTORY_NAMES=['Liquid Bell','Escher Staircase','Barber Spiral','Chaos Insect','Crystal Cave','Deep Fold Drone','Tritave Ghost','Alien Choir'];
+ const FACTORY_NAMES=['Liquid Bell','Escher Staircase','Barber Spiral','Chaos Insect','Crystal Cave','Deep Fold Drone','Tritave Ghost','Alien Choir','Velvet Choir','Glass Kalimba','Analog Brass Pad','Breath Flute','Acid Zap Pluck','Nebula Cloud'];
  let raw=null,cache=[],readAt=0,cursor=null,raf=0,wheel=1,prevHz=0,arrowAt=-1e9,lastTick=0,octPos=0,sustaining=false,exprLast=1;const deferred=new Set();/* PSY-SUS-01: notes whose key / mouse / gate ended while the Sustain key (´) is held: they keep sounding until it is released *//* PSY-OCT-01: Backspace (octave hold) as a fast glide, 0 = played pitch .. 1 = one octave up */const followers=new Map();
  function tick(){raf=0;if(!followers.size||!cursor){prevHz=0;return}
   const h=host(false),now=performance.now(),dt=Math.min(.1,Math.max(.001,(now-lastTick)/1000||.016));lastTick=now;
