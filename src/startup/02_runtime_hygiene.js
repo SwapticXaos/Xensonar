@@ -92,5 +92,11 @@ const __xenStorageAlerts=(()=>{
  return Object.freeze({snapshot:()=>history.slice(),dismiss,record});
 })();
 
+/* Typed cross-room handoff bus (TS-MOD-08): synchronous pub/sub plus bounded sticky mailbox. */
+const __xenRoomBus=typeof __XenTs_roomBus!=='undefined'
+ ?__XenTs_roomBus.createRoomBus({onError:(error,topic)=>{try{console.error('[xensonar][room-bus]',topic,error)}catch{}}})
+ :null;
+
 globalThis.__XenStorageAlerts=__xenStorageAlerts;
-globalThis.__XenRuntimeHygiene=Object.freeze({addWorkletModule:__xenAddWorkletModule,runBlobWorker:__xenRunBlobWorker,storageAlerts:__xenStorageAlerts});
+globalThis.__XenRoomBus=__xenRoomBus;
+globalThis.__XenRuntimeHygiene=Object.freeze({addWorkletModule:__xenAddWorkletModule,runBlobWorker:__xenRunBlobWorker,storageAlerts:__xenStorageAlerts,roomBus:__xenRoomBus});

@@ -14,16 +14,22 @@
    Opens the room, waits until the Forge has mounted its editor (it is lazy), lets the editor's own file receiver load the audio (same path as "Send to Editor"
    in the Forge and the Multitrack clip edit) and scrolls to the editor. Cold: nothing runs until used. */
 const __XenSendToWaveEditor=(()=>{
- const navigate=room=>window.dispatchEvent(new CustomEvent('xensonar:multitrack:roundtrip-navigate',{detail:{room}}));
+ const navigate=room=>{globalThis.__XenRoomBus?.publish?.('room:navigate',{room,source:'send-to-wave-editor'});window.dispatchEvent(new CustomEvent('xensonar:multitrack:roundtrip-navigate',{detail:{room}}))};
  async function send(file){
   if(!(file instanceof Blob)||!file.size)throw Error('No audio to send.');
   navigate('L3LAB');
-  for(let attempt=0;attempt<180;attempt++){
-   let resolve,reject;const accepted=new Promise((yes,no)=>{resolve=yes;reject=no});
-   const request={file,claimed:false,scrollToEditor:true,confirmUnsaved:true,resolve,reject};
-   window.dispatchEvent(new CustomEvent('xensonar:forge:send-to-editor-file',{detail:request}));
-   if(request.claimed){await accepted;return true}
-   await new Promise(ok=>setTimeout(ok,80));
+  let resolve,reject;const accepted=new Promise((yes,no)=>{resolve=yes;reject=no});
+  const request={file,claimed:false,scrollToEditor:true,confirmUnsaved:true,resolve,reject};
+  const bus=globalThis.__XenRoomBus;
+  if(bus?.deliver){
+   const delivered=await bus.deliver('forge:send-to-editor-file',request,{ttlMs:14400});
+   if(delivered){await accepted;return true}
+  }else{
+   for(let attempt=0;attempt<180;attempt++){
+    window.dispatchEvent(new CustomEvent('xensonar:forge:send-to-editor-file',{detail:request}));
+    if(request.claimed){await accepted;return true}
+    await new Promise(ok=>setTimeout(ok,80));
+   }
   }
   navigate('RESONANCE');
   throw Error('The Wave Editor did not become ready. Open Material Forge / Spectral Forge and retry.');
@@ -96,8 +102,8 @@ const __XenMultitrackRoundTrip=(()=>{
  const clipIdentity=c=>JSON.stringify(['materialId','startBeat','inBeat','lenBeats','repeats','fit','sourceBpm','gain','fadeIn','fadeOut','fadeInShape','fadeOutShape','muted','stretch','warp','pitch','reverse','synth'].map(k=>c?.[k]??null));
  const emit=()=>window.dispatchEvent(new CustomEvent('xensonar:multitrack:roundtrip-state',{detail:status()}));
  const status=()=>Object.freeze({active:!!active,phase:active?.phase??'idle',clipId:active?.clipId??null,trackId:active?.trackId??null,label:active?.label??'',error:lastError});
- const navigate=room=>window.dispatchEvent(new CustomEvent('xensonar:multitrack:roundtrip-navigate',{detail:{room}}));
- const cancel=(reason='',token=null)=>{if(token&&active?.token!==token)return false;active=null;if(reason)lastError=reason;emit();return true};
+ const navigate=room=>{globalThis.__XenRoomBus?.publish?.('room:navigate',{room,source:'multitrack-roundtrip'});window.dispatchEvent(new CustomEvent('xensonar:multitrack:roundtrip-navigate',{detail:{room}}))};
+ const cancel=(reason='',token=null)=>{if(token&&active?.token!==token)return false;const prev=active;active=null;try{prev?.abortController?.abort()}catch{}if(reason)lastError=reason;emit();return true};
  const bound=editor=>!!(active&&active.phase==='editing'&&editor?.doc?.id===active.editorDocId&&editor.activeWorkspace==='project');
  const pending=()=>!!(active&&active.phase==='opening');
  function bind(editor,token){if(!active||active.token!==token||active.phase!=='opening'||!editor?.doc?.id)return false;
@@ -105,17 +111,25 @@ const __XenMultitrackRoundTrip=(()=>{
  async function open(file,meta){
   if(active)throw Error('A Multitrack-to-Wave-Editor edit is already open. Apply or close it first.');
   if(!file||!meta?.clipId||!meta?.trackId||!meta?.materialId)throw Error('Missing clip edit context.');
-  const token=uuid();active={...meta,token,phase:'opening',editorDocId:null};lastError='';emit();navigate('L3LAB');
+  const token=uuid(),abortController=typeof AbortController==='function'?new AbortController():null;
+  active={...meta,token,phase:'opening',editorDocId:null,abortController};lastError='';emit();navigate('L3LAB');
   try{
    // The Forge is lazily mounted. Reuse its canonical decoded-file handoff; never
    // create an alternate Wave Editor or hidden scratch document.
-   for(let attempt=0;attempt<180;attempt++){
+   let resolve,reject;const accepted=new Promise((yes,no)=>{resolve=yes;reject=no});
+   const request={file,claimed:false,roundTripToken:token,resolve,reject};
+   const bus=globalThis.__XenRoomBus;
+   if(bus?.deliver){
+    const delivered=await bus.deliver('forge:send-to-editor-file',request,{ttlMs:14400,signal:abortController?.signal});
     if(!active||active.token!==token)throw Error('Clip edit was cancelled.');
-    let resolve,reject;const accepted=new Promise((yes,no)=>{resolve=yes;reject=no});
-    const request={file,claimed:false,roundTripToken:token,resolve,reject};
-    window.dispatchEvent(new CustomEvent('xensonar:forge:send-to-editor-file',{detail:request}));
-    if(request.claimed){await accepted;if(active?.token!==token||active.phase!=='editing')throw Error('Wave Editor did not bind to the selected clip.');return true}
-    await new Promise(ok=>setTimeout(ok,80));
+    if(delivered){await accepted;if(active?.token!==token||active.phase!=='editing')throw Error('Wave Editor did not bind to the selected clip.');return true}
+   }else{
+    for(let attempt=0;attempt<180;attempt++){
+     if(!active||active.token!==token)throw Error('Clip edit was cancelled.');
+     window.dispatchEvent(new CustomEvent('xensonar:forge:send-to-editor-file',{detail:request}));
+     if(request.claimed){await accepted;if(active?.token!==token||active.phase!=='editing')throw Error('Wave Editor did not bind to the selected clip.');return true}
+     await new Promise(ok=>setTimeout(ok,80));
+    }
    }
    throw Error('The Wave Editor did not become ready. Open Material Forge / Spectral Forge and retry.');
   }catch(error){cancel(String(error?.message||error),token);navigate('MULTITRACK');throw error}

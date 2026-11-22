@@ -2043,9 +2043,8 @@ function __CGeHydrated({sourceAdapters:e,targetAdapter:t,rawTargetAdapter:n,rawR
    Use its canonical file decoder and its already attached Wave Editor instance. */
  P.useEffect(()=>{
   if(c!=='spectral-forge3')return;
-  const receive=event=>{
-   const request=event.detail;
-   if(!request?.file||request.claimed)return;
+  const handleRequest=request=>{
+   if(!request?.file||request.claimed)return false;
    request.claimed=true;
    (async()=>{
     const wave=globalThis.__XenWaveUIW01;
@@ -2073,9 +2072,12 @@ function __CGeHydrated({sourceAdapters:e,targetAdapter:t,rawTargetAdapter:n,rawR
     });
     request.resolve?.();
    })().catch(error=>request.reject?.(error));
+   return true;
   };
+  const receive=event=>{handleRequest(event.detail)};
   window.addEventListener('xensonar:forge:send-to-editor-file',receive);
-  return()=>window.removeEventListener('xensonar:forge:send-to-editor-file',receive);
+  const offBus=globalThis.__XenRoomBus?.consume?.('forge:send-to-editor-file',handleRequest);
+  return()=>{window.removeEventListener('xensonar:forge:send-to-editor-file',receive);offBus?.()};
  },[c,U]);
  const __forgeInputSeenF323=P.useRef(null);
   P.useEffect(()=>{

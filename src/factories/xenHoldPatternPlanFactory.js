@@ -12,7 +12,7 @@ const fail=s=>{throw Error('Hold Pattern Plan: '+s)};
 const copy=v=>JSON.parse(JSON.stringify(v));
 const stamp=()=>new Date().toISOString();
 const newId=()=>globalThis.crypto?.randomUUID?.()||'hpp-'+Date.now().toString(36)+'-'+Math.random().toString(36).slice(2);
-const memory=()=>globalThis.__XenHoldPatternMemory??(globalThis.__XenHoldPatternMemory=__xenGetDeferredFn('__xenHoldPatternMemoryFactory')());
+const memory=()=>__xenGetHoldPatternMemory();
 
 /* ---------- Grid model ---------- */
 function tuningLabel(id){try{return hc(id)?.label||String(id)}catch{return String(id)}}
