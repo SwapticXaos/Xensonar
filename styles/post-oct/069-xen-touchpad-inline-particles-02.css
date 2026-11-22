@@ -1,10 +1,9 @@
 
 .xen-time-echo-with-touchpad{position:relative}
-.xen-time-echo-with-touchpad>.xen-touchpad-dock{
- position:absolute;left:-1px;right:-1px;bottom:-1px;
- height:var(--xen-touchpad-rack-height,190px);box-sizing:border-box;
- padding:11px 13px;z-index:2;background:#0c0f16;
- border:1px solid #544536;border-top:2px solid #d48c42;border-radius:3px;min-width:0;
+.xen-controls-settings-grid>.xen-touchpad-dock{
+ position:static;height:auto;box-sizing:border-box;
+ padding:0 0 0 14px;background:transparent;
+ border:0;border-left:1px solid #232632;border-radius:0;min-width:0;
 }
 .xen-touchpad-dock .xen-touchpad-helper{margin:0;padding:0;border:0;gap:8px;font-size:11px}
 .xen-touchpad-dock .xen-touchpad-heading{font-size:12px;font-weight:650;color:#edc69b}

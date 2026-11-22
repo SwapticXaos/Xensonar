@@ -18,6 +18,16 @@ function __xenSnapMutedSteps(params) {
 function __xenCursorSnapMode(params) {
   return params?.lockCursorToGrid !== true ? 'free' : params.cursorSnapAll === true ? 'grid' : 'scale';
 }
+function __xenRightClickGridRootMode(params) {
+  const mode = params?.rightClickGridRootMode;
+  return mode === 'all' || mode === 'free' ? mode : 'active';
+}
+function __xenRightClickSnapParams(params) {
+  const mode = __xenRightClickGridRootMode(params);
+  if (mode === 'free') return { ...params, lockCursorToGrid: false, cursorSnapAll: false };
+  if (mode === 'all') return { ...params, lockCursorToGrid: true, cursorSnapAll: true };
+  return { ...params, lockCursorToGrid: true, cursorSnapAll: false };
+}
 function __xenLiveGridParams(params) {
   if (!__xenGridMuted(params)) return params;
   let view = __xenMutedGridViews.get(params);

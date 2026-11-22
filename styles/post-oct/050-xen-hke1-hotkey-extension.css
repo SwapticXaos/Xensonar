@@ -1,15 +1,31 @@
 
-/* HKE1 · Shared Controls & Space / Hotkeys A–# panel. No size/geometry of other main room cards changed. */
+/* HKE1 · Unified Controls & Settings block (Pointer & Grid, Hotkeys A–#, Touchpad & Hardware MIDI). */
 .xen-mainroom-control-triptych > .xen-hotkeys-controls-pair{
-  display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:10px;
-  align-items:stretch;min-width:0;min-height:0;background:transparent;border:0;border-top:0;
+  display:flex;flex-direction:column;gap:10px;
+  min-width:0;min-height:0;padding:12px 14px;
+  background:#0c0f16;border:1px solid #2b2b34;border-top:2px solid #d48c42;border-radius:3px;
 }
-.xen-hotkeys-controls-pair > div,.xen-hotkeys-controls-pair > .xen-hotkeys-new-panel{
-  min-width:0;min-height:0;background:#0c0f16;border:1px solid #2b2b34;border-radius:3px;
+.xen-mainroom-control-triptych .xen-controls-settings-heading{
+  color:#f1b66c;margin:0;border-bottom:1px solid #262934;padding-bottom:6px;
 }
-.xen-hotkeys-controls-pair > div{border-top:1px solid #785933;gap:9px;padding:12px}
-.xen-hotkeys-new-panel{border-top:2px solid #d48c42!important;padding:12px;display:flex;flex-direction:column;gap:8px}
-.xen-mainroom-control-triptych .xen-hotkeys-new-panel h3{color:#f1b66c;font-size:21px!important;margin:0}
+.xen-controls-settings-grid{
+  display:grid;grid-template-columns:minmax(0,1.12fr) minmax(0,1fr) minmax(0,1.14fr);
+  gap:14px;align-items:start;min-width:0;
+}
+.xen-controls-settings-col{min-width:0;min-height:0}
+.xen-controls-settings-subhead{
+  font-size:11px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;
+  color:#d9b382;border-bottom:1px solid #232632;padding-bottom:4px;margin-bottom:2px;
+}
+.xen-controls-settings-grid > .xen-hotkeys-new-panel{
+  min-width:0;min-height:0;background:transparent;border:0;border-left:1px solid #232632;
+  border-radius:0;padding:0 0 0 14px;display:flex;flex-direction:column;gap:8px;
+}
+.xen-mainroom-control-triptych .xen-hotkeys-new-panel h3{
+  font-family:system-ui,sans-serif!important;font-size:11px!important;font-weight:700!important;
+  letter-spacing:0.08em!important;text-transform:uppercase!important;line-height:1.2!important;
+  color:#f1b66c;margin:0;border-bottom:1px solid #232632;padding-bottom:4px;
+}
 .xen-hotkeys-new-targets{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:5px}
 .xen-hotkeys-new-option,.xen-hotkeys-new-layout button{
   min-width:0;min-height:28px;border-radius:3px;border:1px solid #5b4e3d;
@@ -26,9 +42,12 @@
 .xen-hotkeys-new-layout>span{color:#8a949b;font:10px system-ui,sans-serif;margin-right:2px}
 .xen-hotkeys-new-layout button{min-height:24px;padding:3px 7px}
 .xen-hotkeys-new-hint{font:10px/1.4 system-ui,sans-serif;color:#af9582;margin:0;overflow-wrap:anywhere}
-@media (max-width:1080px){
- .xen-mainroom-control-triptych > .xen-hotkeys-controls-pair{grid-template-columns:minmax(0,1fr)}
- .xen-hotkeys-new-panel{padding:10px}
+@media (max-width:1180px){
+ .xen-controls-settings-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .xen-controls-settings-grid > .xen-touchpad-dock{grid-column:1 / -1;border-left:0;border-top:1px solid #232632;padding:10px 0 0 0}
 }
-/* Defer to existing triptych breakpoint; don't squeeze controls below legible width. */
+@media (max-width:710px){
+ .xen-controls-settings-grid{grid-template-columns:minmax(0,1fr)}
+ .xen-controls-settings-grid > .xen-hotkeys-new-panel{border-left:0;border-top:1px solid #232632;padding:10px 0 0 0}
+}
 @media (prefers-reduced-motion:reduce){.xen-hotkeys-new-panel button{transition:none!important}}

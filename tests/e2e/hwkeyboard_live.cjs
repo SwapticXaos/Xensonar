@@ -26,7 +26,7 @@ async function open(b,mode){const p=await (await b.newContext({viewport:{width:1
   assert.equal(await p.evaluate(()=>window.__midi.calls),0,'Web MIDI is not touched before the player switches it on');
   // the entry sits in the technical card row next to the Touchpad helper and opens a dialog
   const dock=p.locator('[data-xen-hw-keyboard]').first();await dock.scrollIntoViewIfNeeded();assert(/Off/.test(await dock.innerText()),'the row shows the status: off');
-  assert(await dock.evaluate(e=>!!e.closest('.xen-time-echo-with-touchpad')),'the row is in the technical card next to the Touchpad helper');
+  assert(await dock.evaluate(e=>!!e.closest('.xen-controls-settings-block')),'the row is in the unified Controls & Settings block next to the Touchpad helper');
   const opener=p.getByRole('button',{name:'Set up hardware keyboard…'});await opener.click();await p.waitForTimeout(300);
   const dialog=p.getByRole('dialog',{name:'Hardware keyboard (MIDI)'});assert.equal(await dialog.count(),1,'the button opens the settings dialog');
   const sw=p.getByRole('checkbox',{name:'Use a hardware keyboard'});assert.equal(await sw.isChecked(),false,'off by default');
