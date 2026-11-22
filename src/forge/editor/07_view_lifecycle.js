@@ -4,7 +4,7 @@ const __ForgeWorkspaceVisibility=P.createContext(false);
 let __forgeWorkspaceVisible=false;
 function __deactivateForgeWorkspace(){
  if(typeof __Emilia!=='undefined'&&(!globalThis.__XenLazyLoader||globalThis.__XenLazyLoader.isLoaded('chunk','forge-emilia')))__Emilia.stopPreview();
- if(typeof __F352Runtime!=='undefined')__F352Runtime.detach();
+ if(typeof __F352Runtime!=='undefined'&&(!globalThis.__XenLazyLoader||globalThis.__XenLazyLoader.isLoaded('chunk','forge-engines')))__F352Runtime.detach();
  if(typeof __f333Stop==='function')__f333Stop();
  if(typeof __f449ReleaseForgeDerivedCaches==='function')__f449ReleaseForgeDerivedCaches();
 }
@@ -22,6 +22,6 @@ function __setForgeWorkspaceVisible(visible){
  /* FORGE-SLEEP-01: the parked Forge is a separate, sleeping app. Its Wave Editor drops its document key/pointer
     listeners (Backspace = octave hold in the Live Room); the focus never stays in the hidden box (also inert, see the keepalive wrapper). */
  globalThis.__XenWaveUIW01?.setAwake?.(visible);
- if(visible){if(typeof __F352Runtime!=='undefined')__F352Runtime.attach()}
+ if(visible){if(typeof __F352Runtime!=='undefined'&&(!globalThis.__XenLazyLoader||globalThis.__XenLazyLoader.isLoaded('chunk','forge-engines')))__F352Runtime.attach()}
  else{__deactivateForgeWorkspace();const a=document.activeElement;if(a&&a!==document.body&&a.closest?.('[data-package-station-keepalive]'))a.blur?.()}
 }

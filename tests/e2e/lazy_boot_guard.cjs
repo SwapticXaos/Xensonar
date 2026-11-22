@@ -18,19 +18,19 @@ const html=path.resolve(process.argv[2]||'dist/XenSonar_PROBE.html');
  await p.waitForTimeout(1500);
 
  const cold=await p.evaluate(()=>window.__XenLazyLoader.report());
- assert.ok(cold && cold.totals && cold.totals.count>=25,'expected >=25 lazy payloads, got '+cold?.totals?.count);
- assert.ok(cold.totals.deferredBytes>=1800000,'expected >=1.8 MB deferred at cold boot, got '+cold.totals.deferredBytes);
+ assert.ok(cold && cold.totals && cold.totals.count>=26,'expected >=26 lazy payloads, got '+cold?.totals?.count);
+ assert.ok(cold.totals.deferredBytes>=2100000,'expected >=2.1 MB deferred at cold boot, got '+cold.totals.deferredBytes);
 
  // Cold rooms must remain uncompiled at boot (psylab may load on a fresh browser if selected as starter)
  for(const room of ['lab','canonical','nodal','multitrack','xenpolar']){
   assert.equal(cold.rooms[room]?.loaded,false,'room '+room+' must stay cold at boot');
  }
- // All 9 lazy subsystem chunks must remain uncompiled at cold boot
- for(const chunk of ['wave-editor-dsp','wave-editor-ui','wave-analysis','package-station','forge-stamps','forge-emilia','forge-fractalia','forge-workflow','sound-recipe-export']){
+ // All 10 lazy subsystem chunks must remain uncompiled at cold boot
+ for(const chunk of ['wave-editor-dsp','wave-editor-ui','wave-analysis','package-station','forge-engines','forge-stamps','forge-emilia','forge-fractalia','forge-workflow','sound-recipe-export']){
   assert.equal(cold.chunks[chunk]?.loaded,false,'chunk '+chunk+' must stay cold at boot');
  }
 
- // Open Spectral Forge -> lab + wave-editor-ui + wave-editor-dsp load via data-xen-deps; unrelated chunks stay cold
+ // Open Spectral Forge -> lab + wave-editor-ui + wave-editor-dsp + forge-engines load via data-xen-deps; unrelated chunks stay cold
  await p.evaluate(()=>{const btn=[...document.querySelectorAll('header button')].find(x=>/MATERIAL FORGE/i.test(x.innerText));if(!btn)throw Error('MATERIAL FORGE button missing');btn.click()});
  await p.waitForTimeout(2000);
  await p.locator('[data-xen-tile="forge"]').first().click();
@@ -41,6 +41,7 @@ const html=path.resolve(process.argv[2]||'dist/XenSonar_PROBE.html');
  assert.equal(afterForge.rooms.lab.loaded,true,'lab room loaded after entering Spectral Forge');
  assert.equal(afterForge.chunks['wave-editor-ui'].loaded,true,'wave-editor-ui loaded via lab data-xen-deps');
  assert.equal(afterForge.chunks['wave-editor-dsp'].loaded,true,'wave-editor-dsp loaded transitively via wave-editor-ui');
+ assert.equal(afterForge.chunks['forge-engines'].loaded,true,'forge-engines loaded via lab data-xen-deps');
  // Chunks that were NOT triggered must still stay cold
  for(const stillCold of ['wave-analysis','package-station','forge-emilia','forge-fractalia','forge-workflow','sound-recipe-export']){
   assert.equal(afterForge.chunks[stillCold]?.loaded,false,'chunk '+stillCold+' must still stay cold until triggered');

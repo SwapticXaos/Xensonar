@@ -68,25 +68,7 @@ const __f35635FeatureName={all:'Sound character',resonance:'Resonances',texture:
 
 /* xen-lazy:lab */
 
-__F341Workbench.attach({
- beforeChange(){Vt.stop();xt.stop();},
- afterChange(){const s=pe.getState();pe.setState({audioBufferDirty:true,renderVersion:s.renderVersion+1});xt.invalidateBuffer();},
- loadPresets(){return JSON.parse(localStorage.getItem('xensonar:donor-workbench:presets:v1')||'[]')},
- savePresets(items){try{localStorage.setItem('xensonar:donor-workbench:presets:v1',JSON.stringify(items))}catch(e){throw Error("Could not save preset: "+e.message)}}
-});
-let __F341LastSource=null;
-Vt.subscribe(()=>{const source=Vt.getSnapshot().source;if(source&&source!==__F341LastSource){__F341LastSource=source;__F341Workbench.sourceChanged(source);}});
-
-__f333AttachTransitionGuard(pe);
-__f333Persistence=__ForgeF33.attachExperimentStatePersistence({runtime:Vt,store:pe,prepareDonor:kE});
-// F447: mounted Forge canvas / explicit playback owns the subscriptions.
-globalThis.__SpectralForgeF35={version:"F3-56.29",baseVersion:"F3-56.27",klanggestalt:__F356Gestalt,klanggestaltWorker:__F356GestaltWorker,restoreExperiment:()=>__f333Persistence?.restore(),planner:__F356Material,analysisCache:__F353AnalysisCache,hybrid:__F352Runtime,combination:__F352Session,legacy:{playDonor:__f352LegacyPlayDonor,exportDonor:__f352LegacyExportDonor},sourceGrains:__F350Donor,onsetEvidence:__F347OnsetEvidence,workbench:__F341Workbench,master:__F3564Master,saveExperiment:()=>__f333Persistence?.saveNow(),...__ForgeF33,analyze:KNe,prepareDonor:kE,runtime:Vt,store:pe,engine:xt,prepareCache:fU};
-
-Object.assign(globalThis.__SpectralForgeF35,{version:"F3-56.40",dualDonor:__F35636DualDSP,articulation:__F35636Articulation});
-
-Object.assign(globalThis.__SpectralForgeF35,{version:"F3-56.43",donorField:__F35641Field,comparisonRevision:41});
-
-Object.assign(globalThis.__SpectralForgeF35,{variants:{original:{gestalt:__F356GestaltOriginal,material:__F356MaterialOriginal,get dual(){return __F35636DualDSP.forPlan()}},revised:{gestalt:__F356Gestalt,material:__F356Material,get dual(){return __F35636DualDSP.forPlan()}}}});
+/* xen-lazy:forge-engines (workbench, persistence & __SpectralForgeF35 wiring moved to src/forge/99_forge_engines_init.js) */
 
 /* Starter presets retain their existing durable material entries for legacy Material Track
    consumers. Their Root Follow configuration uses the SAME synth descriptor as the
