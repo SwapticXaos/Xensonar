@@ -271,6 +271,7 @@
     "src/instruments/06_source_preparation.js",
     "src/instruments/07_pitch_preparation.js",
     "src/runtime/instrument/11_recording_and_granular_controls.js",
+    "src/ts/bass/bassDawTools.ts",
     "src/runtime/instrument/12_rhythm_and_bass_editor.js",
     "src/post-oct/gaps/010-main-bundle__11_after_12_rhythm_and_bass_editor.js",
     "src/rhythm/01_compact_drum_grid.js",

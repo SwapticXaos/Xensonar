@@ -133,6 +133,14 @@ function __xenVoiceHostModule(){
   const res=Math.pow(10,q/20),th=Math.PI*cutoff,alpha=Math.sin(th)/(2*res),cw=Math.cos(th),beta=(1-cw)/2,ia=1/(1+alpha);
   o.b0=beta*ia;o.b1=2*beta*ia;o.b2=beta*ia;o.a1=-2*cw*ia;o.a2=(1-alpha)*ia;
  }
+ /* BASS-DAW-01: bandpass and notch biquad coefficients (RBJ / Chromium Biquad::SetBandpassParams & SetNotchParams). */
+ function bqCoef(o,cutoffHz,q,ftype){
+  if(!ftype||ftype==='lowpass'){lpCoef(o,cutoffHz,q);return}
+  const cutoff=Math.max(1e-4,Math.min(.999,cutoffHz/(SR*.5)));
+  const th=Math.PI*cutoff,cw=Math.cos(th),Q=Math.max(.1,q),alpha=Math.sin(th)/(2*Q),ia=1/(1+alpha);
+  if(ftype==='bandpass'){o.b0=alpha*ia;o.b1=0;o.b2=-alpha*ia;o.a1=-2*cw*ia;o.a2=(1-alpha)*ia;return}
+  o.b0=ia;o.b1=-2*cw*ia;o.b2=ia;o.a1=-2*cw*ia;o.a2=(1-alpha)*ia;
+ }
  function lowpassFixed(hz,q){
   const o={b0:0,b1:0,b2:0,a1:0,a2:0,x1:0,x2:0,y1:0,y2:0,u1:0,u2:0,z1:0,z2:0};lpCoef(o,F(hz),F(q));
   o.step=x=>{const y=F(o.b0*x+o.b1*o.x1+o.b2*o.x2-o.a1*o.y1-o.a2*o.y2);o.x2=o.x1;o.x1=x;o.y2=o.y1;o.y1=y;return y};
@@ -146,7 +154,7 @@ function __xenVoiceHostModule(){
  class BassVoices extends Clocked{
   static get parameterDescriptors(){return [{name:'detune',defaultValue:0,minValue:-4800,maxValue:4800,automationRate:'a-rate'}]}
   constructor(){
-   super();this.tables=null;this.voices=[];this.inc=new Float64Array(128);
+   super();this.tables=null;this.voices=[];this.inc=new Float64Array(128);this.fmBuf=new Float32Array(128);
    this.port.onmessage=e=>{const m=e.data;if(!m)return;
     if(m.t==='tables')this.tables=m.tables;
     else if(m.t==='note')this.note(m);
@@ -161,9 +169,12 @@ function __xenVoiceHostModule(){
       (start_frame_offset > 0 in oscillator_handler.cc) the first sample is written one frame later */
    const stop=frameUp(m.stop);let start=frameUp(m.at);if(m.at*SR-start>0)start+=1;
    if(this.clock>=0&&start<this.clock+this.clockLen)start=this.clock+this.clockLen;
-   const v={id:m.id,start,stop,end:stop+Math.ceil(.15*SR),send:!!m.send,fixed:Number.isFinite(m.detuneFixed)?m.detuneFixed:null,cancelAt:Infinity,
-    osc:m.osc.map(o=>({tab:this.tables[o.type],w:o.w,freq:timeline(440,o.freq),vri:0,y:0,hz:NaN,incr:0,hi:null,lo:null,tf:0})),detune:NaN,scale:1,
+   const tailSec=Number.isFinite(m.tailSec)&&m.tailSec>.15?m.tailSec:.15;
+   const mkOsc=o=>({tab:this.tables[o.type],w:o.w,freq:timeline(440,o.freq),vri:0,y:0,hz:NaN,incr:0,hi:null,lo:null,tf:0,fmTarget:!!o.fmTarget});
+   const v={id:m.id,start,stop,end:stop+Math.ceil(tailSec*SR),send:!!m.send,fixed:Number.isFinite(m.detuneFixed)?m.detuneFixed:null,cancelAt:Infinity,
+    osc:m.osc.map(mkOsc),fmHz:Number.isFinite(m.fmHz)&&m.fmHz>0?F(m.fmHz):0,fmOsc:m.fmOsc?mkOsc(m.fmOsc):null,detune:NaN,scale:1,
     mix:m.mix,curve:m.grit===null?null:curveFor(m.grit),freq:timeline(350,m.filterFreq),q:timeline(1,m.filterQ),gain:timeline(1,m.gain),
+    ftype:m.ftype==='bandpass'||m.ftype==='notch'?m.ftype:'lowpass',
     bq:{b0:0,b1:0,b2:0,a1:0,a2:0,x1:0,x2:0,y1:0,y2:0},lastHz:NaN,lastQ:NaN,
     bq2:m.poles===4?{x1:0,x2:0,y1:0,y2:0}:null}; // BASS-V2-01: 24 dB = a second stage with the same coefficients (native: two biquads)
    if(this.voices.length>=512)this.voices.shift();
@@ -173,25 +184,38 @@ function __xenVoiceHostModule(){
    if(this.dead)return false;
    const out0=outputs[0][0],out1=outputs[1]?outputs[1][0]:null,n=out0.length,f0=this.frame(n),vs=this.voices;
    if(!vs.length||!this.tables)return true;
-   const det=parameters.detune;
+   const det=parameters.detune,fmBuf=this.fmBuf;
    for(let i=0;i<vs.length;i++){
     const v=vs[i];if(v.start>=f0+n)continue;
     /* Chromium quirk kept for an identical sound: in the quantum where an oscillator starts, its phase increments are read from the
        start of the quantum (oscillator_handler.cc passes phase_increments from index 0 while writing from the start offset), so the
        first frames still use the frequency from before the note (the 440 Hz default). */
     const q0=v.start>f0?v.start-f0:0;
+    const hasFm=v.fmHz>0&&v.fmOsc;
+    if(hasFm){
+     for(let k=0;k<q0;k++)fmBuf[k]=0;
+     for(let k=q0;k<n;k++){
+      const f=f0+k;
+      if(f<v.stop){
+       const kk=k-q0,d=v.fixed!==null?v.fixed:(det.length>1?det[kk]:det[0]);if(d!==v.detune){v.detune=d;v.scale=Math.pow(2,F(d/1200))}
+       const mhz=v.fmOsc.freq.at(f-q0,k===q0);
+       fmBuf[k]=F(oscSample(v.fmOsc,F(F(mhz)*F(v.scale)))*v.fmHz);
+      }else fmBuf[k]=0;
+     }
+    }
     for(let k=q0;k<n;k++){
      const f=f0+k;if(f>=v.end||f>=v.cancelAt){v.done=true;break}
      let x=0;
      if(f<v.stop){
       const kk=k-q0,d=v.fixed!==null?v.fixed:(det.length>1?det[kk]:det[0]);if(d!==v.detune){v.detune=d;v.scale=Math.pow(2,F(d/1200))}const scale=v.scale;
-      for(let j=0;j<v.osc.length;j++){const o=v.osc[j];const hz=o.freq.at(f-q0,k===q0);o.y=oscSample(o,F(F(hz)*F(scale)))}
+      const fmAdd=hasFm?fmBuf[kk]:0;
+      for(let j=0;j<v.osc.length;j++){const o=v.osc[j];const hz=o.freq.at(f-q0,k===q0);const effHz=hasFm&&o.fmTarget?F(F(hz+fmAdd)*F(scale)):F(F(hz)*F(scale));o.y=oscSample(o,effHz)}
       for(let j=0;j<v.osc.length;j++){const o=v.osc[j];x=F(x+(o.w===1?o.y:F(o.y*o.w)))}
      }
      let s=F(x*v.mix);
      if(v.curve){const c=v.curve,vi=Math.max(0,Math.min(1023,F(F(s+1)*511.5)));const i1=Math.min(1023,vi|0),i2=Math.min(1023,i1+1);s=F(c[i1]+F(F(vi-i1)*F(c[i2]-c[i1])))}
      const hz=v.freq.at(f,k===0),q=v.q.at(f,k===0),b=v.bq;
-     if(hz!==v.lastHz||q!==v.lastQ){lpCoef(b,hz,q);v.lastHz=hz;v.lastQ=q}
+     if(hz!==v.lastHz||q!==v.lastQ){bqCoef(b,hz,q,v.ftype);v.lastHz=hz;v.lastQ=q}
      let y=F(b.b0*s+b.b1*b.x1+b.b2*b.x2-b.a1*b.y1-b.a2*b.y2);b.x2=b.x1;b.x1=s;b.y2=b.y1;b.y1=y;
      const c=v.bq2;if(c){const y2=F(b.b0*y+b.b1*c.x1+b.b2*c.x2-b.a1*c.y1-b.a2*c.y2);c.x2=c.x1;c.x1=y;c.y2=c.y1;c.y1=y2;y=y2}
      const g=v.gain.at(f,k===0),o=F(y*g);

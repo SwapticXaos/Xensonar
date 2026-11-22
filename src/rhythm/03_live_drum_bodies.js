@@ -75,6 +75,7 @@ function D9(ctx,bus){
   if(!["kick","snare","hat_closed","hat_open","clap","perc"].includes(voice))return;
   const style=tO(inputStyle),value=Ql(level,0,1.5);
   if(value<=1e-4||!Number.isFinite(time))return;
+  if(voice==="kick"&&typeof __XenBassDuck!=="undefined")__XenBassDuck.trigger(ctx,time,value);
   const key=CIe(voice,kit,value,style),entry=cache.get(key);
   let output,nodes=[],hat={gain:null,cached:!!entry};
   if(entry){

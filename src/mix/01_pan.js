@@ -57,6 +57,7 @@ const __XenPan=(()=>{
   let channels=targets.get(destination);if(!channels){channels=new Map();targets.set(destination,channels)}
   if(channels.has(kind))return channels.get(kind).node;
   if(kind==='bass'||kind==='rootFollow')destination=__XenEQ.route(ctx,kind,destination);
+  if(kind==='bass'&&typeof __XenBassDuck!=='undefined')destination=__XenBassDuck.route(ctx,destination);
   const loopRecInput=kind==='particle'||(['wave','keyboard'].includes(kind)&&__XenLoopRec.isDestination(destination));if(loopRecInput)destination=__XenLoopRec.route(ctx,kind,destination);
   const node=ctx.createStereoPanner();node.pan.value=state[kind]||0;node.connect(destination);if(loopRecInput)__XenLoopRec.capturedInput(node);
   const d={ctx,kind,node,destination,pitchNode:null,pitchOff:null};channels.set(kind,d);devices.add(d);
@@ -94,6 +95,64 @@ const __XenBassPitch=(()=>{
   return()=>{devices.delete(dev)};
  }
  return Object.freeze({snapshot,subscribe,set,register});
+})();
+/* BASS-DAW-01: zero-graph-change kick-sidechain ducking on the live Bass bus.
+   Uses one resident GainNode per live AudioContext (skipped on OfflineAudioContext so offline renders remain untouched). */
+const __XenBassDuck=(()=>{
+ const KEY='xensonar.bass-duck.v1',listeners=new Set(),nodesByCtx=new WeakMap(),activeNodes=new Set();
+ const isOffline=ctx=>typeof OfflineAudioContext==='function'&&ctx instanceof OfflineAudioContext;
+ const clamp=(v,lo,hi)=>Number.isFinite(v)?Math.max(lo,Math.min(hi,v)):lo;
+ let state=Object.freeze({depth:0,release:.14});
+ try{const saved=JSON.parse(localStorage.getItem(KEY)||'null');if(saved&&typeof saved==='object')state=Object.freeze({depth:clamp(saved.depth,0,.95),release:clamp(saved.release,.03,.45)})}catch{}
+ let persistTimer=null,lastHitAt=0,lastHitFloor=1;
+ const persist=()=>{persistTimer=null;try{localStorage.setItem(KEY,JSON.stringify(state))}catch{}};
+ if(typeof window!=='undefined')window.addEventListener?.('pagehide',()=>{if(persistTimer!==null){clearTimeout(persistTimer);persist()}});
+ const emit=()=>{for(const fn of listeners)try{fn()}catch{}};
+ function set(patch){
+  const next=Object.freeze({depth:patch&&'depth'in patch?clamp(patch.depth,0,.95):state.depth,release:patch&&'release'in patch?clamp(patch.release,.03,.45):state.release});
+  if(next.depth===state.depth&&next.release===state.release)return;
+  state=next;clearTimeout(persistTimer);persistTimer=setTimeout(persist,220);
+  if(state.depth<=1e-4)for(const entry of activeNodes){if(entry.ctx.state==='closed'){activeNodes.delete(entry);continue}try{const now=entry.ctx.currentTime;entry.gain.gain.cancelScheduledValues(now);entry.gain.gain.setTargetAtTime(1,now,.015)}catch{}}
+  emit();
+ }
+ function route(ctx,destination){
+  if(!ctx||!destination||isOffline(ctx)||typeof ctx.createGain!=='function')return destination;
+  let map=nodesByCtx.get(ctx);if(!map){map=new WeakMap();nodesByCtx.set(ctx,map)}
+  const existing=map.get(destination);if(existing)return existing.gain;
+  const gain=ctx.createGain();gain.gain.value=1;gain.connect(destination);
+  const entry={ctx,gain,destination};map.set(destination,entry);activeNodes.add(entry);
+  const dispose=()=>{if(ctx.state!=='closed')return;try{gain.disconnect()}catch{};activeNodes.delete(entry);ctx.removeEventListener?.('statechange',dispose)};
+  ctx.addEventListener?.('statechange',dispose);
+  return gain;
+ }
+ function trigger(ctx,time,level=1){
+  if(state.depth<=1e-4||!ctx||isOffline(ctx)||ctx.state==='closed')return;
+  const map=nodesByCtx.get(ctx);if(!map)return;
+  const at=Math.max(ctx.currentTime,Number.isFinite(time)?time:ctx.currentTime);
+  const effDepth=Math.min(.95,state.depth*Math.max(.35,Math.min(1.15,Number.isFinite(level)?level:1)));
+  const floor=Math.max(.04,1-effDepth),tau=Math.max(.012,state.release/3);
+  lastHitAt=performance.now();lastHitFloor=floor;
+  for(const entry of activeNodes){
+   if(entry.ctx!==ctx)continue;
+   try{
+    const g=entry.gain.gain;
+    g.cancelScheduledValues(at);
+    g.setValueAtTime(Math.max(.04,Math.min(1,g.value)),at);
+    g.linearRampToValueAtTime(floor,at+.004);
+    g.setTargetAtTime(1,at+.016,tau);
+   }catch{}
+  }
+ }
+ function reduction(){
+  if(state.depth<=1e-4||!lastHitAt)return 0;
+  const dt=(performance.now()-lastHitAt)/1000;
+  if(dt<0||dt>state.release*3.5)return 0;
+  const gain=1-(1-lastHitFloor)*Math.exp(-dt/Math.max(.015,state.release/2.6));
+  return Math.max(0,Math.min(1,1-gain));
+ }
+ const api=Object.freeze({snapshot:()=>state,subscribe:fn=>(listeners.add(fn),()=>listeners.delete(fn)),set,route,trigger,reduction});
+ globalThis.__XenBassDuck=api;
+ return api;
 })();
 __XenEQ.bind();globalThis.XenSonarEQ=__XenEQ;
 function __PanVolume({kind,label,volume,pan,onPan}){

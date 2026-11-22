@@ -370,34 +370,73 @@ function FPe(e){const{drumMachine:t,entry:n,stepIndex:r,time:a,stepDurationSec:o
    played by the resident bass worklet (host.note(plan)) or, where the worklet is not there (offline renders, start-up), by the same
    timelines on native nodes, so a live note and an export sound alike. Timeline entries: [kind, time, value, tau] with kind
    0 set · 1 linear ramp · 2 exponential ramp · 3 set target (the AudioParam calls). The classic voices keep their own path. */
-function __xenBassV2Plan({voice,hz,at,length,level,accent,ghost,tone,grit,params,glide}){
+function __xenBassV2Plan({voice,hz,at,length,level,accent,ghost,tone,grit,params,glide,glideTargetHz,cutoffScale}){
  /* a superset of the classic note: with none of the extra fields this yields exactly the classic voice's message (tests/e2e/bass_v2_voices.cjs) */
  const classic=voice.classicMode===true,n=Math.max(1,Math.min(3,voice.uni|0||1)),sp=voice.spread||0,drop=voice.pdrop>1?voice.pdrop:1,pdec=voice.pdec||.04;
- const glideEnd=glide?Math.min(at+length*.42,at+(Number.isFinite(voice.glide)?voice.glide:.08)):0;
+ const hasTrueGlide=Number.isFinite(glideTargetHz)&&glideTargetHz>0&&Math.abs(glideTargetHz-hz)>.05;
+ const glideMul=hasTrueGlide?Math.max(.125,Math.min(8,glideTargetHz/hz)):1.122;
+ const glideMulB=hasTrueGlide?glideMul:1.118/1.004;
+ const glideEnd=glide||hasTrueGlide?Math.min(at+length*(hasTrueGlide?.82:.42),at+(Number.isFinite(voice.glide)?voice.glide:hasTrueGlide?.12:.08)):0;
  const fq=(f,to)=>{const l=drop>1?[[0,at,f*drop],[2,at+pdec,f]]:[[0,at,f]];if(glideEnd)l.push([2,drop>1?Math.max(glideEnd,at+pdec+1e-3):glideEnd,to]);return l};
+ const fm=Number.isFinite(voice.fm)&&voice.fm>0?voice.fm:0;
  const osc=[],waveA=classic?(grit>.56?'square':'sawtooth'):voice.wave,w=Math.fround(1/Math.sqrt(n));
- for(const r of n===1?[1]:n===2?[1-sp/2,1+sp/2]:[1-sp,1,1+sp])osc.push({type:waveA,w:n===1?1:w,freq:fq(hz*r,hz*r*1.122)});
- if(voice.second){const hzB=hz*(classic&&ghost?1.0015:voice.detune);osc.push({type:ghost?'sine':voice.second,w:1,freq:fq(hzB,hz*voice.detune*1.118/1.004)})}
- const sub=Me(params.bassSub??1,0,1.5)*voice.sub;if(sub>.001)osc.push({type:'sine',w:Math.fround(sub),freq:drop>1?[[0,at,hz/2*drop],[2,at+pdec,hz/2]]:[[0,at,hz/2]]});
+ for(const r of n===1?[1]:n===2?[1-sp/2,1+sp/2]:[1-sp,1,1+sp])osc.push({type:waveA,w:n===1?1:w,freq:fq(hz*r,hz*r*glideMul),...(fm>0?{fmTarget:true}:{})});
+ if(voice.second){const hzB=hz*(classic&&ghost?1.0015:voice.detune);osc.push({type:ghost?'sine':voice.second,w:1,freq:fq(hzB,hz*voice.detune*glideMulB)})}
+ const sub=Me(params.bassSub??1,0,1.5)*voice.sub;
+ const subWave=__xenBassVoiceWaves.includes(voice.subWave)?voice.subWave:'sine';
+ if(sub>.001)osc.push({type:subWave,w:Math.fround(sub),freq:fq(hz/2,hasTrueGlide?hz/2*glideMul:hz/2)});
  const envelope=Me(params.bassEnvelope??1,0,2)*(Number.isFinite(voice.fenv)?voice.fenv:1);
- const low=Me(hz*(.95+tone*1.4)*voice.color,80,2200),high=Me(hz*(1.8+tone*3.8)*(.9+accent*.25)*voice.color,120,4200);
- const poles=voice.poles===4?4:2,q=((ghost?.35:.55)+grit*1.1+accent*.22+Me(params.bassResonance??0,0,1)*4+(voice.res||0)*6)*(poles===4?.6:1);
- const drive=Me(grit+(voice.drive||0),0,1),att=Math.max(0,voice.att||0),L=Math.max(1e-4,level*(ghost?.42:.72+accent*.5)),tau=(ghost?.016:.024)+(1-tone)*.02;
- const gain=att>0?[[0,at,1e-4],[1,at+att,L],[3,at+Math.max(att,length*.76),1e-4,tau]]:[[0,at,L],[3,at+length*.76,1e-4,tau]];
- const m={at,stop:at+length,osc,mix:Math.fround(((ghost?.46:.7)+grit*.16)*voice.gain),grit:classic||drive>.001?drive:null,
-  filterFreq:[[0,at,Me(low+(high-low)*envelope,80,7000)],[2,at+length*(Number.isFinite(voice.fdec)?voice.fdec:.58),low]],filterQ:[[0,at,q]],gain};
- if(poles===4)m.poles=4;return m;
+ const ftrack=Number.isFinite(voice.ftrack)?voice.ftrack:1;
+ const refHz=ftrack===1?hz:Math.pow(hz,ftrack)*Math.pow(65.406,1-ftrack);
+ const cutMul=Number.isFinite(cutoffScale)&&cutoffScale>0?Me(cutoffScale,.35,2.4):1;
+ const low=Me(refHz*(.95+tone*1.4)*voice.color*cutMul,cutMul<1?60:80,cutMul>1?3200:2200),high=Me(refHz*(1.8+tone*3.8)*(.9+accent*.25)*voice.color*cutMul,cutMul<1?100:120,cutMul>1?8000:4200);
+ const poles=voice.poles===4?4:2,ftype=voice.ftype==='bandpass'||voice.ftype==='notch'?voice.ftype:'lowpass';
+ const q=((ghost?.35:.55)+grit*1.1+accent*.22+Me(params.bassResonance??0,0,1)*4+(voice.res||0)*6)*(poles===4?.6:1);
+ const drive=Me(grit+(voice.drive||0),0,1),att=Math.max(0,voice.att||0),L=Math.max(1e-4,level*(ghost?.42:.72+accent*.5));
+ const hasAdsr=Number.isFinite(voice.sus)||Number.isFinite(voice.rel);
+ const tau=Number.isFinite(voice.rel)?Math.max(.005,voice.rel):((ghost?.016:.024)+(1-tone)*.02);
+ const sus=Number.isFinite(voice.sus)?Me(voice.sus,.05,1):1;
+ let gain;
+ if(hasAdsr&&sus<.999){
+  const decEnd=Math.min(at+length*.72,at+att+Math.max(.02,length*.32));
+  gain=att>0?[[0,at,1e-4],[1,at+att,L],[2,decEnd,Math.max(1e-4,L*sus)],[3,at+Math.max(att,length*.76),1e-4,tau]]
+   :[[0,at,L],[2,decEnd,Math.max(1e-4,L*sus)],[3,at+length*.76,1e-4,tau]];
+ }else{
+  gain=att>0?[[0,at,1e-4],[1,at+att,L],[3,at+Math.max(att,length*.76),1e-4,tau]]:[[0,at,L],[3,at+length*.76,1e-4,tau]];
+ }
+ const extraTail=Number.isFinite(voice.rel)?Math.min(.45,voice.rel*2.2):0;
+ const m={at,stop:at+length+extraTail,osc,mix:Math.fround(((ghost?.46:.7)+grit*.16)*voice.gain),grit:classic||drive>.001?drive:null,
+  filterFreq:[[0,at,Me(low+(high-low)*envelope,cutMul<1?60:80,cutMul>1?9000:7000)],[2,at+length*(Number.isFinite(voice.fdec)?voice.fdec:.58),low]],filterQ:[[0,at,q]],gain};
+ if(poles===4)m.poles=4;
+ if(ftype!=='lowpass')m.ftype=ftype;
+ if(extraTail>0)m.tailSec=Math.max(.15,extraTail+.1);
+ if(fm>0){
+  const modRatio=voice.second?voice.detune:2;
+  m.fm=fm;
+  m.fmHz=Math.fround((osc[0]?.freq?.[0]?.[2]||hz)*fm*2.5);
+  m.fmOsc={type:voice.second||'sine',w:0,freq:fq(hz*modRatio,hz*modRatio*glideMul)};
+ }
+ return m;
 }
 function __xenBassV2Native(ctx,plan,dest,send,audition){
  const nodes=[],sources=[],disposers=[],own=x=>(nodes.push(x),x);
  const apply=(param,list)=>{for(const [k,t,v,tau] of list){if(k===0)param.setValueAtTime(v,t);else if(k===1)param.linearRampToValueAtTime(v,t);else if(k===2)param.exponentialRampToValueAtTime(v,t);else param.setTargetAtTime(v,t,tau)}};
  const mix=own(ctx.createGain());mix.gain.value=plan.mix;let into=mix;
  if(plan.grit!==null){const sh=own(ctx.createWaveShaper());sh.curve=NPe.get(plan.grit);mix.connect(sh);into=sh}
- const f1=own(ctx.createBiquadFilter());f1.type='lowpass';apply(f1.frequency,plan.filterFreq);apply(f1.Q,plan.filterQ);into.connect(f1);let last=f1;
- if(plan.poles===4){const f2=own(ctx.createBiquadFilter());f2.type='lowpass';apply(f2.frequency,plan.filterFreq);apply(f2.Q,plan.filterQ);f1.connect(f2);last=f2}
+ const ftype=plan.ftype||'lowpass';
+ const f1=own(ctx.createBiquadFilter());f1.type=ftype;apply(f1.frequency,plan.filterFreq);apply(f1.Q,plan.filterQ);into.connect(f1);let last=f1;
+ if(plan.poles===4){const f2=own(ctx.createBiquadFilter());f2.type=ftype;apply(f2.frequency,plan.filterFreq);apply(f2.Q,plan.filterQ);f1.connect(f2);last=f2}
  const out=own(ctx.createGain());apply(out.gain,plan.gain);last.connect(out);out.connect(dest);if(send)out.connect(send);
+ let fmSource=null,fmGain=null;
+ if(plan.fm>0&&plan.fmOsc){
+  fmSource=own(ctx.createOscillator());sources.push(fmSource);fmSource.type=plan.fmOsc.type;apply(fmSource.frequency,plan.fmOsc.freq);
+  if(audition)fmSource.detune.setValueAtTime(__XenBassPitch.snapshot(),plan.at);else disposers.push(__XenBassPitch.register(ctx,fmSource.detune));
+  fmGain=own(ctx.createGain());fmGain.gain.value=Number.isFinite(plan.fmHz)?plan.fmHz:(plan.osc[0]?.freq?.[0]?.[2]||55)*plan.fm*2.5;
+  fmSource.connect(fmGain);
+ }
  for(const o of plan.osc){const src=own(ctx.createOscillator());sources.push(src);src.type=o.type;apply(src.frequency,o.freq);
   if(audition)src.detune.setValueAtTime(__XenBassPitch.snapshot(),plan.at);else disposers.push(__XenBassPitch.register(ctx,src.detune));
+  if(fmGain&&o.fmTarget)fmGain.connect(src.frequency);
   if(o.w===1)src.connect(mix);else{const g=own(ctx.createGain());g.gain.value=o.w;src.connect(g);g.connect(mix)}}
  let ended=0,released=false;const release=()=>{if(released)return;released=true;for(const d of disposers)d();for(const x of nodes)try{x.disconnect()}catch{}};
  for(const src of sources){src.onended=()=>{if(++ended===sources.length)setTimeout(release,120)};src.start(plan.at);src.stop(plan.stop)}
@@ -414,10 +453,11 @@ const NPe=new ML(64,e=>{const n=new Float32Array(1024),r=.65+e*2.6;for(let a=0;a
   const length=Me(duration*(params.bassDecay??1),.025,8),at=time+(e.applyLiveAttack===false?0:__XenAttackLanes.seconds('bass',params.quantizeBpm));
   // P9-C1: never collapse missed ATT-shifted notes onto now. Gate before graph work.
   if(at<ctx.currentTime)return null;
-  /* BASS-V2-01: modern voices (extra recipe fields) share one note description for the worklet and the native fallback */
-  if(__xenBassVoiceV2(voice)){
+  /* BASS-V2-01 / BASS-DAW-01: modern voices and per-note DAW locks (True Glide / Cutoff) share one note plan across worklet and native fallback */
+  const hasDawLocks=(Number.isFinite(options?.cutoffScale)&&Math.abs(options.cutoffScale-1)>1e-4)||(Number.isFinite(options?.glideTargetHz)&&options.glideTargetHz>0);
+  if(__xenBassVoiceV2(voice)||hasDawLocks){
    const dest=e.bassDestination||__XenPan.route(ctx,"bass",e.ensureFinalMixBus(ctx));
-   const plan=__xenBassV2Plan({voice,hz,at,length,level,accent,ghost,tone,grit,params,glide:!!options?.glideToNext});
+   const plan=__xenBassV2Plan({voice,hz,at,length,level,accent,ghost,tone,grit,params,glide:!!options?.glideToNext,glideTargetHz:options?.glideTargetHz,cutoffScale:options?.cutoffScale});
    let sendTarget=null;if(e.enterHoldPsyFxEnabled&&e.enterHoldRef.current){e.ensureEnterHoldPsyFxDevice(ctx);const t=e.enterHoldPsyFxSendsRef.current.bass;if(t)sendTarget=__XenPan.route(ctx,"bass",t)}
    const host=__XenLiveVoiceHost.bass(ctx,dest),token=e.bassVoiceAudition===true?0:__XenBassGrid.recordPlayedBass(hz,at,length,ctx);
    if(host){if(sendTarget)host.send(sendTarget);const id=host.note({...plan,send:!!sendTarget,detuneFixed:e.bassVoiceAudition===true?__XenBassPitch.snapshot():null});

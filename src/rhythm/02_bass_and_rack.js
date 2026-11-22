@@ -26,11 +26,14 @@ const __f48BassParamsEvent='xensonar:bass-voice-updated';
 function __f48BassClipPlayer(ctx,playBassNote,readClip,readParams){
  const pending=new Map();let disposed=false,replacements=0;
  const prune=()=>{for(const [key,job] of pending)if(job.time<ctx.currentTime-.08)pending.delete(key)};
+ let __xenBassPlayheadState=null;
  const render=job=>{
   const params=readParams?.(),clip=readClip(params?.bassPatternMode==='clip'?params.bassClipId:job.clip.id);
   if(!clip||(params&&(!params.bassActive||params.bassPatternMode!=='clip'||params.bassClipId!==clip.id))){job.voices=[];return}
   job.clip=clip;
   const root=clip.generatorMeta.rootBinding==='free'?(clip.generatorMeta.rootHz??job.rootHz):job.rootHz;
+  __xenBassPlayheadState={ctx,step:job.step,time:job.time,bars:clip.bars||1,bpm:job.quantizeBpm||120,clipId:clip.id};
+  globalThis.__XenBassPlayhead=__xenBassPlayheadState;
   job.voices=lce({...job,clip,rootHz:root,playBassNote,normalized:true});
  };
  const cancel=job=>{for(const voice of job.voices||[])voice?.cancel?.()};
@@ -474,13 +477,20 @@ function __f48BassSound({params,update}){
    u.jsxs('label',{className:'xen-bve-classic',children:[
     u.jsx('input',{type:'checkbox','aria-label':'Classic Grit Excitation',checked:recipe.classicMode,onChange:e=>edit('classicMode',e.target.checked)}),
     u.jsx('span',{children:'Classic Grit Excitation (legacy oscillator & glide behavior)'})]}),
-   /* BASS-V2-01: modern shaping. Every control starts at the value that equals the classic behaviour. */
+   /* BASS-V2-01 / BASS-DAW-01: modern shaping. Every control starts at the value that equals the classic behaviour. */
    u.jsxs('div',{className:'xen-bve-modern','data-xen-bass-v2':true,children:[
-    u.jsx('div',{className:'xen-rhythm-title',children:'Modern shaping'}),
+    u.jsx('div',{className:'xen-rhythm-title',children:'Modern shaping & FM / ADSR'}),
+    u.jsxs('label',{className:'xen-rhythm-control',children:[u.jsx('span',{children:'Filter Mode'}),
+     u.jsx('select',{'aria-label':'Filter Mode',value:recipe.ftype||'lowpass',onChange:e=>edit('ftype',e.target.value),children:[
+      u.jsx('option',{value:'lowpass',children:'Lowpass'},'lowpass'),u.jsx('option',{value:'bandpass',children:'Bandpass'},'bandpass'),u.jsx('option',{value:'notch',children:'Notch'},'notch')]})]}),
     u.jsxs('label',{className:'xen-rhythm-control',children:[u.jsx('span',{children:'Filter Slope'}),
      u.jsx('select',{'aria-label':'Filter Slope',value:String(recipe.poles===4?4:2),onChange:e=>edit('poles',Number(e.target.value)),children:[
       u.jsx('option',{value:'2',children:'12 dB / octave'},'2'),u.jsx('option',{value:'4',children:'24 dB / octave'},'4')]})]}),
-    ...[['Attack (s)','att',0,.08,.001,0],['Filter Env Depth','fenv',0,2.5,.01,1],['Filter Decay (share of note)','fdec',.04,1.2,.01,.58],['Extra Resonance','res',0,1,.01,0],
+    u.jsxs('label',{className:'xen-rhythm-control',children:[u.jsx('span',{children:'Sub Wave'}),
+     u.jsx('select',{'aria-label':'Sub Wave',value:recipe.subWave||'sine',onChange:e=>edit('subWave',e.target.value),children:__xenBassVoiceWaves.map(w=>u.jsx('option',{value:w,children:w},w))})]}),
+    ...[['Attack (s)','att',0,.08,.001,0],['Amp Sustain','sus',.05,1,.01,1],['Amp Release (s)','rel',.005,.5,.005,.035],
+     ['FM Depth (Osc B → A)','fm',0,1,.01,0],['Filter Keytrack','ftrack',0,1,.02,1],
+     ['Filter Env Depth','fenv',0,2.5,.01,1],['Filter Decay (share of note)','fdec',.04,1.2,.01,.58],['Extra Resonance','res',0,1,.01,0],
      ['Pitch Drop (start ratio)','pdrop',1,4,.01,1],['Pitch Drop Time (s)','pdec',.005,.25,.001,.04],['Unison Voices','uni',1,3,1,1],['Unison Spread','spread',0,.02,.0005,0],
      ['Drive','drive',0,1,.01,0],['Glide Time (s)','glide',0,.3,.005,.08]].map(([label,key,min,max,step,def])=>u.jsx(__f48Range,{label,value:recipe[key]??def,min,max,step,digits:step<.01?3:step>=1?0:2,onChange:v=>edit(key,v)},key))]}),
    u.jsxs('div',{className:'xen-bve-save',children:[
@@ -492,7 +502,28 @@ function __f48BassSound({params,update}){
    u.jsx('div',{'aria-live':'polite',className:'xen-bve-notice',children:notice})
   ]}),
   ...[['Filter Resonance','bassResonance',0,1],['Filter Envelope','bassEnvelope',0,2],['Bass Decay','bassDecay',.25,2],['Sub Weight','bassSub',0,1.5]].map(([label,key,min,max])=>u.jsx(__f48Range,{label,value:params[key]??__f48RackDefaults[key],min,max,onChange:value=>applyVoice({[key]:value})},key)),
+  typeof __XenBassDuck!=='undefined'&&u.jsx(__xenBassDuckPanel,{}),
   u.jsx('button',{type:'button',onClick:()=>{applyVoice({bassVoice:'classic',bassVoiceRecipe:null,bassVoiceUserId:'',bassVoiceUserName:'',bassResonance:0,bassEnvelope:1,bassDecay:1,bassSub:1});setNotice('Reset to factory Classic Forge.');},children:'Reset Bass Voice'})
+ ]});
+}
+function __xenBassDuckPanel(){
+ const duck=P.useSyncExternalStore(__XenBassDuck.subscribe,__XenBassDuck.snapshot,__XenBassDuck.snapshot);
+ const [gr,setGr]=P.useState(0);
+ P.useEffect(()=>{
+  if(duck.depth<=1e-4){setGr(0);return}
+  let raf=0;
+  const tick=()=>{setGr(__XenBassDuck.reduction());raf=requestAnimationFrame(tick)};
+  raf=requestAnimationFrame(tick);
+  return()=>cancelAnimationFrame(raf);
+ },[duck.depth]);
+ return u.jsxs('div',{className:'xen-bass-duck','data-xen-bass-duck':true,children:[
+  u.jsxs('div',{className:'xen-bass-duck-head',children:[
+   u.jsx('span',{className:'xen-rhythm-title',children:'Kick Sidechain Duck'}),
+   u.jsx('span',{className:'xen-bass-duck-gr',children:duck.depth>.001?`-${Math.round(gr*100)}%`:'Off'})
+  ]}),
+  u.jsx('div',{className:'xen-bass-duck-meter','aria-hidden':'true',children:u.jsx('div',{className:'xen-bass-duck-meter-bar',style:{width:`${Math.round(gr*100)}%`}})}),
+  u.jsx(__f48Range,{label:'Duck Depth',value:duck.depth,min:0,max:.95,step:.01,onChange:v=>__XenBassDuck.set({depth:v})}),
+  u.jsx(__f48Range,{label:'Duck Release (s)',value:duck.release,min:.03,max:.45,step:.01,onChange:v=>__XenBassDuck.set({release:v})})
  ]});
 }
 function __f48TransformBeat(grid,kind){

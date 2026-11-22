@@ -138,7 +138,8 @@ function __useSessionRhythmAuditions(value){
    list:()=>{const input=current.current;return {
     drums:(input.drumEntries||[]).map(x=>({id:x.id,name:String(x.name||x.value||x.id)})),
     bass:[...(input.bassClips||[]).map(x=>({id:'clip:'+x.id,name:String(x.name||x.id)})),...(input.bassPatterns||[]).map(x=>({id:'preset:'+x.value,name:String(x.label||x.name||x.value)}))]}},
-   renderDrum:(id,o)=>renderDrum({id},freeTask(),o),renderBass:(id,o)=>renderBass({id},freeTask(),o)};
+   renderDrum:(id,o)=>renderDrum({id},freeTask(),o),
+   renderBass:(id,o)=>renderBass(o?.previewClip?{id,name:o.name,previewClip:o.previewClip}:{id},freeTask(),o)};
   const offDrum=__XenMetaAudition.register('drum',drum),offBass=__XenMetaAudition.register('bass',bass);
   return()=>{offDrum();offBass();detachFill()};
  },[]);

@@ -15,38 +15,52 @@ const __f48BassVoices = Object.freeze({
  acid_line:{label:'Acid Line · 24 dB',wave:'sawtooth',sub:.2,color:.85,gain:.9,poles:4,att:.002,fenv:1.7,fdec:.3,res:.6,glide:.07},
  sub808:{label:'Sub 808',wave:'sine',sub:0,color:.6,gain:.83,att:.003,pdrop:2.2,pdec:.05,drive:.22},
  reese:{label:'Reese · detuned',wave:'sawtooth',second:'sawtooth',detune:1.007,sub:.35,color:.72,gain:.56,poles:4,att:.01,fenv:.45,fdec:.85,uni:3,spread:.006},
- deep_pluck:{label:'Deep Pluck',wave:'triangle',second:'sawtooth',detune:1.001,sub:.4,color:1.05,gain:.68,poles:4,att:.001,fenv:1.5,fdec:.14},
- square_punch:{label:'Square Punch',wave:'square',sub:.5,color:.95,gain:.58,poles:4,att:.002,fenv:1.1,fdec:.22,drive:.2}
-});
-/* BASS-V2-01: bounds of the optional voice fields; a recipe without them is exactly the old recipe */
-const __xenBassVoiceV2Bounds=Object.freeze({att:[0,.08],fenv:[0,2.5],fdec:[.04,1.2],res:[0,1],pdrop:[1,4],pdec:[.005,.25],uni:[1,3],spread:[0,.02],drive:[0,1],glide:[0,.3]});
-function __xenBassVoiceV2(recipe){return !!recipe&&(recipe.poles===4||Object.keys(__xenBassVoiceV2Bounds).some(k=>Number.isFinite(recipe[k])))}
-/* P1: one owned sound description; never include mixer, grid or global rack values.
- * Legacy clips without timbre remain distinguishable from saved Classic Forge. */
-/* BVE-01: factory bass recipes remain immutable; snapshots carry portable custom recipes.
-   "detune" is the established oscillator FREQUENCY RATIO, not cents. */
-const __xenBassVoiceWaves=Object.freeze(['sine','triangle','sawtooth','square']);
-const __xenBassVoiceRecipeBounds=Object.freeze({detune:[.25,4],sub:[0,1.5],color:[.2,2.5],gain:[.05,1.25]});
-function __xenBassVoiceRecipeClean(value){
- if(!value||typeof value!=='object'||Array.isArray(value)||
-    !__xenBassVoiceWaves.includes(value.wave)||
-    !(value.second===null||value.second===''||__xenBassVoiceWaves.includes(value.second)))return null;
- const out={wave:value.wave,second:value.second||null};
- for(const [key,[min,max]] of Object.entries(__xenBassVoiceRecipeBounds)){
-  if(!Number.isFinite(value[key]))return null;
-  out[key]=Math.max(min,Math.min(max,value[key]));
+  deep_pluck:{label:'Deep Pluck',wave:'triangle',second:'sawtooth',detune:1.001,sub:.4,color:1.05,gain:.68,poles:4,att:.001,fenv:1.5,fdec:.14},
+  square_punch:{label:'Square Punch',wave:'square',sub:.5,color:.95,gain:.58,poles:4,att:.002,fenv:1.1,fdec:.22,drive:.2},
+  /* BASS-DAW-01: additional pro-DAW voices using FM, filter modes, sub waveform, and ADSR shaping. */
+  fm_donk:{label:'FM Donk · Techno',wave:'sine',second:'sine',detune:2,sub:.45,color:1.05,gain:.37,poles:4,att:.001,fenv:1.35,fdec:.28,fm:.48,pdrop:1.35,pdec:.022,drive:.26},
+  neuro_growl:{label:'Neuro Growl · BP',wave:'sawtooth',second:'square',detune:1.5,sub:1.1,color:1.05,gain:1.25,poles:2,ftype:'bandpass',att:.005,fenv:1.2,fdec:.55,res:0,uni:3,spread:.008,fm:.24,drive:.32},
+  acid_303:{label:'Acid 303 · Squelch',wave:'sawtooth',sub:.18,color:.92,gain:.54,poles:4,att:.001,fenv:1.95,fdec:.22,res:.70,drive:.26,glide:.065},
+  moog_mono:{label:'Analog Mono · 24 dB',wave:'sawtooth',second:'triangle',detune:1.003,sub:.85,subWave:'triangle',color:.88,gain:.46,poles:4,att:.003,fenv:1.15,fdec:.38,res:.22,drive:.16,sus:.76,rel:.055},
+  dub_sub:{label:'Dub Pressure · Sub',wave:'triangle',second:'sine',detune:.5,sub:.5,subWave:'sine',color:.58,gain:.64,poles:2,att:.01,fenv:.35,fdec:.7,ftrack:.5,sus:.9,rel:.14},
+  psy_roller:{label:'Psy Roller · Tight',wave:'sawtooth',sub:.55,color:1.12,gain:.74,poles:4,att:.001,fenv:1.8,fdec:.22,res:.22,pdrop:1.4,pdec:.016,drive:.28,sus:.74,rel:.03}
+ });
+ /* BASS-V2-01 / BASS-DAW-01: bounds of the optional voice fields; a recipe without them is exactly the old recipe */
+ const __xenBassVoiceV2Bounds=Object.freeze({att:[0,.08],fenv:[0,2.5],fdec:[.04,1.2],res:[0,1],pdrop:[1,4],pdec:[.005,.25],uni:[1,3],spread:[0,.02],drive:[0,1],glide:[0,.3],fm:[0,1],ftrack:[0,1],sus:[.05,1],rel:[.005,.5]});
+ const __xenBassFilterTypes=Object.freeze(['lowpass','bandpass','notch']);
+ function __xenBassVoiceV2(recipe){return !!recipe&&(recipe.poles===4||recipe.ftype==='bandpass'||recipe.ftype==='notch'||(recipe.subWave&&recipe.subWave!=='sine')||Object.keys(__xenBassVoiceV2Bounds).some(k=>Number.isFinite(recipe[k])))}
+ /* P1: one owned sound description; never include mixer, grid or global rack values.
+  * Legacy clips without timbre remain distinguishable from saved Classic Forge. */
+ /* BVE-01: factory bass recipes remain immutable; snapshots carry portable custom recipes.
+    "detune" is the established oscillator FREQUENCY RATIO, not cents. */
+ const __xenBassVoiceWaves=Object.freeze(['sine','triangle','sawtooth','square']);
+ const __xenBassVoiceRecipeBounds=Object.freeze({detune:[.25,4],sub:[0,1.5],color:[.2,2.5],gain:[.05,1.25]});
+ function __xenBassVoiceRecipeClean(value){
+  if(!value||typeof value!=='object'||Array.isArray(value)||
+     !__xenBassVoiceWaves.includes(value.wave)||
+     !(value.second===null||value.second===''||__xenBassVoiceWaves.includes(value.second)))return null;
+  const out={wave:value.wave,second:value.second||null};
+  for(const [key,[min,max]] of Object.entries(__xenBassVoiceRecipeBounds)){
+   if(!Number.isFinite(value[key]))return null;
+   out[key]=Math.max(min,Math.min(max,value[key]));
+  }
+  out.classicMode=value.classicMode===true;
+  if(value.poles===4||value.poles===2)out.poles=value.poles;
+  if(__xenBassFilterTypes.includes(value.ftype)&&value.ftype!=='lowpass')out.ftype=value.ftype;
+  if(__xenBassVoiceWaves.includes(value.subWave)&&value.subWave!=='sine')out.subWave=value.subWave;
+  for(const [key,[min,max]] of Object.entries(__xenBassVoiceV2Bounds))if(Number.isFinite(value[key]))out[key]=key==='uni'?Math.round(Math.max(min,Math.min(max,value[key]))):Math.max(min,Math.min(max,value[key]));
+  return out;
  }
- out.classicMode=value.classicMode===true;
- if(value.poles===4||value.poles===2)out.poles=value.poles;
- for(const [key,[min,max]] of Object.entries(__xenBassVoiceV2Bounds))if(Number.isFinite(value[key]))out[key]=key==='uni'?Math.round(Math.max(min,Math.min(max,value[key]))):Math.max(min,Math.min(max,value[key]));
- return out;
-}
-function __xenBassVoiceFactoryRecipe(id){
- const key=Object.hasOwn(__f48BassVoices,id)?id:'classic',v=__f48BassVoices[key];
- const extra={};if(v.poles)extra.poles=v.poles;for(const k of Object.keys(__xenBassVoiceV2Bounds))if(Number.isFinite(v[k]))extra[k]=v[k];
- return __xenBassVoiceRecipeClean({wave:v.wave,second:v.second||null,detune:v.detune??1,
-  sub:v.sub,color:v.color,gain:v.gain,classicMode:key==='classic',...extra});
-}
+ function __xenBassVoiceFactoryRecipe(id){
+  const key=Object.hasOwn(__f48BassVoices,id)?id:'classic',v=__f48BassVoices[key];
+  const extra={};
+  if(v.poles)extra.poles=v.poles;
+  if(v.ftype&&v.ftype!=='lowpass')extra.ftype=v.ftype;
+  if(v.subWave&&v.subWave!=='sine')extra.subWave=v.subWave;
+  for(const k of Object.keys(__xenBassVoiceV2Bounds))if(Number.isFinite(v[k]))extra[k]=v[k];
+  return __xenBassVoiceRecipeClean({wave:v.wave,second:v.second||null,detune:v.detune??1,
+   sub:v.sub,color:v.color,gain:v.gain,classicMode:key==='classic',...extra});
+ }
 function __xenBassVoiceResolve(params){
  if(params?.bassVoice==='custom'){
   const recipe=__xenBassVoiceRecipeClean(params.bassVoiceRecipe);
