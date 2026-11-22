@@ -245,6 +245,8 @@
     "src/runtime/instrument/01_voice_gradients_and_effects.js",
     "src/runtime/instrument/02_observation_and_sample_storage.js",
     "src/runtime/instrument/03_selection_and_recording_tools.js",
+    "src/ts/runtime/performanceProfiles.ts",
+    "src/ts/runtime/telemetryRing.ts",
     "src/ts/runtime/voiceAdmission.ts",
     "src/ts/runtime/workspacePackageCodec.ts",
     "src/runtime/instrument/04_performance_and_output_profiles.js",
