@@ -21,7 +21,7 @@ function __xenBassSessionClipInstall(clip,sourceId){
  try{__xenSessionBassClip=Pr(clip);return true}catch{__xenSessionBassClip=null;return false}
 }
 const __f48BassParamsEvent='xensonar:bass-voice-updated';
-function __xenSetBassPlayhead(next){globalThis.__XenBassPlayhead=next||null}
+function __xenSetBassPlayhead(next){globalThis.__XenBassPlayhead=next?{...next,updatedAt:typeof performance!=='undefined'?performance.now():Date.now()}:null}
 function __xenClearBassPlayhead(match){const cur=globalThis.__XenBassPlayhead;if(!cur)return;if(!match||(typeof match==='string'?cur.source===match:cur===match))globalThis.__XenBassPlayhead=null}
 // Steps already handed to Web Audio are replaced only while their whole step is still ahead.
 // Playing notes keep their natural release; the common drum clock never restarts.

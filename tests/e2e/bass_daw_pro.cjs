@@ -212,22 +212,28 @@ const html = path.resolve(process.argv[2] || 'dist/XenSonar_PROBE.html');
  const sessAfter = await p.evaluate(() => parseFloat(document.querySelector('[data-bass-event-block][data-selected="true"]')?.style?.left || '0'));
  assert.ok(sessAfter > sessBefore + 12, `frozen session scratchpad clip must drag immediately without Reroll/reload (${sessBefore}% -> ${sessAfter}%)`);
 
- // BASS-DAW-02: Live note-block glow highlights currently playing note block + automation bar during playback
- const glowHit = await p.evaluate(async () => {
-  const setPh = __xenProbe.draw.evalInBundle('__xenSetBassPlayhead');
-  const clearPh = __xenProbe.draw.evalInBundle('__xenClearBassPlayhead');
-  const blk = document.querySelector('[data-bass-event-block]');
-  const st = Number(blk.dataset.bassStart);
-  const ph = { perfStartMs: performance.now() - (st + 0.15) * 125, loopSec: 2.0, bars: 1, bpm: 120, source: 'preview' };
-  setPh(ph);
-  await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
-  const glowingBlks = document.querySelectorAll('[data-bass-event-block][data-playing="true"]').length;
-  const glowingBars = document.querySelectorAll('[data-bass-velocity-bar][data-playing="true"]').length;
-  const dotActive = document.querySelector('[data-bass-live-dot]')?.dataset?.active;
-  clearPh(ph);
-  return { glowingBlks, glowingBars, dotActive };
+ // BASS-DAW-02: Real live-session note-block glow (Power ON, real AudioContext clock — NO mock!)
+ // Must light up playing note blocks, automation bars, and live LED while live Drums + Bass are running.
+ const liveGlow = await p.evaluate(async () => {
+  const seenBlocks = new Set();
+  let seenBarGlow = false, seenDot = false, distinctPh = new Set();
+  const tEnd = performance.now() + 2200;
+  while (performance.now() < tEnd) {
+   await new Promise(r => requestAnimationFrame(r));
+   const dot = document.querySelector('[data-bass-live-dot]')?.dataset?.active === 'true';
+   if (dot) seenDot = true;
+   const phLeft = document.querySelector('[data-bass-playhead]')?.style?.left;
+   if (phLeft) distinctPh.add(phLeft);
+   for (const b of document.querySelectorAll('[data-bass-event-block][data-playing="true"]')) {
+    if (b.dataset.bassId) seenBlocks.add(b.dataset.bassId);
+   }
+   if (document.querySelector('[data-bass-velocity-bar][data-playing="true"]')) seenBarGlow = true;
+   if (seenBlocks.size >= 2 && seenBarGlow && seenDot && distinctPh.size >= 8) break;
+  }
+  return { seenBlocks: seenBlocks.size, seenBarGlow, seenDot, distinctPh: distinctPh.size };
  });
- assert.ok(glowHit.glowingBlks >= 1 && glowHit.glowingBars >= 1 && glowHit.dotActive === 'true', 'playing bass note block, velocity bar, and live LED glow in sync: ' + JSON.stringify(glowHit));
+ assert.ok(liveGlow.seenBlocks >= 2 && liveGlow.seenBarGlow && liveGlow.seenDot && liveGlow.distinctPh >= 8,
+  'real live playback lights up bass note blocks & automation bars in sync: ' + JSON.stringify(liveGlow));
 
  // 1-click Multitrack bounce from Bass Workshop
  const inboxBefore = await p.evaluate(() => globalThis.__XenMultitrackInbox.count());

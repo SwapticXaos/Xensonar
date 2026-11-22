@@ -84,23 +84,41 @@ function cce({clip:e,editable:t=!1,selectedEventId:n="",selectedEventIds:selIds=
    const cv=d.current,phEl=playheadRef.current,dot=liveDotRef.current;
    const ph=globalThis.__XenBassPlayhead;
    const totalSteps=Math.max(1,e.stepCount||16);
+   const total16=Math.max(1,(e.bars||ph?.bars||1)*16);
    let posSteps=null,pct=null;
-   if(ph){
-    const phBars=Math.max(1,ph.bars||e.bars||1);
-    const total16=phBars*16;
+   if(ph&&ph.source==='preview'&&Number.isFinite(ph.perfStartMs)){
     const stepSec=60/Math.max(40,ph.bpm||120)/4;
-    if(ph.source==='preview'&&Number.isFinite(ph.perfStartMs)){
-     const elapsedSec=(performance.now()-ph.perfStartMs)/1000;
-     const loopSec=Math.max(.05,ph.loopSec||total16*stepSec);
-     if(elapsedSec>=0&&elapsedSec<=loopSec+.2){
-      const frac=(elapsedSec%loopSec)/loopSec;
+    const elapsedSec=(performance.now()-ph.perfStartMs)/1000;
+    const loopSec=Math.max(.05,ph.loopSec||total16*stepSec);
+    if(elapsedSec>=0&&elapsedSec<=loopSec+.2){
+     const frac=(elapsedSec%loopSec)/loopSec;
+     pct=frac*100;
+     posSteps=frac*totalSteps;
+    }
+   }else if(liveActive){
+    const nowPerf=performance.now();
+    const freshLive=ph&&ph.source==='live'&&ph.ctx&&ph.ctx.state==='running'&&Number.isFinite(ph.time)&&(!Number.isFinite(ph.updatedAt)||(nowPerf-ph.updatedAt)<3500);
+    if(freshLive){
+     const bpm=Math.max(40,ph.bpm||120);
+     const stepSec=60/bpm/4;
+     const attSec=typeof __XenAttackLanes!=='undefined'&&__XenAttackLanes.seconds?__XenAttackLanes.seconds('bass',bpm):0;
+     const elapsed=(ph.ctx.currentTime-(ph.time+attSec))/stepSec;
+     /* Scheduler pre-fills 6..25 steps ahead (lookahead + pressure protection + ATT), so elapsed is routinely negative. */
+     if(elapsed>=-64&&elapsed<=total16+64){
+      const pos16=((ph.step+elapsed)%total16+total16)%total16;
+      const frac=pos16/total16;
       pct=frac*100;
       posSteps=frac*totalSteps;
      }
-    }else if(liveActive&&ph.ctx&&ph.ctx.state==='running'&&Number.isFinite(ph.time)){
-     const elapsed=(ph.ctx.currentTime-ph.time)/stepSec;
-     if(elapsed>=-2&&elapsed<=total16+2){
-      const pos16=((ph.step+elapsed)%total16+total16)%total16;
+    }else if(typeof __mlSharedDrumMachine!=='undefined'&&__mlSharedDrumMachine.mainPowerOn&&typeof __f53ActiveLiveDrumMachine!=='undefined'&&__f53ActiveLiveDrumMachine?.__visualClock?.state==='running'){
+     /* Same read-only live-room clock witness used by the Drum Machine (LIVE-GUARD-01). */
+     const ctx=__f53ActiveLiveDrumMachine.__visualClock;
+     const bpm=Math.max(40,Number(__mlSharedDrumMachine.snapshot?.bpm)||120);
+     const stepSec=60/bpm/4;
+     const attSec=typeof __XenAttackLanes!=='undefined'&&__XenAttackLanes.seconds?__XenAttackLanes.seconds('bass',bpm):0;
+     const absStep=(ctx.currentTime-GPe-attSec)/stepSec;
+     if(Number.isFinite(absStep)&&absStep>=-1){
+      const pos16=((absStep%total16)+total16)%total16;
       const frac=pos16/total16;
       pct=frac*100;
       posSteps=frac*totalSteps;
