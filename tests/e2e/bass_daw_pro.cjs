@@ -182,6 +182,53 @@ const html = path.resolve(process.argv[2] || 'dist/XenSonar_PROBE.html');
  await p.mouse.up();
  assert.ok(crossEnd > crossMid + 15, `note drag survives crossing another note + leaving canvas bounds (${crossMid}% -> ${crossEnd}%)`);
 
+ // BASS-DAW-02: Regression for stuck-state bug — a loaded Session snapshot installed with the scratchpad ID
+ // must NEVER freeze dragging; the very first drag must release __xenSessionBassClip and move the block immediately.
+ await p.evaluate(() => {
+  const ev = __xenProbe.draw.evalInBundle;
+  const install = ev('__xenBassSessionClipInstall');
+  const scratchId = ev('__f351BassScratchId');
+  const frozenClip = {
+   id: scratchId, name: 'Frozen Session Bass', bars: 1, stepsPerBar: 16, stepCount: 16, segmentCount: 4,
+   pitchSnapMode: 'magnet', pitchGuideKind: 'ji',
+   generatorMeta: { kind: 'manual', rootBinding: 'live-step-root', timingKind: 'straight' },
+   events: [
+    { id: 'sess-ev-0', startStep: 1, durationSteps: 1.5, ratioFromRoot: 1, octave: 0, velocity: 0.9, accent: 0.8 },
+    { id: 'sess-ev-1', startStep: 8, durationSteps: 1.5, ratioFromRoot: 1.5, octave: 0, velocity: 0.9, accent: 0.8 }
+   ]
+  };
+  install(frozenClip, scratchId);
+  ev('__XenMainRoomSessionBridge').patch({ bassPatternMode: 'clip', bassClipId: scratchId });
+  window.dispatchEvent(new Event('xensonar:bass-draft-ui'));
+ });
+ await p.waitForTimeout(250);
+ const sessBlk0 = await p.locator('[data-bass-event-block]').nth(0).boundingBox();
+ const sessBefore = await p.locator('[data-bass-event-block]').nth(0).evaluate(el => parseFloat(el.style.left));
+ await p.mouse.move(sessBlk0.x + sessBlk0.width * 0.4, sessBlk0.y + sessBlk0.height * 0.5);
+ await p.mouse.down();
+ await p.mouse.move(sessBlk0.x + sessBlk0.width * 0.4 + 140, sessBlk0.y + sessBlk0.height * 0.5 - 20, { steps: 8 });
+ await p.mouse.up();
+ await p.waitForTimeout(120);
+ const sessAfter = await p.evaluate(() => parseFloat(document.querySelector('[data-bass-event-block][data-selected="true"]')?.style?.left || '0'));
+ assert.ok(sessAfter > sessBefore + 12, `frozen session scratchpad clip must drag immediately without Reroll/reload (${sessBefore}% -> ${sessAfter}%)`);
+
+ // BASS-DAW-02: Live note-block glow highlights currently playing note block + automation bar during playback
+ const glowHit = await p.evaluate(async () => {
+  const setPh = __xenProbe.draw.evalInBundle('__xenSetBassPlayhead');
+  const clearPh = __xenProbe.draw.evalInBundle('__xenClearBassPlayhead');
+  const blk = document.querySelector('[data-bass-event-block]');
+  const st = Number(blk.dataset.bassStart);
+  const ph = { perfStartMs: performance.now() - (st + 0.15) * 125, loopSec: 2.0, bars: 1, bpm: 120, source: 'preview' };
+  setPh(ph);
+  await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
+  const glowingBlks = document.querySelectorAll('[data-bass-event-block][data-playing="true"]').length;
+  const glowingBars = document.querySelectorAll('[data-bass-velocity-bar][data-playing="true"]').length;
+  const dotActive = document.querySelector('[data-bass-live-dot]')?.dataset?.active;
+  clearPh(ph);
+  return { glowingBlks, glowingBars, dotActive };
+ });
+ assert.ok(glowHit.glowingBlks >= 1 && glowHit.glowingBars >= 1 && glowHit.dotActive === 'true', 'playing bass note block, velocity bar, and live LED glow in sync: ' + JSON.stringify(glowHit));
+
  // 1-click Multitrack bounce from Bass Workshop
  const inboxBefore = await p.evaluate(() => globalThis.__XenMultitrackInbox.count());
  await p.locator('[data-bass-bounce="multitrack"]').click();
@@ -192,6 +239,6 @@ const html = path.resolve(process.argv[2] || 'dist/XenSonar_PROBE.html');
  assert.equal(inboxAfter, inboxBefore + 1, 'Multitrack bounce enqueues 1 new bass track');
 
  assert.deepEqual(errors, [], 'no page errors');
- console.log(`PASS BASS-DAW-01: 6 pro voices, FM/BP/True-Glide/Cutoff DSP, Sidechain Duck, DAW toolbar, multi-select, drag-robustness, lanes & Multitrack bounce (${inboxBefore}->${inboxAfter})`);
+ console.log(`PASS BASS-DAW-01/02: 6 pro voices, FM/BP/True-Glide/Cutoff DSP, Sidechain Duck, DAW toolbar, multi-select, session-clip drag-unfreeze, live note glow, lanes & Multitrack bounce (${inboxBefore}->${inboxAfter})`);
  await b.close();
 })().catch(e => { console.error(e); process.exit(1); });

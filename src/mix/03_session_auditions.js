@@ -130,7 +130,12 @@ function __useSessionRhythmAuditions(value){
    available:entry=>!!entry?.previewClip||(entry.id.startsWith('clip:')?!!eH(entry.id.slice(5)):entry.id.startsWith('preset:')&&current.current.bassPatterns.some(source=>source.value===entry.id.slice(7))),
    async start(entry,finished,task){
     const r=await renderBass(entry,task);
-    return __XenSessionPCM.play(r.buffer,finished,task);
+    const stepSec=60/Math.max(40,r.bpm||120)/4;
+    const ph={perfStartMs:performance.now(),loopSec:(r.bars||1)*16*stepSec,bars:r.bars||1,bpm:r.bpm||120,source:'preview'};
+    if(typeof __xenSetBassPlayhead==='function')__xenSetBassPlayhead(ph);
+    const clearPh=()=>{if(typeof __xenClearBassPlayhead==='function')__xenClearBassPlayhead(ph)};
+    const stopPlay=__XenSessionPCM.play(r.buffer,()=>{clearPh();finished()},task);
+    return()=>{clearPh();if(typeof stopPlay==='function')stopPlay()};
    }};
   /* Stays registered after this component sleeps: it only reads the last parameter snapshot and the libraries. */
   const freeTask=()=>{const c=new AbortController();return {signal:c.signal,isCurrent:()=>true}};

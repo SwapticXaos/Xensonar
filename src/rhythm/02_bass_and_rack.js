@@ -21,19 +21,19 @@ function __xenBassSessionClipInstall(clip,sourceId){
  try{__xenSessionBassClip=Pr(clip);return true}catch{__xenSessionBassClip=null;return false}
 }
 const __f48BassParamsEvent='xensonar:bass-voice-updated';
+function __xenSetBassPlayhead(next){globalThis.__XenBassPlayhead=next||null}
+function __xenClearBassPlayhead(match){const cur=globalThis.__XenBassPlayhead;if(!cur)return;if(!match||(typeof match==='string'?cur.source===match:cur===match))globalThis.__XenBassPlayhead=null}
 // Steps already handed to Web Audio are replaced only while their whole step is still ahead.
 // Playing notes keep their natural release; the common drum clock never restarts.
 function __f48BassClipPlayer(ctx,playBassNote,readClip,readParams){
  const pending=new Map();let disposed=false,replacements=0;
  const prune=()=>{for(const [key,job] of pending)if(job.time<ctx.currentTime-.08)pending.delete(key)};
- let __xenBassPlayheadState=null;
  const render=job=>{
   const params=readParams?.(),clip=readClip(params?.bassPatternMode==='clip'?params.bassClipId:job.clip.id);
   if(!clip||(params&&(!params.bassActive||params.bassPatternMode!=='clip'||params.bassClipId!==clip.id))){job.voices=[];return}
   job.clip=clip;
   const root=clip.generatorMeta.rootBinding==='free'?(clip.generatorMeta.rootHz??job.rootHz):job.rootHz;
-  __xenBassPlayheadState={ctx,step:job.step,time:job.time,bars:clip.bars||1,bpm:job.quantizeBpm||120,clipId:clip.id};
-  globalThis.__XenBassPlayhead=__xenBassPlayheadState;
+  __xenSetBassPlayhead({ctx,step:job.step,time:job.time,bars:clip.bars||1,bpm:job.quantizeBpm||120,clipId:clip.id,source:'live'});
   job.voices=lce({...job,clip,rootHz:root,playBassNote,normalized:true});
  };
  const cancel=job=>{for(const voice of job.voices||[])voice?.cancel?.()};
@@ -57,7 +57,7 @@ function __f48BassClipPlayer(ctx,playBassNote,readClip,readParams){
    if(pending.size>128){const first=pending.keys().next().value;cancel(pending.get(first));pending.delete(first)}
   },
   refresh,
-  dispose(){if(disposed)return;disposed=true;if(typeof window!=='undefined'){window.removeEventListener(Cce,refresh);window.removeEventListener(__f48BassParamsEvent,refresh)}for(const job of pending.values())cancel(job);pending.clear()},
+  dispose(){if(disposed)return;disposed=true;if(typeof window!=='undefined'){window.removeEventListener(Cce,refresh);window.removeEventListener(__f48BassParamsEvent,refresh)}for(const job of pending.values())cancel(job);pending.clear();__xenClearBassPlayhead('live')},
   diagnostics(){return {pendingSteps:pending.size,replacements,disposed}}
  };
 }

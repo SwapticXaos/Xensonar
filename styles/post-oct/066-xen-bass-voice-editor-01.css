@@ -29,18 +29,25 @@
 .xen-bass-duck-gr{font-size:10px;font-variant-numeric:tabular-nums;color:#67e8f9;opacity:.85}
 .xen-bass-duck-meter{height:4px;border-radius:999px;background:rgba(15,23,42,.9);overflow:hidden;border:1px solid rgba(34,211,238,.22)}
 .xen-bass-duck-meter-bar{height:100%;background:linear-gradient(90deg,#22d3ee,#f472b6);transition:width 40ms linear}
-.xen-bass-daw-bar{display:flex;flex-wrap:wrap;align-items:center;gap:4px;margin-top:8px;padding:6px 8px;border:1px solid rgba(34,211,238,.26);border-radius:6px;background:rgba(6,16,24,.78)}
-.xen-bass-daw-bar button,.xen-bass-daw-bar select{font-size:10px;line-height:1.2;padding:3px 7px;border-radius:4px;border:1px solid rgba(56,189,248,.34);background:rgba(12,30,42,.82);color:#cffafe;cursor:pointer}
+.xen-bass-daw-bar{display:flex;flex-wrap:wrap;align-items:center;gap:3px;margin-top:6px;padding:5px 6px;border:1px solid rgba(34,211,238,.26);border-radius:6px;background:rgba(6,16,24,.78)}
+.xen-bass-daw-bar button,.xen-bass-daw-bar select{font-size:10px;line-height:1.15;padding:3px 5.5px;border-radius:4px;border:1px solid rgba(56,189,248,.34);background:rgba(12,30,42,.82);color:#cffafe;cursor:pointer;white-space:nowrap}
 .xen-bass-daw-bar button:hover{background:rgba(22,78,99,.78);border-color:rgba(103,232,249,.62)}
 .xen-bass-daw-bar button:disabled{opacity:.38;cursor:not-allowed}
-.xen-bass-daw-sep{width:1px;height:14px;background:rgba(148,163,184,.22);margin:0 2px}
-.xen-bass-daw-sel{margin-left:auto;font-size:10px;color:#fde68a;display:inline-flex;align-items:center;gap:5px}
+.xen-bass-daw-sep{width:1px;height:13px;background:rgba(148,163,184,.24);margin:0 1px}
+.xen-bass-daw-sel{margin-left:auto;font-size:10px;color:#fde68a;display:inline-flex;align-items:center;gap:4px}
 .xen-bass-lane-tabs{display:inline-flex;align-items:center;gap:3px}
 .xen-bass-lane-tabs button{font-size:9px;letter-spacing:.08em;text-transform:uppercase;padding:2px 6px;border-radius:4px;border:1px solid rgba(240,171,252,.28);background:rgba(24,6,34,.82);color:rgba(245,208,254,.72);cursor:pointer;line-height:1.2}
 .xen-bass-lane-tabs button[aria-pressed="true"]{border-color:rgba(253,230,138,.85);background:rgba(112,26,117,.78);color:#fef08a}
 .xen-bass-lane-strip{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:6px;font-size:10px;color:rgba(245,208,254,.7)}
 .xen-bass-marquee{position:absolute;pointer-events:none;z-index:6;border:1px solid rgba(103,232,249,.85);background:rgba(34,211,238,.16);border-radius:2px}
-.xen-bass-playhead{position:absolute;top:0;bottom:0;width:2px;pointer-events:none;z-index:5;background:linear-gradient(180deg,rgba(253,224,71,.95),rgba(244,114,182,.7));box-shadow:0 0 8px rgba(253,224,71,.55)}
+.xen-bass-playhead{position:absolute;top:0;bottom:0;width:1.5px;pointer-events:none;z-index:3;opacity:.48;background:linear-gradient(180deg,rgba(253,224,71,.9),rgba(34,211,238,.45));box-shadow:0 0 6px rgba(253,224,71,.35)}
+.xen-bass-live-dot{width:7px;height:7px;border-radius:999px;flex:none;background:rgba(100,116,139,.45);border:1px solid rgba(148,163,184,.35);transition:background 120ms ease,box-shadow 120ms ease}
+.xen-bass-live-dot[data-active="true"]{background:#67e8f9;border-color:#ecfeff;box-shadow:0 0 8px rgba(103,232,249,.9),0 0 16px rgba(34,211,238,.5)}
+.xen-bass-ruler-tick{position:absolute;top:2px;pointer-events:none;font-size:8px;font-variant-numeric:tabular-nums;letter-spacing:.04em;color:rgba(165,243,252,.42);z-index:1}
+.xen-bass-note-block{transition:box-shadow 70ms ease-out,background-color 70ms ease-out,border-color 70ms ease-out,filter 70ms ease-out}
+.xen-bass-note-block[data-playing="true"]{opacity:1!important;z-index:5;background:linear-gradient(180deg,rgba(165,243,252,.82),rgba(34,211,238,.66))!important;border-color:#f0fdfa!important;color:#042f2e!important;font-weight:700;box-shadow:0 0 16px rgba(103,232,249,.92),0 0 30px rgba(34,211,238,.45),inset 0 1px 0 rgba(255,255,255,.7)!important;filter:brightness(1.12)}
+[data-bass-velocity-bar]{transition:box-shadow 70ms ease-out,filter 70ms ease-out}
+[data-bass-velocity-bar][data-playing="true"]{background:#67e8f9!important;box-shadow:0 0 10px rgba(103,232,249,.95);filter:brightness(1.2)}
 .xen-bass-bounce-group{display:inline-flex;flex-wrap:wrap;align-items:center;gap:5px}
 .xen-bass-bounce-group button{border-radius:5px;border:1px solid rgba(56,189,248,.45);background:rgba(12,35,48,.75);color:#e0f2fe;padding:5px 9px;font-size:11px;cursor:pointer;white-space:nowrap}
 .xen-bass-bounce-group button:hover:not(:disabled){background:rgba(20,70,92,.85);border-color:rgba(125,211,252,.78)}
