@@ -1,6 +1,6 @@
 /* W01 UI: native DOM overlay; source owner remains lGe, PCM authority remains Core. */
 (function(root){'use strict';
-const instances=new WeakMap(),canvasOwners=new WeakMap(),liveEditors=new Set()/* FORGE-SLEEP-01: editors that exist; awake = the Forge is the shown room (set only by the Forge lifecycle owner __setForgeWorkspaceVisible) */,peakCache=new WeakMap();let forgeAwake=false,serial=0,clipboard=null,laneClipboard=null;
+const instances=new WeakMap(),canvasOwners=new WeakMap(),liveEditors=new Set()/* FORGE-SLEEP-01: editors that exist; awake = the Forge is the shown room (set only by the Forge lifecycle owner __setForgeWorkspaceVisible) */,peakCache=new WeakMap();let forgeAwake=typeof __forgeWorkspaceVisible==='boolean'?__forgeWorkspaceVisible:false,serial=0,clipboard=null,laneClipboard=null;
 const $=(tag,attrs={},text)=>{const e=document.createElement(tag);for(const [k,v] of Object.entries(attrs)){if(k==='class')e.className=v;else if(k.startsWith('on'))e.addEventListener(k.slice(2),v);else if(v!=null)e.setAttribute(k,v)}if(text!=null)e.textContent=text;return e};
 const button=(text,fn,attrs={})=>$('button',{type:'button',...attrs,onclick:fn},text);
 // W20: styling and SVGs are exactly Chromatic Contour's static design assets.
