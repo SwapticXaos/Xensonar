@@ -130,7 +130,7 @@ function __xenVoiceHostModule(){
   let cutoff=Math.max(0,Math.min(1,cutoffHz/(SR*.5)));
   if(cutoff===1){o.b0=1;o.b1=0;o.b2=0;o.a1=0;o.a2=0;return}
   if(!(cutoff>0)){o.b0=0;o.b1=0;o.b2=0;o.a1=0;o.a2=0;return}
-  const res=Math.pow(10,q/20),th=Math.PI*cutoff,alpha=Math.sin(th)/(2*res),cw=Math.cos(th),beta=(1-cw)/2,ia=1/(1+alpha);
+  const res=o.qIn===q?o.res:(o.qIn=q,o.res=Math.pow(10,q/20)),th=Math.PI*cutoff,alpha=Math.sin(th)/(2*res),cw=Math.cos(th),beta=(1-cw)/2,ia=1/(1+alpha);
   o.b0=beta*ia;o.b1=2*beta*ia;o.b2=beta*ia;o.a1=-2*cw*ia;o.a2=(1-alpha)*ia;
  }
  /* BASS-DAW-01: bandpass and notch biquad coefficients (RBJ / Chromium Biquad::SetBandpassParams & SetNotchParams). */
@@ -253,7 +253,8 @@ const __XenLiveVoiceHost=(()=>{
   if(disabled||!ctx||!ctx.audioWorklet||ctx.state==='closed')return null;
   if(isOffline(ctx)&&!api.allowOffline)return null;
   let s=contexts.get(ctx);if(s)return s;
-  s={ok:false,failed:false,drums:new WeakMap(),bass:new WeakMap(),tables:null};contexts.set(ctx,s);
+  s={ok:false,failed:false,drums:new WeakMap(),bass:new WeakMap(),tables:tableCache.get(ctx.sampleRate)||null};contexts.set(ctx,s);
+  ensureTables(ctx,s);
   s.ready=(async()=>{
    const code='('+__xenVoiceHostModule.toString()+')();';
    try{await __xenAddWorkletModule(ctx,code);s.ok=ctx.state!=='closed';return s.ok}
@@ -261,17 +262,16 @@ const __XenLiveVoiceHost=(()=>{
   })();
   return s;
  }
- /* ---- Chromium's band-limited wave tables, built once per sample rate on the main thread (idle time), then sent to the worklet ---- */
- const tableCache=new Map();
- function buildTables(sampleRate){
-  let t=tableCache.get(sampleRate);if(t)return t;
+ /* ---- Chromium's band-limited wave tables, built once per sample rate off the main thread (Blob Worker, idle fallback), then sent to the worklet ---- */
+ const tableCache=new Map(),tableJobs=new Map();
+ function computeTables(sampleRate){
   const size=sampleRate<=24000?2048:sampleRate<=88200?4096:16384,half=size/2,ranges=Math.round(3*Math.log2(size));
   const sin=new Float64Array(size);for(let k=0;k<size;k++)sin[k]=Math.sin(2*Math.PI*k/size);
   const coef=(shape,n)=>{const pf=Math.fround(2/(n*Math.fround(Math.PI)));
    return shape==='sine'?(n===1?1:0):shape==='square'?((n&1)?Math.fround(2*pf):0):shape==='sawtooth'?Math.fround(pf*((n&1)?1:-1)):
     ((n&1)?Math.fround(2*Math.fround(pf*pf)*((((n-1)>>1)&1)?-1:1)):0)};
   const partials=r=>Math.floor(Math.pow(2,-(r*Math.fround(1200/3))/1200)*half); // kept partials 1..min(half-1, P)
-  t={};
+  const t={};
   for(const shape of ['sine','square','sawtooth','triangle']){
    const acc=new Float64Array(size),tables=new Array(ranges);let have=0;
    for(let r=ranges-1;r>=0;r--){
@@ -283,7 +283,32 @@ const __XenLiveVoiceHost=(()=>{
    for(const tb of tables)for(let k=0;k<size;k++)tb[k]=Math.fround(tb[k]*scale);
    t[shape]={size,ranges,lowest:Math.fround(sampleRate/size),rateScale:Math.fround(size/sampleRate),t:tables};
   }
-  tableCache.set(sampleRate,t);return t;
+  return t;
+ }
+ function buildTables(sampleRate){
+  let t=tableCache.get(sampleRate);if(t)return t;
+  t=computeTables(sampleRate);tableCache.set(sampleRate,t);return t;
+ }
+ function ensureTables(ctx,s){
+  if(s.tables)return;
+  const sr=ctx.sampleRate,cached=tableCache.get(sr);
+  if(cached){s.tables=cached;return}
+  if(s.tableJob)return;
+  s.tableJob=true;
+  let job=tableJobs.get(sr);
+  if(!job){
+   const fallback=()=>new Promise(resolve=>{
+    const run=()=>resolve(buildTables(sr));
+    if(typeof requestIdleCallback==='function')requestIdleCallback(run,{timeout:1500});else setTimeout(run,0);
+   });
+   if(typeof Worker==='function'&&typeof __xenRunBlobWorker==='function'){
+    const code='const computeTables='+computeTables.toString()+';self.onmessage=e=>{try{const t=computeTables(e.data);const xfer=[];for(const k of Object.keys(t))for(const tb of t[k].t)xfer.push(tb.buffer);self.postMessage({result:t},xfer);}catch(err){self.postMessage({error:String(err&&err.message||err)});}};';
+    job=__xenRunBlobWorker({code,payload:sr,timeoutMs:15000,name:'xensonar-bass-wavetables'}).then(t=>{tableCache.set(sr,t);return t},()=>fallback());
+   }else job=fallback();
+   tableJobs.set(sr,job);
+   job.finally(()=>{if(tableJobs.get(sr)===job)tableJobs.delete(sr)});
+  }
+  job.then(t=>{if(ctx.state!=='closed'&&t)s.tables=t},()=>{});
  }
  /* round trip through a worklet port: every message posted before has been handled (tests render offline with this) */
  let syncIds=1;
@@ -315,11 +340,7 @@ const __XenLiveVoiceHost=(()=>{
  let noteIds=1;
  function bassHost(ctx,dest){
   const s=state(ctx);if(!s||!s.ok)return null;
-  if(!s.tables){
-   if(!s.tableJob){s.tableJob=true;const run=()=>{if(ctx.state==='closed')return;s.tables=buildTables(ctx.sampleRate)};
-    if(typeof requestIdleCallback==='function')requestIdleCallback(run,{timeout:1500});else setTimeout(run,0)}
-   return null;
-  }
+  if(!s.tables){ensureTables(ctx,s);return null;}
   let h=s.bass.get(dest);if(h)return h;
   const node=new AudioWorkletNode(ctx,'xen-bass-voices',{numberOfInputs:0,numberOfOutputs:2,outputChannelCount:[1,1]});
   node.port.postMessage({t:'tables',tables:s.tables});

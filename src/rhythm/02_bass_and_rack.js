@@ -508,20 +508,35 @@ function __f48BassSound({params,update}){
 }
 function __xenBassDuckPanel(){
  const duck=P.useSyncExternalStore(__XenBassDuck.subscribe,__XenBassDuck.snapshot,__XenBassDuck.snapshot);
- const [gr,setGr]=P.useState(0);
+ const labelRef=P.useRef(null),barRef=P.useRef(null);
  P.useEffect(()=>{
-  if(duck.depth<=1e-4){setGr(0);return}
-  let raf=0;
-  const tick=()=>{setGr(__XenBassDuck.reduction());raf=requestAnimationFrame(tick)};
+  const on=duck.depth>1e-4;
+  if(!on){
+   if(labelRef.current)labelRef.current.textContent='Off';
+   if(barRef.current)barRef.current.style.width='0%';
+   return;
+  }
+  let raf=0,lastPct=-1;
+  const tick=()=>{
+   if(typeof document==='undefined'||!document.hidden){
+    const pct=Math.round(__XenBassDuck.reduction()*100);
+    if(pct!==lastPct){
+     lastPct=pct;
+     if(labelRef.current)labelRef.current.textContent=`-${pct}%`;
+     if(barRef.current)barRef.current.style.width=`${pct}%`;
+    }
+   }
+   raf=requestAnimationFrame(tick);
+  };
   raf=requestAnimationFrame(tick);
   return()=>cancelAnimationFrame(raf);
  },[duck.depth]);
  return u.jsxs('div',{className:'xen-bass-duck','data-xen-bass-duck':true,children:[
   u.jsxs('div',{className:'xen-bass-duck-head',children:[
    u.jsx('span',{className:'xen-rhythm-title',children:'Kick Sidechain Duck'}),
-   u.jsx('span',{className:'xen-bass-duck-gr',children:duck.depth>.001?`-${Math.round(gr*100)}%`:'Off'})
+   u.jsx('span',{ref:labelRef,className:'xen-bass-duck-gr',children:duck.depth>.001?'-0%':'Off'})
   ]}),
-  u.jsx('div',{className:'xen-bass-duck-meter','aria-hidden':'true',children:u.jsx('div',{className:'xen-bass-duck-meter-bar',style:{width:`${Math.round(gr*100)}%`}})}),
+  u.jsx('div',{className:'xen-bass-duck-meter','aria-hidden':'true',children:u.jsx('div',{ref:barRef,className:'xen-bass-duck-meter-bar',style:{width:'0%'}})}),
   u.jsx(__f48Range,{label:'Duck Depth',value:duck.depth,min:0,max:.95,step:.01,onChange:v=>__XenBassDuck.set({depth:v})}),
   u.jsx(__f48Range,{label:'Duck Release (s)',value:duck.release,min:.03,max:.45,step:.01,onChange:v=>__XenBassDuck.set({release:v})})
  ]});

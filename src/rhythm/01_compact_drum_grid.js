@@ -346,22 +346,35 @@ function __mlCompactDrumGrid(){
   refresh();window.addEventListener('xensonar:melodic-sample-library-updated',refresh);
   return()=>{live=false;window.removeEventListener('xensonar:melodic-sample-library-updated',refresh)};
  },[]);
- const [previewPhase,setPreviewPhase]=P.useState(__mlSharedDrumMachine.previewPhase);
- const [previewStep,setPreviewStep]=P.useState(__mlSharedDrumMachine.previewStep);
+ const markerStepRef=P.useRef(-1),litMarkerRef=P.useRef(null),stepsRef=P.useRef(16);
+ const paintMarkerStep=P.useCallback(step=>{
+  markerStepRef.current=step;
+  const host=timingStrip.current;
+  if(!host)return;
+  const prev=litMarkerRef.current;
+  const next=step>=0?host.querySelector(`[data-marker-step="${step}"]`):null;
+  if(prev&&prev!==next){prev.classList.remove("xen-drum-marker-playing");prev.setAttribute("data-playing","false")}
+  if(next){next.classList.add("xen-drum-marker-playing");next.setAttribute("data-playing","true")}
+  litMarkerRef.current=next;
+ },[]);
  // Visual-only live-room cursor. Poll the audio clock; never mutate the drum scheduler.
- const [mainDrumStep,setMainDrumStep]=P.useState(-1);
  P.useEffect(()=>{let raf=0,last=-2,alive=true;
    const tick=()=>{if(!alive)return;
-     const next=__mlSharedDrumMachine.previewOwned?-1:__mlSharedDrumMachine.readMainTick();
-     if(next!==last){last=next;setMainDrumStep(next)}
+     if(typeof document==='undefined'||!document.hidden){
+      const raw=__mlSharedDrumMachine.previewOwned?(__mlSharedDrumMachine.previewPhase==="playing"?__mlSharedDrumMachine.previewStep:-1):__mlSharedDrumMachine.readMainTick();
+      const s=Math.max(1,stepsRef.current);
+      const next=Number.isFinite(raw)&&raw>=0?((raw%s)+s)%s:-1;
+      if(next!==last){last=next;paintMarkerStep(next)}
+     }
      raf=requestAnimationFrame(tick);
    };
    raf=requestAnimationFrame(tick);
-   return()=>{alive=false;cancelAnimationFrame(raf)};
- },[]);
+   return()=>{alive=false;cancelAnimationFrame(raf);paintMarkerStep(-1)};
+ },[paintMarkerStep]);
  P.useEffect(()=>__mlSharedDrumMachine.subscribePreview((phase,step)=>{
-   setPreviewPhase(phase);setPreviewStep(step);
- }),[]);
+   const s=Math.max(1,stepsRef.current);
+   paintMarkerStep(phase==="playing"&&Number.isFinite(step)&&step>=0?((step%s)+s)%s:-1);
+ }),[paintMarkerStep]);
  const previewRequest=P.useRef(0);
  P.useEffect(()=>__mlSharedDrumMachine.subscribe(()=>rerender()),[]);
  // The preview playhead is a marker, not a scroll owner. Scrolling is manual. 
@@ -376,9 +389,8 @@ function __mlCompactDrumGrid(){
  const grid=__f52EnsureDrumGrid(current?.grid||__mlGridFromSelection(snapshot));
  const rows=grid.laneOrder||zT,bars=Math.max(1,grid.bars||1),seg=Math.max(1,grid.segmentsPerBar||16);
  const steps=Math.max(1,grid.stepCount||bars*seg),segments=sl(grid.segmentMarkers,seg);
- const markerStep=previewPhase==="playing"?previewStep:mainDrumStep;
- const markerPlaying=previewPhase==="playing"||(previewPhase==="idle"&&mainDrumStep>=0);
- const boundedMarkerStep=markerPlaying&&Number.isFinite(markerStep)?((markerStep%steps)+steps)%steps:-1;
+ stepsRef.current=steps;
+ P.useLayoutEffect(()=>{if(markerStepRef.current>=0)paintMarkerStep(((markerStepRef.current%steps)+steps)%steps)},[bars,seg,steps,paintMarkerStep]);
  const columns=__mlDrumGridColumns(grid),minWidth=Math.max(500,steps*27+__mlDrumLabelWidth);
  const commit=(next,options)=>{setSaveStatus("");__f52CommitSharedDrumGrid(next,options)};
  const update=(lane,index,value)=>{
@@ -534,13 +546,13 @@ function __mlCompactDrumGrid(){
       u.jsx("div",{ref:timingStrip,className:"xen-main-drum-marker-track",children:[
        ...Array.from({length:bars},(_,bar)=>u.jsx("span",{className:"xen-main-drum-bar-label",style:{left:`${bar/bars*100}%`},children:`▏${bar+1}`},"bar-"+bar)),
        ...Array.from({length:bars},(_,bar)=>u.jsx("span",{
-        "aria-label":`Bar start marker ${bar+1}`,"data-playing":boundedMarkerStep===bar*seg?"true":"false",
-        className:`xen-main-drum-marker xen-drum-start-marker ${boundedMarkerStep===bar*seg?"xen-drum-marker-playing":""}`,
+        "aria-label":`Bar start marker ${bar+1}`,"data-marker-step":bar*seg,"data-playing":"false",
+        className:"xen-main-drum-marker xen-drum-start-marker",
         style:{left:`${bar/bars*100}%`},title:`Start of bar ${bar+1} · fixed boundary`,children:"▼"},"start-marker-"+bar)),
        ...Array.from({length:bars},(_,bar)=>segments.map((pos,index)=>u.jsx("button",{
         type:"button","aria-label":`Timing marker ${index+1}, bar ${bar+1}`,
-        "data-playing":boundedMarkerStep===bar*seg+index+1?"true":"false",
-        className:`xen-main-drum-marker ${boundedMarkerStep===bar*seg+index+1?"xen-drum-marker-playing":""}`,style:{left:`${(bar+pos)/bars*100}%`},
+        "data-marker-step":bar*seg+index+1,"data-playing":"false",
+        className:"xen-main-drum-marker",style:{left:`${(bar+pos)/bars*100}%`},
         title:`Move triangle to shift segment boundary ${index+1} in all bars`,
         onPointerDown:event=>beginMarker(event,index,bar),onPointerMove:onMarkerMove,onPointerUp:endMarker,
         onPointerCancel:endMarker,onContextMenu:e=>e.preventDefault(),children:"▼"},"marker-"+bar+"-"+index))).flat()]})]}),

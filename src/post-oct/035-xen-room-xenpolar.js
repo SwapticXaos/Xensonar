@@ -1208,6 +1208,11 @@ var __xenVariante = (() => {
     useEffect(() => {
       let last = performance.now();
       const loop = (now) => {
+        if (typeof document !== "undefined" && document.hidden) {
+          last = now;
+          animationRef.current = requestAnimationFrame(loop);
+          return;
+        }
         const dt = Math.min(0.033, (now - last) / 1e3);
         last = now;
         syncSharedField();

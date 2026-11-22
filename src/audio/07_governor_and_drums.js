@@ -14,6 +14,8 @@ function __xenExtraRecipe(kit,voice,style,level){
  if(p.type==="analogKick")return {type:p.type,durationSec,level:Math.max(0,Math.min(1.5,level)),brightness:e,attackSec:.0007+.0006*(1-s),startHz:p.start*(.94+.12*a),kneeHz:p.kneeHz,endHz:p.end,kneeSec:p.knee*(.91+.16*(1-s)),settleSec:p.settle,drive:p.drive*(.7+.65*e),clickHz:p.clickHz*(.85+.3*a),clickGain:p.clickGain*(.6+.85*s),clickDecay:p.clickDecay};
  return {type:p.type,baseHz:p.base*(.98+.08*a),durationSec,level:Math.max(0,Math.min(1.5,level)),attackSec:.0016+.002*(1-s),brightness:e,ratios:p.ratios,ratio:p.ratio,index:p.index,steps:p.steps};
 }
+const __xenKickDriveCurves=new ML(64,drive=>{const c=new Float32Array(257),den=Math.tanh(drive);for(let i=0;i<257;i++){const x=i/128-1;c[i]=Math.tanh(x*drive)/den}return c});
+const __xenFmStepCurves=new ML(32,steps=>{const c=new Float32Array(257);for(let i=0;i<257;i++){const x=i/128-1;c[i]=Math.round(x*steps)/steps}return c});
 function __xenRenderExtended(ctx,out,when,spec){
  // All oscillators are finite; no timer, long-lived node or live DSP loop.
  const d=spec.durationSec,lv=spec.level,b=spec.brightness;
@@ -21,9 +23,8 @@ function __xenRenderExtended(ctx,out,when,spec){
  if(spec.type==="analogKick"){
   const body=ctx.createOscillator(),env=ctx.createGain(),shape=ctx.createWaveShaper(),low=ctx.createBiquadFilter();
   body.type="sine";low.type="lowpass";low.frequency.setValueAtTime(Math.min(18000,290+8000*spec.brightness),when);
-  const curve=new Float32Array(257),drive=Math.max(.2,spec.drive),den=Math.tanh(drive);
-  for(let i=0;i<257;i++){const x=i/128-1;curve[i]=Math.tanh(x*drive)/den}
-  shape.curve=curve;body.connect(env);env.connect(shape);shape.connect(low);low.connect(out);
+  const drive=Math.max(.2,spec.drive);
+  shape.curve=__xenKickDriveCurves.get(Math.round(drive*1000)/1000);body.connect(env);env.connect(shape);shape.connect(low);low.connect(out);
   const knee=Math.max(.003,Math.min(d*.38,spec.kneeSec)),settle=Math.min(d*.76,Math.max(knee+.015,spec.settleSec));
   body.frequency.setValueAtTime(spec.startHz,when);
   body.frequency.exponentialRampToValueAtTime(spec.kneeHz,when+knee);
@@ -61,9 +62,8 @@ function __xenRenderExtended(ctx,out,when,spec){
   depth.gain.setValueAtTime(spec.baseHz*spec.index*(.6+.6*b),when);
   depth.gain.exponentialRampToValueAtTime(.001,when+d*.55);
   carrier.connect(vol);amp(vol,lv*(.45+.10*b),d);
-  if(spec.steps>0){const sh=ctx.createWaveShaper(),curve=new Float32Array(257),steps=spec.steps;
-    for(let i=0;i<curve.length;i++){const x=i/128-1;curve[i]=Math.round(x*steps)/steps}
-    sh.curve=curve;vol.connect(sh);sh.connect(out);
+  if(spec.steps>0){const sh=ctx.createWaveShaper();
+    sh.curve=__xenFmStepCurves.get(spec.steps);vol.connect(sh);sh.connect(out);
   }else vol.connect(out);
   carrier.start(when);mod.start(when);carrier.stop(when+d+.012);mod.stop(when+d+.012);
  }

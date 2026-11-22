@@ -18,6 +18,11 @@ export function useXensonarRefactorFrameRuntime({
   useEffect(() => {
     let last = performance.now();
     const loop = (now: number) => {
+      if (typeof document !== "undefined" && document.hidden) {
+        last = now;
+        animationRef.current = requestAnimationFrame(loop);
+        return;
+      }
       const dt = Math.min(0.033, (now - last) / 1000);
       last = now;
       syncSharedField();
