@@ -10,6 +10,7 @@ __F341Workbench.attach({
 let __F341LastSource=null;
 Vt.subscribe(()=>{const source=Vt.getSnapshot().source;if(source&&source!==__F341LastSource){__F341LastSource=source;__F341Workbench.sourceChanged(source);}});
 
+__ForgeF33.attachDonorDiagnostics({runtime:Vt,store:pe,key:__F33CurrentKey});
 __f333AttachTransitionGuard(pe);
 __f333Persistence=__ForgeF33.attachExperimentStatePersistence({runtime:Vt,store:pe,prepareDonor:kE});
 // F447: mounted Forge canvas / explicit playback owns the subscriptions.

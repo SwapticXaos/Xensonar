@@ -4,7 +4,7 @@ function __F33CurrentKey(){const s=Vt.getSnapshot(),v=pe.getState(),m=s.model;
  if(stamp!==__F33KeyStamp){__F33KeyStamp=stamp;__F33KeyValue=pU({sourceRevision:s.sourceRevision,renderMethod:m?.renderMethod??'spectral',registerPolicy:m?.bodyV3?.registerPolicy??'resonance',spectralSignature:ER(v.createProjectSnapshot()),durationSec:Zp(v.materialExport.bars,v.materialExport.bpm,v.materialExport.beatsPerBar)})}
  return __F33KeyValue;
 }
-__ForgeF33.attachDonorDiagnostics({runtime:Vt,store:pe,key:__F33CurrentKey});
+/* xen-lazy:forge-engines (__ForgeF33.attachDonorDiagnostics moved to src/forge/99_forge_engines_init.js) */
 // F3.33: the drawing owns synthesis; PCM is an explicit reference.
 // These functions run only in the offline Forge workspace, never in the live engine.
 let __f333Epoch = 0;
@@ -66,7 +66,7 @@ function __f333AudibleSource(source){
 function __f449ReleaseForgeDerivedCaches(){
  if(__f333HearingCache.size){__f333HearingCache.clear();__f333CacheReadyNotify();}
  __f447HearingJobs.clear();
- if(typeof __F353AnalysisCache!=='undefined')__F353AnalysisCache.clear();
+ if((!globalThis.__XenLazyLoader||globalThis.__XenLazyLoader.isLoaded('chunk','forge-engines'))&&typeof __F353AnalysisCache!=='undefined')__F353AnalysisCache.clear();
  if(typeof __f449ReleaseForgeDisplayCache==='function')__f449ReleaseForgeDisplayCache();
 }
 // The cache key is shared by the renderer and the readiness indicator.
@@ -115,10 +115,11 @@ function __f333CachedPreviewReady(state){
  }catch{return false}
 }
 function __f333Stop() {
-  __XenStampFigureAudition.stopAll();
+  const forgeLoaded=!globalThis.__XenLazyLoader||globalThis.__XenLazyLoader.isLoaded('chunk','forge-engines');
+  if(forgeLoaded)__XenStampFigureAudition.stopAll();
   ++__f333Epoch;
-  if(typeof __PureDieter!=='undefined')__PureDieter.cancel();
-  if(typeof __F352Runtime!=='undefined'&&__F352Runtime)__F352Runtime.stop();
+  if(forgeLoaded&&typeof __PureDieter!=='undefined')__PureDieter.cancel();
+  if(forgeLoaded&&typeof __F352Runtime!=='undefined'&&__F352Runtime)__F352Runtime.stop();
   xt.stop();
   xt.invalidateBuffer();
   Vt.stop();

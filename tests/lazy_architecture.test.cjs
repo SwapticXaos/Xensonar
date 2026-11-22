@@ -145,5 +145,110 @@ const ROOT = path.resolve(__dirname, '..');
  };
  for (const tag of depsByTag.keys()) dfs(tag);
 
- console.log(`PASS lazy_architecture: ${lazyBlocks.length} lazy blocks verified (syntax, IDs, deps DAG, runtime loader)`);
+ // 3. Static AST boot-safety guard: no top-level boot statement (including IIFEs) in eager
+ // scripts may touch a __xenLazyObject proxy or eagerly call __xenLoadChunk during module boot.
+ const eagerBlocks = blocks.filter(b => b.kind === 'module' || b.kind === 'classic');
+ const lazyProxies = new Map(); // name -> chunkName
+ const eagerViolations = [];
+
+ for (const b of eagerBlocks) {
+  const src = out.slice(b.start, b.end);
+  const ast = acorn.parse(src, {
+   ecmaVersion: 'latest',
+   sourceType: b.kind === 'module' ? 'module' : 'script',
+   allowReturnOutsideFunction: false
+  });
+  for (const stmt of ast.body) {
+   if (stmt.type !== 'VariableDeclaration') continue;
+   for (const d of stmt.declarations) {
+    if (
+     d.id && d.id.type === 'Identifier' &&
+     d.init && d.init.type === 'CallExpression' &&
+     d.init.callee && d.init.callee.type === 'Identifier' &&
+     d.init.callee.name === '__xenLazyObject' &&
+     d.init.arguments[0] && d.init.arguments[0].type === 'Literal'
+    ) {
+     lazyProxies.set(d.id.name, String(d.init.arguments[0].value));
+    }
+   }
+  }
+ }
+ assert(lazyProxies.size >= 20, 'expected >=20 lazy proxies declared in eager bundle, found ' + lazyProxies.size);
+
+ const walkTopLevel = (node, blockId) => {
+  if (!node || typeof node !== 'object') return;
+  if (Array.isArray(node)) { for (const x of node) walkTopLevel(x, blockId); return; }
+  // Skip non-IIFE function/method bodies — they do not execute synchronously during module boot.
+  if (
+   node.type === 'FunctionDeclaration' ||
+   node.type === 'FunctionExpression' ||
+   node.type === 'ArrowFunctionExpression' ||
+   node.type === 'ClassBody'
+  ) return;
+  // Skip the proxy declaration initializer itself (`const X = __xenLazyObject(...)`).
+  if (
+   node.type === 'VariableDeclarator' &&
+   node.id && node.id.type === 'Identifier' && lazyProxies.has(node.id.name) &&
+   node.init && node.init.type === 'CallExpression' &&
+   node.init.callee && node.init.callee.type === 'Identifier' &&
+   node.init.callee.name === '__xenLazyObject'
+  ) return;
+  // Unwrap IIFEs: `(function(){ ... })()` or `(() => { ... })()` execute synchronously at boot!
+  if (
+   node.type === 'CallExpression' &&
+   (node.callee.type === 'FunctionExpression' || node.callee.type === 'ArrowFunctionExpression')
+  ) {
+   walkTopLevel(node.arguments, blockId);
+   walkTopLevel(node.callee.body, blockId);
+   return;
+  }
+  // Check eager calls to __xenLoadChunk / __xenLoadDeferred('chunk', ...)
+  if (
+   node.type === 'CallExpression' &&
+   node.callee && node.callee.type === 'Identifier' &&
+   (node.callee.name === '__xenLoadChunk' || node.callee.name === '__xenLoadDeferred')
+  ) {
+   eagerViolations.push(`${blockId}: eager top-level ${node.callee.name}()`);
+  }
+  // Check any property access / call / spread on a lazy proxy identifier at top-level boot
+  if (
+   node.type === 'MemberExpression' &&
+   node.object && node.object.type === 'Identifier' &&
+   lazyProxies.has(node.object.name)
+  ) {
+   eagerViolations.push(`${blockId}: eager top-level access to lazy proxy ${node.object.name} (chunk "${lazyProxies.get(node.object.name)}")`);
+  }
+  if (
+   node.type === 'CallExpression' &&
+   node.callee && node.callee.type === 'Identifier' &&
+   lazyProxies.has(node.callee.name)
+  ) {
+   eagerViolations.push(`${blockId}: eager top-level call to lazy proxy ${node.callee.name} (chunk "${lazyProxies.get(node.callee.name)}")`);
+  }
+  if (
+   node.type === 'SpreadElement' &&
+   node.argument && node.argument.type === 'Identifier' &&
+   lazyProxies.has(node.argument.name)
+  ) {
+   eagerViolations.push(`${blockId}: eager top-level spread of lazy proxy ${node.argument.name} (chunk "${lazyProxies.get(node.argument.name)}")`);
+  }
+  for (const k of Object.keys(node)) {
+   if (k === 'loc' || k === 'start' || k === 'end' || k === 'type') continue;
+   const v = node[k];
+   if (v && typeof v === 'object') walkTopLevel(v, blockId);
+  }
+ };
+
+ for (const b of eagerBlocks) {
+  const src = out.slice(b.start, b.end);
+  const ast = acorn.parse(src, {
+   ecmaVersion: 'latest',
+   sourceType: b.kind === 'module' ? 'module' : 'script',
+   allowReturnOutsideFunction: false
+  });
+  walkTopLevel(ast.body, b.id || b.kind);
+ }
+ assert.deepEqual(eagerViolations, [], 'Eager top-level boot statements must not wake lazy proxies/chunks:\n' + eagerViolations.join('\n'));
+
+ console.log(`PASS lazy_architecture: ${lazyBlocks.length} lazy blocks + ${lazyProxies.size} lazy proxies verified (syntax, IDs, deps DAG, zero eager boot wakeups, runtime loader)`);
 }
