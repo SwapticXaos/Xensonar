@@ -481,11 +481,14 @@ async function __mlPlayWithPreparation(e){// Single-note auditions remain live N
   gain.gain.setValueAtTime(active?(id==="__drums__"?1:Math.max(0,Math.min(1,Number.isFinite(slot?.volume)?slot.volume:.8))/.8):0,start);
   if(id==="__drums__"){const rack=__f48GetDrumRack(t,master);gain.connect(__XenEQ.route(t,'drum',rack.input));Mx({disconnect:()=>{__XenEQ.releaseRoute(t,'drum',rack.input);rack.dispose()}})}else{gain.connect(master);const pan=t.createStereoPanner();pan.pan.setValueAtTime(__mlPan(slot?.pan),start);pan.connect(gain);trackPanners.set(id,pan);Mx(pan);}Mx(gain);gains.set(id,gain);
  }
+ const totalDurationSec=e.drumPreviewOnly?Math.max(.25,cD(e)||i):Math.max(.25,Math.max(1,e.composer.bars||1)*sD(e));
+ const safeStartStep=Number.isFinite(e.startStep)?((e.startStep%Math.max(1,r))+Math.max(1,r))%Math.max(1,r):0;
+ const startOffsetSec=totalDurationSec>0?(safeStartStep/Math.max(1,r))*totalDurationSec:0;
  const session={drumRenderRequest:JSON.parse(JSON.stringify(e)),token:n,ctx:t,source:null,master,stemBuffers:stems,stemGains:gains,trackPanners,drumDescriptorKey:c9e(e)?__mlStemDescriptor(e,"__drums__").key:null,drumMonitorExplicit:e.drumMonitorEnabled===true,
-  stemSources:[],liveEnabledIds:new Set(e.composer.tracks.filter(track=>track.enabled).map(track=>track.id)),liveTrackVolumes:new Map(e.composer.tracks.map(track=>[track.id,Number.isFinite(track.volume)?track.volume:.8])),melodicDurationSec:Math.max(.25,Math.max(1,e.composer.bars||1)*sD(e)),totalDurationSec:e.drumPreviewOnly?Math.max(.25,cD(e)||i):Math.max(.25,Math.max(1,e.composer.bars||1)*sD(e)),totalSteps:r,stepDurationSec:s,startTime:start,
-  loopOffsetSec:0,playheadCallback:d,globalPlayheadCallback:e.onGlobalPlayheadRatio};
- __mlLaunchStemSources(session,0,start);
- y9e(session);e.onPhase?.("playing");d?.(0);e.onGlobalPlayheadRatio?.(0);
+  stemSources:[],liveEnabledIds:new Set(e.composer.tracks.filter(track=>track.enabled).map(track=>track.id)),liveTrackVolumes:new Map(e.composer.tracks.map(track=>[track.id,Number.isFinite(track.volume)?track.volume:.8])),melodicDurationSec:Math.max(.25,Math.max(1,e.composer.bars||1)*sD(e)),totalDurationSec,totalSteps:r,stepDurationSec:s,startTime:start,
+  loopOffsetSec:startOffsetSec,playheadCallback:d,globalPlayheadCallback:e.onGlobalPlayheadRatio};
+ __mlLaunchStemSources(session,startOffsetSec,start);
+ y9e(session);e.onPhase?.("playing");d?.(safeStartStep);e.onGlobalPlayheadRatio?.(Math.max(0,Math.min(1,startOffsetSec/Math.max(.001,totalDurationSec))));
  const tick=()=>{
   const current=b9e();if(!current||current.token!==n)return;
   const delta=Math.max(0,xz(current.ctx)-current.startTime);
