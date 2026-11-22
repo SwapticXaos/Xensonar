@@ -142,3 +142,4 @@ runtime_hygiene.test.cjs
 ts_mod02_nodal_parity.test.cjs
 ts_mod04_runtime_parity.test.cjs
 ts_mod06_profiles_telemetry_parity.test.cjs
+lazy_export_bindings.test.cjs

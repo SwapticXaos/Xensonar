@@ -7,7 +7,12 @@ const {catalogue,create}=new Function(catalogueSource+'\n'+engineSource+'\nretur
  assert.throws(()=>catalogue.normalize({unexpected:true}),/Unbekannte/);
  for(const key of ['xensonar.meta-sessions.v2','xensonar-melodic-loop-projects-v1','xensonar:forge:hybrid-session:v2','xensonar.fractalia.instruments.v4','xensonar.forge.emilia-hx-reciprocal.v4','xensonar.melodic.custom-instruments.v1'])assert(catalogue.ids.includes(catalogue.keyCategory(key)));
  assert.equal(catalogue.recordCategory('xensonar-spectral-forge-material-intake-v1','records','asset:old'),'unusedAssets');assert.equal(catalogue.recordCategory('xensonar-spectral-forge-material-intake-v1','records','donor-library:preset:a'),'donors');
- let pickerCalls=0;const api=create({__XEN_PACKAGE_STATION_TEST__:true,showSaveFilePicker(){pickerCalls++;throw Error('must not open')}});await assert.rejects(api.prepare({selection:catalogue.none()}),/Mindestens/);assert.equal(pickerCalls,0);
+ assert.equal(catalogue.recordCategory('xensonar-xmem-root-follow-bank-v1','entries','a'),'materials');
+ assert.equal(catalogue.recordCategory('xensonar-master-long-sessions-v1','sessions','a'),'materials');
+ assert.equal(catalogue.recordCategory('xensonar-xmem-melodic-repository-pilot-v1','projects','a'),'melodicProjects');
+ assert.equal(catalogue.keyCategory('xensonar.resident.constellations.v1'),'instruments');
+ let pickerCalls=0;const api=create({__XEN_PACKAGE_STATION_TEST__:true,showSaveFilePicker(){pickerCalls++;throw Error('must not open')},indexedDB:{databases:async()=>[{name:'xensonar-material-library',version:1},{name:'xensonar-mru01-flac-temp-v1',version:1},{name:'xensonar-package-station-v4-transport',version:1}]}});await assert.rejects(api.prepare({selection:catalogue.none()}),/Mindestens/);assert.equal(pickerCalls,0);
+ assert.deepEqual((await api._test.inventory()).map(d=>d.name),['xensonar-material-library'],'temporary FLAC spool and transport DBs must be excluded from workspace archive inventory');
  const parts=[],sink={write:async b=>parts.push(b.slice()),close:async()=>new Blob(parts)};const t=api._test,w=await t.writer(sink);
  await w.json({kind:'header',schema:'xensonar.browser-workspace',version:4,createdAt:'test',databases:0});await w.json({kind:'storage'});await t.encode(w,{local:[],session:[]});await w.json({kind:'runtime'});await t.encode(w,null);await w.json({kind:'end',databases:0,records:0});const legacy=await w.finish();const old=await api.inspect(legacy);assert.equal(old.records,0);assert.equal(old.scope,null);
  const before=path.join(root,'../p4_base/src/package_station/01_binary_archive.js');const selected=path.join(root,'test-results-p41/donors-only.xenpack');

@@ -9,12 +9,13 @@ function __xmemRootPilotEarly(){return typeof window!=="undefined"&&window.__XME
  * The factory stays dormant until Package Station is used or recovery is pending. */
 function __createXenPackageStation4(env=globalThis) {
  const CHUNK=1024*1024, MAGIC='XENPACK4\n', JOURNAL='xensonar:package-station:v4:recovery',
-  RUNTIME='xensonar:package-station:v4:runtime', TRANSPORT='xensonar-package-station-v4-transport';
+  RUNTIME='xensonar:package-station:v4:runtime', TRANSPORT='xensonar-package-station-v4-transport',
+  TEMP_DBS=new Set([TRANSPORT,'xensonar-mru01-flac-temp-v1']);
  const te=new TextEncoder(),td=new TextDecoder('utf-8',{fatal:true});
  const owned=n=>typeof n==='string'&&/^xensonar(?:[.::_-]|$)/i.test(n);
  const legacyKeys=new Set(['forge-donor-presets-f317','forge-donor-recipes-f3563','forge-history-pages-v1']);
  const dataKey=k=>(owned(k)||legacyKeys.has(k))&&!/^xensonar(?::package-station:|\.package-import\.|\.melodic-project-reservations\.|-last-workspace-package-import-ledger)/i.test(k);
- const dbKey=n=>owned(n)&&n!==TRANSPORT;
+ const dbKey=n=>owned(n)&&!TEMP_DBS.has(n);
  const fail=s=>{throw Error('Paketstation: '+s)};
  const check=(v,s)=>{if(!v)fail(s)};
  const yieldUI=()=>new Promise(r=>setTimeout(r,0));

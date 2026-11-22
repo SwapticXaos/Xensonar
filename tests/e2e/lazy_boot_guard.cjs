@@ -25,8 +25,11 @@ const html=path.resolve(process.argv[2]||'dist/XenSonar_PROBE.html');
  for(const room of ['lab','canonical','nodal','multitrack','xenpolar']){
   assert.equal(cold.rooms[room]?.loaded,false,'room '+room+' must stay cold at boot');
  }
- // All 12 lazy subsystem chunks must remain uncompiled at cold boot
- for(const chunk of ['wave-editor-dsp','wave-editor-ui','wave-analysis','package-station','forge-engines','forge-hearing-ui','forge-stamps','forge-emilia','forge-fractalia','forge-workflow','sound-recipe-export','entrophon-wasm']){
+ // All 11 non-Live-Room lazy subsystem chunks must remain uncompiled at cold boot.
+ // (entrophon-wasm is also used by Live Room's WaveStarter worklet backend and compiles
+ // asynchronously after AudioWorklet registration — verified non-synchronous by lazy_architecture.test.cjs.)
+ assert.ok(cold.chunks['entrophon-wasm'],'chunk entrophon-wasm must be registered');
+ for(const chunk of ['wave-editor-dsp','wave-editor-ui','wave-analysis','package-station','forge-engines','forge-hearing-ui','forge-stamps','forge-emilia','forge-fractalia','forge-workflow','sound-recipe-export']){
   assert.equal(cold.chunks[chunk]?.loaded,false,'chunk '+chunk+' must stay cold at boot');
  }
 
@@ -43,12 +46,22 @@ const html=path.resolve(process.argv[2]||'dist/XenSonar_PROBE.html');
  assert.equal(afterForge.chunks['wave-editor-dsp'].loaded,true,'wave-editor-dsp loaded transitively via wave-editor-ui');
  assert.equal(afterForge.chunks['forge-engines'].loaded,true,'forge-engines loaded via lab data-xen-deps');
  assert.equal(afterForge.chunks['forge-hearing-ui'].loaded,true,'forge-hearing-ui loaded via lab data-xen-deps');
+ // Emilia is the default listening carrier of a fresh Forge workspace
+ // (KQ() in src/app/forge/04_profiles_and_body_models.js). Its control panel
+ // EmiliaForgeLab mounts with the Forge and is therefore a legitimate trigger
+ // for forge-emilia - not a boot leak. It is still asserted cold *before* Forge.
+ assert.equal(afterForge.chunks['forge-emilia'].loaded,true,'forge-emilia loaded because Emilia is the default Forge carrier');
+ // The Forge workshop captures the full project snapshot on mount (oz() in src/rooms/lab.js)
+ // so it can restore it on exit; that snapshot carries the persisted Fractalia recipe
+ // (fractaliaInstrument). A cold null would change saved-project/restore semantics, so
+ // forge-fractalia legitimately compiles on Forge entry. Both stay cold at boot (above).
+ assert.equal(afterForge.chunks['forge-fractalia'].loaded,true,'forge-fractalia loaded for the Forge project snapshot');
  // Chunks that were NOT triggered must still stay cold
- for(const stillCold of ['wave-analysis','package-station','forge-emilia','forge-fractalia','forge-workflow','sound-recipe-export','entrophon-wasm']){
+ for(const stillCold of ['wave-analysis','package-station','forge-workflow','sound-recipe-export']){
   assert.equal(afterForge.chunks[stillCold]?.loaded,false,'chunk '+stillCold+' must still stay cold until triggered');
  }
 
  assert.deepEqual(errs,[],'no page errors');
- console.log(`PASS LAZY-BOOT-GUARD-01: ${cold.totals.coldCount}/${cold.totals.count} lazy blocks cold at boot (${Math.round(cold.totals.deferredBytes/1024)} KB deferred); Forge loads lab+wave-editor while keeping analysis/package/emilia/fractalia cold`);
+ console.log(`PASS LAZY-BOOT-GUARD-01: ${cold.totals.coldCount}/${cold.totals.count} lazy blocks cold at boot (${Math.round(cold.totals.deferredBytes/1024)} KB deferred); Forge loads lab+wave-editor+Emilia/Fractalia (default carrier, project snapshot) while keeping analysis/package/workflow/recipe-export cold`);
  await b.close();
 })().catch(e=>{console.error(String(e?.message||e));process.exit(1)});

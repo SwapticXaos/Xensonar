@@ -27,7 +27,7 @@ const __XenPackageSelection41=(()=>{
   if(/bass-clip-library|bass-live-scratch/.test(key))return'bass';
   if(/drum-pattern-playlist|drum.*memory/.test(key))return'drums';
   if(/grid-tuning|grid-library/.test(key))return'grids';
-  if(/instruments|sounddesigner|dual-donor-blueprint/.test(key))return'instruments';
+  if(/instruments|sounddesigner|dual-donor-blueprint|resident\.constellations/.test(key))return'instruments';
   if(/donor.*preset|donor.*recipe|active-library-donor/.test(key))return'donors';
   if(/eq\.|mix-pan|source-octaves|refucktor|entrophonUnifiedSoundConfig/.test(key))return'mixer';
   if(/worldFavorites|worldNotes/.test(key))return'favorites';
@@ -41,10 +41,11 @@ const __XenPackageSelection41=(()=>{
    if(store==='instruments')return 'instruments';
    if(store==='control')return key==='working'?'currentEditor':'melodicProjects';
   }
+  if(db==='xensonar-xmem-melodic-repository-pilot-v1'||db==='xensonar-xmem-melodic-stage-v1')return'melodicProjects';
   if(db==='xensonar-thunder-hold-patterns-v1'||db==='xensonar-thunder-hold-pattern-plans-v1')return'holdPatterns';// named Thunder Hold Pattern Memory (HPM01)
   if(db==='xensonar-multitrack-v1')return'multitrack';// ROOM4-05: arrangement + not yet placed inbox; materials follow via the reference closure
   if(db==='xensonar-melodic-samples')return'samples';
-  if(db==='xensonar-material-library')return'materials';
+  if(db==='xensonar-material-library'||db==='xensonar-xmem-root-follow-bank-v1'||db==='xensonar-master-long-sessions-v1')return'materials';
   if(db==='xensonar-drum-config-library')return'drums';
   if(db==='xensonar-spectral-forge-custom-stamps')return'stamps';
   if(db==='xensonar-spectral-forge-projects'||db==='xensonar-canonical-forge-projects')return'figureProjects';

@@ -246,7 +246,8 @@ const hWe={envelopeRadiusBins:18,formantSmoothingRadius:2,residualBandCount:12,m
 
 /* xen-lazy:lab */
 
-let aP=null;
+/* aP (parked Forge workshop snapshot) is owned by src/rooms/lab.js: the lab room
+   reassigns it on unmount, which a chunk-exported binding cannot support. */
 /* xen-lazy:lab */
 
 /* xen-lazy:lab */

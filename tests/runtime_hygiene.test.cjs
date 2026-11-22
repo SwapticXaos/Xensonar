@@ -105,3 +105,42 @@ test('__xenRunBlobWorker cleans up on abort, worker error, timeout, and construc
  await assert.rejects(()=>env2.__XenRuntimeHygiene.runBlobWorker({code:'1',payload:{}}),/csp/);
  assert.equal(rev2.length,1);
 });
+
+test('__XenStorageAlerts captures persistence errors, flags quota hints, and dismisses cleanly',()=>{
+ const listeners=new Map();
+ const appended=[];
+ const makeEl=(tag)=>({
+  tag,attrs:{},dataset:{},style:{},textContent:'',children:[],removed:false,handlers:{},
+  setAttribute(k,v){this.attrs[k]=v},
+  append(...kids){this.children.push(...kids)},
+  addEventListener(ev,fn){this.handlers[ev]=fn},
+  remove(){this.removed=true}
+ });
+ const env={
+  window:{addEventListener:(ev,fn)=>listeners.set(ev,fn)},
+  document:{createElement:makeEl,body:{append:el=>appended.push(el)}},
+  Date,Error,Number,Object,Promise,String,DOMException,setTimeout,clearTimeout,encodeURIComponent
+ };
+ env.globalThis=env;
+ vm.createContext(env);
+ vm.runInContext(SRC,env);
+ assert.equal(appended.length,0,'no alert DOM created while storage is healthy');
+ assert.ok(listeners.has('xensonar:material-persistence-error'));
+ assert.ok(listeners.has('xensonar:root-follow-storage-error'));
+
+ listeners.get('xensonar:material-persistence-error')({detail:{name:'QuotaExceededError',message:'disk full'}});
+ assert.equal(appended.length,1,'banner rendered on persistence failure');
+ assert.equal(appended[0].attrs.role,'alert');
+ assert.match(appended[0]._msg.textContent,/Quota|Paketstation/);
+ assert.equal(env.__XenStorageAlerts.snapshot().length,1);
+ assert.equal(env.__XenStorageAlerts.snapshot()[0].quota,true);
+
+ listeners.get('xensonar:root-follow-storage-error')({detail:'IDB version mismatch'});
+ assert.equal(appended.length,1,'reuses existing banner instead of stacking');
+ assert.equal(appended[0]._title.textContent,'Root-Follow-Speicher blockiert');
+ assert.equal(appended[0]._msg.textContent,'IDB version mismatch');
+ assert.equal(env.__XenStorageAlerts.snapshot().length,2);
+
+ env.__XenStorageAlerts.dismiss();
+ assert.equal(appended[0].removed,true);
+});
