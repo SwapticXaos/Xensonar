@@ -101,6 +101,7 @@
    "oct28_section": "@@XENSONAR_COMPONENT_005@@",
    "files": [
     "src/startup/00_room_and_function_dispatch.js",
+    "src/startup/02_runtime_hygiene.js",
     "src/package_station/02_export_selection.js",
     "src/package_station/00_lazy_boot.js",
     "src/post-oct/gaps/010-main-bundle__01_after_01_binary_archive.js",

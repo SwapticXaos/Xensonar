@@ -310,8 +310,7 @@ const recorder={
   const stream=await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:false,noiseSuppression:false,autoGainControl:false,channelCount:2,...(deviceId?{deviceId:{exact:deviceId}}:{})}});
   try{const src=ctx.createMediaStreamSource(stream),sink=ctx.createGain();sink.gain.value=0;sink.connect(ctx.destination);const chunks=[];let node,done=null;const h={ctx,stream,src,sink,chunks,mode:'worklet',doneP:null};
    try{if(!ctx.audioWorklet)throw 0;if(!capReg.has(ctx)){/* a blob: URL is refused when the page is opened from a file (null origin); a data: URL works there */
-    try{const url=URL.createObjectURL(new Blob([MT_CAPTURE_WORKLET],{type:'text/javascript'}));try{await ctx.audioWorklet.addModule(url)}finally{URL.revokeObjectURL(url)}}
-    catch{await ctx.audioWorklet.addModule('data:text/javascript;base64,'+btoa(MT_CAPTURE_WORKLET))}capReg.add(ctx)}
+    await __xenAddWorkletModule(ctx,MT_CAPTURE_WORKLET);capReg.add(ctx)}
     node=new AudioWorkletNode(ctx,'xen-mt-capture',{numberOfInputs:1,numberOfOutputs:1,channelCount:2,channelCountMode:'explicit',outputChannelCount:[2]});
     h.doneP=new Promise(ok=>{done=ok});node.port.onmessage=ev=>{if(ev.data.kind==='chunk')chunks.push(ev.data);else if(ev.data.kind==='done')done()}}
    catch{h.mode='script';node=ctx.createScriptProcessor(4096,2,2);h.doneP=Promise.resolve();node.onaudioprocess=ev=>{const l=ev.inputBuffer.getChannelData(0),r=ev.inputBuffer.numberOfChannels>1?ev.inputBuffer.getChannelData(1):l;chunks.push({frame:Math.round(ev.playbackTime*ctx.sampleRate)-l.length+Math.round((ctx.baseLatency||0)*ctx.sampleRate),l:new Float32Array(l),r:new Float32Array(r)})}}

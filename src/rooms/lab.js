@@ -1042,7 +1042,7 @@ function ForgePCMSpectrumOwner({frame}) {
    const s=pe.getState(),m=s.materialExport,d=Vt.getSnapshot();
    return [s.spectralData,s.renderVersion,s.synthMode,s.waveformMix,s.carrierIntegralSelection,s.carrierIntegralSynthLab,s.carrierIntegralHarmonicXplore,
     s.sourceAsset,s.sourceAssetContext,s.sourcePreviewMode,m.bars,m.beatsPerBar,m.bpm,__ForgeListeningMode.value(),d.sourceRevision,d.selected,
-    __F3564Master.getSnapshot().tuning,__Fractalia.snapshot(),__Emilia.snapshot(),__F341Workbench.fingerprint(),__F352Session.getSnapshot().recipe];
+    __F3564Master.getSnapshot().tuning,__xenLazyRuntime.isLoaded('chunk','forge-fractalia')?__Fractalia.snapshot():null,__xenLazyRuntime.isLoaded('chunk','forge-emilia')?__Emilia.snapshot():null,__F341Workbench.fingerprint(),__F352Session.getSnapshot().recipe];
   };
   let stamp=identity();
   function cancel() {
@@ -1075,7 +1075,7 @@ function ForgePCMSpectrumOwner({frame}) {
     if(token!==sequence||!buffer)return;
     try{
      url=URL.createObjectURL(new Blob(['('+forgePCMMeasurementWorker.toString()+')()'],{type:'text/javascript'}));
-     worker=new Worker(url,{name:'forge-pcm-view'});URL.revokeObjectURL(url);url=null;
+     worker=new Worker(url,{name:'forge-pcm-view'});
      worker.onerror=()=>{if(alive&&token===sequence){cancel();setStatus('Spectrum unavailable')}};
      worker.onmessage=({data})=>{
       if(!alive||token!==sequence)return;
@@ -1627,23 +1627,16 @@ function __audioCarrierWorkerMain(){
   onmessage=({data})=>{try{postMessage({result:analyzer.analyze(data,progress=>postMessage({progress}))});}catch(error){postMessage({error:error?.message||String(error)});}};
 }
 function __audioCarrierAnalyze(source,range,options,{signal,onProgress=()=>{}}={}){
-  return new Promise((resolve,reject)=>{
-    if(signal?.aborted){reject(new DOMException('Abgebrochen','AbortError'));return;}
-    const rate=source?.sampleRate,start=Math.round(range?.startSec*rate),end=Math.min(source?.monoSamples?.length??0,Math.round((range?.startSec+range?.durationSec)*rate));
-    if(!Number.isFinite(rate)||!Number.isFinite(start)||!Number.isFinite(end)||start<0||end<=start||range.durationSec<.12||range.durationSec>60){reject(Error('Please select an audio region between 0.12 and 60 seconds.'));return;}
-    let worker,url,timer,settled=false;
-    const done=(error,result)=>{if(settled)return;settled=true;clearTimeout(timer);signal?.removeEventListener('abort',abort);worker?.terminate();if(url)URL.revokeObjectURL(url);error?reject(error):resolve(result);};
-    const abort=()=>done(new DOMException('Abgebrochen','AbortError'));
-    try{
-      const __carrierFactory=__xenLoadChunk('wave-analysis').carrierAnalysisFactory;
-      const code=[__forgeGestaltToolsFactory.toString(),__carrierFactory.toString(),'('+__audioCarrierWorkerMain.toString()+')();'].join('\n');
-      url=URL.createObjectURL(new Blob([code],{type:'text/javascript'}));worker=new Worker(url);
-      worker.onmessage=({data})=>{if(data.error)done(Error(data.error));else if(data.result)done(null,data.result);else if(Number.isFinite(data.progress))onProgress(data.progress);};
-      worker.onerror=event=>done(Error(event.message||'Audioanalyse fehlgeschlagen.'));
-      signal?.addEventListener('abort',abort,{once:true});timer=setTimeout(()=>done(Error('Analysis is taking too long. Please select a shorter region.')),120000);
-      const samples=source.monoSamples.slice(start,end);worker.postMessage({samples,sampleRate:rate,options},[samples.buffer]);
-    }catch(error){done(error);}
-  });
+  if(signal?.aborted)return Promise.reject(new DOMException('Abgebrochen','AbortError'));
+  const rate=source?.sampleRate,start=Math.round(range?.startSec*rate),end=Math.min(source?.monoSamples?.length??0,Math.round((range?.startSec+range?.durationSec)*rate));
+  if(!Number.isFinite(rate)||!Number.isFinite(start)||!Number.isFinite(end)||start<0||end<=start||range.durationSec<.12||range.durationSec>60)return Promise.reject(Error('Please select an audio region between 0.12 and 60 seconds.'));
+  let code,samples;
+  try{
+    const __carrierFactory=__xenLoadChunk('wave-analysis').carrierAnalysisFactory;
+    code=[__forgeGestaltToolsFactory.toString(),__carrierFactory.toString(),'('+__audioCarrierWorkerMain.toString()+')();'].join('\n');
+    samples=source.monoSamples.slice(start,end);
+  }catch(error){return Promise.reject(error);}
+  return __xenRunBlobWorker({code,payload:{samples,sampleRate:rate,options},transfer:[samples.buffer],signal,onProgress,timeoutMs:120000,timeoutMessage:'Analysis is taking too long. Please select a shorter region.',errorMessage:'Audioanalyse fehlgeschlagen.'});
 }
 function __audioCarrierDocument(result,material){
   const duration=result.durationSec,reference=Math.max(40,material.bpm||108),baseBeats=Math.max(1,material.beatsPerBar||4);

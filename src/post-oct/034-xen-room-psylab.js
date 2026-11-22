@@ -265,11 +265,7 @@ function psyLabWorkletModule(RANGE_LO,RANGE_HI,RANGE_DEF){
 const moduleCode=()=>'('+psyLabWorkletModule.toString()+')('+JSON.stringify(RANGES.lo)+','+JSON.stringify(RANGES.hi)+','+JSON.stringify(RANGES.def)+');';
 const moduleReady=new WeakMap();
 function loadModule(ctx){let job=moduleReady.get(ctx);if(job)return job;
- job=(async()=>{const code=moduleCode();let error=null;
-  for(const mode of(typeof location!=='undefined'&&location.protocol==='file:'?['data','blob']:['blob','data'])){let url=null;
-   try{url=mode==='blob'?URL.createObjectURL(new Blob([code],{type:'application/javascript'})):'data:application/javascript;charset=utf-8,'+encodeURIComponent(code);await ctx.audioWorklet.addModule(url);return}
-   catch(e){error=e}finally{if(mode==='blob'&&url)URL.revokeObjectURL(url)}}
-  throw error??Error('Psychedelic Lab engine could not be loaded.')})();
+ job=(async()=>{try{await __xenAddWorkletModule(ctx,moduleCode())}catch(e){throw e??Error('Psychedelic Lab engine could not be loaded.')}})();
  moduleReady.set(ctx,job);job.catch(()=>{if(moduleReady.get(ctx)===job)moduleReady.delete(ctx)});return job}
 
 /* Live engine: created on the first note, removed when the room closes. Slider moves are coalesced to one message per frame. */

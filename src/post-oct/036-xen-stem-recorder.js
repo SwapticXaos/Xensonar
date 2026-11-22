@@ -110,11 +110,9 @@ const __XenStemRecorder=(()=>{
   function ready(ctx){
     let p=moduleByContext.get(ctx);if(p)return p;
     p=(async()=>{
-      const code='('+__xenStemsWorkletModule.toString()+')();';let error=null;
-      for(const mode of ['blob','data']){let url=null;
-        try{url=mode==='blob'?URL.createObjectURL(new Blob([code],{type:'application/javascript'})):'data:application/javascript;charset=utf-8,'+encodeURIComponent(code);await ctx.audioWorklet.addModule(url);return}
-        catch(cause){error=cause}finally{if(mode==='blob'&&url)URL.revokeObjectURL(url)}}
-      throw error??Error('Stem recorder worklet could not be loaded.');
+      const code='('+__xenStemsWorkletModule.toString()+')();';
+      try{await __xenAddWorkletModule(ctx,code)}
+      catch(error){throw error??Error('Stem recorder worklet could not be loaded.')}
     })();
     moduleByContext.set(ctx,p);p.catch(()=>{if(moduleByContext.get(ctx)===p)moduleByContext.delete(ctx)});
     return p;

@@ -231,12 +231,9 @@ const __XenLiveVoiceHost=(()=>{
   let s=contexts.get(ctx);if(s)return s;
   s={ok:false,failed:false,drums:new WeakMap(),bass:new WeakMap(),tables:null};contexts.set(ctx,s);
   s.ready=(async()=>{
-   const code='('+__xenVoiceHostModule.toString()+')();';let error=null;
-   for(const mode of ['blob','data']){let url=null;
-    try{url=mode==='blob'?URL.createObjectURL(new Blob([code],{type:'application/javascript'})):'data:application/javascript;charset=utf-8,'+encodeURIComponent(code);
-     await ctx.audioWorklet.addModule(url);s.ok=ctx.state!=='closed';return s.ok}
-    catch(cause){error=cause}finally{if(mode==='blob'&&url)URL.revokeObjectURL(url)}}
-   s.failed=true;console.warn('[xensonar][voice-host] worklet unavailable, native voices stay in use',error);return false;
+   const code='('+__xenVoiceHostModule.toString()+')();';
+   try{await __xenAddWorkletModule(ctx,code);s.ok=ctx.state!=='closed';return s.ok}
+   catch(error){s.failed=true;console.warn('[xensonar][voice-host] worklet unavailable, native voices stay in use',error);return false}
   })();
   return s;
  }

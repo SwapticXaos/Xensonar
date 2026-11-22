@@ -286,20 +286,8 @@ function __xenAnalysisWorkerMain(){
 /* At most 2 minutes go to one worker (the caller cuts them); samples are mono Float32Array and are transferred, never kept. */
 const __XEN_AUDIO_ANALYSIS_MAX_SEC=120;
 function __xenAudioAnalysisRun(samples,sampleRate,{signal,onProgress=()=>{}}={}){
-  return new Promise((resolve,reject)=>{
-    if(signal?.aborted){reject(new DOMException('Abgebrochen','AbortError'));return;}
-    let worker,url,timer,settled=false;
-    const done=(error,result)=>{if(settled)return;settled=true;clearTimeout(timer);signal?.removeEventListener('abort',abort);worker?.terminate();if(url)URL.revokeObjectURL(url);error?reject(error):resolve(result);};
-    const abort=()=>done(new DOMException('Abgebrochen','AbortError'));
-    try{
-      const code=[__xenAnalysisToolsFactory.toString(),__audioCarrierAnalysisFactory.toString(),__audioAnalysisFactory.toString(),'('+__xenAnalysisWorkerMain.toString()+')();'].join('\n');
-      url=URL.createObjectURL(new Blob([code],{type:'text/javascript'}));worker=new Worker(url);
-      worker.onmessage=({data})=>{if(data.error)done(Error(data.error));else if(data.result)done(null,data.result);else if(Number.isFinite(data.progress))onProgress(data.progress);};
-      worker.onerror=event=>done(Error(event.message||'Audio analysis failed.'));
-      signal?.addEventListener('abort',abort,{once:true});timer=setTimeout(()=>done(Error('The analysis is taking too long. Please select a shorter range.')),240000);
-      worker.postMessage({samples,sampleRate},[samples.buffer]);
-    }catch(error){done(error);}
-  });
+  const code=[__xenAnalysisToolsFactory.toString(),__audioCarrierAnalysisFactory.toString(),__audioAnalysisFactory.toString(),'('+__xenAnalysisWorkerMain.toString()+')();'].join('\n');
+  return __xenRunBlobWorker({code,payload:{samples,sampleRate},transfer:[samples.buffer],signal,onProgress,timeoutMs:240000,timeoutMessage:'The analysis is taking too long. Please select a shorter range.',errorMessage:'Audio analysis failed.'});
 }
 globalThis.__audioCarrierAnalysisFactory=__audioCarrierAnalysisFactory;
 Object.freeze({MAX_SEC:__XEN_AUDIO_ANALYSIS_MAX_SEC,run:__xenAudioAnalysisRun,time:__analysisTime,text:__analysisText,carrierAnalysisFactory:__audioCarrierAnalysisFactory});
