@@ -55,33 +55,34 @@ function Pr(e){const t=Number(e.bars),n=FS(Number.isFinite(t)&&t>0?t:1),r=Number
 }
 /* BASS-DAW-01: Pro-DAW Piano Roll with multi-select, marquee lasso, switchable per-note automation lanes, live playhead & DAW edit toolbar. */
 function cce({clip:e,editable:t=!1,selectedEventId:n="",selectedEventIds:selIds=null,onSelectEvent:r,onSelectEvents:setSelIds,onPatchEvent:a,onBatchPatchEvents:batchPatch,onBeginEventEdit:o,onCreateEvent:i,onPatchSegment:s,onBeginSegmentEdit:l,onDawTransform:dawTransform,bassActive:liveActive=!1}){
- const c=Ule(e),d=P.useRef(null),[p,f]=P.useState(""),[b,g]=P.useState("move"),[y,x]=P.useState(""),[__vel,__setVel]=P.useState("");
+ const c=Ule(e),d=P.useRef(null),playheadRef=P.useRef(null),dragRef=P.useRef(null),latestRef=P.useRef(null);
  const [laneMode,setLaneMode]=P.useState("velocity");
  const [qGrid,setQGrid]=P.useState("1/16");
  const [qStrength,setQStrength]=P.useState(1);
  const [marquee,setMarquee]=P.useState(null);
- const [playheadPct,setPlayheadPct]=P.useState(null);
- const dragOrigin=P.useRef(null);
- const marqueeRef=P.useRef(null);
  const selectedSet=P.useMemo(()=>{
   const out=new Set(selIds||[]);
   if(n&&!out.size)out.add(n);
   return out;
  },[selIds,n]);
  P.useEffect(()=>{
-  if(!liveActive){setPlayheadPct(null);return}
+  const el=playheadRef.current;
+  if(!liveActive){if(el){el.style.display="none";el.dataset.active="false"}return}
   let raf=0;
   const tick=()=>{
+   const node=playheadRef.current;
    const ph=globalThis.__XenBassPlayhead;
-   if(ph&&ph.ctx&&ph.ctx.state==='running'&&Number.isFinite(ph.time)){
+   if(node&&ph&&ph.ctx&&ph.ctx.state==='running'&&Number.isFinite(ph.time)){
     const total16=Math.max(1,(ph.bars||e.bars||1)*16);
     const stepSec=60/Math.max(40,ph.bpm||120)/4;
     const elapsed=(ph.ctx.currentTime-ph.time)/stepSec;
     if(elapsed>=-2&&elapsed<=total16+2){
      const pos=((ph.step+elapsed)%total16+total16)%total16;
-     setPlayheadPct((pos/total16)*100);
-    }else setPlayheadPct(null);
-   }else setPlayheadPct(null);
+     node.style.display="block";
+     node.style.left=`${(pos/total16)*100}%`;
+     node.dataset.active="true";
+    }else{node.style.display="none";node.dataset.active="false"}
+   }else if(node){node.style.display="none";node.dataset.active="false"}
    raf=requestAnimationFrame(tick);
   };
   raf=requestAnimationFrame(tick);
@@ -109,26 +110,109 @@ function cce({clip:e,editable:t=!1,selectedEventId:n="",selectedEventIds:selIds=
   if(laneMode==="ratchet")return `Ratchet ${ev.ratchet??1}×`;
   return `Velocity ${Math.round((ev.velocity??.78)*100)} %`;
  };
- const O=(_,G,j,N=b)=>{
-  if(!t||!a)return;
-  const W=e.events.find(U=>U.id===_);
-  if(N==="length"&&W){const U=Math.max(.1,Math.min(e.stepCount,L(G)-W.startStep));a(_,{durationSteps:U},{history:!1});return}
-  const orig=dragOrigin.current;
-  if(orig&&orig.multi&&orig.items.length>1&&batchPatch){
-   const targetStep=B(G),dStep=targetStep-orig.anchorStep;
-   const targetRatio=F(j),ratioMul=targetRatio/Math.max(.03125,orig.anchorRatio);
-   const patches={};
-   for(const item of orig.items){
-    const nextStep=Math.max(0,Math.min(e.stepCount-.1,Math.round((item.startStep+dStep)*4)/4));
-    const snapped=Qle(Math.max(.03125,Math.min(32,item.effRatio*ratioMul)),e.pitchSnapMode??"magnet",e.pitchGuideKind??"ji");
-    patches[item.id]={startStep:nextStep,ratioFromRoot:snapped.ratioFromRoot,snapHint:snapped.snapHint,octave:0};
+ latestRef.current={e,t,n,r,setSelIds,a,batchPatch,o,s,l,selectedSet,E,L,__LANE,lanePatch};
+ const captureCanvas=pid=>{try{d.current?.setPointerCapture?.(pid)}catch{}};
+ P.useEffect(()=>{
+  const endDrag=ev=>{
+   const drag=dragRef.current;
+   if(!drag)return;
+   if(ev&&drag.pointerId!==void 0&&ev.pointerId!==void 0&&ev.pointerId!==drag.pointerId)return;
+   dragRef.current=null;
+   try{if(drag.pointerId!==void 0&&d.current?.hasPointerCapture?.(drag.pointerId))d.current.releasePointerCapture(drag.pointerId)}catch{}
+   const cur=latestRef.current;
+   if(drag.kind==="marquee"){
+    if(!drag.active&&!drag.additive)cur?.setSelIds?.(new Set(cur.n?[cur.n]:[]));
+    setMarquee(null);
+   }else if(drag.kind==="move"&&drag.multi&&!drag.moved){
+    cur?.setSelIds?.(new Set([drag.id]));
    }
-   batchPatch(patches,{history:!1});
-   return;
-  }
-  const V=Qle(F(j),e.pitchSnapMode??"magnet",e.pitchGuideKind??"ji");
-  a(_,{startStep:B(G),ratioFromRoot:V.ratioFromRoot,snapHint:V.snapHint,octave:0},{history:!1});
- };
+  };
+  const onMove=ev=>{
+   const drag=dragRef.current;
+   if(!drag)return;
+   if(drag.pointerId!==void 0&&ev.pointerId!==void 0&&ev.pointerId!==drag.pointerId)return;
+   if(ev.pointerType==="mouse"&&ev.buttons===0){endDrag(ev);return}
+   const cur=latestRef.current;
+   if(!cur||!cur.t)return;
+   if(drag.kind==="vel"){
+    ev.preventDefault();
+    const G=d.current?.getBoundingClientRect();
+    if(G){const top=G.bottom-cur.__LANE+4,val=Math.max(.05,Math.min(1,1-(ev.clientY-top)/(cur.__LANE-8)));cur.lanePatch(drag.id,val)}
+    return;
+   }
+   if(drag.kind==="seg"){
+    ev.preventDefault();
+    if(!drag.moved){drag.moved=!0;cur.l?.()}
+    cur.s?.(drag.id,cur.L(ev.clientX),{history:!1});
+    return;
+   }
+   if(drag.kind==="length"){
+    ev.preventDefault();
+    if(!drag.moved){
+     if(Math.hypot(ev.clientX-drag.downX,ev.clientY-drag.downY)<2)return;
+     drag.moved=!0;cur.o?.();
+    }
+    const dxSteps=((ev.clientX-drag.downX)/drag.downWidth)*drag.downStepCount;
+    const nextDur=Math.max(.1,Math.min(cur.e.stepCount-drag.origStartStep,drag.origDuration+dxSteps));
+    cur.a?.(drag.id,{durationSteps:nextDur},{history:!1});
+    return;
+   }
+   if(drag.kind==="move"){
+    ev.preventDefault();
+    if(!drag.moved){
+     if(Math.hypot(ev.clientX-drag.downX,ev.clientY-drag.downY)<2)return;
+     drag.moved=!0;cur.o?.();
+    }
+    const dxSteps=((ev.clientX-drag.downX)/drag.downWidth)*drag.downStepCount;
+    const dyLog2=-((ev.clientY-drag.downY)/drag.pitchH)*drag.downK;
+    const ratioMul=Math.pow(2,dyLog2);
+    if(drag.multi&&drag.items&&drag.items.length>1&&cur.batchPatch){
+     const patches={};
+     for(const item of drag.items){
+      const nextStep=Math.max(0,Math.min(cur.e.stepCount-.1,Math.round((item.startStep+dxSteps)*4)/4));
+      const snapped=Qle(Math.max(.03125,Math.min(32,item.effRatio*ratioMul)),cur.e.pitchSnapMode??"magnet",cur.e.pitchGuideKind??"ji");
+      patches[item.id]={startStep:nextStep,ratioFromRoot:snapped.ratioFromRoot,snapHint:snapped.snapHint,octave:0};
+     }
+     cur.batchPatch(patches,{history:!1});
+     return;
+    }
+    const nextStep=Math.max(0,Math.min(cur.e.stepCount-.1,Math.round((drag.origStartStep+dxSteps)*4)/4));
+    const snapped=Qle(Math.max(.03125,Math.min(32,drag.origEffRatio*ratioMul)),cur.e.pitchSnapMode??"magnet",cur.e.pitchGuideKind??"ji");
+    cur.a?.(drag.id,{startStep:nextStep,ratioFromRoot:snapped.ratioFromRoot,snapHint:snapped.snapHint,octave:0},{history:!1});
+    return;
+   }
+   if(drag.kind==="marquee"){
+    const rect=d.current?.getBoundingClientRect();if(!rect)return;
+    const mx=Math.max(0,Math.min(rect.width,ev.clientX-rect.left)),my=Math.max(0,Math.min(rect.height-cur.__LANE,ev.clientY-rect.top));
+    drag.x=mx;drag.y=my;
+    if(!drag.active&&Math.hypot(mx-drag.startX,my-drag.startY)>=6)drag.active=!0;
+    if(drag.active){
+     ev.preventDefault();
+     const left=Math.min(drag.startX,mx),right=Math.max(drag.startX,mx),top=Math.min(drag.startY,my),bottom=Math.max(drag.startY,my);
+     setMarquee({left,top,width:right-left,height:bottom-top});
+     const pitchH=Math.max(1,rect.height-cur.__LANE);
+     const hits=new Set(drag.additive?drag.baseSel:[]);
+     for(const evItem of cur.e.events){
+      const ex=(evItem.startStep/cur.e.stepCount)*rect.width,ew=Math.max(6,(evItem.durationSteps/cur.e.stepCount)*rect.width);
+      const eff=evItem.ratioFromRoot*Math.pow(2,evItem.octave),ey=(Math.max(2,Math.min(92,cur.E(eff)-3))/100)*pitchH;
+      if(ex+ew>=left&&ex<=right&&ey+18>=top&&ey<=bottom)hits.add(evItem.id);
+     }
+     cur.setSelIds?.(hits);
+     if(hits.size)cur.r?.([...hits][0]);
+    }
+   }
+  };
+  window.addEventListener("pointermove",onMove,{passive:!1});
+  window.addEventListener("pointerup",endDrag);
+  window.addEventListener("pointercancel",endDrag);
+  window.addEventListener("blur",endDrag);
+  return()=>{
+   window.removeEventListener("pointermove",onMove);
+   window.removeEventListener("pointerup",endDrag);
+   window.removeEventListener("pointercancel",endDrag);
+   window.removeEventListener("blur",endDrag);
+  };
+ },[]);
  const T=e.generatorMeta.kind==="rhythmforge"?"RhythmForge":e.generatorMeta.kind==="psybass"?"PsyBass":e.generatorMeta.kind==="classic"?"Classic":"Working Copy";
  const laneOptions=[["velocity","Vel"],["accent","Acc"],["cutoff","Cut"],["prob","Prob"],["ratchet","Ratch"]];
  const laneBarColor=(sel)=>{
@@ -147,89 +231,72 @@ function cce({clip:e,editable:t=!1,selectedEventId:n="",selectedEventIds:selIds=
     u.jsx("div",{className:"rounded border border-cyan-900/60 bg-black/30 px-2 py-1 text-[10px] uppercase tracking-widest text-cyan-100/70",children:T})
    ]})
   ]}),
-  u.jsxs("div",{ref:d,"data-bass-body-canvas":"true",className:`relative h-[clamp(260px,43dvh,560px)] overflow-hidden rounded border border-cyan-900/45 bg-black/45 ${t?"cursor-crosshair":""}`,
+  u.jsxs("div",{ref:d,"data-bass-body-canvas":"true",draggable:!1,onDragStart:ev=>ev.preventDefault(),className:`relative h-[clamp(260px,43dvh,560px)] select-none overflow-hidden rounded border border-cyan-900/45 bg-black/45 ${t?"cursor-crosshair":""}`,style:{touchAction:"none"},
    onPointerDown:_=>{
-    if(!t||_.button!==0||_.target.closest("[data-bass-event-block]")||_.target.closest("[data-bass-velocity-lane]")||_.target.closest("button"))return;
+    if(!t||(_.pointerType==="mouse"&&_.button!==0)||_.target.closest("[data-bass-event-block]")||_.target.closest("[data-bass-velocity-lane]")||_.target.closest("button"))return;
     const rect=d.current?.getBoundingClientRect();if(!rect)return;
     const startX=_.clientX-rect.left,startY=_.clientY-rect.top;
-    marqueeRef.current={startX,startY,x:startX,y:startY,active:false,additive:_.shiftKey};
+    captureCanvas(_.pointerId);
+    dragRef.current={kind:"marquee",pointerId:_.pointerId,startX,startY,x:startX,y:startY,active:!1,additive:_.shiftKey,baseSel:[...selectedSet]};
    },
-   onPointerMove:_=>{
-    if(__vel){_.preventDefault();const G=d.current?.getBoundingClientRect();if(G){const top=G.bottom-__LANE+4,v=Math.max(.05,Math.min(1,1-(_.clientY-top)/(__LANE-8)));lanePatch(__vel,v)}return}
-    if(y){_.preventDefault(),s?.(y,L(_.clientX),{history:!1});return}
-    if(p){_.preventDefault(),O(p,_.clientX,_.clientY,b);return}
-    if(marqueeRef.current){
-     const rect=d.current?.getBoundingClientRect();if(!rect)return;
-     const mx=Math.max(0,Math.min(rect.width,_.clientX-rect.left)),my=Math.max(0,Math.min(rect.height-__LANE,_.clientY-rect.top));
-     const mq=marqueeRef.current;mq.x=mx;mq.y=my;
-     if(!mq.active&&Math.hypot(mx-mq.startX,my-mq.startY)>=6)mq.active=true;
-     if(mq.active){
-      _.preventDefault();
-      const left=Math.min(mq.startX,mx),right=Math.max(mq.startX,mx),top=Math.min(mq.startY,my),bottom=Math.max(mq.startY,my);
-      setMarquee({left,top,width:right-left,height:bottom-top});
-      const pitchH=Math.max(1,rect.height-__LANE);
-      const hits=new Set(mq.additive?[...selectedSet]:[]);
-      for(const ev of e.events){
-       const ex=(ev.startStep/e.stepCount)*rect.width,ew=Math.max(6,(ev.durationSteps/e.stepCount)*rect.width);
-       const eff=ev.ratioFromRoot*Math.pow(2,ev.octave),ey=(Math.max(2,Math.min(92,E(eff)-3))/100)*pitchH;
-       if(ex+ew>=left&&ex<=right&&ey+18>=top&&ey<=bottom)hits.add(ev.id);
-      }
-      setSelIds?.(hits);
-      if(hits.size)r?.([...hits][0]);
-     }
-    }
-   },
-   onPointerUp:()=>{
-    if(marqueeRef.current&&!marqueeRef.current.active&&!marqueeRef.current.additive){setSelIds?.(new Set(n?[n]:[]))}
-    marqueeRef.current=null;setMarquee(null);dragOrigin.current=null;f("");x("");g("move");__setVel("");
-   },
-   onPointerLeave:()=>{marqueeRef.current=null;setMarquee(null);dragOrigin.current=null;f("");x("");g("move");__setVel("")},
    onDoubleClick:_=>{!t||!i||_.target.closest("[data-bass-event-block]")||_.target.closest("[data-bass-velocity-lane]")||(_.preventDefault(),i({startStep:B(_.clientX),ratioFromRoot:F(_.clientY),octave:0,durationSteps:.9,velocity:.78,accent:.72}))},
    children:[
-    Array.from({length:e.stepCount+1}).map((_,G)=>u.jsx("div",{className:"absolute bottom-0 top-0 border-l border-cyan-900/25",style:{left:`${G/e.stepCount*100}%`}},`grid-${G}`)),
-    e.segmentMarkers.map(_=>{const G=`${_.step/e.stepCount*100}%`;return _.kind==="bar"?u.jsx("div",{className:"absolute bottom-0 top-0 border-l border-fuchsia-300/45",style:{left:G},title:"Bar boundary"},_.id):u.jsx("div",{className:"absolute bottom-0 top-0 border-l border-amber-200/40",style:{left:G},children:u.jsx("button",{type:"button",disabled:!t,title:`Bar segment ${_.step.toFixed(2)}`,onPointerDown:j=>{t&&(j.preventDefault(),j.stopPropagation(),j.currentTarget.setPointerCapture(j.pointerId),l?.(),x(_.id))},className:"absolute -top-0.5 left-1/2 h-0 w-0 -translate-x-1/2 border-x-[5px] border-t-[8px] border-x-transparent border-t-amber-200/85 disabled:cursor-default disabled:opacity-35"})},_.id)}),
-    I.map(_=>{const G=Math.max(4,Math.min(96,E(_)));return u.jsx("div",{className:"absolute left-0 right-0 border-t border-cyan-700/20",style:{top:`calc((100% - ${__LANE}px) * ${G/100})`,...(_===1?{borderTopColor:"rgba(34,211,238,.4)"}:{})},children:__lab().has(_)?u.jsx("span",{"data-bass-ratio-label":__frac(_),className:"pointer-events-none absolute right-1 -translate-y-1/2 rounded bg-black/70 px-1 text-[9px] text-cyan-100/55",children:__frac(_)}):null},`ratio-${_}`)}),
-    playheadPct!==null?u.jsx("div",{className:"xen-bass-playhead","data-bass-playhead":"true",style:{left:`${playheadPct}%`}}):null,
+    Array.from({length:e.stepCount+1}).map((_,G)=>u.jsx("div",{className:"pointer-events-none absolute bottom-0 top-0 border-l border-cyan-900/25",style:{left:`${G/e.stepCount*100}%`}},`grid-${G}`)),
+    e.segmentMarkers.map(_=>{const G=`${_.step/e.stepCount*100}%`;return _.kind==="bar"?u.jsx("div",{className:"pointer-events-none absolute bottom-0 top-0 border-l border-fuchsia-300/45",style:{left:G},title:"Bar boundary"},_.id):u.jsx("div",{className:"pointer-events-none absolute bottom-0 top-0 border-l border-amber-200/40",style:{left:G},children:u.jsx("button",{type:"button",disabled:!t,title:`Bar segment ${_.step.toFixed(2)}`,onPointerDown:j=>{if(!t||(j.pointerType==="mouse"&&j.button!==0))return;j.preventDefault();j.stopPropagation();captureCanvas(j.pointerId);dragRef.current={kind:"seg",pointerId:j.pointerId,id:_.id,moved:!1}},className:"pointer-events-auto absolute -top-0.5 left-1/2 h-0 w-0 -translate-x-1/2 border-x-[5px] border-t-[8px] border-x-transparent border-t-amber-200/85 disabled:cursor-default disabled:opacity-35"})},_.id)}),
+    I.map(_=>{const G=Math.max(4,Math.min(96,E(_)));return u.jsx("div",{className:"pointer-events-none absolute left-0 right-0 border-t border-cyan-700/20",style:{top:`calc((100% - ${__LANE}px) * ${G/100})`,...(_===1?{borderTopColor:"rgba(34,211,238,.4)"}:{})},children:__lab().has(_)?u.jsx("span",{"data-bass-ratio-label":__frac(_),className:"pointer-events-none absolute right-1 -translate-y-1/2 rounded bg-black/70 px-1 text-[9px] text-cyan-100/55",children:__frac(_)}):null},`ratio-${_}`)}),
+    u.jsx("div",{ref:playheadRef,className:"xen-bass-playhead","data-bass-playhead":"true","data-active":"false",style:{display:"none",left:"0%"}}),
     marquee?u.jsx("div",{className:"xen-bass-marquee","data-bass-marquee":"true",style:{left:marquee.left,top:marquee.top,width:marquee.width,height:marquee.height}}):null,
     u.jsxs("div",{"data-bass-velocity-lane":"true","data-bass-lane-mode":laneMode,title:t?"Automation lane: drag a bar up or down":"Automation lane",className:"absolute bottom-0 left-0 right-0",style:{height:__LANE,borderTop:"1px solid rgba(112,26,117,.45)",background:"rgba(74,4,78,.18)"},children:[
-     Array.from({length:e.stepCount}).map((_,G)=>u.jsx("span",{className:"absolute",style:{left:`${(G+.5)/e.stepCount*100}%`,top:3,height:5,width:1,background:"rgba(240,171,252,.25)"}},`tick-${G}`)),
+     Array.from({length:e.stepCount}).map((_,G)=>u.jsx("span",{className:"pointer-events-none absolute",style:{left:`${(G+.5)/e.stepCount*100}%`,top:3,height:5,width:1,background:"rgba(240,171,252,.25)"}},`tick-${G}`)),
      u.jsx("span",{className:"pointer-events-none absolute",style:{right:6,top:2,fontSize:8,letterSpacing:".16em",textTransform:"uppercase",color:"rgba(245,208,254,.45)"},children:laneOptions.find(([m])=>m===laneMode)?.[1]||"Vel"}),
-     ...e.events.map(_=>{const val=laneRead(_),U=selectedSet.has(_.id)||_.id===n;return u.jsx("span",{"data-bass-velocity-bar":_.id,title:laneTitle(_),onPointerDown:H=>{t&&a&&(H.preventDefault(),H.stopPropagation(),d.current?.setPointerCapture(H.pointerId),r?.(_.id),setSelIds?.(new Set([_.id])),o?.(),__setVel(_.id))},className:"absolute",style:{left:`max(0px, calc(${_.startStep/e.stepCount*100}% - 4px))`,bottom:4,width:9,height:Math.max(2,val*(__LANE-12)),borderRadius:"3px 3px 0 0",background:laneBarColor(U),cursor:t?"ns-resize":"default"}},`vel-${_.id}`)})
+     ...e.events.map(_=>{const val=laneRead(_),U=selectedSet.has(_.id)||_.id===n;return u.jsx("span",{"data-bass-velocity-bar":_.id,title:laneTitle(_),onPointerDown:H=>{if(!t||!a||(H.pointerType==="mouse"&&H.button!==0))return;H.preventDefault();H.stopPropagation();captureCanvas(H.pointerId);r?.(_.id);setSelIds?.(new Set([_.id]));o?.();dragRef.current={kind:"vel",pointerId:H.pointerId,id:_.id,moved:!0};const G=d.current?.getBoundingClientRect();if(G){const top=G.bottom-__LANE+4,vNorm=Math.max(.05,Math.min(1,1-(H.clientY-top)/(__LANE-8)));lanePatch(_.id,vNorm)}},className:"absolute",style:{left:`max(0px, calc(${_.startStep/e.stepCount*100}% - 4px))`,bottom:4,width:9,height:Math.max(2,val*(__LANE-12)),borderRadius:"3px 3px 0 0",background:laneBarColor(U),cursor:t?"ns-resize":"default",touchAction:"none"}},`vel-${_.id}`)})
     ]}),
     e.events.map(_=>{
      const G=_.ratioFromRoot*Math.pow(2,_.octave),j=_.startStep/e.stepCount*100,N=Math.max(1.2,Math.min(100-j,_.durationSteps/e.stepCount*100)),W=Math.max(2,Math.min(92,E(G)-3)),V=Math.max(.42,Math.min(1,.44+_.accent*.48)),U=selectedSet.has(_.id)||_.id===n;
-     return u.jsxs("div",{role:t?"button":void 0,tabIndex:t?0:void 0,"data-bass-event-block":"true","data-selected":U?"true":"false",
+     return u.jsxs("div",{role:t?"button":void 0,tabIndex:t?0:void 0,draggable:!1,onDragStart:ev=>ev.preventDefault(),"data-bass-event-block":"true","data-selected":U?"true":"false",
       onPointerDown:H=>{
-       if(!t)return;
-       H.preventDefault();H.stopPropagation();H.currentTarget.setPointerCapture(H.pointerId);
+       if(!t||(H.pointerType==="mouse"&&H.button!==0))return;
+       H.preventDefault();H.stopPropagation();
        if(H.shiftKey){
         const next=new Set(selectedSet);
         if(next.has(_.id)&&next.size>1)next.delete(_.id);else next.add(_.id);
         setSelIds?.(next);r?.(_.id);return;
        }
+       const rect=d.current?.getBoundingClientRect();
+       if(!rect)return;
        const inMulti=selectedSet.has(_.id)&&selectedSet.size>1;
        if(!inMulti)setSelIds?.(new Set([_.id]));
-       r?.(_.id);o?.();g("move");f(_.id);
-       if(inMulti){
-        const items=e.events.filter(ev=>selectedSet.has(ev.id)).map(ev=>({id:ev.id,startStep:ev.startStep,effRatio:ev.ratioFromRoot*Math.pow(2,ev.octave)}));
-        dragOrigin.current={multi:true,anchorStep:B(H.clientX),anchorRatio:F(H.clientY),items};
-       }else{
-        dragOrigin.current=null;
-        O(_.id,H.clientX,H.clientY,"move");
-       }
+       r?.(_.id);
+       captureCanvas(H.pointerId);
+       dragRef.current={
+        kind:"move",
+        pointerId:H.pointerId,
+        id:_.id,
+        downX:H.clientX,
+        downY:H.clientY,
+        downWidth:Math.max(1,rect.width),
+        pitchH:Math.max(1,rect.height-__LANE),
+        downK:k,
+        downStepCount:e.stepCount,
+        origStartStep:_.startStep,
+        origEffRatio:G,
+        moved:!1,
+        multi:inMulti,
+        items:inMulti?e.events.filter(ev=>selectedSet.has(ev.id)).map(ev=>({id:ev.id,startStep:ev.startStep,effRatio:ev.ratioFromRoot*Math.pow(2,ev.octave)})):null
+       };
       },
       onClick:H=>{t&&(H.stopPropagation(),!H.shiftKey&&r?.(_.id))},
-      className:`absolute rounded-md border px-1 py-0.5 text-[9px] shadow-lg ${t?"cursor-grab active:cursor-grabbing":""} ${U?"ring-2 ring-amber-200":""} ${_.ghost?"border-dashed border-cyan-300/60 bg-cyan-700/25 text-cyan-50/75":"border-cyan-300/70 bg-cyan-500/30 text-cyan-50"}`,
-      style:{left:`${j}%`,width:`${N}%`,top:`calc((100% - ${__LANE}px) * ${W/100})`,opacity:V},
+      className:`absolute select-none rounded-md border px-1 py-0.5 text-[9px] shadow-lg ${t?"cursor-grab active:cursor-grabbing":""} ${U?"ring-2 ring-amber-200":""} ${_.ghost?"border-dashed border-cyan-300/60 bg-cyan-700/25 text-cyan-50/75":"border-cyan-300/70 bg-cyan-500/30 text-cyan-50"}`,
+      style:{left:`${j}%`,width:`${N}%`,top:`calc((100% - ${__LANE}px) * ${W/100})`,opacity:V,touchAction:"none"},
       title:`Step ${_.startStep+1} · ${HG(_,49).toFixed(1)} Hz at 49 Hz Root${_.cutoffScale?` · Cut ${_.cutoffScale.toFixed(2)}×`:""}${_.probability<1?` · ${Math.round(_.probability*100)}%`:""}${_.ratchet>1?` · ${_.ratchet}×`:""}`,
       children:[
-       u.jsxs("span",{className:"block truncate",children:[
+       u.jsxs("span",{className:"pointer-events-none block truncate",children:[
         G.toFixed(G<2?2:1),"×",
         _.ratchet>1?u.jsx("span",{className:"xen-bass-badge",children:`×${_.ratchet}`}):null,
         _.probability<1?u.jsx("span",{className:"xen-bass-badge",children:`${Math.round(_.probability*100)}%`}):null
        ]}),
-       _.glide?u.jsx("span",{className:"absolute -right-2 top-1/2 -translate-y-1/2 text-cyan-100/80",title:_.glide.mode==="to-next"?"True Pitch Glide to next note":"Pitch Bend Up (+200¢)",children:_.glide.mode==="to-next"?"↝":"↗"}):null,
-       t?u.jsx("span",{className:"absolute bottom-0 right-0 top-0 w-2 cursor-ew-resize rounded-r-md bg-amber-200/35","aria-hidden":"true",onPointerDown:H=>{H.preventDefault(),H.stopPropagation(),H.currentTarget.parentElement?.setPointerCapture(H.pointerId),r?.(_.id),setSelIds?.(new Set([_.id])),dragOrigin.current=null,o?.(),g("length"),f(_.id),O(_.id,H.clientX,H.clientY,"length")}}):null
+       _.glide?u.jsx("span",{className:"pointer-events-none absolute -right-2 top-1/2 -translate-y-1/2 text-cyan-100/80",title:_.glide.mode==="to-next"?"True Pitch Glide to next note":"Pitch Bend Up (+200¢)",children:_.glide.mode==="to-next"?"↝":"↗"}):null,
+       t?u.jsx("span",{"data-bass-resize-handle":"true",className:"absolute bottom-0 right-0 top-0 cursor-ew-resize rounded-r-md bg-amber-200/35","aria-hidden":"true",style:{width:"clamp(3px, 24%, 8px)",touchAction:"none"},onPointerDown:H=>{if(H.pointerType==="mouse"&&H.button!==0)return;H.preventDefault();H.stopPropagation();const rect=d.current?.getBoundingClientRect();if(!rect)return;r?.(_.id);setSelIds?.(new Set([_.id]));captureCanvas(H.pointerId);dragRef.current={kind:"length",pointerId:H.pointerId,id:_.id,downX:H.clientX,downY:H.clientY,downWidth:Math.max(1,rect.width),downStepCount:e.stepCount,origStartStep:_.startStep,origDuration:_.durationSteps,moved:!1}}}):null
       ]},_.id);
     })
    ]

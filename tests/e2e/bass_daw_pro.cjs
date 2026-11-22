@@ -158,6 +158,30 @@ const html = path.resolve(process.argv[2] || 'dist/XenSonar_PROBE.html');
  await p.waitForTimeout(250);
  assert.equal(await p.locator('[data-bass-event-block]').count(), n0 + 2, 'Dup duplicates the 2 selected notes');
 
+ // Piano-roll drag robustness: plain click must not jump; dragging past another block & outside canvas bounds must continue smoothly
+ await p.locator('button', { hasText: 'Offbeat Pump' }).first().click();
+ await p.waitForTimeout(250);
+ const canvasBox = await p.locator('[data-bass-body-canvas]').boundingBox();
+ const blk0Box = await p.locator('[data-bass-event-block]').nth(0).boundingBox();
+ const blk1Box = await p.locator('[data-bass-event-block]').nth(1).boundingBox();
+ const clickBefore = await p.locator('[data-bass-event-block]').nth(0).evaluate(el => ({ l: el.style.left, t: el.style.top }));
+ await p.mouse.click(blk0Box.x + blk0Box.width * 0.4, blk0Box.y + blk0Box.height * 0.5);
+ await p.waitForTimeout(80);
+ const clickAfter = await p.locator('[data-bass-event-block]').nth(0).evaluate(el => ({ l: el.style.left, t: el.style.top }));
+ assert.deepEqual(clickAfter, clickBefore, 'plain click on a note block does not jump its position or pitch');
+ await p.mouse.move(blk0Box.x + blk0Box.width * 0.4, blk0Box.y + blk0Box.height * 0.5);
+ await p.mouse.down();
+ await p.mouse.move(blk1Box.x + 60, blk0Box.y + blk0Box.height * 0.5, { steps: 6 });
+ await p.waitForTimeout(40);
+ const crossMid = await p.evaluate(() => parseFloat(document.querySelector('[data-bass-event-block][data-selected="true"]')?.style?.left || '0'));
+ await p.mouse.move(blk1Box.x + 80, canvasBox.y - 35, { steps: 3 });
+ await p.waitForTimeout(40);
+ await p.mouse.move(blk1Box.x + 240, blk0Box.y + blk0Box.height * 0.5, { steps: 8 });
+ await p.waitForTimeout(40);
+ const crossEnd = await p.evaluate(() => parseFloat(document.querySelector('[data-bass-event-block][data-selected="true"]')?.style?.left || '0'));
+ await p.mouse.up();
+ assert.ok(crossEnd > crossMid + 15, `note drag survives crossing another note + leaving canvas bounds (${crossMid}% -> ${crossEnd}%)`);
+
  // 1-click Multitrack bounce from Bass Workshop
  const inboxBefore = await p.evaluate(() => globalThis.__XenMultitrackInbox.count());
  await p.locator('[data-bass-bounce="multitrack"]').click();
@@ -168,6 +192,6 @@ const html = path.resolve(process.argv[2] || 'dist/XenSonar_PROBE.html');
  assert.equal(inboxAfter, inboxBefore + 1, 'Multitrack bounce enqueues 1 new bass track');
 
  assert.deepEqual(errors, [], 'no page errors');
- console.log(`PASS BASS-DAW-01: 6 pro voices, FM/BP/True-Glide/Cutoff DSP, Sidechain Duck, DAW toolbar, multi-select, lanes & Multitrack bounce (${inboxBefore}->${inboxAfter})`);
+ console.log(`PASS BASS-DAW-01: 6 pro voices, FM/BP/True-Glide/Cutoff DSP, Sidechain Duck, DAW toolbar, multi-select, drag-robustness, lanes & Multitrack bounce (${inboxBefore}->${inboxAfter})`);
  await b.close();
 })().catch(e => { console.error(e); process.exit(1); });
