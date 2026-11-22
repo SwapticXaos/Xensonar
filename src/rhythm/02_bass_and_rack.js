@@ -175,7 +175,7 @@ function __xenDrumEchoReleaseOverlay(keys){
 const __f48RackKey='xensonar-rhythm-rack-v1';
 // Keep the established default drum excitation; the live mixer scales its output.
 const __XenDrumMixReference=.52;
-const __f48RackDefaults={bassVoice:'classic',bassResonance:0,bassEnvelope:1,bassDecay:1,bassSub:1,bassVoiceRecipe:null,bassVoiceUserId:'',bassVoiceUserName:'',drumPhaser:0,drumPhaserRate:.28,drumPhaserDepth:.55,drumDistance:0,drumPan:0,drumDecay:1,drumVolume:__XenDrumMixReference,drumEcho:0,drumEchoMode:0,drumEchoNum:3,drumEchoDen:16,drumEchoMarker:3,drumEchoFeel:0,drumEchoWarp:1,drumEchoMs:375,drumEchoPolyL:1,drumEchoPolyR:1,drumEchoCross:1,drumEchoFeedback:.45,drumEchoTone:.45,drumEchoSpread:.6};
+const __f48RackDefaults={bassVoice:'classic',bassResonance:0,bassEnvelope:1,bassDecay:1,bassSub:1,bassVoiceRecipe:null,bassVoiceUserId:'',bassVoiceUserName:'',drumPhaser:0,drumPhaserRate:.28,drumPhaserDepth:.55,drumDistance:0,drumPan:0,drumDecay:1,drumVolume:__XenDrumMixReference,drumGlue:0,drumDrive:0,drumBoom:0,drumEcho:0,drumEchoMode:0,drumEchoNum:3,drumEchoDen:16,drumEchoMarker:3,drumEchoFeel:0,drumEchoWarp:1,drumEchoMs:375,drumEchoPolyL:1,drumEchoPolyR:1,drumEchoCross:1,drumEchoFeedback:.45,drumEchoTone:.45,drumEchoSpread:.6};
 function __f48CleanRack(value){
  const v=value||{},out={};
  for(const [key,fallback] of Object.entries(__f48RackDefaults)){
@@ -202,29 +202,52 @@ function __f48PatchRack(params){
  for(const device of __f48RackDevices)if(device.ctx.state==='closed')device.dispose();else device.update(__f48RackParams);
  clearTimeout(__f48RackSaveTimer);__f48RackSaveTimer=setTimeout(__f48PersistRack,220);
 }
+let __xenDrumBusDriveCurveCache=null;
+function __xenDrumBusDriveCurve(){
+ if(__xenDrumBusDriveCurveCache)return __xenDrumBusDriveCurveCache;
+ const c=new Float32Array(1024);
+ for(let i=0;i<c.length;i++){const x=i/(c.length-1)*2-1;c[i]=Math.tanh(x*1.15+.06*x*x)/Math.tanh(1.21)}
+ return __xenDrumBusDriveCurveCache=c;
+}
 function __f48GetDrumRack(ctx,destination){
  let buses=__f48DrumRacks.get(ctx);if(!buses){buses=new WeakMap();__f48DrumRacks.set(ctx,buses)}
  const existing=buses.get(destination);if(existing)return existing;
- const input=ctx.createGain(),dry=ctx.createGain(),sum=ctx.createGain(),bypass=ctx.createGain(),pan=ctx.createStereoPanner(),level=ctx.createGain();input.connect(dry);dry.connect(sum);sum.connect(bypass);bypass.connect(pan);pan.connect(level);level.connect(destination);
+ const input=ctx.createGain(),dry=ctx.createGain(),sum=ctx.createGain(),busBypass=ctx.createGain(),postBus=ctx.createGain(),bypass=ctx.createGain(),pan=ctx.createStereoPanner(),level=ctx.createGain();
+ input.connect(dry);dry.connect(sum);sum.connect(busBypass);busBypass.connect(postBus);postBus.connect(bypass);bypass.connect(pan);pan.connect(level);level.connect(destination);
  let volumeOwned=false,outputLevel=1;
- let phaser=null,room=null,echo=null,echoMode=null,disposed=false,disableTimer=null,lastParams=__f48RackParams;
+ let phaser=null,punch=null,room=null,echo=null,echoMode=null,disposed=false,disableTimer=null,echoRetireTimer=null,lastParams=__f48RackParams;
  const ramp=(param,value)=>__xenSmoothMixParam(param,value,ctx);
- const release=branch=>{if(!branch)return;try{branch.lfo?.stop()}catch{}for(const node of branch.nodes)try{node.disconnect()}catch{}try{(branch.lfo?input:sum).disconnect(branch.first)}catch{}};
+ const release=branch=>{if(!branch)return;try{branch.lfo?.stop()}catch{}for(const node of branch.nodes)try{node.disconnect()}catch{}try{(branch.source||postBus).disconnect(branch.first)}catch{}};
  const makePhaser=()=>{
   const first=ctx.createGain(),wet=ctx.createGain(),lfo=ctx.createOscillator(),depth=ctx.createGain();
   const filters=Array.from({length:4},()=>ctx.createBiquadFilter());
   input.connect(first);let previous=first;
   for(const [i,filter] of filters.entries()){filter.type='allpass';filter.frequency.value=480+i*310;filter.Q.value=.55;previous.connect(filter);depth.connect(filter.frequency);previous=filter}
   previous.connect(wet);wet.gain.value=0;wet.connect(sum);lfo.type='sine';lfo.connect(depth);lfo.start();
-  return {first,wet,lfo,depth,filters,nodes:[first,wet,lfo,depth,...filters]};
+  return {source:input,first,wet,lfo,depth,filters,nodes:[first,wet,lfo,depth,...filters]};
+ };
+ const makePunch=()=>{
+  const hpf=ctx.createBiquadFilter(),boom=ctx.createBiquadFilter(),preDrive=ctx.createGain(),shaper=ctx.createWaveShaper(),postDrive=ctx.createGain(),warmth=ctx.createBiquadFilter();
+  const glueDry=ctx.createGain(),comp=ctx.createDynamicsCompressor(),glueWet=ctx.createGain(),out=ctx.createGain();
+  hpf.type='highpass';hpf.frequency.value=28;hpf.Q.value=.7;
+  boom.type='lowshelf';boom.frequency.value=62;boom.gain.value=0;
+  preDrive.gain.value=1;shaper.curve=__xenDrumBusDriveCurve();postDrive.gain.value=1;
+  warmth.type='highshelf';warmth.frequency.value=6500;warmth.gain.value=0;
+  comp.attack.value=.01;comp.release.value=.095;comp.knee.value=10;comp.threshold.value=-6;comp.ratio.value=2;
+  glueDry.gain.value=1;glueWet.gain.value=0;out.gain.value=0;
+  sum.connect(hpf);hpf.connect(boom);boom.connect(preDrive);preDrive.connect(shaper);shaper.connect(postDrive);postDrive.connect(warmth);
+  warmth.connect(glueDry);glueDry.connect(out);
+  warmth.connect(comp);comp.connect(glueWet);glueWet.connect(out);
+  out.connect(postBus);
+  return {source:sum,first:hpf,hpf,boom,preDrive,shaper,postDrive,warmth,glueDry,comp,glueWet,out,nodes:[hpf,boom,preDrive,shaper,postDrive,warmth,glueDry,comp,glueWet,out]};
  };
  const makeRoom=()=>{
   const first=ctx.createBiquadFilter(),direct=ctx.createGain(),delayA=ctx.createDelay(.2),delayB=ctx.createDelay(.2),damp=ctx.createBiquadFilter(),reflections=ctx.createGain();
   first.type='lowpass';first.frequency.value=20000;first.Q.value=.4;
   direct.gain.value=0;reflections.gain.value=0;delayA.delayTime.value=.027;delayB.delayTime.value=.061;damp.type='lowpass';damp.frequency.value=3200;
-  sum.connect(first);first.connect(direct);direct.connect(pan);
+  postBus.connect(first);first.connect(direct);direct.connect(pan);
   first.connect(delayA);delayA.connect(damp);delayA.connect(delayB);delayB.connect(damp);damp.connect(reflections);reflections.connect(pan);
-  return {first,direct,reflections,nodes:[first,direct,delayA,delayB,damp,reflections]};
+  return {source:postBus,first,direct,reflections,nodes:[first,direct,delayA,delayB,damp,reflections]};
  };
  /* Per side: a first tap (period + feel) feeds a node; the node is heard and
   * re-enters the loop line (exact period) through filter/saturation, either on
@@ -238,7 +261,7 @@ function __f48GetDrumRack(ctx,destination){
    hp.connect(lp);lp.connect(shape);shape.connect(self);shape.connect(cross);return {hp,lp,shape,self,cross}};
   const a=hop(),b=hop(),outLL=ctx.createGain(),outRR=ctx.createGain(),outLR=ctx.createGain(),outRL=ctx.createGain();
   send.gain.value=0;inR.gain.value=0;ret.gain.value=.72;
-  sum.connect(send);send.connect(firstL);firstL.connect(nodeL);send.connect(inR);inR.connect(firstR);firstR.connect(nodeR);
+  postBus.connect(send);send.connect(firstL);firstL.connect(nodeL);send.connect(inR);inR.connect(firstR);firstR.connect(nodeR);
   nodeL.connect(a.hp);a.self.connect(delayL);a.cross.connect(delayR);delayL.connect(nodeL);
   nodeR.connect(b.hp);b.self.connect(delayR);b.cross.connect(delayL);delayR.connect(nodeR);
   nodeL.connect(outLL);outLL.connect(merger,0,0);nodeL.connect(outLR);outLR.connect(merger,0,1);
@@ -246,6 +269,13 @@ function __f48GetDrumRack(ctx,destination){
   merger.connect(ret);ret.connect(pan);
   return {send,inR,firstL,firstR,delayL,delayR,nodeL,nodeR,targets:new Map(),a,b,outLL,outRR,outLR,outRL,ret,
    nodes:[send,inR,firstL,firstR,delayL,delayR,nodeL,nodeR,merger,ret,outLL,outRR,outLR,outRL,a.hp,a.lp,a.shape,a.self,a.cross,b.hp,b.lp,b.shape,b.self,b.cross]};
+ };
+ const releaseEcho=()=>{if(!echo)return;for(const node of echo.nodes)try{node.disconnect()}catch{}try{postBus.disconnect(echo.send)}catch{}echo=null};
+ const scheduleEchoRetire=()=>{
+  if(echoRetireTimer!==null){clearTimeout(echoRetireTimer);echoRetireTimer=null}
+  if(echo&&!(lastParams.drumEcho>.001)&&!echoMode){
+   echoRetireTimer=setTimeout(()=>{echoRetireTimer=null;if(echo&&!(lastParams.drumEcho>.001)&&!echoMode)releaseEcho()},2400);
+  }
  };
  const applyEcho=(params,glide)=>{
   if(!echo)return;const now=ctx.currentTime,times=__xenDrumEchoTimes(params);
@@ -266,6 +296,7 @@ function __f48GetDrumRack(ctx,destination){
   ramp(echo.send.gain,send);ramp(echo.inR.gain,1-cross);
   for(const h of [echo.a,echo.b]){ramp(h.self.gain,fb*(1-cross));ramp(h.cross.gain,fb*cross);ramp(h.lp.frequency,cutoff);ramp(h.hp.frequency,echoMode==='spin'?260:140)}
   ramp(echo.outLL.gain,.5+spread*.5);ramp(echo.outRR.gain,.5+spread*.5);ramp(echo.outLR.gain,.5-spread*.5);ramp(echo.outRL.gain,.5-spread*.5);
+  scheduleEchoRetire();
  };
  const onContextState=()=>{if(ctx.state==='closed')device.dispose()};
  const device={ctx,input,
@@ -277,20 +308,33 @@ function __f48GetDrumRack(ctx,destination){
    if(echo)applyEcho(lastParams,true)},
   update(params){if(disposed||ctx.state==='closed')return;if(__xenDrumEchoOverlay)params={...params,...__xenDrumEchoOverlay};lastParams=params;if(disableTimer!==null){clearTimeout(disableTimer);disableTimer=null}
    const mix=params.drumPhaser*.48,distance=params.drumDistance,placed=distance>.001;
+   const glue=params.drumGlue??0,drive=params.drumDrive??0,boom=params.drumBoom??0,punchOn=glue>.001||drive>.001||boom>.001;
    ramp(pan.pan,params.drumPan);if(volumeOwned)device.setVolume(params.drumVolume);
-   if(mix>.001&&!phaser)phaser=makePhaser();if(placed&&!room)room=makeRoom();
+   if(mix>.001&&!phaser)phaser=makePhaser();if(punchOn&&!punch)punch=makePunch();if(placed&&!room)room=makeRoom();
    if(params.drumEcho>.001&&!echo){echo=makeEcho();applyEcho(params,false)}else applyEcho(params,true);
-   ramp(dry.gain,1-mix);ramp(bypass.gain,placed?0:1);
+   ramp(dry.gain,1-mix);ramp(busBypass.gain,punchOn?0:1);ramp(bypass.gain,placed?0:1);
    if(phaser){ramp(phaser.wet.gain,mix);ramp(phaser.lfo.frequency,params.drumPhaserRate);ramp(phaser.depth.gain,params.drumPhaserDepth*400)}
+   if(punch){
+    ramp(punch.out.gain,punchOn?1:0);
+    ramp(punch.boom.gain,boom*7.5);
+    ramp(punch.preDrive.gain,1+drive*3);
+    ramp(punch.postDrive.gain,1/(1+drive*.58));
+    ramp(punch.warmth.gain,-drive*2.4);
+    ramp(punch.comp.threshold,-6-glue*20);
+    ramp(punch.comp.ratio,2+glue*4.5);
+    ramp(punch.glueDry.gain,1-glue*.65);
+    ramp(punch.glueWet.gain,glue*(.68+glue*.35));
+   }
    if(room){ramp(room.first.frequency,20000*Math.pow(.2,distance));ramp(room.direct.gain,placed?1-distance*.36:0);ramp(room.reflections.gain,placed?distance*.14:0)}
-   if(phaser&&mix<=.001||room&&!placed)disableTimer=setTimeout(()=>{
+   if(phaser&&mix<=.001||punch&&!punchOn||room&&!placed)disableTimer=setTimeout(()=>{
     disableTimer=null;if(phaser&&lastParams.drumPhaser<=.001){release(phaser);phaser=null}
+    if(punch&&(lastParams.drumGlue??0)<=.001&&(lastParams.drumDrive??0)<=.001&&(lastParams.drumBoom??0)<=.001){release(punch);punch=null}
     if(room&&lastParams.drumDistance<=.001){release(room);room=null}
    },160);
   },
   setVolume(value){if(disposed||!Number.isFinite(value))return;volumeOwned=true;outputLevel=Math.max(0,Math.min(1,value));ramp(level.gain,outputLevel/__XenDrumMixReference)},
-  diagnostics(){return {panStages:1,levelStages:1,level:outputLevel,phaserNodes:phaser?.nodes.length||0,placementNodes:room?.nodes.length||0,echoNodes:echo?.nodes.length||0,echoSec:echo?[echo.firstL.delayTime.value,echo.firstR.delayTime.value,echo.delayL.delayTime.value,echo.delayR.delayTime.value]:null,echoMode,lfo:!!phaser,disposed}},
-  dispose(){if(disposed)return;disposed=true;clearTimeout(disableTimer);release(phaser);release(room);if(echo){for(const node of echo.nodes)try{node.disconnect()}catch{}try{sum.disconnect(echo.send)}catch{}}phaser=room=echo=null;for(const node of [input,dry,sum,bypass,pan,level])node.disconnect();ctx.removeEventListener?.('statechange',onContextState);buses.delete(destination);__f48RackDevices.delete(device)}
+  diagnostics(){return {panStages:1,levelStages:1,level:outputLevel,phaserNodes:phaser?.nodes.length||0,punchNodes:punch?.nodes.length||0,placementNodes:room?.nodes.length||0,echoNodes:echo?.nodes.length||0,echoSec:echo?[echo.firstL.delayTime.value,echo.firstR.delayTime.value,echo.delayL.delayTime.value,echo.delayR.delayTime.value]:null,echoMode,lfo:!!phaser,disposed}},
+  dispose(){if(disposed)return;disposed=true;clearTimeout(disableTimer);clearTimeout(echoRetireTimer);release(phaser);release(punch);release(room);releaseEcho();phaser=punch=room=null;for(const node of [input,dry,sum,busBypass,postBus,bypass,pan,level])node.disconnect();ctx.removeEventListener?.('statechange',onContextState);buses.delete(destination);__f48RackDevices.delete(device)}
  };
  buses.set(destination,device);__f48RackDevices.add(device);ctx.addEventListener?.('statechange',onContextState);device.update(__f48RackParams);return device;
 }
@@ -543,6 +587,66 @@ function __xenBassDuckPanel(){
 }
 function __f48TransformBeat(grid,kind){
  const next=im(grid),steps=next.stepCount,seg=next.segmentsPerBar||16;
+ if(kind==='double'){
+  const curBars=Math.max(1,next.bars||1),maxBars=typeof __xenMaxPatternBars==='number'?__xenMaxPatternBars:8;
+  if(curBars>=maxBars)return next;
+  const newBars=Math.min(maxBars,curBars*2),newSteps=newBars*seg;
+  next.bars=newBars;next.stepCount=newSteps;
+  for(const lane of next.laneOrder||zT){
+   const src=next.laneSteps[lane]||[];
+   next.laneSteps[lane]=Array.from({length:newSteps},(_,i)=>src[i%steps]||0);
+  }
+  const nextProgs={};
+  if(next.stepPrograms)for(const lane of Object.keys(next.stepPrograms)){
+   const src=next.stepPrograms[lane]||{},out={};
+   for(let rep=0;rep*steps<newSteps;rep++){
+    for(const [idx,prog] of Object.entries(src)){
+     const t=rep*steps+Number(idx);
+     if(t<newSteps&&(next.laneSteps[lane]?.[t]||0)>0)out[t]={...prog,stepIndex:t,layers:(prog.layers||[]).map(l=>({...l}))};
+    }
+   }
+   if(Object.keys(out).length)nextProgs[lane]=out;
+  }
+  next.stepPrograms=nextProgs;next.useCustom=true;return next;
+ }
+ if(kind==='humanize'){
+  next.stepPrograms=next.stepPrograms||{};
+  for(const lane of next.laneOrder||zT){
+   const src=next.laneSteps[lane]||[],progs={...(next.stepPrograms[lane]||{})};
+   const isKick=lane==='kick',isHat=lane==='hatClosed'||lane==='hatOpen';
+   for(let i=0;i<steps;i++){
+    const v=src[i]||0;if(v<=0)continue;
+    const isDownbeat=i%seg===0;
+    const velJitter=isDownbeat&&isKick?1:(1+(Math.random()*2-1)*(isHat?.16:.11));
+    const nv=Math.max(.18,Math.min(1.2,Math.round(v*velJitter*100)/100));
+    src[i]=nv;
+    const p=WH(progs[i],lane,i,nv);
+    const maxShift=isDownbeat&&isKick?.012:isHat?.065:.045;
+    p.value=nv;
+    p.microOffsetRatio=Math.max(-.45,Math.min(.45,Math.round((p.microOffsetRatio+(Math.random()*2-1)*maxShift)*100)/100));
+    progs[i]=p;
+   }
+   next.laneSteps[lane]=src;next.stepPrograms[lane]=progs;
+  }
+  next.useCustom=true;return next;
+ }
+ if(kind==='ghost'){
+  const sn=next.laneSteps.snare||Array(steps).fill(0),kk=next.laneSteps.kick||[];
+  const ghosts=[Math.round(seg*3/16),Math.round(seg*7/16),Math.round(seg*9/16),Math.round(seg*15/16)];
+  next.stepPrograms=next.stepPrograms||{};
+  const snProgs={...(next.stepPrograms.snare||{})};
+  for(let bar=0;bar<Math.max(1,next.bars||1);bar++){
+   for(const g of ghosts){
+    const i=bar*seg+Math.max(0,Math.min(seg-1,g));
+    if(i<steps&&!(sn[i]>0)&&!(kk[i]>0)){
+     const v=Math.round((.26+Math.random()*.1)*100)/100;
+     sn[i]=v;
+     const p=WH(snProgs[i],'snare',i,v);p.value=v;p.decayLock=.65;p.toneLock=.72;snProgs[i]=p;
+    }
+   }
+  }
+  next.laneSteps.snare=sn;next.stepPrograms.snare=snProgs;next.useCustom=true;return next;
+ }
  for(const lane of next.laneOrder||zT){const source=next.laneSteps[lane]||[];
   next.laneSteps[lane]=Array.from({length:steps},(_,i)=>{
    if(kind==='right'||kind==='left')return source[(i+(kind==='right'?-1:1)+steps)%steps]||0;
@@ -656,10 +760,18 @@ function __xenDrumEchoNinM({onSet}){
 }
 function __xenDrumEchoPanel({params,update}){
  const [,refresh]=P.useReducer(x=>x+1,0),[held,setHeld]=P.useState(null);
+ const [open,setOpen]=P.useState(false),[matrixOpen,setMatrixOpen]=P.useState(false);
+ const lastSendRef=P.useRef(.38);
  P.useEffect(()=>{__xenDrumEchoWatchGrid();window.addEventListener('xensonar:drum-echo-tempo',refresh);
   const off=typeof __mlSharedDrumMachine!=='undefined'?__mlSharedDrumMachine.subscribeEdits?.(()=>refresh()):null;
   return()=>{window.removeEventListener('xensonar:drum-echo-tempo',refresh);off?.();__xenDrumEchoThrow(null)}},[]);
  const D=__f48RackDefaults,val=key=>params[key]??D[key];
+ const sendVal=val('drumEcho'),echoOn=sendVal>.001;
+ if(echoOn)lastSendRef.current=sendVal;
+ const toggleEcho=()=>{
+  if(echoOn)update({drumEcho:0});
+  else update({drumEcho:Math.max(.12,Math.min(1,lastSendRef.current||.38))});
+ };
  const mode=val('drumEchoMode'),num=val('drumEchoNum'),den=val('drumEchoDen'),polyL=val('drumEchoPolyL'),polyR=val('drumEchoPolyR'),freeMs=val('drumEchoMs'),feel=val('drumEchoFeel');
  const grid=__xenDrumEchoGrid(),marker=Math.max(1,Math.min(grid.seg*2,val('drumEchoMarker')));
  const times=__xenDrumEchoTimes(params),ms=x=>Math.round(x*1000),near=__xenDrumEchoNearest(times.base),nearMarker=__xenDrumEchoNearestMarker(times.base);
@@ -673,73 +785,106 @@ function __xenDrumEchoPanel({params,update}){
  const msToPos=x=>Math.round(1000*Math.log(x/10)/Math.log(390)),posToMs=x=>Math.round(10*Math.pow(390,x/1000));
  const base={drumEchoPolyL:1,drumEchoPolyR:1,drumEchoCross:1,drumEchoFeel:0,drumEchoWarp:1};
  const presets=[
-  ['Off',{drumEcho:0}],
   ['Dub 3/16',{...base,drumEcho:.38,drumEchoMode:0,drumEchoNum:3,drumEchoDen:16,drumEchoFeedback:.55,drumEchoTone:.38,drumEchoSpread:.7}],
-  ['Laid-back Dub 3/16 · drag',{...base,drumEcho:.38,drumEchoMode:0,drumEchoNum:3,drumEchoDen:16,drumEchoFeel:.4,drumEchoFeedback:.58,drumEchoTone:.32,drumEchoSpread:.75}],
-  ['Slap 1/16 · push',{...base,drumEcho:.28,drumEchoMode:0,drumEchoNum:1,drumEchoDen:16,drumEchoFeel:-.3,drumEchoFeedback:.18,drumEchoTone:.6,drumEchoSpread:.2}],
+  ['Laid-back 3/16',{...base,drumEcho:.38,drumEchoMode:0,drumEchoNum:3,drumEchoDen:16,drumEchoFeel:.4,drumEchoFeedback:.58,drumEchoTone:.32,drumEchoSpread:.75}],
+  ['Slap 1/16',{...base,drumEcho:.28,drumEchoMode:0,drumEchoNum:1,drumEchoDen:16,drumEchoFeel:-.3,drumEchoFeedback:.18,drumEchoTone:.6,drumEchoSpread:.2}],
   ['Tape 1/4',{...base,drumEcho:.32,drumEchoMode:0,drumEchoNum:1,drumEchoDen:4,drumEchoFeedback:.62,drumEchoTone:.28,drumEchoSpread:.5}],
-  ['Beat Marker 3',{...base,drumEcho:.34,drumEchoMode:2,drumEchoMarker:3,drumEchoFeedback:.5,drumEchoTone:.4,drumEchoSpread:.7}],
-  ['Quint Drift 1/10 · 5:4',{...base,drumEcho:.3,drumEchoMode:0,drumEchoNum:1,drumEchoDen:10,drumEchoPolyL:5,drumEchoPolyR:4,drumEchoCross:.35,drumEchoFeedback:.5,drumEchoTone:.45,drumEchoSpread:.85}],
-  ['Septole Fog 2/7 · 7:6',{...base,drumEcho:.26,drumEchoMode:0,drumEchoNum:2,drumEchoDen:7,drumEchoPolyL:7,drumEchoPolyR:6,drumEchoCross:.2,drumEchoFeedback:.58,drumEchoTone:.3,drumEchoSpread:.9}],
-  ['Fifth Echo 3/16 · 3:2',{...base,drumEcho:.3,drumEchoMode:0,drumEchoNum:3,drumEchoDen:16,drumEchoPolyL:3,drumEchoPolyR:2,drumEchoCross:0,drumEchoFeedback:.5,drumEchoTone:.42,drumEchoSpread:1}],
-  ['Off-grid 333 ms',{...base,drumEcho:.3,drumEchoMode:1,drumEchoMs:333,drumEchoFeedback:.5,drumEchoTone:.4,drumEchoSpread:.7}]
+  ['Marker 3',{...base,drumEcho:.34,drumEchoMode:2,drumEchoMarker:3,drumEchoFeedback:.5,drumEchoTone:.4,drumEchoSpread:.7}],
+  ['Quint 5:4',{...base,drumEcho:.3,drumEchoMode:0,drumEchoNum:1,drumEchoDen:10,drumEchoPolyL:5,drumEchoPolyR:4,drumEchoCross:.35,drumEchoFeedback:.5,drumEchoTone:.45,drumEchoSpread:.85}],
+  ['Septole 7:6',{...base,drumEcho:.26,drumEchoMode:0,drumEchoNum:2,drumEchoDen:7,drumEchoPolyL:7,drumEchoPolyR:6,drumEchoCross:.2,drumEchoFeedback:.58,drumEchoTone:.3,drumEchoSpread:.9}],
+  ['Fifth 3:2',{...base,drumEcho:.3,drumEchoMode:0,drumEchoNum:3,drumEchoDen:16,drumEchoPolyL:3,drumEchoPolyR:2,drumEchoCross:0,drumEchoFeedback:.5,drumEchoTone:.42,drumEchoSpread:1}],
+  ['Free 333 ms',{...base,drumEcho:.3,drumEchoMode:1,drumEchoMs:333,drumEchoFeedback:.5,drumEchoTone:.4,drumEchoSpread:.7}]
  ];
- const headline=mode===1?['Free ',ms(times.base),' ms ≈ ',near.num,'/',near.den,' bar',near.error>.005?' (off-grid)':'']
-  :mode===2?['Marker ',marker,' of ',grid.seg,marker>grid.seg?' (next bar)':'',' = ',r4(times.ratioOfBar),' bar = ',ms(times.left),' ms']
-  :[num,'/',den,' bar · ',__xenDrumEchoTupletName(num,den),' = ',ms(times.left),' ms'];
- if(mode!==1&&Math.abs(times.warp-1)>.0005)headline.splice(headline.length-3,0,' × ',Math.round(times.warp*1000)/1000);
- return u.jsxs('div',{className:'xen-drum-echo','aria-label':'Dub Echo',children:[
-  u.jsxs('div',{className:'xen-rhythm-title',children:['Dub Echo · ',...headline,' @ ',__xenDrumEchoBpm(),' BPM',Math.abs(feelMs)>=1?' · '+(feelMs>0?'+':'')+feelMs+' ms':'',polyL!==polyR?' · L:R '+polyL+':'+polyR+' → R '+ms(times.right)+' ms':'']}),
-  u.jsxs('div',{className:'xen-rack-actions',role:'radiogroup','aria-label':'Echo clock',children:[u.jsx('span',{children:'Clock'}),
-   ...[[0,'Bar ratio n/d','Echo time as a fraction of the bar, the fixed time unit of the main room'],[2,'Beat marker','Echo time snaps to a segment boundary of the active beat and follows its shifted markers'],[1,'Free ms','Echo time in milliseconds, off the grid']].map(([id,label,title])=>
-    u.jsx('button',{type:'button',role:'radio','aria-checked':mode===id,className:mode===id?'is-active':'',title,
-     onClick:()=>update(id===1?{drumEchoMode:1,drumEchoMs:ms(times.left)}:id===2&&mode!==2?{drumEchoMode:2,drumEchoMarker:nearMarker.k}:{drumEchoMode:id}),children:label},id))]}),
-  mode===0?u.jsxs(u.Fragment,{children:[
-   u.jsxs('div',{className:'xen-rack-actions xen-echo-ratio',children:[u.jsx('span',{children:'Time'}),
-    u.jsx(__xenDrumEchoStepper,{label:'n',value:num,min:1,max:64,title:'Numerator: how many parts of the bar',onChange:value=>update({drumEchoNum:value})}),
-    u.jsx('b',{className:'xen-echo-slash',children:'/'}),
-    u.jsx(__xenDrumEchoStepper,{label:'d',value:den,min:1,max:128,title:'Denominator: parts per bar (12 = triplet 8ths, 20 = quintuplet 16ths, 28 = septuplet 16ths)',onChange:value=>update({drumEchoDen:value})}),
-    u.jsx('i',{className:'xen-echo-readout',children:'of a bar'+reduced+' · '+(Math.round(times.beats*1000)/1000)+' beats · '+(Math.round(times.base/__xenDrumEchoStep()*100)/100)+' clock steps'+(times.clamped?' · capped at 3.9 s':'')})]}),
-   ...__xenDrumEchoChips.map(([group,list])=>u.jsxs('div',{className:'xen-rack-actions xen-echo-chips',children:[u.jsx('span',{children:group}),
-    ...list.map(([n,d])=>u.jsx('button',{type:'button',className:n*den===d*num?'is-active':'',title:__xenDrumEchoTupletName(n,d),onClick:()=>update({drumEchoMode:0,drumEchoNum:n,drumEchoDen:d}),children:n+'/'+d},n+'/'+d))]},group))]})
-  :mode===2?u.jsxs(u.Fragment,{children:[
-   u.jsxs('div',{className:'xen-rack-actions xen-echo-ratio',children:[u.jsx('span',{children:'Marker'}),
-    u.jsx(__xenDrumEchoStepper,{label:'k',value:marker,min:1,max:grid.seg*2,title:'Segment boundary of the active beat; above '+grid.seg+' reaches into the next bar',onChange:value=>update({drumEchoMarker:value})}),
-    u.jsx('i',{className:'xen-echo-readout',children:'of '+grid.seg+' segments'+(marker>grid.seg?' · next bar':'')+' · '+r4(times.ratioOfBar)+' bar'+(grid.shifted?' · beat has shifted markers, the echo follows them':' · evenly spaced beat')+(times.clamped?' · capped at 3.9 s':'')})]}),
-   u.jsxs('div',{className:'xen-rack-actions xen-echo-strip-row',children:[u.jsx('span',{children:'Active beat'}),u.jsx(__xenDrumEchoMarkerStrip,{grid,k:marker,onPick:value=>update({drumEchoMarker:marker>grid.seg?value+grid.seg:value})}),
-    u.jsx('button',{type:'button',className:marker>grid.seg?'is-active':'',title:'Reach the same boundary in the next bar',onClick:()=>update({drumEchoMarker:marker>grid.seg?marker-grid.seg:Math.min(grid.seg*2,marker+grid.seg)}),children:'+1 bar'})]})]})
-  :u.jsxs('div',{className:'xen-rack-actions xen-echo-free',children:[u.jsx('span',{children:'Time'}),
-    u.jsx(__xenDrumEchoLiveRange,{aria:'Free echo time',min:0,max:1000,step:1,value:msToPos(freeMs),update,patchFor:v=>({drumEchoMs:posToMs(v)}),
-     label:v=>{const m=posToMs(v),bar=__xenDrumEchoStep()*16;return m+' ms · '+r4(m/1000/bar)+' bar · '+Math.round(m/1000/(bar/4)*1000)/1000+' beats'}}),
-    u.jsx('button',{type:'button',title:'Snap to the nearest bar ratio (denominator up to 32) and follow the tempo again',onClick:()=>update({drumEchoMode:0,drumEchoNum:near.num,drumEchoDen:near.den}),children:'Snap → '+near.num+'/'+near.den+' bar'}),
-    u.jsx('button',{type:'button',title:'Snap to the nearest boundary of the active beat',onClick:()=>update({drumEchoMode:2,drumEchoMarker:nearMarker.k}),children:'Snap → marker '+nearMarker.k})]}),
-  mode===0?u.jsx(__xenDrumEchoNinM,{onSet:(n,d)=>update({drumEchoMode:0,drumEchoNum:n,drumEchoDen:d})}):null,
-  mode!==1?u.jsxs('div',{className:'xen-rack-actions xen-echo-feel',children:[u.jsx('span',{children:'Warp'}),
-   u.jsx(__xenDrumEchoLiveRange,{aria:'Time warp, tempo-synced factor',min:-1,max:1,step:.001,value:Math.log(val('drumEchoWarp'))/Math.log(4),update,
-    patchFor:v=>({drumEchoWarp:Math.abs(v)<.015?1:Math.round(Math.pow(4,v)*1000)/1000}),
-    label:v=>{const w=Math.abs(v)<.015?1:Math.pow(4,v);return '× '+(Math.round(w*1000)/1000)+(w===1?' (on the ratio)':' · stays in tempo')+'   ·   ← shorter | longer →'}}),
-   ...[[.5,'½'],[2/3,'⅔'],[.75,'¾'],[1,'×1'],[4/3,'4/3'],[1.5,'3/2'],[2,'2']].map(([w,label])=>u.jsx('button',{type:'button',className:Math.abs(val('drumEchoWarp')-w)<.002?'is-active':'',onClick:()=>update({drumEchoWarp:Math.round(w*1000)/1000}),children:label},label))]}):null,
-  u.jsxs('div',{className:'xen-rack-actions xen-echo-feel',children:[u.jsx('span',{children:'Feel'}),
-   u.jsx(__xenDrumEchoLiveRange,{aria:'Echo feel, ahead or behind the grid',min:-1,max:1,step:.01,value:feel,update,patchFor:v=>({drumEchoFeel:Math.abs(v)<.03?0:v}),
-    label:v=>{const f=Math.abs(v)<.03?0:Math.round(v*__xenDrumEchoStep()*16/32*1000);return (f===0?'on the grid':f>0?'+'+f+' ms behind the grid (drag)':f+' ms ahead of the grid (push)')+'   ·   ← push | drag →'}}),
-   u.jsx('button',{type:'button',disabled:feel===0,title:'Put the repeats back on the grid',onClick:()=>update({drumEchoFeel:0}),children:'On grid'})]}),
-  u.jsxs('div',{className:'xen-rack-actions xen-echo-ratio',children:[u.jsx('span',{children:'Rate L:R'}),
-   u.jsx(__xenDrumEchoStepper,{label:'L',value:polyL,min:1,max:16,title:'Left repeat rate',onChange:value=>update({drumEchoPolyL:value})}),
-   u.jsx('b',{className:'xen-echo-slash',children:':'}),
-   u.jsx(__xenDrumEchoStepper,{label:'R',value:polyR,min:1,max:16,title:'Right repeat rate',onChange:value=>update({drumEchoPolyR:value})}),
-   u.jsx('i',{className:'xen-echo-readout',children:polyL===polyR?'both sides in step':'left repeats '+polyL+'× while right repeats '+polyR+'×'})]}),
-  u.jsxs('div',{className:'xen-rack-actions xen-echo-chips',children:[u.jsx('span',{children:'Ratios'}),
-   ...__xenDrumEchoPolyChips.map(([l,r])=>u.jsx('button',{type:'button',className:l*polyR===r*polyL?'is-active':'',onClick:()=>update({drumEchoPolyL:l,drumEchoPolyR:r}),children:l+':'+r},l+':'+r))]}),
-  u.jsx('div',{className:'xen-drum-rack-controls',children:[['Echo Send','drumEcho',0,1],['Feedback','drumEchoFeedback',0,.92],['Tone (dark→bright)','drumEchoTone',0,1],['Width','drumEchoSpread',0,1],['Cross-Feed','drumEchoCross',0,1]].map(([label,key,min,max])=>u.jsx(__xenDrumEchoLiveRange,{aria:label,label:v=>label+' '+Number(v).toFixed(2),value:val(key),min,max,update,patchFor:v=>({[key]:v})},key))}),
-  u.jsxs('div',{className:'xen-rack-actions',children:[u.jsx('span',{children:'Dub hands'}),
-   u.jsx('button',{type:'button',className:'xen-drum-echo-hold'+(held==='throw'?' is-active':''),title:'Hold: throw the beat fully into the echo (works at Send 0)',...hold('throw'),children:'Hold: Throw'}),
-   u.jsx('button',{type:'button',className:'xen-drum-echo-hold'+(held==='spin'?' is-active':''),title:'Hold: raise feedback, the echo circles and darkens',...hold('spin'),children:'Hold: Spin'})]}),
-  u.jsxs('div',{className:'xen-rack-actions',children:[u.jsx('span',{children:'Echo scenes'}),...presets.map(([label,patch])=>u.jsx('button',{type:'button',onClick:()=>update(patch),children:label},label))]}),
-  u.jsx('div',{className:'xen-rhythm-note',children:'The bar is the fixed unit: n/d is a part of the bar (tuplets are denominators, odd lengths numerators, n/d > 1 reaches over the bar line). Beat marker locks the echo to a segment boundary of the playing beat and moves with its shifted markers. Feel pushes the repeats ahead of or drags them behind that grid without drifting. Rate L:R sets the right side against the left like an interval; Cross-Feed 0 lets both run as separate echoes, 1 bounces them as ping-pong.'})]});
+ const shortSummary=mode===1?`${ms(times.base)} ms`:mode===2?`M${marker}/${grid.seg} · ${ms(times.left)} ms`:`${num}/${den} · ${ms(times.left)} ms`;
+ return u.jsxs('div',{className:'xen-drum-echo'+(echoOn?' is-on':''),'data-drum-echo-panel':true,'data-echo-on':echoOn?'true':'false','aria-label':'Dub Echo',children:[
+  u.jsxs('div',{className:'xen-drum-echo-head',children:[
+   u.jsxs('button',{type:'button','data-drum-echo-toggle':true,'aria-pressed':echoOn,
+    className:'xen-echo-power'+(echoOn?' is-on':''),
+    title:echoOn?'Switch Dub Echo off (remembers current Send level)':'Switch Dub Echo on',
+    onClick:toggleEcho,children:[
+     u.jsx('span',{className:'xen-echo-led','aria-hidden':'true'}),
+     u.jsx('strong',{children:'Dub Echo'}),
+     u.jsx('em',{children:echoOn?'ON':'OFF'})
+   ]}),
+   u.jsxs('span',{className:'xen-echo-summary',children:[
+    shortSummary,
+    polyL!==polyR?` · L:R ${polyL}:${polyR}`:'',
+    echoOn?` · Send ${Math.round(sendVal*100)}%`:''
+   ]}),
+   u.jsxs('div',{className:'xen-echo-head-actions',children:[
+    u.jsx('button',{type:'button',className:'xen-drum-echo-hold'+(held==='throw'?' is-active':''),title:'Hold: throw the beat fully into the echo (works even when OFF)',...hold('throw'),children:'Throw'}),
+    u.jsx('button',{type:'button',className:'xen-drum-echo-hold'+(held==='spin'?' is-active':''),title:'Hold: raise feedback, the echo circles and darkens',...hold('spin'),children:'Spin'}),
+    u.jsx('button',{type:'button','data-drum-echo-collapse':true,'aria-expanded':open,
+     className:'xen-echo-collapse-btn'+(open?' is-open':''),
+     title:open?'Collapse Dub Echo controls':'Expand Dub Echo controls',
+     onClick:()=>setOpen(v=>!v),children:open?'▾ Einklappen':'▸ Aufklappen'})
+   ]})
+  ]}),
+  open?u.jsxs('div',{className:'xen-drum-echo-body','data-drum-echo-body':true,children:[
+   u.jsxs('div',{className:'xen-rack-actions xen-echo-scenes',children:[u.jsx('span',{children:'Echo scenes'}),
+    ...presets.map(([label,patch])=>u.jsx('button',{type:'button',onClick:()=>update(patch),children:label},label))]}),
+   u.jsx('div',{className:'xen-drum-rack-controls',children:[['Echo Send','drumEcho',0,1],['Feedback','drumEchoFeedback',0,.92],['Tone (dark→bright)','drumEchoTone',0,1],['Width','drumEchoSpread',0,1],['Cross-Feed','drumEchoCross',0,1]].map(([label,key,min,max])=>u.jsx(__xenDrumEchoLiveRange,{aria:label,label:v=>label+' '+Number(v).toFixed(2),value:val(key),min,max,update,patchFor:v=>({[key]:v})},key))}),
+   u.jsxs('div',{className:'xen-rack-actions',role:'radiogroup','aria-label':'Echo clock',children:[u.jsx('span',{children:'Clock'}),
+    ...[[0,'Bar ratio n/d','Echo time as a fraction of the bar, the fixed time unit of the main room'],[2,'Beat marker','Echo time snaps to a segment boundary of the active beat and follows its shifted markers'],[1,'Free ms','Echo time in milliseconds, off the grid']].map(([id,label,title])=>
+     u.jsx('button',{type:'button',role:'radio','aria-checked':mode===id,className:mode===id?'is-active':'',title,
+      onClick:()=>update(id===1?{drumEchoMode:1,drumEchoMs:ms(times.left)}:id===2&&mode!==2?{drumEchoMode:2,drumEchoMarker:nearMarker.k}:{drumEchoMode:id}),children:label},id)),
+    u.jsx('i',{className:'xen-echo-readout',children:`@ ${__xenDrumEchoBpm()} BPM${Math.abs(feelMs)>=1?' · '+(feelMs>0?'+':'')+feelMs+' ms':''}`})]}),
+   mode===0?u.jsxs('div',{className:'xen-rack-actions xen-echo-ratio',children:[u.jsx('span',{children:'Time'}),
+     u.jsx(__xenDrumEchoStepper,{label:'n',value:num,min:1,max:64,title:'Numerator: how many parts of the bar',onChange:value=>update({drumEchoNum:value})}),
+     u.jsx('b',{className:'xen-echo-slash',children:'/'}),
+     u.jsx(__xenDrumEchoStepper,{label:'d',value:den,min:1,max:128,title:'Denominator: parts per bar (12 = triplet 8ths, 20 = quintuplet 16ths, 28 = septuplet 16ths)',onChange:value=>update({drumEchoDen:value})}),
+     u.jsx('i',{className:'xen-echo-readout',children:'of a bar'+reduced+' · '+__xenDrumEchoTupletName(num,den)+' · '+(Math.round(times.beats*1000)/1000)+' beats'+(times.clamped?' · capped at 3.9 s':'')})]})
+   :mode===2?u.jsxs(u.Fragment,{children:[
+    u.jsxs('div',{className:'xen-rack-actions xen-echo-ratio',children:[u.jsx('span',{children:'Marker'}),
+     u.jsx(__xenDrumEchoStepper,{label:'k',value:marker,min:1,max:grid.seg*2,title:'Segment boundary of the active beat; above '+grid.seg+' reaches into the next bar',onChange:value=>update({drumEchoMarker:value})}),
+     u.jsx('i',{className:'xen-echo-readout',children:'of '+grid.seg+' segments'+(marker>grid.seg?' · next bar':'')+' · '+r4(times.ratioOfBar)+' bar'+(grid.shifted?' · follows shifted markers':'')+(times.clamped?' · capped at 3.9 s':'')})]}),
+    u.jsxs('div',{className:'xen-rack-actions xen-echo-strip-row',children:[u.jsx('span',{children:'Active beat'}),u.jsx(__xenDrumEchoMarkerStrip,{grid,k:marker,onPick:value=>update({drumEchoMarker:marker>grid.seg?value+grid.seg:value})}),
+     u.jsx('button',{type:'button',className:marker>grid.seg?'is-active':'',title:'Reach the same boundary in the next bar',onClick:()=>update({drumEchoMarker:marker>grid.seg?marker-grid.seg:Math.min(grid.seg*2,marker+grid.seg)}),children:'+1 bar'})]})]})
+   :u.jsxs('div',{className:'xen-rack-actions xen-echo-free',children:[u.jsx('span',{children:'Time'}),
+     u.jsx(__xenDrumEchoLiveRange,{aria:'Free echo time',min:0,max:1000,step:1,value:msToPos(freeMs),update,patchFor:v=>({drumEchoMs:posToMs(v)}),
+      label:v=>{const m=posToMs(v),bar=__xenDrumEchoStep()*16;return m+' ms · '+r4(m/1000/bar)+' bar · '+Math.round(m/1000/(bar/4)*1000)/1000+' beats'}}),
+     u.jsx('button',{type:'button',title:'Snap to the nearest bar ratio (denominator up to 32) and follow the tempo again',onClick:()=>update({drumEchoMode:0,drumEchoNum:near.num,drumEchoDen:near.den}),children:'Snap → '+near.num+'/'+near.den+' bar'}),
+     u.jsx('button',{type:'button',title:'Snap to the nearest boundary of the active beat',onClick:()=>update({drumEchoMode:2,drumEchoMarker:nearMarker.k}),children:'Snap → marker '+nearMarker.k})]}),
+   u.jsxs('div',{className:'xen-echo-matrix-wrap',children:[
+    u.jsx('button',{type:'button','data-drum-echo-matrix-toggle':true,'aria-expanded':matrixOpen,
+     className:'xen-echo-subtoggle'+(matrixOpen?' is-open':''),
+     onClick:()=>setMatrixOpen(v=>!v),
+     children:(matrixOpen?'▾ ':'▸ ')+'Rhythm Matrix, Warp, Feel & L:R Polyrhythm'+(polyL!==polyR?` (${polyL}:${polyR})`:'')}),
+    matrixOpen?u.jsxs('div',{className:'xen-echo-matrix-body','data-drum-echo-matrix':true,children:[
+     mode===0?u.jsxs(u.Fragment,{children:[
+      ...__xenDrumEchoChips.map(([group,list])=>u.jsxs('div',{className:'xen-rack-actions xen-echo-chips',children:[u.jsx('span',{children:group}),
+       ...list.map(([n,d])=>u.jsx('button',{type:'button',className:n*den===d*num?'is-active':'',title:__xenDrumEchoTupletName(n,d),onClick:()=>update({drumEchoMode:0,drumEchoNum:n,drumEchoDen:d}),children:n+'/'+d},n+'/'+d))]},group)),
+      u.jsx(__xenDrumEchoNinM,{onSet:(n,d)=>update({drumEchoMode:0,drumEchoNum:n,drumEchoDen:d})})
+     ]}):null,
+     mode!==1?u.jsxs('div',{className:'xen-rack-actions xen-echo-feel',children:[u.jsx('span',{children:'Warp'}),
+      u.jsx(__xenDrumEchoLiveRange,{aria:'Time warp, tempo-synced factor',min:-1,max:1,step:.001,value:Math.log(val('drumEchoWarp'))/Math.log(4),update,
+       patchFor:v=>({drumEchoWarp:Math.abs(v)<.015?1:Math.round(Math.pow(4,v)*1000)/1000}),
+       label:v=>{const w=Math.abs(v)<.015?1:Math.pow(4,v);return '× '+(Math.round(w*1000)/1000)+(w===1?' (on the ratio)':' · stays in tempo')}}),
+      ...[[.5,'½'],[2/3,'⅔'],[.75,'¾'],[1,'×1'],[4/3,'4/3'],[1.5,'3/2'],[2,'2']].map(([w,label])=>u.jsx('button',{type:'button',className:Math.abs(val('drumEchoWarp')-w)<.002?'is-active':'',onClick:()=>update({drumEchoWarp:Math.round(w*1000)/1000}),children:label},label))]}):null,
+     u.jsxs('div',{className:'xen-rack-actions xen-echo-feel',children:[u.jsx('span',{children:'Feel'}),
+      u.jsx(__xenDrumEchoLiveRange,{aria:'Echo feel, ahead or behind the grid',min:-1,max:1,step:.01,value:feel,update,patchFor:v=>({drumEchoFeel:Math.abs(v)<.03?0:v}),
+       label:v=>{const f=Math.abs(v)<.03?0:Math.round(v*__xenDrumEchoStep()*16/32*1000);return f===0?'on the grid':f>0?'+'+f+' ms drag':f+' ms push'}}),
+      u.jsx('button',{type:'button',disabled:feel===0,title:'Put the repeats back on the grid',onClick:()=>update({drumEchoFeel:0}),children:'On grid'})]}),
+     u.jsxs('div',{className:'xen-rack-actions xen-echo-ratio',children:[u.jsx('span',{children:'Rate L:R'}),
+      u.jsx(__xenDrumEchoStepper,{label:'L',value:polyL,min:1,max:16,title:'Left repeat rate',onChange:value=>update({drumEchoPolyL:value})}),
+      u.jsx('b',{className:'xen-echo-slash',children:':'}),
+      u.jsx(__xenDrumEchoStepper,{label:'R',value:polyR,min:1,max:16,title:'Right repeat rate',onChange:value=>update({drumEchoPolyR:value})}),
+      u.jsx('i',{className:'xen-echo-readout',children:polyL===polyR?'both sides in step':'left repeats '+polyL+'× while right repeats '+polyR+'×'})]}),
+     u.jsxs('div',{className:'xen-rack-actions xen-echo-chips',children:[u.jsx('span',{children:'Ratios'}),
+      ...__xenDrumEchoPolyChips.map(([l,r])=>u.jsx('button',{type:'button',className:l*polyR===r*polyL?'is-active':'',onClick:()=>update({drumEchoPolyL:l,drumEchoPolyR:r}),children:l+':'+r},l+':'+r))]}),
+     u.jsx('div',{className:'xen-rhythm-note',children:'n/d = bar fraction · Beat marker tracks shifted shuffle markers · Feel shifts only the first tap · Cross-Feed 0 = dual independent, 1 = ping-pong.'})
+    ]}):null
+   ]})
+  ]}):null
+ ]});
 }
 function __f48DrumRack({params,update}){
  const [,refresh]=P.useReducer(x=>x+1,0);
+ const [phaserOpen,setPhaserOpen]=P.useState(false);
+ const lastPhaserRef=P.useRef(.35);
  P.useEffect(()=>__mlSharedDrumMachine.subscribe(()=>refresh()),[]);
+ const phaserVal=params.drumPhaser??__f48RackDefaults.drumPhaser,phaserOn=phaserVal>.001;
+ if(phaserOn)lastPhaserRef.current=phaserVal;
  const transform=kind=>{
   const bridge=__mlSharedDrumMachine,snapshot=bridge.snapshot,current=bridge.liveEdit;
   const grid=__f52EnsureDrumGrid(current?.grid||__mlGridFromSelection(snapshot));
@@ -747,14 +892,39 @@ function __f48DrumRack({params,update}){
    laneKitOverrides:current?.laneKitOverrides||snapshot?.laneKitOverrides||{},
    laneSettings:current?.laneSettings||snapshot?.laneSettings||{}});
  };
- return u.jsxs('section',{className:'xen-drum-rack','aria-label':'Drum Rack',children:[u.jsx('div',{className:'xen-rhythm-title',children:'Drum Rack · Motion & Space'}),u.jsxs('div',{className:'xen-drum-rack-controls',children:[
-  ...[['Phaser Mix','drumPhaser',0,1],['Phaser Rate','drumPhaserRate',.05,2,' Hz'],['Phaser Depth','drumPhaserDepth',0,1],['Distance · Front → Back','drumDistance',0,1],['Drum Decay','drumDecay',.25,2]].map(([label,key,min,max,suffix])=>u.jsx(__xenDrumEchoLiveRange,{aria:label,label:v=>label+' '+Number(v).toFixed(2)+(suffix||''),value:params[key]??__f48RackDefaults[key],min,max,update,patchFor:v=>({[key]:v})},key)),u.jsx(__f48DrumGlobalEQ,{})]}),
-  u.jsx('div',{className:'xen-rhythm-note',children:'Distance adds darker early reflections. Phaser Mix 0 switches the phaser off.'}),
+ return u.jsxs('section',{className:'xen-drum-rack','aria-label':'Drum Rack',children:[
+  u.jsxs('div',{className:'xen-drum-rack-head',children:[
+   u.jsx('div',{className:'xen-rhythm-title',style:{marginBottom:0},children:'Drum Rack · Bus Punch & Space'}),
+   u.jsxs('div',{className:'xen-drum-rack-head-actions',children:[
+    u.jsx(__f48DrumGlobalEQ,{}),
+    u.jsx('button',{type:'button',className:'xen-rack-reset-btn',onClick:()=>update({drumPhaser:0,drumDistance:0,drumPan:0,drumDecay:1,drumGlue:0,drumDrive:0,drumBoom:0,drumVolume:__XenDrumMixReference,drumEcho:0,drumEchoMode:0,drumEchoNum:3,drumEchoDen:16,drumEchoMarker:3,drumEchoFeel:0,drumEchoWarp:1,drumEchoMs:375,drumEchoPolyL:1,drumEchoPolyR:1,drumEchoCross:1,drumEchoFeedback:.45,drumEchoTone:.45,drumEchoSpread:.6}),children:'Reset Rack'})
+   ]})
+  ]}),
+  u.jsxs('div',{className:'xen-drum-rack-controls',children:[
+   ...[['Bus Glue','drumGlue',0,1],['Tape Drive','drumDrive',0,1],['Sub Boom','drumBoom',0,1],['Drum Decay','drumDecay',.25,2],['Distance · Room','drumDistance',0,1]].map(([label,key,min,max,suffix])=>u.jsx(__xenDrumEchoLiveRange,{aria:label,label:v=>label+' '+Number(v).toFixed(2)+(suffix||''),value:params[key]??__f48RackDefaults[key],min,max,update,patchFor:v=>({[key]:v})},key)),
+   u.jsxs('div',{className:'xen-phaser-cell',children:[
+    u.jsxs('button',{type:'button','data-drum-phaser-toggle':true,'aria-pressed':phaserOn,
+     className:'xen-echo-power'+(phaserOn?' is-on':''),
+     onClick:()=>update({drumPhaser:phaserOn?0:Math.max(.15,lastPhaserRef.current||.35)}),
+     children:[u.jsx('span',{className:'xen-echo-led','aria-hidden':'true'}),u.jsx('strong',{children:'Phaser'}),u.jsx('em',{children:phaserOn?`${Math.round(phaserVal*100)}%`:'OFF'})]}),
+    u.jsx('button',{type:'button','data-drum-phaser-collapse':true,'aria-expanded':phaserOpen,
+     className:'xen-echo-collapse-btn'+(phaserOpen?' is-open':''),
+     onClick:()=>setPhaserOpen(v=>!v),children:phaserOpen?'▾':'▸'})
+   ]})
+  ]}),
+  phaserOpen?u.jsx('div',{className:'xen-drum-rack-controls xen-phaser-drawer','data-drum-phaser-body':true,children:
+   [['Phaser Mix','drumPhaser',0,1],['Phaser Rate','drumPhaserRate',.05,2,' Hz'],['Phaser Depth','drumPhaserDepth',0,1]].map(([label,key,min,max,suffix])=>u.jsx(__xenDrumEchoLiveRange,{aria:label,label:v=>label+' '+Number(v).toFixed(2)+(suffix||''),value:params[key]??__f48RackDefaults[key],min,max,update,patchFor:v=>({[key]:v})},key))
+  }):null,
   u.jsx(__xenDrumEchoPanel,{params,update}),
   u.jsxs('div',{className:'xen-rack-actions',children:[u.jsx('span',{children:'Sound scenes'}),...[
-   ['Dry Punch','asphalt_punch',.65,.3,.5,.8,0,0],['Velvet Room','velvet_breaks',.3,.8,.35,.4,0,.65],['Metal Sweep','glass_metal',.65,.3,.8,.55,.5,.2],['Tape Drift','dusty_tape',.4,.7,.4,.35,.32,.35]
-  ].map(([label,kit,edge,softness,air,snap,phaser,distance])=>u.jsx('button',{type:'button',onClick:()=>update({drumKit:kit,drumLaneKits:{},drumEdge:edge,drumSoftness:softness,drumAir:air,drumSnap:snap,drumPhaser:phaser,drumDistance:distance}),children:label},label)),u.jsx('button',{type:'button',onClick:()=>update({drumPhaser:0,drumDistance:0,drumPan:0,drumDecay:1,drumVolume:__XenDrumMixReference,drumEcho:0,drumEchoMode:0,drumEchoNum:3,drumEchoDen:16,drumEchoMarker:3,drumEchoFeel:0,drumEchoWarp:1,drumEchoMs:375,drumEchoPolyL:1,drumEchoPolyR:1,drumEchoCross:1,drumEchoFeedback:.45,drumEchoTone:.45,drumEchoSpread:.6}),children:'Reset Rack'})]}),
-  u.jsxs('div',{className:'xen-rack-actions',children:[u.jsx('span',{children:'Beat moves'}),...[['Rotate ←','left'],['Rotate →','right'],['Thin Beat','sparse'],['Hat Pulse','pulse'],['Half-time Snare','backbeat']].map(([label,kind])=>u.jsx('button',{type:'button',onClick:()=>transform(kind),children:label},kind)),u.jsx('button',{type:'button',disabled:!__mlSharedDrumMachine.canUndo(),onClick:()=>__mlSharedDrumMachine.undo(),children:'Undo Beat Move'}),u.jsx('button',{type:'button',disabled:!__mlSharedDrumMachine.canRedo(),onClick:()=>__mlSharedDrumMachine.redo(),children:'Redo Beat Move'})]})]});
+   ['Club Glue','909_reactor',.58,.32,.56,.78,0,.08,.55,.28,.42],
+   ['Dry Punch','asphalt_punch',.65,.3,.5,.8,0,0,.38,.22,.2],
+   ['Dub Pressure','808_sub_chamber',.42,.58,.4,.52,0,.32,.48,.35,.65],
+   ['Velvet Room','velvet_breaks',.3,.8,.35,.4,0,.65,.25,.15,.15],
+   ['Metal Sweep','glass_metal',.65,.3,.8,.55,.5,.2,.3,.18,0],
+   ['Tape Drift','dusty_tape',.4,.7,.4,.35,.32,.35,.32,.42,.25]
+  ].map(([label,kit,edge,softness,air,snap,phaser,distance,glue,drive,boom])=>u.jsx('button',{type:'button',onClick:()=>update({drumKit:kit,drumLaneKits:{},drumEdge:edge,drumSoftness:softness,drumAir:air,drumSnap:snap,drumPhaser:phaser,drumDistance:distance,drumGlue:glue,drumDrive:drive,drumBoom:boom}),children:label},label))]}),
+  u.jsxs('div',{className:'xen-rack-actions',children:[u.jsx('span',{children:'Beat moves'}),...[['Rotate ←','left'],['Rotate →','right'],['Humanize','humanize'],['Ghost Snares','ghost'],['×2 Bars','double'],['Thin Beat','sparse'],['Hat Pulse','pulse'],['Half-time Snare','backbeat']].map(([label,kind])=>u.jsx('button',{type:'button',onClick:()=>transform(kind),children:label},kind)),u.jsx('button',{type:'button',disabled:!__mlSharedDrumMachine.canUndo(),onClick:()=>__mlSharedDrumMachine.undo(),children:'Undo'}),u.jsx('button',{type:'button',disabled:!__mlSharedDrumMachine.canRedo(),onClick:()=>__mlSharedDrumMachine.redo(),children:'Redo'})]})]});
 }
 
 function sc(){__f48BassStorageListener();if(__f48BassLibrary.state)return __f48BassLibrary.state;if(typeof window==='undefined')return __f48IndexBass(I2());try{const raw=window.localStorage.getItem(MT);return __f48IndexBass(raw?AI(JSON.parse(raw)):I2())}catch{return __f48IndexBass(I2())}}function gg(value){const state=AI(value);if(typeof window!=='undefined')window.localStorage.setItem(MT,JSON.stringify(state));__f48IndexBass(state);if(typeof window!=='undefined')kce();return state}function ZG(e=sc()){const t=new Map(e.clips.map(n=>[n.id,n]));return e.order.map(n=>t.get(n)).filter(n=>!!n)}function eH(id){if(!id)return null;if(__xenSessionBassClip?.id===id)return __xenSessionBassClip;

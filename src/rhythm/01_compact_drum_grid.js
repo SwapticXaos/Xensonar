@@ -10,7 +10,7 @@ function __mlGridFromSelection(snapshot){
 /* F3.56.19: identical velocity cycle in the large and compact Drum Machines. */
 function __mlNextDrumVelocity(value,button){return button===2?0:A7(value)}
 /* A shifted segment boundary is an actual musical timing boundary, not a cosmetic swing slider. */
-const __mlDrumLabelWidth=74; // Shared width for grid labels, Shuffle marker strip, and minimum scroll content.
+const __mlDrumLabelWidth=88; // Shared width for grid labels (+Solo/Mute), Shuffle marker strip, and minimum scroll content.
 function __mlDrumGridColumns(grid){const bars=Math.max(1,grid.bars||1),seg=Math.max(1,grid.segmentsPerBar||16),cuts=[0,...sl(grid.segmentMarkers,seg),1];return `${__mlDrumLabelWidth}px `+Array.from({length:bars*seg},(_,i)=>(Math.max(.00001,cuts[i%seg+1]-cuts[i%seg])*1000)+"fr").join(" ")}
 function __mlPreviewMarkerIndex(ratio,bars,segmentsPerBar,segmentMarkers){
  const count=Math.max(1,Math.round(bars||1)),segments=Math.max(1,Math.round(segmentsPerBar||16));
@@ -257,6 +257,8 @@ function __f52PatchDrumHit(lane,index,field,value){
  else if(field==='probability')p.probability=Math.max(0,Math.min(1,value));
  else if(field==='decay')p.decayLock=Math.max(.2,Math.min(2,value));
  else if(field==='tone')p.toneLock=Math.max(0,Math.min(1,value));
+ else if(field==='ratchet')p.ratchet=Math.max(1,Math.min(4,Math.round(value)));
+ else if(field==='flam')p.flam=Math.max(0,Math.min(1,value));
  else return;
  next.stepPrograms[lane]={...(next.stepPrograms[lane]||{}),[index]:p};__f52CommitSharedDrumGrid(next);
 }
@@ -291,6 +293,26 @@ function __mlCompactDrumGrid(){
  const [sampleRows,setSampleRows]=P.useState([]),[sampleNotice,setSampleNotice]=P.useState('');
  const [samplePicker,setSamplePicker]=P.useState(null);const samplePickerRef=P.useRef(null);
  const [laneMixer,setLaneMixer]=P.useState(null),laneMixerRef=P.useRef(null),laneDrag=P.useRef(null);
+ const [soloLanes,setSoloLanes]=P.useState(()=>new Set()),soloBackupRef=P.useRef(null);
+ const toggleSoloLane=(lane,allRows)=>{
+  const next=new Set(soloLanes);
+  if(next.has(lane))next.delete(lane);
+  else{
+   if(next.size===0){
+    const backup={};
+    for(const r of allRows)backup[r]=__f52MixerRead(r).muted;
+    soloBackupRef.current=backup;
+   }
+   next.add(lane);
+  }
+  setSoloLanes(next);
+  if(next.size===0){
+   const backup=soloBackupRef.current||{};soloBackupRef.current=null;
+   for(const r of allRows)__f52MixerSet(r,{muted:!!backup[r]});
+  }else{
+   for(const r of allRows)__f52MixerSet(r,{muted:!next.has(r)});
+  }
+ };
  const toggleSamplePicker=(lane,event)=>{
   if(samplePicker?.lane===lane){setSamplePicker(null);return;}
   const box=event.currentTarget.getBoundingClientRect();
@@ -567,6 +589,8 @@ function __mlCompactDrumGrid(){
          u.jsx("span",{className:`xen-drum-lane-fill ${laneDrag.current?.lane===lane&&laneDrag.current?.dragged?"is-dragging":""}`,
           style:{width:`${Math.min(100,__f52MixerRead(lane).volume*100)}%`,backgroundColor:`color-mix(in srgb, #49e3aa ${Math.round(Math.min(1,__f52MixerRead(lane).volume)*100)}%, #a46aff)`}})
         ]}),
+       u.jsx("button",{type:"button",className:"xen-drum-mini-solo","data-drum-lane-solo":lane,"aria-label":(soloLanes.has(lane)?"Unsolo ":"Solo ")+label[lane],"aria-pressed":soloLanes.has(lane),
+        title:(soloLanes.has(lane)?"Unsolo ":"Solo ")+label[lane],onPointerDown:event=>event.stopPropagation(),onClick:event=>{event.stopPropagation();toggleSoloLane(lane,rows)},children:"S"}),
        u.jsx("button",{type:"button",className:"xen-drum-mini-mute","aria-label":(__f52MixerRead(lane).muted?"Unmute ":"Mute ")+label[lane],"aria-pressed":__f52MixerRead(lane).muted,
         title:(__f52MixerRead(lane).muted?"Unmute ":"Mute ")+label[lane],onPointerDown:event=>event.stopPropagation(),onClick:event=>{event.stopPropagation();__f52MixerSet(lane,{muted:!__f52MixerRead(lane).muted})},
         children:u.jsx("span",{className:"xen-drum-mini-led","data-muted":__f52MixerRead(lane).muted?"true":"false"})})
@@ -574,18 +598,22 @@ function __mlCompactDrumGrid(){
       ...Array.from({length:steps},(_,i)=>{
        const amount=grid.laneSteps[lane]?.[i]||0;
        const hitOffset=__f52HitVisualOffset(grid,lane,i);
+       const prog=amount>0?grid.stepPrograms?.[lane]?.[i]:null;
+       const ratch=prog?.ratchet>1?Math.round(prog.ratchet):1,hasFlam=(prog?.flam||0)>.01;
+       const badge=ratch>1?(ratch+"×"+(hasFlam?"f":"")):hasFlam?"f":"";
        return u.jsx("button",{type:"button","aria-label":`${label[lane]||lane}, step ${i+1}`,
         "aria-pressed":amount>0,"data-selected-step":amount>0&&selected?.lane===lane&&selected?.index===i?"true":"false",
         "data-drum-hit":`${lane}:${i}`,"data-hit-offset":hitOffset.toFixed(2),
         onPointerDown:event=>begin(event,lane,i),onPointerEnter:event=>stepOver(event,lane,i),
         onContextMenu:e=>e.preventDefault(),onDragStart:e=>e.preventDefault(),
-        title:`${label[lane]||lane} · bar ${Math.floor(i/seg)+1}, segment ${i%seg+1} · ${amount?Math.round(amount*100)+"% velocity":"off"} · ${hitOffset>=0?"+":""}${Math.round(hitOffset*100)}% step microtiming`,
+        title:`${label[lane]||lane} · bar ${Math.floor(i/seg)+1}, segment ${i%seg+1} · ${amount?Math.round(amount*100)+"% velocity":"off"} · ${hitOffset>=0?"+":""}${Math.round(hitOffset*100)}% step microtiming${ratch>1?" · "+ratch+"× ratchet":""}${hasFlam?" · flam":""}`,
         style:{opacity:amount>0?(amount<.7?.70:amount<.95?.85:1):1,position:'relative',
          transform:amount>0?`translateX(${(hitOffset*100).toFixed(1)}%)`:undefined,
          zIndex:amount>0&&Math.abs(hitOffset)>.005?2:undefined},
         className:`xen-drum-micro-cell h-6 min-w-0 rounded-sm border ${amount>0&&selected?.lane===lane&&selected?.index===i?"ring-1 ring-amber-200 ":""}${amount>0?"border-cyan-300 bg-cyan-500/80 hover:bg-cyan-400":"border-neutral-700 hover:bg-cyan-900/40"} ${amount<=0&&(i%seg===0)?"bg-neutral-800":""} ${amount<=0&&(i%seg!==0)?"bg-neutral-900":""}`,
         children:amount>0?u.jsxs(u.Fragment,{children:[
          u.jsx('span',{className:'xen-drum-hit-velocity',style:{width:`${Math.max(2,Math.min(100,amount/1.25*100)).toFixed(1)}%`}}),
+         badge?u.jsx('span',{className:'xen-drum-hit-badge',children:badge}):null,
          u.jsx('span',{'data-drum-micro-handle':`${lane}:${i}`,className:'xen-drum-hit-micro-grip',
           title:'Drag left edge: microtiming of this hit only',
           onPointerDown:event=>beginMicro(event,lane,i),onPointerMove:moveMicro,onPointerUp:endMicro,onPointerCancel:endMicro,
@@ -593,11 +621,13 @@ function __mlCompactDrumGrid(){
         ]}):null},lane+"-"+i)})]},"drum-row-"+lane))]})}),
   u.jsxs("div",{className:"mt-2 rounded border border-amber-900/60 bg-neutral-950/50 p-2 text-[10px]",children:[
    u.jsx("button",{type:"button",onClick:()=>setDetailOpen(v=>!v),"aria-label":"Toggle last drum hit details","aria-expanded":detailOpen,className:"text-amber-200",children:(detailOpen?"▾ ":"▸ ")+"Last Drum Hit"+(selected?" · "+label[selected.lane]+" · Step "+(selected.index+1):" · select a step")}),
-   detailOpen&&selected&&u.jsxs("div",{className:"mt-2 grid grid-cols-1 gap-2 sm:grid-cols-3",children:[
+   detailOpen&&selected&&u.jsxs("div",{className:"mt-2 grid grid-cols-1 gap-2 sm:grid-cols-4",children:[
      ...[["Velocity",'velocity',0,1.25,.01,stepValue,Math.round(stepValue*100)+"%"],["Microtiming",'offset',-.45,.45,.01,stepProgram?.microOffsetRatio||0,Math.round((stepProgram?.microOffsetRatio||0)*100)+"% step"],["Pan",'pan',-1,1,.01,stepProgram?.layers?.[0]?.panOffset||0,Math.round((stepProgram?.layers?.[0]?.panOffset||0)*100)+"%"],
       ["Chance",'probability',0,1,.01,stepProgram?.probability??1,Math.round((stepProgram?.probability??1)*100)+"%"],
       ["Decay",'decay',.2,2,.01,stepProgram?.decayLock??1,Math.round((stepProgram?.decayLock??1)*100)+"%"],
-      ["Tone",'tone',0,1,.01,stepProgram?.toneLock??1,Math.round((stepProgram?.toneLock??1)*100)+"%"]].map(([name,field,min,max,step,value,caption])=>
+      ["Tone",'tone',0,1,.01,stepProgram?.toneLock??1,Math.round((stepProgram?.toneLock??1)*100)+"%"],
+      ["Ratchet",'ratchet',1,4,1,stepProgram?.ratchet??1,(stepProgram?.ratchet??1)+"×"],
+      ["Flam",'flam',0,1,.01,stepProgram?.flam??0,Math.round((stepProgram?.flam??0)*100)+"%"]].map(([name,field,min,max,step,value,caption])=>
       u.jsxs("label",{className:"flex flex-col gap-1 text-neutral-300",children:[name+" · "+caption,u.jsx(__XenRange,{type:"range","aria-label":"Last Drum Hit "+name,min,max,step,value,onChange:e=>setStepDetail(field,+e.target.value),className:"w-full"})]},field))
    ]}),
    detailOpen&&!selected&&u.jsx("span",{className:"block pt-1 text-neutral-500",children:"Click a step first. These parameters belong only to that hit and are saved with the beat."})
