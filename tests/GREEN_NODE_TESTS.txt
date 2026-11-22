@@ -140,3 +140,4 @@ dual_donor_aligned.test.cjs
 lazy_architecture.test.cjs
 runtime_hygiene.test.cjs
 ts_mod02_nodal_parity.test.cjs
+ts_mod04_runtime_parity.test.cjs

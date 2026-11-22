@@ -100,6 +100,7 @@ function $n(e){const t=Number.isFinite(e.baseHz)?e.baseHz:220,n=e.beatsPerBar??4
 // The raw, potentially recoverable browser value is retained until manually recovered.
 let __mlLibraryStorageProtected=false;
 let __mlLibraryStorageError="";
+function __mlSavedProjectsStorageStatus(){return {protected:__mlLibraryStorageProtected,error:__mlLibraryStorageError}}
 
 /* xen-lazy:canonical */
 

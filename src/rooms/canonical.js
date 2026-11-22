@@ -365,17 +365,6 @@ function NodalInstrumentEditButton({composer}) {
       instrument, target: {noteId: note.id, trackId: track.id, sourcePreset: yW(track, note)}
     }}))}, 'Edit Nodal Instrument ↗') : null;
 }
-async function nodalPreviewLibraryEntry(entry) {
-  const backend = __XenNodalInstallation.current;
-  if (!backend?.preview) throw new Error('Nodal audio owner is unavailable.');
-  const instrument = __XenNodalModel.normalize(entry.instrument);
-  const handle = await backend.preview(instrument, {
-    frequency: instrument.referenceHz, velocity: .8,
-    durationSec: Math.min(2, instrument.articulation.durationSec)
-  });
-  await handle.started;
-  return handle;
-}
 function nodalEditLibraryEntry(entry, eventTarget = window) {
   // The library identity belongs to the editor; it is NOT a selected-note edit.
   const detail = {instrument: __XenNodalModel.normalize(entry.instrument),
@@ -698,7 +687,6 @@ function addMelodicInstrument(composer){
  const track={...template};composer.tracks.push(track);composer.activeTrackIds=[...new Set([...composer.activeTrackIds,track.id])];composer.selectedTrackId=track.id;composer.selectedNoteId=null;
  return track;
 }
-function __mlSavedProjectsStorageStatus(){return {protected:__mlLibraryStorageProtected,error:__mlLibraryStorageError}}
 function AO(e,t,n,r){const a=gE(e,t);return uQ(a,e.width,e.height,n,r)}
 function LM(e){return e?e.slice():null}
 function Ek(e,t=null,n=null){return{spectral:e.cloneData(),warpTime:LM(t),warpPitch:LM(n)}}

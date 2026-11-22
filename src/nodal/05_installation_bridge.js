@@ -246,6 +246,17 @@ function acquireNodalPreviewAdmission({context, runtime, allowStart, activeTones
   let released = false;
   return {release() { if (released) return; released = true; tickets.forEach(t => runtime.releaseVoice(t)); }};
 }
+async function nodalPreviewLibraryEntry(entry) {
+  const backend = __XenNodalInstallation.current;
+  if (!backend?.preview) throw new Error('Nodal audio owner is unavailable.');
+  const instrument = __XenNodalModel.normalize(entry.instrument);
+  const handle = await backend.preview(instrument, {
+    frequency: instrument.referenceHz, velocity: .8,
+    durationSec: Math.min(2, instrument.articulation.durationSec)
+  });
+  await handle.started;
+  return handle;
+}
 if (typeof window !== 'undefined') window.XenSonarNodalBackend = Object.freeze({
   version: 1, model: __XenNodalModel, synthesis: __XenNodalDSP, library: __XenNodalLibrary,
   get installation() { return __XenNodalInstallation.current; }

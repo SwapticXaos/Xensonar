@@ -245,6 +245,8 @@
     "src/runtime/instrument/01_voice_gradients_and_effects.js",
     "src/runtime/instrument/02_observation_and_sample_storage.js",
     "src/runtime/instrument/03_selection_and_recording_tools.js",
+    "src/ts/runtime/voiceAdmission.ts",
+    "src/ts/runtime/workspacePackageCodec.ts",
     "src/runtime/instrument/04_performance_and_output_profiles.js",
     "src/audio/rfl/01_resident_worklet.js",
     "src/audio/rfl/02_fragment_preparation.js",
@@ -295,7 +297,7 @@
     "src/audio/hold_resident.js",
     "src/audio/hold_modulation.js",
     "src/audio/05_live_voice_runtime.js",
-    "src/audio/entrophon/01_wasm_asset.js",
+    "src/audio/entrophon/00_wasm_asset_lazy.js",
     "src/audio/entrophon/02_worklet_and_voice_backend.js",
     "src/audio/entrophon/03_native_bridge.js",
     "src/audio/07_governor_and_drums.js",
@@ -939,6 +941,14 @@
     "src/forge/fractalia/14_live_transfer.js",
     "src/forge/fractalia/03_instrument.js",
     "src/forge/fractalia/99_chunk_export.js"
+   ]
+  },
+  {
+   "id": "js-019e-xen-chunk-entrophon-wasm",
+   "oct28_section": null,
+   "files": [
+    "src/audio/entrophon/01_wasm_asset.js",
+    "src/audio/entrophon/01b_wasm_asset_export.js"
    ]
   },
   {
