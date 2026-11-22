@@ -57,10 +57,19 @@ const ROOT = path.resolve(__dirname, '..');
  assert.equal(sandbox.__XenLazyLoader.isLoaded('chunk', 'base'), false);
  assert.equal(sandbox.__XenLazyLoader.isLoaded('chunk', 'mid'), false);
 
- // Lazy proxy stays cold until first property access
+ // Lazy proxy stays cold until first property access; onLoad waits until compile
+ const onLoadEvents = [];
+ const offBefore = sandbox.__XenLazyLoader.onLoad('chunk', 'mid', () => onLoadEvents.push('mid-fired'));
+ const offCancelled = sandbox.__XenLazyLoader.onLoad('chunk', 'mid', () => onLoadEvents.push('cancelled'));
+ offCancelled();
  const proxy = sandbox.__testLazyObj('mid');
  assert.equal(sandbox.__XenLazyLoader.isLoaded('chunk', 'mid'), false, 'creating lazy proxy must not compile chunk');
+ assert.deepEqual(onLoadEvents, [], 'onLoad must not fire while chunk is cold');
  assert.equal(proxy.getVal(), 42);
+ assert.deepEqual(onLoadEvents, ['mid-fired'], 'onLoad fires once when chunk compiles and respects unsubscribe');
+ offBefore();
+ sandbox.__XenLazyLoader.onLoad('chunk', 'mid', () => onLoadEvents.push('already-loaded'));
+ assert.deepEqual(onLoadEvents, ['mid-fired', 'already-loaded'], 'onLoad fires immediately when chunk is already loaded');
  assert.deepEqual(sandbox.__calls, ['base', 'mid'], 'transitive dependency loads once before target');
  assert.equal(elements.get('xen-chunk-base').textContent, '', 'DOM textContent cleared after compile');
  assert.equal(elements.get('xen-chunk-mid').textContent, '', 'DOM textContent cleared after compile');

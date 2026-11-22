@@ -499,4 +499,4 @@ const WHe="No custom stamps saved yet. Use the stamp tool to capture an area or 
 /* xen-lazy:lab */
 
 /* xen-lazy:lab */
-let __F35611DonorIntent=false;
+/* __F35611DonorIntent declared in src/forge/00_forge_hearing_lazy_proxy.js */

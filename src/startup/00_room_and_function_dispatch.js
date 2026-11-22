@@ -9,6 +9,7 @@ const __xenLazyRuntime=(()=>{
  const rooms=Object.create(null),chunks=Object.create(null),fns=Object.create(null);
  const meta={room:Object.create(null),chunk:Object.create(null),fn:Object.create(null)};
  const active=new Set();
+ const loadListeners=new Map();
  const validKey=/^[A-Za-z0-9_$-]{1,80}$/;
  const now=()=>typeof performance!=='undefined'&&typeof performance.now==='function'?performance.now():Date.now();
 
@@ -43,6 +44,8 @@ const __xenLazyRuntime=(()=>{
    cache[key]=exportsObj;
    meta[kind][key]={loaded:true,bytes,loadMs,deps};
    el.textContent='';
+   const set=loadListeners.get(tag);
+   if(set){loadListeners.delete(tag);for(const fn of set)try{fn(exportsObj)}catch{}}
    return exportsObj;
   }finally{
    active.delete(tag);
@@ -58,6 +61,19 @@ const __xenLazyRuntime=(()=>{
   if(kind==='chunk')return Object.hasOwn(chunks,key);
   if(kind==='fn'||kind==='function')return Object.hasOwn(fns,key);
   return false;
+ }
+
+ function onLoad(kind,key,listener){
+  if(typeof listener!=='function')return ()=>{};
+  const norm=kind==='function'?'fn':kind;
+  const cache=norm==='room'?rooms:norm==='chunk'?chunks:norm==='fn'?fns:null;
+  if(!cache)return ()=>{};
+  if(Object.hasOwn(cache,key)){listener(cache[key]);return ()=>{};}
+  const tag=norm+':'+key;
+  let set=loadListeners.get(tag);
+  if(!set){set=new Set();loadListeners.set(tag,set);}
+  set.add(listener);
+  return ()=>{set.delete(listener);if(!set.size)loadListeners.delete(tag);};
  }
 
  function listDom(type,prefix,cache,metaMap){
@@ -127,7 +143,7 @@ const __xenLazyRuntime=(()=>{
  loadRoom.status=roomStatus;
  loadChunk.status=chunkStatus;
  loadFunction.status=fnStatus;
- return Object.freeze({loadRoom,loadChunk,loadFunction,isLoaded,roomStatus,chunkStatus,fnStatus,report,lazyObject});
+ return Object.freeze({loadRoom,loadChunk,loadFunction,isLoaded,onLoad,roomStatus,chunkStatus,fnStatus,report,lazyObject});
 })();
 const __xenLoadDeferred=__xenLazyRuntime.loadRoom;
 const __xenLoadChunk=__xenLazyRuntime.loadChunk;
@@ -139,6 +155,7 @@ window.__XenLazyLoader=Object.freeze({
  loadChunk:__xenLoadChunk,
  loadFunction:__xenGetDeferredFn,
  isLoaded:__xenLazyRuntime.isLoaded,
+ onLoad:__xenLazyRuntime.onLoad,
  status:()=>({rooms:__xenLazyRuntime.roomStatus(),chunks:__xenLazyRuntime.chunkStatus(),functions:__xenLazyRuntime.fnStatus()}),
  report:__xenLazyRuntime.report
 });

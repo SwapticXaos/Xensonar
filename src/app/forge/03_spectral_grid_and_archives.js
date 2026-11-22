@@ -305,9 +305,14 @@ async function __xenFlushWorkspace4(selection){
  }
  // Finish pending Melodic IDB writes before collecting Package Station records.
  await window.__XenMelodicCompact.flush();
+ const forgeLoaded=!globalThis.__XenLazyLoader||globalThis.__XenLazyLoader.isLoaded('chunk','forge-engines');
  const intake=!selection||selection.currentEditor||selection.donors||selection.unusedAssets||selection.recovery||selection.figureProjects;
- if(intake){await __ForgeF33.flushMaterialIntakePersistence();const status=__ForgeF33.materialIntakePersistenceStatus?.();if(status?.lastError)throw Error('Paketstation: Material Intake konnte nicht gespeichert werden: '+status.lastError)}
- if(!selection||selection.currentEditor||selection.recovery||selection.unusedAssets){const result=await globalThis.__SpectralForgeF35?.saveExperiment?.();if(result===false)throw Error('Paketstation: Aktuelles Forge-Experiment konnte nicht gespeichert werden.')}
+ if(forgeLoaded&&intake){await __ForgeF33.flushMaterialIntakePersistence();const status=__ForgeF33.materialIntakePersistenceStatus?.();if(status?.lastError)throw Error('Paketstation: Material Intake konnte nicht gespeichert werden: '+status.lastError)}
+ if(forgeLoaded&&(!selection||selection.currentEditor||selection.recovery||selection.unusedAssets)){
+  if(typeof __f333Persistence!=='undefined'&&__f333Persistence&&!__f333Persistence.status?.().restoreComplete)await __f333Persistence.start?.();
+  const result=await globalThis.__SpectralForgeF35?.saveExperiment?.();
+  if(result===false)throw Error('Paketstation: Aktuelles Forge-Experiment konnte nicht gespeichert werden.');
+ }
  await new Promise(resolve=>setTimeout(resolve,200));
 }
 function __xenCaptureWorkspace4(selection){

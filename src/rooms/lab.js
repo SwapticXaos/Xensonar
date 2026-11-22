@@ -1112,7 +1112,12 @@ function ForgePCMSpectrumOwner({frame}) {
    });
   }
   removers.push(observeForgePreviewPCM(xt,receive));
-  for(const store of [pe,Vt,__ForgeListeningMode,__F3564Master,__Fractalia,__Emilia,__F341Workbench,__F352Session])removers.push(store.subscribe(invalidate));
+  for(const store of [pe,Vt,__ForgeListeningMode,__F3564Master,__F341Workbench,__F352Session])removers.push(store.subscribe(invalidate));
+  for(const [chunkId,getStore] of [['forge-fractalia',()=>__Fractalia],['forge-emilia',()=>__Emilia]]){
+   let unsub=null;
+   const off=__xenLazyRuntime.onLoad('chunk',chunkId,()=>{if(alive)unsub=getStore().subscribe(invalidate);});
+   removers.push(()=>{off();unsub?.();});
+  }
   const resize=new MutationObserver(draw),base=latest.current.canvasRef.current;
   if(base)resize.observe(base,{attributes:true,attributeFilter:['width','height']});
   return ()=>{alive=false;cancel();animation?.cancel();animation=null;for(const remove of removers)remove();resize.disconnect();draw()};

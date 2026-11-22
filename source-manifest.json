@@ -314,7 +314,7 @@
     "src/app/forge/05_forge_state_and_analysis.js",
     "src/app/forge/06_donor_audio_and_audition.js",
     "src/app/forge/07_preview_cache_and_controls.js",
-    "src/forge/editor/06_pcm_spectrum_view.js",
+    "src/forge/00_forge_hearing_lazy_proxy.js",
     "src/forge/editor/07_view_lifecycle.js",
     "src/post-oct/033-xen-multitrack-shared.js",
     "src/post-oct/036-xen-stem-recorder.js",
@@ -326,14 +326,10 @@
     "src/forge/editor/04_signal_atoms_and_bodies.js",
     "src/forge/editor/05_machine_and_carrier_projection.js",
     "src/forge/editor/06_output_routing.js",
-    "src/forge/analysis/06_polyphonic_transfer.js",
-    "src/forge/editor/07_composition_and_preview_ui.js",
     "src/forge/ui/03_microphone_intake.js",
     "src/forge/analysis/04_audio_to_carrier.js",
     "src/forge/analysis/05_carrier_pitch_space.js",
     "src/forge/ui/04_audio_to_carrier_controls.js",
-    "src/forge/ui/02_donor_routing_and_hearing.js",
-    "src/forge/ui/03_method_selection.js",
     "src/forge_and_melodic/03_timeline_and_transport_ui.js",
     "src/forge_and_melodic/04_render_cache_and_stems.js",
     "src/forge_and_melodic/07_tuning_and_logic_view.js",
@@ -952,6 +948,18 @@
    ]
   },
   {
+   "id": "js-019f-xen-chunk-forge-hearing-ui",
+   "oct28_section": null,
+   "files": [
+    "src/forge/editor/06_pcm_spectrum_view.js",
+    "src/forge/analysis/06_polyphonic_transfer.js",
+    "src/forge/editor/07_composition_and_preview_ui.js",
+    "src/forge/ui/02_donor_routing_and_hearing.js",
+    "src/forge/ui/03_method_selection.js",
+    "src/forge/99_forge_hearing_export.js"
+   ]
+  },
+  {
    "id": "js-016-xen-header-scrollbar-gauge-sb2",
    "oct28_section": "@@XENSONAR_COMPONENT_064@@",
    "files": [
@@ -983,6 +991,7 @@
    "id": "js-018-xen-room-canonical",
    "oct28_section": "@@XENSONAR_COMPONENT_050@@",
    "files": [
+    "src/rooms/00_canonical_chunk_imports.js",
     "src/rooms/canonical.js"
    ]
   },
