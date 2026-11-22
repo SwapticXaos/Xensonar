@@ -22,9 +22,10 @@ const cents=(a,b)=>1200*Math.log2(a/b),near=(f,l)=>l.reduce((m,g)=>Math.min(m,Ma
  const setGrid=lock=>p.evaluate(([l,m])=>__xenProbe.bridge.patch({gridTuning:'31edo',lockCursorToGrid:l,manualGridMutedSteps:m}),[lock,MUTED]);
  await setGrid(true);await p.waitForTimeout(1200);
  const P=JSON.parse(await E('JSON.stringify(__NodalBallGrid.params())'));
- const open=JSON.parse(await E(`JSON.stringify(Fx(${P.gridBase},"31edo",${JSON.stringify(MUTED)},[]))`)),all=JSON.parse(await E(`JSON.stringify(Fx(${P.gridBase},"31edo",[],[]))`));
+ const toLive=f=>f/2;/* Live Room Wave Starter & Keyboard canonical register (zhe: baseFreq / 2 * __XenOctaves) */
+ const open=JSON.parse(await E(`JSON.stringify(Fx(${P.gridBase},"31edo",${JSON.stringify(MUTED)},[]))`)).map(toLive),all=JSON.parse(await E(`JSON.stringify(Fx(${P.gridBase},"31edo",[],[]))`)).map(toLive);
  const muted=all.filter(f=>near(f,open)>1);
- const snapOf=y=>E(`(P=>Qa(lZ(${y},P.gridBase,P.gridTuning,P.manualGridMutedSteps,P.manualGridStepOffsets)))(__NodalBallGrid.params())`);
+ const snapOf=y=>E(`(P=>zhe({baseFreq:Qa(lZ(${y},P.gridBase,P.gridTuning,P.manualGridMutedSteps,P.manualGridStepOffsets)),isSector:false,octaveHeld:false,sourceLane:"wave"}).playbackFreq)(__NodalBallGrid.params())`);
  const h=await p.evaluateHandle(()=>[...document.querySelectorAll('canvas')].filter(c=>c.offsetParent).sort((a,b)=>b.clientWidth*b.clientHeight-a.clientWidth*a.clientHeight)[0]);await h.evaluate(c=>c.scrollIntoView({block:'center'}));await p.waitForTimeout(300);const bx=await h.boundingBox();
  const toClient=yGame=>bx.y+yGame*bx.height/580,x=bx.x+bx.width*.5;
  const msgs=()=>p.evaluate(()=>window.__pg.msgs.slice()),clear=()=>p.evaluate(()=>{window.__pg.msgs.length=0});
@@ -41,8 +42,16 @@ const cents=(a,b)=>1200*Math.log2(a/b),near=(f,l)=>l.reduce((m,g)=>Math.min(m,Ma
  assert.equal(offGrid.length,0,'with Snap the held note only ever sounds on open Grid lines: '+JSON.stringify(offGrid.slice(0,5).map(m=>+m.hz.toFixed(2))));
  assert.equal(onMuted.length,0,'never on (or near) a muted step of the scale');
  for(const r of rests)assert(Math.abs(cents(r.sounding,r.expected))<1,'at rest it sounds the line the Wave Starter snap gives for the pointer (green line): '+r.sounding+' vs '+r.expected);
+ // ---- 1b. Cross-engine pitch parity: PsyLab Wave Starter matches Nodal/Classic/Entrophon zhe() & obeys __XenOctaves ----
+ const midOpen=open.find(f=>f>100&&f<200);const yMid=await E(`Zs(${midOpen*2})`);
+ await clear();await p.mouse.move(x,toClient(yMid));await p.mouse.down();await p.waitForTimeout(220);await p.mouse.up();await p.waitForTimeout(150);
+ const mOct0=(await msgs()).find(m=>m.t==='on');
+ assert(mOct0&&Math.abs(cents(mOct0.hz,midOpen))<1,'Wave Starter PsyLab matches zhe() pitch reference: '+mOct0?.hz+' vs '+midOpen);
+ await E('__XenOctaves.set("wave",1)');await clear();await p.mouse.move(x,toClient(yMid));await p.mouse.down();await p.waitForTimeout(220);await p.mouse.up();await p.waitForTimeout(150);
+ const mOctUp=(await msgs()).find(m=>m.t==='on');await E('__XenOctaves.set("wave",0)');
+ assert(mOctUp&&Math.abs(cents(mOctUp.hz,midOpen*2))<1,'Wave Starter PsyLab obeys __XenOctaves (+1 oct): '+mOctUp?.hz+' vs '+(midOpen*2));
  // ---- 2. pointer exactly on a muted line: the note sounds the nearest open line ----
- const target=muted.find(f=>f>200&&f<400);const yGame=await E(`Zs(${target})`);
+ const target=muted.find(f=>f>100&&f<200);const yGame=await E(`Zs(${target*2})`);
  await clear();await p.mouse.move(x,toClient(yGame+30));await p.mouse.down();await p.waitForTimeout(200);await p.mouse.move(x,toClient(yGame),{steps:3});await p.waitForTimeout(300);
  const atMuted=(await msgs()).pop();await p.mouse.up();await p.waitForTimeout(300);
  assert(near(atMuted.hz,open)<1&&near(atMuted.hz,[target])>5,'pointer on muted '+target.toFixed(1)+' Hz: the note sounds an open neighbour ('+atMuted.hz.toFixed(1)+' Hz)');
@@ -80,6 +89,6 @@ const cents=(a,b)=>1200*Math.log2(a/b),near=(f,l)=>l.reduce((m,g)=>Math.min(m,Ma
  const hint=await p.getByText('Free: the mouse glides',{exact:false}).count();
  assert(hint>=1,'the Snap switch explains the decoupling');
  assert.deepEqual(errors,[],'no page errors');
- console.log(`PASS PSY-GRID-01: Snap on ${held.length} pitches all on open lines, none on muted steps, = Wave Starter snap at rest; muted line → open neighbour; Snap off glides (${between.length} pitches between lines) while a Keyboard chord stays on open lines; the switch explains it`);
+ console.log(`PASS PSY-GRID-01: Snap on ${held.length} pitches all on open lines, none on muted steps, = Wave Starter snap at rest; cross-engine zhe() & __XenOctaves parity verified; muted line → open neighbour; Snap off glides (${between.length} pitches between lines) while a Keyboard chord stays on open lines; the switch explains it`);
  await b.close();
 })().catch(e=>{console.error(String(e.message||e).split('\n').slice(0,4).join('\n'));process.exit(1)});

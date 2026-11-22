@@ -19,7 +19,7 @@ const __XenPsyLab=(()=>{
    if(f.mode==='cursor'){if(!(focus>0))continue;
     /* PSY-GRID-01: with Snap the note sits on the Grid tone the screen shows (direct step, like the pad of Room V); free (no Snap) it glides in the log-frequency domain */
     if(cursor.snap?.()===true)f.pos=Math.log2(focus);else f.pos+=(Math.log2(focus)-f.pos)*k;target=Math.pow(2,f.pos)}
-   else target=f.base*wheel;target*=oct;
+   else{const lo=cursor.laneOct?.(f.lane)??1;target=f.base*wheel*(lo/(f.oct0||1))}target*=oct;
    if(target>0&&Math.abs(1200*Math.log2(target/f.last))>.4){f.last=target;h.bend(f.lane,f.keyId,target)}
    /* PSY-X: every held Psy Lab note (mouse or keyboard) follows the cursor's X continuously, like the pad of Room V */
    if(cursor.grad){const g=cursor.grad(),m=law(g.tOn,g.tMode,g.x/g.width);if(Math.abs(m-(f.macro??-1))>.004){f.macro=m;h.macro(f.lane,m)}}}
@@ -46,8 +46,8 @@ const __XenPsyLab=(()=>{
   bindCursor(api){cursor=api},cursorHz(){return cursor?cursor.hz():0},
   arrowKey(){arrowAt=performance.now()},
   glide(lane,keyId,baseHz,mode){
-   if(!followers.size)octPos=cursor?.octave?.()===true?1:0;/* PSY-OCT-01: Backspace already held = the note starts an octave up */
-   const f={lane,keyId,base:baseHz,mode,last:baseHz*Math.pow(2,octPos),pos:Math.log2(baseHz)};followers.set(lane+':'+keyId,f);
+   if(!followers.size){octPos=cursor?.octave?.()===true?1:0;prevHz=cursor?cursor.hz():0;arrowAt=-1e9}/* PSY-OCT-01: Backspace already held = the note starts an octave up */
+   const f={lane,keyId,base:baseHz,oct0:cursor?.laneOct?.(lane)??1,mode,last:baseHz*Math.pow(2,octPos),pos:Math.log2(baseHz)};followers.set(lane+':'+keyId,f);
    if(!raf)raf=requestAnimationFrame(tick)},
   unglide(lane,keyId){followers.delete(lane+':'+keyId);if(!followers.size)wheel=1},
   law,
