@@ -1456,7 +1456,7 @@ function __createXenMetaSessionStore(storage,quick){
     const original=row=>row?.id===__XenStarterPrimaryId&&!row.legacyOrigin&&
       (row.name===primary.name||row.name==='01 · Three Minor Worlds');
     const pristine=row=>original(row)&&Array.isArray(row.items)&&row.items.length===base.length&&
-      row.items.every((e,i)=>__xenGridKey(e)===__xenGridKey(base[i])&&e.name===base[i].name&&
+      row.items.every((e,i)=>__xenGridKey(e)===__xenGridKey(base[i])&&(e.kind==='grid'?__xenStarterGridNameMatches(e,base[i]):e.name===base[i].name)&&
         (e.kind!=='grid'||JSON.stringify(__xenGridProfile(e.gridProfile))===JSON.stringify(__xenGridProfile(base[i].gridProfile))||__xenStarterBassGridUpgradeCandidate(e,base[i])));
     const fresh=state.saved.length===0&&state.items.length===0&&!state.loadedId&&
       !state.activePalette&&quick.getItems().length===0;

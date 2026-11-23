@@ -279,6 +279,20 @@ function __xenStarterSourceSettings(){
    keyboardHoldPatternSteps:__XenKeyboardHoldStartupDemo.steps.slice(),keyboardHoldPitchCents:__XenKeyboardHoldStartupDemo.cents.slice(),keyboardHoldSlotVolumes:[],keyboardHoldMicrotiming:[],keyboardHoldSoundPreset:__XenFactoryStartSounds.keyboard},
   octaves:{particle:0,wave:0,keyboard:0},pan:Object.fromEntries(['particle','wave','keyboard',...Array.from({length:32},(_,i)=>'particle:'+i)].map(k=>[k,0]))};
 }
+/* Starter grids are named after their tuning only; the mode is shown separately and follows edits.
+   Older saved sessions carry the first mode inside the name ("Bohlen–Pierce · BP Moll"). */
+function __xenStarterGridNames(instanceId){
+ // [current tuning-only name, legacy name that embedded the starter mode]
+ return {'starter-grid-aeolian-12':['12 EDO','12 EDO · Aeolian'],'starter-grid-ji-harmonic':['Just Intonation','Just Intonation · Harmonic Minor'],
+  'starter-grid-bp-minor':['Bohlen–Pierce','Bohlen–Pierce · BP Moll'],'starter-grid-31-harmonic':['31 EDO','31 EDO · Harmonic Minor'],
+  'starter-grid-19-phrygian':['19 EDO','19 EDO · Phrygian'],'starter-grid-31-dorian':['31 EDO','31 EDO · Dorian']}[instanceId]||null;
+}
+function __xenStarterGridCanonicalName(instanceId,name){
+ const names=__xenStarterGridNames(instanceId);return names&&name===names[1]?names[0]:name;
+}
+function __xenStarterGridNameMatches(item,standard){
+ return item?.name===standard?.name||(item?.kind==='grid'&&item.instanceId===standard?.instanceId&&item.name===__xenStarterGridNames(item.instanceId)?.[1]);
+}
 function __xenStarterPresetRecords(){
  const modeMasks={
   '12edo|aeolian':[1,4,6,9,11],
@@ -303,10 +317,10 @@ function __xenStarterPresetRecords(){
   };
  const entry=(kind,id,name)=>({kind,id,name});
  const initial=[
-  profile('12edo','12 EDO · Aeolian','starter-grid-aeolian-12', 'aeolian',[1,8,11]),
+  profile('12edo','12 EDO','starter-grid-aeolian-12', 'aeolian',[1,8,11]),
   // Native harmonic minor projects to JI ratios at indices [0,1,2,4,6,7,11].
-  profile('ji','Just Intonation · Harmonic Minor','starter-grid-ji-harmonic','harmonic_minor',[1,6,7,10,12]),
-  profile('bp','Bohlen–Pierce · BP Moll','starter-grid-bp-minor','bp_minor'),
+  profile('ji','Just Intonation','starter-grid-ji-harmonic','harmonic_minor',[1,6,7,10,12]),
+  profile('bp','Bohlen–Pierce','starter-grid-bp-minor','bp_minor'),
   entry('drum','preset:broken_lilt','Broken Lilt · Default'),
   entry('drum','preset:four_on_floor','Four on the Floor'),
   entry('drum','preset:forge_fractured','RhythmForge · Fractured'),
@@ -314,10 +328,10 @@ function __xenStarterPresetRecords(){
   entry('bass','preset:forge_fractured','RhythmForge · Fractured'),
   entry('bass','preset:psy_classic','PsyBass · Classic Offbeat'),
    ...__xenStarterDemoReferences(),
-  profile('31edo','31 EDO · Harmonic Minor','starter-grid-31-harmonic','harmonic_minor')];
+  profile('31edo','31 EDO','starter-grid-31-harmonic','harmonic_minor')];
  const alternate=[
-  profile('19edo','19 EDO · Phrygian','starter-grid-19-phrygian','phrygian'),
-  profile('31edo','31 EDO · Dorian','starter-grid-31-dorian','dorian'),
+  profile('19edo','19 EDO','starter-grid-19-phrygian','phrygian'),
+  profile('31edo','31 EDO','starter-grid-31-dorian','dorian'),
   entry('drum','preset:breakbeat','Breakbeat'),
   entry('drum','preset:minimal_techno','Minimal HiHat'),
   entry('bass','preset:psy_dark','PsyBass · Dark Forest'),
@@ -346,7 +360,7 @@ function __xenStarterPresetRecords(){
 /* Repair only the known P7.38.11 defaults. Identity alone does not establish
    provenance: renamed tiles, copied instances and any authored offset stay put. */
 function __xenStarterLegacyGridProfile(item,standard){
- if(item?.kind!=='grid'||!standard||item.id!==standard.id||item.instanceId!==standard.instanceId||item.name!==standard.name||!item.gridProfile)return false;
+ if(item?.kind!=='grid'||!standard||item.id!==standard.id||item.instanceId!==standard.instanceId||!__xenStarterGridNameMatches(item,standard)||!item.gridProfile)return false;
  const p=__xenGridProfile(item.gridProfile),legacyMode=item.instanceId==='starter-grid-ji-harmonic'?'chromatic':standard.gridProfile.modeId;
  const legacyMutes=item.instanceId==='starter-grid-ji-harmonic'?[3,5,8,9,10]:[];
  return p.modeId===legacyMode&&p.mainMutedDegrees.join(',')===legacyMutes.join(',')&&
@@ -354,7 +368,7 @@ function __xenStarterLegacyGridProfile(item,standard){
 }
 function __xenStarterBassGridUpgradeCandidate(item,standard){
  if(item?.kind!=='grid'||!standard||!standard.gridProfile?.bassEnabled||item.id!==standard.id||
-    item.instanceId!==standard.instanceId||item.name!==standard.name||!item.gridProfile)return false;
+    item.instanceId!==standard.instanceId||!__xenStarterGridNameMatches(item,standard)||!item.gridProfile)return false;
  const p=__xenGridProfile(item.gridProfile);
  if(p.bassEnabled||p.modeId!==standard.gridProfile.modeId||
     p.mainMutedDegrees.join(',')!==standard.gridProfile.mainMutedDegrees.join(',')||
