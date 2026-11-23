@@ -97,19 +97,6 @@
   --nd-geo-stroke:#30444b;--nd-geo-fill:#101c21;
   --nd-geo-arch-fit:0px;
 }
-/* ARCH-FIT-02: the Torbogen pillars are drawn pixel-exact by 05_shell_geometry_t2.js (--nd-arch-svg,
-   left wing; the right wing is the existing scaleX(-1) mirror). Replaces the nine-slice art and the
-   narrow-window quarter-circle fallback whenever the adapter is active. */
-.nd-room.nd-room-shell[data-nodal-mode="installation"].nd-geo-t2::before,
-.nd-room.nd-room-shell[data-nodal-mode="installation"].nd-geo-t2::after {
-  height:100% !important; aspect-ratio:auto !important;
-  border-image:none !important; border-width:0 !important;
-  background-color:#10191f !important;
-  background-image:var(--nd-arch-svg),linear-gradient(to bottom,rgba(95,154,150,0.52) 0 1px,transparent 1px) !important;
-  background-position:right top,left top !important;
-  background-size:100% 100%,100% 1px !important;
-  background-repeat:no-repeat !important;
-}
 /* Without visible side wings (narrow breakpoint) retain original layout. */
 @media(max-width:1100px){
  .nd-room.nd-room-shell[data-nodal-mode="installation"].nd-geo-t2 .nd-heading-copy > :is(.nd-eyebrow,h2,p),
