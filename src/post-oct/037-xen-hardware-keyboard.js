@@ -1,5 +1,5 @@
-/* HWKB-01 / HWKB-02 · Hardware keyboard input layer (keys with velocity, layouts for ordinary / multi-channel (Lumatone) / MPE controllers, controls that press XenSonar keys, monitor, device report).
-   A MIDI keyboard is only the wire protocol of the hardware: nothing is sent out, no MIDI sounds. Each key becomes the SAME key event as a computer key
+/* HWKB-01 / HWKB-02 / HWKB-03 · Hardware keyboard input & Lumatone SysEx layer (keys with velocity, layouts for ordinary / multi-channel (Lumatone) / MPE controllers, bidirectional Lumatone SysEx protocol F0 00 21 50 <board> <cmd> … F7 with ACK/BUSY pacing, live RGB LED scale/root/hold sync, controls that press XenSonar keys, monitor, device report).
+   A MIDI keyboard is only the wire protocol of the hardware: nothing is sent out unless Lumatone SysEx is switched on, no MIDI sounds. Each key becomes the SAME key event as a computer key
    (position k of the Keyboard window), so Window offset, tuning (tritave, JI ...), muted steps, Hold slots, Psy Lab and ownership of the key behave exactly as on the
    computer keyboard (bPe reads event.__xenHwPos). Off by default; nothing touches Web MIDI before the player switches it on (permission prompt).
    Settings live in their own browser key (like the keyboard layout), one profile per device name, never in sessions. The Grid decides the pitch: pitch bend is shown, not used.
@@ -27,35 +27,107 @@ const __XenHwKeyboard=(()=>{
  const noteName=n=>NAMES[((n%12)+12)%12]+(Math.floor(n/12)-1);
  const VEL0=Object.freeze({curve:'linear',min:1,max:127,floor:.15,top:1});
  const DEFAULT_ASSIGNS=Object.freeze([Object.freeze({src:'cc',num:64,ch:0,code:'Equal',key:'´',shift:false,label:'Sustain (the ´ key)'})]);
- const DEFAULTS=Object.freeze({deviceId:'',channel:0,root:48,offset:0,preset:'c3',layout:'linear',blockSize:56,blockFirstNote:0,blockFirstChannel:1,vel:VEL0,assigns:DEFAULT_ASSIGNS});
+ /* HWKB-03 · Official Lumatone SysEx constants (F0 00 21 50 <board 0..5> <cmd> <status/data…> F7) */
+ const LUMA_MFR=Object.freeze([0x00,0x21,0x50]);
+ const LUMA_CMD=Object.freeze({SET_KEY_PARAMS:0x00,SET_KEY_RGB:0x01,GET_RED_LEDS:0x13,GET_GREEN_LEDS:0x14,GET_BLUE_LEDS:0x15,GET_CHANNELS:0x16,GET_NOTES:0x17,GET_TYPES:0x18,GET_LUMATOUCH:0x30,GET_FIRMWARE:0x31,PING:0x33,GET_PERIPHERALS:0x3D});
+ const LUMA_RESP=Object.freeze({NACK:0x00,ACK:0x01,BUSY:0x02,ERROR:0x03,STATE:0x04});
+ const LUMA_RESP_NAME=Object.freeze({0:'NACK',1:'ACK',2:'BUSY',3:'ERROR',4:'STATE'});
+ const LUMA_COLORS=Object.freeze({root:[0xF5,0xA6,0x23],window:[0x2E,0xC4,0xB6],open:[0x1B,0x49,0x65],muted:[0x12,0x0E,0x1A],held:[0xFF,0x4D,0xB8]});
+ const LUMA0=Object.freeze({sysex:false,ledSync:true,includeMuted:false,outputId:''});
+ const DEFAULTS=Object.freeze({deviceId:'',channel:0,root:48,offset:0,preset:'c3',layout:'linear',blockSize:56,blockFirstNote:0,blockFirstChannel:1,vel:VEL0,assigns:DEFAULT_ASSIGNS,luma:LUMA0});
  const clampInt=(v,lo,hi,d)=>{v=Math.round(Number(v));return Number.isFinite(v)?Math.max(lo,Math.min(hi,v)):d};
  const clampNum=(v,lo,hi,d)=>{v=Number(v);return Number.isFinite(v)?Math.max(lo,Math.min(hi,v)):d};
  const str=(v,n,d='')=>typeof v==='string'?v.slice(0,n):d;
  const cleanVel=v=>{const min=clampInt(v?.min,1,126,1),max=Math.max(min+1,clampInt(v?.max,2,127,127));return{curve:v?.curve==='fixed'||Object.hasOwn(CURVES,v?.curve)?v.curve:'linear',min,max,floor:clampNum(v?.floor,0,1,.15),top:clampNum(v?.top,.1,1.5,1)}};
  const cleanAssign=a=>a&&['cc','note','pc'].includes(a.src)&&typeof a.code==='string'&&a.code?{src:a.src,num:clampInt(a.num,0,127,0),ch:clampInt(a.ch,0,16,0),code:a.code.slice(0,40),key:str(a.key,20,'Unidentified'),shift:!!a.shift,label:str(a.label,60)}:null;
+ const cleanLuma=v=>({sysex:!!v?.sysex,ledSync:v?.ledSync!==false,includeMuted:!!v?.includeMuted,outputId:str(v?.outputId,200)});
  const clean=v=>({deviceId:str(v?.deviceId,200),channel:clampInt(v?.channel,0,16,0),root:clampInt(v?.root,0,127,48),offset:clampInt(v?.offset,-512,512,0),preset:str(v?.preset,20,'custom'),
   layout:LAYOUTS.some(l=>l.id===v?.layout)?v.layout:'linear',blockSize:clampInt(v?.blockSize,1,128,56),blockFirstNote:clampInt(v?.blockFirstNote,0,127,0),blockFirstChannel:clampInt(v?.blockFirstChannel,1,16,1),
-  vel:cleanVel(v?.vel),assigns:Array.isArray(v?.assigns)?v.assigns.slice(0,32).map(cleanAssign).filter(Boolean):DEFAULT_ASSIGNS.map(a=>({...a}))});
+  vel:cleanVel(v?.vel),assigns:Array.isArray(v?.assigns)?v.assigns.slice(0,32).map(cleanAssign).filter(Boolean):DEFAULT_ASSIGNS.map(a=>({...a})),
+  luma:cleanLuma(v?.luma)});
  /* one profile per device name (ids are not stable between browsers), so two keyboards keep their own first key, layout, velocity curve and controls */
  const cleanProfiles=p=>{const out={};if(p&&typeof p==='object')for(const k of Object.keys(p).slice(0,16)){const {deviceId,...rest}=clean(p[k]);out[k.slice(0,120)]=rest}return out};
  const load=()=>{try{const raw=typeof localStorage!=='undefined'?localStorage.getItem(KEY):null;if(!raw)return{cfg:clean(DEFAULTS),profiles:{}};const j=JSON.parse(raw);return{cfg:clean(j),profiles:cleanProfiles(j?.profiles)}}catch{return{cfg:clean(DEFAULTS),profiles:{}}}};
- let {cfg,profiles}=load(),enabled=false,status='off',access=null,learning=false,errorText='',lastErr=null,permState='',lastControl=null;
- const held=new Map(),attached=new Map(),listeners=new Set(),gains=new Map(),ctl=new Map();
- const blank=()=>({messages:0,noteOn:0,noteOff:0,cc:{},bend:0,aftertouch:0,pc:0,other:0,velMin:null,velMax:null,below:0,above:0,filtered:0,controls:0,channels:{},errors:[],first:null});
+ let {cfg,profiles}=load(),enabled=false,status='off',access=null,learning=false,errorText='',lastErr=null,permState='',lastControl=null,sysexGranted=false;
+ const held=new Map(),attached=new Map(),listeners=new Set(),gains=new Map(),ctl=new Map(),lumaMap=new Map(),ledCache=new Map();
+ const blankBoard=()=>({notes:Array.from({length:56},(_,k)=>k),channels:Array.from({length:56},()=>0),types:Array.from({length:56},()=>1),red:Array.from({length:56},()=>0),green:Array.from({length:56},()=>0),blue:Array.from({length:56},()=>0)});
+ const blankLuma=()=>({detected:false,firmware:null,lastStatus:null,pingEcho:null,peripherals:null,lumaTouchLut:null,txCount:0,rxCount:0,busyRetries:0,boards:{1:blankBoard(),2:blankBoard(),3:blankBoard(),4:blankBoard(),5:blankBoard()}});
+ let lumaState=blankLuma(),txQueue=[],txInflight=null,txTimer=0,ledSyncTimer=0;
+ const blank=()=>({messages:0,noteOn:0,noteOff:0,cc:{},bend:0,aftertouch:0,pc:0,other:0,sysex:0,velMin:null,velMax:null,below:0,above:0,filtered:0,controls:0,channels:{},errors:[],first:null});
  let stats=blank(),log=[],snap=null,timer=0;
  const notify=()=>{snap=null;for(const fn of listeners)try{fn()}catch{}};
  const publish=(now)=>{if(now){if(timer){clearTimeout(timer);timer=0}notify();return}if(timer)return;timer=setTimeout(()=>{timer=0;notify()},120)};
  /* position of a hardware key in the Keyboard window (negative = below the first position: ignored, never played as another note) */
- const positionOf=(note,c=cfg,ch=1)=>c.layout==='blocks'?(ch-c.blockFirstChannel)*c.blockSize+(note-c.blockFirstNote)+c.offset:note-c.root+c.offset;
+ const positionOf=(note,c=cfg,ch=1)=>{if(c===cfg&&lumaMap.size){const mapped=lumaMap.get(ch+'_'+note);if(mapped!==undefined)return mapped+c.offset}return c.layout==='blocks'?(ch-c.blockFirstChannel)*c.blockSize+(note-c.blockFirstNote)+c.offset:note-c.root+c.offset};
+ /* board (1..5) and key (0..55) for a linear position 0..279 on Lumatone */
+ const boardKeyOf=pos=>{const p=Math.trunc(Number(pos));if(!Number.isFinite(p)||p<0||p>=280)return null;return{board:Math.floor(p/56)+1,key:p%56}};
  /* velocity 1..127 -> level of the note (a factor on the slot volume): the played range of THIS keyboard is spread over floor..top along the curve; 'fixed' = every key at top */
  const levelOf=(v,c=cfg.vel)=>{if(c.curve==='fixed')return c.top;const x=Math.max(0,Math.min(1,(v-c.min)/(c.max-c.min)));return (c.floor+(1-c.floor)*Math.pow(x,CURVES[c.curve]||1))*c.top};
  /* the level of a key by its key id (event.code): 1 for computer keys and anything unknown. Read by the voice starters (first note, Hold pulses, Psy Lab). */
  const gainFor=code=>{const g=typeof code==='string'?gains.get(code):undefined;return g===undefined?1:g};
- /* one MIDI message -> {kind, ch (1..16), a, b}; Note On with velocity 0 is a Note Off; realtime / system messages are 'system' */
+ /* HWKB-03 · Lumatone SysEx encoders and decoder (exact spec: F0 00 21 50 <board 0..5> <cmd> <data…> F7) */
+ function encodeLumaSysex(board,cmd,data=[]){
+  const b=clampInt(board,0,5,0),c=clampInt(cmd,0,127,0);
+  const payload=Array.isArray(data)||ArrayBuffer.isView(data)?Array.from(data,x=>(x|0)&127):[];
+  return [0xF0,0x00,0x21,0x50,b,c,...payload,0xF7];
+ }
+ /* Command 00h: F0 00 21 50 <board 1..5> 00 <key 0..55> <note/cc 0..127> <channel 0..15 (0-indexed)> <type_byte: low nibble 00..03, high nibble 00/10 polarity> F7 */
+ function encodeLumaKeyParams(board,key,noteOrCc,channel0,keyType=1,ccPolarity=false){
+  const b=clampInt(board,1,5,1),k=clampInt(key,0,55,0),n=clampInt(noteOrCc,0,127,0),ch=clampInt(channel0,0,15,0);
+  const t=(clampInt(keyType,0,3,1)&0x0F)|(ccPolarity?0x10:0x00);
+  return encodeLumaSysex(b,LUMA_CMD.SET_KEY_PARAMS,[k,n,ch,t]);
+ }
+ /* Command 01h: F0 00 21 50 <board 1..5> 01 <key 0..55> <R_hi> <R_lo> <G_hi> <G_lo> <B_hi> <B_lo> F7 */
+ function encodeLumaKeyRgb(board,key,r,g,b){
+  const bd=clampInt(board,1,5,1),k=clampInt(key,0,55,0);
+  const R=clampInt(r,0,255,0),G=clampInt(g,0,255,0),B=clampInt(b,0,255,0);
+  return encodeLumaSysex(bd,LUMA_CMD.SET_KEY_RGB,[k,(R>>4)&0x0F,R&0x0F,(G>>4)&0x0F,G&0x0F,(B>>4)&0x0F,B&0x0F]);
+ }
+ /* Decode incoming Lumatone SysEx response: F0 00 21 50 <board> <cmd> <status> <data…> F7 (<data…> starts at byte 7) */
+ function decodeLumaSysex(bytes){
+  if(!bytes||bytes.length<8)return null;
+  if(bytes[0]!==0xF0||bytes[1]!==0x00||bytes[2]!==0x21||bytes[3]!==0x50||bytes[bytes.length-1]!==0xF7)return null;
+  const board=bytes[4]&127,cmd=bytes[5]&127,status=bytes[6]&127,data=Array.from(bytes.slice(7,bytes.length-1),x=>x&127);
+  const out={board,cmd,status,statusName:LUMA_RESP_NAME[status]||'UNKNOWN',data};
+  if(status===LUMA_RESP.ACK||status===LUMA_RESP.STATE){
+   if((cmd===LUMA_CMD.GET_CHANNELS||cmd===LUMA_CMD.GET_NOTES||cmd===LUMA_CMD.GET_TYPES)&&data.length>=56){
+    out.keys=data.slice(0,56);
+   }else if((cmd===LUMA_CMD.GET_RED_LEDS||cmd===LUMA_CMD.GET_GREEN_LEDS||cmd===LUMA_CMD.GET_BLUE_LEDS)&&data.length>=112){
+    const vals=[];for(let k=0;k<56;k++)vals.push(((data[k*2]&0x0F)<<4)|(data[k*2+1]&0x0F));
+    out.ledValues=vals;
+   }else if(cmd===LUMA_CMD.GET_RED_LEDS||cmd===LUMA_CMD.GET_GREEN_LEDS||cmd===LUMA_CMD.GET_BLUE_LEDS){
+    if(data.length>=56)out.ledValues=data.slice(0,56).map(v=>Math.min(255,v*2));
+   }else if(cmd===LUMA_CMD.GET_FIRMWARE&&data.length>=3){
+    out.firmware=data[0]+'.'+data[1]+'.'+data[2];
+   }else if(cmd===LUMA_CMD.PING){
+    out.ping=data;
+   }else if(cmd===LUMA_CMD.GET_PERIPHERALS&&data.length>=4){
+    out.peripherals={pitchWheel:data[0],modWheel:data[1],expression:data[2],sustain:data[3]};
+   }else if(cmd===LUMA_CMD.GET_LUMATOUCH){
+    out.lumaTouchLut=data;
+   }
+  }
+  return out;
+ }
+ function rebuildLumaMap(){
+  lumaMap.clear();
+  for(let b=1;b<=5;b++){
+   const bd=lumaState.boards[b];if(!bd)continue;
+   for(let k=0;k<56;k++){
+    if((bd.types[k]&0x0F)!==1)continue;
+    const ch=(bd.channels[k]&0x0F)+1,note=bd.notes[k]&127,pos=(b-1)*56+k;
+    const id=ch+'_'+note;if(!lumaMap.has(id))lumaMap.set(id,pos);
+   }
+  }
+ }
+ /* one MIDI message -> {kind, ch (1..16), a, b}; Note On with velocity 0 is a Note Off; Lumatone SysEx is decoded; other system messages are 'system' */
  function parse(bytes){
   if(!bytes||!bytes.length)return null;const s=bytes[0];
   if(s<0x80)return{kind:'data',ch:0,a:s,b:0};
-  if(s>=0xF0)return{kind:s>=0xF8?'realtime':'system',ch:0,a:bytes[1]|0,b:bytes[2]|0};
+  if(s>=0xF0){
+   if(s===0xF0&&bytes.length>=8&&bytes[1]===0x00&&bytes[2]===0x21&&bytes[3]===0x50)return{kind:'lumaSysex',ch:0,a:bytes[5]|0,b:bytes[6]|0,raw:Array.from(bytes)};
+   return{kind:s>=0xF8?'realtime':'system',ch:0,a:bytes[1]|0,b:bytes[2]|0};
+  }
   const ch=(s&15)+1,a=(bytes[1]|0)&127,b=(bytes[2]|0)&127;
   switch(s&0xF0){
    case 0x90:return b>0?{kind:'noteOn',ch,a,b}:{kind:'noteOff',ch,a,b:0};
@@ -68,12 +140,13 @@ const __XenHwKeyboard=(()=>{
    default:return{kind:'other',ch,a,b};}
  }
  /* A browser should hand over one message per event, but drivers differ: several messages in one packet, running status (data bytes without a status byte)
-    and realtime bytes in between are all accepted. `port` keeps the running status of one input. */
+    and realtime bytes in between are all accepted. `port` keeps the running status of one input.
+    Lumatone SysEx messages (F0 00 21 50 … F7) are preserved in full; other SysEx blocks remain [0xF0] markers. */
  function split(bytes,port){
   const out=[];if(!bytes)return out;let i=0;const n=bytes.length;
   while(i<n){const b=bytes[i];
    if(b>=0xF8){out.push([b]);i++;continue}
-   if(b>=0xF0){port.rs=0;if(b===0xF0){let j=i+1;while(j<n&&bytes[j]!==0xF7)j++;out.push([0xF0]);i=j+1;continue}const len=b===0xF2?3:b===0xF1||b===0xF3?2:1;out.push(Array.from(bytes.slice(i,i+len)));i+=len;continue}
+   if(b>=0xF0){port.rs=0;if(b===0xF0){let j=i+1;while(j<n&&bytes[j]!==0xF7)j++;if(j<n&&j-i>=7&&bytes[i+1]===0x00&&bytes[i+2]===0x21&&bytes[i+3]===0x50)out.push(Array.from(bytes.slice(i,j+1)));else out.push([0xF0]);i=j+1;continue}const len=b===0xF2?3:b===0xF1||b===0xF3?2:1;out.push(Array.from(bytes.slice(i,i+len)));i+=len;continue}
    let status=b,at=i+1;if(b<0x80){if(!port.rs){i++;continue}status=port.rs;at=i}else port.rs=b;
    const need=(status&0xF0)===0xC0||(status&0xF0)===0xD0?1:2,msg=[status];let j=at;
    while(msg.length<=need&&j<n){const d=bytes[j];if(d>=0xF8){out.push([d]);j++;continue}if(d>=0x80)break;msg.push(d);j++}
@@ -86,7 +159,7 @@ const __XenHwKeyboard=(()=>{
  }
  const say=t=>{log.push(t);if(log.length>12)log.shift()};
  function rangeMiss(pos){stats.above++;say('position '+pos+' is above the top of the Grid: move the window down (ß / Ü) or lower the first key');publish()}
- function release(id){const e=held.get(id);if(!e)return;held.delete(id);emit('keyup',e.code,e.pos)}
+ function release(id){const e=held.get(id);if(!e)return;held.delete(id);emit('keyup',e.code,e.pos);if(cfg.luma.sysex&&cfg.luma.ledSync)scheduleLedSync(e.pos)}
  function releaseAll(){for(const id of [...held.keys()])release(id);for(const [k,c] of ctl){if(c.down)emit('keyup',c.code,undefined,c.key,c.shift)}ctl.clear()}
  const keyId=(ch,note)=>'XenHw'+ch+'_'+note;
  function press(ch,note,vel){
@@ -97,6 +170,7 @@ const __XenHwKeyboard=(()=>{
   if(held.has(code))release(code);
   if(gains.size>4096)gains.clear();gains.set(code,levelOf(vel));
   held.set(code,{code,pos});emit('keydown',code,pos);
+  if(cfg.luma.sysex&&cfg.luma.ledSync)scheduleLedSync(pos);
  }
  /* a control (pedal, wheel, knob, pad, program button) presses and releases an existing XenSonar key: on at 64 and above, off below (a pad or a program button taps it) */
  const assignOf=(src,num,ch)=>cfg.assigns.find(a=>a.src===src&&a.num===num&&(!a.ch||a.ch===ch));
@@ -105,10 +179,175 @@ const __XenHwKeyboard=(()=>{
   if(tap){emit('keydown',a.code,undefined,a.key,a.shift);emit('keyup',a.code,undefined,a.key,a.shift);return}
   if(on&&!c.down){c.down=true;emit('keydown',a.code,undefined,a.key,a.shift)}else if(!on&&c.down){c.down=false;emit('keyup',a.code,undefined,a.key,a.shift)}
  }
+ /* HWKB-03 · Lumatone SysEx output selection & paced single-flight request queue (one command at a time, wait for ACK, retry on BUSY 02h) */
+ function outputs(){const out=[];if(access&&access.outputs)for(const o of access.outputs.values())out.push({id:o.id,name:o.name||'MIDI output',manufacturer:o.manufacturer||'',state:o.state});return out}
+ function activeOutputs(){
+  if(!access||!access.outputs)return[];
+  const list=[...access.outputs.values()].filter(o=>o.state!=='disconnected');
+  if(cfg.luma.outputId){const hit=list.filter(o=>o.id===cfg.luma.outputId);if(hit.length)return hit}
+  if(cfg.deviceId){const inp=[...access.inputs.values()].find(i=>i.id===cfg.deviceId);if(inp){const byName=list.filter(o=>o.name===inp.name||/lumatone/i.test(o.name||''));if(byName.length)return byName}}
+  const luma=list.filter(o=>/lumatone/i.test((o.manufacturer||'')+' '+(o.name||'')));
+  return luma.length?luma:list;
+ }
+ function sendRawSysex(bytes){
+  const outs=activeOutputs();let sent=false;
+  for(const o of outs){try{o.send(bytes);sent=true}catch(err){if(stats.errors.length<5)stats.errors.push(String(err&&err.message||err).slice(0,120))}}
+  if(sent)lumaState.txCount++;
+  return sent;
+ }
+ function clearTxQueue(){if(txTimer){clearTimeout(txTimer);txTimer=0}txInflight=null;txQueue=[]}
+ function pumpTxQueue(){
+  if(txInflight||!txQueue.length)return;
+  const item=txQueue.shift();txInflight=item;
+  const ok=sendRawSysex(item.bytes);
+  if(!ok){txInflight=null;item.resolve?.(null);if(txQueue.length)pumpTxQueue();return}
+  txTimer=setTimeout(()=>{
+   if(txInflight===item){txInflight=null;txTimer=0;item.resolve?.({timeout:true});pumpTxQueue()}
+  },180);
+ }
+ function enqueueLumaSysex(bytes,meta={}){
+  if(!bytes||bytes[0]!==0xF0)return Promise.resolve(null);
+  return new Promise(resolve=>{
+   const entry={bytes,board:bytes[4],cmd:bytes[5],retries:0,priority:!!meta.priority,coalesceKey:meta.coalesceKey||null,resolve};
+   if(meta.coalesceKey){const idx=txQueue.findIndex(q=>q.coalesceKey===meta.coalesceKey);if(idx>=0){txQueue[idx].resolve?.(null);txQueue[idx]=entry;pumpTxQueue();return}}
+   if(txQueue.length>=600){const dropped=txQueue.pop();dropped?.resolve?.(null)}
+   if(entry.priority){const at=txQueue.findIndex(q=>!q.priority);if(at<0)txQueue.push(entry);else txQueue.splice(at,0,entry)}
+   else txQueue.push(entry);
+   pumpTxQueue();
+  });
+ }
+ function handleLumaSysex(raw,name){
+  const d=decodeLumaSysex(raw);if(!d)return;
+  stats.sysex++;lumaState.rxCount++;lumaState.detected=true;lumaState.lastStatus=d.statusName;
+  const bd=lumaState.boards[d.board];
+  if(d.status===LUMA_RESP.BUSY&&txInflight&&txInflight.cmd===d.cmd&&(txInflight.board===d.board||txInflight.board===0)){
+   if(txTimer){clearTimeout(txTimer);txTimer=0}
+   const retryItem=txInflight;txInflight=null;lumaState.busyRetries++;
+   if(retryItem.retries<6){retryItem.retries++;txQueue.unshift(retryItem);txTimer=setTimeout(()=>{txTimer=0;pumpTxQueue()},24)}
+   else{retryItem.resolve?.(d);pumpTxQueue()}
+   publish();return;
+  }
+  if(d.keys&&bd){
+   if(d.cmd===LUMA_CMD.GET_CHANNELS){bd.channels=d.keys.slice(0,56);rebuildLumaMap()}
+   else if(d.cmd===LUMA_CMD.GET_NOTES){bd.notes=d.keys.slice(0,56);rebuildLumaMap()}
+   else if(d.cmd===LUMA_CMD.GET_TYPES){bd.types=d.keys.slice(0,56);rebuildLumaMap()}
+  }
+  if(d.ledValues&&bd){
+   if(d.cmd===LUMA_CMD.GET_RED_LEDS)bd.red=d.ledValues.slice(0,56);
+   else if(d.cmd===LUMA_CMD.GET_GREEN_LEDS)bd.green=d.ledValues.slice(0,56);
+   else if(d.cmd===LUMA_CMD.GET_BLUE_LEDS)bd.blue=d.ledValues.slice(0,56);
+  }
+  if(d.firmware)lumaState.firmware=d.firmware;
+  if(d.ping)lumaState.pingEcho=d.ping;
+  if(d.peripherals)lumaState.peripherals=d.peripherals;
+  if(d.lumaTouchLut)lumaState.lumaTouchLut=d.lumaTouchLut;
+  const cmdHex='0x'+d.cmd.toString(16).padStart(2,'0').toUpperCase();
+  if(d.cmd!==LUMA_CMD.SET_KEY_RGB||d.status!==LUMA_RESP.ACK){
+   say((name?name.slice(0,18)+' · ':'')+'Lumatone SysEx board '+d.board+' cmd '+cmdHex+' '+d.statusName+(d.firmware?' fw '+d.firmware:''));
+  }
+  if(txInflight&&txInflight.cmd===d.cmd&&(txInflight.board===d.board||txInflight.board===0||d.board===0)){
+   if(txTimer){clearTimeout(txTimer);txTimer=0}
+   const done=txInflight;txInflight=null;done.resolve?.(d);pumpTxQueue();
+  }
+  publish();
+ }
+ /* Read Lumatone state (ping 33h, firmware 31h, peripheral channels 3Dh, and per-board 16h/17h/18h) */
+ function lumaPing(){return enqueueLumaSysex(encodeLumaSysex(0,LUMA_CMD.PING,[0x00,0x00,0x01]),{priority:true})}
+ function lumaRequestFirmware(){return enqueueLumaSysex(encodeLumaSysex(0,LUMA_CMD.GET_FIRMWARE,[]),{priority:true})}
+ function lumaReadBoard(board=1){
+  const b=clampInt(board,1,5,1);
+  return Promise.all([
+   enqueueLumaSysex(encodeLumaSysex(b,LUMA_CMD.GET_CHANNELS,[]),{priority:true}),
+   enqueueLumaSysex(encodeLumaSysex(b,LUMA_CMD.GET_NOTES,[]),{priority:true}),
+   enqueueLumaSysex(encodeLumaSysex(b,LUMA_CMD.GET_TYPES,[]),{priority:true})
+  ]);
+ }
+ function lumaReadBoardLeds(board=1){
+  const b=clampInt(board,1,5,1);
+  return Promise.all([
+   enqueueLumaSysex(encodeLumaSysex(b,LUMA_CMD.GET_RED_LEDS,[]),{priority:true}),
+   enqueueLumaSysex(encodeLumaSysex(b,LUMA_CMD.GET_GREEN_LEDS,[]),{priority:true}),
+   enqueueLumaSysex(encodeLumaSysex(b,LUMA_CMD.GET_BLUE_LEDS,[]),{priority:true})
+  ]);
+ }
+ async function lumaReadAll(){
+  await lumaPing();await lumaRequestFirmware();
+  enqueueLumaSysex(encodeLumaSysex(0,LUMA_CMD.GET_PERIPHERALS,[]),{priority:true});
+  for(let b=1;b<=5;b++)await lumaReadBoard(b);
+ }
+ function lumaSetKeyParams(board,key,noteOrCc,channel0,keyType=1,ccPolarity=false){
+  const bytes=encodeLumaKeyParams(board,key,noteOrCc,channel0,keyType,ccPolarity);
+  return enqueueLumaSysex(bytes,{priority:true,coalesceKey:'param_'+board+'_'+key});
+ }
+ function lumaSetKeyRgb(board,key,r,g,b,priority=false){
+  const sig=r+','+g+','+b,ck=board+'_'+key;
+  if(ledCache.get(ck)===sig)return Promise.resolve(null);
+  ledCache.set(ck,sig);
+  const bytes=encodeLumaKeyRgb(board,key,r,g,b);
+  return enqueueLumaSysex(bytes,{priority,coalesceKey:'led_'+ck});
+ }
+ /* Compute the live RGB color of any Lumatone key position (0..279) from the active XenSonar Grid & held notes */
+ function computeKeyColorForPos(pos,gridState){
+  const {rows,openRows,winStart,winEnd,heldPositions,includeMuted}=gridState;
+  if(heldPositions.has(pos))return LUMA_COLORS.held;
+  const list=includeMuted?rows:openRows;
+  const idx=winStart+pos;
+  const row=idx>=0&&idx<list.length?list[idx]:null;
+  if(!row)return [0x05,0x07,0x0C];
+  if(row.manualMuted||row.modeMuted)return LUMA_COLORS.muted;
+  if(row.stepIndex===0||/\b1\/1\b|Root|^0c$/i.test(String(row.label||'')))return LUMA_COLORS.root;
+  if(idx>=winStart&&idx<=winEnd)return LUMA_COLORS.window;
+  return LUMA_COLORS.open;
+ }
+ function readGridStateForLeds(){
+  const rawRows=typeof __NodalBallGrid!=='undefined'&&__NodalBallGrid.bound?.()?__NodalBallGrid.rows():[];
+  const rows=Array.isArray(rawRows)?[...rawRows].filter(r=>Number.isFinite(r?.freq)).sort((a,b)=>a.freq-b.freq):[];
+  const openRows=rows.filter(r=>!r.manualMuted&&!r.modeMuted);
+  const winStart=Math.max(0,Math.round(typeof __NodalBallGrid!=='undefined'&&__NodalBallGrid.windowOffset?__NodalBallGrid.windowOffset():0));
+  const winEnd=winStart+31;
+  const heldPositions=new Set();
+  for(const h of held.values())if(Number.isInteger(h.pos)&&h.pos>=0)heldPositions.add(h.pos);
+  return{rows,openRows,winStart,winEnd,heldPositions,includeMuted:!!cfg.luma.includeMuted};
+ }
+ function syncLeds(onlyPos){
+  if(!enabled||!cfg.luma.sysex||!cfg.luma.ledSync)return 0;
+  const gs=readGridStateForLeds();let count=0;
+  if(Number.isInteger(onlyPos)&&onlyPos>=0&&onlyPos<280){
+   const bk=boardKeyOf(onlyPos);if(!bk)return 0;
+   const [r,g,b]=computeKeyColorForPos(onlyPos,gs);
+   lumaSetKeyRgb(bk.board,bk.key,r,g,b,true);return 1;
+  }
+  for(let pos=0;pos<280;pos++){
+   const bk=boardKeyOf(pos);if(!bk)continue;
+   const [r,g,b]=computeKeyColorForPos(pos,gs);
+   const ck=bk.board+'_'+bk.key,sig=r+','+g+','+b;
+   if(ledCache.get(ck)!==sig){lumaSetKeyRgb(bk.board,bk.key,r,g,b);count++}
+  }
+  return count;
+ }
+ function scheduleLedSync(onlyPos){
+  if(Number.isInteger(onlyPos)){syncLeds(onlyPos);return}
+  if(ledSyncTimer)return;
+  ledSyncTimer=setTimeout(()=>{ledSyncTimer=0;syncLeds()},40);
+ }
+ /* Push a clean 5-board isomorphic block mapping (boards 1..5 -> MIDI channels 1..5, keys 0..55 -> notes 0..55, Playable Note 01h) + live colors to Lumatone RAM */
+ function lumaApplyXenLayout(){
+  if(!enabled||!cfg.luma.sysex)return 0;
+  setConfig({layout:'blocks',blockSize:56,blockFirstChannel:1,blockFirstNote:0});
+  lumaMap.clear();ledCache.clear();let count=0;
+  for(let b=1;b<=5;b++){
+   for(let k=0;k<56;k++){
+    lumaSetKeyParams(b,k,k,b-1,1,false);count++;
+   }
+  }
+  syncLeds();
+  return count;
+ }
  function note(m,name){
   if(!m)return;const s=stats;s.messages++;
   const add=t=>say((name?name.slice(0,18)+' · ':'')+t);
   if(m.kind==='realtime'||m.kind==='data')return;
+  if(m.kind==='lumaSysex'){handleLumaSysex(m.raw,name);return}
   if(m.ch)s.channels[m.ch]=(s.channels[m.ch]||0)+1;
   /* learning a control: the first controller / program / key that moves is the one */
   if(learning==='control'&&(m.kind==='cc'||m.kind==='pc'||m.kind==='noteOn')){learning=false;lastControl={src:m.kind==='noteOn'?'note':m.kind,num:m.a,ch:m.ch};add('learned '+describe(lastControl));publish(true);return}
@@ -139,23 +378,36 @@ const __XenHwKeyboard=(()=>{
   for(const i of use){if(i.state==='disconnected')continue;const port={rs:0};i.onmidimessage=e=>{try{for(const msg of split(e.data,port))note(parse(msg),i.name)}catch(err){if(stats.errors.length<5)stats.errors.push(String(err&&err.message||err).slice(0,120))}};attached.set(i,true);try{i.open?.()?.catch?.(()=>{})}catch{}}
   if(!stats.first&&list[0])stats.first={name:list[0].name||'',manufacturer:list[0].manufacturer||''};
   if(cfg.deviceId&&!list.some(i=>i.id===cfg.deviceId&&i.state!=='disconnected'))releaseAll();
-  status=!enabled?'off':list.some(i=>i.state!=='disconnected')?'ready':'no-device';publish(true);
+  status=!enabled?'off':list.some(i=>i.state!=='disconnected')?'ready':'no-device';
+  if(status==='ready'&&cfg.luma.sysex&&sysexGranted&&!lumaState.detected){lumaPing();lumaRequestFirmware();if(cfg.luma.ledSync)scheduleLedSync()}
+  publish(true);
  }
  /* a refusal by the browser (denied) is something else than a system MIDI service that cannot start (failed: e.g. Chromium "Platform dependent initialization failed" when the OS backend, on Linux the ALSA sequencer, is not available) */
  const kindOfError=e=>{const n=String(e&&e.name),m=String(e&&e.message);return (n==='NotAllowedError'||n==='SecurityError')&&!/platform|initiali[sz]ation/i.test(m)?'denied':'failed'};
  const envInfo=()=>{const ua=typeof navigator!=='undefined'?String(navigator.userAgent||''):'';return{secure:typeof window!=='undefined'?window.isSecureContext:undefined,proto:typeof location!=='undefined'?String(location.protocol):'',linux:/Linux/.test(ua)&&!/Android/.test(ua),firefox:/Firefox\//.test(ua),ua}};
  const onBlur=()=>releaseAll();/* a window that loses the focus must not leave notes or a pedal hanging */
- function enable(){
-  if(enabled)return;
+ function enable(wantSysex){
+  const askSysex=wantSysex!==undefined?!!wantSysex:!!cfg.luma.sysex;
+  if(enabled&&(!askSysex||sysexGranted))return;
+  if(enabled){disable()}
   if(typeof navigator==='undefined'||typeof navigator.requestMIDIAccess!=='function'){status='unsupported';publish(true);return}
-  enabled=true;status='asking';lastErr=null;errorText='';publish(true);
-  try{navigator.permissions?.query({name:'midi'}).then(r=>{permState=r.state},()=>{})}catch{}
-  let req;try{req=navigator.requestMIDIAccess({sysex:false})}catch(e){req=Promise.reject(e)}
-  Promise.resolve(req).then(a=>{if(!enabled){return}access=a;a.onstatechange=()=>{releaseAllIfGone();refresh()};try{window.addEventListener('blur',onBlur)}catch{}refresh()})
-   .catch(e=>{enabled=false;status=kindOfError(e);lastErr={name:String(e&&e.name||'Error').slice(0,40),message:String(e&&e.message||e).slice(0,160)};errorText=lastErr.message;if(stats.errors.length<5)stats.errors.push(lastErr.name+': '+lastErr.message);publish(true)});
+  enabled=true;status='asking';lastErr=null;errorText='';sysexGranted=false;publish(true);
+  try{navigator.permissions?.query({name:'midi',sysex:askSysex}).then(r=>{permState=r.state},()=>{})}catch{}
+  let req;try{req=navigator.requestMIDIAccess({sysex:askSysex})}catch(e){req=Promise.reject(e)}
+  Promise.resolve(req).then(a=>{if(!enabled){return}access=a;sysexGranted=askSysex&&a?.sysexEnabled!==false;a.onstatechange=()=>{releaseAllIfGone();refresh()};try{window.addEventListener('blur',onBlur)}catch{}refresh()})
+   .catch(e=>{
+    if(askSysex&&kindOfError(e)==='denied'){
+     /* Fallback: if SysEx was refused, try plain MIDI so the keyboard still plays notes */
+     let plain;try{plain=navigator.requestMIDIAccess({sysex:false})}catch(e2){plain=Promise.reject(e2)}
+     Promise.resolve(plain).then(a=>{if(!enabled)return;access=a;sysexGranted=false;say('SysEx permission refused: playing in standard MIDI mode without live LED sync');a.onstatechange=()=>{releaseAllIfGone();refresh()};try{window.addEventListener('blur',onBlur)}catch{}refresh()})
+      .catch(e2=>{enabled=false;status=kindOfError(e2);lastErr={name:String(e2&&e2.name||'Error').slice(0,40),message:String(e2&&e2.message||e2).slice(0,160)};errorText=lastErr.message;if(stats.errors.length<5)stats.errors.push(lastErr.name+': '+lastErr.message);publish(true)});
+     return;
+    }
+    enabled=false;status=kindOfError(e);lastErr={name:String(e&&e.name||'Error').slice(0,40),message:String(e&&e.message||e).slice(0,160)};errorText=lastErr.message;if(stats.errors.length<5)stats.errors.push(lastErr.name+': '+lastErr.message);publish(true);
+   });
  }
  const releaseAllIfGone=()=>{if(!access)return;const live=new Set([...access.inputs.values()].filter(i=>i.state!=='disconnected').map(i=>i.id));if(![...attached.keys()].some(i=>live.has(i.id)))releaseAll()};
- function disable(){enabled=false;detach();releaseAll();learning=false;status='off';try{window.removeEventListener('blur',onBlur)}catch{}if(access)try{access.onstatechange=null}catch{}access=null;publish(true)}
+ function disable(){enabled=false;sysexGranted=false;clearTxQueue();detach();releaseAll();learning=false;status='off';try{window.removeEventListener('blur',onBlur)}catch{}if(access)try{access.onstatechange=null}catch{}access=null;publish(true)}
  function setConfig(patch){
   const prev=cfg;let next={...cfg,...patch};
   /* another device: keep what belongs to the old one and bring back what was set for the new one */
@@ -164,6 +416,8 @@ const __XenHwKeyboard=(()=>{
   if(patch&&Object.hasOwn(patch,'root')&&!Object.hasOwn(patch,'preset'))cfg.preset='custom';
   if(prev.deviceId!==cfg.deviceId||prev.channel!==cfg.channel||prev.layout!==cfg.layout)releaseAll();
   save();if(prev.deviceId!==cfg.deviceId)refresh();
+  if(enabled&&cfg.luma.sysex&&!prev.luma.sysex){if(!sysexGranted)enable(true);else{lumaPing();lumaRequestFirmware();if(cfg.luma.ledSync)scheduleLedSync()}}
+  else if(enabled&&cfg.luma.sysex&&cfg.luma.ledSync&&(prev.luma.includeMuted!==cfg.luma.includeMuted||!prev.luma.ledSync)){ledCache.clear();scheduleLedSync()}
  }
  function applyPreset(id){const p=PRESETS.find(x=>x.id===id);if(p)setConfig({root:p.root,preset:p.id})}
  function learn(on){learning=on===false?false:on==='control'?'control':'first';if(learning==='control')lastControl=null;publish(true)}
@@ -173,16 +427,18 @@ const __XenHwKeyboard=(()=>{
  function removeAssign(i){releaseAll();setConfig({assigns:cfg.assigns.filter((_,k)=>k!==i)})}
  function report(){
   const L=[];const nav=typeof navigator!=='undefined'?navigator:{};
-  L.push('XenSonar hardware keyboard report (stage 2)');
+  L.push('XenSonar hardware keyboard report (stage 2 + Lumatone SysEx)');
   L.push('Browser: '+String(nav.userAgent||'?').slice(0,200));
   const env=envInfo();
-  L.push('Web MIDI: '+(typeof nav.requestMIDIAccess==='function'?'available':'not available')+' · status: '+status+(lastErr?' ('+lastErr.name+': '+lastErr.message+')':errorText?' ('+errorText+')':''));
+  L.push('Web MIDI: '+(typeof nav.requestMIDIAccess==='function'?'available':'not available')+' · status: '+status+' · sysex: '+(cfg.luma.sysex?(sysexGranted?'granted':'requested'):'off')+(lastErr?' ('+lastErr.name+': '+lastErr.message+')':errorText?' ('+errorText+')':''));
   L.push('Page: '+(env.proto||'?')+' · secure context: '+(env.secure===undefined?'?':env.secure)+' · permission: '+(permState||'?')+' · platform: '+String(nav.platform||'?').slice(0,40));
   L.push('Devices: '+(inputs().map(d=>(d.manufacturer?d.manufacturer+' ':'')+d.name+' ['+d.state+']').join('; ')||'none'));
+  L.push('Outputs: '+(outputs().map(d=>(d.manufacturer?d.manufacturer+' ':'')+d.name+' ['+d.state+']').join('; ')||'none'));
   L.push('Settings: layout '+cfg.layout+(cfg.layout==='blocks'?' ('+cfg.blockSize+' keys per channel, first key '+cfg.blockFirstNote+' on channel '+cfg.blockFirstChannel+')':', first key '+cfg.root+' ('+noteName(cfg.root)+')')+', offset '+cfg.offset+', channel '+(cfg.channel||'all')+', preset '+cfg.preset+', device '+(cfg.deviceId?'selected':'all'));
+  L.push('Lumatone SysEx: '+(cfg.luma.sysex?'enabled':'disabled')+' · LED sync: '+(cfg.luma.ledSync?'on':'off')+' · detected: '+lumaState.detected+(lumaState.firmware?' · firmware '+lumaState.firmware:'')+' · tx '+lumaState.txCount+' · rx '+lumaState.rxCount+' · busy retries '+lumaState.busyRetries+' · mapped keys '+lumaMap.size);
   L.push('Velocity: curve '+cfg.vel.curve+', range '+cfg.vel.min+'..'+cfg.vel.max+', softest level '+cfg.vel.floor+', loudest level '+cfg.vel.top);
   L.push('Controls: '+(cfg.assigns.map(a=>describe(a)+' → '+(a.label||a.code)).join('; ')||'none'));
-  L.push('Messages: '+stats.messages+' · note on '+stats.noteOn+' (velocity '+(stats.velMin===null?'-':stats.velMin+'..'+stats.velMax)+') · note off '+stats.noteOff+' · pitch bend '+stats.bend+' · aftertouch '+stats.aftertouch+' · program '+stats.pc+' · other '+stats.other);
+  L.push('Messages: '+stats.messages+' · note on '+stats.noteOn+' (velocity '+(stats.velMin===null?'-':stats.velMin+'..'+stats.velMax)+') · note off '+stats.noteOff+' · pitch bend '+stats.bend+' · aftertouch '+stats.aftertouch+' · program '+stats.pc+' · sysex '+stats.sysex+' · other '+stats.other);
   L.push('Channels seen: '+(Object.keys(stats.channels).map(k=>k+'×'+stats.channels[k]).join(' ')||'none'));
   L.push('Controllers seen: '+(Object.keys(stats.cc).map(k=>'CC'+k+'×'+stats.cc[k]).join(' ')||'none'));
   L.push('Ignored: '+stats.below+' below the first position, '+stats.above+' above the top of the Grid, '+stats.filtered+' filtered by channel');
@@ -193,14 +449,18 @@ const __XenHwKeyboard=(()=>{
  function snapshot(){
   if(snap)return snap;
   const supported=typeof navigator!=='undefined'&&typeof navigator.requestMIDIAccess==='function';
-  snap=Object.freeze({enabled,status:!supported&&status==='off'?'unsupported':status,learning,cfg,devices:inputs(),log:log.slice(),held:held.size,errorText,lastErr,env:envInfo(),supported,presets:PRESETS,layouts:LAYOUTS,actions:ACTIONS,
+  snap=Object.freeze({enabled,status:!supported&&status==='off'?'unsupported':status,learning,cfg,devices:inputs(),outputs:outputs(),sysexGranted,luma:{detected:lumaState.detected,firmware:lumaState.firmware,lastStatus:lumaState.lastStatus,txCount:lumaState.txCount,rxCount:lumaState.rxCount,busyRetries:lumaState.busyRetries,mappedKeys:lumaMap.size,peripherals:lumaState.peripherals},log:log.slice(),held:held.size,errorText,lastErr,env:envInfo(),supported,presets:PRESETS,layouts:LAYOUTS,actions:ACTIONS,
    velSeen:stats.velMin===null?null:[stats.velMin,stats.velMax],channelsSeen:Object.keys(stats.channels).map(Number),lastControl,lastControlText:describe(lastControl)});
   return snap;
  }
- return Object.freeze({PRESETS,LAYOUTS,ACTIONS,parse,split,positionOf,levelOf,gainFor,describe,rangeMiss,kindOfError,noteName,enable,disable,setConfig,applyPreset,learn,usePlayedRange,addAssign,removeAssign,report,snapshot,
+ return Object.freeze({PRESETS,LAYOUTS,ACTIONS,LUMA_MFR,LUMA_CMD,LUMA_RESP,LUMA_COLORS,parse,split,positionOf,boardKeyOf,levelOf,gainFor,describe,rangeMiss,kindOfError,noteName,
+  encodeLumaSysex,encodeLumaKeyParams,encodeLumaKeyRgb,decodeLumaSysex,lumaPing,lumaRequestFirmware,lumaReadBoard,lumaReadBoardLeds,lumaReadAll,lumaSetKeyParams,lumaSetKeyRgb,lumaApplyXenLayout,syncLeds,
+  enable,disable,setConfig,applyPreset,learn,usePlayedRange,addAssign,removeAssign,report,snapshot,
   subscribe:fn=>(listeners.add(fn),()=>listeners.delete(fn)),
   /* test hook: feed bytes as if a device sent them (also used by the browser test with a simulated device) */
-  _message:(bytes,name)=>{for(const m of split(bytes,_port))note(parse(m),name||'test')},_reset:()=>{releaseAll();cfg=clean(DEFAULTS);profiles={};held.clear();gains.clear();ctl.clear();log=[];stats=blank();snap=null;learning=false;lastControl=null;_port.rs=0}});
+  _message:(bytes,name)=>{for(const m of split(bytes,_port))note(parse(m),name||'test')},
+  _lumaState:()=>lumaState,
+  _reset:()=>{clearTxQueue();releaseAll();cfg=clean(DEFAULTS);profiles={};held.clear();gains.clear();ctl.clear();lumaMap.clear();ledCache.clear();lumaState=blankLuma();log=[];stats=blank();snap=null;learning=false;lastControl=null;_port.rs=0}});
 })();
 const _port={rs:0};
 
@@ -212,7 +472,7 @@ const __xenHwStyle={
  btn:{background:'#14141c',color:'#e9e4ff',border:'1px solid #3b3b4a',borderRadius:4,padding:'4px 10px',font:'inherit',cursor:'pointer'},
  btnOn:{background:'#1d2a30',borderColor:'#5ef2ff'},
  back:{position:'fixed',inset:0,zIndex:30000,background:'rgba(2,2,8,.72)',display:'flex',alignItems:'center',justifyContent:'center',padding:16},
- dlg:{width:'min(560px,100%)',maxHeight:'92vh',overflow:'auto',background:'#0d0d14',color:'#cfcfd8',border:'1px solid #3b3b4a',borderRadius:8,padding:'16px 18px',fontSize:12,display:'grid',gap:10},
+ dlg:{width:'min(600px,100%)',maxHeight:'92vh',overflow:'auto',background:'#0d0d14',color:'#cfcfd8',border:'1px solid #3b3b4a',borderRadius:8,padding:'16px 18px',fontSize:12,display:'grid',gap:10},
  field:{display:'flex',alignItems:'center',gap:8,flexWrap:'wrap'},
  inp:{background:'#14141c',color:'#e9e4ff',border:'1px solid #3b3b4a',borderRadius:4,padding:'3px 6px',font:'inherit'},
  mon:{margin:0,maxHeight:130,overflow:'auto',background:'#07070b',border:'1px solid #24242d',borderRadius:4,padding:6,fontSize:10,lineHeight:1.35,color:'#9a9aa8',whiteSpace:'pre-wrap'},
@@ -270,6 +530,22 @@ function __XenHwKeyboardSettings({onClose}){
    u.jsxs('label',{style:S.field,children:['First key (0–127)',u.jsx('input',{type:'number',min:0,max:127,style:{...S.inp,width:64},'aria-label':'First key',value:c.root,onChange:e=>HW.setConfig({root:e.target.value})}),u.jsx('span',{style:{color:'#8a8a98'},children:HW.noteName(c.root)})]}),
    u.jsx('button',{type:'button',style:{...S.btn,...(s.learning==='first'?S.btnOn:null)},'aria-pressed':s.learning==='first',onClick:()=>HW.learn(s.learning==='first'?false:true),title:'Press this, then press the key that should be position 1',children:s.learning==='first'?'Press a key…':'Learn first key'}),
    u.jsxs('label',{style:S.field,title:'Shifts every key by whole positions (like the window keys).',children:['Offset',u.jsx('input',{type:'number',min:-512,max:512,style:{...S.inp,width:64},'aria-label':'Keyboard position offset',value:c.offset,onChange:e=>HW.setConfig({offset:e.target.value})})]})]}),
+  /* HWKB-03 · Lumatone bidirectional SysEx integration (F0 00 21 50 <board> <cmd> … F7) */
+  u.jsxs('fieldset',{style:S.group,'data-xen-hw-lumatone':'true',children:[u.jsx('legend',{style:S.legend,children:'Lumatone SysEx (live RGB LEDs & layout read/sync)'}),
+   u.jsxs('div',{style:S.field,children:[
+    u.jsxs('label',{style:{...S.field,cursor:'pointer'},title:'Request Web MIDI SysEx access (F0 00 21 50) to read the 5 boards (16h/17h/18h) and drive live key LEDs (01h) in RAM without overwriting saved hardware presets.',children:[
+     u.jsx('input',{type:'checkbox','aria-label':'Enable Lumatone SysEx',checked:c.luma.sysex,onChange:e=>HW.setConfig({luma:{...c.luma,sysex:e.target.checked}})}),'Enable Lumatone SysEx (00 21 50)']}),
+    u.jsxs('label',{style:{...S.field,cursor:'pointer'},title:'Mirror Root pitch, active scale steps, muted steps and held notes on Lumatone key LEDs in real time (volatile RAM only).',children:[
+     u.jsx('input',{type:'checkbox','aria-label':'Live Lumatone LED sync',checked:c.luma.ledSync,disabled:!c.luma.sysex,onChange:e=>HW.setConfig({luma:{...c.luma,ledSync:e.target.checked}})}),'Live LED scale & root sync']}),
+    u.jsxs('label',{style:{...S.field,cursor:'pointer'},title:'Include muted Grid steps as dim keys on Lumatone so the full tuning geometry stays visible while you mute/unmute steps with the mouse.',children:[
+     u.jsx('input',{type:'checkbox','aria-label':'Show muted steps on Lumatone LEDs',checked:c.luma.includeMuted,disabled:!c.luma.sysex,onChange:e=>HW.setConfig({luma:{...c.luma,includeMuted:e.target.checked}})}),'Include muted steps on LEDs']})]}),
+   c.luma.sysex?u.jsxs('div',{style:S.field,children:[
+    u.jsxs('label',{style:S.field,children:['MIDI Out',u.jsxs('select',{style:S.inp,'aria-label':'Lumatone MIDI output',value:c.luma.outputId,onChange:e=>HW.setConfig({luma:{...c.luma,outputId:e.target.value}}),children:[u.jsx('option',{value:'',children:'Auto (match Lumatone / active device)'}),...s.outputs.map(o=>u.jsx('option',{key:o.id,value:o.id,children:(o.manufacturer?o.manufacturer+' ':'')+o.name}))]})]}),
+    u.jsx('button',{type:'button',style:S.btn,'data-xen-luma-ping':'true',disabled:!s.enabled||!s.sysexGranted,onClick:()=>{HW.lumaPing();HW.lumaRequestFirmware()},title:'Send Software Ping (33h) and Get Firmware Revision (31h)',children:'Ping / Firmware'}),
+    u.jsx('button',{type:'button',style:S.btn,'data-xen-luma-read':'true',disabled:!s.enabled||!s.sysexGranted,onClick:()=>HW.lumaReadAll(),title:'Read channels (16h), notes (17h) and key types (18h) from all 5 boards (280 keys)',children:'Read 5 boards (16h–18h)'}),
+    u.jsx('button',{type:'button',style:S.btn,'data-xen-luma-sync-leds':'true',disabled:!s.enabled||!s.sysexGranted,onClick:()=>HW.syncLeds(),title:'Send live RGB colors (01h) for the current XenSonar tuning and root to Lumatone RAM',children:'Sync LEDs now'}),
+    u.jsx('button',{type:'button',style:S.btn,'data-xen-luma-apply-layout':'true',disabled:!s.enabled||!s.sysexGranted,onClick:()=>HW.lumaApplyXenLayout(),title:'Configure all 5 boards (00h) as 56 keys per channel (channels 1–5, notes 0–55) in volatile RAM and sync LEDs',children:'Push 5×56 layout to RAM'})]}):null,
+   c.luma.sysex?u.jsx('p',{style:S.note,'data-xen-luma-status':'true',children:'Lumatone: '+(s.luma.detected?'connected':'waiting for response')+(s.luma.firmware?' · FW '+s.luma.firmware:'')+(s.luma.lastStatus?' · last '+s.luma.lastStatus:'')+' · mapped keys '+s.luma.mappedKeys+' · tx '+s.luma.txCount+' / rx '+s.luma.rxCount+(s.luma.busyRetries?' · busy retries '+s.luma.busyRetries:'')+' · Color updates (01h) stay in RAM and never overwrite saved presets.'}):null]}),
   /* HWKB-02 touch: velocity of the key -> level of the note */
   u.jsxs('fieldset',{style:S.group,'data-xen-hw-velocity':'true',children:[u.jsx('legend',{style:S.legend,children:'Touch (velocity → level)'}),
    u.jsxs('div',{style:S.field,children:[

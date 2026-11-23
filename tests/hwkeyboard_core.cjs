@@ -154,4 +154,37 @@ async function stage2(){
   // only the chosen device is listened to; the window losing focus releases what is held
   assert.equal(a.onmidimessage,null);b.onmidimessage({data:new Uint8Array([0x90,5,100])});assert.equal(k.events.at(-1).type,'keydown');(k.win.on.blur||[]).forEach(f=>f());assert.equal(k.events.at(-1).type,'keyup','a window that loses the focus leaves no hanging note');
   const rep=k.HW.report();for(const s of ['stage 2','layout blocks (56 keys per channel','Velocity: curve','Controls: controller CC64','Channels seen: 1×'])assert(rep.includes(s),'report contains '+s+'\n'+rep)}
+ // ---- HWKB-03 · Lumatone SysEx protocol (00h, 01h, 13h–18h, 31h, 33h, 3Dh, ACK / BUSY queue, live LED sync) ----
+ {const sent=[],inp={id:'l1',name:'Lumatone',manufacturer:'Lumatone',state:'connected',onmidimessage:null};
+  const out={id:'o1',name:'Lumatone',manufacturer:'Lumatone',state:'connected',send(bytes){sent.push(Array.from(bytes))}};
+  const access={sysexEnabled:true,inputs:new Map([['l1',inp]]),outputs:new Map([['o1',out]]),onstatechange:null};
+  const k=make({nav:{userAgent:'Chrome/130',requestMIDIAccess:async()=>access}});
+  // Use real setTimeout for the Lumatone queue so single-flight ACK/BUSY pacing is tested rather than immediate 180ms timeout firing
+  k.win;const HW=k.HW;
+  // Exact byte format of 00h (Set Key Parameters: 0-indexed channel 0..15, type low nibble + polarity high nibble)
+  assert.deepEqual([...HW.encodeLumaKeyParams(2,10,60,4,1,false)],[0xF0,0x00,0x21,0x50,2,0x00,10,60,4,0x01,0xF7]);
+  assert.deepEqual([...HW.encodeLumaKeyParams(5,55,74,15,2,true)],[0xF0,0x00,0x21,0x50,5,0x00,55,74,15,0x12,0xF7]);
+  // Exact byte format of 01h (Set Key RGB: 6 x 4-bit nibbles R_hi R_lo G_hi G_lo B_hi B_lo)
+  assert.deepEqual([...HW.encodeLumaKeyRgb(1,0,0xF5,0xA6,0x23)],[0xF0,0x00,0x21,0x50,1,0x01,0,0x0F,0x05,0x0A,0x06,0x02,0x03,0xF7]);
+  // Decode 16h/17h/18h (56 key bytes starting at byte 7) and 13h (112 nibble bytes starting at byte 7)
+  const notes56=Array.from({length:56},(_,i)=>12+i);
+  const dec17=HW.decodeLumaSysex([0xF0,0x00,0x21,0x50,1,0x17,0x01,...notes56,0xF7]);
+  assert.equal(dec17.statusName,'ACK');assert.deepEqual([...dec17.keys],notes56);
+  const redNibbles=[];for(let i=0;i<56;i++){const v=(i*4)&0xFF;redNibbles.push((v>>4)&0x0F,v&0x0F)}
+  const dec13=HW.decodeLumaSysex([0xF0,0x00,0x21,0x50,3,0x13,0x01,...redNibbles,0xF7]);
+  assert.equal(dec13.ledValues.length,56);assert.equal(dec13.ledValues[10],40);
+  // Enable with SysEx, verify auto-ping (33h) + firmware (31h), BUSY (02h), and ACK (01h)
+  HW.setConfig({luma:{sysex:true,ledSync:false,includeMuted:false,outputId:''}});
+  HW.enable(true);await new Promise(r=>setTimeout(r,5));
+  assert.equal(HW.snapshot().sysexGranted,true);
+  assert.deepEqual(sent[0],[0xF0,0x00,0x21,0x50,0,0x33,0x00,0x00,0x01,0xF7]);
+  assert.deepEqual(sent[1],[0xF0,0x00,0x21,0x50,0,0x31,0xF7]);
+  // Reply with ACK (01h) to 31h (Get Firmware)
+  inp.onmidimessage({data:new Uint8Array([0xF0,0x00,0x21,0x50,0,0x31,0x01,1,2,9,0xF7])});
+  assert.equal(HW.snapshot().luma.firmware,'1.2.9');
+  // Simulate reading board 1 channels (16h: all ch 2 -> 0-indexed value 1), notes (17h: 12..67), types (18h: all Playable Note = 1)
+  inp.onmidimessage({data:new Uint8Array([0xF0,0x00,0x21,0x50,1,0x16,0x01,...Array.from({length:56},()=>1),0xF7])});
+  inp.onmidimessage({data:new Uint8Array([0xF0,0x00,0x21,0x50,1,0x17,0x01,...notes56,0xF7])});
+  inp.onmidimessage({data:new Uint8Array([0xF0,0x00,0x21,0x50,1,0x18,0x01,...Array.from({length:56},()=>1),0xF7])});
+  assert.equal(HW.positionOf(15,HW.snapshot().cfg,2),3,'learned Lumatone board 1 key 3 (ch 2, note 15) maps to position 3');}
 }
