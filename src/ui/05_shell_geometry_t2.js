@@ -74,15 +74,27 @@
     // Side archivolts: two walls parallel to the outer side, forming a rune channel.
     const rib1=`${wall(15,13,11,false)} ${wall(15,13,11,true)}`;
     const rib2=`${wall(28,24,21,false)} ${wall(28,24,21,true)}`;
-    // Centre relief (after 0a23211): concentric rings round the keystone and fan ribs falling
-    // from it. Centre only, faint, behind the controls; no curves spanning the full width.
-    const ky0=yT+3.6, depth=yB-ky0;
-    const rings=[[18,pal.gold,.30,'2 3'],[30,pal.stroke,.20,''],[44,pal.gold,.18,'2 4'],[62,pal.stroke,.12,''],[84,pal.inner,.10,'1 5']]
-      .map(([r,c,o,da])=>`<circle cx="${cx}" cy="${n(ky0)}" r="${r}" stroke="${c}" stroke-opacity="${o}" stroke-width=".85"${da?` stroke-dasharray="${da}"`:''}/>`).join('');
-    const fan=[[90,165],[150,250],[210,330]].map(([c,e])=>
-      `M ${cx} ${n(ky0+1)} Q ${cx-c} ${n(ky0+depth*.42)} ${cx-e} ${n(yB-2)} M ${cx} ${n(ky0+1)} Q ${cx+c} ${n(ky0+depth*.42)} ${cx+e} ${n(yB-2)}`).join(' ');
-    const relief=`<g>${rings}<path d="${fan}" stroke="${pal.stroke}" stroke-opacity=".13" stroke-width=".85"/>`+
-      `<path d="M ${cx} ${n(ky0+8)} V ${n(yB-6)}" stroke="${pal.gold}" stroke-opacity=".14" stroke-width=".8" stroke-dasharray="2 3"/></g>`;
+    // Centre relief: verbatim from 0a23211 (groin ribs, counter-groins, fan ribs, keystone rings),
+    // only the full-width soffit arch (vaultArchL/R, the bowed horizontal) is left out.
+    const ky0=(yT+4.8).toFixed(1);
+    const q1=Math.round(W*.22),q2=Math.round(W*.36),q3=Math.round(W*.64),q4=Math.round(W*.78);
+    const groin1L=`M ${(xB+6).toFixed(1)} ${(yB-1.5).toFixed(1)} Q ${(xMid+68).toFixed(1)} ${(H*.20).toFixed(1)} ${q1} ${(yT+2.5).toFixed(1)}`;
+    const groin1R=`M ${(rB-6).toFixed(1)} ${(yB-1.5).toFixed(1)} Q ${(W-xMid-68).toFixed(1)} ${(H*.20).toFixed(1)} ${q4} ${(yT+2.5).toFixed(1)}`;
+    const groin2L=`M ${(xB+22).toFixed(1)} ${(yB-2.0).toFixed(1)} Q ${(W*.23).toFixed(1)} ${(H*.14).toFixed(1)} ${cx} ${(yT+2.0).toFixed(1)}`;
+    const groin2R=`M ${(rB-22).toFixed(1)} ${(yB-2.0).toFixed(1)} Q ${(W*.77).toFixed(1)} ${(H*.14).toFixed(1)} ${cx} ${(yT+2.0).toFixed(1)}`;
+    const cGroinL=`M ${(xT+18).toFixed(1)} ${(yT+1.5).toFixed(1)} Q ${(xMid+82).toFixed(1)} ${(H*.78).toFixed(1)} ${q1} ${(yB-2.5).toFixed(1)}`;
+    const cGroinR=`M ${(rT-18).toFixed(1)} ${(yT+1.5).toFixed(1)} Q ${(W-xMid-82).toFixed(1)} ${(H*.78).toFixed(1)} ${q4} ${(yB-2.5).toFixed(1)}`;
+    const fanL1=`M ${cx} ${(yT+4.5).toFixed(1)} Q ${(cx-90)} ${(H*.45).toFixed(1)} ${(cx-165)} ${(yB-2.0).toFixed(1)}`;
+    const fanR1=`M ${cx} ${(yT+4.5).toFixed(1)} Q ${(cx+90)} ${(H*.45).toFixed(1)} ${(cx+165)} ${(yB-2.0).toFixed(1)}`;
+    const fanL2=`M ${cx} ${(yT+4.5).toFixed(1)} Q ${(cx-210)} ${(H*.38).toFixed(1)} ${q2} ${(yB-2.0).toFixed(1)}`;
+    const fanR2=`M ${cx} ${(yT+4.5).toFixed(1)} Q ${(cx+210)} ${(H*.38).toFixed(1)} ${q3} ${(yB-2.0).toFixed(1)}`;
+    const relief=
+      `<path d="${fanL1} ${fanR1} ${fanL2} ${fanR2}" stroke="${pal.stroke}" stroke-opacity="0.15" stroke-width="0.9"/>`+
+      `<circle cx="${cx}" cy="${ky0}" r="28" stroke="${pal.gold}" stroke-opacity="0.22" stroke-width="0.85" stroke-dasharray="2 4"/>`+
+      `<circle cx="${cx}" cy="${ky0}" r="48" stroke="${pal.stroke}" stroke-opacity="0.15" stroke-width="0.8"/>`+
+      `<path d="${groin1L} ${groin1R}" stroke="${pal.inner}" stroke-opacity="0.32" stroke-width="1.05"/>`+
+      `<path d="${cGroinL} ${cGroinR}" stroke="${pal.inner}" stroke-opacity="0.22" stroke-width="0.9" stroke-dasharray="6 4"/>`+
+      `<path d="${groin2L} ${groin2R}" stroke="${pal.gold}" stroke-opacity="0.24" stroke-width="0.95" stroke-dasharray="3 5"/>`;
     // Beam joints: short straight ticks hanging from the top beam, mirrored on the bottom beam (shorter).
     let joints='';
     for(const f of [.12,.2,.28,.36,.64,.72,.8,.88]){
