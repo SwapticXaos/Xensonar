@@ -16,13 +16,16 @@
   // all three outer cyan column echo lines (R=178, 186, 198).
   // Preserve rectangular content/hitboxes: only compute safe T2/T4 panel bounds & shifts.
   const GLYPH_CLEARANCE = 14;
+  // Additional outward arch-fit extension (12px) closing the inner .nd-legacy-card padding gap
+  // so the three upper vault tiers hug the outer R=198 cyan column echo arc.
+  const ARCH_FIT_PX = 12;
   const finite = (v,lo=0,hi=1e5) => Number.isFinite(v) ? Math.max(lo,Math.min(hi,v)) : 0;
   let scheduled=false, frame=0, observer=null, attachedRoom=null, resizeObs=null, lastGeometry=[];
   function geometry(room) {
-    // The nine-slice SVG uses viewBox 0 0 198 960. Its black recess arc uses R=170,
-    // and its outermost visible cyan echo arc uses R=198 (M101.5 0 A198 198 ... 198 170).
-    // Sampling R=198 keeps every panel border and glyph cleanly parallel to — and
-    // never crossing — the outermost visible column line.
+    // The nine-slice SVG uses viewBox 0 0 198 960 with border-image-slice: 170 0 170 0 fill.
+    // Because border-image-width is unitless (0), the top 170 SVG units scale linearly
+    // with the full room height: sy = (screenY - room.y) / room.height * 960.
+    // At sy, the outermost cyan echo arc (R=198) sits at x_svg(sy) = sqrt(198^2 - (170 - sy)^2).
     const css=getComputedStyle(room,'::before');
     const source=css.borderImageSource || '';
     if (!source.includes('data:image/svg+xml') || !source.includes('170')) return null;
@@ -35,11 +38,139 @@
       const sx=Math.sqrt(Math.max(0,REF.echoRadius*REF.echoRadius-dy*dy));
       return finite(width*(REF.svgWidth-sx)/REF.svgWidth,0,width);
     };
-    return {rect,width,sample};
+    return {rect,width,sample,sampleForPanel:sample};
   }
   function setPx(node,name,value) {
     const val=(Math.round(value*100)/100)+'px';
     if(node.style.getPropertyValue(name)!==val)node.style.setProperty(name,val);
+  }
+  const VAULT_PALETTES = Object.freeze({
+    heading: {topFill:'#183c48',midFill:'#0f2831',botFill:'#08161c',glow:'#327885',goldGlow:'#e8bd70',stroke:'#94ece0',inner:'#58a8a1',gold:'#f0c67a',rune:'#e5be73'},
+    root:    {topFill:'#14333d',midFill:'#0d222a',botFill:'#071318',glow:'#27626d',goldGlow:'#d8ae62',stroke:'#76d1c5',inner:'#488d88',gold:'#e0b66c',rune:'#d4ad66'},
+    ball:    {topFill:'#112b34',midFill:'#0b1d24',botFill:'#061015',glow:'#1e4f58',goldGlow:'#c69c54',stroke:'#5eb8ae',inner:'#3a7572',gold:'#cea45e',rune:'#c29b58'},
+    advanced:{topFill:'#0e2229',midFill:'#09171c',botFill:'#050d11',glow:'#163a42',goldGlow:'#ab8444',stroke:'#49948d',inner:'#2e5c5a',gold:'#b68e4c',rune:'#a88346'}
+  });
+  const VAULT_RUNES = Object.freeze([
+    'M-3 -3L3 3M-3 3L3 -3M0 -4.5V4.5',
+    'M0 -4.5L4 0L0 4.5L-4 0Z M0 -1.5A1.5 1.5 0 1 0 0 1.5A1.5 1.5 0 1 0 0 -1.5',
+    'M-3.5 -2.5Q0 -5.5 3.5 -2.5M-3.5 2.5Q0 5.5 3.5 2.5M-1.5 0H1.5',
+    'M0 -4.5V4.5M-3.5 -1.5L0 -4.5L3.5 -1.5M-3.5 1.5L0 4.5L3.5 1.5',
+    'M-3.5 0A3.5 3.5 0 1 0 3.5 0A3.5 3.5 0 1 0 -3.5 0M0 -5V5',
+    'M-3.5 -3.5H3.5L-3.5 3.5H3.5'
+  ]);
+  function buildVaultSvg(kind,totalW,h,topExt,midExt,botExt) {
+    const pal=VAULT_PALETTES[kind]||VAULT_PALETTES.ball;
+    const W=Math.max(320,Math.round(totalW)),H=Math.max(36,Math.round(h));
+    // Left side x-coordinates at y=0, y=H/2, y=H inside [0..W]
+    const xT=2,xB=Math.max(2,topExt-botExt+2);
+    const xMid=Math.max(2,topExt-midExt+2);
+    // Quadratic Bezier control point so the side wall passes smoothly through xMid at t=0.5
+    const cL=Math.max(2,2*xMid-.5*(xT+xB));
+    const rT=W-xT,rB=W-xB,cR=W-cL,cx=Math.round(W/2);
+    // Keep the outer top and bottom edges crisp and horizontal so the horizontal
+    // typography, buttons, and sliders sit on a true architectural entablature plane,
+    // while the left/right walls curve seamlessly along the temple portal arch and
+    // the internal cross-vault groin ribs (Kreuzrippengewölbe) create the 3D vault depth.
+    const yT=1.5,yB=H-1.5;
+    const outerPath=`M ${xT.toFixed(1)} ${yT.toFixed(1)} H ${rT.toFixed(1)} Q ${cR.toFixed(1)} ${(H*.5).toFixed(1)} ${rB.toFixed(1)} ${yB.toFixed(1)} H ${xB.toFixed(1)} Q ${cL.toFixed(1)} ${(H*.5).toFixed(1)} ${xT.toFixed(1)} ${yT.toFixed(1)} Z`;
+    const inOff=6.5;
+    const ixT=xT+inOff,ixB=xB+inOff,icL=cL+inOff,irT=rT-inOff,irB=rB-inOff,icR=cR-inOff;
+    const iyT=yT+3.8,iyB=yB-3.8;
+    const innerPath=`M ${ixT.toFixed(1)} ${iyT.toFixed(1)} H ${irT.toFixed(1)} Q ${icR.toFixed(1)} ${(H*.5).toFixed(1)} ${irB.toFixed(1)} ${iyB.toFixed(1)} H ${ixB.toFixed(1)} Q ${icL.toFixed(1)} ${(H*.5).toFixed(1)} ${ixT.toFixed(1)} ${iyT.toFixed(1)} Z`;
+    // Concentric side archivolts following the temple portal curve
+    const rib1L=`M ${(xT+15).toFixed(1)} ${yT.toFixed(1)} Q ${(cL+13).toFixed(1)} ${(H*.5).toFixed(1)} ${(xB+11).toFixed(1)} ${yB.toFixed(1)}`;
+    const rib1R=`M ${(rT-15).toFixed(1)} ${yT.toFixed(1)} Q ${(cR-13).toFixed(1)} ${(H*.5).toFixed(1)} ${(rB-11).toFixed(1)} ${yB.toFixed(1)}`;
+    const rib2L=`M ${(xT+29).toFixed(1)} ${yT.toFixed(1)} Q ${(cL+25).toFixed(1)} ${(H*.5).toFixed(1)} ${(xB+22).toFixed(1)} ${yB.toFixed(1)}`;
+    const rib2R=`M ${(rT-29).toFixed(1)} ${yT.toFixed(1)} Q ${(cR-25).toFixed(1)} ${(H*.5).toFixed(1)} ${(rB-22).toFixed(1)} ${yB.toFixed(1)}`;
+    const rib3L=`M ${(xT+44).toFixed(1)} ${yT.toFixed(1)} Q ${(cL+38).toFixed(1)} ${(H*.5).toFixed(1)} ${(xB+34).toFixed(1)} ${yB.toFixed(1)}`;
+    const rib3R=`M ${(rT-44).toFixed(1)} ${yT.toFixed(1)} Q ${(cR-38).toFixed(1)} ${(H*.5).toFixed(1)} ${(rB-34).toFixed(1)} ${yB.toFixed(1)}`;
+    // Internal vaulted ceiling & soffit relief arches (inside the flat entablature frame)
+    const vaultArchL=`M ${(ixB+12).toFixed(1)} ${iyB.toFixed(1)} Q ${(W*.26).toFixed(1)} ${(iyT+1.5).toFixed(1)} ${cx} ${(iyT+.5).toFixed(1)}`;
+    const vaultArchR=`M ${(irB-12).toFixed(1)} ${iyB.toFixed(1)} Q ${(W*.74).toFixed(1)} ${(iyT+1.5).toFixed(1)} ${cx} ${(iyT+.5).toFixed(1)}`;
+    // Gothic / cybernetic cross-vault groin ribs (Kreuzrippengewölbe) springing from the side pillars to the keystone & quarter bosses
+    const q1=Math.round(W*.22),q2=Math.round(W*.36),q3=Math.round(W*.64),q4=Math.round(W*.78);
+    const groin1L=`M ${(xB+6).toFixed(1)} ${(yB-1.5).toFixed(1)} Q ${(xMid+68).toFixed(1)} ${(H*.20).toFixed(1)} ${q1} ${(yT+2.5).toFixed(1)}`;
+    const groin1R=`M ${(rB-6).toFixed(1)} ${(yB-1.5).toFixed(1)} Q ${(W-xMid-68).toFixed(1)} ${(H*.20).toFixed(1)} ${q4} ${(yT+2.5).toFixed(1)}`;
+    const groin2L=`M ${(xB+22).toFixed(1)} ${(yB-2.0).toFixed(1)} Q ${(W*.23).toFixed(1)} ${(H*.14).toFixed(1)} ${cx} ${(yT+2.0).toFixed(1)}`;
+    const groin2R=`M ${(rB-22).toFixed(1)} ${(yB-2.0).toFixed(1)} Q ${(W*.77).toFixed(1)} ${(H*.14).toFixed(1)} ${cx} ${(yT+2.0).toFixed(1)}`;
+    // Inverted gothic counter-vault arches from top outer shoulders down toward the quarter soffit bosses
+    const cGroinL=`M ${(xT+18).toFixed(1)} ${(yT+1.5).toFixed(1)} Q ${(xMid+82).toFixed(1)} ${(H*.78).toFixed(1)} ${q1} ${(yB-2.5).toFixed(1)}`;
+    const cGroinR=`M ${(rT-18).toFixed(1)} ${(yT+1.5).toFixed(1)} Q ${(W-xMid-82).toFixed(1)} ${(H*.78).toFixed(1)} ${q4} ${(yB-2.5).toFixed(1)}`;
+    // Subtle central celestial vault fan ribs (Fächergewölbe) radiating from the top keystone
+    const fanL1=`M ${cx} ${(yT+4.5).toFixed(1)} Q ${(cx-90)} ${(H*.45).toFixed(1)} ${(cx-165)} ${(yB-2.0).toFixed(1)}`;
+    const fanR1=`M ${cx} ${(yT+4.5).toFixed(1)} Q ${(cx+90)} ${(H*.45).toFixed(1)} ${(cx+165)} ${(yB-2.0).toFixed(1)}`;
+    const fanL2=`M ${cx} ${(yT+4.5).toFixed(1)} Q ${(cx-210)} ${(H*.38).toFixed(1)} ${q2} ${(yB-2.0).toFixed(1)}`;
+    const fanR2=`M ${cx} ${(yT+4.5).toFixed(1)} Q ${(cx+210)} ${(H*.38).toFixed(1)} ${q3} ${(yB-2.0).toFixed(1)}`;
+    // Entablature voussoir stone joint ticks along the upper beam
+    let voussoirs='';
+    for(const frac of [.10,.18,.26,.34,.42,.58,.66,.74,.82,.90]){
+      const vx=(xT+(rT-xT)*frac).toFixed(1);
+      voussoirs+=`<line x1="${vx}" y1="${yT.toFixed(1)}" x2="${vx}" y2="${(yT+3.8).toFixed(1)}" stroke="${pal.gold}" stroke-opacity="0.48" stroke-width="0.95"/>`;
+    }
+    // Sacred golden runes nestled inside the left and right rib channels (echoing the temple gate doors)
+    const runeIdx=kind==='heading'?0:kind==='root'?2:4;
+    const runeLX=(xMid+21).toFixed(1),runeRX=(W-xMid-21).toFixed(1),runeY=(H*.5).toFixed(1);
+    const runes=`<g stroke="${pal.rune}" stroke-opacity="0.66" stroke-width="0.95" fill="none">`+
+      `<path d="${VAULT_RUNES[runeIdx]}" transform="translate(${runeLX} ${runeY}) scale(0.95)"/>`+
+      `<path d="${VAULT_RUNES[(runeIdx+1)%VAULT_RUNES.length]}" transform="translate(${runeRX} ${runeY}) scale(0.95)"/>`+
+      `</g>`;
+    // Upper & lower cybernetic temple circuit traces with sacred geometry nodes
+    const trL=`M ${(ixT+20).toFixed(1)} ${(iyT+4.2).toFixed(1)} H ${(ixT+76).toFixed(1)} L ${(ixT+85).toFixed(1)} ${(iyT+12.2).toFixed(1)} H ${(ixT+132).toFixed(1)}`;
+    const trR=`M ${(irT-20).toFixed(1)} ${(iyT+4.2).toFixed(1)} H ${(irT-76).toFixed(1)} L ${(irT-85).toFixed(1)} ${(iyT+12.2).toFixed(1)} H ${(irT-132).toFixed(1)}`;
+    const trBL=`M ${(ixB+18).toFixed(1)} ${(iyB-4.2).toFixed(1)} H ${(ixB+66).toFixed(1)} L ${(ixB+73).toFixed(1)} ${(iyB-10.2).toFixed(1)} H ${(ixB+110).toFixed(1)}`;
+    const trBR=`M ${(irB-18).toFixed(1)} ${(iyB-4.2).toFixed(1)} H ${(irB-66).toFixed(1)} L ${(irB-73).toFixed(1)} ${(iyB-10.2).toFixed(1)} H ${(irB-110).toFixed(1)}`;
+    // Astrolabe / Sacred Temple Keystone in the center of the upper and lower vault beams
+    const ky=(yT+4.8).toFixed(1),kby=(yB-4.2).toFixed(1);
+    const svg=`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" fill="none">`+
+      `<defs>`+
+      `<linearGradient id="vf" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="${pal.topFill}" stop-opacity="0.96"/><stop offset="46%" stop-color="${pal.midFill}" stop-opacity="0.94"/><stop offset="100%" stop-color="${pal.botFill}" stop-opacity="0.98"/></linearGradient>`+
+      `<radialGradient id="vg" cx="50%" cy="6%" r="68%"><stop offset="0%" stop-color="${pal.glow}" stop-opacity="0.64"/><stop offset="52%" stop-color="${pal.topFill}" stop-opacity="0.22"/><stop offset="100%" stop-color="${pal.botFill}" stop-opacity="0"/></radialGradient>`+
+      `<radialGradient id="vk" cx="50%" cy="6%" r="34%"><stop offset="0%" stop-color="${pal.goldGlow}" stop-opacity="0.32"/><stop offset="100%" stop-color="${pal.goldGlow}" stop-opacity="0"/></radialGradient>`+
+      `<linearGradient id="vs" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="${pal.stroke}" stop-opacity="0.98"/><stop offset="14%" stop-color="${pal.inner}" stop-opacity="0.76"/><stop offset="36%" stop-color="${pal.stroke}" stop-opacity="0.84"/><stop offset="50%" stop-color="${pal.gold}" stop-opacity="0.98"/><stop offset="64%" stop-color="${pal.stroke}" stop-opacity="0.84"/><stop offset="86%" stop-color="${pal.inner}" stop-opacity="0.76"/><stop offset="100%" stop-color="${pal.stroke}" stop-opacity="0.98"/></linearGradient>`+
+      `</defs>`+
+      `<path d="${outerPath}" fill="url(#vf)"/>`+
+      `<path d="${outerPath}" fill="url(#vg)"/>`+
+      `<path d="${outerPath}" fill="url(#vk)"/>`+
+      `<path d="${vaultArchL} ${vaultArchR}" stroke="${pal.stroke}" stroke-opacity="0.22" stroke-width="1.05"/>`+
+      `<path d="${fanL1} ${fanR1} ${fanL2} ${fanR2}" stroke="${pal.stroke}" stroke-opacity="0.15" stroke-width="0.9"/>`+
+      `<circle cx="${cx}" cy="${ky}" r="28" stroke="${pal.gold}" stroke-opacity="0.22" stroke-width="0.85" stroke-dasharray="2 4"/>`+
+      `<circle cx="${cx}" cy="${ky}" r="48" stroke="${pal.stroke}" stroke-opacity="0.15" stroke-width="0.8"/>`+
+      `<path d="${groin1L} ${groin1R}" stroke="${pal.inner}" stroke-opacity="0.32" stroke-width="1.05"/>`+
+      `<path d="${cGroinL} ${cGroinR}" stroke="${pal.inner}" stroke-opacity="0.22" stroke-width="0.9" stroke-dasharray="6 4"/>`+
+      `<path d="${groin2L} ${groin2R}" stroke="${pal.gold}" stroke-opacity="0.24" stroke-width="0.95" stroke-dasharray="3 5"/>`+
+      `<path d="${rib1L} ${rib1R}" stroke="${pal.stroke}" stroke-opacity="0.46" stroke-width="1.15"/>`+
+      `<path d="${rib2L} ${rib2R}" stroke="${pal.inner}" stroke-opacity="0.34" stroke-width="0.95" stroke-dasharray="5 5"/>`+
+      `<path d="${rib3L} ${rib3R}" stroke="${pal.gold}" stroke-opacity="0.24" stroke-width="0.85"/>`+
+      runes+
+      `<path d="${innerPath}" stroke="${pal.inner}" stroke-opacity="0.46" stroke-width="0.95" stroke-dasharray="8 4"/>`+
+      voussoirs+
+      `<path d="${trL} ${trR}" stroke="${pal.gold}" stroke-opacity="0.56" stroke-width="1.05"/>`+
+      `<circle cx="${(ixT+132).toFixed(1)}" cy="${(iyT+12.2).toFixed(1)}" r="1.8" fill="${pal.gold}" fill-opacity="0.88"/>`+
+      `<circle cx="${(irT-132).toFixed(1)}" cy="${(iyT+12.2).toFixed(1)}" r="1.8" fill="${pal.gold}" fill-opacity="0.88"/>`+
+      `<circle cx="${(ixT+76).toFixed(1)}" cy="${(iyT+4.2).toFixed(1)}" r="1.3" fill="${pal.stroke}" fill-opacity="0.84"/>`+
+      `<circle cx="${(irT-76).toFixed(1)}" cy="${(iyT+4.2).toFixed(1)}" r="1.3" fill="${pal.stroke}" fill-opacity="0.84"/>`+
+      `<path d="${trBL} ${trBR}" stroke="${pal.stroke}" stroke-opacity="0.50" stroke-width="0.95"/>`+
+      `<circle cx="${(ixB+110).toFixed(1)}" cy="${(iyB-10.2).toFixed(1)}" r="1.5" fill="${pal.stroke}" fill-opacity="0.82"/>`+
+      `<circle cx="${(irB-110).toFixed(1)}" cy="${(iyB-10.2).toFixed(1)}" r="1.5" fill="${pal.stroke}" fill-opacity="0.82"/>`+
+      `<path d="${outerPath}" stroke="url(#vs)" stroke-width="1.65"/>`+
+      `<circle cx="${q1}" cy="${(yT+1.5).toFixed(1)}" r="1.7" fill="${pal.stroke}" fill-opacity="0.8"/>`+
+      `<circle cx="${q2}" cy="${(yT+1.5).toFixed(1)}" r="1.5" fill="${pal.gold}" fill-opacity="0.78"/>`+
+      `<circle cx="${q3}" cy="${(yT+1.5).toFixed(1)}" r="1.5" fill="${pal.gold}" fill-opacity="0.78"/>`+
+      `<circle cx="${q4}" cy="${(yT+1.5).toFixed(1)}" r="1.7" fill="${pal.stroke}" fill-opacity="0.8"/>`+
+      `<path d="M ${cx-58} ${yT.toFixed(1)} H ${cx-21} M ${cx+21} ${yT.toFixed(1)} H ${cx+58}" stroke="${pal.gold}" stroke-opacity="0.82" stroke-width="1.35"/>`+
+      `<polygon points="${cx},${(yT+.3).toFixed(1)} ${cx+17},${ky} ${cx},${(yT+9.3).toFixed(1)} ${cx-17},${ky}" fill="#07151c" stroke="${pal.gold}" stroke-opacity="0.94" stroke-width="1.2"/>`+
+      `<polygon points="${cx},${(yT+2.1).toFixed(1)} ${cx+9},${ky} ${cx},${(yT+7.5).toFixed(1)} ${cx-9},${ky}" fill="none" stroke="${pal.stroke}" stroke-opacity="0.78" stroke-width="0.85"/>`+
+      `<circle cx="${cx}" cy="${ky}" r="1.9" fill="${pal.gold}" fill-opacity="0.98"/>`+
+      `<circle cx="${cx-26}" cy="${yT.toFixed(1)}" r="1.35" fill="${pal.gold}" fill-opacity="0.86"/>`+
+      `<circle cx="${cx+26}" cy="${yT.toFixed(1)}" r="1.35" fill="${pal.gold}" fill-opacity="0.86"/>`+
+      `<polygon points="${cx},${(yB-7.4).toFixed(1)} ${cx+11},${kby} ${cx},${(yB-.8).toFixed(1)} ${cx-11},${kby}" fill="#07151c" stroke="${pal.stroke}" stroke-opacity="0.82" stroke-width="1"/>`+
+      `<circle cx="${cx}" cy="${kby}" r="1.5" fill="${pal.gold}" fill-opacity="0.92"/>`+
+      `<circle cx="${(xT+4.5).toFixed(1)}" cy="${(yT+3.2).toFixed(1)}" r="2.0" fill="${pal.gold}" fill-opacity="0.92"/>`+
+      `<circle cx="${(rT-4.5).toFixed(1)}" cy="${(yT+3.2).toFixed(1)}" r="2.0" fill="${pal.gold}" fill-opacity="0.92"/>`+
+      `<circle cx="${(xB+4.5).toFixed(1)}" cy="${(yB-3.2).toFixed(1)}" r="1.8" fill="${pal.stroke}" fill-opacity="0.86"/>`+
+      `<circle cx="${(rB-4.5).toFixed(1)}" cy="${(yB-3.2).toFixed(1)}" r="1.8" fill="${pal.stroke}" fill-opacity="0.86"/>`+
+      `</svg>`;
+    return `url("data:image/svg+xml,${encodeURIComponent(svg)}")`;
   }
   function reset(room) {
     if (!room) return;
@@ -47,11 +178,13 @@
     for (const selector of [SEL.root,SEL.ball,SEL.advanced]) {
       const panel=room.querySelector(selector);
       if (!panel) continue;
-      for (const name of ['--nd-geo-top','--nd-geo-bottom','--nd-geo-info-shift','--nd-geo-tool-shift','--nd-geo-row-shift','--nd-geo-ball-shift']) panel.style.removeProperty(name);
+      delete panel.__vaultSig;
+      for (const name of ['--nd-geo-top','--nd-geo-bottom','--nd-geo-mid','--nd-geo-vault-svg','--nd-geo-info-shift','--nd-geo-tool-shift','--nd-geo-row-shift','--nd-geo-ball-shift']) panel.style.removeProperty(name);
     }
     const heading=room.querySelector(':scope > .nd-shared-heading');
     if (heading) {
-      for (const name of ['--nd-geo-top','--nd-geo-bottom','--nd-geo-heading-edge','--nd-geo-nav-shift']) heading.style.removeProperty(name);
+      delete heading.__vaultSig;
+      for (const name of ['--nd-geo-top','--nd-geo-bottom','--nd-geo-mid','--nd-geo-vault-svg','--nd-geo-heading-edge','--nd-geo-nav-shift']) heading.style.removeProperty(name);
       for (const item of heading.querySelectorAll('.nd-heading-copy > .nd-eyebrow,.nd-heading-copy > h2,.nd-heading-copy > p')) item.style.removeProperty('--nd-geo-heading-shift');
     }
     lastGeometry=[];
@@ -74,40 +207,62 @@
     lastGeometry=[];
     for(const [name,panel] of panels){
       const r=panel.getBoundingClientRect();
-      const top=enabled?geo.sample(r.top):0;
-      const bottom=enabled?geo.sample(r.bottom):0;
+      const top=enabled?geo.sampleForPanel(r.top,r):0;
+      const mid=enabled?geo.sampleForPanel(r.top+r.height*.5,r):0;
+      const bottom=enabled?geo.sampleForPanel(r.bottom,r):0;
       setPx(panel,'--nd-geo-top',top);
+      setPx(panel,'--nd-geo-mid',mid);
       setPx(panel,'--nd-geo-bottom',bottom);
-      lastGeometry.push({name,top,bottom,angleDeg:Math.atan2(Math.max(0,top-bottom),Math.max(1,r.height))*180/Math.PI,rect:[r.x,r.y,r.width,r.height]});
+      if(enabled){
+        const fit=name==='advanced'?0:ARCH_FIT_PX;
+        const sig=`${Math.round(r.width)}:${Math.round(r.height)}:${Math.round(top*10)}:${Math.round(mid*10)}:${Math.round(bottom*10)}`;
+        if(panel.__vaultSig!==sig){
+          panel.__vaultSig=sig;
+          panel.style.setProperty('--nd-geo-vault-svg',buildVaultSvg(name,r.width+2*(top+fit),r.height,top+fit,mid+fit,bottom+fit));
+        }
+      }
+      lastGeometry.push({name,top,mid,bottom,angleDeg:Math.atan2(Math.max(0,top-bottom),Math.max(1,r.height))*180/Math.PI,rect:[r.x,r.y,r.width,r.height]});
     }
-    const meta=panels[0][1];
+    const meta=panels[0][1],metaRect=meta.getBoundingClientRect();
     const info=meta.querySelector('.nd-legacy-info');
     const tools=meta.querySelector('.nd-legacy-tools');
     const row=meta.querySelector(':scope > div:last-child');
     // Sample each control row at its bottom edge (the narrowest part of the
-    // slanted trapezoid) so corners like Rebuild Layout never breach the border.
-    if(info) setPx(meta,'--nd-geo-info-shift',enabled?Math.max(0,geo.sample(info.getBoundingClientRect().bottom)-GLYPH_CLEARANCE):0);
-    if(tools) setPx(meta,'--nd-geo-tool-shift',enabled?Math.max(0,geo.sample(tools.getBoundingClientRect().bottom)-GLYPH_CLEARANCE):0);
-    if(row) setPx(meta,'--nd-geo-row-shift',enabled?Math.max(0,geo.sample(row.getBoundingClientRect().bottom)-GLYPH_CLEARANCE):0);
+    // vaulted tier) so corners like Rebuild Layout stay cleanly inside the rib wall.
+    if(info) setPx(meta,'--nd-geo-info-shift',enabled?Math.max(0,geo.sampleForPanel(info.getBoundingClientRect().bottom,metaRect)-GLYPH_CLEARANCE):0);
+    if(tools) setPx(meta,'--nd-geo-tool-shift',enabled?Math.max(0,geo.sampleForPanel(tools.getBoundingClientRect().bottom,metaRect)-GLYPH_CLEARANCE):0);
+    if(row) setPx(meta,'--nd-geo-row-shift',enabled?Math.max(0,geo.sampleForPanel(row.getBoundingClientRect().bottom,metaRect)-GLYPH_CLEARANCE):0);
     const ball=panels[1][1];
-    if(ball) setPx(ball,'--nd-geo-ball-shift',enabled?Math.max(0,geo.sample(ball.getBoundingClientRect().bottom)-GLYPH_CLEARANCE):0);
+    if(ball){
+      const br=ball.getBoundingClientRect();
+      setPx(ball,'--nd-geo-ball-shift',enabled?Math.max(0,geo.sampleForPanel(br.bottom,br)-GLYPH_CLEARANCE):0);
+    }
     const heading=room.querySelector(':scope > .nd-shared-heading');
     if(heading){
       const hr=heading.getBoundingClientRect();
-      const headTop=enabled?geo.sample(hr.top):0;
-      const headBottom=enabled?geo.sample(hr.bottom):0;
+      const headTop=enabled?geo.sampleForPanel(hr.top,hr):0;
+      const headMid=enabled?geo.sampleForPanel(hr.top+hr.height*.5,hr):0;
+      const headBottom=enabled?geo.sampleForPanel(hr.bottom,hr):0;
       setPx(heading,'--nd-geo-top',headTop);
+      setPx(heading,'--nd-geo-mid',headMid);
       setPx(heading,'--nd-geo-bottom',headBottom);
       setPx(heading,'--nd-geo-heading-edge',headBottom);
+      if(enabled){
+        const sig=`${Math.round(hr.width)}:${Math.round(hr.height)}:${Math.round(headTop*10)}:${Math.round(headMid*10)}:${Math.round(headBottom*10)}`;
+        if(heading.__vaultSig!==sig){
+          heading.__vaultSig=sig;
+          heading.style.setProperty('--nd-geo-vault-svg',buildVaultSvg('heading',hr.width+2*(headTop+ARCH_FIT_PX),hr.height,headTop+ARCH_FIT_PX,headMid+ARCH_FIT_PX,headBottom+ARCH_FIT_PX));
+        }
+      }
       // Align all three header copy lines onto a single crisp vertical editorial
-      // spine anchored safely inside the slanted frieze wall.
+      // spine anchored safely inside the vaulted frieze wall.
       const copyShift=enabled?Math.max(0,headBottom-GLYPH_CLEARANCE):0;
       for(const item of heading.querySelectorAll('.nd-heading-copy > .nd-eyebrow,.nd-heading-copy > h2,.nd-heading-copy > p')) {
         setPx(item,'--nd-geo-heading-shift',copyShift);
       }
       const nav=heading.querySelector('.nd-modes');
       const navY=nav?nav.getBoundingClientRect().bottom:hr.bottom;
-      setPx(heading,'--nd-geo-nav-shift',enabled?Math.max(0,geo.sample(navY)-GLYPH_CLEARANCE):0);
+      setPx(heading,'--nd-geo-nav-shift',enabled?Math.max(0,geo.sampleForPanel(navY,hr)-GLYPH_CLEARANCE):0);
     }
   }
   function schedule(){if(!scheduled&&!document.hidden){scheduled=true;frame=requestAnimationFrame(apply)}}
@@ -127,15 +282,14 @@
     // Attach immediately; no permanent 1500ms discovery timer is necessary.
     observer=new MutationObserver(muts=>{
       const previous=resizeObs.__room,room=syncRoom();
-      if(room&&(room!==previous||muts.some(m=>room.contains(m.target))))schedule();
+      if(room&&(room!==previous||muts.some(m=>m.type==='attributes'||(m.type==='childList'&&(m.target===room||m.target.classList?.contains('nd-legacy-card'))))))schedule();
     });
-    observer.observe(document.getElementById('root') || document.body,{childList:true,subtree:true,attributes:true,attributeFilter:['data-nodal-mode']});
+    observer.observe(document.getElementById('root') || document.body,{childList:true,subtree:true,attributes:true,attributeFilter:['data-nodal-mode','aria-expanded']});
     window.addEventListener('resize',schedule,{passive:true});
-    document.addEventListener('click',ev=>{if(ev.target.closest('.nd-room'))schedule()},{passive:true});
     document.addEventListener('visibilitychange',()=>{if(!document.hidden){syncRoom();schedule()}});
     syncRoom();schedule();
     window.addEventListener('pagehide',()=>{if(frame)cancelAnimationFrame(frame);scheduled=false;frame=0;observer.disconnect();resizeObs.disconnect();resizeObs.__room=null});
-    window.addEventListener('pageshow',event=>{if(event.persisted){observer.observe(document.getElementById('root') || document.body,{childList:true,subtree:true,attributes:true,attributeFilter:['data-nodal-mode']});syncRoom();schedule()}});
+    window.addEventListener('pageshow',event=>{if(event.persisted){observer.observe(document.getElementById('root') || document.body,{childList:true,subtree:true,attributes:true,attributeFilter:['data-nodal-mode','aria-expanded']});syncRoom();schedule()}});
   }
   window.__xenNodalShellGeometryT2=Object.freeze({version:'T3-geometry-clearance-V3',refresh:schedule,inspect:()=>lastGeometry.slice()});
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();

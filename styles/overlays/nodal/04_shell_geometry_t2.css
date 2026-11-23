@@ -12,7 +12,7 @@
   position:relative!important; isolation:isolate; z-index:2;
   border-color:transparent!important; border-radius:0!important;
   background:transparent!important;box-shadow:none!important;overflow:visible!important;
-  --nd-geo-top:0px; --nd-geo-bottom:0px;
+  --nd-geo-top:0px; --nd-geo-bottom:0px; --nd-geo-arch-fit:12px;
 }
 .nd-room.nd-room-shell[data-nodal-mode="installation"].nd-geo-t2 > .nd-shared-heading::before,
 .nd-room.nd-room-shell[data-nodal-mode="installation"].nd-geo-t2 > .nd-shared-heading::after,
@@ -23,73 +23,79 @@
 .nd-room.nd-room-shell[data-nodal-mode="installation"].nd-geo-t2 .nd-legacy-card > .mt-5 > section:has(> button[aria-expanded])::before,
 .nd-room.nd-room-shell[data-nodal-mode="installation"].nd-geo-t2 .nd-legacy-card > .mt-5 > section:has(> button[aria-expanded])::after {
   content:"";display:block;position:absolute;pointer-events:none;box-sizing:border-box;
-  inset:0 calc(-1 * var(--nd-geo-top));
-  clip-path:polygon(0 0,100% 0,calc(100% - var(--nd-geo-top) + var(--nd-geo-bottom)) 100%,calc(var(--nd-geo-top) - var(--nd-geo-bottom)) 100%);
-  z-index:-2; background:var(--nd-geo-stroke,#36585d);
+  inset:0 calc(-1 * (var(--nd-geo-top) + var(--nd-geo-arch-fit,12px)));
+  clip-path:polygon(0 0,100% 0,calc(100% - var(--nd-geo-top) + var(--nd-geo-mid,var(--nd-geo-bottom))) 50%,calc(100% - var(--nd-geo-top) + var(--nd-geo-bottom)) 100%,calc(var(--nd-geo-top) - var(--nd-geo-bottom)) 100%,calc(var(--nd-geo-top) - var(--nd-geo-mid,var(--nd-geo-bottom))) 50%);
+  z-index:-2;
+  background:radial-gradient(ellipse 68% 92% at 50% 0%,rgba(127,216,204,0.18) 0%,rgba(217,173,98,0.07) 48%,transparent 84%);
 }
 .nd-room.nd-room-shell[data-nodal-mode="installation"].nd-geo-t2 > .nd-shared-heading::after,
 .nd-room.nd-room-shell[data-nodal-mode="installation"].nd-geo-t2 .nd-legacy-meta::after,
 .nd-room.nd-room-shell[data-nodal-mode="installation"].nd-geo-t2 [data-nodal-ball-controls]::after,
 .nd-room.nd-room-shell[data-nodal-mode="installation"].nd-geo-t2 .nd-legacy-card > .mt-5 > section:has(> button[aria-expanded])::after {
-  inset:1px calc(1px - var(--nd-geo-top));
-  clip-path:polygon(0 0,100% 0,calc(100% - var(--nd-geo-top) + var(--nd-geo-bottom) - 2px) 100%,calc(var(--nd-geo-top) - var(--nd-geo-bottom) + 2px) 100%);
-  background:var(--nd-geo-fill,#0e2229);z-index:-1;
+  inset:0 calc(-1 * (var(--nd-geo-top) + var(--nd-geo-arch-fit,12px)));
+  clip-path:none;
+  background-color:transparent;
+  background-image:var(--nd-geo-vault-svg,var(--nd-geo-fill,#0e2229));
+  background-size:100% 100%;
+  background-repeat:no-repeat;
+  z-index:-1;
 }
 /* Upper architectural header frieze — luminous crown over the meta & ball tiers. */
 .nd-room.nd-room-shell[data-nodal-mode="installation"].nd-geo-t2 > .nd-shared-heading {
   --nd-geo-stroke:linear-gradient(180deg,#5d9896 0%,#3c686b 100%);
   --nd-geo-fill:linear-gradient(180deg,#142c34 0%,#102229 100%);
-  padding:13px 0 13px;
-  margin-bottom:11px;
+  padding:15px 0 15px;
+  margin-bottom:9px;
   align-items:center;
 }
 .nd-room.nd-room-shell[data-nodal-mode="installation"].nd-geo-t2 > .nd-shared-heading .nd-heading-copy {
   display:flex;flex-direction:column;gap:2px;
 }
 .nd-room.nd-room-shell[data-nodal-mode="installation"].nd-geo-t2 .nd-heading-copy > .nd-eyebrow {
-  margin-bottom:1px;color:#8ad0c8;letter-spacing:.24em;
+  margin-bottom:1px;color:#99ded6;letter-spacing:.26em;text-shadow:0 0 12px rgba(127,216,204,0.28);
 }
 .nd-room.nd-room-shell[data-nodal-mode="installation"].nd-geo-t2 .nd-heading-copy > h2 {
-  font-size:24px;line-height:1.14;letter-spacing:-.015em;color:#eef8f4;
+  font-size:24px;line-height:1.14;letter-spacing:.01em;color:#f2fbf8;text-shadow:0 1px 14px rgba(127,216,204,0.22);
 }
 .nd-room.nd-room-shell[data-nodal-mode="installation"].nd-geo-t2 .nd-heading-copy > p {
-  margin-top:2px;color:#9dc0bf;letter-spacing:.015em;
+  margin-top:2px;color:#a5c9c7;letter-spacing:.02em;
 }
 .nd-room.nd-room-shell[data-nodal-mode="installation"].nd-geo-t2 .nd-heading-copy > :is(.nd-eyebrow,h2,p) {
-  transform:translateX(calc(-1 * var(--nd-geo-heading-shift,0px)));
+  transform:translateX(calc(-1 * (var(--nd-geo-heading-shift,0px) + 6px)));
 }
 .nd-room.nd-room-shell[data-nodal-mode="installation"].nd-geo-t2 > .nd-shared-heading .nd-modes {
   align-self:center;margin-top:0;gap:6px;
-  transform:translateX(var(--nd-geo-nav-shift,0px));
+  transform:translateX(calc(var(--nd-geo-nav-shift,0px) + 6px));
 }
 /* Tier 2: Variant Root & Constellation telemetry bar */
 .nd-room.nd-room-shell[data-nodal-mode="installation"].nd-geo-t2 .nd-legacy-meta {
   --nd-geo-stroke:#3b6769;--nd-geo-fill:#10242a;
-  padding:9px 0 10px!important;
+  padding:11px 0 12px!important;
 }
 .nd-room.nd-room-shell[data-nodal-mode="installation"].nd-geo-t2 .nd-legacy-meta .nd-legacy-info {
   background:transparent!important;border-color:transparent!important;border-radius:0!important;
   padding:4px 10px 4px 0!important;
-  transform:translateX(calc(-1 * var(--nd-geo-info-shift,0px)));
+  transform:translateX(calc(-1 * (var(--nd-geo-info-shift,0px) + 6px)));
 }
 .nd-room.nd-room-shell[data-nodal-mode="installation"].nd-geo-t2 .nd-legacy-meta .nd-legacy-tools {
-  transform:translateX(var(--nd-geo-tool-shift,0px));
+  transform:translateX(calc(var(--nd-geo-tool-shift,0px) + 6px));
 }
 .nd-room.nd-room-shell[data-nodal-mode="installation"].nd-geo-t2 .nd-legacy-meta > div:last-child {
-  margin-inline:calc(-1 * var(--nd-geo-row-shift,0px))!important;
+  margin-inline:calc(-1 * (var(--nd-geo-row-shift,0px) + 6px))!important;
   transform:none!important;
 }
 /* Tier 3: Ball & Grid controls */
 .nd-room.nd-room-shell[data-nodal-mode="installation"].nd-geo-t2 [data-nodal-ball-controls] {
   --nd-geo-stroke:#31575c;--nd-geo-fill:#0e2229;
-  padding:10px 10px 11px!important;
+  padding:12px 12px 13px!important;
 }
 .nd-room.nd-room-shell[data-nodal-mode="installation"].nd-geo-t2 [data-nodal-ball-controls] > :is(div,p) {
-  margin-inline:calc(-1 * var(--nd-geo-ball-shift,0px));
+  margin-inline:calc(-1 * (var(--nd-geo-ball-shift,0px) + 6px));
 }
 /* Advanced organ assignment drawer */
 .nd-room.nd-room-shell[data-nodal-mode="installation"].nd-geo-t2 .nd-legacy-card > .mt-5 > section:has(> button[aria-expanded]) {
   --nd-geo-stroke:#30444b;--nd-geo-fill:#101c21;
+  --nd-geo-arch-fit:0px;
 }
 /* Without visible side wings (narrow breakpoint) retain original layout. */
 @media(max-width:1100px){

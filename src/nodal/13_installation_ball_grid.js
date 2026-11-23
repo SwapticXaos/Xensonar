@@ -82,16 +82,18 @@ const __NodalBallPaint=(()=>{
  }
  function fade(now){
   if(now-fadeAt<STEP)return;fadeAt=now;if(!octx)return;
-  const img=octx.getImageData(0,0,off.width,off.height),d=img.data;
-  for(let i=3;i<d.length;i+=4){const a=d[i];if(a)d[i]=a-Math.max(1,(a*.0048)|0);}
-  octx.putImageData(img,0,0);
+  octx.save();
+  octx.globalCompositeOperation='destination-out';
+  octx.fillStyle='rgba(0,0,0,0.012)';
+  octx.fillRect(0,0,off.width,off.height);
+  octx.restore();
  }
  function draw(ctx,ball,width,height,probe){
   if(!__nodalPaintTrailOn||!(width>0&&height>0)||!ball||!Number.isFinite(ball.x)||!Number.isFinite(ball.y))return;
   const now=typeof performance!=='undefined'?performance.now():Date.now();
   if(!off||w!==width||h!==height){
    sc=Math.min(1,1100/width);off=document.createElement('canvas');off.width=Math.max(1,Math.ceil(width*sc));off.height=Math.max(1,Math.ceil(height*sc));
-   octx=off.getContext('2d',{willReadFrequently:true});w=width;h=height;lx=NaN;mx=NaN;fadeAt=now;
+   octx=off.getContext('2d');w=width;h=height;lx=NaN;mx=NaN;fadeAt=now;
   }
   if(now-lt>1500){lx=NaN;mx=NaN;fadeAt=now;}
   fade(now);
