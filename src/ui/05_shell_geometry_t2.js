@@ -50,14 +50,6 @@
     ball:    {topFill:'#112b34',midFill:'#0b1d24',botFill:'#061015',glow:'#1e4f58',goldGlow:'#c69c54',stroke:'#5eb8ae',inner:'#3a7572',gold:'#cea45e',rune:'#c29b58'},
     advanced:{topFill:'#0e2229',midFill:'#09171c',botFill:'#050d11',glow:'#163a42',goldGlow:'#ab8444',stroke:'#49948d',inner:'#2e5c5a',gold:'#b68e4c',rune:'#a88346'}
   });
-  const VAULT_RUNES = Object.freeze([
-    'M-3 -3L3 3M-3 3L3 -3M0 -4.5V4.5',
-    'M0 -4.5L4 0L0 4.5L-4 0Z M0 -1.5A1.5 1.5 0 1 0 0 1.5A1.5 1.5 0 1 0 0 -1.5',
-    'M-3.5 -2.5Q0 -5.5 3.5 -2.5M-3.5 2.5Q0 5.5 3.5 2.5M-1.5 0H1.5',
-    'M0 -4.5V4.5M-3.5 -1.5L0 -4.5L3.5 -1.5M-3.5 1.5L0 4.5L3.5 1.5',
-    'M-3.5 0A3.5 3.5 0 1 0 3.5 0A3.5 3.5 0 1 0 -3.5 0M0 -5V5',
-    'M-3.5 -3.5H3.5L-3.5 3.5H3.5'
-  ]);
   function buildVaultSvg(kind,totalW,h,topExt,midExt,botExt) {
     const pal=VAULT_PALETTES[kind]||VAULT_PALETTES.ball;
     const W=Math.max(320,Math.round(totalW)),H=Math.max(36,Math.round(h));
@@ -67,108 +59,56 @@
     // Quadratic Bezier control point so the side wall passes smoothly through xMid at t=0.5
     const cL=Math.max(2,2*xMid-.5*(xT+xB));
     const rT=W-xT,rB=W-xB,cR=W-cL,cx=Math.round(W/2);
-    // Keep the outer top and bottom edges crisp and horizontal so the horizontal
-    // typography, buttons, and sliders sit on a true architectural entablature plane,
-    // while the left/right walls curve seamlessly along the temple portal arch and
-    // the internal cross-vault groin ribs (Kreuzrippengewölbe) create the 3D vault depth.
     const yT=1.5,yB=H-1.5;
     const outerPath=`M ${xT.toFixed(1)} ${yT.toFixed(1)} H ${rT.toFixed(1)} Q ${cR.toFixed(1)} ${(H*.5).toFixed(1)} ${rB.toFixed(1)} ${yB.toFixed(1)} H ${xB.toFixed(1)} Q ${cL.toFixed(1)} ${(H*.5).toFixed(1)} ${xT.toFixed(1)} ${yT.toFixed(1)} Z`;
     const inOff=6.5;
     const ixT=xT+inOff,ixB=xB+inOff,icL=cL+inOff,irT=rT-inOff,irB=rB-inOff,icR=cR-inOff;
     const iyT=yT+3.8,iyB=yB-3.8;
     const innerPath=`M ${ixT.toFixed(1)} ${iyT.toFixed(1)} H ${irT.toFixed(1)} Q ${icR.toFixed(1)} ${(H*.5).toFixed(1)} ${irB.toFixed(1)} ${iyB.toFixed(1)} H ${ixB.toFixed(1)} Q ${icL.toFixed(1)} ${(H*.5).toFixed(1)} ${ixT.toFixed(1)} ${iyT.toFixed(1)} Z`;
-    // Concentric side archivolts following the temple portal curve
+    // Concentric side arch ribs following the temple portal curve
     const rib1L=`M ${(xT+15).toFixed(1)} ${yT.toFixed(1)} Q ${(cL+13).toFixed(1)} ${(H*.5).toFixed(1)} ${(xB+11).toFixed(1)} ${yB.toFixed(1)}`;
     const rib1R=`M ${(rT-15).toFixed(1)} ${yT.toFixed(1)} Q ${(cR-13).toFixed(1)} ${(H*.5).toFixed(1)} ${(rB-11).toFixed(1)} ${yB.toFixed(1)}`;
-    const rib2L=`M ${(xT+29).toFixed(1)} ${yT.toFixed(1)} Q ${(cL+25).toFixed(1)} ${(H*.5).toFixed(1)} ${(xB+22).toFixed(1)} ${yB.toFixed(1)}`;
-    const rib2R=`M ${(rT-29).toFixed(1)} ${yT.toFixed(1)} Q ${(cR-25).toFixed(1)} ${(H*.5).toFixed(1)} ${(rB-22).toFixed(1)} ${yB.toFixed(1)}`;
-    const rib3L=`M ${(xT+44).toFixed(1)} ${yT.toFixed(1)} Q ${(cL+38).toFixed(1)} ${(H*.5).toFixed(1)} ${(xB+34).toFixed(1)} ${yB.toFixed(1)}`;
-    const rib3R=`M ${(rT-44).toFixed(1)} ${yT.toFixed(1)} Q ${(cR-38).toFixed(1)} ${(H*.5).toFixed(1)} ${(rB-34).toFixed(1)} ${yB.toFixed(1)}`;
-    // Internal vaulted ceiling & soffit relief arches (inside the flat entablature frame)
-    const vaultArchL=`M ${(ixB+12).toFixed(1)} ${iyB.toFixed(1)} Q ${(W*.26).toFixed(1)} ${(iyT+1.5).toFixed(1)} ${cx} ${(iyT+.5).toFixed(1)}`;
-    const vaultArchR=`M ${(irB-12).toFixed(1)} ${iyB.toFixed(1)} Q ${(W*.74).toFixed(1)} ${(iyT+1.5).toFixed(1)} ${cx} ${(iyT+.5).toFixed(1)}`;
-    // Gothic / cybernetic cross-vault groin ribs (Kreuzrippengewölbe) springing from the side pillars to the keystone & quarter bosses
-    const q1=Math.round(W*.22),q2=Math.round(W*.36),q3=Math.round(W*.64),q4=Math.round(W*.78);
-    const groin1L=`M ${(xB+6).toFixed(1)} ${(yB-1.5).toFixed(1)} Q ${(xMid+68).toFixed(1)} ${(H*.20).toFixed(1)} ${q1} ${(yT+2.5).toFixed(1)}`;
-    const groin1R=`M ${(rB-6).toFixed(1)} ${(yB-1.5).toFixed(1)} Q ${(W-xMid-68).toFixed(1)} ${(H*.20).toFixed(1)} ${q4} ${(yT+2.5).toFixed(1)}`;
-    const groin2L=`M ${(xB+22).toFixed(1)} ${(yB-2.0).toFixed(1)} Q ${(W*.23).toFixed(1)} ${(H*.14).toFixed(1)} ${cx} ${(yT+2.0).toFixed(1)}`;
-    const groin2R=`M ${(rB-22).toFixed(1)} ${(yB-2.0).toFixed(1)} Q ${(W*.77).toFixed(1)} ${(H*.14).toFixed(1)} ${cx} ${(yT+2.0).toFixed(1)}`;
-    // Inverted gothic counter-vault arches from top outer shoulders down toward the quarter soffit bosses
-    const cGroinL=`M ${(xT+18).toFixed(1)} ${(yT+1.5).toFixed(1)} Q ${(xMid+82).toFixed(1)} ${(H*.78).toFixed(1)} ${q1} ${(yB-2.5).toFixed(1)}`;
-    const cGroinR=`M ${(rT-18).toFixed(1)} ${(yT+1.5).toFixed(1)} Q ${(W-xMid-82).toFixed(1)} ${(H*.78).toFixed(1)} ${q4} ${(yB-2.5).toFixed(1)}`;
-    // Subtle central celestial vault fan ribs (Fächergewölbe) radiating from the top keystone
-    const fanL1=`M ${cx} ${(yT+4.5).toFixed(1)} Q ${(cx-90)} ${(H*.45).toFixed(1)} ${(cx-165)} ${(yB-2.0).toFixed(1)}`;
-    const fanR1=`M ${cx} ${(yT+4.5).toFixed(1)} Q ${(cx+90)} ${(H*.45).toFixed(1)} ${(cx+165)} ${(yB-2.0).toFixed(1)}`;
-    const fanL2=`M ${cx} ${(yT+4.5).toFixed(1)} Q ${(cx-210)} ${(H*.38).toFixed(1)} ${q2} ${(yB-2.0).toFixed(1)}`;
-    const fanR2=`M ${cx} ${(yT+4.5).toFixed(1)} Q ${(cx+210)} ${(H*.38).toFixed(1)} ${q3} ${(yB-2.0).toFixed(1)}`;
-    // Entablature voussoir stone joint ticks along the upper beam
-    let voussoirs='';
-    for(const frac of [.10,.18,.26,.34,.42,.58,.66,.74,.82,.90]){
-      const vx=(xT+(rT-xT)*frac).toFixed(1);
-      voussoirs+=`<line x1="${vx}" y1="${yT.toFixed(1)}" x2="${vx}" y2="${(yT+3.8).toFixed(1)}" stroke="${pal.gold}" stroke-opacity="0.48" stroke-width="0.95"/>`;
-    }
-    // Sacred golden runes nestled inside the left and right rib channels (echoing the temple gate doors)
-    const runeIdx=kind==='heading'?0:kind==='root'?2:4;
-    const runeLX=(xMid+21).toFixed(1),runeRX=(W-xMid-21).toFixed(1),runeY=(H*.5).toFixed(1);
-    const runes=`<g stroke="${pal.rune}" stroke-opacity="0.66" stroke-width="0.95" fill="none">`+
-      `<path d="${VAULT_RUNES[runeIdx]}" transform="translate(${runeLX} ${runeY}) scale(0.95)"/>`+
-      `<path d="${VAULT_RUNES[(runeIdx+1)%VAULT_RUNES.length]}" transform="translate(${runeRX} ${runeY}) scale(0.95)"/>`+
-      `</g>`;
-    // Upper & lower cybernetic temple circuit traces with sacred geometry nodes
-    const trL=`M ${(ixT+20).toFixed(1)} ${(iyT+4.2).toFixed(1)} H ${(ixT+76).toFixed(1)} L ${(ixT+85).toFixed(1)} ${(iyT+12.2).toFixed(1)} H ${(ixT+132).toFixed(1)}`;
-    const trR=`M ${(irT-20).toFixed(1)} ${(iyT+4.2).toFixed(1)} H ${(irT-76).toFixed(1)} L ${(irT-85).toFixed(1)} ${(iyT+12.2).toFixed(1)} H ${(irT-132).toFixed(1)}`;
-    const trBL=`M ${(ixB+18).toFixed(1)} ${(iyB-4.2).toFixed(1)} H ${(ixB+66).toFixed(1)} L ${(ixB+73).toFixed(1)} ${(iyB-10.2).toFixed(1)} H ${(ixB+110).toFixed(1)}`;
-    const trBR=`M ${(irB-18).toFixed(1)} ${(iyB-4.2).toFixed(1)} H ${(irB-66).toFixed(1)} L ${(irB-73).toFixed(1)} ${(iyB-10.2).toFixed(1)} H ${(irB-110).toFixed(1)}`;
-    // Astrolabe / Sacred Temple Keystone in the center of the upper and lower vault beams
-    const ky=(yT+4.8).toFixed(1),kby=(yB-4.2).toFixed(1);
+    const rib2L=`M ${(xT+28).toFixed(1)} ${yT.toFixed(1)} Q ${(cL+24).toFixed(1)} ${(H*.5).toFixed(1)} ${(xB+21).toFixed(1)} ${yB.toFixed(1)}`;
+    const rib2R=`M ${(rT-28).toFixed(1)} ${yT.toFixed(1)} Q ${(cR-24).toFixed(1)} ${(H*.5).toFixed(1)} ${(rB-21).toFixed(1)} ${yB.toFixed(1)}`;
+    // Upper & lower cybernetic temple circuit traces with corner nodes
+    const trL=`M ${(ixT+18).toFixed(1)} ${(iyT+4.2).toFixed(1)} H ${(ixT+74).toFixed(1)} L ${(ixT+83).toFixed(1)} ${(iyT+12.2).toFixed(1)} H ${(ixT+128).toFixed(1)}`;
+    const trR=`M ${(irT-18).toFixed(1)} ${(iyT+4.2).toFixed(1)} H ${(irT-74).toFixed(1)} L ${(irT-83).toFixed(1)} ${(iyT+12.2).toFixed(1)} H ${(irT-128).toFixed(1)}`;
+    const trBL=`M ${(ixB+18).toFixed(1)} ${(iyB-4.2).toFixed(1)} H ${(ixB+64).toFixed(1)} L ${(ixB+71).toFixed(1)} ${(iyB-10.2).toFixed(1)} H ${(ixB+106).toFixed(1)}`;
+    const trBR=`M ${(irB-18).toFixed(1)} ${(iyB-4.2).toFixed(1)} H ${(irB-64).toFixed(1)} L ${(irB-71).toFixed(1)} ${(iyB-10.2).toFixed(1)} H ${(irB-106).toFixed(1)}`;
+    // Sacred Temple Keystones in the center of the upper and lower beams
+    const ky=(yT+4.5).toFixed(1),kby=(yB-4.0).toFixed(1);
     const svg=`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" fill="none">`+
       `<defs>`+
-      `<linearGradient id="vf" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="${pal.topFill}" stop-opacity="0.96"/><stop offset="46%" stop-color="${pal.midFill}" stop-opacity="0.94"/><stop offset="100%" stop-color="${pal.botFill}" stop-opacity="0.98"/></linearGradient>`+
-      `<radialGradient id="vg" cx="50%" cy="6%" r="68%"><stop offset="0%" stop-color="${pal.glow}" stop-opacity="0.64"/><stop offset="52%" stop-color="${pal.topFill}" stop-opacity="0.22"/><stop offset="100%" stop-color="${pal.botFill}" stop-opacity="0"/></radialGradient>`+
-      `<radialGradient id="vk" cx="50%" cy="6%" r="34%"><stop offset="0%" stop-color="${pal.goldGlow}" stop-opacity="0.32"/><stop offset="100%" stop-color="${pal.goldGlow}" stop-opacity="0"/></radialGradient>`+
-      `<linearGradient id="vs" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="${pal.stroke}" stop-opacity="0.98"/><stop offset="14%" stop-color="${pal.inner}" stop-opacity="0.76"/><stop offset="36%" stop-color="${pal.stroke}" stop-opacity="0.84"/><stop offset="50%" stop-color="${pal.gold}" stop-opacity="0.98"/><stop offset="64%" stop-color="${pal.stroke}" stop-opacity="0.84"/><stop offset="86%" stop-color="${pal.inner}" stop-opacity="0.76"/><stop offset="100%" stop-color="${pal.stroke}" stop-opacity="0.98"/></linearGradient>`+
+      `<linearGradient id="vf" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="${pal.topFill}" stop-opacity="0.96"/><stop offset="48%" stop-color="${pal.midFill}" stop-opacity="0.94"/><stop offset="100%" stop-color="${pal.botFill}" stop-opacity="0.98"/></linearGradient>`+
+      `<radialGradient id="vg" cx="50%" cy="4%" r="68%"><stop offset="0%" stop-color="${pal.glow}" stop-opacity="0.58"/><stop offset="54%" stop-color="${pal.topFill}" stop-opacity="0.18"/><stop offset="100%" stop-color="${pal.botFill}" stop-opacity="0"/></radialGradient>`+
+      `<radialGradient id="vk" cx="50%" cy="4%" r="30%"><stop offset="0%" stop-color="${pal.goldGlow}" stop-opacity="0.26"/><stop offset="100%" stop-color="${pal.goldGlow}" stop-opacity="0"/></radialGradient>`+
+      `<linearGradient id="vs" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="${pal.stroke}" stop-opacity="0.98"/><stop offset="14%" stop-color="${pal.inner}" stop-opacity="0.76"/><stop offset="36%" stop-color="${pal.stroke}" stop-opacity="0.82"/><stop offset="50%" stop-color="${pal.gold}" stop-opacity="0.96"/><stop offset="64%" stop-color="${pal.stroke}" stop-opacity="0.82"/><stop offset="86%" stop-color="${pal.inner}" stop-opacity="0.76"/><stop offset="100%" stop-color="${pal.stroke}" stop-opacity="0.98"/></linearGradient>`+
       `</defs>`+
       `<path d="${outerPath}" fill="url(#vf)"/>`+
       `<path d="${outerPath}" fill="url(#vg)"/>`+
       `<path d="${outerPath}" fill="url(#vk)"/>`+
-      `<path d="${vaultArchL} ${vaultArchR}" stroke="${pal.stroke}" stroke-opacity="0.22" stroke-width="1.05"/>`+
-      `<path d="${fanL1} ${fanR1} ${fanL2} ${fanR2}" stroke="${pal.stroke}" stroke-opacity="0.15" stroke-width="0.9"/>`+
-      `<circle cx="${cx}" cy="${ky}" r="28" stroke="${pal.gold}" stroke-opacity="0.22" stroke-width="0.85" stroke-dasharray="2 4"/>`+
-      `<circle cx="${cx}" cy="${ky}" r="48" stroke="${pal.stroke}" stroke-opacity="0.15" stroke-width="0.8"/>`+
-      `<path d="${groin1L} ${groin1R}" stroke="${pal.inner}" stroke-opacity="0.32" stroke-width="1.05"/>`+
-      `<path d="${cGroinL} ${cGroinR}" stroke="${pal.inner}" stroke-opacity="0.22" stroke-width="0.9" stroke-dasharray="6 4"/>`+
-      `<path d="${groin2L} ${groin2R}" stroke="${pal.gold}" stroke-opacity="0.24" stroke-width="0.95" stroke-dasharray="3 5"/>`+
-      `<path d="${rib1L} ${rib1R}" stroke="${pal.stroke}" stroke-opacity="0.46" stroke-width="1.15"/>`+
-      `<path d="${rib2L} ${rib2R}" stroke="${pal.inner}" stroke-opacity="0.34" stroke-width="0.95" stroke-dasharray="5 5"/>`+
-      `<path d="${rib3L} ${rib3R}" stroke="${pal.gold}" stroke-opacity="0.24" stroke-width="0.85"/>`+
-      runes+
+      `<path d="${rib1L} ${rib1R}" stroke="${pal.stroke}" stroke-opacity="0.44" stroke-width="1.15"/>`+
+      `<path d="${rib2L} ${rib2R}" stroke="${pal.inner}" stroke-opacity="0.30" stroke-width="0.95" stroke-dasharray="5 5"/>`+
       `<path d="${innerPath}" stroke="${pal.inner}" stroke-opacity="0.46" stroke-width="0.95" stroke-dasharray="8 4"/>`+
-      voussoirs+
-      `<path d="${trL} ${trR}" stroke="${pal.gold}" stroke-opacity="0.56" stroke-width="1.05"/>`+
-      `<circle cx="${(ixT+132).toFixed(1)}" cy="${(iyT+12.2).toFixed(1)}" r="1.8" fill="${pal.gold}" fill-opacity="0.88"/>`+
-      `<circle cx="${(irT-132).toFixed(1)}" cy="${(iyT+12.2).toFixed(1)}" r="1.8" fill="${pal.gold}" fill-opacity="0.88"/>`+
-      `<circle cx="${(ixT+76).toFixed(1)}" cy="${(iyT+4.2).toFixed(1)}" r="1.3" fill="${pal.stroke}" fill-opacity="0.84"/>`+
-      `<circle cx="${(irT-76).toFixed(1)}" cy="${(iyT+4.2).toFixed(1)}" r="1.3" fill="${pal.stroke}" fill-opacity="0.84"/>`+
-      `<path d="${trBL} ${trBR}" stroke="${pal.stroke}" stroke-opacity="0.50" stroke-width="0.95"/>`+
-      `<circle cx="${(ixB+110).toFixed(1)}" cy="${(iyB-10.2).toFixed(1)}" r="1.5" fill="${pal.stroke}" fill-opacity="0.82"/>`+
-      `<circle cx="${(irB-110).toFixed(1)}" cy="${(iyB-10.2).toFixed(1)}" r="1.5" fill="${pal.stroke}" fill-opacity="0.82"/>`+
-      `<path d="${outerPath}" stroke="url(#vs)" stroke-width="1.65"/>`+
-      `<circle cx="${q1}" cy="${(yT+1.5).toFixed(1)}" r="1.7" fill="${pal.stroke}" fill-opacity="0.8"/>`+
-      `<circle cx="${q2}" cy="${(yT+1.5).toFixed(1)}" r="1.5" fill="${pal.gold}" fill-opacity="0.78"/>`+
-      `<circle cx="${q3}" cy="${(yT+1.5).toFixed(1)}" r="1.5" fill="${pal.gold}" fill-opacity="0.78"/>`+
-      `<circle cx="${q4}" cy="${(yT+1.5).toFixed(1)}" r="1.7" fill="${pal.stroke}" fill-opacity="0.8"/>`+
-      `<path d="M ${cx-58} ${yT.toFixed(1)} H ${cx-21} M ${cx+21} ${yT.toFixed(1)} H ${cx+58}" stroke="${pal.gold}" stroke-opacity="0.82" stroke-width="1.35"/>`+
-      `<polygon points="${cx},${(yT+.3).toFixed(1)} ${cx+17},${ky} ${cx},${(yT+9.3).toFixed(1)} ${cx-17},${ky}" fill="#07151c" stroke="${pal.gold}" stroke-opacity="0.94" stroke-width="1.2"/>`+
-      `<polygon points="${cx},${(yT+2.1).toFixed(1)} ${cx+9},${ky} ${cx},${(yT+7.5).toFixed(1)} ${cx-9},${ky}" fill="none" stroke="${pal.stroke}" stroke-opacity="0.78" stroke-width="0.85"/>`+
-      `<circle cx="${cx}" cy="${ky}" r="1.9" fill="${pal.gold}" fill-opacity="0.98"/>`+
-      `<circle cx="${cx-26}" cy="${yT.toFixed(1)}" r="1.35" fill="${pal.gold}" fill-opacity="0.86"/>`+
-      `<circle cx="${cx+26}" cy="${yT.toFixed(1)}" r="1.35" fill="${pal.gold}" fill-opacity="0.86"/>`+
-      `<polygon points="${cx},${(yB-7.4).toFixed(1)} ${cx+11},${kby} ${cx},${(yB-.8).toFixed(1)} ${cx-11},${kby}" fill="#07151c" stroke="${pal.stroke}" stroke-opacity="0.82" stroke-width="1"/>`+
-      `<circle cx="${cx}" cy="${kby}" r="1.5" fill="${pal.gold}" fill-opacity="0.92"/>`+
-      `<circle cx="${(xT+4.5).toFixed(1)}" cy="${(yT+3.2).toFixed(1)}" r="2.0" fill="${pal.gold}" fill-opacity="0.92"/>`+
-      `<circle cx="${(rT-4.5).toFixed(1)}" cy="${(yT+3.2).toFixed(1)}" r="2.0" fill="${pal.gold}" fill-opacity="0.92"/>`+
-      `<circle cx="${(xB+4.5).toFixed(1)}" cy="${(yB-3.2).toFixed(1)}" r="1.8" fill="${pal.stroke}" fill-opacity="0.86"/>`+
-      `<circle cx="${(rB-4.5).toFixed(1)}" cy="${(yB-3.2).toFixed(1)}" r="1.8" fill="${pal.stroke}" fill-opacity="0.86"/>`+
+      `<path d="${trL} ${trR}" stroke="${pal.gold}" stroke-opacity="0.54" stroke-width="1.05"/>`+
+      `<circle cx="${(ixT+128).toFixed(1)}" cy="${(iyT+12.2).toFixed(1)}" r="1.7" fill="${pal.gold}" fill-opacity="0.86"/>`+
+      `<circle cx="${(irT-128).toFixed(1)}" cy="${(iyT+12.2).toFixed(1)}" r="1.7" fill="${pal.gold}" fill-opacity="0.86"/>`+
+      `<circle cx="${(ixT+74).toFixed(1)}" cy="${(iyT+4.2).toFixed(1)}" r="1.3" fill="${pal.stroke}" fill-opacity="0.82"/>`+
+      `<circle cx="${(irT-74).toFixed(1)}" cy="${(iyT+4.2).toFixed(1)}" r="1.3" fill="${pal.stroke}" fill-opacity="0.82"/>`+
+      `<path d="${trBL} ${trBR}" stroke="${pal.stroke}" stroke-opacity="0.46" stroke-width="0.95"/>`+
+      `<circle cx="${(ixB+106).toFixed(1)}" cy="${(iyB-10.2).toFixed(1)}" r="1.5" fill="${pal.stroke}" fill-opacity="0.8"/>`+
+      `<circle cx="${(irB-106).toFixed(1)}" cy="${(iyB-10.2).toFixed(1)}" r="1.5" fill="${pal.stroke}" fill-opacity="0.8"/>`+
+      `<path d="${outerPath}" stroke="url(#vs)" stroke-width="1.6"/>`+
+      `<path d="M ${cx-54} ${yT.toFixed(1)} H ${cx-19} M ${cx+19} ${yT.toFixed(1)} H ${cx+54}" stroke="${pal.gold}" stroke-opacity="0.80" stroke-width="1.3"/>`+
+      `<polygon points="${cx},${(yT+.3).toFixed(1)} ${cx+16},${ky} ${cx},${(yT+8.7).toFixed(1)} ${cx-16},${ky}" fill="#07151c" stroke="${pal.gold}" stroke-opacity="0.94" stroke-width="1.15"/>`+
+      `<polygon points="${cx},${(yT+2.0).toFixed(1)} ${cx+8.5},${ky} ${cx},${(yT+7.0).toFixed(1)} ${cx-8.5},${ky}" fill="none" stroke="${pal.stroke}" stroke-opacity="0.76" stroke-width="0.85"/>`+
+      `<circle cx="${cx}" cy="${ky}" r="1.8" fill="${pal.gold}" fill-opacity="0.98"/>`+
+      `<polygon points="${cx},${(yB-7.0).toFixed(1)} ${cx+10.5},${kby} ${cx},${(yB-.8).toFixed(1)} ${cx-10.5},${kby}" fill="#07151c" stroke="${pal.stroke}" stroke-opacity="0.80" stroke-width="1"/>`+
+      `<circle cx="${cx}" cy="${kby}" r="1.4" fill="${pal.gold}" fill-opacity="0.90"/>`+
+      `<circle cx="${(xT+4.5).toFixed(1)}" cy="${(yT+3.2).toFixed(1)}" r="1.9" fill="${pal.gold}" fill-opacity="0.90"/>`+
+      `<circle cx="${(rT-4.5).toFixed(1)}" cy="${(yT+3.2).toFixed(1)}" r="1.9" fill="${pal.gold}" fill-opacity="0.90"/>`+
+      `<circle cx="${(xB+4.5).toFixed(1)}" cy="${(yB-3.2).toFixed(1)}" r="1.7" fill="${pal.stroke}" fill-opacity="0.84"/>`+
+      `<circle cx="${(rB-4.5).toFixed(1)}" cy="${(yB-3.2).toFixed(1)}" r="1.7" fill="${pal.stroke}" fill-opacity="0.84"/>`+
       `</svg>`;
     return `url("data:image/svg+xml,${encodeURIComponent(svg)}")`;
   }
