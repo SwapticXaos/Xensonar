@@ -27,7 +27,7 @@
     // with the full room height: sy = (screenY - room.y) / room.height * 960.
     // At sy, the outermost cyan echo arc (R=198) sits at x_svg(sy) = sqrt(198^2 - (170 - sy)^2).
     const css=getComputedStyle(room,'::before');
-    const source=css.borderImageSource || '';
+    const source=(css.borderImageSource || '')+' '+(css.backgroundImage || ''); // FF-ARCH-01: arch may be a background
     if (!source.includes('data:image/svg+xml') || !source.includes('170')) return null;
     const width=finite(parseFloat(css.width),0,1000);
     const rect=room.getBoundingClientRect();
@@ -50,16 +50,7 @@
     ball:    {topFill:'#112b34',midFill:'#0b1d24',botFill:'#061015',glow:'#1e4f58',goldGlow:'#c69c54',stroke:'#5eb8ae',inner:'#3a7572',gold:'#cea45e',rune:'#c29b58'},
     advanced:{topFill:'#0e2229',midFill:'#09171c',botFill:'#050d11',glow:'#163a42',goldGlow:'#ab8444',stroke:'#49948d',inner:'#2e5c5a',gold:'#b68e4c',rune:'#a88346'}
   });
-  // Gate-door glyphs (same family as the seal runes): straight strokes and rings only.
-  const VAULT_RUNES = Object.freeze([
-    'M-3 -3L3 3M-3 3L3 -3M0 -4.5V4.5',
-    'M0 -4.5L4 0L0 4.5L-4 0Z M0 -1.5A1.5 1.5 0 1 0 0 1.5A1.5 1.5 0 1 0 0 -1.5',
-    'M0 -4.5V4.5M-3.5 -1.5L0 -4.5L3.5 -1.5M-3.5 1.5L0 4.5L3.5 1.5',
-    'M-3.5 0A3.5 3.5 0 1 0 3.5 0A3.5 3.5 0 1 0 -3.5 0M0 -5V5',
-    'M-3.5 -3.5H3.5L-3.5 3.5H3.5',
-    'M-3.5 -4.5V4.5M3.5 -4.5V4.5M-3.5 0H3.5'
-  ]);
-  /* VAULT-STYLE-03: panel art after 0a23211 (side archivolts, gate runes, beam joints, keystones),
+  /* VAULT-STYLE-03: panel art after 0a23211 (side archivolts, centre rings + fan ribs, beam joints, keystones; no side glyphs),
      without the curved inner vault/fan/groin lines and keystone halos (they fought the straight
      text and reached into labels) and without the corner circuit traces (they crossed text).
      Horizontals stay straight; everything curved follows the side walls only. */
@@ -83,20 +74,15 @@
     // Side archivolts: two walls parallel to the outer side, forming a rune channel.
     const rib1=`${wall(15,13,11,false)} ${wall(15,13,11,true)}`;
     const rib2=`${wall(28,24,21,false)} ${wall(28,24,21,true)}`;
-    // Rune in the middle of the channel (point of the two ribs at t=.5), plus channel studs.
-    const midX=(dT,dM,dB)=>.25*(xT+dT)+.5*(cL+dM)+.25*(xB+dB);
-    const chL=(midX(15,13,11)+midX(28,24,21))/2, chR=W-chL;
-    const runeIdx=kind==='heading'?0:kind==='root'?2:kind==='ball'?4:1;
-    const studs=[.2,.8].map(t=>{
-      const q=(dT,dM,dB)=>(1-t)*(1-t)*(xT+dT)+2*(1-t)*t*(cL+dM)+t*t*(xB+dB);
-      const x=(q(15,13,11)+q(28,24,21))/2,y=yT+(yB-yT)*t;
-      return `<rect x="${n(x-1.2)}" y="${n(y-1.2)}" width="2.4" height="2.4" transform="rotate(45 ${n(x)} ${n(y)})" fill="${pal.gold}" fill-opacity=".7"/>`+
-        `<rect x="${n(W-x-1.2)}" y="${n(y-1.2)}" width="2.4" height="2.4" transform="rotate(45 ${n(W-x)} ${n(y)})" fill="${pal.gold}" fill-opacity=".7"/>`;
-    }).join('');
-    const runes=H>=48?`<g stroke="${pal.rune}" stroke-opacity=".72" stroke-width=".95" fill="none">`+
-      `<path d="${VAULT_RUNES[runeIdx]}" transform="translate(${n(chL)} ${n(yM)}) scale(.9)"/>`+
-      `<path d="${VAULT_RUNES[(runeIdx+1)%VAULT_RUNES.length]}" transform="translate(${n(chR)} ${n(yM)}) scale(.9)"/>`+
-      `</g>`+studs:'';
+    // Centre relief (after 0a23211): concentric rings round the keystone and fan ribs falling
+    // from it. Centre only, faint, behind the controls; no curves spanning the full width.
+    const ky0=yT+3.6, depth=yB-ky0;
+    const rings=[[18,pal.gold,.30,'2 3'],[30,pal.stroke,.20,''],[44,pal.gold,.18,'2 4'],[62,pal.stroke,.12,''],[84,pal.inner,.10,'1 5']]
+      .map(([r,c,o,da])=>`<circle cx="${cx}" cy="${n(ky0)}" r="${r}" stroke="${c}" stroke-opacity="${o}" stroke-width=".85"${da?` stroke-dasharray="${da}"`:''}/>`).join('');
+    const fan=[[90,165],[150,250],[210,330]].map(([c,e])=>
+      `M ${cx} ${n(ky0+1)} Q ${cx-c} ${n(ky0+depth*.42)} ${cx-e} ${n(yB-2)} M ${cx} ${n(ky0+1)} Q ${cx+c} ${n(ky0+depth*.42)} ${cx+e} ${n(yB-2)}`).join(' ');
+    const relief=`<g>${rings}<path d="${fan}" stroke="${pal.stroke}" stroke-opacity=".13" stroke-width=".85"/>`+
+      `<path d="M ${cx} ${n(ky0+8)} V ${n(yB-6)}" stroke="${pal.gold}" stroke-opacity=".14" stroke-width=".8" stroke-dasharray="2 3"/></g>`;
     // Beam joints: short straight ticks hanging from the top beam, mirrored on the bottom beam (shorter).
     let joints='';
     for(const f of [.12,.2,.28,.36,.64,.72,.8,.88]){
@@ -126,7 +112,7 @@
       `<path d="${outerPath}" fill="url(#vk)"/>`+
       `<path d="${rib1}" stroke="${pal.stroke}" stroke-opacity=".46" stroke-width="1.1"/>`+
       `<path d="${rib2}" stroke="${pal.inner}" stroke-opacity=".36" stroke-width=".9" stroke-dasharray="5 4"/>`+
-      runes+
+      relief+
       `<path d="${innerPath}" stroke="${pal.inner}" stroke-opacity=".42" stroke-width=".9" stroke-dasharray="8 4"/>`+
       `<path d="${joints}" stroke="${pal.gold}" stroke-opacity=".5" stroke-width=".95"/>`+
       `<path d="${outerPath}" stroke="url(#vs)" stroke-width="1.6"/>`+
