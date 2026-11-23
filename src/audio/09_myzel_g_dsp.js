@@ -25,14 +25,19 @@ function createMyzelGDSP(sampleRate) {
   const frequencies=new Float64Array(4), gains=new Float64Array(4), phases=new Float64Array(4);
   const partials=10, energies=new Float64Array(partials*4), goals=new Float64Array(partials*4);
   const sourceHollow=new Float64Array(partials),sourceBody=new Float64Array(partials),sourceFocus=new Float64Array(partials);
-  // MYZEL-COSMOS-01: the two node tones take the constellation's timbre: their
-  // partials move from harmonic towards free-bar modes (toneMetal). One
-  // rotating phasor per partial (rotation per block), started from the
-  // harmonic phases, so the switch is seamless; unused until toneMetal is
-  // first above 0, before that the G2 arithmetic runs unchanged.
+  // MYZEL-COSMOS-01: the two node tones (and with full cosmos active, all four
+  // voices) take the constellation's timbre, harmonic voicing, dual formants,
+  // spectral tilt, rhythmic pulse and stereo modal body. Unused until toneMetal
+  // or webLevel is first above 0; before that the G2 arithmetic runs unchanged.
   const toneBar=[1,2.756,5.404,8.933,13.344,18.638,24.814,31.873,39.814,48.637],toneRatio=new Float64Array(partials);
   const toneRe=new Float64Array(partials*2),toneIm=new Float64Array(partials*2),toneCos=new Float64Array(partials*2),toneSin=new Float64Array(partials*2);
-  let toneMetalUsed=false;
+  const voicePanL=new Float64Array(4).fill(1),voicePanR=new Float64Array(4).fill(1);
+  let toneMetalUsed=false,cosmosPulsePhase=0,cosmosFlutterPhase=0;
+  const cosmosGoal={rootScale:1,chordRatio:1.5,spectralTilt:0,harmonicWarp:1,oddBias:0,formantA:2.5,formantB:6.5,formantSharpness:.5,
+    pulseRate:1.2,pulseDepth:0,flutterRate:8,flutterDepth:0,stereoWidth:.35,bodyFreqA:220,bodyFreqB:330,bodyFeedback:0,bodyMix:0,detuneCents:0};
+  const cosmosSmooth={...cosmosGoal},cosmosKeys=Object.keys(cosmosGoal);
+  const bodySize=4096,bodyMask=bodySize-1,bodyRingL=new Float32Array(bodySize),bodyRingR=new Float32Array(bodySize);
+  let bodyCursor=0,bodyLowL=0,bodyLowR=0,bodyDelaySmoothL=200,bodyDelaySmoothR=150;
   const sourceShape={window:NaN,centre:NaN,hollow:NaN,roughness:NaN,body:NaN,spread:NaN,bloom:NaN};
   let preparedStepFrames=-1,preparedRouteStep=0;
   const increments=new Float64Array(4), leftStates=new Float64Array(2), rightStates=new Float64Array(2);
@@ -58,7 +63,7 @@ function createMyzelGDSP(sampleRate) {
   const webBar=[1,2.756,5.404,8.933],webRatios=[],webRatioValues=[];
   for(let q=1;q<=16;q++)for(let p=q;p<2*q&&p<=32;p++){let a=p,b=q;while(b){const t=a%b;a=b;b=t;}
     if(a!==1)continue;webRatios.push(1200*Math.log2(p/q));webRatioValues.push(1/(1+Math.log2(p*q)/2.6));}
-  let webLinks=0,webQueued=0,webLive=false,webAwakeCount=0,webVoices=0,webCountdown=0,webTickIndex=0,webSx=1,webSy=1,webAttack=1,webRelease=1,webGateBefore=0,webBallHz=0;
+  let webLinks=0,webQueued=0,webLive=false,webAwakeCount=0,webVoices=0,webCountdown=0,webTickIndex=0,webSx=1,webSy=1,webAttack=1,webRelease=1,webGateBefore=0,webBallHz=0,webSympClock=0;
   const web={sympathy:.6,glow:.3};
   function webAffinity(ratio){
     if(!(ratio>0)||!Number.isFinite(ratio))return 0;
@@ -69,8 +74,9 @@ function createMyzelGDSP(sampleRate) {
   }
   function webClear(){
     webAmp.fill(0);webEnv.fill(0);webTouch.fill(0);webGlow.fill(0);webKick.fill(0);webRing2.fill(0);webRang.fill(-1e9);webPending.fill(0);webAwake.fill(0);
-    webAwakeCount=0;webVoices=0;webQueued=0;webCountdown=0;webTickIndex=0;webGateBefore=0;webBallHz=0;
+    webAwakeCount=0;webVoices=0;webQueued=0;webCountdown=0;webTickIndex=0;webGateBefore=0;webBallHz=0;webSympClock=0;
     for(let i=0;i<webInc.length;i++)webInc[i]=webIncGoal[i];
+    bodyRingL.fill(0);bodyRingR.fill(0);bodyCursor=0;bodyLowL=0;bodyLowR=0;
   }
   function webConfigure(p){
     const count=Math.min(WEB,Array.isArray(p?.ids)?p.ids.length:0),num=(list,i,v)=>Number.isFinite(list?.[i])?list[i]:v;
@@ -85,10 +91,18 @@ function createMyzelGDSP(sampleRate) {
     for(let j=0;j<WEB;j++)if(!webTaken[j]){webOn[j]=0;webGlow[j]=0;webKick[j]=0;}
     for(let i=0;i<count;i++){const j=webSlot[i];if(j<0)continue;
       const base=c(num(p.f,i,220),20,4000),hz=base*2**(c(num(p.detune,i,0),-1,1)*cents/1200),pan=c(num(p.pan,i,0),-1,1),angle=(pan+1)*Math.PI/4;
+      const tCode=Math.round(c(num(p.types,i,1),0,4));
       webOn[j]=1;webBase[j]=base;webX[j]=num(p.X,i,.5);webY[j]=num(p.Y,i,.5);webRadius[j]=Math.max(.02,num(p.radius,i,.3));
       webPanGoalL[j]=Math.cos(angle);webPanGoalR[j]=Math.sin(angle);if(webFresh[j]&&webEnv[j]<1e-4){webPanL[j]=webPanGoalL[j];webPanR[j]=webPanGoalR[j];}webDecay[j]=Math.exp(-webTickSec/c(num(p.tau,i,1),.08,8));
       let norm=0;
-      for(let k=0;k<WP;k++){const ratio=(k+1)+metal*(webBar[k]-(k+1)),amp=roll**k*(k&1?1-.85*hollow:1)*(hz*ratio<rate*.45?1:0);
+      for(let k=0;k<WP;k++){
+        const h=k+1,ratio=h+metal*(webBar[k]-h);
+        const roleShape=tCode===0?(k===0?1.45:k===1?.85:.35/(k+1)):
+          tCode===1?(k&1?.22*(1-hollow):1.25):
+          tCode===2?(.45+k*.35):
+          tCode===3?(k===0?.7:k>=2?1.25:.55):
+          (k===0||k===2?1.2:.65);
+        const amp=roll**k*(k&1?1-.85*hollow:1)*roleShape*(hz*ratio<rate*.45?1:0);
         webIncGoal[j*WP+k]=hz*ratio/rate;webPart[j*WP+k]=amp;norm+=amp;}
       for(let k=0;k<WP;k++){webPart[j*WP+k]/=Math.max(1e-9,norm);if(webFresh[j]||webEnv[j]+webAmp[j]<1e-4)webInc[j*WP+k]=webIncGoal[j*WP+k];}
     }
@@ -101,6 +115,29 @@ function createMyzelGDSP(sampleRate) {
     }
     webAttack=1-Math.exp(-1/(rate*c(num([p?.attack],0,.04),.002,1)));webRelease=1-Math.exp(-1/(rate*.035));
     web.sympathy=c(num([p?.sympathy],0,.6));web.glow=c(num([p?.glow],0,.3));
+    cosmosGoal.rootScale=c(num([p?.rootScale],0,1),.25,4);
+    cosmosGoal.chordRatio=c(num([p?.chordRatio],0,1.5),.25,4);
+    cosmosGoal.spectralTilt=c(num([p?.spectralTilt],0,0),-2,2);
+    cosmosGoal.harmonicWarp=c(num([p?.harmonicWarp],0,1),.65,1.6);
+    cosmosGoal.oddBias=c(num([p?.oddBias],0,0),-1,1);
+    cosmosGoal.formantA=c(num([p?.formantA],0,2.5),1,6);
+    cosmosGoal.formantB=c(num([p?.formantB],0,6.5),3.5,10);
+    cosmosGoal.formantSharpness=c(num([p?.formantSharpness],0,.5),.1,2);
+    cosmosGoal.pulseRate=c(num([p?.pulseRate],0,1.2),.2,6);
+    cosmosGoal.pulseDepth=c(num([p?.pulseDepth],0,0),0,.95);
+    cosmosGoal.flutterRate=c(num([p?.flutterRate],0,8),4,20);
+    cosmosGoal.flutterDepth=c(num([p?.flutterDepth],0,0),0,.95);
+    cosmosGoal.stereoWidth=c(num([p?.stereoWidth],0,.35),0,1.6);
+    cosmosGoal.bodyFreqA=c(num([p?.bodyFreqA],0,220),40,1800);
+    cosmosGoal.bodyFreqB=c(num([p?.bodyFreqB],0,330),40,2200);
+    cosmosGoal.bodyFeedback=c(num([p?.bodyFeedback],0,0),-.82,.82);
+    cosmosGoal.bodyMix=c(num([p?.bodyMix],0,0),0,.6);
+    cosmosGoal.detuneCents=cents;
+    if(quietReset){
+      for(const k of cosmosKeys)cosmosSmooth[k]=cosmosGoal[k];
+      bodyDelaySmoothL=c(rate/cosmosSmooth.bodyFreqA,12,bodySize-8);
+      bodyDelaySmoothR=c(rate/cosmosSmooth.bodyFreqB,12,bodySize-8);
+    }
     webLive=count>0;
   }
   function webBall(data){
@@ -108,11 +145,23 @@ function createMyzelGDSP(sampleRate) {
     const couple=c(data.webCouple??1),gesture=c(params.gesture),bx=c(data.ballU??.5)*webSx,by=c(data.ballV??.5)*webSy;
     // The ball plucks a node once per pass: when it comes close (touch above
     // .5); the node is armed again only after the ball has moved away (.2).
+    let bestNode=-1,bestTouch=0;
     for(let i=0;i<WEB;i++){if(!webOn[i])continue;
       const d=Math.hypot(bx-webX[i],by-webY[i])/webRadius[i],touch=Math.exp(-d*d*1.4);
+      if(touch>bestTouch){bestTouch=touch;bestNode=i;}
       if(webTouch[i]>=0&&touch>.5){webKick[i]+=couple*(.4+.6*gesture)*.8;webTouch[i]=-1;}
       else if(webTouch[i]<0&&touch<.2)webTouch[i]=0;
       webGlow[i]=touch>.08?touch*couple*web.glow*(.3+.7*gesture):0;}
+    // Sympathetic constellation pulse while the ball actively wanders inside the field
+    // with main voices active (keeps isolated web unit tests with root=ball=node=0 exact).
+    const mainActive=(params.rootLevel+params.ballLevel+params.nodeLevel)>.01;
+    if(mainActive&&couple>0&&params.motion>.03&&bestNode>=0&&bestTouch>.04&&(data.ballU??.5)>.02&&(data.ballU??.5)<.98){
+      webSympClock+=.03*cosmosSmooth.pulseRate;
+      if(webSympClock>=1){
+        webSympClock-=Math.floor(webSympClock);
+        webKick[bestNode]=Math.min(1,webKick[bestNode]+couple*(.14+.26*cosmosSmooth.pulseDepth)*Math.sqrt(bestTouch));
+      }
+    }
     // A grid-line crossing of the ball rings the nodes an octave or a fifth
     // away from it, each node at most every 0.3 s. Sympathetic ringing stays
     // local: only the ball's pluck travels along the links.
@@ -159,7 +208,7 @@ function createMyzelGDSP(sampleRate) {
     for(const n of retiring)clearNode(n);
     route.fill(-1);wanted.fill(-1);routeLength=0;wantedLength=0;retiringLength=0;pending=false;fade=1;
     clock=0;phases.fill(0);energies.fill(0);goals.fill(0);leftStates.fill(0);rightStates.fill(0);stereoClock=0;
-    webClear();toneMetalUsed=false;
+    webClear();toneMetalUsed=false;cosmosPulsePhase=0;cosmosFlutterPhase=0;
   }
   function copyNode(to,from) {
     to.preparedType=null;
@@ -261,7 +310,12 @@ function createMyzelGDSP(sampleRate) {
     }
     if(data.web&&typeof data.web==='object')webConfigure(data.web);
     webBall(data);
-    if(quietReset&&params.active>0)for(const key of keys)if(key!=='active')smooth[key]=params[key];
+    if(quietReset&&params.active>0){
+      for(const key of keys)if(key!=='active')smooth[key]=params[key];
+      for(const k of cosmosKeys)cosmosSmooth[k]=cosmosGoal[k];
+      bodyDelaySmoothL=c(rate/cosmosSmooth.bodyFreqA,12,bodySize-8);
+      bodyDelaySmoothR=c(rate/cosmosSmooth.bodyFreqB,12,bodySize-8);
+    }
   }
   function read(ch,n,delay) {
     const at=(n.cursor-c(delay,1,lag-3)+lag)%lag,i=Math.floor(at),f=at-i;
@@ -304,15 +358,47 @@ function createMyzelGDSP(sampleRate) {
     }
     ch.ring[pos]=x;return c(x+(wet-x)*amount,-1.3,1.3);
   }
-  function sourceCoefficients() {
+  function sourceCoefficients(blockFrames=128) {
     const t=smooth;
-    frequencies[0]=params.ballToneHz>0?params.ballToneHz:t.root;frequencies[1]=t.root;frequencies[2]=t.frequency;frequencies[3]=t.neighbourFrequency;
+    const cosmosActive=webLive&&(params.webLevel>0||t.webLevel>1e-7);
+    const cosmosAmt=cosmosActive?c(t.webLevel/.7,0,1.4):0;
+    const cMix=Math.min(1,cosmosAmt);
+    if(cosmosActive){
+      const cStep=1-Math.exp(-blockFrames/(rate*.11));
+      for(let i=0;i<cosmosKeys.length;i++){const k=cosmosKeys[i];cosmosSmooth[k]+=(cosmosGoal[k]-cosmosSmooth[k])*cStep;}
+      cosmosPulsePhase=(cosmosPulsePhase+blockFrames/rate*cosmosSmooth.pulseRate)%1;
+      cosmosFlutterPhase=(cosmosFlutterPhase+blockFrames/rate*cosmosSmooth.flutterRate)%1;
+      const wPan=c(cosmosSmooth.stereoWidth*cMix,0,1.2);
+      voicePanL[0]=1+wPan*.35;voicePanR[0]=1-wPan*.35;
+      voicePanL[1]=1-wPan*.45;voicePanR[1]=1+wPan*.45;
+      voicePanL[2]=1+wPan*.52;voicePanR[2]=1-wPan*.52;
+      voicePanL[3]=1-wPan*.52;voicePanR[3]=1+wPan*.52;
+    }else{
+      voicePanL.fill(1);voicePanR.fill(1);
+    }
+    const base0=params.ballToneHz>0?params.ballToneHz:t.root;
+    const scale0=cosmosActive?1+(cosmosSmooth.rootScale-1)*cMix:1;
+    const scale1=cosmosActive?1+(cosmosSmooth.rootScale*cosmosSmooth.chordRatio-1)*cMix:1;
+    frequencies[0]=c(base0*scale0,30,4800);
+    frequencies[1]=c(t.root*scale1,30,4800);
+    frequencies[2]=t.frequency;
+    frequencies[3]=t.neighbourFrequency;
     gains[0]=t.rootLevel*.21*t.ballToneGate*t.ballToneLevel;
     gains[1]=t.ballLevel*(.04+t.gesture*.46)*(.25+t.presence*.75)*t.ballToneLevel;
     gains[2]=t.nodeLevel*t.presence*(.08+t.gesture*.34);
     gains[3]=t.nodeLevel*t.neighbour*(.04+t.gesture*.19)*( .35+t.density*.65);
+    if(cosmosActive){
+      for(let v=0;v<4;v++){
+        const pRaw=.5+.5*sin(cosmosPulsePhase+v*.19);
+        const pShaped=pRaw*pRaw*(1.8-.8*pRaw);
+        const fWave=sin(cosmosFlutterPhase+v*.29);
+        const pMod=1+cosmosSmooth.pulseDepth*cMix*((pShaped-.42)*1.65);
+        const fMod=1+cosmosSmooth.flutterDepth*cMix*fWave*.65;
+        gains[v]*=c(pMod*fMod,.06,2.35);
+      }
+    }
     // Spectral shape is shared by all four sources; only phase sheen, pitch
-    // mask, normalization and gains differ. Keep their exact arithmetic.
+    // mask, normalization and gains differ. Keep their exact arithmetic when cosmosAmt === 0.
     const openness=c(t.brightness*.30+t.openness*.7),window=1.1+openness*5+t.density*2+(1-t.body)*.8;
     const centre=1.5+t.bloom*6.5+t.motion*1.5+t.tension*.8;
     if(sourceShape.window!==window||sourceShape.centre!==centre||sourceShape.hollow!==t.hollow||sourceShape.roughness!==t.roughness||sourceShape.body!==t.body||sourceShape.spread!==t.spread||sourceShape.bloom!==t.bloom){
@@ -324,23 +410,41 @@ function createMyzelGDSP(sampleRate) {
       }
       sourceShape.window=window;sourceShape.centre=centre;sourceShape.hollow=t.hollow;sourceShape.roughness=t.roughness;sourceShape.body=t.body;sourceShape.spread=t.spread;sourceShape.bloom=t.bloom;
     }
-    if(!toneMetalUsed&&params.toneMetal>0){toneMetalUsed=true;
+    if(!toneMetalUsed&&(params.toneMetal>0||cosmosActive)){toneMetalUsed=true;
       for(let v=2;v<4;v++)for(let k=0;k<partials;k++){const p=phases[v]*(k+1),a=TAU*(p-Math.floor(p)+v*.17);
         toneRe[(v-2)*partials+k]=Math.cos(a);toneIm[(v-2)*partials+k]=Math.sin(a);}}
-    if(toneMetalUsed)for(let k=0;k<partials;k++){toneRatio[k]=(k+1)+t.toneMetal*(toneBar[k]-(k+1));
-      for(let v=2;v<4;v++){const j=(v-2)*partials+k,a=TAU*frequencies[v]/rate*toneRatio[k],re=toneRe[j],im=toneIm[j],norm=1.5-.5*(re*re+im*im);
-        toneCos[j]=Math.cos(a);toneSin[j]=Math.sin(a);toneRe[j]=re*norm;toneIm[j]=im*norm;}}
+    if(toneMetalUsed){
+      const warp=cosmosActive?1+(cosmosSmooth.harmonicWarp-1)*cMix:1;
+      for(let k=0;k<partials;k++){
+        const h=k+1,bar=h+t.toneMetal*(toneBar[k]-h);
+        toneRatio[k]=cosmosActive?bar*(1+(.45*(Math.pow(h,warp)/h-1))*cMix):bar;
+        for(let v=2;v<4;v++){const j=(v-2)*partials+k,a=TAU*c(frequencies[v]*toneRatio[k],20,rate*.46)/rate,re=toneRe[j],im=toneIm[j],norm=1.5-.5*(re*re+im*im);
+          toneCos[j]=Math.cos(a);toneSin[j]=Math.sin(a);toneRe[j]=re*norm;toneIm[j]=im*norm;}}
+    }
+    const tiltExp=cosmosActive?cosmosSmooth.spectralTilt*1.12*cMix:0;
+    const oddB=cosmosActive?cosmosSmooth.oddBias*cMix:0;
+    const fA=cosmosSmooth.formantA,fB=cosmosSmooth.formantB,fSharp=cosmosSmooth.formantSharpness;
+    const fWidthA=Math.max(.26,.95/Math.max(.2,fSharp)),fWidthB=Math.max(.32,1.15/Math.max(.2,fSharp));
     for(let v=0;v<4;v++){
       increments[v]=frequencies[v]/rate;
       let norm=0;
       for(let k=0;k<partials;k++){
-        const h=k+1,hollow=sourceHollow[k],body=sourceBody[k],focus=sourceFocus[k];
+        const h=k+1,j=v*partials+k,hollow=sourceHollow[k],body=sourceBody[k],focus=sourceFocus[k];
         const sheen=.65+.35*sin(clock/rate*(.11+v*.03)+(k/partials)*(.3+t.density*.4));
-        const mask=c((rate*.43-frequencies[v]*(toneMetalUsed&&v>1?toneRatio[k]:h))/(rate*.08));
-        const energy=(body*hollow+focus)*sheen*mask*(v===0?(k===0?1.25:.55):1);
-        goals[v*partials+k]=energy;norm+=energy;
+        const r=toneMetalUsed&&v>1?toneRatio[k]:h;
+        const mask=c((rate*.43-frequencies[v]*r)/(rate*.08));
+        let energy=(body*hollow+focus)*sheen*mask*(v===0?(k===0?1.25:.55):1);
+        if(cosmosActive){
+          const oddShape=(h&1)?(1+Math.max(0,oddB)*1.5)*(1-Math.max(0,-oddB)*.72):(1-Math.max(0,oddB)*.94)*(1+Math.max(0,-oddB)*1.55);
+          const peakA=Math.exp(-(((h-fA)/fWidthA)**2))*(.45+1.85*fSharp);
+          const peakB=Math.exp(-(((h-fB)/fWidthB)**2))*(.40+1.75*fSharp);
+          const cosmosSpec=(.03+peakA+peakB)*oddShape*Math.pow(h,tiltExp);
+          energy=energy*(1-.90*cMix)+(.18+.82*body)*cosmosSpec*sheen*mask*(.90*cMix);
+        }
+        goals[j]=energy;norm+=energy;
       }
-      const scale=gains[v]/Math.max(1,norm*.65);
+      const tiltBoost=cosmosActive?Math.pow(1.36,Math.abs(tiltExp)*.48):1;
+      const scale=gains[v]*tiltBoost/Math.max(1,norm*.65);
       for(let k=0;k<partials;k++)goals[v*partials+k]*=scale;
     }
   }
@@ -359,7 +463,7 @@ function createMyzelGDSP(sampleRate) {
     if(routeLength&&preparedStepFrames!==count){preparedStepFrames=count;preparedRouteStep=1-Math.exp(-count/(rate*.065));}
     for(let k=0;k<routeLength;k++){const n=nodes[route[k]];n.hz+=(n.targetHz-n.hz)*preparedRouteStep;n.x+=(n.targetX-n.x)*preparedRouteStep;n.y+=(n.targetY-n.y)*preparedRouteStep;prepare(n);}
     for(let k=0;k<retiringLength;k++)prepare(retiring[k]);
-    sourceCoefficients();
+    sourceCoefficients(count);
     // A port message can change targets only between render callbacks. Test
     // their exact floating-point fixed point once per block, keeping the
     // original recurrence and order for every value which can still move.
@@ -375,29 +479,47 @@ function createMyzelGDSP(sampleRate) {
       for(let k=0;k<partials;k++){const index=v*partials+k;
         if(energies[index]!==0||goals[index]!==0){sourceEnabled[v]=1;break;}}
     }
+    const useCosmos=webLive&&(params.webLevel>0||smooth.webLevel>1e-7);
+    const cosmosBodyActive=useCosmos&&(params.rootLevel+params.ballLevel+params.nodeLevel)>.01;
+    if(cosmosBodyActive){
+      const targetDelayL=c(rate/Math.max(40,cosmosSmooth.bodyFreqA),12,bodySize-8);
+      const targetDelayR=c(rate/Math.max(40,cosmosSmooth.bodyFreqB),12,bodySize-8);
+      bodyDelaySmoothL+=(targetDelayL-bodyDelaySmoothL)*.14;
+      bodyDelaySmoothR+=(targetDelayR-bodyDelaySmoothR)*.14;
+    }
+    const dIntL=bodyDelaySmoothL|0,dIntR=bodyDelaySmoothR|0;
+    const bodyDamp=c(.32+.48*smooth.brightness,.15,.88);
+    const bodyFb=cosmosBodyActive?cosmosSmooth.bodyFeedback*c(smooth.webLevel/.7,0,1):0;
+    const bodyCross=cosmosBodyActive?.22*c(cosmosSmooth.stereoWidth,0,1):0;
+    const bodyMix=cosmosBodyActive?cosmosSmooth.bodyMix*c(smooth.webLevel/.7,0,1):0;
     for(let i=0;i<count;i++){
       for(let k=0;k<movingCount;k++){const key=movingKeys[k];smooth[key]+=(params[key]-smooth[key])*controlStep;}
       if(smooth.active<.00001&&params.active===0){
         if(!quietReset){reset();quietReset=true;}
         for(let ch=0;ch<output.length;ch++)output[ch][i]=0;continue;
       }
-      quietReset=false;let x=0;
+      quietReset=false;
+      let x=0,srcL=0,srcR=0;
       for(let v=0;v<4;v++){
         phases[v]+=increments[v];if(phases[v]>=1)phases[v]-=Math.floor(phases[v]);
         if(!sourceEnabled[v])continue;
+        let vSum=0;
         if(toneMetalUsed&&v>1){const base=(v-2)*partials;
           for(let k=0;k<partials;k++){const index=v*partials+k,j=base+k,re=toneRe[j],im=toneIm[j];
             energies[index]+=(goals[index]-energies[index])*gainStep;
             toneRe[j]=re*toneCos[j]-im*toneSin[j];const next=re*toneSin[j]+im*toneCos[j];toneIm[j]=next;
-            x+=next*energies[index];}
-          continue;}
-        for(let k=0;k<partials;k++){const index=v*partials+k;
-          energies[index]+=(goals[index]-energies[index])*gainStep;
-          x+=sin(phases[v]*(k+1)+v*.17)*energies[index];}
+            vSum+=next*energies[index];}
+        }else{
+          for(let k=0;k<partials;k++){const index=v*partials+k;
+            energies[index]+=(goals[index]-energies[index])*gainStep;
+            vSum+=sin(phases[v]*(k+1)+v*.17)*energies[index];}
+        }
+        x+=vSum;
+        if(cosmosBodyActive){srcL+=vSum*voicePanL[v];srcR+=vSum*voicePanR[v];}
       }
       // The web sounds before the organs, so a touched organ colours it too.
-      let webL=x,webR=x;
-      if((webLive||webAwakeCount)&&(params.webLevel>0||smooth.webLevel>1e-7)){
+      let webL=cosmosBodyActive?srcL:x,webR=cosmosBodyActive?srcR:x;
+      if((webLive||webAwakeCount)&&useCosmos){
         if(--webCountdown<=0){webStep();webCountdown=webTick;}
         let l=0,r=0;
         for(let n=0;n<webVoices;n++){const i=webAwakeList[n];
@@ -405,15 +527,40 @@ function createMyzelGDSP(sampleRate) {
           let v=0;for(let k=0;k<WP;k++){const j=i*WP+k,re=webRe[j],im=webIm[j],cs=webCos[j],sn=webSin[j];
             webRe[j]=re*cs-im*sn;const next=re*sn+im*cs;webIm[j]=next;v+=next*webPart[j];}
           v*=webEnv[i];l+=v*webPanL[i];r+=v*webPanR[i];}
-        const gain=smooth.webLevel*.2;webL=x+l*gain;webR=x+r*gain;
+        const gain=smooth.webLevel*.22;webL+=l*gain;webR+=r*gain;
+      }
+      if(cosmosBodyActive){
+        const tapL=bodyRingL[(bodyCursor-dIntL)&bodyMask];
+        const tapR=bodyRingR[(bodyCursor-dIntR)&bodyMask];
+        bodyLowL+=(tapL-bodyLowL)*bodyDamp;bodyLowR+=(tapR-bodyLowR)*bodyDamp;
+        const inL=webL+(bodyLowL*(1-bodyCross)+bodyLowR*bodyCross)*bodyFb;
+        const inR=webR+(bodyLowR*(1-bodyCross)-bodyLowL*bodyCross)*bodyFb;
+        bodyRingL[bodyCursor]=inL/(1+Math.abs(inL)*.35);
+        bodyRingR[bodyCursor]=inR/(1+Math.abs(inR)*.35);
+        bodyCursor=(bodyCursor+1)&bodyMask;
+        webL=webL*(1-bodyMix*.35)+bodyLowL*bodyMix;
+        webR=webR*(1-bodyMix*.35)+bodyLowR*bodyMix;
       }
       for(let j=0;j<routeLength;j++){const n=nodes[route[j]];n.power+=(n.goal-n.power)*gainStep;}
       fade=Math.min(1,fade+fadeStep);const f=fade*fade*(3-2*fade);
-      for(let ch=0;ch<Math.min(2,output.length);ch++){
+      const chCount=Math.min(2,output.length);
+      let rawOutL=0,rawOutR=0;
+      for(let ch=0;ch<chCount;ch++){
         const input=ch?webR:webL;
         let y=input;for(let j=0;j<routeLength;j++)y=effect(y,nodes[route[j]],ch);
         if(fade<1){let old=input;for(let j=0;j<retiringLength;j++)old=effect(old,retiring[j],ch);y=old*(1-f)+y*f;}
         const dc=ch?rightStates:leftStates,value=y-dc[0]+.996*dc[1];dc[0]=y;dc[1]=value;
+        if(ch===0)rawOutL=value;else rawOutR=value;
+      }
+      if(cosmosBodyActive&&chCount===2){
+        const cMix=c(smooth.webLevel/.7,0,1),wScale=cosmosSmooth.stereoWidth;
+        const mid=(rawOutL+rawOutR)*.5;
+        const side=((rawOutL-rawOutR)*.5+(bodyLowL-bodyLowR)*.24)*wScale;
+        rawOutL=rawOutL*(1-cMix)+(mid+side)*cMix;
+        rawOutR=rawOutR*(1-cMix)+(mid-side)*cMix;
+      }
+      for(let ch=0;ch<chCount;ch++){
+        const value=ch===0?rawOutL:rawOutR;
         const pan=ch===0?(smooth.pan>0?1-smooth.pan*.55:1):(smooth.pan<0?1+smooth.pan*.55:1);
         const out=value*smooth.active*smooth.level*pan*.82;
         output[ch][i]=Number.isFinite(out)?Math.tanh(out):0;
