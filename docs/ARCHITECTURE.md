@@ -17,7 +17,7 @@ XenSonar wird als **eine vollständige, offline nutzbare `index.html`** ausgelie
 
 ## Praktische Suche
 
-`docs/HOTSPOTS.json` (Einstiegspunkte mit HTML-Zeilen) und `docs/SOURCE_TREE_STATUS.json` (Herkunft je Quelldatei) sind die Lesekarten; die frühere `source_reference/`-Ablage gibt es nicht mehr. Verwende `rg -n` und zeilenbasierte Schnitte. Vor einer Änderung am großen Script 10 die Aufruf- und Consumer-Kette verfolgen; viele Parameter oder React-Hooks sind über die Datei verteilt.
+`docs/HOTSPOTS.json` (Einstiegspunkte mit Quelldatei und HTML-Zeile; Zeilen gelten nur für den jeweils letzten Build) und `docs/SOURCE_TREE_STATUS.json` (Herkunft je Quelldatei) sind die Lesekarten; die frühere `source_reference/`-Ablage gibt es nicht mehr. Verwende `rg -n` und zeilenbasierte Schnitte. Vor einer Änderung am großen Script 10 die Aufruf- und Consumer-Kette verfolgen; viele Parameter oder React-Hooks sind über die Datei verteilt.
 
 ## Audio-Lifecycle und Runtime
 
