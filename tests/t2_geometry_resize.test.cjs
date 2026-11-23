@@ -107,7 +107,7 @@ test('retained room DOM cannot restore stale geometry after changing mode at nar
   h.enableWide();
 });
 
-test('wide geometry stays clear of the R=198 outer echo arc and resets header/nav/ball vars', () => {
+test('wide geometry: panels run parallel to the pixel-exact arch, arch art is set and reset', () => {
   const pending = [];
   const classes = new Set();
   const makeStyle = () => {
@@ -133,6 +133,7 @@ test('wide geometry stays clear of the R=198 outer echo arc and resets header/na
   heading.querySelectorAll = () => headingItems;
   heading.querySelector = sel => sel === '.nd-modes' ? nav : null;
   const room = {
+    style: makeStyle(),
     classList: {
       toggle(key, on) { if (on) classes.add(key); else classes.delete(key); },
       remove: key => classes.delete(key), contains: key => classes.has(key)
@@ -166,15 +167,21 @@ test('wide geometry stays clear of the R=198 outer echo arc and resets header/na
   const copyShifts = headingItems.map(el => parseFloat(el.style.getPropertyValue('--nd-geo-heading-shift')));
   const toolShift = parseFloat(root.style.getPropertyValue('--nd-geo-tool-shift'));
   const ballShift = parseFloat(ball.style.getPropertyValue('--nd-geo-ball-shift'));
-  // At y=106 (dy=24 in 3040px tall room), the R=198 echo arc leaves ~109px open (well below old 157px R=170 over-shift).
-  assert.ok(headTop > 80 && headTop < 120, `expected R=198 headTop in (80,120), got ${headTop}`);
-  assert.ok(headBot > 50 && headBot < headTop, `expected headBot < headTop, got ${headBot} vs ${headTop}`);
+  // Arch: A=176, spring 14px under the ball controls (y=405 -> Hs=323). Heading top (dy=24) sits high on the
+  // arch, its bottom (dy=116) much lower: the trapezoid narrows downward along the arch.
+  assert.ok(headTop > 95 && headTop < 125, `expected headTop in (95,125), got ${headTop}`);
+  assert.ok(headBot > 30 && headBot < headTop, `expected headBot < headTop, got ${headBot} vs ${headTop}`);
+  assert.match(room.style.getPropertyValue('--nd-arch-svg'), /^url\("data:image\/svg\+xml,/, 'arch art is published on the room');
+  const geo = window.__xenNodalShellGeometryT2.inspect();
+  const rootGeo = geo.find(g => g.name === 'root');
+  assert.ok(rootGeo.ext.length >= 5 && rootGeo.ext.every((e, i, a) => i === 0 || e <= a[i - 1] + 1e-9), 'panel edge narrows monotonically downward (follows the arch)');
+  assert.equal(geo.find(g => g.name === 'advanced').top, 0, 'panels below the spring line stay rectangular');
   assert.equal(copyShifts[0], copyShifts[1], 'all header copy lines share one vertical editorial spine');
   assert.equal(copyShifts[1], copyShifts[2], 'all header copy lines share one vertical editorial spine');
   assert.ok(copyShifts[0] <= headBot - 13, 'header copy must stay cleanly inside frieze bottom clearance');
   assert.ok(navShift > 40 && navShift < headTop, `nav must align symmetrically inside right frieze, got ${navShift}`);
   assert.ok(toolShift <= parseFloat(root.style.getPropertyValue('--nd-geo-top')) - 14, 'tools must stay inside slanted border');
-  assert.ok(ballShift > 0 && ballShift < parseFloat(ball.style.getPropertyValue('--nd-geo-bottom')), 'ball shift stays inside trapezoid');
+  assert.ok(ballShift >= 0 && ballShift <= parseFloat(ball.style.getPropertyValue('--nd-geo-bottom')), 'ball shift stays inside trapezoid');
 
   run(1280);
   assert.equal(classes.has('nd-geo-t2'), false);
@@ -182,4 +189,5 @@ test('wide geometry stays clear of the R=198 outer echo arc and resets header/na
     assert.equal(heading.style.getPropertyValue(prop), '', `heading ${prop} must reset`);
   }
   assert.equal(ball.style.getPropertyValue('--nd-geo-ball-shift'), '', 'ball shift must reset');
+  assert.equal(room.style.getPropertyValue('--nd-arch-svg'), '', 'arch art must reset');
 });

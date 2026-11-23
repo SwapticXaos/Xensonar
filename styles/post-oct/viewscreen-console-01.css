@@ -20,14 +20,50 @@
   linear-gradient(90deg,#2c6d6c 0 34%,#07151a 34% 37%,#4aa59f 37% 56%,#07151a 56% 59%,#78d9d0 59% 88%,#07151a 88% 91%,#e0b66c 91% 100%)}
 .nd-tng-win.tab{flex:0 0 22px;height:15px;background:linear-gradient(180deg,#0e2a30,#07151a);box-shadow:inset 0 0 0 1px #1c4a4e,inset 0 -5px 0 -2px rgba(120,217,208,.55)}
 .nd-tng-win.tab.gold{box-shadow:inset 0 0 0 1px #4d3d1b,inset 0 -5px 0 -2px rgba(224,182,108,.75)}
-.nd-tng-slot{flex:1 1 auto;max-width:24%;height:22px;border-radius:4px;position:relative;background:#06121a;
+.nd-tng-slot{flex:1 1 auto;max-width:30%;height:22px;border-radius:4px;position:relative;overflow:hidden;background:
+    linear-gradient(180deg,rgba(150,222,208,.05),transparent 40%),#050f15;
   box-shadow:inset 0 0 0 1px #0b2328,inset 0 2px 6px #000,0 1px 0 rgba(150,222,208,.2)}
-.nd-tng-slot{overflow:hidden}
-/* TNG centre light: one bar splits into two that travel outward, fade, and re-form in the middle. Transform/opacity only. */
-.nd-tng-slot i{position:absolute;left:43%;width:14%;top:50%;height:3px;margin-top:-1.5px;border-radius:2px;background:#f0c67a;
-  box-shadow:0 0 8px 1px rgba(240,198,122,.65);animation:nd-tng-split-l 3.8s ease-in-out infinite}
-.nd-tng-slot i.r{animation-name:nd-tng-split-r}
-@keyframes nd-tng-split-l{0%,16%{transform:translateX(0);opacity:1}70%{transform:translateX(-300%);opacity:1}82%{transform:translateX(-300%);opacity:0}83%{transform:translateX(0);opacity:0}100%{transform:translateX(0);opacity:1}}
-@keyframes nd-tng-split-r{0%,16%{transform:translateX(0);opacity:1}70%{transform:translateX(300%);opacity:1}82%{transform:translateX(300%);opacity:0}83%{transform:translateX(0);opacity:0}100%{transform:translateX(0);opacity:1}}
-@media (prefers-reduced-motion:reduce){.nd-tng-slot i{animation:none;opacity:.85}}
+/* Rail the lights glide along, and the bloom where they are born. */
+.nd-tng-slot::before{content:"";position:absolute;left:6%;right:6%;top:50%;height:1px;margin-top:-.5px;
+  background:linear-gradient(90deg,transparent,rgba(240,198,122,.16) 30%,rgba(240,198,122,.22) 50%,rgba(240,198,122,.16) 70%,transparent)}
+.nd-tng-slot::after{content:"";position:absolute;left:50%;top:50%;width:46px;height:20px;margin:-10px 0 0 -23px;border-radius:50%;
+  background:radial-gradient(closest-side,rgba(255,236,196,.95),rgba(240,198,122,.55) 38%,rgba(240,198,122,.12) 70%,transparent);
+  opacity:0;transform:scale(.4);animation:nd-tng-bloom 4.6s infinite;will-change:transform,opacity}
+/* TNG centre light: a glow swells in the middle, splits into two lights that glide outward
+   (stretching with speed, trailing a soft afterglow), dim out near the ends and re-form. */
+.nd-tng-slot i{position:absolute;left:34%;top:50%;width:16%;height:4px;margin-top:-2px;border-radius:3px;
+  background:linear-gradient(270deg,#fff3d6 0%,#f6d08a 12%,rgba(240,198,122,.75) 32%,rgba(240,198,122,.28) 64%,rgba(240,198,122,0) 100%);
+  filter:drop-shadow(0 0 3px rgba(246,208,138,.9)) drop-shadow(0 0 7px rgba(240,198,122,.45));
+  transform-origin:100% 50%;opacity:0;animation:nd-tng-glide 4.6s infinite;will-change:transform,opacity}
+.nd-tng-slot i.l{transform:scaleX(-1)}
+.nd-tng-slot i.l{animation-name:nd-tng-glide-l}
+@keyframes nd-tng-bloom{
+  0%{opacity:0;transform:scale(.4);animation-timing-function:cubic-bezier(.3,0,.4,1)}
+  14%{opacity:1;transform:scale(1);animation-timing-function:cubic-bezier(.5,0,.6,1)}
+  34%{opacity:0;transform:scale(1.35)}
+  100%{opacity:0;transform:scale(.4)}}
+@keyframes nd-tng-glide{
+  0%,8%{opacity:0;transform:translateX(0) scaleX(.15);animation-timing-function:cubic-bezier(.35,0,.6,1)}
+  16%{opacity:1;transform:translateX(0) scaleX(.45);animation-timing-function:cubic-bezier(.55,0,.75,.6)}
+  50%{opacity:1;transform:translateX(150%) scaleX(1.35);animation-timing-function:cubic-bezier(.25,.4,.35,1)}
+  80%{opacity:.85;transform:translateX(255%) scaleX(.75);animation-timing-function:cubic-bezier(.4,0,.6,1)}
+  92%,100%{opacity:0;transform:translateX(275%) scaleX(.4)}}
+@keyframes nd-tng-glide-l{
+  0%,8%{opacity:0;transform:scaleX(-1) translateX(0) scaleX(.15);animation-timing-function:cubic-bezier(.35,0,.6,1)}
+  16%{opacity:1;transform:scaleX(-1) translateX(0) scaleX(.45);animation-timing-function:cubic-bezier(.55,0,.75,.6)}
+  50%{opacity:1;transform:scaleX(-1) translateX(150%) scaleX(1.35);animation-timing-function:cubic-bezier(.25,.4,.35,1)}
+  80%{opacity:.85;transform:scaleX(-1) translateX(255%) scaleX(.75);animation-timing-function:cubic-bezier(.4,0,.6,1)}
+  92%,100%{opacity:0;transform:scaleX(-1) translateX(275%) scaleX(.4)}}
+/* Side windows breathe slowly, out of phase (no hard blinking). */
+.nd-tng-win.tab.gold{animation:nd-tng-breathe 6.4s ease-in-out infinite}
+.nd-tng-g:last-child .nd-tng-win.tab.gold{animation-delay:-3.2s}
+.nd-tng-win.seg{position:relative;overflow:hidden}
+.nd-tng-win.seg::after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,transparent 0%,rgba(255,255,255,.16) 50%,transparent 100%);
+  width:30%;transform:translateX(-120%);animation:nd-tng-sheen 9.2s cubic-bezier(.45,0,.55,1) infinite}
+.nd-tng-win.seg.rev::after{animation-delay:-4.6s}
+@keyframes nd-tng-breathe{0%,100%{filter:brightness(.82)}50%{filter:brightness(1.18)}}
+@keyframes nd-tng-sheen{0%,62%{transform:translateX(-120%)}100%{transform:translateX(420%)}}
+@media (prefers-reduced-motion:reduce){
+  .nd-tng-slot i,.nd-tng-slot::after,.nd-tng-win.tab.gold,.nd-tng-win.seg::after{animation:none}
+  .nd-tng-slot i{opacity:.85;transform:translateX(50%) scaleX(.5)}.nd-tng-slot i.l{display:none}}
 @media (max-width:900px){.nd-legacy-card .mt-5 > .nd-tng-console.nd-tng-console{height:46px;padding:11px 5% 9px}.nd-tng-win{height:11px}}
