@@ -22,8 +22,12 @@
 .nd-tng-win.tab.gold{box-shadow:inset 0 0 0 1px #4d3d1b,inset 0 -5px 0 -2px rgba(224,182,108,.75)}
 .nd-tng-slot{flex:1 1 auto;max-width:24%;height:22px;border-radius:4px;position:relative;background:#06121a;
   box-shadow:inset 0 0 0 1px #0b2328,inset 0 2px 6px #000,0 1px 0 rgba(150,222,208,.2)}
-.nd-tng-slot i{position:absolute;left:30%;right:30%;top:50%;height:3px;margin-top:-1.5px;border-radius:2px;background:#f0c67a;
-  box-shadow:0 0 8px 1px rgba(240,198,122,.65);animation:nd-tng-pulse 4.2s ease-in-out infinite}
-@keyframes nd-tng-pulse{0%,100%{opacity:.55}50%{opacity:1}}
+.nd-tng-slot{overflow:hidden}
+/* TNG centre light: one bar splits into two that travel outward, fade, and re-form in the middle. Transform/opacity only. */
+.nd-tng-slot i{position:absolute;left:43%;width:14%;top:50%;height:3px;margin-top:-1.5px;border-radius:2px;background:#f0c67a;
+  box-shadow:0 0 8px 1px rgba(240,198,122,.65);animation:nd-tng-split-l 3.8s ease-in-out infinite}
+.nd-tng-slot i.r{animation-name:nd-tng-split-r}
+@keyframes nd-tng-split-l{0%,16%{transform:translateX(0);opacity:1}70%{transform:translateX(-300%);opacity:1}82%{transform:translateX(-300%);opacity:0}83%{transform:translateX(0);opacity:0}100%{transform:translateX(0);opacity:1}}
+@keyframes nd-tng-split-r{0%,16%{transform:translateX(0);opacity:1}70%{transform:translateX(300%);opacity:1}82%{transform:translateX(300%);opacity:0}83%{transform:translateX(0);opacity:0}100%{transform:translateX(0);opacity:1}}
 @media (prefers-reduced-motion:reduce){.nd-tng-slot i{animation:none;opacity:.85}}
 @media (max-width:900px){.nd-legacy-card .mt-5 > .nd-tng-console.nd-tng-console{height:46px;padding:11px 5% 9px}.nd-tng-win{height:11px}}
