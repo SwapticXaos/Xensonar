@@ -1,6 +1,6 @@
 /* 🎧 Meta-Menu · Session = one ordered set of references, never a sequencer or Part editor.
    The five existing libraries remain owners. Editor actions never select/play library items. */
-const __XenMetaLabels=Object.freeze({grid:'Threadboard',material:'Material Track',rootFollow:'Root Follow Loop',drum:'Drums',bass:'Bass'});
+const __XenMetaLabels=Object.freeze({grid:'Fretboard',material:'Material Track',rootFollow:'Root Follow Loop',drum:'Drums',bass:'Bass'});
 function __xenMetaValidateItems(value){return __xenValidateQuickItems(value)}
 /* Visual annotation only: never insert styling into the original library reference. */
 const __xenMetaColorKey=e=>__xenGridKey(e);
