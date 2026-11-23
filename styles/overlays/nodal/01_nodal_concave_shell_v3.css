@@ -14,8 +14,10 @@
 }
 @media (min-width:1381px) {
   .nd-room.nd-room-shell[data-nodal-mode="installation"] {
-    max-width:min(1420px,calc(100vw - 140px));
-    --nd-frame-arc:clamp(0px,calc((100vw - min(1420px,calc(100vw - 140px))) / 2),170px);
+    /* ARCH-WING-01: the temple arch needs its full 170px wing. The room keeps at least 1300px (the Ball row wraps below that)
+       and only gives up width beyond that, so windows of ~1500-1700px still show the whole arch. */
+    max-width:min(1420px,calc(100vw - 140px),max(1300px,calc(100vw - 340px)));
+    --nd-frame-arc:clamp(0px,calc((100vw - min(1420px,calc(100vw - 140px),max(1300px,calc(100vw - 340px)))) / 2),170px);
   }
 }
 /* The existing ::before/::after represent side gutters, NOT content columns.
