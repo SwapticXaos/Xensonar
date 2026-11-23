@@ -35,7 +35,6 @@
 .f33-synth-lab-header>button{padding:2px 5px;font-size:10px;}
 .f33-project-name-text{font-size:9px;}}
 .f34-transport-and-status{position:relative;align-self:stretch;min-height:64px;flex:0 0 auto;z-index:1;}
-.f34-transport-status{position:absolute;top:40px;left:0;width:168px;max-height:22px;overflow:hidden;line-height:11px;font-size:9px;color:#67e8f9;pointer-events:none;overflow-wrap:break-word;}
 .f34-project-save-on-main{width:246px;max-width:100%;min-width:220px;margin-left:auto;align-self:flex-start;min-height:35px;}
 .f34-project-save-on-main .f33-project-save{grid-template-rows:26px 12px;}
 .f34-project-save-on-main .f33-project-save-feedback{line-height:12px;}
@@ -55,7 +54,6 @@
 .f34-library-entry:hover{border-color:#a78bfa;background:#24203d;}
 .f34-library-entry.selected{border-color:#22d3ee;background:#143143;color:#e0faff;}
 .f34-library-preview{min-width:0;display:flex;flex-direction:column;border-left:1px solid #283045;justify-content:flex-start;}
-.f34-library-preview-title{font-size:10px;color:#67e8f9;letter-spacing:.04em;}
 .f34-library-mini-view{width:100%;border:1px solid #164e63;border-radius:4px;background:#020617;}
 .f34-library-mini-view canvas{display:block;}
 .f34-library-mini-empty{display:flex;align-items:center;justify-content:center;min-height:32px;padding:4px;color:#64748b;}
@@ -76,7 +74,6 @@
 .f31-play-rack .f31-transport-main{position:relative;display:grid;align-items:start;gap:8px;overflow:visible;}
 .f31-play-rack .f34-transport-and-status{position:static;min-height:34px;align-self:start;z-index:auto;min-width:0;}
 .f31-play-rack .f34-transport-and-status>div:first-child{display:flex;align-items:center;gap:6px;white-space:nowrap;}
-.f31-play-rack .f34-transport-status{position:absolute;max-width:min(560px,65%);max-height:14px;overflow-wrap:normal;font-size:10px;color:#67e8f9;z-index:1;}
 .f31-play-rack .f31-transport-main>div:nth-child(2){flex-wrap:nowrap;white-space:nowrap;align-self:start;margin-top:2px;}
 .f31-play-rack .f31-transport-main>div:nth-child(3){align-self:start;margin-top:2px;white-space:nowrap;gap:5px;}
 .f31-play-rack .f31-trim-import{align-self:start;}
@@ -89,7 +86,6 @@
  padding-inline:clamp(0px,calc((var(--forge-pink-span,100vw) - var(--forge-pink-ink,0px)) / 2),.75rem);
 }
 .f31-play-rack .f35-pink-destination>span:last-child{white-space:nowrap;flex:0 0 auto;}
-
 .f31-play-rack .f35-rack-hearing-picker{display:flex;align-items:center;min-width:0;width:var(--forge-hearing-width);flex:0 0 var(--forge-hearing-width);}
 .f31-play-rack .f35-rack-hearing-picker select{width:100%;max-width:none!important;height:36px;padding:5px 8px;color:#faf5ff;cursor:pointer;}
 /* W06 — freed status gap at left of NAME. Selector occupies no grid cell;
@@ -123,9 +119,6 @@
 .f33-rack-project-corner .f35-rack-send-multitrack:focus-visible{outline:2px solid #fcd34d;outline-offset:2px;}
 /* Narrow layouts (≤1000 px) stack the Save block directly above the corner: Figure Projects flows normally there. */
 @media (max-width:1000px){.f31-play-rack .f33-rack-figure-slot{position:static;margin-bottom:3px;}}
-
-
-
 /* Native number steppers follow the dark fields, across Blink and Gecko. */
 .f31-play-rack input[type="number"],.xen-forge-name-rack input[type="number"],.xen-forge-inline-metadata input[type="number"],.melodic-bars-controls input[type="number"]{color-scheme:dark;}
 .f31-play-rack .f33-rack-project-corner{max-width:246px;}
@@ -139,12 +132,11 @@
 .f31-play-rack .f35-rack-hearing-picker{width:100%;flex:0 0 188px;}}
 .f31-play-rack .f31-transport-main{grid-template-columns:88px max-content max-content minmax(305px,380px) minmax(205px,1fr);column-gap:8px;row-gap:0;min-height:67px;}
 .f31-play-rack .f34-project-save-on-main{grid-column:5;grid-row:1;width:246px;max-width:100%;min-width:0;margin:0;align-self:start;justify-self:end;}
-.f31-play-rack .f34-transport-status{top:39px;left:0;right:auto;width:min(500px,55%);height:13px;line-height:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;pointer-events:none;}
 .f31-play-rack .f33-project-name-input{min-width:0;}
 @media (max-width:1220px) and (min-width:1001px){.f31-play-rack .f31-transport-main{grid-template-columns:84px max-content max-content minmax(294px,350px) minmax(193px,1fr);column-gap:6px;}}
 @media (max-width:1000px){.f31-play-rack .f31-transport-main{display:flex;flex-wrap:wrap;min-height:72px;row-gap:7px;}
 .f31-play-rack .f34-project-save-on-main{width:246px;flex:0 0 246px;min-width:200px;align-self:start;margin-left:auto;}
-.f31-play-rack .f34-transport-status{top:auto;bottom:0;left:0;right:auto;width:min(500px,80%);max-width:80%;}}
+}
 .f34-library-popover{width:min(620px,calc(100vw - 32px));max-height:min(430px,75vh);gap:9px;}
 .f34-library-grid{grid-template-columns:minmax(190px,1fr) minmax(215px,1.15fr);gap:12px;}
 .f34-library-list{max-height:340px;min-height:145px;}
@@ -181,9 +173,7 @@
 .f35-navigator-save-slot :is([data-forge-navigator-preview],[data-forge-navigator-save-sample]){
  width:100%;min-width:0;height:var(--forge-sample-height);box-sizing:border-box;
 }
-
 @media (max-width:1000px){.f35-navigator-save-slot{margin-left:106px;}}
-@media (min-width:1001px){.f31-play-rack .f34-transport-status{width:min(345px,55%);max-width:345px;}}
 @media (max-width:1000px){.f35-navigator-save-slot{position:static;margin-top:4px;}
 .f35-navigator-save-slot:empty{display:none;}}
 .forge-navigator-region-sweep{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;animation:forge-navigator-region-sweep var(--forge-region-preview-duration,1s) linear both;will-change:transform;}
@@ -274,7 +264,6 @@
 .f31-play-rack .xen-vertical-import-audio{position:relative;top:0;left:0;right:auto;bottom:auto;}
 .f31-play-rack .f31-import-bars{grid-template-rows:auto 29px;}}
 @media (max-width:560px){.f31-play-rack .xen-rack-import-top{flex-wrap:wrap;width:auto;max-width:100%;}}
-
 /* P7.24: Navigation is OUT OF FLOW. The original P7.22 flex row and its
    buttons receive no padding, margin, width or min-height changes. */
 .xen-forge-action-rack{position:relative;}
@@ -324,21 +313,17 @@
   font-family:inherit;font-size:12px;font-weight:750;line-height:16px;letter-spacing:.035em;}
 .xen-forge-upper-triangle:focus-visible{outline:2px solid #a5f3fc;outline-offset:2px;}
 @media(max-width:1263px){.xen-forge-action-rack>.xen-forge-upper-triangle{display:none;}}
-
 /* At very narrow widths the action row has no guaranteed 80px spare space.
    Hide the purely convenient scroll shortcut rather than cover musical actions. */
 @media(max-width:1099px){.xen-forge-action-rack>.xen-forge-up-triangle{display:none;}}
-
 .xen-carrier-transform{padding:8px 12px;min-width:11.75rem;height:80px;min-height:80px;box-sizing:border-box;border-top-right-radius:0;border-bottom-right-radius:0;}
 .xen-carrier-filter{position:relative;margin:0;align-self:stretch;min-height:80px;}
 .xen-carrier-filter>summary{list-style:none;position:relative;box-sizing:border-box;display:block;min-width:80px;padding:0;margin:0;border:0;background:#9a71c4;color:#eee2ff;overflow:hidden;cursor:pointer;user-select:none;width:80px;height:80px;min-height:80px;clip-path:polygon(0 0,100% 0,0 100%);border-radius:0;}
 .xen-carrier-filter>summary .xen-carrier-filter-text{top:6px;left:8px;}
 .xen-carrier-filter>summary .xen-carrier-filter-chevron{top:21px;left:20px;}
 .xen-forge-tool-rail{box-sizing:border-box;flex:0 0 48px;min-width:48px;}
-.f31-play-rack .f31-transport-main .f34-transport-status{position:absolute;left:0;top:39px;right:auto;bottom:auto;width:var(--forge-hearing-width);max-width:var(--forge-hearing-width);height:26px;max-height:26px;font-size:10px;line-height:12px;white-space:normal;overflow-wrap:normal;word-break:normal;overflow:hidden;text-overflow:clip;pointer-events:none;}
 .xen-carrier-feedback{position:relative;flex:none;display:block;flex-basis:100%;max-width:100%;width:100%;padding:7px 2px 0;white-space:normal;overflow-wrap:anywhere;font-size:10px;line-height:1.35;}
 .xen-carrier-filter:not([open]) .xen-carrier-feedback{display:none;}
-@media (max-width:1000px){.f31-play-rack .f31-transport-main .f34-transport-status{top:auto;bottom:0;}}
 .f37-library-actions{grid-template-columns:minmax(0,1fr) 28px;align-items:stretch;}
 .f34-library-load{display:flex;justify-content:space-between;align-items:center;gap:5px;min-width:0;white-space:nowrap;overflow:hidden;}
 .f34-library-load-label{flex:0 1 auto;min-width:0;text-align:center;overflow:hidden;text-overflow:ellipsis;}
@@ -358,10 +343,8 @@
 .f31-play-rack .xen-rack-vertical-import-anchor .xen-vertical-import-audio{position:absolute;left:0;right:auto;bottom:auto;top:-6px;height:112px;min-height:0;max-height:none;z-index:6;}
 @media (max-width:1160px){.f31-play-rack .xen-rack-vertical-import-anchor{flex:0 0 0;width:0;height:28px;align-self:center;}
 .f31-play-rack .xen-rack-vertical-import-anchor .xen-vertical-import-audio{position:absolute;left:0;top:-6px;right:auto;bottom:auto;}}
-
 /* P2.8 export label: allow 🧪 while retaining the existing 80px button and filter geometry. */
 .xen-carrier-transform{min-width:13.5rem;}
-
 /* P30 – Spectral Forge Stamp Library: visual form gallery, not inventory rows. */
 .xen-stamp-gallery-section{background:linear-gradient(150deg,rgba(11,23,32,.82),rgba(19,11,32,.82))!important;border-color:#36444d!important;box-shadow:inset 0 1px 0 rgba(119,227,209,.11);min-width:0}
 .xen-stamp-gallery-heading{padding:3px 2px 7px;border-bottom:1px solid rgba(105,159,171,.22)}
@@ -387,14 +370,12 @@
 .xen-stamp-tile-preview{position:relative;display:block;min-width:0;align-self:center;width:100%;max-width:112px;}
 .xen-stamp-tile-canvas{display:block;width:100%;height:70px;min-width:0;image-rendering:auto;border:1px solid #233b49;border-radius:2px;background:#071019;box-shadow:inset 0 0 10px #16394455}
 .xen-stamp-loaded-check{position:absolute;left:-12px;top:50%;transform:translateY(-50%);z-index:1;display:grid;place-items:center;width:17px;height:17px;box-sizing:border-box;border:1px solid #70f4b0;border-radius:50%;background:#0c3e2c;color:#b5ffd1;box-shadow:0 0 6px #38e89978;pointer-events:none}
-
 .xen-stamp-check-svg{width:13px;height:13px;overflow:visible}
 .xen-stamp-check-stroke{stroke-dasharray:26;stroke-dashoffset:26;animation:xen-stamp-check-draw 370ms cubic-bezier(.26,.08,.18,1) forwards}
 @keyframes xen-stamp-check-draw{to{stroke-dashoffset:0}}
 @media (prefers-reduced-motion: reduce){.xen-stamp-check-stroke{animation:none;stroke-dashoffset:0}}
 @container (min-width:650px){.xen-stamp-gallery-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
 @container (max-width:295px){.xen-stamp-gallery-grid{grid-template-columns:minmax(0,1fr)}.xen-stamp-gallery-tile{grid-template-columns:minmax(0,1fr) 105px}}
-
 /* Navigator NAME: one geometric owner. Input and visible NAME ink share a 25px
    vertical ruler; the small colon keeps its own field-adjacent anchor.
    Condensed type is selected at the font level, not re-scaled and translated. */
@@ -461,13 +442,11 @@
 .xen-forge-down-corner-inner:is(:hover,:focus-visible){background:linear-gradient(125deg,#a2fff4,#20a0a3);}
 .xen-forge-down-corner:focus-visible,.xen-forge-down-corner-inner:focus-visible{outline:2px solid #b5fff4;outline-offset:-2px;}
 @media(max-width:600px){.xen-forge-draw-header{padding-right:55px!important;}.xen-forge-down-corner{width:46px;height:48px;}.xen-forge-down-corner-inner{width:27px;height:27px;}.xen-forge-draw-header [data-forge-draw-history]{gap:3px;font-size:10px;}.xen-forge-draw-header [data-forge-draw-history]>button{padding-inline:3px;}}
-
 /* R7: Voice/Guitar option menu opens upward in the compact bottom overlay;
    hide the browser's down chevron and show the corresponding upward angle. */
 .xen-carrier-range{position:relative;}
 .xen-carrier-range select{appearance:none;-webkit-appearance:none;padding-right:1.3rem!important;}
 .xen-carrier-range::after{content:'⌃';position:absolute;right:8px;bottom:3px;line-height:1;font-size:17px;color:#c8b2df;pointer-events:none;}
-
 /* E2 POLARLICHT: light curtains are separate saturated planes, not a red+green alpha soup.
    Two broad, softly masked red curtains counterflow over a shaded green ground.
    A third luminous fold drifts independently, while the legend stays above the lights.
@@ -600,7 +579,6 @@ button.xen-enough-finish::before,button.xen-enough-finish::after{content:none!im
  :is(button.xen-enough-finish,.xen-rec-aurora) .xen-enough-veil--right{transform:translate3d(60%,0,0) skewY(5deg);}
  :is(button.xen-enough-finish,.xen-rec-aurora) .xen-enough-ripples,:is(button.xen-enough-finish,.xen-rec-aurora) .xen-enough-filaments{animation:none!important;opacity:.33;transform:none;will-change:auto;}
 }
-
 /* E3-UI1: equal mode keys below the wheel's name, not a floating ragged header. */
 .xen-wheel-mode-grid{
  display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:4px;
@@ -623,7 +601,6 @@ button.xen-enough-finish::before,button.xen-enough-finish::after{content:none!im
 .xen-wheel-mode-button:hover:not(:disabled){background:color-mix(in srgb,var(--xen-wheel-mode-ink) 21%,#070c13);border-color:var(--xen-wheel-mode-ink)}
 .xen-wheel-mode-button:focus-visible{outline:2px solid #e8fff7;outline-offset:2px}
 .xen-wheel-mode-button:disabled{opacity:.42;cursor:not-allowed}
-
 /* The recording rack borrows the Forge's condensed NAME/colon grammar,
    without borrowing its absolutely positioned navigator geometry. */
 .xen-master-rec-controls{display:flex;flex-wrap:wrap;align-items:center;justify-content:flex-end;gap:8px 10px;min-width:0;max-width:100%;}
@@ -643,7 +620,6 @@ button.xen-enough-finish::before,button.xen-enough-finish::after{content:none!im
  .xen-master-take-input{width:100%;flex:1}
 }
 @media(prefers-reduced-motion:reduce){.xen-wheel-mode-button{transition:none}}
-
 /* UI V2: physical-keyboard locale and hotkey target are distinct controls;
    patterned density rather than a conventional settings dialog. */
 .xen-particle-hotkeys{display:flex;flex-wrap:wrap;align-items:center;gap:7px 10px;
@@ -651,10 +627,10 @@ button.xen-enough-finish::before,button.xen-enough-finish::after{content:none!im
  border:1px solid #285d52;border-top:2px solid #32ba9e;}
 .xen-particle-header{font-family:'Noto Sans ExtraCondensed','Arial Narrow',sans-serif;
  color:#48d5b6;font-weight:900;font-stretch:condensed;font-size:20px;letter-spacing:-.03em;margin-right:auto}
-.xen-particle-mass-controls,.xen-particle-hotkey-modes,.xen-particle-keyboard-layout{
+.xen-particle-mass-controls{
  display:flex;align-items:center;flex-wrap:wrap;gap:4px;min-width:0}
 .xen-particle-mass-controls{margin-right:5px}
-.xen-particle-ctrl-label{font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:#abd9cb;margin-right:3px}
+
 .xen-particle-hotkeys button{border:1px solid #334b48;background:#101a1c;color:#b4c9c5;
  font-size:11px;min-height:29px;padding:5px 8px;white-space:nowrap;line-height:1.1}
 .xen-particle-hotkeys button[aria-pressed="true"]{color:#d9fff1;border-color:#5dd7b6;background:#144037;
@@ -662,13 +638,12 @@ button.xen-enough-finish::before,button.xen-enough-finish::after{content:none!im
 .xen-particle-hotkeys button:hover:not(:disabled){border-color:#8be9cc;color:#e7fff7}
 .xen-particle-hotkeys button:focus-visible{outline:2px solid #d8fff0;outline-offset:2px}
 .xen-particle-hotkeys button:disabled{opacity:.45;cursor:not-allowed}
-.xen-particle-hotkey-hint{flex-basis:100%;font-size:10px;color:#829f96;
- letter-spacing:.015em;min-height:12px}
+
 .xen-particle-keycap{min-width:22px;margin-left:3px;text-align:center;color:#53dab4;
  font-weight:800;font-size:11px}
 .xen-particle-keycap--inactive{color:#4a5a58;opacity:.5}
 @media (max-width:740px){.xen-particle-header{width:100%;margin-right:0}
-.xen-particle-hotkey-modes,.xen-particle-keyboard-layout{flex-basis:100%}}
+}
 /* Forge name echo: stretch NAME and position a full-scale colon at its optical midline. */
 .xen-master-take-name-ink{height:40px;align-items:center;gap:1px}
 .xen-master-take-name-glyph{font-stretch:condensed;font-size:36px;line-height:38px;letter-spacing:-.047em;transform:scaleX(1.035);transform-origin:left center}
@@ -741,10 +716,10 @@ button.xen-enough-finish::before,button.xen-enough-finish::after{content:none!im
 /* Live playable particle strip: primary work on first line, secondary modes in small caps. */
 .xen-mainroom-particle-band .xen-particle-hotkeys{border:0;border-bottom:1px solid #2e574e;background:transparent;margin:0;padding:8px 10px;gap:4px 9px;min-height:44px}
 .xen-mainroom-particle-band .xen-particle-header{font-size:25px;line-height:1.04;letter-spacing:-.04em;margin-right:auto}
-.xen-mainroom-particle-band .xen-particle-hotkey-modes,.xen-mainroom-particle-band .xen-particle-keyboard-layout{gap:2px}
+
 .xen-mainroom-particle-band .xen-particle-hotkeys button{font-size:9px;min-height:23px;padding:3px 6px;border-radius:2px}
-.xen-mainroom-particle-band .xen-particle-ctrl-label{font-size:9px;letter-spacing:.025em;margin-right:3px;color:#86a39a}
-.xen-mainroom-particle-band .xen-particle-hotkey-hint{flex-basis:auto;font-size:9px;order:0;color:#7a9f96;min-height:0;margin-right:3px}
+
+
 .xen-mainroom-particle-band .xen-particle-mass-controls{order:3;margin-left:auto;margin-right:0}
 .xen-mainroom-particle-band > div:nth-child(2){display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:3px;padding:7px;min-width:0}
 .xen-mainroom-particle-band .xen-particle-mix-row{display:grid;grid-template-columns:minmax(0,1fr) 20px;grid-template-rows:auto auto auto;gap:3px;align-items:center;margin:0;min-width:0;min-height:112px;padding:5px!important;border-color:#255b4d!important;background:linear-gradient(180deg,#092323 0%,#10151d 100%)!important}
@@ -764,14 +739,14 @@ button.xen-enough-finish::before,button.xen-enough-finish::after{content:none!im
 .xen-wheel-mandala-stage{width:min(100%,295px);aspect-ratio:1/1;margin:4px auto 1px;flex:none;min-height:0}
 .xen-wheel-mode-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));width:100%;gap:2px;margin:0;padding:0}
 .xen-wheel-mode-button{min-height:38px;padding:4px 2px;font-size:10px;line-height:1.06;border-radius:1px}
-.xen-wheel-randomize-trigger{display:block;width:100%;min-height:42px;margin:0;border:1px solid #b65593;border-top:0;background:linear-gradient(180deg,#4d1c3b 0%,#2c1028 100%);color:#ffe1f2;font-family:'Noto Sans ExtraCondensed','Liberation Sans Narrow',sans-serif;font-size:19px;letter-spacing:.035em;font-weight:900;text-shadow:0 0 8px #f069bb66;cursor:pointer;flex:none}
-.xen-wheel-randomize-trigger:hover:not(:disabled){background:linear-gradient(180deg,#683053 0%,#411e35 100%)}
-.xen-wheel-randomize-trigger:disabled{opacity:.63;cursor:wait}
-.xen-wheel-result-dock{margin-top:9px;padding:8px 7px;min-height:142px;height:142px;overflow-y:auto;overflow-x:hidden;scrollbar-color:#63455a #100e17;border-top:1px solid #5a3853;background:#100e17;display:block;flex:none;color:#c4afc9;font-size:11px}
-.xen-wheel-result-dock:empty:before{content:'Choose a mode and randomize';font-size:10px;color:#6c6070}
-.xen-wheel-result-dock > *{overflow-wrap:anywhere}
-.xen-wheel-result-dock input{width:100%;max-width:100%}
-.xen-wheel-result-dock button{min-height:27px}
+
+
+
+
+
+
+
+
 
 /* NAME: share Spectral Forge glyph geometry, not merely a similar font. */
 .xen-master-take-name-ink{position:relative;display:block;flex:none;width:67px;height:30px;align-self:center}
@@ -782,7 +757,7 @@ button.xen-enough-finish::before,button.xen-enough-finish::after{content:none!im
 .xen-mainroom-shell [data-xensonar-master-recording-rack] .xen-master-rec-controls{gap:5px 8px}
 @media(max-width:1230px){
  .xen-mainroom-particle-band > div:nth-child(2){grid-template-columns:repeat(6,minmax(0,1fr))}
- .xen-mainroom-particle-band .xen-particle-hotkey-hint{order:4;flex-basis:100%;margin:0}
+ 
  .xen-mainroom-voice-zone{grid-column:1 / span 7}
  .xen-mainroom-wheel-zone{grid-column:8 / span 5}
  .xen-mainroom-wave-zone{grid-column:1 / span 5}
@@ -807,13 +782,13 @@ button.xen-enough-finish::before,button.xen-enough-finish::after{content:none!im
  .xen-mainroom-sonic-map > section{grid-column:1/-1;grid-row:auto}
  .xen-mainroom-particle-band > div:nth-child(2){grid-template-columns:repeat(4,minmax(0,1fr))}
  .xen-mainroom-particle-band .xen-particle-hotkeys{align-items:start;gap:5px}
- .xen-mainroom-particle-band .xen-particle-hotkey-modes,.xen-mainroom-particle-band .xen-particle-keyboard-layout{flex-basis:auto;max-width:100%;flex-wrap:wrap}
+ 
  .xen-mainroom-particle-band .xen-particle-mass-controls{margin-left:0}
  .xen-wheel-mandala-stage{width:min(100%,270px)}
- .xen-wheel-result-dock{height:auto;min-height:116px;max-height:225px}
+ 
 }
 @media(max-width:410px){.xen-mainroom-particle-band > div:nth-child(2){grid-template-columns:repeat(3,minmax(0,1fr))}.xen-wheel-mode-button{font-size:9px}}
-@media(prefers-reduced-motion:reduce){.xen-wheel-randomize-trigger{transition:none}}
+
 /* Particle volume and pan remain explicitly reachable in each tile. */
 .xen-mainroom-particle-band .xen-particle-mix-row{grid-template-rows:20px 27px 27px 13px}
 .xen-mainroom-particle-band .xen-performance-pan{grid-column:1 / -1;grid-row:3;display:block;min-width:0}

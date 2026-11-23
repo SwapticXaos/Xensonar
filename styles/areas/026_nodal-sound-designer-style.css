@@ -110,7 +110,6 @@ body[data-nodal-sounddesign="true"] [data-xensonar-performance-strip] {display:n
   .nd-footer {flex-direction:column;align-items:stretch}
 }
 @media(prefers-reduced-motion:reduce) {.nd-room * {transition:none!important}}
-
 /* Keep actions in the normal page flow; no extra editor scroll container. */
 .nd-status>span {white-space:normal;overflow:visible;overflow-wrap:anywhere}
 @media(min-width:821px) and (max-width:1199px) and (max-height:920px) {
@@ -121,7 +120,6 @@ body[data-nodal-sounddesign="true"] [data-xensonar-performance-strip] {display:n
   .nd-toolbar {margin-bottom:8px;padding:8px 0}
   .nd-footer {gap:8px;flex-wrap:wrap}
 }
-
 /* Melodic Loop: compact eighth cell in the existing instrument grid. */
 .nd-library-manager{position:relative;min-width:0;margin:0;padding:0;border:0;background:transparent;color:#d9e8e7;font-size:11px;align-self:start}
 .nd-library-manager-label{display:block;color:#9ca3af;font-size:10px;text-transform:uppercase;letter-spacing:.13em;margin:0 0 6px;white-space:nowrap}
@@ -137,8 +135,6 @@ body[data-nodal-sounddesign="true"] [data-xensonar-performance-strip] {display:n
 .nd-library-manager-row>button:disabled{opacity:.4;cursor:default}.nd-library-manager-row>button:last-child{border-color:#7f5353;color:#f1c9c4}
 .nd-library-manager-message{color:#bcead9;margin:7px 0}
 @media(max-width:767px){.nd-library-manager-content{left:auto;right:0;width:min(610px,calc(100vw - 28px))}}
-
-
 /* Room III: shared navigation and turquoise workspace across all three modes.
    Retain the existing editor, installation canvas and enhancer machinery. */
 .nd-room-shell {padding-bottom:16px}
@@ -193,7 +189,6 @@ body[data-nodal-sounddesign="true"] [data-xensonar-performance-strip] {display:n
 .nd-legacy-body [class*="text-violet-"] {color:#bdece1!important}
 .nd-legacy-body button:focus-visible,
 .nd-legacy-body select:focus-visible {outline:2px solid #9ae4d8;outline-offset:2px}
-
 /* Open Soundspace: one work surface, source/body beside the constellation.
    Envelope is an explicit panel; there are no independent scrolling columns. */
 .nd-room[data-nodal-mode="sounddesign"]{max-width:1260px;padding:15px 20px 12px;background:radial-gradient(ellipse at 22% 30%,#19323966,transparent 65%),#101d25}
@@ -326,7 +321,6 @@ body[data-nodal-sounddesign="true"] [data-xensonar-performance-strip] {display:n
  .nd-open-workshop .nd-origin-presets{margin-top:2px}
  .nd-open-workshop .nd-footer{padding-top:7px;margin-top:6px}
 }
-
 /* Keep the delivery controls fully visible in a short desktop viewport. */
 @media(min-width:1180px) and (max-height:820px){
  .nd-open-workshop .nd-spectrum canvas{height:16px}
@@ -345,7 +339,6 @@ body[data-nodal-sounddesign="true"] [data-xensonar-performance-strip] {display:n
  .nd-room[data-nodal-mode="sounddesign"]{padding-top:8px}
  .nd-open-workshop .nd-footer{margin-top:3px;padding-top:4px}
 }
-
 /* F4.4.2: the constellation keeps laptop-scale working space. */
 .nd-open-workshop .nd-stage{position:relative}
 .nd-open-workshop .nd-node-menu{position:absolute;z-index:8;width:174px;padding:6px;background:#10272f;border:1px solid #789e98;border-radius:8px;box-shadow:0 8px 24px #0009;display:grid;gap:3px;text-align:left}
@@ -363,7 +356,6 @@ body[data-nodal-sounddesign="true"] [data-xensonar-performance-strip] {display:n
 }
 @media(min-width:1180px) and (max-height:920px){.nd-open-workshop .nd-stage{max-width:360px}}
 @media(max-width:760px){.nd-open-workshop .nd-node-menu{width:160px}.nd-open-workshop .nd-node-menu button{min-height:30px}}
-
 /* P4B-L3: ONE shared heading, TWO independent library managers.
    The import column uses the same vertical space as the Repeat/Add controls.
    Instruments 5..8 are not rendered until requested. */
@@ -374,13 +366,9 @@ body[data-nodal-sounddesign="true"] [data-xensonar-performance-strip] {display:n
 .melodic-import-sounds-stack .entrophon-library-manager>button{background:#4c316c;border-color:#a78bfa;color:#ede9fe}
 .melodic-import-sounds-stack .entrophon-library-manager>button:hover{background:#624184}
 @media(min-width:768px){
- .melodic-instrument-pairgrid{grid-column:span 5/span 5;min-width:0;align-self:start}
  .melodic-import-sounds-stack{grid-column:5;grid-row:1/span 2}
- .melodic-added-instrument{grid-row:2;min-width:0}
- .melodic-added-5{grid-column:1}
- .melodic-added-6{grid-column:2}
- .melodic-added-7{grid-column:3}
- .melodic-added-8{grid-column:4}
+ 
+ 
 }
 
 /* P4B-L9: one shared anchor for two EXCLUSIVE Import Sounds menus.
@@ -437,7 +425,7 @@ body[data-nodal-sounddesign="true"] [data-xensonar-performance-strip] {display:n
 .melodic-compact-control-grid .melodic-sample-controls{align-self:start}
 .melodic-compact-control-grid .melodic-import-sounds-stack{grid-row:1;align-self:start}
 .melodic-card-sound-select select option,.melodic-card-sound-select select optgroup{color:#e5e7eb;background:#171717}
-.melodic-instrument-actions{min-height:30px}
+
 @media(max-width:767px){.melodic-compact-control-grid .melodic-import-sounds-stack{grid-row:auto}}
 @media(min-width:768px){
  .melodic-compact-control-grid>.melodic-sample-controls{grid-column:4/span 3;grid-row:1}
@@ -452,8 +440,8 @@ body[data-nodal-sounddesign="true"] [data-xensonar-performance-strip] {display:n
 .melodic-compact-control-grid>.melodic-import-sounds-stack {grid-column:auto;grid-row:auto;min-width:0}
 .melodic-project-inline select{min-width:0}
 .melodic-project-actions button{font-size:10px;line-height:1.18;white-space:normal;min-height:34px}
-.melodic-action-toolbar>div:first-child{min-width:0;flex:1 1 650px}
-.melodic-action-toolbar .melodic-instrument-actions{margin-left:auto;flex:0 0 auto}
+
+
 @media(min-width:768px) and (max-width:1199px){
  .melodic-compact-control-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
  .melodic-compact-control-grid>.melodic-sample-controls,
@@ -479,7 +467,7 @@ body[data-nodal-sounddesign="true"] [data-xensonar-performance-strip] {display:n
 .melodic-instrument-plus-column{grid-column:2;grid-row:2 / span 2;width:78px;height:77px;display:block;align-self:stretch;justify-self:stretch}
 .melodic-instrument-plus{font-size:16px;font-weight:700}
 .melodic-instrument-plus span:last-child{font-size:17px;font-weight:400}
-.melodic-instrument-minus{height:22px;width:44px;border-radius:4px;border:1px solid #7f1d1d;background:#170e12;color:#fecaca;cursor:pointer;font-size:15px}
+
 
 /* P4B-L14: full-height, dark-blue instrument tile. Above four instruments it
    divides into two independent, diagonally clipped hit targets. */
@@ -501,7 +489,7 @@ body[data-nodal-sounddesign="true"] [data-xensonar-performance-strip] {display:n
 .melodic-instrument-plus{cursor:pointer}
 .melodic-instrument-plus:hover{background:#1d3972}
 .melodic-instrument-plus-sign{position:absolute;left:17px;top:9px;font-size:24px;line-height:1;font-weight:750}
-.melodic-instrument-single-violin{position:absolute;right:11px;bottom:8px;font-size:24px;line-height:1}
+
 .melodic-instrument-triangle{
   position:absolute;
   inset:0;
@@ -540,7 +528,7 @@ body[data-nodal-sounddesign="true"] [data-xensonar-performance-strip] {display:n
 .melodic-instrument-max-remove:hover{background:#aa304c}
 .melodic-instrument-max-remove:focus-visible{outline:2px solid #ffc2ce;outline-offset:2px}
 .melodic-instrument-max-minus{position:absolute;left:15px;top:8px;font-size:29px;line-height:1;font-weight:750}
-.melodic-instrument-max-violin{position:absolute;right:10px;bottom:9px;font-size:24px;line-height:1}
+
 
 /* P4B-L15: stable spatial icon layout in all 4 / 5–7 / 8 states.
    Violin is the same centered emoji, without a circular backing.

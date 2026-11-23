@@ -1,4 +1,3 @@
-
 .xen-meta-color-editor:has(.xen-grid-profile-controls){width:min(342px,calc(100% - 24px));max-height:min(540px,calc(100dvh - 170px));overflow-y:auto;overscroll-behavior:contain}
 .xen-grid-profile-controls{display:flex;flex-direction:column;gap:10px;margin-bottom:14px;padding:4px 0 14px;border-bottom:1px solid rgba(71,191,196,.4);color:#cceeed}
 .xen-grid-profile-controls>label{display:flex;justify-content:space-between;align-items:center;gap:10px}
@@ -17,7 +16,7 @@
 .xen-grid-bass-dialog>footer button,.xen-grid-bass-dialog>header button{border:1px solid #397987;padding:6px 14px;color:#dff7f7;border-radius:5px;background:#122e39}
 .xen-grid-bass-dialog [data-xen-bass-grid-editor]{width:100%;max-width:100%;background:transparent}
 .xen-grid-bass-dialog [data-xen-bass-grid-flyout]{box-shadow:none!important;overflow:visible!important}
-.xen-grid-profile-badge{font-size:10px;color:#9bdfdf;white-space:nowrap}
+
 .xen-grid-period-open{border:1px solid #8f64b1;background:#1e1631;color:#e5d9f7;padding:6px 10px;border-radius:5px}
 .xen-grid-period-dialog{width:min(650px,calc(100vw - 38px));max-height:calc(100dvh - 36px)}
 .xen-grid-period-caption{display:block;margin-top:5px;color:#aebac9;font-size:11px;line-height:1.35}

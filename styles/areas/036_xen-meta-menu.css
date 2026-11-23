@@ -51,7 +51,6 @@
 .xen-meta-browser-heading [data-xen-meta-library-trash]{position:absolute;right:11px;top:50%;transform:translateY(-50%);margin:0;z-index:5}
 /* Existing compact-library row geometry shifts the plus centre 5px right at <=760px. */
 @media(max-width:760px){.xen-meta-browser-heading [data-xen-meta-library-trash]{right:6px}}
-
 /* P33 META-LIBRARY TRASH: one column, aligned to row + button; no new panel. */
 .xen-meta-browser-heading [data-xen-meta-library-trash]{
  flex:0 0 27px;width:27px;height:29px;padding:3px;margin-right:10px;display:grid;place-items:center;
@@ -63,7 +62,6 @@
 .xen-meta-browser-heading [data-xen-meta-library-trash]:focus-visible{outline:2px solid #94e5f7;outline-offset:2px}
 .xen-library-trash-remember{display:flex;align-items:center;gap:8px;margin-top:12px;color:#dce6f2;font-size:13px;cursor:pointer}
 .xen-library-trash-remember input{accent-color:#b65a79;min-width:16px;min-height:16px}
-
 .xen-meta-library-list{min-height:0;max-height:none;flex:1 1 auto;overflow:auto;padding:10px;scrollbar-width:thin}
 .xen-meta-library-row.is-library-swap-target{background:#48321b;border-color:#f8b755;box-shadow:inset 0 0 0 1px #e3a34c}
 .xen-meta-library-row.is-library-insert-neighbor{border-color:#47d4d9;box-shadow:inset 0 0 0 1px #47d4d985}
@@ -90,7 +88,6 @@
 .xen-meta-footer [role=status]{color:#96b3c7;font:10px var(--font-mono);margin-left:auto}
 @media(max-width:1080px){.xen-meta-editor{width:calc(100vw - 14px)}.xen-meta-workspace{grid-template-columns:minmax(280px,42fr) minmax(375px,58fr)}.xen-meta-overlay{padding:7px}.xen-meta-board{grid-template-columns:repeat(5,minmax(110px,1fr))}.xen-meta-tabs{padding:0 7px}.xen-meta-tabs>button{font-size:10px;gap:2px}}
 @media(max-width:760px){.xen-meta-workspace{grid-template-columns:minmax(215px,43fr) minmax(0,57fr)}.xen-meta-constellation{padding:0 7px}.xen-meta-library-list{padding:5px}.xen-meta-tabs{gap:1px;padding:0 3px}.xen-meta-tabs>button{flex-direction:column;font-size:9px;padding:5px 1px}.xen-meta-browser{margin:0 4px 8px}.xen-meta-board{grid-template-columns:repeat(5,minmax(95px,1fr));min-height:280px}.xen-meta-toolbar{padding:8px 10px}.xen-meta-toolbar input{min-width:100px;width:145px}.xen-meta-toolbar select{width:165px}.xen-meta-caption,.xen-meta-live{display:none}}
-
 /* Contextual color chooser floats ABOVE the compact board; no added row or scroll region. */
 .xen-meta-constellation{position:relative}
 .xen-meta-tile.is-color-selected{outline:2px solid #b6eefa;outline-offset:1px}
@@ -101,15 +98,10 @@
 .xen-meta-color-controls input[type=color]{appearance:auto;inline-size:44px;block-size:30px;min-inline-size:44px;padding:2px;border:1px solid #45667b;background:#132536;cursor:pointer}
 .xen-meta-color-reset{align-self:start;padding:5px 9px;border:1px solid #466679;background:#182d40;color:#d5effb}
 .xen-meta-color-editor small{font-size:10px;color:#95b7ca;line-height:1.4}
-
 /* P36-4: Fill editor uses the existing Grid & Loops color-editor shell. */
 .xen-fill-color-editor{max-height:min(610px,calc(100dvh - 162px));overflow-y:auto;overscroll-behavior:contain}
-.xen-fill-instance-settings{display:flex;flex-direction:column;gap:9px;padding:9px 0;border-block:1px solid #355366}
-.xen-fill-instance-settings label{display:flex;align-items:center;gap:8px;font-size:11px;color:#b5dcec;min-width:0}
-.xen-fill-name-label{font:600 11px var(--font-mono,monospace);color:#bfe6f0;letter-spacing:.05em;white-space:nowrap}
-.xen-fill-setting-name input{flex:1;min-width:0;box-sizing:border-box;background:#0e1e2d;color:#e4faff;border:1px solid #486c84;border-radius:3px;padding:5px}
-.xen-fill-setting-range span{flex:0 0 72px}.xen-fill-setting-range input{flex:1;min-width:48px;accent-color:#4fd1e1}.xen-fill-setting-range output{min-width:33px;text-align:right;font:11px var(--font-mono)}
-.xen-fill-settings-actions{display:flex;gap:7px;flex-wrap:wrap}.xen-fill-settings-actions button{border:1px solid #457686;background:#173847;color:#dcf4fa;padding:5px;border-radius:4px}
+
+
 /* P31: inline native-source rename and anchored shared Grid & Loops editor. */
 .xen-meta-library-row.is-renaming{cursor:default}
 .xen-meta-library-row .xen-meta-source-rename-input{flex:1 1 0;min-width:36px;width:0;box-sizing:border-box;height:29px;background:#0c202c;color:#e9fff0;border:1px solid #62cda1;border-radius:4px;padding:4px 7px;font-size:12px;user-select:text;outline-offset:2px}
@@ -291,8 +283,8 @@ button.xen-meta-name-status.is-dirty:disabled{opacity:.55;cursor:not-allowed}
    Toolbar/footer keep their natural size; scrolling belongs to the lists and board. */
 .xen-meta-toolbar{flex:0 0 auto}
 .xen-meta-footer{flex:0 0 auto}
-.xen-meta-toolbar .xen-meta-add-settings{border-color:#53788d;white-space:nowrap;color:#bff0f6;background:#183747}
-.xen-meta-toolbar .xen-meta-add-settings:hover{border-color:#75d4e8;background:#234d5f}
+
+
 .xen-meta-tab-assembly{flex:0 0 auto}
 .xen-meta-browser,.xen-meta-constellation{min-height:0}
 @media(max-height:520px){.xen-meta-editor{height:calc(100dvh - 12px);max-height:calc(100dvh - 12px)}
