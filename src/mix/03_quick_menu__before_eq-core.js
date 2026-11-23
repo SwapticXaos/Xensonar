@@ -24,7 +24,7 @@ function __xenValidateQuickItems(value){
    if(Object.keys(entry).some(k=>!['kind','id','name','instanceId','gridProfile'].includes(k)))throw Error('Invalid grid profile fields.');
    const instanceId=typeof entry.instanceId==='string'&&entry.instanceId.length>0&&entry.instanceId.length<160?entry.instanceId:'legacy:'+entry.id;
    const key='grid\0'+instanceId;if(seen.has(key))continue;seen.add(key);
-   out.push({kind:'grid',id:entry.id,name:entry.name,instanceId,gridProfile:entry.gridProfile?__xenGridProfile(entry.gridProfile):null});
+   out.push({kind:'grid',id:entry.id,name:__xenStarterGridCanonicalName(instanceId,entry.name),instanceId,gridProfile:entry.gridProfile?__xenGridProfile(entry.gridProfile):null});
   }else{
    if(Object.keys(entry).some(k=>!['kind','id','name'].includes(k)))throw Error('Invalid quick-access reference.');
    const key=entry.kind+'\0'+entry.id;if(seen.has(key))continue;seen.add(key);out.push({kind:entry.kind,id:entry.id,name:entry.name});
