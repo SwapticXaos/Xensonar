@@ -1,0 +1,29 @@
+/* VIEWSCREEN-CONSOLE-01: decorative lower console under the Art Installation field, after the
+   panel below the TNG main viewer. Static DOM, CSS only (no JS, no canvas access). Room palette (teal/mint, gold). */
+.nd-room[data-nodal-mode="installation"] .nd-legacy-stage{margin-block-end:0;border-bottom-left-radius:0;border-bottom-right-radius:0;border-bottom-color:#4d7f7a!important}
+.nd-room[data-nodal-mode="installation"] .nd-legacy-stage canvas{border-radius:12px 12px 0 0}
+.nd-legacy-card .mt-5 > .nd-tng-console.nd-tng-console{
+  position:relative;margin-top:-1px;height:62px;box-sizing:border-box;pointer-events:none;user-select:none;
+  display:flex;align-items:center;justify-content:space-between;gap:3%;padding:16px 7% 12px;
+  background:
+    linear-gradient(180deg,rgba(150,222,208,.34) 0 2px,transparent 2px),
+    linear-gradient(180deg,#3b6561 0%,#2f524f 22%,#22403f 64%,#162a2a 100%);
+  clip-path:polygon(0 0,100% 0,calc(100% - 26px) 100%,26px 100%);
+  filter:drop-shadow(0 2px 6px rgba(0,0,0,.45));
+}
+.nd-tng-console::before{content:"";position:absolute;left:0;right:0;bottom:0;height:5px;background:linear-gradient(90deg,transparent,#0c1b1c 12%,#0c1b1c 88%,transparent)}
+.nd-tng-g{display:flex;flex:0 0 31%;align-items:center;gap:7px}
+.nd-tng-win{display:block;height:15px;border-radius:2px;background:#07151a;box-shadow:inset 0 0 0 1px #0b2328,inset 0 1px 3px #000,0 1px 0 rgba(150,222,208,.18)}
+.nd-tng-win.seg{flex:1 1 auto;background:
+  linear-gradient(90deg,#e0b66c 0 9%,#07151a 9% 12%,#78d9d0 12% 41%,#07151a 41% 44%,#4aa59f 44% 63%,#07151a 63% 66%,#2c6d6c 66% 100%);opacity:.86}
+.nd-tng-win.seg.rev{background:
+  linear-gradient(90deg,#2c6d6c 0 34%,#07151a 34% 37%,#4aa59f 37% 56%,#07151a 56% 59%,#78d9d0 59% 88%,#07151a 88% 91%,#e0b66c 91% 100%)}
+.nd-tng-win.tab{flex:0 0 22px;height:15px;background:linear-gradient(180deg,#0e2a30,#07151a);box-shadow:inset 0 0 0 1px #1c4a4e,inset 0 -5px 0 -2px rgba(120,217,208,.55)}
+.nd-tng-win.tab.gold{box-shadow:inset 0 0 0 1px #4d3d1b,inset 0 -5px 0 -2px rgba(224,182,108,.75)}
+.nd-tng-slot{flex:1 1 auto;max-width:24%;height:22px;border-radius:4px;position:relative;background:#06121a;
+  box-shadow:inset 0 0 0 1px #0b2328,inset 0 2px 6px #000,0 1px 0 rgba(150,222,208,.2)}
+.nd-tng-slot i{position:absolute;left:30%;right:30%;top:50%;height:3px;margin-top:-1.5px;border-radius:2px;background:#f0c67a;
+  box-shadow:0 0 8px 1px rgba(240,198,122,.65);animation:nd-tng-pulse 4.2s ease-in-out infinite}
+@keyframes nd-tng-pulse{0%,100%{opacity:.55}50%{opacity:1}}
+@media (prefers-reduced-motion:reduce){.nd-tng-slot i{animation:none;opacity:.85}}
+@media (max-width:900px){.nd-legacy-card .mt-5 > .nd-tng-console.nd-tng-console{height:46px;padding:11px 5% 9px}.nd-tng-win{height:11px}}
