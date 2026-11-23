@@ -180,7 +180,6 @@
     "src/mix/03_quick_menu__before_eq-core.js",
     "src/quickrack/equalizer/eq-worklet.js",
     "src/quickrack/equalizer/eq-core.js",
-    "src/mix/03_quick_menu__after_eq-core__before_eq-ui.js",
     "src/quickrack/equalizer/eq-ui.js",
     "src/mix/03_quick_menu__after_eq-core__after_eq-ui.js",
     "src/post-oct/gaps/010-main-bundle__02_after_03_quick_menu__after_eq-core__after_eq-ui.js",
@@ -188,7 +187,6 @@
     "src/sessions/v2-session-store.js",
     "src/post-oct/gaps/010-main-bundle__03_after_v2-session-store.js",
     "src/mix/03_meta_menu__after_v2-session-store.js",
-    "src/mix/03_legacy_song_import.js",
     "src/mix/03_session_auditions.js",
     "src/mix/04_melodic_spatial.js",
     "src/mix/05_grid_runtime.js",
@@ -295,7 +293,6 @@
     "src/audio/03_pcm_range.js",
     "src/audio/03_recorder.js",
     "src/audio/04_wave_worklet.js",
-    "src/post-oct/gaps/010-main-bundle__18_after_04_wave_worklet.js",
     "src/audio/05_sample_granular_hold.js",
     "src/audio/avalanche.js",
     "src/audio/hold_resident.js",
@@ -599,10 +596,8 @@
    "id": "css-038-xen-eq-p1",
    "oct28_section": "@@XENSONAR_COMPONENT_041@@",
    "files": [
-    "styles/quickrack/eq_before.css",
     "styles/post-oct/gaps/038-xen-eq-p1__01_after_eq_before.css",
-    "styles/quickrack/eq.css",
-    "styles/quickrack/eq_after.css"
+    "styles/quickrack/eq.css"
    ]
   },
   {

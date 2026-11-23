@@ -4,6 +4,8 @@ const read=name=>fs.readFileSync(path.join(path.resolve(__dirname,'..'),'src',na
 const copy=value=>JSON.parse(JSON.stringify(value));
 function loadFactoryDependencies(context,meta){
  context.window??={};context.localStorage??={getItem:()=>null,setItem(){}};
+ const holdStart=meta.indexOf('const __XenKeyboardHoldStartupDemo=');
+ if(holdStart>=0)vm.runInContext(meta.slice(holdStart,meta.indexOf('});',holdStart)+3),context);
  const demoStart=meta.indexOf('const __XenStarterDemoIds=');
  if(demoStart>=0)vm.runInContext(meta.slice(demoStart,meta.indexOf('/* One demand',demoStart)),context);
  const defaultsStart=meta.indexOf('const __XenFactoryStartSounds=');
@@ -21,6 +23,7 @@ function setup(){
   localStorage:{getItem:k=>disk.get(k)??null,setItem:(k,v)=>disk.set(k,v)},
   __entPreparedConfig:(config,surface)=>{prepared.push({config:copy(config),surface})},
   AudioContext:class{constructor(){notes++;throw Error('Source restore must not create audio')}},
+  __XenLiveSampleProfiles:{capture:()=>null,restore(){}},__XenP36SessionSampleLength:{activate(){},sampleId:()=>null},
   __XenStarterInstalled:false,__xenRestoredWorkspace4:{},__XenQuick:{adapters:new Map()},
   __XenOctaves:{snapshot:()=>({particle:1,wave:2,keyboard:3}),set(){}},
   __XenMetaSessions:{restoreBootSources(){}},
@@ -28,10 +31,12 @@ function setup(){
  context.window={localStorage:context.localStorage,addEventListener(){}};vm.createContext(context);
  const config=read('runtime/instrument/10_entrophon_and_voice_control.js');
  vm.runInContext(config.slice(0,config.indexOf('/* Admission must describe'))+';globalThis.ent=__XenEntrophonSongConfig;globalThis.change=dG;globalThis.subscribe=Kie;',context);
+ const quickText=read('mix/03_quick_menu__before_eq-core.js'),notifierStart=quickText.indexOf('function __xenControlNotifier(');
+ vm.runInContext(quickText.slice(notifierStart,quickText.indexOf('function __xenCreateControlPersistence(',notifierStart)),context);
  const pan=read('mix/01_pan.js');vm.runInContext(pan.slice(0,pan.indexOf('})();')+5)+';globalThis.pan=__XenPan;',context);
  const bridge=read('mix/03_meta_menu__before_v2-session-store.js'),start=bridge.indexOf('const __XenMainRoomSessionBridge=');
  vm.runInContext(bridge.slice(start,bridge.indexOf('})();',start)+5)+';globalThis.bridge=__XenMainRoomSessionBridge;',context);
- let current={particlePreset:'glass',agentVolumes:{0:.23,1:.72},keyboardHoldSoundPreset:'entrophon'};
+ let current={waveStarterHoldPitchCents:[],keyboardHoldPitchCents:[],particlePreset:'glass',agentVolumes:{0:.23,1:.72},keyboardHoldSoundPreset:'entrophon'};
  const owner={getSongParams:()=>current,nParamsUI:{particlePreset:'stale'},waveSoundPreset:'entrophon',waveSoundEnabled:true,waveSoundVolume:.45,
   updateNParams:patch=>{patches.push(copy(patch));current={...current,...patch}},setWaveSoundPreset(v){this.waveSoundPreset=v},setWaveSoundEnabled(v){this.waveSoundEnabled=v},setWaveSoundVolume(v){this.waveSoundVolume=v}};
  context.bridge.attach(owner);

@@ -10,6 +10,17 @@ const path = require('node:path');
 const root = path.join(__dirname, '..');
 const read = p => fs.readFileSync(path.join(root, 'src', p), 'utf8');
 const copy = x => JSON.parse(JSON.stringify(x));
+/* Source block starting at `token` and ending at the first `})();` that closes a complete script
+   (the blocks contain nested IIFEs, so the first match is not always the end). */
+function iifeBlock(text, token) {
+  const start = text.indexOf(token);
+  if (start < 0) throw Error(`Could not locate ${token}`);
+  for (let end = text.indexOf('})();', start); end >= 0; end = text.indexOf('})();', end + 1)) {
+    const candidate = text.slice(start, end + 5);
+    try { new vm.Script(candidate); return candidate; } catch {}
+  }
+  throw Error(`No complete block for ${token}`);
+}
 
 function fixture(initialData, items = [
   {kind:'material',id:'m-primary',name:'Primary'},
@@ -34,6 +45,10 @@ function fixture(initialData, items = [
     __xenQuickGlobalRows:()=>12,
     __xenMetaValidateItems:value=>{if(!Array.isArray(value))throw Error('invalid items');return copy(value)},
     __xenMetaValidateColors:(value,colors)=>colors??{},
+    performance,__XenP36SessionSampleLength:{activate:()=>{},sampleId:()=>null},
+    __XenLiveSampleProfiles:{capture:()=>null,restore:()=>{}},__xenBassSessionClipInstall:()=>{},
+    __XenOneShotAssignments:{read:()=>null,refresh:()=>{}},__XenRackLiveBarEdits:{snapshot:()=>({}),restore:()=>{}},
+    __XenDrumSessionWorkspace:{capture:()=>null,restore:()=>{}},
     __XenStarterInstalled:false,__xenRestoredWorkspace4:{},
     __XenNudgeFeedback:{endPreview:()=>{}},
     __XenPan:{snapshot:()=>({...panValues}),set:(kind,value)=>{panValues[kind]=value}},__XenOctaves:{snapshot:()=>({}),set:()=>{}},
@@ -48,27 +63,19 @@ function fixture(initialData, items = [
     adapters:new Map(),subscribe:()=>()=>{}};
   context.__XenQuick=quick;
   vm.createContext(context);
-  // Load the actual Bass Timbral Contract used by the production bridge.
-  const bassSource=read('rhythm/02_bass_and_rack.js');
-  vm.runInContext(bassSource.slice(bassSource.indexOf('const __f48BassVoices ='),bassSource.indexOf('function __f48BassClipPlayer(')),context);
   context.__xenDronePersist={normalize:v=>Object.fromEntries(Object.entries(v||{}).filter(([k])=>k.startsWith('drone')))};
 
   vm.runInContext(read('quickrack/equalizer/eq-core.js')+';globalThis.__XenEQ=__XenEQ;',context);
   const bridgeText=read('mix/03_meta_menu__before_v2-session-store.js');
-  const bridgeStart=bridgeText.indexOf('const __XenMainRoomSessionBridge=');
-  const bridgeEnd=bridgeText.indexOf('})();',bridgeStart)+5;
-  if(bridgeStart<0||bridgeEnd<5)throw Error('Could not locate Main Room bridge source');
-  vm.runInContext(bridgeText.slice(bridgeStart,bridgeEnd)+';globalThis.__bridge=__XenMainRoomSessionBridge;',context);
+  vm.runInContext(iifeBlock(bridgeText,'const __XenMainRoomSessionBridge=')+';globalThis.__bridge=__XenMainRoomSessionBridge;',context);
   const voiceText=read('mix/03_quick_menu__before_eq-core.js');
   for(const [token,name] of [['const __XenMaterialLayers=','__XenMaterialLayers'],['const __XenMaterialPrimarySwitch=','__XenMaterialPrimarySwitch']]){
-    const start=voiceText.indexOf(token),end=voiceText.indexOf('})();',start)+5;
-    if(start<0||end<5)throw Error(`Could not locate ${name} source`);
-    vm.runInContext(voiceText.slice(start,end)+`;globalThis.__actual=${name};`,context);
+    vm.runInContext(iifeBlock(voiceText,token)+`;globalThis.__actual=${name};`,context);
     context[name]=context.__actual;delete context.__actual;
   }
-  const voiceStart=voiceText.indexOf('const __XenMaterialVoiceMix=');
-  const voiceEnd=voiceText.indexOf('})();',voiceStart)+5;
-  vm.runInContext(voiceText.slice(voiceStart,voiceEnd)+';globalThis.__voice=__XenMaterialVoiceMix;',context);
+  // The mixer is now a factory (with its control-rate notifier) followed by one construction line.
+  const voiceFactoryEnd='const __XenMaterialVoiceMix=__xenCreateMaterialVoiceMix();';
+  vm.runInContext(voiceText.slice(voiceText.indexOf('function __xenControlNotifier('),voiceText.indexOf(voiceFactoryEnd)+voiceFactoryEnd.length)+';globalThis.__voice=__XenMaterialVoiceMix;',context);
   context.__XenMaterialVoiceMix=context.__voice;
   // The owner reference is mutable just like the Main Room React owner; tests
   // may update params without replacing the bridge.
@@ -78,6 +85,7 @@ function fixture(initialData, items = [
     setWaveSoundPreset:v=>{wavePreset=v},setWaveSoundEnabled:v=>{waveEnabled=v},setWaveSoundVolume:v=>{waveVolume=v}};
   const attach=(value=owner)=>context.__bridge.attach(value);
   if(!deferAttach)attach();
+  vm.runInContext(read('post-oct/gaps/010-main-bundle__02_after_03_quick_menu__after_eq-core__after_eq-ui.js'),context); // room-settings pack/unpack
   vm.runInContext(read('sessions/v2-session-store.js')+'\nglobalThis.__store=__createXenMetaSessionStore(storage,__XenQuick);',context);
   context.__XenMetaSessions=context.__store;
   return {context,s:context.__store,quick,storage,mixes,applied,roomUpdates,disk,items,panValues,attackValues,selectedByKind,attach,
@@ -92,10 +100,10 @@ function setLive(f,sources){f.context.__bridge.applySongSources(sources)}
 test('named active working session reloads latest live source edits without changing the saved row',()=>{
  const f=fixture();ready(f);
  const original=sourceConfig('saved_particle','saved_wave',.32);setLive(f,original);
- assert.equal(f.s.saveFromQuickAsNew('Named'),true);
+ assert.equal(f.s.saveFromQuickAsNew('Named'),true,f.s.snapshot().error);
  const saved=f.s.snapshot().saved[0],namedSources=copy(saved.songPerformance.sources);
  const latest=sourceConfig('edited_particle','edited_wave',.81);setLive(f,latest);
- assert.equal(f.s.flushWorkingCopy(),true);
+ assert.equal(f.s.flushWorkingCopy(),true,f.s.snapshot().error);
  const row=working(f);assert.equal(row.id,saved.id);assert.equal(row.name,'Named');
  const reload=fixture([...f.disk.entries()]);ready(reload);
  assert.equal(reload.context.__roomParams.particlePreset,'edited_particle');
