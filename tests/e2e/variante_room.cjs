@@ -28,10 +28,8 @@ const html=path.resolve(process.argv[2]||'dist/XenSonar_PROBE.html');
  assert.ok(played>.003,'it makes sound: '+played);
  assert.equal(await p.evaluate(()=>__probe.ctxs.length),Math.max(ctxBefore,1),'the shared live AudioContext is used, no second one');
  // leave the room: silent again
- await p.locator('[data-xen-variante-back]').click();await p.waitForSelector('[data-xen-variante-launcher]',{timeout:10000});await p.waitForTimeout(4000);
+ await p.locator('[data-xen-variante-back]').click();await p.waitForSelector('.xen-mainroom-particle-band',{timeout:15000});await p.waitForTimeout(4000);
  const after=await rms(2);console.log('after leaving',after.toFixed(4));assert.ok(after<.002,'silent after leaving the room: '+after);
- // launcher: card opens the room again, "Live Room" leads back
- await p.getByRole('button',{name:/Xensonar Variante/}).click();await p.waitForSelector('[data-xen-variante-room]');await p.locator('[data-xen-variante-back]').click();
- await p.locator('[data-xen-variante-back]').click();await p.waitForSelector('.xen-mainroom-particle-band',{timeout:15000});
- assert.deepEqual(errors,[]);console.log('PASS VARIANTE-ROOM-01 button -> Variante room, plays on the live master, silent after leaving, back to the Live Room');await b.close();
+ assert.equal(await p.locator('[data-xen-variante-launcher]').count(),0,'no family launcher in this build');
+ assert.deepEqual(errors,[]);console.log('PASS VARIANTE-ROOM-01 button -> Variante room, plays on the live master, one back button leads straight to the Live Room (silent)');await b.close();
 })().catch(e=>{console.error(e);process.exit(1)});

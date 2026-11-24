@@ -369,7 +369,6 @@ var __xenVariante = (() => {
   // tools/variante/refactor/refucktorPresentation.ts
   var XENSONAR_VARIANTE_LABEL = "Xensonar Variante";
   var XENSONAR_VARIANTE_ACTIVE_LABEL = `${XENSONAR_VARIANTE_LABEL} \xB7 Interaktives Resonanzfeld`;
-  var XENSONAR_VARIANTE_FAMILY_SUMMARY = "Interactive resonance field as a standalone Xensonar spin-off. Here the same Variante appears once more in the family context.";
 
   // tools/variante/refactor/XensonarRefactorRoomPanels.tsx
   function XensonarRefactorHeader({
@@ -2090,37 +2089,19 @@ var __xenVariante = (() => {
 
   // tools/variante/entry.tsx
   function XenpolarRoom({ requestedFamilyActive = null, sharedFieldController = null, onFamilyRequestConsumed, onEnterResonance }) {
-    const [open, setOpen] = useState(false);
     useEffect(() => {
-      if (requestedFamilyActive === "melodieQuest") {
-        setOpen(true);
-        onFamilyRequestConsumed?.();
-      }
+      if (requestedFamilyActive === "melodieQuest") onFamilyRequestConsumed?.();
     }, [requestedFamilyActive, onFamilyRequestConsumed]);
-    const back = /* @__PURE__ */ P.createElement(
+    return /* @__PURE__ */ P.createElement("div", { "data-xen-variante-room": "true", className: "space-y-3" }, /* @__PURE__ */ P.createElement("div", { className: "flex items-center" }, /* @__PURE__ */ P.createElement(
       "button",
       {
         type: "button",
         "data-xen-variante-back": "true",
-        onClick: () => open ? setOpen(false) : onEnterResonance?.(),
+        onClick: () => onEnterResonance?.(),
         className: "rounded border border-cyan-700/60 bg-cyan-950/30 px-3 py-1 text-xs uppercase tracking-[0.2em] text-cyan-100 hover:bg-cyan-900/40"
       },
-      open ? "\u2190 Xensonar Family" : "\u2190 Live Room"
-    );
-    if (open) {
-      return /* @__PURE__ */ P.createElement("div", { "data-xen-variante-room": "true", className: "space-y-3" }, /* @__PURE__ */ P.createElement("div", { className: "flex items-center" }, back), /* @__PURE__ */ P.createElement(XensonarRefactorRoom_default, { embedded: true, title: XENSONAR_VARIANTE_ACTIVE_LABEL, sharedField: sharedFieldController }));
-    }
-    return /* @__PURE__ */ P.createElement("div", { "data-xen-variante-launcher": "true", className: "mx-auto max-w-3xl space-y-4 p-2" }, /* @__PURE__ */ P.createElement("div", { className: "flex items-center justify-between gap-3" }, /* @__PURE__ */ P.createElement("div", { className: "text-[10px] uppercase tracking-[0.34em] text-neutral-500" }, "Xensonar Family"), back), /* @__PURE__ */ P.createElement(
-      "button",
-      {
-        type: "button",
-        onClick: () => setOpen(true),
-        className: "w-full rounded-2xl border border-amber-700/60 bg-amber-950/20 p-6 text-left text-amber-100 hover:bg-amber-900/30"
-      },
-      /* @__PURE__ */ P.createElement("div", { className: "text-[10px] uppercase tracking-[0.3em] text-neutral-400" }, "Spin-off"),
-      /* @__PURE__ */ P.createElement("div", { className: "mt-2 text-2xl font-semibold" }, XENSONAR_VARIANTE_LABEL),
-      /* @__PURE__ */ P.createElement("div", { className: "mt-2 text-sm opacity-90" }, XENSONAR_VARIANTE_FAMILY_SUMMARY)
-    ));
+      "\u2190 Live Room"
+    )), /* @__PURE__ */ P.createElement(XensonarRefactorRoom_default, { embedded: true, title: XENSONAR_VARIANTE_ACTIVE_LABEL, sharedField: sharedFieldController }));
   }
   return __toCommonJS(entry_exports);
 })();
