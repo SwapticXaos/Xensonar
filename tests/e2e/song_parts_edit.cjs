@@ -79,7 +79,8 @@ const file=path.join(dir,'abacb_edit.wav');fs.writeFileSync(file,wav(song({bpm:1
  await p.mouse.click(X3(5),Y3,{button:'right'});await menu.waitFor();await menu.locator('[data-xwe-song-action="clear-sections"]').click();await p.waitForTimeout(200);
  // Subdivide at bar: choose the bar number of the part (here bar 3 of part D at 24–32 s = 28 s) and add it
  await p.mouse.click(X3(26),Y3,{button:'right'});await menu.waitFor();const barSel=menu.locator('[data-xwe-song-bar]');
- await barSel.selectOption('3');assert.match(await p.locator('[data-xwe-song-here]').innerText(),/bar 3 · 0:28/);await menu.locator('[data-xwe-song-action="subdivide-bar"]').click();await p.waitForTimeout(300);
+ await barSel.click();assert.ok(await menu.locator('[data-xwe-song-barpick]').count()>=3,'the bar picker opens');await menu.locator('[data-xwe-song-barpick="3"]').click();
+ assert.match(await p.locator('[data-xwe-song-here]').innerText(),/bar 3 · 0:28/);assert.match(await p.locator('[data-xwe-song-caption]').innerText(),/Bar 3 of D at 0:28/);await menu.locator('[data-xwe-song-action="subdivide-bar"]').click();await p.waitForTimeout(300);
  assert.match(await secs(),/D1 D2/,'part D got a section at bar 3');await p.mouse.click(X3(29),Y3,{button:'right'});await menu.waitFor();await menu.locator('[data-xwe-song-action="clear-sections"]').click();await p.waitForTimeout(200);
  await p.keyboard.down('Shift');await p.mouse.click(X3(27.1),Y3);await p.keyboard.up('Shift');await p.waitForTimeout(300);
  assert.match(await p.locator('[data-xwe-song-caption]').innerText(),/Section boundary set in D at 0:28/);

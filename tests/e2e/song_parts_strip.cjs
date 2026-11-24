@@ -47,6 +47,14 @@ const drone=path.join(dir,'drone.wav');{const n=SR*40,x=new Float32Array(n);for(
  const sel=await p.evaluate(()=>{const v=[...document.querySelectorAll('div')].filter(d=>/^(Viewport|Fine Selection)$/.test(d.textContent));return v.map(d=>d.nextElementSibling?.textContent)});
  const nums=sel.map(t=>(t.match(/[\d.]+/g)||[]).map(Number));assert.ok(Math.abs(nums[0][0]-32)<.05&&Math.abs(nums[0][1]-48)<.05,'blue view '+sel[0]);assert.ok(Math.abs(nums[1][0]-32)<.05&&Math.abs(nums[1][1]-48)<.05,'purple mask '+sel[1]);
  assert.match(await strip.innerText(),/A · 0:32–0:48 · 8 bars × 4 = 32 segments · 1(19|20)\.\d\d BPM/);
+ // CUE-01: Subdivide at bar 3 of this A (mask 32–48 s) puts the green playhead at 36 s for the next Play; the mask stays
+ {const st=await p.locator('.xwe-song-strip').boundingBox();await p.mouse.click(st.x+st.width*.45,st.y+st.height*.3,{button:'right'});const sm=p.locator('[data-xwe-song-menu]');await sm.waitFor();
+  await sm.locator('[data-xwe-song-bar]').click();await sm.locator('[data-xwe-song-barpick="3"]').click();await p.waitForTimeout(400);
+  assert.match(await p.locator('[data-xwe-song-caption]').innerText(),/green playhead is there/);
+  const green=await p.evaluate(()=>{const c=document.querySelector('canvas[height="124"]');const g=c.getContext('2d').getImageData(0,0,c.width,c.height).data,W=c.width,y=Math.floor(c.height/2);
+   for(let x=0;x<W;x++){const i=(y*W+x)*4;if(g[i]<60&&g[i+1]>180&&g[i+2]<120)return x/W}const X=Math.round(W*.25),o=[];for(let d=-3;d<=3;d++){const i=(y*W+X+d)*4;o.push([g[i],g[i+1],g[i+2]].join(","))}return "no green; at 25%: "+o.join(" | ")+" canvases "+document.querySelectorAll("canvas[height=\"124\"]").length});
+  const vp=(await p.evaluate(()=>{const d=[...document.querySelectorAll('div')].find(d=>d.textContent==='Viewport');return d.nextElementSibling.textContent})).match(/[\d.]+/g).map(Number);
+  assert.ok(green!=null&&Math.abs(vp[0]+green*(vp[1]-vp[0])-36)<.3,'green playhead at 36 s: '+green+' in '+vp);await p.keyboard.press('Escape')}
  const m=p.locator('[data-xen-bar-meter]');await m.scrollIntoViewIfNeeded();const bb=await m.boundingBox();await p.mouse.click(bb.x+bb.width*.3,bb.y+bb.height/2,{button:'right'});
  const menu=p.locator('[data-xwe-meter-menu]');await menu.waitFor();assert.equal(await menu.locator('input[aria-label="Number of Bars"]').inputValue(),'8');assert.equal(await menu.locator('input[aria-label="Number of Segments"]').inputValue(),'4');
  // Analyze inside a part counts like the part (SONG-PARTS-02): 32 segments, 8 × 4 first
