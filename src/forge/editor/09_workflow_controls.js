@@ -314,6 +314,8 @@ function __ForgeRackVerticalAlign(rack){
     const grow=cr.left-(tab.right+5);
     if(sameLine&&grow>1&&grow<700)corner.style.setProperty('--xen-mt-shift',(-grow).toFixed(2)+'px');
     else corner.style.removeProperty('--xen-mt-shift');
+    /* LINE-IN-01: the corner left of Project Name / Figure Projects above Send to Multitrack holds the Line-In key when it is wide enough */
+    corner.classList.toggle('xen-linein-room',sameLine&&grow>=96&&grow<700);
    }
   }
   const topY=top.getBoundingClientRect().top;

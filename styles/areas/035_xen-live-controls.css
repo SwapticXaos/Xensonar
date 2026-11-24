@@ -240,3 +240,27 @@ body{height:auto;min-height:100vh;overflow:visible}
 .ml-noteclip-grid{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:2px;width:0;min-width:100%}
 .ml-noteclip-grid>button{height:31px;font-size:17px;line-height:1;display:flex;align-items:center;justify-content:center}
 @media(min-width:768px){.melodic-bars-controls{min-height:154px}}
+/* LINE-IN-01: the Line-In key is the counterpart of Microphone (same row, same look: the two intake keys of outside sound), on the
+   other side of the Import Audio tab, left of Project Name. When the corner is narrow (no shift measured) it stands in the column. */
+.f33-rack-project-corner .f38-rack-line-in{box-sizing:border-box;display:flex;align-items:center;justify-content:center;gap:6px;width:100%;height:28px;padding:6px 9px;border-radius:5px;border:1px solid rgb(34,211,238);
+ background:rgb(16,47,58);color:rgb(207,250,254);font:11px/16.5px "XenSonar Emoji","DejaVu Sans Mono",SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono",ui-monospace,monospace;white-space:nowrap;cursor:pointer;transition:background .15s,border-color .15s}
+.f33-rack-project-corner .f38-rack-line-in:hover,.f33-rack-project-corner .f38-rack-line-in:focus-visible{background:rgb(21,66,80);border-color:#67e8f9;outline:none}
+.f33-rack-project-corner .f38-rack-line-in.is-recording{border-color:#ef4444;background:rgb(60,16,22);color:#fecaca}
+.f38-linein-dot{display:none;width:8px;height:8px;border-radius:50%;background:#ef4444;flex:0 0 auto}
+.f38-rack-line-in.is-recording .f38-linein-dot{display:inline-block;animation:f38-rec 1s ease-in-out infinite}
+@keyframes f38-rec{50%{opacity:.25}}
+.f33-rack-project-corner.xen-linein-room{position:relative}
+.f33-rack-project-corner.xen-linein-room .f38-rack-line-in{position:absolute;left:var(--xen-mt-shift,0px);width:calc(-1 * var(--xen-mt-shift,0px) - 8px);bottom:calc(100% + 38px);top:auto}
+.f38-linein-panel{box-sizing:border-box;background:#0a1a20;border:1px solid #1f6f7f;border-radius:8px;padding:10px 12px;box-shadow:0 14px 40px #000c;color:#e5f6f5;font:12px/1.4 system-ui,sans-serif;display:flex;flex-direction:column;gap:8px}
+.f38-linein-head{display:flex;align-items:center;gap:4px;padding-right:30px;position:relative}.f38-linein-head b{letter-spacing:.14em;color:#cffafe}.f38-linein-head span{color:#67e8f9aa}
+.f38-linein-close{position:absolute;right:-4px;top:-4px;width:26px;height:26px;border-radius:5px;border:1px solid #1f6f7f;background:#10232a;color:#cffafe;font-size:18px;line-height:1;cursor:pointer}
+.f38-linein-src{display:flex;gap:8px;align-items:flex-start;padding:6px 8px;border:1px solid #1d3a42;border-radius:6px;background:#0f2229;cursor:pointer}.f38-linein-src.is-off{opacity:.55;cursor:default}
+.f38-linein-src>span{display:flex;flex-direction:column;gap:3px}.f38-linein-src small{color:#a5c9cc;font-size:11px}
+.f38-linein-devrow{display:flex;gap:6px;align-items:center}.f38-linein-devrow select{flex:1;min-width:0;background:#071216;color:#e5f6f5;border:1px solid #2c5560;border-radius:4px;padding:3px}
+.f38-linein-small{background:#10232a;border:1px solid #2c5560;border-radius:4px;color:#cffafe;padding:3px 8px;font-size:11px;cursor:pointer}
+.f38-linein-rec{display:flex;align-items:center;gap:8px}.f38-linein-recbtn{background:#1f6f7f;border:1px solid #ef4444;color:#fff;border-radius:5px;padding:5px 14px;font-weight:700;cursor:pointer}.f38-linein-recbtn.is-on{background:#b91c1c}
+.f38-linein-recbtn:disabled{opacity:.6}.f38-linein-time{font:600 13px ui-monospace,monospace;color:#cffafe;min-width:3.6em}
+.f38-linein-meters{display:flex;flex-direction:column;gap:3px;flex:1}.f38-linein-meter{display:block;height:5px;background:#12303a;border-radius:2px;overflow:hidden}.f38-linein-meter i{display:block;height:100%;background:linear-gradient(90deg,#22c55e,#facc15 75%,#ef4444)}
+.f38-linein-meters.is-clip .f38-linein-meter{outline:1px solid #ef4444}.f38-linein-msg{color:#a5f3fc;font-size:11.5px}
+
+.f38-linein-src input[type=radio]{accent-color:#22d3ee;margin-top:3px}.f38-linein-src:has(input:checked){border-color:#22d3ee;background:#102c34}

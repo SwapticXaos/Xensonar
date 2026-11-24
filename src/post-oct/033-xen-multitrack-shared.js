@@ -194,3 +194,42 @@ const __xenViewportRail=Object.freeze({
   if(st.mode==='resize-start'){let end=st.start+st.visible,s=st.start+d;if(s<0){end=Math.min(st.total,end-s);s=0}s=Math.min(end-st.minVisible,s);return {start:s,visible:end-s}}
   let s=st.start,end=st.start+st.visible+d;if(end>st.total){s=Math.max(0,s-(end-st.total));end=st.total}end=Math.max(s+st.minVisible,end);return {start:s,visible:end-s}}
 });
+/* LINE-IN-01 · ROOM4-14 capture core, shared by the Multitrack (Rec onto a track) and the Forge Line-In rack (record what the speakers
+   play: a browser tab / system sound, or an input such as Line-In, Stereo Mix or a loopback). Lossless 32-bit float PCM taken in an
+   AudioWorklet on the given AudioContext (ScriptProcessor fallback), stereo, no voice processing (no echo cancellation, no noise
+   suppression, no automatic gain). Cold: nothing exists until attach(). */
+const __XenAudioCapture=(()=>{
+ 'use strict';
+ const WORKLET=`class C extends AudioWorkletProcessor{constructor(){super();this.cap=4096;this.L=new Float32Array(this.cap);this.R=new Float32Array(this.cap);this.n=0;this.s=-1;this.run=true;
+  this.port.onmessage=e=>{if(e.data==='stop'){this.flush();this.run=false;this.port.postMessage({kind:'done'})}}}
+  flush(){if(!this.n)return;const a=this.L.subarray(0,this.n),b=this.R.subarray(0,this.n);this.port.postMessage({kind:'chunk',frame:this.s,l:a,r:b},[a.buffer,b.buffer]);this.L=new Float32Array(this.cap);this.R=new Float32Array(this.cap);this.n=0;this.s=-1}
+  process(inputs){if(!this.run)return false;const i=inputs[0],l=i&&i[0],r=i&&i[1]?i[1]:l,len=l?l.length:128;if(this.n+len>this.cap)this.flush();if(this.s<0)this.s=currentFrame;
+   if(l){this.L.set(l,this.n);this.R.set(r,this.n)}else{this.L.fill(0,this.n,this.n+len);this.R.fill(0,this.n,this.n+len)}this.n+=len;if(this.n>=this.cap)this.flush();return true}}
+ registerProcessor('xen-mt-capture',C);`;
+ const capReg=new WeakSet();
+ const constraints=deviceId=>({audio:{echoCancellation:false,noiseSuppression:false,autoGainControl:false,channelCount:2,...(deviceId?{deviceId:{exact:deviceId}}:{})},video:false});
+ async function attach(ctx,stream){
+  const WORKLET_CODE=WORKLET;
+  try{const src=ctx.createMediaStreamSource(stream),sink=ctx.createGain();sink.gain.value=0;sink.connect(ctx.destination);const chunks=[];let node,done=null;const h={ctx,stream,src,sink,chunks,mode:'worklet',doneP:null};
+   try{if(!ctx.audioWorklet)throw 0;if(!capReg.has(ctx)){/* a blob: URL is refused when the page is opened from a file (null origin); a data: URL works there */
+    await __xenAddWorkletModule(ctx,WORKLET_CODE);capReg.add(ctx)}
+    node=new AudioWorkletNode(ctx,'xen-mt-capture',{numberOfInputs:1,numberOfOutputs:1,channelCount:2,channelCountMode:'explicit',outputChannelCount:[2]});
+    h.doneP=new Promise(ok=>{done=ok});node.port.onmessage=ev=>{if(ev.data.kind==='chunk')chunks.push(ev.data);else if(ev.data.kind==='done')done()}}
+   catch{h.mode='script';node=ctx.createScriptProcessor(4096,2,2);h.doneP=Promise.resolve();node.onaudioprocess=ev=>{const l=ev.inputBuffer.getChannelData(0),r=ev.inputBuffer.numberOfChannels>1?ev.inputBuffer.getChannelData(1):l;chunks.push({frame:Math.round(ev.playbackTime*ctx.sampleRate)-l.length+Math.round((ctx.baseLatency||0)*ctx.sampleRate),l:new Float32Array(l),r:new Float32Array(r)})}}
+   src.connect(node);node.connect(sink);h.node=node;
+   /* AUDIT-1117: closing or reloading the tab during a recording asks first; removed in finish() */
+   h.guard=e=>{e.preventDefault();e.returnValue=''};addEventListener('beforeunload',h.guard);
+   /* MTW-04: a level tap on the input (left and right apart), only for the meter beside the Rec button */
+   try{const sp=ctx.createChannelSplitter(2),a=ctx.createAnalyser(),b=ctx.createAnalyser();a.fftSize=b.fftSize=1024;src.connect(sp);sp.connect(a,0);sp.connect(b,1);h.tap={sp,a,b,buf:new Float32Array(1024)}}catch{}
+   return h}
+  catch(e){throw e}}
+  async function finish(h){try{removeEventListener('beforeunload',h.guard)}catch{}try{if(h.mode==='worklet'){h.node.port.postMessage('stop');await Promise.race([h.doneP,new Promise(ok=>setTimeout(ok,700))])}}catch{}
+  try{h.stream.getTracks().forEach(t=>t.stop())}catch{}for(const n of [h.src,h.node,h.sink,h.tap?.sp,h.tap?.a,h.tap?.b]){try{n?.disconnect()}catch{}}
+  const cs=h.chunks.slice().sort((a,b)=>a.frame-b.frame);if(!cs.length)return {channels:[new Float32Array(0),new Float32Array(0)],first:0,sampleRate:h.ctx.sampleRate};
+  const first=cs[0].frame,last=cs[cs.length-1],total=last.frame+last.l.length-first,L=new Float32Array(total),R=new Float32Array(total);
+  for(const c of cs){const o=c.frame-first;if(o<0||o+c.l.length>total)continue;L.set(c.l,o);R.set(c.r,o)}
+  return {channels:[L,R],first,sampleRate:h.ctx.sampleRate}}
+ const api=Object.freeze({attach,finish,constraints});
+ try{globalThis.__XenAudioCapture=api}catch{}
+ return api;
+})();

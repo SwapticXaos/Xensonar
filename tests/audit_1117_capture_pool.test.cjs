@@ -4,10 +4,11 @@
 // and the chunk start frames must match. Also: the stem recorder keeps a start frame beyond 2^31 (no 32-bit cut).
 const test=require('node:test'),assert=require('node:assert'),fs=require('fs'),path=require('path');
 const root=path.join(__dirname,'..');
-const mt=fs.readFileSync(path.join(root,'src/post-oct/032-xen-room-multitrack.js'),'utf8');
+// LINE-IN-01: the capture core moved to the shared file (Multitrack Rec and the Forge Line-In rack use it)
+const mt=fs.readFileSync(path.join(root,'src/post-oct/033-xen-multitrack-shared.js'),'utf8');
 const stems=fs.readFileSync(path.join(root,'src/post-oct/036-xen-stem-recorder.js'),'utf8');
 const OLD="class C extends AudioWorkletProcessor{constructor(){super();this.b=[[],[]];this.n=0;this.s=-1;this.run=true;\n this.port.onmessage=e=>{if(e.data==='stop'){this.flush();this.run=false;this.port.postMessage({kind:'done'})}}}\n flush(){if(!this.n)return;const a=new Float32Array(this.n),b=new Float32Array(this.n);let o=0;for(let i=0;i<this.b[0].length;i++){a.set(this.b[0][i],o);b.set(this.b[1][i],o);o+=this.b[0][i].length}this.port.postMessage({kind:'chunk',frame:this.s,l:a,r:b},[a.buffer,b.buffer]);this.b=[[],[]];this.n=0;this.s=-1}\n process(inputs){if(!this.run)return false;const i=inputs[0];if(this.s<0)this.s=currentFrame;const l=i&&i[0]?i[0]:new Float32Array(128),r=i&&i[1]?i[1]:l;this.b[0].push(new Float32Array(l));this.b[1].push(new Float32Array(r));this.n+=l.length;if(this.n>=4096)this.flush();return true}}\nregisterProcessor('xen-mt-capture',C);";
-function newSource(){const a=mt.indexOf('const MT_CAPTURE_WORKLET=`'),b=mt.indexOf('`;',a);assert(a>0&&b>a);return mt.slice(a+'const MT_CAPTURE_WORKLET=`'.length,b)}
+function newSource(){const a=mt.indexOf('const WORKLET=`'),b=mt.indexOf('`;',a);assert(a>0&&b>a);return mt.slice(a+'const WORKLET=`'.length,b)}
 // minimal AudioWorkletGlobalScope: a port that records messages, currentFrame driven by the test, real structured transfer
 function load(src){
   const scope={frame:0,cls:null};

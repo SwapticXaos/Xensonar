@@ -635,6 +635,80 @@ function __ForgeSendToEditorButton(){
   className:'f35-rack-send-editor rounded border border-fuchsia-700 bg-fuchsia-950/45 text-xs font-semibold text-fuchsia-100 hover:bg-fuchsia-900 disabled:opacity-50'},
   snapshot.busy?'Preparing …':'Send to Editor');
 }
+/* LINE-IN-01: record what the speakers play – the sound of a browser tab (e.g. a YouTube video) or the whole system, or an input such
+   as Line-In, Stereo Mix or a loopback ("Monitor of …" on Linux) – lossless (32-bit float, stereo, no voice processing) straight into
+   Import Audio. The capture core is the Multitrack's (__XenAudioCapture); the hand-over is the existing "Send to Editor" path. Cold:
+   no device, context or timer exists until Rec. */
+const __XEN_LINEIN_MAX_SEC=30*60,__XEN_LINEIN_SRC_KEY='xensonar.lineIn.source.v1';
+const __xenLineInLoopback=/monitor|stereo ?mix|stereomix|loopback|blackhole|vb-?audio|cable output|what u hear|soundflower|wave ?out|mix ?out/i;
+function __ForgeLineInButton(){
+ const h=P.createElement,md=typeof navigator!=='undefined'?navigator.mediaDevices:null;
+ const canShare=!!md?.getDisplayMedia&&!/firefox/i.test(navigator.userAgent||'');
+ const [open,setOpen]=P.useState(false),[pos,setPos]=P.useState(null),[devices,setDevices]=P.useState([]),[phase,setPhase]=P.useState('idle'),[msg,setMsg]=P.useState(''),[secs,setSecs]=P.useState(0),[lv,setLv]=P.useState([0,0,false]);
+ const [src,setSrcRaw]=P.useState(()=>{let v='';try{v=localStorage.getItem(__XEN_LINEIN_SRC_KEY)||''}catch{}return v||(canShare?'share':'device:')});
+ const setSrc=v=>{setSrcRaw(v);try{localStorage.setItem(__XEN_LINEIN_SRC_KEY,v)}catch{}};
+ const btnRef=P.useRef(null),popRef=P.useRef(null),run=P.useRef(null);
+ const clock=t=>Math.floor(t/60)+':'+String(Math.floor(t%60)).padStart(2,'0');
+ const listDevices=async ask=>{if(!md?.enumerateDevices)return;try{if(ask){const s=await md.getUserMedia({audio:true});s.getTracks().forEach(t=>t.stop())}
+   setDevices((await md.enumerateDevices()).filter(d=>d.kind==='audioinput'))}catch(e){setMsg('Device list: '+(e?.message||e))}};
+ P.useEffect(()=>{if(open)listDevices(false)},[open]);
+ // the panel sits under (or above) the button in a fixed layer and follows scrolling
+ P.useLayoutEffect(()=>{if(!open)return;let raf=0;const place=()=>{raf=0;const b=btnRef.current?.getBoundingClientRect();if(!b)return;const w=Math.min(420,innerWidth-16),H=popRef.current?.offsetHeight||360;
+   const left=Math.max(8,Math.min(b.right-w,innerWidth-w-8)),below=innerHeight-b.bottom-8;setPos(below>=H||below>=b.top-8?{left,top:b.bottom+6,width:w}:{left,bottom:innerHeight-b.top+6,width:w})};
+  const sch=()=>{if(!raf)raf=requestAnimationFrame(place)};place();addEventListener('scroll',sch,true);addEventListener('resize',sch);return()=>{removeEventListener('scroll',sch,true);removeEventListener('resize',sch);if(raf)cancelAnimationFrame(raf)}},[open,phase]);
+ P.useEffect(()=>()=>{const r=run.current;run.current=null;if(r){clearInterval(r.tick);__XenAudioCapture.finish(r.h).catch(()=>{});r.ctx.close().catch(()=>{})}},[]);
+ const deviceId=src.startsWith('device:')?src.slice(7):'';
+ async function start(){
+  if(run.current||!globalThis.__XenAudioCapture)return;setMsg('');setPhase('requesting');let ctx=null,stream=null;
+  try{
+   if(src==='share'){
+    if(!canShare)throw Error('This browser cannot share a tab’s sound. Use an input device (loopback) instead.');
+    setMsg('Choose the tab (or screen) that plays the sound and switch on “Share tab audio” / “Share system audio”.');
+    const s=await md.getDisplayMedia({video:true,audio:{echoCancellation:false,noiseSuppression:false,autoGainControl:false,suppressLocalAudioPlayback:false},systemAudio:'include',selfBrowserSurface:'exclude',surfaceSwitching:'include'});
+    s.getVideoTracks().forEach(t=>t.stop());const at=s.getAudioTracks();if(!at.length)throw Error('No sound was shared. Choose the tab again and switch on “Share tab audio”.');stream=new MediaStream(at);
+   }else{if(!md?.getUserMedia)throw Error('This page cannot open an audio input (it needs HTTPS or localhost).');stream=await md.getUserMedia(__XenAudioCapture.constraints(deviceId||undefined))}
+   const AC=globalThis.AudioContext||globalThis.webkitAudioContext;ctx=new AC({latencyHint:'playback'});if(ctx.state!=='running')await ctx.resume();
+   const hd=await __XenAudioCapture.attach(ctx,stream),t0=performance.now(),buf=new Float32Array(1024);let peakHold=false;
+   const tick=setInterval(()=>{const t=(performance.now()-t0)/1000;setSecs(t);if(hd.tap){const pk=an=>{an.getFloatTimeDomainData(buf);let m=0;for(const v of buf)m=Math.max(m,Math.abs(v));return m};const l=pk(hd.tap.a),r=pk(hd.tap.b);peakHold=peakHold||l>=.999||r>=.999;setLv([l,r,peakHold])}
+    if(t>=__XEN_LINEIN_MAX_SEC)stop()},120);
+   run.current={ctx,h:hd,tick};for(const t of stream.getAudioTracks())t.onended=()=>stop();
+   const label=src==='share'?'shared sound':(devices.find(d=>d.deviceId===deviceId)?.label||'audio input');setPhase('recording');setMsg('Recording '+label+' · lossless 32-bit float · max '+clock(__XEN_LINEIN_MAX_SEC)+'.');
+  }catch(e){try{stream?.getTracks().forEach(t=>t.stop())}catch{}try{ctx?.close()}catch{}setPhase('idle');
+   setMsg(e?.name==='NotAllowedError'?'Access was not allowed (or the share dialog was closed).':e?.name==='NotFoundError'?'No such input device. Pick another one.':String(e?.message||e))}
+ }
+ async function stop(discard=false){
+  const r=run.current;if(!r)return;run.current=null;clearInterval(r.tick);setPhase(discard?'idle':'saving');
+  try{const cap=await __XenAudioCapture.finish(r.h);r.ctx.close().catch(()=>{});if(discard){setMsg('Recording discarded.');return}
+   let [L,R]=cap.channels,a=0,b=L.length;while(a<b&&L[a]===0&&R[a]===0)a++;while(b>a&&L[b-1]===0&&R[b-1]===0)b--;// digital silence at the edges (before the share started) is no sound
+   if(b-a<cap.sampleRate*.2)throw Error('Nothing was recorded (silence). Is the sound playing, and is the right source chosen?');
+   L=L.slice(a,b);R=R.slice(a,b);const blob=await __xenRecorderFloatWav(L,R,cap.sampleRate),stamp=new Date().toISOString().replace(/[:.]/g,'-').slice(0,19);
+   const file=new File([blob],'Line-In '+stamp+'.wav',{type:'audio/wav',lastModified:Date.now()});
+   await new Promise((resolve,reject)=>{const request={file,claimed:false,resolve,reject};window.dispatchEvent(new CustomEvent('xensonar:forge:send-to-editor-file',{detail:request}));if(!request.claimed)reject(Error('Import Audio is not open. Open Material Forge → Import Audio and record again.'))});
+   setMsg('Loaded into Import Audio: '+clock(L.length/cap.sampleRate)+' · '+cap.sampleRate+' Hz · stereo · lossless.');setPhase('idle');
+  }catch(e){setPhase('idle');setMsg('Line-In: '+String(e?.message||e))}
+ }
+ const recording=phase==='recording',busy=phase==='requesting'||phase==='saving';
+ const meter=(v,k)=>h('span',{key:k,className:'f38-linein-meter','data-ch':k},h('i',{style:{width:Math.min(100,Math.round(Math.sqrt(v)*100))+'%'}}));
+ const panel=open?h('div',{ref:popRef,'data-forge-linein-panel':true,role:'dialog','aria-label':'Line-In recording',className:'f38-linein-panel',style:{position:'fixed',zIndex:2147482000,left:pos?.left??-9999,top:pos?.top,bottom:pos?.bottom,width:pos?.width,visibility:pos?'visible':'hidden'}},
+  h('div',{className:'f38-linein-head'},h('b',null,'Line-In'),h('span',null,' · record what your speakers play'),h('button',{type:'button',className:'f38-linein-close','aria-label':'Close',title:recording?'Close (the recording goes on)':'Close',onClick:()=>setOpen(false)},'×')),
+  h('label',{className:'f38-linein-src'+(canShare?'':' is-off')},h('input',{type:'radio',name:'f38-src',checked:src==='share',disabled:!canShare||recording,'data-forge-linein-source':'share',onChange:()=>setSrc('share')}),
+   h('span',null,h('b',null,'Browser tab or system sound'),h('small',null,canShare?'In the share dialog pick the tab (e.g. YouTube) and switch on “Share tab audio”; for all sounds of the computer pick the whole screen with “Share system audio” (Windows, ChromeOS).':'Not offered by this browser (Firefox shares no sound). Use an input device below.'))),
+  h('label',{className:'f38-linein-src'},h('input',{type:'radio',name:'f38-src',checked:src.startsWith('device:'),disabled:recording,'data-forge-linein-source':'device',onChange:()=>setSrc('device:'+(devices.find(d=>__xenLineInLoopback.test(d.label))?.deviceId||''))}),
+   h('span',null,h('b',null,'Input device'),h('small',null,'Line-In, or a loopback that carries the speaker sound: Linux “Monitor of …”, Windows “Stereo Mix”, macOS a loopback driver (e.g. BlackHole).'),
+    h('span',{className:'f38-linein-devrow'},h('select',{'aria-label':'Input device','data-forge-linein-device':true,disabled:recording||!src.startsWith('device:'),value:deviceId,onChange:e=>setSrc('device:'+e.currentTarget.value)},
+      h('option',{value:''},'Default input'),...devices.map((d,i)=>h('option',{key:d.deviceId||i,value:d.deviceId},(d.label||'Input '+(i+1))+(__xenLineInLoopback.test(d.label)?'  ↺ speaker sound':'')))),
+     devices.some(d=>d.label)?null:h('button',{type:'button',className:'f38-linein-small',disabled:recording,onClick:()=>listDevices(true),title:'The browser names the devices only after you allow audio input once'},'Show names')))),
+  h('div',{className:'f38-linein-rec'},
+   h('button',{type:'button','data-forge-linein-rec':true,className:'f38-linein-recbtn'+(recording?' is-on':''),disabled:busy,onClick:()=>recording?stop(false):start()},recording?'■ Stop & import':phase==='saving'?'Importing …':phase==='requesting'?'Waiting …':'● Rec'),
+   recording?h('button',{type:'button',className:'f38-linein-small','data-forge-linein-discard':true,onClick:()=>stop(true)},'Discard'):null,
+   h('span',{className:'f38-linein-time'},clock(secs)),h('span',{className:'f38-linein-meters'+(lv[2]?' is-clip':''),title:lv[2]?'The level reached 0 dBFS: lower the volume at the source and record again':'Level L / R'},meter(recording?lv[0]:0,'L'),meter(recording?lv[1]:0,'R'))),
+  msg?h('div',{className:'f38-linein-msg','data-forge-linein-msg':true,role:'status'},msg):null):null;
+ return h(P.Fragment,null,
+  h('button',{ref:btnRef,type:'button','data-forge-line-in':true,'aria-expanded':open,'aria-haspopup':'dialog',className:'f38-rack-line-in'+(recording?' is-recording':''),
+   title:'Line-In: record what your speakers play (a browser tab such as YouTube, the system sound, or a line / loopback input) lossless into Import Audio',onClick:()=>setOpen(o=>!o)},
+   h('span',{className:'f38-linein-dot','aria-hidden':true}),h('span',{className:'f38-linein-label'},recording?'REC '+clock(secs):'🔊 Line-In')),
+  panel&&typeof document!=='undefined'&&typeof ao!=='undefined'&&ao.createPortal?ao.createPortal(panel,document.body):panel);
+}
 function __ForgeSendToMultitrackButton(){
  const snapshot=P.useSyncExternalStore(__ForgeNavigatorSample.subscribe,__ForgeNavigatorSample.snapshot,__ForgeNavigatorSample.snapshot);
  return P.createElement('button',{type:'button','data-forge-send-to-multitrack':true,

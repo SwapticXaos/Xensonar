@@ -446,7 +446,7 @@
 {
 "file": "src/forge/editor/09_workflow_controls.js",
 "status": "oct-evolved",
-"bytes": 27318,
+"bytes": 28458,
 "oct28_bytes": 15752
 },
 {
@@ -1292,7 +1292,7 @@
 {
 "file": "src/post-oct/033-xen-multitrack-shared.js",
 "status": "post-oct",
-"bytes": 19008,
+"bytes": 23482,
 "oct28_bytes": 0
 },
 {
@@ -1412,7 +1412,7 @@
 {
 "file": "src/forge_and_melodic/10_audition_and_persistence.js",
 "status": "oct-evolved",
-"bytes": 52605,
+"bytes": 59881,
 "oct28_bytes": 44713
 },
 {
@@ -1742,7 +1742,7 @@
 {
 "file": "styles/areas/035_xen-live-controls.css",
 "status": "oct-identical",
-"bytes": 8003,
+"bytes": 35637,
 "oct28_bytes": 8003
 },
 {
@@ -2126,7 +2126,7 @@
 {
 "file": "src/post-oct/032-xen-room-multitrack.js",
 "status": "post-oct",
-"bytes": 194262,
+"bytes": 190949,
 "oct28_bytes": 0
 },
 {
@@ -2138,7 +2138,7 @@
 {
 "file": "src/factories/ForgeTransportRack.js",
 "status": "oct-evolved",
-"bytes": 22840,
+"bytes": 23840,
 "oct28_bytes": 11593
 },
 {
