@@ -1987,10 +1987,13 @@ function __XenSongPartsStrip({source,selection,onSelectPart,onPatch}){
  /* SONG-PARTS-EDIT-01: the strip shows the WORKING COPY (saved edits re-derived on the grid) or the analysis. Boundaries can be
     dragged (snap: bar / beat / off), a right click offers split / merge / letter / reset. Edits persist per song. */
  const E=__xenSongPartsEdit,[rev,setRev]=P.useState(0),[drag,setDrag]=P.useState(null),[menu,setMenu]=P.useState(null),stripRef=P.useRef(null);
+ const [note,setNote]=P.useState('');
  P.useEffect(()=>E.subscribe(()=>setRev(v=>v+1)),[]);
  const snap=E.snapMode(),grid=r?.grid??null;
  const view=P.useMemo(()=>r?E.current(asset,r):{parts:[],edited:false},[r,asset,rev]);
- const shown=drag?E.moveBoundary(view.parts,drag.i,drag.t,grid,snap,D):view.parts;
+ const [cutDrag,setCutDrag]=P.useState(null);
+ const shown=drag?E.moveBoundary(view.parts,drag.i,drag.t,grid,snap,D):cutDrag?E.moveCut(view.parts,cutDrag.i,cutDrag.k,cutDrag.t,grid,snap,D):view.parts;
+ const cutsOf=p=>p.cuts??(p.subParts&&p.subParts.length>1?p.subParts.slice(1).map(q=>q.startSec):[]);
  const commit=parts=>{E.save(asset,parts)};
  const timeAt=clientX=>{const rect=stripRef.current?.getBoundingClientRect();return rect?Math.max(0,Math.min(D,(clientX-rect.left)/Math.max(1,rect.width)*D)):0};
  const pct=v=>(D>0?v/D*100:0)+'%',clock=t=>{const r=Math.round(t);return Math.floor(r/60)+':'+String(r%60).padStart(2,'0')};
@@ -1999,31 +2002,63 @@ function __XenSongPartsStrip({source,selection,onSelectPart,onPatch}){
  const select=p=>{onSelectPart?.(p);onPatch?.(__xenMeterAnalysis.metaPatch(p.segments,p.segmentsPerBar,p.loopEndSec-p.loopStartSec))};
  /* SONG-PARTS-02: two levels. Level 1 = the parts (letters, colours: what returns). Level 2 = sections inside a part (F1, F2 …):
     thin lines in the strip; the first click takes the whole part, a further click on it the section under the pointer */
- const subsOf=p=>(p.subParts??[]).map((q,k)=>({...q,label:p.label+(k+1),parent:p,segmentsPerBar:q.segmentsPerBar??p.segmentsPerBar,groups:p.groups}));
+ const subsOf=p=>(p.subParts??[]).map((q,k)=>({...q,label:p.label+(k+1),parent:p,segmentsPerBar:q.segmentsPerBar??p.segmentsPerBar,groups:p.groups,shade:q.shade??E.shade(p.color,k)}));
  const activeSub=shown.flatMap(subsOf).find(isActive)??null;
  const active=activeSub??shown.find(isActive)??null,letterList=[...new Set(shown.map(p=>p.label))];
- const clickPart=(p,event)=>{const subs=subsOf(p);if(subs.length>1&&(isActive(p)||subs.some(isActive))){const t=timeAt(event.clientX);
+ const clickPart=(p,event)=>{setNote('');
+  // Shift + click: a section boundary right at the mouse (snapped) – "here" is where you click
+  if(event.shiftKey){const t=timeAt(event.clientX),next=E.addCut(view.parts,p.index,t,grid,snap,D);if(next!==view.parts){commit(next);setNote('Section boundary set in '+p.label+' at '+clock(E.snapTime(t,grid,snap))+'.')}return}
+  const subs=subsOf(p);if(subs.length>1&&(isActive(p)||subs.some(isActive))){const t=timeAt(event.clientX);
    select(subs.find(q=>t>=q.startSec&&t<q.endSec)??subs[subs.length-1])}else select(p)};
  // boundary drag (pointer capture on the handle; the preview follows the snap, the release saves the working copy)
- const startDrag=(i,event)=>{event.preventDefault();event.stopPropagation();const el=event.currentTarget;try{el.setPointerCapture(event.pointerId)}catch{}
+ const startDrag=(i,event)=>{if(event.button!==0)return;event.preventDefault();event.stopPropagation();const el=event.currentTarget;try{el.setPointerCapture(event.pointerId)}catch{}
   setDrag({i,t:shown[i].startSec});
   const move=e=>setDrag({i,t:timeAt(e.clientX)}),end=e=>{el.removeEventListener('pointermove',move);el.removeEventListener('pointerup',end);el.removeEventListener('pointercancel',cancel);
    const t=timeAt(e.clientX);setDrag(null);commit(E.moveBoundary(view.parts,i,t,grid,snap,D))},
    cancel=()=>{el.removeEventListener('pointermove',move);el.removeEventListener('pointerup',end);el.removeEventListener('pointercancel',cancel);setDrag(null)};
   el.addEventListener('pointermove',move);el.addEventListener('pointerup',end);el.addEventListener('pointercancel',cancel)};
+ const startCutDrag=(i,k,event)=>{if(event.button!==0)return;event.preventDefault();event.stopPropagation();const el=event.currentTarget;try{el.setPointerCapture(event.pointerId)}catch{}
+  setCutDrag({i,k,t:cutsOf(shown[i])[k]});
+  const off=()=>{el.removeEventListener('pointermove',move);el.removeEventListener('pointerup',end);el.removeEventListener('pointercancel',cancel)},
+   move=e=>setCutDrag({i,k,t:timeAt(e.clientX)}),end=e=>{off();setCutDrag(null);commit(E.moveCut(view.parts,i,k,timeAt(e.clientX),grid,snap,D))},cancel=()=>{off();setCutDrag(null)};
+  el.addEventListener('pointermove',move);el.addEventListener('pointerup',end);el.addEventListener('pointercancel',cancel)};
  P.useEffect(()=>{if(!menu)return;const close=e=>{if(!e.target.closest?.('[data-xwe-song-menu]'))setMenu(null)},esc=e=>{if(e.key==='Escape')setMenu(null)};
   document.addEventListener('pointerdown',close,true);document.addEventListener('keydown',esc,true);
   return()=>{document.removeEventListener('pointerdown',close,true);document.removeEventListener('keydown',esc,true)}},[menu]);
  const act=fn=>()=>{setMenu(null);fn()};
+ // the menu opens just below the strip, so the "here" marker in the strip stays visible
+ const menuY=y=>{const r=stripRef.current?.getBoundingClientRect();return r?r.bottom+6:y};
+ /* Subdivide by analysis: the part alone is analysed again on a finer scale (sections from ~2 bars / 4 s); its inner boundaries
+    become sections on the bar grid of the song. "Here" and "evenly" stay for the ear and the eye. */
+ const subdivideByAnalysis=i=>{const p=shown[i];if(!p||!asset)return;const L=p.endSec-p.startSec,bar=grid?.barSec??2;
+  setNote('Analyzing part '+p.label+' for sections …');
+  __xenAnalyzeSongParts(asset,{range:{startSec:p.startSec,endSec:p.endSec},mainMinSec:Math.max(4,2*bar,L/12)}).then(res=>{
+   if(!res?.ok){setNote('Part '+p.label+': '+(res?.reason||'analysis failed')+'.');return}
+   let times=res.parts.slice(1).map(q=>q.loopStartSec);
+   if(!times.length)times=(res.parts[0]?.subParts??[]).slice(1).map(q=>q.loopStartSec);
+   const next=E.setCuts(view.parts,i,times,grid,snap==='off'?'off':'bar',D);
+   if(next===view.parts){setNote('Part '+p.label+': no clear inner sections found – try "Subdivide here" or "evenly".');return}
+   commit(next);setNote('Part '+p.label+': '+next[i].subParts.length+' sections found by analysis ('+next[i].subParts.map(q=>q.bars).join(' + ')+' bars).');
+  },error=>setNote('Part '+p.label+': analysis failed ('+String(error?.message??error)+').'))};
  const menuEl=menu&&shown[menu.i]?(()=>{const i=menu.i,p=shown[i],t=E.snapTime(menu.t,grid,snap),mb=(label,fn,extra={})=>h('button',{type:'button',className:'xwe-song-menu-btn','data-xwe-song-action':extra.id,disabled:extra.disabled,onClick:act(fn)},label);
-  return h('div',{'data-xwe-song-menu':true,className:'xwe-song-menu',role:'menu',style:{left:Math.min(menu.x,innerWidth-250),top:Math.min(menu.y,innerHeight-230)}},
+  return h('div',{'data-xwe-song-menu':true,className:'xwe-song-menu',role:'menu',style:{left:Math.max(6,Math.min(menu.x-20,innerWidth-330)),top:Math.max(6,Math.min(menu.y,innerHeight-430)),maxHeight:innerHeight-12,overflowY:'auto'}},
    h('div',{className:'xwe-song-menu-title'},'Part '+p.label+' · '+clock(p.startSec)+'–'+clock(p.endSec)),
    mb('Split here at '+clock(t)+' ('+(snap==='off'?'free':'snapped to '+snap)+')',()=>commit(E.split(view.parts,i,menu.t,grid,snap,D)),{id:'split',disabled:!(t>p.startSec+.5&&t<p.endSec-.5)}),
    mb('Merge with next part',()=>commit(E.merge(view.parts,i,grid,D)),{id:'merge-next',disabled:i>=shown.length-1}),
    mb('Merge with previous part',()=>commit(E.merge(view.parts,i-1,grid,D)),{id:'merge-prev',disabled:i<=0}),
+   h('div',{className:'xwe-song-menu-sep'},'Sections inside '+p.label+' ('+(p.subParts?.length||1)+')'),
+   mb('Subdivide by analysis (own analysis of '+p.label+')',()=>subdivideByAnalysis(i),{id:'subdivide-analysis'}),
+   mb('Subdivide here at '+clock(t)+((p.subParts?.length??0)>1?'':' → '+p.label+'1 | '+p.label+'2'),()=>commit(E.addCut(view.parts,i,menu.t,grid,snap,D)),{id:'subdivide',disabled:!(t>p.startSec+.5&&t<p.endSec-.5)}),
+   h('div',{className:'xwe-song-menu-row'},'Subdivide every:',...[1,2,4].map(n=>h('button',{key:n,type:'button',className:'xwe-song-menu-btn xwe-song-menu-small','data-xwe-song-action':'every-'+n,disabled:(p.bars??0)<=n,title:'a section every '+n+' bar'+(n>1?'s':''),onClick:act(()=>commit(E.subdivideEvery(view.parts,i,n,grid,D)))},n+' bar'+(n>1?'s':'')))),
+   h('div',{className:'xwe-song-menu-row'},'Subdivide evenly:',...[2,3,4,8].map(c=>h('button',{key:c,type:'button',className:'xwe-song-menu-btn xwe-song-menu-small','data-xwe-song-action':'even-'+c,disabled:(p.bars??0)<c,title:c+' sections of whole bars',onClick:act(()=>commit(E.subdivideEven(view.parts,i,c,grid,D)))},String(c)))),
+   (()=>{const cuts=p.cuts??(p.subParts?.slice(1).map(q=>q.startSec)??[]),near=cuts.length?cuts.reduce((a,c)=>Math.abs(c-menu.t)<Math.abs(a-menu.t)?c:a,cuts[0]):null;
+    return near!=null&&Math.abs(near-menu.t)<=Math.max(1.5*(grid?.barSec??2),(p.endSec-p.startSec)*.08)?mb('Remove the section boundary at '+clock(near),()=>commit(E.removeCut(view.parts,i,near,D,grid)),{id:'remove-section'}):null})(),
+   (p.subParts?.length??0)>1?mb('Remove all sections of '+p.label,()=>commit(E.clearCuts(view.parts,i,grid,D)),{id:'clear-sections'}):null,
+   h('div',{className:'xwe-song-menu-hint'},'Mouse: Shift + click sets a section boundary · drag the lower handles · double click removes one'),
+   h('div',{className:'xwe-song-menu-sep'},'Parts'),
    h('div',{className:'xwe-song-menu-row'},'Letter:',...letterList.concat(E.nextLetter(shown)).map(l=>h('button',{key:l,type:'button','data-xwe-song-letter':l,className:'xwe-song-letter'+(l===p.label?' is-current':''),style:{background:E.colorOf(l)},onClick:act(()=>commit(E.setLabel(view.parts,i,l,grid,D)))},l))),
    view.edited?mb('Reset all parts to the analysis',()=>E.clear(asset),{id:'reset'}):null)})():null;
- const caption=state.status==='running'?'Analyzing the whole song …':state.status==='error'?state.error:
+ const caption=note?note:state.status==='running'?'Analyzing the whole song …':state.status==='error'?state.error:
   active?info(active):r?(r.rhythmic?`${shown.length} parts · ${letterList.length} kinds (${letterList.join(' ')}) · ${r.segmentsPerBar} segments per bar · ${r.bpm.toFixed(2)} BPM · click a part`:'One part · '+(r.reason||'no clear meter')):'';
  return h('div',{className:'xwe-song-parts','data-xwe-song-parts':state.status,'data-xwe-song-edited':view.edited||undefined},
   h('div',{className:'xwe-song-caption'},h('span',{'data-xwe-song-caption':true},caption),
@@ -2035,13 +2070,19 @@ function __XenSongPartsStrip({source,selection,onSelectPart,onPatch}){
   h('div',{ref:stripRef,className:'xwe-song-strip',role:'group','aria-label':'Song parts'},
    ...shown.map(p=>h('button',{key:'p'+p.index+':'+p.startSec.toFixed(2),type:'button','data-xwe-song-part':p.label,'data-xwe-song-part-index':p.index,
      className:'xwe-song-part'+(isActive(p)?' is-active':subsOf(p).some(isActive)?' has-active-sub':'')+(p.edited?' is-edited':''),style:{left:pct(p.startSec),width:pct(p.endSec-p.startSec),background:p.color},
-     title:info(p)+' · click: view range, loop mask and Taktometer on this part'+(subsOf(p).length>1?' · click again: section '+subsOf(p).map(q=>q.label).join(' / '):'')+' · right click: split / merge / letter','aria-label':'Part '+info(p),'aria-pressed':isActive(p)||subsOf(p).some(isActive),'data-xwe-song-subs':subsOf(p).length||undefined,
-     onClick:event=>clickPart(p,event),onContextMenu:event=>{event.preventDefault();setMenu({i:p.index,t:timeAt(event.clientX),x:event.clientX,y:event.clientY})}},
+     title:info(p)+' · click: view range, loop mask and Taktometer on this part'+(subsOf(p).length>1?' · click again: section '+subsOf(p).map(q=>q.label).join(' / '):'')+' · right click: split / merge / subdivide / letter · Shift + click: section boundary here','aria-label':'Part '+info(p),'aria-pressed':isActive(p)||subsOf(p).some(isActive),'data-xwe-song-subs':subsOf(p).length||undefined,
+     onClick:event=>clickPart(p,event),onContextMenu:event=>{event.preventDefault();setMenu({i:p.index,t:timeAt(event.clientX),x:event.clientX,y:menuY(event.clientY)})}},
      (p.endSec-p.startSec)/Math.max(1e-9,D)>.025?p.label:'',
-     ...subsOf(p).map((q,k)=>{const span=Math.max(1e-9,p.endSec-p.startSec),l=(q.startSec-p.startSec)/span*100,w=(q.endSec-q.startSec)/span*100;
-      return isActive(q)?h('span',{key:'s'+k,className:'xwe-song-sub is-active','data-xwe-song-sub':q.label,style:{left:l+'%',width:w+'%'}}):k?h('span',{key:'s'+k,className:'xwe-song-sub-line',style:{left:l+'%'}}):null}))),
+     /* sections: the part colour on top, each section fades into its own shade below, labelled C1, C2 … */
+     ...subsOf(p).map((q,k)=>{const span=Math.max(1e-9,p.endSec-p.startSec),l=(q.startSec-p.startSec)/span*100,w=(q.endSec-q.startSec)/span*100,wide=(q.endSec-q.startSec)/Math.max(1e-9,D)>.03;
+      return h('span',{key:'s'+k,className:'xwe-song-sec'+(isActive(q)?' is-active':'')+(k?' has-line':''),'data-xwe-song-sub':q.label,style:{left:l+'%',width:w+'%','--sec':q.shade}},wide?h('span',{className:'xwe-song-sec-label'},q.label):null)}))),
    ...shown.slice(1).map((p,k)=>h('span',{key:'h'+(k+1),className:'xwe-song-handle'+(drag?.i===k+1?' is-dragging':''),'data-xwe-song-handle':k+1,role:'separator','aria-label':'Boundary before part '+p.label+' at '+clock(p.startSec)+' · drag to move',
-     title:'Drag to move this boundary (snap: '+snap+') · '+clock(p.startSec),style:{left:pct(p.startSec)},onPointerDown:e=>startDrag(k+1,e)})),
+     title:'Drag to move this boundary (snap: '+snap+') · '+clock(p.startSec),style:{left:pct(p.startSec)},onPointerDown:e=>startDrag(k+1,e),onContextMenu:e=>{e.preventDefault();const t=timeAt(e.clientX),j=shown.findIndex(q=>t>=q.startSec&&t<q.endSec);setMenu({i:j<0?k+1:j,t,x:e.clientX,y:menuY(e.clientY)})}})),
+   ...shown.flatMap(p=>cutsOf(p).map((c,k)=>h('span',{key:'c'+p.index+':'+k,className:'xwe-song-cut-handle'+(cutDrag&&cutDrag.i===p.index&&cutDrag.k===k?' is-dragging':''),'data-xwe-song-cut':p.label+(k+2),role:'separator',
+     'aria-label':'Section boundary '+p.label+(k+1)+' | '+p.label+(k+2)+' at '+clock(c),title:'Section '+p.label+(k+1)+' | '+p.label+(k+2)+' at '+clock(c)+' · drag to move (snap: '+snap+') · double click to remove',
+     style:{left:pct(c)},onPointerDown:e=>startCutDrag(p.index,k,e),onContextMenu:e=>{e.preventDefault();setMenu({i:p.index,t:timeAt(e.clientX),x:e.clientX,y:menuY(e.clientY)})},onDoubleClick:e=>{e.stopPropagation();commit(E.removeCut(view.parts,p.index,c,D,grid))}}))),
+   menu&&shown[menu.i]?(()=>{const t=E.snapTime(menu.t,grid,snap);return h('span',{className:'xwe-song-here','data-xwe-song-here':true,style:{left:pct(t)}},h('span',null,'here '+clock(t)))})():null,
+   cutDrag&&shown[cutDrag.i]?h('span',{className:'xwe-song-drag-time'},clock(cutsOf(shown[cutDrag.i])[cutDrag.k]??0)+(snap!=='off'?' · '+snap:'')):null,
    drag&&shown[drag.i]?h('span',{className:'xwe-song-drag-time'},clock(shown[drag.i].startSec)+(snap!=='off'?' · '+snap:'')):null,
    state.status==='running'?h('div',{className:'xwe-song-strip-wait'}):null),
   menuEl&&typeof document!=='undefined'?ao.createPortal(menuEl,document.body):null);

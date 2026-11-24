@@ -167,7 +167,7 @@ function __xenSongPartsFactory(meter){
  }
  function single(D,reason,extra={}){return {ok:true,rhythmic:false,reason,durationSec:D,segmentsPerBar:1,bpm:null,parts:[{index:0,label:'A',colorIndex:0,color:COLORS[0],startSec:0,endSec:D,loopStartSec:0,loopEndSec:D,bars:1,segments:1,segmentsPerBar:1,bpm:null}],...extra}}
  /* analyze({samples,sampleRate}) — samples are best decimated already (decimate()) */
- function analyze({samples,sampleRate,debug=false}){
+ function analyze({samples,sampleRate,debug=false,mainMinSec=null}){
   const x=samples,sr=sampleRate,D=x.length/sr;
   if(!(D>0))return {ok:false,reason:'No audio.'};
   if(D<3)return single(D,'Shorter than 3 s: one part.');
@@ -194,7 +194,8 @@ function __xenSongPartsFactory(meter){
   /* the diagonal smoothing blurs a change by about a bar: an edge moves by one bar when the raw bar features change clearly (25 %) more sharply there */
   const raw=distMatrix(vs),sharp=i=>{const k=Math.min(2,i,B-i);if(k<1)return -Infinity;let c=0,n=0;for(let a=i-k;a<i;a++)for(let b=i;b<i+k;b++){c+=raw[a*B+b];n++}return c/n-(k>1?(raw[(i-2)*B+i-1]+raw[i*B+i+1])/2:0)};
   const edges=bd.edges.map((e,j,all)=>{if(j===0||j===all.length-1)return e;const b0=sharp(e);let best=e,bv=b0;for(const d of [-1,1]){const i=e+d;if(i<=all[j-1]||i>=all[j+1])continue;const v=sharp(i);if(v>bv&&v>b0+.25*Math.abs(b0)){bv=v;best=i}}return best});
-  const lp=mainParts(dm,B,label(dm,B,edges,minLen),Math.max(2,Math.ceil(Math.max(10,D/20)/barDur)));
+  // mainMinSec: a finer scale for "Subdivide by analysis" of one part (sections may be short there)
+  const lp=mainParts(dm,B,label(dm,B,edges,minLen),Math.max(2,Math.ceil((mainMinSec>0?mainMinSec:Math.max(10,D/20))/barDur)));
   const fullBar=b=>b[1]-b[0]>=barDur*.9;
   const parts=lp.map((p,i)=>{
    const first=bars[p.a],last=bars[p.b-1];let whole=0;for(let j=p.a;j<p.b;j++)if(fullBar(bars[j]))whole++;
@@ -236,12 +237,17 @@ function __xenSongPartsFactory(meter){
 }
 const __xenSongParts=__xenSongPartsFactory(__xenMeterAnalysis);
 /* worker run (keeps the UI responsive on long songs); falls back to the main thread when Blob workers are unavailable */
-function __xenAnalyzeSongParts(asset,{signal}={}){
- const d=__xenSongParts.decimate(asset.monoSamples,asset.sampleRate);
+function __xenAnalyzeSongParts(asset,{signal,range=null,mainMinSec=null}={}){
+ /* range: analyse only [start, end) of the audio (Subdivide by analysis); times come back in song time */
+ const sr=asset.sampleRate,off=range?Math.max(0,range.startSec):0,full=asset.monoSamples;
+ const src=range?full.subarray(Math.floor(off*sr),Math.min(full.length,Math.ceil(range.endSec*sr))):full;
+ const d={...__xenSongParts.decimate(src,sr),mainMinSec};
  const code="'use strict';const meter=("+__xenMeterAnalysisFactory.toString()+")();const parts=("+__xenSongPartsFactory.toString()+")(meter);"+
   "self.onmessage=e=>{try{self.postMessage({result:parts.analyze(e.data)})}catch(err){self.postMessage({error:String(err&&err.message||err)})}};";
  const run=typeof Worker!=='undefined'&&typeof __xenRunBlobWorker==='function'
-  ?__xenRunBlobWorker({code,payload:d,transfer:[d.samples.buffer],signal,timeoutMs:600000,name:'xensonar-song-parts',errorMessage:'Song analysis failed.'}).catch(error=>{if(error?.name==='AbortError')throw error;console.warn('[xensonar][song-parts] worker failed, main thread',error);return __xenSongParts.analyze(__xenSongParts.decimate(asset.monoSamples,asset.sampleRate))})
+  ?__xenRunBlobWorker({code,payload:d,transfer:[d.samples.buffer],signal,timeoutMs:600000,name:'xensonar-song-parts',errorMessage:'Song analysis failed.'}).catch(error=>{if(error?.name==='AbortError')throw error;console.warn('[xensonar][song-parts] worker failed, main thread',error);return __xenSongParts.analyze({...__xenSongParts.decimate(src,sr),mainMinSec})})
   :Promise.resolve().then(()=>__xenSongParts.analyze(d));
- return run.then(result=>__xenSongParts.snap(result,asset));
+ const shift=r=>{if(!off||!r?.ok)return r;const o=t=>t+off,sh=p=>({...p,startSec:o(p.startSec),endSec:o(p.endSec),loopStartSec:o(p.loopStartSec),loopEndSec:o(p.loopEndSec)});
+  return {...r,offsetSec:off,parts:r.parts.map(p=>({...sh(p),subParts:p.subParts?p.subParts.map(sh):null})),grid:r.grid?{...r.grid,segments:r.grid.segments.map(o),bars:r.grid.bars.map(o)}:null}};
+ return run.then(result=>__xenSongParts.snap(shift(result),asset));
 }

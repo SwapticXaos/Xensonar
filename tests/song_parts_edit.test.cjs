@@ -36,3 +36,22 @@ test('the working copy persists per song and is re-derived on the grid; reset re
  E.clear(asset);assert.equal(factory(store).current(asset,analysis).edited,false);
  assert.equal(E.snapMode(),'bar');E.setSnapMode('beat');assert.equal(factory(store).snapMode(),'beat');
 });
+test('subdivide a part into sections (C1, C2 …): here (snapped), evenly in whole bars, remove one, remove all; merge keeps the old boundary as a section',()=>{
+ const {E,parts}=base();
+ let p=E.addCut(parts,1,23.4,grid,'bar',total);assert.deepEqual(p[1].cuts,[24]);assert.equal(p[1].subParts.length,2);
+ assert.deepEqual(p[1].subParts.map(q=>[q.startSec,q.endSec,q.bars,q.segments]),[[16,24,4,16],[24,32,4,16]]);
+ assert.ok(p[1].subParts.every(q=>/^#[0-9a-f]{6}$/.test(q.shade))&&p[1].subParts[0].shade!==p[1].subParts[1].shade,'own shade per section');
+ assert.equal(p[1].color,parts[1].color,'the part keeps its colour');
+ p=E.subdivideEven(parts,0,4,grid,total);assert.deepEqual(p[0].cuts,[4,8,12]);assert.ok(p[0].subParts.every(q=>q.bars===2));
+ p=E.removeCut(p,0,8.3,total,grid);assert.deepEqual(p[0].cuts,[4,12]);p=E.clearCuts(p,0,grid,total);assert.equal(p[0].subParts,null);
+ p=E.merge(parts,0,grid,total);assert.deepEqual(p[0].cuts,[16],'merged part remembers the old boundary as section');assert.equal(p[0].subParts.length,2);
+ // sections survive a save / reload of the working copy
+ const store=memStore(),E2=factory(store),asset={fileName:'s.wav',originalDuration:40,sampleRate:44100};E2.save(asset,E2.subdivideEven(parts,1,2,grid,total));
+ assert.deepEqual(factory(store).current(asset,{ok:true,durationSec:total,grid,parts}).parts[1].cuts,[24]);
+});
+test('sections by mouse: move a section boundary (snapped, between its neighbours), a section every n bars',()=>{
+ const {E,parts}=base();let p=E.subdivideEven(parts,0,2,grid,total);assert.deepEqual(p[0].cuts,[8]);
+ p=E.moveCut(p,0,0,11.2,grid,'bar',total);assert.deepEqual(p[0].cuts,[12]);p=E.moveCut(p,0,0,40,grid,'bar',total);assert.deepEqual(p[0].cuts,[14],'one bar stays before the part end');
+ p=E.subdivideEvery(parts,1,1,grid,total);assert.deepEqual(p[1].cuts,[18,20,22,24,26,28,30]);assert.ok(p[1].subParts.every(q=>q.bars===1));
+ p=E.subdivideEvery(parts,1,4,grid,total);assert.deepEqual(p[1].cuts,[24]);
+});

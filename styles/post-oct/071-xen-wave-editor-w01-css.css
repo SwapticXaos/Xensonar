@@ -331,3 +331,19 @@ canvas[data-xwe-workspace-resize="true"][data-xwe-workspace-edge="true"]{cursor:
 .xwe-song-menu-row{display:flex;flex-wrap:wrap;align-items:center;gap:4px;margin-top:2px}
 .xwe-song-letter{min-width:22px;height:20px;border:1px solid #0b1020;border-radius:3px;color:#020617;font:700 11px system-ui;cursor:pointer}
 .xwe-song-letter.is-current{outline:2px solid #fff}
+/* SONG-PARTS-EDIT-02: sections fade into their own shade in the lower half of the block */
+.xwe-song-sec{position:absolute;top:0;bottom:0;pointer-events:none;background:linear-gradient(to bottom,transparent 40%,var(--sec) 100%)}
+.xwe-song-sec.has-line{border-left:1px dashed rgba(2,6,23,.6)}
+.xwe-song-sec.is-active{box-shadow:inset 0 0 0 2px #fff}
+.xwe-song-sec-label{position:absolute;left:3px;bottom:0;font:600 8px/9px system-ui;color:#020617cc}
+.xwe-song-menu-sep{margin-top:4px;padding-top:4px;border-top:1px solid #34405e;color:#8b9bc7;font-size:10px}
+.xwe-song-menu-small{padding:1px 7px;min-width:26px;text-align:center}
+.xwe-song-strip{height:26px}
+.xwe-song-part{line-height:20px}
+/* SONG-PARTS-EDIT-03: section boundaries by mouse, the "here" marker of the menu */
+.xwe-song-cut-handle{position:absolute;top:48%;bottom:0;width:10px;margin-left:-5px;cursor:ew-resize;z-index:3;touch-action:none}
+.xwe-song-cut-handle::after{content:'';position:absolute;left:4px;top:1px;bottom:1px;width:2px;background:rgba(255,255,255,.75);border-radius:1px;opacity:.35}
+.xwe-song-cut-handle:hover::after,.xwe-song-cut-handle.is-dragging::after{opacity:1}
+.xwe-song-here{position:absolute;top:-2px;bottom:-2px;width:0;border-left:2px solid #fff;box-shadow:0 0 0 1px #0b1020;z-index:4;pointer-events:none}
+.xwe-song-here>span{position:absolute;left:3px;top:0;font:600 9px system-ui;color:#fff;background:#0b1020dd;padding:0 3px;border-radius:2px;white-space:nowrap}
+.xwe-song-menu-hint{color:#8b9bc7;font-size:10px;margin-top:2px}

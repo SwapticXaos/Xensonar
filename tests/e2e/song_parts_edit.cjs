@@ -51,9 +51,24 @@ const file=path.join(dir,'abacb_edit.wav');fs.writeFileSync(file,wav(song({bpm:1
  const [s0,e0]=await fine(),[v0,v1]=await view(),xAt=t=>db.x+db.width*(t-v0)/(v1-v0);
  await p.mouse.move(xAt(e0)-1,db.y+db.height/2);await p.mouse.down();await p.mouse.move(xAt(e0-2),db.y+db.height/2,{steps:6});await p.mouse.move(xAt(e0-6.7),db.y+db.height/2,{steps:6});await p.mouse.up();await p.waitForTimeout(300);
  const [s1,e1]=await fine();assert.ok(Math.abs(s1-s0)<.02,'start unchanged '+s0+' → '+s1);assert.ok(e1<e0-1,'end moved '+e0+' → '+e1);assert.ok(Math.abs(e1/2-Math.round(e1/2))<.02,'end on a bar line (2 s grid): '+e1);
+ // ---- sections by mouse: "here" marker, Shift + click, drag a section boundary, double click removes; every 2 bars; by analysis ----
+ await p.evaluate(()=>document.querySelector('[data-xwe-song-parts]').parentElement.scrollIntoView({block:'start'}));await p.waitForTimeout(200);
+ let sb3=await strip.boundingBox();const X3=t=>sb3.x+sb3.width*t/80,Y3=sb3.y+sb3.height*.3;
+ await p.mouse.click(X3(37.1),Y3,{button:'right'});await menu.waitFor();assert.equal(await p.locator('[data-xwe-song-here]').count(),1,'the menu shows where "here" is');
+ assert.match(await p.locator('[data-xwe-song-here]').innerText(),/here 0:38/);await menu.locator('[data-xwe-song-action="every-2"]').click();await p.waitForTimeout(300);
+ const secs=()=>p.locator('[data-xwe-song-sub]').evaluateAll(n=>n.map(x=>x.dataset.xweSongSub).join(' '));
+ assert.match(await secs(),/A1 A2 A3 A4/,'part A (32–40 s) in sections of 2 bars');
+ await p.keyboard.down('Shift');await p.mouse.click(X3(27.1),Y3);await p.keyboard.up('Shift');await p.waitForTimeout(300);
+ assert.match(await p.locator('[data-xwe-song-caption]').innerText(),/Section boundary set in D at 0:28/);
+ const cut=p.locator('[data-xwe-song-cut="D2"]');const cb=await cut.boundingBox();await p.mouse.move(cb.x+cb.width/2,cb.y+cb.height/2);await p.mouse.down();await p.mouse.move(X3(29),cb.y+cb.height/2,{steps:4});await p.mouse.move(X3(29.8),cb.y+cb.height/2,{steps:4});await p.mouse.up();await p.waitForTimeout(300);
+ assert.match(await cut.getAttribute('aria-label'),/at 0:30/,'dragged section boundary snapped to the bar at 30 s');
+ await cut.dblclick();await p.waitForTimeout(300);assert.equal(await p.locator('[data-xwe-song-cut="D2"]').count(),0,'double click removed it');
+ sb3=await strip.boundingBox();await p.mouse.click(X3(8),Y3,{button:'right'});await menu.waitFor();await menu.locator('[data-xwe-song-action="subdivide-analysis"]').click();
+ await p.waitForFunction(()=>/sections found|no clear inner sections|failed/.test(document.querySelector('[data-xwe-song-caption]')?.textContent||''),null,{timeout:60000});
+ assert.doesNotMatch(await p.locator('[data-xwe-song-caption]').innerText(),/failed/);
  // ---- reset to the analysis ----
  await p.evaluate(()=>document.querySelector('[data-xwe-song-parts]').parentElement.scrollIntoView({block:'start'}));await p.waitForTimeout(200);
  const sb2=await strip.boundingBox();await p.mouse.click(sb2.x+sb2.width*.1,sb2.y+sb2.height/2,{button:'right'});await menu.waitFor();await menu.locator('[data-xwe-song-action="reset"]').click();await p.waitForTimeout(300);
  assert.equal(await labels(),'ABACB');assert.equal(await p.locator('.xwe-song-edited').count(),0);
- assert.deepEqual(errors,[]);console.log('PASS SONG-PARTS-EDIT-01 split · drag boundary (bar snap) · persists over reload · reset; Taktometer menu fixed+visible; Fit in part = no change; mask end snapped to '+e1+' s');await b.close();
+ assert.deepEqual(errors,[]);console.log('PASS SONG-PARTS-EDIT-01 split · drag boundary (bar snap) · persists over reload · sections (every 2 bars, Shift+click, drag, double click, by analysis) · reset; Taktometer menu fixed+visible; Fit in part = no change; mask end snapped to '+e1+' s');await b.close();
 })().catch(e=>{console.error(e);process.exit(1)});
