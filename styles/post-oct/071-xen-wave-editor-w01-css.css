@@ -354,3 +354,8 @@ canvas[data-xwe-workspace-resize="true"][data-xwe-workspace-edge="true"]{cursor:
  background:repeating-linear-gradient(135deg,#0b1020 0 10px,#0e1528 10px 20px);border:1px dashed #334155;transition:border-color .15s,color .15s,background-color .15s}
 .xwe-song-strip.xwe-song-start:hover,.xwe-song-strip.xwe-song-start:focus-visible{color:#e2e8f0;border-color:#60a5fa;outline:none;background:repeating-linear-gradient(135deg,#0f172a 0 10px,#13203a 10px 20px)}
 .xwe-song-start-icon{display:inline-grid;place-items:center;width:16px;height:16px;border-radius:2px;background:#1e3a8a;color:#bfdbfe;font-size:8px}
+/* KEY-01/02: the key of a part in its block (chroma), ♪ = pitch lines analysed; the Key tool beside ↻ */
+.xwe-song-key{position:absolute;right:4px;top:2px;z-index:2;font:600 9px/1 system-ui,sans-serif;color:rgba(255,255,255,.88);text-shadow:0 1px 1px rgba(0,0,0,.6);pointer-events:none;letter-spacing:.02em}
+.xwe-song-key.is-unclear{opacity:.55;font-weight:500}
+.xwe-song-redo.xwe-song-tonal{width:auto;padding:0 6px;font-size:10px;letter-spacing:.03em}
+.xwe-song-redo.xwe-song-tonal.is-running{color:#fbbf24;border-color:#b45309}

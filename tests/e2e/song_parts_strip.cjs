@@ -30,6 +30,17 @@ const drone=path.join(dir,'drone.wav');{const n=SR*40,x=new Float32Array(n);for(
  const geo=await p.evaluate(()=>{const s=document.querySelector('.xwe-song-strip').getBoundingClientRect(),c=document.querySelector('[data-xwe-song-parts]').nextElementSibling;const r=c.getBoundingClientRect();return{tag:c.tagName,gap:r.top-s.bottom,dw:Math.abs(r.width-s.width)}});
  assert.equal(geo.tag,'CANVAS');assert.ok(geo.gap>=0&&geo.gap<14,'strip above the overview: '+JSON.stringify(geo));assert.ok(geo.dw<4);
  assert.match(await strip.innerText(),/5 parts · 3 kinds \(A B C\) · 4 segments per bar · 1(19|20)\.\d\d BPM/);
+ // KEY-01: every wide part shows its key (chroma timeline of the analysis); A is built on an A major triad
+ const keys=await strip.locator('[data-xwe-song-key]').evaluateAll(n=>n.map(x=>x.dataset.xweSongKey));assert.equal(keys.length,5,'a key per part: '+keys);assert.equal(keys[0],'A','part A in A major: '+keys);assert.equal(keys[0],keys[2],'returning A, same key');
+ assert.match(await parts.first().getAttribute('title'),/key A major/);
+ // KEY-02: the Wave Editor analysis (pitch lines) on one part, on request: root in Hz, tuning, scale; the ♪ marks it
+ const sb0=await p.locator('.xwe-song-strip').boundingBox();await p.mouse.click(sb0.x+sb0.width*.05,sb0.y+sb0.height/2,{button:'right'});
+ const smenu=p.locator('[data-xwe-song-menu]');await smenu.waitFor();assert.match(await smenu.locator('[data-xwe-song-keyline]').innerText(),/^Key A major/);
+ await smenu.locator('[data-xwe-song-action="tonal-part"]').click();
+ await p.waitForFunction(()=>/analysed|canceled/.test(document.querySelector('[data-xwe-song-caption]')?.textContent||''),null,{timeout:90000});
+ assert.match(await p.locator('[data-xwe-song-caption]').innerText(),/1 part analysed/);const t0=await parts.first().getAttribute('title');
+ assert.match(t0,/pitch lines: (\d+(\.\d+)? Hz [≈=] A\d|not determined|no )/,t0);console.log('  part A: '+t0.split(' · ').filter(x=>/key|pitch/.test(x)).join(' · '));
+ assert.match(await strip.locator('[data-xwe-song-key]').first().innerText(),/♪|A/);
  // click the second A: blue view and purple mask on 32–48 s, Taktometer 8 bars of 4
  await parts.nth(2).click();await p.waitForTimeout(500);
  assert.equal(await parts.nth(2).getAttribute('aria-pressed'),'true');

@@ -1855,7 +1855,11 @@ function RGe(e){const{source:t,selection:n,previewPlaying:r,meter:a,setDetailVie
  if(b.target==="overview"){const N=G*t.durationSec;o($_(N,b,j,.15));return}
  // Do not mutate the lower mask or repair undo on click / 1-3px jitter.
  if(!b.activated){if(!__xenP10CrossedDragThreshold(b.clientX,_))return;b.activated=true}
- const N=n.detailViewport,W=N.startSec+G*N.durationSec,V=__xenSnapMaskDrag($_(W,b,j,.05),b.mode,t);i(V),r&&c(V)
+ const N=n.detailViewport,W=N.startSec+G*N.durationSec;let V=__xenSnapMaskDrag($_(W,b,j,.05),b.mode,t);
+ // TAKT-SNAP-01: snap Bar / Beat = the Taktometer counts (tempo stays), snap Off = the bar count stretches with the mask
+ if(!b.meta0&&e.exportMeta)b.meta0={bars:e.exportMeta.bars,guideSegments:e.exportMeta.guideSegments};
+ const K=__xenMaskCount(V,b,b.meta0,__xenSongPartsEdit.snapMode(),j,t);if(K){V=K.range;const key=K.patch.bars+':'+K.range.durationSec.toFixed(4);if(key!==b.countKey){b.countKey=key;e.onMetaPatch?.(K.patch)}}
+ i(V),r&&c(V)
  },L=B=>{if(b.pointerId!=null&&B.pointerId!==b.pointerId)return;
  if(b.finished||b.cancelled)return;b.finished=true;
  if(b.target==="detail"&&b.activated&&b.mode==="new")s();g(null)
@@ -1969,6 +1973,44 @@ function __xenSnapMaskDrag(range,mode,source){
  const edge=mode==='resize-start'?'start':mode==='resize-end'?'end':mode==='move'?'move':'both';
  return __xenSongPartsEdit.snapRange(range,sp.result.grid,m,edge,Number(source.durationSec)||Infinity);
 }
+/* KEY-02: the Wave Editor's analysis (pitch lines -> root in Hz, tuning system, scale; 015b) on one part, in its own worker.
+   At most 2 minutes (the middle of a longer part). Only on request, one part after the other – never on upload. */
+const __XEN_PC=['C','C♯','D','D♯','E','F','F♯','G','G♯','A','A♯','B'];
+function __xenPartTonal(asset,part,{signal,onProgress}={}){
+ const wa=__xenLoadChunk('wave-analysis'),sr=asset.sampleRate,L=part.endSec-part.startSec,max=wa.MAX_SEC||120;
+ const a=part.startSec+Math.max(0,(L-max)/2),b=Math.min(part.endSec,a+max);
+ if(b-a<4)return Promise.resolve({startSec:part.startSec,endSec:part.endSec,fromSec:a,toSec:b,ok:false,note:'shorter than 4 s'});
+ const mono=asset.monoSamples.slice(Math.floor(a*sr),Math.min(asset.monoSamples.length,Math.ceil(b*sr)));
+ return wa.run(mono,sr,{signal,onProgress}).then(res=>{const t=res?.tonal,ok=!!(t&&!t.none&&t.tuning?.length),r2=v=>Math.round(v*100)/100;
+  return {startSec:part.startSec,endSec:part.endSec,fromSec:a,toSec:b,analyzedAt:Date.now(),ok,note:ok?null:(t?.none?'no pitch grid fits clearly':res?.tonalNote||'no stable pitches'),
+   root:ok?{hz:t.root.hz,name:t.root.name,approx:!!t.root.approx,cents:t.root.cents,confidence:t.root.confidence}:null,
+   tuning:ok?{id:t.tuning[0].id,label:t.tuning[0].label,confidence:t.tuning[0].confidence}:null,concertA:ok?t.concertA:null,
+   scale:ok&&t.scale?{name:t.scale.name,confidence:t.scale.confidence,alternatives:(t.scale.alternatives||[]).map(x=>x.name+' on '+x.rootHz+' Hz')}:null,
+   degrees:ok?t.degrees:null,degreeCount:ok?t.degreeCount:null,bpm:res?.bpm?r2(res.bpm.bpm):null}});
+}
+/* chroma key (KEY-01) and pitch-line result (KEY-02) side by side: same root / root inside the key / different */
+function __xenTonalAgreement(key,tonal){if(!key||!tonal?.ok||tonal.tuning?.id!=='12-EDO')return null;
+ const pc=__XEN_PC.indexOf(String(tonal.root.name).replace(/-?\d+$/,''));if(pc<0)return null;if(pc===key.pc)return 'same root';
+ const set=(key.minor?[0,2,3,5,7,8,10]:[0,2,4,5,7,9,11]).map(d=>(d+key.pc)%12);return set.includes(pc)?'root inside the key':'differs'}
+function __xenTonalText(t){if(!t)return '';if(!t.ok)return 'pitch lines: '+(t.note||'not determined');const pct=v=>Math.round((v||0)*100)+' %';
+ return 'pitch lines: '+(t.root.hz>=100?t.root.hz.toFixed(1):t.root.hz.toFixed(2))+' Hz '+(t.root.approx?'≈ ':'= ')+t.root.name+' · '+(t.scale?.name||'no single scale')+' · '+t.tuning.label+' ('+pct(t.scale?.confidence??t.root.confidence)+')'}
+/* TAKT-SNAP-01: with snap Bar or Beat the Taktometer keeps its tempo and COUNTS while the purple mask is resized: 10 bars made
+   2 bars shorter read 8 bars (snap Beat: 7.5). Only snap Off keeps the bar count and stretches it over the mask (aligning the
+   markers by eye to the level peaks). Without a song analysis the moving edge snaps to whole bars / segments of the current
+   Taktometer, counted from the edge that stays. Returns {range, patch} or null (Off, move, nothing to count). */
+function __xenMaskCount(range,drag,meta,mode,total,source){
+ if(!range||!drag||!meta||mode==='off'||drag.mode==='move'||!(range.durationSec>0))return null;
+ const S=Math.max(1,Math.round(Number(meta.guideSegments)||1)),bars=Math.max(1/64,Number(meta.bars)||1),d0=Number(drag.originalMask?.durationSec)||0;
+ if(!(d0>0))return null;const seg=d0/(bars*S),unit=mode==='bar'?seg*S:seg;
+ const sp=__xenSongPartsLatest,onGrid=!!(sp&&source&&sp.asset===source.sourceAsset&&sp.result?.grid);
+ let r=range;
+ if(!onGrid){const endFixed=drag.mode==='resize-start'||(drag.mode==='new'&&range.startSec<drag.anchorTime-1e-9),
+   end=range.startSec+range.durationSec,room=endFixed?end:Math.max(0,total-range.startSec);
+  let k=Math.max(1,Math.round(range.durationSec/unit));while(k>1&&k*unit>room+1e-6)k--;
+  const d=Math.min(k*unit,room);r=endFixed?{startSec:end-d,durationSec:d}:{startSec:range.startSec,durationSec:d}}
+ const count=Math.max(1,Math.round(r.durationSec/seg));
+ return {range:r,patch:__xenMeterAnalysis.metaPatch(count,S,r.durationSec)};
+}
 function __XenSongPartsStrip({source,selection,onSelectPart,onPatch}){
  const h=P.createElement,asset=source?.sourceAsset??null;
  const [state,setState]=P.useState({asset:null,status:'idle',result:null,error:''}),[nonce,setNonce]=P.useState(0);
@@ -1994,6 +2036,24 @@ function __XenSongPartsStrip({source,selection,onSelectPart,onPatch}){
     dragged (snap: bar / beat / off), a right click offers split / merge / letter / reset. Edits persist per song. */
  const E=__xenSongPartsEdit,[rev,setRev]=P.useState(0),[drag,setDrag]=P.useState(null),[menu,setMenu]=P.useState(null),stripRef=P.useRef(null);
  const [note,setNote]=P.useState('');
+ /* KEY-01/02: the key of every part and section from the stored chroma timeline (free), the pitch lines on request.
+    "Other key" for a returning letter only with another root: major / minor of the same root is the weakest call of a chroma. */
+ const [tonalRun,setTonalRun]=P.useState(null),tonalAbort=P.useRef(null);
+ P.useEffect(()=>()=>{tonalAbort.current?.abort()},[asset]);
+ const keyOf=q=>r?.keyChroma?__xenSongParts.keyOfRange(r.keyChroma,q.startSec,q.endSec):null;
+ const keyShort=k=>k?k.root+(k.minor?'m':''):'';
+ const keyText=k=>k?'key '+k.name+(k.clarity==='clear'?'':' ('+k.clarity+')'):'';
+ const runTonal=list=>{if(tonalAbort.current){tonalAbort.current.abort();return}
+  const todo=list.filter(q=>q.endSec-q.startSec>=4);if(!todo.length||!asset){setNote('Key & scale: nothing to analyse (parts shorter than 4 s).');return}
+  const ac=new AbortController();tonalAbort.current=ac;setNote('');let k=0;
+  const done=msg=>{if(tonalAbort.current===ac)tonalAbort.current=null;setTonalRun(null);setNote(msg)};
+  const step=()=>{if(ac.signal.aborted){done('Key & scale canceled after '+k+' of '+todo.length+'.');return}
+   if(k>=todo.length){done('Key & scale (pitch lines): '+todo.length+' part'+(todo.length>1?'s':'')+' analysed. Hover a part for the result.');return}
+   const q=todo[k];setTonalRun({i:k,n:todo.length,label:q.label,pct:0});
+   __xenPartTonal(asset,q,{signal:ac.signal,onProgress:f=>setTonalRun(v=>v&&{...v,pct:Math.round(f*100)})})
+    .then(t=>{E.saveTonal(asset,t);k++;setTimeout(step,80)},
+     err=>{if(err?.name==='AbortError'||ac.signal.aborted){done('Key & scale canceled after '+k+' of '+todo.length+'.');return}console.warn('[xensonar][song-parts] key & scale failed',err);k++;setTimeout(step,80)})};
+  step()};
  P.useEffect(()=>E.subscribe(()=>setRev(v=>v+1)),[]);
  const snap=E.snapMode(),grid=r?.grid??null;
  const view=P.useMemo(()=>r?E.current(asset,r):{parts:[],edited:false},[r,asset,rev]);
@@ -2004,7 +2064,10 @@ function __XenSongPartsStrip({source,selection,onSelectPart,onPatch}){
  const timeAt=clientX=>{const rect=stripRef.current?.getBoundingClientRect();return rect?Math.max(0,Math.min(D,(clientX-rect.left)/Math.max(1,rect.width)*D)):0};
  const pct=v=>(D>0?v/D*100:0)+'%',clock=t=>{const r=Math.round(t);return Math.floor(r/60)+':'+String(r%60).padStart(2,'0')};
  const isActive=p=>!!fr&&Math.abs(fr.startSec-p.loopStartSec)<.02&&Math.abs(fr.startSec+fr.durationSec-p.loopEndSec)<.02;
- const info=p=>p.segmentsPerBar>1?`${p.label} · ${clock(p.startSec)}–${clock(p.endSec)} · ${p.bars} bars × ${p.segmentsPerBar}${(p.groups??r?.groups)?' ('+(p.groups??r.groups).join('+')+')':''} = ${p.segments} segments · ${p.bpm.toFixed(2)} BPM${p.ownMeter?' · own meter':''}${p.edited?' · edited':''}`:`${p.label} · ${clock(p.startSec)}–${clock(p.endSec)} · no clear meter: 1 bar, 1 segment`;
+ const infoBase=p=>p.segmentsPerBar>1?`${p.label} · ${clock(p.startSec)}–${clock(p.endSec)} · ${p.bars} bars × ${p.segmentsPerBar}${(p.groups??r?.groups)?' ('+(p.groups??r.groups).join('+')+')':''} = ${p.segments} segments · ${p.bpm.toFixed(2)} BPM${p.ownMeter?' · own meter':''}${p.edited?' · edited':''}`:`${p.label} · ${clock(p.startSec)}–${clock(p.endSec)} · no clear meter: 1 bar, 1 segment`;
+ const info=p=>{const k=keyOf(p),t=E.tonalFor(asset,p),ag=__xenTonalAgreement(k,t);
+  const other=!p.parent&&k&&k.clarity!=='unclear'?shown.find(q=>q!==p&&q.label===p.label&&(()=>{const k2=keyOf(q);return k2&&k2.clarity!=='unclear'&&k2.pc!==k.pc&&__xenSongParts.keyDistance(k,k2)>=2})()):null;
+  return infoBase(p)+(k?' · '+keyText(k):'')+(other?' · other key than the '+p.label+' at '+clock(other.startSec):'')+(t?' · '+__xenTonalText(t)+(ag?' ('+ag+')':''):'')};
  const select=p=>{onSelectPart?.(p);onPatch?.(__xenMeterAnalysis.metaPatch(p.segments,p.segmentsPerBar,p.loopEndSec-p.loopStartSec))};
  /* SONG-PARTS-02: two levels. Level 1 = the parts (letters, colours: what returns). Level 2 = sections inside a part (F1, F2 …):
     thin lines in the strip; the first click takes the whole part, a further click on it the section under the pointer */
@@ -2043,8 +2106,8 @@ function __XenSongPartsStrip({source,selection,onSelectPart,onPatch}){
    if(!res?.ok){setNote('Part '+p.label+': '+(res?.reason||'analysis failed')+'.');return}
    const times=res.sections??[];
    const next=E.setCuts(view.parts,i,times,grid,snap==='off'?'off':'bar',D);
-   if(next===view.parts){setNote('Part '+p.label+': no clear inner sections found – try "Subdivide here" or "evenly".');return}
-   commit(next);setNote('Part '+p.label+': '+next[i].subParts.length+' sections found by analysis ('+next[i].subParts.map(q=>q.bars).join(' + ')+' bars).');
+   if(next===view.parts){setNote('Part '+p.label+': no clear inner sections found – try "Subdivide at bar" or "evenly".');return}
+   commit(next);setNote('Part '+p.label+': '+next[i].subParts.length+' sections found by analysis ('+next[i].subParts.map(q=>q.bars).join(' + ')+' bars)'+(r?.keyChroma?' · keys '+next[i].subParts.map((q,k)=>p.label+(k+1)+' '+keyShort(keyOf(q))).join(', '):'')+'.');
   },error=>setNote('Part '+p.label+': analysis failed ('+String(error?.message??error)+').'))};
  /* bar lines inside a part (bar 1 = its first bar line): the choice for "Subdivide at bar" */
  const barsIn=p=>{const g=grid?.bars??[],eps=.05;return g.filter(t=>t>=p.startSec-eps&&t<p.endSec-eps)};
@@ -2069,10 +2132,13 @@ function __XenSongPartsStrip({source,selection,onSelectPart,onPatch}){
     return near!=null&&Math.abs(near-menu.t)<=Math.max(1.5*(grid?.barSec??2),(p.endSec-p.startSec)*.08)?mb('Remove the section boundary at '+clock(near),()=>commit(E.removeCut(view.parts,i,near,D,grid)),{id:'remove-section'}):null})(),
    (p.subParts?.length??0)>1?mb('Remove all sections of '+p.label,()=>commit(E.clearCuts(view.parts,i,grid,D)),{id:'clear-sections'}):null,
    h('div',{className:'xwe-song-menu-hint'},'Mouse: Shift + click sets a section boundary at the nearest bar · drag the lower handles · double click removes one'),
+   h('div',{className:'xwe-song-menu-sep'},'Key'),
+   h('div',{className:'xwe-song-menu-hint','data-xwe-song-keyline':true},(()=>{const k=keyOf(p),t=E.tonalFor(asset,p);return (k?keyText(k)[0].toUpperCase()+keyText(k).slice(1)+' (chroma)':'No key')+(t?' · '+__xenTonalText(t):'')})()),
+   mb((E.tonalFor(asset,p)?'Analyse again: ':'')+'Key & scale of '+p.label+' (pitch lines: root in Hz, tuning, scale)',()=>runTonal([p]),{id:'tonal-part',disabled:!!tonalRun||p.endSec-p.startSec<4}),
    h('div',{className:'xwe-song-menu-sep'},'Parts'),
    h('div',{className:'xwe-song-menu-row'},'Letter:',...letterList.concat(E.nextLetter(shown)).map(l=>h('button',{key:l,type:'button','data-xwe-song-letter':l,className:'xwe-song-letter'+(l===p.label?' is-current':''),style:{background:E.colorOf(l)},onClick:act(()=>commit(E.setLabel(view.parts,i,l,grid,D)))},l))),
    view.edited?mb('Reset all parts to the analysis',()=>E.clear(asset),{id:'reset'}):null)})():null;
- const caption=note?note:state.status==='ready'?'Song parts: not analyzed yet · click the bar below to analyze (it is kept for this song)':state.status==='running'?'Analyzing the whole song … (step by step, in the background)':state.status==='error'?state.error:
+ const caption=tonalRun?'Key & scale (pitch lines): part '+(tonalRun.i+1)+' of '+tonalRun.n+' · '+tonalRun.label+' · '+tonalRun.pct+' % · ■ Key cancels':note?note:state.status==='ready'?'Song parts: not analyzed yet · click the bar below to analyze (it is kept for this song)':state.status==='running'?'Analyzing the whole song … (step by step, in the background)':state.status==='error'?state.error:
   active?info(active):r?(r.rhythmic?`${shown.length} parts · ${letterList.length} kinds (${letterList.join(' ')}) · ${r.segmentsPerBar} segments per bar · ${r.bpm.toFixed(2)} BPM · click a part`:'One part · '+(r.reason||'no clear meter')):'';
  return h('div',{className:'xwe-song-parts','data-xwe-song-parts':state.status,'data-xwe-song-edited':view.edited||undefined},
   h('div',{className:'xwe-song-caption'},h('span',{'data-xwe-song-caption':true},caption),
@@ -2080,6 +2146,9 @@ function __XenSongPartsStrip({source,selection,onSelectPart,onPatch}){
     view.edited?h('span',{className:'xwe-song-edited',title:'Your working copy of the parts (saved for this song). Right click a part → Reset to return to the analysis.'},'working copy'):null,
     h('label',{className:'xwe-song-snap',title:'Snap for part boundaries and for dragging the purple loop mask'},'Snap',h('select',{'aria-label':'Snap','data-xwe-snap':true,value:snap,onChange:e=>E.setSnapMode(e.currentTarget.value)},
      h('option',{value:'bar'},'Bar'),h('option',{value:'beat'},'Beat'),h('option',{value:'off'},'Off'))),
+    r?.parts?.length?h('button',{type:'button',className:'xwe-song-redo xwe-song-tonal'+(tonalRun?' is-running':''),'data-xwe-song-tonal':true,
+     title:tonalRun?'Cancel the key & scale analysis':'Key & scale of every part (pitch lines of the Wave Editor: root in Hz, tuning system, scale). One part after the other, in the background; kept for this song.',
+     onClick:()=>runTonal(shown.filter(q=>!E.tonalFor(asset,q)))},tonalRun?'■ Key':'♪ Key'):null,
     asset?h('button',{type:'button',className:'xwe-song-redo','data-xwe-song-redo':true,disabled:state.status==='running',title:state.status==='ready'?'Analyze the song structure (parts, bars, BPM)':'Analyze the whole song again (your edited parts stay until you reset them)',onClick:()=>analyzeSong(state.status!=='ready')},'↻'):null)),
   state.status==='ready'?h('button',{type:'button',className:'xwe-song-strip xwe-song-start','data-xwe-song-start':true,title:'Analyze the song structure now: parts, bars, segments, BPM. Runs once in the background and is kept for this song.',onClick:()=>analyzeSong(false)},
    h('span',{className:'xwe-song-start-icon','aria-hidden':true},'▶'),'Click to analyze the song structure'):
@@ -2089,6 +2158,7 @@ function __XenSongPartsStrip({source,selection,onSelectPart,onPatch}){
      title:info(p)+' · click: view range, loop mask and Taktometer on this part'+(subsOf(p).length>1?' · click again: section '+subsOf(p).map(q=>q.label).join(' / '):'')+' · right click: split / merge / subdivide / letter · Shift + click: section boundary here','aria-label':'Part '+info(p),'aria-pressed':isActive(p)||subsOf(p).some(isActive),'data-xwe-song-subs':subsOf(p).length||undefined,
      onClick:event=>clickPart(p,event),onContextMenu:event=>{event.preventDefault();setMenu({i:p.index,t:timeAt(event.clientX),x:event.clientX,y:menuY(event.clientY)})}},
      (p.endSec-p.startSec)/Math.max(1e-9,D)>.025?p.label:'',
+     (()=>{const k=(p.endSec-p.startSec)/Math.max(1e-9,D)>.06?keyOf(p):null;return k?h('span',{className:'xwe-song-key'+(k.clarity==='unclear'?' is-unclear':''),'data-xwe-song-key':keyShort(k),'aria-hidden':true},keyShort(k)+(k.clarity==='unclear'?'?':'')+(E.tonalFor(asset,p)?.ok?' ♪':'')):null})(),
      /* sections: the part colour on top, each section fades into its own shade below, labelled C1, C2 … */
      ...subsOf(p).map((q,k)=>{const span=Math.max(1e-9,p.endSec-p.startSec),l=(q.startSec-p.startSec)/span*100,w=(q.endSec-q.startSec)/span*100,wide=(q.endSec-q.startSec)/Math.max(1e-9,D)>.03;
       return h('span',{key:'s'+k,className:'xwe-song-sec'+(isActive(q)?' is-active':'')+(k?' has-line':''),'data-xwe-song-sub':q.label,style:{left:l+'%',width:w+'%','--sec':q.shade}},wide?h('span',{className:'xwe-song-sec-label'},q.label):null)}))),
@@ -2339,7 +2409,7 @@ function __CGeHydrated({sourceAdapters:e,targetAdapter:t,rawTargetAdapter:n,rawR
   return()=>{live=false;clearTimeout(timer)};
  },[]);
  P.useEffect(()=>{window.dispatchEvent(new CustomEvent('xensonar:forge:mic-busy',{detail:{busy:__micBusy}}));},[__micBusy]);
- const Ae=RGe({onLoopPlay:()=>X(),commitWaveDocument:__commitWaveDocument,setWaveSelection:__setWaveSelection,stopWaveSourcePreview:__stopWaveSourcePreview,source:E,selection:F,previewPlaying:_,meter:l,setDetailViewport:H,setFineLoopRange:q,clearRepairUndo:K,scrubPreviewAt:Q,updateActivePreviewRange:ne}),{overviewRef:ce,detailRef:ge,playstripRef:Ce,overviewCursor:Re,detailCursor:se,updateOverviewCursor:xe,updateDetailCursor:Be,resetOverviewCursor:Ie,resetDetailCursor:Qe,beginOverviewDrag:Ne,beginDetailDrag:Ue}=Ae,Ye=()=>!E||!F?null:{source:E,selection:F,readMode:G,repairResult:L,exportTitle:fe},Ve=F?.fineLoopRange.durationSec??0,tt=Ve>0&&Ve<=5,dt=async()=>!r||!E||!F?!1:ie(r,{success:"The loop was prepared as a Root Follow loop.",failure:"Sending the Root Follow loop failed."},fe),gt=async(fromUser=false)=>!a||!E||!F?!1:ie(a,{success:"Raw Audio was sent directly to Melodic Loop as a pink track.",failure:"Direct Raw Audio import to Melodic Loop failed."},fe,{fromUser,sourceId:E.id}),Ge=async()=>!o||!E||!F||!tt?!1:ie(o,{success:"The raw sample was sent to Melodic Loop.",failure:"Sending the raw sample to Melodic Loop failed."},fe),Te=P.useMemo(()=>{if(!F)return{text:"No fine selection yet."};const qe=k6e(F.fineLoopRange,F.detailViewport),mt=Ty(F.fineLoopRange,F.detailViewport);return qe?{text:"The lower mask is fully inside the current view window."}:mt?{text:"The lower mask is preserved and extends partly beyond the current view window."}:{text:"The lower mask is saved but currently lies completely outside the visible detail window."}},[F]),rt=()=>{N?.canImportFile&&k.current?.click()},lt=L?.candidates??[],ut=F?`${F.detailViewport.startSec.toFixed(2)} s → ${pc(F.detailViewport).toFixed(2)}s`:"–",at=F?`${F.fineLoopRange.startSec.toFixed(2)} s → ${pc(F.fineLoopRange).toFixed(2)}s`:"–";const __micController=u.jsx(__ForgeMicrophoneIntake,{compact:!!__rackMicTarget,disabled:T||__carrierBusy||!N?.canImportFile,
+ const Ae=RGe({onMetaPatch:i,exportMeta:s,onLoopPlay:()=>X(),commitWaveDocument:__commitWaveDocument,setWaveSelection:__setWaveSelection,stopWaveSourcePreview:__stopWaveSourcePreview,source:E,selection:F,previewPlaying:_,meter:l,setDetailViewport:H,setFineLoopRange:q,clearRepairUndo:K,scrubPreviewAt:Q,updateActivePreviewRange:ne}),{overviewRef:ce,detailRef:ge,playstripRef:Ce,overviewCursor:Re,detailCursor:se,updateOverviewCursor:xe,updateDetailCursor:Be,resetOverviewCursor:Ie,resetDetailCursor:Qe,beginOverviewDrag:Ne,beginDetailDrag:Ue}=Ae,Ye=()=>!E||!F?null:{source:E,selection:F,readMode:G,repairResult:L,exportTitle:fe},Ve=F?.fineLoopRange.durationSec??0,tt=Ve>0&&Ve<=5,dt=async()=>!r||!E||!F?!1:ie(r,{success:"The loop was prepared as a Root Follow loop.",failure:"Sending the Root Follow loop failed."},fe),gt=async(fromUser=false)=>!a||!E||!F?!1:ie(a,{success:"Raw Audio was sent directly to Melodic Loop as a pink track.",failure:"Direct Raw Audio import to Melodic Loop failed."},fe,{fromUser,sourceId:E.id}),Ge=async()=>!o||!E||!F||!tt?!1:ie(o,{success:"The raw sample was sent to Melodic Loop.",failure:"Sending the raw sample to Melodic Loop failed."},fe),Te=P.useMemo(()=>{if(!F)return{text:"No fine selection yet."};const qe=k6e(F.fineLoopRange,F.detailViewport),mt=Ty(F.fineLoopRange,F.detailViewport);return qe?{text:"The lower mask is fully inside the current view window."}:mt?{text:"The lower mask is preserved and extends partly beyond the current view window."}:{text:"The lower mask is saved but currently lies completely outside the visible detail window."}},[F]),rt=()=>{N?.canImportFile&&k.current?.click()},lt=L?.candidates??[],ut=F?`${F.detailViewport.startSec.toFixed(2)} s → ${pc(F.detailViewport).toFixed(2)}s`:"–",at=F?`${F.fineLoopRange.startSec.toFixed(2)} s → ${pc(F.fineLoopRange).toFixed(2)}s`:"–";const __micController=u.jsx(__ForgeMicrophoneIntake,{compact:!!__rackMicTarget,disabled:T||__carrierBusy||!N?.canImportFile,
   onBusyChange:__setMicBusy,onFile:file=>le('load',()=>U(file))});
  const __micNode=__rackMicTarget?ao.createPortal(__micController,__rackMicTarget):__micController;
  const __sourceOptions=u.jsxs("details",{className:"xen-raw-source-options",children:[u.jsx("summary",{children:"Source options"}),u.jsxs("div",{className:"xen-raw-source-options-controls",children:[u.jsx("select",{value:j,disabled:__micBusy||__carrierBusy,onChange:qe=>W(qe.target.value),className:"rounded border border-neutral-700 bg-neutral-950 px-2 py-1 text-xs text-neutral-100",children:e.map(qe=>u.jsx("option",{value:qe.id,children:qe.label},qe.id))}),u.jsx(xi,{tone:"cyan",type:"button",onClick:()=>__setLibraryOpen(v=>!v),active:__libraryOpen,className:"py-1.5 whitespace-nowrap",children:"Donor Library"}),u.jsxs("select",{value:G,onChange:qe=>V(qe.target.value),className:"rounded border border-neutral-700 bg-neutral-950 px-2 py-1 text-xs text-neutral-100",title:"Defines how the committed loop is projected into the spectral workbench.",children:[u.jsx("option",{value:"legacy",children:"Forge Interpretation: Legacy"}),u.jsx("option",{value:"transient",children:"Forge Interpretation: Transient"}),u.jsx("option",{value:"hybrid",children:"Forge Interpretation: Hybrid"})]})]})]});

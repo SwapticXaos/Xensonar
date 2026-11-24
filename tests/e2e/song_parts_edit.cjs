@@ -55,6 +55,13 @@ const file=path.join(dir,'abacb_edit.wav');fs.writeFileSync(file,wav(song({bpm:1
  const [s0,e0]=await fine(),[v0,v1]=await view(),xAt=t=>db.x+db.width*(t-v0)/(v1-v0);
  await p.mouse.move(xAt(e0)-1,db.y+db.height/2);await p.mouse.down();await p.mouse.move(xAt(e0-2),db.y+db.height/2,{steps:6});await p.mouse.move(xAt(e0-6.7),db.y+db.height/2,{steps:6});await p.mouse.up();await p.waitForTimeout(300);
  const [s1,e1]=await fine();assert.ok(Math.abs(s1-s0)<.02,'start unchanged '+s0+' → '+s1);assert.ok(e1<e0-1,'end moved '+e0+' → '+e1);assert.ok(Math.abs(e1/2-Math.round(e1/2))<.02,'end on a bar line (2 s grid): '+e1);
+ // TAKT-SNAP-01: with snap Bar the Taktometer COUNTS the shorter mask (10 bars → fewer bars, tempo stays); Off would stretch the 10 bars
+ const takt=async()=>{await meter.scrollIntoViewIfNeeded();const m=await meter.boundingBox();await p.mouse.click(m.x+m.width*.5,m.y+m.height/2,{button:'right'});await pop.waitFor();
+  const v=await pop.locator('input[aria-label="Number of Bars"]').inputValue();await p.keyboard.press('Escape');await p.waitForTimeout(150);return v};
+ assert.equal(await takt(),String(Math.round((e1-s1)/2)),'snap Bar: the Taktometer counts '+Math.round((e1-s1)/2)+' bars for '+(e1-s1).toFixed(2)+' s');
+ await p.locator('[data-xwe-snap]').selectOption('off');await det.scrollIntoViewIfNeeded();const db2=await det.boundingBox(),[w0,w1]=await view(),xAt2=t=>db2.x+db2.width*(t-w0)/(w1-w0);
+ const bOff=await takt();await p.mouse.move(xAt2(e1)-1,db2.y+db2.height/2);await p.mouse.down();await p.mouse.move(xAt2(e1-1.3),db2.y+db2.height/2,{steps:6});await p.mouse.up();await p.waitForTimeout(300);
+ assert.equal(await takt(),bOff,'snap Off: the bar count stays and stretches over the mask');await p.locator('[data-xwe-snap]').selectOption('bar');
  // ---- sections by mouse: "here" marker, Shift + click, drag a section boundary, double click removes; every 2 bars; by analysis ----
  await p.evaluate(()=>document.querySelector('[data-xwe-song-parts]').parentElement.scrollIntoView({block:'start'}));await p.waitForTimeout(200);
  let sb3=await strip.boundingBox();const X3=t=>sb3.x+sb3.width*t/80,Y3=sb3.y+sb3.height*.3;

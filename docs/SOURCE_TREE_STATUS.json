@@ -2030,7 +2030,7 @@
 {
 "file": "styles/post-oct/071-xen-wave-editor-w01-css.css",
 "status": "post-oct",
-"bytes": 37046,
+"bytes": 37582,
 "oct28_bytes": 0
 },
 {
@@ -2102,19 +2102,19 @@
 {
 "file": "src/rooms/00_song_parts.js",
 "status": "post-oct",
-"bytes": 31623,
+"bytes": 35495,
 "oct28_bytes": 0
 },
 {
 "file": "src/rooms/00_song_parts_edit.js",
 "status": "post-oct",
-"bytes": 12763,
+"bytes": 14193,
 "oct28_bytes": 0
 },
 {
 "file": "src/rooms/lab.js",
 "status": "oct-evolved",
-"bytes": 666112,
+"bytes": 674348,
 "oct28_bytes": 565054
 },
 {

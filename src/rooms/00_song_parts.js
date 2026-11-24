@@ -200,6 +200,39 @@ function __xenSongPartsFactory(meter){
   const out=[];for(const t of chosen.map(snap).sort((x,y)=>x-y))if(out.every(u=>Math.abs(u-t)>.05))out.push(t);
   return out.filter(t=>t>units[0][0]+1&&t<units[n-1][1]-1);
  }
+ /* KEY-01: key of a part or section, from a chroma made for it (not the segmentation chroma): 4096-point FFT every 0.25 s,
+    80–2000 Hz so the bass counts, only spectral peaks, each peak split between its two nearest pitch classes. Kept as a compact
+    timeline (one 12-vector per second, 0..255), so the key of ANY range – edited parts, sections – is read without new audio work.
+    Key = best Krumhansl–Kessler major / minor profile (correlation). Checked against librosa (CQT chroma, same profiles) on three
+    full-mix songs: score 0.72 (MIREX weights), and where the correlation is ≥ 0.72, 13 of 15 parts agree exactly; below 0.55
+    mostly wrong – shown as unclear. */
+ const PC=['C','C♯','D','D♯','E','F','F♯','G','G♯','A','A♯','B'],KK=[[6.35,2.23,3.48,2.33,4.38,4.09,2.52,5.19,2.39,3.66,2.29,2.88],[6.33,2.68,3.52,5.38,2.60,3.53,2.54,4.75,3.98,2.69,3.34,3.17]];
+ function keyTimeline(x,sr){
+  const N=4096,hop=Math.max(1,Math.round(.25*sr)),win=new Float64Array(N),bin=sr/N,H=N/2,re=new Float64Array(N),im=new Float64Array(N),P=new Float64Array(H+1),map=[];
+  for(let i=0;i<N;i++)win[i]=.5-.5*Math.cos(2*Math.PI*i/(N-1));
+  for(let k=1;k<H;k++){const f=k*bin;if(f<80||f>2000)continue;const m=12*Math.log2(f/440)+69,lo=Math.floor(m),fr=m-lo,pc=((lo%12)+12)%12;map.push(k,pc,(1-fr)*(1-fr),(pc+1)%12,fr*fr)}
+  const sec=Math.max(1,Math.ceil(x.length/sr)),acc=Array.from({length:sec},()=>new Float64Array(12));
+  for(let o=0;o+N<=x.length;o+=hop){for(let i=0;i<N;i++){re[i]=x[o+i]*win[i];im[i]=0}fft(re,im);for(let k=1;k<H;k++)P[k]=re[k]*re[k]+im[k]*im[k];
+   const c=new Float64Array(12);for(let j=0;j<map.length;j+=5){const k=map[j];if(!(P[k]>P[k-1]&&P[k]>=P[k+1]))continue;const v=Math.sqrt(P[k]);c[map[j+1]]+=v*map[j+2];c[map[j+3]]+=v*map[j+4]}
+   let mx=0;for(const v of c)mx=Math.max(mx,v);if(!(mx>0))continue;const into=acc[Math.min(sec-1,Math.floor((o+N/2)/sr))];for(let q=0;q<12;q++)into[q]+=c[q]/mx}
+  const v=[];for(const c of acc){let mx=0;for(const y of c)mx=Math.max(mx,y);for(let q=0;q<12;q++)v.push(mx>0?Math.round(c[q]/mx*255):0)}
+  return {hopSec:1,v};
+ }
+ function keyOfChroma(c){
+  let t=0;for(const y of c)t+=y;if(!(t>0))return null;const corr=(a,b)=>{let ma=0,mb=0;for(let i=0;i<12;i++){ma+=a[i];mb+=b[i]}ma/=12;mb/=12;let s=0,x=0,y=0;for(let i=0;i<12;i++){s+=(a[i]-ma)*(b[i]-mb);x+=(a[i]-ma)**2;y+=(b[i]-mb)**2}return x>0&&y>0?s/Math.sqrt(x*y):0};
+  const all=[];for(let r=0;r<12;r++)for(let m=0;m<2;m++){const p=KK[m];all.push({pc:r,minor:!!m,name:PC[r]+(m?' minor':' major'),score:corr(c,p.map((_,i)=>p[(i-r+12)%12]))})}
+  all.sort((a,b)=>b.score-a.score);const best=all[0],r2=v=>Math.round(v*100)/100;
+  return {pc:best.pc,root:PC[best.pc],minor:best.minor,name:best.name,score:r2(best.score),clarity:best.score>=.72?'clear':best.score>=.55?'likely':'unclear',alternatives:all.slice(1,3).map(a=>({name:a.name,score:r2(a.score)}))};
+ }
+ /* key of [a, b) from the stored timeline */
+ function keyOfRange(tl,a,b){if(!tl?.v?.length)return null;const h=tl.hopSec||1,n=tl.v.length/12,c=new Float64Array(12);let k=0;
+  for(let i=Math.max(0,Math.floor(a/h));i<Math.min(n,Math.ceil(b/h));i++){for(let q=0;q<12;q++)c[q]+=tl.v[i*12+q];k++}
+  return k?keyOfChroma(Array.from(c)):null}
+ /* KEY-03: how far two keys are apart = pitch classes of one not in the other (relative major / minor 0, a fifth 1).
+    Key changes found this way were checked as cut cues on three songs and fell on part boundaries only 13–25 % of the time
+    (8–20 s windows): the key is shown per part and section, it does not cut. */
+ const SET=k=>{const st=k.minor?[0,2,3,5,7,8,10]:[0,2,4,5,7,9,11];return new Set(st.map(d=>(d+k.pc)%12))};
+ function keyDistance(a,b){const A=SET(a),B=SET(b);let d=0;for(const q of A)if(!B.has(q))d++;return d}
  function single(D,reason,extra={}){return {ok:true,rhythmic:false,reason,durationSec:D,segmentsPerBar:1,bpm:null,parts:[{index:0,label:'A',colorIndex:0,color:COLORS[0],startSec:0,endSec:D,loopStartSec:0,loopEndSec:D,bars:1,segments:1,segmentsPerBar:1,bpm:null}],...extra}}
  /* analyze({samples,sampleRate}) — samples are best decimated already (decimate()) */
  function analyze({samples,sampleRate,debug=false,mainMinSec=null,sections=null}){
@@ -209,7 +242,7 @@ function __xenSongPartsFactory(meter){
   const tp=tempo(x,sr,D);
   if(sections&&(!tp||tp.fit<.35||tp.contrast<.5||tp.support<.5)){const F0=I.features(x,sr,-.1,D),fr0=frames(x,sr,D),blk=[];for(let t=0;t+.5<=D;t+=.5)blk.push([t,t+.5]);
    return {ok:true,rhythmic:false,durationSec:D,sections:footeSections(fr0,F0,blk,null,0,sections).map(t=>Math.round(t*1000)/1000)}}
-  if(!tp||tp.fit<.35||tp.contrast<.5||tp.support<.5)return single(D,'No clear meter (drone, texture or effect): one part.',{tempo:tp});
+  if(!tp||tp.fit<.35||tp.contrast<.5||tp.support<.5)return single(D,'No clear meter (drone, texture or effect): one part.',{tempo:tp,keyChroma:keyTimeline(x,sr)});
   const F=I.features(x,sr,-.1,D),T=tp.T,beats=track(F,T).filter(t=>t>-.05&&t<D).map(t=>Math.max(0,t));
   if(beats.length<4)return single(D,'Too few beats: one part.',{tempo:tp});
   const fr=frames(x,sr,D),bl=barLength(F,beats,T,fr),S=bl.S,St=bl.St,downs=[];let segGrid=beats;
@@ -265,7 +298,7 @@ function __xenSongPartsFactory(meter){
     Object.assign(p,{loopStartSec:start,loopEndSec:Math.min(D,start+n*barDur),bars:n,segments:n*S});p.bpm=60*p.segments/(p.loopEndSec-p.loopStartSec)}}
   // the grid for snapping and for edited parts: counting-level beats and bar lines (seconds, 1 ms)
   const r3=t=>Math.round(t*1000)/1000,grid={segments:segGrid.filter(t=>t>=0&&t<=D).map(r3),bars:downs.filter(t=>t>=0&&t<=D).map(r3),barSec:barDur,segmentsPerBar:S};
-  return {ok:true,rhythmic:true,durationSec:D,grid,segmentsPerBar:S,groups:bl.groups,tatumsPerBar:St,bpm:60/(T*bl.level),tempo:tp,barCount:bars.length,beats:beats.length,parts,novelty,...(debug?{debug:{bars,dm:Array.from(dm),threshold:bd.threshold}}:{})};
+  return {ok:true,rhythmic:true,durationSec:D,grid,segmentsPerBar:S,groups:bl.groups,tatumsPerBar:St,bpm:60/(T*bl.level),tempo:tp,barCount:bars.length,beats:beats.length,parts,novelty,keyChroma:keyTimeline(x,sr),...(debug?{debug:{bars,dm:Array.from(dm),threshold:bd.threshold}}:{})};
  }
  /* after the worker: put every loop edge on the real attack of the full-rate audio (sample exact, zero crossing) */
  function snap(result,asset){
@@ -275,7 +308,7 @@ function __xenSongPartsFactory(meter){
   const parts=result.parts.map(p=>({...fix(p),subParts:p.subParts?p.subParts.map(fix):null}));
   return {...result,parts};
  }
- return Object.freeze({analyze,decimate,snap,COLORS,letter});
+ return Object.freeze({analyze,decimate,snap,COLORS,letter,keyTimeline,keyOfChroma,keyOfRange,keyDistance});
 }
 const __xenSongParts=__xenSongPartsFactory(__xenMeterAnalysis);
 /* worker run (keeps the UI responsive on long songs); falls back to the main thread when Blob workers are unavailable */

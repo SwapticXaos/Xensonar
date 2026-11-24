@@ -124,14 +124,23 @@ function __xenSongPartsEditFactory(storage=null){
  function saveResult(asset,result){const k=keyOf(asset);if(!k||!result?.ok||!Array.isArray(result.parts))return;
   const {novelty,debug,...keep}=result;keep.analyzedAt=Date.now();resMem.set(k,keep);
   try{let idx=[];try{idx=JSON.parse(storage?.getItem(RES_INDEX)||'[]')}catch{}if(!Array.isArray(idx))idx=[];idx=idx.filter(x=>x!==k);idx.push(k);
-   while(idx.length>MAX_RESULTS){const old=idx.shift();try{storage?.removeItem(RES_KEY+old)}catch{}}
+   while(idx.length>MAX_RESULTS){const old=idx.shift();try{storage?.removeItem(RES_KEY+old);storage?.removeItem('xensonar.songParts.tonal.v1:'+old)}catch{}}
    storage?.setItem(RES_KEY+k,JSON.stringify(keep));storage?.setItem(RES_INDEX,JSON.stringify(idx))}catch{}}
  function clearResult(asset){const k=keyOf(asset);if(!k)return;resMem.delete(k);try{storage?.removeItem(RES_KEY+k)}catch{}}
+ /* KEY-02: the pitch-line analysis of the Wave Editor (root in Hz, tuning, scale) per part, run on demand and kept per song.
+    An entry belongs to a part when the two overlap by at least 80 % of each (edited boundaries keep a nearby result). */
+ const TON_KEY='xensonar.songParts.tonal.v1:';
+ function tonalList(asset){const k=keyOf(asset);if(!k)return [];try{const v=JSON.parse(storage?.getItem(TON_KEY+k)||'[]');return Array.isArray(v)?v:[]}catch{return []}}
+ function tonalFor(asset,range){if(!range)return null;let best=null,bo=0;for(const t of tonalList(asset)){const o=Math.min(t.endSec,range.endSec)-Math.max(t.startSec,range.startSec);
+   if(o<=0)continue;const f=Math.min(o/Math.max(1e-9,t.endSec-t.startSec),o/Math.max(1e-9,range.endSec-range.startSec));if(f>=.8&&f>bo){bo=f;best=t}}return best}
+ function saveTonal(asset,entry){const k=keyOf(asset);if(!k||!entry)return;const list=tonalList(asset).filter(t=>!(Math.abs(t.startSec-entry.startSec)<.05&&Math.abs(t.endSec-entry.endSec)<.05));
+  list.push(entry);list.sort((a,b)=>a.startSec-b.startSec);try{storage?.setItem(TON_KEY+k,JSON.stringify(list.slice(-64)))}catch{}listeners.forEach(f=>{try{f('tonal')}catch{}})}
+ function clearTonal(asset){const k=keyOf(asset);if(!k)return;try{storage?.removeItem(TON_KEY+k)}catch{}listeners.forEach(f=>{try{f('tonal')}catch{}})}
  // mask snap mode (bar / beat / off), shared by the strip and the purple mask
  const SNAP_KEY='xensonar.songParts.snap.v1';
  function snapMode(){try{const v=storage?.getItem(SNAP_KEY);return v==='bar'||v==='beat'||v==='off'?v:'bar'}catch{return 'bar'}}
  function setSnapMode(m){try{storage?.setItem(SNAP_KEY,m)}catch{}listeners.forEach(f=>{try{f('snap')}catch{}})}
- return Object.freeze({snapTime,snapRange,moveBoundary,split,merge,setLabel,addCut,subdivideEven,subdivideEvery,setCuts,moveCut,removeCut,clearCuts,shade,nextLetter,normalize,colorOf,keyOf,load,save,clear,loadResult,saveResult,clearResult,current,snapMode,setSnapMode,
+ return Object.freeze({snapTime,snapRange,moveBoundary,split,merge,setLabel,addCut,subdivideEven,subdivideEvery,setCuts,moveCut,removeCut,clearCuts,shade,nextLetter,normalize,colorOf,keyOf,load,save,clear,loadResult,saveResult,clearResult,tonalList,tonalFor,saveTonal,clearTonal,current,snapMode,setSnapMode,
   subscribe:f=>(listeners.add(f),()=>listeners.delete(f))});
 }
 const __xenSongPartsEdit=__xenSongPartsEditFactory(typeof localStorage!=='undefined'?localStorage:null);
