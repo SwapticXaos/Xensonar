@@ -12,11 +12,15 @@ function __xenMeterAnalysisFactory(){
  const gcd=(a,b)=>{a=Math.abs(a);b=Math.abs(b);while(b){const r=a%b;a=b;b=r}return a||1};
  /* one-pole band split: low < 180 Hz, high > 2.5 kHz, full; energy per 5 ms hop, compressed against the context mean */
  function features(samples,sr,t0,t1){
-  const hop=Math.max(16,Math.round(sr*HOP_SEC)),i0=clamp(Math.floor(t0*sr),0,samples.length),i1=clamp(Math.floor(t1*sr),i0,samples.length);
+  /* a start before 0 s reads silence, so an attack right at the file start is still an onset */
+  const hop=Math.max(16,Math.round(sr*HOP_SEC)),i0=clamp(Math.floor(t0*sr),-Math.round(sr*.2),samples.length),i1=clamp(Math.floor(t1*sr),i0,samples.length);
   const n=Math.max(0,Math.floor((i1-i0)/hop)),low=new Float64Array(n),high=new Float64Array(n),full=new Float64Array(n);
   const aL=1-Math.exp(-2*Math.PI*180/sr),aH=1-Math.exp(-2*Math.PI*2500/sr);let lp=0,hp=0;
   for(let i=Math.max(0,i0-Math.round(sr*.03));i<i0;i++){const x=samples[i]||0;lp+=aL*(x-lp);hp+=aH*(x-hp)}
   for(let f=0;f<n;f++){let el=0,eh=0,ef=0;const s=i0+f*hop;for(let i=s;i<s+hop;i++){const x=samples[i]||0;lp+=aL*(x-lp);hp+=aH*(x-hp);const h=x-hp;el+=lp*lp;eh+=h*h;ef+=x*x}low[f]=el/hop;high[f]=eh/hop;full[f]=ef/hop}
+  /* trailing energy windows longer than a period of low notes (65 Hz = 15 ms): no ripple onsets from sustained bass or drones */
+  const trail=(a,k)=>{const o=new Float64Array(a.length);let s=0;for(let i=0;i<a.length;i++){s+=a[i];if(i>=k)s-=a[i-k];o[i]=s/Math.min(k,i+1)}return o};
+  low.set(trail(low,6));full.set(trail(full,4));high.set(trail(high,2));
   const comp=a=>{let m=0;for(const v of a)m+=v;m=m/Math.max(1,a.length)+1e-12;const c=new Float64Array(a.length);for(let i=0;i<a.length;i++)c[i]=Math.log1p(12*a[i]/m);return c};
   const cl=comp(low),ch=comp(high),cf=comp(full);
   const diff=c=>{const d=new Float64Array(c.length);for(let i=2;i<c.length;i++)d[i]=Math.max(0,c[i]-Math.max(c[i-1],c[i-2]*.5+c[i-1]*.5));return d};
@@ -29,6 +33,8 @@ function __xenMeterAnalysisFactory(){
   for(let i=0;i<n;i++){let s=0,w=0;for(let k=-2;k<=2;k++){const j=i+k;if(j>=0&&j<n){s+=flat[j]*g[k+2];w+=g[k+2]}}sn[i]=s/w}
   return {rate:sr/hop,t0:i0/sr,n,nov:sn,nl,nh,nf,cl,cf};
  }
+ /* is there a pulse at all? clear attacks stand far above the typical novelty (drone, noise, pads: they do not) */
+ function pulse(F){if(F.n<32)return {ok:false,p99:0,peak:0};const a=Array.from(F.nov).sort((x,y)=>y-x),p99=a[Math.floor(a.length*.01)],p50=a[Math.floor(a.length*.5)],peak=p99/(p50+.05);return {ok:p99>=.8&&peak>=6,p99,peak}}
  const at=(F,arr,t)=>{const x=(t-F.t0)*F.rate;if(x<0||x>F.n-1)return null;const i=Math.floor(x),f=x-i;return arr[i]*(1-f)+(arr[Math.min(F.n-1,i+1)]??0)*f};
  const peakNear=(F,arr,t,w)=>{const a=Math.max(0,Math.floor((t-w-F.t0)*F.rate)),b=Math.min(F.n-1,Math.ceil((t+w-F.t0)*F.rate));let m=0;for(let i=a;i<=b;i++)m=Math.max(m,arr[i]);return m};
  const meanOver=(F,arr,t,len)=>{const a=Math.max(0,Math.floor((t-F.t0)*F.rate)),b=Math.min(F.n,Math.ceil((t+len-F.t0)*F.rate));if(b<=a)return 0;let s=0;for(let i=a;i<b;i++)s+=arr[i];return s/(b-a)};
@@ -78,8 +84,14 @@ function __xenMeterAnalysisFactory(){
  /* accent profile per segment and the meter score for every bar length S (segments per bar) */
  function meterScores(F,T,origin,ctx0,ctx1){
   const k0=Math.ceil((ctx0-origin)/T),k1=Math.floor((ctx1-origin-T*.5)/T),ks=[],rows=[];
-  for(let k=k0;k<=k1;k++){const t=origin+k*T,w=Math.min(.03,T*.15);
-   rows.push([peakNear(F,F.nl,t,w),peakNear(F,F.nf,t,w),peakNear(F,F.nh,t,w),meanOver(F,F.cl,t,T*.5),meanOver(F,F.cf,t,T*.9)]);ks.push(k)}
+  const times=[];for(let k=k0;k<=k1;k++){times.push(origin+k*T);ks.push(k)}
+  return meterScoresAt(F,times,ks,T);
+ }
+ /* the same on given beat times (song analysis: tracked beats with drift); ks[i] = beat index, 0 = a downbeat candidate */
+ function meterScoresAt(F,times,ks,T){
+  const rows=[];
+  for(const t of times){const w=Math.min(.03,T*.15);
+   rows.push([peakNear(F,F.nl,t,w),peakNear(F,F.nf,t,w),peakNear(F,F.nh,t,w),meanOver(F,F.cl,t,T*.5),meanOver(F,F.cf,t,T*.9)])}
   const K=rows.length,D=5;if(K<4)return {scores:{},segmentsInContext:K};
   for(let d=0;d<D;d++){let m=0,v=0;for(const r of rows)m+=r[d];m/=K;for(const r of rows)v+=(r[d]-m)**2;const sd=Math.sqrt(v/K)||1;for(const r of rows)r[d]=(r[d]-m)/sd}
   const acc=rows.map(r=>r[0]+.6*r[1]+.8*r[3]+.4*r[4]),scores={},raw={};
@@ -98,7 +110,7 @@ function __xenMeterAnalysisFactory(){
     if(r.repetition>=.7*raw[S].repetition&&r.downbeat>=.8*raw[S].downbeat){sc=Math.min(sc,r.score-.05);break}
     if(r.score>=sc-.1){sc-=.14;break}}
    scores[S]={...raw[S],score:sc}}
-  return {scores,segmentsInContext:K};
+  return {scores,segmentsInContext:K,accent:acc};
  }
  function fraction(N,S){
   const rn=Math.round(N);if(Math.abs(N-rn)>1e-9)return {text:String(Number((N/S).toFixed(4))),whole:Math.floor(N/S),extra:Number((N-Math.floor(N/S)*S).toFixed(4))};
@@ -129,6 +141,7 @@ function __xenMeterAnalysisFactory(){
   const pad=clamp(L*.75,2,10),ctx0=Math.max(0,start-pad),ctx1=Math.min(total,start+L+pad),m0=start,m1=start+L;
   const F=features(samples,sr,ctx0-.02,ctx1+.05);if(F.n<16)return {ok:false,reason:'Not enough audio around the mask.'};
   let energy=0;for(let i=0;i<F.n;i++)energy+=F.nov[i];if(!(energy/F.n>1e-4))return {ok:false,reason:'No clear rhythm in or around the mask.'};
+  if(!pulse(F).ok)return {ok:false,reason:'No clear pulse in or around the mask (drone, texture or noise): count it as 1 bar, 1 segment.'};
   /* the segment period comes from the music (context + mask), not from the mask length: scan 30–350 BPM in 0.5 % steps */
   const forced=Number(options.segments),cands=[];
   const scan=forced>0?[L/forced]:(()=>{const a=[];for(let T=MIN_T;T<=MAX_T;T*=1.005)a.push(T);return a})();
@@ -189,7 +202,8 @@ function __xenMeterAnalysisFactory(){
   return {primary,candidates,meterAnalysis:{segments:result.segments,segmentsExact:result.segmentsExact,segmentBpm:result.segmentBpm,deviationSec:result.deviationSec,startOffsetSec:result.startOffsetSec,confidence:result.confidence}};
  }
  const strip=a=>{if(!a||typeof a!=='object')return a;const {__F,...rest}=a;return rest};
- return Object.freeze({analyze:(...x)=>strip(analyze(...x)),analyzeRaw:analyze,cut,microCorrect:(...x)=>strip(microCorrect(...x)),fitTarget:(...x)=>strip(fitTarget(...x)),readings,reading,metaPatch,asRepairResult,fraction});
+ return Object.freeze({analyze:(...x)=>strip(analyze(...x)),analyzeRaw:analyze,cut,microCorrect:(...x)=>strip(microCorrect(...x)),fitTarget:(...x)=>strip(fitTarget(...x)),readings,reading,metaPatch,asRepairResult,fraction,
+  internals:Object.freeze({pulse,features,at,comb,acf,tempoPrior,gridContrast,bestPhase,refine,attackBefore,zeroCross,meterScoresAt,MIN_T,MAX_T})});
 }
 const __xenMeterAnalysis=__xenMeterAnalysisFactory();
 /* Loop korrigieren (micro) for lGe: the counted segments on the exact grid, real attacks; null = fall back to the old tempo repair */

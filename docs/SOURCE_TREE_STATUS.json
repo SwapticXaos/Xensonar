@@ -2096,7 +2096,13 @@
 {
 "file": "src/rooms/00_meter_analysis.js",
 "status": "post-oct",
-"bytes": 17827,
+"bytes": 19206,
+"oct28_bytes": 0
+},
+{
+"file": "src/rooms/00_song_parts.js",
+"status": "post-oct",
+"bytes": 14088,
 "oct28_bytes": 0
 },
 {
