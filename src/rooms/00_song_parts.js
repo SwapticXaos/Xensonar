@@ -145,6 +145,21 @@ function __xenSongPartsFactory(meter){
   const order=new Map();for(const p of parts){if(!order.has(p.label))order.set(p.label,order.size);p.label=order.get(p.label)}
   return parts;
  }
+ /* SONG-PARTS-02 · two levels. The fine parts (labelled as above) are grouped into MAIN parts for the overview: a part shorter
+    than the main minimum (max(10 s, song/16)) joins the more similar neighbour, the fine pieces stay as its sections (F1, F2 …).
+    The letter of a main part is that of its dominant fine part (most bars). */
+ function mainParts(m,B,fine,minBars){
+  let main=fine.map(p=>({a:p.a,b:p.b,pieces:(p.subs??[[p.a,p.b]]).map(([a,b])=>({a,b,fine:p.label}))}));
+  for(let guard=0;guard<B&&main.length>1;guard++){
+   let i=-1,len=Infinity;main.forEach((p,k)=>{const L=p.b-p.a;if(L<minBars&&L<len){len=L;i=k}});if(i<0)break;
+   const p=main[i],L=main[i-1],R=main[i+1],dl=L?relDistance(m,B,p.a,p.b,L.a,L.b):Infinity,dr=R?relDistance(m,B,p.a,p.b,R.a,R.b):Infinity;
+   if(dl<=dr){L.b=p.b;L.pieces.push(...p.pieces)}else{R.a=p.a;R.pieces.unshift(...p.pieces)}main.splice(i,1)}
+  // a main part is what most of its bars are: its dominant fine part decides the letter, so recurrence keeps the fine judgement
+  for(const p of main){const w=new Map();for(const q of p.pieces)w.set(q.fine,(w.get(q.fine)??0)+q.b-q.a);p.label=[...w.entries()].sort((x,y)=>y[1]-x[1]||x[0]-y[0])[0][0]}
+  const out=[];for(const p of main){const l=out[out.length-1];if(l&&l.label===p.label){l.b=p.b;l.pieces.push(...p.pieces)}else out.push(p)}
+  const order=new Map();for(const p of out){if(!order.has(p.label))order.set(p.label,order.size);p.label=order.get(p.label);p.subs=p.pieces.length>1?p.pieces.map(q=>[q.a,q.b]):null}
+  return out;
+ }
  function single(D,reason,extra={}){return {ok:true,rhythmic:false,reason,durationSec:D,segmentsPerBar:1,bpm:null,parts:[{index:0,label:'A',colorIndex:0,color:COLORS[0],startSec:0,endSec:D,loopStartSec:0,loopEndSec:D,bars:1,segments:1,segmentsPerBar:1,bpm:null}],...extra}}
  /* analyze({samples,sampleRate}) — samples are best decimated already (decimate()) */
  function analyze({samples,sampleRate,debug=false}){
@@ -174,7 +189,7 @@ function __xenSongPartsFactory(meter){
   /* the diagonal smoothing blurs a change by about a bar: an edge moves by one bar when the raw bar features change clearly (25 %) more sharply there */
   const raw=distMatrix(vs),sharp=i=>{const k=Math.min(2,i,B-i);if(k<1)return -Infinity;let c=0,n=0;for(let a=i-k;a<i;a++)for(let b=i;b<i+k;b++){c+=raw[a*B+b];n++}return c/n-(k>1?(raw[(i-2)*B+i-1]+raw[i*B+i+1])/2:0)};
   const edges=bd.edges.map((e,j,all)=>{if(j===0||j===all.length-1)return e;const b0=sharp(e);let best=e,bv=b0;for(const d of [-1,1]){const i=e+d;if(i<=all[j-1]||i>=all[j+1])continue;const v=sharp(i);if(v>bv&&v>b0+.25*Math.abs(b0)){bv=v;best=i}}return best});
-  const lp=label(dm,B,edges,minLen);
+  const lp=mainParts(dm,B,label(dm,B,edges,minLen),Math.max(2,Math.ceil(Math.max(10,D/20)/barDur)));
   const fullBar=b=>b[1]-b[0]>=barDur*.9;
   const parts=lp.map((p,i)=>{
    const first=bars[p.a],last=bars[p.b-1];let whole=0;for(let j=p.a;j<p.b;j++)if(fullBar(bars[j]))whole++;

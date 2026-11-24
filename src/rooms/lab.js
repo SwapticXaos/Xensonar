@@ -1949,6 +1949,8 @@ function __XenWaveTaktometer({canvasRef,meta,onPatch,disabled,onSeek,source=null
    a returning part has its letter and colour again. Click = blue view range and purple mask on the part (whole bars),
    Taktometer = its bars, segments per bar and BPM. No meter = one part, 1 bar, 1 segment. Runs in a Blob worker, once per audio. */
 const __xenSongPartsCache=new WeakMap();
+/* the latest finished strip analysis, so the Taktometer can count a mask the way its song part is counted */
+let __xenSongPartsLatest=null;
 function __XenSongPartsStrip({source,selection,onSelectPart,onPatch}){
  const h=P.createElement,asset=source?.sourceAsset??null;
  const [state,setState]=P.useState({asset:null,status:'idle',result:null,error:''}),[nonce,setNonce]=P.useState(0);
@@ -1957,7 +1959,7 @@ function __XenSongPartsStrip({source,selection,onSelectPart,onPatch}){
   let live=true;const cached=__xenSongPartsCache.get(asset);
   setState(prev=>prev.asset===asset&&prev.status==='done'&&cached?prev:{asset,status:'running',result:null,error:''});
   const start=()=>{let job=__xenSongPartsCache.get(asset);if(!job){job=__xenAnalyzeSongParts(asset);__xenSongPartsCache.set(asset,job);job.catch(()=>__xenSongPartsCache.delete(asset))}
-   job.then(result=>{if(live)setState({asset,status:result?.ok?'done':'error',result:result?.ok?result:null,error:result?.ok?'':(result?.reason||'Song analysis failed.')})},
+   job.then(result=>{if(result?.ok)__xenSongPartsLatest={asset,result};if(live)setState({asset,status:result?.ok?'done':'error',result:result?.ok?result:null,error:result?.ok?'':(result?.reason||'Song analysis failed.')})},
     error=>{if(live)setState({asset,status:'error',result:null,error:String(error?.message??error)})})};
   // edits in the Wave Editor make a new audio object: wait until the editing pauses
   const timer=setTimeout(start,cached?0:450);
@@ -2003,7 +2005,13 @@ function __XenMeterAnalysisPanel({meta,onPatch,disabled,source,selection,onApply
  const fmt=n=>Number.isInteger(n)?String(n):String(Number(n.toFixed(3)));
  const run=(segments)=>{
   if(!ready)return;
-  try{const r=A.analyze(asset,range.startSec,range.durationSec,segments?{segments}:{});
+  try{
+   // a mask inside a song part (or one of its sections) is counted like that part: same segment length, same bar
+   let prefer=null;const sp=__xenSongPartsLatest;
+   if(!segments&&sp&&sp.asset===asset&&sp.result?.rhythmic){const c=range.startSec+range.durationSec/2;
+    for(const p of sp.result.parts){if(c<p.startSec||c>=p.endSec)continue;const sub=(p.subParts??[]).findIndex(q=>c>=q.startSec&&c<q.endSec),q=sub>=0?p.subParts[sub]:p;
+     if(q.segments>0)prefer={segmentSec:(q.loopEndSec-q.loopStartSec)/q.segments,segmentsPerBar:q.segmentsPerBar??p.segmentsPerBar,groups:p.groups??sp.result.groups??null,label:p.label+(sub>=0&&p.subParts.length>1?sub+1:'')};break}}
+   const r=A.analyze(asset,range.startSec,range.durationSec,segments?{segments}:prefer?{prefer}:{});
    if(!r.ok){setResult(null);setStatus(r.reason);return}
    setResult({...r,rangeKey});setChosen(r.best?.segmentsPerBar??null);setStatus('')}
   catch(error){console.warn('[xensonar][meter-analysis]',error);setResult(null);setStatus('Analysis failed.')}
@@ -2044,7 +2052,7 @@ function __XenMeterAnalysisPanel({meta,onPatch,disabled,source,selection,onApply
    btn('Analyze',()=>run(null),{id:'analyze',primary:true,title:'Count the segments of the purple mask from the music in and around it and propose bar readings'}),
    btn('Fit to target',fitTarget,{id:'fit',title:'Cut the mask to Number of Bars × Number of Segments from where it starts, along the segment grid of the music'})),
   result?h('div',{'data-xwe-meter-result':true,className:'xwe-meter-result'},
-   h('div',null,h('b',null,result.segments+' segments'),' · '+result.segmentBpm.toFixed(2)+' BPM per segment · confidence '+pct(result.confidence)),
+   h('div',null,h('b',null,result.segments+' segments'),' · '+result.segmentBpm.toFixed(2)+' BPM per segment · confidence '+pct(result.confidence),result.hierarchy?.fromPart?h('span',{'data-xwe-meter-from-part':true,className:'xwe-meter-ok'},' · counted like part '+result.hierarchy.fromPart):null),
    stale?h('div',{className:'xwe-meter-warn'},'The mask has moved since the analysis. Analyze again.'):
    off?h('div',{className:'xwe-meter-warn','data-xwe-meter-deviation':true},'Mask is off the grid: '+result.segmentsExact+' segments counted · end '+(result.deviationSec>0?'+':'−')+dev.toFixed(1)+' ms'+(startOff>2?' · start '+(result.startOffsetSec>0?'+':'−')+startOff.toFixed(1)+' ms':'')):
    h('div',{className:'xwe-meter-ok'},'Mask sits on the grid (±2 ms).'),

@@ -209,7 +209,11 @@ function __xenMeterAnalysisFactory(){
   if(!pulse(F).ok)return {ok:false,reason:'No clear pulse in or around the mask (drone, texture or noise): count it as 1 bar, 1 segment.'};
   /* the segment period comes from the music (context + mask), not from the mask length: pulse hierarchy (tatum -> bar -> counting level) */
   const forced=Number(options.segments),cands=[];
-  if(!(forced>0)){
+  /* prefer = the counting of the song part this mask lies in (strip): same segment length and bar, offered first */
+  const pref=options.prefer;
+  if(!(forced>0)&&pref&&pref.segmentSec>MIN_T*.5&&pref.segmentsPerBar>=1){
+   options={...options,__hier:{T0:pref.segmentSec,St:pref.segmentsPerBar,level:1,S:pref.segmentsPerBar,groups:pref.groups??null,fit:.75,fromPart:pref.label??true},segments:Math.max(1,Math.round(L/pref.segmentSec))};
+  }else if(!(forced>0)){
    const tt=tatum(F,ctx0,ctx1,start);
    if(tt&&tt.f>=.35){
     const r0=refine(F,tt.T,start,ctx0,ctx1,m0,m1),T0=r0.T,origin0=start+r0.phase;
@@ -240,7 +244,7 @@ function __xenMeterAnalysisFactory(){
   const levels=[.5,2].map(f=>{const n=N*f;return Number.isInteger(n)&&n>=1&&L/n>=MIN_T*.9&&L/n<=MAX_T*1.1?{segments:n,bpm:Number((60*n/L).toFixed(2))}:null}).filter(Boolean);
   return {ok:true,startSec:start,durationSec:L,segmentPeriodSec:T,segmentBpm:Number((60/T).toFixed(3)),segmentsExact:Number(exact.toFixed(4)),segments:N,
    deviationSec:Number((L-N*T).toFixed(5)),startOffsetSec:Number((startPrecise-start).toFixed(5)),startPreciseSec:startPrecise,
-   confidence:Number(conf.toFixed(3)),hierarchy:H?{tatumSec:H.T0,tatumsPerBar:H.St,level:H.level,groups:H.groups}:null,segmentsInContext:meter.segmentsInContext,meterScores:meter.scores,readings:list,best:list[0]??null,levels,
+   confidence:Number(conf.toFixed(3)),hierarchy:H?{tatumSec:H.T0,tatumsPerBar:H.St,level:H.level,groups:H.groups,fromPart:H.fromPart??null}:null,segmentsInContext:meter.segmentsInContext,meterScores:meter.scores,readings:list,best:list[0]??null,levels,
    context:{startSec:Number(ctx0.toFixed(3)),endSec:Number(ctx1.toFixed(3))},__F:F};
  }
  /* cut a loop of `segments` (may be fractional) segments from the analysed grid; snaps the end to the next real attack */

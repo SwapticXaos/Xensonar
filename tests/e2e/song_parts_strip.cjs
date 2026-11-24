@@ -34,9 +34,13 @@ const drone=path.join(dir,'drone.wav');{const n=SR*40,x=new Float32Array(n);for(
  assert.match(await strip.innerText(),/A · 0:32–0:48 · 8 bars × 4 = 32 segments · 1(19|20)\.\d\d BPM/);
  const m=p.locator('[data-xen-bar-meter]');await m.scrollIntoViewIfNeeded();const bb=await m.boundingBox();await p.mouse.click(bb.x+bb.width*.3,bb.y+bb.height/2,{button:'right'});
  const menu=p.locator('[data-xwe-meter-menu]');await menu.waitFor();assert.equal(await menu.locator('input[aria-label="Number of Bars"]').inputValue(),'8');assert.equal(await menu.locator('input[aria-label="Number of Segments"]').inputValue(),'4');
+ // Analyze inside a part counts like the part (SONG-PARTS-02): 32 segments, 8 × 4 first
+ await menu.locator('[data-xwe-meter-action="analyze"]').click();await menu.locator('[data-xwe-meter-result]').waitFor();
+ const res=await menu.locator('[data-xwe-meter-result]').innerText();assert.match(res,/^32 segments/m,res);assert.match(res,/counted like part A/,res);
+ assert.equal(await menu.locator('[data-xwe-meter-reading]').first().getAttribute('data-xwe-meter-reading'),'4');
  await p.keyboard.press('Escape');
  // a drone: one part, no meter
  await load(drone);await p.waitForFunction(()=>/One part/.test(document.querySelector('[data-xwe-song-caption]')?.textContent||''),null,{timeout:60000});assert.equal(await parts.count(),1);assert.match(await strip.innerText(),/One part · No clear meter/);
  assert.deepEqual(errors,[]);assert.deepEqual(warn,[],'the worker ran (no main-thread fallback)');
- console.log('PASS SONG-PARTS-01 ABACB strip above the overview, click = view + mask + Taktometer 8 × 4, drone = one part');await b.close();
+ console.log('PASS SONG-PARTS-01 ABACB strip above the overview, click = view + mask + Taktometer 8 × 4, Analyze counts like the part, drone = one part');await b.close();
 })().catch(e=>{console.error(e);process.exit(1)});
