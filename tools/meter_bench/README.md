@@ -12,7 +12,10 @@ Prüfstand für `src/rooms/00_meter_analysis.js` (Taktometer: Analyze, Fit to ta
   for m in <ordner>/*.mid; do fluidsynth -ni -q -r 44100 -F "${m%.mid}.wav" /usr/share/sounds/sf2/FluidR3_GM.sf2 "$m"; done
   node tools/meter_bench/bench.cjs <ordner> <ordner>/truth.json
   ```
-  (`apt-get install fluidsynth fluid-soundfont-gm`). Stand 24.11.2026: Song-Taktart 8/8, Teile 7/8, Taktometer 47/52 exakt
+  (`apt-get install fluidsynth fluid-soundfont-gm`). Stand 24.11.2026: Song-Taktart 8/8, Teile 5/8, Taktometer 49/52 exakt
   (51/52 unter den ersten drei Lesarten).
 - **Freie echte Aufnahmen** zum Gegenprüfen: `git clone --depth 1 https://github.com/librosa/data` → `audio/*.hq.ogg`
   (CC-Lizenzen je Datei, nicht ins Repo kopieren).
+- **Udio-Prog-Songs (Referenz = eigene librosa-Analyse, keine notierte Wahrheit):** Struktur-Wiederkehr und Teilgrenzen
+  werden gegen Rekurrenz-Matrix, Laplacian-Segmentierung und Neuheitskurve geprüft; Takt gegen die Wiederholungsperiode des
+  Schlagzeugmusters auf Achtel-Ebene. Diese Songs wechseln die Taktart pro Abschnitt (z. B. 12 → 16 → 6 → 10 Achtel).

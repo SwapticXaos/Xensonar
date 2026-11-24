@@ -50,7 +50,7 @@ function __xenSongPartsFactory(meter){
  }
  function barLength(F,beats,T0,fr){
   const prior=S=>I.TATUM_PRIOR(S,T0);
-  const ks=beats.map((_,i)=>i),ms=I.meterScoresAt(F,beats,ks,T0,{maxS:32,prior,freePhase:true});
+  const ks=beats.map((_,i)=>i),ms=I.meterScoresAt(F,beats,ks,T0,{maxS:32,prior,freePhase:true,minBarSec:1.1});
   let St=0,bs=-Infinity;for(const [S,v] of Object.entries(ms.scores))if(v.score>bs){bs=v.score;St=+S}
   if(!St)return {S:4,phase:0,level:1,St:4,groups:null};
   // a two-bar pattern is still two bars: prefer half the length when it scores nearly as well
@@ -119,9 +119,11 @@ function __xenSongPartsFactory(meter){
   const within=a1-a0>1&&b1-b0>1?(wa+wb)/2:Math.max(wa,wb);return (cross-within)/Math.max(within,SCALE,.05)}
  function neighbourScale(m,B){const v=[];for(let i=0;i<B;i++){let s=0,c=0;for(let j=i+1;j<=Math.min(B-1,i+4);j++){s+=m[i*B+j];c++}if(c)v.push(s/c)}v.sort((a,b)=>a-b);return v.length?v[Math.floor(v.length/2)]:.05}
  /* boundaries: relative novelty at two scales (4 and 8 bars), peaks at least minLen bars apart */
- function boundaries(m,B,minLen){
+ function boundaries(m,B,minLen,barDur=2){
+  // kernels in SECONDS (~5 s and ~10 s), not in bars: the structure must not depend on how the bar was read
+  const K1=Math.max(2,Math.min(8,Math.round(5/barDur))),K2=Math.max(K1+1,Math.min(16,2*K1));
   const nov=new Float64Array(B);
-  for(let i=2;i<=B-2;i++){let s=0,c=0;for(const K of [4,8]){const k=Math.min(K,i,B-i);if(k<2||(K===8&&k<5))continue;s+=relDistance(m,B,i-k,i,i,i+k);c++}nov[i]=c?s/c:0}
+  for(let i=2;i<=B-2;i++){let s=0,c=0;for(const K of [K1,K2]){const k=Math.min(K,i,B-i);if(k<2||(K===K2&&k<Math.ceil(K2*.6)))continue;s+=relDistance(m,B,i-k,i,i,i+k);c++}nov[i]=c?s/c:0}
   const sorted=Array.from(nov.slice(2,B-1)).sort((x,y)=>x-y),med=sorted[Math.floor(sorted.length/2)]??0,mad=(sorted.map(v=>Math.abs(v-med)).sort((x,y)=>x-y)[Math.floor(sorted.length/2)])??0;
   const top=Math.max(...nov),thr=Math.max(.15,Math.min(med+mad,.45*top)),cand=[];
   for(let i=2;i<=B-2;i++){const v=nov[i];if(v<thr)continue;let peak=true;for(let j=Math.max(1,i-minLen+1);j<=Math.min(B-1,i+minLen-1);j++)if(nov[j]>v||nov[j]===v&&j<i){peak=false;break}if(peak)cand.push(i)}
@@ -150,8 +152,11 @@ function __xenSongPartsFactory(meter){
     The letter of a main part is that of its dominant fine part (most bars). */
  function mainParts(m,B,fine,minBars){
   let main=fine.map(p=>({a:p.a,b:p.b,pieces:(p.subs??[[p.a,p.b]]).map(([a,b])=>({a,b,fine:p.label}))}));
+  // a short part that RETURNS (hook, refrain, break) is information and stays a main part; only one-off fragments are absorbed
+  const count=new Map();for(const p of fine)count.set(p.label,(count.get(p.label)??0)+1);
+  const recurring=p=>p.pieces.some(q=>count.get(q.fine)>1);
   for(let guard=0;guard<B&&main.length>1;guard++){
-   let i=-1,len=Infinity;main.forEach((p,k)=>{const L=p.b-p.a;if(L<minBars&&L<len){len=L;i=k}});if(i<0)break;
+   let i=-1,len=Infinity;main.forEach((p,k)=>{const L=p.b-p.a;if(L<minBars&&L<len&&!recurring(p)){len=L;i=k}});if(i<0)break;
    const p=main[i],L=main[i-1],R=main[i+1],dl=L?relDistance(m,B,p.a,p.b,L.a,L.b):Infinity,dr=R?relDistance(m,B,p.a,p.b,R.a,R.b):Infinity;
    if(dl<=dr){L.b=p.b;L.pieces.push(...p.pieces)}else{R.a=p.a;R.pieces.unshift(...p.pieces)}main.splice(i,1)}
   // a main part is what most of its bars are: its dominant fine part decides the letter, so recurrence keeps the fine judgement
@@ -185,7 +190,7 @@ function __xenSongPartsFactory(meter){
   const bars=[];for(let i=0;i<downs.length;i++){const a=downs[i],b=i+1<downs.length?downs[i+1]:lastEnd;if(b<=D+barDur*.25)bars.push([a,Math.min(b,D)])}
   if(bars.length<2)return single(D,'Less than two bars: one part.',{tempo:tp,segmentsPerBar:S});
   const vs=unitVectors(fr,F,bars),B=vs.length,dm=profileDistance(distMatrix(phraseSmooth(vs,Math.max(1,Math.min(4,Math.round(6/barDur))))),B,2),__scale=(SCALE=neighbourScale(dm,B)),minLen=Math.max(2,Math.min(8,Math.round(4/barDur)));
-  const bd=B>=2*minLen?boundaries(dm,B,minLen):{edges:[0,B],novelty:[],threshold:0},{novelty}=bd;
+  const bd=B>=2*minLen?boundaries(dm,B,minLen,barDur):{edges:[0,B],novelty:[],threshold:0},{novelty}=bd;
   /* the diagonal smoothing blurs a change by about a bar: an edge moves by one bar when the raw bar features change clearly (25 %) more sharply there */
   const raw=distMatrix(vs),sharp=i=>{const k=Math.min(2,i,B-i);if(k<1)return -Infinity;let c=0,n=0;for(let a=i-k;a<i;a++)for(let b=i;b<i+k;b++){c+=raw[a*B+b];n++}return c/n-(k>1?(raw[(i-2)*B+i-1]+raw[i*B+i+1])/2:0)};
   const edges=bd.edges.map((e,j,all)=>{if(j===0||j===all.length-1)return e;const b0=sharp(e);let best=e,bv=b0;for(const d of [-1,1]){const i=e+d;if(i<=all[j-1]||i>=all[j+1])continue;const v=sharp(i);if(v>bv&&v>b0+.25*Math.abs(b0)){bv=v;best=i}}return best});

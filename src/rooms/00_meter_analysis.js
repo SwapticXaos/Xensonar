@@ -121,7 +121,7 @@ function __xenMeterAnalysisFactory(){
   }
   // a bar of 10 repeats whenever a bar of 5 does: prefer the smallest bar length that explains repetition and downbeat
   for(let S=2;S<=maxS;S++){let sc=raw[S].score;
-   for(let d=2;d<S;d++){if(S%d)continue;const r=raw[d];
+   for(let d=2;d<S;d++){if(S%d)continue;const r=raw[d];if(opt.minBarSec&&d*T<opt.minBarSec)continue;   // a "bar" under ~1.1 s is a beat group, not a bar
     if(r.repetition>=.7*raw[S].repetition&&r.downbeat>=.8*raw[S].downbeat){sc=Math.min(sc,r.score-.05);break}
     if(r.score>=sc-.1){sc-=.14;break}}
    scores[S]={...raw[S],score:sc}}
@@ -157,7 +157,7 @@ function __xenMeterAnalysisFactory(){
  }
  /* bar prior: common tatum counts slightly, and above all a typical bar DURATION (log-normal around 1.6 s, ±1.2 octaves; tuned on the real and the progressive test sets):
     a 0.6 s "bar" is a beat group, a 3.7 s one mostly a two-bar pattern; 7/4 at 124 (3.4 s) costs only a little */
- const TATUM_PRIOR=(S,T0)=>{const base={2:-.05,3:.02,4:.03,6:.04,8:.05,12:.03,16:.04}[S]??(S>16?-.01*(S-16):0);if(!(T0>0))return base;const z=Math.log2(S*T0/1.6)/1.2;return base-.2*z*z};
+ const TATUM_PRIOR=(S,T0)=>{const base={2:-.05,3:.02,4:.03,6:.04,8:.05,12:.03,16:.04}[S]??(S>16?-.01*(S-16):0);if(!(T0>0))return base;const bar=S*T0,z=Math.log2(bar/1.6)/1.2;return base-.2*z*z-Math.max(0,1-bar)};   // under 1 s: a beat group, not a bar
  /* positions[p] = mean accent of tatum position p in the bar (p = 0 is "1") */
  function countingLevel(positions,St,T0){
   let level=1,S=St;
@@ -218,7 +218,7 @@ function __xenMeterAnalysisFactory(){
    if(tt&&tt.f>=.35){
     const r0=refine(F,tt.T,start,ctx0,ctx1,m0,m1),T0=r0.T,origin0=start+r0.phase;
     const k0=Math.ceil((ctx0-origin0)/T0),k1=Math.floor((ctx1-origin0-T0*.5)/T0),times=[],ks=[];for(let k=k0;k<=k1;k++){times.push(origin0+k*T0);ks.push(k)}
-    const ms=meterScoresAt(F,times,ks,T0,{maxS:32,prior:S=>TATUM_PRIOR(S,T0)});let St=0,bs=-Infinity;for(const [S,v] of Object.entries(ms.scores))if(v.score>bs){bs=v.score;St=+S}
+    const ms=meterScoresAt(F,times,ks,T0,{maxS:32,prior:S=>TATUM_PRIOR(S,T0),minBarSec:1.1});let St=0,bs=-Infinity;for(const [S,v] of Object.entries(ms.scores))if(v.score>bs){bs=v.score;St=+S}
     if(St){const lv=countingLevel(ms.scores[St].positions,St,T0);options={...options,__hier:{T0,St,...lv,fit:tt.f},segments:Math.max(1,Math.round(L/(T0*lv.level)))}}
    }
   }
