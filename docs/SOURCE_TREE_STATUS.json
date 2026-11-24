@@ -1784,7 +1784,7 @@
 {
 "file": "styles/areas/040_xen-p9-m9-cockpit-canonical.css",
 "status": "oct-evolved",
-"bytes": 30313,
+"bytes": 42508,
 "oct28_bytes": 30281
 },
 {
@@ -2030,7 +2030,7 @@
 {
 "file": "styles/post-oct/071-xen-wave-editor-w01-css.css",
 "status": "post-oct",
-"bytes": 29513,
+"bytes": 37046,
 "oct28_bytes": 0
 },
 {
@@ -2078,7 +2078,7 @@
 {
 "file": "src/rooms/00_forge_rack_presentation.js",
 "status": "oct-evolved",
-"bytes": 12293,
+"bytes": 25079,
 "oct28_bytes": 3257
 },
 {
@@ -2102,19 +2102,19 @@
 {
 "file": "src/rooms/00_song_parts.js",
 "status": "post-oct",
-"bytes": 26594,
+"bytes": 31623,
 "oct28_bytes": 0
 },
 {
 "file": "src/rooms/00_song_parts_edit.js",
 "status": "post-oct",
-"bytes": 11395,
+"bytes": 12763,
 "oct28_bytes": 0
 },
 {
 "file": "src/rooms/lab.js",
 "status": "oct-evolved",
-"bytes": 636732,
+"bytes": 666112,
 "oct28_bytes": 565054
 },
 {

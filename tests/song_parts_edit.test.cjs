@@ -55,3 +55,14 @@ test('sections by mouse: move a section boundary (snapped, between its neighbour
  p=E.subdivideEvery(parts,1,1,grid,total);assert.deepEqual(p[1].cuts,[18,20,22,24,26,28,30]);assert.ok(p[1].subParts.every(q=>q.bars===1));
  p=E.subdivideEvery(parts,1,4,grid,total);assert.deepEqual(p[1].cuts,[24]);
 });
+test('SONG-PARTS-MANUAL-01: the finished analysis is stored per song (without the novelty curve), survives a new store, at most 24 songs',()=>{
+ const st=memStore(),E=factory(st),asset={fileName:'a.wav',originalDuration:40,sampleRate:44100};
+ assert.equal(E.loadResult(asset),null,'nothing stored: the strip waits for a click');
+ const {parts}=base();E.saveResult(asset,{ok:true,rhythmic:true,durationSec:40,grid,parts,bpm:120,segmentsPerBar:4,novelty:new Array(500).fill(.5),debug:{x:1}});
+ const r=factory(st).loadResult(asset);assert.ok(r?.ok);assert.equal(r.parts.length,3);assert.equal(r.bpm,120);assert.equal(r.novelty,undefined);assert.equal(r.debug,undefined);assert.deepEqual(r.grid.bars,grid.bars);
+ E.saveResult(asset,{ok:false,reason:'x'});assert.ok(factory(st).loadResult(asset)?.ok,'a failed run does not overwrite');
+ for(let i=0;i<30;i++)E.saveResult({fileName:'s'+i+'.wav',originalDuration:40,sampleRate:44100},{ok:true,durationSec:40,parts});
+ const F=factory(st);assert.equal(F.loadResult(asset),null,'the oldest song left the store');assert.ok(F.loadResult({fileName:'s29.wav',originalDuration:40,sampleRate:44100}));
+ assert.equal(JSON.parse(st.getItem('xensonar.songParts.analysis.index.v1')).length,24);
+ E.clearResult({fileName:'s29.wav',originalDuration:40,sampleRate:44100});assert.equal(factory(st).loadResult({fileName:'s29.wav',originalDuration:40,sampleRate:44100}),null);
+});

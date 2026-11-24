@@ -116,11 +116,22 @@ function __xenSongPartsEditFactory(storage=null){
  /* the parts to show: the saved working copy (re-derived on the current grid) or the analysis */
  function current(asset,result){const v=load(asset);if(!v||!result?.ok)return {parts:result?.parts??[],edited:false};
   return {parts:normalize(v.parts,result.grid,result.durationSec),edited:true}}
+ /* SONG-PARTS-MANUAL-01: the finished song analysis is kept per song (without the novelty curve), so a song that was analysed
+    once shows its parts at once after a reload; a new song is only analysed when the strip is clicked. At most MAX_RESULTS songs. */
+ const RES_KEY='xensonar.songParts.analysis.v1:',RES_INDEX='xensonar.songParts.analysis.index.v1',MAX_RESULTS=24,resMem=new Map();
+ function loadResult(asset){const k=keyOf(asset);if(!k)return null;if(resMem.has(k))return resMem.get(k);
+  try{const raw=storage?.getItem(RES_KEY+k);const v=raw?JSON.parse(raw):null;if(v?.ok&&Array.isArray(v.parts)){resMem.set(k,v);return v}}catch{}return null}
+ function saveResult(asset,result){const k=keyOf(asset);if(!k||!result?.ok||!Array.isArray(result.parts))return;
+  const {novelty,debug,...keep}=result;keep.analyzedAt=Date.now();resMem.set(k,keep);
+  try{let idx=[];try{idx=JSON.parse(storage?.getItem(RES_INDEX)||'[]')}catch{}if(!Array.isArray(idx))idx=[];idx=idx.filter(x=>x!==k);idx.push(k);
+   while(idx.length>MAX_RESULTS){const old=idx.shift();try{storage?.removeItem(RES_KEY+old)}catch{}}
+   storage?.setItem(RES_KEY+k,JSON.stringify(keep));storage?.setItem(RES_INDEX,JSON.stringify(idx))}catch{}}
+ function clearResult(asset){const k=keyOf(asset);if(!k)return;resMem.delete(k);try{storage?.removeItem(RES_KEY+k)}catch{}}
  // mask snap mode (bar / beat / off), shared by the strip and the purple mask
  const SNAP_KEY='xensonar.songParts.snap.v1';
  function snapMode(){try{const v=storage?.getItem(SNAP_KEY);return v==='bar'||v==='beat'||v==='off'?v:'bar'}catch{return 'bar'}}
  function setSnapMode(m){try{storage?.setItem(SNAP_KEY,m)}catch{}listeners.forEach(f=>{try{f('snap')}catch{}})}
- return Object.freeze({snapTime,snapRange,moveBoundary,split,merge,setLabel,addCut,subdivideEven,subdivideEvery,setCuts,moveCut,removeCut,clearCuts,shade,nextLetter,normalize,colorOf,keyOf,load,save,clear,current,snapMode,setSnapMode,
+ return Object.freeze({snapTime,snapRange,moveBoundary,split,merge,setLabel,addCut,subdivideEven,subdivideEvery,setCuts,moveCut,removeCut,clearCuts,shade,nextLetter,normalize,colorOf,keyOf,load,save,clear,loadResult,saveResult,clearResult,current,snapMode,setSnapMode,
   subscribe:f=>(listeners.add(f),()=>listeners.delete(f))});
 }
 const __xenSongPartsEdit=__xenSongPartsEditFactory(typeof localStorage!=='undefined'?localStorage:null);

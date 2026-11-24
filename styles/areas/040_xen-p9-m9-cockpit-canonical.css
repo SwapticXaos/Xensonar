@@ -493,3 +493,97 @@
 /* SYMBOL-01: larger symbols on the lower Forge tiles (Pink Track blocks, Root Follow clef) */
 .xen-forge-tile-pink .xen-forge-export-icon{flex-basis:34px}
 .xen-forge-tile-root .xen-forge-export-icon{font-size:32px;flex-basis:34px}
+
+/* FORGE-TILES-02 · one visual family for the Forge action tiles (geometry above unchanged; PLAY keeps its own face).
+   Each tile has an accent (--ta = r g b): tinted glass ground, accent edge, lift + glow on hover, a clear "on" state
+   (active / pending / done from the shared button), muted when disabled. Icons are one line family (currentColor = accent). */
+.xen-forge-action-rack :is(.xen-forge-tile-load,.xen-forge-tile-repair,.xen-forge-tile-apply,.xen-forge-tile-extract,.xen-forge-tile-material,.xen-forge-tile-pink,.xen-forge-tile-root,.xen-forge-tile-sample,.xen-forge-tile-donor,.xen-carrier-transform){
+ --ta:148 163 184;
+ position:relative;overflow:hidden;border:1px solid rgb(var(--ta) / .5);   /* corners: the tile keeps its original square form (matches the edge triangles) */
+ background:radial-gradient(130% 120% at 0% 0%,rgb(var(--ta) / .20),transparent 58%),radial-gradient(90% 90% at 100% 100%,rgb(var(--ta) / .07),transparent 60%),linear-gradient(180deg,#111729,#0a0e1a);
+ box-shadow:inset 0 1px 0 rgb(255 255 255 / .06),inset 0 -1px 0 rgb(0 0 0 / .35),0 1px 2px rgb(0 0 0 / .5);
+ color:#eef2ff;padding:8px 14px;
+ transition:border-color .14s ease,box-shadow .14s ease,transform .14s ease,filter .14s ease;
+}
+.xen-forge-action-rack .xen-forge-tile-load{--ta:125 165 255}
+.xen-forge-action-rack .xen-forge-tile-repair{--ta:34 211 238}
+.xen-forge-action-rack .xen-forge-tile-apply{--ta:167 139 250}
+.xen-forge-action-rack .xen-forge-tile-extract{--ta:217 70 239}
+.xen-forge-action-rack .xen-forge-tile-material{--ta:205 119 38}   /* = the Vol triangle that docks on its right edge */
+.xen-forge-action-rack .xen-forge-tile-pink{--ta:244 63 152}
+.xen-forge-action-rack .xen-forge-tile-root{--ta:139 92 246}
+.xen-forge-action-rack .xen-forge-tile-sample{--ta:161 161 170}
+.xen-forge-action-rack .xen-forge-tile-donor{--ta:45 212 191}
+.xen-forge-action-rack .xen-carrier-transform{--ta:154 113 196}   /* = the Filter triangle (#9a71c4) that docks on its right edge */
+/* the faint top sheen that makes the tile read as a key */
+.xen-forge-action-rack :is(.xen-forge-tile-load,.xen-forge-tile-repair,.xen-forge-tile-apply,.xen-forge-tile-extract,.xen-forge-tile-material,.xen-forge-tile-pink,.xen-forge-tile-root,.xen-forge-tile-sample,.xen-forge-tile-donor,.xen-carrier-transform)::before{
+ content:'';position:absolute;inset:0 0 55% 0;background:linear-gradient(180deg,rgb(255 255 255 / .045),transparent);pointer-events:none;border-radius:inherit}
+@media (hover:hover){
+ .xen-forge-action-rack :is(.xen-forge-tile-load,.xen-forge-tile-repair,.xen-forge-tile-apply,.xen-forge-tile-extract,.xen-forge-tile-material,.xen-forge-tile-pink,.xen-forge-tile-root,.xen-forge-tile-sample,.xen-forge-tile-donor,.xen-carrier-transform):hover:not(:disabled){
+  border-color:rgb(var(--ta) / .95);transform:translateY(-1px);
+  background:radial-gradient(130% 120% at 0% 0%,rgb(var(--ta) / .30),transparent 60%),radial-gradient(90% 90% at 100% 100%,rgb(var(--ta) / .10),transparent 60%),linear-gradient(180deg,#141b30,#0b0f1d);
+  box-shadow:inset 0 0 0 1px rgb(var(--ta) / .25),0 10px 24px -10px rgb(var(--ta) / .65),0 1px 2px rgb(0 0 0 / .5)}
+}
+.xen-forge-action-rack :is(.xen-forge-tile-load,.xen-forge-tile-repair,.xen-forge-tile-apply,.xen-forge-tile-extract,.xen-forge-tile-material,.xen-forge-tile-pink,.xen-forge-tile-root,.xen-forge-tile-sample,.xen-forge-tile-donor,.xen-carrier-transform):active:not(:disabled){transform:translateY(0);filter:brightness(1.12)}
+.xen-forge-action-rack :is(.xen-forge-tile-load,.xen-forge-tile-repair,.xen-forge-tile-apply,.xen-forge-tile-extract,.xen-forge-tile-material,.xen-forge-tile-pink,.xen-forge-tile-root,.xen-forge-tile-sample,.xen-forge-tile-donor,.xen-carrier-transform):focus-visible{outline:2px solid rgb(var(--ta));outline-offset:2px}
+/* "on": active (e.g. Undo Loop korrigieren), pending, done – the shared button adds its 1px ring class */
+.xen-forge-action-rack :is(.xen-forge-tile-load,.xen-forge-tile-repair,.xen-forge-tile-apply,.xen-forge-tile-extract,.xen-forge-tile-material,.xen-forge-tile-pink,.xen-forge-tile-root,.xen-forge-tile-sample,.xen-forge-tile-donor,.xen-carrier-transform)[class*="shadow-[0_0_0_1px"]{
+ border-color:rgb(var(--ta));background:radial-gradient(140% 130% at 0% 0%,rgb(var(--ta) / .38),transparent 62%),linear-gradient(180deg,#151d33,#0c1120);
+ box-shadow:inset 0 0 0 1px rgb(var(--ta) / .45),0 0 18px -4px rgb(var(--ta) / .55)}
+.xen-forge-action-rack :is(.xen-forge-tile-load,.xen-forge-tile-repair,.xen-forge-tile-apply,.xen-forge-tile-extract,.xen-forge-tile-material,.xen-forge-tile-pink,.xen-forge-tile-root,.xen-forge-tile-sample,.xen-forge-tile-donor,.xen-carrier-transform):disabled{opacity:.42;filter:saturate(.35);cursor:not-allowed;transform:none}
+/* legend: icon in a square accent well, title strong, the second line says what happens */
+.xen-forge-action-rack .xen-forge-export-tile{gap:11px;justify-content:flex-start;font-family:system-ui,-apple-system,'Segoe UI',Roboto,sans-serif}
+.xen-forge-action-rack .xen-forge-export-icon{flex:0 0 38px;width:38px;height:38px;border-radius:2px;color:rgb(var(--ta));
+ background:radial-gradient(circle at 35% 30%,rgb(var(--ta) / .30),rgb(var(--ta) / .08) 70%);box-shadow:inset 0 0 0 1px rgb(var(--ta) / .35);font-size:22px}
+.xen-forge-action-rack .xen-forge-export-icon svg{display:block}
+.xen-forge-action-rack .xen-forge-export-words{gap:3px;white-space:normal}
+.xen-forge-action-rack .xen-forge-export-words>span:first-child{font-size:13px;font-weight:650;letter-spacing:.005em;color:#f5f7ff;line-height:1.2}
+.xen-forge-action-rack .xen-forge-export-words>span:nth-child(2){font-size:11px;font-weight:500;color:rgb(var(--ta) / .95);opacity:.85;line-height:1.2}
+.xen-forge-action-rack .xen-forge-tile-pink .xen-forge-export-icon svg{width:28px;height:28px}
+.xen-forge-action-rack .xen-forge-tile-root .xen-forge-export-icon{font-size:22px}
+@media (prefers-reduced-motion:reduce){.xen-forge-action-rack :is(.xen-forge-tile-load,.xen-forge-tile-repair,.xen-forge-tile-apply,.xen-forge-tile-extract,.xen-forge-tile-material,.xen-forge-tile-pink,.xen-forge-tile-root,.xen-forge-tile-sample,.xen-forge-tile-donor,.xen-carrier-transform){transition:none}}
+/* narrow tiles (Load, Loop korrigieren, Apply Raw, Save as Sample): small icon above, title and the second line one line each */
+.xen-forge-action-rack :is(.xen-forge-tile-load,.xen-forge-tile-repair,.xen-forge-tile-apply,.xen-forge-tile-sample){padding:7px 11px}
+.xen-forge-action-rack :is(.xen-forge-tile-load,.xen-forge-tile-repair,.xen-forge-tile-apply,.xen-forge-tile-sample) .xen-forge-export-tile{flex-direction:column;align-items:flex-start;gap:4px}
+.xen-forge-action-rack :is(.xen-forge-tile-load,.xen-forge-tile-repair,.xen-forge-tile-apply,.xen-forge-tile-sample) .xen-forge-export-icon{flex:0 0 26px;width:26px;height:26px;border-radius:2px}
+.xen-forge-action-rack :is(.xen-forge-tile-load,.xen-forge-tile-repair,.xen-forge-tile-apply,.xen-forge-tile-sample) .xen-forge-export-icon svg{width:19px;height:19px}
+.xen-forge-action-rack :is(.xen-forge-tile-load,.xen-forge-tile-repair,.xen-forge-tile-apply,.xen-forge-tile-sample) .xen-forge-export-words{gap:1px;width:100%}
+.xen-forge-action-rack :is(.xen-forge-tile-load,.xen-forge-tile-repair,.xen-forge-tile-apply,.xen-forge-tile-sample) .xen-forge-export-words>span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+.xen-forge-action-rack :is(.xen-forge-tile-load,.xen-forge-tile-repair,.xen-forge-tile-apply,.xen-forge-tile-sample) .xen-forge-export-words>span:first-child{font-size:12.5px}
+.xen-forge-action-rack :is(.xen-forge-tile-load,.xen-forge-tile-repair,.xen-forge-tile-apply,.xen-forge-tile-sample) .xen-forge-export-words>span:nth-child(2){font-size:10px}
+/* the shared button wraps the legend in an inline-flex span: let it take the tile width */
+.xen-forge-action-rack :is(.xen-forge-tile-load,.xen-forge-tile-repair,.xen-forge-tile-apply,.xen-forge-tile-extract,.xen-forge-tile-material,.xen-forge-tile-pink,.xen-forge-tile-root,.xen-forge-tile-sample,.xen-forge-tile-donor,.xen-carrier-transform)>span{width:100%;min-width:0}
+.xen-forge-action-rack :is(.xen-forge-tile-load,.xen-forge-tile-repair,.xen-forge-tile-apply,.xen-forge-tile-extract,.xen-forge-tile-material,.xen-forge-tile-pink,.xen-forge-tile-root,.xen-forge-tile-sample,.xen-forge-tile-donor,.xen-carrier-transform)>span>span:first-child{min-width:0;flex:1 1 auto}
+/* the two tiles with a docked triangle stay square on the docking side, so tile and triangle read as one shape */
+.xen-forge-action-rack :is(.xen-forge-tile-material,.xen-carrier-transform){border-top-right-radius:0;border-bottom-right-radius:0}
+.xen-forge-action-rack .xen-carrier-transform .xen-forge-export-tile .xen-forge-export-icon{flex:0 0 38px;width:38px;max-width:38px;height:38px}
+.xen-forge-action-rack .xen-carrier-transform .xen-forge-export-icon svg{width:30px;height:21px}
+
+/* FORGE-CORNER-02 · UPPER (amber) and UP (teal) get depth – same shapes, sizes, positions and labels (P30/P31 geometry):
+   light from the upper left, so the long slanted edge is the bright ridge and the right angle the deep corner;
+   a thin glossy band runs along the slant; the inner face has a soft bevel; glyphs are slightly embossed. */
+.xen-forge-action-rack>.xen-forge-upper-triangle{
+ background:linear-gradient(315deg,#7a4a0c 0%,#b97a1f 34%,#e5aa3f 66%,#f6cd72 88%,#ffe3a1 100%);
+ filter:drop-shadow(-2px -1px 3px rgb(0 0 0 / .35))}
+.xen-forge-action-rack>.xen-forge-upper-triangle::before{
+ background:linear-gradient(315deg,rgb(52 30 4 / .38) 0%,rgb(52 30 4 / .10) 40%,rgb(255 236 190 / 0) 62%,rgb(255 244 214 / .22) 100%)}
+.xen-forge-action-rack>.xen-forge-upper-triangle::after{
+ content:"";position:absolute;inset:0;pointer-events:none;
+ clip-path:polygon(100% 0,100% 2.4%,2.4% 100%,0 100%);background:linear-gradient(315deg,rgb(255 250 228 / .15),rgb(255 250 228 / .85))}
+.xen-forge-action-rack>.xen-forge-upper-triangle:is(:hover,:focus-visible){
+ background:linear-gradient(315deg,#8c5711 0%,#cf8c27 34%,#f2bb4e 66%,#ffd987 88%,#fff0c4 100%)}
+.xen-forge-action-rack>.xen-forge-upper-triangle:is(:hover,:focus-visible)::before{
+ background:linear-gradient(315deg,rgb(52 30 4 / .28) 0%,rgb(255 236 190 / 0) 55%,rgb(255 250 230 / .3) 100%)}
+.xen-forge-upper-double-chevron,.xen-forge-upper-label{color:#fff3d2;text-shadow:0 1px 0 rgb(255 255 255 / .28),0 -1px 1px rgb(60 34 2 / .55),0 2px 3px rgb(50 28 2 / .55)}
+.xen-forge-action-rack>.xen-forge-up-triangle{
+ background:linear-gradient(315deg,#0f6f7a 0%,#2ab8c4 55%,#9af2f7 100%);
+ filter:drop-shadow(-2px -1px 3px rgb(0 0 0 / .4))}
+.xen-forge-action-rack>.xen-forge-up-triangle::before{
+ background:linear-gradient(315deg,#04161c 0%,#0c3540 45%,#16525f 78%,#1f6b79 100%)}
+.xen-forge-action-rack>.xen-forge-up-triangle::after{
+ content:"";position:absolute;inset:0;pointer-events:none;
+ clip-path:polygon(100% 0,100% 4.5%,4.5% 100%,0 100%);background:linear-gradient(315deg,rgb(200 252 255 / .2),rgb(220 255 255 / .9))}
+.xen-forge-action-rack>.xen-forge-up-triangle:is(:hover,:focus-visible){background:linear-gradient(315deg,#16818d 0%,#4fd3dd 55%,#c4fbfe 100%)}
+.xen-forge-action-rack>.xen-forge-up-triangle:is(:hover,:focus-visible)::before{background:linear-gradient(315deg,#06202a 0%,#124553 45%,#1f6878 78%,#2a8392 100%)}
+.xen-forge-up-chevron,.xen-forge-up-label{color:#e9feff;text-shadow:0 1px 0 rgb(255 255 255 / .18),0 -1px 1px rgb(0 20 26 / .7),0 2px 3px rgb(0 20 26 / .6)}
+@media (prefers-reduced-motion:reduce){.xen-forge-action-rack>:is(.xen-forge-upper-triangle,.xen-forge-up-triangle){transition:none}}

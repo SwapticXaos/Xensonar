@@ -25,18 +25,42 @@ globalThis.__xenSymMultitrack=function(w,hgt){
  return h('svg',{width:w,height:hgt,viewBox:'0 0 30 22','aria-hidden':'true',style:{display:'inline-block',flex:'0 0 auto'}},
   ...c.map((r,i)=>h('rect',{key:i,x:r[0],y:r[1],width:r[2],height:4,rx:1.5,fill:r[3]})),h('rect',{x:13.6,y:0,width:1.6,height:22,rx:.8,fill:'#fff',opacity:.9}));
 };
+/* FORGE-TILES-02: one line-icon family for the Forge tiles (stroke = the tile accent via currentColor, white details),
+   replacing mixed emoji. PLAY keeps its own face; Pink Track keeps the Melodic Loop symbol; Carrier shows the Forge symbol. */
+globalThis.__xenForgeTileIcon=function(kind){
+ const h=P.createElement,W='#f8fafc',sv=(children,vb='0 0 28 28')=>h('svg',{viewBox:vb,width:28,height:28,fill:'none',stroke:'currentColor',strokeWidth:1.8,strokeLinecap:'round',strokeLinejoin:'round','aria-hidden':'true',focusable:'false',className:'xen-tile-svg'},...children);
+ const wave=(x0,ys,sw=1.6)=>ys.map((hh,i)=>h('line',{key:'w'+i,x1:x0+i*3,x2:x0+i*3,y1:14-hh,y2:14+hh,stroke:W,strokeWidth:sw,opacity:.9}));
+ switch(kind){
+  case 'load':return sv([h('path',{key:'a',d:'M7 5H4v18h3M21 5h3v18h-3'}),...wave(8.5,[2,5,8,4,6,2])]);
+  case 'repair':return sv([h('path',{key:'a',d:'M22 11a8.5 8.5 0 1 0 .6 5.5'}),h('path',{key:'b',d:'M23.5 5.5V11h-5.5'}),
+   ...[9,14,19].map((x,i)=>h('line',{key:'t'+i,x1:x,x2:x,y1:12.5,y2:15.5,stroke:W,strokeWidth:1.5}))]);
+  case 'apply':return sv([...wave(4,[2,5,3,6,2]).map(e=>P.cloneElement(e,{strokeWidth:1.4})),h('path',{key:'a',d:'M17 14h6M20.5 10.5 24 14l-3.5 3.5'}),h('rect',{key:'b',x:3,y:5,width:22,height:18,rx:3,opacity:.45})]);
+  case 'extract':return sv([h('path',{key:'a',d:'M8 4c0 6 12 6 12 12s-12 6-12 12'}),h('path',{key:'b',d:'M20 4c0 6-12 6-12 12s12 6 12 12',opacity:.75}),
+   ...[[10,8,18,8],[9,14,19,14],[10,20,18,20]].map((l,i)=>h('line',{key:'r'+i,x1:l[0],y1:l[1],x2:l[2],y2:l[3],stroke:W,strokeWidth:1.4,opacity:.8}))]);
+  case 'material':return sv([h('circle',{key:'a',cx:13,cy:14,r:9.5}),h('circle',{key:'b',cx:13,cy:14,r:5.5,opacity:.55}),h('circle',{key:'c',cx:13,cy:14,r:1.6,fill:W,stroke:'none'}),
+   h('path',{key:'d',d:'M22.5 6.5a12 12 0 0 1 2.5 4M25 6v4.8h-4.6',stroke:W,strokeWidth:1.5})]);
+  case 'root':return sv([...[8,12,16,20].map((y,i)=>h('line',{key:'s'+i,x1:3,x2:25,y1:y,y2:y,strokeWidth:1,opacity:.45})),
+   h('ellipse',{key:'n',cx:9,cy:18,rx:3.2,ry:2.4,fill:W,stroke:'none',transform:'rotate(-18 9 18)'}),h('line',{key:'st',x1:12,x2:12,y1:17.5,y2:6,stroke:W,strokeWidth:1.5}),
+   h('path',{key:'f',d:'M15 20c3-1 5-4 6-9M18.5 11.5 21 10.5l1 2.6'})]);
+  case 'sample':return sv([h('path',{key:'a',d:'M5 5h14l4 4v14H5z'}),h('rect',{key:'b',x:9,y:5,width:8,height:6,rx:1,stroke:W,strokeWidth:1.4}),h('rect',{key:'c',x:8,y:15,width:12,height:6,rx:1,opacity:.6})]);
+  case 'donor':return sv([h('rect',{key:'a',x:3,y:6,width:4,height:17,rx:1}),h('rect',{key:'b',x:8.5,y:4,width:4,height:19,rx:1,opacity:.8}),h('path',{key:'c',d:'m14.5 7.5 3.6-1 4.3 15.7-3.6 1z',opacity:.65}),
+   h('path',{key:'d',d:'M22 3v6M19 6h6',stroke:W,strokeWidth:1.7})]);
+  case 'carrier':return h('svg',{viewBox:'0 0 32 20',width:32,height:22,fill:'none',strokeLinecap:'round','aria-hidden':'true',focusable:'false',className:'xen-tile-svg'},globalThis.__xenSymForgeLines(3,false));
+  default:return null;
+ }
+};
 const __ForgeRackCopy=Object.freeze({
- load:{className:'xen-forge-tile-load',label:'Load Selection'},
- repair:{className:'xen-forge-tile-repair',label:'Loop korrigieren'},
- apply:{className:'xen-forge-tile-apply',label:'Apply Raw'},
- extract:{className:'xen-forge-tile-extract',icon:'🧬',first:'Extract Timbre',second:'(Donor Workshop)'},
+ load:{className:'xen-forge-tile-load',label:'Load Selection',icon:globalThis.__xenForgeTileIcon('load'),first:'Load Selection',second:'view zooms to the mask'},
+ repair:{className:'xen-forge-tile-repair',label:'Loop korrigieren',icon:globalThis.__xenForgeTileIcon('repair'),first:'Loop korrigieren',second:'micro · on the beat grid'},
+ apply:{className:'xen-forge-tile-apply',label:'Apply Raw',icon:globalThis.__xenForgeTileIcon('apply'),first:'Apply Raw',second:'to workbench'},
+ extract:{className:'xen-forge-tile-extract',icon:globalThis.__xenForgeTileIcon('extract'),first:'Extract Timbre',second:'(Donor Workshop)'},
  play:{className:'xen-forge-tile-play',label:'PLAY'},
- material:{className:'xen-forge-tile-material',icon:'📀',first:'Send raw as a loop to Material Track',second:'(Live Room)'},
+ material:{className:'xen-forge-tile-material',icon:globalThis.__xenForgeTileIcon('material'),first:'Send raw as a loop to Material Track',second:'(Live Room)'},
  pink:{className:'xen-forge-tile-pink',icon:globalThis.__xenSymMelodic(32,'tile'),first:'Send as Pink Track',second:'to Melodic Loop'},
- root:{className:'xen-forge-tile-root',icon:'🎼',first:'Use as',second:'Root Follow Loop'},
- sample:{className:'xen-forge-tile-sample',label:'Save as Sample'},
- donor:{className:'xen-forge-tile-donor',label:'Add to Donor Library'},
- carrier:{className:'xen-carrier-transform',icon:'🧪',first:'Transform to',second:'Carrier'},
+ root:{className:'xen-forge-tile-root',icon:globalThis.__xenForgeTileIcon('root'),first:'Use as',second:'Root Follow Loop'},
+ sample:{className:'xen-forge-tile-sample',label:'Save as Sample',icon:globalThis.__xenForgeTileIcon('sample'),first:'Save as Sample',second:'the purple mask'},
+ donor:{className:'xen-forge-tile-donor',label:'Add to Donor Library',icon:globalThis.__xenForgeTileIcon('donor'),first:'Add to Donor',second:'Library'},
+ carrier:{className:'xen-carrier-transform',icon:globalThis.__xenForgeTileIcon('carrier'),first:'Transform to',second:'Carrier'},
  titleHeading:'Loop/Sample betiteln',
  titleHelp:'This title is used for Material Track, direct Melodic Loop pink-track import, Root Follow, and saving the purple mask as a sample.'
 });
@@ -68,11 +92,11 @@ function __ForgeRackClass(kind,extra=''){
  if(!spec?.className)throw Error('Unknown Forge action style '+kind);
  return spec.className+(extra?' '+extra:'');
 }
-function __ForgeRackCaption(kind,firstOverride){
+function __ForgeRackCaption(kind,firstOverride,secondOverride){
  const spec=__ForgeRackCopy[kind];
  if(!spec)throw Error('Unknown Forge action '+kind);
  const first=firstOverride===undefined?(spec.first??spec.label):firstOverride;
- return spec.icon?__ForgeExportTileLabel(spec.icon,first,spec.second):first;
+ return spec.icon?__ForgeExportTileLabel(spec.icon,first,secondOverride===undefined?spec.second:secondOverride):first;
 }
 /* RV-02: one owner for user volume, selected-range effective gain,
  * waveform display, live raw-loop preview and exported PCM.

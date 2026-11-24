@@ -347,3 +347,10 @@ canvas[data-xwe-workspace-resize="true"][data-xwe-workspace-edge="true"]{cursor:
 .xwe-song-here{position:absolute;top:-2px;bottom:-2px;width:0;border-left:2px solid #fff;box-shadow:0 0 0 1px #0b1020;z-index:4;pointer-events:none}
 .xwe-song-here>span{position:absolute;left:3px;top:0;font:600 9px system-ui;color:#fff;background:#0b1020dd;padding:0 3px;border-radius:2px;white-space:nowrap}
 .xwe-song-menu-hint{color:#8b9bc7;font-size:10px;margin-top:2px}
+.xwe-song-menu select{background:#0b1020;border:1px solid #3b4a6e;border-radius:4px;color:#e2e8f0;font:inherit;padding:2px 4px}
+.xwe-song-menu-of{color:#8b9bc7;font-size:11px}
+/* SONG-PARTS-MANUAL-01: the strip before the first analysis – a quiet button, the analysis starts only on click */
+.xwe-song-strip.xwe-song-start{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;cursor:pointer;color:#94a3b8;font:600 11px/1 system-ui,sans-serif;letter-spacing:.04em;
+ background:repeating-linear-gradient(135deg,#0b1020 0 10px,#0e1528 10px 20px);border:1px dashed #334155;transition:border-color .15s,color .15s,background-color .15s}
+.xwe-song-strip.xwe-song-start:hover,.xwe-song-strip.xwe-song-start:focus-visible{color:#e2e8f0;border-color:#60a5fa;outline:none;background:repeating-linear-gradient(135deg,#0f172a 0 10px,#13203a 10px 20px)}
+.xwe-song-start-icon{display:inline-grid;place-items:center;width:16px;height:16px;border-radius:2px;background:#1e3a8a;color:#bfdbfe;font-size:8px}

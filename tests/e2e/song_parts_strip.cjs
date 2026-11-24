@@ -1,7 +1,7 @@
 'use strict';
 // SONG-PARTS-01 (real app, Wave Editor / import area): a coloured strip above the overview splits the whole upload into parts A, B, C …
 // (returning material = same letter and colour); a click puts the blue view range and the purple loop mask on the part and sets the
-// Taktometer (bars, segments per bar, BPM). A drone is one part. The analysis runs in a Blob worker.
+// Taktometer (bars, segments per bar, BPM). A drone is one part. The analysis runs in a Blob worker, only after a click on the strip.
 // Usage: node tests/e2e/song_parts_strip.cjs dist/XenSonar_PROBE.html
 const {chromium}=require('playwright');const assert=require('node:assert/strict');const path=require('node:path'),fs=require('node:fs'),os=require('node:os');
 const {song,SR}=require('../helpers/meter_synth.cjs'),{wav}=require('../helpers/analysis_synth.cjs');
@@ -16,6 +16,10 @@ const drone=path.join(dir,'drone.wav');{const n=SR*40,x=new Float32Array(n);for(
  await p.evaluate(()=>[...document.querySelectorAll('header button')].find(b=>/MATERIAL FORGE/.test(b.innerText)).click());await p.waitForTimeout(2000);
  await p.getByText('Import Audio').first().click();await p.waitForTimeout(2500);
  const load=async f=>{await p.locator('input[type=file][accept^="audio/"]').setInputFiles(f);await p.getByRole('button',{name:'Wave Editor'}).first().waitFor({timeout:60000});
+  // SONG-PARTS-MANUAL-01: nothing is analysed on upload – the strip waits for a click
+  await p.waitForFunction(()=>document.querySelector('[data-xwe-song-parts]')?.getAttribute('data-xwe-song-parts')==='ready',null,{timeout:20000});
+  await p.waitForTimeout(1200);assert.equal(await p.locator('[data-xwe-song-parts]').getAttribute('data-xwe-song-parts'),'ready','no analysis without a click');
+  assert.equal(await p.locator('[data-xwe-song-part]').count(),0);await p.locator('[data-xwe-song-start]').click();
   await p.waitForFunction(()=>document.querySelector('[data-xwe-song-parts]')?.getAttribute('data-xwe-song-parts')==='done',null,{timeout:60000})};
  await load(file);
  const strip=p.locator('[data-xwe-song-parts]');await strip.scrollIntoViewIfNeeded();
