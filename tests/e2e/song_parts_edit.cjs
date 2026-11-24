@@ -66,9 +66,17 @@ const file=path.join(dir,'abacb_edit.wav');fs.writeFileSync(file,wav(song({bpm:1
  await p.evaluate(()=>document.querySelector('[data-xwe-song-parts]').parentElement.scrollIntoView({block:'start'}));await p.waitForTimeout(200);
  let sb3=await strip.boundingBox();const X3=t=>sb3.x+sb3.width*t/80,Y3=sb3.y+sb3.height*.3;
  await p.mouse.click(X3(37.1),Y3,{button:'right'});await menu.waitFor();assert.equal(await p.locator('[data-xwe-song-here]').count(),1,'the menu shows where "here" is');
- assert.match(await p.locator('[data-xwe-song-here]').innerText(),/^A · bar \d+ · 0:3\d$/,'the marker names the bar that will be cut');await menu.locator('[data-xwe-song-action="every-2"]').click();await p.waitForTimeout(300);
+ assert.match(await p.locator('[data-xwe-song-here]').innerText(),/^A · bar \d+ · 0:3\d$/,'the marker names the bar that will be cut');await menu.locator('[data-xwe-song-num="every"]').fill('2');await menu.locator('[data-xwe-song-action="every"]').click();await p.waitForTimeout(300);
  const secs=()=>p.locator('[data-xwe-song-sub]').evaluateAll(n=>n.map(x=>x.dataset.xweSongSub).join(' '));
  assert.match(await secs(),/A1 A2 A3 A4/,'part A (32–40 s) in sections of 2 bars');
+ // free numbers: every 3.5 bars (= 14 segments = 7 s) and evenly into 7 sections, typed into the fields of part A (0–20 s, 10 bars)
+ const cutsBefore20=()=>p.locator('[data-xwe-song-cut]').evaluateAll(n=>n.map(x=>(x.getAttribute('aria-label').match(/at (\d+):(\d+)$/)||[]).slice(1).map(Number)).map(([m,s])=>m*60+s).filter(t=>t<20));
+ await p.mouse.click(X3(5),Y3,{button:'right'});await menu.waitFor();await menu.locator('[data-xwe-song-num="every"]').fill('3.5');await menu.locator('[data-xwe-song-num="every"]').press('Enter');await p.waitForTimeout(300);
+ assert.deepEqual(await cutsBefore20(),[7,14],'every 3.5 bars in A: 0:07, 0:14');
+ await p.mouse.click(X3(5),Y3,{button:'right'});await menu.waitFor();assert.equal(await menu.locator('[data-xwe-song-num="every"]').inputValue(),'3.5','the last number is kept');
+ await menu.locator('[data-xwe-song-num="even"]').fill('7');await menu.locator('[data-xwe-song-action="even"]').click();await p.waitForTimeout(300);
+ assert.equal((await cutsBefore20()).length,6,'evenly into 7: 6 boundaries');
+ await p.mouse.click(X3(5),Y3,{button:'right'});await menu.waitFor();await menu.locator('[data-xwe-song-action="clear-sections"]').click();await p.waitForTimeout(200);
  // Subdivide at bar: choose the bar number of the part (here bar 3 of part D at 24–32 s = 28 s) and add it
  await p.mouse.click(X3(26),Y3,{button:'right'});await menu.waitFor();const barSel=menu.locator('[data-xwe-song-bar]');
  await barSel.selectOption('3');assert.match(await p.locator('[data-xwe-song-here]').innerText(),/bar 3 · 0:28/);await menu.locator('[data-xwe-song-action="subdivide-bar"]').click();await p.waitForTimeout(300);

@@ -74,7 +74,10 @@ function __xenSongPartsEditFactory(storage=null){
  function subdivideEven(parts,i,count,grid,total){
   const out=parts.map(clean),p=out[i];if(!p||!(count>=2))return parts;const eps=.05;
   const bars=(grid?.bars??[]).filter(t=>t>=p.startSec-eps&&t<p.endSec-eps);let cuts=[];
+  // whole bars when the part has enough of them, else whole segments (beats), else plain time
+  const segs=(grid?.segments??[]).filter(t=>t>=p.startSec-eps&&t<p.endSec-eps);
   if(bars.length>=count){const step=bars.length/count;for(let k=1;k<count;k++)cuts.push(bars[Math.round(k*step)])}
+  else if(segs.length>=count){const step=segs.length/count;for(let k=1;k<count;k++)cuts.push(segs[Math.round(k*step)])}
   else{const L=p.endSec-p.startSec;for(let k=1;k<count;k++)cuts.push(p.startSec+L*k/count)}
   cuts=[...new Set(cuts)].filter(t=>t>p.startSec+eps&&t<p.endSec-eps);if(!cuts.length)return parts;
   out[i]={...p,cuts,edited:true};return normalize(out,grid,total);
@@ -98,9 +101,15 @@ function __xenSongPartsEditFactory(storage=null){
  }
  /* a section every n bars (1 = every bar) */
  function subdivideEvery(parts,i,nBars,grid,total){
-  const out=parts.map(clean),p=out[i];if(!p||!(nBars>=1))return parts;const eps=.05;
+  const out=parts.map(clean),p=out[i];if(!p||!(nBars>0)||!Number.isFinite(nBars))return parts;const eps=.05;
   const bars=(grid?.bars??[]).filter(t=>t>p.startSec+eps&&t<p.endSec-eps),first=(grid?.bars??[]).find(t=>t>=p.startSec-eps)??p.startSec;
-  const cuts=bars.filter(t=>Math.round((t-first)/Math.max(.05,grid?.barSec||2))%nBars===0);if(!cuts.length)return parts;
+  let cuts;
+  if(Math.abs(nBars-Math.round(nBars))<1e-9)cuts=bars.filter(t=>Math.round((t-first)/Math.max(.05,grid?.barSec||2))%Math.round(nBars)===0);
+  else{/* a fraction of bars (1.5, 2.25 …): counted in segments of the grid when it divides into whole segments, else in time */
+   const S=Math.max(1,grid?.segmentsPerBar||1),step=nBars*S,segs=(grid?.segments??[]).filter(t=>t>=first-eps&&t<p.endSec-eps);
+   if(segs.length&&Math.abs(step-Math.round(step))<.01){const n=Math.round(step);cuts=segs.filter((t,k)=>k>0&&k%n===0)}
+   else{const len=nBars*Math.max(.05,grid?.barSec||2);cuts=[];for(let t=first+len;t<p.endSec-eps;t+=len)cuts.push(t)}}
+  cuts=cuts.filter(t=>t>p.startSec+eps&&t<p.endSec-eps);if(!cuts.length)return parts;
   out[i]={...p,cuts,edited:true};return normalize(out,grid,total);
  }
  function clearCuts(parts,i,grid,total){const out=parts.map(clean);if(!out[i])return parts;out[i]={...out[i],cuts:[],edited:true};return normalize(out,grid,total)}

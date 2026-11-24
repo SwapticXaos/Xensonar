@@ -1973,6 +1973,10 @@ function __xenSnapMaskDrag(range,mode,source){
  const edge=mode==='resize-start'?'start':mode==='resize-end'?'end':mode==='move'?'move':'both';
  return __xenSongPartsEdit.snapRange(range,sp.result.grid,m,edge,Number(source.durationSec)||Infinity);
 }
+/* the last numbers typed into "Subdivide every / evenly" (for the next menu) and the parser for bar counts: 7, 1.5, 1,5, 3/2 */
+const __xenSongSubdivideLast={every:'2',even:'4'};
+function __xenParseBarsNumber(v){const t=String(v??'').trim().replace(',','.'),f=/^(\d+(?:\.\d+)?)\s*\/\s*(\d+(?:\.\d+)?)$/.exec(t);
+ const n=f?Number(f[1])/Number(f[2]):/^\d*\.?\d+$/.test(t)?Number(t):NaN;return Number.isFinite(n)&&n>0?n:NaN}
 /* KEY-02: the Wave Editor's analysis (pitch lines -> root in Hz, tuning system, scale; 015b) on one part, in its own worker.
    At most 2 minutes (the middle of a longer part). Only on request, one part after the other – never on upload. */
 const __XEN_PC=['C','C♯','D','D♯','E','F','F♯','G','G♯','A','A♯','B'];
@@ -2126,8 +2130,17 @@ function __XenSongPartsStrip({source,selection,onSelectPart,onPatch}){
       ...b.slice(1).map((x,k)=>h('option',{key:k+2,value:k+2},(k+2)+' · '+clock(x)))),
      h('span',{className:'xwe-song-menu-of'},'of '+b.length),
      h('button',{type:'button',className:'xwe-song-menu-btn xwe-song-menu-small','data-xwe-song-action':'subdivide-bar',onClick:act(()=>commit(E.addCut(view.parts,i,bt,grid,'off',D)))},'Add'))})(),
-   h('div',{className:'xwe-song-menu-row'},'Subdivide every:',...[1,2,4].map(n=>h('button',{key:n,type:'button',className:'xwe-song-menu-btn xwe-song-menu-small','data-xwe-song-action':'every-'+n,disabled:(p.bars??0)<=n,title:'a section every '+n+' bar'+(n>1?'s':''),onClick:act(()=>commit(E.subdivideEvery(view.parts,i,n,grid,D)))},n+' bar'+(n>1?'s':'')))),
-   h('div',{className:'xwe-song-menu-row'},'Subdivide evenly:',...[2,3,4,8].map(c=>h('button',{key:c,type:'button',className:'xwe-song-menu-btn xwe-song-menu-small','data-xwe-song-action':'even-'+c,disabled:(p.bars??0)<c,title:c+' sections of whole bars',onClick:act(()=>commit(E.subdivideEven(view.parts,i,c,grid,D)))},String(c)))),
+   /* free numbers, no preset buttons: every N bars (7, 1.5, 3/2 … – fractions are counted in segments) and evenly into N sections */
+   (()=>{const ev=menu.every??__xenSongSubdivideLast.every,en=menu.even??__xenSongSubdivideLast.even,nEv=__xenParseBarsNumber(ev),nEn=Math.round(Number(en));
+    const doEvery=()=>{if(!(nEv>0))return;__xenSongSubdivideLast.every=String(ev);const next=E.subdivideEvery(view.parts,i,nEv,grid,D);setMenu(null);
+      if(next===view.parts)setNote('Part '+p.label+': no section boundary every '+ev+' bars inside '+(p.bars??'its')+' bars.');else commit(next)},
+     doEven=()=>{if(!(nEn>=2))return;__xenSongSubdivideLast.even=String(nEn);const next=E.subdivideEven(view.parts,i,nEn,grid,D);setMenu(null);if(next!==view.parts)commit(next)};
+    const field=(key,value,label,onEnter)=>h('input',{type:'text',inputMode:'decimal',className:'xwe-song-menu-num','data-xwe-song-num':key,'aria-label':label,value,size:4,
+     onChange:e=>{const v=e.currentTarget.value;setMenu(m=>m&&{...m,[key]:v})},onKeyDown:e=>{if(e.key==='Enter'){e.preventDefault();onEnter()}}});
+    return [h('div',{key:'every',className:'xwe-song-menu-row'},'Subdivide every',field('every',ev,'Subdivide every how many bars',doEvery),'bars',
+      h('button',{type:'button',className:'xwe-song-menu-btn xwe-song-menu-small','data-xwe-song-action':'every',disabled:!(nEv>0),title:'a section boundary every '+ev+' bars from the start of '+p.label+' (fractions count in segments: 1.5 bars = '+(nEv>0?+(nEv*(p.segmentsPerBar||1)).toFixed(2):'–')+' segments)',onClick:doEvery},'Apply')),
+     h('div',{key:'even',className:'xwe-song-menu-row'},'Subdivide evenly into',field('even',en,'Subdivide evenly into how many sections',doEven),'sections',
+      h('button',{type:'button',className:'xwe-song-menu-btn xwe-song-menu-small','data-xwe-song-action':'even',disabled:!(nEn>=2),title:nEn>=2?nEn+' sections of whole bars where the part has enough bars, else of whole segments':'at least 2',onClick:doEven},'Apply'))]})(),
    (()=>{const cuts=p.cuts??(p.subParts?.slice(1).map(q=>q.startSec)??[]),near=cuts.length?cuts.reduce((a,c)=>Math.abs(c-menu.t)<Math.abs(a-menu.t)?c:a,cuts[0]):null;
     return near!=null&&Math.abs(near-menu.t)<=Math.max(1.5*(grid?.barSec??2),(p.endSec-p.startSec)*.08)?mb('Remove the section boundary at '+clock(near),()=>commit(E.removeCut(view.parts,i,near,D,grid)),{id:'remove-section'}):null})(),
    (p.subParts?.length??0)>1?mb('Remove all sections of '+p.label,()=>commit(E.clearCuts(view.parts,i,grid,D)),{id:'clear-sections'}):null,

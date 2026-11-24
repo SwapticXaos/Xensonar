@@ -66,3 +66,13 @@ test('SONG-PARTS-MANUAL-01: the finished analysis is stored per song (without th
  assert.equal(JSON.parse(st.getItem('xensonar.songParts.analysis.index.v1')).length,24);
  E.clearResult({fileName:'s29.wav',originalDuration:40,sampleRate:44100});assert.equal(factory(st).loadResult({fileName:'s29.wav',originalDuration:40,sampleRate:44100}),null);
 });
+test('free numbers: every 7 bars, every 1.5 bars (in segments), every 0.5 bar, evenly into 5 / into more sections than bars',()=>{
+ const {E}=base(),one=E.normalize([{startSec:0,endSec:40,label:'A',segmentsPerBar:4}],grid,total);
+ let p=E.subdivideEvery(one,0,7,grid,total);assert.deepEqual(p[0].cuts,[14,28]);
+ p=E.subdivideEvery(one,0,1.5,grid,total);assert.deepEqual(p[0].cuts.slice(0,3),[3,6,9],'1.5 bars of 2 s = every 6 segments');
+ p=E.subdivideEvery(one,0,.5,grid,total);assert.equal(p[0].cuts[0],1);assert.equal(p[0].cuts.length,39);
+ p=E.subdivideEven(one,0,5,grid,total);assert.deepEqual(p[0].cuts,[8,16,24,32]);
+ const short=E.normalize([{startSec:0,endSec:4,label:'A',segmentsPerBar:4},{startSec:4,endSec:40,label:'B',segmentsPerBar:4}],grid,total);
+ p=E.subdivideEven(short,0,4,grid,total);assert.deepEqual(p[0].cuts,[1,2,3],'2 bars into 4: on segments');
+ assert.equal(E.subdivideEvery(one,0,0,grid,total),one);assert.equal(E.subdivideEvery(one,0,NaN,grid,total),one);
+});
