@@ -22,16 +22,15 @@ function __xenSongPartsFactory(meter){
    const w0=nw===1?0:(D-len)*w/(nw-1),w1=w0+len,F=I.features(x,sr,w0,w1);if(F.n<64)continue;
    let e=0;for(let i=0;i<F.n;i++)e+=F.nov[i];if(!(e/F.n>1e-4))continue;
    const pl=I.pulse(F);pulses.push(pl.ok);if(!pl.ok)continue;
-   let best=null;
-   for(let T=I.MIN_T;T<=I.MAX_T;T*=1.01){
-    const ph=I.bestPhase(F,T,w0,w0,w1,w0,w1,Math.min(T*.5,.5)),g=I.gridContrast(F,T,w0+ph.phase,w0,w1,w0,w1),a=I.acf(F,T);
-    const sc=(.6*g.contrast+.4*Math.max(0,a))*(.3+.7*I.tempoPrior(T));if(!best||sc>best.score)best={T,score:sc,contrast:g.contrast,acf:a,phase:ph.phase,w0,w1,F}}
-   if(best){const r=I.refine(best.F,best.T,w0+best.phase,w0,w1,w0,w1),g=I.gridContrast(best.F,r.T,w0+best.phase+r.phase,w0,w1,w0,w1);res.push({T:r.T,score:best.score,contrast:g.contrast,acf:best.acf})}
+   // tatum (fastest even pulse) of this window, see PULSE-HIERARCHY in the meter analysis
+   const tt=I.tatum(F,w0,w1);if(!tt||tt.f<.35)continue;
+   const r=I.refine(F,tt.T,tt.origin,w0,w1,w0,w1),g=I.gridContrast(F,r.T,tt.origin+r.phase,w0,w1,w0,w1);res.push({T:r.T,score:tt.f,contrast:g.contrast,acf:I.acf(F,r.T),fit:tt.f})
   }
   if(!res.length||pulses.filter(Boolean).length<Math.max(1,pulses.length*.5))return res.length?{T:res[0].T,contrast:0,acf:0,support:0,windows:res.length,pulse:false}:null;
   const groups=[];for(const r of res){const g=groups.find(g=>Math.abs(g.T/r.T-1)<.03);if(g){g.items.push(r);g.T=g.items.reduce((a,b)=>a+b.T,0)/g.items.length;g.score+=r.score}else groups.push({T:r.T,items:[r],score:r.score})}
   groups.sort((a,b)=>b.score-a.score);const g=groups[0],contrast=g.items.reduce((a,b)=>a+b.contrast,0)/g.items.length,acf=g.items.reduce((a,b)=>a+b.acf,0)/g.items.length;
-  return {T:g.T,contrast,acf,support:g.items.length/res.length,windows:res.length};
+  const fit=g.items.reduce((a,b)=>a+b.fit,0)/g.items.length;
+  return {T:g.T,contrast,acf,fit,support:g.items.length/res.length,windows:res.length};
  }
  /* beat tracking by dynamic programming (Ellis 2007): onsets + a penalty for deviating from the period */
  function track(F,T){
@@ -43,76 +42,138 @@ function __xenSongPartsFactory(meter){
   const beats=[];for(let t=end;t>=0;t=back[t]){beats.push(F.t0+t/F.rate);if(back[t]<0)break}
   return beats.reverse();
  }
- function barLength(F,beats,T){
-  const ks=beats.map((_,i)=>i),ms=I.meterScoresAt(F,beats,ks,T),acc=ms.accent;if(!acc)return {S:4,phase:0,scores:{}};
-  const raw={};
-  for(let S=2;S<=12;S++){const rep=ms.scores[S]?.repetition??0,ph=new Array(S).fill(0),pc=new Array(S).fill(0);
-   for(let i=0;i<acc.length;i++){ph[i%S]+=acc[i];pc[i%S]++}for(let p=0;p<S;p++)ph[p]=pc[p]?ph[p]/pc[p]:0;
-   const mean=ph.reduce((a,b)=>a+b,0)/S;let bp=0;for(let p=1;p<S;p++)if(ph[p]>ph[bp])bp=p;const maxOther=Math.max(...ph.filter((_,i)=>i!==bp));
-   const down=.5*(ph[bp]-mean)+.5*(ph[bp]-maxOther),prior={2:0,3:.05,4:.08,5:.02,6:.03,7:.02,8:.01}[S]??-.012*(S-8);
-   raw[S]={S,phase:bp,repetition:rep,downbeat:down,score:rep+.35*Math.tanh(down/2)+prior}}
-  for(let S=2;S<=12;S++)for(let d=2;d<S;d++){if(S%d)continue;const r=raw[d];if(r.repetition>=.7*raw[S].repetition&&r.downbeat>=.8*raw[S].downbeat){raw[S].score=Math.min(raw[S].score,r.score-.05);break}}
-  const best=Object.values(raw).sort((a,b)=>b.score-a.score)[0];return {S:best.S,phase:best.phase,scores:raw};
+ /* bar length in tatums (accent repetition, strongest position = "1"), then the counting level (4/4 in eighths -> 4 quarters) */
+ /* harmonic change at a time: chroma of the half bar before vs after (sum-normalised), the strongest cue for "1" */
+ function harmonicChange(fr,t,W){
+  const avg=(a,b)=>{const c=new Float64Array(12);let n=0;for(const f of fr){if(f.t<a)continue;if(f.t>=b)break;for(let k=0;k<12;k++)c[k]+=f.v[NMFCC+k];n++}let s=0;for(const v of c)s+=v;return s>0?c.map(v=>v/s):c};
+  const x=avg(t-W,t),y=avg(t,t+W);let d=0;for(let k=0;k<12;k++)d+=(x[k]-y[k])**2;return Math.sqrt(d);
+ }
+ function barLength(F,beats,T0,fr){
+  const prior=S=>I.TATUM_PRIOR(S,T0);
+  const ks=beats.map((_,i)=>i),ms=I.meterScoresAt(F,beats,ks,T0,{maxS:32,prior,freePhase:true});
+  let St=0,bs=-Infinity;for(const [S,v] of Object.entries(ms.scores))if(v.score>bs){bs=v.score;St=+S}
+  if(!St)return {S:4,phase:0,level:1,St:4,groups:null};
+  // a two-bar pattern is still two bars: prefer half the length when it scores nearly as well
+  while(St%2===0&&St/2>=3&&ms.scores[St/2]&&ms.scores[St/2].score>=ms.scores[St].score-.2)St/=2;
+  let v=ms.scores[St];
+  // phase: accent per position plus the harmonic change on it (z-scored) – chords tend to change on "1"
+  if(fr&&fr.length){const W=Math.max(.25,Math.min(1.2,St*T0/2)),hc=beats.map(t=>harmonicChange(fr,t,W)),m=hc.reduce((a,b)=>a+b,0)/hc.length,sd=Math.sqrt(hc.reduce((a,b)=>a+(b-m)**2,0)/hc.length)||1;
+   const pos=new Array(St).fill(0),cnt=new Array(St).fill(0);hc.forEach((h,i)=>{pos[i%St]+=(h-m)/sd;cnt[i%St]++});
+   let best=v.phase,bv=-Infinity;for(let p=0;p<St;p++){const sc=v.positions[p]+1.2*(cnt[p]?pos[p]/cnt[p]:0);if(sc>bv){bv=sc;best=p}}v={...v,phase:best}}
+  const rot=Array.from({length:St},(_,p)=>v.positions[(p+v.phase)%St]),lv=I.countingLevel(rot,St,T0);
+  return {St,phase:v.phase,level:lv.level,S:lv.S,groups:lv.groups,scores:ms.scores};
  }
  /* spectrum per frame: radix-2 FFT, 8 log bands, 12-bin chroma, level */
  function fft(re,im){const n=re.length;for(let i=1,j=0;i<n;i++){let b=n>>1;for(;j&b;b>>=1)j^=b;j^=b;if(i<j){[re[i],re[j]]=[re[j],re[i]];[im[i],im[j]]=[im[j],im[i]]}}
   for(let len=2;len<=n;len<<=1){const a=-2*Math.PI/len,wr=Math.cos(a),wi=Math.sin(a),h=len>>1;for(let i=0;i<n;i+=len){let cr=1,ci=0;for(let k=0;k<h;k++){const xr=re[i+k+h]*cr-im[i+k+h]*ci,xi=re[i+k+h]*ci+im[i+k+h]*cr;re[i+k+h]=re[i+k]-xr;im[i+k+h]=im[i+k]-xi;re[i+k]+=xr;im[i+k]+=xi;const t=cr*wr-ci*wi;ci=cr*wi+ci*wr;cr=t}}}}
- const EDGES=[40,120,250,500,1000,2000,3500,5500],DIM=8+12+2;
+ /* timbre = 13 MFCC from 24 mel bands (60–5000 Hz), harmony = 12-bin chroma (110–2000 Hz, 2048-point FFT), plus onset density */
+ const NMEL=24,NMFCC=13,DIM=NMFCC+12+1;
  function frames(x,sr,D){
-  const N=1024,hop=Math.max(.05,D/30000),win=new Float64Array(N);for(let i=0;i<N;i++)win[i]=.5-.5*Math.cos(2*Math.PI*i/(N-1));
-  const nf=Math.max(1,Math.floor((x.length-N)/(hop*sr))+1),out=[],re=new Float64Array(N),im=new Float64Array(N),bin=sr/N;
-  const band=new Int16Array(N/2),pc=new Int16Array(N/2);for(let k=0;k<N/2;k++){const f=k*bin;let b=-1;for(let e=0;e<EDGES.length-1;e++)if(f>=EDGES[e]&&f<EDGES[e+1])b=e;if(f>=EDGES[EDGES.length-1]&&f<sr/2)b=7;band[k]=b;pc[k]=f>=65&&f<=2100?((Math.round(12*Math.log2(f/440)+69)%12)+12)%12:-1}
-  for(let fi=0;fi<nf;fi++){const o=Math.floor(fi*hop*sr);let lev=0;for(let i=0;i<N;i++){const s=x[o+i]||0;re[i]=s*win[i];im[i]=0;lev+=s*s}fft(re,im);
-   const v=new Float64Array(DIM-1),ch=new Float64Array(12);for(let k=1;k<N/2;k++){const p=re[k]*re[k]+im[k]*im[k];if(band[k]>=0)v[band[k]]+=p;if(pc[k]>=0)ch[pc[k]]+=Math.sqrt(p)}
-   for(let b=0;b<8;b++)v[b]=Math.log(1e-9+v[b]);let cs=0;for(let c=0;c<12;c++)cs+=ch[c];for(let c=0;c<12;c++)v[8+c]=cs>0?ch[c]/cs:1/12;v[20]=Math.log(1e-9+lev/N);
+  const N=2048,hop=Math.max(.05,D/30000),win=new Float64Array(N);for(let i=0;i<N;i++)win[i]=.5-.5*Math.cos(2*Math.PI*i/(N-1));
+  const nf=Math.max(1,Math.floor((x.length-N)/(hop*sr))+1),out=[],re=new Float64Array(N),im=new Float64Array(N),bin=sr/N,H=N/2;
+  const mel=f=>2595*Math.log10(1+f/700),imel=m=>700*(Math.pow(10,m/2595)-1),lo=mel(60),hi=mel(Math.min(5000,sr/2-50)),cent=[];
+  for(let i=0;i<NMEL+2;i++)cent.push(imel(lo+(hi-lo)*i/(NMEL+1)));
+  const fb=[];for(let m=0;m<NMEL;m++){const w=[];for(let k=1;k<H;k++){const f=k*bin;let g=0;if(f>cent[m]&&f<cent[m+1])g=(f-cent[m])/(cent[m+1]-cent[m]);else if(f>=cent[m+1]&&f<cent[m+2])g=(cent[m+2]-f)/(cent[m+2]-cent[m+1]);if(g>0)w.push(k,g)}fb.push(w)}
+  const dct=[];for(let c=0;c<NMFCC;c++){const r=new Float64Array(NMEL);for(let m=0;m<NMEL;m++)r[m]=Math.cos(Math.PI*c*(m+.5)/NMEL);dct.push(r)}
+  const pc=new Int16Array(H);for(let k=0;k<H;k++){const f=k*bin;pc[k]=f>=110&&f<=2000?((Math.round(12*Math.log2(f/440)+69)%12)+12)%12:-1}
+  const P=new Float64Array(H),lm=new Float64Array(NMEL);
+  for(let fi=0;fi<nf;fi++){const o=Math.floor(fi*hop*sr);for(let i=0;i<N;i++){re[i]=(x[o+i]||0)*win[i];im[i]=0}fft(re,im);
+   for(let k=1;k<H;k++)P[k]=re[k]*re[k]+im[k]*im[k];
+   for(let m=0;m<NMEL;m++){const w=fb[m];let e=0;for(let j=0;j<w.length;j+=2)e+=P[w[j]]*w[j+1];lm[m]=Math.log(1e-10+e)}
+   const v=new Float64Array(DIM-1);for(let c=0;c<NMFCC;c++){let e=0;const r=dct[c];for(let m=0;m<NMEL;m++)e+=r[m]*lm[m];v[c]=e}
+   let mx=0;const ch=v.subarray(NMFCC,NMFCC+12);for(let k=1;k<H;k++)if(pc[k]>=0)ch[pc[k]]+=Math.sqrt(P[k]);for(let c=0;c<12;c++)mx=Math.max(mx,ch[c]);for(let c=0;c<12;c++)ch[c]=mx>0?ch[c]/mx:0;
    out.push({t:(o+N/2)/sr,v})}
   return out;
  }
- /* one vector per unit (bar, or time block without a meter); dims are z-scored with absolute floors so steady material stays steady */
+ /* one vector per unit (bar, or time block); MFCC dims z-scored (c0 = loudness weighted low), chroma kept 0..1, onset density z-scored */
  function unitVectors(fr,F,units){
-  const vs=units.map(([a,b])=>{const v=new Float64Array(DIM);let c=0;for(const f of fr){if(f.t<a||f.t>=b)continue;for(let d=0;d<DIM-1;d++)v[d]+=f.v[d];c++}
-   if(c)for(let d=0;d<DIM-1;d++)v[d]/=c;else{const f=fr.reduce((p,q)=>Math.abs(q.t-(a+b)/2)<Math.abs(p.t-(a+b)/2)?q:p,fr[0]);for(let d=0;d<DIM-1;d++)v[d]=f?f.v[d]:0}
+  let j0=0;const vs=units.map(([a,b])=>{const v=new Float64Array(DIM);let c=0;while(j0<fr.length&&fr[j0].t<a)j0++;for(let j=j0;j<fr.length&&fr[j].t<b;j++){for(let d=0;d<DIM-1;d++)v[d]+=fr[j].v[d];c++}
+   if(c)for(let d=0;d<DIM-1;d++)v[d]/=c;else{const f=fr[Math.min(fr.length-1,j0)];for(let d=0;d<DIM-1;d++)v[d]=f?f.v[d]:0}
    let s=0,n=0;for(let i=Math.max(0,Math.floor((a-F.t0)*F.rate));i<Math.min(F.n,Math.ceil((b-F.t0)*F.rate));i++){s+=F.nov[i];n++}v[DIM-1]=n?s/n:0;return v});
-  const floors=d=>d<8?1.2:d<20?.06:d===20?1.2:.05,weights=d=>d<8?1:d<20?1.6:.7;
-  for(let d=0;d<DIM;d++){let m=0;for(const v of vs)m+=v[d];m/=vs.length;let s=0;for(const v of vs)s+=(v[d]-m)**2;const sd=Math.max(floors(d),Math.sqrt(s/vs.length));for(const v of vs)v[d]=(v[d]-m)/sd*weights(d)}
+  const weight=d=>d===0?.4:d<NMFCC?1:d<NMFCC+12?2.2:.6;
+  for(let d=0;d<DIM;d++){const isChroma=d>=NMFCC&&d<NMFCC+12;let m=0;for(const v of vs)m+=v[d];m/=vs.length;let q=0;for(const v of vs)q+=(v[d]-m)**2;
+   const sd=isChroma?1:Math.max(1e-6,Math.sqrt(q/vs.length));for(const v of vs)v[d]=(isChroma?v[d]:(v[d]-m)/sd)*weight(d)}
   return vs;
  }
  const dist=(a,b)=>{let s=0;for(let d=0;d<a.length;d++)s+=(a[d]-b[d])**2;return Math.sqrt(s/a.length)};
- function mean(vs,a,b){const m=new Float64Array(DIM);for(let i=a;i<b;i++)for(let d=0;d<DIM;d++)m[d]+=vs[i][d];for(let d=0;d<DIM;d++)m[d]/=Math.max(1,b-a);return m}
- /* novelty: mean distance across a candidate boundary minus the mean distance within both sides */
- function boundaries(vs,k,minLen){
-  const B=vs.length,nov=new Float64Array(B);
-  for(let i=k;i<=B-k;i++){let cross=0,within=0,nc=0,nw=0;for(let a=i-k;a<i;a++)for(let b=i;b<i+k;b++){cross+=dist(vs[a],vs[b]);nc++}
-   for(let a=i-k;a<i;a++)for(let b=a+1;b<i;b++){within+=dist(vs[a],vs[b]);nw++}for(let a=i;a<i+k;a++)for(let b=a+1;b<i+k;b++){within+=dist(vs[a],vs[b]);nw++}
-   nov[i]=cross/nc-(nw?within/nw:0)}
-  let m=0,c=0;for(const v of nov)if(v>0){m+=v;c++}m=c?m/c:0;
-  const cut=[];for(let i=1;i<B;i++){const v=nov[i];if(v<.45||v<m*1.2)continue;let peak=true;for(let j=Math.max(1,i-Math.ceil(minLen/2));j<=Math.min(B-1,i+Math.ceil(minLen/2));j++)if(nov[j]>v||nov[j]===v&&j<i){peak=false;break}if(peak)cut.push(i)}
-  const out=[0];for(const i of cut)if(i-out[out.length-1]>=minLen&&B-i>=Math.min(minLen,2))out.push(i);out.push(B);return {edges:out,novelty:Array.from(nov)};
+ /* relative (scale free) comparisons, tuned on real recordings: every distance is measured against the spread INSIDE the
+    material, so a noisy live take and a clean synthetic loop are judged alike. dm = bar-to-bar distance matrix. */
+ /* chords that alternate every bar (or cycle over 4) make a part look restless inside: average over a phrase of ~6 s first */
+ function phraseSmooth(vs,w){if(w<=1)return vs;const B=vs.length,h=Math.floor(w/2);return vs.map((_,i)=>{const a=Math.max(0,i-h),b=Math.min(B,a+w),m=new Float64Array(DIM);for(let j=a;j<b;j++)for(let d=0;d<DIM;d++)m[d]+=vs[j][d];for(let d=0;d<DIM;d++)m[d]/=b-a;return m})}
+ function distMatrix(vs){const B=vs.length,m=new Float64Array(B*B);for(let i=0;i<B;i++)for(let j=i+1;j<B;j++){const d=dist(vs[i],vs[j]);m[i*B+j]=d;m[j*B+i]=d}return m}
+ /* repetition profile (second-order similarity): similarity scaled by the median distance, smoothed along diagonals over
+    ±L bars (a repeated SEQUENCE becomes a strong stripe), then every bar = its row of similarities to the whole piece;
+    two bars of the same kind of part are similar to the same places. Returns 1 − correlation of those rows. */
+ function profileDistance(dm,B,L){
+  const off=[];for(let i=0;i<B;i++)for(let j=i+1;j<B;j+=Math.max(1,Math.floor(B/60)))off.push(dm[i*B+j]);off.sort((a,b)=>a-b);
+  const sig=off[Math.floor(off.length/2)]||1,S=new Float64Array(B*B);for(let i=0;i<B*B;i++){const d=dm[i]/sig;S[i]=Math.exp(-d*d)}
+  const Sp=new Float64Array(B*B);for(let i=0;i<B;i++)for(let j=0;j<B;j++){let s=0,c=0;for(let l=-L;l<=L;l++){const a=i+l,b=j+l;if(a<0||b<0||a>=B||b>=B)continue;s+=S[a*B+b];c++}Sp[i*B+j]=s/c}
+  const rows=[];for(let i=0;i<B;i++){const r=Sp.subarray(i*B,(i+1)*B);let m=0;for(const v of r)m+=v;m/=B;let q=0;for(const v of r)q+=(v-m)**2;const sd=Math.sqrt(q/B)||1;rows.push(Float64Array.from(r,v=>(v-m)/sd))}
+  const R=new Float64Array(B*B);for(let i=0;i<B;i++)for(let j=i+1;j<B;j++){let c=0;const a=rows[i],b=rows[j];for(let k=0;k<B;k++)c+=a[k]*b[k];const d=1-c/B;R[i*B+j]=d;R[j*B+i]=d}
+  return R;
  }
- /* letters: compare each part with the parts already named; the same material returns with the same letter */
- function label(vs,edges){
-  const parts=[];for(let i=0;i+1<edges.length;i++)parts.push({a:edges[i],b:edges[i+1],v:mean(vs,edges[i],edges[i+1])});
-  const protos=[];for(const p of parts){let best=-1,bd=Infinity;protos.forEach((q,i)=>{const d=dist(p.v,q.v);if(d<bd){bd=d;best=i}});
-   if(best>=0&&bd<.55){p.label=best;const q=protos[best];q.n++;for(let d=0;d<DIM;d++)q.v[d]+=(p.v[d]-q.v[d])/q.n}else{p.label=protos.length;protos.push({v:Float64Array.from(p.v),n:1})}}
-  const merged=[];for(const p of parts){const l=merged[merged.length-1];if(l&&l.label===p.label)l.b=p.b;else merged.push({...p})}
-  return merged;
+ function blockMean(m,B,a0,a1,b0,b1,same){let s=0,n=0;for(let i=a0;i<a1;i++)for(let j=same?i+1:b0;j<b1;j++){s+=m[i*B+j];n++}return n?s/n:0}
+ /* energy distance of two bar ranges relative to their inner spread: about 0 for the same material, larger for different */
+ let SCALE=.05;   // typical bar-to-neighbour distance of the piece (set per analysis): very even parts are not judged against ~0
+ function relDistance(m,B,a0,a1,b0,b1){const cross=blockMean(m,B,a0,a1,b0,b1,false),wa=blockMean(m,B,a0,a1,a0,a1,true),wb=blockMean(m,B,b0,b1,b0,b1,true);
+  const within=a1-a0>1&&b1-b0>1?(wa+wb)/2:Math.max(wa,wb);return (cross-within)/Math.max(within,SCALE,.05)}
+ function neighbourScale(m,B){const v=[];for(let i=0;i<B;i++){let s=0,c=0;for(let j=i+1;j<=Math.min(B-1,i+4);j++){s+=m[i*B+j];c++}if(c)v.push(s/c)}v.sort((a,b)=>a-b);return v.length?v[Math.floor(v.length/2)]:.05}
+ /* boundaries: relative novelty at two scales (4 and 8 bars), peaks at least minLen bars apart */
+ function boundaries(m,B,minLen){
+  const nov=new Float64Array(B);
+  for(let i=2;i<=B-2;i++){let s=0,c=0;for(const K of [4,8]){const k=Math.min(K,i,B-i);if(k<2||(K===8&&k<5))continue;s+=relDistance(m,B,i-k,i,i,i+k);c++}nov[i]=c?s/c:0}
+  const sorted=Array.from(nov.slice(2,B-1)).sort((x,y)=>x-y),med=sorted[Math.floor(sorted.length/2)]??0,mad=(sorted.map(v=>Math.abs(v-med)).sort((x,y)=>x-y)[Math.floor(sorted.length/2)])??0;
+  const top=Math.max(...nov),thr=Math.max(.15,Math.min(med+mad,.45*top)),cand=[];
+  for(let i=2;i<=B-2;i++){const v=nov[i];if(v<thr)continue;let peak=true;for(let j=Math.max(1,i-minLen+1);j<=Math.min(B-1,i+minLen-1);j++)if(nov[j]>v||nov[j]===v&&j<i){peak=false;break}if(peak)cand.push(i)}
+  const out=[0];for(const i of cand)if(i-out[out.length-1]>=minLen&&B-i>=minLen)out.push(i);out.push(B);return {edges:out,novelty:Array.from(nov),threshold:thr};
+ }
+ /* letters: each part joins the group whose members are closest (average linkage, relative energy distance), else a new letter */
+ function label(m,B,edges,minLen){
+  let parts=[];for(let i=0;i+1<edges.length;i++)parts.push({a:edges[i],b:edges[i+1]});
+  const SAME=.7,groups=[];   // tuned on real + progressive test sets (see tests/song_parts.test.cjs)
+  const assign=()=>{groups.length=0;for(const p of parts){let best=-1,bd=Infinity;groups.forEach((g,gi)=>{const d=g.reduce((s,q)=>s+relDistance(m,B,p.a,p.b,q.a,q.b),0)/g.length;if(d<bd){bd=d;best=gi}});
+   if(best>=0&&bd<SAME){p.label=best;groups[best].push(p)}else{p.label=groups.length;groups.push([p])}}};
+  assign();
+  // repeats in a row are one part; a part shorter than minLen joins the more similar neighbour
+  const merge=()=>{const out=[];for(const p of parts){const l=out[out.length-1];if(l&&l.label===p.label)l.b=p.b;else out.push({...p})}parts=out};
+  merge();
+  for(let guard=0;guard<B;guard++){const i=parts.findIndex(p=>p.b-p.a<minLen);if(i<0||parts.length<2)break;
+   const L=parts[i-1],R=parts[i+1],p=parts[i];const dl=L?relDistance(m,B,p.a,p.b,L.a,L.b):Infinity,dr=R?relDistance(m,B,p.a,p.b,R.a,R.b):Infinity;
+   if(dl<=dr)L.b=p.b;else R.a=p.a;parts.splice(i,1);assign();merge()}
+  // letters in order of first appearance
+  const order=new Map();for(const p of parts){if(!order.has(p.label))order.set(p.label,order.size);p.label=order.get(p.label)}
+  return parts;
  }
  function single(D,reason,extra={}){return {ok:true,rhythmic:false,reason,durationSec:D,segmentsPerBar:1,bpm:null,parts:[{index:0,label:'A',colorIndex:0,color:COLORS[0],startSec:0,endSec:D,loopStartSec:0,loopEndSec:D,bars:1,segments:1,segmentsPerBar:1,bpm:null}],...extra}}
  /* analyze({samples,sampleRate}) — samples are best decimated already (decimate()) */
- function analyze({samples,sampleRate}){
+ function analyze({samples,sampleRate,debug=false}){
   const x=samples,sr=sampleRate,D=x.length/sr;
   if(!(D>0))return {ok:false,reason:'No audio.'};
   if(D<3)return single(D,'Shorter than 3 s: one part.');
   const tp=tempo(x,sr,D);
-  if(!tp||tp.contrast<.18||tp.support<.5)return single(D,'No clear meter (drone, texture or effect): one part.',{tempo:tp});
+  if(!tp||tp.fit<.35||tp.contrast<.5||tp.support<.5)return single(D,'No clear meter (drone, texture or effect): one part.',{tempo:tp});
   const F=I.features(x,sr,-.1,D),T=tp.T,beats=track(F,T).filter(t=>t>-.05&&t<D).map(t=>Math.max(0,t));
   if(beats.length<4)return single(D,'Too few beats: one part.',{tempo:tp});
-  const bl=barLength(F,beats,T),S=bl.S,downs=[];for(let i=bl.phase;i<beats.length;i+=S)downs.push(beats[i]);
-  const barDur=T*S,lastEnd=downs[downs.length-1]+barDur;
+  const fr=frames(x,sr,D),bl=barLength(F,beats,T,fr),S=bl.S,St=bl.St,downs=[];
+  if(bl.level>1){
+   /* even meter: follow the beats once more on the counting level (quarters) – rubato and ritardandi lose fewer beats there
+      than on the fast tatum grid; the "1" is placed again (accent + harmonic change) on those beats */
+   const Tc=T*bl.level,cb=track(F,Tc).filter(t=>t>-.05&&t<D).map(t=>Math.max(0,t));
+   const ms=I.meterScoresAt(F,cb,cb.map((_,i)=>i),Tc,{maxS:S,freePhase:true}),v=ms.scores[S];
+   let ph=v?v.phase:0;
+   if(v&&fr.length){const W=Math.max(.25,Math.min(1.2,S*Tc/2)),hc=cb.map(t=>harmonicChange(fr,t,W)),m=hc.reduce((a,b)=>a+b,0)/hc.length,sd=Math.sqrt(hc.reduce((a,b)=>a+(b-m)**2,0)/hc.length)||1;
+    const pos=new Array(S).fill(0),cnt=new Array(S).fill(0);hc.forEach((h,i)=>{pos[i%S]+=(h-m)/sd;cnt[i%S]++});let bv=-Infinity;for(let p=0;p<S;p++){const sc=v.positions[p]+1.2*(cnt[p]?pos[p]/cnt[p]:0);if(sc>bv){bv=sc;ph=p}}}
+   for(let i=ph;i<cb.length;i+=S)downs.push(cb[i]);
+  }else for(let i=bl.phase;i<beats.length;i+=St)downs.push(beats[i]);
+  const barDur=T*St,lastEnd=downs[downs.length-1]+barDur;
   const bars=[];for(let i=0;i<downs.length;i++){const a=downs[i],b=i+1<downs.length?downs[i+1]:lastEnd;if(b<=D+barDur*.25)bars.push([a,Math.min(b,D)])}
   if(bars.length<2)return single(D,'Less than two bars: one part.',{tempo:tp,segmentsPerBar:S});
-  const fr=frames(x,sr,D),vs=unitVectors(fr,F,bars),minLen=bars.length>=24?4:2,k=Math.min(4,Math.max(1,Math.floor(bars.length/4)));
-  const {edges,novelty}=boundaries(vs,k,minLen),lp=label(vs,edges);
+  const vs=unitVectors(fr,F,bars),B=vs.length,dm=profileDistance(distMatrix(phraseSmooth(vs,Math.max(1,Math.min(4,Math.round(6/barDur))))),B,2),__scale=(SCALE=neighbourScale(dm,B)),minLen=Math.max(2,Math.min(8,Math.round(4/barDur)));
+  const bd=B>=2*minLen?boundaries(dm,B,minLen):{edges:[0,B],novelty:[],threshold:0},{novelty}=bd;
+  /* the diagonal smoothing blurs a change by about a bar: an edge moves by one bar when the raw bar features change clearly (25 %) more sharply there */
+  const raw=distMatrix(vs),sharp=i=>{const k=Math.min(2,i,B-i);if(k<1)return -Infinity;let c=0,n=0;for(let a=i-k;a<i;a++)for(let b=i;b<i+k;b++){c+=raw[a*B+b];n++}return c/n-(k>1?(raw[(i-2)*B+i-1]+raw[i*B+i+1])/2:0)};
+  const edges=bd.edges.map((e,j,all)=>{if(j===0||j===all.length-1)return e;const b0=sharp(e);let best=e,bv=b0;for(const d of [-1,1]){const i=e+d;if(i<=all[j-1]||i>=all[j+1])continue;const v=sharp(i);if(v>bv&&v>b0+.25*Math.abs(b0)){bv=v;best=i}}return best});
+  const lp=label(dm,B,edges,minLen);
   const fullBar=b=>b[1]-b[0]>=barDur*.9;
   const parts=lp.map((p,i)=>{
    const first=bars[p.a],last=bars[p.b-1];let whole=0;for(let j=p.a;j<p.b;j++)if(fullBar(bars[j]))whole++;
@@ -121,7 +182,21 @@ function __xenSongPartsFactory(meter){
     startSec:i===0?0:first[0],endSec:i===lp.length-1?D:bars[p.b]?.[0]??D,loopStartSec:first[0],loopEndSec:Math.max(first[0]+barDur*.5,loopEnd),
     bars:nBars,segments:nBars*S,segmentsPerBar:S,bpm:null}});
   for(const p of parts)p.bpm=60*p.segments/(p.loopEndSec-p.loopStartSec);
-  return {ok:true,rhythmic:true,durationSec:D,segmentsPerBar:S,bpm:60/T,tempo:tp,barCount:bars.length,beats:beats.length,parts,novelty};
+  /* meter per part: a part may have its own bar (4/4 verse, 7/8 bridge). Same tatum, own bar length, own "1", own counting
+     level; taken only when it explains the part clearly better than the song meter */
+  for(const p of parts){
+   const pb=beats.filter(t=>t>=p.startSec-T*.3&&t<p.endSec-T*.3);if(pb.length<24)continue;
+   const own=barLength(F,pb,T,fr);if(!own.scores||own.St===St||own.St%St===0||St%own.St===0)continue;   // 8 vs 4 is the same meter read twice
+   const sOwn=own.scores[own.St]?.score??-Infinity,sSong=own.scores[St]?.score??-Infinity;if(!(sOwn>sSong+.15))continue;
+   const start=pb[own.phase],bar=own.St*T,n=Math.max(1,Math.floor((p.endSec-start)/bar+.25));
+   Object.assign(p,{loopStartSec:start,loopEndSec:Math.min(D,start+n*bar),bars:n,segments:n*own.S,segmentsPerBar:own.S,groups:own.groups,ownMeter:true});
+   p.bpm=60*p.segments/(p.loopEndSec-p.loopStartSec);
+  }
+  // after a part with its own meter the song grid is shifted: the next part starts where the last bar of that part ends
+  for(let i=1;i<parts.length;i++){const a=parts[i-1],p=parts[i];if(!a.ownMeter||p.ownMeter)continue;
+   if(Math.abs(p.loopStartSec-a.loopEndSec)<barDur*.6){const start=a.loopEndSec,n=Math.max(1,Math.floor((p.endSec-start)/barDur+.25));
+    Object.assign(p,{loopStartSec:start,loopEndSec:Math.min(D,start+n*barDur),bars:n,segments:n*S});p.bpm=60*p.segments/(p.loopEndSec-p.loopStartSec)}}
+  return {ok:true,rhythmic:true,durationSec:D,segmentsPerBar:S,groups:bl.groups,tatumsPerBar:St,bpm:60/(T*bl.level),tempo:tp,barCount:bars.length,beats:beats.length,parts,novelty,...(debug?{debug:{bars,dm:Array.from(dm),threshold:bd.threshold}}:{})};
  }
  /* after the worker: put every loop edge on the real attack of the full-rate audio (sample exact, zero crossing) */
  function snap(result,asset){

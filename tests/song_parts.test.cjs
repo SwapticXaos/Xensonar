@@ -49,3 +49,11 @@ test('parts that differ only in harmony get their own letters; repeats in a row 
  assert.equal(r.segmentsPerBar,3);assert.equal(r.parts.map(p=>p.label).join(''),'ABABCAB');assert.deepEqual(r.parts.map(p=>p.bars),[16,8,8,8,16,8,8]);
  assert.ok(r.parts.every(p=>Math.abs(p.bpm-96)<.3),'bpm '+r.parts.map(p=>p.bpm.toFixed(2)));
 });
+test('progressive: 7/8 (2+2+3) at 240 per eighth, A B A — bar of 7, parts on the bar lines',()=>{
+ const g=[0,2,4],s=song({bpm:240,S:7,sections:[{bars:10,groups:g},{bars:10,groups:g,...sections.B},{bars:10,groups:g}]}),r=run(s.samples);
+ assert.ok(r.rhythmic,r.reason);assert.equal(r.segmentsPerBar,7,'S '+r.segmentsPerBar+' bpm '+r.bpm);assert.ok(Math.abs(r.bpm-240)<2,'bpm '+r.bpm);
+ assert.equal(r.parts.map(p=>p.label).join(''),'ABA');r.parts.forEach((p,i)=>{if(i)assert.ok(Math.abs(p.loopStartSec-s.starts[i])<.08,'part '+i+' at '+p.loopStartSec+' not '+s.starts[i])});
+});
+test('progressive: 11/8 (3+3+3+2) at 290 per eighth — bar of 11',()=>{
+ const r=run(meterMusic({bpm:290,S:11,groups:[0,3,6,9],dur:40}));assert.ok(r.rhythmic,r.reason);assert.equal(r.segmentsPerBar,11,'S '+r.segmentsPerBar+' bpm '+r.bpm);assert.ok(Math.abs(r.bpm-290)<3);
+});

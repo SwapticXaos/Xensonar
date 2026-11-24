@@ -1966,7 +1966,7 @@ function __XenSongPartsStrip({source,selection,onSelectPart,onPatch}){
  const r=state.asset===asset?state.result:null,D=r?.durationSec||source?.durationSec||0,fr=selection?.fineLoopRange;
  const pct=v=>(D>0?v/D*100:0)+'%',clock=t=>{const r=Math.round(t);return Math.floor(r/60)+':'+String(r%60).padStart(2,'0')};
  const isActive=p=>!!fr&&Math.abs(fr.startSec-p.loopStartSec)<.02&&Math.abs(fr.startSec+fr.durationSec-p.loopEndSec)<.02;
- const info=p=>p.segmentsPerBar>1?`${p.label} · ${clock(p.startSec)}–${clock(p.endSec)} · ${p.bars} bars × ${p.segmentsPerBar} = ${p.segments} segments · ${p.bpm.toFixed(2)} BPM`:`${p.label} · ${clock(p.startSec)}–${clock(p.endSec)} · no clear meter: 1 bar, 1 segment`;
+ const info=p=>p.segmentsPerBar>1?`${p.label} · ${clock(p.startSec)}–${clock(p.endSec)} · ${p.bars} bars × ${p.segmentsPerBar}${(p.groups??r?.groups)?' ('+(p.groups??r.groups).join('+')+')':''} = ${p.segments} segments · ${p.bpm.toFixed(2)} BPM${p.ownMeter?' · own meter':''}`:`${p.label} · ${clock(p.startSec)}–${clock(p.endSec)} · no clear meter: 1 bar, 1 segment`;
  const select=p=>{onSelectPart?.(p);onPatch?.(__xenMeterAnalysis.metaPatch(p.segments,p.segmentsPerBar,p.loopEndSec-p.loopStartSec))};
  const active=r?.parts.find(isActive)??null,letters=r?[...new Set(r.parts.map(p=>p.label))].length:0;
  const caption=state.status==='running'?'Analyzing the whole song …':state.status==='error'?state.error:
@@ -2045,7 +2045,7 @@ function __XenMeterAnalysisPanel({meta,onPatch,disabled,source,selection,onApply
     ...result.readings.filter((r,i)=>i<5||r.segmentsPerBar===3||r.segmentsPerBar===4||r.segmentsPerBar===chosen).map((r,i)=>h('button',{key:r.segmentsPerBar,type:'button',role:'radio','aria-checked':chosen===r.segmentsPerBar,'data-xwe-meter-reading':r.segmentsPerBar,
      className:'xwe-meter-reading'+(chosen===r.segmentsPerBar?' is-chosen':''),onClick:()=>setChosen(r.segmentsPerBar),
      title:r.barsText+' bars of '+r.segmentsPerBar+' segments = '+r.decimal+' bars'+(i===0?' · most likely reading':'')},
-     h('b',null,r.label),' · '+r.barsText+' bars'+(r.mixed!==r.barsText?' ('+r.mixed+')':'')))),
+     h('b',null,r.label),' · '+r.barsText+' bars'+(r.mixed!==r.barsText?' ('+r.mixed+')':'')+(r.groups?' · '+r.groups.join('+'):'')))),
    h('label',{className:'xwe-meter-row'},'Other bar length',h('input',{type:'number',min:1,max:16,step:1,value:otherS,placeholder:'1–16','aria-label':'Segments per bar for this reading',
     onChange:e=>{const v=e.currentTarget.value;setOtherS(v);const n=Math.round(Number(v));if(n>=1&&n<=16)setChosen(n)}}),
     chosen?h('span',null,'→ '+A.reading(result.segments,chosen).label+' = '+A.reading(result.segments,chosen).barsText+' bars'):null),

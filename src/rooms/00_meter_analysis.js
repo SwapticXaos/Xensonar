@@ -33,8 +33,19 @@ function __xenMeterAnalysisFactory(){
   for(let i=0;i<n;i++){let s=0,w=0;for(let k=-2;k<=2;k++){const j=i+k;if(j>=0&&j<n){s+=flat[j]*g[k+2];w+=g[k+2]}}sn[i]=s/w}
   return {rate:sr/hop,t0:i0/sr,n,nov:sn,nl,nh,nf,cl,cf};
  }
- /* is there a pulse at all? clear attacks stand far above the typical novelty (drone, noise, pads: they do not) */
- function pulse(F){if(F.n<32)return {ok:false,p99:0,peak:0};const a=Array.from(F.nov).sort((x,y)=>y-x),p99=a[Math.floor(a.length*.01)],p50=a[Math.floor(a.length*.5)],peak=p99/(p50+.05);return {ok:p99>=.8&&peak>=6,p99,peak}}
+ /* is there a pulse at all? two tests, both must hold (tuned on real recordings: strings, celesta, ragtime, folk, D&B vs.
+    speech, whale song, drones, noise): attacks stand out of the novelty (p99 / median), and the novelty repeats on whole
+    multiples of one period much more than half-way between them (speech has attacks but no repeating period). */
+ function pulse(F){
+  if(F.n<32)return {ok:false,p99:0,peak:0,periodicity:0};
+  const a=Array.from(F.nov).sort((x,y)=>y-x),p99=a[Math.floor(a.length*.01)],p50=a[Math.floor(a.length*.5)],peak=p99/(p50+.05);
+  const span=F.n/F.rate,cache=new Map(),ac=T=>{const k=Math.round(T*F.rate);if(!cache.has(k))cache.set(k,acf(F,T));return cache.get(k)};
+  let periodicity=-1,bt=0;
+  // only lags of 1 s and more (bar scale): speech and birdsong repeat syllables, not bars
+  for(let T=.25;T<=Math.min(2,span/4);T*=1.02){let on=0,off=0,nk=0;for(let k=Math.max(1,Math.ceil(1/T));k*T<=Math.min(6,span/2);k++){on+=ac(k*T);off+=ac((k-.5)*T);nk++}
+   const v=nk>=3?(on-off)/nk:-1;if(v>periodicity){periodicity=v;bt=T}}
+  return {ok:p99>=.25&&peak>=4.5&&periodicity>=.06,p99,peak,periodicity,period:bt};
+ }
  const at=(F,arr,t)=>{const x=(t-F.t0)*F.rate;if(x<0||x>F.n-1)return null;const i=Math.floor(x),f=x-i;return arr[i]*(1-f)+(arr[Math.min(F.n-1,i+1)]??0)*f};
  const peakNear=(F,arr,t,w)=>{const a=Math.max(0,Math.floor((t-w-F.t0)*F.rate)),b=Math.min(F.n-1,Math.ceil((t+w-F.t0)*F.rate));let m=0;for(let i=a;i<=b;i++)m=Math.max(m,arr[i]);return m};
  const meanOver=(F,arr,t,len)=>{const a=Math.max(0,Math.floor((t-F.t0)*F.rate)),b=Math.min(F.n,Math.ceil((t+len-F.t0)*F.rate));if(b<=a)return 0;let s=0;for(let i=a;i<b;i++)s+=arr[i];return s/(b-a)};
@@ -88,29 +99,72 @@ function __xenMeterAnalysisFactory(){
   return meterScoresAt(F,times,ks,T);
  }
  /* the same on given beat times (song analysis: tracked beats with drift); ks[i] = beat index, 0 = a downbeat candidate */
- function meterScoresAt(F,times,ks,T){
+ function meterScoresAt(F,times,ks,T,opt={}){
+  const maxS=opt.maxS??MAX_S,priorOf=opt.prior??(S=>({2:0,3:.05,4:.08,5:.02,6:.03,7:.02,8:.01}[S]??-.012*(S-8)));
   const rows=[];
   for(const t of times){const w=Math.min(.03,T*.15);
    rows.push([peakNear(F,F.nl,t,w),peakNear(F,F.nf,t,w),peakNear(F,F.nh,t,w),meanOver(F,F.cl,t,T*.5),meanOver(F,F.cf,t,T*.9)])}
   const K=rows.length,D=5;if(K<4)return {scores:{},segmentsInContext:K};
   for(let d=0;d<D;d++){let m=0,v=0;for(const r of rows)m+=r[d];m/=K;for(const r of rows)v+=(r[d]-m)**2;const sd=Math.sqrt(v/K)||1;for(const r of rows)r[d]=(r[d]-m)/sd}
   const acc=rows.map(r=>r[0]+.6*r[1]+.8*r[3]+.4*r[4]),scores={},raw={};
-  for(let S=2;S<=MAX_S;S++){
-   let s=0,c=0;for(let i=0;i+S<K;i++){let p=0;for(let d=0;d<D;d++)p+=rows[i][d]*rows[i+S][d];s+=p/D;c++}
+  for(let S=2;S<=maxS;S++){
+   // repetition of the RHYTHM (attack dims 0–2): harmony and level may change every bar, the bar is still the bar
+   let s=0,c=0;for(let i=0;i+S<K;i++){let p=0;for(let d=0;d<3;d++)p+=rows[i][d]*rows[i+S][d];s+=p/3;c++}
    const rep=c>0?s/c:0,cover=Math.min(1,c/(S*2));
    const ph=new Array(S).fill(0),pc=new Array(S).fill(0);for(let i=0;i<K;i++){const m=((ks[i]%S)+S)%S;ph[m]+=acc[i];pc[m]++}
-   for(let m=0;m<S;m++)ph[m]=pc[m]?ph[m]/pc[m]:0;const others=ph.slice(1),mean=ph.reduce((a,b)=>a+b,0)/S,maxOther=others.length?Math.max(...others):0;
-   const down=.5*(ph[0]-mean)+.5*(ph[0]-maxOther);
-   const prior={2:0,3:.05,4:.08,5:.02,6:.03,7:.02,8:.01}[S]??-.012*(S-8);
-   raw[S]={repetition:rep*cover,downbeat:down,prior,score:rep*cover+.35*Math.tanh(down/2)+prior};
+   for(let m=0;m<S;m++)ph[m]=pc[m]?ph[m]/pc[m]:0;
+   // anchored (mask: its start is "1") or free (song: the strongest position is "1")
+   let p0=0;if(opt.freePhase)for(let m=1;m<S;m++)if(ph[m]>ph[p0])p0=m;
+   const others=ph.filter((_,m)=>m!==p0),mean=ph.reduce((a,b)=>a+b,0)/S,maxOther=others.length?Math.max(...others):0;
+   const down=.5*(ph[p0]-mean)+.5*(ph[p0]-maxOther),prior=priorOf(S);
+   raw[S]={repetition:rep*cover,downbeat:down,prior,phase:p0,positions:ph,score:rep*cover+.35*Math.tanh(down/2)+prior};
   }
   // a bar of 10 repeats whenever a bar of 5 does: prefer the smallest bar length that explains repetition and downbeat
-  for(let S=2;S<=MAX_S;S++){let sc=raw[S].score;
+  for(let S=2;S<=maxS;S++){let sc=raw[S].score;
    for(let d=2;d<S;d++){if(S%d)continue;const r=raw[d];
     if(r.repetition>=.7*raw[S].repetition&&r.downbeat>=.8*raw[S].downbeat){sc=Math.min(sc,r.score-.05);break}
     if(r.score>=sc-.1){sc-=.14;break}}
    scores[S]={...raw[S],score:sc}}
   return {scores,segmentsInContext:K,accent:acc};
+ }
+ /* PULSE-HIERARCHY (tuned on progressive material: 5/4, 7/8, 7/4, 9/8, 11/8, 13/8, 6/8, meter changes).
+    1. tatum = the fastest EVEN pulse on which (nearly) all attacks lie: recall (attack weight on the grid) × occupancy
+       (grid points that carry an attack), F-measure, best phase anchored on real attacks;
+    2. bar length in tatums from the accent repetition (2 … 32);
+    3. counting level: tatums are paired only while the bar is even AND the accents are clearly two-part (4/4 in eighths
+       -> 4 quarters); 7/8, 9/8, 11/8, 6/8 (3+3) stay in eighths; grouping (2+2+3 …) from the accented positions. */
+ function onsetPeaks(F,t0,t1){
+  const a=Math.max(1,Math.floor((t0-F.t0)*F.rate)),b=Math.min(F.n-2,Math.ceil((t1-F.t0)*F.rate));if(b<=a)return [];
+  let m=0,c=0;for(let i=a;i<=b;i++){m+=F.nov[i];c++}m/=c;let v=0;for(let i=a;i<=b;i++)v+=(F.nov[i]-m)**2;const sd=Math.sqrt(v/c),thr=m,gap=Math.round(.05*F.rate),out=[];
+  for(let i=a;i<=b;i++){const x=F.nov[i];if(x<thr||x<F.nov[i-1]||x<F.nov[i+1])continue;const l=out[out.length-1];if(l&&i-l.i<gap){if(x>l.w)out[out.length-1]={i,t:F.t0+i/F.rate,w:x};continue}out.push({i,t:F.t0+i/F.rate,w:x})}
+  return out;
+ }
+ function gridFit(peaks,T,origin,t0,t1){
+  const tol=Math.min(.035,Math.max(.012,.12*T)),hit=new Set();let hw=0,tw=0;
+  for(const p of peaks){tw+=p.w;const k=Math.round((p.t-origin)/T);if(Math.abs(p.t-origin-k*T)<=tol){hw+=p.w;hit.add(k)}}
+  const g=Math.max(1,Math.floor((t1-origin)/T)-Math.ceil((t0-origin)/T)+1),R=tw?hw/tw:0,Pr=Math.min(1,hit.size/g);
+  return {f:R+Pr>0?2*R*Pr/(R+Pr):0,recall:R,precision:Pr};
+ }
+ function tatum(F,t0,t1,anchor=null){
+  const peaks=onsetPeaks(F,t0,t1);if(peaks.length<4)return null;
+  const strong=[...peaks].sort((a,b)=>b.w-a.w).slice(0,24),origins=anchor!=null?[anchor,...strong.map(p=>p.t)]:strong.map(p=>p.t);
+  let best=null;for(let T=.09;T<=1.2;T*=1.01){for(const o of origins){const r=gridFit(peaks,T,o,t0,t1);if(!best||r.f>best.f+1e-9)best={T,origin:o,...r}}}
+  return best;
+ }
+ /* bar prior: common tatum counts slightly, and above all a typical bar DURATION (log-normal around 1.6 s, ±1.2 octaves; tuned on the real and the progressive test sets):
+    a 0.6 s "bar" is a beat group, a 3.7 s one mostly a two-bar pattern; 7/4 at 124 (3.4 s) costs only a little */
+ const TATUM_PRIOR=(S,T0)=>{const base={2:-.05,3:.02,4:.03,6:.04,8:.05,12:.03,16:.04}[S]??(S>16?-.01*(S-16):0);if(!(T0>0))return base;const z=Math.log2(S*T0/1.6)/1.2;return base-.2*z*z};
+ /* positions[p] = mean accent of tatum position p in the bar (p = 0 is "1") */
+ function countingLevel(positions,St,T0){
+  let level=1,S=St;
+  for(;;){if(S%2||S<=2)break;const bpm=60/(T0*level);
+   let e=0,o=0;for(let j=0;j<S;j++){const v=positions[j*level];if(j%2)o+=v;else e+=v}e/=S/2;o/=S/2;
+   const duple=e-o>.3,tooFast=bpm>220&&e>=o;if(!(duple&&(S>4||bpm>200))&&!tooFast)break;S/=2;level*=2}
+  const acc=Array.from({length:S},(_,j)=>positions[j*level]),m=acc.reduce((a,b)=>a+b,0)/S,sd=Math.sqrt(acc.reduce((a,b)=>a+(b-m)**2,0)/S)||1;
+  const starts=acc.map((v,j)=>j===0||v>m+.35*sd?j:-1).filter(j=>j>=0),groups=starts.map((st,i)=>(starts[i+1]??S)-st);
+  // the grouping is shown where it says something: odd bars (7 = 2+2+3) or uneven groups; 4 = 2+2 is not worth a word
+  const uneven=groups.some(g=>g!==groups[0]);
+  return {level,S,groups:groups.length>1&&groups.length<S&&(S%2===1||uneven)?groups:null};
  }
  function fraction(N,S){
   const rn=Math.round(N);if(Math.abs(N-rn)>1e-9)return {text:String(Number((N/S).toFixed(4))),whole:Math.floor(N/S),extra:Number((N-Math.floor(N/S)*S).toFixed(4))};
@@ -142,9 +196,19 @@ function __xenMeterAnalysisFactory(){
   const F=features(samples,sr,ctx0-.02,ctx1+.05);if(F.n<16)return {ok:false,reason:'Not enough audio around the mask.'};
   let energy=0;for(let i=0;i<F.n;i++)energy+=F.nov[i];if(!(energy/F.n>1e-4))return {ok:false,reason:'No clear rhythm in or around the mask.'};
   if(!pulse(F).ok)return {ok:false,reason:'No clear pulse in or around the mask (drone, texture or noise): count it as 1 bar, 1 segment.'};
-  /* the segment period comes from the music (context + mask), not from the mask length: scan 30–350 BPM in 0.5 % steps */
+  /* the segment period comes from the music (context + mask), not from the mask length: pulse hierarchy (tatum -> bar -> counting level) */
   const forced=Number(options.segments),cands=[];
-  const scan=forced>0?[L/forced]:(()=>{const a=[];for(let T=MIN_T;T<=MAX_T;T*=1.005)a.push(T);return a})();
+  if(!(forced>0)){
+   const tt=tatum(F,ctx0,ctx1,start);
+   if(tt&&tt.f>=.35){
+    const r0=refine(F,tt.T,start,ctx0,ctx1,m0,m1),T0=r0.T,origin0=start+r0.phase;
+    const k0=Math.ceil((ctx0-origin0)/T0),k1=Math.floor((ctx1-origin0-T0*.5)/T0),times=[],ks=[];for(let k=k0;k<=k1;k++){times.push(origin0+k*T0);ks.push(k)}
+    const ms=meterScoresAt(F,times,ks,T0,{maxS:32,prior:S=>TATUM_PRIOR(S,T0)});let St=0,bs=-Infinity;for(const [S,v] of Object.entries(ms.scores))if(v.score>bs){bs=v.score;St=+S}
+    if(St){const lv=countingLevel(ms.scores[St].positions,St,T0);options={...options,__hier:{T0,St,...lv,fit:tt.f},segments:Math.max(1,Math.round(L/(T0*lv.level)))}}
+   }
+  }
+  const forcedN=Number(options.segments);
+  const scan=options.__hier?[options.__hier.T0*options.__hier.level]:forcedN>0?[L/forcedN]:(()=>{const a=[];for(let T=MIN_T;T<=MAX_T;T*=1.005)a.push(T);return a})();
   for(const T of scan){
    const ph=bestPhase(F,T,start,ctx0,ctx1,m0,m1,Math.min(.05,T*.25)),g=gridContrast(F,T,start+ph.phase,ctx0,ctx1,m0,m1),a=acf(F,T);
    const n=L/T,fit=1-Math.min(1,Math.abs(n-Math.round(n))*2);
@@ -152,17 +216,20 @@ function __xenMeterAnalysisFactory(){
   if(!cands.length)return {ok:false,reason:'No segment grid fits this mask.'};
   cands.sort((a,b)=>b.score-a.score);
   const best=cands[0],r=refine(F,best.T,start,ctx0,ctx1,m0,m1),T=r.T;
-  const exact=L/T,N=forced>0?Math.round(forced):Math.max(1,Math.round(exact));
+  const exact=L/T,N=forcedN>0?Math.round(forcedN):Math.max(1,Math.round(exact));
   const origin=start+r.phase,att=attackBefore(samples,sr,origin);
   const startPrecise=att!=null&&Math.abs(att-origin)<Math.min(.035,T*.2)?att:zeroCross(samples,sr,origin,.0007);
-  const meter=meterScores(F,T,startPrecise,ctx0,ctx1),list=readings(N,meter.scores);
+  const meter=meterScores(F,T,startPrecise,ctx0,ctx1),H=options.__hier;
+  if(H&&H.S>=2&&H.S<=MAX_S){const top=Math.max(0,...Object.values(meter.scores).map(v=>v.score));meter.scores[H.S]={...(meter.scores[H.S]||{}),score:top+.2}}
+  const list=readings(N,meter.scores);if(H&&list[0]?.segmentsPerBar===H.S&&H.groups)list[0].groups=H.groups;
   const near=(x,y)=>Math.abs(x/y-1)<.06||Math.abs(x/y-2)<.12||Math.abs(x/y-.5)<.03||Math.abs(x/y-1.5)<.09||Math.abs(x/y-2/3)<.04;
   const second=cands.find(c=>!near(c.T,best.T));
   const confidence=clamp(.5*clamp(best.contrast,0,1)+.3*clamp(best.acf,0,1)+.2*clamp(second?(best.score-second.score)/(best.score+1e-9)*2:1,0,1),0,1);
+  const conf=H?clamp(.5*confidence+.5*H.fit,0,1):confidence;
   const levels=[.5,2].map(f=>{const n=N*f;return Number.isInteger(n)&&n>=1&&L/n>=MIN_T*.9&&L/n<=MAX_T*1.1?{segments:n,bpm:Number((60*n/L).toFixed(2))}:null}).filter(Boolean);
   return {ok:true,startSec:start,durationSec:L,segmentPeriodSec:T,segmentBpm:Number((60/T).toFixed(3)),segmentsExact:Number(exact.toFixed(4)),segments:N,
    deviationSec:Number((L-N*T).toFixed(5)),startOffsetSec:Number((startPrecise-start).toFixed(5)),startPreciseSec:startPrecise,
-   confidence:Number(confidence.toFixed(3)),segmentsInContext:meter.segmentsInContext,meterScores:meter.scores,readings:list,best:list[0]??null,levels,
+   confidence:Number(conf.toFixed(3)),hierarchy:H?{tatumSec:H.T0,tatumsPerBar:H.St,level:H.level,groups:H.groups}:null,segmentsInContext:meter.segmentsInContext,meterScores:meter.scores,readings:list,best:list[0]??null,levels,
    context:{startSec:Number(ctx0.toFixed(3)),endSec:Number(ctx1.toFixed(3))},__F:F};
  }
  /* cut a loop of `segments` (may be fractional) segments from the analysed grid; snaps the end to the next real attack */
@@ -203,7 +270,7 @@ function __xenMeterAnalysisFactory(){
  }
  const strip=a=>{if(!a||typeof a!=='object')return a;const {__F,...rest}=a;return rest};
  return Object.freeze({analyze:(...x)=>strip(analyze(...x)),analyzeRaw:analyze,cut,microCorrect:(...x)=>strip(microCorrect(...x)),fitTarget:(...x)=>strip(fitTarget(...x)),readings,reading,metaPatch,asRepairResult,fraction,
-  internals:Object.freeze({pulse,features,at,comb,acf,tempoPrior,gridContrast,bestPhase,refine,attackBefore,zeroCross,meterScoresAt,MIN_T,MAX_T})});
+  internals:Object.freeze({pulse,onsetPeaks,gridFit,tatum,countingLevel,TATUM_PRIOR,features,at,comb,acf,tempoPrior,gridContrast,bestPhase,refine,attackBefore,zeroCross,meterScoresAt,MIN_T,MAX_T})});
 }
 const __xenMeterAnalysis=__xenMeterAnalysisFactory();
 /* Loop korrigieren (micro) for lGe: the counted segments on the exact grid, real attacks; null = fall back to the old tempo repair */

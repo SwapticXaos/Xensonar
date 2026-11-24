@@ -61,3 +61,9 @@ test('negative: silence and noise give no invented meter',()=>{
  assert.ok(!a.ok||a.confidence<.35,'noise confidence '+a.confidence);
  assert.equal(M.analyze(asset(meterMusic({})),2,.1).ok,false,'too short');
 });
+test('progressive masks: 9/8 (2+2+2+3) and 11/8 (3+3+3+2) are counted in eighths, read as 2 × 9 and 2 × 11',()=>{
+ for(const [S,groups,bpm] of [[9,[0,2,4,6],330],[11,[0,3,6,9],290],[13,[0,3,6,9,11],310]]){
+  const beat=60/bpm,a=M.analyze(asset(meterMusic({bpm,S,groups,dur:40})),beat*S*4,beat*S*2);
+  assert.ok(a.ok,a.reason);assert.equal(a.segments,2*S,S+': '+a.segments+' segments at '+a.segmentBpm);assert.equal(a.best.segmentsPerBar,S,S+': best '+a.best.label);
+ }
+});
