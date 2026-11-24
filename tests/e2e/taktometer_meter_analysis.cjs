@@ -28,6 +28,19 @@ const BPM=132,beat=60/BPM,file=path.join(dir,'five_four_132.wav');fs.writeFileSy
  assert.equal(await first.getAttribute('aria-checked'),'true','the most likely reading is preselected');
  assert.ok(await menu.locator('[data-xwe-meter-reading="4"]').count()&&await menu.locator('[data-xwe-meter-reading="3"]').count(),'3 × 4 and 4 × 3 stay on offer');
  assert.equal(await menu.locator('[data-xwe-meter-deviation]').count(),1,'the mask is off the grid: '+t);
+ // TAKT-PREVIEW-01: the chosen reading is drawn on the Taktometer (amber bar lines), hovering another compares, Listen lets the segments glow
+ const scan=()=>p.evaluate(()=>{const c=document.querySelector('[data-xen-bar-meter]'),g=c.getContext('2d').getImageData(0,0,c.width,c.height).data,W=c.width,y=c.height-3;let bars=0,inBar=false,glow=0;
+  for(let x=0;x<W;x++){const i=(y*W+x)*4,amber=g[i]>160&&g[i+1]>100&&g[i+2]<110&&g[i]>g[i+2]+80;if(amber&&!inBar)bars++;inBar=amber;const j=(Math.floor(c.height/2)*W+x)*4;if(g[j+2]>200&&g[j+1]>150&&g[j]<180)glow++}return {bars,glow}});
+ await p.waitForTimeout(300);let sc=await scan();assert.equal(sc.bars,4,'2 × 5 + 2: bar lines at 0, 5, 10 and the end: '+JSON.stringify(sc));
+ await menu.locator('[data-xwe-meter-reading="3"]').hover();await p.waitForTimeout(300);sc=await scan();assert.equal(sc.bars,5,'hover 4 × 3: 0, 3, 6, 9, 12: '+JSON.stringify(sc));
+ await menu.locator('[data-xwe-meter-reading="5"]').hover();await p.waitForTimeout(200);
+ await act('listen').click();await p.waitForTimeout(900);sc=await scan();assert.ok(sc.glow>3,'a segment glows while the loop plays: '+JSON.stringify(sc));
+ if(process.env.SHOT){const m=p.locator('[data-xen-bar-meter]');await m.screenshot({path:process.env.SHOT})}
+ await act('listen').click().catch(()=>{});
+ // the close button sits in the top right corner and is big enough
+ {const mb=await menu.boundingBox(),cb=await menu.locator('[data-xwe-meter-close]').boundingBox();assert.ok(cb.width>=24&&cb.height>=24&&mb.x+mb.width-(cb.x+cb.width)<12&&cb.y-mb.y<12,'close button top right: '+JSON.stringify({mb,cb}))}
+ // a press on the page scrollbar does not close the menu
+ await p.evaluate(()=>{const ev=new PointerEvent('pointerdown',{bubbles:true,clientX:innerWidth-2,clientY:200});document.documentElement.dispatchEvent(ev)});await p.waitForTimeout(200);assert.equal(await menu.count(),1,'scrollbar press keeps the menu');
  // ---- Correct & apply: exact 12 segments, bars 12/5, segments 5, time truth ----
  await act('correct-apply').click();await p.waitForTimeout(500);
  assert.equal(await barsValue(),'12/5');assert.equal(await segValue(),'5');

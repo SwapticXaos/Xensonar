@@ -2030,7 +2030,7 @@
 {
 "file": "styles/post-oct/071-xen-wave-editor-w01-css.css",
 "status": "post-oct",
-"bytes": 39575,
+"bytes": 40205,
 "oct28_bytes": 0
 },
 {
@@ -2114,7 +2114,7 @@
 {
 "file": "src/rooms/lab.js",
 "status": "oct-evolved",
-"bytes": 683800,
+"bytes": 688279,
 "oct28_bytes": 565054
 },
 {
