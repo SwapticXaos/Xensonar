@@ -18,6 +18,8 @@ const file=path.join(dir,'abacb_mt.wav');fs.writeFileSync(file,wav(song({bpm:120
  const strip=p.locator('.xwe-song-strip');await strip.scrollIntoViewIfNeeded();const sb=await strip.boundingBox();
  await p.mouse.click(sb.x+sb.width*.1,sb.y+sb.height*.3,{button:'right'});const menu=p.locator('[data-xwe-song-menu]');await menu.waitFor();
  await menu.locator('[data-xwe-song-num="every"]').fill('4');await menu.locator('[data-xwe-song-action="every"]').click();await p.waitForTimeout(300);
+ // PART-NAMES-01: the kind A is called "Verse" – the name travels to the Multitrack clip
+ await p.mouse.click(sb.x+sb.width*.1,sb.y+sb.height*.3,{button:'right'});await menu.waitFor();await menu.locator('[data-xwe-song-name="A"]').fill('Verse');await menu.locator('[data-xwe-song-name="A"]').press('Enter');await p.waitForTimeout(300);
  const stripColors=await p.locator('[data-xwe-song-part]').evaluateAll(n=>n.map(x=>getComputedStyle(x).backgroundColor));
  // the Wave Editor sends its document (same length as the analysed audio) to the Multitrack
  const status=await p.evaluate(async()=>{const w=globalThis.__XenWaveUIW01;const c=[...document.querySelectorAll('canvas')].find(c=>{try{return w.getEditor(c)?.doc?.frames>0}catch{return false}});
@@ -34,7 +36,7 @@ const file=path.join(dir,'abacb_mt.wav');fs.writeFileSync(file,wav(song({bpm:120
  assert.deepEqual(v.secs.map(q=>q.l),['A1','A2'],'sections of the first A at the bottom: '+JSON.stringify(v.secs.map(q=>q.l)));
  assert.ok(v.secs.every(q=>q.bottom<=1.5&&q.h<v.h*.4),'sections sit at the bottom: '+JSON.stringify(v.secs)+' h '+v.h);assert.ok(v.parts.every(q=>q.top>=13),'the name band (clip colour) stays on top');
  const hex=s=>'#'+(s.match(/\d+/g)||[]).slice(0,3).map(n=>(+n).toString(16).padStart(2,'0')).join('');assert.deepEqual(v.parts.map(q=>q.pc),stripColors.map(hex),'part colours as in the strip');assert.notEqual(v.secs[0].pc,v.secs[1].pc,'sections in their own shades');
- assert.match(v.title,/Song parts: A \(A1 A2\) · B · A · C · B/);
+ assert.match(v.title,/Song parts: Verse \(Verse 1 Verse 2\) · B · Verse · C · B/,v.title);
  // saved with the project
  await p.reload();await p.waitForTimeout(3500);await open();await clip.waitFor({timeout:30000});v=await read();
  assert.deepEqual(v.parts.map(q=>q.l),[...'ABACB'],'after a reload');assert.equal(v.secs.length,2);

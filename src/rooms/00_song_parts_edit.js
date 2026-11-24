@@ -122,9 +122,21 @@ function __xenSongPartsEditFactory(storage=null){
  function save(asset,parts){const k=keyOf(asset);if(!k)return;const v={savedAt:Date.now(),parts:parts.map(p=>({startSec:p.startSec,endSec:p.endSec,label:p.label,segmentsPerBar:p.segmentsPerBar,groups:p.groups??null,cuts:p.cuts??[],edited:!!p.edited}))};
   mem.set(k,v);try{storage?.setItem(KEY+k,JSON.stringify(v))}catch{}listeners.forEach(f=>{try{f(k)}catch{}})}
  function clear(asset){const k=keyOf(asset);if(!k)return;mem.delete(k);try{storage?.removeItem(KEY+k)}catch{}listeners.forEach(f=>{try{f(k)}catch{}})}
- /* the parts to show: the saved working copy (re-derived on the current grid) or the analysis */
- function current(asset,result){const v=load(asset);if(!v||!result?.ok)return {parts:result?.parts??[],edited:false};
-  return {parts:normalize(v.parts,result.grid,result.durationSec),edited:true}}
+ /* PART-NAMES-01: a name and a colour per KIND of part (letter), per song: all A parts are "Verse" and share the colour, their
+    sections read "Verse 1", "Verse 2" in shades of it. The letter stays the identity (what returns), the name is what you read. */
+ const KIND_KEY='xensonar.songParts.kinds.v1:',HEXC=/^#[0-9a-f]{6}$/i;
+ function kinds(asset){const k=keyOf(asset);if(!k)return {};try{const v=JSON.parse(storage?.getItem(KIND_KEY+k)||'{}');return v&&typeof v==='object'?v:{}}catch{return {}}}
+ function setKind(asset,letter,patch){const k=keyOf(asset);if(!k||!letter)return;const all=kinds(asset),cur={...(all[letter]||{})};
+  if('name' in patch){const n=String(patch.name??'').trim().slice(0,32);if(n&&n!==letter)cur.name=n;else delete cur.name}
+  if('color' in patch){if(HEXC.test(patch.color||''))cur.color=String(patch.color).toLowerCase();else delete cur.color}
+  if(Object.keys(cur).length)all[letter]=cur;else delete all[letter];
+  try{Object.keys(all).length?storage?.setItem(KIND_KEY+k,JSON.stringify(all)):storage?.removeItem(KIND_KEY+k)}catch{}listeners.forEach(f=>{try{f('kinds')}catch{}})}
+ function decorate(parts,kd){if(!kd||!Object.keys(kd).length)return parts;return parts.map(p=>{const o=kd[p.label];if(!o)return p;const color=o.color||p.color;
+  return {...p,...(o.name?{name:o.name}:{}),color,subParts:p.subParts?p.subParts.map((q,k)=>({...q,shade:o.color?shade(color,k):q.shade})):p.subParts}})}
+ const displayName=p=>p?.name||p?.label||'';
+ /* the parts to show: the saved working copy (re-derived on the current grid) or the analysis, with names and colours */
+ function current(asset,result){const v=load(asset),kd=kinds(asset);if(!v||!result?.ok)return {parts:decorate(result?.parts??[],kd),edited:false};
+  return {parts:decorate(normalize(v.parts,result.grid,result.durationSec),kd),edited:true}}
  /* SONG-PARTS-MANUAL-01: the finished song analysis is kept per song (without the novelty curve), so a song that was analysed
     once shows its parts at once after a reload; a new song is only analysed when the strip is clicked. At most MAX_RESULTS songs. */
  const RES_KEY='xensonar.songParts.analysis.v1:',RES_INDEX='xensonar.songParts.analysis.index.v1',MAX_RESULTS=24,resMem=new Map();
@@ -149,7 +161,7 @@ function __xenSongPartsEditFactory(storage=null){
  const SNAP_KEY='xensonar.songParts.snap.v1';
  function snapMode(){try{const v=storage?.getItem(SNAP_KEY);return v==='bar'||v==='beat'||v==='off'?v:'bar'}catch{return 'bar'}}
  function setSnapMode(m){try{storage?.setItem(SNAP_KEY,m)}catch{}listeners.forEach(f=>{try{f('snap')}catch{}})}
- return Object.freeze({snapTime,snapRange,moveBoundary,split,merge,setLabel,addCut,subdivideEven,subdivideEvery,setCuts,moveCut,removeCut,clearCuts,shade,nextLetter,normalize,colorOf,keyOf,load,save,clear,loadResult,saveResult,clearResult,tonalList,tonalFor,saveTonal,clearTonal,current,snapMode,setSnapMode,
+ return Object.freeze({snapTime,snapRange,moveBoundary,split,merge,setLabel,addCut,subdivideEven,subdivideEvery,setCuts,moveCut,removeCut,clearCuts,shade,nextLetter,normalize,colorOf,keyOf,load,save,clear,kinds,setKind,decorate,displayName,loadResult,saveResult,clearResult,tonalList,tonalFor,saveTonal,clearTonal,current,snapMode,setSnapMode,
   subscribe:f=>(listeners.add(f),()=>listeners.delete(f))});
 }
 const __xenSongPartsEdit=__xenSongPartsEditFactory(typeof localStorage!=='undefined'?localStorage:null);

@@ -76,3 +76,12 @@ test('free numbers: every 7 bars, every 1.5 bars (in segments), every 0.5 bar, e
  p=E.subdivideEven(short,0,4,grid,total);assert.deepEqual(p[0].cuts,[1,2,3],'2 bars into 4: on segments');
  assert.equal(E.subdivideEvery(one,0,0,grid,total),one);assert.equal(E.subdivideEvery(one,0,NaN,grid,total),one);
 });
+test('PART-NAMES-01: a name and a colour per kind (letter) – every part of it and its sections follow; reset returns to the letter',()=>{
+ const st=memStore(),E=factory(st),asset={fileName:'n.wav',originalDuration:40,sampleRate:44100},{parts}=base();
+ const result={ok:true,durationSec:40,grid,parts:E.subdivideEven(parts,0,2,grid,total)};
+ E.setKind(asset,'A',{name:'Verse',color:'#123456'});
+ const v=factory(st).current(asset,result).parts;assert.deepEqual(v.map(p=>E.displayName(p)),['Verse','B','Verse']);assert.ok(v.filter(p=>p.label==='A').every(p=>p.color==='#123456'));
+ assert.equal(v[1].color,E.colorOf('B'),'other kinds keep their colour');assert.equal(v[0].subParts.length,2);assert.notEqual(v[0].subParts[0].shade,v[0].subParts[1].shade);
+ E.setKind(asset,'A',{name:'',color:null});assert.deepEqual(factory(st).kinds(asset),{});assert.equal(factory(st).current(asset,result).parts[0].name,undefined);
+ E.setKind(asset,'A',{name:'A'});assert.deepEqual(E.kinds(asset),{},'the letter itself is no name');E.setKind(asset,'B',{color:'red'});assert.deepEqual(E.kinds(asset),{},'only #rrggbb');
+});

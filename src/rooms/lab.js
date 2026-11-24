@@ -1982,8 +1982,8 @@ function __xenSongPartsExport(asset,durationSec){
  if(!result?.ok||!result.parts?.length||(Number.isFinite(durationSec)&&Math.abs(durationSec-result.durationSec)>.05))return null;
  const E=__xenSongPartsEdit,parts=E.current(asset,result).parts,r3=t=>Math.round(t*1000)/1000;
  if(parts.length<2&&!(parts[0]?.subParts?.length>1))return null;
- return {v:1,durationSec:r3(result.durationSec),parts:parts.slice(0,256).map(p=>({s:r3(p.startSec),e:r3(p.endSec),l:String(p.label).slice(0,4),c:p.color||E.colorOf(p.label),
-  subs:(p.subParts?.length>1?p.subParts:[]).slice(0,64).map((q,k)=>({s:r3(q.startSec),e:r3(q.endSec),l:String(p.label).slice(0,4)+(k+1),c:q.shade??E.shade(p.color||E.colorOf(p.label),k)}))}))};
+ return {v:1,durationSec:r3(result.durationSec),parts:parts.slice(0,256).map(p=>({s:r3(p.startSec),e:r3(p.endSec),l:String(p.label).slice(0,4),...(p.name?{n:p.name}:{}),c:p.color||E.colorOf(p.label),
+  subs:(p.subParts?.length>1?p.subParts:[]).slice(0,64).map((q,k)=>({s:r3(q.startSec),e:r3(q.endSec),l:String(p.label).slice(0,4)+(k+1),...(p.name?{n:p.name+' '+(k+1)}:{}),c:q.shade??E.shade(p.color||E.colorOf(p.label),k)}))}))};
 }
 globalThis.__xenSongPartsExport=__xenSongPartsExport;
 /* MT-SONGPARTS-02: a Multitrack clip opened in the Wave Editor brings its parts along: the strip shows them at once (no analysis),
@@ -1995,7 +1995,9 @@ function __xenSongPartsFromRoundTrip(asset){
  const lines=(first,step)=>{const out=[];for(let t=first;t<=D+1e-6;t+=step)out.push(r3(t));return out};
  const grid={bars:lines(((bpb-(sb%bpb))%bpb)*spb,bpb*spb),segments:lines(((1-(sb%1))%1)*spb,spb),barSec:bpb*spb,segmentsPerBar:S};
  const E=__xenSongPartsEdit,parts=E.normalize(inc.parts.map(q=>({startSec:q.s,endSec:q.e,label:q.l,segmentsPerBar:S,cuts:(q.subs||[]).slice(1).map(r=>r.s)})),grid,D);
- const result={ok:true,rhythmic:true,fromMultitrack:true,durationSec:D,grid,segmentsPerBar:S,bpm:inc.bpm,parts};E.saveResult(asset,result);return result;
+ const result={ok:true,rhythmic:true,fromMultitrack:true,durationSec:D,grid,segmentsPerBar:S,bpm:inc.bpm,parts};E.saveResult(asset,result);
+ const seen=new Set();for(const q of inc.parts){if(seen.has(q.l))continue;seen.add(q.l);if(q.n||(q.c&&q.c!==E.colorOf(q.l)))E.setKind(asset,q.l,{...(q.n?{name:q.n}:{}),...(q.c&&q.c!==E.colorOf(q.l)?{color:q.c}:{})})}
+ return result;
 }
 /* SONG-PARTS-EDIT-01: snap the purple loop mask while it is dragged (only the moving edge; a moved mask keeps its length) */
 function __xenSnapMaskDrag(range,mode,source){
@@ -2006,6 +2008,7 @@ function __xenSnapMaskDrag(range,mode,source){
 }
 /* the last numbers typed into "Subdivide every / evenly" (for the next menu) and the parser for bar counts: 7, 1.5, 1,5, 3/2 */
 const __xenSongSubdivideLast={every:'2',even:'4'};
+const __XEN_PART_SWATCHES=['#38bdf8','#f472b6','#a3e635','#fbbf24','#a78bfa','#2dd4bf','#fb923c','#f87171','#818cf8','#e879f9','#facc15','#4ade80','#94a3b8','#f5f5f4'];
 function __xenParseBarsNumber(v){const t=String(v??'').trim().replace(',','.'),f=/^(\d+(?:\.\d+)?)\s*\/\s*(\d+(?:\.\d+)?)$/.exec(t);
  const n=f?Number(f[1])/Number(f[2]):/^\d*\.?\d+$/.test(t)?Number(t):NaN;return Number.isFinite(n)&&n>0?n:NaN}
 /* KEY-02: the Wave Editor's analysis (pitch lines -> root in Hz, tuning system, scale; 015b) on one part, in its own worker.
@@ -2100,14 +2103,14 @@ function __XenSongPartsStrip({source,selection,onSelectPart,onPatch,onCue}){
  const timeAt=clientX=>{const rect=stripRef.current?.getBoundingClientRect();return rect?Math.max(0,Math.min(D,(clientX-rect.left)/Math.max(1,rect.width)*D)):0};
  const pct=v=>(D>0?v/D*100:0)+'%',clock=t=>{const r=Math.round(t);return Math.floor(r/60)+':'+String(r%60).padStart(2,'0')};
  const isActive=p=>!!fr&&Math.abs(fr.startSec-p.loopStartSec)<.02&&Math.abs(fr.startSec+fr.durationSec-p.loopEndSec)<.02;
- const infoBase=p=>p.segmentsPerBar>1?`${p.label} · ${clock(p.startSec)}–${clock(p.endSec)} · ${p.bars} bars × ${p.segmentsPerBar}${(p.groups??r?.groups)?' ('+(p.groups??r.groups).join('+')+')':''} = ${p.segments} segments · ${p.bpm.toFixed(2)} BPM${p.ownMeter?' · own meter':''}${p.edited?' · edited':''}`:`${p.label} · ${clock(p.startSec)}–${clock(p.endSec)} · no clear meter: 1 bar, 1 segment`;
+ const infoBase=p=>p.segmentsPerBar>1?`${E.displayName(p)} · ${clock(p.startSec)}–${clock(p.endSec)} · ${p.bars} bars × ${p.segmentsPerBar}${(p.groups??r?.groups)?' ('+(p.groups??r.groups).join('+')+')':''} = ${p.segments} segments · ${p.bpm.toFixed(2)} BPM${p.ownMeter?' · own meter':''}${p.edited?' · edited':''}`:`${E.displayName(p)} · ${clock(p.startSec)}–${clock(p.endSec)} · no clear meter: 1 bar, 1 segment`;
  const info=p=>{const k=keyOf(p),t=E.tonalFor(asset,p),ag=__xenTonalAgreement(k,t);
   const other=!p.parent&&k&&k.clarity!=='unclear'?shown.find(q=>q!==p&&q.label===p.label&&(()=>{const k2=keyOf(q);return k2&&k2.clarity!=='unclear'&&k2.pc!==k.pc&&__xenSongParts.keyDistance(k,k2)>=2})()):null;
   return infoBase(p)+(k?' · '+keyText(k):'')+(other?' · other key than the '+p.label+' at '+clock(other.startSec):'')+(t?' · '+__xenTonalText(t)+(ag?' ('+ag+')':''):'')};
  const select=p=>{onSelectPart?.(p);onPatch?.(__xenMeterAnalysis.metaPatch(p.segments,p.segmentsPerBar,p.loopEndSec-p.loopStartSec))};
  /* SONG-PARTS-02: two levels. Level 1 = the parts (letters, colours: what returns). Level 2 = sections inside a part (F1, F2 …):
     thin lines in the strip; the first click takes the whole part, a further click on it the section under the pointer */
- const subsOf=p=>(p.subParts??[]).map((q,k)=>({...q,label:p.label+(k+1),parent:p,segmentsPerBar:q.segmentsPerBar??p.segmentsPerBar,groups:p.groups,shade:q.shade??E.shade(p.color,k)}));
+ const subsOf=p=>(p.subParts??[]).map((q,k)=>({...q,label:p.label+(k+1),name:p.name?p.name+' '+(k+1):undefined,parent:p,segmentsPerBar:q.segmentsPerBar??p.segmentsPerBar,groups:p.groups,shade:q.shade??E.shade(p.color,k)}));
  const activeSub=shown.flatMap(subsOf).find(isActive)??null;
  const active=activeSub??shown.find(isActive)??null,letterList=[...new Set(shown.map(p=>p.label))];
  const clickPart=(p,event)=>{setNote('');
@@ -2150,7 +2153,7 @@ function __XenSongPartsStrip({source,selection,onSelectPart,onPatch,onCue}){
  const barAt=(p,t)=>{const b=barsIn(p);let k=0;for(let j=0;j<b.length;j++)if(b[j]<=t+.05)k=j;return k+1};
  const menuEl=menu&&shown[menu.i]?(()=>{const i=menu.i,p=shown[i],t=E.snapTime(menu.t,grid,snap),mb=(label,fn,extra={})=>h('button',{type:'button',className:'xwe-song-menu-btn','data-xwe-song-action':extra.id,disabled:extra.disabled,onClick:act(fn)},label);
   return h('div',{'data-xwe-song-menu':true,className:'xwe-song-menu',role:'menu',style:(()=>{const top=Math.max(6,Math.min(menu.y,innerHeight-430));return {left:Math.max(6,Math.min(menu.x-20,innerWidth-(menu.barPick?560:330))),top,maxHeight:innerHeight-top-6,overflowY:'auto'}})()},
-   h('div',{className:'xwe-song-menu-title'},'Part '+p.label+' · '+clock(p.startSec)+'–'+clock(p.endSec)),
+   h('div',{className:'xwe-song-menu-title'},'Part '+E.displayName(p)+(p.name?' ('+p.label+')':'')+' · '+clock(p.startSec)+'–'+clock(p.endSec)),
    mb('Split here at '+clock(t)+' ('+(snap==='off'?'free':'snapped to '+snap)+')',()=>commit(E.split(view.parts,i,menu.t,grid,snap,D)),{id:'split',disabled:!(t>p.startSec+.5&&t<p.endSec-.5)}),
    mb('Merge with next part',()=>commit(E.merge(view.parts,i,grid,D)),{id:'merge-next',disabled:i>=shown.length-1}),
    mb('Merge with previous part',()=>commit(E.merge(view.parts,i-1,grid,D)),{id:'merge-prev',disabled:i<=0}),
@@ -2187,10 +2190,20 @@ function __XenSongPartsStrip({source,selection,onSelectPart,onPatch,onCue}){
    h('div',{className:'xwe-song-menu-hint','data-xwe-song-keyline':true},(()=>{const k=keyOf(p),t=E.tonalFor(asset,p);return (k?keyText(k)[0].toUpperCase()+keyText(k).slice(1)+' (chroma)':'No key')+(t?' · '+__xenTonalText(t):'')})()),
    mb((E.tonalFor(asset,p)?'Analyse again: ':'')+'Key & scale of '+p.label+' (pitch lines: root in Hz, tuning, scale)',()=>runTonal([p]),{id:'tonal-part',disabled:!!tonalRun||p.endSec-p.startSec<4}),
    h('div',{className:'xwe-song-menu-sep'},'Parts'),
-   h('div',{className:'xwe-song-menu-row'},'Letter:',...letterList.concat(E.nextLetter(shown)).map(l=>h('button',{key:l,type:'button','data-xwe-song-letter':l,className:'xwe-song-letter'+(l===p.label?' is-current':''),style:{background:E.colorOf(l)},onClick:act(()=>commit(E.setLabel(view.parts,i,l,grid,D)))},l))),
+   h('div',{className:'xwe-song-menu-row'},'Kind:',...letterList.concat(E.nextLetter(shown)).map(l=>{const q=shown.find(x=>x.label===l);return h('button',{key:l,type:'button','data-xwe-song-letter':l,title:q?.name?l+' = '+q.name:'kind '+l,className:'xwe-song-letter'+(l===p.label?' is-current':''),style:{background:q?.color||E.colorOf(l)},onClick:act(()=>commit(E.setLabel(view.parts,i,l,grid,D)))},l)})),
+   /* PART-NAMES-01: name and colour of the kind – every part of this letter, and its sections, follow */
+   (()=>{const draft=menu.name??(p.name||''),saveName=()=>{E.setKind(asset,p.label,{name:draft});setNote(draft.trim()?'All '+p.label+' parts are now called "'+draft.trim()+'".':'Name of '+p.label+' removed.')};
+    return [h('div',{key:'name',className:'xwe-song-menu-row'},'Name of all '+p.label+':',
+      h('input',{type:'text',className:'xwe-song-menu-name','data-xwe-song-name':p.label,'aria-label':'Name of all '+p.label+' parts',placeholder:p.label+' (e.g. Verse, Chorus, Drop)',value:draft,maxLength:32,
+       onChange:e=>{const v=e.currentTarget.value;setMenu(m=>m&&{...m,name:v})},onKeyDown:e=>{if(e.key==='Enter'){e.preventDefault();saveName();setMenu(null)}}}),
+      h('button',{type:'button',className:'xwe-song-menu-btn xwe-song-menu-small','data-xwe-song-action':'name',onClick:act(saveName)},'Set')),
+     h('div',{key:'colour',className:'xwe-song-menu-row xwe-song-colours'},'Colour:',
+      ...__XEN_PART_SWATCHES.map(c=>h('button',{key:c,type:'button','data-xwe-song-colour':c,'aria-label':'Colour '+c,className:'xwe-song-swatch'+(c===p.color?' is-current':''),style:{background:c},onClick:act(()=>E.setKind(asset,p.label,{color:c}))})),
+      h('input',{type:'color','data-xwe-song-colour-free':true,'aria-label':'Any colour for '+p.label,value:p.color||'#38bdf8',onChange:e=>E.setKind(asset,p.label,{color:e.currentTarget.value})}),
+      (p.name||E.kinds(asset)[p.label]?.color)?h('button',{type:'button',className:'xwe-song-menu-btn xwe-song-menu-small','data-xwe-song-action':'kind-reset',title:'Back to the letter and its colour',onClick:act(()=>E.setKind(asset,p.label,{name:'',color:null}))},'Reset'):null)]})(),
    view.edited?mb('Reset all parts to the analysis',()=>E.clear(asset),{id:'reset'}):null)})():null;
  const caption=tonalRun?'Key & scale (pitch lines): part '+(tonalRun.i+1)+' of '+tonalRun.n+' · '+tonalRun.label+' · '+tonalRun.pct+' % · ■ Key cancels':note?note:state.status==='ready'?'Song parts: not analyzed yet · click the bar below to analyze (it is kept for this song)':state.status==='running'?'Analyzing the whole song … (step by step, in the background)':state.status==='error'?state.error:
-  active?info(active):r?(r.rhythmic?`${shown.length} parts · ${letterList.length} kinds (${letterList.join(' ')}) · ${r.segmentsPerBar} segments per bar · ${r.bpm.toFixed(2)} BPM · click a part`:'One part · '+(r.reason||'no clear meter')):'';
+  active?info(active):r?(r.rhythmic?`${shown.length} parts · ${letterList.length} kinds (${letterList.map(l=>E.displayName(shown.find(q=>q.label===l))).join(' ')}) · ${r.segmentsPerBar} segments per bar · ${r.bpm.toFixed(2)} BPM · click a part`:'One part · '+(r.reason||'no clear meter')):'';
  return h('div',{className:'xwe-song-parts','data-xwe-song-parts':state.status,'data-xwe-song-edited':view.edited||undefined},
   h('div',{className:'xwe-song-caption'},h('span',{'data-xwe-song-caption':true},caption),
    h('span',{className:'xwe-song-tools'},
@@ -2208,17 +2221,17 @@ function __XenSongPartsStrip({source,selection,onSelectPart,onPatch,onCue}){
      className:'xwe-song-part'+(isActive(p)?' is-active':subsOf(p).some(isActive)?' has-active-sub':'')+(p.edited?' is-edited':''),style:{left:pct(p.startSec),width:pct(p.endSec-p.startSec),background:p.color},
      title:info(p)+' · click: view range, loop mask and Taktometer on this part'+(subsOf(p).length>1?' · click again: section '+subsOf(p).map(q=>q.label).join(' / '):'')+' · right click: split / merge / subdivide / letter · Shift + click: section boundary here','aria-label':'Part '+info(p),'aria-pressed':isActive(p)||subsOf(p).some(isActive),'data-xwe-song-subs':subsOf(p).length||undefined,
      onClick:event=>clickPart(p,event),onContextMenu:event=>{event.preventDefault();setMenu({i:p.index,t:timeAt(event.clientX),x:event.clientX,y:menuY(event.clientY)})}},
-     (p.endSec-p.startSec)/Math.max(1e-9,D)>.025?p.label:'',
+     (p.endSec-p.startSec)/Math.max(1e-9,D)>.025?E.displayName(p):'',
      (()=>{const k=(p.endSec-p.startSec)/Math.max(1e-9,D)>.06?keyOf(p):null;return k?h('span',{className:'xwe-song-key'+(k.clarity==='unclear'?' is-unclear':''),'data-xwe-song-key':keyShort(k),'aria-hidden':true},keyShort(k)+(k.clarity==='unclear'?'?':'')+(E.tonalFor(asset,p)?.ok?' ♪':'')):null})(),
      /* sections: the part colour on top, each section fades into its own shade below, labelled C1, C2 … */
      ...subsOf(p).map((q,k)=>{const span=Math.max(1e-9,p.endSec-p.startSec),l=(q.startSec-p.startSec)/span*100,w=(q.endSec-q.startSec)/span*100,wide=(q.endSec-q.startSec)/Math.max(1e-9,D)>.03;
-      return h('span',{key:'s'+k,className:'xwe-song-sec'+(isActive(q)?' is-active':'')+(k?' has-line':''),'data-xwe-song-sub':q.label,style:{left:l+'%',width:w+'%','--sec':q.shade}},wide?h('span',{className:'xwe-song-sec-label'},q.label):null)}))),
+      return h('span',{key:'s'+k,className:'xwe-song-sec'+(isActive(q)?' is-active':'')+(k?' has-line':''),'data-xwe-song-sub':q.label,style:{left:l+'%',width:w+'%','--sec':q.shade}},wide?h('span',{className:'xwe-song-sec-label'},q.name||q.label):null)}))),
    ...shown.slice(1).map((p,k)=>h('span',{key:'h'+(k+1),className:'xwe-song-handle'+(drag?.i===k+1?' is-dragging':''),'data-xwe-song-handle':k+1,role:'separator','aria-label':'Boundary before part '+p.label+' at '+clock(p.startSec)+' · drag to move',
      title:'Drag to move this boundary (snap: '+snap+') · '+clock(p.startSec),style:{left:pct(p.startSec)},onPointerDown:e=>startDrag(k+1,e),onContextMenu:e=>{e.preventDefault();const t=timeAt(e.clientX),j=shown.findIndex(q=>t>=q.startSec&&t<q.endSec);setMenu({i:j<0?k+1:j,t,x:e.clientX,y:menuY(e.clientY)})}})),
    ...shown.flatMap(p=>cutsOf(p).map((c,k)=>h('span',{key:'c'+p.index+':'+k,className:'xwe-song-cut-handle'+(cutDrag&&cutDrag.i===p.index&&cutDrag.k===k?' is-dragging':''),'data-xwe-song-cut':p.label+(k+2),role:'separator',
      'aria-label':'Section boundary '+p.label+(k+1)+' | '+p.label+(k+2)+' at '+clock(c),title:'Section '+p.label+(k+1)+' | '+p.label+(k+2)+' at '+clock(c)+' · drag to move (snap: '+snap+') · double click to remove',
      style:{left:pct(c)},onPointerDown:e=>startCutDrag(p.index,k,e),onContextMenu:e=>{e.preventDefault();setMenu({i:p.index,t:timeAt(e.clientX),x:e.clientX,y:menuY(e.clientY)})},onDoubleClick:e=>{e.stopPropagation();commit(E.removeCut(view.parts,p.index,c,D,grid))}}))),
-   menu&&shown[menu.i]?(()=>{const p=shown[menu.i],b=barsIn(p);if(b.length<2)return null;const n=Math.min(b.length,Math.max(2,menu.bar??barAt(p,menu.t))),t=b[n-1];return h('span',{className:'xwe-song-here','data-xwe-song-here':true,style:{left:pct(t)}},h('span',null,p.label+' · bar '+n+' · '+clock(t)))})():null,
+   menu&&shown[menu.i]?(()=>{const p=shown[menu.i],b=barsIn(p);if(b.length<2)return null;const n=Math.min(b.length,Math.max(2,menu.bar??barAt(p,menu.t))),t=b[n-1];return h('span',{className:'xwe-song-here','data-xwe-song-here':true,style:{left:pct(t)}},h('span',null,E.displayName(p)+' · bar '+n+' · '+clock(t)))})():null,
    cutDrag&&shown[cutDrag.i]?h('span',{className:'xwe-song-drag-time'},clock(cutsOf(shown[cutDrag.i])[cutDrag.k]??0)+(snap!=='off'?' · '+snap:'')):null,
    drag&&shown[drag.i]?h('span',{className:'xwe-song-drag-time'},clock(shown[drag.i].startSec)+(snap!=='off'?' · '+snap:'')):null,
    state.status==='running'?h('div',{className:'xwe-song-strip-wait'}):null),

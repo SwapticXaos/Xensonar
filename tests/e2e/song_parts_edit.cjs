@@ -90,6 +90,17 @@ const file=path.join(dir,'abacb_edit.wav');fs.writeFileSync(file,wav(song({bpm:1
  sb3=await strip.boundingBox();await p.mouse.click(X3(8),Y3,{button:'right'});await menu.waitFor();await menu.locator('[data-xwe-song-action="subdivide-analysis"]').click();
  await p.waitForFunction(()=>/sections found|no clear inner sections|failed/.test(document.querySelector('[data-xwe-song-caption]')?.textContent||''),null,{timeout:60000});
  assert.doesNotMatch(await p.locator('[data-xwe-song-caption]').innerText(),/failed/);
+ // ---- PART-NAMES-01: name and colour of a kind: both B parts are "Chorus" in the chosen colour ----
+ {await p.evaluate(()=>document.querySelector('[data-xwe-song-parts]').parentElement.scrollIntoView({block:'start'}));await p.waitForTimeout(200);const sb4=await strip.boundingBox();
+  const bAt=await p.locator('[data-xwe-song-part="B"]').first().boundingBox();await p.mouse.click(bAt.x+bAt.width/2,bAt.y+bAt.height*.3,{button:'right'});await menu.waitFor();
+  await menu.locator('[data-xwe-song-name="B"]').fill('Chorus');await menu.locator('[data-xwe-song-name="B"]').press('Enter');await p.waitForTimeout(300);
+  const bs=p.locator('[data-xwe-song-part="B"]');assert.ok((await bs.count())>=2);for(const t of await bs.allInnerTexts())assert.match(t,/^Chorus/,'every B reads Chorus: '+t);
+  assert.match(await p.locator('[data-xwe-song-caption]').innerText(),/All B parts are now called "Chorus"/);
+  await p.mouse.click(bAt.x+bAt.width/2,bAt.y+bAt.height*.3,{button:'right'});await menu.waitFor();assert.match(await menu.locator('.xwe-song-menu-title').innerText(),/^Part Chorus \(B\)/);
+  await menu.locator('[data-xwe-song-colour="#94a3b8"]').click();await p.waitForTimeout(300);
+  for(const c of await bs.evaluateAll(n=>n.map(x=>getComputedStyle(x).backgroundColor)))assert.equal(c,'rgb(148, 163, 184)','every B in the new colour');
+  await p.mouse.click(bAt.x+bAt.width/2,bAt.y+bAt.height*.3,{button:'right'});await menu.waitFor();await menu.locator('[data-xwe-song-action="kind-reset"]').click();await p.waitForTimeout(300);
+  for(const t of await bs.allInnerTexts())assert.match(t,/^B/,'reset: the letter again')}
  // ---- reset to the analysis ----
  await p.evaluate(()=>document.querySelector('[data-xwe-song-parts]').parentElement.scrollIntoView({block:'start'}));await p.waitForTimeout(200);
  const sb2=await strip.boundingBox();await p.mouse.click(sb2.x+sb2.width*.1,sb2.y+sb2.height/2,{button:'right'});await menu.waitFor();await menu.locator('[data-xwe-song-action="reset"]').click();await p.waitForTimeout(300);
