@@ -68,6 +68,13 @@ function clipEnvelope(param,clip,lvl,tA,tB,spb,xa,xb,Lc){const g=fadeGeo(clip,Lc
  param.setValueAtTime(0,tA);if(gA>0)param.linearRampToValueAtTime(lvl*fadeLevel(g,Lc,x0),tA+gA);let last=x0;
  for(const x of marks){if(x<=last+1e-9||x>=x1-1e-9)continue;param.linearRampToValueAtTime(lvl*fadeLevel(g,Lc,x),at(x));last=x}
  if(x1>last+1e-9)param.linearRampToValueAtTime(lvl*fadeLevel(g,Lc,x1),gB>0?tB-gB:tB);if(gB>0)param.linearRampToValueAtTime(0,tB)}
+/* MT-SONGPARTS-01: the song parts a clip brought from the Wave Editor strip (A, B, C … and their sections C1, C2 …), in seconds of the
+   clip's own audio, so trimming, splitting, copying and looping keep them in place. Saved with the project (per Multitrack session). */
+const HEX=/^#[0-9a-f]{6}$/i;
+function sanitizeSongParts(sp){if(!sp||typeof sp!=='object'||!Array.isArray(sp.parts))return undefined;const t=v=>Math.max(0,Math.round(num(v,0)*1000)/1000);
+ const one=q=>q&&Number.isFinite(Number(q.s))&&Number.isFinite(Number(q.e))&&Number(q.e)>Number(q.s)?{s:t(q.s),e:t(q.e),l:String(q.l||'').slice(0,6),c:HEX.test(q.c)?String(q.c).toLowerCase():'#a8a29e'}:null;
+ const parts=sp.parts.slice(0,256).map(q=>{const o=one(q);if(!o)return null;const subs=(Array.isArray(q.subs)?q.subs:[]).slice(0,64).map(one).filter(Boolean);return subs.length>1?{...o,subs}:o}).filter(Boolean);
+ return parts.length?{v:1,durationSec:t(sp.durationSec),parts}:undefined}
 function sanitizeClip(c){const out={id:String(c.id||uid('clip')),materialId:String(c.materialId||''),startBeat:Math.max(0,num(c.startBeat,0)),
  inBeat:Math.max(0,num(c.inBeat,0)),gain:clamp(num(c.gain,1),0,2),fadeIn:clamp(num(c.fadeIn,0),0,256),fadeOut:clamp(num(c.fadeOut,0),0,256),muted:!!c.muted,fit:['natural','bpm'].includes(c.fit)?c.fit:'tempo'};if(num(c.sourceBpm,0)>0)out.sourceBpm=clamp(Number(c.sourceBpm),10,999);if(out.fit==='bpm'&&!out.sourceBpm)out.fit='natural';
  /* ROOM4-07: non-destructive warp. stretch multiplies the material cycle, warp 'grain' keeps the pitch, pitch is a granular offset in cents. Absent = original. */
@@ -75,6 +82,7 @@ function sanitizeClip(c){const out={id:String(c.id||uid('clip')),materialId:Stri
  /* MTW-02: fade shapes. Absent = linear (exactly as before); 'eq' = equal power (sine quarter), 's' = S-curve. */
  if(FADE[c.fadeInShape])out.fadeInShape=c.fadeInShape;if(FADE[c.fadeOutShape])out.fadeOutShape=c.fadeOutShape;
  if(c.synth&&(c.synth.kind==='drum'||c.synth.kind==='bass')&&typeof c.synth.id==='string'&&c.synth.id){out.synth={kind:c.synth.kind,id:c.synth.id.slice(0,200),name:String(c.synth.name||'').slice(0,60)};if(c.warp==='synth')out.warp='synth'}if(Math.abs(num(c.pitch,0))>=.5)out.pitch=clamp(Number(c.pitch),-2400,2400);
+ {const sp=sanitizeSongParts(c.songParts);if(sp)out.songParts=sp}
  if(Number.isFinite(Number(c.lenBeats))&&Number(c.lenBeats)>0)out.lenBeats=clamp(Number(c.lenBeats),1/64,1e5);else out.repeats=clamp(Math.round(num(c.repeats,1)),1,256);
  return out}
 function sanitize(raw,liveBpm){
@@ -518,6 +526,10 @@ const CSS=`.xmt{color:#e7e5e4;font:13px/1.35 system-ui,sans-serif;max-width:1500
 .xmt .clip .fh{position:absolute;top:15px;width:10px;height:10px;border-radius:50%;background:#fafaf9;border:1px solid #0c0a09;box-shadow:0 0 0 1px rgba(250,250,249,.35);cursor:ew-resize;opacity:0;z-index:3}
 .xmt .clip:hover .fh,.xmt .clip[aria-selected=true] .fh{opacity:.9}.xmt .trk.mini .clip .fh{display:none}
 .xmt .clip:hover{background:color-mix(in srgb,var(--c) 38%,rgba(12,10,9,.8))}
+.xmt .clip .sp{position:absolute;left:0;right:0;top:14px;bottom:0;pointer-events:none;overflow:hidden}
+.xmt .clip .sp .spp{position:absolute;top:0;bottom:0;box-sizing:border-box;border-left:1px solid color-mix(in srgb,var(--pc) 85%,#000);background:linear-gradient(180deg,color-mix(in srgb,var(--pc) 42%,transparent),color-mix(in srgb,var(--pc) 22%,transparent));color:#fff;font:700 10px/12px system-ui,sans-serif;padding-left:3px;text-shadow:0 1px 2px #000;white-space:nowrap;overflow:hidden}
+.xmt .clip .sp .sps{position:absolute;bottom:0;height:max(5px,min(14px,30%));box-sizing:border-box;border-left:1px solid rgba(0,0,0,.55);background:color-mix(in srgb,var(--pc) 80%,#0c0a09);color:#fff;font:600 9px/1 system-ui,sans-serif;padding:1px 0 0 3px;text-shadow:0 1px 1px #000;white-space:nowrap;overflow:hidden}
+.xmt .trk.mini .clip .sp{top:0}.xmt .trk.mini .clip .sp .spp,.xmt .trk.mini .clip .sp .sps{font-size:0}
 .xmt .clip[aria-selected=true]{outline:2px solid #fde68a;z-index:2}.xmt .clip.muted{opacity:.45}.xmt .clip.bad{--c:#ef4444!important}
 .xmt .clip .rep{position:absolute;top:0;bottom:0;border-left:1px dashed rgba(253,230,138,.5);pointer-events:none}
 .xmt .ph{position:absolute;top:0;bottom:0;width:2px;background:#fbbf24;pointer-events:none;z-index:5;display:none}
@@ -546,6 +558,24 @@ function ClipWave({peaks,inBeat,len,mb,ppb,color,rev,fi,fo,fis,fos}){const ref=P
   const n=peaks.length;for(let x=0;x<w;x++){const beat=inBeat+(x/w)*len,f0=((beat/mb)%1+1)%1,f=rev?1-f0:f0,v=(peaks[Math.max(0,Math.min(n-1,Math.floor(f*n)))]||0)*(fg?fadeLevel(fg,len,(x+.5)/w*len):1),y=Math.max(1,v*h*.95);g.fillRect(x,(h-y)/2,1,y)}
   if(fg){g.strokeStyle='rgba(255,255,255,.75)';g.lineWidth=1.25;const line=(a,b)=>{g.beginPath();const x0=a/len*w,x1=b/len*w,steps=Math.max(2,Math.min(64,Math.round(x1-x0)));for(let k=0;k<=steps;k++){const xb=a+(b-a)*k/steps,X=xb/len*w,Y=h-1-fadeLevel(fg,len,xb)*(h-2);k?g.lineTo(X,Y):g.moveTo(X,Y)}g.stroke()};if(fg.FI>0)line(0,fg.FI);if(fg.FO>0)line(len-fg.FO,len)}},[peaks,inBeat,len,mb,ppb,color,rev,fi,fo,fis,fos]);
  return peaks?u.jsx('canvas',{ref,'aria-hidden':'true'}):null}
+/* MT-SONGPARTS-01: three levels in one clip – the clip colour on top (name band), the song parts in the middle (letters), their sections
+   at the bottom (C1, C2 … in their own shades). Clip beats -> seconds of the audio exactly as the waveform maps them (cycle, in-point, reverse). */
+/* clip beats of every part / section: [x0, x1) from the clip start, one entry per loop pass of the material */
+function songPartsInClip(sp,inBeat,len,mb,a,nat,rev){const out={parts:[],secs:[]};if(!sp?.parts?.length||!(len>0)||!(mb>0)||!(nat>0))return out;
+ const k0=Math.floor(inBeat/mb),k1=Math.ceil((inBeat+len)/mb);
+ const place=(q,k)=>{let fs=(q.s-a)/nat,fe=(q.e-a)/nat;if(fe<=0||fs>=1)return null;fs=Math.max(0,fs);fe=Math.min(1,fe);if(rev){const x=1-fe;fe=1-fs;fs=x}
+  const x0=Math.max(0,k*mb-inBeat+fs*mb),x1=Math.min(len,k*mb-inBeat+fe*mb);return x1-x0>Math.max(1e-6,mb*1e-3)?{x0,x1,l:q.l,c:q.c,k}:null};/* a rounding crumb of the next loop pass (< 0.1 %) is no part */
+ for(let k=k0;k<k1&&k-k0<64;k++)sp.parts.forEach((q,i)=>{const p=place(q,k);if(!p)return;p.subs=(q.subs||[]).map(r=>place(r,k)).filter(Boolean);out.parts.push({...p,key:'p'+i+':'+k});
+  p.subs.forEach((r,j)=>out.secs.push({...r,key:'s'+i+'.'+j+':'+k}))});
+ out.parts.sort((x,y)=>x.x0-y.x0);return out}
+/* MT-SONGPARTS-02: the parts as the Wave Editor gets them on "Edit in Wave Editor": seconds of the rendered clip */
+function songPartsForRender(sp,inBeat,len,mb,a,nat,rev,spb){const m=songPartsInClip(sp,inBeat,len,mb,a,nat,rev);if(!m.parts.length)return null;const t=x=>Math.round(x*spb*1000)/1000;
+ return {v:1,durationSec:t(len),parts:m.parts.map(p=>({s:t(p.x0),e:t(p.x1),l:p.l,c:p.c,subs:(p.subs||[]).map(r=>({s:t(r.x0),e:t(r.x1),l:r.l,c:r.c}))}))}}
+function ClipParts({sp,inBeat,len,mb,ppb,a,nat,rev}){
+ const m=P.useMemo(()=>songPartsInClip(sp,inBeat,len,mb,a,nat,rev),[sp,inBeat,len,mb,a,nat,rev]);if(!m.parts.length)return null;
+ return u.jsxs('div',{className:'sp','aria-hidden':'true','data-xmt-songparts':sp.parts.map(q=>q.l).join(' '),children:[
+  ...m.parts.map(b=>{const w=(b.x1-b.x0)*ppb;return u.jsx('span',{className:'spp','data-xmt-part':b.l,style:{left:b.x0*ppb,width:w,'--pc':b.c},children:w>=14?b.l:null},b.key)}),
+  ...m.secs.map(b=>{const w=(b.x1-b.x0)*ppb;return u.jsx('span',{className:'sps','data-xmt-sec':b.l,style:{left:b.x0*ppb,width:w,'--pc':b.c},children:w>=24?b.l:null},b.key)})]})}
 function Menu({menu,close}){const ref=P.useRef(null);
  P.useEffect(()=>{if(!menu)return;const el=ref.current;el?.querySelector('button:not([disabled])')?.focus();
   const away=e=>{if(!el?.contains(e.target))close()};const key=e=>{if(e.key==='Escape'){e.preventDefault();close()}
@@ -640,7 +670,7 @@ function XenMultitrackRoom(){
    const last=p.tracks[p.tracks.length-1],reuse=!!last&&!last.clips.length;
    const fit=it.fit==='tempo'?'tempo':it.sourceBpm>0?'bpm':'natural',base={fit,sourceBpm:fit==='bpm'?it.sourceBpm:undefined},cycle=cycleBeats(e,base,p.bpm);
    const inBeat=fit==='bpm'?Math.max(0,num(it.offsetSec,0)*it.sourceBpm/60):0;
-   const clip={id:uid('clip'),materialId:e.id,startBeat:Math.max(0,num(it.startBeat,0)),inBeat,lenBeats:Math.max(1/16,cycle-inBeat),gain:1,fadeIn:0,fadeOut:0,muted:false,...base,...(it.synth?{synth:it.synth,warp:'synth'}:{})};
+   const clip={id:uid('clip'),materialId:e.id,startBeat:Math.max(0,num(it.startBeat,0)),inBeat,lenBeats:Math.max(1/16,cycle-inBeat),gain:1,fadeIn:0,fadeOut:0,muted:false,...base,...(it.synth?{synth:it.synth,warp:'synth'}:{}),...(sanitizeSongParts(it.songParts)?{songParts:sanitizeSongParts(it.songParts)}:{})};
    const label=String(it.name||e.name||'Audio').slice(0,60),t={...(reuse?last:blankTrack(p.tracks.length)),name:label,clips:[clip]};
    p={...p,tracks:reuse?p.tracks.map(x=>x.id===last.id?t:x):[...p.tracks,t]};
    names.push(label+(it.sourceBpm>0?' · '+it.sourceBpm+' BPM'+(it.tempoSource==='detected'?' (detected, beat-aligned)':''):' · original speed'))}
@@ -902,7 +932,8 @@ function XenMultitrackRoom(){
     const file=new File([bytes],name.replace(/[\\/:*?"<>|]/g,'_')+' · Multitrack edit.wav',{type:'audio/wav'});
     clearTimeout(saveTimer.current);await saveProject(projectNow);
     engine.stop();setPlaying(false);
-    await __XenMultitrackRoundTrip.open(file,{clipId:liveClip.id,trackId:liveTrack.id,materialId:liveClip.materialId,identity:__XenMultitrackRoundTrip.clipIdentity(liveClip),startBeat:liveClip.startBeat,bpm:projectNow.bpm,name,label:'\u2702 Multitrack Clip \u00b7 Track '+(projectNow.tracks.indexOf(liveTrack)+1)+' \u00b7 Bar '+(Math.floor(liveClip.startBeat/Math.max(.5,projectNow.beatsPerBar||4))+1)});
+    const songParts=liveClip.songParts?songPartsForRender(liveClip.songParts,liveClip.inBeat,clipLen(liveClip,libRef.current,projectNow.bpm),cycleBeats(entry,liveClip,projectNow.bpm),Math.max(0,num(entry.loopStartSec,0)),naturalSec(entry),!!liveClip.reverse,60/projectNow.bpm):null;
+    await __XenMultitrackRoundTrip.open(file,{songParts,beatsPerBar:projectNow.beatsPerBar||4,clipId:liveClip.id,trackId:liveTrack.id,materialId:liveClip.materialId,identity:__XenMultitrackRoundTrip.clipIdentity(liveClip),startBeat:liveClip.startBeat,bpm:projectNow.bpm,name,label:'\u2702 Multitrack Clip \u00b7 Track '+(projectNow.tracks.indexOf(liveTrack)+1)+' \u00b7 Bar '+(Math.floor(liveClip.startBeat/Math.max(.5,projectNow.beatsPerBar||4))+1)});
    }catch(error){setStatus('Wave Editor handoff failed: '+String(error?.message||error));}
    finally{setBusy(false)}
   };
@@ -1038,9 +1069,9 @@ function XenMultitrackRoom(){
   const reps=[];for(let k=Math.ceil((c.inBeat+1e-9)/mb);(k*mb-c.inBeat)<L-1e-9&&reps.length<64;k++){const x=(k*mb-c.inBeat)*ppb;if(x>0)reps.push(u.jsx('span',{className:'rep',style:{left:x}},'r'+k))}
   const name=e?(e.name||'material'):'missing material',color=COLORS[ti%COLORS.length],wi=warpInfo(c,t),st=c.stretch>0?c.stretch:1,tag=(Math.abs(st-1)>1e-9?' ⇔×'+(Math.round(st*100)/100):'')+(c.warp==='grain'?' ≈':'')+(c.warp==='synth'?' ♬':'')+(Math.abs(pitchCentsOf(c,t))>=.5?' ♪':'')+(c.reverse?' ◀':'');
   return u.jsxs('button',{type:'button','data-clip':c.id,className:'clip'+(bad?' bad':'')+(c.muted?' muted':''),role:'option','aria-selected':group.length>1?group.includes(c.id):sel===c.id,style:{left:c.startBeat*ppb,width:w,'--c':color},
-   title:name+(state?' — '+state:'')+(wi?'\n'+wi:'')+'\nDrag: move (also to another track) · Alt+drag: copy · upper half of an edge: trim / loop · lower half of an edge: stretch / compress · round handles: fade in / out · X: crossfade an overlap · right-click: options','aria-label':name+', '+t.name+', starts at '+fmtPos(c.startBeat,bpb)+', '+L+' beats'+(c.muted?', muted':'')+(state?', '+state:''),
+   title:name+(state?' — '+state:'')+(wi?'\n'+wi:'')+(c.songParts?'\nSong parts: '+c.songParts.parts.map(q=>q.l+(q.subs?' ('+q.subs.map(r=>r.l).join(' ')+')':'')).join(' · '):'')+'\nDrag: move (also to another track) · Alt+drag: copy · upper half of an edge: trim / loop · lower half of an edge: stretch / compress · round handles: fade in / out · X: crossfade an overlap · right-click: options','aria-label':name+', '+t.name+', starts at '+fmtPos(c.startBeat,bpb)+', '+L+' beats'+(c.muted?', muted':'')+(state?', '+state:''),
    onPointerDown:ev=>pointerDown(ev,t,c),onPointerMove:pointerMove,onPointerUp:pointerUp,onPointerCancel:pointerUp,onContextMenu:ev=>clipMenu(ev,t,c),onFocus:()=>{setSel(c.id);setTrackSel(t.id)},
-   children:[u.jsx(ClipWave,{peaks:a?.peaks??null,inBeat:c.inBeat,len:L,mb,ppb,color,rev:!!c.reverse,fi:c.fadeIn,fo:c.fadeOut,fis:c.fadeInShape,fos:c.fadeOutShape}),u.jsx('span',{className:'nm',children:name+tag+(state?' · '+state:'')}),reps,
+   children:[u.jsx(ClipWave,{peaks:a?.peaks??null,inBeat:c.inBeat,len:L,mb,ppb,color,rev:!!c.reverse,fi:c.fadeIn,fo:c.fadeOut,fis:c.fadeInShape,fos:c.fadeOutShape}),c.songParts&&e?u.jsx(ClipParts,{sp:c.songParts,inBeat:c.inBeat,len:L,mb,ppb,a:Math.max(0,num(e.loopStartSec,0)),nat:naturalSec(e),rev:!!c.reverse}):null,u.jsx('span',{className:'nm',children:name+tag+(state?' · '+state:'')}),reps,
     u.jsx('span',{className:'eg l','data-edge':'l','aria-hidden':'true'}),u.jsx('span',{className:'eg r','data-edge':'r','aria-hidden':'true'}),
     u.jsx('span',{className:'eg s l','data-edge':'sl','aria-hidden':'true'}),u.jsx('span',{className:'eg s r','data-edge':'sr','aria-hidden':'true'}),
     /* MTW-02 fade handles: drag sideways to set the fade length (they sit at the end of the fade, never on the trim edge) */

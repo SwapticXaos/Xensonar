@@ -673,7 +673,7 @@ function __ForgeMaterialQuickFields({meta,onPatch,disabled=false}){
  return h('div',{'data-forge-inline-metadata':true,className:'xen-forge-inline-metadata'},
    field('Number of Bars',h(__XenMaterialBarsInput,{value:meta.bars,disabled,onCommit:bars=>onPatch({bars}),className:cls,'aria-label':'Number of Bars'})),
    /* Existing canonical guideSegments drives both Spectral Forge guide lines and the
-      audio-import Bar Meter; it is independent of the number of bars and of beatsPerBar. */
+      audio-import Taktometer; it is independent of the number of bars and of beatsPerBar. */
    field('Number of Segments',h('input',{type:'number',min:1,max:16,step:1,value:meta.guideSegments,'aria-label':'Number of Segments',
      title:'Visual subdivisions inside each bar · independent of bar count and tempo',
      disabled:disabled,onChange:event=>{if(disabled)return;onPatch({guideSegments:Math.max(1,Math.min(16,Math.round(Number(event.currentTarget.value)||1)))});},className:cls})),
@@ -1953,9 +1953,9 @@ function __XenWaveTaktometer({canvasRef,meta,onPatch,disabled,onSeek,source=null
  const field=(key,label)=>u.jsxs('label',{children:[label,key==='bars'?u.jsx(__XenMaterialBarsInput,{value:meta?.bars??1,disabled:disabled||!onPatch,onCommit:bars=>onPatch({bars}),'aria-label':label}):u.jsx('input',{type:'number',min:1,max:16,step:1,value:meta?.[key]??1,disabled:disabled||!onPatch,'aria-label':label,onChange:event=>edit(key,event)})]});
  const menu=opened?u.jsxs('div',{ref:popupRef,'data-xwe-meter-menu':'true',className:'xwe-meter-popup xwe-meter-popup-fixed',
   style:{position:'fixed',left:box?.left??-9999,top:box?.top,bottom:box?.bottom,maxHeight:box?.maxHeight,overflowY:'auto',visibility:box?'visible':'hidden'},
-  children:[field('bars','Number of Bars'),field('guideSegments','Number of Segments'),u.jsx('button',{type:'button',onClick:()=>setOpened(false),title:'Close the bar meter',children:'×'}),u.jsx(__XenMeterAnalysisPanel,{meta,onPatch,disabled,source,selection,onApplyRange})]}):null;
+  children:[u.jsx('div',{className:'xwe-meter-title','data-xwe-meter-title':true,children:'Taktometer'}),field('bars','Number of Bars'),field('guideSegments','Number of Segments'),u.jsx('button',{type:'button',onClick:()=>setOpened(false),title:'Close the Taktometer',children:'×'}),u.jsx(__XenMeterAnalysisPanel,{meta,onPatch,disabled,source,selection,onApplyRange})]}):null;
  return u.jsxs('div',{ref:anchor,'data-xwe-meter-anchor':'true',children:[
-  u.jsx('canvas',{ref:canvasRef,width:1200,height:18,'data-xen-bar-meter':'true',title:'Bar meter · Left click: while playing, jump to this point and play on · Right click: number of bars and segments',className:'w-full border border-neutral-800 bg-black',onClick:event=>{if(!onSeek)return;const rect=event.currentTarget.getBoundingClientRect();if(rect.width>0)onSeek(Math.max(0,Math.min(1,(event.clientX-rect.left)/rect.width)))},onContextMenu:event=>{event.preventDefault();openAt(event,false)}}),
+  u.jsx('canvas',{ref:canvasRef,width:1200,height:18,'data-xen-bar-meter':'true',title:'Taktometer · Left click: while playing, jump to this point and play on · Right click: number of bars and segments',className:'w-full border border-neutral-800 bg-black',onClick:event=>{if(!onSeek)return;const rect=event.currentTarget.getBoundingClientRect();if(rect.width>0)onSeek(Math.max(0,Math.min(1,(event.clientX-rect.left)/rect.width)))},onContextMenu:event=>{event.preventDefault();openAt(event,false)}}),
   menu&&typeof document!=='undefined'?ao.createPortal(menu,document.body):null
  ]});
 }
@@ -1966,6 +1966,29 @@ function __XenWaveTaktometer({canvasRef,meta,onPatch,disabled,onSeek,source=null
 const __xenSongPartsCache=new WeakMap();
 /* the latest finished strip analysis, so the Taktometer can count a mask the way its song part is counted */
 let __xenSongPartsLatest=null;
+/* MT-SONGPARTS-01: the parts (working copy, else analysis) and their sections of an audio, compact and in seconds of that audio,
+   for "Send to Multitrack": the clip then shows them (parts in the middle band, sections at the bottom). Only when the sent
+   audio has the analysed length (an edit that changes the length would move every part). */
+function __xenSongPartsExport(asset,durationSec){
+ if(!asset)return null;const sp=__xenSongPartsLatest,result=sp&&sp.asset===asset?sp.result:__xenSongPartsEdit.loadResult(asset);
+ if(!result?.ok||!result.parts?.length||(Number.isFinite(durationSec)&&Math.abs(durationSec-result.durationSec)>.05))return null;
+ const E=__xenSongPartsEdit,parts=E.current(asset,result).parts,r3=t=>Math.round(t*1000)/1000;
+ if(parts.length<2&&!(parts[0]?.subParts?.length>1))return null;
+ return {v:1,durationSec:r3(result.durationSec),parts:parts.slice(0,256).map(p=>({s:r3(p.startSec),e:r3(p.endSec),l:String(p.label).slice(0,4),c:p.color||E.colorOf(p.label),
+  subs:(p.subParts?.length>1?p.subParts:[]).slice(0,64).map((q,k)=>({s:r3(q.startSec),e:r3(q.endSec),l:String(p.label).slice(0,4)+(k+1),c:q.shade??E.shade(p.color||E.colorOf(p.label),k)}))}))};
+}
+globalThis.__xenSongPartsExport=__xenSongPartsExport;
+/* MT-SONGPARTS-02: a Multitrack clip opened in the Wave Editor brings its parts along: the strip shows them at once (no analysis),
+   on the bar grid of the Multitrack project (its tempo and bar, counted from where the clip sits). Stored like an analysis. */
+function __xenSongPartsFromRoundTrip(asset){
+ const inc=globalThis.__XenMultitrackRoundTrip?.incomingSongParts?.();if(!inc||!asset?.monoSamples?.length||!(inc.bpm>0))return null;
+ const D=Number(asset.originalDuration)||asset.monoSamples.length/asset.sampleRate;if(Math.abs(D-inc.durationSec)>.05)return null;
+ const spb=60/inc.bpm,bpb=Math.max(.5,Number(inc.beatsPerBar)||4),S=Math.max(1,Math.round(bpb)),sb=Number(inc.startBeat)||0,r3=t=>Math.round(t*1000)/1000;
+ const lines=(first,step)=>{const out=[];for(let t=first;t<=D+1e-6;t+=step)out.push(r3(t));return out};
+ const grid={bars:lines(((bpb-(sb%bpb))%bpb)*spb,bpb*spb),segments:lines(((1-(sb%1))%1)*spb,spb),barSec:bpb*spb,segmentsPerBar:S};
+ const E=__xenSongPartsEdit,parts=E.normalize(inc.parts.map(q=>({startSec:q.s,endSec:q.e,label:q.l,segmentsPerBar:S,cuts:(q.subs||[]).slice(1).map(r=>r.s)})),grid,D);
+ const result={ok:true,rhythmic:true,fromMultitrack:true,durationSec:D,grid,segmentsPerBar:S,bpm:inc.bpm,parts};E.saveResult(asset,result);return result;
+}
 /* SONG-PARTS-EDIT-01: snap the purple loop mask while it is dragged (only the moving edge; a moved mask keeps its length) */
 function __xenSnapMaskDrag(range,mode,source){
  const sp=__xenSongPartsLatest;if(!range||!sp||!source||sp.asset!==source.sourceAsset||!sp.result?.grid)return range;
@@ -2023,7 +2046,7 @@ function __XenSongPartsStrip({source,selection,onSelectPart,onPatch}){
  const runRef=P.useRef(0),E0=__xenSongPartsEdit;
  P.useEffect(()=>{const id=++runRef.current;
   if(!asset?.monoSamples?.length){setState({asset:null,status:'idle',result:null,error:''});return}
-  const job=__xenSongPartsCache.get(asset),stored=job?null:E0.loadResult(asset);
+  const job=__xenSongPartsCache.get(asset),stored=job?null:(E0.loadResult(asset)??__xenSongPartsFromRoundTrip(asset));
   if(stored){__xenSongPartsLatest={asset,result:stored};setState({asset,status:'done',result:stored,error:'',stored:true});return}
   if(!job){setState({asset,status:'ready',result:null,error:''});return}
   setState(prev=>({asset,status:'running',result:prev.asset===asset?prev.result:null,error:''}));

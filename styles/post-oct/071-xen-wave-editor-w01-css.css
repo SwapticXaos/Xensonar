@@ -362,3 +362,5 @@ canvas[data-xwe-workspace-resize="true"][data-xwe-workspace-edge="true"]{cursor:
 /* free numbers in the part menu (Subdivide every N bars / evenly into N sections) */
 .xwe-song-menu-num{width:3.6em;background:#0b1020;border:1px solid #3b4a6e;border-radius:3px;color:#e2e8f0;font:inherit;padding:1px 4px;text-align:right}
 .xwe-song-menu-num:focus{outline:none;border-color:#60a5fa}
+/* the right-click menu of the Taktometer says what it is (the name stays German in every language) */
+.xwe-meter-popup .xwe-meter-title{flex:1 0 100%;font:700 11px/1 system-ui,sans-serif;letter-spacing:.08em;text-transform:uppercase;color:#c4b5fd;margin-bottom:-2px}

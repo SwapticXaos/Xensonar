@@ -1292,7 +1292,7 @@
 {
 "file": "src/post-oct/033-xen-multitrack-shared.js",
 "status": "post-oct",
-"bytes": 17221,
+"bytes": 19008,
 "oct28_bytes": 0
 },
 {
@@ -2030,7 +2030,7 @@
 {
 "file": "styles/post-oct/071-xen-wave-editor-w01-css.css",
 "status": "post-oct",
-"bytes": 37882,
+"bytes": 38150,
 "oct28_bytes": 0
 },
 {
@@ -2114,7 +2114,7 @@
 {
 "file": "src/rooms/lab.js",
 "status": "oct-evolved",
-"bytes": 676094,
+"bytes": 678752,
 "oct28_bytes": 565054
 },
 {
@@ -2126,7 +2126,7 @@
 {
 "file": "src/post-oct/032-xen-room-multitrack.js",
 "status": "post-oct",
-"bytes": 160925,
+"bytes": 194095,
 "oct28_bytes": 0
 },
 {
