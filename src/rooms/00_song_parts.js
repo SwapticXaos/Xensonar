@@ -131,15 +131,16 @@ function __xenSongPartsFactory(meter){
  function label(m,B,edges,minLen){
   let parts=[];for(let i=0;i+1<edges.length;i++)parts.push({a:edges[i],b:edges[i+1]});
   const SAME=.7,groups=[];   // tuned on real + progressive test sets (see tests/song_parts.test.cjs)
-  const assign=()=>{groups.length=0;for(const p of parts){let best=-1,bd=Infinity;groups.forEach((g,gi)=>{const d=g.reduce((s,q)=>s+relDistance(m,B,p.a,p.b,q.a,q.b),0)/g.length;if(d<bd){bd=d;best=gi}});
+  const assign=()=>{groups.length=0;for(const p of parts){let best=-1,bd=Infinity;groups.forEach((g,gi)=>{let w=0,d=0;for(const q of g){const L=q.b-q.a;d+=L*relDistance(m,B,p.a,p.b,q.a,q.b);w+=L}d/=w;if(d<bd){bd=d;best=gi}});   // earlier occurrences weighted by length: a short transition hardly counts
    if(best>=0&&bd<SAME){p.label=best;groups[best].push(p)}else{p.label=groups.length;groups.push([p])}}};
   assign();
   // repeats in a row are one part; a part shorter than minLen joins the more similar neighbour
-  const merge=()=>{const out=[];for(const p of parts){const l=out[out.length-1];if(l&&l.label===p.label)l.b=p.b;else out.push({...p})}parts=out};
+  // neighbours with the same letter are ONE coherent part; the inner boundaries are kept as sub-sections (drill-down)
+  const merge=()=>{const out=[];for(const p of parts){const l=out[out.length-1];if(l&&l.label===p.label){l.subs=[...(l.subs??[[l.a,l.b]]),...(p.subs??[[p.a,p.b]])];l.b=p.b}else out.push({...p})}parts=out};
   merge();
   for(let guard=0;guard<B;guard++){const i=parts.findIndex(p=>p.b-p.a<minLen);if(i<0||parts.length<2)break;
    const L=parts[i-1],R=parts[i+1],p=parts[i];const dl=L?relDistance(m,B,p.a,p.b,L.a,L.b):Infinity,dr=R?relDistance(m,B,p.a,p.b,R.a,R.b):Infinity;
-   if(dl<=dr)L.b=p.b;else R.a=p.a;parts.splice(i,1);assign();merge()}
+   if(dl<=dr){L.subs=[...(L.subs??[[L.a,L.b]]),[p.a,p.b]];L.b=p.b}else{R.subs=[[p.a,p.b],...(R.subs??[[R.a,R.b]])];R.a=p.a}parts.splice(i,1);assign();merge()}
   // letters in order of first appearance
   const order=new Map();for(const p of parts){if(!order.has(p.label))order.set(p.label,order.size);p.label=order.get(p.label)}
   return parts;
@@ -180,15 +181,18 @@ function __xenSongPartsFactory(meter){
    const loopEnd=fullBar(last)?last[1]:bars[Math.max(p.a,p.b-2)][1];const nBars=Math.max(1,fullBar(last)?p.b-p.a:p.b-p.a-1);
    return {index:i,label:letter(p.label),colorIndex:p.label%COLORS.length,color:COLORS[p.label%COLORS.length],
     startSec:i===0?0:first[0],endSec:i===lp.length-1?D:bars[p.b]?.[0]??D,loopStartSec:first[0],loopEndSec:Math.max(first[0]+barDur*.5,loopEnd),
-    bars:nBars,segments:nBars*S,segmentsPerBar:S,bpm:null}});
+    bars:nBars,segments:nBars*S,segmentsPerBar:S,bpm:null,
+    subParts:(p.subs&&p.subs.length>1)?p.subs.map(([a,b])=>{const s0=bars[a][0],e0=bars[b-1][1];const n=Math.max(1,b-a);return {startSec:s0,endSec:bars[b]?.[0]??Math.min(D,e0),loopStartSec:s0,loopEndSec:Math.min(D,e0),bars:n,segments:n*S,segmentsPerBar:S,bpm:60*n*S/Math.max(1e-6,Math.min(D,e0)-s0)}}):null}});
   for(const p of parts)p.bpm=60*p.segments/(p.loopEndSec-p.loopStartSec);
   /* meter per part: a part may have its own bar (4/4 verse, 7/8 bridge). Same tatum, own bar length, own "1", own counting
      level; taken only when it explains the part clearly better than the song meter */
   for(const p of parts){
    const pb=beats.filter(t=>t>=p.startSec-T*.3&&t<p.endSec-T*.3);if(pb.length<24)continue;
    const own=barLength(F,pb,T,fr);if(!own.scores||own.St===St||own.St%St===0||St%own.St===0)continue;   // 8 vs 4 is the same meter read twice
-   const sOwn=own.scores[own.St]?.score??-Infinity,sSong=own.scores[St]?.score??-Infinity;if(!(sOwn>sSong+.15))continue;
-   const start=pb[own.phase],bar=own.St*T,n=Math.max(1,Math.floor((p.endSec-start)/bar+.25));
+   const sOwn=own.scores[own.St]?.score??-Infinity,sSong=own.scores[St]?.score??-Infinity;if(!(sOwn>sSong+.25))continue;
+   const start=pb[own.phase],bar=own.St*T,n=Math.max(1,Math.floor((p.endSec-start)/bar+.25)),segBpm=60/(T*own.level);
+   // only a meter one can count and loop: 50–240 per minute, a bar of 0.9–4.5 s, at least 6 bars in the part
+   if(segBpm<50||segBpm>240||bar<.9||bar>4.5||n<6)continue;
    Object.assign(p,{loopStartSec:start,loopEndSec:Math.min(D,start+n*bar),bars:n,segments:n*own.S,segmentsPerBar:own.S,groups:own.groups,ownMeter:true});
    p.bpm=60*p.segments/(p.loopEndSec-p.loopStartSec);
   }
@@ -202,7 +206,8 @@ function __xenSongPartsFactory(meter){
  function snap(result,asset){
   if(!result?.ok||!result.rhythmic)return result;const x=asset.monoSamples,sr=asset.sampleRate;
   const at=t=>{const a=I.attackBefore(x,sr,t,.03);return a!=null&&Math.abs(a-t)<.035?a:I.zeroCross(x,sr,t,.0007)};
-  const parts=result.parts.map(p=>{const s=at(p.loopStartSec),e=Math.min(asset.originalDuration??x.length/sr,at(p.loopEndSec));return {...p,loopStartSec:s,loopEndSec:e,bpm:60*p.segments/(e-s)}});
+  const total=asset.originalDuration??x.length/sr,fix=p=>{const s=at(p.loopStartSec),e=Math.min(total,at(p.loopEndSec));return {...p,loopStartSec:s,loopEndSec:e,bpm:60*p.segments/(e-s)}};
+  const parts=result.parts.map(p=>({...fix(p),subParts:p.subParts?p.subParts.map(fix):null}));
   return {...result,parts};
  }
  return Object.freeze({analyze,decimate,snap,COLORS,letter});

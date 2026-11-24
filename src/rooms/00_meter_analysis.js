@@ -149,6 +149,10 @@ function __xenMeterAnalysisFactory(){
   const peaks=onsetPeaks(F,t0,t1);if(peaks.length<4)return null;
   const strong=[...peaks].sort((a,b)=>b.w-a.w).slice(0,24),origins=anchor!=null?[anchor,...strong.map(p=>p.t)]:strong.map(p=>p.t);
   let best=null;for(let T=.09;T<=1.2;T*=1.01){for(const o of origins){const r=gridFit(peaks,T,o,t0,t1);if(!best||r.f>best.f+1e-9)best={T,origin:o,...r}}}
+  /* triplet / swing material: the F-measure likes the PAIR of tatums (fewer empty grid points); if the half grid explains clearly
+     more attacks (+15 points recall; straight material gains at most ~3), the half grid is the tatum */
+  if(best&&best.T/2>=.08){let h=null;for(const o of [best.origin,...origins]){const r=gridFit(peaks,best.T/2,o,t0,t1);if(!h||r.f>h.f)h={T:best.T/2,origin:o,...r}}
+   if(h.recall>=best.recall+.15)best={...h,halved:true}}
   return best;
  }
  /* bar prior: common tatum counts slightly, and above all a typical bar DURATION (log-normal around 1.6 s, ±1.2 octaves; tuned on the real and the progressive test sets):
@@ -157,9 +161,16 @@ function __xenMeterAnalysisFactory(){
  /* positions[p] = mean accent of tatum position p in the bar (p = 0 is "1") */
  function countingLevel(positions,St,T0){
   let level=1,S=St;
+  // triplet / compound grouping first: only when EVERY accented position lies on a multiple of 3 (9/8 = 2+2+2+3 stays 9)
+  for(;;){if(S%3||S<=3)break;const acc=Array.from({length:S},(_,j)=>positions[j*level]),m=acc.reduce((a,b)=>a+b,0)/S,sd=Math.sqrt(acc.reduce((a,b)=>a+(b-m)**2,0)/S)||1;
+   const strong=acc.map((v,j)=>v>m+.35*sd?j:-1).filter(j=>j>=0);let a=0,b=0;acc.forEach((v,j)=>{if(j%3)b+=v;else a+=v});a/=S/3;b/=S*2/3;
+   // and EVERY group start (each beat of a triplet / compound bar) stands above the positions between the beats
+   const beatsUp=acc.every((v,j)=>j%3||v>b+.1*sd);
+   if(!(strong.length&&strong.every(j=>j%3===0)&&beatsUp&&a-b>.3&&60/(T0*level*3)>=40))break;S/=3;level*=3}
   for(;;){if(S%2||S<=2)break;const bpm=60/(T0*level);
    let e=0,o=0;for(let j=0;j<S;j++){const v=positions[j*level];if(j%2)o+=v;else e+=v}e/=S/2;o/=S/2;
-   const duple=e-o>.3,tooFast=bpm>220&&e>=o;if(!(duple&&(S>4||bpm>200))&&!tooFast)break;S/=2;level*=2}
+   // above 240 per minute nobody counts: pair up whatever the accents say (odd bars such as 7/8 keep their eighths)
+   const duple=e-o>.3,tooFast=bpm>240||bpm>220&&e>=o;if(!(duple&&(S>4||bpm>200))&&!tooFast)break;S/=2;level*=2}
   const acc=Array.from({length:S},(_,j)=>positions[j*level]),m=acc.reduce((a,b)=>a+b,0)/S,sd=Math.sqrt(acc.reduce((a,b)=>a+(b-m)**2,0)/S)||1;
   const starts=acc.map((v,j)=>j===0||v>m+.35*sd?j:-1).filter(j=>j>=0),groups=starts.map((st,i)=>(starts[i+1]??S)-st);
   // the grouping is shown where it says something: odd bars (7 = 2+2+3) or uneven groups; 4 = 2+2 is not worth a word

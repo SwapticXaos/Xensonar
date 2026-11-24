@@ -308,3 +308,7 @@ canvas[data-xwe-workspace-resize="true"][data-xwe-workspace-edge="true"]{cursor:
 .xwe-song-caption{display:flex;gap:6px;align-items:center;justify-content:space-between;font-size:11px;color:#a5b4fc;min-height:16px}
 .xwe-song-redo{background:none;border:1px solid #3b4a6e;border-radius:3px;color:#cbd5e1;font-size:11px;padding:0 5px;cursor:pointer}
 .xwe-song-redo:disabled{opacity:.4;cursor:default}
+/* SONG-PARTS-02: sections inside a part (F1, F2 …) */
+.xwe-song-part.has-active-sub{opacity:1}
+.xwe-song-sub-line{position:absolute;top:3px;bottom:3px;width:0;border-left:1px dashed rgba(2,6,23,.65);pointer-events:none}
+.xwe-song-sub{position:absolute;top:0;bottom:0;box-shadow:inset 0 0 0 2px #fff;pointer-events:none}

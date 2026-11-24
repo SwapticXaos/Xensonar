@@ -1968,7 +1968,13 @@ function __XenSongPartsStrip({source,selection,onSelectPart,onPatch}){
  const isActive=p=>!!fr&&Math.abs(fr.startSec-p.loopStartSec)<.02&&Math.abs(fr.startSec+fr.durationSec-p.loopEndSec)<.02;
  const info=p=>p.segmentsPerBar>1?`${p.label} · ${clock(p.startSec)}–${clock(p.endSec)} · ${p.bars} bars × ${p.segmentsPerBar}${(p.groups??r?.groups)?' ('+(p.groups??r.groups).join('+')+')':''} = ${p.segments} segments · ${p.bpm.toFixed(2)} BPM${p.ownMeter?' · own meter':''}`:`${p.label} · ${clock(p.startSec)}–${clock(p.endSec)} · no clear meter: 1 bar, 1 segment`;
  const select=p=>{onSelectPart?.(p);onPatch?.(__xenMeterAnalysis.metaPatch(p.segments,p.segmentsPerBar,p.loopEndSec-p.loopStartSec))};
- const active=r?.parts.find(isActive)??null,letters=r?[...new Set(r.parts.map(p=>p.label))].length:0;
+ /* SONG-PARTS-02: two levels. Level 1 = the parts (letters, colours: what returns). Level 2 = sections inside a part (F1, F2 …):
+    thin lines in the strip; the first click takes the whole part, a further click on it the section under the pointer */
+ const subsOf=p=>(p.subParts??[]).map((q,k)=>({...q,label:p.label+(k+1),parent:p,segmentsPerBar:q.segmentsPerBar??p.segmentsPerBar,groups:p.groups}));
+ const activeSub=r?r.parts.flatMap(subsOf).find(isActive)??null:null;
+ const active=activeSub??r?.parts.find(isActive)??null,letters=r?[...new Set(r.parts.map(p=>p.label))].length:0;
+ const clickPart=(p,event)=>{const subs=subsOf(p);if(subs.length>1&&(isActive(p)||subs.some(isActive))){const rect=event.currentTarget.parentElement.getBoundingClientRect(),t=(event.clientX-rect.left)/Math.max(1,rect.width)*D;
+   select(subs.find(q=>t>=q.startSec&&t<q.endSec)??subs[subs.length-1])}else select(p)};
  const caption=state.status==='running'?'Analyzing the whole song …':state.status==='error'?state.error:
   active?info(active):r?(r.rhythmic?`${r.parts.length} parts · ${letters} kinds (${[...new Set(r.parts.map(p=>p.label))].join(' ')}) · ${r.segmentsPerBar} segments per bar · ${r.bpm.toFixed(2)} BPM · click a part`:'One part · '+(r.reason||'no clear meter')):'';
  return h('div',{className:'xwe-song-parts','data-xwe-song-parts':state.status},
@@ -1976,9 +1982,11 @@ function __XenSongPartsStrip({source,selection,onSelectPart,onPatch}){
    asset?h('button',{type:'button',className:'xwe-song-redo','data-xwe-song-redo':true,disabled:state.status==='running',title:'Analyze the whole song again',onClick:()=>{__xenSongPartsCache.delete(asset);setNonce(n=>n+1)}},'↻'):null),
   h('div',{className:'xwe-song-strip',role:'group','aria-label':'Song parts'},
    ...(r?r.parts.map(p=>h('button',{key:p.index,type:'button','data-xwe-song-part':p.label,'data-xwe-song-part-index':p.index,
-     className:'xwe-song-part'+(isActive(p)?' is-active':''),style:{left:pct(p.startSec),width:pct(p.endSec-p.startSec),background:p.color},
-     title:info(p)+' · click: view range, loop mask and Taktometer on this part','aria-label':'Part '+info(p),'aria-pressed':isActive(p),onClick:()=>select(p)},
-     (p.endSec-p.startSec)/Math.max(1e-9,D)>.025?p.label:'')):[]),
+     className:'xwe-song-part'+(isActive(p)?' is-active':subsOf(p).some(isActive)?' has-active-sub':''),style:{left:pct(p.startSec),width:pct(p.endSec-p.startSec),background:p.color},
+     title:info(p)+' · click: view range, loop mask and Taktometer on this part'+(subsOf(p).length>1?' · click again: section '+subsOf(p).map(q=>q.label).join(' / '):''),'aria-label':'Part '+info(p),'aria-pressed':isActive(p)||subsOf(p).some(isActive),'data-xwe-song-subs':subsOf(p).length||undefined,onClick:event=>clickPart(p,event)},
+     (p.endSec-p.startSec)/Math.max(1e-9,D)>.025?p.label:'',
+     ...subsOf(p).map((q,k)=>{const span=Math.max(1e-9,p.endSec-p.startSec),l=(q.startSec-p.startSec)/span*100,w=(q.endSec-q.startSec)/span*100;
+      return isActive(q)?h('span',{key:'s'+k,className:'xwe-song-sub is-active','data-xwe-song-sub':q.label,style:{left:l+'%',width:w+'%'}}):k?h('span',{key:'s'+k,className:'xwe-song-sub-line',style:{left:l+'%'}}):null}))):[]),
    state.status==='running'?h('div',{className:'xwe-song-strip-wait'}):null));
 }
 /* METER-ANALYSIS-01: the analytic side of the Taktometer. Analyze = count the segments of the mask from the music around it
