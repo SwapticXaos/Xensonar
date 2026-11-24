@@ -652,6 +652,7 @@ function __ForgeLineInButton(){
  const listDevices=async ask=>{if(!md?.enumerateDevices)return;try{if(ask){const s=await md.getUserMedia({audio:true});s.getTracks().forEach(t=>t.stop())}
    setDevices((await md.enumerateDevices()).filter(d=>d.kind==='audioinput'))}catch(e){setMsg('Device list: '+(e?.message||e))}};
  P.useEffect(()=>{if(open)listDevices(false)},[open]);
+ P.useEffect(()=>{const f=()=>setOpen(true);window.addEventListener('xensonar:forge:linein-open',f);return()=>window.removeEventListener('xensonar:forge:linein-open',f)},[]);
  // the panel sits under (or above) the button in a fixed layer and follows scrolling
  P.useLayoutEffect(()=>{if(!open)return;let raf=0;const place=()=>{raf=0;const b=btnRef.current?.getBoundingClientRect();if(!b)return;const w=Math.min(420,innerWidth-16),H=popRef.current?.offsetHeight||360;
    const left=Math.max(8,Math.min(b.right-w,innerWidth-w-8)),below=innerHeight-b.bottom-8;setPos(below>=H||below>=b.top-8?{left,top:b.bottom+6,width:w}:{left,bottom:innerHeight-b.top+6,width:w})};
@@ -690,7 +691,7 @@ function __ForgeLineInButton(){
  const recording=phase==='recording',busy=phase==='requesting'||phase==='saving';
  const meter=(v,k)=>h('span',{key:k,className:'f38-linein-meter','data-ch':k},h('i',{style:{width:Math.min(100,Math.round(Math.sqrt(v)*100))+'%'}}));
  const panel=open?h('div',{ref:popRef,'data-forge-linein-panel':true,role:'dialog','aria-label':'Line-In recording',className:'f38-linein-panel',style:{position:'fixed',zIndex:2147482000,left:pos?.left??-9999,top:pos?.top,bottom:pos?.bottom,width:pos?.width,visibility:pos?'visible':'hidden'}},
-  h('div',{className:'f38-linein-head'},h('b',null,'Line-In'),h('span',null,' · record what your speakers play'),h('button',{type:'button',className:'f38-linein-close','aria-label':'Close',title:recording?'Close (the recording goes on)':'Close',onClick:()=>setOpen(false)},'×')),
+  h('div',{className:'f38-linein-head'},h('b',null,'Speaker Sound'),h('span',null,' (Line-In) · record what your speakers play'),h('button',{type:'button',className:'f38-linein-close','aria-label':'Close',title:recording?'Close (the recording goes on)':'Close',onClick:()=>setOpen(false)},'×')),
   h('label',{className:'f38-linein-src'+(canShare?'':' is-off')},h('input',{type:'radio',name:'f38-src',checked:src==='share',disabled:!canShare||recording,'data-forge-linein-source':'share',onChange:()=>setSrc('share')}),
    h('span',null,h('b',null,'Browser tab or system sound'),h('small',null,canShare?'In the share dialog pick the tab (e.g. YouTube) and switch on “Share tab audio”; for all sounds of the computer pick the whole screen with “Share system audio” (Windows, ChromeOS).':'Not offered by this browser (Firefox shares no sound). Use an input device below.'))),
   h('label',{className:'f38-linein-src'},h('input',{type:'radio',name:'f38-src',checked:src.startsWith('device:'),disabled:recording,'data-forge-linein-source':'device',onChange:()=>setSrc('device:'+(devices.find(d=>__xenLineInLoopback.test(d.label))?.deviceId||''))}),
@@ -704,9 +705,7 @@ function __ForgeLineInButton(){
    h('span',{className:'f38-linein-time'},clock(secs)),h('span',{className:'f38-linein-meters'+(lv[2]?' is-clip':''),title:lv[2]?'The level reached 0 dBFS: lower the volume at the source and record again':'Level L / R'},meter(recording?lv[0]:0,'L'),meter(recording?lv[1]:0,'R'))),
   msg?h('div',{className:'f38-linein-msg','data-forge-linein-msg':true,role:'status'},msg):null):null;
  return h(P.Fragment,null,
-  h('button',{ref:btnRef,type:'button','data-forge-line-in':true,'aria-expanded':open,'aria-haspopup':'dialog',className:'f38-rack-line-in'+(recording?' is-recording':''),
-   title:'Line-In: record what your speakers play (a browser tab such as YouTube, the system sound, or a line / loopback input) lossless into Import Audio',onClick:()=>setOpen(o=>!o)},
-   h('span',{className:'f38-linein-dot','aria-hidden':true}),h('span',{className:'f38-linein-label'},recording?'REC '+clock(secs):'🔊 Line-In')),
+  h('span',{ref:btnRef,'data-forge-line-in-anchor':true,style:{display:'inline-block',width:0,height:0}}),
   panel&&typeof document!=='undefined'&&typeof ao!=='undefined'&&ao.createPortal?ao.createPortal(panel,document.body):panel);
 }
 function __ForgeSendToMultitrackButton(){
