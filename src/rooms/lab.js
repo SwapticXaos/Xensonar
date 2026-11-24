@@ -1855,7 +1855,7 @@ function RGe(e){const{source:t,selection:n,previewPlaying:r,meter:a,setDetailVie
  if(b.target==="overview"){const N=G*t.durationSec;o($_(N,b,j,.15));return}
  // Do not mutate the lower mask or repair undo on click / 1-3px jitter.
  if(!b.activated){if(!__xenP10CrossedDragThreshold(b.clientX,_))return;b.activated=true}
- const N=n.detailViewport,W=N.startSec+G*N.durationSec,V=$_(W,b,j,.05);i(V),r&&c(V)
+ const N=n.detailViewport,W=N.startSec+G*N.durationSec,V=__xenSnapMaskDrag($_(W,b,j,.05),b.mode,t);i(V),r&&c(V)
  },L=B=>{if(b.pointerId!=null&&B.pointerId!==b.pointerId)return;
  if(b.finished||b.cancelled)return;b.finished=true;
  if(b.target==="detail"&&b.activated&&b.mode==="new")s();g(null)
@@ -1911,7 +1911,7 @@ function CGe(props){
    Both used to open the settings. Not playing: the left click does nothing. */
 function __XenWaveTaktometer({canvasRef,meta,onPatch,disabled,onSeek,source=null,selection=null,onApplyRange=null}){
  const [opened,setOpened]=P.useState(false),anchor=P.useRef(null),popupRef=P.useRef(null);
- const [requestedLeft,setRequestedLeft]=P.useState(0),[popupLeft,setPopupLeft]=P.useState(0);
+ const [requestedLeft,setRequestedLeft]=P.useState(0),[box,setBox]=P.useState(null);
  // The bar-meter spans the whole workspace. Anchor the settings to the
  // point clicked *within* that ruler, not to its permanently left-aligned DOM wrapper.
  const openAt=(event,allowClose)=>{
@@ -1919,29 +1919,40 @@ function __XenWaveTaktometer({canvasRef,meta,onPatch,disabled,onSeek,source=null
   if(rect)setRequestedLeft(Math.max(0,Math.min(rect.width,event.clientX-rect.left)));
   setOpened(previous=>allowClose?!previous:true);
  };
+ /* TAKT-POPUP-02: the menu lives in a fixed layer on <body> (a portal), so no panel below can cover or clip it. It follows the
+    ruler on every scroll (any scroller) and resize, opens below or – when there is no room – above, never leaves the window,
+    and scrolls inside itself when the analysis is taller than the space. */
  P.useLayoutEffect(()=>{
-  if(!opened||!anchor.current||!popupRef.current)return;
-  const anchorRect=anchor.current.getBoundingClientRect();
-  const popupWidth=popupRef.current.getBoundingClientRect().width;
-  // Prefer the pointer's X, but keep all fields and Close reachable at
-  // narrow widths and at the right edge of the window.
-  const maxLeft=Math.max(0,Math.min(anchorRect.width-popupWidth,innerWidth-anchorRect.left-popupWidth-8));
-  const next=Math.max(0,Math.min(requestedLeft,maxLeft));
-  setPopupLeft(before=>Math.abs(before-next)<0.5?before:next);
+  if(!opened)return;let raf=0;
+  const place=()=>{raf=0;const a=anchor.current,pop=popupRef.current;if(!a)return;const r=a.getBoundingClientRect();
+   const w=pop?pop.getBoundingClientRect().width:420,margin=8,below=innerHeight-r.bottom-margin,above=r.top-margin,down=below>=320||below>=above;
+   const left=Math.max(margin,Math.min(r.left+requestedLeft,innerWidth-w-margin));
+   const next=down?{left,top:Math.max(margin,r.bottom+4),maxHeight:Math.max(160,below-4)}:{left,bottom:Math.max(margin,innerHeight-r.top+4),maxHeight:Math.max(160,above-4)};
+   setBox(prev=>prev&&prev.left===next.left&&prev.top===next.top&&prev.bottom===next.bottom&&prev.maxHeight===next.maxHeight?prev:next)};
+  const schedule=()=>{if(!raf)raf=requestAnimationFrame(place)};
+  place();schedule();
+  addEventListener('scroll',schedule,true);addEventListener('resize',schedule);
+  const ro=typeof ResizeObserver==='function'?new ResizeObserver(schedule):null;if(ro&&popupRef.current)ro.observe(popupRef.current);
+  return()=>{removeEventListener('scroll',schedule,true);removeEventListener('resize',schedule);ro?.disconnect();if(raf)cancelAnimationFrame(raf)};
  },[opened,requestedLeft]);
  P.useEffect(()=>{
   if(!opened)return;
-  const outside=event=>{if(!anchor.current?.contains(event.target))setOpened(false)};
+  const inside=t=>anchor.current?.contains(t)||popupRef.current?.contains(t);
+  const outside=event=>{if(!inside(event.target))setOpened(false)};
   const escape=event=>{if(event.key==='Escape')setOpened(false)};
   document.addEventListener('pointerdown',outside,true);
   document.addEventListener('keydown',escape,true);
   return()=>{document.removeEventListener('pointerdown',outside,true);document.removeEventListener('keydown',escape,true)};
  },[opened]);
+ P.useEffect(()=>{if(!opened)setBox(null)},[opened]);
  const edit=(key,event)=>{if(disabled||!onPatch)return;const value=Math.max(1,Math.min(16,Math.round(Number(event.currentTarget.value)||1)));onPatch({[key]:value})};
  const field=(key,label)=>u.jsxs('label',{children:[label,key==='bars'?u.jsx(__XenMaterialBarsInput,{value:meta?.bars??1,disabled:disabled||!onPatch,onCommit:bars=>onPatch({bars}),'aria-label':label}):u.jsx('input',{type:'number',min:1,max:16,step:1,value:meta?.[key]??1,disabled:disabled||!onPatch,'aria-label':label,onChange:event=>edit(key,event)})]});
+ const menu=opened?u.jsxs('div',{ref:popupRef,'data-xwe-meter-menu':'true',className:'xwe-meter-popup xwe-meter-popup-fixed',
+  style:{position:'fixed',left:box?.left??-9999,top:box?.top,bottom:box?.bottom,maxHeight:box?.maxHeight,overflowY:'auto',visibility:box?'visible':'hidden'},
+  children:[field('bars','Number of Bars'),field('guideSegments','Number of Segments'),u.jsx('button',{type:'button',onClick:()=>setOpened(false),title:'Close the bar meter',children:'×'}),u.jsx(__XenMeterAnalysisPanel,{meta,onPatch,disabled,source,selection,onApplyRange})]}):null;
  return u.jsxs('div',{ref:anchor,'data-xwe-meter-anchor':'true',children:[
   u.jsx('canvas',{ref:canvasRef,width:1200,height:18,'data-xen-bar-meter':'true',title:'Bar meter · Left click: while playing, jump to this point and play on · Right click: number of bars and segments',className:'w-full border border-neutral-800 bg-black',onClick:event=>{if(!onSeek)return;const rect=event.currentTarget.getBoundingClientRect();if(rect.width>0)onSeek(Math.max(0,Math.min(1,(event.clientX-rect.left)/rect.width)))},onContextMenu:event=>{event.preventDefault();openAt(event,false)}}),
-  opened?u.jsxs('div',{ref:popupRef,'data-xwe-meter-menu':'true',className:'xwe-meter-popup',style:{left:popupLeft},children:[field('bars','Number of Bars'),field('guideSegments','Number of Segments'),u.jsx('button',{type:'button',onClick:()=>setOpened(false),title:'Close the bar meter',children:'×'}),u.jsx(__XenMeterAnalysisPanel,{meta,onPatch,disabled,source,selection,onApplyRange})]}):null
+  menu&&typeof document!=='undefined'?ao.createPortal(menu,document.body):null
  ]});
 }
 
@@ -1951,6 +1962,13 @@ function __XenWaveTaktometer({canvasRef,meta,onPatch,disabled,onSeek,source=null
 const __xenSongPartsCache=new WeakMap();
 /* the latest finished strip analysis, so the Taktometer can count a mask the way its song part is counted */
 let __xenSongPartsLatest=null;
+/* SONG-PARTS-EDIT-01: snap the purple loop mask while it is dragged (only the moving edge; a moved mask keeps its length) */
+function __xenSnapMaskDrag(range,mode,source){
+ const sp=__xenSongPartsLatest;if(!range||!sp||!source||sp.asset!==source.sourceAsset||!sp.result?.grid)return range;
+ const m=__xenSongPartsEdit.snapMode();if(m==='off')return range;
+ const edge=mode==='resize-start'?'start':mode==='resize-end'?'end':mode==='move'?'move':'both';
+ return __xenSongPartsEdit.snapRange(range,sp.result.grid,m,edge,Number(source.durationSec)||Infinity);
+}
 function __XenSongPartsStrip({source,selection,onSelectPart,onPatch}){
  const h=P.createElement,asset=source?.sourceAsset??null;
  const [state,setState]=P.useState({asset:null,status:'idle',result:null,error:''}),[nonce,setNonce]=P.useState(0);
@@ -1966,30 +1984,67 @@ function __XenSongPartsStrip({source,selection,onSelectPart,onPatch}){
   return()=>{live=false;clearTimeout(timer)};
  },[asset,nonce]);
  const r=state.asset===asset?state.result:null,D=r?.durationSec||source?.durationSec||0,fr=selection?.fineLoopRange;
+ /* SONG-PARTS-EDIT-01: the strip shows the WORKING COPY (saved edits re-derived on the grid) or the analysis. Boundaries can be
+    dragged (snap: bar / beat / off), a right click offers split / merge / letter / reset. Edits persist per song. */
+ const E=__xenSongPartsEdit,[rev,setRev]=P.useState(0),[drag,setDrag]=P.useState(null),[menu,setMenu]=P.useState(null),stripRef=P.useRef(null);
+ P.useEffect(()=>E.subscribe(()=>setRev(v=>v+1)),[]);
+ const snap=E.snapMode(),grid=r?.grid??null;
+ const view=P.useMemo(()=>r?E.current(asset,r):{parts:[],edited:false},[r,asset,rev]);
+ const shown=drag?E.moveBoundary(view.parts,drag.i,drag.t,grid,snap,D):view.parts;
+ const commit=parts=>{E.save(asset,parts)};
+ const timeAt=clientX=>{const rect=stripRef.current?.getBoundingClientRect();return rect?Math.max(0,Math.min(D,(clientX-rect.left)/Math.max(1,rect.width)*D)):0};
  const pct=v=>(D>0?v/D*100:0)+'%',clock=t=>{const r=Math.round(t);return Math.floor(r/60)+':'+String(r%60).padStart(2,'0')};
  const isActive=p=>!!fr&&Math.abs(fr.startSec-p.loopStartSec)<.02&&Math.abs(fr.startSec+fr.durationSec-p.loopEndSec)<.02;
- const info=p=>p.segmentsPerBar>1?`${p.label} · ${clock(p.startSec)}–${clock(p.endSec)} · ${p.bars} bars × ${p.segmentsPerBar}${(p.groups??r?.groups)?' ('+(p.groups??r.groups).join('+')+')':''} = ${p.segments} segments · ${p.bpm.toFixed(2)} BPM${p.ownMeter?' · own meter':''}`:`${p.label} · ${clock(p.startSec)}–${clock(p.endSec)} · no clear meter: 1 bar, 1 segment`;
+ const info=p=>p.segmentsPerBar>1?`${p.label} · ${clock(p.startSec)}–${clock(p.endSec)} · ${p.bars} bars × ${p.segmentsPerBar}${(p.groups??r?.groups)?' ('+(p.groups??r.groups).join('+')+')':''} = ${p.segments} segments · ${p.bpm.toFixed(2)} BPM${p.ownMeter?' · own meter':''}${p.edited?' · edited':''}`:`${p.label} · ${clock(p.startSec)}–${clock(p.endSec)} · no clear meter: 1 bar, 1 segment`;
  const select=p=>{onSelectPart?.(p);onPatch?.(__xenMeterAnalysis.metaPatch(p.segments,p.segmentsPerBar,p.loopEndSec-p.loopStartSec))};
  /* SONG-PARTS-02: two levels. Level 1 = the parts (letters, colours: what returns). Level 2 = sections inside a part (F1, F2 …):
     thin lines in the strip; the first click takes the whole part, a further click on it the section under the pointer */
  const subsOf=p=>(p.subParts??[]).map((q,k)=>({...q,label:p.label+(k+1),parent:p,segmentsPerBar:q.segmentsPerBar??p.segmentsPerBar,groups:p.groups}));
- const activeSub=r?r.parts.flatMap(subsOf).find(isActive)??null:null;
- const active=activeSub??r?.parts.find(isActive)??null,letters=r?[...new Set(r.parts.map(p=>p.label))].length:0;
- const clickPart=(p,event)=>{const subs=subsOf(p);if(subs.length>1&&(isActive(p)||subs.some(isActive))){const rect=event.currentTarget.parentElement.getBoundingClientRect(),t=(event.clientX-rect.left)/Math.max(1,rect.width)*D;
+ const activeSub=shown.flatMap(subsOf).find(isActive)??null;
+ const active=activeSub??shown.find(isActive)??null,letterList=[...new Set(shown.map(p=>p.label))];
+ const clickPart=(p,event)=>{const subs=subsOf(p);if(subs.length>1&&(isActive(p)||subs.some(isActive))){const t=timeAt(event.clientX);
    select(subs.find(q=>t>=q.startSec&&t<q.endSec)??subs[subs.length-1])}else select(p)};
+ // boundary drag (pointer capture on the handle; the preview follows the snap, the release saves the working copy)
+ const startDrag=(i,event)=>{event.preventDefault();event.stopPropagation();const el=event.currentTarget;try{el.setPointerCapture(event.pointerId)}catch{}
+  setDrag({i,t:shown[i].startSec});
+  const move=e=>setDrag({i,t:timeAt(e.clientX)}),end=e=>{el.removeEventListener('pointermove',move);el.removeEventListener('pointerup',end);el.removeEventListener('pointercancel',cancel);
+   const t=timeAt(e.clientX);setDrag(null);commit(E.moveBoundary(view.parts,i,t,grid,snap,D))},
+   cancel=()=>{el.removeEventListener('pointermove',move);el.removeEventListener('pointerup',end);el.removeEventListener('pointercancel',cancel);setDrag(null)};
+  el.addEventListener('pointermove',move);el.addEventListener('pointerup',end);el.addEventListener('pointercancel',cancel)};
+ P.useEffect(()=>{if(!menu)return;const close=e=>{if(!e.target.closest?.('[data-xwe-song-menu]'))setMenu(null)},esc=e=>{if(e.key==='Escape')setMenu(null)};
+  document.addEventListener('pointerdown',close,true);document.addEventListener('keydown',esc,true);
+  return()=>{document.removeEventListener('pointerdown',close,true);document.removeEventListener('keydown',esc,true)}},[menu]);
+ const act=fn=>()=>{setMenu(null);fn()};
+ const menuEl=menu&&shown[menu.i]?(()=>{const i=menu.i,p=shown[i],t=E.snapTime(menu.t,grid,snap),mb=(label,fn,extra={})=>h('button',{type:'button',className:'xwe-song-menu-btn','data-xwe-song-action':extra.id,disabled:extra.disabled,onClick:act(fn)},label);
+  return h('div',{'data-xwe-song-menu':true,className:'xwe-song-menu',role:'menu',style:{left:Math.min(menu.x,innerWidth-250),top:Math.min(menu.y,innerHeight-230)}},
+   h('div',{className:'xwe-song-menu-title'},'Part '+p.label+' · '+clock(p.startSec)+'–'+clock(p.endSec)),
+   mb('Split here at '+clock(t)+' ('+(snap==='off'?'free':'snapped to '+snap)+')',()=>commit(E.split(view.parts,i,menu.t,grid,snap,D)),{id:'split',disabled:!(t>p.startSec+.5&&t<p.endSec-.5)}),
+   mb('Merge with next part',()=>commit(E.merge(view.parts,i,grid,D)),{id:'merge-next',disabled:i>=shown.length-1}),
+   mb('Merge with previous part',()=>commit(E.merge(view.parts,i-1,grid,D)),{id:'merge-prev',disabled:i<=0}),
+   h('div',{className:'xwe-song-menu-row'},'Letter:',...letterList.concat(E.nextLetter(shown)).map(l=>h('button',{key:l,type:'button','data-xwe-song-letter':l,className:'xwe-song-letter'+(l===p.label?' is-current':''),style:{background:E.colorOf(l)},onClick:act(()=>commit(E.setLabel(view.parts,i,l,grid,D)))},l))),
+   view.edited?mb('Reset all parts to the analysis',()=>E.clear(asset),{id:'reset'}):null)})():null;
  const caption=state.status==='running'?'Analyzing the whole song …':state.status==='error'?state.error:
-  active?info(active):r?(r.rhythmic?`${r.parts.length} parts · ${letters} kinds (${[...new Set(r.parts.map(p=>p.label))].join(' ')}) · ${r.segmentsPerBar} segments per bar · ${r.bpm.toFixed(2)} BPM · click a part`:'One part · '+(r.reason||'no clear meter')):'';
- return h('div',{className:'xwe-song-parts','data-xwe-song-parts':state.status},
+  active?info(active):r?(r.rhythmic?`${shown.length} parts · ${letterList.length} kinds (${letterList.join(' ')}) · ${r.segmentsPerBar} segments per bar · ${r.bpm.toFixed(2)} BPM · click a part`:'One part · '+(r.reason||'no clear meter')):'';
+ return h('div',{className:'xwe-song-parts','data-xwe-song-parts':state.status,'data-xwe-song-edited':view.edited||undefined},
   h('div',{className:'xwe-song-caption'},h('span',{'data-xwe-song-caption':true},caption),
-   asset?h('button',{type:'button',className:'xwe-song-redo','data-xwe-song-redo':true,disabled:state.status==='running',title:'Analyze the whole song again',onClick:()=>{__xenSongPartsCache.delete(asset);setNonce(n=>n+1)}},'↻'):null),
-  h('div',{className:'xwe-song-strip',role:'group','aria-label':'Song parts'},
-   ...(r?r.parts.map(p=>h('button',{key:p.index,type:'button','data-xwe-song-part':p.label,'data-xwe-song-part-index':p.index,
-     className:'xwe-song-part'+(isActive(p)?' is-active':subsOf(p).some(isActive)?' has-active-sub':''),style:{left:pct(p.startSec),width:pct(p.endSec-p.startSec),background:p.color},
-     title:info(p)+' · click: view range, loop mask and Taktometer on this part'+(subsOf(p).length>1?' · click again: section '+subsOf(p).map(q=>q.label).join(' / '):''),'aria-label':'Part '+info(p),'aria-pressed':isActive(p)||subsOf(p).some(isActive),'data-xwe-song-subs':subsOf(p).length||undefined,onClick:event=>clickPart(p,event)},
+   h('span',{className:'xwe-song-tools'},
+    view.edited?h('span',{className:'xwe-song-edited',title:'Your working copy of the parts (saved for this song). Right click a part → Reset to return to the analysis.'},'working copy'):null,
+    h('label',{className:'xwe-song-snap',title:'Snap for part boundaries and for dragging the purple loop mask'},'Snap',h('select',{'aria-label':'Snap','data-xwe-snap':true,value:snap,onChange:e=>E.setSnapMode(e.currentTarget.value)},
+     h('option',{value:'bar'},'Bar'),h('option',{value:'beat'},'Beat'),h('option',{value:'off'},'Off'))),
+    asset?h('button',{type:'button',className:'xwe-song-redo','data-xwe-song-redo':true,disabled:state.status==='running',title:'Analyze the whole song again (your edited parts stay until you reset them)',onClick:()=>{__xenSongPartsCache.delete(asset);setNonce(n=>n+1)}},'↻'):null)),
+  h('div',{ref:stripRef,className:'xwe-song-strip',role:'group','aria-label':'Song parts'},
+   ...shown.map(p=>h('button',{key:'p'+p.index+':'+p.startSec.toFixed(2),type:'button','data-xwe-song-part':p.label,'data-xwe-song-part-index':p.index,
+     className:'xwe-song-part'+(isActive(p)?' is-active':subsOf(p).some(isActive)?' has-active-sub':'')+(p.edited?' is-edited':''),style:{left:pct(p.startSec),width:pct(p.endSec-p.startSec),background:p.color},
+     title:info(p)+' · click: view range, loop mask and Taktometer on this part'+(subsOf(p).length>1?' · click again: section '+subsOf(p).map(q=>q.label).join(' / '):'')+' · right click: split / merge / letter','aria-label':'Part '+info(p),'aria-pressed':isActive(p)||subsOf(p).some(isActive),'data-xwe-song-subs':subsOf(p).length||undefined,
+     onClick:event=>clickPart(p,event),onContextMenu:event=>{event.preventDefault();setMenu({i:p.index,t:timeAt(event.clientX),x:event.clientX,y:event.clientY})}},
      (p.endSec-p.startSec)/Math.max(1e-9,D)>.025?p.label:'',
      ...subsOf(p).map((q,k)=>{const span=Math.max(1e-9,p.endSec-p.startSec),l=(q.startSec-p.startSec)/span*100,w=(q.endSec-q.startSec)/span*100;
-      return isActive(q)?h('span',{key:'s'+k,className:'xwe-song-sub is-active','data-xwe-song-sub':q.label,style:{left:l+'%',width:w+'%'}}):k?h('span',{key:'s'+k,className:'xwe-song-sub-line',style:{left:l+'%'}}):null}))):[]),
-   state.status==='running'?h('div',{className:'xwe-song-strip-wait'}):null));
+      return isActive(q)?h('span',{key:'s'+k,className:'xwe-song-sub is-active','data-xwe-song-sub':q.label,style:{left:l+'%',width:w+'%'}}):k?h('span',{key:'s'+k,className:'xwe-song-sub-line',style:{left:l+'%'}}):null}))),
+   ...shown.slice(1).map((p,k)=>h('span',{key:'h'+(k+1),className:'xwe-song-handle'+(drag?.i===k+1?' is-dragging':''),'data-xwe-song-handle':k+1,role:'separator','aria-label':'Boundary before part '+p.label+' at '+clock(p.startSec)+' · drag to move',
+     title:'Drag to move this boundary (snap: '+snap+') · '+clock(p.startSec),style:{left:pct(p.startSec)},onPointerDown:e=>startDrag(k+1,e)})),
+   drag&&shown[drag.i]?h('span',{className:'xwe-song-drag-time'},clock(shown[drag.i].startSec)+(snap!=='off'?' · '+snap:'')):null,
+   state.status==='running'?h('div',{className:'xwe-song-strip-wait'}):null),
+  menuEl&&typeof document!=='undefined'?ao.createPortal(menuEl,document.body):null);
 }
 /* METER-ANALYSIS-01: the analytic side of the Taktometer. Analyze = count the segments of the mask from the music around it
    and offer bar readings (12 = 2 × 5 + 2 = 12/5 bars, 3 × 4, 4 × 3 …) plus a precise correction when the mask is off the grid;
@@ -2003,14 +2058,17 @@ function __XenMeterAnalysisPanel({meta,onPatch,disabled,source,selection,onApply
  const stale=!!result&&result.rangeKey!==rangeKey;
  const bars=__xenAudioMaterialBars(meta?.bars??1),seg=Math.max(1,Math.round(meta?.guideSegments??1)),total=bars*seg;
  const fmt=n=>Number.isInteger(n)?String(n):String(Number(n.toFixed(3)));
+ // a mask inside a song part (or one of its sections) is counted like that part: same segment length, same bar
+ const preferFor=rg=>{const sp=__xenSongPartsLatest;if(!rg||!sp||sp.asset!==asset||!sp.result?.rhythmic)return null;const c=rg.startSec+rg.durationSec/2;
+  const parts=__xenSongPartsEdit.current(asset,sp.result).parts;
+  for(const p of parts){if(c<p.startSec||c>=p.endSec)continue;const sub=(p.subParts??[]).findIndex(q=>c>=q.startSec&&c<q.endSec),q=sub>=0?p.subParts[sub]:p;
+   if(q.segments>0)return {segmentSec:(q.loopEndSec-q.loopStartSec)/q.segments,segmentsPerBar:q.segmentsPerBar??p.segmentsPerBar,groups:p.groups??sp.result.groups??null,label:p.label+(sub>=0&&p.subParts.length>1?sub+1:'')};break}
+  return null};
+ const fitPrefer=ready?preferFor(range):null,fitPeriod=fitPrefer?.segmentSec??(result&&!stale?result.segmentPeriodSec:null);
  const run=(segments)=>{
   if(!ready)return;
   try{
-   // a mask inside a song part (or one of its sections) is counted like that part: same segment length, same bar
-   let prefer=null;const sp=__xenSongPartsLatest;
-   if(!segments&&sp&&sp.asset===asset&&sp.result?.rhythmic){const c=range.startSec+range.durationSec/2;
-    for(const p of sp.result.parts){if(c<p.startSec||c>=p.endSec)continue;const sub=(p.subParts??[]).findIndex(q=>c>=q.startSec&&c<q.endSec),q=sub>=0?p.subParts[sub]:p;
-     if(q.segments>0)prefer={segmentSec:(q.loopEndSec-q.loopStartSec)/q.segments,segmentsPerBar:q.segmentsPerBar??p.segmentsPerBar,groups:p.groups??sp.result.groups??null,label:p.label+(sub>=0&&p.subParts.length>1?sub+1:'')};break}}
+   const prefer=segments?null:preferFor(range);
    const r=A.analyze(asset,range.startSec,range.durationSec,segments?{segments}:prefer?{prefer}:{});
    if(!r.ok){setResult(null);setStatus(r.reason);return}
    setResult({...r,rangeKey});setChosen(r.best?.segmentsPerBar??null);setStatus('')}
@@ -2034,13 +2092,14 @@ function __XenMeterAnalysisPanel({meta,onPatch,disabled,source,selection,onApply
  };
  const fitTarget=()=>{
   if(!ready)return;
-  try{const r=A.fitTarget(asset,range.startSec,range.durationSec,{bars,segmentsPerBar:seg});
+  try{const prefer=preferFor(range),before=range.durationSec;const r=A.fitTarget(asset,range.startSec,range.durationSec,{bars,segmentsPerBar:seg},prefer?{prefer}:{});
    if(!r.ok){setStatus(r.reason);return}
    const c=r.corrected;
+   if(Math.abs(c.durationSec-before)<.02&&Math.abs(c.startSec-range.startSec)<.02){setStatus('Mask already fits: '+c.durationSec.toFixed(3)+' s = '+fmt(c.segments)+' segments ('+__xenFormatAudioMaterialBars(bars)+' × '+seg+') at '+r.segmentBpm.toFixed(2)+' BPM'+(prefer?' · counted like part '+prefer.label:'')+'. Nothing changed.');return}
    remember(true);
    if(!onApplyRange?.({startSec:c.startSec,durationSec:c.durationSec},'Taktometer: mask cut to '+fmt(c.segments)+' segments ('+__xenFormatAudioMaterialBars(bars)+' bars of '+seg+').'))return;
    applyMeta(c.segments,seg,c.durationSec);setResult(null);
-   setStatus('Mask cut to '+fmt(c.segments)+' segments at '+r.segmentBpm.toFixed(2)+' BPM · '+c.durationSec.toFixed(3)+' s.');
+   setStatus((Math.abs(c.durationSec-before)<.02?'Mask already fits: ':'Mask '+before.toFixed(2)+' s → ')+c.durationSec.toFixed(3)+' s = '+fmt(c.segments)+' segments ('+__xenFormatAudioMaterialBars(bars)+' × '+seg+') at '+r.segmentBpm.toFixed(2)+' BPM'+(prefer?' · counted like part '+prefer.label:'')+'.');
   }catch(error){setStatus(String(error?.message??error))}
  };
  const btn=(label,onClick,extra={})=>h('button',{type:'button',disabled:!ready||extra.disabled,onClick,title:extra.title,'data-xwe-meter-action':extra.id,className:'xwe-meter-btn'+(extra.primary?' is-primary':'')},label);
@@ -2050,7 +2109,7 @@ function __XenMeterAnalysisPanel({meta,onPatch,disabled,source,selection,onApply
   h('div',{className:'xwe-meter-row'},
    h('span',{'data-xwe-meter-total':true,title:'Number of Bars × Number of Segments'},'Target: '+__xenFormatAudioMaterialBars(bars)+' × '+seg+' = '+fmt(total)+' segments'),
    btn('Analyze',()=>run(null),{id:'analyze',primary:true,title:'Count the segments of the purple mask from the music in and around it and propose bar readings'}),
-   btn('Fit to target',fitTarget,{id:'fit',title:'Cut the mask to Number of Bars × Number of Segments from where it starts, along the segment grid of the music'})),
+   btn('Fit mask to '+fmt(total)+' segments'+(fitPeriod?' ≈ '+(total*fitPeriod).toFixed(1)+' s':''),fitTarget,{id:'fit',title:'Cut the purple mask to Number of Bars × Number of Segments = '+fmt(total)+' segments, from where it starts, along the segment grid'+(fitPrefer?' (counted like part '+fitPrefer.label+')':'')+'. The fields above are the target; the mask changes, the fields do not.'})),
   result?h('div',{'data-xwe-meter-result':true,className:'xwe-meter-result'},
    h('div',null,h('b',null,result.segments+' segments'),' · '+result.segmentBpm.toFixed(2)+' BPM per segment · confidence '+pct(result.confidence),result.hierarchy?.fromPart?h('span',{'data-xwe-meter-from-part':true,className:'xwe-meter-ok'},' · counted like part '+result.hierarchy.fromPart):null),
    stale?h('div',{className:'xwe-meter-warn'},'The mask has moved since the analysis. Analyze again.'):

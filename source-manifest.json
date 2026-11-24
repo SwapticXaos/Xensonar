@@ -1006,6 +1006,7 @@
     "src/rooms/00_dual_aligned_dsp.js",
     "src/rooms/00_meter_analysis.js",
     "src/rooms/00_song_parts.js",
+    "src/rooms/00_song_parts_edit.js",
     "src/rooms/lab.js"
    ]
   },

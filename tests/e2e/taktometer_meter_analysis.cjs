@@ -43,7 +43,7 @@ const BPM=132,beat=60/BPM,file=path.join(dir,'five_four_132.wav');fs.writeFileSy
  const bars=menu.locator('input[aria-label="Number of Bars"]');await bars.fill('2');await bars.press('Enter');await menu.locator('input[aria-label="Number of Segments"]').fill('5');await p.waitForTimeout(300);
  assert.match(await menu.innerText(),/Target: 2 × 5 = 10 segments/);
  await act('fit').click();await p.waitForTimeout(500);st=await menu.locator('[role=status]').innerText();
- const len=Number((st.match(/· (\d+\.\d+) s/)||[])[1]);assert.match(st,/Mask cut to 10 segments/,st);assert.ok(Math.abs(len-beat*10)<.006,'length '+len+' vs '+beat*10);
+ const len=Number((st.match(/→ (\d+\.\d+) s = 10 segments/)||[])[1]);assert.match(st,/→ \d+\.\d+ s = 10 segments \(2 × 5\)/,st);assert.ok(Math.abs(len-beat*10)<.006,'length '+len+' vs '+beat*10);
  assert.equal(await barsValue(),'2');assert.equal(await segValue(),'5');
  // ---- the Taktometer has its own Undo (mask + bar settings); Loop korrigieren is untouched by it ----
  await act('undo').click();await p.waitForTimeout(400);assert.equal(await barsValue(),'2');assert.equal(await segValue(),'5');

@@ -175,7 +175,7 @@ function __xenSongPartsFactory(meter){
   if(!tp||tp.fit<.35||tp.contrast<.5||tp.support<.5)return single(D,'No clear meter (drone, texture or effect): one part.',{tempo:tp});
   const F=I.features(x,sr,-.1,D),T=tp.T,beats=track(F,T).filter(t=>t>-.05&&t<D).map(t=>Math.max(0,t));
   if(beats.length<4)return single(D,'Too few beats: one part.',{tempo:tp});
-  const fr=frames(x,sr,D),bl=barLength(F,beats,T,fr),S=bl.S,St=bl.St,downs=[];
+  const fr=frames(x,sr,D),bl=barLength(F,beats,T,fr),S=bl.S,St=bl.St,downs=[];let segGrid=beats;
   if(bl.level>1){
    /* even meter: follow the beats once more on the counting level (quarters) – rubato and ritardandi lose fewer beats there
       than on the fast tatum grid; the "1" is placed again (accent + harmonic change) on those beats */
@@ -184,8 +184,8 @@ function __xenSongPartsFactory(meter){
    let ph=v?v.phase:0;
    if(v&&fr.length){const W=Math.max(.25,Math.min(1.2,S*Tc/2)),hc=cb.map(t=>harmonicChange(fr,t,W)),m=hc.reduce((a,b)=>a+b,0)/hc.length,sd=Math.sqrt(hc.reduce((a,b)=>a+(b-m)**2,0)/hc.length)||1;
     const pos=new Array(S).fill(0),cnt=new Array(S).fill(0);hc.forEach((h,i)=>{pos[i%S]+=(h-m)/sd;cnt[i%S]++});let bv=-Infinity;for(let p=0;p<S;p++){const sc=v.positions[p]+1.2*(cnt[p]?pos[p]/cnt[p]:0);if(sc>bv){bv=sc;ph=p}}}
-   for(let i=ph;i<cb.length;i+=S)downs.push(cb[i]);
-  }else for(let i=bl.phase;i<beats.length;i+=St)downs.push(beats[i]);
+   for(let i=ph;i<cb.length;i+=S)downs.push(cb[i]);segGrid=cb;
+  }else{for(let i=bl.phase;i<beats.length;i+=St)downs.push(beats[i]);segGrid=beats}
   const barDur=T*St,lastEnd=downs[downs.length-1]+barDur;
   const bars=[];for(let i=0;i<downs.length;i++){const a=downs[i],b=i+1<downs.length?downs[i+1]:lastEnd;if(b<=D+barDur*.25)bars.push([a,Math.min(b,D)])}
   if(bars.length<2)return single(D,'Less than two bars: one part.',{tempo:tp,segmentsPerBar:S});
@@ -220,7 +220,9 @@ function __xenSongPartsFactory(meter){
   for(let i=1;i<parts.length;i++){const a=parts[i-1],p=parts[i];if(!a.ownMeter||p.ownMeter)continue;
    if(Math.abs(p.loopStartSec-a.loopEndSec)<barDur*.6){const start=a.loopEndSec,n=Math.max(1,Math.floor((p.endSec-start)/barDur+.25));
     Object.assign(p,{loopStartSec:start,loopEndSec:Math.min(D,start+n*barDur),bars:n,segments:n*S});p.bpm=60*p.segments/(p.loopEndSec-p.loopStartSec)}}
-  return {ok:true,rhythmic:true,durationSec:D,segmentsPerBar:S,groups:bl.groups,tatumsPerBar:St,bpm:60/(T*bl.level),tempo:tp,barCount:bars.length,beats:beats.length,parts,novelty,...(debug?{debug:{bars,dm:Array.from(dm),threshold:bd.threshold}}:{})};
+  // the grid for snapping and for edited parts: counting-level beats and bar lines (seconds, 1 ms)
+  const r3=t=>Math.round(t*1000)/1000,grid={segments:segGrid.filter(t=>t>=0&&t<=D).map(r3),bars:downs.filter(t=>t>=0&&t<=D).map(r3),barSec:barDur,segmentsPerBar:S};
+  return {ok:true,rhythmic:true,durationSec:D,grid,segmentsPerBar:S,groups:bl.groups,tatumsPerBar:St,bpm:60/(T*bl.level),tempo:tp,barCount:bars.length,beats:beats.length,parts,novelty,...(debug?{debug:{bars,dm:Array.from(dm),threshold:bd.threshold}}:{})};
  }
  /* after the worker: put every loop edge on the real attack of the full-rate audio (sample exact, zero crossing) */
  function snap(result,asset){

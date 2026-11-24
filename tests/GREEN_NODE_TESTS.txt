@@ -148,3 +148,4 @@ single_owner_globals.test.cjs
 ts_mod09_bass_daw.test.cjs
 meter_analysis.test.cjs
 song_parts.test.cjs
+song_parts_edit.test.cjs
