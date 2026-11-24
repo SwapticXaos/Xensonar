@@ -242,15 +242,13 @@ body{height:auto;min-height:100vh;overflow:visible}
 @media(min-width:768px){.melodic-bars-controls{min-height:154px}}
 /* LINE-IN-01: the Line-In key is the counterpart of Microphone (same row, same look: the two intake keys of outside sound), on the
    other side of the Import Audio tab, left of Project Name. When the corner is narrow (no shift measured) it stands in the column. */
-.f33-rack-project-corner .f38-rack-line-in{box-sizing:border-box;display:flex;align-items:center;justify-content:center;gap:6px;width:100%;height:28px;padding:6px 9px;border-radius:5px;border:1px solid rgb(34,211,238);
+.f31-play-rack .xen-rack-import-top>.f38-rack-line-in{box-sizing:border-box;display:flex;align-items:center;justify-content:center;gap:6px;flex:0 0 112px;width:112px;margin-left:38px;height:28px;padding:0 9px;border-radius:5px;border:1px solid rgb(34,211,238);
  background:rgb(16,47,58);color:rgb(207,250,254);font:11px/16.5px "XenSonar Emoji","DejaVu Sans Mono",SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono",ui-monospace,monospace;white-space:nowrap;cursor:pointer;transition:background .15s,border-color .15s}
-.f33-rack-project-corner .f38-rack-line-in:hover,.f33-rack-project-corner .f38-rack-line-in:focus-visible{background:rgb(21,66,80);border-color:#67e8f9;outline:none}
-.f33-rack-project-corner .f38-rack-line-in.is-recording{border-color:#ef4444;background:rgb(60,16,22);color:#fecaca}
+.f31-play-rack .xen-rack-import-top>.f38-rack-line-in:hover,.f31-play-rack .xen-rack-import-top>.f38-rack-line-in:focus-visible{background:rgb(21,66,80);border-color:#67e8f9;outline:none}
+.f31-play-rack .xen-rack-import-top>.f38-rack-line-in.is-recording{border-color:#ef4444;background:rgb(60,16,22);color:#fecaca}
 .f38-linein-dot{display:none;width:8px;height:8px;border-radius:50%;background:#ef4444;flex:0 0 auto}
 .f38-rack-line-in.is-recording .f38-linein-dot{display:inline-block;animation:f38-rec 1s ease-in-out infinite}
 @keyframes f38-rec{50%{opacity:.25}}
-.f33-rack-project-corner.xen-linein-room{position:relative}
-.f33-rack-project-corner.xen-linein-room .f38-rack-line-in{position:absolute;left:var(--xen-mt-shift,0px);width:calc(-1 * var(--xen-mt-shift,0px) - 8px);bottom:calc(100% + 38px);top:auto}
 .f38-linein-panel{box-sizing:border-box;background:#0a1a20;border:1px solid #1f6f7f;border-radius:8px;padding:10px 12px;box-shadow:0 14px 40px #000c;color:#e5f6f5;font:12px/1.4 system-ui,sans-serif;display:flex;flex-direction:column;gap:8px}
 .f38-linein-head{display:flex;align-items:center;gap:4px;padding-right:30px;position:relative}.f38-linein-head b{letter-spacing:.14em;color:#cffafe}.f38-linein-head span{color:#67e8f9aa}
 .f38-linein-close{position:absolute;right:-4px;top:-4px;width:26px;height:26px;border-radius:5px;border:1px solid #1f6f7f;background:#10232a;color:#cffafe;font-size:18px;line-height:1;cursor:pointer}

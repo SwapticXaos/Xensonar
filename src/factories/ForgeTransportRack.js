@@ -211,7 +211,7 @@ function __ForgeTransportRack(e){
       h('div',{className:'xen-rack-import-top'},
        h('button',{...button,'data-forge-import-image':true,'aria-label':'Import Image',title:'Load an image into the drawing',onClick:()=>e.fileInputRef.current?.click()},'▧ Import Image'),
        microphoneDock,
-       h('span',{className:'xen-rack-vertical-import-anchor'},verticalImport)),
+       h('span',{className:'xen-rack-vertical-import-anchor'},verticalImport),h(__ForgeLineInButton)),
       h('div',{className:'flex items-center gap-2'},
        navigatorSelection?h('label',{'data-forge-navigator-bars':'true',title:'Estimated from the purple selection and Carrier bar grid; editable without changing the Carrier.',className:'flex items-center gap-1 rounded border border-violet-400 px-2 py-1 text-[10px] text-violet-100',style:{backgroundColor:'#4c1d95'}},
         h('span',{className:'uppercase tracking-[0.14em] text-violet-200'},'Bars'),
@@ -231,7 +231,6 @@ function __ForgeTransportRack(e){
      destination('material'),destination('root'),destination('pink'),sendPanel),
     h('div',{'data-forge-project-corner':'true',className:'f33-rack-project-corner'},
      h('div',{'data-forge-figure-slot':'true',className:'f33-rack-figure-slot'},h(jHe,{compact:true,onOpenInSpectralForge:()=>window.setTimeout(()=>{const anchor=document.querySelector('[data-xensonar-spectralforge-workmode-header]');anchor?.scrollIntoView({behavior:'smooth',block:'start'})},80)})),
-     h(__ForgeLineInButton),
      h(__ForgeSendToMultitrackButton)))),
   h('input',{ref:e.fileInputRef,type:'file',accept:'image/*,.png,.jpg,.jpeg,.webp,.bmp,.gif',style:{display:'none'},onChange:e.handleImportFile}),
   e.pendingImageImport&&h(w6e,{pendingImageImport:e.pendingImageImport,imagePreviewCanvasRef:e.imagePreviewCanvasRef,spectralWidth:e.spectralWidth,spectralHeight:e.spectralHeight,rendering:busy,closeImageImport:e.closeImageImport,updatePendingImageImport:e.updatePendingImageImport,handleConfirmImageImport:e.handleConfirmImageImport}));
