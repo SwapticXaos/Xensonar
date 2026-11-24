@@ -146,3 +146,4 @@ lazy_export_bindings.test.cjs
 ts_mod08_room_bus.test.cjs
 single_owner_globals.test.cjs
 ts_mod09_bass_daw.test.cjs
+meter_analysis.test.cjs

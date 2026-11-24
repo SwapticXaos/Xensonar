@@ -1004,6 +1004,7 @@
     "src/rooms/00_forge_rack_presentation.js",
     "src/rooms/00_empty_audio_p32.js",
     "src/rooms/00_dual_aligned_dsp.js",
+    "src/rooms/00_meter_analysis.js",
     "src/rooms/lab.js"
    ]
   },

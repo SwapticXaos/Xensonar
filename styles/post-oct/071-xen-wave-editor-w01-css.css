@@ -34,9 +34,22 @@ canvas[data-xwe-hover-hit="move"]{cursor:grab!important}
 canvas[data-xwe-hover-hit="resize-left"],canvas[data-xwe-hover-hit="resize-right"]{cursor:ew-resize!important}
 [data-xwe-meter-anchor="true"]{position:relative;width:100%;min-width:0}
 [data-xwe-meter-anchor="true"]>[data-xen-bar-meter]{cursor:pointer}
-.xwe-meter-popup{position:absolute;left:0;top:100%;z-index:150;background:#121728;border:1px solid #936ec4;border-radius:7px;padding:11px;box-shadow:0 12px 35px #000b;display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap;min-width:225px;width:max-content;max-width:min(96vw,400px);color:#d9e9ff;font:12px system-ui}
+.xwe-meter-popup{position:absolute;left:0;top:100%;z-index:150;background:#121728;border:1px solid #936ec4;border-radius:7px;padding:11px;box-shadow:0 12px 35px #000b;display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap;min-width:225px;width:max-content;max-width:min(96vw,480px);color:#d9e9ff;font:12px system-ui}
 .xwe-meter-popup label{display:flex;flex-direction:column;gap:4px}
 .xwe-meter-popup input{width:92px;background:#090e1c;border:1px solid #516184;border-radius:4px;color:white;padding:5px}
+/* METER-ANALYSIS-01: Analyze / Fit to target inside the Taktometer menu */
+.xwe-meter-analysis{flex:1 0 100%;display:flex;flex-direction:column;gap:7px;border-top:1px solid #34405e;padding-top:8px}
+.xwe-meter-row{display:flex;flex-wrap:wrap;align-items:center;gap:6px}
+.xwe-meter-popup label.xwe-meter-row{flex-direction:row}
+.xwe-meter-popup .xwe-meter-row input{width:58px}
+.xwe-meter-btn{background:#1b2236;border:1px solid #516184;border-radius:4px;color:#d9e9ff;padding:4px 8px;font:inherit;cursor:pointer}
+.xwe-meter-btn.is-primary{border-color:#a78bfa;background:#2c1f4a}
+.xwe-meter-btn:disabled{opacity:.45;cursor:not-allowed}
+.xwe-meter-result{display:flex;flex-direction:column;gap:6px;background:#0b1020;border:1px solid #2a3552;border-radius:5px;padding:7px}
+.xwe-meter-readings{display:flex;flex-wrap:wrap;gap:5px}
+.xwe-meter-reading{background:#121a2e;border:1px solid #3b4a6e;border-radius:4px;color:#cfe0ff;padding:3px 7px;font:inherit;cursor:pointer}
+.xwe-meter-reading.is-chosen{border-color:#facc15;background:#2a2410;color:#fff6cc}
+.xwe-meter-warn{color:#fcd34d}.xwe-meter-ok{color:#86efac}.xwe-meter-status{color:#a5b4fc;font-size:11px;max-width:440px}
 @media(max-width:770px){.xwe-head-actions{gap:4px}.xwe-head-actions button{font-size:11px}.xwe-meter-popup{left:0;max-width:calc(100vw - 26px)}}
 /* Long action names remain legible even when the existing two-column grid narrows. */
 .xwe-inline .xwe-edit-grid button{min-width:0;overflow-wrap:anywhere;word-break:break-word;white-space:normal;line-height:1.3;height:auto}

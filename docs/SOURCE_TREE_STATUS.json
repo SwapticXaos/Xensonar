@@ -2094,6 +2094,12 @@
 "oct28_bytes": 0
 },
 {
+"file": "src/rooms/00_meter_analysis.js",
+"status": "post-oct",
+"bytes": 17827,
+"oct28_bytes": 0
+},
+{
 "file": "src/rooms/lab.js",
 "status": "oct-evolved",
 "bytes": 636732,
