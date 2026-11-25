@@ -49,3 +49,21 @@ Quelle: Klartext-Quellen im Nur-Lese-Zweig `reference/ts-400.2` (`src/features/r
 | – | Enter-Hold Psy FX, Transient Drive, Live-Mastering-Analyse: nicht übernehmen; im Live Room wie bisher aus | – | – | – |
 
 Vor Schritt 2–4 sinnvoll: kurze **Hörproben** (offline gerenderte A/B-WAVs je Gerät auf einem Beispiel-Loop), damit die Klangentscheidung auf Hören statt auf Code-Lesen beruht.
+
+## Umsetzungsstand (selber Tag)
+Leitlinie vom Nutzer: Es geht um eine **breite Palette** eigenständiger Klangwerkzeuge, die in Kombination Neues ergeben. Geschmackstests an einem Beispielloop entscheiden nichts; Kriterium ist eigener Charakter statt Gleichförmigkeit (kein Rauschen, kein Sinus). Daher weite Regelbereiche, frei kombinierbar in der Effektkette, automatisierbar.
+
+| Schritt | Stand | Wo |
+|---|---|---|
+| 1 Master-Kanal Multitrack (Glue, Tape, Air, Limit) | **umgesetzt** (MT-MASTER-01) | `032`, Knopf „Master FX“ |
+| 2 Tuning Resonator · Harmonic Memory | **umgesetzt** | Wave Editor, Kategorie „Resonance & Material“ |
+| 3 Material Resonator · Swarm Materials | **umgesetzt** | Wave Editor, Kategorie „Resonance & Material“ |
+| 4a Wavefolder · Spiral Fold | **umgesetzt** | Wave Editor, Kategorie „Distortion & Amp“ |
+| 4b Spiral als dritter Send im Multitrack | offen | – |
+
+- **Tuning Resonator:** bis zu 96 Resonatoren (RBJ-Bandpass, Q aus der Nachklingzeit) auf einer Tonmenge: Obertöne, JI 5-limit, JI 7-limit, EDO (5–72 Stufen), Bohlen–Pierce (13 Stufen pro 3:1). Der Grundton wird aus dem Audio der Auswahl gefunden (gemitteltes Spektrum, harmonische Summe 40–500 Hz) oder eingetippt. Memory 0,05–12 s (automatisierbar), Stereo-Verstimmung, Excite (tanh). Die Resonanz wird auf den Pegel des Eingangs abgeglichen (≤ +30 dB).
+- **Material Resonator:** die vier Pfade des Schwarmdeuters (Harz-Resonanz, Riss, Braid-Kreuzecho, Unterstrom) mit den 6 Originalprofilen. Statt Partikeln steuern Hüllkurve (Druck), Anstieg (Bruch) und Nulldurchgangshelligkeit des Audios; „Follow“ mischt zwischen fester und vom Audio gesteuerter Bewegung.
+- **Wavefolder:** Sinus-↔-Dreiecks-Faltung, Symmetrie (gerade Obertöne), 4× Oversampling, DC-Filter.
+- Alle drei: Wet 0 = bitgleich übersprungen; Ausklang über `tailFrames`; deterministisch; laufen auch in der seriellen Kette mit Ausklang-Spur; Multitrack-Clips erreichen sie über „Open in WAV Editor…“.
+- Tests: `tests/wave_fx_palette.test.cjs` (7/7, in `GREEN_NODE_TESTS.txt`): Register, Neutralität, Grundtonerkennung ≈ 110 Hz, endliche Werte, Pegel, jede Tonmenge und jedes Material **klingt anders** (Palette), Determinismus, Wavefolder-Obertöne. `tests/e2e/wave_fx_palette.cjs`: alle drei unter „Add effect“, Apply / Bake ändert das Audio, Undo. Regression grün: `mtw03_wave_pitch_time`, `wave_golden_vertical`, `snap_all_wave_editor`.
+- Nicht gehört.

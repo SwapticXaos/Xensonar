@@ -34,7 +34,11 @@
       overdrive:effect('Overdrive · Soft Diode','Verzerrung & Amp',{driveDb:p('Drive','dB',0,40,14,0),tone:p('Tone','',0,1,0.5),outputDb:p('Output','dB',-24,12,0,0),wet:wet(1)},'Frequenzgeformter asymmetrischer Softclip: warm, anschlagdynamisch, 4× Oversampling plus FIR-Rückfilterung.'),
       hardDistortion:effect('Distortion · Hard Clip','Verzerrung & Amp',{driveDb:p('Drive','dB',0,42,19,0),tone:p('Tone','',0,1,0.6),outputDb:p('Output','dB',-24,12,-3,0),wet:wet(1)},'Asymmetrische harte Begrenzung mit dichter Obertonstruktur, Pre-/Postfilter und 8×-Antialiasing.'),
       fuzz:effect('Fuzz · Dynamic Bias','Verzerrung & Amp',{driveDb:p('Drive','dB',0,42,24,0),tone:p('Tone','',0,1,0.65),gate:p('Gate','',0,1,0.16,0),outputDb:p('Output','dB',-24,12,-3,0),wet:wet(1)},'Dynamischer Arbeitspunkt, hochverstärkte Begrenzung und einstellbares Gate: rauer Transistor-Fuzz-Charakter.'),
-      ampCrunch:effect('Amp Crunch · Cascaded','Verzerrung & Amp',{driveDb:p('Drive','dB',0,42,16,0),tone:p('Tone','',0,1,0.50),bias:p('Bias','',-1,1,0.22,0),outputDb:p('Output','dB',-24,12,-1,0),wet:wet(1)},'Kaskadierte asymmetrische Sättigungsstufen, Eingangshochpass und Ausgangstonfilter, mit 4×-Antialiasing.')
+      ampCrunch:effect('Amp Crunch · Cascaded','Verzerrung & Amp',{driveDb:p('Drive','dB',0,42,16,0),tone:p('Tone','',0,1,0.50),bias:p('Bias','',-1,1,0.22,0),outputDb:p('Output','dB',-24,12,-1,0),wet:wet(1)},'Kaskadierte asymmetrische Sättigungsstufen, Eingangshochpass und Ausgangstonfilter, mit 4×-Antialiasing.'),
+      /* FX-PALETTE-01 (from the Live Room's Collective Memory and Schwarmdeuter, rebuilt as offline DSP; see docs/REVIEW_LIVE_FX_2026-11-25.md) */
+      tuningResonator:effect('Tuning Resonator · Harmonic Memory','Resonance & Material',{memorySec:p('Memory (ring time)','s',0.05,12,1.6,null,true),set:Object.assign(p('Pitch set 0 Harmonics · 1 JI 5-limit · 2 JI 7-limit · 3 EDO · 4 Bohlen–Pierce','',0,4,2),{automateAllowed:false,step:1}),edo:Object.assign(p('EDO steps (set 3)','',5,72,31),{automateAllowed:false,step:1}),rootHz:Object.assign(p('Root (0 = from the audio)','Hz',0,2000,0,null,false),{automateAllowed:false}),lowHz:Object.assign(p('Lowest resonance','Hz',30,2000,60,null,true),{automateAllowed:false}),highHz:Object.assign(p('Highest resonance','Hz',400,16000,5000,null,true),{automateAllowed:false}),excite:p('Excite (saturation)','',0,1,0.2),spreadCents:Object.assign(p('Stereo detune','ct',0,40,7),{automateAllowed:false}),wet:wet(0.45)},'A bank of resonators on a pitch set: the harmonics or a just / EDO / Bohlen–Pierce scale over a root that is found in the audio itself ("harmonic memory") or typed. Memory = how long each tone rings. The resonance is level-matched to the input; Excite drives it.'),
+      materialResonator:effect('Material Resonator · Swarm Materials','Resonance & Material',{material:Object.assign(p('Material 0 glass · 1 metal · 2 resin · 3 fungus · 4 dust · 5 plasma','',0,5,0),{automateAllowed:false,step:1}),crystal:p('Crystal (resonance)','',0,1,0.5),fracture:p('Fracture (cracks on attacks)','',0,1,0.5),weave:p('Weave (stereo braid echo)','',0,1,0.4),undercurrent:p('Undercurrent (low bed)','',0,1,0.5),follow:p('Follow the audio','',0,1,0.7),wet:wet(0.55)},'Four material voices from the Swarm Interpreter – resonance (resin), cracks (fracture), a crossed stereo echo (braid) and a low undercurrent – shaped by six material profiles and steered by the loudness, attacks and brightness of the audio itself.'),
+      wavefolder:effect('Wavefolder · Spiral Fold','Distortion & Amp',{driveDb:p('Fold drive','dB',0,36,12,0),shape:p('Shape sine ↔ triangle','',0,1,0.3),symmetry:p('Symmetry (even harmonics)','',-1,1,0,0),wet:wet(1)},'From the Psychedelic Spiral: instead of clipping, the wave folds back on itself – bell-like, metallic overtones that grow with the drive. 4× oversampled, DC-free.'),
     };
   }
 
@@ -88,11 +92,12 @@
         case 'peaking':case 'lowshelf':case 'highshelf':return isConstant(node,'gainDb',0);
         case 'compressor':return isConstant(node,'ratio',1)&&isConstant(node,'makeupDb',0);
         case 'gate':return isConstant(node,'ratio',1);
-        case 'delay':case 'reverb':case 'phaser':case 'flanger':case 'chorus':return isConstant(node,'wet',0);
+        case 'delay':case 'reverb':case 'phaser':case 'flanger':case 'chorus':case 'tuningResonator':case 'materialResonator':return isConstant(node,'wet',0);
         case 'tremolo':return isConstant(node,'depth',0);
         case 'pan':return count<2||isConstant(node,'pan',0);
         case 'width':return count<2||isConstant(node,'width',1);
         case 'distortion':case 'overdrive':case 'hardDistortion':case 'fuzz':case 'ampCrunch':return isConstant(node,'driveDb',0)||isConstant(node,'wet',0);
+        case 'wavefolder':return isConstant(node,'wet',0);
         default:return false;
       }
     }
@@ -131,6 +136,8 @@
         const maxMs=bounds(node,'delayMs')[1]+(node.type==='delay'?0:bounds(node,'depthMs')[1]);
         seconds=maxMs/1000*(repeats+1);
       } else if(node.type==='reverb') seconds=1.5+8*bounds(node,'roomSize')[1];
+      else if(node.type==='tuningResonator') seconds=Math.min(12,bounds(node,'memorySec')[1]*1.2);
+      else if(node.type==='materialResonator') seconds=2.5;
       // Phaser is a selection-bounded phase effect, not an echo/reverb.
       // Its internal all-pass feedback is processed within selection only.
       return Math.ceil(Math.min(MAX_TAIL_SECONDS,seconds)*sampleRate);
@@ -431,6 +438,69 @@
         }
       }
     }
+    /* FX-PALETTE-01 · Tuning Resonator / Harmonic Memory (from Collective Memory): resonators on a pitch set over a root that is found in the
+       audio itself (harmonic-sum on an averaged spectrum) or typed. Offline: the "memory" is the whole selection, not a guess per second. */
+    function fftMag(re){const n=re.length,im=new Float64Array(n);for(let i=1,j=0;i<n;i++){let bit=n>>1;for(;j&bit;bit>>=1)j^=bit;j^=bit;if(i<j){const t=re[i];re[i]=re[j];re[j]=t}}
+      for(let len=2;len<=n;len<<=1){const ang=-TAU/len,wr=Math.cos(ang),wi=Math.sin(ang);for(let s0=0;s0<n;s0+=len){let ar=1,ai=0;for(let k=0;k<len/2;k++){const a=s0+k,b=a+len/2,br=re[b]*ar-im[b]*ai,bi=re[b]*ai+im[b]*ar;re[b]=re[a]-br;im[b]=im[a]-bi;re[a]+=br;im[a]+=bi;const nr=ar*wr-ai*wi;ai=ar*wi+ai*wr;ar=nr}}}
+      const mag=new Float64Array(n/2);for(let k=0;k<n/2;k++)mag[k]=Math.hypot(re[k],im[k]);return mag}
+    function detectRootHz(data,length){const N=8192;if(length<N/2)return 110;const frames=Math.max(1,Math.min(48,Math.floor(length/N))),hop=frames>1?Math.floor((length-N)/(frames-1)):0,avg=new Float64Array(N/2);
+      for(let f=0;f<frames;f++){const re=new Float64Array(N),at=f*hop;for(let i=0;i<N&&at+i<length;i++){let x=0;for(const ch of data)x+=ch[at+i];re[i]=x/data.length*(0.5-0.5*Math.cos(TAU*i/(N-1)))}const m=fftMag(re);for(let k=0;k<avg.length;k++)avg[k]+=m[k]}
+      const bin=sampleRate/N,at=hz=>{const k=hz/bin,a=Math.floor(k);return a+1<avg.length?avg[a]*(1-(k-a))+avg[a+1]*(k-a):0};let best=110,score=-1;
+      for(let f0=40;f0<=500;f0*=Math.pow(2,1/48)){let sc=0;for(let h=1;h<=6;h++)sc+=at(f0*h)/h;if(sc>score){score=sc;best=f0}}return score>0?best:110}
+    function pitchSet(set,root,edo,low,high){const out=[],add=f=>{if(f>=low&&f<=high&&f<sampleRate*0.45)out.push(f)};
+      const lists=[null,[1,9/8,5/4,4/3,3/2,5/3,15/8],[1,8/7,7/6,5/4,4/3,7/5,3/2,8/5,7/4]];
+      if(set===0){for(let k=1;root*k<=high&&k<=256;k++)add(root*k)}
+      else if(set===3||set===4){const period=set===4?3:2,steps=set===4?13:Math.max(5,Math.round(edo));for(let k=-200;k<=400;k++){const f=root*Math.pow(period,k/steps);if(f>high)break;add(f)}}
+      else{for(let o=-8;o<=10;o++)for(const r of lists[set])add(root*r*Math.pow(2,o))}
+      out.sort((a,b)=>a-b);const MAX=96;if(out.length<=MAX)return out;const step=out.length/MAX,thin=[];for(let i=0;i<MAX;i++)thin.push(out[Math.floor(i*step)]);return thin}
+    function tuningResonator(data,node,ev,start,length){
+      const set=Math.round(clamp(node.params.set,0,4)),root=node.params.rootHz>0?node.params.rootHz:detectRootHz(data,length);
+      const freqs=pitchSet(set,root,node.params.edo,node.params.lowHz,Math.max(node.params.lowHz*1.01,node.params.highHz)),K=freqs.length;if(!K)return {root,count:0};
+      const n=data[0].length,B=64,spread=node.params.spreadCents;
+      for(let c=0;c<data.length;c++){const x=data[c],res=new Float64Array(n),det=data.length>1?Math.pow(2,(c===0?-1:1)*spread/2400):1;
+        const st=new Float64Array(K*4),co=new Float64Array(K*5),gain=new Float64Array(K);for(let k=0;k<K;k++)gain[k]=1/Math.sqrt(K)*Math.pow(freqs[k]/Math.max(30,freqs[0]),-0.25);
+        let lastMem=-1;
+        for(let b0=0;b0<n;b0+=B){const mem=ev.memorySec(start+b0);if(Math.abs(mem-lastMem)>1e-6){lastMem=mem;for(let k=0;k<K;k++){const f=freqs[k]*det,q=clamp(f*mem*0.4548,0.5,3000),cf=biquad('bandpass',f,q,0);for(let j=0;j<5;j++)co[k*5+j]=cf[j]}}
+          const e=Math.min(n,b0+B);for(let i=b0;i<e;i++){const xi=x[i];let sum=0;for(let k=0;k<K;k++){const o=k*4,q=k*5,y=co[q]*xi+co[q+1]*st[o]+co[q+2]*st[o+1]-co[q+3]*st[o+2]-co[q+4]*st[o+3];st[o+1]=st[o];st[o]=xi;st[o+3]=st[o+2];st[o+2]=y;sum+=y*gain[k]}res[i]=sum}}
+        /* level match: the resonance gets the RMS of the input over the selection (at most +30 dB), then Excite drives it */
+        let ex=0,er=0;for(let i=0;i<Math.min(n,length);i++){ex+=x[i]*x[i];er+=res[i]*res[i]}const norm=er>1e-20?Math.min(31.6,Math.sqrt(ex/er)):0;
+        for(let i=0;i<n;i++){const frame=start+i,dr=1+ev.excite(frame)*11,w=ev.wet(frame),r=res[i]*norm,y=dr>1.0001?Math.tanh(r*dr)/Math.tanh(dr):r;x[i]=x[i]*(1-w)+y*w}}
+      return {root,count:K}}
+    /* FX-PALETTE-01 · Material Resonator (from the Schwarmdeuter): resin resonance, fracture cracks, crossed stereo braid echo, low undercurrent;
+       six material profiles; steered by the audio's own loudness (pressure), attacks (fracture) and brightness instead of particle states. */
+    const MATERIALS=[{q:16,spread:1.45,shimmer:1.55,bright:1.18,fb:.34,stereo:.92,under:.24},{q:12,spread:1.7,shimmer:1.85,bright:1.08,fb:.42,stereo:.84,under:.28},{q:10,spread:1.18,shimmer:1.06,bright:.92,fb:.3,stereo:.68,under:.44},{q:8,spread:1.24,shimmer:.92,bright:.88,fb:.38,stereo:.78,under:.6},{q:6,spread:1.1,shimmer:.74,bright:.78,fb:.22,stereo:.56,under:.18},{q:14,spread:1.86,shimmer:2.15,bright:1.32,fb:.48,stereo:1,under:.38}];
+    function materialResonator(data,node,ev,start,length){
+      const M=MATERIALS[Math.round(clamp(node.params.material,0,5))],n=data[0].length,B=128,blocks=Math.ceil(n/B),C=data.length;
+      /* analysis: per block RMS (pressure), its rise (fracture) and zero-crossing brightness, on the mono sum; normalised over the selection */
+      const rms=new Float64Array(blocks),zc=new Float64Array(blocks);let peak=1e-9;
+      for(let b=0;b<blocks;b++){let s2=0,z=0,prev=0;const e=Math.min(n,(b+1)*B);for(let i=b*B;i<e;i++){let v=0;for(const ch of data)v+=ch[i];v/=C;s2+=v*v;if((v>=0)!==(prev>=0))z++;prev=v}rms[b]=Math.sqrt(s2/Math.max(1,e-b*B));zc[b]=z/Math.max(1,e-b*B);if(rms[b]>peak)peak=rms[b]}
+      const states=data.map(()=>({h:new Float64Array(16),rH:new Float64Array(4),rL:new Float64Array(4),u:new Float64Array(4)}));
+      const dl=[Math.round(0.11*sampleRate*(1+(1-M.stereo)*.2)),Math.round(0.16*sampleRate)],ring=[new Float64Array(dl[1]+2),new Float64Array(dl[1]+2)],tone=[0,0];let pos=0;
+      const mult=[1,1.5,2.05,2.8];let pS=.5,fS=0,cS=1000,prevR=0;
+      const run=(co,s,o,x)=>{const y=co[0]*x+co[1]*s[o]+co[2]*s[o+1]-co[3]*s[o+2]-co[4]*s[o+3];s[o+1]=s[o];s[o]=x;s[o+3]=s[o+2];s[o+2]=y;return y};
+      for(let b=0;b<blocks;b++){const frame=start+b*B,fol=ev.follow(frame),amount=ev.wet(frame),crystal=ev.crystal(frame),fr=ev.fracture(frame),weave=ev.weave(frame),uc=ev.undercurrent(frame);
+        const p=rms[b]/peak,rise=Math.max(0,rms[b]-prevR)/Math.max(1e-6,rms[b]);prevR=rms[b];const cent=clamp(zc[b]*sampleRate*0.5,90,3800);
+        pS+=((.5*(1-fol)+p*fol)-pS)*.3;fS+=((.3*(1-fol)+Math.min(1,rise*3)*fol)-fS)*.45;cS+=((1000*(1-fol)+cent*fol)-cS)*.2;
+        const centroid=clamp(cS*M.bright,90,3800),hq=M.q+crystal*9,hv=(crystal*.6+.25)*(.4+pS*.35);
+        const hco=mult.map((m,k)=>biquad('bandpass',clamp(centroid*m*(1+(k-1.5)*.04*M.spread),80,8000),hq,0));
+        const fw=fS*fS*(3-2*fS),riss=fr*(fw*.74+pS*.18),rhp=biquad('highpass',180+fw*3200+pS*700,.7,0),rlp=biquad('lowpass',2200+(1-fS)*3200,.7,0),rdrive=1+riss*7*M.shimmer;
+        const fb=Math.min(.82,M.fb*(.5+weave*.45)),toneA=Math.exp(-TAU*(1200+centroid*.7)/sampleRate),ulp=biquad('lowpass',120+pS*580,.7,0),ug=uc*M.under*(.3+pS*.5)*2,makeup=.88+amount*.18;
+        const e=Math.min(n,(b+1)*B);
+        for(let i=b*B;i<e;i++){const wetIn=[];
+          for(let c=0;c<C;c++){const x=data[c][i],s=states[c];let h=0;for(let k=0;k<4;k++)h+=run(hco[k],s.h,k*4,x)*(k===0?.9:k===1?1:.72-k*.08);
+            const r=run(rlp,s.rL,0,Math.tanh(run(rhp,s.rH,0,x)*rdrive))*riss,u=run(ulp,s.u,0,x)*ug;wetIn[c]=h*hv*3+r+u}
+          /* braid: two delay lines, crossed feedback (L <- R, R <- L) through a one-pole tone filter */
+          const rd=k=>ring[k][(pos-dl[k]+ring[k].length)%ring[k].length],yL=rd(0),yR=rd(1);tone[0]=yR+(tone[0]-yR)*toneA;tone[1]=yL+(tone[1]-yL)*toneA;
+          const inL=data[0][i],inR=C>1?data[1][i]:inL;ring[0][pos]=inL*weave*.6+tone[0]*fb;ring[1][pos]=inR*weave*.6+tone[1]*fb;pos=(pos+1)%ring[0].length;
+          for(let c=0;c<C;c++){const br=C>1?(c===0?yL:yR):(yL+yR)*.5;data[c][i]=data[c][i]*(1-amount*.34)+amount*.92*makeup*(wetIn[c]+br)}}}
+      return {material:Math.round(node.params.material)}}
+    /* FX-PALETTE-01 · Wavefolder (from the Psychedelic Spiral): sine/triangle fold, symmetry = bias (even harmonics), 4× oversampled (linear up, 4-tap box down), DC blocked */
+    function wavefolder(data,node,ev,start){const OS=4;
+      const fold=(x,shape)=>{const sn=Math.sin(x*Math.PI/2);let t=((x+1)%4+4)%4;t=t<2?t-1:3-t;return sn*(1-shape)+t*shape};
+      for(const ch of data){let prev=0,dcx=0,dcy=0;const R=0.9995;
+        for(let i=0;i<ch.length;i++){const frame=start+i,drive=db(ev.driveDb(frame)),shape=ev.shape(frame),bias=ev.symmetry(frame)*.5,w=ev.wet(frame),x=ch[i];let acc=0;
+          for(let k=1;k<=OS;k++){const u=prev+(x-prev)*k/OS;acc+=fold(u*drive+bias,shape)-fold(bias,shape)}
+          prev=x;const y=acc/OS,out=y-dcx+R*dcy;dcx=y;dcy=out;ch[i]=x*(1-w)+out*w}}}
     function processSimple(data,node,ev,start,originalLength,channelIndices,allChannels,channelOrigin=0) {
       let phase=0;
       const previous=data.map(()=>0);
@@ -467,7 +537,7 @@
       if(!source||!Number.isSafeInteger(source.start)||!Number.isSafeInteger(source.end)||source.start<0||source.end<=source.start||source.end>job.channels[0].length)return null;
       for(const node of active){const range=node.targetRange||job.range;if(!range||range.start!==source.start||range.end!==source.end)return null;}
       // Only routes which can generate a tail need the separate wet lane.
-      if(!active.some(node=>['delay','reverb','flanger','chorus'].includes(node.type)))return null;
+      if(!active.some(node=>['delay','reverb','flanger','chorus','tuningResonator','materialResonator'].includes(node.type)))return null;
       return source;
     }
     function executeSerialWet(job,onProgress,source) {
@@ -496,6 +566,9 @@
         else if(['delay','flanger','chorus'].includes(node.type)) delay(data,node,ev,start);
         else if(node.type==='reverb') reverb(data,node,ev,start);
         else if(node.type==='phaser') phaser(data,node,ev,start);
+        else if(node.type==='wavefolder') wavefolder(data,node,ev,start);
+        else if(node.type==='tuningResonator') node.__detail=tuningResonator(data,node,ev,start,selectionLength);
+        else if(node.type==='materialResonator') node.__detail=materialResonator(data,node,ev,start,selectionLength);
         else if(['overdrive','hardDistortion','fuzz','ampCrunch'].includes(node.type)) processGuitarDistortion(data,node,ev,start);
         else processSimple(data,node,ev,start,wetFrames,indices,wet,start);
         if(tail) {
@@ -509,7 +582,7 @@
           const expanded=new Float32Array(size);expanded.set(channel);return expanded;
         });
         wetFrames=size;processedStages++;
-        reports.push({id:node.id,type:node.type,start,end:source.end,wetFrames,tailFrames:tail,tailCapped:tail>=MAX_TAIL_SECONDS*sampleRate});
+        reports.push({id:node.id,type:node.type,start,end:source.end,wetFrames,tailFrames:tail,tailCapped:tail>=MAX_TAIL_SECONDS*sampleRate,...(node.__detail?{detail:node.__detail}:{})});
         onProgress((index+1)/job.nodes.length);
       }
       // Only now mix the processed wet lane back with *original* outside dry.
@@ -554,6 +627,9 @@
         else if(['delay','flanger','chorus'].includes(node.type)) delay(data,node,ev,start);
         else if(node.type==='reverb') reverb(data,node,ev,start);
         else if(node.type==='phaser') phaser(data,node,ev,start);
+        else if(node.type==='wavefolder') wavefolder(data,node,ev,start);
+        else if(node.type==='tuningResonator') node.__detail=tuningResonator(data,node,ev,start,length);
+        else if(node.type==='materialResonator') node.__detail=materialResonator(data,node,ev,start,length);
         else if(['overdrive','hardDistortion','fuzz','ampCrunch'].includes(node.type))processGuitarDistortion(data,node,ev,start);
         else processSimple(data,node,ev,start,length,indices,channels);
         if(tail) {
@@ -566,7 +642,7 @@
           const target=channels[indices[c]], processed=data[c];target.set(processed.subarray(0,length),start);
           for(let i=length;i<size&&start+i<target.length;i++) target[start+i]+=processed[i];
         }
-        reports.push({id:node.id,type:node.type,start,end,tailFrames:tail,tailCapped:tail>=MAX_TAIL_SECONDS*sampleRate});
+        reports.push({id:node.id,type:node.type,start,end,tailFrames:tail,tailCapped:tail>=MAX_TAIL_SECONDS*sampleRate,...(node.__detail?{detail:node.__detail}:{})});
         onProgress((index+1)/Math.max(1,job.nodes.length));
       }
       const channelMetrics=metrics(channels);
