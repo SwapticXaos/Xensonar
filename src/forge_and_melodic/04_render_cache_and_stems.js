@@ -293,11 +293,15 @@ function __xenAuditionScheduleIdle(){
 function Mx(e){pS.push(e)}function h9e(e){pS=pS.filter(t=>t!==e)}
 function f9e(){
  const nodes=pS;pS=[];
- const master=nodes.find(node=>node.__f49PreviewMaster);
- __f49FadeAndRelease(master,.02,()=>{
+ /* ML-DRAG-CLICK-04: fade EVERY preview master (a leaked one stayed audible and summed with the next note), release the nodes once after the last fade. */
+ const masters=nodes.filter(node=>node.__f49PreviewMaster);
+ const release=()=>{
   for(const node of nodes){try{if(typeof node.stop==='function')node.stop()}catch{}try{node.disconnect()}catch{}}
   __xenAuditionScheduleIdle();
- },master?.context?Math.min(.04,Math.max(.012,(Number(master.context.baseLatency)||0)*2+.006)):0)
+ };
+ if(!masters.length){release();return}
+ let left=masters.length;
+ for(const master of masters)__f49FadeAndRelease(master,.02,()=>{if(--left===0)release()},master.context?Math.min(.04,Math.max(.012,(Number(master.context.baseLatency)||0)*2+.006)):0)
 }function g9e(){return JM+=1,JM}function uP(e){return e===JM}function b9e(){return iv}function y9e(e){iv=e}function yA(e){xx=e}
 /* xen-lazy:canonical */
 

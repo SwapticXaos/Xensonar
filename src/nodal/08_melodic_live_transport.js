@@ -29,7 +29,9 @@ async function nodalStartMelodic(request) {
   const gains = new Map(), trackPanners = new Map(), players = new Map(), stems = new Map(), events = [];
   let timer = null, stopped = false, halted = false, cycle = 0, cursor = 0, startTime = ctx.currentTime + .12, loopOffset = 0;
   /* ML-DRAG-CLICK-01: halt = no more scheduling, the voices keep sounding until the master fade is done (hS); stop = release the voices (after the fade). */
-  const halt = () => { halted = true; if (timer !== null) clearTimeout(timer); };
+  const halt = () => { halted = true; if (timer !== null) clearTimeout(timer);
+    /* ML-DRAG-CLICK-04: a halted preview used to leave its voices alive until their natural end. Fast drags stacked them (voice budget, CPU = crackle, refused voices). Once the master fade (<= ~60 ms) is certainly finished the bus is silent: free the voices then; nothing audible can be cut. */
+    setTimeout(() => { try { dispose(); } catch {} }, 160); };
   const stop = () => { if (stopped) return; stopped = true; if (timer !== null) clearTimeout(timer); for (const player of players.values()) player.stop(); };
   const dispose = () => { stop(); for (const player of players.values()) player.dispose(); };
   Mx({stop, disconnect: dispose});
