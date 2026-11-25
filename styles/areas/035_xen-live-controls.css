@@ -263,5 +263,5 @@ body{height:auto;min-height:100vh;overflow:visible}
 
 .f38-linein-src input[type=radio]{accent-color:#22d3ee;margin-top:3px}.f38-linein-src:has(input:checked){border-color:#22d3ee;background:#102c34}
 
-.xen-rack-microphone{position:relative}.xen-mic-menu{position:absolute;left:0;top:calc(100% + 4px);z-index:2147481000;display:flex;flex-direction:column;gap:2px;min-width:190px;padding:4px;background:#0a1a20;border:1px solid #1f6f7f;border-radius:6px;box-shadow:0 10px 30px #000c}.xen-mic-menu button{text-align:left;padding:6px 9px;border:0;border-radius:4px;background:transparent;color:#e5f6f5;font-size:11px;cursor:pointer;white-space:nowrap}.xen-mic-menu button:hover{background:#164e63}
+.xen-rack-microphone{position:relative}.xen-mic-menu{display:flex;flex-direction:column;gap:2px;min-width:190px;padding:4px;background:#0a1a20;border:1px solid #1f6f7f;border-radius:6px;box-shadow:0 10px 30px #000c}.xen-mic-menu button{text-align:left;padding:6px 9px;border:0;border-radius:4px;background:transparent;color:#e5f6f5;font-size:11px;cursor:pointer;white-space:nowrap}.xen-mic-menu button:hover{background:#164e63}
 .xen-mic-error{max-width:260px;padding:4px 8px;color:#fecaca;font-size:11px;line-height:1.35;white-space:normal}

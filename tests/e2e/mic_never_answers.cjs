@@ -14,6 +14,7 @@ const html=path.resolve(process.argv[2]||'dist/XenSonar_PROBE.html');
  assert.equal(await box.getAttribute('data-forge-microphone'),'requesting');
  assert.equal(await p.locator('[data-forge-rack-import-audio]').first().isDisabled(),false,'a pending question does not lock Import Audio');
  await mic.click();const items=p.locator('[data-forge-mic-menu] [role=menuitem]');assert.equal(await items.count(),2,'the menu opens while the browser does not answer');
+ const hit=await items.nth(1).evaluate(el=>{const r=el.getBoundingClientRect(),t=document.elementFromPoint(r.left+r.width/2,r.top+r.height/2);return el.contains(t)&&r.bottom<=innerHeight&&r.right<=innerWidth});assert(hit,'the menu items are visible and clickable (not clipped by the rack)');
  await items.nth(1).click();await p.locator('[data-forge-linein-panel]').waitFor({timeout:3000});assert.equal(await box.getAttribute('data-forge-microphone'),'idle','Speaker Sound cancels the hanging request');
  await p.locator('.f38-linein-close').click();await mic.click();await p.locator('[data-forge-mic-menu] [role=menuitem]').first().click();await p.waitForTimeout(10600);
  assert.equal(await box.getAttribute('data-forge-microphone'),'failed','the wait ends after 10 s');await mic.click();
