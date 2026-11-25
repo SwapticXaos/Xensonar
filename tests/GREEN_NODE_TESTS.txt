@@ -150,3 +150,5 @@ meter_analysis.test.cjs
 song_key.test.cjs
 song_parts.test.cjs
 song_parts_edit.test.cjs
+forge_snapshot_budget.test.cjs
+mask_snap.test.cjs

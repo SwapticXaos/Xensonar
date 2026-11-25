@@ -74,3 +74,20 @@ Anlass: Nach Import Audio → „Send as Pink Track to Melodic Loop“ war die P
 Prüfung:
 - Neu: `tests/e2e/pink_raw_send.cjs`. Erstes Senden: mittlere Linie (17 von 35) und sichtbar. Zweites Senden: Farbwahl, eigene Spur, Linie 18, eigene Farbe. Drittes Senden bei gezoomtem, nach oben gescrolltem Raster: Linie 19, der Ausschnitt scrollt mit (0–8 → 15–23). Grün.
 - Bekannt: Der Unit-Test `tests/forge_pink_transfer.test.cjs` (Pink-Senden einer gemalten Figur) ist veraltet. Seine Attrappe kennt `P.useEffect` nicht, und er steht nicht in `tests/GREEN_NODE_TESTS.txt`. Nicht angefasst.
+
+## ROOM-BUDGET-01 (selber Tag): „Room error isolated · snapshot exceeds the 256 MiB data budget“
+Nutzer: Nach Hin- und Herwechseln der Räume blieb die Material Forge isoliert, Meldung „Forge project: snapshot exceeds the 256 MiB data budget“.
+
+Ursache (gemessen): Nach **Extract Timbre** hält die Donor-Werkbank das komplette Quell-Audio fünffach (mono, L, R, mid, side; etwa 50 MiB pro Minute). Bei einem 4-Minuten-Song wiegt der Forge-Schnappschuss 242 MiB, bei 5,5 Minuten 318 MiB. Jeder Wiederherstellungsweg der Forge (Aufwachen, gespeicherter Arbeitsstand, Rücksprung aus einer Unteransicht) spielt den Schnappschuss über `__ForgeProjectSnapshot.prepare` → `codec(decode)` ein. Der Codec rechnete dabei auch Arrays aufs Budget, die schon im Speicher liegen und nicht neu angelegt werden. Ab etwa 4½ Minuten Donor-Song war das zwangsläufig ein Fehlalarm. Mit dem Wechseltempo hatte das nichts zu tun.
+
+Änderung (`src/storage/05_project_snapshots.js`): Beim Einspielen zählen nur noch Daten, die der Codec wirklich anlegt (Base64 aus Dateien, Listen). Arrays im Speicher werden unverändert zurückgegeben und nicht gezählt. Beim Export (`encode`) zählt die Grenze weiter. Zu große kodierte Dateien werden weiter vor dem Anlegen abgewiesen.
+
+Prüfung:
+- Neu: `tests/forge_snapshot_budget.test.cjs`. Speicher-Arrays mit 5 × 64 MiB (zählten vorher 320 MiB) laden; kodierte 300 MiB werden abgewiesen; Export und Rückweg funktionieren. Auf dem alten Stand: Fall 1 rot.
+- Neu: `tests/e2e/forge_room_switch_budget.cjs` (5,5-Minuten-Song, Extract Timbre, Projekt neu einspielen, 8 Raumwechsel, Neuladen). Alt: „snapshot exceeds … (318 MiB)“. Neu: grün.
+- Nicht festgenagelt: welcher Wiederherstellungsweg bei dir gegriffen hat. Alle laufen durch dieselbe, jetzt korrigierte Prüfung.
+- Offen, als Idee: mid/side ließen sich aus L/R berechnen statt mitzuspeichern (spart 40 % des Donor-Speichers). Nicht umgesetzt, weil es das Speicherformat betrifft.
+
+## Test-Liste
+- `tests/GREEN_NODE_TESTS.txt` (läuft mit `tools/run_tests.sh`): neu `mask_snap.test.cjs` und `forge_snapshot_budget.test.cjs`. `song_parts_edit.test.cjs` und `song_key.test.cjs` standen schon darauf und laufen jetzt wieder; `song_key` lädt dazu `__xenBeatsPerBar` mit.
+- `run_tests.sh`: 148 grün, 6 rot. Alle 6 sind schon auf dem Ausgangsstand `e0740d3` rot und kamen mit dem Release-Zweig: `render_empty_audio_p32`, `test_forge_empty_audio_connector_p32`, `test_forge_rack_single_presentation_rc3`, `test_forge_slot_layout_rc4`, `test_ui_patch_debris_cleanup`, `tooltips_english`.

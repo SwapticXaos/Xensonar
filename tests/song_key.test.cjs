@@ -32,7 +32,7 @@ test('key distance: relative major / minor 0, a fifth 1, a tritone away 5+',()=>
 test('silence or noise-like flat chroma is unclear, not invented',()=>{const k=P.keyOfChroma(Array.from({length:12},(_,i)=>1+(i%2)*.01));assert.equal(k.clarity,'unclear')});
 // ---- TAKT-SNAP-01: __xenMaskCount from lab.js ----
 const lab=fs.readFileSync(path.join(__dirname,'..','src','rooms','lab.js'),'utf8');
-const count=(latest=null)=>new Function('__xenSongPartsLatest','__xenMeterAnalysis',extract(lab,'__xenMaskCount')+'\nreturn __xenMaskCount;')(latest,M);
+const count=(latest=null)=>new Function('__xenSongPartsLatest','__xenMeterAnalysis',extract(lab,'__xenBeatsPerBar')+'\n'+extract(lab,'__xenMaskCount')+'\nreturn __xenMaskCount;')(latest,M);
 test('snap Bar: 10 bars at 120 BPM made 2 bars shorter read 8 bars, tempo stays; Beat: 7.5 bars; Off: nothing counted',()=>{
  const f=count(),meta={bars:10,guideSegments:4},drag={mode:'resize-end',originalMask:{startSec:4,durationSec:20}};
  const r=f({startSec:4,durationSec:16.3},drag,meta,'bar',100,null);assert.equal(r.range.durationSec,16);assert.equal(r.patch.bars,8);assert.ok(Math.abs(r.patch.bpm-120)<1e-9);

@@ -15,8 +15,12 @@ const __ForgeProjectSnapshot = (() => {
       if (ArrayBuffer.isView(v)) {
         const type = v.constructor.name;
         if (!types[type]) fail('unsupported project array: ' + type);
-        charge(v.byteLength);
+        /* ROOM-BUDGET-01: the budget guards what this codec ALLOCATES. Decoding a snapshot that already holds typed arrays (the
+           in-memory project, or the IndexedDB workspace restored by structured clone) allocates nothing: the array is returned as is.
+           Before, these were charged too, so a donor of a song longer than ~4.5 min (source mono/L/R/mid/side, ~50 MiB per minute)
+           made the Material Forge fail on re-entry ("snapshot exceeds the 256 MiB data budget"). Encoding (export) still counts. */
         if (!encode) return v;
+        charge(v.byteLength);
         return {encoding:tag,type,length:v.length,dataBase64:Sw(v.buffer.slice(v.byteOffset,v.byteOffset+v.byteLength))};
       }
       if (!encode && v.encoding === tag) {
