@@ -1532,7 +1532,7 @@ function __createForgeMicCapture({onFile,onState=()=>{},mediaDevices=navigator.m
   const messageFor=error=>error?.name==='NotAllowedError'||error?.name==='SecurityError'
     ?'Microphone access was denied. Please allow microphone access in your browser and try again.'
     :error?.name==='NotFoundError'?'No microphone found. Please connect a microphone and try again.'
-    :error?.name==='NotReadableError'?'The microphone is unavailable or is being used by another application.'
+    :error?.name==='NotReadableError'||error?.name==='AbortError'?'The microphone could not be started (another program or a running tab / screen share is holding it). Stop the Speaker Sound recording, then choose Microphone again.'
     :error?.message||'Microphone recording failed.';
   const fail=(error,token)=>{if(disposed||token!==generation)return;generation++;release();notify('failed',messageFor(error));};
   function cancel(){if(disposed||!['requesting','recording'].includes(phase))return;generation++;release();notify('idle','Recording discarded.');}
@@ -1547,7 +1547,12 @@ function __createForgeMicCapture({onFile,onState=()=>{},mediaDevices=navigator.m
     if(!Recorder){notify('failed','This browser does not support microphone recording. Audio file import is still available.');return;}
     const token=++generation;notify('requesting','Please allow microphone access in your browser.');
     try{
-      const acquired=await mediaDevices.getUserMedia({audio:{echoCancellation:false,noiseSuppression:false,autoGainControl:false},video:false});
+      /* MIC-RETRY-01: Opera GX (and others) can leave the input in a broken state after a tab / screen share (Line-In): NotReadable / Abort / Overconstrained.
+        The microphone is then asked again, a moment later and with the plainest request; a real "denied" or "no device" is not retried. */
+      let acquired;{const ask=c=>mediaDevices.getUserMedia(c);try{acquired=await ask({audio:{echoCancellation:false,noiseSuppression:false,autoGainControl:false},video:false})}
+       catch(first){if(['NotAllowedError','SecurityError','NotFoundError'].includes(first?.name))throw first;
+        await new Promise(r=>setTimeout(r,350));if(disposed||token!==generation)return;
+        try{acquired=await ask({audio:true})}catch(second){if(['NotAllowedError','SecurityError','NotFoundError'].includes(second?.name))throw second;await new Promise(r=>setTimeout(r,700));if(disposed||token!==generation)return;acquired=await ask({audio:{}})}}}
       if(disposed||token!==generation){acquired.getTracks().forEach(track=>track.stop());return;}
       stream=acquired;
       const mime=['audio/webm;codecs=opus','audio/ogg;codecs=opus','audio/mp4'].find(type=>Recorder.isTypeSupported?.(type));
@@ -1616,7 +1621,7 @@ function __ForgeMicrophoneIntake({onFile,disabled=false,onBusyChange,compact=fal
       'aria-label':recording?'Finish and import microphone recording':requesting?'Cancel microphone request':processing?'Importing microphone recording':'Microphone',
       style:{border:'1px solid '+(recording?'#f87171':'#3f6e77'),borderRadius:5,padding:'6px 9px',background:recording?'#6b1620':'#10232a',color:'#e5f6f5',opacity:(processing||(!busy&&disabled))?0.5:1},
       title:state.message||'Mic/Line-In: record the Microphone, or Speaker Sound (Line-In / loopback, lossless)',children:recording?u.jsxs('span',{className:'xen-enough-layers',children:[u.jsx('span',{className:'xen-enough-veil xen-enough-veil--left','aria-hidden':'true'}),u.jsx('span',{className:'xen-enough-veil xen-enough-veil--right','aria-hidden':'true'}),u.jsx('span',{className:'xen-enough-ripples','aria-hidden':'true'}),u.jsx('span',{className:'xen-enough-filaments','aria-hidden':'true'}),u.jsx('span',{className:'xen-enough-legend',children:'🎙 Enough! · '+state.seconds.toFixed(1)+' s'})]}):requesting?'🎙 Cancel':processing?'🎙 Importing…':compact&&state.phase==='failed'?'⚠ Microphone':(compact?'🎙 Mic/Line-In':'🎙 Microphone')}),
-    menu&&!busy&&u.jsxs('div',{role:'menu','data-forge-mic-menu':'true',className:'xen-mic-menu',children:[u.jsx('button',{type:'button',role:'menuitem',title:'Voice / instrument through the microphone',onClick:()=>{setMenu(false);owner.current?.start()},children:'🎙 Microphone'}),u.jsx('button',{type:'button',role:'menuitem','data-forge-line-in':'true',title:'Line-In: record what your speakers play (a browser tab such as YouTube, the system sound, or a line / loopback input), lossless, 32-bit float stereo',onClick:()=>{setMenu(false);window.dispatchEvent(new CustomEvent('xensonar:forge:linein-open'))},children:'↺ Speaker Sound (Line-In)'})]}),
+    menu&&!busy&&u.jsxs('div',{role:'menu','data-forge-mic-menu':'true',className:'xen-mic-menu',children:[state.phase==='failed'&&state.message?u.jsx('div',{role:'status','data-forge-mic-error':'true',className:'xen-mic-error',children:state.message}):null,u.jsx('button',{type:'button',role:'menuitem',title:'Voice / instrument through the microphone',onClick:()=>{setMenu(false);owner.current?.start()},children:'🎙 Microphone'}),u.jsx('button',{type:'button',role:'menuitem','data-forge-line-in':'true',title:'Line-In: record what your speakers play (a browser tab such as YouTube, the system sound, or a line / loopback input), lossless, 32-bit float stereo',onClick:()=>{setMenu(false);window.dispatchEvent(new CustomEvent('xensonar:forge:linein-open'))},children:'↺ Speaker Sound (Line-In)'})]}),
     recording&&u.jsx('button',{type:'button',onClick:()=>owner.current?.cancel(),className:'rounded border border-neutral-600 px-2 py-1 text-neutral-300','aria-label':'Discard microphone recording',children:compact?'×':'Discard'}),
     u.jsx('span',{role:'status','aria-live':recording?'off':'polite',className:compact?'sr-only':'',style:compact?undefined:{fontSize:10,color:state.phase==='failed'?'#fca5a5':'#94a3b8',maxWidth:260},children:state.message||'Stimme / Mikrofon · bis 60 s'})
   ]});
