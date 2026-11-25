@@ -326,6 +326,16 @@ class Editor{
   this.options.onMaskGestureStart?.();/* UNDO-MASK-01: the state before this mask gesture is what ↶ Undo restores */
   /* BAR-METER-LIVE: the Taktometer (and the donor selection) follow the mask WHILE it is dragged, once per frame, as in the import view; before, they jumped at release. A Golden Move keeps its own commit at release. */
   let liveFrame=0;
+  /* SNAP-ALL-01: the purple mask snaps here exactly as in the closed (import) view: the host's snapMask (Bar / Beat / Segment / Off of the
+     song-parts strip, Taktometer count) is the one owner. A Golden Move is an audio edit, not a mask, and stays free. */
+  const snapHook=!golden&&typeof this.options.snapMask==='function'?this.options.snapMask:null;
+  const snapDrag={mode:mode==='move'?'move':mode==='resize-left'?'resize-start':mode==='resize-right'?'resize-end':'new',anchorTime:gesture.start/rate,
+   originalMask:{startSec:prior.start/rate,durationSec:Math.max(0,prior.end-prior.start)/rate},state:{}};
+  const snapSel=(a,b)=>{const lo=Math.min(a,b),hi=Math.max(a,b);if(!snapHook||hi<=lo)return [lo,hi];
+   let r=null;try{r=snapHook({startSec:lo/rate,durationSec:(hi-lo)/rate},snapDrag)}catch(error){console.warn('[Wave Editor W01] snap failed:',error)}
+   if(!r||!(r.durationSec>0))return [lo,hi];
+   const s0=clamp(Math.round(r.startSec*rate),0,this.doc.frames),e0=clamp(Math.round((r.startSec+r.durationSec)*rate),0,this.doc.frames);
+   return e0>s0?[s0,e0]:[lo,hi]};
   const live=()=>{if(golden||liveFrame)return;liveFrame=root.requestAnimationFrame(()=>{liveFrame=0;if(gesture.active)this.applySelection()})};
   const move=e=>{
    if(e.pointerId!==gesture.pointerId)return;
@@ -335,18 +345,18 @@ class Editor{
    if(gesture.mode==='move'){
     const span=gesture.prior.end-gesture.prior.start;
     const shifted=clamp(gesture.prior.start+at(e)-gesture.start,0,this.doc.frames-span);
-    this.doc=core().setSelection(this.doc,shifted,shifted+span);
+    const [ms,me]=snapSel(shifted,shifted+span);
+    this.doc=core().setSelection(this.doc,ms,me);
     if(retarget){
      const centre=(gesture.priorChannel==='L'?.25:.75)+(e.clientY-gesture.clientY)/Math.max(1,rect.height);
      const dest=centre<.375?'L':centre>.625?'R':'all';
      this.goldenGesture.dest=dest;
      this.maskVertical=dest==='L'?{top:0,bottom:.5}:dest==='R'?{top:.5,bottom:1}:{top:0,bottom:1};
     }
-   }else if(gesture.mode==='resize-left'){
-    this.doc=core().setSelection(this.doc,at(e),gesture.prior.end);
-   }else if(gesture.mode==='resize-right'){
-    this.doc=core().setSelection(this.doc,gesture.prior.start,at(e));
-   }else this.doc=core().setSelection(this.doc,gesture.start,at(e));
+   }else{
+    const [a,b]=gesture.mode==='resize-left'?[at(e),gesture.prior.end]:gesture.mode==='resize-right'?[gesture.prior.start,at(e)]:[gesture.start,at(e)];
+    const [ss,se]=snapSel(a,b);this.doc=core().setSelection(this.doc,ss,se);
+   }
    this.refresh(false);this.options.onViewChange?.();live();
   };
   const clear=()=>{if(liveFrame){root.cancelAnimationFrame(liveFrame);liveFrame=0}root.removeEventListener('pointermove',move,true);root.removeEventListener('pointerup',up,true);root.removeEventListener('pointercancel',cancel,true);root.removeEventListener('blur',cancel,true);this.cancelEditGesture=null;this.selectionGestureActive=false};
@@ -361,7 +371,7 @@ class Editor{
    }
    if(gesture.active)this.applySelection();else if(gesture.mode==='select')this.setCursor(gesture.start);else {this.refresh(false);this.options.onViewChange?.()}
   };
-  const cancel=e=>{if(e?.pointerId!=null&&e.pointerId!==gesture.pointerId)return;clear();this.goldenGesture=null;this.doc=core().setSelection(this.doc,gesture.prior.start,gesture.prior.end);this.maskVertical=gesture.vertical;if(this.channel!==gesture.priorChannel)this.setChannel(gesture.priorChannel,true);this.refresh(false);this.options.onViewChange?.()};
+  const cancel=e=>{if(e?.pointerId!=null&&e.pointerId!==gesture.pointerId)return;clear();if(snapHook)try{this.options.snapMaskCancel?.(snapDrag)}catch{}this.goldenGesture=null;this.doc=core().setSelection(this.doc,gesture.prior.start,gesture.prior.end);this.maskVertical=gesture.vertical;if(this.channel!==gesture.priorChannel)this.setChannel(gesture.priorChannel,true);this.refresh(false);this.options.onViewChange?.()};
   this.cancelEditGesture=cancel;
   root.addEventListener('pointermove',move,true);root.addEventListener('pointerup',up,true);root.addEventListener('pointercancel',cancel,true);root.addEventListener('blur',cancel,true);
  }

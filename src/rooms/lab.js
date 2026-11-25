@@ -1904,8 +1904,8 @@ const __xenPreviewCue=(()=>{let sec=null;const ls=new Set(),emit=()=>ls.forEach(
 function RGe(e){const{source:t,selection:n,previewPlaying:r,meter:a,setDetailViewport:o,setFineLoopRange:i,clearRepairUndo:s,scrubPreviewAt:l,updateActivePreviewRange:c}=e,d=P.useRef(null),p=P.useRef(null),f=P.useRef(null),[b,g]=P.useState(null),[y,x]=P.useState(null),[A,M]=P.useState("crosshair"),[v,w]=P.useState("crosshair"),[rawGainRevision,bumpRawGain]=P.useState(0),[waveEditorRevision,bumpWaveEditor]=P.useState(0);
  const [cueRev,bumpCue]=P.useState(0);P.useEffect(()=>__xenPreviewCue.subscribe(()=>bumpCue(v=>v+1)),[]);
  const [pvRev,bumpPv]=P.useState(0);P.useEffect(()=>__xenTaktPreview.subscribe(()=>bumpPv(v=>v+1)),[]);
- P.useEffect(()=>{if(!t||!p.current)return;return globalThis.__XenWaveUIW01.attach({source:t,selection:n,detailCanvas:p.current,overviewCanvas:d.current,onCommit:e.commitWaveDocument,onSelection:e.setWaveSelection,stopSourcePreview:e.stopWaveSourcePreview,onMaskGestureStart:()=>e.pushMaskUndo?.(),onLoopPlay:()=>e.onLoopPlay?.(),onViewChange:()=>bumpWaveEditor(v=>v+1)})},[!!t]);
- P.useLayoutEffect(()=>{if(t&&p.current)globalThis.__XenWaveUIW01.getEditor(p.current)?.update({source:t,selection:n,detailCanvas:p.current,overviewCanvas:d.current,onCommit:e.commitWaveDocument,onSelection:e.setWaveSelection,stopSourcePreview:e.stopWaveSourcePreview,onMaskGestureStart:()=>e.pushMaskUndo?.(),onLoopPlay:()=>e.onLoopPlay?.(),onViewChange:()=>bumpWaveEditor(v=>v+1)})});
+ P.useEffect(()=>{if(!t||!p.current)return;return globalThis.__XenWaveUIW01.attach({source:t,selection:n,detailCanvas:p.current,overviewCanvas:d.current,onCommit:e.commitWaveDocument,onSelection:e.setWaveSelection,stopSourcePreview:e.stopWaveSourcePreview,onMaskGestureStart:()=>e.pushMaskUndo?.(),snapMask:(range,drag)=>__xenSnapMaskGesture(range,drag,{source:t,total:t?.durationSec,exportMeta:e.exportMeta,onMetaPatch:e.onMetaPatch}),snapMaskCancel:drag=>__xenSnapMaskCancel(drag,{onMetaPatch:e.onMetaPatch}),onLoopPlay:()=>e.onLoopPlay?.(),onViewChange:()=>bumpWaveEditor(v=>v+1)})},[!!t]);
+ P.useLayoutEffect(()=>{if(t&&p.current)globalThis.__XenWaveUIW01.getEditor(p.current)?.update({source:t,selection:n,detailCanvas:p.current,overviewCanvas:d.current,onCommit:e.commitWaveDocument,onSelection:e.setWaveSelection,stopSourcePreview:e.stopWaveSourcePreview,onMaskGestureStart:()=>e.pushMaskUndo?.(),snapMask:(range,drag)=>__xenSnapMaskGesture(range,drag,{source:t,total:t?.durationSec,exportMeta:e.exportMeta,onMetaPatch:e.onMetaPatch}),snapMaskCancel:drag=>__xenSnapMaskCancel(drag,{onMetaPatch:e.onMetaPatch}),onLoopPlay:()=>e.onLoopPlay?.(),onViewChange:()=>bumpWaveEditor(v=>v+1)})});
  /* WAVE-LOOP-01: the editor's Loop button mirrors the big PLAY (Preview Loop) of this panel */
  P.useEffect(()=>{if(t&&p.current)globalThis.__XenWaveUIW01.getEditor(p.current)?.setLoopPlaying?.(!!r)},[r,t,waveEditorRevision]);
  P.useEffect(()=>{if(t&&p.current)globalThis.__XenWaveUIW01.getEditor(p.current)?.setLoopClock?.(y!=null&&n?n.fineLoopRange.startSec+y:null)},[y,r,n,t,waveEditorRevision]);
@@ -1917,11 +1917,9 @@ function RGe(e){const{source:t,selection:n,previewPlaying:r,meter:a,setDetailVie
  if(b.target==="overview"){const N=G*t.durationSec;o($_(N,b,j,.15));return}
  // Do not mutate the lower mask or repair undo on click / 1-3px jitter.
  if(!b.activated){if(!__xenP10CrossedDragThreshold(b.clientX,_))return;b.activated=true;e.pushMaskUndo?.()}
- const N=n.detailViewport,W=N.startSec+G*N.durationSec;let V=__xenSnapMaskDrag($_(W,b,j,.05),b.mode,t);
- // TAKT-SNAP-01: snap Bar / Beat = the Taktometer counts (tempo stays), snap Off = the bar count stretches with the mask
- if(!b.meta0&&e.exportMeta)b.meta0={bars:e.exportMeta.bars,guideSegments:e.exportMeta.guideSegments,beatsPerBar:e.exportMeta.beatsPerBar};
- /* TAKT-SNAP-04: Bar / Beat / Segment only decide HOW THE WINDOW IS DEFINED (stepped instead of free); the live loop (i / c below) and the playhead run the same code as for Off. The Taktometer count / tempo follows the window (meta patch) on top of that. */
- const K=__xenMaskCount(V,b,b.meta0,__xenSongPartsEdit.snapMode(),j,t);if(K){V=K.range;const key=K.patch.bars+':'+K.range.durationSec.toFixed(4);if(key!==b.countKey){b.countKey=key;e.onMetaPatch?.(K.patch)}}
+ const N=n.detailViewport,W=N.startSec+G*N.durationSec;
+ /* TAKT-SNAP-04 / SNAP-ALL-01: Bar / Beat / Segment only decide HOW THE WINDOW IS DEFINED (stepped instead of free); the live loop (i / c below) and the playhead run the same code as for Off. One snap function for this view and the open Wave Editor. */
+ const V=__xenSnapMaskGesture($_(W,b,j,.05),b,{source:t,total:j,exportMeta:e.exportMeta,onMetaPatch:e.onMetaPatch});
  i(V),r&&c(V)
  },L=B=>{if(b.pointerId!=null&&B.pointerId!==b.pointerId)return;
  if(b.finished||b.cancelled)return;b.finished=true;
@@ -1929,7 +1927,7 @@ function RGe(e){const{source:t,selection:n,previewPlaying:r,meter:a,setDetailVie
  },K=B=>{if(B?.pointerId!=null&&b.pointerId!=null&&B.pointerId!==b.pointerId)return;
  // Cancellation is not a commit: restore the original purple mask, including preview.
  if(b.finished||b.cancelled)return;b.cancelled=true;
- if(b.target==="detail"&&b.activated&&b.originalMask){i(b.originalMask);r&&c(b.originalMask)}g(null)
+ if(b.target==="detail"&&b.activated&&b.originalMask){i(b.originalMask);r&&c(b.originalMask);__xenSnapMaskCancel(b,{onMetaPatch:e.onMetaPatch})}g(null)
  };
  window.addEventListener("pointermove",F);window.addEventListener("pointerup",L);
  window.addEventListener("pointercancel",K);window.addEventListener("blur",K);
@@ -2097,7 +2095,8 @@ function __xenTonalText(t){if(!t)return '';if(!t.ok)return 'pitch lines: '+(t.no
 function __xenMaskCount(range,drag,meta,mode,total,source){
  if(!range||!drag||!meta||mode==='off'||drag.mode==='move'||!(range.durationSec>0))return null;
  const S=Math.max(1,Math.round(Number(meta.guideSegments)||1)),bars=Math.max(1/64,Number(meta.bars)||1),d0=Number(drag.originalMask?.durationSec)||0;
- if(!(d0>0))return null;const seg=d0/(bars*S),barDur=seg*S,beatsPer=Math.max(1,Number(meta.beatsPerBar)||4);
+ /* SNAP-ALL-01: a fresh mask drawn from a caret (no old length) takes the segment length from the Taktometer tempo (bpm = segments per minute) */
+ const seg=d0>0?d0/(bars*S):Number(meta.bpm)>0?60/Number(meta.bpm):0;if(!(seg>0))return null;const barDur=seg*S,beatsPer=Math.max(1,Number(meta.beatsPerBar)||4);
  /* TAKT-SNAP-02: Bar = whole bars, Beat = the meter's beats (bar / beats per bar), Segment = the guide segments the user chose (their own division of the bar) */
  const unit=mode==='bar'?barDur:mode==='segment'?seg:barDur/beatsPer;
  const sp=__xenSongPartsLatest,onGrid=mode!=='segment'&&!!(sp&&source&&sp.asset===source.sourceAsset&&sp.result?.grid);
@@ -2108,6 +2107,39 @@ function __xenMaskCount(range,drag,meta,mode,total,source){
   const d=Math.min(k*unit,room);r=endFixed?{startSec:end-d,durationSec:d}:{startSec:range.startSec,durationSec:d}}
  const count=Math.max(1,Math.round(r.durationSec/seg));
  return {range:r,patch:__xenMeterAnalysis.metaPatch(count,S,r.durationSec)};
+}
+/* SNAP-ALL-01: moving the whole mask with Bar / Beat / Segment. On the analysis grid (Bar, Beat) __xenSnapMaskDrag already set the start
+   onto a grid line; otherwise (no analysis, or Segment) the mask moves in whole steps of the Taktometer unit from where it started. */
+function __xenSnapMaskMove(range,drag,meta,mode,total,source){
+ if(!range||!drag||mode==='off'||drag.mode!=='move')return range;
+ const sp=__xenSongPartsLatest;if(mode!=='segment'&&sp&&source&&sp.asset===source.sourceAsset&&sp.result?.grid)return range;
+ const o=drag.originalMask,d=range.durationSec;if(!o||!(d>0)||!meta)return range;
+ const S=Math.max(1,Math.round(Number(meta.guideSegments)||1)),bars=Math.max(1/64,Number(meta.bars)||1),d0=Number(o.durationSec)||0;
+ const seg=d0>0?d0/(bars*S):Number(meta.bpm)>0?60/Number(meta.bpm):0;if(!(seg>0))return range;
+ const unit=mode==='bar'?seg*S:mode==='segment'?seg:seg*S/Math.max(1,Number(meta.beatsPerBar)||4),lim=Number.isFinite(total)?total:Infinity;
+ let k=Math.round((range.startSec-o.startSec)/unit);
+ while(k<0&&o.startSec+k*unit<-1e-6)k++;while(k>0&&o.startSec+k*unit+d>lim+1e-6)k--;
+ return {startSec:Math.max(0,o.startSec+k*unit),durationSec:d};
+}
+/* SNAP-ALL-01: the ONE snap for every drag of the purple loop mask. The import view (RGe) and the open Wave Editor (W01, option snapMask)
+   both call this, so Bar / Beat / Segment always step and only Off is free. drag = {mode:'new'|'move'|'resize-start'|'resize-end',
+   anchorTime, originalMask, state:{}} (state lives for one gesture); ctx = {source, total, exportMeta, onMetaPatch}. */
+function __xenSnapMaskGesture(range,drag,ctx){
+ const mode=__xenSongPartsEdit.snapMode();if(!range||!drag||mode==='off')return range;
+ const st=drag.state||(drag.state={}),m=ctx?.exportMeta;
+ if(!st.meta0&&m)st.meta0={bars:m.bars,guideSegments:m.guideSegments,beatsPerBar:m.beatsPerBar,bpm:m.bpm};
+ let V=__xenSnapMaskDrag(range,drag.mode,ctx?.source);
+ V=__xenSnapMaskMove(V,drag,st.meta0,mode,ctx?.total,ctx?.source);
+ // TAKT-SNAP-01/04: the Taktometer count / tempo follows the stepped window
+ const K=__xenMaskCount(V,drag,st.meta0,mode,ctx?.total,ctx?.source);
+ if(K){V=K.range;const key=K.patch.bars+':'+K.range.durationSec.toFixed(4);if(key!==st.countKey){st.countKey=key;st.patched=true;ctx?.onMetaPatch?.(K.patch)}}
+ return V;
+}
+/* SNAP-ALL-01: a cancelled gesture (Esc, blur, pointercancel) also gives the Taktometer its count back */
+function __xenSnapMaskCancel(drag,ctx){
+ const st=drag?.state,m=st?.meta0;if(!st?.patched||!m)return;st.patched=false;st.countKey=null;
+ const patch={};for(const k of ['bars','guideSegments','beatsPerBar','bpm'])if(Number.isFinite(Number(m[k]))&&m[k]!=null)patch[k]=m[k];
+ if(Object.keys(patch).length)ctx?.onMetaPatch?.(patch);
 }
 function __XenSongPartsStrip({source,selection,onSelectPart,onPatch,onCue}){
  const h=P.createElement,asset=source?.sourceAsset??null;
@@ -3088,6 +3120,7 @@ function BWe({onBack: e, variant: t = "legacy", sidebarTop: n, forge3Lens: r = "
                     role: B.role,
                     bpm: B.bpm,
                     bars: B.bars,
+                    beatsPerBar: B.beatsPerBar,
                     guideSegments: B.guideSegments,
                     rootHz: B.rootHz
                 },
@@ -3225,6 +3258,7 @@ function BWe({onBack: e, variant: t = "legacy", sidebarTop: n, forge3Lens: r = "
                         role: B.role,
                         bpm: B.bpm,
                         bars: B.bars,
+                        beatsPerBar: B.beatsPerBar,
                         guideSegments: B.guideSegments
                     },
                     timbreStatusLabel: Ct,
