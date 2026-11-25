@@ -203,7 +203,7 @@ async function __mlPumpDrumRefresh(){
   const duration=Math.min(buffer.duration,__mlStemPeriodSec(playing,"__drums__",request));
   const pos=((playing.loopOffsetSec+start-playing.startTime)%duration+duration)%duration;
   const nextSource=ctx.createBufferSource(),nextGain=ctx.createGain();
-  nextSource.buffer=buffer;nextSource.loop=true;nextSource.loopStart=0;nextSource.loopEnd=duration;
+  nextSource.buffer=__mlFoldedLoop(buffer,duration);nextSource.loop=true;nextSource.loopStart=0;nextSource.loopEnd=Math.min(duration,nextSource.buffer.duration);
   nextSource.connect(nextGain);nextGain.connect(__XenEQ.route(ctx,'drum',__f48GetDrumRack(ctx,playing.master).input));
   nextGain.gain.setValueAtTime(0,start);
   const level=(playing.drumMonitorExplicit||__mlDrumsAudible)&&__mlSoloTrackId===null?1:0;
@@ -228,6 +228,16 @@ function __mlStemPeriodSec(playing,trackId,drumRequest=playing.drumRenderRequest
  if(trackId==="__drums__")return Math.max(.05,cD(drumRequest)||playing.totalDurationSec);
  return Math.max(.05,playing.melodicDurationSec||playing.totalDurationSec);
 }
+/* ML-CLICK-02: the stem buffer holds the cycle PLUS the trailing release; the loop wraps at the cycle end. A last note still sounding there was cut
+   dead (click) and its tail never met the first note. The tail is folded onto the cycle start (a true loop), so the wrap is continuous. */
+const __mlLoopFold=new WeakMap;
+function __mlFoldedLoop(buffer,period){
+ const n=Math.round(period*buffer.sampleRate);if(n<2||buffer.length<=n+1)return buffer;
+ const hit=__mlLoopFold.get(buffer);if(hit&&hit.n===n)return hit.out;
+ const out=new AudioBuffer({numberOfChannels:buffer.numberOfChannels,sampleRate:buffer.sampleRate,length:n}),tail=Math.min(buffer.length-n,n);
+ for(let c=0;c<buffer.numberOfChannels;c++){const src=buffer.getChannelData(c),dst=out.getChannelData(c);dst.set(src.subarray(0,n));for(let i=0;i<tail;i++)dst[i]+=src[n+i]}
+ __mlLoopFold.set(buffer,{n,out});return out;
+}
 function __mlLaunchStemSources(playing,offset,when){
  const starts=[];playing.stemSourceById=new Map();
  for(const [trackId,buffer] of playing.stemBuffers){
@@ -235,7 +245,7 @@ function __mlLaunchStemSources(playing,offset,when){
   const period=Math.min(buffer.duration,__mlStemPeriodSec(playing,trackId));
   // The shared audio clock stays put; each source wraps on its OWN musical cycle.
   const localOffset=((offset%period)+period)%period;
-  source.buffer=buffer;source.loop=true;source.loopStart=0;source.loopEnd=period;
+  source.buffer=__mlFoldedLoop(buffer,period);source.loop=true;source.loopStart=0;source.loopEnd=Math.min(period,source.buffer.duration);
   source.connect(playing.trackPanners?.get(trackId)??playing.stemGains.get(trackId));
   source.start(when,localOffset);
   Mx(source);starts.push(source);playing.stemSourceById.set(trackId,source);
