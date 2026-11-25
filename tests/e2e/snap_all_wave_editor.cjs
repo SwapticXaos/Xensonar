@@ -45,6 +45,27 @@ const modes=(process.argv[3]||'bar,beat,segment,off').split(',');
   // 4) left edge to ~0.83 s
   await drag(px(st.s/st.sr),yMid,px(0.83),yMid);check('left edge',mode,unit);
  }
+ // GRAB-EDGE-01: a grabbed edge always resizes (never a new mask); a moved mask keeps its length and the Taktometer
+ const setSel=async(a,bb)=>{await E(FIND+`ed.doc=globalThis.__XenWaveCoreW01.setSelection(ed.doc,Math.round(${a}*ed.doc.sampleRate),Math.min(ed.doc.frames,Math.round(${bb}*ed.doc.sampleRate)));ed.applySelection();ed.refresh(false);'ok'`);await p.waitForTimeout(400);st=await state()};
+ const setView=async(a,bb)=>{await E(FIND+`ed.setEditorViewport(Math.round(${a}*ed.doc.sampleRate),Math.min(ed.doc.frames,Math.round(${bb}*ed.doc.sampleRate)));'ok'`);await p.waitForTimeout(400);st=await state()};
+ const snap=async m=>E(`localStorage.setItem('xensonar.songParts.snap.v1','${m}');'ok'`);
+ const bars=async()=>p.evaluate(()=>{return [...document.querySelectorAll('input')].filter(i=>/^Number of Bars$/i.test(i.getAttribute('aria-label')||'')).map(i=>i.value).join('|')});
+ const expect=(label,ok,info)=>{if(!ok)fail++;console.log((ok?'ok   ':'FAIL ')+label.padEnd(44)+' '+info)};
+ const sec=()=>[st.s/st.sr,st.e/st.sr],yM=()=>st.y+st.h*.5;
+ for(const m of ['bar','off']){
+  await snap(m);await setView(0,12);await setSel(0,st.frames/st.sr);/* whole file, larger than the view */
+  await drag(st.x+st.w-3,yM(),px(9.3),yM());const [a,e]=sec();
+  expect(m+' · whole-file mask, right view border',a<1e-3&&e<12&&(m==='off'?Math.abs(e-9.3)<.05:Math.abs(e/2-Math.round(e/2))<.02),'start '+a.toFixed(3)+' end '+e.toFixed(3));
+  await setSel(0,st.frames/st.sr);await drag(st.x+3,yM(),px(2.7),yM());const [a2,e2]=sec();
+  expect(m+' · whole-file mask, left view border',Math.abs(e2-st.frames/st.sr)<1e-3&&(m==='off'?Math.abs(a2-2.7)<.05:Math.abs(a2/2-Math.round(a2/2))<.02),'start '+a2.toFixed(3)+' end '+e2.toFixed(3));
+ }
+ await snap('off');await setView(0,12);await setSel(1.0,1.12);/* ~13 px wide */
+ await drag(px(1.12)+3,yM(),px(3.0),yM());{const [a,e]=sec();expect('off · narrow mask, right edge wins',Math.abs(a-1)<.01&&Math.abs(e-3)<.05,'start '+a.toFixed(3)+' end '+e.toFixed(3))}
+ for(const m of ['bar','beat','segment']){
+  await snap(m);const D=st.frames/st.sr;await setView(D-12,D);await setSel(D-10,D-4);const b0=await bars(),d0=(st.e-st.s)/st.sr,top=st.y+st.h*(st.mv?.top||0)+2;
+  await drag(px(D-7),top,px(D-7+3.6),top);const [a,e]=sec(),b1=await bars();
+  expect(m+' · move to the file end keeps length + count',Math.abs((e-a)-d0)<2/st.sr&&e<=D+1e-6&&a>D-10+.1&&b1===b0,'start '+a.toFixed(3)+' end '+e.toFixed(3)+' len '+(e-a).toFixed(3)+'/'+d0.toFixed(3)+' bars '+b0+'→'+b1);
+ }
  if(errs.length)console.log('pageerrors',errs.slice(0,3));
  await b.close();
  if(fail||errs.length){console.log('FAIL SNAP-ALL-01 ('+fail+' checks)');process.exit(1)}console.log('PASS SNAP-ALL-01 '+modes.join(','));

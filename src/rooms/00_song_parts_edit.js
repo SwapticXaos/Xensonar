@@ -17,8 +17,15 @@ function __xenSongPartsEditFactory(storage=null){
  function snapRange(range,grid,mode,edge='both',total=Infinity){
   if(!range||mode==='off'||!grid)return range;
   let s=range.startSec,e=range.startSec+range.durationSec;
-  if(edge==='move'){const ns=snapTime(s,grid,mode);e+=ns-s;s=ns}
+  /* GRAB-EDGE-01: a moved mask keeps its length EXACTLY – if the nearest grid line would push its end past the file end (or its start
+     below 0), it takes the nearest grid line where it still fits; none fits: unchanged (before, the end was cut and the Taktometer squeezed) */
+  if(edge==='move'){const len=e-s,g=(mode==='bar'?grid.bars:grid.segments)||[];let ns=snapTime(s,grid,mode);
+   if(ns<0||ns+len>total+1e-6){let best=null;for(const t of g)if(t>=0&&t+len<=total+1e-6&&(best==null||Math.abs(t-s)<Math.abs(best-s)))best=t;if(best==null)return range;ns=best}
+   return {startSec:ns,durationSec:len}}
   else{if(edge!=='end')s=snapTime(s,grid,mode);if(edge!=='start')e=snapTime(e,grid,mode)}
+  /* GRAB-EDGE-01: the moving edge collapsed onto the fixed one (pulled over it): keep ONE grid step instead of a 50 ms sliver */
+  if(e-s<.05&&(edge==='start'||edge==='end')){const g=(mode==='bar'?grid.bars:grid.segments)||[];
+   if(edge==='end'){const n=g.find(t=>t>s+.05);if(n!=null&&n<=total+1e-6)e=n}else{let q=null;for(const t of g)if(t<e-.05)q=t;if(q!=null&&q>=0)s=q}}
   if(e-s<.05)return range;
   return {startSec:Math.max(0,s),durationSec:Math.min(total,e)-Math.max(0,s)};
  }

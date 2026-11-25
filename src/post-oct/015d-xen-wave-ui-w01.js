@@ -327,10 +327,16 @@ class Editor{
   /* BAR-METER-LIVE: the Taktometer (and the donor selection) follow the mask WHILE it is dragged, once per frame, as in the import view; before, they jumped at release. A Golden Move keeps its own commit at release. */
   let liveFrame=0;
   /* SNAP-ALL-01: the purple mask snaps here exactly as in the closed (import) view: the host's snapMask (Bar / Beat / Segment / Off of the
-     song-parts strip, Taktometer count) is the one owner. A Golden Move is an audio edit, not a mask, and stays free. */
-  const snapHook=!golden&&typeof this.options.snapMask==='function'?this.options.snapMask:null;
+     song-parts strip, Taktometer count) is the one owner. */
+  /* GOLDEN-SNAP-01: a Golden Move also lands on the snap (its target start); it keeps its length and never counts the Taktometer. */
+  const snapHook=typeof this.options.snapMask==='function'?this.options.snapMask:null;
   const snapDrag={mode:mode==='move'?'move':mode==='resize-left'?'resize-start':mode==='resize-right'?'resize-end':'new',anchorTime:gesture.start/rate,
    originalMask:{startSec:prior.start/rate,durationSec:Math.max(0,prior.end-prior.start)/rate},state:{}};
+  /* SAME-MASK-01: with the host's maskRange the mask is computed by the import view's own gesture code ($_ + the one snap), from the pointer time */
+  const rangeHook=typeof this.options.maskRange==='function'?this.options.maskRange:null;
+  Object.assign(snapDrag,{startSec:snapDrag.mode==='new'?gesture.start/rate:snapDrag.originalMask.startSec,durationSec:snapDrag.mode==='new'?0:snapDrag.originalMask.durationSec});
+  const hostSel=frame=>{let r=null;try{r=rangeHook(frame/rate,snapDrag)}catch(error){console.warn('[Wave Editor W01] mask range failed:',error)}
+   if(!r||!(r.durationSec>0))return null;const s0=clamp(Math.round(r.startSec*rate),0,this.doc.frames),e0=clamp(Math.round((r.startSec+r.durationSec)*rate),0,this.doc.frames);return e0>s0?[s0,e0]:null};
   const snapSel=(a,b)=>{const lo=Math.min(a,b),hi=Math.max(a,b);if(!snapHook||hi<=lo)return [lo,hi];
    let r=null;try{r=snapHook({startSec:lo/rate,durationSec:(hi-lo)/rate},snapDrag)}catch(error){console.warn('[Wave Editor W01] snap failed:',error)}
    if(!r||!(r.durationSec>0))return [lo,hi];
@@ -345,7 +351,7 @@ class Editor{
    if(gesture.mode==='move'){
     const span=gesture.prior.end-gesture.prior.start;
     const shifted=clamp(gesture.prior.start+at(e)-gesture.start,0,this.doc.frames-span);
-    const [ms,me]=snapSel(shifted,shifted+span);
+    const [ms,me]=(rangeHook&&hostSel(at(e)))||snapSel(shifted,shifted+span);
     this.doc=core().setSelection(this.doc,ms,me);
     if(retarget){
      const centre=(gesture.priorChannel==='L'?.25:.75)+(e.clientY-gesture.clientY)/Math.max(1,rect.height);
@@ -355,7 +361,7 @@ class Editor{
     }
    }else{
     const [a,b]=gesture.mode==='resize-left'?[at(e),gesture.prior.end]:gesture.mode==='resize-right'?[gesture.prior.start,at(e)]:[gesture.start,at(e)];
-    const [ss,se]=snapSel(a,b);this.doc=core().setSelection(this.doc,ss,se);
+    const [ss,se]=(rangeHook&&hostSel(at(e)))||snapSel(a,b);this.doc=core().setSelection(this.doc,ss,se);
    }
    this.refresh(false);this.options.onViewChange?.();live();
   };
@@ -369,7 +375,7 @@ class Editor{
     if(gesture.active&&(destination!==gesture.prior.start||dest!==gesture.priorChannel))void this.applyGoldenMove(gesture.prior,destination,gesture.priorChannel,dest);
     return;
    }
-   if(gesture.active)this.applySelection();else if(gesture.mode==='select')this.setCursor(gesture.start);else {this.refresh(false);this.options.onViewChange?.()}
+   if(gesture.active){this.applySelection();try{this.options.onMaskGestureEnd?.(snapDrag.mode)}catch{}}else if(gesture.mode==='select')this.setCursor(gesture.start);else {this.refresh(false);this.options.onViewChange?.()}
   };
   const cancel=e=>{if(e?.pointerId!=null&&e.pointerId!==gesture.pointerId)return;clear();if(snapHook)try{this.options.snapMaskCancel?.(snapDrag)}catch{}this.goldenGesture=null;this.doc=core().setSelection(this.doc,gesture.prior.start,gesture.prior.end);this.maskVertical=gesture.vertical;if(this.channel!==gesture.priorChannel)this.setChannel(gesture.priorChannel,true);this.refresh(false);this.options.onViewChange?.()};
   this.cancelEditGesture=cancel;
@@ -469,11 +475,22 @@ class Editor{
   const y=event.clientY-rect.top,x=event.clientX-rect.left;
   const vertical=mask||{top:0,bottom:1};
   const laneTop=rect.height*vertical.top,laneBottom=rect.height*vertical.bottom;
-  if(y<laneTop||y>laneBottom)return 'select';
   const span=Math.max(1,view.end-view.start);
-  const left=(selection.start-view.start)/span*rect.width,right=(selection.end-view.start)/span*rect.width;
-  if(left>=0&&left<=rect.width&&Math.abs(x-left)<=9)return 'resize-left';
-  if(right>=0&&right<=rect.width&&Math.abs(x-right)<=9)return 'resize-right';
+  const rawLeft=(selection.start-view.start)/span*rect.width,rawRight=(selection.end-view.start)/span*rect.width;
+  if(rawRight<0||rawLeft>rect.width)return 'select';
+  /* GRAB-EDGE-01: a grabbed edge always resizes, never starts a new mask.
+     - The mask is clipped to the view as it is drawn: a mask larger than the view has its edges at the view border (as in the import view).
+     - The edges hold over the full height (an L- or R-only mask is also grabbed beside its lane).
+     - Narrow mask: the NEAREST edge wins (before, the left one always did). */
+  /* SAME-MASK-01: on the loop-mask canvas the import view's own hit test decides (host option maskHit = hA), so an edge grab is the same in both views */
+  const hostHit=canvas===this.options.detailCanvas&&doc===this.doc&&typeof this.options.maskHit==='function';
+  if(hostHit&&y>=0&&y<=rect.height){
+   const r=doc.sampleRate,vs={startSec:view.start/r,durationSec:span/r},hit=this.options.maskHit((view.start+clamp(x/rect.width,0,1)*span)/r,{startSec:selection.start/r,durationSec:(selection.end-selection.start)/r},vs,vs.durationSec/Math.max(1,rect.width));
+   if(hit==='resize-start')return 'resize-left';if(hit==='resize-end')return 'resize-right';
+  }
+  const left=clamp(rawLeft,0,rect.width),right=clamp(rawRight,0,rect.width),tol=9,dl=Math.abs(x-left),dr=Math.abs(x-right);
+  if(!hostHit&&Math.min(dl,dr)<=tol&&y>=0&&y<=rect.height)return dr<dl||(dr===dl&&x>=right)?'resize-right':'resize-left';
+  if(y<laneTop||y>laneBottom)return 'select';
   if(x>left&&x<right&&Math.abs(y-laneTop)<=Math.max(5,Math.min(8,rect.height*.07)))return 'move';
   // W17: no bottom edge on the purple mask; resize belongs to the entire
   // Loop Mask waveform's outer lower border (separate workflow).
