@@ -144,6 +144,12 @@ function __f333AttachTransitionGuard(store) {
       state.materialExport.bars!==before.materialExport.bars||state.materialExport.bpm!==before.materialExport.bpm||
       state.materialExport.beatsPerBar!==before.materialExport.beatsPerBar||state.materialExport.loopPreview!==before.materialExport.loopPreview;
     if(!changed)return;
+    /* TAKT-SNAP-05: the Taktometer (bars / BPM / beats per bar) changes nothing in the RAW source loop: it plays the purple mask of the original audio. When only the meter changed and that loop
+       is what plays, it keeps playing (the mask itself already follows live, as with Snap Off). Every other change, and any rendered Forge sound, stops as before. */
+    const meterOnly=state.renderVersion===before.renderVersion&&state.synthMode===before.synthMode&&state.waveformMix===before.waveformMix&&state.sourceAsset===before.sourceAsset&&
+      state.sourcePreviewMode===before.sourcePreviewMode&&state.sourceAssetContext===before.sourceAssetContext&&state.carrierIntegralSelection===before.carrierIntegralSelection&&
+      state.carrierIntegralSynthLab===before.carrierIntegralSynthLab&&state.carrierIntegralHarmonicXplore===before.carrierIntegralHarmonicXplore&&state.materialExport.loopPreview===before.materialExport.loopPreview;
+    if(meterOnly&&typeof Id!=='undefined'&&Id.isPlaying?.())return;
     handling=true;
     try{__f333Stop();store.setState(__f333Idle());}finally{handling=false;}
   });
