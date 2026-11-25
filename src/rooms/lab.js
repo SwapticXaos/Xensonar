@@ -1894,7 +1894,7 @@ function RGe(e){const{source:t,selection:n,previewPlaying:r,meter:a,setDetailVie
  i(V),r&&c(V)
  },L=B=>{if(b.pointerId!=null&&B.pointerId!==b.pointerId)return;
  if(b.finished||b.cancelled)return;b.finished=true;
- if(b.pendingPatch){e.onMetaPatch?.(b.pendingPatch);b.pendingPatch=null}
+ if(b.pendingPatch){const wasPlaying=!!r;e.onMetaPatch?.(b.pendingPatch);b.pendingPatch=null;/* TAKT-SNAP-03: a new bar count / tempo makes the preview owner stop the loop; the loop must keep going with the new mask, so it is restarted if it stopped (checked twice: right after the re-render and after the settling) */if(wasPlaying){const again=()=>{try{if(!Id.isPlaying())e.onLoopPlay?.()}catch{}};setTimeout(again,80);setTimeout(again,350)}}
  if(b.target==="detail"&&b.activated&&b.mode==="new")s();g(null)
  },K=B=>{if(B?.pointerId!=null&&b.pointerId!=null&&B.pointerId!==b.pointerId)return;
  // Cancellation is not a commit: restore the original purple mask, including preview.
