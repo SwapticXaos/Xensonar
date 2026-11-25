@@ -2093,11 +2093,21 @@ function __xenTonalText(t){if(!t)return '';if(!t.ok)return 'pitch lines: '+(t.no
    2 bars shorter read 8 bars (snap Beat: 7.5). Only snap Off keeps the bar count and stretches it over the mask (aligning the
    markers by eye to the level peaks). Without a song analysis the moving edge snaps to whole bars / segments of the current
    Taktometer, counted from the edge that stays. Returns {range, patch} or null (Off, move, nothing to count). */
+/* BEAT-01: how many BEATS a bar has, for Snap = Beat. The Taktometer apply writes beatsPerBar = guideSegments, so the meta alone made
+   Beat the same as Segment (16 segments: a "beat" of 1/16 bar). A beat is a real beat: the song analysis' beats per bar for this audio
+   (on its grid); else beatsPerBar when it differs from the segment count and divides it; else derived from the segments (16, 12, 8 → 4 · 9, 6 → 3 · else = segments). */
+function __xenBeatsPerBar(meta,source){
+ const sp=__xenSongPartsLatest,a=sp&&source&&sp.asset===source.sourceAsset?Number(sp.result?.grid?.segmentsPerBar||sp.result?.segmentsPerBar):NaN;
+ if(Number.isFinite(a)&&a>=1)return Math.round(a);
+ const S=Math.max(1,Math.round(Number(meta?.guideSegments)||1)),b=Number(meta?.beatsPerBar);
+ if(Number.isFinite(b)&&b>=1&&Math.round(b)!==S&&S%Math.round(b)===0)return Math.round(b);/* a beat must be whole segments, or the count would round and the tempo wobble */
+ return S>4&&S%4===0?4:S>3&&S%3===0?3:S;
+}
 function __xenMaskCount(range,drag,meta,mode,total,source){
  if(!range||!drag||!meta||mode==='off'||drag.mode==='move'||!(range.durationSec>0))return null;
  const S=Math.max(1,Math.round(Number(meta.guideSegments)||1)),bars=Math.max(1/64,Number(meta.bars)||1),d0=Number(drag.originalMask?.durationSec)||0;
  /* SNAP-ALL-01: a fresh mask drawn from a caret (no old length) takes the segment length from the Taktometer tempo (bpm = segments per minute) */
- const seg=d0>0?d0/(bars*S):Number(meta.bpm)>0?60/Number(meta.bpm):0;if(!(seg>0))return null;const barDur=seg*S,beatsPer=Math.max(1,Number(meta.beatsPerBar)||4);
+ const seg=d0>0?d0/(bars*S):Number(meta.bpm)>0?60/Number(meta.bpm):0;if(!(seg>0))return null;const barDur=seg*S,beatsPer=Math.max(1,__xenBeatsPerBar(meta,source));
  /* TAKT-SNAP-02: Bar = whole bars, Beat = the meter's beats (bar / beats per bar), Segment = the guide segments the user chose (their own division of the bar) */
  const unit=mode==='bar'?barDur:mode==='segment'?seg:barDur/beatsPer;
  const sp=__xenSongPartsLatest,onGrid=mode!=='segment'&&!!(sp&&source&&sp.asset===source.sourceAsset&&sp.result?.grid);
@@ -2117,7 +2127,7 @@ function __xenSnapMaskMove(range,drag,meta,mode,total,source){
  const o=drag.originalMask,d=range.durationSec;if(!o||!(d>0)||!meta)return range;
  const S=Math.max(1,Math.round(Number(meta.guideSegments)||1)),bars=Math.max(1/64,Number(meta.bars)||1),d0=Number(o.durationSec)||0;
  const seg=d0>0?d0/(bars*S):Number(meta.bpm)>0?60/Number(meta.bpm):0;if(!(seg>0))return range;
- const unit=mode==='bar'?seg*S:mode==='segment'?seg:seg*S/Math.max(1,Number(meta.beatsPerBar)||4),lim=Number.isFinite(total)?total:Infinity;
+ const unit=mode==='bar'?seg*S:mode==='segment'?seg:seg*S/Math.max(1,__xenBeatsPerBar(meta,source)),lim=Number.isFinite(total)?total:Infinity;
  let k=Math.round((range.startSec-o.startSec)/unit);
  while(k<0&&o.startSec+k*unit<-1e-6)k++;while(k>0&&o.startSec+k*unit+d>lim+1e-6)k--;
  return {startSec:Math.max(0,o.startSec+k*unit),durationSec:d};

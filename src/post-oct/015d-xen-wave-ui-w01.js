@@ -325,7 +325,7 @@ class Editor{
   this.selectionGestureActive=true;
   this.options.onMaskGestureStart?.();/* UNDO-MASK-01: the state before this mask gesture is what ↶ Undo restores */
   /* BAR-METER-LIVE: the Taktometer (and the donor selection) follow the mask WHILE it is dragged, once per frame, as in the import view; before, they jumped at release. A Golden Move keeps its own commit at release. */
-  let liveFrame=0;
+  let liveFrame=0,lastCountKey=null;
   /* SNAP-ALL-01: the purple mask snaps here exactly as in the closed (import) view: the host's snapMask (Bar / Beat / Segment / Off of the
      song-parts strip, Taktometer count) is the one owner. */
   /* GOLDEN-SNAP-01: a Golden Move also lands on the snap (its target start); it keeps its length and never counts the Taktometer. */
@@ -363,7 +363,12 @@ class Editor{
     const [a,b]=gesture.mode==='resize-left'?[at(e),gesture.prior.end]:gesture.mode==='resize-right'?[gesture.prior.start,at(e)]:[gesture.start,at(e)];
     const [ss,se]=(rangeHook&&hostSel(at(e)))||snapSel(a,b);this.doc=core().setSelection(this.doc,ss,se);
    }
-   this.refresh(false);this.options.onViewChange?.();live();
+   this.refresh(false);this.options.onViewChange?.();
+   /* COUNT-STEADY-01: when the snap just changed the Taktometer count (meta patch sent synchronously by the host's snap), the mask must
+      reach the host in the SAME task – one render shows new count + new length. Before, the mask followed one frame later and the
+      Taktometer painted the new count over the old length: the bar numbers jittered while dragging (the import view sends both at once). */
+   const key=snapDrag.state?.countKey;
+   if(!golden&&key!==lastCountKey){lastCountKey=key;if(liveFrame){root.cancelAnimationFrame(liveFrame);liveFrame=0}this.applySelection()}else live();
   };
   const clear=()=>{if(liveFrame){root.cancelAnimationFrame(liveFrame);liveFrame=0}root.removeEventListener('pointermove',move,true);root.removeEventListener('pointerup',up,true);root.removeEventListener('pointercancel',cancel,true);root.removeEventListener('blur',cancel,true);this.cancelEditGesture=null;this.selectionGestureActive=false};
   const up=e=>{if(e.pointerId!==gesture.pointerId)return;e.stopPropagation();clear();

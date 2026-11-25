@@ -45,3 +45,21 @@ Prüfung:
 - `snap_all_wave_editor.cjs` erweitert: Ausschnittränder, schmale Maske, Verschieben ans Dateiende behält Länge und Taktzahl. Gegenprobe auf dem Stand davor: Der rechte Ausschnittrand wurde zur neuen Maske (Bar und Off).
 - Golden Move per Hand geprüft: Bar 2 → 6,001 s (ganze Takte), Off frei (5,37 s).
 - Weiterhin nur mono getestet. Ein Stereo-Griff außerhalb der Spur ist im Code abgedeckt, aber nicht im Browser geprüft. Nicht gehört.
+
+## Nachtrag COUNT-STEADY-01 / BEAT-01 (selber Tag)
+Nutzer: Mit Segment-Snap (16 Segmente) springen beim Ziehen die Taktnummern hin und her, statt dass nur ± ein Segment dazukommt. Außerdem: den ganzen Bereich prüfen.
+
+Messung (`tests/e2e/mask_count_steady.cjs`): Ein Spion zeichnet jede Taktometer-Zeichnung auf (Taktnummern und ihre x-Position). In der Import-Ansicht standen die Nummern still. Im Wave Editor zitterten sie beim Ziehen des rechten Rands um bis zu 10 px (Takt 3: x 518…526, Takt 4: 690…700). Die Daten pro Frame waren dabei konsistent.
+
+Ursache: Der Wave Editor meldet die neue Taktzahl sofort (Snap, `onMetaPatch`), die neue Maskenlänge aber erst im nächsten Bildframe (`live()` per requestAnimationFrame). Dazwischen malt das Taktometer die neue Zahl über die alte Länge, und die Takte werden kurz gestaucht oder gedehnt. Die Import-Ansicht schickt beides im selben Schritt.
+
+Änderung:
+- `015d` (W01): Ändert der Snap die Zählung, geht die Maske im selben Schritt an die Ansicht. Ohne Zählwechsel (Off, Verschieben) bleibt es bei einmal pro Frame.
+- `lab.js` `__xenBeatsPerBar` (BEAT-01): Beat ist ein echter Schlag. Bisher war Beat ohne Analyse gleich Segment, weil die Taktometer-Übernahme `beatsPerBar = guideSegments` schreibt (bei 16 Segmenten war ein „Beat“ 1/16 Takt). Jetzt: die Schläge der Song-Analyse dieses Audios, sonst `beatsPerBar`, wenn es die Segmentzahl glatt teilt, sonst abgeleitet (16, 12, 8 → 4; 9, 6 → 3; sonst = Segmente).
+- `tests/helpers/extract_function.cjs`: Kommentare werden übersprungen. Ein Apostroph im Kommentar („the analysis' grid“) brach `song_parts_edit.test.cjs` (lief seit Längerem nicht). Dadurch laufen auch 2 bisher rote Fälle in `song_key.test.cjs` wieder.
+
+Prüfung:
+- Neu, ohne Browser: `tests/mask_snap.test.cjs` lädt Trefferprüfung, Bereich, Snap und Zählung direkt aus dem Quellcode. Geprüft werden: Beat = Schlag, Taktlänge und Tempo bleiben bei jedem Zwischenschritt gleich, Verschieben ohne und mit Analyse, Rand über Rand, Abbruch, Randgriff. 6/6 grün.
+- Neu, im Browser: `tests/e2e/mask_count_steady.cjs` (Segment, Beat, Bar × Import-Ansicht / Wave Editor × rechter Rand, linker Rand, Verschieben). Taktabstand in jeder Zeichnung 171–172 px, keine Sprünge. Gegenprobe davor: Wave Editor rechter Rand gesprungen.
+- Bekannt und unverändert: `tests/forge_interpretations.test.cjs` hat 2 Fehler (`__mlNormalizeSamplePlaybackSettings` fehlt im Test-Kontext, Melodic Loop). Nicht dieser Bereich.
+- Bleibt so, mit Absicht: Zieht man den linken Rand, zählt das Taktometer weiter ab dem Maskenanfang („Start = 1“). Die Nummern rücken dann gemeinsam um ganze Schritte weiter, ihr Abstand bleibt gleich.
