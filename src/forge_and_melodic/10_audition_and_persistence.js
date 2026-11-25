@@ -656,8 +656,10 @@ function __ForgeLineInButton(){
  const setSrc=v=>{setSrcRaw(v);try{localStorage.setItem(__XEN_LINEIN_SRC_KEY,v)}catch{}};
  const btnRef=P.useRef(null),popRef=P.useRef(null),run=P.useRef(null);
  const clock=t=>Math.floor(t/60)+':'+String(Math.floor(t%60)).padStart(2,'0');
- const listDevices=async ask=>{if(!md?.enumerateDevices)return;try{if(ask){const s=await md.getUserMedia({audio:true});s.getTracks().forEach(t=>t.stop())}
-   setDevices((await md.enumerateDevices()).filter(d=>d.kind==='audioinput'))}catch(e){setMsg('Device list: '+(e?.message||e))}};
+ const listDevices=async ask=>{if(!md?.enumerateDevices)return;let held=null;try{if(ask)held=await md.getUserMedia({audio:true});/* Firefox names the devices only while a capture is open: list first, then close */
+   /* MIC-DEVICES-01: without a permission Chromium lists ONE nameless entry (deviceId ''), Firefox none: that is not a choice. Real entries (with an id) are kept once each; "default" / "communications" are the browser's aliases. */
+   const seen=new Set();setDevices((await md.enumerateDevices()).filter(d=>d.kind==='audioinput'&&d.deviceId&&d.deviceId!=='default'&&d.deviceId!=='communications'&&!seen.has(d.deviceId)&&seen.add(d.deviceId)));held?.getTracks().forEach(t=>t.stop())}catch(e){held?.getTracks().forEach(t=>t.stop());setMsg('Device list: '+(e?.name==='NotAllowedError'?'the browser refused without asking – click the site icon in the address bar → Microphone → Allow, then reload.':(e?.message||e)))}};
+ P.useEffect(()=>{if(!open||!md?.addEventListener)return;const f=()=>listDevices(false);md.addEventListener('devicechange',f);return()=>md.removeEventListener('devicechange',f)},[open]);
  P.useEffect(()=>{if(open)listDevices(false)},[open]);
  /* MIC-PROMPT-01: the browser's permission question is asked only by an explicit click ("Allow & show names" or Rec), never by merely opening the panel: an unasked, dismissed question is remembered by some browsers as "blocked" and then the Microphone is silently refused. */
  P.useEffect(()=>{const f=()=>setOpen(true);window.addEventListener('xensonar:forge:linein-open',f);return()=>window.removeEventListener('xensonar:forge:linein-open',f)},[]);
