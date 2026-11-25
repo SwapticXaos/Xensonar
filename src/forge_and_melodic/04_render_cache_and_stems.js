@@ -249,6 +249,28 @@ function __xenLoopSeam(buffer,startSec=0,endSec=buffer?.duration){
  const res=changed?out:buffer;__xenLoopSeamCache.set(buffer,{key,out:res});return res;
 }
 globalThis.__xenLoopSeam=__xenLoopSeam;
+/* LOOP-SEAM-02: click test + musical repair for a loop cut out of a longer recording (the purple mask). The test compares the jump at the wrap
+   (last sample → first sample, slope-corrected) with the signal's own sample-to-sample motion and the level right before / after the seam.
+   The repair is no fade: the first ~30 ms of the loop are cross-blended (equal power) from what REALLY follows the loop end in the recording into the
+   loop start. At the wrap the loop therefore continues exactly as the recording would (sample after loop end = first loop sample), then glides
+   into its own start. Without audio after the end (mask at the file end) the end is glided onto the start instead (LOOP-SEAM-01). The original stays untouched. */
+function __xenSeamTest(x,a,b,sr){
+ const n=b-a;if(n<256)return {click:false};const w=Math.max(16,Math.min(Math.round(.004*sr),n>>3));
+ let d=0;for(let k=a+1;k<a+w;k++)d+=Math.abs(x[k]-x[k-1]);for(let k=b-w+1;k<b;k++)d+=Math.abs(x[k]-x[k-1]);d/=Math.max(1,2*(w-1));
+ const jump=Math.abs(x[a]-(x[b-1]+(x[b-1]-x[b-2])));
+ let e1=0,e2=0;for(let k=0;k<w;k++){e1+=x[b-w+k]*x[b-w+k];e2+=x[a+k]*x[a+k]}const r1=Math.sqrt(e1/w),r2=Math.sqrt(e2/w),lv=Math.max(r1,r2)/Math.max(1e-5,Math.min(r1,r2));
+ return {click:jump>Math.max(.004,3*d)||(lv>2.5&&Math.max(r1,r2)>.01),jump,motion:d,levelRatio:lv};
+}
+function __xenSeamRegion(x,a,b,sr,force=null){
+ const n=b-a,out=Float32Array.from(x.subarray(a,b));const t=force??__xenSeamTest(x,a,b,sr);if(!t.click)return {data:out,test:t,repaired:false};
+ const after=x.length-b,M=Math.min(Math.round(.03*sr),n>>2,after);
+ if(M>=32){for(let i=0;i<M;i++){const g=(i+.5)/M*Math.PI/2;out[i]=x[a+i]*Math.sin(g)+x[b+i]*Math.cos(g)}return {data:out,test:t,repaired:'continuation'}}
+ const G=Math.max(8,Math.min(Math.round(.015*sr),n>>2)),dd=out[0]-(out[n-1]+(out[n-1]-out[n-2]));for(let i=0;i<G;i++){const w=.5-.5*Math.cos(Math.PI*(i+1)/G);out[n-G+i]+=dd*w}
+ return {data:out,test:t,repaired:'glide'};
+}
+/* the same repair for every channel of a mask (decision taken once, on the mono sum, so L and R stay coherent) */
+function __xenSeamChannels(channels,mono,a,b,sr){const t=__xenSeamTest(mono||channels[0],a,b,sr);return {channels:channels.map(c=>__xenSeamRegion(c,a,b,sr,t).data),test:t}}
+globalThis.__xenSeamTest=__xenSeamTest;globalThis.__xenSeamRegion=__xenSeamRegion;globalThis.__xenSeamChannels=__xenSeamChannels;
 const __mlLoopFold=new WeakMap;
 function __mlFoldedLoop(buffer,period){
  const n=Math.round(period*buffer.sampleRate);if(n<2||buffer.length<=n+1)return buffer;
