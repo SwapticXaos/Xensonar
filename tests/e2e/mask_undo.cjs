@@ -19,4 +19,8 @@ const dir=fs.mkdtempSync(path.join(os.tmpdir(),'xen-mu-')),file=path.join(dir,'m
  assert(await undo.isEnabled());await undo.click();await p.waitForTimeout(500);
  assert.equal(await val('Start s'),s1,'undo restores the first mask (start)');assert.equal(await val('End s'),e1,'… and its end');
  await drag(.6,.9);await p.locator('[data-xen-bar-meter]').click({button:'left',position:{x:2,y:2}}).catch(()=>{});await p.keyboard.press('Control+z');await p.waitForTimeout(500);assert.equal(await val('Start s'),s1,'Ctrl+Z also undoes the mask');
+ // the main case: a good mask, then a stray click turns it into a caret line; Undo brings the mask back
+ await drag(.3,.7);const sg=await val('Start s'),eg=await val('End s');const selOf=()=>p.evaluate(()=>{const ed=globalThis.__XenWaveUIW01.getEditor(document.querySelector('canvas[data-xwe-workspace-resize]'));const s=ed&&ed.doc&&ed.doc.selection;return s?[s.start,s.end]:null});
+ const before=await selOf();await p.mouse.click(lm.x+lm.width*.85,Y);await p.waitForTimeout(500);const caret=await selOf();assert(caret&&caret[0]===caret[1],'the stray click left a caret: '+JSON.stringify(caret));
+ await undo.click();await p.waitForTimeout(500);assert.deepEqual(await selOf(),before,'Undo restores the mask after a stray click');assert.equal(await val('Start s'),sg);assert.equal(await val('End s'),eg);
  assert.deepEqual(errs,[]);console.log('PASS UNDO-MASK-01 mask moves are undone',s1,'→',s2);await b.close()})().catch(e=>{console.error(e);process.exit(1)});
