@@ -63,3 +63,14 @@ Prüfung:
 - Neu, im Browser: `tests/e2e/mask_count_steady.cjs` (Segment, Beat, Bar × Import-Ansicht / Wave Editor × rechter Rand, linker Rand, Verschieben). Taktabstand in jeder Zeichnung 171–172 px, keine Sprünge. Gegenprobe davor: Wave Editor rechter Rand gesprungen.
 - Bekannt und unverändert: `tests/forge_interpretations.test.cjs` hat 2 Fehler (`__mlNormalizeSamplePlaybackSettings` fehlt im Test-Kontext, Melodic Loop). Nicht dieser Bereich.
 - Bleibt so, mit Absicht: Zieht man den linken Rand, zählt das Taktometer weiter ab dem Maskenanfang („Start = 1“). Die Nummern rücken dann gemeinsam um ganze Schritte weiter, ihr Abstand bleibt gleich.
+
+## PINK-STACK-01 / PINK-REVEAL-01 (selber Tag, Melodic Loop)
+Anlass: Nach Import Audio → „Send as Pink Track to Melodic Loop“ war die Pink-Spur im Raster nicht zu sehen, aber hörbar und im Navigator sichtbar. Ursache war ein senkrecht nicht ganz nach unten gescrolltes Raster, keine Regression. Der Raw-Weg sendet seit Oktober fest 55 Hz; gegen W31 verglichen, gleiches Verhalten. Damit landete die Spur immer auf der tiefsten Tonlinie, bei gezoomtem Raster außerhalb des Ausschnitts.
+
+Änderung (`src/rooms/canonical.js`):
+- `__mlDefaultPinkAnchorHz`: Ein Raw-Pink-Import (Quelle `spectral-forge-raw-audio`) landet auf der **mittleren** Tonlinie. Jede weitere Pink-Spur liegt eine Rasterstufe tiefer; am unteren Ende geht es oberhalb der Mitte weiter. Der Weg aus „Paint Figures“ (`spectral-forge-direct`) bringt einen echten Grundton mit und bleibt unverändert.
+- `__mlRevealTrack`: Liegt nach einem Import keine Note der neuen Spur im senkrechten Ausschnitt, scrollt das Raster, bis sie mittig liegt. Der Zoom bleibt, und es entsteht kein Undo-Schritt.
+
+Prüfung:
+- Neu: `tests/e2e/pink_raw_send.cjs`. Erstes Senden: mittlere Linie (17 von 35) und sichtbar. Zweites Senden: Farbwahl, eigene Spur, Linie 18, eigene Farbe. Drittes Senden bei gezoomtem, nach oben gescrolltem Raster: Linie 19, der Ausschnitt scrollt mit (0–8 → 15–23). Grün.
+- Bekannt: Der Unit-Test `tests/forge_pink_transfer.test.cjs` (Pink-Senden einer gemalten Figur) ist veraltet. Seine Attrappe kennt `P.useEffect` nicht, und er steht nicht in `tests/GREEN_NODE_TESTS.txt`. Nicht angefasst.
