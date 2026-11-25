@@ -138,6 +138,8 @@ async function __mlGetStem(e,trackId){
    buffer=new AudioBuffer({numberOfChannels:1,sampleRate:44100,length:Math.ceil((E$(e)+.02)*44100)});
   else{if(trackId==="__drums__")__drumLiveBuildHold++;
    try{buffer=await z$(request,spec)}finally{if(trackId==="__drums__")__drumLiveBuildHold--}}
+  /* ML-CLICK-01: the stem loops hard (loopStart 0 → loopEnd). A stem that does not start/end at zero clicks at every wrap: 2 ms edge ramps make the seam silent. */
+  if(!buffer.__xenDeclicked){const n=Math.min(Math.round(buffer.sampleRate*.002),buffer.length>>1);for(let c=0;c<buffer.numberOfChannels;c++){const d=buffer.getChannelData(c);for(let i=0;i<n;i++){const g=i/n;d[i]*=g;d[d.length-1-i]*=g}}buffer.__xenDeclicked=true}
   const bytes=buffer.length*buffer.numberOfChannels*4;
   if(bytes<=__mlStemCacheLimit){
    const previous=__mlStemCache.get(key);if(previous)__mlStemCacheBytes-=previous.length*previous.numberOfChannels*4;
