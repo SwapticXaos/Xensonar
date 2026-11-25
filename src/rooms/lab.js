@@ -1889,11 +1889,12 @@ function RGe(e){const{source:t,selection:n,previewPlaying:r,meter:a,setDetailVie
  if(!b.activated){if(!__xenP10CrossedDragThreshold(b.clientX,_))return;b.activated=true}
  const N=n.detailViewport,W=N.startSec+G*N.durationSec;let V=__xenSnapMaskDrag($_(W,b,j,.05),b.mode,t);
  // TAKT-SNAP-01: snap Bar / Beat = the Taktometer counts (tempo stays), snap Off = the bar count stretches with the mask
- if(!b.meta0&&e.exportMeta)b.meta0={bars:e.exportMeta.bars,guideSegments:e.exportMeta.guideSegments};
- const K=__xenMaskCount(V,b,b.meta0,__xenSongPartsEdit.snapMode(),j,t);if(K){V=K.range;const key=K.patch.bars+':'+K.range.durationSec.toFixed(4);if(key!==b.countKey){b.countKey=key;e.onMetaPatch?.(K.patch)}}
+ if(!b.meta0&&e.exportMeta)b.meta0={bars:e.exportMeta.bars,guideSegments:e.exportMeta.guideSegments,beatsPerBar:e.exportMeta.beatsPerBar};
+ const K=__xenMaskCount(V,b,b.meta0,__xenSongPartsEdit.snapMode(),j,t);if(K){V=K.range;const key=K.patch.bars+':'+K.range.durationSec.toFixed(4);if(key!==b.countKey){b.countKey=key;/* TAKT-SNAP-02: while the loop is playing the new bar count is applied on release; the audible loop follows the mask live (as with Snap Off) */if(r)b.pendingPatch=K.patch;else e.onMetaPatch?.(K.patch)}}
  i(V),r&&c(V)
  },L=B=>{if(b.pointerId!=null&&B.pointerId!==b.pointerId)return;
  if(b.finished||b.cancelled)return;b.finished=true;
+ if(b.pendingPatch){e.onMetaPatch?.(b.pendingPatch);b.pendingPatch=null}
  if(b.target==="detail"&&b.activated&&b.mode==="new")s();g(null)
  },K=B=>{if(B?.pointerId!=null&&b.pointerId!=null&&B.pointerId!==b.pointerId)return;
  // Cancellation is not a commit: restore the original purple mask, including preview.
@@ -2029,7 +2030,7 @@ function __xenSongPartsFromRoundTrip(asset){
 /* SONG-PARTS-EDIT-01: snap the purple loop mask while it is dragged (only the moving edge; a moved mask keeps its length) */
 function __xenSnapMaskDrag(range,mode,source){
  const sp=__xenSongPartsLatest;if(!range||!sp||!source||sp.asset!==source.sourceAsset||!sp.result?.grid)return range;
- const m=__xenSongPartsEdit.snapMode();if(m==='off')return range;
+ const m=__xenSongPartsEdit.snapMode();if(m==='off'||m==='segment')return range;
  const edge=mode==='resize-start'?'start':mode==='resize-end'?'end':mode==='move'?'move':'both';
  return __xenSongPartsEdit.snapRange(range,sp.result.grid,m,edge,Number(source.durationSec)||Infinity);
 }
@@ -2066,8 +2067,10 @@ function __xenTonalText(t){if(!t)return '';if(!t.ok)return 'pitch lines: '+(t.no
 function __xenMaskCount(range,drag,meta,mode,total,source){
  if(!range||!drag||!meta||mode==='off'||drag.mode==='move'||!(range.durationSec>0))return null;
  const S=Math.max(1,Math.round(Number(meta.guideSegments)||1)),bars=Math.max(1/64,Number(meta.bars)||1),d0=Number(drag.originalMask?.durationSec)||0;
- if(!(d0>0))return null;const seg=d0/(bars*S),unit=mode==='bar'?seg*S:seg;
- const sp=__xenSongPartsLatest,onGrid=!!(sp&&source&&sp.asset===source.sourceAsset&&sp.result?.grid);
+ if(!(d0>0))return null;const seg=d0/(bars*S),barDur=seg*S,beatsPer=Math.max(1,Number(meta.beatsPerBar)||4);
+ /* TAKT-SNAP-02: Bar = whole bars, Beat = the meter's beats (bar / beats per bar), Segment = the guide segments the user chose (their own division of the bar) */
+ const unit=mode==='bar'?barDur:mode==='segment'?seg:barDur/beatsPer;
+ const sp=__xenSongPartsLatest,onGrid=mode!=='segment'&&!!(sp&&source&&sp.asset===source.sourceAsset&&sp.result?.grid);
  let r=range;
  if(!onGrid){const endFixed=drag.mode==='resize-start'||(drag.mode==='new'&&range.startSec<drag.anchorTime-1e-9),
    end=range.startSec+range.durationSec,room=endFixed?end:Math.max(0,total-range.startSec);
@@ -2237,8 +2240,8 @@ function __XenSongPartsStrip({source,selection,onSelectPart,onPatch,onCue}){
   h('div',{className:'xwe-song-caption'},h('span',{'data-xwe-song-caption':true},caption),
    h('span',{className:'xwe-song-tools'},
     view.edited?h('span',{className:'xwe-song-edited',title:'Your working copy of the parts (saved for this song). Right click a part → Reset to return to the analysis.'},'working copy'):null,
-    h('label',{className:'xwe-song-snap',title:'Snap for part boundaries and for dragging the purple loop mask'},'Snap',h('select',{'aria-label':'Snap','data-xwe-snap':true,value:snap,onChange:e=>E.setSnapMode(e.currentTarget.value)},
-     h('option',{value:'bar'},'Bar'),h('option',{value:'beat'},'Beat'),h('option',{value:'off'},'Off'))),
+    h('label',{className:'xwe-song-snap',title:'Snap for part boundaries and for dragging the purple loop mask: Bar = whole bars · Beat = the meter\u2019s beats · Segment = your guide segments · Off = free'},'Snap',h('select',{'aria-label':'Snap','data-xwe-snap':true,value:snap,onChange:e=>E.setSnapMode(e.currentTarget.value)},
+     h('option',{value:'bar'},'Bar'),h('option',{value:'beat'},'Beat'),h('option',{value:'segment'},'Segment'),h('option',{value:'off'},'Off'))),
     r?.parts?.length?h('button',{type:'button',className:'xwe-song-redo xwe-song-tonal'+(tonalRun?' is-running':''),'data-xwe-song-tonal':true,
      title:tonalRun?'Cancel the key & scale analysis':'Key & scale of every part (pitch lines of the Wave Editor: root in Hz, tuning system, scale). One part after the other, in the background; kept for this song.',
      onClick:()=>runTonal(shown.filter(q=>!E.tonalFor(asset,q)))},tonalRun?'■ Key':'♪ Key'):null,

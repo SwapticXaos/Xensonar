@@ -8,6 +8,7 @@ function __xenSongPartsEditFactory(storage=null){
  const colorOf=l=>COLORS[letterIndex(l)%COLORS.length];
  /* nearest grid time (binary search); mode 'bar' | 'beat' | 'off' */
  function snapTime(t,grid,mode){
+  if(mode==='segment')mode='beat';/* parts: the analysis' segment grid */
   const g=mode==='bar'?grid?.bars:mode==='beat'?grid?.segments:null;if(!g||!g.length||mode==='off')return t;
   let lo=0,hi=g.length-1;while(hi-lo>1){const m=(lo+hi)>>1;if(g[m]<=t)lo=m;else hi=m}
   return Math.abs(g[lo]-t)<=Math.abs(g[hi]-t)?g[lo]:g[hi];
@@ -159,7 +160,7 @@ function __xenSongPartsEditFactory(storage=null){
  function clearTonal(asset){const k=keyOf(asset);if(!k)return;try{storage?.removeItem(TON_KEY+k)}catch{}listeners.forEach(f=>{try{f('tonal')}catch{}})}
  // mask snap mode (bar / beat / off), shared by the strip and the purple mask
  const SNAP_KEY='xensonar.songParts.snap.v1';
- function snapMode(){try{const v=storage?.getItem(SNAP_KEY);return v==='bar'||v==='beat'||v==='off'?v:'bar'}catch{return 'bar'}}
+ function snapMode(){try{const v=storage?.getItem(SNAP_KEY);return v==='bar'||v==='beat'||v==='segment'||v==='off'?v:'bar'}catch{return 'bar'}}
  function setSnapMode(m){try{storage?.setItem(SNAP_KEY,m)}catch{}listeners.forEach(f=>{try{f('snap')}catch{}})}
  return Object.freeze({snapTime,snapRange,moveBoundary,split,merge,setLabel,addCut,subdivideEven,subdivideEvery,setCuts,moveCut,removeCut,clearCuts,shade,nextLetter,normalize,colorOf,keyOf,load,save,clear,kinds,setKind,decorate,displayName,loadResult,saveResult,clearResult,tonalList,tonalFor,saveTonal,clearTonal,current,snapMode,setSnapMode,
   subscribe:f=>(listeners.add(f),()=>listeners.delete(f))});
