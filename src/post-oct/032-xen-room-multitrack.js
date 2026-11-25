@@ -568,6 +568,8 @@ function XenMultitrackRoom(){
  const bridge=__xenMultitrackBridge.current;
  const [project,setProject]=P.useState(null),[sel,setSel]=P.useState(null),[trackSel,setTrackSel]=P.useState(null);
  const [libRev,setLibRev]=P.useState(0),[audioRev,setAudioRev]=P.useState(0),[pick,setPick]=P.useState(''),[cursor,setCursor]=P.useState(0),[playing,setPlaying]=P.useState(false);
+ /* MT-FOLLOW-01: the view follows the playhead page by page (remembered per browser) */
+ const [follow,setFollow]=P.useState(()=>{try{return localStorage.getItem('xensonar.multitrack.follow')!=='0'}catch{return true}}),followRef=P.useRef(true);followRef.current=follow;
  const [status,setStatus]=P.useState(''),[say,setSay]=P.useState(''),[listView,setListView]=P.useState(false),[menu,setMenu]=P.useState(null),[dropTrack,setDropTrack]=P.useState(null);
  /* ROOM4-10: multi-selection (group = every selected clip id, empty = single selection by `sel`), metronome (UI preference only), rubber band */
  const [group,setGroup]=P.useState([]),[band,setBand]=P.useState(null),[eqOpen,setEqOpen]=P.useState(null),[eqWide,setEqWide]=P.useState(true),[autoLane,setAutoLane]=P.useState(null);
@@ -584,7 +586,7 @@ function XenMultitrackRoom(){
  const [exportFormat,setExportFormat]=P.useState('pcm16'),[exportFinish,setExportFinish]=P.useState(''),[busy,setBusy]=P.useState(false);
  const rootRef=P.useRef(null),keyRef=P.useRef(null),hist=P.useRef({past:[],future:[]}),saveTimer=P.useRef(null),phRef=P.useRef(null),meterRef=P.useRef(null),rafRef=P.useRef(0),drag=P.useRef(null),projectRef=P.useRef(null),libRef=P.useRef(new Map());
  projectRef.current=project;
- const scrollRef=P.useRef(null),railRef=P.useRef(null),thumbRef=P.useRef(null),hrailRef=P.useRef(null),hthumbRef=P.useRef(null),rulerRef=P.useRef(null),totalRef=P.useRef(64),railDrag=P.useRef(null),pendingScroll=P.useRef(null),consumeRef=P.useRef(null),importRef=P.useRef(null),inboxWaiting=P.useRef(false);
+ const scrollRef=P.useRef(null),railRef=P.useRef(null),thumbRef=P.useRef(null),hrailRef=P.useRef(null),hthumbRef=P.useRef(null),rulerRef=P.useRef(null),totalRef=P.useRef(64),songEndRef=P.useRef(0),playFromRef=P.useRef(0),railDrag=P.useRef(null),pendingScroll=P.useRef(null),consumeRef=P.useRef(null),importRef=P.useRef(null),inboxWaiting=P.useRef(false);
  /* One overview bar per axis (Melodic Loop model, shared __xenViewportRail math): the bar IS the scrollbar
     and the zoom. Native scrollbars are hidden; wheel and trackpad scrolling still work and move the bars. */
  const viewGeo=()=>{const el=scrollRef.current,rr=rulerRef.current?.offsetHeight??29;return {el,uh:Math.max(20,(el?.clientHeight??300)-rr),uw:Math.max(40,(el?.clientWidth??800)-240)}};
@@ -668,10 +670,13 @@ function XenMultitrackRoom(){
  const railDown=(e,axis,mode)=>{if(e.button!==0)return;e.preventDefault();e.stopPropagation();const r=(axis==='x'?hrailRef:railRef).current,rect=r.getBoundingClientRect(),c=axis==='x'?e.clientX:e.clientY;let view=axis==='x'?hView():vView();
   /* MT-NAV-SEEK: while the arrangement plays, a click in the timeline navigator also moves the play position there and keeps playing from that point (like the overview of the Wave Editor) */
   if(mode==='jump'&&axis==='x'&&engine.playing&&rect.width>0){const beat=snap(clamp((c-rect.left)/rect.width,0,1)*Math.max(1,totalRef.current));setCursor(beat);void play(beat)}
+  /* MT-NAV-SEEK-02: a click WITHOUT dragging anywhere in the navigator (also inside the view window or on its edges) seeks while playing, as in the other rooms; a drag still only moves / zooms the view */
+  const seek=axis==='x'&&mode!=='jump'&&engine.playing&&rect.width>0?{x:c,rect}:null;
   if(mode==='jump'){const j=__xenViewportRail.jump(rect,c,view,axis);applyAxis(axis,j);view={...view,start:j.start};mode='move'}
-  railDrag.current={axis,st:__xenViewportRail.begin(rect,mode,c,view,axis)};r.setPointerCapture?.(e.pointerId)};
+  railDrag.current={axis,seek,st:__xenViewportRail.begin(rect,mode,c,view,axis)};r.setPointerCapture?.(e.pointerId)};
  const railMove=e=>{const d=railDrag.current;if(d)applyAxis(d.axis,__xenViewportRail.move(d.st,d.axis==='x'?e.clientX:e.clientY))};
- const railUp=()=>{railDrag.current=null};
+ const railUp=e=>{const d=railDrag.current;railDrag.current=null;
+  if(d?.seek&&e?.type==='pointerup'&&Math.abs(e.clientX-d.seek.x)<4&&engine.playing){const beat=snap(clamp((d.seek.x-d.seek.rect.left)/d.seek.rect.width,0,1)*Math.max(1,totalRef.current));setCursor(beat);void play(beat)}};
  const railFit=axis=>{const v=axis==='x'?hView():vView();applyAxis(axis,{start:0,visible:v.total});announce(axis==='x'?'Whole arrangement in view':'All tracks in view')};
  /* Keyboard for the bars (they replace the zoom slider): arrows scroll, Shift+arrows or +/- zoom, Home/End, Enter = show all. */
  const railKey=(e,axis)=>{const v=axis==='x'?hView():vView(),unit=axis==='x'?projectRef.current.beatsPerBar:1,k=e.key,back=axis==='x'?'ArrowLeft':'ArrowUp',fwd=axis==='x'?'ArrowRight':'ArrowDown';let nv=null;
@@ -812,14 +817,20 @@ function XenMultitrackRoom(){
  const meterShow=(el,key,v)=>{const fall=meterFall.current,pos=Math.max(meterPos(v),(fall.get(key)||0)-1.6);fall.set(key,pos);el.style.width=pos.toFixed(1)+'%';el.style.background=v>=1?'#ef4444':''};
  const resetPeak=()=>{peakHold.current=0;if(peakRef.current){peakRef.current.textContent='peak —';peakRef.current.classList.remove('clip')}};
  const startMeters=()=>{const loop=()=>{const b=engine.position();if(b===null){if(phRef.current)phRef.current.style.display='none';meterIdle();return}
+  /* MT-END-01: without Loop the engine plans to infinity and played on silently after the last clip; the button stayed on Stop.
+     Now it stops by itself once the song end plus 1.5 s of echo / reverb tail has passed and shows Play again (the cursor stays where
+     playback started). Not while recording, and not when playback started behind the song end (metronome practice). */
+  {const P0=projectRef.current,end=songEndRef.current,tail=1.5*(P0?.bpm||120)/60;if(P0&&!P0.loop.on&&!recRef.current&&end>0&&playFromRef.current<end&&b>=end+tail){stopPlayback();setStatus('End of the song · press Play to hear it again');return}}
   if(phRef.current){const ph=phRef.current,sc=scrollRef.current;ph.style.display='block';ph.style.left=(240+b*projectRef.current.zoom)+'px';/* MT-PLAYHEAD: the line spans the whole scrollable height (it used to end at the visible height, so it stopped over the first screenful of tracks) */if(sc){const h=sc.scrollHeight+'px';if(ph.style.height!==h){ph.style.height=h;ph.style.bottom='auto'}}}
+  /* MT-FOLLOW-01: page-wise follow – when the playhead leaves the visible timeline (right edge, or left after a loop jump / seek) the view jumps so it stands near the left edge again; not while the navigator is dragged */
+  {const sc=scrollRef.current,z=projectRef.current?.zoom;if(followRef.current&&sc&&z>0&&!railDrag.current){const x=b*z,uw=Math.max(40,sc.clientWidth-240);if(x>sc.scrollLeft+uw-6||x<sc.scrollLeft){sc.scrollLeft=Math.max(0,x-uw*.05);updateRail()}}}
   const lv=engine.level();if(meterRef.current)meterShow(meterRef.current,'#master',lv);
   if(lv>peakHold.current+1e-9){peakHold.current=lv;const el=peakRef.current;if(el){el.textContent='peak '+(20*Math.log10(lv)).toFixed(1)+' dB';el.classList.toggle('clip',lv>=1)}}
   for(const [id,el] of trackMeters.current)meterShow(el,id,engine.trackLevel(id));
   const rt=recRef.current?.h?.tap;if(rt&&inMeterRef.current){const v=engine.peakOf(rt);meterShow(inMeterRef.current,'#input',v);if(v>=.999&&inMeterRef.current.parentNode)inMeterRef.current.parentNode.classList.add('over')}
   rafRef.current=requestAnimationFrame(loop)};
   cancelAnimationFrame(rafRef.current);resetPeak();rafRef.current=requestAnimationFrame(loop)};
- async function play(from=cursor,p=projectRef.current){try{setStatus('Preparing audio …');await engine.play(p,from,libRef.current);setPlaying(true);startMeters();
+ async function play(from=cursor,p=projectRef.current){try{setStatus('Preparing audio …');playFromRef.current=from;await engine.play(p,from,libRef.current);setPlaying(true);startMeters();
    const bad=[];for(const t of p.tracks)for(const c of t.clips){const e=libRef.current.get(c.materialId),a=e?audio.get(e.id):null;if(!e||a?.status==='error')bad.push(c)}
    setStatus(bad.length?bad.length+' clip(s) cannot sound (missing or undecodable material; see the red clips).':'');announce('Playing from '+fmtPos(from,bpb))}
   catch(e){setStatus('Playback failed: '+(e?.message||e));setPlaying(false)}}
@@ -973,6 +984,8 @@ function XenMultitrackRoom(){
   if(e.key===' '){e.preventDefault();playing?stop():void play();return}
   if(k==='l'&&!mod){setLoop({on:!project.loop.on});return}
   if(e.key==='Home'){setCursor(0);announce('Cursor to start');return}
+  /* MT-END-02: End = cursor to the end of the song (the last clip end) */
+  if(e.key==='End'){const b=songEndRef.current||0;setCursor(b);announce('Cursor to the song end '+fmtPos(b,bpb));return}
   if(mod&&k==='v'){e.preventDefault();pasteAt(trackSel||project.tracks[0]?.id,cursor);return}
   if(mod&&k==='a'){e.preventDefault();const all=project.tracks.flatMap(t=>t.clips.map(c=>c.id));setGroup(all);setSel(all[0]||null);announce(all.length+' clips selected');return}
   if(k==='b'&&!mod){addMarker(cursor);return}
@@ -1033,7 +1046,7 @@ function XenMultitrackRoom(){
   const f=findClip(d.copy?d.cid:d.id,p);if(d.mode==='fi'||d.mode==='fo'){commit(p,(d.mode==='fi'?'Fade in ':'Fade out ')+(f?(d.mode==='fi'?f.c.fadeIn:f.c.fadeOut):0)+' beats ('+FADE_NAME[(f&&(d.mode==='fi'?f.c.fadeInShape:f.c.fadeOutShape))||'']+')');return}
   commit(p,(d.mode==='sr'||d.mode==='sl')?'Clip '+((f?.c.stretch||1)>=(findClip(d.id,d.base)?.c.stretch||1)?'stretched':'compressed')+' to '+(f?Math.round(len(f.c)*1000)/1000:0)+' beats (×'+(Math.round((f?.c.stretch||1)*1000)/1000)+(f?.c.warp==='grain'?', pitch kept':', tape')+')':d.mode!=='move'?'Clip length '+(f?len(f.c):0)+' beats':(d.copy?'Clip copied to ':'Clip moved to ')+fmtPos(f?.c.startBeat??0,bpb)+(f&&f.t.id!==d.from?' on '+f.t.name:''));if(d.copy&&f)setSel(f.c.id)};
  /* ---- render ---- */
- totalRef.current=totalBeats;
+ totalRef.current=totalBeats;songEndRef.current=songEnd;
  /* Ruler: beats when there is room, otherwise every k-th bar (labels never collide when zoomed far out). */
  const barEvery=Math.max(1,Math.ceil(26/Math.max(1e-6,bpb*ppb))),barStarts=[];for(let k=0;k*bpb<=totalBeats+1e-9;k++)barStarts.push(k*bpb);
  const ticks=[];for(let b=0;b<=totalBeats;b+=1){const isBar=Math.abs(b/bpb-Math.round(b/bpb))<1e-9;if(!isBar&&ppb<10)continue;if(isBar&&Math.round(b/bpb)%barEvery)continue;
@@ -1088,6 +1101,7 @@ function XenMultitrackRoom(){
    u.jsx(XmtTempo,{value:project.bpm,onCommit:v=>commit(retempo(project,clamp(v,20,400)))}),
    u.jsxs('label',{title:'Free: 3, 5, 7, 3.5 … beats per bar',children:['Beats/bar',u.jsx('input',{type:'number',min:.5,max:64,step:.5,value:bpb,onChange:e=>commit({...project,beatsPerBar:clamp(num(e.target.value,bpb),.5,64)})})]}),
    u.jsxs('label',{title:'Grid = 1/N beat, N free (2, 3, 5, 7 …)',children:['Grid 1/',u.jsx('input',{type:'number',min:1,max:64,step:1,value:project.grid.div,onChange:e=>commit({...project,grid:{...project.grid,div:clamp(Math.round(num(e.target.value,4)),1,64)}})}),'beat']}),
+   u.jsx('button',{type:'button','aria-pressed':follow,'data-xmt-follow':'true',title:'Follow: while playing, the view turns the page when the playhead leaves it',onClick:()=>{const v=!follow;setFollow(v);try{localStorage.setItem('xensonar.multitrack.follow',v?'1':'0')}catch{}announce(v?'Follow on':'Follow off')},children:'Follow'}),
    u.jsx('button',{type:'button','aria-pressed':project.grid.snap,title:'Snap clips, cursor and edges to the grid',onClick:()=>commit({...project,grid:{...project.grid,snap:!project.grid.snap}},project.grid.snap?'Snap off':'Snap on'),children:'Snap'}),
       u.jsx('button',{type:'button',onClick:undo,title:'Undo · Ctrl+Z','aria-label':'Undo (Ctrl+Z)',children:'↶'}),u.jsx('button',{type:'button',onClick:redo,title:'Redo · Ctrl+Shift+Z','aria-label':'Redo (Ctrl+Shift+Z)',children:'↷'}),
    u.jsx('button',{type:'button','aria-pressed':listView,title:'Show all clips as an editable table (keyboard and screen reader friendly)',onClick:()=>setListView(v=>!v),children:'List view'})]}),
