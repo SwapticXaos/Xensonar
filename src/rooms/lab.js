@@ -2081,12 +2081,13 @@ function __XenSongPartsStrip({source,selection,onSelectPart,onPatch,onCue}){
  const [state,setState]=P.useState({asset:null,status:'idle',result:null,error:''}),[nonce,setNonce]=P.useState(0);
  /* SONG-PARTS-MANUAL-01: no analysis on upload. A song analysed before shows its stored parts at once (persistent memory);
     otherwise the strip waits ('ready') until it is clicked. ↻ analyses again. Running jobs are shared per audio object. */
- const runRef=P.useRef(0),E0=__xenSongPartsEdit;
+ const runRef=P.useRef(0),autoRef=P.useRef(null),E0=__xenSongPartsEdit;
  P.useEffect(()=>{const id=++runRef.current;
   if(!asset?.monoSamples?.length){setState({asset:null,status:'idle',result:null,error:''});return}
   const job=__xenSongPartsCache.get(asset),stored=job?null:(E0.loadResult(asset)??__xenSongPartsFromRoundTrip(asset));
   if(stored){__xenSongPartsLatest={asset,result:stored};setState({asset,status:'done',result:stored,error:'',stored:true});return}
-  if(!job){setState({asset,status:'ready',result:null,error:''});return}
+  /* SONG-PARTS-AUTO-01: the audio is fully loaded here (samples present). The analysis starts by itself after a short pause that lets the browser settle; the bar in the strip shows the countdown, a click starts it at once. */
+  if(!job){setState({asset,status:'ready',result:null,error:''});const tm=setTimeout(()=>{if(runRef.current===id)autoRef.current?.(false)},1600);return()=>{runRef.current++;clearTimeout(tm)}}
   setState(prev=>({asset,status:'running',result:prev.asset===asset?prev.result:null,error:''}));
   job.then(result=>{if(runRef.current!==id)return;if(result?.ok)__xenSongPartsLatest={asset,result};setState({asset,status:result?.ok?'done':'error',result:result?.ok?result:null,error:result?.ok?'':(result?.reason||'Song analysis failed.')})},
    error=>{if(runRef.current===id)setState({asset,status:'error',result:null,error:String(error?.message??error)})});
@@ -2096,6 +2097,7 @@ function __XenSongPartsStrip({source,selection,onSelectPart,onPatch,onCue}){
   let job=__xenSongPartsCache.get(asset);if(!job){job=__xenAnalyzeSongParts(asset);__xenSongPartsCache.set(asset,job);job.catch(()=>__xenSongPartsCache.delete(asset))}
   job.then(result=>{if(result?.ok)E0.saveResult(asset,result)},()=>{});
   setState(prev=>({asset,status:'running',result:prev.asset===asset?prev.result:null,error:''}));setNonce(n=>n+1)};
+ autoRef.current=analyzeSong;
  const r=state.asset===asset?state.result:null,D=r?.durationSec||source?.durationSec||0,fr=selection?.fineLoopRange;
  /* SONG-PARTS-EDIT-01: the strip shows the WORKING COPY (saved edits re-derived on the grid) or the analysis. Boundaries can be
     dragged (snap: bar / beat / off), a right click offers split / merge / letter / reset. Edits persist per song. */
@@ -2229,7 +2231,7 @@ function __XenSongPartsStrip({source,selection,onSelectPart,onPatch,onCue}){
       h('input',{type:'color','data-xwe-song-colour-free':true,'aria-label':'Any colour for '+p.label,value:p.color||'#38bdf8',onChange:e=>E.setKind(asset,p.label,{color:e.currentTarget.value})}),
       (p.name||E.kinds(asset)[p.label]?.color)?h('button',{type:'button',className:'xwe-song-menu-btn xwe-song-menu-small','data-xwe-song-action':'kind-reset',title:'Back to the letter and its colour',onClick:act(()=>E.setKind(asset,p.label,{name:'',color:null}))},'Reset'):null)]})(),
    view.edited?mb('Reset all parts to the analysis',()=>E.clear(asset),{id:'reset'}):null)})():null;
- const caption=tonalRun?'Key & scale (pitch lines): part '+(tonalRun.i+1)+' of '+tonalRun.n+' · '+tonalRun.label+' · '+tonalRun.pct+' % · ■ Key cancels':note?note:state.status==='ready'?'Song parts: not analyzed yet · click the bar below to analyze (it is kept for this song)':state.status==='running'?'Analyzing the whole song … (step by step, in the background)':state.status==='error'?state.error:
+ const caption=tonalRun?'Key & scale (pitch lines): part '+(tonalRun.i+1)+' of '+tonalRun.n+' · '+tonalRun.label+' · '+tonalRun.pct+' % · ■ Key cancels':note?note:state.status==='ready'?'Song parts: analysis starts in a moment (it is kept for this song)':state.status==='running'?'Analyzing the whole song … (step by step, in the background)':state.status==='error'?state.error:
   active?info(active):r?(r.rhythmic?`${shown.length} parts · ${letterList.length} kinds (${letterList.map(l=>E.displayName(shown.find(q=>q.label===l))).join(' ')}) · ${r.segmentsPerBar} segments per bar · ${r.bpm.toFixed(2)} BPM · click a part`:'One part · '+(r.reason||'no clear meter')):'';
  return h('div',{className:'xwe-song-parts','data-xwe-song-parts':state.status,'data-xwe-song-edited':view.edited||undefined},
   h('div',{className:'xwe-song-caption'},h('span',{'data-xwe-song-caption':true},caption),
@@ -2242,7 +2244,7 @@ function __XenSongPartsStrip({source,selection,onSelectPart,onPatch,onCue}){
      onClick:()=>runTonal(shown.filter(q=>!E.tonalFor(asset,q)))},tonalRun?'■ Key':'♪ Key'):null,
     asset?h('button',{type:'button',className:'xwe-song-redo','data-xwe-song-redo':true,disabled:state.status==='running',title:state.status==='ready'?'Analyze the song structure (parts, bars, BPM)':'Analyze the whole song again (your edited parts stay until you reset them)',onClick:()=>analyzeSong(state.status!=='ready')},'↻'):null)),
   state.status==='ready'?h('button',{type:'button',className:'xwe-song-strip xwe-song-start','data-xwe-song-start':true,title:'Analyze the song structure now: parts, bars, segments, BPM. Runs once in the background and is kept for this song.',onClick:()=>analyzeSong(false)},
-   h('span',{className:'xwe-song-start-icon','aria-hidden':true},'▶'),'Click to analyze the song structure'):
+   h('span',{className:'xwe-song-start-icon','aria-hidden':true},'▶'),'Analyzing the song structure … (click to start now)'):
   h('div',{ref:stripRef,className:'xwe-song-strip',role:'group','aria-label':'Song parts'},
    ...shown.map(p=>h('button',{key:'p'+p.index+':'+p.startSec.toFixed(2),type:'button','data-xwe-song-part':p.label,'data-xwe-song-part-index':p.index,
      className:'xwe-song-part'+(isActive(p)?' is-active':subsOf(p).some(isActive)?' has-active-sub':'')+(p.edited?' is-edited':''),style:{left:pct(p.startSec),width:pct(p.endSec-p.startSec),background:p.color},

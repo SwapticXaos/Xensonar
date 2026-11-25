@@ -920,7 +920,7 @@ function __mlToggleDrums(enabled){
  return true;
 }
 function __mlSubscribe(e){__mlPhaseListeners.add(e);e(__mlPhase);return()=>__mlPhaseListeners.delete(e)}
-function L$(e,t,n,r){const a=e.createBufferSource();return a.buffer=t.renderedBuffer,a.loop=!0,a.loopStart=0,a.loopEnd=Math.max(.05,t.totalDurationSec),a.connect(t.master),a.start(r,n),Mx(a),a}
+function L$(e,t,n,r){const a=e.createBufferSource();return a.buffer=globalThis.__xenLoopSeam?.(t.renderedBuffer,0,Math.max(.05,t.totalDurationSec))??t.renderedBuffer,a.loop=!0,a.loopStart=0,a.loopEnd=Math.max(.05,t.totalDurationSec),a.connect(t.master),a.start(r,n),Mx(a),a}
 function S9e(){return iv!==null}
 function v9e(e){const t=iv;if(!t)return!1;if(t.nodalTransport)return t.nodalTransport.seek(e);const n=Math.max(1,t.totalSteps),r=(e%n+n)%n,a=t.totalDurationSec>0?r/n*t.totalDurationSec:0,o=t.ctx.currentTime,s=o+.012;(t.stemSources??[t.source]).filter(Boolean).forEach(source=>{try{source.stop(o)}catch{}try{source.disconnect()}catch{}h9e(source)});t.master.gain.cancelScheduledValues(o);t.master.gain.setValueAtTime(Math.max(1e-4,t.master.gain.value||.82),o);t.master.gain.linearRampToValueAtTime(1e-4,o+.005);t.master.gain.linearRampToValueAtTime(.82,s+.012);if(t.stemBuffers)__mlLaunchStemSources(t,a,s);else t.source=L$(t.ctx,t,a,s);return t.startTime=s,t.loopOffsetSec=a,t.playheadCallback?.(r),t.globalPlayheadCallback?.(Math.max(0,Math.min(1,a/Math.max(.001,t.totalDurationSec)))),!0}
 function E9e(e){const{materialName:t,rendered:n}=e;return{nextMaterialName:t||n.safeName,nextRole:"loop",nextBars:n.bars,nextSourceView:"synesthetic",nextSecondaryView:"harmonic",nextViewBlend:.26}}

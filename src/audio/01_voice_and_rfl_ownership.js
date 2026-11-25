@@ -568,7 +568,7 @@ if(__XenTimeStablePitch.ensure&&typeof globalThis!=='undefined'&&globalThis.__XE
   console.error('[xensonar][material-pitch] processorerror for material',n.id);
  },{once:true});
 }
-if(s.pitchRef)s.pitchRef.current=pitchNode;if(!phasePlayer){p.buffer=c;p.loop=true;p.loopStart=d.loopStartSec;p.loopEnd=d.loopEndSec;p.playbackRate.setValueAtTime(d.playbackRate,d.sharedTime.audioNowSec);
+if(s.pitchRef)s.pitchRef.current=pitchNode;if(!phasePlayer){p.buffer=globalThis.__xenLoopSeam?.(c,d.loopStartSec,d.loopEndSec)??c;p.loop=true;p.loopStart=d.loopStartSec;p.loopEnd=d.loopEndSec;p.playbackRate.setValueAtTime(d.playbackRate,d.sharedTime.audioNowSec);
  /* LIVE-TEMPO-01: the native loop glides with the tempo map: the rate follows bpm(t)/its own tempo, which is exponential in time during a glide
     (bpm(t)=f*e^(k(t-t0)/60)), so one exponential ramp per glide segment is exact. Lives as long as the source. */
  const rate0=d.playbackRate,key=r,glide=()=>{const w=__XenLiveTempo.clockWarp(t.sampleRate);if(!w||w.key!==key)return;const g=w.segs[w.segs.length-1],now=t.currentTime;if(!g||g.t1<=now)return;

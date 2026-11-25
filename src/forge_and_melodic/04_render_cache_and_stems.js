@@ -230,13 +230,32 @@ function __mlStemPeriodSec(playing,trackId,drumRequest=playing.drumRenderRequest
 }
 /* ML-CLICK-02: the stem buffer holds the cycle PLUS the trailing release; the loop wraps at the cycle end. A last note still sounding there was cut
    dead (click) and its tail never met the first note. The tail is folded onto the cycle start (a true loop), so the wrap is continuous. */
+/* LOOP-SEAM-01: a loop whose end does not meet its start clicks at every wrap. No fade: the mismatch (where the signal WOULD continue at the end versus where the
+   start really is, value and slope) is measured and glided away over the last ~15 ms with a raised-cosine offset, so the end flows into the start and the
+   waveform keeps its level. Returns a smoothed COPY (cached per buffer + region); the original (export, display) stays untouched. */
+const __xenLoopSeamCache=new WeakMap;
+function __xenLoopSeam(buffer,startSec=0,endSec=buffer?.duration){
+ if(!buffer||!(endSec>startSec))return buffer;
+ const sr=buffer.sampleRate,a=Math.max(0,Math.round(startSec*sr)),b=Math.min(buffer.length,Math.round(endSec*sr)),n=b-a;if(n<64)return buffer;
+ const key=a+':'+b,hit=__xenLoopSeamCache.get(buffer);if(hit&&hit.key===key)return hit.out;
+ const M=Math.max(8,Math.min(Math.round(.015*sr),n>>2));let changed=false;
+ const out=new AudioBuffer({numberOfChannels:buffer.numberOfChannels,sampleRate:sr,length:buffer.length});
+ for(let c=0;c<buffer.numberOfChannels;c++){
+  const x=buffer.getChannelData(c),y=out.getChannelData(c);y.set(x);
+  const predicted=x[b-1]+(x[b-1]-x[b-2]),d=x[a]-predicted;
+  if(!(Math.abs(d)>1e-4))continue;changed=true;
+  for(let i=0;i<M;i++){const w=.5-.5*Math.cos(Math.PI*(i+1)/M);y[b-M+i]=x[b-M+i]+d*w}
+ }
+ const res=changed?out:buffer;__xenLoopSeamCache.set(buffer,{key,out:res});return res;
+}
+globalThis.__xenLoopSeam=__xenLoopSeam;
 const __mlLoopFold=new WeakMap;
 function __mlFoldedLoop(buffer,period){
  const n=Math.round(period*buffer.sampleRate);if(n<2||buffer.length<=n+1)return buffer;
  const hit=__mlLoopFold.get(buffer);if(hit&&hit.n===n)return hit.out;
  const out=new AudioBuffer({numberOfChannels:buffer.numberOfChannels,sampleRate:buffer.sampleRate,length:n}),tail=Math.min(buffer.length-n,n);
  for(let c=0;c<buffer.numberOfChannels;c++){const src=buffer.getChannelData(c),dst=out.getChannelData(c);dst.set(src.subarray(0,n));for(let i=0;i<tail;i++)dst[i]+=src[n+i]}
- __mlLoopFold.set(buffer,{n,out});return out;
+ const smooth=__xenLoopSeam(out,0,n/buffer.sampleRate);__mlLoopFold.set(buffer,{n,out:smooth});return smooth;
 }
 function __mlLaunchStemSources(playing,offset,when){
  const starts=[];playing.stemSourceById=new Map();

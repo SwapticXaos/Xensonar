@@ -383,3 +383,5 @@ canvas[data-xwe-workspace-resize="true"][data-xwe-workspace-edge="true"]{cursor:
 .xwe-meter-popup .xwe-meter-close{position:absolute;top:6px;right:6px;width:26px;height:26px;display:grid;place-items:center;padding:0;border-radius:5px;border:1px solid #5b4a80;background:#1a1530;color:#e9d5ff;font:400 20px/1 system-ui,sans-serif;cursor:pointer;z-index:2}
 .xwe-meter-popup .xwe-meter-close:hover,.xwe-meter-popup .xwe-meter-close:focus-visible{background:#3b2a63;border-color:#c4b5fd;color:#fff;outline:none}
 .xwe-meter-preview-note{color:#94a3b8;font-size:11px;flex:1}
+
+.xwe-song-start{position:relative;overflow:hidden}.xwe-song-start::after{content:'';position:absolute;left:0;bottom:0;height:3px;width:100%;background:#38bdf8;transform-origin:left;animation:xwe-song-auto 1.6s linear forwards}@keyframes xwe-song-auto{from{transform:scaleX(0)}to{transform:scaleX(1)}}
