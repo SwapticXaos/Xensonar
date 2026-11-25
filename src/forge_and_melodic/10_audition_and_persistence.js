@@ -640,6 +640,7 @@ function __ForgeSendToEditorButton(){
    Import Audio. The capture core is the Multitrack's (__XenAudioCapture); the hand-over is the existing "Send to Editor" path. Cold:
    no device, context or timer exists until Rec. */
 const __XEN_LINEIN_MAX_SEC=30*60,__XEN_LINEIN_SRC_KEY='xensonar.lineIn.source.v1';
+const __xenNiceDevice=(l,i)=>{l=(l||'').trim();if(!l)return'Input '+(i+1);return l.replace(/^monitor of\s*/i,'').replace(/^default\s*[-–:]\s*/i,'').replace(/\s*\([0-9a-f]{4}:[0-9a-f]{4}\)\s*$/i,'').replace(/\banalog stereo\b/i,'(analog stereo)').replace(/^built-?in audio\s*/i,'Built-in audio ')};
 const __xenLineInLoopback=/monitor|stereo ?mix|stereomix|loopback|blackhole|vb-?audio|cable output|what u hear|soundflower|wave ?out|mix ?out/i;
 function __ForgeLineInButton(){
  const h=P.createElement,md=typeof navigator!=='undefined'?navigator.mediaDevices:null;
@@ -652,6 +653,7 @@ function __ForgeLineInButton(){
  const listDevices=async ask=>{if(!md?.enumerateDevices)return;try{if(ask){const s=await md.getUserMedia({audio:true});s.getTracks().forEach(t=>t.stop())}
    setDevices((await md.enumerateDevices()).filter(d=>d.kind==='audioinput'))}catch(e){setMsg('Device list: '+(e?.message||e))}};
  P.useEffect(()=>{if(open)listDevices(false)},[open]);
+ P.useEffect(()=>{if(open&&src.startsWith('device:')&&devices.length&&!devices.some(d=>d.label))listDevices(true)},[open,devices.length]);
  P.useEffect(()=>{const f=()=>setOpen(true);window.addEventListener('xensonar:forge:linein-open',f);return()=>window.removeEventListener('xensonar:forge:linein-open',f)},[]);
  // the panel sits under (or above) the button in a fixed layer and follows scrolling
  P.useLayoutEffect(()=>{if(!open)return;let raf=0;const place=()=>{raf=0;const b=btnRef.current?.getBoundingClientRect();if(!b)return;const w=Math.min(420,innerWidth-16),H=popRef.current?.offsetHeight||360;
@@ -695,10 +697,10 @@ function __ForgeLineInButton(){
   h('label',{className:'f38-linein-src'+(canShare?'':' is-off')},h('input',{type:'radio',name:'f38-src',checked:src==='share',disabled:!canShare||recording,'data-forge-linein-source':'share',onChange:()=>setSrc('share')}),
    h('span',null,h('b',null,'Browser tab or system sound'),h('small',null,canShare?'In the share dialog pick the tab (e.g. YouTube) and switch on “Share tab audio”; for all sounds of the computer pick the whole screen with “Share system audio” (Windows, ChromeOS).':'Not offered by this browser (Firefox shares no sound). Use an input device below.'))),
   h('label',{className:'f38-linein-src'},h('input',{type:'radio',name:'f38-src',checked:src.startsWith('device:'),disabled:recording,'data-forge-linein-source':'device',onChange:()=>setSrc('device:'+(devices.find(d=>__xenLineInLoopback.test(d.label))?.deviceId||''))}),
-   h('span',null,h('b',null,'Input device'),h('small',null,'Line-In, or a loopback that carries the speaker sound: Linux “Monitor of …”, Windows “Stereo Mix”, macOS a loopback driver (e.g. BlackHole).'),
-    h('span',{className:'f38-linein-devrow'},h('select',{'aria-label':'Input device','data-forge-linein-device':true,disabled:recording||!src.startsWith('device:'),value:deviceId,onChange:e=>setSrc('device:'+e.currentTarget.value)},
-      h('option',{value:''},'Default input'),...devices.map((d,i)=>h('option',{key:d.deviceId||i,value:d.deviceId},(d.label||'Input '+(i+1))+(__xenLineInLoopback.test(d.label)?'  ↺ speaker sound':'')))),
-     devices.some(d=>d.label)?null:h('button',{type:'button',className:'f38-linein-small',disabled:recording,onClick:()=>listDevices(true),title:'The browser names the devices only after you allow audio input once'},'Show names')))),
+   h('span',null,h('b',null,'Sound card input'),h('small',null,'Pick the speaker sound (Line-In / loopback) or a microphone. Technical: Linux “Monitor of …”, Windows “Stereo Mix”, macOS a loopback driver such as BlackHole.'),
+    h('span',{className:'f38-linein-devrow'},h('select',{'aria-label':'Input','data-forge-linein-device':true,disabled:recording,value:deviceId,onChange:e=>setSrc('device:'+e.currentTarget.value)},
+      ...[['Speaker Sound (Line-In)',true],['Microphone',false]].map(([g,lb])=>{const list=devices.map((d,i)=>[d,i]).filter(([d])=>__xenLineInLoopback.test(d.label||'')===lb);return list.length||(!lb&&!devices.length)?h('optgroup',{key:g,label:g},...(!lb?[h('option',{key:'def',value:''},'Standard microphone')]:[]),...list.map(([d,i])=>h('option',{key:d.deviceId||i,value:d.deviceId},__xenNiceDevice(d.label,i)))):null})),
+     devices.some(d=>d.label)?null:h('button',{type:'button',className:'f38-linein-small',disabled:recording,onClick:()=>listDevices(true),title:'Your browser shows device names only after you allow audio input once'},'Allow & show names')))),
   h('div',{className:'f38-linein-rec'},
    h('button',{type:'button','data-forge-linein-rec':true,className:'f38-linein-recbtn'+(recording?' is-on':''),disabled:busy,onClick:()=>recording?stop(false):start()},recording?'■ Stop & import':phase==='saving'?'Importing …':phase==='requesting'?'Waiting …':'● Rec'),
    recording?h('button',{type:'button',className:'f38-linein-small','data-forge-linein-discard':true,onClick:()=>stop(true)},'Discard'):null,
