@@ -1306,16 +1306,18 @@ class Editor{
  /* PLAYHEAD-CLOCK: the running time above the Forge loop playhead (drawn on the canvas) as the same floating label the editor playhead carries */
  setLoopClock(sec){
   const canvas=this.options.detailCanvas,doc=this.doc;let el=this.loopClockEl;
-  if(sec==null||!Number.isFinite(sec)||!canvas?.parentElement||!doc?.viewport){if(el){el.remove();this.loopClockEl=null}return}
+  /* SEEK-JUMP-01: the clock label was removed / re-inserted (and display:none/block) around every jump of the playhead; each of those flips changed the height of the whole Import panel by ~12 px,
+     so the picture jumped up and down for a frame on every Taktometer click. It now stays in the DOM and is only hidden by visibility (the geometry does not change). */
+  if(sec==null||!Number.isFinite(sec)||!canvas?.parentElement||!doc?.viewport){if(el&&el.isConnected&&el.style.visibility!=='hidden')el.style.visibility='hidden';return}
   const parent=canvas.parentElement,view=doc.viewport,ratio=(sec*doc.sampleRate-view.start)/Math.max(1,view.end-view.start);
-  if(ratio<0||ratio>1){if(el)el.style.display='none';return}
+  if(ratio<0||ratio>1){if(el&&el.style.visibility!=='hidden')el.style.visibility='hidden';return}
   if(!el||!el.isConnected){el=this.loopClockEl=$('span',{class:'xwe-playhead-time xwe-loop-clock','aria-hidden':'true'});parent.classList.add('xwe-playhead-owner');parent.append(el)}
   /* SEEK-JANK-02: this runs on every animation frame while a loop plays. Reading getBoundingClientRect right after writing styles forced a layout each frame (a click in the
      Taktometer made it visible as stutter of the whole page). The canvas position inside its parent is measured at most every 400 ms (and when the canvas size changes). */
   const now=performance.now(),geo=this.loopClockGeo;let g=geo;
   if(!g||now-g.at>400||g.cw!==canvas.clientWidth||g.ch!==canvas.clientHeight||g.parent!==parent){const c=canvas.getBoundingClientRect(),pr=parent.getBoundingClientRect();g=this.loopClockGeo={at:now,cw:canvas.clientWidth,ch:canvas.clientHeight,parent,dx:c.left-pr.left,dy:c.top-pr.top,w:c.width,h:c.height}}
   const tx=g.dx+parent.scrollLeft+g.w*ratio,ty=g.dy+parent.scrollTop-22;
-  if(el.style.display!=='block')el.style.display='block';
+  if(el.style.display!=='block')el.style.display='block';if(el.style.visibility!=='visible')el.style.visibility='visible';
   const label=clockLabel(sec);if(el.textContent!==label)el.textContent=label;
   el.style.left=tx+'px';el.style.top=ty+'px';if(this.loopClockH!==g.h){this.loopClockH=g.h;el.style.setProperty('--xwe-ph',(g.h+8)+'px')}
  }
