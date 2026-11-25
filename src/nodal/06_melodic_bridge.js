@@ -77,9 +77,10 @@ function nodalHasMelodicNotes(request) {
 
 function nodalMelodicNoteTiming(composer, note, source, stepSec) {
   const durationSec = Math.max(Number.isFinite(note.carrierRelativeSemitones) ? .001 : .04, Math.min(30, F$(composer, note) * stepSec));
-  return {durationSec,
-    attackSec: Number.isFinite(note.edgeFadeInMs) ? Math.max(.001, Math.min(2, note.edgeFadeInMs / 1000)) : Math.min(2, Math.max(source.instrument.articulation.attackSec, d9e(note) * stepSec)),
-    releaseSec: Number.isFinite(note.edgeFadeOutMs) ? Math.max(.001, Math.min(3, note.edgeFadeOutMs / 1000)) : Math.min(3, Math.max(source.instrument.articulation.releaseSec, T$(note) * stepSec))};
+  /* ML-DRAG-CLICK-03: a note edge shorter than ~3 ms (attack) / 6 ms (release) is a step to the ear = a tick. Floors apply to every note, also the 1-ms edge-fade minimum. */
+  const attackSec = Number.isFinite(note.edgeFadeInMs) ? Math.max(.001, Math.min(2, note.edgeFadeInMs / 1000)) : Math.min(2, Math.max(source.instrument.articulation.attackSec, d9e(note) * stepSec)),
+    releaseSec = Number.isFinite(note.edgeFadeOutMs) ? Math.max(.001, Math.min(3, note.edgeFadeOutMs / 1000)) : Math.min(3, Math.max(source.instrument.articulation.releaseSec, T$(note) * stepSec));
+  return {durationSec, attackSec: Math.max(.003, attackSec), releaseSec: Math.max(.006, releaseSec)};
 }
 function nodalMelodicNoteOptions(composer, note, track, source, stepSec) {
   const curves = note.localField == null && !note.instrumentFields?.length && source.plan?.articulation
