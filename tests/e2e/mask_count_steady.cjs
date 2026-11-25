@@ -52,12 +52,12 @@ const modes=(process.argv[3]||'segment,beat,bar').split(',');const VERBOSE=!!pro
     /* painted bar numbers: a number that stays inside the mask must stay at its x (right edge: all; left edge / move: they move together by whole steps) */
     const paints=await p.evaluate(()=>globalThis.__takt.filter(r=>r.title));const pos=new Map();let jumps=0;
     for(const r of paints)for(const [k,x] of r.nums){if(!pos.has(k))pos.set(k,new Set());pos.get(k).add(x)}
-    if(gesture==='right edge')for(const [k,xs] of pos)if(xs.size>1&&k<4)jumps++;/* bars 1..3 lie left of the moving end the whole time */
+    if(gesture==='right edge')for(const [k,xs] of pos)if(k<4&&Math.max(...xs)-Math.min(...xs)>1)jumps++;/* 1 px = rounding: on the analysis grid a beat is the REAL detected beat (±3 ms), the tempo follows time-true by ~0.1 % *//* bars 1..3 lie left of the moving end the whole time */
     /* every gesture: within ONE painted frame the bar numbers are evenly spaced (= one bar length), and that spacing never changes */
     const gaps=[];for(const r of paints){const n=r.nums.slice().sort((a,b)=>a[0]-b[0]);for(let i=1;i<n.length;i++)if(n[i][0]===n[i-1][0]+1&&n[i][1]<st.w-14)gaps.push(n[i][1]-n[i-1][1])}
     if(gaps.length&&Math.max(...gaps)-Math.min(...gaps)>2)jumps++;
     const titles=[...new Set(paints.map(r=>r.title))];
-    const steady=hi-lo<0.004&&jumps===0;if(!steady)fail++;
+    const steady=(hi-lo)/hi<0.002&&jumps===0;if(!steady)fail++;
     console.log((steady?'ok   ':'FAIL ')+mode.padEnd(8)+(open?'Wave Editor ':'import view ')+gesture.padEnd(11)+' bar length '+lo.toFixed(4)+'…'+hi.toFixed(4)+' s · '+counts.length+' counts · '+lens.length+' lengths · '+paints.length+' paints, '+jumps+' bar-number jumps (spacing '+(()=>{const g=[];for(const r of paints){const n=r.nums.slice().sort((a,b)=>a[0]-b[0]);for(let i=1;i<n.length;i++)if(n[i][0]===n[i-1][0]+1)g.push(n[i][1]-n[i-1][1])}return g.length?Math.min(...g)+'…'+Math.max(...g):'-'})()+' px)'+(VERBOSE||jumps?'\n      '+[...pos].map(([k,xs])=>k+'@'+[...xs].join(',')).join(' ')+'\n      '+titles.slice(0,12).join(' | '):'')+(VERBOSE||!steady?'\n      '+samples.map(q=>(q.e-q.s).toFixed(3)+'/'+q.bars).join(' '):''));
    }
   }
