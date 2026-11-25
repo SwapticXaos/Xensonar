@@ -1,6 +1,6 @@
 'use strict';
-// UNDO-MASK-01 (real app, import view): moving the purple loop mask and a Taktometer count change are undone by "↶ Undo" next to "Loop Mask",
-// step by step, and a running loop follows. Usage: node tests/e2e/mask_undo.cjs dist/XenSonar_PROBE.html
+// UNDO-MASK-01 (real app): mask moves are undone by the ONE existing Undo of the Wave Editor (button and Ctrl+Z), in the order of the actions;
+// there is no second Undo button. Usage: node tests/e2e/mask_undo.cjs dist/XenSonar_PROBE.html
 const {chromium}=require('playwright');const assert=require('node:assert/strict');const path=require('node:path'),fs=require('node:fs'),os=require('node:os');
 const {meterMusic,SR}=require('../helpers/meter_synth.cjs'),{wav}=require('../helpers/analysis_synth.cjs');
 const dir=fs.mkdtempSync(path.join(os.tmpdir(),'xen-mu-')),file=path.join(dir,'m.wav');fs.writeFileSync(file,wav(meterMusic({bpm:120,S:4,dur:30}),SR));
@@ -13,10 +13,10 @@ const dir=fs.mkdtempSync(path.join(os.tmpdir(),'xen-mu-')),file=path.join(dir,'m
  const mask=p.locator('canvas[data-xwe-workspace-resize]').first();await mask.scrollIntoViewIfNeeded();const lm=await mask.boundingBox(),Y=lm.y+lm.height*.4;
  const val=l=>p.locator(`input[aria-label="${l}"]`).first().inputValue().catch(()=>null);
  const drag=async(x0,x1)=>{await p.mouse.move(lm.x+lm.width*x0,Y);await p.mouse.down();await p.mouse.move(lm.x+lm.width*x1,Y,{steps:6});await p.mouse.up();await p.waitForTimeout(500)};
- const undo=p.locator('[data-xen-mask-undo]');for(let i=0;i<20&&await undo.isEnabled();i++){await undo.click();await p.waitForTimeout(150)}
+ assert.equal(await p.locator('[data-xen-mask-undo]').count(),0,'no extra undo button');const undo=p.locator('button.xwe-apply-undo').first();for(let i=0;i<20&&await undo.isEnabled();i++){await undo.click();await p.waitForTimeout(150)}
  await drag(.2,.5);const s1=await val('Start s'),e1=await val('End s');
  await drag(.6,.9);const s2=await val('Start s');assert.notEqual(s2,s1,'the second mask is a different one');
  assert(await undo.isEnabled());await undo.click();await p.waitForTimeout(500);
  assert.equal(await val('Start s'),s1,'undo restores the first mask (start)');assert.equal(await val('End s'),e1,'… and its end');
- await undo.click();await p.waitForTimeout(400);
+ await drag(.6,.9);await p.locator('[data-xen-bar-meter]').click({button:'left',position:{x:2,y:2}}).catch(()=>{});await p.keyboard.press('Control+z');await p.waitForTimeout(500);assert.equal(await val('Start s'),s1,'Ctrl+Z also undoes the mask');
  assert.deepEqual(errs,[]);console.log('PASS UNDO-MASK-01 mask moves are undone',s1,'→',s2);await b.close()})().catch(e=>{console.error(e);process.exit(1)});

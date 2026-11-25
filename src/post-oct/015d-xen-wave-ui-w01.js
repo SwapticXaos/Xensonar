@@ -57,7 +57,7 @@ function category(effect){return displayText(effect.category||'Effects')}
 
 function attach(options){const canvas=options.detailCanvas;if(!canvas)return()=>{};let inst=instances.get(canvas);if(inst){inst.update(options);return()=>{}}try{inst=new Editor(options)}catch(error){console.warn('[Wave Editor W01] source unsupported:',error);return()=>{}}instances.set(canvas,inst);liveEditors.add(inst);return()=>{inst.dispose();liveEditors.delete(inst);instances.delete(canvas)}}
 class Editor{
- constructor(options){this.options=options;this.bluePanFrame=null;this.bluePanHeld=null;this.bluePanStopOnBlur=()=>this.stopBluePan();this.bluePanStopOnVisibility=()=>{if(document.hidden)this.stopBluePan()};root.addEventListener('blur',this.bluePanStopOnBlur);document.addEventListener('visibilitychange',this.bluePanStopOnVisibility);this.enabled=false;this.goldenMoveArmed=false;this.goldenGesture=null;this.doc=null;this.source=null;this.nodes=[];this.activeNode=null;this.eqVisible=false;this.channel='all';this.maskVertical={top:0,bottom:1};this.activeWorkspace='project';this.fxFocus='morph';this.scratchContext=null;this.projectContext=null;this.renderToken=0;this.lastResult=null;this.computeJob=null;this.computeNoticeTimer=null;this.status='Ready · Right-click either waveform for editing and effects.';this.update(options);this.context=e=>this.contextMenu(e);options.detailCanvas.addEventListener('contextmenu',this.context);options.overviewCanvas?.addEventListener('contextmenu',this.context);const region=options.detailCanvas.closest('[data-material-intake-gateway="true"]')||document;this.launchHost=region.querySelector('[data-xwe-launch-slot="true"]');this.launch=button('Wave Editor',()=>this.open(),{class:'xwe-launch',title:'Open stereo Wave Editor · right-click the waveform','aria-label':'Open Wave Editor'});this.launchHost?.append(this.launch);this.editPointerDown=e=>this.beginEditPointer(e);this.goldenDoubleClick=e=>this.toggleGoldenMove(e);this.channelPointerDown=e=>this.handleChannelPointerDown(e);
+ constructor(options){this.options=options;/* UNDO-MASK-01: mask / Taktometer steps of the host join this editor's Undo; each remembers how many audio edits existed then, so one Undo walks back in the order of the actions */this.maskUndo=[];this.onMaskUndoPush=()=>{this.maskUndo.push(this.doc?.history?.past?.length||0);if(this.maskUndo.length>60)this.maskUndo.shift();if(this.undoApplyButton)this.undoApplyButton.disabled=!this.canUndoDocument()};globalThis.addEventListener?.('xensonar:mask-undo-push',this.onMaskUndoPush);this.bluePanFrame=null;this.bluePanHeld=null;this.bluePanStopOnBlur=()=>this.stopBluePan();this.bluePanStopOnVisibility=()=>{if(document.hidden)this.stopBluePan()};root.addEventListener('blur',this.bluePanStopOnBlur);document.addEventListener('visibilitychange',this.bluePanStopOnVisibility);this.enabled=false;this.goldenMoveArmed=false;this.goldenGesture=null;this.doc=null;this.source=null;this.nodes=[];this.activeNode=null;this.eqVisible=false;this.channel='all';this.maskVertical={top:0,bottom:1};this.activeWorkspace='project';this.fxFocus='morph';this.scratchContext=null;this.projectContext=null;this.renderToken=0;this.lastResult=null;this.computeJob=null;this.computeNoticeTimer=null;this.status='Ready · Right-click either waveform for editing and effects.';this.update(options);this.context=e=>this.contextMenu(e);options.detailCanvas.addEventListener('contextmenu',this.context);options.overviewCanvas?.addEventListener('contextmenu',this.context);const region=options.detailCanvas.closest('[data-material-intake-gateway="true"]')||document;this.launchHost=region.querySelector('[data-xwe-launch-slot="true"]');this.launch=button('Wave Editor',()=>this.open(),{class:'xwe-launch',title:'Open stereo Wave Editor · right-click the waveform','aria-label':'Open Wave Editor'});this.launchHost?.append(this.launch);this.editPointerDown=e=>this.beginEditPointer(e);this.goldenDoubleClick=e=>this.toggleGoldenMove(e);this.channelPointerDown=e=>this.handleChannelPointerDown(e);
  this.hoverPointerMove=e=>this.onWavePointerMove(e);
  this.hoverPointerLeave=e=>this.onWavePointerLeave(e);
  for(const canvas of [options.overviewCanvas,options.detailCanvas])if(canvas){canvasOwners.set(canvas,this);canvas.addEventListener('pointerdown',this.channelPointerDown,true);canvas.addEventListener('pointermove',this.hoverPointerMove,true);canvas.addEventListener('pointerleave',this.hoverPointerLeave,true)}
@@ -586,7 +586,7 @@ class Editor{
   }
  }
 
- dispose(){this.stopBluePan();root.removeEventListener('blur',this.bluePanStopOnBlur);document.removeEventListener('visibilitychange',this.bluePanStopOnVisibility);this.scratchPeakAsset=null;this.clearP5Warning();this.eqUnsubscribe?.();this.releaseOfflineEQState();this.closeMixPane();this.abort();this.stopAudio();this.close();this.closeMenu();this.cancelEditGesture?.();this.launch?.remove();for(const canvas of [this.options.overviewCanvas,this.options.detailCanvas])if(canvas){canvas.removeEventListener('pointerdown',this.channelPointerDown,true);canvas.removeEventListener('pointermove',this.hoverPointerMove,true);canvas.removeEventListener('pointerleave',this.hoverPointerLeave,true);canvasOwners.delete(canvas);delete canvas.dataset.xweHoverHit}
+ dispose(){globalThis.removeEventListener?.('xensonar:mask-undo-push',this.onMaskUndoPush);this.stopBluePan();root.removeEventListener('blur',this.bluePanStopOnBlur);document.removeEventListener('visibilitychange',this.bluePanStopOnVisibility);this.scratchPeakAsset=null;this.clearP5Warning();this.eqUnsubscribe?.();this.releaseOfflineEQState();this.closeMixPane();this.abort();this.stopAudio();this.close();this.closeMenu();this.cancelEditGesture?.();this.launch?.remove();for(const canvas of [this.options.overviewCanvas,this.options.detailCanvas])if(canvas){canvas.removeEventListener('pointerdown',this.channelPointerDown,true);canvas.removeEventListener('pointermove',this.hoverPointerMove,true);canvas.removeEventListener('pointerleave',this.hoverPointerLeave,true);canvasOwners.delete(canvas);delete canvas.dataset.xweHoverHit}
  this.options.detailCanvas.removeEventListener('pointerdown',this.editPointerDown,true);this.options.detailCanvas.removeEventListener('dblclick',this.goldenDoubleClick,true);this.options.detailCanvas.removeEventListener('pointermove',this.detailResizeMove,true);this.options.detailCanvas.removeEventListener('pointerdown',this.detailResizeDown,true);this.options.detailCanvas.removeEventListener('contextmenu',this.context);this.options.overviewCanvas?.removeEventListener('contextmenu',this.context);this.listenKeys(false)}
  /* FORGE-SLEEP-01: the editor's document listeners exist only while the Forge is the shown room. Parked (another room shown) it owns no key and no pointer: Backspace = octave hold in the Live Room, Delete/Backspace in Nodal/Multitrack belong to those rooms */
  listenKeys(on){on=!!on;if(this.keysOn===on)return;this.keysOn=on;const m=on?'addEventListener':'removeEventListener';document[m]('keydown',this.key,true);document[m]('pointerdown',this.keyZone,true)}
@@ -759,7 +759,7 @@ class Editor{
   }
  }
 
- async runEdit(type,extra={}){try{if(!this.doc)return;
+ async runEdit(type,extra={}){try{if(!this.doc)return;if(type==='undo'&&this.takeMaskUndo())return;
   // P5: no destructive edit, document undo or redo may silently clear a draft FX chain.
   // Copy/navigation and the separate Morph-curve undo remain independent.
   if(type!=='copy'&&this.nodes.length){
@@ -918,7 +918,7 @@ class Editor{
  this.computeStrip.append(this.computeMessage,this.progressElement,this.computeCancel);
  this.previewButton=button('▶ Preview FX',()=>this.preview('chain'));
  this.applyButton=button('Apply / Bake',()=>this.applyChain(),{class:'xwe-primary'});
- this.undoApplyButton=button('↶ Undo',()=>this.undoDocument(),{'aria-label':'Undo',title:'Undo the last audio edit or applied effect · Ctrl+Z',class:'xwe-apply-undo'});
+ this.undoApplyButton=button('↶ Undo',()=>this.undoDocument(),{'aria-label':'Undo',title:'Undo the last step: audio edit, applied effect, loop-mask change or bar count · Ctrl+Z',class:'xwe-apply-undo'});
  this.formatSelect=$('select',{'aria-label':'WAV Format'});
  this.formatSelect.append($('option',{value:'float32'},'WAV Float32'),$('option',{value:'pcm24'},'WAV PCM24'),$('option',{value:'pcm16'},'WAV PCM16 (dither)'));this.formatSelect.title='Export format: 32-bit float (lossless, keeps levels above 0 dBFS), 24-bit PCM, or 16-bit PCM with TPDF dither';
  this.previewTargetButton=button('B · Project',()=>this.preview('document'));
@@ -1238,7 +1238,8 @@ class Editor{
    this.finishComputeFeedback(token);
   }
  }
- canUndoDocument(){return !!this.doc?.history?.past?.length}
+ canUndoDocument(){return !!this.doc?.history?.past?.length||!!this.maskUndo?.length}
+ takeMaskUndo(){const top=this.maskUndo?.[this.maskUndo.length-1];if(top==null||top<(this.doc?.history?.past?.length||0))return false;this.maskUndo.pop();globalThis.dispatchEvent(new CustomEvent('xensonar:mask-undo-run'));this.setStatus('Loop mask / bar count restored (undo).');if(this.undoApplyButton)this.undoApplyButton.disabled=!this.canUndoDocument();return true}
  async undoDocument(){if(this.canUndoDocument())await this.runEdit('undo');else this.setStatus('Nothing to undo.')}
  async applyChain(){try{
   const result=this.cachedRender()||await this.render();
@@ -1311,7 +1312,7 @@ class Editor{
   if(sec==null||!Number.isFinite(sec)||!canvas?.parentElement||!doc?.viewport){if(el&&el.isConnected&&el.style.visibility!=='hidden')el.style.visibility='hidden';return}
   const parent=canvas.parentElement,view=doc.viewport,ratio=(sec*doc.sampleRate-view.start)/Math.max(1,view.end-view.start);
   if(ratio<0||ratio>1){if(el&&el.style.visibility!=='hidden')el.style.visibility='hidden';return}
-  if(!el||!el.isConnected){el=this.loopClockEl=$('span',{class:'xwe-playhead-time xwe-loop-clock','aria-hidden':'true'});parent.classList.add('xwe-playhead-owner');parent.append(el)}
+  if(!el||!el.isConnected){el=this.loopClockEl=$('span',{class:'xwe-playhead-time xwe-loop-clock','aria-hidden':'true'});parent.classList.add('xwe-playhead-owner');parent.append(el);this.loopClockGeo=null}
   /* SEEK-JANK-02: this runs on every animation frame while a loop plays. Reading getBoundingClientRect right after writing styles forced a layout each frame (a click in the
      Taktometer made it visible as stutter of the whole page). The canvas position inside its parent is measured at most every 400 ms (and when the canvas size changes). */
   const now=performance.now(),geo=this.loopClockGeo;let g=geo;
@@ -1319,7 +1320,7 @@ class Editor{
   const tx=g.dx+parent.scrollLeft+g.w*ratio,ty=g.dy+parent.scrollTop-22;
   if(el.style.display!=='block')el.style.display='block';if(el.style.visibility!=='visible')el.style.visibility='visible';
   const label=clockLabel(sec);if(el.textContent!==label)el.textContent=label;
-  el.style.left=tx+'px';el.style.top=ty+'px';if(this.loopClockH!==g.h){this.loopClockH=g.h;el.style.setProperty('--xwe-ph',(g.h+8)+'px')}
+  el.style.left=tx+'px';el.style.top=ty+'px';if(el.__ph!==g.h){el.__ph=g.h;el.style.setProperty('--xwe-ph',(g.h+8)+'px')}/* per ELEMENT: a re-created label must get the playhead-line height too (the green line vanished otherwise) */
  }
  setLoopPlaying(on){if(this.loopButton){this.loopButton.textContent=on?'■ Stop':'▶ Loop';this.loopButton.setAttribute('aria-pressed',String(!!on))}}
  playSelection(){if(this.audioNode){this.stopAudio();this.setStatus('Playback stopped.');return}return this.preview('document')}
