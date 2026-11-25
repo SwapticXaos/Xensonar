@@ -2143,9 +2143,31 @@ function __xenSnapMaskGesture(range,drag,ctx){
  V=__xenSnapMaskMove(V,drag,st.meta0,mode,ctx?.total,ctx?.source);
  // TAKT-SNAP-01/04: the Taktometer count / tempo follows the stepped window
  const K=__xenMaskCount(V,drag,st.meta0,mode,ctx?.total,ctx?.source);
- if(K){V=K.range;const key=K.patch.bars+':'+K.range.durationSec.toFixed(4);if(key!==st.countKey){st.countKey=key;st.patched=true;ctx?.onMetaPatch?.(K.patch)}}
+ let patch=null;if(K){V=K.range;patch=K.patch}
+ /* FILE-EDGE-01: the start and the end of the AUDIO are always snap points. Before, the moving edge stopped at the last whole
+    bar / beat / segment inside the file, so a song that does not end exactly on a bar line could never be selected completely
+    (the last bit could not be edited). An edge the pointer brings closer to the file edge than to the snapped grid point (or
+    past it) takes the file edge; the Taktometer keeps its tempo and counts the part bar (no squeezing). */
+ const total=Number(ctx?.total),raw=range;
+ if(Number.isFinite(total)&&total>0){
+  const end=V.startSec+V.durationSec,rawEnd=raw.startSec+raw.durationSec;let s=V.startSec,e=end;
+  if(drag.mode==='move'){
+   if(raw.startSec<=1e-6||raw.startSec<s&&s-raw.startSec>raw.startSec){s=0;e=V.durationSec}
+   else if(rawEnd>=total-1e-6||rawEnd>end&&rawEnd-end>total-rawEnd){e=total;s=total-V.durationSec}
+  }else{
+   const movesEnd=drag.mode==='resize-end'||drag.mode==='new',movesStart=drag.mode==='resize-start'||drag.mode==='new';
+   if(movesEnd&&rawEnd>end&&rawEnd-end>total-rawEnd)e=total;
+   if(movesStart&&raw.startSec<s&&s-raw.startSec>raw.startSec)s=0;
+  }
+  if(s!==V.startSec||e!==end){V={startSec:Math.max(0,s),durationSec:Math.min(total,e)-Math.max(0,s)};
+   if(drag.mode!=='move'&&st.meta0){const seg=__xenMaskSegSec(st.meta0,drag);if(seg>0)patch=__xenMeterAnalysis.metaPatch(V.durationSec/seg,Math.max(1,Math.round(Number(st.meta0.guideSegments)||1)),V.durationSec)}}
+ }
+ if(patch){const key=patch.bars+':'+V.durationSec.toFixed(4);if(key!==st.countKey){st.countKey=key;st.patched=true;ctx?.onMetaPatch?.(patch)}}
  return V;
 }
+/* FILE-EDGE-01: one Taktometer segment in seconds, as __xenMaskCount derives it (from the gesture's start mask, else the tempo) */
+function __xenMaskSegSec(meta,drag){const S=Math.max(1,Math.round(Number(meta?.guideSegments)||1)),bars=Math.max(1/64,Number(meta?.bars)||1),d0=Number(drag?.originalMask?.durationSec)||0;
+ return d0>0?d0/(bars*S):Number(meta?.bpm)>0?60/Number(meta.bpm):0}
 /* SNAP-ALL-01: a cancelled gesture (Esc, blur, pointercancel) also gives the Taktometer its count back */
 function __xenSnapMaskCancel(drag,ctx){
  const st=drag?.state,m=st?.meta0;if(!st?.patched||!m)return;st.patched=false;st.countKey=null;

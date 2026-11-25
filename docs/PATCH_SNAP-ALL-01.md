@@ -91,3 +91,15 @@ Prüfung:
 ## Test-Liste
 - `tests/GREEN_NODE_TESTS.txt` (läuft mit `tools/run_tests.sh`): neu `mask_snap.test.cjs` und `forge_snapshot_budget.test.cjs`. `song_parts_edit.test.cjs` und `song_key.test.cjs` standen schon darauf und laufen jetzt wieder; `song_key` lädt dazu `__xenBeatsPerBar` mit.
 - `run_tests.sh`: 148 grün, 6 rot. Alle 6 sind schon auf dem Ausgangsstand `e0740d3` rot und kamen mit dem Release-Zweig: `render_empty_audio_p32`, `test_forge_empty_audio_connector_p32`, `test_forge_rack_single_presentation_rc3`, `test_forge_slot_layout_rc4`, `test_ui_patch_debris_cleanup`, `tooltips_english`.
+
+## FILE-EDGE-01 (selber Tag): Mit Snap ließ sich die Maske nicht bis zum Dateiende ziehen
+Nutzer: Die blaue Maske zeigt alles, aber die lila Maske kommt nur bis kurz vor das Ende; das letzte Stück lässt sich nicht bearbeiten. Das ist keine Lösung, die Maske muss alles auswählen oder kürzer gemacht werden können.
+
+Ursache: Nicht der Randgriff-Fix (GRAB-EDGE-01), sondern der Snap. Mit Bar/Beat/Segment rastete die bewegte Kante auf die letzte ganze Einheit innerhalb der Datei (ohne Analyse vom stehenden Rand aus gezählt, mit Analyse auf die nächste Rasterlinie). Endet ein Song nicht genau auf einer Taktlinie, war der Rest dahinter unerreichbar, am Anfang ebenso. Seit SNAP-ALL-01 rastet auch der Wave Editor; vorher war er dort frei.
+
+Änderung (`lab.js` `__xenSnapMaskGesture`, eine Stelle für beide Ansichten): Dateianfang und -ende sind immer Rastpunkte. Kommt der Zeiger näher an den Dateirand als an den gerasteten Punkt (oder darüber hinaus), gilt der Dateirand. Beim Verschieben legt sich die Maske mit gleicher Länge an den Rand. Das Taktometer behält sein Tempo und zählt den angebrochenen Takt mit (z. B. 61/4 statt gestaucht). `__xenMaskSegSec` liefert die Segmentlänge wie `__xenMaskCount`.
+
+Prüfung:
+- `tests/mask_snap.test.cjs` neuer Fall: 30,7-s-Datei, Bar/Beat/Segment: übers Ende gezogen ergibt 30,7 s, Tempo und Taktlänge bleiben; bei 29,9 s gewinnt die Taktlinie 30; mit Analyse-Raster (erster Schlag bei 0,3 s) erreicht der linke Rand 0; Off bleibt frei. 7/7 grün.
+- `tests/e2e/snap_all_wave_editor.cjs` jetzt mit 30,7-s-Song: rechter Rand zum Dateiende, linker zum Dateianfang, je Bar/Beat/Segment/Off. Grün. Gegenprobe davor: Bar endete bei 29,997, Beat bei 30,505, Segment begann bei 0,025 s.
+- Weiter grün: `same_mask_views` (beide Ansichten identisch), `mask_count_steady`, `taktometer_snap_live`, `mask_undo`, `song_key.test.cjs`.

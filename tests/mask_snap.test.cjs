@@ -6,7 +6,7 @@ const {test}=require('node:test'),assert=require('node:assert/strict'),fs=requir
 const extract=require('./helpers/extract_function.cjs');
 const read=f=>fs.readFileSync(path.join(__dirname,'..','src','rooms',f),'utf8');
 const lab=read('lab.js'),edit=read('00_song_parts_edit.js'),meter=read('00_meter_analysis.js');
-const names=['pc','Ty','hA','$_','__xenSnapMaskDrag','__xenBeatsPerBar','__xenMaskCount','__xenSnapMaskMove','__xenSnapMaskGesture','__xenSnapMaskCancel'];
+const names=['pc','Ty','hA','$_','__xenSnapMaskDrag','__xenBeatsPerBar','__xenMaskCount','__xenSnapMaskMove','__xenSnapMaskGesture','__xenSnapMaskCancel','__xenMaskSegSec'];
 const mem=()=>{const m=new Map();return {getItem:k=>m.has(k)?m.get(k):null,setItem:(k,v)=>m.set(k,String(v)),removeItem:k=>m.delete(k)}};
 /* one isolated copy per test, with its own snap-mode store */
 const build=mode=>{const store=mem();const src=
@@ -61,4 +61,20 @@ test('GRAB-EDGE-01: the nearest edge wins; a mask larger than the view has its e
  assert.equal(hit(6,{startSec:0,durationSec:30}),'move');
  assert.equal(hit(1.11,{startSec:1,durationSec:.12}),'resize-end','narrow mask: nearest edge');
  assert.equal(hit(1.01,{startSec:1,durationSec:.12}),'resize-start');
+});
+test('FILE-EDGE-01: the start and the end of the audio are always reachable with Bar / Beat / Segment; the tempo stays',()=>{
+ const total=30.7;
+ for(const mode of ['bar','beat','segment']){const o=build(mode);
+  const drag=()=>({mode:'resize-end',anchorTime:10,startSec:2,durationSec:8,originalMask:{startSec:2,durationSec:8},state:{}});
+  let d=drag(),patches=[],r=o.__xenSnapMaskGesture(o.$_(40,d,total,.05),d,{source:null,total,exportMeta:META,onMetaPatch:p=>patches.push(p)});
+  assert.ok(near(r.startSec+r.durationSec,total),mode+': pulled past the end = file end '+JSON.stringify(r));
+  const p=patches[patches.length-1];assert.ok(p&&near(p.bpm,META.bpm,1e-6)&&near(r.durationSec/p.bars,2,1e-9),mode+': tempo and bar length stay '+JSON.stringify(p));
+ }
+ const o=build('bar');let d={mode:'resize-end',anchorTime:10,startSec:2,durationSec:8,originalMask:{startSec:2,durationSec:8},state:{}};
+ let r=o.__xenSnapMaskGesture(o.$_(29.9,d,total,.05),d,{source:null,total,exportMeta:META});assert.ok(near(r.startSec+r.durationSec,30),'closer to the bar line than to the end: bar line '+JSON.stringify(r));
+ const asset={},source={sourceAsset:asset,durationSec:total};o.setLatest({asset,result:{grid:{bars:Array.from({length:15},(_,i)=>.3+i*2),segments:Array.from({length:60},(_,i)=>.3+i*.5),barSec:2,segmentsPerBar:4}}});
+ d={mode:'resize-start',anchorTime:4.3,startSec:4.3,durationSec:8,originalMask:{startSec:4.3,durationSec:8},state:{}};
+ r=o.__xenSnapMaskGesture(o.$_(.05,d,total,.05),d,{source,total,exportMeta:META});assert.ok(near(r.startSec,0),'first downbeat at 0.3 s: the left edge still reaches 0 '+JSON.stringify(r));
+ o.setMode('off');d={mode:'resize-end',anchorTime:10,startSec:2,durationSec:8,originalMask:{startSec:2,durationSec:8},state:{}};
+ r=o.__xenSnapMaskGesture(o.$_(40,d,total,.05),d,{source:null,total,exportMeta:META});assert.ok(near(r.startSec+r.durationSec,total),'off: free to the end');
 });

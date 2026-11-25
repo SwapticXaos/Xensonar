@@ -9,7 +9,7 @@
 const {chromium}=require('playwright');const path=require('node:path'),fs=require('node:fs'),os=require('node:os');
 const {meterMusic,SR}=require('../helpers/meter_synth.cjs'),{wav}=require('../helpers/analysis_synth.cjs');
 const html=path.resolve(process.argv[2]||'dist/XenSonar_PROBE.html'),dir=fs.mkdtempSync(path.join(os.tmpdir(),'xen-snapall-'));
-const file=path.join(dir,'m.wav');fs.writeFileSync(file,wav(meterMusic({bpm:120,S:4,dur:30}),SR));
+const file=path.join(dir,'m.wav');fs.writeFileSync(file,wav(meterMusic({bpm:120,S:4,dur:30.7}),SR)/* 30.7 s: the song does NOT end on a bar line (FILE-EDGE-01) */);
 const modes=(process.argv[3]||'bar,beat,segment,off').split(',');
 (async()=>{
  const b=await chromium.launch();const p=await(await b.newContext({viewport:{width:1440,height:1100}})).newPage();const errs=[];p.on('pageerror',e=>errs.push(e.message));
@@ -65,6 +65,12 @@ const modes=(process.argv[3]||'bar,beat,segment,off').split(',');
   await snap(m);const D=st.frames/st.sr;await setView(D-12,D);await setSel(D-10,D-4);const b0=await bars(),d0=(st.e-st.s)/st.sr,top=st.y+st.h*(st.mv?.top||0)+2;
   await drag(px(D-7),top,px(D-7+3.6),top);const [a,e]=sec(),b1=await bars();
   expect(m+' · move to the file end keeps length + count',Math.abs((e-a)-d0)<2/st.sr&&e<=D+1e-6&&a>D-10+.1&&b1===b0,'start '+a.toFixed(3)+' end '+e.toFixed(3)+' len '+(e-a).toFixed(3)+'/'+d0.toFixed(3)+' bars '+b0+'→'+b1);
+ }
+ // FILE-EDGE-01: with Bar / Beat / Segment the right edge still reaches the very end of the audio (30.7 s is no bar line), left edge 0
+ for(const m of ['bar','beat','segment','off']){
+  await snap(m);const D=st.frames/st.sr;await setView(D-12,D);await setSel(D-10,D-4);
+  await drag(px(D-4),yM(),st.x+st.w+40,yM());{const [a,e]=sec();expect(m+' · right edge to the file end',Math.abs(e-D)<2/st.sr,'end '+e.toFixed(3)+' / file '+D.toFixed(3))}
+  await setView(0,12);await setSel(4,10);await drag(px(4),yM(),st.x-40,yM());{const [a]=sec();expect(m+' · left edge to the file start',a<2/st.sr,'start '+a.toFixed(3))}
  }
  if(errs.length)console.log('pageerrors',errs.slice(0,3));
  await b.close();
