@@ -323,6 +323,7 @@ class Editor{
   // the mask centre above 3/8 = L, 3/8..5/8 = L+R, below 5/8 = R (starting from its own lane).
   const retarget=golden&&stereo&&this.channel!=='all'&&this.goldenGesture;
   this.selectionGestureActive=true;
+  this.options.onMaskGestureStart?.();/* UNDO-MASK-01: the state before this mask gesture is what ↶ Undo restores */
   /* BAR-METER-LIVE: the Taktometer (and the donor selection) follow the mask WHILE it is dragged, once per frame, as in the import view; before, they jumped at release. A Golden Move keeps its own commit at release. */
   let liveFrame=0;
   const live=()=>{if(golden||liveFrame)return;liveFrame=root.requestAnimationFrame(()=>{liveFrame=0;if(gesture.active)this.applySelection()})};
