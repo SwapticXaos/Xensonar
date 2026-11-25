@@ -1890,8 +1890,8 @@ function RGe(e){const{source:t,selection:n,previewPlaying:r,meter:a,setDetailVie
  const N=n.detailViewport,W=N.startSec+G*N.durationSec;let V=__xenSnapMaskDrag($_(W,b,j,.05),b.mode,t);
  // TAKT-SNAP-01: snap Bar / Beat = the Taktometer counts (tempo stays), snap Off = the bar count stretches with the mask
  if(!b.meta0&&e.exportMeta)b.meta0={bars:e.exportMeta.bars,guideSegments:e.exportMeta.guideSegments,beatsPerBar:e.exportMeta.beatsPerBar};
- /* TAKT-SNAP-04: Bar / Beat / Segment only decide HOW THE WINDOW IS DEFINED (stepped instead of free). Everything after that, the live loop (i / c below) and the playhead, is the same code as for Off. The bar count / tempo is not rewritten while dragging: that rewrite is what stopped the loop. */
- const K=__xenMaskCount(V,b,b.meta0,__xenSongPartsEdit.snapMode(),j,t);if(K)V=K.range;
+ /* TAKT-SNAP-04: Bar / Beat / Segment only decide HOW THE WINDOW IS DEFINED (stepped instead of free); the live loop (i / c below) and the playhead run the same code as for Off. The Taktometer count / tempo follows the window (meta patch) on top of that. */
+ const K=__xenMaskCount(V,b,b.meta0,__xenSongPartsEdit.snapMode(),j,t);if(K){V=K.range;const key=K.patch.bars+':'+K.range.durationSec.toFixed(4);if(key!==b.countKey){b.countKey=key;e.onMetaPatch?.(K.patch)}}
  i(V),r&&c(V)
  },L=B=>{if(b.pointerId!=null&&B.pointerId!==b.pointerId)return;
  if(b.finished||b.cancelled)return;b.finished=true;
