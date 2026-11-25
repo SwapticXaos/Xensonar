@@ -1534,7 +1534,11 @@ function __createForgeMicCapture({onFile,onState=()=>{},mediaDevices=navigator.m
     :error?.name==='NotFoundError'?'No microphone found. Please connect a microphone and try again.'
     :error?.name==='NotReadableError'||error?.name==='AbortError'?'The microphone could not be started (another program or a running tab / screen share is holding it). Stop the Speaker Sound recording, then choose Microphone again.'
     :error?.message||'Microphone recording failed.';
-  const fail=(error,token)=>{if(disposed||token!==generation)return;generation++;release();notify('failed',messageFor(error));};
+  const fail=(error,token)=>{if(disposed||token!==generation)return;generation++;release();notify('failed',messageFor(error));
+    /* MIC-PROMPT-01: "denied" without any question means the browser holds a stored Block for this page; say so and where to undo it */
+    if(error?.name==='NotAllowedError'||error?.name==='SecurityError'){try{navigator.permissions?.query({name:'microphone'}).then(st=>{if(disposed||phase!=='failed')return;
+      if(st.state==='denied')notify('failed','The browser has this page\u2019s microphone on “Blocked”, so it does not ask. Click the lock / site-settings icon in the address bar, set Microphone to Allow (or “Ask”), then reload the page and choose Microphone again.');
+      else if(st.state==='prompt')notify('failed','The microphone question was dismissed or closed. Choose Microphone again and press Allow in the browser’s question.')},()=>{})}catch{}}};
   function cancel(){if(disposed||!['requesting','recording'].includes(phase))return;generation++;release();notify('idle','Recording discarded.');}
   function stop(){
     if(disposed||phase!=='recording')return;

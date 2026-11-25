@@ -659,7 +659,7 @@ function __ForgeLineInButton(){
  const listDevices=async ask=>{if(!md?.enumerateDevices)return;try{if(ask){const s=await md.getUserMedia({audio:true});s.getTracks().forEach(t=>t.stop())}
    setDevices((await md.enumerateDevices()).filter(d=>d.kind==='audioinput'))}catch(e){setMsg('Device list: '+(e?.message||e))}};
  P.useEffect(()=>{if(open)listDevices(false)},[open]);
- P.useEffect(()=>{if(open&&src.startsWith('device:')&&devices.length&&!devices.some(d=>d.label))listDevices(true)},[open,devices.length]);
+ /* MIC-PROMPT-01: the browser's permission question is asked only by an explicit click ("Allow & show names" or Rec), never by merely opening the panel: an unasked, dismissed question is remembered by some browsers as "blocked" and then the Microphone is silently refused. */
  P.useEffect(()=>{const f=()=>setOpen(true);window.addEventListener('xensonar:forge:linein-open',f);return()=>window.removeEventListener('xensonar:forge:linein-open',f)},[]);
  // the panel sits under (or above) the button in a fixed layer and follows scrolling
  P.useLayoutEffect(()=>{if(!open)return;let raf=0;const place=()=>{raf=0;const b=btnRef.current?.getBoundingClientRect();if(!b)return;const w=Math.min(420,innerWidth-16),H=popRef.current?.offsetHeight||360;
