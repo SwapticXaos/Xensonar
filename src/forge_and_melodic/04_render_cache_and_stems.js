@@ -294,7 +294,7 @@ function Mx(e){pS.push(e)}function h9e(e){pS=pS.filter(t=>t!==e)}
 function f9e(){
  const nodes=pS;pS=[];
  const master=nodes.find(node=>node.__f49PreviewMaster);
- __f49FadeAndRelease(master,.012,()=>{
+ __f49FadeAndRelease(master,.02,()=>{
   for(const node of nodes){try{if(typeof node.stop==='function')node.stop()}catch{}try{node.disconnect()}catch{}}
   __xenAuditionScheduleIdle();
  },master?.context?Math.min(.04,Math.max(.012,(Number(master.context.baseLatency)||0)*2+.006)):0)

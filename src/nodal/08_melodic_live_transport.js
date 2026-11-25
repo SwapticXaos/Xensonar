@@ -25,7 +25,7 @@ async function nodalStartMelodic(request) {
   const composer = request.composer, steps = iD(composer), duration = lD(request), stepSec = duration / steps;
   if (__mlSoloTrackId !== null && !composer.tracks.every(track => track.enabled === (track.id === __mlSoloTrackId))) __mlSoloTrackId = null;
   const selected = request.noteId ? composer.notes.filter(n => n.id === request.noteId) : composer.notes.filter(n => request.trackIds.includes(n.trackId));
-  const master = ctx.createGain(); master.gain.value = .82; master.__f49PreviewMaster = true; master.connect(bridge.getOutput(ctx)); Mx(master);
+  const master = ctx.createGain(); master.gain.value = .82; master.__f49PreviewMaster = true;
   const gains = new Map(), trackPanners = new Map(), players = new Map(), stems = new Map(), events = [];
   let timer = null, stopped = false, halted = false, cycle = 0, cursor = 0, startTime = ctx.currentTime + .12, loopOffset = 0;
   /* ML-DRAG-CLICK-01: halt = no more scheduling, the voices keep sounding until the master fade is done (hS); stop = release the voices (after the fade). */
@@ -80,6 +80,8 @@ async function nodalStartMelodic(request) {
     const noteOrigin = request.noteId && selected[0] ? Ax(composer, selected[0]) * stepSec : 0;
     events.forEach(event => event.at -= noteOrigin); events.sort((a, b) => a.at - b.at || a.note.id.localeCompare(b.note.id));
     startTime = ctx.currentTime + .12;
+    /* ML-DRAG-CLICK-02: a single-note audition (drag / chromatic strumming) fades its bus in over 8 ms around the first sample, so a voice that starts at a waveform step (square / saw) cannot click. */
+    if (request.noteId) { const t0 = ctx.currentTime; master.gain.cancelScheduledValues(t0); master.gain.setValueAtTime(0, t0); master.gain.setValueAtTime(0, startTime - .004); master.gain.linearRampToValueAtTime(.82, startTime + .008); }
     const tailsEnd = events.reduce((end, event) => { const note = nodalMelodicNoteOptions(composer, event.note, event.track, event.source, stepSec); return Math.max(end, event.at + note.durationSec + Math.max(note.releaseSec, event.source.plan.tailSec ?? 0) + .01); }, 0);
     const total = Math.max(tailsEnd, request.noteId && selected[0] ? F$(composer, selected[0]) * stepSec + .2 : E$(request));
     const session = {token, ctx, master, stemBuffers: stems, stemGains: gains, trackPanners, stemSources: [],
