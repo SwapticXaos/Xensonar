@@ -93,7 +93,7 @@ function sanitize(raw,liveBpm){
  const loop=raw.loop||{};const ls=Math.max(0,num(loop.start,0)),le=Math.max(ls+1/64,num(loop.end,ls+16));
  return {format:FORMAT,version:VERSION,id:KEY,name:String(raw.name||'Untitled Arrangement').slice(0,100),bpm:clamp(num(raw.bpm,108),20,400),
   beatsPerBar:clamp(num(raw.beatsPerBar,4),.5,64),grid:{div:clamp(Math.round(num(raw.grid?.div,4)),1,64),snap:raw.grid?.snap!==false},
-  zoom:clamp(num(raw.zoom,28),.05,4000),trackHeight:clamp(num(raw.trackHeight,64),3,4000),loop:{on:!!loop.on,start:ls,end:le},master:{volume:clamp(num(raw.master?.volume,.9),0,1.5),reverbSize:clamp(num(raw.master?.reverbSize,2.2),.2,8)},
+  zoom:clamp(num(raw.zoom,28),.05,4000),trackHeight:clamp(num(raw.trackHeight,64),3,4000),loop:{on:!!loop.on,start:ls,end:le},master:{volume:clamp(num(raw.master?.volume,.9),0,1.5),reverbSize:clamp(num(raw.master?.reverbSize,2.2),.2,8),strip:masterStripOf(raw.master?.strip)},
   markers:(Array.isArray(raw.markers)?raw.markers:[]).slice(0,256).filter(m=>m&&Number.isFinite(Number(m.beat))).map(m=>({id:String(m.id||uid('mk')),beat:Math.max(0,Number(m.beat)),name:String(m.name||'').slice(0,40),...(/^#[0-9a-f]{6}$/i.test(m.color)?{color:String(m.color).toLowerCase()}:{})})).sort((a,b)=>a.beat-b.beat),
   tracks:tracks.length?tracks:[blankTrack(0)],updatedAt:num(raw.updatedAt,Date.now())};
 }
@@ -267,6 +267,22 @@ const chainSig=t=>fxShape(fxEff(t))+(hasAuto(t,'volume')?'v':'');
 function driveCurve(a){const n=1024,c=new Float32Array(n),k=1+a*8,norm=Math.tanh(k);for(let i=0;i<n;i++)c[i]=Math.tanh(k*(i/(n-1)*2-1))/norm;return c}
 const driveMakeup=a=>1/Math.pow(1+a*8,.7);
 /* Deterministic stereo impulse response (seeded noise, exponential decay, darker towards the end): the same tail live and in every export. */
+/* MT-MASTER-01: the arrangement's master strip – the same chain for listening (live) and the mixdown (OfflineAudioContext), so both sound alike.
+   Glue (bus compressor) → Tape (soft saturation, 4× oversampled) → Air (high shelf, also negative = warm) → Limit (soft limiter: never above the ceiling).
+   Off = not in the signal path at all (the mixdown stays bit-identical to before). Stems and loudness matching stay raw (no strip). */
+const MASTER_STRIP_DEF=Object.freeze({on:false,glue:.35,tape:0,air:0,ceil:-1});
+function masterStripOf(raw){const m=raw||{};return {on:m.on===true,glue:clamp(num(m.glue,.35),0,1),tape:clamp(num(m.tape,0),0,1),air:clamp(num(m.air,0),-6,9),ceil:clamp(num(m.ceil,-1),-12,-.1)}}
+function tapeCurve(amount){const n=2048,c=new Float32Array(n),k=1+amount*7,norm=Math.tanh(k);for(let i=0;i<n;i++){const x=i/(n-1)*2-1;c[i]=amount<=0?x:Math.tanh(k*x)/norm}return c}
+/* Limit: soft limiter lim·tanh(x/lim) – below the ceiling almost linear, never above it. The shaper sees x/4 (range ±4) and stores y/4; the post gain ×4 restores the level. */
+function limitCurve(ceilDb){const n=4096,c=new Float32Array(n),lim=Math.pow(10,ceilDb/20);for(let i=0;i<n;i++){const x=(i/(n-1)*2-1)*4;c[i]=lim*Math.tanh(x/lim)/4}return c}
+function buildMasterStrip(ctx,st){const s=masterStripOf(st),input=ctx.createGain(),glue=ctx.createDynamicsCompressor(),tape=ctx.createWaveShaper(),air=ctx.createBiquadFilter(),pre=ctx.createGain(),clip=ctx.createWaveShaper(),post=ctx.createGain(),output=ctx.createGain();
+ air.type='highshelf';air.frequency.value=9000;tape.oversample='4x';clip.oversample='4x';pre.gain.value=.25;post.gain.value=4;
+ /* the Web Audio compressor adds its own make-up gain: Glue needs none; a compressor is NOT used as the limiter (its make-up made it louder, not safe) */
+ input.connect(glue);glue.connect(tape);tape.connect(air);air.connect(pre);pre.connect(clip);clip.connect(post);post.connect(output);
+ const set=(st2,now=ctx.currentTime)=>{const v=masterStripOf(st2),at=(prm,x)=>prm.setTargetAtTime(x,now,.03);
+  at(glue.threshold,-4-v.glue*22);at(glue.ratio,1+v.glue*3);at(glue.knee,12);glue.attack.value=.03;glue.release.value=.28;
+  tape.curve=tapeCurve(v.tape);at(air.gain,v.air);clip.curve=limitCurve(v.ceil)};
+ set(s);return {input,output,set,sig:()=>'on',dispose(){for(const n of [input,glue,tape,air,pre,clip,post,output])try{n.disconnect()}catch{}}}}
 function reverbIR(ctx,size){const sr=ctx.sampleRate,n=Math.max(64,Math.round(clamp(size,.2,8)*sr)),buf=ctx.createBuffer(2,n,sr);
  for(let ch=0;ch<2;ch++){const d=buf.getChannelData(ch);let seed=(0x9e3779b9^(ch*0x85ebca6b)^n)>>>0,lp=0,energy=0;const pre=Math.round(.012*sr);
   for(let i=pre;i<n;i++){seed=(seed+0x6d2b79f5)>>>0;let x=Math.imul(seed^(seed>>>15),1|seed);x=(x+Math.imul(x^(x>>>7),61|x))^x;const w=(((x^(x>>>14))>>>0)/4294967296)*2-1;
@@ -348,8 +364,10 @@ class Engine{
   const ctx=await bridge.ensureAudioReady();this.ctx=ctx;
   const used=new Set();for(const t of project.tracks)for(const c of t.clips)used.add(c.materialId);
   await Promise.all([...used].map(id=>requestAudio(lib.get(id))?.promise));await prepareVariants(project,lib,true);
-  this.master=ctx.createGain();this.master.gain.value=project.master.volume;this.meter=this.tap(this.master);
-  this.master.connect(bridge.getMasterInput(ctx));
+  this.master=ctx.createGain();this.master.gain.value=project.master.volume;
+  /* MT-MASTER-01: master strip between the arrangement master and the Live Room master input (only when switched on) */
+  this.strip=project.master.strip?.on?buildMasterStrip(ctx,project.master.strip):null;
+  if(this.strip){this.master.connect(this.strip.input);this.meter=this.tap(this.strip.output);this.strip.output.connect(bridge.getMasterInput(ctx))}else{this.meter=this.tap(this.master);this.master.connect(bridge.getMasterInput(ctx))}
   /* ROOM4-10: the metronome has its own gain straight into the live master input: it is not on the arrangement master and never in the export */
   this.metroGain=ctx.createGain();this.metroGain.gain.value=.5;this.metroGain.connect(bridge.getMasterInput(ctx));
   for(const t of project.tracks)this.chainFor(t);
@@ -379,7 +397,8 @@ class Engine{
    if(this.metro&&this.metroGain){const bpbN=this.project.beatsPerBar;for(let k=Math.ceil(s.a-1e-9);;k++){const tk=s.t+(k-s.a)*spb;if(k>=s.b-1e-9||tk>horizon)break;const key=s.i+'|m'+k;if(this.keys.has(key))continue;this.keys.add(key);if(tk>=now-.01)this.click(tk,Math.abs(k/bpbN-Math.round(k/bpbN))<1e-9)}}}}
  /* Edits while playing: mixer as AudioParam moves; changed/removed clips fade out and are re-planned from now. */
  update(project,lib){if(!this.playing){this.project=project;this.lib=lib;return false}const old=this.project,posBefore=this.position();/* ROOM4-04: read the beat position with the OLD tempo before swapping the project */this.project=project;this.lib=lib;const ctx=this.ctx,now=ctx.currentTime;
-  if(old.bpm!==project.bpm||old.loop.on!==project.loop.on||old.loop.start!==project.loop.start||old.loop.end!==project.loop.end){this.restartBeat=posBefore;return true}// caller restarts at the current beat
+  if(old.bpm!==project.bpm||old.loop.on!==project.loop.on||old.loop.start!==project.loop.start||old.loop.end!==project.loop.end||!!old.master.strip?.on!==!!project.master.strip?.on){this.restartBeat=posBefore;return true}
+  if(this.strip&&JSON.stringify(old.master.strip)!==JSON.stringify(project.master.strip))this.strip.set(project.master.strip,ctx.currentTime);// caller restarts at the current beat
   this.master.gain.setTargetAtTime(project.master.volume,now,.02);
   if(this.rev&&this.rev.size!==num(project.master.reverbSize,2.2)){this.rev.size=num(project.master.reverbSize,2.2);this.rev.conv.buffer=reverbIR(ctx,this.rev.size)}
   for(const t of project.tracks){const f=fxEff(t);let ch=this.chains.get(t.id);if(ch&&ch.sig!==chainSig(t)){this.dropChain(t.id);ch=null}// another set of effects or a new volume curve: rebuild this track (its clips re-plan through their signature)
@@ -400,8 +419,8 @@ class Engine{
  level(){return this.peakOf(this.meter)}
  stop(){this.playing=false;clearTimeout(this.timer);this.timer=null;const ctx=this.ctx;
   if(ctx){const now=ctx.currentTime;for(const v of this.voices){try{v.g.gain.cancelScheduledValues(now);v.g.gain.setTargetAtTime(0,now,.008);v.src.stop(now+.06)}catch{}}}this.voices.clear();
-  const chains=[...this.chains.values()],master=this.master,meter=this.meter,rev=this.rev,mg=this.metroGain;this.metroGain=null;this.chains.clear();this.master=null;this.meter=null;this.rev=null;
-  setTimeout(()=>{for(const c of chains){try{c.input.disconnect();c.output.disconnect()}catch{}this.untap(c.tap);try{c.fx?.dispose()}catch{}try{c.eq?.dispose?.()}catch{}}try{mg?.disconnect()}catch{}try{rev?.input.disconnect();rev?.conv.disconnect()}catch{}try{master?.disconnect()}catch{}this.untap(meter)},120);this.keys.clear();this.segs=[]}
+  const chains=[...this.chains.values()],master=this.master,meter=this.meter,rev=this.rev,mg=this.metroGain,strip=this.strip;this.metroGain=null;this.strip=null;this.chains.clear();this.master=null;this.meter=null;this.rev=null;
+  setTimeout(()=>{for(const c of chains){try{c.input.disconnect();c.output.disconnect()}catch{}this.untap(c.tap);try{c.fx?.dispose()}catch{}try{c.eq?.dispose?.()}catch{}}try{mg?.disconnect()}catch{}try{rev?.input.disconnect();rev?.conv.disconnect()}catch{}try{master?.disconnect()}catch{}try{strip?.dispose()}catch{}this.untap(meter)},120);this.keys.clear();this.segs=[]}
 }
 const engine=new Engine();
 /* ---------- mixdown (cold, offline) ---------- */
@@ -423,7 +442,9 @@ async function mixdown(project0,lib,fromBeat,toBeat,format,opts={}){
  const sr=48000,spb=60/project.bpm,dur=(toBeat-fromBeat)*spb,tail=.05+(opts.tailSec!=null?opts.tailSec:fxTailSec(opts.unity?{...project,tracks:project.tracks.map(t=>({...t,mute:false,solo:false,volume:1}))}:project)),frames=Math.ceil((dur+tail)*sr);
  if(!(frames>0)||frames>sr*60*30)throw Error('Mixdown range must be between 0 and 30 minutes.');
  const Offline=globalThis.OfflineAudioContext||globalThis.webkitOfflineAudioContext;const ctx=new Offline(2,frames,sr);
- const master=ctx.createGain();master.gain.value=opts.unity?1:project.master.volume;master.connect(ctx.destination);const any=!opts.unity&&project.tracks.some(t=>t.solo);
+ const master=ctx.createGain();master.gain.value=opts.unity?1:project.master.volume;
+ /* MT-MASTER-01: the mixdown runs through the same master strip as listening; stems / unity renders stay raw */
+ const mstrip=!opts.unity&&project.master.strip?.on?buildMasterStrip(ctx,project.master.strip):null;if(mstrip){master.connect(mstrip.input);mstrip.output.connect(ctx.destination)}else master.connect(ctx.destination);const any=!opts.unity&&project.tracks.some(t=>t.solo);
  /* ROOM4-05: same lane chain as live play (gain -> pan -> track EQ), so the export matches what is heard. */
  const lanes=[];let revIn=null;const getReverb=()=>{if(revIn)return revIn;revIn=ctx.createGain();const conv=ctx.createConvolver();conv.buffer=reverbIR(ctx,num(project.master.reverbSize,2.2));revIn.connect(conv);conv.connect(master);return revIn};
  for(const t of project.tracks){if(isFrozen(project,t))continue;const g=ctx.createGain(),input=ctx.createGain();g.gain.value=opts.unity?1:(t.mute||(any&&!t.solo))?0:t.volume;
@@ -474,6 +495,7 @@ const CSS=`.xmt{color:#e7e5e4;font:13px/1.35 system-ui,sans-serif;max-width:1500
 .xmt input,.xmt select{background:#111113;color:#e7e5e4;border:1px solid #3f3f46;border-radius:6px;padding:3px 6px;font:inherit}
 .xmt input[type=number]{width:66px}.xmt label{display:inline-flex;gap:6px;align-items:center;color:#a8a29e}
 .xmt .twrap{display:grid;grid-template-columns:minmax(0,1fr) 20px;grid-template-rows:auto 24px;gap:6px}
+.xmt .xmt-ms{display:inline-flex;align-items:center;gap:4px;font-size:11px}.xmt .xmt-ms input{width:70px}.xmt .xmt-ms small{min-width:42px;opacity:.75}
 .xmt .tracks{position:relative;grid-column:1;grid-row:1;min-width:0;overflow:auto;height:max(240px,calc(100vh - 360px));border:1px solid #2b2b31;border-radius:10px;background:#09090b;scrollbar-width:none}
 .xmt .tracks::-webkit-scrollbar{display:none}
 .xmt .trk.rr{position:sticky;top:0;z-index:6;background:#09090b;height:29px}
@@ -1118,6 +1140,14 @@ function XenMultitrackRoom(){
    u.jsx('input',{type:'file',ref:importRef,accept:'audio/*,.wav,.mp3,.ogg,.flac,.m4a,.aac',multiple:true,style:{display:'none'},onChange:e=>{const f=e.target.files;void importFiles(f);e.target.value=''}}),
    u.jsx('span',{style:{flex:1}}),
    u.jsxs('label',{children:['Master',u.jsx('input',{type:'range',min:0,max:1.5,step:.01,value:project.master.volume,title:'Master volume of the arrangement '+gainDb(project.master.volume),'aria-label':'Master volume','aria-valuetext':gainDb(project.master.volume),onChange:e=>commit({...project,master:{...project.master,volume:num(e.target.value,.9)}})})]}),
+   /* MT-MASTER-01: master strip (Glue · Tape · Air · Limit) – listening and mixdown alike; stems stay raw */
+   ...(()=>{const ms=project.master.strip||MASTER_STRIP_DEF,setMs=(patch,label)=>{const cur=projectRef.current||project;commit({...cur,master:{...cur.master,strip:{...(cur.master.strip||MASTER_STRIP_DEF),...patch}}},label)},/* from the CURRENT project: two quick changes must not overwrite each other */
+     rng=(key,label,min,max,step,val,txt,title)=>u.jsxs('label',{className:'xmt-ms',title,children:[label,u.jsx('input',{type:'range',min,max,step,value:val,'aria-label':'Master '+label,'aria-valuetext':txt,'data-xmt-master-strip':key,onChange:e=>setMs({[key]:num(e.target.value,val)})}),u.jsx('small',{children:txt})]});
+    return [u.jsx('button',{type:'button','aria-pressed':!!ms.on,'data-xmt-master-fx':'true',title:'Master strip: Glue (bus compressor), Tape (saturation), Air (high shelf), Limit (ceiling). Works for listening and for the mixdown; stems stay raw.',onClick:()=>setMs({on:!ms.on},ms.on?'Master FX off':'Master FX on'),children:'Master FX'}),
+     ...(ms.on?[rng('glue','Glue',0,1,.01,ms.glue,Math.round(ms.glue*100)+'%','Bus compressor: holds the tracks together; more = denser'),
+       rng('tape','Tape',0,1,.01,ms.tape,ms.tape>0?Math.round(ms.tape*100)+'%':'off','Soft saturation (oversampled): warmth and density, at the top it really drives'),
+       rng('air','Air',-6,9,.5,ms.air,(ms.air>0?'+':'')+ms.air.toFixed(1)+' dB','High shelf at 9 kHz: plus = air and shine, minus = warm and dark'),
+       rng('ceil','Limit',-12,-.1,.1,ms.ceil,ms.ceil.toFixed(1)+' dB','Limiter ceiling: nothing goes above it; lower = louder and harder')]:[])]})(),
    u.jsx('div',{className:'meter','aria-hidden':'true',title:'Master level of the arrangement, −60 to +6 dBFS (the mark is 0 dBFS). Red: above 0 dBFS.','data-xmt-master-meter':'true',children:u.jsx('i',{ref:meterRef})}),
    u.jsx('button',{type:'button',className:'pk',ref:peakRef,'data-xmt-peak':'true',title:'Highest master peak since playback started (sample peak before the Live Room master). Click to reset. The mixdown status line gives the exact loudness and true peak of the file.',onClick:resetPeak,children:'peak —'}),
    u.jsxs('select',{value:exportFormat,title:'Export format (mixdown and stems): 16-bit with TPDF dither, 24-bit, or 32-bit float (lossless headroom)',onChange:e=>setExportFormat(e.target.value),'aria-label':'Mixdown format','data-xmt-export-format':'true',children:[u.jsx('option',{value:'pcm16',children:'WAV 16-bit (dither)'}),u.jsx('option',{value:'pcm24',children:'WAV 24-bit'}),u.jsx('option',{value:'float32',children:'WAV 32-bit float'})]}),

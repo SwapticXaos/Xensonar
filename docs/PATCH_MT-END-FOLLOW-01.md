@@ -17,3 +17,15 @@ Datei: `src/post-oct/032-xen-room-multitrack.js` (Raum V · Multitrack). Kein Ei
 - Neu: `tests/e2e/mt_end_and_navseek.cjs`. 3-s-Clip: stoppt selbst, Play-Knopf zurück, Cursor bleibt. Klick ins Ansichtsfenster spult, Ziehen spult nicht. Gezoomt: Ansicht blättert um, Playhead im Bild; Follow aus: Ansicht bleibt. Ende-Taste. Grün. Gegenprobe davor: „Wiedergabe stoppt am Song-Ende nicht“.
 - Weiter grün: `multitrack_playhead_navseek`, `mtw01_delivery`, `mtw02_fades_meters`, `mtw04_level_and_input`, `multitrack_projects_tempo` (+ siehe Commit).
 - Nicht gehört.
+
+## MT-MASTER-01: Master-Kanal (Glue · Tape · Air · Limit)
+Aus dem Review `docs/REVIEW_LIVE_FX_2026-11-25.md`, Schritt 1 (Idee aus Live Mastering, neu gebaut).
+- `buildMasterStrip` (`032`): **eine** Kette für Abhören (Web Audio) **und** Mixdown (`OfflineAudioContext`), damit beides gleich klingt.
+  - Glue: Bus-Kompressor, Schwelle −4 … −26 dB, Ratio 1 … 4, ohne eigene Aufholverstärkung, weil der Web-Audio-Kompressor selbst aufholt.
+  - Tape: tanh-Sättigung, 4× Oversampling; 0 = linear.
+  - Air: High-Shelf 9 kHz, −6 … +9 dB.
+  - Limit: weicher Begrenzer `lim·tanh(x/lim)`, 4× Oversampling, Decke −12 … −0,1 dB. Er überschreitet die Decke nie. Ein Kompressor wurde bewusst **nicht** als Limiter genommen, weil seine automatische Aufholverstärkung den Pegel anhob statt ihn zu sichern.
+- Aus (Standard) = nicht im Signalweg: Der Mixdown ist bitgleich zu vorher. Stems, Lautheitsangleich und „unity“-Renders bleiben roh.
+- Projektformat: `master.strip {on, glue, tape, air, ceil}`, fehlt = aus (keine Migration). Undo-fähig. Ein-/Ausschalten während des Abspielens startet an der aktuellen Stelle neu; Reglerwerte gleiten live.
+- Oberfläche: Knopf „Master FX“ neben dem Master-Regler; an = vier Regler mit Wertanzeige. Die Regler gehen vom aktuellen Projektstand aus, damit zwei schnelle Änderungen sich nicht überschreiben.
+- Test: `tests/e2e/mt_master_strip.cjs`. Roh −6,31 dBFS → Limit −12 / Tape 60 % → −11,96 dBFS; wieder aus = bitgleich; Pegelanzeige beim Abspielen. Grün. Regression grün: `mtw01_delivery`, `mtw02_fades_meters`, `mt_end_and_navseek`, `multitrack_projects_tempo`.
