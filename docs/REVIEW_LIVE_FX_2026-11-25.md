@@ -59,7 +59,7 @@ Leitlinie vom Nutzer: Es geht um eine **breite Palette** eigenständiger Klangwe
 | 2 Tuning Resonator · Harmonic Memory | **umgesetzt** | Wave Editor, Kategorie „Resonance & Material“ |
 | 3 Material Resonator · Swarm Materials | **umgesetzt** | Wave Editor, Kategorie „Resonance & Material“ |
 | 4a Wavefolder · Spiral Fold | **umgesetzt** | Wave Editor, Kategorie „Distortion & Amp“ |
-| 4b Spiral als dritter Send im Multitrack | offen | – |
+| 4b Spiral als dritter Send im Multitrack | **umgesetzt** (MT-SPIRAL-01) | `032`, Spur-Effektfeld: „Spiral“ + Fold/Color/Motion/Regen |
 
 - **Tuning Resonator:** bis zu 96 Resonatoren (RBJ-Bandpass, Q aus der Nachklingzeit) auf einer Tonmenge: Obertöne, JI 5-limit, JI 7-limit, EDO (5–72 Stufen), Bohlen–Pierce (13 Stufen pro 3:1). Der Grundton wird aus dem Audio der Auswahl gefunden (gemitteltes Spektrum, harmonische Summe 40–500 Hz) oder eingetippt. Memory 0,05–12 s (automatisierbar), Stereo-Verstimmung, Excite (tanh). Die Resonanz wird auf den Pegel des Eingangs abgeglichen (≤ +30 dB).
 - **Material Resonator:** die vier Pfade des Schwarmdeuters (Harz-Resonanz, Riss, Braid-Kreuzecho, Unterstrom) mit den 6 Originalprofilen. Statt Partikeln steuern Hüllkurve (Druck), Anstieg (Bruch) und Nulldurchgangshelligkeit des Audios; „Follow“ mischt zwischen fester und vom Audio gesteuerter Bewegung.
@@ -67,3 +67,10 @@ Leitlinie vom Nutzer: Es geht um eine **breite Palette** eigenständiger Klangwe
 - Alle drei: Wet 0 = bitgleich übersprungen; Ausklang über `tailFrames`; deterministisch; laufen auch in der seriellen Kette mit Ausklang-Spur; Multitrack-Clips erreichen sie über „Open in WAV Editor…“.
 - Tests: `tests/wave_fx_palette.test.cjs` (7/7, in `GREEN_NODE_TESTS.txt`): Register, Neutralität, Grundtonerkennung ≈ 110 Hz, endliche Werte, Pegel, jede Tonmenge und jedes Material **klingt anders** (Palette), Determinismus, Wavefolder-Obertöne. `tests/e2e/wave_fx_palette.cjs`: alle drei unter „Add effect“, Apply / Bake ändert das Audio, Undo. Regression grün: `mtw03_wave_pitch_time`, `wave_golden_vertical`, `snap_all_wave_editor`.
 - Nicht gehört.
+
+## MT-SPIRAL-01 (26.11.)
+- `buildSpiralBus` (`032`): gemeinsamer Send-Bus pro Projekt, 100 % nass. Wavefolder (4× OS, Einheitsverstärkung für kleine Signale) → je Kanal ein 4-stufiger Allpass-Phaser, gefegt von einem langsamen LFO → Stereo-Delays 0,23 / 0,31 s mit Kreuz-Rückkopplung (Hoch- und Tiefpass in der Schleife), deren Zeiten ein Drift-LFO atmen lässt → Kompressor → Tiefpass. Derselbe Aufbau beim Abhören und im Mixdown.
+- Pro Spur: Send „Spiral“ (0 = kein Knoten, Kette unverändert). Pro Projekt (`master.spiral`): Fold, Color, Motion, Regen. „Regen“ statt „Feedback“, weil das Echo im selben Feld schon „Feedback“ heißt.
+- Ausklang im Export: aus Regen und Delayzeit berechnet (`fxTailSec`).
+- Beim Test gefunden und behoben: Der erste Entwurf war viel zu heiß (Spitze 0,25 → 1,195 bei Send 60 %), weil die Faltkennlinie leise Signale etwa 3,7-fach verstärkte und der Web-Audio-Kompressor zusätzlich aufholte. Jetzt 0,25 → 0,41.
+- Test: `tests/e2e/mt_spiral_send.cjs`. Send ändert Klang und Ausklang (162 400 → 290 560 Frames); andere Einstellungen ergeben eine andere Farbe; kein Pegelausbruch; Send 0 = bitgleich; Effektfeld zeigt Spiral/Fold/Color/Motion/Regen; Abspielen ohne Fehler. Regression grün: `mt_master_strip`, `mtw01_delivery`, `mtw02_fades_meters`, `mt_end_and_navseek`, `room_seams_multitrack`.
