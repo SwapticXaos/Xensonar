@@ -31,7 +31,7 @@ const html=path.resolve(process.argv[2]||'dist/XenSonar_PROBE.html');
  await p.keyboard.press('Escape');assert.equal(await mode.inputValue(),chosen);
  // ---- 2. More choices here ----
  await p.getByRole('button',{name:'More choices here'}).click();await p.waitForSelector('[data-installation-resident-controls]',{timeout:15000});await p.waitForTimeout(800);
- assert.match(await p.locator('.nd-heading h2').innerText(),/Art Installation/);
+ assert.match(await p.locator('.nd-heading h2').innerText(),/Art Installation/i);
  const view=await p.locator('[data-installation-resident-controls]').evaluate(e=>{const r=e.getBoundingClientRect();return {top:r.top,bottom:r.bottom,h:innerHeight}});
  assert.ok(view.top>=0&&view.bottom<=view.h,'the Resident controls are in view: '+JSON.stringify(view));
  // ---- 3. the hum (a fresh page WITHOUT Live power, so the Live Room drone cannot mask the measurement) ----

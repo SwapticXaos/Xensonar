@@ -37,3 +37,13 @@ Ursache (`styles/post-oct/071-xen-wave-editor-w01-css.css`): Im Standardmodus (�
 Änderung (nur CSS): Kette und Zeile bleiben links vom Scratchpad (`max-width: calc(57% - 16px)`, bei ≤ 900 px im Scratch-Modus 55 %) und **brechen dort um**; Kettenglieder dürfen schrumpfen. Der Scratchpad-Modus mit zwei Spalten war nie betroffen.
 
 Prüfung: `tests/e2e/wave_chain_visible.cjs` hängt zehn Effekte hintereinander und prüft bei 1500, 1200, 1000 und 880 px, dass jedes Kettenglied und jedes Bedienelement der Add-Zeile das Scratchpad nicht überlappt, im Fenster liegt und am Mittelpunkt das oberste Element ist (anklickbar). Grün. Gegenprobe auf dem Stand davor: Glied 3 und 4 sind verdeckt. Regression grün: `wave_fx_palette`, `mtw03_wave_pitch_time`.
+
+## HOLO-TITLE-01 (Nodal Center · Art Installation): „Hologram Ignition“ im Kopftrapez
+Aus den Header-Design-Varianten (Variante 04, „Hologram Ignition“) übernommen: Kaltstart-Lichtblitz mit waagerechtem Zündstrahl, dreistufige Helligkeitsspitzen, chromatische Aufspaltung Cyan / Gold, die sich in eine ruhige, weit gesperrte Michroma-Zeile fängt.
+
+Angefasst wurde **nur** der Titel links oben im Kopftrapez (`h2` in `NodalRoomHeader`, nur im Modus Art Installation; Sound Design behält den schlichten Titel):
+- `src/rooms/nodal.js`: das `h2` bekommt eine kleine Hülle (`.xen-holo`); der Text bleibt **ein** Textknoten (`data-text` speist die Cyan- und Gold-Ebene als Pseudo-Elemente), `key` spielt die Zündung beim Betreten des Modus erneut ab.
+- `styles/post-oct/holo-title-01.css` (neu, in `source-manifest.json` eingetragen): Keyframes der Vorlage als reines CSS (keine Animationsbibliothek, `framer-motion` gibt es im Projekt nicht), Michroma als eigene Schrift `XenMichroma` (latin, OFL, 18 KB, base64 eingebettet, offline), Scanlines, Zündstrahl. `prefers-reduced-motion`: keine Animation.
+- Die Animation sitzt auf einem inneren Element; der `transform` des `h2` im Kopftrapez bleibt unberührt. Index +27 KB (die Schrift).
+
+Prüfung: `tests/e2e/holo_title.cjs` (Titel einmal als Text, Michroma geladen, Zündung läuft: 3 Titel- + 4 Farbebenen-Animationen + Strahl, danach ruhig, Position links oben, Sound Design unverändert, Reduced Motion statisch). Regression grün: `nodal_gate`, `ball_paint`, `grid_visible`. `particle_head_hum` prüfte den Titel in Mischschreibung; der Titel erscheint jetzt in Großbuchstaben, die Prüfung ist unabhängig von der Schreibweise.

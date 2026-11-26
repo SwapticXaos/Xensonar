@@ -683,7 +683,8 @@
    "oct28_section": "@@XENSONAR_COMPONENT_066@@",
    "files": [
     "styles/overlays/nodal/04_shell_geometry_t2.css",
-    "styles/post-oct/viewscreen-console-01.css"
+    "styles/post-oct/viewscreen-console-01.css",
+    "styles/post-oct/holo-title-01.css"
    ]
   },
   {
