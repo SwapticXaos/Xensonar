@@ -21,11 +21,14 @@ const html=path.resolve(process.argv[2]||'dist/XenSonar_PROBE.html');
   const pos=await p.evaluate(()=>{const d=document.querySelector('.xen-dj-stage').getBoundingClientRect(),c=document.querySelector('canvas[data-xen-play-area]').getBoundingClientRect();return{deskRight:d.right,canvasLeft:c.left}});
   assert.ok(pos.deskRight<pos.canvasLeft,'desk left of playfield');
   await p.waitForTimeout(300);
-  const fb=await p.evaluate(()=>{const q=s=>document.querySelector(s).getBoundingClientRect();const d=q('.xen-stage-split-desk'),c=q('canvas[data-xen-play-area]'),below=q('.xen-mainroom-shell');return{vw:document.documentElement.clientWidth,sw:document.documentElement.scrollWidth,deskLeft:d.left,deskH:d.height,canvasRight:c.right,canvasH:c.height,shellLeft:below.left}});
+  const fb=await p.evaluate(()=>{const q=s=>document.querySelector(s).getBoundingClientRect();const d=q('.xen-stage-split-desk'),c=q('canvas[data-xen-play-area]'),below=q('.xen-mainroom-shell'),head=q('.xen-h1-tonal-stage > :first-child'),play=q('.xen-h1-tonal-stage > :nth-child(2)'),dock=q('.xen-power-loop-dock');
+   return{vw:document.documentElement.clientWidth,sw:document.documentElement.scrollWidth,deskLeft:d.left,deskH:d.height,deskTop:d.top,canvasRight:play.right,canvasTop:c.top,dockBottom:dock.bottom,dockLeft:dock.left,canvasLeft:c.left,headTop:head.top,canvasH:play.bottom-head.top,shellLeft:below.left}});
   assert.ok(fb.deskLeft<=12&&fb.deskLeft<fb.shellLeft,'desk flush with the window edge, not the block column: '+JSON.stringify(fb));
   assert.ok(fb.canvasRight>=fb.vw-12,'playfield reaches the right window edge');
   assert.equal(fb.sw,fb.vw,'no horizontal scroll');
-  assert.ok(Math.abs(fb.canvasH-fb.deskH)<=4,'default playfield height = Mixing Desk height '+fb.canvasH+' / '+fb.deskH);
+  assert.ok(Math.abs(fb.canvasH-fb.deskH)<=4,'default: head + playfield as tall as the Mixing Desk '+fb.canvasH+' / '+fb.deskH);
+  assert.ok(fb.canvasTop-fb.dockBottom>=0&&fb.canvasTop-fb.dockBottom<=61&&fb.dockLeft>fb.canvasLeft,'the playfield sits right under its power / Loop-Rec dock: '+JSON.stringify(fb));
+  assert.ok(Math.abs(fb.headTop-fb.deskTop)<=2,'head starts level with the desk');
   // drag the border
   const h=await p.$('.xen-stage-split-handle');await h.scrollIntoViewIfNeeded();let bb=await h.boundingBox();
   await p.mouse.move(bb.x+7,bb.y+40);await p.mouse.down();await p.mouse.move(bb.x-250,bb.y+40,{steps:6});await p.mouse.up();
@@ -40,7 +43,7 @@ const html=path.resolve(process.argv[2]||'dist/XenSonar_PROBE.html');
   assert.ok(Math.abs(st.bh-Math.round(Math.min(2*580,st.h)))<=2,'backing store follows stretched height: '+st.bh);
   // double-click on the height grip: back to the desk height
   await p.dblclick('.xen-stage-split-vgrip');await p.waitForTimeout(400);
-  const back=await p.evaluate(()=>({c:document.querySelector('canvas[data-xen-play-area]').getBoundingClientRect().height,d:document.querySelector('.xen-stage-split-desk').getBoundingClientRect().height,ls:__XenStageLayout.snapshot().playH.side}));
+  const back=await p.evaluate(()=>({c:document.querySelector('.xen-h1-tonal-stage > :nth-child(2)').getBoundingClientRect().bottom-document.querySelector('.xen-h1-tonal-stage > :first-child').getBoundingClientRect().top,d:document.querySelector('.xen-stage-split-desk').getBoundingClientRect().height,ls:__XenStageLayout.snapshot().playH.side}));
   assert.equal(back.ls,0);assert.ok(Math.abs(back.c-back.d)<=4,'reset = desk height');
   await p.mouse.move(bb.x+bb.width/2,bb.y+5);
   // pointer maths on the stretched canvas: j4 maps the rect to 1100 × 580 in x and y separately

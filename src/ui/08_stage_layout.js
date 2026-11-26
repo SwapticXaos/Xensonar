@@ -170,9 +170,13 @@ function __XenStageSplit({ stage, desk }) {
         root.style.setProperty('--xen-bleed-ml', Math.round(gutter - left) + 'px');
         root.style.setProperty('--xen-bleed-w', Math.max(320, vw - 2 * gutter) + 'px');
       }
-      // default playfield height = Mixing Desk height (until the user drags its own height)
+      // default: head (power, Loop-Rec) + playfield as tall as the Mixing Desk (until the user drags its own height)
       const deskEl = root.querySelector('.xen-stage-split-desk');
-      if (deskEl) root.style.setProperty('--xen-play-auto-h', Math.max(140, Math.round(deskEl.getBoundingClientRect().height) - 2) + 'px');
+      const headEl = root.querySelector('.xen-h1-tonal-stage > :first-child');
+      const headH = headEl ? headEl.getBoundingClientRect().height : 0;
+      const playEl = root.querySelector('.xen-h1-tonal-stage > :nth-child(2)'), cv = root.querySelector('canvas[data-xen-play-area]');
+      const frame = playEl && cv ? Math.max(0, playEl.getBoundingClientRect().height - cv.getBoundingClientRect().height) : 2;
+      if (deskEl) root.style.setProperty('--xen-play-auto-h', Math.max(140, Math.round(deskEl.getBoundingClientRect().height - headH - frame)) + 'px');
     };
     const schedule = () => { if (!raf) raf = requestAnimationFrame(measure); };
     measure();
@@ -182,6 +186,8 @@ function __XenStageSplit({ stage, desk }) {
       for (const el of document.querySelectorAll('.xen-performance,.xen-quick-dock')) ro.observe(el);
       const deskEl = root.querySelector('.xen-stage-split-desk');
       if (deskEl) ro.observe(deskEl);
+      const headEl = root.querySelector('.xen-h1-tonal-stage > :first-child');
+      if (headEl) ro.observe(headEl);
       if (root.parentElement) ro.observe(root.parentElement);
     } catch {}
     window.addEventListener('resize', schedule);

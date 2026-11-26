@@ -2,7 +2,8 @@
  * Same DOM in both docks: .xen-stage-split > play | vgrip | ghost | handle | desk.
  * dock=top : play surface above (between the side rails, as before), desk below, schematic thumb on the desk's right edge.
  * dock=side: inactive ghost stays above between the rails; below, FULL WINDOW WIDTH (not the column of the blocks below):
- *            desk (flush left) | handle | playfield (flush right). Playfield height defaults to the desk height.
+ *            desk (flush left) | handle | Live Room head (power, Loop-Rec) directly above the playfield (flush right).
+ *            Head + playfield default to the desk height (the playfield always sits right under its Loop-Rec dock).
  */
 .xen-stage-split { position: relative; display: flex; flex-direction: column; gap: 1rem; }
 
@@ -10,8 +11,7 @@
 @media (min-width: 1024px) {
   .xen-stage-split[data-dock="top"] > .xen-stage-split-play > .xen-h1-tonal-stage,
   .xen-stage-split[data-dock="top"] > .xen-stage-split-vgrip,
-  .xen-stage-split[data-dock="side"] > .xen-stage-split-ghost,
-  .xen-stage-split[data-dock="side"] .xen-h1-tonal-stage > :first-child {
+  .xen-stage-split[data-dock="side"] > .xen-stage-split-ghost {
     box-sizing: border-box;
     width: min(100%, calc(100vw - 2 * (var(--xen-side-rail-width) + var(--xen-side-rail-inset)) - 44px));
     max-width: none; margin-left: auto; margin-right: auto;
@@ -69,8 +69,8 @@ html.xen-split-dragging .xen-stage-split-handle { cursor: ew-resize !important; 
   grid-template-columns: minmax(0, var(--xen-split-desk, 62%)) 14px minmax(0, 1fr);
   grid-template-rows: auto auto auto 1fr;
   grid-template-areas:
-    "head  head   head"
     "ghost ghost  ghost"
+    "desk  handle head"
     "desk  handle play"
     "desk  handle vgrip";
   row-gap: 0; column-gap: 0; align-items: start;
@@ -81,10 +81,17 @@ html.xen-split-dragging .xen-stage-split-handle { cursor: ew-resize !important; 
 .xen-stage-split[data-dock="side"] > .xen-stage-split-play,
 .xen-stage-split[data-dock="side"] > .xen-stage-split-play > .xen-h1-tonal-stage { display: contents; }
 .xen-stage-split[data-dock="side"] .xen-h1-tonal-stage > :first-child {
-  grid-area: head; margin-bottom: 0 !important; padding: 1.25rem 1.25rem .75rem;
+  /* the same box as the tonal stage on top (p-5, head mb-4): head, power and Loop-Rec dock right above their playfield */
+  grid-area: head; margin: 1rem 0 0 !important; padding: 1.25rem 1.25rem 1rem; min-width: 0; min-height: 149px; box-sizing: border-box;
   background: #000; border: 1px solid #262626; border-bottom: 0;
 }
-.xen-stage-split[data-dock="side"] .xen-h1-tonal-stage > :nth-child(2) { grid-area: play; margin: 1rem 0 0 !important; min-width: 0; }
+/* in the narrow column LIVE-HEAD-02's invisible text would wrap and push the dock away from the playfield:
+   the head keeps the wide stage's geometry instead (112 px content: dock 32 px below its top, playfield 16 px below the head) */
+.xen-stage-split[data-dock="side"] .xen-h1-tonal-stage > :first-child p[aria-hidden="true"] { display: none; }
+.xen-stage-split[data-dock="side"] .xen-h1-tonal-stage > :nth-child(2) {
+  grid-area: play; margin: 0 !important; min-width: 0; padding: 0 1.25rem 1.25rem;
+  background: #000; border: 1px solid #262626; border-top: 0;
+}
 .xen-stage-split[data-dock="side"] > .xen-stage-split-desk { grid-area: desk; min-width: 0; margin-top: 1rem; }
 .xen-stage-split[data-dock="side"] > .xen-stage-split-vgrip { grid-area: vgrip; margin: 2px 0 0; align-self: start; }
 
@@ -144,3 +151,12 @@ html.xen-split-dragging .xen-stage-split-handle { cursor: ew-resize !important; 
 .xen-hold-interval-row[data-xen-hold-interval-active="1"] button:nth-child(2) {
   box-shadow: 0 0 0 2px #f4c87f, 0 0 8px rgba(244, 200, 127, .45);
 }
+
+/* LIVE-HEAD-03: the Live Room head as tall as before UI-TITLE-ART-01 (c1bfadf), at every width, so the Loop-Rec tab and the
+   playfield keep their old distance (16 px, the tab ending on the head's lower edge). What changed then: the eyebrow
+   "ROOM I · LIVE PERFORMANCE" (12 px + 3 px gap) above the title, and the vector title sitting on a text line (41 px instead of
+   its 33 px). Fix at the source: the title is a block (its own height), and the invisible LIVE-HEAD-02 box gives back the 15 px
+   of the eyebrow and the 1 px the title is taller – that box only exists to hold the head height, so the head is exactly as tall as with the old 32 px title. */
+.xen-h1-tonal-stage .xta-live-wrap > h2 { line-height: 0; }
+.xen-h1-tonal-stage .xta-live-wrap .xta-host, .xen-h1-tonal-stage .xta-live-wrap .xta-svg { display: block; }
+.xen-h1-tonal-stage .xta-live-wrap + p[aria-hidden="true"] { margin-top: -16px; }
