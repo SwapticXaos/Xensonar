@@ -184,6 +184,7 @@
     "src/mix/03_quick_menu__after_eq-core__after_eq-ui.js",
     "src/ui/dj_mix_math.js",
     "src/ui/07_dj_mix_stage.js",
+    "src/ui/08_stage_layout.js",
     "src/post-oct/gaps/010-main-bundle__02_after_03_quick_menu__after_eq-core__after_eq-ui.js",
     "src/mix/03_meta_menu__before_v2-session-store.js",
     "src/sessions/v2-session-store.js",
@@ -643,6 +644,13 @@
    "oct28_section": null,
    "files": [
     "styles/merge_meta_additions/048_xen-dj-mix-stage.css"
+   ]
+  },
+  {
+   "id": "css-042d-xen-stage-split",
+   "oct28_section": null,
+   "files": [
+    "styles/merge_meta_additions/049_xen-stage-split.css"
    ]
   },
   {

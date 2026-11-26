@@ -1,0 +1,319 @@
+/* UI-LIQUID-01: Liquid stage layout for the Live Room.
+ * - __XenStageLayout: one small persisted store for the user's screen split
+ *     dock     'top' | 'side'   where the play surface lives while the Mixing Desk is open
+ *     deskFrac 0.28 … 0.80      share of the width the Mixing Desk takes in side mode
+ *     playH    {top, side}      CSS height of the playfield canvas per dock (0 = natural 1100:580)
+ *     spacing  'abs' | 'log'    vertical grid distribution: absolute Hz (as before) or logarithmic
+ * - __XenStageSplit: wraps the play surface (Oce) and the Mixing Desk. The tree is ALWAYS the same
+ *   (play, vgrip, ghost, handle, desk); only data-dock and CSS change, so the canvas is never remounted.
+ * - __XenGridSpacingControl: the switch in Controls & Settings.
+ * The canvas keeps its logical 1100 × 580 space; stretching is a non-uniform CSS scale. Pointer maths
+ * (j4) and the backing store (__xenLiveCanvasFit) scale x and y separately, so input stays exact. */
+const __XenStageLayout = (() => {
+  const KEY = 'xensonar.stageLayout.v1';
+  const DESK_DEFAULT = 0.62;
+  const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+  const listeners = new Set();
+  let state = { dock: 'top', deskFrac: DESK_DEFAULT, playH: { top: 0, side: 0 }, spacing: 'abs' };
+  try {
+    const raw = JSON.parse(localStorage.getItem(KEY) || 'null');
+    if (raw && typeof raw === 'object') {
+      state = {
+        dock: raw.dock === 'side' ? 'side' : 'top',
+        deskFrac: Number.isFinite(raw.deskFrac) ? clamp(raw.deskFrac, 0.28, 0.8) : DESK_DEFAULT,
+        playH: {
+          top: Number.isFinite(raw.playH?.top) && raw.playH.top >= 140 ? clamp(raw.playH.top, 140, 1600) : 0,
+          side: Number.isFinite(raw.playH?.side) && raw.playH.side >= 140 ? clamp(raw.playH.side, 140, 1600) : 0
+        },
+        spacing: raw.spacing === 'log' ? 'log' : 'abs'
+      };
+    }
+  } catch {}
+  const persist = () => { try { localStorage.setItem(KEY, JSON.stringify(state)); } catch {} };
+  const set = (patch, save = true) => {
+    state = { ...state, ...patch };
+    if (save) persist();
+    for (const fn of listeners) fn();
+  };
+  return Object.freeze({
+    DESK_DEFAULT,
+    snapshot: () => state,
+    subscribe: fn => (listeners.add(fn), () => listeners.delete(fn)),
+    setDock: d => set({ dock: d === 'side' ? 'side' : 'top' }),
+    setDeskFrac: (f, save = true) => set({ deskFrac: clamp(Number(f) || DESK_DEFAULT, 0.28, 0.8) }, save),
+    setPlayHeight: (dock, px, save = true) => {
+      const v = Number(px) > 0 ? clamp(Math.round(px), 140, 1600) : 0;
+      set({ playH: { ...state.playH, [dock === 'side' ? 'side' : 'top']: v } }, save);
+    },
+    commit: persist,
+    setSpacing: s => set({ spacing: s === 'log' ? 'log' : 'abs' }),
+    isLogSpacing: () => state.spacing === 'log'
+  });
+})();
+/* Read by Qa / Zs (y ↔ Hz of the Live Room grid). Cheap: one property read per call. */
+function __xenGridSpacingIsLog() { return __XenStageLayout.isLogSpacing(); }
+if (typeof window !== 'undefined') {
+  window.__XenStageLayout = __XenStageLayout;
+  // read-only probe for tests/diagnostics: the Live Room y (0…580) ↔ Hz mapping in the current spacing
+  window.__XenGridMapProbe = Object.freeze({ yToHz: y => Qa(y), hzToY: f => Zs(f), toLogical: (canvas, cx, cy) => j4({ currentTarget: canvas, clientX: cx, clientY: cy }, vr, ir) });
+}
+
+function __XenStageSplitThumb({ log, onActivate }) {
+  // Schematic, greyed-out narrow playfield: grid lines in the current spacing + a few particles.
+  const lines = [];
+  const n = 15;
+  for (let i = 1; i < n; i++) {
+    const r = i / n;
+    // equal-tempered lines over 3 octaves: in 'abs' (linear Hz) they crowd at the bottom, in 'log' they are even
+    const y = log ? 100 * (1 - r) : 100 * (1 - (Math.pow(2, 3 * r) - 1) / 7);
+    lines.push(u.jsx('line', { x1: 0, x2: 24, y1: y.toFixed(2), y2: y.toFixed(2), className: i % 5 === 0 ? 'is-major' : '' }, i));
+  }
+  const dots = [[6, 22], [17, 41], [10, 63], [19, 78], [5, 88]];
+  return u.jsxs('button', {
+    type: 'button',
+    className: 'xen-stage-split-thumb',
+    title: 'Spielfläche hierher holen: Mixing Desk links, Raster rechts – die Grenze ist frei verschiebbar',
+    'aria-label': 'Spielfläche neben das Mixing Desk holen',
+    onClick: onActivate,
+    children: [
+      u.jsxs('svg', {
+        viewBox: '0 0 24 100', preserveAspectRatio: 'none', 'aria-hidden': true,
+        children: [
+          u.jsx('rect', { x: 0, y: 0, width: 24, height: 100, className: 'bg' }),
+          ...lines,
+          ...dots.map(([x, y], i) => u.jsx('circle', { cx: x, cy: y, r: 1.3, className: 'dot' }, 'd' + i))
+        ]
+      }),
+      u.jsx('span', { className: 'xen-stage-split-thumb-label', children: 'Raster' })
+    ]
+  });
+}
+
+function __xenDragPointer(ev, onMove, onEnd) {
+  ev.preventDefault();
+  const el = ev.currentTarget;
+  try { el.setPointerCapture?.(ev.pointerId); } catch {}
+  el.classList.add('is-dragging');
+  document.documentElement.classList.add('xen-split-dragging');
+  const move = e => onMove(e);
+  const up = () => {
+    el.removeEventListener('pointermove', move);
+    el.removeEventListener('pointerup', up);
+    el.removeEventListener('pointercancel', up);
+    el.classList.remove('is-dragging');
+    document.documentElement.classList.remove('xen-split-dragging');
+    onEnd?.();
+  };
+  el.addEventListener('pointermove', move);
+  el.addEventListener('pointerup', up);
+  el.addEventListener('pointercancel', up);
+}
+
+function __XenStageSplit({ stage, desk }) {
+  const lay = P.useSyncExternalStore(__XenStageLayout.subscribe, __XenStageLayout.snapshot, __XenStageLayout.snapshot);
+  const djApi = typeof window !== 'undefined' ? window.__XenDjStage : null;
+  const deskOpen = P.useSyncExternalStore(
+    fn => (djApi ? djApi.subscribe(fn) : () => {}),
+    () => !!djApi?.isExpanded(),
+    () => false
+  );
+  const open = deskOpen && !!desk;
+  const dock = open && lay.dock === 'side' ? 'side' : 'top';
+  const rootRef = P.useRef(null);
+  const ghostRef = P.useRef(null);
+  const playH = lay.playH[dock] || 0;
+
+  // Side mode: the inactive ghost keeps the area between the two (absolute) side rails, so the
+  // full-width desk row starts below them. Measured, never per frame.
+  P.useLayoutEffect(() => {
+    if (dock !== 'side') return;
+    const root = rootRef.current;
+    if (!root) return;
+    let raf = 0;
+    const measure = () => {
+      raf = 0;
+      const g = ghostRef.current;
+      if (!g) return;
+      const top = g.getBoundingClientRect().top;
+      let bottom = 0;
+      if (window.innerWidth >= 1024) {
+        for (const el of document.querySelectorAll('.xen-performance,.xen-quick-dock')) {
+          const r = el.getBoundingClientRect();
+          if (r.height > 0) bottom = Math.max(bottom, r.bottom);
+        }
+      }
+      const h = Math.max(64, Math.min(900, Math.round(bottom - top + 12)));
+      root.style.setProperty('--xen-ghost-h', h + 'px');
+    };
+    const schedule = () => { if (!raf) raf = requestAnimationFrame(measure); };
+    measure();
+    let ro = null;
+    try {
+      ro = new ResizeObserver(schedule);
+      for (const el of document.querySelectorAll('.xen-performance,.xen-quick-dock')) ro.observe(el);
+    } catch {}
+    window.addEventListener('resize', schedule);
+    return () => {
+      if (raf) cancelAnimationFrame(raf);
+      ro?.disconnect();
+      window.removeEventListener('resize', schedule);
+    };
+  }, [dock]);
+
+  const goSide = () => {
+    __XenStageLayout.setDock('side');
+    requestAnimationFrame(() => rootRef.current?.querySelector('.xen-stage-split-desk')?.scrollIntoView({ behavior: 'smooth', block: 'start' }));
+  };
+  const goTop = () => __XenStageLayout.setDock('top');
+
+  const onHandleDown = ev => {
+    if (ev.button !== undefined && ev.button !== 0) return;
+    const root = rootRef.current;
+    if (!root) return;
+    const rect = root.getBoundingClientRect();
+    __xenDragPointer(ev,
+      e => __XenStageLayout.setDeskFrac((e.clientX - rect.left) / Math.max(1, rect.width), false),
+      () => __XenStageLayout.commit());
+  };
+  const onHandleKey = ev => {
+    const step = ev.shiftKey ? 0.05 : 0.01;
+    if (ev.key === 'ArrowLeft') { ev.preventDefault(); __XenStageLayout.setDeskFrac(lay.deskFrac - step); }
+    else if (ev.key === 'ArrowRight') { ev.preventDefault(); __XenStageLayout.setDeskFrac(lay.deskFrac + step); }
+  };
+  const onVgripDown = ev => {
+    if (ev.button !== undefined && ev.button !== 0) return;
+    const canvas = rootRef.current?.querySelector('canvas[data-xen-play-area]');
+    if (!canvas) return;
+    const startY = ev.clientY;
+    const startH = canvas.getBoundingClientRect().height;
+    __xenDragPointer(ev,
+      e => __XenStageLayout.setPlayHeight(dock, startH + (e.clientY - startY), false),
+      () => __XenStageLayout.commit());
+  };
+  const onVgripKey = ev => {
+    const canvas = rootRef.current?.querySelector('canvas[data-xen-play-area]');
+    if (!canvas) return;
+    const step = ev.shiftKey ? 60 : 12;
+    const h = canvas.getBoundingClientRect().height;
+    if (ev.key === 'ArrowUp') { ev.preventDefault(); __XenStageLayout.setPlayHeight(dock, h - step); }
+    else if (ev.key === 'ArrowDown') { ev.preventDefault(); __XenStageLayout.setPlayHeight(dock, h + step); }
+  };
+
+  const style = { '--xen-split-desk': (lay.deskFrac * 100).toFixed(2) + '%' };
+  if (playH) style['--xen-play-h'] = playH + 'px';
+
+  return u.jsxs('div', {
+    ref: rootRef,
+    className: 'xen-stage-split',
+    'data-dock': dock,
+    'data-desk-open': open ? 'true' : 'false',
+    'data-play-h': playH ? 'custom' : 'natural',
+    'data-grid-spacing': lay.spacing,
+    style,
+    children: [
+      u.jsx('div', { className: 'xen-stage-split-play', children: stage }),
+      u.jsx('div', {
+        className: 'xen-stage-split-vgrip',
+        role: 'separator',
+        'aria-orientation': 'horizontal',
+        'aria-label': 'Rasterhöhe ziehen (Doppelklick: Originalhöhe)',
+        title: 'Raster höher / flacher ziehen · Doppelklick: Originalverhältnis 1100:580',
+        tabIndex: 0,
+        onPointerDown: onVgripDown,
+        onKeyDown: onVgripKey,
+        onDoubleClick: () => __XenStageLayout.setPlayHeight(dock, 0),
+        children: u.jsx('span', { className: 'xen-stage-split-grip-dots', 'aria-hidden': true })
+      }),
+      u.jsxs('div', {
+        ref: ghostRef,
+        className: 'xen-stage-split-ghost',
+        role: 'button',
+        tabIndex: dock === 'side' ? 0 : -1,
+        'aria-hidden': dock === 'side' ? undefined : true,
+        title: 'Spielfläche wieder nach oben holen',
+        onClick: goTop,
+        onKeyDown: e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); goTop(); } },
+        children: [
+          u.jsx('span', { className: 'xen-stage-split-ghost-grid', 'aria-hidden': true }),
+          u.jsxs('span', { className: 'xen-stage-split-ghost-label', children: [
+            u.jsx('strong', { children: 'Spielfläche ist unten neben dem Mixing Desk' }),
+            u.jsx('span', { children: 'Klicken, um sie wieder hier oben zu spielen' })
+          ] })
+        ]
+      }),
+      u.jsxs('div', {
+        className: 'xen-stage-split-handle',
+        role: 'separator',
+        'aria-orientation': 'vertical',
+        'aria-label': 'Grenze Mixing Desk / Spielfläche verschieben',
+        'aria-valuemin': 28, 'aria-valuemax': 80, 'aria-valuenow': Math.round(lay.deskFrac * 100),
+        title: 'Grenze verschieben · Doppelklick: Standard',
+        tabIndex: dock === 'side' ? 0 : -1,
+        onPointerDown: onHandleDown,
+        onKeyDown: onHandleKey,
+        onDoubleClick: () => __XenStageLayout.setDeskFrac(__XenStageLayout.DESK_DEFAULT),
+        children: [
+          u.jsx('span', { className: 'xen-stage-split-grip-dots', 'aria-hidden': true }),
+          u.jsx('button', {
+            type: 'button',
+            className: 'xen-stage-split-return',
+            title: 'Spielfläche zurück nach oben',
+            'aria-label': 'Spielfläche zurück nach oben',
+            onPointerDown: e => e.stopPropagation(),
+            onClick: goTop,
+            children: '↑'
+          })
+        ]
+      }),
+      u.jsxs('div', {
+        className: 'xen-stage-split-desk',
+        children: [
+          desk,
+          open && dock === 'top' ? u.jsx(__XenStageSplitThumb, { log: lay.spacing === 'log', onActivate: goSide }) : null
+        ]
+      })
+    ]
+  });
+}
+
+function __XenGridSpacingControl() {
+  const lay = P.useSyncExternalStore(__XenStageLayout.subscribe, __XenStageLayout.snapshot, __XenStageLayout.snapshot);
+  const opts = [
+    ['abs', 'Absolute', 'Equal Hz per pixel (as before): higher intervals are wider.'],
+    ['log', 'Logarithmic', 'Every octave is equally tall, like piano keys. Pitch follows the picture: the pointer plays what it points at.']
+  ];
+  const custom = lay.playH.top || lay.playH.side;
+  return u.jsxs('div', {
+    role: 'radiogroup',
+    'aria-label': 'Grid spacing',
+    'data-xen-grid-spacing': lay.spacing,
+    className: 'flex flex-col gap-1',
+    children: [
+      u.jsx('span', { className: 'text-xs text-neutral-400', children: 'Grid Spacing (vertical)' }),
+      u.jsx('div', {
+        className: 'flex gap-1',
+        children: opts.map(([m, l, tt]) => u.jsx('button', {
+          type: 'button', role: 'radio', 'aria-checked': lay.spacing === m, title: tt,
+          'data-xen-grid-spacing-option': m,
+          onClick: () => __XenStageLayout.setSpacing(m),
+          className: 'flex-1 border px-2 py-1 text-xs ' + (lay.spacing === m
+            ? 'border-sky-500/70 bg-sky-950/40 text-sky-200'
+            : 'border-neutral-700 bg-neutral-900 text-neutral-400 hover:text-neutral-200'),
+          children: l
+        }, m))
+      }),
+      u.jsxs('p', {
+        className: 'text-[10px] leading-snug text-neutral-500',
+        children: [
+          'Drag the bar under the playfield to make the grid taller or flatter (double-click: original). ',
+          custom ? u.jsx('button', {
+            type: 'button',
+            className: 'underline text-neutral-400 hover:text-neutral-200',
+            onClick: () => { __XenStageLayout.setPlayHeight('top', 0); __XenStageLayout.setPlayHeight('side', 0); },
+            children: 'Reset height'
+          }) : null
+        ]
+      })
+    ]
+  });
+}

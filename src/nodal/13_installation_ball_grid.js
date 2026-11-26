@@ -22,10 +22,10 @@ const __NodalBallGrid=(()=>{
  function lines(){
   const p=params();if(!p||__xenGridMuted(p))return empty;
   const source=pEe(p),range=gj();
-  if(cache?.source===source&&cache.min===range.min&&cache.max===range.max)return cache.lines;
+  const log=__xenGridSpacingIsLog();if(cache?.source===source&&cache.min===range.min&&cache.max===range.max&&cache.log===log)return cache.lines;
   const rows=source.filter(row=>!row.manualMuted&&!row.modeMuted&&Number.isFinite(row.freq)&&row.freq>=range.min&&row.freq<=range.max)
-   .map(row=>Object.freeze({id:row.id,freq:row.freq,y:(range.max-row.freq)/(range.max-range.min)})).sort((a,b)=>a.y-b.y);
-  cache={source,min:range.min,max:range.max,lines:Object.freeze(rows)};return cache.lines;
+   .map(row=>Object.freeze({id:row.id,freq:row.freq,y:Zs(row.freq)/ir})).sort((a,b)=>a.y-b.y);
+  cache={source,min:range.min,max:range.max,log,lines:Object.freeze(rows)};return cache.lines;
  }
  function reset(state,y,time,grid,frequency=0){Object.assign(state,{previousY:y,time,grid,lastHit:-Infinity,lastLine:null,frequency});}
  function control(snapshot,mix,state,time){

@@ -1,0 +1,135 @@
+/* UI-LIQUID-01: Liquid stage split (play surface ↔ Mixing Desk).
+ * Same DOM in both docks: .xen-stage-split > play | vgrip | ghost | handle | desk.
+ * dock=top : play surface above (between the side rails, as before), desk below, schematic thumb on the desk's right edge.
+ * dock=side: inactive ghost stays above between the rails; below, full width: desk (left, flush) | handle | playfield (right).
+ */
+.xen-stage-split { position: relative; display: flex; flex-direction: column; gap: 1rem; }
+
+/* the tonal stage was a direct child of .xen-mainroom-shell; keep its between-the-rails width */
+@media (min-width: 1024px) {
+  .xen-stage-split[data-dock="top"] > .xen-stage-split-play > .xen-h1-tonal-stage,
+  .xen-stage-split[data-dock="top"] > .xen-stage-split-vgrip,
+  .xen-stage-split[data-dock="side"] > .xen-stage-split-ghost,
+  .xen-stage-split[data-dock="side"] .xen-h1-tonal-stage > :first-child {
+    box-sizing: border-box;
+    width: min(100%, calc(100vw - 2 * (var(--xen-side-rail-width) + var(--xen-side-rail-inset)) - 44px));
+    max-width: none; margin-left: auto; margin-right: auto;
+  }
+}
+
+/* user height of the playfield (non-uniform scale, pointer maths follows the element rect) */
+.xen-stage-split[data-play-h="custom"] canvas[data-xen-play-area] { height: var(--xen-play-h) !important; }
+
+/* ── grips ── */
+.xen-stage-split-vgrip {
+  height: 12px; margin-top: -0.85rem; margin-bottom: -0.35rem;
+  display: flex; align-items: center; justify-content: center;
+  cursor: ns-resize; touch-action: none; border-radius: 4px; opacity: .55;
+  transition: opacity .15s, background .15s;
+}
+.xen-stage-split-vgrip:hover, .xen-stage-split-vgrip:focus-visible, .xen-stage-split-vgrip.is-dragging { opacity: 1; background: rgba(125, 211, 252, .08); outline: none; }
+.xen-stage-split-grip-dots { display: block; width: 46px; height: 4px; border-radius: 2px;
+  background: repeating-linear-gradient(90deg, rgba(186, 230, 253, .7) 0 4px, transparent 4px 8px); }
+.xen-stage-split-handle .xen-stage-split-grip-dots { width: 4px; height: 46px;
+  background: repeating-linear-gradient(180deg, rgba(186, 230, 253, .7) 0 4px, transparent 4px 8px); }
+html.xen-split-dragging, html.xen-split-dragging * { user-select: none !important; }
+html.xen-split-dragging .xen-stage-split-handle { cursor: ew-resize !important; }
+
+.xen-stage-split-ghost, .xen-stage-split-handle { display: none; }
+
+/* ── top dock: desk + narrow schematic playfield on its right edge ── */
+.xen-stage-split-desk { display: flex; align-items: stretch; gap: 6px; min-width: 0; }
+.xen-stage-split-desk > :first-child { flex: 1 1 auto; min-width: 0; }
+.xen-stage-split-thumb {
+  position: relative; flex: 0 0 34px; min-height: 120px; padding: 0;
+  border: 1px solid rgba(148, 163, 184, .28); border-radius: 6px; background: #07090c;
+  cursor: pointer; overflow: hidden; filter: grayscale(.85); opacity: .55;
+  transition: opacity .18s, filter .18s, border-color .18s, flex-basis .18s;
+}
+.xen-stage-split-thumb svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+.xen-stage-split-thumb .bg { fill: #0b0f14; }
+.xen-stage-split-thumb line { stroke: rgba(203, 213, 225, .35); stroke-width: .6; vector-effect: non-scaling-stroke; }
+.xen-stage-split-thumb line.is-major { stroke: rgba(244, 114, 182, .55); }
+.xen-stage-split-thumb .dot { fill: rgba(226, 232, 240, .8); }
+.xen-stage-split-thumb-label {
+  position: absolute; left: 50%; bottom: 8px; transform: translateX(-50%) rotate(180deg);
+  writing-mode: vertical-rl; font-size: 9px; letter-spacing: .18em; text-transform: uppercase;
+  color: rgba(226, 232, 240, .7); pointer-events: none;
+}
+.xen-stage-split-thumb:hover, .xen-stage-split-thumb:focus-visible {
+  opacity: 1; filter: none; border-color: rgba(125, 211, 252, .7); flex-basis: 44px; outline: none;
+}
+
+/* ── side dock ── */
+.xen-stage-split[data-dock="side"] {
+  display: grid;
+  grid-template-columns: minmax(0, var(--xen-split-desk, 62%)) 14px minmax(0, 1fr);
+  grid-template-rows: auto auto auto 1fr;
+  grid-template-areas:
+    "head  head   head"
+    "ghost ghost  ghost"
+    "desk  handle play"
+    "desk  handle vgrip";
+  row-gap: 0; column-gap: 0; align-items: start;
+}
+/* flatten play wrapper + tonal stage so its two parts (header, canvas) become grid items: no remount */
+.xen-stage-split[data-dock="side"] > .xen-stage-split-play,
+.xen-stage-split[data-dock="side"] > .xen-stage-split-play > .xen-h1-tonal-stage { display: contents; }
+.xen-stage-split[data-dock="side"] .xen-h1-tonal-stage > :first-child {
+  grid-area: head; margin-bottom: 0 !important; padding: 1.25rem 1.25rem .75rem;
+  background: #000; border: 1px solid #262626; border-bottom: 0;
+}
+.xen-stage-split[data-dock="side"] .xen-h1-tonal-stage > :nth-child(2) { grid-area: play; margin: 1rem 0 0 !important; min-width: 0; }
+.xen-stage-split[data-dock="side"] > .xen-stage-split-desk { grid-area: desk; min-width: 0; margin-top: 1rem; }
+.xen-stage-split[data-dock="side"] > .xen-stage-split-vgrip { grid-area: vgrip; margin: 2px 0 0; align-self: start; }
+
+.xen-stage-split[data-dock="side"] > .xen-stage-split-ghost {
+  grid-area: ghost; position: relative; display: flex; align-items: center; justify-content: center;
+  height: var(--xen-ghost-h, 160px); min-height: 64px; box-sizing: border-box;
+  border: 1px dashed rgba(148, 163, 184, .25); border-top: 0; background: #050608;
+  cursor: pointer; overflow: hidden;
+}
+.xen-stage-split-ghost-grid { position: absolute; inset: 0; opacity: .22;
+  background: repeating-linear-gradient(180deg, transparent 0 26px, rgba(148, 163, 184, .45) 26px 27px); }
+.xen-stage-split-ghost-label { position: relative; display: flex; flex-direction: column; align-items: center; gap: 4px;
+  padding: 8px 14px; border-radius: 6px; background: rgba(5, 6, 8, .82); color: #94a3b8; font-size: 12px; text-align: center; }
+.xen-stage-split-ghost-label strong { color: #cbd5e1; font-weight: 600; letter-spacing: .02em; }
+.xen-stage-split-ghost:hover .xen-stage-split-ghost-label, .xen-stage-split-ghost:focus-visible .xen-stage-split-ghost-label { color: #e2e8f0; }
+.xen-stage-split-ghost:hover, .xen-stage-split-ghost:focus-visible { border-color: rgba(125, 211, 252, .55); outline: none; }
+
+.xen-stage-split[data-dock="side"] > .xen-stage-split-handle {
+  grid-area: handle; align-self: stretch; position: relative; display: flex; flex-direction: column;
+  align-items: center; justify-content: center; gap: 10px; margin-top: 1rem;
+  cursor: ew-resize; touch-action: none; border-radius: 4px; opacity: .6; transition: opacity .15s, background .15s;
+}
+.xen-stage-split-handle:hover, .xen-stage-split-handle:focus-visible, .xen-stage-split-handle.is-dragging {
+  opacity: 1; background: rgba(125, 211, 252, .08); outline: none; }
+.xen-stage-split-return {
+  position: sticky; top: 50vh; width: 14px; height: 22px; padding: 0; border: 1px solid rgba(148, 163, 184, .4);
+  border-radius: 3px; background: #0b1117; color: #bae6fd; font-size: 11px; line-height: 1; cursor: pointer;
+}
+.xen-stage-split-return:hover { border-color: #7dd3fc; color: #fff; }
+
+/* very narrow screens: side dock stacks (desk, then playfield) */
+@media (max-width: 760px) {
+  .xen-stage-split[data-dock="side"] {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas: "head" "ghost" "desk" "play" "vgrip";
+    grid-template-rows: none;
+  }
+  .xen-stage-split[data-dock="side"] > .xen-stage-split-handle { display: none; }
+}
+
+/* The desk follows its OWN width (not the viewport) once it can be narrowed: mirror of the
+   viewport breakpoints in 048_xen-dj-mix-stage.css as container queries. */
+.xen-stage-split-desk { container: xen-desk / inline-size; }
+@container xen-desk (max-width: 1120px) {
+  .xen-dj-strips-row.is-dense { grid-template-columns: repeat(auto-fill, minmax(176px, 224px)); }
+}
+@container xen-desk (max-width: 900px) {
+  .xen-dj-crossfader-bar { grid-template-columns: 1fr; }
+  .xen-dj-xfade-side, .xen-dj-xfade-side.is-right { justify-content: center; }
+}
+@container xen-desk (max-width: 860px) {
+  .xen-dj-spectrum-bar { grid-template-columns: 1fr; }
+}
