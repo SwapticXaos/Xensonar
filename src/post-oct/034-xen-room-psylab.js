@@ -533,7 +533,6 @@ class Metronome{
 
 const CSS=`
 .xpl{color:#e9e4ff;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12px;padding:14px 16px 28px;max-width:1500px;margin:0 auto}
-/* UI-EMBLEM-STARS-01 + UI-TITLE-ART-01: head with eyebrow, emblem (8 XenSonar triangles) and vector title on one line */
 .xpl-head{position:relative;display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:12px 24px;padding:2px 0 13px;margin:0 0 12px;border-bottom:1px solid #2e244d}
 .xpl-head::after{content:'';position:absolute;left:0;bottom:-1px;width:min(380px,58%);height:1px;background:linear-gradient(90deg,rgba(240,171,252,.72),rgba(126,238,255,.35) 55%,transparent);pointer-events:none}
 .xpl-brand{display:block;min-width:0;flex:1 1 380px}
@@ -543,6 +542,10 @@ const CSS=`
 .xpl-eyebrow{font-family:ui-sans-serif,system-ui,sans-serif;font-size:10px;font-weight:500;letter-spacing:.24em;text-transform:uppercase;color:#d9a8f5;line-height:1.2}
 .xpl h2{font-family:Georgia,"Iowan Old Style","Palatino Linotype","Times New Roman",serif;font-size:clamp(24px,2.1vw,29px);font-weight:400;letter-spacing:-.025em;line-height:1.08;margin:0;color:#f6f1ff;text-wrap:balance;text-shadow:0 1px 20px rgba(216,180,254,.18)}
 .xpl-sub{font-family:ui-sans-serif,system-ui,sans-serif;color:#aba2d1;font-size:12px;margin:4px 0 0;max-width:74ch;line-height:1.45}
+.xpl-head-meta{display:flex;flex-wrap:wrap;align-items:center;justify-content:flex-end;gap:6px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:11px;font-variant-numeric:tabular-nums;color:#9f96c4;white-space:nowrap}
+.xpl-head-meta b{font-weight:500;color:#e9e4ff}
+.xpl-head-meta .sep{color:#5e5288}
+@media(max-width:820px){.xpl-head{align-items:flex-start}.xpl-head-meta{justify-content:flex-start}.xpl-emblem{width:32px;height:32px;flex-basis:32px}}
 .xpl-bar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:10px}
 .xpl button,.xpl select,.xpl input[type=text],.xpl input[type=number]{background:#120d24;color:#efe9ff;border:1px solid #4b3d7a;border-radius:6px;padding:6px 10px;font:inherit;min-height:30px}
 .xpl button{cursor:pointer}.xpl button:hover:not(:disabled){background:#22184a;border-color:#8f7bff}.xpl button:disabled{opacity:.45;cursor:default}
@@ -593,7 +596,6 @@ const CSS=`
 .xpl-row input[type=range]{grid-column:1/-1;width:100%;accent-color:#b28dff;cursor:pointer;margin:0}
 .xpl-status{min-height:16px;color:#b9f5c8;font-size:11px;margin-top:8px}
 .xpl-keys{color:#9f96c4;font-size:10px;margin-top:8px;line-height:1.5}
-/* UI-PSYLAB-MODAL-01: internal XenSonar dialog instead of the browser's prompt() / confirm() */
 .xpl-modal-back{position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px;background:rgba(5,3,14,.76);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
 .xpl-modal{position:relative;width:min(460px,100%);border:1px solid #443570;border-radius:12px;background:linear-gradient(168deg,rgba(24,16,48,.98),rgba(10,7,22,.99));box-shadow:0 24px 64px rgba(0,0,0,.68),0 0 0 1px rgba(240,171,252,.08) inset;color:#e9e4ff;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12px;overflow:hidden}
 .xpl-modal::before{content:'';position:absolute;left:0;right:0;top:0;height:1px;background:linear-gradient(90deg,transparent,rgba(240,171,252,.8) 28%,rgba(126,238,255,.55) 72%,transparent);pointer-events:none}
@@ -741,14 +743,13 @@ function XenPsyLabRoom(){
  const[collapsed,setCollapsed]=P.useState(()=>({organic:true,modenv:true,space:true}));
  const[locked,setLocked]=P.useState(()=>({}));
  const[morphOpen,setMorphOpen]=P.useState(false),[morphA,setMorphA]=P.useState(FACTORY[0].id),[morphB,setMorphB]=P.useState(FACTORY[8]?.id||FACTORY[1].id),[morphAmt,setMorphAmt]=P.useState(0);
-const[dialog,setDialog]=P.useState(null);
+ const[dialog,setDialog]=P.useState(null);
  const modalOpenRef=P.useRef(false);modalOpenRef.current=!!dialog;
  const modalInputRef=P.useRef(null);
  P.useEffect(()=>{if(!dialog)return;
   if(dialog.kind==='save'||dialog.kind==='param'){const el=modalInputRef.current;if(el){el.focus();el.select()}}
   const onKey=e=>{if(e.key==='Escape'){e.preventDefault();e.stopPropagation();setDialog(null)}};
   window.addEventListener('keydown',onKey,true);return()=>window.removeEventListener('keydown',onKey,true)},[dialog?.kind,dialog?.openedAt]);
-  const openParamDialog=P.useCallback((p,value,apply)=>{setDialog({kind:'param',p,text:String(+value.toPrecision(6)),apply,error:'',openedAt:Date.now()})},[]);
  const undoRef=P.useRef([]),[undoCount,setUndoCount]=P.useState(0),morphSnapshotRef=P.useRef(null);
  const live=P.useRef({hold,user,bounceSec,orient,flip,mirror,large,log:logAxis,edges,oct,metro:metroCfg});live.current={hold,user,bounceSec,orient,flip,mirror,large,log:logAxis,edges,oct,metro:metroCfg};
  const padRef=P.useRef(null),canvasRef=P.useRef(null),scopeRef=P.useRef(null),readoutRef=P.useRef(null),rootRef=P.useRef(null),beatRef=P.useRef(null);
@@ -892,11 +893,10 @@ const[dialog,setDialog]=P.useState(null);
  const all=P.useMemo(()=>[...FACTORY,...user],[user]);
  const onSelect=id=>{setSelected(id);const p=all.find(x=>x.id===id);if(p){loadPatch(p);setMorphA(p.id);setMorphAmt(0);morphSnapshotRef.current=null}};
  const selectedPatch=all.find(x=>x.id===selected),suggestion=selectedPatch?.grid,suggestionLabel=suggestion?ti(j0,suggestion):'';
- const activeGridLabel=gridParams?.gridTuning?ti(j0,gridParams.gridTuning):'',activeBaseHz=gridParams?.gridBase>0?Math.round(gridParams.gridBase*100)/100:null;/* the grid the saved sound is linked to (shown in the Save dialog) */
- const saveAs=()=>{const current=all.find(x=>x.id===selected);
+ const openSaveDialog=()=>{const current=all.find(x=>x.id===selected);
   const initialName=current&&!current.id.startsWith('factory:')?current.name:(patchRef.current.name&&!FACTORY.some(f=>f.name===patchRef.current.name)?patchRef.current.name:'My Sound');
   setDialog({kind:'save',name:initialName,includeGrid:true,openedAt:Date.now()})};
-  const commitSaveDialog=()=>{if(!dialog||dialog.kind!=='save')return;const cleanName=dialog.name.trim();if(!cleanName)return;
+ const commitSaveDialog=()=>{if(!dialog||dialog.kind!=='save')return;const cleanName=dialog.name.trim();if(!cleanName)return;
   const existing=user.find(x=>x.name===cleanName);
   const saved=sanitizePatch({...patchRef.current,name:cleanName,id:existing?existing.id:'user:'+uid(),grid:dialog.includeGrid?gridRef.current?.gridTuning:undefined});
   patchRef.current={...saved,id:'working'};
@@ -904,13 +904,13 @@ const[dialog,setDialog]=P.useState(null);
   setSelected(saved.id);
   setDialog(null);
   setStatus((existing?'Updated “':'Saved “')+saved.name+'”'+(dialog.includeGrid?' (with current grid tuning as suggestion).':'.'))};
-  const openDeleteDialog=()=>{const p=user.find(x=>x.id===selected);if(!p)return;setDialog({kind:'delete',patch:p,openedAt:Date.now()})};
-  const commitDeleteDialog=()=>{if(!dialog||dialog.kind!=='delete')return;const p=dialog.patch;
+ const openDeleteDialog=()=>{const p=user.find(x=>x.id===selected);if(!p)return;setDialog({kind:'delete',patch:p,openedAt:Date.now()})};
+ const commitDeleteDialog=()=>{if(!dialog||dialog.kind!=='delete')return;const p=dialog.patch;
   setUser(list=>list.filter(x=>x.id!==p.id));setSelected('');setDialog(null);setStatus('Deleted “'+p.name+'”.')};
-  const commitParamDialog=()=>{if(!dialog||dialog.kind!=='param')return;const v=Number(String(dialog.text).replace(',','.'));
+ const openParamDialog=P.useCallback((p,value,apply)=>{setDialog({kind:'param',p,text:String(+value.toPrecision(6)),apply,error:'',openedAt:Date.now()})},[]);
+ const commitParamDialog=()=>{if(!dialog||dialog.kind!=='param')return;const v=Number(String(dialog.text).replace(',','.'));
   if(!Number.isFinite(v)){setDialog(d=>d?{...d,error:'Please enter a valid number.'}:null);return}
   dialog.apply(v);setDialog(null)};
- const remove=()=>openDeleteDialog();
  const doMutate=()=>{const params=patchRef.current.params.slice();let moved=0;for(const p of PARAMS){if(p[8]==='hidden'||p[1]==='level'||locked[p[8]])continue;if(Math.random()<.55){const t=clamp(toUnit(p,params[p[0]])+(Math.random()-.5)*2*mutate*.6,0,1);params[p[0]]=fromUnit(p,t);moved++}}
   if(!moved){setStatus('All mutable sections are locked — unlock a module to mutate.');return}
   params[BY_KEY.delayFb[0]]=Math.min(params[BY_KEY.delayFb[0]],.95);loadPatch({...patchRef.current,params},'Mutated by '+Math.round(mutate*100)+' %. Use Undo to revert or Lock modules to protect them.')};
@@ -959,9 +959,11 @@ const[dialog,setDialog]=P.useState(null);
   ]},id);
  });
  const piano=orient==='piano';
+ const activeGridLabel=gridParams?.gridTuning?ti(j0,gridParams.gridTuning):'';
+ const activeBaseHz=gridParams?.gridBase>0?Math.round(gridParams.gridBase*10)/10:null;
  return u.jsxs('div',{className:'xpl'+(large?' xpl-large':''),ref:rootRef,'data-xen-psylab':'true',children:[
-  u.jsx('header',{className:'xpl-head',children:
-u.jsx('div',{className:'xpl-brand',children:
+  u.jsxs('header',{className:'xpl-head',children:[
+   u.jsx('div',{className:'xpl-brand',children:
     u.jsxs('div',{className:'xpl-head-copy',children:[
      u.jsx('div',{className:'xpl-eyebrow',children:'Room IV · Synthesis Lab'}),
      u.jsxs('div',{className:'xpl-title-row',children:[
@@ -984,16 +986,24 @@ u.jsx('div',{className:'xpl-brand',children:
       ]}),
       u.jsx('h2',{children:window.__XenTitleArt?u.jsx(window.__XenTitleArt.Title,{react:P,room:'psylab',text:'Psychedelic Lab',height:31,smallHeight:24}):'Psychedelic Lab'})
      ]}),
-     u.jsx('p',{className:'xpl-sub',children:'Room IV. Feedback-FM hydra, organic breath/wave sources, pluck & sweep envelopes, vocal formants, endless Escher staircase, spiral echo, space cloud, grid crystals and Lorenz chaos — all on the Main Room grid.'})
+     u.jsx('p',{className:'xpl-sub',children:'Feedback-FM hydra · Escher staircase · vocal formants · spiral echo · grid crystals · Lorenz chaos — on the Main Room grid.'})
     ]})
-   })}),
+   }),
+   activeGridLabel||activeBaseHz?u.jsxs('div',{className:'xpl-head-meta',children:[
+    activeGridLabel?u.jsx('b',{children:activeGridLabel}):null,
+    activeGridLabel&&activeBaseHz?u.jsx('span',{className:'sep','aria-hidden':'true',children:'·'}):null,
+    activeBaseHz?u.jsxs('span',{children:[u.jsx('b',{children:activeBaseHz}),' Hz']}):null,
+    u.jsx('span',{className:'sep','aria-hidden':'true',children:'·'}),
+    u.jsxs('span',{children:['Oct ',u.jsx('b',{children:oct>0?'+'+oct:oct})]})
+   ]}):null
+  ]}),
   u.jsxs('div',{className:'xpl-bar',children:[
    u.jsxs('select',{'aria-label':'Patch',value:selected,onChange:e=>onSelect(e.target.value),children:[u.jsx('option',{value:'',children:'Working patch'}),
     u.jsx('optgroup',{label:'Factory',children:FACTORY.map(p=>u.jsx('option',{value:p.id,children:p.name},p.id))}),
     user.length?u.jsx('optgroup',{label:'Saved',children:user.map(p=>u.jsx('option',{value:p.id,children:p.name},p.id))}):null]}),
    suggestion&&gridParams&&gridParams.gridTuning!==suggestion?u.jsx('button',{type:'button',title:'This patch was made for another grid system. Switching changes the Main Room grid too.',onClick:()=>__NodalBallGrid.changeTuning(suggestion),children:'Grid → '+suggestionLabel}):null,
-   u.jsx('button',{type:'button',onClick:saveAs,children:'Save as …'}),
-   u.jsx('button',{type:'button',onClick:remove,disabled:!user.some(x=>x.id===selected),children:'Delete'}),
+   u.jsx('button',{type:'button','data-psy-save':'true',onClick:openSaveDialog,title:'Save current sound settings to your Psychedelic Lab archive',children:'Save Sound …'}),
+   u.jsx('button',{type:'button',onClick:openDeleteDialog,disabled:!user.some(x=>x.id===selected),children:'Delete'}),
    u.jsx('button',{type:'button',onClick:doMutate,title:'Move a random half of unlocked controls by the chosen amount',children:'Mutate'}),
    u.jsx('input',{type:'range','aria-label':'Mutation amount',min:.02,max:1,step:.01,value:mutate,onChange:e=>setMutate(Number(e.target.value)),style:{width:90,accentColor:'#ff7ad9'}}),
    u.jsx('button',{type:'button','data-psy-undo':true,disabled:undoCount===0,onClick:doUndo,title:'Revert last patch load, mutation or morph',children:'↶ Undo'}),
@@ -1017,7 +1027,7 @@ u.jsx('div',{className:'xpl-brand',children:
    u.jsx('span',{className:'xpl-val',style:{minWidth:36},children:Math.round(morphAmt*100)+'%'}),
    u.jsxs('label',{children:['B ',u.jsx('select',{'aria-label':'Morph Patch B',value:morphB,onChange:e=>{const v=e.target.value;setMorphB(v);applyMorph(morphAmt,morphA,v)},children:all.map(p=>u.jsx('option',{value:p.id,children:p.name},p.id))})]}),
    u.jsx('button',{type:'button',onClick:()=>{const a=morphB,b=morphA;setMorphA(a);setMorphB(b);applyMorph(1-morphAmt,a,b)},children:'⇄ Swap'}),
-   u.jsx('span',{className:'xpl-note',children:'Blends all unlocked modules smoothly in real time. Save as … to keep.'})
+   u.jsx('span',{className:'xpl-note',children:'Blends all unlocked modules smoothly in real time. Save Sound … to keep.'})
   ]}):null,
   u.jsxs('div',{className:'xpl-metro','data-psy-metro':'true',children:[
    u.jsx('button',{type:'button','aria-pressed':metroOn,onClick:()=>setMetroOn(v=>!v),title:'A click for you only: it goes straight to the speakers and is never recorded, mixed or bounced.',children:metroOn?'♩ Metronome: on':'♩ Metronome: off'}),
@@ -1038,7 +1048,7 @@ u.jsx('div',{className:'xpl-brand',children:
     u.jsx('div',{className:'xpl-status',role:'status','aria-live':'polite',children:status}),
     u.jsx('div',{className:'xpl-keys',children:'Space = Hold. Esc = all notes off. Shift = louder. Click a value to type it exactly, double-click a slider to reset it. The header Rec records this room (not the metronome).'})]}),
    u.jsx('div',{className:'xpl-panels',children:panels})]}),
-dialog&&typeof document!=='undefined'?ao.createPortal(
+  dialog&&typeof document!=='undefined'?ao.createPortal(
    u.jsx('div',{className:'xpl-modal-back','data-psy-modal':dialog.kind,onPointerDown:e=>e.stopPropagation(),onClick:e=>{e.stopPropagation();if(e.target===e.currentTarget)setDialog(null)},onKeyDown:e=>{e.stopPropagation();if(e.key==='Escape'){e.preventDefault();setDialog(null)}},children:
     u.jsxs('section',{className:'xpl-modal',role:'dialog','aria-modal':'true','aria-label':dialog.kind==='save'?'Save Sound':dialog.kind==='delete'?'Delete Sound':dialog.p[2],children:[
      u.jsxs('header',{className:'xpl-modal-head',children:[
@@ -1104,8 +1114,7 @@ dialog&&typeof document!=='undefined'?ao.createPortal(
       ]})
      ]}):null
     ]})
-   }),document.body):null
-  ]});
+   }),document.body):null]});
 }
 /* PsyEngine is exported on purpose: a host without a picture (a later Live Room hook-up: Enter / left mouse button / keyboard) loads this chunk on first use and
    creates new PsyEngine({visual:false}); no analyser, no canvas, no room UI. */

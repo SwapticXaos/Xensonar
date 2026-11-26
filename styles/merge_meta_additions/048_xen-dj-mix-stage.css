@@ -1,0 +1,1950 @@
+/* DJ-STAGE-02: Luxury Studio Hardware DJ & Producer Live-Mix Console
+ * Unified with XenSonar Live Room's dark mahogany burl-wood fascia + matte obsidian chassis.
+ */
+
+/* ── Bottom-left diagonal corner expand button on Quick Rack Part 2 (.xen-lane-controls) ── */
+.xen-lane-controls {
+  position: relative;
+}
+
+.xen-lane-controls.is-dj-stage-open {
+  overflow: visible !important;
+  padding: 4px !important;
+  max-height: none !important;
+}
+
+.xen-lane-dj-corner-wrap {
+  position: sticky;
+  bottom: 0;
+  left: 0;
+  z-index: 6;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 3px 0 1px;
+  margin-top: 3px;
+  background: linear-gradient(180deg, rgba(7, 25, 35, 0) 0%, rgba(7, 25, 35, 0.94) 42%, rgba(7, 25, 35, 0.99) 100%);
+  pointer-events: none;
+}
+
+.xen-lane-expand-dj-btn {
+  pointer-events: auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  height: 20px;
+  padding: 0 6px 0 5px;
+  border-radius: 3px 5px 3px 3px;
+  border: 1px solid rgba(214, 166, 98, 0.62);
+  background: linear-gradient(180deg, #431d15 0%, #240f0b 100%);
+  color: #f4d59e;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  line-height: 1;
+  cursor: pointer;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 226, 178, 0.24);
+  transition: transform 0.14s ease, border-color 0.14s ease, background 0.14s ease, color 0.14s ease;
+}
+
+.xen-lane-expand-dj-btn:hover {
+  border-color: #f8d089;
+  background: linear-gradient(180deg, #5a271c 0%, #31140e 100%);
+  color: #fff6e4;
+  transform: translate(-1px, 1px);
+}
+
+.xen-lane-expand-dj-btn:focus-visible {
+  outline: 2px solid #f6cf8a;
+  outline-offset: 2px;
+}
+
+.xen-lane-expand-dj-btn svg {
+  width: 10px;
+  height: 10px;
+  flex-shrink: 0;
+}
+
+.xen-lane-dj-docked-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  padding: 5px 6px;
+  border-radius: 4px;
+  border: 1px solid rgba(214, 166, 98, 0.52);
+  background: linear-gradient(135deg, rgba(48, 19, 14, 0.96) 0%, rgba(9, 16, 23, 0.98) 100%);
+  color: #f2dab0;
+  font-size: 9.5px;
+  line-height: 1.2;
+}
+
+.xen-lane-dj-docked-info {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+}
+
+.xen-lane-dj-docked-info strong {
+  color: #fce4bd;
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.xen-lane-dj-docked-info span {
+  color: #8ad6cf;
+  font-size: 8.5px;
+  white-space: nowrap;
+}
+
+.xen-lane-dj-return-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  padding: 4px 6px;
+  border-radius: 3px;
+  border: 1px solid rgba(94, 214, 200, 0.56);
+  background: rgba(11, 44, 52, 0.94);
+  color: #defff9;
+  font-size: 9px;
+  font-weight: 700;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.xen-lane-dj-return-btn:hover {
+  background: rgba(20, 76, 88, 0.96);
+  border-color: #a4f8ee;
+}
+
+/* ── Main Expanded Console Chassis ── */
+.xen-dj-stage {
+  position: relative;
+  border-radius: 8px;
+  border: 1px solid rgba(206, 152, 86, 0.44);
+  background: #060a0f;
+  box-shadow:
+    0 16px 42px rgba(0, 0, 0, 0.72),
+    inset 0 1px 0 rgba(248, 206, 144, 0.16);
+  color: #d7e7ea;
+  overflow: hidden;
+  user-select: none;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Top Mahogany Burl-Wood Console Fascia (matches Live Room top console) */
+.xen-dj-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px 12px;
+  padding: 8px 14px;
+  border-bottom: 1px solid rgba(206, 152, 86, 0.34);
+  background:
+    repeating-linear-gradient(
+      92deg,
+      rgba(255, 198, 134, 0.03) 0px,
+      rgba(255, 198, 134, 0.03) 2px,
+      transparent 2px,
+      transparent 9px
+    ),
+    radial-gradient(60% 140% at 18% 0%, rgba(124, 44, 26, 0.55) 0%, transparent 65%),
+    linear-gradient(90deg, #3c150e 0%, #260d0a 44%, #101720 100%);
+  box-shadow: inset 0 1px 0 rgba(255, 224, 174, 0.16);
+}
+
+.xen-dj-title-group {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.xen-dj-badge-mark {
+  width: 26px;
+  height: 26px;
+  border-radius: 5px;
+  border: 1px solid rgba(238, 188, 118, 0.54);
+  background: radial-gradient(circle at 35% 30%, #582317 0%, #1c0b08 100%);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #f6cd8b;
+  flex-shrink: 0;
+}
+
+.xen-dj-title-text {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.xen-dj-title-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.xen-dj-title-text h3 {
+  margin: 0;
+  font-size: 12.5px;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #fae4c1;
+  line-height: 1.1;
+}
+
+.xen-dj-bpm-readout {
+  padding: 1px 6px;
+  border-radius: 3px;
+  border: 1px solid rgba(242, 184, 102, 0.42);
+  background: rgba(12, 8, 7, 0.72);
+  color: #f5c87e;
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+
+.xen-dj-truth-pill {
+  padding: 1px 6px;
+  border-radius: 3px;
+  border: 1px solid rgba(98, 174, 182, 0.36);
+  background: rgba(6, 17, 24, 0.78);
+  color: #9de0dc;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+}
+
+.xen-dj-truth-pill.is-poly {
+  border-color: rgba(242, 184, 102, 0.56);
+  background: rgba(58, 28, 14, 0.78);
+  color: #fad396;
+}
+
+.xen-dj-title-text > span {
+  font-size: 10px;
+  color: #9ab9be;
+}
+
+.xen-dj-header-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 7px;
+}
+
+.xen-dj-segmented {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px;
+  border-radius: 5px;
+  border: 1px solid rgba(112, 166, 174, 0.3);
+  background: rgba(5, 9, 14, 0.86);
+  gap: 2px;
+}
+
+.xen-dj-segmented button {
+  border: 1px solid transparent;
+  border-radius: 3px;
+  background: transparent;
+  color: #8eaab0;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 4px 8px;
+  cursor: pointer;
+  line-height: 1.1;
+  transition: background 0.12s ease, color 0.12s ease, border-color 0.12s ease;
+}
+
+.xen-dj-segmented button:hover {
+  color: #e8faf8;
+  background: rgba(28, 66, 74, 0.45);
+}
+
+.xen-dj-segmented button.is-active {
+  background: #0f3842;
+  border-color: rgba(82, 229, 212, 0.58);
+  color: #ecfffc;
+}
+
+.xen-dj-cap-group {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 5px 2px 8px;
+  border-radius: 5px;
+  border: 1px solid rgba(212, 166, 98, 0.34);
+  background: rgba(14, 9, 8, 0.78);
+  font-size: 9.5px;
+  font-weight: 600;
+  color: #cfb289;
+}
+
+.xen-dj-cap-group button {
+  border: 1px solid transparent;
+  border-radius: 3px;
+  background: transparent;
+  color: #9e8c76;
+  font-size: 10px;
+  font-weight: 800;
+  padding: 3px 6px;
+  cursor: pointer;
+}
+
+.xen-dj-cap-group button:hover {
+  color: #fff2dc;
+  background: rgba(114, 54, 30, 0.48);
+}
+
+.xen-dj-cap-group button.is-active {
+  background: linear-gradient(180deg, #6d361d 0%, #421e10 100%);
+  border-color: rgba(244, 194, 120, 0.7);
+  color: #fff5e3;
+}
+
+.xen-dj-action-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 9px;
+  border-radius: 5px;
+  border: 1px solid rgba(98, 164, 170, 0.36);
+  background: #0b1620;
+  color: #cfe9e8;
+  font-size: 10px;
+  font-weight: 700;
+  cursor: pointer;
+  line-height: 1.1;
+  transition: background 0.12s ease, border-color 0.12s ease, color 0.12s ease;
+}
+
+.xen-dj-action-btn:hover {
+  background: #132836;
+  border-color: #6fe3d6;
+  color: #fff;
+}
+
+.xen-dj-action-btn.is-active {
+  background: linear-gradient(180deg, #522619 0%, #2e130c 100%);
+  border-color: rgba(242, 190, 114, 0.68);
+  color: #ffefd4;
+}
+
+.xen-dj-action-btn.is-gold {
+  border-color: rgba(242, 184, 102, 0.56);
+  background: linear-gradient(180deg, #4b2416 0%, #2b130b 100%);
+  color: #fae0b4;
+}
+
+.xen-dj-action-btn.is-gold:hover {
+  border-color: #ffd799;
+  background: linear-gradient(180deg, #64301d 0%, #3a1a0f 100%);
+  color: #fff7e8;
+}
+
+/* ── Top Multi-Deck Spectral Pocket Analyzer Ribbon ── */
+.xen-dj-spectrum-bar {
+  display: grid;
+  grid-template-columns: auto minmax(220px, 1fr) auto;
+  align-items: center;
+  gap: 12px;
+  padding: 7px 14px;
+  border-bottom: 1px solid rgba(72, 134, 146, 0.22);
+  background: #04080d;
+}
+
+@media (max-width: 860px) {
+  .xen-dj-spectrum-bar {
+    grid-template-columns: 1fr;
+  }
+}
+
+.xen-dj-spectrum-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.xen-dj-spectrum-meta strong {
+  font-size: 9.5px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #9ec5cb;
+}
+
+.xen-dj-spectrum-tools {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.xen-dj-tool-chip {
+  border: 1px solid rgba(94, 174, 180, 0.36);
+  border-radius: 3px;
+  background: #0a1822;
+  color: #bce4e2;
+  font-size: 9px;
+  font-weight: 700;
+  padding: 3px 6px;
+  cursor: pointer;
+}
+
+.xen-dj-tool-chip:hover {
+  border-color: #7ee9dc;
+  background: #122d3a;
+  color: #fff;
+}
+
+.xen-dj-tool-chip.is-gold {
+  border-color: rgba(242, 184, 102, 0.5);
+  color: #f6ce8e;
+  background: rgba(56, 28, 16, 0.72);
+}
+
+.xen-dj-tool-chip.is-gold:hover {
+  border-color: #ffdca1;
+  background: rgba(88, 44, 22, 0.9);
+  color: #fff5e3;
+}
+
+.xen-dj-spectrum-svg-wrap {
+  height: 50px;
+  border-radius: 4px;
+  border: 1px solid rgba(68, 128, 138, 0.3);
+  background: #020508;
+  overflow: hidden;
+  position: relative;
+}
+
+.xen-dj-spectrum-svg-wrap svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.xen-dj-spectrum-axis {
+  position: absolute;
+  bottom: 2px;
+  left: 6px;
+  right: 6px;
+  display: flex;
+  justify-content: space-between;
+  pointer-events: none;
+  font-size: 8px;
+  color: rgba(148, 188, 196, 0.65);
+  letter-spacing: 0.04em;
+}
+
+.xen-dj-monitor-switch button {
+  padding: 2px 7px;
+  font-size: 9px;
+}
+
+.xen-dj-time-conv-note {
+  font-size: 9px;
+  font-weight: 700;
+  color: #d6b685;
+  letter-spacing: 0.02em;
+}
+
+.xen-dj-time-rails {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 4px 8px;
+  border-radius: 4px;
+  border: 1px solid rgba(68, 128, 138, 0.3);
+  background: #020508;
+  min-height: 50px;
+  justify-content: center;
+}
+
+.xen-dj-time-rail-row {
+  display: grid;
+  grid-template-columns: 78px minmax(100px, 1fr) auto;
+  align-items: center;
+  gap: 8px;
+}
+
+.xen-dj-time-rail-name {
+  font-size: 9px;
+  font-weight: 700;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.xen-dj-time-rail-track {
+  position: relative;
+  display: flex;
+  height: 11px;
+  border-radius: 2px;
+  background: #071119;
+  border: 1px solid rgba(82, 138, 148, 0.3);
+  overflow: hidden;
+}
+
+.xen-dj-time-rail-fill {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 0%;
+  opacity: 0.28;
+  pointer-events: none;
+}
+
+.xen-dj-time-rail-bars {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  height: 100%;
+}
+
+.xen-dj-time-bar-cell {
+  flex: 1;
+  border-right: 1px solid rgba(146, 198, 206, 0.3);
+}
+
+.xen-dj-time-bar-cell:last-child {
+  border-right: none;
+}
+
+.xen-dj-time-rail-frac {
+  position: relative;
+  z-index: 1;
+  height: 100%;
+  background: repeating-linear-gradient(
+    -45deg,
+    rgba(242, 184, 102, 0.24) 0px,
+    rgba(242, 184, 102, 0.24) 3px,
+    rgba(242, 184, 102, 0.06) 3px,
+    rgba(242, 184, 102, 0.06) 6px
+  );
+  border-left: 1px solid rgba(242, 184, 102, 0.72);
+}
+
+.xen-dj-time-rail-cursor {
+  position: absolute;
+  z-index: 2;
+  top: 0;
+  bottom: 0;
+  left: 0%;
+  width: 2px;
+  box-shadow: 0 0 6px currentColor;
+  pointer-events: none;
+}
+
+.xen-dj-time-rail-spec {
+  font-size: 8.5px;
+  font-weight: 700;
+  color: #9dc2c8;
+  white-space: nowrap;
+}
+
+.xen-dj-spectrum-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  max-width: 280px;
+  justify-content: flex-end;
+}
+
+.xen-dj-spectrum-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 6px;
+  border-radius: 3px;
+  border: 1px solid rgba(82, 136, 146, 0.28);
+  background: #08121a;
+  color: #cde4e6;
+  font-size: 9px;
+  font-weight: 600;
+  cursor: pointer;
+  max-width: 132px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.xen-dj-spectrum-chip:hover,
+.xen-dj-spectrum-chip.is-open {
+  border-color: rgba(132, 226, 218, 0.78);
+  background: #102a36;
+  color: #fff;
+}
+
+.xen-dj-spectrum-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+/* ── Smart Material Crate & Library Strip ── */
+.xen-dj-crate {
+  padding: 9px 14px;
+  border-bottom: 1px solid rgba(196, 146, 86, 0.24);
+  background: #080f16;
+  transition: background 0.14s ease, box-shadow 0.14s ease;
+}
+
+.xen-dj-crate.is-drop-target {
+  background: #0d1d26;
+  box-shadow: inset 0 0 0 1.5px rgba(242, 184, 102, 0.85);
+}
+
+.xen-dj-crate-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.xen-dj-crate-left {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.xen-dj-crate-search {
+  width: 190px;
+  max-width: 100%;
+  padding: 4px 8px;
+  border-radius: 4px;
+  border: 1px solid rgba(86, 152, 162, 0.36);
+  background: #03070b;
+  color: #e4f7f6;
+  font-size: 10.5px;
+  outline: none;
+}
+
+.xen-dj-crate-search:focus {
+  border-color: #5ce0d2;
+}
+
+.xen-dj-crate-hint {
+  font-size: 9.5px;
+  color: #7ea0a8;
+}
+
+.xen-dj-crate-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(272px, 1fr));
+  gap: 6px;
+  max-height: 156px;
+  overflow-y: auto;
+  padding-right: 2px;
+}
+
+.xen-dj-crate-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 6px 8px;
+  border-radius: 5px;
+  border: 1px solid rgba(68, 118, 128, 0.28);
+  background: #050b11;
+  transition: border-color 0.12s ease, background 0.12s ease;
+}
+
+.xen-dj-crate-item:hover {
+  border-color: rgba(114, 212, 204, 0.56);
+  background: #091520;
+}
+
+.xen-dj-crate-item.is-live {
+  border-color: rgba(82, 229, 212, 0.62);
+  background: #091d25;
+}
+
+.xen-dj-crate-slot {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 22px;
+  height: 22px;
+  border-radius: 3px;
+  border: 1px solid rgba(102, 174, 182, 0.34);
+  background: #0b1a24;
+  color: #b7e2e4;
+  font-size: 9.5px;
+  font-weight: 800;
+  flex-shrink: 0;
+}
+
+.xen-dj-crate-item.is-live .xen-dj-crate-slot {
+  border-color: rgba(82, 229, 212, 0.72);
+  background: #0f3d46;
+  color: #e4fffb;
+}
+
+.xen-dj-crate-meta {
+  min-width: 0;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.xen-dj-crate-name {
+  font-size: 11px;
+  font-weight: 700;
+  color: #eaf8f7;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.xen-dj-crate-sub {
+  font-size: 9px;
+  color: #7c9fa8;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.xen-dj-crate-actions {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  flex-shrink: 0;
+}
+
+.xen-dj-mini-btn {
+  border: 1px solid rgba(90, 156, 164, 0.38);
+  border-radius: 3px;
+  background: #0b1b24;
+  color: #c8ece9;
+  font-size: 9px;
+  font-weight: 800;
+  padding: 3px 6px;
+  cursor: pointer;
+  line-height: 1.1;
+}
+
+.xen-dj-mini-btn:hover {
+  background: #163744;
+  border-color: #84ece0;
+  color: #fff;
+}
+
+.xen-dj-mini-btn.is-bus-a {
+  border-color: rgba(242, 184, 102, 0.58);
+  color: #fbd79f;
+  background: rgba(68, 34, 17, 0.85);
+}
+
+.xen-dj-mini-btn.is-bus-a:hover {
+  background: rgba(114, 58, 26, 0.96);
+  border-color: #ffe0a8;
+}
+
+.xen-dj-mini-btn.is-bus-b {
+  border-color: rgba(82, 229, 212, 0.58);
+  color: #b4fff6;
+  background: rgba(12, 56, 62, 0.85);
+}
+
+.xen-dj-mini-btn.is-bus-b:hover {
+  background: rgba(20, 92, 100, 0.96);
+  border-color: #c4fff9;
+}
+
+.xen-dj-mini-btn.is-rack-added {
+  border-color: rgba(114, 214, 158, 0.48);
+  color: #a6f2c4;
+  background: rgba(14, 48, 34, 0.72);
+}
+
+.xen-dj-mini-btn.is-cue {
+  border-color: rgba(132, 182, 194, 0.38);
+  color: #b5dce2;
+  padding: 3px 5px;
+}
+
+.xen-dj-mini-btn.is-cue.is-active {
+  border-color: #f6c97c;
+  background: rgba(94, 48, 20, 0.92);
+  color: #fff3da;
+}
+
+/* ── Main Mixer Surface & Vertical Channel Strips ── */
+.xen-dj-body {
+  padding: 12px 14px;
+  background: #060a0f;
+}
+
+.xen-dj-empty-stage {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 18px 20px;
+  border-radius: 6px;
+  border: 1px dashed rgba(212, 166, 98, 0.34);
+  background: #080e15;
+}
+
+.xen-dj-empty-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.xen-dj-empty-copy strong {
+  font-size: 12px;
+  color: #f4dfc0;
+}
+
+.xen-dj-empty-copy span {
+  font-size: 10.5px;
+  color: #88abb3;
+}
+
+.xen-dj-empty-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.xen-dj-strips-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(186px, 232px));
+  justify-content: start;
+  gap: 9px;
+}
+
+.xen-dj-strips-row.is-dense {
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 7px;
+}
+
+@media (max-width: 1120px) {
+  .xen-dj-strips-row.is-dense {
+    grid-template-columns: repeat(auto-fill, minmax(176px, 224px));
+  }
+}
+
+.xen-dj-add-slot {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: 6px;
+  padding: 14px 10px;
+  border-radius: 6px;
+  border: 1px dashed rgba(114, 174, 182, 0.34);
+  background: rgba(6, 13, 20, 0.62);
+  color: #88abb3;
+}
+
+.xen-dj-add-slot-cap {
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #d7b27d;
+}
+
+.xen-dj-add-slot-name {
+  font-size: 11.5px;
+  font-weight: 700;
+  color: #e4f6f5;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.xen-dj-add-slot-sub {
+  font-size: 9px;
+  color: #779ba4;
+}
+
+.xen-dj-add-slot-btns {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 4px;
+  margin-top: 4px;
+}
+
+/* Individual Studio Channel Strip */
+.xen-dj-strip {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 9px 8px;
+  border-radius: 6px;
+  border: 1px solid rgba(74, 128, 138, 0.32);
+  background: linear-gradient(180deg, #0b131b 0%, #070d13 100%);
+  position: relative;
+}
+
+.xen-dj-strip.is-bus-a {
+  border-color: rgba(242, 184, 102, 0.56);
+  box-shadow: inset 0 2px 0 rgba(242, 184, 102, 0.65);
+}
+
+.xen-dj-strip.is-bus-b {
+  border-color: rgba(79, 227, 210, 0.56);
+  box-shadow: inset 0 2px 0 rgba(79, 227, 210, 0.65);
+}
+
+.xen-dj-strip.is-muted {
+  opacity: 0.6;
+}
+
+.xen-dj-strip-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 5px;
+}
+
+.xen-dj-strip-ident {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  flex: 1;
+}
+
+.xen-dj-strip-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 22px;
+  height: 22px;
+  border-radius: 4px;
+  border: 1px solid rgba(102, 174, 184, 0.42);
+  background: #102430;
+  color: #cdeff0;
+  font-size: 9.5px;
+  font-weight: 800;
+  flex-shrink: 0;
+}
+
+.xen-dj-strip.is-bus-a .xen-dj-strip-badge {
+  border-color: rgba(242, 184, 102, 0.7);
+  background: #472410;
+  color: #ffe3b5;
+}
+
+.xen-dj-strip.is-bus-b .xen-dj-strip-badge {
+  border-color: rgba(79, 227, 210, 0.7);
+  background: #0d3c42;
+  color: #d6fff9;
+}
+
+.xen-dj-strip-name {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.xen-dj-strip-name strong {
+  font-size: 11px;
+  font-weight: 700;
+  color: #edf9f9;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.xen-dj-strip-name span {
+  font-size: 8.5px;
+  color: #7c9ea6;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.xen-dj-strip-name span.is-poly {
+  color: #f0c482;
+}
+
+.xen-dj-eject-btn {
+  width: 19px;
+  height: 19px;
+  border-radius: 3px;
+  border: 1px solid rgba(98, 134, 144, 0.32);
+  background: #081017;
+  color: #8ba5ad;
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.xen-dj-eject-btn:hover {
+  background: #5c1c1c;
+  border-color: #f28a8a;
+  color: #ffe6e6;
+}
+
+/* Bus Assignment Bar (A | · | B) */
+.xen-dj-bus-switch {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  padding: 2px;
+  border-radius: 4px;
+  border: 1px solid rgba(76, 130, 140, 0.3);
+  background: #04080c;
+  gap: 2px;
+}
+
+.xen-dj-bus-switch button {
+  border: 1px solid transparent;
+  border-radius: 3px;
+  background: transparent;
+  color: #7898a0;
+  font-size: 9.5px;
+  font-weight: 800;
+  padding: 2px 0;
+  cursor: pointer;
+}
+
+.xen-dj-bus-switch button.is-a.is-active {
+  background: linear-gradient(180deg, #985921 0%, #633612 100%);
+  border-color: #f6c478;
+  color: #fff6e6;
+}
+
+.xen-dj-bus-switch button.is-thru.is-active {
+  background: #1c3642;
+  border-color: rgba(144, 198, 208, 0.56);
+  color: #e4f6f8;
+}
+
+.xen-dj-bus-switch button.is-b.is-active {
+  background: linear-gradient(180deg, #167a7e 0%, #0d4c52 100%);
+  border-color: #7af2e5;
+  color: #ecfffd;
+}
+
+/* Dedicated Bar & Segment Loop-Progress Ruler (100% True WebAudio Phase) */
+.xen-dj-loop-ruler {
+  position: relative;
+  display: flex;
+  align-items: stretch;
+  width: 100%;
+  height: 15px;
+  border-radius: 3px;
+  border: 1px solid rgba(76, 134, 144, 0.34);
+  background: #03070b;
+  overflow: hidden;
+}
+
+.xen-dj-loop-ruler.is-playing {
+  border-color: rgba(124, 214, 212, 0.56);
+}
+
+.xen-dj-loop-ruler.is-armed {
+  border-color: rgba(242, 184, 102, 0.68);
+  box-shadow: inset 0 0 8px rgba(242, 184, 102, 0.22);
+}
+
+.xen-dj-loop-fill {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 0%;
+  opacity: 0.34;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.xen-dj-loop-ruler.is-idle .xen-dj-loop-fill,
+.xen-dj-loop-ruler.is-armed .xen-dj-loop-fill {
+  opacity: 0;
+}
+
+.xen-dj-loop-bars {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  height: 100%;
+  flex-shrink: 0;
+}
+
+.xen-dj-loop-bar {
+  position: relative;
+  flex: 1;
+  height: 100%;
+  border-right: 1px solid rgba(188, 232, 238, 0.42);
+}
+
+.xen-dj-loop-bar:last-child {
+  border-right: none;
+}
+
+.xen-dj-loop-seg {
+  position: absolute;
+  top: 28%;
+  bottom: 0;
+  width: 1px;
+  background: rgba(214, 244, 248, 0.16);
+  pointer-events: none;
+}
+
+.xen-dj-loop-frac {
+  position: relative;
+  z-index: 2;
+  height: 100%;
+  flex-shrink: 0;
+  border-left: 1px solid rgba(242, 184, 102, 0.78);
+  background: repeating-linear-gradient(
+    -45deg,
+    rgba(242, 184, 102, 0.18) 0px,
+    rgba(242, 184, 102, 0.18) 3px,
+    rgba(242, 184, 102, 0.04) 3px,
+    rgba(242, 184, 102, 0.04) 6px
+  );
+}
+
+.xen-dj-loop-needle {
+  position: absolute;
+  z-index: 3;
+  top: 0;
+  bottom: 0;
+  left: 0%;
+  width: 2px;
+  margin-left: -1px;
+  box-shadow: 0 0 7px rgba(255, 255, 255, 0.7);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.12s ease;
+}
+
+.xen-dj-loop-ruler.is-playing .xen-dj-loop-needle {
+  opacity: 1;
+}
+
+/* Paintable 24-Band Morph-EQ Card (Pure Frequency Domain — Replaces 3-Band Knobs) */
+.xen-dj-eq-card {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  padding: 5px;
+  border-radius: 4px;
+  border: 1px solid rgba(68, 124, 134, 0.28);
+  background: #04090e;
+  transition: border-color 0.14s ease, box-shadow 0.14s ease;
+}
+
+.xen-dj-eq-card.is-open {
+  border-color: rgba(82, 229, 212, 0.68);
+  box-shadow: 0 0 0 1px rgba(82, 229, 212, 0.24);
+}
+
+.xen-dj-eq-screen {
+  display: block;
+  width: 100%;
+  height: 56px;
+  padding: 0;
+  border: 1px solid rgba(74, 138, 148, 0.34);
+  border-radius: 3px;
+  background: #02060a;
+  cursor: pointer;
+  overflow: hidden;
+  position: relative;
+}
+
+.xen-dj-eq-screen:hover,
+.xen-dj-eq-screen.is-open {
+  border-color: #76ece0;
+}
+
+.xen-dj-eq-screen svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.xen-dj-eq-screen-tag {
+  position: absolute;
+  top: 3px;
+  right: 4px;
+  font-size: 8px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  color: #b4f0ea;
+  background: rgba(3, 8, 12, 0.86);
+  border: 1px solid rgba(82, 186, 182, 0.28);
+  padding: 1px 5px;
+  border-radius: 2px;
+}
+
+.xen-dj-eq-screen.is-open .xen-dj-eq-screen-tag {
+  background: #0d3a42;
+  border-color: #76ece0;
+  color: #ecfffd;
+}
+
+.xen-dj-knob-col {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+
+.xen-dj-knob-label {
+  font-size: 8px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  color: #84a7af;
+}
+
+.xen-dj-knob {
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  border: none;
+  background: transparent;
+  cursor: ns-resize;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  touch-action: none;
+}
+
+.xen-dj-knob:focus-visible {
+  outline: 1.5px solid #76ece0;
+  border-radius: 50%;
+}
+
+.xen-dj-knob.is-small {
+  width: 30px;
+  height: 30px;
+}
+
+.xen-dj-knob-val {
+  font-size: 8px;
+  color: #a9ccd0;
+  line-height: 1;
+}
+
+.xen-dj-band-presets {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 2px;
+}
+
+.xen-dj-band-presets button {
+  border: 1px solid rgba(72, 122, 132, 0.26);
+  border-radius: 3px;
+  background: #071018;
+  color: #84a8b0;
+  font-size: 8px;
+  font-weight: 700;
+  padding: 3px 1px;
+  cursor: pointer;
+}
+
+.xen-dj-band-presets button:hover {
+  background: #122a36;
+  border-color: rgba(114, 218, 208, 0.56);
+  color: #ecfffd;
+}
+
+/* Fader + Side Controls Bay (Vertical Channel Fader + Rotary Pan/Pitch/Nudge + M/S) */
+.xen-dj-fader-bay {
+  display: grid;
+  grid-template-columns: 52px minmax(0, 1fr);
+  gap: 7px;
+  align-items: stretch;
+  padding: 6px;
+  border-radius: 4px;
+  border: 1px solid rgba(68, 122, 132, 0.24);
+  background: #04090e;
+}
+
+.xen-dj-vfader-col {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.xen-dj-vfader,
+.xen-dj-vfader-well {
+  position: relative;
+  width: 34px;
+  height: 118px;
+  border-radius: 4px;
+  border: 1px solid rgba(72, 126, 136, 0.34);
+  background: #020508;
+  cursor: ns-resize;
+  touch-action: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.xen-dj-vfader-ticks {
+  position: absolute;
+  inset: 8px 3px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  pointer-events: none;
+}
+
+.xen-dj-vfader-ticks i {
+  display: block;
+  height: 1px;
+  background: rgba(132, 174, 184, 0.28);
+}
+
+.xen-dj-vfader-slot {
+  position: relative;
+  width: 8px;
+  height: 102px;
+  border-radius: 4px;
+  background: #08121a;
+  box-shadow: inset 0 1px 4px rgba(0, 0, 0, 0.9);
+  overflow: hidden;
+}
+
+.xen-dj-vfader-glow {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(0deg, #1b8c80 0%, #62e8d6 75%, #f4c87f 100%);
+  transition: height 0.05s linear;
+}
+
+.xen-dj-strip.is-bus-a .xen-dj-vfader-glow {
+  background: linear-gradient(0deg, #9a531a 0%, #f5c373 100%);
+}
+
+.xen-dj-strip.is-bus-b .xen-dj-vfader-glow {
+  background: linear-gradient(0deg, #10767a 0%, #6ef4e6 100%);
+}
+
+.xen-dj-vfader-cap {
+  position: absolute;
+  left: 50%;
+  width: 26px;
+  height: 13px;
+  transform: translate(-50%, 50%);
+  border-radius: 2px;
+  border: 1px solid #d5e0e4;
+  background: linear-gradient(180deg, #d7e0e3 0%, #6d7c84 44%, #252f36 56%, #596973 100%);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.85);
+  pointer-events: none;
+}
+
+.xen-dj-vfader-cap::after {
+  content: "";
+  position: absolute;
+  left: 3px;
+  right: 3px;
+  top: 50%;
+  height: 1.5px;
+  margin-top: -0.75px;
+  background: #ffffff;
+}
+
+.xen-dj-strip.is-bus-a .xen-dj-vfader-cap {
+  border-color: #f6cd8b;
+}
+
+.xen-dj-strip.is-bus-b .xen-dj-vfader-cap {
+  border-color: #7ef4e7;
+}
+
+.xen-dj-vfader-readout {
+  font-size: 9px;
+  font-weight: 700;
+  color: #cbe7e8;
+}
+
+.xen-dj-side-bay {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 5px;
+  min-width: 0;
+}
+
+.xen-dj-ms-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4px;
+}
+
+.xen-dj-pad-btn {
+  height: 22px;
+  border-radius: 3px;
+  border: 1px solid rgba(86, 144, 152, 0.36);
+  background: #09151e;
+  color: #8db2ba;
+  font-size: 9.5px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.xen-dj-pad-btn:hover {
+  border-color: #7ee8dc;
+  color: #fff;
+}
+
+.xen-dj-pad-btn.is-mute.is-active {
+  background: #8a2323;
+  border-color: #ff9494;
+  color: #fff3f3;
+}
+
+.xen-dj-pad-btn.is-solo.is-active {
+  background: #8c6314;
+  border-color: #ffe082;
+  color: #fffbe8;
+}
+
+.xen-dj-rotary-pair {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2px;
+}
+
+.xen-dj-nudge-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.xen-dj-nudge-box {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 2px;
+  padding: 2px 3px;
+  border-radius: 3px;
+  border: 1px solid rgba(72, 126, 136, 0.28);
+  background: #060e15;
+}
+
+.xen-dj-nudge-modes {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 3px;
+}
+
+.xen-dj-nudge-modes button {
+  border: 1px solid rgba(72, 126, 136, 0.28);
+  border-radius: 3px;
+  background: #07111a;
+  color: #82a7b0;
+  font-size: 8px;
+  font-weight: 700;
+  padding: 2px 3px;
+  cursor: pointer;
+  line-height: 1.1;
+}
+
+.xen-dj-nudge-modes button:hover {
+  border-color: rgba(126, 224, 214, 0.56);
+  color: #ecfffd;
+}
+
+.xen-dj-nudge-modes button.is-vinyl {
+  border-color: rgba(242, 184, 102, 0.54);
+  background: rgba(68, 34, 16, 0.72);
+  color: #fae0b4;
+}
+
+.xen-dj-nudge-modes button.is-hard {
+  border-color: rgba(79, 227, 210, 0.54);
+  background: rgba(12, 54, 62, 0.72);
+  color: #ccfdfa;
+}
+
+.xen-dj-nudge-box button {
+  border: none;
+  background: transparent;
+  color: #8fc0c6;
+  font-size: 10px;
+  font-weight: 800;
+  padding: 1px 4px;
+  cursor: pointer;
+}
+
+.xen-dj-nudge-box button:hover {
+  color: #ffffff;
+}
+
+.xen-dj-nudge-box span {
+  font-size: 8.5px;
+  color: #b7d8dc;
+  cursor: pointer;
+}
+
+.xen-dj-morph-mini {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.xen-dj-morph-mini-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 4px;
+  font-size: 8px;
+  font-weight: 700;
+  color: #84a8b0;
+}
+
+.xen-dj-morph-end {
+  border: 1px solid rgba(94, 150, 160, 0.34);
+  border-radius: 2px;
+  background: #08141c;
+  color: #a6ccd2;
+  font-size: 8px;
+  font-weight: 800;
+  line-height: 1;
+  padding: 2px 5px;
+  cursor: pointer;
+}
+
+.xen-dj-morph-end.is-a:hover {
+  border-color: #63ded9;
+  color: #d6fffa;
+  background: #0d363b;
+}
+
+.xen-dj-morph-end.is-b:hover {
+  border-color: #c5a2f2;
+  color: #f4ebff;
+  background: #2b1d45;
+}
+
+.xen-dj-morph-mini input[type='range'] {
+  -webkit-appearance: none !important;
+  appearance: none !important;
+  width: 100%;
+  height: 14px;
+  margin: 0;
+  padding: 0;
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  cursor: pointer;
+}
+
+.xen-dj-morph-mini input[type='range']::-webkit-slider-runnable-track {
+  height: 4px;
+  border-radius: 2px;
+  background: linear-gradient(90deg, rgba(99, 222, 217, 0.78) 0%, rgba(44, 78, 88, 0.9) 50%, rgba(197, 162, 242, 0.84) 100%) !important;
+  border: 1px solid rgba(114, 168, 176, 0.34);
+}
+
+.xen-dj-morph-mini input[type='range']::-webkit-slider-thumb {
+  -webkit-appearance: none !important;
+  appearance: none !important;
+  width: 10px;
+  height: 13px;
+  margin-top: -5px;
+  border-radius: 2px;
+  border: 1px solid #d9e7ea;
+  background: linear-gradient(180deg, #dde7ea 0%, #5b6e78 55%, #2a3740 100%) !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.8);
+}
+
+.xen-dj-morph-mini input[type='range']::-moz-range-track {
+  height: 4px;
+  border-radius: 2px;
+  background: linear-gradient(90deg, rgba(99, 222, 217, 0.78) 0%, rgba(44, 78, 88, 0.9) 50%, rgba(197, 162, 242, 0.84) 100%) !important;
+  border: 1px solid rgba(114, 168, 176, 0.34);
+}
+
+.xen-dj-morph-mini input[type='range']::-moz-range-thumb {
+  width: 10px;
+  height: 13px;
+  border-radius: 2px;
+  border: 1px solid #d9e7ea;
+  background: linear-gradient(180deg, #dde7ea 0%, #5b6e78 55%, #2a3740 100%) !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.8);
+}
+
+/* ── Bigger, Vertically Resizable Paintable 24-Band Morph-EQ Drawer ── */
+.xen-dj-eq-drawer {
+  margin-top: 10px;
+  padding: 10px 12px 0;
+  border-radius: 6px;
+  border: 1px solid rgba(82, 229, 212, 0.54);
+  background: linear-gradient(180deg, #061017 0%, #03080d 100%);
+  box-shadow: 0 10px 26px rgba(0, 0, 0, 0.55);
+  overflow: hidden;
+}
+
+.xen-dj-eq-drawer-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 5px;
+  margin-bottom: 8px;
+  padding-bottom: 7px;
+  border-bottom: 1px solid rgba(76, 134, 144, 0.24);
+}
+
+.xen-dj-eq-drawer-label {
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #9dc2c8;
+  margin-right: 4px;
+}
+
+.xen-dj-eq-drawer-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 8px;
+  border-radius: 3px;
+  border: 1px solid rgba(82, 136, 146, 0.3);
+  background: #08131b;
+  color: #9ec0c7;
+  font-size: 9.5px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.xen-dj-eq-drawer-tab:hover {
+  border-color: rgba(124, 222, 214, 0.6);
+  color: #fff;
+}
+
+.xen-dj-eq-drawer-tab.is-active {
+  border-color: #76ece0;
+  background: #0f3842;
+  color: #f0fffd;
+}
+
+.xen-dj-eq-drawer .xen-eq-panel,
+.xen-dj-eq-drawer .xen-eq-window {
+  position: static !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  box-shadow: none !important;
+  border: none !important;
+  background: transparent !important;
+  padding: 0 !important;
+}
+
+.xen-dj-eq-drawer .xen-eq-profile canvas,
+.xen-dj-eq-drawer .xen-eq-panel.is-expanded .xen-eq-profile canvas {
+  height: var(--xen-eq-canvas-height, 164px) !important;
+}
+
+.xen-dj-eq-resize-handle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin: 8px -12px 0;
+  padding: 6px 12px;
+  border-top: 1px solid rgba(82, 178, 174, 0.28);
+  background: linear-gradient(180deg, rgba(12, 27, 36, 0.85) 0%, rgba(5, 11, 16, 0.96) 100%);
+  cursor: ns-resize;
+  touch-action: none;
+  user-select: none;
+  transition: background 0.12s ease, border-color 0.12s ease;
+}
+
+.xen-dj-eq-resize-handle:hover,
+.xen-dj-eq-resize-handle:active {
+  border-top-color: #76ece0;
+  background: linear-gradient(180deg, rgba(18, 48, 58, 0.92) 0%, rgba(8, 22, 28, 0.98) 100%);
+}
+
+.xen-dj-eq-resize-grip {
+  width: 44px;
+  height: 4px;
+  border-radius: 2px;
+  background: linear-gradient(90deg, rgba(118, 236, 224, 0.35), rgba(242, 184, 102, 0.85), rgba(118, 236, 224, 0.35));
+}
+
+.xen-dj-eq-resize-hint {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: #8db9be;
+}
+
+.xen-dj-eq-resize-handle:hover .xen-dj-eq-resize-hint {
+  color: #e4fffc;
+}
+
+/* ── Mix Scene Snapshots + Machined Hardware Crossfader Console ── */
+.xen-dj-console-footer {
+  border-top: 1px solid rgba(206, 152, 86, 0.34);
+  background: linear-gradient(180deg, #0b131b 0%, #05090e 100%);
+}
+
+.xen-dj-scenes-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px 12px;
+  padding: 7px 14px;
+  border-bottom: 1px solid rgba(72, 126, 136, 0.2);
+  background: rgba(6, 11, 17, 0.9);
+}
+
+.xen-dj-scenes-group {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 5px;
+}
+
+.xen-dj-scenes-label {
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #cca97c;
+  margin-right: 4px;
+}
+
+.xen-dj-scene-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 8px;
+  border-radius: 3px;
+  border: 1px solid rgba(94, 146, 156, 0.32);
+  background: #08121a;
+  color: #82a4ac;
+  font-size: 9.5px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.xen-dj-scene-btn.is-stored {
+  border-color: rgba(242, 184, 102, 0.54);
+  color: #f6d59e;
+  background: rgba(54, 28, 16, 0.65);
+}
+
+.xen-dj-scene-btn.is-active {
+  border-color: #ffd794;
+  background: linear-gradient(180deg, #743b1e 0%, #44200e 100%);
+  color: #fff6e6;
+}
+
+.xen-dj-scene-btn:hover {
+  border-color: #7ee8dc;
+  color: #fff;
+}
+
+.xen-dj-crossfader-bar {
+  display: grid;
+  grid-template-columns: minmax(175px, auto) minmax(260px, 1fr) minmax(175px, auto);
+  align-items: center;
+  gap: 12px 16px;
+  padding: 11px 14px 12px;
+}
+
+@media (max-width: 900px) {
+  .xen-dj-crossfader-bar {
+    grid-template-columns: 1fr;
+  }
+}
+
+.xen-dj-xfade-side {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px;
+}
+
+.xen-dj-xfade-side.is-right {
+  justify-content: flex-end;
+}
+
+.xen-dj-xfade-center {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.xen-dj-xfade-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+}
+
+.xen-dj-xfade-header .is-a {
+  color: #f5c373;
+}
+
+.xen-dj-xfade-header .is-b {
+  color: #62eee0;
+}
+
+.xen-dj-xfade-curve-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: #96bbc2;
+  font-size: 9px;
+  font-weight: 700;
+}
+
+/* Custom Machined Hardware Crossfader Plate (zero browser-default slider dot!) */
+.xen-dj-xfade-plate {
+  position: relative;
+  height: 36px;
+  border-radius: 5px;
+  border: 1px solid rgba(206, 152, 86, 0.44);
+  background: linear-gradient(180deg, #04080c 0%, #09131c 100%);
+  box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.85);
+  cursor: ew-resize;
+  touch-action: none;
+  display: flex;
+  align-items: center;
+  padding: 0 18px;
+}
+
+.xen-dj-xfade-plate:focus-visible {
+  outline: 2px solid #f5c373;
+  outline-offset: 2px;
+}
+
+.xen-dj-xfade-scale {
+  position: absolute;
+  left: 18px;
+  right: 18px;
+  top: 4px;
+  bottom: 4px;
+  display: flex;
+  justify-content: space-between;
+  align-items: stretch;
+  pointer-events: none;
+}
+
+.xen-dj-xfade-scale i {
+  width: 1px;
+  background: rgba(146, 182, 192, 0.22);
+}
+
+.xen-dj-xfade-scale i.is-center {
+  width: 1.5px;
+  background: rgba(245, 200, 126, 0.56);
+}
+
+.xen-dj-xfade-rail {
+  position: relative;
+  width: 100%;
+  height: 7px;
+  border-radius: 4px;
+  background: #020508;
+  border: 1px solid rgba(90, 140, 150, 0.28);
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.xen-dj-xfade-energy-a {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  background: linear-gradient(90deg, #e5a349 0%, #f8cf8c 100%);
+  opacity: 0.82;
+}
+
+.xen-dj-xfade-energy-b {
+  position: absolute;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  background: linear-gradient(270deg, #24b9b4 0%, #7bf6e9 100%);
+  opacity: 0.82;
+}
+
+.xen-dj-xfade-cap {
+  position: absolute;
+  top: 50%;
+  width: 24px;
+  height: 28px;
+  transform: translate(-50%, -50%);
+  border-radius: 3px;
+  border: 1px solid #f4d39c;
+  background: linear-gradient(90deg, #5e442c 0%, #c8a372 24%, #f4e2c2 50%, #c8a372 76%, #4a3420 100%);
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.86), inset 0 1px 0 rgba(255, 250, 236, 0.72);
+  pointer-events: none;
+}
+
+.xen-dj-xfade-cap::after {
+  content: "";
+  position: absolute;
+  top: 3px;
+  bottom: 3px;
+  left: 50%;
+  width: 2px;
+  margin-left: -1px;
+  background: #1b0d07;
+  box-shadow: 0 0 1px rgba(255, 255, 255, 0.7);
+}
+
+.xen-dj-xfade-tools {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+}
+
+.xen-dj-xfade-btn {
+  border: 1px solid rgba(98, 158, 166, 0.34);
+  border-radius: 3px;
+  background: #0a1620;
+  color: #c5e3e5;
+  font-size: 9.5px;
+  font-weight: 700;
+  padding: 3px 7px;
+  cursor: pointer;
+}
+
+.xen-dj-xfade-btn:hover {
+  border-color: #7ee8dc;
+  background: #132c38;
+  color: #fff;
+}
+
+.xen-dj-xfade-btn.is-active {
+  border-color: #f4c87f;
+  background: linear-gradient(180deg, #68341c 0%, #3d1d10 100%);
+  color: #fff3de;
+}

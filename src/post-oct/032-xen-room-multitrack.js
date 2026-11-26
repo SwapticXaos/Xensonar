@@ -533,7 +533,6 @@ function zipStore(files){let crcT=zipStore.t;if(!crcT){crcT=zipStore.t=new Uint3
  return new Blob([...parts,...central,end.buffer],{type:'application/zip'})}
 /* ---------- view ---------- */
 const CSS=`.xmt{color:#e7e5e4;font:13px/1.35 system-ui,sans-serif;max-width:1500px;margin:0 auto;outline:none}
-/* UI-EMBLEM-STARS-01 + UI-TITLE-ART-01: head with eyebrow, emblem (8 XenSonar triangles) and vector title on one line */
 .xmt-head{position:relative;display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:12px 24px;padding:4px 0 13px;margin:0 0 10px;border-bottom:1px solid #26252b}
 .xmt-head::after{content:'';position:absolute;left:0;bottom:-1px;width:min(360px,55%);height:1px;background:linear-gradient(90deg,rgba(253,230,138,.65),rgba(253,230,138,.12) 68%,transparent);pointer-events:none}
 .xmt-brand{display:block;min-width:0;flex:1 1 360px}
@@ -543,6 +542,15 @@ const CSS=`.xmt{color:#e7e5e4;font:13px/1.35 system-ui,sans-serif;max-width:1500
 .xmt-eyebrow{font-family:ui-sans-serif,system-ui,sans-serif;font-size:10px;font-weight:500;letter-spacing:.24em;text-transform:uppercase;color:#d9bc6e;line-height:1.2}
 .xmt h2{font-family:Georgia,"Iowan Old Style","Palatino Linotype","Times New Roman",serif;font-size:clamp(24px,2.1vw,29px);font-weight:400;letter-spacing:-.025em;line-height:1.08;margin:0;color:#f7f1e1;text-wrap:balance;text-shadow:0 1px 18px rgba(253,230,138,.12)}
 .xmt-sub{font-family:ui-sans-serif,system-ui,sans-serif;font-size:12px;line-height:1.45;color:#a8a29e;margin:4px 0 0;max-width:68ch}
+.xmt-head-side{display:flex;flex-direction:column;align-items:flex-end;gap:6px;flex:0 1 auto}
+.xmt-head-meta{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:11px;font-variant-numeric:tabular-nums;color:#a8a29e;letter-spacing:.02em;white-space:nowrap}
+.xmt-head-meta b{font-weight:500;color:#e7e0cf}
+.xmt-head-controls{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.xmt-title-input{min-width:210px;background:#101013!important;border-color:#3a3840!important;padding:5px 10px!important;color:#f5f0e5!important;transition:border-color .16s ease,background-color .16s ease}
+.xmt-title-input:hover{border-color:#57534e!important}
+.xmt-title-input:focus{border-color:#e2c478!important;background:#141318!important}
+@media(max-width:820px){.xmt-head{align-items:flex-start}.xmt-head-side{align-items:flex-start}.xmt-emblem{width:32px;height:32px;flex-basis:32px}}
+@media(prefers-reduced-motion:reduce){.xmt-title-input{transition:none}}
 .xmt .row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
 .xmt .bar{background:#0b0b0d;border:1px solid #2b2b31;border-radius:10px;padding:8px 12px;margin:8px 0}
 .xmt button{background:#18181b;color:#e7e5e4;border:1px solid #3f3f46;border-radius:6px;padding:4px 10px;cursor:pointer;font:inherit}
@@ -1161,7 +1169,7 @@ function XenMultitrackRoom(){
   band?u.jsx('div',{className:'band',style:{left:band.l,top:band.t,width:band.r-band.l,height:band.b-band.t}}):null,
   u.jsx(Menu,{menu,close:()=>{setMenu(null);rootRef.current?.querySelector('[data-clip="'+sel+'"]')?.focus({preventScroll:true})}}),
   u.jsxs('header',{className:'xmt-head',children:[
-u.jsx('div',{className:'xmt-brand',children:
+   u.jsx('div',{className:'xmt-brand',children:
     u.jsxs('div',{className:'xmt-head-copy',children:[
      u.jsx('div',{className:'xmt-eyebrow',children:'Room V · Arrangement'}),
      u.jsxs('div',{className:'xmt-title-row',children:[
@@ -1186,11 +1194,19 @@ u.jsx('div',{className:'xmt-brand',children:
       ]}),
       u.jsx('h2',{children:window.__XenTitleArt?u.jsx(window.__XenTitleArt.Title,{react:P,room:'multitrack',text:'Multitrack',height:32,smallHeight:25}):'Multitrack'})
      ]}),
-     u.jsx('p',{className:'xmt-sub',children:'Arrange harvested material on tracks. Live Room and Mycelium sleep while you are here. Right-click anything for options.'})
+     u.jsx('p',{className:'xmt-sub',children:'Arrange harvested material on free-meter tracks · Live Room and Mycelium sleep while open · Right-click anywhere for options.'})
     ]})
    }),
-   u.jsxs('div',{className:'row',style:{gap:8,alignItems:'center'},children:[u.jsx(XmtProjects,{name:project.name,rev:projRev,actions:projectActions}),
-   u.jsx('input',{type:'text','aria-label':'Arrangement name',title:'Name of this arrangement (used for the mixdown file name)',value:project.name,onChange:e=>commit({...project,name:e.target.value.slice(0,100)})})]})]}),
+   u.jsxs('div',{className:'xmt-head-side',children:[
+    u.jsxs('div',{className:'xmt-head-meta',children:[
+     u.jsx('b',{children:nT}),' ',nT===1?'track':'tracks',' · ',u.jsx('b',{children:project.bpm}),' BPM · ',u.jsx('b',{children:bpb}),' beats/bar'
+    ]}),
+    u.jsxs('div',{className:'xmt-head-controls',children:[
+     u.jsx(XmtProjects,{name:project.name,rev:projRev,actions:projectActions}),
+     u.jsx('input',{type:'text',className:'xmt-title-input','aria-label':'Arrangement name',title:'Name of this arrangement (used for the mixdown file name)',value:project.name,onChange:e=>commit({...project,name:e.target.value.slice(0,100)})})
+    ]})
+   ]})
+  ]}),
   u.jsxs('div',{className:'bar row',children:[
    u.jsx('button',{type:'button',onClick:playing?stop:()=>void play(),title:'Play from the cursor / stop · Space','aria-label':playing?'Stop (Space)':'Play from cursor (Space)',children:playing?'■ Stop':'▶ Play'}),
    u.jsx('button',{type:'button',onClick:()=>{setCursor(0);announce('Cursor to start')},title:'Cursor to the start · Home','aria-label':'Cursor to start (Home)',children:'⏮'}),

@@ -82,7 +82,7 @@ const __XenMainRoomSessionBridge=(()=>{
    const p=params(),pan=__XenPan.snapshot(),attack=__XenAttackLanes.snapshot();
    const allowed=new Set(items.filter(e=>e.kind==='material').map(e=>e.id));
    const primaryId=allowed.has(p.materialLoopId)?p.materialLoopId:null;
-   const secondaryIds=__XenMaterialLayers.snapshot().filter(id=>allowed.has(id)&&id!==primaryId).slice(0,2);
+   const secondaryIds=__XenMaterialLayers.snapshot().filter(id=>allowed.has(id)&&id!==primaryId).slice(0,Math.max(2,(__XenMaterialLayers.maxVoices?.()??3)-1));
    const primaryMuted=__XenMaterialPrimarySwitch.snapshot(),enabled=!!p.materialLoopActive&&!!primaryId;
    // Session membership is authoritative; the live chronology may still
    // contain a voice belonging to a different working rack during rollover.

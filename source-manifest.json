@@ -182,6 +182,8 @@
     "src/quickrack/equalizer/eq-core.js",
     "src/quickrack/equalizer/eq-ui.js",
     "src/mix/03_quick_menu__after_eq-core__after_eq-ui.js",
+    "src/ui/dj_mix_math.js",
+    "src/ui/07_dj_mix_stage.js",
     "src/post-oct/gaps/010-main-bundle__02_after_03_quick_menu__after_eq-core__after_eq-ui.js",
     "src/mix/03_meta_menu__before_v2-session-store.js",
     "src/sessions/v2-session-store.js",
@@ -634,6 +636,13 @@
    "oct28_section": "@@XENSONAR_COMPONENT_046@@",
    "files": [
     "styles/merge_meta_additions/045_xen-r3-wheel-layout.css"
+   ]
+  },
+  {
+   "id": "css-042c-xen-dj-mix-stage",
+   "oct28_section": null,
+   "files": [
+    "styles/merge_meta_additions/048_xen-dj-mix-stage.css"
    ]
   },
   {

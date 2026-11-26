@@ -35,19 +35,28 @@ function __XenLaneControls({params,update,primaryId,extras=[]}={}){
  const bassPitch=P.useSyncExternalStore(__XenBassPitch.subscribe,__XenBassPitch.snapshot,__XenBassPitch.snapshot);
  const rootPitch=P.useSyncExternalStore(__XenRootFollowPitch.subscribe,__XenRootFollowPitch.snapshot,__XenRootFollowPitch.snapshot);
  const attackState=P.useSyncExternalStore(__XenAttackLanes.subscribe,__XenAttackLanes.snapshot,__XenAttackLanes.snapshot);
+ const djState=P.useSyncExternalStore(
+  fn=>typeof window!=='undefined'&&window.__XenDjStage?window.__XenDjStage.subscribe(fn):()=>{},
+  ()=>typeof window!=='undefined'&&window.__XenDjStage?window.__XenDjStage.snapshot():null,
+  ()=>null
+ );
+ const djExpanded=!!djState?.expanded;
+ const maxMaterialVoices=P.useSyncExternalStore(__XenMaterialLayers.subscribe,()=>__XenMaterialLayers.maxVoices?.()??3,()=>3);
  // Visible EQ rows use the canonical audible activation chronology, not
  // the technical Primary/extra playback ownership. Every row keeps its ID.
- const activeIds=[...new Set([primaryId,...extras].filter(Boolean))].slice(0,3);
+ const activeIds=[...new Set([primaryId,...extras].filter(Boolean))].slice(0,maxMaterialVoices);
  const chronology=__XenMaterialLayers.oldestFirst(primaryId);
  const ids=[...chronology.filter(id=>activeIds.includes(id)),
-  ...activeIds.filter(id=>!chronology.includes(id))].slice(0,3);
+  ...activeIds.filter(id=>!chronology.includes(id))].slice(0,maxMaterialVoices);
  const controlsRef=P.useRef(null);
  P.useLayoutEffect(()=>{
+  if(djExpanded)return;
   const el=controlsRef.current;if(!el)return;let frame=0;
   const measure=()=>{frame=0;const height=Math.max(64,Math.floor(__xenPlayAreaBottom()-el.getBoundingClientRect().top-8));
    el.style.maxHeight=height+'px';
    const count=el.querySelectorAll('.xen-lane-slider').length,step=parseFloat(el.style.getPropertyValue('--xen-lane-step'))||22;
-   const content=el.querySelector('.xen-lane-page').getBoundingClientRect().bottom-el.getBoundingClientRect().top+el.scrollTop+4;
+   const pageEl=el.querySelector('.xen-lane-page');if(!pageEl)return;
+   const content=pageEl.getBoundingClientRect().bottom-el.getBoundingClientRect().top+el.scrollTop+4;
    const overhead=content-count*step;
    el.style.setProperty('--xen-lane-step',Math.max(17,Math.min(24,(height-overhead-4)/Math.max(1,count)))+'px');
   };
@@ -57,7 +66,7 @@ function __XenLaneControls({params,update,primaryId,extras=[]}={}){
   /* LANE-FOLLOW-01: when the rack above grows or SHRINKS this panel moves without resizing itself; watch the rack so its height/step are re-measured both ways */
   const rack=el.closest('.xen-quick-collection');if(rack)observer.observe(rack);
   return()=>{cancelAnimationFrame(frame);observer.disconnect();window.removeEventListener('resize',queue);window.removeEventListener('scroll',queue)};
- },[ids.length,tab,openWindow]);
+ },[ids.length,tab,openWindow,djExpanded]);
  const items=__XenQuick.adapters.get('material')?.entries??[];
  const labelFor=id=>items.find(row=>row.id===id)?.name??__XenQuick.snapshot().items.find(row=>row.kind==='material'&&row.id===id)?.name??id;
  const activeSlots=__XenQuick.snapshot().items.filter(row=>row.kind==='material');
@@ -141,9 +150,13 @@ function __XenLaneControls({params,update,primaryId,extras=[]}={}){
     :slider('Root Follow','Attack',attackState.rootFollow,-2,2,.001,v=>__XenAttackLanes.set('rootFollow',v),false,'att:rootFollow')
   ]}),eqDock(tab,null,selectedTitle(tab),'eq-'+tab)
  ]})];
+ if(djExpanded){
+  return u.jsx('section',{ref:controlsRef,className:'xen-lane-controls is-dj-stage-open','aria-label':'Lane Alignment (Mixing Desk aktiv)',children:u.jsxs('div',{className:'xen-lane-dj-docked-banner',children:[u.jsxs('div',{className:'xen-lane-dj-docked-info',children:[u.jsx('strong',{children:'Mixing Desk'}),u.jsx('span',{children:ids.length+' / '+maxMaterialVoices+' Spuren unten aktiv'})]}),u.jsxs('button',{type:'button',className:'xen-lane-dj-return-btn',title:'Mixing Desk wieder ins Quick Rack einklappen',onClick:()=>window.__XenDjStage?.setExpanded(false),children:[u.jsx('svg',{width:10,height:10,viewBox:'0 0 12 12',fill:'none','aria-hidden':true,children:u.jsx('path',{d:'M3 9L9 3M9 3H4.5M9 3V7.5',stroke:'currentColor',strokeWidth:1.6,strokeLinecap:'round',strokeLinejoin:'round'})}),u.jsx('span',{children:'Rack'})]})]})});
+ }
  return u.jsxs('section',{ref:controlsRef,className:'xen-lane-controls','aria-label':'Lane Alignment',onScroll:()=>setOpenWindow(null),children:[
   u.jsx('div',{className:'xen-lane-tabs',role:'tablist','aria-label':'Lane Alignment tabs',children:Object.entries(labels).map(([key,[icon,label]])=>u.jsxs('button',{type:'button',role:'tab',id:'xen-lane-tab-'+key,'aria-controls':'xen-lane-current-panel','aria-selected':key===tab,'aria-label':icon+' '+label,className:key===tab?'is-active':'',onClick:()=>{setTab(key);setOpenWindow(null);setEqOpen(null)},children:[u.jsx('span',{className:'xen-lane-tab-icon','aria-hidden':true,children:icon}),u.jsx('span',{className:'xen-lane-tab-title',children:label})]},key))}),
-  u.jsx('div',{className:'xen-lane-page',role:'tabpanel',id:'xen-lane-current-panel','aria-labelledby':'xen-lane-tab-'+tab,children:(tab==='material'&&!ids.length)?u.jsx('div',{className:'xen-lane-empty',children:'Choose Material Track'}):rows})
+  u.jsx('div',{className:'xen-lane-page',role:'tabpanel',id:'xen-lane-current-panel','aria-labelledby':'xen-lane-tab-'+tab,children:(tab==='material'&&!ids.length)?u.jsx('div',{className:'xen-lane-empty',children:'Choose Material Track'}):rows}),
+  u.jsx('div',{className:'xen-lane-dj-corner-wrap',children:u.jsxs('button',{type:'button',className:'xen-lane-expand-dj-btn',title:'Mixing Desk unter der Spielfläche öffnen (Crossfader, Taktwahrheit, 3-Band Isolator, bis zu 6 Spuren)','aria-label':'Mixing Desk unter Spielfläche öffnen',onClick:()=>window.__XenDjStage?.setExpanded(true),children:[u.jsx('svg',{viewBox:'0 0 12 12',fill:'none','aria-hidden':true,children:u.jsx('path',{d:'M9.2 2.8L2.8 9.2M2.8 9.2H7.6M2.8 9.2V4.4',stroke:'currentColor',strokeWidth:1.65,strokeLinecap:'round',strokeLinejoin:'round'})}),u.jsx('span',{children:'Mixing Desk'})]})})
  ]});
 }
 /* XLR-LIVE-BAR-01: session-runtime PCM overrides, separate from durable library and Preview. */
