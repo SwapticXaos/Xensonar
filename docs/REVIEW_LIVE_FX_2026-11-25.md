@@ -99,3 +99,8 @@ Prüfung: `tests/e2e/wave_fx_palette.cjs` (alle sechs Effekte unter „Add effec
 - **Psy Lab FX (Wave Editor):** Parameter „Crystal pitches“: Live Room grid (Standard, wie im Psy-Lab-Raum) oder Fixed 220 Hz. Vorher lag Crystal auf Rohaudio fest auf 220 Hz.
 - **Psy-Lab-Send (Multitrack):** Auswahl „Crystal“ (Live Room grid / Fixed 220 Hz), `master.psy.res`, live umschaltbar per Nachricht.
 - Tests: `wave_fx_palette.test.cjs` 8/8 (Raster-Tonmenge: genau ein Resonator je Stufe im Bereich, klingt anders als JI 7, leeres Raster = keine Resonanz, kein Absturz). `wave_fx_palette.cjs`: 22 Rasterstufen, Crystal 55/66/82/103/123/147/176/220 Hz, Raster vs. 220 Hz Δ 0,83. `mt_psy_send.cjs`: Raster vs. fest ändert den Mixdown, Oberfläche zeigt „Crystal“. Grün.
+
+## FX-NET-04 (26.11.): Mix der Raumgeräte im Wave Editor automatisierbar
+- Eine Stelle für alle Raumgeräte (`runGraphNode`, `015c`): Das Gerät rendert voll nass, der Wave Editor mischt pro Sample mit dem Original nach der Mix-Kurve (linear oder „hold“), ohne Kurve nach dem Mix-Regler. Psy Lab und Multitrack bleiben unverändert.
+- Mix automatisierbar bei Psy Lab FX, Spiral und Master Strip; der Master Strip hat dafür einen Mix-Regler (100 % = wie bisher, darunter Parallelbearbeitung). Die übrigen Geräteparameter bleiben pro Anwendung fest.
+- Test `wave_fx_palette.cjs`: Mix-Kurve 0 → 1 über die Auswahl; Abweichung vom Original erstes → letztes Viertel: Spiral 0,19 → 1,00, Psy Lab FX 0,04 → 0,38, Master Strip 0,29 → 1,72; Mix 0 lässt das Audio unberührt. Regression grün: `mtw03_wave_pitch_time`, `wave_fx_palette.test.cjs` 8/8.
