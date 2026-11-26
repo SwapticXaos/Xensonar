@@ -516,8 +516,19 @@ class Metronome{
 
 const CSS=`
 .xpl{color:#e9e4ff;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12px;padding:14px 16px 28px;max-width:1500px;margin:0 auto}
-.xpl h2{font-size:20px;letter-spacing:.18em;margin:0;background:linear-gradient(90deg,#ff5ecb,#ffd166,#5ef2ff,#b28dff);-webkit-background-clip:text;background-clip:text;color:transparent}
-.xpl-sub{color:#9f96c4;font-size:11px;margin:4px 0 12px;max-width:900px;line-height:1.5}
+.xpl-head{position:relative;display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:12px 24px;padding:2px 0 13px;margin:0 0 12px;border-bottom:1px solid #2e244d}
+.xpl-head::after{content:'';position:absolute;left:0;bottom:-1px;width:min(380px,58%);height:1px;background:linear-gradient(90deg,rgba(240,171,252,.72),rgba(126,238,255,.35) 55%,transparent);pointer-events:none}
+.xpl-brand{display:block;min-width:0;flex:1 1 380px}
+.xpl-title-row{display:flex;align-items:center;gap:11px;margin-top:4px;min-width:0}
+.xpl-emblem{width:38px;height:38px;flex:0 0 38px;display:block;transform:translateY(-2px);filter:drop-shadow(0 0 13px rgba(240,171,252,.28))}
+.xpl-head-copy{min-width:0}
+.xpl-eyebrow{font-family:ui-sans-serif,system-ui,sans-serif;font-size:10px;font-weight:500;letter-spacing:.24em;text-transform:uppercase;color:#d9a8f5;line-height:1.2}
+.xpl h2{font-family:Georgia,"Iowan Old Style","Palatino Linotype","Times New Roman",serif;font-size:clamp(24px,2.1vw,29px);font-weight:400;letter-spacing:-.025em;line-height:1.08;margin:0;color:#f6f1ff;text-wrap:balance;text-shadow:0 1px 20px rgba(216,180,254,.18)}
+.xpl-sub{font-family:ui-sans-serif,system-ui,sans-serif;color:#aba2d1;font-size:12px;margin:4px 0 0;max-width:74ch;line-height:1.45}
+.xpl-head-meta{display:flex;flex-wrap:wrap;align-items:center;justify-content:flex-end;gap:6px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:11px;font-variant-numeric:tabular-nums;color:#9f96c4;white-space:nowrap}
+.xpl-head-meta b{font-weight:500;color:#e9e4ff}
+.xpl-head-meta .sep{color:#5e5288}
+@media(max-width:820px){.xpl-head{align-items:flex-start}.xpl-head-meta{justify-content:flex-start}.xpl-emblem{width:32px;height:32px;flex-basis:32px}}
 .xpl-bar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:10px}
 .xpl button,.xpl select,.xpl input[type=text],.xpl input[type=number]{background:#120d24;color:#efe9ff;border:1px solid #4b3d7a;border-radius:6px;padding:6px 10px;font:inherit;min-height:30px}
 .xpl button{cursor:pointer}.xpl button:hover:not(:disabled){background:#22184a;border-color:#8f7bff}.xpl button:disabled{opacity:.45;cursor:default}
@@ -568,16 +579,52 @@ const CSS=`
 .xpl-row input[type=range]{grid-column:1/-1;width:100%;accent-color:#b28dff;cursor:pointer;margin:0}
 .xpl-status{min-height:16px;color:#b9f5c8;font-size:11px;margin-top:8px}
 .xpl-keys{color:#9f96c4;font-size:10px;margin-top:8px;line-height:1.5}
+.xpl-modal-back{position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px;background:rgba(5,3,14,.76);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
+.xpl-modal{position:relative;width:min(460px,100%);border:1px solid #443570;border-radius:12px;background:linear-gradient(168deg,rgba(24,16,48,.98),rgba(10,7,22,.99));box-shadow:0 24px 64px rgba(0,0,0,.68),0 0 0 1px rgba(240,171,252,.08) inset;color:#e9e4ff;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12px;overflow:hidden}
+.xpl-modal::before{content:'';position:absolute;left:0;right:0;top:0;height:1px;background:linear-gradient(90deg,transparent,rgba(240,171,252,.8) 28%,rgba(126,238,255,.55) 72%,transparent);pointer-events:none}
+.xpl-modal-head{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:16px 18px 13px;border-bottom:1px solid #2b2149}
+.xpl-modal-brand{display:flex;align-items:center;gap:11px;min-width:0}
+.xpl-modal-emblem{width:28px;height:28px;flex:0 0 28px;display:block;filter:drop-shadow(0 0 10px rgba(240,171,252,.22))}
+.xpl-modal-eyebrow{font-family:ui-sans-serif,system-ui,sans-serif;font-size:9.5px;font-weight:500;letter-spacing:.22em;text-transform:uppercase;color:#d9a8f5;line-height:1.2}
+.xpl-modal-title{font-family:Georgia,"Iowan Old Style","Palatino Linotype","Times New Roman",serif;font-size:21px;font-weight:400;letter-spacing:-.02em;line-height:1.12;margin:2px 0 0;color:#f6f1ff}
+.xpl-modal-close{background:transparent;color:#aba2d1;border:1px solid #3a2e62;border-radius:6px;width:28px;height:28px;display:inline-flex;align-items:center;justify-content:center;font-size:16px;line-height:1;cursor:pointer;padding:0}
+.xpl-modal-close:hover{background:#22184a;border-color:#8f7bff;color:#fff}
+.xpl-modal-body{padding:16px 18px;display:flex;flex-direction:column;gap:12px}
+.xpl-modal-desc{font-family:ui-sans-serif,system-ui,sans-serif;color:#b8afd9;font-size:12px;line-height:1.5;margin:0}
+.xpl-modal-field{display:flex;flex-direction:column;gap:6px}
+.xpl-modal-field span{font-family:ui-sans-serif,system-ui,sans-serif;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:#cfc6f2}
+.xpl-modal-input{width:100%;box-sizing:border-box;background:#0c081a;color:#f6f1ff;border:1px solid #524287;border-radius:7px;padding:9px 11px;font:13px/1.3 ui-monospace,SFMono-Regular,Menlo,monospace;outline:none}
+.xpl-modal-input:focus{border-color:#7eeeff;box-shadow:0 0 0 2px rgba(94,242,255,.16)}
+.xpl-modal-check{display:flex;align-items:flex-start;gap:8px;padding:9px 0;border-top:1px solid #261d42;border-bottom:1px solid #261d42;font-family:ui-sans-serif,system-ui,sans-serif;font-size:12px;color:#cfc6f2;cursor:pointer}
+.xpl-modal-check input{margin-top:2px;accent-color:#d9a8f5}
+.xpl-modal-check small{display:block;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:11px;color:#9f96c4;margin-top:2px}
+.xpl-modal-warn{padding:8px 10px;border-radius:6px;border:1px solid rgba(255,209,102,.38);background:rgba(255,209,102,.08);color:#ffe29a;font-family:ui-sans-serif,system-ui,sans-serif;font-size:11.5px;line-height:1.45}
+.xpl-modal-saved{display:flex;flex-direction:column;gap:6px}
+.xpl-modal-saved-label{font-family:ui-sans-serif,system-ui,sans-serif;font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:#9f96c4}
+.xpl-modal-saved-list{display:flex;flex-wrap:wrap;gap:6px;max-height:92px;overflow-y:auto}
+.xpl-modal-saved-btn{background:#140e29;color:#d8cff7;border:1px solid #3a2e62;border-radius:5px;padding:4px 8px;font:11px/1.2 ui-monospace,SFMono-Regular,Menlo,monospace;cursor:pointer}
+.xpl-modal-saved-btn:hover,.xpl-modal-saved-btn.is-match{background:#251a4e;border-color:#d9a8f5;color:#fff}
+.xpl-modal-foot{display:flex;align-items:center;justify-content:flex-end;gap:8px;padding:13px 18px 16px;border-top:1px solid #2b2149;background:rgba(7,4,16,.45)}
+.xpl-modal-btn{background:#140e29;color:#e9e4ff;border:1px solid #4b3d7a;border-radius:7px;padding:7px 14px;font:12px/1.2 ui-sans-serif,system-ui,sans-serif;font-weight:500;cursor:pointer;min-height:33px}
+.xpl-modal-btn:hover:not(:disabled){background:#24194c;border-color:#8f7bff}
+.xpl-modal-btn:disabled{opacity:.42;cursor:default}
+.xpl-modal-btn.is-primary{background:linear-gradient(180deg,#5b2d86,#3d1d61);border-color:#d9a8f5;color:#fff;box-shadow:0 0 18px rgba(217,168,245,.18)}
+.xpl-modal-btn.is-primary:hover:not(:disabled){background:linear-gradient(180deg,#6e38a1,#4b2476);border-color:#f0abfc}
+.xpl-modal-btn.is-danger{background:linear-gradient(180deg,#691f3d,#471329);border-color:#e06c96;color:#ffe4ee}
+.xpl-modal-btn.is-danger:hover:not(:disabled){background:linear-gradient(180deg,#80264a,#5a1934);border-color:#ff94b9}
+.xpl-modal-btn.is-subtle{margin-right:auto;background:transparent;border-color:#35295b;color:#aba2d1}
+.xpl-modal-btn.is-subtle:hover{background:#1c143a;color:#e9e4ff}
+.xpl-modal :focus-visible{outline:2px solid #5ef2ff;outline-offset:2px}
 `;
 function useStyle(){P.useEffect(()=>{if(document.getElementById('xen-psylab-style'))return;const s=document.createElement('style');s.id='xen-psylab-style';s.textContent=CSS;document.head.appendChild(s)},[])}
 
 /* One slider = one tiny component. Moving it writes to the engine and to the patch object, never to room state. */
-function PsySlider({p,patchRef,engine,onTouched}){
+function PsySlider({p,patchRef,engine,onTouched,onEditParam}){
  const[index, ,label]=p;const[value,setValue]=P.useState(()=>patchRef.current.params[index]);
  const apply=v=>{v=clamp(v,p[3],p[4]);patchRef.current.params[index]=v;engine.setParam(index,v);setValue(v);onTouched()};
  const id='xpl-p-'+p[1];
  return u.jsxs('div',{className:'xpl-row',children:[u.jsx('label',{htmlFor:id,children:label}),
-  u.jsx('button',{type:'button',className:'xpl-val',title:'Click to type an exact value. Double-click the slider to reset.',onClick:()=>{const typed=window.prompt(label+' ('+p[3]+' … '+p[4]+(p[7]?' '+p[7]:'')+')',String(+value.toPrecision(6)));if(typed===null)return;const v=Number(String(typed).replace(',','.'));if(Number.isFinite(v))apply(v)},children:fmt(p,value)}),
+  u.jsx('button',{type:'button',className:'xpl-val',title:'Click to type an exact value. Double-click the slider to reset.',onClick:()=>onEditParam(p,value,apply),children:fmt(p,value)}),
   u.jsx('input',{id,type:'range',min:0,max:1000,step:1,value:Math.round(toUnit(p,value)*1000),'data-psy-param':p[1],'aria-valuetext':fmt(p,value),
    onChange:e=>apply(fromUnit(p,Number(e.target.value)/1000)),onDoubleClick:()=>apply(p[5])})]})}
 
@@ -679,6 +726,13 @@ function XenPsyLabRoom(){
  const[collapsed,setCollapsed]=P.useState(()=>({organic:true,modenv:true,space:true}));
  const[locked,setLocked]=P.useState(()=>({}));
  const[morphOpen,setMorphOpen]=P.useState(false),[morphA,setMorphA]=P.useState(FACTORY[0].id),[morphB,setMorphB]=P.useState(FACTORY[8]?.id||FACTORY[1].id),[morphAmt,setMorphAmt]=P.useState(0);
+ const[dialog,setDialog]=P.useState(null);
+ const modalOpenRef=P.useRef(false);modalOpenRef.current=!!dialog;
+ const modalInputRef=P.useRef(null);
+ P.useEffect(()=>{if(!dialog)return;
+  if(dialog.kind==='save'||dialog.kind==='param'){const el=modalInputRef.current;if(el){el.focus();el.select()}}
+  const onKey=e=>{if(e.key==='Escape'){e.preventDefault();e.stopPropagation();setDialog(null)}};
+  window.addEventListener('keydown',onKey,true);return()=>window.removeEventListener('keydown',onKey,true)},[dialog?.kind,dialog?.openedAt]);
  const undoRef=P.useRef([]),[undoCount,setUndoCount]=P.useState(0),morphSnapshotRef=P.useRef(null);
  const live=P.useRef({hold,user,bounceSec,orient,flip,mirror,large,log:logAxis,edges,oct,metro:metroCfg});live.current={hold,user,bounceSec,orient,flip,mirror,large,log:logAxis,edges,oct,metro:metroCfg};
  const padRef=P.useRef(null),canvasRef=P.useRef(null),scopeRef=P.useRef(null),readoutRef=P.useRef(null),rootRef=P.useRef(null),beatRef=P.useRef(null);
@@ -758,7 +812,7 @@ function XenPsyLabRoom(){
     if(e.repeat)return;const from=ball.current.freq||geo.freqOf(focus.current.y),to=stepGridHz(p,from,dir);if(to>0&&Number.isFinite(to))goTo(p,geo,to,e.code);return}
    // no Snap: the cursor glides while the key is held (moved in the draw loop)
    if(e.repeat)return;ar[dir>0?'up':'down']=true;start('key:'+e.code,geo.freqOf(focus.current.y)*Math.pow(2,live.current.oct),.8)};
-  const down=e=>{if(Qp(e.target)||!inside(e.target))return;
+  const down=e=>{if(modalOpenRef.current||Qp(e.target)||!inside(e.target))return;
    // Arrow keys belong to the cursor, not to the page scroll (sliders and drop-downs that have the focus keep theirs)
    if(e.key.startsWith('Arrow')&&!e.ctrlKey&&!e.metaKey&&!e.altKey&&!(e.target?.matches?.('input[type=range],select'))){e.preventDefault();e.stopPropagation();arrowDown(e);return}
    const p=liveGridParams(),third=__xenThirdKeyboardRowIndex(e);
@@ -822,10 +876,24 @@ function XenPsyLabRoom(){
  const all=P.useMemo(()=>[...FACTORY,...user],[user]);
  const onSelect=id=>{setSelected(id);const p=all.find(x=>x.id===id);if(p){loadPatch(p);setMorphA(p.id);setMorphAmt(0);morphSnapshotRef.current=null}};
  const selectedPatch=all.find(x=>x.id===selected),suggestion=selectedPatch?.grid,suggestionLabel=suggestion?ti(j0,suggestion):'';
- const saveAs=()=>{const current=all.find(x=>x.id===selected);const name=window.prompt('Name for this patch',current&&!current.id.startsWith('factory:')?current.name:'My patch');if(!name||!name.trim())return;
-  const existing=user.find(x=>x.name===name.trim());if(existing&&!window.confirm('Overwrite the saved patch “'+existing.name+'”?'))return;
-  const saved=sanitizePatch({...patchRef.current,name:name.trim(),id:existing?existing.id:'user:'+uid(),grid:gridRef.current?.gridTuning});setUser(list=>existing?list.map(x=>x.id===existing.id?saved:x):[...list,saved]);setSelected(saved.id);setStatus('Saved “'+saved.name+'” (with the current grid system as a suggestion).')};
- const remove=()=>{const p=user.find(x=>x.id===selected);if(!p||!window.confirm('Delete the saved patch “'+p.name+'”? The sound you hear stays as working patch.'))return;setUser(list=>list.filter(x=>x.id!==p.id));setSelected('');setStatus('Deleted “'+p.name+'”.')};
+ const openSaveDialog=()=>{const current=all.find(x=>x.id===selected);
+  const initialName=current&&!current.id.startsWith('factory:')?current.name:(patchRef.current.name&&!FACTORY.some(f=>f.name===patchRef.current.name)?patchRef.current.name:'My Sound');
+  setDialog({kind:'save',name:initialName,includeGrid:true,openedAt:Date.now()})};
+ const commitSaveDialog=()=>{if(!dialog||dialog.kind!=='save')return;const cleanName=dialog.name.trim();if(!cleanName)return;
+  const existing=user.find(x=>x.name===cleanName);
+  const saved=sanitizePatch({...patchRef.current,name:cleanName,id:existing?existing.id:'user:'+uid(),grid:dialog.includeGrid?gridRef.current?.gridTuning:undefined});
+  patchRef.current={...saved,id:'working'};
+  setUser(list=>existing?list.map(x=>x.id===existing.id?saved:x):[...list,saved]);
+  setSelected(saved.id);
+  setDialog(null);
+  setStatus((existing?'Updated “':'Saved “')+saved.name+'”'+(dialog.includeGrid?' (with current grid tuning as suggestion).':'.'))};
+ const openDeleteDialog=()=>{const p=user.find(x=>x.id===selected);if(!p)return;setDialog({kind:'delete',patch:p,openedAt:Date.now()})};
+ const commitDeleteDialog=()=>{if(!dialog||dialog.kind!=='delete')return;const p=dialog.patch;
+  setUser(list=>list.filter(x=>x.id!==p.id));setSelected('');setDialog(null);setStatus('Deleted “'+p.name+'”.')};
+ const openParamDialog=P.useCallback((p,value,apply)=>{setDialog({kind:'param',p,text:String(+value.toPrecision(6)),apply,error:'',openedAt:Date.now()})},[]);
+ const commitParamDialog=()=>{if(!dialog||dialog.kind!=='param')return;const v=Number(String(dialog.text).replace(',','.'));
+  if(!Number.isFinite(v)){setDialog(d=>d?{...d,error:'Please enter a valid number.'}:null);return}
+  dialog.apply(v);setDialog(null)};
  const doMutate=()=>{const params=patchRef.current.params.slice();let moved=0;for(const p of PARAMS){if(p[8]==='hidden'||p[1]==='level'||locked[p[8]])continue;if(Math.random()<.55){const t=clamp(toUnit(p,params[p[0]])+(Math.random()-.5)*2*mutate*.6,0,1);params[p[0]]=fromUnit(p,t);moved++}}
   if(!moved){setStatus('All mutable sections are locked — unlock a module to mutate.');return}
   params[BY_KEY.delayFb[0]]=Math.min(params[BY_KEY.delayFb[0]],.95);loadPatch({...patchRef.current,params},'Mutated by '+Math.round(mutate*100)+' %. Use Undo to revert or Lock modules to protect them.')};
@@ -869,21 +937,56 @@ function XenPsyLabRoom(){
    ]}),
    !isClosed?u.jsxs(u.Fragment,{children:[
     text?u.jsx('p',{children:text}):null,
-    groupParams.map(p=>u.jsx(PsySlider,{p,patchRef,engine,onTouched:touched},p[1]+':'+epoch))
+    groupParams.map(p=>u.jsx(PsySlider,{p,patchRef,engine,onTouched:touched,onEditParam:openParamDialog},p[1]+':'+epoch))
    ]}):null
   ]},id);
  });
  const piano=orient==='piano';
+ const activeGridLabel=gridParams?.gridTuning?ti(j0,gridParams.gridTuning):'';
+ const activeBaseHz=gridParams?.gridBase>0?Math.round(gridParams.gridBase*10)/10:null;
  return u.jsxs('div',{className:'xpl'+(large?' xpl-large':''),ref:rootRef,'data-xen-psylab':'true',children:[
-  u.jsx('h2',{children:'PSYCHEDELIC LAB'}),
-  u.jsx('p',{className:'xpl-sub',children:'Room IV. Feedback-FM hydra, organic breath/wave sources, pluck & sweep envelopes, vocal formants, endless Escher staircase, spiral echo, space cloud, grid crystals and Lorenz chaos — all on the Main Room grid.'}),
+  u.jsxs('header',{className:'xpl-head',children:[
+   u.jsx('div',{className:'xpl-brand',children:
+    u.jsxs('div',{className:'xpl-head-copy',children:[
+     u.jsx('div',{className:'xpl-eyebrow',children:'Room IV · Synthesis Lab'}),
+     u.jsxs('div',{className:'xpl-title-row',children:[
+      u.jsxs('svg',{className:'xpl-emblem',viewBox:'0 0 64 64',fill:'none','aria-hidden':'true',children:[
+       u.jsxs('g',{fill:'#f0abfc',fillOpacity:.18,stroke:'#f0abfc',strokeOpacity:.84,strokeWidth:1.2,strokeLinejoin:'round',children:[
+        u.jsx('polygon',{points:'32,3.5 37.5,10.2 26.5,10.2'}),
+        u.jsx('polygon',{points:'60.5,32 53.8,37.5 53.8,26.5'}),
+        u.jsx('polygon',{points:'32,60.5 26.5,53.8 37.5,53.8'}),
+        u.jsx('polygon',{points:'3.5,32 10.2,26.5 10.2,37.5'}),
+        u.jsx('polygon',{points:'11.85,11.85 20.47,12.70 12.70,20.47'}),
+        u.jsx('polygon',{points:'52.15,11.85 43.53,12.70 51.30,20.47'}),
+        u.jsx('polygon',{points:'11.85,52.15 20.47,51.30 12.70,43.53'}),
+        u.jsx('polygon',{points:'52.15,52.15 43.53,51.30 51.30,43.53'})
+       ]}),
+       u.jsx('circle',{cx:32,cy:32,r:19.2,stroke:'#f0abfc',strokeOpacity:.78,strokeWidth:1.25}),
+       u.jsx('ellipse',{cx:32,cy:32,rx:14.2,ry:6.8,transform:'rotate(-28 32 32)',stroke:'#7eeeff',strokeOpacity:.88,strokeWidth:1.2}),
+       u.jsx('ellipse',{cx:32,cy:32,rx:14.2,ry:6.8,transform:'rotate(32 32 32)',stroke:'#f0abfc',strokeOpacity:.88,strokeWidth:1.2}),
+       u.jsx('circle',{cx:32,cy:32,r:6.4,stroke:'#ffd166',strokeOpacity:.72,strokeWidth:1.05}),
+       u.jsx('circle',{cx:32,cy:32,r:2.1,fill:'#f6f1ff'})
+      ]}),
+      u.jsx('h2',{children:window.__XenTitleArt?u.jsx(window.__XenTitleArt.Title,{react:P,room:'psylab',text:'Psychedelic Lab',height:31,smallHeight:24}):'Psychedelic Lab'})
+     ]}),
+     u.jsx('p',{className:'xpl-sub',children:'Feedback-FM hydra · Escher staircase · vocal formants · spiral echo · grid crystals · Lorenz chaos — on the Main Room grid.'})
+    ]})
+   }),
+   activeGridLabel||activeBaseHz?u.jsxs('div',{className:'xpl-head-meta',children:[
+    activeGridLabel?u.jsx('b',{children:activeGridLabel}):null,
+    activeGridLabel&&activeBaseHz?u.jsx('span',{className:'sep','aria-hidden':'true',children:'·'}):null,
+    activeBaseHz?u.jsxs('span',{children:[u.jsx('b',{children:activeBaseHz}),' Hz']}):null,
+    u.jsx('span',{className:'sep','aria-hidden':'true',children:'·'}),
+    u.jsxs('span',{children:['Oct ',u.jsx('b',{children:oct>0?'+'+oct:oct})]})
+   ]}):null
+  ]}),
   u.jsxs('div',{className:'xpl-bar',children:[
    u.jsxs('select',{'aria-label':'Patch',value:selected,onChange:e=>onSelect(e.target.value),children:[u.jsx('option',{value:'',children:'Working patch'}),
     u.jsx('optgroup',{label:'Factory',children:FACTORY.map(p=>u.jsx('option',{value:p.id,children:p.name},p.id))}),
     user.length?u.jsx('optgroup',{label:'Saved',children:user.map(p=>u.jsx('option',{value:p.id,children:p.name},p.id))}):null]}),
    suggestion&&gridParams&&gridParams.gridTuning!==suggestion?u.jsx('button',{type:'button',title:'This patch was made for another grid system. Switching changes the Main Room grid too.',onClick:()=>__NodalBallGrid.changeTuning(suggestion),children:'Grid → '+suggestionLabel}):null,
-   u.jsx('button',{type:'button',onClick:saveAs,children:'Save as …'}),
-   u.jsx('button',{type:'button',onClick:remove,disabled:!user.some(x=>x.id===selected),children:'Delete'}),
+   u.jsx('button',{type:'button','data-psy-save':'true',onClick:openSaveDialog,title:'Save current sound settings to your Psychedelic Lab archive',children:'Save Sound …'}),
+   u.jsx('button',{type:'button',onClick:openDeleteDialog,disabled:!user.some(x=>x.id===selected),children:'Delete'}),
    u.jsx('button',{type:'button',onClick:doMutate,title:'Move a random half of unlocked controls by the chosen amount',children:'Mutate'}),
    u.jsx('input',{type:'range','aria-label':'Mutation amount',min:.02,max:1,step:.01,value:mutate,onChange:e=>setMutate(Number(e.target.value)),style:{width:90,accentColor:'#ff7ad9'}}),
    u.jsx('button',{type:'button','data-psy-undo':true,disabled:undoCount===0,onClick:doUndo,title:'Revert last patch load, mutation or morph',children:'↶ Undo'}),
@@ -907,7 +1010,7 @@ function XenPsyLabRoom(){
    u.jsx('span',{className:'xpl-val',style:{minWidth:36},children:Math.round(morphAmt*100)+'%'}),
    u.jsxs('label',{children:['B ',u.jsx('select',{'aria-label':'Morph Patch B',value:morphB,onChange:e=>{const v=e.target.value;setMorphB(v);applyMorph(morphAmt,morphA,v)},children:all.map(p=>u.jsx('option',{value:p.id,children:p.name},p.id))})]}),
    u.jsx('button',{type:'button',onClick:()=>{const a=morphB,b=morphA;setMorphA(a);setMorphB(b);applyMorph(1-morphAmt,a,b)},children:'⇄ Swap'}),
-   u.jsx('span',{className:'xpl-note',children:'Blends all unlocked modules smoothly in real time. Save as … to keep.'})
+   u.jsx('span',{className:'xpl-note',children:'Blends all unlocked modules smoothly in real time. Save Sound … to keep.'})
   ]}):null,
   u.jsxs('div',{className:'xpl-metro','data-psy-metro':'true',children:[
    u.jsx('button',{type:'button','aria-pressed':metroOn,onClick:()=>setMetroOn(v=>!v),title:'A click for you only: it goes straight to the speakers and is never recorded, mixed or bounced.',children:metroOn?'♩ Metronome: on':'♩ Metronome: off'}),
@@ -927,7 +1030,74 @@ function XenPsyLabRoom(){
       ...['de','en'].map(layout=>u.jsx('button',{key:layout,type:'button','aria-pressed':keyboardLayout===layout,'data-psy-layout':layout,style:{minHeight:22,padding:'1px 8px',marginRight:4},onClick:()=>{panic();__XenKeyboardLayout.set(layout)},title:'The same setting as the Live Room: it only changes the third row (A–# on a German keyboard, A–/ on an English one).',children:layout==='de'?'German':'English'}))]})]}),
     u.jsx('div',{className:'xpl-status',role:'status','aria-live':'polite',children:status}),
     u.jsx('div',{className:'xpl-keys',children:'Space = Hold. Esc = all notes off. Shift = louder. Click a value to type it exactly, double-click a slider to reset it. The header Rec records this room (not the metronome).'})]}),
-   u.jsx('div',{className:'xpl-panels',children:panels})]})]});
+   u.jsx('div',{className:'xpl-panels',children:panels})]}),
+  dialog&&typeof document!=='undefined'?ao.createPortal(
+   u.jsx('div',{className:'xpl-modal-back','data-psy-modal':dialog.kind,onPointerDown:e=>e.stopPropagation(),onClick:e=>{e.stopPropagation();if(e.target===e.currentTarget)setDialog(null)},onKeyDown:e=>{e.stopPropagation();if(e.key==='Escape'){e.preventDefault();setDialog(null)}},children:
+    u.jsxs('section',{className:'xpl-modal',role:'dialog','aria-modal':'true','aria-label':dialog.kind==='save'?'Save Sound':dialog.kind==='delete'?'Delete Sound':dialog.p[2],children:[
+     u.jsxs('header',{className:'xpl-modal-head',children:[
+      u.jsxs('div',{className:'xpl-modal-brand',children:[
+       u.jsxs('svg',{className:'xpl-modal-emblem',viewBox:'0 0 40 40',fill:'none','aria-hidden':'true',children:[
+        u.jsx('circle',{cx:20,cy:20,r:18.2,stroke:'#f0abfc',strokeOpacity:.62,strokeWidth:1.1}),
+        u.jsx('ellipse',{cx:20,cy:20,rx:13.4,ry:6.5,transform:'rotate(-28 20 20)',stroke:'#7eeeff',strokeOpacity:.78,strokeWidth:1}),
+        u.jsx('ellipse',{cx:20,cy:20,rx:13.4,ry:6.5,transform:'rotate(32 20 20)',stroke:'#f0abfc',strokeOpacity:.82,strokeWidth:1}),
+        u.jsx('circle',{cx:20,cy:20,r:2,fill:'#f6f1ff'})
+       ]}),
+       u.jsxs('div',{children:[
+        u.jsx('div',{className:'xpl-modal-eyebrow',children:dialog.kind==='param'?'Room IV · Parameter Value':'Room IV · Sound Archive'}),
+        u.jsx('h3',{className:'xpl-modal-title',children:dialog.kind==='save'?'Save Sound':dialog.kind==='delete'?'Delete Sound':dialog.p[2]})
+       ]})
+      ]}),
+      u.jsx('button',{type:'button',className:'xpl-modal-close','aria-label':'Close dialog',onClick:()=>setDialog(null),children:'×'})
+     ]}),
+     dialog.kind==='save'?(()=>{const trimmed=dialog.name.trim(),match=trimmed?user.find(x=>x.name===trimmed):null;
+      return u.jsxs('form',{onSubmit:e=>{e.preventDefault();commitSaveDialog()},children:[
+       u.jsxs('div',{className:'xpl-modal-body',children:[
+        u.jsx('p',{className:'xpl-modal-desc',children:'Store the current sound settings in your local Psychedelic Lab archive.'}),
+        u.jsxs('label',{className:'xpl-modal-field',children:[
+         u.jsx('span',{children:'Sound name'}),
+         u.jsx('input',{ref:modalInputRef,className:'xpl-modal-input',type:'text',maxLength:80,placeholder:'e.g. Glass Hydra, Velvet Drift …',value:dialog.name,onChange:e=>setDialog(d=>d?{...d,name:e.target.value}:null)})
+        ]}),
+        match?u.jsx('div',{className:'xpl-modal-warn',role:'status',children:'“'+match.name+'” already exists — saving will replace the saved sound.'}):null,
+        activeGridLabel?u.jsxs('label',{className:'xpl-modal-check',children:[
+         u.jsx('input',{type:'checkbox',checked:!!dialog.includeGrid,onChange:e=>setDialog(d=>d?{...d,includeGrid:e.target.checked}:null)}),
+         u.jsxs('span',{children:['Link current grid tuning as suggestion',u.jsx('small',{children:activeGridLabel+(activeBaseHz?' · '+activeBaseHz+' Hz':'')})]})
+        ]}):null,
+        user.length?u.jsxs('div',{className:'xpl-modal-saved',children:[
+         u.jsx('span',{className:'xpl-modal-saved-label',children:'Saved sounds (click to overwrite)'}),
+         u.jsx('div',{className:'xpl-modal-saved-list',children:user.map(p=>u.jsx('button',{type:'button',className:'xpl-modal-saved-btn'+(trimmed===p.name?' is-match':''),onClick:()=>setDialog(d=>d?{...d,name:p.name}:null),children:p.name},p.id))})
+        ]}):null
+       ]}),
+       u.jsxs('footer',{className:'xpl-modal-foot',children:[
+        u.jsx('button',{type:'button',className:'xpl-modal-btn',onClick:()=>setDialog(null),children:'Cancel'}),
+        u.jsx('button',{type:'submit',className:'xpl-modal-btn is-primary',disabled:!trimmed,children:match?'Overwrite Sound':'Save Sound'})
+       ]})
+      ]})})():null,
+     dialog.kind==='delete'?u.jsxs(u.Fragment,{children:[
+      u.jsx('div',{className:'xpl-modal-body',children:
+       u.jsx('p',{className:'xpl-modal-desc',children:'Delete the saved sound “'+dialog.patch.name+'” from your archive? The sound you hear right now stays active as your working patch.'})
+      }),
+      u.jsxs('footer',{className:'xpl-modal-foot',children:[
+       u.jsx('button',{type:'button',className:'xpl-modal-btn',onClick:()=>setDialog(null),children:'Cancel'}),
+       u.jsx('button',{type:'button',className:'xpl-modal-btn is-danger',onClick:commitDeleteDialog,children:'Delete Sound'})
+      ]})
+     ]}):null,
+     dialog.kind==='param'?u.jsxs('form',{onSubmit:e=>{e.preventDefault();commitParamDialog()},children:[
+      u.jsxs('div',{className:'xpl-modal-body',children:[
+       u.jsx('p',{className:'xpl-modal-desc',children:'Range: '+dialog.p[3]+' … '+dialog.p[4]+(dialog.p[7]?' '+dialog.p[7]:'')+' · Default: '+fmt(dialog.p,dialog.p[5])}),
+       u.jsxs('label',{className:'xpl-modal-field',children:[
+        u.jsx('span',{children:'Exact value'}),
+        u.jsx('input',{ref:modalInputRef,className:'xpl-modal-input',type:'text',inputMode:'decimal',value:dialog.text,onChange:e=>setDialog(d=>d?{...d,text:e.target.value,error:''}:null)})
+       ]}),
+       dialog.error?u.jsx('div',{className:'xpl-modal-warn',role:'alert',children:dialog.error}):null
+      ]}),
+      u.jsxs('footer',{className:'xpl-modal-foot',children:[
+       u.jsx('button',{type:'button',className:'xpl-modal-btn is-subtle',onClick:()=>{dialog.apply(dialog.p[5]);setDialog(null)},children:'Reset Default'}),
+       u.jsx('button',{type:'button',className:'xpl-modal-btn',onClick:()=>setDialog(null),children:'Cancel'}),
+       u.jsx('button',{type:'submit',className:'xpl-modal-btn is-primary',children:'Apply'})
+      ]})
+     ]}):null
+    ]})
+   }),document.body):null]});
 }
 /* PsyEngine is exported on purpose: a host without a picture (a later Live Room hook-up: Enter / left mouse button / keyboard) loads this chunk on first use and
    creates new PsyEngine({visual:false}); no analyser, no canvas, no room UI. */

@@ -113,6 +113,9 @@ function __SourceOctave({lane,title}){
    All streams share a bar reference but never share a loop duration/phase. */
 const __XenMaterialLayers=(()=>{
  let ids=Object.freeze([]),order=Object.freeze([]),observedPrimary=null,listeners=new Set();
+ let maxVoices=3;
+ try{const saved=Number(localStorage.getItem('xensonar.material.maxVoices.v1'));if(Number.isFinite(saved)&&saved>=3&&saved<=6)maxVoices=Math.round(saved)}catch{}
+ const maxExtras=()=>Math.max(2,maxVoices-1);
  const emit=()=>{for(const f of listeners)f()};
  const touch=id=>{if(id)order=Object.freeze([...order.filter(x=>x!==id),id])};
  const oldestFirst=(primaryId,primaryMuted=false)=>{
@@ -122,19 +125,31 @@ const __XenMaterialLayers=(()=>{
  };
  return Object.freeze({
   snapshot:()=>ids,
+  maxVoices:()=>maxVoices,
+  setMaxVoices(n){
+   const next=Math.max(3,Math.min(6,Math.round(Number(n)||3)));
+   if(next===maxVoices)return maxVoices;
+   maxVoices=next;
+   if(ids.length>maxExtras()){
+    ids=Object.freeze(ids.slice(-maxExtras()));
+    const live=new Set([observedPrimary,...ids]);
+    order=Object.freeze(order.filter(id=>live.has(id)));
+   }
+   emit();return maxVoices;
+  },
   subscribe:f=>(listeners.add(f),()=>listeners.delete(f)),
   toggle(id,validIds,primaryId){
    if(!validIds.includes(id)||id===primaryId)return false;
    if(ids.includes(id)){
     ids=Object.freeze(ids.filter(x=>x!==id));order=Object.freeze(order.filter(x=>x!==id));
    }else{
-    if(ids.length>=2)return false; // Primary + at most two additional audible voices.
+    if(ids.length>=maxExtras())return false; // Primary + up to (maxVoices - 1) additional audible voices.
     ids=Object.freeze([...ids,id]);touch(id);
    }
    emit();return true;
   },
   restore(values,allowed,primaryId){
-   const next=[...new Set(values)].filter(id=>allowed.includes(id)&&id!==primaryId).slice(0,2);
+   const next=[...new Set(values)].filter(id=>allowed.includes(id)&&id!==primaryId).slice(0,maxExtras());
    const changed=next.length!==ids.length||next.some((id,i)=>id!==ids[i]);
    ids=Object.freeze(next);
    const active=new Set([primaryId,...next]);order=Object.freeze(order.filter(id=>active.has(id)));
@@ -152,16 +167,16 @@ const __XenMaterialLayers=(()=>{
   // Recorder auto-activation and manual Shift-activation must not diverge.
   autoPromote(id,primaryId,primaryMuted,validIds){
    if(!validIds.includes(id))return null;
-   return oldestFirst(primaryId,primaryMuted).filter(x=>x!==id&&validIds.includes(x)).slice(-2);
+   return oldestFirst(primaryId,primaryMuted).filter(x=>x!==id&&validIds.includes(x)).slice(-maxExtras());
   },
   restoreActivationOrder(values,primaryId,primaryMuted=false){
    this.restoreOrder(values,primaryId,primaryMuted);
   },
-  // A fourth Shift-click displaces only the oldest audible voice. It never
+  // A shift-click beyond maxVoices displaces only the oldest audible voice. It never
   // deletes a sample, a Quick-Rack tile, or a Session-owned WAV.
   rolloverKeep(id,validIds,primaryId,primaryMuted){
    if(!validIds.includes(id)||id===primaryId||ids.includes(id))return null;
-   return oldestFirst(primaryId,primaryMuted).filter(x=>x!==id&&validIds.includes(x)).slice(-2);
+   return oldestFirst(primaryId,primaryMuted).filter(x=>x!==id&&validIds.includes(x)).slice(-maxExtras());
   },
   touch,
   clear(){ids=Object.freeze([]);order=Object.freeze([]);observedPrimary=null;emit()},

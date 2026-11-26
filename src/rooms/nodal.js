@@ -416,7 +416,7 @@ function NodalRoomHeader({mode, onModeChange, installationSoundEnabled = false, 
   return h('header', {className: 'nd-heading nd-shared-heading'},
     h('div', {className: 'nd-heading-copy'},
       h('div', {className: 'nd-eyebrow'}, 'ROOM III / NODAL CENTER'),
-      h('h2', null, current[0]), h('p', null, current[1])),
+      h('h2', null, mode === 'sounddesign' && window.__XenTitleArt ? h(window.__XenTitleArt.Title, {react: P, room: 'sounddesign', text: current[0], height: 30, smallHeight: 24}) : current[0]), h('p', null, current[1])),
     h('nav', {className: 'nd-modes', 'aria-label': 'Nodal modes'},
       ...[['sounddesign', 'Sound Design'], ['installation', 'Art Installation']]
         .map(([id, label]) => h('button', {

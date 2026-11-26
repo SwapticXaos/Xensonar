@@ -272,9 +272,9 @@ body[data-nodal-sounddesign="true"] [data-xensonar-performance-strip] {display:n
  .nd-open-workshop .nd-slider>span,.nd-open-workshop .nd-slider output{font-size:9px}
 }
 .nd-room[data-nodal-mode="sounddesign"]>.nd-shared-heading{margin-bottom:10px;padding-bottom:10px;align-items:center}
-.nd-room[data-nodal-mode="sounddesign"]>.nd-shared-heading .nd-heading-copy{display:grid;grid-template-columns:auto 1fr;align-items:baseline;gap:3px 14px}
-.nd-room[data-nodal-mode="sounddesign"] .nd-eyebrow{grid-column:1/-1;font-size:9px;margin-bottom:0}
-.nd-room[data-nodal-mode="sounddesign"] .nd-heading-copy p{margin:0;font-size:10px}
+.nd-room[data-nodal-mode="sounddesign"]>.nd-shared-heading .nd-heading-copy{display:flex;flex-direction:column;align-items:flex-start;gap:4px}
+.nd-room[data-nodal-mode="sounddesign"] .nd-eyebrow{font-size:10px;margin-bottom:0}
+.nd-room[data-nodal-mode="sounddesign"] .nd-heading-copy p{margin:2px 0 0;font-size:11px}
 .nd-open-workshop .nd-toolbar{padding-bottom:8px;margin-bottom:8px}
 .nd-open-workshop .nd-preset-bank{margin-bottom:11px}.nd-open-workshop .nd-preset-bank button{min-height:46px;padding-top:6px;padding-bottom:6px}
 .nd-open-workshop .nd-modal-space>svg{height:90px}.nd-open-workshop .nd-modal-space{padding:8px;margin-top:7px}
