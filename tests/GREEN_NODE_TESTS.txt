@@ -153,3 +153,4 @@ song_parts_edit.test.cjs
 forge_snapshot_budget.test.cjs
 mask_snap.test.cjs
 wave_fx_palette.test.cjs
+grid_modes.test.cjs

@@ -72,7 +72,7 @@ function __xenQuickShortTitle(entry){
    If a saved mask differs from its named pattern, do not mislabel it as that mode. */
 const __XenGridPatternAbbrev=Object.freeze({
  chromatic:'CHR',ionian:'ION',dorian:'DOR',ukr_dorian:'UDR',phrygian:'PHR',
- lydian:'LYD',mixolydian:'MIX',aeolian:'AEO',harmonic_minor:'HMI',
+ lydian:'LYD',mixolydian:'MIX',aeolian:'AEO',harmonic_minor:'HMI',chromatic_12:'C12',
  locrian:'LOC',bp_lambda:'BPL',bp_major:'BPD',bp_minor:'BPM'
 });
 function __xenQuickGridPatternShort(entry){

@@ -138,7 +138,7 @@ test('ROOM4-09: effect data is additive, tails are bounded, the reverb impulse i
   const raw={format:'xensonar.multitrack',tracks:[{id:'a',clips:[]},{id:'b',fx:{lowCut:120,echoBeats:.75,echoFb:5,reverb:.2},clips:[{id:'c',materialId:'m',startBeat:0,lenBeats:4,reverse:1}]},{id:'c',fx:{echoBeats:0,drive:0},clips:[]}]};
   const out=m.sanitize(raw,100);
   assert.strictEqual('fx' in out.tracks[0],false,'a track without effects stores nothing');
-  assert.deepStrictEqual(out.tracks[1].fx,{lowCut:120,highCut:20000,drive:0,echoBeats:.75,echoFb:.92,echoMix:.3,reverb:.2});
+  assert.deepStrictEqual(out.tracks[1].fx,{lowCut:120,highCut:20000,drive:0,echoBeats:.75,echoFb:.92,echoMix:.3,reverb:.2,spiral:0,psy:0});
   assert.strictEqual('fx' in out.tracks[2],false,'all-default effects are dropped');
   assert.strictEqual(out.tracks[1].clips[0].reverse,true);
   assert.strictEqual(m.fxShape(m.fxOf(out.tracks[1])),'her');assert.strictEqual(m.fxShape(m.fxOf(out.tracks[0])),'');

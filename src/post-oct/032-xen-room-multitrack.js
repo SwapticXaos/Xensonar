@@ -36,6 +36,13 @@ const isFrozen=(project,t)=>!!t?.frozenBy&&project.tracks.some(x=>x.id===t.froze
 /* ROOM4-09 track effect data (the audio builder is further down) */
 const FX0=Object.freeze({lowCut:0,highCut:20000,drive:0,echoBeats:0,echoFb:.35,echoMix:.3,reverb:0,spiral:0,psy:0});
 const fxOf=t=>({...FX0,...(t?.fx||{})});
+/* project data of the master strip and the shared send buses (MT-MASTER-01, MT-SPIRAL-01, FX-NET-02/03): pure normalisers, next to the track effect data */
+const SPIRAL_DEF=Object.freeze({drive:.42,color:.55,motion:.58,feedback:.34});
+function spiralOf(raw){const m=raw||{};return {drive:clamp(num(m.drive,.42),0,1),color:clamp(num(m.color,.55),0,1),motion:clamp(num(m.motion,.58),0,1),feedback:clamp(num(m.feedback,.34),0,.9)}}
+const PSY_DEF_PATCH='factory:Barber Spiral';
+function psyOf(raw){return {patch:typeof raw?.patch==='string'&&raw.patch?raw.patch:PSY_DEF_PATCH,res:raw?.res==='fixed'?'fixed':'grid'}}
+const MASTER_STRIP_DEF=Object.freeze({on:false,glue:.35,tape:0,air:0,ceil:-1});
+function masterStripOf(raw){const m=raw||{};return {on:m.on===true,glue:clamp(num(m.glue,.35),0,1),tape:clamp(num(m.tape,0),0,1),air:clamp(num(m.air,0),-6,9),ceil:clamp(num(m.ceil,-1),-12,-.1)}}
 const fxShape=f=>(f.lowCut>0?'h':'')+(f.highCut<20000?'l':'')+(f.drive>0?'d':'')+(f.echoBeats>0&&f.echoMix>0?'e':'')+(f.reverb>0?'r':'')+(f.spiral>0?'s':'')+(f.psy>0?'p':'');
 function sanitizeFx(f){if(!f||typeof f!=='object')return undefined;const o={lowCut:clamp(num(f.lowCut,0),0,8000),highCut:clamp(num(f.highCut,20000),200,20000),drive:clamp(num(f.drive,0),0,1),
  echoBeats:clamp(num(f.echoBeats,0),0,16),echoFb:clamp(num(f.echoFb,.35),0,.92),echoMix:clamp(num(f.echoMix,.3),0,1),reverb:clamp(num(f.reverb,0),0,1),spiral:clamp(num(f.spiral,0),0,1),psy:clamp(num(f.psy,0),0,1)};return fxShape(o)?o:undefined}
@@ -274,8 +281,6 @@ const driveMakeup=a=>1/Math.pow(1+a*8,.7);
    wavefolder (4× oversampled) → two 4-stage all-pass phasers L / R swept by slow LFOs → stereo delays with crossed feedback (high-pass / low-pass
    in the loop, delay times breathing with a drift LFO) → glue compressor → low-pass. The same builder runs for listening and for the mixdown.
    Settings (project, master.spiral): drive (fold), color (tone / phaser range), motion (LFO speed and depth), feedback (crossed echo). */
-const SPIRAL_DEF=Object.freeze({drive:.42,color:.55,motion:.58,feedback:.34});
-function spiralOf(raw){const m=raw||{};return {drive:clamp(num(m.drive,.42),0,1),color:clamp(num(m.color,.55),0,1),motion:clamp(num(m.motion,.58),0,1),feedback:clamp(num(m.feedback,.34),0,.9)}}
 /* unit gain for small signals (slope 1 at 0): the fold only folds where the drive pushes it, a quiet send stays quiet */
 function foldCurve(drive){const n=4096,c=new Float32Array(n),k=1+drive*5,g=k*Math.PI/2;for(let i=0;i<n;i++){const x=i/(n-1)*2-1;c[i]=Math.sin(x*g)/g*1.4}return c}
 function buildSpiralBus(ctx,raw,dest){const v0=spiralOf(raw),N=[],mk=n=>{N.push(n);return n},bq=(type,f,q)=>{const b=mk(ctx.createBiquadFilter());b.type=type;b.frequency.value=f;if(q!=null)b.Q.value=q;return b};
@@ -296,16 +301,12 @@ function buildSpiralBus(ctx,raw,dest){const v0=spiralOf(raw),N=[],mk=n=>{N.push(
   for(const sd of sides){at(sd.fb.gain,v.feedback);at(sd.dmod.gain,.002+v.motion*.012);at(sd.lp.frequency,1800+v.color*5200)}};
  set(v0);return {input,set,sig:JSON.stringify(v0),dispose(){try{lfoS.stop();lfoD.stop()}catch{}for(const n of N)try{n.disconnect()}catch{}}}}
 /* FX-NET-02: the Psy Lab as a shared send bus (the patch's whole effect chain on the arrangement); master.psy = {patch: patch id} */
-const PSY_DEF_PATCH='factory:Barber Spiral';
-function psyOf(raw){return {patch:typeof raw?.patch==='string'&&raw.patch?raw.patch:PSY_DEF_PATCH,res:raw?.res==='fixed'?'fixed':'grid'}}
 /* FX-NET-03: the crystal resonators of the send sit on the Live Room grid (as in the Psy Lab room) or on a fixed 220 Hz */
 const psyRes=raw=>{const m=psyLab();return psyOf(raw).res==='grid'&&m?.gridRes?m.gridRes():[220]};
 const psyLab=()=>{try{return __xenLoadDeferred('psylab')}catch{return null}};
 function psyPatchOf(id){const m=psyLab(),list=m?.fxPatches?m.fxPatches():[];return list.find(p=>p.id===id)||list.find(p=>p.id===PSY_DEF_PATCH)||list[0]||null}
 function buildPsyBus(ctx,raw,dest){const m=psyLab(),pat=psyPatchOf(psyOf(raw).patch);if(!m?.fxBus||!pat){const g=ctx.createGain();return {input:g,ready:Promise.resolve(),set(){},dispose(){try{g.disconnect()}catch{}},sig:''}}
  const b=m.fxBus(ctx,{params:pat.params,res:psyRes(raw),dest});return {...b,sig:pat.id,resSig:psyOf(raw).res,setPatch(id){const q=psyPatchOf(id);if(q){this.sig=q.id;b.set(q.params)}},setRes(raw2){this.resSig=psyOf(raw2).res;b.set(null,psyRes(raw2))}}}
-const MASTER_STRIP_DEF=Object.freeze({on:false,glue:.35,tape:0,air:0,ceil:-1});
-function masterStripOf(raw){const m=raw||{};return {on:m.on===true,glue:clamp(num(m.glue,.35),0,1),tape:clamp(num(m.tape,0),0,1),air:clamp(num(m.air,0),-6,9),ceil:clamp(num(m.ceil,-1),-12,-.1)}}
 function tapeCurve(amount){const n=2048,c=new Float32Array(n),k=1+amount*7,norm=Math.tanh(k);for(let i=0;i<n;i++){const x=i/(n-1)*2-1;c[i]=amount<=0?x:Math.tanh(k*x)/norm}return c}
 /* Limit: soft limiter lim·tanh(x/lim) – below the ceiling almost linear, never above it. The shaper sees x/4 (range ±4) and stores y/4; the post gain ×4 restores the level. */
 function limitCurve(ceilDb){const n=4096,c=new Float32Array(n),lim=Math.pow(10,ceilDb/20);for(let i=0;i<n;i++){const x=(i/(n-1)*2-1)*4;c[i]=lim*Math.tanh(x/lim)/4}return c}

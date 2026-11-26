@@ -320,6 +320,7 @@
     "src/post-oct/033-xen-multitrack-shared.js",
     "src/post-oct/036-xen-stem-recorder.js",
     "src/post-oct/037-xen-hardware-keyboard.js",
+    "src/post-oct/038-xen-grid-modes.js",
     "src/forge/editor/01_display_and_canvas.js",
     "src/forge/editor/02_tools_and_audio_inputs.js",
     "src/forge/editor/03_synthetic_sound_engines.js",
