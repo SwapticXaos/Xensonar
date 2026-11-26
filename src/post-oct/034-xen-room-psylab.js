@@ -440,6 +440,12 @@ async function fxRender({channels,sampleRate,params,res,mix=1}){
  const src=ctx.createBufferSource();src.buffer=buf;const node=new AudioWorkletNode(ctx,'xen-psylab-v1',{numberOfInputs:1,numberOfOutputs:1,outputChannelCount:[2],channelCount:2,channelCountMode:'explicit',processorOptions:{params:params.slice(),res:(res||[220]).slice(),fxIn:true}});
  const wet=ctx.createGain(),dry=ctx.createGain();wet.gain.value=mix;dry.gain.value=1-mix;src.connect(node);node.connect(wet);wet.connect(ctx.destination);src.connect(dry);dry.connect(ctx.destination);src.start(0);
  const out=await ctx.startRendering();return channels.map((_,c)=>new Float32Array(out.getChannelData(channels.length===1?0:c)))}
+/* FX-NET-02: a Psy Lab patch chain as a live (or offline) BUS for other hosts: a stable input gain; the worklet attaches once the module is loaded
+   (`ready`); set() moves params / resonator pitches without rebuilding; dispose() ends the processor. */
+function fxBus(ctx,{params,res,dest}){const input=ctx.createGain();let node=null,dead=false;const cur={params:params.slice(),res:(res&&res.length?res:[220]).slice()};
+ const ready=loadModule(ctx).then(()=>{if(dead)return;node=new AudioWorkletNode(ctx,'xen-psylab-v1',{numberOfInputs:1,numberOfOutputs:1,outputChannelCount:[2],channelCount:2,channelCountMode:'explicit',processorOptions:{params:cur.params.slice(),res:cur.res.slice(),fxIn:true}});input.connect(node);node.connect(dest)});
+ return {input,ready,set(p2,r2){if(p2)cur.params=p2.slice();if(r2&&r2.length)cur.res=r2.slice();if(node){if(p2)node.port.postMessage({t:'all',v:cur.params});if(r2&&r2.length)node.port.postMessage({t:'res',hz:cur.res})}},
+  dispose(){dead=true;try{input.disconnect()}catch{}try{node?.port.postMessage({t:'dispose'});node?.disconnect()}catch{}}}}
 /* ---------- patches ---------- */
 /* A patch is a sound (the 39 numbers), not a tuning. `grid` is only a suggestion shown next to the patch. */
 const patch=(name,grid,over)=>{const params=defaultParams();for(const k in over)params[BY_KEY[k][0]]=over[k];return{id:'factory:'+name,name,grid,params}};
@@ -944,5 +950,5 @@ function XenPsyLabRoom(){
    creates new PsyEngine({visual:false}); no analyser, no canvas, no room UI. */
 /* FX-NET-01: the patches a host can offer (factory first, then the user's own) and the offline effect render */
 const fxPatches=()=>{let user=[];try{user=loadStore()?.user||[]}catch{}return [...FACTORY,...user].map(p=>({id:p.id,name:p.name,params:p.params.slice()}))};
-return Object.freeze({XenPsyLabRoom,PsyEngine,LiveHost,fxRender,fxPatches,__test:Object.freeze({PARAMS,RANGES,FACTORY,toUnit,fromUnit,sanitizePatch,sanitizeMetro,moduleCode,STORE_KEY,Metronome})});
+return Object.freeze({XenPsyLabRoom,PsyEngine,LiveHost,fxRender,fxPatches,fxBus,__test:Object.freeze({PARAMS,RANGES,FACTORY,toUnit,fromUnit,sanitizePatch,sanitizeMetro,moduleCode,STORE_KEY,Metronome})});
 })()

@@ -34,11 +34,11 @@ const eqPick=c=>({a:Array.from(c.a),b:Array.from(c.b),morph:c.morph,bands:c.band
 /* ROOM4-12 freeze: a frozen track is replaced by its bounce track (track.frozenBy = id of that track) and stays untouched but silent and free of DSP; unfreezing removes the bounce and wakes it up again. */
 const isFrozen=(project,t)=>!!t?.frozenBy&&project.tracks.some(x=>x.id===t.frozenBy);
 /* ROOM4-09 track effect data (the audio builder is further down) */
-const FX0=Object.freeze({lowCut:0,highCut:20000,drive:0,echoBeats:0,echoFb:.35,echoMix:.3,reverb:0,spiral:0});
+const FX0=Object.freeze({lowCut:0,highCut:20000,drive:0,echoBeats:0,echoFb:.35,echoMix:.3,reverb:0,spiral:0,psy:0});
 const fxOf=t=>({...FX0,...(t?.fx||{})});
-const fxShape=f=>(f.lowCut>0?'h':'')+(f.highCut<20000?'l':'')+(f.drive>0?'d':'')+(f.echoBeats>0&&f.echoMix>0?'e':'')+(f.reverb>0?'r':'')+(f.spiral>0?'s':'');
+const fxShape=f=>(f.lowCut>0?'h':'')+(f.highCut<20000?'l':'')+(f.drive>0?'d':'')+(f.echoBeats>0&&f.echoMix>0?'e':'')+(f.reverb>0?'r':'')+(f.spiral>0?'s':'')+(f.psy>0?'p':'');
 function sanitizeFx(f){if(!f||typeof f!=='object')return undefined;const o={lowCut:clamp(num(f.lowCut,0),0,8000),highCut:clamp(num(f.highCut,20000),200,20000),drive:clamp(num(f.drive,0),0,1),
- echoBeats:clamp(num(f.echoBeats,0),0,16),echoFb:clamp(num(f.echoFb,.35),0,.92),echoMix:clamp(num(f.echoMix,.3),0,1),reverb:clamp(num(f.reverb,0),0,1),spiral:clamp(num(f.spiral,0),0,1)};return fxShape(o)?o:undefined}
+ echoBeats:clamp(num(f.echoBeats,0),0,16),echoFb:clamp(num(f.echoFb,.35),0,.92),echoMix:clamp(num(f.echoMix,.3),0,1),reverb:clamp(num(f.reverb,0),0,1),spiral:clamp(num(f.spiral,0),0,1),psy:clamp(num(f.psy,0),0,1)};return fxShape(o)?o:undefined}
 /* ROOM4-13 automation: piecewise-linear curves over beats, per track and parameter. Volume is a MULTIPLIER on the track fader (1 = fader unchanged), the others
    take over their knob while a curve exists. Log parameters (filter frequencies) are interpolated geometrically. Points are plain {b,v}; no curve = no extra node. */
 const AUTO=Object.freeze({volume:{label:'Volume ×',min:0,max:2,def:1},pan:{label:'Pan',min:-1,max:1,def:0},reverb:{label:'Reverb send',min:0,max:1,def:0},echoMix:{label:'Echo mix',min:0,max:1,def:.3},
@@ -93,7 +93,7 @@ function sanitize(raw,liveBpm){
  const loop=raw.loop||{};const ls=Math.max(0,num(loop.start,0)),le=Math.max(ls+1/64,num(loop.end,ls+16));
  return {format:FORMAT,version:VERSION,id:KEY,name:String(raw.name||'Untitled Arrangement').slice(0,100),bpm:clamp(num(raw.bpm,108),20,400),
   beatsPerBar:clamp(num(raw.beatsPerBar,4),.5,64),grid:{div:clamp(Math.round(num(raw.grid?.div,4)),1,64),snap:raw.grid?.snap!==false},
-  zoom:clamp(num(raw.zoom,28),.05,4000),trackHeight:clamp(num(raw.trackHeight,64),3,4000),loop:{on:!!loop.on,start:ls,end:le},master:{volume:clamp(num(raw.master?.volume,.9),0,1.5),reverbSize:clamp(num(raw.master?.reverbSize,2.2),.2,8),strip:masterStripOf(raw.master?.strip),spiral:spiralOf(raw.master?.spiral)},
+  zoom:clamp(num(raw.zoom,28),.05,4000),trackHeight:clamp(num(raw.trackHeight,64),3,4000),loop:{on:!!loop.on,start:ls,end:le},master:{volume:clamp(num(raw.master?.volume,.9),0,1.5),reverbSize:clamp(num(raw.master?.reverbSize,2.2),.2,8),strip:masterStripOf(raw.master?.strip),spiral:spiralOf(raw.master?.spiral),psy:psyOf(raw.master?.psy)},
   markers:(Array.isArray(raw.markers)?raw.markers:[]).slice(0,256).filter(m=>m&&Number.isFinite(Number(m.beat))).map(m=>({id:String(m.id||uid('mk')),beat:Math.max(0,Number(m.beat)),name:String(m.name||'').slice(0,40),...(/^#[0-9a-f]{6}$/i.test(m.color)?{color:String(m.color).toLowerCase()}:{})})).sort((a,b)=>a.beat-b.beat),
   tracks:tracks.length?tracks:[blankTrack(0)],updatedAt:num(raw.updatedAt,Date.now())};
 }
@@ -295,6 +295,13 @@ function buildSpiralBus(ctx,raw,dest){const v0=spiralOf(raw),N=[],mk=n=>{N.push(
   at(lfoS.frequency,.03+v.motion*.6);at(lfoD.frequency,.01+v.motion*.12);for(const {d,base} of depths)at(d.gain,base*(.15+v.motion*.75));
   for(const sd of sides){at(sd.fb.gain,v.feedback);at(sd.dmod.gain,.002+v.motion*.012);at(sd.lp.frequency,1800+v.color*5200)}};
  set(v0);return {input,set,sig:JSON.stringify(v0),dispose(){try{lfoS.stop();lfoD.stop()}catch{}for(const n of N)try{n.disconnect()}catch{}}}}
+/* FX-NET-02: the Psy Lab as a shared send bus (the patch's whole effect chain on the arrangement); master.psy = {patch: patch id} */
+const PSY_DEF_PATCH='factory:Barber Spiral';
+function psyOf(raw){return {patch:typeof raw?.patch==='string'&&raw.patch?raw.patch:PSY_DEF_PATCH}}
+const psyLab=()=>{try{return __xenLoadDeferred('psylab')}catch{return null}};
+function psyPatchOf(id){const m=psyLab(),list=m?.fxPatches?m.fxPatches():[];return list.find(p=>p.id===id)||list.find(p=>p.id===PSY_DEF_PATCH)||list[0]||null}
+function buildPsyBus(ctx,raw,dest){const m=psyLab(),pat=psyPatchOf(psyOf(raw).patch);if(!m?.fxBus||!pat){const g=ctx.createGain();return {input:g,ready:Promise.resolve(),set(){},dispose(){try{g.disconnect()}catch{}},sig:''}}
+ const b=m.fxBus(ctx,{params:pat.params,dest});return {...b,sig:pat.id,setPatch(id){const q=psyPatchOf(id);if(q){this.sig=q.id;b.set(q.params)}}}}
 const MASTER_STRIP_DEF=Object.freeze({on:false,glue:.35,tape:0,air:0,ceil:-1});
 function masterStripOf(raw){const m=raw||{};return {on:m.on===true,glue:clamp(num(m.glue,.35),0,1),tape:clamp(num(m.tape,0),0,1),air:clamp(num(m.air,0),-6,9),ceil:clamp(num(m.ceil,-1),-12,-.1)}}
 function tapeCurve(amount){const n=2048,c=new Float32Array(n),k=1+amount*7,norm=Math.tanh(k);for(let i=0;i<n;i++){const x=i/(n-1)*2-1;c[i]=amount<=0?x:Math.tanh(k*x)/norm}return c}
@@ -319,10 +326,11 @@ function fxTailSec(project){let tail=0;const any=project.tracks.some(t=>t.solo),
  for(const t of project.tracks){if(t.mute||(any&&!t.solo)||!(t.volume>0)||isFrozen(project,t))continue;const f=fxEff(t),sh=fxShape(f);
   if(sh.includes('e')){const fb=clamp(f.echoFb,0,.92);tail=Math.max(tail,echoTime(f,spb)*(fb>0?Math.min(40,Math.ceil(Math.log(.001)/Math.log(fb))):1))}
   if(sh.includes('r'))tail=Math.max(tail,clamp(num(project.master.reverbSize,2.2),.2,8))
+  if(sh.includes('p'))tail=Math.max(tail,6);/* Psy Lab spiral echo / space cloud */
   if(sh.includes('s')){const fb=spiralOf(project.master.spiral).feedback;tail=Math.max(tail,.31*(fb>0?Math.min(40,Math.ceil(Math.log(.001)/Math.log(fb))):1)+.5)}}
  return Math.min(12,tail)}
-function buildTrackFx(ctx,f,spb,out,master,getReverb,getSpiral){
- const shape=fxShape(f),nodes=[];let tail=out,hp=null,lp=null,ws=null,post=null,dl=null,fb=null,wet=null,send=null,ssend=null;const add=n=>{tail.connect(n);nodes.push(n);tail=n;return n};
+function buildTrackFx(ctx,f,spb,out,master,getReverb,getSpiral,getPsy){
+ const shape=fxShape(f),nodes=[];let tail=out,hp=null,lp=null,ws=null,post=null,dl=null,fb=null,wet=null,send=null,ssend=null,psend=null;const add=n=>{tail.connect(n);nodes.push(n);tail=n;return n};
  if(shape.includes('h')){hp=add(ctx.createBiquadFilter());hp.type='highpass';hp.Q.value=.707;hp.frequency.value=f.lowCut}
  if(shape.includes('l')){lp=add(ctx.createBiquadFilter());lp.type='lowpass';lp.Q.value=.707;lp.frequency.value=f.highCut}
  if(shape.includes('d')){ws=add(ctx.createWaveShaper());ws.curve=driveCurve(f.drive);ws.oversample='2x';post=add(ctx.createGain());post.gain.value=driveMakeup(f.drive)}
@@ -332,13 +340,14 @@ function buildTrackFx(ctx,f,spb,out,master,getReverb,getSpiral){
   tail.connect(dl);dl.connect(tone);tone.connect(body);body.connect(fb);fb.connect(dl);body.connect(wet);wet.connect(master);nodes.push(dl,fb,wet,tone,body)}
  if(shape.includes('r')){send=ctx.createGain();send.gain.value=f.reverb;tail.connect(send);send.connect(getReverb());nodes.push(send)}
  if(shape.includes('s')&&getSpiral){ssend=ctx.createGain();ssend.gain.value=f.spiral;tail.connect(ssend);ssend.connect(getSpiral());nodes.push(ssend)}
+ if(shape.includes('p')&&getPsy){psend=ctx.createGain();psend.gain.value=f.psy;tail.connect(psend);psend.connect(getPsy());nodes.push(psend)}
  let drive=f.drive;
  return {shape,
   params:{hp:hp?.frequency||null,lp:lp?.frequency||null,send:send?.gain||null,wet:wet?.gain||null},
   set(g,spb2,now,skip){skip=skip||{};// smoothed moves while playing (same shape only; a new shape rebuilds the chain). A parameter with a curve is never touched here.
    if(!skip.lowCut)hp?.frequency.setTargetAtTime(g.lowCut,now,.02);if(!skip.highCut)lp?.frequency.setTargetAtTime(g.highCut,now,.02);
    if(ws&&g.drive!==drive){drive=g.drive;ws.curve=driveCurve(drive);post.gain.setTargetAtTime(driveMakeup(drive),now,.02)}
-   if(ssend)ssend.gain.setTargetAtTime(g.spiral,now,.02);
+   if(ssend)ssend.gain.setTargetAtTime(g.spiral,now,.02);if(psend)psend.gain.setTargetAtTime(g.psy,now,.02);
    if(dl){dl.delayTime.setTargetAtTime(echoTime(g,spb2),now,.05);fb.gain.setTargetAtTime(clamp(g.echoFb,0,.92),now,.02);if(!skip.echoMix)wet.gain.setTargetAtTime(g.echoMix,now,.02)}
    if(!skip.reverb)send?.gain.setTargetAtTime(g.reverb,now,.02)},
   dispose(){try{tail.disconnect()}catch{}for(const n of nodes){try{n.disconnect()}catch{}}}}}
@@ -369,7 +378,7 @@ class Engine{
  vkey(t,c){const e=this.lib.get(c.materialId),au=e?audio.get(e.id):null;return au?.status==='ready'?voiceSource(c,t,e,au.buffer,this.project.bpm).key:''}
  chainFor(t){let ch=this.chains.get(t.id);if(ch)return ch;const ctx=this.ctx,input=ctx.createGain(),gain=ctx.createGain();gain.gain.value=this.gainFor(t);
   let src=input,ag=null;if(hasAuto(t,'volume')){ag=ctx.createGain();ag.gain.value=1;input.connect(ag);src=ag}
-  let fx=null;const chain=__xenMaterialLaneChain(ctx,{source:src,gain,panValue:t.pan,eqKey:__XenEQ.keyFor('arrangement',t.id),route:out=>{fx=buildTrackFx(ctx,fxEff(t),this.spb(),out,this.master,()=>this.reverbIn(),()=>this.spiralIn())}});
+  let fx=null;const chain=__xenMaterialLaneChain(ctx,{source:src,gain,panValue:t.pan,eqKey:__XenEQ.keyFor('arrangement',t.id),route:out=>{fx=buildTrackFx(ctx,fxEff(t),this.spb(),out,this.master,()=>this.reverbIn(),()=>this.spiralIn(),()=>this.psyIn())}});
   ch={input,ag,gain,pan:chain.pan,eq:chain.eq,output:chain.output,fx,tap:this.tap(chain.output),sig:chainSig(t),asig:JSON.stringify(t.auto||null)};this.chains.set(t.id,ch);return ch}
  /* MTW-02 meters: taps only (a fan-out after fader, pan and EQ; left and right apart, so a panned track reads right). They exist while playing, are not in the signal path and never in the export. */
  tap(node){const ctx=this.ctx;if(typeof ctx.createChannelSplitter!=='function'||typeof ctx.createAnalyser!=='function')return null;const sp=ctx.createChannelSplitter(2),a=ctx.createAnalyser(),b=ctx.createAnalyser();a.fftSize=b.fftSize=1024;node.connect(sp);sp.connect(a,0);sp.connect(b,1);return {sp,a,b,buf:new Float32Array(1024)}}
@@ -384,6 +393,7 @@ class Engine{
     if(!(end>from+1e-6))continue;if(first){prm.cancelScheduledValues(Math.max(now,tOf(from)));prm.setValueAtTime(autoValue(pts,sp,from),Math.max(now,tOf(from)))}
     for(const e of autoEvents(pts,sp,from,end))prm.linearRampToValueAtTime(e.v,tOf(e.b));this.autoPos.set(key,{seg:s.i,beat:end})}}}
 
+ psyIn(){if(this.psyb)return this.psyb.input;this.psyb=buildPsyBus(this.ctx,this.project.master.psy,this.master);return this.psyb.input}
  spiralIn(){if(this.spi)return this.spi.input;this.spi=buildSpiralBus(this.ctx,this.project.master.spiral,this.master);return this.spi.input}
  reverbIn(){if(this.rev)return this.rev.input;const ctx=this.ctx,input=ctx.createGain(),conv=ctx.createConvolver();conv.buffer=reverbIR(ctx,num(this.project.master.reverbSize,2.2));input.connect(conv);conv.connect(this.master);this.rev={input,conv,size:num(this.project.master.reverbSize,2.2)};return input}
  dropChain(id){const ch=this.chains.get(id);if(!ch)return;this.chains.delete(id);const now=this.ctx.currentTime;ch.gain.gain.setTargetAtTime(0,now,.01);
@@ -429,6 +439,7 @@ class Engine{
   if(old.bpm!==project.bpm||old.loop.on!==project.loop.on||old.loop.start!==project.loop.start||old.loop.end!==project.loop.end||!!old.master.strip?.on!==!!project.master.strip?.on){this.restartBeat=posBefore;return true}
   if(this.strip&&JSON.stringify(old.master.strip)!==JSON.stringify(project.master.strip))this.strip.set(project.master.strip,ctx.currentTime);// caller restarts at the current beat
   this.master.gain.setTargetAtTime(project.master.volume,now,.02);
+  if(this.psyb&&this.psyb.setPatch&&this.psyb.sig!==psyOf(project.master.psy).patch)this.psyb.setPatch(psyOf(project.master.psy).patch);
   if(this.spi&&this.spi.sig!==JSON.stringify(spiralOf(project.master.spiral))){this.spi.sig=JSON.stringify(spiralOf(project.master.spiral));this.spi.set(project.master.spiral,now)}
   if(this.rev&&this.rev.size!==num(project.master.reverbSize,2.2)){this.rev.size=num(project.master.reverbSize,2.2);this.rev.conv.buffer=reverbIR(ctx,this.rev.size)}
   for(const t of project.tracks){const f=fxEff(t);let ch=this.chains.get(t.id);if(ch&&ch.sig!==chainSig(t)){this.dropChain(t.id);ch=null}// another set of effects or a new volume curve: rebuild this track (its clips re-plan through their signature)
@@ -449,8 +460,8 @@ class Engine{
  level(){return this.peakOf(this.meter)}
  stop(){this.playing=false;clearTimeout(this.timer);this.timer=null;const ctx=this.ctx;
   if(ctx){const now=ctx.currentTime;for(const v of this.voices){try{v.g.gain.cancelScheduledValues(now);v.g.gain.setTargetAtTime(0,now,.008);v.src.stop(now+.06)}catch{}}}this.voices.clear();
-  const chains=[...this.chains.values()],master=this.master,meter=this.meter,rev=this.rev,mg=this.metroGain,strip=this.strip,spi=this.spi;this.metroGain=null;this.strip=null;this.spi=null;this.chains.clear();this.master=null;this.meter=null;this.rev=null;
-  setTimeout(()=>{for(const c of chains){try{c.input.disconnect();c.output.disconnect()}catch{}this.untap(c.tap);try{c.fx?.dispose()}catch{}try{c.eq?.dispose?.()}catch{}}try{mg?.disconnect()}catch{}try{rev?.input.disconnect();rev?.conv.disconnect()}catch{}try{master?.disconnect()}catch{}try{strip?.dispose()}catch{}try{spi?.dispose()}catch{}this.untap(meter)},120);this.keys.clear();this.segs=[]}
+  const chains=[...this.chains.values()],master=this.master,meter=this.meter,rev=this.rev,mg=this.metroGain,strip=this.strip,spi=this.spi,psyb=this.psyb;this.metroGain=null;this.strip=null;this.spi=null;this.psyb=null;this.chains.clear();this.master=null;this.meter=null;this.rev=null;
+  setTimeout(()=>{for(const c of chains){try{c.input.disconnect();c.output.disconnect()}catch{}this.untap(c.tap);try{c.fx?.dispose()}catch{}try{c.eq?.dispose?.()}catch{}}try{mg?.disconnect()}catch{}try{rev?.input.disconnect();rev?.conv.disconnect()}catch{}try{master?.disconnect()}catch{}try{strip?.dispose()}catch{}try{spi?.dispose()}catch{}try{psyb?.dispose()}catch{}this.untap(meter)},120);this.keys.clear();this.segs=[]}
 }
 const engine=new Engine();
 /* ---------- mixdown (cold, offline) ---------- */
@@ -476,14 +487,15 @@ async function mixdown(project0,lib,fromBeat,toBeat,format,opts={}){
  /* MT-MASTER-01: the mixdown runs through the same master strip as listening; stems / unity renders stay raw */
  const mstrip=!opts.unity&&project.master.strip?.on?buildMasterStrip(ctx,project.master.strip):null;if(mstrip){master.connect(mstrip.input);mstrip.output.connect(ctx.destination)}else master.connect(ctx.destination);const any=!opts.unity&&project.tracks.some(t=>t.solo);
  /* ROOM4-05: same lane chain as live play (gain -> pan -> track EQ), so the export matches what is heard. */
- const lanes=[];let revIn=null,spiBus=null;const getSpiral=()=>{if(!spiBus)spiBus=buildSpiralBus(ctx,project.master.spiral,master);return spiBus.input};const getReverb=()=>{if(revIn)return revIn;revIn=ctx.createGain();const conv=ctx.createConvolver();conv.buffer=reverbIR(ctx,num(project.master.reverbSize,2.2));revIn.connect(conv);conv.connect(master);return revIn};
+ const lanes=[];let revIn=null,spiBus=null,psyBus=null;const getSpiral=()=>{if(!spiBus)spiBus=buildSpiralBus(ctx,project.master.spiral,master);return spiBus.input};const getPsy=()=>{if(!psyBus)psyBus=buildPsyBus(ctx,project.master.psy,master);return psyBus.input};const getReverb=()=>{if(revIn)return revIn;revIn=ctx.createGain();const conv=ctx.createConvolver();conv.buffer=reverbIR(ctx,num(project.master.reverbSize,2.2));revIn.connect(conv);conv.connect(master);return revIn};
  for(const t of project.tracks){if(isFrozen(project,t))continue;const g=ctx.createGain(),input=ctx.createGain();g.gain.value=opts.unity?1:(t.mute||(any&&!t.solo))?0:t.volume;
   let src=input,ag=null;if(hasAuto(t,'volume')){ag=ctx.createGain();ag.gain.value=1;input.connect(ag);src=ag}
-  let fxo=null;const lane=__xenMaterialLaneChain(ctx,{source:src,gain:g,panValue:opts.unity?0:t.pan,eqKey:__XenEQ.keyFor('arrangement',t.id),route:out=>{fxo=buildTrackFx(ctx,fxEff(t),spb,out,master,getReverb,getSpiral)}});lanes.push(lane);
+  let fxo=null;const lane=__xenMaterialLaneChain(ctx,{source:src,gain:g,panValue:opts.unity?0:t.pan,eqKey:__XenEQ.keyFor('arrangement',t.id),route:out=>{fxo=buildTrackFx(ctx,fxEff(t),spb,out,master,getReverb,getSpiral,getPsy)}});lanes.push(lane);
   for(const name of Object.keys(t.auto||{})){const pts=t.auto[name],sp=AUTO[name],prm=name==='volume'?ag?.gain:name==='pan'?lane.pan?.pan:name==='reverb'?fxo?.params.send:name==='echoMix'?fxo?.params.wet:name==='lowCut'?fxo?.params.hp:fxo?.params.lp;if(!prm||!pts.length||!sp)continue;
    prm.setValueAtTime(autoValue(pts,sp,fromBeat),0);for(const e of autoEvents(pts,sp,fromBeat,toBeat))prm.linearRampToValueAtTime(e.v,(e.b-fromBeat)*spb)}
   for(const c of t.clips){const e=lib.get(c.materialId),au=e?audio.get(e.id):null;if(!au||au.status!=='ready')continue;const cs=c.startBeat,ce=cs+clipLen(c,lib,project.bpm);
    const pa=Math.max(cs,fromBeat),pb=Math.min(ce,toBeat);if(pb<=pa)continue;planVoice(ctx,input,c,e,au.buffer,pa,pb,(pa-fromBeat)*spb,(pb-fromBeat)*spb,spb,pa===cs,pb===ce,t)}}
+ if(psyBus)await psyBus.ready;/* FX-NET-02: the Psy Lab worklet module must be loaded before rendering */
  let out;try{out=await ctx.startRendering()}finally{for(const l of lanes){try{l.eq?.dispose?.()}catch{}}}
  let channels=[out.getChannelData(0),out.getChannelData(1)],peak=0;for(const ch of channels)for(const v of ch){const a=v<0?-v:v;if(a>peak)peak=a}
  if(opts.raw)return {channels:channels.map(c=>c.slice()),sampleRate:sr,peak,seconds:dur+tail};
@@ -1274,6 +1286,9 @@ function XenMultitrackRoom(){
     sl('Reverb','Send into the shared room.',f.reverb,0,1,.01,v=>set({reverb:v}),f.reverb>0?Math.round(f.reverb*100)+'%':'off'),
     numIn('Room s',num(project.master.reverbSize,2.2),.2,8,.1,v=>commit({...project,master:{...project.master,reverbSize:clamp(v,.2,8)}}),56),
     /* MT-SPIRAL-01: per-track send into the shared Psychedelic Spiral; its four settings belong to the project (like Room s) */
+    /* FX-NET-02: per-track send into the shared Psy Lab chain; the patch belongs to the project */
+    sl('Psy Lab','Send into the shared Psy Lab chain of the chosen patch (filter, crystal, shifter, spiral echo, space, chaos).',f.psy,0,1,.01,v=>set({psy:v}),f.psy>0?Math.round(f.psy*100)+'%':'off'),
+    ...(f.psy>0?(()=>{const m=psyLab(),list=m?.fxPatches?m.fxPatches():[],cur=psyOf(project.master.psy).patch;return [u.jsxs('label',{title:'Psy Lab patch of the send (factory and your own patches)',children:['Patch',u.jsx('select',{'data-xmt-psy-patch':'true','aria-label':'Psy Lab patch of the send',value:cur,onChange:e=>{const c=projectRef.current||project;commit({...c,master:{...c.master,psy:{patch:e.target.value}}},'Psy Lab patch '+e.target.selectedOptions[0]?.text)},children:list.map(p=>u.jsx('option',{value:p.id,children:p.name},p.id))})]})]})():[]),
     sl('Spiral','Send into the shared Psychedelic Spiral (fold, phaser, crossed echo).',f.spiral,0,1,.01,v=>set({spiral:v}),f.spiral>0?Math.round(f.spiral*100)+'%':'off'),
     ...(f.spiral>0?(()=>{const sp=spiralOf(project.master.spiral),setSp=patch=>{const cur=projectRef.current||project;commit({...cur,master:{...cur.master,spiral:{...spiralOf(cur.master.spiral),...patch}}})};
      return [numIn('Fold',Math.round(sp.drive*100),0,100,1,v=>setSp({drive:clamp(v/100,0,1)}),50),numIn('Color',Math.round(sp.color*100),0,100,1,v=>setSp({color:clamp(v/100,0,1)}),50),
