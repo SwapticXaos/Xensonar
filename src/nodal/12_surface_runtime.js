@@ -653,7 +653,7 @@ function createNodalSurfaceRuntime({library,live,model}) {
     // The cursor pitch has four known launch variants: normal/sector, each
     // with/without octave hold. Preparation emits no note or global ticket.
     const frequencies=[];
-    for(const octaveHeld of [false,true])for(const isSector of [false,true]){
+    for(const octaveHeld of (typeof __XenHoldInterval!=='undefined'?[false,...__XenHoldInterval.variants()]:[false,true]))for(const isSector of [false,true]){
       const hz=config.resolveWaveFrequency(root,isSector,octaveHeld);
       if(Number.isFinite(hz)&&hz>=5&&hz<=12000)frequencies.push(hz);
     }
@@ -738,7 +738,7 @@ function createNodalSurfaceRuntime({library,live,model}) {
         let projection=previous?.get(frequency);
         if(!projection){
           const base=config.gridFrequencyToWaveBase(frequency),variants=[];
-          for(const sourceLane of (nextOctaves&&nextOctaves.keyboard!==nextOctaves.wave?['wave','keyboard']:['wave']))for(const octaveHeld of [false,true])for(const isSector of [false,true]){
+          for(const sourceLane of (nextOctaves&&nextOctaves.keyboard!==nextOctaves.wave?['wave','keyboard']:['wave']))for(const octaveHeld of (typeof __XenHoldInterval!=='undefined'?[false,...__XenHoldInterval.variants()]:[false,true]))for(const isSector of [false,true]){
             const hz=config.resolveWaveFrequency(base,isSector,octaveHeld,sourceLane);
             if(Number.isFinite(hz)&&hz>=5&&hz<=12000)variants.push(hz);
           }

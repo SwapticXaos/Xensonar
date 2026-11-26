@@ -234,10 +234,13 @@ function Zke(e){
  },[]);
  const setSwell=P.useCallback(held=>updateExpressionHold('swell',held),[updateExpressionHold]);
  const setDamp=P.useCallback(held=>updateExpressionHold('damp',held),[updateExpressionHold]);
- const setOctave=P.useCallback(held=>{octave.current=held;n(v=>v.octave===held?v:{...v,octave:held})},[]);
+ const setOctaveRaw=P.useCallback(held=>{octave.current=held;n(v=>v.octave===held?v:{...v,octave:held})},[]);
+ /* UI-HOLD-INTERVAL-01: the hold's interval comes from __XenHoldInterval (two cards, right-click switches) */
+ P.useEffect(()=>__XenHoldInterval.bind(setOctaveRaw),[setOctaveRaw]);
+ const setOctave=P.useCallback(held=>{__XenHoldInterval.press(held)},[]);
  const setEnter=P.useCallback(held=>{enter.current=held},[]);
  P.useEffect(()=>{globalThis.__XenLiveHolds={snapshot:()=>({octave:octave.current,sustain:sustain.current,swell:swellHeld.current,damp:dampHeld.current})}},[]);
- const reset=P.useCallback(()=>{swellHeld.current=!1;dampHeld.current=!1;comboConsumed.current=!1;expression.current=0;octave.current=!1;sustain.current=!1;typeof __XenPsyLab!=='undefined'&&__XenPsyLab.sustain(false);enter.current=!1;n({octave:!1,sustain:!1,swell:!1,damp:!1,expressionMode:mode.current})},[]);
+ const reset=P.useCallback(()=>{swellHeld.current=!1;dampHeld.current=!1;comboConsumed.current=!1;expression.current=0;octave.current=!1;__XenHoldInterval.clear();sustain.current=!1;typeof __XenPsyLab!=='undefined'&&__XenPsyLab.sustain(false);enter.current=!1;n({octave:!1,sustain:!1,swell:!1,damp:!1,expressionMode:mode.current})},[]);
  P.useEffect(()=>{
   if(!e){swellHeld.current=!1;dampHeld.current=!1;comboConsumed.current=!1;expression.current=0;return}
   // The physical chord does not produce a volume gesture, and a latched knob

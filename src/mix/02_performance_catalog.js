@@ -1,3 +1,5 @@
+/* UI-HOLD-INTERVAL-01: the Backspace / right-click hold interval (was a fixed octave = 2) */
+function __xenHoldF(){return typeof __XenHoldInterval==='undefined'?2:__XenHoldInterval.factor()}
 /* ROOM5-10: Psy Lab sounds ("psylab:<patch id>") for the Wave Starter (Enter / left click) and the Keyboard. This eager part only lists the patches and forwards to the lazy
    Room V chunk (LiveHost); the chunk is loaded when a Psy Lab sound is chosen or restored, never when a menu is built. Factory names are listed here so no chunk load is needed
    to open the menu; tests/room5_live_catalog.cjs keeps this list identical to the chunk's FACTORY patches. */
@@ -12,7 +14,7 @@ const __XenPsyLab=(()=>{
   if(hz>0&&prevHz>0&&((arrows&&(arrows.up||arrows.down))||now-arrowAt<900))wheel*=hz/prevHz;prevHz=hz>0?hz:prevHz;wheel=Math.max(.25,Math.min(4,wheel));
   const k=1-Math.pow(.65,dt*60);/* the same glide time as the ball of Room V */
   /* PSY-OCT-01: Backspace held = every held Psy Lab note (mouse and keys) glides one octave up fast (~40 ms), released = back; one shared factor, no extra node */
-  const oTarget=cursor.octave?.()===true?1:0;octPos+=(oTarget-octPos)*(1-Math.exp(-dt/.04));if(Math.abs(oTarget-octPos)<.002)octPos=oTarget;const oct=Math.pow(2,octPos);
+  const oTarget=cursor.octave?.()===true?Math.log2(__xenHoldF()):0;/* octPos = glide position in octaves (log2 of the factor) */octPos+=(oTarget-octPos)*(1-Math.exp(-dt/.04));if(Math.abs(oTarget-octPos)<.002)octPos=oTarget;const oct=Math.pow(2,octPos);
   /* PSY-EXPR-01: B / Left Alt (keyboard expression, Pedal or Knob) = output gain of the Keyboard lane, same mapping as the classic keyboard sound (1 + expression x 2.35), capped at x2 because a Psy Lab voice has less headroom */
   const eg=exprGain();if(h&&Math.abs(eg-exprLast)>.003){exprLast=eg;h.gain('keyboard',eg)}
   if(h)for(const f of followers.values()){let target;
@@ -46,13 +48,13 @@ const __XenPsyLab=(()=>{
   bindCursor(api){cursor=api},cursorHz(){return cursor?cursor.hz():0},
   arrowKey(){arrowAt=performance.now()},
   glide(lane,keyId,baseHz,mode){
-   if(!followers.size){octPos=cursor?.octave?.()===true?1:0;prevHz=cursor?cursor.hz():0;arrowAt=-1e9}/* PSY-OCT-01: Backspace already held = the note starts an octave up */
+   if(!followers.size){octPos=cursor?.octave?.()===true?Math.log2(__xenHoldF()):0;prevHz=cursor?cursor.hz():0;arrowAt=-1e9}/* PSY-OCT-01: Backspace already held = the note starts an octave up */
    const f={lane,keyId,base:baseHz,oct0:cursor?.laneOct?.(lane)??1,mode,last:baseHz*Math.pow(2,octPos),pos:Math.log2(baseHz)};followers.set(lane+':'+keyId,f);
    if(!raf)raf=requestAnimationFrame(tick)},
   unglide(lane,keyId){followers.delete(lane+':'+keyId);if(!followers.size)wheel=1},
   law,
   sustain,
-  start(lane,keyId,id,hz,vel,macro){const h=host();deferred.delete(lane+':'+keyId);if(h&&lane==='keyboard'){exprLast=exprGain();h.gain(lane,exprLast,true)}return !!h&&h.start(lane,keyId,id,followers.size?hz*Math.pow(2,octPos):cursor?.octave?.()===true?hz*2:hz,vel,macro)},
+  start(lane,keyId,id,hz,vel,macro){const h=host();deferred.delete(lane+':'+keyId);if(h&&lane==='keyboard'){exprLast=exprGain();h.gain(lane,exprLast,true)}return !!h&&h.start(lane,keyId,id,followers.size?hz*Math.pow(2,octPos):cursor?.octave?.()===true?hz*__xenHoldF():hz,vel,macro)},
   stop(lane,keyId){const key=lane+':'+keyId;followers.delete(key);if(!followers.size)wheel=1;const h=host(false);if(sustaining&&h?.has(lane,keyId)){deferred.add(key);return}deferred.delete(key);h?.stop(lane,keyId)},
   allOff(lane){for(const k of[...followers.keys()])if(!lane||k.startsWith(lane+':'))followers.delete(k);if(!followers.size)wheel=1;const h=host(false);if(sustaining&&h){for(const k of h.keys(lane))deferred.add(k);return}for(const k of[...deferred])if(!lane||k.startsWith(lane+':'))deferred.delete(k);h?.allOff(lane)},
   /* a lane that leaves Psy Lab gives its engine back (the chunk is not loaded just to do that) */

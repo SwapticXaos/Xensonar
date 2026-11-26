@@ -138,3 +138,9 @@ html.xen-split-dragging .xen-stage-split-handle { cursor: ew-resize !important; 
 @container xen-desk (max-width: 860px) {
   .xen-dj-spectrum-bar { grid-template-columns: 1fr; }
 }
+
+/* UI-HOLD-INTERVAL-01: the active Backspace interval card (right-click in the playfield switches) */
+.xen-hold-interval-row[data-xen-hold-interval-active="0"] button:nth-child(1),
+.xen-hold-interval-row[data-xen-hold-interval-active="1"] button:nth-child(2) {
+  box-shadow: 0 0 0 2px #f4c87f, 0 0 8px rgba(244, 200, 127, .45);
+}

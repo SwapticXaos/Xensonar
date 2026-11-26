@@ -3,7 +3,9 @@
  *     dock     'top' | 'side'   where the play surface lives while the Mixing Desk is open
  *     deskFrac 0.28 … 0.80      share of the width the Mixing Desk takes in side mode
  *     playH    {top, side}      CSS height of the playfield canvas per dock (0 = natural 1100:580)
- *     spacing  'abs' | 'log'    vertical grid distribution: absolute Hz (as before) or logarithmic
+ *     spacing  'abs' | 'log' | 'fret'  vertical grid distribution: absolute Hz (as before), logarithmic
+ *                                (equal octaves) or guitar frets (linear in period = the mirror of 'abs':
+ *                                intervals get narrower towards the top, like frets towards the body)
  * - __XenStageSplit: wraps the play surface (Oce) and the Mixing Desk. The tree is ALWAYS the same
  *   (play, vgrip, ghost, handle, desk); only data-dock and CSS change, so the canvas is never remounted.
  * - __XenGridSpacingControl: the switch in Controls & Settings.
@@ -25,7 +27,7 @@ const __XenStageLayout = (() => {
           top: Number.isFinite(raw.playH?.top) && raw.playH.top >= 140 ? clamp(raw.playH.top, 140, 1600) : 0,
           side: Number.isFinite(raw.playH?.side) && raw.playH.side >= 140 ? clamp(raw.playH.side, 140, 1600) : 0
         },
-        spacing: raw.spacing === 'log' ? 'log' : 'abs'
+        spacing: raw.spacing === 'log' || raw.spacing === 'fret' ? raw.spacing : 'abs'
       };
     }
   } catch {}
@@ -46,26 +48,41 @@ const __XenStageLayout = (() => {
       set({ playH: { ...state.playH, [dock === 'side' ? 'side' : 'top']: v } }, save);
     },
     commit: persist,
-    setSpacing: s => set({ spacing: s === 'log' ? 'log' : 'abs' }),
+    setSpacing: s => set({ spacing: s === 'log' || s === 'fret' ? s : 'abs' }),
+    spacingMode: () => state.spacing,
     isLogSpacing: () => state.spacing === 'log'
   });
 })();
 /* Read by Qa / Zs (y ↔ Hz of the Live Room grid). Cheap: one property read per call. */
-function __xenGridSpacingIsLog() { return __XenStageLayout.isLogSpacing(); }
+function __xenGridSpacingMode() { return __XenStageLayout.spacingMode(); }
+/* r = 0 (bottom, min) … 1 (top, max) → Hz, and back. abs: linear Hz · log: equal octaves · fret: linear period */
+function __xenGridSpacingHz(r, min, max) {
+  const m = __xenGridSpacingMode();
+  if (m === 'log') return min * Math.pow(max / min, r);
+  if (m === 'fret') return 1 / (1 / min - r * (1 / min - 1 / max));
+  return min + r * (max - min);
+}
+function __xenGridSpacingR(hz, min, max) {
+  const m = __xenGridSpacingMode();
+  if (m === 'log') return hz > 0 ? Math.log(hz / min) / Math.log(max / min) : 0;
+  if (m === 'fret') return hz > 0 ? (1 / min - 1 / hz) / (1 / min - 1 / max) : 0;
+  return (hz - min) / (max - min);
+}
 if (typeof window !== 'undefined') {
   window.__XenStageLayout = __XenStageLayout;
   // read-only probe for tests/diagnostics: the Live Room y (0…580) ↔ Hz mapping in the current spacing
   window.__XenGridMapProbe = Object.freeze({ yToHz: y => Qa(y), hzToY: f => Zs(f), toLogical: (canvas, cx, cy) => j4({ currentTarget: canvas, clientX: cx, clientY: cy }, vr, ir) });
 }
 
-function __XenStageSplitThumb({ log, onActivate }) {
+function __XenStageSplitThumb({ spacing, onActivate }) {
   // Schematic, greyed-out narrow playfield: grid lines in the current spacing + a few particles.
   const lines = [];
   const n = 15;
   for (let i = 1; i < n; i++) {
     const r = i / n;
-    // equal-tempered lines over 3 octaves: in 'abs' (linear Hz) they crowd at the bottom, in 'log' they are even
-    const y = log ? 100 * (1 - r) : 100 * (1 - (Math.pow(2, 3 * r) - 1) / 7);
+    // equal-tempered lines over 3 octaves: 'abs' crowds them at the bottom, 'log' is even, 'fret' crowds them at the top
+    const f = Math.pow(2, 3 * r);
+    const y = spacing === 'log' ? 100 * (1 - r) : spacing === 'fret' ? 100 * (1 - (1 - 1 / f) / (1 - 1 / 8)) : 100 * (1 - (f - 1) / 7);
     lines.push(u.jsx('line', { x1: 0, x2: 24, y1: y.toFixed(2), y2: y.toFixed(2), className: i % 5 === 0 ? 'is-major' : '' }, i));
   }
   const dots = [[6, 22], [17, 41], [10, 63], [19, 78], [5, 88]];
@@ -285,7 +302,7 @@ function __XenStageSplit({ stage, desk }) {
         className: 'xen-stage-split-desk',
         children: [
           desk,
-          open && dock === 'top' ? u.jsx(__XenStageSplitThumb, { log: lay.spacing === 'log', onActivate: goSide }) : null
+          open && dock === 'top' ? u.jsx(__XenStageSplitThumb, { spacing: lay.spacing, onActivate: goSide }) : null
         ]
       })
     ]
@@ -296,7 +313,8 @@ function __XenGridSpacingControl() {
   const lay = P.useSyncExternalStore(__XenStageLayout.subscribe, __XenStageLayout.snapshot, __XenStageLayout.snapshot);
   const opts = [
     ['abs', 'Absolute', 'Equal Hz per pixel (as before): higher intervals are wider.'],
-    ['log', 'Logarithmic', 'Every octave is equally tall, like piano keys. Pitch follows the picture: the pointer plays what it points at.']
+    ['log', 'Logarithmic', 'Every octave is equally tall, like piano keys. Pitch follows the picture: the pointer plays what it points at.'],
+    ['fret', 'Guitar', 'Like frets on a guitar neck: the higher you play, the narrower the intervals (the mirror of Absolute).']
   ];
   const custom = lay.playH.top || lay.playH.side;
   return u.jsxs('div', {
