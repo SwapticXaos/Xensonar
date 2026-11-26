@@ -35,9 +35,14 @@ fs.writeFileSync(file,wav(meterMusic({bpm:120,S:4,dur:8}),SR));
  /* FX-NET-01: the Psy Lab chain really works on input audio (diff to the input, per patch) */
  const psy=await p.evaluate(()=>window.__xenProbe.draw.evalInBundle(`(async()=>{const m=__xenLoadDeferred('psylab'),sr=48000,n=sr,x=new Float32Array(n);for(let i=0;i<n;i++)x[i]=.3*Math.sin(2*Math.PI*220*i/sr);
   const r=[];for(const pat of m.fxPatches().slice(0,4)){const y=(await m.fxRender({channels:[x],sampleRate:sr,params:pat.params,mix:1}))[0];let d=0,e=0,bad=0;for(let i=0;i<n;i++){if(!Number.isFinite(y[i]))bad++;d+=(y[i]-x[i])**2;e+=x[i]*x[i]}r.push({name:pat.name,diff:Math.sqrt(d/e),bad})}return JSON.stringify(r)})()`));
+ /* FX-NET-03: the Live Room grid reaches the effects – crystal on the grid vs fixed 220 Hz, and the grid's degrees as a pitch set */
+ const gridCheck=JSON.parse(await p.evaluate(()=>window.__xenProbe.draw.evalInBundle(`(async()=>{const m=__xenLoadDeferred('psylab'),sr=48000,n=sr,x=new Float32Array(n);for(let i=0;i<n;i++)x[i]=.3*Math.sin(2*Math.PI*220*i/sr)*((i%12000)<1500?1:.1);
+  const pat=m.fxPatches().find(p=>p.name==='Crystal Cave')||m.fxPatches()[0],a=(await m.fxRender({channels:[x],sampleRate:sr,params:pat.params,res:m.gridRes(),mix:1}))[0],b=(await m.fxRender({channels:[x],sampleRate:sr,params:pat.params,res:[220],mix:1}))[0];
+  let d=0,e=0;for(let i=0;i<n;i++){d+=(a[i]-b[i])**2;e+=b[i]*b[i]}return JSON.stringify({grid:m.gridHz().length,res:m.gridRes().map(h=>Math.round(h)),diff:Math.sqrt(d/Math.max(1e-12,e))})})()`)));
+ assert(gridCheck.grid>=5,'the Live Room grid has degrees: '+gridCheck.grid);assert(gridCheck.diff>.05,'crystal on the grid sounds different from 220 Hz: '+JSON.stringify(gridCheck));
  for(const q of JSON.parse(await psy)){assert.equal(q.bad,0,q.name);assert(q.diff>.1,'Psy Lab patch '+q.name+' changes the input audio: '+q.diff.toFixed(3))}
  /* Undo restores the bakes */
  const baked=await sum();for(let k=0;k<6;k++){await E(FIND+`ed.runEdit('undo');'ok'`);await p.waitForTimeout(800)}
  const undone=await sum();assert(Math.abs(undone-baked)>1e-3,'Undo changes it back');
- assert.deepEqual(errors,[]);console.log('PASS FX-PALETTE-01 · '+results.join(' · ')+' · undo ok');await b.close();
+ assert.deepEqual(errors,[]);console.log('PASS FX-PALETTE-01 · '+results.join(' · ')+' · grid '+gridCheck.grid+' degrees, crystal '+gridCheck.res.join('/')+' Hz (Δ '+gridCheck.diff.toFixed(3)+') · undo ok');await b.close();
 })().catch(e=>{console.error(e);process.exit(1)});

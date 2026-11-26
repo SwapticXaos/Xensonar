@@ -297,11 +297,13 @@ function buildSpiralBus(ctx,raw,dest){const v0=spiralOf(raw),N=[],mk=n=>{N.push(
  set(v0);return {input,set,sig:JSON.stringify(v0),dispose(){try{lfoS.stop();lfoD.stop()}catch{}for(const n of N)try{n.disconnect()}catch{}}}}
 /* FX-NET-02: the Psy Lab as a shared send bus (the patch's whole effect chain on the arrangement); master.psy = {patch: patch id} */
 const PSY_DEF_PATCH='factory:Barber Spiral';
-function psyOf(raw){return {patch:typeof raw?.patch==='string'&&raw.patch?raw.patch:PSY_DEF_PATCH}}
+function psyOf(raw){return {patch:typeof raw?.patch==='string'&&raw.patch?raw.patch:PSY_DEF_PATCH,res:raw?.res==='fixed'?'fixed':'grid'}}
+/* FX-NET-03: the crystal resonators of the send sit on the Live Room grid (as in the Psy Lab room) or on a fixed 220 Hz */
+const psyRes=raw=>{const m=psyLab();return psyOf(raw).res==='grid'&&m?.gridRes?m.gridRes():[220]};
 const psyLab=()=>{try{return __xenLoadDeferred('psylab')}catch{return null}};
 function psyPatchOf(id){const m=psyLab(),list=m?.fxPatches?m.fxPatches():[];return list.find(p=>p.id===id)||list.find(p=>p.id===PSY_DEF_PATCH)||list[0]||null}
 function buildPsyBus(ctx,raw,dest){const m=psyLab(),pat=psyPatchOf(psyOf(raw).patch);if(!m?.fxBus||!pat){const g=ctx.createGain();return {input:g,ready:Promise.resolve(),set(){},dispose(){try{g.disconnect()}catch{}},sig:''}}
- const b=m.fxBus(ctx,{params:pat.params,dest});return {...b,sig:pat.id,setPatch(id){const q=psyPatchOf(id);if(q){this.sig=q.id;b.set(q.params)}}}}
+ const b=m.fxBus(ctx,{params:pat.params,res:psyRes(raw),dest});return {...b,sig:pat.id,resSig:psyOf(raw).res,setPatch(id){const q=psyPatchOf(id);if(q){this.sig=q.id;b.set(q.params)}},setRes(raw2){this.resSig=psyOf(raw2).res;b.set(null,psyRes(raw2))}}}
 const MASTER_STRIP_DEF=Object.freeze({on:false,glue:.35,tape:0,air:0,ceil:-1});
 function masterStripOf(raw){const m=raw||{};return {on:m.on===true,glue:clamp(num(m.glue,.35),0,1),tape:clamp(num(m.tape,0),0,1),air:clamp(num(m.air,0),-6,9),ceil:clamp(num(m.ceil,-1),-12,-.1)}}
 function tapeCurve(amount){const n=2048,c=new Float32Array(n),k=1+amount*7,norm=Math.tanh(k);for(let i=0;i<n;i++){const x=i/(n-1)*2-1;c[i]=amount<=0?x:Math.tanh(k*x)/norm}return c}
@@ -440,6 +442,7 @@ class Engine{
   if(this.strip&&JSON.stringify(old.master.strip)!==JSON.stringify(project.master.strip))this.strip.set(project.master.strip,ctx.currentTime);// caller restarts at the current beat
   this.master.gain.setTargetAtTime(project.master.volume,now,.02);
   if(this.psyb&&this.psyb.setPatch&&this.psyb.sig!==psyOf(project.master.psy).patch)this.psyb.setPatch(psyOf(project.master.psy).patch);
+  if(this.psyb&&this.psyb.setRes&&this.psyb.resSig!==psyOf(project.master.psy).res)this.psyb.setRes(project.master.psy);
   if(this.spi&&this.spi.sig!==JSON.stringify(spiralOf(project.master.spiral))){this.spi.sig=JSON.stringify(spiralOf(project.master.spiral));this.spi.set(project.master.spiral,now)}
   if(this.rev&&this.rev.size!==num(project.master.reverbSize,2.2)){this.rev.size=num(project.master.reverbSize,2.2);this.rev.conv.buffer=reverbIR(ctx,this.rev.size)}
   for(const t of project.tracks){const f=fxEff(t);let ch=this.chains.get(t.id);if(ch&&ch.sig!==chainSig(t)){this.dropChain(t.id);ch=null}// another set of effects or a new volume curve: rebuild this track (its clips re-plan through their signature)
@@ -1288,7 +1291,8 @@ function XenMultitrackRoom(){
     /* MT-SPIRAL-01: per-track send into the shared Psychedelic Spiral; its four settings belong to the project (like Room s) */
     /* FX-NET-02: per-track send into the shared Psy Lab chain; the patch belongs to the project */
     sl('Psy Lab','Send into the shared Psy Lab chain of the chosen patch (filter, crystal, shifter, spiral echo, space, chaos).',f.psy,0,1,.01,v=>set({psy:v}),f.psy>0?Math.round(f.psy*100)+'%':'off'),
-    ...(f.psy>0?(()=>{const m=psyLab(),list=m?.fxPatches?m.fxPatches():[],cur=psyOf(project.master.psy).patch;return [u.jsxs('label',{title:'Psy Lab patch of the send (factory and your own patches)',children:['Patch',u.jsx('select',{'data-xmt-psy-patch':'true','aria-label':'Psy Lab patch of the send',value:cur,onChange:e=>{const c=projectRef.current||project;commit({...c,master:{...c.master,psy:{patch:e.target.value}}},'Psy Lab patch '+e.target.selectedOptions[0]?.text)},children:list.map(p=>u.jsx('option',{value:p.id,children:p.name},p.id))})]})]})():[]),
+    ...(f.psy>0?(()=>{const m=psyLab(),list=m?.fxPatches?m.fxPatches():[],cur=psyOf(project.master.psy).patch;return [u.jsxs('label',{title:'Psy Lab patch of the send (factory and your own patches)',children:['Patch',u.jsx('select',{'data-xmt-psy-patch':'true','aria-label':'Psy Lab patch of the send',value:cur,onChange:e=>{const c=projectRef.current||project;commit({...c,master:{...c.master,psy:{...psyOf(c.master.psy),patch:e.target.value}}},'Psy Lab patch '+e.target.selectedOptions[0]?.text)},children:list.map(p=>u.jsx('option',{value:p.id,children:p.name},p.id))})]}),
+      u.jsxs('label',{title:'Where the crystal resonators of the Psy Lab chain sit: on the Live Room grid (as in the Psy Lab room) or on a fixed 220 Hz',children:['Crystal',u.jsx('select',{'data-xmt-psy-res':'true','aria-label':'Crystal pitches of the Psy Lab send',value:psyOf(project.master.psy).res,onChange:e=>{const c=projectRef.current||project;commit({...c,master:{...c.master,psy:{...psyOf(c.master.psy),res:e.target.value}}},'Psy Lab crystal: '+e.target.selectedOptions[0]?.text)},children:[u.jsx('option',{value:'grid',children:'Live Room grid'},'g'),u.jsx('option',{value:'fixed',children:'Fixed 220 Hz'},'f')]})]})]})():[]),
     sl('Spiral','Send into the shared Psychedelic Spiral (fold, phaser, crossed echo).',f.spiral,0,1,.01,v=>set({spiral:v}),f.spiral>0?Math.round(f.spiral*100)+'%':'off'),
     ...(f.spiral>0?(()=>{const sp=spiralOf(project.master.spiral),setSp=patch=>{const cur=projectRef.current||project;commit({...cur,master:{...cur.master,spiral:{...spiralOf(cur.master.spiral),...patch}}})};
      return [numIn('Fold',Math.round(sp.drive*100),0,100,1,v=>setSp({drive:clamp(v/100,0,1)}),50),numIn('Color',Math.round(sp.color*100),0,100,1,v=>setSp({color:clamp(v/100,0,1)}),50),

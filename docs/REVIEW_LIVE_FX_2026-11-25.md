@@ -92,3 +92,10 @@ Prüfung: `tests/e2e/wave_fx_palette.cjs` (alle sechs Effekte unter „Add effec
 - Psy Lab (`034`): `fxBus(ctx,{params,res,dest})`. Fester Eingang; der Worklet-Knoten (Effektmodus) hängt sich an, sobald das Modul geladen ist (`ready`). `set()` ändert Parameter und Resonatortöne live ohne Neuaufbau, `dispose()` beendet den Prozessor.
 - Multitrack (`032`): pro Spur ein Send „Psy Lab“ (0 = kein Knoten), pro Projekt `master.psy.patch` (Patch-ID, Standard „Barber Spiral“; Werks- und eigene Patches). Abhören und Mixdown nutzen denselben Bus; der Export wartet auf das geladene Modul. Ausklang im Export 6 s.
 - Test `tests/e2e/mt_psy_send.cjs`: Send ändert Klang und Ausklang (162 400 → 450 400 Frames), anderer Patch (Crystal Cave) eine andere Farbe, Spitze 0,25 → 0,46, Send 0 = bitgleich, Effektfeld zeigt „Psy Lab“ und „Patch“, Abspielen ohne Fehler. Grün.
+
+## FX-NET-03 (26.11.): Resonanzen wahlweise auf dem Live-Room-Raster (umschaltbar, keine feste Entscheidung)
+- Psy Lab (`034`) exportiert das Raster für andere Stellen: `gridHz()` (alle offenen Stufen in Hz, gesperrte entfallen) und `gridRes()` (die acht Crystal-Töne, die der Psy-Lab-Raum selbst nutzt).
+- **Tuning Resonator:** Tonmenge „Live Room grid“ (neben Obertöne, JI 5, JI 7, EDO, Bohlen–Pierce). Der Hauptthread hängt die Rasterstufen als `gridHz` an den Knoten; der Worker liest das Raster nie selbst. Ein Resonator pro Stufe im Frequenzbereich, ausgedünnt auf 96.
+- **Psy Lab FX (Wave Editor):** Parameter „Crystal pitches“: Live Room grid (Standard, wie im Psy-Lab-Raum) oder Fixed 220 Hz. Vorher lag Crystal auf Rohaudio fest auf 220 Hz.
+- **Psy-Lab-Send (Multitrack):** Auswahl „Crystal“ (Live Room grid / Fixed 220 Hz), `master.psy.res`, live umschaltbar per Nachricht.
+- Tests: `wave_fx_palette.test.cjs` 8/8 (Raster-Tonmenge: genau ein Resonator je Stufe im Bereich, klingt anders als JI 7, leeres Raster = keine Resonanz, kein Absturz). `wave_fx_palette.cjs`: 22 Rasterstufen, Crystal 55/66/82/103/123/147/176/220 Hz, Raster vs. 220 Hz Δ 0,83. `mt_psy_send.cjs`: Raster vs. fest ändert den Mixdown, Oberfläche zeigt „Crystal“. Grün.

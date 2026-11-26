@@ -949,6 +949,9 @@ function XenPsyLabRoom(){
 /* PsyEngine is exported on purpose: a host without a picture (a later Live Room hook-up: Enter / left mouse button / keyboard) loads this chunk on first use and
    creates new PsyEngine({visual:false}); no analyser, no canvas, no room UI. */
 /* FX-NET-01: the patches a host can offer (factory first, then the user's own) and the offline effect render */
+/* FX-NET-03: the Live Room grid for other hosts – all open degrees in Hz (muted steps left out) and the eight crystal pitches the Psy Lab room uses */
+const gridHz=()=>{try{const p=liveGridParams();return p?gridNotes(p).filter(h=>h>0).sort((a,b)=>a-b):[]}catch{return []}};
+const gridRes=()=>{try{return gridResonators(liveGridParams(),0)}catch{return [220]}};
 const fxPatches=()=>{let user=[];try{user=loadStore()?.user||[]}catch{}return [...FACTORY,...user].map(p=>({id:p.id,name:p.name,params:p.params.slice()}))};
-return Object.freeze({XenPsyLabRoom,PsyEngine,LiveHost,fxRender,fxPatches,fxBus,__test:Object.freeze({PARAMS,RANGES,FACTORY,toUnit,fromUnit,sanitizePatch,sanitizeMetro,moduleCode,STORE_KEY,Metronome})});
+return Object.freeze({XenPsyLabRoom,PsyEngine,LiveHost,fxRender,fxPatches,fxBus,gridHz,gridRes,__test:Object.freeze({PARAMS,RANGES,FACTORY,toUnit,fromUnit,sanitizePatch,sanitizeMetro,moduleCode,STORE_KEY,Metronome})});
 })()

@@ -24,13 +24,14 @@ const rmsDiff=(a,b)=>{const n=Math.min(a.raw.length,b.raw.length)/4;let d=0;for(
  const pA=peak(A),pB=peak(B);assert(pB<1.6,'no runaway level: peak '+pA.toFixed(3)+' → '+pB.toFixed(3));
  assert(B.frames>A.frames,'the Psy Lab send adds a tail: '+A.frames+' → '+B.frames+' frames');const dAB=rmsDiff(A,B);assert(dAB>1e-3,'the Psy Lab send changes the sound: '+dAB);
  await patch(p=>{p.master.psy={patch:'factory:Crystal Cave'}});const C=await mixdown();const dBC=rmsDiff(B,C);assert(dBC>1e-3,'another patch, another colour: '+dBC);
+ await patch(p=>{p.master.psy={patch:'factory:Crystal Cave',res:'fixed'}});const C2=await mixdown();const dRes=rmsDiff(C,C2);assert(dRes>1e-4,'crystal on the grid vs fixed 220 Hz: '+dRes);
  // UI: the selected track's FX panel shows the send and the four settings
  await p.locator('.xmt .clip').first().click();await p.waitForTimeout(500);
- const ui=await p.evaluate(()=>[...document.querySelectorAll('[data-xmt-fx] label')].map(l=>l.innerText.split('\n')[0].trim()).filter(t=>/^(Psy Lab|Patch)$/.test(t)));
- assert.deepEqual(ui,['Psy Lab','Patch'],'the FX panel shows the Psy Lab send and the patch: '+ui.join(','));
+ const ui=await p.evaluate(()=>[...document.querySelectorAll('[data-xmt-fx] label')].map(l=>l.innerText.split('\n')[0].trim()).filter(t=>/^(Psy Lab|Patch|Crystal)$/.test(t)));
+ assert.deepEqual(ui,['Psy Lab','Patch','Crystal'],'the FX panel shows the Psy Lab send and the patch: '+ui.join(','));
  // playing with the send
  await p.getByRole('button',{name:/Play from cursor/}).click();await p.waitForTimeout(1500);await p.getByRole('button',{name:/^Stop|■/}).first().click().catch(()=>{});
  await patch(p=>{const t=p.tracks.find(t=>t.clips.length);t.fx={...(t.fx||{}),psy:0}});const D=await mixdown();
  assert(A.raw.equals(D.raw),'send back to 0: bit-identical to the mixdown without the Psy Lab');
- assert.deepEqual(errors,[]);console.log('PASS FX-NET-02 · tail '+A.frames+'→'+B.frames+' frames · Δ send '+dAB.toFixed(4)+' · Δ settings '+dBC.toFixed(4)+' · peak '+pA.toFixed(3)+'→'+pB.toFixed(3)+' · off = bit-identical · UI: '+ui.join(', '));await b.close();
+ assert.deepEqual(errors,[]);console.log('PASS FX-NET-02 · tail '+A.frames+'→'+B.frames+' frames · Δ send '+dAB.toFixed(4)+' · Δ settings '+dBC.toFixed(4)+' · peak '+pA.toFixed(3)+'→'+pB.toFixed(3)+' · Δ crystal grid/fixed '+dRes.toFixed(4)+' · off = bit-identical · UI: '+ui.join(', '));await b.close();
 })().catch(e=>{console.error(e);process.exit(1)});

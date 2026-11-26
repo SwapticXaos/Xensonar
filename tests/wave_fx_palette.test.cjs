@@ -55,3 +55,10 @@ test('Wavefolder: bounded, more drive = more overtones, wet 0 neutral, symmetry 
  const asym=run('wavefolder',{driveDb:12,symmetry:.8,wet:1},sine(),'truncate'),sym=run('wavefolder',{driveDb:12,symmetry:0,wet:1},sine(),'truncate');
  assert.ok(diff(asym.channels,sym.channels)>1e-3,'symmetry changes the colour');
 });
+test('FX-NET-03: Tuning Resonator on the Live Room grid: resonates exactly on the given grid degrees inside the range; no grid = no resonance, no crash',()=>{
+ const grid=[73.4,82.4,98,110,130.8,146.8,164.8,196,220,261.6,293.7,329.6,392,440,523.3,587.3,659.3,784,880,1046.5];
+ const job=(gridHz,set=5)=>{const ch=tone(1.5);return engine.execute({jobId:'g',documentId:'d',revision:1,sampleRate:SR,range:{start:0,end:ch[0].length},tailMode:'truncate',nodes:[{id:'n',type:'tuningResonator',enabled:true,params:{set,wet:1,lowHz:100,highHz:700},automation:{},gridHz}],channels:ch},()=>{})};
+ const r=job(grid),det=r.metrics.effects.find(x=>x.type==='tuningResonator').detail;assert.equal(det.count,grid.filter(f=>f>=100&&f<=700).length,'one resonator per grid degree in 100–700 Hz');
+ assert.equal(stats(r).bad,0);assert.ok(diff(r.channels,job(null,2).channels)>1e-3,'the grid sounds different from JI 7-limit');
+ const none=job([]);assert.equal(none.metrics.effects.find(x=>x.type==='tuningResonator').detail.count,0);assert.equal(stats(none).bad,0);
+});
