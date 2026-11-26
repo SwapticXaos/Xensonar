@@ -772,7 +772,7 @@ if(typeof document!=='undefined'){
     if(meta?.swapWith){const other=[...document.querySelectorAll('.xen-meta-tile')].find(tile=>tile.dataset.xenQuickKind===meta.swapWith.kind&&tile.dataset.xenQuickId===meta.swapWith.id);other?.classList.add('is-swap-target');}
    for(const bin of document.querySelectorAll('[data-xen-meta-library-trash]'))bin.classList.toggle('is-trash-hover',bin===trash);
    const nativeZone=zoneAt(e);
-   const inside=session.entry.kind!=='session'&&!nativeZone&&!sessionTarget&&!trash&&!meta&&!fill&&!libraryTarget&&inDock(e);
+   /* GRID-MODES-01: 'gridmode' rows (Grid Workbench · Modes) sort inside their zone and are not Quick Access items */const inside=session.entry.kind!=='session'&&session.entry.kind!=='gridmode'&&!nativeZone&&!sessionTarget&&!trash&&!meta&&!fill&&!libraryTarget&&inDock(e);
    const zone=inside||meta||fill||trash||libraryTarget||sessionTarget?null:nativeZone,sort=hooks();
    session.overDock=inside;placeQuickHelp(e,inside&&session.modal.dataset.xenHeaderMenu!=='meta');
    if(zone){

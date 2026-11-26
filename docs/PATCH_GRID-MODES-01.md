@@ -17,3 +17,14 @@
 - `tests/e2e/grid_modes_workbench.cjs`: 31-EDO Chromatic 31 / Chromatic 12 12 / Ionisch 7; Reiter „Modes“, Bibliothek, Projektion; eigener Modus gespeichert und auf 12-EDO = Ionisch; ↑ sortiert die Slots; AltGr: Dorisch → Ionisch → Chromatic 12 → eigener → Ionisch, Rechts-Strg zurück; Chromatic kommt nicht vor.
 - `run_tests.sh`: grün bis auf die bekannten 6 Altfehler. Zwei Multitrack-Tests (`room4_04_tempo_and_beat`, `mt_parts_01`) waren durch die Effekt-Arbeit gebrochen (Normalisierer außerhalb des Datenbereichs, neue Felder `spiral`/`psy`) und sind behoben. `psylab_live_grid` scheitert schon auf dem Ausgangsstand `e0740d3`.
 - Browser: `grid_visible`, `key_owner_guard`, `room5_psylab` grün.
+
+## GRID-MODES-02: derselbe Sortier-Mechanismus wie im Tuning-Rack
+Nutzer: Das Umordnen per Ziehen, das es in der Rasterwerkbank „all over the place“ gibt, fehlte im neuen Reiter. Meine erste Fassung hatte einen eigenen HTML5-Drag, der mit dem gemeinsamen Zeiger-Mechanismus nichts zu tun hat.
+
+Jetzt (`038-xen-grid-modes.js`) dieselben Bausteine wie das Tuning-Rack (`U6`):
+- `Cw` (Sortier-Controller: Zeilen registrieren, Ziehen beginnen / beenden, Ziel bestimmen), `Mw` / `Hy` / `PS` (Vorschau-Zustand), `Rw` (Vorschau-Anzeige am Zeiger), `Q0`, und `__quickProps` mit der Zone `gridmode` (Zeiger-Geste, Auto-Scroll am Rand, Vorschauzeile am Zeiger).
+- Semantik wie im Rack: Ablegen **in der Mitte** eines Slots = **Tauschen** (aus der Bibliothek: ersetzen), am **oberen / unteren Rand** = davor / dahinter **einfügen**. Ziel-Slot amber, Nachbarn bei Einfügen cyan. Ein Modus, der schon im Cycle ist, wird nicht doppelt aufgenommen.
+- Ziehen auch aus der **Bibliothek** in die Slots.
+- Quick-Access-Dock (`03_quick_menu__after_eq-core__after_eq-ui.js`): Zeilen der Art `gridmode` sortieren in ihrer Zone, werden aber nie ein Quick-Access-Eintrag.
+
+Prüfung: `tests/e2e/grid_modes_workbench.cjs` mit echten Mausgesten: Tauschen (Mitte), davor und dahinter einfügen (Ränder), Bibliothek → Slots (einfügen / ersetzen / schon vorhanden), kein Quick-Access-Eintrag. Auf dem Stand davor scheitert der erste Tausch. Regression grün: `grid_drag_selection`, `key_owner_guard`, `grid_visible`, `ld2_layout_browser`, `meta_copy_root_follow`, `grid_modes.test.cjs`.

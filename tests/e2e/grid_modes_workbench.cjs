@@ -30,6 +30,31 @@ const html=path.resolve(process.argv[2]||'dist/XenSonar_PROBE.html');
  assert(um&&um.n===7,'own mode stored with 7 positions: '+user);assert(await p.locator(`[data-xen-mode-entry="${um.v}"]`).count(),'own mode in the library');
  await setT('12edo');await setM(um.v);s=await state();assert.equal(s.mode,um.v,'own mode accepted on 12-EDO');assert.equal(s.open,7,'own mode projected onto 12-EDO: '+JSON.stringify(s));
  const mask12=JSON.parse(await E(`JSON.stringify(Au(${JSON.stringify(um.v)},'12edo').map(Number))`));assert.deepEqual(mask12,[1,0,1,0,1,1,0,1,0,1,0,1],'= Ionian on 12-EDO');
+ // GRID-MODES-02: the shared pointer sort mechanism (as in the tuning rack) – SWAP in the middle of a slot, INSERT at its edges, library → slots
+ await setT('12edo');await E(`__xenModeStore.setRack(['chromatic','ionian','dorian','phrygian']);'ok'`);await p.waitForTimeout(500);
+ const slot=v=>p.locator('[data-xen-mode-slot="'+v+'"]').first();
+ const pointerDrag=async(from,toLocator,fracY)=>{const a=await from.boundingBox(),b=await toLocator.boundingBox();await p.mouse.move(a.x+a.width/2,a.y+a.height/2);await p.mouse.down();
+  await p.mouse.move(a.x+a.width/2+6,a.y+a.height/2+10,{steps:3});await p.mouse.move(b.x+b.width/2,b.y+b.height*fracY,{steps:12});await p.waitForTimeout(150);return async()=>{await p.mouse.up();await p.waitForTimeout(500)}};
+ const order=async()=>JSON.parse(await E(`JSON.stringify(__xenModeStore.rack())`));
+ // swap: drag Slot 1 (chromatic) onto the middle of Slot 3 (dorian)
+ let up=await pointerDrag(slot('chromatic').locator('button').first(),slot('dorian'),.5);
+ assert(await p.locator('[data-xen-sort-preview],.xen-quick-ghost').count()>=0);await up();
+ assert.deepEqual(await order(),['dorian','ionian','chromatic','phrygian'],'drop on the middle of a slot swaps the two');
+ // insert before: drag phrygian onto the UPPER edge of slot 1 (dorian)
+ up=await pointerDrag(slot('phrygian').locator('button').first(),slot('dorian'),.08);await up();
+ assert.deepEqual(await order(),['phrygian','dorian','ionian','chromatic'],'drop on the upper edge inserts before');
+ // insert after: drag phrygian onto the LOWER edge of the last slot (chromatic)
+ up=await pointerDrag(slot('phrygian').locator('button').first(),slot('chromatic'),.94);await up();
+ assert.deepEqual(await order(),['dorian','ionian','chromatic','phrygian'],'drop on the lower edge inserts after');
+ // library → slots: lydian onto the lower edge of ionian inserts after it; a mode already in the cycle is refused; swap replaces
+ up=await pointerDrag(p.locator('[data-xen-mode-entry="lydian"] button').first(),slot('ionian'),.94);await up();
+ assert.deepEqual(await order(),['dorian','ionian','lydian','chromatic','phrygian'],'library entry dropped on the lower edge is inserted after');
+ up=await pointerDrag(p.locator('[data-xen-mode-entry="mixolydian"] button').first(),slot('chromatic'),.5);await up();
+ assert.deepEqual(await order(),['dorian','ionian','lydian','mixolydian','phrygian'],'library entry dropped on the middle replaces the slot');
+ up=await pointerDrag(p.locator('[data-xen-mode-entry="dorian"] button').first(),slot('phrygian'),.5);await up();
+ assert.deepEqual(await order(),['dorian','ionian','lydian','mixolydian','phrygian'],'a mode that is already in the cycle is not added twice');
+ // a mode row never becomes a Quick Access item
+ assert.equal(JSON.parse(await E(`JSON.stringify(__XenQuick.snapshot().items.filter(i=>i.kind==='gridmode').length)`)),0,'no Quick Access item of kind gridmode');
  // cycle order: [ionian, own, chromatic_12]; move chromatic_12 up with ↑ → [ionian, chromatic_12, own]
  await E(`__xenModeStore.setRack(['ionian',${JSON.stringify(um.v)},'chromatic_12']);'ok'`);await p.waitForTimeout(400);
  await p.locator('[data-xen-mode-slot="chromatic_12"] button[aria-label^="Move"][aria-label$="up"]').click();await p.waitForTimeout(400);
