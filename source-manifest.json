@@ -695,6 +695,13 @@
    ]
   },
   {
+   "id": "js-013b-xen-room-title-art",
+   "oct28_section": null,
+   "files": [
+    "src/ui/06_room_title_art.js"
+   ]
+  },
+  {
    "id": "css-049-xen-compose-tangerine-aurora-ta1",
    "oct28_section": null,
    "files": [

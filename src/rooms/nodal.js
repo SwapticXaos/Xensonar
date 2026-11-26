@@ -419,7 +419,7 @@ function NodalRoomHeader({mode, onModeChange, installationSoundEnabled = false, 
       /* HOLO-TITLE-01: the Art Installation title ignites like a hologram (styles/post-oct/holo-title-01.css); a new key replays it when the mode is entered. Sound Design keeps its plain title. */
       mode === 'installation'
         ? h('h2', {key: 'holo-title', className: 'xen-holo-title'}, h('span', {className: 'xen-holo'}, h('span', {className: 'xen-holo-scan', 'aria-hidden': 'true'}), h('span', {className: 'xen-holo-main', 'data-text': current[0]}, current[0]), h('span', {className: 'xen-holo-beam', 'aria-hidden': 'true'})))
-        : h('h2', {key: 'plain-title'}, current[0]),
+        : h('h2', {key: 'plain-title'}, mode === 'sounddesign' && window.__XenTitleArt ? h(window.__XenTitleArt.Title, {react: P, room: 'sounddesign', text: current[0], height: 30, smallHeight: 24}) : current[0]),
       h('p', null, current[1])),
     h('nav', {className: 'nd-modes', 'aria-label': 'Nodal modes'},
       ...[['sounddesign', 'Sound Design'], ['installation', 'Art Installation']]
