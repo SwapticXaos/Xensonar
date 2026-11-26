@@ -637,6 +637,13 @@
    ]
   },
   {
+   "id": "css-042b-xen-live-console-wood",
+   "oct28_section": null,
+   "files": [
+    "styles/merge_meta_additions/047_xen-live-console-wood.css"
+   ]
+  },
+  {
    "id": "css-042-xen-h4-h1-icons-hairline-vector",
    "oct28_section": "@@XENSONAR_COMPONENT_047@@",
    "files": [
