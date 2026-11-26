@@ -533,8 +533,16 @@ class Metronome{
 
 const CSS=`
 .xpl{color:#e9e4ff;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12px;padding:14px 16px 28px;max-width:1500px;margin:0 auto}
-.xpl h2{font-size:20px;letter-spacing:.18em;margin:0;background:linear-gradient(90deg,#ff5ecb,#ffd166,#5ef2ff,#b28dff);-webkit-background-clip:text;background-clip:text;color:transparent}
-.xpl-sub{color:#9f96c4;font-size:11px;margin:4px 0 12px;max-width:900px;line-height:1.5}
+/* UI-EMBLEM-STARS-01 + UI-TITLE-ART-01: head with eyebrow, emblem (8 XenSonar triangles) and vector title on one line */
+.xpl-head{position:relative;display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:12px 24px;padding:2px 0 13px;margin:0 0 12px;border-bottom:1px solid #2e244d}
+.xpl-head::after{content:'';position:absolute;left:0;bottom:-1px;width:min(380px,58%);height:1px;background:linear-gradient(90deg,rgba(240,171,252,.72),rgba(126,238,255,.35) 55%,transparent);pointer-events:none}
+.xpl-brand{display:block;min-width:0;flex:1 1 380px}
+.xpl-title-row{display:flex;align-items:center;gap:11px;margin-top:4px;min-width:0}
+.xpl-emblem{width:38px;height:38px;flex:0 0 38px;display:block;transform:translateY(-2px);filter:drop-shadow(0 0 13px rgba(240,171,252,.28))}
+.xpl-head-copy{min-width:0}
+.xpl-eyebrow{font-family:ui-sans-serif,system-ui,sans-serif;font-size:10px;font-weight:500;letter-spacing:.24em;text-transform:uppercase;color:#d9a8f5;line-height:1.2}
+.xpl h2{font-family:Georgia,"Iowan Old Style","Palatino Linotype","Times New Roman",serif;font-size:clamp(24px,2.1vw,29px);font-weight:400;letter-spacing:-.025em;line-height:1.08;margin:0;color:#f6f1ff;text-wrap:balance;text-shadow:0 1px 20px rgba(216,180,254,.18)}
+.xpl-sub{font-family:ui-sans-serif,system-ui,sans-serif;color:#aba2d1;font-size:12px;margin:4px 0 0;max-width:74ch;line-height:1.45}
 .xpl-bar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:10px}
 .xpl button,.xpl select,.xpl input[type=text],.xpl input[type=number]{background:#120d24;color:#efe9ff;border:1px solid #4b3d7a;border-radius:6px;padding:6px 10px;font:inherit;min-height:30px}
 .xpl button{cursor:pointer}.xpl button:hover:not(:disabled){background:#22184a;border-color:#8f7bff}.xpl button:disabled{opacity:.45;cursor:default}
@@ -952,8 +960,33 @@ const[dialog,setDialog]=P.useState(null);
  });
  const piano=orient==='piano';
  return u.jsxs('div',{className:'xpl'+(large?' xpl-large':''),ref:rootRef,'data-xen-psylab':'true',children:[
-  u.jsx('h2',{children:'PSYCHEDELIC LAB'}),
-  u.jsx('p',{className:'xpl-sub',children:'Room IV. Feedback-FM hydra, organic breath/wave sources, pluck & sweep envelopes, vocal formants, endless Escher staircase, spiral echo, space cloud, grid crystals and Lorenz chaos — all on the Main Room grid.'}),
+  u.jsx('header',{className:'xpl-head',children:
+u.jsx('div',{className:'xpl-brand',children:
+    u.jsxs('div',{className:'xpl-head-copy',children:[
+     u.jsx('div',{className:'xpl-eyebrow',children:'Room IV · Synthesis Lab'}),
+     u.jsxs('div',{className:'xpl-title-row',children:[
+      u.jsxs('svg',{className:'xpl-emblem',viewBox:'0 0 64 64',fill:'none','aria-hidden':'true',children:[
+       u.jsxs('g',{fill:'#f0abfc',fillOpacity:.18,stroke:'#f0abfc',strokeOpacity:.84,strokeWidth:1.2,strokeLinejoin:'round',children:[
+        u.jsx('polygon',{points:'32,3.5 37.5,10.2 26.5,10.2'}),
+        u.jsx('polygon',{points:'60.5,32 53.8,37.5 53.8,26.5'}),
+        u.jsx('polygon',{points:'32,60.5 26.5,53.8 37.5,53.8'}),
+        u.jsx('polygon',{points:'3.5,32 10.2,26.5 10.2,37.5'}),
+        u.jsx('polygon',{points:'11.85,11.85 20.47,12.70 12.70,20.47'}),
+        u.jsx('polygon',{points:'52.15,11.85 43.53,12.70 51.30,20.47'}),
+        u.jsx('polygon',{points:'11.85,52.15 20.47,51.30 12.70,43.53'}),
+        u.jsx('polygon',{points:'52.15,52.15 43.53,51.30 51.30,43.53'})
+       ]}),
+       u.jsx('circle',{cx:32,cy:32,r:19.2,stroke:'#f0abfc',strokeOpacity:.78,strokeWidth:1.25}),
+       u.jsx('ellipse',{cx:32,cy:32,rx:14.2,ry:6.8,transform:'rotate(-28 32 32)',stroke:'#7eeeff',strokeOpacity:.88,strokeWidth:1.2}),
+       u.jsx('ellipse',{cx:32,cy:32,rx:14.2,ry:6.8,transform:'rotate(32 32 32)',stroke:'#f0abfc',strokeOpacity:.88,strokeWidth:1.2}),
+       u.jsx('circle',{cx:32,cy:32,r:6.4,stroke:'#ffd166',strokeOpacity:.72,strokeWidth:1.05}),
+       u.jsx('circle',{cx:32,cy:32,r:2.1,fill:'#f6f1ff'})
+      ]}),
+      u.jsx('h2',{children:window.__XenTitleArt?u.jsx(window.__XenTitleArt.Title,{react:P,room:'psylab',text:'Psychedelic Lab',height:31,smallHeight:24}):'Psychedelic Lab'})
+     ]}),
+     u.jsx('p',{className:'xpl-sub',children:'Room IV. Feedback-FM hydra, organic breath/wave sources, pluck & sweep envelopes, vocal formants, endless Escher staircase, spiral echo, space cloud, grid crystals and Lorenz chaos — all on the Main Room grid.'})
+    ]})
+   })}),
   u.jsxs('div',{className:'xpl-bar',children:[
    u.jsxs('select',{'aria-label':'Patch',value:selected,onChange:e=>onSelect(e.target.value),children:[u.jsx('option',{value:'',children:'Working patch'}),
     u.jsx('optgroup',{label:'Factory',children:FACTORY.map(p=>u.jsx('option',{value:p.id,children:p.name},p.id))}),
