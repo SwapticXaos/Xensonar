@@ -1284,5 +1284,6 @@ function XenMultitrackRoom(){
   eqOpen&&project.tracks.some(t=>t.id===eqOpen)?ao.createPortal(u.jsx('div',{className:'xen-eq-flyout','data-xmt-eq-panel':eqOpen,style:{left:Math.max(12,window.innerWidth-(eqWide?732:392)),top:90,width:Math.min(eqWide?720:380,window.innerWidth-24),maxHeight:window.innerHeight-110,'--xen-eq-canvas-height':'150px'},children:u.jsx(__XenEQPanel,{sourceKey:eqKey(eqOpen),owner:project.tracks.find(t=>t.id===eqOpen)?.name||'Track',onClose:()=>setEqOpen(null),expanded:eqWide,setExpanded:setEqWide},eqKey(eqOpen))}),document.body):null,
   u.jsx('div',{className:'muted',style:{marginTop:6},children:'Drag clips anywhere (also onto another track; Alt = copy), drag clip edges to trim, double-click a lane to add the chosen material. Keys: Space play/stop · L loop · S split · X crossfade an overlap · Ctrl+D duplicate · Ctrl+C/V · M mute · ↑/↓ other track · Delete · Ctrl+Z undo.'})]});
 }
-return Object.freeze({XenMultitrackRoom});
+/* FX-NET-01: the arrangement's Web Audio devices as building blocks for other hosts (the Wave Editor renders them offline) */
+return Object.freeze({XenMultitrackRoom,NodeFx:Object.freeze({buildSpiralBus,spiralOf,SPIRAL_DEF,buildMasterStrip,masterStripOf,MASTER_STRIP_DEF})});
 })()

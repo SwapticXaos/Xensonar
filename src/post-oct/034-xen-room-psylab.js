@@ -121,6 +121,8 @@ function psyLabWorkletModule(RANGE_LO,RANGE_HI,RANGE_DEF){
    this.quiet=0;this.sleepBlocks=Math.ceil(this.sr*1.5/BLOCK);
    // offline bounce: a fixed list of events by frame, no port traffic needed
    this.script=Array.isArray(o.script)?o.script.slice().sort((a,b)=>a.f-b.f):null;this.scriptAt=0;
+   /* FX-NET-01: effect mode – an audio INPUT runs through the same chain as the voices (filter, crystal, shifter, spiral echo, space, chaos, drive) */
+   this.fxIn=o.fxIn===true;
    this.port.onmessage=e=>this.handle(e.data);
   }
   setRes(list){let n=0;for(let i=0;i<list.length&&n<NRES;i++){const hz=+list[i];if(hz>20&&hz<this.sr*.45)this.rHz[n++]=hz}this.rN=n;this.rDirty=true}
@@ -148,9 +150,10 @@ function psyLabWorkletModule(RANGE_LO,RANGE_HI,RANGE_DEF){
    const out=outputs[0];if(!out||!out[0])return true;
    const oL=out[0],oR=out[1]||out[0],n=oL.length;
    if(this.script){const sc=this.script;while(this.scriptAt<sc.length&&sc[this.scriptAt].f<currentFrame+n){this.handle(sc[this.scriptAt].m);this.scriptAt++}}
+   const fin=this.fxIn&&inputs[0]&&inputs[0][0]?inputs[0]:null;if(fin){const a=fin[0];for(let i=0;i<a.length;i+=8)if(a[i]>1e-6||a[i]<-1e-6){this.quiet=0;break}} // effect mode: an input wakes the engine
    if(this.active===0&&this.quiet>=this.sleepBlocks)return true; // asleep: outputs are already zero
    if(n>this.bL.length){this.bL=new Float32Array(n);this.bR=new Float32Array(n)} // only if a host ever changes the quantum
-   this.control(n);this.voices(n);this.shape(n);this.formant(n);this.crystal(n);this.shifter(n);this.echo(n);this.space(n);this.output(n,oL,oR);
+   this.control(n);this.voices(n);if(fin){const a=fin[0],b=fin[1]||fin[0],bL=this.bL,bR=this.bR;for(let i=0;i<n;i++){bL[i]+=a[i];bR[i]+=b[i]}}this.shape(n);this.formant(n);this.crystal(n);this.shifter(n);this.echo(n);this.space(n);this.output(n,oL,oR);
    return true;
   }
   /* Stage methods take only the block length: number arguments or results would be boxed. Small functions are
@@ -429,6 +432,14 @@ async function bounce({params,res,notes,seconds,sampleRate}){
  let peak=0;for(let i=0;i<frames;i++){const a=Math.abs(L[i]),b=Math.abs(R[i]);if(a>peak)peak=a;if(b>peak)peak=b}
  return{left:L,right:R,sampleRate,peak}}
 
+/* FX-NET-01: any audio through a Psy Lab patch's effect chain (filter, crystal, shifter, spiral echo, space, chaos, drive), offline and deterministic.
+   Used by the Wave Editor (effect "Psy Lab FX"); the synth voices stay silent (no notes). channels: Float32Array[] (1 or 2), returns the same count. */
+async function fxRender({channels,sampleRate,params,res,mix=1}){
+ const Offline=globalThis.OfflineAudioContext||globalThis.webkitOfflineAudioContext,n=channels[0].length,ctx=new Offline(2,n,sampleRate);await loadModule(ctx);
+ const buf=ctx.createBuffer(2,n,sampleRate);buf.copyToChannel(channels[0],0);buf.copyToChannel(channels[1]||channels[0],1);
+ const src=ctx.createBufferSource();src.buffer=buf;const node=new AudioWorkletNode(ctx,'xen-psylab-v1',{numberOfInputs:1,numberOfOutputs:1,outputChannelCount:[2],channelCount:2,channelCountMode:'explicit',processorOptions:{params:params.slice(),res:(res||[220]).slice(),fxIn:true}});
+ const wet=ctx.createGain(),dry=ctx.createGain();wet.gain.value=mix;dry.gain.value=1-mix;src.connect(node);node.connect(wet);wet.connect(ctx.destination);src.connect(dry);dry.connect(ctx.destination);src.start(0);
+ const out=await ctx.startRendering();return channels.map((_,c)=>new Float32Array(out.getChannelData(channels.length===1?0:c)))}
 /* ---------- patches ---------- */
 /* A patch is a sound (the 39 numbers), not a tuning. `grid` is only a suggestion shown next to the patch. */
 const patch=(name,grid,over)=>{const params=defaultParams();for(const k in over)params[BY_KEY[k][0]]=over[k];return{id:'factory:'+name,name,grid,params}};
@@ -931,5 +942,7 @@ function XenPsyLabRoom(){
 }
 /* PsyEngine is exported on purpose: a host without a picture (a later Live Room hook-up: Enter / left mouse button / keyboard) loads this chunk on first use and
    creates new PsyEngine({visual:false}); no analyser, no canvas, no room UI. */
-return Object.freeze({XenPsyLabRoom,PsyEngine,LiveHost,__test:Object.freeze({PARAMS,RANGES,FACTORY,toUnit,fromUnit,sanitizePatch,sanitizeMetro,moduleCode,STORE_KEY,Metronome})});
+/* FX-NET-01: the patches a host can offer (factory first, then the user's own) and the offline effect render */
+const fxPatches=()=>{let user=[];try{user=loadStore()?.user||[]}catch{}return [...FACTORY,...user].map(p=>({id:p.id,name:p.name,params:p.params.slice()}))};
+return Object.freeze({XenPsyLabRoom,PsyEngine,LiveHost,fxRender,fxPatches,__test:Object.freeze({PARAMS,RANGES,FACTORY,toUnit,fromUnit,sanitizePatch,sanitizeMetro,moduleCode,STORE_KEY,Metronome})});
 })()

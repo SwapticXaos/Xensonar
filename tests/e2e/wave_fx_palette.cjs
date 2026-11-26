@@ -1,5 +1,5 @@
 'use strict';
-// FX-PALETTE-01 (real app): the Wave Editor offers Tuning Resonator and Material Resonator under "Add effect";
+// FX-PALETTE-01 / FX-NET-01 (real app): the Wave Editor offers Tuning Resonator, Material Resonator, Wavefolder and the room devices (Psy Lab FX, Spiral, Master Strip) under "Add effect";
 // "+ Effect" and "Apply / Bake" render them on the purple selection; the audio changes, no page errors; Undo restores it.
 // Usage: node tests/e2e/wave_fx_palette.cjs dist/XenSonar_PROBE.html
 const {chromium}=require('playwright');const assert=require('node:assert/strict');const path=require('node:path'),fs=require('node:fs'),os=require('node:os');
@@ -17,19 +17,27 @@ fs.writeFileSync(file,wav(meterMusic({bpm:120,S:4,dur:8}),SR));
  const FIND=`const c=[...document.querySelectorAll('canvas')].find(c=>c.offsetParent&&globalThis.__XenWaveUIW01.getEditor(c)&&globalThis.__XenWaveUIW01.enabled(c)),ed=c&&globalThis.__XenWaveUIW01.getEditor(c);`;
  const sum=()=>E(FIND+`(()=>{const d=ed.doc,ch=d.channels[0];let s=0;for(let i=0;i<ch.length;i+=97)s+=Math.abs(ch[i]);return s})()`);
  const options=await p.locator('select[aria-label="Add effect"] option').evaluateAll(os=>os.map(o=>o.value));
- for(const t of ['tuningResonator','materialResonator','wavefolder'])assert(options.includes(t),t+' is offered under Add effect: '+options.join(','));
+ for(const t of ['tuningResonator','materialResonator','wavefolder','psyLabFx','spiralFx','masterStripFx'])assert(options.includes(t),t+' is offered under Add effect: '+options.join(','));
  await E(FIND+`ed.doc=globalThis.__XenWaveCoreW01.setSelection(ed.doc,Math.round(1*ed.doc.sampleRate),Math.round(5*ed.doc.sampleRate));ed.applySelection();ed.refresh(false);'ok'`);await p.waitForTimeout(400);
  const results=[];
- for(const t of ['tuningResonator','materialResonator','wavefolder']){
+ for(const t of ['tuningResonator','materialResonator','wavefolder','psyLabFx','spiralFx','masterStripFx']){
   const before=await sum();
   await p.selectOption('select[aria-label="Add effect"]',t);await p.getByRole('button',{name:'+ Effect'}).click();await p.waitForTimeout(400);
+  /* FX-NET-01: named choices are selects; the Psy Lab patch list shows the Psy Lab's patches */
+  if(t==='psyLabFx'){const names=await p.locator('select[data-xwe-param="patch"] option').allInnerTexts();assert(names.includes('Barber Spiral')&&names.length>=5,'Psy Lab patches offered: '+names.slice(0,6).join(', '));await p.selectOption('select[data-xwe-param="patch"]',{label:'Barber Spiral'})}
+  if(t==='materialResonator'){const names=await p.locator('select[data-xwe-param="material"] option').allInnerTexts();assert.deepEqual(names,['Glass','Metal','Resin','Fungus','Dust','Plasma'])}
+  if(t==='tuningResonator'){const names=await p.locator('select[data-xwe-param="set"] option').allInnerTexts();assert(names.includes('Bohlen–Pierce'),'pitch sets: '+names.join(','))}
   await p.getByRole('button',{name:'Apply / Bake'}).first().click();
   let after=before;for(let i=0;i<60&&Math.abs(after-before)<1e-6;i++){await p.waitForTimeout(500);after=await sum()}
   assert(Number.isFinite(after)&&Math.abs(after-before)>1e-3,t+' changed the audio: '+before.toFixed(3)+' → '+after.toFixed(3));
   results.push(t+' '+before.toFixed(1)+'→'+after.toFixed(1));
  }
+ /* FX-NET-01: the Psy Lab chain really works on input audio (diff to the input, per patch) */
+ const psy=await p.evaluate(()=>window.__xenProbe.draw.evalInBundle(`(async()=>{const m=__xenLoadDeferred('psylab'),sr=48000,n=sr,x=new Float32Array(n);for(let i=0;i<n;i++)x[i]=.3*Math.sin(2*Math.PI*220*i/sr);
+  const r=[];for(const pat of m.fxPatches().slice(0,4)){const y=(await m.fxRender({channels:[x],sampleRate:sr,params:pat.params,mix:1}))[0];let d=0,e=0,bad=0;for(let i=0;i<n;i++){if(!Number.isFinite(y[i]))bad++;d+=(y[i]-x[i])**2;e+=x[i]*x[i]}r.push({name:pat.name,diff:Math.sqrt(d/e),bad})}return JSON.stringify(r)})()`));
+ for(const q of JSON.parse(await psy)){assert.equal(q.bad,0,q.name);assert(q.diff>.1,'Psy Lab patch '+q.name+' changes the input audio: '+q.diff.toFixed(3))}
  /* Undo restores the bakes */
- const baked=await sum();for(let k=0;k<3;k++){await E(FIND+`ed.runEdit('undo');'ok'`);await p.waitForTimeout(800)}
+ const baked=await sum();for(let k=0;k<6;k++){await E(FIND+`ed.runEdit('undo');'ok'`);await p.waitForTimeout(800)}
  const undone=await sum();assert(Math.abs(undone-baked)>1e-3,'Undo changes it back');
  assert.deepEqual(errors,[]);console.log('PASS FX-PALETTE-01 · '+results.join(' · ')+' · undo ok');await b.close();
 })().catch(e=>{console.error(e);process.exit(1)});

@@ -36,9 +36,13 @@
       fuzz:effect('Fuzz · Dynamic Bias','Verzerrung & Amp',{driveDb:p('Drive','dB',0,42,24,0),tone:p('Tone','',0,1,0.65),gate:p('Gate','',0,1,0.16,0),outputDb:p('Output','dB',-24,12,-3,0),wet:wet(1)},'Dynamischer Arbeitspunkt, hochverstärkte Begrenzung und einstellbares Gate: rauer Transistor-Fuzz-Charakter.'),
       ampCrunch:effect('Amp Crunch · Cascaded','Verzerrung & Amp',{driveDb:p('Drive','dB',0,42,16,0),tone:p('Tone','',0,1,0.50),bias:p('Bias','',-1,1,0.22,0),outputDb:p('Output','dB',-24,12,-1,0),wet:wet(1)},'Kaskadierte asymmetrische Sättigungsstufen, Eingangshochpass und Ausgangstonfilter, mit 4×-Antialiasing.'),
       /* FX-PALETTE-01 (from the Live Room's Collective Memory and Schwarmdeuter, rebuilt as offline DSP; see docs/REVIEW_LIVE_FX_2026-11-25.md) */
-      tuningResonator:effect('Tuning Resonator · Harmonic Memory','Resonance & Material',{memorySec:p('Memory (ring time)','s',0.05,12,1.6,null,true),set:Object.assign(p('Pitch set 0 Harmonics · 1 JI 5-limit · 2 JI 7-limit · 3 EDO · 4 Bohlen–Pierce','',0,4,2),{automateAllowed:false,step:1}),edo:Object.assign(p('EDO steps (set 3)','',5,72,31),{automateAllowed:false,step:1}),rootHz:Object.assign(p('Root (0 = from the audio)','Hz',0,2000,0,null,false),{automateAllowed:false}),lowHz:Object.assign(p('Lowest resonance','Hz',30,2000,60,null,true),{automateAllowed:false}),highHz:Object.assign(p('Highest resonance','Hz',400,16000,5000,null,true),{automateAllowed:false}),excite:p('Excite (saturation)','',0,1,0.2),spreadCents:Object.assign(p('Stereo detune','ct',0,40,7),{automateAllowed:false}),wet:wet(0.45)},'A bank of resonators on a pitch set: the harmonics or a just / EDO / Bohlen–Pierce scale over a root that is found in the audio itself ("harmonic memory") or typed. Memory = how long each tone rings. The resonance is level-matched to the input; Excite drives it.'),
-      materialResonator:effect('Material Resonator · Swarm Materials','Resonance & Material',{material:Object.assign(p('Material 0 glass · 1 metal · 2 resin · 3 fungus · 4 dust · 5 plasma','',0,5,0),{automateAllowed:false,step:1}),crystal:p('Crystal (resonance)','',0,1,0.5),fracture:p('Fracture (cracks on attacks)','',0,1,0.5),weave:p('Weave (stereo braid echo)','',0,1,0.4),undercurrent:p('Undercurrent (low bed)','',0,1,0.5),follow:p('Follow the audio','',0,1,0.7),wet:wet(0.55)},'Four material voices from the Swarm Interpreter – resonance (resin), cracks (fracture), a crossed stereo echo (braid) and a low undercurrent – shaped by six material profiles and steered by the loudness, attacks and brightness of the audio itself.'),
+      tuningResonator:effect('Tuning Resonator · Harmonic Memory','Resonance & Material',{memorySec:p('Memory (ring time)','s',0.05,12,1.6,null,true),set:Object.assign(p('Pitch set','',0,4,2),{automateAllowed:false,step:1,options:['Harmonics','JI 5-limit','JI 7-limit','EDO','Bohlen–Pierce']}),edo:Object.assign(p('EDO steps (set 3)','',5,72,31),{automateAllowed:false,step:1}),rootHz:Object.assign(p('Root (0 = from the audio)','Hz',0,2000,0,null,false),{automateAllowed:false}),lowHz:Object.assign(p('Lowest resonance','Hz',30,2000,60,null,true),{automateAllowed:false}),highHz:Object.assign(p('Highest resonance','Hz',400,16000,5000,null,true),{automateAllowed:false}),excite:p('Excite (saturation)','',0,1,0.2),spreadCents:Object.assign(p('Stereo detune','ct',0,40,7),{automateAllowed:false}),wet:wet(0.45)},'A bank of resonators on a pitch set: the harmonics or a just / EDO / Bohlen–Pierce scale over a root that is found in the audio itself ("harmonic memory") or typed. Memory = how long each tone rings. The resonance is level-matched to the input; Excite drives it.'),
+      materialResonator:effect('Material Resonator · Swarm Materials','Resonance & Material',{material:Object.assign(p('Material','',0,5,0),{automateAllowed:false,step:1,options:['Glass','Metal','Resin','Fungus','Dust','Plasma']}),crystal:p('Crystal (resonance)','',0,1,0.5),fracture:p('Fracture (cracks on attacks)','',0,1,0.5),weave:p('Weave (stereo braid echo)','',0,1,0.4),undercurrent:p('Undercurrent (low bed)','',0,1,0.5),follow:p('Follow the audio','',0,1,0.7),wet:wet(0.55)},'Four material voices from the Swarm Interpreter – resonance (resin), cracks (fracture), a crossed stereo echo (braid) and a low undercurrent – shaped by six material profiles and steered by the loudness, attacks and brightness of the audio itself.'),
       wavefolder:effect('Wavefolder · Spiral Fold','Distortion & Amp',{driveDb:p('Fold drive','dB',0,36,12,0),shape:p('Shape sine ↔ triangle','',0,1,0.3),symmetry:p('Symmetry (even harmonics)','',-1,1,0,0),wet:wet(1)},'From the Psychedelic Spiral: instead of clipping, the wave folds back on itself – bell-like, metallic overtones that grow with the drive. 4× oversampled, DC-free.'),
+      /* FX-NET-01: devices of other rooms as Wave Editor effects (engine 'graph': rendered offline through their own Web Audio / AudioWorklet code) */
+      psyLabFx:Object.assign(effect('Psy Lab FX · patch chain','Room Devices',{patch:Object.assign(p('Psy Lab patch','',0,127,0),{automateAllowed:false,step:1,optionsFrom:'psylabPatches'}),wet:Object.assign(wet(1),{automateAllowed:false})},'The effect chain of a Psy Lab patch on this audio: filter, crystal resonators, frequency shifter, spiral echo, space cloud, chaos and drive – the same engine as the Psy Lab room (your own patches included).'),{engine:'graph'}),
+      spiralFx:Object.assign(effect('Spiral · Multitrack bus','Room Devices',{drive:Object.assign(p('Fold','',0,1,.42),{automateAllowed:false}),color:Object.assign(p('Color','',0,1,.55),{automateAllowed:false}),motion:Object.assign(p('Motion','',0,1,.58),{automateAllowed:false}),feedback:Object.assign(p('Regen','',0,.9,.34),{automateAllowed:false}),wet:Object.assign(wet(.4),{automateAllowed:false})},'The Psychedelic Spiral send bus of the Multitrack on this audio: wavefolder, circling phasers, crossed stereo echo.'),{engine:'graph'}),
+      masterStripFx:Object.assign(effect('Master Strip · Glue Tape Air Limit','Room Devices',{glue:Object.assign(p('Glue','',0,1,.35),{automateAllowed:false}),tape:Object.assign(p('Tape','',0,1,0),{automateAllowed:false}),air:Object.assign(p('Air','dB',-6,9,0),{automateAllowed:false}),ceil:Object.assign(p('Limit ceiling','dB',-12,-.1,-1),{automateAllowed:false})},'The master strip of the Multitrack on this audio: bus compressor, tape saturation, air shelf and a soft limiter that never passes the ceiling.'),{engine:'graph'}),
     };
   }
 
@@ -661,7 +665,45 @@
   function validateRange(range,frames) {
     if(!range||!Number.isSafeInteger(range.start)||!Number.isSafeInteger(range.end)||range.start<0||range.end<range.start||range.end>frames) throw new RangeError('Ungültiger Framebereich.');
   }
-  function render(request,options) {
+  /* FX-NET-01 · graph effects: devices of other rooms (Psy Lab worklet, Multitrack Web Audio buses) rendered offline on the main thread with the SAME
+     selection / tail / write-back rules as the worker effects (selection replaced, tail overlaid or extending the document, 20 ms tail fade). */
+  const lazyRoom=name=>{try{return typeof __xenLoadDeferred==='function'?__xenLoadDeferred(name):null}catch{return null}};
+  const OfflineCtx=()=>global.OfflineAudioContext||global.webkitOfflineAudioContext;
+  async function renderNodeGraph(chs,sr,build){const Off=OfflineCtx();if(!Off)throw new Error('This browser has no OfflineAudioContext.');const n=chs[0].length,ctx=new Off(2,n,sr),buf=ctx.createBuffer(2,n,sr);
+    buf.copyToChannel(chs[0],0);buf.copyToChannel(chs[1]||chs[0],1);const src=ctx.createBufferSource();src.buffer=buf;await build(ctx,src,ctx.destination);src.start(0);const out=await ctx.startRendering();
+    return chs.map((_,c)=>new Float32Array(out.getChannelData(chs.length===1?0:c)))}
+  const GRAPH=Object.freeze({
+    psyLabFx:{tail:()=>8,options:{patch:()=>{const m=lazyRoom('psylab');return m?.fxPatches?m.fxPatches().map(x=>x.name):[]}},
+      async run(chs,sr,v){const m=lazyRoom('psylab');if(!m?.fxRender)throw new Error('The Psy Lab engine is not available.');const list=m.fxPatches(),pat=list[Math.round(v.patch)]||list[0];return m.fxRender({channels:chs,sampleRate:sr,params:pat.params,mix:v.wet})}},
+    spiralFx:{tail:v=>.31*(v.feedback>0?Math.min(40,Math.ceil(Math.log(.001)/Math.log(v.feedback))):1)+.5,
+      run(chs,sr,v){const m=lazyRoom('multitrack')?.NodeFx;if(!m)throw new Error('The Multitrack devices are not available.');
+        return renderNodeGraph(chs,sr,(ctx,src,dest)=>{const dry=ctx.createGain(),wet=ctx.createGain();dry.gain.value=1-v.wet;wet.gain.value=v.wet;src.connect(dry);dry.connect(dest);const bus=m.buildSpiralBus(ctx,v,wet);src.connect(bus.input);wet.connect(dest)})}},
+    masterStripFx:{tail:()=>.05,
+      run(chs,sr,v){const m=lazyRoom('multitrack')?.NodeFx;if(!m)throw new Error('The Multitrack devices are not available.');
+        return renderNodeGraph(chs,sr,(ctx,src,dest)=>{const st=m.buildMasterStrip(ctx,{...v,on:true});src.connect(st.input);st.output.connect(dest)})}}});
+  function graphOptions(type,key){const g=GRAPH[type];if(g?.options?.[key])try{return g.options[key]()}catch{return []}const d=registry[type]?.params?.[key];return d?.options||null}
+  function graphParams(node){const spec=registry[node.type],v={};for(const k of Object.keys(spec.params)){const d=spec.params[k],raw=node.params?.[k];v[k]=Math.max(d.min,Math.min(d.max,Number.isFinite(raw)?raw:d.default))}return v}
+  async function runGraphNode(channels,node,request){
+    const v=graphParams(node),frames=channels[0].length,range=node.targetRange||request.range,start=Math.max(0,Math.min(range.start,frames)),end=Math.max(start,Math.min(range.end,frames)),length=end-start;
+    if(!length||node.enabled===false||node.bypass===true||(v.wet!==undefined&&v.wet<=0))return {channels,report:{id:node.id,type:node.type,neutral:true}};
+    const idx=channels.length===2&&node.channels==='L'?[0]:channels.length===2&&node.channels==='R'?[1]:channels.map((_,i)=>i);
+    const mode=request.tailMode||'truncate',tail=mode==='truncate'?0:Math.ceil(Math.min(20,GRAPH[node.type].tail(v))*request.sampleRate),size=length+tail;
+    const input=idx.map(c=>{const a=new Float32Array(size);a.set(channels[c].subarray(start,end));return a});
+    const out=await GRAPH[node.type].run(input,request.sampleRate,v);
+    if(tail){const fade=Math.min(tail,Math.ceil(request.sampleRate*.02));for(const ch of out)for(let i=0;i<fade;i++)ch[size-fade+i]*=(fade-1-i)/Math.max(1,fade-1)}
+    const resultFrames=mode==='extend'?Math.max(frames,start+size):frames;let next=channels.map(c=>{const a=new Float32Array(resultFrames);a.set(c);return a});
+    for(let k=0;k<idx.length;k++){const t=next[idx[k]],o=out[k];for(let i=0;i<length;i++)t[start+i]=Number.isFinite(o[i])?o[i]:0;for(let i=length;i<size&&start+i<t.length;i++)if(Number.isFinite(o[i]))t[start+i]+=o[i]}
+    return {channels:next,report:{id:node.id,type:node.type,start,end,tailFrames:tail,engine:'graph'}}}
+  /* the public render: worker nodes in runs, graph nodes in between; a final worker pass (also with no nodes) measures peaks and clips as before */
+  async function renderStaged(request,options){options=options||{};const nodes=Array.isArray(request?.nodes)?request.nodes:[];
+    if(!nodes.some(n=>registry[n?.type]?.engine==='graph'))return renderWorker(request,options);
+    let channels=request.channels.map(c=>new Float32Array(c)),run=[];const effects=[],base=request.jobId===undefined?'w01-g'+(++serial):request.jobId;let step=0;
+    const flush=async(last)=>{if(!run.length&&!last)return;const r=await renderWorker({...request,jobId:base+'-'+(step++),channels,nodes:run},options);run=[];channels=r.channels;effects.push(...(r.metrics?.effects||[]));return r};
+    for(const node of nodes){if(registry[node?.type]?.engine!=='graph'){run.push(node);continue}
+      await flush(false);if(options.signal?.aborted)throw abortError();const g=await runGraphNode(channels,node,request);channels=g.channels;effects.push(g.report);
+      try{options.onProgress?.({jobId:base,documentId:request.documentId,revision:request.revision,progress:Math.min(.95,effects.length/nodes.length)})}catch{}}
+    const r=await flush(true);r.metrics={...r.metrics,effects};r.jobId=base;return r}
+  function renderWorker(request,options) {
     options=options||{};
     return new Promise((resolve,reject)=>{
       let job;
@@ -707,6 +749,6 @@
   function cancel(jobId){const job=jobs.get(jobId);if(job){job.cancel();return true;}return false;}
   function cancelDocument(documentId){for(const job of Array.from(jobs.values()))if(job.documentId===documentId)job.cancel();}
   function dispose(){for(const job of Array.from(jobs.values()))job.cancel();if(workerURL){global.URL.revokeObjectURL(workerURL);workerURL=null;}}
-  global.__XenWaveDSPW01=Object.freeze({version:'W01.1',registry,getRegistry:()=>registry,render,cancel,cancelDocument,dispose,capabilities:Object.freeze({worker:true,stereo:true,automation:true,tailModes:['truncate','overlay','extend'],pitchShift:false,timeStretch:false,/* the effect CHAIN has neither; the editor's Pitch / Time edit (MTW-03) uses the shared offline pitch engine */noiseReduction:false,declip:false})});
+  global.__XenWaveDSPW01=Object.freeze({version:'W01.1',registry,getRegistry:()=>registry,render:renderStaged,graphOptions,cancel,cancelDocument,dispose,capabilities:Object.freeze({worker:true,stereo:true,automation:true,tailModes:['truncate','overlay','extend'],pitchShift:false,timeStretch:false,/* the effect CHAIN has neither; the editor's Pitch / Time edit (MTW-03) uses the shared offline pitch engine */noiseReduction:false,declip:false})});
 })(typeof window!=='undefined'?window:globalThis);
 globalThis.__XenWaveDSPW01;
