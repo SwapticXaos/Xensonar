@@ -53,7 +53,17 @@ function __xenSongPartsEditFactory(storage=null){
   out.subParts=cuts.length?[startSec,...cuts].map((st,k,arr)=>{const en=k+1<arr.length?arr[k+1]:endSec;return {startSec:st,endSec:en,...stretch(st,en,S,grid,total),shade:shade(color,k)}}):null;
   return out;
  }
- function normalize(parts,grid,total){const n=parts.length;return parts.map((p,i)=>derive({...p,edited:p.edited??false},grid,i,n,total))}
+ /* SONG-PART-TAGS-01: repetition number (A1, A2 … only when the letter occurs more than once) and section letters (A1a, A1b …);
+    the repetition colour is the edge colour of a sent card. Palettes from __XenSongPartTint (main bundle) when present. */
+ const OCC=globalThis.__XenSongPartTint?.OCC_COLORS??['#4ade80','#f43f5e','#facc15','#22d3ee','#c084fc','#fb923c','#e2e8f0','#84cc16'];
+ const subLetter=k=>k<26?String.fromCharCode(97+k):'z'+(k-25);
+ function tagParts(parts){
+  const count={},seen={};for(const p of parts)count[p.label]=(count[p.label]||0)+1;
+  return parts.map(p=>{const occ=seen[p.label]=(seen[p.label]||0)+1,repeats=count[p.label],tag=p.label+(repeats>1?occ:'');
+   return {...p,occ,repeats,tag,occColor:repeats>1?OCC[(occ-1)%OCC.length]:null,
+    subParts:p.subParts?p.subParts.map((q,k)=>({...q,tag:tag+subLetter(k),subLetter:subLetter(k)})):p.subParts}});
+ }
+ function normalize(parts,grid,total){const n=parts.length;return tagParts(parts.map((p,i)=>derive({...p,edited:p.edited??false},grid,i,n,total)))}
  // editing starts from the parts as shown: sections found by the analysis become cuts the user can keep or remove
  const clean=p=>{const {subParts,...rest}=p;return {...rest,cuts:p.cuts??(subParts&&subParts.length>1?subParts.slice(1).map(q=>q.startSec):[])}};
  const within=(cuts,a,b)=>(cuts??[]).filter(t=>t>a+.05&&t<b-.05);
@@ -141,9 +151,11 @@ function __xenSongPartsEditFactory(storage=null){
   try{Object.keys(all).length?storage?.setItem(KIND_KEY+k,JSON.stringify(all)):storage?.removeItem(KIND_KEY+k)}catch{}listeners.forEach(f=>{try{f('kinds')}catch{}})}
  function decorate(parts,kd){if(!kd||!Object.keys(kd).length)return parts;return parts.map(p=>{const o=kd[p.label];if(!o)return p;const color=o.color||p.color;
   return {...p,...(o.name?{name:o.name}:{}),color,subParts:p.subParts?p.subParts.map((q,k)=>({...q,shade:o.color?shade(color,k):q.shade})):p.subParts}})}
- const displayName=p=>p?.name||p?.label||'';
+ /* "Verse 2" (named kind, repeated) · "Verse" · "A2" · "B"; a section: "Verse 2a" / "A2a" */
+ const displayName=p=>p?.name?p.name+(p.repeats>1?' '+p.occ:''):(p?.tag||p?.label||'');
+ const sectionName=(p,q)=>p?.name?displayName(p)+(p.repeats>1?'':' ')+(q?.subLetter??''):(q?.tag??'');
  /* the parts to show: the saved working copy (re-derived on the current grid) or the analysis, with names and colours */
- function current(asset,result){const v=load(asset),kd=kinds(asset);if(!v||!result?.ok)return {parts:decorate(result?.parts??[],kd),edited:false};
+ function current(asset,result){const v=load(asset),kd=kinds(asset);if(!v||!result?.ok)return {parts:decorate(tagParts(result?.parts??[]),kd),edited:false};
   return {parts:decorate(normalize(v.parts,result.grid,result.durationSec),kd),edited:true}}
  /* SONG-PARTS-MANUAL-01: the finished song analysis is kept per song (without the novelty curve), so a song that was analysed
     once shows its parts at once after a reload; a new song is only analysed when the strip is clicked. At most MAX_RESULTS songs. */
@@ -169,7 +181,7 @@ function __xenSongPartsEditFactory(storage=null){
  const SNAP_KEY='xensonar.songParts.snap.v1';
  function snapMode(){try{const v=storage?.getItem(SNAP_KEY);return v==='bar'||v==='beat'||v==='segment'||v==='off'?v:'bar'}catch{return 'bar'}}
  function setSnapMode(m){try{storage?.setItem(SNAP_KEY,m)}catch{}listeners.forEach(f=>{try{f('snap')}catch{}})}
- return Object.freeze({snapTime,snapRange,moveBoundary,split,merge,setLabel,addCut,subdivideEven,subdivideEvery,setCuts,moveCut,removeCut,clearCuts,shade,nextLetter,normalize,colorOf,keyOf,load,save,clear,kinds,setKind,decorate,displayName,loadResult,saveResult,clearResult,tonalList,tonalFor,saveTonal,clearTonal,current,snapMode,setSnapMode,
+ return Object.freeze({snapTime,snapRange,moveBoundary,split,merge,setLabel,addCut,subdivideEven,subdivideEvery,setCuts,moveCut,removeCut,clearCuts,shade,nextLetter,normalize,colorOf,keyOf,load,save,clear,kinds,setKind,decorate,displayName,sectionName,tagParts,subLetter,OCC_COLORS:OCC,loadResult,saveResult,clearResult,tonalList,tonalFor,saveTonal,clearTonal,current,snapMode,setSnapMode,
   subscribe:f=>(listeners.add(f),()=>listeners.delete(f))});
 }
 const __xenSongPartsEdit=__xenSongPartsEditFactory(typeof localStorage!=='undefined'?localStorage:null);

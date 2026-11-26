@@ -1858,6 +1858,13 @@ function __xenMaterialDisplayName(entry){
  try{return String(bs().entries.find(row=>row.id===entry.id)?.name??entry.name??'');}
  catch{return String(entry.name??'');}
 }
+/* SONG-PART-TAGS-01: a session colour wins; else a material from a song part shows its part colours
+   (body: letter colour over section shade, border: repetition colour) */
+function __xenQuickTint(entry){
+ const session=typeof __XenMetaSessions!=='undefined'?__XenMetaSessions.liveItemColor(entry):{};
+ if(Object.keys(session).length||entry?.kind!=='material'||typeof __XenSongPartTint==='undefined')return session;
+ return __XenSongPartTint.quickTint(__xenMaterialDisplayName(entry));
+}
 function __xenQuickEntryTitle(entry){
  if(entry.kind==='grid')return entry.name+' · '+(__xenQuickGridPatternShort(entry)==='CUS'?'Custom Mute Pattern (base: '+__xenGridModeName(entry.gridProfile?.modeId)+')':__xenGridModeName(entry.gridProfile?.modeId))+(entry.gridProfile?.bassEnabled?' · Bass Grid':'');
  const timed=['material','rootFollow','drum','bass'].includes(entry.kind);

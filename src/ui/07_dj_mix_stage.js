@@ -13,6 +13,17 @@ const __XenDjStage = (() => {
   const OPEN_KEY = 'xensonar.djStage.expanded.v1';
   const EQ_HEIGHT_KEY = 'xensonar.mixingDesk.eqHeight.v1';
   const DECK_COLORS = ['#f2b866', '#4fe3d2', '#a78bfa', '#6ee7b7', '#fb7185', '#38bdf8'];
+  /* SONG-PART-TAGS-01: "Song · A1b" → name "Song" + part chip A1b; style vars for the two-tone band and the edge */
+  function songPartView(name) {
+    const tint = typeof __XenSongPartTint !== 'undefined' ? __XenSongPartTint.tintFor(name) : null;
+    const label = __XenDjMixMath.compactTrackLabel(tint ? __XenSongPartTint.withTag(name, null) || name : name);
+    return {
+      tint,
+      label,
+      style: tint ? { '--sp-top': tint.top, '--sp-bottom': tint.bottom, '--sp-edge': tint.edge } : undefined,
+      cls: tint ? ' has-song-part' : ''
+    };
+  }
   const listeners = new Set();
 
   let savedEqHeight = 164;
@@ -1270,7 +1281,8 @@ const __XenDjStage = (() => {
       const isPrimary = id === primaryId;
       const data = __XenMaterialVoiceMix.get(id, voiceState);
       const fullName = labelFor(id);
-      const parsedName = __XenDjMixMath.compactTrackLabel(fullName);
+      const partView = songPartView(fullName);
+      const parsedName = partView.label;
       const metric = deckMetrics[idx] || metricFor(id);
       const bus = dj.buses[id] || 'THRU';
       const baseVol = typeof dj.baseVolumes[id] === 'number' ? dj.baseVolumes[id] : readLiveVolume(id, primaryId, params);
@@ -1288,8 +1300,9 @@ const __XenDjStage = (() => {
       const nudgeStep = metric.segmentsPerBar > 0 ? Number((4 / (metric.segmentsPerBar * 4)).toFixed(3)) : 0.0625;
 
       return u.jsxs('article', {
-        className: 'xen-dj-strip' + (bus === 'A' ? ' is-bus-a' : bus === 'B' ? ' is-bus-b' : '') + (isMuted || (dj.soloId && !isSolo) ? ' is-muted' : ''),
+        className: 'xen-dj-strip' + (bus === 'A' ? ' is-bus-a' : bus === 'B' ? ' is-bus-b' : '') + (isMuted || (dj.soloId && !isSolo) ? ' is-muted' : '') + partView.cls,
         'data-xen-dj-deck': id,
+        style: partView.style,
         children: [
           // 1. Strip Header with XenSonar Time-Truth Metric Tag
           u.jsxs('div', {
@@ -1302,7 +1315,7 @@ const __XenDjStage = (() => {
                   u.jsxs('div', {
                     className: 'xen-dj-strip-name',
                     children: [
-                      u.jsx('strong', { title: fullName, children: parsedName.primary }),
+                      u.jsxs('strong', { title: fullName, children: [partView.tint ? u.jsx(__XenSongPartChip, { name: fullName, small: true }) : null, parsedName.primary] }),
                       u.jsx('span', {
                         className: metric.isFractional ? 'is-poly' : '',
                         title: 'Taktwahrheit: ' + metric.label + (metric.hasLiveBarEdit ? ' (Bar-Edit aktiv)' : ''),
@@ -1927,7 +1940,7 @@ const __XenDjStage = (() => {
                   onClick: () => setState({ openEqKey: dj.openEqKey === eqKey ? null : eqKey, openEqOwner: fullName }),
                   children: [
                     u.jsx('i', { className: 'xen-dj-spectrum-dot', style: { background: color } }),
-                    u.jsx('span', { children: __XenDjMixMath.compactTrackLabel(fullName).primary })
+                    u.jsxs('span', { children: [songPartView(fullName).tint ? u.jsx(__XenSongPartChip, { name: fullName, small: true }) : null, songPartView(fullName).label.primary] })
                   ]
                 }, 'leg-' + id);
               })
@@ -2015,17 +2028,19 @@ const __XenDjStage = (() => {
                   const inRack = rackIdSet.has(item.id);
                   const slot = slotNumber(item.id);
                   const m = metricFor(item.id);
-                  const parsed = __XenDjMixMath.compactTrackLabel(item.name);
+                  const partView = songPartView(item.name);
+                  const parsed = partView.label;
                   const isCueing = previewId === item.id;
                   const canCue = typeof __XenMaterialStandalonePreview !== 'undefined' && __XenMaterialStandalonePreview.canPreview(item.id);
                   return u.jsxs('div', {
-                    className: 'xen-dj-crate-item' + (isLive ? ' is-live' : ''),
+                    className: 'xen-dj-crate-item' + (isLive ? ' is-live' : '') + partView.cls,
+                    style: partView.style,
                     children: [
                       u.jsx('span', { className: 'xen-dj-crate-slot', children: slot != null ? '#' + slot : 'L' + (idx + 1) }),
                       u.jsxs('div', {
                         className: 'xen-dj-crate-meta',
                         children: [
-                          u.jsx('span', { className: 'xen-dj-crate-name', title: item.name, children: parsed.primary }),
+                          u.jsxs('span', { className: 'xen-dj-crate-name', title: item.name, children: [partView.tint ? u.jsx(__XenSongPartChip, { name: item.name, small: true }) : null, parsed.primary] }),
                           u.jsx('span', { className: 'xen-dj-crate-sub', children: (isLive ? '● LIVE' : (parsed.group || (inRack ? 'Quick Rack' : 'Library'))) + ' · ' + m.label + (m.bpm ? ' · ' + m.bpm + 'bpm' : '') })
                         ]
                       }),

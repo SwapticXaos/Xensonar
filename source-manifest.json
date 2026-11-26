@@ -186,6 +186,7 @@
     "src/ui/07_dj_mix_stage.js",
     "src/ui/08_stage_layout.js",
     "src/ui/09_hold_interval.js",
+    "src/ui/10_song_part_tint.js",
     "src/post-oct/gaps/010-main-bundle__02_after_03_quick_menu__after_eq-core__after_eq-ui.js",
     "src/mix/03_meta_menu__before_v2-session-store.js",
     "src/sessions/v2-session-store.js",

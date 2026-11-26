@@ -1948,3 +1948,19 @@
   background: linear-gradient(180deg, #68341c 0%, #3d1d10 100%);
   color: #fff3de;
 }
+
+/* SONG-PART-TAGS-01: material from a song part (Wave Editor): two-tone chip A1b (top = letter colour, bottom = section shade,
+   ring = repetition colour); deck strips and crate items carry the same edge and a two-tone band on the left */
+.xen-song-part-chip {
+  display: inline-flex; align-items: center; justify-content: center; flex: 0 0 auto;
+  min-width: 26px; height: 18px; padding: 0 5px; margin-right: 6px; border-radius: 4px;
+  font: 800 10px/1 system-ui, sans-serif; letter-spacing: .02em; color: #020617; vertical-align: middle;
+  background: linear-gradient(180deg, var(--sp-top) 0 55%, var(--sp-bottom) 55% 100%);
+  box-shadow: 0 0 0 2px var(--sp-edge), 0 1px 3px rgba(0, 0, 0, .5);
+}
+.xen-song-part-chip.is-small { min-width: 22px; height: 15px; font-size: 9px; padding: 0 4px; margin-right: 5px; box-shadow: 0 0 0 1.5px var(--sp-edge); }
+.xen-dj-strip.has-song-part, .xen-dj-crate-item.has-song-part { position: relative; border-color: var(--sp-edge); }
+.xen-dj-strip.has-song-part::before, .xen-dj-crate-item.has-song-part::before {
+  content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 4px; border-radius: 4px 0 0 4px; pointer-events: none;
+  background: linear-gradient(180deg, var(--sp-top) 0 55%, var(--sp-bottom) 55% 100%);
+}

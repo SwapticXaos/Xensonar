@@ -395,3 +395,5 @@ canvas[data-xwe-workspace-resize="true"][data-xwe-workspace-edge="true"]{cursor:
  .xwe-fx-layout[data-xwe-fx-focus="scratch"] .xwe-fx-controls>.xwe-toolbar,
  .xwe-fx-layout[data-xwe-fx-focus="scratch"] .xwe-fx-controls>.xwe-chain{box-sizing:border-box;max-width:calc(55% - 12px);flex-wrap:wrap}
 }
+/* SONG-PART-TAGS-01: the repetition of a part (A1, A2 …) as a coloured frame – the same edge colour its sent card gets */
+.xwe-song-occ{position:absolute;inset:0;pointer-events:none;box-shadow:inset 0 0 0 2px var(--occ)}
