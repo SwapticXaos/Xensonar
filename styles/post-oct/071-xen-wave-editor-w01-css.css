@@ -385,3 +385,13 @@ canvas[data-xwe-workspace-resize="true"][data-xwe-workspace-edge="true"]{cursor:
 .xwe-meter-preview-note{color:#94a3b8;font-size:11px;flex:1}
 
 .xwe-song-start{position:relative;overflow:hidden}.xwe-song-start::after{content:'';position:absolute;left:0;bottom:0;height:3px;width:100%;background:#38bdf8;transform-origin:left;animation:xwe-song-auto 1.6s linear forwards}@keyframes xwe-song-auto{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+
+/* FX-CHAIN-VIS-01: with the floating Scratchpad (focus "morph", and every width <= 900 px) the effect chain and the add / bypass row stay in the column LEFT of it
+   and wrap there – before, a longer chain (several effects in a row) grew to the right underneath the Scratchpad and was covered / unreachable. */
+.xwe-fx-layout[data-xwe-fx-focus="morph"] .xwe-fx-controls>.xwe-toolbar,
+.xwe-fx-layout[data-xwe-fx-focus="morph"] .xwe-fx-controls>.xwe-chain{box-sizing:border-box;max-width:calc(57% - 16px);flex-wrap:wrap}
+.xwe-fx-layout[data-xwe-fx-focus="morph"] .xwe-fx-controls>.xwe-chain .xwe-node{min-width:0;max-width:100%}
+@media(max-width:900px){
+ .xwe-fx-layout[data-xwe-fx-focus="scratch"] .xwe-fx-controls>.xwe-toolbar,
+ .xwe-fx-layout[data-xwe-fx-focus="scratch"] .xwe-fx-controls>.xwe-chain{box-sizing:border-box;max-width:calc(55% - 12px);flex-wrap:wrap}
+}

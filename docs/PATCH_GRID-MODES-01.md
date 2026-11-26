@@ -28,3 +28,12 @@ Jetzt (`038-xen-grid-modes.js`) dieselben Bausteine wie das Tuning-Rack (`U6`):
 - Quick-Access-Dock (`03_quick_menu__after_eq-core__after_eq-ui.js`): Zeilen der Art `gridmode` sortieren in ihrer Zone, werden aber nie ein Quick-Access-Eintrag.
 
 Prüfung: `tests/e2e/grid_modes_workbench.cjs` mit echten Mausgesten: Tauschen (Mitte), davor und dahinter einfügen (Ränder), Bibliothek → Slots (einfügen / ersetzen / schon vorhanden), kein Quick-Access-Eintrag. Auf dem Stand davor scheitert der erste Tausch. Regression grün: `grid_drag_selection`, `key_owner_guard`, `grid_visible`, `ld2_layout_browser`, `meta_copy_root_follow`, `grid_modes.test.cjs`.
+
+## FX-CHAIN-VIS-01 (Wave Editor): die Effektkette läuft nicht mehr unter das Scratchpad
+Nutzer: Schaltet man viele Effekte hintereinander, wachsen die Anzeigen nach rechts in das Scratchpad und werden von ihm überdeckt, unerreichbar.
+
+Ursache (`styles/post-oct/071-xen-wave-editor-w01-css.css`): Im Standardmodus („morph“) und bei Fensterbreiten ≤ 900 px schwebt das Scratchpad **absolut** rechts oben (43–45 % Breite) über dem Effektbereich. Parameter (`max-width` 56 %) und Morph-Fläche (`--xwe-morph-reserve`) weichen ihm aus; die Kette und die Zeile „Add effect · + Effect · Live-Room EQ · Bypass Chain“ nicht. Sie liefen über die volle Breite, die Glieder 3 und 4 sowie „Bypass“ lagen unter dem Scratchpad.
+
+Änderung (nur CSS): Kette und Zeile bleiben links vom Scratchpad (`max-width: calc(57% - 16px)`, bei ≤ 900 px im Scratch-Modus 55 %) und **brechen dort um**; Kettenglieder dürfen schrumpfen. Der Scratchpad-Modus mit zwei Spalten war nie betroffen.
+
+Prüfung: `tests/e2e/wave_chain_visible.cjs` hängt zehn Effekte hintereinander und prüft bei 1500, 1200, 1000 und 880 px, dass jedes Kettenglied und jedes Bedienelement der Add-Zeile das Scratchpad nicht überlappt, im Fenster liegt und am Mittelpunkt das oberste Element ist (anklickbar). Grün. Gegenprobe auf dem Stand davor: Glied 3 und 4 sind verdeckt. Regression grün: `wave_fx_palette`, `mtw03_wave_pitch_time`.
