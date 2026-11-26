@@ -144,6 +144,18 @@ function __XenStageSplit({ stage, desk }) {
       }
       const h = Math.max(64, Math.min(900, Math.round(bottom - top + 12)));
       root.style.setProperty('--xen-ghost-h', h + 'px');
+      // full bleed: the desk/playfield row uses the whole window width, not the column of the blocks below
+      const parent = root.parentElement;
+      if (parent) {
+        const vw = document.documentElement.clientWidth || window.innerWidth;
+        const gutter = vw >= 1024 ? 10 : 6;
+        const left = parent.getBoundingClientRect().left;
+        root.style.setProperty('--xen-bleed-ml', Math.round(gutter - left) + 'px');
+        root.style.setProperty('--xen-bleed-w', Math.max(320, vw - 2 * gutter) + 'px');
+      }
+      // default playfield height = Mixing Desk height (until the user drags its own height)
+      const deskEl = root.querySelector('.xen-stage-split-desk');
+      if (deskEl) root.style.setProperty('--xen-play-auto-h', Math.max(140, Math.round(deskEl.getBoundingClientRect().height) - 2) + 'px');
     };
     const schedule = () => { if (!raf) raf = requestAnimationFrame(measure); };
     measure();
@@ -151,12 +163,16 @@ function __XenStageSplit({ stage, desk }) {
     try {
       ro = new ResizeObserver(schedule);
       for (const el of document.querySelectorAll('.xen-performance,.xen-quick-dock')) ro.observe(el);
+      const deskEl = root.querySelector('.xen-stage-split-desk');
+      if (deskEl) ro.observe(deskEl);
+      if (root.parentElement) ro.observe(root.parentElement);
     } catch {}
     window.addEventListener('resize', schedule);
     return () => {
       if (raf) cancelAnimationFrame(raf);
       ro?.disconnect();
       window.removeEventListener('resize', schedule);
+      for (const k of ['--xen-bleed-ml', '--xen-bleed-w', '--xen-play-auto-h']) root.style.removeProperty(k);
     };
   }, [dock]);
 
@@ -216,8 +232,8 @@ function __XenStageSplit({ stage, desk }) {
         className: 'xen-stage-split-vgrip',
         role: 'separator',
         'aria-orientation': 'horizontal',
-        'aria-label': 'Rasterhöhe ziehen (Doppelklick: Originalhöhe)',
-        title: 'Raster höher / flacher ziehen · Doppelklick: Originalverhältnis 1100:580',
+        'aria-label': dock === 'side' ? 'Rasterhöhe ziehen (Doppelklick: Höhe wie Mixing Desk)' : 'Rasterhöhe ziehen (Doppelklick: Originalhöhe)',
+        title: dock === 'side' ? 'Raster länger / kürzer ziehen · Doppelklick: so hoch wie das Mixing Desk' : 'Raster höher / flacher ziehen · Doppelklick: Originalverhältnis 1100:580',
         tabIndex: 0,
         onPointerDown: onVgripDown,
         onKeyDown: onVgripKey,

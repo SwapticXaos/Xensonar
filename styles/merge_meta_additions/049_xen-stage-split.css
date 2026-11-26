@@ -1,7 +1,8 @@
 /* UI-LIQUID-01: Liquid stage split (play surface ↔ Mixing Desk).
  * Same DOM in both docks: .xen-stage-split > play | vgrip | ghost | handle | desk.
  * dock=top : play surface above (between the side rails, as before), desk below, schematic thumb on the desk's right edge.
- * dock=side: inactive ghost stays above between the rails; below, full width: desk (left, flush) | handle | playfield (right).
+ * dock=side: inactive ghost stays above between the rails; below, FULL WINDOW WIDTH (not the column of the blocks below):
+ *            desk (flush left) | handle | playfield (flush right). Playfield height defaults to the desk height.
  */
 .xen-stage-split { position: relative; display: flex; flex-direction: column; gap: 1rem; }
 
@@ -19,6 +20,8 @@
 
 /* user height of the playfield (non-uniform scale, pointer maths follows the element rect) */
 .xen-stage-split[data-play-h="custom"] canvas[data-xen-play-area] { height: var(--xen-play-h) !important; }
+/* side dock without own height: as tall as the Mixing Desk (measured, --xen-play-auto-h) */
+.xen-stage-split[data-dock="side"][data-play-h="natural"] canvas[data-xen-play-area] { height: var(--xen-play-auto-h, auto) !important; }
 
 /* ── grips ── */
 .xen-stage-split-vgrip {
@@ -71,6 +74,8 @@ html.xen-split-dragging .xen-stage-split-handle { cursor: ew-resize !important; 
     "desk  handle play"
     "desk  handle vgrip";
   row-gap: 0; column-gap: 0; align-items: start;
+  /* full bleed: measured from the window, so the side rails' column does not limit the row */
+  box-sizing: border-box; margin-left: var(--xen-bleed-ml, 0); width: var(--xen-bleed-w, 100%); max-width: none;
 }
 /* flatten play wrapper + tonal stage so its two parts (header, canvas) become grid items: no remount */
 .xen-stage-split[data-dock="side"] > .xen-stage-split-play,

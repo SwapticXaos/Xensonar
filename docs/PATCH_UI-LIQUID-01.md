@@ -4,9 +4,9 @@ Basis: `claude/charming-franklin-wouegz` (MIX-DESK-01).
 
 ## Verhalten
 - **Mixing Desk offen, Spielfläche oben:** rechts am Desk eine schmale, ausgegraute Raster-Miniatur. Klick → Spielfläche wandert neben das Desk.
-- **Seitenmodus:** Desk links (bündig), Trenngriff, Spielfläche rechts. Oben bleibt ein inaktiver Platzhalter zwischen den Seitenleisten; Klick darauf (oder `↑` am Griff) holt die Spielfläche zurück.
+- **Seitenmodus:** Desk links, Trenngriff, Spielfläche rechts – über die **volle Fensterbreite** (10 px Rand), unabhängig von der Spaltenbreite der Blöcke darunter (gemessen, kein horizontales Scrollen). Standardhöhe der Spielfläche = Höhe des Mixing Desks. Oben bleibt ein inaktiver Platzhalter zwischen den Seitenleisten; Klick darauf (oder `↑` am Griff) holt die Spielfläche zurück.
 - **Grenze verschieben:** Griff ziehen (28–80 % Desk-Anteil), Pfeiltasten ←/→ (Shift = grob), Doppelklick = Standard 62 %.
-- **Rasterhöhe:** Griff unter der Spielfläche ziehen (140–1600 px, je Modus getrennt gespeichert), Pfeiltasten ↑/↓, Doppelklick = Originalverhältnis 1100:580.
+- **Rasterhöhe:** Griff unter der Spielfläche ziehen (140–1600 px, je Modus getrennt gespeichert), Pfeiltasten ↑/↓, Doppelklick = Standard (Seitenmodus: Desk-Höhe, oben: Originalverhältnis 1100:580).
 - **Controls & Settings → Pointer & Grid → Grid Spacing:** `Absolute` (wie bisher, gleiche Hz pro Pixel) oder `Logarithmic` (jede Oktave gleich hoch). Gilt für Bild **und** Tonhöhe (Qa/Zs) sowie das Installations-Ballraster.
 - Desk geschlossen → immer klassisches Layout; die Wahl bleibt gespeichert (`xensonar.stageLayout.v1`).
 
