@@ -1858,12 +1858,23 @@ function __xenMaterialDisplayName(entry){
  try{return String(bs().entries.find(row=>row.id===entry.id)?.name??entry.name??'');}
  catch{return String(entry.name??'');}
 }
-/* SONG-PART-TAGS-01: a session colour wins; else a material from a song part shows its part colours
-   (body: letter colour over section shade, border: repetition colour) */
+/* SONG-PART-TAGS-01/02: colour code of an entry (any kind whose title ends with a song-part designation " · A1b", e.g. a Material
+   Track, Root Follow Loop or Pink Track sent from the Wave Editor): by default the part colours – card body (background) = main
+   rubric (the kind's colour), border = sub rubric (section / repetition; one colour = twice the same). A session colour set in the
+   Meta-Menu overrides per channel. The session colours live only in the sessions, never in the library entry. */
+function __xenPartCardColors(entry){
+ if(typeof __XenSongPartTint==='undefined'||!entry)return {};
+ const name=entry.kind==='material'?__xenMaterialDisplayName(entry):String(entry.name??'');
+ return __XenSongPartTint.cardColors(name);
+}
 function __xenQuickTint(entry){
  const session=typeof __XenMetaSessions!=='undefined'?__XenMetaSessions.liveItemColor(entry):{};
- if(Object.keys(session).length||entry?.kind!=='material'||typeof __XenSongPartTint==='undefined')return session;
- return __XenSongPartTint.quickTint(__xenMaterialDisplayName(entry));
+ return {...__xenPartCardColors(entry),...session};
+}
+/* the Meta-Menu editor: the draft session's colour over the part colours */
+function __xenMetaItemTint(entry){
+ const session=typeof __XenMetaSessions!=='undefined'&&entry?__XenMetaSessions.itemColor(entry):{};
+ return {...__xenPartCardColors(entry),...session};
 }
 function __xenQuickEntryTitle(entry){
  if(entry.kind==='grid')return entry.name+' · '+(__xenQuickGridPatternShort(entry)==='CUS'?'Custom Mute Pattern (base: '+__xenGridModeName(entry.gridProfile?.modeId)+')':__xenGridModeName(entry.gridProfile?.modeId))+(entry.gridProfile?.bassEnabled?' · Bass Grid':'');

@@ -13,15 +13,22 @@ const __XenDjStage = (() => {
   const OPEN_KEY = 'xensonar.djStage.expanded.v1';
   const EQ_HEIGHT_KEY = 'xensonar.mixingDesk.eqHeight.v1';
   const DECK_COLORS = ['#f2b866', '#4fe3d2', '#a78bfa', '#6ee7b7', '#fb7185', '#38bdf8'];
-  /* SONG-PART-TAGS-01: "Song · A1b" → name "Song" + part chip A1b; style vars for the two-tone band and the edge */
-  function songPartView(name) {
+  /* SONG-PART-TAGS-01/02: "Song · A1b" → name "Song" + part chip A1b. The colour code of the entry is the one its Quick Rack card
+     shows (__xenQuickTint: a session colour wins, else the song-part colours): border = sub rubric, body = main rubric.
+     No colour code → plain look. */
+  function songPartView(name, id = null) {
     const tint = typeof __XenSongPartTint !== 'undefined' ? __XenSongPartTint.tintFor(name) : null;
     const label = __XenDjMixMath.compactTrackLabel(tint ? __XenSongPartTint.withTag(name, null) || name : name);
+    let card = {};
+    try {
+      card = typeof __xenQuickTint === 'function' ? __xenQuickTint({ kind: 'material', id: id ?? name, name }) : (tint ? __XenSongPartTint.cardColors(name) : {});
+    } catch { card = tint ? __XenSongPartTint.cardColors(name) : {}; }
+    const has = !!card?.border;
     return {
       tint,
       label,
-      style: tint ? { '--sp-top': tint.top, '--sp-bottom': tint.bottom, '--sp-edge': tint.edge } : undefined,
-      cls: tint ? ' has-song-part' : ''
+      style: has ? { '--sp-main': tint ? tint.main : card.border, '--sp-sub': card.border, '--sp-card': card.background || card.border } : undefined,
+      cls: has ? ' has-song-part' : ''
     };
   }
   const listeners = new Set();
@@ -1281,7 +1288,7 @@ const __XenDjStage = (() => {
       const isPrimary = id === primaryId;
       const data = __XenMaterialVoiceMix.get(id, voiceState);
       const fullName = labelFor(id);
-      const partView = songPartView(fullName);
+      const partView = songPartView(fullName, id);
       const parsedName = partView.label;
       const metric = deckMetrics[idx] || metricFor(id);
       const bus = dj.buses[id] || 'THRU';
@@ -1940,7 +1947,7 @@ const __XenDjStage = (() => {
                   onClick: () => setState({ openEqKey: dj.openEqKey === eqKey ? null : eqKey, openEqOwner: fullName }),
                   children: [
                     u.jsx('i', { className: 'xen-dj-spectrum-dot', style: { background: color } }),
-                    u.jsxs('span', { children: [songPartView(fullName).tint ? u.jsx(__XenSongPartChip, { name: fullName, small: true }) : null, songPartView(fullName).label.primary] })
+                    u.jsxs('span', { children: [songPartView(fullName, id).tint ? u.jsx(__XenSongPartChip, { name: fullName, small: true }) : null, songPartView(fullName, id).label.primary] })
                   ]
                 }, 'leg-' + id);
               })
@@ -2028,7 +2035,7 @@ const __XenDjStage = (() => {
                   const inRack = rackIdSet.has(item.id);
                   const slot = slotNumber(item.id);
                   const m = metricFor(item.id);
-                  const partView = songPartView(item.name);
+                  const partView = songPartView(item.name, item.id);
                   const parsed = partView.label;
                   const isCueing = previewId === item.id;
                   const canCue = typeof __XenMaterialStandalonePreview !== 'undefined' && __XenMaterialStandalonePreview.canPreview(item.id);

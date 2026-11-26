@@ -1,3 +1,14 @@
+/* EQ-NODRAG-01: painting in an EQ (Mixing Desk, Quick Rack lanes) while some text of the page was selected made the browser
+ * drag that selection out of the drawing surface – the whole page as a translucent ghost, the EQ unusable until the drag ended.
+ * A drawing surface never starts a native drag: a selection is dropped when a stroke begins, and a dragstart whose source is a
+ * canvas or an EQ panel (nothing there is draggable on purpose) is cancelled. Explicitly draggable elements are untouched. */
+if(typeof window!=='undefined'&&!window.__xenNoCanvasDragV1){
+ window.__xenNoCanvasDragV1=true;
+ window.addEventListener('dragstart',e=>{const t=e.target,el=t&&t.nodeType===1?t:t?.parentElement;
+  if(!el||el.closest?.('[draggable="true"]'))return;
+  if(el.tagName==='CANVAS'||el.closest?.('.xen-eq-panel,[data-eq-paint]')){e.preventDefault();e.stopImmediatePropagation()}},true);
+ window.addEventListener('pointerdown',e=>{if(e.button===0&&e.target?.closest?.('[data-eq-paint]')){try{const s=window.getSelection();if(s&&!s.isCollapsed)s.removeAllRanges()}catch{}}},true);
+}
 /* The mini editor is G$, the existing MWCM component. Only its presentation,
  * fixed brush radius and frequency-specific canvas painter are specialized. */
 // EQ-P5: acoustic geometry, not a fitted/visually smoothed drawing.

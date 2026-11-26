@@ -13,11 +13,12 @@ test('parse and replace the designation',()=>{
  assert.equal(T.withTag('My Song','A1a'),'My Song · A1a');assert.equal(T.withTag('My Song · A1a','B2'),'My Song · B2','an old tag is replaced');
  assert.equal(T.withTag('My Song · A1a',null),'My Song');
 });
-test('colours from the tag, remembered colours win',()=>{
+test('two colours like a card: main rubric (kind) and sub rubric (section, else repetition, else main again); remembered colours win',()=>{
  const T=load();
  const a=T.tintFor('S · A1'),a2=T.tintFor('S · A2'),b=T.tintFor('S · B'),s=T.tintFor('S · A1b');
- assert.equal(a.top,T.LETTER_COLORS[0]);assert.equal(a.edge,T.OCC_COLORS[0]);assert.equal(a2.edge,T.OCC_COLORS[1]);
- assert.equal(b.edge,b.top,'not repeated: no own edge colour');assert.equal(s.bottom,T.shade(T.LETTER_COLORS[0],1));assert.equal(a.bottom,a.top);
- T.remember('S · A1',{tag:'A1',top:'#123456',edge:'#abcdef',bottom:'#123456'});assert.equal(T.tintFor('S · A1').top,'#123456');
- assert.equal(T.quickTint('Pattern A').border,undefined,'untagged material keeps its normal card');assert.equal(T.quickTint('S · A1').border,'#abcdef');
+ assert.equal(a.main,T.LETTER_COLORS[0]);assert.equal(a.sub,T.OCC_COLORS[0],'A1: sub = repetition colour');assert.equal(a2.sub,T.OCC_COLORS[1]);
+ assert.equal(b.sub,b.main,'B (one colour): twice the same colour');assert.equal(s.sub,T.shade(T.LETTER_COLORS[0],1),'A1b: sub = section shade');
+ const card=T.cardColors('S · A1');assert.equal(card.border,T.OCC_COLORS[0],'card border = sub rubric');assert.match(card.background,/^#[0-9a-f]{6}$/,'card body = main rubric (darkened, session format)');
+ T.remember('S · A1',{tag:'A1',main:'#123456',sub:'#abcdef'});assert.deepEqual(T.tintFor('S · A1'),{tag:'A1',main:'#123456',sub:'#abcdef'});
+ assert.deepEqual(T.cardColors('Pattern A'),{},'untagged material keeps its normal card');assert.equal(T.cardColors('S · A1').border,'#abcdef');
 });

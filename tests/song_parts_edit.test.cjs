@@ -94,3 +94,11 @@ test('SONG-PART-TAGS-01: repetition number only for repeated letters (A1, A2), s
  const named=E.decorate(q,{A:{name:'Verse'}});assert.equal(E.sectionName(named[0],named[0].subParts[0]),'Verse 1a');
  const nb=E.decorate(q,{B:{name:'Bridge'}});assert.equal(E.sectionName(nb[1],nb[1].subParts[2]),'Bridge c');
 });
+test('SONG-PART-TAGS-02: a mask belongs to the unit that CONTAINS it: section, else part (across its sections), else none',()=>{
+ const {E,parts}=base();const p=E.subdivideEven(parts,0,2,grid,total);// A1 0–16 (A1a 0–8, A1b 8–16), B 16–32, A2 32–40
+ const tag=(a,b)=>{const h=E.unitForRange(p,a,b);return h?(h.sub?h.sub.tag:h.part.tag):null};
+ assert.equal(tag(8,16),'A1b','a whole section');assert.equal(tag(10,14),'A1b','4 bars out of the section: still A1b');
+ assert.equal(tag(6,12),'A1','across A1a | A1b: only the part');assert.equal(tag(0,16),'A1','the whole part');
+ assert.equal(tag(20,28),'B','a part of B');assert.equal(tag(34,38),'A2');
+ assert.equal(tag(12,20),null,'across A1 | B: no designation');assert.equal(tag(8.04,15.98),'A1b','grid edges are tolerated');
+});

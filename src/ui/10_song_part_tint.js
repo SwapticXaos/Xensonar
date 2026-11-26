@@ -1,4 +1,6 @@
 /* SONG-PART-TAGS-01: song part designation and colours that travel with sent audio.
+ * Colours of a sent part (SONG-PART-TAGS-02): two levels like a card – main rubric (the kind's colour) in the middle, sub rubric
+ * (section shade, else repetition colour, else the main colour again) as the border. A session colour always wins.
  * Scheme (Wave Editor strip, titles, Quick Rack, Mixing Desk, Multitrack):
  *   letter      A, B, C …      the KIND of part (what returns); colour = the letter colour (top / body)
  *   number      A1, A2, A3 …   which repetition of that kind, only when the kind occurs more than once;
@@ -41,7 +43,7 @@ const __XenSongPartTint = (() => {
     const b = String(base || '').replace(TAG_RE, '').trim();
     return tag ? (b ? b + ' · ' + tag : tag) : b;
   }
-  /* remembered colours of sent titles (custom kind colours of a song survive the trip) */
+  /* remembered colours of sent titles (custom kind colours of a song survive the trip): {tag, main, sub} */
   const KEY = 'xensonar.songParts.materialTint.v1', MAX = 300;
   let reg = null;
   const load = () => {
@@ -50,39 +52,42 @@ const __XenSongPartTint = (() => {
     return reg;
   };
   function remember(name, t) {
-    if (!name || !t || !HEX.test(t.top || '')) return;
-    const r = load(), cur = r[name], next = { tag: t.tag, top: t.top, edge: HEX.test(t.edge || '') ? t.edge : t.top, bottom: HEX.test(t.bottom || '') ? t.bottom : t.top };
-    if (cur && cur.tag === next.tag && cur.top === next.top && cur.edge === next.edge && cur.bottom === next.bottom) return;
+    if (!name || !t || !HEX.test(t.main || '')) return;
+    const r = load(), cur = r[name], next = { tag: t.tag, main: t.main.toLowerCase(), sub: (HEX.test(t.sub || '') ? t.sub : t.main).toLowerCase() };
+    if (cur && cur.tag === next.tag && cur.main === next.main && cur.sub === next.sub) return;
     delete r[name]; r[name] = next;
     const keys = Object.keys(r); while (keys.length > MAX) delete r[keys.shift()];
     try { localStorage.setItem(KEY, JSON.stringify(r)); } catch {}
   }
-  /* {tag, top, edge, bottom} of a title, or null when it carries no part tag */
+  /* {tag, main, sub} of a title, or null when it carries no part tag.
+     main = the kind's colour (letter) · sub = section shade, else repetition colour, else main again (one colour = twice the same) */
   function tintFor(name) {
     const p = parse(name);
     if (!p) return null;
     const saved = load()[String(name)];
-    if (saved && saved.tag === p.tag) return { ...saved };
-    const top = letterColor(p.letter);
-    return { tag: p.tag, top, edge: occColor(p.occ) || top, bottom: p.sub >= 0 ? shade(top, p.sub) : top };
+    if (saved && saved.tag === p.tag) {
+      if (HEX.test(saved.main || '')) return { tag: saved.tag, main: saved.main, sub: HEX.test(saved.sub || '') ? saved.sub : saved.main };
+      if (HEX.test(saved.top || '')) return { tag: saved.tag, main: saved.top, sub: saved.bottom && saved.bottom !== saved.top ? saved.bottom : (saved.edge || saved.top) };
+    }
+    const main = letterColor(p.letter);
+    return { tag: p.tag, main, sub: p.sub >= 0 ? shade(main, p.sub) : occColor(p.occ) || main };
   }
-  /* darken a colour for a card background (text stays readable) */
+  /* darken a colour for a card body (text stays readable), as #rrggbb like the session colours */
   function dim(hex, a = .42) {
     const n = parseInt(String(hex).slice(1), 16), base = [6, 18, 26];
-    const c = [(n >> 16) & 255, (n >> 8) & 255, n & 255].map((v, i) => Math.round(base[i] + (v - base[i]) * a));
-    return 'rgb(' + c.join(',') + ')';
+    return '#' + [(n >> 16) & 255, (n >> 8) & 255, n & 255].map((v, i) => Math.round(base[i] + (v - base[i]) * a).toString(16).padStart(2, '0')).join('');
   }
-  /* Quick Rack tile: body = letter colour (top) / section shade (bottom), border = repetition colour */
-  function quickTint(name) {
+  /* a card in the session colour format: body (background) = main rubric, border = sub rubric */
+  function cardColors(name) {
     const t = tintFor(name);
-    if (!t) return {};
-    return { border: t.edge, background: 'linear-gradient(180deg,' + dim(t.top) + ' 0 55%,' + dim(t.bottom) + ' 55% 100%)' };
+    return t ? { border: t.sub, background: dim(t.main) } : {};
   }
-  return Object.freeze({ LETTER_COLORS, OCC_COLORS, letterColor, occColor, subLetter, shade, parse, withTag, remember, tintFor, dim, quickTint });
+  const quickTint = cardColors;
+  return Object.freeze({ LETTER_COLORS, OCC_COLORS, letterColor, occColor, subLetter, shade, parse, withTag, remember, tintFor, dim, cardColors, quickTint });
 })();
 if (typeof window !== 'undefined') window.__XenSongPartTint = __XenSongPartTint;
 
-/* A small two-tone chip (Mixing Desk): top = letter colour, bottom = section shade, ring = repetition colour */
+/* A small chip (Mixing Desk) like the card: body = main rubric, ring = sub rubric */
 function __XenSongPartChip({ name, small = false }) {
   const t = __XenSongPartTint.tintFor(name);
   if (!t) return null;
@@ -90,7 +95,7 @@ function __XenSongPartChip({ name, small = false }) {
     className: 'xen-song-part-chip' + (small ? ' is-small' : ''),
     'data-xen-song-part-tag': t.tag,
     title: 'Song part ' + t.tag,
-    style: { '--sp-top': t.top, '--sp-bottom': t.bottom, '--sp-edge': t.edge },
+    style: { '--sp-main': t.main, '--sp-sub': t.sub },
     children: t.tag
   });
 }

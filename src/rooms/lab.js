@@ -2043,22 +2043,16 @@ function __xenSongPartsExport(asset,durationSec){
   subs:(p.subParts?.length>1?p.subParts:[]).slice(0,64).map((q,k)=>({s:r3(q.startSec),e:r3(q.endSec),l:String(q.tag||(p.label+(k+1))).slice(0,6),...(p.name?{n:E.sectionName(p,q)}:{}),c:q.shade??E.shade(p.color||E.colorOf(p.label),k)}))}))};
 }
 globalThis.__xenSongPartsExport=__xenSongPartsExport;
-/* SONG-PART-TAGS-01: which song part / section a mask is: the unit whose range and the mask overlap by at least 80 % of each
-   (a section wins over its part). Gives the designation for the sent title and its colours: top = letter colour,
-   edge = repetition colour, bottom = section shade. null = the mask is no part (a free loop keeps its plain title). */
+/* SONG-PART-TAGS-01/02: which song part / section a mask is (containment, see __xenSongPartsEdit.unitForRange): the designation for
+   the sent title and its two colours – main = the kind's colour (letter), sub = the section shade, else the repetition colour,
+   else the main colour again. null = the mask spans parts (a free loop keeps its plain title). Only songs with real parts. */
 function __xenSongPartForRange(asset,range){
  if(!asset||!range||!(range.durationSec>0))return null;const sp=__xenSongPartsLatest,result=sp&&sp.asset===asset?sp.result:__xenSongPartsEdit.loadResult(asset);
  if(!result?.ok||!result.parts?.length)return null;
- const E=__xenSongPartsEdit,parts=E.current(asset,result).parts,a=range.startSec,b=range.startSec+range.durationSec;
- const fit=(s,e)=>{const o=Math.min(b,e)-Math.max(a,s);return o>0?Math.min(o/Math.max(1e-9,e-s),o/Math.max(1e-9,b-a)):0};
- let best=null,bf=.8;
- for(const p of parts){if(parts.length<2&&!(p.subParts?.length>1))break;
-  const top=p.color||E.colorOf(p.label),edge=p.occColor||top;
-  const fp=Math.max(fit(p.startSec,p.endSec),fit(p.loopStartSec??p.startSec,p.loopEndSec??p.endSec));
-  if(fp>=bf){bf=fp;best={tag:p.tag||p.label,top,edge,bottom:top,name:E.displayName(p)}}
-  if(p.subParts?.length>1)for(const q of p.subParts){const fq=Math.max(fit(q.startSec,q.endSec),fit(q.loopStartSec??q.startSec,q.loopEndSec??q.endSec));
-   if(fq>=.8&&fq>=bf-.05){bf=fq;best={tag:q.tag,top,edge,bottom:q.shade||top,name:E.sectionName(p,q)}}}}
- return best;
+ const E=__xenSongPartsEdit,parts=E.current(asset,result).parts;if(parts.length<2&&!(parts[0]?.subParts?.length>1))return null;
+ const hit=E.unitForRange(parts,range.startSec,range.startSec+range.durationSec);if(!hit)return null;
+ const p=hit.part,q=hit.sub,main=p.color||E.colorOf(p.label);
+ return q?{tag:q.tag,main,sub:q.shade||main,name:E.sectionName(p,q)}:{tag:p.tag||p.label,main,sub:p.occColor||main,name:E.displayName(p)};
 }
 /* MT-SONGPARTS-02: a Multitrack clip opened in the Wave Editor brings its parts along: the strip shows them at once (no analysis),
    on the bar grid of the Multitrack project (its tempo and bar, counted from where the clip sits). Stored like an analysis. */
@@ -2570,7 +2564,7 @@ function __CGeHydrated({sourceAdapters:e,targetAdapter:t,rawTargetAdapter:n,rawR
  P.useEffect(()=>{
   window.dispatchEvent(new CustomEvent('xensonar:forge:donor-library-state',{detail:{open:__libraryOpen}}));
  },[__libraryOpen]);
- P.useEffect(()=>{ue(fA(E))},[E?.id]);/* SONG-PART-TAGS-01: a mask on a song part / section sends its designation along ("Song · A1b") and remembers its colours */const __partHit=__xenSongPartForRange(E?.sourceAsset,F?.fineLoopRange),fe=__XenSongPartTint.withTag(oe.trim()||fA(E),__partHit?.tag);P.useEffect(()=>{if(__partHit)__XenSongPartTint.remember(fe,__partHit)},[fe,__partHit?.top,__partHit?.edge,__partHit?.bottom]);const {pendingMap:he,successMap:re,runActionWithFeedback:le}=uGe();xGe({sourceReady:!!E,intakeGatewayRef:I,externalLoadFile:d,externalLoadOrigin:f,entryScrollIntent:b,onExternalLoadConsumed:p,onEntryScrollIntentConsumed:g,loadSourceFromFile:U,runActionWithFeedback:le});/* W06 — file handoff is handled only by the mounted Material Intake owner.
+ P.useEffect(()=>{ue(fA(E))},[E?.id]);/* SONG-PART-TAGS-01: a mask on a song part / section sends its designation along ("Song · A1b") and remembers its colours */const __partHit=__xenSongPartForRange(E?.sourceAsset,F?.fineLoopRange),fe=__XenSongPartTint.withTag(oe.trim()||fA(E),__partHit?.tag);P.useEffect(()=>{if(__partHit)__XenSongPartTint.remember(fe,__partHit)},[fe,__partHit?.main,__partHit?.sub]);const {pendingMap:he,successMap:re,runActionWithFeedback:le}=uGe();xGe({sourceReady:!!E,intakeGatewayRef:I,externalLoadFile:d,externalLoadOrigin:f,entryScrollIntent:b,onExternalLoadConsumed:p,onEntryScrollIntentConsumed:g,loadSourceFromFile:U,runActionWithFeedback:le});/* W06 — file handoff is handled only by the mounted Material Intake owner.
    Use its canonical file decoder and its already attached Wave Editor instance. */
  P.useEffect(()=>{
   if(c!=='spectral-forge3')return;

@@ -151,6 +151,17 @@ function __xenSongPartsEditFactory(storage=null){
   try{Object.keys(all).length?storage?.setItem(KIND_KEY+k,JSON.stringify(all)):storage?.removeItem(KIND_KEY+k)}catch{}listeners.forEach(f=>{try{f('kinds')}catch{}})}
  function decorate(parts,kd){if(!kd||!Object.keys(kd).length)return parts;return parts.map(p=>{const o=kd[p.label];if(!o)return p;const color=o.color||p.color;
   return {...p,...(o.name?{name:o.name}:{}),color,subParts:p.subParts?p.subParts.map((q,k)=>({...q,shade:o.color?shade(color,k):q.shade})):p.subParts}})}
+ /* SONG-PART-TAGS-02: which unit a mask [a, b] belongs to, by CONTAINMENT (a part of a part counts, e.g. 4 of 7 bars):
+    inside one section → {part, sub}; inside one part but across its sections → {part}; across parts → null.
+    A part's or section's bounds include its bar-aligned loop range; a small tolerance absorbs grid edges. */
+ function unitForRange(parts,a,b){
+  if(!Array.isArray(parts)||!(b>a))return null;const eps=Math.max(.06,(b-a)*.02);
+  const lo=u=>Math.min(u.startSec,u.loopStartSec??u.startSec),hi=u=>Math.max(u.endSec,u.loopEndSec??u.endSec),inside=u=>a>=lo(u)-eps&&b<=hi(u)+eps;
+  for(const p of parts){if(!inside(p))continue;
+   const subs=p.subParts?.length>1?p.subParts:[];const k=subs.findIndex(inside);
+   return k>=0?{part:p,sub:subs[k],subIndex:k}:{part:p,sub:null,subIndex:-1}}
+  return null;
+ }
  /* "Verse 2" (named kind, repeated) · "Verse" · "A2" · "B"; a section: "Verse 2a" / "A2a" */
  const displayName=p=>p?.name?p.name+(p.repeats>1?' '+p.occ:''):(p?.tag||p?.label||'');
  const sectionName=(p,q)=>p?.name?displayName(p)+(p.repeats>1?'':' ')+(q?.subLetter??''):(q?.tag??'');
@@ -181,7 +192,7 @@ function __xenSongPartsEditFactory(storage=null){
  const SNAP_KEY='xensonar.songParts.snap.v1';
  function snapMode(){try{const v=storage?.getItem(SNAP_KEY);return v==='bar'||v==='beat'||v==='segment'||v==='off'?v:'bar'}catch{return 'bar'}}
  function setSnapMode(m){try{storage?.setItem(SNAP_KEY,m)}catch{}listeners.forEach(f=>{try{f('snap')}catch{}})}
- return Object.freeze({snapTime,snapRange,moveBoundary,split,merge,setLabel,addCut,subdivideEven,subdivideEvery,setCuts,moveCut,removeCut,clearCuts,shade,nextLetter,normalize,colorOf,keyOf,load,save,clear,kinds,setKind,decorate,displayName,sectionName,tagParts,subLetter,OCC_COLORS:OCC,loadResult,saveResult,clearResult,tonalList,tonalFor,saveTonal,clearTonal,current,snapMode,setSnapMode,
+ return Object.freeze({snapTime,snapRange,moveBoundary,split,merge,setLabel,addCut,subdivideEven,subdivideEvery,setCuts,moveCut,removeCut,clearCuts,shade,nextLetter,normalize,colorOf,keyOf,load,save,clear,kinds,setKind,decorate,displayName,sectionName,tagParts,unitForRange,subLetter,OCC_COLORS:OCC,loadResult,saveResult,clearResult,tonalList,tonalFor,saveTonal,clearTonal,current,snapMode,setSnapMode,
   subscribe:f=>(listeners.add(f),()=>listeners.delete(f))});
 }
 const __xenSongPartsEdit=__xenSongPartsEditFactory(typeof localStorage!=='undefined'?localStorage:null);
