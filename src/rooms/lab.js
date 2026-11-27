@@ -2349,11 +2349,21 @@ function __XenSongPartsStrip({source,selection,onSelectPart,onPatch,onCue}){
   h('div',{className:'xwe-song-caption'},h('span',{'data-xwe-song-caption':true},caption),
    h('span',{className:'xwe-song-tools'},
     view.edited?h('span',{className:'xwe-song-edited',title:'Your working copy of the parts (saved for this song). Right click a part → Reset to return to the analysis.'},'working copy'):null,
-    h('label',{className:'xwe-song-snap',title:'Snap for part boundaries and for dragging the purple loop mask: Bar = whole bars · Beat = the meter\u2019s beats · Segment = your guide segments · Off = free'},'Snap',h('select',{'aria-label':'Snap','data-xwe-snap':true,value:snap,onChange:e=>E.setSnapMode(e.currentTarget.value)},
+    h('label',{className:'xwe-song-snap','data-xwe-snap-active':snap!=='off'?'true':'false',title:'Snap for part boundaries and for dragging the purple loop mask: Bar = whole bars · Beat = the meter\u2019s beats · Segment = your guide segments · Off = free'},
+     h('svg',{className:'xwe-snap-icon','aria-hidden':true,focusable:'false',viewBox:'0 0 20 20',fill:'none',stroke:'currentColor',strokeWidth:2.1,strokeLinecap:'round',strokeLinejoin:'round'},
+      h('path',{d:'M4 2.5v8.5a6 6 0 0 0 12 0V2.5'}),h('path',{d:'M2.5 2.5h3.5M14 2.5h3.5'}),h('path',{d:'M4 6.5h2.8M13.2 6.5h2.8'})),
+     h('span',{className:'xwe-snap-label'},'Snap'),
+     h('select',{'aria-label':'Snap','data-xwe-snap':true,value:snap,onChange:e=>E.setSnapMode(e.currentTarget.value)},
      h('option',{value:'bar'},'Bar'),h('option',{value:'beat'},'Beat'),h('option',{value:'segment'},'Segment'),h('option',{value:'off'},'Off'))),
     r?.parts?.length?h('button',{type:'button',className:'xwe-song-redo xwe-song-tonal'+(tonalRun?' is-running':''),'data-xwe-song-tonal':true,
      title:tonalRun?'Cancel the key & scale analysis':'Key & scale of every part (pitch lines of the Wave Editor: root in Hz, tuning system, scale). One part after the other, in the background; kept for this song.',
-     onClick:()=>runTonal(shown.filter(q=>!E.tonalFor(asset,q)))},tonalRun?'■ Key':'♪ Key'):null,
+     onClick:()=>runTonal(shown.filter(q=>!E.tonalFor(asset,q)))},
+     tonalRun
+      ?h('svg',{className:'xwe-key-icon','aria-hidden':true,focusable:'false',viewBox:'0 0 20 20',fill:'currentColor'},h('rect',{x:4.5,y:4.5,width:11,height:11,rx:1.8}))
+      :h('svg',{className:'xwe-key-icon','aria-hidden':true,focusable:'false',viewBox:'0 0 20 20',fill:'none',stroke:'currentColor',strokeWidth:1.9,strokeLinecap:'round',strokeLinejoin:'round'},
+       h('path',{d:'M8.5 14.2V3.2c2.8.8 5.2 2.1 6.2 4.3-.9-.6-2.5-.9-4.1-.7'}),
+       h('ellipse',{cx:6.2,cy:14.6,rx:3.1,ry:2.3,transform:'rotate(-20 6.2 14.6)',fill:'currentColor',stroke:'none'})),
+     h('span',{className:'xwe-key-label'},'Key')):null,
     asset?h('button',{type:'button',className:'xwe-song-redo','data-xwe-song-redo':true,disabled:state.status==='running',title:state.status==='ready'?'Analyze the song structure (parts, bars, BPM)':'Analyze the whole song again (your edited parts stay until you reset them)',onClick:()=>analyzeSong(state.status!=='ready')},'↻'):null)),
   state.status==='ready'?h('button',{type:'button',className:'xwe-song-strip xwe-song-start','data-xwe-song-start':true,title:'Analyze the song structure now: parts, bars, segments, BPM. Runs once in the background and is kept for this song.',onClick:()=>analyzeSong(false)},
    h('span',{className:'xwe-song-start-icon','aria-hidden':true},'▶'),'Analyzing the song structure … (click to start now)'):

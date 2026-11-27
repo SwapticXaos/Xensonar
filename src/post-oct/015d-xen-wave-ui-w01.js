@@ -14,6 +14,22 @@ const chromaticButton=(key,label,fn,attrs={})=>{
  const name=$('span',{class:'xwe-chromatic-label'},label);control.replaceChildren(icon,name);
  return control;
 };
+const WAVE_UI_ICONS=Object.freeze({
+ play:'<svg aria-hidden="true" class="xwe-btn-svg" viewBox="0 0 24 24" fill="currentColor" focusable="false"><path d="M7.5 4.8a1.1 1.1 0 0 1 1.66-.95l11.2 6.8a1.1 1.1 0 0 1 0 1.9l-11.2 6.8A1.1 1.1 0 0 1 7.5 18.4V4.8Z"/></svg>',
+ loop:'<svg aria-hidden="true" class="xwe-btn-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.15" stroke-linecap="round" stroke-linejoin="round" focusable="false"><path d="M17 2.8 20.5 6.3 17 9.8"/><path d="M3.5 11.5v-1.2a4 4 0 0 1 4-4h13"/><path d="M7 21.2 3.5 17.7 7 14.2"/><path d="M20.5 12.5v1.2a4 4 0 0 1-4 4h-13"/></svg>',
+ stop:'<svg aria-hidden="true" class="xwe-btn-svg" viewBox="0 0 24 24" fill="currentColor" focusable="false"><rect x="6" y="6" width="12" height="12" rx="2"/></svg>',
+ close:'<svg aria-hidden="true" class="xwe-btn-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" focusable="false"><path d="M6.5 6.5 17.5 17.5M17.5 6.5 6.5 17.5"/></svg>',
+ snapZero:'<svg aria-hidden="true" class="xwe-btn-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" focusable="false"><path d="M2.5 12h19" opacity=".45" stroke-dasharray="2 2"/><path d="M3.5 16.5C7 16.5 8.5 12 12 12s5-4.5 8.5-4.5"/><circle cx="12" cy="12" r="2.6" fill="currentColor" stroke="none"/></svg>',
+ stopwatch:'<svg aria-hidden="true" class="xwe-range-icon-svg" viewBox="0 0 24 24" fill="none" focusable="false"><rect x="8.6" y="1" width="6.8" height="2.3" rx="1" fill="#bae6fd"/><rect x="10.8" y="3.1" width="2.4" height="2.2" fill="#7dd3fc"/><path d="M17.3 5.7l1.8-1.8 1.5 1.5-1.8 1.8" fill="#7dd3fc"/><circle cx="12" cy="13.5" r="8.6" fill="#081224" stroke="#93c5fd" stroke-width="1.9"/><circle cx="12" cy="13.5" r="6.7" stroke="#38bdf8" stroke-opacity=".32" stroke-width=".9"/><path d="M12 13.5V7.1a6.4 6.4 0 0 1 4.9 2.3Z" fill="#38bdf8" fill-opacity=".22"/><path d="M12 6.8v1.5M12 18.7v1.5M5.3 13.5h1.5M17.2 13.5h1.5" stroke="#cbd5e1" stroke-width="1.35" stroke-linecap="round"/><path d="M12 13.5 16.2 9.7" stroke="#fb7185" stroke-width="1.9" stroke-linecap="round"/><circle cx="12" cy="13.5" r="1.5" fill="#f8fafc" stroke="#fb7185" stroke-width=".8"/></svg>',
+ download:'<svg aria-hidden="true" class="xwe-btn-svg" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" focusable="false"><path d="M10 3v9.2"/><path d="M6.3 9 10 12.7 13.7 9"/><path d="M3.5 15v1.2A1.8 1.8 0 0 0 5.3 18h9.4a1.8 1.8 0 0 0 1.8-1.8V15"/></svg>'
+});
+const setIconButtonContent=(el,iconKey,label,iconAfter=false)=>{
+ if(!el)return;
+ const icon=$('span',{class:'xwe-btn-icon','aria-hidden':'true'});
+ icon.innerHTML=WAVE_UI_ICONS[iconKey]||'';
+ const text=$('span',{class:'xwe-btn-label'},label);
+ el.replaceChildren(...(iconAfter?[text,icon]:[icon,text]));
+};
 
 const core=()=>root.__XenWaveCoreW01,dsp=()=>root.__XenWaveDSPW01;
 const clamp=(x,a,b)=>Math.max(a,Math.min(b,x)),fmt=(v,n=3)=>Number(v||0).toFixed(n);
@@ -57,7 +73,7 @@ function category(effect){return displayText(effect.category||'Effects')}
 
 function attach(options){const canvas=options.detailCanvas;if(!canvas)return()=>{};let inst=instances.get(canvas);if(inst){inst.update(options);return()=>{}}try{inst=new Editor(options)}catch(error){console.warn('[Wave Editor W01] source unsupported:',error);return()=>{}}instances.set(canvas,inst);liveEditors.add(inst);return()=>{inst.dispose();liveEditors.delete(inst);instances.delete(canvas)}}
 class Editor{
- constructor(options){this.options=options;/* UNDO-MASK-01: mask / Taktometer steps of the host join this editor's Undo; each remembers how many audio edits existed then, so one Undo walks back in the order of the actions */this.maskUndo=[];this.onMaskUndoPush=()=>{const sel=this.doc?.selection;this.maskUndo.push({at:this.doc?.history?.past?.length||0,start:sel?.start,end:sel?.end});if(this.maskUndo.length>60)this.maskUndo.shift();if(this.undoApplyButton)this.undoApplyButton.disabled=!this.canUndoDocument()};globalThis.addEventListener?.('xensonar:mask-undo-push',this.onMaskUndoPush);this.bluePanFrame=null;this.bluePanHeld=null;this.bluePanStopOnBlur=()=>this.stopBluePan();this.bluePanStopOnVisibility=()=>{if(document.hidden)this.stopBluePan()};root.addEventListener('blur',this.bluePanStopOnBlur);document.addEventListener('visibilitychange',this.bluePanStopOnVisibility);this.enabled=false;this.goldenMoveArmed=false;this.goldenGesture=null;this.doc=null;this.source=null;this.nodes=[];this.activeNode=null;this.eqVisible=false;this.channel='all';this.maskVertical={top:0,bottom:1};this.activeWorkspace='project';this.fxFocus='morph';this.scratchContext=null;this.projectContext=null;this.renderToken=0;this.lastResult=null;this.computeJob=null;this.computeNoticeTimer=null;this.status='Ready · Right-click either waveform for editing and effects.';this.update(options);this.context=e=>this.contextMenu(e);options.detailCanvas.addEventListener('contextmenu',this.context);options.overviewCanvas?.addEventListener('contextmenu',this.context);const region=options.detailCanvas.closest('[data-material-intake-gateway="true"]')||document;this.launchHost=region.querySelector('[data-xwe-launch-slot="true"]');this.launch=button('Wave Editor',()=>this.open(),{class:'xwe-launch',title:'Open stereo Wave Editor · right-click the waveform','aria-label':'Open Wave Editor'});this.launchHost?.append(this.launch);this.editPointerDown=e=>this.beginEditPointer(e);this.goldenDoubleClick=e=>this.toggleGoldenMove(e);this.channelPointerDown=e=>this.handleChannelPointerDown(e);
+ constructor(options){this.options=options;/* UNDO-MASK-01: mask / Taktometer steps of the host join this editor's Undo; each remembers how many audio edits existed then, so one Undo walks back in the order of the actions */this.maskUndo=[];this.onMaskUndoPush=()=>{const sel=this.doc?.selection;this.maskUndo.push({at:this.doc?.history?.past?.length||0,start:sel?.start,end:sel?.end});if(this.maskUndo.length>60)this.maskUndo.shift();if(this.undoApplyButton)this.undoApplyButton.disabled=!this.canUndoDocument()};globalThis.addEventListener?.('xensonar:mask-undo-push',this.onMaskUndoPush);this.bluePanFrame=null;this.bluePanHeld=null;this.bluePanStopOnBlur=()=>this.stopBluePan();this.bluePanStopOnVisibility=()=>{if(document.hidden)this.stopBluePan()};root.addEventListener('blur',this.bluePanStopOnBlur);document.addEventListener('visibilitychange',this.bluePanStopOnVisibility);this.enabled=false;this.goldenMoveArmed=false;this.goldenGesture=null;this.doc=null;this.source=null;this.nodes=[];this.activeNode=null;this.eqVisible=false;this.channel='all';this.maskVertical={top:0,bottom:1};this.activeWorkspace='project';this.fxFocus='morph';this.scratchContext=null;this.projectContext=null;this.renderToken=0;this.lastResult=null;this.computeJob=null;this.computeNoticeTimer=null;this.status='Ready · Right-click either waveform for editing and effects.';this.update(options);this.context=e=>this.contextMenu(e);options.detailCanvas.addEventListener('contextmenu',this.context);options.overviewCanvas?.addEventListener('contextmenu',this.context);const region=options.detailCanvas.closest('[data-material-intake-gateway="true"]')||document;this.launchHost=region.querySelector('[data-xwe-launch-slot="true"]');this.launch=button('Wave Editor',()=>this.open(),{class:'xwe-launch',title:'Open stereo Wave Editor · right-click the waveform','aria-label':'Open Wave Editor'});this.launchClose=button('',()=>this.close(),{class:'xwe-launch-close','aria-label':'Close Wave Editor',title:'Close Wave Editor (Esc)',hidden:true});setIconButtonContent(this.launchClose,'close','Close',true);this.launchHost?.append(this.launch,this.launchClose);this.editPointerDown=e=>this.beginEditPointer(e);this.goldenDoubleClick=e=>this.toggleGoldenMove(e);this.channelPointerDown=e=>this.handleChannelPointerDown(e);
  this.hoverPointerMove=e=>this.onWavePointerMove(e);
  this.hoverPointerLeave=e=>this.onWavePointerLeave(e);
  for(const canvas of [options.overviewCanvas,options.detailCanvas])if(canvas){canvasOwners.set(canvas,this);canvas.addEventListener('pointerdown',this.channelPointerDown,true);canvas.addEventListener('pointermove',this.hoverPointerMove,true);canvas.addEventListener('pointerleave',this.hoverPointerLeave,true)}
@@ -618,7 +634,7 @@ class Editor{
   }
  }
 
- dispose(){globalThis.removeEventListener?.('xensonar:mask-undo-push',this.onMaskUndoPush);this.stopBluePan();root.removeEventListener('blur',this.bluePanStopOnBlur);document.removeEventListener('visibilitychange',this.bluePanStopOnVisibility);this.scratchPeakAsset=null;this.clearP5Warning();this.eqUnsubscribe?.();this.releaseOfflineEQState();this.closeMixPane();this.abort();this.stopAudio();this.close();this.closeMenu();this.cancelEditGesture?.();this.launch?.remove();for(const canvas of [this.options.overviewCanvas,this.options.detailCanvas])if(canvas){canvas.removeEventListener('pointerdown',this.channelPointerDown,true);canvas.removeEventListener('pointermove',this.hoverPointerMove,true);canvas.removeEventListener('pointerleave',this.hoverPointerLeave,true);canvasOwners.delete(canvas);delete canvas.dataset.xweHoverHit}
+ dispose(){globalThis.removeEventListener?.('xensonar:mask-undo-push',this.onMaskUndoPush);this.stopBluePan();root.removeEventListener('blur',this.bluePanStopOnBlur);document.removeEventListener('visibilitychange',this.bluePanStopOnVisibility);this.scratchPeakAsset=null;this.clearP5Warning();this.eqUnsubscribe?.();this.releaseOfflineEQState();this.closeMixPane();this.abort();this.stopAudio();this.close();this.closeMenu();this.cancelEditGesture?.();this.launch?.remove();this.launchClose?.remove();for(const canvas of [this.options.overviewCanvas,this.options.detailCanvas])if(canvas){canvas.removeEventListener('pointerdown',this.channelPointerDown,true);canvas.removeEventListener('pointermove',this.hoverPointerMove,true);canvas.removeEventListener('pointerleave',this.hoverPointerLeave,true);canvasOwners.delete(canvas);delete canvas.dataset.xweHoverHit}
  this.options.detailCanvas.removeEventListener('pointerdown',this.editPointerDown,true);this.options.detailCanvas.removeEventListener('dblclick',this.goldenDoubleClick,true);this.options.detailCanvas.removeEventListener('pointermove',this.detailResizeMove,true);this.options.detailCanvas.removeEventListener('pointerdown',this.detailResizeDown,true);this.options.detailCanvas.removeEventListener('contextmenu',this.context);this.options.overviewCanvas?.removeEventListener('contextmenu',this.context);this.listenKeys(false)}
  /* FORGE-SLEEP-01: the editor's document listeners exist only while the Forge is the shown room. Parked (another room shown) it owns no key and no pointer: Backspace = octave hold in the Live Room, Delete/Backspace in Nodal/Multitrack belong to those rooms */
  listenKeys(on){on=!!on;if(this.keysOn===on)return;this.keysOn=on;const m=on?'addEventListener':'removeEventListener';document[m]('keydown',this.key,true);document[m]('pointerdown',this.keyZone,true)}
@@ -632,7 +648,7 @@ class Editor{
   if(this.statusElement){this.statusElement.classList.add('xwe-p5-warning');this.p5WarningTimer=root.setTimeout(()=>this.clearP5Warning(),5000)}
   return true;
  }
- setEnabled(value){this.enabled=value;this.options.onViewChange?.();this.launch?.setAttribute('aria-pressed',String(value))}
+ setEnabled(value){this.enabled=value;this.options.onViewChange?.();this.launch?.setAttribute('aria-pressed',String(value));if(this.launchClose)this.launchClose.hidden=!value}
  range(){return {...this.doc.selection}}
  target(){return this.channel==='all'?'all':this.channel}
  // Keep every unapplied chain stage attached to the SINGLE visible purple range.
@@ -936,49 +952,89 @@ class Editor{
   inputs.existingL?.focus({preventScroll:true});
  }
 
- build(){const dialog=this.dialog;dialog.replaceChildren();const head=$('header',{class:'xwe-head'}),title=$('div',{class:'xwe-title-with-channels'});title.append($('h2',{},'Wave Editor'));
+ build(){const dialog=this.dialog;dialog.replaceChildren();const head=$('header',{class:'xwe-head'}),headMain=$('div',{class:'xwe-head-main'}),title=$('div',{class:'xwe-title-with-channels'});title.append($('h2',{},'Wave Editor'));
  this.channelConvertButton=button(this.doc?.channels?.length===1?'Mono':'Stereo',()=>{
   if(this.doc?.channels.length===1)void this.runEdit('toStereo');
  },{'data-xwe-mono-stereo-toggle':'true','aria-label':this.doc?.channels?.length===1?'Convert Mono to Stereo':'Stereo source',title:'Mono: click to convert to stereo · Stereo: source already has two channels'});
  title.append(this.channelConvertButton);
- const actions=$('div',{class:'xwe-header-workflow'}),headActions=$('div',{class:'xwe-head-actions'});
  this.statusElement=$('output',{class:'xwe-status xwe-sr-only','aria-live':'polite'},this.status);
  this.progressElement=$('progress',{class:'xwe-progress',max:1});
  this.computeMessage=$('span',{class:'xwe-compute-message'},'Processing…');
  this.computeCancel=button('×',()=>{this.abort('manual');this.setStatus('Processing interrupted.')},{'aria-label':'Cancel long-running process',title:'Cancel this long-running job only',class:'xwe-compute-cancel',hidden:true});
  this.computeStrip=$('div',{class:'xwe-compute-strip','data-xwe-compute-status':'true',hidden:true});
  this.computeStrip.append(this.computeMessage,this.progressElement,this.computeCancel);
- this.previewButton=button('▶ Preview FX',()=>this.preview('chain'));
- this.applyButton=button('Apply / Bake',()=>this.applyChain(),{class:'xwe-primary'});
+ /* Row 1 left-to-right: Title · Undo/Redo (inseparable) · Stopwatch Time & Frame Range (right-aligned) | Right dock: Play · Loop */
+ const undoRedoPair=$('div',{class:'xwe-undo-redo-pair',role:'group','aria-label':'Undo and Redo'});
  this.undoApplyButton=button('↶ Undo',()=>this.undoDocument(),{'aria-label':'Undo',title:'Undo the last step: audio edit, applied effect, loop-mask change or bar count · Ctrl+Z',class:'xwe-apply-undo'});
- this.formatSelect=$('select',{'aria-label':'WAV Format'});
- this.formatSelect.append($('option',{value:'float32'},'WAV Float32'),$('option',{value:'pcm24'},'WAV PCM24'),$('option',{value:'pcm16'},'WAV PCM16 (dither)'));this.formatSelect.title='Export format: 32-bit float (lossless, keeps levels above 0 dBFS), 24-bit PCM, or 16-bit PCM with TPDF dither';
- this.previewTargetButton=button('B · Project',()=>this.preview('document'));
- actions.append(this.buildBlueViewControls(),button('A · Original',()=>this.preview('original')),this.previewTargetButton,this.previewButton,this.applyButton,this.undoApplyButton,this.formatSelect,button('WAV ↓',()=>this.downloadWav()));
- this.playButton=button('▶ Play',()=>this.playSelection(),{'aria-label':'Play Audio','aria-pressed':'false',title:'Play the selection · from caret to project end when no range is selected'});
- /* WAVE-LOOP-01: a second trigger for the big PLAY (Preview Loop) of the Forge panel: no new playback engine; '▶ Play' stays "once", '▶ Loop' = loop */
- this.loopButton=button('▶ Loop',()=>{if(this.audioNode)this.stopAudio();this.options.onLoopPlay?.()},{'aria-label':'Loop Audio','aria-pressed':'false',title:'Play the loop mask round and round (the same as the big PLAY below) · click again to stop'});
- headActions.append(this.playButton,this.loopButton,button('Close ×',()=>this.close()));
- head.append(title,actions,headActions,this.statusElement,this.computeStrip);dialog.append(head);
- const tool=$('div',{class:'xwe-toolbar'});this.redoButton=button('↷ Redo',()=>this.runEdit('redo'),{'data-xwe-document-redo':'true',title:'Redo · Ctrl+Shift+Z'});tool.append(this.redoButton);
+ this.redoButton=button('↷ Redo',()=>this.runEdit('redo'),{'data-xwe-document-redo':'true',class:'xwe-apply-redo',title:'Redo · Ctrl+Shift+Z'});
+ undoRedoPair.append(this.undoApplyButton,this.redoButton);
+ const rangeGroup=$('div',{class:'xwe-tool-group xwe-tool-group-range'});
+ const rangeIcon=$('span',{class:'xwe-range-icon','aria-hidden':'true',title:'Selection range in seconds and frames'});
+ rangeIcon.innerHTML=WAVE_UI_ICONS.stopwatch;
+ const secPair=$('div',{class:'xwe-range-pair'});
+ for(const [key,label] of [['start','Start s'],['end','End s']]){const l=$('label',{class:'xwe-num-label'},label),input=$('input',{type:'number',step:1/this.doc.sampleRate,min:0,'aria-label':label,onchange:()=>this.setRangeFromFields()});this[key+'Input']=input;l.append(input);secPair.append(l)}
+ const framePair=$('div',{class:'xwe-range-pair'});
+ for(const [key,label] of [['start','Start Frame'],['end','End Frame']]){const l=$('label',{class:'xwe-num-label'},label),input=$('input',{type:'number',step:1,min:0,'aria-label':label,onchange:()=>this.setRangeFromFrames()});this[key+'FrameInput']=input;l.append(input);framePair.append(l)}
+ rangeGroup.append(rangeIcon,secPair,$('span',{class:'xwe-range-divider','aria-hidden':'true'}),framePair);
+ headMain.append(title,undoRedoPair,rangeGroup);
+ const headActions=$('div',{class:'xwe-head-actions'});
+ this.playButton=button('',()=>this.playSelection(),{class:'xwe-btn-play','aria-label':'Play Audio','aria-pressed':'false',title:'Play the selection · from caret to project end when no range is selected'});
+ setIconButtonContent(this.playButton,'play','Play');
+ /* WAVE-LOOP-01: a second trigger for the big PLAY (Preview Loop) of the Forge panel: no new playback engine; Play stays "once", Loop = continuous cycle */
+ this.loopButton=button('',()=>{if(this.audioNode)this.stopAudio();this.options.onLoopPlay?.()},{class:'xwe-btn-loop','aria-label':'Loop Audio','aria-pressed':'false',title:'Play the loop mask round and round (the same as the big PLAY below) · click again to stop'});
+ setIconButtonContent(this.loopButton,'loop','Loop');
+ headActions.append(this.playButton,this.loopButton);
+ head.append(headMain,headActions,this.statusElement,this.computeStrip);dialog.append(head);
+ /* Row 2 left-to-right: Channels · View/Cursor/Snap · A/B & Fused WAV Download | Right dock: Preview FX (under Play) · Apply / Bake (under Loop) */
+ const tool=$('div',{class:'xwe-toolbar'}),toolMain=$('div',{class:'xwe-toolbar-main'});
  this.channelModes=$('div',{class:'xwe-channel-modes',role:'group','aria-label':'Channel Selection'});
  for(const [value,label] of [['L','L'],['R','R'],['all','L+R · Both']])this.channelModes.append(button(label,()=>this.setChannel(value),{'data-xwe-channel-mode':value,'aria-pressed':String(this.channel===value),title:value==='all'?'Edit Both Channels':`Channel ${value} bearbeiten`}));
- if(this.doc.channels.length>1)tool.append(this.channelModes);
- for(const [key,label] of [['start','Start s'],['end','End s']]){const l=$('label',{},label),input=$('input',{type:'number',step:1/this.doc.sampleRate,min:0,'aria-label':label,onchange:()=>this.setRangeFromFields()});this[key+'Input']=input;l.append(input);tool.append(l)}for(const [key,label] of [['start','Start Frame'],['end','End Frame']]){const l=$('label',{},label),input=$('input',{type:'number',step:1,min:0,'aria-label':label,onchange:()=>this.setRangeFromFrames()});this[key+'FrameInput']=input;l.append(input);tool.append(l)}tool.append(button('Cursor ← Start',()=>this.setCursor(this.doc.selection.start)),button('Cursor → End',()=>this.setCursor(this.doc.selection.end)));tool.append(button('Zoom to Selection',()=>{if(this.doc.selection.start===this.doc.selection.end){this.setStatus('Select an audio range before zooming.');return}this.setEditorViewport(this.doc.selection.start,this.doc.selection.end)}),button('Full View',()=>this.setEditorViewport(0,this.doc.frames)),button('Snap to Zero',()=>this.snapZero(),{'data-xwe-snap-zero':'true',title:'Move the caret or both ends of the selection to the nearest zero crossing (within 5 ms): cuts, mutes and pastes then do not click · Z'}));dialog.append(tool);
+ if(this.doc.channels.length>1)toolMain.append(this.channelModes);
+ const navGroup=$('div',{class:'xwe-tool-group xwe-tool-group-nav'});
+ const snapZeroBtn=button('',()=>this.snapZero(),{class:'xwe-btn-snap-zero','data-xwe-snap-zero':'true',title:'Move the caret or both ends of the selection to the nearest zero crossing (within 5 ms): cuts, mutes and pastes then do not click · Z'});
+ setIconButtonContent(snapZeroBtn,'snapZero','Snap Zero');
+ navGroup.append(this.buildBlueViewControls(),button('← Start',()=>this.setCursor(this.doc.selection.start),{title:'Cursor ← Start'}),button('End →',()=>this.setCursor(this.doc.selection.end),{title:'Cursor → End'}),button('Zoom Sel',()=>{if(this.doc.selection.start===this.doc.selection.end){this.setStatus('Select an audio range before zooming.');return}this.setEditorViewport(this.doc.selection.start,this.doc.selection.end)},{title:'Zoom to Selection'}),button('Full View',()=>this.setEditorViewport(0,this.doc.frames),{title:'Show Full Waveform'}),snapZeroBtn);
+ toolMain.append(navGroup);
+ const utilGroup=$('div',{class:'xwe-tool-group xwe-tool-group-util'});
+ const abOrig=button('A · Original',()=>this.preview('original'),{class:'xwe-btn-ab'});
+ this.previewTargetButton=button('B · Project',()=>this.preview('document'),{class:'xwe-btn-ab'});
+ const exportGroup=$('div',{class:'xwe-export-group',role:'group','aria-label':'Download WAV'});
+ this.formatSelect=$('select',{'aria-label':'WAV Format',class:'xwe-format-select'});
+ this.formatSelect.append($('option',{value:'float32'},'Float32'),$('option',{value:'pcm24'},'PCM24'),$('option',{value:'pcm16'},'PCM16'));
+ this.formatSelect.title='WAV export bit depth: 32-bit float (lossless, keeps levels above 0 dBFS), 24-bit PCM, or 16-bit PCM with TPDF dither';
+ const wavExport=button('',()=>this.downloadWav(),{class:'xwe-btn-export','aria-label':'Download WAV',title:'Download edited audio as WAV'});
+ setIconButtonContent(wavExport,'download','WAV');
+ exportGroup.append(this.formatSelect,wavExport);
+ utilGroup.append(abOrig,this.previewTargetButton,exportGroup);
+ toolMain.append(utilGroup);
+ const fxActions=$('div',{class:'xwe-fx-actions'});
+ this.previewButton=button('▶ Preview FX',()=>this.preview('chain'),{class:'xwe-btn-preview',title:'Audition the offline effect chain on the selection · Space'});
+ this.applyButton=button('Apply / Bake',()=>this.applyChain(),{class:'xwe-primary xwe-btn-apply',title:'Bake the offline effect chain permanently into the audio document'});
+ fxActions.append(this.previewButton,this.applyButton);
+ tool.append(toolMain,fxActions);dialog.append(tool);
 
- const body=$('div',{class:'xwe-body'}),edits=$('div',{class:'xwe-panel','data-xwe-edit-panel':'true'});edits.append($('h3',{},'Edit Audio'));const grid=$('div',{class:'xwe-edit-grid'});for(const key of ['copy','cut','insert','overwrite','mix','delete','trim','split','silence','reverse','invert','normalize','dcRemove'])grid.append(chromaticButton(key,this.operationLabel(key),()=>key==='mix'?this.openMixPane():this.runEdit(key),key==='mix'?{'data-xwe-mix-trigger':'true'}:{}));grid.append(chromaticButton('envelope','Envelope',()=>this.openVolumeEnvelope(),{title:'Draw a gain envelope with the original XenSonar Morph/Paint tool.'}));edits.append(grid);this.gainInput=this.field(edits,'Gain dB','number',0,{step:.5,min:-96,max:36});edits.append(chromaticButton('gain','Apply Gain',()=>this.runEdit('gain')));this.silenceInput=this.field(edits,'Silence duration (seconds)','number',1,{step:.1,min:.001,max:3600});edits.append(chromaticButton('insertSilence','Insert Silence',()=>this.runEdit('insertSilence')));this.pitchInput=this.field(edits,'Pitch (ratio or cents)','text',this.pitchInput?.value||'0',{'data-xwe-pitch':'true',title:'Retune the selection (or the whole file) without changing its length. A frequency ratio (3/2, 7:4, 81/80) or cents (50, -1200, 386.3). Between ¼ and 4.'});
+ const body=$('div',{class:'xwe-body'}),edits=$('div',{class:'xwe-panel','data-xwe-edit-panel':'true'});edits.append($('h3',{},'Edit Audio'));const grid=$('div',{class:'xwe-edit-grid'});for(const key of ['copy','cut','insert','overwrite','mix','delete','trim','split','silence','reverse','invert','normalize','dcRemove'])grid.append(chromaticButton(key,this.operationLabel(key),()=>key==='mix'?this.openMixPane():this.runEdit(key),key==='mix'?{'data-xwe-mix-trigger':'true'}:{}));grid.append(chromaticButton('envelope','Envelope',()=>this.openVolumeEnvelope(),{title:'Draw a gain envelope with the original XenSonar Morph/Paint tool.'}));edits.append(grid);
+ edits.append($('div',{class:'xwe-subhead'},'Level & Silence'));
+ this.gainInput=this.field(edits,'Gain dB','number',0,{step:.5,min:-96,max:36});edits.append(chromaticButton('gain','Apply Gain',()=>this.runEdit('gain')));this.silenceInput=this.field(edits,'Silence duration (seconds)','number',1,{step:.1,min:.001,max:3600});edits.append(chromaticButton('insertSilence','Insert Silence',()=>this.runEdit('insertSilence')));
+ this.lufsInput=this.field(edits,'Loudness target (LUFS)','number',this.lufsInput?.value||-14,{step:.5,min:-70,max:-5,title:'Programme loudness target after ITU-R BS.1770 / EBU R128. Typical: -14 streaming, -16 podcasts, -23 broadcast (EBU R128). The true peak is kept at or below -1 dBTP.','data-xwe-lufs-target':'true'});{const b=chromaticButton('normalize','Normalize Loudness',()=>this.normalizeLoudness(),{title:'Measure the selection (or the whole file when nothing is selected) and bring it to the loudness target with one gain step. Undo works as for every edit.'});b.setAttribute('data-xwe-chromatic-action','loudness');edits.append(b)}
+ edits.append($('div',{class:'xwe-subhead'},'Pitch & Time'));
+ this.pitchInput=this.field(edits,'Pitch (ratio or cents)','text',this.pitchInput?.value||'0',{'data-xwe-pitch':'true',title:'Retune the selection (or the whole file) without changing its length. A frequency ratio (3/2, 7:4, 81/80) or cents (50, -1200, 386.3). Between ¼ and 4.'});
  this.timeInput=this.field(edits,'Length × (factor or ratio)','text',this.timeInput?.value||'1',{'data-xwe-time':'true',title:'Make the selection (or the whole file) longer or shorter without changing its pitch. 2 = twice as long, 0.5 = half, 3/2 = one and a half. Between ¼ and 4.'});
  this.pitchButton=chromaticButton('reverse','Apply Pitch / Time',()=>this.pitchTime(),{title:'Render with the XenSonar pitch engine (the same one the Material Track and the Multitrack use). One undoable edit.'});this.pitchButton.setAttribute('data-xwe-chromatic-action','pitchtime');edits.append(this.pitchButton);
  this.pitchNotice=$('p',{class:'xwe-small','data-xwe-pitch-notice':'true','aria-live':'polite'},'');edits.append(this.pitchNotice);
- this.lufsInput=this.field(edits,'Loudness target (LUFS)','number',this.lufsInput?.value||-14,{step:.5,min:-70,max:-5,title:'Programme loudness target after ITU-R BS.1770 / EBU R128. Typical: -14 streaming, -16 podcasts, -23 broadcast (EBU R128). The true peak is kept at or below -1 dBTP.','data-xwe-lufs-target':'true'});{const b=chromaticButton('normalize','Normalize Loudness',()=>this.normalizeLoudness(),{title:'Measure the selection (or the whole file when nothing is selected) and bring it to the loudness target with one gain step. Undo works as for every edit.'});b.setAttribute('data-xwe-chromatic-action','loudness');edits.append(b)}edits.append($('p',{class:'xwe-small'},'Click to place the gold insertion caret; drag to select. Ctrl+C/X/V: Copy/Cut/Insert. Ctrl+Alt+V: Overwrite. Ctrl+Shift+V: Mix. Stereo timeline stays synchronized; Float32 preserves levels above 0 dBFS. Normalize or limit before PCM16.'),chromaticButton('analyze','Analyze Selection',()=>this.analyze()));this.analysisElement=$('div',{class:'xwe-analysis xwe-hidden'});edits.append(this.analysisElement);
- this.tonalButton=chromaticButton('analyze','Analyse Tempo · Root · Scale',()=>this.analyseTonal(),{'data-xwe-tonal-analysis':'true',title:'Tempo (BPM), root in Hz, tuning system (12-EDO, 19-EDO, just, Bohlen–Pierce …) and scale of the purple selection, each with an accuracy estimate. With no selection (caret only) the whole file; at most the first 2 minutes. Reads only: nothing is changed.'});this.tonalButton.setAttribute('data-xwe-chromatic-action','tonal-analysis');edits.append(this.tonalButton);this.tonalElement=$('div',{class:'xwe-tonal xwe-hidden','data-xwe-tonal-result':'true','aria-live':'polite'});edits.append(this.tonalElement);body.append(edits);
+ edits.append($('div',{class:'xwe-subhead'},'Analysis'));
+ edits.append(chromaticButton('analyze','Analyze Selection',()=>this.analyze()));this.analysisElement=$('div',{class:'xwe-analysis xwe-hidden'});edits.append(this.analysisElement);
+ this.tonalButton=chromaticButton('analyze','Analyse Tempo · Root · Scale',()=>this.analyseTonal(),{'data-xwe-tonal-analysis':'true',title:'Tempo (BPM), root in Hz, tuning system (12-EDO, 19-EDO, just, Bohlen–Pierce …) and scale of the purple selection, each with an accuracy estimate. With no selection (caret only) the whole file; at most the first 2 minutes. Reads only: nothing is changed.'});this.tonalButton.setAttribute('data-xwe-chromatic-action','tonal-analysis');edits.append(this.tonalButton);this.tonalElement=$('div',{class:'xwe-tonal xwe-hidden','data-xwe-tonal-result':'true','aria-live':'polite'});edits.append(this.tonalElement);
+ const shortcutHint=$('div',{class:'xwe-shortcuts-hint'});
+ shortcutHint.innerHTML='<span><kbd>Click</kbd> Caret</span><span><kbd>Drag</kbd> Select</span><span><kbd>Ctrl+C/X/V</kbd> Edit</span><span><kbd>Z</kbd> Snap Zero</span><span><kbd>Space</kbd> Preview FX</span>';
+ edits.append(shortcutHint);body.append(edits);
  const fx=$('div',{class:'xwe-panel xwe-fx-layout','data-xwe-fx-focus':this.fxFocus});this.fxLayout=fx;
  const fxHeader=$('div',{class:'xwe-fx-header','data-xwe-fx-header':'true'});
  fxHeader.append($('h3',{},'Offline Effect Chain'));
  // W21: native per-effect Morph button is the sole focus control.
  this.morphFocusButton=null;
  fx.append(fxHeader);
- const fxControls=$('div',{class:'xwe-fx-controls'});const add=$('div',{class:'xwe-toolbar',style:'padding:0 0 9px;border:0'});this.fxSelect=$('select',{'aria-label':'Add effect'});for(const effect of selectableEffects())this.fxSelect.append($('option',{value:effect.type},displayEffect(effect)));add.append(this.fxSelect,button('+ Effect',()=>this.addNode(this.fxSelect.value)),button('Live-Room EQ · Offline',()=>this.addOfflineEQ(),{'aria-label':'Live-Room EQ · Offline',title:'Process offline PCM with the existing Live-Room EQ'}));this.bypassInput=$('input',{type:'checkbox',onchange:()=>{this.bypass=this.bypassInput.checked;this.invalidate()}});const bypass=$('label',{},'Bypass Chain ');bypass.append(this.bypassInput);add.append(bypass);fxControls.append(add);this.chainElement=$('div',{class:'xwe-chain'});fxControls.append(this.chainElement);this.parametersElement=$('div',{class:'xwe-parameters'});fxControls.append(this.parametersElement);const laneHead=$('div',{class:'xwe-lane-head'});this.laneHead=laneHead;
+ const fxControls=$('div',{class:'xwe-fx-controls'});const add=$('div',{class:'xwe-toolbar xwe-fx-add-bar',style:'padding:0 0 9px;border:0'});this.fxSelect=$('select',{'aria-label':'Add effect'});for(const effect of selectableEffects())this.fxSelect.append($('option',{value:effect.type},displayEffect(effect)));add.append(this.fxSelect,button('+ Effect',()=>this.addNode(this.fxSelect.value),{class:'xwe-btn-add-fx'}),button('Live-Room EQ · Offline',()=>this.addOfflineEQ(),{class:'xwe-btn-eq','aria-label':'Live-Room EQ · Offline',title:'Process offline PCM with the existing Live-Room EQ'}));this.bypassInput=$('input',{type:'checkbox',onchange:()=>{this.bypass=this.bypassInput.checked;this.invalidate()}});const bypass=$('label',{class:'xwe-bypass-toggle'},'Bypass Chain ');bypass.append(this.bypassInput);add.append(bypass);fxControls.append(add);this.chainElement=$('div',{class:'xwe-chain'});fxControls.append(this.chainElement);this.parametersElement=$('div',{class:'xwe-parameters'});fxControls.append(this.parametersElement);const laneHead=$('div',{class:'xwe-lane-head'});this.laneHead=laneHead;
  this.laneSelect=$('select',{'aria-label':'Automation Parameter',onchange:()=>{this.activeParam=this.laneSelect.value;this.requestMorphRefresh()}});
  this.interpolation=$('select',{'aria-label':'Interpolation',onchange:()=>{const lane=this.activeLane();if(lane){lane.interpolation=this.interpolation.value;this.invalidate();this.requestMorphRefresh()}}});
  this.interpolation.append($('option',{value:'linear'},'Linear'),$('option',{value:'hold'},'Steps'));
@@ -1302,7 +1358,7 @@ class Editor{
   this.transport=null;
   for(const entry of this.playheadElements||[])entry.el.remove();
   this.playheadElements=[];
-  if(this.playButton){this.playButton.textContent='▶ Play';this.playButton.setAttribute('aria-pressed','false')}
+  if(this.playButton){setIconButtonContent(this.playButton,'play','Play');this.playButton.setAttribute('aria-pressed','false')}
  }
  updatePlayheads(){
   const t=this.transport;
@@ -1335,7 +1391,7 @@ class Editor{
  startPlayhead(mode,range,sr,frames){
   this.ensurePlayheads();
   this.transport={mode,startAudioTime:this.audioContext.currentTime,startFrame:range.start,endFrame:range.end,sampleRate:sr,sourceFrames:frames};
-  if(this.playButton){this.playButton.textContent='■ Stop';this.playButton.setAttribute('aria-pressed','true')}
+  if(this.playButton){setIconButtonContent(this.playButton,'stop','Stop');this.playButton.setAttribute('aria-pressed','true')}
   this.updatePlayheads();
  }
  stopAudio(){if(this.audioNode){try{this.audioNode.stop()}catch{}this.audioNode.disconnect();this.audioNode=null}this.clearPlayheads();this.audioContext?.suspend?.()}
@@ -1357,7 +1413,7 @@ class Editor{
   const label=clockLabel(sec);if(el.textContent!==label)el.textContent=label;
   el.style.left=tx+'px';el.style.top=ty+'px';if(el.__ph!==g.h){el.__ph=g.h;el.style.setProperty('--xwe-ph',(g.h+8)+'px')}/* per ELEMENT: a re-created label must get the playhead-line height too (the green line vanished otherwise) */
  }
- setLoopPlaying(on){if(this.loopButton){this.loopButton.textContent=on?'■ Stop':'▶ Loop';this.loopButton.setAttribute('aria-pressed',String(!!on))}}
+ setLoopPlaying(on){if(this.loopButton){setIconButtonContent(this.loopButton,on?'stop':'loop',on?'Stop':'Loop');this.loopButton.setAttribute('aria-pressed',String(!!on))}}
  playSelection(){if(this.audioNode){this.stopAudio();this.setStatus('Playback stopped.');return}return this.preview('document')}
  /* TAKT-SEEK: restart the running preview at another point (same mode, same end) */
  seekToSec(sec){const t=this.transport;if(!this.audioNode||!t||!Number.isFinite(sec))return false;const from=clamp(Math.round(sec*t.sampleRate),0,Math.max(0,t.sourceFrames-1));void this.preview(t.mode,{from,to:t.endFrame});return true}

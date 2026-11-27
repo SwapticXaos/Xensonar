@@ -397,3 +397,760 @@ canvas[data-xwe-workspace-resize="true"][data-xwe-workspace-edge="true"]{cursor:
 }
 /* SONG-PART-TAGS-01: the repetition of a part (A1, A2 …) as a coloured frame – the same edge colour its sent card gets */
 .xwe-song-occ{position:absolute;inset:0;pointer-events:none;box-shadow:inset 0 0 0 2px var(--occ)}
+
+/* WAVE-UI-REDESIGN-01: accessible, intuitive Wave Editor visual overhaul.
+   Header buttons fill existing 44px band without pushing layout downward;
+   clear semantic transport colours (green Play, prominent violet Loop with cycle icon,
+   subtly reddish Close), prominent Snap control with magnet icon, grouped toolbar,
+   and structured Edit/FX hierarchy. */
+.xwe-inline .xwe-dialog{
+ background:#090e1c;
+ border:1px solid #3c4b6e;
+ border-radius:11px;
+ box-shadow:0 18px 56px rgba(0,0,0,.55),inset 0 1px 0 rgba(255,255,255,.04);
+}
+.xwe-inline .xwe-dialog:focus-within{border-color:#7c63b8}
+
+/* Top launch bar: Close button sits right beside Wave Editor where the user opened it */
+.xwe-launch-slot{gap:5px}
+.xwe-launch-close[hidden]{display:none!important}
+.xwe-launch-close{
+ display:inline-flex;
+ align-items:center;
+ justify-content:center;
+ gap:4px;
+ padding:2px 8px;
+ min-height:24px;
+ line-height:18px;
+ white-space:nowrap;
+ font:600 11px/18px var(--font-sans,system-ui,sans-serif);
+ border-radius:5px;
+ border:1px solid rgba(248,113,113,.55);
+ background:linear-gradient(180deg,#4a1e2b 0%,#30121c 100%);
+ color:#fecdd3;
+ cursor:pointer;
+ transition:background-color .14s ease,border-color .14s ease,color .14s ease;
+}
+.xwe-launch-close:hover{
+ background:linear-gradient(180deg,#642437 0%,#421725 100%);
+ border-color:#f87171;
+ color:#fff1f2;
+}
+.xwe-launch-close .xwe-btn-icon,
+.xwe-launch-close .xwe-btn-svg{
+ width:12px;
+ height:12px;
+ flex-basis:12px;
+}
+
+/* Aligned 2-Row Command Bar:
+   Row 1 (.xwe-head): Title + Undo/Redo + Stopwatch Range (right) | [Play] [Loop]
+   Row 2 (.xwe-toolbar): Channels + View/Cursor/Snap + A/B + Fused WAV Download | [Preview FX] [Apply/Bake] */
+.xwe-inline .xwe-head{
+ display:grid;
+ grid-template-columns:minmax(0,1fr) 246px;
+ align-items:center;
+ padding:5px 10px;
+ min-height:44px;
+ gap:6px 10px;
+ background:linear-gradient(108deg,#111b31 0%,#161e36 56%,#1f1632 100%);
+ border-bottom:1px solid #2b3855;
+ border-radius:10px 10px 0 0;
+}
+.xwe-head-main{
+ display:flex;
+ align-items:center;
+ flex-wrap:wrap;
+ gap:6px 10px;
+ min-width:0;
+}
+.xwe-head h2{
+ font:700 14.5px/1.2 var(--font-sans,system-ui,sans-serif);
+ letter-spacing:.01em;
+ color:#eef4ff;
+}
+.xwe-title-with-channels{
+ display:inline-flex;
+ align-items:center;
+ gap:6px;
+ flex:0 0 auto;
+}
+.xwe-title-with-channels [data-xwe-mono-stereo-toggle]{
+ min-height:26px;
+ padding:2px 8px;
+ font-size:10.5px;
+ font-weight:600;
+ letter-spacing:.02em;
+ border-radius:5px;
+ background:#102238;
+ border-color:rgba(125,211,252,.4);
+ color:#cceeff;
+}
+.xwe-head .xwe-undo-redo-pair{
+ display:inline-flex;
+ align-items:center;
+ flex-wrap:nowrap;
+ gap:4px;
+ flex:0 0 auto;
+}
+.xwe-head .xwe-undo-redo-pair button{
+ min-height:32px;
+ padding:4px 9px;
+ font-size:11.5px;
+ font-weight:600;
+ line-height:20px;
+ border-radius:6px;
+ background:#16223a;
+ border-color:#3a4b6d;
+ color:#dce9ff;
+ white-space:nowrap;
+}
+.xwe-head .xwe-undo-redo-pair button:hover:not(:disabled){
+ background:#213254;
+ border-color:#7c97cc;
+ color:#fff;
+}
+.xwe-head-main .xwe-tool-group-range{
+ margin-left:auto;
+}
+
+/* Shared 2-column right action dock: Play/Loop directly above Preview FX/Apply Bake */
+.xwe-head .xwe-head-actions,
+.xwe-inline .xwe-toolbar .xwe-fx-actions{
+ display:grid;
+ grid-template-columns:repeat(2,minmax(0,1fr));
+ align-items:center;
+ gap:6px;
+ padding-left:10px;
+ border-left:1px solid rgba(148,163,184,.22);
+ margin-left:0;
+}
+.xwe-head .xwe-head-actions button,
+.xwe-inline .xwe-toolbar .xwe-fx-actions button{
+ width:100%;
+ min-width:0;
+ display:inline-flex;
+ align-items:center;
+ justify-content:center;
+ gap:6px;
+ min-height:34px;
+ padding:5px 8px;
+ font-size:12px;
+ font-weight:650;
+ line-height:20px;
+ border-radius:6px;
+ white-space:nowrap;
+ letter-spacing:.01em;
+ transition:background-color .14s ease,border-color .14s ease,box-shadow .14s ease,transform .1s ease,color .14s ease;
+}
+.xwe-inline .xwe-toolbar .xwe-fx-actions button{
+ min-height:32px;
+ font-size:11.5px;
+}
+.xwe-head .xwe-head-actions button:active:not(:disabled),
+.xwe-inline .xwe-toolbar .xwe-fx-actions button:active:not(:disabled){transform:translateY(1px)}
+.xwe-btn-icon{
+ display:inline-flex;
+ align-items:center;
+ justify-content:center;
+ width:14px;
+ height:14px;
+ flex:0 0 14px;
+}
+.xwe-btn-svg{
+ width:14px;
+ height:14px;
+ display:block;
+}
+/* Play button: crisp emerald green with triangle icon */
+.xwe-head .xwe-head-actions .xwe-btn-play{
+ background:linear-gradient(180deg,#196e3f 0%,#114c2c 100%);
+ border-color:#34d399;
+ color:#e8fff3;
+ box-shadow:0 1px 8px rgba(16,185,129,.22),inset 0 1px 0 rgba(255,255,255,.14);
+}
+.xwe-head .xwe-head-actions .xwe-btn-play:hover:not(:disabled){
+ background:linear-gradient(180deg,#20874e 0%,#155f37 100%);
+ border-color:#6ee7b7;
+ color:#fff;
+ box-shadow:0 2px 12px rgba(52,211,153,.32),inset 0 1px 0 rgba(255,255,255,.18);
+}
+.xwe-head .xwe-head-actions .xwe-btn-play[aria-pressed="true"]{
+ background:linear-gradient(180deg,#16a34a 0%,#15803d 100%);
+ border-color:#bbf7d0;
+ color:#fff;
+ box-shadow:0 0 0 2px rgba(74,222,128,.36),0 2px 14px rgba(34,197,94,.42);
+}
+/* Loop button: unmistakable vivid violet with circular loop icon */
+.xwe-head .xwe-head-actions .xwe-btn-loop{
+ background:linear-gradient(180deg,#7232d9 0%,#4e1e9e 100%);
+ border-color:#c084fc;
+ color:#faf5ff;
+ font-weight:700;
+ box-shadow:0 0 0 1px rgba(192,132,252,.28),0 2px 12px rgba(124,58,237,.42),inset 0 1px 0 rgba(255,255,255,.2);
+}
+.xwe-head .xwe-head-actions .xwe-btn-loop .xwe-btn-icon,
+.xwe-head .xwe-head-actions .xwe-btn-loop .xwe-btn-svg{
+ width:15px;
+ height:15px;
+ flex-basis:15px;
+}
+.xwe-head .xwe-head-actions .xwe-btn-loop:hover:not(:disabled){
+ background:linear-gradient(180deg,#8644f0 0%,#5f25bd 100%);
+ border-color:#e9d5ff;
+ color:#fff;
+ box-shadow:0 0 0 1px rgba(216,180,254,.45),0 3px 16px rgba(139,92,246,.55),inset 0 1px 0 rgba(255,255,255,.24);
+}
+.xwe-head .xwe-head-actions .xwe-btn-loop[aria-pressed="true"]{
+ background:linear-gradient(180deg,#9333ea 0%,#6b21a8 100%);
+ border-color:#f5d0fe;
+ color:#fff;
+ box-shadow:0 0 0 2px rgba(216,180,254,.48),0 3px 18px rgba(168,85,247,.62);
+}
+/* Preview FX (directly beneath Play) & Apply / Bake (directly beneath Loop) */
+.xwe-inline .xwe-toolbar .xwe-fx-actions .xwe-btn-preview{
+ background:linear-gradient(180deg,#16384e 0%,#0f2738 100%);
+ border-color:#3898b8;
+ color:#d5f5ff;
+}
+.xwe-inline .xwe-toolbar .xwe-fx-actions .xwe-btn-preview:hover:not(:disabled){
+ background:linear-gradient(180deg,#1c4a66 0%,#133349 100%);
+ border-color:#67e8f9;
+ color:#f0fdff;
+}
+.xwe-inline .xwe-toolbar .xwe-fx-actions .xwe-primary.xwe-btn-apply{
+ background:linear-gradient(180deg,#52358c 0%,#3a2366 100%)!important;
+ border-color:#a78bfa!important;
+ color:#f8f4ff;
+ box-shadow:0 1px 6px rgba(109,40,217,.26);
+}
+.xwe-inline .xwe-toolbar .xwe-fx-actions .xwe-primary.xwe-btn-apply:hover:not(:disabled){
+ background:linear-gradient(180deg,#6441aa 0%,#492b80 100%)!important;
+ border-color:#c4b5fd!important;
+ color:#fff;
+}
+
+/* Row 2 Toolbar: Channels, View/Cursor/Snap, A/B & Fused Export | Preview FX & Apply/Bake */
+.xwe-inline .xwe-dialog>.xwe-toolbar{
+ display:grid;
+ grid-template-columns:minmax(0,1fr) 246px;
+ align-items:center;
+ padding:5px 10px;
+ gap:6px 10px;
+ background:#0d1426;
+ border-bottom:1px solid #24314c;
+}
+.xwe-toolbar-main{
+ display:flex;
+ align-items:center;
+ flex-wrap:wrap;
+ gap:6px 8px;
+ min-width:0;
+}
+.xwe-tool-group{
+ display:inline-flex;
+ align-items:center;
+ flex-wrap:nowrap;
+ gap:5px;
+ padding:2px 6px;
+ border-radius:7px;
+ background:rgba(15,23,42,.68);
+ border:1px solid rgba(148,163,184,.16);
+ max-width:100%;
+}
+.xwe-tool-group-util{
+ margin-left:auto;
+}
+.xwe-range-icon{
+ display:inline-flex;
+ align-items:center;
+ justify-content:center;
+ width:23px;
+ height:23px;
+ flex:0 0 23px;
+ color:#7dd3fc;
+ margin:-2px 2px -2px 0;
+}
+.xwe-range-icon-svg{
+ width:23px;
+ height:23px;
+ display:block;
+}
+.xwe-range-pair{
+ display:inline-flex;
+ align-items:center;
+ flex-wrap:nowrap;
+ gap:6px;
+ flex:0 0 auto;
+}
+.xwe-range-divider{
+ display:inline-block;
+ width:1px;
+ height:18px;
+ margin:0 2px;
+ background:rgba(148,163,184,.2);
+ flex:0 0 auto;
+}
+.xwe-head .xwe-num-label,
+.xwe-toolbar .xwe-num-label{
+ display:inline-flex;
+ align-items:center;
+ font-size:11px;
+ font-weight:600;
+ color:#9db2d3;
+ gap:4px;
+ white-space:nowrap;
+}
+.xwe-head input[type="number"],
+.xwe-toolbar input[type="number"]{
+ width:74px;
+ min-height:28px;
+ padding:3px 6px;
+ background:#070c18;
+ border:1px solid #2c3c5a;
+ border-radius:5px;
+ color:#e8f1ff;
+ font-family:var(--font-mono,ui-monospace,SFMono-Regular,Menlo,monospace);
+ font-variant-numeric:tabular-nums;
+ font-size:11.5px;
+}
+.xwe-head input[type="number"]:focus,
+.xwe-toolbar input[type="number"]:focus{
+ border-color:#67e8f9;
+ outline:none;
+ box-shadow:0 0 0 2px rgba(103,232,249,.2);
+}
+.xwe-inline .xwe-toolbar button{
+ min-height:28px;
+ padding:4px 8px;
+ font-size:11.5px;
+ font-weight:550;
+ border-radius:5px;
+ background:#141f36;
+ border-color:#31415f;
+ color:#d7e5fb;
+ white-space:nowrap;
+}
+.xwe-inline .xwe-toolbar button:hover:not(:disabled){
+ background:#1f2f4f;
+ border-color:#7492c9;
+ color:#fff;
+}
+.xwe-toolbar .xwe-view-controls{
+ padding:0 4px 0 0;
+ gap:3px;
+ border-left:0;
+ border-right:1px solid rgba(148,163,184,.2);
+ margin-right:1px;
+}
+.xwe-toolbar .xwe-view-controls>button{
+ display:inline-flex;
+ align-items:center;
+ justify-content:center;
+ min-width:27px;
+ width:27px;
+ min-height:28px;
+ height:28px;
+ padding:2px!important;
+ border-radius:5px;
+ background:#14243c;
+ border-color:#44597a;
+ color:#a9e9fa;
+}
+.xwe-toolbar .xwe-view-controls>button:hover:not(:disabled){
+ background:#213758;
+ border-color:#7dd3fc;
+}
+.xwe-toolbar .xwe-view-controls>button:active,
+.xwe-toolbar .xwe-view-controls>button[data-xwe-nav-held="true"]{
+ background:#32466d;
+ border-color:#93d9f4;
+}
+.xwe-dialog .xwe-channel-modes{
+ border:1px solid #354567;
+ border-radius:6px;
+ padding:2px;
+ gap:2px;
+ background:#09101f;
+ margin-left:0;
+}
+.xwe-dialog .xwe-channel-modes button{
+ min-height:26px;
+ padding:2px 7px;
+ border-radius:4px;
+ border:1px solid transparent;
+ font-size:11.5px;
+}
+.xwe-dialog .xwe-channel-modes button[data-xwe-channel-mode="all"]{
+ min-width:80px;
+ border-color:rgba(167,139,250,.35);
+}
+.xwe-dialog .xwe-channel-modes button[aria-pressed="true"]{
+ background:rgba(139,92,246,.32);
+ border-color:#c084fc;
+ color:#f5ebff;
+ box-shadow:none;
+}
+.xwe-toolbar .xwe-btn-snap-zero{
+ display:inline-flex;
+ align-items:center;
+ gap:5px;
+ background:linear-gradient(180deg,#122d3b 0%,#0c202c 100%)!important;
+ border-color:#3898ad!important;
+ color:#ccf5ff!important;
+}
+.xwe-toolbar .xwe-btn-snap-zero:hover:not(:disabled){
+ background:linear-gradient(180deg,#183f52 0%,#102c3c 100%)!important;
+ border-color:#67e8f9!important;
+ color:#fff!important;
+}
+/* Fused WAV bit-depth + Download pill (single WAV label + clear download icon) */
+.xwe-export-group{
+ display:inline-flex;
+ align-items:stretch;
+ flex-wrap:nowrap;
+ border:1px solid #3d567d;
+ border-radius:6px;
+ overflow:hidden;
+ background:#0c172b;
+ margin-left:2px;
+}
+.xwe-export-group select.xwe-format-select{
+ border:0;
+ border-right:1px solid rgba(148,163,184,.22);
+ border-radius:0;
+ min-height:28px;
+ padding:2px 6px;
+ background:#091222;
+ color:#d7e7ff;
+ font-size:11.5px;
+ font-weight:600;
+ cursor:pointer;
+}
+.xwe-export-group select.xwe-format-select:focus-visible{
+ outline:2px solid #67e8f9;
+ outline-offset:-2px;
+}
+.xwe-export-group .xwe-btn-export{
+ display:inline-flex;
+ align-items:center;
+ justify-content:center;
+ gap:5px;
+ border:0!important;
+ border-radius:0!important;
+ min-height:28px;
+ padding:3px 9px!important;
+ background:linear-gradient(180deg,#1c3556 0%,#13253e 100%)!important;
+ color:#e6f4ff!important;
+ font-weight:650!important;
+}
+.xwe-export-group .xwe-btn-export:hover:not(:disabled){
+ background:linear-gradient(180deg,#264772 0%,#1a3354 100%)!important;
+ color:#fff!important;
+}
+.xwe-export-group .xwe-btn-export .xwe-btn-icon,
+.xwe-export-group .xwe-btn-export .xwe-btn-svg{
+ width:14px;
+ height:14px;
+ flex-basis:14px;
+ color:#7dd3fc;
+}
+@media(max-width:1180px){
+ .xwe-inline .xwe-head,
+ .xwe-inline .xwe-dialog>.xwe-toolbar{grid-template-columns:minmax(0,1fr) 224px}
+ .xwe-head input[type="number"],
+ .xwe-toolbar input[type="number"]{width:66px}
+}
+@media(max-width:900px){
+ .xwe-inline .xwe-head,
+ .xwe-inline .xwe-dialog>.xwe-toolbar{grid-template-columns:1fr}
+ .xwe-head .xwe-head-actions,
+ .xwe-inline .xwe-toolbar .xwe-fx-actions{padding-left:0;border-left:0;max-width:280px}
+ .xwe-head-main .xwe-tool-group-range,
+ .xwe-tool-group-util{margin-left:0}
+ .xwe-tool-group-range,.xwe-tool-group-nav{flex-wrap:wrap}
+}
+
+/* Body & Panels: clean single-elevation surfaces and clear subsections */
+.xwe-inline .xwe-body{
+ padding:10px;
+ gap:10px;
+ background:#080d1a;
+ border-radius:0 0 10px 10px;
+}
+.xwe-inline .xwe-panel{
+ background:#0f172a;
+ border:1px solid #25334f;
+ border-radius:9px;
+ padding:11px;
+}
+.xwe-panel>h3,
+.xwe-fx-header>h3{
+ font:700 12px/1.3 var(--font-sans,system-ui,sans-serif);
+ letter-spacing:.03em;
+ text-transform:none;
+ color:#dbe7fb;
+}
+.xwe-panel>h3{
+ margin:0 0 10px;
+ padding-bottom:6px;
+ border-bottom:1px solid rgba(148,163,184,.14);
+}
+.xwe-subhead{
+ margin:12px 0 6px;
+ padding-top:9px;
+ border-top:1px solid rgba(148,163,184,.14);
+ font:650 11px/1.2 var(--font-sans,system-ui,sans-serif);
+ letter-spacing:.03em;
+ color:#9cb4d8;
+}
+.xwe-dialog [data-xwe-edit-panel="true"] .xwe-field{
+ margin:5px 0;
+ font-size:11.5px;
+ color:#c4d4ec;
+}
+.xwe-dialog [data-xwe-edit-panel="true"] .xwe-field input{
+ background:#070c18;
+ border:1px solid #2c3c5a;
+ border-radius:5px;
+ min-height:29px;
+ padding:4px 7px;
+ color:#eef5ff;
+ font-family:var(--font-mono,ui-monospace,SFMono-Regular,Menlo,monospace);
+ font-variant-numeric:tabular-nums;
+}
+.xwe-dialog [data-xwe-edit-panel="true"] .xwe-field input:focus{
+ border-color:#67e8f9;
+ outline:none;
+ box-shadow:0 0 0 2px rgba(103,232,249,.18);
+}
+.xwe-dialog [data-xwe-edit-panel="true"] button.xwe-chromatic-action{
+ min-height:35px;
+ padding:5px 8px;
+ border-radius:6px;
+ font-size:11.5px;
+ font-weight:550;
+}
+.xwe-shortcuts-hint{
+ display:flex;
+ flex-wrap:wrap;
+ gap:5px 9px;
+ margin-top:10px;
+ padding:7px 8px;
+ border-radius:6px;
+ background:#0a1122;
+ border:1px solid #1e2b45;
+ font-size:10.5px;
+ color:#9bb0d1;
+ line-height:1.4;
+}
+.xwe-shortcuts-hint span{
+ display:inline-flex;
+ align-items:center;
+ gap:4px;
+ white-space:nowrap;
+}
+.xwe-shortcuts-hint kbd{
+ font-family:var(--font-mono,ui-monospace,SFMono-Regular,Menlo,monospace);
+ font-size:10px;
+ font-weight:600;
+ padding:1px 5px;
+ border-radius:4px;
+ background:#16223b;
+ border:1px solid #35476b;
+ color:#e0ecff;
+}
+
+/* Offline FX Chain & Signal Flow clarity */
+.xwe-fx-add-bar{
+ background:transparent!important;
+ gap:6px!important;
+}
+.xwe-fx-add-bar select{
+ min-height:31px;
+ background:#09101f;
+ border-color:#344668;
+ color:#e2ecff;
+ font-size:11.5px;
+ font-weight:550;
+}
+.xwe-fx-add-bar .xwe-btn-add-fx{
+ min-height:31px;
+ background:linear-gradient(180deg,#2b3966 0%,#1f2a4d 100%);
+ border-color:#6d83c4;
+ color:#edf3ff;
+ font-weight:600;
+}
+.xwe-fx-add-bar .xwe-btn-add-fx:hover:not(:disabled){
+ background:linear-gradient(180deg,#394c85 0%,#283663 100%);
+ border-color:#a5b4fc;
+}
+.xwe-fx-add-bar .xwe-btn-eq{
+ min-height:31px;
+ background:linear-gradient(180deg,#123539 0%,#0c2529 100%);
+ border-color:#3c8f88;
+ color:#cffaf2;
+ font-weight:600;
+}
+.xwe-fx-add-bar .xwe-btn-eq:hover:not(:disabled){
+ background:linear-gradient(180deg,#19494f 0%,#113338 100%);
+ border-color:#5eead4;
+}
+.xwe-bypass-toggle{
+ font-size:11.5px;
+ font-weight:550;
+ color:#b8c8e2;
+ padding:3px 7px;
+ border-radius:5px;
+ background:#0b1324;
+ border:1px solid #253452;
+ cursor:pointer;
+}
+.xwe-chain{
+ gap:6px;
+ padding:6px 0 8px;
+}
+.xwe-chain:empty{
+ display:flex;
+ align-items:center;
+ min-height:34px;
+ padding:6px 10px;
+ margin-bottom:6px;
+ border:1px dashed #2b3a59;
+ border-radius:6px;
+ background:#0a1121;
+}
+.xwe-chain:empty::before{
+ content:"No effects in chain yet — pick an effect above and click + Effect, or add Live-Room EQ.";
+ font-size:11px;
+ color:#8aa0c4;
+}
+.xwe-node{
+ padding:4px 6px;
+ border-radius:6px;
+ border-color:#3a4a6b;
+ background:#111b33;
+ gap:4px;
+}
+.xwe-node[data-active="true"]{
+ border-color:#c084fc;
+ background:linear-gradient(180deg,#332152 0%,#25183d 100%);
+ box-shadow:0 0 0 1px rgba(192,132,252,.25);
+}
+.xwe-parameters .xwe-field{
+ font-size:11.5px;
+ color:#c7d7ef;
+ font-variant-numeric:tabular-nums;
+}
+.xwe-roundtrip-actions{
+ border-top:1px solid rgba(148,163,184,.14);
+ margin-top:4px;
+ padding-top:8px!important;
+}
+
+/* Song Parts & Snap per Bar / Beat / Segment control (above waveform) */
+.xwe-song-caption{
+ gap:8px;
+ min-height:24px;
+ font-size:11.5px;
+ color:#b4c6ea;
+}
+.xwe-song-tools{gap:6px}
+.xwe-song-snap{
+ display:inline-flex;
+ align-items:center;
+ gap:5px;
+ padding:2px 4px 2px 7px;
+ border-radius:5px;
+ background:#111c33;
+ border:1px solid #3c527a;
+ color:#d7e8ff;
+ font-size:11.5px;
+ font-weight:600;
+ line-height:1.2;
+ transition:border-color .14s ease,background-color .14s ease,box-shadow .14s ease,color .14s ease;
+}
+.xwe-song-snap[data-xwe-snap-active="true"]{
+ background:linear-gradient(180deg,#16324f 0%,#10253d 100%);
+ border-color:#38bdf8;
+ color:#e0f2fe;
+ box-shadow:0 0 0 1px rgba(56,189,248,.18),0 1px 6px rgba(14,165,233,.2);
+}
+.xwe-song-snap[data-xwe-snap-active="false"]{
+ background:#0e1526;
+ border-color:#334155;
+ color:#94a3b8;
+}
+.xwe-snap-icon{
+ width:18px;
+ height:18px;
+ flex:0 0 18px;
+ margin:-2px 0;
+ display:block;
+ color:#7dd3fc;
+}
+.xwe-song-snap[data-xwe-snap-active="true"] .xwe-snap-icon{color:#38bdf8}
+.xwe-song-snap[data-xwe-snap-active="false"] .xwe-snap-icon{color:#64748b}
+.xwe-snap-label{
+ letter-spacing:.01em;
+ user-select:none;
+}
+.xwe-song-snap select{
+ background:#071020;
+ border:1px solid rgba(125,211,252,.38);
+ border-radius:4px;
+ color:#f0f9ff;
+ font-size:11.5px;
+ font-weight:650;
+ padding:2px 6px;
+ cursor:pointer;
+}
+.xwe-song-snap[data-xwe-snap-active="false"] select{
+ border-color:#334155;
+ color:#cbd5e1;
+}
+.xwe-song-snap select:hover{border-color:#7dd3fc}
+.xwe-song-snap select:focus-visible{outline:2px solid #38bdf8;outline-offset:1px}
+.xwe-song-redo{
+ min-height:24px;
+ padding:2px 7px;
+ border-radius:5px;
+ background:#131d33;
+ border-color:#3b4d73;
+ color:#dbeafe;
+ font-weight:600;
+}
+.xwe-song-redo.xwe-song-tonal{
+ display:inline-flex;
+ align-items:center;
+ justify-content:center;
+ gap:4px;
+ height:24px;
+ min-height:24px;
+ padding:0 7px;
+ line-height:1;
+}
+.xwe-key-icon{
+ width:17px;
+ height:17px;
+ flex:0 0 17px;
+ margin:-2px 0;
+ display:block;
+}
+.xwe-key-label{
+ line-height:1;
+}
+.xwe-song-redo:hover:not(:disabled){
+ background:#1e2d4f;
+ border-color:#7aa2e3;
+ color:#fff;
+}
+@media(prefers-reduced-motion:reduce){
+ .xwe-head .xwe-head-actions button,
+ .xwe-inline .xwe-toolbar .xwe-fx-actions button,
+ .xwe-launch-close,
+ .xwe-song-snap{transition:none}
+}
+
+
+

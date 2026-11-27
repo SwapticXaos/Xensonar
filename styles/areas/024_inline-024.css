@@ -80,3 +80,5 @@
 .xen-hit-scope button{padding:2px 9px;font-size:10px;color:#d8b980;background:#140d06;border:0}
 .xen-hit-scope button+button{border-left:1px solid #5b4320}
 .xen-hit-scope button.is-active{background:#4a3212;color:#fff0d0}
+.xen-hit-scope button:disabled{opacity:.38;cursor:not-allowed}
+
