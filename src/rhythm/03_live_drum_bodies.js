@@ -89,9 +89,13 @@ function D9(ctx,bus){
      const chokeOpen=choke&&voice==="hat_closed"&&openHat;
      if(chokeOpen&&openHat.gain){openHat.gain.gain.cancelScheduledValues(time);openHat.gain.gain.setTargetAtTime(1e-4,time,.01)}
      else if(chokeOpen&&openHat.host&&openHat.host!==host)openHat.host.choke(time);
-     host.play({b:host.id(entry.buffer),o:out,s:time,p:style.pan,
+     const hit={b:host.id(entry.buffer),o:out,s:time,p:style.pan,
       g:env?[[0,time,env.initialGain],[1,time+env.attackSec,env.peakGain],[3,time+env.attackSec,env.targetGain,env.targetTimeConstantSec]]:null,
-      ck:!!(chokeOpen&&openHat.host===host),oh:choke&&voice==="hat_open"});
+      ck:!!(chokeOpen&&openHat.host===host),oh:choke&&voice==="hat_open"};
+     host.play(hit);
+     /* DRUM-ECHO-LANES-01: a ticked lane also feeds the echo input (same resident voice, no graph change per hit) */
+     const echoTap=bus.__xenDrumMix?.echoTapFor?.(voice);
+     if(echoTap){const eo=host.output('echo',echoTap);if(eo>=0)host.play({...hit,o:eo,ck:false,oh:false})}
      if(choke&&voice==="hat_open")openHat={host};
      return;
     }
@@ -156,7 +160,10 @@ function D9(ctx,bus){
    if(out>=0){
     const peak=Math.min(1.8,level),g=[[0,at,0],[1,at+when,peak]];
     if(decay<1)g.push([0,Math.max(at+when,at+playSec-release),peak],[1,at+playSec,0]);
-    host.play({b:host.id(audio),o:out,s:at,p:pan,g,f:tone<.995?Math.min(ctx.sampleRate*.47,500*Math.pow(40,tone)):0,e:decay<1?at+playSec:0});
+    const hit={b:host.id(audio),o:out,s:at,p:pan,g,f:tone<.995?Math.min(ctx.sampleRate*.47,500*Math.pow(40,tone)):0,e:decay<1?at+playSec:0};
+    host.play(hit);
+    const echoTap=options.lane?bus.__xenDrumMix?.echoTapFor?.(options.lane):null;
+    if(echoTap){const eo=host.output('echo',echoTap);if(eo>=0)host.play({...hit,o:eo})}
     sampleVoices.add({end:at+(decay<1?playSec:duration)});sampleStats.played++;sampleStats.active=sampleVoices.size;
     return true;
    }

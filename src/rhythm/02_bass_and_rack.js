@@ -74,7 +74,12 @@ function __f48BassClipPlayer(ctx,playBassNote,readClip,readParams){
  * letting the offset pile up: only the first tap is shifted, the loop keeps the
  * grid period. The right side runs at a rate ratio L:R, as XenSonar treats pitch.
  * Repeats pass a band-limited, unity-gain saturating loop, so throws stay musical. */
-const __xenDrumEchoIntLimits={drumEchoMarker:[1,256],drumEchoMode:[0,2],drumEchoNum:[1,64],drumEchoDen:[1,128],drumEchoPolyL:[1,16],drumEchoPolyR:[1,16]};
+/* DRUM-ECHO-LANES-01: which drums feed the Dub Echo; bit per lane (12 bits = all, as before) */
+const __xenDrumEchoLaneOrder=['kick','snare','hatClosed','hatOpen','clap','perc','sample1','sample2','sample3','sample4','sample5','sample6'];
+const __xenDrumEchoLaneAll=(1<<__xenDrumEchoLaneOrder.length)-1;
+const __xenDrumEchoLaneAlias={hat_closed:'hatClosed',hat_open:'hatOpen'};
+function __xenDrumEchoLaneBit(lane){const i=__xenDrumEchoLaneOrder.indexOf(__xenDrumEchoLaneAlias[lane]||lane);return i<0?0:1<<i}
+const __xenDrumEchoIntLimits={drumEchoLanes:[0,4095],drumEchoMarker:[1,256],drumEchoMode:[0,2],drumEchoNum:[1,64],drumEchoDen:[1,128],drumEchoPolyL:[1,16],drumEchoPolyR:[1,16]};
 const __xenDrumEchoLegacy=[[1,16],[1,12],[1,8],[1,6],[3,16],[1,4],[3,8],[1,2]];
 const __xenDrumEchoMaxSec=3.9;
 let __xenDrumEchoStepSec=null;
@@ -175,7 +180,7 @@ function __xenDrumEchoReleaseOverlay(keys){
 const __f48RackKey='xensonar-rhythm-rack-v1';
 // Keep the established default drum excitation; the live mixer scales its output.
 const __XenDrumMixReference=.52;
-const __f48RackDefaults={bassVoice:'classic',bassResonance:0,bassEnvelope:1,bassDecay:1,bassSub:1,bassVoiceRecipe:null,bassVoiceUserId:'',bassVoiceUserName:'',drumPhaser:0,drumPhaserRate:.28,drumPhaserDepth:.55,drumDistance:0,drumPan:0,drumDecay:1,drumVolume:__XenDrumMixReference,drumGlue:0,drumDrive:0,drumBoom:0,drumEcho:0,drumEchoMode:0,drumEchoNum:3,drumEchoDen:16,drumEchoMarker:3,drumEchoFeel:0,drumEchoWarp:1,drumEchoMs:375,drumEchoPolyL:1,drumEchoPolyR:1,drumEchoCross:1,drumEchoFeedback:.45,drumEchoTone:.45,drumEchoSpread:.6};
+const __f48RackDefaults={bassVoice:'classic',bassResonance:0,bassEnvelope:1,bassDecay:1,bassSub:1,bassVoiceRecipe:null,bassVoiceUserId:'',bassVoiceUserName:'',drumPhaser:0,drumPhaserRate:.28,drumPhaserDepth:.55,drumDistance:0,drumPan:0,drumDecay:1,drumVolume:__XenDrumMixReference,drumGlue:0,drumDrive:0,drumBoom:0,drumEcho:0,drumEchoLanes:4095,drumEchoMode:0,drumEchoNum:3,drumEchoDen:16,drumEchoMarker:3,drumEchoFeel:0,drumEchoWarp:1,drumEchoMs:375,drumEchoPolyL:1,drumEchoPolyR:1,drumEchoCross:1,drumEchoFeedback:.45,drumEchoTone:.45,drumEchoSpread:.6};
 function __f48CleanRack(value){
  const v=value||{},out={};
  for(const [key,fallback] of Object.entries(__f48RackDefaults)){
@@ -255,20 +260,20 @@ function __f48GetDrumRack(ctx,destination){
   * Cross 0 = two independent echoes at the L:R rate ratio. */
  const makeEcho=()=>{
   __xenDrumEchoWatchGrid();
-  const send=ctx.createGain(),inR=ctx.createGain(),firstL=ctx.createDelay(4),firstR=ctx.createDelay(4),delayL=ctx.createDelay(4),delayR=ctx.createDelay(4),nodeL=ctx.createGain(),nodeR=ctx.createGain(),merger=ctx.createChannelMerger(2),ret=ctx.createGain();
+  const tap=ctx.createGain(),send=ctx.createGain(),inR=ctx.createGain(),firstL=ctx.createDelay(4),firstR=ctx.createDelay(4),delayL=ctx.createDelay(4),delayR=ctx.createDelay(4),nodeL=ctx.createGain(),nodeR=ctx.createGain(),merger=ctx.createChannelMerger(2),ret=ctx.createGain();
   const hop=()=>{const hp=ctx.createBiquadFilter(),lp=ctx.createBiquadFilter(),shape=ctx.createWaveShaper(),self=ctx.createGain(),cross=ctx.createGain();
    hp.type='highpass';hp.frequency.value=140;hp.Q.value=.5;lp.type='lowpass';lp.Q.value=.6;shape.curve=__xenDrumEchoCurve();shape.oversample='2x';self.gain.value=0;cross.gain.value=0;
    hp.connect(lp);lp.connect(shape);shape.connect(self);shape.connect(cross);return {hp,lp,shape,self,cross}};
   const a=hop(),b=hop(),outLL=ctx.createGain(),outRR=ctx.createGain(),outLR=ctx.createGain(),outRL=ctx.createGain();
   send.gain.value=0;inR.gain.value=0;ret.gain.value=.72;
-  postBus.connect(send);send.connect(firstL);firstL.connect(nodeL);send.connect(inR);inR.connect(firstR);firstR.connect(nodeR);
+  postBus.connect(send);tap.connect(send);send.connect(firstL);firstL.connect(nodeL);send.connect(inR);inR.connect(firstR);firstR.connect(nodeR);
   nodeL.connect(a.hp);a.self.connect(delayL);a.cross.connect(delayR);delayL.connect(nodeL);
   nodeR.connect(b.hp);b.self.connect(delayR);b.cross.connect(delayL);delayR.connect(nodeR);
   nodeL.connect(outLL);outLL.connect(merger,0,0);nodeL.connect(outLR);outLR.connect(merger,0,1);
   nodeR.connect(outRR);outRR.connect(merger,0,1);nodeR.connect(outRL);outRL.connect(merger,0,0);
   merger.connect(ret);ret.connect(pan);
-  return {send,inR,firstL,firstR,delayL,delayR,nodeL,nodeR,targets:new Map(),a,b,outLL,outRR,outLR,outRL,ret,
-   nodes:[send,inR,firstL,firstR,delayL,delayR,nodeL,nodeR,merger,ret,outLL,outRR,outLR,outRL,a.hp,a.lp,a.shape,a.self,a.cross,b.hp,b.lp,b.shape,b.self,b.cross]};
+  return {tap,fromBus:true,send,inR,firstL,firstR,delayL,delayR,nodeL,nodeR,targets:new Map(),a,b,outLL,outRR,outLR,outRL,ret,
+   nodes:[tap,send,inR,firstL,firstR,delayL,delayR,nodeL,nodeR,merger,ret,outLL,outRR,outLR,outRL,a.hp,a.lp,a.shape,a.self,a.cross,b.hp,b.lp,b.shape,b.self,b.cross]};
  };
  const releaseEcho=()=>{if(!echo)return;for(const node of echo.nodes)try{node.disconnect()}catch{}try{postBus.disconnect(echo.send)}catch{}echo=null};
  const scheduleEchoRetire=()=>{
@@ -293,6 +298,9 @@ function __f48GetDrumRack(ctx,destination){
    hold(d.delayTime);if(glide)d.delayTime.setTargetAtTime(time,now,.09);else d.delayTime.setValueAtTime(time,now);echo.targets.set(d,time)}
   const tone=params.drumEchoTone??.45,cutoff=700*Math.pow(2,tone*4.4),spread=params.drumEchoSpread??.6,cross=params.drumEchoCross??1;
   const send=echoMode==='throw'?1:params.drumEcho,fb=echoMode==='spin'?.96:params.drumEchoFeedback;
+  // DRUM-ECHO-LANES-01: all drums = the processed drum bus as before; a selection = only the ticked lanes (fed per hit into echo.tap)
+  const all=((params.drumEchoLanes??__xenDrumEchoLaneAll)&__xenDrumEchoLaneAll)===__xenDrumEchoLaneAll;
+  if(all!==echo.fromBus){try{if(all)postBus.connect(echo.send);else postBus.disconnect(echo.send)}catch{}echo.fromBus=all}
   ramp(echo.send.gain,send);ramp(echo.inR.gain,1-cross);
   for(const h of [echo.a,echo.b]){ramp(h.self.gain,fb*(1-cross));ramp(h.cross.gain,fb*cross);ramp(h.lp.frequency,cutoff);ramp(h.hp.frequency,echoMode==='spin'?260:140)}
   ramp(echo.outLL.gain,.5+spread*.5);ramp(echo.outRR.gain,.5+spread*.5);ramp(echo.outLR.gain,.5-spread*.5);ramp(echo.outRL.gain,.5-spread*.5);
@@ -301,6 +309,8 @@ function __f48GetDrumRack(ctx,destination){
  const onContextState=()=>{if(ctx.state==='closed')device.dispose()};
  const device={ctx,input,
   retimeEcho(){if(!disposed&&echo&&ctx.state!=='closed')applyEcho(lastParams,true)},
+  // the echo input for one hit of this lane, or null (all lanes: the bus feeds the echo; lane not ticked; no echo)
+  echoTapFor(lane){if(disposed||!echo||echo.fromBus)return null;return ((lastParams.drumEchoLanes??__xenDrumEchoLaneAll)&__xenDrumEchoLaneBit(lane))?echo.tap:null},
   previewEcho(patch){if(disposed||ctx.state==='closed')return;lastParams={...lastParams,...patch};
    if(lastParams.drumEcho>.001&&!echo){echo=makeEcho();applyEcho(lastParams,false)}else applyEcho(lastParams,true)},
   throwEcho(mode){if(disposed||ctx.state==='closed')return;echoMode=mode==='throw'||mode==='spin'?mode:null;
@@ -795,6 +805,16 @@ function __xenDrumEchoPanel({params,update}){
   ['Fifth 3:2',{...base,drumEcho:.3,drumEchoMode:0,drumEchoNum:3,drumEchoDen:16,drumEchoPolyL:3,drumEchoPolyR:2,drumEchoCross:0,drumEchoFeedback:.5,drumEchoTone:.42,drumEchoSpread:1}],
   ['Free 333 ms',{...base,drumEcho:.3,drumEchoMode:1,drumEchoMs:333,drumEchoFeedback:.5,drumEchoTone:.4,drumEchoSpread:.7}]
  ];
+ /* DRUM-ECHO-LANES-01: which drums feed the echo */
+ const laneMask=(val('drumEchoLanes')??__xenDrumEchoLaneAll)&__xenDrumEchoLaneAll;
+ const laneNames=typeof __f52DrumLaneNames!=='undefined'?__f52DrumLaneNames:{};
+ const laneLabel=l=>laneNames[l]||l;
+ const picked=__xenDrumEchoLaneOrder.filter(l=>laneMask&__xenDrumEchoLaneBit(l));
+ const laneSummary=picked.length?(picked.length<=3?picked.map(laneLabel).join(', '):picked.length+' drums'):'no drum';
+ const toggleLane=l=>update({drumEchoLanes:laneMask^__xenDrumEchoLaneBit(l)});
+ const laneBox=l=>u.jsxs('label',{className:'xen-echo-lane'+(laneMask&__xenDrumEchoLaneBit(l)?' is-on':''),'data-drum-echo-lane':l,title:'Send '+laneLabel(l)+' into the echo',children:[
+  u.jsx('input',{type:'checkbox',checked:!!(laneMask&__xenDrumEchoLaneBit(l)),onChange:()=>toggleLane(l)}),u.jsx('span',{children:laneLabel(l)})]},l);
+ const section=(title,hint)=>u.jsxs('div',{className:'xen-echo-section-title',children:[u.jsx('b',{children:title}),hint?u.jsx('i',{children:hint}):null]});
  const shortSummary=mode===1?`${ms(times.base)} ms`:mode===2?`M${marker}/${grid.seg} · ${ms(times.left)} ms`:`${num}/${den} · ${ms(times.left)} ms`;
  return u.jsxs('div',{className:'xen-drum-echo'+(echoOn?' is-on':''),'data-drum-echo-panel':true,'data-echo-on':echoOn?'true':'false','aria-label':'Dub Echo',children:[
   u.jsxs('div',{className:'xen-drum-echo-head',children:[
@@ -809,7 +829,8 @@ function __xenDrumEchoPanel({params,update}){
    u.jsxs('span',{className:'xen-echo-summary',children:[
     shortSummary,
     polyL!==polyR?` · L:R ${polyL}:${polyR}`:'',
-    echoOn?` · Send ${Math.round(sendVal*100)}%`:''
+    echoOn?` · Send ${Math.round(sendVal*100)}%`:'',
+    laneMask!==__xenDrumEchoLaneAll?` · ${laneSummary}`:''
    ]}),
    u.jsxs('div',{className:'xen-echo-head-actions',children:[
     u.jsx('button',{type:'button',className:'xen-drum-echo-hold'+(held==='throw'?' is-active':''),title:'Hold: throw the beat fully into the echo (works even when OFF)',...hold('throw'),children:'Throw'}),
@@ -817,13 +838,22 @@ function __xenDrumEchoPanel({params,update}){
     u.jsx('button',{type:'button','data-drum-echo-collapse':true,'aria-expanded':open,
      className:'xen-echo-collapse-btn'+(open?' is-open':''),
      title:open?'Collapse Dub Echo controls':'Expand Dub Echo controls',
-     onClick:()=>setOpen(v=>!v),children:open?'▾ Einklappen':'▸ Aufklappen'})
+     onClick:()=>setOpen(v=>!v),children:open?'▾ Less':'▸ More'})
    ]})
   ]}),
   open?u.jsxs('div',{className:'xen-drum-echo-body','data-drum-echo-body':true,children:[
+   section('Which drums','ticked drums feed the echo; all ticked = the whole drum bus'),
+   u.jsxs('div',{className:'xen-echo-lanes','data-drum-echo-lanes':true,children:[
+    ...__xenDrumEchoLaneOrder.slice(0,6).map(laneBox),
+    u.jsx('button',{type:'button',className:'xen-echo-lane-all',disabled:laneMask===__xenDrumEchoLaneAll,onClick:()=>update({drumEchoLanes:__xenDrumEchoLaneAll}),children:'All'}),
+    u.jsx('button',{type:'button',className:'xen-echo-lane-all',disabled:laneMask===0,onClick:()=>update({drumEchoLanes:0}),children:'None'})]}),
+   u.jsxs('div',{className:'xen-echo-lanes is-samples',children:[u.jsx('span',{className:'xen-echo-lanes-label',children:'Samples'}),...__xenDrumEchoLaneOrder.slice(6).map(laneBox)]}),
+   section('Scenes'),
    u.jsxs('div',{className:'xen-rack-actions xen-echo-scenes',children:[u.jsx('span',{children:'Echo scenes'}),
     ...presets.map(([label,patch])=>u.jsx('button',{type:'button',onClick:()=>update(patch),children:label},label))]}),
+   section('Send & sound'),
    u.jsx('div',{className:'xen-drum-rack-controls',children:[['Echo Send','drumEcho',0,1],['Feedback','drumEchoFeedback',0,.92],['Tone (dark→bright)','drumEchoTone',0,1],['Width','drumEchoSpread',0,1],['Cross-Feed','drumEchoCross',0,1]].map(([label,key,min,max])=>u.jsx(__xenDrumEchoLiveRange,{aria:label,label:v=>label+' '+Number(v).toFixed(2),value:val(key),min,max,update,patchFor:v=>({[key]:v})},key))}),
+   section('Time','bar ratio, beat marker or free milliseconds'),
    u.jsxs('div',{className:'xen-rack-actions',role:'radiogroup','aria-label':'Echo clock',children:[u.jsx('span',{children:'Clock'}),
     ...[[0,'Bar ratio n/d','Echo time as a fraction of the bar, the fixed time unit of the main room'],[2,'Beat marker','Echo time snaps to a segment boundary of the active beat and follows its shifted markers'],[1,'Free ms','Echo time in milliseconds, off the grid']].map(([id,label,title])=>
      u.jsx('button',{type:'button',role:'radio','aria-checked':mode===id,className:mode===id?'is-active':'',title,
@@ -897,7 +927,7 @@ function __f48DrumRack({params,update}){
    u.jsx('div',{className:'xen-rhythm-title',style:{marginBottom:0},children:'Drum Rack · Bus Punch & Space'}),
    u.jsxs('div',{className:'xen-drum-rack-head-actions',children:[
     u.jsx(__f48DrumGlobalEQ,{}),
-    u.jsx('button',{type:'button',className:'xen-rack-reset-btn',onClick:()=>update({drumPhaser:0,drumDistance:0,drumPan:0,drumDecay:1,drumGlue:0,drumDrive:0,drumBoom:0,drumVolume:__XenDrumMixReference,drumEcho:0,drumEchoMode:0,drumEchoNum:3,drumEchoDen:16,drumEchoMarker:3,drumEchoFeel:0,drumEchoWarp:1,drumEchoMs:375,drumEchoPolyL:1,drumEchoPolyR:1,drumEchoCross:1,drumEchoFeedback:.45,drumEchoTone:.45,drumEchoSpread:.6}),children:'Reset Rack'})
+    u.jsx('button',{type:'button',className:'xen-rack-reset-btn',onClick:()=>update({drumPhaser:0,drumDistance:0,drumPan:0,drumDecay:1,drumGlue:0,drumDrive:0,drumBoom:0,drumVolume:__XenDrumMixReference,drumEcho:0,drumEchoLanes:4095,drumEchoMode:0,drumEchoNum:3,drumEchoDen:16,drumEchoMarker:3,drumEchoFeel:0,drumEchoWarp:1,drumEchoMs:375,drumEchoPolyL:1,drumEchoPolyR:1,drumEchoCross:1,drumEchoFeedback:.45,drumEchoTone:.45,drumEchoSpread:.6}),children:'Reset Rack'})
    ]})
   ]}),
   u.jsxs('div',{className:'xen-drum-rack-controls',children:[
