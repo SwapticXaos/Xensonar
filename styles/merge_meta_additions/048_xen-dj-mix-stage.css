@@ -1966,22 +1966,27 @@
   background: var(--sp-main);
 }
 
-/* Loop ruler: bar-quantized seek + snap ghost */
-.xen-dj-loop-ruler { cursor: pointer; touch-action: none; }
-.xen-dj-loop-snap {
-  position: absolute; top: 0; bottom: 0; width: 2px; margin-left: -1px;
-  background: rgba(236, 255, 253, 0.85); opacity: 0; pointer-events: none; z-index: 3;
-  box-shadow: 0 0 4px rgba(126, 224, 214, 0.7);
+/* DJ-SEEK-01: bar seek on the loop ruler and the "Takt & Phase" rails – the hovered bar lights up */
+.xen-dj-loop-ruler, .xen-dj-time-rail-track { cursor: pointer; touch-action: none; }
+.xen-dj-loop-ruler:focus-visible, .xen-dj-time-rail-track:focus-visible { outline: 1px solid rgba(126, 224, 214, .8); outline-offset: 1px; }
+.xen-dj-bar-ghost {
+  position: absolute; top: 0; bottom: 0; left: 0; width: 0; opacity: 0; pointer-events: none; z-index: 3;
+  background: rgba(236, 255, 253, .13); box-shadow: inset 0 0 0 1px rgba(236, 255, 253, .55);
+  transition: opacity .12s ease-out;
 }
 
-/* Nudge: segment arrows + spring-loaded fine jog */
+/* Nudge: « / » one segment · middle jog = push (→) / brake (←), springs back */
 .xen-dj-nudge-jog {
   position: relative; flex: 1 1 auto; min-width: 0; height: 17px;
   border-radius: 3px; background: linear-gradient(90deg, rgba(79,227,210,.10), rgba(79,227,210,0) 50%, rgba(242,184,102,.10));
   border: 1px solid rgba(72, 126, 136, 0.22);
   cursor: ew-resize; touch-action: none; overflow: hidden; user-select: none;
 }
+.xen-dj-nudge-jog:focus-visible { outline: 1px solid rgba(126, 224, 214, .8); outline-offset: 1px; }
 .xen-dj-nudge-jog.is-dragging { border-color: rgba(126, 224, 214, 0.6); }
+/* live audio feedback from the voice's own nudge physics */
+.xen-dj-nudge-jog[data-motion="push"] { border-color: rgba(242, 184, 102, .75); background: linear-gradient(90deg, rgba(79,227,210,.06), rgba(79,227,210,0) 50%, rgba(242,184,102,.34)); }
+.xen-dj-nudge-jog[data-motion="brake"] { border-color: rgba(79, 227, 210, .75); background: linear-gradient(90deg, rgba(79,227,210,.34), rgba(79,227,210,0) 50%, rgba(242,184,102,.06)); }
 .xen-dj-nudge-center {
   position: absolute; left: 50%; top: 2px; bottom: 2px; width: 1px;
   background: rgba(143, 192, 198, 0.45); pointer-events: none;
@@ -1994,6 +1999,6 @@
 .xen-dj-nudge-jog.is-dragging b { transition: none; opacity: 1; }
 .xen-dj-nudge-jog .xen-dj-nudge-val {
   position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
-  font-size: 8px; white-space: nowrap; pointer-events: auto; z-index: 1;
-  text-shadow: 0 0 3px #000;
+  font-size: 8px; white-space: nowrap; pointer-events: none; z-index: 1;
+  color: #b7d8dc; text-shadow: 0 0 3px #000;
 }

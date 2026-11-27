@@ -3,8 +3,10 @@ const test=require('node:test'),assert=require('node:assert/strict'),vm=require(
 const flush=()=>new Promise(resolve=>setImmediate(resolve));
 const source=fs.readFileSync(path.join(__dirname,'../src/mix/03_quick_menu__before_eq-core.js'),'utf8');
 function block(name){const start=source.indexOf('const '+name+'=');return source.slice(start,source.indexOf('})();',start)+5);}
+// R2: VoiceMix is a factory (Live Room instance + Room IV instances); take the notifier and the factory.
+function voiceMixSource(){const start=source.indexOf('function __xenControlNotifier('),end=source.indexOf('const __XenMaterialVoiceMix=__xenCreateMaterialVoiceMix();');return source.slice(start,source.indexOf('\n',source.indexOf('}\n',start))+1)+source.slice(source.indexOf('function __xenCreateMaterialVoiceMix('),end)+'const __XenMaterialVoiceMix=__xenCreateMaterialVoiceMix();';}
 function setup(){
- const c={console,setTimeout,clearTimeout,__XenNudgeFeedback:{endPreview(){},preview(){}}};vm.createContext(c);vm.runInContext(block('__XenMaterialVoiceMix')+';globalThis.mix=__XenMaterialVoiceMix;',c);
+ const c={console,setTimeout,clearTimeout,__XenNudgeFeedback:{endPreview(){},preview(){}}};vm.createContext(c);vm.runInContext(voiceMixSource()+';globalThis.mix=__XenMaterialVoiceMix;',c);
  const code=JSON.parse(source.slice(source.indexOf(' const code=',source.indexOf('const __XenMaterialPhase='))+12).split(';\n')[0]);
  const messages=[],w={sampleRate:48000,currentFrame:0,AudioWorkletProcessor:class{constructor(){this.port={postMessage:m=>messages.push(m)}}},registerProcessor:(name,Processor)=>{w.Processor=Processor}};
  vm.createContext(w);vm.runInContext(code,w);const processor=new w.Processor();
@@ -59,5 +61,7 @@ test('finite reached phases outside the thumb range survive release, restore, an
  send({type:'target',attack,interaction:'restore'});assert.equal(processor.motion.target,-attack);
  const audio=fs.readFileSync(path.join(__dirname,'../src/audio/01_voice_and_rfl_ownership.js'),'utf8');const start=audio.indexOf('function __xenMaterialLoopPhaseSec('),end=audio.indexOf('\nfunction zfe(',start);const offset=new Function(audio.slice(start,end)+';return __xenMaterialLoopPhaseSec')();
  const plan={sourceDurationSec:4,loopStartSec:0,playbackRate:1};assert.equal(offset(plan,attack,120),4-attack*.5);
- send({type:'target',attack:5,interaction:'drag'});assert.equal(processor.motion.target,-2);
+ // DJ-SEEK-01: interactive targets are bounded at ±64 beats (Mixing Desk bar jumps reach whole bars)
+ send({type:'target',attack:5,interaction:'drag'});assert.equal(processor.motion.target,-5);
+ send({type:'target',attack:70,interaction:'drag'});assert.equal(processor.motion.target,-64);
 });

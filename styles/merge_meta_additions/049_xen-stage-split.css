@@ -1,6 +1,6 @@
 /* UI-LIQUID-01: Liquid stage split (play surface ↔ Mixing Desk).
  * Same DOM in both docks: .xen-stage-split > play | vgrip | ghost | handle | desk.
- * dock=top : play surface above (between the side rails, as before), desk below, schematic thumb on the desk's right edge.
+ * dock=top : play surface above (between the side rails, as before), desk below (UI-LIQUID-02: only after "↑"; opening the desk docks the play surface beside it).
  * dock=side: inactive ghost stays above between the rails; below, FULL WINDOW WIDTH (not the column of the blocks below):
  *            desk (flush left) | handle | Live Room head (power, Loop-Rec) directly above the playfield (flush right).
  *            Head + playfield default to the desk height (the playfield always sits right under its Loop-Rec dock).
@@ -40,28 +40,9 @@ html.xen-split-dragging .xen-stage-split-handle { cursor: ew-resize !important; 
 
 .xen-stage-split-ghost, .xen-stage-split-handle { display: none; }
 
-/* ── top dock: desk + narrow schematic playfield on its right edge ── */
+/* ── top dock: desk below the play surface (only after "↑"; opening the desk docks it beside) ── */
 .xen-stage-split-desk { display: flex; align-items: stretch; gap: 6px; min-width: 0; }
 .xen-stage-split-desk > :first-child { flex: 1 1 auto; min-width: 0; }
-.xen-stage-split-thumb {
-  position: relative; flex: 0 0 34px; min-height: 120px; padding: 0;
-  border: 1px solid rgba(148, 163, 184, .28); border-radius: 6px; background: #07090c;
-  cursor: pointer; overflow: hidden; filter: grayscale(.85); opacity: .55;
-  transition: opacity .18s, filter .18s, border-color .18s, flex-basis .18s;
-}
-.xen-stage-split-thumb svg { position: absolute; inset: 0; width: 100%; height: 100%; }
-.xen-stage-split-thumb .bg { fill: #0b0f14; }
-.xen-stage-split-thumb line { stroke: rgba(203, 213, 225, .35); stroke-width: .6; vector-effect: non-scaling-stroke; }
-.xen-stage-split-thumb line.is-major { stroke: rgba(244, 114, 182, .55); }
-.xen-stage-split-thumb .dot { fill: rgba(226, 232, 240, .8); }
-.xen-stage-split-thumb-label {
-  position: absolute; left: 50%; bottom: 8px; transform: translateX(-50%) rotate(180deg);
-  writing-mode: vertical-rl; font-size: 9px; letter-spacing: .18em; text-transform: uppercase;
-  color: rgba(226, 232, 240, .7); pointer-events: none;
-}
-.xen-stage-split-thumb:hover, .xen-stage-split-thumb:focus-visible {
-  opacity: 1; filter: none; border-color: rgba(125, 211, 252, .7); flex-basis: 44px; outline: none;
-}
 
 /* ── side dock ── */
 .xen-stage-split[data-dock="side"] {

@@ -171,3 +171,50 @@ test('lerpEqCurves smoothly interpolates 360-point EQ arrays', () => {
   assert.ok(Math.abs(mid[359] - 0.25) < 1e-9);
 });
 
+
+// DJ-SEEK-01: bar jumps & segment steps (att in beats, playhead = elapsed − att)
+const posOf = (att, elapsed, L) => (((elapsed - att) % L) + L) % L;
+
+test('planBarJump: lands in the clicked bar and keeps the position inside the bar', () => {
+  // 4-bar loop at 4 beats/bar; playhead at beat 5.5 (bar 1, +1.5 beats)
+  const L = 16, elapsed = 5.5, att0 = 0;
+  const r = M.planBarJump({ att: att0, progress01: posOf(att0, elapsed, L) / L, targetBar: 3, loopBeats: L, effectiveBars: 4, segmentsPerBar: 4 });
+  assert.equal(r.fromBar, 1);
+  assert.equal(r.toBar, 3);
+  assert.ok(Math.abs(posOf(r.att, elapsed, L) - 13.5) < 1e-9, 'bar 3 + 1.5 beats');
+  assert.ok(Math.abs(r.att) <= L / 2);
+  // the shift is a whole number of bars: the groove stays on the room grid
+  assert.ok(Math.abs((r.att / 4) - Math.round(r.att / 4)) < 1e-9);
+});
+
+test('planBarJump: backwards, same bar, and the fractional tail bar', () => {
+  const L = 18, grid = { loopBeats: L, effectiveBars: 4.5, segmentsPerBar: 4 };
+  const at = (att, t) => posOf(att, t, L);
+  const back = M.planBarJump({ att: 0, progress01: at(0, 9) / L, targetBar: 0, ...grid });
+  assert.ok(Math.abs(at(back.att, 9) - 1) < 1e-9);
+  const same = M.planBarJump({ att: 0, progress01: at(0, 9) / L, targetBar: 2, ...grid });
+  assert.equal(same.att, 0);
+  // bar 4 is only 2 beats long: 3 beats into a bar → wraps inside the short bar
+  const tail = M.planBarJump({ att: 0, progress01: at(0, 7) / L, targetBar: 4, ...grid });
+  const p = at(tail.att, 7);
+  assert.ok(p >= 16 && p < 18, 'inside the tail bar: ' + p);
+});
+
+test('planSegmentStep / formatPhaseOffset: one segment, readable labels', () => {
+  const grid = { loopBeats: 16, effectiveBars: 4, segmentsPerBar: 4 };
+  const f = M.planSegmentStep({ att: 0, direction: 1, ...grid });
+  assert.equal(f.att, -1);
+  assert.equal(M.formatPhaseOffset(f.att, grid), '+1S');
+  const b = M.planSegmentStep({ att: 0, direction: -1, ...grid });
+  assert.equal(M.formatPhaseOffset(b.att, grid), '−1S');
+  assert.equal(M.formatPhaseOffset(-5, grid), '+1T 1S');
+  assert.equal(M.formatPhaseOffset(-0.37, grid), '+0.37S');
+  assert.equal(M.formatPhaseOffset(0, grid), '0');
+  // 7 segments per bar
+  const g7 = { loopBeats: 8, effectiveBars: 2, segmentsPerBar: 7 };
+  assert.ok(Math.abs(M.planSegmentStep({ att: 0, direction: 1, ...g7 }).att + 4 / 7) < 1e-12);
+  // wraps to the shortest cyclic offset
+  assert.equal(M.wrapCyclic(9, 16), -7);
+  assert.equal(M.barAtRatio(0.99, 4.5), 4);
+  assert.equal(M.barAtRatio(0.5, 4), 2);
+});

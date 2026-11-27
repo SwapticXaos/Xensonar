@@ -6,7 +6,8 @@
  *     spacing  'abs' | 'log' | 'fret'  vertical grid distribution: absolute Hz (as before), logarithmic
  *                                (equal octaves) or guitar frets (linear in period = the mirror of 'abs':
  *                                intervals get narrower towards the top, like frets towards the body)
- * - __XenStageSplit: wraps the play surface (Oce) and the Mixing Desk. The tree is ALWAYS the same
+ * - __XenStageSplit: wraps the play surface (Oce) and the Mixing Desk. Opening the desk docks the
+ *   playfield beside it (UI-LIQUID-02); "↑" or the ghost bring it back up until the desk is opened again. The tree is ALWAYS the same
  *   (play, vgrip, ghost, handle, desk); only data-dock and CSS change, so the canvas is never remounted.
  * - __XenGridSpacingControl: the switch in Controls & Settings.
  * The canvas keeps its logical 1100 × 580 space; stretching is a non-uniform CSS scale. Pointer maths
@@ -74,38 +75,6 @@ if (typeof window !== 'undefined') {
   window.__XenGridMapProbe = Object.freeze({ yToHz: y => Qa(y), hzToY: f => Zs(f), toLogical: (canvas, cx, cy) => j4({ currentTarget: canvas, clientX: cx, clientY: cy }, vr, ir) });
 }
 
-function __XenStageSplitThumb({ spacing, onActivate }) {
-  // Schematic, greyed-out narrow playfield: grid lines in the current spacing + a few particles.
-  const lines = [];
-  const n = 15;
-  for (let i = 1; i < n; i++) {
-    const r = i / n;
-    // equal-tempered lines over 3 octaves: 'abs' crowds them at the bottom, 'log' is even, 'fret' crowds them at the top
-    const f = Math.pow(2, 3 * r);
-    const y = spacing === 'log' ? 100 * (1 - r) : spacing === 'fret' ? 100 * (1 - (1 - 1 / f) / (1 - 1 / 8)) : 100 * (1 - (f - 1) / 7);
-    lines.push(u.jsx('line', { x1: 0, x2: 24, y1: y.toFixed(2), y2: y.toFixed(2), className: i % 5 === 0 ? 'is-major' : '' }, i));
-  }
-  const dots = [[6, 22], [17, 41], [10, 63], [19, 78], [5, 88]];
-  return u.jsxs('button', {
-    type: 'button',
-    className: 'xen-stage-split-thumb',
-    title: 'Spielfläche hierher holen: Mixing Desk links, Raster rechts – die Grenze ist frei verschiebbar',
-    'aria-label': 'Spielfläche neben das Mixing Desk holen',
-    onClick: onActivate,
-    children: [
-      u.jsxs('svg', {
-        viewBox: '0 0 24 100', preserveAspectRatio: 'none', 'aria-hidden': true,
-        children: [
-          u.jsx('rect', { x: 0, y: 0, width: 24, height: 100, className: 'bg' }),
-          ...lines,
-          ...dots.map(([x, y], i) => u.jsx('circle', { cx: x, cy: y, r: 1.3, className: 'dot' }, 'd' + i))
-        ]
-      }),
-      u.jsx('span', { className: 'xen-stage-split-thumb-label', children: 'Raster' })
-    ]
-  });
-}
-
 function __xenDragPointer(ev, onMove, onEnd) {
   ev.preventDefault();
   const el = ev.currentTarget;
@@ -135,6 +104,11 @@ function __XenStageSplit({ stage, desk }) {
     () => false
   );
   const open = deskOpen && !!desk;
+  // UI-LIQUID-02: opening the Mixing Desk docks the playfield beside it right away (no extra click).
+  // "↑" / the ghost still bring it back up for this session; the next opening docks it again.
+  P.useLayoutEffect(() => {
+    if (open && __XenStageLayout.snapshot().dock !== 'side') __XenStageLayout.setDock('side');
+  }, [open]);
   const dock = open && lay.dock === 'side' ? 'side' : 'top';
   const rootRef = P.useRef(null);
   const ghostRef = P.useRef(null);
@@ -199,10 +173,6 @@ function __XenStageSplit({ stage, desk }) {
     };
   }, [dock]);
 
-  const goSide = () => {
-    __XenStageLayout.setDock('side');
-    requestAnimationFrame(() => rootRef.current?.querySelector('.xen-stage-split-desk')?.scrollIntoView({ behavior: 'smooth', block: 'start' }));
-  };
   const goTop = () => __XenStageLayout.setDock('top');
 
   const onHandleDown = ev => {
@@ -306,10 +276,7 @@ function __XenStageSplit({ stage, desk }) {
       }),
       u.jsxs('div', {
         className: 'xen-stage-split-desk',
-        children: [
-          desk,
-          open && dock === 'top' ? u.jsx(__XenStageSplitThumb, { spacing: lay.spacing, onActivate: goSide }) : null
-        ]
+        children: desk
       })
     ]
   });

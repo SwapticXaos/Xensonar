@@ -130,7 +130,7 @@ function __XenLaneControls({params,update,primaryId,extras=[]}={}){
     slider(owner,'Volume',isPrimary?Math.max(0,Number(params?.materialLoopVolume)||0):data.volume,0,isPrimary?1:1.5,.01,isPrimary?v=>update({materialLoopVolume:v}):v=>__XenMaterialVoiceMix.set(id,'volume',v),false,'volume:'+id),
     slider(owner,'Pan',isPrimary?panState.material??0:data.pan,-1,1,.01,isPrimary?v=>__XenPan.set('material',v):v=>__XenMaterialVoiceMix.set(id,'pan',v),false,'pan:'+id),
     slider(owner,'Pitch',data.pitch,-1200,1200,.1,v=>__XenMaterialVoiceMix.set(id,'pitch',v),false,'pitch:'+id),
-    slider(owner,'Nudge',data.att,-2,2,.001,(v,interaction)=>__XenMaterialVoiceMix.set(id,'att',v,interaction),false,'att:'+id)
+    slider(owner,'Nudge',data.att-__xenNudgeCoarse(data.att),-2,2,.001,(v,interaction)=>__XenMaterialVoiceMix.set(id,'att',__xenNudgeCoarse(data.att)+v,interaction),false,'att:'+id)
    ]}),
    openWindow==='att:'+id?u.jsx(__XenNudgeOptions,{id,owner,mode:data.nudgeMode,feel:data.nudgeFeel}):null,
    eqDock('material',id,owner,id)

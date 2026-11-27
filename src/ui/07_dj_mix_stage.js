@@ -78,6 +78,9 @@ const __XenDjStage = (() => {
   let mixFlushRaf = 0;
   let pendingMixCtxGetter = null;
   let activeMorphKeys = [];
+  // DJ-OWN-01: last level the desk wrote per track. A different live level means someone else
+  // (Quick Rack, a song recall) moved it: the desk adopts that as the new fader position instead of fighting it.
+  const lastWritten = new Map();
 
   const emit = () => {
     for (const fn of listeners) fn();
@@ -116,6 +119,7 @@ const __XenDjStage = (() => {
     for (const id of ids) {
       if (typeof nextBase[id] !== 'number') {
         nextBase[id] = readLiveVolume(id, primaryId, params);
+        lastWritten.set(id, nextBase[id] * deckMultiplier(id));
         changed = true;
       }
     }
@@ -156,6 +160,7 @@ const __XenDjStage = (() => {
       const mult = deckMultiplier(id, state);
       const maxVol = id === primaryId ? 1 : 1.5;
       const eff = __XenDjMixMath.clamp(base * mult, 0, maxVol);
+      lastWritten.set(id, Number(eff.toFixed(3)));
       if (id === primaryId) {
         if (typeof update === 'function' && Math.abs((Number(params?.materialLoopVolume) || 0) - eff) > 0.002) {
           update({ materialLoopVolume: Number(eff.toFixed(3)) });
@@ -429,6 +434,24 @@ const __XenDjStage = (() => {
       pts.push('L0,' + midY.toFixed(1) + ' Z');
     }
     return pts.join(' ');
+  }
+
+  // Adopt volume changes made outside the desk (see lastWritten). Returns a baseVolumes patch or null.
+  function adoptExternalVolumes(ids, primaryId, params) {
+    let patch = null;
+    for (const id of ids) {
+      const base = state.baseVolumes[id];
+      const wrote = lastWritten.get(id);
+      if (typeof base !== 'number' || wrote === undefined) continue;
+      const live = readLiveVolume(id, primaryId, params);
+      if (Math.abs(live - wrote) <= 0.004) continue;
+      lastWritten.set(id, live);
+      const mult = deckMultiplier(id);
+      if (mult < 0.05) continue; // crossfader fully away: the fader position is not observable, keep it
+      const next = __XenDjMixMath.clamp(live / mult, 0, id === primaryId ? 1 : 1.5);
+      if (Math.abs(next - base) > 0.004) (patch ||= { ...state.baseVolumes })[id] = Number(next.toFixed(3));
+    }
+    return patch;
   }
 
   function setExpanded(next) {
@@ -738,64 +761,113 @@ const __XenDjStage = (() => {
     });
   }
 
-  /* ── Dedicated Bar & Segment Loop-Progress Ruler (True WebAudio Phase!) ── */
+  /* ── DJ-SEEK-01: Takte spulen (Loop-Balken & Takt-Schienen) · Segment-Sprung und Schubsen/Bremsen (Nudge) ──
+   * Phase model: att = per-voice cyclic onset shift in beats (playhead = elapsed − att·beat); "ahead" = −att.
+   * - Bar jump: lands in the clicked bar and KEEPS the position inside the bar → the loop stays on the room grid.
+   * - Segment step («/»): exactly one segment of the loop's own subdivision, also a discrete jump.
+   * - Jog (middle): continuous push / brake through the voice's own nudge physics (Granular/Vinyl · Soft/Hard),
+   *   exactly like the Quick Rack nudge; the thumb springs back, the reached offset stays.
+   * Jumps use the worklet's 'jump' interaction: one PCM move with a 12 ms de-click, no tempo/pitch excursion. */
   const NUDGE_MAX_BEATS = 64;
-  const barLineFromRatio = (ratio, effectiveBars) => {
-    const eff = Math.max(1 / 64, Number(effectiveBars) || 1);
-    const whole = Math.max(1, Math.floor(eff + 1e-6));
-    const k = Math.max(0, Math.min(whole, Math.round(ratio * eff)));
-    return (k >= eff - 1e-6) ? 0 : k; // Loop-Ende == Loop-Anfang, wenn ganzzahlig
-  };
-  // Springt auf die angeklickte Taktlinie. Tempo bleibt unverändert: nur die zyklische
-  // Phasenverschiebung (att, in Beats) wird so gesetzt, dass der Playhead genau dort landet.
-  function seekLoopToBar(id, metric, ratio) {
-    if (typeof __XenMaterialLivePhase === 'undefined') return false;
+
+  // What the listener hears right now: while a soft nudge glides, the audio-owned motion lags the target.
+  function nudgeView(id) {
     const att = __XenMaterialVoiceMix.get(id).att || 0;
-    const snap = __XenMaterialLivePhase.read(id, att, false);
-    if (snap.state !== 'playing' || !(snap.loopBeats > 0)) return false;
-    const L = snap.loopBeats;
-    const k = barLineFromRatio(ratio, metric.effectiveBars);
-    const delta = (k / metric.effectiveBars - snap.progress01) * L; // Beats, die der Playhead springen soll
-    let next = att - delta;                                         // pos = elapsed − att·beat
-    next = ((next % L) + L) % L; if (next > L / 2) next -= L;       // kürzester zyklischer Weg
-    __XenMaterialVoiceMix.set(id, 'att', __XenDjMixMath.clamp(next, -NUDGE_MAX_BEATS, NUDGE_MAX_BEATS), 'click');
-    return true;
-  }
-  function segmentBeatsFor(id, metric) {
-    const snap = typeof __XenMaterialLivePhase !== 'undefined' ? __XenMaterialLivePhase.read(id, 0, false) : null;
-    const barBeats = snap && snap.loopBeats > 0 && metric.effectiveBars > 0 ? snap.loopBeats / metric.effectiveBars : 4;
-    return barBeats / Math.max(1, metric.segmentsPerBar);
+    try {
+      if (typeof __XenNudgeFeedback === 'undefined') return { att, motion: 'rest' };
+      const m = __XenNudgeFeedback.get(id);
+      if (!m?.live) return { att, motion: 'rest' };
+      const clock = __XenNudgeFeedback.context(id);
+      const s = typeof __xenNudgeSample === 'function' ? __xenNudgeSample(m, clock?.currentTime ?? m.audioTime) : m;
+      const heard = Number.isFinite(s.phase) ? -s.phase : att;
+      const motion = !m.active ? 'rest' : s.rate > 1.0005 ? 'push' : s.rate < 0.9995 ? 'brake' : 'rest';
+      return { att: heard, motion };
+    } catch {
+      return { att, motion: 'rest' };
+    }
   }
 
-  function LoopProgressRuler({ id, metric, accent }) {
+  function liveGrid(id, metric, att = 0) {
+    const snap = typeof __XenMaterialLivePhase !== 'undefined'
+      ? __XenMaterialLivePhase.read(id, att, false)
+      : { state: 'idle', progress01: 0 };
+    const grid = __XenDjMixMath.loopGrid({ loopBeats: snap.loopBeats, effectiveBars: metric.effectiveBars, segmentsPerBar: metric.segmentsPerBar });
+    return { snap, grid };
+  }
+
+  const setPhase = (id, att, how) => __XenMaterialVoiceMix.set(id, 'att', __XenDjMixMath.clamp(att, -NUDGE_MAX_BEATS, NUDGE_MAX_BEATS), how);
+
+  // targetBar: absolute bar index, or with { relative: true } a step of ±n bars from the current one.
+  function jumpToBar(id, metric, targetBar, { relative = false } = {}) {
+    const att = nudgeView(id).att;
+    const { snap, grid } = liveGrid(id, metric, att);
+    const playing = snap.state === 'playing';
+    // Not playing: the next start begins in that bar (the start position follows the same offset).
+    const progress01 = playing ? snap.progress01 : (((-att % grid.L) + grid.L) % grid.L) / grid.L;
+    const fromBar = Math.min(grid.barCount - 1, Math.floor(progress01 * grid.eff + 1e-9));
+    const toBar = relative ? (((fromBar + targetBar) % grid.barCount) + grid.barCount) % grid.barCount : targetBar;
+    const plan = __XenDjMixMath.planBarJump({
+      att, progress01, targetBar: toBar, loopBeats: grid.L, effectiveBars: grid.eff, segmentsPerBar: grid.segsPerBar
+    });
+    if (Math.abs(plan.deltaBeats) > 1e-9) setPhase(id, plan.att, 'jump');
+    if (!playing) flashStatus('Spur startet in Takt ' + (plan.toBar + 1));
+    return plan;
+  }
+
+  function stepSegment(id, metric, direction) {
+    const att = nudgeView(id).att;
+    const { grid } = liveGrid(id, metric, att);
+    const plan = __XenDjMixMath.planSegmentStep({ att, direction, loopBeats: grid.L, effectiveBars: grid.eff, segmentsPerBar: grid.segsPerBar });
+    setPhase(id, plan.att, 'jump');
+  }
+
+  // Pointer & keyboard handlers shared by the per-strip loop ruler and the "Takt & Phase" rails.
+  function barSeekProps(id, metric, ownerName) {
+    const eff = metric.effectiveBars;
+    const ratioOf = (e) => {
+      const r = e.currentTarget.getBoundingClientRect();
+      return r.width > 0 ? (e.clientX - r.left) / r.width : 0;
+    };
+    const showGhost = (el, k) => {
+      const g = el.querySelector('.xen-dj-bar-ghost');
+      if (!g) return;
+      if (k == null) { g.style.opacity = '0'; return; }
+      g.style.left = ((k / eff) * 100).toFixed(3) + '%';
+      g.style.width = ((Math.min(1, eff - k) / eff) * 100).toFixed(3) + '%';
+      g.style.opacity = '1';
+    };
+    return {
+      tabIndex: 0,
+      'data-xen-bar-seek': id,
+      'aria-label': ownerName + ': Takt spulen (Klick in einen Takt, ←/→ einen Takt)',
+      onPointerMove: (e) => showGhost(e.currentTarget, __XenDjMixMath.barAtRatio(ratioOf(e), eff)),
+      onPointerLeave: (e) => showGhost(e.currentTarget, null),
+      onPointerDown: (e) => {
+        if (e.button != null && e.button !== 0) return;
+        e.preventDefault();
+        jumpToBar(id, metric, __XenDjMixMath.barAtRatio(ratioOf(e), eff));
+      },
+      onKeyDown: (e) => {
+        if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
+        e.preventDefault();
+        jumpToBar(id, metric, e.key === 'ArrowRight' ? 1 : -1, { relative: true });
+      }
+    };
+  }
+
+  /* ── Bar & Segment Loop-Progress Ruler (true WebAudio phase) – click a bar to spool there ── */
+  function LoopProgressRuler({ id, metric, accent, ownerName }) {
     const geom = __XenDjMixMath.buildBarRulerGeometry({
       effectiveBars: metric.effectiveBars,
       segmentsPerBar: metric.segmentsPerBar
     });
-    const snapAt = (e) => {
-      const r = e.currentTarget.getBoundingClientRect();
-      const ratio = r.width > 0 ? Math.max(0, Math.min(1, (e.clientX - r.left) / r.width)) : 0;
-      const k = barLineFromRatio(ratio, metric.effectiveBars);
-      return { ratio, k, x: (k / metric.effectiveBars) };
-    };
     return u.jsxs('div', {
       className: 'xen-dj-loop-ruler is-idle',
       'data-xen-loop-ruler': id,
-      title: 'Loop-Fortschritt (echte WebAudio-Phase) · ' + metric.label + (metric.hasLiveBarEdit ? ' (Bar-Edit aktiv)' : '') + ' · Klick springt taktgenau (Tempo bleibt)',
-      onPointerMove: (e) => {
-        const ghost = e.currentTarget.querySelector('.xen-dj-loop-snap');
-        if (ghost) { ghost.style.left = (snapAt(e).x * 100).toFixed(2) + '%'; ghost.style.opacity = '1'; }
-      },
-      onPointerLeave: (e) => {
-        const ghost = e.currentTarget.querySelector('.xen-dj-loop-snap');
-        if (ghost) ghost.style.opacity = '0';
-      },
-      onPointerDown: (e) => {
-        if (e.button != null && e.button !== 0) return;
-        seekLoopToBar(id, metric, snapAt(e).ratio);
-      },
+      title: 'Loop ' + metric.label + (metric.hasLiveBarEdit ? ' (Bar-Edit aktiv)' : '') + ' · Klick in einen Takt: dorthin spulen, im Raster und im Tempo (←/→: ein Takt)',
+      ...barSeekProps(id, metric, ownerName),
       children: [
-        u.jsx('span', { className: 'xen-dj-loop-snap', 'aria-hidden': true }),
+        u.jsx('span', { className: 'xen-dj-bar-ghost', 'aria-hidden': true }),
         // Live filling progress wash (width driven purely by __XenMaterialLivePhase in rAF)
         u.jsx('div', {
           className: 'xen-dj-loop-fill',
@@ -840,73 +912,87 @@ const __XenDjStage = (() => {
     });
   }
 
-  /* ── Nudge: Segment-Pfeile an den Enden + feiner Jog-Schieber in der Mitte ── */
+  /* ── Nudge: « / » ein Segment springen · Mitte ziehen = schubsen (→) / bremsen (←), federt zurück ── */
   function NudgeDeck({ id, att, metric, fullName }) {
-    const attRef = P.useRef(att);
-    attRef.current = att;
     const dragRef = P.useRef(null);
-    const seg = segmentBeatsFor(id, metric);
-    const FINE_SEGMENTS = 0.5; // voller Ausschlag des Jogs = ± ½ Segment
-    const setAtt = (v, how) => __XenMaterialVoiceMix.set(id, 'att', __XenDjMixMath.clamp(v, -NUDGE_MAX_BEATS, NUDGE_MAX_BEATS), how);
-    const moveKnob = (el, v) => { const k = el && el.querySelector('b'); if (k) k.style.left = (50 + v * 50).toFixed(1) + '%'; };
-    const jogValue = (e, el) => {
-      const r = el.getBoundingClientRect();
-      return r.width > 0 ? __XenDjMixMath.clamp(((e.clientX - r.left) / r.width) * 2 - 1, -1, 1) : 0;
+    const { grid } = liveGrid(id, metric, 0);
+    const FINE_SEGMENTS = 0.5; // a full throw of the jog = ± ½ segment
+    const moveKnob = (el, v) => {
+      const k = el && el.querySelector('b');
+      if (k) k.style.left = (50 + v * 50).toFixed(1) + '%';
     };
     const finish = (e) => {
       const d = dragRef.current;
       if (!d || d.pointerId !== e.pointerId) return;
       dragRef.current = null;
       __XenMaterialVoiceMix.endGesture(id, 'drag');
-      const el = e.currentTarget;
-      el.classList.remove('is-dragging');
-      moveKnob(el, 0); // Feder: Regler springt zurück, die Phasenverschiebung bleibt
+      e.currentTarget.classList.remove('is-dragging');
+      moveKnob(e.currentTarget, 0); // spring: the thumb returns, the reached phase offset stays
     };
-    const segLabel = Math.abs(att) < 0.0005 ? '0' : ((att >= 0 ? '+' : '−') + Math.abs(att / seg).toFixed(2));
+    const offsetLabel = __XenDjMixMath.formatPhaseOffset(att, { loopBeats: grid.L, effectiveBars: grid.eff, segmentsPerBar: grid.segsPerBar });
     return u.jsxs('div', {
       className: 'xen-dj-nudge-box',
-      title: 'Nudge: «/» = ein Segment zurück/vor · Mitte ziehen = fein schubsen/bremsen (federt zurück) · Klick auf Φ = Reset',
       children: [
-        u.jsx('button', { type: 'button', 'aria-label': fullName + ' Nudge ein Segment zurück', onClick: () => setAtt(attRef.current - seg, 'click'), children: '«' }),
+        u.jsx('button', {
+          type: 'button',
+          'aria-label': fullName + ' ein Segment zurück',
+          title: 'Ein Segment zurückspringen (1/' + grid.segsPerBar + ' Takt)',
+          onClick: () => stepSegment(id, metric, -1),
+          children: '«'
+        }),
         u.jsxs('div', {
           className: 'xen-dj-nudge-jog',
-          role: 'slider',
-          'aria-label': fullName + ' Nudge fein',
-          'aria-valuemin': -1, 'aria-valuemax': 1, 'aria-valuenow': 0,
+          'data-xen-nudge-jog': id,
+          'data-motion': 'rest',
+          tabIndex: 0,
+          'aria-label': fullName + ' schubsen / bremsen',
+          'aria-valuetext': 'Versatz ' + offsetLabel,
+          title: 'Φ ' + offsetLabel + ' = Versatz zum Raum-Raster (T Takt, S Segment)\nZiehen: → schubsen (vor), ← bremsen (zurück) · federt zurück, der Versatz bleibt\n←/→: fein · Doppelklick: zurück aufs Raster',
+          onDoubleClick: () => setPhase(id, 0, 'jump'),
           onPointerDown: (e) => {
             if (e.button != null && e.button !== 0) return;
             const el = e.currentTarget;
+            const r = el.getBoundingClientRect();
             el.setPointerCapture?.(e.pointerId);
-            dragRef.current = { pointerId: e.pointerId, base: attRef.current };
+            dragRef.current = {
+              pointerId: e.pointerId,
+              x0: e.clientX,
+              half: Math.max(8, r.width / 2),
+              base: __XenMaterialVoiceMix.get(id).att || 0,
+              range: FINE_SEGMENTS * liveGrid(id, metric, 0).grid.segBeats
+            };
             el.classList.add('is-dragging');
             __XenMaterialVoiceMix.beginGesture(id, 'drag');
-            const v = jogValue(e, el);
-            moveKnob(el, v);
-            setAtt(dragRef.current.base + v * FINE_SEGMENTS * seg, 'drag');
           },
           onPointerMove: (e) => {
             const d = dragRef.current;
             if (!d || d.pointerId !== e.pointerId) return;
-            const v = jogValue(e, e.currentTarget);
+            const v = __XenDjMixMath.clamp((e.clientX - d.x0) / d.half, -1, 1);
             moveKnob(e.currentTarget, v);
-            setAtt(d.base + v * FINE_SEGMENTS * seg, 'drag');
+            setPhase(id, d.base - v * d.range, 'drag'); // right = ahead = smaller att
           },
           onPointerUp: finish,
           onPointerCancel: finish,
           onLostPointerCapture: finish,
+          onKeyDown: (e) => {
+            if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
+            e.preventDefault();
+            const step = grid.segBeats / 8;
+            setPhase(id, (__XenMaterialVoiceMix.get(id).att || 0) + (e.key === 'ArrowRight' ? -step : step), 'click');
+          },
           children: [
             u.jsx('i', { className: 'xen-dj-nudge-center', 'aria-hidden': true }),
             u.jsx('b', { 'aria-hidden': true }),
-            u.jsx('span', {
-              className: 'xen-dj-nudge-val',
-              title: 'Klick: Nudge zurücksetzen (0)',
-              onPointerDown: (e) => e.stopPropagation(),
-              onClick: () => setAtt(0, 'click'),
-              children: 'Φ ' + segLabel + ' Seg'
-            })
+            u.jsx('span', { className: 'xen-dj-nudge-val', 'aria-hidden': true, children: 'Φ ' + offsetLabel })
           ]
         }),
-        u.jsx('button', { type: 'button', 'aria-label': fullName + ' Nudge ein Segment vor', onClick: () => setAtt(attRef.current + seg, 'click'), children: '»' })
+        u.jsx('button', {
+          type: 'button',
+          'aria-label': fullName + ' ein Segment vor',
+          title: 'Ein Segment vorspringen (1/' + grid.segsPerBar + ' Takt)',
+          onClick: () => stepSegment(id, metric, 1),
+          children: '»'
+        })
       ]
     });
   }
@@ -988,6 +1074,12 @@ const __XenDjStage = (() => {
 
     P.useEffect(() => {
       if (!dj.expanded || !deckIds.length) return;
+      const patch = adoptExternalVolumes(deckIds, primaryId, params);
+      if (patch) setState({ baseVolumes: patch });
+    }, [dj.expanded, voiceState, params?.materialLoopVolume, deckIds.join('|')]);
+
+    P.useEffect(() => {
+      if (!dj.expanded || !deckIds.length) return;
       ensureBaseVolumes(deckIds, primaryId, params);
       const anyAssigned = deckIds.some(id => dj.buses[id] === 'A' || dj.buses[id] === 'B');
       if (!anyAssigned && deckIds.length >= 2) {
@@ -1047,10 +1139,12 @@ const __XenDjStage = (() => {
           for (const id of meta.deckIds) {
             const esc = CSS.escape(id);
             const isMutedVoice = !meta.active || (id === meta.primaryId && meta.primaryMuted);
-            const att = __XenMaterialVoiceMix.get(id).att || 0;
+            const view = nudgeView(id);
             const snap = (typeof __XenMaterialLivePhase !== 'undefined' && !isMutedVoice)
-              ? __XenMaterialLivePhase.read(id, att, false)
+              ? __XenMaterialLivePhase.read(id, view.att, false)
               : { state: 'idle', progress01: 0 };
+            const jog = root.querySelector('[data-xen-nudge-jog="' + esc + '"]');
+            if (jog && jog.dataset.motion !== view.motion) jog.dataset.motion = view.motion;
 
             const ruler = root.querySelector('[data-xen-loop-ruler="' + esc + '"]');
             const fill = root.querySelector('[data-xen-loop-fill="' + esc + '"]');
@@ -1461,7 +1555,7 @@ const __XenDjStage = (() => {
           }),
 
           // 2. Dedicated Bar & Segment Loop-Progress Ruler (100% WebAudio Phase, never moves when audio is off!)
-          u.jsx(LoopProgressRuler, { id, metric, accent }),
+          u.jsx(LoopProgressRuler, { id, metric, accent, ownerName: fullName }),
 
           // 3. Bus Assign (A | THRU | B)
           u.jsxs('div', {
@@ -1650,7 +1744,7 @@ const __XenDjStage = (() => {
       const vol = kind === 'bass'
         ? Math.max(0, Number(params?.bassVolume) || 0)
         : kind === 'drum'
-          ? Math.max(0, Number(params?.drumVolume) ?? 0.5)
+          ? (Number.isFinite(Number(params?.drumVolume)) ? Math.max(0, Number(params.drumVolume)) : 0.5)
           : Math.max(0, Number(params?.rootFollowLoopVolume) || 0);
       const pan = kind === 'drum' ? (params?.drumPan ?? 0) : (panState[kind] ?? 0);
       const pitch = kind === 'bass' ? bassPitch : kind === 'rootFollow' ? rootPitch : null;
@@ -2012,8 +2106,10 @@ const __XenDjStage = (() => {
                       u.jsx('span', { className: 'xen-dj-time-rail-name', style: { color }, children: __XenDjMixMath.compactTrackLabel(labelFor(d.id)).primary }),
                       u.jsxs('div', {
                         className: 'xen-dj-time-rail-track',
-                        title: 'Zyklus: ' + d.label + ' · ' + cycles + '× bis Konvergenz (' + polySummary.convergenceText + ')',
+                        title: 'Zyklus: ' + d.label + ' · ' + cycles + '× bis Konvergenz (' + polySummary.convergenceText + ') · Klick in einen Takt: dorthin spulen',
+                        ...barSeekProps(d.id, d, labelFor(d.id)),
                         children: [
+                          u.jsx('span', { className: 'xen-dj-bar-ghost', 'aria-hidden': true }),
                           u.jsx('div', {
                             className: 'xen-dj-time-rail-fill',
                             'data-xen-rail-fill': d.id,

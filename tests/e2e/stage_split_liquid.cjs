@@ -1,6 +1,6 @@
 'use strict';
-// UI-LIQUID-01 (real app): Mixing Desk shows a schematic playfield thumb; clicking it docks the playfield
-// beside the desk (same canvas element, no remount), the border and the playfield height are draggable and
+// UI-LIQUID-01/02 (real app): opening the Mixing Desk docks the playfield beside it right away
+// (same canvas element, no remount, no thumb any more), the border and the playfield height are draggable and
 // persisted, the stretched canvas keeps a sharp backing store, pointer maths follows the stretched rect,
 // the ghost brings the playfield back up, and Controls & Settings switches the grid to logarithmic spacing.
 // Usage: node tests/e2e/stage_split_liquid.cjs dist/XenSonar_PROBE.html
@@ -13,10 +13,13 @@ const html=path.resolve(process.argv[2]||'dist/XenSonar_PROBE.html');
   await p.goto('file://'+html);await p.waitForTimeout(3500);
   await p.getByRole('button',{name:'Power'}).click();await p.waitForTimeout(1200);
   await p.evaluate(()=>{window.__canvas0=document.querySelector('canvas[data-xen-play-area]')});
+  assert.equal(await p.getAttribute('.xen-stage-split','data-dock'),'side','desk open (persisted) → playfield already beside it');
+  assert.equal(await p.$('.xen-stage-split-thumb'),null,'no thumb any more');
+  // close + reopen: the canvas moves up and back beside the desk without a remount
+  await p.evaluate(()=>window.__XenDjStage.setExpanded(false));await p.waitForTimeout(300);
   assert.equal(await p.getAttribute('.xen-stage-split','data-dock'),'top');
-  assert.ok(await p.isVisible('.xen-stage-split-thumb'),'thumb visible while desk is open');
-  await p.click('.xen-stage-split-thumb');await p.waitForTimeout(600);
-  assert.equal(await p.getAttribute('.xen-stage-split','data-dock'),'side');
+  await p.evaluate(()=>window.__XenDjStage.setExpanded(true));await p.waitForTimeout(600);
+  assert.equal(await p.getAttribute('.xen-stage-split','data-dock'),'side','opening the desk docks the playfield beside it');
   assert.ok(await p.evaluate(()=>document.querySelector('canvas[data-xen-play-area]')===window.__canvas0),'same canvas element (no remount)');
   const pos=await p.evaluate(()=>{const d=document.querySelector('.xen-dj-stage').getBoundingClientRect(),c=document.querySelector('canvas[data-xen-play-area]').getBoundingClientRect();return{deskRight:d.right,canvasLeft:c.left}});
   assert.ok(pos.deskRight<pos.canvasLeft,'desk left of playfield');
@@ -60,9 +63,12 @@ const html=path.resolve(process.argv[2]||'dist/XenSonar_PROBE.html');
   await p.click('.xen-stage-split-ghost');await p.waitForTimeout(400);
   assert.equal(await p.getAttribute('.xen-stage-split','data-dock'),'top');
   assert.ok(await p.evaluate(()=>document.querySelector('canvas[data-xen-play-area]')===window.__canvas0),'still the same canvas');
-  // desk closed: no thumb, top layout
+  // desk closed: top layout; reopening docks beside again
   await p.evaluate(()=>window.__XenDjStage.setExpanded(false));await p.waitForTimeout(300);
-  assert.equal(await p.$('.xen-stage-split-thumb'),null);assert.equal(await p.getAttribute('.xen-stage-split','data-desk-open'),'false');
-  assert.deepEqual(errors,[]);console.log('PASS UI-LIQUID-01 stage split, grips, grid spacing');
+  assert.equal(await p.getAttribute('.xen-stage-split','data-desk-open'),'false');
+  await p.evaluate(()=>window.__XenDjStage.setExpanded(true));await p.waitForTimeout(400);
+  assert.equal(await p.getAttribute('.xen-stage-split','data-dock'),'side');
+  assert.ok(await p.evaluate(()=>document.querySelector('canvas[data-xen-play-area]')===window.__canvas0),'still the same canvas');
+  assert.deepEqual(errors,[]);console.log('PASS UI-LIQUID-01/02 stage split (auto side dock), grips, grid spacing');
   await b.close();
 })().catch(e=>{console.error(e);process.exit(1)});

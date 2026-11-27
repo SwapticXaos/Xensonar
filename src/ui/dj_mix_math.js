@@ -349,7 +349,74 @@ const __XenDjMixMath = (() => {
     return out;
   }
 
+  /* DJ-SEEK-01: transport maths for bar jumps and segment steps on a cyclic loop.
+   * att is XenSonar's per-voice cyclic onset shift in beats: playhead = elapsed − att·beat.
+   * Positive "ahead" (= −att) means the loop plays further into itself than the room grid.
+   * Every result is normalised to the shortest cyclic offset in (−L/2, L/2]. */
+  function wrapCyclic(v, L) {
+    const x = Number(v) || 0;
+    if (!(L > 0)) return x;
+    let r = ((x % L) + L) % L;
+    if (r > L / 2 + 1e-9) r -= L;
+    return Math.abs(r) < 1e-9 ? 0 : r;
+  }
+
+  function loopGrid({ loopBeats, effectiveBars, segmentsPerBar } = {}) {
+    const eff = Number(effectiveBars) > 0 ? Number(effectiveBars) : 1;
+    const L = Number(loopBeats) > 0 ? Number(loopBeats) : eff * 4;
+    const barBeats = L / eff;
+    const segs = Math.max(1, Math.round(Number(segmentsPerBar) || 4));
+    return { L, eff, barBeats, segsPerBar: segs, segBeats: barBeats / segs, barCount: Math.max(1, Math.ceil(eff - 1e-6)) };
+  }
+
+  /** Index of the bar cell under ratio 0…1 of the loop ruler (the fractional tail is its own cell). */
+  function barAtRatio(ratio, effectiveBars) {
+    const eff = Number(effectiveBars) > 0 ? Number(effectiveBars) : 1;
+    const count = Math.max(1, Math.ceil(eff - 1e-6));
+    return Math.max(0, Math.min(count - 1, Math.floor(clamp(Number(ratio), 0, 1) * eff + 1e-9)));
+  }
+
+  /** Jump into bar `targetBar` and keep the position inside the bar: the loop stays on the room grid. */
+  function planBarJump({ att = 0, progress01 = 0, targetBar = 0, ...grid } = {}) {
+    const g = loopGrid(grid);
+    const pos = clamp(Number(progress01), 0, 1) * g.L;
+    const fromBar = Math.min(g.barCount - 1, Math.floor(pos / g.barBeats + 1e-9));
+    let inBar = Math.max(0, pos - fromBar * g.barBeats);
+    const toBar = Math.max(0, Math.min(g.barCount - 1, Math.round(Number(targetBar) || 0)));
+    const room = g.L - toBar * g.barBeats; // a fractional last bar is shorter
+    if (inBar >= room - 1e-9) inBar = room > 1e-9 ? inBar % room : 0;
+    const deltaBeats = toBar * g.barBeats + inBar - pos;
+    return { att: wrapCyclic((Number(att) || 0) - deltaBeats, g.L), fromBar, toBar, deltaBeats };
+  }
+
+  /** One segment forward (direction > 0, plays ahead) or back (direction < 0). */
+  function planSegmentStep({ att = 0, direction = 1, ...grid } = {}) {
+    const g = loopGrid(grid);
+    const step = (Number(direction) < 0 ? -1 : 1) * g.segBeats;
+    return { att: wrapCyclic((Number(att) || 0) - step, g.L), stepBeats: step };
+  }
+
+  /** Human label of a phase offset: "0", "+1T", "−2S", "+1T 2S", "+0.37S" (T = bar, S = segment). */
+  function formatPhaseOffset(att, grid = {}) {
+    const g = loopGrid(grid);
+    const ahead = -(Number(att) || 0);
+    if (Math.abs(ahead) < 1e-4) return '0';
+    const sign = ahead > 0 ? '+' : '−';
+    const segs = Math.abs(ahead) / g.segBeats;
+    const whole = Math.round(segs);
+    if (Math.abs(segs - whole) > 0.005) return sign + segs.toFixed(2) + 'S';
+    const bars = Math.floor(whole / g.segsPerBar);
+    const rest = whole - bars * g.segsPerBar;
+    return sign + (bars ? bars + 'T' : '') + (bars && rest ? ' ' : '') + (rest ? rest + 'S' : '');
+  }
+
   return Object.freeze({
+    wrapCyclic,
+    loopGrid,
+    barAtRatio,
+    planBarJump,
+    planSegmentStep,
+    formatPhaseOffset,
     clamp,
     lerp,
     easeInOutSine,
