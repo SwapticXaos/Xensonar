@@ -1833,7 +1833,19 @@ function __useQuickActive(kind,id,name,open=true,onClose){
 function __QuickBadge({kind,id}){const s=P.useSyncExternalStore(__XenQuick.subscribe,__XenQuick.snapshot,__XenQuick.snapshot);return s.items.some(e=>e.kind===kind&&e.id===String(id))?u.jsx('span',{className:'xen-quick-badge',title:'Added to Quick Access',children:__XenQuick.icons[kind]}):null;}
 // Bind to the existing library's operations, not a second ordering model.
 const __XenQuickDragBindings=new WeakMap();
-function __quickProps(kind,id,name,sort){return {draggable:false,ref:node=>{if(node)__XenQuickDragBindings.set(node,sort)},'data-xen-quick-kind':kind,'data-xen-quick-id':String(id),'data-xen-quick-name':String(name),title:String(name)+' · drag to Quick Access'};}
+/* COLOR-CODE-MENUS-01: the entries of the own menus (Material Track, Root Follow Loop, Drums, Bass, Fretboard) show the colour
+   code their Quick Rack card has (session colour of the live session, else song-part colours): a band on the left in the
+   border colour, a hint of the card colour behind. No colour code: untouched. Quick Rack / Meta tiles colour themselves. */
+function __xenApplyColorCode(node,kind,id,name){
+ if(!node||node.closest?.('.xen-quick-tile,.xen-meta-tile'))return;
+ let c={};try{
+  // a Fretboard entry in the session is an instance of a grid mode: the menu row (mode id) takes the colour of its first instance
+  const live=kind==='grid'?__XenQuick.getItems().find(x=>x.kind==='grid'&&String(x.id)===id):null;
+  c=__xenQuickTint(live||{kind,id,name})}catch{}
+ if(c&&c.border){node.dataset.xenColorCode='true';node.style.setProperty('--xen-code-border',c.border);node.style.setProperty('--xen-code-bg',c.background||c.border)}
+ else if(node.dataset.xenColorCode){delete node.dataset.xenColorCode;node.style.removeProperty('--xen-code-border');node.style.removeProperty('--xen-code-bg')}
+}
+function __quickProps(kind,id,name,sort){return {draggable:false,ref:node=>{if(node){__XenQuickDragBindings.set(node,sort);__xenApplyColorCode(node,kind,String(id),String(name))}},'data-xen-quick-kind':kind,'data-xen-quick-id':String(id),'data-xen-quick-name':String(name),title:String(name)+' · drag to Quick Access'};}
 /* N13: Material Track and Root Follow Loop share these nine direct slot hotkeys.
    Hotkeys apply to playlist positions, not permanent track IDs. */
 const __XenLoopHotkeys=Object.freeze(['A','S','D','F','G','H','J','K','L']);

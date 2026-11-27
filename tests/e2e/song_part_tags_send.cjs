@@ -64,5 +64,13 @@ const file=path.join(dir,'abacb_tags.wav');fs.writeFileSync(file,wav(song({bpm:1
  // Meta-Menu tile of the same entry (draft session) in the same colours
  const mt=await p.evaluate(()=>window.__xenProbe.draw.evalInBundle(`JSON.stringify(__xenMetaItemTint({kind:'material',id:'nope',name:'abacb_tags · A1b'}))`));
  assert.deepEqual(JSON.parse(mt),{border:a1b.sub,background:a1b.card},'Meta-Menu tile / colour controls default to the part colours');
+ // COLOR-CODE-MENUS-01: the own Material Track menu lists the same entries with their colour code (library rows open on demand)
+ await p.evaluate(()=>{const s=document.querySelector('[data-xensonar-performance-strip]');[...s.querySelectorAll('button')].find(x=>/Material Track manager/.test(x.title||''))?.click()});await p.waitForTimeout(1000);
+ await p.evaluate(()=>{[...document.querySelectorAll('button,summary')].find(x=>x.offsetParent&&/Material Library · Archived Loops/.test(x.innerText||''))?.click()});await p.waitForTimeout(1000);
+ if(process.env.SHOT_DIR)await p.screenshot({path:path.join(process.env.SHOT_DIR,'material_menu.png')});
+ const rows=await p.evaluate(()=>[...document.querySelectorAll('[data-xen-quick-kind="material"]')].filter(x=>x.offsetParent&&!x.closest('.xen-quick-tile,.xen-meta-tile')).map(x=>({n:x.dataset.xenQuickName,c:x.dataset.xenColorCode||'',b:x.style.getPropertyValue('--xen-code-border')})));
+ const a1bRow=rows.find(r=>/· A1b$/.test(r.n||''));assert.ok(a1bRow,'A1b listed in the Material Track menu: '+JSON.stringify(rows.map(r=>r.n)));
+ assert.equal(a1bRow.c,'true','with its colour code');assert.equal(a1bRow.b,a1b.sub,'band = sub rubric');
+ const plainRow=rows.find(r=>r.n==='abacb_tags');if(plainRow)assert.equal(plainRow.c,'','no colour code: untouched');
  assert.deepEqual(errors,[]);console.log('PASS SONG-PART-TAGS-01/02 strip A1 B1 A2 C B2 / A1a A1b · titles by containment (A2, A1b, 4 bars in A1b = A1b, across A1a|A1b = A1, across parts = plain) · crate, Quick Rack card and Meta-Menu tile in main / sub rubric');await b.close();
 })().catch(e=>{console.error(e);process.exit(1)});
