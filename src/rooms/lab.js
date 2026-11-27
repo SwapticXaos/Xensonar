@@ -2344,7 +2344,7 @@ function __XenSongPartsStrip({source,selection,onSelectPart,onPatch,onCue}){
       (p.name||E.kinds(asset)[p.label]?.color)?h('button',{type:'button',className:'xwe-song-menu-btn xwe-song-menu-small','data-xwe-song-action':'kind-reset',title:'Back to the letter and its colour',onClick:act(()=>E.setKind(asset,p.label,{name:'',color:null}))},'Reset'):null)]})(),
    view.edited?mb('Reset all parts to the analysis',()=>E.clear(asset),{id:'reset'}):null)})():null;
  const caption=tonalRun?'Key & scale (pitch lines): part '+(tonalRun.i+1)+' of '+tonalRun.n+' · '+tonalRun.label+' · '+tonalRun.pct+' % · ■ Key cancels':note?note:state.status==='ready'?'Song parts: analysis starts in a moment (it is kept for this song)':state.status==='running'?'Analyzing the whole song … (step by step, in the background)':state.status==='error'?state.error:
-  active?info(active):r?(r.rhythmic?`${shown.length} parts · ${letterList.length} kinds (${letterList.map(l=>E.displayName(shown.find(q=>q.label===l))).join(' ')}) · ${r.segmentsPerBar} segments per bar · ${r.bpm.toFixed(2)} BPM · click a part`:'One part · '+(r.reason||'no clear meter')):'';
+  active?info(active):r?(r.rhythmic?`${shown.length} parts · ${letterList.length} kinds (${letterList.map(l=>shown.find(q=>q.label===l)?.name||l).join(' ')}) · ${r.segmentsPerBar} segments per bar · ${r.bpm.toFixed(2)} BPM · click a part`:'One part · '+(r.reason||'no clear meter')):'';
  return h('div',{className:'xwe-song-parts','data-xwe-song-parts':state.status,'data-xwe-song-edited':view.edited||undefined},
   h('div',{className:'xwe-song-caption'},h('span',{'data-xwe-song-caption':true},caption),
    h('span',{className:'xwe-song-tools'},

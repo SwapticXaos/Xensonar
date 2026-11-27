@@ -46,7 +46,7 @@ const drone=path.join(dir,'drone.wav');{const n=SR*40,x=new Float32Array(n);for(
  assert.equal(await parts.nth(2).getAttribute('aria-pressed'),'true');
  const sel=await p.evaluate(()=>{const v=[...document.querySelectorAll('div')].filter(d=>/^(Viewport|Fine Selection)$/.test(d.textContent));return v.map(d=>d.nextElementSibling?.textContent)});
  const nums=sel.map(t=>(t.match(/[\d.]+/g)||[]).map(Number));assert.ok(Math.abs(nums[0][0]-32)<.05&&Math.abs(nums[0][1]-48)<.05,'blue view '+sel[0]);assert.ok(Math.abs(nums[1][0]-32)<.05&&Math.abs(nums[1][1]-48)<.05,'purple mask '+sel[1]);
- assert.match(await strip.innerText(),/A · 0:32–0:48 · 8 bars × 4 = 32 segments · 1(19|20)\.\d\d BPM/);
+ assert.match(await strip.innerText(),/A2 · 0:32–0:48 · 8 bars × 4 = 32 segments · 1(19|20)\.\d\d BPM/);
  // CUE-01: Subdivide at bar 3 of this A (mask 32–48 s) puts the green playhead at 36 s for the next Play; the mask stays
  {const st=await p.locator('.xwe-song-strip').boundingBox();await p.mouse.click(st.x+st.width*.45,st.y+st.height*.3,{button:'right'});const sm=p.locator('[data-xwe-song-menu]');await sm.waitFor();
   await sm.locator('[data-xwe-song-bar]').click();await sm.locator('[data-xwe-song-barpick="3"]').click();await p.waitForTimeout(400);
