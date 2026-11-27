@@ -21,6 +21,20 @@ const html=path.resolve(process.argv[2]||'dist/XenSonar_PROBE.html');
    const lane=g.laneOrder[0];g.laneSteps[lane][0]=1;__f52CommitSharedDrumGrid(g);__f52PatchDrumHit(lane,0,'hall',.55);
    const h=__f52EnsureDrumGrid(__mlSharedDrumMachine.liveEdit.grid);return WH(h.stepPrograms?.[lane]?.[0],lane,0,1).hall})()`);
  assert.equal(hall,.55,'Last Drum Hit · Hall stored with the hit');
+ // HIT-LANE-01: "All <drum> hits" applies the value to every hit of that lane (one commit), other lanes untouched
+ const lane=await E(`(()=>{const g=__f52EnsureDrumGrid(__mlSharedDrumMachine.liveEdit.grid);for(const l of g.laneOrder)g.laneSteps[l]=g.laneSteps[l].map(()=>0);g.stepPrograms={};
+   g.laneSteps.kick[0]=1;g.laneSteps.kick[8]=1;g.laneSteps.snare[4]=1;__f52CommitSharedDrumGrid(g);
+   __f52HitScope.set('lane');__f52PatchDrumScoped('kick',0,'hall',.6);__f52HitScope.set('hit');__f52PatchDrumScoped('kick',0,'decay',.5);
+   const h=__f52EnsureDrumGrid(__mlSharedDrumMachine.liveEdit.grid),pr=(l,i)=>WH(h.stepPrograms?.[l]?.[i],l,i,h.laneSteps[l][i]);
+   return JSON.stringify({k0:pr('kick',0).hall,k8:pr('kick',8).hall,s4:pr('snare',4).hall,d0:pr('kick',0).decayLock,d8:pr('kick',8).decayLock})})()`).then(JSON.parse);
+ assert.deepEqual(lane,{k0:.6,k8:.6,s4:0,d0:.5,d8:1},'whole lane vs this hit: '+JSON.stringify(lane));
+ // the switch is in the hit editor
+ await p.evaluate(()=>window.dispatchEvent(new Event('xensonar:open-drum-pattern-manager')));await p.waitForTimeout(800);
+ const cell=p.locator('[data-drum-micro-handle="kick:0"]').first();
+ assert.ok(await cell.count(),'kick hit on step 1 is shown');{await cell.scrollIntoViewIfNeeded();const bb=await cell.boundingBox();await p.mouse.move(bb.x+bb.width/2,bb.y+bb.height/2);await p.mouse.down();await p.mouse.up();await p.waitForTimeout(250);
+  const t=p.getByRole('button',{name:'Toggle last drum hit details'}).first();if(await t.getAttribute('aria-expanded')!=='true')await t.click();await p.waitForTimeout(200);
+  assert.ok(await p.locator('[data-hit-scope="lane"]').first().isVisible(),'scope switch visible in Last Drum Hit');
+  assert.match(await p.locator('[data-hit-scope="lane"]').first().innerText(),/All Kick hits/);}
  // the rack's hall rings for seconds
  const ring=await E(`(async()=>{const ctx=new AudioContext();await ctx.resume();const an=ctx.createAnalyser();an.fftSize=2048;
    const rack=__f48GetDrumRack(ctx,an);rack.update({...__f48RackParams});const tap=rack.hallTap();

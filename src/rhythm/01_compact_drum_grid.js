@@ -246,10 +246,8 @@ function __f52HitVisualOffset(grid,lane,index){
  return Math.max(-.45,Math.min(.45,WH(grid?.stepPrograms?.[lane]?.[index],lane,index,value).microOffsetRatio||0));
 }
 /* A single per-hit mutation contract for both full-room and compact editors. */
-function __f52PatchDrumHit(lane,index,field,value){
- const latest=__f52EnsureDrumGrid(__mlSharedDrumMachine.liveEdit?.grid||__mlGridFromSelection(__mlSharedDrumMachine.snapshot));
- if(index<0||index>=latest.stepCount||!latest.laneOrder.includes(lane))return;
- const next=im(latest),base=next.laneSteps[lane]?.[index]||0;
+function __f52ApplyHitField(next,lane,index,field,value){
+ const base=next.laneSteps[lane]?.[index]||0;
  const p=WH(next.stepPrograms?.[lane]?.[index],lane,index,base);
  if(field==='velocity'){const v=Math.max(0,Math.min(1.25,value));next.laneSteps[lane][index]=v;p.value=v;}
  else if(field==='offset')p.microOffsetRatio=Math.max(-.45,Math.min(.45,value));
@@ -260,8 +258,34 @@ function __f52PatchDrumHit(lane,index,field,value){
  else if(field==='ratchet')p.ratchet=Math.max(1,Math.min(4,Math.round(value)));
  else if(field==='flam')p.flam=Math.max(0,Math.min(1,value));
  else if(field==='hall')p.hall=Math.max(0,Math.min(1,value));
- else return;
- next.stepPrograms[lane]={...(next.stepPrograms[lane]||{}),[index]:p};__f52CommitSharedDrumGrid(next);
+ else return false;
+ next.stepPrograms[lane]={...(next.stepPrograms[lane]||{}),[index]:p};return true;
+}
+function __f52PatchDrumHit(lane,index,field,value){
+ const latest=__f52EnsureDrumGrid(__mlSharedDrumMachine.liveEdit?.grid||__mlGridFromSelection(__mlSharedDrumMachine.snapshot));
+ if(index<0||index>=latest.stepCount||!latest.laneOrder.includes(lane))return;
+ const next=im(latest);
+ if(__f52ApplyHitField(next,lane,index,field,value))__f52CommitSharedDrumGrid(next);
+}
+/* HIT-LANE-01: "Whole lane" in Last Drum Hit – the same value for every hit of that drum (all kicks …), one commit. */
+function __f52PatchDrumLane(lane,field,value){
+ const latest=__f52EnsureDrumGrid(__mlSharedDrumMachine.liveEdit?.grid||__mlGridFromSelection(__mlSharedDrumMachine.snapshot));
+ if(!latest.laneOrder.includes(lane))return 0;
+ const next=im(latest);let n=0;
+ for(let i=0;i<next.stepCount;i++)if((next.laneSteps[lane]?.[i]||0)>0&&__f52ApplyHitField(next,lane,i,field,value))n++;
+ if(n)__f52CommitSharedDrumGrid(next);
+ return n;
+}
+/* the scope switch shared by both hit editors (persisted per browser) */
+const __f52HitScope=(()=>{let v='hit';try{if(localStorage.getItem('xensonar.drumHitScope.v1')==='lane')v='lane'}catch{}const ls=new Set();
+ return {get:()=>v,set:x=>{v=x==='lane'?'lane':'hit';try{localStorage.setItem('xensonar.drumHitScope.v1',v)}catch{}for(const f of ls)f()},subscribe:f=>(ls.add(f),()=>ls.delete(f))}})();
+function __f52PatchDrumScoped(lane,index,field,value){return __f52HitScope.get()==='lane'?__f52PatchDrumLane(lane,field,value):__f52PatchDrumHit(lane,index,field,value)}
+function __F52HitScopeSwitch({lane}){
+ const scope=P.useSyncExternalStore(__f52HitScope.subscribe,__f52HitScope.get,__f52HitScope.get);
+ const name=(typeof __f52DrumLaneNames!=='undefined'&&__f52DrumLaneNames[lane])||lane||'drum';
+ return u.jsxs('span',{className:'xen-hit-scope',role:'radiogroup','aria-label':'Apply hit settings to',children:[
+  u.jsx('button',{type:'button',role:'radio','aria-checked':scope==='hit','data-hit-scope':'hit',className:scope==='hit'?'is-active':'',title:'Changes apply only to this hit',onClick:()=>__f52HitScope.set('hit'),children:'This hit'}),
+  u.jsx('button',{type:'button',role:'radio','aria-checked':scope==='lane','data-hit-scope':'lane',className:scope==='lane'?'is-active':'',title:'Changes apply to every '+name+' hit of the beat',onClick:()=>__f52HitScope.set('lane'),children:'All '+name+' hits'})]});
 }
 /* Full-screen details use the same hit programming as the compact rack. */
 
@@ -442,7 +466,7 @@ function __mlCompactDrumGrid(){
   const next=MQe(latest,latest,snapshot?.pattern||latest.presetSource||"broken_lilt",marker.index,ratio);
   if(Math.abs(next.segmentMarkers[marker.index]-latest.segmentMarkers[marker.index])>1e-7)commit(next);
  };
- const setStepDetail=(field,value)=>{if(selectedHit)__f52PatchDrumHit(selectedHit.lane,selectedHit.index,field,value)};
+ const setStepDetail=(field,value)=>{if(selectedHit)__f52PatchDrumScoped(selectedHit.lane,selectedHit.index,field,value)};
  // Dragging the leading edge edits one hit, not the global segment boundaries.
  const beginMicro=(event,lane,index)=>{
   if(event.button!==0)return;
@@ -622,6 +646,7 @@ function __mlCompactDrumGrid(){
         ]}):null},lane+"-"+i)})]},"drum-row-"+lane))]})}),
   u.jsxs("div",{className:"mt-2 rounded border border-amber-900/60 bg-neutral-950/50 p-2 text-[10px]",children:[
    u.jsx("button",{type:"button",onClick:()=>setDetailOpen(v=>!v),"aria-label":"Toggle last drum hit details","aria-expanded":detailOpen,className:"text-amber-200",children:(detailOpen?"▾ ":"▸ ")+"Last Drum Hit"+(selected?" · "+label[selected.lane]+" · Step "+(selected.index+1):" · select a step")}),
+   detailOpen&&selected&&u.jsx(__F52HitScopeSwitch,{lane:selected.lane}),
    detailOpen&&selected&&u.jsxs("div",{className:"mt-2 grid grid-cols-1 gap-2 sm:grid-cols-4",children:[
      ...[["Velocity",'velocity',0,1.25,.01,stepValue,Math.round(stepValue*100)+"%"],["Microtiming",'offset',-.45,.45,.01,stepProgram?.microOffsetRatio||0,Math.round((stepProgram?.microOffsetRatio||0)*100)+"% step"],["Pan",'pan',-1,1,.01,stepProgram?.layers?.[0]?.panOffset||0,Math.round((stepProgram?.layers?.[0]?.panOffset||0)*100)+"%"],
       ["Chance",'probability',0,1,.01,stepProgram?.probability??1,Math.round((stepProgram?.probability??1)*100)+"%"],

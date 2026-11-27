@@ -75,3 +75,8 @@
 .xen-echo-lane.is-on{border-color:#8b63c9;background:#24163a;color:#eadcff}
 .xen-echo-lane-all{padding:2px 8px;border:1px solid #3b2d50;border-radius:5px;background:#120c1a;color:#b9a6d6;font-size:10px}
 .xen-echo-lane-all:disabled{opacity:.35}
+/* HIT-LANE-01: Last Drum Hit scope switch */
+.xen-hit-scope{display:inline-flex;gap:0;margin:6px 0 2px;border:1px solid #5b4320;border-radius:5px;overflow:hidden}
+.xen-hit-scope button{padding:2px 9px;font-size:10px;color:#d8b980;background:#140d06;border:0}
+.xen-hit-scope button+button{border-left:1px solid #5b4320}
+.xen-hit-scope button.is-active{background:#4a3212;color:#fff0d0}

@@ -206,6 +206,7 @@ function __f48PatchRack(params){
  __f48RackParams=__f48CleanRack(params);
  for(const device of __f48RackDevices)if(device.ctx.state==='closed')device.dispose();else device.update(__f48RackParams);
  clearTimeout(__f48RackSaveTimer);__f48RackSaveTimer=setTimeout(__f48PersistRack,220);
+ try{if(typeof __xenDrumEchoCompanionSync==='function')__xenDrumEchoCompanionSync()}catch{}
 }
 let __xenDrumBusDriveCurveCache=null;
 function __xenDrumBusDriveCurve(){
@@ -213,6 +214,30 @@ function __xenDrumBusDriveCurve(){
  const c=new Float32Array(1024);
  for(let i=0;i<c.length;i++){const x=i/(c.length-1)*2-1;c[i]=Math.tanh(x*1.15+.06*x*x)/Math.tanh(1.21)}
  return __xenDrumBusDriveCurveCache=c;
+}
+/* DRUM-HALL-01: one long hall (~7 s generated stereo impulse, 35 ms pre-delay, 180 Hz–7.2 kHz) – the live rack's hall and,
+   for native/offline drum hits (stem renders), a hall per (context, bus). */
+const __xenDrumHallIRs=new WeakMap();
+function __xenDrumHallIR(ctx){
+ let ir=__xenDrumHallIRs.get(ctx);if(ir)return ir;
+ const sr=ctx.sampleRate,len=Math.round(sr*7.2);ir=ctx.createBuffer(2,len,sr);
+ for(let c=0;c<2;c++){const d=ir.getChannelData(c);let seed=c?7919:104729;
+  for(let i=0;i<len;i++){seed=(seed*16807)%2147483647;const t=i/sr,n=seed/1073741823.5-1;
+   d[i]=n*Math.exp(-t*.96)*(t<.012?t/.012:1)*(1-.35*Math.exp(-t*3))}}
+ __xenDrumHallIRs.set(ctx,ir);return ir;
+}
+function __xenDrumHallChain(ctx,dest){
+ const input=ctx.createGain(),pre=ctx.createDelay(.2),hp=ctx.createBiquadFilter(),conv=ctx.createConvolver(),lp=ctx.createBiquadFilter(),wet=ctx.createGain();
+ pre.delayTime.value=.035;hp.type='highpass';hp.frequency.value=180;lp.type='lowpass';lp.frequency.value=7200;conv.normalize=true;conv.buffer=__xenDrumHallIR(ctx);wet.gain.value=1.5;
+ input.connect(pre);pre.connect(hp);hp.connect(conv);conv.connect(lp);lp.connect(wet);wet.connect(dest);
+ return {input,nodes:[input,pre,hp,conv,lp,wet]};
+}
+const __xenDrumHallBuses=new WeakMap();
+function __xenDrumHallFor(ctx,bus){
+ if(!ctx||!bus||typeof ctx.createConvolver!=='function')return null;
+ let byBus=__xenDrumHallBuses.get(ctx);if(!byBus){byBus=new WeakMap();__xenDrumHallBuses.set(ctx,byBus)}
+ let h=byBus.get(bus);if(!h){h=__xenDrumHallChain(ctx,bus);byBus.set(bus,h)}
+ return h.input;
 }
 function __f48GetDrumRack(ctx,destination){
  let buses=__f48DrumRacks.get(ctx);if(!buses){buses=new WeakMap();__f48DrumRacks.set(ctx,buses)}
@@ -275,18 +300,9 @@ function __f48GetDrumRack(ctx,destination){
   return {tap,fromBus:true,send,inR,firstL,firstR,delayL,delayR,nodeL,nodeR,targets:new Map(),a,b,outLL,outRR,outLR,outRL,ret,
    nodes:[tap,send,inR,firstL,firstR,delayL,delayR,nodeL,nodeR,merger,ret,outLL,outRR,outLR,outRL,a.hp,a.lp,a.shape,a.self,a.cross,b.hp,b.lp,b.shape,b.self,b.cross]};
  };
- /* DRUM-HALL-01: a long hall (~7 s, generated stereo impulse) for single hits; built on first use, parks after use */
+ /* DRUM-HALL-01: a long hall for single hits (shared builder); built on first use */
  let hall=null;
- const makeHall=()=>{
-  const sr=ctx.sampleRate,len=Math.round(sr*7.2),ir=ctx.createBuffer(2,len,sr);
-  for(let c=0;c<2;c++){const d=ir.getChannelData(c);let seed=c?7919:104729;
-   for(let i=0;i<len;i++){seed=(seed*16807)%2147483647;const t=i/sr,n=seed/1073741823.5-1;
-    d[i]=n*Math.exp(-t*0.96)*(t<.012?t/.012:1)*(1-.35*Math.exp(-t*3))}}
-  const input=ctx.createGain(),pre=ctx.createDelay(.2),hp=ctx.createBiquadFilter(),conv=ctx.createConvolver(),lp=ctx.createBiquadFilter(),wet=ctx.createGain();
-  pre.delayTime.value=.035;hp.type='highpass';hp.frequency.value=180;lp.type='lowpass';lp.frequency.value=7200;conv.normalize=true;conv.buffer=ir;wet.gain.value=.9;
-  input.connect(pre);pre.connect(hp);hp.connect(conv);conv.connect(lp);lp.connect(wet);wet.connect(pan);
-  return {input,nodes:[input,pre,hp,conv,lp,wet]};
- };
+ const makeHall=()=>__xenDrumHallChain(ctx,pan);
  const releaseEcho=()=>{if(!echo)return;for(const node of echo.nodes)try{node.disconnect()}catch{}try{postBus.disconnect(echo.send)}catch{}echo=null};
  const scheduleEchoRetire=()=>{
   if(echoRetireTimer!==null){clearTimeout(echoRetireTimer);echoRetireTimer=null}
@@ -322,6 +338,8 @@ function __f48GetDrumRack(ctx,destination){
  const device={ctx,input,
   retimeEcho(){if(!disposed&&echo&&ctx.state!=='closed')applyEcho(lastParams,true)},
   hallTap(){if(disposed||ctx.state==='closed')return null;if(!hall)hall=makeHall();return hall.input},
+  // DRUM-ECHO-LANES-01: the echo input for a lane-filtered companion stem (preview playback)
+  echoInput(){if(disposed||ctx.state==='closed')return null;if(!echo){echo=makeEcho();applyEcho(lastParams,false)}return echo.tap},
   // the echo input for one hit of this lane, or null (all lanes: the bus feeds the echo; lane not ticked; no echo)
   echoTapFor(lane){if(disposed||!echo||echo.fromBus)return null;return ((lastParams.drumEchoLanes??__xenDrumEchoLaneAll)&__xenDrumEchoLaneBit(lane))?echo.tap:null},
   previewEcho(patch){if(disposed||ctx.state==='closed')return;lastParams={...lastParams,...patch};

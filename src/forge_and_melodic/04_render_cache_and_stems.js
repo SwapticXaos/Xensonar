@@ -219,6 +219,7 @@ async function __mlPumpDrumRefresh(){
   playing.stemSourceById?.set("__drums__",nextSource);
   playing.stemGains.set("__drums__",nextGain);playing.stemBuffers.set("__drums__",buffer);
   playing.drumSource=nextSource;playing.drumRenderRequest=request;playing.drumDescriptorKey=key;playing.drumSwapUntilSec=start+.062;
+  try{__xenDrumEchoCompanionSync()}catch{}
   job.resolve(true);
  }catch(error){if(current())job.reject(error);else job.resolve(false)}
  finally{__mlDrumRefreshRunning=null;__mlPumpDrumRefresh()}
@@ -292,7 +293,56 @@ function __mlLaunchStemSources(playing,offset,when){
   Mx(source);starts.push(source);playing.stemSourceById.set(trackId,source);
  }
  playing.stemSources=starts;playing.drumSource=playing.stemSourceById?.get("__drums__")||null;
+ try{__xenDrumEchoCompanionSync()}catch{}
  return starts;
+}
+
+/* DRUM-ECHO-LANES-01 (preview playback): the drums play as one pre-rendered stem, so the lanes are no longer separable there.
+ * With a lane selection the Dub Echo gets a companion stem in which only the ticked lanes play (dry, no hall), looping in step
+ * with the drum stem on the same session clock and feeding the rack's echo input. All ticked: no companion (the bus feeds the echo). */
+let __xenEchoComp=null;
+function __xenDrumEchoLaneGrid(req){
+ // the same grid the drum preview renders: the request's own pattern, else the shared drum machine's live grid
+ const bridge=typeof __mlSharedDrumMachine!=='undefined'?__mlSharedDrumMachine:null;
+ const src=req?.customDrumPattern||(bridge?(bridge.liveEdit?.grid||__mlGridFromSelection(bridge.snapshot)):null);
+ if(!src)return null;const g=JSON.parse(JSON.stringify(src));g.useCustom=true;return g;
+}
+function __xenDrumEchoLaneRequest(req,mask){
+ const grid=__xenDrumEchoLaneGrid(req);if(!grid?.laneSteps)return null;
+ for(const lane of Object.keys(grid.laneSteps))if(!(mask&__xenDrumEchoLaneBit(lane)))grid.laneSteps[lane]=grid.laneSteps[lane].map(()=>0);
+ if(grid.stepPrograms)for(const row of Object.values(grid.stepPrograms))if(Array.isArray(row))for(const prog of row)if(prog&&typeof prog==='object')prog.hall=0;
+ const r=JSON.parse(JSON.stringify({...req,signal:undefined}));
+ r.customDrumPattern=grid;r.drumPattern=undefined;r.__echoLanes=mask;
+ return r;
+}
+function __xenDrumEchoCompanionStop(fade=true){
+ const c=__xenEchoComp;__xenEchoComp=null;if(!c||!c.source)return;
+ try{const ctx=c.source.context,t=ctx.currentTime;if(fade){c.gain.gain.cancelScheduledValues(t);c.gain.gain.setValueAtTime(c.gain.gain.value,t);c.gain.gain.linearRampToValueAtTime(0,t+.04)}c.source.stop(t+(fade?.05:0))}catch{}
+}
+async function __xenDrumEchoCompanionSync(){
+ const playing=b9e(),params=typeof __f48RackParams!=='undefined'?__f48RackParams:null;
+ const mask=((params?.drumEchoLanes??__xenDrumEchoLaneAll)&__xenDrumEchoLaneAll);
+ const req=playing?.drumRenderRequest;
+ const want=!!(playing&&req&&playing.stemBuffers?.has("__drums__")&&params&&params.drumEcho>.001&&mask!==__xenDrumEchoLaneAll&&mask!==0);
+ const grid=want?__xenDrumEchoLaneGrid(req):null;
+ const key=want&&grid?mask+"|"+(playing.drumDescriptorKey||'')+"|"+JSON.stringify(grid.laneSteps||{}):null;
+ if(__xenEchoComp&&(__xenEchoComp.playing!==playing||__xenEchoComp.key!==key))__xenDrumEchoCompanionStop(true);
+ if(!want||!key||__xenEchoComp)return;
+ const token={};__xenEchoComp={playing,key,token,source:null,gain:null};
+ try{
+  const variant=__xenDrumEchoLaneRequest(req,mask);if(!variant)throw Error('no drum grid');
+  const buffer=await __mlGetStem(variant,"__drums__");
+  if(__xenEchoComp?.token!==token||b9e()!==playing)return;
+  const ctx=playing.ctx,start=ctx.currentTime+.03;
+  const duration=Math.min(buffer.duration,__mlStemPeriodSec(playing,"__drums__"));// the running drum stem's cycle
+  const pos=((playing.loopOffsetSec+start-playing.startTime)%duration+duration)%duration;
+  const tap=__f48GetDrumRack(ctx,playing.master).echoInput?.();if(!tap)return;
+  const src=ctx.createBufferSource(),gain=ctx.createGain();
+  src.buffer=__mlFoldedLoop(buffer,duration);src.loop=true;src.loopStart=0;src.loopEnd=Math.min(duration,src.buffer.duration);
+  gain.gain.setValueAtTime(0,start);gain.gain.linearRampToValueAtTime((playing.drumMonitorExplicit||__mlDrumsAudible)&&__mlSoloTrackId===null?1:0,start+.04);
+  src.connect(gain);gain.connect(tap);src.start(start,pos);Mx(src);Mx(gain);
+  __xenEchoComp.source=src;__xenEchoComp.gain=gain;
+ }catch(error){if(__xenEchoComp?.token===token)__xenEchoComp=null;console.warn('[xensonar][drum-echo-lanes] companion stem',error)}
 }
 
 let cP=null,pS=[],xx=null,JM=0,iv=null,__mlPhase="idle";const __mlPhaseListeners=new Set;function __mlSetPhase(e){if(__mlPhase===e)return;__mlPhase=e;__mlPhaseListeners.forEach(t=>t(e))}
@@ -545,7 +595,7 @@ async function __mlPlayWithPreparation(e){// Single-note auditions remain live N
   stemSources:[],liveEnabledIds:new Set(e.composer.tracks.filter(track=>track.enabled).map(track=>track.id)),liveTrackVolumes:new Map(e.composer.tracks.map(track=>[track.id,Number.isFinite(track.volume)?track.volume:.8])),melodicDurationSec:Math.max(.25,Math.max(1,e.composer.bars||1)*sD(e)),totalDurationSec,totalSteps:r,stepDurationSec:s,startTime:start,
   loopOffsetSec:startOffsetSec,playheadCallback:d,globalPlayheadCallback:e.onGlobalPlayheadRatio};
  __mlLaunchStemSources(session,startOffsetSec,start);
- y9e(session);e.onPhase?.("playing");d?.(safeStartStep);e.onGlobalPlayheadRatio?.(Math.max(0,Math.min(1,startOffsetSec/Math.max(.001,totalDurationSec))));
+ y9e(session);try{__xenDrumEchoCompanionSync()}catch{}e.onPhase?.("playing");d?.(safeStartStep);e.onGlobalPlayheadRatio?.(Math.max(0,Math.min(1,startOffsetSec/Math.max(.001,totalDurationSec))));
  const tick=()=>{
   const current=b9e();if(!current||current.token!==n)return;
   const delta=Math.max(0,xz(current.ctx)-current.startTime);

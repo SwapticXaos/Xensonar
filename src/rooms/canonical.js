@@ -622,7 +622,8 @@ function __f52FullDrumHitInspector({selectedHit}){
   ['Decay','decay',.2,2,program?.decayLock??1],['Tone','tone',0,1,program?.toneLock??1],['Hall (long reverb)','hall',0,1,program?.hall??0]];
  return u.jsxs('div',{className:'rounded border border-neutral-800 bg-neutral-950/70 px-3 py-2 text-xs',children:[
   u.jsx('button',{type:'button',onClick:()=>setExpanded(v=>!v),'aria-label':'Toggle full drum hit details',className:'text-amber-200',children:(expanded?'▾ ':'▸ ')+'Last Drum Hit'+(selected?' · '+(__f52DrumLaneNames[selected.lane]||selected.lane)+' · Step '+(selected.index+1):' · select a step')}),
-  expanded&&(selected?u.jsx('div',{className:'mt-2 grid grid-cols-2 gap-3 md:grid-cols-3',children:params.map(([label,field,min,max,value])=>u.jsxs('label',{className:'flex flex-col gap-1 text-neutral-300',children:[label+' · '+Number(value).toFixed(2),u.jsx('input',{type:'range','aria-label':'Full Drum Hit '+label,min,max,step:.01,value,onChange:e=>__f52PatchDrumHit(selected.lane,selected.index,field,Number(e.target.value)),className:'w-full'})]},field))}):u.jsx('div',{className:'pt-2 text-neutral-500',children:'Click a drum grid step to edit its individual timing, velocity and tone.'}))
+  expanded&&selected?u.jsx(__F52HitScopeSwitch,{lane:selected.lane}):null,
+  expanded&&(selected?u.jsx('div',{className:'mt-2 grid grid-cols-2 gap-3 md:grid-cols-3',children:params.map(([label,field,min,max,value])=>u.jsxs('label',{className:'flex flex-col gap-1 text-neutral-300',children:[label+' · '+Number(value).toFixed(2),u.jsx('input',{type:'range','aria-label':'Full Drum Hit '+label,min,max,step:.01,value,onChange:e=>__f52PatchDrumScoped(selected.lane,selected.index,field,Number(e.target.value)),className:'w-full'})]},field))}):u.jsx('div',{className:'pt-2 text-neutral-500',children:'Click a drum grid step to edit its individual timing, velocity and tone.'}))
  ]});
 }
 function __f52FullDrumSampleInspector({lane}){

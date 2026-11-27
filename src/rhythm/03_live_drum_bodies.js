@@ -77,7 +77,7 @@ function D9(ctx,bus){
   if(value<=1e-4||!Number.isFinite(time))return;
   if(voice==="kick"&&typeof __XenBassDuck!=="undefined")__XenBassDuck.trigger(ctx,time,value);
   const key=CIe(voice,kit,value,style),entry=cache.get(key);
-  let output,nodes=[],hat={gain:null,cached:!!entry};
+  let output,nodes=[],hat={gain:null,cached:!!entry},nativeHit=false;
   if(entry){
    diagnostics.hits++;cache.delete(key);cache.set(key,entry);
    /* VOICE-HOST-01: prepared bodies play in the resident drum voice worklet; no node is created, connected or disconnected per hit */
@@ -109,11 +109,18 @@ function D9(ctx,bus){
    if(entry.recipe.kind==="hat")xk(gain,time,entry.recipe.outputEnvelope);else gain.gain.setValueAtTime(1,time);
    const voiceEqBus=eqRef?__f52DrumEQBus(ctx,bus,eqRef.lane,eqRef.config,time):bus;
    if(typeof ctx.createStereoPanner==="function"){const pan=ctx.createStereoPanner();pan.pan.setValueAtTime(style.pan,time);gain.connect(pan);pan.connect(voiceEqBus);nodes.push(pan)}else gain.connect(voiceEqBus);
-   output=gain;source.start(time);
+   output=gain;source.start(time);nativeHit=true;
   }else{
    diagnostics.misses++;group=nodes;
    try{output=legacy.trigger(voice,time,value,kit,{...style,chokeGroup:"none"},eqRef)}finally{group=null}
    queue(key,voice,value,kit,style);
+  }
+  /* DRUM-HALL-01 + DRUM-ECHO-LANES-01 on the native path (before the voice host is ready, OfflineAudioContext stem renders):
+     the hit's own output also feeds the hall (amount = Last Drum Hit · Hall) and, for a ticked lane, the echo input. */
+  if(nativeHit&&output&&typeof output.connect==='function'){ // the cold path (legacy synth) sends on its own
+   const hallAmt=eqRef&&eqRef.hall>.001?Math.min(1,eqRef.hall):0;
+   if(hallAmt){const hin=bus.__xenDrumMix?.hallTap?.()||__xenDrumHallFor(ctx,bus);if(hin){const hs=ctx.createGain();hs.gain.value=hallAmt;output.connect(hs);hs.connect(hin);nodes.push(hs)}}
+   const et=bus.__xenDrumMix?.echoTapFor?.(voice);if(et){const es=ctx.createGain();output.connect(es);es.connect(et);nodes.push(es)}
   }
   if(style.chokeGroup==="hat"){
    if(voice==="hat_closed"&&openHat?.gain){openHat.gain.gain.cancelScheduledValues(time);openHat.gain.gain.setTargetAtTime(1e-4,time,.01)}
