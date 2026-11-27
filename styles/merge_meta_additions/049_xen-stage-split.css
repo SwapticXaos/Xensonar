@@ -103,13 +103,25 @@ html.xen-split-dragging .xen-stage-split-handle { cursor: ew-resize !important; 
 }
 .xen-stage-split-return:hover { border-color: #7dd3fc; color: #fff; }
 
-/* UI-SWAP-01: swapped – the desk | playfield row on top, between the fixed side rails (no placeholder) */
+/* UI-SWAP-01: swapped – the desk | playfield row on top, right of the Instruments rail; Quick Rack + placeholder below */
 .xen-stage-split[data-dock="side"][data-side-top="true"] {
-  grid-template-rows: auto auto 1fr;
-  grid-template-areas: "desk handle head" "desk handle play" "desk handle vgrip";
+  grid-template-rows: auto auto 1fr auto;
+  grid-template-areas: "desk handle head" "desk handle play" "desk handle vgrip" "ghost ghost ghost";
   margin-left: var(--xen-swap-ml, var(--xen-bleed-ml, 0)); width: var(--xen-swap-w, var(--xen-bleed-w, 100%));
 }
-.xen-stage-split[data-dock="side"][data-side-top="true"] > .xen-stage-split-ghost { display: none; }
+.xen-stage-split[data-dock="side"][data-side-top="true"] > .xen-stage-split-ghost { margin-top: 1rem; border-top: 1px dashed rgba(148, 163, 184, .25); }
+html.xen-split-swapped :is(.xen-quick-dock, .xen-quick-collection.is-right-docked) {
+  position: absolute !important; top: var(--xen-rail-top, 156px) !important; left: var(--xen-rail-left, 12px) !important; right: auto !important;
+}
+html.xen-split-swapped.xen-split-instr-down .xen-performance {
+  position: absolute !important; top: var(--xen-rail-top, 156px) !important; left: var(--xen-rail-left, 12px) !important; right: auto !important;
+}
+.xen-stage-split-instr {
+  position: absolute; z-index: 6; left: var(--xen-instr-x, 0); top: var(--xen-instr-y, 0); width: var(--xen-instr-w, 196px); height: 24px;
+  border: 1px solid rgba(148, 163, 184, .35); border-radius: 6px; background: #0b1117; color: #bae6fd;
+  font-size: 11px; letter-spacing: .04em; cursor: pointer;
+}
+.xen-stage-split-instr:hover, .xen-stage-split-instr:focus-visible { border-color: #7dd3fc; color: #fff; outline: none; }
 .xen-stage-split-swap {
   position: absolute; z-index: 6; left: var(--xen-swap-x, auto); top: var(--xen-swap-y, 1.5rem); right: auto;
   display: flex; align-items: center; justify-content: center; width: 36px; height: 30px; padding: 0;

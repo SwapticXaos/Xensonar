@@ -17,7 +17,7 @@ const __XenStageLayout = (() => {
   const DESK_DEFAULT = 0.62;
   const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
   const listeners = new Set();
-  let state = { dock: 'top', deskFrac: DESK_DEFAULT, playH: { top: 0, side: 0 }, spacing: 'abs', sideTop: false };
+  let state = { dock: 'top', deskFrac: DESK_DEFAULT, playH: { top: 0, side: 0 }, spacing: 'abs', sideTop: false, instrDown: false };
   try {
     const raw = JSON.parse(localStorage.getItem(KEY) || 'null');
     if (raw && typeof raw === 'object') {
@@ -29,7 +29,8 @@ const __XenStageLayout = (() => {
           side: Number.isFinite(raw.playH?.side) && raw.playH.side >= 140 ? clamp(raw.playH.side, 140, 1600) : 0
         },
         spacing: raw.spacing === 'log' || raw.spacing === 'fret' ? raw.spacing : 'abs',
-        sideTop: raw.sideTop === true
+        sideTop: raw.sideTop === true,
+        instrDown: raw.instrDown === true
       };
     }
   } catch {}
@@ -46,6 +47,8 @@ const __XenStageLayout = (() => {
     setDock: d => set({ dock: d === 'side' ? 'side' : 'top' }),
     // UI-SWAP-01: side mode row (desk | playfield) on top between the side rails, or below them at full width
     setSideTop: v => set({ sideTop: !!v }),
+    // ... and, by choice, the Instruments rail goes down with the Quick Rack (more room on top)
+    setInstrDown: v => set({ instrDown: !!v }),
     setDeskFrac: (f, save = true) => set({ deskFrac: clamp(Number(f) || DESK_DEFAULT, 0.28, 0.8) }, save),
     setPlayHeight: (dock, px, save = true) => {
       const v = Number(px) > 0 ? clamp(Math.round(px), 140, 1600) : 0;
@@ -116,6 +119,10 @@ function __XenStageSplit({ stage, desk }) {
   const rootRef = P.useRef(null);
   const ghostRef = P.useRef(null);
   const playH = lay.playH[dock] || 0;
+  const sideTopRef = P.useRef(false);
+  sideTopRef.current = dock === 'side' && !!lay.sideTop;
+  const instrDownRef = P.useRef(false);
+  instrDownRef.current = !!lay.instrDown;
 
   // Side mode: the inactive ghost keeps the area between the two (absolute) side rails, so the
   // full-width desk row starts below them. Measured, never per frame.
@@ -129,23 +136,51 @@ function __XenStageSplit({ stage, desk }) {
       const g = ghostRef.current;
       if (!g) return;
       const top = g.getBoundingClientRect().top;
-      let bottom = 0;
-      if (window.innerWidth >= 1024) {
-        for (const el of document.querySelectorAll('.xen-performance,.xen-quick-dock')) {
+      // UI-SWAP-01: swapped = the desk | playfield row on top, right of the Instruments rail (which stays), up to the right
+      // edge; the Quick Rack moves below it, next to the placeholder (absolute instead of fixed).
+      const html = document.documentElement, wide = window.innerWidth >= 1024, swapped = !!sideTopRef.current && wide;
+      const instrDown = swapped && !!instrDownRef.current;
+      const RAILS = '.xen-quick-dock,.xen-quick-collection.is-right-docked' + (instrDown ? ',.xen-performance' : '');
+      html.classList.toggle('xen-split-swapped', swapped);
+      html.classList.toggle('xen-split-instr-down', instrDown);
+      if (!instrDown) for (const el of document.querySelectorAll('.xen-performance')) { el.style.removeProperty('--xen-rail-top'); el.style.removeProperty('--xen-rail-left'); }
+      let railH = 0, bottom = 0;
+      if (wide) {
+        const vw = html.clientWidth || window.innerWidth;
+        const inset = parseFloat(getComputedStyle(html).getPropertyValue('--xen-side-rail-inset')) || 12;
+        const gTop = top + window.scrollY;
+        for (const el of document.querySelectorAll(RAILS)) {
+          if (swapped) {
+            const op = el.offsetParent, or = op ? op.getBoundingClientRect() : { top: -window.scrollY, left: -window.scrollX };
+            const w = el.getBoundingClientRect().width;
+            el.style.setProperty('--xen-rail-top', Math.round(gTop - (or.top + window.scrollY) + 6) + 'px');
+            el.style.setProperty('--xen-rail-left', Math.round((el.matches('.xen-performance') ? inset : vw - inset - w) - or.left) + 'px');
+          } else { el.style.removeProperty('--xen-rail-top'); el.style.removeProperty('--xen-rail-left'); }
           const r = el.getBoundingClientRect();
-          if (r.height > 0) bottom = Math.max(bottom, r.bottom);
+          if (r.height > 0) { railH = Math.max(railH, r.height); bottom = Math.max(bottom, r.bottom); }
         }
       }
-      const h = Math.max(64, Math.min(900, Math.round(bottom - top + 12)));
+      if (!swapped) {
+        for (const el of document.querySelectorAll('.xen-performance')) { const r = el.getBoundingClientRect(); if (r.height > 0) bottom = Math.max(bottom, r.bottom); }
+        root.style.removeProperty('--xen-swap-ml'); root.style.removeProperty('--xen-swap-w');
+      } else {
+        const perf = document.querySelector('.xen-performance'), pr = perf?.getBoundingClientRect(), parent = root.parentElement;
+        const vw = html.clientWidth || window.innerWidth;
+        if (pr && pr.width > 0 && parent && !instrDown) {
+          const pl = parent.getBoundingClientRect().left, left = pr.right + 10;
+          root.style.setProperty('--xen-swap-ml', Math.round(left - pl) + 'px');
+          root.style.setProperty('--xen-swap-w', Math.round(vw - 10 - left) + 'px');
+        } else { root.style.removeProperty('--xen-swap-ml'); root.style.removeProperty('--xen-swap-w'); }
+        // the Instruments button sits on its rail: under it (up) or above it (down)
+        const rr = root.getBoundingClientRect(), p2 = perf?.getBoundingClientRect();
+        if (p2 && p2.width > 0) {
+          root.style.setProperty('--xen-instr-x', Math.round(p2.left - rr.left) + 'px');
+          root.style.setProperty('--xen-instr-w', Math.round(p2.width) + 'px');
+          root.style.setProperty('--xen-instr-y', Math.round((instrDown ? p2.top - 30 : p2.bottom + 36) - rr.top) + 'px');
+        }
+      }
+      const h = Math.max(64, Math.min(900, Math.round(swapped ? railH + 18 : bottom - top + 12)));
       root.style.setProperty('--xen-ghost-h', h + 'px');
-      // UI-SWAP-01: swapped (row on top) = between the fixed side rails; the swap button sits left of the power knob
-      const perf = document.querySelector('.xen-performance'), quick = document.querySelector('.xen-quick-dock');
-      const pr = perf?.getBoundingClientRect(), qr = quick?.getBoundingClientRect();
-      if (root.parentElement && window.innerWidth >= 1024 && pr && qr && pr.width > 0 && qr.width > 0 && qr.left - pr.right > 480) {
-        const pl = root.parentElement.getBoundingClientRect().left;
-        root.style.setProperty('--xen-swap-ml', Math.round(pr.right + 10 - pl) + 'px');
-        root.style.setProperty('--xen-swap-w', Math.round(qr.left - pr.right - 20) + 'px');
-      } else { root.style.removeProperty('--xen-swap-ml'); root.style.removeProperty('--xen-swap-w'); }
       const knob = root.querySelector('.xen-power-loop-dock .xen-qc-wrap') || root.querySelector('.xen-power-loop-dock');
       if (knob) {
         const kr = knob.getBoundingClientRect(), rr = root.getBoundingClientRect();
@@ -186,9 +221,11 @@ function __XenStageSplit({ stage, desk }) {
       if (raf) cancelAnimationFrame(raf);
       ro?.disconnect();
       window.removeEventListener('resize', schedule);
-      for (const k of ['--xen-bleed-ml', '--xen-bleed-w', '--xen-play-auto-h', '--xen-swap-ml', '--xen-swap-w', '--xen-swap-x', '--xen-swap-y']) root.style.removeProperty(k);
+      for (const k of ['--xen-bleed-ml', '--xen-bleed-w', '--xen-play-auto-h', '--xen-swap-x', '--xen-swap-y', '--xen-swap-ml', '--xen-swap-w', '--xen-instr-x', '--xen-instr-y', '--xen-instr-w']) root.style.removeProperty(k);
+      document.documentElement.classList.remove('xen-split-swapped', 'xen-split-instr-down');
+      for (const el of document.querySelectorAll('.xen-performance,.xen-quick-dock,.xen-quick-collection,.xen-quick-left-landing')) { el.style.removeProperty('--xen-rail-top'); el.style.removeProperty('--xen-rail-left'); }
     };
-  }, [dock, lay.sideTop]);
+  }, [dock, lay.sideTop, lay.instrDown]);
 
   const goTop = () => __XenStageLayout.setDock('top');
 
@@ -244,8 +281,8 @@ function __XenStageSplit({ stage, desk }) {
         type: 'button',
         className: 'xen-stage-split-swap',
         'aria-pressed': !!lay.sideTop,
-        'aria-label': lay.sideTop ? 'Move Mixing Desk and playfield back down' : 'Move Mixing Desk and playfield up between the side panels',
-        title: lay.sideTop ? 'Swap back: Mixing Desk + playfield below, full width' : 'Swap: Mixing Desk + playfield up here, between the side panels',
+        'aria-label': lay.sideTop ? 'Move Mixing Desk and playfield back down' : 'Swap: Mixing Desk and playfield up, Quick Rack below',
+        title: lay.sideTop ? 'Swap back: Quick Rack and the top area up again, Mixing Desk + playfield below' : 'Swap: Mixing Desk + playfield up next to the Instruments, the Quick Rack below',
         onClick: () => {
           __XenStageLayout.setSideTop(!lay.sideTop);
           requestAnimationFrame(() => rootRef.current?.querySelector('.xen-stage-split-desk')?.scrollIntoView({ behavior: 'smooth', block: 'nearest' }));
@@ -272,6 +309,14 @@ function __XenStageSplit({ stage, desk }) {
         onDoubleClick: () => __XenStageLayout.setPlayHeight(dock, 0),
         children: u.jsx('span', { className: 'xen-stage-split-grip-dots', 'aria-hidden': true })
       }),
+      dock === 'side' && lay.sideTop ? u.jsx('button', {
+        type: 'button',
+        className: 'xen-stage-split-instr',
+        'aria-pressed': !!lay.instrDown,
+        title: lay.instrDown ? 'Instruments back up, beside the Mixing Desk' : 'Instruments down as well, next to the Quick Rack: more room for Mixing Desk and playfield',
+        onClick: () => __XenStageLayout.setInstrDown(!lay.instrDown),
+        children: lay.instrDown ? '▴ Instruments up' : '▾ Instruments below'
+      }) : null,
       u.jsxs('div', {
         ref: ghostRef,
         className: 'xen-stage-split-ghost',
@@ -284,7 +329,7 @@ function __XenStageSplit({ stage, desk }) {
         children: [
           u.jsx('span', { className: 'xen-stage-split-ghost-grid', 'aria-hidden': true }),
           u.jsxs('span', { className: 'xen-stage-split-ghost-label', children: [
-            u.jsx('strong', { children: 'The playfield is down beside the Mixing Desk' }),
+            u.jsx('strong', { children: lay.sideTop ? 'The playfield is up beside the Mixing Desk' : 'The playfield is down beside the Mixing Desk' }),
             u.jsx('span', { children: 'Click to play it up here again' })
           ] })
         ]

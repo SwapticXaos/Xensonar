@@ -69,14 +69,24 @@ const html=path.resolve(process.argv[2]||'dist/XenSonar_PROBE.html');
   const kb=await p.evaluate(()=>{const k=document.querySelector('.xen-power-loop-dock .xen-qc-wrap').getBoundingClientRect(),b=document.querySelector('.xen-stage-split-swap').getBoundingClientRect();return{dx:k.left-b.right,dy:b.top-k.top}});
   assert.ok(kb.dx>=0&&kb.dx<20&&Math.abs(kb.dy)<30,'swap button sits left of the power knob: '+JSON.stringify(kb));
   const yBelow=await p.evaluate(()=>document.querySelector('.xen-stage-split-desk').getBoundingClientRect().top+scrollY);
+  const railTop0=await p.evaluate(()=>document.querySelector('.xen-performance').getBoundingClientRect().top+scrollY);
   await sw.click();await p.waitForTimeout(700);
   const up=await p.evaluate(()=>{const d=document.querySelector('.xen-stage-split-desk').getBoundingClientRect(),pr=document.querySelector('.xen-performance').getBoundingClientRect(),qr=document.querySelector('.xen-quick-dock').getBoundingClientRect(),c=document.querySelector('canvas[data-xen-play-area]').getBoundingClientRect();
     return{top:d.top+scrollY,deskLeft:d.left,perfRight:pr.right,canvasRight:c.right,quickLeft:qr.left,ghost:getComputedStyle(document.querySelector('.xen-stage-split-ghost')).display,ls:__XenStageLayout.snapshot().sideTop,sw:document.documentElement.scrollWidth,vw:document.documentElement.clientWidth}});
-  assert.ok(up.top<yBelow-200,'the row moved up: '+yBelow+' -> '+up.top);assert.equal(up.ghost,'none');assert.equal(up.ls,true);
-  assert.ok(up.deskLeft>=up.perfRight&&up.canvasRight<=up.quickLeft,'between the side rails: '+JSON.stringify(up));assert.equal(up.sw,up.vw,'no horizontal scroll');
+  assert.ok(up.top<yBelow-200,'the row moved up: '+yBelow+' -> '+up.top);assert.equal(up.ghost,'flex','the placeholder moved below the row');assert.equal(up.ls,true);
+  assert.ok(up.deskLeft>=up.perfRight,'right of the Instruments rail, which stays up: '+JSON.stringify(up));assert.equal(up.sw,up.vw,'no horizontal scroll');
+  const qc=await p.evaluate(()=>{const q=document.querySelector('.xen-quick-collection')||document.querySelector('.xen-quick-dock');const r=q.getBoundingClientRect(),d=document.querySelector('.xen-stage-split-desk').getBoundingClientRect();return{qTop:r.top,dBottom:d.bottom}});
+  assert.ok(qc.qTop>qc.dBottom,'the Quick Rack moved below the row: '+JSON.stringify(qc));
+  // the Instruments rail can go down as well (more room)
+  await p.click('.xen-stage-split-instr');await p.waitForTimeout(700);
+  const dn=await p.evaluate(()=>{const d=document.querySelector('.xen-stage-split-desk').getBoundingClientRect(),pr=document.querySelector('.xen-performance').getBoundingClientRect();return{deskLeft:d.left,deskBottom:d.bottom,perfTop:pr.top,ls:__XenStageLayout.snapshot().instrDown,sw:document.documentElement.scrollWidth,vw:document.documentElement.clientWidth}});
+  assert.ok(dn.ls&&dn.deskLeft<=12&&dn.perfTop>dn.deskBottom,'Instruments below, row full width: '+JSON.stringify(dn));assert.equal(dn.sw,dn.vw);
+  await p.click('.xen-stage-split-instr');await p.waitForTimeout(500);
+  assert.equal(await p.evaluate(()=>__XenStageLayout.snapshot().instrDown),false,'Instruments up again');
   assert.ok(await p.evaluate(()=>document.querySelector('canvas[data-xen-play-area]')===window.__canvas0),'same canvas after the swap');
   await p.click('.xen-stage-split-swap');await p.waitForTimeout(600);
   assert.equal(await p.evaluate(()=>__XenStageLayout.snapshot().sideTop),false,'second click swaps back');
+  assert.ok(await p.evaluate(r0=>{const r=document.querySelector('.xen-performance').getBoundingClientRect();return !document.documentElement.classList.contains('xen-split-swapped')&&Math.abs(r.top+scrollY-r0)<2},railTop0),'Instruments rail back at its place');
   assert.ok(Math.abs(await p.evaluate(()=>document.querySelector('.xen-stage-split-desk').getBoundingClientRect().top+scrollY)-yBelow)<3,'back below');
   // desk closed: top layout; reopening docks beside again
   await p.evaluate(()=>window.__XenDjStage.setExpanded(false));await p.waitForTimeout(300);
