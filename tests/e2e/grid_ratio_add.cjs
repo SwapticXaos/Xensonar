@@ -8,7 +8,7 @@ const html=path.resolve(process.argv[2]||'dist/XenSonar_PROBE.html');
 (async()=>{
   const b=await chromium.launch();const p=await (await b.newContext({viewport:{width:1600,height:760}})).newPage();const errors=[];p.on('pageerror',e=>errors.push(e.message));
   await p.goto('file://'+html);await p.waitForTimeout(3500);
-  await p.locator('[title^="Click: Open Grid Workbench"]').first().click();await p.waitForSelector('[data-xen-ratio-input]',{timeout:15000});await p.waitForTimeout(300);
+  await p.locator('[title*="Click: Open Grid Workbench"]').first().click();await p.waitForSelector('[data-xen-ratio-input]',{timeout:15000});await p.waitForTimeout(300);
   const menu=p.locator('[data-xen-header-menu="grid"]');const input=p.locator('[data-xen-ratio-input]');const msg=async()=>(await menu.innerText());
   const steps=()=>p.locator('[aria-label^="Tune marker"]').count();
   const s0=await steps();assert.ok(s0>=2,'a grid is loaded: '+s0);

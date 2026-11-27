@@ -86,7 +86,8 @@ const cents=(a,b)=>1200*Math.log2(a/b),near=(f,l)=>l.reduce((m,g)=>Math.min(m,Ma
  await p.getByRole('radio',{name:'Free'}).first().click();await p.waitForTimeout(300);
  assert.equal(await E('__xenCursorSnapMode(__NodalBallGrid.params())'),'free','the Free button switches Snap off');
  // ---- 5. the switch says so ----
- const hint=await p.getByText('Free: the mouse glides',{exact:false}).count();
+ // since the Controls & Settings block (15e509f) the Free switch explains itself in its tooltip
+ const hint=await p.locator('[title*="mouse glides" i]').count()+await p.getByText('Free: the mouse glides',{exact:false}).count();
  assert(hint>=1,'the Snap switch explains the decoupling');
  assert.deepEqual(errors,[],'no page errors');
  console.log(`PASS PSY-GRID-01: Snap on ${held.length} pitches all on open lines, none on muted steps, = Wave Starter snap at rest; cross-engine zhe() & __XenOctaves parity verified; muted line → open neighbour; Snap off glides (${between.length} pitches between lines) while a Keyboard chord stays on open lines; the switch explains it`);

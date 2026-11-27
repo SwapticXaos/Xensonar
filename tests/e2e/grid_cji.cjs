@@ -8,7 +8,7 @@ const html=path.resolve(process.argv[2]||'dist/XenSonar_PROBE.html');
 (async()=>{
   const b=await chromium.launch({args:['--autoplay-policy=no-user-gesture-required']});const ctx=await b.newContext({viewport:{width:1600,height:900},acceptDownloads:true});const p=await ctx.newPage();const errors=[];p.on('pageerror',e=>errors.push(e.message));
   await p.goto('file://'+html);await p.waitForTimeout(3500);
-  const open=async()=>{await p.locator('[title^="Click: Open Grid Workbench"]').first().click();await p.waitForSelector('[data-xen-ratio-input]',{timeout:15000});await p.waitForTimeout(300)};
+  const open=async()=>{await p.locator('[title*="Click: Open Grid Workbench"]').first().click();await p.waitForSelector('[data-xen-ratio-input]',{timeout:15000});await p.waitForTimeout(300)};
   const menu=p.locator('[data-xen-header-menu="grid"]'),input=p.locator('[data-xen-ratio-input]');
   const markers=()=>p.locator('[aria-label^="Tune marker"]').evaluateAll(els=>els.map(e=>e.getAttribute('aria-label')));
   const title=()=>p.locator('label:has-text("Speichertitel") input').inputValue();

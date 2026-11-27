@@ -9,7 +9,7 @@ const html=path.resolve(process.argv[2]||'dist/XenSonar_PROBE.html');
   fs.writeFileSync(scl,"! meanquar.scl\n!\n1/4-comma meantone scale. Pietro Aaron's temperament (1523)\n 12\n!\n 76.04900\n 193.15686\n 310.26471\n 5/4\n 503.42157\n 579.47057\n 696.57843\n 25/16\n 889.73529\n 1006.84314\n 1082.89214\n 2/1\n");
   const b=await chromium.launch({args:['--autoplay-policy=no-user-gesture-required']});const ctx=await b.newContext({viewport:{width:1600,height:1000},acceptDownloads:true});const p=await ctx.newPage();
   const errors=[];p.on('pageerror',e=>errors.push(e.message));
-  const openWorkbench=async()=>{await p.locator('[title^="Click: Open Grid Workbench"]').first().click();await p.waitForSelector('[data-xen-header-menu="grid"] [data-xen-scala-import]',{timeout:15000});await p.waitForTimeout(300)};
+  const openWorkbench=async()=>{await p.locator('[title*="Click: Open Grid Workbench"]').first().click();await p.waitForSelector('[data-xen-header-menu="grid"] [data-xen-scala-import]',{timeout:15000});await p.waitForTimeout(300)};
   const custom=()=>p.evaluate(()=>window.__xenProbe.draw.evalInBundle('JSON.stringify(FJ().map(t=>({label:t.label,steps:t.stepCents.length,period:t.periodCents,c4:t.stepCents[4]})))')).then(JSON.parse);
   await p.goto('file://'+html);await p.waitForTimeout(3500);await openWorkbench();
   const before=await custom();

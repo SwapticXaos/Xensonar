@@ -13,7 +13,7 @@ const html=path.resolve(process.argv[2]||'dist/XenSonar_PROBE.html');
  const clkS=t=>p.evaluate(t=>{const n=x=>(x||'').replace(/\s+/g,' ').trim();const b=[...document.querySelectorAll('button')].find(b=>b.offsetParent&&n(b.innerText).startsWith(t));if(b){b.scrollIntoView();b.click()}return !!b},t);
  await clkX('MATERIAL FORGE');await p.waitForTimeout(3000);await clkS('SPECTRALFORGE');await p.waitForTimeout(4000);
  await p.setInputFiles('input[type=file][accept^="audio"]',wav('xen_dual_a.wav',220,.2));await p.waitForTimeout(4000);
- await clkS('🧬');await p.waitForTimeout(2500);
+ (await clkS('🧬'))||(await clkS('Extract Timbre'));await p.waitForTimeout(2500);
  await p.locator('[data-f341-workbench-open]').first().scrollIntoViewIfNeeded();await p.locator('[data-f341-workbench-open]').first().click();await p.waitForTimeout(2000);
  await p.locator('[aria-controls="f35634-dual-panel"]').click();await p.waitForTimeout(1500);
  const panel=p.locator('#f35634-dual-panel');

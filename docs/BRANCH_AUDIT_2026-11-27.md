@@ -27,3 +27,24 @@ liegen in `main` unter anderen Commit-Hashes. `claude/pensive-thompson-tcurka`, 
 ## Empfehlung
 Die alten Branches sind nur noch Archiv. Wer GitHub aufräumen will: sie löschen oder als `archive/…`-Tags sichern
 (nur auf ausdrücklichen Wunsch; `reference/ts-400.2` und `reference/waypoints` bleiben).
+
+---
+
+# CI-Zustand (27.11.) und Reparaturen
+
+Pages: der „pages build and deployment“-Lauf baute bis 27.11. 00:17 von `claude/pensive-thompson-tcurka`, seitdem von
+`claude/great-cori-sdjwjo` — **nie von `main`**. Für „Release = main“ in GitHub: Settings → Pages → Branch auf `main` stellen.
+
+Unit-Suite (`tools/run_tests.sh`): vorher 6 rot → **160/160 grün** (React-Attrappe ohne `cloneElement`, deutsche Desk-Tooltips).
+
+Browser-Suite: vor dieser Arbeit 9 rot (pensive-thompson, Lauf 45915830612). Repariert (veraltete Testannahmen nach gewollten Änderungen):
+- `grid_cji`, `grid_ratio_add`, `scala_import_export`: Tooltip der Raster-Kachel beginnt seit STRIP-ACTIVE-01 mit „Fretboard on · …“ (`title^=` → `title*=`).
+- `psylab_live_grid`: der Free-Schalter erklärt sich seit 15e509f im Tooltip.
+- `dual_donor_aligned`: Knopf „🧬“ heißt jetzt „Extract Timbre (Donor Workshop)“.
+- `song_parts_edit`: Teil-/Abschnittsnamen seit SONG-PART-TAGS-01 (A1/A2, A2a…, „Chorus 1“).
+
+Offen (vorher schon rot, nicht angepasst):
+- `rfl_resident_clock_live`, `live_tempo_rfl`: der Root Follow Loop spielt klickfrei (Bus/Pan/Pitch-Taps aktiv, 0 Klicks auf dem Bus),
+  aber der „resident“-Worklet-Pfad wird im Testszenario nicht mehr gewählt; Testvoraussetzung oder Absicht klären.
+- `wave_meter_live`: Taktometer folgt der Maske beim Ziehen nicht vollständig (599 < 696 < 696) — auch auf dem alten Stand.
+- `live_tempo_hold`: Messtest an der Rauschgrenze (Median-Abstand 0,6–9,3 ms bei Kriterium < 6 ms, auf allen Ständen).

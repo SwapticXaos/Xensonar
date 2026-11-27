@@ -32,10 +32,10 @@ const file=path.join(dir,'abacb_edit.wav');fs.writeFileSync(file,wav(song({bpm:1
  // drag the boundary A|B from 16 s to 19.3 s -> snapped to 20 s
  const hb=await p.locator('[data-xwe-song-handle="1"]').boundingBox();await p.mouse.move(hb.x+hb.width/2,Y);await p.mouse.down();await p.mouse.move(X(18),Y,{steps:4});await p.mouse.move(X(19.3),Y,{steps:4});await p.mouse.up();await p.waitForTimeout(300);
  await parts.first().click();await p.waitForTimeout(300);let cap=await p.locator('[data-xwe-song-caption]').innerText();
- assert.match(cap,/^A · 0:00–0:20 · 10 bars × 4 = 40 segments · 1(19|20)\.\d\d BPM · edited/,cap);
+ assert.match(cap,/^A1? · 0:00–0:20 · 10 bars × 4 = 40 segments · 1(19|20)\.\d\d BPM · edited/,cap);
  // the working copy survives a reload of the whole app
  await boot(true);await p.waitForFunction(()=>[...document.querySelectorAll('[data-xwe-song-part]')].map(x=>x.dataset.xweSongPart).join('')==='ABDACB',null,{timeout:15000}).catch(()=>{});assert.equal(await labels(),'ABDACB','edits restored after reload');assert.equal(await p.locator('.xwe-song-edited').count(),1);
- await parts.first().click();await p.waitForTimeout(300);assert.match(await p.locator('[data-xwe-song-caption]').innerText(),/^A · 0:00–0:20 · 10 bars/);
+ await parts.first().click();await p.waitForTimeout(300);assert.match(await p.locator('[data-xwe-song-caption]').innerText(),/^A1? · 0:00–0:20 · 10 bars/);
  // ---- Taktometer menu: fixed layer, fully visible, not covered, follows scrolling ----
  const meter=p.locator('[data-xen-bar-meter]');await meter.scrollIntoViewIfNeeded();let mb=await meter.boundingBox();await p.mouse.click(mb.x+mb.width*.97,mb.y+mb.height/2,{button:'right'});
  const pop=p.locator('[data-xwe-meter-menu]');await pop.waitFor();await pop.locator('[data-xwe-meter-action="analyze"]').click();await pop.locator('[data-xwe-meter-result]').waitFor();await p.waitForTimeout(200);
@@ -66,9 +66,9 @@ const file=path.join(dir,'abacb_edit.wav');fs.writeFileSync(file,wav(song({bpm:1
  await p.evaluate(()=>document.querySelector('[data-xwe-song-parts]').parentElement.scrollIntoView({block:'start'}));await p.waitForTimeout(200);
  let sb3=await strip.boundingBox();const X3=t=>sb3.x+sb3.width*t/80,Y3=sb3.y+sb3.height*.3;
  await p.mouse.click(X3(37.1),Y3,{button:'right'});await menu.waitFor();assert.equal(await p.locator('[data-xwe-song-here]').count(),1,'the menu shows where "here" is');
- assert.match(await p.locator('[data-xwe-song-here]').innerText(),/^A · bar \d+ · 0:3\d$/,'the marker names the bar that will be cut');await menu.locator('[data-xwe-song-num="every"]').fill('2');await menu.locator('[data-xwe-song-action="every"]').click();await p.waitForTimeout(300);
+ assert.match(await p.locator('[data-xwe-song-here]').innerText(),/^A\d? · bar \d+ · 0:3\d$/,'the marker names the bar that will be cut');await menu.locator('[data-xwe-song-num="every"]').fill('2');await menu.locator('[data-xwe-song-action="every"]').click();await p.waitForTimeout(300);
  const secs=()=>p.locator('[data-xwe-song-sub]').evaluateAll(n=>n.map(x=>x.dataset.xweSongSub).join(' '));
- assert.match(await secs(),/A1 A2 A3 A4/,'part A (32–40 s) in sections of 2 bars');
+ assert.match(await secs(),/A\d?a A\d?b A\d?c A\d?d/,'part A (32–40 s) in sections of 2 bars (SONG-PART-TAGS-01: sections a, b, c …)');
  // free numbers: every 3.5 bars (= 14 segments = 7 s) and evenly into 7 sections, typed into the fields of part A (0–20 s, 10 bars)
  const cutsBefore20=()=>p.locator('[data-xwe-song-cut]').evaluateAll(n=>n.map(x=>(x.getAttribute('aria-label').match(/at (\d+):(\d+)$/)||[]).slice(1).map(Number)).map(([m,s])=>m*60+s).filter(t=>t<20));
  await p.mouse.click(X3(5),Y3,{button:'right'});await menu.waitFor();await menu.locator('[data-xwe-song-num="every"]').fill('3.5');await menu.locator('[data-xwe-song-num="every"]').press('Enter');await p.waitForTimeout(300);
@@ -81,12 +81,12 @@ const file=path.join(dir,'abacb_edit.wav');fs.writeFileSync(file,wav(song({bpm:1
  await p.mouse.click(X3(26),Y3,{button:'right'});await menu.waitFor();const barSel=menu.locator('[data-xwe-song-bar]');
  await barSel.click();assert.ok(await menu.locator('[data-xwe-song-barpick]').count()>=3,'the bar picker opens');await menu.locator('[data-xwe-song-barpick="3"]').click();
  assert.match(await p.locator('[data-xwe-song-here]').innerText(),/bar 3 · 0:28/);assert.match(await p.locator('[data-xwe-song-caption]').innerText(),/Bar 3 of D at 0:28/);await menu.locator('[data-xwe-song-action="subdivide-bar"]').click();await p.waitForTimeout(300);
- assert.match(await secs(),/D1 D2/,'part D got a section at bar 3');await p.mouse.click(X3(29),Y3,{button:'right'});await menu.waitFor();await menu.locator('[data-xwe-song-action="clear-sections"]').click();await p.waitForTimeout(200);
+ assert.match(await secs(),/D\d?a D\d?b/,'part D got a section at bar 3');await p.mouse.click(X3(29),Y3,{button:'right'});await menu.waitFor();await menu.locator('[data-xwe-song-action="clear-sections"]').click();await p.waitForTimeout(200);
  await p.keyboard.down('Shift');await p.mouse.click(X3(27.1),Y3);await p.keyboard.up('Shift');await p.waitForTimeout(300);
  assert.match(await p.locator('[data-xwe-song-caption]').innerText(),/Section boundary set in D at 0:28/);
- const cut=p.locator('[data-xwe-song-cut="D2"]');const cb=await cut.boundingBox();await p.mouse.move(cb.x+cb.width/2,cb.y+cb.height/2);await p.mouse.down();await p.mouse.move(X3(29),cb.y+cb.height/2,{steps:4});await p.mouse.move(X3(29.8),cb.y+cb.height/2,{steps:4});await p.mouse.up();await p.waitForTimeout(300);
+ const cut=p.locator('[data-xwe-song-cut="Db"],[data-xwe-song-cut="D1b"]');const cb=await cut.boundingBox();await p.mouse.move(cb.x+cb.width/2,cb.y+cb.height/2);await p.mouse.down();await p.mouse.move(X3(29),cb.y+cb.height/2,{steps:4});await p.mouse.move(X3(29.8),cb.y+cb.height/2,{steps:4});await p.mouse.up();await p.waitForTimeout(300);
  assert.match(await cut.getAttribute('aria-label'),/at 0:30/,'dragged section boundary snapped to the bar at 30 s');
- await cut.dblclick();await p.waitForTimeout(300);assert.equal(await p.locator('[data-xwe-song-cut="D2"]').count(),0,'double click removed it');
+ await cut.dblclick();await p.waitForTimeout(300);assert.equal(await p.locator('[data-xwe-song-cut="Db"],[data-xwe-song-cut="D1b"]').count(),0,'double click removed it');
  sb3=await strip.boundingBox();await p.mouse.click(X3(8),Y3,{button:'right'});await menu.waitFor();await menu.locator('[data-xwe-song-action="subdivide-analysis"]').click();
  await p.waitForFunction(()=>/sections found|no clear inner sections|failed/.test(document.querySelector('[data-xwe-song-caption]')?.textContent||''),null,{timeout:60000});
  assert.doesNotMatch(await p.locator('[data-xwe-song-caption]').innerText(),/failed/);
@@ -96,7 +96,7 @@ const file=path.join(dir,'abacb_edit.wav');fs.writeFileSync(file,wav(song({bpm:1
   await menu.locator('[data-xwe-song-name="B"]').fill('Chorus');await menu.locator('[data-xwe-song-name="B"]').press('Enter');await p.waitForTimeout(300);
   const bs=p.locator('[data-xwe-song-part="B"]');assert.ok((await bs.count())>=2);for(const t of await bs.allInnerTexts())assert.match(t,/^Chorus/,'every B reads Chorus: '+t);
   assert.match(await p.locator('[data-xwe-song-caption]').innerText(),/All B parts are now called "Chorus"/);
-  await p.mouse.click(bAt.x+bAt.width/2,bAt.y+bAt.height*.3,{button:'right'});await menu.waitFor();assert.match(await menu.locator('.xwe-song-menu-title').innerText(),/^Part Chorus \(B\)/);
+  await p.mouse.click(bAt.x+bAt.width/2,bAt.y+bAt.height*.3,{button:'right'});await menu.waitFor();assert.match(await menu.locator('.xwe-song-menu-title').innerText(),/^Part Chorus( \d+)? \(B\)/);
   await menu.locator('[data-xwe-song-colour="#94a3b8"]').click();await p.waitForTimeout(300);
   for(const c of await bs.evaluateAll(n=>n.map(x=>getComputedStyle(x).backgroundColor)))assert.equal(c,'rgb(148, 163, 184)','every B in the new colour');
   await p.mouse.click(bAt.x+bAt.width/2,bAt.y+bAt.height*.3,{button:'right'});await menu.waitFor();await menu.locator('[data-xwe-song-action="kind-reset"]').click();await p.waitForTimeout(300);
