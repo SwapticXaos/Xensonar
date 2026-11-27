@@ -39,3 +39,30 @@ Basis: `main` 31ae86e (MIX-DESK-01, UI-LIQUID-01, SONG-PART-TAGS-02).
 - grün: `live_tempo_material`, `lane_follow`, `mixing_desk_smoke`, `eq_no_page_drag`, `song_part_tags_send`, `build.py --check`.
 - Bekannte Altlast (vorher schon rot, nicht DJ-bezogen): `song_performance_p0/p1`, `session_bass_drone_p2`,
   `working_session`, `expressive_burst_contract` extrahieren Quelltext nach alten Mustern.
+
+---
+
+# DJ-CLOCK-01 — Auto-Fades und Szenen auf der Audio-Uhr (kein Ruckeln, kein ungenauer Start)
+
+## Vorher
+Crossfade-Automatik und Szenen-Morph schrieben jeden Bildschirm-Frame (rAF) die Pegel in die Stores; React-Effekte
+setzten daraus mit 30 ms Glättung den Gain. „Takt-Start" wartete per `setTimeout`. Folge: Ruckeln unter Last,
+Start mit Frame- und Timer-Jitter, Stillstand im Hintergrund-Tab, React-Neuaufbau pro Frame (Primärspur via Param-Update).
+
+## Jetzt
+- Der gesamte Pegelverlauf jeder Spur wird beim Auslösen **vorab als 64 lineare Rampen** auf den Level-Gain der Stimme
+  geplant (abbrechbar, Firefox-sicher), Start mit „Takt-Start" **exakt auf der nächsten Raum-Taktlinie der AudioContext-Zeit**
+  (über die Tempo-Karte, auch während eines Tempo-Gleitens); Länge in Takten = musikalische Länge (`timeAt(beatAt(t0)+beats)`).
+- Die Stores bekommen sofort den End-Pegel, der Mix-Target-Cache ist vorbelegt → kein React-Effekt überschreibt die Rampe.
+- Der Bildschirm (Crossfader-Kappe, Sync-EQ-Morph, Szenen-EQ) folgt nur noch der Audio-Uhr.
+- Anfassen (Crossfader, Fader, Mute, Bus …) mitten im Fade übernimmt ab dem **hörbaren** Pegel, ohne Sprung.
+- Szenen-Morph: gleiche Technik, von hörbarem Pegel zu Szenen-Pegel (kein Sprung bei Bus-Wechsel), mit „Takt-Start" auf dem Taktstrich.
+- Ohne laufende Stimme (nichts hörbar): bisheriger Frame-Weg als Fallback.
+
+## Technik
+`__XenMaterialLivePhase.handle(id)` / `headroom()`; Desk: `startClockMorph`, `planMorphWindow`, `interruptClockMorph`,
+`writeDeckLevel`, `deckEffective`, `applyLinkedEqMorph`; `__XenDjStage.roomBpm()`.
+
+## Test
+`tests/e2e/dj_clock_fade.cjs`: Start auf der Taktlinie (Messung des Gain auf der Audio-Uhr), 600 ms blockierter Haupt-Thread
+ohne Stocken, monoton, nach genau 2 Takten still, Übernahme ohne Sprung, Szenen-Morph auf der Audio-Uhr.

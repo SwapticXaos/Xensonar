@@ -72,7 +72,6 @@ const __XenDjStage = (() => {
   } catch {}
 
   let fadeRaf = 0;
-  let fadeArmTimer = 0;
   let sceneRaf = 0;
   let statusTimer = 0;
   let mixFlushRaf = 0;
@@ -150,38 +149,46 @@ const __XenDjStage = (() => {
     }
   }
 
+  function deckEffective(id, primaryId, params, st = state) {
+    const base = typeof st.baseVolumes[id] === 'number' ? st.baseVolumes[id] : readLiveVolume(id, primaryId, params);
+    return __XenDjMixMath.clamp(base * deckMultiplier(id, st), 0, id === primaryId ? 1 : 1.5);
+  }
+
+  // Crossfader → EQ A↔B morph of the decks on bus A / B ("Sync EQ Morph").
+  function applyLinkedEqMorph(ids, st = state) {
+    if (!st.linkEqMorph) return;
+    for (const id of ids) {
+      const bus = st.buses[id] || 'THRU';
+      if (bus !== 'A' && bus !== 'B') continue;
+      const targetMorph = bus === 'A' ? st.crossfade : (1 - st.crossfade);
+      const key = __XenEQ.keyFor('material', id);
+      if (Math.abs((__XenEQ.get(key).morph || 0) - targetMorph) > 0.003) __XenEQ.set(key, { morph: targetMorph });
+    }
+  }
+
+  // Write one deck level into its owner store (primary: materialLoopVolume param, layers: VoiceMix).
+  // Returns the value the store holds afterwards (tiny differences are not written).
+  function writeDeckLevel(id, eff, primaryId, params, update) {
+    const v = Number(eff.toFixed(3));
+    if (id === primaryId) {
+      const cur = Number(params?.materialLoopVolume) || 0;
+      if (typeof update === 'function' && Math.abs(cur - v) > 0.002) { update({ materialLoopVolume: v }); lastWritten.set(id, v); return v; }
+      lastWritten.set(id, cur);
+      return cur;
+    }
+    if (Math.abs(__XenMaterialVoiceMix.get(id).volume - v) > 0.002) __XenMaterialVoiceMix.set(id, 'volume', v);
+    const held = __XenMaterialVoiceMix.get(id).volume;
+    lastWritten.set(id, held);
+    return held;
+  }
+
   function applyLiveMix(ids, primaryId, params, update) {
     if (!ids.length) return;
+    // A direct desk action while a clock morph runs: take over from the audible position.
+    if (clockMorph) interruptClockMorph();
     ensureBaseVolumes(ids, primaryId, params);
-    for (const id of ids) {
-      const base = typeof state.baseVolumes[id] === 'number'
-        ? state.baseVolumes[id]
-        : readLiveVolume(id, primaryId, params);
-      const mult = deckMultiplier(id, state);
-      const maxVol = id === primaryId ? 1 : 1.5;
-      const eff = __XenDjMixMath.clamp(base * mult, 0, maxVol);
-      lastWritten.set(id, Number(eff.toFixed(3)));
-      if (id === primaryId) {
-        if (typeof update === 'function' && Math.abs((Number(params?.materialLoopVolume) || 0) - eff) > 0.002) {
-          update({ materialLoopVolume: Number(eff.toFixed(3)) });
-        }
-      } else {
-        const cur = __XenMaterialVoiceMix.get(id).volume;
-        if (Math.abs(cur - eff) > 0.002) {
-          __XenMaterialVoiceMix.set(id, 'volume', Number(eff.toFixed(3)));
-        }
-      }
-      if (state.linkEqMorph) {
-        const bus = state.buses[id] || 'THRU';
-        if (bus === 'A' || bus === 'B') {
-          const targetMorph = bus === 'A' ? state.crossfade : (1 - state.crossfade);
-          const key = __XenEQ.keyFor('material', id);
-          if (Math.abs((__XenEQ.get(key).morph || 0) - targetMorph) > 0.003) {
-            __XenEQ.set(key, { morph: targetMorph });
-          }
-        }
-      }
-    }
+    for (const id of ids) writeDeckLevel(id, deckEffective(id, primaryId, params), primaryId, params, update);
+    applyLinkedEqMorph(ids);
   }
 
   // Hot-path protection: coalesce high-rate pointermove slider/crossfader updates to 1 audio/React commit per frame.
@@ -208,15 +215,123 @@ const __XenDjStage = (() => {
     if (ctx) applyLiveMix(ctx.ids, ctx.primaryId, ctx.params, ctx.update);
   }
 
-  function stopAutoFade() {
-    if (fadeArmTimer) {
-      clearTimeout(fadeArmTimer);
-      fadeArmTimer = 0;
+  /* ── DJ-CLOCK-01: auto-fades and scene morphs on the AUDIO clock ──
+   * The whole level curve of every deck is scheduled up front as short linear ramps on the voice's level gain
+   * (cancellable, Firefox-safe), starting exactly on a room bar line of the AudioContext timeline when
+   * "Takt-Start" is armed. The stores receive the END levels at once and the mix-target cache is pre-set to them,
+   * so no React effect re-writes the gain mid-fade. The screen only follows the audio clock (crossfader cap,
+   * EQ morph link); a busy main thread or a background tab cannot make the fade stutter or start late. */
+  let clockMorph = null;
+  let roomBpm = 120; // exact key tempo the desk last rendered with (room grid)
+  const MORPH_POINTS = 64;
+
+  function roomClock(bpm) {
+    const lt = typeof __XenLiveTempo !== 'undefined' ? __XenLiveTempo : null;
+    const b = __XenDjMixMath.clamp(Number(bpm) || 120, 30, 300);
+    const mapped = !!(lt && lt.mapped?.() && typeof lt.beatAt === 'function' && typeof lt.timeAt === 'function');
+    return {
+      beatAt: mapped ? (t => lt.beatAt(t)) : (t => t * b / 60),
+      timeAt: mapped ? (x => lt.timeAt(x)) : (x => x * 60 / b)
+    };
+  }
+
+  // [t0, t1] on the audio clock. quantize: t0 = next room bar line (4 beats). beats: musical length (follows a tempo glide).
+  function planMorphWindow(ctx, bpm, { quantize, beats, ms }) {
+    const clock = roomClock(bpm);
+    const lead = 0.03; // scheduling headroom
+    let t0 = ctx.currentTime + lead;
+    if (quantize) t0 = clock.timeAt(Math.ceil(clock.beatAt(t0) / 4 - 1e-9) * 4);
+    const t1 = Number.isFinite(beats) && beats > 0 ? clock.timeAt(clock.beatAt(t0) + beats) : t0 + Math.max(0.12, (Number(ms) || 0) / 1000);
+    return { t0, t1 };
+  }
+
+  function holdParam(p, at) {
+    if (typeof p.cancelAndHoldAtTime === 'function') p.cancelAndHoldAtTime(at);
+    else { const v = p.value; p.cancelScheduledValues(at); p.setValueAtTime(v, at); }
+  }
+
+  function interruptClockMorph() {
+    const m = clockMorph;
+    if (!m) return;
+    clockMorph = null;
+    cancelAnimationFrame(m.raf);
+    clearTimeout(m.timer);
+    const now = m.ctx.currentTime;
+    for (const row of m.decks) {
+      try { holdParam(row.param, now); } catch {}
+      if (typeof __XenMixTargets !== 'undefined') __XenMixTargets.delete(row.param); // the next level write must apply
     }
+    // The visual follows the audible position; the stores take the levels heard right now.
+    const u = __XenDjMixMath.clamp((now - m.t0) / Math.max(1e-6, m.t1 - m.t0), 0, 1);
+    m.onInterrupt?.(u);
+    endLinkedMorphGestures();
+  }
+
+  /* decks: [{ id, effAt(e) }] — e is the eased progress 0…1. visual(e, u): screen state per frame. finish(): final state. */
+  function startClockMorph({ ctx, t0, t1, decks, visual, finish, onInterrupt, primaryId, params, update }) {
+    interruptClockMorph();
+    const h = typeof __XenMaterialLivePhase !== 'undefined' ? __XenMaterialLivePhase.headroom() : 1;
+    const primaryOff = typeof __XenMaterialPrimarySwitch !== 'undefined' && !!__XenMaterialPrimarySwitch.snapshot();
+    const now = ctx.currentTime;
+    const rows = [];
+    for (const d of decks) {
+      const handle = __XenMaterialLivePhase.handle?.(d.id);
+      // stores get the end level now; the effects then find target === value and leave the ramp alone
+      const finalV = writeDeckLevel(d.id, d.effAt(1), primaryId, params, update);
+      if (handle && handle.ctx === ctx && !(d.id === primaryId && primaryOff)) {
+        const param = handle.gain.gain;
+        try {
+          holdParam(param, now);
+          param.setValueAtTime(d.effAt(0) * h, t0);
+          for (let i = 1; i <= MORPH_POINTS; i++) {
+            const u = i / MORPH_POINTS;
+            param.linearRampToValueAtTime((i === MORPH_POINTS ? finalV : d.effAt(__XenDjMixMath.easeInOutSine(u))) * h, t0 + (t1 - t0) * u);
+          }
+          if (typeof __XenMixTargets !== 'undefined') __XenMixTargets.set(param, d.id === primaryId ? finalV * h : h * finalV);
+          rows.push({ id: d.id, param });
+        } catch {}
+      }
+    }
+    const m = { ctx, t0, t1, decks: rows, raf: 0, timer: 0, onInterrupt };
+    clockMorph = m;
+    const done = () => {
+      if (clockMorph !== m) return;
+      clockMorph = null;
+      cancelAnimationFrame(m.raf);
+      clearTimeout(m.timer);
+      finish();
+    };
+    const frame = () => {
+      if (clockMorph !== m) return;
+      const t = ctx.currentTime;
+      const u = __XenDjMixMath.clamp((t - t0) / Math.max(1e-6, t1 - t0), 0, 1);
+      visual(__XenDjMixMath.easeInOutSine(u), u, t < t0);
+      if (t >= t1) { done(); return; }
+      m.raf = requestAnimationFrame(frame);
+    };
+    m.raf = requestAnimationFrame(frame);
+    // rAF sleeps in a background tab; the audio is scheduled anyway, this closes the state.
+    m.timer = setTimeout(function check() {
+      if (clockMorph !== m) return;
+      if (ctx.currentTime >= t1) done(); else m.timer = setTimeout(check, Math.max(30, (t1 - ctx.currentTime) * 1000));
+    }, Math.max(30, (t1 - now) * 1000 + 20));
+    return m;
+  }
+
+  function anyDeckClock(ids) {
+    for (const id of ids || []) {
+      const h = typeof __XenMaterialLivePhase !== 'undefined' ? __XenMaterialLivePhase.handle?.(id) : null;
+      if (h && h.ctx.state === 'running') return h.ctx;
+    }
+    return null;
+  }
+
+  function stopAutoFade() {
     if (fadeRaf) {
       cancelAnimationFrame(fadeRaf);
       fadeRaf = 0;
     }
+    if (clockMorph?.kind === 'fade') interruptClockMorph();
     endLinkedMorphGestures();
     if (state.autoFadeDir || state.armedFadeDir) {
       setState({ autoFadeDir: null, armedFadeDir: null });
@@ -228,27 +343,12 @@ const __XenDjStage = (() => {
       cancelAnimationFrame(sceneRaf);
       sceneRaf = 0;
     }
+    if (clockMorph?.kind === 'scene') interruptClockMorph();
     endLinkedMorphGestures();
   }
 
-  function currentGlobalRoomBar(fallbackBpm) {
-    try {
-      if (typeof __XenLiveTempo !== 'undefined' && typeof __XenLiveTempo.audioNow === 'function') {
-        const now = __XenLiveTempo.audioNow();
-        if (Number.isFinite(now) && now > 0) {
-          if (__XenLiveTempo.mapped?.() && typeof __XenLiveTempo.beatAt === 'function') {
-            return __XenLiveTempo.beatAt(now) / 4;
-          }
-          const liveBpm = __XenLiveTempo.bpmNow?.(fallbackBpm) || fallbackBpm || 120;
-          return (now * liveBpm) / 240;
-        }
-      }
-    } catch {}
-    const bpm = __XenDjMixMath.clamp(fallbackBpm || 120, 30, 300);
-    return (performance.now() / 1000) * (bpm / 240);
-  }
-
-  function runFadeNow(targetPos, durationMs, dirLabel, getCtx) {
+  // Fallback without a running voice clock (nothing audible): the classic frame-driven path.
+  function runFadeFrames(targetPos, durationMs, dirLabel, getCtx) {
     const startPos = state.crossfade;
     const startTime = performance.now();
     const ctx0 = getCtx();
@@ -256,37 +356,60 @@ const __XenDjStage = (() => {
     setState({ autoFadeDir: dirLabel, armedFadeDir: null, activeScene: -1 });
     const step = (now) => {
       const t = Math.min(1, (now - startTime) / Math.max(120, durationMs));
-      const eased = __XenDjMixMath.easeInOutSine(t);
-      const nextPos = __XenDjMixMath.lerp(startPos, targetPos, eased);
-      state = { ...state, crossfade: nextPos };
+      state = { ...state, crossfade: __XenDjMixMath.lerp(startPos, targetPos, __XenDjMixMath.easeInOutSine(t)) };
       const ctx = getCtx();
       if (ctx) applyLiveMix(ctx.ids, ctx.primaryId, ctx.params, ctx.update);
       emit();
-      if (t < 1) {
-        fadeRaf = requestAnimationFrame(step);
-      } else {
-        fadeRaf = 0;
-        endLinkedMorphGestures();
-        setState({ autoFadeDir: null });
-      }
+      if (t < 1) fadeRaf = requestAnimationFrame(step);
+      else { fadeRaf = 0; endLinkedMorphGestures(); setState({ autoFadeDir: null }); }
     };
     fadeRaf = requestAnimationFrame(step);
   }
 
-  function startAutoFade(targetPos, durationMs, dirLabel, getCtx, liveBpm) {
+  /* spec: { ms, beats } (beats = musical length in room beats, null for seconds). */
+  function startAutoFade(targetPos, spec, dirLabel, getCtx, bpm) {
     stopAutoFade();
-    if (state.quantizeFade) {
-      const globalBar = currentGlobalRoomBar(liveBpm);
-      const delayMs = __XenDjMixMath.nextRoomBarDelayMs(globalBar, liveBpm);
-      setState({ armedFadeDir: dirLabel, activeScene: -1 });
-      flashStatus('Übergang auf nächsten Taktstart synchronisiert …');
-      fadeArmTimer = setTimeout(() => {
-        fadeArmTimer = 0;
-        runFadeNow(targetPos, durationMs, dirLabel, getCtx);
-      }, Math.max(20, delayMs));
-      return;
-    }
-    runFadeNow(targetPos, durationMs, dirLabel, getCtx);
+    stopSceneMorph();
+    const c = getCtx();
+    if (!c || !c.ids.length) return;
+    const ctx = anyDeckClock(c.ids);
+    if (!ctx) { runFadeFrames(targetPos, spec.ms, dirLabel, getCtx); return; }
+    ensureBaseVolumes(c.ids, c.primaryId, c.params);
+    const { t0, t1 } = planMorphWindow(ctx, bpm, { quantize: state.quantizeFade, beats: spec.beats, ms: spec.ms });
+    const x0 = state.crossfade;
+    const st0 = state;
+    const xAt = e => __XenDjMixMath.lerp(x0, targetPos, e);
+    beginLinkedMorphGestures(c.ids);
+    const armed = t0 - ctx.currentTime > 0.06;
+    setState({ autoFadeDir: armed ? null : dirLabel, armedFadeDir: armed ? dirLabel : null, activeScene: -1 });
+    if (armed) flashStatus('Übergang startet exakt auf dem nächsten Taktstart');
+    const m = startClockMorph({
+      ctx, t0, t1,
+      primaryId: c.primaryId, params: c.params, update: c.update,
+      decks: c.ids.map(id => ({ id, effAt: e => deckEffective(id, c.primaryId, c.params, { ...st0, crossfade: xAt(e) }) })),
+      visual: (e, u, waiting) => {
+        const x = xAt(e);
+        const patch = waiting ? null : (state.armedFadeDir ? { armedFadeDir: null, autoFadeDir: dirLabel } : null);
+        if (Math.abs(state.crossfade - x) > 0.001 || patch) {
+          state = { ...state, crossfade: x, ...(patch || {}) };
+          applyLinkedEqMorph(c.ids);
+          emit();
+        }
+      },
+      finish: () => {
+        state = { ...state, crossfade: targetPos, autoFadeDir: null, armedFadeDir: null };
+        applyLinkedEqMorph(c.ids);
+        endLinkedMorphGestures();
+        emit();
+      },
+      onInterrupt: (u) => {
+        state = { ...state, crossfade: xAt(__XenDjMixMath.easeInOutSine(u)), autoFadeDir: null, armedFadeDir: null };
+        const live = getCtx();
+        if (live) for (const id of live.ids) writeDeckLevel(id, deckEffective(id, live.primaryId, live.params), live.primaryId, live.params, live.update);
+        emit();
+      }
+    });
+    m.kind = 'fade';
   }
 
   // Mix Scenes snapshot real painted 24-band __XenEQ curves (A, B, morph, enabled) + volumes + crossfade + buses
@@ -317,15 +440,17 @@ const __XenDjStage = (() => {
     flashStatus('Scene S' + (slotIdx + 1) + ' gespeichert (' + deckIds.length + ' Spuren + 24B-EQ)');
   }
 
-  function recallScene(slotIdx, getCtx) {
+  function recallScene(slotIdx, getCtx, bpm) {
     const target = state.scenes[slotIdx];
     if (!target) return;
     stopAutoFade();
     stopSceneMorph();
+    const c = getCtx();
+    const ids = c?.ids || [];
+    if (c) ensureBaseVolumes(ids, c.primaryId, c.params);
+    const st0 = state;
     const startX = state.crossfade;
     const startVols = { ...state.baseVolumes };
-    const ctx0 = getCtx();
-    const ids = ctx0?.ids || [];
 
     const startEq = {};
     const gestureKeys = [];
@@ -333,63 +458,98 @@ const __XenDjStage = (() => {
       if (target.eqSnapshots?.[id]) {
         const key = __XenEQ.keyFor('material', id);
         const cur = __XenEQ.get(key);
-        startEq[id] = {
-          a: [...(cur.a || [])],
-          b: [...(cur.b || [])],
-          morph: Number(cur.morph) || 0
-        };
+        startEq[id] = { a: [...(cur.a || [])], b: [...(cur.b || [])], morph: Number(cur.morph) || 0 };
         __XenEQ.startGesture(key, 'morph');
         gestureKeys.push(key);
       }
     }
     activeMorphKeys = gestureKeys;
 
-    state = {
-      ...state,
-      curve: target.curve || state.curve,
-      buses: { ...state.buses, ...target.buses },
-      muted: { ...state.muted, ...target.muted },
-      soloId: target.soloId ?? null,
-      activeScene: slotIdx
-    };
-    emit();
-
-    const durationMs = 1400;
-    const startTime = performance.now();
-    const step = (now) => {
-      const t = Math.min(1, (now - startTime) / durationMs);
-      const eased = __XenDjMixMath.easeInOutSine(t);
-      const nextX = __XenDjMixMath.lerp(startX, target.crossfade, eased);
-      const nextVols = { ...state.baseVolumes };
+    const volsAt = (e) => {
+      const v = { ...startVols };
       for (const id of ids) {
         if (typeof target.baseVolumes?.[id] === 'number') {
           const fromV = typeof startVols[id] === 'number' ? startVols[id] : target.baseVolumes[id];
-          nextVols[id] = __XenDjMixMath.lerp(fromV, target.baseVolumes[id], eased);
+          v[id] = __XenDjMixMath.lerp(fromV, target.baseVolumes[id], e);
         }
+      }
+      return v;
+    };
+    const eqAt = (e) => {
+      for (const id of ids) {
         const eqTo = target.eqSnapshots?.[id];
         const eqFrom = startEq[id];
-        if (eqTo && eqFrom) {
-          const key = __XenEQ.keyFor('material', id);
-          __XenEQ.set(key, {
-            a: __XenDjMixMath.lerpEqCurves(eqFrom.a, eqTo.a, eased),
-            b: __XenDjMixMath.lerpEqCurves(eqFrom.b, eqTo.b, eased),
-            morph: __XenDjMixMath.lerp(eqFrom.morph, eqTo.morph, eased),
-            enabled: eqTo.enabled
-          });
-        }
-      }
-      state = { ...state, crossfade: nextX, baseVolumes: nextVols };
-      const ctx = getCtx();
-      if (ctx) applyLiveMix(ctx.ids, ctx.primaryId, ctx.params, ctx.update);
-      emit();
-      if (t < 1) {
-        sceneRaf = requestAnimationFrame(step);
-      } else {
-        sceneRaf = 0;
-        endLinkedMorphGestures();
+        if (!eqTo || !eqFrom) continue;
+        __XenEQ.set(__XenEQ.keyFor('material', id), {
+          a: __XenDjMixMath.lerpEqCurves(eqFrom.a, eqTo.a, e),
+          b: __XenDjMixMath.lerpEqCurves(eqFrom.b, eqTo.b, e),
+          morph: __XenDjMixMath.lerp(eqFrom.morph, eqTo.morph, e),
+          enabled: eqTo.enabled
+        });
       }
     };
-    sceneRaf = requestAnimationFrame(step);
+
+    // Routing switches at once (as before); levels and EQs morph.
+    const routed = {
+      curve: target.curve || state.curve,
+      buses: { ...state.buses, ...target.buses },
+      muted: { ...state.muted, ...target.muted },
+      soloId: target.soloId ?? null
+    };
+    state = { ...state, ...routed, activeScene: slotIdx };
+    emit();
+    const stEnd = { ...state, crossfade: target.crossfade, baseVolumes: volsAt(1) };
+
+    const durationMs = 1400;
+    const ctx = c ? anyDeckClock(ids) : null;
+    if (ctx) {
+      const { t0, t1 } = planMorphWindow(ctx, bpm, { quantize: state.quantizeFade, ms: durationMs });
+      if (t0 - ctx.currentTime > 0.06) flashStatus('Scene S' + (slotIdx + 1) + ' startet auf dem nächsten Taktstart');
+      const frameState = (e) => ({ crossfade: __XenDjMixMath.lerp(startX, target.crossfade, e), baseVolumes: volsAt(e) });
+      const m = startClockMorph({
+        ctx, t0, t1, primaryId: c.primaryId, params: c.params, update: c.update,
+        // from the level heard before the recall to the scene's level: no jump when the routing changes
+        decks: ids.map(id => {
+          const from = deckEffective(id, c.primaryId, c.params, st0);
+          const to = deckEffective(id, c.primaryId, c.params, stEnd);
+          return { id, effAt: e => __XenDjMixMath.lerp(from, to, e) };
+        }),
+        visual: (e, u, waiting) => {
+          if (waiting) return;
+          state = { ...state, ...frameState(e) };
+          eqAt(e);
+          emit();
+        },
+        finish: () => {
+          state = { ...state, ...frameState(1) };
+          eqAt(1);
+          endLinkedMorphGestures();
+          emit();
+        },
+        onInterrupt: (u) => {
+          state = { ...state, ...frameState(__XenDjMixMath.easeInOutSine(u)) };
+          const live = getCtx();
+          if (live) for (const id of live.ids) writeDeckLevel(id, deckEffective(id, live.primaryId, live.params), live.primaryId, live.params, live.update);
+          emit();
+        }
+      });
+      m.kind = 'scene';
+    } else {
+      // nothing audible: frame-driven morph (no audio timing involved)
+      const startTime = performance.now();
+      const step = (now) => {
+        const t = Math.min(1, (now - startTime) / durationMs);
+        const e = __XenDjMixMath.easeInOutSine(t);
+        state = { ...state, crossfade: __XenDjMixMath.lerp(startX, target.crossfade, e), baseVolumes: volsAt(e) };
+        eqAt(e);
+        const live = getCtx();
+        if (live) applyLiveMix(live.ids, live.primaryId, live.params, live.update);
+        emit();
+        if (t < 1) sceneRaf = requestAnimationFrame(step);
+        else { sceneRaf = 0; endLinkedMorphGestures(); }
+      };
+      sceneRaf = requestAnimationFrame(step);
+    }
     flashStatus('Scene S' + (slotIdx + 1) + ' aktiv');
   }
 
@@ -1087,6 +1247,9 @@ const __XenDjStage = (() => {
       }
     }, [dj.expanded, deckIds.join('|')]);
 
+    // exact key tempo of the room grid (the material voices align to it); the rounded value is only for display
+    const liveBpmExact = __XenDjMixMath.clamp(Number(bpm || params?.gridTempoBpm || 120), 30, 300);
+    roomBpm = liveBpmExact;
     const liveBpm = Math.round(__XenDjMixMath.clamp(
       (typeof __XenLiveTempo !== 'undefined' && __XenLiveTempo.bpmNow ? __XenLiveTempo.bpmNow(bpm || params?.gridTempoBpm || 120) : (bpm || params?.gridTempoBpm || 120)),
       30,
@@ -1441,7 +1604,7 @@ const __XenDjStage = (() => {
     const fadeSpec = (targetBus, idx) => {
       if (dj.fadeUnit === 'sec') {
         const secs = [2, 4, 8][idx];
-        return { ms: secs * 1000, label: secs + 's', tip: secs + ' Sekunden' };
+        return { ms: secs * 1000, beats: null, label: secs + 's', tip: secs + ' Sekunden' };
       }
       if (dj.fadeUnit === 'cycle') {
         const mults = [0.5, 1, 2];
@@ -1449,10 +1612,10 @@ const __XenDjStage = (() => {
         const base = targetBus === 'A' ? cycleA : cycleB;
         const span = base * mults[idx];
         const rat = __XenDjMixMath.formatMetricSpec({ bars: span, segmentsPerBar: (targetBus === 'A' ? busADeck : busBDeck)?.segmentsPerBar || 4 });
-        return { ms: __XenDjMixMath.barsToMs(span, liveBpm), label: tags[idx], tip: tags[idx] + ' Zyklus (' + rat.barText + ')' };
+        return { ms: __XenDjMixMath.barsToMs(span, liveBpmExact), beats: span * 4, label: tags[idx], tip: tags[idx] + ' Zyklus (' + rat.barText + ')' };
       }
       const bars = [2, 4, 8][idx];
-      return { ms: __XenDjMixMath.barsToMs(bars, liveBpm), label: bars + 'B', tip: bars + ' Raumtakte' };
+      return { ms: __XenDjMixMath.barsToMs(bars, liveBpmExact), beats: bars * 4, label: bars + 'B', tip: bars + ' Raumtakte' };
     };
 
     const q = dj.crateQuery.trim().toLowerCase();
@@ -2420,7 +2583,7 @@ const __XenDjStage = (() => {
                         title: stored ? 'Klick: sanft zu S' + (idx + 1) + ' morphen (inkl. 24B-EQ) · Shift-Klick: überschreiben' : 'Klick: aktuellen Mix inkl. 24B-EQ in Scene S' + (idx + 1) + ' speichern',
                         onClick: (e) => {
                           if (!stored || e.shiftKey) captureScene(idx, deckIds, primaryId, params);
-                          else recallScene(idx, () => latestCtx.current);
+                          else recallScene(idx, () => latestCtx.current, liveBpmExact);
                         },
                         children: stored ? ('● S' + (idx + 1)) : ('+ S' + (idx + 1))
                       }, 'sc-' + idx);
@@ -2465,7 +2628,7 @@ const __XenDjStage = (() => {
                       type: 'button',
                       className: 'xen-dj-xfade-btn' + (active ? ' is-active' : ''),
                       title: 'Auf Bus A blenden (' + spec.tip + ')',
-                      onClick: () => startAutoFade(0, spec.ms, dirKey, () => latestCtx.current, liveBpm),
+                      onClick: () => startAutoFade(0, spec, dirKey, () => latestCtx.current, liveBpmExact),
                       children: '◀ ' + spec.label + (i === 0 ? ' A' : '')
                     }, dirKey);
                   })
@@ -2521,7 +2684,7 @@ const __XenDjStage = (() => {
                       type: 'button',
                       className: 'xen-dj-xfade-btn' + (active ? ' is-active' : ''),
                       title: 'Auf Bus B blenden (' + spec.tip + ')',
-                      onClick: () => startAutoFade(1, spec.ms, dirKey, () => latestCtx.current, liveBpm),
+                      onClick: () => startAutoFade(1, spec, dirKey, () => latestCtx.current, liveBpmExact),
                       children: (i === 0 ? 'B ' : '') + spec.label + ' ▶'
                     }, dirKey);
                   })
@@ -2538,6 +2701,7 @@ const __XenDjStage = (() => {
     snapshot: () => state,
     subscribe: fn => (listeners.add(fn), () => listeners.delete(fn)),
     isExpanded: () => state.expanded,
+    roomBpm: () => roomBpm,
     setExpanded,
     toggleExpanded,
     setDeckCap,
