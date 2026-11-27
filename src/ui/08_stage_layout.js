@@ -17,7 +17,7 @@ const __XenStageLayout = (() => {
   const DESK_DEFAULT = 0.62;
   const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
   const listeners = new Set();
-  let state = { dock: 'top', deskFrac: DESK_DEFAULT, playH: { top: 0, side: 0 }, spacing: 'abs' };
+  let state = { dock: 'top', deskFrac: DESK_DEFAULT, playH: { top: 0, side: 0 }, spacing: 'abs', sideTop: false };
   try {
     const raw = JSON.parse(localStorage.getItem(KEY) || 'null');
     if (raw && typeof raw === 'object') {
@@ -28,7 +28,8 @@ const __XenStageLayout = (() => {
           top: Number.isFinite(raw.playH?.top) && raw.playH.top >= 140 ? clamp(raw.playH.top, 140, 1600) : 0,
           side: Number.isFinite(raw.playH?.side) && raw.playH.side >= 140 ? clamp(raw.playH.side, 140, 1600) : 0
         },
-        spacing: raw.spacing === 'log' || raw.spacing === 'fret' ? raw.spacing : 'abs'
+        spacing: raw.spacing === 'log' || raw.spacing === 'fret' ? raw.spacing : 'abs',
+        sideTop: raw.sideTop === true
       };
     }
   } catch {}
@@ -43,6 +44,8 @@ const __XenStageLayout = (() => {
     snapshot: () => state,
     subscribe: fn => (listeners.add(fn), () => listeners.delete(fn)),
     setDock: d => set({ dock: d === 'side' ? 'side' : 'top' }),
+    // UI-SWAP-01: side mode row (desk | playfield) on top between the side rails, or below them at full width
+    setSideTop: v => set({ sideTop: !!v }),
     setDeskFrac: (f, save = true) => set({ deskFrac: clamp(Number(f) || DESK_DEFAULT, 0.28, 0.8) }, save),
     setPlayHeight: (dock, px, save = true) => {
       const v = Number(px) > 0 ? clamp(Math.round(px), 140, 1600) : 0;
@@ -135,6 +138,20 @@ function __XenStageSplit({ stage, desk }) {
       }
       const h = Math.max(64, Math.min(900, Math.round(bottom - top + 12)));
       root.style.setProperty('--xen-ghost-h', h + 'px');
+      // UI-SWAP-01: swapped (row on top) = between the fixed side rails; the swap button sits left of the power knob
+      const perf = document.querySelector('.xen-performance'), quick = document.querySelector('.xen-quick-dock');
+      const pr = perf?.getBoundingClientRect(), qr = quick?.getBoundingClientRect();
+      if (root.parentElement && window.innerWidth >= 1024 && pr && qr && pr.width > 0 && qr.width > 0 && qr.left - pr.right > 480) {
+        const pl = root.parentElement.getBoundingClientRect().left;
+        root.style.setProperty('--xen-swap-ml', Math.round(pr.right + 10 - pl) + 'px');
+        root.style.setProperty('--xen-swap-w', Math.round(qr.left - pr.right - 20) + 'px');
+      } else { root.style.removeProperty('--xen-swap-ml'); root.style.removeProperty('--xen-swap-w'); }
+      const knob = root.querySelector('.xen-power-loop-dock .xen-qc-wrap') || root.querySelector('.xen-power-loop-dock');
+      if (knob) {
+        const kr = knob.getBoundingClientRect(), rr = root.getBoundingClientRect();
+        root.style.setProperty('--xen-swap-x', Math.round(kr.left - rr.left - 44) + 'px');
+        root.style.setProperty('--xen-swap-y', Math.round(kr.top - rr.top + 6) + 'px');
+      }
       // full bleed: the desk/playfield row uses the whole window width, not the column of the blocks below
       const parent = root.parentElement;
       if (parent) {
@@ -169,9 +186,9 @@ function __XenStageSplit({ stage, desk }) {
       if (raf) cancelAnimationFrame(raf);
       ro?.disconnect();
       window.removeEventListener('resize', schedule);
-      for (const k of ['--xen-bleed-ml', '--xen-bleed-w', '--xen-play-auto-h']) root.style.removeProperty(k);
+      for (const k of ['--xen-bleed-ml', '--xen-bleed-w', '--xen-play-auto-h', '--xen-swap-ml', '--xen-swap-w', '--xen-swap-x', '--xen-swap-y']) root.style.removeProperty(k);
     };
-  }, [dock]);
+  }, [dock, lay.sideTop]);
 
   const goTop = () => __XenStageLayout.setDock('top');
 
@@ -218,9 +235,31 @@ function __XenStageSplit({ stage, desk }) {
     'data-desk-open': open ? 'true' : 'false',
     'data-play-h': playH ? 'custom' : 'natural',
     'data-grid-spacing': lay.spacing,
+    'data-side-top': dock === 'side' && lay.sideTop ? 'true' : 'false',
     style,
     children: [
       u.jsx('div', { className: 'xen-stage-split-play', children: stage }),
+      // UI-SWAP-01: two interlocked rings that swap places
+      dock === 'side' ? u.jsx('button', {
+        type: 'button',
+        className: 'xen-stage-split-swap',
+        'aria-pressed': !!lay.sideTop,
+        'aria-label': lay.sideTop ? 'Move Mixing Desk and playfield back down' : 'Move Mixing Desk and playfield up between the side panels',
+        title: lay.sideTop ? 'Swap back: Mixing Desk + playfield below, full width' : 'Swap: Mixing Desk + playfield up here, between the side panels',
+        onClick: () => {
+          __XenStageLayout.setSideTop(!lay.sideTop);
+          requestAnimationFrame(() => rootRef.current?.querySelector('.xen-stage-split-desk')?.scrollIntoView({ behavior: 'smooth', block: 'nearest' }));
+        },
+        children: u.jsxs('svg', {
+          viewBox: '0 0 28 20', width: 26, height: 19, 'aria-hidden': true, fill: 'none',
+          children: [
+            u.jsx('circle', { cx: 10, cy: 10, r: 6.2, stroke: 'currentColor', strokeWidth: 1.6 }),
+            u.jsx('circle', { cx: 18, cy: 10, r: 6.2, stroke: 'currentColor', strokeWidth: 1.6, opacity: .85 }),
+            u.jsx('path', { d: 'M7.5 2.4 L10.6 3.8 L8.2 6.1', stroke: 'currentColor', strokeWidth: 1.4, strokeLinecap: 'round', strokeLinejoin: 'round' }),
+            u.jsx('path', { d: 'M20.5 17.6 L17.4 16.2 L19.8 13.9', stroke: 'currentColor', strokeWidth: 1.4, strokeLinecap: 'round', strokeLinejoin: 'round' })
+          ]
+        })
+      }) : null,
       u.jsx('div', {
         className: 'xen-stage-split-vgrip',
         role: 'separator',

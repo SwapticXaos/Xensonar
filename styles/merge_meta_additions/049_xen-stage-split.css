@@ -54,7 +54,7 @@ html.xen-split-dragging .xen-stage-split-handle { cursor: ew-resize !important; 
     "desk  handle head"
     "desk  handle play"
     "desk  handle vgrip";
-  row-gap: 0; column-gap: 0; align-items: start;
+  row-gap: 0; column-gap: 0; align-items: start; position: relative;
   /* full bleed: measured from the window, so the side rails' column does not limit the row */
   box-sizing: border-box; margin-left: var(--xen-bleed-ml, 0); width: var(--xen-bleed-w, 100%); max-width: none;
 }
@@ -63,7 +63,7 @@ html.xen-split-dragging .xen-stage-split-handle { cursor: ew-resize !important; 
 .xen-stage-split[data-dock="side"] > .xen-stage-split-play > .xen-h1-tonal-stage { display: contents; }
 .xen-stage-split[data-dock="side"] .xen-h1-tonal-stage > :first-child {
   /* the same box as the tonal stage on top (p-5, head mb-4): head, power and Loop-Rec dock right above their playfield */
-  grid-area: head; margin: 1rem 0 0 !important; padding: 1.25rem 1.25rem 1rem; min-width: 0; min-height: 149px; box-sizing: border-box;
+  grid-area: head; margin: 4px 0 0 !important; padding: 1.25rem 1.25rem 1rem; min-width: 0; min-height: 149px; box-sizing: border-box;
   background: #000; border: 1px solid #262626; border-bottom: 0;
 }
 /* in the narrow column LIVE-HEAD-02's invisible text would wrap and push the dock away from the playfield:
@@ -73,7 +73,7 @@ html.xen-split-dragging .xen-stage-split-handle { cursor: ew-resize !important; 
   grid-area: play; margin: 0 !important; min-width: 0; padding: 0 1.25rem 1.25rem;
   background: #000; border: 1px solid #262626; border-top: 0;
 }
-.xen-stage-split[data-dock="side"] > .xen-stage-split-desk { grid-area: desk; min-width: 0; margin-top: 1rem; }
+.xen-stage-split[data-dock="side"] > .xen-stage-split-desk { grid-area: desk; min-width: 0; margin-top: 4px; } /* UI-SWAP-01: the wood header right under the separator */
 .xen-stage-split[data-dock="side"] > .xen-stage-split-vgrip { grid-area: vgrip; margin: 2px 0 0; align-self: start; }
 
 .xen-stage-split[data-dock="side"] > .xen-stage-split-ghost {
@@ -92,7 +92,7 @@ html.xen-split-dragging .xen-stage-split-handle { cursor: ew-resize !important; 
 
 .xen-stage-split[data-dock="side"] > .xen-stage-split-handle {
   grid-area: handle; align-self: stretch; position: relative; display: flex; flex-direction: column;
-  align-items: center; justify-content: center; gap: 10px; margin-top: 1rem;
+  align-items: center; justify-content: center; gap: 10px; margin-top: 4px;
   cursor: ew-resize; touch-action: none; border-radius: 4px; opacity: .6; transition: opacity .15s, background .15s;
 }
 .xen-stage-split-handle:hover, .xen-stage-split-handle:focus-visible, .xen-stage-split-handle.is-dragging {
@@ -102,6 +102,22 @@ html.xen-split-dragging .xen-stage-split-handle { cursor: ew-resize !important; 
   border-radius: 3px; background: #0b1117; color: #bae6fd; font-size: 11px; line-height: 1; cursor: pointer;
 }
 .xen-stage-split-return:hover { border-color: #7dd3fc; color: #fff; }
+
+/* UI-SWAP-01: swapped – the desk | playfield row on top, between the fixed side rails (no placeholder) */
+.xen-stage-split[data-dock="side"][data-side-top="true"] {
+  grid-template-rows: auto auto 1fr;
+  grid-template-areas: "desk handle head" "desk handle play" "desk handle vgrip";
+  margin-left: var(--xen-swap-ml, var(--xen-bleed-ml, 0)); width: var(--xen-swap-w, var(--xen-bleed-w, 100%));
+}
+.xen-stage-split[data-dock="side"][data-side-top="true"] > .xen-stage-split-ghost { display: none; }
+.xen-stage-split-swap {
+  position: absolute; z-index: 6; left: var(--xen-swap-x, auto); top: var(--xen-swap-y, 1.5rem); right: auto;
+  display: flex; align-items: center; justify-content: center; width: 36px; height: 30px; padding: 0;
+  border: 1px solid rgba(196, 160, 232, .45); border-radius: 15px; background: rgba(20, 10, 30, .82); color: #d8c3f2;
+  cursor: pointer; transition: border-color .15s, color .15s, transform .25s;
+}
+.xen-stage-split-swap:hover, .xen-stage-split-swap:focus-visible { border-color: #e2c9ff; color: #fff; outline: none; }
+.xen-stage-split-swap[aria-pressed="true"] { transform: rotate(180deg); border-color: rgba(244, 200, 127, .6); color: #f4c87f; }
 
 /* very narrow screens: side dock stacks (desk, then playfield) */
 @media (max-width: 760px) {

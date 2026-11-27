@@ -63,6 +63,21 @@ const html=path.resolve(process.argv[2]||'dist/XenSonar_PROBE.html');
   await p.click('.xen-stage-split-ghost');await p.waitForTimeout(400);
   assert.equal(await p.getAttribute('.xen-stage-split','data-dock'),'top');
   assert.ok(await p.evaluate(()=>document.querySelector('canvas[data-xen-play-area]')===window.__canvas0),'still the same canvas');
+  // UI-SWAP-01: the swap rings move the desk | playfield row up between the side rails and back (same canvas, persisted)
+  await p.evaluate(()=>__XenStageLayout.setDock('side'));await p.waitForTimeout(400);
+  const sw=await p.$('.xen-stage-split-swap');assert.ok(sw,'swap button in side mode');
+  const kb=await p.evaluate(()=>{const k=document.querySelector('.xen-power-loop-dock .xen-qc-wrap').getBoundingClientRect(),b=document.querySelector('.xen-stage-split-swap').getBoundingClientRect();return{dx:k.left-b.right,dy:b.top-k.top}});
+  assert.ok(kb.dx>=0&&kb.dx<20&&Math.abs(kb.dy)<30,'swap button sits left of the power knob: '+JSON.stringify(kb));
+  const yBelow=await p.evaluate(()=>document.querySelector('.xen-stage-split-desk').getBoundingClientRect().top+scrollY);
+  await sw.click();await p.waitForTimeout(700);
+  const up=await p.evaluate(()=>{const d=document.querySelector('.xen-stage-split-desk').getBoundingClientRect(),pr=document.querySelector('.xen-performance').getBoundingClientRect(),qr=document.querySelector('.xen-quick-dock').getBoundingClientRect(),c=document.querySelector('canvas[data-xen-play-area]').getBoundingClientRect();
+    return{top:d.top+scrollY,deskLeft:d.left,perfRight:pr.right,canvasRight:c.right,quickLeft:qr.left,ghost:getComputedStyle(document.querySelector('.xen-stage-split-ghost')).display,ls:__XenStageLayout.snapshot().sideTop,sw:document.documentElement.scrollWidth,vw:document.documentElement.clientWidth}});
+  assert.ok(up.top<yBelow-200,'the row moved up: '+yBelow+' -> '+up.top);assert.equal(up.ghost,'none');assert.equal(up.ls,true);
+  assert.ok(up.deskLeft>=up.perfRight&&up.canvasRight<=up.quickLeft,'between the side rails: '+JSON.stringify(up));assert.equal(up.sw,up.vw,'no horizontal scroll');
+  assert.ok(await p.evaluate(()=>document.querySelector('canvas[data-xen-play-area]')===window.__canvas0),'same canvas after the swap');
+  await p.click('.xen-stage-split-swap');await p.waitForTimeout(600);
+  assert.equal(await p.evaluate(()=>__XenStageLayout.snapshot().sideTop),false,'second click swaps back');
+  assert.ok(Math.abs(await p.evaluate(()=>document.querySelector('.xen-stage-split-desk').getBoundingClientRect().top+scrollY)-yBelow)<3,'back below');
   // desk closed: top layout; reopening docks beside again
   await p.evaluate(()=>window.__XenDjStage.setExpanded(false));await p.waitForTimeout(300);
   assert.equal(await p.getAttribute('.xen-stage-split','data-desk-open'),'false');
