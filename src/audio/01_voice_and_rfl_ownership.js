@@ -434,7 +434,7 @@ const __XenMaterialLivePhase=(()=>{
    const shift=-(Number.isFinite(attBeats)?attBeats:0)*(60/bpm);
    const raw=elapsed+shift;
    const pos=((raw%dur)+dur)%dur;
-   return {state:'playing',progress01:Math.max(0,Math.min(1,pos/dur)),bars:row.bars};
+   return {state:'playing',progress01:Math.max(0,Math.min(1,pos/dur)),bars:row.bars,loopBeats:dur*bpm/60};
   },
   anyRunning(){
    for(const row of active.values())if(row.ctx&&row.ctx.state==='running')return true;

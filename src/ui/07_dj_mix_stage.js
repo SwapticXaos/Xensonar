@@ -721,16 +721,63 @@ const __XenDjStage = (() => {
   }
 
   /* ── Dedicated Bar & Segment Loop-Progress Ruler (True WebAudio Phase!) ── */
+  const NUDGE_MAX_BEATS = 64;
+  const barLineFromRatio = (ratio, effectiveBars) => {
+    const eff = Math.max(1 / 64, Number(effectiveBars) || 1);
+    const whole = Math.max(1, Math.floor(eff + 1e-6));
+    const k = Math.max(0, Math.min(whole, Math.round(ratio * eff)));
+    return (k >= eff - 1e-6) ? 0 : k; // Loop-Ende == Loop-Anfang, wenn ganzzahlig
+  };
+  // Springt auf die angeklickte Taktlinie. Tempo bleibt unverändert: nur die zyklische
+  // Phasenverschiebung (att, in Beats) wird so gesetzt, dass der Playhead genau dort landet.
+  function seekLoopToBar(id, metric, ratio) {
+    if (typeof __XenMaterialLivePhase === 'undefined') return false;
+    const att = __XenMaterialVoiceMix.get(id).att || 0;
+    const snap = __XenMaterialLivePhase.read(id, att, false);
+    if (snap.state !== 'playing' || !(snap.loopBeats > 0)) return false;
+    const L = snap.loopBeats;
+    const k = barLineFromRatio(ratio, metric.effectiveBars);
+    const delta = (k / metric.effectiveBars - snap.progress01) * L; // Beats, die der Playhead springen soll
+    let next = att - delta;                                         // pos = elapsed − att·beat
+    next = ((next % L) + L) % L; if (next > L / 2) next -= L;       // kürzester zyklischer Weg
+    __XenMaterialVoiceMix.set(id, 'att', __XenDjMixMath.clamp(next, -NUDGE_MAX_BEATS, NUDGE_MAX_BEATS), 'click');
+    return true;
+  }
+  function segmentBeatsFor(id, metric) {
+    const snap = typeof __XenMaterialLivePhase !== 'undefined' ? __XenMaterialLivePhase.read(id, 0, false) : null;
+    const barBeats = snap && snap.loopBeats > 0 && metric.effectiveBars > 0 ? snap.loopBeats / metric.effectiveBars : 4;
+    return barBeats / Math.max(1, metric.segmentsPerBar);
+  }
+
   function LoopProgressRuler({ id, metric, accent }) {
     const geom = __XenDjMixMath.buildBarRulerGeometry({
       effectiveBars: metric.effectiveBars,
       segmentsPerBar: metric.segmentsPerBar
     });
+    const snapAt = (e) => {
+      const r = e.currentTarget.getBoundingClientRect();
+      const ratio = r.width > 0 ? Math.max(0, Math.min(1, (e.clientX - r.left) / r.width)) : 0;
+      const k = barLineFromRatio(ratio, metric.effectiveBars);
+      return { ratio, k, x: (k / metric.effectiveBars) };
+    };
     return u.jsxs('div', {
       className: 'xen-dj-loop-ruler is-idle',
       'data-xen-loop-ruler': id,
-      title: 'Loop-Fortschritt (echte WebAudio-Phase) · ' + metric.label + (metric.hasLiveBarEdit ? ' (Bar-Edit aktiv)' : ''),
+      title: 'Loop-Fortschritt (echte WebAudio-Phase) · ' + metric.label + (metric.hasLiveBarEdit ? ' (Bar-Edit aktiv)' : '') + ' · Klick springt taktgenau (Tempo bleibt)',
+      onPointerMove: (e) => {
+        const ghost = e.currentTarget.querySelector('.xen-dj-loop-snap');
+        if (ghost) { ghost.style.left = (snapAt(e).x * 100).toFixed(2) + '%'; ghost.style.opacity = '1'; }
+      },
+      onPointerLeave: (e) => {
+        const ghost = e.currentTarget.querySelector('.xen-dj-loop-snap');
+        if (ghost) ghost.style.opacity = '0';
+      },
+      onPointerDown: (e) => {
+        if (e.button != null && e.button !== 0) return;
+        seekLoopToBar(id, metric, snapAt(e).ratio);
+      },
       children: [
+        u.jsx('span', { className: 'xen-dj-loop-snap', 'aria-hidden': true }),
         // Live filling progress wash (width driven purely by __XenMaterialLivePhase in rAF)
         u.jsx('div', {
           className: 'xen-dj-loop-fill',
@@ -771,6 +818,77 @@ const __XenDjStage = (() => {
           style: { background: accent },
           'aria-hidden': true
         })
+      ]
+    });
+  }
+
+  /* ── Nudge: Segment-Pfeile an den Enden + feiner Jog-Schieber in der Mitte ── */
+  function NudgeDeck({ id, att, metric, fullName }) {
+    const attRef = P.useRef(att);
+    attRef.current = att;
+    const dragRef = P.useRef(null);
+    const seg = segmentBeatsFor(id, metric);
+    const FINE_SEGMENTS = 0.5; // voller Ausschlag des Jogs = ± ½ Segment
+    const setAtt = (v, how) => __XenMaterialVoiceMix.set(id, 'att', __XenDjMixMath.clamp(v, -NUDGE_MAX_BEATS, NUDGE_MAX_BEATS), how);
+    const moveKnob = (el, v) => { const k = el && el.querySelector('b'); if (k) k.style.left = (50 + v * 50).toFixed(1) + '%'; };
+    const jogValue = (e, el) => {
+      const r = el.getBoundingClientRect();
+      return r.width > 0 ? __XenDjMixMath.clamp(((e.clientX - r.left) / r.width) * 2 - 1, -1, 1) : 0;
+    };
+    const finish = (e) => {
+      const d = dragRef.current;
+      if (!d || d.pointerId !== e.pointerId) return;
+      dragRef.current = null;
+      __XenMaterialVoiceMix.endGesture(id, 'drag');
+      const el = e.currentTarget;
+      el.classList.remove('is-dragging');
+      moveKnob(el, 0); // Feder: Regler springt zurück, die Phasenverschiebung bleibt
+    };
+    const segLabel = Math.abs(att) < 0.0005 ? '0' : ((att >= 0 ? '+' : '−') + Math.abs(att / seg).toFixed(2));
+    return u.jsxs('div', {
+      className: 'xen-dj-nudge-box',
+      title: 'Nudge: «/» = ein Segment zurück/vor · Mitte ziehen = fein schubsen/bremsen (federt zurück) · Klick auf Φ = Reset',
+      children: [
+        u.jsx('button', { type: 'button', 'aria-label': fullName + ' Nudge ein Segment zurück', onClick: () => setAtt(attRef.current - seg, 'click'), children: '«' }),
+        u.jsxs('div', {
+          className: 'xen-dj-nudge-jog',
+          role: 'slider',
+          'aria-label': fullName + ' Nudge fein',
+          'aria-valuemin': -1, 'aria-valuemax': 1, 'aria-valuenow': 0,
+          onPointerDown: (e) => {
+            if (e.button != null && e.button !== 0) return;
+            const el = e.currentTarget;
+            el.setPointerCapture?.(e.pointerId);
+            dragRef.current = { pointerId: e.pointerId, base: attRef.current };
+            el.classList.add('is-dragging');
+            __XenMaterialVoiceMix.beginGesture(id, 'drag');
+            const v = jogValue(e, el);
+            moveKnob(el, v);
+            setAtt(dragRef.current.base + v * FINE_SEGMENTS * seg, 'drag');
+          },
+          onPointerMove: (e) => {
+            const d = dragRef.current;
+            if (!d || d.pointerId !== e.pointerId) return;
+            const v = jogValue(e, e.currentTarget);
+            moveKnob(e.currentTarget, v);
+            setAtt(d.base + v * FINE_SEGMENTS * seg, 'drag');
+          },
+          onPointerUp: finish,
+          onPointerCancel: finish,
+          onLostPointerCapture: finish,
+          children: [
+            u.jsx('i', { className: 'xen-dj-nudge-center', 'aria-hidden': true }),
+            u.jsx('b', { 'aria-hidden': true }),
+            u.jsx('span', {
+              className: 'xen-dj-nudge-val',
+              title: 'Klick: Nudge zurücksetzen (0)',
+              onPointerDown: (e) => e.stopPropagation(),
+              onClick: () => setAtt(0, 'click'),
+              children: 'Φ ' + segLabel + ' Seg'
+            })
+          ]
+        }),
+        u.jsx('button', { type: 'button', 'aria-label': fullName + ' Nudge ein Segment vor', onClick: () => setAtt(attRef.current + seg, 'click'), children: '»' })
       ]
     });
   }
@@ -1285,7 +1403,6 @@ const __XenDjStage = (() => {
       const slot = slotNumber(id);
       const eqOpenHere = dj.openEqKey === eqKey;
       const curPan = isPrimary ? (panState.material ?? 0) : data.pan;
-      const nudgeStep = metric.segmentsPerBar > 0 ? Number((4 / (metric.segmentsPerBar * 4)).toFixed(3)) : 0.0625;
 
       return u.jsxs('article', {
         className: 'xen-dj-strip' + (bus === 'A' ? ' is-bus-a' : bus === 'B' ? ' is-bus-b' : '') + (isMuted || (dj.soloId && !isSolo) ? ' is-muted' : ''),
@@ -1473,15 +1590,7 @@ const __XenDjStage = (() => {
                   u.jsxs('div', {
                     className: 'xen-dj-nudge-stack',
                     children: [
-                      u.jsxs('div', {
-                        className: 'xen-dj-nudge-box',
-                        title: 'Phase Nudge (− / Reset / + · Schritt angepasst an Segment-Raster)',
-                        children: [
-                          u.jsx('button', { type: 'button', 'aria-label': fullName + ' Nudge zurück', onClick: () => __XenMaterialVoiceMix.set(id, 'att', __XenDjMixMath.clamp((data.att || 0) - nudgeStep, -2, 2), 'click'), children: '«' }),
-                          u.jsx('span', { title: 'Klick für Nudge Reset (0)', onClick: () => __XenMaterialVoiceMix.set(id, 'att', 0, 'click'), children: 'Φ ' + (data.att >= 0 ? '+' : '') + Number(data.att || 0).toFixed(2) }),
-                          u.jsx('button', { type: 'button', 'aria-label': fullName + ' Nudge vor', onClick: () => __XenMaterialVoiceMix.set(id, 'att', __XenDjMixMath.clamp((data.att || 0) + nudgeStep, -2, 2), 'click'), children: '»' })
-                        ]
-                      }),
+                      u.jsx(NudgeDeck, { id, att: data.att || 0, metric, fullName }),
                       u.jsxs('div', {
                         className: 'xen-dj-nudge-modes',
                         children: [
