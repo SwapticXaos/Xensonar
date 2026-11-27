@@ -1518,6 +1518,26 @@ function __createXenMetaSessionStore(storage,quick){
   captureRoomSettings:()=>{try{const captured=__XenMainRoomSessionBridge.capture();return update(n=>{n.roomSettings=captured;mark(n)},{record:true})}catch(error){state={...state,error:'Main Room settings: '+error.message};emit();return false}},
   clearRoomSettings:()=>update(n=>{n.roomSettings=null;mark(n)},{record:true}),
   loopRecEpoch:()=>loopRecEpoch,loopRecOwnerKey,
+  /* LOOPREC-RETRY-01: XenSonar open in a second tab/window writes the same working session; this tab then refused every
+     write ("changed in another tab") and Loop-Rec failed on every retry until a reload. On an explicit retry this tab takes
+     the working session over: the other tab's Session Takes of this session are kept (union by id, nothing is lost), then
+     this tab's live state is written. The other tab, when it writes next, meets the same guard and can take it back. */
+  adoptWorking:()=>{
+   if(!ensureHydrated()||workingPreview||readFailure||libraryDeletePending)return false;
+   const raw=storage.getItem(WORKKEY);
+   if(raw===workingRaw&&!workingError)return true;
+   let other=null;try{const v=raw?JSON.parse(raw):null;if(v?.version===1&&v.row&&typeof v.row==='object')other=v.row}catch{}
+   const activeId=state.activePalette?.id??null;
+   if(other&&(other.id??null)===activeId&&workingRow&&(workingRow.id??null)===activeId){
+    const mine=__xenLoopRecSafeTakes(workingRow.sessionTakes),ids=new Set(mine.map(t=>t.id));
+    const theirs=__xenLoopRecSafeTakes(other.sessionTakes).filter(t=>!ids.has(t.id));
+    if(theirs.length)workingRow={...workingRow,sessionTakes:__xenLoopRecSafeTakes([...mine,...theirs])};
+   }
+   workingRaw=raw;workingError='';
+   writeWorking(captureWorking());
+   if(typeof state.error==='string'&&/^Working Session/.test(state.error))state={...state,error:''};
+   emit();return true;
+  },
   prepareLoopRec:()=>{
    if(!ensureHydrated()||workingPreview||workingError||readFailure||libraryDeletePending)throw Error('Working Session is unavailable.');
    writeWorking(captureWorking());

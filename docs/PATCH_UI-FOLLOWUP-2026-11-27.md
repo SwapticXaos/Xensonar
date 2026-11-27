@@ -20,5 +20,16 @@
 ## STRIP-ACTIVE-01 — Grün für Drums, Bass, Fretboard
 - Wie Material Track / Root Follow: grün, solange „Drums Active“, „Bass Active“ bzw. „Show Tuning Grid“ an ist. Test `tests/e2e/strip_active_green.cjs`.
 
-## Offen (Patchplan)
-- Loop-Rec „failed“ → „Retry“ wirkt nie, nur Neuladen hilft: Ursache des Fehlschlags und des wirkungslosen Retry untersuchen.
+## LOOPREC-RETRY-01 — „Rec failed · retry“ funktioniert
+- Ursache (reproduziert): Ist XenSonar in einem zweiten Tab/Fenster offen, schreibt dieser automatisch denselben Arbeitsstand der Session
+  (`xensonar.working-session.v1`). Der erste Tab verweigert danach jeden Schreibvorgang („Working session changed in another tab. Reload
+  before replacing it.“) – Loop-Rec scheitert beim Start oder beim Speichern, und jeder Retry scheiterte gleich wieder; nur Neuladen half.
+  Zusätzlich startete ein Klick auf „retry“ immer eine NEUE Aufnahme, statt einen beim Speichern gescheiterten Take zu retten
+  (das ging nur per Shift-Klick und nur im Zustand „idle“).
+- Fix:
+  - Retry nach diesem Fehler übernimmt den Arbeitsstand in diesen Tab (`__XenMetaSessions.adoptWorking`): die Session Takes des anderen Tabs
+    bleiben erhalten (Vereinigung nach ID), danach schreibt dieser Tab normal. Der andere Tab kann ihn bei Bedarf genauso zurückholen.
+  - Retry rettet zuerst einen zurückgehaltenen Take (keine neue Aufnahme), sonst startet er neu. Shift-Klick-Rettung auch im Fehlerzustand.
+  - Der Grund steht im Tooltip und als `data-xen-loop-rec-reason` am Knopf; Hinweistext „Right-click to recover“ korrigiert (Shift-Klick).
+- Test `tests/e2e/looprec_retry_other_tab.cjs` (Start-Fehler → Retry nimmt auf; Speicher-Fehler → Retry rettet; fremder Take bleibt).
+- Weitere mögliche Fehlerursachen (Audio pausiert, Tab im Hintergrund während der Aufnahme) wurden nachgestellt: dort funktionierte Retry bereits.

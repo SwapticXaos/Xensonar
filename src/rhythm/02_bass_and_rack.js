@@ -1147,8 +1147,8 @@ function __XenPowerRecContour(){
        u.jsx('span',{className:'xen-enough-filaments','aria-hidden':true})
       ]})})}),
    u.jsx('path',{id:'xen-looprec-silhouette',className:'xen-power-rec-hit',
-    onClick:e=>{e.stopPropagation();if(!clickable)return;if(e.shiftKey&&phase==='idle'){void __XenLoopRec.retryPending();return;}void __XenLoopRec.toggle()},
-    children:u.jsx('title',{children:(recStatus.message?recStatus.message+' · ':'')+'Record Keyboard, Wave Starter, Particles and active Root Follow Loop. Right-click: hide Loop-Rec shape; Shift-click while idle: recover pending Session Takes.'}),
+    onClick:e=>{e.stopPropagation();if(!clickable)return;if(e.shiftKey&&(phase==='idle'||phase==='failed')){void __XenLoopRec.retryPending();return;}void __XenLoopRec.toggle()},
+    children:u.jsx('title',{children:(recStatus.message?recStatus.message+' · ':'')+'Record Keyboard, Wave Starter, Particles and active Root Follow Loop. Right-click: hide Loop-Rec shape; Shift-click: recover pending Session Takes. After a failure a click retries (takes over the working session from another tab, recovers retained audio).'}),
     onContextMenu:e=>{e.preventDefault();e.stopPropagation();__XenLoopRecVisibility.hide()}
    }),
    u.jsxs('g',{className:'xen-looprec-slope-echoes','aria-hidden':true,children:[

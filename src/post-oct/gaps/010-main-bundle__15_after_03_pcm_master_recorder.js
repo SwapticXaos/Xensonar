@@ -234,7 +234,7 @@ const __XenLoopRec=(()=>{
   const pkg={schemaVersion:qT,id:t.id,name:t.name,role:'loop',audio:{kind:'audio',mimeType:'audio/wav',blob:t.blob,durationSec:t.duration,channels:2,sampleRate:t.ctx.sampleRate},timing:{bpm:t.bpm,bars:t.bars,beatsPerBar:4,loopStartSec:0,loopEndSec:t.duration,intendedLoopDurationSec:t.duration},renderInfo:{sourceVersion:'Loop-Rec LR8',renderMode:'live-pcm',workspaceOrigin:'external'},provenance:{createdAt:new Date().toISOString()}};
   const entry=t.entry??await __registerDurableMaterial(pkg,{sessionTake:true,loopRecIntent:{version:1,state:'pending',sessionId:t.session,ownerKey:t.ownerKey??t.session,captureIntegrity:t.captureIntegrity??null,rawCaptureBlob:t.rawCaptureBlob??null}});t.entry=entry;note('asset-durable',{id:entry.id});if(captureReport)captureReport.assetWritten=true;
   if(take===t)take=null;
-  if((__XenMetaSessions.snapshot().activePalette?.id??null)!==t.session||__XenMetaSessions.loopRecEpoch?.()!==t.epoch){pending.set(t.id,t);last=null;publish('idle','Audio retained. Return to its Session and right-click Loop-Rec to recover.');return}
+  if((__XenMetaSessions.snapshot().activePalette?.id??null)!==t.session||__XenMetaSessions.loopRecEpoch?.()!==t.epoch){pending.set(t.id,t);last=null;publish('idle','Audio retained. Return to its Session and Shift-click Loop-Rec to recover.');return}
   const ref={kind:'material',id:entry.id,name:entry.name};
   origins.set(entry.id,{ctx:t.ctx,origin:t.start});
   if(!t.committed&&!__XenMetaSessions.appendLoopRec(entry,t.session,t.epoch))throw Error('Take saved; Working Session could not be committed.');
@@ -294,7 +294,7 @@ const __XenLoopRec=(()=>{
     if(!__XenMetaSessions.appendLoopRec(entry,identity.session,identity.epoch))throw Error(__XenMetaSessions.snapshot().error||'Session could not be recovered.');
     await markLinked(entry);t.committed=true;pending.delete(id);count++;
    }
-   publish('idle',count?'Recovered '+count+' Session Take(s).':'No pending takes for this Session.');return true;
+   publish('idle',count?'Recovered '+count+' Session Take(s).':'No pending takes for this Session.');return count;
   }catch(error){publish('failed','Recovery: '+error.message);return false}
   finally{recoveryBusy=false;}
  }
@@ -307,7 +307,19 @@ const __XenLoopRec=(()=>{
    publish('recording');stop();
   }else fail(Error('Loop-Rec cancelled before start.'));
   return;
- }if(state.phase==='recording')stop();else if(state.phase==='idle'||state.phase==='failed'){await start()}}
+ }if(state.phase==='recording')stop();
+ else if(state.phase==='failed'){
+  /* LOOPREC-RETRY-01: "Rec failed · retry" really retries: a working session written by another tab is taken over
+     (its takes kept), a take whose audio was retained is recovered first; only then a new take starts. */
+  if(/another tab|Working Session/i.test(state.message||'')){
+   try{if(__XenMetaSessions.adoptWorking?.()===false)throw Error('Working Session is unavailable.');note('working-adopted')}
+   catch(error){publish('failed','Working Session: '+(error?.message||error));return}
+  }
+  const hasPending=[...pending.values()].some(p=>!p.committed)||bs().entries.some(e=>e.sessionTake&&e.loopRecIntent?.state==='pending');
+  if(hasPending){const n=await retryPending();if(n>0||state.phase==='failed')return}
+  await start();
+ }
+ else if(state.phase==='idle'){await start()}}
  // Mic-Enough semantics: discard is a distinct, non-committing lifecycle exit.
  // In particular, never invoke the quantized stop/finalize path.
  function discard(){
@@ -343,7 +355,7 @@ function __XenLoopRecButton(){
   window.dispatchEvent(new Event('xen-loop-rec-layout'));
  },[hidden]);
  const trigger=e=>{
-  if(e.shiftKey&&s.phase==='idle'){void __XenLoopRec.retryPending();return;}
+  if(e.shiftKey&&(s.phase==='idle'||s.phase==='failed')){void __XenLoopRec.retryPending();return;}
   void __XenLoopRec.toggle();
  };
  return u.jsxs(P.Fragment,{children:[
@@ -352,8 +364,8 @@ function __XenLoopRecButton(){
   u.jsx('button',{type:'button','data-xen-loop-rec':true,className:'xen-loop-rec',
     'data-xen-enough-active':active?'true':'false',disabled:busy,
     onClick:trigger,onContextMenu:e=>{e.preventDefault();__XenLoopRecVisibility.hide()},
-    title:(s.message?s.message+' · ':'')+'Record Keyboard, Wave Starter, Particles and active Root Follow Loop. Right-click: hide Loop-Rec shape; Shift-click while idle: recover pending Session Takes.',
-    'aria-label':active?'Enough! Finish Loop-Rec':s.phase==='failed'?'Rec failed · retry':'Loop-Rec','aria-busy':busy,
+    title:(s.message?s.message+' · ':'')+'Record Keyboard, Wave Starter, Particles and active Root Follow Loop. Right-click: hide Loop-Rec shape; Shift-click: recover pending Session Takes. After a failure a click retries (takes over the working session from another tab, recovers retained audio).',
+    'aria-label':active?'Enough! Finish Loop-Rec':s.phase==='failed'?'Rec failed · retry':'Loop-Rec','aria-busy':busy,'data-xen-loop-rec-reason':s.phase==='failed'?(s.message||''):undefined,
     children:active?u.jsxs('span',{className:'xen-enough-legend',children:['Enough!',u.jsx('span',{ref:barRef,className:'xen-loop-rec-bar','data-xen-loop-rec-bar':'true','aria-live':'off'})]}):
       s.phase==='arming'?'Preparing…':s.phase==='armed'?'Armed · next bar':
       busy?s.phase==='finishing'?'Closing…':'Saving…':
