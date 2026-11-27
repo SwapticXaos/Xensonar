@@ -97,3 +97,13 @@ ohne Stocken, monoton, nach genau 2 Takten still, Übernahme ohne Sprung, Szenen
   `__XenMaterialVoiceMix.transport(id, msg)` → Player `transport()`. Ein Sprung während eines Rolls verschiebt Zelle und Slip mit.
 - Tests: `tests/dj_seek_jump.test.cjs` (+2: Zelle wiederholt, Slip, Rückkehr; zu langer Roll ignoriert),
   `tests/e2e/dj_seek_nudge.cjs` (+Cue setzen/springen/löschen, Roll halten/loslassen), `tests/e2e/dj_persist.cjs` (+Cue nach Reload).
+
+---
+
+# DJ-BUS-01 — Bass / Root Follow: Timing-Nudge wie bei den Spuren
+
+- Das alte „− Att +" (0,1-Schritte, ohne musikalischen Bezug) im Tab „Root · Bass · Drums" ist ersetzt durch dieselbe
+  Bedienung wie der Spur-Nudge, auf dem 1/16-Raster der Pattern: `«` / `»` = genau 1/16 früher / später, Mitte = federnder
+  Jog (fein, ± 1/32), `←`/`→` = 1/64, Doppelklick = zurück aufs Raster. Anzeige `Att +1/16` (+ = früher).
+- Wert und Speicherung unverändert (`__XenAttackLanes`, ±2 Beats, im Song).
+- Test: `tests/e2e/dj_seek_nudge.cjs` (+ Bass « », Jog, Reset).

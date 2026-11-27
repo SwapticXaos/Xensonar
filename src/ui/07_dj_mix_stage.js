@@ -1373,6 +1373,74 @@ const __XenDjStage = (() => {
     });
   }
 
+  /* ── DJ-BUS-01: Bass / Root Follow timing nudge – the same handling as a track's Nudge, on the 1/16 pattern grid ──
+   * These lanes are sequenced (no PCM loop): Att shifts their onsets in beats (−2…+2, + = later).
+   * « / » = exactly one 1/16 earlier / later · middle jog = fine push (→ earlier) / pull (← later), springs back. */
+  const SIXTEENTH = 0.25;
+  function formatSixteenths(att) {
+    const ahead = -(Number(att) || 0);
+    if (Math.abs(ahead) < 1e-4) return '0';
+    const n = ahead / SIXTEENTH;
+    const r = Math.round(n);
+    return (ahead > 0 ? '+' : '−') + (Math.abs(n - r) < 0.005 ? Math.abs(r) : Math.abs(n).toFixed(2)) + '/16';
+  }
+  function LaneNudge({ lane, att, title }) {
+    const dragRef = P.useRef(null);
+    const set = v => __XenAttackLanes.set(lane, __XenDjMixMath.clamp(v, -2, 2));
+    const moveKnob = (el, v) => { const k = el && el.querySelector('b'); if (k) k.style.left = (50 + v * 50).toFixed(1) + '%'; };
+    const finish = (e) => {
+      const d = dragRef.current;
+      if (!d || d.pointerId !== e.pointerId) return;
+      dragRef.current = null;
+      e.currentTarget.classList.remove('is-dragging');
+      moveKnob(e.currentTarget, 0);
+    };
+    const label = formatSixteenths(att);
+    return u.jsxs('div', {
+      className: 'xen-dj-nudge-box',
+      children: [
+        u.jsx('button', { type: 'button', 'aria-label': title + ' 1/16 früher', title: 'Einsatz 1/16 früher', onClick: () => set((__XenAttackLanes.snapshot()[lane] || 0) - SIXTEENTH), children: '«' }),
+        u.jsxs('div', {
+          className: 'xen-dj-nudge-jog',
+          'data-xen-lane-jog': lane,
+          tabIndex: 0,
+          'aria-label': title + ' Timing fein',
+          'aria-valuetext': 'Versatz ' + label,
+          title: 'Timing ' + label + ' (+ = früher)\nZiehen: → früher, ← später · federt zurück, der Versatz bleibt\n←/→: 1/64 · Doppelklick: zurück aufs Raster',
+          onPointerDown: (e) => {
+            if (e.button != null && e.button !== 0) return;
+            const el = e.currentTarget, r = el.getBoundingClientRect();
+            el.setPointerCapture?.(e.pointerId);
+            dragRef.current = { pointerId: e.pointerId, x0: e.clientX, half: Math.max(8, r.width / 2), base: __XenAttackLanes.snapshot()[lane] || 0 };
+            el.classList.add('is-dragging');
+          },
+          onPointerMove: (e) => {
+            const d = dragRef.current;
+            if (!d || d.pointerId !== e.pointerId) return;
+            const v = __XenDjMixMath.clamp((e.clientX - d.x0) / d.half, -1, 1);
+            moveKnob(e.currentTarget, v);
+            set(d.base - v * SIXTEENTH / 2);
+          },
+          onPointerUp: finish,
+          onPointerCancel: finish,
+          onLostPointerCapture: finish,
+          onDoubleClick: () => set(0),
+          onKeyDown: (e) => {
+            if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
+            e.preventDefault();
+            set((__XenAttackLanes.snapshot()[lane] || 0) + (e.key === 'ArrowRight' ? -1 : 1) * SIXTEENTH / 4);
+          },
+          children: [
+            u.jsx('i', { className: 'xen-dj-nudge-center', 'aria-hidden': true }),
+            u.jsx('b', { 'aria-hidden': true }),
+            u.jsx('span', { className: 'xen-dj-nudge-val', 'aria-hidden': true, children: 'Att ' + label })
+          ]
+        }),
+        u.jsx('button', { type: 'button', 'aria-label': title + ' 1/16 später', title: 'Einsatz 1/16 später', onClick: () => set((__XenAttackLanes.snapshot()[lane] || 0) + SIXTEENTH), children: '»' })
+      ]
+    });
+  }
+
   /* ── Main XenSonar Mixing Desk Component ── */
   function Stage({ params = {}, update = () => {}, bpm = 120 } = {}) {
     const dj = P.useSyncExternalStore(
@@ -2254,14 +2322,7 @@ const __XenDjStage = (() => {
                       })
                     ]
                   }),
-                  att !== null && u.jsxs('div', {
-                    className: 'xen-dj-nudge-box',
-                    children: [
-                      u.jsx('button', { type: 'button', onClick: () => __XenAttackLanes.set(kind, __XenDjMixMath.clamp(att - 0.1, -2, 2)), children: '−' }),
-                      u.jsx('span', { onClick: () => __XenAttackLanes.set(kind, 0), children: 'Att ' + Number(att || 0).toFixed(2) }),
-                      u.jsx('button', { type: 'button', onClick: () => __XenAttackLanes.set(kind, __XenDjMixMath.clamp(att + 0.1, -2, 2)), children: '+' })
-                    ]
-                  })
+                  att !== null && u.jsx(LaneNudge, { lane: kind, att, title })
                 ]
               })
             ]
