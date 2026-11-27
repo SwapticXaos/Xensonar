@@ -64,6 +64,7 @@ const __XenDjStage = (() => {
     openEqOwner: '',
     eqExpanded: false,
     eqCanvasHeight: savedEqHeight,
+    cues: {}, // id -> [beat|null ×4] hot cue positions inside the loop (beats)
     statusMsg: ''
   };
 
@@ -108,6 +109,10 @@ const __XenDjStage = (() => {
       fadeUnit: ['bars', 'cycle', 'sec'].includes(raw.fadeUnit) ? raw.fadeUnit : 'bars',
       quantizeFade: !!raw.quantizeFade,
       linkEqMorph: !!raw.linkEqMorph,
+      cues: Object.fromEntries(Object.entries(isObj(raw.cues) ? raw.cues : {})
+        .filter(([id, row]) => typeof id === 'string' && id.length <= 300 && (!allow || allow.has(id)) && Array.isArray(row))
+        .map(([id, row]) => [id, Array.from({ length: 4 }, (_, k) => (Number.isFinite(row[k]) && row[k] >= 0 && row[k] < 4096 ? row[k] : null))])
+        .filter(([, row]) => row.some(v => v !== null))),
       scenes: Array.from({ length: 4 }, (_, i) => (Array.isArray(raw.scenes) ? cleanScene(raw.scenes[i], allow) : null))
     };
   }
@@ -116,7 +121,7 @@ const __XenDjStage = (() => {
     return cleanDesk({
       crossfade: st.crossfade, curve: st.curve, buses: keep(st.buses), baseVolumes: keep(st.baseVolumes),
       muted: keep(st.muted), soloId: st.soloId, fadeUnit: st.fadeUnit, quantizeFade: st.quantizeFade,
-      linkEqMorph: st.linkEqMorph, scenes: st.scenes
+      linkEqMorph: st.linkEqMorph, cues: keep(st.cues), scenes: st.scenes
     }, allow);
   }
   function applyDesk(desk, view = null) {
@@ -1095,6 +1100,137 @@ const __XenDjStage = (() => {
     };
   }
 
+  /* ── DJ-CUE-01: Hot-Cues & Loop-Roll ──
+   * Cue pad: empty → remember the audible position (snapped to the nearest segment); set → jump there NOW and keep
+   * the phase inside the segment (the loop stays on its segment grid). Shift/Alt-click or right-click clears.
+   * Roll pad (hold): the voice's worklet repeats the current cell (1 segment, 2 segments, 1 bar) sample-exactly;
+   * underneath the loop runs on, releasing continues exactly where it would be without the roll. */
+  function audiblePosition(id, metric) {
+    const att = nudgeView(id).att;
+    const { snap, grid } = liveGrid(id, metric, att);
+    const playing = snap.state === 'playing';
+    const P = playing ? snap.progress01 * grid.L : (((-att % grid.L) + grid.L) % grid.L);
+    return { att, P, grid, playing };
+  }
+
+  function cueLabel(beat, grid) {
+    const seg = Math.round(beat / grid.segBeats);
+    const bar = Math.floor(seg / grid.segsPerBar);
+    return 'Takt ' + (bar + 1) + (seg - bar * grid.segsPerBar ? ' · Segment ' + (seg - bar * grid.segsPerBar + 1) : '');
+  }
+
+  function setCue(id, metric, slot) {
+    const { P, grid } = audiblePosition(id, metric);
+    const beat = (((Math.round(P / grid.segBeats) * grid.segBeats) % grid.L) + grid.L) % grid.L;
+    const row = [...(state.cues[id] || [null, null, null, null])];
+    row[slot] = Number(beat.toFixed(6));
+    setState({ cues: { ...state.cues, [id]: row } });
+    flashStatus('Cue ' + (slot + 1) + ' gesetzt: ' + cueLabel(beat, grid));
+  }
+
+  function clearCue(id, slot) {
+    const row = [...(state.cues[id] || [null, null, null, null])];
+    row[slot] = null;
+    setState({ cues: { ...state.cues, [id]: row } });
+    flashStatus('Cue ' + (slot + 1) + ' gelöscht');
+  }
+
+  function jumpToCue(id, metric, slot) {
+    const cue = state.cues[id]?.[slot];
+    if (!Number.isFinite(cue)) return false;
+    const { att, P, grid, playing } = audiblePosition(id, metric);
+    const frac = playing ? P - Math.floor(P / grid.segBeats + 1e-9) * grid.segBeats : 0;
+    const delta = cue + frac - P;
+    if (Math.abs(delta) > 1e-9) setPhase(id, __XenDjMixMath.wrapCyclic(att - delta, grid.L), 'jump');
+    if (!playing) flashStatus('Spur startet bei Cue ' + (slot + 1));
+    return true;
+  }
+
+  const rollsActive = new Map(); // id -> roll length label while a pad is held
+
+  function rollBegin(id, metric, segs) {
+    const { P, grid, playing } = audiblePosition(id, metric);
+    if (!playing) { flashStatus('Loop-Roll geht, sobald die Spur läuft'); return false; }
+    const lenBeats = segs * grid.segBeats;
+    if (!(lenBeats < grid.L - 1e-9)) return false;
+    const backBeats = P - Math.floor(P / lenBeats + 1e-9) * lenBeats;
+    const at = __XenMaterialLivePhase.handle?.(id)?.ctx.currentTime;
+    const n = __XenMaterialVoiceMix.transport?.(id, { type: 'roll-begin', lenBeats, backBeats, at }) || 0;
+    if (!n) { flashStatus('Loop-Roll braucht die Phasen-Engine dieser Spur'); return false; }
+    rollsActive.set(id, segs);
+    return true;
+  }
+
+  function rollEnd(id) {
+    if (!rollsActive.has(id)) return;
+    rollsActive.delete(id);
+    __XenMaterialVoiceMix.transport?.(id, { type: 'roll-end' });
+  }
+
+  function CueRollRow({ id, metric, fullName, cues }) {
+    const { grid } = liveGrid(id, metric, 0);
+    const held = P.useRef(null);
+    P.useEffect(() => () => rollEnd(id), [id]); // a removed strip never leaves a roll running
+    const release = (e) => {
+      if (held.current == null || (e.pointerId != null && held.current !== e.pointerId)) return;
+      held.current = null;
+      e.currentTarget.classList.remove('is-active');
+      rollEnd(id);
+    };
+    const rolls = [[1, '1S', 'ein Segment'], [2, '2S', 'zwei Segmente'], [grid.segsPerBar, '1T', 'einen Takt']];
+    return u.jsxs('div', {
+      className: 'xen-dj-cue-row',
+      role: 'group',
+      'aria-label': fullName + ' Hot-Cues und Loop-Roll',
+      children: [
+        ...[0, 1, 2, 3].map(k => {
+          const cue = cues?.[k];
+          const isSet = Number.isFinite(cue);
+          return u.jsx('button', {
+            type: 'button',
+            className: 'xen-dj-cue' + (isSet ? ' is-set' : ''),
+            'aria-label': fullName + ' Cue ' + (k + 1) + (isSet ? ' (' + cueLabel(cue, grid) + ')' : ' (leer)'),
+            title: isSet
+              ? 'Cue ' + (k + 1) + ': ' + cueLabel(cue, grid) + ' · Klick: hinspringen (im Raster) · Shift-/Rechtsklick: löschen'
+              : 'Cue ' + (k + 1) + ' leer · Klick: aktuelle Stelle merken (aufs Segment gerundet)',
+            onClick: (e) => {
+              if (isSet && (e.shiftKey || e.altKey)) clearCue(id, k);
+              else if (isSet) jumpToCue(id, metric, k);
+              else setCue(id, metric, k);
+            },
+            onContextMenu: (e) => { if (isSet) { e.preventDefault(); clearCue(id, k); } },
+            children: String(k + 1)
+          }, 'cue' + k);
+        }),
+        u.jsx('span', { className: 'xen-dj-cue-sep', 'aria-hidden': true }),
+        ...rolls.map(([segs, label, tip]) => u.jsx('button', {
+          type: 'button',
+          className: 'xen-dj-roll',
+          'aria-label': fullName + ' Loop-Roll ' + label,
+          title: 'Halten: Loop-Roll über ' + tip + ' · loslassen: weiter, als wäre nichts gewesen (synchron)',
+          onPointerDown: (e) => {
+            if (e.button != null && e.button !== 0) return;
+            e.preventDefault();
+            e.currentTarget.setPointerCapture?.(e.pointerId);
+            if (rollBegin(id, metric, segs)) { held.current = e.pointerId; e.currentTarget.classList.add('is-active'); }
+          },
+          onPointerUp: release,
+          onPointerCancel: release,
+          onLostPointerCapture: release,
+          onKeyDown: (e) => {
+            if ((e.key === 'Enter' || e.key === ' ') && !e.repeat && held.current == null) {
+              e.preventDefault();
+              if (rollBegin(id, metric, segs)) { held.current = 'key'; e.currentTarget.classList.add('is-active'); }
+            }
+          },
+          onKeyUp: (e) => { if ((e.key === 'Enter' || e.key === ' ') && held.current === 'key') { held.current = null; e.currentTarget.classList.remove('is-active'); rollEnd(id); } },
+          onBlur: (e) => { if (held.current != null) { held.current = null; e.currentTarget.classList.remove('is-active'); rollEnd(id); } },
+          children: '⟲' + label
+        }, 'roll' + label))
+      ]
+    });
+  }
+
   /* ── Bar & Segment Loop-Progress Ruler (true WebAudio phase) – click a bar to spool there ── */
   function LoopProgressRuler({ id, metric, accent, ownerName }) {
     const geom = __XenDjMixMath.buildBarRulerGeometry({
@@ -1800,6 +1936,7 @@ const __XenDjStage = (() => {
 
           // 2. Dedicated Bar & Segment Loop-Progress Ruler (100% WebAudio Phase, never moves when audio is off!)
           u.jsx(LoopProgressRuler, { id, metric, accent, ownerName: fullName }),
+          u.jsx(CueRollRow, { id, metric, fullName, cues: dj.cues[id] }),
 
           // 3. Bus Assign (A | THRU | B)
           u.jsxs('div', {

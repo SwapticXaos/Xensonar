@@ -65,6 +65,31 @@ const html=path.resolve(process.argv[2]||'dist/XenSonar_PROBE.html');
  // 6) keyboard: → one bar
  await p.focus(ruler);const before=Math.round((await read()).att);await p.keyboard.press('ArrowRight');await p.waitForTimeout(100);
  const after=Math.round((await read()).att);assert.ok([4,-12].includes(before-after),'ArrowRight = one bar ahead: '+before+' → '+after);
+ // 8) DJ-CUE-01 hot cues: set at the audible position (snapped to a segment), jump keeps the phase inside the segment
+ await E(`__NodalBallGrid.update({materialLoopVolume:0.8})`);await p.waitForTimeout(200);
+ const cuePad=k=>strip+` .xen-dj-cue >> nth=${k}`;
+ await p.click(cuePad(0));await p.waitForTimeout(100);
+ const cue0=await E(`__XenDjStage.snapshot().cues['${id}'][0]`);
+ assert.ok(Number.isFinite(cue0)&&Math.abs(cue0-Math.round(cue0))<1e-9&&cue0>=0&&cue0<16,'cue on a segment (1 beat): '+cue0);
+ assert.ok(await p.$eval(cuePad(0),el=>el.classList.contains('is-set')));
+ await p.waitForTimeout(1300); // play on
+ const c1=await read();await p.click(cuePad(0));await p.waitForTimeout(80);const c2=await read();
+ const P=x=>x.p*16;const fr=x=>P(x)-Math.floor(P(x));
+ assert.ok(Math.floor(P(c2)+1e-6)%16===cue0%16||Math.floor(P(c2)+1e-6)%16===(cue0+1)%16,'back at the cue segment: '+P(c2)+' / '+cue0);
+ // the offset stays a whole number of segments (1 beat here) → the phase inside the segment is exactly the one before
+ assert.ok(Math.abs(c2.att-Math.round(c2.att))<1e-6,'whole segments only: '+c2.att);void c1;void fr;
+ await p.click(cuePad(0),{modifiers:['Shift']});await p.waitForTimeout(80);
+ assert.equal(await E(`__XenDjStage.snapshot().cues['${id}'][0]`),null,'shift-click clears');
+ // 9) DJ-CUE-01 loop roll: hold 1S → the worklet repeats one segment; release → back on the slip position
+ const rollBtn=await box(strip+' .xen-dj-roll >> nth=0');
+ const before9=await read();
+ await p.mouse.move(rollBtn.x+rollBtn.width/2,rollBtn.y+rollBtn.height/2);await p.mouse.down();await p.waitForTimeout(50);
+ const roll=await E(`(()=>{const r=__XenMaterialLivePhase.handle('${id}');return !!r})()`);assert.ok(roll);
+ assert.ok(await p.$eval(strip+' .xen-dj-roll >> nth=0',el=>el.classList.contains('is-active')),'roll pad active while held');
+ await p.waitForTimeout(1200);await p.mouse.up();await p.waitForTimeout(100);
+ const after9=await read();
+ assert.ok(Math.abs(after9.att-before9.att)<1e-9,'the roll does not change the phase offset (slip)');
+ assert.ok(!(await p.$eval(strip+' .xen-dj-roll >> nth=0',el=>el.classList.contains('is-active'))));
  // 7) DJ-OWN-01: a level change from outside the desk (Quick Rack, song recall) becomes the fader position
  await E(`__NodalBallGrid.update({materialLoopVolume:0.31})`);await p.waitForTimeout(300);
  assert.ok(Math.abs(await E(`__XenDjStage.snapshot().baseVolumes['${id}']`)-0.31)<0.006,'desk adopted the outside level');

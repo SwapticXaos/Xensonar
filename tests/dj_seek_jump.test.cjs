@@ -70,3 +70,35 @@ test('a jump cancels a running soft glide and reports the new phase', () => {
   assert.equal(report.phase, 2);
   assert.equal(report.active, false);
 });
+
+// DJ-CUE-01: loop roll repeats the current cell sample-exactly; releasing resumes at the slip position.
+test('loop roll repeats the cell and resumes at the slip position', () => {
+  const { processor, send, run, len } = setup();
+  run(4800);
+  const p0 = processor.position;                       // 4800 samples into the loop
+  // roll 1/4 beat (6000 samples) starting 0.1 beat (2400 samples) before "now"
+  send({ type: 'roll-begin', lenBeats: 0.25, backBeats: 0.1, at: 4800 / 48000 }); // sent at the current audio time: no lag
+  const start = ((p0 - 2400) % len + len) % len;
+  assert.equal(processor.roll.start, start);
+  const seen = [];
+  for (let k = 0; k < 40; k++) { run(512); seen.push(processor.position); }
+  for (const pos of seen) assert.ok(pos >= start - 1e-6 && pos < start + 6000 + 1e-6, 'inside the roll cell: ' + pos);
+  const slip = processor.roll.slip;
+  assert.equal(slip, ((p0 + 40 * 512) % len + len) % len, 'slip runs on underneath');
+  send({ type: 'roll-end' });
+  assert.equal(processor.roll, null);
+  assert.equal(processor.position, slip, 'resumes where the loop would be without the roll');
+  run(512);
+  assert.equal(processor.position, ((slip + 512) % len + len) % len);
+});
+
+test('a roll longer than the loop is ignored; roll-end without a roll is harmless', () => {
+  const { processor, send, run } = setup();
+  run(256);
+  send({ type: 'roll-begin', lenBeats: 8, backBeats: 0 }); // the loop is 4 beats long
+  assert.equal(processor.roll, null);
+  send({ type: 'roll-end' });
+  const before = processor.position;
+  run(256);
+  assert.equal(processor.position, before + 256);
+});

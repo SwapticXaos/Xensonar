@@ -81,3 +81,19 @@ ohne Stocken, monoton, nach genau 2 Takten still, Übernahme ohne Sprung, Szenen
 - **Fehler behoben:** Song-Speichern scheiterte mit mehr als 3 Spuren im Desk („Invalid song performance snapshot"),
   weil die Prüfung nur 2 Zusatzspuren erlaubte; jetzt bis 5 (= 6 Spuren).
 - Test: `tests/e2e/dj_persist.cjs` (Reload, Song-Erfassung über `__xenSongPerformanceCapture`, Prüfung, Wiederherstellung, 6-Spur-Song).
+
+---
+
+# DJ-CUE-01 — Hot-Cues und Loop-Roll
+
+- Unter dem Takt-Balken jeder Spur: **Cue 1–4** und **Roll ⟲1S · ⟲2S · ⟲1T**.
+- **Cue:** leer → merkt die hörbare Stelle (aufs Segment gerundet); gesetzt → springt sofort dorthin und behält die Phase
+  innerhalb des Segments (Versatz in ganzen Segmenten = bleibt im Raster). Shift-/Alt-/Rechtsklick löscht.
+  Läuft die Spur nicht, startet sie an der Cue-Stelle. Cues werden mit dem Desk gespeichert (Neuladen, Song).
+- **Loop-Roll (halten):** der Phasen-Worklet der Spur wiederholt die aktuelle Zelle (1 Segment, 2 Segmente, 1 Takt)
+  **sample-genau** mit 3 ms De-Click je Wiederholung; darunter läuft die Spur unsichtbar weiter („Slip"). Loslassen
+  → weiter genau dort, wo sie ohne Roll wäre (synchron zum Raum). Tastatur: Enter/Leertaste halten.
+- Technik: Worklet-Nachrichten `roll-begin` {lenBeats, backBeats, at} / `roll-end`, `advance()` im Playhead;
+  `__XenMaterialVoiceMix.transport(id, msg)` → Player `transport()`. Ein Sprung während eines Rolls verschiebt Zelle und Slip mit.
+- Tests: `tests/dj_seek_jump.test.cjs` (+2: Zelle wiederholt, Slip, Rückkehr; zu langer Roll ignoriert),
+  `tests/e2e/dj_seek_nudge.cjs` (+Cue setzen/springen/löschen, Roll halten/loslassen), `tests/e2e/dj_persist.cjs` (+Cue nach Reload).

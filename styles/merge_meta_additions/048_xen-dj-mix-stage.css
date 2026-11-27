@@ -2002,3 +2002,18 @@
   font-size: 8px; white-space: nowrap; pointer-events: none; z-index: 1;
   color: #b7d8dc; text-shadow: 0 0 3px #000;
 }
+
+/* DJ-CUE-01: hot cues (1–4) + hold-to-roll pads under the loop ruler */
+.xen-dj-cue-row { display: flex; align-items: stretch; gap: 2px; min-width: 0; }
+.xen-dj-cue, .xen-dj-roll {
+  flex: 1 1 0; min-width: 0; padding: 2px 0; border-radius: 3px; cursor: pointer;
+  font: 700 8.5px/1.1 system-ui, sans-serif; white-space: nowrap; overflow: hidden;
+  border: 1px solid rgba(72, 126, 136, 0.28); background: #07111a; color: #6f939b;
+  touch-action: none; user-select: none;
+}
+.xen-dj-cue:hover, .xen-dj-roll:hover { border-color: rgba(126, 224, 214, 0.56); color: #ecfffd; }
+.xen-dj-cue.is-set { border-color: rgba(242, 184, 102, 0.62); background: rgba(68, 40, 16, 0.78); color: #fae0b4; }
+.xen-dj-roll { flex-grow: 1.25; color: #82a7b0; }
+.xen-dj-roll.is-active { border-color: #7af2e5; background: linear-gradient(180deg, #167a7e 0%, #0d4c52 100%); color: #ecfffd; }
+.xen-dj-cue:focus-visible, .xen-dj-roll:focus-visible { outline: 1px solid rgba(126, 224, 214, .8); outline-offset: 1px; }
+.xen-dj-cue-sep { flex: 0 0 3px; }

@@ -25,6 +25,7 @@ const html=path.resolve(process.argv[2]||'dist/XenSonar_PROBE.html');
  await p.click('.xen-dj-scenes-group button:has-text("Takt-Start")');
  await p.click('.xen-dj-segmented button:has-text("Zyklus")');
  await p.focus('.xen-dj-xfade-plate');for(let i=0;i<5;i++)await p.keyboard.press('ArrowLeft');
+ await p.click(strip+' .xen-dj-cue >> nth=2');
  await p.click('.xen-dj-scene-btn >> nth=1');await p.waitForTimeout(900);
  const before=await E(`JSON.stringify(__XenDjStage.snapshot())`).then(JSON.parse);
  assert.equal(before.buses[id],'A');assert.equal(before.curve,'linear');assert.equal(before.quantizeFade,true);assert.equal(before.fadeUnit,'cycle');
@@ -37,6 +38,7 @@ const html=path.resolve(process.argv[2]||'dist/XenSonar_PROBE.html');
  assert.equal(after.buses[id],'A','routing survives the reload');
  assert.ok(after.scenes[1]&&after.scenes[1].eqSnapshots&&Math.abs(after.scenes[1].crossfade-before.scenes[1].crossfade)<1e-9,'scene S2 survives the reload');
  assert.equal(after.scenes[0],null);
+ assert.ok(Number.isFinite(after.cues[id][2])&&after.cues[id][2]===before.cues[id][2],'hot cue 3 survives the reload');
  assert.ok(Math.abs(after.baseVolumes[id]-before.baseVolumes[id])<1e-6,'fader base survives the reload');
  // song payload: capture → validate → restore (desk limited to the song's material IDs)
  const song=await E(`(()=>{const own=__XenDjStage.captureForSong(['${id}']);const other=__XenDjStage.captureForSong([]);
