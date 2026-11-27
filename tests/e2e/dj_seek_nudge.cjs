@@ -35,12 +35,12 @@ const html=path.resolve(process.argv[2]||'dist/XenSonar_PROBE.html');
  assert.equal(r1.active,false,'discrete jump, no glide');assert.ok(Math.abs(-r1.phase-r1.att)<1e-6,'audio phase = target');
  // 2) « / » : exactly one segment (= 1 beat)
  const strip=`[data-xen-dj-deck="${id}"]`;
- await p.click(strip+' button[aria-label$="ein Segment vor"]');await p.waitForTimeout(80);
+ await p.click(strip+' button[aria-label$="one segment ahead"]');await p.waitForTimeout(80);
  const r2=await read();
  assert.ok(Math.abs((r2.att-r1.att)-(-1))<1e-6||Math.abs(Math.abs(r2.att-r1.att)-15)<1e-6,'one segment ahead: '+r1.att+' → '+r2.att);
  assert.equal(r2.active,false);
  assert.match(await p.innerText(`[data-xen-nudge-jog="${id}"]`),/Φ [+−]/);
- await p.click(strip+' button[aria-label$="ein Segment zurück"]');await p.waitForTimeout(80);
+ await p.click(strip+' button[aria-label$="one segment back"]');await p.waitForTimeout(80);
  assert.ok(Math.abs((await read()).att-r1.att)<1e-6,'back again');
  // 3) jog: drag right = push (soft nudge physics), thumb springs back, the offset stays
  const jog=await box(`[data-xen-nudge-jog="${id}"]`);
@@ -57,7 +57,7 @@ const html=path.resolve(process.argv[2]||'dist/XenSonar_PROBE.html');
  await p.dblclick(`[data-xen-nudge-jog="${id}"]`);await p.waitForTimeout(120);
  const r4=await read();assert.equal(r4.att,0);assert.equal(r4.active,false);
  // 5) the "Takt & Phase" rails spool the same way
- await p.click('.xen-dj-monitor-switch button:has-text("Takt & Phase")');await p.waitForTimeout(200);
+ await p.click('.xen-dj-monitor-switch button:has-text("Bars & Phase")');await p.waitForTimeout(200);
  const rail=await box(`.xen-dj-time-rail-track[data-xen-bar-seek="${id}"]`);
  const r5=await read(),t5=(Math.floor(r5.p*4)+3)%4;
  await p.mouse.click(rail.x+rail.width*(t5+.5)/4,rail.y+rail.height/2);await p.waitForTimeout(120);
@@ -99,10 +99,10 @@ const html=path.resolve(process.argv[2]||'dist/XenSonar_PROBE.html');
  // 10) DJ-BUS-01: Bass / Root Follow timing on the 1/16 grid
  await p.click('.xen-dj-segmented button:has-text("Root · Bass · Drums")');await p.waitForTimeout(200);
  await E(`__XenAttackLanes.set('bass',0)`);
- await p.click('button[aria-label="Bass 1/16 später"]');await p.waitForTimeout(60);
+ await p.click('button[aria-label="Bass 1/16 later"]');await p.waitForTimeout(60);
  assert.equal(await E(`__XenAttackLanes.snapshot().bass`),0.25,'» = one 1/16 later');
  assert.match(await p.innerText('[data-xen-lane-jog="bass"]'),/Att −1\/16/);
- await p.click('button[aria-label="Bass 1/16 früher"]');await p.click('button[aria-label="Bass 1/16 früher"]');await p.waitForTimeout(60);
+ await p.click('button[aria-label="Bass 1/16 earlier"]');await p.click('button[aria-label="Bass 1/16 earlier"]');await p.waitForTimeout(60);
  assert.equal(await E(`__XenAttackLanes.snapshot().bass`),-0.25,'« twice = one 1/16 earlier than the grid');
  const lj=await box('[data-xen-lane-jog="bass"]');
  await p.mouse.move(lj.x+lj.width/2,lj.y+lj.height/2);await p.mouse.down();await p.mouse.move(lj.x+lj.width,lj.y+lj.height/2,{steps:4});await p.mouse.up();await p.waitForTimeout(100);

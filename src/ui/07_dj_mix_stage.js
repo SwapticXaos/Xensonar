@@ -467,7 +467,7 @@ const __XenDjStage = (() => {
     beginLinkedMorphGestures(c.ids);
     const armed = t0 - ctx.currentTime > 0.06;
     setState({ autoFadeDir: armed ? null : dirLabel, armedFadeDir: armed ? dirLabel : null, activeScene: -1 });
-    if (armed) flashStatus('Übergang startet exakt auf dem nächsten Taktstart');
+    if (armed) flashStatus('Transition starts exactly on the next bar line');
     const m = startClockMorph({
       ctx, t0, t1,
       primaryId: c.primaryId, params: c.params, update: c.update,
@@ -522,7 +522,7 @@ const __XenDjStage = (() => {
     const nextScenes = [...state.scenes];
     nextScenes[slotIdx] = snap;
     setState({ scenes: nextScenes, activeScene: slotIdx });
-    flashStatus('Scene S' + (slotIdx + 1) + ' gespeichert (' + deckIds.length + ' Spuren + 24B-EQ)');
+    flashStatus('Scene S' + (slotIdx + 1) + ' stored (' + deckIds.length + ' tracks + 24-band EQ)');
   }
 
   function recallScene(slotIdx, getCtx, bpm) {
@@ -589,7 +589,7 @@ const __XenDjStage = (() => {
     const ctx = c ? anyDeckClock(ids) : null;
     if (ctx) {
       const { t0, t1 } = planMorphWindow(ctx, bpm, { quantize: state.quantizeFade, ms: durationMs });
-      if (t0 - ctx.currentTime > 0.06) flashStatus('Scene S' + (slotIdx + 1) + ' startet auf dem nächsten Taktstart');
+      if (t0 - ctx.currentTime > 0.06) flashStatus('Scene S' + (slotIdx + 1) + ' starts on the next bar line');
       const frameState = (e) => ({ crossfade: __XenDjMixMath.lerp(startX, target.crossfade, e), baseVolumes: volsAt(e) });
       const m = startClockMorph({
         ctx, t0, t1, primaryId: c.primaryId, params: c.params, update: c.update,
@@ -635,7 +635,7 @@ const __XenDjStage = (() => {
       };
       sceneRaf = requestAnimationFrame(step);
     }
-    flashStatus('Scene S' + (slotIdx + 1) + ' aktiv');
+    flashStatus('Scene S' + (slotIdx + 1) + ' active');
   }
 
   function curveArrayToSvgPath(arr, width, height, closeArea = false) {
@@ -730,7 +730,7 @@ const __XenDjStage = (() => {
     const clamped = Math.max(3, Math.min(6, Number(n) || 3));
     try { localStorage.setItem(MAX_VOICE_KEY, String(clamped)); } catch {}
     __XenMaterialLayers.setMaxVoices?.(clamped);
-    flashStatus('Max. parallele Material-Spuren: ' + clamped);
+    flashStatus('Max. parallel material tracks: ' + clamped);
   }
 
   function setEqCanvasHeight(px) {
@@ -786,7 +786,7 @@ const __XenDjStage = (() => {
       type: 'button',
       className: 'xen-dj-knob' + (small ? ' is-small' : ''),
       'aria-label': ariaLabel,
-      title: ariaLabel + ' · Ziehen hoch/runter · Doppelklick Reset',
+      title: ariaLabel + ' · drag up/down · double-click: reset',
       onPointerDown: (e) => {
         e.preventDefault();
         e.currentTarget.setPointerCapture?.(e.pointerId);
@@ -855,7 +855,7 @@ const __XenDjStage = (() => {
       'aria-valuemin': 0,
       'aria-valuemax': Math.round(max * 100),
       'aria-valuenow': Math.round(value * 100),
-      title: ariaLabel + ' · Ziehen · Doppelklick Reset',
+      title: ariaLabel + ' · drag · double-click: reset',
       onPointerDown: (e) => {
         e.preventDefault();
         dragging.current = true;
@@ -928,7 +928,7 @@ const __XenDjStage = (() => {
       'aria-valuemin': 0,
       'aria-valuemax': 100,
       'aria-valuenow': Math.round(pct),
-      title: 'Crossfader A ↔ B · Ziehen · Doppelklick Mitte',
+      title: 'Crossfader A ↔ B · drag · double-click: center',
       onPointerDown: (e) => {
         e.preventDefault();
         dragging.current = true;
@@ -1055,7 +1055,7 @@ const __XenDjStage = (() => {
       att, progress01, targetBar: toBar, loopBeats: grid.L, effectiveBars: grid.eff, segmentsPerBar: grid.segsPerBar
     });
     if (Math.abs(plan.deltaBeats) > 1e-9) setPhase(id, plan.att, 'jump');
-    if (!playing) flashStatus('Spur startet in Takt ' + (plan.toBar + 1));
+    if (!playing) flashStatus('Track starts in bar ' + (plan.toBar + 1));
     return plan;
   }
 
@@ -1084,7 +1084,7 @@ const __XenDjStage = (() => {
     return {
       tabIndex: 0,
       'data-xen-bar-seek': id,
-      'aria-label': ownerName + ': Takt spulen (Klick in einen Takt, ←/→ einen Takt)',
+      'aria-label': ownerName + ': spool to a bar (click a bar, ←/→ one bar)',
       onPointerMove: (e) => showGhost(e.currentTarget, __XenDjMixMath.barAtRatio(ratioOf(e), eff)),
       onPointerLeave: (e) => showGhost(e.currentTarget, null),
       onPointerDown: (e) => {
@@ -1116,7 +1116,7 @@ const __XenDjStage = (() => {
   function cueLabel(beat, grid) {
     const seg = Math.round(beat / grid.segBeats);
     const bar = Math.floor(seg / grid.segsPerBar);
-    return 'Takt ' + (bar + 1) + (seg - bar * grid.segsPerBar ? ' · Segment ' + (seg - bar * grid.segsPerBar + 1) : '');
+    return 'Bar ' + (bar + 1) + (seg - bar * grid.segsPerBar ? ' · segment ' + (seg - bar * grid.segsPerBar + 1) : '');
   }
 
   function setCue(id, metric, slot) {
@@ -1125,14 +1125,14 @@ const __XenDjStage = (() => {
     const row = [...(state.cues[id] || [null, null, null, null])];
     row[slot] = Number(beat.toFixed(6));
     setState({ cues: { ...state.cues, [id]: row } });
-    flashStatus('Cue ' + (slot + 1) + ' gesetzt: ' + cueLabel(beat, grid));
+    flashStatus('Cue ' + (slot + 1) + ' set: ' + cueLabel(beat, grid));
   }
 
   function clearCue(id, slot) {
     const row = [...(state.cues[id] || [null, null, null, null])];
     row[slot] = null;
     setState({ cues: { ...state.cues, [id]: row } });
-    flashStatus('Cue ' + (slot + 1) + ' gelöscht');
+    flashStatus('Cue ' + (slot + 1) + ' cleared');
   }
 
   function jumpToCue(id, metric, slot) {
@@ -1142,7 +1142,7 @@ const __XenDjStage = (() => {
     const frac = playing ? P - Math.floor(P / grid.segBeats + 1e-9) * grid.segBeats : 0;
     const delta = cue + frac - P;
     if (Math.abs(delta) > 1e-9) setPhase(id, __XenDjMixMath.wrapCyclic(att - delta, grid.L), 'jump');
-    if (!playing) flashStatus('Spur startet bei Cue ' + (slot + 1));
+    if (!playing) flashStatus('Track starts at cue ' + (slot + 1));
     return true;
   }
 
@@ -1150,13 +1150,13 @@ const __XenDjStage = (() => {
 
   function rollBegin(id, metric, segs) {
     const { P, grid, playing } = audiblePosition(id, metric);
-    if (!playing) { flashStatus('Loop-Roll geht, sobald die Spur läuft'); return false; }
+    if (!playing) { flashStatus('Loop roll works while the track is playing'); return false; }
     const lenBeats = segs * grid.segBeats;
     if (!(lenBeats < grid.L - 1e-9)) return false;
     const backBeats = P - Math.floor(P / lenBeats + 1e-9) * lenBeats;
     const at = __XenMaterialLivePhase.handle?.(id)?.ctx.currentTime;
     const n = __XenMaterialVoiceMix.transport?.(id, { type: 'roll-begin', lenBeats, backBeats, at }) || 0;
-    if (!n) { flashStatus('Loop-Roll braucht die Phasen-Engine dieser Spur'); return false; }
+    if (!n) { flashStatus('Loop roll needs the phase engine of this track'); return false; }
     rollsActive.set(id, segs);
     return true;
   }
@@ -1177,11 +1177,11 @@ const __XenDjStage = (() => {
       e.currentTarget.classList.remove('is-active');
       rollEnd(id);
     };
-    const rolls = [[1, '1S', 'ein Segment'], [2, '2S', 'zwei Segmente'], [grid.segsPerBar, '1T', 'einen Takt']];
+    const rolls = [[1, '1S', 'one segment'], [2, '2S', 'two segments'], [grid.segsPerBar, '1B', 'one bar']];
     return u.jsxs('div', {
       className: 'xen-dj-cue-row',
       role: 'group',
-      'aria-label': fullName + ' Hot-Cues und Loop-Roll',
+      'aria-label': fullName + ' hot cues and loop roll',
       children: [
         ...[0, 1, 2, 3].map(k => {
           const cue = cues?.[k];
@@ -1189,10 +1189,10 @@ const __XenDjStage = (() => {
           return u.jsx('button', {
             type: 'button',
             className: 'xen-dj-cue' + (isSet ? ' is-set' : ''),
-            'aria-label': fullName + ' Cue ' + (k + 1) + (isSet ? ' (' + cueLabel(cue, grid) + ')' : ' (leer)'),
+            'aria-label': fullName + ' Cue ' + (k + 1) + (isSet ? ' (' + cueLabel(cue, grid) + ')' : ' (empty)'),
             title: isSet
-              ? 'Cue ' + (k + 1) + ': ' + cueLabel(cue, grid) + ' · Klick: hinspringen (im Raster) · Shift-/Rechtsklick: löschen'
-              : 'Cue ' + (k + 1) + ' leer · Klick: aktuelle Stelle merken (aufs Segment gerundet)',
+              ? 'Cue ' + (k + 1) + ': ' + cueLabel(cue, grid) + ' · click: jump there (on the grid) · Shift-/right-click: clear'
+              : 'Cue ' + (k + 1) + ' empty · click: remember the current position (rounded to a segment)',
             onClick: (e) => {
               if (isSet && (e.shiftKey || e.altKey)) clearCue(id, k);
               else if (isSet) jumpToCue(id, metric, k);
@@ -1207,7 +1207,7 @@ const __XenDjStage = (() => {
           type: 'button',
           className: 'xen-dj-roll',
           'aria-label': fullName + ' Loop-Roll ' + label,
-          title: 'Halten: Loop-Roll über ' + tip + ' · loslassen: weiter, als wäre nichts gewesen (synchron)',
+          title: 'Hold: loop roll over ' + tip + ' · release: continues as if nothing happened (in sync)',
           onPointerDown: (e) => {
             if (e.button != null && e.button !== 0) return;
             e.preventDefault();
@@ -1240,7 +1240,7 @@ const __XenDjStage = (() => {
     return u.jsxs('div', {
       className: 'xen-dj-loop-ruler is-idle',
       'data-xen-loop-ruler': id,
-      title: 'Loop ' + metric.label + (metric.hasLiveBarEdit ? ' (Bar-Edit aktiv)' : '') + ' · Klick in einen Takt: dorthin spulen, im Raster und im Tempo (←/→: ein Takt)',
+      title: 'Loop ' + metric.label + (metric.hasLiveBarEdit ? ' (bar edit active)' : '') + ' · click a bar: spool there, on the grid and in tempo (←/→: one bar)',
       ...barSeekProps(id, metric, ownerName),
       children: [
         u.jsx('span', { className: 'xen-dj-bar-ghost', 'aria-hidden': true }),
@@ -1311,8 +1311,8 @@ const __XenDjStage = (() => {
       children: [
         u.jsx('button', {
           type: 'button',
-          'aria-label': fullName + ' ein Segment zurück',
-          title: 'Ein Segment zurückspringen (1/' + grid.segsPerBar + ' Takt)',
+          'aria-label': fullName + ' one segment back',
+          title: 'Jump one segment back (1/' + grid.segsPerBar + ' bar)',
           onClick: () => stepSegment(id, metric, -1),
           children: '«'
         }),
@@ -1322,8 +1322,8 @@ const __XenDjStage = (() => {
           'data-motion': 'rest',
           tabIndex: 0,
           'aria-label': fullName + ' schubsen / bremsen',
-          'aria-valuetext': 'Versatz ' + offsetLabel,
-          title: 'Φ ' + offsetLabel + ' = Versatz zum Raum-Raster (T Takt, S Segment)\nZiehen: → schubsen (vor), ← bremsen (zurück) · federt zurück, der Versatz bleibt\n←/→: fein · Doppelklick: zurück aufs Raster',
+          'aria-valuetext': 'Offset ' + offsetLabel,
+          title: 'Φ ' + offsetLabel + ' = offset to the room grid (B bar, S segment)\nDrag: → push (ahead), ← brake (back) · springs back, the offset stays\n←/→: fine · double-click: back onto the grid',
           onDoubleClick: () => setPhase(id, 0, 'jump'),
           onPointerDown: (e) => {
             if (e.button != null && e.button !== 0) return;
@@ -1364,8 +1364,8 @@ const __XenDjStage = (() => {
         }),
         u.jsx('button', {
           type: 'button',
-          'aria-label': fullName + ' ein Segment vor',
-          title: 'Ein Segment vorspringen (1/' + grid.segsPerBar + ' Takt)',
+          'aria-label': fullName + ' one segment ahead',
+          title: 'Jump one segment ahead (1/' + grid.segsPerBar + ' bar)',
           onClick: () => stepSegment(id, metric, 1),
           children: '»'
         })
@@ -1399,14 +1399,14 @@ const __XenDjStage = (() => {
     return u.jsxs('div', {
       className: 'xen-dj-nudge-box',
       children: [
-        u.jsx('button', { type: 'button', 'aria-label': title + ' 1/16 früher', title: 'Einsatz 1/16 früher', onClick: () => set((__XenAttackLanes.snapshot()[lane] || 0) - SIXTEENTH), children: '«' }),
+        u.jsx('button', { type: 'button', 'aria-label': title + ' 1/16 earlier', title: 'Onset 1/16 earlier', onClick: () => set((__XenAttackLanes.snapshot()[lane] || 0) - SIXTEENTH), children: '«' }),
         u.jsxs('div', {
           className: 'xen-dj-nudge-jog',
           'data-xen-lane-jog': lane,
           tabIndex: 0,
-          'aria-label': title + ' Timing fein',
-          'aria-valuetext': 'Versatz ' + label,
-          title: 'Timing ' + label + ' (+ = früher)\nZiehen: → früher, ← später · federt zurück, der Versatz bleibt\n←/→: 1/64 · Doppelklick: zurück aufs Raster',
+          'aria-label': title + ' fine timing',
+          'aria-valuetext': 'Offset ' + label,
+          title: 'Timing ' + label + ' (+ = earlier)\nDrag: → earlier, ← later · springs back, the offset stays\n←/→: 1/64 · double-click: back onto the grid',
           onPointerDown: (e) => {
             if (e.button != null && e.button !== 0) return;
             const el = e.currentTarget, r = el.getBoundingClientRect();
@@ -1436,7 +1436,7 @@ const __XenDjStage = (() => {
             u.jsx('span', { className: 'xen-dj-nudge-val', 'aria-hidden': true, children: 'Att ' + label })
           ]
         }),
-        u.jsx('button', { type: 'button', 'aria-label': title + ' 1/16 später', title: 'Einsatz 1/16 später', onClick: () => set((__XenAttackLanes.snapshot()[lane] || 0) + SIXTEENTH), children: '»' })
+        u.jsx('button', { type: 'button', 'aria-label': title + ' 1/16 later', title: 'Onset 1/16 later', onClick: () => set((__XenAttackLanes.snapshot()[lane] || 0) + SIXTEENTH), children: '»' })
       ]
     });
   }
@@ -1677,7 +1677,7 @@ const __XenDjStage = (() => {
         __XenEQ.set(key, { a: __XenDjMixMath.synthesize3BandCurve(plan[id]), morph: 0, enabled: true });
       }
       setState({ activeScene: -1 });
-      flashStatus('Spektral-Taschen auf ' + deckIds.length + ' Spuren gemalt');
+      flashStatus('Spectral pockets painted on ' + deckIds.length + ' tracks');
     };
 
     const handleFlattenAll = () => {
@@ -1688,7 +1688,7 @@ const __XenDjStage = (() => {
         __XenEQ.set(key, { a: [...flat], b: [...flat], morph: 0, enabled: true });
       }
       setState({ activeScene: -1 });
-      flashStatus('Alle 24-Band-EQs linear (0 dB)');
+      flashStatus('All 24-band EQs flat (0 dB)');
     };
 
     const ejectDeck = (id) => {
@@ -1721,7 +1721,7 @@ const __XenDjStage = (() => {
       state = { ...state, buses: nextBuses, activeScene: -1 };
       applyLiveMix(deckIds, primaryId, params, update);
       emit();
-      flashStatus('Bus A ↔ Bus B getauscht');
+      flashStatus('Bus A ↔ Bus B swapped');
     };
 
     const handleAutoAssignAB = () => {
@@ -1730,7 +1730,7 @@ const __XenDjStage = (() => {
       state = { ...state, buses: nextBuses, activeScene: -1 };
       applyLiveMix(deckIds, primaryId, params, update);
       emit();
-      flashStatus('Spuren abwechselnd auf Bus A / B verteilt');
+      flashStatus('Tracks alternate between bus A / B');
     };
 
     const openAudioCutForFile = (file) => {
@@ -1740,7 +1740,7 @@ const __XenDjStage = (() => {
           const req = wG(file, 'material-track-manager');
           fG();
           window.requestAnimationFrame(() => RG(req));
-          flashStatus('„' + file.name + '“ an Takt- & Audio-Analyse übergeben');
+          flashStatus('“' + file.name + '” handed to the bar & audio analysis');
           return;
         }
       } catch {}
@@ -1800,7 +1800,7 @@ const __XenDjStage = (() => {
       const entry = { kind: 'material', id: item.id, name: item.name || item.id };
       const ready = await waitForAdapterEntry(item.id, 4500);
       if (!ready) {
-        flashStatus('„' + __XenDjMixMath.compactTrackLabel(entry.name).primary + '“ wird noch vorbereitet …');
+        flashStatus('“' + __XenDjMixMath.compactTrackLabel(entry.name).primary + '” is still being prepared …');
         return false;
       }
       const ctx = latestCtx.current || { ids: deckIds, primaryId, params, update };
@@ -1835,9 +1835,9 @@ const __XenDjStage = (() => {
           const after = latestCtx.current;
           if (after) applyLiveMix(after.ids, after.primaryId, after.params, after.update);
         });
-        flashStatus('„' + __XenDjMixMath.compactTrackLabel(entry.name).primary + '“ → Bus ' + targetBus);
+        flashStatus('“' + __XenDjMixMath.compactTrackLabel(entry.name).primary + '” → bus ' + targetBus);
       } else {
-        flashStatus('„' + __XenDjMixMath.compactTrackLabel(entry.name).primary + '“ als Live-Spur geladen');
+        flashStatus('“' + __XenDjMixMath.compactTrackLabel(entry.name).primary + '” loaded as a live track');
       }
       return true;
     };
@@ -1854,26 +1854,26 @@ const __XenDjStage = (() => {
       const source = rackItems.length ? rackItems : allLibraryMaterials;
       const picked = source.slice(0, Math.min(2, maxVoices));
       if (!picked.length) {
-        flashStatus('Keine Material-Tracks verfügbar');
+        flashStatus('No material tracks available');
         return;
       }
       const okA = await launchMaterialToDeck(picked[0], 'A', { replacePrimary: true });
       if (okA && picked[1]) {
         const okB = await launchMaterialToDeck(picked[1], 'B', { forceLayer: true });
-        if (okB) flashStatus('Bus A + Bus B bereit');
+        if (okB) flashStatus('Bus A + bus B ready');
       }
     };
 
     const addToQuickRackOnly = (item) => {
       const entry = { kind: 'material', id: item.id, name: item.name || item.id };
       __XenQuick.add(entry);
-      flashStatus('„' + __XenDjMixMath.compactTrackLabel(entry.name).primary + '“ ins Quick Rack übernommen');
+      flashStatus('“' + __XenDjMixMath.compactTrackLabel(entry.name).primary + '” added to the Quick Rack');
     };
 
     const toggleCuePreview = (item) => {
       if (typeof __XenMaterialStandalonePreview === 'undefined') return;
       void __XenMaterialStandalonePreview.toggleById(item.id).catch(() => {
-        flashStatus('Vorhören für „' + __XenDjMixMath.compactTrackLabel(item.name).primary + '“ nicht verfügbar');
+        flashStatus('Preview for “' + __XenDjMixMath.compactTrackLabel(item.name).primary + '” not available');
       });
     };
 
@@ -1889,7 +1889,7 @@ const __XenDjStage = (() => {
     const fadeSpec = (targetBus, idx) => {
       if (dj.fadeUnit === 'sec') {
         const secs = [2, 4, 8][idx];
-        return { ms: secs * 1000, beats: null, label: secs + 's', tip: secs + ' Sekunden' };
+        return { ms: secs * 1000, beats: null, label: secs + 's', tip: secs + ' seconds' };
       }
       if (dj.fadeUnit === 'cycle') {
         const mults = [0.5, 1, 2];
@@ -1897,10 +1897,10 @@ const __XenDjStage = (() => {
         const base = targetBus === 'A' ? cycleA : cycleB;
         const span = base * mults[idx];
         const rat = __XenDjMixMath.formatMetricSpec({ bars: span, segmentsPerBar: (targetBus === 'A' ? busADeck : busBDeck)?.segmentsPerBar || 4 });
-        return { ms: __XenDjMixMath.barsToMs(span, liveBpmExact), beats: span * 4, label: tags[idx], tip: tags[idx] + ' Zyklus (' + rat.barText + ')' };
+        return { ms: __XenDjMixMath.barsToMs(span, liveBpmExact), beats: span * 4, label: tags[idx], tip: tags[idx] + ' cycle (' + rat.barText + ')' };
       }
       const bars = [2, 4, 8][idx];
-      return { ms: __XenDjMixMath.barsToMs(bars, liveBpmExact), beats: bars * 4, label: bars + 'B', tip: bars + ' Raumtakte' };
+      return { ms: __XenDjMixMath.barsToMs(bars, liveBpmExact), beats: bars * 4, label: bars + 'B', tip: bars + ' room bars' };
     };
 
     const q = dj.crateQuery.trim().toLowerCase();
@@ -1984,7 +1984,7 @@ const __XenDjStage = (() => {
                       u.jsxs('strong', { title: fullName, children: [partView.tint ? u.jsx(__XenSongPartChip, { name: fullName, small: true }) : null, parsedName.primary] }),
                       u.jsx('span', {
                         className: metric.isFractional ? 'is-poly' : '',
-                        title: 'Taktwahrheit: ' + metric.label + (metric.hasLiveBarEdit ? ' (Bar-Edit aktiv)' : ''),
+                        title: 'Time truth: ' + metric.label + (metric.hasLiveBarEdit ? ' (bar edit active)' : ''),
                         children: metric.label + (metric.bpm ? ' · ' + metric.bpm + 'bpm' : '')
                       })
                     ]
@@ -1994,7 +1994,7 @@ const __XenDjStage = (() => {
               u.jsx('button', {
                 type: 'button',
                 className: 'xen-dj-eject-btn',
-                title: 'Spur aus Live-Mix entfernen',
+                title: 'Remove the track from the live mix',
                 'aria-label': fullName + ' aus Mix entfernen',
                 onClick: () => ejectDeck(id),
                 children: '×'
@@ -2013,7 +2013,7 @@ const __XenDjStage = (() => {
             'aria-label': fullName + ' Bus-Zuweisung',
             children: [
               u.jsx('button', { type: 'button', className: 'is-a' + (bus === 'A' ? ' is-active' : ''), onClick: () => assignBus(id, 'A'), children: 'A' }),
-              u.jsx('button', { type: 'button', className: 'is-thru' + (bus === 'THRU' ? ' is-active' : ''), title: 'Direkt (unabhängig vom Crossfader)', onClick: () => assignBus(id, 'THRU'), children: 'THRU' }),
+              u.jsx('button', { type: 'button', className: 'is-thru' + (bus === 'THRU' ? ' is-active' : ''), title: 'Direct (independent of the crossfader)', onClick: () => assignBus(id, 'THRU'), children: 'THRU' }),
               u.jsx('button', { type: 'button', className: 'is-b' + (bus === 'B' ? ' is-active' : ''), onClick: () => assignBus(id, 'B'), children: 'B' })
             ]
           }),
@@ -2025,7 +2025,7 @@ const __XenDjStage = (() => {
               u.jsxs('button', {
                 type: 'button',
                 className: 'xen-dj-eq-screen' + (eqOpenHere ? ' is-open' : ''),
-                title: 'Malbaren 24-Band Morph-EQ für „' + fullName + '“ öffnen / schließen',
+                title: 'Open / close the paintable 24-band morph EQ for “' + fullName + '”',
                 onClick: () => setState({ openEqKey: eqOpenHere ? null : eqKey, openEqOwner: fullName }),
                 children: [
                   u.jsxs('svg', {
@@ -2042,7 +2042,7 @@ const __XenDjStage = (() => {
                       u.jsx('path', { d: curveToSvgPath(eqCfg, 180, 54, false), fill: 'none', stroke: accent, strokeWidth: 2 })
                     ]
                   }),
-                  u.jsx('span', { className: 'xen-dj-eq-screen-tag', children: eqOpenHere ? 'EQ aktiv ▲' : '24B Mal-EQ ▾' })
+                  u.jsx('span', { className: 'xen-dj-eq-screen-tag', children: eqOpenHere ? 'EQ open ▲' : '24-band EQ ▾' })
                 ]
               }),
               // Direct Native __XenEQMorph Slider with clickable A / B snap endpoints
@@ -2052,9 +2052,9 @@ const __XenDjStage = (() => {
                   u.jsxs('div', {
                     className: 'xen-dj-morph-mini-head',
                     children: [
-                      u.jsx('button', { type: 'button', className: 'xen-dj-morph-end is-a', title: 'Auf EQ-Kurve A springen (0%)', onClick: () => __XenEQ.set(eqKey, { morph: 0 }), children: 'A' }),
+                      u.jsx('button', { type: 'button', className: 'xen-dj-morph-end is-a', title: 'Jump to EQ curve A (0%)', onClick: () => __XenEQ.set(eqKey, { morph: 0 }), children: 'A' }),
                       u.jsx('span', { children: 'EQ Morph · ' + formatPct(eqCfg.morph || 0) }),
-                      u.jsx('button', { type: 'button', className: 'xen-dj-morph-end is-b', title: 'Auf EQ-Kurve B springen (100%)', onClick: () => __XenEQ.set(eqKey, { morph: 1 }), children: 'B' })
+                      u.jsx('button', { type: 'button', className: 'xen-dj-morph-end is-b', title: 'Jump to EQ curve B (100%)', onClick: () => __XenEQ.set(eqKey, { morph: 1 }), children: 'B' })
                     ]
                   }),
                   u.jsx(__XenEQMorph, { sourceKey: eqKey, value: eqCfg.morph || 0 })
@@ -2066,9 +2066,9 @@ const __XenDjStage = (() => {
                 children: [
                   ['full', 'Flat', 'Linear 0 dB'],
                   ['low', 'Lo', 'Sub/Bass Pocket (20–250 Hz)'],
-                  ['mid', 'Mid', 'Mitten Pocket (250 Hz–2.8 kHz)'],
-                  ['air', 'Air', 'Höhen/Air Pocket (2.8–20 kHz)'],
-                  ['scoop', 'Scp', 'Mitten-Tasche für Spielfläche']
+                  ['mid', 'Mid', 'Mid pocket (250 Hz–2.8 kHz)'],
+                  ['air', 'Air', 'High/air pocket (2.8–20 kHz)'],
+                  ['scoop', 'Scp', 'Mid scoop for the playfield']
                 ].map(([key, txt, tip]) => u.jsx('button', {
                   type: 'button',
                   title: tip,
@@ -2094,7 +2094,7 @@ const __XenDjStage = (() => {
                     onChange: v => handleDeckVolume(id, v),
                     onReset: () => handleDeckVolume(id, isPrimary ? 0.8 : 1)
                   }),
-                  u.jsx('span', { className: 'xen-dj-vfader-readout', title: 'Effektiver Pegel', children: formatPct(effVol) })
+                  u.jsx('span', { className: 'xen-dj-vfader-readout', title: 'Effective level', children: formatPct(effVol) })
                 ]
               }),
               u.jsxs('div', {
@@ -2103,8 +2103,8 @@ const __XenDjStage = (() => {
                   u.jsxs('div', {
                     className: 'xen-dj-ms-grid',
                     children: [
-                      u.jsx('button', { type: 'button', className: 'xen-dj-pad-btn is-mute' + (isMuted ? ' is-active' : ''), 'aria-pressed': isMuted, title: 'Mute Spur', onClick: () => toggleMute(id), children: 'M' }),
-                      u.jsx('button', { type: 'button', className: 'xen-dj-pad-btn is-solo' + (isSolo ? ' is-active' : ''), 'aria-pressed': isSolo, title: 'Solo Spur', onClick: () => toggleSolo(id), children: 'S' })
+                      u.jsx('button', { type: 'button', className: 'xen-dj-pad-btn is-mute' + (isMuted ? ' is-active' : ''), 'aria-pressed': isMuted, title: 'Mute track', onClick: () => toggleMute(id), children: 'M' }),
+                      u.jsx('button', { type: 'button', className: 'xen-dj-pad-btn is-solo' + (isSolo ? ' is-active' : ''), 'aria-pressed': isSolo, title: 'Solo track', onClick: () => toggleSolo(id), children: 'S' })
                     ]
                   }),
                   u.jsxs('div', {
@@ -2161,7 +2161,7 @@ const __XenDjStage = (() => {
                             type: 'button',
                             className: data.nudgeMode === 'vinyl' ? 'is-vinyl' : '',
                             'aria-label': fullName + ' Nudge Modus',
-                            title: 'Nudge-Physik umschalten: Granular (tonhöhenstabil) / Vinyl (Plattenteller)',
+                            title: 'Nudge physics: granular (pitch-stable) / vinyl (turntable)',
                             onClick: () => __XenMaterialVoiceMix.setMode(id, data.nudgeMode === 'vinyl' ? 'granular' : 'vinyl'),
                             children: data.nudgeMode === 'vinyl' ? 'Vinyl' : 'Granular'
                           }),
@@ -2169,7 +2169,7 @@ const __XenDjStage = (() => {
                             type: 'button',
                             className: data.nudgeFeel === 'hard' ? 'is-hard' : '',
                             'aria-label': fullName + ' Nudge Feel',
-                            title: 'Nudge-Ansprache: Soft (sanftes C2-Gleiten) / Hard (direkt)',
+                            title: 'Nudge response: soft (smooth C2 glide) / hard (direct)',
                             onClick: () => __XenMaterialVoiceMix.setFeel(id, data.nudgeFeel === 'hard' ? 'soft' : 'hard'),
                             children: data.nudgeFeel === 'hard' ? 'Hard' : 'Soft'
                           })
@@ -2240,7 +2240,7 @@ const __XenDjStage = (() => {
                       u.jsx('path', { d: curveToSvgPath(eqCfg, 180, 54, false), fill: 'none', stroke: '#4fe3d2', strokeWidth: 2 })
                     ]
                   }),
-                  u.jsx('span', { className: 'xen-dj-eq-screen-tag', children: eqOpenHere ? 'EQ aktiv ▲' : '24B Mal-EQ ▾' })
+                  u.jsx('span', { className: 'xen-dj-eq-screen-tag', children: eqOpenHere ? 'EQ open ▲' : '24-band EQ ▾' })
                 ]
               }),
               u.jsxs('div', {
@@ -2332,8 +2332,8 @@ const __XenDjStage = (() => {
     };
 
     const timeTruthSubtitle = polySummary.isPolymetric
-      ? ('Polyrhythmus · Konvergenz ' + polySummary.convergenceText)
-      : (deckIds.length > 0 ? ('Takt-Sync · ' + polySummary.convergenceText) : 'Taktwahrheit aktiv');
+      ? ('Polyrhythm · convergence ' + polySummary.convergenceText)
+      : (deckIds.length > 0 ? ('Bar sync · ' + polySummary.convergenceText) : 'Time truth active');
 
     // Quick-switcher list for the open Paintable 24-Band EQ Drawer
     const drawerSources = dj.activeTab === 'decks'
@@ -2399,13 +2399,13 @@ const __XenDjStage = (() => {
                         u.jsx('span', { className: 'xen-dj-bpm-readout', children: liveBpm + ' BPM' }),
                         u.jsx('span', {
                           className: 'xen-dj-truth-pill' + (polySummary.isPolymetric ? ' is-poly' : ''),
-                          title: 'Gemeinsame Raum-Taktwahrheit über alle parallelen Material-Spuren',
+                          title: 'Shared room time truth across all parallel material tracks',
                           children: timeTruthSubtitle
                         })
                       ]
                     }),
                     u.jsx('span', {
-                      children: dj.statusMsg || (deckIds.length + ' / ' + maxVoices + ' Spuren aktiv · Bus A (' + busACount + ') ↔ Bus B (' + busBCount + ')')
+                      children: dj.statusMsg || (deckIds.length + ' / ' + maxVoices + ' tracks active · bus A (' + busACount + ') ↔ bus B (' + busBCount + ')')
                     })
                   ]
                 })
@@ -2417,17 +2417,17 @@ const __XenDjStage = (() => {
                 u.jsxs('div', {
                   className: 'xen-dj-segmented',
                   role: 'tablist',
-                  'aria-label': 'Mixing Desk Ansicht',
+                  'aria-label': 'Mixing Desk view',
                   children: [
-                    u.jsx('button', { type: 'button', role: 'tab', 'aria-selected': dj.activeTab === 'decks', className: dj.activeTab === 'decks' ? 'is-active' : '', onClick: () => setState({ activeTab: 'decks' }), children: 'Spuren (' + deckIds.length + ')' }),
+                    u.jsx('button', { type: 'button', role: 'tab', 'aria-selected': dj.activeTab === 'decks', className: dj.activeTab === 'decks' ? 'is-active' : '', onClick: () => setState({ activeTab: 'decks' }), children: 'Tracks (' + deckIds.length + ')' }),
                     u.jsx('button', { type: 'button', role: 'tab', 'aria-selected': dj.activeTab === 'buses', className: dj.activeTab === 'buses' ? 'is-active' : '', onClick: () => setState({ activeTab: 'buses' }), children: 'Root · Bass · Drums' })
                   ]
                 }),
                 u.jsxs('div', {
                   className: 'xen-dj-cap-group',
-                  title: 'Maximale parallele Material-Spuren (Worklet-EQs nutzen Auto-Bypass & Sleep)',
+                  title: 'Maximum parallel material tracks (worklet EQs use auto-bypass & sleep)',
                   children: [
-                    u.jsx('span', { children: 'Spuren' }),
+                    u.jsx('span', { children: 'Tracks' }),
                     ...[3, 4, 6].map(cap => u.jsx('button', {
                       type: 'button',
                       className: maxVoices === cap ? 'is-active' : '',
@@ -2445,7 +2445,7 @@ const __XenDjStage = (() => {
                 u.jsxs('button', {
                   type: 'button',
                   className: 'xen-dj-action-btn is-gold',
-                  title: 'Zurück ins rechte Quick Rack einklappen',
+                  title: 'Fold back into the Quick Rack on the right',
                   onClick: () => setExpanded(false),
                   children: [
                     u.jsx('svg', {
@@ -2474,25 +2474,25 @@ const __XenDjStage = (() => {
                 u.jsxs('div', {
                   className: 'xen-dj-segmented xen-dj-monitor-switch',
                   role: 'tablist',
-                  'aria-label': 'Monitor Modus',
+                  'aria-label': 'Monitor mode',
                   children: [
-                    u.jsx('button', { type: 'button', role: 'tab', 'aria-selected': dj.monitorMode === 'spectrum', className: dj.monitorMode === 'spectrum' ? 'is-active' : '', onClick: () => setState({ monitorMode: 'spectrum' }), children: 'Spektrum' }),
-                    u.jsx('button', { type: 'button', role: 'tab', 'aria-selected': dj.monitorMode === 'time', className: dj.monitorMode === 'time' ? 'is-active' : '', onClick: () => setState({ monitorMode: 'time' }), children: 'Takt & Phase' })
+                    u.jsx('button', { type: 'button', role: 'tab', 'aria-selected': dj.monitorMode === 'spectrum', className: dj.monitorMode === 'spectrum' ? 'is-active' : '', onClick: () => setState({ monitorMode: 'spectrum' }), children: 'Spectrum' }),
+                    u.jsx('button', { type: 'button', role: 'tab', 'aria-selected': dj.monitorMode === 'time', className: dj.monitorMode === 'time' ? 'is-active' : '', onClick: () => setState({ monitorMode: 'time' }), children: 'Bars & Phase' })
                   ]
                 }),
                 dj.monitorMode === 'spectrum'
                   ? u.jsxs('div', {
                     className: 'xen-dj-spectrum-tools',
                     children: [
-                      u.jsx('button', { type: 'button', className: 'xen-dj-tool-chip is-gold', title: 'Weist allen aktiven Spuren automatisch getrennte Frequenzbereiche im 24B-EQ zu', onClick: handleAutoCarve, children: 'Auto-Carve' }),
-                      u.jsx('button', { type: 'button', className: 'xen-dj-tool-chip', title: 'Alle aktiven 24B-EQs auf 0 dB zurücksetzen', onClick: handleFlattenAll, children: 'Flat All' })
+                      u.jsx('button', { type: 'button', className: 'xen-dj-tool-chip is-gold', title: 'Gives every active track its own frequency range in the 24-band EQ', onClick: handleAutoCarve, children: 'Auto-Carve' }),
+                      u.jsx('button', { type: 'button', className: 'xen-dj-tool-chip', title: 'Reset all active 24-band EQs to 0 dB', onClick: handleFlattenAll, children: 'Flat All' })
                     ]
                   })
                   : u.jsx('span', {
                     className: 'xen-dj-time-conv-note',
                     children: polySummary.isPolymetric
-                      ? 'Gemeinsame 1: alle ' + polySummary.convergenceText
-                      : 'Takt-gleich · ' + polySummary.convergenceText
+                      ? 'Common one: every ' + polySummary.convergenceText
+                      : 'Same bars · ' + polySummary.convergenceText
                   })
               ]
             }),
@@ -2536,7 +2536,7 @@ const __XenDjStage = (() => {
               })
               : u.jsx('div', {
                 className: 'xen-dj-time-rails',
-                'aria-label': 'Taktwahrheit und echte Audio-Zyklusphasen',
+                'aria-label': 'Time truth and true audio cycle phases',
                 children: deckMetrics.map((d, idx) => {
                   const bus = dj.buses[d.id] || 'THRU';
                   const color = bus === 'A' ? '#f2b866' : bus === 'B' ? '#4fe3d2' : DECK_COLORS[idx % DECK_COLORS.length];
@@ -2548,7 +2548,7 @@ const __XenDjStage = (() => {
                       u.jsx('span', { className: 'xen-dj-time-rail-name', style: { color }, children: __XenDjMixMath.compactTrackLabel(labelFor(d.id)).primary }),
                       u.jsxs('div', {
                         className: 'xen-dj-time-rail-track',
-                        title: 'Zyklus: ' + d.label + ' · ' + cycles + '× bis Konvergenz (' + polySummary.convergenceText + ') · Klick in einen Takt: dorthin spulen',
+                        title: 'Cycle: ' + d.label + ' · ' + cycles + '× until convergence (' + polySummary.convergenceText + ') · click a bar: spool there',
                         ...barSeekProps(d.id, d, labelFor(d.id)),
                         children: [
                           u.jsx('span', { className: 'xen-dj-bar-ghost', 'aria-hidden': true }),
@@ -2590,7 +2590,7 @@ const __XenDjStage = (() => {
                 return u.jsxs('button', {
                   type: 'button',
                   className: 'xen-dj-spectrum-chip' + (dj.openEqKey === eqKey ? ' is-open' : ''),
-                  title: 'Malbaren 24-Band EQ für „' + fullName + '“ öffnen',
+                  title: 'Open the paintable 24-band EQ for “' + fullName + '”',
                   onClick: () => setState({ openEqKey: dj.openEqKey === eqKey ? null : eqKey, openEqOwner: fullName }),
                   children: [
                     u.jsx('i', { className: 'xen-dj-spectrum-dot', style: { background: color } }),
@@ -2639,7 +2639,7 @@ const __XenDjStage = (() => {
                     u.jsx('input', {
                       type: 'search',
                       className: 'xen-dj-crate-search',
-                      placeholder: 'Tracks filtern oder Audio reinziehen …',
+                      placeholder: 'Filter tracks or drop audio …',
                       value: dj.crateQuery,
                       onChange: e => setState({ crateQuery: e.target.value })
                     })
@@ -2651,21 +2651,21 @@ const __XenDjStage = (() => {
                     u.jsx('button', {
                       type: 'button',
                       className: 'xen-dj-tool-chip',
-                      title: 'Eigene Audio-Datei laden & in XenSonars Takt-/Cut-Werkzeug analysieren (auch per Drag & Drop ins Crate)',
+                      title: 'Load your own audio file and analyse it in XenSonar’s bar / cut tool (drag & drop into the crate works too)',
                       onClick: () => fileInputRef.current?.click(),
-                      children: '+ Audio & Takt'
+                      children: '+ Audio & bars'
                     }),
                     u.jsx('button', {
                       type: 'button',
                       className: 'xen-dj-tool-chip',
-                      title: 'XenSonars Material Track Manager öffnen (Umbenennen, Taktlänge, Sortieren)',
+                      title: 'Open XenSonar’s Material Track Manager (rename, bar length, sort)',
                       onClick: () => { try { if (typeof iI === 'string') window.dispatchEvent(new Event(iI)); } catch {} },
                       children: '⚙ Manager'
                     }),
                     (rackItems.length >= 1 || allLibraryMaterials.length >= 1) && u.jsx('button', {
                       type: 'button',
                       className: 'xen-dj-tool-chip is-gold',
-                      title: 'Erste zwei Tracks direkt auf Bus A und Bus B laden',
+                      title: 'Load the first two tracks straight onto bus A and bus B',
                       onClick: () => void handleQuickMixAB(),
                       children: '⚡ Quick Mix A+B'
                     })
@@ -2674,7 +2674,7 @@ const __XenDjStage = (() => {
               ]
             }),
             filteredCrate.length === 0
-              ? u.jsx('div', { className: 'xen-dj-crate-hint', children: 'Keine passenden Material-Tracks gefunden – ziehe eine Audio-Datei hierher oder klicke „+ Audio & Takt“.' })
+              ? u.jsx('div', { className: 'xen-dj-crate-hint', children: 'No matching material tracks – drop an audio file here or click “+ Audio & bars”.' })
               : u.jsx('div', {
                 className: 'xen-dj-crate-grid',
                 children: filteredCrate.map((item, idx) => {
@@ -2705,21 +2705,21 @@ const __XenDjStage = (() => {
                             type: 'button',
                             className: 'xen-dj-mini-btn is-cue' + (isCueing ? ' is-active' : ''),
                             'aria-pressed': isCueing,
-                            'aria-label': item.name + ' vorhören',
-                            title: isCueing ? 'Vorhören stoppen' : 'Vorhören (Standalone Cue)',
+                            'aria-label': item.name + ' preview',
+                            title: isCueing ? 'Stop preview' : 'Preview (standalone cue)',
                             onClick: () => toggleCuePreview(item),
                             children: isCueing ? '■' : '🎧'
                           }),
                           dj.crateTab === 'library' && u.jsx('button', {
                             type: 'button',
                             className: 'xen-dj-mini-btn' + (inRack ? ' is-rack-added' : ''),
-                            title: inRack ? 'Bereits im Quick Rack' : 'Ins Quick Rack übernehmen',
+                            title: inRack ? 'Already in the Quick Rack' : 'Add to the Quick Rack',
                             onClick: () => addToQuickRackOnly(item),
                             children: inRack ? '✓' : '+Rack'
                           }),
-                          u.jsx('button', { type: 'button', className: 'xen-dj-mini-btn is-bus-a', title: 'Auf Bus A laden & starten', onClick: () => void launchMaterialToDeck(item, 'A'), children: '▶A' }),
-                          u.jsx('button', { type: 'button', className: 'xen-dj-mini-btn is-bus-b', title: 'Auf Bus B laden & starten', onClick: () => void launchMaterialToDeck(item, 'B'), children: '▶B' }),
-                          u.jsx('button', { type: 'button', className: 'xen-dj-mini-btn', title: 'Als parallele Spur layern', onClick: () => void launchMaterialToDeck(item, null, { forceLayer: !!params?.materialLoopActive }), children: '+' })
+                          u.jsx('button', { type: 'button', className: 'xen-dj-mini-btn is-bus-a', title: 'Load & start on bus A', onClick: () => void launchMaterialToDeck(item, 'A'), children: '▶A' }),
+                          u.jsx('button', { type: 'button', className: 'xen-dj-mini-btn is-bus-b', title: 'Load & start on bus B', onClick: () => void launchMaterialToDeck(item, 'B'), children: '▶B' }),
+                          u.jsx('button', { type: 'button', className: 'xen-dj-mini-btn', title: 'Layer as a parallel track', onClick: () => void launchMaterialToDeck(item, null, { forceLayer: !!params?.materialLoopActive }), children: '+' })
                         ]
                       })
                     ]
@@ -2741,15 +2741,15 @@ const __XenDjStage = (() => {
                     u.jsxs('div', {
                       className: 'xen-dj-empty-copy',
                       children: [
-                        u.jsx('strong', { children: 'Mixing Desk bereit (bis zu ' + maxVoices + ' parallele Spuren auf gemeinsamer Taktwahrheit)' }),
-                        u.jsx('span', { children: 'Lade Tracks aus Quick Rack oder Library auf Bus A / Bus B – oder ziehe eigene Audio-Dateien direkt ins Crate zur Takt-Analyse.' })
+                        u.jsx('strong', { children: 'Mixing Desk ready (up to ' + maxVoices + ' parallel tracks on a shared time truth)' }),
+                        u.jsx('span', { children: 'Load tracks from the Quick Rack or the Library onto bus A / bus B – or drop your own audio files into the crate for bar analysis.' })
                       ]
                     }),
                     u.jsxs('div', {
                       className: 'xen-dj-empty-actions',
                       children: [
-                        u.jsx('button', { type: 'button', className: 'xen-dj-action-btn is-gold', onClick: () => void handleQuickMixAB(), children: '⚡ Quick Mix A+B laden' }),
-                        u.jsx('button', { type: 'button', className: 'xen-dj-action-btn', onClick: () => fileInputRef.current?.click(), children: '+ Audio & Takt' })
+                        u.jsx('button', { type: 'button', className: 'xen-dj-action-btn is-gold', onClick: () => void handleQuickMixAB(), children: '⚡ Load Quick Mix A+B' }),
+                        u.jsx('button', { type: 'button', className: 'xen-dj-action-btn', onClick: () => fileInputRef.current?.click(), children: '+ Audio & bars' })
                       ]
                     })
                   ]
@@ -2764,7 +2764,7 @@ const __XenDjStage = (() => {
                       showAddSlot && u.jsxs('div', {
                         className: 'xen-dj-add-slot',
                         children: [
-                          u.jsx('span', { className: 'xen-dj-add-slot-cap', children: 'Spur ' + (deckIds.length + 1) + ' / ' + maxVoices }),
+                          u.jsx('span', { className: 'xen-dj-add-slot-cap', children: 'Track ' + (deckIds.length + 1) + ' / ' + maxVoices }),
                           u.jsx('strong', { className: 'xen-dj-add-slot-name', title: nextCandidate.name, children: __XenDjMixMath.compactTrackLabel(nextCandidate.name).primary }),
                           u.jsx('span', { className: 'xen-dj-add-slot-sub', children: metricFor(nextCandidate.id).label }),
                           u.jsxs('div', {
@@ -2798,9 +2798,9 @@ const __XenDjStage = (() => {
                 drawerSources.length > 1 && u.jsxs('div', {
                   className: 'xen-dj-eq-drawer-tabs',
                   role: 'tablist',
-                  'aria-label': '24-Band EQ Spur wechseln',
+                  'aria-label': 'Switch the 24-band EQ track',
                   children: [
-                    u.jsx('span', { className: 'xen-dj-eq-drawer-label', children: '24B Mal-EQ Spur:' }),
+                    u.jsx('span', { className: 'xen-dj-eq-drawer-label', children: '24-band EQ track:' }),
                     ...drawerSources.map(src => u.jsxs('button', {
                       type: 'button',
                       role: 'tab',
@@ -2825,8 +2825,8 @@ const __XenDjStage = (() => {
                   className: 'xen-dj-eq-resize-handle',
                   role: 'separator',
                   'aria-orientation': 'horizontal',
-                  'aria-label': 'EQ-Fläche nach unten größer oder kleiner ziehen',
-                  title: 'Greifen & nach unten ziehen für feineres EQ-Malen · Doppelklick Reset',
+                  'aria-label': 'Drag down to make the EQ area larger or smaller',
+                  title: 'Grab & drag down for finer EQ painting · double-click: reset',
                   onPointerDown: startEqDrawerResize,
                   onPointerMove: moveEqDrawerResize,
                   onPointerUp: endEqDrawerResize,
@@ -2834,7 +2834,7 @@ const __XenDjStage = (() => {
                   onDoubleClick: () => setEqCanvasHeight(164),
                   children: [
                     u.jsx('span', { className: 'xen-dj-eq-resize-grip', 'aria-hidden': true }),
-                    u.jsx('span', { className: 'xen-dj-eq-resize-hint', children: '↕ Größe ziehen (' + dj.eqCanvasHeight + ' px)' })
+                    u.jsx('span', { className: 'xen-dj-eq-resize-hint', children: '↕ drag size (' + dj.eqCanvasHeight + ' px)' })
                   ]
                 })
               ]
@@ -2859,7 +2859,7 @@ const __XenDjStage = (() => {
                       return u.jsx('button', {
                         type: 'button',
                         className: 'xen-dj-scene-btn' + (stored ? ' is-stored' : '') + (active ? ' is-active' : ''),
-                        title: stored ? 'Klick: sanft zu S' + (idx + 1) + ' morphen (inkl. 24B-EQ) · Shift-Klick: überschreiben' : 'Klick: aktuellen Mix inkl. 24B-EQ in Scene S' + (idx + 1) + ' speichern',
+                        title: stored ? 'Click: morph smoothly to S' + (idx + 1) + ' (incl. 24-band EQ) · Shift-click: overwrite' : 'Click: store the current mix incl. 24-band EQ in scene S' + (idx + 1) + '',
                         onClick: (e) => {
                           if (!stored || e.shiftKey) captureScene(idx, deckIds, primaryId, params);
                           else recallScene(idx, () => latestCtx.current, liveBpmExact);
@@ -2876,16 +2876,16 @@ const __XenDjStage = (() => {
                       type: 'button',
                       className: 'xen-dj-tool-chip' + (dj.quantizeFade ? ' is-gold' : ''),
                       'aria-pressed': dj.quantizeFade,
-                      title: 'Auto-Übergang erst exakt auf dem nächsten Raum-Taktstart beginnen',
+                      title: 'Start auto transitions exactly on the next room bar line',
                       onClick: () => setState({ quantizeFade: !dj.quantizeFade }),
-                      children: dj.quantizeFade ? '⏱ Takt-Start: AN' : '⏱ Takt-Start'
+                      children: dj.quantizeFade ? '⏱ Bar start: ON' : '⏱ Bar start'
                     }),
                     u.jsxs('div', {
                       className: 'xen-dj-segmented',
                       children: [
-                        u.jsx('button', { type: 'button', className: dj.fadeUnit === 'bars' ? 'is-active' : '', onClick: () => setState({ fadeUnit: 'bars' }), children: 'Takte' }),
-                        u.jsx('button', { type: 'button', className: dj.fadeUnit === 'cycle' ? 'is-active' : '', title: 'Übergangslänge relativ zum aktiven Loop-Zyklus (auch bei gebrochenen/polyrhythmischen Takten)', onClick: () => setState({ fadeUnit: 'cycle' }), children: 'Zyklus' }),
-                        u.jsx('button', { type: 'button', className: dj.fadeUnit === 'sec' ? 'is-active' : '', onClick: () => setState({ fadeUnit: 'sec' }), children: 'Sek.' })
+                        u.jsx('button', { type: 'button', className: dj.fadeUnit === 'bars' ? 'is-active' : '', onClick: () => setState({ fadeUnit: 'bars' }), children: 'Bars' }),
+                        u.jsx('button', { type: 'button', className: dj.fadeUnit === 'cycle' ? 'is-active' : '', title: 'Transition length relative to the active loop cycle (also for fractional / polyrhythmic bars)', onClick: () => setState({ fadeUnit: 'cycle' }), children: 'Cycle' }),
+                        u.jsx('button', { type: 'button', className: dj.fadeUnit === 'sec' ? 'is-active' : '', onClick: () => setState({ fadeUnit: 'sec' }), children: 'Sec.' })
                       ]
                     })
                   ]
@@ -2906,7 +2906,7 @@ const __XenDjStage = (() => {
                     return u.jsx('button', {
                       type: 'button',
                       className: 'xen-dj-xfade-btn' + (active ? ' is-active' : ''),
-                      title: 'Auf Bus A blenden (' + spec.tip + ')',
+                      title: 'Fade to bus A (' + spec.tip + ')',
                       onClick: () => startAutoFade(0, spec, dirKey, () => latestCtx.current, liveBpmExact),
                       children: '◀ ' + spec.label + (i === 0 ? ' A' : '')
                     }, dirKey);
@@ -2946,9 +2946,9 @@ const __XenDjStage = (() => {
                         u.jsx('button', { type: 'button', className: 'xen-dj-xfade-btn' + (dj.curve === 'smooth' ? ' is-active' : ''), onClick: () => { state = { ...state, curve: 'smooth' }; applyLiveMix(deckIds, primaryId, params, update); emit(); }, children: 'Smooth' }),
                         u.jsx('button', { type: 'button', className: 'xen-dj-xfade-btn' + (dj.curve === 'linear' ? ' is-active' : ''), onClick: () => { state = { ...state, curve: 'linear' }; applyLiveMix(deckIds, primaryId, params, update); emit(); }, children: 'Linear' }),
                         u.jsx('button', { type: 'button', className: 'xen-dj-xfade-btn' + (dj.curve === 'cut' ? ' is-active' : ''), onClick: () => { state = { ...state, curve: 'cut' }; applyLiveMix(deckIds, primaryId, params, update); emit(); }, children: 'Cut' }),
-                        u.jsx('button', { type: 'button', className: 'xen-dj-xfade-btn', title: 'Spuren automatisch abwechselnd Bus A / B zuweisen', onClick: handleAutoAssignAB, children: 'Auto A/B' }),
-                        u.jsx('button', { type: 'button', className: 'xen-dj-xfade-btn', title: 'Bus A und Bus B tauschen', onClick: handleSwapAB, children: 'Swap A↔B' }),
-                        u.jsx('button', { type: 'button', className: 'xen-dj-xfade-btn' + (dj.linkEqMorph ? ' is-active' : ''), title: 'Crossfader steuert zusätzlich das EQ A↔B Morphing der Busse A und B', onClick: () => setState({ linkEqMorph: !dj.linkEqMorph }), children: 'Sync EQ Morph' })
+                        u.jsx('button', { type: 'button', className: 'xen-dj-xfade-btn', title: 'Assign tracks alternately to bus A / B', onClick: handleAutoAssignAB, children: 'Auto A/B' }),
+                        u.jsx('button', { type: 'button', className: 'xen-dj-xfade-btn', title: 'Swap bus A and bus B', onClick: handleSwapAB, children: 'Swap A↔B' }),
+                        u.jsx('button', { type: 'button', className: 'xen-dj-xfade-btn' + (dj.linkEqMorph ? ' is-active' : ''), title: 'The crossfader also drives the EQ A↔B morph of buses A and B', onClick: () => setState({ linkEqMorph: !dj.linkEqMorph }), children: 'Sync EQ Morph' })
                       ]
                     })
                   ]
@@ -2962,7 +2962,7 @@ const __XenDjStage = (() => {
                     return u.jsx('button', {
                       type: 'button',
                       className: 'xen-dj-xfade-btn' + (active ? ' is-active' : ''),
-                      title: 'Auf Bus B blenden (' + spec.tip + ')',
+                      title: 'Fade to bus B (' + spec.tip + ')',
                       onClick: () => startAutoFade(1, spec, dirKey, () => latestCtx.current, liveBpmExact),
                       children: (i === 0 ? 'B ' : '') + spec.label + ' ▶'
                     }, dirKey);

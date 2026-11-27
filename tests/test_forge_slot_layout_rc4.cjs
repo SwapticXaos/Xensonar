@@ -14,7 +14,7 @@ assert(live.includes("secondary:__ForgeRackOrder('secondary',{"),'active seconda
 assert(!live.includes('primary:[u.jsx(xi,'),'old independently ordered live row removed');
 assert(!src.includes("primary:['load','repair'"),'inactive manual ordering removed');
 assert(!empty.includes('__ForgeRackInactivePreview()') && empty.includes('},controls);'), 'idle must use identical controls from live owner');
-const P={createElement:(tag,props,...children)=>({tag,props:props||{},children})};
+const P={cloneElement:(el,props)=>({...el,props:{...(el&&el.props||{}),...(props||{})}}),createElement:(tag,props,...children)=>({tag,props:props||{},children})};
 const ctx=vm.createContext({P});vm.runInContext(src,ctx);
 const data=vm.runInContext('({layout:__ForgeRackLayout,primary:__ForgeRackOrder("primary",{load:"load",repair:"repair",apply:"apply",extract:"extract",play:"play",material:"material"}),secondary:__ForgeRackOrder("secondary",{pink:"pink",saveGroup:["root","sample","donor","carrier"]})})',ctx);
 assert.deepEqual(Array.from(data.primary),['load','repair','apply','extract','play','material']);

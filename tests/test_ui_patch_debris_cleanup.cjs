@@ -7,7 +7,7 @@ const effects=[],refs=[],resizeListeners=[],frames=new Map();let sequence=0,widt
 const parent={getBoundingClientRect:()=>({left:0,top:0})},button={style:{}};
 const triangle={parentElement:button,getBoundingClientRect:()=>({left:200,top:5,width:50,height:40})};
 const canvases=[];
-const P={useRef(){const r={current:null};refs.push(r);return r;},useState(){return [null,()=>{}]},useEffect(fn){effects.push(fn)},createElement(tag,props,...children){
+const P={cloneElement:(el,props)=>({...el,props:{...(el&&el.props||{}),...(props||{})}}),useRef(){const r={current:null};refs.push(r);return r;},useState(){return [null,()=>{}]},useEffect(fn){effects.push(fn)},createElement(tag,props,...children){
  if(props?.ref){if(tag==='canvas'){
   const c={width:0,height:0,parentElement:parent,closest(){return {}},getBoundingClientRect(){return {left:5,top:5,width,height:42}},getContext(){return {}}};
   props.ref.current=c;canvases.push(c);

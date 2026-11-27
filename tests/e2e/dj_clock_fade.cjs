@@ -25,8 +25,8 @@ const html=path.resolve(process.argv[2]||'dist/XenSonar_PROBE.html');
  const g=()=>E(`(()=>{const h=__XenMaterialLivePhase.handle('${id}');return{t:h.ctx.currentTime,v:h.gain.gain.value,hr:__XenMaterialLivePhase.headroom(),x:__XenDjStage.snapshot().crossfade,armed:__XenDjStage.snapshot().armedFadeDir,auto:__XenDjStage.snapshot().autoFadeDir,vol:__NodalBallGrid.params().materialLoopVolume}})()`);
  const g0=await g();assert.ok(g0.v>0.3,'deck audible at center: '+JSON.stringify(g0));
  // arm: quantised fade to bus B over 2 bars
- await p.click('.xen-dj-scenes-group button:has-text("Takt-Start")');
- await p.click('.xen-dj-segmented button:has-text("Takte")');
+ await p.click('.xen-dj-scenes-group button:has-text("Bar start")');
+ await p.click('.xen-dj-segmented button:has-text("Bars")');
  const bar=240/bpm;
  const clickT=await E(`__XenMaterialLivePhase.handle('${id}').ctx.currentTime`);
  await p.click('.xen-dj-xfade-side.is-right button:has-text("B 2B")');
@@ -56,7 +56,7 @@ const html=path.resolve(process.argv[2]||'dist/XenSonar_PROBE.html');
  if(mid)assert.ok(mid.v>0.05&&mid.v<g0.v-0.05,'half way at one bar: '+mid.v);
  const fin=await g();assert.equal(fin.x,1);assert.equal(fin.auto,null);assert.equal(fin.armed,null);
  // interrupt: fade back unquantised, touch the crossfader half way → takes over without a jump
- await p.click('.xen-dj-scenes-group button:has-text("Takt-Start")');
+ await p.click('.xen-dj-scenes-group button:has-text("Bar start")');
  await p.click('.xen-dj-xfade-side:not(.is-right) button:has-text("8B")');
  await p.waitForTimeout(1500);
  const pi=await g();assert.ok(pi.v>0.02&&pi.v<g0.v,'fading back: '+pi.v);

@@ -2,7 +2,7 @@
 /* Render the actual P32 React element tree with a tiny no-effect host; no mock image. */
 const vm=require('node:vm'),fs=require('node:fs');
 const code=fs.readFileSync('src/rooms/00_forge_rack_presentation.js','utf8')+'\n'+fs.readFileSync('src/rooms/00_empty_audio_p32.js','utf8');
-const P={createElement:(type,props,...children)=>({type,props:props||{},children}),
+const P={cloneElement:(el,props)=>({...el,props:{...(el&&el.props||{}),...(props||{})}}),createElement:(type,props,...children)=>({type,props:props||{},children}),
  useState:val=>[val,()=>{}],useEffect:()=>{},useRef:()=>({current:null})};
 const ctx={P,Math,Number,JSON,console};vm.createContext(ctx);vm.runInContext(code,ctx);
 const tree=vm.runInContext('__XenForgeNoAudioP32({onImport:()=>{},disabled:false})',ctx);

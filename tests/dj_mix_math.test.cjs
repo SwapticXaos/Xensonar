@@ -207,7 +207,7 @@ test('planSegmentStep / formatPhaseOffset: one segment, readable labels', () => 
   assert.equal(M.formatPhaseOffset(f.att, grid), '+1S');
   const b = M.planSegmentStep({ att: 0, direction: -1, ...grid });
   assert.equal(M.formatPhaseOffset(b.att, grid), '−1S');
-  assert.equal(M.formatPhaseOffset(-5, grid), '+1T 1S');
+  assert.equal(M.formatPhaseOffset(-5, grid), '+1B 1S');
   assert.equal(M.formatPhaseOffset(-0.37, grid), '+0.37S');
   assert.equal(M.formatPhaseOffset(0, grid), '0');
   // 7 segments per bar

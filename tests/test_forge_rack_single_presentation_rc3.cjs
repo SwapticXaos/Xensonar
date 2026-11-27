@@ -20,7 +20,7 @@ console.log('PASS RC3 shared rack presentation contract');
 
 // Execute the actual row factory and verify one canonical set of action rows.
 const vm=require('node:vm');
-const P={createElement:(tag,props,...children)=>({tag,props:props||{},children})};
+const P={cloneElement:(el,props)=>({...el,props:{...(el&&el.props||{}),...(props||{})}}),createElement:(tag,props,...children)=>({tag,props:props||{},children})};
 const context=vm.createContext({P});vm.runInContext(src,context);
 const node=vm.runInContext('__ForgeRackRows({primary:["A"],secondary:["B"]})',context);
 assert.equal(node.props.className,'xen-forge-action-rack');

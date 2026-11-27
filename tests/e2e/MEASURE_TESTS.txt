@@ -35,3 +35,4 @@ room_seams_recording
 hold_arp_classic
 myzel_cosmos
 nodal_gate
+dj_clock_fade

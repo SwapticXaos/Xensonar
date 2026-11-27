@@ -396,7 +396,7 @@ const __XenDjMixMath = (() => {
     return { att: wrapCyclic((Number(att) || 0) - step, g.L), stepBeats: step };
   }
 
-  /** Human label of a phase offset: "0", "+1T", "−2S", "+1T 2S", "+0.37S" (T = bar, S = segment). */
+  /** Human label of a phase offset: "0", "+1B", "−2S", "+1B 2S", "+0.37S" (B = bar, S = segment). */
   function formatPhaseOffset(att, grid = {}) {
     const g = loopGrid(grid);
     const ahead = -(Number(att) || 0);
@@ -407,7 +407,7 @@ const __XenDjMixMath = (() => {
     if (Math.abs(segs - whole) > 0.005) return sign + segs.toFixed(2) + 'S';
     const bars = Math.floor(whole / g.segsPerBar);
     const rest = whole - bars * g.segsPerBar;
-    return sign + (bars ? bars + 'T' : '') + (bars && rest ? ' ' : '') + (rest ? rest + 'S' : '');
+    return sign + (bars ? bars + 'B' : '') + (bars && rest ? ' ' : '') + (rest ? rest + 'S' : '');
   }
 
   return Object.freeze({

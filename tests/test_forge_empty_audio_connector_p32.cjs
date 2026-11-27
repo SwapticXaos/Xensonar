@@ -1,7 +1,7 @@
 'use strict';
 const vm=require('node:vm'),fs=require('node:fs'),assert=require('node:assert/strict');
 let state=null;const mountedEffects=[];const active=new Map(),events=new Map(),timers=new Map();let next=1,clicks=0;
-const P={createElement:(tag,props,...children)=>({tag,props:props||{},children}),
+const P={cloneElement:(el,props)=>({...el,props:{...(el&&el.props||{}),...(props||{})}}),createElement:(tag,props,...children)=>({tag,props:props||{},children}),
  useRef:()=>ref,useState:()=>[state,v=>{state=typeof v==='function'?v(state):v}],useEffect:fn=>{mountedEffects.push(fn)}};
 const ref={current:{getBoundingClientRect:()=>({left:700,top:235,width:64,height:64,bottom:299})}};
 const topSvg={getBoundingClientRect:()=>({left:680,top:110,width:44,height:23,bottom:133})};

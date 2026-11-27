@@ -225,8 +225,8 @@ function __XenStageSplit({ stage, desk }) {
         className: 'xen-stage-split-vgrip',
         role: 'separator',
         'aria-orientation': 'horizontal',
-        'aria-label': dock === 'side' ? 'Rasterhöhe ziehen (Doppelklick: Höhe wie Mixing Desk)' : 'Rasterhöhe ziehen (Doppelklick: Originalhöhe)',
-        title: dock === 'side' ? 'Raster länger / kürzer ziehen · Doppelklick: so hoch wie das Mixing Desk' : 'Raster höher / flacher ziehen · Doppelklick: Originalverhältnis 1100:580',
+        'aria-label': dock === 'side' ? 'Drag the grid height (double-click: as tall as the Mixing Desk)' : 'Drag the grid height (double-click: original height)',
+        title: dock === 'side' ? 'Drag the grid longer / shorter · double-click: as tall as the Mixing Desk' : 'Drag the grid taller / flatter · double-click: original ratio 1100:580',
         tabIndex: 0,
         onPointerDown: onVgripDown,
         onKeyDown: onVgripKey,
@@ -239,14 +239,14 @@ function __XenStageSplit({ stage, desk }) {
         role: 'button',
         tabIndex: dock === 'side' ? 0 : -1,
         'aria-hidden': dock === 'side' ? undefined : true,
-        title: 'Spielfläche wieder nach oben holen',
+        title: 'Bring the playfield back up',
         onClick: goTop,
         onKeyDown: e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); goTop(); } },
         children: [
           u.jsx('span', { className: 'xen-stage-split-ghost-grid', 'aria-hidden': true }),
           u.jsxs('span', { className: 'xen-stage-split-ghost-label', children: [
-            u.jsx('strong', { children: 'Spielfläche ist unten neben dem Mixing Desk' }),
-            u.jsx('span', { children: 'Klicken, um sie wieder hier oben zu spielen' })
+            u.jsx('strong', { children: 'The playfield is down beside the Mixing Desk' }),
+            u.jsx('span', { children: 'Click to play it up here again' })
           ] })
         ]
       }),
@@ -254,9 +254,9 @@ function __XenStageSplit({ stage, desk }) {
         className: 'xen-stage-split-handle',
         role: 'separator',
         'aria-orientation': 'vertical',
-        'aria-label': 'Grenze Mixing Desk / Spielfläche verschieben',
+        'aria-label': 'Move the border between Mixing Desk and playfield',
         'aria-valuemin': 28, 'aria-valuemax': 80, 'aria-valuenow': Math.round(lay.deskFrac * 100),
-        title: 'Grenze verschieben · Doppelklick: Standard',
+        title: 'Move the border · double-click: default',
         tabIndex: dock === 'side' ? 0 : -1,
         onPointerDown: onHandleDown,
         onKeyDown: onHandleKey,
@@ -266,8 +266,8 @@ function __XenStageSplit({ stage, desk }) {
           u.jsx('button', {
             type: 'button',
             className: 'xen-stage-split-return',
-            title: 'Spielfläche zurück nach oben',
-            'aria-label': 'Spielfläche zurück nach oben',
+            title: 'Playfield back up',
+            'aria-label': 'Playfield back up',
             onPointerDown: e => e.stopPropagation(),
             onClick: goTop,
             children: '↑'

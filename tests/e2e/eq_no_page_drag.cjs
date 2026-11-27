@@ -14,13 +14,13 @@ await p.evaluate(()=>{const b=[...document.querySelectorAll('.xen-dj-stage butto
 const eqBtns=await p.evaluate(()=>[...document.querySelectorAll('.xen-dj-stage button')].filter(x=>/EQ/i.test(x.innerText+x.title)).map(x=>(x.innerText+'|'+x.title).slice(0,80)));
 
 await p.evaluate(()=>{const b=[...document.querySelectorAll('.xen-dj-stage button')].find(x=>/EQ/i.test(x.title)&&/24|mal|paint/i.test(x.title+x.innerText));(b||[...document.querySelectorAll('.xen-dj-spectrum-chip')][0])?.click()});await p.waitForTimeout(1200);
-await p.evaluate(()=>{const b=[...document.querySelectorAll('.xen-dj-stage button')].find(x=>/24B Mal-EQ/.test(x.innerText));b&&b.click()});await p.waitForTimeout(1200);const prof=await p.$('[data-eq-paint]');console.log('profile',!!prof);
+await p.evaluate(()=>{const b=[...document.querySelectorAll('.xen-dj-stage button')].find(x=>/24-band EQ/.test(x.innerText));b&&b.click()});await p.waitForTimeout(1200);const prof=await p.$('[data-eq-paint]');console.log('profile',!!prof);
 assert.ok(prof,'Mixing Desk EQ open');const pic=()=>p.evaluate(()=>document.querySelector('[data-eq-paint] canvas')?.toDataURL().length+':'+document.querySelector('[data-eq-paint] canvas')?.toDataURL().slice(-200));
 await prof.scrollIntoViewIfNeeded();const bb=await prof.boundingBox();
 for(const mode of ['plain','selectAll']){
  await p.evaluate(()=>{window.__drags=[];getSelection().removeAllRanges()});const before=await pic();
  if(mode==='selectAll')await p.evaluate(()=>{const r=document.createRange();r.selectNodeContents(document.body);getSelection().addRange(r)});
- if(mode==='dblclickWord'){await p.evaluate(()=>{const el=[...document.querySelectorAll('.xen-dj-stage *')].find(e=>e.children.length===0&&/Mixing Desk bereit|MIX SCENES|Taktwahrheit/.test(e.textContent));const r=document.createRange();r.selectNodeContents(el);getSelection().addRange(r)});}
+ if(mode==='dblclickWord'){await p.evaluate(()=>{const el=[...document.querySelectorAll('.xen-dj-stage *')].find(e=>e.children.length===0&&/Mixing Desk ready|MIX SCENES|time truth/.test(e.textContent));const r=document.createRange();r.selectNodeContents(el);getSelection().addRange(r)});}
  await p.mouse.move(bb.x+bb.width*.3,bb.y+bb.height*.5);await p.mouse.down();
  for(let i=1;i<=10;i++)await p.mouse.move(bb.x+bb.width*(.3+i*.04),bb.y+bb.height*(.5-i*.03));
  await p.mouse.up();await p.waitForTimeout(300);
