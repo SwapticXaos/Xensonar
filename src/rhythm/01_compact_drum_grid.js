@@ -259,6 +259,7 @@ function __f52PatchDrumHit(lane,index,field,value){
  else if(field==='tone')p.toneLock=Math.max(0,Math.min(1,value));
  else if(field==='ratchet')p.ratchet=Math.max(1,Math.min(4,Math.round(value)));
  else if(field==='flam')p.flam=Math.max(0,Math.min(1,value));
+ else if(field==='hall')p.hall=Math.max(0,Math.min(1,value));
  else return;
  next.stepPrograms[lane]={...(next.stepPrograms[lane]||{}),[index]:p};__f52CommitSharedDrumGrid(next);
 }
@@ -627,7 +628,8 @@ function __mlCompactDrumGrid(){
       ["Decay",'decay',.2,2,.01,stepProgram?.decayLock??1,Math.round((stepProgram?.decayLock??1)*100)+"%"],
       ["Tone",'tone',0,1,.01,stepProgram?.toneLock??1,Math.round((stepProgram?.toneLock??1)*100)+"%"],
       ["Ratchet",'ratchet',1,4,1,stepProgram?.ratchet??1,(stepProgram?.ratchet??1)+"×"],
-      ["Flam",'flam',0,1,.01,stepProgram?.flam??0,Math.round((stepProgram?.flam??0)*100)+"%"]].map(([name,field,min,max,step,value,caption])=>
+      ["Flam",'flam',0,1,.01,stepProgram?.flam??0,Math.round((stepProgram?.flam??0)*100)+"%"],
+      ["Hall",'hall',0,1,.01,stepProgram?.hall??0,(stepProgram?.hall??0)>.001?Math.round((stepProgram?.hall??0)*100)+"% · long hall":"off"]].map(([name,field,min,max,step,value,caption])=>
       u.jsxs("label",{className:"flex flex-col gap-1 text-neutral-300",children:[name+" · "+caption,u.jsx(__XenRange,{type:"range","aria-label":"Last Drum Hit "+name,min,max,step,value,onChange:e=>setStepDetail(field,+e.target.value),className:"w-full"})]},field))
    ]}),
    detailOpen&&!selected&&u.jsx("span",{className:"block pt-1 text-neutral-500",children:"Click a step first. These parameters belong only to that hit and are saved with the beat."})

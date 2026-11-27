@@ -96,6 +96,10 @@ function D9(ctx,bus){
      /* DRUM-ECHO-LANES-01: a ticked lane also feeds the echo input (same resident voice, no graph change per hit) */
      const echoTap=bus.__xenDrumMix?.echoTapFor?.(voice);
      if(echoTap){const eo=host.output('echo',echoTap);if(eo>=0)host.play({...hit,o:eo,ck:false,oh:false})}
+     /* DRUM-HALL-01: this hit's long hall send (Last Drum Hit · Hall); the same voice once more into the rack's hall input */
+     const hallAmt=eqRef&&eqRef.hall>.001?Math.min(1,eqRef.hall):0,hallIn=hallAmt?bus.__xenDrumMix?.hallTap?.():null;
+     if(hallIn){const ho=host.output('hall',hallIn);if(ho>=0)host.play({...hit,o:ho,ck:false,oh:false,
+      g:hit.g?hit.g.map(e=>{const c=e.slice();c[2]*=hallAmt;return c}):[[0,time,hallAmt]]})}
      if(choke&&voice==="hat_open")openHat={host};
      return;
     }

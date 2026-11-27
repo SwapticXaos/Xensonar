@@ -275,6 +275,18 @@ function __f48GetDrumRack(ctx,destination){
   return {tap,fromBus:true,send,inR,firstL,firstR,delayL,delayR,nodeL,nodeR,targets:new Map(),a,b,outLL,outRR,outLR,outRL,ret,
    nodes:[tap,send,inR,firstL,firstR,delayL,delayR,nodeL,nodeR,merger,ret,outLL,outRR,outLR,outRL,a.hp,a.lp,a.shape,a.self,a.cross,b.hp,b.lp,b.shape,b.self,b.cross]};
  };
+ /* DRUM-HALL-01: a long hall (~7 s, generated stereo impulse) for single hits; built on first use, parks after use */
+ let hall=null;
+ const makeHall=()=>{
+  const sr=ctx.sampleRate,len=Math.round(sr*7.2),ir=ctx.createBuffer(2,len,sr);
+  for(let c=0;c<2;c++){const d=ir.getChannelData(c);let seed=c?7919:104729;
+   for(let i=0;i<len;i++){seed=(seed*16807)%2147483647;const t=i/sr,n=seed/1073741823.5-1;
+    d[i]=n*Math.exp(-t*0.96)*(t<.012?t/.012:1)*(1-.35*Math.exp(-t*3))}}
+  const input=ctx.createGain(),pre=ctx.createDelay(.2),hp=ctx.createBiquadFilter(),conv=ctx.createConvolver(),lp=ctx.createBiquadFilter(),wet=ctx.createGain();
+  pre.delayTime.value=.035;hp.type='highpass';hp.frequency.value=180;lp.type='lowpass';lp.frequency.value=7200;conv.normalize=true;conv.buffer=ir;wet.gain.value=.9;
+  input.connect(pre);pre.connect(hp);hp.connect(conv);conv.connect(lp);lp.connect(wet);wet.connect(pan);
+  return {input,nodes:[input,pre,hp,conv,lp,wet]};
+ };
  const releaseEcho=()=>{if(!echo)return;for(const node of echo.nodes)try{node.disconnect()}catch{}try{postBus.disconnect(echo.send)}catch{}echo=null};
  const scheduleEchoRetire=()=>{
   if(echoRetireTimer!==null){clearTimeout(echoRetireTimer);echoRetireTimer=null}
@@ -309,6 +321,7 @@ function __f48GetDrumRack(ctx,destination){
  const onContextState=()=>{if(ctx.state==='closed')device.dispose()};
  const device={ctx,input,
   retimeEcho(){if(!disposed&&echo&&ctx.state!=='closed')applyEcho(lastParams,true)},
+  hallTap(){if(disposed||ctx.state==='closed')return null;if(!hall)hall=makeHall();return hall.input},
   // the echo input for one hit of this lane, or null (all lanes: the bus feeds the echo; lane not ticked; no echo)
   echoTapFor(lane){if(disposed||!echo||echo.fromBus)return null;return ((lastParams.drumEchoLanes??__xenDrumEchoLaneAll)&__xenDrumEchoLaneBit(lane))?echo.tap:null},
   previewEcho(patch){if(disposed||ctx.state==='closed')return;lastParams={...lastParams,...patch};
@@ -344,7 +357,7 @@ function __f48GetDrumRack(ctx,destination){
   },
   setVolume(value){if(disposed||!Number.isFinite(value))return;volumeOwned=true;outputLevel=Math.max(0,Math.min(1,value));ramp(level.gain,outputLevel/__XenDrumMixReference)},
   diagnostics(){return {panStages:1,levelStages:1,level:outputLevel,phaserNodes:phaser?.nodes.length||0,punchNodes:punch?.nodes.length||0,placementNodes:room?.nodes.length||0,echoNodes:echo?.nodes.length||0,echoSec:echo?[echo.firstL.delayTime.value,echo.firstR.delayTime.value,echo.delayL.delayTime.value,echo.delayR.delayTime.value]:null,echoMode,lfo:!!phaser,disposed}},
-  dispose(){if(disposed)return;disposed=true;clearTimeout(disableTimer);clearTimeout(echoRetireTimer);release(phaser);release(punch);release(room);releaseEcho();phaser=punch=room=null;for(const node of [input,dry,sum,busBypass,postBus,bypass,pan,level])node.disconnect();ctx.removeEventListener?.('statechange',onContextState);buses.delete(destination);__f48RackDevices.delete(device)}
+  dispose(){if(disposed)return;disposed=true;clearTimeout(disableTimer);clearTimeout(echoRetireTimer);release(phaser);release(punch);release(room);releaseEcho();if(hall){for(const n of hall.nodes)try{n.disconnect()}catch{}hall=null}phaser=punch=room=null;for(const node of [input,dry,sum,busBypass,postBus,bypass,pan,level])node.disconnect();ctx.removeEventListener?.('statechange',onContextState);buses.delete(destination);__f48RackDevices.delete(device)}
  };
  buses.set(destination,device);__f48RackDevices.add(device);ctx.addEventListener?.('statechange',onContextState);device.update(__f48RackParams);return device;
 }
