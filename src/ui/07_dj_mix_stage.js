@@ -71,6 +71,82 @@ const __XenDjStage = (() => {
     if (localStorage.getItem(OPEN_KEY) === '1') state.expanded = true;
   } catch {}
 
+  /* DJ-PERSIST-01: the desk keeps its mix (routing, crossfader, curve, fade options, levels, mute/solo, scenes)
+   * across reloads (localStorage) and inside a saved song (captureForSong / restoreFromSong). */
+  const DESK_KEY = 'xensonar.djStage.desk.v1';
+  const VIEW_FIELDS = ['activeTab', 'monitorMode', 'crateOpen', 'crateTab'];
+  const isObj = v => !!v && typeof v === 'object' && !Array.isArray(v);
+  const num = (v, lo, hi, d) => (Number.isFinite(v) ? Math.max(lo, Math.min(hi, v)) : d);
+  function cleanCurve(c) {
+    if (!Array.isArray(c) || c.length !== 360) return null;
+    return c.map(v => num(Number(v), -1, 1, 0));
+  }
+  function cleanScene(raw, allow) {
+    if (!isObj(raw)) return null;
+    const ok = id => typeof id === 'string' && id.length <= 300 && (!allow || allow.has(id));
+    const pick = (o, f) => Object.fromEntries(Object.entries(isObj(o) ? o : {}).filter(([id]) => ok(id)).map(([id, v]) => [id, f(v)]).filter(([, v]) => v !== undefined));
+    return {
+      crossfade: num(raw.crossfade, 0, 1, 0.5),
+      curve: ['smooth', 'linear', 'cut'].includes(raw.curve) ? raw.curve : 'smooth',
+      buses: pick(raw.buses, v => (['A', 'B', 'THRU'].includes(v) ? v : undefined)),
+      baseVolumes: pick(raw.baseVolumes, v => (Number.isFinite(v) ? num(v, 0, 1.5, 1) : undefined)),
+      muted: pick(raw.muted, v => (v ? true : undefined)),
+      soloId: ok(raw.soloId) ? raw.soloId : null,
+      eqSnapshots: pick(raw.eqSnapshots, v => {
+        if (!isObj(v)) return undefined;
+        const a = cleanCurve(v.a), b = cleanCurve(v.b);
+        return a && b ? { a, b, morph: num(v.morph, 0, 1, 0), enabled: v.enabled !== false } : undefined;
+      })
+    };
+  }
+  // The mix part of the state (also the song payload). allow: optional Set of material IDs that may appear.
+  function cleanDesk(raw, allow = null) {
+    if (!isObj(raw)) return null;
+    const base = cleanScene(raw, allow);
+    return {
+      ...base,
+      fadeUnit: ['bars', 'cycle', 'sec'].includes(raw.fadeUnit) ? raw.fadeUnit : 'bars',
+      quantizeFade: !!raw.quantizeFade,
+      linkEqMorph: !!raw.linkEqMorph,
+      scenes: Array.from({ length: 4 }, (_, i) => (Array.isArray(raw.scenes) ? cleanScene(raw.scenes[i], allow) : null))
+    };
+  }
+  function deskPayload(st = state, allow = null) {
+    const keep = o => Object.fromEntries(Object.entries(o || {}).filter(([id]) => !allow || allow.has(id)));
+    return cleanDesk({
+      crossfade: st.crossfade, curve: st.curve, buses: keep(st.buses), baseVolumes: keep(st.baseVolumes),
+      muted: keep(st.muted), soloId: st.soloId, fadeUnit: st.fadeUnit, quantizeFade: st.quantizeFade,
+      linkEqMorph: st.linkEqMorph, scenes: st.scenes
+    }, allow);
+  }
+  function applyDesk(desk, view = null) {
+    if (!desk) return;
+    const { eqSnapshots, ...mix } = desk; // a desk's own state has no EQ snapshot (EQs belong to the EQ store)
+    void eqSnapshots;
+    state = { ...state, ...mix, activeScene: -1, ...(view || {}) };
+  }
+  try {
+    const saved = JSON.parse(localStorage.getItem(DESK_KEY) || 'null');
+    if (isObj(saved)) {
+      const view = {};
+      if (['decks', 'buses'].includes(saved.view?.activeTab)) view.activeTab = saved.view.activeTab;
+      if (['spectrum', 'time'].includes(saved.view?.monitorMode)) view.monitorMode = saved.view.monitorMode;
+      if (typeof saved.view?.crateOpen === 'boolean') view.crateOpen = saved.view.crateOpen;
+      if (['rack', 'library'].includes(saved.view?.crateTab)) view.crateTab = saved.view.crateTab;
+      applyDesk(cleanDesk(saved.desk), view);
+    }
+  } catch {}
+  let persistTimer = 0;
+  let persistedRaw = '';
+  function persistDesk() {
+    persistTimer = 0;
+    try {
+      const raw = JSON.stringify({ version: 1, desk: deskPayload(), view: Object.fromEntries(VIEW_FIELDS.map(k => [k, state[k]])) });
+      if (raw !== persistedRaw) { localStorage.setItem(DESK_KEY, raw); persistedRaw = raw; }
+    } catch {}
+  }
+  if (typeof window !== 'undefined') window.addEventListener?.('pagehide', () => { if (persistTimer) { clearTimeout(persistTimer); persistDesk(); } });
+
   let fadeRaf = 0;
   let sceneRaf = 0;
   let statusTimer = 0;
@@ -83,6 +159,7 @@ const __XenDjStage = (() => {
 
   const emit = () => {
     for (const fn of listeners) fn();
+    if (!persistTimer) persistTimer = setTimeout(persistDesk, 600);
   };
 
   const setState = (patch) => {
@@ -120,6 +197,9 @@ const __XenDjStage = (() => {
         nextBase[id] = readLiveVolume(id, primaryId, params);
         lastWritten.set(id, nextBase[id] * deckMultiplier(id));
         changed = true;
+      } else if (!lastWritten.has(id)) {
+        // a restored fader base: what the desk believes is playing; a different live level is then adopted
+        lastWritten.set(id, Number(__XenDjMixMath.clamp(nextBase[id] * deckMultiplier(id), 0, id === primaryId ? 1 : 1.5).toFixed(3)));
       }
     }
     if (changed) state = { ...state, baseVolumes: nextBase };
@@ -1234,6 +1314,7 @@ const __XenDjStage = (() => {
 
     P.useEffect(() => {
       if (!dj.expanded || !deckIds.length) return;
+      ensureBaseVolumes(deckIds, primaryId, params);
       const patch = adoptExternalVolumes(deckIds, primaryId, params);
       if (patch) setState({ baseVolumes: patch });
     }, [dj.expanded, voiceState, params?.materialLoopVolume, deckIds.join('|')]);
@@ -2701,6 +2782,19 @@ const __XenDjStage = (() => {
     snapshot: () => state,
     subscribe: fn => (listeners.add(fn), () => listeners.delete(fn)),
     isExpanded: () => state.expanded,
+    // DJ-PERSIST-01: the desk's mix inside a saved song (only the song's material IDs)
+    captureForSong: (materialIds) => deskPayload(state, new Set(materialIds || [])),
+    restoreFromSong: (desk, materialIds) => {
+      const clean = cleanDesk(desk, new Set(materialIds || []));
+      if (!clean) return false;
+      stopAutoFade();
+      stopSceneMorph();
+      applyDesk(clean);
+      lastWritten.clear(); // the song's levels are the truth; the desk re-reads them as its fader base
+      emit();
+      return true;
+    },
+    cleanDesk,
     roomBpm: () => roomBpm,
     setExpanded,
     toggleExpanded,

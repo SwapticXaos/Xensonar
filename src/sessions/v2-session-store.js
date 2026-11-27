@@ -256,7 +256,7 @@ function __xenSongPerformanceSafe(raw,items,rollbackOnly=false){
  if(!placement||typeof placement!=='object'||Array.isArray(placement)||
   Object.keys(placement).some(k=>!['primaryId','secondaryIds','primaryMuted','enabled','activationOrder'].includes(k))||
   !(placement.primaryId===null||(typeof placement.primaryId==='string'&&materialIds.has(placement.primaryId)))||
-  !Array.isArray(placement.secondaryIds)||placement.secondaryIds.length>2||
+  !Array.isArray(placement.secondaryIds)||placement.secondaryIds.length>5||
   placement.secondaryIds.some(id=>typeof id!=='string'||!materialIds.has(id)||id===placement.primaryId)||
   new Set(placement.secondaryIds).size!==placement.secondaryIds.length||
   placement.activationOrder!==undefined&&(!Array.isArray(placement.activationOrder)||
@@ -289,7 +289,9 @@ function __xenSongPerformanceSafe(raw,items,rollbackOnly=false){
   }
   cleanMixer[role]=clean;
  }
- return {version:2,entries:rows,sources,...hold,...instrumentEnvelope,materialPlacement:{primaryId:placement.primaryId,secondaryIds:[...placement.secondaryIds],primaryMuted:placement.primaryMuted,enabled:placement.enabled,
+ // DJ-PERSIST-01: the Mixing Desk mix of the song (routing, crossfader, levels, scenes); only the song's material IDs.
+ const deskClean=raw.desk!=null&&typeof window!=='undefined'&&window.__XenDjStage?.cleanDesk?window.__XenDjStage.cleanDesk(raw.desk,materialIds):null;
+ return {version:2,entries:rows,sources,...hold,...instrumentEnvelope,...(deskClean?{desk:deskClean}:{}),materialPlacement:{primaryId:placement.primaryId,secondaryIds:[...placement.secondaryIds],primaryMuted:placement.primaryMuted,enabled:placement.enabled,
   ...(placement.activationOrder?{activationOrder:[...placement.activationOrder]}:{})},mixer:cleanMixer};
 }
 function __xenSongPerformanceCapture(items,rollbackOnly=false,previous=null){
@@ -325,7 +327,8 @@ function __xenSongPerformanceCapture(items,rollbackOnly=false,previous=null){
  const sources=__XenMainRoomSessionBridge.captureSongSources();
  return __xenSongPerformanceSafe({version:2,entries,sources,holdEQ:eq.__avalancheBindings??{},
   instrumentEQ:Object.fromEntries(['particle','wave','keyboard'].map(role=>[role,eq[role+':instrument']??__XenEQ.neutral()])),
-  materialPlacement:songMix.materialPlacement,mixer:songMix.mixer},items,rollbackOnly);
+  materialPlacement:songMix.materialPlacement,mixer:songMix.mixer,
+  ...(typeof window!=='undefined'&&window.__XenDjStage?.captureForSong?{desk:window.__XenDjStage.captureForSong(items.filter(e=>e.kind==='material').map(e=>e.id))}:{})},items,rollbackOnly);
 }
 /* Keep saved placement aligned when an editor/library operation removes a
  * reference. Catalog reordering never changes the three live roles. */

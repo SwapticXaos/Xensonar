@@ -66,3 +66,18 @@ Start mit Frame- und Timer-Jitter, Stillstand im Hintergrund-Tab, React-Neuaufba
 ## Test
 `tests/e2e/dj_clock_fade.cjs`: Start auf der Taktlinie (Messung des Gain auf der Audio-Uhr), 600 ms blockierter Haupt-Thread
 ohne Stocken, monoton, nach genau 2 Takten still, Übernahme ohne Sprung, Szenen-Morph auf der Audio-Uhr.
+
+---
+
+# DJ-PERSIST-01 — Desk-Zustand und Mix-Szenen bleiben erhalten
+
+- Routing (A/THRU/B), Crossfader, Kurve, Fade-Einheit, „Takt-Start", „Sync EQ Morph", Fader-Basen, Mute/Solo und die
+  vier **Mix Scenes** (inkl. 24-Band-EQ-Schnappschüssen) überstehen ein Neuladen (`xensonar.djStage.desk.v1`, entprellt,
+  plus `pagehide`), ebenso die Ansicht (Tab, Monitor, Crate).
+- Ein gespeicherter **Song** trägt den Desk-Mix (`songPerformance.desk`): erfasst nur für die Materialien des Songs,
+  beim Laden geprüft (IDs, Wertebereiche, EQ-Kurven 360 Punkte) und angewendet; ältere Songs ohne Desk lassen das Desk unverändert.
+- Wiederhergestellte Fader-Basen treffen auf andere Live-Pegel (z. B. Song ohne Desk) → das Desk übernimmt die Live-Pegel
+  (DJ-OWN-01), statt sie beim ersten Handgriff zu überschreiben.
+- **Fehler behoben:** Song-Speichern scheiterte mit mehr als 3 Spuren im Desk („Invalid song performance snapshot"),
+  weil die Prüfung nur 2 Zusatzspuren erlaubte; jetzt bis 5 (= 6 Spuren).
+- Test: `tests/e2e/dj_persist.cjs` (Reload, Song-Erfassung über `__xenSongPerformanceCapture`, Prüfung, Wiederherstellung, 6-Spur-Song).

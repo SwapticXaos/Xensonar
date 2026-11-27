@@ -129,6 +129,8 @@ const __XenMainRoomSessionBridge=(()=>{
    __XenMaterialLayers.restoreOrder(placement.activationOrder,placement.enabled?primaryId:null,placement.primaryMuted||!placement.enabled);
    __XenMaterialPrimarySwitch.restore(placement.primaryMuted,primaryId??'');
    __XenQuick.setSelected?.('material',primaryId??'');
+   // DJ-PERSIST-01: the song's Mixing Desk mix (older songs carry none: the desk keeps its own)
+   if(!legacy&&cfg?.desk&&typeof window!=='undefined')window.__XenDjStage?.restoreFromSong?.(cfg.desk,allowed);
    return true;
   },
   // A song's three performance input surfaces are independent of the optional
