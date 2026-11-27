@@ -22,9 +22,10 @@ function realAdmissionGate(){
 }
 
 function materialWorkletCode(source){
-  const match=source.match(/const code=("(?:\\.|[^"\\])*?");\s*const contexts=/s);
-  assert(match,'embedded material Worklet source must remain extractable');
-  return JSON.parse(match[1]);
+  // The embedded Worklet is the one-line string literal that registers xen-material-phase-v1.
+  const line=source.split('\n').find(l=>l.startsWith(' const code="')&&l.includes('xen-material-phase-v1'));
+  assert(line,'embedded material Worklet source must remain extractable');
+  return JSON.parse(line.slice(line.indexOf('"'),line.lastIndexOf('"')+1));
 }
 
 test('expressive wave bursts preserve the allowed 8/32ms, 96-ticket contract and recover after release',()=>{
@@ -66,7 +67,8 @@ test('stalled hold processor skips stale catch-up and new phase traffic does not
   // replay of missed events after a stalled quantum interval.
   const hold=spawnSync(process.execPath,[path.join(__dirname,'hold_resident_processor.cjs')],{encoding:'utf8'});
   assert.equal(hold.status,0,hold.stdout+'\n'+hold.stderr);
-  assert.match(hold.stdout,/no catch-up/);
+  // the resident hold processor reports its stalled-quantum case as GREEN (no replay of missed events)
+  assert.match(hold.stdout,/no-catchup",\s*"status": "GREEN"/);
 
   const current=materialWorkletCode(read('src/mix/03_quick_menu__before_eq-core.js'));
   const processBody=code=>{
@@ -74,10 +76,11 @@ test('stalled hold processor skips stale catch-up and new phase traffic does not
     assert(start>=0&&end>start,'real material process callback must exist');
     return code.slice(start,end);
   };
-  // Provenance: SHA-256 of the decoded `process(inputs,outputs)` body in
-  // baseline/Source/src/mix/03_quick_menu__before_eq-core.js at checkpoint.
+  // Provenance: SHA-256 of the decoded `process(inputs,outputs)` body. Re-pinned 2026-11-27 (the old pin was
+  // already stale at d73a825); deliberate process changes since: DJ-SEEK-01 (jump de-click length `fadeLen`),
+  // DJ-CUE-01 (loop roll: `!this.roll` in the fast-path test, playhead step via `advance()`).
   // Pinning the body keeps this test portable; the baseline checkout is not needed.
   assert.equal(crypto.createHash('sha256').update(processBody(current)).digest('hex'),
-    'f60277d717694be7ed349a9842122d4d8081aa7cf9ceef7c72202a3f698ac91a',
+    'f357b7b623df94e0483b16f86063d3b59e613a6b4dcb10038707018f26a8950e',
     'expressive control-message edits must not add work to the AudioWorklet process callback');
 });

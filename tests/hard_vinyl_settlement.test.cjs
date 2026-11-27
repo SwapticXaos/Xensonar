@@ -3,8 +3,7 @@ const test=require('node:test'),assert=require('node:assert/strict'),vm=require(
 const flush=()=>new Promise(resolve=>setImmediate(resolve));
 const source=fs.readFileSync(path.join(__dirname,'../src/mix/03_quick_menu__before_eq-core.js'),'utf8');
 function block(name){const start=source.indexOf('const '+name+'=');return source.slice(start,source.indexOf('})();',start)+5);}
-// R2: VoiceMix is a factory (Live Room instance + Room IV instances); take the notifier and the factory.
-function voiceMixSource(){const start=source.indexOf('function __xenControlNotifier('),end=source.indexOf('const __XenMaterialVoiceMix=__xenCreateMaterialVoiceMix();');return source.slice(start,source.indexOf('\n',source.indexOf('}\n',start))+1)+source.slice(source.indexOf('function __xenCreateMaterialVoiceMix('),end)+'const __XenMaterialVoiceMix=__xenCreateMaterialVoiceMix();';}
+const voiceMixSource=()=>require('./_voice_mix_source.cjs')(source);
 function setup(){
  const c={console,setTimeout,clearTimeout,__XenNudgeFeedback:{endPreview(){},preview(){}}};vm.createContext(c);vm.runInContext(voiceMixSource()+';globalThis.mix=__XenMaterialVoiceMix;',c);
  const code=JSON.parse(source.slice(source.indexOf(' const code=',source.indexOf('const __XenMaterialPhase='))+12).split(';\n')[0]);

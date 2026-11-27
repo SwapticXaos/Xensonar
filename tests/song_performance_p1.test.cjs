@@ -66,9 +66,7 @@ function fixture(initialData, items = [
     vm.runInContext(voiceText.slice(start,end)+`;globalThis.__actual=${name};`,context);
     context[name]=context.__actual;delete context.__actual;
   }
-  const voiceStart=voiceText.indexOf('const __XenMaterialVoiceMix=');
-  const voiceEnd=voiceText.indexOf('})();',voiceStart)+5;
-  vm.runInContext(voiceText.slice(voiceStart,voiceEnd)+';globalThis.__voice=__XenMaterialVoiceMix;',context);
+  vm.runInContext(require('./_voice_mix_source.cjs')(voiceText)+';globalThis.__voice=__XenMaterialVoiceMix;',context);
   context.__XenMaterialVoiceMix=context.__voice;
   // The owner reference is mutable just like the Main Room React owner; tests
   // may update params without replacing the bridge.

@@ -107,3 +107,18 @@ ohne Stocken, monoton, nach genau 2 Takten still, Übernahme ohne Sprung, Szenen
   Jog (fein, ± 1/32), `←`/`→` = 1/64, Doppelklick = zurück aufs Raster. Anzeige `Att +1/16` (+ = früher).
 - Wert und Speicherung unverändert (`__XenAttackLanes`, ±2 Beats, im Song).
 - Test: `tests/e2e/dj_seek_nudge.cjs` (+ Bass « », Jog, Reset).
+
+---
+
+# TEST-DEBT-01 — Testschulden (teilweise)
+
+- `tests/_voice_mix_source.cjs`: gemeinsamer Helfer, der `__XenMaterialVoiceMix` aus der Factory (R2) baut.
+- `hard_vinyl_settlement` 0/7 → **7/7**; `expressive_burst_contract` 1/2 → **2/2** (robuster Worklet-Extraktor,
+  „no-catchup GREEN", Hash des `process()`-Callbacks neu festgelegt — der alte Pin war schon auf `d73a825` veraltet;
+  bewusste Änderungen seither: DJ-SEEK-01, DJ-CUE-01).
+- `song_performance_p1` 0/20 → 6/20, `session_bass_drone_p2` 0/10 → 2/10 (laden wieder statt SyntaxError).
+- **Offen (eigener Patch nötig):** `song_performance_p0/p1`, `session_bass_drone_p2`, `working_session`. Diese Harnesses bauen
+  Session-Store, Raum-Brücke und Mixer per Text-Ausschnitt in einer VM nach; seitdem sind viele Abhängigkeiten hinzugekommen
+  (`__XenLiveSampleProfiles`, Drum-Workspace, gepackte Raum-Snapshots, `replaceItemsTransient`, Bass-Clip-Install …) und
+  Erwartungen haben sich durch Features geändert (z. B. `activationOrder`). Empfehlung: gegen das gebaute Bundle laufen lassen
+  (wie die E2E-Probe) statt Quelltext zu zerschneiden; die Song-/Session-E2E-Tests (`session_persistence`, `song_sources`) sind grün.
