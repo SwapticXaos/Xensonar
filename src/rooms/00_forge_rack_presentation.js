@@ -50,18 +50,18 @@ globalThis.__xenForgeTileIcon=function(kind){
  }
 };
 const __ForgeRackCopy=Object.freeze({
- load:{className:'xen-forge-tile-load',label:'Load Selection',icon:globalThis.__xenForgeTileIcon('load'),first:'Load Selection',second:'view zooms to the mask'},
- repair:{className:'xen-forge-tile-repair',label:'Loop korrigieren',icon:globalThis.__xenForgeTileIcon('repair'),first:'Loop korrigieren',second:'micro · on the beat grid'},
- apply:{className:'xen-forge-tile-apply',label:'Apply Raw',icon:globalThis.__xenForgeTileIcon('apply'),first:'Apply Raw',second:'to workbench'},
- extract:{className:'xen-forge-tile-extract',icon:globalThis.__xenForgeTileIcon('extract'),first:'Extract Timbre',second:'(Donor Workshop)'},
+ load:{className:'xen-forge-tile-load',label:'Load Selection',icon:globalThis.__xenForgeTileIcon('load'),first:'Load Selection',second:'view zooms to the mask',sub:true},
+ repair:{className:'xen-forge-tile-repair',label:'Fix Loop',icon:globalThis.__xenForgeTileIcon('repair'),first:'Fix Loop',second:'micro · on the beat grid',sub:true},
+ apply:{className:'xen-forge-tile-apply',label:'Apply Audio',icon:globalThis.__xenForgeTileIcon('apply'),first:'Apply Audio',second:'(Workbench)',sub:true},
+ extract:{className:'xen-forge-tile-extract',icon:globalThis.__xenForgeTileIcon('extract'),first:'Extract Timbre',second:'(Donor Workshop)',sub:true},
  play:{className:'xen-forge-tile-play',label:'PLAY'},
- material:{className:'xen-forge-tile-material',icon:globalThis.__xenForgeTileIcon('material'),first:'Send raw as a loop to Material Track',second:'(Live Room)'},
- pink:{className:'xen-forge-tile-pink',icon:globalThis.__xenSymMelodic(32,'tile'),first:'Send as Pink Track',second:'to Melodic Loop'},
- root:{className:'xen-forge-tile-root',icon:globalThis.__xenForgeTileIcon('root'),first:'Use as',second:'Root Follow Loop'},
- sample:{className:'xen-forge-tile-sample',label:'Save as Sample',icon:globalThis.__xenForgeTileIcon('sample'),first:'Save as Sample',second:'the purple mask'},
- donor:{className:'xen-forge-tile-donor',label:'Add to Donor Library',icon:globalThis.__xenForgeTileIcon('donor'),first:'Add to Donor',second:'Library'},
- carrier:{className:'xen-carrier-transform',icon:globalThis.__xenForgeTileIcon('carrier'),first:'Transform to',second:'Carrier'},
- titleHeading:'Loop/Sample betiteln',
+ material:{className:'xen-forge-tile-material',icon:globalThis.__xenForgeTileIcon('material'),first:'Send as Stable Loop',second:'(Material Track · Live Room)',sub:true},
+ pink:{className:'xen-forge-tile-pink',icon:globalThis.__xenSymMelodic(32,'tile'),first:'Send as Pink Track',second:'to Melodic Loop',sub:false},
+ root:{className:'xen-forge-tile-root',icon:globalThis.__xenForgeTileIcon('root'),first:'Use as',second:'Root Follow Loop',sub:false},
+ sample:{className:'xen-forge-tile-sample',label:'Save as Sample',icon:globalThis.__xenForgeTileIcon('sample'),first:'Save as Sample',second:'the purple mask',sub:true},
+ donor:{className:'xen-forge-tile-donor',label:'Add to Donor Library',icon:globalThis.__xenForgeTileIcon('donor'),first:'Add to Donor',second:'Library',sub:false},
+ carrier:{className:'xen-carrier-transform',icon:globalThis.__xenForgeTileIcon('carrier'),first:'Transform to',second:'Carrier',sub:false},
+ titleHeading:'Name Loop / Sample',
  titleHelp:'This title is used for Material Track, direct Melodic Loop pink-track import, Root Follow, and saving the purple mask as a sample.'
 });
 /* RC4: canonical attachment slots. Row/slot order is NOT repeated in lab.js.
@@ -81,11 +81,13 @@ function __ForgeRackOrder(row,slots){
   return Array.isArray(slots[key])?slots[key]:[slots[key]];
  });
 }
-function __ForgeExportTileLabel(icon,first,second){
+function __ForgeExportTileLabel(icon,first,second,sub){
  const h=P.createElement;
  return h('span',{className:'xen-forge-export-tile'},
   h('span',{className:'xen-forge-export-icon','aria-hidden':true},icon),
-  h('span',{className:'xen-forge-export-words'},h('span',null,first),h('span',null,second)));
+  h('span',{className:'xen-forge-export-words'},
+   h('span',null,first),
+   h('span',sub?{className:'xen-forge-export-sub'}:null,second)));
 }
 function __ForgeRackClass(kind,extra=''){
  const spec=__ForgeRackCopy[kind];
@@ -96,7 +98,7 @@ function __ForgeRackCaption(kind,firstOverride,secondOverride){
  const spec=__ForgeRackCopy[kind];
  if(!spec)throw Error('Unknown Forge action '+kind);
  const first=firstOverride===undefined?(spec.first??spec.label):firstOverride;
- return spec.icon?__ForgeExportTileLabel(spec.icon,first,secondOverride===undefined?spec.second:secondOverride):first;
+ return spec.icon?__ForgeExportTileLabel(spec.icon,first,secondOverride===undefined?spec.second:secondOverride,!!spec.sub):first;
 }
 /* RV-02: one owner for user volume, selected-range effective gain,
  * waveform display, live raw-loop preview and exported PCM.

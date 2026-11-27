@@ -701,6 +701,118 @@ canvas[data-xwe-workspace-resize="true"][data-xwe-workspace-edge="true"]{cursor:
  gap:4px;
  white-space:nowrap;
 }
+.xwe-head .xwe-num-box,
+.xwe-toolbar .xwe-num-box{
+ display:inline-flex;
+ align-items:stretch;
+ background:#070c18;
+ border:1px solid #2c3c5a;
+ border-radius:5px;
+ overflow:hidden;
+ transition:border-color .14s ease,box-shadow .14s ease;
+}
+.xwe-head .xwe-num-box:focus-within,
+.xwe-toolbar .xwe-num-box:focus-within{
+ border-color:#67e8f9;
+ box-shadow:0 0 0 1px rgba(103,232,249,.35),0 0 10px rgba(56,189,248,.18);
+}
+.xwe-num-digits{
+ display:inline-flex;
+ align-items:center;
+ justify-content:flex-end;
+ min-width:58px;
+ height:26px;
+ padding:0 5px;
+ color:#e8f1ff;
+ font-family:var(--font-mono,ui-monospace,SFMono-Regular,Menlo,monospace);
+ font-variant-numeric:tabular-nums;
+ font-size:12px;
+ font-weight:600;
+ letter-spacing:0;
+ line-height:1;
+ outline:none;
+ cursor:pointer;
+ user-select:none;
+ caret-color:transparent;
+}
+.xwe-digit{
+ display:inline-flex;
+ align-items:center;
+ justify-content:center;
+ min-width:10px;
+ height:19px;
+ padding:0 1px;
+ border-radius:3px;
+ transition:background-color .1s ease,color .1s ease,box-shadow .1s ease;
+}
+.xwe-digit.is-leading-zero{
+ color:#586e94;
+}
+.xwe-digit:hover{
+ background:rgba(125,211,252,.18);
+ color:#f0f9ff;
+}
+.xwe-digit.is-active{
+ background:linear-gradient(180deg,rgba(168,85,247,.58) 0%,rgba(56,189,248,.52) 100%);
+ color:#ffffff!important;
+ font-weight:700;
+ box-shadow:0 0 0 1px rgba(103,232,249,.92),0 0 9px rgba(103,232,249,.55);
+ text-shadow:0 0 6px rgba(255,255,255,.7);
+}
+.xwe-num-dot{
+ display:inline-flex;
+ align-items:center;
+ justify-content:center;
+ width:5px;
+ color:#7c97c2;
+ font-weight:700;
+}
+.xwe-num-steppers{
+ display:flex;
+ flex-direction:column;
+ width:17px;
+ flex:0 0 17px;
+ border-left:1px solid #263654;
+ background:#0e172c;
+}
+.xwe-head .xwe-num-step,
+.xwe-toolbar .xwe-num-step{
+ display:flex;
+ align-items:center;
+ justify-content:center;
+ flex:1 1 50%;
+ width:100%;
+ min-width:0;
+ min-height:0!important;
+ height:13px;
+ padding:0!important;
+ margin:0;
+ border:0!important;
+ border-radius:0!important;
+ background:transparent!important;
+ color:#93c5fd!important;
+ font-size:7.5px!important;
+ line-height:1!important;
+ cursor:pointer;
+ user-select:none;
+ touch-action:none;
+}
+.xwe-head .xwe-num-step-up,
+.xwe-toolbar .xwe-num-step-up{
+ border-bottom:1px solid #22304b!important;
+}
+.xwe-head .xwe-num-step:hover:not(:disabled),
+.xwe-toolbar .xwe-num-step:hover:not(:disabled){
+ background:#1d3154!important;
+ color:#f0f9ff!important;
+}
+.xwe-head .xwe-num-step:active,
+.xwe-toolbar .xwe-num-step:active,
+.xwe-head .xwe-num-step[data-xwe-step-held="true"],
+.xwe-toolbar .xwe-num-step[data-xwe-step-held="true"]{
+ background:#3b2763!important;
+ color:#e9d5ff!important;
+}
 .xwe-head input[type="number"],
 .xwe-toolbar input[type="number"]{
  width:74px;
@@ -858,6 +970,8 @@ canvas[data-xwe-workspace-resize="true"][data-xwe-workspace-edge="true"]{cursor:
 @media(max-width:1180px){
  .xwe-inline .xwe-head,
  .xwe-inline .xwe-dialog>.xwe-toolbar{grid-template-columns:minmax(0,1fr) 224px}
+ .xwe-num-digits{min-width:52px;font-size:11.5px;padding:0 4px}
+ .xwe-digit{min-width:9px}
  .xwe-head input[type="number"],
  .xwe-toolbar input[type="number"]{width:66px}
 }

@@ -73,7 +73,7 @@ function category(effect){return displayText(effect.category||'Effects')}
 
 function attach(options){const canvas=options.detailCanvas;if(!canvas)return()=>{};let inst=instances.get(canvas);if(inst){inst.update(options);return()=>{}}try{inst=new Editor(options)}catch(error){console.warn('[Wave Editor W01] source unsupported:',error);return()=>{}}instances.set(canvas,inst);liveEditors.add(inst);return()=>{inst.dispose();liveEditors.delete(inst);instances.delete(canvas)}}
 class Editor{
- constructor(options){this.options=options;/* UNDO-MASK-01: mask / Taktometer steps of the host join this editor's Undo; each remembers how many audio edits existed then, so one Undo walks back in the order of the actions */this.maskUndo=[];this.onMaskUndoPush=()=>{const sel=this.doc?.selection;this.maskUndo.push({at:this.doc?.history?.past?.length||0,start:sel?.start,end:sel?.end});if(this.maskUndo.length>60)this.maskUndo.shift();if(this.undoApplyButton)this.undoApplyButton.disabled=!this.canUndoDocument()};globalThis.addEventListener?.('xensonar:mask-undo-push',this.onMaskUndoPush);this.bluePanFrame=null;this.bluePanHeld=null;this.bluePanStopOnBlur=()=>this.stopBluePan();this.bluePanStopOnVisibility=()=>{if(document.hidden)this.stopBluePan()};root.addEventListener('blur',this.bluePanStopOnBlur);document.addEventListener('visibilitychange',this.bluePanStopOnVisibility);this.enabled=false;this.goldenMoveArmed=false;this.goldenGesture=null;this.doc=null;this.source=null;this.nodes=[];this.activeNode=null;this.eqVisible=false;this.channel='all';this.maskVertical={top:0,bottom:1};this.activeWorkspace='project';this.fxFocus='morph';this.scratchContext=null;this.projectContext=null;this.renderToken=0;this.lastResult=null;this.computeJob=null;this.computeNoticeTimer=null;this.status='Ready · Right-click either waveform for editing and effects.';this.update(options);this.context=e=>this.contextMenu(e);options.detailCanvas.addEventListener('contextmenu',this.context);options.overviewCanvas?.addEventListener('contextmenu',this.context);const region=options.detailCanvas.closest('[data-material-intake-gateway="true"]')||document;this.launchHost=region.querySelector('[data-xwe-launch-slot="true"]');this.launch=button('Wave Editor',()=>this.open(),{class:'xwe-launch',title:'Open stereo Wave Editor · right-click the waveform','aria-label':'Open Wave Editor'});this.launchClose=button('',()=>this.close(),{class:'xwe-launch-close','aria-label':'Close Wave Editor',title:'Close Wave Editor (Esc)',hidden:true});setIconButtonContent(this.launchClose,'close','Close',true);this.launchHost?.append(this.launch,this.launchClose);this.editPointerDown=e=>this.beginEditPointer(e);this.goldenDoubleClick=e=>this.toggleGoldenMove(e);this.channelPointerDown=e=>this.handleChannelPointerDown(e);
+ constructor(options){this.options=options;/* UNDO-MASK-01: mask / Taktometer steps of the host join this editor's Undo; each remembers how many audio edits existed then, so one Undo walks back in the order of the actions */this.maskUndo=[];this.onMaskUndoPush=()=>{const sel=this.doc?.selection;this.maskUndo.push({at:this.doc?.history?.past?.length||0,start:sel?.start,end:sel?.end});if(this.maskUndo.length>60)this.maskUndo.shift();if(this.undoApplyButton)this.undoApplyButton.disabled=!this.canUndoDocument()};globalThis.addEventListener?.('xensonar:mask-undo-push',this.onMaskUndoPush);this.bluePanFrame=null;this.bluePanHeld=null;this.rangeStepTimer=null;this.rangeStepFrame=null;this.rangeStepHeld=null;this.bluePanStopOnBlur=()=>{this.stopBluePan();this.stopRangeStep()};this.bluePanStopOnVisibility=()=>{if(document.hidden){this.stopBluePan();this.stopRangeStep()}};root.addEventListener('blur',this.bluePanStopOnBlur);document.addEventListener('visibilitychange',this.bluePanStopOnVisibility);this.enabled=false;this.goldenMoveArmed=false;this.goldenGesture=null;this.doc=null;this.source=null;this.nodes=[];this.activeNode=null;this.eqVisible=false;this.channel='all';this.maskVertical={top:0,bottom:1};this.activeWorkspace='project';this.fxFocus='morph';this.scratchContext=null;this.projectContext=null;this.renderToken=0;this.lastResult=null;this.computeJob=null;this.computeNoticeTimer=null;this.status='Ready · Right-click either waveform for editing and effects.';this.update(options);this.context=e=>this.contextMenu(e);options.detailCanvas.addEventListener('contextmenu',this.context);options.overviewCanvas?.addEventListener('contextmenu',this.context);const region=options.detailCanvas.closest('[data-material-intake-gateway="true"]')||document;this.launchHost=region.querySelector('[data-xwe-launch-slot="true"]');this.launch=button('Wave Editor',()=>this.open(),{class:'xwe-launch',title:'Open stereo Wave Editor · right-click the waveform','aria-label':'Open Wave Editor'});this.launchClose=button('',()=>this.close(),{class:'xwe-launch-close','aria-label':'Close Wave Editor',title:'Close Wave Editor (Esc)',hidden:true});setIconButtonContent(this.launchClose,'close','Close',true);this.launchHost?.append(this.launch,this.launchClose);this.editPointerDown=e=>this.beginEditPointer(e);this.goldenDoubleClick=e=>this.toggleGoldenMove(e);this.channelPointerDown=e=>this.handleChannelPointerDown(e);
  this.hoverPointerMove=e=>this.onWavePointerMove(e);
  this.hoverPointerLeave=e=>this.onWavePointerLeave(e);
  for(const canvas of [options.overviewCanvas,options.detailCanvas])if(canvas){canvasOwners.set(canvas,this);canvas.addEventListener('pointerdown',this.channelPointerDown,true);canvas.addEventListener('pointermove',this.hoverPointerMove,true);canvas.addEventListener('pointerleave',this.hoverPointerLeave,true)}
@@ -88,12 +88,18 @@ class Editor{
    const mod=e.ctrlKey||e.metaKey,k=String(e.key).toLowerCase();let type=null;
    if(!mod&&['Delete','Backspace'].includes(e.key))type='delete';else if(mod&&!e.shiftKey&&!e.altKey&&k==='x')type='cut';else if(mod&&!e.shiftKey&&!e.altKey&&k==='c')type='copy';else if(mod&&!e.shiftKey&&!e.altKey&&k==='v')type='insert';else if(mod&&k==='z')type=e.shiftKey?'redo':'undo';else if(mod&&k==='y')type='redo';
    if(type){e.preventDefault();e.stopImmediatePropagation();this.runEdit(type)}return}
-  if(!this.overlay||this.menu?.contains(e.target)||!(this.dialog?.contains(e.target)||e.target===this.options.detailCanvas||e.target===this.options.overviewCanvas||(weak&&editKey)))return;if(e.target.closest?.('[data-xwe-view-controls]'))return;if(e.key==='Tab')return;const input=/INPUT|SELECT|TEXTAREA/.test(e.target.tagName),mod=e.ctrlKey||e.metaKey;
+  if(!this.overlay||this.menu?.contains(e.target)||!(this.dialog?.contains(e.target)||e.target===this.options.detailCanvas||e.target===this.options.overviewCanvas||(weak&&editKey)))return;if(e.target.closest?.('[data-xwe-view-controls]'))return;if(e.key==='Tab')return;const isRangeField=!!e.target?.dataset?.xweRangeField,input=/INPUT|SELECT|TEXTAREA/.test(e.target.tagName)||isRangeField,mod=e.ctrlKey||e.metaKey;
   // Hotkeys only when editor or waveform owns focus; other XenSonar instruments keep their keyboard events.
   e.stopImmediatePropagation();
+  if(input){
+   if(isRangeField){
+    if(mod&&['z','y'].includes(String(e.key).toLowerCase())){e.preventDefault();if(String(e.key).toLowerCase()==='z')this.runEdit(e.shiftKey?'redo':'undo');else this.runEdit('redo');return}
+    this.handleRangeInputKey(e);return;
+   }
+   if(e.key==='Escape'){e.preventDefault();e.target.blur?.()}
+   return;
+  }
   if(e.key==='Escape'){e.preventDefault();if(this.goldenMoveArmed&&!this.goldenGesture){this.goldenMoveArmed=false;this.options.onViewChange?.();this.setStatus('Golden Move cancelled.');return}if(this.mixPopover)this.closeMixPane();else this.close();return}
-
-  if(input)return;
   if(mod){const key=e.key.toLowerCase();if(['z','y','c','x','v','a'].includes(key)){e.preventDefault();if(key==='z')this.runEdit(e.shiftKey?'redo':'undo');if(key==='y')this.runEdit('redo');if(key==='c')this.runEdit('copy');if(key==='x')this.runEdit('cut');if(key==='v'){if(e.shiftKey)this.openMixPane();else this.runEdit(e.altKey?'overwrite':'insert')}if(key==='a'){this.doc=core().setSelection(this.doc,0,this.doc.frames);this.applySelection();this.refresh(false)}}return}
   if(e.code==='Space'){e.preventDefault();this.preview('chain');return}
   if(e.key==='z'||e.key==='Z'){e.preventDefault();this.snapZero();return}
@@ -586,7 +592,7 @@ class Editor{
     this.doc=core().create(options.source,{selection:options.selection,viewport:options.selection?.detailViewport});
     this.scratchContext=null;this.projectContext=null;this.activeWorkspace='project';this.triangleZeroSource=null;
     this.releaseOfflineEQState();this.nodes=[];this.activeNode=null;this.lastResult=null;fresh=true;
-    this.stopBluePan();
+    this.stopBluePan();this.stopRangeStep();
   if(this.doc.restoreWarning)this.setStatus(this.doc.restoreWarning);
    }
    this.source=options.source;
@@ -608,7 +614,7 @@ class Editor{
    if(view)this.incomingViewport={startSec:view.startSec,durationSec:view.durationSec};
    // Do not overwrite a live pointer gesture or the editor's local caret with
    // an echo of the last outgoing parent selection.
-   if(rangeChanged&&!this.selectionGestureActive&&!outgoingEcho){
+   if(rangeChanged&&!this.selectionGestureActive&&!this.rangeStepHeld&&!outgoingEcho){
     this.goldenMoveArmed=false;this.goldenGesture=null;
     const previous=owner.doc.selection;
     const selected=core().setSelection(owner.doc,Math.round(range.startSec*rate),Math.round((range.startSec+range.durationSec)*rate));
@@ -634,11 +640,11 @@ class Editor{
   }
  }
 
- dispose(){globalThis.removeEventListener?.('xensonar:mask-undo-push',this.onMaskUndoPush);this.stopBluePan();root.removeEventListener('blur',this.bluePanStopOnBlur);document.removeEventListener('visibilitychange',this.bluePanStopOnVisibility);this.scratchPeakAsset=null;this.clearP5Warning();this.eqUnsubscribe?.();this.releaseOfflineEQState();this.closeMixPane();this.abort();this.stopAudio();this.close();this.closeMenu();this.cancelEditGesture?.();this.launch?.remove();this.launchClose?.remove();for(const canvas of [this.options.overviewCanvas,this.options.detailCanvas])if(canvas){canvas.removeEventListener('pointerdown',this.channelPointerDown,true);canvas.removeEventListener('pointermove',this.hoverPointerMove,true);canvas.removeEventListener('pointerleave',this.hoverPointerLeave,true);canvasOwners.delete(canvas);delete canvas.dataset.xweHoverHit}
+ dispose(){globalThis.removeEventListener?.('xensonar:mask-undo-push',this.onMaskUndoPush);this.stopBluePan();this.stopRangeStep();root.removeEventListener('blur',this.bluePanStopOnBlur);document.removeEventListener('visibilitychange',this.bluePanStopOnVisibility);this.scratchPeakAsset=null;this.clearP5Warning();this.eqUnsubscribe?.();this.releaseOfflineEQState();this.closeMixPane();this.abort();this.stopAudio();this.close();this.closeMenu();this.cancelEditGesture?.();this.launch?.remove();this.launchClose?.remove();for(const canvas of [this.options.overviewCanvas,this.options.detailCanvas])if(canvas){canvas.removeEventListener('pointerdown',this.channelPointerDown,true);canvas.removeEventListener('pointermove',this.hoverPointerMove,true);canvas.removeEventListener('pointerleave',this.hoverPointerLeave,true);canvasOwners.delete(canvas);delete canvas.dataset.xweHoverHit}
  this.options.detailCanvas.removeEventListener('pointerdown',this.editPointerDown,true);this.options.detailCanvas.removeEventListener('dblclick',this.goldenDoubleClick,true);this.options.detailCanvas.removeEventListener('pointermove',this.detailResizeMove,true);this.options.detailCanvas.removeEventListener('pointerdown',this.detailResizeDown,true);this.options.detailCanvas.removeEventListener('contextmenu',this.context);this.options.overviewCanvas?.removeEventListener('contextmenu',this.context);this.listenKeys(false)}
  /* FORGE-SLEEP-01: the editor's document listeners exist only while the Forge is the shown room. Parked (another room shown) it owns no key and no pointer: Backspace = octave hold in the Live Room, Delete/Backspace in Nodal/Multitrack belong to those rooms */
  listenKeys(on){on=!!on;if(this.keysOn===on)return;this.keysOn=on;const m=on?'addEventListener':'removeEventListener';document[m]('keydown',this.key,true);document[m]('pointerdown',this.keyZone,true)}
- setAwake(on){this.listenKeys(on);if(on)return;this.pointerOwnsKeys=false;this.cancelEditGesture?.();this.closeMenu();this.closeMixPane();this.stopBluePan();if(this.audioNode)this.stopAudio()}
+ setAwake(on){this.listenKeys(on);if(on)return;this.pointerOwnsKeys=false;this.cancelEditGesture?.();this.closeMenu();this.closeMixPane();this.stopBluePan();this.stopRangeStep();if(this.audioNode)this.stopAudio()}
  setStatus(text){this.clearP5Warning();this.status=text;if(this.statusElement)this.statusElement.textContent=text}
  clearP5Warning(){if(this.p5WarningTimer!=null){root.clearTimeout(this.p5WarningTimer);this.p5WarningTimer=null}this.statusElement?.classList.remove('xwe-p5-warning')}
  warnUnappliedFx(operation='Audio edit'){
@@ -872,10 +878,10 @@ class Editor{
  }
  close(){
   if(globalThis.__XenMultitrackRoundTrip?.bound(this)){globalThis.__XenMultitrackRoundTrip.cancel('Wave Editor closed without applying the linked Multitrack edit.');window.dispatchEvent(new CustomEvent('xensonar:multitrack:roundtrip-navigate',{detail:{room:'MULTITRACK'}}));}
-   this.goldenMoveArmed=false;this.goldenGesture=null;this.stopBluePan();this.clearP5Warning();this.abort();this.tonalAbort?.abort();this.stopAudio();this.cancelEditGesture?.();this.closeMixPane();
+   this.goldenMoveArmed=false;this.goldenGesture=null;this.stopBluePan();this.stopRangeStep();this.clearP5Warning();this.abort();this.tonalAbort?.abort();this.stopAudio();this.cancelEditGesture?.();this.closeMixPane();
   const wasOpen=!!this.overlay;
   if(this.activeWorkspace==='scratch')this.changeWorkspace('project');
-  this.overlay?.remove();this.overlay=null;this.dialog=null;for(const canvas of [this.options.overviewCanvas,this.options.detailCanvas])if(canvas)delete canvas.dataset.xweHoverHit;this.hoverChannelLabel=null;
+  this.overlay?.remove();this.overlay=null;this.dialog=null;this.rangeControls=null;for(const canvas of [this.options.overviewCanvas,this.options.detailCanvas])if(canvas)delete canvas.dataset.xweHoverHit;this.hoverChannelLabel=null;
   if(wasOpen)root.dispatchEvent(new CustomEvent('xensonar:wave-editor-visibility',{detail:{open:false}}));
   if(wasOpen){globalThis.__XenForgeRawGain?.setMode('volume');this.setEnabled(false);this.previousFocus?.focus?.({preventScroll:true})}
  }
@@ -972,9 +978,9 @@ class Editor{
  const rangeIcon=$('span',{class:'xwe-range-icon','aria-hidden':'true',title:'Selection range in seconds and frames'});
  rangeIcon.innerHTML=WAVE_UI_ICONS.stopwatch;
  const secPair=$('div',{class:'xwe-range-pair'});
- for(const [key,label] of [['start','Start s'],['end','End s']]){const l=$('label',{class:'xwe-num-label'},label),input=$('input',{type:'number',step:1/this.doc.sampleRate,min:0,'aria-label':label,onchange:()=>this.setRangeFromFields()});this[key+'Input']=input;l.append(input);secPair.append(l)}
+ for(const [key,label] of [['start','Start s'],['end','End s']])secPair.append(this.buildRangeField(key,'sec',label));
  const framePair=$('div',{class:'xwe-range-pair'});
- for(const [key,label] of [['start','Start Frame'],['end','End Frame']]){const l=$('label',{class:'xwe-num-label'},label),input=$('input',{type:'number',step:1,min:0,'aria-label':label,onchange:()=>this.setRangeFromFrames()});this[key+'FrameInput']=input;l.append(input);framePair.append(l)}
+ for(const [key,label] of [['start','Start Frame'],['end','End Frame']])framePair.append(this.buildRangeField(key,'frame',label));
  rangeGroup.append(rangeIcon,secPair,$('span',{class:'xwe-range-divider','aria-hidden':'true'}),framePair);
  headMain.append(title,undoRedoPair,rangeGroup);
  const headActions=$('div',{class:'xwe-head-actions'});
@@ -1092,7 +1098,7 @@ class Editor{
  field(parent,label,type,value,attrs={}){const row=$('label',{class:'xwe-field'},label),input=$('input',{type,'aria-label':label,...attrs});if(type==='checkbox')input.checked=value;else input.value=value;row.append(input);parent.append(row);return input}
  refresh(rebuild=true){if(!this.overlay)return;this.drawScratchpad();
   if(this.channelConvertButton){const mono=this.doc?.channels?.length===1;this.channelConvertButton.textContent=mono?'Mono':'Stereo';this.channelConvertButton.disabled=!mono;this.channelConvertButton.setAttribute('aria-label',mono?'Convert Mono to Stereo':'Stereo source');this.channelConvertButton.title=mono?'Click to convert Mono to Stereo (copy channel; preserve amplitude; Undo supported)':'Already stereo (two original or edited channels)';}
- this.channelModes?.querySelectorAll('[data-xwe-channel-mode]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.xweChannelMode===this.channel)));if(this.undoApplyButton)this.undoApplyButton.disabled=!this.canUndoDocument();if(this.redoButton)this.redoButton.disabled=!this.doc?.history?.future?.length;this.startInput.value=fmt(this.doc.selection.start/this.doc.sampleRate,6);this.endInput.value=fmt(this.doc.selection.end/this.doc.sampleRate,6);this.startInput.max=this.endInput.max=this.doc.frames/this.doc.sampleRate;this.startFrameInput.value=this.doc.selection.start;this.endFrameInput.value=this.doc.selection.end;this.startFrameInput.max=this.endFrameInput.max=this.doc.frames;if(rebuild){this.drawChain();this.drawParameters();this.requestMorphRefresh()}this.syncMixPaneTarget();this.setStatus(this.status);this.scheduleFxLayout()}
+ this.channelModes?.querySelectorAll('[data-xwe-channel-mode]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.xweChannelMode===this.channel)));if(this.undoApplyButton)this.undoApplyButton.disabled=!this.canUndoDocument();if(this.redoButton)this.redoButton.disabled=!this.doc?.history?.future?.length;this.syncRangeInputs(false);if(rebuild){this.drawChain();this.drawParameters();this.requestMorphRefresh()}this.syncMixPaneTarget();this.setStatus(this.status);this.scheduleFxLayout()}
  applySelection(){
   this.syncFxTargetsToSelection();
   const selection=this.doc.selection;
@@ -1202,8 +1208,284 @@ class Editor{
  }
 
  setCursor(frame){this.invalidate();this.doc=core().setSelection(this.doc,frame,frame);this.applySelection();this.refresh(false);if(this.nodes.length&&this.curveHint)this.curveHint.textContent='No active time range · choose a purple selection before Preview FX or Apply. Existing automation is retained but not rendered.';this.setStatus(`Insertion caret · Frame ${frame} · ${fmt(frame/this.doc.sampleRate,6)} s. Ctrl+V = Insert · Ctrl+Alt+V = Overwrite · Ctrl+Shift+V = Mix.`)}
- setRangeFromFields(){const sr=this.doc.sampleRate,a=clamp(Math.round(Number(this.startInput.value)*sr),0,this.doc.frames),b=clamp(Math.round(Number(this.endInput.value)*sr),0,this.doc.frames);this.invalidate();this.doc=core().setSelection(this.doc,a,b);this.applySelection();this.refresh(false)}
- setRangeFromFrames(){this.invalidate();this.doc=core().setSelection(this.doc,Number(this.startFrameInput.value),Number(this.endFrameInput.value));this.applySelection();this.refresh(false)}
+ parseRangeNumber(raw){
+  const s=String(raw??'').trim().replace(',','.');
+  if(!s)return NaN;
+  const v=Number(s);
+  return Number.isFinite(v)?v:NaN;
+ }
+ rangeDigitSpec(unit){
+  const sr=this.doc?.sampleRate||48000,frames=Math.max(0,this.doc?.frames||0);
+  if(unit==='sec'){
+   const maxSec=frames/sr;
+   const intDigits=Math.max(1,String(Math.floor(Math.max(0,maxSec))).length);
+   return {unit:'sec',intDigits,decDigits:3,totalDigits:intDigits+3,sr,frames};
+  }
+  const intDigits=Math.max(4,String(Math.max(0,frames)).length);
+  return {unit:'frame',intDigits,decDigits:0,totalDigits:intDigits,sr,frames};
+ }
+ formatRangeDisplay(value,unit){
+  const spec=this.rangeDigitSpec(unit);
+  if(unit==='sec'){
+   const clamped=clamp(Number(value)||0,0,spec.frames/spec.sr);
+   const fixed=clamped.toFixed(spec.decDigits);
+   const [iPart,dPart]=fixed.split('.');
+   return {text:iPart.padStart(spec.intDigits,'0')+'.'+dPart,spec};
+  }
+  const clamped=clamp(Math.round(Number(value)||0),0,spec.frames);
+  return {text:String(clamped).padStart(spec.intDigits,'0'),spec};
+ }
+ renderRangeFieldDigits(ctrl){
+  if(!ctrl||!this.doc)return;
+  const {edge,unit,display,input}=ctrl;
+  const sr=this.doc.sampleRate;
+  const rawVal=unit==='sec'?this.doc.selection[edge]/sr:this.doc.selection[edge];
+  const {text,spec}=this.formatRangeDisplay(rawVal,unit);
+  input.value=unit==='sec'?fmt(rawVal,3):String(Math.round(rawVal));
+  input.max=unit==='sec'?this.doc.frames/sr:this.doc.frames;
+  const isFocused=document.activeElement===display;
+  const activeDigit=isFocused?clamp(ctrl.activeDigit??0,0,spec.totalDigits-1):-1;
+  ctrl.activeDigit=isFocused?activeDigit:ctrl.activeDigit;
+  ctrl.spec=spec;
+  ctrl.text=text;
+  let firstNonZero=text.search(/[1-9]/);
+  const dotIdx=text.indexOf('.');
+  if(firstNonZero<0)firstNonZero=dotIdx>0?dotIdx-1:text.length-1;
+  else if(dotIdx>0&&firstNonZero>dotIdx)firstNonZero=dotIdx-1;
+  const nodes=[];
+  let digitIdx=0;
+  for(let i=0;i<text.length;i++){
+   const ch=text[i];
+   if(ch==='.'){
+    const dot=$('span',{class:'xwe-num-dot','data-xwe-after-digit':String(digitIdx)},'.');
+    nodes.push(dot);
+    continue;
+   }
+   const dPos=digitIdx++;
+   const isLeading=dPos<spec.intDigits&&i<firstNonZero;
+   const cls='xwe-digit'+(isLeading?' is-leading-zero':'')+(dPos===activeDigit?' is-active':'');
+   nodes.push($('span',{class:cls,'data-xwe-digit':String(dPos)},ch));
+  }
+  display.replaceChildren(...nodes);
+  display.setAttribute('aria-valuenow',input.value);
+ }
+ syncRangeInputs(){
+  if(!this.doc||!this.rangeControls)return;
+  for(const ctrl of Object.values(this.rangeControls))this.renderRangeFieldDigits(ctrl);
+ }
+ buildRangeField(edge,unit,label){
+  if(!this.rangeControls)this.rangeControls={};
+  const fieldId=`${edge}-${unit}`;
+  const wrap=$('div',{class:'xwe-num-label'}),caption=$('span',{class:'xwe-num-caption'},label);
+  const box=$('div',{class:'xwe-num-box','data-xwe-range-box':fieldId});
+  const hint=unit==='sec'
+   ? `${label} · click any digit and type 0–9 to replace immediately · ←/→ switch digit · ↑/↓ or ▲/▼ adjust (hold to glide)`
+   : `${label} · click any frame digit and type 0–9 to replace immediately · ←/→ switch digit · ↑/↓ or ▲/▼ adjust (hold to glide)`;
+  const input=$('input',{type:'hidden',value:'0','aria-hidden':'true'});
+  const display=$('div',{
+   class:'xwe-num-digits',tabindex:'0',role:'spinbutton','aria-label':label,
+   'data-xwe-range-field':fieldId,title:hint
+  });
+  const ctrl={edge,unit,fieldId,box,display,input,activeDigit:0,spec:null,text:''};
+  this.rangeControls[fieldId]=ctrl;
+  display.addEventListener('pointerdown',ev=>{
+   if(ev.button!==0)return;
+   ev.preventDefault();
+   const digitEl=ev.target?.closest?.('[data-xwe-digit]');
+   const dotEl=ev.target?.closest?.('[data-xwe-after-digit]');
+   const maxD=Math.max(0,(ctrl.spec?.totalDigits||1)-1);
+   if(digitEl)ctrl.activeDigit=clamp(Number(digitEl.dataset.xweDigit)||0,0,maxD);
+   else if(dotEl)ctrl.activeDigit=clamp(Number(dotEl.dataset.xweAfterDigit)||0,0,maxD);
+   else{
+    const r=display.getBoundingClientRect();
+    ctrl.activeDigit=(ev.clientX-r.left)<r.width*.5?0:maxD;
+   }
+   display.focus({preventScroll:true});
+   this.renderRangeFieldDigits(ctrl);
+  });
+  display.addEventListener('focus',()=>{
+   const maxD=Math.max(0,(ctrl.spec?.totalDigits||1)-1);
+   if(ctrl.activeDigit==null||ctrl.activeDigit<0||ctrl.activeDigit>maxD)ctrl.activeDigit=0;
+   this.renderRangeFieldDigits(ctrl);
+  });
+  display.addEventListener('blur',()=>{this.renderRangeFieldDigits(ctrl)});
+  display.addEventListener('keydown',e=>this.handleRangeInputKey(e));
+  const steppers=$('div',{class:'xwe-num-steppers',role:'group','aria-label':`Adjust ${label}`});
+  for(const [dir,sym,verb,cls] of [[1,'▲','Increase','xwe-num-step-up'],[-1,'▼','Decrease','xwe-num-step-down']]){
+   const btn=$('button',{type:'button',tabindex:'-1',class:`xwe-num-step ${cls}`,'aria-label':`${verb} ${label}`,title:hint},sym);
+   btn.addEventListener('pointerdown',ev=>{if(ev.button!==0)return;ev.preventDefault();btn.__xweStepPtr=true;this.startRangeStep(edge,unit,dir,btn,ev)});
+   const release=ev=>{if(this.rangeStepHeld?.pointerId===ev.pointerId)this.stopRangeStep()};
+   btn.addEventListener('pointerup',release);btn.addEventListener('pointercancel',release);btn.addEventListener('lostpointercapture',release);
+   btn.addEventListener('click',ev=>{if(btn.__xweStepPtr){btn.__xweStepPtr=false;return}this.stepRangeEdge(edge,unit,dir,ev,true)});
+   steppers.append(btn);
+  }
+  this[edge+(unit==='sec'?'Input':'FrameInput')]=input;
+  box.append(input,display,steppers);wrap.append(caption,box);
+  return wrap;
+ }
+ activeDigitStepFrames(ctrl){
+  if(!ctrl||!this.doc||document.activeElement!==ctrl.display)return null;
+  const spec=ctrl.spec||this.rangeDigitSpec(ctrl.unit);
+  const dPos=clamp(ctrl.activeDigit??0,0,spec.totalDigits-1);
+  if(ctrl.unit==='sec'){
+   const power=spec.intDigits-1-dPos;
+   const secStep=Math.pow(10,power);
+   return Math.max(1,Math.round(secStep*this.doc.sampleRate));
+  }
+  const power=spec.intDigits-1-dPos;
+  return Math.max(1,Math.round(Math.pow(10,power)));
+ }
+ replaceRangeDigit(ctrl,digitChar){
+  if(!ctrl||!this.doc)return false;
+  const spec=ctrl.spec||this.rangeDigitSpec(ctrl.unit);
+  const text=ctrl.text||this.formatRangeDisplay(ctrl.unit==='sec'?this.doc.selection[ctrl.edge]/this.doc.sampleRate:this.doc.selection[ctrl.edge],ctrl.unit).text;
+  const dPos=clamp(ctrl.activeDigit??0,0,spec.totalDigits-1);
+  let chars=text.split(''),seen=0,charIdx=-1;
+  for(let i=0;i<chars.length;i++){
+   if(chars[i]==='.')continue;
+   if(seen===dPos){charIdx=i;break}
+   seen++;
+  }
+  if(charIdx<0)return false;
+  chars[charIdx]=digitChar;
+  const nextNum=Number(chars.join(''));
+  if(!Number.isFinite(nextNum))return false;
+  const targetFrame=ctrl.unit==='sec'?Math.round(nextNum*this.doc.sampleRate):Math.round(nextNum);
+  const prev=this.doc.selection;
+  const nextA=ctrl.edge==='start'?targetFrame:prev.start;
+  const nextB=ctrl.edge==='end'?targetFrame:prev.end;
+  ctrl.activeDigit=Math.min(spec.totalDigits-1,dPos+1);
+  this.commitRangeSelection(nextA,nextB,true,true);
+  return true;
+ }
+ handleRangeInputKey(e){
+  if(e.__xweRangeHandled)return;
+  const fieldId=e.target?.dataset?.xweRangeField;if(!fieldId)return;
+  const ctrl=this.rangeControls?.[fieldId];if(!ctrl)return;
+  const spec=ctrl.spec||this.rangeDigitSpec(ctrl.unit);
+  const maxD=Math.max(0,spec.totalDigits-1);
+  if(/^[0-9]$/.test(e.key)&&!e.ctrlKey&&!e.metaKey&&!e.altKey){
+   e.__xweRangeHandled=true;e.preventDefault();
+   this.replaceRangeDigit(ctrl,e.key);
+  }else if((e.key==='.'||e.key===',')&&ctrl.unit==='sec'){
+   e.__xweRangeHandled=true;e.preventDefault();
+   ctrl.activeDigit=clamp(spec.intDigits,0,maxD);
+   this.renderRangeFieldDigits(ctrl);
+  }else if(e.key==='ArrowLeft'){
+   e.__xweRangeHandled=true;e.preventDefault();
+   ctrl.activeDigit=clamp((ctrl.activeDigit??0)-1,0,maxD);
+   this.renderRangeFieldDigits(ctrl);
+  }else if(e.key==='ArrowRight'){
+   e.__xweRangeHandled=true;e.preventDefault();
+   ctrl.activeDigit=clamp((ctrl.activeDigit??0)+1,0,maxD);
+   this.renderRangeFieldDigits(ctrl);
+  }else if(e.key==='Home'){
+   e.__xweRangeHandled=true;e.preventDefault();
+   ctrl.activeDigit=0;this.renderRangeFieldDigits(ctrl);
+  }else if(e.key==='End'){
+   e.__xweRangeHandled=true;e.preventDefault();
+   ctrl.activeDigit=maxD;this.renderRangeFieldDigits(ctrl);
+  }else if(e.key==='ArrowUp'||e.key==='ArrowDown'){
+   e.__xweRangeHandled=true;e.preventDefault();
+   this.stepRangeEdge(ctrl.edge,ctrl.unit,e.key==='ArrowUp'?1:-1,e,true,1);
+  }else if(e.key==='Backspace'){
+   e.__xweRangeHandled=true;e.preventDefault();
+   const prevPos=clamp((ctrl.activeDigit??0)-1,0,maxD);
+   ctrl.activeDigit=prevPos;
+   this.replaceRangeDigit(ctrl,'0');
+   ctrl.activeDigit=prevPos;
+   this.renderRangeFieldDigits(ctrl);
+  }else if(e.key==='Delete'){
+   e.__xweRangeHandled=true;e.preventDefault();
+   const curPos=clamp(ctrl.activeDigit??0,0,maxD);
+   this.replaceRangeDigit(ctrl,'0');
+   ctrl.activeDigit=curPos;
+   this.renderRangeFieldDigits(ctrl);
+  }else if(e.key==='Escape'||e.key==='Enter'){
+   e.__xweRangeHandled=true;e.preventDefault();
+   ctrl.display.blur();
+  }
+ }
+ commitRangeSelection(a,b,pushUndo=true,forceSync=true){
+  if(!this.doc)return false;
+  const prev=this.doc.selection;
+  const nextA=clamp(Math.round(a),0,this.doc.frames),nextB=clamp(Math.round(b),0,this.doc.frames);
+  const changed=nextA!==prev.start||nextB!==prev.end;
+  if(changed){
+   if(pushUndo)this.options.onMaskGestureStart?.();
+   this.invalidate();
+   this.doc=core().setSelection(this.doc,nextA,nextB);
+   this.applySelection();
+   this.refresh(false);
+  }
+  if(forceSync)this.syncRangeInputs();
+  return changed;
+ }
+ stepRangeEdge(edge,unit,dir,event,pushUndo=true,accel=1){
+  if(!this.doc)return false;
+  const sr=this.doc.sampleRate,prev=this.doc.selection;
+  const ctrl=this.rangeControls?.[`${edge}-${unit}`];
+  const focusedStep=(!event?.shiftKey&&!event?.altKey)?this.activeDigitStepFrames(ctrl):null;
+  let stepFrames;
+  if(focusedStep!=null){
+   stepFrames=Math.max(1,Math.round(focusedStep*accel));
+  }else if(unit==='sec'){
+   const baseSec=event?.altKey?.001:event?.shiftKey?.1:.01;
+   stepFrames=Math.max(1,Math.round(baseSec*accel*sr));
+  }else{
+   const baseFrames=event?.shiftKey?100:event?.altKey?10:1;
+   stepFrames=Math.max(1,Math.round(baseFrames*accel));
+  }
+  const delta=stepFrames*(dir<0?-1:1),wasRange=prev.end>prev.start;
+  let nextStart=prev.start,nextEnd=prev.end;
+  if(edge==='start')nextStart=clamp(prev.start+delta,0,wasRange?Math.max(0,prev.end-1):this.doc.frames);
+  else nextEnd=clamp(prev.end+delta,wasRange?Math.min(this.doc.frames,prev.start+1):0,this.doc.frames);
+  return this.commitRangeSelection(nextStart,nextEnd,pushUndo,true);
+ }
+ stopRangeStep(){
+  if(this.rangeStepTimer!=null){clearTimeout(this.rangeStepTimer);this.rangeStepTimer=null}
+  if(this.rangeStepFrame!=null){root.cancelAnimationFrame(this.rangeStepFrame);this.rangeStepFrame=null}
+  this.rangeStepHeld=null;
+  this.dialog?.querySelectorAll('[data-xwe-step-held]').forEach(b=>delete b.dataset.xweStepHeld);
+ }
+ startRangeStep(edge,unit,dir,control,event){
+  this.stopRangeStep();
+  if(!this.doc)return;
+  const mods={shiftKey:!!event?.shiftKey,altKey:!!event?.altKey};
+  this.rangeStepHeld={edge,unit,dir,control,pointerId:event.pointerId,mods,start:0,lastTick:0};
+  control.dataset.xweStepHeld='true';
+  try{control.setPointerCapture(event.pointerId)}catch{}
+  this.stepRangeEdge(edge,unit,dir,mods,true,1);
+  this.rangeStepTimer=setTimeout(()=>{
+   this.rangeStepTimer=null;
+   if(!this.rangeStepHeld||this.rangeStepHeld.control!==control)return;
+   const tick=now=>{
+    const state=this.rangeStepHeld;if(!state||state.control!==control)return;
+    if(!state.start){state.start=now;state.lastTick=now}
+    if(now-state.lastTick>=48){
+     state.lastTick=now;
+     const elapsed=Math.max(0,(now-state.start)/1000);
+     const ramp=Math.min(1,elapsed/1.8),smooth=ramp*ramp*(3-2*ramp);
+     const accel=unit==='sec'?(1+7*smooth):(1+63*smooth);
+     this.stepRangeEdge(edge,unit,dir,state.mods,false,accel);
+    }
+    this.rangeStepFrame=root.requestAnimationFrame(tick);
+   };
+   this.rangeStepFrame=root.requestAnimationFrame(tick);
+  },240);
+ }
+ setRangeFromFields(pushUndo=false){
+  if(!this.doc)return false;
+  const sr=this.doc.sampleRate,sv=this.parseRangeNumber(this.startInput?.value),ev=this.parseRangeNumber(this.endInput?.value);
+  if(!Number.isFinite(sv)||!Number.isFinite(ev)){this.syncRangeInputs();return false}
+  return this.commitRangeSelection(Math.round(sv*sr),Math.round(ev*sr),pushUndo,true);
+ }
+ setRangeFromFrames(pushUndo=false){
+  if(!this.doc)return false;
+  const sv=this.parseRangeNumber(this.startFrameInput?.value),ev=this.parseRangeNumber(this.endFrameInput?.value);
+  if(!Number.isFinite(sv)||!Number.isFinite(ev)){this.syncRangeInputs();return false}
+  return this.commitRangeSelection(Math.round(sv),Math.round(ev),pushUndo,true);
+ }
  addNode(type){this.ensureScratchSelection();this.ensureEffectSelection();const effect=registry().find(x=>x.type===type);if(!effect)return;const params=Object.fromEntries(definitions(effect).map(([k,m])=>[k,m.default??m.defaultValue??0]));const node={id:'fx-'+(++serial),type,enabled:true,params,automation:{},targetRange:this.range(),channels:this.target(),version:1};this.nodes.push(node);this.activeNode=node.id;this.activeParam=null;this.eqVisible=false;this.invalidate();this.refresh();this.setStatus(displayEffect(effect)+' added to FX chain · follows visible selection and channel.')}
  addOfflineEQ(){this.ensureScratchSelection();this.ensureEffectSelection();
   const id='eq-'+(++serial),key='waveOffline:'+this.doc.id+':'+id;

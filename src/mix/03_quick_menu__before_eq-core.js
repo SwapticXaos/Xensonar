@@ -321,7 +321,7 @@ class XenLaneShift extends AudioWorkletProcessor {
    // Exact native pass-through, no trig or granular CPU while at zero pitch.
    const warming=this.materialWarmup&&this.filled<this.warmFrames;
    if(warming||(Math.abs(this.cents)<.05&&this.wet<.0001&&Math.abs(this.smoothed-1)<.0002)){
-    for(let i=0;i<n;i++){for(let ch=0;ch<out.length;ch++){const input=ins[ch]||ins[0],dry=input?input[i]||0:0;out[ch][i]=dry;if(this.probeEnabled)this.probeSample(ch,dry,dry,__xenProbeFrame===null?null:__xenProbeFrame+i);this.buffers[ch===0?0:1][this.write]=dry;}this.write=(this.write+1)&this.mask;}const frame=typeof currentFrame==='number'?currentFrame:0;this.filled=Math.min(this.size,this.filled+Math.max(0,n-Math.max(0,this.startAtFrame-frame)));this.probeFlush(__xenProbeFrame,n);return true;
+    for(let i=0;i<n;i++){for(let ch=0;ch<out.length;ch++){const input=ins.length>ch?ins[ch]:(ins.length===1?ins[0]:null),dry=input?input[i]||0:0;out[ch][i]=dry;if(this.probeEnabled)this.probeSample(ch,dry,dry,__xenProbeFrame===null?null:__xenProbeFrame+i);this.buffers[ch===0?0:1][this.write]=dry;}this.write=(this.write+1)&this.mask;}const frame=typeof currentFrame==='number'?currentFrame:0;this.filled=Math.min(this.size,this.filled+Math.max(0,n-Math.max(0,this.startAtFrame-frame)));this.probeFlush(__xenProbeFrame,n);return true;
    }
    const wanted=Math.abs(this.cents)>.05?1:0;
    for(let i=0;i<n;i++){
@@ -340,7 +340,7 @@ class XenLaneShift extends AudioWorkletProcessor {
     let i0=0,i1=0,f0=0,f1=0;
     if(this.wet>.0001){const p0=this.write-d0,p1=this.write-d1;i0=Math.floor(p0);f0=p0-i0;i1=Math.floor(p1);f1=p1-i1;}
     for(let ch=0;ch<out.length;ch++){
-      const input=ins[ch]||ins[0],dry=input?input[i]||0:0;
+      const input=ins.length>ch?ins[ch]:(ins.length===1?ins[0]:null),dry=input?input[i]||0:0;
       const buf=this.buffers[ch===0?0:1];buf[this.write]=dry;
       let shifted=dry;
       if(this.wet>.0001){const a0=buf[i0&this.mask],a1=buf[i1&this.mask];shifted=(a0+(buf[(i0+1)&this.mask]-a0)*f0)*w0+(a1+(buf[(i1+1)&this.mask]-a1)*f1)*w1;}
@@ -390,7 +390,7 @@ class XenLaneShift extends AudioWorkletProcessor {
   task.then(ok=>{if(!ok&&contexts.get(ctx)===task)contexts.delete(ctx)},()=>{if(contexts.get(ctx)===task)contexts.delete(ctx)});
   return task;
  }
- function create(ctx,cents=0,materialWarmup=true,startAtSec=0){try{try{globalThis.__XenRenderMonitor?.mark('pitch-node-create',{material:materialWarmup},ctx)}catch{}const node=new AudioWorkletNode(ctx,'xen-lane-time-pitch-v1',{numberOfInputs:1,numberOfOutputs:1,outputChannelCount:[2],processorOptions:{materialWarmup,startAtFrame:Math.ceil(Math.max(0,startAtSec)*ctx.sampleRate)}});tune(node,cents);return node}catch(error){console.warn('[xensonar][lane-pitch] cannot create',error);return null}}
+ function create(ctx,cents=0,materialWarmup=true,startAtSec=0){try{try{globalThis.__XenRenderMonitor?.mark('pitch-node-create',{material:materialWarmup},ctx)}catch{}const node=new AudioWorkletNode(ctx,'xen-lane-time-pitch-v1',{numberOfInputs:1,numberOfOutputs:1,outputChannelCount:[2],channelCount:2,channelCountMode:'explicit',channelInterpretation:'speakers',processorOptions:{materialWarmup,startAtFrame:Math.ceil(Math.max(0,startAtSec)*ctx.sampleRate)}});tune(node,cents);return node}catch(error){console.warn('[xensonar][lane-pitch] cannot create',error);return null}}
  const tune=(node,cents)=>{if(!node||!Number.isFinite(cents))return;const target=Math.max(-1200,Math.min(1200,cents));if(node.__xenPitchCents===target)return;try{node.port.postMessage({cents:target});node.__xenPitchCents=target}catch{}};
  // P9-C3: every pitch lane warms its delay history before the wet crossfade.
  // This includes RFL's shared bus, which can be inserted at nonzero pitch.

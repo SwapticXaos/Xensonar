@@ -536,13 +536,14 @@
 .xen-forge-action-rack .xen-forge-export-icon{flex:0 0 38px;width:38px;height:38px;border-radius:2px;color:rgb(var(--ta));
  background:radial-gradient(circle at 35% 30%,rgb(var(--ta) / .30),rgb(var(--ta) / .08) 70%);box-shadow:inset 0 0 0 1px rgb(var(--ta) / .35);font-size:22px}
 .xen-forge-action-rack .xen-forge-export-icon svg{display:block}
-.xen-forge-action-rack .xen-forge-export-words{gap:3px;white-space:normal}
+.xen-forge-action-rack .xen-forge-export-words{gap:2px;white-space:normal}
 .xen-forge-action-rack .xen-forge-export-words>span:first-child{font-size:13px;font-weight:650;letter-spacing:.005em;color:#f5f7ff;line-height:1.2}
-.xen-forge-action-rack .xen-forge-export-words>span:nth-child(2){font-size:11px;font-weight:500;color:rgb(var(--ta) / .95);opacity:.85;line-height:1.2}
+.xen-forge-action-rack .xen-forge-export-words>span:nth-child(2){font-size:13px;font-weight:650;letter-spacing:.005em;color:rgb(var(--ta) / .96);opacity:1;line-height:1.2}
+.xen-forge-action-rack .xen-forge-export-words>span.xen-forge-export-sub{font-size:10.5px;font-weight:500;letter-spacing:0;color:rgb(var(--ta) / .92);opacity:.85;line-height:1.2}
 .xen-forge-action-rack .xen-forge-tile-pink .xen-forge-export-icon svg{width:28px;height:28px}
 .xen-forge-action-rack .xen-forge-tile-root .xen-forge-export-icon{font-size:22px}
 @media (prefers-reduced-motion:reduce){.xen-forge-action-rack :is(.xen-forge-tile-load,.xen-forge-tile-repair,.xen-forge-tile-apply,.xen-forge-tile-extract,.xen-forge-tile-material,.xen-forge-tile-pink,.xen-forge-tile-root,.xen-forge-tile-sample,.xen-forge-tile-donor,.xen-carrier-transform){transition:none}}
-/* narrow tiles (Load, Loop korrigieren, Apply Raw, Save as Sample): small icon above, title and the second line one line each */
+/* narrow tiles (Load, Fix Loop, Apply Audio, Save as Sample): small icon above, title and subtitle one line each */
 .xen-forge-action-rack :is(.xen-forge-tile-load,.xen-forge-tile-repair,.xen-forge-tile-apply,.xen-forge-tile-sample){padding:7px 11px}
 .xen-forge-action-rack :is(.xen-forge-tile-load,.xen-forge-tile-repair,.xen-forge-tile-apply,.xen-forge-tile-sample) .xen-forge-export-tile{flex-direction:column;align-items:flex-start;gap:4px}
 .xen-forge-action-rack :is(.xen-forge-tile-load,.xen-forge-tile-repair,.xen-forge-tile-apply,.xen-forge-tile-sample) .xen-forge-export-icon{flex:0 0 26px;width:26px;height:26px;border-radius:2px}
@@ -550,7 +551,8 @@
 .xen-forge-action-rack :is(.xen-forge-tile-load,.xen-forge-tile-repair,.xen-forge-tile-apply,.xen-forge-tile-sample) .xen-forge-export-words{gap:1px;width:100%}
 .xen-forge-action-rack :is(.xen-forge-tile-load,.xen-forge-tile-repair,.xen-forge-tile-apply,.xen-forge-tile-sample) .xen-forge-export-words>span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
 .xen-forge-action-rack :is(.xen-forge-tile-load,.xen-forge-tile-repair,.xen-forge-tile-apply,.xen-forge-tile-sample) .xen-forge-export-words>span:first-child{font-size:12.5px}
-.xen-forge-action-rack :is(.xen-forge-tile-load,.xen-forge-tile-repair,.xen-forge-tile-apply,.xen-forge-tile-sample) .xen-forge-export-words>span:nth-child(2){font-size:10px}
+.xen-forge-action-rack :is(.xen-forge-tile-load,.xen-forge-tile-repair,.xen-forge-tile-apply,.xen-forge-tile-sample) .xen-forge-export-words>span:nth-child(2){font-size:12.5px}
+.xen-forge-action-rack :is(.xen-forge-tile-load,.xen-forge-tile-repair,.xen-forge-tile-apply,.xen-forge-tile-sample) .xen-forge-export-words>span.xen-forge-export-sub{font-size:10px}
 /* the shared button wraps the legend in an inline-flex span: let it take the tile width */
 .xen-forge-action-rack :is(.xen-forge-tile-load,.xen-forge-tile-repair,.xen-forge-tile-apply,.xen-forge-tile-extract,.xen-forge-tile-material,.xen-forge-tile-pink,.xen-forge-tile-root,.xen-forge-tile-sample,.xen-forge-tile-donor,.xen-carrier-transform)>span{width:100%;min-width:0}
 .xen-forge-action-rack :is(.xen-forge-tile-load,.xen-forge-tile-repair,.xen-forge-tile-apply,.xen-forge-tile-extract,.xen-forge-tile-material,.xen-forge-tile-pink,.xen-forge-tile-root,.xen-forge-tile-sample,.xen-forge-tile-donor,.xen-carrier-transform)>span>span:first-child{min-width:0;flex:1 1 auto}

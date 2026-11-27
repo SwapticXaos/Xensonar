@@ -795,6 +795,11 @@ const __XenDjStage = (() => {
       },
       onPointerMove: (e) => {
         if (!dragRef.current) return;
+        if (e.pointerType === 'mouse' && e.buttons === 0) {
+          dragRef.current = null;
+          onDragEnd?.();
+          return;
+        }
         const dy = dragRef.current.y - e.clientY;
         const sens = (max - min) / 120;
         const next = __XenDjMixMath.clamp(dragRef.current.startVal + dy * sens, min, max);
@@ -808,6 +813,18 @@ const __XenDjStage = (() => {
         }
       },
       onPointerCancel: () => {
+        if (dragRef.current) {
+          dragRef.current = null;
+          onDragEnd?.();
+        }
+      },
+      onLostPointerCapture: () => {
+        if (dragRef.current) {
+          dragRef.current = null;
+          onDragEnd?.();
+        }
+      },
+      onBlur: () => {
         if (dragRef.current) {
           dragRef.current = null;
           onDragEnd?.();

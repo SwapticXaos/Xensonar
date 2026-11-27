@@ -13,7 +13,7 @@
    }
   }
   const bottom=strip.getBoundingClientRect().bottom+window.scrollY;
-  const px=Math.ceil(Math.max(156,bottom+8));
+  const px=Math.ceil(Math.max(120,bottom+8));
   document.documentElement.style.setProperty('--xen-h1-side-rail-top',px+'px');
  };
  const queue=()=>{if(!frame)frame=requestAnimationFrame(refresh)};

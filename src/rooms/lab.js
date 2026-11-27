@@ -1804,9 +1804,9 @@ const __loadDonorLibrary=P.useCallback(async(J,apply=false,requestedTicket=null)
      subdivision pushes the state BEFORE the change and tells the Wave Editor; the ONE existing Undo (button / Ctrl+Z) takes mask and audio steps in the order they happened. */
   const __cur=P.useRef(null);__cur.current={c,a,r};const __mu=P.useRef([]),__muBump=()=>{};
   const __pushMaskUndo=P.useCallback(()=>{const x=__cur.current;if(!x?.c)return;const st=__mu.current,last=st[st.length-1];
-    if(last&&last.sel===x.c&&last.meter.bars===x.a?.bars&&last.meter.bpm===x.a?.bpm)return;st.push({sel:x.c,meter:{bars:x.a?.bars,bpm:x.a?.bpm,guideSegments:x.a?.guideSegments,beatsPerBar:x.a?.guideSegments}});if(st.length>60)st.shift();__muBump(v=>v+1);globalThis.dispatchEvent?.(new CustomEvent('xensonar:mask-undo-push'))},[]);
+    if(last&&last.sel===x.c&&last.meter.bars===x.a?.bars&&last.meter.bpm===x.a?.bpm&&last.meter.guideSegments===x.a?.guideSegments&&last.meter.beatsPerBar===x.a?.beatsPerBar)return;st.push({sel:x.c,meter:{bars:x.a?.bars,bpm:x.a?.bpm,guideSegments:x.a?.guideSegments,beatsPerBar:x.a?.beatsPerBar}});if(st.length>60)st.shift();__muBump(v=>v+1);globalThis.dispatchEvent?.(new CustomEvent('xensonar:mask-undo-push'))},[]);
   const __undoMask=P.useCallback(()=>{const st=__mu.current,en=st.pop();if(!en)return false;const x=__cur.current;d(en.sel);
-    if(en.meter.bars!=null&&(en.meter.bars!==x.a?.bars||en.meter.bpm!==x.a?.bpm))x.r?.({bars:en.meter.bars,bpm:en.meter.bpm,guideSegments:en.meter.guideSegments,beatsPerBar:en.meter.beatsPerBar});
+    if(en.meter.bars!=null&&(en.meter.bars!==x.a?.bars||en.meter.bpm!==x.a?.bpm||en.meter.guideSegments!==x.a?.guideSegments||en.meter.beatsPerBar!==x.a?.beatsPerBar))x.r?.({bars:en.meter.bars,bpm:en.meter.bpm,guideSegments:en.meter.guideSegments,beatsPerBar:en.meter.beatsPerBar});
     try{if(en.sel?.fineLoopRange&&Id.isPlaying())Id.updateLoopRangeLive(en.sel.fineLoopRange)}catch{}
     k("Mask and count restored (undo).");__muBump(v=>v+1);return true},[]);
   P.useEffect(()=>{const run=()=>__undoMask();globalThis.addEventListener('xensonar:mask-undo-run',run);return()=>globalThis.removeEventListener('xensonar:mask-undo-run',run)},[__undoMask]);
@@ -1902,11 +1902,12 @@ const __xenPreviewCue=(()=>{let sec=null;const ls=new Set(),emit=()=>ls.forEach(
  const inside=(v,fr)=>v!=null&&fr&&v>=fr.startSec-1e-6&&v<fr.startSec+fr.durationSec-1e-3;
  return {get:()=>sec,set(v){sec=Number.isFinite(v)?v:null;emit()},clear(){if(sec!=null){sec=null;emit()}},inside,
   offsetIn(fr){return inside(sec,fr)?sec-fr.startSec:null},take(fr){const o=inside(sec,fr)?sec-fr.startSec:undefined;if(sec!=null){sec=null;emit()}return o},subscribe:f=>(ls.add(f),()=>ls.delete(f))}})();
-function RGe(e){const{source:t,selection:n,previewPlaying:r,meter:a,setDetailViewport:o,setFineLoopRange:i,clearRepairUndo:s,scrubPreviewAt:l,updateActivePreviewRange:c}=e,d=P.useRef(null),p=P.useRef(null),f=P.useRef(null),[b,g]=P.useState(null),[y,x]=P.useState(null),[A,M]=P.useState("crosshair"),[v,w]=P.useState("crosshair"),[rawGainRevision,bumpRawGain]=P.useState(0),[waveEditorRevision,bumpWaveEditor]=P.useState(0);
+function RGe(e){const{source:t,selection:n,previewPlaying:r,meter:a,setDetailViewport:o,setFineLoopRange:i,clearRepairUndo:s,scrubPreviewAt:l,updateActivePreviewRange:c}=e,d=P.useRef(null),p=P.useRef(null),f=P.useRef(null),snapMetaRef=P.useRef(null),[b,g]=P.useState(null),[y,x]=P.useState(null),[A,M]=P.useState("crosshair"),[v,w]=P.useState("crosshair"),[rawGainRevision,bumpRawGain]=P.useState(0),[waveEditorRevision,bumpWaveEditor]=P.useState(0);
+ snapMetaRef.current={exportMeta:e.exportMeta,onMetaPatch:e.onMetaPatch};
  const [cueRev,bumpCue]=P.useState(0);P.useEffect(()=>__xenPreviewCue.subscribe(()=>bumpCue(v=>v+1)),[]);
  const [pvRev,bumpPv]=P.useState(0);P.useEffect(()=>__xenTaktPreview.subscribe(()=>bumpPv(v=>v+1)),[]);
- P.useEffect(()=>{if(!t||!p.current)return;return globalThis.__XenWaveUIW01.attach({source:t,selection:n,detailCanvas:p.current,overviewCanvas:d.current,onCommit:e.commitWaveDocument,onSelection:e.setWaveSelection,stopSourcePreview:e.stopWaveSourcePreview,onMaskGestureStart:()=>e.pushMaskUndo?.(),snapMask:(range,drag)=>__xenSnapMaskGesture(range,drag,{source:t,total:t?.durationSec,exportMeta:e.exportMeta,onMetaPatch:e.onMetaPatch}),/* SAME-MASK-01: the open Wave Editor runs EXACTLY the gesture code of this view: hit test (hA on the mask clipped to the view), range ($_: no crossing, min 50 ms) and snap */maskHit:(sec,mask,view,secPerPx)=>hA(sec,Ty(mask,view)??mask,secPerPx),maskRange:(sec,drag)=>__xenSnapMaskGesture($_(sec,drag,t?.durationSec,.05),drag,{source:t,total:t?.durationSec,exportMeta:e.exportMeta,onMetaPatch:e.onMetaPatch}),onMaskGestureEnd:mode=>{if(mode==='new')s()},snapMaskCancel:drag=>__xenSnapMaskCancel(drag,{onMetaPatch:e.onMetaPatch}),onLoopPlay:()=>e.onLoopPlay?.(),onViewChange:()=>bumpWaveEditor(v=>v+1)})},[!!t]);
- P.useLayoutEffect(()=>{if(t&&p.current)globalThis.__XenWaveUIW01.getEditor(p.current)?.update({source:t,selection:n,detailCanvas:p.current,overviewCanvas:d.current,onCommit:e.commitWaveDocument,onSelection:e.setWaveSelection,stopSourcePreview:e.stopWaveSourcePreview,onMaskGestureStart:()=>e.pushMaskUndo?.(),snapMask:(range,drag)=>__xenSnapMaskGesture(range,drag,{source:t,total:t?.durationSec,exportMeta:e.exportMeta,onMetaPatch:e.onMetaPatch}),/* SAME-MASK-01: the open Wave Editor runs EXACTLY the gesture code of this view: hit test (hA on the mask clipped to the view), range ($_: no crossing, min 50 ms) and snap */maskHit:(sec,mask,view,secPerPx)=>hA(sec,Ty(mask,view)??mask,secPerPx),maskRange:(sec,drag)=>__xenSnapMaskGesture($_(sec,drag,t?.durationSec,.05),drag,{source:t,total:t?.durationSec,exportMeta:e.exportMeta,onMetaPatch:e.onMetaPatch}),onMaskGestureEnd:mode=>{if(mode==='new')s()},snapMaskCancel:drag=>__xenSnapMaskCancel(drag,{onMetaPatch:e.onMetaPatch}),onLoopPlay:()=>e.onLoopPlay?.(),onViewChange:()=>bumpWaveEditor(v=>v+1)})});
+ P.useEffect(()=>{if(!t||!p.current)return;return globalThis.__XenWaveUIW01.attach({source:t,selection:n,detailCanvas:p.current,overviewCanvas:d.current,onCommit:e.commitWaveDocument,onSelection:e.setWaveSelection,stopSourcePreview:e.stopWaveSourcePreview,onMaskGestureStart:()=>e.pushMaskUndo?.(),snapMask:(range,drag)=>__xenSnapMaskGesture(range,drag,{source:t,total:t?.durationSec,exportMeta:snapMetaRef.current?.exportMeta,onMetaPatch:snapMetaRef.current?.onMetaPatch}),/* SAME-MASK-01: the open Wave Editor runs EXACTLY the gesture code of this view: hit test (hA on the mask clipped to the view), range ($_: no crossing, min 50 ms) and snap */maskHit:(sec,mask,view,secPerPx)=>hA(sec,Ty(mask,view)??mask,secPerPx),maskRange:(sec,drag)=>__xenSnapMaskGesture($_(sec,drag,t?.durationSec,.05),drag,{source:t,total:t?.durationSec,exportMeta:snapMetaRef.current?.exportMeta,onMetaPatch:snapMetaRef.current?.onMetaPatch}),onMaskGestureEnd:mode=>{if(mode==='new')s()},snapMaskCancel:drag=>__xenSnapMaskCancel(drag,{onMetaPatch:snapMetaRef.current?.onMetaPatch}),onLoopPlay:()=>e.onLoopPlay?.(),onViewChange:()=>bumpWaveEditor(v=>v+1)})},[!!t]);
+ P.useLayoutEffect(()=>{if(t&&p.current)globalThis.__XenWaveUIW01.getEditor(p.current)?.update({source:t,selection:n,detailCanvas:p.current,overviewCanvas:d.current,onCommit:e.commitWaveDocument,onSelection:e.setWaveSelection,stopSourcePreview:e.stopWaveSourcePreview,onMaskGestureStart:()=>e.pushMaskUndo?.(),snapMask:(range,drag)=>__xenSnapMaskGesture(range,drag,{source:t,total:t?.durationSec,exportMeta:snapMetaRef.current?.exportMeta,onMetaPatch:snapMetaRef.current?.onMetaPatch}),/* SAME-MASK-01: the open Wave Editor runs EXACTLY the gesture code of this view: hit test (hA on the mask clipped to the view), range ($_: no crossing, min 50 ms) and snap */maskHit:(sec,mask,view,secPerPx)=>hA(sec,Ty(mask,view)??mask,secPerPx),maskRange:(sec,drag)=>__xenSnapMaskGesture($_(sec,drag,t?.durationSec,.05),drag,{source:t,total:t?.durationSec,exportMeta:snapMetaRef.current?.exportMeta,onMetaPatch:snapMetaRef.current?.onMetaPatch}),onMaskGestureEnd:mode=>{if(mode==='new')s()},snapMaskCancel:drag=>__xenSnapMaskCancel(drag,{onMetaPatch:snapMetaRef.current?.onMetaPatch}),onLoopPlay:()=>e.onLoopPlay?.(),onViewChange:()=>bumpWaveEditor(v=>v+1)})});
  /* WAVE-LOOP-01: the editor's Loop button mirrors the big PLAY (Preview Loop) of this panel */
  P.useEffect(()=>{if(t&&p.current)globalThis.__XenWaveUIW01.getEditor(p.current)?.setLoopPlaying?.(!!r)},[r,t,waveEditorRevision]);
  P.useEffect(()=>{if(t&&p.current)globalThis.__XenWaveUIW01.getEditor(p.current)?.setLoopClock?.(y!=null&&n?n.fineLoopRange.startSec+y:null)},[y,r,n,t,waveEditorRevision]);
@@ -1920,7 +1921,7 @@ function RGe(e){const{source:t,selection:n,previewPlaying:r,meter:a,setDetailVie
  if(!b.activated){if(!__xenP10CrossedDragThreshold(b.clientX,_))return;b.activated=true;e.pushMaskUndo?.()}
  const N=n.detailViewport,W=N.startSec+G*N.durationSec;
  /* TAKT-SNAP-04 / SNAP-ALL-01: Bar / Beat / Segment only decide HOW THE WINDOW IS DEFINED (stepped instead of free); the live loop (i / c below) and the playhead run the same code as for Off. One snap function for this view and the open Wave Editor. */
- const V=__xenSnapMaskGesture($_(W,b,j,.05),b,{source:t,total:j,exportMeta:e.exportMeta,onMetaPatch:e.onMetaPatch});
+ const V=__xenSnapMaskGesture($_(W,b,j,.05),b,{source:t,total:j,exportMeta:snapMetaRef.current?.exportMeta,onMetaPatch:snapMetaRef.current?.onMetaPatch});
  i(V),r&&c(V)
  },L=B=>{if(b.pointerId!=null&&B.pointerId!==b.pointerId)return;
  if(b.finished||b.cancelled)return;b.finished=true;
@@ -1928,7 +1929,7 @@ function RGe(e){const{source:t,selection:n,previewPlaying:r,meter:a,setDetailVie
  },K=B=>{if(B?.pointerId!=null&&b.pointerId!=null&&B.pointerId!==b.pointerId)return;
  // Cancellation is not a commit: restore the original purple mask, including preview.
  if(b.finished||b.cancelled)return;b.cancelled=true;
- if(b.target==="detail"&&b.activated&&b.originalMask){i(b.originalMask);r&&c(b.originalMask);__xenSnapMaskCancel(b,{onMetaPatch:e.onMetaPatch})}g(null)
+ if(b.target==="detail"&&b.activated&&b.originalMask){i(b.originalMask);r&&c(b.originalMask);__xenSnapMaskCancel(b,{onMetaPatch:snapMetaRef.current?.onMetaPatch})}g(null)
  };
  window.addEventListener("pointermove",F);window.addEventListener("pointerup",L);
  window.addEventListener("pointercancel",K);window.addEventListener("blur",K);
@@ -2069,12 +2070,12 @@ function __xenSongPartsFromRoundTrip(asset){
  const seen=new Set();for(const q of inc.parts){const k=kindOf(q.l),nm=kindName(q);if(seen.has(k))continue;seen.add(k);if(nm||(q.c&&q.c!==E.colorOf(k)))E.setKind(asset,k,{...(nm?{name:nm}:{}),...(q.c&&q.c!==E.colorOf(k)?{color:q.c}:{})})}
  return result;
 }
-/* SONG-PARTS-EDIT-01: snap the purple loop mask while it is dragged (only the moving edge; a moved mask keeps its length) */
-function __xenSnapMaskDrag(range,mode,source){
- const sp=__xenSongPartsLatest;if(!range||!sp||!source||sp.asset!==source.sourceAsset||!sp.result?.grid)return range;
- const m=__xenSongPartsEdit.snapMode();if(m==='off'||m==='segment')return range;
+/* TAKT-SNAP-06: __xenSnapMaskDrag only serves Beat snap on the automatic analysis's tracked beat grid. Bar and Segment always follow the Taktometer. */
+function __xenSnapMaskDrag(range,mode,source,anchorTime=null){
+ const g=__xenAnalysisBeatGrid(source);if(!range||!g)return range;
+ const m=__xenSongPartsEdit.snapMode();if(m!=='beat')return range;
  const edge=mode==='resize-start'?'start':mode==='resize-end'?'end':mode==='move'?'move':'both';
- return __xenSongPartsEdit.snapRange(range,sp.result.grid,m,edge,Number(source.durationSec)||Infinity);
+ return __xenSongPartsEdit.snapRange(range,g,'beat',edge,Number(source.durationSec)||Infinity,anchorTime);
 }
 /* the last numbers typed into "Subdivide every / evenly" (for the next menu) and the parser for bar counts: 7, 1.5, 1,5, 3/2 */
 const __xenSongSubdivideLast={every:'2',even:'4'};
@@ -2102,48 +2103,100 @@ function __xenTonalAgreement(key,tonal){if(!key||!tonal?.ok||tonal.tuning?.id!==
  const set=(key.minor?[0,2,3,5,7,8,10]:[0,2,4,5,7,9,11]).map(d=>(d+key.pc)%12);return set.includes(pc)?'root inside the key':'differs'}
 function __xenTonalText(t){if(!t)return '';if(!t.ok)return 'pitch lines: '+(t.note||'not determined');const pct=v=>Math.round((v||0)*100)+' %';
  return 'pitch lines: '+(t.root.hz>=100?t.root.hz.toFixed(1):t.root.hz.toFixed(2))+' Hz '+(t.root.approx?'≈ ':'= ')+t.root.name+' · '+(t.scale?.name||'no single scale')+' · '+t.tuning.label+' ('+pct(t.scale?.confidence??t.root.confidence)+')'}
-/* TAKT-SNAP-01: with snap Bar or Beat the Taktometer keeps its tempo and COUNTS while the purple mask is resized: 10 bars made
-   2 bars shorter read 8 bars (snap Beat: 7.5). Only snap Off keeps the bar count and stretches it over the mask (aligning the
-   markers by eye to the level peaks). Without a song analysis the moving edge snaps to whole bars / segments of the current
-   Taktometer, counted from the edge that stays. Returns {range, patch} or null (Off, move, nothing to count). */
-/* BEAT-01: how many BEATS a bar has, for Snap = Beat. The Taktometer apply writes beatsPerBar = guideSegments, so the meta alone made
-   Beat the same as Segment (16 segments: a "beat" of 1/16 bar). A beat is a real beat: the song analysis' beats per bar for this audio
-   (on its grid); else beatsPerBar when it differs from the segment count and divides it; else derived from the segments (16, 12, 8 → 4 · 9, 6 → 3 · else = segments). */
+/* TAKT-SNAP-06: single source of truth for purple loop-mask snapping:
+   - Bar     = ALWAYS what the Taktometer currently displays as 1 Bar (d0 / bars, or beatsPerBar * 60 / bpm from a caret),
+               snapped onto the Taktometer's own bar lines (s0 + m * barSec). Never overridden by the static song-parts bar grid.
+   - Segment = ALWAYS what the Taktometer currently displays as 1 Segment (barSec / guideSegments),
+               snapped onto the Taktometer's own segment lines (s0 + m * segSec).
+   - Beat    = ALWAYS derived from the automatic analysis's BPM / tracked beat grid (sp.result.grid.segments,
+               else 60 / sp.result.bpm, else Taktometer beat fallback), independent of Taktometer Bar / Segment edits.
+   - Off     = free; Taktometer keeps its bar count and stretches over the mask.
+   File start (0) and end (total) are always reachable (FILE-EDGE-01), and the Taktometer count updates without warping barSec / BPM. */
+function __xenTaktometerUnits(meta,drag){
+ if(!meta)return null;
+ const S=Math.max(1,Math.round(Number(meta.guideSegments)||1));
+ const bars=__xenAudioMaterialBars(meta.bars??1);
+ const d0=Number(drag?.originalMask?.durationSec)||0;
+ let barSec=0;
+ if(d0>0)barSec=d0/bars;
+ else if(Number(meta.bpm)>0){const bpb=Math.max(1,Math.round(Number(meta.beatsPerBar)||S));barSec=bpb*60/Number(meta.bpm)}
+ if(!(barSec>0)||!Number.isFinite(barSec))return null;
+ return {S,bars,barSec,segSec:barSec/S};
+}
+function __xenMaskSegSec(meta,drag){return __xenTaktometerUnits(meta,drag)?.segSec||0}
 function __xenBeatsPerBar(meta,source){
  const sp=__xenSongPartsLatest,a=sp&&source&&sp.asset===source.sourceAsset?Number(sp.result?.grid?.segmentsPerBar||sp.result?.segmentsPerBar):NaN;
  if(Number.isFinite(a)&&a>=1)return Math.round(a);
  const S=Math.max(1,Math.round(Number(meta?.guideSegments)||1)),b=Number(meta?.beatsPerBar);
- if(Number.isFinite(b)&&b>=1&&Math.round(b)!==S&&S%Math.round(b)===0)return Math.round(b);/* a beat must be whole segments, or the count would round and the tempo wobble */
+ if(Number.isFinite(b)&&b>=1&&Math.round(b)!==S&&S%Math.round(b)===0)return Math.round(b);
  return S>4&&S%4===0?4:S>3&&S%3===0?3:S;
 }
-function __xenMaskCount(range,drag,meta,mode,total,source){
- if(!range||!drag||!meta||mode==='off'||drag.mode==='move'||!(range.durationSec>0))return null;
- const S=Math.max(1,Math.round(Number(meta.guideSegments)||1)),bars=Math.max(1/64,Number(meta.bars)||1),d0=Number(drag.originalMask?.durationSec)||0;
- /* SNAP-ALL-01: a fresh mask drawn from a caret (no old length) takes the segment length from the Taktometer tempo (bpm = segments per minute) */
- const seg=d0>0?d0/(bars*S):Number(meta.bpm)>0?60/Number(meta.bpm):0;if(!(seg>0))return null;const barDur=seg*S,beatsPer=Math.max(1,__xenBeatsPerBar(meta,source));
- /* TAKT-SNAP-02: Bar = whole bars, Beat = the meter's beats (bar / beats per bar), Segment = the guide segments the user chose (their own division of the bar) */
- const unit=mode==='bar'?barDur:mode==='segment'?seg:barDur/beatsPer;
- const sp=__xenSongPartsLatest,onGrid=mode!=='segment'&&!!(sp&&source&&sp.asset===source.sourceAsset&&sp.result?.grid);
- let r=range;
- if(!onGrid){const endFixed=drag.mode==='resize-start'||(drag.mode==='new'&&range.startSec<drag.anchorTime-1e-9),
-   end=range.startSec+range.durationSec,room=endFixed?end:Math.max(0,total-range.startSec);
-  let k=Math.max(1,Math.round(range.durationSec/unit));while(k>1&&k*unit>room+1e-6)k--;
-  const d=Math.min(k*unit,room);r=endFixed?{startSec:end-d,durationSec:d}:{startSec:range.startSec,durationSec:d}}
- const count=Math.max(1,Math.round(r.durationSec/seg));
- return {range:r,patch:__xenMeterAnalysis.metaPatch(count,S,r.durationSec)};
+function __xenAnalysisBeatGrid(source){
+ const sp=__xenSongPartsLatest;
+ if(!sp||!source||sp.asset!==source.sourceAsset||!sp.result?.ok)return null;
+ const g=sp.result.grid;
+ if(sp.result.rhythmic&&g?.segments?.length>=2)return g;
+ return null;
 }
-/* SNAP-ALL-01: moving the whole mask with Bar / Beat / Segment. On the analysis grid (Bar, Beat) __xenSnapMaskDrag already set the start
-   onto a grid line; otherwise (no analysis, or Segment) the mask moves in whole steps of the Taktometer unit from where it started. */
-function __xenSnapMaskMove(range,drag,meta,mode,total,source){
- if(!range||!drag||mode==='off'||drag.mode!=='move')return range;
- const sp=__xenSongPartsLatest;if(mode!=='segment'&&sp&&source&&sp.asset===source.sourceAsset&&sp.result?.grid)return range;
- const o=drag.originalMask,d=range.durationSec;if(!o||!(d>0)||!meta)return range;
- const S=Math.max(1,Math.round(Number(meta.guideSegments)||1)),bars=Math.max(1/64,Number(meta.bars)||1),d0=Number(o.durationSec)||0;
- const seg=d0>0?d0/(bars*S):Number(meta.bpm)>0?60/Number(meta.bpm):0;if(!(seg>0))return range;
- const unit=mode==='bar'?seg*S:mode==='segment'?seg:seg*S/Math.max(1,__xenBeatsPerBar(meta,source)),lim=Number.isFinite(total)?total:Infinity;
- let k=Math.round((range.startSec-o.startSec)/unit);
- while(k<0&&o.startSec+k*unit<-1e-6)k++;while(k>0&&o.startSec+k*unit+d>lim+1e-6)k--;
- return {startSec:Math.max(0,o.startSec+k*unit),durationSec:d};
+function __xenBeatStepSec(meta,drag,source){
+ const sp=__xenSongPartsLatest;
+ if(sp&&source&&sp.asset===source.sourceAsset&&Number(sp.result?.bpm)>0)return 60/Number(sp.result.bpm);
+ const u=__xenTaktometerUnits(meta,drag);
+ if(u)return u.barSec/Math.max(1,__xenBeatsPerBar(meta,source));
+ return Number(meta?.bpm)>0?60/Number(meta.bpm):0;
+}
+function __xenSnapLattice(range,drag,unit,total){
+ if(!range||!drag||!(unit>0))return range;
+ const lim=Number.isFinite(total)&&total>0?total:Infinity;
+ const o=drag.originalMask,hasOrig=!!o&&Number(o.durationSec)>0;
+ const anchorRaw=Number(drag.anchorTime),anchor=Math.max(0,Math.min(lim,Number.isFinite(anchorRaw)?anchorRaw:range.startSec));
+ const s0=hasOrig?o.startSec:anchor;
+ const e0=hasOrig?o.startSec+o.durationSec:anchor;
+ if(drag.mode==='move'){
+  const d=range.durationSec;if(!hasOrig||!(d>0))return range;
+  let k=Math.round((range.startSec-s0)/unit);
+  while(k<0&&s0+k*unit<-1e-6)k++;
+  while(k>0&&s0+k*unit+d>lim+1e-6)k--;
+  const ns=Math.max(0,Math.min(lim-d,s0+k*unit));
+  return {startSec:ns,durationSec:d};
+ }
+ if(drag.mode==='resize-end'){
+  const room=Math.max(0,lim-s0);
+  let k=Math.max(1,Math.round((range.startSec+range.durationSec-s0)/unit));
+  while(k>1&&k*unit>room+1e-6)k--;
+  const d=Math.min(k*unit,room);
+  return {startSec:s0,durationSec:Math.max(.05,d)};
+ }
+ if(drag.mode==='resize-start'){
+  const minDur=Math.min(e0,.05);
+  let m=Math.round((range.startSec-s0)/unit);
+  while(s0+m*unit<-1e-6)m++;
+  while(s0+m*unit>e0-minDur+1e-6&&s0+(m-1)*unit>=-1e-6)m--;
+  let ns=Math.max(0,s0+m*unit);
+  if(e0-ns<minDur-1e-6)ns=Math.max(0,e0-minDur);
+  return {startSec:ns,durationSec:Math.max(.05,e0-ns)};
+ }
+ // drag.mode === 'new': anchor is where the pointer went down ("Start = 1" when dragging right)
+ const dragLeft=range.startSec<anchor-1e-9;
+ if(dragLeft){
+  const room=Math.max(0,anchor);
+  let k=Math.max(1,Math.round((anchor-range.startSec)/unit));
+  while(k>1&&k*unit>room+1e-6)k--;
+  const d=Math.min(k*unit,room);
+  return {startSec:Math.max(0,anchor-d),durationSec:Math.max(.05,d)};
+ }
+ const room=Math.max(0,lim-anchor);
+ let k=Math.max(1,Math.round((range.startSec+range.durationSec-anchor)/unit));
+ while(k>1&&k*unit>room+1e-6)k--;
+ const d=Math.min(k*unit,room);
+ return {startSec:anchor,durationSec:Math.max(.05,d)};
+}
+function __xenTaktCountPatch(durationSec,units,mode){
+ if(!units||!(durationSec>0))return null;
+ const exactSegs=durationSec/units.segSec,rounded=Math.round(exactSegs);
+ const tol=mode==='beat'?.025:.005;
+ const segs=(rounded>=1&&Math.abs(exactSegs-rounded)<=tol)?rounded:Math.max(units.S/64,exactSegs);
+ return __xenMeterAnalysis.metaPatch(segs,units.S,durationSec);
 }
 /* SNAP-ALL-01: the ONE snap for every drag of the purple loop mask. The import view (RGe) and the open Wave Editor (W01, option snapMask)
    both call this, so Bar / Beat / Segment always step and only Off is free. drag = {mode:'new'|'move'|'resize-start'|'resize-end',
@@ -2152,35 +2205,44 @@ function __xenSnapMaskGesture(range,drag,ctx){
  const mode=__xenSongPartsEdit.snapMode();if(!range||!drag||mode==='off')return range;
  const st=drag.state||(drag.state={}),m=ctx?.exportMeta;
  if(!st.meta0&&m)st.meta0={bars:m.bars,guideSegments:m.guideSegments,beatsPerBar:m.beatsPerBar,bpm:m.bpm};
- let V=__xenSnapMaskDrag(range,drag.mode,ctx?.source);
- V=__xenSnapMaskMove(V,drag,st.meta0,mode,ctx?.total,ctx?.source);
- // TAKT-SNAP-01/04: the Taktometer count / tempo follows the stepped window
- const K=__xenMaskCount(V,drag,st.meta0,mode,ctx?.total,ctx?.source);
- let patch=null;if(K){V=K.range;patch=K.patch}
- /* FILE-EDGE-01: the start and the end of the AUDIO are always snap points. Before, the moving edge stopped at the last whole
-    bar / beat / segment inside the file, so a song that does not end exactly on a bar line could never be selected completely
-    (the last bit could not be edited). An edge the pointer brings closer to the file edge than to the snapped grid point (or
-    past it) takes the file edge; the Taktometer keeps its tempo and counts the part bar (no squeezing). */
- const total=Number(ctx?.total),raw=range;
+ const total=Number(ctx?.total),lim=Number.isFinite(total)&&total>0?total:Infinity;
+ const units=__xenTaktometerUnits(st.meta0,drag);
+ let V=range;
+ if(mode==='bar'||mode==='segment'){
+  const unit=units?(mode==='bar'?units.barSec:units.segSec):0;
+  if(unit>0)V=__xenSnapLattice(range,drag,unit,lim);
+ }else if(mode==='beat'){
+  const beatGrid=__xenAnalysisBeatGrid(ctx?.source);
+  if(beatGrid){
+   const edge=drag.mode==='resize-start'?'start':drag.mode==='resize-end'?'end':drag.mode==='move'?'move':'both';
+   V=__xenSongPartsEdit.snapRange(range,beatGrid,'beat',edge,lim,drag.mode==='new'?drag.anchorTime:null);
+  }else{
+   const beatSec=__xenBeatStepSec(st.meta0,drag,ctx?.source);
+   if(beatSec>0)V=__xenSnapLattice(range,drag,beatSec,lim);
+  }
+ }
+ /* FILE-EDGE-01: the start and the end of the AUDIO are always snap points so the full file stays reachable without squeezing the Taktometer. */
+ const raw=range;
  if(Number.isFinite(total)&&total>0){
   const end=V.startSec+V.durationSec,rawEnd=raw.startSec+raw.durationSec;let s=V.startSec,e=end;
   if(drag.mode==='move'){
-   if(raw.startSec<=1e-6||raw.startSec<s&&s-raw.startSec>raw.startSec){s=0;e=V.durationSec}
-   else if(rawEnd>=total-1e-6||rawEnd>end&&rawEnd-end>total-rawEnd){e=total;s=total-V.durationSec}
+   if(raw.startSec<=1e-6||(raw.startSec<s&&s-raw.startSec>raw.startSec)){s=0;e=V.durationSec}
+   else if(rawEnd>=total-1e-6||(rawEnd>end&&rawEnd-end>total-rawEnd)){e=total;s=Math.max(0,total-V.durationSec)}
   }else{
-   const movesEnd=drag.mode==='resize-end'||drag.mode==='new',movesStart=drag.mode==='resize-start'||drag.mode==='new';
-   if(movesEnd&&rawEnd>end&&rawEnd-end>total-rawEnd)e=total;
-   if(movesStart&&raw.startSec<s&&s-raw.startSec>raw.startSec)s=0;
+   const anchor=Number(drag.anchorTime);
+   const dragLeft=drag.mode==='new'&&Number.isFinite(anchor)&&raw.startSec<anchor-1e-9;
+   const movesEnd=drag.mode==='resize-end'||(drag.mode==='new'&&!dragLeft);
+   const movesStart=drag.mode==='resize-start'||dragLeft;
+   if(movesEnd&&(rawEnd>=total-1e-6||(rawEnd>end&&rawEnd-end>total-rawEnd)))e=total;
+   if(movesStart&&(raw.startSec<=1e-6||(raw.startSec<s&&s-raw.startSec>raw.startSec)))s=0;
   }
-  if(s!==V.startSec||e!==end){V={startSec:Math.max(0,s),durationSec:Math.min(total,e)-Math.max(0,s)};
-   if(drag.mode!=='move'&&st.meta0){const seg=__xenMaskSegSec(st.meta0,drag);if(seg>0)patch=__xenMeterAnalysis.metaPatch(V.durationSec/seg,Math.max(1,Math.round(Number(st.meta0.guideSegments)||1)),V.durationSec)}}
+  if(s!==V.startSec||e!==end)V={startSec:Math.max(0,s),durationSec:Math.max(.05,Math.min(total,e)-Math.max(0,s))};
  }
+ // TAKT-SNAP-01/04: the Taktometer count follows the stepped window without warping barSec / BPM
+ const patch=drag.mode!=='move'?__xenTaktCountPatch(V.durationSec,units,mode):null;
  if(patch){const key=patch.bars+':'+V.durationSec.toFixed(4);if(key!==st.countKey){st.countKey=key;st.patched=true;ctx?.onMetaPatch?.(patch)}}
  return V;
 }
-/* FILE-EDGE-01: one Taktometer segment in seconds, as __xenMaskCount derives it (from the gesture's start mask, else the tempo) */
-function __xenMaskSegSec(meta,drag){const S=Math.max(1,Math.round(Number(meta?.guideSegments)||1)),bars=Math.max(1/64,Number(meta?.bars)||1),d0=Number(drag?.originalMask?.durationSec)||0;
- return d0>0?d0/(bars*S):Number(meta?.bpm)>0?60/Number(meta.bpm):0}
 /* SNAP-ALL-01: a cancelled gesture (Esc, blur, pointercancel) also gives the Taktometer its count back */
 function __xenSnapMaskCancel(drag,ctx){
  const st=drag?.state,m=st?.meta0;if(!st?.patched||!m)return;st.patched=false;st.countKey=null;
@@ -2349,7 +2411,7 @@ function __XenSongPartsStrip({source,selection,onSelectPart,onPatch,onCue}){
   h('div',{className:'xwe-song-caption'},h('span',{'data-xwe-song-caption':true},caption),
    h('span',{className:'xwe-song-tools'},
     view.edited?h('span',{className:'xwe-song-edited',title:'Your working copy of the parts (saved for this song). Right click a part → Reset to return to the analysis.'},'working copy'):null,
-    h('label',{className:'xwe-song-snap','data-xwe-snap-active':snap!=='off'?'true':'false',title:'Snap for part boundaries and for dragging the purple loop mask: Bar = whole bars · Beat = the meter\u2019s beats · Segment = your guide segments · Off = free'},
+    h('label',{className:'xwe-song-snap','data-xwe-snap-active':snap!=='off'?'true':'false',title:'Snap for dragging the purple loop mask (and part boundaries): Bar = current Taktometer bars · Beat = analyzed BPM beats · Segment = current Taktometer segments · Off = free'},
      h('svg',{className:'xwe-snap-icon','aria-hidden':true,focusable:'false',viewBox:'0 0 20 20',fill:'none',stroke:'currentColor',strokeWidth:2.1,strokeLinecap:'round',strokeLinejoin:'round'},
       h('path',{d:'M4 2.5v8.5a6 6 0 0 0 12 0V2.5'}),h('path',{d:'M2.5 2.5h3.5M14 2.5h3.5'}),h('path',{d:'M4 6.5h2.8M13.2 6.5h2.8'})),
      h('span',{className:'xwe-snap-label'},'Snap'),
@@ -2640,7 +2702,7 @@ function __CGeHydrated({sourceAdapters:e,targetAdapter:t,rawTargetAdapter:n,rawR
    u.jsxs("div",{className:"rounded border border-neutral-800 bg-neutral-900/40 px-3 py-2 text-[11px] text-neutral-400",children:[u.jsx("div",{children:O}),u.jsx("div",{"data-forge-diagnostic-timbre-source":"true",className:"mt-1 text-cyan-200",children:["Timbre: ",__xenForgeTimbreProvenanceP29({runtime:__donorRuntimeP29,activeLibraryId:__ForgeDonorRoutingF317.activeId(),rawAsset:E?.sourceAsset,mask:F?.fineLoopRange})]}),w&&String(w).trim().toLowerCase()!=="missing"?u.jsxs("div",{className:"mt-1 text-cyan-300",children:["Material: ",w]}):null,R?u.jsxs("div",{className:"mt-1 text-violet-300",children:["Embodiment:",R]}):null,o&&F?u.jsx("div",{className:"mt-2 text-neutral-500",children:"Samples can be composed in Melodic Loop or improvised live as Wave Starter or particle sounds."}):null]}),s&&i?u.jsx(__ForgeMaterialMetadata,{meta:s,onPatch:i,selection:F}):null,
    lt.length>0&&u.jsxs("div",{className:"flex flex-wrap items-center gap-2 rounded border border-neutral-800 bg-neutral-900/40 px-3 py-2 text-[11px] text-neutral-400",children:[u.jsx("span",{className:"uppercase tracking-[0.2em] text-neutral-500",children:"Alternative Taktdeutungen"}),lt.map((qe,mt)=>u.jsxs(xi,{tone:"neutral",onClick:()=>{le(`candidate-${mt}`,()=>te(qe))},pending:!!he[`candidate-${mt}`],success:!!re[`candidate-${mt}`],className:"px-2 py-1",children:[qe.bars," bars · ",qe.durationSec.toFixed(2),"s",qe.fitScore!=null?` · ${(qe.fitScore*100).toFixed(0)}%`:""]},`${qe.bars}-${mt}`))]})
  ]});
- const __forgeSharedControls=u.jsxs("div",{className:"space-y-2",children:[u.jsx(__ForgeRackRows,{primary:__ForgeRackOrder('primary',{load:u.jsx(xi,{tone:"neutral",onClick:()=>{le("fit",()=>Y())},disabled:!E||!F||T,pending:!!he.fit,success:!!re.fit,className:__ForgeRackClass('load',"min-h-[5rem] min-w-[9.25rem] justify-center text-center"),children:__ForgeRackCaption("load")}),repair:u.jsx(xi,{tone:"cyan",onClick:()=>{le("repair",()=>B?Z():J())},disabled:!E||!F||T,pending:!!he.repair,success:!!re.repair,active:B,className:__ForgeRackClass('repair',"min-h-[5rem] min-w-[10.5rem] justify-center text-center"),children:__ForgeRackCaption("repair",B?"Undo Loop korrigieren":undefined,B?"back to the mask before":undefined)}),apply:u.jsx(xi,{tone:"violet",onClick:()=>{le("commit",()=>ee())},disabled:!E||!F||T,pending:!!he.commit,success:!!re.commit,className:__ForgeRackClass('apply',"min-h-[5rem] min-w-[6.25rem] justify-center text-center"),children:__ForgeRackCaption("apply")}),extract:v?u.jsx(xi,{tone:"violet",onClick:()=>{__f435OnExtractTimbre();le("embody-timbre",async()=>{const qe=Ye();return!qe||!v?!1:await v(qe)})},disabled:!E||!F||T||!v,pending:!!he["embody-timbre"],success:!!re["embody-timbre"],className:__ForgeRackClass('extract',"min-h-[5rem] min-w-[11rem] justify-center text-center"),title:"Analyze the selected audio region and prepare its timbre as a donor in the Donor Workshop.",children:__ForgeRackCaption("extract")}):u.jsxs(u.Fragment,{children:[u.jsx(xi,{tone:"cyan",onClick:()=>{__f435OnExtractTimbre();le("extract-timbre",async()=>{const qe=Ye();return!qe||!x?!1:await x(qe)})},disabled:!E||!F||T||!x,pending:!!he["extract-timbre"],success:!!re["extract-timbre"],className:__ForgeRackClass('extract',"min-h-[5rem] min-w-[9rem] justify-center text-center"),title:"Analyze the selected audio region and prepare its timbre as a donor in the Donor Workshop.",children:__ForgeRackCaption("extract")}),u.jsx(xi,{tone:"violet",onClick:()=>{le("apply-timbre",async()=>{const qe=Ye();return!qe||!A?!1:await A(qe)})},disabled:!E||!F||T||!A,pending:!!he["apply-timbre"],success:!!re["apply-timbre"],className:"min-h-[5rem] min-w-[9rem] justify-center text-center",children:"Apply Timbre"})]}),play:u.jsx(xi,{tone:"emerald",onClick:()=>{le("preview",()=>X())},disabled:!E||!F||T,active:_,pending:!!he.preview,success:!!re.preview&&!_,className:__ForgeRackClass('play',"min-h-[5rem] min-w-[6.5rem] justify-center text-center xen-forge-giant-play"),children:_?"Stop":u.jsxs("span",{className:"xen-forge-giant-play-wrap",children:[u.jsx("span",{className:"xen-forge-giant-play-ghost",children:"Preview Loop"}),u.jsx("span",{className:"xen-forge-giant-play-legend",children:"PLAY"})]})}),material:n&&u.jsxs("div",{className:"xen-forge-raw-volume-dock",children:[u.jsx(xi,{tone:"amber",onClick:()=>{le("raw",()=>de(fe))},disabled:!E||!F||T,pending:!!he.raw,success:!!re.raw,className:__ForgeRackClass('material',"min-h-[5rem] min-w-[11.25rem] justify-center text-center"),children:__ForgeRackCaption("material")}),u.jsx(__XenForgeRawVolumeTriangle,{source:E,disabled:!E||!F||T})]})}),secondary:__ForgeRackOrder('secondary',{pink:a&&u.jsx(xi,{tone:"pink",onClick:event=>{const fromUser=event.nativeEvent?.isTrusted===true;le("raw-melodic-pink",()=>gt(fromUser))},disabled:!E||!F||T,pending:!!he["raw-melodic-pink"],success:!!re["raw-melodic-pink"],className:__ForgeRackClass('pink',"min-h-[5rem] min-w-[9.5rem] justify-center text-center"),children:__ForgeRackCaption("pink")}),saveGroup:u.jsxs("div",{"data-forge-source-save-actions":"true",className:"xen-forge-source-save-row flex items-stretch gap-2",children:[r&&u.jsx(xi,{tone:"violet",onClick:()=>{le("raw-root-follow",()=>dt())},disabled:!E||!F||T,pending:!!he["raw-root-follow"],success:!!re["raw-root-follow"],className:__ForgeRackClass('root',"min-h-[3.5rem] min-w-[9.5rem] justify-center text-center"),children:__ForgeRackCaption("root")}),o&&u.jsx(xi,{tone:"violet",onClick:()=>{le("raw-sample",()=>Ge())},disabled:!E||!F||T||!tt,pending:!!he["raw-sample"],success:!!re["raw-sample"],className:__ForgeRackClass('sample',`min-h-[3.5rem] min-w-[9.5rem] justify-center text-center ${tt?"":"opacity-60"}`),title:"Save as Sample for Melodic Loop, Wave Starter and Particles",children:__ForgeRackCaption("sample")}),u.jsx(xi,{tone:"cyan",onClick:()=>{le("donor-library-save",async()=>{await __DonorLibraryF36.donorLibrary.save(fe,"",{source:E,selection:F,readMode:G,sourceAdapterId:j});__setLibraryOpen(true);__setLibraryRevision(n=>n+1);window.dispatchEvent(new Event('xensonar:donor-library-changed'));return true})},disabled:!E||!E?.sourceAsset||!F?.fineLoopRange||T,pending:!!he["donor-library-save"],success:!!re["donor-library-save"],className:__ForgeRackClass('donor',"min-h-[3.5rem] min-w-[13rem] justify-center text-center px-2"),children:__ForgeRackCaption("donor")}),u.jsx(__AudioToCarrierControls,{source:E?.sourceAsset,range:F?.fineLoopRange,disabled:!E||T||__micBusy,onBusyChange:__setCarrierBusy})]})}),extras:[u.jsxs("button",{type:"button",className:"xen-forge-upper-triangle",title:"Upper · Scroll to top of XenSonar",'aria-label':"Scroll to very top",onClick:e=>__forgeScrollCompletelyUp(e.currentTarget),children:[u.jsx("span",{className:"xen-forge-upper-double-chevron",'aria-hidden':true,children:"⌃\n⌃"}),u.jsx("span",{className:"xen-forge-upper-label",children:"UPPER"})]}),u.jsxs("button",{type:"button",className:"xen-forge-up-triangle",title:"Up · Synth Lab / Carrier drawing","aria-label":"Scroll to Synth Lab",onClick:()=>{const target=document.querySelector('[aria-label="Collapse Synth Lab"]')||document.querySelector('[aria-label="Expand Synth Lab"]')||document.querySelector('[data-forge-synth-lab-header="true"]')||document.querySelector('#spectralforge-station-draw');if(!target)return;target.scrollIntoView({behavior:window.matchMedia?.('(prefers-reduced-motion: reduce)').matches?'auto':'smooth',block:'start',inline:'nearest'});},children:[u.jsx("span",{className:"xen-forge-up-chevron","aria-hidden":true,children:"⌃"}),u.jsx("span",{className:"xen-forge-up-label",children:"UP"})]})]}),u.jsxs("div",{className:"xen-forge-name-section flex flex-col gap-2",children:[u.jsxs("div",{className:"xen-forge-name-rack rounded border border-violet-900/50 bg-violet-950/15 text-[11px] text-violet-100/85",children:[u.jsx("span",{className:"xen-forge-name-word","aria-hidden":"true",children:"NAME"}),u.jsx("span",{className:"xen-forge-name-colon","aria-hidden":"true",children:":"}),u.jsx("span",{className:"xen-forge-name-heading uppercase tracking-[0.18em] text-violet-300/80",children:__ForgeRackCopy.titleHeading}),u.jsx("input",{value:oe,onChange:qe=>ue(qe.target.value),disabled:!E,readOnly:!E,tabIndex:E?undefined:-1,placeholder:E?fA(E):"Import audio to name a loop","aria-label":"Loop/Sample betiteln",className:"xen-forge-name-input w-full rounded border border-violet-800/70 bg-neutral-950 px-2 py-2 text-sm text-violet-50 outline-none focus:border-violet-500"}),u.jsx("span",{className:"xen-forge-name-help text-[10px] leading-relaxed text-violet-100/60",children:__ForgeRackCopy.titleHelp}),s&&i?u.jsx(__ForgeMaterialQuickFields,{meta:s,onPatch:i,disabled:!E}):null]}),c==='spectral-forge3'&&__diagTargetP29?ao.createPortal(__diagnosticsP29, __diagTargetP29):null]})]});
+ const __forgeSharedControls=u.jsxs("div",{className:"space-y-2",children:[u.jsx(__ForgeRackRows,{primary:__ForgeRackOrder('primary',{load:u.jsx(xi,{tone:"neutral",onClick:()=>{le("fit",()=>Y())},disabled:!E||!F||T,pending:!!he.fit,success:!!re.fit,className:__ForgeRackClass('load',"min-h-[5rem] min-w-[9.25rem] justify-center text-center"),children:__ForgeRackCaption("load")}),repair:u.jsx(xi,{tone:"cyan",onClick:()=>{le("repair",()=>B?Z():J())},disabled:!E||!F||T,pending:!!he.repair,success:!!re.repair,active:B,className:__ForgeRackClass('repair',"min-h-[5rem] min-w-[10.5rem] justify-center text-center"),children:__ForgeRackCaption("repair",B?"Undo Fix Loop":undefined,B?"back to the mask before":undefined)}),apply:u.jsx(xi,{tone:"violet",onClick:()=>{le("commit",()=>ee())},disabled:!E||!F||T,pending:!!he.commit,success:!!re.commit,className:__ForgeRackClass('apply',"min-h-[5rem] min-w-[6.25rem] justify-center text-center"),children:__ForgeRackCaption("apply")}),extract:v?u.jsx(xi,{tone:"violet",onClick:()=>{__f435OnExtractTimbre();le("embody-timbre",async()=>{const qe=Ye();return!qe||!v?!1:await v(qe)})},disabled:!E||!F||T||!v,pending:!!he["embody-timbre"],success:!!re["embody-timbre"],className:__ForgeRackClass('extract',"min-h-[5rem] min-w-[11rem] justify-center text-center"),title:"Analyze the selected audio region and prepare its timbre as a donor in the Donor Workshop.",children:__ForgeRackCaption("extract")}):u.jsxs(u.Fragment,{children:[u.jsx(xi,{tone:"cyan",onClick:()=>{__f435OnExtractTimbre();le("extract-timbre",async()=>{const qe=Ye();return!qe||!x?!1:await x(qe)})},disabled:!E||!F||T||!x,pending:!!he["extract-timbre"],success:!!re["extract-timbre"],className:__ForgeRackClass('extract',"min-h-[5rem] min-w-[9rem] justify-center text-center"),title:"Analyze the selected audio region and prepare its timbre as a donor in the Donor Workshop.",children:__ForgeRackCaption("extract")}),u.jsx(xi,{tone:"violet",onClick:()=>{le("apply-timbre",async()=>{const qe=Ye();return!qe||!A?!1:await A(qe)})},disabled:!E||!F||T||!A,pending:!!he["apply-timbre"],success:!!re["apply-timbre"],className:"min-h-[5rem] min-w-[9rem] justify-center text-center",children:"Apply Timbre"})]}),play:u.jsx(xi,{tone:"emerald",onClick:()=>{le("preview",()=>X())},disabled:!E||!F||T,active:_,pending:!!he.preview,success:!!re.preview&&!_,className:__ForgeRackClass('play',"min-h-[5rem] min-w-[6.5rem] justify-center text-center xen-forge-giant-play"),children:_?"Stop":u.jsxs("span",{className:"xen-forge-giant-play-wrap",children:[u.jsx("span",{className:"xen-forge-giant-play-ghost",children:"Preview Loop"}),u.jsx("span",{className:"xen-forge-giant-play-legend",children:"PLAY"})]})}),material:n&&u.jsxs("div",{className:"xen-forge-raw-volume-dock",children:[u.jsx(xi,{tone:"amber",onClick:()=>{le("raw",()=>de(fe))},disabled:!E||!F||T,pending:!!he.raw,success:!!re.raw,className:__ForgeRackClass('material',"min-h-[5rem] min-w-[11.25rem] justify-center text-center"),children:__ForgeRackCaption("material")}),u.jsx(__XenForgeRawVolumeTriangle,{source:E,disabled:!E||!F||T})]})}),secondary:__ForgeRackOrder('secondary',{pink:a&&u.jsx(xi,{tone:"pink",onClick:event=>{const fromUser=event.nativeEvent?.isTrusted===true;le("raw-melodic-pink",()=>gt(fromUser))},disabled:!E||!F||T,pending:!!he["raw-melodic-pink"],success:!!re["raw-melodic-pink"],className:__ForgeRackClass('pink',"min-h-[5rem] min-w-[9.5rem] justify-center text-center"),children:__ForgeRackCaption("pink")}),saveGroup:u.jsxs("div",{"data-forge-source-save-actions":"true",className:"xen-forge-source-save-row flex items-stretch gap-2",children:[r&&u.jsx(xi,{tone:"violet",onClick:()=>{le("raw-root-follow",()=>dt())},disabled:!E||!F||T,pending:!!he["raw-root-follow"],success:!!re["raw-root-follow"],className:__ForgeRackClass('root',"min-h-[3.5rem] min-w-[9.5rem] justify-center text-center"),children:__ForgeRackCaption("root")}),o&&u.jsx(xi,{tone:"violet",onClick:()=>{le("raw-sample",()=>Ge())},disabled:!E||!F||T||!tt,pending:!!he["raw-sample"],success:!!re["raw-sample"],className:__ForgeRackClass('sample',`min-h-[3.5rem] min-w-[9.5rem] justify-center text-center ${tt?"":"opacity-60"}`),title:"Save as Sample for Melodic Loop, Wave Starter and Particles",children:__ForgeRackCaption("sample")}),u.jsx(xi,{tone:"cyan",onClick:()=>{le("donor-library-save",async()=>{await __DonorLibraryF36.donorLibrary.save(fe,"",{source:E,selection:F,readMode:G,sourceAdapterId:j});__setLibraryOpen(true);__setLibraryRevision(n=>n+1);window.dispatchEvent(new Event('xensonar:donor-library-changed'));return true})},disabled:!E||!E?.sourceAsset||!F?.fineLoopRange||T,pending:!!he["donor-library-save"],success:!!re["donor-library-save"],className:__ForgeRackClass('donor',"min-h-[3.5rem] min-w-[13rem] justify-center text-center px-2"),children:__ForgeRackCaption("donor")}),u.jsx(__AudioToCarrierControls,{source:E?.sourceAsset,range:F?.fineLoopRange,disabled:!E||T||__micBusy,onBusyChange:__setCarrierBusy})]})}),extras:[u.jsxs("button",{type:"button",className:"xen-forge-upper-triangle",title:"Upper · Scroll to top of XenSonar",'aria-label':"Scroll to very top",onClick:e=>__forgeScrollCompletelyUp(e.currentTarget),children:[u.jsx("span",{className:"xen-forge-upper-double-chevron",'aria-hidden':true,children:"⌃\n⌃"}),u.jsx("span",{className:"xen-forge-upper-label",children:"UPPER"})]}),u.jsxs("button",{type:"button",className:"xen-forge-up-triangle",title:"Up · Synth Lab / Carrier drawing","aria-label":"Scroll to Synth Lab",onClick:()=>{const target=document.querySelector('[aria-label="Collapse Synth Lab"]')||document.querySelector('[aria-label="Expand Synth Lab"]')||document.querySelector('[data-forge-synth-lab-header="true"]')||document.querySelector('#spectralforge-station-draw');if(!target)return;target.scrollIntoView({behavior:window.matchMedia?.('(prefers-reduced-motion: reduce)').matches?'auto':'smooth',block:'start',inline:'nearest'});},children:[u.jsx("span",{className:"xen-forge-up-chevron","aria-hidden":true,children:"⌃"}),u.jsx("span",{className:"xen-forge-up-label",children:"UP"})]})]}),u.jsxs("div",{className:"xen-forge-name-section flex flex-col gap-2",children:[u.jsxs("div",{className:"xen-forge-name-rack rounded border border-violet-900/50 bg-violet-950/15 text-[11px] text-violet-100/85",children:[u.jsx("span",{className:"xen-forge-name-word","aria-hidden":"true",children:"NAME"}),u.jsx("span",{className:"xen-forge-name-colon","aria-hidden":"true",children:":"}),u.jsx("span",{className:"xen-forge-name-heading uppercase tracking-[0.18em] text-violet-300/80",children:__ForgeRackCopy.titleHeading}),u.jsx("input",{value:oe,onChange:qe=>ue(qe.target.value),disabled:!E,readOnly:!E,tabIndex:E?undefined:-1,placeholder:E?fA(E):"Import audio to name a loop","aria-label":"Name Loop / Sample",className:"xen-forge-name-input w-full rounded border border-violet-800/70 bg-neutral-950 px-2 py-2 text-sm text-violet-50 outline-none focus:border-violet-500"}),u.jsx("span",{className:"xen-forge-name-help text-[10px] leading-relaxed text-violet-100/60",children:__ForgeRackCopy.titleHelp}),s&&i?u.jsx(__ForgeMaterialQuickFields,{meta:s,onPatch:i,disabled:!E}):null]}),c==='spectral-forge3'&&__diagTargetP29?ao.createPortal(__diagnosticsP29, __diagTargetP29):null]})]});
  return u.jsxs("div",{ref:I,"data-material-intake-gateway":"true","data-cut-upload-entry-target":"true",className:"xen-raw-intake-compact scroll-mt-3 border-t border-neutral-800 bg-neutral-950/80 text-xs text-neutral-300",children:[u.jsx("input",{ref:k,type:"file",accept:"audio/*,.wav,.mp3,.ogg,.m4a,.aac,.flac",disabled:T||__micBusy||__carrierBusy||!N?.canImportFile,className:"hidden",onChange:qe=>{const mt=qe.target.files?.[0];mt&&le("load",()=>U(mt)),qe.currentTarget.value=""}}),__micNode,__libraryOpen&&u.jsx(__DonorLibraryF36.DonorLibraryPanel,{
  React:P,jsx:u,source:E,selection:F,readMode:G,sourceAdapterId:j,disabled:T, externalOpen:true,refreshToken:__libraryRevision,onClose:()=>__setLibraryOpen(false),
  onLoad:__loadLibraryEntry,

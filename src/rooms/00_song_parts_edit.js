@@ -13,19 +13,52 @@ function __xenSongPartsEditFactory(storage=null){
   let lo=0,hi=g.length-1;while(hi-lo>1){const m=(lo+hi)>>1;if(g[m]<=t)lo=m;else hi=m}
   return Math.abs(g[lo]-t)<=Math.abs(g[hi]-t)?g[lo]:g[hi];
  }
- /* the loop mask while dragging: only the edge that moves snaps; a moved mask keeps its length and snaps its start */
- function snapRange(range,grid,mode,edge='both',total=Infinity){
+ /* the loop mask while dragging on the analyzed beat/bar grid: only the edge that moves snaps; a moved mask keeps its length and snaps its start */
+ function snapRange(range,grid,mode,edge='both',total=Infinity,anchorTime=null){
   if(!range||mode==='off'||!grid)return range;
+  const g=(mode==='bar'?grid.bars:grid.segments)||[];
+  if(!g.length)return range;
   let s=range.startSec,e=range.startSec+range.durationSec;
+  const step=mode==='bar'?(Number(grid.barSec)||1):(Number(grid.barSec)/(Math.max(1,Number(grid.segmentsPerBar)||4))||.25);
+  const minGap=Math.max(.05,Math.min(.25,step*.45));
   /* GRAB-EDGE-01: a moved mask keeps its length EXACTLY – if the nearest grid line would push its end past the file end (or its start
      below 0), it takes the nearest grid line where it still fits; none fits: unchanged (before, the end was cut and the Taktometer squeezed) */
-  if(edge==='move'){const len=e-s,g=(mode==='bar'?grid.bars:grid.segments)||[];let ns=snapTime(s,grid,mode);
+  if(edge==='move'){
+   const len=e-s;let ns=snapTime(s,grid,mode);
    if(ns<0||ns+len>total+1e-6){let best=null;for(const t of g)if(t>=0&&t+len<=total+1e-6&&(best==null||Math.abs(t-s)<Math.abs(best-s)))best=t;if(best==null)return range;ns=best}
-   return {startSec:ns,durationSec:len}}
-  else{if(edge!=='end')s=snapTime(s,grid,mode);if(edge!=='start')e=snapTime(e,grid,mode)}
-  /* GRAB-EDGE-01: the moving edge collapsed onto the fixed one (pulled over it): keep ONE grid step instead of a 50 ms sliver */
-  if(e-s<.05&&(edge==='start'||edge==='end')){const g=(mode==='bar'?grid.bars:grid.segments)||[];
-   if(edge==='end'){const n=g.find(t=>t>s+.05);if(n!=null&&n<=total+1e-6)e=n}else{let q=null;for(const t of g)if(t<e-.05)q=t;if(q!=null&&q>=0)s=q}}
+   return {startSec:ns,durationSec:len};
+  }
+  const nearestMatching=(target,pred)=>{let best=null;for(const t of g)if(pred(t)&&(best==null||Math.abs(t-target)<Math.abs(best-target)))best=t;return best};
+  if(edge==='end'){
+   const cand=nearestMatching(e,t=>t>=s+minGap&&t<=total+1e-6);
+   if(cand!=null)e=cand;
+   else{const next=g.find(t=>t>s+.05&&t<=total+1e-6);if(next!=null)e=next}
+  }else if(edge==='start'){
+   const cand=nearestMatching(s,t=>t>=0&&t<=e-minGap);
+   if(cand!=null)s=cand;
+   else{let prev=null;for(const t of g)if(t>=0&&t<e-.05)prev=t;if(prev!=null)s=prev}
+  }else{
+   const hasAnchor=anchorTime!=null&&Number.isFinite(Number(anchorTime));
+   if(hasAnchor){
+    const anchor=Math.max(0,Math.min(total,Number(anchorTime)));
+    const dragLeft=s<anchor-1e-9;
+    const sa=Math.max(0,Math.min(total,snapTime(anchor,grid,mode)));
+    if(dragLeft){
+     e=sa;
+     const cand=nearestMatching(s,t=>t>=0&&t<=e-minGap);
+     if(cand!=null)s=cand;
+     else{let prev=null;for(const t of g)if(t>=0&&t<e-.05)prev=t;if(prev!=null)s=prev}
+    }else{
+     s=sa;
+     const cand=nearestMatching(e,t=>t>=s+minGap&&t<=total+1e-6);
+     if(cand!=null)e=cand;
+     else{const next=g.find(t=>t>s+.05&&t<=total+1e-6);if(next!=null)e=next}
+    }
+   }else{
+    s=snapTime(s,grid,mode);e=snapTime(e,grid,mode);
+    if(e-s<minGap){const next=g.find(t=>t>=s+minGap&&t<=total+1e-6);if(next!=null)e=next}
+   }
+  }
   if(e-s<.05)return range;
   return {startSec:Math.max(0,s),durationSec:Math.min(total,e)-Math.max(0,s)};
  }
@@ -189,9 +222,9 @@ function __xenSongPartsEditFactory(storage=null){
   list.push(entry);list.sort((a,b)=>a.startSec-b.startSec);try{storage?.setItem(TON_KEY+k,JSON.stringify(list.slice(-64)))}catch{}listeners.forEach(f=>{try{f('tonal')}catch{}})}
  function clearTonal(asset){const k=keyOf(asset);if(!k)return;try{storage?.removeItem(TON_KEY+k)}catch{}listeners.forEach(f=>{try{f('tonal')}catch{}})}
  // mask snap mode (bar / beat / off), shared by the strip and the purple mask
- const SNAP_KEY='xensonar.songParts.snap.v1';
- function snapMode(){try{const v=storage?.getItem(SNAP_KEY);return v==='bar'||v==='beat'||v==='segment'||v==='off'?v:'bar'}catch{return 'bar'}}
- function setSnapMode(m){try{storage?.setItem(SNAP_KEY,m)}catch{}listeners.forEach(f=>{try{f('snap')}catch{}})}
+ const SNAP_KEY='xensonar.songParts.snap.v1';let snapMem=null;
+ function snapMode(){let v=snapMem;if(v==null){try{v=storage?.getItem(SNAP_KEY)}catch{}}return v==='bar'||v==='beat'||v==='segment'||v==='off'?v:'bar'}
+ function setSnapMode(m){snapMem=m;try{storage?.setItem(SNAP_KEY,m)}catch{}listeners.forEach(f=>{try{f('snap')}catch{}})}
  return Object.freeze({snapTime,snapRange,moveBoundary,split,merge,setLabel,addCut,subdivideEven,subdivideEvery,setCuts,moveCut,removeCut,clearCuts,shade,nextLetter,normalize,colorOf,keyOf,load,save,clear,kinds,setKind,decorate,displayName,sectionName,tagParts,unitForRange,subLetter,OCC_COLORS:OCC,loadResult,saveResult,clearResult,tonalList,tonalFor,saveTonal,clearTonal,current,snapMode,setSnapMode,
   subscribe:f=>(listeners.add(f),()=>listeners.delete(f))});
 }

@@ -17,7 +17,7 @@ const __XenStageLayout = (() => {
   const DESK_DEFAULT = 0.62;
   const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
   const listeners = new Set();
-  let state = { dock: 'top', deskFrac: DESK_DEFAULT, playH: { top: 0, side: 0 }, spacing: 'abs', sideTop: false, instrDown: false };
+  let state = { dock: 'top', deskFrac: DESK_DEFAULT, playH: { top: 0, side: 0 }, spacing: 'abs', sideTop: true, instrDown: false };
   try {
     const raw = JSON.parse(localStorage.getItem(KEY) || 'null');
     if (raw && typeof raw === 'object') {
@@ -29,7 +29,7 @@ const __XenStageLayout = (() => {
           side: Number.isFinite(raw.playH?.side) && raw.playH.side >= 140 ? clamp(raw.playH.side, 140, 1600) : 0
         },
         spacing: raw.spacing === 'log' || raw.spacing === 'fret' ? raw.spacing : 'abs',
-        sideTop: raw.sideTop === true,
+        sideTop: raw.sideTop !== false,
         instrDown: raw.instrDown === true
       };
     }
@@ -110,10 +110,17 @@ function __XenStageSplit({ stage, desk }) {
     () => false
   );
   const open = deskOpen && !!desk;
-  // UI-LIQUID-02: opening the Mixing Desk docks the playfield beside it right away (no extra click).
-  // "↑" / the ghost still bring it back up for this session; the next opening docks it again.
+  const wasOpenRef = P.useRef(open);
+  // UI-LIQUID-02 / UI-SWAP-02: opening the Mixing Desk from the old view docks the playfield beside it
+  // and swaps Mixing Desk + playfield straight up next to Instruments (Quick Rack below), no extra click.
   P.useLayoutEffect(() => {
-    if (open && __XenStageLayout.snapshot().dock !== 'side') __XenStageLayout.setDock('side');
+    const openedNow = open && !wasOpenRef.current;
+    wasOpenRef.current = open;
+    if (open) {
+      const snap = __XenStageLayout.snapshot();
+      if (snap.dock !== 'side') __XenStageLayout.setDock('side');
+      if (openedNow && !snap.sideTop) __XenStageLayout.setSideTop(true);
+    }
   }, [open]);
   const dock = open && lay.dock === 'side' ? 'side' : 'top';
   const rootRef = P.useRef(null);
@@ -206,6 +213,7 @@ function __XenStageSplit({ stage, desk }) {
     };
     const schedule = () => { if (!raf) raf = requestAnimationFrame(measure); };
     measure();
+    schedule();
     let ro = null;
     try {
       ro = new ResizeObserver(schedule);

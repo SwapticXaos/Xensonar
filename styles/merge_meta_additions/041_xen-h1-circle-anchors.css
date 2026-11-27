@@ -85,7 +85,7 @@
  /* Use the existing fixed desktop side-rail contract also at ordinary laptop widths.
     Before H1 the left rail became static below 1600px, unlike the Quick Rack. */
  .xen-performance{
-   position:fixed;z-index:20;top:var(--xen-h1-side-rail-top,164px);left:var(--xen-side-rail-inset);
+   position:fixed;z-index:20;top:var(--xen-h1-side-rail-top,144px);left:var(--xen-side-rail-inset);
    width:var(--xen-side-rail-width);margin:0;
  }
  .xen-performance-lanes{grid-template-columns:minmax(0,1fr);gap:8px}
@@ -107,9 +107,9 @@
    Their vertical origin follows the measured status-strip bottom, not its old 156px
    constant (which collided with menu icons when the strip wraps to two rows). */
 .xen-quick-dock,.xen-quick-collection.is-right-docked{
- top:var(--xen-h1-side-rail-top,164px)!important;
+ top:var(--xen-h1-side-rail-top,144px)!important;
 }
-@media(min-width:1024px){.xen-performance{top:var(--xen-h1-side-rail-top,164px)!important}}
+@media(min-width:1024px){.xen-performance{top:var(--xen-h1-side-rail-top,144px)!important}}
 @media(max-width:680px){
  [data-xen-status-menus]{transform:none;padding-left:0}
  [data-xen-status-menus] .xen-header-unicode-icon{left:-7px;width:29px!important;height:29px!important;font-size:20px!important}

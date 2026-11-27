@@ -4,6 +4,10 @@
    Preserves all H1/H4 circle symbols (.xen-header-unicode-icon), slot widths,
    24px button heights, and overflow:visible overhang geometry. */
 
+main:has(> [data-xensonar-performance-strip]) {
+  padding-top: 4px !important;
+}
+
 [data-xensonar-performance-strip] {
   position: relative;
   overflow: visible !important;

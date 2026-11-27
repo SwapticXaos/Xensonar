@@ -23,12 +23,20 @@ function __XenRange(props){
  const [local,setLocal]=P.useState(null),timer=P.useRef(0);
  P.useEffect(()=>()=>clearTimeout(timer.current),[]);
  if(props.value===undefined||typeof props.onChange!=='function')return u.jsx('input',props);
+ const clearLocal=()=>{clearTimeout(timer.current);timer.current=0;setLocal(null)};
  const onChange=event=>{setLocal(event.target.value);clearTimeout(timer.current);timer.current=setTimeout(()=>setLocal(null),300);props.onChange(event)};
- return u.jsx('input',{...props,value:local??props.value,onChange});
+ const onDoubleClick=typeof props.onDoubleClick==='function'?event=>{clearLocal();props.onDoubleClick(event)}:undefined;
+ return u.jsx('input',{...props,value:local??props.value,onChange,...(onDoubleClick?{onDoubleClick}:{})});
 }
 function __xenSmoothMixParam(param,value,ctx){
  if(!param||!Number.isFinite(value)||ctx?.state==='closed'||__XenMixTargets.get(param)===value)return;
- __XenMixTargets.set(param,value);const at=ctx.currentTime;
+ const at=ctx.currentTime;
+ if(ctx?.state&&ctx.state!=='running'){
+  __XenMixTargets.delete(param);
+  try{param.cancelScheduledValues(at);param.setValueAtTime(value,at);param.value=value}catch{try{param.value=value}catch{}}
+  return;
+ }
+ __XenMixTargets.set(param,value);
  /* MIX-HOLD-01 (reverts LIVE-SLIDER-SOFT): hold on the automation timeline. A value-based hold (param.value) jumps whenever the
     value getter is not current (automation scheduled ahead, offline renders; Firefox has no cancelAndHoldAtTime and keeps this fallback
     as before); measured offline with suspend/resume at 60 events/s and a simulated currentTime lag of 0-20 ms: no step with
@@ -59,18 +67,22 @@ const __XenPan=(()=>{
   if(kind==='bass'||kind==='rootFollow')destination=__XenEQ.route(ctx,kind,destination);
   if(kind==='bass'&&typeof __XenBassDuck!=='undefined')destination=__XenBassDuck.route(ctx,destination);
   const loopRecInput=kind==='particle'||(['wave','keyboard'].includes(kind)&&__XenLoopRec.isDestination(destination));if(loopRecInput)destination=__XenLoopRec.route(ctx,kind,destination);
-  const node=ctx.createStereoPanner();node.pan.value=state[kind]||0;node.connect(destination);if(loopRecInput)__XenLoopRec.capturedInput(node);
+  const initialPan=state[kind]||0;
+  const node=ctx.createStereoPanner();node.pan.value=initialPan;try{node.pan.setValueAtTime(initialPan,ctx.currentTime)}catch{}__XenMixTargets.set(node.pan,initialPan);node.connect(destination);if(loopRecInput)__XenLoopRec.capturedInput(node);
   const d={ctx,kind,node,destination,pitchNode:null,pitchOff:null};channels.set(kind,d);devices.add(d);
   // One shared RFL pitch processor after all RFL synthesis and PCM components.
   // Switch to the worklet only after it has been prepared; never retime RFL notes.
   if(kind==='rootFollow')__XenTimeStablePitch.ensure(ctx).then(ready=>{
    if(!ready||ctx.state==='closed'||channels.get(kind)!==d)return;
    const processor=__XenTimeStablePitch.create(ctx,__XenRootFollowPitch.snapshot());if(!processor)return;
-   node.disconnect(destination);node.connect(processor);processor.connect(destination);
+   try{node.connect(processor);processor.connect(destination);node.disconnect(destination)}catch{try{processor.disconnect()}catch{}try{node.connect(destination)}catch{}return}
    d.pitchNode=processor;d.pitchOff=__XenRootFollowPitch.register(ctx,processor);
   });
-  const dispose=()=>{if(ctx.state!=='closed')return;try{node.disconnect()}catch{}try{d.pitchNode?.disconnect()}catch{}d.pitchOff?.();devices.delete(d);channels.delete(kind);ctx.removeEventListener?.('statechange',dispose)};
-  ctx.addEventListener?.('statechange',dispose);return node;
+  const onStateChange=()=>{
+   if(ctx.state==='closed'){try{node.disconnect()}catch{}try{d.pitchNode?.disconnect()}catch{}d.pitchOff?.();devices.delete(d);channels.delete(kind);ctx.removeEventListener?.('statechange',onStateChange);return}
+   if(ctx.state==='running'){const target=state[kind]||0;if(Math.abs(node.pan.value-target)>1e-3){__XenMixTargets.delete(node.pan);__xenSmoothMixParam(node.pan,target,ctx)}}
+  };
+  ctx.addEventListener?.('statechange',onStateChange);return node;
  }
  return {snapshot,subscribe,subscribeLive:fn=>(liveListeners.add(fn),()=>liveListeners.delete(fn)),set,route};
 })();

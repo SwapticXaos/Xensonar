@@ -32,8 +32,8 @@
 /* Panels belong to the same document-space origin as the tonal stage,
    not viewport-fixed overlays over the following Settings. H2 clamp is gone. */
 @media(min-width:1024px){
- .xen-performance{position:absolute!important;top:var(--xen-h3-relrail-top,82px)!important;max-height:none!important;overflow-y:visible!important;}
- .xen-quick-dock{position:absolute!important;top:var(--xen-h3-relrail-top,82px)!important;bottom:auto!important;}
+ .xen-performance{position:absolute!important;top:var(--xen-h3-relrail-top,62px)!important;max-height:none!important;overflow-y:visible!important;}
+ .xen-quick-dock{position:absolute!important;top:var(--xen-h3-relrail-top,62px)!important;bottom:auto!important;}
  .xen-quick-collection.is-right-docked{position:absolute!important;top:0!important;bottom:auto!important;right:0!important;left:auto!important;}
 }
 @media(max-width:680px){[data-xensonar-performance-strip] .xen-header-unicode-icon{width:33px!important;height:33px!important;left:-8px;font-size:19px!important}}
