@@ -2,7 +2,7 @@
 
 XenSonar ist ein offlinefähiges, mikrotonales und rhythmisch freies Musikinstrument im Browser (12-EDO und 4/4 sind Optionen, keine Grenze).
 
-- **Aktiver Arbeits- und Deploy-Branch:** `claude/charming-franklin-wouegz` (Einzelarbeit, linear; ein Push geht direkt online).
+- **Release:** immer direkt auf `main` (es gibt keinen separaten Release-/Deploy-Branch mehr).
 - **Build:** einmalig `npm ci --prefix tools/slim`, danach `python3 tools/build.py` (Prüfung: `--check`, Probe-Build für Browser-Tests: `--probe`).
 - **Generierte Dateien (nie von Hand editieren):**
   - `index.html` ← gebaut aus `source-manifest.json`, `src/**`, `styles/**` (`python3 tools/build.py`).
