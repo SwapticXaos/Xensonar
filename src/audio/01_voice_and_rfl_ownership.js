@@ -520,10 +520,10 @@ function __xenLRF5MaterialStop(refs){
    their own EQ key, pan binding and output route. */
 function __xenMaterialLaneChain(ctx,{source,pitchNode=null,gain,panValue=0,onPan,eqKey,route}){
  source.connect(pitchNode??gain);if(pitchNode)pitchNode.connect(gain);
- const pan=typeof ctx.createStereoPanner==='function'?ctx.createStereoPanner():null;
- if(pan){pan.pan.value=panValue;gain.connect(pan);onPan?.(pan)}
+ const pan=typeof __xenCreateBalancePanner==='function'?__xenCreateBalancePanner(ctx,panValue):(typeof ctx.createStereoPanner==='function'?ctx.createStereoPanner():null);
+ if(pan){if(!pan.input)pan.pan.value=panValue;gain.connect(pan.input??pan);onPan?.(pan)}
  const eq=__XenEQ.create(ctx,eqKey);
- (pan??gain).connect(eq.input);gain.__xenEQDevice=eq;
+ (pan?.output??pan??gain).connect(eq.input);gain.__xenEQDevice=eq;
  route(eq.output);
  return {pan,eq,output:eq.output};
 }
