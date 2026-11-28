@@ -242,8 +242,8 @@ function __xenDrumHallFor(ctx,bus){
 function __f48GetDrumRack(ctx,destination){
  let buses=__f48DrumRacks.get(ctx);if(!buses){buses=new WeakMap();__f48DrumRacks.set(ctx,buses)}
  const existing=buses.get(destination);if(existing)return existing;
- const input=ctx.createGain(),dry=ctx.createGain(),sum=ctx.createGain(),busBypass=ctx.createGain(),postBus=ctx.createGain(),bypass=ctx.createGain(),pan=ctx.createStereoPanner(),level=ctx.createGain();
- input.connect(dry);dry.connect(sum);sum.connect(busBypass);busBypass.connect(postBus);postBus.connect(bypass);bypass.connect(pan);pan.connect(level);level.connect(destination);
+ const input=ctx.createGain(),dry=ctx.createGain(),sum=ctx.createGain(),busBypass=ctx.createGain(),postBus=ctx.createGain(),bypass=ctx.createGain(),pan=typeof __xenCreateBalancePanner==='function'?__xenCreateBalancePanner(ctx,0):ctx.createStereoPanner(),panIn=pan.input??pan,panOut=pan.output??pan,level=ctx.createGain();
+ input.connect(dry);dry.connect(sum);sum.connect(busBypass);busBypass.connect(postBus);postBus.connect(bypass);bypass.connect(panIn);panOut.connect(level);level.connect(destination);
  let volumeOwned=false,outputLevel=1;
  let phaser=null,punch=null,room=null,echo=null,echoMode=null,disposed=false,disableTimer=null,echoRetireTimer=null,lastParams=__f48RackParams;
  const ramp=(param,value)=>__xenSmoothMixParam(param,value,ctx);
@@ -275,8 +275,8 @@ function __f48GetDrumRack(ctx,destination){
   const first=ctx.createBiquadFilter(),direct=ctx.createGain(),delayA=ctx.createDelay(.2),delayB=ctx.createDelay(.2),damp=ctx.createBiquadFilter(),reflections=ctx.createGain();
   first.type='lowpass';first.frequency.value=20000;first.Q.value=.4;
   direct.gain.value=0;reflections.gain.value=0;delayA.delayTime.value=.027;delayB.delayTime.value=.061;damp.type='lowpass';damp.frequency.value=3200;
-  postBus.connect(first);first.connect(direct);direct.connect(pan);
-  first.connect(delayA);delayA.connect(damp);delayA.connect(delayB);delayB.connect(damp);damp.connect(reflections);reflections.connect(pan);
+  postBus.connect(first);first.connect(direct);direct.connect(panIn);
+  first.connect(delayA);delayA.connect(damp);delayA.connect(delayB);delayB.connect(damp);damp.connect(reflections);reflections.connect(panIn);
   return {source:postBus,first,direct,reflections,nodes:[first,direct,delayA,delayB,damp,reflections]};
  };
  /* Per side: a first tap (period + feel) feeds a node; the node is heard and
@@ -296,13 +296,13 @@ function __f48GetDrumRack(ctx,destination){
   nodeR.connect(b.hp);b.self.connect(delayR);b.cross.connect(delayL);delayR.connect(nodeR);
   nodeL.connect(outLL);outLL.connect(merger,0,0);nodeL.connect(outLR);outLR.connect(merger,0,1);
   nodeR.connect(outRR);outRR.connect(merger,0,1);nodeR.connect(outRL);outRL.connect(merger,0,0);
-  merger.connect(ret);ret.connect(pan);
+  merger.connect(ret);ret.connect(panIn);
   return {tap,fromBus:true,send,inR,firstL,firstR,delayL,delayR,nodeL,nodeR,targets:new Map(),a,b,outLL,outRR,outLR,outRL,ret,
    nodes:[tap,send,inR,firstL,firstR,delayL,delayR,nodeL,nodeR,merger,ret,outLL,outRR,outLR,outRL,a.hp,a.lp,a.shape,a.self,a.cross,b.hp,b.lp,b.shape,b.self,b.cross]};
  };
  /* DRUM-HALL-01: a long hall for single hits (shared builder); built on first use */
  let hall=null;
- const makeHall=()=>__xenDrumHallChain(ctx,pan);
+ const makeHall=()=>__xenDrumHallChain(ctx,panIn);
  const releaseEcho=()=>{if(!echo)return;for(const node of echo.nodes)try{node.disconnect()}catch{}try{postBus.disconnect(echo.send)}catch{}echo=null};
  const scheduleEchoRetire=()=>{
   if(echoRetireTimer!==null){clearTimeout(echoRetireTimer);echoRetireTimer=null}

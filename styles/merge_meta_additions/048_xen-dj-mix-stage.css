@@ -2017,3 +2017,209 @@
 .xen-dj-roll.is-active { border-color: #7af2e5; background: linear-gradient(180deg, #167a7e 0%, #0d4c52 100%); color: #ecfffd; }
 .xen-dj-cue:focus-visible, .xen-dj-roll:focus-visible { outline: 1px solid rgba(126, 224, 214, .8); outline-offset: 1px; }
 .xen-dj-cue-sep { flex: 0 0 3px; }
+
+/* MIX-DESK-02: Composable channel rubrics (Tracks + individual RFL / Bass / Drums toggles) & bus strips */
+.xen-dj-rubrics {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px;
+  border-radius: 5px;
+  border: 1px solid rgba(112, 166, 174, 0.3);
+  background: rgba(5, 9, 14, 0.86);
+  gap: 2px;
+}
+
+.xen-dj-rubric-sep {
+  width: 1px;
+  height: 14px;
+  margin: 0 2px;
+  background: rgba(140, 186, 194, 0.24);
+  flex-shrink: 0;
+}
+
+.xen-dj-rubric-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  border: 1px solid transparent;
+  border-radius: 3px;
+  background: transparent;
+  color: #8eaab0;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 4px 7px;
+  cursor: pointer;
+  line-height: 1.1;
+  transition: background 0.12s ease, color 0.12s ease, border-color 0.12s ease;
+}
+
+.xen-dj-rubric-btn:hover {
+  color: #e8faf8;
+  background: rgba(28, 66, 74, 0.45);
+}
+
+.xen-dj-rubric-btn:focus-visible {
+  outline: 1px solid rgba(126, 224, 214, 0.85);
+  outline-offset: 1px;
+}
+
+.xen-dj-rubric-btn.is-tracks.is-active {
+  background: #0f3842;
+  border-color: rgba(82, 229, 212, 0.58);
+  color: #ecfffc;
+}
+
+.xen-dj-rubric-btn.is-bus-rfl.is-active {
+  background: rgba(58, 36, 98, 0.86);
+  border-color: rgba(167, 139, 250, 0.68);
+  color: #f3ecff;
+}
+
+.xen-dj-rubric-btn.is-bus-bass.is-active {
+  background: rgba(78, 46, 16, 0.86);
+  border-color: rgba(242, 184, 102, 0.68);
+  color: #fff3dc;
+}
+
+.xen-dj-rubric-btn.is-bus-drum.is-active {
+  background: rgba(12, 58, 62, 0.86);
+  border-color: rgba(79, 227, 210, 0.68);
+  color: #e6fffb;
+}
+
+.xen-dj-rubric-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 999px;
+  opacity: 0.34;
+  flex-shrink: 0;
+  transition: opacity 0.14s ease, box-shadow 0.14s ease;
+}
+
+.xen-dj-rubric-btn.is-engine-on .xen-dj-rubric-dot {
+  opacity: 1;
+  box-shadow: 0 0 6px currentColor;
+}
+
+.xen-dj-strip.is-bus-rfl {
+  border-color: rgba(167, 139, 250, 0.52);
+  box-shadow: inset 0 2px 0 rgba(167, 139, 250, 0.68);
+}
+
+.xen-dj-strip.is-bus-rfl .xen-dj-strip-badge {
+  border-color: rgba(167, 139, 250, 0.72);
+  background: #281a46;
+  color: #ede4ff;
+}
+
+.xen-dj-strip.is-bus-bass {
+  border-color: rgba(242, 184, 102, 0.52);
+  box-shadow: inset 0 2px 0 rgba(242, 184, 102, 0.68);
+}
+
+.xen-dj-strip.is-bus-bass .xen-dj-strip-badge {
+  border-color: rgba(242, 184, 102, 0.72);
+  background: #472410;
+  color: #ffe3b5;
+}
+
+.xen-dj-strip.is-bus-drum {
+  border-color: rgba(79, 227, 210, 0.52);
+  box-shadow: inset 0 2px 0 rgba(79, 227, 210, 0.68);
+}
+
+.xen-dj-strip.is-bus-drum .xen-dj-strip-badge {
+  border-color: rgba(79, 227, 210, 0.72);
+  background: #0d3c42;
+  color: #d6fff9;
+}
+
+.xen-dj-strip-title-row {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  min-width: 0;
+}
+
+.xen-dj-bus-metric {
+  display: inline-flex;
+  align-items: center;
+  padding: 0 4px;
+  border-radius: 3px;
+  border: 1px solid rgba(110, 168, 178, 0.34);
+  background: rgba(6, 15, 22, 0.85);
+  color: #9ed4da;
+  font-size: 8px;
+  font-weight: 700;
+  line-height: 1.35;
+  flex-shrink: 0;
+}
+
+.xen-dj-bus-metric.is-poly {
+  border-color: rgba(242, 184, 102, 0.56);
+  color: #fad396;
+}
+
+.xen-dj-loop-ruler.is-bus-ruler,
+.xen-dj-time-rail-track.is-bus-rail {
+  cursor: default;
+}
+
+.xen-dj-bus-power-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  width: 100%;
+  height: 21px;
+  border-radius: 3px;
+  border: 1px solid rgba(82, 134, 144, 0.34);
+  background: #08121a;
+  color: #7c9da5;
+  font-size: 8.5px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  cursor: pointer;
+  transition: background 0.12s ease, border-color 0.12s ease, color 0.12s ease;
+}
+
+.xen-dj-bus-power-btn:hover {
+  border-color: rgba(140, 210, 214, 0.58);
+  color: #e2f8f8;
+}
+
+.xen-dj-bus-power-btn.is-bus-rfl.is-on {
+  border-color: rgba(167, 139, 250, 0.72);
+  background: rgba(54, 34, 92, 0.86);
+  color: #f4eeff;
+}
+
+.xen-dj-bus-power-btn.is-bus-bass.is-on {
+  border-color: rgba(242, 184, 102, 0.72);
+  background: rgba(82, 46, 16, 0.86);
+  color: #fff4df;
+}
+
+.xen-dj-bus-power-btn.is-bus-drum.is-on {
+  border-color: rgba(79, 227, 210, 0.72);
+  background: rgba(12, 62, 66, 0.86);
+  color: #e4fffb;
+}
+
+.xen-dj-bus-power-led {
+  width: 6px;
+  height: 6px;
+  border-radius: 999px;
+  background: #405962;
+  flex-shrink: 0;
+}
+
+.xen-dj-bus-power-btn.is-on .xen-dj-bus-power-led {
+  box-shadow: 0 0 6px currentColor;
+}
+
+.xen-dj-strip.is-bus-strip .xen-dj-fader-bay {
+  margin-top: auto;
+}
+
+

@@ -447,6 +447,33 @@ const __XenMaterialLivePhase=(()=>{
   }
  });
 })();
+/* MIX-PHASE-02: Passive, zero-allocation live WebAudio phase observer for Root Follow Loop (RFL).
+   Mirrors __XenMaterialLivePhase: reads only ctx.currentTime + RFL's real transportAnchor & cycle duration. */
+const __XenRflLivePhase=(()=>{
+ let cur=null;
+ return Object.freeze({
+  update(info){
+   if(!info||!info.ctx||!(info.durationSec>0)){cur=null;return}
+   cur={...info};
+  },
+  clear(token){if(!cur)return;if(token===undefined||cur.token===token)cur=null},
+  snapshot:()=>cur,
+  read(){
+   if(!cur||!cur.ctx||cur.ctx.state!=='running'||!Number.isFinite(cur.anchorSec)||!(cur.durationSec>0)){
+    return {state:'idle',progress01:0,bars:cur?.bars||1,rawBars:cur?.rawBars||null};
+   }
+   const now=cur.ctx.currentTime;
+   if(now<cur.anchorSec)return {state:'armed',progress01:0,bars:cur.bars||1,rawBars:cur.rawBars||null,waitSec:cur.anchorSec-now};
+   const dur=Math.max(1e-4,cur.durationSec);
+   const bpm=Math.max(40,cur.bpm||108);
+   const elapsed=(typeof __XenLiveTempo!=='undefined'&&typeof __XenLiveTempo.warpElapsed==='function')
+    ?__XenLiveTempo.warpElapsed(now,cur.anchorSec,bpm)
+    :(now-cur.anchorSec);
+   const pos=((elapsed%dur)+dur)%dur;
+   return {state:'playing',progress01:Math.max(0,Math.min(1,pos/dur)),bars:cur.bars||1,rawBars:cur.rawBars||null,durationSec:dur,entryId:cur.entryId||null};
+  }
+ });
+})();
 /* P9-C1: detach ownership immediately, release the complete captured graph after its fade.
    A replacement voice may already own these refs when the old callback runs. */
 function cV(refs){const source=refs.sourceRef.current,gain=refs.gainRef.current,pitch=refs.pitchRef?.current,pan=refs.panRef?.current;__XenMaterialLivePhase.release(gain);pan?.__xenMaterialPanOff?.();if(pan)pan.__xenMaterialPanOff=null;refs.sourceRef.current=null;refs.gainRef.current=null;if(refs.pitchRef)refs.pitchRef.current=null;if(refs.panRef)refs.panRef.current=null;source?.__xenMaterialTransportOff?.();if(source)source.__xenMaterialTransportOff=null;if(pitch){pitch.__xenMaterialPitchOff?.();pitch.__xenMaterialPitchOff=null}if(source)sV('material-track-source-stopped');if(gain)lV('material-track-gain-disconnected');__f49FadeAndRelease(gain,.012,()=>{try{source?.__xenLRF5PhaseDispose?.()}catch{}try{source?.stop()}catch{}try{source?.disconnect()}catch{}try{pitch?.disconnect()}catch{}try{pan?.disconnect()}catch{}try{gain?.disconnect()}catch{}gain?.__xenEQDevice?.dispose()})}/* LRF5: detached candidate graph. The published refs remain the audible owner until
@@ -520,10 +547,10 @@ function __xenLRF5MaterialStop(refs){
    their own EQ key, pan binding and output route. */
 function __xenMaterialLaneChain(ctx,{source,pitchNode=null,gain,panValue=0,onPan,eqKey,route}){
  source.connect(pitchNode??gain);if(pitchNode)pitchNode.connect(gain);
- const pan=typeof ctx.createStereoPanner==='function'?ctx.createStereoPanner():null;
- if(pan){pan.pan.value=panValue;gain.connect(pan);onPan?.(pan)}
+ const pan=typeof __xenCreateBalancePanner==='function'?__xenCreateBalancePanner(ctx,panValue):(typeof ctx.createStereoPanner==='function'?ctx.createStereoPanner():null);
+ if(pan){if(!pan.input)pan.pan.value=panValue;gain.connect(pan.input??pan);onPan?.(pan)}
  const eq=__XenEQ.create(ctx,eqKey);
- (pan??gain).connect(eq.input);gain.__xenEQDevice=eq;
+ (pan?.output??pan??gain).connect(eq.input);gain.__xenEQDevice=eq;
  route(eq.output);
  return {pan,eq,output:eq.output};
 }

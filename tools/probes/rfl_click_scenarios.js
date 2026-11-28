@@ -90,7 +90,7 @@ module.exports=({p,canvasBox})=>{
         if(this.__f49DCGuard&&this.__f49DCGuard===dest&&!this.__rflTapped){this.__rflTapped=1;T.buses++;tap(this,'bus');T.bus=this;
           const g=this.gain;for(const m of['setValueAtTime','linearRampToValueAtTime','setTargetAtTime','cancelScheduledValues']){const o=g[m];g[m]=function(){T.busCalls.push([m,this.context?.currentTime??0,...[...arguments].map(x=>+(+x).toFixed(4))]);return o.apply(this,arguments)}}}
         else if(this.__rflTapped&&dest instanceof BiquadFilterNode){}
-        else if(dest instanceof StereoPannerNode&&this instanceof BiquadFilterNode&&this.type==='highpass'&&this.frequency.value===3&&!dest.__rflTapped){dest.__rflTapped=1;panNode=dest;tap(dest,'pan')}
+        else if((dest instanceof StereoPannerNode||dest.__xenPanOutput)&&this instanceof BiquadFilterNode&&this.type==='highpass'&&this.frequency.value===3&&!dest.__rflTapped){dest.__rflTapped=1;panNode=dest.__xenPanOutput||dest;tap(panNode,'pan')}
         else if(this===panNode&&dest instanceof AudioWorkletNode&&!dest.__rflTapped){dest.__rflTapped=1;tap(dest,'pitch')}
       }catch(e){}return r};
       const os=AudioBufferSourceNode.prototype.start,ot=AudioBufferSourceNode.prototype.stop;

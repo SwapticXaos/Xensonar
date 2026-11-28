@@ -3,6 +3,7 @@ audit_1117_capture_pool.test.cjs
 avalanche_eq_runtime.cjs
 avalanche_routes.cjs
 avalanche_worker_slices.cjs
+balance_panner.test.cjs
 bass_tuning_identity.test.cjs
 build_flavours.cjs
 carrier_polyphony_r2.test.cjs
